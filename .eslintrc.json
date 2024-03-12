@@ -1,0 +1,7 @@
+{
+	"root": true,
+	"extends": ["neon/common", "neon/node", "neon/prettier"],
+	"rules": {
+		"unicorn/prefer-node-protocol": "off"
+	}
+}

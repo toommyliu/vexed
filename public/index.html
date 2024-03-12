@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>Arcana</title>
+	<style>
+		html,
+		body {
+			overflow: hidden;
+			height: 100%;
+			width: 100%;
+			margin: 0;
+		}
+
+		.container {
+			height: 97%;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container">
+		<object codebase="https://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,28,0"
+			height="100%" width="100%">
+			<param name="allowScriptAccess" value="always" />
+			<embed id="swf" src="skua.swf" loop="false"
+				pluginspage="https://www.adobe.com/shockwave/download/download.cgi?P1_Prod_Version=ShockwaveFlash"
+				type="application/x-shockwave-flash" allowScriptAccess="always" allowFullScreen="true" quality="low"
+				scale="exactfit" wmode="window" menu="false" height="100%" width="100%" </embed>
+		</object>
+	</div>
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/fengari-web@0.1.4/dist/fengari-web.min.js"></script>
+<script>
+	// skua swf calls this
+	function requestLoadGame() {
+		// so we call this
+		window.swf.loadClient();
+	}
+
+	window.lua_ready = false;
+	window.load_lua_runtime = function () {
+		if (window.lua_ready) {
+			return;
+		}
+
+		const fwddec = require('./lua/fwddec');
+		const { fengari } = window;
+
+		for (const tbl of Object.keys(fwddec)) {
+			window[tbl] = fwddec[tbl];
+
+			// push the table
+			fengari.interop.push(fengari.L, window[tbl]);
+			// set the variable
+			fengari.lua.lua_setglobal(fengari.L, fengari.to_luastring(tbl));
+		}
+
+		window.lua_ready = true;
+	}
+
+	function executeLua(code) {
+		if (!window.lua_ready) {
+			window.load_lua_runtime();
+		}
+
+		return fengari.load(code)();
+	}
+</script>
+
+</html>
