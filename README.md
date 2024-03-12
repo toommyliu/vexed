@@ -13,3 +13,4 @@ scripts will be implemented through lua via [fengari](https://fengari.io).
 # credits
 
 [skua](https://github.com/BrenoHenrike/Skua) - their swf
+[grimoire](https://github.com/GentleGanku/GrimliteRev) - their swf
