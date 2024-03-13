@@ -7,6 +7,7 @@ const inventory = require('./inventory');
 const map = require('./map');
 const player = require('./player');
 const shop = require('./shop');
+const temp_inventory = require('./temp_inventory');
 
 module.exports = {
 	auth,
