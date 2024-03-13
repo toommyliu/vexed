@@ -93,6 +93,18 @@ class map {
 	}
 
 	// TODO: get map items by using FFDEC
+
+	static walk_to(x, y, speed = 8) {
+		try {
+			window.swf.walkTo(x, y, speed);
+		} catch {}
+	}
+
+	static set_spawn_point(cell, pad) {
+		try {
+			window.swf.callGameFunction('world.setSpawnPoint', cell, pad);
+		} catch {}
+	}
 }
 
 module.exports = map;
