@@ -174,13 +174,6 @@ class player {
 		}
 	}
 
-	// TOOD:
-	static set_walk_speed(speed) {
-		try {
-			window.swf.callGameFunction('world.WALKSPEED');
-		} catch {}
-	}
-
 	static get_scale() {
 		try {
 			return JSON.parse(window.swf.getGameObject('world.SCALE'));

@@ -40,6 +40,18 @@ class client {
 			window.swf.killLag(enable);
 		} catch {}
 	}
+
+	static set_fps(value) {
+		try {
+			window.swf.setGameObject('stage.frameRate', value);
+		} catch {}
+	}
+
+	static set_walk_speed(value) {
+		try {
+			window.swf.setGameObject('world.WALKSPEED', value);
+		} catch {}
+	}
 }
 
 module.exports = client;
