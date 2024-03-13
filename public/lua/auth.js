@@ -58,6 +58,12 @@ class auth {
 			return undefined;
 		}
 	}
+
+	static login(username, password) {
+		try {
+			window.swf.callGameFunction('login', username, password);
+		} catch {}
+	}
 }
 
 module.exports = auth;
