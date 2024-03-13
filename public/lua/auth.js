@@ -34,6 +34,30 @@ class auth {
 			return JSON.parse(window.swf.clickServer(server));
 		} catch {}
 	}
+
+	static get_server_ip() {
+		try {
+			return JSON.parse(window.swf.getGameObjectS('serverIP'));
+		} catch {
+			return '';
+		}
+	}
+
+	static get_username() {
+		try {
+			return JSON.parse(window.swf.getGameObjectS('loginInfo.strUsername'));
+		} catch {
+			return undefined;
+		}
+	}
+
+	static get_password() {
+		try {
+			return JSON.parse(window.swf.getGameObjectS('loginInfo.strPassword'));
+		} catch {
+			return undefined;
+		}
+	}
 }
 
 module.exports = auth;
