@@ -1,3 +1,6 @@
+const map = require('./map');
+const packet = require('./packet');
+
 class bank {
 	static get_items() {
 		try {
@@ -23,6 +26,25 @@ class bank {
 		}
 	}
 
+	static is_open() {
+		try {
+			const lbl = JSON.parse(window.swf.getGameObject('ui.mcPopup.currentLabel'));
+			return lbl === 'Bank';
+		} catch {
+			return false;
+		}
+	}
+
+	static open() {
+		try {
+			window.swf.callGameFunction('world.toggleBank');
+		} catch {}
+	}
+
+	static load() {
+		packet.send(`%xt%zm%loadBank%${map.get_id()}%All%`);
+	}
+
 	static to_bank(name) {
 		// TODO: implement
 	}
@@ -42,14 +64,8 @@ class bank {
 				return item;
 			}
 		}
-		
-		return null;
-	}
 
-	static render() {
-		try {
-			window.swf.callGameFunction('world.toggleBank');
-		} catch {}
+		return null;
 	}
 }
 
