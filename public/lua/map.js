@@ -39,11 +39,13 @@ class map {
 		}
 	}
 
-	static get_players() {
+	static get_player_names() {
 		try {
 			return JSON.parse(window.swf.getGameObject('world.areaUsers'));
 		} catch {
-			return undefined;
+			return [];
+		}
+	}
 		}
 	}
 
