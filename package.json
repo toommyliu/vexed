@@ -5,6 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "prebuild": "bun ./scripts/kill",
+	"start": "electron .",
     "build": "bun run prebuild && electron-forge package --arch=\"x64\" && bun run run",
     "run": "bun ./scripts/start",
     "format": "prettier --write --plugin-search-dir=. ."
@@ -19,7 +20,7 @@
     "@commitlint/cli": "^18.0.0",
     "@commitlint/config-angular": "^18.0.0",
     "@electron-forge/cli": "^6.4.2",
-    "electron": "11.5.0",
+    "electron": "^29.1.4",
     "eslint": "^8.52.0",
     "eslint-config-neon": "^0.1.57",
     "husky": "^8.0.3",
