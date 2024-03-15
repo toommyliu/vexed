@@ -13,7 +13,7 @@ class inventory {
 
 	static get_item(name) {
 		const items = inventory.get_items();
-		for (const item of items) {
+		return items.find((item) => {
 			if (typeof name === 'string' && item.sName.toLowerCase() === name.toLowerCase()) {
 				return item;
 			}
@@ -21,9 +21,7 @@ class inventory {
 			if (typeof name === 'number' && item.ItemID === name) {
 				return item;
 			}
-		}
-
-		return null;
+		});
 	}
 
 	static get_total_slots() {

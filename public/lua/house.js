@@ -17,13 +17,15 @@ class house {
 
 	static get_item(name) {
 		const items = house.get_items();
-		for (const item of items) {
-			if (item.sName?.toLowerCase() === name?.toLowerCase()) {
+		return items.find((item) => {
+			if (typeof name === 'string' && item.sName.toLowerCase() === name.toLowerCase()) {
 				return item;
 			}
-		}
-	
-		return null;
+
+			if (typeof name === 'number' && item.ItemID === name) {
+				return item;
+			}
+		});
 	}
 }
 
