@@ -59,13 +59,7 @@ class bank {
 
 	static get_item(name) {
 		const items = bank.get_items();
-		for (const item of items) {
-			if (items.sName?.toLowerCase() === name?.toLowerCase()) {
-				return item;
-			}
-		}
-
-		return null;
+		return items.find((item) => item?.sName?.toLowerCase() === name?.toLowerCase());
 	}
 }
 
