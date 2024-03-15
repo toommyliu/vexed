@@ -20,17 +20,34 @@
 </head>
 
 <body>
-	<div class="container">
-		<object codebase="https://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,28,0"
-			height="100%" width="100%">
-			<param name="allowScriptAccess" value="always" />
-			<embed id="swf" src="skua.swf" loop="false"
-				pluginspage="https://www.adobe.com/shockwave/download/download.cgi?P1_Prod_Version=ShockwaveFlash"
-				type="application/x-shockwave-flash" allowScriptAccess="always" allowFullScreen="true" quality="low"
-				scale="exactfit" wmode="window" menu="false" height="100%" width="100%" </embed>
-		</object>
-	</div>
+	<div id="container"></div>
 </body>
+
+<script>
+	window.RufflePlayer = window.RufflePlayer || {};
+	window.RufflePlayer.config = {
+		"width": 1150,
+		"height": 750,
+		"allowScriptAccess": true,
+		"allowSameOrigin": true,
+		"autoplay": "auto",
+		"wmode": "window",
+		"letterbox": "fullscreen",
+		"contextMenu": "off",
+		"showSwfDownload": false,
+	};
+	window.addEventListener("load", (event) => {
+		const ruffle = window.RufflePlayer.newest();
+		const player = ruffle.createPlayer();
+		const container = document.getElementById("container");
+		container.appendChild(player);
+		player.load('https://github.com/toommyliu/arcana/raw/main/public/skua.swf');
+		setTimeout(() => {
+			document.querySelector("#container > ruffle-player").loadClient();
+		}, 5_000);
+	});
+</script>
+<script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
 
 <script src="./flash.js"></script>
 <script src="./lua.js"></script>
