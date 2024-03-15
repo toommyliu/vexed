@@ -1,3 +1,4 @@
+const inventory = require('./inventory');
 const map = require('./map');
 const packet = require('./packet');
 
@@ -45,16 +46,22 @@ class bank {
 		packet.send(`%xt%zm%loadBank%${map.get_id()}%All%`);
 	}
 
-	static to_bank(name) {
-		// TODO: implement
-	}
-
 	static to_inventory(name) {
-		// TODO: implement
+		const item = bank.get_item(name);
+		if (item) {
+			packet.send(`%xt%zm%bankToInv%${map.get_id()}%${item.ItemID}%${item.CharItemID}%`);
+		}
 	}
 
-	static swap(item_1, item_2) {
-		// TODO: implement
+	static swap(name_1 /* bank */, name_2 /* inventory */) {
+		const item_1 = bank.get_item(name_1);
+		const item_2 = inventory.get_item(name_2);
+
+		if (item_1 && item_2) {
+			packet.send(
+				`%xt%zm%bankSwapInv%${map.get_id()}%${item_2.ItemID}%${item_2.CharItemID}%${item_1.ItemID}%${item_1.CharItemID}%`,
+			);
+		}
 	}
 
 	static get_item(name) {
