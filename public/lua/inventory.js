@@ -1,3 +1,7 @@
+const bank = require('./bank');
+const map = require('./map');
+const packet = require('./packet');
+
 class inventory {
 	static get_items() {
 		try {
@@ -36,6 +40,27 @@ class inventory {
 		} catch {
 			return -1;
 		}
+	}
+
+	static equip(name) {
+		const item = inventory.get_item(name);
+		if (item) {
+			const item_json = { ItemID: Number.parseInt(item.ItemID, 10) };
+			try {
+				window.swf.callGameFunction('world.sendEquipItemRequest', item_json);
+			} catch {}
+		}
+	}
+
+	static to_bank(name) {
+		const item = inventory.get_item(name);
+		if (item) {
+			packet.send(`%xt%zm%bankFromInv%${map.get_id()}%${item.ItemID}%${item.CharItemID}%`);
+		}
+	}
+
+	static swap(name_1 /* inventory */, name_2 /* bank */) {
+		bank.swap(name_2, name_1);
 	}
 }
 
