@@ -46,6 +46,12 @@ class map {
 			return [];
 		}
 	}
+
+	static get_players() {
+		try {
+			return JSON.parse(window.swf.getGameObject('world.uoTree'));
+		} catch {
+			return [];
 		}
 	}
 
