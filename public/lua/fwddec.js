@@ -6,6 +6,7 @@ const factions = require('./factions');
 const house = require('./house');
 const inventory = require('./inventory');
 const map = require('./map');
+const monsters = require('./monsters');
 const packet = require('./packet');
 const player = require('./player');
 const quests = require('./quests');
@@ -21,6 +22,7 @@ module.exports = {
 	house,
 	inventory,
 	map,
+	monsters,
 	packet,
 	player,
 	quests,
