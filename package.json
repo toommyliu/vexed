@@ -19,7 +19,11 @@
   "keywords": [],
   "license": "MIT",
   "scripts": {
-	"start": "electron .",
+    "start": "electron .",
     "format": "prettier --write --plugin-search-dir=. ."
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.3"
   }
 }

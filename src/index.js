@@ -17,10 +17,13 @@ app.once('ready', async () => {
 
 	session.defaultSession.webRequest.onBeforeRequest((details, callback) => {
 		if (details.url.startsWith('https://game.aq.com')) {
-			console.log(details);
-		}
+			const url = new URL('http://localhost:3000/proxy');
+			url.searchParams.append('url', details.url);
 
-		callback({});
+			callback({ redirectURL: url.toString() });
+		} else {
+			callback({});
+		}
 	});
 
 	await window.loadFile(join(__dirname, '../public/index.html'));
