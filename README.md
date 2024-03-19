@@ -18,6 +18,6 @@ scripts will be implemented through lua via [fengari](https://fengari.io).
 
 # disclaimer
 
-this project is strictly for educational purposes only.
+this project is strictly for educational and evaluation purposes only.
 
-the developers of this project are not responsible for any consequences that may occur. please be responsible and abide by the game's terms of service.
+no responsibility is held or accepted for misuse of this application. use at your own risk.
