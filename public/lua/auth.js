@@ -32,14 +32,16 @@ class auth {
 	static click_server(server) {
 		try {
 			return JSON.parse(window.swf.clickServer(server));
-		} catch {}
+		} catch {
+			return false;
+		}
 	}
 
 	static get_server_ip() {
 		try {
 			return JSON.parse(window.swf.getGameObjectS('serverIP'));
 		} catch {
-			return '';
+			return undefined;
 		}
 	}
 
