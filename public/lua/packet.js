@@ -23,31 +23,31 @@ class packet {
 		} catch {}
 	}
 
-	static send_server(msg, sent_by = 'arcana') {
+	static send_server(msg, sent_by = 'vexed') {
 		packet.send_msg(msg, sent_by, 'server');
 	}
 
-	static send_moderator(msg, sent_by = 'arcana') {
+	static send_moderator(msg, sent_by = 'vexed') {
 		packet.send_msg(msg, sent_by, 'moderator');
 	}
 
-	static send_warning(msg, sent_by = 'arcana') {
+	static send_warning(msg, sent_by = 'vexed') {
 		packet.send_msg(msg, sent_by, 'warning');
 	}
 
-	static send_event(msg, sent_by = 'arcana') {
+	static send_event(msg, sent_by = 'vexed') {
 		packet.send_msg(msg, sent_by, 'event');
 	}
 
-	static send_guild(msg, sent_by = 'arcana') {
+	static send_guild(msg, sent_by = 'vexed') {
 		packet.send_msg(msg, sent_by, 'guild');
 	}
 
-	static send_whisper(msg, sent_by = 'arcana') {
+	static send_whisper(msg, sent_by = 'vexed') {
 		packet.send_msg(msg, sent_by, 'whisper');
 	}
 
-	static send_zone(msg, sent_by = 'arcana') {
+	static send_zone(msg, sent_by = 'vexed') {
 		packet.send_msg(msg, sent_by, 'zone');
 	}
 }

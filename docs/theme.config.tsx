@@ -1,11 +1,11 @@
 import type { DocsThemeConfig } from 'nextra-theme-docs';
 
 export default {
-	logo: <span>arcana</span>,
+	logo: <span>vexed</span>,
 	project: {
-		link: 'https://github.com/toommyliu/arcana',
+		link: 'https://github.com/toommyliu/vexed',
 	},
-	docsRepositoryBase: 'https://github.com/toommyliu/arcana',
+	docsRepositoryBase: 'https://github.com/toommyliu/vexed',
 	// disable "Edit this page"
 	editLink: {
 		component: null,

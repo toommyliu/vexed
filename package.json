@@ -1,7 +1,5 @@
 {
-  "name": "arcana",
-  "version": "1.0.0",
-  "description": "",
+  "name": "vexed",
   "main": "src/index.js",
   "scripts": {
     "prebuild": "bun ./scripts/kill",
@@ -9,9 +7,6 @@
     "run": "bun ./scripts/start",
     "format": "prettier --write --plugin-search-dir=. ."
   },
-  "keywords": [],
-  "author": "",
-  "license": "MIT",
   "dependencies": {
     "nw-flash-trust": "^0.3.0"
   },
