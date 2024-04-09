@@ -1,0 +1,79 @@
+# auth
+
+## auth:is_logged_in()
+```lua
+bool auth:is_logged_in()
+```
+
+## auth:is_kicked()
+```lua
+bool auth:is_kicked()
+```
+
+## auth:get_servers()
+```lua
+table<number, Server> auth:get_servers()
+```
+
+### Server type
+```lua
+--[[
+	bOnline
+	bUpg
+	iChat
+	iCount
+	iLevel
+	iMax
+	iPort
+	sIP
+	sLang
+	sName
+]]
+```
+
+### example
+```lua
+-- get the list of online server names
+for k, v in ipairs(auth:get_servers()) do
+	if v.sOnline then
+		print(v.sName)
+	end
+end
+```
+
+## auth:connect_to
+```lua
+bool auth:connect_to(string server)
+
+-- takes a Server object, as a string
+```
+
+## auth:click_server
+```lua
+bool auth:click_server(string server_name)
+```
+
+## auth:get_server_ip()
+```lua
+string auth:get_server_ip()
+```
+
+## auth:get_username()
+```lua
+string auth:get_username()
+```
+
+## auth:get_password()
+```lua
+string auth:get_password()
+```
+
+## auth:login()
+```lua
+void auth:login(string username, string password)
+```
+
+## auth:logout()
+```lua
+void auth:logout()
+```
