@@ -1,5 +1,8 @@
 node_modules/
 
+# other
+.DS_Store
+
 # builds
 .next/
 .turbo/
