@@ -1,24 +1,8 @@
 {
-  "name": "vexed",
-  "main": "src/index.js",
-  "scripts": {
-    "prebuild": "bun ./scripts/kill",
-    "build": "bun run prebuild && electron-forge package --arch=\"x64\" && bun run run",
-    "run": "bun ./scripts/start",
-    "format": "prettier --write --plugin-search-dir=. ."
-  },
-  "dependencies": {
-    "nw-flash-trust": "^0.3.0"
-  },
-  "devDependencies": {
-    "@commitlint/cli": "^18.0.0",
-    "@commitlint/config-angular": "^18.0.0",
-    "@electron-forge/cli": "^6.4.2",
-    "electron": "11.5.0",
-    "eslint": "^8.52.0",
-    "eslint-config-neon": "^0.1.57",
-    "husky": "^8.0.3",
-    "prettier": "^3.0.3",
-    "prettier-eslint": "^16.1.1"
-  }
+	"name": "@vexed/vexed",
+	"private": true,
+	"packageManager": "pnpm@8.15.6",
+	"workspaces": [
+		"apps/*"
+	]
 }

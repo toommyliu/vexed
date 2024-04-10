@@ -1,8 +1,7 @@
-FFDec.app
-node_modules
-out
-package-lock.json
-bun.lockb
-.DS_Store
+node_modules/
 
-as3/
+# builds
+.next/
+.turbo/
+dist/
+out/
