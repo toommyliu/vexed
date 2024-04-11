@@ -8,3 +8,5 @@ node_modules/
 .turbo/
 dist/
 out/
+
+.nx/cache

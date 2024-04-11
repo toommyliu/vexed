@@ -1,7 +1,15 @@
 {
 	"name": "@vexed/vexed",
 	"private": true,
-	"packageManager": "pnpm@8.15.6",
+	"license": "",
+	"scripts": {
+		"build": "turbo run build",
+		"lint": "turbo run lint"
+	},
+	"devDependencies": {
+		"turbo": "^1.13.2"
+	},
+	"packageManager": "yarn@1.22.22",
 	"workspaces": [
 		"apps/*"
 	]

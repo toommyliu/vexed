@@ -1,9 +1,6 @@
 {
 	"name": "electron",
 	"main": "src/index.js",
-	"description": "test",
-	"author": "",
-	"version": "1.0.0",
 	"scripts": {
 		"build": "electron-builder build --mac --x64"
 	},
@@ -13,7 +10,7 @@
 	"devDependencies": {
 		"@commitlint/cli": "^18.0.0",
 		"@commitlint/config-angular": "^18.0.0",
-		"@electron-forge/cli": "^7.3.1",
+		"@commitlint/format": "^19.0.3",
 		"electron": "11.5.0",
 		"electron-builder": "^24.13.3",
 		"eslint": "^8.52.0",

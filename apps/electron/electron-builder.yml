@@ -1,0 +1,6 @@
+productName: Vexed
+
+asar: false
+
+mac:
+  target: dir # create a dir with the .app only
