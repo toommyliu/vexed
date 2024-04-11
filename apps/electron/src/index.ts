@@ -1,14 +1,14 @@
-const { join } = require('path');
-const { app, BrowserWindow } = require('electron');
+import { join } from 'path';
+import { app, BrowserWindow } from 'electron';
 
 {
-	const packageJson = require('../package.json');
 	const flashTrust = require('nw-flash-trust');
-
+	// TODO: add checks for app.isPackaged
 	app.commandLine.appendSwitch('ppapi-flash-path', join(__dirname, '../vendor/PepperFlashPlayer.plugin'));
+
 	const flashPath = join(app.getPath('userData'), 'Pepper Data', 'Shockwave Flash', 'WritableRoot');
 
-	const trustManager = flashTrust.initSync(packageJson.name, flashPath);
+	const trustManager = flashTrust.initSync('Vexed', flashPath);
 	trustManager.empty();
 	trustManager.add(join(__dirname, '../public/'));
 }

@@ -3,10 +3,12 @@
 	"version": "0.0.0",
 	"main": "src/index.js",
 	"scripts": {
-		"build": "electron-builder build --mac --x64"
+		"ts:build": "tsc",
+		"build": "yarn ts:build && electron-builder build --mac --x64"
 	},
 	"dependencies": {
-		"nw-flash-trust": "^0.3.0"
+		"nw-flash-trust": "^0.3.0",
+		"wasmoon": "^1.16.0"
 	},
 	"devDependencies": {
 		"@commitlint/cli": "^18.0.0",
@@ -18,6 +20,7 @@
 		"eslint-config-neon": "^0.1.57",
 		"husky": "^8.0.3",
 		"prettier": "^3.0.3",
-		"prettier-eslint": "^16.1.1"
+		"prettier-eslint": "^16.1.1",
+		"typescript": "^5.4.5"
 	}
 }

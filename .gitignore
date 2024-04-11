@@ -1,5 +1,7 @@
 node_modules/
 
+app/electron/src/*.js
+
 # other
 .DS_Store
 
