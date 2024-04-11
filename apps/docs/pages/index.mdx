@@ -1,35 +1,27 @@
-## about
-
 Vexed is a scripting client for AQW, specifically for macOS users.
 
-tested specifically on Apple Silicon, but it should work on Intel environments, too.
+It's been tested on Apple Silicon and works through the power of Rosetta; untested on Intel. In the future, the goal is to use Ruffle
+to emulate Flash: see [#4](https://github.com/toommyliu/vexed/pull/4).
 
-in the future, the goal is to have it run as an universal app; see [#4](https://github.com/toommyliu/vexed/pull/4)
+## Usage
 
-## usage
+Currently, the only way to use Vexed is by compiling the source yourself.
 
-currently, the only way to use vexed is by compiling the source yourself.
+1. Clone the repository
+2. Install dependencies with **yarn**
+    - If you try other package managers (npm, pnpm, bun), you may encounter further issues
+3. Run the build script
 
-if you have some js/node knowledge. you can simply:
+## Credits
 
-1. clone the repo
-2. install dependencies
-3. run build script
-    - the package.json scripts use bun, use npm if you prefer.
-	- the build script may complain about git and node not being installed, install them too.
+Most of this project wouldn't exist without the pre-existing alternatives for Windows users. 
 
-in the future, builds will be distributed through github releases.
+- [Skua](https://github.com/BrenoHenrike/Skua)
 
-## credits
+- [Grimoire](https://github.com/GentleGanku/GrimliteRev)
 
-most of this project wouldn't exist without the pre-existing alternatives for Windows users.
+## Disclaimer
 
-[skua](https://github.com/BrenoHenrike/Skua)
+This project is strictly for educational and evaluation prposes only.
 
-[grimoire](https://github.com/GentleGanku/GrimliteRev)
-
-## disclaimer
-
-this project is strictly for educational and evaluation purposes only.
-
-no responsibility is held or accepted for misuse of this application. use at your own risk.
+No responsibility is held or accepted for misuse of this application. Use at your own risk.
