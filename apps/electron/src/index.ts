@@ -24,13 +24,16 @@ app.once('ready', async () => {
 		},
 	});
 
+	const userAgent =
+		'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ArtixGameLauncher/2.0.9 Chrome/80.0.3987.163 Electron/8.5.5 Safari/537.36';
+
+	window.webContents.setUserAgent(userAgent);
 	session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
-		details.requestHeaders['User-Agent'] =
-			'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ArtixGameLauncher/2.0.9 Chrome/80.0.3987.163 Electron/8.5.5 Safari/537.36';
-		callback({ requestHeaders: details.requestHeaders });
+		details.requestHeaders['User-Agent'] = userAgent;
+		callback({ requestHeaders: details.requestHeaders, cancel: false });
 	});
 
-	await window.loadFile(join(__dirname, '../public/index.html'));
+	await window.loadFile(join(__dirname, '../public/index.html'), {});
 
 	window.setTitle('');
 
