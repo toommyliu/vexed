@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, session } from 'electron';
 
 {
 	const flashTrust = require('nw-flash-trust');
@@ -15,17 +15,20 @@ import { app, BrowserWindow } from 'electron';
 
 app.once('ready', async () => {
 	const window = new BrowserWindow({
-		width: 960,
-		height: 550,
+		width: 1024,
+		height: 576,
 		webPreferences: {
-			contextIsolation: false,
-			enableRemoteModule: true,
-			nodeIntegration: true,
+			contextIsolation: true,
+			sandbox: true,
 			plugins: true,
 		},
 	});
 
+	session
+
 	await window.loadFile(join(__dirname, '../public/index.html'));
+
+	window.setTitle('');
 
 	window.webContents.openDevTools({ mode: 'detach' });
 });
