@@ -1,7 +1,10 @@
 import { join } from 'path';
 import { app, BrowserWindow, session } from 'electron';
 
-{
+const userAgent =
+	'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ArtixGameLauncher/2.0.9 Chrome/80.0.3987.163 Electron/8.5.5 Safari/537.36';
+
+function registerFlashImpl() {
 	const flashTrust = require('nw-flash-trust');
 	// TODO: add checks for app.isPackaged
 	app.commandLine.appendSwitch('ppapi-flash-path', join(__dirname, '../vendor/PepperFlashPlayer.plugin'));
@@ -10,8 +13,10 @@ import { app, BrowserWindow, session } from 'electron';
 
 	const trustManager = flashTrust.initSync('Vexed', flashPath);
 	trustManager.empty();
-	trustManager.add(join(__dirname, '../public/'));
+	trustManager.add(join(__dirname, '../grimoire.swf'));
 }
+
+registerFlashImpl();
 
 app.once('ready', async () => {
 	const window = new BrowserWindow({
@@ -19,13 +24,10 @@ app.once('ready', async () => {
 		height: 576,
 		webPreferences: {
 			contextIsolation: true,
-			sandbox: true,
 			plugins: true,
+			preload: join(__dirname, './preload.js'),
 		},
 	});
-
-	const userAgent =
-		'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ArtixGameLauncher/2.0.9 Chrome/80.0.3987.163 Electron/8.5.5 Safari/537.36';
 
 	window.webContents.setUserAgent(userAgent);
 	session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
@@ -33,7 +35,7 @@ app.once('ready', async () => {
 		callback({ requestHeaders: details.requestHeaders, cancel: false });
 	});
 
-	await window.loadFile(join(__dirname, '../public/index.html'), {});
+	await window.loadFile(join(__dirname, '../index.html'));
 
 	window.setTitle('');
 
