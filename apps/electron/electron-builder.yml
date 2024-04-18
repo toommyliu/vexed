@@ -15,7 +15,8 @@ files:
   - '!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}'
   - '!**/{appveyor.yml,.travis.yml,circle.yml}'
   - '!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}'
-  - '!**/*.ts'
+  - '!**/*.ts' # ignore root ts files
+  - '!**/{tsconfig.json,README.md}' # ignore from root project
 
 mac:
   target: dir # create a dir with the .app only
