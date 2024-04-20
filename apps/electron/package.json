@@ -7,8 +7,7 @@
 		"build": "pnpm ts:build && electron-builder build"
 	},
 	"dependencies": {
-		"nw-flash-trust": "^0.3.0",
-		"wasmoon": "^1.16.0"
+		"nw-flash-trust": "^0.3.0"
 	},
 	"devDependencies": {
 		"@commitlint/cli": "^18.0.0",
@@ -20,6 +19,7 @@
 		"husky": "^8.0.3",
 		"prettier": "^3.0.3",
 		"prettier-eslint": "^16.1.1",
-		"typescript": "^5.4.5"
+		"typescript": "^5.4.5",
+		"wasmoon": "^1.16.0"
 	}
 }

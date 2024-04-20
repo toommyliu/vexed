@@ -2,8 +2,6 @@
 <html>
 
 <head>
-	<meta charset="UTF-8">
-	<title>Vexed</title>
 	<style>
 		html,
 		body {
@@ -13,7 +11,7 @@
 			overflow: hidden;
 		}
 
-		.container {
+		#container {
 			height: 100%;
 		}
 
@@ -25,10 +23,9 @@
 </head>
 
 <body>
-	<div class="container">
-		<embed id="swf" src="grimoire.swf"
-			pluginspage="https://www.adobe.com/shockwave/download/download.cgi?P1_Prod_Version=ShockwaveFlash"
-			type="application/x-shockwave-flash" allowScriptAccess="always" allowFullScreen="true" quality="low" />
+	<div id="container">
+		<embed id="swf" src="grimoire.swf" type="application/x-shockwave-flash" allowScriptAccess="always"
+			allowFullScreen="true" quality="low" />
 	</div>
 
 	<script src="dist/renderer/index.js"></script>
