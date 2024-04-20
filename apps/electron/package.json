@@ -4,7 +4,7 @@
 	"main": "dist/index.js",
 	"scripts": {
 		"ts:build": "tsc",
-		"build": "yarn ts:build && electron-builder build"
+		"build": "pnpm ts:build && electron-builder build"
 	},
 	"dependencies": {
 		"nw-flash-trust": "^0.3.0",
