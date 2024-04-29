@@ -1,7 +1,17 @@
 {
 	"productName": "Vexed",
 	"mac": {
-		"files": ["dist/**/*.js", "vendor/", "index.html", "grimoire.swf"],
+		"files": [
+			"dist/**/*.js",
+			{
+				"from": "src/renderer/lua/",
+				"to": "dist/renderer/lua/",
+				"filter": ["**/*.lua"]
+			},
+			"vendor/",
+			"index.html",
+			"grimoire.swf"
+		],
 		"asar": "false",
 		"target": {
 			"target": "dir",

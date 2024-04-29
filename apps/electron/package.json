@@ -4,7 +4,8 @@
 	"main": "dist/index.js",
 	"scripts": {
 		"ts:build": "tsc",
-		"build": "pnpm ts:build && electron-builder build"
+		"build": "pnpm ts:build && electron-builder build",
+		"dev": "nodemon --watch ./src --ext ts,lua --exec \"pnpm run build\""
 	},
 	"dependencies": {
 		"nw-flash-trust": "^0.3.0"
@@ -17,6 +18,7 @@
 		"eslint": "^8.52.0",
 		"eslint-config-neon": "^0.1.57",
 		"husky": "^8.0.3",
+		"nodemon": "^3.1.0",
 		"prettier": "^3.0.3",
 		"prettier-eslint": "^16.1.1",
 		"typescript": "^5.4.5",

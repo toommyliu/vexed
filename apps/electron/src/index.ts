@@ -1,10 +1,44 @@
 import { join } from 'path';
-import { app, BrowserWindow, session } from 'electron';
+import fs from 'fs';
+import { app, BrowserWindow, session, Menu, MenuItem } from 'electron';
 
 const userAgent =
 	'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ArtixGameLauncher/2.0.9 Chrome/80.0.3987.163 Electron/8.5.5 Safari/537.36';
 
 const BRAND = 'Vexed';
+
+Menu.setApplicationMenu(
+	Menu.buildFromTemplate([
+		new MenuItem({
+			label: BRAND,
+			role: 'appMenu',
+		}),
+		new MenuItem({
+			label: 'Scripts',
+			submenu: [
+				{
+					label: 'Load',
+				},
+				{
+					label: 'Console',
+				},
+			],
+		}),
+		new MenuItem({
+			label: 'Tools',
+			submenu: [
+				{
+					label: 'Copy',
+					role: 'copy',
+				},
+				{
+					label: 'Paste',
+					role: 'paste',
+				},
+			],
+		}),
+	]),
+);
 
 function registerFlashPlugin() {
 	const flashTrust = require('nw-flash-trust');
@@ -21,6 +55,8 @@ function registerFlashPlugin() {
 registerFlashPlugin();
 
 app.once('ready', async () => {
+	await fs.promises.mkdir(join(app.getPath('documents'), BRAND, 'Lua Scripts'), { recursive: true });
+
 	const window = new BrowserWindow({
 		width: 1024,
 		height: 576,
