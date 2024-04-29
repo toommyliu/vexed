@@ -1,19 +1,17 @@
 {
 	"name": "@vexed/electron",
 	"version": "0.0.0",
-	"main": "src/index.js",
+	"main": "dist/index.js",
 	"scripts": {
 		"ts:build": "tsc",
-		"build": "yarn ts:build && electron-builder build --mac --x64"
+		"build": "pnpm ts:build && electron-builder build"
 	},
 	"dependencies": {
-		"nw-flash-trust": "^0.3.0",
-		"wasmoon": "^1.16.0"
+		"nw-flash-trust": "^0.3.0"
 	},
 	"devDependencies": {
 		"@commitlint/cli": "^18.0.0",
 		"@commitlint/config-angular": "^18.0.0",
-		"@commitlint/format": "^19.0.3",
 		"electron": "11.5.0",
 		"electron-builder": "^24.13.3",
 		"eslint": "^8.52.0",
