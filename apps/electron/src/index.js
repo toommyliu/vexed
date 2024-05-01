@@ -1,9 +1,9 @@
-import { BrowserWindow, app, session } from 'electron';
-import fs from 'fs';
-import { join } from 'path';
+const fs = require('fs');
+const { join } = require('path');
+const { app, BrowserWindow, session } = require('electron');
 
 const userAgent =
-	'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ArtixGameLauncher/2.0.9 Chrome/80.0.3987.163 Electron/8.5.5 Safari/537.36';
+	'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16_0) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36';
 
 const BRAND = 'Vexed';
 
@@ -14,6 +14,7 @@ function registerFlashPlugin() {
 
 	const flashPath = join(app.getPath('userData'), 'Pepper Data', 'Shockwave Flash', 'WritableRoot');
 
+	// eslint-disable-next-line n/no-sync
 	const trustManager = flashTrust.initSync(BRAND, flashPath);
 	trustManager.empty();
 	trustManager.add(join(__dirname, '../grimoire.swf'));
@@ -25,17 +26,21 @@ app.once('ready', async () => {
 	await fs.promises.mkdir(join(app.getPath('documents'), BRAND, 'Scripts'), { recursive: true });
 
 	const window = new BrowserWindow({
-		width: 1024,
+		width: 1_024,
 		height: 576,
+		title: '',
 		webPreferences: {
 			plugins: true,
+			nodeIntegration: true,
 		},
-		title: '',
 	});
 
 	window.webContents.setUserAgent(userAgent);
+	// eslint-disable-next-line promise/prefer-await-to-callbacks
 	session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
 		details.requestHeaders['User-Agent'] = userAgent;
+		details.requestHeaders.artixmode = 'launcher';
+		// eslint-disable-next-line promise/prefer-await-to-callbacks
 		callback({ requestHeaders: details.requestHeaders, cancel: false });
 	});
 
@@ -44,6 +49,4 @@ app.once('ready', async () => {
 	window.webContents.openDevTools({ mode: 'detach' });
 });
 
-app.on('window-all-closed', () => {
-	app.quit();
-});
+app.on('window-all-closed', app.quit);

@@ -1,7 +1,7 @@
 {
 	"productName": "Vexed",
 	"mac": {
-		"files": ["dist/**/*.js", "vendor/", "index.html", "grimoire.swf"],
+		"files": ["src/**/*.js", "vendor/", "index.html", "grimoire.swf"],
 		"asar": "false",
 		"target": {
 			"target": "dir",

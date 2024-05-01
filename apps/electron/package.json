@@ -1,10 +1,9 @@
 {
 	"name": "@vexed/electron",
 	"version": "0.0.0",
-	"main": "dist/index.js",
+	"main": "src/index.js",
 	"scripts": {
-		"ts:build": "tsc",
-		"build": "pnpm ts:build && electron-builder build"
+		"build": "electron-builder build"
 	},
 	"dependencies": {
 		"nw-flash-trust": "^0.3.0"
@@ -18,7 +17,6 @@
 		"eslint-config-neon": "^0.1.57",
 		"husky": "^8.0.3",
 		"prettier": "^3.0.3",
-		"prettier-eslint": "^16.1.1",
-		"typescript": "^5.4.5"
+		"prettier-eslint": "^16.1.1"
 	}
 }
