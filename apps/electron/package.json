@@ -3,9 +3,13 @@
 	"version": "0.0.0",
 	"main": "src/index.js",
 	"scripts": {
-		"build": "electron-builder build"
+		"electron:dl": "node ./scripts/download-electron.js",
+		"dev": "electron .",
+		"build": "electron-builder"
 	},
 	"dependencies": {
+		"@electron/get": "^3.0.0",
+		"extract-zip": "^2.0.1",
 		"nw-flash-trust": "^0.3.0"
 	},
 	"devDependencies": {
