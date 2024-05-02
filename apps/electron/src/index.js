@@ -54,6 +54,6 @@ app.on('window-all-closed', app.quit);
 try {
 	require('electron-reload')(__dirname, {
 		electron: join(__dirname, 'node_modules', '.bin', 'electron'),
-		paths: [join(__dirname, '../src/renderer')],
+		paths: [join(__dirname, '../src/renderer'), join(__dirname, '../index.html')],
 	});
 } catch {}
