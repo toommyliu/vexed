@@ -2,6 +2,8 @@
 
 // TODO: cleanup
 
+console.log('downloading electron binary...');
+
 const fs = require('fs');
 const path = require('path');
 const extract = require('extract-zip');
