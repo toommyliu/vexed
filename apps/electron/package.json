@@ -3,7 +3,7 @@
 	"version": "0.0.0",
 	"main": "src/index.js",
 	"scripts": {
-		"electron-dl": "node scripts/download-electron.js",
+		"postinstall": "node scripts/postinstall.js",
 		"dev": "electron .",
 		"build": "electron-builder"
 	},
