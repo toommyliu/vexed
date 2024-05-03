@@ -7,19 +7,22 @@
 		overflow: hidden;
 	}
 
-	#container {
-		height: 100%;
-	}
-
 	#swf {
 		width: 100%;
 		height: 100%;
 	}
 </style>
 
+<script src="./src/renderer/auth.js"></script>
+<script src="./src/renderer/bank.js"></script>
+<script src="./src/renderer/flash.js"></script>
+<script src="./src/renderer/house.js"></script>
+<script src="./src/renderer/inventory.js"></script>
 <script src="./src/renderer/jsapi.js"></script>
+<script src="./src/renderer/quests.js"></script>
+<script src="./src/renderer/settings.js"></script>
+<script src="./src/renderer/temp_inventory.js"></script>
+<script src="./src/renderer/world.js"></script>
 
-<div id="container">
-	<embed id="swf" src="grimoire.swf" type="application/x-shockwave-flash" allowScriptAccess="always"
-		allowFullScreen="true" quality="low"></embed>
-</div>
+<embed id="swf" src="grimoire.swf" type="application/x-shockwave-flash" allowScriptAccess="always"
+	allowFullScreen="true" quality="low"></embed>
