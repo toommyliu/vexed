@@ -1,7 +1,0 @@
-{
-	"root": true,
-	"extends": ["neon/common", "neon/node", "neon/prettier", "neon/browser", "neon/typescript"],
-	"rules": {
-		"unicorn/prefer-node-protocol": "off"
-	}
-}
