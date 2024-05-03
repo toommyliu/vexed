@@ -37,7 +37,7 @@ const Flash = {
 	},
 	get(path) {
 		try {
-			return JSON.parse(window.swf.getGameObject(path));
+			return window.swf.getGameObject(path);
 		} catch (error) {
 			console.error(error);
 			return null;
@@ -45,7 +45,7 @@ const Flash = {
 	},
 	getStatic(path) {
 		try {
-			return JSON.parse(window.swf.getGameObjectS(path));
+			return window.swf.getGameObjectS(path);
 		} catch (error) {
 			console.error(error);
 			return null;
