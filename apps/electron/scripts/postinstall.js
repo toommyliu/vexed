@@ -23,17 +23,16 @@ const { downloadArtifact } = require('@electron/get');
 		});
 
 	if (zipPath) {
-		const nodeModules = path.join(__dirname, '..', 'node_modules');
+		const nodeModules = path.join(__dirname, '../../../node_modules');
 		const electron = path.join(nodeModules, 'electron');
 		const electronDist = path.join(electron, 'dist');
 
-		await fs.promises.rm(electronDist, { recursive: true }).catch(() => {
-			console.error('Failed to delete old Electron files');
-			process.exit(1);
-		});
-		await extract(zipPath, { dir: electronDist }).catch(() => {
-			console.error('Failed to extract new Electron files');
-			process.exit(1);
-		});
+		try {
+			await fs.promises.rm(electronDist, { recursive: true });
+		} catch (error) {
+			console.log(error);
+		} finally {
+			await extract(zipPath, { dir: electronDist });
+		}
 	}
 })();
