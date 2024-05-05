@@ -1,13 +1,13 @@
 {
 	"name": "@vexed/vexed",
 	"private": true,
-	"license": "",
 	"scripts": {
-		"build": "turbo run build",
-		"lint": "turbo run lint"
+		"lint": "turbo lint",
+		"dev": "turbo dev",
+		"build": "turbo build"
 	},
 	"devDependencies": {
-		"turbo": "^1.13.2"
+		"turbo": "^1.13.3"
 	},
-	"packageManager": "pnpm@8.15.6"
+	"packageManager": "pnpm@9.0.6"
 }
