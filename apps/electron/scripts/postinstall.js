@@ -6,8 +6,20 @@ const fs = require('fs');
 const path = require('path');
 const extract = require('extract-zip');
 const { downloadArtifact } = require('@electron/get');
+const { promisify } = require('util');
 
 (async () => {
+	const nodeModules = path.join(__dirname, '../../../node_modules');
+	const electron = path.join(nodeModules, 'electron');
+	const electronDist = path.join(electron, 'dist');
+
+	const exists = await promisify(fs.exists)(path.join(electronDist, '_version.txt'));
+
+	if (exists) {
+		console.log('Electron 11.5.0 already exists, skipping download');
+		return;
+	}
+
 	const zipPath = await downloadArtifact({
 		version: '11.5.0',
 		artifactName: 'electron',
@@ -23,16 +35,14 @@ const { downloadArtifact } = require('@electron/get');
 		});
 
 	if (zipPath) {
-		const nodeModules = path.join(__dirname, '../../../node_modules');
-		const electron = path.join(nodeModules, 'electron');
-		const electronDist = path.join(electron, 'dist');
+		const writeFile = promisify(fs.writeFile);
 
 		try {
 			await fs.promises.rm(electronDist, { recursive: true });
+			await extract(zipPath, { dir: electronDist });
+			await writeFile(path.join(electronDist, '_version.txt'), '11.5.0');
 		} catch (error) {
 			console.log(error);
-		} finally {
-			await extract(zipPath, { dir: electronDist });
 		}
 	}
 })();
