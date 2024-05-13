@@ -71,7 +71,7 @@ class Flash {
 		try {
 			const out = window.swf.getGameObjectS(path);
 			if (parse) return JSON.parse(out);
-			return window.swf.getGameObjectS(path);
+			return out;
 		} catch (error) {
 			console.error(error);
 			return null;
