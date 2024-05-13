@@ -1,21 +1,21 @@
 {
 	"name": "@vexed/electron",
 	"version": "0.0.0",
-	"main": "src/index.js",
+	"main": "src/main/index.js",
 	"scripts": {
 		"postinstall": "node scripts/postinstall.js",
 		"dev": "electron .",
-		"build": "electron-builder"
+		"build": "electron-builder build"
 	},
 	"dependencies": {
 		"@electron/get": "^3.0.0",
-		"electron-reload": "2.0.0-alpha.1",
 		"extract-zip": "^2.0.1",
 		"nw-flash-trust": "^0.3.0"
 	},
 	"devDependencies": {
 		"electron": "11.5.0",
 		"electron-builder": "^24.13.3",
+		"electron-reloader": "^1.2.3",
 		"prettier": "^3.0.3"
 	}
 }
