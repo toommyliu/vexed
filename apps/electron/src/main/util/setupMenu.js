@@ -43,9 +43,9 @@ const template = [
 	
 							const script = document.createElement('script');
 							script.id = 'loaded-script';
-							script.textContent = \`${scriptBody}\`;
-							document.body.appendChild(script);
-							console.log('script loaded');
+						script.textContent = \`(async ()=>{
+							${scriptBody}
+						})();\`;
 					`);
 				},
 			},
