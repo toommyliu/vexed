@@ -27,22 +27,20 @@ const template = [
 				label: 'Load',
 				click: async (menuItem, browserWindow, event) => {
 					const dialog_ = await dialog.showOpenDialog(browserWindow, {
-						filters: [{ extensions: ['js'] }],
-						properties: ['openFile', 'openDirectory'],
+						filters: [{ name: 'JavaScript Files', extensions: ['js'] }],
+						properties: ['openFile'],
 					});
 					if (dialog_.canceled) return;
 
 					const scriptPath = dialog_.filePaths[0];
 					const scriptBody = await fs.promises.readFile(scriptPath, 'utf8');
+					if (!scriptBody?.toString()) return;
 
 					browserWindow.webContents.executeJavaScript(`
 						document.getElementById('loaded-script')?.remove();
-
 						var script = document.createElement('script');
 						script.id = 'loaded-script';
-						script.textContent = \`(async ()=>{
-							${scriptBody}
-						})();\`;
+						script.textContent = \`(async ()=>{${scriptBody}})();\`;
 						document.body.appendChild(script);
 					`);
 				},
