@@ -11,6 +11,22 @@
 		width: 100%;
 		height: 100%;
 	}
+
+	#progress-container {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: black;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	#progress {
+		width: 75%;
+	}
 </style>
 
 <script src="./src/renderer/bot/Bot.js"></script>
@@ -29,6 +45,30 @@
 
 <script src="./src/renderer/flash-ipc.js"></script>
 <script src="./src/renderer/ipc.js"></script>
+
+<script>
+	window.addEventListener('DOMContentLoaded', () => {
+		var div = document.createElement('div');
+		div.id = 'progress-container';
+		document.body.appendChild(div);
+
+		var progress = document.createElement('progress');
+		progress.id = 'progress';
+		progress.max = "100";
+		progress.value = "0";
+		document.getElementById('progress-container').appendChild(progress);
+	});
+
+	function progress([percentage]) {
+		var progress = document.getElementById('progress');
+		progress.value = percentage.toString();
+		if (percentage === 100) {
+			var progressContainer = document.getElementById('progress-container');
+			progress?.remove();
+			progressContainer?.remove();
+		}
+	}
+</script>
 
 <embed id="swf" src="grimoire.swf" type="application/x-shockwave-flash" allowScriptAccess="always"
 	quality="low"></embed>
