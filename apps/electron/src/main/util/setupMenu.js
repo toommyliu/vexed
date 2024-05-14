@@ -36,16 +36,14 @@ const template = [
 					const scriptBody = await fs.promises.readFile(scriptPath, 'utf8');
 
 					browserWindow.webContents.executeJavaScript(`
-							if (document.getElementById('loaded-script')) {
-								document.body.removeChild(document.getElementById('loaded-script'));
-								console.log('removed old script');
-							}
-	
-							const script = document.createElement('script');
-							script.id = 'loaded-script';
+						document.getElementById('loaded-script')?.remove();
+
+						var script = document.createElement('script');
+						script.id = 'loaded-script';
 						script.textContent = \`(async ()=>{
 							${scriptBody}
 						})();\`;
+						document.body.appendChild(script);
 					`);
 				},
 			},
