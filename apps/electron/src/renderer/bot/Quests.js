@@ -39,7 +39,7 @@ class Quest {
 	 * @returns {void}
 	 */
 	accept() {
-		this.instance.flash.call(window.swf.Accept, this.id.toString());
+		Bot.getInstance().flash.call(window.swf.Accept, this.id.toString());
 	}
 
 	/**
@@ -48,7 +48,7 @@ class Quest {
 	 * @returns {void}
 	 */
 	complete(quantity = 1) {
-		this.instance.flash.call(window.swf.Complete, this.id.toString(), quantity);
+		Bot.getInstance().flash.call(window.swf.Complete, this.id.toString(), quantity);
 	}
 
 	/**
@@ -56,7 +56,7 @@ class Quest {
 	 * @returns {void}
 	 */
 	load() {
-		this.instance.flash.call(window.swf.LoadQuest, this.id.toString());
+		Bot.getInstance().flash.call(window.swf.LoadQuest, this.id.toString());
 	}
 
 	/**
@@ -64,7 +64,7 @@ class Quest {
 	 * @returns {boolean}
 	 */
 	get inProgress() {
-		return this.instance.flash.call(window.swf.IsInProgress, this.id.toString());
+		return Bot.getInstance().flash.call(window.swf.IsInProgress, this.id.toString());
 	}
 
 	/**
@@ -72,7 +72,7 @@ class Quest {
 	 * @returns {boolean}
 	 */
 	get canComplete() {
-		return this.instance.flash.call(window.swf.CanComplete, this.id.toString());
+		return Bot.getInstance().flash.call(window.swf.CanComplete, this.id.toString());
 	}
 
 	/**
@@ -80,7 +80,7 @@ class Quest {
 	 * @returns {boolean}
 	 */
 	get isAvailable() {
-		return this.instance.flash.call(window.swf.IsAvailable, this.id.toString());
+		return Bot.getInstance().flash.call(window.swf.IsAvailable, this.id.toString());
 	}
 }
 
