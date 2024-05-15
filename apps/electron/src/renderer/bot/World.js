@@ -24,7 +24,7 @@ class World {
 
 	/**
 	 * Gets all visible monsters in the current cell.
-	 * @returns {MonsterData[]}
+	 * @returns {Monster[]}
 	 */
 	get visibleMonsters() {
 		const monsters = this.instance.flash.call(window.swf.GetVisibleMonstersInCell);
@@ -33,7 +33,7 @@ class World {
 
 	/**
 	 * Gets all available monsters in the current cell.
-	 * @returns {MonsterData[]}
+	 * @returns {Monster[]}
 	 */
 	get availableMonsters() {
 		const monsters = this.instance.flash.call(window.swf.GetMonstersInCell);
