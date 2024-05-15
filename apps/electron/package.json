@@ -10,7 +10,8 @@
 	"dependencies": {
 		"@electron/get": "^3.0.0",
 		"extract-zip": "^2.0.1",
-		"nw-flash-trust": "^0.3.0"
+		"nw-flash-trust": "^0.3.0",
+		"set-interval-async": "^3.0.3"
 	},
 	"devDependencies": {
 		"electron": "11.5.0",
