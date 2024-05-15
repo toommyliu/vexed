@@ -91,18 +91,22 @@ class Combat {
 	 * @returns {Promise<void>}
 	 */
 	async kill(name) {
-		const isMonAlive = () => this.instance.flash.call(window.swf.IsMonsterAvailable, name);
+		const getMonster = () =>
+			this.instance.world.availableMonsters.find((m) => m.name.toLowerCase() === name.toLowerCase());
+		const isMonAlive = () => getMonster()?.alive;
 
 		await this.instance.waitUntil(isMonAlive, null, 3);
 
-		if (!this.instance.isRunning || !this.instance.auth.loggedIn || !this.instance.player.alive) {
+		if (!this.instance.isRunning || !this.instance.auth.loggedIn || !this.instance.player.alive || !getMonster()) {
 			return;
 		}
 
-		this.attack(name);
+		this.instance.flash.call(window.swf.AttackMonsterByMonMapId, getMonster()?.monMapId);
 
 		this.intervalId = setIntervalAsync(async () => {
 			if (isMonAlive() && this.instance.isRunning) {
+				this.instance.flash.call(window.swf.AttackMonsterByMonMapId, getMonster()?.monMapId);
+
 				if (this.hasTarget) {
 					this.useSkill(this.skillSet[this.skillSetIdx], false);
 					this.skillSetIdx++;
@@ -117,24 +121,32 @@ class Combat {
 				if (!isMonAlive()) {
 					(async () => {
 						await clearIntervalAsync(this.intervalId);
-						this.intervalId = -1;
+						// this.intervalId = -1;
 					})();
 				}
 				await this.instance.sleep(1000);
 				if (this.instance.player.isAfk) {
 					(async () => {
 						await clearIntervalAsync(this.intervalId);
-						this.intervalId = -1;
+						// this.intervalId = -1;
 					})();
 				}
 			}
 		}, 0);
 
-		while (isMonAlive() && this.intervalId !== -1) {
+		while (isMonAlive()) {
 			await this.instance.sleep(1000);
 		}
 	}
 
+	/**
+	 * Kills a monster for a certain item quantity.
+	 * @param {string} name - The name of the monster.
+	 * @param {string} item - The name of the item.
+	 * @param {string|*|number} quantity - The quantity of the item needed.
+	 * @param {boolean} [temp=false] - Whether the item is temporary.
+	 * @returns {Promise<void>}
+	 */
 	async killForItem(name, item, quantity = '*', temp = false) {
 		const getItem = () => {
 			if (temp) {
@@ -161,7 +173,8 @@ class Combat {
 
 			await this.killForItem(name, item, quantity, temp);
 		} else {
-			// Item is in inventory
+			// Item is in (temp) inventory
+
 			if (checkRet()) return;
 
 			await this.killForItem(name, item, quantity, temp);
