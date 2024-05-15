@@ -48,10 +48,11 @@ class Quest {
 	/**
 	 * Completes the quest.
 	 * @param {number} [quantity=1]
+	 * @param {number} [itemId=-1]
 	 * @returns {void}
 	 */
-	complete(quantity = 1) {
-		Bot.getInstance().flash.call(window.swf.Complete, this.id, quantity);
+	complete(quantity = 1, itemId = -1) {
+		Bot.getInstance().flash.call(window.swf.Complete, this.id, quantity, itemId, itemId !== -1 ? true : false);
 	}
 
 	/**
