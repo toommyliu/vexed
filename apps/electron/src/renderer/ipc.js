@@ -53,6 +53,4 @@ setInterval(() => {
 	if (opts.skipCutscenes) {
 		bot.settings.skipCutscenes();
 	}
-
-	console.log('tick');
 }, 300);
