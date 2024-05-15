@@ -102,16 +102,24 @@ class Bank {
 	}
 }
 
-class BankItem {
+class ItemBase {
 	/**
-	 * @param {BankItemData} data
+	 * @param {ItemData} data
 	 */
 	constructor(data) {
 		this.data = data;
 	}
 
 	/**
-	 * The name of this item.
+	 * The ID of the item.
+	 * @returns {number}
+	 */
+	get id() {
+		return this.data.ItemID;
+	}
+
+	/**
+	 * The name of the item.
 	 * @returns {string}
 	 */
 	get name() {
@@ -119,7 +127,15 @@ class BankItem {
 	}
 
 	/**
-	 * The quantity of this item.
+	 * The description of the item.
+	 * @returns {string}
+	 */
+	get description() {
+		return this.data.sDesc;
+	}
+
+	/**
+	 * The quantity of the item in this stack.
 	 * @returns {number}
 	 */
 	get quantity() {
@@ -127,16 +143,82 @@ class BankItem {
 	}
 
 	/**
-	 * The maximum quantity of this item in a stack.
+	 * The maximum stack size this item can exist in.
 	 * @returns {number}
 	 */
 	get maxStack() {
 		return this.data.iStk;
 	}
+
+	/**
+	 * Indicates if the item is a member/upgrade only item.
+	 * @returns {boolean}
+	 */
+	get isUpgrade() {
+		return this.data.bUpg;
+	}
+
+	/**
+	 * Indicates if the item is an AC item.
+	 * @returns {boolean}
+	 */
+	get isAC() {
+		return this.data.bCoins;
+	}
+
+	/**
+	 * The category of the item.
+	 * @returns {string}
+	 */
+	get category() {
+		return this.data.sType;
+	}
+
+	/**
+	 * Whether the item is a temporary item.
+	 * @returns {boolean}
+	 */
+	get isTemp() {
+		return this.data.bTemp;
+	}
+
+	/**
+	 * The group of the item.
+	 * co = Armor, ba = Cape, he = Helm, pe = Pet, Weapon = Weapon
+	 * @returns {string}
+	 */
+	get itemGroup() {
+		return this.data.sES;
+	}
+
+	/**
+	 * The name of the source file of the item.
+	 * @returns {string}
+	 */
+	get fileName() {
+		return this.data.sLink;
+	}
+
+	/**
+	 * The link to the source file of the item
+	 * @returns {string}
+	 */
+	get fileLink() {
+		return this.data.sFile;
+	}
+
+	/**
+	 * The meta value of the item (used for boosts).
+	 * @returns {string}
+	 */
+	get meta() {
+		return this.data.sMeta;
+	}
 }
+class BankItem extends ItemBase {}
 
 /**
- * @typedef {Object} BankItemData
+ * @typedef {Object} ItemData
  * @property {number} CharID
  * @property {number} CharItemID
  * @property {number} EnhDPS

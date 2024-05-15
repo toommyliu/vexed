@@ -155,7 +155,7 @@ class World {
 class DropStack {
 	constructor() {
 		/**
-		 * @type {Object.<string, [BankItemData, number]>}
+		 * @type {Object.<string, [ItemData, number]>}
 		 */
 		this.drops = {};
 	}

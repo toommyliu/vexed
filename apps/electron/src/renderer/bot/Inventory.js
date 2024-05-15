@@ -67,71 +67,53 @@ class Inventory {
 	}
 }
 
-class InventoryItem {
+class InventoryItem extends ItemBase {
 	/**
-	 * @param {InventoryItemData} data
-	 */
-	constructor(data) {
-		this.data = data;
-	}
-
-	/**
-	 * The name of this item.
-	 * @returns {string}
-	 */
-	get name() {
-		return this.data.sName;
-	}
-
-	/**
-	 * The quantity of this item.
+	 * The character ID of this item.
 	 * @returns {number}
 	 */
-	get quantity() {
-		return this.data.iQty;
+	get charItemId() {
+		return this.data.CharItemID;
 	}
 
 	/**
-	 * The maximum quantity of this item in a stack.
+	 * Whether the item is equipped.
+	 * @returns {boolean}
+	 */
+	get isEquipped() {
+		return this.data.bEquip;
+	}
+
+	/**
+	 * The level of the item.
 	 * @returns {number}
 	 */
-	get maxStack() {
-		return this.data.iStk;
+	get level() {
+		return this.data.iLvl;
+	}
+
+	/**
+	 * The enhancement level of the item.
+	 * @returns {number}
+	 */
+	get enhancementLevel() {
+		return this.data.EnhLvl;
+	}
+
+	/**
+	 * The enhancement pattern ID of the item.
+	 * 1: Adventurer
+	 * 2: Fighter
+	 * 3: Thief
+	 * 4: Armsman
+	 * 5: Hybrid
+	 * 6: Wizard
+	 * 7: Healer
+	 * 8: Spellbreaker
+	 * 9: Lucky
+	 * @returns {number}
+	 */
+	get enhancementPatternId() {
+		return this.data.InvEnhPatternID;
 	}
 }
-
-/**
- * @typedef {Object} InventoryItemData
- * @property {number} bPTR
- * @property {string} sName
- * @property {number} iStk
- * @property {number} bUpg
- * @property {number} ItemID
- * @property {number} bEquip
- * @property {number} iDPS
- * @property {Object} metaValues
- * @property {number} iHrs
- * @property {string} sES
- * @property {number} iLvl
- * @property {number} EnhID
- * @property {number} iRng
- * @property {string} sDesc
- * @property {number} iHrs
- * @property {string} sReqQuests
- * @property {string} sType
- * @property {string} sElmt
- * @property {number} bCoins
- * @property {number} iCost
- * @property {string} sIcon
- * @property {number} bHouse
- * @property {number} iQSValue
- * @property {number} iRty
- * @property {number} bStaff
- * @property {string} sFile
- * @property {number} bBank
- * @property {string} sDesc
- * @property {string} sReqQuests
- * @property {number} CharItemID
- * @property {number} iQSValue
- * @property {number} iQty
- */
