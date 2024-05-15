@@ -26,17 +26,17 @@ class TempInventory {
 	contains(itemName, quantity = '*') {
 		if (!this.items?.length) return false;
 
-		const item = this.items.find((i) => i.sName.toLowerCase() === itemName.toLowerCase());
+		const item = this.items.find((i) => i.name.toLowerCase() === itemName.toLowerCase());
 		if (item) {
 			// Match any quantity
 			if (quantity === '*') return true;
 
 			// Match max quantity
-			if (quantity?.toLowerCase() === 'max') return item.iQty === item.iStk;
+			if (quantity?.toLowerCase() === 'max') return item.quantity === item.maxStack;
 
 			// Match quantity
 			const quantity_ = Number.parseInt(quantity, 10);
-			return quantity_ === item.iQty;
+			return quantity_ === item.quantity;
 		}
 
 		return false;
@@ -49,6 +49,30 @@ class TempInventoryItem {
 	 */
 	constructor(data) {
 		this.data = data;
+	}
+
+	/**
+	 * The name of this item.
+	 * @returns {string}
+	 */
+	get name() {
+		return this.data.sName;
+	}
+
+	/**
+	 * The quantity of this item.
+	 * @returns {number}
+	 */
+	get quantity() {
+		return this.data.iQty;
+	}
+
+	/**
+	 * The maximum quantity of this item in a stack.
+	 * @returns {number}
+	 */
+	get maxStack() {
+		return this.data.iStk;
 	}
 }
 
