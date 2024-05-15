@@ -32,7 +32,7 @@ class Flash {
 
 		if (typeof out === 'string') {
 			// boolean
-			if (['"true"', '"false"'].includes(out)) return out === '"true"';
+			if (['"true"', '"false"'].includes(out.toLowerCase())) return out.toLowerCase() === '"true"';
 
 			// void
 			if (out === 'undefined') {
