@@ -105,7 +105,7 @@ class Bot {
 	async waitUntil(condition, prerequisite = null, timeout = 15) {
 		let iterations = 0;
 		while (
-			(prerequisite ? prerequisite() : this.isRunning && this.auth.loggedIn && Player.alive) &&
+			(prerequisite ? prerequisite() : this.isRunning && this.auth.loggedIn && this.player.alive) &&
 			!condition() &&
 			(iterations < timeout || timeout === -1)
 		) {
