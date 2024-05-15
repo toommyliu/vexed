@@ -44,7 +44,6 @@
 <script src="./src/renderer/bot/World.js"></script>
 
 <script src="./src/renderer/flash-ipc.js"></script>
-<script src="./src/renderer/ipc.js"></script>
 
 <script>
 	window.addEventListener('DOMContentLoaded', () => {
@@ -66,6 +65,10 @@
 			var progressContainer = document.getElementById('progress-container');
 			progress?.remove();
 			progressContainer?.remove();
+
+			var script = document.createElement('script');
+			script.src = './src/renderer/ipc.js';
+			document.body.appendChild(script);
 		}
 	}
 </script>

@@ -1,4 +1,4 @@
-const { Menu, dialog } = require('electron');
+const { Menu, dialog, ipcMain } = require('electron');
 const fs = require('fs');
 
 /**
@@ -61,7 +61,54 @@ const template = [
 						document.body.appendChild(script);
 					`);
 				},
-			}
+			},
+		],
+	},
+	{
+		label: 'Options',
+		submenu: [
+			{
+				label: 'Infinite Range',
+				type: 'checkbox',
+				click: (menuItem, browserWindow, event) => {
+					browserWindow.webContents.send('options:infiniteRange', menuItem.checked);
+				},
+			},
+			{
+				label: 'Provoke',
+				type: 'checkbox',
+				click: (menuItem, browserWindow, event) => {
+					browserWindow.webContents.send('options:provokeMonsters', menuItem.checked);
+				},
+			},
+			{
+				label: 'Enemy Magnet',
+				type: 'checkbox',
+				click: (menuItem, browserWindow, event) => {
+					browserWindow.webContents.send('options:enemyMagnet', menuItem.checked);
+				},
+			},
+			{
+				label: 'Lag Killer',
+				type: 'checkbox',
+				click: (menuItem, browserWindow, event) => {
+					browserWindow.webContents.send('options:lagKiller', menuItem.checked);
+				},
+			},
+			{
+				label: 'Hide Players',
+				type: 'checkbox',
+				click: (menuItem, browserWindow, event) => {
+					browserWindow.webContents.send('options:hidePlayers', menuItem.checked);
+				},
+			},
+			{
+				label: 'Skip Cutscenes',
+				type: 'checkbox',
+				click: (menuItem, browserWindow, event) => {
+					browserWindow.webContents.send('options:skipCutscenes', menuItem.checked);
+				},
+			},
 		],
 	},
 ];
