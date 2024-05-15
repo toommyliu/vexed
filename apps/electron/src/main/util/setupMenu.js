@@ -1,5 +1,4 @@
 const { Menu, dialog } = require('electron');
-const { join } = require('path');
 const fs = require('fs');
 
 /**
@@ -62,19 +61,7 @@ const template = [
 						document.body.appendChild(script);
 					`);
 				},
-			},
-			{
-				label: 'Enabled',
-				type: 'checkbox',
-				click: (menuItem, browserWindow, event) => {
-					const on = menuItem.checked;
-					if (on) {
-						browserWindow.webContents.executeJavaScript('Bot.getInstance().start()');
-					} else {
-						browserWindow.webContents.executeJavaScript('Bot.getInstance().stop()');
-					}
-				},
-			},
+			}
 		],
 	},
 ];
