@@ -5,15 +5,37 @@ class Combat {
 	constructor(instance) {
 		this.instance = instance;
 
+		/**
+		 * The skills to cycle through.
+		 * @type {number[]}
+		 */
 		this.skillSet = [1, 2, 3, 4];
+		/**
+		 * The index of the skill set to use.
+		 * @type {number}
+		 * @private
+		 */
 		this.skillSetIdx = 0;
+		/**
+		 * The delay between skills.
+		 * @type {number}
+		 */
 		this.skillDelay = 150;
 	}
 
+	/**
+	 * Attacks a monster.
+	 * @param {string} name - The name of the monster.
+	 */
 	attack(name) {
 		this.instance.flash.call(window.swf.AttackMonster, name);
 	}
 
+	/**
+	 * Uses a skill.
+	 * @param {number|string} idx - The index of the skill; indexes ranges from 1 to 4.
+	 * @param {boolean} [wait=false] - Whether to wait for the skill to be available
+	 */
 	async useSkill(idx, wait = false) {
 		const sIdx = String(idx);
 		if (wait) {
@@ -23,6 +45,11 @@ class Combat {
 		this.instance.flash.call(window.swf.UseSkill, sIdx);
 	}
 
+	/**
+	 * Uses a skill even if there is no current target.
+	 * @param {number|string} idx - The index of the skill; indexes ranges from 1 to 4.
+	 * @param {boolean} [wait=false] - Whether to wait for the skill to be available
+	 */
 	async forceUseSkill(idx, wait = false) {
 		const sIdx = String(idx);
 		if (wait) {
@@ -32,12 +59,27 @@ class Combat {
 		this.instance.flash.call(window.swf.ForceUseSkill, sIdx);
 	}
 
+	/**
+	 * Whether the current player has a target.
+	 * @returns {boolean}
+	 */
 	get hasTarget() {
 		return this.instance.flash.call(window.swf.HasTarget);
 	}
 
-	// REST
+	/**
+	 * Rests the current player.
+	 * @returns {void}
+	 */
+	rest() {
+		this.instance.flash.call(window.swf.Rest);
+	}
 
+	/**
+	 * Kills a monster.
+	 * @param {string} name - The name of the monster.
+	 * @returns {Promise<void>}
+	 */
 	async kill(name) {
 		const isMonAlive = () => this.instance.flash.call(window.swf.IsMonsterAvailable, name);
 

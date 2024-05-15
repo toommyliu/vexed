@@ -15,13 +15,15 @@ class World {
 	}
 
 	/**
+	 * Gets all players in the current map.
 	 * @returns {Avatar[]}
 	 */
 	get players() {
-		return this.instance.flash.call(window.swf.Players);
+		return this.instance.flash.call(window.swf.Players)?.map((data) => new Avatar(data)) ?? [];
 	}
 
 	/**
+	 * Gets all visible monsters in the current cell.
 	 * @returns {MonsterData[]}
 	 */
 	get visibleMonsters() {
@@ -30,6 +32,7 @@ class World {
 	}
 
 	/**
+	 * Gets all available monsters in the current cell.
 	 * @returns {MonsterData[]}
 	 */
 	get availableMonsters() {
@@ -38,6 +41,7 @@ class World {
 	}
 
 	/**
+	 * Reloads the map.
 	 * @returns {void}
 	 */
 	reload() {
@@ -45,6 +49,7 @@ class World {
 	}
 
 	/**
+	 * Checks if the map is still loading.
 	 * @returns {boolean}
 	 */
 	get loading() {
@@ -52,6 +57,7 @@ class World {
 	}
 
 	/**
+	 * Gets all cells of the map.
 	 * @returns {string[]}
 	 */
 	get cells() {
@@ -59,6 +65,7 @@ class World {
 	}
 
 	/**
+	 * Sets the player's spawnpoint to the current cell and pad.
 	 * @returns {void}
 	 */
 	setSpawnpoint() {
@@ -66,6 +73,7 @@ class World {
 	}
 
 	/**
+	 * Gets the internal room ID of the current map.
 	 * @returns {number}
 	 */
 	get roomId() {
@@ -73,6 +81,7 @@ class World {
 	}
 
 	/**
+	 * Gets the room number of the current map.
 	 * @returns {number}
 	 */
 	get roomNumber() {
@@ -80,6 +89,7 @@ class World {
 	}
 
 	/**
+	 * Gets the name of the current map.
 	 * @returns {string}
 	 */
 	get name() {
@@ -87,8 +97,9 @@ class World {
 	}
 
 	/**
-	 * @param {string} cell
-	 * @param {string} [pad="Spawn"]
+	 * Jump to the specified cell and pad of the current map.
+	 * @param {string} cell - The cell to jump to.
+	 * @param {string} [pad="Spawn"] - The pad to jump to.
 	 * @returns {void}
 	 */
 	jump(cell, pad = 'Spawn') {
@@ -96,30 +107,37 @@ class World {
 	}
 
 	/**
-	 *
-	 * @param {string} map_name
-	 * @param {string} [cell="Enter"]
-	 * @param {string} [pad="Spawn"]
+	 * Join the specified map, jumping to the specified cell and pad.
+	 * @param {string} mapName - The name of the map to join.
+	 * @param {string} [cell="Enter"] - The cell to jump to.
+	 * @param {string} [pad="Spawn"] - The pad to jump to.
 	 * @returns {void}
 	 */
-	join(map_name, cell = 'Enter', pad = 'Spawn') {
-		if (this.name.toLowerCase() === map_name.toLowerCase()) {
+	join(mapName, cell = 'Enter', pad = 'Spawn') {
+		if (this.name.toLowerCase() === mapName.toLowerCase()) {
 			this.jump(cell, pad);
 			return;
 		}
 
-		let map_str = map_name;
+		let map_str = mapName;
+		let map_number = mapName.includes('-')
+			? mapName.split('-')[1]
+			: this.instance.options.privateRooms
+				? String(this.instance.options.roomNumber)
+				: '1';
 
-		// Use random room number ?
-		if (map_name.endsWith('-1e9') || map_name.endsWith('-1e99')) {
-			map_str = map_name.replace('1e99', '100000').replace('1e9', '100000');
+		// Random room number
+		if (map_number === '1e9' || map_number === '1e99') {
+			map_number = '100000';
 		}
 
+		map_str = `${mapName}-${map_number}`;
 		this.instance.flash.call(window.swf.Join, map_str, cell, pad);
 	}
 
 	/**
-	 * @param {string} name
+	 * Goto the specified player.
+	 * @param {string} name - The name of the player to goto.
 	 * @returns {void}
 	 */
 	goto(name) {
@@ -147,14 +165,25 @@ class DropStack {
 		this.drops[item.ItemID][1]++;
 	}
 
+	remove(itemID) {
+		if (!this.drops[itemID]) return;
+		delete this.drops[itemID];
+	}
+
 	async collect(itemID) {
-		if (this.drops[itemID]) {
-			const item = this.drops[itemID][0];
-			const bot = Bot.getInstance();
-			bot.packet.sendServer(`%xt%zm%getDrop%${bot.world.roomId}%${itemID}%`);
-			await bot.sleep(300);
-			delete this.drops[itemID];
-		}
+		this.remove(itemID);
+		const bot = Bot.getInstance();
+		bot.packet.sendServer(`%xt%zm%getDrop%${bot.world.roomId}%${itemID}%`);
+		await bot.sleep(300);
+	}
+}
+
+class Avatar {
+	/**
+	 * @param {PlayerData} data
+	 */
+	constructor(data) {
+		this.data = data;
 	}
 }
 

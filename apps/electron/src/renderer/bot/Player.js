@@ -7,13 +7,15 @@ class Player {
 	}
 
 	/**
+	 * Get the player's factions data.
 	 * @returns {Faction[]}
 	 */
 	get factions() {
-		return this.instance.flash.call(window.swf.GetFactions);
+		return this.instance.flash.call(window.swf.GetFactions)?.map((data) => new Faction(data)) ?? [];
 	}
 
 	/**
+	 * Gets the name of the player's equipped class.
 	 * @returns {string}
 	 */
 	get className() {
@@ -21,6 +23,7 @@ class Player {
 	}
 
 	/**
+	 * Gets the state of the current player.
 	 * 0 = dead
 	 * 1 = idle
 	 * 2 = in combat
@@ -31,6 +34,7 @@ class Player {
 	}
 
 	/**
+	 * Gets the current health of the current player.
 	 * @returns {number}
 	 */
 	get hp() {
@@ -38,6 +42,7 @@ class Player {
 	}
 
 	/**
+	 * Gets the maximum health of the current player.
 	 * @returns {number}
 	 */
 	get maxHp() {
@@ -45,6 +50,7 @@ class Player {
 	}
 
 	/**
+	 * Checks if the current player is alive.
 	 * @returns {boolean}
 	 */
 	get alive() {
@@ -52,6 +58,7 @@ class Player {
 	}
 
 	/**
+	 * Gets the current mana of the current player.
 	 * @returns {number}
 	 */
 	get mp() {
@@ -59,6 +66,7 @@ class Player {
 	}
 
 	/**
+	 * Gets the maximum mana of the current player.
 	 * @returns {number}
 	 */
 	get maxMp() {
@@ -66,6 +74,7 @@ class Player {
 	}
 
 	/**
+	 * Gets the level of the current player.
 	 * @returns {number}
 	 */
 	get level() {
@@ -73,6 +82,7 @@ class Player {
 	}
 
 	/**
+	 * Gets the gold of the current player.
 	 * @returns {number}
 	 */
 	get gold() {
@@ -80,6 +90,7 @@ class Player {
 	}
 
 	/**
+	 * Checks if the current player is AFK.
 	 * @returns {boolean}
 	 */
 	get isAfk() {
@@ -87,6 +98,7 @@ class Player {
 	}
 
 	/**
+	 * Checks if the current player has membership.
 	 * @returns {boolean}
 	 */
 	get isMember() {
@@ -94,6 +106,7 @@ class Player {
 	}
 
 	/**
+	 * Gets the position of the current player in the map.
 	 * @returns {[number, number]}
 	 */
 	get position() {
@@ -101,6 +114,7 @@ class Player {
 	}
 
 	/**
+	 * Walk to a position in the map.
 	 * @param {number} x
 	 * @param {number} y
 	 * @returns {void}
@@ -110,6 +124,7 @@ class Player {
 	}
 
 	/**
+	 * Get the cell of the current player in the map.
 	 * @returns {string}
 	 */
 	get cell() {
@@ -117,6 +132,7 @@ class Player {
 	}
 
 	/**
+	 * Get the pad of the current player in the map.
 	 * @returns {string}
 	 */
 	get pad() {
@@ -124,13 +140,67 @@ class Player {
 	}
 }
 
-/**
- * @typedef {Object} Faction
- * @property {string} CharFactionID
- * @property {string} FactionID
- * @property {number} iRank The rank that the player has achieved in this faction
- * @property {number} iRep The total amount of rep the player has for this faction
- * @property {number} iRepToRank The total required rep for the player to rank up
- * @property {number} iSpillRep The amount of rep the player has for their current rank
- * @property {string} sName The name of the faction
- */
+class Faction {
+	/**
+	 * @param {FactionData} data
+	 */
+	constructor(data) {
+		this.data = data;
+	}
+
+	/**
+	 * The ID of the faction.
+	 * @returns {number}
+	 */
+	get id() {
+		return this.data.FactionID;
+	}
+
+	/**
+	 * The in-game name of the faction.
+	 * @returns {string}
+	 */
+	get name() {
+		return this.data.sName;
+	}
+
+	/**
+	 * The rank that the player has achieved in this faction.
+	 * @returns {number}
+	 */
+	get rank() {
+		return this.data.iRank;
+	}
+
+	/**
+	 * The total amount of rep the player has for this faction.
+	 * @returns {number}
+	 */
+	get totalRep() {
+		return this.data.iRep;
+	}
+
+	/**
+	 * The amount of rep the player has for their current rank.
+	 * @returns {number}
+	 */
+	get rep() {
+		return this.data.iSpillRep;
+	}
+
+	/**
+	 * The total required rep for the player to rank up.
+	 * @returns {number}
+	 */
+	get requiredRep() {
+		return this.data.iRepToRank;
+	}
+
+	/**
+	 * The remaining amount of rep required for the player to rank up.
+	 * @type {number}
+	 */
+	get remainingRep() {
+		return this.requiredRep - this.rep;
+	}
+}

@@ -7,6 +7,7 @@ class Flash {
 	}
 
 	/**
+	 * Calls a game function, whether this be an interop function or an internal function.
 	 * @param {string|Function} fn
 	 * @param  {...any} args
 	 * @returns {any|null}
@@ -31,9 +32,7 @@ class Flash {
 
 		if (typeof out === 'string') {
 			// boolean
-			if (out?.toLowerCase() === '"true"' || out?.toLowerCase() === '"false"') {
-				return out.toLowerCase() === '"true"';
-			}
+			if (['"true"', '"false"'].includes(out)) return out === '"true"';
 
 			// void
 			if (out === 'undefined') {
@@ -47,8 +46,9 @@ class Flash {
 	}
 
 	/**
-	 * @param {string} path
-	 * @param {boolean} [parse=false]
+	 * Gets an actionscript object at the given location.
+	 * @param {string} path - The path of the object, relative to Game.
+	 * @param {boolean} [parse=false] - Whether to parse the return value.
 	 * @returns {any|null}
 	 */
 	get(path, parse = false) {
@@ -63,8 +63,9 @@ class Flash {
 	}
 
 	/**
-	 * @param {string} path
-	 * @param {boolean} [parse=false]
+	 * Gets an static actionscript object at the given location
+	 * @param {string} path - The path of the object, relative to Game.
+	 * @param {boolean} [parse=false] - Whether to parse the return value.
 	 * @returns {any|null}
 	 */
 	getStatic(path, parse = false) {
@@ -79,8 +80,9 @@ class Flash {
 	}
 
 	/**
-	 * @param {string} path
-	 * @param {any} value
+	 * Sets an actionscript object at the given location.
+	 * @param {string} path - The path of the object, relative to Game.
+	 * @param {any} value - The value to set.
 	 * @returns {void}
 	 */
 	set(path, value) {

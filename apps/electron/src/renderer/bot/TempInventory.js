@@ -10,14 +10,17 @@ class TempInventory {
 	}
 
 	/**
+	 * Gets items in the Temp Inventory of the current player.
 	 * @returns {TempInventoryItem[]}
 	 */
 	get items() {
-		return this.instance.flash.call(window.swf.GetTempItems);
+		return this.instance.flash.call(window.swf.GetTempItems)?.map((data) => new TempInventoryItem(data));
 	}
 
 	/**
-	 * @param {string} [quantity="*"]
+	 * Checks if the Temp Inventory contains an item with some desired quantity.
+	 * @param {string} itemName - The name of the item.
+	 * @param {string|number} [quantity="*"] - The quantity of the item to match against.
 	 * @returns {boolean}
 	 */
 	contains(itemName, quantity = '*') {
@@ -40,8 +43,17 @@ class TempInventory {
 	}
 }
 
+class TempInventoryItem {
+	/**
+	 * @param {TempInventoryItemData} data
+	 */
+	constructor(data) {
+		this.data = data;
+	}
+}
+
 /**
- * @typedef {Object} TempInventoryItem
+ * @typedef {Object} TempInventoryItemData
  * @property {number} ItemID
  * @property {number} iQty
  * @property {number} iRng

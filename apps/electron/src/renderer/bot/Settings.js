@@ -1,6 +1,4 @@
 class Settings {
-	#_infiniteRange = false;
-
 	/**
 	 * @param {Bot} instance
 	 */
@@ -12,6 +10,7 @@ class Settings {
 	}
 
 	/**
+	 * Allows the current player to attack from any range.
 	 * @returns {void}
 	 */
 	setInfiniteRange() {
@@ -19,13 +18,15 @@ class Settings {
 	}
 
 	/**
+	 * Prompts all cell monsters to attack the current player.
 	 * @returns {void}
 	 */
-	SetProvokeMonsters() {
+	setProvokeMonsters() {
 		this.instance.flash.call(window.swf.SetProvokeMonsters);
 	}
 
 	/**
+	 * Sets all cell monsters to sit on the current player.
 	 * @returns {void}
 	 */
 	setEnemyMagnet() {
@@ -33,6 +34,7 @@ class Settings {
 	}
 
 	/**
+	 * Whether to disable drawing of the game.
 	 * @param {boolean} on
 	 */
 	setLagKiller(on) {
@@ -40,6 +42,7 @@ class Settings {
 	}
 
 	/**
+	 * Hides players in the world.
 	 * @returns {void}
 	 */
 	hidePlayers() {
@@ -47,6 +50,7 @@ class Settings {
 	}
 
 	/**
+	 * Skips cutscenes.
 	 * @returns {void}
 	 */
 	skipCutscenes() {
@@ -54,6 +58,7 @@ class Settings {
 	}
 
 	/**
+	 * Sets the current player's walk speed.
 	 * @param {number|string} walkSpeed
 	 */
 	setWalkSpeed(walkSpeed) {

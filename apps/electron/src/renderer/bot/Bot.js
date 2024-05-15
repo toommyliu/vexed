@@ -63,10 +63,16 @@ class Bot {
 
 		this.isRunning = false;
 
+		this.options = {
+			privateRooms: true,
+			roomNumber: 100000,
+		};
+
 		Bot._instance = this;
 	}
 
 	/**
+	 * "Starts" the bot.
 	 * @returns {void}
 	 */
 	start() {
@@ -74,6 +80,7 @@ class Bot {
 	}
 
 	/**
+	 * "Stops" the bot.
 	 * @returns {void}
 	 */
 	stop() {
@@ -81,7 +88,7 @@ class Bot {
 	}
 
 	/**
-	 * @param {number} ms
+	 * @param {number} ms - The number of milliseconds to wait.
 	 * @returns {Promise<void>}
 	 */
 	async sleep(ms) {
@@ -89,9 +96,10 @@ class Bot {
 	}
 
 	/**
-	 * @param {Function<bool>} condition
-	 * @param {Function<bool>} [prerequisite]
-	 * @param {number} [timeout=15]
+	 * Waits until the specified conditions are met, or timeouts.
+	 * @param {Function<bool>} condition - The condition to wait for.
+	 * @param {Function<bool>} [prerequisite] - The prerequisite condition to wait for.
+	 * @param {number} [timeout=15] - The number of iterations to wait for.
 	 * @returns {Promise<void>}
 	 */
 	async waitUntil(condition, prerequisite = null, timeout = 15) {
@@ -107,6 +115,7 @@ class Bot {
 	}
 
 	/**
+	 * Singleton getter for a Bot Instance.
 	 * @returns {Bot}
 	 * @static
 	 */
@@ -120,3 +129,8 @@ class Bot {
  * @type {Bot}
  */
 Bot._instance = null;
+
+/**
+ * @type {BotInstanceOptions}
+ * @typedef
+ */

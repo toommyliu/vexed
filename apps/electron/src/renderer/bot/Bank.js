@@ -7,19 +7,21 @@ class Bank {
 	}
 
 	/**
-	 * @returns {BankItemData[]}
+	 * Gets items in the Bank of the current player.
+	 * @returns {BankItem[]}
 	 */
 	get items() {
-		return this.instance.flash.call(window.swf.GetBankItems);
+		return this.instance.flash.call(window.swf.GetBankItems)?.map((data) => new BankItem(data)) ?? [];
 	}
 
 	/**
-	 * @param {string} name
-	 * @param {string} [quantity="*"]
+	 * Checks if the Bank contains an item with some desired quantity.
+	 * @param {string} itemName - The name of the item.
+	 * @param {string|number} [quantity="*"] - The quantity of the item to match against.
 	 * @returns {boolean}
 	 */
-	contains(name, quantity = '*') {
-		const item = this.items.find((i) => i.sName.toLowerCase() === name.toLowerCase());
+	contains(itemName, quantity = '*') {
+		const item = this.items.find((i) => i.sName.toLowerCase() === itemName.toLowerCase());
 		if (item) {
 			// Match any quantity
 			if (quantity === '*') return true;
@@ -36,6 +38,7 @@ class Bank {
 	}
 
 	/**
+	 * Gets the count of available slots of bankable non-AC items.
 	 * @returns {number}
 	 */
 	get availableSlots() {
@@ -43,6 +46,7 @@ class Bank {
 	}
 
 	/**
+	 * Gets the count of used slots of bankable non-AC items.
 	 * @returns {number}
 	 */
 	get usedSlots() {
@@ -50,6 +54,7 @@ class Bank {
 	}
 
 	/**
+	 * Gets the total slots of bankable non-AC items.
 	 * @returns {number}
 	 */
 	get totalSlots() {
@@ -57,7 +62,8 @@ class Bank {
 	}
 
 	/**
-	 * @param {string} name
+	 * Deposits an item into the bank.
+	 * @param {string} name - The name of the item.
 	 * @returns {void}
 	 */
 	deposit(name) {
@@ -65,7 +71,8 @@ class Bank {
 	}
 
 	/**
-	 * @param {string} name
+	 * Takes an item out of the bank.
+	 * @param {string} name - The name of the item.
 	 * @returns {void}
 	 */
 	withdraw(name) {
@@ -73,8 +80,9 @@ class Bank {
 	}
 
 	/**
-	 * @param {string} out_item
-	 * @param {string} in_item
+	 * Swaps an item from the bank with an item from the inventory.
+	 * @param {string} out_item - The name of the item in the bank.
+	 * @param {string} in_item - The name of the item in the inventory.
 	 * @returns {void}
 	 */
 	swap(out_item, in_item) {
@@ -82,14 +90,24 @@ class Bank {
 	}
 
 	/**
+	 * Opens the bank.
 	 * @returns {Promise<void>}
 	 */
 	async open() {
 		this.instance.flash.call(window.swf.ShowBank);
 
-		await this.instance.waitUntil(() => Flash.get('ui.mcPopup.currentLabel') === '"Bank"');
+		await this.instance.waitUntil(() => this.instance.flash.get('ui.mcPopup.currentLabel') === '"Bank"');
 
 		await this.instance.sleep(2000);
+	}
+}
+
+class BankItem {
+	/**
+	 * @param {BankItemData} data
+	 */
+	constructor(data) {
+		this.data = data;
 	}
 }
 

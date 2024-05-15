@@ -7,6 +7,7 @@ class Auth {
 	}
 
 	/**
+	 * Gets the username of the current user. This value is only updated after logging in.
 	 * @returns {string}
 	 */
 	get username() {
@@ -14,6 +15,7 @@ class Auth {
 	}
 
 	/**
+	 * Gets the password of the current user. This value is only updated after logging in.
 	 * @returns {string}
 	 */
 	get password() {
@@ -21,6 +23,7 @@ class Auth {
 	}
 
 	/**
+	 * Checks if the user is logged in and connected to a server.
 	 * @returns {boolean}
 	 */
 	get loggedIn() {
@@ -28,6 +31,7 @@ class Auth {
 	}
 
 	/**
+	 * Log in with the given account or the account cached in memory.
 	 * @param {string} [username]
 	 * @param {string} [password]
 	 * @returns {void}
@@ -41,6 +45,7 @@ class Auth {
 	}
 
 	/**
+	 * Logs out of the current account.
 	 * @returns {void}
 	 */
 	logout() {
@@ -48,6 +53,7 @@ class Auth {
 	}
 
 	/**
+	 * Gets a list of all available servers. This list is updated after a successful login.
 	 * @returns {Server[]}
 	 */
 	get servers() {
@@ -57,6 +63,7 @@ class Auth {
 	}
 
 	/**
+	 * Resets the list of servers that is available to the client.
 	 * @returns {boolean}
 	 */
 	resetServers() {
@@ -64,11 +71,85 @@ class Auth {
 	}
 
 	/**
-	 * @param {string} [name]
+	 * Connects to a server.
+	 * @param {string} name - The name of the server.
 	 * @returns {void}
 	 */
 	connect(name) {
 		this.instance.flash.call(window.swf.Connect, name);
+	}
+}
+
+class Server {
+	/**
+	 * @param {ServerData} data
+	 */
+	constructor(data) {
+		this.data = data;
+	}
+
+	/**
+	 * The maximum number of players
+	 * @returns {number}
+	 */
+	get maxPlayers() {
+		return this.data.iMax;
+	}
+
+	/**
+	 * The port number the server is on
+	 * @returns {number}
+	 */
+	get port() {
+		return this.data.iPort;
+	}
+
+	/**
+	 * The language of the server (en/xx/it/pt)
+	 * @returns {string}
+	 */
+	get langCode() {
+		return this.data.sLang;
+	}
+
+	/**
+	 * The name of the server
+	 * @returns {string}
+	 */
+	get name() {
+		return this.data.sName;
+	}
+
+	/**
+	 * The IP address of the server
+	 * @returns {string}
+	 */
+	get ip() {
+		return this.data.sIP;
+	}
+
+	/**
+	 * The number of current players
+	 * @returns {number}
+	 */
+	get playerCount() {
+		return this.data.iCount;
+	}
+
+	/**
+	 * Whether the server is an upgrade-only server
+	 * @returns {boolean}
+	 */
+	get isUpgrade() {
+		return this.data.bUpg;
+	}
+
+	/**
+	 * The chat-level restriction of the server (0=canned, 2=free)
+	 * @returns {boolean}
+	 */
+	get isCanned() {
+		return this.data.iChat === 0;
 	}
 }
 
@@ -85,8 +166,3 @@ class Auth {
  * @property {number} bOnline Whether the server is online (0, 1)
  * @property {number} iChat The chat-level restriction of the server (0=canned, 2=free)
  */
-class Server {
-	constructor(data) {
-		this.data = data;
-	}
-}

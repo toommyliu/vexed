@@ -9,39 +9,82 @@ class Quests {
 		this.instance = instance;
 	}
 
-	get getQuestTree() {
-		return this.instance.flash.call(window.swf.GetQuestTree);
-	}
-
-	accept(questId) {
-		this.instance.flash.call(window.swf.Accept, String(questId));
-	}
-
-	complete(questId) {
-		this.instance.flash.call(window.swf.Complete, String(questId));
-	}
-
-	load(questIdOrIds) {
-		if (questIdOrIds.includes(',')) {
-			this.instance.flash.call(window.swf.LoadQuests, questIdOrIds);
-		} else {
-			this.instance.flash.call(window.swf.LoadQuest, questIdOrIds);
-		}
-	}
-
-	get(questIds) {
-		this.instance.flash.call(window.swf.GetQuests, questIds.join(','));
-	}
-
-	isInProgress(questId) {
-		this.instance.flash.call(window.swf.IsInProgress, String(questId));
-	}
-
-	canComplete(questId) {
-		this.instance.flash.call(window.swf.CanComplete, String(questId));
-	}
-
-	isAvailable(questId) {
-		this.instance.flash.call(window.swf.IsAvailable, String(questId));
+	/**
+	 * Gets all loaded quests.
+	 * @returns {Quest[]}
+	 */
+	get tree() {
+		return this.instance.flash.call(window.swf.GetQuestTree)?.map((data) => new Quest(data)) ?? [];
 	}
 }
+
+class Quest {
+	/**
+	 * @param {QuestData} data
+	 */
+	constructor(data) {
+		this.data = data;
+	}
+
+	/**
+	 * The ID of the quest.
+	 * @returns {number}
+	 */
+	get id() {
+		return this.data.QuestID;
+	}
+
+	/**
+	 * Accepts the quest.
+	 * @returns {void}
+	 */
+	accept() {
+		this.instance.flash.call(window.swf.Accept, this.id.toString());
+	}
+
+	/**
+	 * Completes the quest.
+	 * @param {number} [quantity=1]
+	 * @returns {void}
+	 */
+	complete(quantity = 1) {
+		this.instance.flash.call(window.swf.Complete, this.id.toString(), quantity);
+	}
+
+	/**
+	 * Loads the quest.
+	 * @returns {void}
+	 */
+	load() {
+		this.instance.flash.call(window.swf.LoadQuest, this.id.toString());
+	}
+
+	/**
+	 * Whether the quest is in progress.
+	 * @returns {boolean}
+	 */
+	get inProgress() {
+		return this.instance.flash.call(window.swf.IsInProgress, this.id.toString());
+	}
+
+	/**
+	 * Whether the quest can be completed.
+	 * @returns {boolean}
+	 */
+	get canComplete() {
+		return this.instance.flash.call(window.swf.CanComplete, this.id.toString());
+	}
+
+	/**
+	 * Whether the quest is available.
+	 * @returns {boolean}
+	 */
+	get isAvailable() {
+		return this.instance.flash.call(window.swf.IsAvailable, this.id.toString());
+	}
+}
+
+// TODO: finish
+/**
+ * @typedef {Object} QuestData
+ */

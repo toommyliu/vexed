@@ -10,14 +10,17 @@ class Inventory {
 	}
 
 	/**
-	 * @returns {InventoryItemData[]}
+	 * Gets items in the Inventory of the current player.
+	 * @returns {InventoryItem[]}
 	 */
 	get items() {
-		return this.instance.flash.call(window.swf.GetInventoryItems);
+		return this.instance.flash.call(window.swf.GetInventoryItems)?.map((data) => new InventoryItem(data)) ?? [];
 	}
 
 	/**
-	 * @param {string} [quantity="*"]
+	 * Checks if the Inventory contains an item with some desired quantity.
+	 * @param {string} itemName - The name of the item.
+	 * @param {string|number} [quantity="*"] - The quantity of the item to match against.
 	 * @returns {boolean}
 	 */
 	contains(itemName, quantity = '*') {
@@ -40,6 +43,7 @@ class Inventory {
 	}
 
 	/**
+	 * Gets the total number of slots in the Inventory of the current player.
 	 * @returns {number}
 	 */
 	get totalSlots() {
@@ -47,6 +51,7 @@ class Inventory {
 	}
 
 	/**
+	 * Gets the number of used slots in the Inventory of the current player.
 	 * @returns {number}
 	 */
 	get usedSlots() {
@@ -54,10 +59,20 @@ class Inventory {
 	}
 
 	/**
+	 * Gets the number of available slots in the Inventory of the current player.
 	 * @returns {number}
 	 */
 	get availableSlots() {
 		return this.totalSlots - this.usedSlots;
+	}
+}
+
+class InventoryItem {
+	/**
+	 * @param {InventoryItemData} data
+	 */
+	constructor(data) {
+		this.data = data;
 	}
 }
 
