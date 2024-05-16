@@ -66,6 +66,9 @@ class Bot {
 		this.options = {
 			privateRooms: true,
 			roomNumber: 100000,
+			autoRelogin: true,
+			autoReloginServer: '*',
+			autoReloginDelay: 5000,
 		};
 
 		Bot._instance = this;
