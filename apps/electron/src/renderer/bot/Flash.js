@@ -15,29 +15,37 @@ class Flash {
 	call(fn, ...args) {
 		// interop function?
 		let _fn;
+		let _args = args;
 		let out;
-		if (typeof fn === 'function') {
+
+		if (typeof fn === "function") {
 			_fn = fn;
-		} else if (typeof fn === 'string') {
-			_fn = args.length === 0 ? window.swf.callGameFunction0 : window.swf.callGameFunction;
+		} else if (typeof fn === "string") {
+			// arg[0] is the path
+			// arg[1-n] are the actual args
+			_fn =
+				args.length === 0
+					? window.swf.callGameFunction0
+					: window.swf.callGameFunction;
+			_args = [fn];
 		}
 
 		// call it
 		try {
-			out = _fn(...args);
+			out = _fn(..._args);
 		} catch (error) {
 			console.error(error);
 			return null;
 		}
 
-		if (typeof out === 'string') {
+		if (typeof out === "string") {
 			// boolean
-			if (['"true"', '"false"'].includes(out.toLowerCase())) return out.toLowerCase() === '"true"';
+			if (['"true"', '"false"'].includes(out.toLowerCase()))
+				return out.toLowerCase() === '"true"';
 
 			// void
-			if (out === 'undefined') {
+			if (out === "undefined")
 				return;
-			}
 
 			return JSON.parse(out);
 		}
