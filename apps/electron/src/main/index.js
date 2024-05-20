@@ -49,7 +49,3 @@ app.once('ready', async () => {
 });
 
 app.on('window-all-closed', app.quit);
-
-try {
-	require('electron-reloader')(module);
-} catch { }

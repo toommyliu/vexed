@@ -1,8 +1,6 @@
 const { Menu, dialog, ipcMain, BrowserWindow } = require("electron");
 const fs = require("fs");
 
-console.log(process.version);
-
 ipcMain.handle("loadScript", async () => {
 	const browserWindow = BrowserWindow.getFocusedWindow();
 	if (!browserWindow) return;
