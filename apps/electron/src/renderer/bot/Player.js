@@ -1,3 +1,6 @@
+/**
+ * The local player.
+ */
 class Player {
 	/**
 	 * @param {Bot} instance
@@ -11,7 +14,11 @@ class Player {
 	 * @returns {Faction[]}
 	 */
 	get factions() {
-		return this.instance.flash.call(window.swf.GetFactions)?.map((data) => new Faction(data)) ?? [];
+		return (
+			this.instance.flash
+				.call(window.swf.GetFactions)
+				?.map((data) => new Faction(data)) ?? []
+		);
 	}
 
 	/**

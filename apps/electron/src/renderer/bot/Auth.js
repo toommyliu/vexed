@@ -7,7 +7,7 @@ class Auth {
 	}
 
 	/**
-	 * Gets the username of the current user. This value is only updated after logging in.
+	 * The username of the current user. This value is only updated after logging in.
 	 * @returns {string}
 	 */
 	get username() {
@@ -15,7 +15,7 @@ class Auth {
 	}
 
 	/**
-	 * Gets the password of the current user. This value is only updated after logging in.
+	 * The password of the current user. This value is only updated after logging in.
 	 * @returns {string}
 	 */
 	get password() {
@@ -23,7 +23,7 @@ class Auth {
 	}
 
 	/**
-	 * Checks if the user is logged in and connected to a server.
+	 * Whether the user is logged in and connected to a server.
 	 * @returns {boolean}
 	 */
 	get loggedIn() {
@@ -53,7 +53,7 @@ class Auth {
 	}
 
 	/**
-	 * Gets a list of all available servers. This list is updated after a successful login.
+	 * The list of all available servers.This list is updated after a successful login.
 	 * @returns {Server[]}
 	 */
 	get servers() {
@@ -80,6 +80,9 @@ class Auth {
 	}
 }
 
+/**
+ * A game server.
+ */
 class Server {
 	/**
 	 * @param {ServerData} data

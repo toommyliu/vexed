@@ -7,8 +7,6 @@ require('./util/setupMenu')();
 const userAgent =
 	'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16_0) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36';
 
-const BRAND = 'Vexed';
-
 function registerFlashPlugin() {
 	const flashTrust = require('nw-flash-trust');
 	// TODO: add checks for app.isPackaged
@@ -16,7 +14,7 @@ function registerFlashPlugin() {
 
 	const flashPath = join(app.getPath('userData'), 'Pepper Data', 'Shockwave Flash', 'WritableRoot');
 
-	const trustManager = flashTrust.initSync(BRAND, flashPath);
+	const trustManager = flashTrust.initSync('Vexed', flashPath);
 	trustManager.empty();
 	trustManager.add(join(__dirname, '../../grimoire.swf'));
 }
@@ -24,7 +22,7 @@ function registerFlashPlugin() {
 registerFlashPlugin();
 
 app.once('ready', async () => {
-	await fs.promises.mkdir(join(app.getPath('documents'), BRAND, 'Scripts'), { recursive: true });
+	await fs.promises.mkdir(join(app.getPath('documents'), 'Vexed/Scripts'), { recursive: true });
 
 	const window = new BrowserWindow({
 		width: 966,
@@ -32,7 +30,6 @@ app.once('ready', async () => {
 		title: '',
 		webPreferences: {
 			contextIsolation: false,
-			enableRemoteModule: true,
 			nodeIntegration: true,
 			plugins: true,
 		},
@@ -55,4 +52,4 @@ app.on('window-all-closed', app.quit);
 
 try {
 	require('electron-reloader')(module);
-} catch {}
+} catch { }

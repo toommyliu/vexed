@@ -95,10 +95,22 @@ class Bank {
 	 */
 	async open() {
 		this.instance.flash.call(window.swf.ShowBank);
-
 		await this.instance.waitUntil(() => this.instance.flash.get('ui.mcPopup.currentLabel') === '"Bank"');
-
 		await this.instance.sleep(2000);
+	}
+
+	/**
+	 * Resolves an item from the Bank.
+	 * @param {string|number} itemResolvable - The name or ID of the item.
+	 * @returns {BankItem|null}
+	 */
+	resolve(itemResolvable) {
+		return (
+			this.items.find((i) => {
+				if (typeof itemResolvable === 'string') return i.name.toLowerCase() === itemResolvable.toLowerCase();
+				if (typeof itemResolvable === 'number') return i.id === itemResolvable;
+			}) ?? null
+		);
 	}
 }
 
@@ -215,6 +227,7 @@ class ItemBase {
 		return this.data.sMeta;
 	}
 }
+
 class BankItem extends ItemBase {}
 
 /**

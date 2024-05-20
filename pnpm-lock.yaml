@@ -54,6 +54,9 @@ importers:
       '@electron/get':
         specifier: ^3.0.0
         version: 3.0.0
+      async-mutex:
+        specifier: ^0.5.0
+        version: 0.5.0
       extract-zip:
         specifier: ^2.0.1
         version: 2.0.1
@@ -73,9 +76,6 @@ importers:
       electron-reloader:
         specifier: ^1.2.3
         version: 1.2.3
-      prettier:
-        specifier: ^3.0.3
-        version: 3.2.5
 
 packages:
 
@@ -640,6 +640,9 @@ packages:
   async-exit-hook@2.0.1:
     resolution: {integrity: sha512-NW2cX8m1Q7KPA7a5M2ULQeZ2wR5qI5PAbw5L0UOMxdioVk9PMZ0h1TmyZEkPYrCvYjDlFICusOu1dlEKAAeXBw==}
     engines: {node: '>=0.12.0'}
+
+  async-mutex@0.5.0:
+    resolution: {integrity: sha512-1A94B18jkJ3DYq284ohPxoXbfTA5HsQ7/Mf4DEhcyLx3Bz27Rh59iScbB6EPiP+B+joue6YCxcMXSbFC1tZKwA==}
 
   async@3.2.5:
     resolution: {integrity: sha512-baNZyqaaLhyLVKm/DlvdW051MSgO6b8eVfIezl9E5PqWxFgzLm/wQntEW4zOytVburDEr0JlALEpdOFwvErLsg==}
@@ -4072,6 +4075,10 @@ snapshots:
   astring@1.8.6: {}
 
   async-exit-hook@2.0.1: {}
+
+  async-mutex@0.5.0:
+    dependencies:
+      tslib: 2.6.2
 
   async@3.2.5: {}
 

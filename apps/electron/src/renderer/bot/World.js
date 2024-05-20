@@ -7,11 +7,6 @@ class World {
 		 * @type {Bot}
 		 */
 		this.instance = instance;
-
-		/**
-		 * @type {DropStack}
-		 */
-		this.dropStack = new DropStack();
 	}
 
 	/**
@@ -19,7 +14,11 @@ class World {
 	 * @returns {Avatar[]}
 	 */
 	get players() {
-		return this.instance.flash.call(window.swf.Players)?.map((data) => new Avatar(data)) ?? [];
+		return (
+			this.instance.flash
+				.call(window.swf.Players)
+				?.map((data) => new Avatar(data)) ?? []
+		);
 	}
 
 	/**
@@ -27,7 +26,9 @@ class World {
 	 * @returns {Monster[]}
 	 */
 	get visibleMonsters() {
-		const monsters = this.instance.flash.call(window.swf.GetVisibleMonstersInCell);
+		const monsters = this.instance.flash.call(
+			window.swf.GetVisibleMonstersInCell,
+		);
 		return monsters.map((data) => new Monster(data));
 	}
 
@@ -100,10 +101,15 @@ class World {
 	 * Jump to the specified cell and pad of the current map.
 	 * @param {string} cell - The cell to jump to.
 	 * @param {string} [pad="Spawn"] - The pad to jump to.
-	 * @returns {void}
+	 * @param {boolean} [force=false] - Whether to allow jumping to the same cell.
+	 * @returns {Promise<void>}
 	 */
-	jump(cell, pad = 'Spawn') {
-		this.instance.flash.call(window.swf.Jump, cell, pad);
+	async jump(cell, pad = "Spawn", force = false) {
+		do {
+			console.log(cell, pad, force);
+			this.instance.flash.call(window.swf.Jump, cell, pad);
+			await this.instance.sleep(500);
+		} while (this.instance.player.cell.toLowerCase() !== cell.toLowerCase() || force);
 	}
 
 	/**
@@ -111,28 +117,63 @@ class World {
 	 * @param {string} mapName - The name of the map to join.
 	 * @param {string} [cell="Enter"] - The cell to jump to.
 	 * @param {string} [pad="Spawn"] - The pad to jump to.
-	 * @returns {void}
+	 * @returns {Promise<void>}
 	 */
-	join(mapName, cell = 'Enter', pad = 'Spawn') {
+	async join(mapName, cell = "Enter", pad = "Spawn") {
+		await this.instance.waitUntil(
+			() => this.instance.world.isActionAvailable(GameAction.Transfer),
+			null,
+			15,
+		);
+
 		if (this.name.toLowerCase() === mapName.toLowerCase()) {
 			this.jump(cell, pad);
 			return;
 		}
 
 		let map_str = mapName;
-		let map_number = mapName.includes('-')
-			? mapName.split('-')[1]
+		let map_number = mapName.includes("-")
+			? mapName.split("-")[1]
 			: this.instance.options.privateRooms
 				? String(this.instance.options.roomNumber)
-				: '1';
+				: "1";
 
 		// Random room number
-		if (map_number === '1e9' || map_number === '1e99') {
-			map_number = '100000';
+		if (map_number === "1e9" || map_number === "1e99") {
+			map_number = "100000";
 		}
 
-		map_str = `${mapName}-${map_number}`;
-		this.instance.flash.call(window.swf.Join, map_str, cell, pad);
+		await this.#_join(mapName, map_number, cell, pad);
+	}
+
+	async #_join(mapName, roomNumber, cell, pad) {
+		await this.instance.waitUntil(
+			() => this.instance.world.isActionAvailable(GameAction.Transfer),
+			null,
+			15,
+		);
+		if (this.instance.player.state === 2) {
+			this.jump("Enter", "Spawn");
+			await this.instance.waitUntil(
+				() => this.instance.player.state !== 2,
+				null,
+				10,
+			);
+			await this.instance.sleep(1500);
+		}
+
+		this.instance.flash.call(
+			window.swf.Join,
+			`${mapName}-${roomNumber}`,
+			cell,
+			pad,
+		);
+		await this.instance.waitUntil(
+			() => this.name.toLowerCase() === mapName.toLowerCase(),
+			null,
+			10,
+		);
+		await this.instance.waitUntil(() => !this.loading, null, 40);
 	}
 
 	/**
@@ -150,37 +191,69 @@ class World {
 	get itemTree() {
 		return this.instance.flash.call(window.swf.GetItemTree);
 	}
-}
 
-class DropStack {
-	constructor() {
-		/**
-		 * @type {Object.<string, [ItemData, number]>}
-		 */
-		this.drops = {};
+	/**
+	 * Whether the game action has cooled down.
+	 * @param {GameAction} action - The game action to check.
+	 * @returns {boolean}
+	 */
+	isActionAvailable(action) {
+		return this.instance.flash.call(window.swf.IsActionAvailable, action);
 	}
 
 	/**
-	 * @param {ItemData} item
+	 * Gets a item in the world.
+	 * @param {string} itemId
+	 * @returns {Promise<void>}
 	 */
-	add(item) {
-		this.drops[item.ItemID] ??= [item, 0];
-		this.drops[item.ItemID][1]++;
-	}
-
-	remove(itemID) {
-		if (!this.drops[itemID]) return;
-		delete this.drops[itemID];
-	}
-
-	async collect(itemID) {
-		this.remove(itemID);
-		const bot = Bot.getInstance();
-		bot.packet.sendServer(`%xt%zm%getDrop%${bot.world.roomId}%${itemID}%`);
-		await bot.sleep(300);
+	async getMapItem(itemId) {
+		await this.instance.waitUntil(() =>
+			this.isActionAvailable(GameAction.GetMapItem),
+		);
+		this.instance.flash.call(window.swf.GetMapItem, itemId);
+		await this.instance.sleep(2000);
 	}
 }
 
+/**
+ * Enum representing game actions.
+ * @readonly
+ * @enum {string}
+ */
+const GameAction = {
+	/** Loading a shop. */
+	LoadShop: "loadShop",
+	/** Loading an enhancement shop. */
+	LoadEnhShop: "loadEnhShop",
+	/** Loading a hair shop. */
+	LoadHairShop: "loadHairShop",
+	/** Equipping an item. */
+	EquipItem: "equipItem",
+	/** Unequipping an item. */
+	UnequipItem: "unequipItem",
+	/** Buying an item. */
+	BuyItem: "buyItem",
+	/** Selling an item. */
+	SellItem: "sellItem",
+	/** Getting a map item (i.e. via the getMapItem packet). */
+	GetMapItem: "getMapItem",
+	/** Sending a quest completion packet. */
+	TryQuestComplete: "tryQuestComplete",
+	/** Accepting a quest. */
+	AcceptQuest: "acceptQuest",
+	/** I don't know... */
+	DoIA: "doIA",
+	/** Resting. */
+	Rest: "rest",
+	/** I don't know... */
+	Who: "who",
+	/** Joining another map. */
+	Transfer: "tfer",
+};
+
+/**
+ * A remote player.
+ */
 class Avatar {
 	/**
 	 * @param {PlayerData} data
@@ -413,7 +486,6 @@ class Monster {
  * @property {string} strFrame
  * @property {number} intHPMax
  */
-
 
 /**
  * @typedef {Object} MonsterData

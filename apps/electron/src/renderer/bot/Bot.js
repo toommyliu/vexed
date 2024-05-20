@@ -1,6 +1,7 @@
 class Bot {
 	constructor() {
-		if (Bot._instance) throw new Error('bot instance already exists, use Bot.getInstance()');
+		if (Bot._instance)
+			throw new Error("bot instance already exists, use Bot.getInstance()");
 
 		/**
 		 * @type {Auth}
@@ -61,13 +62,23 @@ class Bot {
 		 */
 		this.quests = new Quests(this);
 
+		/**
+		 * @type {Drops}
+		 */
+		this.drops = new Drops();
+
+		/**
+		 * @type {Shop}
+		 */
+		this.shop = new Shop(this);
+
 		this.isRunning = false;
 
 		this.options = {
 			privateRooms: true,
 			roomNumber: 100000,
 			autoRelogin: true,
-			autoReloginServer: '*',
+			autoReloginServer: "*",
 			autoReloginDelay: 5000,
 		};
 
@@ -76,9 +87,9 @@ class Bot {
 
 	/**
 	 * "Starts" the bot.
-	 * @returns {void}
+	 * @returns {Promise<void>}
 	 */
-	start() {
+	async start() {
 		this.isRunning = true;
 	}
 
@@ -86,7 +97,7 @@ class Bot {
 	 * "Stops" the bot.
 	 * @returns {void}
 	 */
-	stop() {
+	async stop() {
 		this.isRunning = false;
 	}
 
@@ -100,22 +111,21 @@ class Bot {
 
 	/**
 	 * Waits until the specified conditions are met, or timeouts.
-	 * @param {Function<bool>} condition - The condition to wait for.
-	 * @param {Function<bool>} [prerequisite] - The prerequisite condition to wait for.
+	 * @param {Function<boolean>} condition - The condition to wait for.
+	 * @param {Function<boolean>} [prerequisite=null] - The prerequisite condition to wait for.
 	 * @param {number} [timeout=15] - The number of iterations to wait for.
 	 * @returns {Promise<void>}
 	 */
 	async waitUntil(condition, prerequisite = null, timeout = 15) {
 		let iterations = 0;
-		while (
-			(prerequisite ? prerequisite() : this.isRunning && this.auth.loggedIn && this.player.alive) &&
-			!condition() &&
-			(iterations < timeout || timeout === -1)
-		) {
+		while ((prerequisite ? (await prerequisite()) : (this.isRunning && this.auth.loggedIn && this.player.alive)) && !(await condition()) && (iterations < timeout || timeout === -1)) {
 			await this.sleep(1000);
 			iterations++;
 		}
+		console.log("waited", `${iterations}/${timeout}`, condition());
+		await this.sleep(1000);
 	}
+
 
 	/**
 	 * Singleton getter for a Bot Instance.

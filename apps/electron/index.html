@@ -33,6 +33,7 @@
 <script src="./src/renderer/bot/Auth.js"></script>
 <script src="./src/renderer/bot/Bank.js"></script>
 <script src="./src/renderer/bot/Combat.js"></script>
+<script src="./src/renderer/bot/Drops.js"></script>
 <script src="./src/renderer/bot/Flash.js"></script>
 <script src="./src/renderer/bot/House.js"></script>
 <script src="./src/renderer/bot/Inventory.js"></script>
@@ -40,12 +41,23 @@
 <script src="./src/renderer/bot/Player.js"></script>
 <script src="./src/renderer/bot/Quests.js"></script>
 <script src="./src/renderer/bot/Settings.js"></script>
+<script src="./src/renderer/bot/Shop.js"></script>
 <script src="./src/renderer/bot/TempInventory.js"></script>
 <script src="./src/renderer/bot/World.js"></script>
+
+<script src="./src/renderer/lib/Collection.js"></script>
 
 <script src="./src/renderer/flash-ipc.js"></script>
 
 <script>
+	window.addEventListener('keydown', (event) => {
+		if (event.key === 'PageUp') {
+			console.log("PageUp");
+			try {
+				require("electron").ipcRenderer.invoke("loadScript");
+			} catch (e) { console.log(e); }
+		}
+	});
 	window.addEventListener('DOMContentLoaded', () => {
 		var div = document.createElement('div');
 		div.id = 'progress-container';
@@ -61,6 +73,7 @@
 	function progress([percentage]) {
 		var progress = document.getElementById('progress');
 		progress.value = percentage.toString();
+
 		if (percentage === 100) {
 			var progressContainer = document.getElementById('progress-container');
 			progress?.remove();

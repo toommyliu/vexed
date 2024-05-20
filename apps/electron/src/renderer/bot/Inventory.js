@@ -65,6 +65,46 @@ class Inventory {
 	get availableSlots() {
 		return this.totalSlots - this.usedSlots;
 	}
+
+	/**
+	 * Resolves an item from the Inventory.
+	 * @param {string|number} itemResolvable - The name or ID of the item.
+	 * @returns {InventoryItem|null}
+	 */
+	resolve(itemResolvable) {
+		return (
+			this.items.find((i) => {
+				if (typeof itemResolvable === 'string') return i.name.toLowerCase() === itemResolvable.toLowerCase();
+				if (typeof itemResolvable === 'number') return i.id === itemResolvable;
+			}) ?? null
+		);
+	}
+
+	/**
+	 * Equips an item from the Inventory.
+	 * @param {string} itemName 
+	 * @returns {Promise<void>}
+	 */
+	async equip(itemName) {
+		const getItem = () => this.items.find(i => i.name.toLowerCase() === itemName.toLowerCase());
+		if (getItem()) {
+			const equipped = () => getItem()?.equipped;
+
+			while (this.instance.isRunning && !equipped()) {
+				while (this.instance.isRunning && this.instance.player.state === 2) {
+					this.instance.flash.call(window.swf.Jump, this.instance.player.cell, this.instance.player.pad);
+					await this.instance.sleep(1000);
+				}
+				await this.instance.waitUntil(() => this.instance.world.isActionAvailable(GameAction.EquipItem));
+
+				const item = getItem();
+				if (item.category === "Item")
+					this.instance.flash.call(window.swf.EquipPotion, item.id.toString(), item.description, item.fileLink, item.name);
+				else
+					this.instance.flash.call(window.swf.Equip, item.id.toString());
+			}
+		} 
+	}
 }
 
 class InventoryItem extends ItemBase {
@@ -80,8 +120,8 @@ class InventoryItem extends ItemBase {
 	 * Whether the item is equipped.
 	 * @returns {boolean}
 	 */
-	get isEquipped() {
-		return this.data.bEquip;
+	get equipped() {
+		return this.data.bEquip === 1;
 	}
 
 	/**

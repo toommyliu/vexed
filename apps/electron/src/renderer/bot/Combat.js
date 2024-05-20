@@ -1,4 +1,5 @@
-const { setIntervalAsync, clearIntervalAsync } = require('set-interval-async');
+var { setIntervalAsync, clearIntervalAsync } = require('set-interval-async');
+var { Mutex } = require('async-mutex');
 
 class Combat {
 	/**
@@ -31,6 +32,8 @@ class Combat {
 		 * @type {number}
 		 */
 		this.intervalId = -1;
+
+		this.mutex = new Mutex();
 	}
 
 	/**
@@ -79,9 +82,10 @@ class Combat {
 
 	/**
 	 * Rests the current player.
-	 * @returns {void}
+	 * @returns {Promise<void>}
 	 */
-	rest() {
+	async rest() {
+		await this.instance.waitUntil(() => this.instance.world.isActionAvailable(GameAction.Rest));
 		this.instance.flash.call(window.swf.Rest);
 	}
 
@@ -95,16 +99,17 @@ class Combat {
 			this.instance.world.availableMonsters.find((m) => m.name.toLowerCase() === name.toLowerCase());
 		const isMonAlive = () => getMonster()?.alive;
 
-		await this.instance.waitUntil(isMonAlive, null, 3);
+		await this.instance.waitUntil(() => isMonAlive(), null, 3);
 
-		if (!this.instance.isRunning || !this.instance.auth.loggedIn || !this.instance.player.alive || !getMonster()) {
-			return;
-		}
+		const cond =
+			this.instance.isRunning && this.instance.auth.loggedIn && this.instance.player.alive && getMonster()?.alive;
+		if (!cond) return;
 
 		this.instance.flash.call(window.swf.AttackMonsterByMonMapId, getMonster()?.monMapId);
 
 		this.intervalId = setIntervalAsync(async () => {
-			if (isMonAlive() && this.instance.isRunning) {
+			await this.mutex.acquire();
+			if (cond) {
 				this.instance.flash.call(window.swf.AttackMonsterByMonMapId, getMonster()?.monMapId);
 
 				if (this.hasTarget) {
@@ -132,12 +137,16 @@ class Combat {
 					})();
 				}
 			}
+			this.mutex.release();
 		}, 0);
 
 		while (isMonAlive()) {
+			// add checks for if the player is dead
 			await this.instance.sleep(1000);
 		}
 	}
+
+	// REFACTOR: killFor()
 
 	/**
 	 * Kills a monster for a certain item quantity.
@@ -148,26 +157,23 @@ class Combat {
 	 * @returns {Promise<void>}
 	 */
 	async killForItem(name, item, quantity = '*', temp = false) {
-		const getItem = () => {
-			if (temp) {
-				return this.instance.tempInventory.items.find((i) => i.name.toLowerCase() === item.toLowerCase());
-			}
-			return this.instance.inventory.items.find((i) => i.name.toLowerCase() === item.toLowerCase());
-		};
+		const getItem = () => this.instance[temp ? 'tempInventory' : 'inventory'].resolve(item);
 		const getQuantity = () => getItem()?.quantity ?? 0;
 		const checkRet = () => (getQuantity() > 1 && quantity === '*') || getQuantity() >= Number.parseInt(quantity);
+
+		console.log(`killForItem: ${name} "${item}" ${getQuantity()}/${quantity} ${temp ? '(temp)' : ''}`);
 
 		if (checkRet()) return;
 
 		await this.kill(name);
 		await this.instance.sleep(1000);
-		const i = Object.values(this.instance.world.dropStack.drops).find(
-			(d) => d[0].sName.toLowerCase() === item.toLowerCase(),
-		);
+
+		const i = this.instance.drops
 
 		// Item is in dropstack
 		if (i) {
-			await this.instance.world.dropStack.collect(i[0].ItemID);
+			console.log("killForItem", i);
+			// await this.instance.world.dropStack.collect(i[0].ItemID);
 
 			if (checkRet()) return;
 

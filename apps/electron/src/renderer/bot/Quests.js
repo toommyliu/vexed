@@ -11,22 +11,28 @@ class Quests {
 
 	/**
 	 * Gets all loaded quests.
-	 * @returns {Quest[]}
+	 * @returns {QuestData[]}
 	 */
 	get tree() {
-		return this.instance.flash.call(window.swf.GetQuestTree)?.map((data) => new Quest(data)) ?? [];
+		return this.instance.flash.call(window.swf.GetQuestTree);
 	}
 }
 
+/**
+ * Represents a quest.
+ */
 class Quest {
 	/**
 	 * @param {QuestData} data
 	 */
 	constructor(data) {
-		if (typeof data === 'number' || typeof data === 'string') {
-			data = { QuestID: Number.parseInt(data, 10) };
+		if (typeof data === 'object') {
+			// data from game
+			this.data = data;
+		} else if (typeof data === 'number' || typeof data === 'string') {
+			// only quest id is known
+			this.data = { QuestID: Number.parseInt(data, 10) };
 		}
-		this.data = data;
 	}
 
 	/**
@@ -39,28 +45,37 @@ class Quest {
 
 	/**
 	 * Accepts the quest.
-	 * @returns {void}
+	 * @returns {Promise<void>}
 	 */
-	accept() {
-		Bot.getInstance().flash.call(window.swf.Accept, this.id);
+	async accept() {
+		const bot = Bot.getInstance();
+		await bot.waitUntil(() => bot.world.isActionAvailable(GameAction.AcceptQuest));
+		bot.flash.call(window.swf.Accept, this.id);
 	}
 
 	/**
 	 * Completes the quest.
 	 * @param {number} [quantity=1]
 	 * @param {number} [itemId=-1]
-	 * @returns {void}
+	 * @returns {Promise<void>}
 	 */
-	complete(quantity = 1, itemId = -1) {
-		Bot.getInstance().flash.call(window.swf.Complete, this.id, quantity, itemId, itemId !== -1 ? true : false);
+	async complete(quantity = 1, itemId = -1) {
+		const bot = Bot.getInstance();
+		await bot.waitUntil(() => bot.world.isActionAvailable(GameAction.TryQuestComplete));
+		bot.flash.call(window.swf.Complete, this.id, quantity, itemId, itemId !== -1);
 	}
 
 	/**
 	 * Loads the quest.
-	 * @returns {void}
+	 * @returns {Promise<void>}
 	 */
-	load() {
-		Bot.getInstance().flash.call(window.swf.LoadQuest, this.id);
+	async load() {
+		const bot = Bot.getInstance();
+		bot.flash.call(window.swf.LoadQuest, this.id);
+		await bot.sleep(1000);
+		const _data = bot.quests.tree.find((q) => q.QuestID === this.id);
+		if (_data)
+			this.data = _data;
 	}
 
 	/**
@@ -76,7 +91,8 @@ class Quest {
 	 * @returns {boolean}
 	 */
 	get canComplete() {
-		return Bot.getInstance().flash.call(window.swf.CanComplete, this.id);
+		return Bot.getInstance().quests.tree.find((q) => q.id === this.id)?.canComplete ?? false;
+		// return Bot.getInstance().flash.call(window.swf.CanComplete, this.id);
 	}
 
 	/**
