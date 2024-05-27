@@ -1,12 +1,12 @@
 /**
- * The local player.
+ * Represents the local player.
  */
 class Player {
 	/**
-	 * @param {Bot} instance
+	 * @param {Bot} bot
 	 */
-	constructor(instance) {
-		this.instance = instance;
+	constructor(bot) {
+		this.bot = bot;
 	}
 
 	/**
@@ -15,7 +15,7 @@ class Player {
 	 */
 	get factions() {
 		return (
-			this.instance.flash
+			this.bot.flash
 				.call(window.swf.GetFactions)
 				?.map((data) => new Faction(data)) ?? []
 		);
@@ -26,7 +26,7 @@ class Player {
 	 * @returns {string}
 	 */
 	get className() {
-		return this.instance.flash.call(window.swf.Class);
+		return this.bot.flash.call(window.swf.Class);
 	}
 
 	/**
@@ -37,7 +37,7 @@ class Player {
 	 * @returns {number}
 	 */
 	get state() {
-		return this.instance.flash.call(window.swf.State);
+		return this.bot.flash.call(window.swf.State);
 	}
 
 	/**
@@ -45,7 +45,7 @@ class Player {
 	 * @returns {number}
 	 */
 	get hp() {
-		return this.instance.flash.call(window.swf.Health);
+		return this.bot.flash.call(window.swf.Health);
 	}
 
 	/**
@@ -53,7 +53,7 @@ class Player {
 	 * @returns {number}
 	 */
 	get maxHp() {
-		return this.instance.flash.call(window.swf.HealthMax);
+		return this.bot.flash.call(window.swf.HealthMax);
 	}
 
 	/**
@@ -69,7 +69,7 @@ class Player {
 	 * @returns {number}
 	 */
 	get mp() {
-		return this.instance.flash.call(window.swf.Mana);
+		return this.bot.flash.call(window.swf.Mana);
 	}
 
 	/**
@@ -77,7 +77,7 @@ class Player {
 	 * @returns {number}
 	 */
 	get maxMp() {
-		return this.instance.flash.call(window.swf.ManaMax);
+		return this.bot.flash.call(window.swf.ManaMax);
 	}
 
 	/**
@@ -85,7 +85,7 @@ class Player {
 	 * @returns {number}
 	 */
 	get level() {
-		return this.instance.flash.call(window.swf.Level);
+		return this.bot.flash.call(window.swf.Level);
 	}
 
 	/**
@@ -93,7 +93,7 @@ class Player {
 	 * @returns {number}
 	 */
 	get gold() {
-		return this.instance.flash.call(window.swf.Gold);
+		return this.bot.flash.call(window.swf.Gold);
 	}
 
 	/**
@@ -101,7 +101,7 @@ class Player {
 	 * @returns {boolean}
 	 */
 	get isAfk() {
-		return this.instance.flash.call(window.swf.IsAfk);
+		return this.bot.flash.call(window.swf.IsAfk);
 	}
 
 	/**
@@ -109,7 +109,7 @@ class Player {
 	 * @returns {boolean}
 	 */
 	get isMember() {
-		return this.instance.flash.call(window.swf.IsMember);
+		return this.bot.flash.call(window.swf.IsMember);
 	}
 
 	/**
@@ -117,7 +117,7 @@ class Player {
 	 * @returns {[number, number]}
 	 */
 	get position() {
-		return this.instance.flash.call(window.swf.Position);
+		return this.bot.flash.call(window.swf.Position);
 	}
 
 	/**
@@ -127,7 +127,7 @@ class Player {
 	 * @returns {void}
 	 */
 	walkTo(x, y) {
-		this.instance.flash.call(window.swf.WalkToPoint, x, y);
+		this.bot.flash.call(window.swf.WalkToPoint, x, y);
 	}
 
 	/**
@@ -135,7 +135,7 @@ class Player {
 	 * @returns {string}
 	 */
 	get cell() {
-		return this.instance.flash.call(window.swf.Cell);
+		return this.bot.flash.call(window.swf.Cell);
 	}
 
 	/**
@@ -143,7 +143,7 @@ class Player {
 	 * @returns {string}
 	 */
 	get pad() {
-		return this.instance.flash.call(window.swf.Pad);
+		return this.bot.flash.call(window.swf.Pad);
 	}
 }
 

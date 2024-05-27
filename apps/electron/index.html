@@ -29,33 +29,51 @@
 	}
 </style>
 
-<script src="./src/renderer/bot/Bot.js"></script>
-<script src="./src/renderer/bot/Auth.js"></script>
-<script src="./src/renderer/bot/Bank.js"></script>
-<script src="./src/renderer/bot/Combat.js"></script>
-<script src="./src/renderer/bot/Drops.js"></script>
-<script src="./src/renderer/bot/Flash.js"></script>
-<script src="./src/renderer/bot/House.js"></script>
-<script src="./src/renderer/bot/Inventory.js"></script>
-<script src="./src/renderer/bot/Packet.js"></script>
-<script src="./src/renderer/bot/Player.js"></script>
-<script src="./src/renderer/bot/Quests.js"></script>
-<script src="./src/renderer/bot/Settings.js"></script>
-<script src="./src/renderer/bot/Shop.js"></script>
-<script src="./src/renderer/bot/TempInventory.js"></script>
-<script src="./src/renderer/bot/World.js"></script>
+<script src="src/renderer/jsapi/Auth.js"></script>
+<script src="src/renderer/jsapi/Bank.js"></script>
+<script src="src/renderer/jsapi/Bot.js"></script>
+<script src="src/renderer/jsapi/Combat.js"></script>
+<script src="src/renderer/jsapi/Drops.js"></script>
+<script src="src/renderer/jsapi/Flash.js"></script>
+<script src="src/renderer/jsapi/House.js"></script>
+<script src="src/renderer/jsapi/Packet.js"></script>
+<script src="src/renderer/jsapi/Player.js"></script>
+<script src="src/renderer/jsapi/World.js"></script>
 
-<script src="./src/renderer/lib/Collection.js"></script>
-
-<script src="./src/renderer/flash-ipc.js"></script>
+<script src="src/renderer/flash-ipc.js"></script>
+<script src="src/renderer/ipc.js"></script>
 
 <script>
+	window.addEventListener('DOMContentLoaded', () => {
+		var script = document.createElement('script');
+		script.textContent = `
+		var bot=Bot.getInstance();
+		var auth=bot.auth;
+		var bank=bot.bank;
+		var combat=bot.combat;
+		var drops=bot.drops;
+		var flash=bot.flash;
+		var house=bot.house;
+		var world=bot.world;
+	`;
+		document.body.appendChild(script);
+	});
+</script>
+
+<script>
+	var { ipcRenderer } = require('electron');
 	window.addEventListener('keydown', (event) => {
-		if (event.key === 'PageUp') {
-			console.log("PageUp");
-			try {
-				require("electron").ipcRenderer.invoke("loadScript");
-			} catch (e) { console.log(e); }
+		switch (event.key) {
+			// Allow the game to be closed whilst the game is focused
+			case 'q': {
+				if (event.metaKey) {
+					// ipcRenderer.invoke("gameQuit");
+				}
+				break;
+			}
+			case 'PageUp':
+				ipcRenderer.invoke("loadScript");
+				break;
 		}
 	});
 	window.addEventListener('DOMContentLoaded', () => {
@@ -80,7 +98,7 @@
 			progressContainer?.remove();
 
 			var script = document.createElement('script');
-			script.src = './src/renderer/ipc.js';
+			script.src = 'src/renderer/ipc.js';
 			document.body.appendChild(script);
 		}
 	}

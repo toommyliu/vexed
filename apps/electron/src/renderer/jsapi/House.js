@@ -1,12 +1,12 @@
 class House {
 	/**
-	 * @param {Bot} instance
+	 * @param {Bot} bot
 	 */
-	constructor(instance) {
+	constructor(bot) {
 		/**
 		 * @type {Bot}
 		 */
-		this.instance = instance;
+		this.bot = bot;
 	}
 
 	/**
@@ -14,7 +14,7 @@ class House {
 	 * @returns {HouseItem[]}
 	 */
 	get items() {
-		return this.instance.flash.call(window.swf.GetHouseItems)?.map((data) => new HouseItem(data)) ?? [];
+		return this.bot.flash.call(window.swf.GetHouseItems)?.map((data) => new HouseItem(data)) ?? [];
 	}
 
 	/**
@@ -22,7 +22,7 @@ class House {
 	 * @returns {number}
 	 */
 	get totalSlots() {
-		return this.instance.flash.call(window.swf.HouseSlots);
+		return this.bot.flash.call(window.swf.HouseSlots);
 	}
 }
 

@@ -1,12 +1,12 @@
 class Packet {
 	/**
-	 * @param {Bot} instance
+	 * @param {Bot} bot
 	 */
-	constructor(instance) {
+	constructor(bot) {
 		/**
 		 * @type {Bot}
 		 */
-		this.instance = instance;
+		this.bot = bot;
 	}
 
 	/**
@@ -16,7 +16,7 @@ class Packet {
 	 * @returns {void}
 	 */
 	sendClient(packet, type = 'str') {
-		return this.instance.flash.call(window.swf.sendClientPacket, packet, type);
+		return this.bot.flash.call(window.swf.sendClientPacket, packet, type);
 	}
 
 	/**
@@ -26,7 +26,7 @@ class Packet {
 	 * @returns {void}
 	 */
 	sendServer(packet, type = 'String') {
-		return this.instance.flash.call(window.swf.callGameFunction, `sfc.send${type}`, packet);
+		return this.bot.flash.call(window.swf.callGameFunction, `sfc.send${type}`, packet);
 	}
 }
 

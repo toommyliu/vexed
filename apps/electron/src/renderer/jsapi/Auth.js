@@ -1,9 +1,9 @@
 class Auth {
 	/**
-	 * @param {Bot} instance
+	 * @param {Bot} bot
 	 */
-	constructor(instance) {
-		this.instance = instance;
+	constructor(bot) {
+		this.bot = bot;
 	}
 
 	/**
@@ -11,7 +11,7 @@ class Auth {
 	 * @returns {string}
 	 */
 	get username() {
-		return this.instance.flash.call(window.swf.GetUsername);
+		return this.bot.flash.call(window.swf.GetUsername);
 	}
 
 	/**
@@ -19,7 +19,7 @@ class Auth {
 	 * @returns {string}
 	 */
 	get password() {
-		return this.instance.flash.call(window.swf.GetPassword);
+		return this.bot.flash.call(window.swf.GetPassword);
 	}
 
 	/**
@@ -27,7 +27,7 @@ class Auth {
 	 * @returns {boolean}
 	 */
 	get loggedIn() {
-		return this.instance.flash.call(window.swf.IsLoggedIn);
+		return this.bot.flash.call(window.swf.IsLoggedIn);
 	}
 
 	/**
@@ -38,9 +38,9 @@ class Auth {
 	 */
 	login(username, password) {
 		if (username && password) {
-			this.instance.flash.call(window.swf.FixLogin, username, password);
+			this.bot.flash.call(window.swf.FixLogin, username, password);
 		} else {
-			this.instance.flash.call(window.swf.Login);
+			this.bot.flash.call(window.swf.Login);
 		}
 	}
 
@@ -49,16 +49,16 @@ class Auth {
 	 * @returns {void}
 	 */
 	logout() {
-		this.instance.flash.call(window.swf.Logout);
+		this.bot.flash.call(window.swf.Logout);
 	}
 
 	/**
-	 * The list of all available servers.This list is updated after a successful login.
+	 * The list of servers the client can see. This list is updated after a successful login.
 	 * @returns {Server[]}
 	 */
 	get servers() {
 		return (
-			this.instance.flash.call(window.swf.getGameObject, 'serialCmd.servers')?.map((data) => new Server(data)) ?? []
+			this.bot.flash.get('serialCmd.servers', true)?.map((data) => new Server(data)) ?? []
 		);
 	}
 
@@ -67,7 +67,7 @@ class Auth {
 	 * @returns {boolean}
 	 */
 	resetServers() {
-		return !this.instance.flash.call(window.swf.ResetServers);
+		return !this.bot.flash.call(window.swf.ResetServers);
 	}
 
 	/**
@@ -76,7 +76,23 @@ class Auth {
 	 * @returns {void}
 	 */
 	connect(name) {
-		this.instance.flash.call(window.swf.Connect, name);
+		this.bot.flash.call(window.swf.Connect, name);
+	}
+
+	/**
+	 * The server IP the client is connected to.
+	 * @returns {string}
+	 */
+	get ip() {
+		return this.bot.flash.getStatic('serverIP', true);
+	}
+
+	/**
+	 * The server port the client is connected to.
+	 * @returns {number}
+	*/
+	get port() {
+		return this.bot.flash.getStatic('serverPort', true);
 	}
 }
 

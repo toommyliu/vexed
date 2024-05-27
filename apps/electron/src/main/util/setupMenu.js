@@ -16,12 +16,12 @@ ipcMain.handle("loadScript", async () => {
 	if (!scriptBody?.toString()) return;
 
 	browserWindow.webContents.executeJavaScript(`
-	document.getElementById('loaded-script')?.remove();
-	var script = document.createElement('script');
-	script.id = 'loaded-script';
-	script.textContent = \`(async ()=>{console.log("script started", new Date());${scriptBody};console.log("script finished",new Date());})();\`;
-	document.body.appendChild(script);
-`);
+		document.getElementById('loaded-script')?.remove();
+		var script = document.createElement('script');
+		script.id = 'loaded-script';
+		script.textContent = \`(async ()=>{console.log("script started", new Date());${scriptBody};console.log("script finished",new Date());})();\`;
+		document.body.appendChild(script);
+	`);
 });
 
 /**

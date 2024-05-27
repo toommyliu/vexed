@@ -41,20 +41,6 @@ class TempInventory {
 
 		return false;
 	}
-
-	/**
-	 * Resolves an item from the Temp Inventory.
-	 * @param {string|number} itemResolvable - The name or ID of the item.
-	 * @returns {TempInventoryItem|null}
-	 */
-	resolve(itemResolvable) {
-		return (
-			this.items.find((i) => {
-				if (typeof itemResolvable === 'string') return i.name.toLowerCase() === itemResolvable.toLowerCase();
-				if (typeof itemResolvable === 'number') return i.id === itemResolvable;
-			}) ?? null
-		);
-	}
 }
 
 class TempInventoryItem extends ItemBase {}

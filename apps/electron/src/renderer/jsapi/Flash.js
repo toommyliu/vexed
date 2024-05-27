@@ -1,9 +1,9 @@
 class Flash {
 	/**
-	 * @param {Bot} instance
+	 * @param {Bot} bot
 	 */
-	constructor(instance) {
-		this.instance = instance;
+	constructor(bot) {
+		this.bot = bot;
 	}
 
 	/**
@@ -13,20 +13,17 @@ class Flash {
 	 * @returns {any|null}
 	 */
 	call(fn, ...args) {
-		// interop function?
 		let _fn;
 		let _args = args;
 		let out;
 
 		if (typeof fn === "function") {
+			// interop function
 			_fn = fn;
 		} else if (typeof fn === "string") {
-			// arg[0] is the path
-			// arg[1-n] are the actual args
-			_fn =
-				args.length === 0
-					? window.swf.callGameFunction0
-					: window.swf.callGameFunction;
+			// args[0] is the path
+			// args[1-n] are the actual args for the game function
+			_fn = args.length === 0 ? window.swf.callGameFunction0 : window.swf.callGameFunction;
 			_args = [fn];
 		}
 
@@ -40,8 +37,8 @@ class Flash {
 
 		if (typeof out === "string") {
 			// boolean
-			if (['"true"', '"false"'].includes(out.toLowerCase()))
-				return out.toLowerCase() === '"true"';
+			if (['"True"', '"False"'].includes(out))
+				return out === '"True"';
 
 			// void
 			if (out === "undefined")
@@ -55,14 +52,16 @@ class Flash {
 
 	/**
 	 * Gets an actionscript object at the given location.
-	 * @param {string} path - The path of the object, relative to Game.
-	 * @param {boolean} [parse=false] - Whether to parse the return value.
+	 * @param {string} path The path of the object, relative to Game.
+	 * @param {boolean} [parse=false] Whether to call JSON.parse on the return value.
 	 * @returns {any|null}
 	 */
 	get(path, parse = false) {
 		try {
 			const out = window.swf.getGameObject(path);
-			if (parse) return JSON.parse(out);
+			if (parse)
+				return JSON.parse(out);
+
 			return out;
 		} catch (error) {
 			console.error(error);
@@ -72,25 +71,27 @@ class Flash {
 
 	/**
 	 * Gets an static actionscript object at the given location
-	 * @param {string} path - The path of the object, relative to Game.
-	 * @param {boolean} [parse=false] - Whether to parse the return value.
+	 * @param {string} path The path of the object, relative to Game.
+	 * @param {boolean} [parse=false] Whether to call JSON.parse on the return value.
 	 * @returns {any|null}
 	 */
-	getStatic(path, parse = false) {
+	getStatic(path, parse = false, defaultValue = null) {
 		try {
 			const out = window.swf.getGameObjectS(path);
-			if (parse) return JSON.parse(out);
+			if (parse)
+				return JSON.parse(out);
+
 			return out;
 		} catch (error) {
 			console.error(error);
-			return null;
+			return defaultValue;
 		}
 	}
 
 	/**
 	 * Sets an actionscript object at the given location.
-	 * @param {string} path - The path of the object, relative to Game.
-	 * @param {any} value - The value to set.
+	 * @param {string} path The path of the object, relative to Game.
+	 * @param {any} value The value to set.
 	 * @returns {void}
 	 */
 	set(path, value) {

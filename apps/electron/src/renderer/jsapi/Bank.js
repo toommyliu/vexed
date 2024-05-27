@@ -1,40 +1,31 @@
 class Bank {
 	/**
-	 * @param {Bot} instance
+	 * @param {Bot} bot
 	 */
-	constructor(instance) {
-		this.instance = instance;
+	constructor(bot) {
+		this.bot = bot;
 	}
 
 	/**
-	 * Gets items in the Bank of the current player.
+	 * Gets the items in the Bank of the current player. The Bank must have been loaded before.
 	 * @returns {BankItem[]}
 	 */
 	get items() {
-		return this.instance.flash.call(window.swf.GetBankItems)?.map((data) => new BankItem(data)) ?? [];
+		return this.bot.flash.call(window.swf.GetBankItems)?.map((data) => new BankItem(data)) ?? [];
 	}
 
 	/**
-	 * Checks if the Bank contains an item with some desired quantity.
-	 * @param {string} itemName - The name of the item.
-	 * @param {string|number} [quantity="*"] - The quantity of the item to match against.
-	 * @returns {boolean}
+	 * Resolves an item from the Bank.
+	 * @param {string|number} itemResolvable The name or ID of the item.
+	 * @returns {BankItem?}
 	 */
-	contains(itemName, quantity = '*') {
-		const item = this.items.find((i) => i.name.toLowerCase() === itemName.toLowerCase());
-		if (item) {
-			// Match any quantity
-			if (quantity === '*') return true;
-
-			// Match max quantity
-			if (quantity?.toLowerCase() === 'max') return item.quantity === item.maxStack;
-
-			// Match quantity
-			const quantity_ = Number.parseInt(quantity, 10);
-			return quantity_ === item.quantity;
-		}
-
-		return false;
+	resolve(itemResolvable) {
+		return this.items.find((i) => {
+			if (typeof itemResolvable === "string")
+				return i.name.toLowerCase() === itemResolvable.toLowerCase();
+			if (typeof itemResolvable === "number")
+				return i.id === itemResolvable;
+		});
 	}
 
 	/**
@@ -42,7 +33,7 @@ class Bank {
 	 * @returns {number}
 	 */
 	get availableSlots() {
-		return this.instance.flash.call(window.swf.BankSlots);
+		return this.bot.flash.call(window.swf.BankSlots);
 	}
 
 	/**
@@ -50,7 +41,7 @@ class Bank {
 	 * @returns {number}
 	 */
 	get usedSlots() {
-		return this.instance.flash.call(window.swf.UsedBankSlots);
+		return this.bot.flash.call(window.swf.UsedBankSlots);
 	}
 
 	/**
@@ -62,31 +53,47 @@ class Bank {
 	}
 
 	/**
-	 * Deposits an item into the bank.
-	 * @param {string} name - The name of the item.
-	 * @returns {void}
+	 * Puts an item into the Bank.
+	 * @param {string} itemName - The name of the item.
+	 * @returns {Promise<void>}
 	 */
-	deposit(name) {
-		this.instance.flash.call(window.swf.TransferToBank, name);
+	async deposit(itemName) {
+		// TODO: 
+		if (!this.bot.inventory.contains(itemName))
+			return;
+
+		this.bot.flash.call(window.swf.TransferToBank, itemName);
+		await this.bot.sleep(500);
 	}
 
 	/**
 	 * Takes an item out of the bank.
-	 * @param {string} name - The name of the item.
-	 * @returns {void}
+	 * @param {string} itemName - The name of the item.
+	 * @returns {Promise<void>}
 	 */
-	withdraw(name) {
-		this.instance.flash.call(window.swf.TransferToInventory, name);
+	async withdraw(itemName) {
+		if (!this.resolve(itemName))
+			return;
+
+		this.bot.flash.call(window.swf.TransferToInventory, itemName);
+		await this.bot.sleep(500);
 	}
 
 	/**
 	 * Swaps an item from the bank with an item from the inventory.
-	 * @param {string} out_item - The name of the item in the bank.
-	 * @param {string} in_item - The name of the item in the inventory.
-	 * @returns {void}
+	 * @param {string} outItem - The name of the item in the bank.
+	 * @param {string} inItem - The name of the item in the inventory.
+	 * @returns {Promise<void>}
 	 */
-	swap(out_item, in_item) {
-		this.instance.flash.call(window.swf.BankSwap, in_item, out_item);
+	async swap(outItem, inItem) {
+		const inBank = () => this.bot.bank.contains(outItem);
+		const inInventory = () => this.bot.inventory.contains(inItem);
+
+		if (!inBank() || !inInventory())
+			return;
+
+		this.bot.flash.call(window.swf.BankSwap, inItem, outItem);
+		await this.bot.waitUntil(() => !inBank() && !inInventory());
 	}
 
 	/**
@@ -94,23 +101,14 @@ class Bank {
 	 * @returns {Promise<void>}
 	 */
 	async open() {
-		this.instance.flash.call(window.swf.ShowBank);
-		await this.instance.waitUntil(() => this.instance.flash.get('ui.mcPopup.currentLabel') === '"Bank"');
-		await this.instance.sleep(2000);
-	}
+		const isOpen = () => this.bot.flash.get('ui.mcPopup.currentLabel', true) === "Bank";
 
-	/**
-	 * Resolves an item from the Bank.
-	 * @param {string|number} itemResolvable - The name or ID of the item.
-	 * @returns {BankItem|null}
-	 */
-	resolve(itemResolvable) {
-		return (
-			this.items.find((i) => {
-				if (typeof itemResolvable === 'string') return i.name.toLowerCase() === itemResolvable.toLowerCase();
-				if (typeof itemResolvable === 'number') return i.id === itemResolvable;
-			}) ?? null
-		);
+		if (isOpen())
+			return;
+
+		this.bot.flash.call(window.swf.ShowBank);
+		await this.bot.waitUntil(isOpen);
+		await this.bot.sleep(2000);
 	}
 }
 
@@ -228,7 +226,7 @@ class ItemBase {
 	}
 }
 
-class BankItem extends ItemBase {}
+class BankItem extends ItemBase { }
 
 /**
  * @typedef {Object} ItemData

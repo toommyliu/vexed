@@ -1,4 +1,4 @@
-class Shop {
+class Shops {
 	constructor(instance) {
 		/**
 		 * @type {Bot}
@@ -7,7 +7,7 @@ class Shop {
 	}
 
 	/**
-	 * Whether the shop is loaded.
+	 * Whether a shop is loaded.
 	 * @returns {boolean}
 	 */
 	get loaded() {
@@ -18,7 +18,7 @@ class Shop {
 	 * The info about the current loaded shop.
 	 * @returns {ShopInfo}
 	 */
-	get shopInfo() {
+	get info() {
 		return this.instance.flash.get("world.shopinfo", true);
 	}
 
@@ -35,31 +35,31 @@ class Shop {
 
 		if (quantity) {
 			this.instance.flash.call(window.swf.BuyItemQty, name, quantity);
-			await this.instance.waitUntil(
-				() =>
-					this.instance.inventory.items.find(
-						(i) => i.name.toLowerCase() === name.toLowerCase(),
-					).quantity >= quantity,
-			);
+			// await this.instance.waitUntil(
+			// 	() =>
+			// 		this.instance.inventory.items.find(
+			// 			(i) => i.name.toLowerCase() === name.toLowerCase(),
+			// 		).quantity >= quantity,
+			// );
 		} else {
 			this.instance.flash.call(window.swf.BuyItem, name);
-			await this.instance.waitUntil(
-				() =>
-					this.instance.inventory.items.find(
-						(i) => i.name.toLowerCase() === name.toLowerCase(),
-					).quantity >= 1,
-			);
+			// await this.instance.waitUntil(
+			// 	() =>
+			// 		this.instance.inventory.items.find(
+			// 			(i) => i.name.toLowerCase() === name.toLowerCase(),
+			// 		).quantity >= 1,
+			// );
 		}
 	}
 
 	/**
-	 * Buy an item from the shop using its Id.
-	 * @param {number} itemId
-	 * @param {number} shopItemId
+	 * Buy an item from the shop using its ID.
+	 * @param {number} itemID
+	 * @param {number} shopItemID
 	 * @param {number} quantity
 	 * @returns {Promise<void>}
 	 */
-	async buyById(itemId, shopItemId, quantity) {
+	async buyByID(itemID, shopItemID, quantity) {
 		await this.instance.waitUntil(() =>
 			this.instance.world.isActionAvailable(GameAction.BuyItem),
 		);
@@ -67,16 +67,16 @@ class Shop {
 		this.instance.flash.call(
 			window.swf.BuyItemQtyById,
 			quantity,
-			itemId,
-			shopItemId,
+			itemID,
+			shopItemID,
 		);
 
-		await this.instance.waitUntil(
-			() =>
-				this.instance.inventory.items.find(
-					(i) => i.id === itemId,
-				).quantity >= quantity,
-		);
+		// await this.instance.waitUntil(
+		// 	() =>
+		// 		this.instance.inventory.items.find(
+		// 			(i) => i.id === itemID,
+		// 		).quantity >= quantity,
+		// );
 	}
 
 	/**
@@ -89,15 +89,15 @@ class Shop {
 
 	/**
 	 * Load a shop.
-	 * @param {number} shopId
+	 * @param {number} shopID
 	 * @returns {Promise<void>}
 	 */
-	async load(shopId) {
+	async load(shopID) {
 		await this.instance.waitUntil(() =>
 			this.instance.world.isActionAvailable(GameAction.LoadShop),
 		);
 		this.reset();
-		this.instance.flash.call(window.swf.LoadShop, String(shopId));
+		this.instance.flash.call(window.swf.LoadShop, String(shopID));
 		await this.instance.waitUntil(() => this.loaded);
 	}
 

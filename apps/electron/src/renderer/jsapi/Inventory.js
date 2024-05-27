@@ -1,4 +1,4 @@
-class Inventory {
+class ScriptInventory {
 	/**
 	 * @param {Bot} instance
 	 */
@@ -18,28 +18,17 @@ class Inventory {
 	}
 
 	/**
-	 * Checks if the Inventory contains an item with some desired quantity.
-	 * @param {string} itemName - The name of the item.
-	 * @param {string|number} [quantity="*"] - The quantity of the item to match against.
-	 * @returns {boolean}
+	 * Gets an item in the Inventory.
+	 * @param {string|number} itemResolvable The name or ID of the item.
+	 * @returns {InventoryItem|undefined}
 	 */
-	contains(itemName, quantity = '*') {
-		if (!this.items?.length) return false;
-
-		const item = this.items.find((i) => i.name.toLowerCase() === itemName.toLowerCase());
-		if (item) {
-			// Match any quantity
-			if (quantity === '*') return true;
-
-			// Match max quantity
-			if (quantity?.toLowerCase() === 'max') return item.quantity === item.maxStack;
-
-			// Match quantity
-			const quantity_ = Number.parseInt(quantity, 10);
-			return quantity_ === item.quantity;
-		}
-
-		return false;
+	get(itemResolvable) {
+		return this.items.find((item) => {
+			if (typeof itemResolvable === 'string')
+				return item.name.toLowerCase() === itemResolvable.toLowerCase();
+			else if (typeof itemResolvable === 'number')
+				return item.id === itemResolvable;
+		});
 	}
 
 	/**
@@ -67,20 +56,6 @@ class Inventory {
 	}
 
 	/**
-	 * Resolves an item from the Inventory.
-	 * @param {string|number} itemResolvable - The name or ID of the item.
-	 * @returns {InventoryItem|null}
-	 */
-	resolve(itemResolvable) {
-		return (
-			this.items.find((i) => {
-				if (typeof itemResolvable === 'string') return i.name.toLowerCase() === itemResolvable.toLowerCase();
-				if (typeof itemResolvable === 'number') return i.id === itemResolvable;
-			}) ?? null
-		);
-	}
-
-	/**
 	 * Equips an item from the Inventory.
 	 * @param {string} itemName 
 	 * @returns {Promise<void>}
@@ -103,7 +78,7 @@ class Inventory {
 				else
 					this.instance.flash.call(window.swf.Equip, item.id.toString());
 			}
-		} 
+		}
 	}
 }
 

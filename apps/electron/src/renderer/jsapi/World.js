@@ -1,12 +1,9 @@
 class World {
 	/**
-	 * @param {Bot} instance
+	 * @param {Bot} bot
 	 */
-	constructor(instance) {
-		/**
-		 * @type {Bot}
-		 */
-		this.instance = instance;
+	constructor(bot) {
+		this.bot = bot;
 	}
 
 	/**
@@ -15,7 +12,7 @@ class World {
 	 */
 	get players() {
 		return (
-			this.instance.flash
+			this.bot.flash
 				.call(window.swf.Players)
 				?.map((data) => new Avatar(data)) ?? []
 		);
@@ -26,7 +23,7 @@ class World {
 	 * @returns {Monster[]}
 	 */
 	get visibleMonsters() {
-		const monsters = this.instance.flash.call(
+		const monsters = this.bot.flash.call(
 			window.swf.GetVisibleMonstersInCell,
 		);
 		return monsters.map((data) => new Monster(data));
@@ -37,8 +34,21 @@ class World {
 	 * @returns {Monster[]}
 	 */
 	get availableMonsters() {
-		const monsters = this.instance.flash.call(window.swf.GetMonstersInCell);
+		const monsters = this.bot.flash.call(window.swf.GetMonstersInCell);
 		return monsters.map((data) => new Monster(data));
+	}
+
+	/**
+	 * Whether a monster is available.
+	 * @param {string} monsterResolvable The name of the monster or in monMapID format.
+	 * @returns {boolean}
+	 */
+	isMonsterAvailable(monsterResolvable) {
+		if (["id'", "id.", "id:", "id-"].some((prefix) => monsterResolvable.startsWith(prefix))) {
+			const monMapID = monsterResolvable.substring(3);
+			return this.bot.flash.call(window.swf.IsMonsterAvailableByMonMapID, monMapID);
+		}
+		return this.bot.flash.call(window.swf.IsMonsterAvailable, monsterResolvable);
 	}
 
 	/**
@@ -46,7 +56,7 @@ class World {
 	 * @returns {void}
 	 */
 	reload() {
-		this.instance.flash.call(window.swf.ReloadMap);
+		this.bot.flash.call(window.swf.ReloadMap);
 	}
 
 	/**
@@ -54,7 +64,7 @@ class World {
 	 * @returns {boolean}
 	 */
 	get loading() {
-		return !this.instance.flash.call(window.swf.MapLoadComplete);
+		return !this.bot.flash.call(window.swf.MapLoadComplete);
 	}
 
 	/**
@@ -62,7 +72,7 @@ class World {
 	 * @returns {string[]}
 	 */
 	get cells() {
-		return this.instance.flash.call(window.swf.GetCells);
+		return this.bot.flash.call(window.swf.GetCells);
 	}
 
 	/**
@@ -70,7 +80,7 @@ class World {
 	 * @returns {void}
 	 */
 	setSpawnpoint() {
-		this.instance.flash.call(window.swf.SetSpawnPoint);
+		this.bot.flash.call(window.swf.SetSpawnPoint);
 	}
 
 	/**
@@ -78,7 +88,7 @@ class World {
 	 * @returns {number}
 	 */
 	get roomId() {
-		return this.instance.flash.call(window.swf.RoomId);
+		return this.bot.flash.call(window.swf.RoomId);
 	}
 
 	/**
@@ -86,7 +96,7 @@ class World {
 	 * @returns {number}
 	 */
 	get roomNumber() {
-		return this.instance.flash.call(window.swf.RoomNumber);
+		return this.bot.flash.call(window.swf.RoomNumber);
 	}
 
 	/**
@@ -94,7 +104,7 @@ class World {
 	 * @returns {string}
 	 */
 	get name() {
-		return this.instance.flash.call(window.swf.Map);
+		return this.bot.flash.call(window.swf.Map);
 	}
 
 	/**
@@ -105,75 +115,47 @@ class World {
 	 * @returns {Promise<void>}
 	 */
 	async jump(cell, pad = "Spawn", force = false) {
-		do {
-			console.log(cell, pad, force);
-			this.instance.flash.call(window.swf.Jump, cell, pad);
-			await this.instance.sleep(500);
-		} while (this.instance.player.cell.toLowerCase() !== cell.toLowerCase() || force);
+		while (this.bot.player.cell !== cell || force) {
+			this.bot.flash.call(window.swf.Jump, cell, pad);
+			await this.bot.sleep(500);
+		}
 	}
 
 	/**
-	 * Join the specified map, jumping to the specified cell and pad.
+	 * Joins a map.
 	 * @param {string} mapName - The name of the map to join.
 	 * @param {string} [cell="Enter"] - The cell to jump to.
 	 * @param {string} [pad="Spawn"] - The pad to jump to.
 	 * @returns {Promise<void>}
 	 */
 	async join(mapName, cell = "Enter", pad = "Spawn") {
-		await this.instance.waitUntil(
-			() => this.instance.world.isActionAvailable(GameAction.Transfer),
-			null,
-			15,
-		);
+		await this.bot.waitUntil(() => this.isActionAvailable(GameAction.Transfer));
+		if (this.bot.player.state === 2) {
+			this.jump("Enter", "Spawn");
+			await this.bot.waitUntil(() => this.bot.player.state !== 2);
+			await this.bot.sleep(1500);
+		}
 
-		if (this.name.toLowerCase() === mapName.toLowerCase()) {
+		let map_str = mapName;
+		let [map_name, map_number] = map_str.split('-');
+
+		if (map_number == "1e9" || map_number == "1e99" || !map_number)
+			map_number = "100000";
+		map_str = `${map_name}-${map_number}`;
+
+		if (this.name.toLowerCase() === map_name.toLowerCase()) {
 			this.jump(cell, pad);
 			return;
 		}
 
-		let map_str = mapName;
-		let map_number = mapName.includes("-")
-			? mapName.split("-")[1]
-			: this.instance.options.privateRooms
-				? String(this.instance.options.roomNumber)
-				: "1";
-
-		// Random room number
-		if (map_number === "1e9" || map_number === "1e99") {
-			map_number = "100000";
-		}
-
-		await this.#_join(mapName, map_number, cell, pad);
-	}
-
-	async #_join(mapName, roomNumber, cell, pad) {
-		await this.instance.waitUntil(
-			() => this.instance.world.isActionAvailable(GameAction.Transfer),
-			null,
-			15,
-		);
-		if (this.instance.player.state === 2) {
-			this.jump("Enter", "Spawn");
-			await this.instance.waitUntil(
-				() => this.instance.player.state !== 2,
-				null,
-				10,
-			);
-			await this.instance.sleep(1500);
-		}
-
-		this.instance.flash.call(
+		this.bot.flash.call(
 			window.swf.Join,
-			`${mapName}-${roomNumber}`,
+			map_str,
 			cell,
 			pad,
 		);
-		await this.instance.waitUntil(
-			() => this.name.toLowerCase() === mapName.toLowerCase(),
-			null,
-			10,
-		);
-		await this.instance.waitUntil(() => !this.loading, null, 40);
+		await this.bot.waitUntil(() => this.name.toLowerCase() === map_name.toLowerCase());
+		await this.bot.waitUntil(() => !this.loading);
 	}
 
 	/**
@@ -182,14 +164,14 @@ class World {
 	 * @returns {void}
 	 */
 	goto(name) {
-		this.instance.flash.call(window.swf.GoTo, name);
+		this.bot.flash.call(window.swf.GoTo, name);
 	}
 
 	/**
 	 * @returns {InventoryItemData[]}
 	 */
 	get itemTree() {
-		return this.instance.flash.call(window.swf.GetItemTree);
+		return this.bot.flash.call(window.swf.GetItemTree);
 	}
 
 	/**
@@ -198,7 +180,7 @@ class World {
 	 * @returns {boolean}
 	 */
 	isActionAvailable(action) {
-		return this.instance.flash.call(window.swf.IsActionAvailable, action);
+		return this.bot.flash.call(window.swf.IsActionAvailable, action);
 	}
 
 	/**
@@ -207,11 +189,9 @@ class World {
 	 * @returns {Promise<void>}
 	 */
 	async getMapItem(itemId) {
-		await this.instance.waitUntil(() =>
-			this.isActionAvailable(GameAction.GetMapItem),
-		);
-		this.instance.flash.call(window.swf.GetMapItem, itemId);
-		await this.instance.sleep(2000);
+		await this.bot.waitUntil(() => this.isActionAvailable(GameAction.GetMapItem));
+		this.bot.flash.call(window.swf.GetMapItem, itemId);
+		await this.bot.sleep(2000);
 	}
 }
 
@@ -220,7 +200,7 @@ class World {
  * @readonly
  * @enum {string}
  */
-const GameAction = {
+const GameAction = Object.freeze({
 	/** Loading a shop. */
 	LoadShop: "loadShop",
 	/** Loading an enhancement shop. */
@@ -249,7 +229,7 @@ const GameAction = {
 	Who: "who",
 	/** Joining another map. */
 	Transfer: "tfer",
-};
+});
 
 /**
  * A remote player.
@@ -394,7 +374,7 @@ class Monster {
 	 * The map ID of the monster.
 	 * @returns {number}
 	 */
-	get monMapId() {
+	get monMapID() {
 		return this.data.MonMapID;
 	}
 

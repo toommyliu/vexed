@@ -1,12 +1,13 @@
+// DONE
 class Settings {
 	/**
-	 * @param {Bot} instance
+	 * @param {Bot} bot
 	 */
-	constructor(instance) {
+	constructor(bot) {
 		/**
 		 * @type {Bot}
 		 */
-		this.instance = instance;
+		this.bot = bot;
 	}
 
 	/**
@@ -14,7 +15,7 @@ class Settings {
 	 * @returns {void}
 	 */
 	setInfiniteRange() {
-		this.instance.flash.call(window.swf.SetInfiniteRange);
+		this.bot.flash.call(window.swf.SetInfiniteRange);
 	}
 
 	/**
@@ -22,7 +23,7 @@ class Settings {
 	 * @returns {void}
 	 */
 	setProvokeMonsters() {
-		this.instance.flash.call(window.swf.SetProvokeMonsters);
+		this.bot.flash.call(window.swf.SetProvokeMonsters);
 	}
 
 	/**
@@ -30,7 +31,7 @@ class Settings {
 	 * @returns {void}
 	 */
 	setEnemyMagnet() {
-		this.instance.flash.call(window.swf.SetEnemyMagnet);
+		this.bot.flash.call(window.swf.SetEnemyMagnet);
 	}
 
 	/**
@@ -38,7 +39,7 @@ class Settings {
 	 * @param {boolean} on
 	 */
 	setLagKiller(on) {
-		this.instance.flash.call(window.swf.SetLagKiller, on ? 'True' : 'False');
+		this.bot.flash.call(window.swf.SetLagKiller, on ? 'True' : 'False');
 	}
 
 	/**
@@ -46,7 +47,7 @@ class Settings {
 	 * @returns {void}
 	 */
 	hidePlayers() {
-		this.instance.flash.call(window.swf.DestroyPlayers);
+		this.bot.flash.call(window.swf.DestroyPlayers);
 	}
 
 	/**
@@ -54,7 +55,7 @@ class Settings {
 	 * @returns {void}
 	 */
 	skipCutscenes() {
-		this.instance.flash.call(window.swf.SetSkipCutscenes);
+		this.bot.flash.call(window.swf.SetSkipCutscenes);
 	}
 
 	/**
@@ -62,6 +63,6 @@ class Settings {
 	 * @param {number|string} walkSpeed
 	 */
 	setWalkSpeed(walkSpeed) {
-		this.instance.flash.call(window.swf.SetWalkSpeed, String(walkSpeed));
+		this.bot.flash.call(window.swf.SetWalkSpeed, String(walkSpeed));
 	}
 }
