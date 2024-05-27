@@ -7,7 +7,8 @@ function packetFromServer([packet]) {
 		switch (pkt.b.o.cmd) {
 			case "dropItem":
 				{
-					// const item = Object.values(pkt.b.o.items)[0];
+					const item = Object.values(pkt.b.o.items)[0];
+					Bot.getInstance().drops.addToStack(item);
 				}
 				break;
 		}
