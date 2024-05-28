@@ -139,7 +139,7 @@ class World {
 		let map_str = mapName;
 		let [map_name, map_number] = map_str.split('-');
 
-		if (map_number == "1e9" || map_number == "1e99" || !map_number)
+		if (map_number === "1e9" || map_number === "1e99" || !map_number)
 			map_number = "100000";
 		map_str = `${map_name}-${map_number}`;
 
@@ -154,7 +154,9 @@ class World {
 			cell,
 			pad,
 		);
+
 		await this.bot.waitUntil(() => this.name.toLowerCase() === map_name.toLowerCase());
+		await this.jump(cell, pad);
 		await this.bot.waitUntil(() => !this.loading);
 	}
 
