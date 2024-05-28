@@ -58,8 +58,7 @@ class Bank {
 	 * @returns {Promise<void>}
 	 */
 	async deposit(itemName) {
-		// TODO: 
-		if (!this.bot.inventory.contains(itemName))
+		if (!this.bot.inventory.resolve(itemName))
 			return;
 
 		this.bot.flash.call(window.swf.TransferToBank, itemName);
