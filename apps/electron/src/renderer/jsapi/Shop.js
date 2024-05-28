@@ -1,9 +1,9 @@
 class Shops {
-	constructor(instance) {
+	constructor(bot) {
 		/**
 		 * @type {Bot}
 		 */
-		this.instance = instance;
+		this.bot = bot;
 	}
 
 	/**
@@ -11,7 +11,7 @@ class Shops {
 	 * @returns {boolean}
 	 */
 	get loaded() {
-		return this.instance.flash.call(window.swf.IsShopLoaded);
+		return this.bot.flash.call(window.swf.IsShopLoaded);
 	}
 
 	/**
@@ -19,7 +19,7 @@ class Shops {
 	 * @returns {ShopInfo}
 	 */
 	get info() {
-		return this.instance.flash.get("world.shopinfo", true);
+		return this.bot.flash.get("world.shopinfo", true);
 	}
 
 	/**
@@ -29,26 +29,13 @@ class Shops {
 	 * @returns {Promise<void>}
 	 */
 	async buyByName(name, quantity) {
-		await this.instance.waitUntil(() =>
-			this.instance.world.isActionAvailable(GameAction.BuyItem),
-		);
-
+		await this.bot.waitUntil(() => this.bot.world.isActionAvailable(GameAction.BuyItem));
 		if (quantity) {
-			this.instance.flash.call(window.swf.BuyItemQty, name, quantity);
-			// await this.instance.waitUntil(
-			// 	() =>
-			// 		this.instance.inventory.items.find(
-			// 			(i) => i.name.toLowerCase() === name.toLowerCase(),
-			// 		).quantity >= quantity,
-			// );
+			this.bot.flash.call(window.swf.BuyItemQty, name, quantity);
+			await this.bot.waitUntil(() => this.bot.inventory.resolve(name)?.quantity >= quantity);
 		} else {
-			this.instance.flash.call(window.swf.BuyItem, name);
-			// await this.instance.waitUntil(
-			// 	() =>
-			// 		this.instance.inventory.items.find(
-			// 			(i) => i.name.toLowerCase() === name.toLowerCase(),
-			// 		).quantity >= 1,
-			// );
+			this.bot.flash.call(window.swf.BuyItem, name);
+			await this.bot.waitUntil(() => this.bot.inventory.resolve(name)?.quantity >= 1);
 		}
 	}
 
@@ -60,23 +47,14 @@ class Shops {
 	 * @returns {Promise<void>}
 	 */
 	async buyByID(itemID, shopItemID, quantity) {
-		await this.instance.waitUntil(() =>
-			this.instance.world.isActionAvailable(GameAction.BuyItem),
-		);
-
-		this.instance.flash.call(
+		await this.bot.waitUntil(() => this.bot.world.isActionAvailable(GameAction.BuyItem));
+		this.bot.flash.call(
 			window.swf.BuyItemQtyById,
 			quantity,
 			itemID,
 			shopItemID,
 		);
-
-		// await this.instance.waitUntil(
-		// 	() =>
-		// 		this.instance.inventory.items.find(
-		// 			(i) => i.id === itemID,
-		// 		).quantity >= quantity,
-		// );
+		await this.bot.waitUntil(() => this.bot.inventory.resolve(itemID)?.quantity >= quantity);
 	}
 
 	/**
@@ -84,7 +62,7 @@ class Shops {
 	 * @returns {void}
 	 */
 	reset() {
-		this.instance.flash.call(window.swf.ResetShopInfo);
+		this.bot.flash.call(window.swf.ResetShopInfo);
 	}
 
 	/**
@@ -93,12 +71,10 @@ class Shops {
 	 * @returns {Promise<void>}
 	 */
 	async load(shopID) {
-		await this.instance.waitUntil(() =>
-			this.instance.world.isActionAvailable(GameAction.LoadShop),
-		);
+		await this.bot.waitUntil(() => this.bot.world.isActionAvailable(GameAction.LoadShop));
 		this.reset();
-		this.instance.flash.call(window.swf.LoadShop, String(shopID));
-		await this.instance.waitUntil(() => this.loaded);
+		this.bot.flash.call(window.swf.LoadShop, String(shopID));
+		await this.bot.waitUntil(() => this.loaded);
 	}
 
 	/**
@@ -107,14 +83,12 @@ class Shops {
 	 * @returns {Promise<void>}
 	 */
 	async sell(itemName) {
-		await this.instance.waitUntil(() =>
-			this.instance.world.isActionAvailable(GameAction.SellItem),
-		);
+		await this.bot.waitUntil(() => this.bot.world.isActionAvailable(GameAction.SellItem));
 
-		const contains = () => this.instance.inventory.contains(itemName);
+		const contains = () => this.bot.inventory.resolve(itemName);
 		if (contains()) {
-			this.instance.flash.call(window.swf.SellItem, itemName);
-			await this.instance.waitUntil(() => !contains());
+			this.bot.flash.call(window.swf.SellItem, itemName);
+			await this.bot.waitUntil(() => !contains());
 		}
 	}
 
@@ -123,7 +97,7 @@ class Shops {
 	 * @param {number} id
 	 */
 	loadHairShop(id) {
-		this.instance.flash.call(window.swf.LoadHairShop, String(id));
+		this.bot.flash.call(window.swf.LoadHairShop, String(id));
 	}
 
 	/**
@@ -131,7 +105,7 @@ class Shops {
 	 * @returns {void}
 	 */
 	loadArmorCustomise() {
-		this.instance.flash.call(window.swf.LoadArmorCustomizer);
+		this.bot.flash.call(window.swf.LoadArmorCustomizer);
 	}
 }
 
