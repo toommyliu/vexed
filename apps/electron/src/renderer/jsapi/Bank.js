@@ -223,6 +223,10 @@ class ItemBase {
 	get meta() {
 		return this.data.sMeta;
 	}
+
+	isMaxed() {
+		return this.quantity === this.maxStack;
+	}
 }
 
 class BankItem extends ItemBase { }
