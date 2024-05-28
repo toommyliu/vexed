@@ -15,11 +15,20 @@ ipcMain.handle("loadScript", async () => {
 	const scriptBody = await fs.promises.readFile(scriptPath, "utf8");
 	if (!scriptBody?.toString()) return;
 
+	const escapedScriptBody = scriptBody
+		.replace(/\\/g, '\\\\')
+		.replace(/`/g, '\\`')
+		.replace(/\$/g, '\\$')
+		.replace(/\r?\n/g, '\\n');
 	browserWindow.webContents.executeJavaScript(`
 		document.getElementById('loaded-script')?.remove();
 		var script = document.createElement('script');
 		script.id = 'loaded-script';
-		script.textContent = \`(async ()=>{console.log("script started", new Date());${scriptBody};console.log("script finished",new Date());})();\`;
+		script.textContent = \`(async () => {
+			console.log("script started", new Date());
+			${escapedScriptBody}
+			console.log("script finished", new Date());
+		})();\`;
 		document.body.appendChild(script);
 	`);
 });
@@ -76,13 +85,22 @@ const template = [
 					const scriptBody = await fs.promises.readFile(scriptPath, "utf8");
 					if (!scriptBody?.toString()) return;
 
+					const escapedScriptBody = scriptBody
+						.replace(/\\/g, '\\\\')
+						.replace(/`/g, '\\`')
+						.replace(/\$/g, '\\$')
+						.replace(/\r?\n/g, '\\n');
 					browserWindow.webContents.executeJavaScript(`
-					document.getElementById('loaded-script')?.remove();
-					var script = document.createElement('script');
-					script.id = 'loaded-script';
-					script.textContent = \`(async ()=>{console.log("script started", new Date());${scriptBody};console.log("script finished",new Date());})();\`;
-					document.body.appendChild(script);
-				`);
+						document.getElementById('loaded-script')?.remove();
+						var script = document.createElement('script');
+						script.id = 'loaded-script';
+						script.textContent = \`(async () => {
+							console.log("script started", new Date());
+							${escapedScriptBody}
+							console.log("script finished", new Date());
+						})();\`;
+						document.body.appendChild(script);
+					`);
 				},
 			},
 		],
