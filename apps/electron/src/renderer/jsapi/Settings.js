@@ -65,4 +65,13 @@ class Settings {
 	setWalkSpeed(walkSpeed) {
 		this.bot.flash.call(window.swf.SetWalkSpeed, String(walkSpeed));
 	}
+
+	/**
+	 * Sets the client's target fps.
+	 * @param {string|number} fps The client fps.
+	 * @returns {void}
+	*/
+	setFPS(fps) {
+		this.bot.flash.call(window.swf.SetFPS, String(fps));
+	}
 }
