@@ -31,9 +31,6 @@ class Player {
 
 	/**
 	 * Gets the state of the current player.
-	 * 0 = dead
-	 * 1 = idle
-	 * 2 = in combat
 	 * @returns {number}
 	 */
 	get state() {
@@ -210,4 +207,15 @@ class Faction {
 	get remainingRep() {
 		return this.requiredRep - this.rep;
 	}
+}
+
+/**
+ * Enum representing a player's state.
+ * @readonly
+ * @enum {number}
+ */
+const PlayerState = {
+	Dead: 0,
+	Idle: 1,
+	InCombat: 2,
 }

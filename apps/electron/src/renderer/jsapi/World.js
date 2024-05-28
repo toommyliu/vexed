@@ -134,9 +134,9 @@ class World {
 	 */
 	async join(mapName, cell = "Enter", pad = "Spawn") {
 		await this.bot.waitUntil(() => this.isActionAvailable(GameAction.Transfer));
-		if (this.bot.player.state === 2) {
+		if (this.bot.player.state === PlayerState.InCombat) {
 			this.jump("Enter", "Spawn");
-			await this.bot.waitUntil(() => this.bot.player.state !== 2);
+			await this.bot.waitUntil(() => this.bot.player.state !== PlayerState.InCombat);
 			await this.bot.sleep(1500);
 		}
 
@@ -358,7 +358,7 @@ class Avatar {
 
 	/**
 	 * The player's state.
-	 * @returns {number}
+	 * @returns {PlayerState}
 	 */
 	get state() {
 		return this.data.intState;
