@@ -1,12 +1,12 @@
 class Quests {
 	/**
-	 * @param {Bot} instance
+	 * @param {Bot} bot
 	 */
-	constructor(instance) {
+	constructor(bot) {
 		/**
 		 * @type {Bot}
 		 */
-		this.instance = instance;
+		this.bot = bot;
 	}
 
 	/**
@@ -14,7 +14,7 @@ class Quests {
 	 * @returns {Quest[]}
 	 */
 	get tree() {
-		return this.instance.flash.call(window.swf.GetQuestTree)?.map((data) => new Quest(data)) ?? [];
+		return this.bot.flash.call(window.swf.GetQuestTree)?.map((data) => new Quest(data)) ?? [];
 	}
 
 	/**
@@ -40,6 +40,22 @@ class Quests {
 		const bot = Bot.getInstance();
 		bot.flash.call(window.swf.LoadQuest, questID);
 		await bot.waitUntil(() => this.tree.find(q => q.id === questID));
+	}
+
+	/**
+	 * Completes a quest.
+	 * @param {string} questID The quest id to complete.
+	 * @param {number} [turnIns=1] The number of times to turn-in the quest.
+	 * @param {number} [itemID=-1] The ID of the quest rewards to select.
+	 * @returns {Promise<void>}
+	 */
+	async complete(questID, turnIns = 1, itemID = -1) {
+		const bot = Bot.getInstance();
+		if (itemID !== -1) {
+			bot.flash.call(window.swf.Complete, questID, turnIns, itemID);
+		} else {
+			bot.flash.call(window.swf.Complete, questID, turnIns);
+		}
 	}
 }
 
