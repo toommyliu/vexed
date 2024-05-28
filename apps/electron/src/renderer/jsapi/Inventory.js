@@ -62,7 +62,7 @@ class Inventory {
 	 */
 	async equip(itemResolvable) {
 		const getItem = () => this.resolve(itemResolvable);
-	
+
 		if (getItem()) {
 			const equipped = () => getItem()?.equipped;
 
