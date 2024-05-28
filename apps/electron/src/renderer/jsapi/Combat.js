@@ -84,7 +84,7 @@ class Combat {
 	 * @returns {Promise<void>}
 	 */
 	async kill(name) {
-		this.bot.log.info(`Killing ${name}`);
+		this.bot.log.info(`Killing "${name}"`);
 
 		await this.bot.waitUntil(() => this.bot.world.isMonsterAvailable(name));
 
@@ -111,5 +111,26 @@ class Combat {
 		}
 	}
 
-	// TODO: killFor
+	/**
+	 * Kills a monster for a specific item.
+	 * @param {string|number} name The name or monMapID of the monster.
+	 * @param {string|number} itemResolvable The name or ID of the item.
+	 * @param {number} itemQuantity The quantity of the item.
+	 * @param {boolean} [isTemp=false] Whether the item is temporary.
+	 * @returns {Promise<void>}
+	 */
+	async killForItem(name, itemResolvable, itemQuantity, isTemp = false) {
+		this.bot.log.info(`Killing "${name}" for x${itemQuantity} "${itemResolvable}" ${isTemp ? "(temp)" : ""}`);
+
+		const getItem = () => isTemp ? this.bot.tempInventory.resolve(itemResolvable) : this.bot.inventory.resolve(itemResolvable);
+		const getQuantity = () => getItem()?.quantity ?? 0;
+
+		while (getQuantity() < itemQuantity) {
+			await this.kill(name);
+			await this.bot.sleep(500);
+			if (!isTemp) {
+				await this.bot.drops.pickup(itemResolvable);
+			}
+		}
+	}
 }

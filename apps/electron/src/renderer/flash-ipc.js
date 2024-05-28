@@ -2,8 +2,6 @@ function packetFromServer([packet]) {
 	if (packet.startsWith('{"')) {
 		const pkt = JSON.parse(packet);
 
-		// console.log(pkt);
-
 		switch (pkt.b.o.cmd) {
 			case "dropItem":
 				{
@@ -11,20 +9,21 @@ function packetFromServer([packet]) {
 					Bot.getInstance().drops.addToStack(item);
 				}
 				break;
-			case "getDrop": {
-				const data = pkt.b.o;
-				if (data.bSuccess === 0) {
-					Bot.getInstance().log.info('failed to pickup a drop (?)');
-					Bot.getInstance().log.info(data);
-					return;
-				}
+			// case "getDrop":
+			// 	{
+			// 		const data = pkt.b.o;
+			// 		if (data.bSuccess === 0) {
+			// 			Bot.getInstance().log.info("failed to pickup a drop (?)");
+			// 			Bot.getInstance().log.info(data);
+			// 			return;
+			// 		}
 
-				let out = `Picked up x${data.iQty} "${data.ItemID}" (now at ${data.iQtyNow})`;
-				if (data.bBank === 1) 
-					out += ` (added to bank)`;
-				Bot.getInstance().log.info(out);
-			}
-				break;
+			// 		let out = `Picked up x${data.iQty} "${data.ItemID}" (now at ${data.iQtyNow})`;
+			// 		if (data.bBank === 1)
+			// 			out += " (added to bank)";
+			// 		Bot.getInstance().log.info(out);
+			// 	}
+			// 	break;
 		}
 	}
 }
@@ -34,7 +33,6 @@ function packetFromClient([packet]) {
 }
 
 function connection([state]) {
-	const bot = Bot.getInstance();
 	switch (state) {
 		case "OnConnection":
 			break;

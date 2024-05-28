@@ -1,12 +1,12 @@
 class TempInventory {
 	/**
-	 * @param {Bot} instance
+	 * @param {Bot} bot
 	 */
-	constructor(instance) {
+	constructor(bot) {
 		/**
 		 * @type {Bot}
 		 */
-		this.instance = instance;
+		this.bot = bot;
 	}
 
 	/**
@@ -14,33 +14,22 @@ class TempInventory {
 	 * @returns {TempInventoryItem[]}
 	 */
 	get items() {
-		return this.instance.flash.call(window.swf.GetTempItems)?.map((data) => new TempInventoryItem(data));
+		return this.bot.flash.call(window.swf.GetTempItems)?.map((data) => new TempInventoryItem(data));
 	}
 
 	/**
-	 * Checks if the Temp Inventory contains an item with some desired quantity.
-	 * @param {string} itemName - The name of the item.
-	 * @param {string|number} [quantity="*"] - The quantity of the item to match against.
-	 * @returns {boolean}
+	 * Resolves an item from the Bank.
+	 * @param {string|number} itemResolvable The name or ID of the item.
+	 * @returns {TempInventoryItem?}
 	 */
-	contains(itemName, quantity = '*') {
-		if (!this.items?.length) return false;
-
-		const item = this.items.find((i) => i.name.toLowerCase() === itemName.toLowerCase());
-		if (item) {
-			// Match any quantity
-			if (quantity === '*') return true;
-
-			// Match max quantity
-			if (quantity?.toLowerCase() === 'max') return item.quantity === item.maxStack;
-
-			// Match quantity
-			const quantity_ = Number.parseInt(quantity, 10);
-			return quantity_ === item.quantity;
-		}
-
-		return false;
+	resolve(itemResolvable) {
+		return this.items.find((i) => {
+			if (typeof itemResolvable === "string")
+				return i.name.toLowerCase() === itemResolvable.toLowerCase();
+			if (typeof itemResolvable === "number")
+				return i.id === itemResolvable;
+		});
 	}
 }
 
-class TempInventoryItem extends ItemBase {}
+class TempInventoryItem extends ItemBase { }

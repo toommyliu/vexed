@@ -12,8 +12,11 @@ class Bot {
 		this.flash = new Flash(this);
 		this.drops = new Drops(this);
 		this.house = new House(this);
+		this.inventory = new Inventory(this);
 		this.packets = new Packet(this);
 		this.player = new Player(this);
+		this.settings = new Settings(this);
+		this.tempInventory = new TempInventory(this);
 		this.world = new World(this);
 
 		this.log = winston.createLogger({

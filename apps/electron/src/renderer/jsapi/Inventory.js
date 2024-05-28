@@ -1,12 +1,12 @@
-class ScriptInventory {
+class Inventory {
 	/**
-	 * @param {Bot} instance
+	 * @param {Bot} bot
 	 */
-	constructor(instance) {
+	constructor(bot) {
 		/**
 		 * @type {Bot}
 		 */
-		this.instance = instance;
+		this.bot = bot;
 	}
 
 	/**
@@ -14,20 +14,20 @@ class ScriptInventory {
 	 * @returns {InventoryItem[]}
 	 */
 	get items() {
-		return this.instance.flash.call(window.swf.GetInventoryItems)?.map((data) => new InventoryItem(data)) ?? [];
+		return this.bot.flash.call(window.swf.GetInventoryItems)?.map((data) => new InventoryItem(data)) ?? [];
 	}
 
 	/**
-	 * Gets an item in the Inventory.
+	 * Resolves an item from the Inventory.
 	 * @param {string|number} itemResolvable The name or ID of the item.
-	 * @returns {InventoryItem|undefined}
+	 * @returns {InventoryItem?}
 	 */
-	get(itemResolvable) {
-		return this.items.find((item) => {
-			if (typeof itemResolvable === 'string')
-				return item.name.toLowerCase() === itemResolvable.toLowerCase();
-			else if (typeof itemResolvable === 'number')
-				return item.id === itemResolvable;
+	resolve(itemResolvable) {
+		return this.items.find((i) => {
+			if (typeof itemResolvable === "string")
+				return i.name.toLowerCase() === itemResolvable.toLowerCase();
+			if (typeof itemResolvable === "number")
+				return i.id === itemResolvable;
 		});
 	}
 
@@ -36,7 +36,7 @@ class ScriptInventory {
 	 * @returns {number}
 	 */
 	get totalSlots() {
-		return this.instance.flash.call(window.swf.InventorySlots);
+		return this.bot.flash.call(window.swf.InventorySlots);
 	}
 
 	/**
@@ -44,7 +44,7 @@ class ScriptInventory {
 	 * @returns {number}
 	 */
 	get usedSlots() {
-		return this.instance.flash.call(window.swf.UsedInventorySlots);
+		return this.bot.flash.call(window.swf.UsedInventorySlots);
 	}
 
 	/**
@@ -57,26 +57,27 @@ class ScriptInventory {
 
 	/**
 	 * Equips an item from the Inventory.
-	 * @param {string} itemName 
+	 * @param {string|number} itemResolvable The name or ID of the item.
 	 * @returns {Promise<void>}
 	 */
-	async equip(itemName) {
-		const getItem = () => this.items.find(i => i.name.toLowerCase() === itemName.toLowerCase());
+	async equip(itemResolvable) {
+		const getItem = () => this.resolve(itemResolvable);
+	
 		if (getItem()) {
 			const equipped = () => getItem()?.equipped;
 
-			while (this.instance.isRunning && !equipped()) {
-				while (this.instance.isRunning && this.instance.player.state === 2) {
-					this.instance.flash.call(window.swf.Jump, this.instance.player.cell, this.instance.player.pad);
-					await this.instance.sleep(1000);
+			while (!equipped()) {
+				while (this.bot.player.state === 2) {
+					await this.bot.world.jump(this.bot.player.cell, this.bot.player.pad, true);
+					await this.bot.sleep(1000);
 				}
-				await this.instance.waitUntil(() => this.instance.world.isActionAvailable(GameAction.EquipItem));
+				await this.bot.waitUntil(() => this.bot.world.isActionAvailable(GameAction.EquipItem));
 
 				const item = getItem();
 				if (item.category === "Item")
-					this.instance.flash.call(window.swf.EquipPotion, item.id.toString(), item.description, item.fileLink, item.name);
+					this.bot.flash.call(window.swf.EquipPotion, item.id.toString(), item.description, item.fileLink, item.name);
 				else
-					this.instance.flash.call(window.swf.Equip, item.id.toString());
+					this.bot.flash.call(window.swf.Equip, item.id.toString());
 			}
 		}
 	}

@@ -115,9 +115,13 @@ class World {
 	 * @returns {Promise<void>}
 	 */
 	async jump(cell, pad = "Spawn", force = false) {
-		while (this.bot.player.cell !== cell || force) {
+		const isSameCell = () => this.bot.player.cell.toLowerCase() === cell.toLowerCase();
+		while (!isSameCell() || force) {
 			this.bot.flash.call(window.swf.Jump, cell, pad);
 			await this.bot.sleep(500);
+			if (force && isSameCell()) {
+				break;
+			}
 		}
 	}
 

@@ -40,24 +40,28 @@ class Drops {
 
 	/**
 	 * Collects an item from the drop stack, effectively removing it from the stack.
-	 * @param {string|number} item The name or ID of the item to collect.
+	 * @param {string|number} itemResolvable The name or ID of the item to collect.
 	 * @returns {Promise<void>}
 	 */
-	async pickup(item) {
-		if (typeof item === 'string')
-			item = [...this.#data.values()].find(i => i.sName.toLowerCase() === item.toLowerCase())?.ItemID;
-
-		// probably not necessary
-		while (this.busy) 
-			await this.bot.sleep(100);
+	async pickup(itemResolvable) {
+		let item;
+		if (typeof itemResolvable === 'string')
+			item = [...this.#data.values()].find(i => i.sName.toLowerCase() === itemResolvable.toLowerCase())?.ItemID;
 
 		const exists = this.stack.has(item);
-		if (exists) {
-			this.busy = true;
-			bot.packets.sendServer(`%xt%zm%getDrop%${bot.world.roomId}%${item}%`);
-			await bot.sleep(300);
-			this.removeFromStack(item);
-			this.busy = false;
+		if (!exists) {
+			return;
 		}
+
+		// probably not necessary
+		while (this.busy) {
+			await this.bot.sleep(100);
+		}
+
+		this.busy = true;
+		bot.packets.sendServer(`%xt%zm%getDrop%${bot.world.roomId}%${item}%`);
+		await bot.sleep(300);
+		this.removeFromStack(item);
+		this.busy = false;
 	}
 }
