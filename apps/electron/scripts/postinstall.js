@@ -4,8 +4,8 @@ console.log("Downloading Electron 11.5.0 Intel binary");
 
 const fs = require("node:fs");
 const path = require("node:path");
-const extract = require("node:extract-zip");
-const { downloadArtifact } = require("node:@electron/get");
+const extract = require("extract-zip");
+const { downloadArtifact } = require("@electron/get");
 const { promisify } = require("node:util");
 
 (async () => {
