@@ -99,7 +99,6 @@ class Quest {
 	}
 
 	/**
-	 * broken if quest is not loaded
 	 * Whether the quest is available.
 	 * @returns {boolean}
 	 */
