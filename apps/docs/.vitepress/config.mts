@@ -4,6 +4,7 @@ import { defineConfig } from "vitepress";
 export default defineConfig({
 	title: "Vexed",
 	description: "AQW Scripting Client for macOS",
+	head: [["script", { src: "/_vercel/insights/script.js" }]],
 	themeConfig: {
 		// https://vitepress.dev/reference/default-theme-config
 		nav: [
