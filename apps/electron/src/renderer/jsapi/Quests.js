@@ -102,8 +102,7 @@ class Quest {
 	 */
 	get completable() {
 		return (
-			Bot.getInstance().quests.tree.find((q) => q.id === this.id)
-				?.completable ?? false
+			Bot.getInstance().flash.call(window.swf.CanComplete, this.id) ?? false	
 		);
 	}
 
