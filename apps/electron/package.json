@@ -6,7 +6,9 @@
 		"postinstall": "node scripts/postinstall.js",
 		"dev": "electronmon .",
 		"build": "electron-builder build",
-		"jsdoc": "node scripts/gen-jsdoc.js"
+		"jsdoc": "node scripts/gen-jsdoc.js",
+		"format": "biome format src/",
+		"format:write": "biome format src/ --write"
 	},
 	"dependencies": {
 		"@electron/get": "^3.0.0",
@@ -17,6 +19,7 @@
 		"winston": "^3.13.0"
 	},
 	"devDependencies": {
+		"@biomejs/biome": "^1.7.3",
 		"electron": "11.5.0",
 		"electron-builder": "^24.13.3",
 		"electronmon": "^2.0.3",
