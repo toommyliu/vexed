@@ -5,7 +5,8 @@
 	"scripts": {
 		"postinstall": "node scripts/postinstall.js",
 		"dev": "electronmon .",
-		"build": "electron-builder build"
+		"build": "electron-builder build",
+		"jsdoc": "node scripts/gen-jsdoc.js"
 	},
 	"dependencies": {
 		"@electron/get": "^3.0.0",
@@ -18,7 +19,8 @@
 	"devDependencies": {
 		"electron": "11.5.0",
 		"electron-builder": "^24.13.3",
-		"electronmon": "^2.0.3"
+		"electronmon": "^2.0.3",
+		"jsdoc-to-markdown": "^8.0.1"
 	},
 	"electronmon": {
 		"patterns": [
