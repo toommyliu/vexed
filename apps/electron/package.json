@@ -24,7 +24,8 @@
 	},
 	"electronmon": {
 		"patterns": [
-			"!dist/**/*"
+			"!dist/**/*",
+			"!scripts/**/*"
 		]
 	}
 }
