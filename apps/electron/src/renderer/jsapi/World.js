@@ -349,11 +349,19 @@ class Avatar {
 	}
 
 	/**
-	 * The player's position in the map.
-	 * @returns {[number, number]}
+	 * The X position of this player
+	 * @returns {number}
 	 */
-	get position() {
-		return [this.data.tx, this.data.ty];
+	get xPos() {
+		return this.data.tx;
+	}
+
+	/**
+	 * The Y position of this player
+	 * @returns {number}
+	 */
+	get yPos() {
+		return this.data.ty;
 	}
 
 	/**

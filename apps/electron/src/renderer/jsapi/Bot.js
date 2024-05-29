@@ -53,7 +53,7 @@ class Bot {
 
 	/**
 	 * Waits until the predicate is met.
-	 * @param {Function<boolean>} predicate The condition to wait for.
+	 * @param {Function} predicate The condition to wait for.
 	 * @returns {Promise<void>}
 	 */
 	async waitUntil(predicate) {
@@ -61,7 +61,6 @@ class Bot {
 			await this.sleep(1000);
 		} while (!predicate());
 	}
-
 
 	/**
 	 * Singleton getter for a Bot Instance.

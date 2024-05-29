@@ -2,7 +2,7 @@ var { setIntervalAsync, clearIntervalAsync } = require('set-interval-async/fixed
 
 class Combat {
 	/**
-	* @type {import('set-interval-async').SetIntervalAsyncTimer}
+	* @type {Object}
 	*/
 	#intervalID;
 

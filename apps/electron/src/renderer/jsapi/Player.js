@@ -110,11 +110,19 @@ class Player {
 	}
 
 	/**
-	 * Gets the position of the current player in the map.
-	 * @returns {[number, number]}
+	 * The X position of the current player
+	 * @returns {number}
 	 */
-	get position() {
-		return this.bot.flash.call(window.swf.Position);
+	get xPos() {
+		return this.bot.flash.call(window.swf.Position)?.[0];
+	}
+
+	/**
+	 * The Y position of the current player
+	 * @returns {number}
+	 */
+	get yPos() {
+		return this.bot.flash.call(window.swf.Position)?.[1];
 	}
 
 	/**
