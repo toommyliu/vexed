@@ -1,7 +1,5 @@
 node_modules/
 
-app/electron/src/*.js
-
 # other
 .DS_Store
 
@@ -10,3 +8,5 @@ app/electron/src/*.js
 .turbo/
 dist/
 out/
+
+apps/docs/.vitepress/cache/
