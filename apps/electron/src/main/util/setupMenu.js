@@ -7,7 +7,7 @@ ipcMain.handle("loadScript", async () => {
 
 	const dialog_ = await dialog.showOpenDialog(browserWindow, {
 		filters: [{ name: "JavaScript Files", extensions: ["js"] }],
-		properties: ["openFile"],
+		properties: ["openFile"]
 	});
 	if (dialog_.canceled) return;
 
@@ -16,10 +16,10 @@ ipcMain.handle("loadScript", async () => {
 	if (!scriptBody?.toString()) return;
 
 	const escapedScriptBody = scriptBody
-		.replace(/\\/g, '\\\\')
-		.replace(/`/g, '\\`')
-		.replace(/\$/g, '\\$')
-		.replace(/\r?\n/g, '\\n');
+		.replace(/\\/g, "\\\\")
+		.replace(/`/g, "\\`")
+		.replace(/\$/g, "\\$")
+		.replace(/\r?\n/g, "\\n");
 	browserWindow.webContents.executeJavaScript(`
 		document.getElementById('loaded-script')?.remove();
 		var script = document.createElement('script');
@@ -48,12 +48,12 @@ const template = [
 			{ role: "hideOthers" },
 			{ role: "unhide" },
 			{ type: "separator" },
-			{ role: "quit" },
-		],
+			{ role: "quit" }
+		]
 	},
 	{
 		label: "File",
-		submenu: [{ role: "close" }],
+		submenu: [{ role: "close" }]
 	},
 	{
 		label: "Edit",
@@ -66,8 +66,8 @@ const template = [
 			{ role: "paste" },
 			{ role: "pasteAndMatchStyle" },
 			{ role: "delete" },
-			{ role: "selectAll" },
-		],
+			{ role: "selectAll" }
+		]
 	},
 	{
 		label: "Scripts",
@@ -76,20 +76,25 @@ const template = [
 				label: "Load",
 				click: async (menuItem, browserWindow, event) => {
 					const dialog_ = await dialog.showOpenDialog(browserWindow, {
-						filters: [{ name: "JavaScript Files", extensions: ["js"] }],
-						properties: ["openFile"],
+						filters: [
+							{ name: "JavaScript Files", extensions: ["js"] }
+						],
+						properties: ["openFile"]
 					});
 					if (dialog_.canceled) return;
 
 					const scriptPath = dialog_.filePaths[0];
-					const scriptBody = await fs.promises.readFile(scriptPath, "utf8");
+					const scriptBody = await fs.promises.readFile(
+						scriptPath,
+						"utf8"
+					);
 					if (!scriptBody?.toString()) return;
 
 					const escapedScriptBody = scriptBody
-						.replace(/\\/g, '\\\\')
-						.replace(/`/g, '\\`')
-						.replace(/\$/g, '\\$')
-						.replace(/\r?\n/g, '\\n');
+						.replace(/\\/g, "\\\\")
+						.replace(/`/g, "\\`")
+						.replace(/\$/g, "\\$")
+						.replace(/\r?\n/g, "\\n");
 					browserWindow.webContents.executeJavaScript(`
 						document.getElementById('loaded-script')?.remove();
 						var script = document.createElement('script');
@@ -101,10 +106,10 @@ const template = [
 						})();\`;
 						document.body.appendChild(script);
 					`);
-				},
-			},
-		],
-	},
+				}
+			}
+		]
+	}
 	// {
 	// 	label: 'Options',
 	// 	submenu: [

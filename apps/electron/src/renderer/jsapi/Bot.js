@@ -1,9 +1,11 @@
-var winston = require('winston');
+var winston = require("winston");
 
 class Bot {
 	constructor() {
 		if (Bot._instance)
-			throw new Error("Bot instance was already constructed, use Bot.getInstance()");
+			throw new Error(
+				"Bot instance was already constructed, use Bot.getInstance()"
+			);
 
 		this.auth = new Auth(this);
 		this.bank = new Bank(this);
@@ -25,10 +27,15 @@ class Bot {
 			transports: [
 				new winston.transports.Console({
 					format: winston.format.combine(
-						winston.format.timestamp({ format: 'YYYY-MM-DD hh:mm:ss A' }),
-						winston.format.printf(({ timestamp, message, level }) => `[${timestamp} ${level.toUpperCase()}] ${message}`)
+						winston.format.timestamp({
+							format: "YYYY-MM-DD hh:mm:ss A"
+						}),
+						winston.format.printf(
+							({ timestamp, message, level }) =>
+								`[${timestamp} ${level.toUpperCase()}] ${message}`
+						)
 					)
-				}),
+				})
 				// new winston.transports.File({
 				// 	filename: 'log.txt',
 				// 	dirname: window.rootDir ?? './',

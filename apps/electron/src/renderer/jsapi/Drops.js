@@ -54,8 +54,10 @@ class Drops {
 	 */
 	async pickup(itemResolvable) {
 		let item;
-		if (typeof itemResolvable === 'string')
-			item = [...this.#data.values()].find(i => i.sName.toLowerCase() === itemResolvable.toLowerCase())?.ItemID;
+		if (typeof itemResolvable === "string")
+			item = [...this.#data.values()].find(
+				(i) => i.sName.toLowerCase() === itemResolvable.toLowerCase()
+			)?.ItemID;
 
 		const exists = this.stack.has(item);
 		if (!exists) {

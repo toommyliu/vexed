@@ -29,13 +29,19 @@ class Shops {
 	 * @returns {Promise<void>}
 	 */
 	async buyByName(name, quantity) {
-		await this.bot.waitUntil(() => this.bot.world.isActionAvailable(GameAction.BuyItem));
+		await this.bot.waitUntil(() =>
+			this.bot.world.isActionAvailable(GameAction.BuyItem)
+		);
 		if (quantity) {
 			this.bot.flash.call(window.swf.BuyItemQty, name, quantity);
-			await this.bot.waitUntil(() => this.bot.inventory.resolve(name)?.quantity >= quantity);
+			await this.bot.waitUntil(
+				() => this.bot.inventory.resolve(name)?.quantity >= quantity
+			);
 		} else {
 			this.bot.flash.call(window.swf.BuyItem, name);
-			await this.bot.waitUntil(() => this.bot.inventory.resolve(name)?.quantity >= 1);
+			await this.bot.waitUntil(
+				() => this.bot.inventory.resolve(name)?.quantity >= 1
+			);
 		}
 	}
 
@@ -47,14 +53,18 @@ class Shops {
 	 * @returns {Promise<void>}
 	 */
 	async buyByID(itemID, shopItemID, quantity) {
-		await this.bot.waitUntil(() => this.bot.world.isActionAvailable(GameAction.BuyItem));
+		await this.bot.waitUntil(() =>
+			this.bot.world.isActionAvailable(GameAction.BuyItem)
+		);
 		this.bot.flash.call(
 			window.swf.BuyItemQtyById,
 			quantity,
 			itemID,
-			shopItemID,
+			shopItemID
 		);
-		await this.bot.waitUntil(() => this.bot.inventory.resolve(itemID)?.quantity >= quantity);
+		await this.bot.waitUntil(
+			() => this.bot.inventory.resolve(itemID)?.quantity >= quantity
+		);
 	}
 
 	/**
@@ -71,7 +81,9 @@ class Shops {
 	 * @returns {Promise<void>}
 	 */
 	async load(shopID) {
-		await this.bot.waitUntil(() => this.bot.world.isActionAvailable(GameAction.LoadShop));
+		await this.bot.waitUntil(() =>
+			this.bot.world.isActionAvailable(GameAction.LoadShop)
+		);
 		this.reset();
 		this.bot.flash.call(window.swf.LoadShop, String(shopID));
 		await this.bot.waitUntil(() => this.loaded);
@@ -83,7 +95,9 @@ class Shops {
 	 * @returns {Promise<void>}
 	 */
 	async sell(itemName) {
-		await this.bot.waitUntil(() => this.bot.world.isActionAvailable(GameAction.SellItem));
+		await this.bot.waitUntil(() =>
+			this.bot.world.isActionAvailable(GameAction.SellItem)
+		);
 
 		const contains = () => this.bot.inventory.resolve(itemName);
 		if (contains()) {

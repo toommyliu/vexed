@@ -14,7 +14,11 @@ class Quests {
 	 * @returns {Quest[]}
 	 */
 	get tree() {
-		return this.bot.flash.call(window.swf.GetQuestTree)?.map((data) => new Quest(data)) ?? [];
+		return (
+			this.bot.flash
+				.call(window.swf.GetQuestTree)
+				?.map((data) => new Quest(data)) ?? []
+		);
 	}
 
 	/**
@@ -24,8 +28,10 @@ class Quests {
 	 */
 	async accept(questID) {
 		const bot = Bot.getInstance();
-		await bot.waitUntil(() => bot.world.isActionAvailable(GameAction.AcceptQuest));
-		while (!this.tree.find(q => q.id === questID)?.inProgress) {
+		await bot.waitUntil(() =>
+			bot.world.isActionAvailable(GameAction.AcceptQuest)
+		);
+		while (!this.tree.find((q) => q.id === questID)?.inProgress) {
 			bot.flash.call(window.swf.Accept, questID);
 			await bot.sleep(1500);
 		}
@@ -39,7 +45,7 @@ class Quests {
 	async load(questID) {
 		const bot = Bot.getInstance();
 		bot.flash.call(window.swf.LoadQuest, questID);
-		await bot.waitUntil(() => this.tree.find(q => q.id === questID));
+		await bot.waitUntil(() => this.tree.find((q) => q.id === questID));
 	}
 
 	/**
@@ -64,10 +70,10 @@ class Quest {
 	 * @param {QuestData} data
 	 */
 	constructor(data) {
-		if (typeof data === 'object') {
+		if (typeof data === "object") {
 			// data from game
 			this.data = data;
-		} else if (typeof data === 'number' || typeof data === 'string') {
+		} else if (typeof data === "number" || typeof data === "string") {
 			// only quest id is known
 			this.data = { QuestID: Number.parseInt(data, 10) };
 		}
@@ -95,7 +101,10 @@ class Quest {
 	 * @returns {boolean}
 	 */
 	get completable() {
-		return Bot.getInstance().quests.tree.find((q) => q.id === this.id)?.completable ?? false;
+		return (
+			Bot.getInstance().quests.tree.find((q) => q.id === this.id)
+				?.completable ?? false
+		);
 	}
 
 	/**
@@ -103,7 +112,10 @@ class Quest {
 	 * @returns {boolean}
 	 */
 	get available() {
-		return Bot.getInstance().flash.call(window.swf.IsAvailable, this.id) ?? false;
+		return (
+			Bot.getInstance().flash.call(window.swf.IsAvailable, this.id) ??
+			false
+		);
 	}
 }
 

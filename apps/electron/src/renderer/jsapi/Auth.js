@@ -58,7 +58,9 @@ class Auth {
 	 */
 	get servers() {
 		return (
-			this.bot.flash.get('serialCmd.servers', true)?.map((data) => new Server(data)) ?? []
+			this.bot.flash
+				.get("serialCmd.servers", true)
+				?.map((data) => new Server(data)) ?? []
 		);
 	}
 
@@ -84,15 +86,15 @@ class Auth {
 	 * @returns {string}
 	 */
 	get ip() {
-		return this.bot.flash.getStatic('serverIP', true);
+		return this.bot.flash.getStatic("serverIP", true);
 	}
 
 	/**
 	 * The server port the client is connected to.
 	 * @returns {number}
-	*/
+	 */
 	get port() {
-		return this.bot.flash.getStatic('serverPort', true);
+		return this.bot.flash.getStatic("serverPort", true);
 	}
 }
 

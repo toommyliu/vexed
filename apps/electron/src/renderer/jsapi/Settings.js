@@ -39,7 +39,7 @@ class Settings {
 	 * @param {boolean} on
 	 */
 	setLagKiller(on) {
-		this.bot.flash.call(window.swf.SetLagKiller, on ? 'True' : 'False');
+		this.bot.flash.call(window.swf.SetLagKiller, on ? "True" : "False");
 	}
 
 	/**
@@ -70,7 +70,7 @@ class Settings {
 	 * Sets the client's target fps.
 	 * @param {string|number} fps The client fps.
 	 * @returns {void}
-	*/
+	 */
 	setFPS(fps) {
 		this.bot.flash.call(window.swf.SetFPS, String(fps));
 	}

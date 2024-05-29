@@ -225,5 +225,5 @@ class Faction {
 const PlayerState = {
 	Dead: 0,
 	Idle: 1,
-	InCombat: 2,
-}
+	InCombat: 2
+};

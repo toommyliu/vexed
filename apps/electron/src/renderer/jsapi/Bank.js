@@ -11,7 +11,11 @@ class Bank {
 	 * @returns {BankItem[]}
 	 */
 	get items() {
-		return this.bot.flash.call(window.swf.GetBankItems)?.map((data) => new BankItem(data)) ?? [];
+		return (
+			this.bot.flash
+				.call(window.swf.GetBankItems)
+				?.map((data) => new BankItem(data)) ?? []
+		);
 	}
 
 	/**
@@ -58,8 +62,7 @@ class Bank {
 	 * @returns {Promise<void>}
 	 */
 	async deposit(itemName) {
-		if (!this.bot.inventory.resolve(itemName))
-			return;
+		if (!this.bot.inventory.resolve(itemName)) return;
 
 		this.bot.flash.call(window.swf.TransferToBank, itemName);
 		await this.bot.sleep(500);
@@ -71,8 +74,7 @@ class Bank {
 	 * @returns {Promise<void>}
 	 */
 	async withdraw(itemName) {
-		if (!this.resolve(itemName))
-			return;
+		if (!this.resolve(itemName)) return;
 
 		this.bot.flash.call(window.swf.TransferToInventory, itemName);
 		await this.bot.sleep(500);
@@ -88,8 +90,7 @@ class Bank {
 		const inBank = () => this.bot.bank.contains(outItem);
 		const inInventory = () => this.bot.inventory.contains(inItem);
 
-		if (!inBank() || !inInventory())
-			return;
+		if (!inBank() || !inInventory()) return;
 
 		this.bot.flash.call(window.swf.BankSwap, inItem, outItem);
 		await this.bot.waitUntil(() => !inBank() && !inInventory());
@@ -100,10 +101,10 @@ class Bank {
 	 * @returns {Promise<void>}
 	 */
 	async open() {
-		const isOpen = () => this.bot.flash.get('ui.mcPopup.currentLabel', true) === "Bank";
+		const isOpen = () =>
+			this.bot.flash.get("ui.mcPopup.currentLabel", true) === "Bank";
 
-		if (isOpen())
-			return;
+		if (isOpen()) return;
 
 		this.bot.flash.call(window.swf.ShowBank);
 		await this.bot.waitUntil(isOpen);
@@ -229,7 +230,7 @@ class ItemBase {
 	}
 }
 
-class BankItem extends ItemBase { }
+class BankItem extends ItemBase {}
 
 /**
  * @typedef {Object} ItemData

@@ -24,7 +24,7 @@ class World {
 	 */
 	get visibleMonsters() {
 		const monsters = this.bot.flash.call(
-			window.swf.GetVisibleMonstersInCell,
+			window.swf.GetVisibleMonstersInCell
 		);
 		return monsters.map((data) => new Monster(data));
 	}
@@ -44,11 +44,21 @@ class World {
 	 * @returns {boolean}
 	 */
 	isMonsterAvailable(monsterResolvable) {
-		if (["id'", "id.", "id:", "id-"].some((prefix) => monsterResolvable.startsWith(prefix))) {
+		if (
+			["id'", "id.", "id:", "id-"].some((prefix) =>
+				monsterResolvable.startsWith(prefix)
+			)
+		) {
 			const monMapID = monsterResolvable.substring(3);
-			return this.bot.flash.call(window.swf.IsMonsterAvailableByMonMapID, monMapID);
+			return this.bot.flash.call(
+				window.swf.IsMonsterAvailableByMonMapID,
+				monMapID
+			);
 		}
-		return this.bot.flash.call(window.swf.IsMonsterAvailable, monsterResolvable);
+		return this.bot.flash.call(
+			window.swf.IsMonsterAvailable,
+			monsterResolvable
+		);
 	}
 
 	/**
@@ -115,7 +125,8 @@ class World {
 	 * @returns {Promise<void>}
 	 */
 	async jump(cell, pad = "Spawn", force = false) {
-		const isSameCell = () => this.bot.player.cell.toLowerCase() === cell.toLowerCase();
+		const isSameCell = () =>
+			this.bot.player.cell.toLowerCase() === cell.toLowerCase();
 		while (!isSameCell() || force) {
 			this.bot.flash.call(window.swf.Jump, cell, pad);
 			await this.bot.sleep(500);
@@ -133,15 +144,19 @@ class World {
 	 * @returns {Promise<void>}
 	 */
 	async join(mapName, cell = "Enter", pad = "Spawn") {
-		await this.bot.waitUntil(() => this.isActionAvailable(GameAction.Transfer));
+		await this.bot.waitUntil(() =>
+			this.isActionAvailable(GameAction.Transfer)
+		);
 		if (this.bot.player.state === PlayerState.InCombat) {
 			this.jump("Enter", "Spawn");
-			await this.bot.waitUntil(() => this.bot.player.state !== PlayerState.InCombat);
+			await this.bot.waitUntil(
+				() => this.bot.player.state !== PlayerState.InCombat
+			);
 			await this.bot.sleep(1500);
 		}
 
 		let map_str = mapName;
-		let [map_name, map_number] = map_str.split('-');
+		let [map_name, map_number] = map_str.split("-");
 
 		if (map_number === "1e9" || map_number === "1e99")
 			map_number = "100000";
@@ -152,14 +167,11 @@ class World {
 			return;
 		}
 
-		this.bot.flash.call(
-			window.swf.Join,
-			map_str,
-			cell,
-			pad,
-		);
+		this.bot.flash.call(window.swf.Join, map_str, cell, pad);
 
-		await this.bot.waitUntil(() => this.name.toLowerCase() === map_name.toLowerCase());
+		await this.bot.waitUntil(
+			() => this.name.toLowerCase() === map_name.toLowerCase()
+		);
 		await this.jump(cell, pad);
 		await this.bot.waitUntil(() => !this.loading);
 	}
@@ -195,7 +207,9 @@ class World {
 	 * @returns {Promise<void>}
 	 */
 	async getMapItem(itemId) {
-		await this.bot.waitUntil(() => this.isActionAvailable(GameAction.GetMapItem));
+		await this.bot.waitUntil(() =>
+			this.isActionAvailable(GameAction.GetMapItem)
+		);
 		this.bot.flash.call(window.swf.GetMapItem, itemId);
 		await this.bot.sleep(2000);
 	}
@@ -234,7 +248,7 @@ const GameAction = Object.freeze({
 	/** I don't know... */
 	Who: "who",
 	/** Joining another map. */
-	Transfer: "tfer",
+	Transfer: "tfer"
 });
 
 /**
@@ -305,7 +319,7 @@ class Avatar {
 			spellPower: this.data.sta.$sp,
 			criticalChance: this.data.sta.$tcr,
 			criticalMultiplier: this.data.sta.$scm,
-			evasionChance: this.data.sta.$tdo,
+			evasionChance: this.data.sta.$tdo
 		};
 	}
 

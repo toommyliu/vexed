@@ -23,7 +23,10 @@ class Flash {
 		} else if (typeof fn === "string") {
 			// args[0] is the path
 			// args[1-n] are the actual args for the game function
-			_fn = args.length === 0 ? window.swf.callGameFunction0 : window.swf.callGameFunction;
+			_fn =
+				args.length === 0
+					? window.swf.callGameFunction0
+					: window.swf.callGameFunction;
 			_args = [fn];
 		}
 
@@ -37,12 +40,10 @@ class Flash {
 
 		if (typeof out === "string") {
 			// boolean
-			if (['"True"', '"False"'].includes(out))
-				return out === '"True"';
+			if (['"True"', '"False"'].includes(out)) return out === '"True"';
 
 			// void
-			if (out === "undefined")
-				return;
+			if (out === "undefined") return;
 
 			return JSON.parse(out);
 		}
@@ -59,8 +60,7 @@ class Flash {
 	get(path, parse = false) {
 		try {
 			const out = window.swf.getGameObject(path);
-			if (parse)
-				return JSON.parse(out);
+			if (parse) return JSON.parse(out);
 
 			return out;
 		} catch (error) {
@@ -78,8 +78,7 @@ class Flash {
 	getStatic(path, parse = false, defaultValue = null) {
 		try {
 			const out = window.swf.getGameObjectS(path);
-			if (parse)
-				return JSON.parse(out);
+			if (parse) return JSON.parse(out);
 
 			return out;
 		} catch (error) {

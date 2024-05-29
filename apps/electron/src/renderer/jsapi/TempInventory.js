@@ -14,7 +14,9 @@ class TempInventory {
 	 * @returns {TempInventoryItem[]}
 	 */
 	get items() {
-		return this.bot.flash.call(window.swf.GetTempItems)?.map((data) => new TempInventoryItem(data));
+		return this.bot.flash
+			.call(window.swf.GetTempItems)
+			?.map((data) => new TempInventoryItem(data));
 	}
 
 	/**
@@ -32,4 +34,4 @@ class TempInventory {
 	}
 }
 
-class TempInventoryItem extends ItemBase { }
+class TempInventoryItem extends ItemBase {}
