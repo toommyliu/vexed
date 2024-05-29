@@ -39,6 +39,15 @@ class Drops {
 	}
 
 	/**
+	 * Resets the drop stack to a clean state.
+	 * @returns {void}
+	 */
+	reset() {
+		this.#data.clear();
+		this.stack.clear();
+	}
+
+	/**
 	 * Collects an item from the drop stack, effectively removing it from the stack.
 	 * @param {string|number} itemResolvable The name or ID of the item to collect.
 	 * @returns {Promise<void>}

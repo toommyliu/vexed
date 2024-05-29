@@ -37,6 +37,9 @@ function connection([state]) {
 		case "OnConnection":
 			break;
 		case "OnConnectionLost":
+			{
+				Bot.getInstance().drops.reset();
+			}
 			break;
 	}
 }
