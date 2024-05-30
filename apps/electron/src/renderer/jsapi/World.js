@@ -145,9 +145,11 @@ class World {
 			return;
 		}
 
-		this.bot.flash.call(window.swf.Join, map_str, cell, pad);
+		while (this.name.toLowerCase() !== map_name.toLowerCase()) {
+			this.bot.flash.call(window.swf.Join, map_str, cell, pad);
+			await this.bot.sleep(1000);	
+		}
 
-		await this.bot.waitUntil(() => this.name.toLowerCase() === map_name.toLowerCase());
 		await this.jump(cell, pad);
 		await this.bot.waitUntil(() => !this.loading);
 	}
