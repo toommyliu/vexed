@@ -57,4 +57,27 @@ class Quests {
 			bot.flash.call(window.swf.Complete, questID, turnIns);
 		}
 	}
+
+	/**
+	 * Loads multiple quests at once
+	 * @param {string|Array<string>} questIDs Quest IDs deliminated by a comma
+	 * @returns {Promise<void>}
+	 */
+	async loadMultiple(questIDs) {
+		let _questIDs = questIDs;
+		if (Array.isArray(questIDs)) {
+			_questIDs = questIDs.join(",");
+		}
+
+		this.bot.flash.call(window.swf.LoadQuests, _questIDs);
+	}
+
+	/**
+	 * Resolves a Quest instance from the quest tree
+	 * @param {number} questID
+	 * @returns {Quest?}
+	 */
+	resolve(questID) {
+		return this.tree.find((quest) => quest.id === questID);
+	}
 }
