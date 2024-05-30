@@ -20,6 +20,18 @@ Admittedly, the DX in writing scripts somewhat sucks. Personally, I've tried set
 
 :::
 
+Some classes are not meant to be instantiated yourself, rather they are an abstraction over the data the game returns us. You could instantiate them, but you will have little to no use case for them.
+
+- [Server](/api/server)
+- [ItemBase](/api/itembase)
+- [Faction](/api/faction)
+- [Avatar](/api/avatar)
+- [Monster](/api/monster)
+
+The only exclusion is [Quest](/api/quest).
+
+In the future, this behavior may change where the classes have more methods, e.g a method to attack the current monster or to equip the current item.
+
 ## Loading scripts
 
 The following steps document the JS script loading process:
