@@ -11,7 +11,11 @@ class World {
 	 * @returns {Avatar[]}
 	 */
 	get players() {
-		return this.bot.flash.call(window.swf.Players)?.map((data) => new Avatar(data)) ?? [];
+		const _players = this.bot.flash.call(window.swf.Players) ?? [];
+		if (Object.keys(_players).length > 0) {
+			return Object.values(_players).map((data) => new Avatar(data));
+		}
+		return [];
 	}
 
 	/**
@@ -147,7 +151,7 @@ class World {
 
 		while (this.name.toLowerCase() !== map_name.toLowerCase()) {
 			this.bot.flash.call(window.swf.Join, map_str, cell, pad);
-			await this.bot.sleep(1000);	
+			await this.bot.sleep(1000);
 		}
 
 		await this.jump(cell, pad);
