@@ -28,8 +28,7 @@ class TempInventory {
 		return this.items.find((i) => {
 			if (typeof itemResolvable === "string")
 				return i.name.toLowerCase() === itemResolvable.toLowerCase();
-			if (typeof itemResolvable === "number")
-				return i.id === itemResolvable;
+			if (typeof itemResolvable === "number") return i.id === itemResolvable;
 		});
 	}
 }

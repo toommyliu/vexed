@@ -3,11 +3,16 @@
 	"organizeImports": {
 		"enabled": false
 	},
+	"formatter": {
+		"enabled": true,
+		"indentWidth": 4,
+		"indentStyle": "tab"
+	},
 	"javascript": {
 		"formatter": {
 			"enabled": true,
 			"indentWidth": 4,
-			"lineWidth": 80,
+			"lineWidth": 100, 
 			"quoteProperties": "asNeeded",
 			"quoteStyle": "double",
 			"semicolons": "always",

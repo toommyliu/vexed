@@ -12,9 +12,7 @@ class Bank {
 	 */
 	get items() {
 		return (
-			this.bot.flash
-				.call(window.swf.GetBankItems)
-				?.map((data) => new BankItem(data)) ?? []
+			this.bot.flash.call(window.swf.GetBankItems)?.map((data) => new BankItem(data)) ?? []
 		);
 	}
 
@@ -27,8 +25,7 @@ class Bank {
 		return this.items.find((i) => {
 			if (typeof itemResolvable === "string")
 				return i.name.toLowerCase() === itemResolvable.toLowerCase();
-			if (typeof itemResolvable === "number")
-				return i.id === itemResolvable;
+			if (typeof itemResolvable === "number") return i.id === itemResolvable;
 		});
 	}
 
@@ -101,8 +98,7 @@ class Bank {
 	 * @returns {Promise<void>}
 	 */
 	async open() {
-		const isOpen = () =>
-			this.bot.flash.get("ui.mcPopup.currentLabel", true) === "Bank";
+		const isOpen = () => this.bot.flash.get("ui.mcPopup.currentLabel", true) === "Bank";
 
 		if (isOpen()) return;
 

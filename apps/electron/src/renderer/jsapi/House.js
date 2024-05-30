@@ -15,9 +15,7 @@ class House {
 	 */
 	get items() {
 		return (
-			this.bot.flash
-				.call(window.swf.GetHouseItems)
-				?.map((data) => new HouseItem(data)) ?? []
+			this.bot.flash.call(window.swf.GetHouseItems)?.map((data) => new HouseItem(data)) ?? []
 		);
 	}
 

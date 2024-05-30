@@ -30,8 +30,7 @@ class Inventory {
 		return this.items.find((i) => {
 			if (typeof itemResolvable === "string")
 				return i.name.toLowerCase() === itemResolvable.toLowerCase();
-			if (typeof itemResolvable === "number")
-				return i.id === itemResolvable;
+			if (typeof itemResolvable === "number") return i.id === itemResolvable;
 		});
 	}
 
@@ -72,11 +71,7 @@ class Inventory {
 
 			while (!equipped()) {
 				while (this.bot.player.state === PlayerState.InCombat) {
-					await this.bot.world.jump(
-						this.bot.player.cell,
-						this.bot.player.pad,
-						true
-					);
+					await this.bot.world.jump(this.bot.player.cell, this.bot.player.pad, true);
 					await this.bot.sleep(1000);
 				}
 				await this.bot.waitUntil(() =>

@@ -34,10 +34,7 @@ class Quest {
 	 * @returns {boolean}
 	 */
 	get completable() {
-		return (
-			Bot.getInstance().flash.call(window.swf.CanComplete, this.id) ??
-			false
-		);
+		return Bot.getInstance().flash.call(window.swf.CanComplete, this.id) ?? false;
 	}
 
 	/**
@@ -45,10 +42,7 @@ class Quest {
 	 * @returns {boolean}
 	 */
 	get available() {
-		return (
-			Bot.getInstance().flash.call(window.swf.IsAvailable, this.id) ??
-			false
-		);
+		return Bot.getInstance().flash.call(window.swf.IsAvailable, this.id) ?? false;
 	}
 }
 

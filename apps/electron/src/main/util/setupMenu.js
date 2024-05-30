@@ -76,18 +76,13 @@ const template = [
 				label: "Load",
 				click: async (menuItem, browserWindow, event) => {
 					const dialog_ = await dialog.showOpenDialog(browserWindow, {
-						filters: [
-							{ name: "JavaScript Files", extensions: ["js"] }
-						],
+						filters: [{ name: "JavaScript Files", extensions: ["js"] }],
 						properties: ["openFile"]
 					});
 					if (dialog_.canceled) return;
 
 					const scriptPath = dialog_.filePaths[0];
-					const scriptBody = await fs.promises.readFile(
-						scriptPath,
-						"utf8"
-					);
+					const scriptBody = await fs.promises.readFile(scriptPath, "utf8");
 					if (!scriptBody?.toString()) return;
 
 					const escapedScriptBody = scriptBody

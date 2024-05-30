@@ -57,11 +57,7 @@ class Auth {
 	 * @returns {Server[]}
 	 */
 	get servers() {
-		return (
-			this.bot.flash
-				.get("serialCmd.servers", true)
-				?.map((data) => new Server(data)) ?? []
-		);
+		return this.bot.flash.get("serialCmd.servers", true)?.map((data) => new Server(data)) ?? [];
 	}
 
 	/**

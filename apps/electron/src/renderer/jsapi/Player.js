@@ -14,11 +14,7 @@ class Player {
 	 * @returns {Faction[]}
 	 */
 	get factions() {
-		return (
-			this.bot.flash
-				.call(window.swf.GetFactions)
-				?.map((data) => new Faction(data)) ?? []
-		);
+		return this.bot.flash.call(window.swf.GetFactions)?.map((data) => new Faction(data)) ?? [];
 	}
 
 	/**

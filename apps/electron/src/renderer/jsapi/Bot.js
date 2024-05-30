@@ -3,9 +3,7 @@ var winston = require("winston");
 class Bot {
 	constructor() {
 		if (Bot._instance)
-			throw new Error(
-				"Bot instance was already constructed, use Bot.getInstance()"
-			);
+			throw new Error("Bot instance was already constructed, use Bot.getInstance()");
 
 		this.auth = new Auth(this);
 		this.bank = new Bank(this);

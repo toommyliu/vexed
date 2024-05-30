@@ -23,10 +23,7 @@ class Flash {
 		} else if (typeof fn === "string") {
 			// args[0] is the path
 			// args[1-n] are the actual args for the game function
-			_fn =
-				args.length === 0
-					? window.swf.callGameFunction0
-					: window.swf.callGameFunction;
+			_fn = args.length === 0 ? window.swf.callGameFunction0 : window.swf.callGameFunction;
 			_args = [fn];
 		}
 

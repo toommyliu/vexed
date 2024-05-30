@@ -1,7 +1,5 @@
-var {
-	setIntervalAsync,
-	clearIntervalAsync
-} = require("set-interval-async/fixed");
+// biome-ignore lint/style/useConst: this is ok
+let { setIntervalAsync, clearIntervalAsync } = require("set-interval-async/fixed");
 
 class Combat {
 	/**
@@ -41,11 +39,7 @@ class Combat {
 	 * @returns {void}
 	 */
 	attack(monsterResolvable) {
-		if (
-			["id'", "id.", "id:", "id-"].some((prefix) =>
-				monsterResolvable.startsWith(prefix)
-			)
-		) {
+		if (["id'", "id.", "id:", "id-"].some((prefix) => monsterResolvable.startsWith(prefix))) {
 			const monMapID = monsterResolvable.substring(3);
 			this.bot.flash.call(window.swf.AttackMonsterByMonMapId, monMapID);
 			return;
@@ -62,11 +56,9 @@ class Combat {
 	async useSkill(skillIndex, force = false, wait = false) {
 		const sIdx = String(skillIndex);
 		const fn = force ? window.swf.ForceUseSkill : window.swf.UseSkill;
-		if (wait)
-			await this.bot.sleep(
-				this.bot.flash.call(window.swf.SkillAvailable, sIdx)
-			);
-
+		if (wait) {
+			await this.bot.sleep(this.bot.flash.call(window.swf.SkillAvailable, sIdx));
+		}
 		this.bot.flash.call(fn, sIdx);
 	}
 
@@ -83,9 +75,7 @@ class Combat {
 	 * @returns {Promise<void>}
 	 */
 	async rest() {
-		await this.bot.waitUntil(() =>
-			this.bot.world.isActionAvailable(GameAction.Rest)
-		);
+		await this.bot.waitUntil(() => this.bot.world.isActionAvailable(GameAction.Rest));
 		this.bot.flash.call(window.swf.Rest);
 	}
 
@@ -105,14 +95,9 @@ class Combat {
 			this.attack(name);
 
 			if (this.hasTarget) {
-				await this.useSkill(
-					this.skillSet[this.skillSetIdx++],
-					false,
-					false
-				);
+				await this.useSkill(this.skillSet[this.skillSetIdx++], false, false);
 
-				if (this.skillSetIdx >= this.skillSet.length)
-					this.skillSetIdx = 0;
+				if (this.skillSetIdx >= this.skillSet.length) this.skillSetIdx = 0;
 				await this.bot.sleep(this.skillDelay);
 			} else {
 				(async () => {
@@ -136,15 +121,12 @@ class Combat {
 	 */
 	async killForItem(name, itemResolvable, itemQuantity, isTemp = false) {
 		this.bot.log.info(
-			`Killing "${name}" for x${itemQuantity} "${itemResolvable}" ${
-				isTemp ? "(temp)" : ""
-			}`
+			`Killing "${name}" for x${itemQuantity} "${itemResolvable}" ${isTemp ? "(temp)" : ""}`
 		);
 
 		const getItem = () =>
-			isTemp
-				? this.bot.tempInventory.resolve(itemResolvable)
-				: this.bot.inventory.resolve(itemResolvable);
+			this.bot[isTemp ? "tempInventory" : "inventory"].resolve(itemResolvable);
+
 		const getQuantity = () => getItem()?.quantity ?? 0;
 
 		while (getQuantity() < itemQuantity) {
