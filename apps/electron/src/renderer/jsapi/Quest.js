@@ -4,6 +4,7 @@ class Quest {
 	 */
 	constructor(data) {
 		if (typeof data === "object") {
+			data.QuestID = Number.parseInt(data.QuestID, 10);
 			// data from game
 			this.data = data;
 		} else if (typeof data === "number" || typeof data === "string") {
