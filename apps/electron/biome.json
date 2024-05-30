@@ -12,7 +12,7 @@
 		"formatter": {
 			"enabled": true,
 			"indentWidth": 4,
-			"lineWidth": 100, 
+			"lineWidth": 100,
 			"quoteProperties": "asNeeded",
 			"quoteStyle": "double",
 			"semicolons": "always",
