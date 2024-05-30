@@ -222,8 +222,8 @@ class Faction {
  * @readonly
  * @enum {number}
  */
-const PlayerState = {
+const PlayerState = Object.freeze({
 	Dead: 0,
 	Idle: 1,
 	InCombat: 2
-};
+});
