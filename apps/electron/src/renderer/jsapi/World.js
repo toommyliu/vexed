@@ -193,6 +193,15 @@ class World {
 		this.bot.flash.call(window.swf.GetMapItem, itemId);
 		await this.bot.sleep(2000);
 	}
+
+	/**
+	 * Loads a particular swf of the map.
+	 * @param {string} swf The swf to load
+	 * @returns {void}
+	 */
+	loadSWF(swf) {
+		this.bot.flash.call(window.swf.LoadMap, swf);
+	}
 }
 
 /**

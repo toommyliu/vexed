@@ -22,6 +22,7 @@
     * [.goto(name)](#World+goto) ⇒ <code>void</code>
     * [.isActionAvailable(action)](#World+isActionAvailable) ⇒ <code>boolean</code>
     * [.getMapItem(itemId)](#World+getMapItem) ⇒ <code>Promise.&lt;void&gt;</code>
+    * [.loadSWF(swf)](#World+loadSWF) ⇒ <code>void</code>
 
 <a name="new_World_new"></a>
 
@@ -164,4 +165,15 @@ Gets a item in the world.
 | Param | Type |
 | --- | --- |
 | itemId | <code>string</code> | 
+
+<a name="World+loadSWF"></a>
+
+### world.loadSWF(swf) ⇒ <code>void</code>
+Loads a particular swf of the map.
+
+**Kind**: instance method of [<code>World</code>](#World)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| swf | <code>string</code> | The swf to load |
 
