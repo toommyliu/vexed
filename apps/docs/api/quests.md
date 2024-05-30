@@ -10,6 +10,8 @@
     * [.accept(questID)](#Quests+accept) ⇒ <code>Promise.&lt;void&gt;</code>
     * [.load(questID)](#Quests+load) ⇒ <code>Promise.&lt;void&gt;</code>
     * [.complete(questID, [turnIns], [itemID])](#Quests+complete) ⇒ <code>Promise.&lt;void&gt;</code>
+    * [.loadMultiple(questIDs)](#Quests+loadMultiple) ⇒ <code>Promise.&lt;void&gt;</code>
+    * [.resolve(questID)](#Quests+resolve) ⇒ [<code>Quest</code>](#Quest)
 
 <a name="new_Quests_new"></a>
 
@@ -63,4 +65,26 @@ Completes a quest.
 | questID | <code>string</code> |  | The quest id to complete. |
 | [turnIns] | <code>number</code> | <code>1</code> | The number of times to turn-in the quest. |
 | [itemID] | <code>number</code> | <code>-1</code> | The ID of the quest rewards to select. |
+
+<a name="Quests+loadMultiple"></a>
+
+### quests.loadMultiple(questIDs) ⇒ <code>Promise.&lt;void&gt;</code>
+Loads multiple quests at once
+
+**Kind**: instance method of [<code>Quests</code>](#Quests)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| questIDs | <code>string</code> \| <code>Array.&lt;string&gt;</code> | Quest IDs deliminated by a comma |
+
+<a name="Quests+resolve"></a>
+
+### quests.resolve(questID) ⇒ [<code>Quest</code>](#Quest)
+Resolves a Quest instance from the quest tree
+
+**Kind**: instance method of [<code>Quests</code>](#Quests)  
+
+| Param | Type |
+| --- | --- |
+| questID | <code>number</code> | 
 
