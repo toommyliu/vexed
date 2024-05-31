@@ -55,11 +55,13 @@ class Bank {
 
 	/**
 	 * Puts an item into the Bank.
-	 * @param {string} itemName - The name of the item.
+	 * @param {string} itemName The name of the item.
 	 * @returns {Promise<void>}
 	 */
 	async deposit(itemName) {
-		if (!this.bot.inventory.resolve(itemName)) return;
+		if (!this.bot.inventory.resolve(itemName)) {
+			return;
+		}
 
 		this.bot.flash.call(window.swf.TransferToBank, itemName);
 		await this.bot.sleep(500);
@@ -67,11 +69,13 @@ class Bank {
 
 	/**
 	 * Takes an item out of the bank.
-	 * @param {string} itemName - The name of the item.
+	 * @param {string} itemName The name of the item.
 	 * @returns {Promise<void>}
 	 */
 	async withdraw(itemName) {
-		if (!this.resolve(itemName)) return;
+		if (!this.resolve(itemName)) {
+			return;
+		}
 
 		this.bot.flash.call(window.swf.TransferToInventory, itemName);
 		await this.bot.sleep(500);
@@ -79,28 +83,32 @@ class Bank {
 
 	/**
 	 * Swaps an item from the bank with an item from the inventory.
-	 * @param {string} outItem - The name of the item in the bank.
-	 * @param {string} inItem - The name of the item in the inventory.
+	 * @param {string} bankItem
+	 * @param {string} inventoryItem
 	 * @returns {Promise<void>}
 	 */
-	async swap(outItem, inItem) {
-		const inBank = () => this.bot.bank.contains(outItem);
-		const inInventory = () => this.bot.inventory.contains(inItem);
+	async swap(bankItem, inventoryItem) {
+		const inBank = () => this.resolve(bankItem);
+		const inInventory = () => this.bot.inventory.resolve(inventoryItem);
 
-		if (!inBank() || !inInventory()) return;
+		if (!inBank() || !inInventory()) {
+			return;
+		}
 
-		this.bot.flash.call(window.swf.BankSwap, inItem, outItem);
+		this.bot.flash.call(window.swf.BankSwap, inventoryItem, bankItem);
 		await this.bot.waitUntil(() => !inBank() && !inInventory());
 	}
 
 	/**
-	 * Opens the bank.
+	 * Opens the bank ui.
 	 * @returns {Promise<void>}
 	 */
 	async open() {
 		const isOpen = () => this.bot.flash.get("ui.mcPopup.currentLabel", true) === "Bank";
 
-		if (isOpen()) return;
+		if (isOpen()) {
+			return;
+		}
 
 		this.bot.flash.call(window.swf.ShowBank);
 		await this.bot.waitUntil(isOpen);
