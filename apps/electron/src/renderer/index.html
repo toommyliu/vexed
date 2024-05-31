@@ -29,31 +29,31 @@
 	}
 </style>
 
-<script src="src/renderer/jsapi/ItemBase.js"></script>
-<script src="src/renderer/jsapi/Faction.js"></script>
-<script src="src/renderer/jsapi/Quest.js"></script>
-<script src="src/renderer/jsapi/Avatar.js"></script>
-<script src="src/renderer/jsapi/Monster.js"></script>
+<script src="jsapi/ItemBase.js"></script>
+<script src="jsapi/Faction.js"></script>
+<script src="jsapi/Quest.js"></script>
+<script src="jsapi/Avatar.js"></script>
+<script src="jsapi/Monster.js"></script>
 
-<script src="src/renderer/jsapi/Auth.js"></script>
-<script src="src/renderer/jsapi/Bank.js"></script>
-<script src="src/renderer/jsapi/Bot.js"></script>
-<script src="src/renderer/jsapi/Combat.js"></script>
-<script src="src/renderer/jsapi/Drops.js"></script>
-<script src="src/renderer/jsapi/Flash.js"></script>
-<script src="src/renderer/jsapi/House.js"></script>
-<script src="src/renderer/jsapi/Inventory.js"></script>
-<script src="src/renderer/jsapi/Packet.js"></script>
-<script src="src/renderer/jsapi/Player.js"></script>
-<script src="src/renderer/jsapi/Quests.js"></script>
-<script src="src/renderer/jsapi/Server.js"></script>
-<script src="src/renderer/jsapi/Settings.js"></script>
-<script src="src/renderer/jsapi/Shop.js"></script>
-<script src="src/renderer/jsapi/TempInventory.js"></script>
-<script src="src/renderer/jsapi/World.js"></script>
+<script src="jsapi/Auth.js"></script>
+<script src="jsapi/Bank.js"></script>
+<script src="jsapi/Bot.js"></script>
+<script src="jsapi/Combat.js"></script>
+<script src="jsapi/Drops.js"></script>
+<script src="jsapi/Flash.js"></script>
+<script src="jsapi/House.js"></script>
+<script src="jsapi/Inventory.js"></script>
+<script src="jsapi/Packet.js"></script>
+<script src="jsapi/Player.js"></script>
+<script src="jsapi/Quests.js"></script>
+<script src="jsapi/Server.js"></script>
+<script src="jsapi/Settings.js"></script>
+<script src="jsapi/Shop.js"></script>
+<script src="jsapi/TempInventory.js"></script>
+<script src="jsapi/World.js"></script>
 
-<script src="src/renderer/flash-ipc.js"></script>
-<script src="src/renderer/ipc.js"></script>
+<script src="ipc/flash-ipc.js"></script>
+<script src="ipc/ipc.js"></script>
 
 <script>
 	window.addEventListener('DOMContentLoaded', () => {
@@ -115,10 +115,6 @@
 			var progressContainer = document.getElementById('progress-container');
 			progress?.remove();
 			progressContainer?.remove();
-
-			var script = document.createElement('script');
-			script.src = 'src/renderer/ipc.js';
-			document.body.appendChild(script);
 		}
 	}
 </script>

@@ -24,7 +24,7 @@ function registerFlashPlugin() {
 
 	const trustManager = flashTrust.initSync("Vexed", flashPath);
 	trustManager.empty();
-	trustManager.add(join(__dirname, "../../grimoire.swf"));
+	trustManager.add(join(__dirname, "../renderer/grimoire.swf"));
 }
 
 registerFlashPlugin();
@@ -52,7 +52,7 @@ app.once("ready", async () => {
 		callback({ requestHeaders: details.requestHeaders, cancel: false });
 	});
 
-	await window.loadFile(join(__dirname, "../../index.html"));
+	await window.loadFile(join(__dirname, "../renderer/index.html"));
 	window.webContents.openDevTools({ mode: "right" });
 	window.webContents.executeJavaScript(String.raw`
 		window.rootDir = ${JSON.stringify(join(app.getPath("documents"), "Vexed"))};
