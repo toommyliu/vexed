@@ -1,7 +1,16 @@
 <a name="Flash"></a>
 
+`Flash` extends node's `EventEmitter`, and has the following events:
+
+| Event | Param | Description |
+| --- | --- | --- |
+| packetFromServer | event: <code>string</code> |  The packet sent by the server. You should not use this to handle getDrop packets. |
+| packetFromClient | event: <code>string</code> | The packet sent by the client. |
+
+There is no filtering whatsoever of the data sent or received, they can be of XML, JSON or String format.
+
 ## Flash
-**Kind**: global class  
+**Kind**: global class
 
 * [Flash](#Flash)
     * [new Flash(bot)](#new_Flash_new)
@@ -16,26 +25,26 @@
 
 | Param | Type |
 | --- | --- |
-| bot | <code>Bot</code> | 
+| bot | <code>Bot</code> |
 
 <a name="Flash+call"></a>
 
 ### flash.call(fn, ...args) ⇒ <code>any</code> \| <code>null</code>
 Calls a game function, whether this be an interop function or an internal function.
 
-**Kind**: instance method of [<code>Flash</code>](#Flash)  
+**Kind**: instance method of [<code>Flash</code>](#Flash)
 
 | Param | Type |
 | --- | --- |
-| fn | <code>string</code> \| <code>function</code> | 
-| ...args | <code>any</code> | 
+| fn | <code>string</code> \| <code>function</code> |
+| ...args | <code>any</code> |
 
 <a name="Flash+get"></a>
 
 ### flash.get(path, [parse]) ⇒ <code>any</code> \| <code>null</code>
 Gets an actionscript object at the given location.
 
-**Kind**: instance method of [<code>Flash</code>](#Flash)  
+**Kind**: instance method of [<code>Flash</code>](#Flash)
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
@@ -47,7 +56,7 @@ Gets an actionscript object at the given location.
 ### flash.getStatic(path, [parse]) ⇒ <code>any</code> \| <code>null</code>
 Gets an static actionscript object at the given location
 
-**Kind**: instance method of [<code>Flash</code>](#Flash)  
+**Kind**: instance method of [<code>Flash</code>](#Flash)
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
@@ -59,7 +68,7 @@ Gets an static actionscript object at the given location
 ### flash.set(path, value) ⇒ <code>void</code>
 Sets an actionscript object at the given location.
 
-**Kind**: instance method of [<code>Flash</code>](#Flash)  
+**Kind**: instance method of [<code>Flash</code>](#Flash)
 
 | Param | Type | Description |
 | --- | --- | --- |

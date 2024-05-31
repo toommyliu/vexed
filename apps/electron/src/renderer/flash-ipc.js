@@ -2,6 +2,9 @@
  * @param {string[]} packet
  */
 function packetFromServer([packet]) {
+	const bot = Bot.getInstance();
+	bot.flash.emit("packetFromServer", packet);
+
 	if (packet.startsWith('{"')) {
 		const pkt = JSON.parse(packet);
 
@@ -17,7 +20,7 @@ function packetFromServer([packet]) {
 }
 
 function packetFromClient([packet]) {
-	// console.log(packet);
+	Bot.getInstance().flash.emit("packetFromClient", packet);
 }
 
 function connection([state]) {
