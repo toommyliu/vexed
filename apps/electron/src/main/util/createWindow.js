@@ -1,16 +1,30 @@
 const { join } = require("path");
 const { BrowserWindow, session } = require("electron");
 
-require("./setupMenu")();
-
 const userAgent =
 	"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16_0) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36";
 
-async function createWindow(account = null) {
+async function createMainWindow() {
+	const window = new BrowserWindow({
+		title: "Vexed Account Manager",
+		webPreferences: {
+			enableRemoteModule: true,
+			contextIsolation: false,
+			nodeIntegration: true,
+		}
+	});
+	window.webContents.setUserAgent(userAgent);
+
+	await window.loadFile(join(__dirname, "../../renderer/manager.html"));
+}
+
+async function createGameWindow(account = null) {
+	require("./setupMenu")();
+
 	const window = new BrowserWindow({
 		width: 966,
 		height: 552,
-		title: "",
+		title: account?.username ?? "",
 		webPreferences: {
 			enableRemoteModule: true,
 			contextIsolation: false,
@@ -35,4 +49,7 @@ async function createWindow(account = null) {
 	window.maximize();
 }
 
-module.exports = createWindow;
+module.exports = {
+	createMainWindow,
+	createGameWindow
+}

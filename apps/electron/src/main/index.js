@@ -1,11 +1,8 @@
 const fs = require("fs");
 const { join } = require("path");
-const { app, BrowserWindow, session } = require("electron");
+const { app } = require("electron");
 
-require("./util/setupMenu")();
-
-const userAgent =
-	"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16_0) AppleWebKit/37.36 (KHTML, like Gecko) Safari/537.36";
+const { createMainWindow, createGameWindow } = require("./util/createWindow");
 
 function registerFlashPlugin() {
 	const flashTrust = require("nw-flash-trust");
@@ -37,27 +34,9 @@ app.once("ready", async () => {
 	// whether to immediately launch into a game window
 	const skip = await fs.promises.stat(join(app.getPath("documents"), "Vexed/game.txt")).catch(() => null);
 	if (!skip?.isFile()) {
-		const window = new BrowserWindow({
-			width: 966,
-			height: 552,
-			title: "",
-			webPreferences: {
-				enableRemoteModule: true,
-				contextIsolation: false,
-				nodeIntegration: true,
-				plugins: true,
-			}
-		});
-		window.webContents.setUserAgent(userAgent);
-		session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
-			details.requestHeaders["User-Agent"] = userAgent;
-			details.requestHeaders.artixmode = "launcher";
-			callback({ requestHeaders: details.requestHeaders, cancel: false });
-		});
-
-		await window.loadFile(join(__dirname, "../renderer/manager.html"));
+		await createMainWindow();
 	} else {
-		require("./util/createWindow")();
+		await createGameWindow();
 	}
 });
 

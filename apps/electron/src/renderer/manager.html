@@ -31,6 +31,8 @@
 	const dir = path.join(electron.remote.app.getPath("documents"), "Vexed");
 	const json_path = path.join(dir, "accounts.json");
 
+	const { createGameWindow } = electron.remote.require("../main/util/createWindow");
+
 	async function getServers() {
 		const servers = await fetch("https://game.aq.com/game/api/data/servers")
 			.then((res) => res.json())
@@ -104,7 +106,7 @@
 				button.classList = "btn btn-primary";
 				button.textContent = "sign in";
 				button.addEventListener("click", async (event) => {
-					await electron.remote.require("../main/util/createWindow.js")(
+					await createGameWindow(
 						Object.assign({
 							server: document.getElementById("server").textContent
 						}, account)
