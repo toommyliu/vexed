@@ -107,7 +107,7 @@
 		document.getElementById('progress-container').appendChild(progress);
 	});
 
-	function progress([percentage]) {
+	async function progress([percentage]) {
 		var progress = document.getElementById('progress');
 		progress.value = percentage.toString();
 
@@ -115,6 +115,20 @@
 			var progressContainer = document.getElementById('progress-container');
 			progress?.remove();
 			progressContainer?.remove();
+
+			if (window?.account) {
+				const { username, password, server } = window.account;
+				const bot = Bot.getInstance();
+				await bot.sleep(1000);
+				await auth.login(username, password);
+				if (server !== "None") {
+					await bot.waitUntil(() => auth?.servers?.length > 0);
+					await bot.sleep(250);
+					await auth.connect(server);
+					await bot.sleep(1000);
+				}
+				delete window.account;
+			}
 		}
 	}
 </script>

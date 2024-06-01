@@ -39,27 +39,27 @@ app.once("ready", async () => {
 		height: 552,
 		title: "",
 		webPreferences: {
+			enableRemoteModule: true,
 			contextIsolation: false,
 			nodeIntegration: true,
-			plugins: true
+			plugins: true,
 		}
 	});
 
 	window.webContents.setUserAgent(userAgent);
 	session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
 		details.requestHeaders["User-Agent"] = userAgent;
-		details.requestHeaders["artixmode"] = "launcher";
+		details.requestHeaders.artixmode = "launcher";
 		callback({ requestHeaders: details.requestHeaders, cancel: false });
 	});
 
-	await window.loadFile(join(__dirname, "../renderer/index.html"));
-	window.webContents.openDevTools({ mode: "right" });
-	window.webContents.executeJavaScript(String.raw`
-		window.rootDir = ${JSON.stringify(join(app.getPath("documents"), "Vexed"))};
-		window.scriptsDir = ${JSON.stringify(join(app.getPath("documents"), "Vexed/Scripts"))};
-	`);
-	window.focus();
-	window.maximize();
+	// whether to immediately launch into a game window
+	const skip = await fs.promises.stat(join(app.getPath("documents"), "Vexed/game.txt")).catch(() => null);
+	if (!skip?.isFile()) {
+		await window.loadFile(join(__dirname, "../renderer/manager.html"));
+	} else {
+		require("./util/createWindow")();
+	}
 });
 
 app.on("window-all-closed", app.quit);
