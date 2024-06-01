@@ -1,10 +1,8 @@
 var { setIntervalAsync, clearIntervalAsync } = require("set-interval-async/fixed");
 
 class Combat {
-	/**
-	 * @type {Object}
-	 */
 	#intervalID;
+	#skillSetIdx = 0;
 
 	/**
 	 * @param {Bot} bot
@@ -17,13 +15,6 @@ class Combat {
 		 * @type {number[]}
 		 */
 		this.skillSet = [1, 2, 3, 4];
-
-		/**
-		 * The index of the skill set to use.
-		 * @type {number}
-		 * @private
-		 */
-		this.skillSetIdx = 0;
 
 		/**
 		 * The delay between skills.
@@ -100,10 +91,10 @@ class Combat {
 			this.attack(name);
 
 			if (this.hasTarget()) {
-				await this.useSkill(this.skillSet[this.skillSetIdx++], false, false);
+				await this.useSkill(this.skillSet[this.#skillSetIdx++], false, false);
 
-				if (this.skillSetIdx >= this.skillSet.length) {
-					this.skillSetIdx = 0;
+				if (this.#skillSetIdx >= this.skillSet.length) {
+					this.#skillSetIdx = 0;
 				}
 				await this.bot.sleep(this.skillDelay);
 			}
