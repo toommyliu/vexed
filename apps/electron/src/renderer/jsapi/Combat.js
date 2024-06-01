@@ -1,5 +1,4 @@
-// biome-ignore lint/style/useConst: this is ok
-let { setIntervalAsync, clearIntervalAsync } = require("set-interval-async/fixed");
+var { setIntervalAsync, clearIntervalAsync } = require("set-interval-async/fixed");
 
 class Combat {
 	/**
@@ -66,7 +65,7 @@ class Combat {
 	 * Whether the current player has a target.
 	 * @returns {boolean}
 	 */
-	get hasTarget() {
+	hasTarget() {
 		return this.bot.flash.call(window.swf.HasTarget);
 	}
 
@@ -87,25 +86,31 @@ class Combat {
 	async kill(name) {
 		await this.bot.waitUntil(() => this.bot.world.isMonsterAvailable(name), null, 3);
 
-		this.attack(name);
+		if (!this.bot.player.alive || !this.bot.auth.loggedIn) {
+			return;
+		}
 
+		let dead = false;
 		this.#intervalID = setIntervalAsync(async () => {
+			if (!this.bot.world.isMonsterAvailable(name)) {
+				dead = true;
+				await clearIntervalAsync(this.#intervalID);
+			}
+
 			this.attack(name);
 
-			if (this.hasTarget) {
+			if (this.hasTarget()) {
 				await this.useSkill(this.skillSet[this.skillSetIdx++], false, false);
 
-				if (this.skillSetIdx >= this.skillSet.length) this.skillSetIdx = 0;
+				if (this.skillSetIdx >= this.skillSet.length) {
+					this.skillSetIdx = 0;
+				}
 				await this.bot.sleep(this.skillDelay);
-			} else {
-				(async () => {
-					await clearIntervalAsync(this.#intervalID);
-				})();
 			}
 		}, 0);
 
-		while (this.hasTarget) {
-			await this.bot.sleep(150);
+		while (!dead) {
+			await this.bot.sleep(1000);
 		}
 	}
 
