@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en" data-bs-theme="dark">
 <link href="https://cdn.jsdelivr.net/npm/halfmoon@2.0.1/css/halfmoon.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <div class="container mt-3 w-50">
 	<div class="mb-3">
@@ -14,7 +15,8 @@
 	<button type="submit" class="btn btn-primary ms-auto" id="submit">add account</button>
 </div>
 
-<div id="accounts" class="container flex flex-row justify-content-between border-top mt-4"></div>
+<div class="container border-top mt-4"></div>
+<div id="accounts" class="container flex flex-row justify-content-between"></div>
 
 <script>
 	const electron = require("electron");
@@ -28,6 +30,50 @@
 
 	const dir = path.join(electron.remote.app.getPath("documents"), "Vexed");
 	const json_path = path.join(dir, "accounts.json");
+
+	async function getServers() {
+		const servers = await fetch("https://game.aq.com/game/api/data/servers")
+			.then((res) => res.json())
+			.catch(() => null);
+
+		if (!servers) {
+			return;
+		}
+
+		const div = document.createElement("div");
+		div.classList.add("container", "mt-4");
+
+		const p = document.createElement("p");
+		p.textContent = "server: "
+		div.appendChild(p);
+
+		const button = document.createElement("button");
+		button.classList.add("btn", "btn-primary", "dropdown-toggle");
+		button.id = "server";
+		button.textContent = "select a server";
+		button.setAttribute("type", "button");
+		button.setAttribute("data-bs-toggle", "dropdown");
+		button.setAttribute("aria-expanded", "false");
+		div.appendChild(button);
+
+		const ul = document.createElement("ul");
+		ul.classList.add("dropdown-menu");
+
+		for (const server of servers) {
+			const li = document.createElement("li");
+			const a = document.createElement("a");
+			a.textContent = `${server.sName} (${server.iCount})`;
+			a.classList.add("dropdown-item");
+			a.addEventListener("click", () => {
+				button.textContent = server.sName;
+			});
+			li.appendChild(a);
+			ul.appendChild(li);
+		}
+
+		div.appendChild(ul);
+		document.body.appendChild(div);
+	}
 
 	async function render() {
 		const accounts = JSON.parse(await read(json_path, "utf8"));
@@ -52,7 +98,11 @@
 				button.classList = "btn btn-primary";
 				button.textContent = "sign in";
 				button.addEventListener("click", async (event) => {
-					await electron.remote.require("../main/util/createWindow.js")(account);
+					await electron.remote.require("../main/util/createWindow.js")(
+						Object.assign({
+							server: document.getElementById("server").textContent
+						}, account)
+					);
 				});
 				div.appendChild(button);
 			}
@@ -72,7 +122,6 @@
 			}
 
 			li.appendChild(div);
-
 			ul.appendChild(li);
 		}
 		div.appendChild(ul);
@@ -80,8 +129,10 @@
 		document.body.appendChild(div);
 	}
 
-	render();
-
+	(async () => {
+		await getServers();
+		await render();
+	})();
 	document.getElementById("submit")?.addEventListener("click", async function () {
 		const username = document.getElementById("username")?.value;
 		const password = document.getElementById("password")?.value;
