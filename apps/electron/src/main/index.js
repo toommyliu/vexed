@@ -46,19 +46,9 @@ app.once("ready", async () => {
 		}
 	});
 
-	window.webContents.setUserAgent(userAgent);
-	session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
-		details.requestHeaders["User-Agent"] = userAgent;
-		details.requestHeaders["artixmode"] = "launcher";
-		callback({ requestHeaders: details.requestHeaders, cancel: false });
-	});
-
 	await window.loadFile(join(__dirname, "../renderer/manager.html"));
 	window.webContents.openDevTools({ mode: "right" });
-	window.webContents.executeJavaScript(String.raw`
-		window.rootDir = ${JSON.stringify(join(app.getPath("documents"), "Vexed"))};
-		window.scriptsDir = ${JSON.stringify(join(app.getPath("documents"), "Vexed/Scripts"))};
-	`);
+
 	window.focus();
 	window.maximize();
 });

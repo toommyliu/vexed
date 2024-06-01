@@ -115,6 +115,14 @@
 			var progressContainer = document.getElementById('progress-container');
 			progress?.remove();
 			progressContainer?.remove();
+
+			if (window?.account) {
+				setTimeout(() => {
+					const { username, password } = window.account;
+					window.swf.FixLogin(username, password);
+					delete window.account;
+				}, 1000);
+			}
 		}
 	}
 </script>

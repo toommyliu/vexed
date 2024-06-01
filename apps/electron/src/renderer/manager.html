@@ -51,8 +51,8 @@
 				const button = document.createElement("button");
 				button.classList = "btn btn-primary";
 				button.textContent = "sign in";
-				button.addEventListener("click", (event) => {
-					console.log(account);
+				button.addEventListener("click", async (event) => {
+					await electron.remote.require("../main/util/createWindow.js")(account);
 				});
 				div.appendChild(button);
 			}
@@ -61,8 +61,12 @@
 				const button = document.createElement("button");
 				button.classList = "btn btn-danger";
 				button.textContent = "remove";
-				button.addEventListener("click", (event) => {
-					console.log(account);
+				button.addEventListener("click", async (event) => {
+					const idx = accounts.findIndex(a => a.username === account.username && a.password === account.password);
+					accounts.splice(idx, 1);
+
+					await write(json_path, JSON.stringify(accounts), "utf8");
+					await render();
 				});
 				div.appendChild(button);
 			}
@@ -75,7 +79,6 @@
 
 		document.body.appendChild(div);
 	}
-
 
 	render();
 
