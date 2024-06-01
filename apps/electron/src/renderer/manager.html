@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+<link href="https://cdn.jsdelivr.net/npm/halfmoon@2.0.1/css/halfmoon.min.css" rel="stylesheet">
+
+<div class="container mt-3 w-50">
+	<div class="mb-3">
+		<label class="form-label">username</label>
+		<input type="text" class="form-control" id="username" placeholder="">
+	</div>
+	<div class="mb-3">
+		<label class="form-label">password</label>
+		<input type="text" class="form-control" id="password" placeholder="">
+	</div>
+	<button type="submit" class="btn btn-primary ms-auto" id="submit">add account</button>
+</div>
+
+<div id="accounts" class="container flex flex-row justify-content-between border-top mt-4"></div>
+
+<script>
+	const electron = require("electron");
+	const path = require("path");
+	const fs = require("fs");
+	const { promisify } = require("util");
+
+	const stat = promisify(fs.stat);
+	const read = promisify(fs.readFile);
+	const write = promisify(fs.writeFile);
+
+	const dir = path.join(electron.remote.app.getPath("documents"), "Vexed");
+	const json_path = path.join(dir, "accounts.json");
+
+	async function render() {
+		const accounts = JSON.parse(await read(json_path, "utf8"));
+		const div = document.getElementById("accounts");
+		div.innerHTML = '';
+
+		const ul = document.createElement("ul");
+		ul.classList.add("mt-4");
+
+		for (const account of accounts) {
+			const li = document.createElement("li");
+			li.classList.add("mb-4");
+
+			const p = document.createElement("p");
+			p.textContent = account.username;
+			li.appendChild(p);
+
+			const div = document.createElement("div");
+
+			{
+				const button = document.createElement("button");
+				button.classList = "btn btn-primary";
+				button.textContent = "sign in";
+				button.addEventListener("click", (event) => {
+					console.log(account);
+				});
+				div.appendChild(button);
+			}
+
+			{
+				const button = document.createElement("button");
+				button.classList = "btn btn-danger";
+				button.textContent = "remove";
+				button.addEventListener("click", (event) => {
+					console.log(account);
+				});
+				div.appendChild(button);
+			}
+
+			li.appendChild(div);
+
+			ul.appendChild(li);
+		}
+		div.appendChild(ul);
+
+		document.body.appendChild(div);
+	}
+
+
+	render();
+
+	document.getElementById("submit")?.addEventListener("click", async function () {
+		const username = document.getElementById("username")?.value;
+		const password = document.getElementById("password")?.value;
+
+		const stats = await stat(json_path).catch(() => null);
+
+		if (!stats?.isFile()) {
+			await write(json_path, JSON.stringify([]));
+		}
+
+		const accounts = await read(json_path, "utf8");
+		const _accounts = JSON.parse(accounts);
+
+		_accounts.push({ username, password });
+		await write(json_path, JSON.stringify(_accounts), "utf8");
+		await render();
+	});
+</script>
+
+</html>

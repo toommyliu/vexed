@@ -39,9 +39,10 @@ app.once("ready", async () => {
 		height: 552,
 		title: "",
 		webPreferences: {
+			enableRemoteModule: true,
 			contextIsolation: false,
 			nodeIntegration: true,
-			plugins: true
+			plugins: true,
 		}
 	});
 
@@ -52,7 +53,7 @@ app.once("ready", async () => {
 		callback({ requestHeaders: details.requestHeaders, cancel: false });
 	});
 
-	await window.loadFile(join(__dirname, "../renderer/index.html"));
+	await window.loadFile(join(__dirname, "../renderer/manager.html"));
 	window.webContents.openDevTools({ mode: "right" });
 	window.webContents.executeJavaScript(String.raw`
 		window.rootDir = ${JSON.stringify(join(app.getPath("documents"), "Vexed"))};
