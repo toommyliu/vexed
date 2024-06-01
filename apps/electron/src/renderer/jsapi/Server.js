@@ -2,10 +2,10 @@
  * A game server.
  */
 class Server {
-	/**
-	 * @param {ServerData} data
-	 */
 	constructor(data) {
+		/**
+		 * @type {ServerData}
+		 */
 		this.data = data;
 	}
 

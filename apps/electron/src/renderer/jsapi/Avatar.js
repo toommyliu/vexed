@@ -2,10 +2,10 @@
  * A remote player.
  */
 class Avatar {
-	/**
-	 * @param {PlayerData} data
-	 */
 	constructor(data) {
+		/**
+		 * @type {PlayerData}
+		 */
 		this.data = data;
 	}
 

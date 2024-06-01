@@ -4,10 +4,10 @@ class Combat {
 	#intervalID;
 	#skillSetIdx = 0;
 
-	/**
-	 * @param {Bot} bot
-	 */
 	constructor(bot) {
+		/**
+		 * @type {Bot}
+		 */
 		this.bot = bot;
 
 		/**

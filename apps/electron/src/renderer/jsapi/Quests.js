@@ -1,7 +1,4 @@
 class Quests {
-	/**
-	 * @param {Bot} bot
-	 */
 	constructor(bot) {
 		/**
 		 * @type {Bot}

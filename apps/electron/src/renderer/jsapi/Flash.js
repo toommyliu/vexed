@@ -1,12 +1,12 @@
 var { EventEmitter } = require('events');
 
 class Flash extends EventEmitter {
-	/**
-	 * @param {Bot} bot
-	 */
 	constructor(bot) {
 		super();
 
+		/**
+		 * @type {Bot}
+		 */
 		this.bot = bot;
 	}
 

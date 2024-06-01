@@ -2,10 +2,10 @@
  * Represents the local player.
  */
 class Player {
-	/**
-	 * @param {Bot} bot
-	 */
 	constructor(bot) {
+		/**
+		 * @type {Bot}
+		 */
 		this.bot = bot;
 	}
 

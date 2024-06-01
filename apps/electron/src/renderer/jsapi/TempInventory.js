@@ -1,7 +1,4 @@
 class TempInventory {
-	/**
-	 * @param {Bot} bot
-	 */
 	constructor(bot) {
 		/**
 		 * @type {Bot}

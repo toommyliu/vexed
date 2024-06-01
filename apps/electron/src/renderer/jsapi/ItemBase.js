@@ -3,6 +3,9 @@ class ItemBase {
 	 * @param {ItemData} data
 	 */
 	constructor(data) {
+		/**
+		 * @type {ItemData}
+		*/
 		this.data = data;
 	}
 

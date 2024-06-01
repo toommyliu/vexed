@@ -1,7 +1,4 @@
 class Monster {
-	/**
-	 * @param {MonsterData} data
-	 */
 	constructor(data) {
 		/**
 		 * @type {MonsterData}

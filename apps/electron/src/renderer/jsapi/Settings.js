@@ -1,8 +1,4 @@
-// DONE
 class Settings {
-	/**
-	 * @param {Bot} bot
-	 */
 	constructor(bot) {
 		/**
 		 * @type {Bot}

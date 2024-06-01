@@ -1,7 +1,4 @@
 class Inventory {
-	/**
-	 * @param {Bot} bot
-	 */
 	constructor(bot) {
 		/**
 		 * @type {Bot}
