@@ -130,32 +130,36 @@ class World {
 	 * @param {string} [pad="Spawn"] - The pad to jump to.
 	 * @returns {Promise<void>}
 	 */
-	async join(mapName, cell = "Enter", pad = "Spawn") {
-		await this.bot.waitUntil(() => this.isActionAvailable(GameAction.Transfer));
-		if (this.bot.player.state === PlayerState.InCombat) {
-			this.jump("Enter", "Spawn");
-			await this.bot.waitUntil(() => this.bot.player.state !== PlayerState.InCombat);
-			await this.bot.sleep(1500);
-		}
+	async join(mapName, cell = "Enter", pad = "Spawn", tries = 5) {
+		await this.bot.waitUntil(() => this.isActionAvailable(GameAction.Transfer), null, 15);
 
+		let attempts = tries;
 		let map_str = mapName;
 		let [map_name, map_number] = map_str.split("-");
 
-		if (map_number === "1e9" || map_number === "1e99") map_number = "100000";
-		map_str = `${map_name}${map_number ? `-${map_number}` : ""}`;
-
-		if (this.name.toLowerCase() === map_name.toLowerCase()) {
-			this.jump(cell, pad);
-			return;
+		if (map_number === "1e9" || map_number === "1e99") {
+			map_number = "100000";
 		}
 
-		while (this.name.toLowerCase() !== map_name.toLowerCase()) {
+		map_str = `${map_name}${map_number ? `-${map_number}` : ""}`;
+
+		while (attempts > 0 && this.name.toLowerCase() !== map_name.toLowerCase()) {
+			await this.bot.waitUntil(() => this.isActionAvailable(GameAction.Transfer), null, 15);
+			if (this.bot.player.state === PlayerState.InCombat) {
+				await this.jump("Enter", "Spawn");
+				await this.bot.waitUntil(() => this.bot.player.state !== PlayerState.InCombat, null, 10);
+				await this.bot.sleep(1500);
+			}
+
 			this.bot.flash.call(window.swf.Join, map_str, cell, pad);
-			await this.bot.sleep(1000);
+			await this.bot.waitUntil(() => this.name.toLowerCase() === map_name.toLowerCase(), null, 10);
+			await this.bot.waitUntil(() => !this.loading, null, 40);
+
+			attempts--;
 		}
 
 		await this.jump(cell, pad);
-		await this.bot.waitUntil(() => !this.loading);
+		this.setSpawnpoint();
 	}
 
 	/**
