@@ -74,4 +74,13 @@ class Settings {
 	setFPS(fps) {
 		this.bot.flash.call(window.swf.SetFPS, String(fps));
 	}
+
+	/**
+	 * Disables ads when your player dies
+	 * @param {boolean} on Whether the ads should be shown
+	 * @returns {void}
+	 */
+	disableDeathAds(on) {
+		this.bot.flash.set('userPreference.data.bDeathAd', !on);
+	}
 }
