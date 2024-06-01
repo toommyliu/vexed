@@ -6,7 +6,7 @@ The JSAPI is pretty lacking at the moment, but it works ok for simple scripts. I
     - For example, this makes it easier to run multiple scripts and prevent redeclaration errors.
 - There is no form of sandboxing whatsoever, you should be careful of any code you run.
     - Because Vexed essentially runs on outdated stack, be weary of security issues associated with Chromium/Electron and Flash.
-    - node.js `v12.8.3`, chromium `87.0.4280.141` and electron `11.5.0`
+    - node.js `v12.18.3`, chromium `87.0.4280.141` and electron `11.5.0`
 
 ## Writing scripts
 
