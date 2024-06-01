@@ -121,10 +121,12 @@
 				const bot = Bot.getInstance();
 				await bot.sleep(1000);
 				await auth.login(username, password);
-				await bot.waitUntil(() => auth?.servers?.length > 0);
-				await bot.sleep(250);
-				await auth.connect(server);
-				await bot.sleep(1000);
+				if (server !== "None") {
+					await bot.waitUntil(() => auth?.servers?.length > 0);
+					await bot.sleep(250);
+					await auth.connect(server);
+					await bot.sleep(1000);
+				}
 				delete window.account;
 			}
 		}

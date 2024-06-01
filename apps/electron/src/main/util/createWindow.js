@@ -29,7 +29,6 @@ async function createWindow(account = null) {
 	await window.loadFile(join(__dirname, "../../renderer/game.html"));
 	window.webContents.executeJavaScript(`window.account=${JSON.stringify(account)}`);
 	window.webContents.openDevTools({ mode: "right" });
-
 	window.focus();
 	window.maximize();
 }

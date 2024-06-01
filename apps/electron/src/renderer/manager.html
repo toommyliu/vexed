@@ -50,7 +50,7 @@
 		const button = document.createElement("button");
 		button.classList.add("btn", "btn-primary", "dropdown-toggle");
 		button.id = "server";
-		button.textContent = "select a server";
+		button.textContent = "None";
 		button.setAttribute("type", "button");
 		button.setAttribute("data-bs-toggle", "dropdown");
 		button.setAttribute("aria-expanded", "false");
@@ -59,14 +59,20 @@
 		const ul = document.createElement("ul");
 		ul.classList.add("dropdown-menu");
 
+		const li = document.createElement("li");
+		const a = document.createElement("a");
+		a.textContent = "None";
+		a.classList.add("dropdown-item");
+		a.addEventListener("click", () => button.textContent = "None");
+		li.appendChild(a);
+		ul.appendChild(li);
+
 		for (const server of servers) {
 			const li = document.createElement("li");
 			const a = document.createElement("a");
 			a.textContent = `${server.sName} (${server.iCount})`;
 			a.classList.add("dropdown-item");
-			a.addEventListener("click", () => {
-				button.textContent = server.sName;
-			});
+			a.addEventListener("click", () => button.textContent = server.sName);
 			li.appendChild(a);
 			ul.appendChild(li);
 		}
