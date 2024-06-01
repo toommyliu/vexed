@@ -46,11 +46,14 @@ app.once("ready", async () => {
 		}
 	});
 
-	await window.loadFile(join(__dirname, "../renderer/manager.html"));
-	window.webContents.openDevTools({ mode: "right" });
+	window.webContents.setUserAgent(userAgent);
+	session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
+		details.requestHeaders["User-Agent"] = userAgent;
+		details.requestHeaders.artixmode = "launcher";
+		callback({ requestHeaders: details.requestHeaders, cancel: false });
+	});
 
-	window.focus();
-	window.maximize();
+	await window.loadFile(join(__dirname, "../renderer/manager.html"));
 });
 
 app.on("window-all-closed", app.quit);

@@ -1,6 +1,7 @@
-const fs = require("fs");
 const { join } = require("path");
-const { app, BrowserWindow, session } = require("electron");
+const { BrowserWindow, session } = require("electron");
+
+require("./setupMenu")();
 
 const userAgent =
 	"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16_0) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36";
