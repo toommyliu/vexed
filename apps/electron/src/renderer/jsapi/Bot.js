@@ -57,14 +57,23 @@ class Bot {
 	}
 
 	/**
-	 * Waits until the predicate is met.
-	 * @param {Function} predicate The condition to wait for.
+	 * Waits until the condition is met.
+	 * @param {Function} condition The condition to wait for.
+	 * @param {Function|null} prerequisite The prerequisite to be checked before waiting for the condition.
+	 * @param {number} timeout The maximum number of iterations to wait. -1 for infinite.
 	 * @returns {Promise<void>}
 	 */
-	async waitUntil(predicate) {
-		do {
+	async waitUntil(condition, prerequisite = null, timeout = 15) {
+		let iterations = 0;
+
+		while (
+			(prerequisite === null || prerequisite()) &&
+			!condition() &&
+			(iterations < timeout || timeout === -1)
+		) {
 			await this.sleep(1000);
-		} while (!predicate());
+			iterations++;
+		}
 	}
 
 	/**
