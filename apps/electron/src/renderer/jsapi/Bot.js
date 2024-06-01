@@ -1,5 +1,3 @@
-var winston = require("winston");
-
 class Bot {
 	constructor() {
 		if (Bot._instance)
@@ -20,30 +18,6 @@ class Bot {
 		this.shops = new Shops(this);
 		this.tempInventory = new TempInventory(this);
 		this.world = new World(this);
-
-		this.log = winston.createLogger({
-			transports: [
-				new winston.transports.Console({
-					format: winston.format.combine(
-						winston.format.timestamp({
-							format: "YYYY-MM-DD hh:mm:ss A"
-						}),
-						winston.format.printf(
-							({ timestamp, message, level }) =>
-								`[${timestamp} ${level.toUpperCase()}] ${message}`
-						)
-					)
-				})
-				// new winston.transports.File({
-				// 	filename: 'log.txt',
-				// 	dirname: window.rootDir ?? './',
-				// 	format: winston.format.combine(
-				// 		winston.format.timestamp({ format: 'YYYY-MM-DD hh:mm:ss A' }),
-				// 		winston.format.printf(({ timestamp, message }) => `[${timestamp}] ${message}`)
-				// 	)
-				// })
-			]
-		});
 
 		Bot._instance = this;
 	}

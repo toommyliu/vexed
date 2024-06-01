@@ -85,9 +85,7 @@ class Combat {
 	 * @returns {Promise<void>}
 	 */
 	async kill(name) {
-		this.bot.log.info(`Killing "${name}"`);
-
-		await this.bot.waitUntil(() => this.bot.world.isMonsterAvailable(name));
+		await this.bot.waitUntil(() => this.bot.world.isMonsterAvailable(name), null, 3);
 
 		this.attack(name);
 
@@ -120,10 +118,6 @@ class Combat {
 	 * @returns {Promise<void>}
 	 */
 	async killForItem(name, itemResolvable, itemQuantity, isTemp = false) {
-		this.bot.log.info(
-			`Killing "${name}" for x${itemQuantity} "${itemResolvable}" ${isTemp ? "(temp)" : ""}`
-		);
-
 		const getItem = () =>
 			this.bot[isTemp ? "tempInventory" : "inventory"].resolve(itemResolvable);
 
