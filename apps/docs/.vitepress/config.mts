@@ -19,6 +19,7 @@ export default defineConfig({
 						text: "Downloading/Compiling",
 						link: "/getting-started/downloading-compiling",
 					},
+					{ text: "Account Manager", link: "/getting-started/account-manager" },
 					{ text: "Contributing", link: "/getting-started/contributing" },
 					{ text: "Credits", link: "/getting-started/credits" },
 					{ text: "Disclaimer", link: "/getting-started/disclaimer" },
