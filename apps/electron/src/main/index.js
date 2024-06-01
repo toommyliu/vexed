@@ -53,7 +53,13 @@ app.once("ready", async () => {
 		callback({ requestHeaders: details.requestHeaders, cancel: false });
 	});
 
-	await window.loadFile(join(__dirname, "../renderer/manager.html"));
+	// whether to immediately launch into a game window
+	const skip = await fs.promises.stat(join(app.getPath("documents"), "Vexed/game.txt")).catch(() => null);
+	if (!skip?.isFile()) {
+		await window.loadFile(join(__dirname, "../renderer/manager.html"));
+	} else {
+		require("./util/createWindow")();
+	}
 });
 
 app.on("window-all-closed", app.quit);
