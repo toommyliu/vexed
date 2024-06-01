@@ -82,6 +82,7 @@ class Shops {
 
 		const contains = () => this.bot.inventory.resolve(itemName);
 		if (contains()) {
+			await this.bot.sleep(1000);
 			this.bot.flash.call(window.swf.SellItem, itemName);
 			await this.bot.waitUntil(() => !contains());
 		}
