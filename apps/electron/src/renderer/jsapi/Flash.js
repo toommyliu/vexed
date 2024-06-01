@@ -101,4 +101,13 @@ class Flash extends EventEmitter {
 			console.error(error);
 		}
 	}
+
+	/**
+	 * Determines whether an actionscript path is null.
+	 * @param {string} path The path of the game object
+	 * @returns {boolean}
+	 */
+	isNull(path) {
+		return this.call(window.swf.isNull, path);
+	}
 }
