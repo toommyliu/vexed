@@ -80,7 +80,7 @@ class Combat {
 
 	/**
 	 * Kills a monster.
-	 * @param {string|number} name The name or monMapID of the monster.
+	 * @param {string} name The name or monMapID of the monster.
 	 * @returns {Promise<void>}
 	 */
 	async kill(name) {
