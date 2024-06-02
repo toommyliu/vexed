@@ -83,7 +83,7 @@ class Combat {
 
 		let dead = false;
 		this.#intervalID = setIntervalAsync(async () => {
-			if (!this.bot.world.isMonsterAvailable(name)) {
+			if (!this.bot.world.isMonsterAvailable(name) || !this.hasTarget()) {
 				dead = true;
 				await clearIntervalAsync(this.#intervalID);
 			}
