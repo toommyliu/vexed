@@ -1,6 +1,6 @@
-const fs = require("fs");
+const fs = require("fs-extra");
 const { join } = require("path");
-const { app } = require("electron");
+const { app, dialog } = require("electron");
 
 const { createMainWindow, createGameWindow } = require("./util/createWindow");
 
@@ -27,15 +27,26 @@ function registerFlashPlugin() {
 registerFlashPlugin();
 
 app.once("ready", async () => {
-	await fs.promises.mkdir(join(app.getPath("documents"), "Vexed/Scripts"), {
-		recursive: true
+	const base = join(app.getPath("documents"), "Vexed");
+	const preferencesPath = join(base, "preferences.json");
+
+	await fs.ensureDir(join(base, "Scripts"));
+	await fs.ensureFile(preferencesPath);
+
+	const preferences = await fs.readJSON(preferencesPath).catch(async () => {
+		const def = { launch: "manager" };
+		await fs.writeJSON(preferencesPath, def);
+		return def;
 	});
 
-	// whether to immediately launch into a game window
-	const skip = await fs.promises.stat(join(app.getPath("documents"), "Vexed/game.txt")).catch(() => null);
-	if (!skip?.isFile()) {
+	if (!("launch" in preferences)) {
 		await createMainWindow();
-	} else {
+		return;
+	}
+
+	if (preferences.launch === "manager") {
+		await createMainWindow();
+	} else if (preferences.launch === "game") {
 		await createGameWindow();
 	}
 });
