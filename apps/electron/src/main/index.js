@@ -1,6 +1,6 @@
 const fs = require("fs-extra");
 const { join } = require("path");
-const { app, dialog } = require("electron");
+const { app } = require("electron");
 
 const { createMainWindow, createGameWindow } = require("./util/createWindow");
 
