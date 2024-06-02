@@ -69,7 +69,7 @@ class Server {
 	 * The chat-level restriction of the server (0=canned, 2=free)
 	 * @returns {boolean}
 	 */
-	get isCanned() {
+	isCanned() {
 		return this.data.iChat === 0;
 	}
 }
