@@ -83,7 +83,7 @@ class Combat {
 
 		let dead = false;
 		this.#intervalID = setIntervalAsync(async () => {
-			if (!this.bot.world.isMonsterAvailable(name) || !this.hasTarget()) {
+			if (!this.bot.world.isMonsterAvailable(name) && !this.hasTarget()) {
 				dead = true;
 				await clearIntervalAsync(this.#intervalID);
 			}
@@ -103,6 +103,7 @@ class Combat {
 		while (!dead) {
 			await this.bot.sleep(1000);
 		}
+
 		this.bot.flash.call(window.swf.CancelAutoAttack);
 		this.bot.flash.call(window.swf.CancelTarget);
 	}
