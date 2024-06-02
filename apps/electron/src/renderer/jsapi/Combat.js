@@ -103,6 +103,8 @@ class Combat {
 		while (!dead) {
 			await this.bot.sleep(1000);
 		}
+		this.bot.flash.call(window.swf.CancelAutoAttack);
+		this.bot.flash.call(window.swf.CancelTarget);
 	}
 
 	/**
