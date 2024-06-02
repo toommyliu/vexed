@@ -26,9 +26,9 @@ class Flash extends EventEmitter {
 			_fn = fn;
 		} else if (typeof fn === "string") {
 			// args[0] is the path
-			// args[1-n] are the actual args for the game function
 			_fn = args.length === 0 ? window.swf.callGameFunction0 : window.swf.callGameFunction;
-			_args = [fn];
+			// args[1-n] are the actual args for the function
+			_args = [fn, ...args];
 		}
 
 		// call it
