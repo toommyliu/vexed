@@ -44,10 +44,10 @@ app.once("ready", async () => {
 		return;
 	}
 
-	if (preferences.launch === "manager") {
-		await createMainWindow();
-	} else if (preferences.launch === "game") {
+	if (preferences.launch.toLowerCase() === "game") {
 		await createGameWindow();
+	} else {
+		await createMainWindow();
 	}
 });
 
