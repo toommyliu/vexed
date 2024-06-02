@@ -1,16 +1,13 @@
-// biome-ignore lint/style/useConst: this is ok
-let { setIntervalAsync, clearIntervalAsync } = require("set-interval-async/fixed");
+var { setIntervalAsync, clearIntervalAsync } = require("set-interval-async/fixed");
 
 class Combat {
-	/**
-	 * @type {Object}
-	 */
 	#intervalID;
+	#skillSetIdx = 0;
 
-	/**
-	 * @param {Bot} bot
-	 */
 	constructor(bot) {
+		/**
+		 * @type {Bot}
+		 */
 		this.bot = bot;
 
 		/**
@@ -18,13 +15,6 @@ class Combat {
 		 * @type {number[]}
 		 */
 		this.skillSet = [1, 2, 3, 4];
-
-		/**
-		 * The index of the skill set to use.
-		 * @type {number}
-		 * @private
-		 */
-		this.skillSetIdx = 0;
 
 		/**
 		 * The delay between skills.
@@ -66,7 +56,7 @@ class Combat {
 	 * Whether the current player has a target.
 	 * @returns {boolean}
 	 */
-	get hasTarget() {
+	hasTarget() {
 		return this.bot.flash.call(window.swf.HasTarget);
 	}
 
@@ -81,33 +71,37 @@ class Combat {
 
 	/**
 	 * Kills a monster.
-	 * @param {string|number} name The name or monMapID of the monster.
+	 * @param {string} name The name or monMapID of the monster.
 	 * @returns {Promise<void>}
 	 */
 	async kill(name) {
-		this.bot.log.info(`Killing "${name}"`);
+		await this.bot.waitUntil(() => this.bot.world.isMonsterAvailable(name), null, 3);
 
-		await this.bot.waitUntil(() => this.bot.world.isMonsterAvailable(name));
+		if (!this.bot.player.alive || !this.bot.auth.loggedIn) {
+			return;
+		}
 
-		this.attack(name);
-
+		let dead = false;
 		this.#intervalID = setIntervalAsync(async () => {
+			if (!this.bot.world.isMonsterAvailable(name)) {
+				dead = true;
+				await clearIntervalAsync(this.#intervalID);
+			}
+
 			this.attack(name);
 
-			if (this.hasTarget) {
-				await this.useSkill(this.skillSet[this.skillSetIdx++], false, false);
+			if (this.hasTarget()) {
+				await this.useSkill(this.skillSet[this.#skillSetIdx++], false, false);
 
-				if (this.skillSetIdx >= this.skillSet.length) this.skillSetIdx = 0;
+				if (this.#skillSetIdx >= this.skillSet.length) {
+					this.#skillSetIdx = 0;
+				}
 				await this.bot.sleep(this.skillDelay);
-			} else {
-				(async () => {
-					await clearIntervalAsync(this.#intervalID);
-				})();
 			}
 		}, 0);
 
-		while (this.hasTarget) {
-			await this.bot.sleep(150);
+		while (!dead) {
+			await this.bot.sleep(1000);
 		}
 	}
 
@@ -120,10 +114,6 @@ class Combat {
 	 * @returns {Promise<void>}
 	 */
 	async killForItem(name, itemResolvable, itemQuantity, isTemp = false) {
-		this.bot.log.info(
-			`Killing "${name}" for x${itemQuantity} "${itemResolvable}" ${isTemp ? "(temp)" : ""}`
-		);
-
 		const getItem = () =>
 			this.bot[isTemp ? "tempInventory" : "inventory"].resolve(itemResolvable);
 

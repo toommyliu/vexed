@@ -4,10 +4,11 @@ class Drops {
 	 * @type {Set<ItemData>}
 	 */
 	#data = new Set();
-	/**
-	 * @param {Bot} bot
-	 */
+
 	constructor(bot) {
+		/**
+		 * @type {Bot}
+		 */
 		this.bot = bot;
 
 		/**
@@ -54,10 +55,11 @@ class Drops {
 	 */
 	async pickup(itemResolvable) {
 		let item;
-		if (typeof itemResolvable === "string")
+		if (typeof itemResolvable === "string") {
 			item = [...this.#data.values()].find(
 				(i) => i.sName.toLowerCase() === itemResolvable.toLowerCase()
 			)?.ItemID;
+		}
 
 		const exists = this.stack.has(item);
 		if (!exists) {

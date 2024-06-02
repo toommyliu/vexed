@@ -2,10 +2,10 @@
  * A game server.
  */
 class Server {
-	/**
-	 * @param {ServerData} data
-	 */
 	constructor(data) {
+		/**
+		 * @type {ServerData}
+		 */
 		this.data = data;
 	}
 
@@ -61,15 +61,15 @@ class Server {
 	 * Whether the server is an upgrade-only server
 	 * @returns {boolean}
 	 */
-	get isUpgrade() {
-		return this.data.bUpg;
+	isUpgrade() {
+		return this.data.bUpg === 1;
 	}
 
 	/**
 	 * The chat-level restriction of the server (0=canned, 2=free)
 	 * @returns {boolean}
 	 */
-	get isCanned() {
+	isCanned() {
 		return this.data.iChat === 0;
 	}
 }

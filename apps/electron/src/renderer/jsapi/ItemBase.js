@@ -1,8 +1,8 @@
 class ItemBase {
-	/**
-	 * @param {ItemData} data
-	 */
 	constructor(data) {
+		/**
+		 * @type {ItemData}
+		 */
 		this.data = data;
 	}
 
@@ -50,16 +50,16 @@ class ItemBase {
 	 * Indicates if the item is a member/upgrade only item.
 	 * @returns {boolean}
 	 */
-	get isUpgrade() {
-		return this.data.bUpg;
+	isUpgrade() {
+		return this.data.bUpg === 1;
 	}
 
 	/**
 	 * Indicates if the item is an AC item.
 	 * @returns {boolean}
 	 */
-	get isAC() {
-		return this.data.bCoins;
+	isAC() {
+		return this.data.bCoins === 1;
 	}
 
 	/**
@@ -74,8 +74,8 @@ class ItemBase {
 	 * Whether the item is a temporary item.
 	 * @returns {boolean}
 	 */
-	get isTemp() {
-		return this.data.bTemp;
+	isTemp() {
+		return this.data.bTemp === 1;
 	}
 
 	/**

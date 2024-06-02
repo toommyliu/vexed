@@ -1,8 +1,8 @@
 class Faction {
-	/**
-	 * @param {FactionData} data
-	 */
 	constructor(data) {
+		/**
+		 * @type {FactionData}
+		*/
 		this.data = data;
 	}
 

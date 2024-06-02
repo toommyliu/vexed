@@ -1,12 +1,12 @@
 var { EventEmitter } = require('events');
 
 class Flash extends EventEmitter {
-	/**
-	 * @param {Bot} bot
-	 */
 	constructor(bot) {
 		super();
 
+		/**
+		 * @type {Bot}
+		 */
 		this.bot = bot;
 	}
 
@@ -100,5 +100,14 @@ class Flash extends EventEmitter {
 		} catch (error) {
 			console.error(error);
 		}
+	}
+
+	/**
+	 * Determines whether an actionscript path is null.
+	 * @param {string} path The path of the game object
+	 * @returns {boolean}
+	 */
+	isNull(path) {
+		return this.call(window.swf.isNull, path);
 	}
 }

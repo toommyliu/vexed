@@ -1,7 +1,4 @@
 class Inventory {
-	/**
-	 * @param {Bot} bot
-	 */
 	constructor(bot) {
 		/**
 		 * @type {Bot}
@@ -137,9 +134,10 @@ class InventoryItem extends ItemBase {
 	 * 7: Healer
 	 * 8: Spellbreaker
 	 * 9: Lucky
+	 * 10: Forge (?)
 	 * @returns {number}
 	 */
-	get enhancementPatternId() {
-		return this.data.InvEnhPatternID;
+	get enhancementPatternID() {
+		return this.data.EnhPatternID;
 	}
 }
