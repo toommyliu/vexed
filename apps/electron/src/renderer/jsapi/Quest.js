@@ -45,6 +45,18 @@ class Quest {
 	get available() {
 		return Bot.getInstance().flash.call(window.swf.IsAvailable, this.id) ?? false;
 	}
+
+	hasCompletedBefore() {
+		const _q = Bot.getInstance().quests.resolve(this.id);
+		if (!_q) {
+			return false;
+		}
+
+		const slot = _q.data.iSlot;
+		const value = _q.data.iValue;
+
+		return slot < 0 || Bot.getInstance().flash.call("world.getQuestValue", slot) >= value;
+	}
 }
 
 // TODO: finish
