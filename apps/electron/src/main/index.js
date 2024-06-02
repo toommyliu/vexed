@@ -35,7 +35,7 @@ app.once("ready", async () => {
 
 	const preferences = await fs.readJSON(preferencesPath).catch(async () => {
 		const def = { launch: "manager" };
-		await fs.writeJSON(preferencesPath, def);
+		await fs.writeJSON(preferencesPath, def, { spaces: 4 });
 		return def;
 	});
 
