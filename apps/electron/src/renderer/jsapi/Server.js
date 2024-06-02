@@ -61,8 +61,8 @@ class Server {
 	 * Whether the server is an upgrade-only server
 	 * @returns {boolean}
 	 */
-	get isUpgrade() {
-		return this.data.bUpg;
+	isUpgrade() {
+		return this.data.bUpg === 1;
 	}
 
 	/**
