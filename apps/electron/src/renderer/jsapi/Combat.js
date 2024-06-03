@@ -88,7 +88,14 @@ class Combat {
 				await clearIntervalAsync(this.#intervalID);
 			}
 
-			this.attack(name);
+			const _name = name.toLowerCase();
+			if (_name === "escherion" && this.bot.world.isMonsterAvailable("Staff of Inversion")) {
+				this.attack("Staff of Inversion");
+			} else if (_name === "vath" && this.bot.world.isMonsterAvailable("Stalagbite")) {
+				this.attack("Stalagbite");
+			} else {
+				this.attack(name);
+			}
 
 			if (this.hasTarget()) {
 				await this.useSkill(this.skillSet[this.#skillSetIdx++], false, false);
