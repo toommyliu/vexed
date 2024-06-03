@@ -4,12 +4,25 @@
 		height: 100%;
 		width: 100%;
 		margin: 0;
-		overflow: hidden;
+	}
+
+	#game {
+		position: relative;
 	}
 
 	#swf {
+		position: fixed;
+		bottom: 0;
+		right: 0;
 		width: 100%;
-		height: 100%;
+		height: 97%;
+	}
+
+	#nav {
+		width: 100%;
+		height: 5%;
+		margin-bottom: 8px;
+		z-index: -1;
 	}
 
 	#progress-container {
@@ -27,7 +40,17 @@
 	#progress {
 		width: 75%;
 	}
+
+	.navbar .container-fluid {
+		padding-left: 0;
+		padding-right: 0;
+		margin-left: 0;
+		margin-right: 0;
+	}
 </style>
+
+<script src="./ui/bootstrap.js"></script>
+<link href="./ui/halfmoon.css" rel="stylesheet">
 
 <script src="jsapi/ItemBase.js"></script>
 <script src="jsapi/Faction.js"></script>
@@ -116,6 +139,8 @@
 			progress?.remove();
 			progressContainer?.remove();
 
+			// document.querySelector(".nav").style.zIndex = '1000';
+
 			if (window?.account) {
 				const { username, password, server } = window.account;
 				const bot = Bot.getInstance();
@@ -133,5 +158,50 @@
 	}
 </script>
 
-<embed id="swf" src="grimoire.swf" type="application/x-shockwave-flash" allowScriptAccess="always"
-	quality="low"></embed>
+<div id="game">
+	<embed id="swf" src="grimoire.swf" type="application/x-shockwave-flash"></embed>
+</div>
+
+<div id="nav">
+	<nav class="navbar navbar-expand-md fixed-top"
+		style="background-color: var(--bs-content-bg); border-bottom: var(--bs-border-width) solid var(--bs-content-border-color); height: 4%;">
+		<div class="container-fluid">
+			<div class="navbar-brand">
+				<ul class="navbar-nav ms-auto">
+					<li class="nav-item">
+						<a class="nav-link active" aria-current="page" href="#">Home</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#">Docs</a>
+					</li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+							aria-expanded="false">
+							Product
+						</a>
+						<ul class="dropdown-menu dropdown-menu-end mt-md-2">
+							<li><a class="dropdown-item" href="#">Page builder</a></li>
+							<li><a class="dropdown-item" href="#">Form builder</a></li>
+							<li>
+								<hr class="dropdown-divider">
+							</li>
+							<li><a class="dropdown-item" href="#">Plan and pricing</a></li>
+						</ul>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link">Blog</a>
+					</li>
+				</ul>
+			</div>
+			<div class="">
+				<ul class="navbar-nav ms-auto">
+					<li class="nav-item">
+						<a class="nav-link" href="#">Login</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#">Register</a>
+					</li>
+				</ul>
+			</div>
+	</nav>
+</div>
