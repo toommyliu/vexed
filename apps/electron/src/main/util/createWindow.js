@@ -6,7 +6,7 @@ const userAgent =
 
 async function createMainWindow() {
 	const window = new BrowserWindow({
-		title: "Vexed Account Manager",
+		title: "Account Manager",
 		webPreferences: {
 			enableRemoteModule: true,
 			contextIsolation: false,
@@ -30,7 +30,7 @@ async function createGameWindow(account = null) {
 			contextIsolation: false,
 			nodeIntegration: true,
 			plugins: true,
-		}
+		},
 	});
 
 	window.webContents.setUserAgent(userAgent);
@@ -45,8 +45,8 @@ async function createGameWindow(account = null) {
 		window.webContents.executeJavaScript(`window.account=${JSON.stringify(account)}`);
 	}
 	window.webContents.openDevTools({ mode: "right" });
-	window.focus();
-	window.maximize();
+	// window.focus();
+	// window.maximize();
 }
 
 module.exports = {
