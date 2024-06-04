@@ -34,6 +34,7 @@
 		background-color: #fff;
 		border-radius: 3px;
 		cursor: pointer;
+		color: black;
 	}
 
 	.line:hover {
@@ -44,7 +45,7 @@
 <body>
 	<div>
 		<p>logger</p>
-		<div id="logger" class="form-control logger" readonly></div>
+		<div class="form-control logger" id="logger" readonly></div>
 		<input type="checkbox" id="enabled">enabled</input>
 		<hr />
 		<p>spammer</p>
@@ -53,10 +54,13 @@
 </body>
 
 <script>
-	$(document).ready(function () {
-		// close existing windows with no parent (e.g during dev)
-		setTimeout(() => {
-			if (!window.id) {
+	$(document).ready(function ()
+	{
+		// close existing windows with no parent
+		setTimeout(function()
+		{
+			if (!window.id)
+			{
 				window.close();
 			}
 		}, 100);
@@ -65,25 +69,25 @@
 	const { ipcRenderer: ipc } = require("electron");
 	const packets = [];
 
-	ipc.on("packet", (_, packet) => {
-		if ($("#enabled").prop("checked")) {
+	ipc.on("packet", function(_, packet)
+	{
+		if ($("#enabled").prop("checked"))
+		{
 			packets.push(packet);
-			updateLogger();
+			update();
 		}
 	});
 
-	function updateLogger() {
-		const logger = document.getElementById('logger');
-		logger.innerHTML = '';
+	function update()
+	{
+		const elem = $("#logger");
+		elem.html("");
 
-		packets.forEach((packet) => {
-			const lineElement = document.createElement('div');
-			lineElement.className = 'line';
-			lineElement.textContent = packet;
-			logger.appendChild(lineElement);
+		packets.forEach(function(packet)
+		{
+			const div = $("<div>").addClass("line").text(packet);
+			elem.append(div);
 		});
-
-		logger.scrollTop = logger.scrollHeight;
 	}
 </script>
 

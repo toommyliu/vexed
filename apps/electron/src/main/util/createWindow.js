@@ -35,8 +35,6 @@ async function createMainWindow() {
 }
 
 async function createGameWindow(account = null) {
-	console.log("hi");
-
 	const window = new BrowserWindow({
 		width: 966,
 		height: 552,
@@ -111,6 +109,7 @@ async function createPacketsWindow(windowID) {
 
 	await window.loadFile(join(RENDERER, "pages/game/packets.html"));
 	window.webContents.executeJavaScript(`window.id = "${windowID}"`);
+	window.webContents.openDevTools({ mode: "right" });
 	wnd.packets = window;
 }
 
