@@ -43,10 +43,13 @@
 </style>
 
 <body>
-	<div>
+	<div class="container mt-4">
 		<p>logger</p>
 		<div class="form-control logger" id="logger" readonly></div>
-		<input type="checkbox" id="enabled">enabled</input>
+		<div class="d-flex flex-row gap-2">
+			<input type="checkbox" id="enabled"></input>
+			<p>enabled</p>
+		</div>
 		<hr />
 		<p>spammer</p>
 		<textarea class="form-control" id="spammer"></textarea>
@@ -62,6 +65,9 @@
 			if (!window.id)
 			{
 				window.close();
+			} else
+			{
+				console.log(`your parent is ${window.id}`);
 			}
 		}, 100);
 	});

@@ -25,12 +25,7 @@ function packetFromClient([packet]) {
 	Bot.getInstance().flash.emit("packetFromClient", packet);
 
 	if (packet.includes("%xt%zm%") && window.id) {
-		console.log(`(1) sending packet from ${window.id}: ${packet}`);
 		ipc.send("window:game:packetReceived", window.id, packet).catch(() => {});
-	}
-
-	if (!window.id) {
-		console.log("prevent packet from logging");
 	}
 }
 
