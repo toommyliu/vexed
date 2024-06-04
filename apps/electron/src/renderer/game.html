@@ -23,6 +23,7 @@
 		height: 5%;
 		margin-bottom: 8px;
 		z-index: -1;
+		color: white;
 	}
 
 	#progress-container {
@@ -41,16 +42,24 @@
 		width: 75%;
 	}
 
-	.navbar .container-fluid {
+	/* .navbar .container-fluid {
 		padding-left: 0;
 		padding-right: 0;
 		margin-left: 0;
 		margin-right: 0;
+	} */
+
+	.navbar-nav .nav-link {
+		font-size: 16px;
 	}
 </style>
 
-<script src="./ui/bootstrap.js"></script>
 <link href="./ui/halfmoon.css" rel="stylesheet">
+<script src="./ui/bootstrap.js"></script>
+<script>
+	// https://github.com/electron/electron/issues/254
+	window.$ = window.jQuery = require("./ui/jquery.js");
+</script>
 
 <script src="jsapi/ItemBase.js"></script>
 <script src="jsapi/Faction.js"></script>
@@ -156,6 +165,61 @@
 			}
 		}
 	}
+
+	$(document).ready(function () {
+		window.lastMap = null;
+
+		function updateCells() {
+			const bot = Bot.getInstance();
+			const { auth, player, world } = bot;
+
+			if (!auth.loggedIn || world.loading || window.lastMap === bot.world.roomId) {
+				return;
+			}
+
+			const elem = $("#cells");
+			elem.empty();
+
+			const { cells } = world;
+			$.each(cells, function (_, option) {
+				elem.append($('<option>', {
+					value: option,
+					text: option,
+				}));
+			});
+
+			window.lastMap = world.roomId;
+		}
+
+		$("#pads").on("change", async function () {
+			const { auth, world } = Bot.getInstance();
+			if (!auth.loggedIn || world.loading) {
+				return;
+			}
+
+			const cell = $("#cells").val() ?? player.cell;
+			const pad = $(this).val();
+
+			await Bot.getInstance().world.jump(cell, pad);
+		});
+
+		$("#cells").on("click", updateCells)
+			.on("change", async function () {
+				const { auth, world } = Bot.getInstance();
+				if (!auth.loggedIn || world.loading) {
+					return;
+				}
+
+				const cell = $(this).val();
+				const pad = $("#pads").val() ?? "Spawn";
+
+				await Bot.getInstance().world.jump(cell, pad);
+			});
+
+		$("#bank").on("click", function () {
+			Bot.getInstance().flash.call("world.toggleBank");
+		});
+	});
 </script>
 
 <div id="game">
@@ -163,45 +227,54 @@
 </div>
 
 <div id="nav">
-	<nav class="navbar navbar-expand-md fixed-top"
-		style="background-color: var(--bs-content-bg); border-bottom: var(--bs-border-width) solid var(--bs-content-border-color); height: 4%;">
-		<div class="container-fluid">
-			<div class="navbar-brand">
-				<ul class="navbar-nav ms-auto">
+	<nav class="navbar fixed-top" style="background-color: #24242e; color: white;">
+		<div class="container-fluid d-flex justify-content-between mx-3">
+			<div class="d-flex align-items-center">
+				<ul class="navbar-nav d-flex flex-row gap-2">
 					<li class="nav-item">
-						<a class="nav-link active" aria-current="page" href="#">Home</a>
+						<a class="nav-link" href="#">Bot</a>
 					</li>
 					<li class="nav-item">
-						<a class="nav-link" href="#">Docs</a>
-					</li>
-					<li class="nav-item dropdown">
-						<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-							aria-expanded="false">
-							Product
-						</a>
-						<ul class="dropdown-menu dropdown-menu-end mt-md-2">
-							<li><a class="dropdown-item" href="#">Page builder</a></li>
-							<li><a class="dropdown-item" href="#">Form builder</a></li>
-							<li>
-								<hr class="dropdown-divider">
-							</li>
-							<li><a class="dropdown-item" href="#">Plan and pricing</a></li>
-						</ul>
+						<a class="nav-link" href="#">Tools</a>
 					</li>
 					<li class="nav-item">
-						<a class="nav-link">Blog</a>
+						<a class="nav-link" href="#">Packets</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#">Options</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#">Maid</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#">Plugins</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#">About</a>
 					</li>
 				</ul>
 			</div>
-			<div class="">
-				<ul class="navbar-nav ms-auto">
-					<li class="nav-item">
-						<a class="nav-link" href="#">Login</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="#">Register</a>
-					</li>
-				</ul>
+			<div class="d-flex align-items-center gap-2">
+				<div class="nav-item">
+					<select class="form-select form-select-sm" id="pads">
+						<option value="" selected disabled hidden></option>
+						<option value="Center">Center</option>
+						<option value="Spawn">Spawn</option>
+						<option value="Left">Left</option>
+						<option value="Right">Right</option>
+						<option value="Top">Top</option>
+						<option value="Bottom">Bottom</option>
+						<option value="Up">Up</option>
+						<option value="Down">Down</option>
+					</select>
+				</div>
+				<div class="nav-item">
+					<select class="form-select form-select-sm" id="cells"></select>
+				</div>
+				<div class="nav-item">
+					<button class="btn btn-sm btn-outline-secondary" id="bank">Bank</button>
+				</div>
+				</iv>
 			</div>
 	</nav>
 </div>
