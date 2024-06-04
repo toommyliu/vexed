@@ -21,8 +21,6 @@ async function createMainWindow() {
 }
 
 async function createGameWindow(account = null) {
-	require("./setupMenu")();
-
 	const window = new BrowserWindow({
 		width: 966,
 		height: 552,
@@ -46,7 +44,7 @@ async function createGameWindow(account = null) {
 	if (account) {
 		window.webContents.executeJavaScript(`window.account=${JSON.stringify(account)}`);
 	}
-	window.webContents.openDevTools({ mode: "right" });
+	// window.webContents.openDevTools({ mode: "right" });
 	// window.focus();
 	// window.maximize();
 }
