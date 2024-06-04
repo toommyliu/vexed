@@ -100,7 +100,6 @@ async function createPacketsWindow(windowID) {
 		width: 600,
 		height: 300,
 		webPreferences: {
-			enableRemoteModule: true,
 			contextIsolation: false,
 			nodeIntegration: true,
 		},
@@ -111,6 +110,7 @@ async function createPacketsWindow(windowID) {
 	});
 
 	await window.loadFile(join(RENDERER, "pages/game/packets.html"));
+	window.webContents.executeJavaScript(`window.id = "${windowID}"`);
 	wnd.packets = window;
 }
 

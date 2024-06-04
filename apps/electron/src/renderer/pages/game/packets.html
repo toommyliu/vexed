@@ -53,6 +53,15 @@
 </body>
 
 <script>
+	$(document).ready(function () {
+		// close existing windows with no parent (e.g during dev)
+		setTimeout(() => {
+			if (!window.id) {
+				window.close();
+			}
+		}, 100);
+	});
+
 	const { ipcRenderer: ipc } = require("electron");
 	const packets = [];
 
