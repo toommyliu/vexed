@@ -6,6 +6,8 @@ const userAgent =
 
 async function createMainWindow() {
 	const window = new BrowserWindow({
+		width: 966,
+		height: 552,
 		title: "Account Manager",
 		webPreferences: {
 			enableRemoteModule: true,

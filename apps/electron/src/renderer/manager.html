@@ -1,178 +1,207 @@
 <!doctype html>
 <html lang="en" data-bs-theme="dark">
 
-<script src="./ui/bootstrap.js"></script>
 <link href="./ui/halfmoon.css" rel="stylesheet">
+<script src="./ui/bootstrap.js"></script>
+<script>
+	// https://github.com/electron/electron/issues/254
+	window.$ = window.jQuery = require("./ui/jquery.js");
+</script>
 
-<div class="container mt-3 w-50">
-	<div class="mb-3">
-		<label class="form-label">username</label>
-		<input type="text" class="form-control" id="username">
-	</div>
-	<div class="mb-3">
-		<label class="form-label">password</label>
-		<input type="text" class="form-control" id="password">
-	</div>
-	<button type="submit" class="btn btn-primary" id="submit">add account</button>
-</div>
+<style>
+	#accounts {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(512px, 1fr));
+		gap: 10px;
+		margin-top: 10px;
+	}
+</style>
 
-<div class="container border-top mt-4"></div>
-<div id="accounts" class="container flex flex-row justify-content-between"></div>
+<body>
+	<div class="container d-flex justify-content-center">
+		<div class="w-50 mt-4">
+			<div class="form-group">
+				<label for="username">username</label>
+				<input type="text" class="form-control" id="username" />
+			</div>
+			<div class="form-group">
+				<label for="password">password</label>
+				<input type="text" class="form-control" id="password" />
+			</div>
+			<button class="btn btn-primary mt-2 w-100 d-block" id="add-account">add account</button>
+		</div>
+	</div>
+	<div class="container mt-4 mb-4 border-top">
+		<div class="d-flex justify-content-between align-items-center m-3 gap-2">
+			<div class="d-flex align-items-center gap-2">
+				<button class="btn btn-primary" id="refresh-accounts">refresh accounts</button>
+			</div>
+			<div class="d-flex align-items-center gap-2">
+				<p class="mb-0 mt-n1">login server</p>
+				<select id="servers" class="form-select w-auto">
+					<option>None</option>
+				</select>
+			</div>
+		</div>
+		<div id="accounts"></div>
+	</div>
+	<div id="account-actions"
+		class="d-flex align-items-center justify-content-center full-height fixed-bottom mb-4 gap-4">
+		<button class="btn btn-secondary w-25" id="account-action-0">start all</button>
+		<button class="btn btn-primary w-25" id="account-action-1">start selected</button>
+	</div>
+	<div class="toast-container position-static"></div>
+</body>
 
 <script>
 	const electron = require("electron");
-	const path = require("path");
+	const { remote } = electron;
+	const { app } = remote;
+
 	const fs = require("fs-extra");
+	const { join } = require("path");
 
-	const dir = path.join(electron.remote.app.getPath("documents"), "Vexed");
-	const json_path = path.join(dir, "accounts.json");
+	const basePath = join(app.getPath("documents"), "Vexed");
+	const jsonPath = join(basePath, "accounts.json");
 
-	let lock = false;
+	const { createGameWindow } = remote.require("../main/util/createWindow");
 
-	const { createGameWindow } = electron.remote.require("../main/util/createWindow");
+	function readJSON() {
+		return fs.readJSON(jsonPath).catch(() => []);
+	}
+	function writeJSON(json) {
+		return fs.writeJSON(jsonPath, json, { spaces: 4 }).catch(() => { });
+	}
 
-	async function getServers() {
-		const servers = await fetch("https://game.aq.com/game/api/data/servers")
-			.then((res) => res.json())
-			.catch(() => null);
+	async function loadServers() {
+		$.get("https://game.aq.com/game/api/data/servers", function (data) {
+			const dropdown = $("#servers");
 
-		if (!servers) {
-			return;
-		}
-
-		const div = document.createElement("div");
-		div.classList.add("container", "mt-4");
-
-		const p = document.createElement("p");
-		p.textContent = "server: "
-		div.appendChild(p);
-
-		const button = document.createElement("button");
-		button.classList.add("btn", "btn-primary", "dropdown-toggle");
-		button.id = "server";
-		button.textContent = "None";
-		button.setAttribute("type", "button");
-		button.setAttribute("data-bs-toggle", "dropdown");
-		button.setAttribute("aria-expanded", "false");
-		div.appendChild(button);
-
-		const ul = document.createElement("ul");
-		ul.classList.add("dropdown-menu");
-
-		const li = document.createElement("li");
-		const a = document.createElement("a");
-		a.textContent = "None";
-		a.classList.add("dropdown-item");
-		a.addEventListener("click", () => button.textContent = "None");
-		li.appendChild(a);
-		ul.appendChild(li);
-
-		for (const server of servers) {
-			const li = document.createElement("li");
-			const a = document.createElement("a");
-			a.textContent = `${server.sName} (${server.iCount})`;
-			a.classList.add("dropdown-item");
-			a.addEventListener("click", () => button.textContent = server.sName);
-			li.appendChild(a);
-			ul.appendChild(li);
-		}
-
-		div.appendChild(ul);
-		document.body.appendChild(div);
+			$.each(data, function (key, val) {
+				dropdown.append(
+					$("<option>")
+						.text(`${val.sName} (${val.iCount})`)
+						.val(val.sName)
+				);
+			});
+		});
 	}
 
 	async function renderAccounts() {
-		await fs.ensureFile(json_path);
+		await fs.ensureFile(jsonPath);
 
-		const accounts = await fs.readJson(json_path).catch(() => []);
-
+		const accounts = await readJSON();
 		if (!accounts.length) {
-			const div = document.getElementById("accounts");
-			div.innerHTML = "";
-			div.classList.add("mt-4");
-
-			const p = document.createElement("p");
-			p.textContent = "no accounts found";
-
-			const button = document.createElement("button");
-			button.classList = "btn btn-primary";
-			button.textContent = "refresh";
-			button.addEventListener("click", async () => await renderAccounts());
-
-			div.appendChild(p);
-			div.appendChild(button);
-
-			document.body.appendChild(div);
-
 			return;
 		}
 
-		const div = document.getElementById("accounts");
-		div.innerHTML = "";
+		const grid = $("#accounts");
+		grid.html("");
 
-		const ul = document.createElement("ul");
-		ul.classList.add("mt-4");
+		$.each(accounts, function (index, account) {
+			const card = $("<div>");
+			$(card).on("click", function (event) {
+				event.stopPropagation();
 
-		for (const account of accounts) {
-			const li = document.createElement("li");
-			li.classList.add("mb-4");
+				const p = $(`#account-checkbox-${index}`);
+				p.prop("checked", !p.prop("checked"));
+			});
 
-			const p = document.createElement("p");
-			p.textContent = account.username;
-			li.appendChild(p);
+			const cardContent = $("<div>").addClass("card");
 
-			const div = document.createElement("div");
+			const cardBody = $("<div>").addClass("card-body");
 
-			{
-				const button = document.createElement("button");
-				button.classList = "btn btn-primary";
-				button.textContent = "sign in";
-				button.addEventListener("click", async (event) => {
-					await createGameWindow(
-						Object.assign({
-							server: document.getElementById("server")?.textContent
-						}, account)
-					);
+			const titleContainer = $("<div>").addClass("d-flex align-items-center gap-2");
+
+			const checkbox = $("<input>")
+				.attr("type", "checkbox")
+				.attr("id", `account-checkbox-${index}`)
+				.addClass("form-check-input");
+
+			titleContainer.append(checkbox);
+
+			const title = $("<h5>").addClass("card-title m-1").text(account.username);
+			titleContainer.append(title);
+
+			cardBody.append(titleContainer);
+
+			const div = $("<div>").addClass("d-flex d-flex-row gap-2 mt-2");
+
+			const loginBtn = $("<button>").addClass("btn btn-primary btn-sm").text("log in");
+			loginBtn.click(async function (event) {
+				event.stopPropagation();
+
+				await createGameWindow({
+					...account,
+					server: $("#servers").val()
 				});
-				div.appendChild(button);
-			}
+			});
 
-			{
-				const button = document.createElement("button");
-				button.classList = "btn btn-danger";
-				button.textContent = "remove";
-				button.addEventListener("click", async (event) => {
-					const idx = accounts.findIndex(a => a.username === account.username && a.password === account.password);
-					accounts.splice(idx, 1);
+			const removeBtn = $("<button>").addClass("btn btn-danger btn-sm").text("remove");
+			removeBtn.click(async function (event) {
+				event.stopPropagation();
 
-					await fs.writeJSON(json_path, accounts, { spaces: 4 });
-					await renderAccounts();
-				});
-				div.appendChild(button);
-			}
+				const accounts = await readJSON();
+				accounts.splice(index, 1);
 
-			li.appendChild(div);
-			ul.appendChild(li);
-		}
-		div.appendChild(ul);
+				await writeJSON(accounts);
+				await renderAccounts();
+			});
 
-		document.body.appendChild(div);
+			div.append(loginBtn, removeBtn);
+
+			cardBody.append(div);
+			cardContent.append(cardBody);
+			card.append(cardContent);
+
+			grid.append(card);
+		});
 	}
 
-	(async () => {
-		await getServers();
+	$(document).ready(async function () {
+		await loadServers();
 		await renderAccounts();
-	})();
+	});
 
-	document.getElementById("submit")?.addEventListener("click", async function () {
-		const username = document.getElementById("username")?.value;
-		const password = document.getElementById("password")?.value;
+	$("#add-account").on("click", async function (event) {
+		const username = $("#username")?.val();
+		const password = $("#password")?.val();
 
-		const accounts = await fs.readJSON(json_path).catch(() => []);
-		accounts.push({ username, password });
+		if (username && password) {
+			const accounts = await readJSON();
+			accounts.push({ username, password });
 
-		await fs.writeJSON(json_path, accounts, { spaces: 4 });
-		await renderAccounts();
+			await writeJSON(accounts);
+			await renderAccounts();
+		}
+	});
+
+	$("#refresh-accounts").on("click", async () => await renderAccounts());
+
+	$("#account-action-0").on("click", async function () {
+		const checkboxes = $('[id^="account-checkbox-"]');
+		for (const elem of checkboxes) {
+			const _elem = $(elem);
+			const account = (await readJSON()).find((acc) => acc.username === _elem.parent()?.text());
+			if (account) {
+				await createGameWindow({ ...account, server: $("#servers").val() });
+			}
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+		}
+	});
+	$("#account-action-1").on("click", async function () {
+		const checkboxes = $('[id^="account-checkbox-"]');
+		for (const elem of checkboxes) {
+			const _elem = $(elem);
+			const checked = _elem.prop("checked");
+			if (checked) {
+				const account = (await readJSON()).find((acc) => acc.username === _elem.parent()?.text());
+				if (account) {
+					await createGameWindow({ ...account, server: $("#servers").val() });
+				}
+			}
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+		}
 	});
 </script>
 
