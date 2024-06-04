@@ -4,6 +4,8 @@ const { app } = require("electron");
 
 const { createMainWindow, createGameWindow } = require("./util/createWindow");
 
+require("./ipc");
+
 function registerFlashPlugin() {
 	const flashTrust = require("nw-flash-trust");
 	// TODO: add checks for app.isPackaged

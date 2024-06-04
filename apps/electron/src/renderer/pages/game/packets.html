@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+
+<link href="../../shared/halfmoon.css" rel="stylesheet">
+<script src="../../shared/bootstrap.js"></script>
+<script>
+	// https://github.com/electron/electron/issues/254
+	window.$ = window.jQuery = require("../..//shared/jquery.js");
+</script>
+<style>
+	body {
+		font-family: Verdana, Geneva, Tahoma, sans-serif;
+	}
+
+	.form-control {
+		width: 100%;
+		padding: 10px;
+		margin-bottom: 10px;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+	}
+
+	.logger {
+		height: 200px;
+		overflow-y: auto;
+		background-color: #f9f9f9;
+		cursor: text;
+		white-space: pre-wrap;
+	}
+
+	.line {
+		padding: 5px;
+		margin-bottom: 5px;
+		background-color: #fff;
+		border-radius: 3px;
+		cursor: pointer;
+	}
+
+	.line:hover {
+		background-color: #e0e0e0;
+	}
+</style>
+
+<body>
+	<div>
+		<p>logger</p>
+		<div id="logger" class="form-control logger" readonly></div>
+		<input type="checkbox" id="enabled">enabled</input>
+		<hr />
+		<p>spammer</p>
+		<textarea class="form-control" id="spammer"></textarea>
+	</div>
+</body>
+
+<script>
+	const { ipcRenderer: ipc } = require("electron");
+	const packets = [];
+
+	ipc.on("packet", (_, packet) => {
+		if ($("#enabled").prop("checked")) {
+			packets.push(packet);
+			updateLogger();
+		}
+	});
+
+	function updateLogger() {
+		const logger = document.getElementById('logger');
+		logger.innerHTML = '';
+
+		packets.forEach((packet) => {
+			const lineElement = document.createElement('div');
+			lineElement.className = 'line';
+			lineElement.textContent = packet;
+			logger.appendChild(lineElement);
+		});
+
+		logger.scrollTop = logger.scrollHeight;
+	}
+</script>
+
+</html>

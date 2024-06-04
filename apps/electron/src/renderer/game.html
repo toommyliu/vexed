@@ -65,11 +65,11 @@
 	}
 </style>
 
-<link href="./ui/halfmoon.css" rel="stylesheet">
-<script src="./ui/bootstrap.js"></script>
+<link href="./shared/halfmoon.css" rel="stylesheet">
+<script src="./shared/bootstrap.js"></script>
 <script>
 	// https://github.com/electron/electron/issues/254
-	window.$ = window.jQuery = require("./ui/jquery.js");
+	window.$ = window.jQuery = require("./shared/jquery.js");
 </script>
 
 <script src="jsapi/ItemBase.js"></script>
@@ -123,22 +123,14 @@
 </script>
 
 <script>
-
 	var { ipcRenderer } = require('electron');
-	window.addEventListener('keydown', (event) => {
-		switch (event.key) {
-			// Allow the game to be closed whilst the game is focused
-			case 'q': {
-				if (event.metaKey) {
-					// ipcRenderer.invoke("gameQuit");
-				}
-				break;
-			}
-			case 'PageUp':
-				ipcRenderer.invoke("loadScript");
-				break;
-		}
+	ipcRenderer.on("generate-id", (event, id) => {
+		console.log(`our window id ${id}`);
+		window.id = id;
 	});
+</script>
+
+<script>
 	window.addEventListener('DOMContentLoaded', () => {
 		var div = document.createElement('div');
 		div.id = 'progress-container';
@@ -160,8 +152,6 @@
 			progress?.remove();
 			progressContainer?.remove();
 
-			// document.querySelector(".nav").style.zIndex = '1000';
-
 			if (window?.account) {
 				const { username, password, server } = window.account;
 				const bot = Bot.getInstance();
@@ -180,6 +170,16 @@
 
 	$(document).ready(function () {
 		window.lastMap = null;
+
+		$("#packets").on("click", function () {
+			const { ipcRenderer } = require("electron");
+			if (!window.id) {
+				alert("cannot do that.");
+				return;
+			}
+
+			ipcRenderer.invoke("window:create:packets", window.id);
+		});
 
 		function updateCells() {
 			const bot = Bot.getInstance();
@@ -250,7 +250,8 @@
 						<a class="nav-link" href="#">Tools</a>
 					</li>
 					<li class="nav-item">
-						<a class="nav-link" href="#">Packets</a>
+						<button class="btn btn-outline-secondary btn-sm mt-2" id="packets"
+							style="border-radius: 0px;">packets</button>
 					</li>
 					<li class="nav-item">
 						<a class="nav-link" href="#">Options</a>
