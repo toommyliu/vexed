@@ -46,7 +46,6 @@ async function createGameWindow(account = null) {
 			plugins: true,
 		},
 	});
-	const windowID = nanoid();
 
 	window.webContents.setUserAgent(userAgent);
 	session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
@@ -59,25 +58,30 @@ async function createGameWindow(account = null) {
 	window.webContents.openDevTools({ mode: "right" });
 	window.maximize();
 
-	// same thing
-	window.webContents.send("generate-id", windowID);
-	window.webContents.executeJavaScript(`
-		window.id = "${windowID}"
-		console.log("hello from me!");
-	`)
-	console.log(`created a window with id: ${windowID}`);
+	const windowID = nanoid();
+	assignWindowID(window, windowID);
 
-	windows[windowID] = {
-		scripts: null,
-		tools: null,
-		packets: null,
-	}
+	console.log(`created a window with id: ${windowID}`);
 
 	if (account) {
 		window.webContents.executeJavaScript(`window.account=${JSON.stringify(account)}`);
 	}
+}
 
-	window.on("closed", () => {
+function assignWindowID(window, windowID)
+{
+	windows[windowID] = {
+		game: window,
+		scripts: null,
+		tools: null,
+		packets: null,
+	}
+	window.webContents.send("generate-id", windowID);
+	window.webContents.executeJavaScript(`
+		window.id = "${windowID}"
+	`);
+	window.on("closed", function()
+	{
 		delete windows[windowID];
 	});
 }
@@ -122,5 +126,6 @@ module.exports = {
 	createGameWindow,
 	createPacketsWindow,
 
+	assignWindowID,
 	getPacketsWindow
 }

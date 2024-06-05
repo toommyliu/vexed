@@ -135,13 +135,21 @@
 	$(document).ready(function () {
 		window.lastMap = null;
 
+		setTimeout(function()
+		{
+			if (!window.id)
+			{
+				const { ipcRender } = require("electron");
+				ipcRenderer.send("window:game:generate_id");
+			}
+			else
+			{
+				console.log(`our parent is ${window.id}`);
+			}
+		}, 100);
+
 		$("#packets").on("click", function () {
 			const { ipcRenderer } = require("electron");
-			if (!window.id) {
-				alert("cannot do that.");
-				return;
-			}
-
 			ipcRenderer.invoke("window:create:packets", window.id);
 		});
 
