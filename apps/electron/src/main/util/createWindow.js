@@ -66,8 +66,14 @@ async function createGameWindow(account = null) {
 	if (account) {
 		window.webContents.executeJavaScript(`window.account=${JSON.stringify(account)}`);
 	}
+
 	window.on("closed", function()
 	{
+		if (!windows[windowID])
+		{
+			return;
+		}
+
 		for (const wnd of Object.values(windows[windowID]))
 		{
 			try
@@ -92,18 +98,6 @@ function assignWindowID(window, windowID)
 	window.webContents.executeJavaScript(`
 		window.id = "${windowID}"
 	`);
-	window.on("closed", function()
-	{
-		for (const wnd of Object.values(windows[windowID]))
-		{
-			try
-			{
-				wnd?.close();
-			} catch {}
-		}
-
-		delete windows[windowID];
-	});
 }
 
 async function createPacketsWindow(windowID) {
@@ -138,7 +132,7 @@ async function createPacketsWindow(windowID) {
 }
 
 function getPacketsWindow(windowID) {
-	return windows[windowID]?.packets;
+	return windows[windowID]?.packets ?? null;
 }
 
 module.exports = {

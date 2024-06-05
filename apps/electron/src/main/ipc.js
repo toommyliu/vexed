@@ -17,6 +17,5 @@ ipc.on("window:game:generate_id", function(event)
 
 ipc.on("window:game:packetReceived", (_, id, packet) => {
 	const pkt = packet.substring(packet.lastIndexOf(" ") + 1); // remove [sending xyz]
-	console.log(`(2) sending packet from ${id}: ${pkt}`);
-	getPacketsWindow(id).webContents.send("packet", pkt);
+	getPacketsWindow(id)?.webContents.send("packet", pkt);
 });
