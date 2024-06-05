@@ -222,8 +222,15 @@
 			await world.jump(cells.val(), pads.val(), true);
 		});
 
-		$("#bank").on("click", function () {
-			Bot.getInstance().flash.call("world.toggleBank");
+		$("#bank").on("click", function ()
+		{
+			const bot = Bot.getInstance();
+			if (!auth.loggedIn)
+			{
+				return;
+			}
+
+			bot.flash.call("world.toggleBank");
 		});
 	});
 </script>
@@ -253,4 +260,3 @@
         <option value="Down">Down</option>
     </select>
 </div>
-
