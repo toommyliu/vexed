@@ -66,6 +66,18 @@ async function createGameWindow(account = null) {
 	if (account) {
 		window.webContents.executeJavaScript(`window.account=${JSON.stringify(account)}`);
 	}
+	window.on("closed", function()
+	{
+		for (const wnd of Object.values(windows[windowID]))
+		{
+			try
+			{
+				wnd?.close();
+			} catch {}
+		}
+
+		delete windows[windowID];
+	});
 }
 
 function assignWindowID(window, windowID)
@@ -82,6 +94,14 @@ function assignWindowID(window, windowID)
 	`);
 	window.on("closed", function()
 	{
+		for (const wnd of Object.values(windows[windowID]))
+		{
+			try
+			{
+				wnd?.close();
+			} catch {}
+		}
+
 		delete windows[windowID];
 	});
 }
@@ -99,8 +119,8 @@ async function createPacketsWindow(windowID) {
 
 	const window = new BrowserWindow({
 		title: "Packets",
-		width: 600,
-		height: 300,
+		width: 451,
+		height: 370,
 		webPreferences: {
 			contextIsolation: false,
 			nodeIntegration: true,
