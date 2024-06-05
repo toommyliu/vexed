@@ -53,7 +53,7 @@
 	$(document).ready(function ()
 	{
 		// close existing windows with no parent
-		setTimeout(function()
+		setTimeout(function ()
 		{
 			if (!window.id)
 			{
@@ -66,28 +66,26 @@
 	});
 
 	const { ipcRenderer: ipc } = require("electron");
-	const packets = [];
 
-	ipc.on("packet", function(_, packet)
+	ipc.on("packet", function (_, packet)
 	{
 		if ($("#enabled").prop("checked"))
 		{
-			packets.push(packet);
-			update();
+			add_packet(packet);
 		}
 	});
 
-	function update()
+	function add_packet(packet)
 	{
 		const elem = $("#logger");
-		elem.html("");
+		const div = $("<div>").addClass("line").text(packet);
 
-		packets.forEach(function(packet)
+		div.on("click", async function()
 		{
-			const div = $("<div>").addClass("line").text(packet);
-			elem.append(div);
+			await navigator.clipboard.writeText(packet);
 		});
+
+		elem.append(div);
+		elem.scrollTop(elem[0].scrollHeight);
 	}
 </script>
-
-</html>
