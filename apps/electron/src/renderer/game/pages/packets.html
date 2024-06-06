@@ -70,6 +70,7 @@
 					<p>delay</p>
 				</div>
 				<div style="display: flex; align-items: center; gap: 4px">
+					<button class="w3-btn w3-small w3-border" id="s-send-once">send once</button>
 					<button class="w3-btn w3-small w3-border" id="s-stop">stop</button>
 					<button class="w3-btn w3-small w3-border" id="s-start">start</button>
 				</div>
@@ -127,6 +128,12 @@
 		{
 			$(this).attr("disabled", true);
 			logger_on = true;
+		});
+
+		$("#s-send-once").on("click", function()
+		{
+			$("#s-start").click();
+			$("#s-stop").click();
 		});
 
 		$("#s-stop").on("click", function()
