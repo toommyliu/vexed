@@ -1,4 +1,4 @@
-const { ipcRenderer: ipc } = require("electron");
+var { ipcRenderer: ipc } = require("electron");
 
 /**
  * @param {string[]} packet

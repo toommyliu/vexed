@@ -34,9 +34,7 @@
 		background-color: grey;
 	}
 
-	.spammer {
-
-	}
+	.spammer {}
 </style>
 
 <body>
@@ -50,19 +48,32 @@
 				<button class="btn btn-primary btn-sm" id="clear">clear</button>
 			</div>
 			<div class="d-flex align-items-center">
-				<input type="checkbox" id="enabled"></input>
+				<input type="checkbox" id="l-enabled"></input>
 				<p class="ml-2 mb-0">start</p>
 			</div>
 		</div>
 		<hr />
 		<p>spammer</p>
 		<textarea class="form-control" id="spammer"></textarea>
+		<div class="d-flex justify-content-between mt-2">
+			<div class="d-flex gap-2">
+				<input type="number" value=1000 step=100 style="width: 150px;" id="delay"></input>
+				<p>delay</p>
+			</div>
+			<div class="d-flex align-items-center">
+				<input type="checkbox" id="s-enabled"></input>
+				<p class="ml-2 mb-0">start</p>
+			</div>
+		</div>
+
 	</div>
 </body>
 
 <script>
 	const { remote, ipcRenderer: ipc } = require("electron");
+	const { setIntervalAsync, clearIntervalAsync } = require("set-interval-async/fixed");
 	const packets = [];
+	let intervalID = null;
 
 	$(document).ready(function ()
 	{
@@ -79,26 +90,67 @@
 			}
 		}, 100);
 
-		$("#save").on("click", function()
+		$("#save").on("click", function ()
 		{
 			ipc.send("packets:save", packets);
 		});
 
-		$("#copy").on("click", async function()
+		$("#copy").on("click", async function ()
 		{
 			await navigator.clipboard.writeText(packets.join("\n"));
 		});
 
-		$("#clear").on("click", function()
+		$("#clear").on("click", function ()
 		{
 			$("#logger").empty();
 			packets.length = 0;
+		});
+
+		$("#s-enabled").on("click", function()
+		{
+			if ($(this).prop("checked"))
+			{
+				const packets = $("#spammer").val();
+
+				if (!packets.length)
+				{
+					return;
+				}
+
+				const pkts = packets.split("\n");
+				const delay = Number.parseInt($("#delay").val(), 10);
+
+				if (!intervalID)
+				{
+					intervalID = setIntervalAsync(function() {
+						console.log("starting to send packets to main");
+						if (!$("#s-enabled").prop("checked"))
+						{
+							console.log("Checkbox was unchecked, stopping spam (1)");
+							clearIntervalAsync(intervalID);
+							intervalID = null;
+							return;
+						}
+
+						ipc.send("packets:spam", window.id, pkts, delay);
+						console.log("sent packets to main");
+					}, delay);
+				}
+			} else
+			{
+				if (intervalID)
+				{
+					clearIntervalAsync(intervalID);
+					intervalID = null;
+					console.log("Spamming stopped as checkbox was unchecked (2)");
+				}
+			}
 		});
 	});
 
 	ipc.on("packet", function (_, packet)
 	{
-		if ($("#enabled").prop("checked"))
+		if ($("#l-enabled").prop("checked"))
 		{
 			add_packet(packet);
 			packets.push(packet);
@@ -106,7 +158,7 @@
 	});
 
 	function add_packet(packet)
-	{
+	 {
 		const elem = $("#logger");
 		const div = $("<div>").addClass("line").text(packet);
 

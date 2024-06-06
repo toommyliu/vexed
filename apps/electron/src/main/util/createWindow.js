@@ -131,6 +131,11 @@ async function createPacketsWindow(windowID) {
 	wnd.packets = window;
 }
 
+function getFamilyWindow(windowID)
+{
+	return windows[windowID];
+}
+
 function getPacketsWindow(windowID) {
 	return windows[windowID]?.packets ?? null;
 }
@@ -141,5 +146,6 @@ module.exports = {
 	createPacketsWindow,
 
 	assignWindowID,
-	getPacketsWindow
+	getPacketsWindow,
+	getFamilyWindow,
 }
