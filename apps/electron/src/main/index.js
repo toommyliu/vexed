@@ -2,7 +2,7 @@ const fs = require("fs-extra");
 const { join } = require("path");
 const { app } = require("electron");
 
-const { createMainWindow, createGameWindow } = require("./util/createWindow");
+const { createMainWindow, createGameWindow } = require("./windows");
 
 require("./ipc");
 

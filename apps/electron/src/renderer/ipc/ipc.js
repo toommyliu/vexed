@@ -13,6 +13,7 @@ ipc.on("packets:spam", function (event, packets, delay)
 			// Bot.getInstance().packets.sendServer(packets[idx++]);
 			if (idx >= packets.length)
 			{
+				ipc.send()
 				console.log(`sent all packets, doing it again`);
 				idx = 0;
 			}

@@ -2,23 +2,23 @@ const { join } = require("path");
 const { BrowserWindow, session } = require("electron");
 const { nanoid } = require("nanoid");
 
-const RENDERER = join(__dirname, "../../renderer");
+const RENDERER = join(__dirname, "../renderer");
 
-/**
- * Manager window should have only 1 instance
- * Game windows are keyed by game_idx and can have the following windows associated with them:
- * 	Scripts
- *  Tools
- *  Packets
- */
-const windows = {
-	manager: null,
-};
+// The account manager window (limit: 1)
+let managerWindow = null;
+
+const windows = new Map();
 
 const userAgent =
 	"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16_0) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36";
 
 async function createMainWindow() {
+	if (managerWindow)
+	{
+		managerWindow.focus();
+		return;
+	}
+
 	const window = new BrowserWindow({
 		width: 966,
 		height: 552,
@@ -30,8 +30,13 @@ async function createMainWindow() {
 		}
 	});
 
+	window.on("closed", function()
+	{
+		managerWindow = null;
+	});
+
 	await window.loadFile(join(RENDERER, "manager.html"));
-	windows.manager = window;
+	managerWindow = window;
 }
 
 async function createGameWindow(account = null) {
@@ -54,14 +59,14 @@ async function createGameWindow(account = null) {
 		callback({ requestHeaders: details.requestHeaders, cancel: false });
 	});
 
-	await window.loadFile(join(__dirname, "../../renderer/game.html"), {});
+	await window.loadFile(join(RENDERER, "game.html"));
 	window.webContents.openDevTools({ mode: "right" });
 	window.maximize();
 
 	const windowID = nanoid();
 	assignWindowID(window, windowID);
 
-	console.log(`created a window with id: ${windowID}`);
+	console.log(`Created a family with windowID: ${windowID}`);
 
 	if (account) {
 		window.webContents.executeJavaScript(`window.account=${JSON.stringify(account)}`);
@@ -69,47 +74,48 @@ async function createGameWindow(account = null) {
 
 	window.on("closed", function()
 	{
-		if (!windows[windowID])
+		if (!windows.has(windowID))
 		{
 			return;
 		}
 
-		for (const wnd of Object.values(windows[windowID]))
+		const wnd = windows.get(windowID);
+
+		for (const [k, v] of Object.entries(wnd))
 		{
 			try
 			{
-				wnd?.close();
+				v?.close();
+				k = null;
 			} catch {}
 		}
 
-		delete windows[windowID];
+		windows.delete(windowID);
 	});
 }
 
 function assignWindowID(window, windowID)
 {
-	windows[windowID] = {
+	windows.set(windowID, {
 		game: window,
 		scripts: null,
 		tools: null,
-		packets: null,
-	}
+		packets: null
+	});
+
 	window.webContents.send("generate-id", windowID);
-	window.webContents.executeJavaScript(`
-		window.id = "${windowID}"
-	`);
 }
 
 async function createPacketsWindow(windowID) {
-	const wnd = windows[windowID];
+	const wnd = windows.get(windowID);
 
 	if (wnd?.packets) {
-		console.log(`blocked packets window creation for ${windowID}`)
+		console.log(`Blocked packets window creation for: ${windowID}`)
 		wnd?.packets.focus();
 		return;
 	}
 
-	console.log(`create packets window for ${windowID}`);
+	console.log(`Creating child (packets) with windowID: ${windowID}`);
 
 	const window = new BrowserWindow({
 		title: "Packets",
@@ -133,11 +139,35 @@ async function createPacketsWindow(windowID) {
 
 function getFamilyWindow(windowID)
 {
-	return windows[windowID];
+	return windows.get(windowID) ?? null;
 }
 
-function getPacketsWindow(windowID) {
-	return windows[windowID]?.packets ?? null;
+/**
+ * @param {string} windowID The windowID associated with any child
+ * @param {"game"|"scripts"|"tools"|"packets"} type The type of window to return
+ * @returns {?BrowserWindow}
+ */
+function getChildWindow(windowID, type)
+{
+	const wnd = getFamilyWindow(windowID);
+	if (!wnd)
+	{
+		return null;
+	}
+
+	switch (type.toLowerCase())
+	{
+		case "game":
+			return wnd.game;
+		case "scripts":
+			return wnd.scripts;
+		case "tools":
+			return wnd.tools;
+		case "packets":
+			return wnd.packets;
+		default:
+			return null;
+	}
 }
 
 module.exports = {
@@ -146,6 +176,7 @@ module.exports = {
 	createPacketsWindow,
 
 	assignWindowID,
-	getPacketsWindow,
+
 	getFamilyWindow,
+	getChildWindow,
 }

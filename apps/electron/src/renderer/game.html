@@ -88,9 +88,9 @@
 
 <script>
 	var { ipcRenderer } = require('electron');
-	ipcRenderer.on("generate-id", (event, id) => {
-		console.log(`our window id ${id}`);
-		window.id = id;
+	ipcRenderer.on("generate-id", (event, windowID) => {
+		console.log(`Our windowID is ${windowID}`);
+		window.id = windowID;
 	});
 </script>
 
@@ -141,10 +141,7 @@
 			{
 				const { ipcRender } = require("electron");
 				ipcRenderer.send("window:game:generate_id");
-			}
-			else
-			{
-				console.log(`our parent is ${window.id}`);
+				console.log("Looks like we don't have an ID, creating that now.");
 			}
 		}, 100);
 

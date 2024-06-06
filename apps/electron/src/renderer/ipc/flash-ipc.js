@@ -24,8 +24,8 @@ function packetFromServer([packet]) {
 function packetFromClient([packet]) {
 	Bot.getInstance().flash.emit("packetFromClient", packet);
 
-	if (packet.includes("%xt%zm%") && window.id) {
-		ipc.send("window:game:packetReceived", window.id, packet).catch(() => {});
+	if (packet.includes("%xt%zm%")) {
+		ipc.send("game:packet_sent", window.id, packet);
 	}
 }
 
