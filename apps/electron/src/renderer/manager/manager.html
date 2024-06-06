@@ -1,11 +1,11 @@
 <!doctype html>
 <html lang="en" data-bs-theme="dark">
 
-<link href="./shared/halfmoon.css" rel="stylesheet">
-<script src="./shared/bootstrap.js"></script>
+<link href="../shared/halfmoon.css" rel="stylesheet">
+<script src="../shared/bootstrap.js"></script>
 <script>
 	// https://github.com/electron/electron/issues/254
-	window.$ = window.jQuery = require("./shared/jquery.js");
+	window.$ = window.jQuery = require("../shared/jquery.js");
 </script>
 
 <style>
@@ -54,6 +54,7 @@
 </body>
 
 <script>
+	// TODO: use ipc
 	const electron = require("electron");
 	const { remote } = electron;
 	const { app } = remote;
@@ -64,7 +65,7 @@
 	const basePath = join(app.getPath("documents"), "Vexed");
 	const jsonPath = join(basePath, "accounts.json");
 
-	const { createGameWindow } = remote.require("../main/util/createWindow");
+	const { createGame } = remote.require("./windows.js");
 
 	function readJSON() {
 		return fs.readJSON(jsonPath).catch(() => []);
@@ -131,7 +132,7 @@
 			loginBtn.click(async function (event) {
 				event.stopPropagation();
 
-				await createGameWindow({
+				await createGame({
 					...account,
 					server: $("#servers").val()
 				});
@@ -184,7 +185,7 @@
 			const _elem = $(elem);
 			const account = (await readJSON()).find((acc) => acc.username === _elem.parent()?.text());
 			if (account) {
-				await createGameWindow({ ...account, server: $("#servers").val() });
+				await createGame({ ...account, server: $("#servers").val() });
 			}
 			await new Promise((resolve) => setTimeout(resolve, 1000));
 		}

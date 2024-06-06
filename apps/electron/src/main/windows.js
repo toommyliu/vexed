@@ -12,7 +12,7 @@ const windows = new Map();
 const userAgent =
 	"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16_0) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36";
 
-async function createMainWindow() {
+async function createManager() {
 	if (managerWindow)
 	{
 		managerWindow.focus();
@@ -35,11 +35,11 @@ async function createMainWindow() {
 		managerWindow = null;
 	});
 
-	await window.loadFile(join(RENDERER, "manager.html"));
+	await window.loadFile(join(RENDERER, "manager/manager.html"));
 	managerWindow = window;
 }
 
-async function createGameWindow(account = null) {
+async function createGame(account = null) {
 	const window = new BrowserWindow({
 		width: 966,
 		height: 552,
@@ -59,7 +59,7 @@ async function createGameWindow(account = null) {
 		callback({ requestHeaders: details.requestHeaders, cancel: false });
 	});
 
-	await window.loadFile(join(RENDERER, "game.html"));
+	await window.loadFile(join(RENDERER, "game/game.html"));
 	window.webContents.openDevTools({ mode: "right" });
 	window.maximize();
 
@@ -131,7 +131,7 @@ async function createPacketsWindow(windowID) {
 		wnd.packets = null;
 	});
 
-	await window.loadFile(join(RENDERER, "pages/game/packets.html"));
+	await window.loadFile(join(RENDERER, "game/pages/packets.html"));
 	window.webContents.executeJavaScript(`window.id = "${windowID}"`);
 	window.webContents.openDevTools({ mode: "right" });
 	wnd.packets = window;
@@ -171,8 +171,8 @@ function getChildWindow(windowID, type)
 }
 
 module.exports = {
-	createMainWindow,
-	createGameWindow,
+	createManager,
+	createGame,
 	createPacketsWindow,
 
 	assignWindowID,
