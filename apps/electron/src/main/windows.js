@@ -183,8 +183,8 @@ async function createPacketsWindow(windowID) {
 
 	const window = new BrowserWindow({
 		title: "Packets",
-		width: 451,
-		height: 370,
+		width: 567,
+		height: 424,
 		webPreferences: {
 			contextIsolation: false,
 			nodeIntegration: true,
