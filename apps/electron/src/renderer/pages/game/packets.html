@@ -33,15 +33,26 @@
 	.line:hover {
 		background-color: grey;
 	}
+
+	.spammer {
+
+	}
 </style>
 
 <body>
 	<div class="container mt-4">
 		<p>logger</p>
 		<div class="form-control logger" id="logger" readonly></div>
-		<div class="d-flex flex-row justify-content-end align-items-center">
-			<input type="checkbox" id="enabled"></input>
-			<p class="mt-3">start</p>
+		<div class="d-flex justify-content-between mt-2">
+			<div class="d-flex gap-2">
+				<button class="btn btn-primary btn-sm" id="save">save to file</button>
+				<button class="btn btn-primary btn-sm" id="copy">copy all</button>
+				<button class="btn btn-primary btn-sm" id="clear">clear</button>
+			</div>
+			<div class="d-flex align-items-center">
+				<input type="checkbox" id="enabled"></input>
+				<p class="ml-2 mb-0">start</p>
+			</div>
 		</div>
 		<hr />
 		<p>spammer</p>
@@ -50,6 +61,9 @@
 </body>
 
 <script>
+	const { remote, ipcRenderer: ipc } = require("electron");
+	const packets = [];
+
 	$(document).ready(function ()
 	{
 		// close existing windows with no parent
@@ -58,20 +72,36 @@
 			if (!window.id)
 			{
 				window.close();
-			} else
+			}
+			else
 			{
 				console.log(`your parent is ${window.id}`);
 			}
 		}, 100);
-	});
 
-	const { ipcRenderer: ipc } = require("electron");
+		$("#save").on("click", function()
+		{
+			ipc.send("packets:save", packets);
+		});
+
+		$("#copy").on("click", async function()
+		{
+			await navigator.clipboard.writeText(packets.join("\n"));
+		});
+
+		$("#clear").on("click", function()
+		{
+			$("#logger").empty();
+			packets.length = 0;
+		});
+	});
 
 	ipc.on("packet", function (_, packet)
 	{
 		if ($("#enabled").prop("checked"))
 		{
 			add_packet(packet);
+			packets.push(packet);
 		}
 	});
 
@@ -80,7 +110,7 @@
 		const elem = $("#logger");
 		const div = $("<div>").addClass("line").text(packet);
 
-		div.on("click", async function()
+		div.on("click", async function ()
 		{
 			await navigator.clipboard.writeText(packet);
 		});
