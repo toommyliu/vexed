@@ -16,11 +16,9 @@ ipc.on("packets:spam_off", async function()
 
 ipc.on("packets:spam", function (event, packets, delay)
 {
-	console.log(`starting packet spam for `, packets, ` at delay `, delay);
 	if (!intervalID)
 	{
 		intervalID = setIntervalAsync(function() {
-			console.log(new Date(), `sent ${packets[idx]}`);
 			Bot.getInstance().packets.sendServer(packets[idx++]);
 			if (idx >= packets.length)
 			{
