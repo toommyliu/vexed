@@ -192,6 +192,7 @@ async function createPacketsWindow(windowID) {
 	});
 
 	window.on("closed", () => {
+		getChildWindow(windowID, "game")?.webContents.send("packets:spam_off");
 		wnd.packets = null;
 	});
 
