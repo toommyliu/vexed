@@ -145,6 +145,18 @@
 			}
 		}, 100);
 
+		$("#scripts").on("click", function()
+		{
+			const { ipcRenderer } = require("electron");
+			ipcRenderer.invoke("game:create_scripts", window.id);
+		});
+
+		$("#tools").on("click", function()
+		{
+			const { ipcRenderer } = require("electron");
+			ipcRenderer.invoke("game:create_tools", window.id);
+		});
+
 		$("#packets").on("click", function () {
 			const { ipcRenderer } = require("electron");
 			ipcRenderer.invoke("window:create:packets", window.id);

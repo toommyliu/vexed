@@ -1,5 +1,5 @@
 const { app, ipcMain: ipc, BrowserWindow, dialog } = require("electron");
-const { assignWindowID, createPacketsWindow, getChildWindow } = require("./windows");
+const { assignWindowID, createPacketsWindow, createScriptsWindow, createToolsWindow, getChildWindow } = require("./windows");
 const { nanoid } = require("nanoid");
 const fs = require("fs-extra");
 const { join } = require("path");
@@ -30,6 +30,17 @@ ipc.on("packets:spam", async function(event, windowID, packets, delay)
 });
 //#endregion
 
+//#region window creation
+ipc.handle("game:create_scripts", async function (event, windowID)
+{
+	await createScriptsWindow(windowID);
+});
+
+ipc.handle("game:create_tools", async function(event, windowID)
+{
+	await createToolsWindow(windowID);
+});
+
 ipc.handle("window:create:packets", async (_, id) => {
 	await createPacketsWindow(id);
 });
@@ -40,6 +51,7 @@ ipc.on("window:game:generate_id", function(event)
 	const windowID = nanoid();
 	assignWindowID(window, windowID);
 });
+//#endregion
 
 ipc.on("game:packet_sent", (event, windowID, packet) => {
 	const pkt = packet.substring(packet.lastIndexOf(" ") + 1);

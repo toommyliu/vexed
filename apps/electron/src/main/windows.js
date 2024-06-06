@@ -106,6 +106,70 @@ function assignWindowID(window, windowID)
 	window.webContents.send("generate-id", windowID);
 }
 
+async function createScriptsWindow(windowID)
+{
+	const wnd = windows.get(windowID);
+
+	if (wnd?.scripts) {
+		console.log(`Blocked scripts window creation for: ${windowID}`)
+		wnd?.packets.focus();
+		return;
+	}
+
+	console.log(`Creating child (scripts) with windowID: ${windowID}`);
+
+	const window = new BrowserWindow({
+		title: "Scripts",
+		width: 451,
+		height: 370,
+		webPreferences: {
+			contextIsolation: false,
+			nodeIntegration: true,
+		},
+	});
+
+	window.on("closed", () => {
+		wnd.scripts = null;
+	});
+
+	await window.loadFile(join(RENDERER, "game/pages/scripts.html"));
+	window.webContents.executeJavaScript(`window.id = "${windowID}"`);
+	window.webContents.openDevTools({ mode: "right" });
+	wnd.scripts = window;
+}
+
+async function createToolsWindow(windowID)
+{
+	const wnd = windows.get(windowID);
+
+	if (wnd?.tools) {
+		console.log(`Blocked tools window creation for: ${windowID}`)
+		wnd?.packets.focus();
+		return;
+	}
+
+	console.log(`Creating child (tools) with windowID: ${windowID}`);
+
+	const window = new BrowserWindow({
+		title: "Tools",
+		width: 451,
+		height: 370,
+		webPreferences: {
+			contextIsolation: false,
+			nodeIntegration: true,
+		},
+	});
+
+	window.on("closed", () => {
+		wnd.tools = null;
+	});
+
+	await window.loadFile(join(RENDERER, "game/pages/tools.html"));
+	window.webContents.executeJavaScript(`window.id = "${windowID}"`);
+	window.webContents.openDevTools({ mode: "right" });
+	wnd.tools = window;
+}
+
 async function createPacketsWindow(windowID) {
 	const wnd = windows.get(windowID);
 
@@ -173,6 +237,8 @@ function getChildWindow(windowID, type)
 module.exports = {
 	createManager,
 	createGame,
+	createScriptsWindow,
+	createToolsWindow,
 	createPacketsWindow,
 
 	assignWindowID,
