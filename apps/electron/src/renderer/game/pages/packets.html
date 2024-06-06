@@ -47,30 +47,35 @@
 
 <body>
 	<div class="container mt-4">
-		<p>logger</p>
-		<div class="form-control logger" id="logger" readonly></div>
-		<div class="d-flex justify-content-between mt-2">
-			<div class="d-flex gap-2">
-				<button class="btn btn-primary btn-sm" id="save">save to file</button>
-				<button class="btn btn-primary btn-sm" id="copy">copy all</button>
-				<button class="btn btn-primary btn-sm" id="clear">clear</button>
-			</div>
-			<div class="d-flex align-items-center">
-				<input type="checkbox" id="l-enabled"></input>
-				<p class="ml-2 mb-0">start</p>
+		<div class="container">
+			<p>logger</p>
+			<div class="form-control logger" id="logger" readonly></div>
+			<div class="d-flex justify-content-between mt-2">
+				<div class="d-flex gap-2">
+					<button class="btn btn-primary btn-sm" id="save">save to file</button>
+					<button class="btn btn-primary btn-sm" id="copy">copy all</button>
+					<button class="btn btn-primary btn-sm" id="clear">clear</button>
+				</div>
+				<div class="d-flex align-items-center gap-2">
+					<button class="btn btn-primary btn-sm" id="l-stop">stop</button>
+					<button class="btn btn-primary btn-sm" id="l-start">start</button>
+				</div>
 			</div>
 		</div>
 		<hr />
-		<p>spammer</p>
-		<textarea class="form-control spammer" id="spammer"></textarea>
-		<div class="d-flex justify-content-between mt-2">
-			<div class="d-flex gap-2">
-				<input class="form-control form-control-sm" type="number" value=1000 step=100 style="width: 150px;" id="delay"></input>
-				<p>delay</p>
-			</div>
-			<div class="d-flex align-items-center">
-				<input type="checkbox" id="s-enabled"></input>
-				<p class="ml-2 mb-0">start</p>
+		<div class="container">
+			<p>spammer</p>
+			<textarea class="form-control spammer" id="spammer"></textarea>
+			<div class="d-flex justify-content-between mt-2">
+				<div class="d-flex gap-2">
+					<input class="form-control form-control-sm" type="number" value=1000 step=100 style="width: 150px;"
+						id="delay"></input>
+					<p>delay</p>
+				</div>
+				<div class="d-flex align-items-center gap-2">
+					<button class="btn btn-primary btn-sm" id="s-stop">stop</button>
+					<button class="btn btn-primary btn-sm" id="s-start">start</button>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -80,7 +85,9 @@
 	const { remote, ipcRenderer: ipc } = require("electron");
 
 	const packets = [];
-	let intervalID = null;
+
+	let logger_on = false;
+	let spammer_on = false;
 
 	$(document).ready(function ()
 	{
@@ -113,32 +120,48 @@
 			packets.length = 0;
 		});
 
-		$("#s-enabled").on("click", function()
+		$("#l-stop").on("click", function()
 		{
-			if ($(this).prop("checked"))
+			$("#l-start").attr("disabled", false);
+			logger_on = false;
+		});
+
+		$("#l-start").on("click", function()
+		{
+			$(this).attr("disabled", true);
+			logger_on = true;
+		});
+
+		$("#s-stop").on("click", function()
+		{
+			$("#s-start").attr("disabled", false);
+			spammer_on = false;
+
+			ipc.send("packets:spam_off", window.id);
+		});
+
+		$("#s-start").on("click", function()
+		{
+			$(this).attr("disabled", true);
+			spammer_on = true;
+
+			const packets = $("#spammer").val();
+
+			if (!packets.length)
 			{
-				const packets = $("#spammer").val();
-
-				if (!packets.length)
-				{
-					return;
-				}
-
-				const pkts = packets.split("\n");
-				const delay = Number.parseInt($("#delay").val(), 10);
-
-				ipc.send("packets:spam", window.id, pkts, delay);
+				return;
 			}
-			else
-			{
-				ipc.send("packets:spam_off", window.id);
-			}
+
+			const pkts = packets.split("\n");
+			const delay = Number.parseInt($("#delay").val(), 10);
+
+			ipc.send("packets:spam", window.id, pkts, delay);
 		});
 	});
 
 	ipc.on("packet", function (_, packet)
 	{
-		if ($("#l-enabled").prop("checked"))
+		if (logger_on)
 		{
 			add_packet(packet);
 			packets.push(packet);
