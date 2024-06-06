@@ -30,13 +30,16 @@ function packetFromClient([packet]) {
 }
 
 function connection([state]) {
-	switch (state) {
-		case "OnConnection":
-			break;
-		case "OnConnectionLost":
-			{
-				Bot.getInstance().drops.reset();
-			}
-			break;
+	if (state === "OnConnection")
+	{
+		$("#cells").removeAttr("disabled");
+		$("#pads").removeAttr("disabled");
+	}
+	else if (state === "OnConnectionLost")
+	{
+		$("#cells").attr("disabled", true);
+		$("#pads").attr("disabled", true);
+
+		Bot.getInstance().drops.reset();
 	}
 }
