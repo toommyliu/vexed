@@ -4,20 +4,28 @@ var { setIntervalAsync, clearIntervalAsync } = require("set-interval-async");
 let intervalID;
 let idx = 0;
 
+ipc.on("packets:spam_off", async function()
+{
+	if (intervalID)
+	{
+		await clearIntervalAsync(intervalID);
+		intervalID = null;
+		idx = 0;
+	}
+});
+
 ipc.on("packets:spam", function (event, packets, delay)
 {
+	console.log(`starting packet spam for `, packets, ` at delay `, delay);
 	if (!intervalID)
 	{
 		intervalID = setIntervalAsync(function() {
-			console.log(`sending ${packets[idx++]}`);
-			// Bot.getInstance().packets.sendServer(packets[idx++]);
+			console.log(new Date(), `sent ${packets[idx]}`);
+			Bot.getInstance().packets.sendServer(packets[idx++]);
 			if (idx >= packets.length)
 			{
-				ipc.send()
-				console.log(`sent all packets, doing it again`);
 				idx = 0;
 			}
-			console.log('finished');
 		}, delay);
 	}
 });

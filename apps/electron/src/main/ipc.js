@@ -20,13 +20,12 @@ ipc.on("packets:save", async function(_, packets)
 
 ipc.on("packets:spam", async function(event, windowID, packets, delay)
 {
-	let family = getFamilyWindow(windowID);
-	if (!family?.game)
-	{
-		return;
-	}
+	getChildWindow(windowID, "game")?.webContents.send("packets:spam", packets, delay);
+});
 
-	family.game.webContents.send("packets:spam", packets, delay);
+ipc.on("packets:spam_off", function(event, windowID)
+{
+	getChildWindow(windowID, "game")?.webContents.send("packets:spam_off");
 });
 //#endregion
 

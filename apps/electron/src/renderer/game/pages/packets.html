@@ -1,10 +1,11 @@
 <!doctype html>
 
-<link href="../../shared/halfmoon.css" rel="stylesheet">
+<!-- <link href="../../shared/halfmoon.css" rel="stylesheet"> -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 <script src="../../shared/bootstrap.js"></script>
 <script>
 	// https://github.com/electron/electron/issues/254
-	window.$ = window.jQuery = require("../..//shared/jquery.js");
+	window.$ = window.jQuery = require("../../shared/jquery.js");
 </script>
 <style>
 	body {
@@ -12,7 +13,6 @@
 		color: lightgrey;
 		font-family: Verdana, Geneva, Tahoma, sans-serif;
 	}
-
 
 	.logger {
 		height: 100px;
@@ -34,7 +34,15 @@
 		background-color: grey;
 	}
 
-	.spammer {}
+	.spammer {
+		background-color: #24242e;
+		color: lightgrey;
+	}
+
+	.spammer:focus {
+		background-color: #24242e;
+		color: lightgrey;
+	}
 </style>
 
 <body>
@@ -54,10 +62,10 @@
 		</div>
 		<hr />
 		<p>spammer</p>
-		<textarea class="form-control" id="spammer"></textarea>
+		<textarea class="form-control spammer" id="spammer"></textarea>
 		<div class="d-flex justify-content-between mt-2">
 			<div class="d-flex gap-2">
-				<input type="number" value=1000 step=100 style="width: 150px;" id="delay"></input>
+				<input class="form-control form-control-sm" type="number" value=1000 step=100 style="width: 150px;" id="delay"></input>
 				<p>delay</p>
 			</div>
 			<div class="d-flex align-items-center">
@@ -65,13 +73,12 @@
 				<p class="ml-2 mb-0">start</p>
 			</div>
 		</div>
-
 	</div>
 </body>
 
 <script>
 	const { remote, ipcRenderer: ipc } = require("electron");
-	const { setIntervalAsync, clearIntervalAsync } = require("set-interval-async/fixed");
+
 	const packets = [];
 	let intervalID = null;
 
@@ -120,30 +127,11 @@
 				const pkts = packets.split("\n");
 				const delay = Number.parseInt($("#delay").val(), 10);
 
-				if (!intervalID)
-				{
-					intervalID = setIntervalAsync(function() {
-						console.log("starting to send packets to main");
-						if (!$("#s-enabled").prop("checked"))
-						{
-							console.log("Checkbox was unchecked, stopping spam (1)");
-							clearIntervalAsync(intervalID);
-							intervalID = null;
-							return;
-						}
-
-						ipc.send("packets:spam", window.id, pkts, delay);
-						console.log("sent packets to main");
-					}, delay);
-				}
-			} else
+				ipc.send("packets:spam", window.id, pkts, delay);
+			}
+			else
 			{
-				if (intervalID)
-				{
-					clearIntervalAsync(intervalID);
-					intervalID = null;
-					console.log("Spamming stopped as checkbox was unchecked (2)");
-				}
+				ipc.send("packets:spam_off", window.id);
 			}
 		});
 	});
