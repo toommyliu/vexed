@@ -63,7 +63,8 @@
 <script src="ipc/ipc.js"></script>
 
 <script>
-	window.addEventListener('DOMContentLoaded', () => {
+	window.addEventListener('DOMContentLoaded', () =>
+	{
 		var script = document.createElement('script');
 		script.textContent = `
 			var bot=Bot.getInstance();
@@ -88,14 +89,19 @@
 
 <script>
 	var { ipcRenderer } = require('electron');
-	ipcRenderer.on("generate-id", (event, windowID) => {
-		console.log(`Your parent is: "${windowID}"`);
+	ipcRenderer.on("generate-id", (event, windowID) =>
+	{
+		console.log(`Your shared ID is: "${windowID}"`);
 		window.id = windowID;
 	});
 </script>
 
 <script>
-	window.addEventListener('DOMContentLoaded', () => {
+	const windows = {};
+	let maid = { on: false, player: null, skill_set: null };
+
+	window.addEventListener('DOMContentLoaded', () =>
+	{
 		var div = document.createElement('div');
 		div.id = 'progress-container';
 		document.body.appendChild(div);
@@ -107,21 +113,25 @@
 		document.getElementById('progress-container').appendChild(progress);
 	});
 
-	async function progress([percentage]) {
+	async function progress([percentage])
+	{
 		var progress = document.getElementById('progress');
 		progress.value = percentage.toString();
 
-		if (percentage === 100) {
+		if (percentage === 100)
+		{
 			var progressContainer = document.getElementById('progress-container');
 			progress?.remove();
 			progressContainer?.remove();
 
-			if (window?.account) {
+			if (window?.account)
+			{
 				const { username, password, server } = window.account;
 				const bot = Bot.getInstance();
 				await bot.sleep(1000);
 				await auth.login(username, password);
-				if (server !== "None") {
+				if (server !== "None")
+				{
 					await bot.waitUntil(() => auth?.servers?.length > 0);
 					await bot.sleep(250);
 					await auth.connect(server);
@@ -132,10 +142,38 @@
 		}
 	}
 
-	$(document).ready(function () {
+	$(window).on("message", function (event)
+	{
+		switch (event.originalEvent.data.event)
+		{
+			case "tools:close": {
+				windows.tools = null;
+				maid.on = false;
+			}
+				break;
+			case "tools:generate_id":
+				event.originalEvent.source.postMessage({ event: "tools:generate_id", resp: window.id }, "*");
+				break;
+			case "tools:maid:start": {
+				const { player, skill_set } = event.originalEvent.data;
+				maid.on = true;
+				maid.player = player;
+				maid.skill_set = skill_set;
+				break;
+			}
+			case "tools:maid:stop":
+				maid.on = false;
+				break;
+		}
+	});
+
+	$(document).ready(function ()
+	{
+		const { setIntervalAsync, clearIntervalAsync } = require('set-interval-async/fixed');
+
 		window.lastMap = null;
 
-		setTimeout(function()
+		setTimeout(function ()
 		{
 			if (!window.id)
 			{
@@ -143,30 +181,43 @@
 				ipcRenderer.send("window:game:generate_id");
 				console.log("Looks like we don't have an ID, assigning that now.");
 			}
-		}, 100);
+		}, 50);
 
-		$("#scripts").on("click", function()
+		$("#scripts").on("click", function ()
 		{
 			const { ipcRenderer } = require("electron");
 			ipcRenderer.invoke("game:create_scripts", window.id);
 		});
 
-		$("#tools").on("click", function()
+		$("#tools").on("click", function ()
 		{
-			const { ipcRenderer } = require("electron");
-			ipcRenderer.invoke("game:create_tools", window.id);
+			if (!windows.tools)
+			{
+				windows.tools = window.open("./pages/tools.html", null, "width=451,height=370");
+				windows.tools.onload = function ()
+				{
+					windows.tools.postMessage("tools:window-id", window.id, "*");
+					windows.tools.addEventListener("beforeunload", () => console.log('hi'));
+				}
+			} else
+			{
+				windows.tools.focus();
+			}
 		});
 
-		$("#packets").on("click", function () {
+		$("#packets").on("click", function ()
+		{
 			const { ipcRenderer } = require("electron");
 			ipcRenderer.invoke("window:create:packets", window.id);
 		});
 
-		function updateCells() {
+		function updateCells()
+		{
 			const bot = Bot.getInstance();
 			const { auth, player, world } = bot;
 
-			if (!auth.loggedIn || world.loading || window.lastMap === bot.world.roomId) {
+			if (!auth.loggedIn || world.loading || window.lastMap === bot.world.roomId)
+			{
 				return;
 			}
 
@@ -174,7 +225,8 @@
 			elem.empty();
 
 			const { cells } = world;
-			$.each(cells, function (_, option) {
+			$.each(cells, function (_, option)
+			{
 				elem.append($('<option>', {
 					value: option,
 					text: option,
@@ -184,9 +236,11 @@
 			window.lastMap = world.roomId;
 		}
 
-		$("#pads").on("change", async function () {
+		$("#pads").on("change", async function ()
+		{
 			const { auth, world } = Bot.getInstance();
-			if (!auth.loggedIn || world.loading) {
+			if (!auth.loggedIn || world.loading)
+			{
 				return;
 			}
 
@@ -197,9 +251,11 @@
 		});
 
 		$("#cells").on("click", updateCells)
-			.on("change", async function () {
+			.on("change", async function ()
+			{
 				const { auth, world } = Bot.getInstance();
-				if (!auth.loggedIn || world.loading) {
+				if (!auth.loggedIn || world.loading)
+				{
 					return;
 				}
 
@@ -209,7 +265,7 @@
 				await Bot.getInstance().world.jump(cell, pad);
 			});
 
-		$("#x").on("click", async function()
+		$("#x").on("click", async function ()
 		{
 			const { auth, player, world } = Bot.getInstance();
 			if (!auth.loggedIn || world.loading)
@@ -241,6 +297,44 @@
 
 			bot.flash.call("world.toggleBank");
 		});
+
+		let skillIdx = 0;
+		setIntervalAsync(async function ()
+		{
+			if (maid.on)
+			{
+				if (!auth.loggedIn && world.loading)
+				{
+					console.log('wait');
+					await bot.sleep(500);
+				}
+
+				console.log('goto');
+				world.goto(maid.player);
+				console.log('wait');
+				await bot.waitUntil(() => flash.call(window.swf.PlayersInMap)?.includes(maid.player));
+				world.setSpawnpoint();
+
+				if (!maid.skill_set.includes(","))
+				{
+					maid.skill_set = "1,2,3,4";
+				}
+
+				const skills = maid.skill_set.split(",")
+					.map(s => Number.parseInt(s.trim(), 10))
+					.filter(n => !Number.isNaN(n));
+
+				console.log('kill');
+
+				if (world.isMonsterAvailable("*") && !combat.hasTarget())
+				{
+					combat.attack("*");
+					await combat.useSkill(skillIdx++);
+				}
+
+				console.log('end');
+			}
+		}, 1000);
 	});
 </script>
 
@@ -249,23 +343,25 @@
 </div>
 
 <div class="w3-bar w3-fixed-top" style="background-color: #24242e; color: lightgrey; height: 27px;">
-    <a href="#" class="w3-bar-item w3-button w3-small" id="scripts">scripts</a>
-    <a href="#" class="w3-bar-item w3-button w3-small" id="tools">tools</a>
-    <a href="#" class="w3-bar-item w3-button w3-small" id="packets">packets</a>
-    <button class="w3-bar-item w3-button w3-border w3-small w3-right" id="bank" style="height: 21px; margin-top: 4px; margin-left: 10px; margin-right: 5px; padding: 0 8px;">bank</button>
-    <button class="w3-bar-item w3-button w3-border w3-small w3-right" id="x" style="height: 21px; margin-top: 4px; margin-left: 4px; margin-right: -2px; padding: 0 4px;">x</button>
-    <select class="w3-bar-item w3-border w3-small w3-right" id="cells" disabled
-        style="height: 21px; margin-top: 4px; margin-left: 10px; padding: 0 4px; width: 100px; background-color: #24242e; color: lightgrey"></select>
-    <select class="w3-bar-item w3-border w3-small w3-right" id="pads" disabled
-        style="height: 21px; margin-top: 4px; margin-right: -4px; padding: 0 10px; width: 100px; background-color: #24242e; color: lightgrey">
-        <option value="" selected disabled hidden></option>
-        <option value="Center">Center</option>
-        <option value="Spawn">Spawn</option>
-        <option value="Left">Left</option>
-        <option value="Right">Right</option>
-        <option value="Top">Top</option>
-        <option value="Bottom">Bottom</option>
-        <option value="Up">Up</option>
-        <option value="Down">Down</option>
-    </select>
+	<a href="#" class="w3-bar-item w3-button w3-small" id="scripts">scripts</a>
+	<a href="#" class="w3-bar-item w3-button w3-small" id="tools">tools</a>
+	<a href="#" class="w3-bar-item w3-button w3-small" id="packets">packets</a>
+	<button class="w3-bar-item w3-button w3-border w3-small w3-right" id="bank"
+		style="height: 21px; margin-top: 4px; margin-left: 10px; margin-right: 5px; padding: 0 8px;">bank</button>
+	<button class="w3-bar-item w3-button w3-border w3-small w3-right" id="x"
+		style="height: 21px; margin-top: 4px; margin-left: 4px; margin-right: -2px; padding: 0 4px;">x</button>
+	<select class="w3-bar-item w3-border w3-small w3-right" id="cells" disabled
+		style="height: 21px; margin-top: 4px; margin-left: 10px; padding: 0 4px; width: 100px; background-color: #24242e; color: lightgrey"></select>
+	<select class="w3-bar-item w3-border w3-small w3-right" id="pads" disabled
+		style="height: 21px; margin-top: 4px; margin-right: -4px; padding: 0 10px; width: 100px; background-color: #24242e; color: lightgrey">
+		<option value="" selected disabled hidden></option>
+		<option value="Center">Center</option>
+		<option value="Spawn">Spawn</option>
+		<option value="Left">Left</option>
+		<option value="Right">Right</option>
+		<option value="Top">Top</option>
+		<option value="Bottom">Bottom</option>
+		<option value="Up">Up</option>
+		<option value="Down">Down</option>
+	</select>
 </div>

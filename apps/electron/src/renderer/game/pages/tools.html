@@ -1,1 +1,151 @@
-<p>hello from tools</p>
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<script>
+	window.$ = window.jQuery = require("../../shared/jquery.js");
+</script>
+<style>
+	body {
+		background-color: #24242e;
+		color: lightgrey;
+	}
+
+	.container-1 {
+		width: fit-content;
+		display: flex;
+		flex-direction: column;
+		margin-top: 8px;
+	}
+
+	#skills {
+		margin-bottom: 8px;
+	}
+</style>
+
+<main>
+	<div class="w3-bar w3-black">
+		<button class="w3-bar-item w3-button tab-button" data-target="fast-travel">fast travel</button>
+		<button class="w3-bar-item w3-button tab-button" data-target="loader-grabber">loader/grabber</button>
+		<button class="w3-bar-item w3-button tab-button" data-target="maid">maid</button>
+	</div>
+
+	<div class="w3-container">
+		<div class="tab" id="fast-travel" style="display: none">
+			<p>hello from fast travel</p>
+		</div>
+
+		<div class="tab" id="loader-grabber" style="display:none">
+			<p>hello from loader/grabber</p>
+		</div>
+
+		<div class="tab" id="maid">
+			<div class="w3-container w3-border container-1">
+				<p>goto player</p>
+				<input id="player"></input>
+				<p>skill set</p>
+				<input id="skills" value="1,2,3,4"></input>
+			</div>
+			<input id="start" type="checkbox">start</input>
+		</div>
+	</div>
+</main>
+
+<script>
+	let parent = window.opener;
+
+	$(document).ready(function ()
+	{
+		$(window).on("unload", function() {
+			parent.postMessage({ event: "tools:close" });
+		});
+
+		$(window).on("message", function (event)
+		{
+			const ev = event.originalEvent;
+
+			switch (ev?.data?.event)
+			{
+				case "tools:generate_id": {
+					window.id = ev.data.resp;
+					console.log(`Your shared ID is: "${window.id}"`);
+					break;
+				}
+			}
+		});
+
+		setTimeout(function ()
+		{
+			if (!window.id)
+			{
+				console.log("Looks like we don't have an ID, dispatching a request from parent.");
+				parent.postMessage({ event: "tools:generate_id" }, "*");
+			}
+		}, 500);
+
+		// TODO: use ipc
+		const electron = require("electron");
+		const { remote } = electron;
+		const { app } = remote;
+		const { ipcRenderer: ipc } = electron;
+
+		const fs = require("fs-extra");
+		const { join } = require("path");
+
+		const basePath = join(app.getPath("documents"), "Vexed");
+		const jsonPath = join(basePath, "locations.json");
+
+		function readJSON()
+		{
+			return fs.readJSON(jsonPath).catch(() => []);
+		}
+
+		function writeJSON(json)
+		{
+			return fs.writeJSON(jsonPath, json, { spaces: 4 }).catch(() => { });
+		}
+
+		const locations = readJSON();
+
+		$(".tab-button").click(function ()
+		{
+			$(".tab").hide();
+
+			const target = $(this).data("target");
+			$(`#${target}`).show();
+
+			switch (target)
+			{
+				case "fast-travel":
+					{
+
+					}
+					break;
+				case "loader-grabber":
+					{
+
+					}
+					break;
+				case "maid":
+					{
+
+					}
+					break;
+			}
+		});
+
+		$("#start").click(function (event)
+		{
+			if ($(this).prop("checked"))
+			{
+				parent.postMessage({
+					event: "tools:maid:start",
+					player: $("#player").val(),
+					skill_set: $("#skills").val()
+				}, "*");
+			} else
+			{
+				parent.postMessage({
+					event: "tools:maid:stop"
+				}, "*");
+			}
+		});
+	});
+</script>

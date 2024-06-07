@@ -12,7 +12,8 @@ const windows = new Map();
 const userAgent =
 	"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16_0) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36";
 
-async function createManager() {
+async function createManager()
+{
 	if (managerWindow)
 	{
 		managerWindow.focus();
@@ -30,7 +31,7 @@ async function createManager() {
 		}
 	});
 
-	window.on("closed", function()
+	window.on("closed", function ()
 	{
 		managerWindow = null;
 	});
@@ -39,7 +40,8 @@ async function createManager() {
 	managerWindow = window;
 }
 
-async function createGame(account = null) {
+async function createGame(account = null)
+{
 	const window = new BrowserWindow({
 		width: 966,
 		height: 552,
@@ -53,7 +55,8 @@ async function createGame(account = null) {
 	});
 
 	window.webContents.setUserAgent(userAgent);
-	session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
+	session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) =>
+	{
 		details.requestHeaders["User-Agent"] = userAgent;
 		details.requestHeaders.artixmode = "launcher";
 		callback({ requestHeaders: details.requestHeaders, cancel: false });
@@ -68,11 +71,12 @@ async function createGame(account = null) {
 
 	console.log(`Created a family with windowID: ${windowID}`);
 
-	if (account) {
+	if (account)
+	{
 		window.webContents.executeJavaScript(`window.account=${JSON.stringify(account)}`);
 	}
 
-	window.on("closed", function()
+	window.on("closed", function ()
 	{
 		if (!windows.has(windowID))
 		{
@@ -87,7 +91,7 @@ async function createGame(account = null) {
 			{
 				v?.close();
 				k = null;
-			} catch {}
+			} catch { }
 		}
 
 		windows.delete(windowID);
@@ -110,7 +114,8 @@ async function createScriptsWindow(windowID)
 {
 	const wnd = windows.get(windowID);
 
-	if (wnd?.scripts) {
+	if (wnd?.scripts)
+	{
 		console.log(`Blocked scripts window creation for: ${windowID}`)
 		wnd?.packets.focus();
 		return;
@@ -128,12 +133,14 @@ async function createScriptsWindow(windowID)
 		},
 	});
 
-	window.on("closed", () => {
+	window.on("closed", () =>
+	{
 		wnd.scripts = null;
 	});
 
 	await window.loadFile(join(RENDERER, "game/pages/scripts.html"));
 	window.webContents.executeJavaScript(`window.id = "${windowID}"`);
+
 	window.webContents.openDevTools({ mode: "right" });
 	wnd.scripts = window;
 }
@@ -142,7 +149,8 @@ async function createToolsWindow(windowID)
 {
 	const wnd = windows.get(windowID);
 
-	if (wnd?.tools) {
+	if (wnd?.tools)
+	{
 		console.log(`Blocked tools window creation for: ${windowID}`)
 		wnd?.packets.focus();
 		return;
@@ -155,25 +163,30 @@ async function createToolsWindow(windowID)
 		width: 451,
 		height: 370,
 		webPreferences: {
+			enableRemoteModule: true,
 			contextIsolation: false,
 			nodeIntegration: true,
 		},
 	});
 
-	window.on("closed", () => {
+	window.on("closed", () =>
+	{
 		wnd.tools = null;
 	});
 
 	await window.loadFile(join(RENDERER, "game/pages/tools.html"));
 	window.webContents.executeJavaScript(`window.id = "${windowID}"`);
+	window.webContents.postMessage("port", null, [port1]);
 	window.webContents.openDevTools({ mode: "right" });
-	wnd.tools = window;
+	wnd.tools = { window, port: port1 };
 }
 
-async function createPacketsWindow(windowID) {
+async function createPacketsWindow(windowID)
+{
 	const wnd = windows.get(windowID);
 
-	if (wnd?.packets) {
+	if (wnd?.packets)
+	{
 		console.log(`Blocked packets window creation for: ${windowID}`)
 		wnd?.packets.focus();
 		return;
@@ -191,7 +204,8 @@ async function createPacketsWindow(windowID) {
 		},
 	});
 
-	window.on("closed", () => {
+	window.on("closed", () =>
+	{
 		getChildWindow(windowID, "game")?.webContents.send("packets:spam_off");
 		wnd.packets = null;
 	});

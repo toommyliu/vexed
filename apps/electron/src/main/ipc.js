@@ -7,23 +7,23 @@ const { join } = require("path");
 const ROOT = join(app.getPath("documents"), "Vexed");
 
 //#region packets
-ipc.on("packets:save", async function(_, packets)
+ipc.on("packets:save", async function (_, packets)
 {
 	try
 	{
-		await fs.writeFile(join(ROOT, "packets.txt"), packets.join("\n"), { encoding: "utf-8 "});
+		await fs.writeFile(join(ROOT, "packets.txt"), packets.join("\n"), { encoding: "utf-8 " });
 	} catch
 	{
 		dialog.showErrorBox("error", "failed to write packets to file.")
 	}
 });
 
-ipc.on("packets:spam", async function(event, windowID, packets, delay)
+ipc.on("packets:spam", async function (event, windowID, packets, delay)
 {
 	getChildWindow(windowID, "game")?.webContents.send("packets:spam", packets, delay);
 });
 
-ipc.on("packets:spam_off", function(event, windowID)
+ipc.on("packets:spam_off", function (event, windowID)
 {
 	getChildWindow(windowID, "game")?.webContents.send("packets:spam_off");
 });
@@ -35,16 +35,17 @@ ipc.handle("game:create_scripts", async function (event, windowID)
 	await createScriptsWindow(windowID);
 });
 
-ipc.handle("game:create_tools", async function(event, windowID)
+ipc.handle("game:create_tools", async function (event, windowID)
 {
 	await createToolsWindow(windowID);
 });
 
-ipc.handle("window:create:packets", async (_, id) => {
+ipc.handle("window:create:packets", async (_, id) =>
+{
 	await createPacketsWindow(id);
 });
 
-ipc.on("window:game:generate_id", function(event)
+ipc.on("window:game:generate_id", function (event)
 {
 	const window = BrowserWindow.fromWebContents(event.sender);
 	const windowID = nanoid();
@@ -52,7 +53,8 @@ ipc.on("window:game:generate_id", function(event)
 });
 //#endregion
 
-ipc.on("game:packet_sent", (event, windowID, packet) => {
+ipc.on("game:packet_sent", (event, windowID, packet) =>
+{
 	const pkt = packet.substring(packet.lastIndexOf(" ") + 1);
 	getChildWindow(windowID, "packets")?.webContents.send("packet", pkt);
 });
