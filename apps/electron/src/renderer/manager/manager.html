@@ -195,6 +195,9 @@
 
 	$("#account-action-0").on("click", async function ()
 	{
+		$(this).attr("disabled", true);
+		$("#account-action-1").attr("disabled", true);
+
 		const checkboxes = $('[id^="account-checkbox-"]');
 		for (const elem of checkboxes)
 		{
@@ -206,9 +209,15 @@
 			}
 			await new Promise((resolve) => setTimeout(resolve, 1000));
 		}
+
+		$(this).attr("disabled", false);
+		$("#account-action-1").attr("disabled", false);
 	});
 	$("#account-action-1").on("click", async function ()
 	{
+		$("#account-action-0").attr("disabled", true);
+		$(this).attr("disabled", true);
+
 		const checkboxes = $('[id^="account-checkbox-"]');
 		for (const elem of checkboxes)
 		{
@@ -224,6 +233,9 @@
 			}
 			await new Promise((resolve) => setTimeout(resolve, 1000));
 		}
+
+		$("#account-action-0").attr("disabled", false);
+		$(this).attr("disabled", false);
 	});
 </script>
 
