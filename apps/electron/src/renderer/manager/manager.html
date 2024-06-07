@@ -67,18 +67,23 @@
 
 	const { createGame } = remote.require("./windows.js");
 
-	function readJSON() {
+	function readJSON()
+	{
 		return fs.readJSON(jsonPath).catch(() => []);
 	}
-	function writeJSON(json) {
+	function writeJSON(json)
+	{
 		return fs.writeJSON(jsonPath, json, { spaces: 4 }).catch(() => { });
 	}
 
-	async function loadServers() {
-		$.get("https://game.aq.com/game/api/data/servers", function (data) {
+	async function loadServers()
+	{
+		$.get("https://game.aq.com/game/api/data/servers", function (data)
+		{
 			const dropdown = $("#servers");
 
-			$.each(data, function (key, val) {
+			$.each(data, function (key, val)
+			{
 				dropdown.append(
 					$("<option>")
 						.text(`${val.sName} (${val.iCount})`)
@@ -88,20 +93,24 @@
 		});
 	}
 
-	async function renderAccounts() {
+	async function renderAccounts()
+	{
 		await fs.ensureFile(jsonPath);
 
 		const accounts = await readJSON();
-		if (!accounts.length) {
+		if (!accounts.length)
+		{
 			return;
 		}
 
 		const grid = $("#accounts");
 		grid.html("");
 
-		$.each(accounts, function (index, account) {
+		$.each(accounts, function (index, account)
+		{
 			const card = $("<div>");
-			$(card).on("click", function (event) {
+			$(card).on("click", function (event)
+			{
 				event.stopPropagation();
 
 				const p = $(`#account-checkbox-${index}`);
@@ -129,7 +138,8 @@
 			const div = $("<div>").addClass("d-flex d-flex-row gap-2 mt-2");
 
 			const loginBtn = $("<button>").addClass("btn btn-primary btn-sm").text("log in");
-			loginBtn.click(async function (event) {
+			loginBtn.click(async function (event)
+			{
 				event.stopPropagation();
 
 				await createGame({
@@ -139,7 +149,8 @@
 			});
 
 			const removeBtn = $("<button>").addClass("btn btn-danger btn-sm").text("remove");
-			removeBtn.click(async function (event) {
+			removeBtn.click(async function (event)
+			{
 				event.stopPropagation();
 
 				const accounts = await readJSON();
@@ -159,16 +170,19 @@
 		});
 	}
 
-	$(document).ready(async function () {
+	$(document).ready(async function ()
+	{
 		await loadServers();
 		await renderAccounts();
 	});
 
-	$("#add-account").on("click", async function (event) {
+	$("#add-account").on("click", async function (event)
+	{
 		const username = $("#username")?.val();
 		const password = $("#password")?.val();
 
-		if (username && password) {
+		if (username && password)
+		{
 			const accounts = await readJSON();
 			accounts.push({ username, password });
 
@@ -179,26 +193,33 @@
 
 	$("#refresh-accounts").on("click", async () => await renderAccounts());
 
-	$("#account-action-0").on("click", async function () {
+	$("#account-action-0").on("click", async function ()
+	{
 		const checkboxes = $('[id^="account-checkbox-"]');
-		for (const elem of checkboxes) {
+		for (const elem of checkboxes)
+		{
 			const _elem = $(elem);
 			const account = (await readJSON()).find((acc) => acc.username === _elem.parent()?.text());
-			if (account) {
+			if (account)
+			{
 				await createGame({ ...account, server: $("#servers").val() });
 			}
 			await new Promise((resolve) => setTimeout(resolve, 1000));
 		}
 	});
-	$("#account-action-1").on("click", async function () {
+	$("#account-action-1").on("click", async function ()
+	{
 		const checkboxes = $('[id^="account-checkbox-"]');
-		for (const elem of checkboxes) {
+		for (const elem of checkboxes)
+		{
 			const _elem = $(elem);
 			const checked = _elem.prop("checked");
-			if (checked) {
+			if (checked)
+			{
 				const account = (await readJSON()).find((acc) => acc.username === _elem.parent()?.text());
-				if (account) {
-					await createGameWindow({ ...account, server: $("#servers").val() });
+				if (account)
+				{
+					await createGame({ ...account, server: $("#servers").val() });
 				}
 			}
 			await new Promise((resolve) => setTimeout(resolve, 1000));
