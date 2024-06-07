@@ -329,7 +329,7 @@
 				if (world.isMonsterAvailable("*") && !combat.hasTarget())
 				{
 					combat.attack("*");
-					await combat.useSkill(skillIdx++);
+					await combat.useSkill(maid.skill_set[skillIdx++]);
 				}
 
 				console.log('end');
