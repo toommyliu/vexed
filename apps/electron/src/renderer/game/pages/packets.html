@@ -66,7 +66,8 @@
 			<textarea class="spammer w3-border" id="spammer"></textarea>
 			<div style="display: flex; justify-content: space-between; gap: 2px">
 				<div style="display: flex; gap: 8px">
-					<input class="w3-input w3-small" type="number" value="1000" step="100" style="width: 150px; height: 30px; margin-top: 12px;" id="delay"></input>
+					<input class="w3-input w3-small" type="number" value="1000" step="100"
+						style="width: 150px; height: 30px; margin-top: 12px;" id="delay"></input>
 					<p>delay</p>
 				</div>
 				<div style="display: flex; align-items: center; gap: 4px">
@@ -87,64 +88,95 @@
 	let logger_on = false;
 	let spammer_on = false;
 
+	let parent = window.opener;
+
 	$(document).ready(function ()
 	{
-		// close existing windows with no parent
+		$(window).on("beforeunload", function (event)
+		{
+			parent.postMessage({ event: "packets:close" }, "*");
+		});
+
+		$(window).on("message", function (event)
+		{
+			// console.log("Received message", event.originalEvent.data);
+
+			const ev = event.originalEvent;
+
+			switch (ev?.data?.event)
+			{
+				case "packets:generate_id": {
+					window.id = ev.data.resp;
+					console.log(`Your shared ID is: "${window.id}"`);
+					break;
+				}
+				case "game:packet_sent": {
+					if (!logger_on)
+					{
+						return;
+					}
+
+					const pkt = ev.data.packet.substring(17);
+
+					add_packet(pkt);
+					packets.push(pkt);
+				}
+					break;
+			}
+		});
+
 		setTimeout(function ()
 		{
 			if (!window.id)
 			{
-				window.close();
+				console.log("Looks like we don't have an ID, dispatching a request from parent.");
+				parent.postMessage({ event: "packets:generate_id" }, "*");
 			}
-			else
-			{
-				console.log(`Your parent is: "${window.id}"`);
-			}
-		}, 100);
+		}, 500);
 
-		$("#save").on("click", function ()
+		$("#save").click(function ()
 		{
-			ipc.send("packets:save", packets);
+			parent.postMessage({ event: "packets:save", packets });
 		});
 
-		$("#copy").on("click", async function ()
+		$("#copy").click(async function ()
 		{
 			await navigator.clipboard.writeText(packets.join("\n"));
 		});
 
-		$("#clear").on("click", function ()
+		$("#clear").click(function ()
 		{
 			$("#logger").empty();
 			packets.length = 0;
 		});
 
-		$("#l-stop").on("click", function()
+		$("#l-stop").click(function ()
 		{
 			$("#l-start").attr("disabled", false);
 			logger_on = false;
 		});
 
-		$("#l-start").on("click", function()
+		$("#l-start").click(function ()
 		{
 			$(this).attr("disabled", true);
 			logger_on = true;
 		});
 
-		$("#s-send-once").on("click", function()
+		$("#s-send-once").click(function ()
 		{
 			$("#s-start").click();
 			$("#s-stop").click();
 		});
 
-		$("#s-stop").on("click", function()
+		$("#s-stop").click(function ()
 		{
 			$("#s-start").attr("disabled", false);
 			spammer_on = false;
 
-			ipc.send("packets:spam_off", window.id);
+			parent.postMessage({ event: "packets:spam_stop" }, "*");
 		});
 
-		$("#s-start").on("click", function()
+		$("#s-start").click(function ()
 		{
 			$(this).attr("disabled", true);
 			spammer_on = true;
@@ -159,25 +191,16 @@
 			const pkts = packets.split("\n");
 			const delay = Number.parseInt($("#delay").val(), 10);
 
-			ipc.send("packets:spam", window.id, pkts, delay);
+			parent.postMessage({ event: "packets:spam_start", packets: pkts, delay }, "*");
 		});
 	});
 
-	ipc.on("packet", function (_, packet)
-	{
-		if (logger_on)
-		{
-			add_packet(packet);
-			packets.push(packet);
-		}
-	});
-
 	function add_packet(packet)
-	 {
+	{
 		const elem = $("#logger");
 		const div = $("<div>").addClass("line").text(packet);
 
-		div.on("click", async function ()
+		div.click(async function ()
 		{
 			await navigator.clipboard.writeText(packet);
 		});

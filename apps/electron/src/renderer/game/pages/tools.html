@@ -53,12 +53,10 @@
 
 	$(document).ready(function ()
 	{
-		$(window).on("unload", function() {
-			parent.postMessage({ event: "tools:close" });
-		});
-
 		$(window).on("message", function (event)
 		{
+			// console.log("Received message", event.originalEvent.data);
+
 			const ev = event.originalEvent;
 
 			switch (ev?.data?.event)

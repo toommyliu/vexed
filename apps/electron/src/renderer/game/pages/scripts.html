@@ -1,1 +1,37 @@
-<p>hello from scripts</p>
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<script>
+	// https://github.com/electron/electron/issues/254
+	window.$ = window.jQuery = require("../../shared/jquery.js");
+</script>
+
+<script>
+	let parent = window.opener;
+
+	$(document).ready(function ()
+	{
+		$(window).on("message", function (event)
+		{
+			// console.log("Received message", event.originalEvent.data);
+
+			const ev = event.originalEvent;
+
+			switch (ev?.data?.event)
+			{
+				case "scripts:generate_id": {
+					window.id = ev.data.resp;
+					console.log(`Your shared ID is: "${window.id}"`);
+					break;
+				}
+			}
+		});
+
+		setTimeout(function ()
+		{
+			if (!window.id)
+			{
+				console.log("Looks like we don't have an ID, dispatching a request from parent.");
+				parent.postMessage({ event: "scripts:generate_id" }, "*");
+			}
+		}, 500);
+	});
+</script>

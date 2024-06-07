@@ -3,14 +3,17 @@ var { ipcRenderer: ipc } = require("electron");
 /**
  * @param {string[]} packet
  */
-function packetFromServer([packet]) {
+function packetFromServer([packet])
+{
 	const bot = Bot.getInstance();
 	bot.flash.emit("packetFromServer", packet);
 
-	if (packet.startsWith('{"')) {
+	if (packet.startsWith('{"'))
+	{
 		const pkt = JSON.parse(packet);
 
-		switch (pkt.b.o.cmd) {
+		switch (pkt.b.o.cmd)
+		{
 			case "dropItem":
 				{
 					const item = Object.values(pkt.b.o.items)[0];
@@ -21,15 +24,18 @@ function packetFromServer([packet]) {
 	}
 }
 
-function packetFromClient([packet]) {
+function packetFromClient([packet])
+{
 	Bot.getInstance().flash.emit("packetFromClient", packet);
 
-	if (packet.includes("%xt%zm%")) {
-		ipc.send("game:packet_sent", window.id, packet);
+	if (packet.includes("%xt%zm%"))
+	{
+		windows?.packets?.postMessage({ event: "game:packet_sent", packet }, "*");
 	}
 }
 
-function connection([state]) {
+function connection([state])
+{
 	if (state === "OnConnection")
 	{
 		$("#cells").removeAttr("disabled");

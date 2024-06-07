@@ -97,8 +97,14 @@
 </script>
 
 <script>
+	var { setIntervalAsync, clearIntervalAsync } = require("set-interval-async/fixed");
+
 	const windows = {};
 	let maid = { on: false, player: null, skill_set: null };
+
+	let p_intervalID;
+	let p_idx = 0;
+	let p_packets = [];
 
 	window.addEventListener('DOMContentLoaded', () =>
 	{
@@ -144,16 +150,65 @@
 
 	$(window).on("message", function (event)
 	{
+		console.log("Received message", event.originalEvent.data);
+
 		switch (event.originalEvent.data.event)
 		{
+			case "packets:close": {
+				windows.packets = null;
+				if (p_intervalID)
+				{
+					clearIntervalAsync(p_intervalID);
+					p_packets = [];
+					p_idx = 0;
+					p_intervalID = null;
+				}
+			}
 			case "tools:close": {
 				windows.tools = null;
 				maid.on = false;
 			}
 				break;
-			case "tools:generate_id":
-				event.originalEvent.source.postMessage({ event: "tools:generate_id", resp: window.id }, "*");
+			case "packets:generate_id":
+			case "scripts:generate_id":
+			case "tools:generate_id": {
+				const wnd = event.originalEvent.data.event.split(":")[0]
+				windows[wnd] = event.originalEvent.source;
+				event.originalEvent.source.postMessage({ event: event.originalEvent.data.event, resp: window.id }, "*");
+			}
 				break;
+			case "packets:save": {
+				const { packets } = event.originalEvent.data;
+				require("electron").ipcRenderer.send("packets:save", packets);
+			}
+				break;
+			case "packets:spam_start": {
+				const { packets, delay } = event.originalEvent.data;
+
+				p_packets = packets;
+
+				if (!p_intervalID)
+				{
+					p_intervalID = setIntervalAsync(function ()
+					{
+						Bot.getInstance().packets.sendServer(p_packets[idx++]);
+						if (idx >= p_packets.length)
+						{
+							idx = 0;
+						}
+					}, delay);
+				}
+			}
+				break;
+			case "packets:spam_stop": {
+				if (p_intervalID)
+				{
+					clearIntervalAsync(p_intervalID);
+					p_packets = [];
+					p_idx = 0;
+					p_intervalID = null;
+				}
+			} break;
 			case "tools:maid:start": {
 				const { player, skill_set } = event.originalEvent.data;
 				maid.on = true;
@@ -178,18 +233,28 @@
 			if (!window.id)
 			{
 				const { ipcRender } = require("electron");
-				ipcRenderer.send("window:game:generate_id");
+				ipcRenderer.send("game:generate_id");
 				console.log("Looks like we don't have an ID, assigning that now.");
 			}
 		}, 50);
 
-		$("#scripts").on("click", function ()
+		$("#scripts").click(function ()
 		{
-			const { ipcRenderer } = require("electron");
-			ipcRenderer.invoke("game:create_scripts", window.id);
+			if (!windows.scripts)
+			{
+				window.scripts = window.open("./pages/scripts.html", null, "width=451,height=370");
+				window.scripts.onload = function ()
+				{
+					windows.scripts.postMessage("scripts:window-id", window.id, "*");
+				}
+			}
+			else
+			{
+				windows.scripts.focus();
+			}
 		});
 
-		$("#tools").on("click", function ()
+		$("#tools").click(function ()
 		{
 			if (!windows.tools)
 			{
@@ -197,7 +262,6 @@
 				windows.tools.onload = function ()
 				{
 					windows.tools.postMessage("tools:window-id", window.id, "*");
-					windows.tools.addEventListener("beforeunload", () => console.log('hi'));
 				}
 			} else
 			{
@@ -205,10 +269,19 @@
 			}
 		});
 
-		$("#packets").on("click", function ()
+		$("#packets").click(function ()
 		{
-			const { ipcRenderer } = require("electron");
-			ipcRenderer.invoke("window:create:packets", window.id);
+			if (!windows.packets)
+			{
+				windows.packets = window.open("./pages/packets.html", null, "width=451,height=370");
+				windows.packets.onload = function ()
+				{
+					windows.packets.postMessage("packets:window-id", window.id, "*");
+				}
+			} else
+			{
+				windows.packets.focus();
+			}
 		});
 
 		function updateCells()
