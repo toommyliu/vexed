@@ -67,15 +67,19 @@ async function createGame(account = null)
 	const windowID = nanoid();
 	assignWindowID(window, windowID);
 
-	console.log(`Created a family with windowID: ${windowID}`);
+	console.log(`Created a family with windowID: "${windowID}"`);
 
 	if (account)
 	{
-		window.webContents.executeJavaScript(`window.account=${JSON.stringify(account)}`);
+		window.webContents.on('did-finish-load', function ()
+		{
+			window.webContents.send("game:login", account);
+		});
 	}
 
 	window.on("closed", function ()
 	{
+		console.log(`Removing family of windows under: "${windowID}".`);
 		windows.delete(windowID);
 	});
 }

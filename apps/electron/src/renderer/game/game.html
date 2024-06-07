@@ -94,6 +94,11 @@
 		console.log(`Your shared ID is: "${windowID}"`);
 		window.id = windowID;
 	});
+
+	ipcRenderer.on("game:login", function (event, account)
+	{
+		window.account = account;
+	});
 </script>
 
 <script>
