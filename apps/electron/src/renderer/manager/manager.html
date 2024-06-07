@@ -54,18 +54,12 @@
 </body>
 
 <script>
-	// TODO: use ipc
-	const electron = require("electron");
-	const { remote } = electron;
-	const { app } = remote;
-
+	const { ipcRenderer: ipc } = require("electron");
 	const fs = require("fs-extra");
 	const { join } = require("path");
 
-	const basePath = join(app.getPath("documents"), "Vexed");
-	const jsonPath = join(basePath, "accounts.json");
-
-	const { createGame } = remote.require("./windows.js");
+	let rootDir;
+	let jsonPath;
 
 	function readJSON()
 	{
@@ -142,10 +136,7 @@
 			{
 				event.stopPropagation();
 
-				await createGame({
-					...account,
-					server: $("#servers").val()
-				});
+				await ipc.invoke("manager:launch_game", { ...account, server: $("#servers").val() });
 			});
 
 			const removeBtn = $("<button>").addClass("btn btn-danger btn-sm").text("remove");
@@ -172,6 +163,12 @@
 
 	$(document).ready(async function ()
 	{
+		await ipc.invoke("manager:get_path").then(p =>
+		{
+			rootDir = p;
+			jsonPath = join(rootDir, "accounts.json");
+		});
+
 		await loadServers();
 		await renderAccounts();
 	});
@@ -205,7 +202,7 @@
 			const account = (await readJSON()).find((acc) => acc.username === _elem.parent()?.text());
 			if (account)
 			{
-				await createGame({ ...account, server: $("#servers").val() });
+				await ipc.invoke("manager:launch_game", { ...account, server: $("#servers").val() });
 			}
 			await new Promise((resolve) => setTimeout(resolve, 1000));
 		}
@@ -228,7 +225,7 @@
 				const account = (await readJSON()).find((acc) => acc.username === _elem.parent()?.text());
 				if (account)
 				{
-					await createGame({ ...account, server: $("#servers").val() });
+					await ipc.invoke("manager:launch_game", { ...account, server: $("#servers").val() });
 				}
 			}
 			await new Promise((resolve) => setTimeout(resolve, 1000));

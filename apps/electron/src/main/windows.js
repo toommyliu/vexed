@@ -25,7 +25,6 @@ async function createManager()
 		height: 552,
 		title: "Account Manager",
 		webPreferences: {
-			enableRemoteModule: true,
 			contextIsolation: false,
 			nodeIntegration: true,
 		}
@@ -47,7 +46,6 @@ async function createGame(account = null)
 		height: 552,
 		title: account?.username ?? "",
 		webPreferences: {
-			enableRemoteModule: true,
 			contextIsolation: false,
 			nodeIntegration: true,
 			plugins: true,

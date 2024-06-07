@@ -1,11 +1,21 @@
 const { app, ipcMain: ipc, BrowserWindow, dialog } = require("electron");
-const { assignWindowID } = require("./windows");
+const { assignWindowID, createGame } = require("./windows");
 const { nanoid } = require("nanoid");
 
 const fs = require("fs-extra");
 const { join } = require("path");
 
 const ROOT = join(app.getPath("documents"), "Vexed");
+
+ipc.handle("manager:get_path", function (event)
+{
+	return ROOT;
+});
+
+ipc.handle("manager:launch_game", async function (event, launchOptions)
+{
+	await createGame(launchOptions);
+});
 
 ipc.on("game:generate_id", function (event)
 {

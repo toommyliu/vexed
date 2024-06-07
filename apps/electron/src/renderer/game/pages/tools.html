@@ -78,28 +78,6 @@
 			}
 		}, 500);
 
-		// TODO: use ipc
-		const electron = require("electron");
-		const { remote } = electron;
-		const { app } = remote;
-		const { ipcRenderer: ipc } = electron;
-
-		const fs = require("fs-extra");
-		const { join } = require("path");
-
-		const basePath = join(app.getPath("documents"), "Vexed");
-		const jsonPath = join(basePath, "locations.json");
-
-		function readJSON()
-		{
-			return fs.readJSON(jsonPath).catch(() => []);
-		}
-
-		function writeJSON(json)
-		{
-			return fs.writeJSON(jsonPath, json, { spaces: 4 }).catch(() => { });
-		}
-
 		const locations = readJSON();
 
 		$(".tab-button").click(function ()
