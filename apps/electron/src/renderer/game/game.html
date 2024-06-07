@@ -303,15 +303,12 @@
 		{
 			if (maid.on)
 			{
-				if (!auth.loggedIn && world.loading)
-				{
-					console.log('wait');
-					await bot.sleep(500);
-				}
+				await bot.waitUntil(() => auth.loggedIn && !world.loading);
 
 				console.log('goto');
 				world.goto(maid.player);
 				console.log('wait');
+
 				await bot.waitUntil(() => flash.call(window.swf.PlayersInMap)?.includes(maid.player));
 				world.setSpawnpoint();
 
@@ -322,14 +319,24 @@
 
 				const skills = maid.skill_set.split(",")
 					.map(s => Number.parseInt(s.trim(), 10))
-					.filter(n => !Number.isNaN(n));
+					.filter(n => !Number.isNaN(n) && n >= 0 && n <= 5);
 
 				console.log('kill');
 
-				if (world.isMonsterAvailable("*") && !combat.hasTarget())
+				if (world.isMonsterAvailable("*"))
 				{
-					combat.attack("*");
-					await combat.useSkill(maid.skill_set[skillIdx++]);
+					if (!combat.hasTarget())
+					{
+						combat.attack("*");
+					}
+					settings.setInfiniteRange();
+
+					console.log(`use skill ${maid.skill_set[skillIdx]}`);
+					await combat.useSkill(maid.skill_set[skillIdx]);
+					if (++skillIdx >= maid.skill_set.length)
+					{
+						skillIdx = 0;
+					}
 				}
 
 				console.log('end');
