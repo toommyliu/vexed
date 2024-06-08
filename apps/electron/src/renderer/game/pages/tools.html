@@ -21,7 +21,7 @@
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
 		grid-gap: 20px;
-		padding: 20px;
+		padding-top: 8px;
 	}
 
 	.grid-item {
@@ -63,6 +63,7 @@
 				<p>Room number:</p>
 				<input type="number" value=100000 id="room-number">
 			</div>
+			<button class="w3-button w3-border w3-bar" id="refresh">refresh</button>
 			<div class="grid-container">
 			</div>
 		</div>
@@ -148,6 +149,11 @@
 			}
 		}, 500);
 
+		$("#refresh").click(async function ()
+		{
+			await renderFastTravels();
+		});
+
 		$(".tab-button").click(function ()
 		{
 			$(".tab").hide();
@@ -215,7 +221,8 @@
 			await writeJSON(locations);
 		});
 
-		var $gridContainer = $('.grid-container');
+		const container = $('.grid-container');
+		container.empty();
 
 		$.each(locations, function (index, loc)
 		{
@@ -224,13 +231,13 @@
 				return;
 			}
 
-			var $gridItem = $('<div class="grid-item w3-btn">' + loc.name + '<div class="tooltip">' +
+			const elem = $('<div class="grid-item w3-button w3-bar">' + loc.name + '<div class="tooltip">' +
 				'<p>Map: ' + loc.map + '</p>' +
 				'<p>Cell: ' + (loc.cell ?? "Enter") + '</p>' +
 				'<p>Pad: ' + (loc.pad ?? "Spawn") + '</p>' +
 				'</div></div>');
 
-			$gridItem.click(function ()
+			elem.click(function ()
 			{
 				parent.postMessage({
 					event: "tools:fast_travel:join",
@@ -238,7 +245,7 @@
 				}, "*");
 			});
 
-			$gridContainer.append($gridItem);
+			container.append(elem);
 		});
 	}
 </script>
