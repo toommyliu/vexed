@@ -1,30 +1,145 @@
-// var { ipcRenderer: ipc } = require("electron");
-// var { setIntervalAsync, clearIntervalAsync } = require("set-interval-async");
+var { setIntervalAsync, clearIntervalAsync } = require("set-interval-async/fixed");
+var { ipcRenderer: ipc } = require("electron");
 
-// let intervalID;
-// let idx = 0;
+ipc.on("generate-id", (event, windowID) =>
+{
+	console.log(`Your shared ID is: "${windowID}"`);
+	window.id = windowID;
+});
 
-// ipc.on("packets:spam_off", async function()
-// {
-// 	console.log("packets spam off hit");
-// 	if (intervalID)
-// 	{
-// 		await clearIntervalAsync(intervalID);
-// 		intervalID = null;
-// 		idx = 0;
-// 	}
-// });
+ipc.on("game:login", function (event, account)
+{
+	window.account = account;
+});
 
-// ipc.on("packets:spam", function (event, packets, delay)
-// {
-// 	if (!intervalID)
-// 	{
-// 		intervalID = setIntervalAsync(function() {
-// 			Bot.getInstance().packets.sendServer(packets[idx++]);
-// 			if (idx >= packets.length)
-// 			{
-// 				idx = 0;
-// 			}
-// 		}, delay);
-// 	}
-// });
+const windows = {};
+
+let maid = { on: false, player: null, skill_set: null };
+let skillIdx = 0;
+
+let p_intervalID = null;
+let p_idx = 0;
+let p_packets = [];
+
+$(window).on("message", async function (event)
+{
+	console.log("Received message", event.originalEvent.data);
+
+	switch (event.originalEvent.data.event)
+	{
+		case "packets:close": {
+			windows.packets = null;
+			if (p_intervalID)
+			{
+				clearIntervalAsync(p_intervalID);
+				p_packets = [];
+				p_idx = 0;
+				p_intervalID = null;
+			}
+		}
+		case "tools:close": {
+			windows.tools = null;
+			maid.on = false;
+		}
+			break;
+		case "packets:generate_id":
+		case "scripts:generate_id":
+		case "tools:generate_id": {
+			const wnd = event.originalEvent.data.event.split(":")[0]
+			windows[wnd] = event.originalEvent.source;
+			event.originalEvent.source.postMessage({ event: event.originalEvent.data.event, resp: window.id }, "*");
+		}
+			break;
+		case "packets:save": {
+			const { packets } = event.originalEvent.data;
+			require("electron").ipcRenderer.send("packets:save", packets);
+		}
+			break;
+		case "packets:spam_start": {
+			const { packets, delay } = event.originalEvent.data;
+
+			p_packets = packets;
+
+			if (!p_intervalID)
+			{
+				p_intervalID = setIntervalAsync(function ()
+				{
+					Bot.getInstance().packets.sendServer(p_packets[p_idx++]);
+					if (p_idx >= p_packets.length)
+					{
+						p_idx = 0;
+					}
+				}, delay);
+			}
+		}
+			break;
+		case "packets:spam_stop": {
+			if (p_intervalID)
+			{
+				clearIntervalAsync(p_intervalID);
+				p_packets = [];
+				p_idx = 0;
+				p_intervalID = null;
+			}
+		} break;
+		case "tools:maid:start": {
+			const { player, skill_set } = event.originalEvent.data;
+			maid.on = true;
+			maid.player = player;
+			maid.skill_set = skill_set;
+
+			if (!maid.skill_set.includes(","))
+			{
+				maid.skill_set = "1,2,3,4";
+			}
+
+			const skills = maid.skill_set.split(",")
+				.map(s => Number.parseInt(s.trim(), 10))
+				.filter(n => !Number.isNaN(n) && n >= 0 && n <= 5);
+			maid.skill_set = skills;
+
+			p_intervalID = setIntervalAsync(async function ()
+			{
+				if (maid.on)
+				{
+					await bot.waitUntil(() => auth.loggedIn && !world.loading);
+
+					console.log("goto");
+					world.goto(maid.player);
+					console.log("wait");
+
+					await bot.waitUntil(() => flash.call(window.swf.PlayersInMap)?.includes(maid.player));
+					world.setSpawnpoint();
+
+					console.log("kill");
+
+					if (world.isMonsterAvailable("*"))
+					{
+						if (!combat.hasTarget())
+						{
+							combat.attack("*");
+						}
+						settings.setInfiniteRange();
+
+						console.log(`use skill ${maid.skill_set[skillIdx]}`);
+						await combat.useSkill(maid.skill_set[skillIdx]);
+						await bot.sleep(150);
+
+						if (++skillIdx >= maid.skill_set.length)
+						{
+							skillIdx = 0;
+						}
+					}
+
+					console.log("end");
+				}
+			}, 1000);
+
+			break;
+		}
+		case "tools:maid:stop":
+			maid.on = false;
+			await clearIntervalAsync(p_intervalID);
+			break;
+	}
+});

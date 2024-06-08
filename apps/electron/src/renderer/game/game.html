@@ -63,77 +63,48 @@
 <script src="ipc/ipc.js"></script>
 
 <script>
-	window.addEventListener('DOMContentLoaded', () =>
+	$(function ()
 	{
-		var script = document.createElement('script');
-		script.textContent = `
-			var bot=Bot.getInstance();
-			var auth=bot.auth;
-			var bank=bot.bank;
-			var combat=bot.combat;
-			var drops=bot.drops;
-			var flash=bot.flash;
-			var house=bot.house;
-			var inventory=bot.inventory;
-			var packets=bot.packets;
-			var player=bot.player;
-			var quests=bot.quests;
-			var settings=bot.settings;
-			var shops=bot.shops;
-			var tempInventory=bot.tempInventory;
-			var world=bot.world;
-		`;
-		document.body.appendChild(script);
-	});
-</script>
+		$("<div>", {
+			id: "progress-container"
+		}).appendTo("body");
 
-<script>
-	var { ipcRenderer } = require('electron');
-	ipcRenderer.on("generate-id", (event, windowID) =>
-	{
-		console.log(`Your shared ID is: "${windowID}"`);
-		window.id = windowID;
-	});
+		$("<progress>", {
+			id: "progress",
+			max: 100,
+			value: 0
+		}).appendTo("#progress-container");
 
-	ipcRenderer.on("game:login", function (event, account)
-	{
-		window.account = account;
-	});
-</script>
-
-<script>
-	var { setIntervalAsync, clearIntervalAsync } = require("set-interval-async/fixed");
-
-	const windows = {};
-	let maid = { on: false, player: null, skill_set: null };
-
-	let p_intervalID;
-	let p_idx = 0;
-	let p_packets = [];
-
-	window.addEventListener('DOMContentLoaded', () =>
-	{
-		var div = document.createElement('div');
-		div.id = 'progress-container';
-		document.body.appendChild(div);
-
-		var progress = document.createElement('progress');
-		progress.id = 'progress';
-		progress.max = "100";
-		progress.value = "0";
-		document.getElementById('progress-container').appendChild(progress);
+		var script = $("<script><//script>").text(`
+			var bot = Bot.getInstance();
+			var auth = bot.auth;
+			var bank = bot.bank;
+			var combat = bot.combat;
+			var drops = bot.drops;
+			var flash = bot.flash;
+			var house = bot.house;
+			var inventory = bot.inventory;
+			var packets = bot.packets;
+			var player = bot.player;
+			var quests = bot.quests;
+			var settings = bot.settings;
+			var shops = bot.shops;
+			var tempInventory = bot.tempInventory;
+			var world = bot.world;
+		`);
+		$('body').append(script);
 	});
 
 	async function progress([percentage])
 	{
-		var progress = document.getElementById('progress');
-		progress.value = percentage.toString();
+		var elem = $('#progress');
+		elem.val(percentage.toString());
 
 		if (percentage === 100)
 		{
-			var progressContainer = document.getElementById('progress-container');
-			progress?.remove();
-			progressContainer?.remove();
+			var elem_ = $('#progress-container');
+			elem.remove();
+			elem_.remove();
 
 			if (window?.account)
 			{
@@ -152,95 +123,13 @@
 			}
 		}
 	}
+</script>
 
-	$(window).on("message", function (event)
+<script>
+	$(function ()
 	{
-		console.log("Received message", event.originalEvent.data);
-
-		switch (event.originalEvent.data.event)
-		{
-			case "packets:close": {
-				windows.packets = null;
-				if (p_intervalID)
-				{
-					clearIntervalAsync(p_intervalID);
-					p_packets = [];
-					p_idx = 0;
-					p_intervalID = null;
-				}
-			}
-			case "tools:close": {
-				windows.tools = null;
-				maid.on = false;
-			}
-				break;
-			case "packets:generate_id":
-			case "scripts:generate_id":
-			case "tools:generate_id": {
-				const wnd = event.originalEvent.data.event.split(":")[0]
-				windows[wnd] = event.originalEvent.source;
-				event.originalEvent.source.postMessage({ event: event.originalEvent.data.event, resp: window.id }, "*");
-			}
-				break;
-			case "packets:save": {
-				const { packets } = event.originalEvent.data;
-				require("electron").ipcRenderer.send("packets:save", packets);
-			}
-				break;
-			case "packets:spam_start": {
-				const { packets, delay } = event.originalEvent.data;
-
-				p_packets = packets;
-
-				if (!p_intervalID)
-				{
-					p_intervalID = setIntervalAsync(function ()
-					{
-						Bot.getInstance().packets.sendServer(p_packets[idx++]);
-						if (idx >= p_packets.length)
-						{
-							idx = 0;
-						}
-					}, delay);
-				}
-			}
-				break;
-			case "packets:spam_stop": {
-				if (p_intervalID)
-				{
-					clearIntervalAsync(p_intervalID);
-					p_packets = [];
-					p_idx = 0;
-					p_intervalID = null;
-				}
-			} break;
-			case "tools:maid:start": {
-				const { player, skill_set } = event.originalEvent.data;
-				maid.on = true;
-				maid.player = player;
-				maid.skill_set = skill_set;
-
-				if (!maid.skill_set.includes(","))
-				{
-					maid.skill_set = "1,2,3,4";
-				}
-
-				const skills = maid.skill_set.split(",")
-					.map(s => Number.parseInt(s.trim(), 10))
-					.filter(n => !Number.isNaN(n) && n >= 0 && n <= 5);
-				maid.skill_set = skills;
-
-				break;
-			}
-			case "tools:maid:stop":
-				maid.on = false;
-				break;
-		}
-	});
-
-	$(document).ready(function ()
-	{
-		const { setIntervalAsync, clearIntervalAsync } = require('set-interval-async/fixed');
+		const { ipcRenderer: ipc } = require("electron");
+		const { setIntervalAsync, clearIntervalAsync } = require("set-interval-async/fixed");
 
 		window.lastMap = null;
 
@@ -248,8 +137,7 @@
 		{
 			if (!window.id)
 			{
-				const { ipcRender } = require("electron");
-				ipcRenderer.send("game:generate_id");
+				ipc.send("game:generate_id");
 				console.log("Looks like we don't have an ID, assigning that now.");
 			}
 		}, 50);
@@ -316,7 +204,7 @@
 			const { cells } = world;
 			$.each(cells, function (_, option)
 			{
-				elem.append($('<option>', {
+				elem.append($("<option>", {
 					value: option,
 					text: option,
 				}));
@@ -325,7 +213,7 @@
 			window.lastMap = world.roomId;
 		}
 
-		$("#pads").on("change", async function ()
+		$("#pads").change(async function ()
 		{
 			const { auth, world } = Bot.getInstance();
 			if (!auth.loggedIn || world.loading)
@@ -340,7 +228,7 @@
 		});
 
 		$("#cells").on("click", updateCells)
-			.on("change", async function ()
+			.change(async function ()
 			{
 				const { auth, world } = Bot.getInstance();
 				if (!auth.loggedIn || world.loading)
@@ -386,44 +274,6 @@
 
 			bot.flash.call("world.toggleBank");
 		});
-
-		let skillIdx = 0;
-		setIntervalAsync(async function ()
-		{
-			if (maid.on)
-			{
-				await bot.waitUntil(() => auth.loggedIn && !world.loading);
-
-				console.log('goto');
-				world.goto(maid.player);
-				console.log('wait');
-
-				await bot.waitUntil(() => flash.call(window.swf.PlayersInMap)?.includes(maid.player));
-				world.setSpawnpoint();
-
-				console.log('kill');
-
-				if (world.isMonsterAvailable("*"))
-				{
-					if (!combat.hasTarget())
-					{
-						combat.attack("*");
-					}
-					settings.setInfiniteRange();
-
-					console.log(`use skill ${maid.skill_set[skillIdx]}`);
-					await combat.useSkill(maid.skill_set[skillIdx]);
-					await bot.sleep(150);
-
-					if (++skillIdx >= maid.skill_set.length)
-					{
-						skillIdx = 0;
-					}
-				}
-
-				console.log('end');
-			}
-		}, 1000);
 	});
 </script>
 
