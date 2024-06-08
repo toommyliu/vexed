@@ -1,4 +1,6 @@
-<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" type="text/css" href="../../shared/tree.css">
+</link>
+<script src="../../shared/tree.js"></script>
 <script>
 	window.$ = window.jQuery = require("../../shared/jquery.js");
 </script>
@@ -58,7 +60,7 @@
 	</div>
 
 	<div class="w3-container">
-		<div class="tab" id="fast-travel">
+		<div class="tab" id="fast-travel" style="display: none">
 			<div class="room-container">
 				<p>Room number:</p>
 				<input type="number" value=100000 id="room-number">
@@ -68,8 +70,14 @@
 			</div>
 		</div>
 
-		<div class="tab" id="loader-grabber" style="display:none">
+		<div class="tab" id="loader-grabber">
 			<p>hello from loader/grabber</p>
+			<div class="w3-container">
+				<button class="w3-button" id="grab-quests">grab quests</button>
+				<div class="w3-container">
+					<div id="tree" class="dark"></div>
+				</div>
+			</div>
 		</div>
 
 		<div class="tab" id="maid" style="display: none">
@@ -98,6 +106,8 @@
 	let jsonPath;
 	let locations = [];
 
+	let questTree = [];
+
 	function readJSON()
 	{
 		return fs.readJSON(jsonPath);
@@ -118,7 +128,7 @@
 
 	$(async function ()
 	{
-		await renderFastTravels();
+		// await renderFastTravels();
 
 		$(window).on("beforeunload", function (event)
 		{
@@ -127,7 +137,7 @@
 
 		$(window).on("message", async function (event)
 		{
-			// console.log("Received message", event.originalEvent.data);
+			console.log("Received message", event.originalEvent.data);
 
 			const ev = event.originalEvent;
 
@@ -137,6 +147,11 @@
 					window.id = ev.data.resp;
 					console.log(`Your shared ID is: "${window.id}"`);
 				}
+					break;
+				case "tools:loader_grabber:grab_quests":
+					questTree = ev.data.resp ?? [];
+					await renderQuestTree();
+					break;
 			}
 		});
 
@@ -149,10 +164,19 @@
 			}
 		}, 500);
 
+		//#region fast travels
 		$("#refresh").click(async function ()
 		{
 			await renderFastTravels();
 		});
+		//#endregion
+
+		//#region loader-grabber
+		$("#grab-quests").click(function ()
+		{
+			parent.postMessage({ event: "tools:loader_grabber:grab_quests" });
+		});
+		//#endregion
 
 		$(".tab-button").click(function ()
 		{
@@ -246,6 +270,81 @@
 			});
 
 			container.append(elem);
+		});
+	}
+	async function renderQuestTree()
+	{
+		$("#tree").empty();
+
+		var tree = new Tree(document.getElementById('tree'));
+
+		const json = questTree.map((quest) =>
+		{
+			return {
+				name: `${quest.QuestID} - ${quest.sName}`,
+				type: Tree.FOLDER,
+				children: [
+					{ name: `ID: ${quest.QuestID}` },
+					{ name: `Description: ${quest.sDesc}` },
+					{
+						name: "Required Items",
+						type: Tree.FOLDER,
+						children: Object.values(quest.oItems).map((i) =>
+						{
+							return {
+								name: i.sName,
+								type: Tree.FOLDER,
+								children: [
+									{
+										name: `ID: ${i.ItemID}`
+									},
+									{
+										name: `Quantity: ${i.iQty}`
+									},
+									{
+										name: `Temporary: ${i.bTemp ? "Yes" : "No"}`
+									},
+									{
+										name: `Description: ${i.sDesc ?? ""}`
+									}
+								]
+							}
+						})
+					},
+					{
+						name: "Rewards",
+						type: Tree.FOLDER,
+						children: quest.Rewards.map((i) =>
+						{
+							return {
+								name: i.sName,
+								type: Tree.FOLDER,
+								children: [
+									{
+										name: `ID: ${i.ItemID}`
+									},
+									{
+										name: `Quantity: ${i.iQty}`
+									},
+									{
+										name: `Drop chance: ${i.DropChance}`
+									},
+								]
+							}
+						})
+					}
+				]
+			}
+		});
+
+		tree.json(json);
+
+		$('summary').each(function (index, elem)
+		{
+			$(elem).contextmenu(function ()
+			{
+				console.log($(this).text());
+			});
 		});
 	}
 </script>

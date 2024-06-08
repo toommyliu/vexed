@@ -97,6 +97,10 @@ $(window).on("message", async function (event)
 			await Bot.getInstance().world.join(`${map}-${_roomNumber}`, cell ?? "Enter", pad ?? "Spawn");
 		}
 			break;
+		case "tools:loader_grabber:grab_quests": {
+			event.originalEvent.source.postMessage({ event: event.originalEvent.data.event, resp: flash.call(window.swf.GetQuestTree) }, "*");
+		}
+			break;
 		case "tools:maid:start": {
 			const { player, skill_set } = event.originalEvent.data;
 			maid.on = true;
