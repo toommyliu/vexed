@@ -71,10 +71,7 @@ async function createGame(account = null)
 
 	if (account)
 	{
-		window.webContents.on('did-finish-load', function ()
-		{
-			window.webContents.send("game:login", account);
-		});
+		window.webContents.send("game:login", account);
 	}
 
 	window.on("closed", function ()
