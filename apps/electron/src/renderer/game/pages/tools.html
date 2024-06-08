@@ -8,11 +8,41 @@
 		color: lightgrey;
 	}
 
-	.container-1 {
-		width: fit-content;
+	.room-container {
 		display: flex;
-		flex-direction: column;
-		margin-top: 8px;
+		align-items: center;
+	}
+
+	.room-container p {
+		margin-right: 10px;
+	}
+
+	.grid-container {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+		grid-gap: 20px;
+		padding: 20px;
+	}
+
+	.grid-item {
+		border: 1px solid #ccc;
+		padding: 10px;
+		text-align: center;
+	}
+
+	.tooltip {
+		visibility: hidden;
+		background-color: #555;
+		color: #fff;
+		text-align: center;
+		padding: 5px 0;
+		position: absolute;
+		z-index: 1;
+		width: auto;
+	}
+
+	.grid-item:hover .tooltip {
+		visibility: visible;
 	}
 
 	#skills {
@@ -28,15 +58,20 @@
 	</div>
 
 	<div class="w3-container">
-		<div class="tab" id="fast-travel" style="display: none">
-			<p>hello from fast travel</p>
+		<div class="tab" id="fast-travel">
+			<div class="room-container">
+				<p>Room number:</p>
+				<input type="number" value=100000 id="room-number">
+			</div>
+			<div class="grid-container">
+			</div>
 		</div>
 
 		<div class="tab" id="loader-grabber" style="display:none">
 			<p>hello from loader/grabber</p>
 		</div>
 
-		<div class="tab" id="maid">
+		<div class="tab" id="maid" style="display: none">
 			<div class="w3-container w3-border container-1">
 				<p>goto player</p>
 				<input id="player"></input>
@@ -49,16 +84,47 @@
 </main>
 
 <script>
-	let parent = window.opener;
+	// TODO: support maps that require bypass
+	// TODO: add support for room-hopping
+	const { ipcRenderer: ipc } = require("electron");
 
-	$(document).ready(function ()
+	const fs = require("fs-extra");
+	const { join } = require("path");
+
+	const parent = window.opener;
+
+	let rootDir;
+	let jsonPath;
+	let locations = [];
+
+	function readJSON()
 	{
+		return fs.readJSON(jsonPath);
+	}
+	function writeJSON(json)
+	{
+		return fs.writeJSON(jsonPath, json, { spaces: 4 });
+	}
+
+	(async () =>
+	{
+		await ipc.invoke("manager:get_path").then(p =>
+		{
+			rootDir = p;
+			jsonPath = join(rootDir, "fast-travels.json");
+		});
+	})();
+
+	$(async function ()
+	{
+		await renderFastTravels();
+
 		$(window).on("beforeunload", function (event)
 		{
 			parent.postMessage({ event: "tools:close" }, "*");
 		});
 
-		$(window).on("message", function (event)
+		$(window).on("message", async function (event)
 		{
 			// console.log("Received message", event.originalEvent.data);
 
@@ -69,7 +135,6 @@
 				case "tools:generate_id": {
 					window.id = ev.data.resp;
 					console.log(`Your shared ID is: "${window.id}"`);
-					break;
 				}
 			}
 		});
@@ -118,4 +183,62 @@
 			}
 		});
 	});
+
+	async function renderFastTravels()
+	{
+		await fs.ensureFile(jsonPath);
+		await readJSON(jsonPath).then(function (out)
+		{
+			locations = out;
+		}).catch(async function ()
+		{
+			locations = [
+				{ name: "oblivion", map: "tercessuinotlim" },
+				{ name: "twins", map: "tercessuinotlim", "cell": "Twins", "pad": "Left" },
+				{ name: "vhl/taro/zee", map: "tercessuinotlim", "cell": "Taro", "pad": "Left" },
+				{ name: "swindle", map: "tercessuinotlim", "cell": "Swindle", "pad": "Left" },
+				{ name: "nulgath/skew", map: "tercessuinotlim", "cell": "Boss2", "pad": "Right" },
+				{ name: "polish", map: "tercessuinotlim", "cell": "m12", "pad": "Top" },
+				{ name: "carnage/ninja", map: "tercessuinotlim", "cell": "m4", "pad": "Top" },
+				{ name: "binky", map: "doomvault", "cell": "r5", "pad": "Left" },
+				{ name: "dage", map: "underworld", "cell": "s1", "pad": "Left" },
+				{ name: "escherion", map: "escherion", "cell": "Boss", "pad": "Left" },
+				{ name: "klunk", map: "underworld", "cell": "r11", "pad": "Left" },
+				// { name: "ice spirit", map: "icestormunder", "cell": "Enter", "pad": "Spawn" },
+				// { name: "doomvaultb", map: "tercessuinotlim", "cell": "Enter", "pad": "Spawn" },
+				// { name: "treetitanbattle", map: "tercessuinotlim", "cell": "Enter", "pad": "Spawn" },
+				// { name: "ultradrakath", map: "tercessuinotlim", "cell": "Enter", "pad": "Spawn" },
+				// { name: "towerofdoom10", map: "tercessuinotlim", "cell": "Enter", "pad": "Spawn" },
+				// { name: "necrodungeon", map: "tercessuinotlim", "cell": "Enter", "pad": "Spawn" },
+			];
+
+			await writeJSON(locations);
+		});
+
+		var $gridContainer = $('.grid-container');
+
+		$.each(locations, function (index, loc)
+		{
+			if (!loc?.name || !loc?.map)
+			{
+				return;
+			}
+
+			var $gridItem = $('<div class="grid-item w3-btn">' + loc.name + '<div class="tooltip">' +
+				'<p>Map: ' + loc.map + '</p>' +
+				'<p>Cell: ' + (loc.cell ?? "Enter") + '</p>' +
+				'<p>Pad: ' + (loc.pad ?? "Spawn") + '</p>' +
+				'</div></div>');
+
+			$gridItem.click(function ()
+			{
+				parent.postMessage({
+					event: "tools:fast_travel:join",
+					data: { ...loc, roomNumber: $("#room-number").val() }
+				}, "*");
+			});
+
+			$gridContainer.append($gridItem);
+		});
+	}
 </script>

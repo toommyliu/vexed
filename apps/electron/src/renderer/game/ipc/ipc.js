@@ -49,6 +49,7 @@ $(window).on("message", async function (event)
 			windows[wnd] = event.originalEvent.source;
 			event.originalEvent.source.postMessage({ event: event.originalEvent.data.event, resp: window.id }, "*");
 		}
+			//#region packets
 			break;
 		case "packets:save": {
 			const { packets } = event.originalEvent.data;
@@ -82,6 +83,20 @@ $(window).on("message", async function (event)
 				p_intervalID = null;
 			}
 		} break;
+		//#endregion
+		//#region tools
+		case "tools:fast_travel:join": {
+			if (!auth.loggedIn)
+			{
+				return;
+			}
+
+			const { map, cell, pad, roomNumber } = event.originalEvent.data.data;
+			const _roomNumber = Number.parseInt(roomNumber, 10);
+
+			await Bot.getInstance().world.join(`${map}-${_roomNumber}`, cell ?? "Enter", pad ?? "Spawn");
+		}
+			break;
 		case "tools:maid:start": {
 			const { player, skill_set } = event.originalEvent.data;
 			maid.on = true;
@@ -141,5 +156,6 @@ $(window).on("message", async function (event)
 			maid.on = false;
 			await clearIntervalAsync(p_intervalID);
 			break;
+		//#endregion
 	}
 });
