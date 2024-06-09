@@ -4,7 +4,8 @@
 	"main": "src/main/index.js",
 	"scripts": {
 		"postinstall": "node scripts/postinstall.js",
-		"dev": "electronmon .",
+		"dev": "electron .",
+		"dev:watch": "electronmon .",
 		"build": "electron-builder build",
 		"jsdoc": "node scripts/gen-jsdoc.js",
 		"format": "biome format src/",
