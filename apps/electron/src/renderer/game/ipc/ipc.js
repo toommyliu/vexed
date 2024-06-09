@@ -98,6 +98,36 @@ $(window).on("message", async function (event)
 			// await Bot.getInstance().world.join(`${map}-${_roomNumber}`, cell ?? "Enter", pad ?? "Spawn");
 		}
 			break;
+		case "tools:loader_grabber:load_hair_shop":
+			Bot.getInstance().shops.loadHairShop(event.originalEvent.data.resp);
+			break;
+		case "tools:loader_grabber:load_shop":
+			await Bot.getInstance().shops.load(event.originalEvent.data.resp);
+			break;
+		case "tools:loader_grabber:load_quest":
+			await Bot.getInstance().quests.load(event.originalEvent.data.resp);
+			break;
+		case "tools:loader_grabber:grab_shop":
+			event.originalEvent.source.postMessage({ event: event.originalEvent.data.event, resp: Bot.getInstance().shops.info }, "*");
+			break;
+		case "tools:loader_grabber:grab_quests":
+			event.originalEvent.source.postMessage({ event: event.originalEvent.data.event, resp: Bot.getInstance().flash.call(window.swf.GetQuestTree) }, "*");
+			break;
+		case "tools:loader_grabber:grab_inventory":
+			event.originalEvent.source.postMessage({ event: event.originalEvent.data.event, resp: Bot.getInstance().flash.call(window.swf.GetInventoryItems) }, "*");
+			break;
+		case "tools:loader_grabber:grab_temp_inventory":
+			event.originalEvent.source.postMessage({ event: event.originalEvent.data.event, resp: Bot.getInstance().flash.call(window.swf.GetTempItems) }, "*");
+			break;
+		case "tools:loader_grabber:grab_bank":
+			event.originalEvent.source.postMessage({ event: event.originalEvent.data.event, resp: Bot.getInstance().flash.call(window.swf.GetBankItems) }, "*");
+			break;
+		case "tools:loader_grabber:grab_monsters":
+			event.originalEvent.source.postMessage({ event: event.originalEvent.data.event, resp: Bot.getInstance().flash.call(window.swf.GetMonstersInCell) }, "*");
+			break;
+		case "tools:loader_grabber:load_armor_customize":
+			Bot.getInstance().shops.loadArmorCustomise();
+			break;
 		case "tools:loader_grabber:grab_quests": {
 			event.originalEvent.source.postMessage({ event: event.originalEvent.data.event, resp: flash.call(window.swf.GetQuestTree) }, "*");
 		}
