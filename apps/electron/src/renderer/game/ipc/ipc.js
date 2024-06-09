@@ -128,9 +128,11 @@ $(window).on("message", async function (event)
 		case "tools:loader_grabber:load_armor_customize":
 			Bot.getInstance().shops.loadArmorCustomise();
 			break;
-		case "tools:loader_grabber:grab_quests": {
+		case "tools:loader_grabber:grab_quests":
 			event.originalEvent.source.postMessage({ event: event.originalEvent.data.event, resp: flash.call(window.swf.GetQuestTree) }, "*");
-		}
+			break;
+		case "tools:maid:me":
+			event.originalEvent.source.postMessage({ event: event.originalEvent.data.event, resp: Bot.getInstance().auth.username }, "*");
 			break;
 		case "tools:maid:start": {
 			const { player, skill_set } = event.originalEvent.data;

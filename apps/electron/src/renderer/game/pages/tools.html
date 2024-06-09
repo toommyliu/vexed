@@ -74,7 +74,7 @@
 			</div>
 		</div>
 
-		<div class="tab" id="loader-grabber">
+		<div class="tab" id="loader-grabber" style="display: none">
 			<div class="container-fluid">
 				<div class="d-flex flex-column gap-2">
 					<input type="number" id="loader-id" style="width: 200px;">
@@ -109,14 +109,34 @@
 			</div>
 		</div>
 
-		<div class="tab" id="maid" style="display: none">
-			<div class="w3-container w3-border container-1">
-				<p>goto player</p>
-				<input id="player"></input>
-				<p>skill set</p>
-				<input id="skills" value="1,2,3,4"></input>
+		<div class="tab" id="maid">
+			<div class="container-fluid">
+				<div class="row gap-4">
+					<div class="col-md-6" style="width: 300px;">
+						<div class="border p-3">
+							<div class="d-flex flex-column mr-4">
+								<label>goto player</label>
+								<div class="d-flex flex-row gap-2">
+									<input id="player" class="form-control" type="text">
+									<div class="input-group-append">
+										<button class="w3-button border" id="me">me</button>
+									</div>
+								</div>
+								<label class="mt-3">skill set</label>
+								<input id="skills" class="form-control" type="text" value="1,2,3,4">
+							</div>
+						</div>
+					</div>
+					<div class="col-md-3">
+						<div class="border p-3">
+							<div class="form-check">
+								<input type="checkbox" id="start" class="form-check-input">
+								<label for="start" class="form-check-label">Start</label>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
-			<input id="start" type="checkbox">start</input>
 		</div>
 	</div>
 </main>
@@ -186,10 +206,10 @@
 					grabberData = ev.data.resp ?? [];
 					await renderGrabberTree(ev.data.event.substring("tools:loader_grabber:grab".length + 1));
 				}
-				// case "tools:loader_grabber:grab_quests":
-				// 	questTree = ev.data.resp ?? [];
-				// 	await renderQuestTree();
-				// 	break;
+					break;
+				case "tools:maid:me":
+					$("#player").val(ev.data.resp ?? "");
+					break;
 			}
 		});
 
@@ -288,7 +308,12 @@
 			}
 		});
 
-		$("#start").click(function (event)
+		$("#me").click(function ()
+		{
+			parent.postMessage({ event: "tools:maid:me" }, "*");
+		});
+
+		$("#start").click(function ()
 		{
 			if ($(this).prop("checked"))
 			{
