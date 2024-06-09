@@ -369,8 +369,6 @@
 	{
 		$("#tree").empty();
 
-		var tree = new Tree(document.getElementById('tree'));
-
 		let json;
 
 		switch (type)
@@ -395,6 +393,12 @@
 				break;
 		}
 
+		if (!json)
+		{
+			return;
+		}
+
+		const tree = new Tree(document.getElementById('tree'));
 		tree.json(json);
 
 		$('summary').each(function (index, elem)
@@ -408,7 +412,7 @@
 
 	function mapShop()
 	{
-		return grabberData?.["items"].map((item) =>
+		return grabberData?.["items"]?.map((item) =>
 		{
 			return {
 				name: item.sName,
