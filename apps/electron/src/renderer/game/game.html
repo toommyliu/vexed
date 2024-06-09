@@ -92,7 +92,7 @@
 			var tempInventory = bot.tempInventory;
 			var world = bot.world;
 		`);
-		$('body').append(script);
+		$("body").append(script);
 	});
 
 	async function progress([percentage])
@@ -105,6 +105,8 @@
 			var elem_ = $('#progress-container');
 			elem.remove();
 			elem_.remove();
+
+			$("#nav").show();
 
 			if (window?.account)
 			{
@@ -281,7 +283,7 @@
 	<embed id="swf" src="grimoire.swf" type="application/x-shockwave-flash"></embed>
 </div>
 
-<div class="w3-bar w3-fixed-top" style="background-color: #24242e; color: lightgrey; height: 27px;">
+<div class="w3-bar w3-fixed-top" style="background-color: #24242e; color: lightgrey; height: 27px; display: none" id="nav">
 	<a href="#" class="w3-bar-item w3-button w3-small" id="scripts">scripts</a>
 	<a href="#" class="w3-bar-item w3-button w3-small" id="tools">tools</a>
 	<a href="#" class="w3-bar-item w3-button w3-small" id="packets">packets</a>
