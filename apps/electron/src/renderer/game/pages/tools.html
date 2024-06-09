@@ -1,5 +1,15 @@
 <link rel="stylesheet" type="text/css" href="../../shared/tree.css">
-</link>
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" crossorigin="anonymous"
+	referrerpolicy="no-referrer">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap-grid.min.css"
+	integrity="sha512-i1b/nzkVo97VN5WbEtaPebBG8REvjWeqNclJ6AItj7msdVcaveKrlIIByDpvjk5nwHjXkIqGZscVxOrTb9tsMA=="
+	crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap-utilities.min.css"
+	integrity="sha512-4ocAKAxnrkSm7MvkkF1D435kko3/HWWvoi/U9+7+ln94B/U01Mggca05Pm3W59BIv3abl0U3MPdygAPLo5aeqg=="
+	crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap-reboot.min.css"
+	integrity="sha512-HJaQ4y3YcUGCWikWDn8bFeGTy3Z/3IbxFYQ9G3UAWx16PyTL6Nu5P/BDDV9s0WhK3Sq27Wtbk/6IcwGmGSMXYg=="
+	crossorigin="anonymous" referrerpolicy="no-referrer" />
 <script src="../../shared/tree.js"></script>
 <script>
 	window.$ = window.jQuery = require("../../shared/jquery.js");
@@ -8,15 +18,6 @@
 	body {
 		background-color: #24242e;
 		color: lightgrey;
-	}
-
-	.room-container {
-		display: flex;
-		align-items: center;
-	}
-
-	.room-container p {
-		margin-right: 10px;
 	}
 
 	.grid-container {
@@ -54,27 +55,28 @@
 
 <main>
 	<div class="w3-bar w3-black">
-		<button class="w3-bar-item w3-button tab-button" data-target="fast-travel">fast travel</button>
+		<button class="w3-bar-item w3-button tab-button" data-target="fast-travels">fast travels</button>
 		<button class="w3-bar-item w3-button tab-button" data-target="loader-grabber">loader/grabber</button>
 		<button class="w3-bar-item w3-button tab-button" data-target="maid">maid</button>
 	</div>
 
-	<div class="w3-container">
-		<div class="tab" id="fast-travel" style="display: none">
-			<div class="room-container">
-				<p>Room number:</p>
-				<input type="number" value=100000 id="room-number">
+	<div class="container-fluid mt-4">
+		<div class="tab" id="fast-travels">
+			<div class="container-fluid d-flex flex-row justify-content-between gap-4">
+				<div class="d-flex">
+					<p>room number:</p>
+					<input type="number" value="100000" id="room-number" style="width: 100px ;height: 20px; margin-left: 4px; margin-top: 4px;">
+				</div>
+				<button class="w3-button w3-border h-25" id="refresh">refresh</button>
 			</div>
-			<button class="w3-button w3-border w3-bar" id="refresh">refresh</button>
-			<div class="grid-container">
+			<div class="container-fluid grid-container">
 			</div>
 		</div>
 
-		<div class="tab" id="loader-grabber">
-			<p>hello from loader/grabber</p>
-			<div class="w3-container">
+		<div class="tab" id="loader-grabber" style="display: none">
+			<div class="w3-panel">
 				<button class="w3-button" id="grab-quests">grab quests</button>
-				<div class="w3-container">
+				<div class="w3-container w3-border">
 					<div id="tree" class="dark"></div>
 				</div>
 			</div>
@@ -128,7 +130,7 @@
 
 	$(async function ()
 	{
-		// await renderFastTravels();
+		await renderFastTravels();
 
 		$(window).on("beforeunload", function (event)
 		{
@@ -187,7 +189,7 @@
 
 			switch (target)
 			{
-				case "fast-travel":
+				case "fast-travels":
 					break;
 				case "loader-grabber":
 					break;

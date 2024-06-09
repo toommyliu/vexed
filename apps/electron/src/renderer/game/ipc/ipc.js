@@ -94,7 +94,8 @@ $(window).on("message", async function (event)
 			const { map, cell, pad, roomNumber } = event.originalEvent.data.data;
 			const _roomNumber = Number.parseInt(roomNumber, 10);
 
-			await Bot.getInstance().world.join(`${map}-${_roomNumber}`, cell ?? "Enter", pad ?? "Spawn");
+			Bot.getInstance().flash.call(window.swf.Join, `${map}-${_roomNumber}`, cell ?? "Enter", pad ?? "Spawn");
+			// await Bot.getInstance().world.join(`${map}-${_roomNumber}`, cell ?? "Enter", pad ?? "Spawn");
 		}
 			break;
 		case "tools:loader_grabber:grab_quests": {
