@@ -31,9 +31,19 @@ Any modern version of Node.js should work fine. As long as its LTS or higher, yo
 
 ### Running the app
 
-To run in development mode, you can the `dev` script in either the project root or electron root. HMR is supported so any changes will be reflected immediately.
+To run in development mode, you can the `dev` script in either the project root or electron root. If you need HMR, run `dev:watch` inside the electron root.
 
 If you recently just installed dependencies for the first time and are starting a dev build, it may take some time for Rosetta to translate the binary for x64.
+
+#### During development
+
+During development, it can be tedious to have the window constantly opening and closing, slowing development.
+
+If you aren't relying on HMR, you can simply save changes locally in your code editor, then in the corresponding window, press CMD+SHIFT+R. If you edit the game window, make sure you click outside of the game (e.g click the top nav to focus it), then press the shortcut.
+
+For example, if you want to refresh the Tools window, save, then click onto the Tools window and press CMD+SHIFT+R. Any local changes since then should now be reflected.
+
+From observation, this only works if changes were made to the renderer and not the main application. In this case, you may need to relaunch.
 
 ### Compilation
 

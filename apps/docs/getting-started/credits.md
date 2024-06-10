@@ -7,4 +7,4 @@ Most of the Flash-related code (basically everything) is derived from:
 
 The scripting API aims to be similar to that of Skua, but provide the simplicity and stability that grimlite-li provides.
 
-The grimlite-li loader is specifically used for this reason.
+More specifically, the UI is literally copied from Grimoire (because designing UIs is already difficult) so you can expect an easy transition.

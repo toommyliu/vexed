@@ -26,6 +26,17 @@ export default defineConfig({
 				],
 			},
 			{
+				text: "Usage",
+				items: [
+					{
+						text: "Scripts",
+						link: "/usage/scripts",
+					},
+					{ text: "Tools", link: "/usage/tools" },
+					{ text: "packets", link: "/usage/packets" }
+				],
+			},
+			{
 				text: "Scripting API",
 				items: [
 					{ text: "API Reference", link: "/api" },
