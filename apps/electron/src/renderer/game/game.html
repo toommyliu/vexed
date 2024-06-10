@@ -1,0 +1,308 @@
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<style>
+	html,
+	body {
+		height: 100%;
+		width: 100%;
+		margin: 0;
+	}
+
+	#swf {
+		position: fixed;
+		bottom: 0;
+		right: 0;
+		width: 100%;
+		height: calc(100% - 27px);
+	}
+
+	#progress-container {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: black;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	#progress {
+		width: 75%;
+	}
+</style>
+<script>
+	// https://github.com/electron/electron/issues/254
+	window.$ = window.jQuery = require("../shared/jquery.js");
+</script>
+
+<script src="jsapi/ItemBase.js"></script>
+<script src="jsapi/Faction.js"></script>
+<script src="jsapi/Quest.js"></script>
+<script src="jsapi/Avatar.js"></script>
+<script src="jsapi/Monster.js"></script>
+
+<script src="jsapi/Auth.js"></script>
+<script src="jsapi/Bank.js"></script>
+<script src="jsapi/Bot.js"></script>
+<script src="jsapi/Combat.js"></script>
+<script src="jsapi/Drops.js"></script>
+<script src="jsapi/Flash.js"></script>
+<script src="jsapi/House.js"></script>
+<script src="jsapi/Inventory.js"></script>
+<script src="jsapi/Packet.js"></script>
+<script src="jsapi/Player.js"></script>
+<script src="jsapi/Quests.js"></script>
+<script src="jsapi/Server.js"></script>
+<script src="jsapi/Settings.js"></script>
+<script src="jsapi/Shops.js"></script>
+<script src="jsapi/TempInventory.js"></script>
+<script src="jsapi/World.js"></script>
+
+<script src="ipc/flash-ipc.js" defer></script>
+<script src="ipc/ipc.js" defer></script>
+
+<script>
+	$(function ()
+	{
+		$("<div>", {
+			id: "progress-container"
+		}).appendTo("body");
+
+		$("<progress>", {
+			id: "progress",
+			max: 100,
+			value: 0
+		}).appendTo("#progress-container");
+
+		var script = $("<script><//script>").text(`
+			var bot = Bot.getInstance();
+			var auth = bot.auth;
+			var bank = bot.bank;
+			var combat = bot.combat;
+			var drops = bot.drops;
+			var flash = bot.flash;
+			var house = bot.house;
+			var inventory = bot.inventory;
+			var packets = bot.packets;
+			var player = bot.player;
+			var quests = bot.quests;
+			var settings = bot.settings;
+			var shops = bot.shops;
+			var tempInventory = bot.tempInventory;
+			var world = bot.world;
+		`);
+		$("body").append(script);
+	});
+
+	async function progress([percentage])
+	{
+		var elem = $('#progress');
+		elem.val(percentage.toString());
+
+		if (percentage === 100)
+		{
+			var elem_ = $('#progress-container');
+			elem.remove();
+			elem_.remove();
+
+			$("#nav").show();
+
+			if (window?.account)
+			{
+				const { username, password, server } = window.account;
+				const bot = Bot.getInstance();
+				await bot.sleep(1000);
+				await auth.login(username, password);
+				if (server !== "None")
+				{
+					await bot.waitUntil(() => auth?.servers?.length > 0);
+					await bot.sleep(250);
+					await auth.connect(server);
+					await bot.sleep(1000);
+				}
+				delete window.account;
+			}
+		}
+	}
+</script>
+
+<script>
+	$(function ()
+	{
+		const { ipcRenderer: ipc } = require("electron");
+		const { setIntervalAsync, clearIntervalAsync } = require("set-interval-async/fixed");
+
+		window.lastMap = null;
+
+		setTimeout(function ()
+		{
+			if (!window.id)
+			{
+				ipc.send("game:generate_id");
+				console.log("Looks like we don't have an ID, assigning that now.");
+			}
+		}, 50);
+
+		$("#scripts").click(function ()
+		{
+			if (!windows.scripts)
+			{
+				window.scripts = window.open("./pages/scripts.html", null, "width=451,height=370");
+				window.scripts.onload = function ()
+				{
+					windows.scripts.postMessage("scripts:window-id", window.id, "*");
+				}
+			}
+			else
+			{
+				windows.scripts.focus();
+			}
+		});
+
+		$("#tools").click(function ()
+		{
+			if (!windows.tools)
+			{
+				windows.tools = window.open("./pages/tools.html", null, "width=451,height=370");
+				windows.tools.onload = function ()
+				{
+					windows.tools.postMessage("tools:window-id", window.id, "*");
+				}
+			} else
+			{
+				windows.tools.focus();
+			}
+		});
+
+		$("#packets").click(function ()
+		{
+			if (!windows.packets)
+			{
+				windows.packets = window.open("./pages/packets.html", null, "width=451,height=370");
+				windows.packets.onload = function ()
+				{
+					windows.packets.postMessage("packets:window-id", window.id, "*");
+				}
+			} else
+			{
+				windows.packets.focus();
+			}
+		});
+
+		function updateCells()
+		{
+			const bot = Bot.getInstance();
+			const { auth, player, world } = bot;
+
+			if (!auth.loggedIn || world.loading || window.lastMap === bot.world.roomId)
+			{
+				return;
+			}
+
+			const elem = $("#cells");
+			elem.empty();
+
+			const { cells } = world;
+			$.each(cells, function (_, option)
+			{
+				elem.append($("<option>", {
+					value: option,
+					text: option,
+				}));
+			});
+
+			window.lastMap = world.roomId;
+		}
+
+		$("#pads").change(async function ()
+		{
+			const { auth, world } = Bot.getInstance();
+			if (!auth.loggedIn || world.loading)
+			{
+				return;
+			}
+
+			const cell = $("#cells").val() ?? player.cell;
+			const pad = $(this).val();
+
+			await Bot.getInstance().world.jump(cell, pad);
+		});
+
+		$("#cells").on("click", updateCells)
+			.change(async function ()
+			{
+				const { auth, world } = Bot.getInstance();
+				if (!auth.loggedIn || world.loading)
+				{
+					return;
+				}
+
+				const cell = $(this).val();
+				const pad = $("#pads").val() ?? "Spawn";
+
+				await Bot.getInstance().world.jump(cell, pad);
+			});
+
+		$("#x").on("click", async function ()
+		{
+			const { auth, player, world } = Bot.getInstance();
+			if (!auth.loggedIn || world.loading)
+			{
+				return;
+			}
+
+			const cells = $("#cells");
+			const pads = $("#pads");
+
+			if (!cells.val())
+			{
+				updateCells();
+			}
+
+			cells.val(player.cell ?? "Enter");
+			pads.val(player.pad ?? "Spawn");
+
+			await world.jump(cells.val(), pads.val(), true);
+		});
+
+		$("#bank").on("click", function ()
+		{
+			const bot = Bot.getInstance();
+			if (!auth.loggedIn)
+			{
+				return;
+			}
+
+			bot.flash.call("world.toggleBank");
+		});
+	});
+</script>
+
+<div style="position: relative;">
+	<embed id="swf" src="grimoire.swf" type="application/x-shockwave-flash"></embed>
+</div>
+
+<div class="w3-bar w3-fixed-top" style="background-color: #24242e; color: lightgrey; height: 27px; display: none" id="nav">
+	<a href="#" class="w3-bar-item w3-button w3-small" id="scripts">scripts</a>
+	<a href="#" class="w3-bar-item w3-button w3-small" id="tools">tools</a>
+	<a href="#" class="w3-bar-item w3-button w3-small" id="packets">packets</a>
+	<button class="w3-bar-item w3-button w3-border w3-small w3-right" id="bank"
+		style="height: 21px; margin-top: 4px; margin-left: 10px; margin-right: 5px; padding: 0 8px;">bank</button>
+	<button class="w3-bar-item w3-button w3-border w3-small w3-right" id="x"
+		style="height: 21px; margin-top: 4px; margin-left: 4px; margin-right: -2px; padding: 0 4px;">x</button>
+	<select class="w3-bar-item w3-border w3-small w3-right" id="cells" disabled
+		style="height: 21px; margin-top: 4px; margin-left: 10px; padding: 0 4px; width: 100px; background-color: #24242e; color: lightgrey"></select>
+	<select class="w3-bar-item w3-border w3-small w3-right" id="pads" disabled
+		style="height: 21px; margin-top: 4px; margin-right: -4px; padding: 0 10px; width: 100px; background-color: #24242e; color: lightgrey">
+		<option value="" selected disabled hidden></option>
+		<option value="Center">Center</option>
+		<option value="Spawn">Spawn</option>
+		<option value="Left">Left</option>
+		<option value="Right">Right</option>
+		<option value="Top">Top</option>
+		<option value="Bottom">Bottom</option>
+		<option value="Up">Up</option>
+		<option value="Down">Down</option>
+	</select>
+</div>

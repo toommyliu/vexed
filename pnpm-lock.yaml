@@ -23,15 +23,15 @@ importers:
       '@electron/get':
         specifier: ^3.0.0
         version: 3.0.0
-      async-mutex:
-        specifier: ^0.5.0
-        version: 0.5.0
       extract-zip:
         specifier: ^2.0.1
         version: 2.0.1
       fs-extra:
         specifier: ^11.2.0
         version: 11.2.0
+      nanoid:
+        specifier: ^3.3.7
+        version: 3.3.7
       nw-flash-trust:
         specifier: ^0.3.0
         version: 0.3.0
@@ -768,9 +768,6 @@ packages:
   async-exit-hook@2.0.1:
     resolution: {integrity: sha512-NW2cX8m1Q7KPA7a5M2ULQeZ2wR5qI5PAbw5L0UOMxdioVk9PMZ0h1TmyZEkPYrCvYjDlFICusOu1dlEKAAeXBw==}
     engines: {node: '>=0.12.0'}
-
-  async-mutex@0.5.0:
-    resolution: {integrity: sha512-1A94B18jkJ3DYq284ohPxoXbfTA5HsQ7/Mf4DEhcyLx3Bz27Rh59iScbB6EPiP+B+joue6YCxcMXSbFC1tZKwA==}
 
   async@3.2.5:
     resolution: {integrity: sha512-baNZyqaaLhyLVKm/DlvdW051MSgO6b8eVfIezl9E5PqWxFgzLm/wQntEW4zOytVburDEr0JlALEpdOFwvErLsg==}
@@ -2003,9 +2000,6 @@ packages:
   truncate-utf8-bytes@1.0.2:
     resolution: {integrity: sha512-95Pu1QXQvruGEhv62XCMO3Mm90GscOCClvrIUwCM0PYOXK3kaF3l3sIHxx71ThJfcbM2O5Au6SO3AWCSEfW4mQ==}
 
-  tslib@2.6.2:
-    resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
-
   tunnel@0.0.6:
     resolution: {integrity: sha512-1h/Lnq9yajKY2PEbBadPXj3VxsDDu844OnaAo52UVmIzIvwwtBPIuNvkjuzBlTWpfJyUbG3ez0KSBibQkj4ojg==}
     engines: {node: '>=0.6.11 <=0.7.0 || >=0.7.3'}
@@ -2980,10 +2974,6 @@ snapshots:
     optional: true
 
   async-exit-hook@2.0.1: {}
-
-  async-mutex@0.5.0:
-    dependencies:
-      tslib: 2.6.2
 
   async@3.2.5: {}
 
@@ -4385,8 +4375,6 @@ snapshots:
   truncate-utf8-bytes@1.0.2:
     dependencies:
       utf8-byte-length: 1.0.4
-
-  tslib@2.6.2: {}
 
   tunnel@0.0.6:
     optional: true

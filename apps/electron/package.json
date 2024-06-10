@@ -4,7 +4,8 @@
 	"main": "src/main/index.js",
 	"scripts": {
 		"postinstall": "node scripts/postinstall.js",
-		"dev": "electronmon .",
+		"dev": "electron .",
+		"dev:watch": "electronmon .",
 		"build": "electron-builder build",
 		"jsdoc": "node scripts/gen-jsdoc.js",
 		"format": "biome format src/",
@@ -12,9 +13,9 @@
 	},
 	"dependencies": {
 		"@electron/get": "^3.0.0",
-		"async-mutex": "^0.5.0",
 		"extract-zip": "^2.0.1",
 		"fs-extra": "^11.2.0",
+		"nanoid": "^3.3.7",
 		"nw-flash-trust": "^0.3.0",
 		"set-interval-async": "^3.0.3"
 	},

@@ -2,7 +2,9 @@ const fs = require("fs-extra");
 const { join } = require("path");
 const { app } = require("electron");
 
-const { createMainWindow, createGameWindow } = require("./util/createWindow");
+const { createManager, createGame } = require("./windows");
+
+require("./ipc");
 
 function registerFlashPlugin() {
 	const flashTrust = require("nw-flash-trust");
@@ -21,7 +23,7 @@ function registerFlashPlugin() {
 
 	const trustManager = flashTrust.initSync("Vexed", flashPath);
 	trustManager.empty();
-	trustManager.add(join(__dirname, "../renderer/grimoire.swf"));
+	trustManager.add(join(__dirname, "../renderer/game/grimoire.swf"));
 }
 
 registerFlashPlugin();
@@ -39,15 +41,12 @@ app.once("ready", async () => {
 		return def;
 	});
 
-	if (!("launch" in preferences)) {
-		await createMainWindow();
-		return;
-	}
-
-	if (preferences.launch.toLowerCase() === "game") {
-		await createGameWindow();
-	} else {
-		await createMainWindow();
+	if ("launch" in preferences && typeof preferences.launch === "string" && preferences.launch.toLowerCase() === "game")
+	{
+		await createGame();
+	} else
+	{
+		await createManager();
 	}
 });
 

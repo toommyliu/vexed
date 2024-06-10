@@ -2,9 +2,8 @@
 	"productName": "Vexed",
 	"mac": {
 		"files": [
-			"src/**/*.js",
+			"src/**/*",
 			"vendor/",
-			"index.html",
 			"grimoire.swf",
 			"!**/*.lproj/"
 		],
