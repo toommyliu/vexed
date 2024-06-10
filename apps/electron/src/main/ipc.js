@@ -1,5 +1,5 @@
 const { app, ipcMain: ipc, BrowserWindow, dialog } = require("electron");
-const { assignWindowID, createGame } = require("./windows");
+const { createGame, assignWindowID, getGameWindow } = require("./windows");
 const { nanoid } = require("nanoid");
 
 const fs = require("fs-extra");
@@ -22,6 +22,49 @@ ipc.on("game:generate_id", function (event)
 	const window = BrowserWindow.fromWebContents(event.sender);
 	const windowID = nanoid();
 	assignWindowID(window, windowID);
+});
+
+ipc.handle("game:load_script", async function (event, windowID)
+{
+	const scriptsWindow = BrowserWindow.fromWebContents(event.sender);
+	const gameWindow = getGameWindow(windowID);
+
+	const dialog_ = await dialog.showOpenDialog(scriptsWindow, {
+		filters: [{ name: "JavaScript Files", extensions: ["js"] }],
+		properties: ["openFile"],
+		defaultPath: join(ROOT, "Scripts")
+	}).catch(() => null);
+
+	if (!dialog || dialog_.canceled)
+	{
+		return null;
+	}
+
+	const scriptPath = dialog_.filePaths[0];
+	const scriptBody = await fs.readFile(scriptPath, "utf8").catch(() => null);
+
+	if (!scriptBody?.toString())
+	{
+		return null;
+	}
+
+	const escapedScriptBody = scriptBody
+		.replace(/\\/g, "\\\\")
+		.replace(/`/g, "\\`")
+		.replace(/\$/g, "\\$")
+		.replace(/\r?\n/g, "\\n");
+
+	gameWindow.webContents.executeJavaScript(`
+		document.getElementById('loaded-script')?.remove();
+		var script = document.createElement('script');
+		script.id = 'loaded-script';
+		script.textContent = \`(async () => {
+			console.log("script started", new Date());
+			${escapedScriptBody}
+			console.log("script finished", new Date());
+		})();\`;
+		document.body.appendChild(script);
+	`);
 });
 
 ipc.on("packets:save", async function (event, packets)

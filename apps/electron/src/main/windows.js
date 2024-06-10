@@ -49,7 +49,7 @@ async function createGame(account = null)
 			contextIsolation: false,
 			nodeIntegration: true,
 			plugins: true,
-		},
+		}
 	});
 
 	window.webContents.setUserAgent(userAgent);
@@ -62,8 +62,9 @@ async function createGame(account = null)
 
 	await window.loadFile(join(RENDERER, "game/game.html"));
 	window.webContents.openDevTools({ mode: "right" });
-	window.maximize();
+	// window.maximize();
 
+	// TODO: race condition
 	const windowID = nanoid();
 	assignWindowID(window, windowID);
 
@@ -83,18 +84,18 @@ async function createGame(account = null)
 
 function assignWindowID(window, windowID)
 {
-	windows.set(windowID, {
-		game: window,
-		scripts: null,
-		tools: null,
-		packets: null
-	});
-
+	windows.set(windowID, window);
 	window.webContents.send("generate-id", windowID);
+}
+
+function getGameWindow(windowID)
+{
+	return windows.get(windowID) ?? null;
 }
 
 module.exports = {
 	createManager,
 	createGame,
 	assignWindowID,
+	getGameWindow
 }

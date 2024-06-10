@@ -4,11 +4,21 @@
 	window.$ = window.jQuery = require("../../shared/jquery.js");
 </script>
 
+<body class="w3-container">
+	<button class="w3-button w3-border" id="load-script">load script</button>
+</body>
+
 <script>
-	let parent = window.opener;
+	const { ipcRenderer: ipc } = require("electron");
+	const parent = window.opener;
 
 	$(document).ready(function ()
 	{
+		$(window).on("beforeunload", function (event)
+		{
+			parent.postMessage({ event: "scripts:close" }, "*");
+		});
+
 		$(window).on("message", function (event)
 		{
 			// console.log("Received message", event.originalEvent.data);
@@ -33,5 +43,10 @@
 				parent.postMessage({ event: "scripts:generate_id" }, "*");
 			}
 		}, 500);
+
+		$("#load-script").click(async function ()
+		{
+			await ipc.invoke("game:load_script", window.id).catch(() => null);
+		});
 	});
 </script>

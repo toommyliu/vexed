@@ -1,5 +1,5 @@
 var { setIntervalAsync, clearIntervalAsync } = require("set-interval-async/fixed");
-var { ipcRenderer: ipc } = require("electron");
+var { ipcRenderer: ipc, dialog } = require("electron");
 
 ipc.on("generate-id", (event, windowID) =>
 {
@@ -37,6 +37,11 @@ $(window).on("message", async function (event)
 				p_intervalID = null;
 			}
 		}
+			break;
+		case "scripts:close": {
+			windows.scripts = null;
+		}
+			break;
 		case "tools:close": {
 			windows.tools = null;
 			maid.on = false;
@@ -84,6 +89,14 @@ $(window).on("message", async function (event)
 			}
 		} break;
 		//#endregion
+		//#region scripts
+		case "scripts:load_script": {
+			const script = event.originalEvent.data.resp;
+			console.log(script);
+			// ¯\_(ツ)_/¯
+			eval(script);
+		}
+			break;
 		//#region tools
 		case "tools:fast_travel:join": {
 			if (!auth.loggedIn)
