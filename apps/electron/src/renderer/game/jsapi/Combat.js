@@ -83,9 +83,10 @@ class Combat
 	/**
 	 * Kills a monster.
 	 * @param {string} name The name or monMapID of the monster.
+	 * @param {string|string[]} killPriority Specifies the kill order, before the main monster.
 	 * @returns {Promise<void>}
 	 */
-	async kill(name)
+	async kill(name, killPriority = [])
 	{
 		await this.bot.waitUntil(() => this.bot.world.isMonsterAvailable(name), null, 3);
 
@@ -133,6 +134,7 @@ class Combat
 			{
 				break;
 			}
+
 			await this.#mutex.acquire();
 
 			if (pause)
@@ -153,6 +155,27 @@ class Combat
 					this.attack(name);
 				}
 
+				let kp;
+				if (typeof killPriority === "string")
+				{
+					kp = killPriority.split(",");
+				} else if (Array.isArray(killPriority))
+				{
+					kp = killPriority;
+				}
+
+				if (kp.length > 0)
+				{
+					for (const _kp of kp)
+					{
+						if (this.bot.world.isMonsterAvailable(_kp))
+						{
+							this.attack(_kp);
+							break;
+						}
+					}
+				}
+
 				if (this.hasTarget())
 				{
 					await this.useSkill(this.skillSet[this.#skillSetIdx++], false, false);
@@ -171,6 +194,7 @@ class Combat
 
 		this.bot.flash.call(window.swf.CancelAutoAttack);
 		this.bot.flash.call(window.swf.CancelTarget);
+		console.log('done');
 	}
 
 	/**
