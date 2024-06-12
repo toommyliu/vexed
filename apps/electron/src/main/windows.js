@@ -1,5 +1,5 @@
 const { join } = require("path");
-const { BrowserWindow, session } = require("electron");
+const { BrowserWindow, session, app } = require("electron");
 const { nanoid } = require("nanoid");
 
 const RENDERER = join(__dirname, "../renderer");
@@ -79,6 +79,11 @@ async function createGame(account = null)
 	{
 		console.log(`Removing family of windows under: "${windowID}".`);
 		windows.delete(windowID);
+	});
+
+	app.on("browser-window-created", (event, window) =>
+	{
+		window.setAlwaysOnTop(true);
 	});
 }
 

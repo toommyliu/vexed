@@ -29,11 +29,6 @@ function registerFlashPlugin()
 
 registerFlashPlugin();
 
-app.on("browser-window-created", (window) =>
-{
-	window.setAlwaysOnTop(true);
-});
-
 app.once("ready", async () =>
 {
 	const base = join(app.getPath("documents"), "Vexed");
