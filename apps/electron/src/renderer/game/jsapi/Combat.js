@@ -127,8 +127,12 @@ class Combat
 			}
 		}, 0);
 
-		while (dead == false || !this.#stop)
+		while (!dead || !this.#stop)
 		{
+			if (dead || this.#stop)
+			{
+				break;
+			}
 			await this.#mutex.acquire();
 
 			if (pause)
@@ -203,5 +207,6 @@ class Combat
 	{
 		this.#stop = true;
 		await clearIntervalAsync(this.#intervalID);
+		setTimeout(() => this.#stop = false, 10);
 	}
 }
