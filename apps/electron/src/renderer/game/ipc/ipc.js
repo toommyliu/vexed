@@ -169,14 +169,17 @@ $(window).on("message", async function (event)
 				{
 					await bot.waitUntil(() => auth.loggedIn && !world.loading);
 
-					console.log("goto");
-					world.goto(maid.player);
-					console.log("wait");
+					if (auth.username.toLowerCase() !== maid.player.toLowerCase())
+					{
+						world.goto(maid.player);
+					}
 
-					await bot.waitUntil(() => flash.call(window.swf.PlayersInMap)?.includes(maid.player));
+					await bot.waitUntil(() =>
+					{
+						return flash.call(window.swf.PlayersInMap)?.some(p => p.toLowerCase() === maid.player.toLowerCase())
+					});
+
 					world.setSpawnpoint();
-
-					console.log("kill");
 
 					if (world.isMonsterAvailable("*"))
 					{
@@ -184,9 +187,7 @@ $(window).on("message", async function (event)
 						{
 							combat.attack("*");
 						}
-						settings.setInfiniteRange();
 
-						console.log(`use skill ${maid.skill_set[skillIdx]}`);
 						await combat.useSkill(maid.skill_set[skillIdx]);
 						await bot.sleep(150);
 
@@ -195,8 +196,6 @@ $(window).on("message", async function (event)
 							skillIdx = 0;
 						}
 					}
-
-					console.log("end");
 				}
 			}, 1000);
 
