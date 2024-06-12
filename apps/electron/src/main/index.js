@@ -6,7 +6,8 @@ const { createManager, createGame } = require("./windows");
 
 require("./ipc");
 
-function registerFlashPlugin() {
+function registerFlashPlugin()
+{
 	const flashTrust = require("nw-flash-trust");
 	// TODO: add checks for app.isPackaged
 	app.commandLine.appendSwitch(
@@ -28,14 +29,21 @@ function registerFlashPlugin() {
 
 registerFlashPlugin();
 
-app.once("ready", async () => {
+app.on("browser-window-created", (window) =>
+{
+	window.setAlwaysOnTop(true);
+});
+
+app.once("ready", async () =>
+{
 	const base = join(app.getPath("documents"), "Vexed");
 	const preferencesPath = join(base, "preferences.json");
 
 	await fs.ensureDir(join(base, "Scripts"));
 	await fs.ensureFile(preferencesPath);
 
-	const preferences = await fs.readJSON(preferencesPath).catch(async () => {
+	const preferences = await fs.readJSON(preferencesPath).catch(async () =>
+	{
 		const def = { launch: "manager" };
 		await fs.writeJSON(preferencesPath, def, { spaces: 4 });
 		return def;
