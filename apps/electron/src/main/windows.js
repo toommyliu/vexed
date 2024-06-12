@@ -80,11 +80,6 @@ async function createGame(account = null)
 		console.log(`Removing family of windows under: "${windowID}".`);
 		windows.delete(windowID);
 	});
-
-	app.on("browser-window-created", (event, window) =>
-	{
-		window.setAlwaysOnTop(true);
-	});
 }
 
 function assignWindowID(window, windowID)
