@@ -150,9 +150,6 @@ class Combat
 				} else if (_name === "vath" && this.bot.world.isMonsterAvailable("Stalagbite"))
 				{
 					this.attack("Stalagbite");
-				} else
-				{
-					this.attack(name);
 				}
 
 				let kp;
@@ -174,6 +171,11 @@ class Combat
 							break;
 						}
 					}
+				}
+
+				if (!this.hasTarget())
+				{
+					this.attack(name);
 				}
 
 				if (this.hasTarget())
