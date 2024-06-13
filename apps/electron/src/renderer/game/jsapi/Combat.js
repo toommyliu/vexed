@@ -216,6 +216,11 @@ class Combat
 
 		while (getQuantity() < itemQuantity)
 		{
+			if (this.#stop)
+			{
+				break;
+			}
+
 			await this.kill(name);
 			await this.bot.sleep(500);
 			if (!isTemp)
