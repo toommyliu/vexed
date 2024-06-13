@@ -21,12 +21,15 @@ class Flash extends EventEmitter {
 		let _args = args;
 		let out;
 
-		if (typeof fn === "function") {
+		if (typeof fn === 'function') {
 			// interop function
 			_fn = fn;
-		} else if (typeof fn === "string") {
+		} else if (typeof fn === 'string') {
 			// args[0] is the path
-			_fn = args.length === 0 ? window.swf.callGameFunction0 : window.swf.callGameFunction;
+			_fn =
+				args.length === 0
+					? window.swf.callGameFunction0
+					: window.swf.callGameFunction;
 			// args[1-n] are the actual args for the function
 			_args = [fn, ...args];
 		}
@@ -39,12 +42,12 @@ class Flash extends EventEmitter {
 			return null;
 		}
 
-		if (typeof out === "string") {
+		if (typeof out === 'string') {
 			// boolean
 			if (['"True"', '"False"'].includes(out)) return out === '"True"';
 
 			// void
-			if (out === "undefined") return;
+			if (out === 'undefined') return;
 
 			return JSON.parse(out);
 		}

@@ -12,7 +12,7 @@ class Packet {
 	 * @param {"str"|"json"|"xml"} [type="str"]
 	 * @returns {void}
 	 */
-	sendClient(packet, type = "str") {
+	sendClient(packet, type = 'str') {
 		this.bot.flash.call(window.swf.sendClientPacket, packet, type);
 	}
 
@@ -22,7 +22,11 @@ class Packet {
 	 * @param {"String"|"Json"} [type="String"]
 	 * @returns {void}
 	 */
-	sendServer(packet, type = "String") {
-		this.bot.flash.call(window.swf.callGameFunction, `sfc.send${type}`, packet);
+	sendServer(packet, type = 'String') {
+		this.bot.flash.call(
+			window.swf.callGameFunction,
+			`sfc.send${type}`,
+			packet,
+		);
 	}
 }

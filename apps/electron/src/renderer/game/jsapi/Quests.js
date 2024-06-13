@@ -11,7 +11,11 @@ class Quests {
 	 * @returns {Quest[]}
 	 */
 	get tree() {
-		return this.bot.flash.call(window.swf.GetQuestTree)?.map((data) => new Quest(data)) ?? [];
+		return (
+			this.bot.flash
+				.call(window.swf.GetQuestTree)
+				?.map((data) => new Quest(data)) ?? []
+		);
 	}
 
 	/**
@@ -21,7 +25,9 @@ class Quests {
 	 */
 	async accept(questID) {
 		const bot = Bot.getInstance();
-		await bot.waitUntil(() => bot.world.isActionAvailable(GameAction.AcceptQuest));
+		await bot.waitUntil(() =>
+			bot.world.isActionAvailable(GameAction.AcceptQuest),
+		);
 		while (!this.tree.find((q) => q.id === questID)?.inProgress) {
 			bot.flash.call(window.swf.Accept, questID);
 			await bot.sleep(1500);
@@ -63,7 +69,7 @@ class Quests {
 	async loadMultiple(questIDs) {
 		let _questIDs = questIDs;
 		if (Array.isArray(questIDs)) {
-			_questIDs = questIDs.join(",");
+			_questIDs = questIDs.join(',');
 		}
 
 		this.bot.flash.call(window.swf.LoadQuests, _questIDs);

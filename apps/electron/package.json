@@ -8,8 +8,8 @@
 		"dev:watch": "electronmon .",
 		"build": "electron-builder build",
 		"jsdoc": "node scripts/gen-jsdoc.js",
-		"format": "biome format src/",
-		"format:write": "biome format src/ --write"
+		"format": "prettier src/",
+		"format:write": "prettier src/ --write"
 	},
 	"dependencies": {
 		"@electron/get": "^3.0.0",
@@ -21,11 +21,11 @@
 		"set-interval-async": "^3.0.3"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^1.7.3",
 		"electron": "11.5.0",
 		"electron-builder": "^24.13.3",
 		"electronmon": "^2.0.3",
-		"jsdoc-to-markdown": "^8.0.1"
+		"jsdoc-to-markdown": "^8.0.1",
+		"prettier": "^3.3.2"
 	},
 	"electronmon": {
 		"patterns": [

@@ -1,7 +1,6 @@
-var { Mutex } = require("async-mutex");
+var { Mutex } = require('async-mutex');
 
-class Drops
-{
+class Drops {
 	/**
 	 * Internal store of item data.
 	 * @type {Set<ItemData>}
@@ -10,8 +9,7 @@ class Drops
 
 	#mutex = new Mutex();
 
-	constructor(bot)
-	{
+	constructor(bot) {
 		/**
 		 * @type {Bot}
 		 */
@@ -29,8 +27,7 @@ class Drops
 	 * @param {ItemData} itemData The item to add.
 	 * @returns {void}
 	 */
-	addToStack(itemData)
-	{
+	addToStack(itemData) {
 		this.#data.add(itemData);
 		const p = this.stack.get(itemData.ItemID) ?? 0;
 		this.stack.set(itemData.ItemID, itemData.iQty + p);
@@ -41,8 +38,7 @@ class Drops
 	 * @param {number} itemID The ID of the item to remove.
 	 * @returns {void}
 	 */
-	removeFromStack(itemID)
-	{
+	removeFromStack(itemID) {
 		this.stack.delete(itemID);
 	}
 
@@ -50,8 +46,7 @@ class Drops
 	 * Resets the drop stack to a clean state.
 	 * @returns {void}
 	 */
-	reset()
-	{
+	reset() {
 		this.#data.clear();
 		this.stack.clear();
 	}
@@ -61,19 +56,16 @@ class Drops
 	 * @param {string|number} itemResolvable The name or ID of the item to collect.
 	 * @returns {Promise<void>}
 	 */
-	async pickup(itemResolvable)
-	{
+	async pickup(itemResolvable) {
 		let item;
-		if (typeof itemResolvable === "string")
-		{
+		if (typeof itemResolvable === 'string') {
 			item = [...this.#data.values()].find(
-				(i) => i.sName.toLowerCase() === itemResolvable.toLowerCase()
+				(i) => i.sName.toLowerCase() === itemResolvable.toLowerCase(),
 			)?.ItemID;
 		}
 
 		const exists = this.stack.has(item);
-		if (!exists)
-		{
+		if (!exists) {
 			return;
 		}
 

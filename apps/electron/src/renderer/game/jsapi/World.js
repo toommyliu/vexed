@@ -23,7 +23,9 @@ class World {
 	 * @returns {Monster[]}
 	 */
 	get visibleMonsters() {
-		const monsters = this.bot.flash.call(window.swf.GetVisibleMonstersInCell);
+		const monsters = this.bot.flash.call(
+			window.swf.GetVisibleMonstersInCell,
+		);
 		return monsters.map((data) => new Monster(data));
 	}
 
@@ -42,11 +44,21 @@ class World {
 	 * @returns {boolean}
 	 */
 	isMonsterAvailable(monsterResolvable) {
-		if (["id'", "id.", "id:", "id-"].some((prefix) => monsterResolvable.startsWith(prefix))) {
+		if (
+			["id'", 'id.', 'id:', 'id-'].some((prefix) =>
+				monsterResolvable.startsWith(prefix),
+			)
+		) {
 			const monMapID = monsterResolvable.substring(3);
-			return this.bot.flash.call(window.swf.IsMonsterAvailableByMonMapID, monMapID);
+			return this.bot.flash.call(
+				window.swf.IsMonsterAvailableByMonMapID,
+				monMapID,
+			);
 		}
-		return this.bot.flash.call(window.swf.IsMonsterAvailable, monsterResolvable);
+		return this.bot.flash.call(
+			window.swf.IsMonsterAvailable,
+			monsterResolvable,
+		);
 	}
 
 	/**
@@ -112,8 +124,9 @@ class World {
 	 * @param {boolean} [force=false] - Whether to allow jumping to the same cell.
 	 * @returns {Promise<void>}
 	 */
-	async jump(cell, pad = "Spawn", force = false) {
-		const isSameCell = () => this.bot.player.cell.toLowerCase() === cell.toLowerCase();
+	async jump(cell, pad = 'Spawn', force = false) {
+		const isSameCell = () =>
+			this.bot.player.cell.toLowerCase() === cell.toLowerCase();
 		while (!isSameCell() || force) {
 			this.bot.flash.call(window.swf.Jump, cell, pad);
 			await this.bot.sleep(500);
@@ -130,29 +143,48 @@ class World {
 	 * @param {string} [pad="Spawn"] - The pad to jump to.
 	 * @returns {Promise<void>}
 	 */
-	async join(mapName, cell = "Enter", pad = "Spawn", tries = 5) {
-		await this.bot.waitUntil(() => this.isActionAvailable(GameAction.Transfer), null, 15);
+	async join(mapName, cell = 'Enter', pad = 'Spawn', tries = 5) {
+		await this.bot.waitUntil(
+			() => this.isActionAvailable(GameAction.Transfer),
+			null,
+			15,
+		);
 
 		let attempts = tries;
 		let map_str = mapName;
-		let [map_name, map_number] = map_str.split("-");
+		let [map_name, map_number] = map_str.split('-');
 
-		if (map_number === "1e9" || map_number === "1e99") {
-			map_number = "100000";
+		if (map_number === '1e9' || map_number === '1e99') {
+			map_number = '100000';
 		}
 
-		map_str = `${map_name}${map_number ? `-${map_number}` : ""}`;
+		map_str = `${map_name}${map_number ? `-${map_number}` : ''}`;
 
-		while (attempts > 0 && this.name.toLowerCase() !== map_name.toLowerCase()) {
-			await this.bot.waitUntil(() => this.isActionAvailable(GameAction.Transfer), null, 15);
+		while (
+			attempts > 0 &&
+			this.name.toLowerCase() !== map_name.toLowerCase()
+		) {
+			await this.bot.waitUntil(
+				() => this.isActionAvailable(GameAction.Transfer),
+				null,
+				15,
+			);
 			if (this.bot.player.state === PlayerState.InCombat) {
-				await this.jump("Enter", "Spawn");
-				await this.bot.waitUntil(() => this.bot.player.state !== PlayerState.InCombat, null, 10);
+				await this.jump('Enter', 'Spawn');
+				await this.bot.waitUntil(
+					() => this.bot.player.state !== PlayerState.InCombat,
+					null,
+					10,
+				);
 				await this.bot.sleep(1500);
 			}
 
 			this.bot.flash.call(window.swf.Join, map_str, cell, pad);
-			await this.bot.waitUntil(() => this.name.toLowerCase() === map_name.toLowerCase(), null, 10);
+			await this.bot.waitUntil(
+				() => this.name.toLowerCase() === map_name.toLowerCase(),
+				null,
+				10,
+			);
 			await this.bot.waitUntil(() => !this.loading, null, 40);
 
 			attempts--;
@@ -193,7 +225,9 @@ class World {
 	 * @returns {Promise<void>}
 	 */
 	async getMapItem(itemId) {
-		await this.bot.waitUntil(() => this.isActionAvailable(GameAction.GetMapItem));
+		await this.bot.waitUntil(() =>
+			this.isActionAvailable(GameAction.GetMapItem),
+		);
 		this.bot.flash.call(window.swf.GetMapItem, itemId);
 		await this.bot.sleep(2000);
 	}
@@ -215,31 +249,31 @@ class World {
  */
 const GameAction = Object.freeze({
 	/** Loading a shop. */
-	LoadShop: "loadShop",
+	LoadShop: 'loadShop',
 	/** Loading an enhancement shop. */
-	LoadEnhShop: "loadEnhShop",
+	LoadEnhShop: 'loadEnhShop',
 	/** Loading a hair shop. */
-	LoadHairShop: "loadHairShop",
+	LoadHairShop: 'loadHairShop',
 	/** Equipping an item. */
-	EquipItem: "equipItem",
+	EquipItem: 'equipItem',
 	/** Unequipping an item. */
-	UnequipItem: "unequipItem",
+	UnequipItem: 'unequipItem',
 	/** Buying an item. */
-	BuyItem: "buyItem",
+	BuyItem: 'buyItem',
 	/** Selling an item. */
-	SellItem: "sellItem",
+	SellItem: 'sellItem',
 	/** Getting a map item (i.e. via the getMapItem packet). */
-	GetMapItem: "getMapItem",
+	GetMapItem: 'getMapItem',
 	/** Sending a quest completion packet. */
-	TryQuestComplete: "tryQuestComplete",
+	TryQuestComplete: 'tryQuestComplete',
 	/** Accepting a quest. */
-	AcceptQuest: "acceptQuest",
+	AcceptQuest: 'acceptQuest',
 	/** I don't know... */
-	DoIA: "doIA",
+	DoIA: 'doIA',
 	/** Resting. */
-	Rest: "rest",
+	Rest: 'rest',
 	/** I don't know... */
-	Who: "who",
+	Who: 'who',
 	/** Joining another map. */
-	Transfer: "tfer"
+	Transfer: 'tfer',
 });

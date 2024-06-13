@@ -14,7 +14,11 @@ class Player {
 	 * @returns {Faction[]}
 	 */
 	get factions() {
-		return this.bot.flash.call(window.swf.GetFactions)?.map((data) => new Faction(data)) ?? [];
+		return (
+			this.bot.flash
+				.call(window.swf.GetFactions)
+				?.map((data) => new Faction(data)) ?? []
+		);
 	}
 
 	/**
@@ -156,5 +160,5 @@ class Player {
 const PlayerState = Object.freeze({
 	Dead: 0,
 	Idle: 1,
-	InCombat: 2
+	InCombat: 2,
 });

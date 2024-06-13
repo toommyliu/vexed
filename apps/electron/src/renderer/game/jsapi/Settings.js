@@ -35,7 +35,7 @@ class Settings {
 	 * @param {boolean} on
 	 */
 	setLagKiller(on) {
-		this.bot.flash.call(window.swf.SetLagKiller, on ? "True" : "False");
+		this.bot.flash.call(window.swf.SetLagKiller, on ? 'True' : 'False');
 	}
 
 	/**

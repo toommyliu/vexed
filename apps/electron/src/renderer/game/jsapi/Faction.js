@@ -2,7 +2,7 @@ class Faction {
 	constructor(data) {
 		/**
 		 * @type {FactionData}
-		*/
+		 */
 		this.data = data;
 	}
 

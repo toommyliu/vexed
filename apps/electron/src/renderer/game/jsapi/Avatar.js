@@ -66,7 +66,7 @@ class Avatar {
 			spellPower: this.data.sta.$sp,
 			criticalChance: this.data.sta.$tcr,
 			criticalMultiplier: this.data.sta.$scm,
-			evasionChance: this.data.sta.$tdo
+			evasionChance: this.data.sta.$tdo,
 		};
 	}
 
