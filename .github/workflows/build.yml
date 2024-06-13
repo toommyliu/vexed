@@ -1,0 +1,63 @@
+name: Build
+
+on:
+  push:
+    tags:
+      - '*.*.*'
+
+jobs:
+  build_electron:
+    name: Build Electron App
+    runs-on: macos-12
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.0.6
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '21.7.2'
+          cache: 'pnpm'
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install
+        working-directory: apps/electron
+
+      - name: Build Electron App
+        run: pnpm run build
+        working-directory: apps/electron
+
+      - name: Zip Application
+        run: zip -r Vexed.zip Vexed.app
+        working-directory: apps/electron/dist/mac
+
+      - name: Get the version from the tag
+        id: get_version
+        run: |
+          echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_STATE
+          echo "commit_sha=${GITHUB_SHA}" >> $GITHUB_STATE
+
+      - name: Upload binary
+        uses: softprops/action-gh-release@v2
+        with:
+          files: apps/electron/dist/mac/Vexed.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
