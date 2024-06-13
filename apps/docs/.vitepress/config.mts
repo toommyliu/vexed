@@ -15,11 +15,8 @@ export default defineConfig({
 			{
 				text: "Getting Started",
 				items: [
-					{
-						text: "Downloading/Compiling",
-						link: "/getting-started/downloading-compiling",
-					},
-					{ text: "Account Manager", link: "/getting-started/account-manager" },
+					{ text: "Downloading", link: "/getting-started/downloading"	},
+					{ text: "Compiling", link: "/getting-started/compiling" },
 					{ text: "Contributing", link: "/getting-started/contributing" },
 					{ text: "Credits", link: "/getting-started/credits" },
 					{ text: "Disclaimer", link: "/getting-started/disclaimer" },
@@ -28,12 +25,13 @@ export default defineConfig({
 			{
 				text: "Usage",
 				items: [
+					{ text: "Account Manager", link: "/usage/account-manager" },
 					{
 						text: "Scripts",
 						link: "/usage/scripts",
 					},
 					{ text: "Tools", link: "/usage/tools" },
-					{ text: "packets", link: "/usage/packets" }
+					{ text: "Packets", link: "/usage/packets" }
 				],
 			},
 			{

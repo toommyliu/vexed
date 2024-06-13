@@ -7,7 +7,7 @@ hero:
   actions:
     - theme: brand
       text: Getting started
-      link: /getting-started/downloading-compiling
+      link: /getting-started/downloading
     - theme: alt
       text: API Reference
       link: /api
