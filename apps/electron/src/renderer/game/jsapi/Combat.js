@@ -27,6 +27,8 @@ class Combat {
 		 * @type {number}
 		 */
 		this.skillDelay = 150;
+
+		this.pauseAttack = false;
 	}
 
 	/**
@@ -70,6 +72,20 @@ class Combat {
 	 */
 	hasTarget() {
 		return this.bot.flash.call(window.swf.HasTarget);
+	}
+
+	/**
+	 * @returns {void}
+	 */
+	cancelTarget() {
+		this.bot.flash.call(window.swf.CancelTarget);
+	}
+
+	/**
+	 * @returns {void}
+	 */
+	cancelAttack() {
+		this.bot.flash.call(window.swf.CancelAutoAttack);
 	}
 
 	/**
@@ -124,7 +140,7 @@ class Combat {
 				dead = true;
 				await this.stop();
 			}
-		}, 0);
+		}, 500);
 
 		while (!dead || !this.#stop) {
 			if (dead || this.#stop) {
@@ -133,7 +149,7 @@ class Combat {
 
 			await this.#mutex.acquire();
 
-			if (pause) {
+			if (pause || this.pauseAttack) {
 				await this.bot.sleep(100);
 			} else {
 				const _name = name.toLowerCase();
@@ -185,11 +201,11 @@ class Combat {
 			}
 
 			this.#mutex.release();
+			await this.bot.sleep(50);
 		}
 
-		this.bot.flash.call(window.swf.CancelAutoAttack);
-		this.bot.flash.call(window.swf.CancelTarget);
-		console.log('done');
+		this.cancelAttack();
+		this.cancelTarget();
 	}
 
 	/**

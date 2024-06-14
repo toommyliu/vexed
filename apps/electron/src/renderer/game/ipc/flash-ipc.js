@@ -17,6 +17,31 @@ function packetFromServer([packet]) {
 					Bot.getInstance().drops.addToStack(item);
 				}
 				break;
+			case 'ct':
+				{
+					if (
+						pkt.b.o?.anims?.[0]?.msg?.includes(
+							'prepares a counter attack',
+						)
+					) {
+						combat.cancelAttack();
+						combat.cancelTarget();
+						combat.pauseAttack = true;
+					}
+
+					if (Array.isArray(pkt.b.o.a)) {
+						for (let i = 0; i < pkt.b.o.a.length; i++) {
+							if (
+								pkt.b.o.a[i]?.cmd === 'aura--' &&
+								pkt.b.o.a[i]?.aura?.nam === 'Counter Attack'
+							) {
+								combat.pauseAttack = false;
+								break;
+							}
+						}
+					}
+				}
+				break;
 		}
 	}
 }
