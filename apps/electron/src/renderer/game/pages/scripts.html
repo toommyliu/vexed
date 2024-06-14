@@ -14,11 +14,6 @@
 
 	$(document).ready(function ()
 	{
-		$(window).on("beforeunload", function (event)
-		{
-			parent.postMessage({ event: "scripts:close" }, "*");
-		});
-
 		$(window).on("message", function (event)
 		{
 			// console.log("Received message", event.originalEvent.data);

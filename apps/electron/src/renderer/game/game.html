@@ -144,50 +144,43 @@
 			}
 		}, 50);
 
-		$("#scripts").click(function ()
+		$("#scripts").click(function (ev)
 		{
-			if (!windows.scripts)
+			if ($(this).hasClass('w3-disabled'))
 			{
-				window.scripts = window.open("./pages/scripts.html", null, "width=451,height=370");
-				window.scripts.onload = function ()
-				{
-					windows.scripts.postMessage("scripts:window-id", window.id, "*");
-				}
+				ev.preventDefault();
+				return;
 			}
-			else
-			{
-				windows.scripts.focus();
-			}
+
+			$(this).addClass('w3-disabled');
+			window.open("./pages/scripts.html", null, "width=451,height=370");
+			$(this).removeClass('w3-disabled');
 		});
 
 		$("#tools").click(function ()
 		{
-			if (!windows.tools)
+			if ($(this).hasClass('w3-disabled'))
 			{
-				windows.tools = window.open("./pages/tools.html", null, "width=451,height=370");
-				windows.tools.onload = function ()
-				{
-					windows.tools.postMessage("tools:window-id", window.id, "*");
-				}
-			} else
-			{
-				windows.tools.focus();
+				ev.preventDefault();
+				return;
 			}
+
+			$(this).addClass('w3-disabled');
+			window.open("./pages/tools.html", null, "width=451,height=370");
+			$(this).removeClass('w3-disabled');
 		});
 
 		$("#packets").click(function ()
 		{
-			if (!windows.packets)
+			if ($(this).hasClass('w3-disabled'))
 			{
-				windows.packets = window.open("./pages/packets.html", null, "width=451,height=370");
-				windows.packets.onload = function ()
-				{
-					windows.packets.postMessage("packets:window-id", window.id, "*");
-				}
-			} else
-			{
-				windows.packets.focus();
+				ev.preventDefault();
+				return;
 			}
+
+			$(this).addClass('w3-disabled');
+			const ret = window.open("./pages/packets.html", null, "width=451,height=370");
+			$(this).removeClass('w3-disabled');
 		});
 
 		function updateCells()
