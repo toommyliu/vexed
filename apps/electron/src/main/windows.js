@@ -53,6 +53,10 @@ async function createGame(account = null) {
 		(details, callback) => {
 			details.requestHeaders['User-Agent'] = userAgent;
 			details.requestHeaders.artixmode = 'launcher';
+			details.requestHeaders['x-requested-with'] =
+				'ShockwaveFlash/32.0.0.371';
+			details.requestHeaders['origin'] = 'https://game.aq.com';
+			details.requestHeaders['sec-fetch-site'] = 'same-origin';
 			callback({ requestHeaders: details.requestHeaders, cancel: false });
 		},
 	);
