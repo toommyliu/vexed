@@ -25,10 +25,13 @@ class Inventory {
 	 */
 	resolve(itemResolvable) {
 		return this.items.find((i) => {
-			if (typeof itemResolvable === 'string')
+			if (typeof itemResolvable === 'string') {
 				return i.name.toLowerCase() === itemResolvable.toLowerCase();
-			if (typeof itemResolvable === 'number')
+			}
+
+			if (typeof itemResolvable === 'number') {
 				return i.id === itemResolvable;
+			}
 		});
 	}
 
@@ -81,7 +84,7 @@ class Inventory {
 				);
 
 				const item = getItem();
-				if (item.category === 'Item')
+				if (item.category === 'Item') {
 					this.bot.flash.call(
 						window.swf.EquipPotion,
 						item.id.toString(),
@@ -89,7 +92,9 @@ class Inventory {
 						item.fileLink,
 						item.name,
 					);
-				else this.bot.flash.call(window.swf.Equip, item.id.toString());
+				} else {
+					this.bot.flash.call(window.swf.Equip, item.id.toString());
+				}
 			}
 		}
 	}

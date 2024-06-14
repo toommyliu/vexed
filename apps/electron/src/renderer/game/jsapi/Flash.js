@@ -38,16 +38,20 @@ class Flash extends EventEmitter {
 		try {
 			out = _fn(..._args);
 		} catch (error) {
-			console.error(error);
+			// console.error(error);
 			return null;
 		}
 
 		if (typeof out === 'string') {
 			// boolean
-			if (['"True"', '"False"'].includes(out)) return out === '"True"';
+			if (['"True"', '"False"'].includes(out)) {
+				return out === '"True"';
+			}
 
 			// void
-			if (out === 'undefined') return;
+			if (out === 'undefined') {
+				return;
+			}
 
 			return JSON.parse(out);
 		}
@@ -64,11 +68,13 @@ class Flash extends EventEmitter {
 	get(path, parse = false) {
 		try {
 			const out = window.swf.getGameObject(path);
-			if (parse) return JSON.parse(out);
+			if (parse) {
+				return JSON.parse(out);
+			}
 
 			return out;
 		} catch (error) {
-			console.error(error);
+			// console.error(error);
 			return null;
 		}
 	}
@@ -82,11 +88,13 @@ class Flash extends EventEmitter {
 	getStatic(path, parse = false, defaultValue = null) {
 		try {
 			const out = window.swf.getGameObjectS(path);
-			if (parse) return JSON.parse(out);
+			if (parse) {
+				return JSON.parse(out);
+			}
 
 			return out;
 		} catch (error) {
-			console.error(error);
+			// console.error(error);
 			return defaultValue;
 		}
 	}
