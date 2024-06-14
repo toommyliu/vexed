@@ -129,7 +129,7 @@ class Combat {
 			} else {
 				pause = false;
 
-				if (this.bot.player.isAfk) {
+				if (this.bot.player.afk) {
 					await this.stop();
 					await this.bot.sleep(1000);
 					await this.kill(name);

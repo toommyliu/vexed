@@ -17,7 +17,7 @@ Represents the local player.
     * [.maxMp](#Player+maxMp) ⇒ <code>number</code>
     * [.level](#Player+level) ⇒ <code>number</code>
     * [.gold](#Player+gold) ⇒ <code>number</code>
-    * [.isAfk](#Player+isAfk) ⇒ <code>boolean</code>
+    * [.afk](#Player+afk) ⇒ <code>boolean</code>
     * [.isMember](#Player+isMember) ⇒ <code>boolean</code>
     * [.xPos](#Player+xPos) ⇒ <code>number</code>
     * [.yPos](#Player+yPos) ⇒ <code>number</code>

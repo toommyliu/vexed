@@ -97,7 +97,7 @@ class Player {
 	 * Checks if the current player is AFK.
 	 * @returns {boolean}
 	 */
-	get isAfk() {
+	get afk() {
 		return this.bot.flash.call(window.swf.IsAfk);
 	}
 

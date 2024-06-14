@@ -13,7 +13,7 @@ A remote player.
     * [.mp](#Avatar+mp) ⇒ <code>number</code>
     * [.maxMp](#Avatar+maxMp) ⇒ <code>number</code>
     * [.stats](#Avatar+stats) ⇒ <code>Object</code>
-    * [.isAfk](#Avatar+isAfk) ⇒ <code>boolean</code>
+    * [.afk](#Avatar+afk) ⇒ <code>boolean</code>
     * [.id](#Avatar+id) ⇒ <code>number</code>
     * [.level](#Avatar+level) ⇒ <code>number</code>
     * [.cell](#Avatar+cell) ⇒ <code>string</code>

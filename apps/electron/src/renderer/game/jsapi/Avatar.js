@@ -74,7 +74,7 @@ class Avatar {
 	 * Whether the player is AFK.
 	 * @returns {boolean}
 	 */
-	get isAfk() {
+	get afk() {
 		return this.data.afk;
 	}
 
