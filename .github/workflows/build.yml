@@ -49,12 +49,6 @@ jobs:
         run: zip -r Vexed.zip Vexed.app
         working-directory: apps/electron/dist/mac
 
-      - name: Get the version from the tag
-        id: get_version
-        run: |
-          echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_STATE
-          echo "commit_sha=${GITHUB_SHA}" >> $GITHUB_STATE
-
       - name: Upload binary
         uses: softprops/action-gh-release@v2
         with:
