@@ -92,6 +92,10 @@ async function createGame(account = null) {
 	});
 
 	window.webContents.on('new-window', async (event, url, _, __, options) => {
+		if (url.startsWith('https://')) {
+			return;
+		}
+
 		event.preventDefault();
 
 		// *.html
