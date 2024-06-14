@@ -42,6 +42,7 @@ export default defineConfig({
 					{ text: "Auth", link: "/api/auth" },
 					{ text: "Avatar", link: "/api/avatar" },
 					{ text: "Bank", link: "/api/bank" },
+					{ text: "Bot", link: "/api/bot" },
 					{ text: "Combat", link: "/api/combat" },
 					{ text: "Drops", link: "/api/drops" },
 					{ text: "Faction", link: "/api/faction" },
