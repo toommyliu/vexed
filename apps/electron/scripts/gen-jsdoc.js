@@ -2,7 +2,7 @@ const jsdoc2md = require("jsdoc-to-markdown");
 const fs = require("node:fs");
 const path = require("node:path");
 
-const inputDir = path.join(__dirname, "../src/renderer/jsapi");
+const inputDir = path.join(__dirname, "../src/renderer/game/jsapi");
 const outputDir = path.join(__dirname, "../../docs/api");
 
 async function gen() {
