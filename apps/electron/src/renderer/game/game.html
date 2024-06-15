@@ -280,7 +280,12 @@
 				settings.setInfiniteRange();
 			}
 
-			if ($('#option-provoke').attr('data-checked') === 'true') {
+			if ($('#option-provoke-all').attr('data-checked') === 'true') {
+				const ids = world.monsters.map((mon) => mon.MonMapID);
+				packets.sendServer(`%xt%zm%aggroMon%${world.roomId}%${ids.join('%')}%`);
+			}
+
+			if ($('#option-provoke-cell').attr('data-checked') === 'true') {
 				settings.setProvokeMonsters();
 			}
 
@@ -320,8 +325,15 @@
 					<path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path>
 				</svg>
 			</button>
-			<button class="w3-button w3-small w3-block" style="text-align: left;" id="option-provoke">
-				provoke
+			<button class="w3-button w3-small w3-block" style="text-align: left;" id="option-provoke-all">
+				provoke all
+				<svg class="checkmark" viewBox="0 0 24 24"
+					style="width: 1em; height: 1em; vertical-align: middle; display: none;">
+					<path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path>
+				</svg>
+			</button>
+			<button class="w3-button w3-small w3-block" style="text-align: left;" id="option-provoke-cell">
+				provoke cell
 				<svg class="checkmark" viewBox="0 0 24 24"
 					style="width: 1em; height: 1em; vertical-align: middle; display: none;">
 					<path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path>
