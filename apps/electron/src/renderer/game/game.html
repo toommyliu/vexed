@@ -1,12 +1,5 @@
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <style>
-	html,
-	body {
-		height: 100%;
-		width: 100%;
-		margin: 0;
-	}
-
 	#swf {
 		position: fixed;
 		bottom: 0;
@@ -29,6 +22,26 @@
 
 	#progress {
 		width: 75%;
+	}
+
+	.w3-dropdown-hover:focus {
+		outline: none;
+	}
+
+	.w3-button:focus {
+		outline: none;
+	}
+
+	.w3-button {
+		position: relative;
+		text-align: left;
+	}
+
+	.checkmark {
+		position: absolute;
+		top: 50%;
+		right: 10px;
+		transform: translateY(-50%);
 	}
 </style>
 <script>
@@ -63,8 +76,7 @@
 <script src="ipc/ipc.js" defer></script>
 
 <script>
-	$(function ()
-	{
+	$(function () {
 		$("<div>", {
 			id: "progress-container"
 		}).appendTo("body");
@@ -95,30 +107,26 @@
 		$("body").append(script);
 	});
 
-	async function progress([percentage])
-	{
+	async function progress([percentage]) {
 		var elem = $('#progress');
 		elem.val(percentage.toString());
 
-		if (percentage === 100)
-		{
+		if (percentage === 100) {
 			var elem_ = $('#progress-container');
 			elem.remove();
 			elem_.remove();
 
 			$("#nav").show();
 
-			if (window?.account)
-			{
+			if (window?.account) {
 				const { username, password, server } = window.account;
 				const bot = Bot.getInstance();
 				await bot.sleep(1000);
 				await auth.login(username, password);
-				if (server !== "None")
-				{
+				if (server !== "None") {
 					await bot.waitUntil(() => auth?.servers?.length > 0);
 					await bot.sleep(250);
-					await auth.connect(server);
+					auth.connect(server);
 					await bot.sleep(1000);
 				}
 				delete window.account;
@@ -128,26 +136,21 @@
 </script>
 
 <script>
-	$(function ()
-	{
+	$(function () {
 		const { ipcRenderer: ipc } = require("electron");
 		const { setIntervalAsync, clearIntervalAsync } = require("set-interval-async/fixed");
 
 		window.lastMap = null;
 
-		setTimeout(function ()
-		{
-			if (!window.id)
-			{
+		setTimeout(function () {
+			if (!window.id) {
 				ipc.send("game:generate_id");
 				console.log("Looks like we don't have an ID, assigning that now.");
 			}
 		}, 50);
 
-		$("#scripts").click(function (ev)
-		{
-			if ($(this).hasClass('w3-disabled'))
-			{
+		$("#scripts").click(function (ev) {
+			if ($(this).hasClass('w3-disabled')) {
 				ev.preventDefault();
 				return;
 			}
@@ -157,10 +160,8 @@
 			$(this).removeClass('w3-disabled');
 		});
 
-		$("#tools").click(function ()
-		{
-			if ($(this).hasClass('w3-disabled'))
-			{
+		$("#tools").click(function () {
+			if ($(this).hasClass('w3-disabled')) {
 				ev.preventDefault();
 				return;
 			}
@@ -170,10 +171,8 @@
 			$(this).removeClass('w3-disabled');
 		});
 
-		$("#packets").click(function ()
-		{
-			if ($(this).hasClass('w3-disabled'))
-			{
+		$("#packets").click(function () {
+			if ($(this).hasClass('w3-disabled')) {
 				ev.preventDefault();
 				return;
 			}
@@ -183,13 +182,11 @@
 			$(this).removeClass('w3-disabled');
 		});
 
-		function updateCells()
-		{
+		function updateCells() {
 			const bot = Bot.getInstance();
 			const { auth, player, world } = bot;
 
-			if (!auth.loggedIn || world.loading || window.lastMap === bot.world.roomId)
-			{
+			if (!auth.loggedIn || world.loading || window.lastMap === bot.world.roomId) {
 				return;
 			}
 
@@ -197,8 +194,7 @@
 			elem.empty();
 
 			const { cells } = world;
-			$.each(cells, function (_, option)
-			{
+			$.each(cells, function (_, option) {
 				elem.append($("<option>", {
 					value: option,
 					text: option,
@@ -208,11 +204,9 @@
 			window.lastMap = world.roomId;
 		}
 
-		$("#pads").change(async function ()
-		{
+		$("#pads").change(async function () {
 			const { auth, world } = Bot.getInstance();
-			if (!auth.loggedIn || world.loading)
-			{
+			if (!auth.loggedIn || world.loading) {
 				return;
 			}
 
@@ -223,11 +217,9 @@
 		});
 
 		$("#cells").on("click", updateCells)
-			.change(async function ()
-			{
+			.change(async function () {
 				const { auth, world } = Bot.getInstance();
-				if (!auth.loggedIn || world.loading)
-				{
+				if (!auth.loggedIn || world.loading) {
 					return;
 				}
 
@@ -237,19 +229,16 @@
 				await Bot.getInstance().world.jump(cell, pad);
 			});
 
-		$("#x").on("click", async function ()
-		{
+		$("#x").on("click", async function () {
 			const { auth, player, world } = Bot.getInstance();
-			if (!auth.loggedIn || world.loading)
-			{
+			if (!auth.loggedIn || world.loading) {
 				return;
 			}
 
 			const cells = $("#cells");
 			const pads = $("#pads");
 
-			if (!cells.val())
-			{
+			if (!cells.val()) {
 				updateCells();
 			}
 
@@ -259,16 +248,56 @@
 			await world.jump(cells.val(), pads.val(), true);
 		});
 
-		$("#bank").on("click", function ()
-		{
+		$("#bank").on("click", function () {
 			const bot = Bot.getInstance();
-			if (!auth.loggedIn)
-			{
+			if (!auth.loggedIn) {
 				return;
 			}
 
 			bot.flash.call("world.toggleBank");
 		});
+
+		$('[id^="option-"]').each(function () {
+			$(this).click(function () {
+				const checked = $(this).attr('data-checked') === 'true';
+
+				if (checked) {
+					$(this).attr('data-checked', 'false');
+					$(this).find('.checkmark').hide();
+				} else {
+					$(this).attr('data-checked', 'true');
+					$(this).find('.checkmark').show();
+				}
+			});
+		});
+
+		setIntervalAsync(() => {
+			if (!auth.loggedIn || world.loading) {
+				return;
+			}
+
+			if ($('#option-infinite-range').attr('data-checked') === 'true') {
+				settings.setInfiniteRange();
+			}
+
+			if ($('#option-provoke').attr('data-checked') === 'true') {
+				settings.setProvokeMonsters();
+			}
+
+			if ($('#option-enemy-magnet').attr('data-checked') === 'true') {
+				settings.setEnemyMagnet();
+			}
+
+			if ($('#option-skip-cutscenes').attr('data-checked') === 'true') {
+				settings.skipCutscenes();
+			}
+
+			settings.setLagKiller($('#option-lag-killer').attr('data-checked') === 'true');
+
+			if ($('#option-hide-players').attr('data-checked') === 'true') {
+				settings.hidePlayers();
+			}
+		}, 1000);
 	});
 </script>
 
@@ -276,14 +305,63 @@
 	<embed id="swf" src="grimoire.swf" type="application/x-shockwave-flash"></embed>
 </div>
 
-<div class="w3-bar w3-fixed-top" style="background-color: #24242e; color: lightgrey; height: 27px; display: none" id="nav">
-	<button class="w3-bar-item w3-button w3-small" id="scripts" style="margin-top: -3px">scripts</button>
-	<button href="#" class="w3-bar-item w3-button w3-small" id="tools" style="margin-top: -3px">tools</button>
+<div class="w3-bar" style="background-color: #24242e; color: lightgrey; height: 27px; display: none" id="nav">
+	<button class="w3-bar-item w3-button w3-small" id="scripts" style="margin-top: -3px;">scripts</button>
+	<button class="w3-bar-item w3-button w3-small" id="tools" style="margin-top: -3px">tools</button>
 	<button class="w3-bar-item w3-button w3-small" id="packets" style="margin-top: -3px">packets</button>
+	<div class="w3-dropdown-hover">
+		<button class="w3-button w3-small" style="margin-top: -3px">options</button>
+		<div class="w3-dropdown-content w3-small"
+			style="background-color:#24242e; color: lightgrey; margin-top: -4px; max-width: 150px;">
+			<button class="w3-button w3-small w3-block" style="text-align: left;" id="option-infinite-range">
+				infinite range
+				<svg class="checkmark" viewBox="0 0 24 24"
+					style="width: 1em; height: 1em; vertical-align: middle; display: none;">
+					<path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path>
+				</svg>
+			</button>
+			<button class="w3-button w3-small w3-block" style="text-align: left;" id="option-provoke">
+				provoke
+				<svg class="checkmark" viewBox="0 0 24 24"
+					style="width: 1em; height: 1em; vertical-align: middle; display: none;">
+					<path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path>
+				</svg>
+			</button>
+			<button class="w3-button w3-small w3-block" style="text-align: left;" id="option-enemy-magnet">
+				enemy magnet
+				<svg class="checkmark" viewBox="0 0 24 24"
+					style="width: 1em; height: 1em; vertical-align: middle; display: none;">
+					<path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path>
+				</svg>
+			</button>
+			<button class="w3-button w3-small w3-block" style="text-align: left;" id="option-lag-killer">
+				lag killer
+				<svg class="checkmark" viewBox="0 0 24 24"
+					style="width: 1em; height: 1em; vertical-align: middle; display: none;">
+					<path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path>
+				</svg>
+			</button>
+			<button class="w3-button w3-small w3-block" style="text-align: left;" id="option-hide-players">
+				hide players
+				<svg class="checkmark" viewBox="0 0 24 24"
+					style="width: 1em; height: 1em; vertical-align: middle; display: none;">
+					<path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path>
+				</svg>
+			</button>
+			<button class="w3-button w3-small w3-block" style="text-align: left;" id="option-skip-cutscenes">
+				skip cutscenes
+				<svg class="checkmark" viewBox="0 0 24 24"
+					style="width: 1em; height: 1em; vertical-align: middle; display: none;">
+					<path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path>
+				</svg>
+			</button>
+		</div>
+	</div>
+
 	<button class="w3-bar-item w3-button w3-border w3-small w3-right" id="bank"
 		style="height: 21px; margin-top: 4px; margin-left: 10px; margin-right: 5px; padding: 0 8px;">bank</button>
 	<button class="w3-bar-item w3-button w3-border w3-small w3-right" id="x"
-		style="height: 21px; margin-top: 4px; margin-left: 4px; margin-right: -2px; padding: 0 4px;">x</button>
+		style="height: 21px; margin-top: 4px; margin-left: 6px; margin-right: -2px; padding: 0 4px;">x</button>
 	<select class="w3-bar-item w3-border w3-small w3-right" id="cells" disabled
 		style="height: 21px; margin-top: 4px; margin-left: 10px; padding: 0 4px; width: 100px; background-color: #24242e; color: lightgrey"></select>
 	<select class="w3-bar-item w3-border w3-small w3-right" id="pads" disabled
