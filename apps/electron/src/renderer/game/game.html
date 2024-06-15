@@ -282,7 +282,9 @@
 
 			if ($('#option-provoke-all').attr('data-checked') === 'true') {
 				const ids = world.monsters.map((mon) => mon.MonMapID);
-				packets.sendServer(`%xt%zm%aggroMon%${world.roomId}%${ids.join('%')}%`);
+				if (ids.length > 0) {
+					packets.sendServer(`%xt%zm%aggroMon%${world.roomId}%${ids.join('%')}%`);
+				}
 			}
 
 			if ($('#option-provoke-cell').attr('data-checked') === 'true') {
