@@ -123,6 +123,12 @@ async function createGame(account = null) {
 			event.preventDefault();
 			event.sender.hide();
 		});
+
+		// window refreshed?
+		window.webContents.on('did-finish-load', () => {
+			// send the window id again to avoid re-creation of an id
+			window.webContents.send('generate-id', windowID);
+		});
 	});
 }
 
