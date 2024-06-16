@@ -1,5 +1,5 @@
-const { join, parse, relative } = require('path');
-const { BrowserWindow, session, app } = require('electron');
+const { join, parse } = require('path');
+const { BrowserWindow, session } = require('electron');
 const { nanoid } = require('nanoid');
 
 const RENDERER = join(__dirname, '../renderer');
@@ -62,7 +62,7 @@ async function createGame(account = null) {
 	);
 
 	await window.loadFile(join(RENDERER, 'game/game.html'));
-	window.webContents.openDevTools({ mode: 'right' });
+	// window.webContents.openDevTools({ mode: 'right' });
 	// window.maximize();
 
 	// TODO: race condition
@@ -75,7 +75,7 @@ async function createGame(account = null) {
 		window.webContents.send('game:login', account);
 	}
 
-	window.on('closed', function () {
+	window.on('closed', () => {
 		console.log(`Removing family of windows under: "${windowID}".`);
 
 		if (!windows.has(windowID)) {
@@ -115,6 +115,7 @@ async function createGame(account = null) {
 		_windows[page] = window;
 
 		await window.loadFile(join(RENDERER, `game/pages/${file}`));
+
 		window.on('closed', () => {
 			_windows[page] = null;
 		});
@@ -123,18 +124,19 @@ async function createGame(account = null) {
 			event.preventDefault();
 			event.sender.hide();
 		});
+	});
 
-		// window refreshed?
-		window.webContents.on('did-finish-load', () => {
-			// send the window id again to avoid re-creation of an id
-			window.webContents.send('generate-id', windowID);
-		});
+	// window refreshed?
+	window.webContents.on('did-finish-load', () => {
+		// send the window id again to avoid re-creation
+		window.webContents.send('generate-id', windowID);
 	});
 }
 
 function assignWindowID(window, windowID) {
 	windows.set(windowID, {
 		game: window,
+		scripts: null,
 		tools: null,
 		packets: null,
 	});
