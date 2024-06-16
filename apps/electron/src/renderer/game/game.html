@@ -149,15 +149,12 @@
 			}
 		}, 50);
 
-		$("#scripts").click(function (ev) {
-			if ($(this).hasClass('w3-disabled')) {
-				ev.preventDefault();
-				return;
-			}
+		$('#scripts-load').click(async () => {
+			ipc.send('game:load_script');
+		});
 
-			$(this).addClass('w3-disabled');
-			window.open("./pages/scripts.html", null, "width=451,height=370");
-			$(this).removeClass('w3-disabled');
+		$('#scripts-devtools').click(() => {
+			ipc.send('game:toggle_devtools');
 		});
 
 		$("#tools").click(function () {
@@ -308,6 +305,10 @@
 			settings.setWalkSpeed(
 				Number.parseInt($('#option-walkspeed').val(), 10)
 			);
+
+			settings.setWalkSpeed(
+				Number.parseInt($('#option-walkspeed').val(), 10)
+			);
 		}, 1000);
 	});
 </script>
@@ -317,7 +318,15 @@
 </div>
 
 <div class="w3-bar" style="background-color: #24242e; color: lightgrey; height: 27px; display: none" id="nav">
-	<button class="w3-bar-item w3-button w3-small" id="scripts" style="margin-top: -3px;">scripts</button>
+	<div class="w3-dropdown-hover" style="background-color:unset; color:unset;"> <button class="w3-button w3-small"
+			style="margin-top: -3px" id="scripts">scripts</button>
+		<div class="w3-dropdown-content w3-small"
+			style="background-color:#24242e; color: lightgrey; margin-top: -4px; max-width: 150px;">
+			<button class="w3-button w3-small w3-block" style="text-align: left;" id="scripts-load">load script</button>
+			<button class="w3-button w3-small w3-block" style="text-align: left;" id="scripts-devtools">toggle dev tools</button>
+		</div>
+	</div>
+	<!-- <button class="w3-bar-item w3-button w3-small" id="scripts" style="margin-top: -3px;">scripts</button> -->
 	<button class="w3-bar-item w3-button w3-small" id="tools" style="margin-top: -3px">tools</button>
 	<button class="w3-bar-item w3-button w3-small" id="packets" style="margin-top: -3px">packets</button>
 	<div class="w3-dropdown-hover">

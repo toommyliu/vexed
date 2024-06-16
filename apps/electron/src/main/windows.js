@@ -135,7 +135,6 @@ async function createGame(account = null) {
 function assignWindowID(window, windowID) {
 	windows.set(windowID, {
 		game: window,
-		scripts: null,
 		tools: null,
 		packets: null,
 	});

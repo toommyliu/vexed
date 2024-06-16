@@ -21,16 +21,11 @@ ipc.on('game:generate_id', function (event) {
 	assignWindowID(window, windowID);
 });
 
-ipc.handle('game:load_script', async function (event, windowID) {
-	const scriptsWindow = BrowserWindow.fromWebContents(event.sender);
-	const gameWindow = getGameWindow(windowID);
-
-	if (!gameWindow) {
-		return;
-	}
+ipc.on('game:load_script', async function (event) {
+	const window = BrowserWindow.fromWebContents(event.sender);
 
 	const dialog_ = await dialog
-		.showOpenDialog(scriptsWindow, {
+		.showOpenDialog(window, {
 			filters: [{ name: 'JavaScript Files', extensions: ['js'] }],
 			properties: ['openFile'],
 			defaultPath: join(ROOT, 'Scripts'),
@@ -54,7 +49,7 @@ ipc.handle('game:load_script', async function (event, windowID) {
 		.replace(/\$/g, '\\$')
 		.replace(/\r?\n/g, '\\n');
 
-	gameWindow.webContents.executeJavaScript(`
+	window.webContents.executeJavaScript(`
 		document.getElementById('loaded-script')?.remove();
 		var script = document.createElement('script');
 		script.id = 'loaded-script';
@@ -65,6 +60,14 @@ ipc.handle('game:load_script', async function (event, windowID) {
 		})();\`;
 		document.body.appendChild(script);
 	`);
+});
+
+ipc.on('game:toggle_devtools', (event) => {
+	if (event.sender.isDevToolsOpened()) {
+		event.sender.closeDevTools();
+	} else {
+		event.sender.openDevTools();
+	}
 });
 
 ipc.on('packets:save', async function (event, packets) {

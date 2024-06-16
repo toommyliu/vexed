@@ -37,11 +37,6 @@ $(window).on('message', async function (event) {
 				}
 			}
 			break;
-		case 'scripts:close':
-			{
-				windows.scripts = null;
-			}
-			break;
 		case 'tools:close':
 			{
 				windows.tools = null;
@@ -49,7 +44,6 @@ $(window).on('message', async function (event) {
 			}
 			break;
 		case 'packets:generate_id':
-		case 'scripts:generate_id':
 		case 'tools:generate_id':
 			{
 				const wnd = event.originalEvent.data.event.split(':')[0];
@@ -96,15 +90,6 @@ $(window).on('message', async function (event) {
 			}
 			break;
 		//#endregion
-		//#region scripts
-		case 'scripts:load_script':
-			{
-				const script = event.originalEvent.data.resp;
-				console.log(script);
-				// ¯\_(ツ)_/¯
-				eval(script);
-			}
-			break;
 		//#region tools
 		case 'tools:fast_travel:join':
 			{
