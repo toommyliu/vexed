@@ -1,5 +1,12 @@
-<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="../shared/bootstrap.css">
+<script src="../shared/bootstrap.js"></script>
+
 <style>
+	:root {
+		/* grey-700 */
+		--bg-hover: #495057;
+	}
+
 	#swf {
 		position: fixed;
 		bottom: 0;
@@ -24,24 +31,68 @@
 		width: 75%;
 	}
 
-	.w3-dropdown-hover:focus {
-		outline: none;
-	}
-
-	.w3-button:focus {
-		outline: none;
-	}
-
-	.w3-button {
-		position: relative;
-		text-align: left;
-	}
-
 	.checkmark {
 		position: absolute;
-		top: 50%;
 		right: 10px;
-		transform: translateY(-50%);
+		margin-top: 4px;
+	}
+
+	#scripts,
+	#tools,
+	#packets,
+	#options {
+		border: none;
+		border-radius: 0px;
+		outline: none;
+	}
+
+	#scripts:hover,
+	#tools:hover,
+	#packets:hover,
+	#options:hover {
+		background-color: var(--bg-hover);
+		border: none;
+		border-radius: 0px;
+		outline: none;
+	}
+
+	#scripts-load:hover,
+	#scripts-devtools:hover,
+	#option-infinite-range:hover,
+	#option-provoke-all:hover,
+	#option-provoke-cell:hover,
+	#option-enemy-magnet:hover,
+	#option-lag-killer:hover,
+	#option-hide-players:hover,
+	#option-skip-cutscenes:hover,
+	#option-walkspeed-item:hover {
+		background-color: var(--bg-hover);
+	}
+
+	#x,
+	#bank {
+		border: 1px solid lightgrey !important;
+		border-radius: 1px;
+		height: 21px;
+	}
+
+	#x {
+		margin-top: 4px;
+		margin-left: 6px;
+		margin-right: -1px;
+		padding: 0 4px;
+	}
+
+	#bank {
+		margin-top: 4px;
+		margin-left: 5px;
+		margin-right: 5px;
+		padding: 0 8px;
+	}
+
+	#x:hover,
+	#bank:hover {
+		background-color: var(--bg-hover);
 	}
 </style>
 <script>
@@ -255,7 +306,7 @@
 		});
 
 		$('[id^="option-"]').each(function () {
-			$(this).click(function () {
+			$(this).click(function (ev) {
 				const checked = $(this).attr('data-checked') === 'true';
 
 				if (checked) {
@@ -310,99 +361,110 @@
 </script>
 
 <div style="position: relative;">
-	<embed id="swf" src="grimoire.swf" type="application/x-shockwave-flash"></embed>
+	<embed id="swf" src="grimoire.swf" type="application/x-shockwave-flash" quality="low" wmode="direct"></embed>
 </div>
 
-<div class="w3-bar" style="background-color: #24242e; color: lightgrey; height: 27px; display: none" id="nav">
-	<div class="w3-dropdown-hover" style="background-color:unset; color:unset;"> <button class="w3-button w3-small"
-			style="margin-top: -3px" id="scripts">scripts</button>
-		<div class="w3-dropdown-content w3-small"
-			style="background-color:#24242e; color: lightgrey; margin-top: -4px; max-width: 150px;">
-			<button class="w3-button w3-small w3-block" style="text-align: left;" id="scripts-load">load script</button>
-			<button class="w3-button w3-small w3-block" style="text-align: left;" id="scripts-devtools">toggle dev tools</button>
-		</div>
-	</div>
-	<!-- <button class="w3-bar-item w3-button w3-small" id="scripts" style="margin-top: -3px;">scripts</button> -->
-	<button class="w3-bar-item w3-button w3-small" id="tools" style="margin-top: -3px">tools</button>
-	<button class="w3-bar-item w3-button w3-small" id="packets" style="margin-top: -3px">packets</button>
-	<div class="w3-dropdown-hover">
-		<button class="w3-button w3-small" style="margin-top: -3px">options</button>
-		<div class="w3-dropdown-content w3-small"
-			style="background-color:#24242e; color: lightgrey; margin-top: -4px; max-width: 150px;">
-			<button class="w3-button w3-small w3-block" style="text-align: left;" id="option-infinite-range">
-				infinite range
-				<svg class="checkmark" viewBox="0 0 24 24"
-					style="width: 1em; height: 1em; vertical-align: middle; display: none;">
-					<path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path>
-				</svg>
-			</button>
-			<button class="w3-button w3-small w3-block" style="text-align: left;" id="option-provoke-all">
-				provoke all
-				<svg class="checkmark" viewBox="0 0 24 24"
-					style="width: 1em; height: 1em; vertical-align: middle; display: none;">
-					<path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path>
-				</svg>
-			</button>
-			<button class="w3-button w3-small w3-block" style="text-align: left;" id="option-provoke-cell">
-				provoke cell
-				<svg class="checkmark" viewBox="0 0 24 24"
-					style="width: 1em; height: 1em; vertical-align: middle; display: none;">
-					<path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path>
-				</svg>
-			</button>
-			<button class="w3-button w3-small w3-block" style="text-align: left;" id="option-enemy-magnet">
-				enemy magnet
-				<svg class="checkmark" viewBox="0 0 24 24"
-					style="width: 1em; height: 1em; vertical-align: middle; display: none;">
-					<path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path>
-				</svg>
-			</button>
-			<button class="w3-button w3-small w3-block" style="text-align: left;" id="option-lag-killer">
-				lag killer
-				<svg class="checkmark" viewBox="0 0 24 24"
-					style="width: 1em; height: 1em; vertical-align: middle; display: none;">
-					<path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path>
-				</svg>
-			</button>
-			<button class="w3-button w3-small w3-block" style="text-align: left;" id="option-hide-players">
-				hide players
-				<svg class="checkmark" viewBox="0 0 24 24"
-					style="width: 1em; height: 1em; vertical-align: middle; display: none;">
-					<path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path>
-				</svg>
-			</button>
-			<button class="w3-button w3-small w3-block" style="text-align: left;" id="option-skip-cutscenes">
-				skip cutscenes
-				<svg class="checkmark" viewBox="0 0 24 24"
-					style="width: 1em; height: 1em; vertical-align: middle; display: none;">
-					<path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path>
-				</svg>
-			</button>
-			<div class="w3-button w3-small w3-block"
-				style="text-align: left; display: flex; align-items: center; padding: 0;">
-				<span style="flex: 1; padding: 8px; margin-left: 6px;">walk speed</span>
-				<input type="number" class="w3-input w3-small" id="option-walkspeed"
-					style="width: 50px; height: 20px; margin-right: 8px;" value="8" min="0" max="99">
+<nav class="navbar navbar-expand fixed-top bg-dark" style="height: 27px; display: none;" id="nav">
+	<div class="d-flex justify-content-between w-100">
+		<div class="d-flex">
+			<div class="dropdown">
+				<button class="btn btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="scripts"
+					style="color: lightgrey;">
+					scripts
+				</button>
+				<div class="dropdown-menu bg-dark" style="margin-top: -1.5px; margin-left: -2px; padding: 0px; border-radius: 0px;">
+					<button class="dropdown-item" type="button" id="scripts-load" style="color: lightgrey;">load
+						script</button>
+					<button class="dropdown-item" type="button" id="scripts-devtools" style="color: lightgrey;">toggle
+						dev tools</button>
+				</div>
+			</div>
+
+			<button class="btn btn-sm" id="tools" style="color: lightgrey;">tools</button>
+			<button class="btn btn-sm" id="packets" style="color: lightgrey;">packets</button>
+
+			<div class="dropdown">
+				<button class="btn btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false"
+					style="color: lightgrey;" id="options">
+					options
+				</button>
+				<div class="dropdown-menu bg-dark" style="margin-top: -1px; padding: 0px; border-radius: 0px;">
+					<button class="dropdown-item" type="button" id="option-infinite-range" style="color: lightgrey;">
+						infinite range
+						<svg class="checkmark" viewBox="0 0 24 24"
+							style="width: 1em; height: 1em; vertical-align: middle; display: none;">
+							<path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z">
+							</path>
+						</svg>
+					</button>
+					<button class="dropdown-item" type="button" id="option-provoke-all" style="color: lightgrey;">
+						provoke all
+						<svg class="checkmark" viewBox="0 0 24 24"
+							style="width: 1em; height: 1em; vertical-align: middle; display: none;">
+							<path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z">
+							</path>
+						</svg></button>
+					<button class="dropdown-item" type="button" id="option-provoke-cell"
+						style="color: lightgrey;">provoke cell <svg class="checkmark" viewBox="0 0 24 24"
+							style="width: 1em; height: 1em; vertical-align: middle; display: none;">
+							<path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z">
+							</path>
+						</svg></button>
+					<button class="dropdown-item" type="button" id="option-enemy-magnet" style="color: lightgrey;">
+						enemy magnet
+						<svg class="checkmark" viewBox="0 0 24 24"
+							style="width: 1em; height: 1em; vertical-align: middle; display: none;">
+							<path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z">
+							</path>
+						</svg></button>
+					<button class="dropdown-item" type="button" id="option-lag-killer" style="color: lightgrey;">
+						lag killer
+						<svg class="checkmark" viewBox="0 0 24 24"
+							style="width: 1em; height: 1em; vertical-align: middle; display: none;">
+							<path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z">
+							</path>
+						</svg></button>
+					<button class="dropdown-item" type="button" id="option-hide-players" style="color: lightgrey;">
+						hide players
+						<svg class="checkmark" viewBox="0 0 24 24"
+							style="width: 1em; height: 1em; vertical-align: middle; display: none;">
+							<path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z">
+							</path>
+						</svg></button>
+					<button class="dropdown-item" type="button" id="option-skip-cutscenes" style="color: lightgrey;">
+						skip cutscenes
+						<svg class="checkmark" viewBox="0 0 24 24"
+							style="width: 1em; height: 1em; vertical-align: middle; display: none;">
+							<path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z">
+							</path>
+						</svg></button>
+					<div class="dropdown-item d-flex align-items-center" style="margin-top: -2px; padding: 0px;"
+						id="option-walkspeed-item">
+						<span style="flex: 1; padding: 8px; color: lightgrey; margin-left: 6px;">walk speed</span>
+						<input type="number"
+							id="option-walkspeed" style="width: 50px; height: auto; line-height: 1; padding: 0 2px; margin-right: 4px;" value="8" min="0" max="99">
+					</div>
+				</div>
 			</div>
 		</div>
-	</div>
+		<div class="d-flex">
+			<select id="pads" disabled
+				style="height: 21px; margin-top: 4px; margin-right: -4px; padding: 0 10px; width: 100px; background-color: #24242e; color: lightgrey">
+				<option value="" selected disabled hidden></option>
+				<option value="Center">Center</option>
+				<option value="Spawn">Spawn</option>
+				<option value="Left">Left</option>
+				<option value="Right">Right</option>
+				<option value="Top">Top</option>
+				<option value="Bottom">Bottom</option>
+				<option value="Up">Up</option>
+				<option value="Down">Down</option>
+			</select>
+			<select id="cells" disabled
+				style="height: 21px; margin-top: 4px; margin-left: 10px; padding: 0 4px; width: 100px; background-color: #24242e; color: lightgrey"></select>
 
-	<button class="w3-bar-item w3-button w3-border w3-small w3-right" id="bank"
-		style="height: 21px; margin-top: 4px; margin-left: 10px; margin-right: 5px; padding: 0 8px;">bank</button>
-	<button class="w3-bar-item w3-button w3-border w3-small w3-right" id="x"
-		style="height: 21px; margin-top: 4px; margin-left: 6px; margin-right: -2px; padding: 0 4px;">x</button>
-	<select class="w3-bar-item w3-border w3-small w3-right" id="cells" disabled
-		style="height: 21px; margin-top: 4px; margin-left: 10px; padding: 0 4px; width: 100px; background-color: #24242e; color: lightgrey"></select>
-	<select class="w3-bar-item w3-border w3-small w3-right" id="pads" disabled
-		style="height: 21px; margin-top: 4px; margin-right: -4px; padding: 0 10px; width: 100px; background-color: #24242e; color: lightgrey">
-		<option value="" selected disabled hidden></option>
-		<option value="Center">Center</option>
-		<option value="Spawn">Spawn</option>
-		<option value="Left">Left</option>
-		<option value="Right">Right</option>
-		<option value="Top">Top</option>
-		<option value="Bottom">Bottom</option>
-		<option value="Up">Up</option>
-		<option value="Down">Down</option>
-	</select>
-</div>
+			<button class="btn btn-sm" id="x" style="color: lightgrey;">x</button>
+			<button class="btn btn-sm" id="bank" style="color: lightgrey;">bank</button>
+		</div>
+	</div>
+</nav>
