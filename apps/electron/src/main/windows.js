@@ -137,7 +137,8 @@ function assignWindowID(window, windowID) {
 }
 
 function getGameWindow(windowID) {
-	return windows.get(windowID) ?? null;
+	const _windows = windows.get(windowID);
+	return _windows.game ?? null;
 }
 
 module.exports = {

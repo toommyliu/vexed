@@ -25,6 +25,10 @@ ipc.handle('game:load_script', async function (event, windowID) {
 	const scriptsWindow = BrowserWindow.fromWebContents(event.sender);
 	const gameWindow = getGameWindow(windowID);
 
+	if (!gameWindow) {
+		return;
+	}
+
 	const dialog_ = await dialog
 		.showOpenDialog(scriptsWindow, {
 			filters: [{ name: 'JavaScript Files', extensions: ['js'] }],
