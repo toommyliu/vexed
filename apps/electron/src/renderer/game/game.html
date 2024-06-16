@@ -304,6 +304,10 @@
 			if ($('#option-hide-players').attr('data-checked') === 'true') {
 				settings.hidePlayers();
 			}
+
+			settings.setWalkSpeed(
+				Number.parseInt($('#option-walkspeed').val(), 10)
+			);
 		}, 1000);
 	});
 </script>
@@ -369,6 +373,12 @@
 					<path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path>
 				</svg>
 			</button>
+			<div class="w3-button w3-small w3-block"
+				style="text-align: left; display: flex; align-items: center; padding: 0;">
+				<span style="flex: 1; padding: 8px; margin-left: 6px;">walk speed</span>
+				<input type="number" class="w3-input w3-small" id="option-walkspeed"
+					style="width: 50px; height: 20px; margin-right: 8px;" value="8" min="0" max="99">
+			</div>
 		</div>
 	</div>
 
