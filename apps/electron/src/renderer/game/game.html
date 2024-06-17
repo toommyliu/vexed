@@ -65,7 +65,22 @@
 	#option-lag-killer:hover,
 	#option-hide-players:hover,
 	#option-skip-cutscenes:hover,
-	#option-walkspeed-item:hover {
+	#option-walkspeed-item:hover,
+	#scripts-load:active,
+	#scripts-devtools:active,
+	#option-infinite-range:active,
+	#option-provoke-all:active,
+	#option-provoke-cell:active,
+	#option-enemy-magnet:active,
+	#option-lag-killer:active,
+	#option-hide-players:active,
+	#option-skip-cutscenes:active,
+	#option-walkspeed-item:active {
+		background-color: var(--bg-hover);
+	}
+
+	#scripts-load:active,
+	#scripts-devtools:active {
 		background-color: var(--bg-hover);
 	}
 
@@ -372,7 +387,8 @@
 					style="color: lightgrey;">
 					scripts
 				</button>
-				<div class="dropdown-menu bg-dark" style="margin-top: -1.5px; margin-left: -2px; padding: 0px; border-radius: 0px;">
+				<div class="dropdown-menu bg-dark"
+					style="margin-top: -1.5px; margin-left: -2px; padding: 0px; border-radius: 0px;">
 					<button class="dropdown-item" type="button" id="scripts-load" style="color: lightgrey;">load
 						script</button>
 					<button class="dropdown-item" type="button" id="scripts-devtools" style="color: lightgrey;">toggle
@@ -441,8 +457,9 @@
 					<div class="dropdown-item d-flex align-items-center" style="margin-top: -2px; padding: 0px;"
 						id="option-walkspeed-item">
 						<span style="flex: 1; padding: 8px; color: lightgrey; margin-left: 6px;">walk speed</span>
-						<input type="number"
-							id="option-walkspeed" style="width: 50px; height: auto; line-height: 1; padding: 0 2px; margin-right: 4px;" value="8" min="0" max="99">
+						<input type="number" id="option-walkspeed"
+							style="width: 50px; height: auto; line-height: 1; padding: 0 2px; margin-right: 4px;"
+							value="8" min="0" max="99">
 					</div>
 				</div>
 			</div>
