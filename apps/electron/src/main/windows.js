@@ -91,6 +91,8 @@ async function createGame(account = null) {
 		}
 	});
 
+	const mainWindow = window;
+
 	window.webContents.on('new-window', async (event, url, _, __, options) => {
 		if (url.startsWith('https://')) {
 			return;
@@ -110,7 +112,15 @@ async function createGame(account = null) {
 			return;
 		}
 
-		const window = new BrowserWindow({ ...options, alwaysOnTop: true });
+		const window = new BrowserWindow({ ...options });
+
+		mainWindow.on('focus', () => {
+			window.setAlwaysOnTop(true);
+		});
+		mainWindow.on('blur', () => {
+			window.setAlwaysOnTop(false);
+		});
+
 		event.newGuest = window;
 		_windows[page] = window;
 
