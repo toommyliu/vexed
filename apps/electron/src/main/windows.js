@@ -84,9 +84,10 @@ async function createGame(account = null) {
 
 		const _windows = windows.get(windowID);
 
-		for (const [_, v] of Object.entries(_windows)) {
+		for (const [k, v] of Object.entries(_windows)) {
 			try {
 				v?.close();
+				console.log(`Removing window "${k}" under: "${windowID}".`);
 			} catch {}
 		}
 	});
@@ -107,7 +108,7 @@ async function createGame(account = null) {
 		const _windows = windows.get(windowID);
 		const prevWindow = _windows[page];
 
-		if (prevWindow) {
+		if (prevWindow && !prevWindow?.isDestroyed()) {
 			prevWindow.show();
 			return;
 		}
@@ -115,10 +116,15 @@ async function createGame(account = null) {
 		const window = new BrowserWindow({ ...options });
 
 		mainWindow.on('focus', () => {
-			window.setAlwaysOnTop(true);
+			if (!window.isDestroyed()) {
+				window.setAlwaysOnTop(true);
+			}
 		});
+
 		mainWindow.on('blur', () => {
-			window.setAlwaysOnTop(false);
+			if (!window.isDestroyed()) {
+				window.setAlwaysOnTop(false);
+			}
 		});
 
 		event.newGuest = window;
