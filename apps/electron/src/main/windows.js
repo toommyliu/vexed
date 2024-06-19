@@ -113,19 +113,9 @@ async function createGame(account = null) {
 			return;
 		}
 
+		console.log(`Creating detour "${page}" window for "${windowID}".`);
+
 		const window = new BrowserWindow({ ...options });
-
-		mainWindow.on('focus', () => {
-			if (!window.isDestroyed()) {
-				window.setAlwaysOnTop(true);
-			}
-		});
-
-		mainWindow.on('blur', () => {
-			if (!window.isDestroyed()) {
-				window.setAlwaysOnTop(false);
-			}
-		});
 
 		event.newGuest = window;
 		_windows[page] = window;
@@ -133,13 +123,21 @@ async function createGame(account = null) {
 		await window.loadFile(join(RENDERER, `game/pages/${file}`));
 
 		window.on('closed', () => {
+			console.log(`Closing "${page}" window under: ${windowID}".`);
 			_windows[page] = null;
 		});
 
+		// TODO: when parent is closed/closing, children should close
 		window.on('close', (event) => {
 			event.preventDefault();
-			event.sender.hide();
+			window.blur();
+
+			console.log(
+				`Blocked window "${page}" from closing because parent is not closed: "${windowID}".`,
+			);
 		});
+
+		return window;
 	});
 
 	// window refreshed?
@@ -154,6 +152,7 @@ function assignWindowID(window, windowID) {
 		game: window,
 		scripts: null,
 		tools: null,
+		fastTravels: null,
 		packets: null,
 	});
 	window.webContents.send('generate-id', windowID);

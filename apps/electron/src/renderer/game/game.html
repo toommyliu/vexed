@@ -58,6 +58,7 @@
 
 	#scripts-load:hover,
 	#scripts-devtools:hover,
+	#tools-fasttravels:hover,
 	#option-infinite-range:hover,
 	#option-provoke-all:hover,
 	#option-provoke-cell:hover,
@@ -207,8 +208,9 @@
 		const { setIntervalAsync, clearIntervalAsync } = require("set-interval-async/fixed");
 
 		window.lastMap = null;
+		window.windows = {};
 
-		setTimeout(function () {
+		setTimeout(() => {
 			if (!window.id) {
 				ipc.send("game:generate_id");
 				console.log("Looks like we don't have an ID, assigning that now.");
@@ -223,15 +225,8 @@
 			ipc.send('game:toggle_devtools');
 		});
 
-		$("#tools").click(function () {
-			if ($(this).hasClass('w3-disabled')) {
-				ev.preventDefault();
-				return;
-			}
-
-			$(this).addClass('w3-disabled');
-			window.open("./pages/tools.html", null, "width=451,height=370");
-			$(this).removeClass('w3-disabled');
+			window.windows.fastTravels ??= window.open('./pages/fast-travels.html', null, 'width=427,height=597');
+			window.windows.fastTravels?.focus();
 		});
 
 		$("#packets").click(function () {
@@ -389,14 +384,24 @@
 				</button>
 				<div class="dropdown-menu bg-dark"
 					style="margin-top: -1.5px; margin-left: -2px; padding: 0px; border-radius: 0px;">
-					<button class="dropdown-item" type="button" id="scripts-load" style="color: lightgrey;">load
-						script</button>
+					<button class="dropdown-item" type="button" id="scripts-load"
+						style="color: lightgrey;">load</button>
 					<button class="dropdown-item" type="button" id="scripts-devtools" style="color: lightgrey;">toggle
 						dev tools</button>
 				</div>
 			</div>
 
-			<button class="btn btn-sm" id="tools" style="color: lightgrey;">tools</button>
+			<div class="dropdown">
+				<button class="btn btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="tools"
+					style="color: lightgrey;">
+					tools
+				</button>
+				<div class="dropdown-menu bg-dark"
+					style="margin-top: -1.5px; margin-left: -2px; padding: 0px; border-radius: 0px;">
+					<button class="dropdown-item" type="button" id="tools-fasttravels" style="color: lightgrey;">fast
+						travels</button>
+				</div>
+			</div>
 			<button class="btn btn-sm" id="packets" style="color: lightgrey;">packets</button>
 
 			<div class="dropdown">

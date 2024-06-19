@@ -13,8 +13,6 @@ ipc.on('game:login', function (event, account) {
 	window.account = account;
 });
 
-const windows = {};
-
 let maid = { on: false, player: null, skill_set: null };
 let skillIdx = 0;
 
@@ -28,7 +26,6 @@ $(window).on('message', async function (event) {
 	switch (event.originalEvent.data.event) {
 		case 'packets:close':
 			{
-				windows.packets = null;
 				if (p_intervalID) {
 					clearIntervalAsync(p_intervalID);
 					p_packets = [];
@@ -39,15 +36,13 @@ $(window).on('message', async function (event) {
 			break;
 		case 'tools:close':
 			{
-				windows.tools = null;
 				maid.on = false;
 			}
 			break;
+		case 'fasttravels:generate_id':
 		case 'packets:generate_id':
 		case 'tools:generate_id':
 			{
-				const wnd = event.originalEvent.data.event.split(':')[0];
-				windows[wnd] = event.originalEvent.source;
 				event.originalEvent.source.postMessage(
 					{ event: event.originalEvent.data.event, resp: window.id },
 					'*',
@@ -91,6 +86,28 @@ $(window).on('message', async function (event) {
 			break;
 		//#endregion
 		//#region tools
+		//#region fast travels
+		case 'fasttravels:join':
+			{
+				if (!auth.loggedIn) {
+					return;
+				}
+
+				await Bot.getInstance().waitUntil(() => world.isActionAvailable(GameAction.Transfer));
+
+				const { map, cell, pad, roomNumber } =
+					event.originalEvent.data.data;
+				const _roomNumber = Number.parseInt(roomNumber, 10);
+
+				Bot.getInstance().flash.call(
+					window.swf.Join,
+					`${map}-${_roomNumber}`,
+					cell ?? 'Enter',
+					pad ?? 'Spawn',
+				);
+			}
+			break;
+		//#endregion
 		case 'tools:fast_travel:join':
 			{
 				if (!auth.loggedIn) {
