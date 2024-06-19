@@ -63,11 +63,7 @@ ipc.on('game:load_script', async function (event) {
 });
 
 ipc.on('game:toggle_devtools', (event) => {
-	if (event.sender.isDevToolsOpened()) {
-		event.sender.closeDevTools();
-	} else {
-		event.sender.openDevTools();
-	}
+	event.sender.toggleDevTools();
 });
 
 ipc.on('packets:save', async function (event, packets) {
