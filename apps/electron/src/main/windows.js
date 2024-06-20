@@ -156,6 +156,7 @@ function assignWindowID(window, windowID) {
 		tools: null,
 		fastTravels: null,
 		loaderGrabber: null,
+		maid: null,
 		packets: null,
 	});
 	window.webContents.send('generate-id', windowID);

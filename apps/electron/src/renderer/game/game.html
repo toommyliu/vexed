@@ -60,6 +60,7 @@
 	#scripts-devtools:hover,
 	#tools-fasttravels:hover,
 	#tools-loadergrabber:hover,
+	#tools-maid:hover,
 	#option-infinite-range:hover,
 	#option-provoke-all:hover,
 	#option-provoke-cell:hover,
@@ -72,6 +73,7 @@
 	#scripts-devtools:active,
 	#tools-fasttravels:active,
 	#tools-loadergrabber:active,
+	#tools-maid:active,
 	#option-infinite-range:active,
 	#option-provoke-all:active,
 	#option-provoke-cell:active,
@@ -238,6 +240,11 @@
 			window.windows.loaderGrabber?.focus();
 		});
 
+		$('#tools-maid').click(() => {
+			window.windows.maid ??= window.open('./pages/maid.html', null, 'width=427,height=597');
+			window.windows.maid?.focus();
+		});
+
 		function updateCells() {
 			const bot = Bot.getInstance();
 			const { auth, player, world } = bot;
@@ -400,6 +407,8 @@
 						travels</button>
 					<button class="dropdown-item" type="button" id="tools-loadergrabber"
 						style="color: lightgrey;">loader/grabber</button>
+					<button class="dropdown-item" type="button" id="tools-maid"
+						style="color: lightgrey;">maid</button>
 				</div>
 			</div>
 
