@@ -2,7 +2,7 @@ var {
 	setIntervalAsync,
 	clearIntervalAsync,
 } = require('set-interval-async/fixed');
-var { ipcRenderer: ipc, dialog } = require('electron');
+var { ipcRenderer: ipc } = require('electron');
 
 ipc.on('generate-id', (event, windowID) => {
 	console.log(`Your shared ID is: "${windowID}"`);
