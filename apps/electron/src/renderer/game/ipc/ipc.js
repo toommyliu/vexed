@@ -13,7 +13,7 @@ ipc.on('game:login', function (event, account) {
 	window.account = account;
 });
 
-let maid = { on: false, player: null, skill_set: null };
+let maid = { on: false, player: null, skills: null };
 let skillIdx = 0;
 
 let p_intervalID = null;
@@ -221,17 +221,17 @@ $(window).on('message', async function (event) {
 			const { player, skill_set } = event.originalEvent.data;
 			maid.on = true;
 			maid.player = player;
-			maid.skill_set = skill_set;
+			maid.skills = skill_set;
 
-			if (!maid.skill_set.includes(',')) {
-				maid.skill_set = '1,2,3,4';
+			if (!maid.skills.includes(',')) {
+				maid.skills = '1,2,3,4';
 			}
 
-			const skills = maid.skill_set
+			const skills = maid.skills
 				.split(',')
 				.map((s) => Number.parseInt(s.trim(), 10))
 				.filter((n) => !Number.isNaN(n) && n >= 0 && n <= 5);
-			maid.skill_set = skills;
+			maid.skills = skills;
 
 			p_intervalID = setIntervalAsync(async function () {
 				if (maid.on) {
@@ -261,10 +261,10 @@ $(window).on('message', async function (event) {
 							combat.attack('*');
 						}
 
-						await combat.useSkill(maid.skill_set[skillIdx]);
+						await combat.useSkill(maid.skills[skillIdx]);
 						await bot.sleep(150);
 
-						if (++skillIdx >= maid.skill_set.length) {
+						if (++skillIdx >= maid.skills.length) {
 							skillIdx = 0;
 						}
 					}
