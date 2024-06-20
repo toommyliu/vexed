@@ -40,6 +40,7 @@ $(window).on('message', async function (event) {
 			}
 			break;
 		case 'fasttravels:generate_id':
+		case 'loadergrabber:generate_id':
 		case 'packets:generate_id':
 		case 'tools:generate_id':
 			{
@@ -146,6 +147,7 @@ $(window).on('message', async function (event) {
 			);
 			break;
 		case 'tools:loader_grabber:grab_quests':
+			console.log('sent', Bot.getInstance().flash.call(window.swf.GetQuestTree))
 			event.originalEvent.source.postMessage(
 				{
 					event: event.originalEvent.data.event,

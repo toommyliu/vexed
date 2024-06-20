@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+<link rel="stylesheet" type="text/css" href="../../shared/bootstrap.css">
+<script>
+	window.$ = window.jQuery = require("../../shared/jquery.js");
+</script>
+
+<link rel="stylesheet" type="text/css" href="../../shared/tree.css">
+<script src="../../shared/tree.js"></script>
+
+<div class="container-fluid">
+	<div class="container-fluid">
+		<div class="d-flex flex-column gap-2">
+			<input type="number" id="loader-id" style="width: 200px;">
+			<select class="w3-border w3-small" id="loader-select"
+				style="width: 200px; height: 21px; background-color: #24242e; color: lightgrey">
+				<option value="" selected disabled hidden></option>
+				<option value="0">hair shop</option>
+				<option value="1">shop</option>
+				<option value="2">quest</option>
+				<option value="3">armor customizer</option>
+			</select>
+			<button class="w3-button w3-border" id="loader-btn" style="width: 200px;">load</button>
+		</div>
+	</div>
+	<div class="container-fluid w3-border mt-4 mb-4" id="grabber-container"
+		style="max-width: 400px; margin-left: 12px;">
+		<div id="tree" class="dark"></div>
+	</div>
+
+	<div class="container-fluid d-grid justify-content-start gap-2 w-25 m-0">
+		<select class="w3-border" id="grabber-select"
+			style="width: 200px; height: 21px; background-color: #24242e; color: lightgrey; flex: 1;">
+			<option value="" selected disabled hidden></option>
+			<option value="0">shop items</option>
+			<option value="1">quests</option>
+			<option value="2">inventory</option>
+			<option value="3">temp. inventory</option>
+			<option value="4">bank</option>
+			<option value="5">monsters</option>
+		</select>
+		<button class="w3-button w3-border" id="grabber-btn" style="width: 200px;">grab</button>
+	</div>
+</div>
+
+<script>
+	const parent = window.opener;
+
+	async function renderGrabberTree(type) {
+		$("#tree").empty();
+
+		let json;
+
+		switch (type) {
+			case "shop":
+				json = mapShop();
+				break;
+			case "quests":
+				json = mapQuests();
+				break;
+			case "inventory":
+				json = mapItems(0);
+				break;
+			case "temp_inventory":
+				json = mapItems(1);
+				break;
+			case "bank":
+				json = mapItems(2);
+				break;
+			case "monsters":
+				json = mapMonsters();
+				break;
+		}
+
+		if (!json) {
+			return;
+		}
+
+		const tree = new Tree(document.getElementById('tree'));
+		tree.json(json);
+
+		$('summary').each(function (index, elem) {
+			$(elem).contextmenu(function () {
+				console.log($(this).text());
+			});
+		});
+	}
+
+	function mapShop() {
+		return grabberData?.["items"]?.map((item) => {
+			return {
+				name: item.sName,
+				type: Tree.FOLDER,
+				children: [
+					{
+						name: `Shop Item ID: ${item.ShopItemID}`
+					},
+					{
+						name: `ID: ${item.ItemID}`
+					},
+					{
+						name: `Cost: ${item.iCost} ${item.bCoins === 1 ? "ACs" : "Gold"}`
+					},
+					{
+						name: `Category: ${item.sType}`
+					},
+					{
+						name: `Description: ${item.sDesc}`
+					}
+				]
+			}
+		});
+	}
+
+	function mapQuests() {
+		return grabberData.map((quest) => {
+			return {
+				name: `${quest.QuestID} - ${quest.sName}`,
+				type: Tree.FOLDER,
+				children: [
+					{ name: `ID: ${quest.QuestID}` },
+					{ name: `Description: ${quest.sDesc}` },
+					{
+						name: "Required Items",
+						type: Tree.FOLDER,
+						children: Object.values(quest.oItems).map((i) => {
+							return {
+								name: i.sName,
+								type: Tree.FOLDER,
+								children: [
+									{
+										name: `ID: ${i.ItemID}`
+									},
+									{
+										name: `Quantity: ${i.iQty}`
+									},
+									{
+										name: `Temporary: ${i.bTemp ? "Yes" : "No"}`
+									},
+									{
+										name: `Description: ${i.sDesc ?? ""}`
+									}
+								]
+							}
+						})
+					},
+					{
+						name: "Rewards",
+						type: Tree.FOLDER,
+						children: quest.Rewards.map((i) => {
+							return {
+								name: i.sName,
+								type: Tree.FOLDER,
+								children: [
+									{
+										name: `ID: ${i.ItemID}`
+									},
+									{
+										name: `Quantity: ${i.iQty}`
+									},
+									{
+										name: `Drop chance: ${i.DropChance}`
+									},
+								]
+							}
+						})
+					}
+				]
+			}
+		});
+	}
+
+	function mapItems(type) {
+		if (type === 0 || type === 2) {
+			return grabberData.map((item) => {
+				return {
+					name: item.sName,
+					type: Tree.FOLDER,
+					children: [
+						{
+							name: `ID: ${item.ItemID}`
+						},
+						{
+							name: `Char Item ID: ${item.CharItemID}`
+						},
+						{
+							name: `Quantity: ${item.iQty}/${item.iStk}`
+						},
+						{
+							name: `AC Tagged: ${item.bCoins === 1 ? "yes" : "no"}`
+						},
+						{
+							name: `Category: ${item.sType}`
+						},
+						{
+							name: `Description: ${item.sDesc}`
+						}
+					]
+				}
+			});
+		}
+
+		return grabberData.map((item) => {
+			return {
+				name: item.sName,
+				type: Tree.FOLDER,
+				children: [
+					{
+						name: `ID: ${item.ItemID}`
+					},
+					{
+						name: `Quantity: ${item.iQty}/${item.iStk}`
+					}
+				]
+			}
+		});
+	}
+
+	function mapMonsters() {
+		return grabberData.map((mon) => {
+			return {
+				name: mon.strMonName,
+				type: Tree.FOLDER,
+				children: [
+					{
+						name: `ID: ${mon.MonID}`
+					},
+					{
+						name: `MonMapID: ${mon.MonMapID}`
+					},
+					{
+						name: `Race: ${mon.sRace}`
+					},
+					{
+						name: `Level: ${mon.iLvl}`
+					},
+					{
+						name: `Health: ${mon.intHP}/${mon.intHPMax}`
+					}
+				]
+			}
+		});
+	}
+
+	$(async () => {
+		$(window).on('message', async function (event) {
+			console.log('Received message', event.originalEvent.data);
+
+			const ev = event.originalEvent;
+
+			switch (ev?.data?.event) {
+				case 'loadergrabber:generate_id':
+					{
+						window.id = ev.data.resp;
+						console.log(`Your shared ID is: '${window.id}'`);
+					}
+					break;
+				case 'tools:loader_grabber:grab_shop':
+				case 'tools:loader_grabber:grab_quests':
+				case 'tools:loader_grabber:grab_inventory':
+				case 'tools:loader_grabber:grab_temp_inventory':
+				case 'tools:loader_grabber:grab_bank':
+				case 'tools:loader_grabber:grab_monsters':
+					{
+						grabberData = ev.data.resp ?? [];
+						await renderGrabberTree(
+							ev.data.event.substring('tools:loader_grabber:grab'.length + 1)
+						);
+					}
+					break;
+				case 'tools:maid:me':
+					$('#player').val(ev.data.resp ?? '');
+					break;
+			}
+		});
+
+		setTimeout(function () {
+			if (!window.id) {
+				console.log(
+					"Looks like we don't have an ID, dispatching a request from parent."
+				);
+				parent.postMessage({ event: 'loadergrabber:generate_id' }, '*');
+			}
+		}, 500);
+
+		$('#loader-btn').click(function () {
+			const id = $('#loader-id').val().trim() || null;
+			const slot = Number.parseInt($('#loader-select').val(), 10) ?? null;
+
+			if (!id && slot !== 3) {
+				return;
+			}
+
+			switch (slot) {
+				case 0:
+					parent.postMessage({ event: 'tools:loader_grabber:load_hair_shop', resp: id }, '*');
+					break;
+				case 1:
+					parent.postMessage({ event: 'tools:loader_grabber:load_shop', resp: id }, '*');
+					break;
+				case 2:
+					parent.postMessage({ event: 'tools:loader_grabber:load_quest', resp: id }, '*');
+					break;
+				case 3:
+					parent.postMessage({ event: 'tools:loader_grabber:load_armor_customize' }, '*');
+					break;
+			}
+		});
+
+		$('#grabber-btn').click(function () {
+			const slot = Number.parseInt($('#grabber-select').val(), 10);
+
+			if (Number.isNaN(slot)) {
+				return;
+			}
+
+			switch (slot) {
+				case 0:
+					parent.postMessage({ event: 'tools:loader_grabber:grab_shop' }, '*');
+					break;
+				case 1:
+					parent.postMessage({ event: 'tools:loader_grabber:grab_quests' }, '*');
+					break;
+				case 2:
+					parent.postMessage({ event: 'tools:loader_grabber:grab_inventory' }, '*');
+					break;
+				case 3:
+					parent.postMessage({ event: 'tools:loader_grabber:grab_temp_inventory' }, '*');
+					break;
+				case 4:
+					parent.postMessage({ event: 'tools:loader_grabber:grab_bank' }, '*');
+					break;
+				case 5:
+					parent.postMessage({ event: 'tools:loader_grabber:grab_monsters' }, '*');
+					break;
+			}
+		});
+	});
+</script>
+
+</html>

@@ -122,20 +122,22 @@ async function createGame(account = null) {
 
 		await window.loadFile(join(RENDERER, `game/pages/${file}`));
 
+		//window.webContents.openDevTools({ mode: 'right' });
+
 		window.on('closed', () => {
 			console.log(`Closing "${page}" window under: ${windowID}".`);
 			_windows[page] = null;
 		});
 
 		// TODO: when parent is closed/closing, children should close
-		window.on('close', (event) => {
-			event.preventDefault();
-			window.blur();
+		// window.on('close', (event) => {
+		// 	event.preventDefault();
+		// 	window.blur();
 
-			console.log(
-				`Blocked window "${page}" from closing because parent is not closed: "${windowID}".`,
-			);
-		});
+		// 	console.log(
+		// 		`Blocked window "${page}" from closing because parent is not closed: "${windowID}".`,
+		// 	);
+		// });
 
 		return window;
 	});
@@ -153,6 +155,7 @@ function assignWindowID(window, windowID) {
 		scripts: null,
 		tools: null,
 		fastTravels: null,
+		loaderGrabber: null,
 		packets: null,
 	});
 	window.webContents.send('generate-id', windowID);

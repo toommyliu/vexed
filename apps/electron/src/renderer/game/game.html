@@ -59,6 +59,7 @@
 	#scripts-load:hover,
 	#scripts-devtools:hover,
 	#tools-fasttravels:hover,
+	#tools-loadergrabber:hover,
 	#option-infinite-range:hover,
 	#option-provoke-all:hover,
 	#option-provoke-cell:hover,
@@ -69,6 +70,8 @@
 	#option-walkspeed-item:hover,
 	#scripts-load:active,
 	#scripts-devtools:active,
+	#tools-fasttravels:active,
+	#tools-loadergrabber:active,
 	#option-infinite-range:active,
 	#option-provoke-all:active,
 	#option-provoke-cell:active,
@@ -203,7 +206,7 @@
 </script>
 
 <script>
-	$(function () {
+	$(() => {
 		const { ipcRenderer: ipc } = require("electron");
 		const { setIntervalAsync, clearIntervalAsync } = require("set-interval-async/fixed");
 
@@ -225,19 +228,14 @@
 			ipc.send('game:toggle_devtools');
 		});
 
+		$("#tools-fasttravels").click(() => {
 			window.windows.fastTravels ??= window.open('./pages/fast-travels.html', null, 'width=427,height=597');
 			window.windows.fastTravels?.focus();
 		});
 
-		$("#packets").click(function () {
-			if ($(this).hasClass('w3-disabled')) {
-				ev.preventDefault();
-				return;
-			}
-
-			$(this).addClass('w3-disabled');
-			const ret = window.open("./pages/packets.html", null, "width=451,height=370");
-			$(this).removeClass('w3-disabled');
+		$("#tools-loadergrabber").click(() => {
+			window.windows.loaderGrabber ??= window.open('./pages/loader-grabber.html', null, 'width=427,height=597');
+			window.windows.loaderGrabber?.focus();
 		});
 
 		function updateCells() {
@@ -400,8 +398,11 @@
 					style="margin-top: -1.5px; margin-left: -2px; padding: 0px; border-radius: 0px;">
 					<button class="dropdown-item" type="button" id="tools-fasttravels" style="color: lightgrey;">fast
 						travels</button>
+					<button class="dropdown-item" type="button" id="tools-loadergrabber"
+						style="color: lightgrey;">loader/grabber</button>
 				</div>
 			</div>
+
 			<button class="btn btn-sm" id="packets" style="color: lightgrey;">packets</button>
 
 			<div class="dropdown">
