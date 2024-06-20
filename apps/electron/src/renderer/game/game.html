@@ -241,9 +241,14 @@
 		});
 
 		$('#tools-maid').click(() => {
-			window.windows.maid ??= window.open('./pages/maid.html', null, 'width=427,height=597');
+			window.windows.maid ??= window.open('./pages/maid.html', null, 'width=544,height=597');
 			window.windows.maid?.focus();
 		});
+
+		$('#packets').click(() => {
+			window.windows.packets ??= window.open('./pages/packets.html', null, 'width=544,height=597');
+			window.windows.packets?.focus();
+		})
 
 		function updateCells() {
 			const bot = Bot.getInstance();
