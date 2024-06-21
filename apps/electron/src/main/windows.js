@@ -95,7 +95,8 @@ async function createGame(account = null) {
 	const mainWindow = window;
 
 	window.webContents.on('new-window', async (event, url, _, __, options) => {
-		if (url.startsWith('https://')) {
+		if (url.startsWith('http')) {
+			event.preventDefault();
 			return;
 		}
 
