@@ -49,11 +49,8 @@ function packetFromServer([packet]) {
 function packetFromClient([packet]) {
 	Bot.getInstance().flash.emit('packetFromClient', packet);
 
-	if (packet.includes('%xt%zm%')) {
-		windows?.packets?.postMessage(
-			{ event: 'game:packet_sent', packet },
-			'*',
-		);
+	if (packet.includes('%xt%zm%') && !windows.packets.closed) {
+		windows?.packets?.postMessage({ event: 'game:packet_sent', packet });
 	}
 }
 
