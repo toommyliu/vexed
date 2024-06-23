@@ -93,7 +93,7 @@ async function createGame(account = null) {
 					console.log(`Removing window "${k}" under: "${windowID}".`);
 				} else {
 					console.log(
-						`Window "${k} does not exist under "${windowID}", skipping.`,
+						`Window "${k}" does not exist under "${windowID}", skipping.`,
 					);
 				}
 			} catch (error) {
@@ -105,9 +105,12 @@ async function createGame(account = null) {
 		}
 	});
 
-	const mainWindow = window;
-
 	window.webContents.on('new-window', async (event, url, _, __, options) => {
+		const _url = new URL(url);
+		if (_url.hostname === 'account.aq.com' || _url.hostname === 'www.aq.com' || _url.hostname === 'www.artix.com' ) {
+			return;
+		}
+
 		if (url.startsWith('http')) {
 			event.preventDefault();
 			return;
