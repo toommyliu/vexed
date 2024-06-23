@@ -107,7 +107,11 @@ async function createGame(account = null) {
 
 	window.webContents.on('new-window', async (event, url, _, __, options) => {
 		const _url = new URL(url);
-		if (_url.hostname === 'account.aq.com' || _url.hostname === 'www.aq.com' || _url.hostname === 'www.artix.com' ) {
+		if (
+			_url.hostname === 'account.aq.com' ||
+			_url.hostname === 'www.aq.com' ||
+			_url.hostname === 'www.artix.com'
+		) {
 			return;
 		}
 
