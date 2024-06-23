@@ -19,6 +19,20 @@ class World {
 	}
 
 	/**
+	 * The monsters in the map.
+	 * @returns {MonsterData[]}
+	 */
+	get monsters() {
+		try {
+			return JSON.parse(
+				swf.selectArrayObjects('world.monsters', 'objData'),
+			);
+		} catch {
+			return [];
+		}
+	}
+
+	/**
 	 * Gets all visible monsters in the current cell.
 	 * @returns {Monster[]}
 	 */

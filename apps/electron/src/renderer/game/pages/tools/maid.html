@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+	<link rel="stylesheet" type="text/css" href="../../../shared/halfmoon.css" />
+	<script>
+		window.$ = window.jQuery = require('../../../shared/jquery.js');
+	</script>
+
+	<div class="container-fluid mt-4">
+		<div class="d-flex flex-row gap-2">
+			<div class="container card p-3 mb-4 gap-2 w-50">
+				<div class="form-group">
+					<label for="player">Goto Username:</label>
+					<div class="input-group gap-2">
+						<input id="player" class="form-control" type="text" />
+						<div class="input-group-append">
+							<button class="btn btn-secondary" id="me">me</button>
+						</div>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="skills">Skill List:</label>
+					<div class="d-flex justify-content-between gap-4">
+						<input
+							id="skills"
+							class="form-control"
+							type="text"
+							value="1,2,3,4"
+						/>
+						<div class="form-check">
+							<input
+								type="checkbox"
+								id="skill-wait"
+								class="form-check-input"
+							/>
+							<label for="skill-wait" class="form-check-label">Wait</label>
+						</div>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="skill-delay">Skill Delay:</label>
+					<div class="input-group mb-3">
+						<input
+							id="skill-delay"
+							class="form-control test"
+							type="number"
+							value="150"
+							aria-describedby="ms"
+						/>
+						<span class="input-group-text" id="ms">ms</span>
+					</div>
+				</div>
+				<div class="form-group form-check">
+					<input type="checkbox" id="start" class="form-check-input" />
+					<label for="start" class="form-check-label">Enable</label>
+				</div>
+			</div>
+			<div class="container card p-3 mb-4 gap-2 w-50">
+				<div class="form-group">
+					<label for="attack-priority">Attack Priority:</label>
+					<input
+						id="attack-priority"
+						class="form-control mt-2"
+						type="text"
+						value="Defense Drone, Attack Drone"
+						style="margin-left: -4px"
+					/>
+				</div>
+				<div class="form-check">
+					<input type="checkbox" id="copy-walk" class="form-check-input" />
+					<label for="copy-walk" class="form-check-label">Copy Walk</label>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		const { ipcRenderer: ipc } = require('electron');
+
+		const parent = window.opener;
+
+		$(() => {
+			$(window).on('beforeunload', () => {
+				parent.postMessage({ event: 'tools:maid:stop' });
+			});
+
+			$(window).on('message', (event) => {
+				console.log('Received message', event.originalEvent.data);
+
+				const ev = event.originalEvent;
+
+				switch (ev?.data?.event) {
+					case 'tools:maid:me':
+						$('#player').val(ev.data.resp ?? '');
+						break;
+					case 'tools:me:generate_id':
+						{
+							window.id = ev.data.resp;
+							console.log(`Your shared ID is: '${window.id}'`);
+						}
+						break;
+				}
+			});
+
+			setTimeout(() => {
+				if (!window.id) {
+					console.log(
+						"Looks like we don't have an ID, dispatching a request from parent.",
+					);
+					parent.postMessage({ event: 'tools:maid:generate_id' });
+				}
+			}, 500);
+
+			$('#me').click(function () {
+				parent.postMessage({ event: 'tools:maid:me' });
+			});
+
+			$('#start').click(function () {
+				if ($(this).prop('checked')) {
+					parent.postMessage({
+						event: 'tools:maid:start',
+						player: $('#player').val(),
+						skillSet: $('#skills').val(),
+						skillDelay: $('#skill-delay').val(),
+						skillWait: $('#skill-wait').prop('checked'),
+						attackPriority: $('#attack-priority').val(),
+						copyWalk: $('#copy-walk').prop('checked'),
+					});
+				} else {
+					parent.postMessage({
+						event: 'tools:maid:stop',
+					});
+				}
+			});
+		});
+	</script>
+</html>

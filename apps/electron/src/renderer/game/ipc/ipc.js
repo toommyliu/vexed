@@ -2,7 +2,7 @@ var {
 	setIntervalAsync,
 	clearIntervalAsync,
 } = require('set-interval-async/fixed');
-var { ipcRenderer: ipc, dialog } = require('electron');
+var { ipcRenderer: ipc } = require('electron');
 
 ipc.on('generate-id', (event, windowID) => {
 	console.log(`Your shared ID is: "${windowID}"`);
@@ -13,9 +13,15 @@ ipc.on('game:login', function (event, account) {
 	window.account = account;
 });
 
-const windows = {};
-
-let maid = { on: false, player: null, skill_set: null };
+let maid = {
+	on: false,
+	player: null,
+	skills: null,
+	skillDelay: -1,
+	skillWait: false,
+	attackPriority: [],
+};
+let m_intervalID = null;
 let skillIdx = 0;
 
 let p_intervalID = null;
@@ -26,48 +32,26 @@ $(window).on('message', async function (event) {
 	console.log('Received message', event.originalEvent.data);
 
 	switch (event.originalEvent.data.event) {
-		case 'packets:close':
+		case 'tools:fast_travels:generate_id':
+		case 'tools:loader_grabber:generate_id':
+		case 'packets:logger:generate_id':
+		case 'packets:spammer:generate_id':
+		case 'tools:maid:generate_id':
 			{
-				windows.packets = null;
-				if (p_intervalID) {
-					clearIntervalAsync(p_intervalID);
-					p_packets = [];
-					p_idx = 0;
-					p_intervalID = null;
-				}
-			}
-			break;
-		case 'scripts:close':
-			{
-				windows.scripts = null;
-			}
-			break;
-		case 'tools:close':
-			{
-				windows.tools = null;
-				maid.on = false;
-			}
-			break;
-		case 'packets:generate_id':
-		case 'scripts:generate_id':
-		case 'tools:generate_id':
-			{
-				const wnd = event.originalEvent.data.event.split(':')[0];
-				windows[wnd] = event.originalEvent.source;
-				event.originalEvent.source.postMessage(
-					{ event: event.originalEvent.data.event, resp: window.id },
-					'*',
-				);
+				event.originalEvent.source.postMessage({
+					event: event.originalEvent.data.event,
+					resp: window.id,
+				});
 			}
 			//#region packets
 			break;
-		case 'packets:save':
+		case 'packets:logger:save':
 			{
 				const { packets } = event.originalEvent.data;
-				require('electron').ipcRenderer.send('packets:save', packets);
+				ipc.send('packets:logger:save', packets);
 			}
 			break;
-		case 'packets:spam_start':
+		case 'packets:spammer:start':
 			{
 				const { packets, delay } = event.originalEvent.data;
 
@@ -75,6 +59,10 @@ $(window).on('message', async function (event) {
 
 				if (!p_intervalID) {
 					p_intervalID = setIntervalAsync(function () {
+						if (!auth.loggedIn || world.loading) {
+							return;
+						}
+
 						Bot.getInstance().packets.sendServer(
 							p_packets[p_idx++],
 						);
@@ -85,27 +73,42 @@ $(window).on('message', async function (event) {
 				}
 			}
 			break;
-		case 'packets:spam_stop':
+		case 'packets:spammer:stop':
 			{
 				if (p_intervalID) {
 					clearIntervalAsync(p_intervalID);
-					p_packets = [];
-					p_idx = 0;
 					p_intervalID = null;
 				}
+				p_packets = [];
+				p_idx = 0;
 			}
 			break;
 		//#endregion
-		//#region scripts
-		case 'scripts:load_script':
+		//#region tools
+		//#region fast travels
+		case 'tools:fast_travels:join':
 			{
-				const script = event.originalEvent.data.resp;
-				console.log(script);
-				// ¯\_(ツ)_/¯
-				eval(script);
+				if (!auth.loggedIn) {
+					return;
+				}
+
+				await Bot.getInstance().waitUntil(() =>
+					world.isActionAvailable(GameAction.Transfer),
+				);
+
+				const { map, cell, pad, roomNumber } =
+					event.originalEvent.data.data;
+				const _roomNumber = Number.parseInt(roomNumber, 10);
+
+				Bot.getInstance().flash.call(
+					window.swf.Join,
+					`${map}-${_roomNumber}`,
+					cell ?? 'Enter',
+					pad ?? 'Spawn',
+				);
 			}
 			break;
-		//#region tools
+		//#endregion
 		case 'tools:fast_travel:join':
 			{
 				if (!auth.loggedIn) {
@@ -181,16 +184,19 @@ $(window).on('message', async function (event) {
 				'*',
 			);
 			break;
-		case 'tools:loader_grabber:grab_monsters':
-			event.originalEvent.source.postMessage(
-				{
-					event: event.originalEvent.data.event,
-					resp: Bot.getInstance().flash.call(
-						window.swf.GetMonstersInCell,
-					),
-				},
-				'*',
-			);
+		case 'tools:loader_grabber:grab_cell_monsters':
+			event.originalEvent.source.postMessage({
+				event: event.originalEvent.data.event,
+				resp: Bot.getInstance().flash.call(
+					window.swf.GetMonstersInCell,
+				),
+			});
+			break;
+		case 'tools:loader_grabber:grab_map_monsters':
+			event.originalEvent.source.postMessage({
+				event: event.originalEvent.data.event,
+				resp: Bot.getInstance().world.monsters,
+			});
 			break;
 		case 'tools:loader_grabber:load_armor_customize':
 			Bot.getInstance().shops.loadArmorCustomise();
@@ -214,22 +220,34 @@ $(window).on('message', async function (event) {
 			);
 			break;
 		case 'tools:maid:start': {
-			const { player, skill_set } = event.originalEvent.data;
+			const {
+				player,
+				skillSet,
+				skillDelay,
+				skillWait,
+				attackPriority,
+				copyWalk,
+			} = event.originalEvent.data;
 			maid.on = true;
-			maid.player = player;
-			maid.skill_set = skill_set;
+			maid.skills = skillSet;
+			maid.player = player === '' ? auth.username : player;
+			maid.player = maid.player.toLowerCase();
+			maid.skillDelay = Number.parseInt(skillDelay);
+			maid.skillWait = skillWait;
+			maid.attackPriority = attackPriority;
+			maid.copyWalk = copyWalk;
 
-			if (!maid.skill_set.includes(',')) {
-				maid.skill_set = '1,2,3,4';
+			if (!maid.skills.includes(',')) {
+				maid.skills = '1,2,3,4';
 			}
 
-			const skills = maid.skill_set
+			const skills = maid.skills
 				.split(',')
 				.map((s) => Number.parseInt(s.trim(), 10))
 				.filter((n) => !Number.isNaN(n) && n >= 0 && n <= 5);
-			maid.skill_set = skills;
+			maid.skills = skills;
 
-			p_intervalID = setIntervalAsync(async function () {
+			m_intervalID = setIntervalAsync(async function () {
 				if (maid.on) {
 					await bot.waitUntil(() => auth.loggedIn && !world.loading);
 
@@ -252,15 +270,30 @@ $(window).on('message', async function (event) {
 
 					world.setSpawnpoint();
 
-					if (world.isMonsterAvailable('*')) {
-						if (!combat.hasTarget()) {
+					if (maid.attackPriority.length > 0) {
+						for (const mon of maid.attackPriority) {
+							if (world.isMonsterAvailable(mon)) {
+								combat.attack(mon);
+								break;
+							}
+						}
+					}
+
+					if (!combat.hasTarget()) {
+						if (world.isMonsterAvailable('*')) {
 							combat.attack('*');
 						}
+					}
 
-						await combat.useSkill(maid.skill_set[skillIdx]);
-						await bot.sleep(150);
+					if (combat.hasTarget()) {
+						await combat.useSkill(
+							maid.skills[skillIdx],
+							false,
+							maid.skillWait,
+						);
+						await bot.sleep(maid.skillDelay);
 
-						if (++skillIdx >= maid.skill_set.length) {
+						if (++skillIdx >= maid.skills.length) {
 							skillIdx = 0;
 						}
 					}
@@ -271,7 +304,9 @@ $(window).on('message', async function (event) {
 		}
 		case 'tools:maid:stop':
 			maid.on = false;
-			await clearIntervalAsync(p_intervalID);
+			if (m_intervalID) {
+				await clearIntervalAsync(m_intervalID);
+			}
 			break;
 		//#endregion
 	}

@@ -1,5 +1,5 @@
-const { join, parse, relative } = require('path');
-const { BrowserWindow, session, app } = require('electron');
+const { join, parse } = require('path');
+const { BrowserWindow, session } = require('electron');
 const { nanoid } = require('nanoid');
 
 const RENDERER = join(__dirname, '../renderer');
@@ -61,8 +61,10 @@ async function createGame(account = null) {
 		},
 	);
 
-	await window.loadFile(join(RENDERER, 'game/game.html'));
-	window.webContents.openDevTools({ mode: 'right' });
+	await window
+		.loadFile(join(RENDERER, 'game/game.html'))
+		.catch((error) => console.log('error', error));
+	// window.webContents.openDevTools({ mode: 'right' });
 	// window.maximize();
 
 	// TODO: race condition
@@ -75,7 +77,7 @@ async function createGame(account = null) {
 		window.webContents.send('game:login', account);
 	}
 
-	window.on('closed', function () {
+	window.on('closed', () => {
 		console.log(`Removing family of windows under: "${windowID}".`);
 
 		if (!windows.has(windowID)) {
@@ -84,60 +86,107 @@ async function createGame(account = null) {
 
 		const _windows = windows.get(windowID);
 
-		for (const [_, v] of Object.entries(_windows)) {
+		for (const [k, v] of Object.entries(_windows)) {
 			try {
-				v?.close();
-			} catch {}
+				if (v !== null && !v?.isDestroyed()) {
+					v.close();
+					console.log(`Removing window "${k}" under: "${windowID}".`);
+				} else {
+					console.log(
+						`Window "${k}" does not exist under "${windowID}", skipping.`,
+					);
+				}
+			} catch (error) {
+				console.log(
+					`An error occurred while trying to remove "${k}" under: "${windowID}".`,
+					error,
+				);
+			}
 		}
 	});
 
 	window.webContents.on('new-window', async (event, url, _, __, options) => {
-		if (url.startsWith('https://')) {
+		const _url = new URL(url);
+		if (
+			_url.hostname === 'account.aq.com' ||
+			_url.hostname === 'www.aq.com' ||
+			_url.hostname === 'www.artix.com'
+		) {
 			return;
 		}
 
 		event.preventDefault();
 
 		// *.html
-		const { base: file } = parse(url);
+		const { base: file, dir } = parse(url);
 		const page = file.split('.')[0];
+		const dir_ = dir.substring(dir.lastIndexOf('/') + 1);
 
 		const _windows = windows.get(windowID);
 		const prevWindow = _windows[page];
 
-		if (prevWindow) {
+		if (prevWindow && !prevWindow?.webContents?.isDestroyed()) {
 			prevWindow.show();
 			return;
 		}
 
-		const window = new BrowserWindow({ ...options, alwaysOnTop: true });
+		console.log(`Creating detour "${page}" window for "${windowID}".`);
+
+		const window = new BrowserWindow({ ...options });
+
 		event.newGuest = window;
 		_windows[page] = window;
 
-		await window.loadFile(join(RENDERER, `game/pages/${file}`));
+		await window.loadFile(
+			join(
+				RENDERER,
+				`game/pages/${dir_ === 'pages' ? '' : `${dir_}/`}${file}`,
+			),
+		);
+
+		//window.webContents.openDevTools({ mode: 'right' });
+
 		window.on('closed', () => {
+			console.log(`Closing "${page}" window under: "${windowID}".`);
 			_windows[page] = null;
 		});
 
-		window.on('close', (event) => {
-			event.preventDefault();
-			event.sender.hide();
-		});
+		// TODO: when parent is closed/closing, children should close
+		// window.on('close', (event) => {
+		// 	event.preventDefault();
+		// 	window.blur();
+
+		// 	console.log(
+		// 		`Blocked window "${page}" from closing because parent is not closed: "${windowID}".`,
+		// 	);
+		// });
+
+		return window;
+	});
+
+	// window refreshed?
+	window.webContents.on('did-finish-load', () => {
+		// send the window id again to avoid re-creation
+		window.webContents.send('generate-id', windowID);
 	});
 }
 
 function assignWindowID(window, windowID) {
 	windows.set(windowID, {
 		game: window,
-		scripts: null,
 		tools: null,
-		packets: null,
+		fastTravels: null,
+		loaderGrabber: null,
+		maid: null,
+		logger: null,
+		spammer: null,
 	});
 	window.webContents.send('generate-id', windowID);
 }
 
 function getGameWindow(windowID) {
-	return windows.get(windowID) ?? null;
+	const _windows = windows.get(windowID);
+	return _windows.game ?? null;
 }
 
 module.exports = {
