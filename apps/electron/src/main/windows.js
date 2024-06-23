@@ -61,7 +61,9 @@ async function createGame(account = null) {
 		},
 	);
 
-	await window.loadFile(join(RENDERER, 'game/game.html'));
+	await window
+		.loadFile(join(RENDERER, 'game/game.html'))
+		.catch((error) => console.log('error', error));
 	// window.webContents.openDevTools({ mode: 'right' });
 	// window.maximize();
 
@@ -86,9 +88,20 @@ async function createGame(account = null) {
 
 		for (const [k, v] of Object.entries(_windows)) {
 			try {
-				v?.close();
-				console.log(`Removing window "${k}" under: "${windowID}".`);
-			} catch {}
+				if (v !== null && !v?.isDestroyed()) {
+					v.close();
+					console.log(`Removing window "${k}" under: "${windowID}".`);
+				} else {
+					console.log(
+						`Window "${k} does not exist under "${windowID}", skipping.`,
+					);
+				}
+			} catch (error) {
+				console.log(
+					`An error occurred while trying to remove "${k}" under: "${windowID}".`,
+					error,
+				);
+			}
 		}
 	});
 
@@ -103,13 +116,14 @@ async function createGame(account = null) {
 		event.preventDefault();
 
 		// *.html
-		const { base: file } = parse(url);
+		const { base: file, dir } = parse(url);
 		const page = file.split('.')[0];
+		const dir_ = dir.substring(dir.lastIndexOf('/') + 1);
 
 		const _windows = windows.get(windowID);
 		const prevWindow = _windows[page];
 
-		if (prevWindow && !prevWindow?.isDestroyed()) {
+		if (prevWindow && !prevWindow?.webContents?.isDestroyed()) {
 			prevWindow.show();
 			return;
 		}
@@ -121,12 +135,17 @@ async function createGame(account = null) {
 		event.newGuest = window;
 		_windows[page] = window;
 
-		await window.loadFile(join(RENDERER, `game/pages/${file}`));
+		await window.loadFile(
+			join(
+				RENDERER,
+				`game/pages/${dir_ === 'pages' ? '' : `${dir_}/`}${file}`,
+			),
+		);
 
 		//window.webContents.openDevTools({ mode: 'right' });
 
 		window.on('closed', () => {
-			console.log(`Closing "${page}" window under: ${windowID}".`);
+			console.log(`Closing "${page}" window under: "${windowID}".`);
 			_windows[page] = null;
 		});
 

@@ -1,214 +1,255 @@
 <!doctype html>
 <html lang="en" data-bs-theme="dark">
+	<link rel="stylesheet" type="text/css" href="../shared/halfmoon.css" />
+	<script src="../shared/bootstrap.js"></script>
+	<script>
+		// https://github.com/electron/electron/issues/254
+		window.$ = window.jQuery = require('../shared/jquery.js');
+	</script>
 
-<link href="../shared/bootstrap.css" rel="stylesheet">
-<script src="../shared/bootstrap.js"></script>
-<script>
-	// https://github.com/electron/electron/issues/254
-	window.$ = window.jQuery = require("../shared/jquery.js");
-</script>
-
-<body>
-	<div class="container d-flex justify-content-center">
-		<div class="w-50 mt-4">
-			<div class="form-group">
-				<label for="username">username</label>
-				<input type="text" class="form-control form-control-sm" id="username" />
+	<body>
+		<div class="container d-flex justify-content-center">
+			<div class="w-50 mt-4">
+				<div class="form-group">
+					<label for="username">username</label>
+					<input
+						type="text"
+						class="form-control form-control-sm"
+						id="username"
+					/>
+				</div>
+				<div class="form-group">
+					<label for="password">password</label>
+					<input
+						type="text"
+						class="form-control form-control-sm"
+						id="password"
+					/>
+				</div>
+				<button
+					class="btn btn-primary btn-sm mt-2 w-100 d-block"
+					id="add-account"
+				>
+					add account
+				</button>
 			</div>
-			<div class="form-group">
-				<label for="password">password</label>
-				<input type="text" class="form-control form-control-sm" id="password" />
-			</div>
-			<button class="btn btn-primary btn-sm mt-2 w-100 d-block" id="add-account">add account</button>
 		</div>
-	</div>
-	<div class="container mt-4 mb-4 border-top">
-		<div class="d-flex justify-content-between align-items-center m-3 gap-2">
-			<div class="d-flex align-items-center gap-2">
-				<button class="btn btn-primary btn-sm" id="refresh-accounts">refresh accounts</button>
+		<div class="container mt-4 mb-4 border-top">
+			<div class="d-flex justify-content-between align-items-center m-3 gap-2">
+				<div class="d-flex align-items-center gap-2">
+					<button class="btn btn-primary btn-sm" id="refresh-accounts">
+						refresh accounts
+					</button>
+				</div>
+				<div class="d-flex align-items-center gap-2">
+					<p class="mb-0 mt-n4">login server</p>
+					<select id="servers" class="form-select form-select-sm w-auto">
+						<option>None</option>
+					</select>
+				</div>
 			</div>
-			<div class="d-flex align-items-center gap-2">
-				<p class="mb-0 mt-n4">login server</p>
-				<select id="servers" class="form-select form-select-sm w-auto">
-					<option>None</option>
-				</select>
+			<div class="container mt-3">
+				<div class="row" id="accounts"></div>
 			</div>
 		</div>
-		<div class="container mt-3">
-			<div class="row" id="accounts"></div>
+		<div
+			id="account-actions"
+			class="d-flex align-items-center justify-content-center full-height mb-4 gap-4"
+		>
+			<button class="btn btn-secondary btn-sm w-25" id="account-action-0">
+				start all
+			</button>
+			<button class="btn btn-primary btn-sm w-25" id="account-action-1">
+				start selected
+			</button>
 		</div>
-	</div>
-	<div id="account-actions" class="d-flex align-items-center justify-content-center full-height mb-4 gap-4">
-		<button class="btn btn-secondary btn-sm w-25" id="account-action-0">start all</button>
-		<button class="btn btn-primary btn-sm w-25" id="account-action-1">start selected</button>
-	</div>
-</body>
+	</body>
 
-<script>
-	const { ipcRenderer: ipc } = require("electron");
-	const fs = require("fs-extra");
-	const { join } = require("path");
+	<script>
+		const { ipcRenderer: ipc } = require('electron');
+		const fs = require('fs-extra');
+		const { join } = require('path');
 
-	let rootDir;
-	let jsonPath;
+		let rootDir;
+		let jsonPath;
 
-	function readJSON() {
-		return fs.readJSON(jsonPath).catch(() => []);
-	}
-	function writeJSON(json) {
-		return fs.writeJSON(jsonPath, json, { spaces: 4 }).catch(() => { });
-	}
-
-	async function loadServers() {
-		$.get("https://game.aq.com/game/api/data/servers", (data) => {
-			const dropdown = $("#servers");
-
-			$.each(data, (_, val) => {
-				dropdown.append(
-					$("<option>")
-						.text(`${val.sName} (${val.iCount})`)
-						.val(val.sName)
-				);
-			});
-		});
-	}
-
-	async function renderAccounts() {
-		await fs.ensureFile(jsonPath);
-
-		const accounts = await readJSON();
-		if (!accounts.length) {
-			return;
+		function readJSON() {
+			return fs.readJSON(jsonPath).catch(() => []);
+		}
+		function writeJSON(json) {
+			return fs.writeJSON(jsonPath, json, { spaces: 4 }).catch(() => {});
 		}
 
-		const grid = $("#accounts");
-		grid.html("");
+		async function loadServers() {
+			$.get('https://game.aq.com/game/api/data/servers', (data) => {
+				const dropdown = $('#servers');
 
-		$.each(accounts, function (index, account) {
-			const cardCol = $("<div>").addClass("col-12 col-md-6 col-lg-4 mb-3");
+				$.each(data, (_, val) => {
+					dropdown.append(
+						$('<option>').text(`${val.sName} (${val.iCount})`).val(val.sName),
+					);
+				});
+			});
+		}
 
-			const card = $("<div>").addClass("card");
-			$(card).on("click", function (event) {
-				event.stopPropagation();
-				const p = $(`#account-checkbox-${index}`);
-				p.prop("checked", !p.prop("checked"));
+		async function renderAccounts() {
+			await fs.ensureFile(jsonPath);
+
+			const accounts = await readJSON();
+			if (!accounts.length) {
+				return;
+			}
+
+			const grid = $('#accounts');
+			grid.html('');
+
+			$.each(accounts, function (index, account) {
+				const cardCol = $('<div>').addClass('col-12 col-md-6 col-lg-4 mb-3');
+
+				const card = $('<div>').addClass('card');
+				$(card).on('click', function (event) {
+					event.stopPropagation();
+					const p = $(`#account-checkbox-${index}`);
+					p.prop('checked', !p.prop('checked'));
+				});
+
+				const cardBody = $('<div>').addClass('card-body');
+
+				const rowContainer = $('<div>').addClass(
+					'd-flex align-items-center justify-content-between gap-2',
+				);
+
+				const titleContainer = $('<div>').addClass(
+					'd-flex align-items-center gap-2 username-container',
+				);
+
+				const checkbox = $('<input>')
+					.attr('type', 'checkbox')
+					.attr('id', `account-checkbox-${index}`)
+					.addClass('form-check-input');
+
+				titleContainer.append(checkbox);
+
+				const title = $('<h5>').addClass('card-title m-1').text(account.username);
+				titleContainer.append(title);
+
+				const buttonContainer = $('<div>').addClass(
+					'd-flex align-items-center gap-2',
+				);
+
+				const loginBtn = $('<button>')
+					.addClass('btn btn-primary btn-sm')
+					.text('log in');
+				loginBtn.click(async (event) => {
+					event.stopPropagation();
+
+					await ipc.invoke('manager:launch_game', {
+						...account,
+						server: $('#servers').val(),
+					});
+				});
+
+				const removeBtn = $('<button>')
+					.addClass('btn btn-danger btn-sm')
+					.text('remove');
+				removeBtn.click(async () => {
+					event.stopPropagation();
+
+					const accounts = await readJSON();
+					accounts.splice(index, 1);
+
+					await writeJSON(accounts);
+					await renderAccounts();
+				});
+
+				buttonContainer.append(loginBtn, removeBtn);
+
+				rowContainer.append(titleContainer);
+				rowContainer.append(buttonContainer);
+
+				cardBody.append(rowContainer);
+				card.append(cardBody);
+				cardCol.append(card);
+				grid.append(cardCol);
+			});
+		}
+
+		$(async () => {
+			await ipc.invoke('manager:get_path').then((p) => {
+				rootDir = p;
+				jsonPath = join(rootDir, 'accounts.json');
 			});
 
-			const cardBody = $("<div>").addClass("card-body");
+			await loadServers();
+			await renderAccounts();
+		});
 
-			const rowContainer = $("<div>").addClass("d-flex align-items-center justify-content-between gap-2");
+		$('#add-account').click(async (event) => {
+			const username = $('#username')?.val();
+			const password = $('#password')?.val();
 
-			const titleContainer = $("<div>").addClass("d-flex align-items-center gap-2 username-container");
-
-			const checkbox = $("<input>")
-				.attr("type", "checkbox")
-				.attr("id", `account-checkbox-${index}`)
-				.addClass("form-check-input");
-
-			titleContainer.append(checkbox);
-
-			const title = $("<h5>").addClass("card-title m-1").text(account.username);
-			titleContainer.append(title);
-
-			const buttonContainer = $("<div>").addClass("d-flex align-items-center gap-2");
-
-			const loginBtn = $("<button>").addClass("btn btn-primary btn-sm").text("log in");
-			loginBtn.click(async (event) => {
-				event.stopPropagation();
-
-				await ipc.invoke("manager:launch_game", { ...account, server: $("#servers").val() });
-			});
-
-			const removeBtn = $("<button>").addClass("btn btn-danger btn-sm").text("remove");
-			removeBtn.click(async () => {
-				event.stopPropagation();
-
+			if (username && password) {
 				const accounts = await readJSON();
-				accounts.splice(index, 1);
+				accounts.push({ username, password });
 
 				await writeJSON(accounts);
 				await renderAccounts();
-			})
-
-			buttonContainer.append(loginBtn, removeBtn);
-
-			rowContainer.append(titleContainer);
-			rowContainer.append(buttonContainer);
-
-			cardBody.append(rowContainer);
-			card.append(cardBody);
-			cardCol.append(card);
-			grid.append(cardCol);
-		});
-	}
-
-	$(async () => {
-		await ipc.invoke("manager:get_path").then(p => {
-			rootDir = p;
-			jsonPath = join(rootDir, "accounts.json");
+			}
 		});
 
-		await loadServers();
-		await renderAccounts();
-	});
-
-	$("#add-account").click(async (event) => {
-		const username = $("#username")?.val();
-		const password = $("#password")?.val();
-
-		if (username && password) {
-			const accounts = await readJSON();
-			accounts.push({ username, password });
-
-			await writeJSON(accounts);
+		$('#refresh-accounts').click(async () => {
 			await renderAccounts();
-		}
-	});
+		});
 
-	$("#refresh-accounts").click(async () => {
-		await renderAccounts();
-	});
+		$('#account-action-0').click(async function () {
+			$(this).attr('disabled', true);
+			$('#account-action-1').attr('disabled', true);
 
-	$("#account-action-0").click(async function () {
-		$(this).attr("disabled", true);
-		$("#account-action-1").attr("disabled", true);
+			const checkboxes = $('[id^="account-checkbox-"]');
+			for (const elem of checkboxes) {
+				const _elem = $(elem);
+				const account = (await readJSON()).find(
+					(acc) => acc.username === _elem.parent()?.text(),
+				);
 
-		const checkboxes = $('[id^="account-checkbox-"]');
-		for (const elem of checkboxes) {
-			const _elem = $(elem);
-			const account = (await readJSON()).find((acc) => acc.username === _elem.parent()?.text());
-
-			if (account) {
-				await ipc.invoke("manager:launch_game", { ...account, server: $("#servers").val() });
-			}
-
-			await new Promise((resolve) => setTimeout(resolve, 1000));
-		}
-
-		$(this).attr("disabled", false);
-		$("#account-action-1").attr("disabled", false);
-	});
-
-	$("#account-action-1").click(async function () {
-		$("#account-action-0").attr("disabled", true);
-		$(this).attr("disabled", true);
-
-		const checkboxes = $('[id^="account-checkbox-"]');
-		for (const elem of checkboxes) {
-			const _elem = $(elem);
-			const checked = _elem.prop("checked");
-			if (checked) {
-				const account = (await readJSON()).find((acc) => acc.username === _elem.parent()?.text());
 				if (account) {
-					await ipc.invoke("manager:launch_game", { ...account, server: $("#servers").val() });
+					await ipc.invoke('manager:launch_game', {
+						...account,
+						server: $('#servers').val(),
+					});
 				}
+
+				await new Promise((resolve) => setTimeout(resolve, 1000));
 			}
-			await new Promise((resolve) => setTimeout(resolve, 1000));
-		}
 
-		$("#account-action-0").attr("disabled", false);
-		$(this).attr("disabled", false);
-	});
-</script>
+			$(this).attr('disabled', false);
+			$('#account-action-1').attr('disabled', false);
+		});
 
+		$('#account-action-1').click(async function () {
+			$('#account-action-0').attr('disabled', true);
+			$(this).attr('disabled', true);
+
+			const checkboxes = $('[id^="account-checkbox-"]');
+			for (const elem of checkboxes) {
+				const _elem = $(elem);
+				const checked = _elem.prop('checked');
+				if (checked) {
+					const account = (await readJSON()).find(
+						(acc) => acc.username === _elem.parent()?.text(),
+					);
+					if (account) {
+						await ipc.invoke('manager:launch_game', {
+							...account,
+							server: $('#servers').val(),
+						});
+					}
+				}
+				await new Promise((resolve) => setTimeout(resolve, 1000));
+			}
+
+			$('#account-action-0').attr('disabled', false);
+			$(this).attr('disabled', false);
+		});
+	</script>
 </html>

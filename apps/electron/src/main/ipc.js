@@ -66,7 +66,7 @@ ipc.on('game:toggle_devtools', (event) => {
 	event.sender.toggleDevTools();
 });
 
-ipc.on('packets:save', async function (event, packets) {
+ipc.on('packets:logger:save', async function (event, packets) {
 	try {
 		await fs.writeFile(join(ROOT, 'packets.txt'), packets.join('\n'), {
 			encoding: 'utf-8',

@@ -13,7 +13,15 @@ ipc.on('game:login', function (event, account) {
 	window.account = account;
 });
 
-let maid = { on: false, player: null, skills: null };
+let maid = {
+	on: false,
+	player: null,
+	skills: null,
+	skillDelay: -1,
+	skillWait: false,
+	attackPriority: [],
+};
+let m_intervalID = null;
 let skillIdx = 0;
 
 let p_intervalID = null;
@@ -24,40 +32,26 @@ $(window).on('message', async function (event) {
 	console.log('Received message', event.originalEvent.data);
 
 	switch (event.originalEvent.data.event) {
-		case 'packets:close':
+		case 'tools:fast_travels:generate_id':
+		case 'tools:loader_grabber:generate_id':
+		case 'packets:logger:generate_id':
+		case 'packets:spammer:generate_id':
+		case 'tools:maid:generate_id':
 			{
-				if (p_intervalID) {
-					clearIntervalAsync(p_intervalID);
-					p_packets = [];
-					p_idx = 0;
-					p_intervalID = null;
-				}
-			}
-			break;
-		case 'tools:close':
-			{
-				maid.on = false;
-			}
-			break;
-		case 'fasttravels:generate_id':
-		case 'loadergrabber:generate_id':
-		case 'packets:generate_id':
-		case 'tools:generate_id':
-			{
-				event.originalEvent.source.postMessage(
-					{ event: event.originalEvent.data.event, resp: window.id },
-					'*',
-				);
+				event.originalEvent.source.postMessage({
+					event: event.originalEvent.data.event,
+					resp: window.id,
+				});
 			}
 			//#region packets
 			break;
-		case 'packets:save':
+		case 'packets:logger:save':
 			{
 				const { packets } = event.originalEvent.data;
-				require('electron').ipcRenderer.send('packets:save', packets);
+				ipc.send('packets:logger:save', packets);
 			}
 			break;
-		case 'packets:spam_start':
+		case 'packets:spammer:start':
 			{
 				const { packets, delay } = event.originalEvent.data;
 
@@ -65,6 +59,10 @@ $(window).on('message', async function (event) {
 
 				if (!p_intervalID) {
 					p_intervalID = setIntervalAsync(function () {
+						if (!auth.loggedIn || world.loading) {
+							return;
+						}
+
 						Bot.getInstance().packets.sendServer(
 							p_packets[p_idx++],
 						);
@@ -75,26 +73,28 @@ $(window).on('message', async function (event) {
 				}
 			}
 			break;
-		case 'packets:spam_stop':
+		case 'packets:spammer:stop':
 			{
 				if (p_intervalID) {
 					clearIntervalAsync(p_intervalID);
-					p_packets = [];
-					p_idx = 0;
 					p_intervalID = null;
 				}
+				p_packets = [];
+				p_idx = 0;
 			}
 			break;
 		//#endregion
 		//#region tools
 		//#region fast travels
-		case 'fasttravels:join':
+		case 'tools:fast_travels:join':
 			{
 				if (!auth.loggedIn) {
 					return;
 				}
 
-				await Bot.getInstance().waitUntil(() => world.isActionAvailable(GameAction.Transfer));
+				await Bot.getInstance().waitUntil(() =>
+					world.isActionAvailable(GameAction.Transfer),
+				);
 
 				const { map, cell, pad, roomNumber } =
 					event.originalEvent.data.data;
@@ -147,7 +147,6 @@ $(window).on('message', async function (event) {
 			);
 			break;
 		case 'tools:loader_grabber:grab_quests':
-			console.log('sent', Bot.getInstance().flash.call(window.swf.GetQuestTree))
 			event.originalEvent.source.postMessage(
 				{
 					event: event.originalEvent.data.event,
@@ -185,16 +184,19 @@ $(window).on('message', async function (event) {
 				'*',
 			);
 			break;
-		case 'tools:loader_grabber:grab_monsters':
-			event.originalEvent.source.postMessage(
-				{
-					event: event.originalEvent.data.event,
-					resp: Bot.getInstance().flash.call(
-						window.swf.GetMonstersInCell,
-					),
-				},
-				'*',
-			);
+		case 'tools:loader_grabber:grab_cell_monsters':
+			event.originalEvent.source.postMessage({
+				event: event.originalEvent.data.event,
+				resp: Bot.getInstance().flash.call(
+					window.swf.GetMonstersInCell,
+				),
+			});
+			break;
+		case 'tools:loader_grabber:grab_map_monsters':
+			event.originalEvent.source.postMessage({
+				event: event.originalEvent.data.event,
+				resp: Bot.getInstance().world.monsters,
+			});
 			break;
 		case 'tools:loader_grabber:load_armor_customize':
 			Bot.getInstance().shops.loadArmorCustomise();
@@ -218,10 +220,22 @@ $(window).on('message', async function (event) {
 			);
 			break;
 		case 'tools:maid:start': {
-			const { player, skill_set } = event.originalEvent.data;
+			const {
+				player,
+				skillSet,
+				skillDelay,
+				skillWait,
+				attackPriority,
+				copyWalk,
+			} = event.originalEvent.data;
 			maid.on = true;
-			maid.player = player;
-			maid.skills = skill_set;
+			maid.skills = skillSet;
+			maid.player = player === '' ? auth.username : player;
+			maid.player = maid.player.toLowerCase();
+			maid.skillDelay = Number.parseInt(skillDelay);
+			maid.skillWait = skillWait;
+			maid.attackPriority = attackPriority;
+			maid.copyWalk = copyWalk;
 
 			if (!maid.skills.includes(',')) {
 				maid.skills = '1,2,3,4';
@@ -233,7 +247,7 @@ $(window).on('message', async function (event) {
 				.filter((n) => !Number.isNaN(n) && n >= 0 && n <= 5);
 			maid.skills = skills;
 
-			p_intervalID = setIntervalAsync(async function () {
+			m_intervalID = setIntervalAsync(async function () {
 				if (maid.on) {
 					await bot.waitUntil(() => auth.loggedIn && !world.loading);
 
@@ -256,13 +270,28 @@ $(window).on('message', async function (event) {
 
 					world.setSpawnpoint();
 
-					if (world.isMonsterAvailable('*')) {
-						if (!combat.hasTarget()) {
+					if (maid.attackPriority.length > 0) {
+						for (const mon of maid.attackPriority) {
+							if (world.isMonsterAvailable(mon)) {
+								combat.attack(mon);
+								break;
+							}
+						}
+					}
+
+					if (!combat.hasTarget()) {
+						if (world.isMonsterAvailable('*')) {
 							combat.attack('*');
 						}
+					}
 
-						await combat.useSkill(maid.skills[skillIdx]);
-						await bot.sleep(150);
+					if (combat.hasTarget()) {
+						await combat.useSkill(
+							maid.skills[skillIdx],
+							false,
+							maid.skillWait,
+						);
+						await bot.sleep(maid.skillDelay);
 
 						if (++skillIdx >= maid.skills.length) {
 							skillIdx = 0;
@@ -275,7 +304,9 @@ $(window).on('message', async function (event) {
 		}
 		case 'tools:maid:stop':
 			maid.on = false;
-			await clearIntervalAsync(p_intervalID);
+			if (m_intervalID) {
+				await clearIntervalAsync(m_intervalID);
+			}
 			break;
 		//#endregion
 	}

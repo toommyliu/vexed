@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+	<link rel="stylesheet" type="text/css" href="../../../shared/halfmoon.css" />
+
+	<script>
+		window.$ = window.jQuery = require('../../../shared/jquery.js');
+	</script>
+
+	<div class="container-fluid" style="padding: 20px">
+		<div
+			class="d-flex justify-content-between bg-secondary-subtle"
+			style="padding: 15px; border-radius: 10px; margin-bottom: 20px"
+		>
+			<div class="d-flex align-items-center gap-2">
+				<p class="mb-0">Room Number</p>
+				<input
+					type="number"
+					min="1"
+					max="100000"
+					value="100000"
+					id="room-number"
+				/>
+			</div>
+			<button class="btn btn-primary" id="refresh">Refresh</button>
+		</div>
+		<div id="locations" style="display: flex; flex-wrap: wrap; gap: 10px"></div>
+	</div>
+
+	<script>
+		const { ipcRenderer: ipc } = require('electron');
+
+		const fs = require('fs-extra');
+		const { join } = require('path');
+
+		const parent = window.opener;
+
+		let rootDir;
+		let jsonPath;
+		let locations = [];
+
+		function readJSON() {
+			return fs.readJSON(jsonPath);
+		}
+		function writeJSON(json) {
+			return fs.writeJSON(jsonPath, json, { spaces: 4 });
+		}
+
+		async function renderLocations() {
+			await fs.ensureFile(jsonPath);
+			await readJSON(jsonPath)
+				.then(function (out) {
+					locations = out;
+				})
+				.catch(async function () {
+					locations = [
+						{ name: 'Oblivion', map: 'tercessuinotlim' },
+						{
+							name: 'Twins',
+							map: 'tercessuinotlim',
+							cell: 'Twins',
+							pad: 'Left',
+						},
+						{
+							name: 'VHl/Taro/Zee',
+							map: 'tercessuinotlim',
+							cell: 'Taro',
+							pad: 'Left',
+						},
+						{
+							name: 'Swindle',
+							map: 'tercessuinotlim',
+							cell: 'Swindle',
+							pad: 'Left',
+						},
+						{
+							name: 'Nulgath/Skew',
+							map: 'tercessuinotlim',
+							cell: 'Boss2',
+							pad: 'Right',
+						},
+						{
+							name: 'Polish',
+							map: 'tercessuinotlim',
+							cell: 'm12',
+							pad: 'Top',
+						},
+						{
+							name: 'Carnage/Ninja',
+							map: 'tercessuinotlim',
+							cell: 'm4',
+							pad: 'Top',
+						},
+						{
+							name: 'Binky',
+							map: 'doomvault',
+							cell: 'r5',
+							pad: 'Left',
+						},
+						{
+							name: 'Dage',
+							map: 'underworld',
+							cell: 's1',
+							pad: 'Left',
+						},
+						{
+							name: 'Escherion',
+							map: 'escherion',
+							cell: 'Boss',
+							pad: 'Left',
+						},
+						{
+							name: 'Dage',
+							map: 'underworld',
+							cell: 'r11',
+							pad: 'Left',
+						},
+					];
+
+					await writeJSON(locations);
+				});
+
+			const container = $('#locations');
+			container.empty();
+
+			for (const loc of locations) {
+				if (!loc?.name || !loc?.map) {
+					continue;
+				}
+
+				const div = $(
+					'<div class="col" style="flex: 1 0 21%; margin: 10px;"></div>',
+				);
+
+				const btn = $(
+					`<button class="btn btn-secondary w-100">${loc.name}</button>`,
+				);
+				btn.click(() => {
+					parent.postMessage({
+						event: 'tools:fast_travels:join',
+						data: { ...loc, roomNumber: $('#room-number').val() },
+					});
+				});
+
+				div.append(btn);
+				container.append(div);
+			}
+		}
+
+		$(async () => {
+			await ipc.invoke('manager:get_path').then(async (p) => {
+				rootDir = p;
+				jsonPath = join(rootDir, 'fast-travels.json');
+
+				await renderLocations();
+			});
+
+			setTimeout(() => {
+				if (!window.id) {
+					console.log(
+						"Looks like we don't have an ID, dispatching a request from parent.",
+					);
+					parent.postMessage({ event: 'tools:fast_travels:generate_id' });
+				}
+			}, 500);
+
+			$(window).on('message', async (event) => {
+				console.log('Received message', event.originalEvent.data);
+
+				const ev = event.originalEvent;
+
+				switch (ev.event) {
+					case 'tools:fast_travels:generate_id':
+						window.id = ev.event.resp;
+						break;
+				}
+			});
+
+			$('#refresh').click(async () => {
+				await renderLocations().catch(() => {});
+			});
+		});
+	</script>
+</html>

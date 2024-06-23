@@ -1,11 +1,34 @@
-var { ipcRenderer: ipc } = require('electron');
-
 /**
  * @param {string[]} packet
  */
 function packetFromServer([packet]) {
 	const bot = Bot.getInstance();
 	bot.flash.emit('packetFromServer', packet);
+
+	if (packet.startsWith('%xt%')) {
+		const args = packet.split('%');
+
+		const cmd = args[2];
+
+		switch (cmd.toLowerCase()) {
+			case 'uotls':
+				{
+					if (maid.player && maid.copyWalk) {
+						if (maid.player !== args[4].toLowerCase()) {
+							return;
+						}
+
+						const data = args[5].split(',');
+
+						const x = Number.parseInt(data[1].split(':')[1], 10);
+						const y = Number.parseInt(data[2].split(':')[1], 10);
+
+						window.swf.WalkToPoint(x, y);
+					}
+				}
+				break;
+		}
+	}
 
 	if (packet.startsWith('{"')) {
 		const pkt = JSON.parse(packet);
@@ -46,11 +69,28 @@ function packetFromServer([packet]) {
 	}
 }
 
-function packetFromClient([packet]) {
+async function packetFromClient([packet]) {
 	Bot.getInstance().flash.emit('packetFromClient', packet);
 
-	if (packet.includes('%xt%zm%') && !windows.packets.closed) {
-		windows?.packets?.postMessage({ event: 'game:packet_sent', packet });
+	if (packet.includes('%xt%zm%')) {
+		if (!windows?.packetsLogger?.closed) {
+			windows?.packetsLogger?.postMessage({
+				event: 'game:packet_sent',
+				packet,
+			});
+		}
+
+		if (
+			packet.includes('retrieveUserData') ||
+			packet.includes('retrieveUserDatas')
+		) {
+			if ($('#option-hide-players').attr('data-checked') === 'true') {
+				await bot.waitUntil(
+					() => !world.loading && inventory.items.length > 0,
+				);
+				settings.hidePlayers();
+			}
+		}
 	}
 }
 
