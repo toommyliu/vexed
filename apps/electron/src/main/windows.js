@@ -115,11 +115,6 @@ async function createGame(account = null) {
 			return;
 		}
 
-		if (url.startsWith('http')) {
-			event.preventDefault();
-			return;
-		}
-
 		event.preventDefault();
 
 		// *.html
@@ -179,12 +174,12 @@ async function createGame(account = null) {
 function assignWindowID(window, windowID) {
 	windows.set(windowID, {
 		game: window,
-		scripts: null,
 		tools: null,
 		fastTravels: null,
 		loaderGrabber: null,
 		maid: null,
-		packets: null,
+		logger: null,
+		spammer: null,
 	});
 	window.webContents.send('generate-id', windowID);
 }
