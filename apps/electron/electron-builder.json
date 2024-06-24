@@ -2,8 +2,7 @@
 	"productName": "Vexed",
 	"mac": {
 		"files": [
-			"src/**/*",
-			"grimoire.swf"
+			"src/**/*"
 		],
 		"asar": "false",
 		"target": {

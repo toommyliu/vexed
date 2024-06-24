@@ -45,9 +45,13 @@ jobs:
         run: pnpm run build
         working-directory: apps/electron
 
+      - name: Rename file
+        run: mv Vexed-0.0.0-mac.zip Vexed.zip
+        working-directory: apps/electron/dist
+
       - name: Upload binary
         uses: softprops/action-gh-release@v2
         with:
-          files: apps/electron/dist/Vexed-0.0.0-mac.zip
+          files: apps/electron/dist/Vexed.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
