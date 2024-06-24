@@ -38,7 +38,10 @@ app.once('ready', async () => {
 		.catch(() => false);
 
 	if (!launcher) {
-		dialog.showErrorBox('Error', 'Artix Game Launcher must be installed in the Applications Folder to make use of its Flash Player plugin.');
+		dialog.showErrorBox(
+			'Error',
+			'Artix Game Launcher must be installed in the Applications Folder to make use of its Flash Player plugin.',
+		);
 		process.exit(1);
 	}
 
@@ -48,7 +51,10 @@ app.once('ready', async () => {
 		.catch(() => false);
 
 	if (!ppflash) {
-		dialog.showErrorBox('Error', 'Artix Game Launcher was found but no PepperFlashPlugin.plugin was found.');
+		dialog.showErrorBox(
+			'Error',
+			'Artix Game Launcher was found but no PepperFlashPlugin.plugin was found.',
+		);
 		process.exit(1);
 	}
 
