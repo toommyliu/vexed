@@ -6,7 +6,7 @@
 		],
 		"asar": "false",
 		"target": {
-			"target": "dir",
+			"target": "zip",
 			"arch": [
 				"x64"
 			]
