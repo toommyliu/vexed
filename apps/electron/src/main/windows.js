@@ -174,9 +174,8 @@ async function createGame(account = null) {
 function assignWindowID(window, windowID) {
 	windows.set(windowID, {
 		game: window,
-		tools: null,
-		fastTravels: null,
-		loaderGrabber: null,
+		'fast-travels': null,
+		'loader-grabber': null,
 		maid: null,
 		logger: null,
 		spammer: null,
