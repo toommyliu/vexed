@@ -11,7 +11,7 @@
 		<div class="container d-flex justify-content-center">
 			<div class="w-50 mt-4">
 				<div class="form-group">
-					<label for="username">username</label>
+					<label for="username">Username</label>
 					<input
 						type="text"
 						class="form-control form-control-sm"
@@ -19,7 +19,7 @@
 					/>
 				</div>
 				<div class="form-group">
-					<label for="password">password</label>
+					<label for="password">Password</label>
 					<input
 						type="text"
 						class="form-control form-control-sm"
@@ -30,7 +30,7 @@
 					class="btn btn-primary btn-sm mt-2 w-100 d-block"
 					id="add-account"
 				>
-					add account
+					Add Account
 				</button>
 			</div>
 		</div>
@@ -38,11 +38,11 @@
 			<div class="d-flex justify-content-between align-items-center m-3 gap-2">
 				<div class="d-flex align-items-center gap-2">
 					<button class="btn btn-primary btn-sm" id="refresh-accounts">
-						refresh accounts
+						Refresh Accounts
 					</button>
 				</div>
 				<div class="d-flex align-items-center gap-2">
-					<p class="mb-0 mt-n4">login server</p>
+					<p class="mb-0 mt-n1">Login Server</p>
 					<select id="servers" class="form-select form-select-sm w-auto">
 						<option>None</option>
 					</select>
@@ -57,10 +57,10 @@
 			class="d-flex align-items-center justify-content-center full-height mb-4 gap-4"
 		>
 			<button class="btn btn-secondary btn-sm w-25" id="account-action-0">
-				start all
+				Start All
 			</button>
 			<button class="btn btn-primary btn-sm w-25" id="account-action-1">
-				start selected
+				Start Selected
 			</button>
 		</div>
 	</body>
@@ -120,7 +120,7 @@
 				);
 
 				const titleContainer = $('<div>').addClass(
-					'd-flex align-items-center gap-2 username-container',
+					'd-flex align-items-center gap-2',
 				);
 
 				const checkbox = $('<input>')
@@ -139,7 +139,7 @@
 
 				const loginBtn = $('<button>')
 					.addClass('btn btn-primary btn-sm')
-					.text('log in');
+					.text('Log In');
 				loginBtn.click(async (event) => {
 					event.stopPropagation();
 
@@ -151,7 +151,7 @@
 
 				const removeBtn = $('<button>')
 					.addClass('btn btn-danger btn-sm')
-					.text('remove');
+					.text('Remove');
 				removeBtn.click(async () => {
 					event.stopPropagation();
 
