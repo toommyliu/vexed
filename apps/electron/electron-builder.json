@@ -3,9 +3,7 @@
 	"mac": {
 		"files": [
 			"src/**/*",
-			"vendor/",
-			"grimoire.swf",
-			"!**/*.lproj/"
+			"grimoire.swf"
 		],
 		"asar": "false",
 		"target": {
