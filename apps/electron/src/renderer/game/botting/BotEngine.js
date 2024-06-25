@@ -7,8 +7,6 @@ class BotEngine {
 	#mutex = new Mutex();
 
 	constructor() {
-		super();
-
 		this.commands = [];
 		this.restartOnFinish = false;
 	}
