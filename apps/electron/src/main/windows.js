@@ -64,8 +64,8 @@ async function createGame(account = null) {
 	await window
 		.loadFile(join(RENDERER, 'game/game.html'))
 		.catch((error) => console.log('error', error));
-	// window.webContents.openDevTools({ mode: 'right' });
-	// window.maximize();
+	window.webContents.openDevTools({ mode: 'right' });
+	window.maximize();
 
 	// TODO: race condition
 	const windowID = nanoid();
