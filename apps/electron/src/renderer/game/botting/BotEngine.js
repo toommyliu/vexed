@@ -23,26 +23,29 @@ class BotEngine {
 		this.#ac = new AbortController();
 
 		console.log('bot engine started.');
-		console.log(`running '${this.commands.length}' commands.`)
+		console.log(`running '${this.commands.length}' commands.`);
 
 		while (this.active) {
 			await this.#mutex.runExclusive(async () => {
 				const cmd = this.commands[this.#index];
 
-                console.log(new Date(), `executing command #${this.#index + 1}: ${cmd.id}`);
+				console.log(
+					new Date(),
+					`executing command #${this.#index + 1}: ${cmd.id}`,
+				);
 
-                const retval = cmd.execute(this);
-                if (retval instanceof Promise) {
-                    await retval;
-                }
+				const retval = cmd.execute(this);
+				if (retval instanceof Promise) {
+					await retval;
+				}
 
-                this.#index++;
+				this.#index++;
 
-                if (this.#index >= this.commands.length) {
-                    console.log('calling stop');
-                    this.stop();
-                    return;
-                }
+				if (this.#index >= this.commands.length) {
+					console.log('calling stop');
+					this.stop();
+					return;
+				}
 
 				await new Promise((r) => setTimeout(r, 1000));
 			});

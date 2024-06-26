@@ -44,6 +44,7 @@ async function createGame(account = null) {
 		webPreferences: {
 			contextIsolation: false,
 			nodeIntegration: true,
+			nodeIntegrationInWorker: true,
 			plugins: true,
 		},
 	});
