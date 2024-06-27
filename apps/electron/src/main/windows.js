@@ -42,8 +42,8 @@ async function createGame(account = null) {
 		height: 552,
 		title: account?.username ?? '',
 		webPreferences: {
-			contextIsolation: false,
-			nodeIntegration: true,
+			contextIsolation: true,
+            preload: join(RENDERER, 'game/preload.js'),
 			plugins: true,
 		},
 	});
@@ -64,8 +64,8 @@ async function createGame(account = null) {
 	await window
 		.loadFile(join(RENDERER, 'game/game.html'))
 		.catch((error) => console.log('error', error));
-	// window.webContents.openDevTools({ mode: 'right' });
-	// window.maximize();
+	window.webContents.openDevTools({ mode: 'right' });
+	window.maximize();
 
 	// TODO: race condition
 	const windowID = nanoid();
