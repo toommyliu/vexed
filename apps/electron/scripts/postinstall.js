@@ -6,7 +6,6 @@ const fs = require('fs-extra');
 const { join } = require('node:path');
 const { exec } = require('child_process');
 const { downloadArtifact } = require('@electron/get');
-const { promisify } = require('node:util');
 
 (async () => {
     const nodeModules = join(__dirname, '../../../node_modules');
