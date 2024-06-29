@@ -24,6 +24,10 @@ class Bot {
 				type: COMMANDS.WORLD.JOIN,
 				args: ['lair-100000'],
 			},
+			{
+				type: COMMANDS.WORLD.MOVE_TO_CELL,
+				args: ['Mom', 'Right']
+			}
 		];
 	}
 
@@ -70,8 +74,9 @@ class Bot {
 			if (this.pause) {
 				return;
 			}
+
 			if (this.#index >= this.#commands.length) {
-				console.log('[bot]stop');
+				await this.sleep(1000);
 				this.stop();
 				return;
 			}
@@ -84,6 +89,8 @@ class Bot {
 			const fn = this.#data.get(cmd.type);
 			if (fn) {
 				await fn(this, ...cmd.args);
+			} else {
+				console.log(`[bot] missing handler for ${cmd.type}`);
 			}
 
 			this.#index++;
