@@ -27,7 +27,7 @@ class Combat {
 		 * @type {number}
 		 */
 		this.skillDelay = 150;
-
+		
 		this.pauseAttack = false;
 	}
 
