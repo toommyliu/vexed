@@ -1,7 +1,7 @@
 var { AsyncQueue } = require('@sapphire/async-queue');
 var { TimerManager } = require('@sapphire/timer-manager');
 
-class BotEngine {
+class Bot {
 	#queue = new AsyncQueue();
 	#timer = null;
 	#index = 0;
@@ -102,6 +102,34 @@ class BotEngine {
 		this.on = false;
 		this.#queue.abortAll();
 	}
+
+	/**
+	 * @param {number} ms The number of milliseconds to wait.
+	 * @returns {Promise<void>}
+	 */
+	sleep(ms) {
+		return new Promise((resolve) => setTimeout(resolve, ms));
+	}
+
+	/**
+	 * Waits until the condition is met.
+	 * @param {Function} condition The condition to wait for.
+	 * @param {Function|null} prerequisite The prerequisite to be checked before waiting for the condition.
+	 * @param {number} timeout The maximum number of iterations to wait. -1 for infinite.
+	 * @returns {Promise<void>}
+	 */
+	async waitUntil(condition, prerequisite = null, timeout = 15) {
+		let iterations = 0;
+
+		while (
+			(prerequisite === null || prerequisite()) &&
+			!condition() &&
+			(iterations < timeout || timeout === -1)
+		) {
+			await this.sleep(1000);
+			iterations++;
+		}
+	}
 }
 
-var botEngine = new BotEngine();
+var bot = new Bot();

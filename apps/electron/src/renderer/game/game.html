@@ -127,29 +127,6 @@
 		window.$ = window.jQuery = require('../shared/jquery.js');
 	</script>
 
-	<script src="jsapi/ItemBase.js"></script>
-	<script src="jsapi/Faction.js"></script>
-	<script src="jsapi/Quest.js"></script>
-	<script src="jsapi/Avatar.js"></script>
-	<script src="jsapi/Monster.js"></script>
-
-	<script src="jsapi/Auth.js"></script>
-	<script src="jsapi/Bank.js"></script>
-	<script src="jsapi/Bot.js"></script>
-	<script src="jsapi/Combat.js"></script>
-	<script src="jsapi/Drops.js"></script>
-	<script src="jsapi/Flash.js"></script>
-	<script src="jsapi/House.js"></script>
-	<script src="jsapi/Inventory.js"></script>
-	<script src="jsapi/Packet.js"></script>
-	<script src="jsapi/Player.js"></script>
-	<script src="jsapi/Quests.js"></script>
-	<script src="jsapi/Server.js"></script>
-	<script src="jsapi/Settings.js"></script>
-	<script src="jsapi/Shops.js"></script>
-	<script src="jsapi/TempInventory.js"></script>
-	<script src="jsapi/World.js"></script>
-
 	<script src="ipc/flash-ipc.js" defer></script>
 	<script src="ipc/ipc.js" defer></script>
 
@@ -164,26 +141,7 @@
 				max: 100,
 				value: 0,
 			}).appendTo('#progress-container');
-
-			var script = $('<script><//script>').text(`
-			var bot = Bot.getInstance();
-			var auth = bot.auth;
-			var bank = bot.bank;
-			var combat = bot.combat;
-			var drops = bot.drops;
-			var flash = bot.flash;
-			var house = bot.house;
-			var inventory = bot.inventory;
-			var packets = bot.packets;
-			var player = bot.player;
-			var quests = bot.quests;
-			var settings = bot.settings;
-			var shops = bot.shops;
-			var tempInventory = bot.tempInventory;
-			var world = bot.world;
-		`);
-			$('body').append(script);
-		});
+				});
 
 		async function progress([percentage]) {
 			var elem = $('#progress');
@@ -195,20 +153,6 @@
 				elem_.remove();
 
 				$('#nav').show();
-
-				if (window?.account) {
-					const { username, password, server } = window.account;
-					const bot = Bot.getInstance();
-					await bot.sleep(1000);
-					await auth.login(username, password);
-					if (server !== 'None') {
-						await bot.waitUntil(() => auth?.servers?.length > 0);
-						await bot.sleep(250);
-						auth.connect(server);
-						await bot.sleep(1000);
-					}
-					delete window.account;
-				}
 			}
 		}
 	</script>
@@ -295,143 +239,6 @@
 					windows.packetsSpammer.focus();
 				}
 			});
-
-			function updateCells() {
-				const bot = Bot.getInstance();
-				const { auth, player, world } = bot;
-
-				if (
-					!auth.loggedIn ||
-					world.loading ||
-					window.lastMap === bot.world.roomId
-				) {
-					return;
-				}
-
-				const elem = $('#cells');
-				elem.empty();
-
-				const { cells } = world;
-				$.each(cells, function (_, option) {
-					elem.append(
-						$('<option>', {
-							value: option,
-							text: option,
-						}),
-					);
-				});
-
-				window.lastMap = world.roomId;
-			}
-
-			$('#pads').change(async function () {
-				const { auth, world } = Bot.getInstance();
-				if (!auth.loggedIn || world.loading) {
-					return;
-				}
-
-				const cell = $('#cells').val() ?? player.cell;
-				const pad = $(this).val();
-
-				await Bot.getInstance().world.jump(cell, pad);
-			});
-
-			$('#cells')
-				.on('click', updateCells)
-				.change(async function () {
-					const { auth, world } = Bot.getInstance();
-					if (!auth.loggedIn || world.loading) {
-						return;
-					}
-
-					const cell = $(this).val();
-					const pad = $('#pads').val() ?? 'Spawn';
-
-					await Bot.getInstance().world.jump(cell, pad);
-				});
-
-			$('#x').on('click', async function () {
-				const { auth, player, world } = Bot.getInstance();
-				if (!auth.loggedIn || world.loading) {
-					return;
-				}
-
-				const cells = $('#cells');
-				const pads = $('#pads');
-
-				if (!cells.val()) {
-					updateCells();
-				}
-
-				cells.val(player.cell ?? 'Enter');
-				pads.val(player.pad ?? 'Spawn');
-
-				await world.jump(cells.val(), pads.val(), true);
-			});
-
-			$('#bank').on('click', function () {
-				const bot = Bot.getInstance();
-				if (!auth.loggedIn) {
-					return;
-				}
-
-				bot.flash.call('world.toggleBank');
-			});
-
-			$('[id^="option-"]').each(function () {
-				$(this).click(function (ev) {
-					const checked = $(this).attr('data-checked') === 'true';
-
-					if (checked) {
-						$(this).attr('data-checked', 'false');
-						$(this).find('.checkmark').hide();
-					} else {
-						$(this).attr('data-checked', 'true');
-						$(this).find('.checkmark').show();
-					}
-				});
-			});
-
-			setIntervalAsync(() => {
-				if (!auth.loggedIn || world.loading) {
-					return;
-				}
-
-				if ($('#option-infinite-range').attr('data-checked') === 'true') {
-					settings.setInfiniteRange();
-				}
-
-				if ($('#option-provoke-all').attr('data-checked') === 'true') {
-					const ids = world.monsters.map((mon) => mon.MonMapID);
-					if (ids.length > 0) {
-						packets.sendServer(
-							`%xt%zm%aggroMon%${world.roomId}%${ids.join('%')}%`,
-						);
-					}
-				}
-
-				if ($('#option-provoke-cell').attr('data-checked') === 'true') {
-					settings.setProvokeMonsters();
-				}
-
-				if ($('#option-enemy-magnet').attr('data-checked') === 'true') {
-					settings.setEnemyMagnet();
-				}
-
-				if ($('#option-skip-cutscenes').attr('data-checked') === 'true') {
-					settings.skipCutscenes();
-				}
-
-				settings.setLagKiller(
-					$('#option-lag-killer').attr('data-checked') === 'true',
-				);
-
-				if ($('#option-hide-players').attr('data-checked') === 'true') {
-					settings.hidePlayers();
-				}
-
-				settings.setWalkSpeed(Number.parseInt($('#option-walkspeed').val(), 10));
-			}, 1000);
 		});
 	</script>
 
@@ -830,8 +637,6 @@
 		</div>
 	</nav>
 
-	<script src="lib/timer.js"></script>
-
 	<script src="botting/commands.js"></script>
-	<script src="botting/engine.js"></script>
+	<script src="botting/bot.js"></script>
 </html>

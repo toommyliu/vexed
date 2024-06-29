@@ -11,10 +11,10 @@ module.exports = {
 		const queue = new AsyncQueue();
 		const timer = TimerManager.setInterval(async () => {
 			await queue.wait();
-			if (!combat.hasTarget()) {
-				combat.attack(name);
+			if (swf.HasTarget() === '"False"') {
+				swf.AttackMonster(name);
 			}
-			if (combat.hasTarget()) {
+			if (swf.HasTarget() === '"True"') {
 				swf.UseSkill(i++);
 				if (i > 4) {
 					i = 1;
@@ -22,7 +22,7 @@ module.exports = {
 			}
 			if (
 				swf.IsMonsterAvailable(name) === '"False"' &&
-				!combat.hasTarget() &&
+				swf.HasTarget() === '"False"' &&
 				!once
 			) {
 				once = true;
@@ -35,8 +35,8 @@ module.exports = {
 					TimerManager.clearInterval(timer);
 					TimerManager.clearTimeout(timer_);
 					console.log(new Date(), 'pause=false');
-					combat.cancelAttack();
-					combat.cancelTarget();
+					swf.CancelAutoAttack();
+					swf.CancelTarget();
 				}, 1000);
 			}
 

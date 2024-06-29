@@ -1,12 +1,12 @@
 module.exports = {
 	id: COMMANDS.WORLD.JOIN,
-	execute: async (botEngine, map) => {
+	execute: async (bot, map) => {
 		await bot.waitUntil(
-			() => world.isActionAvailable(GameAction.Transfer),
+			() => swf.IsActionAvailable('tfer') === '"True"',
 			null,
 			-1,
 		);
 		swf.Join(map);
-		await bot.waitUntil(() => world.name === map.split('-')[0], null, -1);
+		await bot.waitUntil(() => JSON.parse(swf.Map()) === map.split('-')[0], null, -1);
 	},
 };
