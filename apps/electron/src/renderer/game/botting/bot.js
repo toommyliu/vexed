@@ -32,7 +32,7 @@ class Bot {
 	}
 
 	async start() {
-		if (!this.#data.length) {
+		if (!this.#data.size) {
 			const { resolve } = require('path');
 			const fs = require('fs-extra');
 
@@ -108,6 +108,7 @@ class Bot {
 		this.pause = false;
 		this.on = false;
 		this.#queue.abortAll();
+		console.log('[bot]stop');
 	}
 
 	/**
