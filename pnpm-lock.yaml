@@ -26,9 +26,6 @@ importers:
       '@sapphire/timer-manager':
         specifier: ^1.0.2
         version: 1.0.2
-      '@tbnritzdoge/events':
-        specifier: ^1.0.6
-        version: 1.0.6
       async-mutex:
         specifier: ^0.5.0
         version: 0.5.0
@@ -44,9 +41,6 @@ importers:
       set-interval-async:
         specifier: ^3.0.3
         version: 3.0.3
-      worker-timers:
-        specifier: ^8.0.0
-        version: 8.0.0
     devDependencies:
       electron:
         specifier: 11.5.0
@@ -146,10 +140,6 @@ packages:
     resolution: {integrity: sha512-eNZXdfU35nJC2h24RznROuOpO94h6x8sg9ju0tT9biNtLZ2vuP8SduLqqV+/8+cebSLV9SJEAN5Z3zQbJG/M+Q==}
     engines: {node: '>=6.0.0'}
     hasBin: true
-
-  '@babel/runtime@7.24.7':
-    resolution: {integrity: sha512-UwgBRMjJP+xv857DCngvqXI3Iq6J4v0wXmwc6sapg+zyhbwmQX67LUEFrkK5tbyJ30jGuG3ZvWpBiB9LCy1kWw==}
-    engines: {node: '>=6.9.0'}
 
   '@babel/types@7.24.6':
     resolution: {integrity: sha512-WaMsgi6Q8zMgMth93GvWPXkhAIEobfsIkLTacoVZoK1J0CevIPGYY2Vo5YvJGqyHqXM6P4ppOYGsIRU8MM9pFQ==}
@@ -466,10 +456,6 @@ packages:
   '@szmarczak/http-timer@1.1.2':
     resolution: {integrity: sha512-XIB2XbzHTN6ieIjfIMV9hlVcfPU26s2vafYWQcZHWXHOxiaRZYEDKEwdl129Zyg50+foYV2jCgtrqSA6qNuNSA==}
     engines: {node: '>=6'}
-
-  '@tbnritzdoge/events@1.0.6':
-    resolution: {integrity: sha512-XTvIF1KBsIZrWJBnr8H05lIa+eufYaSSk2P3YdLsQ4Ak5YW356PgdRviE5Lj0GWN4nFh8UmakAB+eHeNCNXJGw==}
-    engines: {node: '>=14.0.0'}
 
   '@tootallnate/once@2.0.0':
     resolution: {integrity: sha512-XCuKFP5PS55gnMVu3dty8KPatLqUoy/ZYzDzAGCQ8JNFCkLXzmI7vNHCR+XpbZaMWQK/vQubr7PkYq8g470J/A==}
@@ -1074,10 +1060,6 @@ packages:
   fast-json-stable-stringify@2.1.0:
     resolution: {integrity: sha512-lhd/wF+Lk98HZoTCtlVraHtfh5XYijIjalXck7saUtuanSDyLMxnHhSXEDJqHxD7msR8D0uCmqlkwjCV8xvwHw==}
 
-  fast-unique-numbers@9.0.5:
-    resolution: {integrity: sha512-wVA1YcLQn0eAo4P1DXu4UI3wx68Llwm2/iCtpoOGuTi3jm/13KFYjCt3Nlq2fseSuyaBz43RKimj5G68GDzjjg==}
-    engines: {node: '>=18.2.0'}
-
   fd-slicer@1.1.0:
     resolution: {integrity: sha512-cE1qsB/VwyQozZ+q1dGxR8LBYNZeofhEdUNGSMbQD3Gw2lAzX9Zb3uIU6Ebc/Fmyjo9AWWfnn0AUCHqtevs/8g==}
 
@@ -1678,9 +1660,6 @@ packages:
     resolution: {integrity: sha512-zQv5y/cf85sxvdrKPlfcRzlDn/OqKFThNimYmsS3flmkioKvkUGn2Qg9cJVoQiEvdxFGLE0MQER/9fZ9sUqdxg==}
     engines: {node: '>=0.10.0'}
 
-  regenerator-runtime@0.14.1:
-    resolution: {integrity: sha512-dYnhHh0nJoMfnkZs6GmmhFknAGRrLznOu5nc9ML+EJxGvrx6H7teuevqVqCuPcPK//3eDrrjQhehXVx9cnkGdw==}
-
   remove-trailing-separator@1.1.0:
     resolution: {integrity: sha512-/hS+Y0u3aOfIETiaiirUFwDBDzmXPvO+jAfKTitUngIPzdKc6Z0LoFjM/CK5PL4C+eKwHohlHAb6H0VFfmmUsw==}
 
@@ -2099,15 +2078,6 @@ packages:
     resolution: {integrity: sha512-mO8XtqyPvykVCsrwj5MlOVWvSnCdT+C+QVbm6blradR7JExAhbkZ7hZ9A+9NUtwzSqrlUo9a67ws0EiILrvRpw==}
     engines: {node: '>=4.0.0'}
 
-  worker-timers-broker@7.0.1:
-    resolution: {integrity: sha512-M2ZYaxYUl/D/JCoioltkZMcnSWREoo/mhdyyTPLyeAxjgwrARgsXn+yFssr1LbDmq4GlaASxReeEx/jdsfA8Xg==}
-
-  worker-timers-worker@8.0.0:
-    resolution: {integrity: sha512-smUw4cwY+OczC2rUmg5Zw58boDqq9WnR6m5CoOBmm0zGQgHo4HjxZ3LE2gPLpx1NWf5NSlAd2Ec5TEwgokxQFA==}
-
-  worker-timers@8.0.0:
-    resolution: {integrity: sha512-ZPC5n62AFD9RmwP5c9dFVFRsEWohJ04bSImT2pTD3GZg45+qyaiznrYf34UwNAJ6oB0HxSjpqkJdh4CoPi+Mog==}
-
   wrap-ansi@7.0.0:
     resolution: {integrity: sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==}
     engines: {node: '>=10'}
@@ -2263,10 +2233,6 @@ snapshots:
   '@babel/parser@7.24.6':
     dependencies:
       '@babel/types': 7.24.6
-
-  '@babel/runtime@7.24.7':
-    dependencies:
-      regenerator-runtime: 0.14.1
 
   '@babel/types@7.24.6':
     dependencies:
@@ -2521,8 +2487,6 @@ snapshots:
   '@szmarczak/http-timer@1.1.2':
     dependencies:
       defer-to-connect: 1.1.3
-
-  '@tbnritzdoge/events@1.0.6': {}
 
   '@tootallnate/once@2.0.0': {}
 
@@ -3295,11 +3259,6 @@ snapshots:
 
   fast-json-stable-stringify@2.1.0: {}
 
-  fast-unique-numbers@9.0.5:
-    dependencies:
-      '@babel/runtime': 7.24.7
-      tslib: 2.6.3
-
   fd-slicer@1.1.0:
     dependencies:
       pend: 1.2.0
@@ -3935,8 +3894,6 @@ snapshots:
     dependencies:
       test-value: 2.1.0
 
-  regenerator-runtime@0.14.1: {}
-
   remove-trailing-separator@1.1.0: {}
 
   require-directory@2.1.1: {}
@@ -4356,25 +4313,6 @@ snapshots:
     dependencies:
       reduce-flatten: 1.0.1
       typical: 2.6.1
-
-  worker-timers-broker@7.0.1:
-    dependencies:
-      '@babel/runtime': 7.24.7
-      fast-unique-numbers: 9.0.5
-      tslib: 2.6.3
-      worker-timers-worker: 8.0.0
-
-  worker-timers-worker@8.0.0:
-    dependencies:
-      '@babel/runtime': 7.24.7
-      tslib: 2.6.3
-
-  worker-timers@8.0.0:
-    dependencies:
-      '@babel/runtime': 7.24.7
-      tslib: 2.6.3
-      worker-timers-broker: 7.0.1
-      worker-timers-worker: 8.0.0
 
   wrap-ansi@7.0.0:
     dependencies:
