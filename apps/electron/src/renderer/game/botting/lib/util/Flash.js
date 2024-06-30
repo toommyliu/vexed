@@ -1,22 +1,11 @@
-var { EventEmitter } = require('events');
-
-class Flash extends EventEmitter {
-	constructor(bot) {
-		super();
-
-		/**
-		 * @type {Bot}
-		 */
-		this.bot = bot;
-	}
-
+class Flash{
 	/**
 	 * Calls a game function, whether this be an interop function or an internal function.
 	 * @param {string|Function} fn
 	 * @param  {...any} args
 	 * @returns {any|null}
 	 */
-	call(fn, ...args) {
+	static call(fn, ...args) {
 		let _fn;
 		let _args = args;
 		let out;
@@ -28,8 +17,8 @@ class Flash extends EventEmitter {
 			// args[0] is the path
 			_fn =
 				args.length === 0
-					? window.swf.callGameFunction0
-					: window.swf.callGameFunction;
+					? swf.callGameFunction0
+					: swf.callGameFunction;
 			// args[1-n] are the actual args for the function
 			_args = [fn, ...args];
 		}
@@ -65,9 +54,9 @@ class Flash extends EventEmitter {
 	 * @param {boolean} [parse=false] Whether to call JSON.parse on the return value.
 	 * @returns {any|null}
 	 */
-	get(path, parse = false) {
+	static get(path, parse = false) {
 		try {
-			const out = window.swf.getGameObject(path);
+			const out = swf.getGameObject(path);
 			if (parse) {
 				return JSON.parse(out);
 			}
@@ -85,9 +74,9 @@ class Flash extends EventEmitter {
 	 * @param {boolean} [parse=false] Whether to call JSON.parse on the return value.
 	 * @returns {any|null}
 	 */
-	getStatic(path, parse = false, defaultValue = null) {
+	static getStatic(path, parse = false, defaultValue = null) {
 		try {
-			const out = window.swf.getGameObjectS(path);
+			const out = swf.getGameObjectS(path);
 			if (parse) {
 				return JSON.parse(out);
 			}
@@ -105,12 +94,10 @@ class Flash extends EventEmitter {
 	 * @param {any} value The value to set.
 	 * @returns {void}
 	 */
-	set(path, value) {
+	static set(path, value) {
 		try {
-			window.swf.setGameObject(path, value);
-		} catch (error) {
-			console.error(error);
-		}
+			swf.setGameObject(path, value);
+		} catch {}
 	}
 
 	/**
@@ -119,6 +106,6 @@ class Flash extends EventEmitter {
 	 * @returns {boolean}
 	 */
 	isNull(path) {
-		return this.call(window.swf.isNull, path);
+		return this.call(swf.isNull, path);
 	}
 }

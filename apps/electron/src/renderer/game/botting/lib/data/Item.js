@@ -1,9 +1,11 @@
-class ItemBase {
+class Item {
+	/**
+	 * @type {ItemData}
+	 */
+	#data;
+
 	constructor(data) {
-		/**
-		 * @type {ItemData}
-		 */
-		this.data = data;
+		this.#data = data;
 	}
 
 	/**
@@ -11,7 +13,7 @@ class ItemBase {
 	 * @returns {number}
 	 */
 	get id() {
-		return this.data.ItemID;
+		return this.#data.ItemID;
 	}
 
 	/**
@@ -19,7 +21,7 @@ class ItemBase {
 	 * @returns {string}
 	 */
 	get name() {
-		return this.data.sName;
+		return this.#data.sName;
 	}
 
 	/**
@@ -27,7 +29,7 @@ class ItemBase {
 	 * @returns {string}
 	 */
 	get description() {
-		return this.data.sDesc;
+		return this.#data.sDesc;
 	}
 
 	/**
@@ -35,7 +37,7 @@ class ItemBase {
 	 * @returns {number}
 	 */
 	get quantity() {
-		return this.data.iQty;
+		return this.#data.iQty;
 	}
 
 	/**
@@ -43,7 +45,7 @@ class ItemBase {
 	 * @returns {number}
 	 */
 	get maxStack() {
-		return this.data.iStk;
+		return this.#data.iStk;
 	}
 
 	/**
@@ -51,7 +53,7 @@ class ItemBase {
 	 * @returns {boolean}
 	 */
 	isUpgrade() {
-		return this.data.bUpg === 1;
+		return this.#data.bUpg === 1;
 	}
 
 	/**
@@ -59,7 +61,7 @@ class ItemBase {
 	 * @returns {boolean}
 	 */
 	isAC() {
-		return this.data.bCoins === 1;
+		return this.#data.bCoins === 1;
 	}
 
 	/**
@@ -67,7 +69,7 @@ class ItemBase {
 	 * @returns {string}
 	 */
 	get category() {
-		return this.data.sType;
+		return this.#data.sType;
 	}
 
 	/**
@@ -75,7 +77,7 @@ class ItemBase {
 	 * @returns {boolean}
 	 */
 	isTemp() {
-		return this.data.bTemp === 1;
+		return this.#data.bTemp === 1;
 	}
 
 	/**
@@ -84,7 +86,7 @@ class ItemBase {
 	 * @returns {string}
 	 */
 	get itemGroup() {
-		return this.data.sES;
+		return this.#data.sES;
 	}
 
 	/**
@@ -92,7 +94,7 @@ class ItemBase {
 	 * @returns {string}
 	 */
 	get fileName() {
-		return this.data.sLink;
+		return this.#data.sLink;
 	}
 
 	/**
@@ -100,7 +102,7 @@ class ItemBase {
 	 * @returns {string}
 	 */
 	get fileLink() {
-		return this.data.sFile;
+		return this.#data.sFile;
 	}
 
 	/**
@@ -108,14 +110,13 @@ class ItemBase {
 	 * @returns {string}
 	 */
 	get meta() {
-		return this.data.sMeta;
+		return this.#data.sMeta;
 	}
 
 	isMaxed() {
 		return this.quantity === this.maxStack;
 	}
 }
-
 /**
  * @typedef {Object} ItemData
  * @property {number} CharID
