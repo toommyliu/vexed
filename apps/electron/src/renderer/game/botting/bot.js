@@ -6,29 +6,96 @@ class Bot {
 	#timer = null;
 	#index = 0;
 	#commands = [];
-	pause = false;
-	on = false;
+	#paused = false;
+	running = false;
 	#data = new Map();
 
 	constructor() {
 		this.#commands = [
 			{
-				type: COMMANDS.WORLD.JOIN,
-				args: ['battleontown-100000'],
+				id: COMMANDS.WORLD.JOIN,
+				args: ['classhall-100000', 'r4f', 'Right'],
 			},
 			{
-				type: COMMANDS.COMBAT.KILL,
-				args: ['frogzard'],
+				id: COMMANDS.COMBAT.KILL,
+				args: ['elite dummy'],
 			},
+			// {
+			// 	id: COMMANDS.WORLD.JOIN,
+			// 	args: ['nexus-1000000'],
+			// },
+			// {
+			// 	id: COMMANDS.COMBAT.KILL,
+			// 	args: ['*']
+			// },
+			// {
+			// 	id: COMMANDS.WORLD.JOIN,
+			// 	args: ['battleontown-100000'],
+			// },
+			// {
+			// 	id: COMMANDS.COMBAT.KILL,
+			// 	args: ['frogzard'],
+			// },
+			// {
+			// 	id: COMMANDS.WORLD.JOIN,
+			// 	args: ['lair-100000'],
+			// },
+			// {
+			// 	id: COMMANDS.WORLD.JUMP,
+			// 	args: ['Mom', 'Right'],
+			// },
+			// {
+			// 	id: COMMANDS.COMBAT.ATTACK,
+			// 	args: ['*']
+			// },
+			// {
+			// 	id: COMMANDS.WORLD.JOIN,
+			// 	args: ['lavarockshore-1000000', 'r2', 'Left'],
+			// },
+			// {
+			// 	id: COMMANDS.COMBAT.ATTACK,
+			// 	args: ['id:1'],
+			// },
+			// {
+			// 	id: COMMANDS.UTIL.SLEEP,
+			// 	args: [1000],
+			// },
+			// {
+			// 	id: COMMANDS.COMBAT.REST,
+			// 	args: [true],
+			// },
 			{
-				type: COMMANDS.WORLD.JOIN,
-				args: ['lair-100000'],
+				id: COMMANDS.WORLD.JOIN,
+				args: ['battleon-1000000'],
 			},
-			{
-				type: COMMANDS.WORLD.MOVE_TO_CELL,
-				args: ['Mom', 'Right']
-			}
 		];
+	}
+
+	pause() {
+		if (this.#paused) {
+			throw new Error('bot is already paused');
+		}
+
+		this.#paused = true;
+	}
+
+	resume() {
+		if (!this.#paused) {
+			throw new Error('bot is not paused');
+		}
+
+		this.#paused = false;
+	}
+
+	isPaused() {
+		return this.#paused;
+	}
+
+	addCommand(id, ...args) {
+		this.#commands.push({
+			id,
+			args: [...args],
+		});
 	}
 
 	async start() {
@@ -50,28 +117,21 @@ class Bot {
 			for (const f of await readdir('./src/renderer/game/botting/impl')) {
 				const cmd = require(f);
 				this.#data.set(cmd.id, cmd.execute);
-				console.log(`[bot] registered cmd impl: ${cmd.id}`);
 			}
 
-			console.log('[bot] registered commands impl');
+			console.log(`[bot] registered commands impl (${this.#data.size})`);
 		}
 
-		if (this.on) {
-			console.log('on');
-			return;
-		}
-		this.on = true;
+		this.running = true;
 		this.#index = 0;
 		this.addTimer();
-		console.log('[bot]', this.#commands);
+
+		console.log(`[bot] running ${this.#commands.length} commands`);
 	}
 
 	addTimer() {
-		if (!this.on) {
-			return console.log('ret');
-		}
 		this.#timer = TimerManager.setTimeout(async () => {
-			if (this.pause) {
+			if (this.isPaused()) {
 				return;
 			}
 
@@ -84,13 +144,17 @@ class Bot {
 			await this.#queue.wait();
 
 			const cmd = this.#commands[this.#index];
-			console.log(new Date(), `[bot]cmd:${cmd.type}`, cmd.args);
+			console.log(
+				new Date(),
+				`[bot] cmd: ${cmd.id} (${this.#index + 1}/${this.#commands.length})`,
+				cmd.args,
+			);
 
-			const fn = this.#data.get(cmd.type);
+			const fn = this.#data.get(cmd.id);
 			if (fn) {
 				await fn(this, ...cmd.args);
 			} else {
-				console.log(`[bot] missing handler for ${cmd.type}`);
+				console.log(`[bot] missing handler for ${cmd.id}`);
 			}
 
 			this.#index++;
@@ -105,8 +169,8 @@ class Bot {
 		// this.#commands = [];
 		TimerManager.clearTimeout(this.#timer);
 		this.#timer = null;
-		this.pause = false;
-		this.on = false;
+		this.#paused = false;
+		this.running = false;
 		this.#queue.abortAll();
 		console.log('[bot]stop');
 	}

@@ -2,10 +2,14 @@ const COMMANDS = Object.freeze({
 	COMBAT: {
 		ATTACK: 'combat:attack',
 		KILL: 'combat:kill',
-		USE_SKILL: 'combat:use_skill'
+		USE_SKILL: 'combat:use_skill',
+		REST: 'combat:rest',
 	},
 	WORLD: {
 		JOIN: 'world:join',
-		MOVE_TO_CELL: 'world:move_to_cell',
-	}
+		JUMP: 'world:jump',
+	},
+	UTIL: {
+		SLEEP: 'util:sleep',
+	},
 });

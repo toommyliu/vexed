@@ -1,12 +1,22 @@
 module.exports = {
 	id: COMMANDS.WORLD.JOIN,
-	execute: async (bot, map) => {
+	execute: async (bot, map, cell, pad) => {
+		while (Player.state === PlayerState.InCombat) {
+			Player.jump('Enter', 'Spawn');
+			await bot.sleep(1000);
+		}
+
 		await bot.waitUntil(
-			() => swf.IsActionAvailable('tfer') === '"True"',
+			() => World.isActionAvailable(GameAction.Transfer),
 			null,
-			-1,
+			15,
 		);
-		swf.Join(map);
-		await bot.waitUntil(() => JSON.parse(swf.Map()) === map.split('-')[0], null, -1);
+
+		Player.join(map, cell, pad);
+		await bot.waitUntil(
+			() => !World.loading && Player.map === map.split('-')[0],
+			null,
+			15,
+		);
 	},
 };
