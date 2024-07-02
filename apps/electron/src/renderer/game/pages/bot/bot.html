@@ -7,10 +7,12 @@
 <script src="../../../shared/bootstrap.js"></script>
 <style>
 	.command-list {
-		padding-left: 2px;
+		display: flex;
+		flex-direction: column;
+		padding-left: 4px;
 		padding-right: 5px;
-		box-sizing: content-box;
 		height: 75vh;
+		box-sizing: border-box;
 		overflow-x: auto;
 		user-select: none;
 		overflow-y: auto;
@@ -19,11 +21,13 @@
 	}
 
 	.command-item {
+		flex: 0 0 auto;
 		width: auto;
 		box-sizing: border-box;
 		font-size: 11px;
 		white-space: nowrap;
 		text-overflow: ellipsis;
+		padding: 2px 0;
 		margin-left: 4px;
 	}
 
@@ -50,6 +54,10 @@
 
 	.fixed-container {
 		width: 50vw;
+		border: 1px solid #ccc;
+		box-sizing: border-box;
+		padding: 8px;
+		margin-left: 4px;
 	}
 </style>
 
@@ -297,12 +305,10 @@
 				break;
 		}
 
-		const div = $('<div/>').addClass('border-bottom');
-		if (i === commands.length - 1) {
-			div.removeClass('border-bottom');
+		const div = $('<div/>').text(text);
+		if (i !== commands.length - 1) {
+			div.addClass('border-bottom');
 		}
-
-		div.text(text);
 
 		$commands.append(div);
 	});
