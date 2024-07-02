@@ -1,1 +1,0 @@
-const player = Object.freeze({});
