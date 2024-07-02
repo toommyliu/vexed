@@ -2,308 +2,310 @@
 <html lang="en" data-bs-theme="dark">
 <link rel="stylesheet" type="text/css" href="../../../shared/halfmoon.css" />
 <script>
-    window.$ = window.jQuery = require('../../../shared/jquery.js');
+	window.$ = window.jQuery = require('../../../shared/jquery.js');
 </script>
 <script src="../../../shared/bootstrap.js"></script>
 <style>
-    .command-list {
-        list-style-type: none;
-        padding-left: 0;
-        padding-right: 5px;
-        box-sizing: content-box;
-        max-height: 250px;
-        overflow-x: scroll;
-        user-select: none;
-        overflow-y: auto;
-        font-family: monospace;
-    }
+	.command-list {
+		padding-left: 2px;
+		padding-right: 5px;
+		box-sizing: content-box;
+		height: 75vh;
+		overflow-x: auto;
+		user-select: none;
+		overflow-y: auto;
+		font-family: monospace;
+		white-space: nowrap;
+	}
 
-    .command-item {
-        width: 100%;
-        box-sizing: border-box;
-        font-size: 11px;
-        line-height: 20px;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        margin-left: 4px;
-    }
+	.command-item {
+		width: auto;
+		box-sizing: border-box;
+		font-size: 11px;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		margin-left: 4px;
+	}
 
-    .command-list::-webkit-scrollbar {
-        width: 12px;
-    }
+	.command-list::-webkit-scrollbar {
+		width: 12px;
+	}
 
-    /* the background */
-    .command-list::-webkit-scrollbar-track {
-        background: transparent;
-    }
+	/* the background */
+	.command-list::-webkit-scrollbar-track {
+		background: transparent;
+	}
 
-    /* the scrollbar */
-    .command-list::-webkit-scrollbar-thumb {
-        background-color: #888;
-        border-radius: 10px;
-        border: 3px solid transparent;
-        background-clip: content-box;
-    }
+	/* the scrollbar */
+	.command-list::-webkit-scrollbar-thumb {
+		background-color: #888;
+		border-radius: 10px;
+		border: 3px solid transparent;
+		background-clip: content-box;
+	}
 
-    .command-list::-webkit-scrollbar-corner {
-        background-color: transparent;
-    }
+	.command-list::-webkit-scrollbar-corner {
+		background-color: transparent;
+	}
 
-    .fixed-container {
-        min-width: 300px;
-        max-width: 300px;
-        min-height: 254px;
-        max-height: 254px;
-    }
+	.fixed-container {
+		width: 50vw;
+	}
 </style>
 
 <body class="d-flex flex-col h-100 mt-4">
-    <div class="container-fluid fixed-container">
-        <div id="commandList" class="command-list border"></div>
-    </div>
-    <div class="container-fluid">
-        <ul class="nav nav-tabs" id="myTab" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="combat-tab-pane" data-bs-toggle="tab"
-                    data-bs-target="#combat-tab-pane" type="button" role="tab" aria-controls="combat-tab-pane"
-                    aria-selected="true">Combat</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#items-tab-pane"
-                    type="button" role="tab" aria-controls="items-tab-pane" aria-selected="false">Profile</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact-tab-pane"
-                    type="button" role="tab" aria-controls="contact-tab-pane" aria-selected="false">Contact</button>
-            </li>
-        </ul>
-        <div class="tab-content" id="myTabContent">
-            <div class="tab-pane fade show active" id="combat-tab-pane" role="tabpanel" aria-labelledby="combat-tab"
-                tabindex="0">hello from combat</div>
-            <div class="tab-pane fade" id="items-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
-                hello from items</div>
-            <div class="tab-pane fade" id="contact-tab-pane" role="tabpanel" aria-labelledby="contact-tab" tabindex="0">
-                hello from quests</div>
-        </div>
-    </div>
+	<div class="container-fluid fixed-container">
+		<div id="commandList" class="command-list border"></div>
+	</div>
+	<div class="container-fluid">
+		<ul class="nav nav-tabs" id="myTab" role="tablist">
+			<li class="nav-item" role="presentation">
+				<button class="nav-link active" id="combat-tab-pane" data-bs-toggle="tab"
+					data-bs-target="#combat-tab-pane" type="button" role="tab" aria-controls="combat-tab-pane"
+					aria-selected="true">Combat</button>
+			</li>
+			<li class="nav-item" role="presentation">
+				<button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#items-tab-pane"
+					type="button" role="tab" aria-controls="items-tab-pane" aria-selected="false">Profile</button>
+			</li>
+			<li class="nav-item" role="presentation">
+				<button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact-tab-pane"
+					type="button" role="tab" aria-controls="contact-tab-pane" aria-selected="false">Contact</button>
+			</li>
+		</ul>
+		<div class="tab-content" id="myTabContent">
+			<div class="tab-pane fade show active" id="combat-tab-pane" role="tabpanel" aria-labelledby="combat-tab"
+				tabindex="0">hello from combat</div>
+			<div class="tab-pane fade" id="items-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
+				hello from items</div>
+			<div class="tab-pane fade" id="contact-tab-pane" role="tabpanel" aria-labelledby="contact-tab" tabindex="0">
+				hello from quests</div>
+		</div>
+	</div>
 </body>
 
 <script>
-    const commands = [
-        {
-            id: 'COMMANDS.WORLD.JOIN',
-            args: ['classhall-100000', 'r4f', 'Right'],
-        },
-        {
-            id: 'COMMANDS.COMBAT.KILL',
-            args: ['elite dummy'],
-        },
-        {
-            id: 'COMMANDS.WORLD.JOIN',
-            args: ['nexus-1000000'],
-        },
-        {
-            id: 'COMMANDS.COMBAT.KILL',
-            args: ['*']
-        },
-        {
-            id: 'COMMANDS.WORLD.JOIN',
-            args: ['battleontown-100000'],
-        },
-        {
-            id: 'COMMANDS.COMBAT.KILL',
-            args: ['frogzard'],
-        },
-        {
-            id: 'COMMANDS.WORLD.JOIN',
-            args: ['lair-100000'],
-        },
-        {
-            id: 'COMMANDS.WORLD.JUMP',
-            args: ['Mom', 'Right'],
-        },
-        {
-            id: 'COMMANDS.COMBAT.ATTACK',
-            args: ['*']
-        },
-        {
-            id: 'COMMANDS.WORLD.JOIN',
-            args: ['lavarockshore-1000000', 'r2', 'Left'],
-        },
-        {
-            id: 'COMMANDS.COMBAT.ATTACK',
-            args: ['id:1'],
-        },
-        {
-            id: 'COMMANDS.UTIL.SLEEP',
-            args: [1000],
-        },
-        {
-            id: 'COMMANDS.COMBAT.REST',
-            args: [true],
-        },
-        {
-            id: 'COMMANDS.WORLD.JOIN',
-            args: ['battleon-1000000'],
-        },
-        {
-            id: 'COMMANDS.WORLD.JOIN',
-            args: ['classhall-100000', 'r4f', 'Right'],
-        },
-        {
-            id: 'COMMANDS.COMBAT.KILL',
-            args: ['elite dummy'],
-        },
-        {
-            id: 'COMMANDS.WORLD.JOIN',
-            args: ['nexus-1000000'],
-        },
-        {
-            id: 'COMMANDS.COMBAT.KILL',
-            args: ['*']
-        },
-        {
-            id: 'COMMANDS.WORLD.JOIN',
-            args: ['battleontown-100000'],
-        },
-        {
-            id: 'COMMANDS.COMBAT.KILL',
-            args: ['frogzard'],
-        },
-        {
-            id: 'COMMANDS.WORLD.JOIN',
-            args: ['lair-100000'],
-        },
-        {
-            id: 'COMMANDS.WORLD.JUMP',
-            args: ['Mom', 'Right'],
-        },
-        {
-            id: 'COMMANDS.COMBAT.ATTACK',
-            args: ['*']
-        },
-        {
-            id: 'COMMANDS.WORLD.JOIN',
-            args: ['lavarockshore-1000000', 'r2', 'Left'],
-        },
-        {
-            id: 'COMMANDS.COMBAT.ATTACK',
-            args: ['id:1'],
-        },
-        {
-            id: 'COMMANDS.UTIL.SLEEP',
-            args: [1000],
-        },
-        {
-            id: 'COMMANDS.COMBAT.REST',
-            args: [true],
-        },
-        {
-            id: 'COMMANDS.WORLD.JOIN',
-            args: ['battleon-1000000'],
-        },
-        {
-            id: 'COMMANDS.WORLD.JOIN',
-            args: ['classhall-100000', 'r4f', 'Right'],
-        },
-        {
-            id: 'COMMANDS.COMBAT.KILL',
-            args: ['elite dummy'],
-        },
-        {
-            id: 'COMMANDS.WORLD.JOIN',
-            args: ['nexus-1000000'],
-        },
-        {
-            id: 'COMMANDS.COMBAT.KILL',
-            args: ['*']
-        },
-        {
-            id: 'COMMANDS.WORLD.JOIN',
-            args: ['battleontown-100000'],
-        },
-        {
-            id: 'COMMANDS.COMBAT.KILL',
-            args: ['frogzard'],
-        },
-        {
-            id: 'COMMANDS.WORLD.JOIN',
-            args: ['lair-100000'],
-        },
-        {
-            id: 'COMMANDS.WORLD.JUMP',
-            args: ['Mom', 'Right'],
-        },
-        {
-            id: 'COMMANDS.COMBAT.ATTACK',
-            args: ['*']
-        },
-        {
-            id: 'COMMANDS.WORLD.JOIN',
-            args: ['lavarockshore-1000000', 'r2', 'Left'],
-        },
-        {
-            id: 'COMMANDS.COMBAT.ATTACK',
-            args: ['id:1'],
-        },
-        {
-            id: 'COMMANDS.UTIL.SLEEP',
-            args: [1000],
-        },
-        {
-            id: 'COMMANDS.COMBAT.REST',
-            args: [true],
-        },
-        {
-            id: 'COMMANDS.WORLD.JOIN',
-            args: ['battleon-1000000'],
-        },
-        {
-            id: 'COMMANDS.WORLD.JOIN',
-            args: ['yulgar-1000000', 'Enter'],
-        },
-    ];
+	const commands = [
+		{
+			id: 'COMMANDS.WORLD.JOIN',
+			args: ['classhall-100000', 'r4f', 'Right'],
+		},
+		{
+			id: 'COMMANDS.COMBAT.KILL',
+			args: ['elite dummy'],
+		},
+		{
+			id: 'COMMANDS.WORLD.JOIN',
+			args: ['nexus-1000000'],
+		},
+		{
+			id: 'COMMANDS.COMBAT.KILL',
+			args: ['*']
+		},
+		{
+			id: 'COMMANDS.WORLD.JOIN',
+			args: ['battleontown-100000'],
+		},
+		{
+			id: 'COMMANDS.COMBAT.KILL',
+			args: ['frogzard'],
+		},
+		{
+			id: 'COMMANDS.WORLD.JOIN',
+			args: ['lair-100000'],
+		},
+		{
+			id: 'COMMANDS.WORLD.JUMP',
+			args: ['Mom', 'Right'],
+		},
+		{
+			id: 'COMMANDS.COMBAT.ATTACK',
+			args: ['*']
+		},
+		{
+			id: 'COMMANDS.WORLD.JOIN',
+			args: ['lavarockshore-1000000', 'r2', 'Left'],
+		},
+		{
+			id: 'COMMANDS.COMBAT.ATTACK',
+			args: ['id:1'],
+		},
+		{
+			id: 'COMMANDS.UTIL.SLEEP',
+			args: [1000],
+		},
+		{
+			id: 'COMMANDS.COMBAT.REST',
+			args: [true],
+		},
+		{
+			id: 'COMMANDS.WORLD.JOIN',
+			args: ['battleon-1000000'],
+		},
+		{
+			id: 'COMMANDS.WORLD.JOIN',
+			args: ['classhall-100000', 'r4f', 'Right'],
+		},
+		{
+			id: 'COMMANDS.COMBAT.KILL',
+			args: ['elite dummy'],
+		},
+		{
+			id: 'COMMANDS.WORLD.JOIN',
+			args: ['nexus-1000000'],
+		},
+		{
+			id: 'COMMANDS.COMBAT.KILL',
+			args: ['*']
+		},
+		{
+			id: 'COMMANDS.WORLD.JOIN',
+			args: ['battleontown-100000'],
+		},
+		{
+			id: 'COMMANDS.COMBAT.KILL',
+			args: ['frogzard'],
+		},
+		{
+			id: 'COMMANDS.WORLD.JOIN',
+			args: ['lair-100000'],
+		},
+		{
+			id: 'COMMANDS.WORLD.JUMP',
+			args: ['Mom', 'Right'],
+		},
+		{
+			id: 'COMMANDS.COMBAT.ATTACK',
+			args: ['*']
+		},
+		{
+			id: 'COMMANDS.WORLD.JOIN',
+			args: ['lavarockshore-1000000', 'r2', 'Left'],
+		},
+		{
+			id: 'COMMANDS.COMBAT.ATTACK',
+			args: ['id:1'],
+		},
+		{
+			id: 'COMMANDS.UTIL.SLEEP',
+			args: [1000],
+		},
+		{
+			id: 'COMMANDS.COMBAT.REST',
+			args: [true],
+		},
+		{
+			id: 'COMMANDS.WORLD.JOIN',
+			args: ['battleon-1000000'],
+		},
+		{
+			id: 'COMMANDS.WORLD.JOIN',
+			args: ['classhall-100000', 'r4f', 'Right'],
+		},
+		{
+			id: 'COMMANDS.COMBAT.KILL',
+			args: ['elite dummy'],
+		},
+		{
+			id: 'COMMANDS.WORLD.JOIN',
+			args: ['nexus-1000000'],
+		},
+		{
+			id: 'COMMANDS.COMBAT.KILL',
+			args: ['*']
+		},
+		{
+			id: 'COMMANDS.WORLD.JOIN',
+			args: ['battleontown-100000'],
+		},
+		{
+			id: 'COMMANDS.COMBAT.KILL',
+			args: ['frogzard'],
+		},
+		{
+			id: 'COMMANDS.WORLD.JOIN',
+			args: ['lair-100000'],
+		},
+		{
+			id: 'COMMANDS.WORLD.JUMP',
+			args: ['Mom', 'Right'],
+		},
+		{
+			id: 'COMMANDS.COMBAT.ATTACK',
+			args: ['*']
+		},
+		{
+			id: 'COMMANDS.WORLD.JOIN',
+			args: ['lavarockshore-1000000', 'r2', 'Left'],
+		},
+		{
+			id: 'COMMANDS.COMBAT.ATTACK',
+			args: ['id:1'],
+		},
+		{
+			id: 'COMMANDS.UTIL.SLEEP',
+			args: [1000],
+		},
+		{
+			id: 'COMMANDS.COMBAT.REST',
+			args: [true],
+		},
+		{
+			id: 'COMMANDS.WORLD.JOIN',
+			args: ['battleon-1000000'],
+		},
+		{
+			id: 'COMMANDS.WORLD.JOIN',
+			args: ['yulgar-1000000', 'Enter'],
+		},
+	];
 
-    const commandList = document.getElementById('commandList');
+	const $commands = $('#commandList');
 
-    commands.forEach((command, i) => {
-        let text;
-        switch (command.id) {
-            case 'COMMANDS.COMBAT.ATTACK':
-                text = 'Attack: ' + command.args[0];
-                break;
-            case 'COMMANDS.COMBAT.KILL':
-                text = 'Kill: ' + command.args[0];
-                break;
-            case 'COMMANDS.COMBAT.REST':
-                text = `Rest${command.args[0] ? ' (full)' : ''}`;
-                break;
-            case 'COMMANDS.WORLD.JOIN':
-                text = `Join: ${command.args[0]}`;
-                if (command.args[1]) {
-                    text += ` ${command.args[1]}`;
-                    if (command.args[2]) {
-                        text += ` ${command.args[2]}`;
-                    }
-                }
-                break;
-            case 'COMMANDS.WORLD.JUMP':
-                text = `Jump: ${command.args[1]}${command.args[2] ? `, ${command.args[2]}` : ''}`;
-                break;
-            case 'COMMANDS.UTIL.SLEEP':
-                text = `Delay: ${command.args[0]}ms`;
-                break;
-            default:
-                text = `unknown command: ${command.id}`;
-                break;
-        }
+	commands.forEach((command, i) => {
+		let text = `[${i + 1}] `;
+		switch (command.id) {
+			case 'COMMANDS.COMBAT.ATTACK':
+				text += 'Attack: ' + command.args[0];
+				break;
+			case 'COMMANDS.COMBAT.KILL':
+				text += 'Kill: ' + command.args[0];
+				break;
+			case 'COMMANDS.COMBAT.REST':
+				text += `Rest${command.args[0] ? ' (full)' : ''}`;
+				break;
+			case 'COMMANDS.WORLD.JOIN':
+				text += `Join: ${command.args[0]}`;
+				if (command.args[1]) {
+					text += ` ${command.args[1]}`;
+					if (command.args[2]) {
+						text += ` ${command.args[2]}`;
+					}
+				}
+				break;
+			case 'COMMANDS.WORLD.JUMP':
+				text += `Jump ${command.args[1]}`;
+				if (command.args[2]) {
+					text += `, ${command.args[2]}`;
+				}
+				break;
+			case 'COMMANDS.UTIL.SLEEP':
+				text += `Delay: ${command.args[0]}ms`;
+				break;
+			default:
+				text += `Unknown command: ${command.id}`;
+				break;
+		}
 
-        let commandText = `${command.id.split('.').pop()}: ${command.args.join(', ')}`;
-        let listItem = document.createElement('li');
-        listItem.className = 'command-item border-bottom';
-        listItem.textContent = `[${i + 1}] ${text}`;
-        commandList.appendChild(listItem);
-    });
+		const div = $('<div/>').addClass('border-bottom');
+		if (i === commands.length - 1) {
+			div.removeClass('border-bottom');
+		}
+
+		div.text(text);
+
+		$commands.append(div);
+	});
 </script>
 
 
