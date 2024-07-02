@@ -11,7 +11,9 @@
         padding-left: 0;
         padding-right: 5px;
         box-sizing: content-box;
-        max-height: 340px;
+        max-height: 250px;
+        overflow-x: scroll;
+        user-select: none;
         overflow-y: auto;
         font-family: monospace;
     }
@@ -22,13 +24,34 @@
         font-size: 11px;
         line-height: 20px;
         white-space: nowrap;
-        overflow: hidden;
         text-overflow: ellipsis;
+        margin-left: 4px;
+    }
+
+    .command-list::-webkit-scrollbar {
+        width: 12px;
+    }
+
+    /* the background */
+    .command-list::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    /* the scrollbar */
+    .command-list::-webkit-scrollbar-thumb {
+        background-color: #888;
+        border-radius: 10px;
+        border: 3px solid transparent;
+        background-clip: content-box;
+    }
+
+    .command-list::-webkit-scrollbar-corner {
+        background-color: transparent;
     }
 
     .fixed-container {
-        min-width: 380px;
-        max-width: 380px;
+        min-width: 300px;
+        max-width: 300px;
         min-height: 254px;
         max-height: 254px;
     }
@@ -36,15 +59,14 @@
 
 <body class="d-flex flex-col h-100 mt-4">
     <div class="container-fluid fixed-container">
-        <div class="border">
-            <ul id="commandList" class="command-list"></ul>
-        </div>
+        <div id="commandList" class="command-list border"></div>
     </div>
     <div class="container-fluid">
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="combat-tab-pane" data-bs-toggle="tab" data-bs-target="#combat-tab-pane"
-                    type="button" role="tab" aria-controls="combat-tab-pane" aria-selected="true">Combat</button>
+                <button class="nav-link active" id="combat-tab-pane" data-bs-toggle="tab"
+                    data-bs-target="#combat-tab-pane" type="button" role="tab" aria-controls="combat-tab-pane"
+                    aria-selected="true">Combat</button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#items-tab-pane"
@@ -236,6 +258,10 @@
             id: 'COMMANDS.WORLD.JOIN',
             args: ['battleon-1000000'],
         },
+        {
+            id: 'COMMANDS.WORLD.JOIN',
+            args: ['yulgar-1000000', 'Enter'],
+        },
     ];
 
     const commandList = document.getElementById('commandList');
@@ -250,13 +276,19 @@
                 text = 'Kill: ' + command.args[0];
                 break;
             case 'COMMANDS.COMBAT.REST':
-                text = `Rest${command.args[1] ? ' (full)' : ''}`;
+                text = `Rest${command.args[0] ? ' (full)' : ''}`;
                 break;
             case 'COMMANDS.WORLD.JOIN':
-                text = `Join: ${command.args[0]} ${command.args[1] && command.args[2] ? `(${command.args[1]}, ${command.args[2]})` : ''}`;
+                text = `Join: ${command.args[0]}`;
+                if (command.args[1]) {
+                    text += ` ${command.args[1]}`;
+                    if (command.args[2]) {
+                        text += ` ${command.args[2]}`;
+                    }
+                }
                 break;
             case 'COMMANDS.WORLD.JUMP':
-                text = `Move to cell: ${command.args[1]}, ${command.args[2]}`;
+                text = `Jump: ${command.args[1]}${command.args[2] ? `, ${command.args[2]}` : ''}`;
                 break;
             case 'COMMANDS.UTIL.SLEEP':
                 text = `Delay: ${command.args[0]}ms`;
