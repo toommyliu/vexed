@@ -179,6 +179,7 @@ function assignWindowID(window, windowID) {
 		maid: null,
 		logger: null,
 		spammer: null,
+		bot: null,
 	});
 	window.webContents.send('generate-id', windowID);
 }

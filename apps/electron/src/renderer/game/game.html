@@ -173,7 +173,16 @@
 			}, 50);
 
 			$('#scripts-load').click(async () => {
-				ipc.send('game:load_script');
+				if (!windows?.bot || windows.bot.closed) {
+					windows.bot = window.open(
+						'./pages/bot/bot.html',
+						null,
+						'width=822,height=342',
+					);
+				} else {
+					windows.bot.focus();
+				}
+				// ipc.send('game:load_script');
 			});
 
 			$('#scripts-devtools').click(() => {

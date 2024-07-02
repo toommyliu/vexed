@@ -20,50 +20,50 @@ class Bot {
 				id: COMMANDS.COMBAT.KILL,
 				args: ['elite dummy'],
 			},
-			// {
-			// 	id: COMMANDS.WORLD.JOIN,
-			// 	args: ['nexus-1000000'],
-			// },
-			// {
-			// 	id: COMMANDS.COMBAT.KILL,
-			// 	args: ['*']
-			// },
-			// {
-			// 	id: COMMANDS.WORLD.JOIN,
-			// 	args: ['battleontown-100000'],
-			// },
-			// {
-			// 	id: COMMANDS.COMBAT.KILL,
-			// 	args: ['frogzard'],
-			// },
-			// {
-			// 	id: COMMANDS.WORLD.JOIN,
-			// 	args: ['lair-100000'],
-			// },
-			// {
-			// 	id: COMMANDS.WORLD.JUMP,
-			// 	args: ['Mom', 'Right'],
-			// },
-			// {
-			// 	id: COMMANDS.COMBAT.ATTACK,
-			// 	args: ['*']
-			// },
-			// {
-			// 	id: COMMANDS.WORLD.JOIN,
-			// 	args: ['lavarockshore-1000000', 'r2', 'Left'],
-			// },
-			// {
-			// 	id: COMMANDS.COMBAT.ATTACK,
-			// 	args: ['id:1'],
-			// },
-			// {
-			// 	id: COMMANDS.UTIL.SLEEP,
-			// 	args: [1000],
-			// },
-			// {
-			// 	id: COMMANDS.COMBAT.REST,
-			// 	args: [true],
-			// },
+			{
+				id: COMMANDS.WORLD.JOIN,
+				args: ['nexus-1000000'],
+			},
+			{
+				id: COMMANDS.COMBAT.KILL,
+				args: ['*']
+			},
+			{
+				id: COMMANDS.WORLD.JOIN,
+				args: ['battleontown-100000'],
+			},
+			{
+				id: COMMANDS.COMBAT.KILL,
+				args: ['frogzard'],
+			},
+			{
+				id: COMMANDS.WORLD.JOIN,
+				args: ['lair-100000'],
+			},
+			{
+				id: COMMANDS.WORLD.JUMP,
+				args: ['Mom', 'Right'],
+			},
+			{
+				id: COMMANDS.COMBAT.ATTACK,
+				args: ['*']
+			},
+			{
+				id: COMMANDS.WORLD.JOIN,
+				args: ['lavarockshore-1000000', 'r2', 'Left'],
+			},
+			{
+				id: COMMANDS.COMBAT.ATTACK,
+				args: ['id:1'],
+			},
+			{
+				id: COMMANDS.UTIL.SLEEP,
+				args: [1000],
+			},
+			{
+				id: COMMANDS.COMBAT.REST,
+				args: [true],
+			},
 			{
 				id: COMMANDS.WORLD.JOIN,
 				args: ['battleon-1000000'],
