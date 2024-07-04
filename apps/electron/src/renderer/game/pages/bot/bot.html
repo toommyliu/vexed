@@ -54,8 +54,6 @@
 
 	.fixed-container {
 		width: 50vw;
-		border: 1px solid #ccc;
-		box-sizing: border-box;
 		padding: 8px;
 		margin-left: 4px;
 	}
@@ -63,31 +61,38 @@
 
 <body class="d-flex flex-col h-100 mt-4">
 	<div class="container-fluid fixed-container">
-		<div id="commandList" class="command-list border"></div>
+		<div id="commandList" class="command-list border rounded-1"></div>
 	</div>
 	<div class="container-fluid">
-		<ul class="nav nav-tabs" id="myTab" role="tablist">
-			<li class="nav-item" role="presentation">
-				<button class="nav-link active" id="combat-tab-pane" data-bs-toggle="tab"
-					data-bs-target="#combat-tab-pane" type="button" role="tab" aria-controls="combat-tab-pane"
-					aria-selected="true">Combat</button>
+		<ul class="nav nav-tabs" role="tablist">
+			<li class="nav-item">
+				<a class="nav-link active" id="combat-tab" data-bs-toggle="tab" href="#combat" role="tab">Combat</a>
 			</li>
-			<li class="nav-item" role="presentation">
-				<button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#items-tab-pane"
-					type="button" role="tab" aria-controls="items-tab-pane" aria-selected="false">Profile</button>
+			<li class="nav-item">
+				<a class="nav-link" id="item-tab" data-bs-toggle="tab" href="#item" role="tab">Item</a>
 			</li>
-			<li class="nav-item" role="presentation">
-				<button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact-tab-pane"
-					type="button" role="tab" aria-controls="contact-tab-pane" aria-selected="false">Contact</button>
+			<li class="nav-item">
+				<a class="nav-link" id="map-tab" data-bs-toggle="tab" href="#map" role="tab">Map</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" id="quest-tab" data-bs-toggle="tab" href="#quest" role="tab">Quest</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" id="misc-tab" data-bs-toggle="tab" href="#misc" role="tab">Misc</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" id="misc-2-tab" data-bs-toggle="tab" href="#misc-2" role="tab">Misc 2</a>
 			</li>
 		</ul>
-		<div class="tab-content" id="myTabContent">
-			<div class="tab-pane fade show active" id="combat-tab-pane" role="tabpanel" aria-labelledby="combat-tab"
-				tabindex="0">hello from combat</div>
-			<div class="tab-pane fade" id="items-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
-				hello from items</div>
-			<div class="tab-pane fade" id="contact-tab-pane" role="tabpanel" aria-labelledby="contact-tab" tabindex="0">
-				hello from quests</div>
+		<div class="tab-content" id="tab-content">
+			<div class="tab-pane active" id="combat" role="tabpanel">
+				hello from combat
+			</div>
+			<div class="tab-pane" id="item" role="tabpanel">hello from items</div>
+			<div class="tab-pane" id="map" role="tabpanel">hello from map</div>
+			<div class="tab-pane" id="quest" role="tabpanel">hello from quest</div>
+			<div class="tab-pane" id="misc" role="tabpanel">hello from misc</div>
+			<div class="tab-pane" id="misc-2" role="tabpanel">hello from misc 2</div>
 		</div>
 	</div>
 </body>
