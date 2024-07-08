@@ -11,7 +11,7 @@ function registerFlashPlugin() {
 	// TODO: add checks for app.isPackaged
 	app.commandLine.appendSwitch(
 		'ppapi-flash-path',
-		join(__dirname, '../../vendor/PepperFlashPlayer.plugin'),
+		join(__dirname, '../../build/PepperFlashPlayer.plugin'),
 	);
 
 	const flashPath = join(

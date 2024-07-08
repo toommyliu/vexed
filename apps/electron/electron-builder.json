@@ -2,7 +2,8 @@
 	"productName": "Vexed",
 	"mac": {
 		"files": [
-			"src/**/*"
+			"src/**/*",
+			"build/**/*"
 		],
 		"asar": "false",
 		"target": {
