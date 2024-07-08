@@ -62,6 +62,8 @@ function packetFromServer([packet]) {
 					}
 				}
 				break;
+			case 'addGoldExp':
+				break;
 		}
 	}
 }
