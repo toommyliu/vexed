@@ -2,9 +2,6 @@
  * @param {string[]} packet
  */
 function packetFromServer([packet]) {
-	const bot = Bot.getInstance();
-	bot.flash.emit('packetFromServer', packet);
-
 	if (packet.startsWith('%xt%')) {
 		const args = packet.split('%');
 
@@ -70,8 +67,6 @@ function packetFromServer([packet]) {
 }
 
 async function packetFromClient([packet]) {
-	Bot.getInstance().flash.emit('packetFromClient', packet);
-
 	if (packet.includes('%xt%zm%')) {
 		if (!windows?.packetsLogger?.closed) {
 			windows?.packetsLogger?.postMessage({
