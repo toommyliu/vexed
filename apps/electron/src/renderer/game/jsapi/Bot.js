@@ -1,5 +1,9 @@
-class Bot {
+var { EventEmitter } = require('events');
+
+class Bot extends EventEmitter {
 	constructor() {
+		super();
+
 		if (Bot._instance) {
 			throw new Error(
 				'Bot instance was already constructed, use Bot.getInstance()',
