@@ -55,6 +55,8 @@ function packetFromServer([packet]) {
 								pkt.b.o.a[i]?.cmd === 'aura--' &&
 								pkt.b.o.a[i]?.aura?.nam === 'Counter Attack'
 							) {
+								const monMapID = pkt.b.o.a[i]?.tInf.split(':')[1];
+								combat.attack(`id:${monMapID}`);
 								combat.pauseAttack = false;
 								break;
 							}
