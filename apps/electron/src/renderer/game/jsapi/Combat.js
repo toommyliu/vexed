@@ -112,19 +112,12 @@ class Combat {
 			return;
 		}
 
-		let pause = false;
-
 		let timer_a;
 		let timer_b;
-		let timer_a_once = false;
 
 		return new Promise((res) => {
 			timer_a = setIntervalAsync(async () => {
-				if (!timer_a_once) {
-					timer_a_once = true;
-				}
-
-				if (pause || this.pauseAttack) {
+				if (this.pauseAttack) {
 					await this.bot.sleep(100);
 				} else {
 					const _name = name.toLowerCase();
@@ -176,22 +169,22 @@ class Combat {
 				}
 			}, this.skillDelay);
 
-			timer_b = setIntervalAsync(async () => {
-				// ensure we started kill timer beforehand
-				if (!timer_a_once) {
-					return;
-				}
+			setTimeout(() => {
+				timer_b = setIntervalAsync(async () => {
+					// ideally we check if we killed BOTH killPriority and name
+					if (!this.hasTarget() && !this.pauseAttack) {
+						clearIntervalAsync(timer_a);
+						clearIntervalAsync(timer_b);
 
-				// ideally we check if we killed BOTH killPriority and name
-				if (!this.hasTarget() && !pause) {
-					clearIntervalAsync(timer_a);
-					clearIntervalAsync(timer_b);
+						this.cancelAttack();
+						this.cancelTarget();
 
-					this.cancelAttack();
-					this.cancelTarget();
-					res();
-				}
-			}, 0);
+						this.#skillSetIdx = 1;
+
+						res();
+					}
+				}, 0);
+			}, this.skillDelay);
 		});
 	}
 
