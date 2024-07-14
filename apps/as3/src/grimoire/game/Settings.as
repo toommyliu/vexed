@@ -1,43 +1,25 @@
 ﻿package grimoire.game
 {
 	import grimoire.Root;
-	import flash.utils.Timer;
+	import flash.events.Event;
+	import flash.events.MouseEvent;
 
-	public class Settings
+	public class Settings 
 	{
-		private static var classRanges:Object = {};
-		private static var provokeTimer:Timer = new Timer(500);
-
-		public static function setInfiniteRange(on:Boolean):void
+		public static function SetInfiniteRange():void
 		{
-			var currentClass:String = Root.Game.world.myAvatar.objData.strClassName.toUpperCase();
-			if (classRanges[currentClass] != null && !on)
+			for (var i:int = 0; i <= 5; i++)
 			{
-				var defaultRange:Array = classRanges[currentClass].split(',');
-				for (var i:int = 0; i < Root.Game.world.actions.active.length; i++)
-				{
-					Root.Game.world.actions.active[i].range = parseInt(defaultRange[i]);
-				}
-				classRanges[currentClass] = null;
-			}
-			else if (on)
-			{
-				var sDefaultRange:String = '';
-				for (i = 0; i < Root.Game.world.actions.active.length; i++)
-				{
-					sDefaultRange += Root.Game.world.actions.active[i].range + ',';
-					Root.Game.world.actions.active[i].range = 20000;
-				}
-				classRanges[currentClass] = sDefaultRange;
+				Root.Game.world.actions.active[i].range = 20000;
 			}
 		}
-
-		public static function provokeCellMonsters():void
+		
+		public static function SetProvokeMonsters():void
 		{
 			Root.Game.world.aggroAllMon();
 		}
-
-		public static function enemyMagnet():void
+		
+		public static function SetEnemyMagnet():void
 		{
 			if (Root.Game.world.myAvatar.target != null)
 			{
@@ -45,33 +27,24 @@
 				Root.Game.world.myAvatar.target.pMC.y = Root.Game.world.myAvatar.pMC.y;
 			}
 		}
-
-		public static function setLagKiller(on:Boolean):void
+		
+		public static function SetLagKiller(state:String):void
 		{
-			Root.Game.world.visible = !on;
+			Root.Game.world.visible = state == "False";
 		}
-
-		public static function setHidePlayers(on:Boolean):void
+		
+		public static function DestroyPlayers():void
 		{
-			Root.Game.litePreference.data.bHidePlayers = on;
-
-			for each (var avatar:* in Root.Game.world.avatars)
+			var avatar:* = null;
+			for (avatar in Root.Game.world.avatars)
 			{
-				if (avatar != null && avatar.pnm != null && !avatar.isMyAvatar)
-				{
-					if (on)
-					{
-						avatar.hideMC();
-					}
-					else
-					{
-						avatar.showMC();
-					}
-				}
+				var numAvatar:Number = Number(avatar);
+				if (!Root.Game.world.avatars[numAvatar].isMyAvatar)
+					Root.Game.world.destroyAvatar(numAvatar);
 			}
 		}
-
-		public static function skipCutscenes():void
+		
+		public static function SetSkipCutscenes():void
 		{
 			while (Root.Game.mcExtSWF.numChildren > 0)
 			{
@@ -80,8 +53,8 @@
 			Root.Game.world.visible = true;
 			Root.Game.showInterface();
 		}
-
-		public static function setWalkSpeed(speed:String):void
+		
+		public static function SetWalkSpeed(speed:String):void
 		{
 			Root.Game.world.WALKSPEED = parseInt(speed);
 		}

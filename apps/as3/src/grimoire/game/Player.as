@@ -5,6 +5,11 @@
 
 	public class Player extends Object
 	{
+		public static function IsLoggedIn() : String
+		{
+			return Root.Game != null && Root.Game.sfc != null && Root.Game.sfc.isConnected == true ? (Root.TrueString) : (Root.FalseString);
+		}
+
 		public static function Cell() : String
 		{
 			return "\"" + Root.Game.world.strFrame + "\"";
@@ -72,9 +77,51 @@
 			return Root.Game.world.myAvatar.objData.intGold;
 		}
 
+		public static function HasTarget() : String
+		{
+			return Root.Game.world.myAvatar.target != null && Root.Game.world.myAvatar.target.dataLeaf.intHP > 0 ? (Root.TrueString) : (Root.FalseString);
+		}
+
 		public static function IsAfk() : String
 		{
 			return Root.Game.world.myAvatar.dataLeaf.afk ? (Root.TrueString) : (Root.FalseString);
+		}
+
+		public static function AllSkillsAvailable() : int
+		{
+			return Math.max(Math.max(IsSkillReady(Root.Game.world.actions.active[1]), IsSkillReady(Root.Game.world.actions.active[2])), Math.max(IsSkillReady(Root.Game.world.actions.active[3]), IsSkillReady(Root.Game.world.actions.active[4])));
+		}
+
+		public static function SkillAvailable(skillIndex:String) : int
+		{
+			return IsSkillReady(Root.Game.world.actions.active[parseInt(skillIndex)]);
+		}
+
+		private static function IsSkillReady(param1) : int
+		{
+			var _loc_4:* = NaN;
+			var _loc_2:* = new Date().getTime();
+			var _loc_3:* = 1 - Math.min(Math.max(Root.Game.world.myAvatar.dataLeaf.sta.$tha, -1), 0.5);
+			if (param1.OldCD != null)
+			{
+				_loc_4 = Math.round(param1.OldCD * _loc_3);
+				delete param1.OldCD;
+			}
+			else
+			{
+				_loc_4 = Math.round(param1.cd * _loc_3);
+			}
+			var _loc_5:* = Root.Game.world.GCD - (_loc_2 - Root.Game.world.GCDTS);
+			if (_loc_5 < 0)
+			{
+				_loc_5 = 0;
+			}
+			var _loc_6:* = _loc_4 - (_loc_2 - param1.ts);
+			if (_loc_6 < 0)
+			{
+				_loc_6 = 0;
+			}
+			return Math.max(_loc_5, _loc_6);
 		}
 
 		public static function Position() : String
@@ -86,9 +133,91 @@
 		{
 			var x:int = parseInt(strX);
 			var y:int = parseInt(strY);
-
+			
 			Root.Game.world.myAvatar.pMC.walkTo(x, y, Root.Game.world.WALKSPEED);
 			Root.Game.world.moveRequest({mc:Root.Game.world.myAvatar.pMC, tx:x, ty:y, sp:Root.Game.world.WALKSPEED});
+		}
+
+		public static function CancelAutoAttack() : void
+		{
+			Root.Game.world.cancelAutoAttack();
+		}
+
+		public static function CancelTarget() : void
+		{
+			Root.Game.world.cancelTarget();
+			Root.Game.world.cancelTarget();
+		}
+
+		public static function CancelTargetSelf() : void
+		{
+			var targetAvatar:* = Root.Game.world.myAvatar.target;
+			if (targetAvatar)
+			{
+				
+			}
+			if (targetAvatar == Root.Game.world.myAvatar)
+			{
+				Root.Game.world.cancelTarget();
+			}
+		}
+
+		public static function SetTargetPlayer(username:String) : void
+		{
+			var avatar:* = Root.Game.world.getAvatarByUserName(username);
+			Root.Game.world.setTarget(avatar);
+		}
+		
+		public static function GetAvatars() : String
+		{
+			return JSON.stringify(Root.Game.world.avatars);
+		}
+		
+		public static function SetTargetPvP(username:String) : void 
+		{	
+			var avatars:* = Root.Game.world.avatars;
+			for (var a in avatars)
+			{ 
+				var avatar = avatars[a];
+				if (avatar.dataLeaf.strFrame == Root.Game.world.strFrame && 
+					avatar.dataLeaf.pvpTeam != Root.Game.world.myAvatar.dataLeaf.pvpTeam && 
+					!avatar.isMyAvatar && 
+					avatar.dataLeaf.intState > 0
+				){
+					if (!Root.Game.world.myAvatar.target)
+					{
+						Root.Game.world.setTarget(avatar);
+					}
+
+					if (username != null) {
+						if (avatar.dataLeaf.strUsername.toLowerCase() == username.toLowerCase() && 
+							Root.Game.world.myAvatar.target.dataLeaf.strUsername.toLowerCase() != username.toLowerCase())
+						{
+							Root.Game.world.setTarget(avatar);
+						}
+					}
+				}
+			}
+		}
+		
+		public static function GetSkillCooldown(skill:String) : String
+		{
+			return Root.Game.world.actions.active[parseInt(skill)].cd;
+		}
+		
+		public static function SetSkillCooldown(skill:String, value:String) : void
+		{
+			Root.Game.world.actions.active[parseInt(skill)].cd = value;
+		}
+		
+		public static function SetSkillRange(skill:String, value:String) : void
+		{
+			Root.Game.world.actions.active[parseInt(skill)].range = value;
+		}
+		
+		public static function SetSkillMana(skill:String, value:String) : void
+		{
+			Root.Game.world.actions.active[parseInt(skill)].mp = value;
 		}
 
 		public static function MuteToggle(param1:Boolean) : void
@@ -103,9 +232,53 @@
 			}
 		}
 
+		public static function AttackMonster(monsterName:String) : void
+		{
+			var monster:* = World.GetMonsterByName(monsterName);
+			if (monster != null)
+			{
+				try
+				{
+					Root.Game.world.setTarget(monster);
+					Root.Game.world.approachTarget();
+				}
+				catch (e)
+				{
+					return;
+				}
+			}
+		}
+		
+		public static function AttackMonsterByMonMapId(monMapID:String) : void
+		{
+			var monster:* = World.GetMonsterByMonMapId(monMapID);
+			if (monster != null)
+			{
+				try
+				{
+					Root.Game.world.setTarget(monster);
+					Root.Game.world.approachTarget();
+				}
+				catch (e)
+				{
+					return;
+				}
+			}
+		}
+
+		public static function Jump(param1:String, param2:String = "Spawn") : void
+		{
+			Root.Game.world.moveToCell(param1, param2);
+		}
+
 		public static function Rest() : void
 		{
 			Root.Game.world.rest();
+		}
+
+		public static function Join(param1:String, param2:String = "Enter", param3:String = "Spawn") : void
+		{
+			Root.Game.world.gotoTown(param1, param2, param3);
 		}
 
 		public static function Equip(param1:String) : void
@@ -118,16 +291,81 @@
 			Root.Game.world.equipUseableItem({ItemID:parseInt(param1), sDesc:param2, sFile:param3, sName:param4});
 		}
 
+		public static function Buff() : void
+		{
+			Root.Game.world.myAvatar.dataLeaf.sta.$tha = 0.5;
+			Root.Game.world.myAvatar.objData.intMP = 100;
+			Root.Game.world.myAvatar.dataLeaf.intMP = 100;
+			Root.Game.world.myAvatar.objData.intLevel = 100;
+			Root.Game.world.actions.active[0].mp = 0;
+			Root.Game.world.actions.active[1].mp = 0;
+			Root.Game.world.actions.active[2].mp = 0;
+			Root.Game.world.actions.active[3].mp = 0;
+			Root.Game.world.actions.active[4].mp = 0;
+			Root.Game.world.actions.active[5].mp = 0;
+			return;
+		}
+
+		public static function GoTo(username:String) : void
+		{
+			Root.Game.world.goto(username);
+		}
+		
 		public static function UseBoost(id:String):void
 		{
 			var boost:Object = Inventory.GetItemByID(parseInt(id));
 			if (boost != null)
 				Root.Game.world.sendUseItemRequest(boost);
 		}
+		
+		
+		public static function ForceUseSkill(index:String) : void
+		{
+			var skill:Object = Root.Game.world.actions.active[parseInt(index)];
+			if (IsSkillReady(skill) == 0)
+			{
+				//if (Root.Game.world.myAvatar.dataLeaf.intMP >= skill.mp)
+				if (true)
+				{
+					if (skill.isOK && !skill.skillLock)
+					{
+						Root.Game.world.testAction(skill);
+					}
+				}
+			}
+		}
+
+		public static function UseSkill(index:String) : void
+		{
+			var skill:Object = Root.Game.world.actions.active[parseInt(index)];
+			
+			if (skill.tgt == "s" || skill.tgt == "f") 
+			{
+				ForceUseSkill(index);
+				return;
+			}
+			
+			if (Root.Game.world.myAvatar.target == Root.Game.world.myAvatar)
+			{
+				Root.Game.world.myAvatar.target = null;
+				return;
+			}
+			
+			if (Root.Game.world.myAvatar.target != null && Root.Game.world.myAvatar.target.dataLeaf.intHP > 0)
+			{
+				Root.Game.world.approachTarget();
+				ForceUseSkill(index);
+			}
+		}
 
 		public static function GetMapItem(itemId:String) : void
 		{
 			Root.Game.world.getMapItem(parseInt(itemId));
+		}
+
+		public static function Logout() : void
+		{
+			Root.Game.logout();
 		}
 
 		public static function HasActiveBoost(boost:String) : String
@@ -279,19 +517,24 @@
 		public static function ChangeColorName(color: int) {
             Root.Game.world.myAvatar.pMC.pname.ti.textColor = color;
 		}
+		
+		public static function GetTargetHealth() : int 
+		{	
+			return Root.Game.world.myAvatar.target.dataLeaf.intHP;
+		}	
 
         public static function GetAurasValue(self:String, auraName:String) : int
         {
 			var value = 0;
 			var isSelf = self == "True";
 			var hasTarget = Root.Game.world.myAvatar.target != null && Root.Game.world.myAvatar.target.dataLeaf.intHP > 0;
-            if (!isSelf && !hasTarget)
+            if (!isSelf && !hasTarget) 
 			{
 				return value;
 			}
 			var objAura = isSelf ? Root.Game.world.myAvatar.dataLeaf.auras : Root.Game.world.myAvatar.target.dataLeaf.auras;
             for each (var aura in objAura) {
-                if (aura.nam.toLowerCase() == auraName.toLowerCase())
+                if (aura.nam.toLowerCase() == auraName.toLowerCase()) 
                 {
                     value = aura.val ? aura.val : 1;
                 }
@@ -303,7 +546,7 @@
             var avatars:* = Root.Game.world.avatars;
             var accessLevel;
             for (var a in avatars)
-            {
+            { 
                 var avatar = avatars[a];
                 if (username != null) {
                     if (avatar.dataLeaf.strUsername.toLowerCase() == username.toLowerCase()) {
@@ -315,9 +558,4 @@
             return accessLevel;
         }
 	}
-
-	 public static function isAvatarLoaded() : String
-      {
-         return Boolean(Root.Game.world.myAvatar.invLoaded) && Boolean(Root.Game.world.myAvatar.pMC.artLoaded()) ? Root.TrueString : Root.FalseString;
-      }
 }
