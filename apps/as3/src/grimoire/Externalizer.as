@@ -2,15 +2,15 @@
 {
 	import flash.external.ExternalInterface;
 	import grimoire.game.*;
-	
+
 	public class Externalizer
 	{
-		
+
 		public function Externalizer()
 		{
 			super();
 		}
-		
+
 		public function init(root:Root):void
 		{
 			this.addCallback("IsLoggedIn", Player.IsLoggedIn);
@@ -73,7 +73,8 @@
 			this.addCallback("GetAurasValue", Player.GetAurasValue);
 			this.addCallback("ChangeColorName", Player.ChangeColorName);
 			this.addCallback("GetAccessLevel", Player.GetAccessLevel);
-			
+			this.addCallback("IsPlayerLoaded", Player.IsPlayerLoaded);
+
 			this.addCallback("MapLoadComplete", World.MapLoadComplete);
 			this.addCallback("ReloadMap", World.ReloadMap);
 			this.addCallback("LoadMap", World.LoadMap);
@@ -87,6 +88,7 @@
 			this.addCallback("IsMonsterAvailableByMonMapID", World.IsMonsterAvailableByMonMapID);
 			this.addCallback("GetSkillName", World.GetSkillName);
 			this.addCallback("GetCells", World.GetCells);
+			this.addCallback("GetCellPads", World.GetCellPads);
 			this.addCallback("GetItemTree", World.GetItemTree);
 			this.addCallback("RoomId", World.RoomId);
 			this.addCallback("RoomNumber", World.RoomNumber);
@@ -99,7 +101,7 @@
 			this.addCallback("GetPlayerHealthPercentage", World.GetPlayerHealthPercentage);
 			this.addCallback("RejectDrop", World.RejectDrop);
 			this.addCallback("SetMapQuestVal", World.SetMapQuestVal);
-			
+
 			this.addCallback("IsInProgress", Quests.IsInProgress);
 			this.addCallback("Complete", Quests.Complete);
 			this.addCallback("Accept", Quests.Accept);
@@ -109,7 +111,7 @@
 			this.addCallback("GetQuestTree", Quests.GetQuestTree);
 			this.addCallback("CanComplete", Quests.CanComplete);
 			this.addCallback("IsAvailable", Quests.IsAvailable);
-			
+
 			this.addCallback("GetShops", Shops.GetShops);
 			this.addCallback("LoadShop", Shops.Load);
 			this.addCallback("LoadHairShop", Shops.LoadHairShop);
@@ -120,7 +122,7 @@
 			this.addCallback("BuyItem", Shops.BuyItem);
 			this.addCallback("BuyItemQty", Shops.BuyItemQty);
 			this.addCallback("BuyItemQtyById", Shops.BuyItemQtyById);
-			
+
 			this.addCallback("GetBank", Bank.GetBank);
 			this.addCallback("GetBankItems", Bank.GetBankItems);
 			this.addCallback("GetBankItemByName", Bank.GetItemByName2);
@@ -131,31 +133,31 @@
 			this.addCallback("BankSwap", Bank.BankSwap);
 			this.addCallback("ShowBank", Bank.Show);
 			this.addCallback("LoadBankItems", Bank.LoadBankItems);
-			
+
 			this.addCallback("GetInventoryItems", Inventory.GetInventoryItems);
 			this.addCallback("GetInventoryItemByName", Inventory.GetItemByName2);
 			this.addCallback("InventorySlots", Inventory.InventorySlots);
 			this.addCallback("UsedInventorySlots", Inventory.UsedInventorySlots);
 			this.addCallback("GetTempItems", TempInventory.GetTempItems);
 			this.addCallback("ItemIsInTemp", TempInventory.ItemIsInTemp);
-			
+
 			this.addCallback("GetHouseItems", House.GetHouseItems);
 			this.addCallback("HouseSlots", House.HouseSlots);
-			
+
 			this.addCallback("IsTemporarilyKicked", AutoRelogin.IsTemporarilyKicked);
 			this.addCallback("Login", AutoRelogin.Login);
 			this.addCallback("FixLogin", AutoRelogin.FixLogin);
 			this.addCallback("ResetServers", AutoRelogin.ResetServers);
 			this.addCallback("AreServersLoaded", AutoRelogin.AreServersLoaded);
 			this.addCallback("Connect", AutoRelogin.Connect);
-			
+
 			this.addCallback("SetInfiniteRange", Settings.SetInfiniteRange);
 			this.addCallback("SetProvokeMonsters", Settings.SetProvokeMonsters);
 			this.addCallback("SetEnemyMagnet", Settings.SetEnemyMagnet);
 			this.addCallback("SetLagKiller", Settings.SetLagKiller);
-			this.addCallback("DestroyPlayers", Settings.DestroyPlayers);
+			this.addCallback("HidePlayers", Settings.HidePlayers);
 			this.addCallback("SetSkipCutscenes", Settings.SetSkipCutscenes);
-			
+
 			this.addCallback("SetFPS", root.SetFPS);
 			this.addCallback("RealAddress", root.RealAddress);
 			this.addCallback("RealPort", root.RealPort);
@@ -167,7 +169,7 @@
 			this.addCallback("IsConnMCBackButtonVisible", root.IsConnMCBackButtonVisible);
 			this.addCallback("GetConnMC", root.GetConnMC);
 			this.addCallback("HideConnMC", root.HideConnMC);
-			
+
 			this.addCallback("getGameObject", Caller.getGameObject);
 			this.addCallback("getGameObjectS", Caller.getGameObjectS);
 			this.addCallback("setGameObject", Caller.setGameObject);
@@ -178,20 +180,20 @@
 			this.addCallback("selectArrayObjects", Caller.selectArrayObjects);
 			this.addCallback("isNull", Caller.isNull);
 			this.addCallback("sendClientPacket", Caller.sendClientPacket);
-			
+
 			this.debug("Externalizer::init done.");
 		}
-		
+
 		public function addCallback(name:String, func:Function):void
 		{
 			ExternalInterface.addCallback(name, func);
 		}
-		
+
 		public function call(name:String, ... rest):*
 		{
 			return ExternalInterface.call(name, rest);
 		}
-		
+
 		public function debug(message:String):void
 		{
 			this.call("debug", message);

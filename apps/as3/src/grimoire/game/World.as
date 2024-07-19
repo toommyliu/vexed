@@ -5,6 +5,7 @@
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.external.ExternalInterface;
+	import flash.display.DisplayObject;
 
 	public class World extends Object
 	{
@@ -88,22 +89,22 @@
 			}
 			return JSON.stringify(ret);
 		}
-		
+
 		public static function GetMonsterHealth(monster:String) : String {
 			var mon:Object = World.GetMonsterByName(monster);
 			return mon.dataLeaf.intHP.toString();
 		}
-		
+
 		public static function SetSpawnPoint():void
 		{
 			Root.Game.world.setSpawnPoint(Root.Game.world.strFrame, Root.Game.world.strPad);
 		}
-		
+
 		public static function IsMonsterAvailable(name:String):String
 		{
 			return GetMonsterByName(name) != null ? Root.TrueString : Root.FalseString;
 		}
-		
+
 		public static function IsMonsterAvailableByMonMapID(monMapID:String):String
 		{
 			return GetMonsterByMonMapId(monMapID) != null ? Root.TrueString : Root.FalseString;
@@ -119,7 +120,7 @@
 		{
 			for each (var mon:Object in Root.Game.world.getMonstersByCell(Root.Game.world.strFrame))
 			{
-				if (mon.pMC) 
+				if (mon.pMC)
 				{
 					var monster:String = mon.pMC.pname.ti.text.toLowerCase();
 					if (((monster.indexOf(name.toLowerCase()) > -1) || (name == "*")) && mon.dataLeaf.intState > 0)
@@ -135,7 +136,7 @@
         {
             for each (var mon:Object in Root.Game.world.getMonstersByCell(Root.Game.world.strFrame))
             {
-                if (mon.pMC) 
+                if (mon.pMC)
                 {
                     var monster:String = mon.dataLeaf.MonMapID;
                     if (((monster.indexOf(monId) > -1) || (monId == "*")) && mon.dataLeaf.intState > 0)
@@ -154,19 +155,34 @@
 				cells.push(cell.name);
 			return JSON.stringify(cells);
 		}
-		
+
+		public static function GetCellPads():String{
+			var cellPads:Array = new Array();
+			var padNames:RegExp = /(Spawn|Center|Left|Right|Up|Down|Top|Bottom)/;
+			var cellPadsCnt:int = Root.Game.world.map.numChildren;
+			for (var i:int = 0; i < cellPadsCnt; ++i)
+			{
+				var child:DisplayObject = Root.Game.world.map.getChildAt(i);
+				if (padNames.test(child.name))
+				{
+					cellPads.push(child.name);
+				}
+			}
+			return JSON.stringify(cellPads);
+		}
+
 		public static function GetItemTree():String
 		{
 			var items:Array = [];
-			
+
 			for (var id in Root.Game.world.invTree)
 			{
 				items.push(Root.Game.world.invTree[id]);
 			}
-			
+
 			return JSON.stringify(items);
 		}
-		
+
 		public static function RoomId():String
 		{
 			return Root.Game.world.curRoom.toString();
@@ -259,7 +275,7 @@
 			}
 			return result;
 		}
-		
+
 		public static function RejectDropR(itemName:String) : void
 		{
 			if (Root.Game.litePreference.data.bCustomDrops)
@@ -294,7 +310,7 @@
 				}
 			}
 		}
-		
+
 		public static function RejectDrop(itemName:String, itemId:String) : void
 		{
 			if (Root.Game.litePreference.data.bCustomDrops)

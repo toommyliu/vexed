@@ -1,4 +1,4 @@
-﻿package grimoire.game
+package grimoire.game
 {
 	import flash.filters.*;
 	import grimoire.*;
@@ -557,5 +557,12 @@
             }
             return accessLevel;
         }
+		public static function IsPlayerLoaded():String
+		{
+			return (
+					Root.Game.world.myAvatar.items.length > 0 &&
+					World.MapLoadComplete() === Root.TrueString &&
+					Root.Game.world.myAvatar.pMC.artLoaded()) ? Root.TrueString : Root.FalseString;
+		}
 	}
 }
