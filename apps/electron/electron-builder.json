@@ -1,16 +1,11 @@
 {
 	"productName": "Vexed",
 	"mac": {
-		"files": [
-			"src/**/*",
-			"build/**/*"
-		],
+		"files": ["src/**/*", "build/**/*"],
 		"asar": "false",
 		"target": {
 			"target": "zip",
-			"arch": [
-				"x64"
-			]
+			"arch": ["x64"]
 		}
 	},
 	"extraMetadata": {

@@ -1,33 +1,32 @@
-const fs = require('fs-extra');
 const { join } = require('path');
 const { app } = require('electron');
 
 const { createGame } = require('./windows');
 
 function registerFlashPlugin() {
-  const flashTrust = require('nw-flash-trust');
-  // TODO: add checks for app.isPackaged
-  app.commandLine.appendSwitch(
-    'ppapi-flash-path',
-    join(__dirname, '../../build/PepperFlashPlayer.plugin'),
-  );
+	const flashTrust = require('nw-flash-trust');
+	// TODO: add checks for app.isPackaged
+	app.commandLine.appendSwitch(
+		'ppapi-flash-path',
+		join(__dirname, '../../build/PepperFlashPlayer.plugin'),
+	);
 
-  const flashPath = join(
-    app.getPath('userData'),
-    'Pepper Data',
-    'Shockwave Flash',
-    'WritableRoot',
-  );
+	const flashPath = join(
+		app.getPath('userData'),
+		'Pepper Data',
+		'Shockwave Flash',
+		'WritableRoot',
+	);
 
-  const trustManager = flashTrust.initSync('Vexed', flashPath);
-  trustManager.empty();
-  trustManager.add(join(__dirname, '../renderer/game/grimoire.swf'));
+	const trustManager = flashTrust.initSync('Vexed', flashPath);
+	trustManager.empty();
+	trustManager.add(join(__dirname, '../renderer/game/grimoire.swf'));
 }
 
 registerFlashPlugin();
 
 app.once('ready', async () => {
-  await createGame();
+	await createGame();
 });
 
 app.on('window-all-closed', app.quit);
