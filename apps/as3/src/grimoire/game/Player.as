@@ -1,4 +1,4 @@
-package grimoire.game
+﻿package grimoire.game
 {
 	import flash.filters.*;
 	import grimoire.*;
@@ -97,7 +97,7 @@ package grimoire.game
 			return IsSkillReady(Root.Game.world.actions.active[parseInt(skillIndex)]);
 		}
 
-		private static function IsSkillReady(param1) : int
+		private static function IsSkillReady(param1:Object) : int
 		{
 			var _loc_4:* = NaN;
 			var _loc_2:* = new Date().getTime();
@@ -133,7 +133,7 @@ package grimoire.game
 		{
 			var x:int = parseInt(strX);
 			var y:int = parseInt(strY);
-			
+
 			Root.Game.world.myAvatar.pMC.walkTo(x, y, Root.Game.world.WALKSPEED);
 			Root.Game.world.moveRequest({mc:Root.Game.world.myAvatar.pMC, tx:x, ty:y, sp:Root.Game.world.WALKSPEED});
 		}
@@ -154,7 +154,7 @@ package grimoire.game
 			var targetAvatar:* = Root.Game.world.myAvatar.target;
 			if (targetAvatar)
 			{
-				
+
 			}
 			if (targetAvatar == Root.Game.world.myAvatar)
 			{
@@ -167,21 +167,21 @@ package grimoire.game
 			var avatar:* = Root.Game.world.getAvatarByUserName(username);
 			Root.Game.world.setTarget(avatar);
 		}
-		
+
 		public static function GetAvatars() : String
 		{
 			return JSON.stringify(Root.Game.world.avatars);
 		}
-		
-		public static function SetTargetPvP(username:String) : void 
-		{	
+
+		public static function SetTargetPvP(username:String) : void
+		{
 			var avatars:* = Root.Game.world.avatars;
-			for (var a in avatars)
-			{ 
-				var avatar = avatars[a];
-				if (avatar.dataLeaf.strFrame == Root.Game.world.strFrame && 
-					avatar.dataLeaf.pvpTeam != Root.Game.world.myAvatar.dataLeaf.pvpTeam && 
-					!avatar.isMyAvatar && 
+			for (var a:* in avatars)
+			{
+				var avatar:Object = avatars[a];
+				if (avatar.dataLeaf.strFrame == Root.Game.world.strFrame &&
+					avatar.dataLeaf.pvpTeam != Root.Game.world.myAvatar.dataLeaf.pvpTeam &&
+					!avatar.isMyAvatar &&
 					avatar.dataLeaf.intState > 0
 				){
 					if (!Root.Game.world.myAvatar.target)
@@ -190,7 +190,7 @@ package grimoire.game
 					}
 
 					if (username != null) {
-						if (avatar.dataLeaf.strUsername.toLowerCase() == username.toLowerCase() && 
+						if (avatar.dataLeaf.strUsername.toLowerCase() == username.toLowerCase() &&
 							Root.Game.world.myAvatar.target.dataLeaf.strUsername.toLowerCase() != username.toLowerCase())
 						{
 							Root.Game.world.setTarget(avatar);
@@ -199,22 +199,22 @@ package grimoire.game
 				}
 			}
 		}
-		
+
 		public static function GetSkillCooldown(skill:String) : String
 		{
 			return Root.Game.world.actions.active[parseInt(skill)].cd;
 		}
-		
+
 		public static function SetSkillCooldown(skill:String, value:String) : void
 		{
 			Root.Game.world.actions.active[parseInt(skill)].cd = value;
 		}
-		
+
 		public static function SetSkillRange(skill:String, value:String) : void
 		{
 			Root.Game.world.actions.active[parseInt(skill)].range = value;
 		}
-		
+
 		public static function SetSkillMana(skill:String, value:String) : void
 		{
 			Root.Game.world.actions.active[parseInt(skill)].mp = value;
@@ -242,13 +242,13 @@ package grimoire.game
 					Root.Game.world.setTarget(monster);
 					Root.Game.world.approachTarget();
 				}
-				catch (e)
+				catch (e:Error)
 				{
 					return;
 				}
 			}
 		}
-		
+
 		public static function AttackMonsterByMonMapId(monMapID:String) : void
 		{
 			var monster:* = World.GetMonsterByMonMapId(monMapID);
@@ -259,7 +259,7 @@ package grimoire.game
 					Root.Game.world.setTarget(monster);
 					Root.Game.world.approachTarget();
 				}
-				catch (e)
+				catch (e:Error)
 				{
 					return;
 				}
@@ -310,15 +310,15 @@ package grimoire.game
 		{
 			Root.Game.world.goto(username);
 		}
-		
+
 		public static function UseBoost(id:String):void
 		{
 			var boost:Object = Inventory.GetItemByID(parseInt(id));
 			if (boost != null)
 				Root.Game.world.sendUseItemRequest(boost);
 		}
-		
-		
+
+
 		public static function ForceUseSkill(index:String) : void
 		{
 			var skill:Object = Root.Game.world.actions.active[parseInt(index)];
@@ -338,19 +338,19 @@ package grimoire.game
 		public static function UseSkill(index:String) : void
 		{
 			var skill:Object = Root.Game.world.actions.active[parseInt(index)];
-			
-			if (skill.tgt == "s" || skill.tgt == "f") 
+
+			if (skill.tgt == "s" || skill.tgt == "f")
 			{
 				ForceUseSkill(index);
 				return;
 			}
-			
+
 			if (Root.Game.world.myAvatar.target == Root.Game.world.myAvatar)
 			{
 				Root.Game.world.myAvatar.target = null;
 				return;
 			}
-			
+
 			if (Root.Game.world.myAvatar.target != null && Root.Game.world.myAvatar.target.dataLeaf.intHP > 0)
 			{
 				Root.Game.world.approachTarget();
@@ -514,27 +514,27 @@ package grimoire.game
 			}
 		}
 
-		public static function ChangeColorName(color: int) {
+		public static function ChangeColorName(color: int):void{
             Root.Game.world.myAvatar.pMC.pname.ti.textColor = color;
 		}
-		
-		public static function GetTargetHealth() : int 
-		{	
+
+		public static function GetTargetHealth() : int
+		{
 			return Root.Game.world.myAvatar.target.dataLeaf.intHP;
-		}	
+		}
 
         public static function GetAurasValue(self:String, auraName:String) : int
         {
-			var value = 0;
-			var isSelf = self == "True";
-			var hasTarget = Root.Game.world.myAvatar.target != null && Root.Game.world.myAvatar.target.dataLeaf.intHP > 0;
-            if (!isSelf && !hasTarget) 
+			var value:int = 0;
+			var isSelf:Boolean = self == "True";
+			var hasTarget:Boolean = Root.Game.world.myAvatar.target != null && Root.Game.world.myAvatar.target.dataLeaf.intHP > 0;
+            if (!isSelf && !hasTarget)
 			{
 				return value;
 			}
-			var objAura = isSelf ? Root.Game.world.myAvatar.dataLeaf.auras : Root.Game.world.myAvatar.target.dataLeaf.auras;
-            for each (var aura in objAura) {
-                if (aura.nam.toLowerCase() == auraName.toLowerCase()) 
+			var objAura:Object = isSelf ? Root.Game.world.myAvatar.dataLeaf.auras : Root.Game.world.myAvatar.target.dataLeaf.auras;
+            for each (var aura:Object in objAura) {
+                if (aura.nam.toLowerCase() == auraName.toLowerCase())
                 {
                     value = aura.val ? aura.val : 1;
                 }
@@ -544,13 +544,13 @@ package grimoire.game
 
 		public static function GetAccessLevel(username: String) : int {
             var avatars:* = Root.Game.world.avatars;
-            var accessLevel;
-            for (var a in avatars)
-            { 
-                var avatar = avatars[a];
+            var accessLevel:int;
+            for (var a:* in avatars)
+            {
+                var avatar:Object = avatars[a];
                 if (username != null) {
                     if (avatar.dataLeaf.strUsername.toLowerCase() == username.toLowerCase()) {
-                        var uid = avatar.uid;
+                        var uid:* = avatar.uid;
                         accessLevel = Root.Game.world.getAvatarByUserID(uid).objData.intAccessLevel;
                     }
                 }

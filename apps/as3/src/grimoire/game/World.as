@@ -9,7 +9,7 @@
 
 	public class World extends Object
 	{
-		public static function MapLoadComplete() : String
+		public static function MapLoadComplete():String
 		{
 			if (!Root.Game.world.mapLoadInProgress)
 			{
@@ -17,23 +17,20 @@
 				{
 					return Root.Game.getChildAt((Root.Game.numChildren - 1)) != Root.Game.mcConnDetail ? (Root.TrueString) : (Root.FalseString);
 				}
-				catch (e)
+				catch (e:Error)
 				{
 					return Root.FalseString;
 				}
 			}
-			else
-			{
-				return Root.FalseString;
-			}
+			return Root.FalseString;
 		}
 
-		public static function PlayersInMap() : String
+		public static function PlayersInMap():String
 		{
 			return JSON.stringify(Root.Game.world.areaUsers);
 		}
 
-		public static function IsActionAvailable(param1:String) : String
+		public static function IsActionAvailable(param1:String):String
 		{
 			var _loc_2:* = undefined;
 			var _loc_3:* = undefined;
@@ -90,7 +87,8 @@
 			return JSON.stringify(ret);
 		}
 
-		public static function GetMonsterHealth(monster:String) : String {
+		public static function GetMonsterHealth(monster:String):String
+		{
 			var mon:Object = World.GetMonsterByName(monster);
 			return mon.dataLeaf.intHP.toString();
 		}
@@ -132,21 +130,21 @@
 			return null;
 		}
 
-        public static function GetMonsterByMonMapId(monId:String):Object
-        {
-            for each (var mon:Object in Root.Game.world.getMonstersByCell(Root.Game.world.strFrame))
-            {
-                if (mon.pMC)
-                {
-                    var monster:String = mon.dataLeaf.MonMapID;
-                    if (((monster.indexOf(monId) > -1) || (monId == "*")) && mon.dataLeaf.intState > 0)
-                    {
-                        return mon;
-                    }
-                }
-            }
-            return null;
-        }
+		public static function GetMonsterByMonMapId(monId:String):Object
+		{
+			for each (var mon:Object in Root.Game.world.getMonstersByCell(Root.Game.world.strFrame))
+			{
+				if (mon.pMC)
+				{
+					var monster:String = mon.dataLeaf.MonMapID;
+					if (((monster.indexOf(monId) > -1) || (monId == "*")) && mon.dataLeaf.intState > 0)
+					{
+						return mon;
+					}
+				}
+			}
+			return null;
+		}
 
 		public static function GetCells():String
 		{
@@ -156,7 +154,8 @@
 			return JSON.stringify(cells);
 		}
 
-		public static function GetCellPads():String{
+		public static function GetCellPads():String
+		{
 			var cellPads:Array = new Array();
 			var padNames:RegExp = /(Spawn|Center|Left|Right|Up|Down|Top|Bottom)/;
 			var cellPadsCnt:int = Root.Game.world.map.numChildren;
@@ -175,7 +174,7 @@
 		{
 			var items:Array = [];
 
-			for (var id in Root.Game.world.invTree)
+			for (var id:* in Root.Game.world.invTree)
 			{
 				items.push(Root.Game.world.invTree[id]);
 			}
@@ -188,20 +187,20 @@
 			return Root.Game.world.curRoom.toString();
 		}
 
-		public static function RoomNumber() : String
+		public static function RoomNumber():String
 		{
 			return Root.Game.world.strAreaName.split("-")[1];
 		}
 
-		public static function Players() : String
+		public static function Players():String
 		{
 			return JSON.stringify(Root.Game.world.uoTree);
 		}
 
-		public static function PlayerByName(target:String) : String
+		public static function PlayerByName(target:String):String
 		{
 			var result:String = "";
-			for (var p in Root.Game.world.uoTree)
+			for (var p:* in Root.Game.world.uoTree)
 			{
 				var player:* = Root.Game.world.uoTree[p];
 				if (player.strUsername.toLowerCase() == target.toLowerCase())
@@ -212,12 +211,12 @@
 			return result;
 		}
 
-		public static function GetCellPlayers(param1)
+		public static function GetCellPlayers(playerName:String):String
 		{
 			for (var p:* in Root.Game.world.uoTree)
 			{
 				var player:* = Root.Game.world.uoTree[p];
-				if (player.strUsername.toLowerCase() == param1.toLowerCase())
+				if (player.strUsername.toLowerCase() == playerName.toLowerCase())
 				{
 					if (player.strFrame.toLowerCase() == Root.Game.world.strFrame.toLowerCase())
 					{
@@ -228,14 +227,14 @@
 			return Root.FalseString;
 		}
 
-		public static function CheckCellPlayer(param1, param2)
+		public static function CheckCellPlayer(playerName:String, cell:String):String
 		{
-			for (var p in Root.Game.world.uoTree)
+			for (var p:* in Root.Game.world.uoTree)
 			{
 				var player:* = Root.Game.world.uoTree[p];
-				if (player.strUsername.toLowerCase() == param1.toLowerCase())
+				if (player.strUsername.toLowerCase() == playerName.toLowerCase())
 				{
-					if (player.strFrame.toLowerCase() == param2.toLowerCase())
+					if (player.strFrame.toLowerCase() == cell.toLowerCase())
 					{
 						return Root.TrueString;
 					}
@@ -244,10 +243,10 @@
 			return Root.FalseString;
 		}
 
-		public static function GetPlayerHealth(target:String) : String
+		public static function GetPlayerHealth(target:String):String
 		{
 			var result:int = 100;
-			for (var p in Root.Game.world.uoTree)
+			for (var p:* in Root.Game.world.uoTree)
 			{
 				var player:* = Root.Game.world.uoTree[p];
 				if (player.strUsername.toLowerCase() == target.toLowerCase())
@@ -256,13 +255,13 @@
 					break;
 				}
 			}
-			return result;
+			return String(result);
 		}
 
-		public static function GetPlayerHealthPercentage(target:String) : String
+		public static function GetPlayerHealthPercentage(target:String):String
 		{
 			var result:int = 100;
-			for (var p in Root.Game.world.uoTree)
+			for (var p:* in Root.Game.world.uoTree)
 			{
 				var player:* = Root.Game.world.uoTree[p];
 				if (player.strUsername.toLowerCase() == target.toLowerCase())
@@ -273,15 +272,15 @@
 					break;
 				}
 			}
-			return result;
+			return String(result);
 		}
 
-		public static function RejectDropR(itemName:String) : void
+		public static function RejectDropR(itemName:String):void
 		{
 			if (Root.Game.litePreference.data.bCustomDrops)
 			{
 				var source:* = Root.Game.cDropsUI.mcDraggable ? Root.Game.cDropsUI.mcDraggable.menu : Root.Game.cDropsUI;
-				for (var i: int = 0; i < source.numChildren; i++)
+				for (var i:int = 0; i < source.numChildren; i++)
 				{
 					var child:* = source.getChildAt(i);
 					if (child.itemObj)
@@ -298,7 +297,7 @@
 				var children:int = Root.Game.ui.dropStack.numChildren;
 				for (var j:int = 0; j < children; j++)
 				{
-					var child:* = Root.Game.ui.dropStack.getChildAt(j);
+					child = Root.Game.ui.dropStack.getChildAt(j);
 					var type:String = getQualifiedClassName(child);
 					if (type.indexOf("DFrame2MC") != -1)
 					{
@@ -311,38 +310,38 @@
 			}
 		}
 
-		public static function RejectDrop(itemName:String, itemId:String) : void
+		public static function RejectDrop(itemName:String, itemId:String):void
 		{
 			if (Root.Game.litePreference.data.bCustomDrops)
-            {
-                Root.Game.cDropsUI.onBtNo(Root.Game.world.invTree[itemId]);
-            }
-            else
-            {
-                var children:int = Root.Game.ui.dropStack.numChildren;
-                for (var i:int = 0; i < children; i++)
-                {
-                    var child:* = Root.Game.ui.dropStack.getChildAt(i);
-                    if (child.cnt.strName.text.toLowerCase().indexOf(itemName.toLowerCase()) == 0)
-                    {
-                        Root.Game.ui.dropStack.removeChild(child);
-                    }
-                }
-            }
+			{
+				Root.Game.cDropsUI.onBtNo(Root.Game.world.invTree[itemId]);
+			}
+			else
+			{
+				var children:int = Root.Game.ui.dropStack.numChildren;
+				for (var i:int = 0; i < children; i++)
+				{
+					var child:* = Root.Game.ui.dropStack.getChildAt(i);
+					if (child.cnt.strName.text.toLowerCase().indexOf(itemName.toLowerCase()) == 0)
+					{
+						Root.Game.ui.dropStack.removeChild(child);
+					}
+				}
+			}
 		}
 
-		public static function ReloadMap() : void
+		public static function ReloadMap():void
 		{
 			Root.Game.world.reloadCurrentMap();
 		}
 
-		public static function LoadMap(swf: String) : void
+		public static function LoadMap(swf:String):void
 		{
 			Root.Game.world.loadMap(swf);
 		}
 
 		// testing
-		public static function SetMapQuestVal(): void
+		public static function SetMapQuestVal():void
 		{
 			Root.Game.world.map.questVal = 30;
 		}

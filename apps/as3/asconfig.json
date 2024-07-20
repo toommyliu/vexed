@@ -17,10 +17,10 @@
 		"optimize": true,
 		"omit-trace-statements": true,
 		"show-unused-type-selector-warnings": true,
-		"strict": false, // true
+		"strict": true,
 		"use-network": true,
 		"use-resource-bundle-metadata": true,
-		"warnings": false, // true
+		"warnings": true,
 		"verbose-stacktraces": false,
 		"static-link-runtime-shared-libraries": true
 	},
