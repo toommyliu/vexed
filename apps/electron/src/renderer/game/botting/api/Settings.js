@@ -138,7 +138,7 @@ class Settings {
 	 * @returns {void}
 	 */
 	setDeathAds(on) {
-		this.bot.flash.set('userPreference.data.bDeathAd', !on);
+		this.bot.flash.set('userPreference.data.bDeathAd', on);
 	}
 }
 
