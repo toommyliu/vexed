@@ -19,7 +19,7 @@ class Settings {
 			if (
 				!this.bot.auth.loggedIn ||
 				this.bot.world.loading ||
-				this.bot.player.loading
+				!this.bot.player.loaded
 			) {
 				return;
 			}
