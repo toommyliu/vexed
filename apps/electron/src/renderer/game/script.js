@@ -18,8 +18,9 @@ window.addEventListener('DOMContentLoaded', async () => {
 			return;
 		}
 
-		option.addEventListener('click', (ev) => {
+		option.addEventListener('click', () => {
 			const checked = option.getAttribute('data-checked') === 'true';
+
 			option.setAttribute('data-checked', checked ? 'false' : 'true');
 			option.querySelector('.checkmark').style.display = checked
 				? 'none'
@@ -50,8 +51,6 @@ window.addEventListener('DOMContentLoaded', async () => {
 			}
 		});
 	}
-
-	// TODO: walk speed
 });
 
 window.addEventListener('click', (ev) => {

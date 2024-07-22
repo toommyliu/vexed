@@ -9,11 +9,39 @@ class Settings {
 	#skipCutscenes = false;
 	#walkSpeed = 8;
 
+	#optionInfiniteRange = null;
+	#optionProvokeMap = null;
+	#optionProvokeCell = null;
+	#optionEnemyMagnet = null;
+	#optionLagKiller = null;
+	#optionHidePlayers = null;
+	#optionSkipCutscenes = null;
+	#optionWalkSpeed = null;
+
 	constructor(bot) {
 		/**
 		 * @type {import('../api/Bot')}
 		 */
 		this.bot = bot;
+
+		this.#optionInfiniteRange = document.getElementById(
+			'option-infinite-range',
+		);
+		this.#optionProvokeMap = document.getElementById('option-provoke-map');
+		this.#optionProvokeCell = document.getElementById(
+			'option-provoke-cell',
+		);
+		this.#optionEnemyMagnet = document.getElementById(
+			'option-enemy-magnet',
+		);
+		this.#optionLagKiller = document.getElementById('option-lag-killer');
+		this.#optionHidePlayers = document.getElementById(
+			'option-hide-players',
+		);
+		this.#optionSkipCutscenes = document.getElementById(
+			'option-skip-cutscenes',
+		);
+		this.#optionWalkSpeed = document.getElementById('option-walkspeed');
 
 		this.#intervalID = this.bot.timerManager.setInterval(() => {
 			if (
@@ -70,6 +98,7 @@ class Settings {
 
 	set infiniteRange(on) {
 		this.#infiniteRange = on;
+		this.#updateOption(this.#optionInfiniteRange, on);
 	}
 
 	get provokeMap() {
@@ -78,6 +107,7 @@ class Settings {
 
 	set provokeMap(on) {
 		this.#provokeMap = on;
+		this.#updateOption(this.#optionProvokeMap, on);
 	}
 
 	get provokeCell() {
@@ -86,6 +116,7 @@ class Settings {
 
 	set provokeCell(on) {
 		this.#provokeCell = on;
+		this.#updateOption(this.#optionProvokeCell, on);
 	}
 
 	get enemyMagnet() {
@@ -94,6 +125,7 @@ class Settings {
 
 	set enemyMagnet(on) {
 		this.#enemyMagnet = on;
+		this.#updateOption(this.#optionEnemyMagnet, on);
 	}
 
 	get lagKiller() {
@@ -102,6 +134,7 @@ class Settings {
 
 	set lagKiller(on) {
 		this.#lagKiller = on;
+		this.#updateOption(this.#optionLagKiller, on);
 	}
 
 	get hidePlayers() {
@@ -110,6 +143,7 @@ class Settings {
 
 	set hidePlayers(on) {
 		this.#hidePlayers = on;
+		this.#updateOption(this.#optionHidePlayers, on);
 	}
 
 	get skipCutscenes() {
@@ -118,6 +152,7 @@ class Settings {
 
 	set skipCutscenes(on) {
 		this.#skipCutscenes = on;
+		this.#updateOption(this.#optionSkipCutscenes, on);
 	}
 
 	get walkSpeed() {
@@ -128,17 +163,34 @@ class Settings {
 		this.#walkSpeed = speed;
 	}
 
+	/**
+	 * Sets the target client FPS.
+	 * @param {string|number} fps
+	 * @returns {void}
+	 */
 	setFPS(fps) {
 		this.bot.flash.call(swf.SetFPS, String(fps));
 	}
 
 	/**
-	 * Whether death ads should be shown.
+	 * Sets the visiblity of death ads.
 	 * @param {boolean} on
 	 * @returns {void}
 	 */
 	setDeathAds(on) {
 		this.bot.flash.set('userPreference.data.bDeathAd', on);
+	}
+
+	/**
+	 * Updates an option.
+	 * @param {HTMLElement} option
+	 * @param {string} value
+	 */
+	#updateOption(option, value) {
+		option.setAttribute('data-checked', value ? 'true' : 'false');
+		option.querySelector('.checkmark').style.display = value
+			? 'block'
+			: 'none';
 	}
 }
 
