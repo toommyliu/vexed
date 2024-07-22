@@ -40,8 +40,11 @@ class World {
 	 * @returns {Monster[]}
 	 */
 	get visibleMonsters() {
-		const monsters = this.bot.flash.call(swf.GetVisibleMonstersInCell);
-		return monsters.map((data) => new Monster(data));
+		const ret = this.bot.flash.call(swf.GetVisibleMonstersInCell);
+		if (Array.isArray(monsters)) {
+			return ret.map((data) => new Monster(data));
+		}
+		return [];
 	}
 
 	/**
@@ -49,8 +52,11 @@ class World {
 	 * @returns {Monster[]}
 	 */
 	get availableMonsters() {
-		const monsters = this.bot.flash.call(swf.GetMonstersInCell);
-		return monsters.map((data) => new Monster(data));
+		const ret = this.bot.flash.call(swf.GetMonstersInCell);
+		if (Array.isArray(ret)) {
+			return ret.map((data) => new Monster(data));
+		}
+		return [];
 	}
 
 	/**
@@ -62,12 +68,13 @@ class World {
 		// prettier-ignore
 		if (["id'", 'id.', 'id:', 'id-'].some((prefix) =>monsterResolvable.startsWith(prefix))) {
 			const monMapID = monsterResolvable.substring(3);
-			return this.bot.flash.call(
+		 	this.bot.flash.call(
 				swf.IsMonsterAvailableByMonMapID,
 				monMapID,
-			);
+			)
+			return;
 		}
-		return this.bot.flash.call(swf.IsMonsterAvailable, monsterResolvable);
+		this.bot.flash.call(swf.IsMonsterAvailable, monsterResolvable);
 	}
 
 	/**
