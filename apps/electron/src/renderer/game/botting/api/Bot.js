@@ -150,7 +150,8 @@ class Bot extends EventEmitter {
 	}
 
 	/**
-	 * Raises the running flag. This does not "start" a script.
+	 * Raises the running flag. While this does not start a script, it setups various tasks used during a
+	 * script's runtime. For example, the auto relogin background task.
 	 * @returns {void}
 	 */
 	start() {
@@ -164,7 +165,8 @@ class Bot extends EventEmitter {
 	}
 
 	/**
-	 * Lowers the running flag. This does not "stop" a script from continuing execution.
+	 * Lowers the running flag. While this does not stop a script, it removes any background tasks that were
+	 * set up on start.
 	 * @returns {void}
 	 */
 	stop() {
