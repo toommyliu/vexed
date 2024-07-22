@@ -1,4 +1,15 @@
 class Combat {
+	/**
+	 * The cell where the monster should be killed. Used for 'anti-anti-bot'.
+	 * @type {string}
+	 */
+	#cell;
+	/**
+	 * The pad where the monster should be killed. Used for 'anti-anti-bot.'
+	 * @type {string}
+	 */
+	#pad;
+
 	constructor(bot) {
 		/**
 		 * @type {import('./Bot')}
@@ -124,6 +135,9 @@ class Combat {
 			return;
 		}
 
+		this.#cell = this.bot.player.cell;
+		this.#pad = this.bot.player.pad;
+
 		let timer_a;
 		let timer_b;
 
@@ -179,6 +193,17 @@ class Combat {
 
 			this.bot.timerManager.setTimeout(() => {
 				timer_b = this.bot.timerManager.setInterval(async () => {
+					const isSameCell =
+						this.bot.player.cell.toLowerCase() ===
+						this.#cell.toLowerCase();
+					const isSamePad =
+						this.bot.player.pad.toLowerCase() ===
+						this.#pad.toLowerCase();
+
+					if (!isSameCell || !isSamePad) {
+						await this.bot.world.jump(this.#cell, this.#pad, true);
+					}
+
 					// TODO: improve kill detection
 					if (
 						(!this.hasTarget() ||
@@ -191,6 +216,8 @@ class Combat {
 
 						await this.exit();
 
+						this.#cell = null;
+						this.#pad = null;
 						resolve();
 					}
 				}, 0);
