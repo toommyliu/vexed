@@ -17,11 +17,11 @@ class AutoRelogin {
 		 */
 		this.bot = bot;
 
-		this.bot.on('start', this.start.bind(this));
-		this.bot.on('stop', this.stop.bind(this));
+		this.bot.on('start', this.#start.bind(this));
+		this.bot.on('stop', this.#stop.bind(this));
 	}
 
-	start() {
+	#start() {
 		window.connection = ([state]) => {
 			if (state === 'OnConnection') {
 				this.bot.emit('login');
@@ -32,7 +32,7 @@ class AutoRelogin {
 		};
 	}
 
-	stop() {
+	#stop() {
 		window.connection = null;
 	}
 
