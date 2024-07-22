@@ -274,7 +274,7 @@ class Combat {
 			await this.kill(monsterResolvable);
 			await this.bot.sleep(500);
 
-			if (isTemp) {
+			if (!isTemp) {
 				await this.bot.drops.pickup(itemName);
 			}
 
