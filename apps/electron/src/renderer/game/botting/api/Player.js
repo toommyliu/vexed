@@ -72,7 +72,7 @@ class Player {
 	 * Gets the maximum mana of the current player.
 	 * @returns {number}
 	 */
-	get maxHP() {
+	get maxMP() {
 		return this.bot.flash.call(swf.ManaMax);
 	}
 
