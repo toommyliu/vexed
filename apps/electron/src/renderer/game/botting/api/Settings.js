@@ -1,13 +1,45 @@
 class Settings {
 	#intervalID = null;
-	#infiniteRange = false;
-	#provokeMap = false;
-	#provokeCell = false;
-	#enemyMagnet = false;
-	#lagKiller = false;
-	#hidePlayers = false;
-	#skipCutscenes = false;
-	#walkSpeed = 8;
+	/**
+	 * Whether skills can be casted with no range limit.
+	 * @type {boolean}
+	 */
+	infiniteRange = false;
+	/**
+	 * Whether to aggro all monsters in the map.
+	 * @type {boolean}
+	 */
+	provokeMap = false;
+	/**
+	 * Whether to aggro all monsters in the cell.
+	 * @type {boolean}
+	 */
+	provokeCell = false;
+	/**
+	 * Whether to "magnetize" the current target, or set the world position of the current target to that of the player.
+	 * @returns {boolean}
+	 */
+	enemyMagnet = false;
+	/**
+	 * Whether to mostly disable the ui from rendering.
+	 * @type {boolean}
+	 */
+	lagKiller = false;
+	/**
+	 * Whether to toggle visiblity of players in the map.
+	 * @type {boolean}
+	 */
+	hidePlayers = false;
+	/**
+	 * Whether to skip cutscenes when as soon as they play.
+	 * @type {boolean}
+	 */
+	skipCutscenes = false;
+	/**
+	 * The walk speed of the player.
+	 * @type {number}
+	 */
+	walkSpeed = 8;
 
 	constructor(bot) {
 		/**
@@ -62,70 +94,6 @@ class Settings {
 				this.bot.flash.call(swf.SetWalkSpeed, String(this.walkSpeed));
 			}
 		}, 500);
-	}
-
-	get infiniteRange() {
-		return this.#infiniteRange;
-	}
-
-	set infiniteRange(on) {
-		this.#infiniteRange = on;
-	}
-
-	get provokeMap() {
-		return this.#provokeMap;
-	}
-
-	set provokeMap(on) {
-		this.#provokeMap = on;
-	}
-
-	get provokeCell() {
-		return this.#provokeCell;
-	}
-
-	set provokeCell(on) {
-		this.#provokeCell = on;
-	}
-
-	get enemyMagnet() {
-		return this.#enemyMagnet;
-	}
-
-	set enemyMagnet(on) {
-		this.#enemyMagnet = on;
-	}
-
-	get lagKiller() {
-		return this.#lagKiller;
-	}
-
-	set lagKiller(on) {
-		this.#lagKiller = on;
-	}
-
-	get hidePlayers() {
-		return this.#hidePlayers;
-	}
-
-	set hidePlayers(on) {
-		this.#hidePlayers = on;
-	}
-
-	get skipCutscenes() {
-		return this.#skipCutscenes;
-	}
-
-	set skipCutscenes(on) {
-		this.#skipCutscenes = on;
-	}
-
-	get walkSpeed() {
-		return this.#walkSpeed;
-	}
-
-	set walkSpeed(speed) {
-		this.#walkSpeed = speed;
 	}
 
 	setFPS(fps) {
