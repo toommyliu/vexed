@@ -104,7 +104,7 @@ class Player {
 	 * Checks if the current player has membership.
 	 * @returns {boolean}
 	 */
-	get isMember() {
+	isMember() {
 		return this.bot.flash.call(swf.IsMember);
 	}
 
