@@ -41,6 +41,10 @@ class AutoRelogin {
 	 * @returns {void}
 	 */
 	#run() {
+		if (!this.server) {
+			return;
+		}
+
 		const timerID = this.bot.timerManager.setTimeout(async () => {
 			if (this.bot.auth.resetServers()) {
 				await this.bot.waitUntil(
@@ -51,6 +55,11 @@ class AutoRelogin {
 					() => this.bot.auth.servers.length > 0,
 					() => this.bot.auth.loggedIn,
 				);
+
+				// prettier-ignore
+				if (!this.bot.auth.servers.find((srv) => srv.name.toLowerCase() === this.server)) {
+					return;
+				}
 
 				this.bot.auth.connectTo(this.server);
 				await this.bot.waitUntil(
