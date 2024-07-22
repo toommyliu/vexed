@@ -29,56 +29,78 @@ class Quests {
 	}
 
 	/**
-	 * Loads a quest.
-	 * @param {string|number} questID The quest id to load.
+	 * Loads a quest(s).
+	 * @param {string|number|string[]|number[]} questID The quest id(s) to load. If using a string, it must be comma-separated.
 	 * @returns {Promise<void>}
 	 */
+	// TODO: return whether quests were accepted
 	async load(questID) {
-		questID = this.#parseQuestID(questID);
+		const quests = [];
+		if (typeof questID === 'string') {
+			if (!questID.includes(',')) {
+				// single quest
+				quests = this.#parseQuestID(questID);
+			} else {
+				// csv
+				Array.prototype.push.apply(
+					quests,
+					questID.split(',').map((s) => s.trim()),
+				);
+			}
+		} else if (typeof questID === 'number') {
+			// single quest
+			quests.push(questID);
+		} else if (Array.isArray(questID)) {
+			// multiple quests
+			quests.concat(questID);
+		}
 
-		while (!this.get(questID)) {
-			this.bot.flash.call(swf.LoadQuest, questID);
-			await this.bot.waitUntil(
-				() => this.get(questID),
-				() => this.bot.auth.loggedIn && this.bot.player.loaded,
-			);
+		for (const questID of quests) {
+			while (!this.get(questID)) {
+				this.bot.flash.call(swf.LoadQuest, questID);
+				await this.bot.waitUntil(
+					() => this.get(questID),
+					() => this.bot.auth.loggedIn && this.bot.player.loaded,
+				);
+			}
 		}
 	}
 
 	/**
-	 * Accepts a quest.
-	 * @param {string|number} questID The quest id to accept.
-	 * @returns {Promise<boolean>} Whether the quest was accepted and is now in progress.
+	 * Accepts a quest(s)
+	 * @param {string|number|string[]|number[]} questID The quest id(s) to accept. If using a string, it must be comma-separated.
+	 * @returns {Promise<void}
 	 */
+	// TODO: return whether quests were accepted
 	async accept(questID) {
-		questID = this.#parseQuestID(questID);
-
-		await this.bot.waitUntil(() =>
-			this.bot.world.isActionAvailable(GameAction.AcceptQuest),
-		);
-
-		await this.load(questID);
-		this.bot.flash.call(swf.Accept, questID);
-		await this.bot.waitUntil(() => this.get(questID)?.inProgress);
-	}
-
-	/**
-	 * Accepts multiple quests at once
-	 * @param {string|string[]|number|number[]} questIDs The quest ids.
-	 * @returns {Promise<void>}
-	 */
-	async acceptMultiple(questIDs) {
-		// to accept
-		let out = [];
-
-		if (typeof questIDs === 'string') {
-			out = questIDs.split(',').map((s) => s.trim());
-		} else if (Array.isArray(questIDs)) {
-			out = questIDs;
+		const quests = [];
+		if (typeof questID === 'string') {
+			if (!questID.includes(',')) {
+				// single quest
+				quests = this.#parseQuestID(questID);
+			} else {
+				// csv
+				Array.prototype.push.apply(
+					quests,
+					questID.split(',').map((s) => s.trim()),
+				);
+			}
+		} else if (typeof questID === 'number') {
+			// single quest
+			quests.push(questID);
+		} else if (Array.isArray(questID)) {
+			// multiple quests
+			quests.concat(questID);
 		}
 
-		for (const questID of out) {
-			await this.accept(questID);
+		for (const questID of quests) {
+			await this.bot.waitUntil(() =>
+				this.bot.world.isActionAvailable(GameAction.AcceptQuest),
+			);
+
+			await this.load(questID);
+			this.bot.flash.call(swf.Accept, questID);
+			await this.bot.waitUntil(() => this.get(questID)?.inProgress);
 		}
 	}
 
@@ -99,19 +121,6 @@ class Quests {
 		} else {
 			this.bot.flash.call(swf.Complete, questID, turnIns);
 		}
-	}
-
-	/**
-	 * Loads multiple quests at once
-	 * @param {string|Array<string>} questIDs The quest ids
-	 * @returns {Promise<void>}
-	 */
-	async loadMultiple(questIDs) {
-		if (Array.isArray(questIDs)) {
-			questIDs = questIDs.join(',');
-		}
-
-		this.bot.flash.call(swf.LoadQuests, questIDs);
 	}
 
 	/**
