@@ -230,12 +230,8 @@ class Combat {
 	 * @private
 	 */
 	async #killForItem(monsterResolvable, itemName, targetQty, isTemp = false) {
-		const getItem = () => {
-			if (isTemp) {
-				return this.bot.tempInventory.get(itemName);
-			}
-			return this.bot.inventory.get(itemName);
-		};
+		const store = isTemp ? this.bot.tempInventory : this.bot.inventory;
+		const getItem = () => store.get(itemName);
 
 		const shouldExit = () => {
 			const item = getItem();
@@ -244,7 +240,7 @@ class Combat {
 				return false;
 			}
 
-			return item.quantity >= targetQty;
+			return store.contains(itemName, targetQty);
 		};
 
 		while (!shouldExit()) {
