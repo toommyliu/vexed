@@ -66,7 +66,7 @@ class Monster {
 	 * The monster's max HP.
 	 * @returns {number}
 	 */
-	get maxHp() {
+	get maxHP() {
 		return this.data.intHPMax;
 	}
 
