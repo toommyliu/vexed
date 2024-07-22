@@ -14,6 +14,7 @@ const Shops = require('./botting/api/Shop');
 const TempInventory = require('./botting/api/TempInventory');
 const World = require('./botting/api/World');
 
+const AutoRelogin = require('./botting/util/AutoRelogin');
 const Flash = require('./botting/util/Flash');
 const TimerManager = require('./botting/util/TimerManager');
 
@@ -31,6 +32,11 @@ class Bot extends EventEmitter {
 		}
 
 		this._instance = this;
+
+		/**
+		 * @type {import('../util/AutoRelogin')}
+		 */
+		this.autoRelogin = new AutoRelogin(this);
 
 		/**
 		 * @type {import('../util/Flash')}
@@ -153,6 +159,7 @@ class Bot extends EventEmitter {
 			return;
 		}
 
+		this.emit('start');
 		this.#ac = new AbortController();
 	}
 
@@ -166,6 +173,7 @@ class Bot extends EventEmitter {
 			return;
 		}
 
+		this.emit('stop');
 		this.#ac = null;
 	}
 
