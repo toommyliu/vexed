@@ -45,7 +45,7 @@ class Bank {
 
 	/**
 	 * Whether the item meets some quantity in this store
-	 * @param {string|number} itemResolvable The name or ID of the item
+	 * @param {string|number} itemKey The name or ID of the item
 	 * @param {number} quantity The quantity of the item
 	 * @returns {boolean}
 	 */

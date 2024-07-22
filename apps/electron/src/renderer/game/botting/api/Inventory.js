@@ -42,7 +42,7 @@ class Inventory {
 
 	/**
 	 * Whether the item meets some quantity in this store
-	 * @param {string|number} itemResolvable The name or ID of the item
+	 * @param {string|number} itemKey The name or ID of the item
 	 * @param {number} quantity The quantity of the item
 	 * @returns {boolean}
 	 */
@@ -81,11 +81,11 @@ class Inventory {
 
 	/**
 	 * Equips an item from the Inventory.
-	 * @param {string|number} itemResolvable The name or ID of the item.
+	 * @param {string|number} itemKey The name or ID of the item.
 	 * @returns {Promise<void>}
 	 */
-	async equip(itemResolvable) {
-		const getItem = () => this.get(itemResolvable);
+	async equip(itemKey) {
+		const getItem = () => this.get(itemKey);
 
 		if (getItem()) {
 			const equipped = () => getItem()?.equipped;
