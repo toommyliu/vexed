@@ -206,16 +206,7 @@ class World {
 				null,
 				15,
 			);
-			if (this.bot.player.state === PlayerState.InCombat) {
-				await this.jump('Enter', 'Spawn');
-				await this.bot.waitUntil(
-					() => this.bot.player.state !== PlayerState.InCombat,
-					null,
-					10,
-				);
-				await this.bot.sleep(1500);
-			}
-
+			await this.bot.combat.exit();
 			this.bot.flash.call(swf.Join, map_str, cell, pad);
 			await this.bot.waitUntil(
 				() => this.name.toLowerCase() === map_name.toLowerCase(),

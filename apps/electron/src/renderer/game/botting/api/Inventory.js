@@ -91,14 +91,7 @@ class Inventory {
 			const equipped = () => getItem()?.equipped;
 
 			while (!equipped()) {
-				while (this.bot.player.state === PlayerState.InCombat) {
-					await this.bot.world.jump(
-						this.bot.player.cell,
-						this.bot.player.pad,
-						true,
-					);
-					await this.bot.sleep(1000);
-				}
+				await this.bot.combat.exit();
 				await this.bot.waitUntil(() =>
 					this.bot.world.isActionAvailable(GameAction.EquipItem),
 				);
