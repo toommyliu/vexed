@@ -172,6 +172,7 @@ class World {
 	 * @param {string} mapName The name of the map to join.
 	 * @param {string} [cell="Enter"] The cell to jump to.
 	 * @param {string} [pad="Spawn"] The pad to jump to.
+	 * @param {number} [tries=5] Number of attempts to try and join the map
 	 * @returns {Promise<void>}
 	 */
 	async join(mapName, cell = 'Enter', pad = 'Spawn', tries = 5) {
