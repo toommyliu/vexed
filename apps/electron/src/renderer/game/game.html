@@ -47,14 +47,14 @@
 		<button class="w3-button w3-small" style="margin-top: -3px" id="options">
 			Options
 		</button>
-		<div class="w3-dropdown-content w3-small" id="options-dropdowncontent" style="margin-top: -4px">
+		<div
+			class="w3-dropdown-content w3-small"
+			id="options-dropdowncontent"
+			style="margin-top: -4px"
+		>
 			<button class="w3-button w3-small w3-block" id="option-infinite-range">
 				Infinite Range
-				<svg
-					class="checkmark"
-					viewBox="0 0 24 24"
-					style="width: 1em; height: 1em; vertical-align: middle; display: none"
-				>
+				<svg class="checkmark" viewBox="0 0 24 24">
 					<path
 						fill="currentColor"
 						d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
@@ -63,11 +63,7 @@
 			</button>
 			<button class="w3-button w3-small w3-block" id="option-provoke-map">
 				Provoke Map
-				<svg
-					class="checkmark"
-					viewBox="0 0 24 24"
-					style="width: 1em; height: 1em; vertical-align: middle; display: none"
-				>
+				<svg class="checkmark" viewBox="0 0 24 24">
 					<path
 						fill="currentColor"
 						d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
@@ -76,11 +72,7 @@
 			</button>
 			<button class="w3-button w3-small w3-block" id="option-provoke-cell">
 				Provoke Cell
-				<svg
-					class="checkmark"
-					viewBox="0 0 24 24"
-					style="width: 1em; height: 1em; vertical-align: middle; display: none"
-				>
+				<svg class="checkmark" viewBox="0 0 24 24">
 					<path
 						fill="currentColor"
 						d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
@@ -89,11 +81,7 @@
 			</button>
 			<button class="w3-button w3-small w3-block" id="option-enemy-magnet">
 				Enemy Magnet
-				<svg
-					class="checkmark"
-					viewBox="0 0 24 24"
-					style="width: 1em; height: 1em; vertical-align: middle; display: none"
-				>
+				<svg class="checkmark" viewBox="0 0 24 24">
 					<path
 						fill="currentColor"
 						d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
@@ -102,11 +90,7 @@
 			</button>
 			<button class="w3-button w3-small w3-block" id="option-lag-killer">
 				Lag Killer
-				<svg
-					class="checkmark"
-					viewBox="0 0 24 24"
-					style="width: 1em; height: 1em; vertical-align: middle; display: none"
-				>
+				<svg class="checkmark" viewBox="0 0 24 24">
 					<path
 						fill="currentColor"
 						d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
@@ -115,11 +99,7 @@
 			</button>
 			<button class="w3-button w3-small w3-block" id="option-hide-players">
 				Hide Players
-				<svg
-					class="checkmark"
-					viewBox="0 0 24 24"
-					style="width: 1em; height: 1em; vertical-align: middle; display: none"
-				>
+				<svg class="checkmark" viewBox="0 0 24 24">
 					<path
 						fill="currentColor"
 						d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
@@ -128,11 +108,7 @@
 			</button>
 			<button class="w3-button w3-small w3-block" id="option-skip-cutscenes">
 				Skip Cutscenes
-				<svg
-					class="checkmark"
-					viewBox="0 0 24 24"
-					style="width: 1em; height: 1em; vertical-align: middle; display: none"
-				>
+				<svg class="checkmark" viewBox="0 0 24 24">
 					<path
 						fill="currentColor"
 						d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
@@ -156,60 +132,12 @@
 			</div>
 		</div>
 	</div>
-	<button
-		class="w3-bar-item w3-button w3-border w3-small w3-right"
-		id="bank"
-		style="
-			height: 21px;
-			margin-top: 4px;
-			margin-left: 10px;
-			margin-right: 5px;
-			padding: 0 8px;
-		"
-	>
+	<button class="w3-bar-item w3-button w3-border w3-small w3-right" id="bank">
 		Bank
 	</button>
-	<button
-		class="w3-bar-item w3-button w3-border w3-small w3-right"
-		id="x"
-		style="
-			height: 21px;
-			margin-top: 4px;
-			margin-left: 6px;
-			margin-right: -2px;
-			padding: 0 4px;
-		"
-	>
-		x
-	</button>
-	<select
-		class="w3-bar-item w3-border w3-small w3-right"
-		id="cells"
-		disabled
-		style="
-			height: 21px;
-			margin-top: 4px;
-			margin-left: 10px;
-			padding: 0 4px;
-			width: 100px;
-			background-color: #24242e;
-			color: lightgrey;
-		"
-	></select>
-	<select
-		class="w3-bar-item w3-border w3-small w3-right"
-		id="pads"
-		disabled
-		style="
-			height: 21px;
-			margin-top: 4px;
-			margin-right: -4px;
-			padding: 0 10px;
-			width: 100px;
-			background-color: #24242e;
-			color: lightgrey;
-		"
-	>
+	<button class="w3-bar-item w3-button w3-border w3-small w3-right" id="x">x</button>
+	<select class="w3-bar-item w3-border w3-small w3-right" id="cells" disabled></select>
+	<select class="w3-bar-item w3-border w3-small w3-right" id="pads" disabled>
 		<option value="" selected disabled hidden></option>
 		<option value="Center">Center</option>
 		<option value="Spawn">Spawn</option>
