@@ -14,42 +14,50 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 	const options = document.querySelectorAll('[id^="option-"]');
 	for (const option of options) {
-		if (option.tagName === 'INPUT') {
-			return;
+		switch (option.tagName) {
+			case 'INPUT':
+				option.addEventListener('change', (ev) => {
+					settings.walkSpeed = ev.target.value;
+				});
+				break;
+			case 'BUTTON':
+				option.addEventListener('click', () => {
+					const checked =
+						option.getAttribute('data-checked') === 'true';
+					option.setAttribute(
+						'data-checked',
+						checked ? 'false' : 'true',
+					);
+					option.querySelector('.checkmark').style.display = checked
+						? 'none'
+						: 'block';
+
+					switch (option.textContent.trim()) {
+						case 'Infinite Range':
+							settings.infiniteRange = !checked;
+							break;
+						case 'Provoke Map':
+							settings.provokeMap = !checked;
+							break;
+						case 'Provoke Cell':
+							settings.provokeCell = !checked;
+							break;
+						case 'Enemy Magnet':
+							settings.enemyMagnet = !checked;
+							break;
+						case 'Lag Killer':
+							settings.lagKiller = !checked;
+							break;
+						case 'Hide Players':
+							settings.hidePlayers = !checked;
+							break;
+						case 'Skip Cutscenes':
+							settings.skipCutscenes = !checked;
+							break;
+					}
+				});
+				break;
 		}
-
-		option.addEventListener('click', () => {
-			const checked = option.getAttribute('data-checked') === 'true';
-
-			option.setAttribute('data-checked', checked ? 'false' : 'true');
-			option.querySelector('.checkmark').style.display = checked
-				? 'none'
-				: 'block';
-
-			switch (option.textContent.trim()) {
-				case 'Infinite Range':
-					settings.infiniteRange = !checked;
-					break;
-				case 'Provoke Map':
-					settings.provokeMap = !checked;
-					break;
-				case 'Provoke Cell':
-					settings.provokeCell = !checked;
-					break;
-				case 'Enemy Magnet':
-					settings.enemyMagnet = !checked;
-					break;
-				case 'Lag Killer':
-					settings.lagKiller = !checked;
-					break;
-				case 'Hide Players':
-					settings.hidePlayers = !checked;
-					break;
-				case 'Skip Cutscenes':
-					settings.skipCutscenes = !checked;
-					break;
-			}
-		});
 	}
 });
 

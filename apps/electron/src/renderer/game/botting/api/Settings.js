@@ -160,7 +160,9 @@ class Settings {
 	}
 
 	set walkSpeed(speed) {
+		speed = Math.max(0, Math.min(99, speed));
 		this.#walkSpeed = speed;
+		this.#updateOption(this.#optionWalkSpeed, speed);
 	}
 
 	/**
@@ -187,10 +189,17 @@ class Settings {
 	 * @param {string} value
 	 */
 	#updateOption(option, value) {
-		option.setAttribute('data-checked', value ? 'true' : 'false');
-		option.querySelector('.checkmark').style.display = value
-			? 'block'
-			: 'none';
+		switch (option.tagName) {
+			case 'INPUT':
+				option.value = value;
+				break;
+			case 'BUTTON':
+				option.setAttribute('data-checked', value ? 'true' : 'false');
+				option.querySelector('.checkmark').style.display = value
+					? 'block'
+					: 'none';
+				break;
+		}
 	}
 }
 
