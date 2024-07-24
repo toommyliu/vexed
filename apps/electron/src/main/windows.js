@@ -3,7 +3,21 @@ const { BrowserWindow, session } = require('electron');
 
 const RENDERER = join(__dirname, '../renderer');
 
-const windows = new Map();
+/**
+ * @type {Map<number, {
+ *   game: Electron.BrowserWindow,
+ *   tools: {
+ *     fastTravels: Electron.BrowserWindow,
+ *     loaderGrabber: Electron.BrowserWindow,
+ *     follower: Electron.BrowserWindow
+ *   },
+ *   packets: {
+ *     logger: Electron.BrowserWindow,
+ *     spammer: Electron.BrowserWindow
+ *   }
+ * }}
+ */
+const store = new Map();
 
 const userAgent =
 	'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16_0) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36';
@@ -37,7 +51,87 @@ async function createGame(account = null) {
 		.loadFile(join(RENDERER, 'game/game.html'))
 		.catch((error) => console.log('error', error));
 	window.webContents.openDevTools({ mode: 'right' });
+
+	window.on('close', () => {
+		const windows = store.get(window.id);
+
+		if (windows.tools.fastTravels) {
+			windows.tools.fastTravels.close();
+		}
+		if (windows.tools.loaderGrabber) {
+			windows.tools.loaderGrabber.close();
+		}
+		if (windows.tools.follower) {
+			windows.tools.follower.close();
+		}
+		if (windows.packets.logger) {
+			windows.packets.logger.close();
+		}
+		if (windows.packets.spammer) {
+			windows.packets.spammer.close();
+		}
+	});
+	window.webContents.on(
+		'new-window',
+		async (
+			event,
+			url,
+			frameName,
+			disposition,
+			options,
+			additionalFeatures,
+			referrer,
+		) => {
+			event.preventDefault();
+
+			const { id } = event.sender;
+			const file = url.substring(
+				url.lastIndexOf('/', url.lastIndexOf('/') - 1) + 1,
+				url.length,
+			);
+
+			console.log('new-window', file);
+
+			const windows = store.get(id);
+			let ret = false;
+
+			switch (file) {
+				// tools
+				case 'fast-travels/index.html':
+					if (windows.tools.fastTravels) {
+						windows.tools.fastTravels.focus();
+						ret = true;
+					}
+					break;
+			}
+
+			if (ret) {
+				return;
+			}
+
+			const window = new BrowserWindow({
+				...options,
+				parent: windows.game,
+			});
+			await window.loadFile(
+				`${join(RENDERER, 'game/pages/')}` +
+					(url.includes('scripts')
+						? `scripts/${file}`
+						: url.includes('tools')
+							? `tools/${file}`
+							: url.includes('packets')
+								? `packets/${file}`
+								: null),
+			);
+		},
+	);
 	window.maximize();
+
+	store.set(window.id, {
+		game: window,
+		tools: { fastTravels: null, loaderGrabber: null, follower: null },
+		packets: { logger: null, spammer: null },
+	});
 }
 
 module.exports = {

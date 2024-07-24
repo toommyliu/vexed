@@ -12,6 +12,31 @@ window.addEventListener('DOMContentLoaded', async () => {
 		mapping.set(k, document.getElementById(`${k}-dropdowncontent`));
 	}
 
+	{
+		const btn = document.querySelector(
+			'#tools-dropdowncontent > button:nth-child(1)',
+		);
+		btn.addEventListener('click', () => {
+			window.open('./pages/tools/fast-travels/index.html', null);
+		});
+	}
+	{
+		const btn = document.querySelector(
+			'#tools-dropdowncontent > button:nth-child(2)',
+		);
+		btn.addEventListener('click', () => {
+			window.open('./pages/tools/loader-grabber.html', null);
+		});
+	}
+	{
+		const btn = document.querySelector(
+			'#tools-dropdowncontent > button:nth-child(3)',
+		);
+		btn.addEventListener('click', () => {
+			window.open('./pages/tools/follower.html', null);
+		});
+	}
+
 	const options = document.querySelectorAll('[id^="option-"]');
 	for (const option of options) {
 		switch (option.tagName) {
