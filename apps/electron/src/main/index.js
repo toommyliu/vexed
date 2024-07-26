@@ -20,7 +20,7 @@ function registerFlashPlugin() {
 
 	const trustManager = flashTrust.initSync('Vexed', flashPath);
 	trustManager.empty();
-	trustManager.add(join(__dirname, '../renderer/game/grimoire.swf'));
+	trustManager.add(join(__dirname, '../../build/grimoire.swf'));
 }
 
 registerFlashPlugin();
