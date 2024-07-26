@@ -76,11 +76,11 @@ async function createGame(account = null) {
 		async (
 			event,
 			url,
-			frameName,
-			disposition,
+			_frameName,
+			_disposition,
 			options,
-			additionalFeatures,
-			referrer,
+			_additionalFeatures,
+			_referrer,
 		) => {
 			event.preventDefault();
 
@@ -89,8 +89,6 @@ async function createGame(account = null) {
 				url.lastIndexOf('/', url.lastIndexOf('/') - 1) + 1,
 				url.length,
 			);
-
-			console.log('new-window', file);
 
 			const windows = store.get(id);
 			let ret = false;

@@ -17,7 +17,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 			'#tools-dropdowncontent > button:nth-child(1)',
 		);
 		btn.addEventListener('click', () => {
-			window.open('./pages/tools/fast-travels/index.html', null);
+			window.open('./pages/tools/fast-travels/index.html', null, 'width=520,height=524');
 		});
 	}
 	{
@@ -89,9 +89,25 @@ window.addEventListener('DOMContentLoaded', async () => {
 window.addEventListener('click', (ev) => {
 	mapping.forEach((el, key) => {
 		if (ev.target.id === key) {
+			// Show the selected dropdown
 			el.classList.toggle('w3-show');
 		} else {
+			// Hide the other dropdowns
 			el.classList.remove('w3-show');
 		}
 	});
 });
+
+window.onmessage = async (ev) => {
+	const {
+		data: { event, args },
+	} = ev;
+
+	switch (event) {
+		//#region fast travel
+		case 'fast-travel':
+			await bot.world.join(`${args.map}-${args.roomNumber}`, args.cell ?? 'Enter', args.pad ?? 'Spawn', 1);
+			break;
+		//#endregion
+	}
+};

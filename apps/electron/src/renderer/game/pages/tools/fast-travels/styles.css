@@ -12,13 +12,24 @@ body {
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
-	background-color: #2e2e2e;
-	gap: 4px;
+	align-items: center;
+}
+
+.input-group {
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+}
+
+#room-number {
+	background-color: #3a3a3a;
+	color: white;
+	border: 1px solid #4a4a4a;
 }
 
 #locations {
 	width: 100%;
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-	grid-gap: 20px;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 16px;
 }
