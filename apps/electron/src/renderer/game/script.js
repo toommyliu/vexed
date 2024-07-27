@@ -6,6 +6,10 @@ const { settings } = bot;
 
 const mapping = new Map();
 
+// packet spammer
+let p_intervalID;
+let p_index = 0;
+
 window.windows = {
 	game: this,
 	tools: { fastTravels: null, loaderGrabber: null, follower: null },
@@ -187,5 +191,44 @@ window.onmessage = async (ev) => {
 			});
 			break;
 		//#endregion
+		//#region packets
+		case 'packets:spammer:on':
+			if (p_intervalID) {
+				await bot.timerManager.clearInterval(p_intervalID);
+				p_intervalID = null;
+				await bot.sleep(1000);
+			}
+
+			if (args.packets[0] === '') {
+				return;
+			}
+
+			p_intervalID = bot.timerManager.setInterval(
+				async () => {
+					if (
+						!bot.auth.loggedIn ||
+						bot.world.loading ||
+						!bot.player.loaded
+					) {
+						return;
+					}
+
+					bot.packets.sendServer(args.packets[p_index]);
+					p_index = (p_index + 1) % args.packets.length;
+				},
+				Number.parseInt(args.delay) ?? 1000,
+			);
+			break;
+		case 'packets:spammer:off':
+			if (p_intervalID) {
+				await bot.timerManager.clearInterval(p_intervalID);
+				p_intervalID = null;
+				p_index = 0;
+			}
+			break;
+		//#endregion
+		default:
+			console.log('Unhandled event', event);
+			break;
 	}
 };
