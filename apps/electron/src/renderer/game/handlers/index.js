@@ -1,4 +1,3 @@
-const { ipcRenderer } = require('electron');
 const addGoldExp = require('./handlers/json/addGoldExp');
 const ct = require('./handlers/json/ct');
 const dropItem = require('./handlers/json/dropItem');

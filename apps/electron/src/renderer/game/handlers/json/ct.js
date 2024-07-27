@@ -3,11 +3,19 @@
  * @param {JSON} packet
  */
 function ct(bot, packet) {
-	// prettier-ignore
-	if (packet.b.o?.anims?.[0]?.msg?.toLowerCase()?.includes('prepares a counter attack')) {
-		bot.combat.cancelTarget();
-		bot.combat.cancelAutoAttack();
-		bot.combat.pauseAttack = true;
+	if (Array.isArray(packet?.b?.o?.anims)) {
+		for (let i = 0; i < packet.b.o.anims.length; i++) {
+			if (
+				packet.b.o.anims[i]?.msg
+					?.toLowerCase()
+					?.includes('prepares a counter attack')
+			) {
+				bot.combat.cancelTarget();
+				bot.combat.cancelAutoAttack();
+				bot.combat.pauseAttack = true;
+				break;
+			}
+		}
 	}
 
 	if (Array.isArray(packet.b.o.a)) {
