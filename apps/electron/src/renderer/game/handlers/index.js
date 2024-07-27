@@ -56,7 +56,6 @@ window.packetFromClient = async ([packet]) => {
 	 */
 	const wnd = window.windows.packets.logger;
 	if (wnd && !wnd.closed) {
-		console.log(packet);
 		wnd.postMessage({ event: 'logger:packet', args: packet });
 	}
 };

@@ -163,7 +163,6 @@ async function createGame(account = null) {
 			newWindow.on('close', (event) => {
 				event.preventDefault();
 				newWindow.hide();
-				console.log('blocked close');
 			});
 
 			await newWindow.loadFile(
