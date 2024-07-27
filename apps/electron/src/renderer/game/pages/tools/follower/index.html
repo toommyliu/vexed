@@ -6,15 +6,15 @@
 <div class="w3-container w3-margin-top">
 	<div class="w3-row">
 		<div class="w3-half w3-padding-small">
-			<div class="w3-card-4 w3-padding w3-margin-bottom" style="gap: 4px">
+			<div class="w3-card-4 w3-padding-large w3-margin-bottom" style="gap: 4px" id="card1">
 				<div class="w3-margin-bottom">
 					<label for="player">Player</label>
-					<div class="w3-row">
-						<div class="w3-col" style="width: 85%">
-							<input id="player" class="w3-input w3-border" type="text" />
+					<div class="w3-row" style="display: flex; gap: 4px;">
+						<div class="w3-col">
+							<input id="player" class="w3-input w3-border" type="text" style="height: 25px" />
 						</div>
-						<div class="w3-col" style="width: 15%">
-							<button class="w3-button w3-gray w3-block" id="me">me</button>
+						<div class="w3-col">
+							<button class="w3-button w3-gray w3-block" id="me" style="width: min-content; height: 25px; padding: 0px;">me</button>
 						</div>
 					</div>
 				</div>
@@ -58,7 +58,7 @@
 			</div>
 		</div>
 		<div class="w3-half w3-padding-small">
-			<div class="w3-card-4 w3-padding w3-margin-bottom">
+			<div class="w3-card-4 w3-padding-large w3-margin-bottom" id="card2">
 				<div class="w3-margin-bottom">
 					<label for="attack-priority">Attack Priority:</label>
 					<input

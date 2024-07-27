@@ -6,3 +6,7 @@ body {
 :focus {
 	outline: none;
 }
+
+#card1, #card2 {
+	background-color: #2f2f2f;
+}

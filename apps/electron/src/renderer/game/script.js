@@ -6,6 +6,11 @@ const { settings } = bot;
 
 const mapping = new Map();
 
+// follower
+let f_intervalID;
+let f_index = 0;
+let f_config = {};
+
 // packet spammer
 let p_intervalID;
 let p_index = 0;
@@ -184,6 +189,81 @@ window.onmessage = async (ev) => {
 		// #region loader grabber
 		//#endregion
 		//#region follower
+		case 'follower:start':
+			if (f_intervalID) {
+				await bot.timerManager.clearInterval(f_intervalID);
+				f_intervalID = null;
+				await bot.sleep(1000);
+			}
+
+			if (!args.player || args.player === '') {
+				args.player = bot.auth.username;
+			}
+
+			f_config = args;
+
+			f_intervalID = bot.timerManager.setInterval(async () => {
+				if (
+					!bot.auth.loggedIn ||
+					bot.world.loading ||
+					!bot.player.loaded
+				) {
+					return;
+				}
+
+				const isTargetInMap = bot.flash.call(swf.GetCellPlayers, f_config);
+				if (
+					!isTargetInMap &&
+					f_config.player.toLowerCase() !==
+						bot.auth.username.toLowerCase()
+				) {
+					bot.world.goto(f_config.player);
+					await bot.waitUntil(
+						() => !bot.world.loading && bot.player.loaded,
+					);
+				}
+
+				await bot.waitUntil(() => {
+					return flash
+						.call(swf.PlayersInMap)
+						?.some(
+							(p) =>
+								p.toLowerCase() ===
+								f_config.player.toLowerCase(),
+						);
+				});
+
+				bot.world.setSpawnPoint();
+
+				if (f_config.attackPriority.length > 0) {
+					for (const mon of f_config.attackPriority) {
+						if (bot.world.isMonsterAvailable(mon)) {
+							bot.world.attack(mon);
+							break;
+						}
+					}
+				}
+
+				if (!bot.combat.hasTarget()) {
+					bot.combat.attack('*');
+				}
+
+				if (bot.combat.hasTarget()) {
+					await combat.useSkill(f_config.skills[f_index]);
+					f_index = (f_index + 1) % f_config.skills.length;
+					await bot.sleep(f_config.skillDelay);
+				}
+			}, 1000);
+
+			break;
+		case 'follower:stop':
+			if (f_intervalID) {
+				await bot.timerManager.clearInterval(f_intervalID);
+				f_intervalID = null;
+				f_config = {};
+				f_index = 0;
+			}
+			break;
 		case 'follower:me':
 			ev.source.postMessage({
 				event: 'follower:me',
