@@ -1,0 +1,80 @@
+<link rel="stylesheet" href="../../../w3.css" />
+<link rel="stylesheet" href="styles.css" />
+
+<script src="script.js" type="module"></script>
+
+<div class="w3-container w3-margin-top">
+	<div class="w3-row">
+		<div class="w3-half w3-padding-small">
+			<div class="w3-card-4 w3-padding w3-margin-bottom" style="gap: 4px">
+				<div class="w3-margin-bottom">
+					<label for="player">Player</label>
+					<div class="w3-row">
+						<div class="w3-col" style="width: 85%">
+							<input id="player" class="w3-input w3-border" type="text" />
+						</div>
+						<div class="w3-col" style="width: 15%">
+							<button class="w3-button w3-gray w3-block" id="me">me</button>
+						</div>
+					</div>
+				</div>
+				<div class="w3-margin-bottom">
+					<label for="skills">Skill List:</label>
+					<div class="w3-row">
+						<div class="w3-col" style="width: 80%">
+							<input
+								id="skills"
+								class="w3-input w3-border"
+								type="text"
+								value="1,2,3,4"
+							/>
+						</div>
+						<div class="w3-col" style="width: 20%">
+							<label class="w3-check">
+								<input type="checkbox" id="skill-wait" />
+								<span class="w3-padding-small">Wait</span>
+							</label>
+						</div>
+					</div>
+				</div>
+				<div class="w3-margin-bottom">
+					<label for="skill-delay">Skill Delay:</label>
+					<div class="w3-row">
+						<input
+							id="skill-delay"
+							class="w3-input w3-border"
+							type="number"
+							value="150"
+						/>
+						<span class="w3-tag w3-gray">ms</span>
+					</div>
+				</div>
+				<div>
+					<label class="w3-check">
+						<input type="checkbox" id="start" />
+						<span class="w3-padding-small">Enable</span>
+					</label>
+				</div>
+			</div>
+		</div>
+		<div class="w3-half w3-padding-small">
+			<div class="w3-card-4 w3-padding w3-margin-bottom">
+				<div class="w3-margin-bottom">
+					<label for="attack-priority">Attack Priority:</label>
+					<input
+						id="attack-priority"
+						class="w3-input w3-border"
+						type="text"
+						value="Defense Drone, Attack Drone"
+					/>
+				</div>
+				<div>
+					<label class="w3-check">
+						<input type="checkbox" id="copy-walk" />
+						<span class="w3-padding-small">Copy Walk</span>
+					</label>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

@@ -33,6 +33,7 @@ async function createGame(account = null) {
 			plugins: true,
 		},
 	});
+	const gameWindow = window;
 
 	window.webContents.setUserAgent(userAgent);
 	session.defaultSession.webRequest.onBeforeSendHeaders(
@@ -51,26 +52,37 @@ async function createGame(account = null) {
 		.loadFile(join(RENDERER, 'game/game.html'))
 		.catch((error) => console.log('error', error));
 	window.webContents.openDevTools({ mode: 'right' });
+	window.webContents.on('dom-ready', () => {
+		window.webContents.send('get_id', window.id);
+	});
 
 	window.on('close', () => {
 		const windows = store.get(window.id);
 
-		if (windows.tools.fastTravels) {
-			windows.tools.fastTravels.close();
+		if (
+			windows.tools.fastTravels &&
+			!windows.tools.fastTravels.isDestroyed()
+		) {
+			windows.tools.fastTravels.destroy();
 		}
-		if (windows.tools.loaderGrabber) {
-			windows.tools.loaderGrabber.close();
+		if (
+			windows.tools.loaderGrabber &&
+			!windows.tools.loaderGrabber.isDestroyed()
+		) {
+			windows.tools.loaderGrabber.destroy();
 		}
-		if (windows.tools.follower) {
-			windows.tools.follower.close();
+		if (windows.tools.follower && !windows.tools.follower.isDestroyed()) {
+			windows.tools.follower.destroy();
 		}
-		if (windows.packets.logger) {
-			windows.packets.logger.close();
+		if (windows.packets.logger && !windows.packets.logger.isDestroyed()) {
+			windows.packets.logger.destroy();
 		}
-		if (windows.packets.spammer) {
-			windows.packets.spammer.close();
+		if (windows.packets.spammer && !windows.packets.spammer.isDestroyed()) {
+			windows.packets.spammer.destroy();
 		}
 	});
+	// TODO: window instances dont persist across refreshes
+	// TODO: refactor
 	window.webContents.on(
 		'new-window',
 		async (
@@ -94,24 +106,67 @@ async function createGame(account = null) {
 			let ret = false;
 
 			switch (file) {
-				// tools
+				//#region tools
 				case 'fast-travels/index.html':
 					if (windows.tools.fastTravels) {
+						windows.tools.fastTravels.show();
 						windows.tools.fastTravels.focus();
 						ret = true;
 					}
 					break;
+				case 'loader-grabber/index.html':
+					if (windows.tools.loaderGrabber) {
+						windows.tools.loaderGrabber.show();
+						windows.tools.loaderGrabber.focus();
+						ret = true;
+					}
+					break;
+				case 'follower/index.html':
+					if (windows.tools.follower) {
+						windows.tools.follower.show();
+						windows.tools.follower.focus();
+						ret = true;
+					}
+					break;
+				//#endregion
+				//#region packets
+				case 'logger/index.html':
+					if (
+						windows.packets.logger &&
+						!windows.packets.logger.isDestroyed()
+					) {
+						windows.packets.logger.show();
+						windows.packets.logger.focus();
+						ret = true;
+					}
+					break;
+				case 'spammer/index.html':
+					if (windows.packets.spammer) {
+						windows.packets.spammer.show();
+						windows.packets.spammer.focus();
+						ret = true;
+					}
+					break;
+				//#endregion
 			}
 
 			if (ret) {
-				return;
+				return null;
 			}
 
-			const window = new BrowserWindow({
+			const newWindow = new BrowserWindow({
 				...options,
 				parent: windows.game,
 			});
-			await window.loadFile(
+			event.newGuest = newWindow;
+
+			newWindow.on('close', (event) => {
+				event.preventDefault();
+				newWindow.hide();
+				console.log('blocked close');
+			});
+
+			await newWindow.loadFile(
 				`${join(RENDERER, 'game/pages/')}` +
 					(url.includes('scripts')
 						? `scripts/${file}`
@@ -121,6 +176,30 @@ async function createGame(account = null) {
 								? `packets/${file}`
 								: null),
 			);
+
+			switch (file) {
+				//#region tools
+				case 'fast-travels/index.html':
+					windows.tools.fastTravels = newWindow;
+					break;
+				case 'loader-grabber/index.html':
+					windows.tools.loaderGrabber = newWindow;
+					break;
+				case 'follower/index.html':
+					windows.tools.follower = newWindow;
+					break;
+				//#endregion
+				//#region packets
+				case 'logger/index.html':
+					windows.packets.logger = newWindow;
+					break;
+				case 'spammer/index.html':
+					windows.packets.spammer = newWindow;
+					break;
+				//#endregion
+			}
+
+			return newWindow;
 		},
 	);
 	window.maximize();

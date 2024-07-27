@@ -1,0 +1,38 @@
+body {
+	background-color: #1f1f1f;
+	color: white;
+}
+
+:focus {
+	outline: none;
+}
+
+.logger {
+	width: 100%;
+	height: 150px;
+	font-size: 11px;
+	overflow-y: auto;
+	cursor: text;
+	white-space: pre-wrap;
+}
+
+.line {
+	width: auto;
+	padding: 5px;
+	margin-bottom: 5px;
+	cursor: pointer;
+	color: lightgrey;
+}
+
+.line:hover {
+	background-color: grey;
+}
+
+#buttons {
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 4px;
+	padding: 0px;
+}

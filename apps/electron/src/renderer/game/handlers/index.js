@@ -1,3 +1,4 @@
+const { ipcRenderer } = require('electron');
 const addGoldExp = require('./handlers/json/addGoldExp');
 const ct = require('./handlers/json/ct');
 const dropItem = require('./handlers/json/dropItem');
@@ -49,4 +50,13 @@ async function packetFromServer([packet]) {
 }
 
 window.packetFromServer = packetFromServer;
-window.packetFromClient = ([packet]) => {};
+window.packetFromClient = async ([packet]) => {
+	/**
+	 * @type {WindowProxy|null}
+	 */
+	const wnd = window.windows.packets.logger;
+	if (wnd && !wnd.closed) {
+		console.log(packet);
+		wnd.postMessage({ event: 'logger:packet', args: packet });
+	}
+};
