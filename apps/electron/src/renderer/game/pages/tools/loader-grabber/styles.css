@@ -1,0 +1,48 @@
+body {
+	background-color: #1f1f1f;
+	color: white;
+}
+
+:focus {
+	outline: none;
+}
+
+.tree-node {
+	padding: 4px;
+	cursor: pointer;
+}
+.tree-content {
+	display: flex;
+	align-items: center;
+}
+.expander {
+	margin-right: 5px;
+}
+.child-container {
+	margin-left: 20px;
+}
+.child-line {
+	width: fit-content;
+	padding: 2px 0;
+	border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+.child-line:first-child {
+	border-top: none;
+}
+.child-name {
+	color: #888;
+	cursor: default;
+}
+.child-value {
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+}
+.child-value:hover {
+	background-color: rgba(255, 255, 255, 0.1);
+}
+.child-value.copied {
+	background-color: rgba(76, 175, 80, 0.3);
+}
+.hidden {
+	display: none;
+}

@@ -108,21 +108,30 @@ async function createGame(account = null) {
 			switch (file) {
 				//#region tools
 				case 'fast-travels/index.html':
-					if (windows.tools.fastTravels) {
+					if (
+						windows.tools.fastTravels &&
+						!windows.tools.fastTravels.isDestroyed()
+					) {
 						windows.tools.fastTravels.show();
 						windows.tools.fastTravels.focus();
 						ret = true;
 					}
 					break;
 				case 'loader-grabber/index.html':
-					if (windows.tools.loaderGrabber) {
+					if (
+						windows.tools.loaderGrabber &&
+						!windows.tools.loaderGrabber.isDestroyed()
+					) {
 						windows.tools.loaderGrabber.show();
 						windows.tools.loaderGrabber.focus();
 						ret = true;
 					}
 					break;
 				case 'follower/index.html':
-					if (windows.tools.follower) {
+					if (
+						windows.tools.follower &&
+						!windows.tools.follower.isDestroyed()
+					) {
 						windows.tools.follower.show();
 						windows.tools.follower.focus();
 						ret = true;
@@ -141,7 +150,10 @@ async function createGame(account = null) {
 					}
 					break;
 				case 'spammer/index.html':
-					if (windows.packets.spammer) {
+					if (
+						windows.packets.spammer &&
+						!windows.packets.spammer.isDestroyed()
+					) {
 						windows.packets.spammer.show();
 						windows.packets.spammer.focus();
 						ret = true;
@@ -151,7 +163,7 @@ async function createGame(account = null) {
 			}
 
 			if (ret) {
-				return null;
+				return;
 			}
 
 			const newWindow = new BrowserWindow({

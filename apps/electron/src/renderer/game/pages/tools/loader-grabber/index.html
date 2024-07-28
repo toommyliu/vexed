@@ -2,3 +2,83 @@
 <link rel="stylesheet" href="styles.css" />
 
 <script src="script.js" type="module"></script>
+
+<div
+	class="w3-container w3-section"
+	style="display: flex; flex-direction: column; gap: 16px"
+>
+	<div class="w3-container w3-section w3-padding-large w3-card-4 w3-round-large" id="loader">
+		<div style="display: flex; flex-direction: column; gap: 12px">
+			<input
+				type="text"
+				id="loader-id"
+				style="
+					width: 100%;
+					padding: 8px;
+					border: 1px solid #ccc;
+					border-radius: 4px;
+				"
+			/>
+			<select
+				class="w3-border w3-small"
+				id="loader-select"
+				style="
+					width: 100%;
+					padding: 8px;
+					background-color: #2f2f2f;
+					color: #333;
+					border: 1px solid #ccc;
+					border-radius: 4px;
+				"
+			>
+				<option value="" selected disabled hidden>Select an option</option>
+				<option value="0">Hair shop</option>
+				<option value="1">Shop</option>
+				<option value="2">Quest</option>
+				<option value="3">Armor customizer</option>
+			</select>
+			<button
+				class="w3-button w3-border"
+				id="loader-btn"
+				style="
+					width: 100%;
+					padding: 10px;
+					background-color: #4caf50;
+					color: white;
+					border: none;
+					border-radius: 4px;
+					cursor: pointer;
+				"
+			>
+				Load
+			</button>
+		</div>
+	</div>
+
+	<div
+		class="w3-container w3-section w3-card-4 w3-round-large"
+		id="grabber"
+	>
+		<div
+			id="tree"
+			style="width: 100%; display: flex; flex-direction: column; overflow-y: auto"
+		></div>
+		<div
+			class="w3-container w3-section w3-card-4"
+			style="background-color: #2f2f2f; padding: 16px"
+		>
+			<div style="display: flex; flex-direction: column; gap: 12px">
+				<select class="w3-select w3-border" id="grabber-select">
+					<option value="" disabled selected hidden>Select an option</option>
+					<option value="0">Shop items</option>
+					<option value="1">Quests</option>
+					<option value="2">Inventory</option>
+					<option value="3">Temp. inventory</option>
+					<option value="4">Bank</option>
+					<option value="5">Monsters</option>
+				</select>
+				<button class="w3-button w3-black w3-block" id="grabber-btn">Grab</button>
+			</div>
+		</div>
+	</div>
+</div>

@@ -16,7 +16,7 @@ let p_intervalID;
 let p_index = 0;
 
 window.windows = {
-	game: this,
+	game: window,
 	tools: { fastTravels: null, loaderGrabber: null, follower: null },
 	packets: { logger: null, spammer: null },
 };
@@ -32,8 +32,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 			'#tools-dropdowncontent > button:nth-child(1)',
 		);
 		btn.addEventListener('click', () => {
-			if (window.windows.tools.fastTravels) {
-				window.windows.tools.fastTravels.show();
+			if (window.windows.tools.fastTravels && !window.windows.tools.fastTravels.closed) {
+				window.windows.tools.fastTravels.focus();
 			} else {
 				window.windows.tools.fastTravels = window.open(
 					'./pages/tools/fast-travels/index.html',
@@ -48,8 +48,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 			'#tools-dropdowncontent > button:nth-child(2)',
 		);
 		btn.addEventListener('click', () => {
-			if (window.windows.tools.loaderGrabber) {
-				window.windows.tools.loaderGrabber.show();
+			if (window.windows.tools.loaderGrabber && !window.windows.tools.loaderGrabber.closed) {
+				window.windows.tools.loaderGrabber.focus();
 			} else {
 				window.windows.tools.loaderGrabber = window.open(
 					'./pages/tools/loader-grabber/index.html',
@@ -63,8 +63,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 			'#tools-dropdowncontent > button:nth-child(3)',
 		);
 		btn.addEventListener('click', () => {
-			if (window.windows.tools.follower) {
-				window.windows.tools.follower.show();
+			if (window.windows.tools.follower && !window.windows.tools.follower.closed) {
+				window.windows.tools.follower.focus();
 			} else {
 				window.windows.tools.follower = window.open(
 					'./pages/tools/follower/index.html',
@@ -79,8 +79,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 			'#packets-dropdowncontent > button:nth-child(1)',
 		);
 		btn.addEventListener('click', () => {
-			if (window.windows.packets.logger) {
-				window.windows.packets.logger.show();
+			if (window.windows.packets.logger && !window.windows.packets.logger.closed) {
+				window.windows.packets.logger.focus();
 			} else {
 				window.windows.packets.logger = window.open(
 					'./pages/packets/logger/index.html',
@@ -95,8 +95,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 			'#packets-dropdowncontent > button:nth-child(2)',
 		);
 		btn.addEventListener('click', () => {
-			if (window.windows.packets.spammer) {
-				window.windows.packets.spammer.show();
+			if (window.windows.packets.spammer && !window.windows.packets.spammer.closed) {
+				window.windows.packets.spammer.focus();
 			} else {
 				window.windows.packets.spammer = window.open(
 					'./pages/packets/spammer/index.html',
