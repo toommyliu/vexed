@@ -394,4 +394,5 @@ window.addEventListener('message', async (ev) => {
 			console.log('Unhandled event', event);
 			break;
 	}
-};
+
+});
