@@ -99,7 +99,7 @@ class Bot extends EventEmitter {
 		this.settings = new Settings(this);
 
 		/**
-		 * @type {import('./Shops')}
+		 * @type {import('./Shop')}
 		 */
 		this.shops = new Shops(this);
 
