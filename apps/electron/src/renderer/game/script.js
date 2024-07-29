@@ -32,7 +32,10 @@ window.addEventListener('DOMContentLoaded', async () => {
 			'#tools-dropdowncontent > button:nth-child(1)',
 		);
 		btn.addEventListener('click', () => {
-			if (window.windows.tools.fastTravels && !window.windows.tools.fastTravels.closed) {
+			if (
+				window.windows.tools.fastTravels &&
+				!window.windows.tools.fastTravels.closed
+			) {
 				window.windows.tools.fastTravels.focus();
 			} else {
 				window.windows.tools.fastTravels = window.open(
@@ -48,7 +51,10 @@ window.addEventListener('DOMContentLoaded', async () => {
 			'#tools-dropdowncontent > button:nth-child(2)',
 		);
 		btn.addEventListener('click', () => {
-			if (window.windows.tools.loaderGrabber && !window.windows.tools.loaderGrabber.closed) {
+			if (
+				window.windows.tools.loaderGrabber &&
+				!window.windows.tools.loaderGrabber.closed
+			) {
 				window.windows.tools.loaderGrabber.focus();
 			} else {
 				window.windows.tools.loaderGrabber = window.open(
@@ -63,7 +69,10 @@ window.addEventListener('DOMContentLoaded', async () => {
 			'#tools-dropdowncontent > button:nth-child(3)',
 		);
 		btn.addEventListener('click', () => {
-			if (window.windows.tools.follower && !window.windows.tools.follower.closed) {
+			if (
+				window.windows.tools.follower &&
+				!window.windows.tools.follower.closed
+			) {
 				window.windows.tools.follower.focus();
 			} else {
 				window.windows.tools.follower = window.open(
@@ -79,7 +88,10 @@ window.addEventListener('DOMContentLoaded', async () => {
 			'#packets-dropdowncontent > button:nth-child(1)',
 		);
 		btn.addEventListener('click', () => {
-			if (window.windows.packets.logger && !window.windows.packets.logger.closed) {
+			if (
+				window.windows.packets.logger &&
+				!window.windows.packets.logger.closed
+			) {
 				window.windows.packets.logger.focus();
 			} else {
 				window.windows.packets.logger = window.open(
@@ -95,7 +107,10 @@ window.addEventListener('DOMContentLoaded', async () => {
 			'#packets-dropdowncontent > button:nth-child(2)',
 		);
 		btn.addEventListener('click', () => {
-			if (window.windows.packets.spammer && !window.windows.packets.spammer.closed) {
+			if (
+				window.windows.packets.spammer &&
+				!window.windows.packets.spammer.closed
+			) {
 				window.windows.packets.spammer.focus();
 			} else {
 				window.windows.packets.spammer = window.open(
@@ -167,10 +182,7 @@ window.addEventListener('click', (ev) => {
 	});
 });
 
-/**
- * @param {Event} ev
- */
-window.onmessage = async (ev) => {
+window.addEventListener('message', async (ev) => {
 	const {
 		data: { event, args },
 	} = ev;
@@ -187,6 +199,74 @@ window.onmessage = async (ev) => {
 			break;
 		//#endregion
 		// #region loader grabber
+		case 'tools:loadergrabber:grab':
+			if (!bot.auth.loggedIn) {
+				return;
+			}
+
+			const { type } = args;
+
+			let ret;
+
+			switch (type) {
+				case 0: // shop
+					if (!bot.shops.loaded || !bot.shops.info) {
+						return;
+					}
+
+					ret = bot.shops.info;
+					break;
+				case 1: // quests
+					ev.source.postMessage({
+						event: 'tools:loadergrabber:grab',
+						args: {
+							data: bot.flash.call(swf.GetQuestTree),
+							type: 1,
+						},
+					});
+					break;
+				case 2: // inventory
+					if (!bot.player.loaded || !bot.inventory.items.length) {
+						return;
+					}
+
+					ret = bot.flash.call(swf.GetInventoryItems);
+					break;
+				case 3: // temp. inventory
+					if (!bot.player.loaded) {
+						return;
+					}
+
+					ret = bot.flash.call(swf.GetTempItems);
+					break;
+				case 4: // bank
+					if (!bot.player.loaded) {
+						return;
+					}
+
+					ret = bot.flash.call(window.swf.GetBankItems);
+					break;
+				case 5: // cell monsters
+				case 6: // map monsters
+					if (bot.world.loading) {
+						return;
+					}
+
+					// prettier-ignore
+					ret = type === 5
+							? bot.flash.call(swf.GetMonstersInCell)
+							: bot.world.monsters;
+					break;
+			}
+
+			if (ret) {
+				ev.source.postMessage({
+					event: 'tools:loadergrabber:grab',
+					args: { data: ret, type: type },
+				});
+			}
+
+			break;
 		//#endregion
 		//#region follower
 		case 'follower:start':
@@ -211,7 +291,10 @@ window.onmessage = async (ev) => {
 					return;
 				}
 
-				const isTargetInMap = bot.flash.call(swf.GetCellPlayers, f_config);
+				const isTargetInMap = bot.flash.call(
+					swf.GetCellPlayers,
+					f_config,
+				);
 				if (
 					!isTargetInMap &&
 					f_config.player.toLowerCase() !==

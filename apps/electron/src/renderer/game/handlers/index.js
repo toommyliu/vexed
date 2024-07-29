@@ -50,11 +50,12 @@ async function packetFromServer([packet]) {
 
 window.packetFromServer = packetFromServer;
 window.packetFromClient = async ([packet]) => {
+	// TODO: fix
 	/**
 	 * @type {WindowProxy|null}
 	 */
-	const wnd = window.windows.packets.logger;
-	if (wnd && !wnd.closed) {
-		wnd.postMessage({ event: 'logger:packet', args: packet });
-	}
+	// const wnd = window.windows.packets.logger;
+	// if (wnd && !wnd.closed) {
+	// 	wnd.postMessage({ event: 'logger:packet', args: packet });
+	// }
 };

@@ -1,5 +1,5 @@
 body {
-	background-color: #1f1f1f;
+	background-color: #081c15;
 	color: white;
 }
 
@@ -7,42 +7,73 @@ body {
 	outline: none;
 }
 
-.tree-node {
+#grabber {
+	background-color: #282727;
+}
+
+#grabber-select {
+	color: white;
+	background-color: #282727;
+}
+
+#grabber-btn {
+	background-color: #2a8a52;
+}
+
+.node {
 	padding: 4px;
 	cursor: pointer;
+	position: relative;
 }
-.tree-content {
+.content {
 	display: flex;
 	align-items: center;
+	gap: 8px;
 }
 .expander {
-	margin-right: 5px;
+	margin-top: 2px;
 }
 .child-container {
-	margin-left: 20px;
+	margin-left: 40px;
+	position: relative;
+}
+.child-container::before {
+	content: '';
+	position: absolute;
+	left: -20px;
+	top: 0;
+	bottom: 0;
+	width: 1px;
+	border-left: 1px dashed #888;
 }
 .child-line {
 	width: fit-content;
-	padding: 2px 0;
-	border-top: 1px solid rgba(255, 255, 255, 0.1);
+	position: relative;
+	padding-left: 8px;
 }
-.child-line:first-child {
-	border-top: none;
+.child-line::before {
+	content: '';
+	position: absolute;
+	left: -20px;
+	top: 50%;
+	width: 20px;
+	height: 1px;
+	border-top: 1px dashed #888;
 }
 .child-name {
-	color: #888;
 	cursor: default;
 }
 .child-value {
 	cursor: pointer;
-	transition: background-color 0.3s ease;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 200px;
+    display: inline-block;
 }
 .child-value:hover {
-	background-color: rgba(255, 255, 255, 0.1);
+	background-color: rgba(211, 211, 211, 0.1);
 }
 .child-value.copied {
 	background-color: rgba(76, 175, 80, 0.3);
-}
-.hidden {
-	display: none;
 }
