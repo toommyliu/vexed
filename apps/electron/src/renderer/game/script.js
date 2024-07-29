@@ -1,3 +1,5 @@
+const { ipcRenderer } = require('electron');
+
 /**
  * @type {import('./botting/api/Bot')}
  */
@@ -218,6 +220,23 @@ window.addEventListener('DOMContentLoaded', async () => {
 		}
 
 		await bot.bank.open();
+	});
+
+	const $script_load = document.querySelector('#scripts-load');
+	const $scripts_toggle_dev_tools = document.querySelector(
+		'#scripts-toggle-dev-tools',
+	);
+
+	$script_load.addEventListener('click', async () => {
+		const scriptBody = await ipcRenderer.invoke('root:load_script');
+
+		if (!scriptBody) {
+			return;
+		}
+	});
+
+	$scripts_toggle_dev_tools.addEventListener('click', async () => {
+		ipcRenderer.send('root:toggle-dev-tools');
 	});
 });
 
