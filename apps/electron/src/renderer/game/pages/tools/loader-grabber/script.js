@@ -267,18 +267,42 @@ window.addEventListener('message', (ev) => {
 });
 
 window.addEventListener('DOMContentLoaded', async () => {
-	const source = document.getElementById('grabber-select');
-	const btn = document.getElementById('grabber-btn');
+	{
+		const btn = document.getElementById('loader-btn');
+		btn.addEventListener('click', async () => {
+			const $id = document.getElementById('loader-id');
+			const $source = document.getElementById('loader-select');
 
-	btn.addEventListener('click', async () => {
-		const type = source.value;
-		if (!type) {
-			return;
-		}
+			const source = $source.value;
+			const id = $id.value;
 
-		parent.postMessage({
-			event: 'tools:loadergrabber:grab',
-			args: { type: Number.parseInt(type) },
+			if (source !== '3' && !id) {
+				return;
+			}
+
+			parent.postMessage({
+				event: 'tools:loadergrabber:load',
+				args: {
+					type: Number.parseInt(source),
+					id: Number.parseInt(id),
+				},
+			});
 		});
-	});
+	}
+
+	{
+		const btn = document.getElementById('grabber-btn');
+		const $source = document.getElementById('grabber-select');
+		btn.addEventListener('click', async () => {
+			const type = $source.value;
+			if (!type) {
+				return;
+			}
+
+			parent.postMessage({
+				event: 'tools:loadergrabber:grab',
+				args: { type: Number.parseInt(type) },
+			});
+		});
+	}
 });

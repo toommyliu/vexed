@@ -1,5 +1,5 @@
 body {
-	background-color: #081c15;
+	background-color:#151515;
 	color: white;
 }
 
@@ -7,17 +7,29 @@ body {
 	outline: none;
 }
 
+#loader,
 #grabber {
-	background-color: #282727;
+	background-color:#0d251d;
 }
 
+#loader-id,
+#loader-select,
 #grabber-select {
 	color: white;
 	background-color: #282727;
 }
 
+#loader-btn,
 #grabber-btn {
 	background-color: #2a8a52;
+}
+
+#tree {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	overflow-y: auto;
 }
 
 .node {
@@ -65,11 +77,11 @@ body {
 }
 .child-value {
 	cursor: pointer;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-    max-width: 200px;
-    display: inline-block;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+	max-width: 200px;
+	display: inline-block;
 }
 .child-value:hover {
 	background-color: rgba(211, 211, 211, 0.1);

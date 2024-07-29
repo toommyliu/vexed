@@ -199,73 +199,98 @@ window.addEventListener('message', async (ev) => {
 			break;
 		//#endregion
 		// #region loader grabber
-		case 'tools:loadergrabber:grab':
-			if (!bot.auth.loggedIn) {
-				return;
+		case 'tools:loadergrabber:load':
+			{
+				if (!bot.auth.loggedIn) {
+					return;
+				}
+
+				const { type, id } = args;
+
+				switch (type) {
+					case 0: // hair shop
+						bot.flash.call(swf.LoadHairShop, id);
+						break;
+					case 1: // shop
+						bot.flash.call(swf.LoadShop, id);
+						break;
+					case 2: // quest
+						bot.flash.call(swf.LoadQuest, id);
+						break;
+					case 3: // armor customizer
+						bot.flash.call(swf.LoadArmorCustomizer);
+						break;
+				}
 			}
+			break;
+		case 'tools:loadergrabber:grab':
+			{
+				if (!bot.auth.loggedIn) {
+					return;
+				}
 
-			const { type } = args;
+				const { type } = args;
 
-			let ret;
+				let ret;
 
-			switch (type) {
-				case 0: // shop
-					if (!bot.shops.loaded || !bot.shops.info) {
-						return;
-					}
+				switch (type) {
+					case 0: // shop
+						if (!bot.shops.loaded || !bot.shops.info) {
+							return;
+						}
 
-					ret = bot.shops.info;
-					break;
-				case 1: // quests
-					ev.source.postMessage({
-						event: 'tools:loadergrabber:grab',
-						args: {
-							data: bot.flash.call(swf.GetQuestTree),
-							type: 1,
-						},
-					});
-					break;
-				case 2: // inventory
-					if (!bot.player.loaded || !bot.inventory.items.length) {
-						return;
-					}
+						ret = bot.shops.info;
+						break;
+					case 1: // quests
+						ev.source.postMessage({
+							event: 'tools:loadergrabber:grab',
+							args: {
+								data: bot.flash.call(swf.GetQuestTree),
+								type: 1,
+							},
+						});
+						break;
+					case 2: // inventory
+						if (!bot.player.loaded || !bot.inventory.items.length) {
+							return;
+						}
 
-					ret = bot.flash.call(swf.GetInventoryItems);
-					break;
-				case 3: // temp. inventory
-					if (!bot.player.loaded) {
-						return;
-					}
+						ret = bot.flash.call(swf.GetInventoryItems);
+						break;
+					case 3: // temp. inventory
+						if (!bot.player.loaded) {
+							return;
+						}
 
-					ret = bot.flash.call(swf.GetTempItems);
-					break;
-				case 4: // bank
-					if (!bot.player.loaded) {
-						return;
-					}
+						ret = bot.flash.call(swf.GetTempItems);
+						break;
+					case 4: // bank
+						if (!bot.player.loaded) {
+							return;
+						}
 
-					ret = bot.flash.call(window.swf.GetBankItems);
-					break;
-				case 5: // cell monsters
-				case 6: // map monsters
-					if (bot.world.loading) {
-						return;
-					}
+						ret = bot.flash.call(window.swf.GetBankItems);
+						break;
+					case 5: // cell monsters
+					case 6: // map monsters
+						if (bot.world.loading) {
+							return;
+						}
 
-					// prettier-ignore
-					ret = type === 5
+						// prettier-ignore
+						ret = type === 5
 							? bot.flash.call(swf.GetMonstersInCell)
 							: bot.world.monsters;
-					break;
-			}
+						break;
+				}
 
-			if (ret) {
-				ev.source.postMessage({
-					event: 'tools:loadergrabber:grab',
-					args: { data: ret, type: type },
-				});
+				if (ret) {
+					ev.source.postMessage({
+						event: 'tools:loadergrabber:grab',
+						args: { data: ret, type: type },
+					});
+				}
 			}
-
 			break;
 		//#endregion
 		//#region follower
@@ -394,5 +419,4 @@ window.addEventListener('message', async (ev) => {
 			console.log('Unhandled event', event);
 			break;
 	}
-
 });
