@@ -59,3 +59,25 @@ window.packetFromClient = async ([packet]) => {
 	// 	wnd.postMessage({ event: 'logger:packet', args: packet });
 	// }
 };
+
+window.connection = ([state]) => {
+	const $cells = document.querySelector('#cells');
+	const $pads = document.querySelector('#pads');
+	const $x = document.querySelector('#x');
+	const $bank = document.querySelector('#bank');
+
+	switch (state) {
+		case 'OnConnectionLost':
+			$cells.setAttribute('disabled', '');
+			$pads.setAttribute('disabled', '');
+			$x.setAttribute('disabled', '');
+			$bank.setAttribute('disabled', '');
+			break;
+		case 'OnConnection':
+			$cells.removeAttribute('disabled');
+			$pads.removeAttribute('disabled');
+			$x.removeAttribute('disabled');
+			$bank.removeAttribute('disabled');
+			break;
+	}
+};

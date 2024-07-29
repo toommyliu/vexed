@@ -168,6 +168,57 @@ window.addEventListener('DOMContentLoaded', async () => {
 				break;
 		}
 	}
+
+	let roomID;
+
+	const $cells = document.querySelector('#cells');
+	const $pads = document.querySelector('#pads');
+	const $x = document.querySelector('#x');
+	const $bank = document.querySelector('#bank');
+
+	const update = () => {
+		if (
+			!bot.auth.loggedIn ||
+			bot.world.loading ||
+			!bot.player.loaded ||
+			bot.world.roomID === roomID
+		) {
+			return;
+		}
+
+		$cells.innerHTML = '';
+
+		for (const cell of bot.world.cells) {
+			const option = document.createElement('option');
+			option.value = cell;
+			option.textContent = cell;
+			$cells.appendChild(option);
+		}
+
+		$cells.value = bot.player.cell;
+		$pads.value = bot.player.pad;
+
+		roomID = bot.world.roomID;
+	};
+
+	const jump = () => {
+		const cell = $cells.value ?? 'Enter';
+		const pad = $pads.value ?? 'Spawn';
+		bot.flash.call(swf.Jump, cell, pad);
+	};
+
+	$cells.addEventListener('click', update);
+	$cells.addEventListener('change', jump);
+	$pads.addEventListener('change', jump);
+	$x.addEventListener('click', update);
+
+	$bank.addEventListener('click', async () => {
+		if (!bot.auth.loggedIn || bot.world.loading || !bot.player.loaded) {
+			return;
+		}
+
+		await bot.bank.open();
+	});
 });
 
 window.addEventListener('click', (ev) => {
