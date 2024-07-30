@@ -33,7 +33,6 @@ async function createGame(account = null) {
 			plugins: true,
 		},
 	});
-	const gameWindow = window;
 
 	window.webContents.setUserAgent(userAgent);
 	session.defaultSession.webRequest.onBeforeSendHeaders(
@@ -79,7 +78,7 @@ async function createGame(account = null) {
 		}
 	});
 	// TODO: window instances dont persist across refreshes
-	// TODO: refactor
+	// Creates a child window, memoizing the instance
 	window.webContents.on(
 		'new-window',
 		async (
@@ -91,128 +90,131 @@ async function createGame(account = null) {
 			_additionalFeatures,
 			_referrer,
 		) => {
-			event.preventDefault();
+			const _url = new URL(url);
 
-			const { id } = event.sender;
-			const file = url.substring(
-				url.lastIndexOf('/', url.lastIndexOf('/') - 1) + 1,
-				url.length,
-			);
+			if (_url.protocol === 'https:') {
+				const domains = [
+					'www.aq.com', 'aq.com',
+					'www.artix.com', 'artix.com',
+					'www.account.aq.com', 'account.aq.com',
+				];
+				if (!domains.includes(_url.hostname)) {
+					console.log('Blocking url', _url);
+					event.preventDefault();
+					return null;
+				}
+			} else if (_url.protocol === 'file:') {
+				const { id } = event.sender;
+				const file = url.substring(
+					url.lastIndexOf('/', url.lastIndexOf('/') - 1) + 1,
+					url.length,
+				);
 
-			const windows = store.get(id);
-			let ret = false;
-			// TODO: i dont think this even runs
-			switch (file) {
-				//#region tools
-				case 'fast-travels/index.html':
-					if (
-						windows.tools.fastTravels &&
-						!windows.tools.fastTravels.isDestroyed()
-					) {
-						windows.tools.fastTravels.show();
-						windows.tools.fastTravels.focus();
-						ret = true;
-					}
-					break;
-				case 'loader-grabber/index.html':
-					if (
-						windows.tools.loaderGrabber &&
-						!windows.tools.loaderGrabber.isDestroyed()
-					) {
-						windows.tools.loaderGrabber.show();
-						windows.tools.loaderGrabber.focus();
-						ret = true;
-					}
-					break;
-				case 'follower/index.html':
-					if (
-						windows.tools.follower &&
-						!windows.tools.follower.isDestroyed()
-					) {
-						windows.tools.follower.show();
-						windows.tools.follower.focus();
-						ret = true;
-					}
-					break;
-				//#endregion
-				//#region packets
-				case 'logger/index.html':
-					if (
-						windows.packets.logger &&
-						!windows.packets.logger.isDestroyed()
-					) {
-						windows.packets.logger.show();
-						windows.packets.logger.focus();
-						ret = true;
-					}
-					break;
-				case 'spammer/index.html':
-					if (
-						windows.packets.spammer &&
-						!windows.packets.spammer.isDestroyed()
-					) {
-						windows.packets.spammer.show();
-						windows.packets.spammer.focus();
-						ret = true;
-					}
-					break;
-				//#endregion
+				const windows = store.get(id);
+				let ref = false;
+
+				switch (file) {
+					//#region tools
+					case 'fast-travels/index.html':
+						if (
+							windows.tools.fastTravels &&
+							!windows.tools.fastTravels.isDestroyed()
+						) {
+							ref = windows.tools.fastTravels;
+						}
+						break;
+					case 'loader-grabber/index.html':
+						if (
+							windows.tools.loaderGrabber &&
+							!windows.tools.loaderGrabber.isDestroyed()
+						) {
+							ref = windows.tools.loaderGrabber;
+						}
+						break;
+					case 'follower/index.html':
+						if (
+							windows.tools.follower &&
+							!windows.tools.follower.isDestroyed()
+						) {
+							ref = windows.tools.follower;
+						}
+						break;
+					//#endregion
+					//#region packets
+					case 'logger/index.html':
+						if (
+							windows.packets.logger &&
+							!windows.packets.logger.isDestroyed()
+						) {
+							ref = windows.packets.logger;
+						}
+						break;
+					case 'spammer/index.html':
+						if (
+							windows.packets.spammer &&
+							!windows.packets.spammer.isDestroyed()
+						) {
+							ref = windows.packets.spammer;
+						}
+						break;
+					//#endregion
+				}
+
+				// Return the previously created window
+				if (ref) {
+					ref.show();
+					ref.focus();
+					return ref;
+				}
+
+				const newWindow = new BrowserWindow({
+					...options,
+					parent: window,
+				});
+				event.newGuest = newWindow;
+				newWindow.on('close', (event) => {
+					event.preventDefault();
+					newWindow.hide();
+				});
+
+				await newWindow.loadFile(
+					`${join(RENDERER, 'game/pages/')}` +
+						(url.includes('scripts')
+							? `scripts/${file}`
+							: url.includes('tools')
+								? `tools/${file}`
+								: url.includes('packets')
+									? `packets/${file}`
+									: null),
+				);
+
+				switch (file) {
+					//#region tools
+					case 'fast-travels/index.html':
+						windows.tools.fastTravels = newWindow;
+						break;
+					case 'loader-grabber/index.html':
+						windows.tools.loaderGrabber = newWindow;
+						break;
+					case 'follower/index.html':
+						windows.tools.follower = newWindow;
+						break;
+					//#endregion
+					//#region packets
+					case 'logger/index.html':
+						windows.packets.logger = newWindow;
+						break;
+					case 'spammer/index.html':
+						windows.packets.spammer = newWindow;
+						break;
+					//#endregion
+				}
+
+				return newWindow;
 			}
-
-			if (ret) {
-				// console.log(file, 'ret');
-				return;
-			}
-
-			const newWindow = new BrowserWindow({
-				...options,
-				parent: window,
-			});
-			event.newGuest = newWindow;
-
-			newWindow.on('close', (event) => {
-				event.preventDefault();
-				newWindow.hide();
-				// console.log(file, 'blocked close (hide)');
-			});
-
-			await newWindow.loadFile(
-				`${join(RENDERER, 'game/pages/')}` +
-					(url.includes('scripts')
-						? `scripts/${file}`
-						: url.includes('tools')
-							? `tools/${file}`
-							: url.includes('packets')
-								? `packets/${file}`
-								: null),
-			);
-
-			switch (file) {
-				//#region tools
-				case 'fast-travels/index.html':
-					windows.tools.fastTravels = newWindow;
-					break;
-				case 'loader-grabber/index.html':
-					windows.tools.loaderGrabber = newWindow;
-					break;
-				case 'follower/index.html':
-					windows.tools.follower = newWindow;
-					break;
-				//#endregion
-				//#region packets
-				case 'logger/index.html':
-					windows.packets.logger = newWindow;
-					break;
-				case 'spammer/index.html':
-					windows.packets.spammer = newWindow;
-					break;
-				//#endregion
-			}
-
-			return newWindow;
 		},
 	);
-	window.maximize();
+	// window.maximize();
 
 	store.set(window.id, {
 		game: window,
@@ -221,11 +223,6 @@ async function createGame(account = null) {
 	});
 }
 
-function getWindows(id) {
-	return store.get(id) ?? null;
-}
-
 module.exports = {
 	createGame,
-	getWindows,
 };
