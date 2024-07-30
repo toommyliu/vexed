@@ -8,22 +8,22 @@ const getRoomNumber = () => {
 };
 
 window.addEventListener('DOMContentLoaded', async () => {
-	const container = document.getElementById('locations');
+	const $container = document.getElementById('locations');
 	const locations = await fileManager.readJSON('fast-travels.json');
 
 	for (const location of locations) {
-		const btn = document.createElement('button');
-		btn.classList.add('w3-button');
-		btn.style = 'background-color: #2f2f2f';
-		btn.textContent = location.name;
+		const $btn = document.createElement('button');
+		$btn.classList.add('w3-button');
+		$btn.style = 'background-color: #2f2f2f';
+		$btn.textContent = location.name;
 
-		btn.addEventListener('click', async () => {
+		$btn.addEventListener('click', async () => {
 			parent.postMessage({
-				event: 'fast-travel',
+				event: 'tools:fasttravel:join',
 				args: { ...location, roomNumber: getRoomNumber() },
 			});
 		});
 
-		container.appendChild(btn);
+		$container.appendChild($btn);
 	}
 });

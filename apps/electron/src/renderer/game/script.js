@@ -270,7 +270,11 @@ window.addEventListener('message', async (ev) => {
 
 	switch (event) {
 		//#region fast travel
-		case 'fast-travel':
+		case 'tools:fasttravel:join':
+			if (!bot.auth.loggedIn || bot.world.loading || !bot.player.loaded) {
+				return;
+			}
+
 			await bot.world.join(
 				`${args.map}-${args.roomNumber}`,
 				args.cell ?? 'Enter',
