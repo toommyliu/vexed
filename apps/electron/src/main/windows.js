@@ -90,7 +90,6 @@ async function createGame(account = null) {
 			_additionalFeatures,
 			_referrer,
 		) => {
-			console.log('new-window');
 			const _url = new URL(url);
 
 			if (_url.protocol === 'https:') {
