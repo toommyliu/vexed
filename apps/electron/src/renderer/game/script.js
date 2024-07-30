@@ -30,15 +30,15 @@ window.addEventListener('DOMContentLoaded', async () => {
 	}
 
 	{
-		const btn = document.querySelector(
+		const $btn = document.querySelector(
 			'#tools-dropdowncontent > button:nth-child(1)',
 		);
-		btn.addEventListener('click', () => {
+		$btn.addEventListener('click', () => {
 			if (
 				window.windows.tools.fastTravels &&
-				!window.windows.tools.fastTravels.closed
+				!window.windows.tools.fastTravels.closed // this should be false when while the window is hidden
 			) {
-				window.windows.tools.fastTravels.focus();
+				ipcRenderer.send('root:focus', 'tools:fast-travels');
 			} else {
 				window.windows.tools.fastTravels = window.open(
 					'./pages/tools/fast-travels/index.html',
@@ -49,15 +49,15 @@ window.addEventListener('DOMContentLoaded', async () => {
 		});
 	}
 	{
-		const btn = document.querySelector(
+		const $btn = document.querySelector(
 			'#tools-dropdowncontent > button:nth-child(2)',
 		);
-		btn.addEventListener('click', () => {
+		$btn.addEventListener('click', () => {
 			if (
 				window.windows.tools.loaderGrabber &&
 				!window.windows.tools.loaderGrabber.closed
 			) {
-				window.windows.tools.loaderGrabber.focus();
+				ipcRenderer.send('root:focus', 'tools:loader-grabber');
 			} else {
 				window.windows.tools.loaderGrabber = window.open(
 					'./pages/tools/loader-grabber/index.html',
@@ -67,15 +67,15 @@ window.addEventListener('DOMContentLoaded', async () => {
 		});
 	}
 	{
-		const btn = document.querySelector(
+		const $btn = document.querySelector(
 			'#tools-dropdowncontent > button:nth-child(3)',
 		);
-		btn.addEventListener('click', () => {
+		$btn.addEventListener('click', () => {
 			if (
 				window.windows.tools.follower &&
 				!window.windows.tools.follower.closed
 			) {
-				window.windows.tools.follower.focus();
+				ipcRenderer.send('root:focus', 'tools:follower');
 			} else {
 				window.windows.tools.follower = window.open(
 					'./pages/tools/follower/index.html',
@@ -87,15 +87,15 @@ window.addEventListener('DOMContentLoaded', async () => {
 	}
 
 	{
-		const btn = document.querySelector(
+		const $btn = document.querySelector(
 			'#packets-dropdowncontent > button:nth-child(1)',
 		);
-		btn.addEventListener('click', () => {
+		$btn.addEventListener('click', () => {
 			if (
 				window.windows.packets.logger &&
 				!window.windows.packets.logger.closed
 			) {
-				window.windows.packets.logger.focus();
+				ipcRenderer.send('root:focus', 'packets:logger');
 			} else {
 				window.windows.packets.logger = window.open(
 					'./pages/packets/logger/index.html',
@@ -106,15 +106,15 @@ window.addEventListener('DOMContentLoaded', async () => {
 	}
 
 	{
-		const btn = document.querySelector(
+		const $btn = document.querySelector(
 			'#packets-dropdowncontent > button:nth-child(2)',
 		);
-		btn.addEventListener('click', () => {
+		$btn.addEventListener('click', () => {
 			if (
 				window.windows.packets.spammer &&
 				!window.windows.packets.spammer.closed
 			) {
-				window.windows.packets.spammer.focus();
+				ipcRenderer.send('root:focus', 'packets:spammer');
 			} else {
 				window.windows.packets.spammer = window.open(
 					'./pages/packets/spammer/index.html',
@@ -242,7 +242,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 			console.log('[' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }) + '] Script started');
 			${b64_out}
 			console.log('[' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }) + '] Script finished');
-		})();`
+		})();`;
 		document.body.appendChild(script);
 	});
 

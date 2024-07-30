@@ -101,7 +101,7 @@ async function createGame(account = null) {
 
 			const windows = store.get(id);
 			let ret = false;
-
+			// TODO: i dont think this even runs
 			switch (file) {
 				//#region tools
 				case 'fast-travels/index.html':
@@ -160,18 +160,20 @@ async function createGame(account = null) {
 			}
 
 			if (ret) {
+				// console.log(file, 'ret');
 				return;
 			}
 
 			const newWindow = new BrowserWindow({
 				...options,
-				parent: windows.game,
+				parent: window,
 			});
 			event.newGuest = newWindow;
 
 			newWindow.on('close', (event) => {
 				event.preventDefault();
 				newWindow.hide();
+				// console.log(file, 'blocked close (hide)');
 			});
 
 			await newWindow.loadFile(
@@ -219,6 +221,11 @@ async function createGame(account = null) {
 	});
 }
 
+function getWindows(id) {
+	return store.get(id) ?? null;
+}
+
 module.exports = {
 	createGame,
+	getWindows,
 };
