@@ -229,13 +229,23 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 	$script_load.addEventListener('click', async () => {
 		const scriptBody = await ipcRenderer.invoke('root:load_script');
-
 		if (!scriptBody) {
 			return;
 		}
+
+		const b64_out = Buffer.from(scriptBody, 'base64').toString('utf-8');
+
+		const script = document.createElement('script');
+		script.type = 'module';
+		script.textContent = `(async () => {
+			console.log('[' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }) + '] Script started');
+			${b64_out}
+			console.log('[' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }) + '] Script finished');
+		})();`
+		document.body.appendChild(script);
 	});
 
-	$scripts_toggle_dev_tools.addEventListener('click', async () => {
+	$scripts_toggle_dev_tools.addEventListener('click', () => {
 		ipcRenderer.send('root:toggle-dev-tools');
 	});
 });

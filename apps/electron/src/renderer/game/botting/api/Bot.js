@@ -145,8 +145,6 @@ class Bot extends EventEmitter {
 			await this.sleep(1000);
 			iterations++;
 		}
-
-		await this.sleep(1000);
 	}
 
 	/**

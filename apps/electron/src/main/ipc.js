@@ -31,7 +31,7 @@ ipcMain.handle('root:load_script', async (ev) => {
 		return null;
 	}
 
-	return Buffer.from(scriptBody).toString('base64');
+	return Buffer.from(scriptBody, 'utf-8').toString('base64');
 });
 
 ipcMain.on('root:toggle-dev-tools', async (ev) => {
