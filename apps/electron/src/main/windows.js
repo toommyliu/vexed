@@ -90,6 +90,7 @@ async function createGame(account = null) {
 			_additionalFeatures,
 			_referrer,
 		) => {
+			console.log('new-window');
 			const _url = new URL(url);
 
 			if (_url.protocol === 'https:') {
@@ -104,6 +105,8 @@ async function createGame(account = null) {
 					return null;
 				}
 			} else if (_url.protocol === 'file:') {
+				event.preventDefault();
+
 				const { id } = event.sender;
 				const file = url.substring(
 					url.lastIndexOf('/', url.lastIndexOf('/') - 1) + 1,
