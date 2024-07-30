@@ -80,6 +80,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 				window.windows.tools.follower = window.open(
 					'./pages/tools/follower/index.html',
 					null,
+					'width=402,height=466',
 				);
 			}
 		});

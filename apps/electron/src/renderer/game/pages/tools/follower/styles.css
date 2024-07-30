@@ -1,12 +1,25 @@
 body {
 	background-color: #1f1f1f;
 	color: white;
+	overflow-y: hidden;
 }
 
 :focus {
 	outline: none;
 }
-
-#card1, #card2 {
+#card1,
+#card2 {
 	background-color: #2f2f2f;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+#player,
+#skill-delay,
+#attack-priority {
+	height: 36px;
+	background-color: #3f3f3f;
+	color: white;
+	border-color: #4f4f4f;
 }
