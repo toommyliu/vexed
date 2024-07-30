@@ -1,6 +1,7 @@
 body {
 	background-color:#151515;
 	color: white;
+	overflow-y: hidden;
 }
 
 :focus {
@@ -30,6 +31,7 @@ body {
 	display: flex;
 	flex-direction: column;
 	overflow-y: auto;
+	max-height: 400px;
 }
 
 .node {

@@ -42,8 +42,8 @@ function createTreeNode(data) {
 
 		node.appendChild(childContainer);
 
-		content.addEventListener('click', (e) => {
-			e.stopPropagation();
+		content.addEventListener('click', (ev) => {
+			ev.stopPropagation();
 			childContainer.classList.toggle('w3-hide');
 			const isHidden = childContainer.classList.contains('w3-hide');
 			expander.innerHTML = isHidden ? svgOpen : svgClose;
@@ -53,8 +53,8 @@ function createTreeNode(data) {
 		const span = document.createElement('span');
 		span.className = 'child-value';
 		span.textContent = data.value;
-		span.addEventListener('click', (e) => {
-			e.stopPropagation();
+		span.addEventListener('click', (ev) => {
+			ev.stopPropagation();
 			navigator.clipboard.writeText(data.value);
 		});
 		content.appendChild(span);
@@ -162,7 +162,10 @@ function parseTreeData(data, type) {
 						},
 						{
 							name: 'Quantity',
-							value: `${item.iQty}/${item.iStk}`,
+							value:
+								item.sType === 'Class'
+									? '1/1'
+									: `${item.iQty}/${item.iStk}`,
 						},
 						{
 							name: 'AC Tagged',
@@ -268,14 +271,15 @@ window.addEventListener('message', (ev) => {
 
 window.addEventListener('DOMContentLoaded', async () => {
 	{
-		const btn = document.getElementById('loader-btn');
-		btn.addEventListener('click', async () => {
+		const $btn = document.getElementById('loader-btn');
+		$btn.addEventListener('click', async () => {
 			const $id = document.getElementById('loader-id');
 			const $source = document.getElementById('loader-select');
 
 			const source = $source.value;
 			const id = $id.value;
 
+			// Armor customizer does not require an ID
 			if (source !== '3' && !id) {
 				return;
 			}
@@ -291,9 +295,9 @@ window.addEventListener('DOMContentLoaded', async () => {
 	}
 
 	{
-		const btn = document.getElementById('grabber-btn');
+		const $btn = document.getElementById('grabber-btn');
 		const $source = document.getElementById('grabber-select');
-		btn.addEventListener('click', async () => {
+		$btn.addEventListener('click', async () => {
 			const type = $source.value;
 			if (!type) {
 				return;

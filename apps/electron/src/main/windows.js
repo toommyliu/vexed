@@ -52,9 +52,6 @@ async function createGame(account = null) {
 		.loadFile(join(RENDERER, 'game/game.html'))
 		.catch((error) => console.log('error', error));
 	window.webContents.openDevTools({ mode: 'right' });
-	window.webContents.on('dom-ready', () => {
-		window.webContents.send('get_id', window.id);
-	});
 
 	window.on('close', () => {
 		const windows = store.get(window.id);
