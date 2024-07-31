@@ -56,15 +56,13 @@ class Settings {
 				this.bot.flash.call(swf.SetInfiniteRange);
 			}
 
-			if (this.provokeMap) {
-				if (this.bot.world.monsters.length > 0) {
-					const monMapIDs = this.bot.world.monsters.map(
-						(mon) => mon.MonMapID,
-					);
-					this.bot.packets.sendServer(
-						`%xt%zm%aggroMon%${this.bot.world.roomID}%${monMapIDs.join('%')}%`,
-					);
-				}
+			if (this.provokeMap && this.bot.world.monsters.length > 0) {
+				const monMapIDs = this.bot.world.monsters.map(
+					(mon) => mon.MonMapID,
+				);
+				this.bot.packets.sendServer(
+					`%xt%zm%aggroMon%${this.bot.world.roomID}%${monMapIDs.join('%')}%`,
+				);
 			}
 
 			if (this.provokeCell) {
@@ -135,6 +133,12 @@ class Settings {
 	set lagKiller(on) {
 		this.#lagKiller = on;
 		this.#updateOption(this.#optionLagKiller, on);
+		// Call immediately
+		if (on) {
+			this.bot.flash.call(swf.SetLagKiller, 'True');
+		} else {
+			this.bot.flash.call(swf.SetLagKiller, 'False');
+		}
 	}
 
 	get hidePlayers() {
@@ -144,6 +148,7 @@ class Settings {
 	set hidePlayers(on) {
 		this.#hidePlayers = on;
 		this.#updateOption(this.#optionHidePlayers, on);
+		this.bot.flash.call(swf.HidePlayers, this.#hidePlayers);
 	}
 
 	get skipCutscenes() {
