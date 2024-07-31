@@ -145,12 +145,13 @@ window.addEventListener('DOMContentLoaded', async () => {
 	const $x = document.querySelector('#x');
 	const $bank = document.querySelector('#bank');
 
-	const update = () => {
+	const update = (force = false) => {
 		if (
-			!bot.auth.loggedIn ||
-			bot.world.loading ||
-			!bot.player.loaded ||
-			bot.world.roomID === roomID
+			!force &&
+			(!bot.auth.loggedIn ||
+				bot.world.loading ||
+				!bot.player.loaded ||
+				bot.world.roomID === roomID)
 		) {
 			return;
 		}
@@ -179,7 +180,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 	$cells.addEventListener('click', update);
 	$cells.addEventListener('change', jump);
 	$pads.addEventListener('change', jump);
-	$x.addEventListener('click', update);
+	$x.addEventListener('click', () => update(true));
 
 	$bank.addEventListener('click', async () => {
 		if (!bot.auth.loggedIn || bot.world.loading || !bot.player.loaded) {
