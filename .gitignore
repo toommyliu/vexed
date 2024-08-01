@@ -3,6 +3,7 @@ node_modules/
 # other
 .DS_Store
 .vscode/
+!apps/as3/.vscode/
 
 # builds
 .next/
