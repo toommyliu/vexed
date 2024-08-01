@@ -71,12 +71,14 @@ window.connection = ([state]) => {
 			$pads.setAttribute('disabled', '');
 			$x.setAttribute('disabled', '');
 			$bank.setAttribute('disabled', '');
+			bot.emit('logout');
 			break;
 		case 'OnConnection':
 			$cells.removeAttribute('disabled');
 			$pads.removeAttribute('disabled');
 			$x.removeAttribute('disabled');
 			$bank.removeAttribute('disabled');
+			bot.emit('login');
 			break;
 	}
 };

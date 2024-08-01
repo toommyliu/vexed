@@ -22,11 +22,10 @@ const store = new Map();
 const userAgent =
 	'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16_0) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36';
 
-async function createGame(account = null) {
+async function createGame() {
 	const window = new BrowserWindow({
 		width: 966,
 		height: 552,
-		title: account?.username ?? '',
 		webPreferences: {
 			contextIsolation: false,
 			nodeIntegration: true,
@@ -47,9 +46,7 @@ async function createGame(account = null) {
 		},
 	);
 
-	await window
-		.loadFile(join(RENDERER, 'game/game.html'))
-		.catch((error) => console.log('error', error));
+	await window.loadFile(join(RENDERER, 'game/game.html'));
 	window.webContents.openDevTools({ mode: 'right' });
 
 	window.on('close', () => {
@@ -77,7 +74,7 @@ async function createGame(account = null) {
 			windows.packets.spammer.destroy();
 		}
 	});
-	// TODO: window instances dont persist across refreshes
+
 	// Creates a child window, memoizing the instance
 	window.webContents.on(
 		'new-window',
@@ -94,9 +91,12 @@ async function createGame(account = null) {
 
 			if (_url.protocol === 'https:') {
 				const domains = [
-					'www.aq.com', 'aq.com',
-					'www.artix.com', 'artix.com',
-					'www.account.aq.com', 'account.aq.com',
+					'www.aq.com',
+					'aq.com',
+					'www.artix.com',
+					'artix.com',
+					'www.account.aq.com',
+					'account.aq.com',
 				];
 				if (!domains.includes(_url.hostname)) {
 					console.log('Blocking url', _url);

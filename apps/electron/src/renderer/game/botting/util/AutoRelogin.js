@@ -11,29 +11,18 @@ class AutoRelogin {
 	 */
 	delay = 5000;
 
+	#busy = false;
+	#intervalID = null;
+
 	constructor(bot) {
 		/**
 		 * @type {import('../api/Bot')}
 		 */
 		this.bot = bot;
 
-		this.bot.on('start', this.#start.bind(this));
+		// TODO: these might not be removed ?
+		this.bot.on('start', this.#run.bind(this));
 		this.bot.on('stop', this.#stop.bind(this));
-	}
-
-	#start() {
-		window.connection = ([state]) => {
-			if (state === 'OnConnection') {
-				this.bot.emit('login');
-			} else if (state === 'OnConnectionLost') {
-				this.bot.emit('logout');
-				this.#run();
-			}
-		};
-	}
-
-	#stop() {
-		window.connection = null;
 	}
 
 	/**
@@ -41,43 +30,74 @@ class AutoRelogin {
 	 * @returns {void}
 	 */
 	#run() {
-		if (!this.server) {
-			return;
-		}
+		this.#intervalID = this.bot.timerManager.setInterval(async () => {
+			if (this.#busy || !this.server) {
+				return;
+			};
 
-		const timerID = this.bot.timerManager.setTimeout(async () => {
-			if (this.bot.auth.resetServers()) {
-				await this.bot.waitUntil(
-					() => this.bot.auth.servers.length <= 0,
+			if (this.bot.running && !this.bot.auth.loggedIn) {
+				this.#busy = true;
+				console.log(
+					`AutoRelogin triggered, waiting for ${this.delay}ms`,
 				);
-				this.bot.auth.login();
-				await this.bot.waitUntil(
-					() => this.bot.auth.servers.length > 0,
-					() => this.bot.auth.loggedIn,
-				);
+				await this.bot.sleep(this.delay);
 
-				// prettier-ignore
-				if (!this.bot.auth.servers.find((srv) => srv.name.toLowerCase() === this.server)) {
-					return;
+				try {
+					if (!this.bot.auth.resetServers()) {
+						// console.log('Failed to reset servers');
+						return;
+					}
+
+					await this.bot.sleep(1000);
+					// console.log('login');
+					this.bot.auth.login();
+
+					await this.bot.waitUntil(
+						() => this.bot.auth.servers.length > 0,
+					);
+					// console.log('got servers');
+
+					const server = this.bot.auth.servers.find(
+						(srv) =>
+							srv.name.toLowerCase() ===
+							this.server.toLowerCase(),
+					);
+
+					if (!server) {
+						// console.log('server not found');
+						return;
+					}
+
+					// console.log('connecting to ' + this.server);
+					this.bot.auth.connectTo(this.server);
+
+					await this.bot.waitUntil(
+						() =>
+							this.bot.auth.loggedIn &&
+							!this.bot.world.loading &&
+							this.bot.player.loaded,
+					);
+
+					// console.log('connected');
+					// TODO: restart the script ?
+				} finally {
+					this.#busy = false;
 				}
-
-				this.bot.auth.connectTo(this.server);
-				await this.bot.waitUntil(
-					() => {
-						const server = this.bot.flash.get(
-							'objServerInfo',
-							true,
-						);
-						return (
-							server.sName.toLowerCase() ===
-							this.server.toLowerCase()
-						);
-					},
-					() => this.bot.auth.loggedIn,
-				);
-				this.bot.timerManager.clearTimeout(timerID);
 			}
-		}, this.delay);
+		}, 1000);
+	}
+
+	/**
+	 * Stops the auto-login task.
+	 * @returns {void}
+	 */
+	#stop() {
+		if (this.#intervalID) {
+			this.bot.timerManager.clearInterval(this.#intervalID);
+			this.#intervalID = null;
+		}
+		this.#busy = false;
+		console.log('AutoRelogin stopped');
 	}
 }
 
