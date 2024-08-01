@@ -177,7 +177,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 		bot.flash.call(swf.Jump, cell, pad);
 	};
 
-	$cells.addEventListener('click', update);
+	$cells.addEventListener('click', () => update(false));
 	$cells.addEventListener('change', jump);
 	$pads.addEventListener('change', jump);
 	$x.addEventListener('click', () => update(true));
