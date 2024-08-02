@@ -194,7 +194,6 @@ async function createGame() {
 	);
 	// window.maximize();
 
-	console.log(`Creating a window ${window.id}`);
 	store.set(window.id, {
 		game: window,
 		tools: { fastTravels: null, loaderGrabber: null, follower: null },
