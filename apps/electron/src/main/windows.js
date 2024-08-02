@@ -107,13 +107,12 @@ async function createGame() {
 			} else if (_url.protocol === 'file:') {
 				ev.preventDefault();
 
-				const { id } = ev.sender;
 				const file = url.substring(
 					url.lastIndexOf('/', url.lastIndexOf('/') - 1) + 1,
 					url.length,
 				);
 
-				const windows = store.get(id);
+				const windows = store.get(window.id);
 				let ref = null;
 
 				switch (file) {
@@ -195,6 +194,7 @@ async function createGame() {
 	);
 	// window.maximize();
 
+	console.log(`Creating a window ${window.id}`);
 	store.set(window.id, {
 		game: window,
 		tools: { fastTravels: null, loaderGrabber: null, follower: null },
