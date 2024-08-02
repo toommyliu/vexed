@@ -26,6 +26,7 @@ async function createGame() {
 	const window = new BrowserWindow({
 		width: 966,
 		height: 552,
+		title: '',
 		webPreferences: {
 			contextIsolation: false,
 			nodeIntegration: true,
@@ -79,7 +80,7 @@ async function createGame() {
 	window.webContents.on(
 		'new-window',
 		async (
-			event,
+			ev,
 			url,
 			_frameName,
 			_disposition,
@@ -100,70 +101,45 @@ async function createGame() {
 				];
 				if (!domains.includes(_url.hostname)) {
 					console.log('Blocking url', _url);
-					event.preventDefault();
+					ev.preventDefault();
 					return null;
 				}
 			} else if (_url.protocol === 'file:') {
-				event.preventDefault();
+				ev.preventDefault();
 
-				const { id } = event.sender;
+				const { id } = ev.sender;
 				const file = url.substring(
 					url.lastIndexOf('/', url.lastIndexOf('/') - 1) + 1,
 					url.length,
 				);
 
 				const windows = store.get(id);
-				let ref = false;
+				let ref = null;
 
 				switch (file) {
 					//#region tools
 					case 'fast-travels/index.html':
-						if (
-							windows.tools.fastTravels &&
-							!windows.tools.fastTravels.isDestroyed()
-						) {
-							ref = windows.tools.fastTravels;
-						}
+						ref = windows.tools.fastTravels;
 						break;
 					case 'loader-grabber/index.html':
-						if (
-							windows.tools.loaderGrabber &&
-							!windows.tools.loaderGrabber.isDestroyed()
-						) {
-							ref = windows.tools.loaderGrabber;
-						}
+						ref = windows.tools.loaderGrabber;
 						break;
 					case 'follower/index.html':
-						if (
-							windows.tools.follower &&
-							!windows.tools.follower.isDestroyed()
-						) {
-							ref = windows.tools.follower;
-						}
+						ref = windows.tools.follower;
 						break;
 					//#endregion
 					//#region packets
 					case 'logger/index.html':
-						if (
-							windows.packets.logger &&
-							!windows.packets.logger.isDestroyed()
-						) {
-							ref = windows.packets.logger;
-						}
+						ref = windows.packets.logger;
 						break;
 					case 'spammer/index.html':
-						if (
-							windows.packets.spammer &&
-							!windows.packets.spammer.isDestroyed()
-						) {
-							ref = windows.packets.spammer;
-						}
+						ref = windows.packets.spammer;
 						break;
 					//#endregion
 				}
 
 				// Return the previously created window
-				if (ref) {
+				if (ref && !ref?.isDestroyed()) {
 					ref.show();
 					ref.focus();
 					return ref;
@@ -171,11 +147,12 @@ async function createGame() {
 
 				const newWindow = new BrowserWindow({
 					...options,
+					// Moving the parent also moves the child, as well as minimizing it
 					parent: window,
 				});
-				event.newGuest = newWindow;
-				newWindow.on('close', (event) => {
-					event.preventDefault();
+				ev.newGuest = newWindow;
+				newWindow.on('close', (ev) => {
+					ev.preventDefault();
 					newWindow.hide();
 				});
 
