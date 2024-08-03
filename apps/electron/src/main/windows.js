@@ -90,7 +90,7 @@ async function createGame() {
 		) => {
 			const _url = new URL(url);
 
-			if (_url.protocol === 'https:') {
+			if (_url.protocol === 'https:' || _url.protocol === 'http:') {
 				const domains = [
 					'www.aq.com',
 					'aq.com',
@@ -98,10 +98,13 @@ async function createGame() {
 					'artix.com',
 					'www.account.aq.com',
 					'account.aq.com',
+					'www.aqwwiki.wikidot.com',
+					'aqwwiki.wikidot.com',
 				];
 				if (!domains.includes(_url.hostname)) {
 					console.log('Blocking url', _url);
 					ev.preventDefault();
+					ev.newGuest = null;
 					return null;
 				}
 			} else if (_url.protocol === 'file:') {
