@@ -1,4 +1,4 @@
-const { ipcMain, app, dialog, BrowserWindow } = require('electron');
+const { ipcMain, app, BrowserWindow, dialog } = require('electron');
 const { join } = require('path');
 const fs = require('fs-extra');
 
