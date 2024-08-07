@@ -101,7 +101,10 @@ window.addEventListener('DOMContentLoaded', async () => {
 				});
 				break;
 			case 'BUTTON':
-				option.addEventListener('click', () => {
+				option.addEventListener('click', (ev) => {
+					// Prevent the dropdown from closing when an option is clicked
+					ev.stopPropagation();
+
 					const checked =
 						option.getAttribute('data-checked') === 'true';
 					option.setAttribute(
