@@ -1,4 +1,9 @@
+const { Mutex } = require('async-mutex');
+
 class AutoRelogin {
+	#intervalID = null;
+	#mutex = new Mutex();
+
 	/**
 	 * The server name to connect to.
 	 * @type {string}
@@ -10,9 +15,6 @@ class AutoRelogin {
 	 * @type {number}
 	 */
 	delay = 5000;
-
-	#busy = false;
-	#intervalID = null;
 
 	constructor(bot) {
 		/**
@@ -31,18 +33,17 @@ class AutoRelogin {
 	 */
 	#run() {
 		this.#intervalID = this.bot.timerManager.setInterval(async () => {
-			if (this.#busy || !this.server) {
+			if (this.#mutex.isLocked() || !this.server) {
 				return;
-			};
+			}
 
 			if (this.bot.running && !this.bot.auth.loggedIn) {
-				this.#busy = true;
-				console.log(
-					`AutoRelogin triggered, waiting for ${this.delay}ms`,
-				);
-				await this.bot.sleep(this.delay);
+				this.#mutex.runExclusive(async () => {
+					console.log(
+						`AutoRelogin triggered, waiting for ${this.delay}ms`,
+					);
+					await this.bot.sleep(this.delay);
 
-				try {
 					if (!this.bot.auth.resetServers()) {
 						// console.log('Failed to reset servers');
 						return;
@@ -80,9 +81,7 @@ class AutoRelogin {
 
 					// console.log('connected');
 					// TODO: restart the script ?
-				} finally {
-					this.#busy = false;
-				}
+				});
 			}
 		}, 1000);
 	}
@@ -96,7 +95,6 @@ class AutoRelogin {
 			this.bot.timerManager.clearInterval(this.#intervalID);
 			this.#intervalID = null;
 		}
-		this.#busy = false;
 		console.log('AutoRelogin stopped');
 	}
 }
