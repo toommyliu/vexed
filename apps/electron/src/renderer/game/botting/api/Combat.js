@@ -1,32 +1,9 @@
 class Combat {
-	/**
-	 * The cell where the monster should be killed. Used for 'anti-anti-bot'.
-	 * @type {string}
-	 */
-	#cell;
-	/**
-	 * The pad where the monster should be killed. Used for 'anti-anti-bot.'
-	 * @type {string}
-	 */
-	#pad;
-
 	constructor(bot) {
 		/**
 		 * @type {import('./Bot')}
 		 */
 		this.bot = bot;
-
-		/**
-		 * The order of skills to use.
-		 * @type {number[]}
-		 */
-		this.skillSet = [1, 2, 3, 4];
-
-		/**
-		 * The delay between a skill cast.
-		 * @type {number}
-		 */
-		this.skillDelay = 150;
 
 		/**
 		 * Whether to temporarily stop attacking.
@@ -121,10 +98,18 @@ class Combat {
 	/**
 	 * Kills a monster.
 	 * @param {string} monsterResolvable The name or monMapID of the monster.
-	 * @param {string|string[]} killPriority The priority of the monsters to kill.
+	 * @param {KillConfig} config The configuration to use for the kill.
 	 * @returns {Promise<void>}
 	 */
-	async kill(monsterResolvable, killPriority = []) {
+	async kill(
+		monsterResolvable,
+		config = {
+			killPriority: [],
+			skillSet: [1, 2, 3, 4],
+			skillDelay: 150,
+			skillWait: false,
+		},
+	) {
 		await this.bot.waitUntil(
 			() => this.bot.world.isMonsterAvailable(monsterResolvable),
 			null,
@@ -135,8 +120,12 @@ class Combat {
 			return;
 		}
 
-		this.#cell = this.bot.player.cell;
-		this.#pad = this.bot.player.pad;
+		config.killPriority ??= [];
+		config.skillSet ??= [1, 2, 3, 4];
+		config.skillDelay ??= 150;
+		config.skillWait ??= false;
+
+		const { killPriority, skillSet, skillDelay, skillWait } = config;
 
 		let timer_a;
 		let timer_b;
@@ -183,27 +172,24 @@ class Combat {
 				}
 
 				if (this.hasTarget()) {
-					await this.useSkill(this.skillSet[index++]);
-					if (index >= this.skillSet.length) {
+					if (skillWait) {
+						await this.bot.sleep(
+							this.bot.flash.call(
+								swf.SkillAvailable,
+								skillSet[index],
+							),
+						);
+					}
+					await this.useSkill(skillSet[index++]);
+					if (index >= skillSet.length) {
 						index = 0;
 					}
-					await this.bot.sleep(this.skillDelay);
+					await this.bot.sleep(skillDelay);
 				}
 			}, 0);
 
 			this.bot.timerManager.setTimeout(() => {
 				timer_b = this.bot.timerManager.setInterval(async () => {
-					const isSameCell =
-						this.bot.player.cell.toLowerCase() ===
-						this.#cell.toLowerCase();
-					const isSamePad =
-						this.bot.player.pad.toLowerCase() ===
-						this.#pad.toLowerCase();
-
-					if (!isSameCell || !isSamePad) {
-						await this.bot.world.jump(this.#cell, this.#pad, true);
-					}
-
 					// TODO: improve kill detection
 					if (
 						(!this.hasTarget() ||
@@ -216,8 +202,6 @@ class Combat {
 
 						await this.exit();
 
-						this.#cell = null;
-						this.#pad = null;
 						resolve();
 					}
 				}, 0);
@@ -230,10 +214,11 @@ class Combat {
 	 * @param {string} monsterResolvable The name or monMapID of the monster.
 	 * @param {string} itemName The name or ID of the item.
 	 * @param {number} targetQty The quantity of the item.
+	 * @param {KillConfig} killConfig The configuration to use for the kill.
 	 * @returns {Promise<void>}
 	 */
-	async killForItem(monsterResolvable, itemName, targetQty) {
-		return this.#killForItem(monsterResolvable, itemName, targetQty);
+	async killForItem(monsterResolvable, itemName, targetQty, killConfig) {
+		return this.#killForItem(monsterResolvable, itemName, targetQty, killConfig);
 	}
 
 	/**
@@ -241,10 +226,11 @@ class Combat {
 	 * @param {string} monsterResolvable The name or monMapID of the monster.
 	 * @param {string} itemName The name or ID of the item.
 	 * @param {number} targetQty The quantity of the item.
+	 * @param {KillConfig} killConfig The configuration to use for the kill.
 	 * @returns {Promise<void>}
 	 */
-	async killForTempItem(monsterResolvable, itemName, targetQty) {
-		return this.#killForItem(monsterResolvable, itemName, targetQty, true);
+	async killForTempItem(monsterResolvable, itemName, targetQty, killConfig) {
+		return this.#killForItem(monsterResolvable, itemName, targetQty, true, killConfig);
 	}
 
 	/**
@@ -253,10 +239,11 @@ class Combat {
 	 * @param {string} itemName The name or ID of the item.
 	 * @param {number} targetQty The quantity of the item.
 	 * @param {boolean} isTemp Whether the item is in the temp inventory.
+	 * @param {KillConfig} killConfig The configuration to use for the kill.
 	 * @returns {Promise<void>}
 	 * @private
 	 */
-	async #killForItem(monsterResolvable, itemName, targetQty, isTemp = false) {
+	async #killForItem(monsterResolvable, itemName, targetQty, isTemp = false, killConfig) {
 		const store = isTemp ? this.bot.tempInventory : this.bot.inventory;
 		const getItem = () => store.get(itemName);
 
@@ -271,18 +258,16 @@ class Combat {
 		};
 
 		while (!shouldExit()) {
-			await this.kill(monsterResolvable);
+			console.log('kill', monsterResolvable);
+			await this.kill(monsterResolvable, killConfig);
 			await this.bot.sleep(500);
 
 			if (!isTemp) {
 				await this.bot.drops.pickup(itemName);
 			}
-
-			if (shouldExit()) {
-				await this.exit();
-				break;
-			}
 		}
+
+		await this.exit();
 	}
 
 	/**
@@ -308,3 +293,11 @@ class Combat {
 }
 
 module.exports = Combat;
+
+/**
+ * @typedef {Object} KillConfig
+ * @property {string|string[]} killPriority An ascending list of monster names or monMapIDs to kill.
+ * @property {number[]} skillSet The order of skills to use.
+ * @property {number} skillDelay The delay between each skill cast.
+ * @property {boolean} skillWait Whether to wait for the skill to be available.
+ */
