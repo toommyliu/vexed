@@ -1,0 +1,47 @@
+:root {
+	--bg-primary: hsl(204deg 14.29% 6.86%);
+	--bg-secondary: hsl(210deg 15.79% 7.45%);
+}
+
+html,
+body {
+	background-color: var(--bg-primary) !important;
+	color: white !important;
+}
+
+:focus {
+	outline: none;
+}
+
+.w3-select,
+.w3-input {
+	background-color: var(--bg-secondary) !important;
+	color: white !important;
+}
+
+.w3-button {
+	background-color: #2a2a2a !important;
+	color: white !important;
+}
+
+/* scrollbar */
+::-webkit-scrollbar {
+	width: 9px;
+	height: 9px;
+}
+
+::-webkit-scrollbar-track {
+	background: #1a1a1a;
+}
+::-webkit-scrollbar-corner {
+	background: #1a1a1a;
+  }
+
+::-webkit-scrollbar-thumb {
+	background: #888;
+	border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: #555;
+}

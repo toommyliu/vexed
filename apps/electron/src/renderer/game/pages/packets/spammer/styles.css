@@ -1,16 +1,8 @@
-body {
-	background-color: #1f1f1f;
-	color: white;
-}
-
-:focus {
-	outline: none;
-}
-
 .spammer {
-	background-color: #1f1f1f;
+	background-color: var(--bg-secondary);
 	color: lightgrey;
 	width: 100%;
+	resize: vertical;
 }
 
 .spammer:focus {

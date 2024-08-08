@@ -1,28 +1,6 @@
-body {
-	background-color:#151515;
-	color: white;
-	overflow-y: hidden;
-}
-
-:focus {
-	outline: none;
-}
-
 #loader,
 #grabber {
-	background-color:#0d251d;
-}
-
-#loader-id,
-#loader-select,
-#grabber-select {
-	color: white;
-	background-color: #282727;
-}
-
-#loader-btn,
-#grabber-btn {
-	background-color: #2a8a52;
+	background-color: var(--bg-secondary);
 }
 
 #tree {
@@ -31,39 +9,45 @@ body {
 	display: flex;
 	flex-direction: column;
 	overflow-y: auto;
-	max-height: 400px;
+	min-height: 125px;
+	max-height: 125px;
+	color: white;
+	background-color: var(--bg-secondary);
+	margin-bottom: 16px;
+	border: 1px solid rgba(255, 255, 255, 0.23);
+	border-radius: 4px;
 }
 
 .node {
-	padding: 4px;
 	cursor: pointer;
 	position: relative;
+}
+.expander {
+	padding-left: 8px;
 }
 .content {
 	display: flex;
 	align-items: center;
 	gap: 8px;
 }
-.expander {
-	margin-top: 2px;
-}
 .child-container {
-	margin-left: 40px;
+	margin-left: 33px;
 	position: relative;
+	border-left: 1px dashed #888; /* vertical line */
 }
-.child-container::before {
+.child-container > .node:not(.has-children)::before {
 	content: '';
 	position: absolute;
-	left: -20px;
-	top: 0;
-	bottom: 0;
-	width: 1px;
-	border-left: 1px dashed #888;
+	left: 0;
+	top: 50%;
+	width: 20px;
+	height: 1px;
+	border-top: 1px dashed #888; /* horizontal line */
+	transform: translateY(-50%);
 }
 .child-line {
 	width: fit-content;
 	position: relative;
-	padding-left: 8px;
 }
 .child-line::before {
 	content: '';
@@ -76,6 +60,7 @@ body {
 }
 .child-name {
 	cursor: default;
+	margin-left: 32px;
 }
 .child-value {
 	cursor: pointer;

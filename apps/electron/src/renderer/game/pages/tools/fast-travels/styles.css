@@ -1,30 +1,9 @@
-body {
-	background-color: #1f1f1f;
-	color: white;
-}
-
-:focus {
-	outline: none;
-}
-
 #topcontainer {
 	width: 100%;
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
 	align-items: center;
-}
-
-.input-group {
-	display: flex;
-	flex-direction: column;
-	flex-grow: 1;
-}
-
-#room-number {
-	background-color: #3a3a3a;
-	color: white;
-	border: 1px solid #4a4a4a;
 }
 
 #locations {

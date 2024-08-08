@@ -1,21 +1,20 @@
 <link rel="stylesheet" href="../../../w3.css" />
+<link rel="stylesheet" href="../../../shared.css" />
 <link rel="stylesheet" href="styles.css" />
 
 <script src="script.js" type="module"></script>
 
-<div class="w3-container w3-section">
-	<div class="w3-container">
-		<div class="w3-container w3-border logger" id="logger" readonly></div>
-		<div class="w3-section"id="buttons">
-			<div class="w3-container" style="display: flex; gap: 4px">
-				<button class="w3-btn w3-small w3-border" id="save">Save to file</button>
-				<button class="w3-btn w3-small w3-border" id="copy">Copy all</button>
-				<button class="w3-btn w3-small w3-border" id="clear">Clear</button>
-			</div>
-			<div>
-				<button class="w3-btn w3-small w3-border w3-disabled" id="stop">Stop</button>
-				<button class="w3-btn w3-small w3-border" id="start">Start</button>
-			</div>
+<div class="w3-padding-large">
+	<div class="w3-container w3-border logger" id="logger" readonly></div>
+	<div class="w3-margin-top"id="buttons">
+		<div>
+			<button class="w3-button w3-small" id="save">Save to file</button>
+			<button class="w3-button w3-small" id="copy">Copy all</button>
+			<button class="w3-button w3-small" id="clear">Clear</button>
+		</div>
+		<div>
+			<button class="w3-button w3-small w3-disabled" id="stop">Stop</button>
+			<button class="w3-button w3-small" id="start">Start</button>
 		</div>
 	</div>
 </div>

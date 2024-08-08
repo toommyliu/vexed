@@ -1,14 +1,22 @@
 <link rel="stylesheet" href="../../../w3.css" />
+<link rel="stylesheet" href="../../../shared.css" />
 <link rel="stylesheet" href="styles.css" />
 
 <script src="script.js" type="module"></script>
 
-<div class="w3-container w3-padding-large" id="topcontainer">
-	<div class="input-group">
-		<label for="room-number">Room Number</label>
-		<input type="text" value="100000" id="room-number" class="w3-input w3-border" />
+<div class="w3-container w3-section" id="topcontainer">
+	<div style="width: 100%">
+		<span>Room number</span>
+		<input
+			type="number"
+			min="1"
+			max="100000"
+			value="100000"
+			id="room-number"
+			class="w3-input w3-margin-top w3-border"
+		/>
 	</div>
 </div>
-<div class="w3-container">
-	<div class="w3-padding-large w3-margin-section" id="locations"></div>
+<div class="w3-container w3-section">
+	<div id="locations"></div>
 </div>

@@ -26,10 +26,38 @@ window.windows = {
 	packets: { logger: null, spammer: null },
 };
 
+//#region dom manipulation
 window.addEventListener('DOMContentLoaded', async () => {
 	const keys = ['scripts', 'tools', 'packets', 'options'];
 	for (const k of keys) {
 		mapping.set(k, document.getElementById(`${k}-dropdowncontent`));
+	}
+
+	{
+		const $btn = document.querySelector('#scripts-load');
+		$btn.addEventListener('click', async () => {
+			const scriptBody = await ipcRenderer.invoke('root:load_script');
+			if (!scriptBody) {
+				return;
+			}
+
+			const b64_out = Buffer.from(scriptBody, 'base64').toString('utf-8');
+
+			const script = document.createElement('script');
+			script.type = 'module';
+			script.textContent = `(async () => {
+			console.log('[' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }) + '] Script started');
+			${b64_out}
+			console.log('[' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }) + '] Script finished');
+			})();`;
+			document.body.appendChild(script);
+		});
+	}
+	{
+		const $btn = document.querySelector('#scripts-toggle-dev-tools');
+		$btn.addEventListener('click', () => {
+			ipcRenderer.send('root:toggle-dev-tools');
+		});
 	}
 
 	{
@@ -40,7 +68,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 			window.windows.tools.fastTravels = window.open(
 				'./pages/tools/fast-travels/index.html',
 				null,
-				'width=520,height=524',
+				'width=510,height=494',
 			);
 		});
 	}
@@ -76,6 +104,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 			window.windows.packets.logger = window.open(
 				'./pages/packets/logger/index.html',
 				null,
+				'width=560,height=286',
 			);
 		});
 	}
@@ -192,47 +221,56 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 		await bot.bank.open();
 	});
-
-	const $script_load = document.querySelector('#scripts-load');
-	const $scripts_toggle_dev_tools = document.querySelector(
-		'#scripts-toggle-dev-tools',
-	);
-
-	$script_load.addEventListener('click', async () => {
-		const scriptBody = await ipcRenderer.invoke('root:load_script');
-		if (!scriptBody) {
-			return;
-		}
-
-		const b64_out = Buffer.from(scriptBody, 'base64').toString('utf-8');
-
-		const script = document.createElement('script');
-		script.type = 'module';
-		script.textContent = `(async () => {
-			console.log('[' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }) + '] Script started');
-			${b64_out}
-			console.log('[' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }) + '] Script finished');
-		})();`;
-		document.body.appendChild(script);
-	});
-
-	$scripts_toggle_dev_tools.addEventListener('click', () => {
-		ipcRenderer.send('root:toggle-dev-tools');
-	});
 });
+//#endregion
 
+//#region input
 window.addEventListener('click', (ev) => {
 	mapping.forEach((el, key) => {
 		if (ev.target.id === key) {
 			// Show the selected dropdown
 			el.classList.toggle('w3-show');
 		} else {
-			// Hide the other dropdowns
-			el.classList.remove('w3-show');
+			// Don't close for this option
+			if (ev.target.id !== 'option-walkspeed') {
+				// Hide the other dropdowns
+				el.classList.remove('w3-show');
+			}
 		}
 	});
 });
 
+window.addEventListener('mousedown', (ev) => {
+	// Close all dropdowns when the game is focused
+	if (ev.target.id === 'swf') {
+		mapping.forEach((el) => {
+			el.classList.remove('w3-show');
+		});
+	}
+});
+
+window.addEventListener('keydown', (ev) => {
+	// Allow certain shortcuts to go through
+	if (ev.metaKey && ev.target.id === 'swf') {
+		switch (ev.key.toLowerCase()) {
+			case 'w': // CMD+W
+			case 'q': // CMD+Q
+				window.close();
+				break;
+			case 'r': // CMD+SHIFT+R
+				if (ev.shiftKey) {
+					window.location.reload();
+				}
+				break;
+			default:
+				console.log('Unhandled key', ev.key);
+				return;
+		}
+	}
+});
+//#endregion
+
+//#region ipc
 window.addEventListener('message', async (ev) => {
 	const {
 		data: { event, args },
@@ -475,3 +513,4 @@ window.addEventListener('message', async (ev) => {
 			break;
 	}
 });
+//#endregion

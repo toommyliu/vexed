@@ -1,12 +1,3 @@
-body {
-	background-color: #1f1f1f;
-	color: white;
-}
-
-:focus {
-	outline: none;
-}
-
 .logger {
 	width: 100%;
 	height: 150px;
@@ -14,6 +5,7 @@ body {
 	overflow-y: auto;
 	cursor: text;
 	white-space: pre-wrap;
+	padding: 0px;
 }
 
 .line {

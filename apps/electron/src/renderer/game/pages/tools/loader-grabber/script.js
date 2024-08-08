@@ -10,57 +10,68 @@ const svgClose =
 
 function createTreeNode(data) {
 	// The node
-	const node = document.createElement('div');
-	node.className = 'node';
+	const $node = document.createElement('div');
+	$node.className = 'node';
 
-	// The content
-	const content = document.createElement('div');
-	content.className = 'content';
-
-	// The name of the node
-	const text = document.createElement('span');
-	text.textContent = `${data.name}${data.value ? ':' : ''}`;
-
-	content.appendChild(text);
-	node.appendChild(content);
-
-	if (data.children && !data.value) {
-		// Branch
-		const expander = document.createElement('span');
-		expander.className = 'expander';
-		expander.innerHTML = svgOpen;
-		content.insertBefore(expander, text);
-
-		const childContainer = document.createElement('div');
-		childContainer.className = 'child-container w3-hide';
-
-		// Nested child nodes
-		for (const child of data.children) {
-			const childNode = createTreeNode(child);
-			childContainer.appendChild(childNode);
-		}
-
-		node.appendChild(childContainer);
-
-		content.addEventListener('click', (ev) => {
-			ev.stopPropagation();
-			childContainer.classList.toggle('w3-hide');
-			const isHidden = childContainer.classList.contains('w3-hide');
-			expander.innerHTML = isHidden ? svgOpen : svgClose;
-		});
-	} else if (data.value) {
-		// Leaf
-		const span = document.createElement('span');
-		span.className = 'child-value';
-		span.textContent = data.value;
-		span.addEventListener('click', (ev) => {
-			ev.stopPropagation();
-			navigator.clipboard.writeText(data.value);
-		});
-		content.appendChild(span);
+	if (data.children && data.children.length > 0) {
+		$node.classList.add('has-children');
 	}
 
-	return node;
+	// The content
+	const $content = document.createElement('div');
+	$content.className = 'content';
+
+	// The name of the node
+	const $text = document.createElement('span');
+	$text.textContent = `${data.name}${data.value ? ':' : ''}`;
+
+	$content.appendChild($text);
+	$node.appendChild($content);
+
+	if (data.children && !data.value) {
+		// Branch (root)
+		const $expander = document.createElement('div');
+		$expander.className = 'expander';
+		$expander.innerHTML = svgOpen;
+
+		$content.insertBefore($expander, $text);
+
+		const $childcontainer = document.createElement('div');
+		$childcontainer.className = 'child-container';
+		$childcontainer.style.display = 'none';
+
+		// Recursively create child nodes
+		for (const child of data.children) {
+			const $childnode = createTreeNode(child);
+			$childcontainer.appendChild($childnode);
+		}
+
+		$node.appendChild($childcontainer);
+
+		$content.addEventListener('click', (ev) => {
+			ev.stopPropagation();
+			$childcontainer.style.display =
+				$childcontainer.style.display === 'none' ? '' : 'none';
+			const isHidden = $childcontainer.style.display === 'none';
+			$expander.innerHTML = isHidden ? svgOpen : svgClose;
+		});
+	} else if (!data.children && (data.value || !data.value)) {
+		$text.classList.add('child-name');
+		// Data leaf (child)
+		const $span = document.createElement('span');
+		$span.className = 'child-value';
+		$span.textContent = data.value ?? 'N/A';
+		if (!data.value) {
+			$text.textContent += ':';
+		}
+		$span.addEventListener('click', async (ev) => {
+			ev.stopPropagation();
+			await navigator.clipboard.writeText(data.value).catch(() => {});
+		});
+		$content.appendChild($span);
+	}
+
+	return $node;
 }
 
 function createTree(data) {
@@ -114,7 +125,7 @@ function parseTreeData(data, type) {
 										},
 										{
 											name: 'Description',
-											value: i.sDesc ?? '',
+											value: i.sDesc,
 										},
 									],
 								};

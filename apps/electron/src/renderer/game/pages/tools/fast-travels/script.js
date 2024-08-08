@@ -9,12 +9,21 @@ const getRoomNumber = () => {
 
 window.addEventListener('DOMContentLoaded', async () => {
 	const $container = document.getElementById('locations');
-	const locations = await fileManager.readJSON('fast-travels.json');
+	const locations = await fileManager
+		.readJSON('fast-travels.json')
+		.catch(() => null);
+
+	if (!locations) {
+		return;
+	}
 
 	for (const location of locations) {
+		if (!location.map) {
+			continue;
+		}
+
 		const $btn = document.createElement('button');
-		$btn.classList.add('w3-button');
-		$btn.style = 'background-color: #2f2f2f';
+		$btn.classList.add('w3-button', 'w3-border');
 		$btn.textContent = location.name;
 
 		$btn.addEventListener('click', async () => {
