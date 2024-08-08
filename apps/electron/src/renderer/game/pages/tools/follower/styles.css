@@ -1,0 +1,13 @@
+#card1,
+#card2 {
+	background-color: var(--bg-secondary);
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+#player,
+#skill-delay,
+#attack-priority {
+	height: 36px;
+}

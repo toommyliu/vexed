@@ -26,9 +26,6 @@ importers:
       fs-extra:
         specifier: ^11.2.0
         version: 11.2.0
-      nanoid:
-        specifier: ^3.3.7
-        version: 3.3.7
       nw-flash-trust:
         specifier: ^0.3.0
         version: 0.3.0
