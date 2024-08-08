@@ -20,12 +20,6 @@ let f_config = {};
 let p_intervalID;
 let p_index = 0;
 
-window.windows = {
-	game: window,
-	tools: { fastTravels: null, loaderGrabber: null, follower: null },
-	packets: { logger: null, spammer: null },
-};
-
 //#region dom manipulation
 window.addEventListener('DOMContentLoaded', async () => {
 	const keys = ['scripts', 'tools', 'packets', 'options'];
@@ -65,10 +59,9 @@ window.addEventListener('DOMContentLoaded', async () => {
 			'#tools-dropdowncontent > button:nth-child(1)',
 		);
 		$btn.addEventListener('click', () => {
-			window.windows.tools.fastTravels = window.open(
-				'./pages/tools/fast-travels/index.html',
-				null,
-				'width=510,height=494',
+			ipcRenderer.send(
+				'root:create_or_focus_window',
+				'tools:fast-travels',
 			);
 		});
 	}
@@ -77,9 +70,9 @@ window.addEventListener('DOMContentLoaded', async () => {
 			'#tools-dropdowncontent > button:nth-child(2)',
 		);
 		$btn.addEventListener('click', () => {
-			window.windows.tools.loaderGrabber = window.open(
-				'./pages/tools/loader-grabber/index.html',
-				null,
+			ipcRenderer.send(
+				'root:create_or_focus_window',
+				'tools:loader-grabber',
 			);
 		});
 	}
@@ -88,11 +81,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 			'#tools-dropdowncontent > button:nth-child(3)',
 		);
 		$btn.addEventListener('click', () => {
-			window.windows.tools.follower = window.open(
-				'./pages/tools/follower/index.html',
-				null,
-				'width=402,height=466',
-			);
+			ipcRenderer.send('root:create_or_focus_window', 'tools:follower');
 		});
 	}
 
@@ -101,11 +90,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 			'#packets-dropdowncontent > button:nth-child(1)',
 		);
 		$btn.addEventListener('click', () => {
-			window.windows.packets.logger = window.open(
-				'./pages/packets/logger/index.html',
-				null,
-				'width=560,height=286',
-			);
+			ipcRenderer.send('root:create_or_focus_window', 'packets:logger');
 		});
 	}
 
@@ -114,10 +99,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 			'#packets-dropdowncontent > button:nth-child(2)',
 		);
 		$btn.addEventListener('click', () => {
-			window.windows.packets.spammer = window.open(
-				'./pages/packets/spammer/index.html',
-				null,
-			);
+			ipcRenderer.send('root:create_or_focus_window', 'packets:spammer');
 		});
 	}
 
@@ -221,52 +203,52 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 		await bot.bank.open();
 	});
-});
-//#endregion
 
-//#region input
-window.addEventListener('click', (ev) => {
-	mapping.forEach((el, key) => {
-		if (ev.target.id === key) {
-			// Show the selected dropdown
-			el.classList.toggle('w3-show');
-		} else {
-			// Don't close for this option
-			if (ev.target.id !== 'option-walkspeed') {
-				// Hide the other dropdowns
+	//#region input
+	window.addEventListener('click', (ev) => {
+		mapping.forEach((el, key) => {
+			if (ev.target.id === key) {
+				// Show the selected dropdown
+				el.classList.toggle('w3-show');
+			} else {
+				// Don't close for this option
+				if (ev.target.id !== 'option-walkspeed') {
+					// Hide the other dropdowns
+					el.classList.remove('w3-show');
+				}
+			}
+		});
+	});
+
+	window.addEventListener('mousedown', (ev) => {
+		// Close all dropdowns when the game is focused
+		if (ev.target.id === 'swf') {
+			mapping.forEach((el) => {
 				el.classList.remove('w3-show');
+			});
+		}
+	});
+
+	window.addEventListener('keydown', (ev) => {
+		// Allow certain shortcuts to go through
+		if (ev.metaKey && ev.target.id === 'swf') {
+			switch (ev.key.toLowerCase()) {
+				case 'w': // CMD+W
+				case 'q': // CMD+Q
+					window.close();
+					break;
+				case 'r': // CMD+SHIFT+R
+					if (ev.shiftKey) {
+						window.location.reload();
+					}
+					break;
+				default:
+					console.log('Unhandled key', ev.key);
+					return;
 			}
 		}
 	});
-});
-
-window.addEventListener('mousedown', (ev) => {
-	// Close all dropdowns when the game is focused
-	if (ev.target.id === 'swf') {
-		mapping.forEach((el) => {
-			el.classList.remove('w3-show');
-		});
-	}
-});
-
-window.addEventListener('keydown', (ev) => {
-	// Allow certain shortcuts to go through
-	if (ev.metaKey && ev.target.id === 'swf') {
-		switch (ev.key.toLowerCase()) {
-			case 'w': // CMD+W
-			case 'q': // CMD+Q
-				window.close();
-				break;
-			case 'r': // CMD+SHIFT+R
-				if (ev.shiftKey) {
-					window.location.reload();
-				}
-				break;
-			default:
-				console.log('Unhandled key', ev.key);
-				return;
-		}
-	}
+	//#endregion
 });
 //#endregion
 

@@ -43,10 +43,8 @@ window.addEventListener('DOMContentLoaded', () => {
 	});
 });
 
-window.onmessage = (ev) => {
-	const {
-		data: { event, args },
-	} = ev;
+ipcRenderer.on('root:window_postmessage', (ev, og_args) => {
+	const { event, args } = og_args;
 
 	switch (event) {
 		case 'logger:packet':
@@ -69,4 +67,4 @@ window.onmessage = (ev) => {
 			}
 			break;
 	}
-};
+});
