@@ -24,24 +24,14 @@ class Settings {
 		 */
 		this.bot = bot;
 
-		this.#optionInfiniteRange = document.getElementById(
-			'option-infinite-range',
-		);
-		this.#optionProvokeMap = document.getElementById('option-provoke-map');
-		this.#optionProvokeCell = document.getElementById(
-			'option-provoke-cell',
-		);
-		this.#optionEnemyMagnet = document.getElementById(
-			'option-enemy-magnet',
-		);
-		this.#optionLagKiller = document.getElementById('option-lag-killer');
-		this.#optionHidePlayers = document.getElementById(
-			'option-hide-players',
-		);
-		this.#optionSkipCutscenes = document.getElementById(
-			'option-skip-cutscenes',
-		);
-		this.#optionWalkSpeed = document.getElementById('option-walkspeed');
+		this.#optionInfiniteRange = $('#option-infinite-range');
+		this.#optionProvokeMap = $('#option-provoke-map');
+		this.#optionProvokeCell = $('#option-provoke-cell');
+		this.#optionEnemyMagnet = $('#option-enemy-magnet');
+		this.#optionLagKiller = $('#option-lag-killer');
+		this.#optionHidePlayers = $('#option-hide-players');
+		this.#optionSkipCutscenes = $('#option-skip-cutscenes');
+		this.#optionWalkSpeed = $('#option-walkspeed');
 
 		this.#intervalID = this.bot.timerManager.setInterval(() => {
 			if (

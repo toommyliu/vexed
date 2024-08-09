@@ -24,7 +24,7 @@ let p_index = 0;
 window.addEventListener('DOMContentLoaded', async () => {
 	const keys = ['scripts', 'tools', 'packets', 'options'];
 	for (const k of keys) {
-		mapping.set(k, document.getElementById(`${k}-dropdowncontent`));
+		mapping.set(k, $(`#${k}-dropdowncontent`));
 	}
 
 	{

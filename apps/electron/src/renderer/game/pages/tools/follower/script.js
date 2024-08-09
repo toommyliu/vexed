@@ -2,7 +2,7 @@ const parent = window.opener;
 
 window.addEventListener('DOMContentLoaded', async () => {
 	{
-		const $btn = document.getElementById('me');
+		const $btn = $('#me');
 		$btn.addEventListener('click', () => {
 			parent.postMessage({
 				event: 'follower:me',
@@ -11,16 +11,15 @@ window.addEventListener('DOMContentLoaded', async () => {
 	}
 
 	{
-		const $start = document.getElementById('start');
+		const $start = $('#start');
 		$start.addEventListener('click', () => {
 			if ($start.checked) {
-				const player = document.getElementById('player').value;
-				const skills = document.getElementById('skills').value;
-				const wait = document.getElementById('skill-wait').checked;
-				const delay = document.getElementById('skill-delay').value;
-				const attackPriority =
-					document.getElementById('attack-priority').value;
-				const copyWalk = document.getElementById('copy-walk').checked;
+				const player = $('#player').value;
+				const skills = $('#skills').value;
+				const wait = $('#skill-wait').checked;
+				const delay = $('#skill-delay').value;
+				const attackPriority = $('#attack-priority').value;
+				const copyWalk = $('#copy-walk').checked;
 
 				const config = {
 					player,
@@ -49,7 +48,7 @@ window.addEventListener('message', (ev) => {
 				return;
 			}
 
-			document.getElementById('player').value = args;
+			$('#player').value = args;
 			break;
 	}
 });

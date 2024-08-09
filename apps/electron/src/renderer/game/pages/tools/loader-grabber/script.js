@@ -267,7 +267,7 @@ window.addEventListener('message', (ev) => {
 		case 'tools:loadergrabber:grab':
 			treeData = parseTreeData(data, type);
 
-			const container = document.getElementById('tree');
+			const container = $('#tree');
 
 			// Clear the tree
 			while (container.firstChild) {
@@ -282,10 +282,10 @@ window.addEventListener('message', (ev) => {
 
 window.addEventListener('DOMContentLoaded', async () => {
 	{
-		const $btn = document.getElementById('loader-btn');
+		const $btn = $('#loader-btn');
 		$btn.addEventListener('click', async () => {
-			const $id = document.getElementById('loader-id');
-			const $source = document.getElementById('loader-select');
+			const $id = $('#loader-id');
+			const $source = $('#loader-select');
 
 			const source = $source.value;
 			const id = $id.value;
@@ -306,8 +306,9 @@ window.addEventListener('DOMContentLoaded', async () => {
 	}
 
 	{
-		const $btn = document.getElementById('grabber-btn');
-		const $source = document.getElementById('grabber-select');
+		const $btn = $('#grabber-btn');
+		const $source = $('#grabber-select');
+
 		$btn.addEventListener('click', async () => {
 			const type = $source.value;
 			if (!type) {
