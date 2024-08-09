@@ -2,44 +2,44 @@ const { ipcRenderer } = require('electron');
 
 const parent = window.opener;
 
-let $container;
+let container;
 
 const packets = [];
 let on = false;
 
 window.addEventListener('DOMContentLoaded', () => {
-	$container = $('#logger');
+	container = document.getElementById('logger');
 
-	const $save = $('#save');
-	const $copy = $('#copy');
-	const $clear = $('#clear');
+	const save = document.getElementById('save');
+	const copy = document.getElementById('copy');
+	const clear = document.getElementById('clear');
 
-	const $stop = $('#stop');
-	const $start = $('#start');
+	const stop = document.getElementById('stop');
+	const start = document.getElementById('start');
 
-	$save.addEventListener('click', () => {
+	save.addEventListener('click', () => {
 		ipcRenderer.send('packets:save', packets);
 	});
 
-	$copy.addEventListener('click', async () => {
+	copy.addEventListener('click', async () => {
 		await navigator.clipboard.writeText(packets.join('\n')).catch(() => {});
 	});
 
-	$clear.addEventListener('click', () => {
+	clear.addEventListener('click', () => {
 		packets.length = 0;
-		$container.innerHTML = '';
+		container.innerHTML = '';
 	});
 
-	$stop.addEventListener('click', () => {
+	stop.addEventListener('click', () => {
 		on = false;
-		$stop.classList.add('w3-disabled');
-		$start.classList.remove('w3-disabled');
+		stop.classList.add('w3-disabled');
+		start.classList.remove('w3-disabled');
 	});
 
-	$start.addEventListener('click', () => {
+	start.addEventListener('click', () => {
 		on = true;
-		$start.classList.add('w3-disabled');
-		$stop.classList.remove('w3-disabled');
+		start.classList.add('w3-disabled');
+		stop.classList.remove('w3-disabled');
 	});
 });
 
@@ -60,8 +60,8 @@ ipcRenderer.on('root:window_postmessage', (ev, og_args) => {
 					await navigator.clipboard.writeText(pkt);
 				});
 
-				$container.appendChild(div);
-				$container.scrollTop = $container.scrollHeight;
+				container.appendChild(div);
+				container.scrollTop = container.scrollHeight;
 
 				packets.push(pkt);
 			}

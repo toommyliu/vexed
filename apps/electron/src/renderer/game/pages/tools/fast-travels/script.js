@@ -4,11 +4,11 @@ const fileManager = new FileManager();
 const parent = window.opener;
 
 const getRoomNumber = () => {
-	return $('#room-number').value;
+	return document.getElementById('room-number').value;
 };
 
 window.addEventListener('DOMContentLoaded', async () => {
-	const $container = $('#locations');
+	const $container = document.getElementById('locations');
 	const locations = await fileManager
 		.readJSON('fast-travels.json')
 		.catch(() => null);
