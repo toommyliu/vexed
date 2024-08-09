@@ -1,6 +1,8 @@
 :root {
 	--bg-primary: hsl(204deg 14.29% 6.86%);
-	--bg-secondary: hsl(210deg 15.79% 7.45%);
+	--bg-secondary: hsl(204deg 14.29% 9.5%);
+	--bg-tertiary: hsl(204deg 14.29% 12%);
+	--color-primary: rgb(11 107 203);
 }
 
 html,
@@ -19,8 +21,9 @@ body {
 	color: white !important;
 }
 
+.w3-btn,
 .w3-button {
-	background-color: #2a2a2a !important;
+	background-color: var(--color-primary) !important;
 	color: white !important;
 }
 
@@ -35,7 +38,7 @@ body {
 }
 ::-webkit-scrollbar-corner {
 	background: #1a1a1a;
-  }
+}
 
 ::-webkit-scrollbar-thumb {
 	background: #888;

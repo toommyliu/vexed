@@ -1,6 +1,6 @@
 #loader,
 #grabber {
-	background-color: var(--bg-secondary);
+	background-color: var(--bg-secondary) !important;
 }
 
 #tree {
@@ -14,8 +14,6 @@
 	color: white;
 	background-color: var(--bg-secondary);
 	margin-bottom: 16px;
-	border: 1px solid rgba(255, 255, 255, 0.23);
-	border-radius: 4px;
 }
 
 .node {

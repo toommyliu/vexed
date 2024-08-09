@@ -23,7 +23,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 		}
 
 		const $btn = document.createElement('button');
-		$btn.classList.add('w3-button', 'w3-border');
+		$btn.classList.add('w3-btn', 'w3-border', 'w3-round-medium');
 		$btn.textContent = location.name;
 
 		$btn.addEventListener('click', async () => {

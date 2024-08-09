@@ -97,3 +97,7 @@ body {
 	margin-right: -4px;
 	padding: 0 10px;
 }
+
+.w3-button {
+	background-color: var(--bg-primary) !important;
+}
