@@ -1,66 +1,45 @@
-<a name="Drops"></a>
+# Drops
 
-## Drops
-**Kind**: global class  
+<p>For managing game drops.</p>
 
-* [Drops](#Drops)
-    * [new Drops(bot)](#new_Drops_new)
-    * [.stack](#Drops+stack) : <code>Map.&lt;number, number&gt;</code>
-    * [.addToStack(itemData)](#Drops+addToStack) ⇒ <code>void</code>
-    * [.removeFromStack(itemID)](#Drops+removeFromStack) ⇒ <code>void</code>
-    * [.reset()](#Drops+reset) ⇒ <code>void</code>
-    * [.pickup(itemResolvable)](#Drops+pickup) ⇒ <code>Promise.&lt;void&gt;</code>
+## Properties
 
-<a name="new_Drops_new"></a>
+### stack
+<p>The drop stack as shown in game.</p>
 
-### new Drops(bot)
 
-| Param | Type |
-| --- | --- |
-| bot | <code>Bot</code> | 
+Return type: Record<number, number>
 
-<a name="Drops+stack"></a>
+## Methods
 
-### drops.stack : <code>Map.&lt;number, number&gt;</code>
-The items dropped and their quantity. Maps item ID to their quantity.
+### getItemFromID(itemID: number)
 
-**Kind**: instance property of [<code>Drops</code>](#Drops)  
-<a name="Drops+addToStack"></a>
 
-### drops.addToStack(itemData) ⇒ <code>void</code>
-Adds an item to the drop stack.
+Return type: ItemData
 
-**Kind**: instance method of [<code>Drops</code>](#Drops)  
+### getItemFromName(itemName: string)
 
-| Param | Type | Description |
-| --- | --- | --- |
-| itemData | [<code>ItemData</code>](#ItemData) | The item to add. |
 
-<a name="Drops+removeFromStack"></a>
+Return type: ItemData
 
-### drops.removeFromStack(itemID) ⇒ <code>void</code>
-Removes an item from the drop stack.
+### getNameFromID(itemID: number)
 
-**Kind**: instance method of [<code>Drops</code>](#Drops)  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| itemID | <code>number</code> | The ID of the item to remove. |
+Return type: string
 
-<a name="Drops+reset"></a>
+### getIDFromName(itemName: string)
 
-### drops.reset() ⇒ <code>void</code>
-Resets the drop stack to a clean state.
 
-**Kind**: instance method of [<code>Drops</code>](#Drops)  
-<a name="Drops+pickup"></a>
+Return type: number
 
-### drops.pickup(itemResolvable) ⇒ <code>Promise.&lt;void&gt;</code>
-Collects an item from the drop stack, effectively removing it from the stack.
+### getDropCount(itemID: number)
+Returns the count of the item in the drop stack. Returns -1 if it hasn't dropped.
 
-**Kind**: instance method of [<code>Drops</code>](#Drops)  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| itemResolvable | <code>string</code> \| <code>number</code> | The name or ID of the item to collect. |
+Return type: number
 
+### addDrop(: ?import('./struct/Item').ItemData)
+Adds an item to the internal store and the stack as visible to the client.
+
+
+Return type: void

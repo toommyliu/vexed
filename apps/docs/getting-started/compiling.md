@@ -19,6 +19,44 @@ Any modern version of Node.js should work fine. As long as its LTS or higher, yo
 1. Clone the repository (`git clone`)
 2. Install dependencies (`pnpm i`)
 
+### Game loader compilation
+
+The following steps are only required if you want to modify and compile the game swf. While technically you can do the same through [JPEXS Flash Decompiler](https://github.com/jindrapetrik/jpexs-decompiler), it's quite tedious and not recommended since you'll only be looking through decompiled code which is not very helpful.
+
+1. Install brew
+
+   1.1 This is only to install `openjdk`, which is used by the compiler. Install through another means if necessary.
+
+2. Install openjdk
+
+   2.1 Make sure `openjdk` can be found in your PATH:
+
+   ```bash
+   # If you need to have openjdk first in your PATH, run:
+   echo 'export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"' >> ~/.zshrc
+
+   # For compilers to find openjdk you may need to set:
+   export CPPFLAGS="-I/opt/homebrew/opt/openjdk/include"
+   ```
+
+    2.2 Reopen the terminal and run: `java --version` to ensure it's installed correctly.
+
+3. Installing a Flash SDK
+
+   3.1 It is recommend to use the [Moonshine SDK Installer](https://moonshine-ide.com/download-sdk-installer/).
+
+   3.2 Open Moonshine SDK Installer and download the **Apache Flex SDK (Harman AIR)**
+
+   3.3 SDKs should be installed to your downloads folder.
+
+4. Setting up VSCode
+
+   4.1 Install the [Actionscript extension](https://marketplace.visualstudio.com/items?itemName=bowlerhatllc.vscode-as3mxml).
+
+   4.2 Open the command palette (CMD+SHIFT+P) and search for **ActionScript: Select Workspace SDK** > **Add more SDKs to this list...** > and find the SDK directory
+
+   4.3 To test that it's working, you can open any actionscript file and compile it (CMD+SHIFT+B) > **ActionScript: Compile Release**
+
 ## Running the app
 
 To run in development mode, you can the `dev` script in either the project root or electron root. If you need HMR, run `dev:watch` inside the electron root.
@@ -33,7 +71,7 @@ If you aren't relying on HMR, you can simply save changes locally in your code e
 
 For example, if you want to refresh the Tools window, save, then click onto the Tools window and press CMD+SHIFT+R. Any local changes since then should now be reflected.
 
-From observation, this only works if changes were made to the renderer and not the main application. In this case, you may need to relaunch.
+Any changes made to the renderer process (src/renderer) can be updated through a manual refresh. Changes to the main process (src/main) requires the app to be restarted.
 
 ## Compilation
 

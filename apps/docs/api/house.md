@@ -1,35 +1,18 @@
-<a name="House"></a>
+# import('./Bot')
 
-## House
-**Kind**: global class  
 
-* [House](#House)
-    * [new House(bot)](#new_House_new)
-    * [.bot](#House+bot) : <code>Bot</code>
-    * [.items](#House+items) ⇒ <code>Array.&lt;HouseItem&gt;</code>
-    * [.totalSlots](#House+totalSlots) ⇒ <code>number</code>
 
-<a name="new_House_new"></a>
+## Properties
 
-### new House(bot)
+### items
+<p>Gets house items of the current player.</p>
 
-| Param | Type |
-| --- | --- |
-| bot | <code>Bot</code> | 
 
-<a name="House+bot"></a>
+Return type: HouseItem[]
 
-### house.bot : <code>Bot</code>
-**Kind**: instance property of [<code>House</code>](#House)  
-<a name="House+items"></a>
+### totalSlots
+<p>Gets the total number of house item slots.</p>
 
-### house.items ⇒ <code>Array.&lt;HouseItem&gt;</code>
-Gets house items of the current player.
 
-**Kind**: instance property of [<code>House</code>](#House)  
-<a name="House+totalSlots"></a>
+Return type: number
 
-### house.totalSlots ⇒ <code>number</code>
-Gets the total number of house item slots.
-
-**Kind**: instance property of [<code>House</code>](#House)  

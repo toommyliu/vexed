@@ -1,100 +1,49 @@
-<a name="Bank"></a>
+# import('./Bot')
 
-## Bank
-**Kind**: global class  
 
-* [Bank](#Bank)
-    * [new Bank(bot)](#new_Bank_new)
-    * [.items](#Bank+items) ⇒ <code>Array.&lt;BankItem&gt;</code>
-    * [.availableSlots](#Bank+availableSlots) ⇒ <code>number</code>
-    * [.usedSlots](#Bank+usedSlots) ⇒ <code>number</code>
-    * [.totalSlots](#Bank+totalSlots) ⇒ <code>number</code>
-    * [.resolve(itemResolvable)](#Bank+resolve) ⇒ <code>BankItem</code>
-    * [.deposit(itemName)](#Bank+deposit) ⇒ <code>Promise.&lt;void&gt;</code>
-    * [.withdraw(itemName)](#Bank+withdraw) ⇒ <code>Promise.&lt;void&gt;</code>
-    * [.swap(bankItem, inventoryItem)](#Bank+swap) ⇒ <code>Promise.&lt;void&gt;</code>
-    * [.open()](#Bank+open) ⇒ <code>Promise.&lt;void&gt;</code>
 
-<a name="new_Bank_new"></a>
+## Properties
 
-### new Bank(bot)
+### items
+<p>The list of items in the bank.</p>
 
-| Param | Type |
-| --- | --- |
-| bot | <code>Bot</code> | 
 
-<a name="Bank+items"></a>
+Return type: BankItem[]
 
-### bank.items ⇒ <code>Array.&lt;BankItem&gt;</code>
-Gets the items in the Bank of the current player. The Bank must have been loaded before.
+### availableSlots
+<p>Gets the count of available slots of bankable non-AC items</p>
 
-**Kind**: instance property of [<code>Bank</code>](#Bank)  
-<a name="Bank+availableSlots"></a>
 
-### bank.availableSlots ⇒ <code>number</code>
-Gets the count of available slots of bankable non-AC items.
+Return type: number
 
-**Kind**: instance property of [<code>Bank</code>](#Bank)  
-<a name="Bank+usedSlots"></a>
+### usedSlots
+<p>Gets the count of used slots of bankable non-AC items</p>
 
-### bank.usedSlots ⇒ <code>number</code>
-Gets the count of used slots of bankable non-AC items.
 
-**Kind**: instance property of [<code>Bank</code>](#Bank)  
-<a name="Bank+totalSlots"></a>
+Return type: number
 
-### bank.totalSlots ⇒ <code>number</code>
-Gets the total slots of bankable non-AC items.
+### totalSlots
+<p>Gets the total slots of bankable non-AC items</p>
 
-**Kind**: instance property of [<code>Bank</code>](#Bank)  
-<a name="Bank+resolve"></a>
 
-### bank.resolve(itemResolvable) ⇒ <code>BankItem</code>
-Resolves an item from the Bank.
+Return type: number
 
-**Kind**: instance method of [<code>Bank</code>](#Bank)  
+## Methods
 
-| Param | Type | Description |
-| --- | --- | --- |
-| itemResolvable | <code>string</code> \| <code>number</code> | The name or ID of the item. |
+### get(itemKey: string | number)
+Gets an item from the Bank, items should be loaded beforehand
 
-<a name="Bank+deposit"></a>
 
-### bank.deposit(itemName) ⇒ <code>Promise.&lt;void&gt;</code>
-Puts an item into the Bank.
+Return type: BankItem|null
 
-**Kind**: instance method of [<code>Bank</code>](#Bank)  
+### contains(itemKey: string | number, quantity: number)
+Whether the item meets some quantity in this store
 
-| Param | Type | Description |
-| --- | --- | --- |
-| itemName | <code>string</code> | The name of the item. |
 
-<a name="Bank+withdraw"></a>
+Return type: boolean
 
-### bank.withdraw(itemName) ⇒ <code>Promise.&lt;void&gt;</code>
-Takes an item out of the bank.
+### isOpen()
+Whether the bank ui is open.
 
-**Kind**: instance method of [<code>Bank</code>](#Bank)  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| itemName | <code>string</code> | The name of the item. |
-
-<a name="Bank+swap"></a>
-
-### bank.swap(bankItem, inventoryItem) ⇒ <code>Promise.&lt;void&gt;</code>
-Swaps an item from the bank with an item from the inventory.
-
-**Kind**: instance method of [<code>Bank</code>](#Bank)  
-
-| Param | Type |
-| --- | --- |
-| bankItem | <code>string</code> | 
-| inventoryItem | <code>string</code> | 
-
-<a name="Bank+open"></a>
-
-### bank.open() ⇒ <code>Promise.&lt;void&gt;</code>
-Opens the bank ui.
-
-**Kind**: instance method of [<code>Bank</code>](#Bank)  
+Return type: boolean

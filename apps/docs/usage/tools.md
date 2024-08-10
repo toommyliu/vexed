@@ -2,12 +2,14 @@
 
 ## Fast travels
 
-Shortcuts to popular locations. Does not support any bypasses, yet.
+Shortcuts to popular areas in the game.
+
+The list of locations are stored in `Documents/Vexed/Locations.json`.
 
 ## Loader/grabber
 
-Grabs and loads game data. Supports tree views.
+Grabs and loads various forms of game data, displayed in a neat tree view.
 
-## Maid
+## Follower
 
-Similar to Grimoire's maid, but worse and yet partially functional. Has little-to-no use outside of following and attacking monsters.
+Similar to Grimoire's Maid feature, but worse and yet partially functional. Has little-to-no use outside of following and attacking monsters.

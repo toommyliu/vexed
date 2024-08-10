@@ -1,45 +1,37 @@
----
-outline: deep
----
+# AbortController
 
-# Bot
 
-The bot instance. 
 
-There isn't anything special about the class, it's really only used to manage control flow across the API. The class follows the singleton pattern, you should never be constructing an instance whatsoever.
+## Properties
 
-## Static methods
+### running
+<p>Whether the bot is &quot;running&quot;.</p>
 
-### Bot#getInstance()
 
-```js
-/**
- * Returns the bot singleton.
- * @returns {Bot}
-*/
-Bot.getInstance();
-```
+Return type: boolean
 
-## Instance methods
+## Methods
 
-### Bot#sleep
+### sleep(ms: number)
 
-```js
-/**
- * Pauses execution for a certain period of time.
- * @param {number} ms The time to wait for
- * @returns {Promise<void>}
-*/
-await bot.sleep(ms)
-```
 
-### Bot#waitUntil
-```js
-/**
- * Pauses execution until the predicate is truthy.
- * This is guaranteed to yield atleast 1 second.
- * @param {() => bool} predicate The function to check against.
- * @returns {Promise<void>}
-*/
-await bot.waitUntil(predicate);
-```
+Return type: GENERIC
+
+### start()
+Raises the running flag. While this does not start a script, it setups various tasks used during a
+script's runtime. For example, the auto relogin background task.
+
+
+Return type: void
+
+### stop()
+Lowers the running flag. While this does not stop a script, it removes any background tasks that were set up on start.
+
+
+Return type: void
+
+### getInstance()
+Gets the singleton instance of the Bot class.
+
+
+Return type: Bot
