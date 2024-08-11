@@ -64,7 +64,6 @@ export default defineConfig({
           { text: "Flash", link: "/api/flash" },
           { text: "House", link: "/api/house" },
           { text: "Inventory", link: "/api/inventory" },
-          { text: "Monster", link: "/api/monster" },
           { text: "Packet", link: "/api/packet" },
           { text: "Player", link: "/api/player" },
           { text: "Quests", link: "/api/quests" },

@@ -30,19 +30,25 @@ Return type: number
 
 ## Methods
 
-### get(itemKey: string | number)
+### get
+Signature: `get(itemKey: string | number)`
+
 Gets an item from the Bank, items should be loaded beforehand
 
 
 Return type: BankItem|null
 
-### contains(itemKey: string | number, quantity: number)
+### contains
+Signature: `contains(itemKey: string | number, quantity: number)`
+
 Whether the item meets some quantity in this store
 
 
 Return type: boolean
 
-### isOpen()
+### isOpen
+Signature: `isOpen()`
+
 Whether the bank ui is open.
 
 

@@ -110,6 +110,7 @@ class Shops {
 	/**
 	 * Loads a Hair Shop menu.
 	 * @param {number} id
+	 * @returns {void}
 	 */
 	loadHairShop(id) {
 		this.bot.flash.call(swf.LoadHairShop, String(id));

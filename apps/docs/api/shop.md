@@ -1,4 +1,4 @@
-# import('./Bot')
+# 
 
 
 
@@ -18,19 +18,25 @@ Return type: ShopInfo
 
 ## Methods
 
-### reset()
+### reset
+Signature: `reset()`
+
 Reset loaded shop info.
 
 
 Return type: void
 
-### loadHairShop(id: number)
+### loadHairShop
+Signature: `loadHairShop(id: number)`
+
 Loads a Hair Shop menu.
 
 
 Return type: void
 
-### loadArmorCustomise()
+### loadArmorCustomise
+Signature: `loadArmorCustomise()`
+
 Loads the Armor Customization menu.
 
 

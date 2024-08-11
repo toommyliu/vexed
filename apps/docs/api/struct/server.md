@@ -42,13 +42,17 @@ Return type: number
 
 ## Methods
 
-### isUpgrade()
+### isUpgrade
+Signature: `isUpgrade()`
+
 Whether the server is an upgrade-only server
 
 
 Return type: boolean
 
-### isCanned()
+### isCanned
+Signature: `isCanned()`
+
 The chat-level restriction of the server (0=canned, 2=free)
 
 

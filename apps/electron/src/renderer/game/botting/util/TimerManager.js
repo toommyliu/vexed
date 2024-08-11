@@ -99,10 +99,10 @@ async function clearIntervalAsync(timer) {
 }
 
 class TimerManager {
-	static #intervals = new Set();
-	static #timeouts = new Set();
+	#intervals = new Set();
+	#timeouts = new Set();
 
-	static setInterval(fn, interval) {
+	setInterval(fn, interval) {
 		const id = setIntervalAsync(async () => {
 			await fn();
 		}, interval);
@@ -110,12 +110,12 @@ class TimerManager {
 		return id;
 	}
 
-	static async clearInterval(id) {
+	async clearInterval(id) {
 		clearIntervalAsync(id);
 		this.#intervals.delete(id);
 	}
 
-	static setTimeout(fn, delay, ...args) {
+	setTimeout(fn, delay, ...args) {
 		const timeout = setTimeout(() => {
 			this.#timeouts.delete(timeout);
 			fn(...args);
@@ -124,7 +124,7 @@ class TimerManager {
 		return timeout;
 	}
 
-	static clearTimeout(timeout) {
+	clearTimeout(timeout) {
 		clearTimeout(timeout);
 		this.#timeouts.delete(timeout);
 	}

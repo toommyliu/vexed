@@ -44,9 +44,9 @@ class Bot extends EventEmitter {
 		this.flash = new Flash();
 
 		/**
-		 * @type {typeof import('../util/TimerManager')}
+		 * @type {import('../util/TimerManager')}
 		 */
-		this.timerManager = TimerManager;
+		this.timerManager = new TimerManager();
 
 		/**
 		 * @type {import('./Auth')}
@@ -148,8 +148,7 @@ class Bot extends EventEmitter {
 	}
 
 	/**
-	 * Raises the running flag. While this does not start a script, it setups various tasks used during a
-	 * script's runtime. For example, the auto relogin background task.
+	 * Raises the running flag. While this does not start a script, it setups various tasks used during a script's runtime. For example, the auto relogin background task.
 	 * @returns {void}
 	 */
 	start() {
@@ -163,8 +162,7 @@ class Bot extends EventEmitter {
 	}
 
 	/**
-	 * Lowers the running flag. While this does not stop a script, it removes any background tasks that were
-	 * set up on start.
+	 * Lowers the running flag. While this does not stop a script, it removes any background tasks that were set up on start.
 	 * @returns {void}
 	 */
 	stop() {
@@ -178,7 +176,7 @@ class Bot extends EventEmitter {
 	}
 
 	/**
-	 * Whether the bot is "running".
+	 * Whether the bot is running.
 	 * @returns {boolean}
 	 */
 	get running() {

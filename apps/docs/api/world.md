@@ -1,4 +1,4 @@
-# import('./Bot')
+# 
 
 
 
@@ -102,37 +102,49 @@ Return type: string
 
 ## Methods
 
-### isMonsterAvailable(monsterResolvable: string)
+### isMonsterAvailable
+Signature: `isMonsterAvailable(monsterResolvable: string)`
+
 Whether a monster is available.
 
 
 Return type: boolean
 
-### reload()
+### reload
+Signature: `reload()`
+
 Reloads the map.
 
 
 Return type: void
 
-### setSpawnPoint()
+### setSpawnPoint
+Signature: `setSpawnPoint()`
+
 Sets the player's spawnpoint to the current cell and pad.
 
 
 Return type: void
 
-### goto(name: string)
+### goto
+Signature: `goto(name: string)`
+
 Goto the specified player.
 
 
 Return type: void
 
-### isActionAvailable(action: GameAction)
+### isActionAvailable
+Signature: `isActionAvailable(action: GameAction)`
+
 Whether the game action has cooled down.
 
 
 Return type: boolean
 
-### loadSWF(swf: string)
+### loadSWF
+Signature: `loadSWF(swf: string)`
+
 Loads a particular swf of the map.
 
 

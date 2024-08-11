@@ -6,7 +6,7 @@ class Combat {
 		this.bot = bot;
 
 		/**
-		 * Whether to temporarily stop attacking.
+		 * Whether to stop attacking because a counter attack is active.
 		 * @type {boolean}
 		 */
 		this.pauseAttack = false;
@@ -22,7 +22,7 @@ class Combat {
 
 	/**
 	 * Returns information about the target.
-	 * @returns {Record<string, unknown>|null}
+	 * @returns {Record<string,unknown>|null}
 	 */
 	get target() {
 		// prettier-ignore

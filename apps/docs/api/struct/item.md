@@ -1,4 +1,4 @@
-# ItemData
+# 
 
 
 
@@ -67,19 +67,25 @@ Return type: string
 
 ## Methods
 
-### isUpgrade()
+### isUpgrade
+Signature: `isUpgrade()`
+
 Indicates if the item is a member/upgrade only item.
 
 
 Return type: boolean
 
-### isAC()
+### isAC
+Signature: `isAC()`
+
 Indicates if the item is an AC item.
 
 
 Return type: boolean
 
-### isTemp()
+### isTemp
+Signature: `isTemp()`
+
 Whether the item is a temporary item.
 
 

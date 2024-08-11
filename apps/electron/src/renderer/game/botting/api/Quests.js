@@ -69,7 +69,7 @@ class Quests {
 	/**
 	 * Accepts a quest(s)
 	 * @param {string|number|string[]|number[]} questID The quest id(s) to accept. If using a string, it must be comma-separated.
-	 * @returns {Promise<void}
+	 * @returns {Promise<void>}
 	 */
 	// TODO: return whether quests were accepted
 	async accept(questID) {

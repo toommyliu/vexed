@@ -1,4 +1,4 @@
-# import('./Bot')
+# 
 
 
 
@@ -30,13 +30,17 @@ Return type: number
 
 ## Methods
 
-### get(itemKey: string | number)
+### get
+Signature: `get(itemKey: string | number)`
+
 Resolves an item from the Inventory.
 
 
 Return type: InventoryItem
 
-### contains(itemKey: string | number, quantity: number)
+### contains
+Signature: `contains(itemKey: string | number, quantity: number)`
+
 Whether the item meets some quantity in this store
 
 

@@ -1,4 +1,4 @@
-# import('./Bot')
+# 
 
 
 
@@ -8,17 +8,19 @@
 <p>Gets all quests loaded in the client.</p>
 
 
-Return type: import('./struct/Quest')[]
+Return type: Quest[]
 
 ### accepted
 <p>Gets all accepted quests.</p>
 
 
-Return type: import('./struct/Quest')[]
+Return type: Quest[]
 
 ## Methods
 
-### get(questKey: string | number)
+### get
+Signature: `get(questKey: string | number)`
+
 Resolves a Quest instance from the quest tree
 
 

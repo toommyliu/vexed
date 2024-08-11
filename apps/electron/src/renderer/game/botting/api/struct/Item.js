@@ -154,39 +154,4 @@ module.exports = Item;
  * @property {string} sName
  * @property {string} sType
  */
-/**
- * @typedef {Object} ItemData
- * @property {number} CharID
- * @property {number} CharItemID
- * @property {number} EnhDPS
- * @property {number} EnhID
- * @property {number} EnhLvl
- * @property {number} EnhPatternID
- * @property {number} EnhRng
- * @property {number} EnhRty
- * @property {number} ItemID
- * @property {boolean} bBank
- * @property {boolean} bCoins
- * @property {boolean} bEquip
- * @property {boolean} bStaff
- * @property {boolean} bTemp
- * @property {boolean} bUpg
- * @property {string} dPurchase
- * @property {number} iCost
- * @property {number} iDPS
- * @property {number} iHrs
- * @property {number} iLvl
- * @property {number} iQty
- * @property {number} iRng
- * @property {number} iRty
- * @property {number} iStk
- * @property {number} iType
- * @property {string} sDesc
- * @property {string} sES
- * @property {string} sElmt
- * @property {string} sFile
- * @property {string} sIcon
- * @property {string} sLink
- * @property {string} sName
- * @property {string} sType
- */
+

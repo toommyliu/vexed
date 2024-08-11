@@ -1,4 +1,4 @@
-# import('./Bot')
+# 
 
 
 
@@ -88,21 +88,19 @@ Return type: string
 
 Return type: string
 
-### loaded
-<p>Whether the player art and inventory has loaded.</p>
-
-
-Return type: boolean
-
 ## Methods
 
-### isMember()
+### isMember
+Signature: `isMember()`
+
 Checks if the current player has membership.
 
 
 Return type: boolean
 
-### walkTo(x: number, y: number)
+### walkTo
+Signature: `walkTo(x: number, y: number)`
+
 Walk to a position in the map.
 
 

@@ -1,6 +1,6 @@
-# Auth
+# import('./Bot')
 
-<p>For interacting with game authentication.</p>
+
 
 ## Properties
 
@@ -42,25 +42,33 @@ Return type: number
 
 ## Methods
 
-### login(username?: string, password?: string)
+### login
+Signature: `login(username?: string, password?: string)`
+
 Log in with the given account or the previous account (if available).
 
 
 Return type: void
 
-### logout()
+### logout
+Signature: `logout()`
+
 Logs out of the current account.
 
 
 Return type: void
 
-### resetServers()
+### resetServers
+Signature: `resetServers()`
+
 Resets the list of servers that is available to the client.
 
 
 Return type: boolean
 
-### connectTo(name: string)
+### connectTo
+Signature: `connectTo(name: string)`
+
 Connects to a server.
 
 
