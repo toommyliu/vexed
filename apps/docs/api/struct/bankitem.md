@@ -1,6 +1,9 @@
+---
+outline: deep
+---
 # BankItem
 
-<p>Represents an item in the bank.</p>
+Represents an item in the bank.
 
 
 

@@ -1,44 +1,59 @@
+---
+outline: deep
+---
 # Server
 
-<p>Represents a game server.</p>
+Represents a game server.
 
 ## Properties
 
 ### maxPlayers
-<p>The maximum number of players</p>
+*Getter*
+
+The maximum number of players
 
 
-Return type: number
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
 ### port
-<p>The port number the server is on</p>
+*Getter*
+
+The port number the server is on
 
 
-Return type: number
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
 ### langCode
-<p>The language of the server (en/xx/it/pt)</p>
+*Getter*
+
+The language of the server (en/xx/it/pt)
 
 
-Return type: string
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>
 
 ### name
-<p>The name of the server</p>
+*Getter*
+
+The name of the server
 
 
-Return type: string
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>
 
 ### ip
-<p>The IP address of the server</p>
+*Getter*
+
+The IP address of the server
 
 
-Return type: string
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>
 
 ### playerCount
-<p>The number of current players</p>
+*Getter*
+
+The number of current players
 
 
-Return type: number
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
 ## Methods
 
@@ -48,7 +63,7 @@ Signature: `isUpgrade()`
 Whether the server is an upgrade-only server
 
 
-Return type: boolean
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
 
 ### isCanned
 Signature: `isCanned()`
@@ -56,4 +71,4 @@ Signature: `isCanned()`
 The chat-level restriction of the server (0=canned, 2=free)
 
 
-Return type: boolean
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>

@@ -1,3 +1,6 @@
+---
+outline: deep
+---
 # TempInventory
 
 
@@ -5,10 +8,12 @@
 ## Properties
 
 ### items
-<p>Gets items in the Temp Inventory of the current player.</p>
+*Getter*
+
+Gets items in the Temp Inventory of the current player.
 
 
-Return type: TempInventoryItem[]
+Return type: <code><a href="/api/struct/tempinventoryitem">TempInventoryItem[]</a></code>
 
 ## Methods
 
@@ -18,7 +23,7 @@ Signature: `get(itemKey: string | number)`
 Resolves an item from the Bank.
 
 
-Return type: TempInventoryItem
+Return type: <code><a href="/api/struct/tempinventoryitem">?TempInventoryItem</a></code>
 
 ### contains
 Signature: `contains(itemKey: string | number, quantity: number)`
@@ -26,4 +31,4 @@ Signature: `contains(itemKey: string | number, quantity: number)`
 Whether the item meets some quantity in this store
 
 
-Return type: boolean
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>

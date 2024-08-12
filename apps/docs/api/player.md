@@ -1,3 +1,6 @@
+---
+outline: deep
+---
 # Player
 
 
@@ -5,88 +8,116 @@
 ## Properties
 
 ### factions
-<p>Get the player's factions data.</p>
+*Getter*
+
+Get the player's factions data.
 
 
-Return type: Faction[]
+Return type: <code><a href="/api/struct/faction">Faction[]</a></code>
 
 ### className
-<p>Gets the name of the player's equipped class.</p>
+*Getter*
+
+Gets the name of the player's equipped class.
 
 
-Return type: string
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>
 
 ### state
-<p>Gets the state of the current player.</p>
+*Getter*
+
+Gets the state of the current player.
 
 
-Return type: PlayerState
+Return type: `PlayerState`
 
 ### hp
-<p>Gets the current health of the current player.</p>
+*Getter*
+
+Gets the current health of the current player.
 
 
-Return type: number
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
 ### maxHP
-<p>Gets the maximum health of the current player.</p>
+*Getter*
+
+Gets the maximum health of the current player.
 
 
-Return type: number
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
 ### alive
-<p>Checks if the current player is alive.</p>
+*Getter*
+
+Checks if the current player is alive.
 
 
-Return type: boolean
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
 
 ### mp
-<p>Gets the current mana of the current player.</p>
+*Getter*
+
+Gets the current mana of the current player.
 
 
-Return type: number
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
 ### maxMP
-<p>Gets the maximum mana of the current player.</p>
+*Getter*
+
+Gets the maximum mana of the current player.
 
 
-Return type: number
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
 ### level
-<p>Gets the level of the current player.</p>
+*Getter*
+
+Gets the level of the current player.
 
 
-Return type: number
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
 ### gold
-<p>Gets the gold of the current player.</p>
+*Getter*
+
+Gets the gold of the current player.
 
 
-Return type: number
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
 ### afk
-<p>Checks if the current player is AFK.</p>
+*Getter*
+
+Checks if the current player is AFK.
 
 
-Return type: boolean
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
 
 ### position
-<p>The player's current position.</p>
+*Getter*
+
+The player's current position.
 
 
-Return type: {x: number, y: number}
+Return type: `{x: number, y: number}`
 
 ### cell
-<p>Get the cell of the current player in the map.</p>
+*Getter*
+
+Get the cell of the current player in the map.
 
 
-Return type: string
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>
 
 ### pad
-<p>Get the pad of the current player in the map.</p>
+*Getter*
+
+Get the pad of the current player in the map.
 
 
-Return type: string
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>
 
 ## Methods
 
@@ -96,7 +127,7 @@ Signature: `isMember()`
 Checks if the current player has membership.
 
 
-Return type: boolean
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
 
 ### walkTo
 Signature: `walkTo(x: number, y: number)`
@@ -104,4 +135,4 @@ Signature: `walkTo(x: number, y: number)`
 Walk to a position in the map.
 
 
-Return type: void
+Return type: `void`

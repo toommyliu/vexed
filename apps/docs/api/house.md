@@ -1,3 +1,6 @@
+---
+outline: deep
+---
 # House
 
 
@@ -5,14 +8,18 @@
 ## Properties
 
 ### items
-<p>Gets house items of the current player.</p>
+*Getter*
+
+Gets house items of the current player.
 
 
-Return type: HouseItem[]
+Return type: <code><a href="/api/struct/houseitem">HouseItem[]</a></code>
 
 ### totalSlots
-<p>Gets the total number of house item slots.</p>
+*Getter*
+
+Gets the total number of house item slots.
 
 
-Return type: number
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 

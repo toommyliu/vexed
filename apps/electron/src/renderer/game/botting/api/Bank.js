@@ -23,7 +23,7 @@ class Bank {
 	/**
 	 * Gets an item from the Bank, items should be loaded beforehand
 	 * @param {string|number} itemKey The name or ID of the item
-	 * @returns {BankItem|null}
+	 * @returns {?BankItem}
 	 */
 	get(itemKey) {
 		if (typeof itemKey === 'string') {

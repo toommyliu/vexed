@@ -60,7 +60,6 @@ export default defineConfig({
           { text: "Bot", link: "/api/bot" },
           { text: "Combat", link: "/api/combat" },
           { text: "Drops", link: "/api/drops" },
-          { text: "Faction", link: "/api/faction" },
           { text: "Flash", link: "/api/flash" },
           { text: "House", link: "/api/house" },
           { text: "Inventory", link: "/api/inventory" },

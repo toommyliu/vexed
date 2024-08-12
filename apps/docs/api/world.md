@@ -1,3 +1,6 @@
+---
+outline: deep
+---
 # World
 
 
@@ -5,100 +8,121 @@
 ## Properties
 
 ### players
-<p>Gets all players in the current map.</p>
+*Getter*
+
+Gets all players in the current map.
 
 
-Return type: Avatar[]
+Return type: <code><a href="/api/struct/avatar">Avatar[]</a></code>
 
 ### monsters
-<p>The monsters in the map.</p>
+*Getter*
+
+The monsters in the map.
 
 
-Return type: MonsterData[]
+Return type: `MonsterData[]`
 
 ### visibleMonsters
-<p>Gets all visible monsters in the current cell.</p>
+*Getter*
+
+Gets all visible monsters in the current cell.
 
 
-Return type: Monster[]
+Return type: <code><a href="/api/struct/monster">Monster[]</a></code>
 
 ### availableMonsters
-<p>Gets all available monsters in the current cell.</p>
+*Getter*
+
+Gets all available monsters in the current cell.
 
 
-Return type: Monster[]
+Return type: <code><a href="/api/struct/monster">Monster[]</a></code>
 
 ### loading
-<p>Checks if the map is still loading.</p>
+*Getter*
+
+Checks if the map is still loading.
 
 
-Return type: boolean
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
 
 ### cells
-<p>Gets all cells of the map.</p>
+*Getter*
+
+Gets all cells of the map.
 
 
-Return type: string[]
+Return type: `string[]`
 
 ### cellPads
-<p>Get cell pads.</p>
+*Getter*
+
+*Has setter*
+Get cell pads.
 
 
-Return type: string[]
+Return type: `string[]`
 
 ### roomID
-<p>Gets the internal room ID of the current map.</p>
+*Getter*
+
+Gets the internal room ID of the current map.
 
 
-Return type: number
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
 ### roomNumber
-<p>Gets the room number of the current map.</p>
+*Getter*
+
+Gets the room number of the current map.
 
 
-Return type: number
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
 ### name
-<p>Gets the name of the current map.</p>
+*Getter*
+
+Gets the name of the current map.
 
 
-Return type: string
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>
 
 ### LoadShop
-<p>Loading a shop.</p>
+Loading a shop.
 
 ### LoadEnhShop
-<p>Loading an enhancement shop.</p>
+Loading an enhancement shop.
 
 ### LoadHairShop
-<p>Loading a hair shop.</p>
+Loading a hair shop.
 
 ### EquipItem
-<p>Equipping an item.</p>
+Equipping an item.
 
 ### UnequipItem
-<p>Unequipping an item.</p>
+Unequipping an item.
 
 ### BuyItem
-<p>Buying an item.</p>
+Buying an item.
 
 ### SellItem
-<p>Selling an item.</p>
+Selling an item.
 
 ### GetMapItem
-<p>Getting a map item (i.e. via the getMapItem packet).</p>
+Getting a map item (i.e. via the getMapItem packet).
 
 ### TryQuestComplete
-<p>Sending a quest completion packet.</p>
+Sending a quest completion packet.
 
 ### AcceptQuest
-<p>Accepting a quest.</p>
+Accepting a quest.
 
 ### Rest
-<p>Resting.</p>
+Resting.
 
 ### Transfer
-<p>Joining another map.</p>
+Joining another map.
 
 ## Methods
 
@@ -108,7 +132,7 @@ Signature: `isMonsterAvailable(monsterResolvable: string)`
 Whether a monster is available.
 
 
-Return type: boolean
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
 
 ### reload
 Signature: `reload()`
@@ -116,15 +140,7 @@ Signature: `reload()`
 Reloads the map.
 
 
-Return type: void
-
-### setSpawnPoint
-Signature: `setSpawnPoint()`
-
-Sets the player's spawnpoint to the current cell and pad.
-
-
-Return type: void
+Return type: `void`
 
 ### goto
 Signature: `goto(name: string)`
@@ -132,7 +148,7 @@ Signature: `goto(name: string)`
 Goto the specified player.
 
 
-Return type: void
+Return type: `void`
 
 ### isActionAvailable
 Signature: `isActionAvailable(action: GameAction)`
@@ -140,7 +156,7 @@ Signature: `isActionAvailable(action: GameAction)`
 Whether the game action has cooled down.
 
 
-Return type: boolean
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
 
 ### loadSWF
 Signature: `loadSWF(swf: string)`
@@ -148,4 +164,4 @@ Signature: `loadSWF(swf: string)`
 Loads a particular swf of the map.
 
 
-Return type: void
+Return type: `void`

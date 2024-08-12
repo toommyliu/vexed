@@ -1,6 +1,9 @@
+---
+outline: deep
+---
 # Avatar
 
-<p>Represents a player in the game.</p>
+Represents a player in the game.
 
 
 

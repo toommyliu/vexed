@@ -1,60 +1,81 @@
+---
+outline: deep
+---
 # Monster
 
-<p>Represents a monster.</p>
+Represents a monster.
 
 ## Properties
 
 ### monMapID
-<p>The map ID of the monster.</p>
+*Getter*
+
+The map ID of the monster.
 
 
-Return type: number
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
 ### id
-<p>The global ID of the monster.</p>
+*Getter*
+
+The global ID of the monster.
 
 
-Return type: number
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
 ### level
-<p>The level of the monster.</p>
+*Getter*
+
+The level of the monster.
 
 
-Return type: number
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
 ### state
-<p>The state of the monster.</p>
+*Getter*
+
+The state of the monster.
 
 
-Return type: number
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
 ### race
-<p>The race of the monster.</p>
+*Getter*
+
+The race of the monster.
 
 
-Return type: string
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>
 
 ### name
-<p>The name of the monster.</p>
+*Getter*
+
+The name of the monster.
 
 
-Return type: string
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>
 
 ### hp
-<p>The monster's current HP.</p>
+*Getter*
+
+The monster's current HP.
 
 
-Return type: number
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
 ### maxHP
-<p>The monster's max HP.</p>
+*Getter*
+
+The monster's max HP.
 
 
-Return type: number
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
 ### alive
-<p>Whether the monster is alive.</p>
+*Getter*
+
+Whether the monster is alive.
 
 
-Return type: boolean
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
 

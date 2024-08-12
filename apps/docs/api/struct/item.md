@@ -1,69 +1,92 @@
+---
+outline: deep
+---
 # Item
 
-<p>The base for all things item-related.</p>
+The base for all things item-related.
 
 ## Properties
 
 ### id
-<p>The ID of the item.</p>
+*Getter*
+
+The ID of the item.
 
 
-Return type: number
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
 ### name
-<p>The name of the item.</p>
+*Getter*
+
+The name of the item.
 
 
-Return type: string
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>
 
 ### description
-<p>The description of the item.</p>
+*Getter*
+
+The description of the item.
 
 
-Return type: string
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>
 
 ### quantity
-<p>The quantity of the item in this stack.</p>
+*Getter*
+
+The quantity of the item in this stack.
 
 
-Return type: number
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
 ### maxStack
-<p>The maximum stack size this item can exist in.</p>
+*Getter*
+
+The maximum stack size this item can exist in.
 
 
-Return type: number
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
 ### category
-<p>The category of the item.</p>
+*Getter*
+
+The category of the item.
 
 
-Return type: string
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>
 
 ### itemGroup
-<p>The group of the item.<br />
-co = Armor, ba = Cape, he = Helm, pe = Pet, Weapon = Weapon</p>
+*Getter*
+
+The group of the item.
+co = Armor, ba = Cape, he = Helm, pe = Pet, Weapon = Weapon
 
 
-Return type: string
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>
 
 ### fileName
-<p>The name of the source file of the item.</p>
+*Getter*
+
+The name of the source file of the item.
 
 
-Return type: string
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>
 
 ### fileLink
-<p>The link to the source file of the item</p>
+*Getter*
+
+The link to the source file of the item
 
 
-Return type: string
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>
 
 ### meta
-<p>The meta value of the item (used for boosts).</p>
+*Getter*
+
+The meta value of the item (used for boosts).
 
 
-Return type: string
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>
 
 ## Methods
 
@@ -73,7 +96,7 @@ Signature: `isUpgrade()`
 Indicates if the item is a member/upgrade only item.
 
 
-Return type: boolean
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
 
 ### isAC
 Signature: `isAC()`
@@ -81,7 +104,7 @@ Signature: `isAC()`
 Indicates if the item is an AC item.
 
 
-Return type: boolean
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
 
 ### isTemp
 Signature: `isTemp()`
@@ -89,4 +112,4 @@ Signature: `isTemp()`
 Whether the item is a temporary item.
 
 
-Return type: boolean
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>

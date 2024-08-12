@@ -1,3 +1,6 @@
+/**
+ * Options are updated in a background thread every 500ms.
+ */
 class Settings {
 	#intervalID = null;
 	#infiniteRange = false;
@@ -90,46 +93,96 @@ class Settings {
 		}, 500);
 	}
 
+	/**
+	 * The state of "Infinite Range".
+	 * @type {boolean}
+	 * @property
+	 */
 	get infiniteRange() {
 		return this.#infiniteRange;
 	}
 
+	/**
+	 * Sets state of "Infinite Range".
+	 * @param {boolean} on
+	 * @returns {void}
+	 */
 	set infiniteRange(on) {
 		this.#infiniteRange = on;
 		this.#updateOption(this.#optionInfiniteRange, on);
 	}
 
+	/**
+	 * The state of "Provoke Map".
+	 * @type {boolean}
+	 * @property
+	 */
 	get provokeMap() {
 		return this.#provokeMap;
 	}
 
+	/**
+	 * Sets state of "Provoke Map".
+	 * @param {boolean} on
+	 * @returns {void}
+	 */
 	set provokeMap(on) {
 		this.#provokeMap = on;
 		this.#updateOption(this.#optionProvokeMap, on);
 	}
 
+	/**
+	 * The state of "Provoke Cell".
+	 * @type {boolean}
+	 * @property
+	 */
 	get provokeCell() {
 		return this.#provokeCell;
 	}
 
+	/**
+	 * Sets state of "Provoke Cell".
+	 * @param {boolean} on
+	 * @returns {void}
+	 */
 	set provokeCell(on) {
 		this.#provokeCell = on;
 		this.#updateOption(this.#optionProvokeCell, on);
 	}
 
+	/**
+	 * The state of "Enemy Magnet".
+	 * @type {boolean}
+	 * @property
+	 */
 	get enemyMagnet() {
 		return this.#enemyMagnet;
 	}
 
+	/**
+	 * Sets state of "Enemy Magnet".
+	 * @param {boolean} on
+	 * @returns {void}
+	 */
 	set enemyMagnet(on) {
 		this.#enemyMagnet = on;
 		this.#updateOption(this.#optionEnemyMagnet, on);
 	}
 
+	/**
+	 * Whether "Lag Killer" is enabled.
+	 * @type {boolean}
+	 * @property
+	 */
 	get lagKiller() {
 		return this.#lagKiller;
 	}
 
+	/**
+	 * Sets state of "Lag Killer".
+	 * @param {boolean} on
+	 * @returns {void}
+	 */
 	set lagKiller(on) {
 		this.#lagKiller = on;
 		this.#updateOption(this.#optionLagKiller, on);
@@ -141,29 +194,59 @@ class Settings {
 		}
 	}
 
+	/**
+	 * Whether "Hide Players" is enabled.
+	 * @type {boolean}
+	 * @property
+	 */
 	get hidePlayers() {
 		return this.#hidePlayers;
 	}
 
+	/**
+	 * Sets state of "Hide Players".
+	 * @param {boolean} on
+	 * @returns {void}
+	 */
 	set hidePlayers(on) {
 		this.#hidePlayers = on;
 		this.#updateOption(this.#optionHidePlayers, on);
 		this.bot.flash.call(swf.HidePlayers, this.#hidePlayers);
 	}
 
+	/**
+	 * Whether "Skip Cutscenes" is enabled.
+	 * @type {boolean}
+	 * @property
+	 */
 	get skipCutscenes() {
 		return this.#skipCutscenes;
 	}
 
+	/**
+	 * Sets state of "Skip Cutscenes".
+	 * @param {boolean} on
+	 * @returns {void}
+	 */
 	set skipCutscenes(on) {
 		this.#skipCutscenes = on;
 		this.#updateOption(this.#optionSkipCutscenes, on);
 	}
 
+	/**
+	 * The player's walk speed.
+	 * @type {number}
+	 * @property
+	 */
 	get walkSpeed() {
 		return this.#walkSpeed;
 	}
 
+	/**
+	 * Sets the player's walk speed.
+	 * @param {number} speed
+	 * @returns {void}
+	 */
 	set walkSpeed(speed) {
 		speed = Math.max(0, Math.min(99, speed));
 		this.#walkSpeed = speed;

@@ -1,31 +1,42 @@
+---
+outline: deep
+---
 # Quest
 
-<p>Represents a quest.</p>
+Represents a quest.
 
 ## Properties
 
 ### id
-<p>The ID of the quest.</p>
+*Getter*
+
+The ID of the quest.
 
 
-Return type: number
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
 ### inProgress
-<p>Whether the quest is in progress.</p>
+*Getter*
+
+Whether the quest is in progress.
 
 
-Return type: boolean
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
 
 ### completable
-<p>broken if quest is not loaded<br />
-Whether the quest can be completed.</p>
+*Getter*
+
+broken if quest is not loaded
+Whether the quest can be completed.
 
 
-Return type: boolean
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
 
 ### available
-<p>Whether the quest is available.</p>
+*Getter*
+
+Whether the quest is available.
 
 
-Return type: boolean
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
 

@@ -1,3 +1,6 @@
+---
+outline: deep
+---
 # Combat
 
 
@@ -5,13 +8,15 @@
 ## Properties
 
 ### pauseAttack
-<p>Whether to stop attacking because a counter attack is active.</p>
+Whether to stop attacking because a counter attack is active.
 
 ### target
-<p>Returns information about the target.</p>
+*Getter*
+
+Returns information about the target.
 
 
-Return type: Record<string, unknown> | null
+Return type: `Record<string, unknown> | null`
 
 ## Methods
 
@@ -21,7 +26,7 @@ Signature: `hasTarget()`
 Whether the player has a target.
 
 
-Return type: boolean
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
 
 ### attack
 Signature: `attack(monsterResolvable: string)`
@@ -29,7 +34,7 @@ Signature: `attack(monsterResolvable: string)`
 Attacks a monster.
 
 
-Return type: void
+Return type: `void`
 
 ### cancelTarget
 Signature: `cancelTarget()`
@@ -37,7 +42,7 @@ Signature: `cancelTarget()`
 Cancels the current target.
 
 
-Return type: void
+Return type: `void`
 
 ### cancelAutoAttack
 Signature: `cancelAutoAttack()`
@@ -45,4 +50,4 @@ Signature: `cancelAutoAttack()`
 Cancels an auto attack.
 
 
-Return type: void
+Return type: `void`

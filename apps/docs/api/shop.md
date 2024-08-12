@@ -1,3 +1,6 @@
+---
+outline: deep
+---
 # Shop
 
 
@@ -5,16 +8,20 @@
 ## Properties
 
 ### loaded
-<p>Whether a shop is loaded.</p>
+*Getter*
+
+Whether a shop is loaded.
 
 
-Return type: boolean
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
 
 ### info
-<p>The info about the current loaded shop.</p>
+*Getter*
+
+The info about the current loaded shop.
 
 
-Return type: ShopInfo
+Return type: `ShopInfo`
 
 ## Methods
 
@@ -24,7 +31,7 @@ Signature: `reset()`
 Reset loaded shop info.
 
 
-Return type: void
+Return type: `void`
 
 ### loadHairShop
 Signature: `loadHairShop(id: number)`
@@ -32,7 +39,7 @@ Signature: `loadHairShop(id: number)`
 Loads a Hair Shop menu.
 
 
-Return type: void
+Return type: `void`
 
 ### loadArmorCustomise
 Signature: `loadArmorCustomise()`
@@ -40,4 +47,4 @@ Signature: `loadArmorCustomise()`
 Loads the Armor Customization menu.
 
 
-Return type: void
+Return type: `void`

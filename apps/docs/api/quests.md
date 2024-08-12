@@ -1,3 +1,6 @@
+---
+outline: deep
+---
 # Quests
 
 
@@ -5,16 +8,20 @@
 ## Properties
 
 ### tree
-<p>Gets all quests loaded in the client.</p>
+*Getter*
+
+Gets all quests loaded in the client.
 
 
-Return type: Quest[]
+Return type: <code><a href="/api/struct/quest">Quest[]</a></code>
 
 ### accepted
-<p>Gets all accepted quests.</p>
+*Getter*
+
+Gets all accepted quests.
 
 
-Return type: Quest[]
+Return type: <code><a href="/api/struct/quest">Quest[]</a></code>
 
 ## Methods
 
@@ -24,4 +31,4 @@ Signature: `get(questKey: string | number)`
 Resolves a Quest instance from the quest tree
 
 
-Return type: Quest
+Return type: <code><a href="/api/struct/quest">?Quest</a></code>

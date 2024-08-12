@@ -8,17 +8,50 @@ const { inspect } = require('node:util');
 const inputDir = join(__dirname, '../src/renderer/game/botting/api');
 const outputDir = join(__dirname, '../../docs/api');
 
-// Gets the MDN docs link for a primitive type
-const getNativeTypeDocLink = (type) => {
+const getTypeLink = (type) => {
+	// TODO: improve
 	switch (type) {
 		case 'boolean':
-			return '[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)';
+			return 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean';
 		case 'number':
-			return '[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)';
+			return 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number';
 		case 'string':
-			return '[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)';
+			return 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String';
+		case 'Bot':
+			return '/api/bot';
+		case 'Server':
+		case 'Server[]':
+			return '/api/struct/server';
+		case 'Avatar':
+		case 'Avatar[]':
+			return '/api/struct/avatar';
+		case 'Faction':
+		case 'Faction[]':
+			return '/api/struct/faction';
+		case '?BankItem':
+		case 'BankItem':
+		case 'BankItem[]':
+			return '/api/struct/bankitem';
+		case 'HouseItem':
+		case 'HouseItem[]':
+			return '/api/struct/houseitem';
+		case '?InventoryItem':
+		case 'InventoryItem':
+		case 'InventoryItem[]':
+			return '/api/struct/inventoryitem';
+		case '?TempInventoryItem':
+		case 'TempInventoryItem':
+		case 'TempInventoryItem[]':
+			return '/api/struct/tempinventoryitem';
+		case 'Monster':
+		case 'Monster[]':
+			return '/api/struct/monster';
+		case '?Quest':
+		case 'Quest':
+		case 'Quest[]':
+			return '/api/struct/quest';
 	}
-	return type;
+	return null;
 };
 
 async function gen() {
@@ -30,10 +63,8 @@ async function gen() {
 	console.log(`Found ${inputs.length} files to parse`);
 
 	for (const input of inputs.filter((i) => i.isFile())) {
-		// 		const base = [`---
-		// outline: deep
-		// ---`];
-		const base = [];
+		const base = ['---', 'outline: deep', '---'];
+		// const base = [];
 
 		const props = [];
 		const methods = [];
@@ -65,10 +96,11 @@ async function gen() {
 			jsdocAST[0].ctx.type === 'class' ||
 			jsdocAST[0].tags[0].tagType === 'type'
 		) {
-			base.push(jsdocAST[0].description.html);
+			base.push(jsdocAST[0].description.summary);
 		}
 
-		for (const obj of jsdocAST) {
+		for (let i = 0; i < jsdocAST.length; i++) {
+			const obj = jsdocAST[i];
 			if (!obj?.ctx) {
 				// console.log('Skipping this', obj);
 				continue;
@@ -78,12 +110,7 @@ async function gen() {
 			if (obj.ctx.type === 'property') {
 				// Properties with no description are not useful to developers
 				// TODO: make these properties private?
-				if (
-					!obj.description.summary ||
-					!obj.description.text ||
-					!obj.description.html ||
-					!obj.description.summaryHtml
-				) {
+				if (!obj.description.summary) {
 					continue;
 				}
 
@@ -96,14 +123,36 @@ async function gen() {
 					props.push('');
 				}
 
-				props.push(`### ${obj.ctx.name}`);
-				props.push(obj.description.html);
+				const isGetter = obj.code.startsWith('get');
 
-				// TODO: add links for custom types
+				if (isGetter) {
+					props.push(`### ${obj.ctx.name}`);
+					props.push('*Getter*');
+					props.push('');
+
+					// Whether the next tag is a setter
+					const nextObj = jsdocAST[i + 1];
+					if (nextObj?.code?.startsWith('set')) {
+						props.push('*Has setter*');
+
+						// Skip the next block since it's already parsed
+						++i;
+					}
+				} else {
+					props.push(`### ${obj.ctx.name}`);
+				}
+				props.push(obj.description.summary);
+
 				if (obj.tags.length > 0 && obj.tags[0].tagType === 'returns') {
+					const returnType = obj.tags[0].type;
+					const typeURL = getTypeLink(returnType);
+					const returnTypeStr = typeURL
+						? `<code><a href="${typeURL}">${returnType}</a></code>`
+						: '`' + returnType + '`';
+
 					props.push('');
 					props.push('');
-					props.push(`Return type: ${obj.tags[0].type}`);
+					props.push(`Return type: ${returnTypeStr}`);
 				}
 			} else if (obj.ctx.type === 'method') {
 				// console.log(inspect(obj, { colors: true, depth: Infinity }));
@@ -124,20 +173,30 @@ async function gen() {
 						return `${t.name}${t.isOptional ? '?' : ''}: ${t.type}`;
 					})
 					.join(', ');
-				const returnType = obj.tags
-					.find((t) => t.tagType === 'returns')
-					.types.join('|');
+				const returnType = obj.tags.find(
+					(t) => t.tagType === 'returns',
+				).type;
 
 				methods.push(`### ${obj.ctx.name}`);
 				methods.push(`Signature: \`${obj.ctx.name}(${params})\``);
+
 				methods.push('');
 				if (obj.description.summary) {
 					methods.push(obj.description.summary);
 				}
 
+				const typeURL = getTypeLink(returnType);
+				const returnTypeStr = typeURL
+					? `<code><a href="${typeURL}">${returnType}</a></code>`
+					: '`' + returnType + '`';
+
+				if (input.name === 'Bank.js') {
+					console.log(obj);
+				}
+
 				methods.push('');
 				methods.push('');
-				methods.push(`Return type: ${returnType}`);
+				methods.push(`Return type: ${returnTypeStr}`);
 			}
 		}
 

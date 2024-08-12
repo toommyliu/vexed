@@ -1,46 +1,59 @@
+---
+outline: deep
+---
 # InventoryItem
 
-<p>Represents an item in the inventory.</p>
+Represents an item in the inventory.
 
 ## Properties
 
 ### charItemID
-<p>The character ID of this item.</p>
+*Getter*
+
+The character ID of this item.
 
 
-Return type: number
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
 ### equipped
-<p>Whether the item is equipped.</p>
+*Getter*
+
+Whether the item is equipped.
 
 
-Return type: boolean
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
 
 ### level
-<p>The level of the item.</p>
+*Getter*
+
+The level of the item.
 
 
-Return type: number
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
 ### enhancementLevel
-<p>The enhancement level of the item.</p>
+*Getter*
+
+The enhancement level of the item.
 
 
-Return type: number
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
 ### enhancementPatternID
-<p>The enhancement pattern ID of the item.<br />
-1: Adventurer<br />
-2: Fighter<br />
-3: Thief<br />
-4: Armsman<br />
-5: Hybrid<br />
-6: Wizard<br />
-7: Healer<br />
-8: Spellbreaker<br />
-9: Lucky<br />
-10: Forge (?)</p>
+*Getter*
+
+The enhancement pattern ID of the item.
+1: Adventurer
+2: Fighter
+3: Thief
+4: Armsman
+5: Hybrid
+6: Wizard
+7: Healer
+8: Spellbreaker
+9: Lucky
+10: Forge (?)
 
 
-Return type: number
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 

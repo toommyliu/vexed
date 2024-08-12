@@ -1,6 +1,9 @@
+---
+outline: deep
+---
 # HouseItem
 
-<p>Represents a house item.</p>
+Represents a house item.
 
 
 

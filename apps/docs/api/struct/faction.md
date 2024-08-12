@@ -1,45 +1,62 @@
+---
+outline: deep
+---
 # Faction
 
-<p>Represents a game faction.</p>
+Represents a game faction.
 
 ## Properties
 
 ### id
-<p>The ID of the faction.</p>
+*Getter*
+
+The ID of the faction.
 
 
-Return type: number
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
 ### name
-<p>The in-game name of the faction.</p>
+*Getter*
+
+The in-game name of the faction.
 
 
-Return type: string
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>
 
 ### rank
-<p>The rank that the player has achieved in this faction.</p>
+*Getter*
+
+The rank that the player has achieved in this faction.
 
 
-Return type: number
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
 ### totalRep
-<p>The total amount of rep the player has for this faction.</p>
+*Getter*
+
+The total amount of rep the player has for this faction.
 
 
-Return type: number
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
 ### rep
-<p>The amount of rep the player has for their current rank.</p>
+*Getter*
+
+The amount of rep the player has for their current rank.
 
 
-Return type: number
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
 ### requiredRep
-<p>The total required rep for the player to rank up.</p>
+*Getter*
+
+The total required rep for the player to rank up.
 
 
-Return type: number
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
 ### remainingRep
-<p>The remaining amount of rep required for the player to rank up.</p>
+*Getter*
+
+The remaining amount of rep required for the player to rank up.
 
