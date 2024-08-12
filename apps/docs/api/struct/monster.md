@@ -1,6 +1,6 @@
-# 
+# Monster
 
-
+<p>Represents a monster.</p>
 
 ## Properties
 

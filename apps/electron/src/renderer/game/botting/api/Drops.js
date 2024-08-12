@@ -21,7 +21,7 @@ class Drops {
 
 	/**
 	 * @param {number} itemID
-	 * @returns {?ItemData}
+	 * @returns {?import('./struct/Item').ItemData}
 	 */
 	getItemFromID(itemID) {
 		return [...this.#data].find((item) => item.ItemID === itemID);
@@ -29,7 +29,7 @@ class Drops {
 
 	/**
 	 * @param {string} itemName
-	 * @returns {?ItemData}
+	 * @returns {?import('./struct/Item').ItemData}
 	 */
 	getItemFromName(itemName) {
 		itemName = itemName.toLowerCase();
@@ -65,7 +65,7 @@ class Drops {
 
 	/**
 	 * Adds an item to the internal store and the stack as visible to the client.
-	 * @param {ItemData} itemData The data of the item to add.
+	 * @param {Record<string, any>} itemData The data of the item to add. See {@link ItemData}
 	 * @returns {void}
 	 */
 	addDrop(itemData) {
@@ -129,7 +129,3 @@ class Drops {
 }
 
 module.exports = Drops;
-
-/**
- * @typedef {import('./struct/Item').ItemData} ItemData
- */

@@ -1,3 +1,6 @@
+/**
+ * Represents a game faction.
+ */
 class Faction {
 	constructor(data) {
 		/**

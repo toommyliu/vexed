@@ -1,6 +1,6 @@
 # Server
 
-<p>A game server.</p>
+<p>Represents a game server.</p>
 
 ## Properties
 

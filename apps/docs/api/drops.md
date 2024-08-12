@@ -1,4 +1,4 @@
-# 
+# Drops
 
 
 
@@ -43,7 +43,7 @@ Returns the count of the item in the drop stack. Returns -1 if it hasn't dropped
 Return type: number
 
 ### addDrop
-Signature: `addDrop(itemData: ItemData)`
+Signature: `addDrop(itemData: Record<string, any>)`
 
 Adds an item to the internal store and the stack as visible to the client.
 

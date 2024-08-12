@@ -1,3 +1,6 @@
+/**
+ * The base for all things item-related.
+ */
 class Item {
 	constructor(data) {
 		/**

@@ -1,3 +1,6 @@
+/**
+ * Represents a quest.
+ */
 class Quest {
 	/**
 	 * @param {QuestData} data

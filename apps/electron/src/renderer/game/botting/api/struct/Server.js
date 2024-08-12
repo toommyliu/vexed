@@ -1,5 +1,5 @@
 /**
- * A game server.
+ * Represents a game server.
  */
 class Server {
 	constructor(data) {

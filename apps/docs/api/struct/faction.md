@@ -1,6 +1,6 @@
-# 
+# Faction
 
-
+<p>Represents a game faction.</p>
 
 ## Properties
 

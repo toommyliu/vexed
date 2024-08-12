@@ -1,4 +1,6 @@
+# InventoryItem
 
+<p>Represents an item in the inventory.</p>
 
 ## Properties
 

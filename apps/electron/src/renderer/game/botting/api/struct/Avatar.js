@@ -1,3 +1,6 @@
+/**
+ * Represents a player in the game.
+ */
 class Avatar {
 	constructor(data) {
 		this.data = data;

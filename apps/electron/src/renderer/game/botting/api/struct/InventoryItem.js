@@ -1,5 +1,8 @@
 const Item = require('./Item');
 
+/**
+ * Represents an item in the inventory.
+ */
 class InventoryItem extends Item {
 	/**
 	 * The character ID of this item.

@@ -1,3 +1,6 @@
+/**
+ * Represents a monster.
+ */
 class Monster {
 	constructor(data) {
 		/**

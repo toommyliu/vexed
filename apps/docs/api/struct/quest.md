@@ -1,4 +1,6 @@
+# Quest
 
+<p>Represents a quest.</p>
 
 ## Properties
 

@@ -30,13 +30,13 @@ async function gen() {
 	console.log(`Found ${inputs.length} files to parse`);
 
 	for (const input of inputs.filter((i) => i.isFile())) {
-// 		const base = [`---
-// outline: deep
-// ---`];
+		// 		const base = [`---
+		// outline: deep
+		// ---`];
 		const base = [];
 
-		const props = ['## Properties'];
-		const methods = ['## Methods'];
+		const props = [];
+		const methods = [];
 
 		const path = join(input.path, input.name);
 		const fBody = await fs.promises
@@ -57,14 +57,14 @@ async function gen() {
 
 		console.log(`Parsing ${input.name} now...`);
 
-		// Is there a JSDOC comment on the class?
-		if (jsdocAST[0].ctx.type === 'class') {
-			base.push(`# ${jsdocAST[0].ctx.name}`);
-			base.push('');
-			base.push(jsdocAST[0].description.html);
-		} else if (jsdocAST[0].tags[0].tagType === 'type') {
-			base.push(`# ${jsdocAST[0].tags[0].type}`);
-			base.push('');
+		base.push(`# ${input.name.split('.')[0]}`);
+		base.push('');
+
+		// Is this class/type documented?
+		if (
+			jsdocAST[0].ctx.type === 'class' ||
+			jsdocAST[0].tags[0].tagType === 'type'
+		) {
 			base.push(jsdocAST[0].description.html);
 		}
 
@@ -87,6 +87,10 @@ async function gen() {
 					continue;
 				}
 
+				if (props.length === 0) {
+					props.push('## Properties');
+				}
+
 				// Append a newline before
 				if (props[props.length] !== '') {
 					props.push('');
@@ -94,10 +98,6 @@ async function gen() {
 
 				props.push(`### ${obj.ctx.name}`);
 				props.push(obj.description.html);
-
-				if (input.name === 'InventoryItem.js') {
-					console.log(obj);
-				}
 
 				// TODO: add links for custom types
 				if (obj.tags.length > 0 && obj.tags[0].tagType === 'returns') {
@@ -109,6 +109,10 @@ async function gen() {
 				// console.log(inspect(obj, { colors: true, depth: Infinity }));
 				// console.log('------');
 
+				if (methods.length === 0) {
+					methods.push('## Methods');
+				}
+
 				// Append a newline before
 				if (methods[methods.length] !== '') {
 					methods.push('');
@@ -117,10 +121,7 @@ async function gen() {
 				const params = obj.tags
 					.filter((t) => t.tagType === 'param')
 					.map((t) => {
-						if (t.isOptional) {
-							return `${t.name}?: ${t.type}`;
-						}
-						return `${t.name}: ${t.type}`;
+						return `${t.name}${t.isOptional ? '?' : ''}: ${t.type}`;
 					})
 					.join(', ');
 				const returnType = obj.tags
