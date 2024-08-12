@@ -116,14 +116,17 @@ class Drops {
 	/**
 	 * Rejects the drop, effectively removing from the stack. Items can technically be picked up after the fact
 	 * @param {string|number} itemKey The name or ID of the item
+	 * @param {boolean} [removeFromStore=false] Whether to delete the item entry from the store
 	 * @returns {Promise<void>}
 	 */
-	async reject(itemKey) {
+	async reject(itemKey, removeFromStore = false) {
 		const item =
 			this.getItemFromID(itemKey) || this.getItemFromName(itemKey);
 		if (item) {
 			this.bot.flash.call(swf.RejectDrop, item.sName, item.ItemID);
-			this.#removeDrop(item.ItemID);
+			if (removeFromStore) {
+				this.#removeDrop(item.ItemID);
+			}
 		}
 	}
 }
