@@ -53,16 +53,17 @@ Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScr
 Gets all cells of the map.
 
 
-Return type: `string[]`
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string[]</a></code>
 
 ### cellPads
 *Getter*
 
 *Has setter*
+
 Get cell pads.
 
 
-Return type: `string[]`
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string[]</a></code>
 
 ### roomID
 *Getter*
@@ -87,42 +88,6 @@ Gets the name of the current map.
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>
-
-### LoadShop
-Loading a shop.
-
-### LoadEnhShop
-Loading an enhancement shop.
-
-### LoadHairShop
-Loading a hair shop.
-
-### EquipItem
-Equipping an item.
-
-### UnequipItem
-Unequipping an item.
-
-### BuyItem
-Buying an item.
-
-### SellItem
-Selling an item.
-
-### GetMapItem
-Getting a map item (i.e. via the getMapItem packet).
-
-### TryQuestComplete
-Sending a quest completion packet.
-
-### AcceptQuest
-Accepting a quest.
-
-### Rest
-Resting.
-
-### Transfer
-Joining another map.
 
 ## Methods
 

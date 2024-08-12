@@ -156,8 +156,23 @@ class Player {
  * @enum {number}
  */
 const PlayerState = Object.freeze({
+	/**
+	 * The player is dead.
+	 * @memberof PlayerState
+	 * @type {number}
+	 */
 	Dead: 0,
+	/**
+	 * The player is idle, does not necessarily imply the player is afk.
+	 * @memberof PlayerState
+	 * @type {number}
+	 */
 	Idle: 1,
+	/**
+	 * The player is in combat.
+	 * @memberof PlayerState
+	 * @type {number}
+	 */
 	InCombat: 2,
 });
 

@@ -2,6 +2,7 @@ const now = performance.now();
 
 const doc = require('doxxx');
 const fs = require('node:fs');
+const fse = require('fs-extra');
 const { join } = require('node:path');
 const { inspect } = require('node:util');
 
@@ -16,6 +17,7 @@ const getTypeLink = (type) => {
 		case 'number':
 			return 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number';
 		case 'string':
+		case 'string[]':
 			return 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String';
 		case 'Bot':
 			return '/api/bot';
@@ -50,6 +52,10 @@ const getTypeLink = (type) => {
 		case 'Quest':
 		case 'Quest[]':
 			return '/api/struct/quest';
+		case 'PlayerState':
+			return '/api/enums/playerstate';
+		case 'GameAction':
+			return '/api/enums/gameaction';
 	}
 	return null;
 };
@@ -61,6 +67,8 @@ async function gen() {
 	});
 
 	console.log(`Found ${inputs.length} files to parse`);
+
+	const enums = {};
 
 	for (const input of inputs.filter((i) => i.isFile())) {
 		const base = ['---', 'outline: deep', '---'];
@@ -106,6 +114,52 @@ async function gen() {
 				continue;
 			}
 
+			// Start enum declaration
+			if (obj?.ctx?.type === 'declaration') {
+				const enumName = obj.ctx.name;
+				enums[enumName] ??= [
+					'---',
+					'outline: deep',
+					'---',
+					'',
+					'',
+					`# ${enumName}`,
+					'',
+					obj.description.summary,
+					'',
+					'',
+					'## Members',
+				];
+			}
+
+			// Current is the enum key
+			if (obj?.tags?.[0]?.tagType === 'memberof') {
+				const enumName = obj.tags[0].tagValue;
+
+				const entry = enums[enumName];
+				entry.push(`### ${obj.ctx.name}`);
+				entry.push(
+					`${obj.ctx.name} = \`${obj.ctx.value.replaceAll(',', '')}\``,
+				);
+				entry.push('');
+				entry.push('');
+				entry.push(obj.description.summary);
+				entry.push('');
+				entry.push('');
+
+				const returnType = obj.tags.find(
+					(t) => t.tagType === 'type',
+				).type;
+				const typeURL = getTypeLink(returnType);
+				const returnTypeStr = typeURL
+					? `<code><a href="${typeURL}">${returnType}</a></code>`
+					: '`' + returnType + '`';
+
+				entry.push(`Type: ${returnTypeStr}`);
+				// Skip to next block
+				continue;
+			}
+
 			// console.log(obj);
 			if (obj.ctx.type === 'property') {
 				// Properties with no description are not useful to developers
@@ -134,7 +188,7 @@ async function gen() {
 					const nextObj = jsdocAST[i + 1];
 					if (nextObj?.code?.startsWith('set')) {
 						props.push('*Has setter*');
-
+						props.push('');
 						// Skip the next block since it's already parsed
 						++i;
 					}
@@ -190,10 +244,6 @@ async function gen() {
 					? `<code><a href="${typeURL}">${returnType}</a></code>`
 					: '`' + returnType + '`';
 
-				if (input.name === 'Bank.js') {
-					console.log(obj);
-				}
-
 				methods.push('');
 				methods.push('');
 				methods.push(`Return type: ${returnTypeStr}`);
@@ -220,6 +270,21 @@ ${props.length > 1 ? props.join('\n') : ''}
 
 ${methods.length > 1 ? methods.join('\n') : ''}`,
 		);
+	}
+
+	if (Object.keys(enums).length > 0) {
+		console.log(`Found ${Object.keys(enums).length} enums to write`);
+
+		for (const [enumName, enumValues] of Object.entries(enums)) {
+			console.log(`Writing enum ${enumName}...`);
+			const enumPath = join(
+				outputDir,
+				'enums',
+				`${enumName.toLowerCase()}.md`,
+			);
+			await fse.ensureFile(enumPath);
+			await fs.promises.writeFile(enumPath, enumValues.join('\n'));
+		}
 	}
 }
 

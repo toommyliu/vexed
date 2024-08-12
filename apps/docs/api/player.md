@@ -29,7 +29,7 @@ Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScr
 Gets the state of the current player.
 
 
-Return type: `PlayerState`
+Return type: <code><a href="/api/enums/playerstate">PlayerState</a></code>
 
 ### hp
 *Getter*

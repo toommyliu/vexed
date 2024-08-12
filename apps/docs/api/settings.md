@@ -11,48 +11,56 @@ Options are updated in a background thread every 500ms.
 *Getter*
 
 *Has setter*
+
 The state of "Infinite Range".
 
 ### provokeMap
 *Getter*
 
 *Has setter*
+
 The state of "Provoke Map".
 
 ### provokeCell
 *Getter*
 
 *Has setter*
+
 The state of "Provoke Cell".
 
 ### enemyMagnet
 *Getter*
 
 *Has setter*
+
 The state of "Enemy Magnet".
 
 ### lagKiller
 *Getter*
 
 *Has setter*
+
 Whether "Lag Killer" is enabled.
 
 ### hidePlayers
 *Getter*
 
 *Has setter*
+
 Whether "Hide Players" is enabled.
 
 ### skipCutscenes
 *Getter*
 
 *Has setter*
+
 Whether "Skip Cutscenes" is enabled.
 
 ### walkSpeed
 *Getter*
 
 *Has setter*
+
 The player's walk speed.
 
 ## Methods

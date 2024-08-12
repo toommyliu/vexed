@@ -277,31 +277,89 @@ class World {
  * @enum {string}
  */
 const GameAction = Object.freeze({
-	/** Loading a shop. */
+	/**
+	 * Loading a shop.
+	 * @memberof GameAction
+	 * @type {string}
+	 */
 	LoadShop: 'loadShop',
-	/** Loading an enhancement shop. */
+	/**
+	 * Loading an enhancement shop.
+	 * @memberof GameAction
+	 * @type {string}
+	 */
 	LoadEnhShop: 'loadEnhShop',
-	/** Loading a hair shop. */
+	/**
+	 * Loading a hair shop.
+	 * @memberof GameAction
+	 * @type {string}
+	 */
 	LoadHairShop: 'loadHairShop',
-	/** Equipping an item. */
+	/**
+	 * Equipping an item.
+	 * @memberof GameAction
+	 * @type {string}
+	 */
 	EquipItem: 'equipItem',
-	/** Unequipping an item. */
+	/**
+	 * Unequipping an item.
+	 * @memberof GameAction
+	 * @type {string}
+	 */
 	UnequipItem: 'unequipItem',
-	/** Buying an item. */
+	/**
+	 * Buying an item.
+	 * @memberof GameAction
+	 * @type {string}
+	 */
 	BuyItem: 'buyItem',
-	/** Selling an item. */
+	/**
+	 * Selling an item.
+	 * @memberof GameAction
+	 * @type {string}
+	 */
 	SellItem: 'sellItem',
-	/** Getting a map item (i.e. via the getMapItem packet). */
+	/**
+	 * Getting a map item (i.e. via the getMapItem packet).
+	 * @memberof GameAction
+	 * @type {string}
+	 */
 	GetMapItem: 'getMapItem',
-	/** Sending a quest completion packet. */
+	/**
+	 * Sending a quest completion packet.
+	 * @memberof GameAction
+	 * @type {string}
+	 */
 	TryQuestComplete: 'tryQuestComplete',
-	/** Accepting a quest. */
+	/**
+	 * Accepting a quest.
+	 * @memberof GameAction
+	 * @type {string}
+	 */
 	AcceptQuest: 'acceptQuest',
+	/**
+	 * Do IA action.
+	 * @memberof GameAction
+	 * @type {string}
+	 */
 	DoIA: 'doIA',
-	/** Resting. */
+	/**
+	 * Resting.
+	 * @memberof GameAction
+	 * @type {string}
+	 */
 	Rest: 'rest',
+	/**
+	 * Who action.
+	 * @memberof GameAction
+	 * @type {string}
+	 */
 	Who: 'who',
-	/** Joining another map. */
+	/**
+	 * Joining another map.
+	 * @memberof GameAction
+	 * @type {string}
+	 */
 	Transfer: 'tfer',
 });
 
