@@ -5,6 +5,7 @@ const fs = require('node:fs');
 const fse = require('fs-extra');
 const { join } = require('node:path');
 const { inspect } = require('node:util');
+const { type } = require('node:os');
 
 const inputDir = join(__dirname, '../src/renderer/game/botting/api');
 const outputDir = join(__dirname, '../../docs/api');
@@ -69,6 +70,7 @@ async function gen() {
 	console.log(`Found ${inputs.length} files to parse`);
 
 	const enums = {};
+	const typedefs = {};
 
 	for (const input of inputs.filter((i) => i.isFile())) {
 		const base = ['---', 'outline: deep', '---'];
@@ -114,6 +116,8 @@ async function gen() {
 				continue;
 			}
 
+			// console.log(inspect(obj, { colors: true, depth: Infinity }));
+
 			// Start enum declaration
 			if (obj?.ctx?.type === 'declaration') {
 				const enumName = obj.ctx.name;
@@ -130,6 +134,45 @@ async function gen() {
 					'',
 					'## Members',
 				];
+			} else if (obj?.tags[0]?.tagType === 'typedef') {
+				console.log(inspect(obj, { colors: true, depth: Infinity }));
+				const typedefName = obj.type;
+				typedefs[typedefName] ??= [
+					'---',
+					'outline: deep',
+					'---',
+					'',
+					'',
+					`# ${typedefName}`,
+					'',
+					'',
+					'Type: [Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)',
+					obj.description.summary,
+					'',
+					'',
+					'## Properties',
+				];
+
+				// Loop through properties
+				// obj.tags[0] is typedef tag
+				for (let i = 1; i < obj.tags.length; ++i) {
+					const curr = obj.tags[i];
+
+					typedefs[typedefName].push(`### ${curr.name}`);
+					typedefs[typedefName].push('');
+					typedefs[typedefName].push('');
+					if (curr.description.length > 0) {
+						typedefs[typedefName].push(curr.description);
+						typedefs[typedefName].push('');
+						typedefs[typedefName].push('');
+					}
+					const returnType = curr.type;
+					const typeURL = getTypeLink(returnType);
+					const returnTypeStr = typeURL
+						? `<code><a href="${typeURL}">${returnType}</a></code>`
+						: '`' + returnType + '`';
+					typedefs[typedefName].push(`Type: ${returnTypeStr}`);
+				}
 			}
 
 			// Current is the enum key
@@ -189,6 +232,7 @@ async function gen() {
 					if (nextObj?.code?.startsWith('set')) {
 						props.push('*Has setter*');
 						props.push('');
+
 						// Skip the next block since it's already parsed
 						++i;
 					}
@@ -284,6 +328,21 @@ ${methods.length > 1 ? methods.join('\n') : ''}`,
 			);
 			await fse.ensureFile(enumPath);
 			await fs.promises.writeFile(enumPath, enumValues.join('\n'));
+		}
+	}
+
+	if (Object.keys(typedefs).length > 0) {
+		console.log(`Found ${Object.keys(typedefs).length} typedefs to write`);
+
+		for (const [typedefName, typedefValues] of Object.entries(typedefs)) {
+			console.log(`Writing typedef ${typedefName}...`);
+			const typedefPath = join(
+				outputDir,
+				'typedefs',
+				`${typedefName.toLowerCase()}.md`,
+			);
+			await fse.ensureFile(typedefPath);
+			await fs.promises.writeFile(typedefPath, typedefValues.join('\n'));
 		}
 	}
 }

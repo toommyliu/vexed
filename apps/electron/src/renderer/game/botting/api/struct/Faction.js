@@ -67,3 +67,16 @@ class Faction {
 }
 
 module.exports = Faction;
+
+/**
+ * Represents the data of a faction.
+ * @typedef {Object} FactionData
+ * @property {string} CharFactionID
+ * @property {string} sName The name of the faction
+ * @property {number} iRep The total amount of rep the player has for this faction
+ * @property {number} iSpillRep The amount of rep the player has for their current rank
+ * @property {number} iRank The rank that the player has achieved in this faction
+ * @property {string} FactionID The ID of the faction
+ * @property {number} iRepToRank The total required rep for the player to rank up
+ */
+
