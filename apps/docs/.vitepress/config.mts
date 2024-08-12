@@ -57,7 +57,6 @@ export default defineConfig({
 					},
 					{
 						text: "Enums",
-						link: "/api/enums/",
 						items: [{ text: "GameAction", link: "/api/enums/gameaction", }, { text: "PlayerState", link: "/api/enums/playerstate" }],
 					},
 					{ text: "Auth", link: "/api/auth" },
