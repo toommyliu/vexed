@@ -20,7 +20,7 @@ Admittedly, the DX in writing scripts somewhat sucks. Personally, I've tried set
 
 :::
 
-Some classes are not meant to be instantiated yourself, rather they are an abstraction over the game data. These are known as ["structs" or data classes](/api/struct/).
+Some classes are not meant to be instantiated yourself, rather they are an abstraction over the game data.
 
 ## Loading scripts
 
