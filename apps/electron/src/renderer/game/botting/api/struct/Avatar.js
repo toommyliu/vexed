@@ -3,6 +3,10 @@
  */
 class Avatar {
 	constructor(data) {
+		/**
+		 * Data about this player
+		 * @type {AvatarData}
+		 */
 		this.data = data;
 	}
 }

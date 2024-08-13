@@ -4,6 +4,7 @@
 class Faction {
 	constructor(data) {
 		/**
+		 * Data about this faction
 		 * @type {FactionData}
 		 */
 		this.data = data;

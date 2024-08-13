@@ -7,6 +7,12 @@ Represents a game faction.
 
 ## Properties
 
+### data
+Data about this faction
+
+
+Return type: <code><a href="/api/typedefs/factiondata">FactionData</a></code>
+
 ### id
 *Getter*
 
@@ -59,4 +65,7 @@ Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScr
 *Getter*
 
 The remaining amount of rep required for the player to rank up.
+
+
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 

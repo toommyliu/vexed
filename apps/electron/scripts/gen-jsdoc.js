@@ -56,7 +56,17 @@ const getTypeLink = (type) => {
 			return '/api/enums/playerstate';
 		case 'GameAction':
 			return '/api/enums/gameaction';
-	}
+		case 'AvatarData':
+			return '/api/typedefs/avatardata';
+		case 'MonsterData':
+			return '/api/typedefs/monsterdata';
+		case 'FactionData':
+			return '/api/typedefs/factiondata';
+		case 'ServerData':
+			return '/api/typedefs/serverdata';
+		case 'ShopInfo':
+			return '/api/typedefs/shopinfo';
+		}
 	return null;
 };
 
@@ -73,7 +83,6 @@ async function gen() {
 
 	for (const input of inputs.filter((i) => i.isFile())) {
 		const base = ['---', 'outline: deep', '---'];
-		// const base = [];
 
 		const props = [];
 		const methods = [];
@@ -111,11 +120,9 @@ async function gen() {
 		for (let i = 0; i < jsdocAST.length; i++) {
 			const obj = jsdocAST[i];
 			if (!obj?.ctx) {
-				// console.log('Skipping this', obj);
+				console.log(`Skipping ${input.name} because of missing ctx`);
 				continue;
 			}
-
-			// console.log(inspect(obj, { colors: true, depth: Infinity }));
 
 			// Start enum declaration
 			if (obj?.ctx?.type === 'declaration') {
@@ -239,7 +246,10 @@ async function gen() {
 				}
 				props.push(obj.description.summary);
 
-				if (obj.tags.length > 0 && obj.tags[0].tagType === 'returns') {
+				if (
+					obj.tags?.[0]?.tagType === 'returns' ||
+					obj.tags?.[0]?.tagType === 'type'
+				) {
 					const returnType = obj.tags[0].type;
 					const typeURL = getTypeLink(returnType);
 					const returnTypeStr = typeURL
@@ -251,9 +261,6 @@ async function gen() {
 					props.push(`Return type: ${returnTypeStr}`);
 				}
 			} else if (obj.ctx.type === 'method') {
-				// console.log(inspect(obj, { colors: true, depth: Infinity }));
-				// console.log('------');
-
 				if (methods.length === 0) {
 					methods.push('## Methods');
 				}
@@ -267,11 +274,6 @@ async function gen() {
 					.filter((t) => t.tagType === 'param')
 					.map((t) => {
 						const isOptional = t.isOptional;
-						if (t.isOptional) {
-							console.log(
-								inspect(obj, { colors: true, depth: Infinity }),
-							);
-						}
 						return `${t.name}${isOptional ? '?' : ''}: ${t.type}${isOptional ? ` = ${t.types.includes('STRING_VALUE') ? `"${t.defaultValue}"` : t.defaultValue}` : ''}`;
 					})
 					.join(', ');
@@ -307,8 +309,6 @@ async function gen() {
 		} else {
 			outPath = join(outputDir);
 		}
-
-		// console.log(input.name, outPath);
 
 		await fs.promises.writeFile(
 			join(outPath, `${fileName.toLowerCase()}.md`),

@@ -7,6 +7,12 @@ Represents a quest.
 
 ## Properties
 
+### data
+Data about this quest
+
+
+Return type: `QuestData`
+
 ### id
 *Getter*
 

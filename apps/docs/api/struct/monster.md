@@ -7,6 +7,12 @@ Represents a monster.
 
 ## Properties
 
+### data
+Data about this monster
+
+
+Return type: <code><a href="/api/typedefs/monsterdata">MonsterData</a></code>
+
 ### monMapID
 *Getter*
 

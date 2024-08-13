@@ -4,6 +4,7 @@
 class Item {
 	constructor(data) {
 		/**
+		 * Data about this item
 		 * @type {ItemData}
 		 */
 		this.data = data;
@@ -157,4 +158,3 @@ module.exports = Item;
  * @property {string} sName
  * @property {string} sType
  */
-

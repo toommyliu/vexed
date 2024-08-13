@@ -2,10 +2,11 @@
  * Represents a quest.
  */
 class Quest {
-	/**
-	 * @param {QuestData} data
-	 */
 	constructor(data) {
+		/**
+		 * Data about this quest
+		 * @type {QuestData}
+		 */
 		this.data = data;
 	}
 

@@ -7,6 +7,12 @@ The base for all things item-related.
 
 ## Properties
 
+### data
+Data about this item
+
+
+Return type: `ItemData`
+
 ### id
 *Getter*
 

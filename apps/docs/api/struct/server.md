@@ -7,6 +7,12 @@ Represents a game server.
 
 ## Properties
 
+### data
+Data about this server
+
+
+Return type: <code><a href="/api/typedefs/serverdata">ServerData</a></code>
+
 ### maxPlayers
 *Getter*
 

@@ -4,6 +4,7 @@
 class Server {
 	constructor(data) {
 		/**
+		 * Data about this server
 		 * @type {ServerData}
 		 */
 		this.data = data;

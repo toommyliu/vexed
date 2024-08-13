@@ -14,12 +14,18 @@ Options are updated in a background thread every 500ms.
 
 The state of "Infinite Range".
 
+
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
+
 ### provokeMap
 *Getter*
 
 *Has setter*
 
 The state of "Provoke Map".
+
+
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
 
 ### provokeCell
 *Getter*
@@ -28,12 +34,18 @@ The state of "Provoke Map".
 
 The state of "Provoke Cell".
 
+
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
+
 ### enemyMagnet
 *Getter*
 
 *Has setter*
 
 The state of "Enemy Magnet".
+
+
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
 
 ### lagKiller
 *Getter*
@@ -42,12 +54,18 @@ The state of "Enemy Magnet".
 
 Whether "Lag Killer" is enabled.
 
+
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
+
 ### hidePlayers
 *Getter*
 
 *Has setter*
 
 Whether "Hide Players" is enabled.
+
+
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
 
 ### skipCutscenes
 *Getter*
@@ -56,12 +74,18 @@ Whether "Hide Players" is enabled.
 
 Whether "Skip Cutscenes" is enabled.
 
+
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
+
 ### walkSpeed
 *Getter*
 
 *Has setter*
 
 The player's walk speed.
+
+
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
 ## Methods
 

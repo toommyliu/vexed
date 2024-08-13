@@ -4,6 +4,7 @@
 class Monster {
 	constructor(data) {
 		/**
+		 * Data about this monster
 		 * @type {MonsterData}
 		 */
 		this.data = data;

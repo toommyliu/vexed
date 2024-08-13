@@ -10,6 +10,9 @@ outline: deep
 ### pauseAttack
 Whether to stop attacking because a counter attack is active.
 
+
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
+
 ### target
 *Getter*
 

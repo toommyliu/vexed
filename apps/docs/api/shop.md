@@ -21,7 +21,7 @@ Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScr
 The info about the current loaded shop.
 
 
-Return type: `ShopInfo`
+Return type: <code><a href="/api/typedefs/shopinfo">ShopInfo</a></code>
 
 ## Methods
 
