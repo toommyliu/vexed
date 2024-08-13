@@ -78,6 +78,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 			window.windows.tools.loaderGrabber = window.open(
 				'./pages/tools/loader-grabber/index.html',
 				null,
+				'width=363,height=542',
 			);
 		});
 	}
@@ -115,6 +116,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 			window.windows.packets.spammer = window.open(
 				'./pages/packets/spammer/index.html',
 				null,
+				'width=490,height=170',
 			);
 		});
 	}
