@@ -38,9 +38,8 @@ export default defineConfig({
         text: "Scripting API",
         items: [
           {
-            text: "Getting started",
-            link: "/api/",
-            items: [{ text: "Examples", link: "/api/examples" }],
+            text: "Example scripts (snippets)",
+            link: "/api/examples",
           },
           {
             text: "Data classes",

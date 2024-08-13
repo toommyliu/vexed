@@ -5,7 +5,6 @@ const fs = require('node:fs');
 const fse = require('fs-extra');
 const { join } = require('node:path');
 const { inspect } = require('node:util');
-const { type } = require('node:os');
 
 const inputDir = join(__dirname, '../src/renderer/game/botting/api');
 const outputDir = join(__dirname, '../../docs/api');
