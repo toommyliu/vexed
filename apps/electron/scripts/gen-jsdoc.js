@@ -134,7 +134,6 @@ async function gen() {
 					'## Members',
 				];
 			} else if (obj?.tags[0]?.tagType === 'typedef') {
-				console.log(inspect(obj, { colors: true, depth: Infinity }));
 				const typedefName = obj.type;
 				typedefs[typedefName] ??= [
 					'---',
@@ -267,7 +266,13 @@ async function gen() {
 				const params = obj.tags
 					.filter((t) => t.tagType === 'param')
 					.map((t) => {
-						return `${t.name}${t.isOptional ? '?' : ''}: ${t.type}`;
+						const isOptional = t.isOptional;
+						if (t.isOptional) {
+							console.log(
+								inspect(obj, { colors: true, depth: Infinity }),
+							);
+						}
+						return `${t.name}${isOptional ? '?' : ''}: ${t.type}${isOptional ? ` = ${t.types.includes('STRING_VALUE') ? `"${t.defaultValue}"` : t.defaultValue}` : ''}`;
 					})
 					.join(', ');
 				const returnType = obj.tags.find(

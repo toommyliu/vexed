@@ -10,7 +10,7 @@ outline: deep
 ## Methods
 
 ### sendClient
-Signature: `sendClient(packet: string, type?: "str" | "json" | "xml")`
+Signature: `sendClient(packet: string, type?: "str" | "json" | "xml" = "str")`
 
 Sends the specified packet to the client (simulates a response as if the server sent the packet)
 
@@ -18,7 +18,7 @@ Sends the specified packet to the client (simulates a response as if the server 
 Return type: `void`
 
 ### sendServer
-Signature: `sendServer(packet: string, type?: "String" | "Json")`
+Signature: `sendServer(packet: string, type?: "String" | "Json" = "String")`
 
 Sends the specified packet to the server
 

@@ -58,7 +58,7 @@ Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScr
 ## Methods
 
 ### login
-Signature: `login(username?: string, password?: string)`
+Signature: `login(username?: string = undefined, password?: string = undefined)`
 
 Log in with the given account or the previous account (if available).
 
