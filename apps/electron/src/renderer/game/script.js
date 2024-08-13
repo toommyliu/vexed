@@ -1,3 +1,4 @@
+require('./scripts/fast-travels');
 require('./scripts/follower');
 
 const { ipcRenderer } = require('electron');
@@ -274,20 +275,6 @@ window.addEventListener('message', async (ev) => {
 	} = ev;
 
 	switch (event) {
-		//#region fast travel
-		case 'tools:fasttravel:join':
-			if (!bot.auth.loggedIn || bot.world.loading || !bot.player.loaded) {
-				return;
-			}
-
-			await bot.world.join(
-				`${args.map}-${args.roomNumber}`,
-				args.cell ?? 'Enter',
-				args.pad ?? 'Spawn',
-				1,
-			);
-			break;
-		//#endregion
 		// #region loader grabber
 		case 'tools:loadergrabber:load':
 			{
