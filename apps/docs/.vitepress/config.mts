@@ -45,7 +45,9 @@ export default defineConfig({
             text: "Data classes",
             items: [
               { text: "Avatar", link: "/api/struct/avatar" },
+              { text: "BankItem", link: "/api/struct/bankitem" },
               { text: "Faction", link: "/api/struct/faction" },
+              { text: "HouseItem", link: "/api/struct/houseitem" },
               { text: "InventoryItem", link: "/api/struct/inventoryitem" },
               { text: "Item", link: "/api/struct/item" },
               { text: "Monster", link: "/api/struct/monster" },
@@ -58,6 +60,16 @@ export default defineConfig({
             items: [
               { text: "GameAction", link: "/api/enums/gameaction" },
               { text: "PlayerState", link: "/api/enums/playerstate" },
+            ],
+          },
+          {
+            text: "Typedefs",
+            items: [
+              { text: "AvatarData", link: "/api/typedefs/avatardata" },
+              { text: "MonsterData", link: "/api/typedefs/monsterdata" },
+              { text: "QuestData", link: "/api/typedefs/questdata" },
+              { text: "ServerData", link: "/api/typedefs/serverdata" },
+              { text: "ShopInfo", link: "/api/typedefs/shopinfo" },
             ],
           },
           { text: "Auth", link: "/api/auth" },
