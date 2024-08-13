@@ -8,6 +8,8 @@ const dropItem = require('./handlers/json/dropItem');
 const bot = Bot.getInstance();
 
 async function packetFromServer([packet]) {
+	bot.emit('packetFromServer', packet);
+
 	const isXT = packet.startsWith('%xt%');
 	const isJSON = packet.startsWith('{');
 
@@ -50,6 +52,8 @@ async function packetFromServer([packet]) {
 
 window.packetFromServer = packetFromServer;
 window.packetFromClient = async ([packet]) => {
+	bot.emit('packetFromClient', packet);
+
 	/**
 	 * @type {WindowProxy|null}
 	 */
