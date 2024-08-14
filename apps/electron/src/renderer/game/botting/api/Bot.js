@@ -180,7 +180,7 @@ class Bot extends EventEmitter {
 	 * @returns {boolean}
 	 */
 	get running() {
-		return !this.#ac.signal.aborted;
+		return !this.#ac?.signal.aborted ?? false;
 	}
 
 	/**
