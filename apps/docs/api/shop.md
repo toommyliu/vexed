@@ -5,19 +5,17 @@ outline: deep
 
 
 
+
+
 ## Properties
 
-### loaded
-*Getter*
-
+### loaded <Badge text="getter" />
 Whether a shop is loaded.
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
 
-### info
-*Getter*
-
+### info <Badge text="getter" />
 The info about the current loaded shop.
 
 
@@ -26,57 +24,68 @@ Return type: <code><a href="/api/typedefs/shopinfo">ShopInfo</a></code>
 ## Methods
 
 ### buyByName
-Signature: `buyByName(name: string, quantity: ?number)`
-
 Buy an item from the shop.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| name | string |  |
+| quantity | ?number |  |
 
 
-Return type: `Promise<void>`
+
+**Returns:** `Promise<void>` 
 
 ### buyByID
-Signature: `buyByID(itemID: number, shopItemID: number, quantity: number)`
-
 Buy an item from the shop using its ID.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| itemID | number |  |
+| shopItemID | number |  |
+| quantity | number |  |
 
 
-Return type: `Promise<void>`
+
+**Returns:** `Promise<void>` 
 
 ### reset
-Signature: `reset()`
-
 Reset loaded shop info.
 
 
-Return type: `void`
+
+**Returns:** `void` 
 
 ### load
-Signature: `load(shopID: number)`
-
 Load a shop.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| shopID | number |  |
 
 
-Return type: `Promise<void>`
+
+**Returns:** `Promise<void>` 
 
 ### sell
-Signature: `sell(itemName: string)`
-
 Sells an entire stack of an item.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| itemName | string |  |
 
 
-Return type: `Promise<void>`
+
+**Returns:** `Promise<void>` 
 
 ### loadHairShop
-Signature: `loadHairShop(id: number)`
-
 Loads a Hair Shop menu.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| id | number |  |
 
 
-Return type: `void`
+
+**Returns:** `void` 
 
 ### loadArmorCustomise
-Signature: `loadArmorCustomise()`
-
 Loads the Armor Customization menu.
 
 
-Return type: `void`
+
+**Returns:** `void` 

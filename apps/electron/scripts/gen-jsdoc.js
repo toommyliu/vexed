@@ -146,16 +146,33 @@ async function gen() {
 				base.push(`Extends: ${returnTypeStr}`);
 				base.push('');
 			}
-			base.push(jsdocAST[0].description.summary);
+			if (input.name === 'Settings.js') {
+				console.log(
+					'jsdocAST[0].description.summary',
+					jsdocAST[0].description.summary,
+				);
+				console.log(
+					"jsdocAST[0].description.summary.split('\\n')",
+					jsdocAST[0].description.summary.split('\n'),
+				);
+			}
+			for (const line of jsdocAST[0].description.summary.split('\n')) {
+				base.push(line);
+				base.push('');
+				base.push('');
+			}
+			if (input.name === 'Settings.js') {
+				console.log('base', base);
+			}
 		}
 
 		for (let i = 0; i < jsdocAST.length; i++) {
 			const obj = jsdocAST[i];
 			if (!obj?.ctx) {
-				console.log(
-					`Skipping ${input.name} because of missing ctx`,
-					obj,
-				);
+				// console.log(
+				// 	`Skipping ${input.name} because of missing ctx`,
+				// 	obj,
+				// );
 				continue;
 			}
 
@@ -243,9 +260,9 @@ async function gen() {
 				continue;
 			}
 
-			if (input.name === 'Bank.js') {
-				console.log(obj);
-			}
+			// if (input.name === 'Settings.js') {
+			// 	console.log(obj);
+			// }
 
 			if (obj.ctx.type === 'property') {
 				// Properties with no description are not useful to developers
@@ -266,16 +283,12 @@ async function gen() {
 				const isGetter = obj.code.startsWith('get');
 
 				if (isGetter) {
-					props.push(`### ${obj.ctx.name}`);
-					props.push('*Getter*');
-					props.push('');
+					props.push(`### ${obj.ctx.name} <Badge text="getter" />`);
 
 					// Whether the next tag is a setter
 					const nextObj = jsdocAST[i + 1];
 					if (nextObj?.code?.startsWith('set')) {
-						props.push('*Has setter*');
-						props.push('');
-
+						props[props.length - 1] += ' <Badge text="setter" />';
 						// Skip the next block since it's already parsed
 						++i;
 					}
@@ -308,24 +321,28 @@ async function gen() {
 					methods.push('');
 				}
 
-				const params = obj.tags
-					.filter((t) => t.tagType === 'param')
-					.map((t) => {
-						const isOptional = t.isOptional;
-						return `${t.name}${isOptional ? '?' : ''}: ${t.type}${isOptional ? ` = ${t.types.includes('STRING_VALUE') ? `"${t.defaultValue}"` : t.defaultValue}` : ''}`;
-					})
-					.join(', ');
-				const returnType = obj.tags.find(
-					(t) => t.tagType === 'returns',
-				).type;
-
 				methods.push(`### ${obj.ctx.name}`);
-				methods.push(`Signature: \`${obj.ctx.name}(${params})\``);
-
-				methods.push('');
 				if (obj.description.summary) {
 					methods.push(obj.description.summary);
 				}
+
+				const returnTag = obj.tags.find((t) => t.tagType === 'returns');
+				const returnType = returnTag.type;
+
+				const hasParams = obj.tags.some((t) => t.tagType === 'param');
+				if (hasParams) {
+					methods.push('| Parameter | Type | Description |');
+					methods.push('| --------- | ---- | ----------- |');
+					for (const param of obj.tags.filter(
+						(t) => t.tagType === 'param',
+					)) {
+						methods.push(
+							`| ${param.name} | ${param.type.replace(/\|/g, '\\|')} | ${param.description.summary ?? ''} |`,
+						);
+					}
+				}
+
+				methods.push('');
 
 				const typeURL = getTypeLink(returnType);
 				const returnTypeStr = typeURL
@@ -334,7 +351,9 @@ async function gen() {
 
 				methods.push('');
 				methods.push('');
-				methods.push(`Return type: ${returnTypeStr}`);
+				methods.push(
+					`**Returns:** ${returnTypeStr} ${returnTag.description ?? ''}`,
+				);
 			}
 		}
 

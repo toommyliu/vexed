@@ -7,20 +7,28 @@ outline: deep
 
 
 
+
+
 ## Methods
 
 ### sendClient
-Signature: `sendClient(packet: string, type?: "str" | "json" | "xml" = "str")`
-
 Sends the specified packet to the client (simulates a response as if the server sent the packet)
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| packet | string |  |
+| type | "str" \| "json" \| "xml" |  |
 
 
-Return type: `void`
+
+**Returns:** `void` 
 
 ### sendServer
-Signature: `sendServer(packet: string, type?: "String" | "Json" = "String")`
-
 Sends the specified packet to the server
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| packet | string |  |
+| type | "String" \| "Json" |  |
 
 
-Return type: `void`
+
+**Returns:** `void` 

@@ -5,59 +5,47 @@ outline: deep
 
 
 
+
+
 ## Properties
 
-### username
-*Getter*
-
+### username <Badge text="getter" />
 The username of the current user. This value is set after a successful login.
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>
 
-### password
-*Getter*
-
+### password <Badge text="getter" />
 The password of the current user. This value is set after a successful login.
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>
 
-### loggedIn
-*Getter*
-
+### loggedIn <Badge text="getter" />
 Whether the user is logged in and connected to a server.
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
 
-### servers
-*Getter*
-
+### servers <Badge text="getter" />
 The list of servers as shown to the client. The list is updated after a successful login.
 
 
 Return type: <code><a href="/api/struct/server">Server[]</a></code>
 
-### ip
-*Getter*
-
+### ip <Badge text="getter" />
 The server IP the client is connected to.
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>
 
-### port
-*Getter*
-
+### port <Badge text="getter" />
 The server port the client is connected to.
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
-### isTemporarilyKicked
-*Getter*
-
+### isTemporarilyKicked <Badge text="getter" />
 Whether the client is temporarily kicked from the server.
 
 
@@ -66,33 +54,36 @@ Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScr
 ## Methods
 
 ### login
-Signature: `login(username?: string = undefined, password?: string = undefined)`
-
 Log in with the given account or the previous account (if available).
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| username | string |  |
+| password | string |  |
 
 
-Return type: `void`
+
+**Returns:** `void` 
 
 ### logout
-Signature: `logout()`
-
 Logs out of the current account.
 
 
-Return type: `void`
+
+**Returns:** `void` 
 
 ### resetServers
-Signature: `resetServers()`
-
 Resets the list of servers that is available to the client.
 
 
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
+
+**Returns:** <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code> 
 
 ### connectTo
-Signature: `connectTo(name: string)`
-
 Connects to a server.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| name | string |  |
 
 
-Return type: `void`
+
+**Returns:** `void` 

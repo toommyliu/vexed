@@ -5,19 +5,17 @@ outline: deep
 
 
 
+
+
 ## Properties
 
-### items
-*Getter*
-
+### items <Badge text="getter" />
 Gets house items of the current player.
 
 
 Return type: <code><a href="/api/struct/houseitem">HouseItem[]</a></code>
 
-### totalSlots
-*Getter*
-
+### totalSlots <Badge text="getter" />
 Gets the total number of house item slots.
 
 

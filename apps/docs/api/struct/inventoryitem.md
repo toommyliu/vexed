@@ -7,43 +7,35 @@ Extends: <code><a href="/api/struct/item">Item</a></code>
 
 Represents an item in the inventory.
 
+
+
 ## Properties
 
-### charItemID
-*Getter*
-
+### charItemID <Badge text="getter" />
 The character ID of this item.
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
-### equipped
-*Getter*
-
+### equipped <Badge text="getter" />
 Whether the item is equipped.
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
 
-### level
-*Getter*
-
+### level <Badge text="getter" />
 The level of the item.
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
-### enhancementLevel
-*Getter*
-
+### enhancementLevel <Badge text="getter" />
 The enhancement level of the item.
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
-### enhancementPatternID
-*Getter*
-
+### enhancementPatternID <Badge text="getter" />
 The enhancement pattern ID of the item.
 1: Adventurer
 2: Fighter

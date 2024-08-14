@@ -85,7 +85,7 @@ class Bank {
 	/**
 	 * Puts an item into the Bank
 	 * @param {string} itemKey The name or ID of the item
-	 * @returns {Promise<boolean>} - Whether the operation was successful
+	 * @returns {Promise<boolean>} Whether the operation was successful
 	 */
 	async deposit(itemKey) {
 		if (!this.bot.inventory.get(itemKey)) {

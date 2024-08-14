@@ -3,85 +3,76 @@ outline: deep
 ---
 # Settings
 
-Options are updated in a background thread every 500ms.
+Options are updated in a background interval every 500ms. 
+
+
+`Provoke Map`: If enabled, tags all monsters in the current map.
+
+
+`Provoke Cell`: If enabled, tags all monsters in the current cell.
+
+
+`Enemy Magnet`: If enabled, sets the target's position to that of the player.
+
+
+`Lag Killer`: If enabled, disables rendering of most UI elements.
+
+
+`Hide Players`: If enabled, hides all players.
+
+
+`Skip Cutscenes:` If enabled, skips cutscenes.
+
+
+`Walk Speed`: The player's walk speed.
+
+
 
 ## Properties
 
-### infiniteRange
-*Getter*
-
-*Has setter*
-
+### infiniteRange <Badge text="getter" /> <Badge text="setter" />
 The state of "Infinite Range".
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
 
-### provokeMap
-*Getter*
-
-*Has setter*
-
+### provokeMap <Badge text="getter" /> <Badge text="setter" />
 The state of "Provoke Map".
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
 
-### provokeCell
-*Getter*
-
-*Has setter*
-
+### provokeCell <Badge text="getter" /> <Badge text="setter" />
 The state of "Provoke Cell".
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
 
-### enemyMagnet
-*Getter*
-
-*Has setter*
-
+### enemyMagnet <Badge text="getter" /> <Badge text="setter" />
 The state of "Enemy Magnet".
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
 
-### lagKiller
-*Getter*
-
-*Has setter*
-
+### lagKiller <Badge text="getter" /> <Badge text="setter" />
 Whether "Lag Killer" is enabled.
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
 
-### hidePlayers
-*Getter*
-
-*Has setter*
-
+### hidePlayers <Badge text="getter" /> <Badge text="setter" />
 Whether "Hide Players" is enabled.
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
 
-### skipCutscenes
-*Getter*
-
-*Has setter*
-
+### skipCutscenes <Badge text="getter" /> <Badge text="setter" />
 Whether "Skip Cutscenes" is enabled.
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
 
-### walkSpeed
-*Getter*
-
-*Has setter*
-
+### walkSpeed <Badge text="getter" /> <Badge text="setter" />
 The player's walk speed.
 
 
@@ -90,17 +81,21 @@ Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScr
 ## Methods
 
 ### setFPS
-Signature: `setFPS(fps: string | number)`
-
 Sets the target client FPS.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| fps | string \| number |  |
 
 
-Return type: `void`
+
+**Returns:** `void` 
 
 ### setDeathAds
-Signature: `setDeathAds(on: boolean)`
-
 Sets the visiblity of death ads.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| on | boolean |  |
 
 
-Return type: `void`
+
+**Returns:** `void` 

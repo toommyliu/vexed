@@ -5,6 +5,8 @@ outline: deep
 
 Represents a monster.
 
+
+
 ## Properties
 
 ### data
@@ -13,73 +15,55 @@ Data about this monster
 
 Return type: <code><a href="/api/typedefs/monsterdata">MonsterData</a></code>
 
-### monMapID
-*Getter*
-
+### monMapID <Badge text="getter" />
 The map ID of the monster.
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
-### id
-*Getter*
-
+### id <Badge text="getter" />
 The global ID of the monster.
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
-### level
-*Getter*
-
+### level <Badge text="getter" />
 The level of the monster.
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
-### state
-*Getter*
-
+### state <Badge text="getter" />
 The state of the monster.
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
-### race
-*Getter*
-
+### race <Badge text="getter" />
 The race of the monster.
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>
 
-### name
-*Getter*
-
+### name <Badge text="getter" />
 The name of the monster.
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>
 
-### hp
-*Getter*
-
+### hp <Badge text="getter" />
 The monster's current HP.
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
-### maxHP
-*Getter*
-
+### maxHP <Badge text="getter" />
 The monster's max HP.
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
-### alive
-*Getter*
-
+### alive <Badge text="getter" />
 Whether the monster is alive.
 
 

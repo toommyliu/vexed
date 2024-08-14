@@ -5,85 +5,65 @@ outline: deep
 
 
 
+
+
 ## Properties
 
-### players
-*Getter*
-
+### players <Badge text="getter" />
 Gets all players in the current map.
 
 
 Return type: <code><a href="/api/struct/avatar">Avatar[]</a></code>
 
-### monsters
-*Getter*
-
+### monsters <Badge text="getter" />
 The monsters in the map.
 
 
 Return type: `MonsterData[]`
 
-### visibleMonsters
-*Getter*
-
+### visibleMonsters <Badge text="getter" />
 Gets all visible monsters in the current cell.
 
 
 Return type: <code><a href="/api/struct/monster">Monster[]</a></code>
 
-### availableMonsters
-*Getter*
-
+### availableMonsters <Badge text="getter" />
 Gets all available monsters in the current cell.
 
 
 Return type: <code><a href="/api/struct/monster">Monster[]</a></code>
 
-### loading
-*Getter*
-
+### loading <Badge text="getter" />
 Checks if the map is still loading.
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
 
-### cells
-*Getter*
-
+### cells <Badge text="getter" />
 Gets all cells of the map.
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string[]</a></code>
 
-### cellPads
-*Getter*
-
-*Has setter*
-
+### cellPads <Badge text="getter" /> <Badge text="setter" />
 Get cell pads.
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string[]</a></code>
 
-### roomID
-*Getter*
-
+### roomID <Badge text="getter" />
 Gets the internal room ID of the current map.
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
-### roomNumber
-*Getter*
-
+### roomNumber <Badge text="getter" />
 Gets the room number of the current map.
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
-### name
-*Getter*
-
+### name <Badge text="getter" />
 Gets the name of the current map.
 
 
@@ -92,65 +72,84 @@ Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScr
 ## Methods
 
 ### isMonsterAvailable
-Signature: `isMonsterAvailable(monsterResolvable: string)`
-
 Whether a monster is available.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| monsterResolvable | string |  |
 
 
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
+
+**Returns:** <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code> 
 
 ### reload
-Signature: `reload()`
-
 Reloads the map.
 
 
-Return type: `void`
+
+**Returns:** `void` 
 
 ### jump
-Signature: `jump(cell: string, pad?: string = Spawn, force?: boolean = false, tries?: number = 5)`
-
 Jump to the specified cell and pad of the current map.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| cell | string |  |
+| pad | string |  |
+| force | boolean |  |
+| tries | number |  |
 
 
-Return type: `Promise<void>`
+
+**Returns:** `Promise<void>` 
 
 ### join
-Signature: `join(mapName: string, cell?: string = Enter, pad?: string = Spawn, tries?: number = 5)`
-
 Joins a map.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| mapName | string |  |
+| cell | string |  |
+| pad | string |  |
+| tries | number |  |
 
 
-Return type: `Promise<void>`
+
+**Returns:** `Promise<void>` 
 
 ### goto
-Signature: `goto(name: string)`
-
 Goto the specified player.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| name | string |  |
 
 
-Return type: `void`
+
+**Returns:** `void` 
 
 ### isActionAvailable
-Signature: `isActionAvailable(action: GameAction)`
-
 Whether the game action has cooled down.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| action | GameAction |  |
 
 
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
+
+**Returns:** <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code> 
 
 ### getMapItem
-Signature: `getMapItem(itemID: string)`
-
 Gets a item in the world.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| itemID | string |  |
 
 
-Return type: `Promise<void>`
 
-### loadSWF
-Signature: `loadSWF(swf: string)`
+**Returns:** `Promise<void>` 
 
+### loadMap
 Loads a particular swf of the map.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| mapSWF | string |  |
 
 
-Return type: `void`
+
+**Returns:** `void` 

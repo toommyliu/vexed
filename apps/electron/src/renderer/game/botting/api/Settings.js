@@ -1,5 +1,13 @@
 /**
- * Options are updated in a background thread every 500ms.
+ * @description Options are updated in a background interval every 500ms.
+ *
+ * `Provoke Map`: If enabled, tags all monsters in the current map.
+ * `Provoke Cell`: If enabled, tags all monsters in the current cell.
+ * `Enemy Magnet`: If enabled, sets the target's position to that of the player.
+ * `Lag Killer`: If enabled, disables rendering of most UI elements.
+ * `Hide Players`: If enabled, hides all players.
+ * `Skip Cutscenes:` If enabled, skips cutscenes.
+ * `Walk Speed`: The player's walk speed.
  */
 class Settings {
 	#intervalID = null;

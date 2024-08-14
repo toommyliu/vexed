@@ -5,35 +5,29 @@ outline: deep
 
 
 
+
+
 ## Properties
 
-### items
-*Getter*
-
+### items <Badge text="getter" />
 The list of items in the bank.
 
 
 Return type: <code><a href="/api/struct/bankitem">BankItem[]</a></code>
 
-### availableSlots
-*Getter*
-
+### availableSlots <Badge text="getter" />
 Gets the count of available slots of bankable non-AC items
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
-### usedSlots
-*Getter*
-
+### usedSlots <Badge text="getter" />
 Gets the count of used slots of bankable non-AC items
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
-### totalSlots
-*Getter*
-
+### totalSlots <Badge text="getter" />
 Gets the total slots of bankable non-AC items
 
 
@@ -42,48 +36,57 @@ Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScr
 ## Methods
 
 ### get
-Signature: `get(itemKey: string | number)`
-
 Gets an item from the Bank, items should be loaded beforehand
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| itemKey | string \| number |  |
 
 
-Return type: <code><a href="/api/struct/bankitem">?BankItem</a></code>
+
+**Returns:** <code><a href="/api/struct/bankitem">?BankItem</a></code> 
 
 ### contains
-Signature: `contains(itemKey: string | number, quantity: number)`
-
 Whether the item meets some quantity in this store
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| itemKey | string \| number |  |
+| quantity | number |  |
 
 
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
+
+**Returns:** <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code> 
 
 ### deposit
-Signature: `deposit(itemKey: string)`
+Puts an item into the Bank
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| itemKey | string |  |
 
 
 
-Return type: `Promise<boolean>`
+**Returns:** `Promise<boolean>` Whether the operation was successful
 
 ### swap
-Signature: `swap(bankItem: string, inventoryItem: string)`
-
 Swaps an item from the bank with an item from the inventory.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| bankItem | string |  |
+| inventoryItem | string |  |
 
 
-Return type: `Promise<void>`
+
+**Returns:** `Promise<void>` 
 
 ### open
-Signature: `open()`
-
 Opens the bank ui, and loads all items.
 
 
-Return type: `Promise<void>`
+
+**Returns:** `Promise<void>` 
 
 ### isOpen
-Signature: `isOpen()`
-
 Whether the bank ui is open.
 
 
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
+
+**Returns:** <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code> 

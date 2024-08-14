@@ -5,6 +5,8 @@ outline: deep
 
 Represents a player in the game.
 
+
+
 ## Properties
 
 ### data
