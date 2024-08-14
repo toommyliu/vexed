@@ -52,3 +52,19 @@ Adds an item to the internal store and the stack as visible to the client.
 
 
 Return type: `void`
+
+### pickup
+Signature: `pickup(itemKey: string | number)`
+
+Accepts the drop for an item in the stack
+
+
+Return type: `Promise<void>`
+
+### reject
+Signature: `reject(itemKey: string | number, removeFromStore?: boolean = false)`
+
+Rejects the drop, effectively removing from the stack. Items can technically be picked up after the fact
+
+
+Return type: `Promise<void>`

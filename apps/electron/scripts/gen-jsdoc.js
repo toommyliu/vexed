@@ -6,6 +6,25 @@ const fse = require('fs-extra');
 const { join } = require('node:path');
 const { inspect } = require('node:util');
 
+// Recognize async methods
+doc.contextPatternMatchers.push(function (str, parentContext) {
+	// Matches async class methods
+	if (/^\s*async\s+([\w$]+)\s*\(/.exec(str)) {
+		return {
+			type: 'method',
+			constructor: parentContext.name,
+			cons: parentContext.name,
+			name: RegExp.$1,
+			text:
+				(parentContext && parentContext.name
+					? parentContext.name + '.prototype.'
+					: '') +
+				RegExp.$1 +
+				'()',
+		};
+	}
+});
+
 const inputDir = join(__dirname, '../src/renderer/game/botting/api');
 const outputDir = join(__dirname, '../../docs/api');
 
@@ -133,7 +152,10 @@ async function gen() {
 		for (let i = 0; i < jsdocAST.length; i++) {
 			const obj = jsdocAST[i];
 			if (!obj?.ctx) {
-				console.log(`Skipping ${input.name} because of missing ctx`);
+				console.log(
+					`Skipping ${input.name} because of missing ctx`,
+					obj,
+				);
 				continue;
 			}
 
@@ -221,7 +243,10 @@ async function gen() {
 				continue;
 			}
 
-			// console.log(obj);
+			if (input.name === 'Bank.js') {
+				console.log(obj);
+			}
+
 			if (obj.ctx.type === 'property') {
 				// Properties with no description are not useful to developers
 				// TODO: make these properties private?

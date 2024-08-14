@@ -107,6 +107,22 @@ Reloads the map.
 
 Return type: `void`
 
+### jump
+Signature: `jump(cell: string, pad?: string = Spawn, force?: boolean = false, tries?: number = 5)`
+
+Jump to the specified cell and pad of the current map.
+
+
+Return type: `Promise<void>`
+
+### join
+Signature: `join(mapName: string, cell?: string = Enter, pad?: string = Spawn, tries?: number = 5)`
+
+Joins a map.
+
+
+Return type: `Promise<void>`
+
 ### goto
 Signature: `goto(name: string)`
 
@@ -122,6 +138,14 @@ Whether the game action has cooled down.
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
+
+### getMapItem
+Signature: `getMapItem(itemID: string)`
+
+Gets a item in the world.
+
+
+Return type: `Promise<void>`
 
 ### loadSWF
 Signature: `loadSWF(swf: string)`

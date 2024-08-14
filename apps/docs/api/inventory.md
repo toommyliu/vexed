@@ -56,3 +56,11 @@ Whether the item meets some quantity in this store
 
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
+
+### equip
+Signature: `equip(itemKey: string | number)`
+
+Equips an item from the Inventory.
+
+
+Return type: `Promise<void>`

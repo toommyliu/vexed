@@ -1,3 +1,7 @@
+/**
+ * @description A `monsterResolvable` is either its name or monMapID prefixed with `id` and
+ * delimited by a `'`, `.`, `:`, `-` character
+ */
 class Combat {
 	constructor(bot) {
 		/**

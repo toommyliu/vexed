@@ -83,14 +83,12 @@ class Bank {
 	}
 
 	/**
-	 * Puts an item into the Bank
 	 * @param {string} itemKey The name or ID of the item
-	 * @returns {Promise<boolean>}
+	 * @returns {Promise<boolean>} - Whether the operation was successful
 	 */
-	// TODO: return boolean
 	async deposit(itemKey) {
 		if (!this.bot.inventory.get(itemKey)) {
-			return;
+			return false;
 		}
 
 		this.bot.flash.call(swf.TransferToBank, itemKey);
@@ -98,6 +96,8 @@ class Bank {
 			() => this.get(itemKey) && !this.bot.inventory.get(itemKey),
 			() => this.bot.auth.loggedIn,
 		);
+
+		return true;
 	}
 
 	/**

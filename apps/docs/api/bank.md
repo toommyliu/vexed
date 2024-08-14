@@ -57,6 +57,29 @@ Whether the item meets some quantity in this store
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
 
+### deposit
+Signature: `deposit(itemKey: string)`
+
+
+
+Return type: `Promise<boolean>`
+
+### swap
+Signature: `swap(bankItem: string, inventoryItem: string)`
+
+Swaps an item from the bank with an item from the inventory.
+
+
+Return type: `Promise<void>`
+
+### open
+Signature: `open()`
+
+Opens the bank ui, and loads all items.
+
+
+Return type: `Promise<void>`
+
 ### isOpen
 Signature: `isOpen()`
 

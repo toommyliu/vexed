@@ -25,6 +25,22 @@ Return type: <code><a href="/api/typedefs/shopinfo">ShopInfo</a></code>
 
 ## Methods
 
+### buyByName
+Signature: `buyByName(name: string, quantity: ?number)`
+
+Buy an item from the shop.
+
+
+Return type: `Promise<void>`
+
+### buyByID
+Signature: `buyByID(itemID: number, shopItemID: number, quantity: number)`
+
+Buy an item from the shop using its ID.
+
+
+Return type: `Promise<void>`
+
 ### reset
 Signature: `reset()`
 
@@ -32,6 +48,22 @@ Reset loaded shop info.
 
 
 Return type: `void`
+
+### load
+Signature: `load(shopID: number)`
+
+Load a shop.
+
+
+Return type: `Promise<void>`
+
+### sell
+Signature: `sell(itemName: string)`
+
+Sells an entire stack of an item.
+
+
+Return type: `Promise<void>`
 
 ### loadHairShop
 Signature: `loadHairShop(id: number)`

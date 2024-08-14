@@ -128,7 +128,7 @@ class Bot extends EventEmitter {
 	}
 
 	/**
-	 * Waits until the condition is met.
+	 * Waits until the condition is met. This only blocks in the current context.
 	 * @param {Function} condition The condition to wait for.
 	 * @param {Function|null} prerequisite The prerequisite to be checked before waiting for the condition.
 	 * @param {number} timeout The maximum number of iterations to wait. -1 to wait indefinitely.

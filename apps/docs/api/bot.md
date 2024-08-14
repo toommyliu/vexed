@@ -24,6 +24,14 @@ Signature: `sleep(ms: number)`
 
 Return type: `Promise<void>`
 
+### waitUntil
+Signature: `waitUntil(condition: Function, prerequisite: Function | null, timeout: number)`
+
+Waits until the condition is met. This only blocks in the current context.
+
+
+Return type: `Promise<void>`
+
 ### start
 Signature: `start()`
 

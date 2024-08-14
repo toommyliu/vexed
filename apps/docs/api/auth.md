@@ -55,6 +55,14 @@ The server port the client is connected to.
 
 Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
 
+### isTemporarilyKicked
+*Getter*
+
+Whether the client is temporarily kicked from the server.
+
+
+Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
+
 ## Methods
 
 ### login
