@@ -263,11 +263,14 @@ class World {
 
 	/**
 	 * Loads a particular swf of the map.
-	 * @param {string} swf The swf to load
+	 * @param {string} mapSWF The swf to load
 	 * @returns {void}
 	 */
-	loadSWF(swf) {
-		this.bot.flash.call(swf.LoadMap, swf);
+	loadMap(mapSWF) {
+		if (!mapSWF.endsWith('.swf')) {
+			mapSWF += '.swf';
+		}
+		this.bot.flash.call(swf.LoadMap, mapSWF);
 	}
 }
 
