@@ -23,11 +23,7 @@ class Packets {
 	 * @returns {void}
 	 */
 	sendServer(packet, type = 'String') {
-		this.bot.flash.call(
-			swf.callGameFunction,
-			`sfc.send${type}`,
-			packet,
-		);
+		this.bot.flash.call(swf.callGameFunction, `sfc.send${type}`, packet);
 	}
 }
 

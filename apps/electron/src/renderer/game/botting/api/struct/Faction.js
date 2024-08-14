@@ -80,4 +80,3 @@ module.exports = Faction;
  * @property {string} FactionID The ID of the faction
  * @property {number} iRepToRank The total required rep for the player to rank up
  */
-

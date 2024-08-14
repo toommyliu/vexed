@@ -218,7 +218,12 @@ class Combat {
 	 * @returns {Promise<void>}
 	 */
 	async killForItem(monsterResolvable, itemName, targetQty, killConfig) {
-		return this.#killForItem(monsterResolvable, itemName, targetQty, killConfig);
+		return this.#killForItem(
+			monsterResolvable,
+			itemName,
+			targetQty,
+			killConfig,
+		);
 	}
 
 	/**
@@ -230,7 +235,13 @@ class Combat {
 	 * @returns {Promise<void>}
 	 */
 	async killForTempItem(monsterResolvable, itemName, targetQty, killConfig) {
-		return this.#killForItem(monsterResolvable, itemName, targetQty, true, killConfig);
+		return this.#killForItem(
+			monsterResolvable,
+			itemName,
+			targetQty,
+			true,
+			killConfig,
+		);
 	}
 
 	/**
@@ -243,7 +254,13 @@ class Combat {
 	 * @returns {Promise<void>}
 	 * @private
 	 */
-	async #killForItem(monsterResolvable, itemName, targetQty, isTemp = false, killConfig) {
+	async #killForItem(
+		monsterResolvable,
+		itemName,
+		targetQty,
+		isTemp = false,
+		killConfig,
+	) {
 		const store = isTemp ? this.bot.tempInventory : this.bot.inventory;
 		const getItem = () => store.get(itemName);
 

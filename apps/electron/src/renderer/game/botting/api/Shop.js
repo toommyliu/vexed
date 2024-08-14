@@ -56,12 +56,7 @@ class Shops {
 		await this.bot.waitUntil(() =>
 			this.bot.world.isActionAvailable(GameAction.BuyItem),
 		);
-		this.bot.flash.call(
-			swf.BuyItemQtyById,
-			quantity,
-			itemID,
-			shopItemID,
-		);
+		this.bot.flash.call(swf.BuyItemQtyById, quantity, itemID, shopItemID);
 		await this.bot.waitUntil(
 			() => this.bot.inventory.get(itemID)?.quantity >= quantity,
 		);

@@ -82,7 +82,8 @@ body {
 	padding: 0 8px;
 }
 
-#cells, #pads {
+#cells,
+#pads {
 	background-color: var(--bg-secondary);
 	color: white;
 	width: 100px;
