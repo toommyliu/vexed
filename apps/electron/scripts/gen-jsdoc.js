@@ -30,6 +30,8 @@ const getTypeLink = (type) => {
 		case 'Faction':
 		case 'Faction[]':
 			return '/api/struct/faction';
+		case 'Item':
+			return '/api/struct/item';
 		case '?BankItem':
 		case 'BankItem':
 		case 'BankItem[]':
@@ -66,7 +68,7 @@ const getTypeLink = (type) => {
 			return '/api/typedefs/serverdata';
 		case 'ShopInfo':
 			return '/api/typedefs/shopinfo';
-		}
+	}
 	return null;
 };
 
@@ -114,6 +116,17 @@ async function gen() {
 			jsdocAST[0].ctx.type === 'class' ||
 			jsdocAST[0].tags[0].tagType === 'type'
 		) {
+			const isClass = jsdocAST[0].ctx.type === 'class';
+			const _extends = jsdocAST[0].ctx.extends;
+			if (isClass && _extends !== '') {
+				const extendedClass = _extends;
+				const typeURL = getTypeLink(extendedClass);
+				const returnTypeStr = typeURL
+					? `<code><a href="${typeURL}">${extendedClass}</a></code>`
+					: '`' + extendedClass + '`';
+				base.push(`Extends: ${returnTypeStr}`);
+				base.push('');
+			}
 			base.push(jsdocAST[0].description.summary);
 		}
 
