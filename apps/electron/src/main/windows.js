@@ -22,7 +22,12 @@ const store = new Map();
 const userAgent =
 	'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16_0) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36';
 
-async function createGame() {
+/**
+ * Creates a new game window
+ * @param {{username: string, password:string}} account The account to login with
+ * @returns {Promise<void>}
+ */
+async function createGame(account = null) {
 	const window = new BrowserWindow({
 		width: 966,
 		height: 552,
@@ -49,6 +54,9 @@ async function createGame() {
 
 	await window.loadFile(join(RENDERER, 'game/game.html'));
 	window.webContents.openDevTools({ mode: 'right' });
+	if (account) {
+		window.webContents.send('root:login', account);
+	}
 
 	window.on('close', () => {
 		const windows = store.get(window.id);

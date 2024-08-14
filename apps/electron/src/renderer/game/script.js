@@ -264,3 +264,29 @@ window.addEventListener('keydown', (ev) => {
 	}
 });
 //#endregion
+
+//#region account manager
+ipcRenderer.on('root:login', (ev, account) => {
+	window.account = account;
+});
+
+window.progress = async ([percentage]) => {
+	if (
+		percentage === 100 &&
+		window?.account &&
+		'username' in window.account &&
+		'password' in window.account
+	) {
+		await bot.sleep(1000);
+		auth.login(window.account.username, window.account.password);
+		if (window.account.server) {
+			await bot.waitUntil(() => auth.servers.length > 0);
+			auth.connectTo(window.account.server);
+			await bot.waitUntil(
+				() => auth.loggedIn && !world.loading && player.loaded,
+			);
+		}
+		delete window.account;
+	}
+};
+//#endregion

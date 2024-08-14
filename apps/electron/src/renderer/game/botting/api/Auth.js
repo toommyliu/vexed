@@ -39,6 +39,7 @@ class Auth {
 	 * @returns {void}
 	 */
 	login(username, password) {
+		console.log('login', username, password);
 		if (username && password) {
 			this.bot.flash.call(swf.FixLogin, username, password);
 		} else {

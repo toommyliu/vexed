@@ -3,6 +3,7 @@ const { app } = require('electron');
 
 const { createGame } = require('./windows');
 
+require('./tray');
 require('./ipc');
 
 function registerFlashPlugin() {
