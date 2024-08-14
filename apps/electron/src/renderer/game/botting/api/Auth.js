@@ -39,7 +39,6 @@ class Auth {
 	 * @returns {void}
 	 */
 	login(username, password) {
-		console.log('login', username, password);
 		if (username && password) {
 			this.bot.flash.call(swf.FixLogin, username, password);
 		} else {
@@ -98,6 +97,14 @@ class Auth {
 	 */
 	get port() {
 		return this.bot.flash.getStatic('serverPort', true);
+	}
+
+	/**
+	 * Whether the client is temporarily kicked from the server.
+	 * @returns {boolean}
+	 */
+	get isTemporarilyKicked() {
+		return this.bot.flash.call(swf.IsTemporarilyKicked);
 	}
 }
 
