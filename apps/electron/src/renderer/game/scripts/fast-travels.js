@@ -4,7 +4,6 @@
 const bot = Bot.getInstance();
 
 window.addEventListener('message', async (ev) => {
-	console.log(ev.data);
 	if (!ev.data.event.startsWith('tools:fasttravel')) {
 		return;
 	}

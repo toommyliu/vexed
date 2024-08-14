@@ -1,5 +1,7 @@
 require('./scripts/fast-travels');
 require('./scripts/follower');
+require('./scripts/loader-grabber');
+require('./scripts/packet-spammer');
 
 const { ipcRenderer } = require('electron');
 
@@ -7,16 +9,12 @@ const { ipcRenderer } = require('electron');
  * @type {import('./botting/api/Bot')}
  */
 const bot = Bot.getInstance();
-const { settings } = bot;
+const { settings, auth, world, player, flash, bank } = bot;
 
 const mapping = new Map();
 
 // room jump
-let roomID;
-
-// packet spammer
-let p_intervalID;
-let p_index = 0;
+let lastRoomID;
 
 window.windows = {
 	game: window,
@@ -180,33 +178,33 @@ window.addEventListener('DOMContentLoaded', async () => {
 	const update = (force = false) => {
 		if (
 			!force &&
-			(!bot.auth.loggedIn ||
-				bot.world.loading ||
-				!bot.player.loaded ||
-				bot.world.roomID === roomID)
+			(!auth.loggedIn ||
+				world.loading ||
+				!player.loaded ||
+				world.roomID === lastRoomID)
 		) {
 			return;
 		}
 
 		$cells.innerHTML = '';
 
-		for (const cell of bot.world.cells) {
+		for (const cell of world.cells) {
 			const option = document.createElement('option');
 			option.value = cell;
 			option.textContent = cell;
 			$cells.appendChild(option);
 		}
 
-		$cells.value = bot.player.cell;
-		$pads.value = bot.player.pad;
+		$cells.value = player.cell;
+		$pads.value = player.pad;
 
-		roomID = bot.world.roomID;
+		lastRoomID = world.roomID;
 	};
 
 	const jump = () => {
 		const cell = $cells.value ?? 'Enter';
 		const pad = $pads.value ?? 'Spawn';
-		bot.flash.call(swf.Jump, cell, pad);
+		flash.call(swf.Jump, cell, pad);
 	};
 
 	$cells.addEventListener('click', () => update(false));
@@ -215,11 +213,11 @@ window.addEventListener('DOMContentLoaded', async () => {
 	$x.addEventListener('click', () => update(true));
 
 	$bank.addEventListener('click', async () => {
-		if (!bot.auth.loggedIn || bot.world.loading || !bot.player.loaded) {
+		if (!auth.loggedIn || world.loading || !player.loaded) {
 			return;
 		}
 
-		await bot.bank.open();
+		await bank.open();
 	});
 });
 //#endregion
@@ -250,8 +248,8 @@ window.addEventListener('mousedown', (ev) => {
 });
 
 window.addEventListener('keydown', (ev) => {
-	// Allow certain shortcuts to go through
-	if (ev.metaKey && ev.target.id === 'swf') {
+	// Allow certain shortcuts while the game is focused
+	if (ev.metaKey /* CMD */ && ev.target.id === 'swf') {
 		switch (ev.key.toLowerCase()) {
 			case 'w': // CMD+W
 			case 'q': // CMD+Q
@@ -262,152 +260,7 @@ window.addEventListener('keydown', (ev) => {
 					window.location.reload();
 				}
 				break;
-			default:
-				console.log('Unhandled key', ev.key);
-				return;
 		}
-	}
-});
-//#endregion
-
-//#region ipc
-window.addEventListener('message', async (ev) => {
-	const {
-		data: { event, args },
-	} = ev;
-
-	switch (event) {
-		// #region loader grabber
-		case 'tools:loadergrabber:load':
-			{
-				if (!bot.auth.loggedIn) {
-					return;
-				}
-
-				const { type, id } = args;
-
-				switch (type) {
-					case 0: // hair shop
-						bot.flash.call(swf.LoadHairShop, id);
-						break;
-					case 1: // shop
-						bot.flash.call(swf.LoadShop, id);
-						break;
-					case 2: // quest
-						bot.flash.call(swf.LoadQuest, id);
-						break;
-					case 3: // armor customizer
-						bot.flash.call(swf.LoadArmorCustomizer);
-						break;
-				}
-			}
-			break;
-		case 'tools:loadergrabber:grab':
-			{
-				if (!bot.auth.loggedIn) {
-					return;
-				}
-
-				const { type } = args;
-
-				let ret;
-
-				switch (type) {
-					case 0: // shop
-						if (!bot.shops.loaded || !bot.shops.info) {
-							return;
-						}
-
-						ret = bot.shops.info;
-						break;
-					case 1: // quests
-						ev.source.postMessage({
-							event: 'tools:loadergrabber:grab',
-							args: {
-								data: bot.flash.call(swf.GetQuestTree),
-								type: 1,
-							},
-						});
-						break;
-					case 2: // inventory
-						if (!bot.player.loaded || !bot.inventory.items.length) {
-							return;
-						}
-
-						ret = bot.flash.call(swf.GetInventoryItems);
-						break;
-					case 3: // temp. inventory
-						if (!bot.player.loaded) {
-							return;
-						}
-
-						ret = bot.flash.call(swf.GetTempItems);
-						break;
-					case 4: // bank
-						if (!bot.player.loaded) {
-							return;
-						}
-
-						ret = bot.flash.call(window.swf.GetBankItems);
-						break;
-					case 5: // cell monsters
-					case 6: // map monsters
-						if (bot.world.loading) {
-							return;
-						}
-
-						// prettier-ignore
-						ret = type === 5
-							? bot.flash.call(swf.GetMonstersInCell)
-							: bot.world.monsters;
-						break;
-				}
-
-				if (ret) {
-					ev.source.postMessage({
-						event: 'tools:loadergrabber:grab',
-						args: { data: ret, type: type },
-					});
-				}
-			}
-			break;
-		//#endregion
-		//#region packets
-		case 'packets:spammer:on':
-			if (p_intervalID) {
-				await bot.timerManager.clearInterval(p_intervalID);
-				p_intervalID = null;
-				await bot.sleep(1000);
-			}
-
-			if (args.packets[0] === '') {
-				return;
-			}
-
-			p_intervalID = bot.timerManager.setInterval(
-				async () => {
-					if (
-						!bot.auth.loggedIn ||
-						bot.world.loading ||
-						!bot.player.loaded
-					) {
-						return;
-					}
-
-					bot.packets.sendServer(args.packets[p_index]);
-					p_index = (p_index + 1) % args.packets.length;
-				},
-				Number.parseInt(args.delay) ?? 1000,
-			);
-			break;
-		case 'packets:spammer:off':
-			if (p_intervalID) {
-				await bot.timerManager.clearInterval(p_intervalID);
-				p_intervalID = null;
-				p_index = 0;
-			}
-			break;
-		//#endregion
 	}
 });
 //#endregion
