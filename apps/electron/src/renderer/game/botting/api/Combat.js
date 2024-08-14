@@ -204,7 +204,7 @@ class Combat {
 						this.bot.timerManager.clearInterval(timer_a);
 						this.bot.timerManager.clearInterval(timer_b);
 
-						await this.exit();
+						//await this.exit();
 
 						resolve();
 					}
@@ -279,7 +279,6 @@ class Combat {
 		};
 
 		while (!shouldExit()) {
-			console.log('kill', monsterResolvable);
 			await this.kill(monsterResolvable, killConfig);
 			await this.bot.sleep(500);
 
