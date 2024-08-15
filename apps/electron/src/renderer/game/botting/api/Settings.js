@@ -1,12 +1,12 @@
 /**
- * @description Options are updated in a background interval every 500ms.
+ * @description Options are updated in a background loop every 500ms.
  *
- * `Provoke Map`: If enabled, tags all monsters in the current map.
+ * `Provoke Map`: If enabled, tags all monsters in the map.
  * `Provoke Cell`: If enabled, tags all monsters in the current cell.
  * `Enemy Magnet`: If enabled, sets the target's position to that of the player.
  * `Lag Killer`: If enabled, disables rendering of most UI elements.
- * `Hide Players`: If enabled, hides all players.
- * `Skip Cutscenes:` If enabled, skips cutscenes.
+ * `Hide Players`: If enabled, hides other players.
+ * `Skip Cutscenes:` If enabled, skips cutscenes as needed.
  * `Walk Speed`: The player's walk speed.
  */
 class Settings {
@@ -263,7 +263,7 @@ class Settings {
 
 	/**
 	 * Sets the target client FPS.
-	 * @param {string|number} fps
+	 * @param {string|number} fps The target fps
 	 * @returns {void}
 	 */
 	setFPS(fps) {
@@ -272,7 +272,7 @@ class Settings {
 
 	/**
 	 * Sets the visiblity of death ads.
-	 * @param {boolean} on
+	 * @param {boolean} on If enabled, death ads are shown
 	 * @returns {void}
 	 */
 	setDeathAds(on) {

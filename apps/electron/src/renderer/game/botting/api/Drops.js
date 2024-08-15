@@ -13,23 +13,25 @@ class Drops {
 	}
 
 	/**
+	 * The drop stack as shown to the client. The mapping is of the form `ItemID -> count`.
 	 * @returns {Record<number, number>}
+	 * @property
 	 */
 	get stack() {
 		return this.#drops;
 	}
 
 	/**
-	 * @param {number} itemID
-	 * @returns {?import('./struct/Item').ItemData}
+	 * @param {number} itemID The ID of the item
+	 * @returns {?import('./struct/Item').ItemData} The item data, if the item has previously dropped
 	 */
 	getItemFromID(itemID) {
 		return [...this.#data].find((item) => item.ItemID === itemID);
 	}
 
 	/**
-	 * @param {string} itemName
-	 * @returns {?import('./struct/Item').ItemData}
+	 * @param {string} itemName The name of the item
+	 * @returns {?import('./struct/Item').ItemData} The item data, if the item has previously dropped
 	 */
 	getItemFromName(itemName) {
 		itemName = itemName.toLowerCase();
@@ -39,16 +41,16 @@ class Drops {
 	}
 
 	/**
-	 * @param {number} itemID
-	 * @returns {?string}
+	 * @param {number} itemID The ID of the item
+	 * @returns {?string} The name of the item, if the item has previously dropped
 	 */
 	getNameFromID(itemID) {
 		return this.getItemFromID(itemID)?.sName;
 	}
 
 	/**
-	 * @param {string} itemName
-	 * @returns {?number}
+	 * @param {string} itemName The name of the item
+	 * @returns {?number} The ID of the item, if the item has previously dropped
 	 */
 	getIDFromName(itemName) {
 		return this.getItemFromName(itemName)?.ItemID;
@@ -56,8 +58,8 @@ class Drops {
 
 	/**
 	 * Returns the count of the item in the drop stack. Returns -1 if it hasn't dropped.
-	 * @param {number} itemID
-	 * @returns {number}
+	 * @param {number} itemID The ID of the item
+	 * @returns {number} The count of the item in the stack
 	 */
 	getDropCount(itemID) {
 		return this.#drops[itemID] ?? -1;
@@ -67,6 +69,7 @@ class Drops {
 	 * Adds an item to the internal store and the stack as visible to the client.
 	 * @param {Record<string, any>} itemData The data of the item to add. See {@link ItemData}
 	 * @returns {void}
+	 * @private
 	 */
 	addDrop(itemData) {
 		this.#data.add(itemData);

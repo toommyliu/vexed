@@ -1,12 +1,11 @@
-const now = performance.now();
-
 const doc = require('doxxx');
-const fs = require('node:fs');
-const fse = require('fs-extra');
+
+const fs = require('fs-extra');
+const readdir = require('fs').promises.readdir;
+
 const { join } = require('node:path');
 const { inspect } = require('node:util');
 
-// Recognize async methods
 doc.contextPatternMatchers.push(function (str, parentContext) {
 	// Matches async class methods
 	if (/^\s*async\s+([\w$]+)\s*\(/.exec(str)) {
@@ -28,146 +27,107 @@ doc.contextPatternMatchers.push(function (str, parentContext) {
 const inputDir = join(__dirname, '../src/renderer/game/botting/api');
 const outputDir = join(__dirname, '../../docs/api');
 
+const typePatterns = [
+	{
+		regex: /^(\?)?boolean(\[\])?$/,
+		url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean',
+	},
+	{
+		regex: /^(\?)?number(\[\])?$/,
+		url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number',
+	},
+	{
+		regex: /^(\?)?string(\[\])?$/,
+		url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String',
+	},
+	{ regex: /^(\?)?Bot(\[\])?$/, url: '/api/bot' },
+	{ regex: /^(\?)?Server(\[\])?$/, url: '/api/struct/server' },
+	{ regex: /^(\?)?Avatar(\[\])?$/, url: '/api/struct/avatar' },
+	{ regex: /^(\?)?Faction(\[\])?$/, url: '/api/struct/faction' },
+	{ regex: /^(\?)?Item(\[\])?$/, url: '/api/struct/item' },
+	{ regex: /^(\?)?BankItem(\[\])?$/, url: '/api/struct/bankitem' },
+	{ regex: /^(\?)?HouseItem(\[\])?$/, url: '/api/struct/houseitem' },
+	{ regex: /^(\?)?InventoryItem(\[\])?$/, url: '/api/struct/inventoryitem' },
+	{
+		regex: /^(\?)?TempInventoryItem(\[\])?$/,
+		url: '/api/struct/tempinventoryitem',
+	},
+	{ regex: /^(\?)?Monster(\[\])?$/, url: '/api/struct/monster' },
+	{ regex: /^(\?)?Quest(\[\])?$/, url: '/api/struct/quest' },
+	{ regex: /^(\?)?PlayerState(\[\])?$/, url: '/api/enums/playerstate' },
+	{ regex: /^(\?)?GameAction(\[\])?$/, url: '/api/enums/gameaction' },
+	{ regex: /^(\?)?AvatarData(\[\])?$/, url: '/api/typedefs/avatardata' },
+	{ regex: /^(\?)?MonsterData(\[\])?$/, url: '/api/typedefs/monsterdata' },
+	{ regex: /^(\?)?FactionData(\[\])?$/, url: '/api/typedefs/factiondata' },
+	{ regex: /^(\?)?ServerData(\[\])?$/, url: '/api/typedefs/serverdata' },
+	{ regex: /^(\?)?ShopInfo(\[\])?$/, url: '/api/typedefs/shopinfo' },
+];
+
 const getTypeLink = (type) => {
-	// TODO: improve
-	switch (type) {
-		case 'boolean':
-			return 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean';
-		case 'number':
-			return 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number';
-		case 'string':
-		case 'string[]':
-			return 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String';
-		case 'Bot':
-			return '/api/bot';
-		case 'Server':
-		case 'Server[]':
-			return '/api/struct/server';
-		case 'Avatar':
-		case 'Avatar[]':
-			return '/api/struct/avatar';
-		case 'Faction':
-		case 'Faction[]':
-			return '/api/struct/faction';
-		case 'Item':
-			return '/api/struct/item';
-		case '?BankItem':
-		case 'BankItem':
-		case 'BankItem[]':
-			return '/api/struct/bankitem';
-		case 'HouseItem':
-		case 'HouseItem[]':
-			return '/api/struct/houseitem';
-		case '?InventoryItem':
-		case 'InventoryItem':
-		case 'InventoryItem[]':
-			return '/api/struct/inventoryitem';
-		case '?TempInventoryItem':
-		case 'TempInventoryItem':
-		case 'TempInventoryItem[]':
-			return '/api/struct/tempinventoryitem';
-		case 'Monster':
-		case 'Monster[]':
-			return '/api/struct/monster';
-		case '?Quest':
-		case 'Quest':
-		case 'Quest[]':
-			return '/api/struct/quest';
-		case 'PlayerState':
-			return '/api/enums/playerstate';
-		case 'GameAction':
-			return '/api/enums/gameaction';
-		case 'AvatarData':
-			return '/api/typedefs/avatardata';
-		case 'MonsterData':
-			return '/api/typedefs/monsterdata';
-		case 'FactionData':
-			return '/api/typedefs/factiondata';
-		case 'ServerData':
-			return '/api/typedefs/serverdata';
-		case 'ShopInfo':
-			return '/api/typedefs/shopinfo';
+	for (const { regex, url } of typePatterns) {
+		if (regex.test(type)) {
+			return url;
+		}
 	}
 	return null;
 };
 
 async function gen() {
-	const inputs = await fs.promises.readdir(inputDir, {
+	const inputs = await readdir(inputDir, {
 		recursive: true,
 		withFileTypes: true,
 	});
 
-	console.log(`Found ${inputs.length} files to parse`);
+	console.log(`Found ${inputs.length} files to parse...`);
 
 	const enums = {};
 	const typedefs = {};
 
 	for (const input of inputs.filter((i) => i.isFile())) {
-		const base = ['---', 'outline: deep', '---'];
+		const path = join(input.path, input.name);
+		const code = await fs.readFile(path, 'utf-8');
+		const ast = doc.parseComments(code);
+
+		// No jsdoc found
+		if (!ast.length) {
+			console.warn(`No jsdoc found in ${input.name}, skipping...`);
+			continue;
+		}
+
+		const title = input.name.split('.')[0];
+
+		const md = ['---', `title: ${title}`, 'outline: deep', '---'];
 
 		const props = [];
 		const methods = [];
 
-		const path = join(input.path, input.name);
-		const fBody = await fs.promises
-			.readFile(path, 'utf-8')
-			.catch((error) => {
-				console.error(`Failed to read file ${input.name}`);
-				if (error) {
-					console.log('Reason: ', error);
-				}
-			});
+		console.log(`Parsing ${input.name} now`);
 
-		const jsdocAST = doc.parseComments(fBody);
-
-		// Empty class? (e.g class MyClass extends BaseClass)
-		if (jsdocAST.length === 0) {
-			continue;
-		}
-
-		console.log(`Parsing ${input.name} now...`);
-
-		base.push(`# ${input.name.split('.')[0]}`);
-		base.push('');
+		md.push(`# ${title}`);
+		md.push('');
 
 		// Is this class/type documented?
-		if (
-			jsdocAST[0].ctx.type === 'class' ||
-			jsdocAST[0].tags[0].tagType === 'type'
-		) {
-			const isClass = jsdocAST[0].ctx.type === 'class';
-			const _extends = jsdocAST[0].ctx.extends;
+		if (ast[0].ctx.type === 'class' || ast[0].tags[0].tagType === 'type') {
+			const isClass = ast[0].ctx.type === 'class';
+			const _extends = ast[0].ctx.extends;
 			if (isClass && _extends !== '') {
 				const extendedClass = _extends;
 				const typeURL = getTypeLink(extendedClass);
 				const returnTypeStr = typeURL
-					? `<code><a href="${typeURL}">${extendedClass}</a></code>`
-					: '`' + extendedClass + '`';
-				base.push(`Extends: ${returnTypeStr}`);
-				base.push('');
+					? `<a href="${typeURL}">${extendedClass}</a>`
+					: extendedClass;
+				md[md.length - 2] += `<Badge>extends ${returnTypeStr}</Badge>`;
 			}
-			if (input.name === 'Settings.js') {
-				console.log(
-					'jsdocAST[0].description.summary',
-					jsdocAST[0].description.summary,
-				);
-				console.log(
-					"jsdocAST[0].description.summary.split('\\n')",
-					jsdocAST[0].description.summary.split('\n'),
-				);
-			}
-			for (const line of jsdocAST[0].description.summary.split('\n')) {
-				base.push(line);
-				base.push('');
-				base.push('');
-			}
-			if (input.name === 'Settings.js') {
-				console.log('base', base);
+
+			for (const line of ast[0].description.summary.split('\n')) {
+				md.push(line);
+				md.push('');
+				md.push('');
 			}
 		}
 
-		for (let i = 0; i < jsdocAST.length; i++) {
-			const obj = jsdocAST[i];
+		for (let i = 0; i < ast.length; i++) {
+			const obj = ast[i];
 			if (!obj?.ctx) {
 				// console.log(
 				// 	`Skipping ${input.name} because of missing ctx`,
@@ -283,12 +243,12 @@ async function gen() {
 				const isGetter = obj.code.startsWith('get');
 
 				if (isGetter) {
-					props.push(`### ${obj.ctx.name} <Badge text="getter" />`);
+					props.push(`### ${obj.ctx.name}<Badge text="getter" />`);
 
 					// Whether the next tag is a setter
-					const nextObj = jsdocAST[i + 1];
+					const nextObj = ast[i + 1];
 					if (nextObj?.code?.startsWith('set')) {
-						props[props.length - 1] += ' <Badge text="setter" />';
+						props[props.length - 1] += '<Badge text="setter" />';
 						// Skip the next block since it's already parsed
 						++i;
 					}
@@ -309,9 +269,15 @@ async function gen() {
 
 					props.push('');
 					props.push('');
-					props.push(`Return type: ${returnTypeStr}`);
+					props.push(`Type: ${returnTypeStr}`);
 				}
 			} else if (obj.ctx.type === 'method') {
+				const isPrivate = obj.tags.some((t) => t.tagType === 'private');
+				// Don't bother with @private methods since they should be meant for internal use
+				if (isPrivate) {
+					continue;
+				}
+
 				if (methods.length === 0) {
 					methods.push('## Methods');
 				}
@@ -319,6 +285,10 @@ async function gen() {
 				// Append a newline before
 				if (methods[methods.length] !== '') {
 					methods.push('');
+				}
+
+				if (obj.ctx.name === 'addDrop') {
+					console.log(obj);
 				}
 
 				methods.push(`### ${obj.ctx.name}`);
@@ -337,7 +307,7 @@ async function gen() {
 						(t) => t.tagType === 'param',
 					)) {
 						methods.push(
-							`| ${param.name} | ${param.type.replace(/\|/g, '\\|')} | ${param.description.summary ?? ''} |`,
+							`| ${param.name} | ${param.type.replaceAll(/\|/g, '\\|').replaceAll(' ', '')} | ${param.description ?? ''} |`,
 						);
 					}
 				}
@@ -351,34 +321,40 @@ async function gen() {
 
 				methods.push('');
 				methods.push('');
-				methods.push(
-					`**Returns:** ${returnTypeStr} ${returnTag.description ?? ''}`,
-				);
+				methods.push(`**Returns:** ${returnTypeStr}`);
+				if (returnTag.description) {
+					methods.push('');
+					methods.push('');
+					methods.push(returnTag.description);
+				}
 			}
 		}
 
-		// Write to struct dir
+		// Write the file
 		let outPath;
-		let fileName = input.name.split('.')[0];
 
 		if (input.path.endsWith('struct')) {
 			outPath = join(outputDir, 'struct');
 		} else {
 			outPath = join(outputDir);
 		}
+		outPath = join(outPath, `${title.toLowerCase()}.md`);
 
-		await fs.promises.writeFile(
-			join(outPath, `${fileName.toLowerCase()}.md`),
-			`${base.join('\n')}
+		await fs.ensureFile(outPath);
+		await fs.writeFile(
+			outPath,
+			`${md.join('\n')}
 
-${props.length > 1 ? props.join('\n') : ''}
+${props.length ? props.join('\n') : ''}
 
-${methods.length > 1 ? methods.join('\n') : ''}`,
+${methods.length ? methods.join('\n') : ''}`,
 		);
 	}
 
+	console.log('');
+
 	if (Object.keys(enums).length > 0) {
-		console.log(`Found ${Object.keys(enums).length} enums to write`);
+		console.log(`Found ${Object.keys(enums).length} enums to write...`);
 
 		for (const [enumName, enumValues] of Object.entries(enums)) {
 			console.log(`Writing enum ${enumName}...`);
@@ -387,36 +363,41 @@ ${methods.length > 1 ? methods.join('\n') : ''}`,
 				'enums',
 				`${enumName.toLowerCase()}.md`,
 			);
-			await fse.ensureFile(enumPath);
-			await fs.promises.writeFile(enumPath, enumValues.join('\n'));
+			await fs.ensureFile(enumPath);
+			await fs.writeFile(enumPath, enumValues.join('\n'));
 		}
 	}
 
+	console.log('');
+
 	if (Object.keys(typedefs).length > 0) {
-		console.log(`Found ${Object.keys(typedefs).length} typedefs to write`);
+		console.log(
+			`Found ${Object.keys(typedefs).length} typedefs to write...`,
+		);
 
 		for (const [typedefName, typedefValues] of Object.entries(typedefs)) {
-			console.log(`Writing typedef ${typedefName}...`);
+			console.log(`Writing typedef ${typedefName}`);
 			const typedefPath = join(
 				outputDir,
 				'typedefs',
 				`${typedefName.toLowerCase()}.md`,
 			);
-			await fse.ensureFile(typedefPath);
-			await fs.promises.writeFile(typedefPath, typedefValues.join('\n'));
+			await fs.ensureFile(typedefPath);
+			await fs.writeFile(typedefPath, typedefValues.join('\n'));
 		}
 	}
 }
 
 (async () => {
+	const now = performance.now();
+
 	try {
 		await gen();
 	} catch (error) {
-		console.error('An error occurred while generating JSDoc');
-		console.error(error);
+		console.log('An error occured while parsing jsdoc:');
+		console.log(error);
 	} finally {
-		console.log(
-			`JSDoc finished in ${Math.floor(performance.now() - now)}ms`,
-		);
+		console.log('');
+		console.log(`Parsing took ${Math.floor(performance.now() - now)}ms`);
 	}
 })();
