@@ -32,7 +32,23 @@ app.on('ready', async () => {
 				return [];
 			});
 
-		const menu = [{ label: 'Launch New Window', click: createGame }];
+		const menu = [
+			{ label: 'Launch New Window', click: createGame },
+			{
+				label: 'Launch All',
+				click: async () => {
+					for (const account of accounts) {
+						if ('username' in account && 'password' in account) {
+							await createGame({ ...account, server });
+							await new Promise((resolve) =>
+								setTimeout(resolve, 1500),
+							);
+						}
+					}
+				},
+			},
+			{ type: 'separator' },
+		];
 
 		await fetch('https://game.aq.com/game/api/data/servers')
 			.then(async (res) => {
