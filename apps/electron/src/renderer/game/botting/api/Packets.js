@@ -2,14 +2,15 @@ class Packets {
 	constructor(bot) {
 		/**
 		 * @type {import('./Bot')}
+		 * @ignore
 		 */
 		this.bot = bot;
 	}
 
 	/**
-	 * Sends the specified packet to the client (simulates a response as if the server sent the packet)
-	 * @param {string} packet
-	 * @param {"str"|"json"|"xml"} [type="str"]
+	 * Sends the specified packet to the client (simulates a response as if the server sent the packet).
+	 * @param {string} packet The packet to send.
+	 * @param {"str"|"json"|"xml"} [type="str"] The type of packet.
 	 * @returns {void}
 	 */
 	sendClient(packet, type = 'str') {
@@ -17,9 +18,9 @@ class Packets {
 	}
 
 	/**
-	 * Sends the specified packet to the server
-	 * @param {string} packet
-	 * @param {"String"|"Json"} [type="String"]
+	 * Sends the specified packet to the server.
+	 * @param {string} packet The packet to send.
+	 * @param {"String"|"Json"} [type="String"] The type of packet.
 	 * @returns {void}
 	 */
 	sendServer(packet, type = 'String') {

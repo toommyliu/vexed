@@ -1,4 +1,5 @@
 ---
+title: Auth
 outline: deep
 ---
 # Auth
@@ -9,81 +10,66 @@ outline: deep
 
 ## Properties
 
-### username <Badge text="getter" />
+### username<Badge text="getter" />
 The username of the current user. This value is set after a successful login.
 
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code>
 
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>
-
-### password <Badge text="getter" />
+### password<Badge text="getter" />
 The password of the current user. This value is set after a successful login.
 
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code>
 
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>
-
-### loggedIn <Badge text="getter" />
+### loggedIn<Badge text="getter" />
 Whether the user is logged in and connected to a server.
 
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
 
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
-
-### servers <Badge text="getter" />
+### servers<Badge text="getter" />
 The list of servers as shown to the client. The list is updated after a successful login.
 
+Type: <code><a href="/api/struct/server">Server</a>[]</code>
 
-Return type: <code><a href="/api/struct/server">Server[]</a></code>
-
-### ip <Badge text="getter" />
+### ip<Badge text="getter" />
 The server IP the client is connected to.
 
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code>
 
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>
-
-### port <Badge text="getter" />
+### port<Badge text="getter" />
 The server port the client is connected to.
 
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code>
 
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
-
-### isTemporarilyKicked <Badge text="getter" />
+### isTemporarilyKicked<Badge text="getter" />
 Whether the client is temporarily kicked from the server.
 
-
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
 
 ## Methods
 
 ### login
 Log in with the given account or the previous account (if available).
-| Parameter | Type | Description |
-| --------- | ---- | ----------- |
-| username | string |  |
-| password | string |  |
+| Parameter | Type | Optional | Description |
+| --------- | ---- | -------- | ----------- |
+| username | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code> | ✅ | The username to login with. |
+| password | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code> | ✅ | The password to login with. |
 
-
-
-**Returns:** `void` 
+**Returns:** `void`
 
 ### logout
 Logs out of the current account.
 
-
-
-**Returns:** `void` 
+**Returns:** `void`
 
 ### resetServers
 Resets the list of servers that is available to the client.
 
-
-
-**Returns:** <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code> 
+**Returns:** <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
 
 ### connectTo
 Connects to a server.
 | Parameter | Type | Description |
 | --------- | ---- | ----------- |
-| name | string |  |
+| name | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code> | The name of the server. |
 
-
-
-**Returns:** `void` 
+**Returns:** `void`

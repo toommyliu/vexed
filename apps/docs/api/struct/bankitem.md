@@ -1,13 +1,9 @@
 ---
+title: BankItem
 outline: deep
 ---
-# BankItem
-
-Extends: <code><a href="/api/struct/item">Item</a></code>
+# BankItem<Badge>extends <a href="/api/struct/item">Item</a></Badge>
 
 Represents an item in the bank.
-
-
-
 
 

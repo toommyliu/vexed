@@ -4,6 +4,7 @@ class Bank {
 	constructor(bot) {
 		/**
 		 * @type {import('./Bot')}
+		 * @ignore
 		 */
 		this.bot = bot;
 	}
@@ -21,8 +22,8 @@ class Bank {
 	}
 
 	/**
-	 * Gets an item from the Bank, items should be loaded beforehand
-	 * @param {string|number} itemKey The name or ID of the item
+	 * Gets an item from the Bank, items should be loaded beforehand.
+	 * @param {string|number} itemKey The name or ID of the item.
 	 * @returns {?BankItem}
 	 */
 	get(itemKey) {
@@ -44,9 +45,9 @@ class Bank {
 	}
 
 	/**
-	 * Whether the item meets some quantity in this store
-	 * @param {string|number} itemKey The name or ID of the item
-	 * @param {number} quantity The quantity of the item
+	 * Whether the item meets some quantity in this store.
+	 * @param {string|number} itemKey The name or ID of the item.
+	 * @param {number} quantity The quantity of the item.
 	 * @returns {boolean}
 	 */
 	contains(itemKey, quantity) {
@@ -59,7 +60,7 @@ class Bank {
 	}
 
 	/**
-	 * Gets the count of available slots of bankable non-AC items
+	 * Gets the count of available slots of bankable non-AC items.
 	 * @returns {number}
 	 */
 	get availableSlots() {
@@ -67,7 +68,7 @@ class Bank {
 	}
 
 	/**
-	 * Gets the count of used slots of bankable non-AC items
+	 * Gets the count of used slots of bankable non-AC items.
 	 * @returns {number}
 	 */
 	get usedSlots() {
@@ -75,7 +76,7 @@ class Bank {
 	}
 
 	/**
-	 * Gets the total slots of bankable non-AC items
+	 * Gets the total slots of bankable non-AC items.
 	 * @returns {number}
 	 */
 	get totalSlots() {
@@ -83,9 +84,9 @@ class Bank {
 	}
 
 	/**
-	 * Puts an item into the Bank
-	 * @param {string} itemKey The name or ID of the item
-	 * @returns {Promise<boolean>} Whether the operation was successful
+	 * Puts an item into the Bank.
+	 * @param {string} itemKey The name or ID of the item.
+	 * @returns {Promise<boolean>} Whether the operation was successful.
 	 */
 	async deposit(itemKey) {
 		if (!this.bot.inventory.get(itemKey)) {
@@ -97,19 +98,17 @@ class Bank {
 			() => this.get(itemKey) && !this.bot.inventory.get(itemKey),
 			() => this.bot.auth.loggedIn,
 		);
-
 		return true;
 	}
 
 	/**
 	 * Takes an item out of the bank.
 	 * @param {string} itemKey The name or ID of the item.
-	 * @returns {Promise<boolean>}
+	 * @returns {Promise<boolean>} Whether the operation was successful.
 	 */
-	// TODO: return boolean
 	async withdraw(itemKey) {
 		if (!this.get(itemKey)) {
-			return;
+			return false;
 		}
 
 		this.bot.flash.call(swf.TransferToInventory, itemKey);
@@ -117,20 +116,21 @@ class Bank {
 			() => !this.get(itemKey) && this.bot.inventory.get(itemKey),
 			() => this.bot.auth.loggedIn,
 		);
+		return true;
 	}
 
 	/**
 	 * Swaps an item from the bank with an item from the inventory.
 	 * @param {string} bankItem The name or ID of the item from the Bank.
 	 * @param {string} inventoryItem The name or ID of the item from the Inventory.
-	 * @returns {Promise<void>}
+	 * @returns {Promise<void>} Whether the operation was successful.
 	 */
 	async swap(bankItem, inventoryItem) {
 		const inBank = () => this.get(bankItem);
 		const inInventory = () => this.bot.inventory.get(inventoryItem);
 
 		if (!inBank() || !inInventory()) {
-			return;
+			return false;
 		}
 
 		this.bot.flash.call(swf.BankSwap, inventoryItem, bankItem);
@@ -138,6 +138,7 @@ class Bank {
 			() => !inBank() && !inInventory(),
 			() => this.bot.auth.loggedIn,
 		);
+		return true;
 	}
 
 	/**

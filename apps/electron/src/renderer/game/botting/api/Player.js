@@ -4,6 +4,7 @@ class Player {
 	constructor(bot) {
 		/**
 		 * @type {import('./Bot')}
+		 * @ignore
 		 */
 		this.bot = bot;
 	}
@@ -101,7 +102,7 @@ class Player {
 	}
 
 	/**
-	 * Checks if the current player has membership.
+	 * Whether the current player has membership.
 	 * @returns {boolean}
 	 */
 	isMember() {
@@ -118,8 +119,8 @@ class Player {
 
 	/**
 	 * Walk to a position in the map.
-	 * @param {number} x
-	 * @param {number} y
+	 * @param {string|number} x The x coordinate to walk to.
+	 * @param {string|number} y The y coordinate to walk to.
 	 * @returns {void}
 	 */
 	walkTo(x, y) {
@@ -143,6 +144,7 @@ class Player {
 	}
 
 	/**
+	 * A check for if the world is fully loaded, aswell as the player's inventory items and art.
 	 * @returns {boolean}
 	 */
 	get loaded() {

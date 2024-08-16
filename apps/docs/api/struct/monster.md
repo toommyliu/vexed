@@ -1,4 +1,5 @@
 ---
+title: Monster
 outline: deep
 ---
 # Monster
@@ -10,62 +11,51 @@ Represents a monster.
 ## Properties
 
 ### data
-Data about this monster
+Data about this monster.
 
+Type: <code><a href="/api/typedefs/monsterdata">MonsterData</a></code>
 
-Return type: <code><a href="/api/typedefs/monsterdata">MonsterData</a></code>
+### monMapID<Badge text="getter" />
+The monMapID of the monster.
 
-### monMapID <Badge text="getter" />
-The map ID of the monster.
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code>
 
-
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
-
-### id <Badge text="getter" />
+### id<Badge text="getter" />
 The global ID of the monster.
 
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code>
 
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
-
-### level <Badge text="getter" />
+### level<Badge text="getter" />
 The level of the monster.
 
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code>
 
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
-
-### state <Badge text="getter" />
+### state<Badge text="getter" />
 The state of the monster.
 
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code>
 
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
-
-### race <Badge text="getter" />
+### race<Badge text="getter" />
 The race of the monster.
 
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code>
 
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>
-
-### name <Badge text="getter" />
+### name<Badge text="getter" />
 The name of the monster.
 
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code>
 
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>
-
-### hp <Badge text="getter" />
+### hp<Badge text="getter" />
 The monster's current HP.
 
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code>
 
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
-
-### maxHP <Badge text="getter" />
+### maxHP<Badge text="getter" />
 The monster's max HP.
 
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code>
 
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
-
-### alive <Badge text="getter" />
+### alive<Badge text="getter" />
 Whether the monster is alive.
 
-
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
-
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>

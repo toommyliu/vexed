@@ -4,14 +4,14 @@
 class Monster {
 	constructor(data) {
 		/**
-		 * Data about this monster
+		 * Data about this monster.
 		 * @type {MonsterData}
 		 */
 		this.data = data;
 	}
 
 	/**
-	 * The map ID of the monster.
+	 * The monMapID of the monster.
 	 * @returns {number}
 	 */
 	get monMapID() {
@@ -83,6 +83,8 @@ class Monster {
 	}
 }
 
+module.exports = Monster;
+
 /**
  * @typedef {Object} MonsterData
  * @property {number} MonMapID
@@ -94,5 +96,3 @@ class Monster {
  * @property {number} MonID
  * @property {number} intHPMax
  */
-
-module.exports = Monster;

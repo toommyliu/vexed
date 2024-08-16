@@ -4,12 +4,14 @@
 class Avatar {
 	constructor(data) {
 		/**
-		 * Data about this player
+		 * Data about this player.
 		 * @type {AvatarData}
 		 */
 		this.data = data;
 	}
 }
+
+module.exports = Avatar;
 
 /**
  * @typedef {Object} AvatarData
@@ -39,4 +41,3 @@ class Avatar {
  * @property {string} uoName
  */
 
-module.exports = Avatar;

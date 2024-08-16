@@ -1,13 +1,9 @@
 ---
+title: TempInventoryItem
 outline: deep
 ---
-# TempInventoryItem
-
-Extends: <code><a href="/api/struct/item">Item</a></code>
+# TempInventoryItem<Badge>extends <a href="/api/struct/item">Item</a></Badge>
 
 Represents a temporary item in the temp. inventory.
-
-
-
 
 

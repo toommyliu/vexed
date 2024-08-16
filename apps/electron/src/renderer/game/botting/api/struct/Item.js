@@ -115,6 +115,10 @@ class Item {
 		return this.data.sMeta;
 	}
 
+	/**
+	 * Whether the item is at its maximum stack size.
+	 * @returns {boolean}
+	 */
 	isMaxed() {
 		return this.quantity === this.maxStack;
 	}

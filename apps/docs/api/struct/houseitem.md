@@ -1,13 +1,9 @@
 ---
+title: HouseItem
 outline: deep
 ---
-# HouseItem
-
-Extends: <code><a href="/api/struct/item">Item</a></code>
+# HouseItem<Badge>extends <a href="/api/struct/item">Item</a></Badge>
 
 Represents a house item.
-
-
-
 
 

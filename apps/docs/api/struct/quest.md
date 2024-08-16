@@ -1,4 +1,5 @@
 ---
+title: Quest
 outline: deep
 ---
 # Quest
@@ -10,33 +11,58 @@ Represents a quest.
 ## Properties
 
 ### data
-Data about this quest
+Data about this quest.
 
+Type: `QuestData`
 
-Return type: `QuestData`
+### name<Badge text="getter" />
+The name of this quest.
 
-### id <Badge text="getter" />
-The ID of the quest.
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code>
 
+### id<Badge text="getter" />
+The ID of this quest.
 
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code>
 
-### inProgress <Badge text="getter" />
-Whether the quest is in progress.
+### inProgress<Badge text="getter" />
+Whether this quest is in progress.
 
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
 
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
+### completable<Badge text="getter" />
+Whether this quest can be completed.
 
-### completable <Badge text="getter" />
-broken if quest is not loaded
-Whether the quest can be completed.
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
 
+### available<Badge text="getter" />
+Whether this quest is available.
 
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
 
-### available <Badge text="getter" />
-Whether the quest is available.
+### once<Badge text="getter" />
+Whether this quest can only be completed once.
 
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
 
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
+### rewards<Badge text="getter" />
+The rewards for completing this quest.
 
+Type: `QuestReward[]`
+
+### requirements<Badge text="getter" />
+The requirements needed to complete this quest.
+
+Type: `QuestRequiredItem[]`
+
+## Methods
+
+### isUpgrade
+Whether this quest requires membership to accept.
+
+**Returns:** <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
+
+### hasCompletedBefore
+Whether this quest has been completed before.
+
+**Returns:** <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>

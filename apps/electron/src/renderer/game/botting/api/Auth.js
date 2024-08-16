@@ -4,6 +4,7 @@ class Auth {
 	constructor(bot) {
 		/**
 		 * @type {import('./Bot')}
+		 * @ignore
 		 */
 		this.bot = bot;
 	}
@@ -34,8 +35,8 @@ class Auth {
 
 	/**
 	 * Log in with the given account or the previous account (if available).
-	 * @param {string} [username] The username to login with, if applicable.
-	 * @param {string} [password] The password to login with, if applicable.
+	 * @param {string} [username] The username to login with.
+	 * @param {string} [password] The password to login with.
 	 * @returns {void}
 	 */
 	login(username, password) {

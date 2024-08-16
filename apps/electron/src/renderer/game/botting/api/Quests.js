@@ -4,6 +4,7 @@ class Quests {
 	constructor(bot) {
 		/**
 		 * @type {import('./Bot')}
+		 * @ignore
 		 */
 		this.bot = bot;
 	}
@@ -125,7 +126,7 @@ class Quests {
 
 	/**
 	 * Resolves a Quest instance from the quest tree
-	 * @param {string|number} questKey The name or questID to get
+	 * @param {string|number} questKey The name or questID to get.
 	 * @returns {Quest?}
 	 */
 	get(questKey) {

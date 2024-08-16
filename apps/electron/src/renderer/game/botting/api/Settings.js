@@ -1,6 +1,5 @@
 /**
- * @description Options are updated in a background loop every 500ms.
- *
+ *  @description
  * `Provoke Map`: If enabled, tags all monsters in the map.
  * `Provoke Cell`: If enabled, tags all monsters in the current cell.
  * `Enemy Magnet`: If enabled, sets the target's position to that of the player.
@@ -8,6 +7,7 @@
  * `Hide Players`: If enabled, hides other players.
  * `Skip Cutscenes:` If enabled, skips cutscenes as needed.
  * `Walk Speed`: The player's walk speed.
+ *  Settings are updated in a background interval every 500ms.
  */
 class Settings {
 	#intervalID = null;
@@ -32,6 +32,7 @@ class Settings {
 	constructor(bot) {
 		/**
 		 * @type {import('../api/Bot')}
+		 * @ignore
 		 */
 		this.bot = bot;
 
@@ -263,7 +264,7 @@ class Settings {
 
 	/**
 	 * Sets the target client FPS.
-	 * @param {string|number} fps The target fps
+	 * @param {string|number} fps The target fps.
 	 * @returns {void}
 	 */
 	setFPS(fps) {
@@ -272,7 +273,7 @@ class Settings {
 
 	/**
 	 * Sets the visiblity of death ads.
-	 * @param {boolean} on If enabled, death ads are shown
+	 * @param {boolean} on If enabled, death ads are shown.
 	 * @returns {void}
 	 */
 	setDeathAds(on) {

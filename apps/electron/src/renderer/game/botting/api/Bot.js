@@ -128,10 +128,10 @@ class Bot extends EventEmitter {
 	}
 
 	/**
-	 * Waits until the condition is met. This only blocks in the current context.
+	 * Waits until the condition is met.
 	 * @param {Function} condition The condition to wait for.
-	 * @param {Function|null} prerequisite The prerequisite to be checked before waiting for the condition.
-	 * @param {number} timeout The maximum number of iterations to wait. -1 to wait indefinitely.
+	 * @param {Function} [prerequisite=null] The prerequisite to be checked before waiting for the condition.
+	 * @param {number} [timeout=15] The maximum number of iterations to wait. -1 to wait indefinitely.
 	 * @returns {Promise<void>}
 	 */
 	async waitUntil(condition, prerequisite = null, timeout = 15) {
@@ -186,6 +186,7 @@ class Bot extends EventEmitter {
 	/**
 	 * Gets the singleton instance of the Bot class.
 	 * @returns {Bot}
+	 * @static
 	 */
 	static getInstance() {
 		Bot._instance ??= new Bot();

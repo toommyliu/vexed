@@ -1,12 +1,10 @@
 ---
+title: Settings
 outline: deep
 ---
 # Settings
 
-Options are updated in a background interval every 500ms. 
-
-
-`Provoke Map`: If enabled, tags all monsters in the current map.
+`Provoke Map`: If enabled, tags all monsters in the map.
 
 
 `Provoke Cell`: If enabled, tags all monsters in the current cell.
@@ -18,65 +16,60 @@ Options are updated in a background interval every 500ms.
 `Lag Killer`: If enabled, disables rendering of most UI elements.
 
 
-`Hide Players`: If enabled, hides all players.
+`Hide Players`: If enabled, hides other players.
 
 
-`Skip Cutscenes:` If enabled, skips cutscenes.
+`Skip Cutscenes:` If enabled, skips cutscenes as needed.
 
 
 `Walk Speed`: The player's walk speed.
 
 
+ Settings are updated in a background interval every 500ms.
+
+
 
 ## Properties
 
-### infiniteRange <Badge text="getter" /> <Badge text="setter" />
+### infiniteRange<Badge text="getter" /><Badge text="setter" />
 The state of "Infinite Range".
 
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
 
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
-
-### provokeMap <Badge text="getter" /> <Badge text="setter" />
+### provokeMap<Badge text="getter" /><Badge text="setter" />
 The state of "Provoke Map".
 
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
 
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
-
-### provokeCell <Badge text="getter" /> <Badge text="setter" />
+### provokeCell<Badge text="getter" /><Badge text="setter" />
 The state of "Provoke Cell".
 
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
 
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
-
-### enemyMagnet <Badge text="getter" /> <Badge text="setter" />
+### enemyMagnet<Badge text="getter" /><Badge text="setter" />
 The state of "Enemy Magnet".
 
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
 
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
-
-### lagKiller <Badge text="getter" /> <Badge text="setter" />
+### lagKiller<Badge text="getter" /><Badge text="setter" />
 Whether "Lag Killer" is enabled.
 
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
 
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
-
-### hidePlayers <Badge text="getter" /> <Badge text="setter" />
+### hidePlayers<Badge text="getter" /><Badge text="setter" />
 Whether "Hide Players" is enabled.
 
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
 
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
-
-### skipCutscenes <Badge text="getter" /> <Badge text="setter" />
+### skipCutscenes<Badge text="getter" /><Badge text="setter" />
 Whether "Skip Cutscenes" is enabled.
 
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
 
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
-
-### walkSpeed <Badge text="getter" /> <Badge text="setter" />
+### walkSpeed<Badge text="getter" /><Badge text="setter" />
 The player's walk speed.
 
-
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code>
 
 ## Methods
 
@@ -84,18 +77,14 @@ Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScr
 Sets the target client FPS.
 | Parameter | Type | Description |
 | --------- | ---- | ----------- |
-| fps | string \| number |  |
+| fps | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code>\|<code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code> | The target fps. |
 
-
-
-**Returns:** `void` 
+**Returns:** `void`
 
 ### setDeathAds
 Sets the visiblity of death ads.
 | Parameter | Type | Description |
 | --------- | ---- | ----------- |
-| on | boolean |  |
+| on | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code> | If enabled, death ads are shown. |
 
-
-
-**Returns:** `void` 
+**Returns:** `void`

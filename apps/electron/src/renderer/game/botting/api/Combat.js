@@ -1,17 +1,19 @@
 /**
- * @description A `monsterResolvable` is either its name or monMapID prefixed with `id` and
+ * @description A `monsterResolvable` is either a monster name or monMapID prefixed with `id` and
  * delimited by a `'`, `.`, `:`, `-` character
  */
 class Combat {
 	constructor(bot) {
 		/**
 		 * @type {import('./Bot')}
+		 * @ignore
 		 */
 		this.bot = bot;
 
 		/**
 		 * Whether to stop attacking because a counter attack is active.
 		 * @type {boolean}
+		 * @ignore
 		 */
 		this.pauseAttack = false;
 	}
@@ -316,8 +318,8 @@ module.exports = Combat;
 
 /**
  * @typedef {Object} KillConfig
- * @property {string|string[]} killPriority An ascending list of monster names or monMapIDs to kill.
- * @property {number[]} skillSet The order of skills to use.
- * @property {number} skillDelay The delay between each skill cast.
- * @property {boolean} skillWait Whether to wait for the skill to be available.
+ * @property {string|string[]} [killPriority=[]] An ascending list of monster names or monMapIDs to kill. This can also be a string of monsterResolvables deliminted by a comma.
+ * @property {number[]} [skillSet=[1, 2, 3, 4]] The order of skills to use.
+ * @property {number} [skillDelay=150] The delay between each skill cast.
+ * @property {boolean} [skillWait=false] Whether to wait for the skill to be available.
  */

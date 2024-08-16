@@ -1,9 +1,8 @@
 ---
+title: InventoryItem
 outline: deep
 ---
-# InventoryItem
-
-Extends: <code><a href="/api/struct/item">Item</a></code>
+# InventoryItem<Badge>extends <a href="/api/struct/item">Item</a></Badge>
 
 Represents an item in the inventory.
 
@@ -11,31 +10,27 @@ Represents an item in the inventory.
 
 ## Properties
 
-### charItemID <Badge text="getter" />
+### charItemID<Badge text="getter" />
 The character ID of this item.
 
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code>
 
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
-
-### equipped <Badge text="getter" />
+### equipped<Badge text="getter" />
 Whether the item is equipped.
 
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
 
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
-
-### level <Badge text="getter" />
+### level<Badge text="getter" />
 The level of the item.
 
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code>
 
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
-
-### enhancementLevel <Badge text="getter" />
+### enhancementLevel<Badge text="getter" />
 The enhancement level of the item.
 
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code>
 
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
-
-### enhancementPatternID <Badge text="getter" />
+### enhancementPatternID<Badge text="getter" />
 The enhancement pattern ID of the item.
 1: Adventurer
 2: Fighter
@@ -48,6 +43,4 @@ The enhancement pattern ID of the item.
 9: Lucky
 10: Forge (?)
 
-
-Return type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
-
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code>

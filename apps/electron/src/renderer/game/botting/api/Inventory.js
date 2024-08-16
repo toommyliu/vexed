@@ -4,6 +4,7 @@ class Inventory {
 	constructor(bot) {
 		/**
 		 * @type {import('./Bot')}
+		 * @ignore
 		 */
 		this.bot = bot;
 	}
@@ -41,9 +42,9 @@ class Inventory {
 	}
 
 	/**
-	 * Whether the item meets some quantity in this store
-	 * @param {string|number} itemKey The name or ID of the item
-	 * @param {number} quantity The quantity of the item
+	 * Whether the item meets some quantity in this store.
+	 * @param {string|number} itemKey The name or ID of the item.
+	 * @param {number} quantity The quantity of the item.
 	 * @returns {boolean}
 	 */
 	contains(itemKey, quantity) {

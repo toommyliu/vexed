@@ -1,4 +1,5 @@
 ---
+title: Drops
 outline: deep
 ---
 # Drops
@@ -7,83 +8,76 @@ outline: deep
 
 
 
+## Properties
 
+### stack<Badge text="getter" />
+The drop stack as shown to the client. The mapping is of the form `itemID -> count`.
+
+Type: <code>Record<number, number></code>
 
 ## Methods
 
 ### getItemFromID
 | Parameter | Type | Description |
 | --------- | ---- | ----------- |
-| itemID | number |  |
+| itemID | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code> | The ID of the item. |
 
+**Returns:** <code>?<a href="/api/struct/item">import('./struct/Item').ItemData</a></code>
 
-
-**Returns:** `?import('./struct/Item').ItemData` 
+The item data, if the item has previously dropped.
 
 ### getItemFromName
 | Parameter | Type | Description |
 | --------- | ---- | ----------- |
-| itemName | string |  |
+| itemName | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code> | The name of the item. |
 
+**Returns:** <code>?<a href="/api/struct/item">import('./struct/Item').ItemData</a></code>
 
-
-**Returns:** `?import('./struct/Item').ItemData` 
+The item data, if the item has previously dropped.
 
 ### getNameFromID
 | Parameter | Type | Description |
 | --------- | ---- | ----------- |
-| itemID | number |  |
+| itemID | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code> | The ID of the item. |
 
+**Returns:** <code>?<a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code>
 
-
-**Returns:** `?string` 
+The name of the item, if the item has previously dropped.
 
 ### getIDFromName
 | Parameter | Type | Description |
 | --------- | ---- | ----------- |
-| itemName | string |  |
+| itemName | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code> | The name of the item. |
 
+**Returns:** <code>?<a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code>
 
-
-**Returns:** `?number` 
+The ID of the item, if the item has previously dropped.
 
 ### getDropCount
 Returns the count of the item in the drop stack. Returns -1 if it hasn't dropped.
 | Parameter | Type | Description |
 | --------- | ---- | ----------- |
-| itemID | number |  |
+| itemID | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code> | The ID of the item. |
 
+**Returns:** <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code>
 
-
-**Returns:** <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code> 
-
-### addDrop
-Adds an item to the internal store and the stack as visible to the client.
-| Parameter | Type | Description |
-| --------- | ---- | ----------- |
-| itemData | Record<string, any> |  |
-
-
-
-**Returns:** `void` 
+The count of the item in the stack.
 
 ### pickup
-Accepts the drop for an item in the stack
+Accepts the drop for an item in the stack.
 | Parameter | Type | Description |
 | --------- | ---- | ----------- |
-| itemKey | string \| number |  |
+| itemKey | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code>\|<code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code> | The item name or ID. |
 
+**Returns:** <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/promise">Promise</a>&lt;void&gt;</code>
 
-
-**Returns:** `Promise<void>` 
+Whether the operation was successful.
 
 ### reject
-Rejects the drop, effectively removing from the stack. Items can technically be picked up after the fact
-| Parameter | Type | Description |
-| --------- | ---- | ----------- |
-| itemKey | string \| number |  |
-| removeFromStore | boolean |  |
+Rejects the drop, effectively removing from the stack. Items can still be picked up with a getDrop packet.
+| Parameter | Type | Optional | Description |
+| --------- | ---- | -------- | ----------- |
+| itemKey | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code>\|<code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code> |  | The name or ID of the item. |
+| removeFromStore | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code> | ✅ | Whether to delete the item entry from the store. |
 
-
-
-**Returns:** `Promise<void>` 
+**Returns:** <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/promise">Promise</a>&lt;void&gt;</code>

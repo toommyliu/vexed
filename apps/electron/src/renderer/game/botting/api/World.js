@@ -5,6 +5,7 @@ class World {
 	constructor(bot) {
 		/**
 		 * @type {import('./Bot')}
+		 * @ignore
 		 */
 		this.bot = bot;
 	}
@@ -66,7 +67,7 @@ class World {
 	 */
 	isMonsterAvailable(monsterResolvable) {
 		// prettier-ignore
-		if (["id'", 'id.', 'id:', 'id-'].some((prefix) =>monsterResolvable.startsWith(prefix))) {
+		if (["id'", 'id.', 'id:', 'id-'].some((prefix) => monsterResolvable.startsWith(prefix))) {
 			const monMapID = monsterResolvable.substring(3);
 		 	this.bot.flash.call(
 				swf.IsMonsterAvailableByMonMapID,
@@ -110,7 +111,7 @@ class World {
 	}
 
 	/**
-	 * Sets the player's spawnpoint to the current cell and pad.
+	 * Sets the local player's spawnpoint to the current cell and pad.
 	 * @returns {void}
 	 */
 	setSpawnPoint() {
@@ -233,6 +234,7 @@ class World {
 	}
 
 	/**
+	 * The list of all items in the world.
 	 * @returns {InventoryItemData[]}
 	 */
 	get itemTree() {
@@ -250,7 +252,7 @@ class World {
 
 	/**
 	 * Gets a item in the world.
-	 * @param {string} itemID
+	 * @param {string} itemID The ID of the item.
 	 * @returns {Promise<void>}
 	 */
 	async getMapItem(itemID) {
@@ -263,7 +265,7 @@ class World {
 
 	/**
 	 * Loads a particular swf of the map.
-	 * @param {string} mapSWF The swf to load
+	 * @param {string} mapSWF The swf to load.
 	 * @returns {void}
 	 */
 	loadMap(mapSWF) {

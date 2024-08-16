@@ -10,26 +10,20 @@ Enum representing a player's state.
 
 ## Members
 ### Dead
-Dead = `0`
-
+`PlayerState.Dead` = `0`
 
 The player is dead.
 
-
-Type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code>
 ### Idle
-Idle = `1`
-
+`PlayerState.Idle` = `1`
 
 The player is idle, does not necessarily imply the player is afk.
 
-
-Type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code>
 ### InCombat
-InCombat = `2`
-
+`PlayerState.InCombat` = `2`
 
 The player is in combat.
 
-
-Type: <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code>
