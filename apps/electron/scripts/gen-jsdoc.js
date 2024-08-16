@@ -3,7 +3,7 @@ const doc = require('doxxx');
 const fs = require('fs-extra');
 const readdir = require('fs').promises.readdir;
 
-const { join } = require('node:path');
+const { join, resolve, dirname, basename } = require('node:path');
 const { inspect } = require('node:util');
 
 let currentFile = null;
@@ -81,13 +81,13 @@ const typePatterns = [
  * @returns {string} The url to the type if it exists
  */
 const getTypeLink = (type) => {
-	// Handle import statements
+	// import()
 	if (type.startsWith('import(')) {
 		const match = type.match(/import\(['"](.*)['"]\)(?:\.(\w+))?(\[\])?$/);
 		if (match) {
 			const [, path, specificType] = match;
 			if (!specificType) {
-				// This is a default import
+				// default import
 				const moduleName = path.split('/').pop();
 				return `/api/${moduleName.toLowerCase()}`;
 			}
@@ -95,14 +95,14 @@ const getTypeLink = (type) => {
 		}
 	}
 
-	// Handle generic types like Promise<void>
+	// promise<void>
 	const genericMatch = type.match(/^(\w+)<(.+)>$/);
 	if (genericMatch) {
 		const [, genericType] = genericMatch;
-		type = genericType; // We'll look up the link for the generic type (e.g., Promise)
+		type = genericType;
 	}
 
-	// Remove array notation if present
+	// remove array notation
 	if (type.endsWith('[]')) {
 		type = type.slice(0, -2);
 	}
@@ -133,7 +133,6 @@ const getTypeString = (type) => {
 		}
 	}
 
-	// Handle generic types like Promise<void>
 	const genericMatch = type.match(/^(\w+)<(.+)>$/);
 	if (genericMatch) {
 		const [, genericType, innerType] = genericMatch;
@@ -179,42 +178,42 @@ const getTypeString = (type) => {
 async function parseForJSDoc() {
 	console.log('Cleaning output directory...');
 
-	const clean = async (dir) => {
-		for (const file of await fs.readdir(dir, { withFileTypes: true })) {
-			if (file.isDirectory()) {
-				await clean(join(dir, file.name));
-			} else {
-				if (dir.includes('examples')) {
-					continue;
-				}
-				await fs.rm(join(dir, file.name));
-			}
-		}
-		return;
+	const readdirp = async (dir) => {
+		const dirents = await readdir(dir, { withFileTypes: true });
+		const files = await Promise.all(
+			dirents.map((dirent) => {
+				const res = resolve(dir, dirent.name);
+				return dirent.isDirectory() ? readdirp(res) : res;
+			}),
+		);
+		return Array.prototype.concat(...files);
 	};
 
-	await clean(outputDir);
+	// clean old artifacts
+	for (const file of await readdirp(outputDir)) {
+		if (file.includes('examples')) {
+			continue;
+		}
+		await fs.rm(file);
+	}
 
-	const inputs = await readdir(inputDir, {
-		recursive: true,
-		withFileTypes: true,
-	});
-
+	const inputs = await readdirp(inputDir);
 	console.log(`Found ${inputs.length} files to parse...`);
 
 	const enums = {};
 	const typedefs = {};
 
-	for (const input of inputs.filter((i) => i.isFile())) {
+	for (const file of inputs) {
+		const input = { path: dirname(file), name: basename(file) };
 		currentFile = input.name;
 
-		const path = join(input.path, input.name);
+		const path = join(input.path, currentFile);
 		const code = await fs.readFile(path, 'utf-8');
 		const ast = doc.parseComments(code);
 
 		if (ast.length === 0) {
 			console.warn(
-				`No jsdoc comments found within ${input.name}, skipping...`,
+				`No jsdoc comments found within ${currentFile}, skipping...`,
 			);
 			continue;
 		}
@@ -226,7 +225,7 @@ async function parseForJSDoc() {
 		const props = [];
 		const methods = [];
 
-		console.log(`Parsing ${input.name} now`);
+		console.log(`Parsing ${currentFile} now`);
 
 		md.push(`# ${title}`);
 		md.push('');
@@ -402,10 +401,10 @@ async function parseForJSDoc() {
 			// context of the code block: is it a method, a function, a variable
 			// if it doesn't match some regex, ctx is not available?
 			if (!('ctx' in obj)) {
-				// console.log(`Skipping '${obj.type}' in ${input.name} (1)`, obj);
+				// console.log(`Skipping '${obj.type}' in ${currentFile} (1)`, obj);
 				continue;
 			} else if (obj.ctx === false) {
-				// console.log(`Skipping a block in ${input.name} (2)`, obj);
+				// console.log(`Skipping a block in ${currentFile} (2)`, obj);
 				continue;
 			}
 
