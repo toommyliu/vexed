@@ -178,7 +178,22 @@ const getTypeString = (type) => {
 
 async function parseForJSDoc() {
 	console.log('Cleaning output directory...');
-	await fs.rm(outputDir, { recursive: true, force: true });
+
+	const clean = async (dir) => {
+		for (const file of await fs.readdir(dir, { withFileTypes: true })) {
+			if (file.isDirectory()) {
+				await clean(join(dir, file.name));
+			} else {
+				if (dir.includes('examples')) {
+					continue;
+				}
+				await fs.rm(join(dir, file.name));
+			}
+		}
+		return;
+	};
+
+	await clean(outputDir);
 
 	const inputs = await readdir(inputDir, {
 		recursive: true,
