@@ -1,11 +1,12 @@
+/**
+ * Utilities to make interacting with the Flash api easier.
+ */
 class Flash {
-	constructor() {}
-
 	/**
-	 * Calls a game function, whether this be an interop function or an internal function.
-	 * @param {string|Function} fn
-	 * @param  {...any} args
-	 * @returns {any|null}
+	 * Calls a game function, whether this be an interop function or an internal function. If "fn" is a string, it will be treated as an actionscript path.
+	 * @param {string|Function} fn The function to call.
+	 * @param  {...any} args The arguments to pass to the function.
+	 * @returns {any|null} If the provided function returned a value, it will be conditionally parsed to a primitive based on its result. Otherwise, null is returned.
 	 */
 	call(fn, ...args) {
 		let _fn;
@@ -106,7 +107,7 @@ class Flash {
 
 	/**
 	 * Determines whether an actionscript path is null.
-	 * @param {string} path The path of the game object
+	 * @param {string} path The path of the game object.
 	 * @returns {boolean}
 	 */
 	isNull(path) {

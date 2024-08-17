@@ -14,9 +14,9 @@ const Shops = require('./botting/api/Shop');
 const TempInventory = require('./botting/api/TempInventory');
 const World = require('./botting/api/World');
 
-const AutoRelogin = require('./botting/util/AutoRelogin');
-const Flash = require('./botting/util/Flash');
-const TimerManager = require('./botting/util/TimerManager');
+const AutoRelogin = require('./botting/api/util/AutoRelogin.js');
+const Flash = require('./botting/api/util/Flash.js');
+const TimerManager = require('./botting/api/util/TimerManager.js');
 
 class Bot extends EventEmitter {
 	/**
@@ -34,17 +34,17 @@ class Bot extends EventEmitter {
 		this._instance = this;
 
 		/**
-		 * @type {import('../util/AutoRelogin')}
+		 * @type {import('./util/AutoRelogin')}
 		 */
 		this.autoRelogin = new AutoRelogin(this);
 
 		/**
-		 * @type {import('../util/Flash')}
+		 * @type {import('./util/Flash')}
 		 */
 		this.flash = new Flash();
 
 		/**
-		 * @type {import('../util/TimerManager')}
+		 * @type {import('./util/TimerManager')}
 		 */
 		this.timerManager = new TimerManager();
 

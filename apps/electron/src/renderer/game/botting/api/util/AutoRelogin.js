@@ -1,26 +1,32 @@
 const { Mutex } = require('async-mutex');
 
+/**
+ * @description
+ * Auto Relogins are automatically ran if the bot is running and there has been a selected server.
+ * There are no calls needed to enable auto-relogin besides starting the bot, and choosing a server.
+ */
 class AutoRelogin {
 	#intervalID = null;
 	#mutex = new Mutex();
 
-	/**
-	 * The server name to connect to.
-	 * @type {string}
-	 */
-	server;
-
-	/**
-	 * The delay after a logout or a disconnect before attempting to login.
-	 * @type {number}
-	 */
-	delay = 5000;
-
 	constructor(bot) {
 		/**
-		 * @type {import('../api/Bot')}
+		 * @type {import('../Bot')}
+		 * @ignore
 		 */
 		this.bot = bot;
+
+		/**
+		 * The server name to connect to.
+		 * @type {string}
+		 */
+		this.server = null;
+
+		/**
+		 * The delay after a logout or a disconnect before attempting to login.
+		 * @type {number}
+		 */
+		this.delay = 5000;
 
 		// TODO: these might not be removed ?
 		this.bot.on('start', this.#run.bind(this));

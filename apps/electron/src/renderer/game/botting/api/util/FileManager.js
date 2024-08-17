@@ -99,8 +99,8 @@ class FileManager {
 	}
 
 	/**
-	 * @param {string} file The path to the file
-	 * @returns
+	 * @param {string} file The path to the file.
+	 * @returns {Promise<JSON>}
 	 */
 	async readJSON(file) {
 		await this.#init();

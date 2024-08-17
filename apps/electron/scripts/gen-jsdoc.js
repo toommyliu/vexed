@@ -267,9 +267,6 @@ async function parseForJSDoc() {
 			// typedef
 			if (obj?.tags?.[0]?.tagType === 'typedef') {
 				const typedefName = obj.type;
-				if (typedefName === 'KillConfig') {
-					console.log(obj);
-				}
 				typedefs[typedefName] = [
 					'---',
 					'outline: deep',
@@ -547,6 +544,8 @@ async function parseForJSDoc() {
 
 		if (input.path.endsWith('struct')) {
 			outPath = join(outputDir, 'struct');
+		} else if (input.path.endsWith('util')) {
+			outPath = join(outputDir, 'utils');
 		} else {
 			outPath = join(outputDir);
 		}

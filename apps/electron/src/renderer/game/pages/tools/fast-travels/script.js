@@ -1,4 +1,4 @@
-const FileManager = require('../../../botting/util/FileManager');
+const FileManager = require('../../../botting/api/util/FileManager');
 
 const fileManager = new FileManager();
 const parent = window.opener;
