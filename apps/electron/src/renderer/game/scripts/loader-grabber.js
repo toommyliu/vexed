@@ -1,3 +1,5 @@
+const { ipcRenderer } = require('electron');
+
 /**
  * @type {import('../botting/api/Bot')}
  */
@@ -95,5 +97,8 @@ window.addEventListener('message', async (ev) => {
 				args: { data: ret, type: type },
 			});
 		}
+	} else if (eventName === 'export') {
+		const { data } = args;
+		ipcRenderer.send('tools:loadergrabber:export', data);
 	}
 });

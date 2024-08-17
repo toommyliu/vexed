@@ -39,9 +39,26 @@ ipcMain.on('root:toggle-dev-tools', async (ev) => {
 });
 //#endregion
 
+ipcMain.on('tools:loadergrabber:export', async (ev, data) => {
+	const path = join(ROOT, 'grabber.json');
+	try {
+		await fs.ensureFile(path);
+		await fs.writeFile(path, JSON.stringify(data, null, 2), {
+			encoding: 'utf-8',
+		});
+	} catch (error) {
+		console.log('Failed to write grabber data to file', error.stack);
+		dialog.showErrorBox(
+			'Failed to write grabber data to file',
+			error.stack,
+		);
+	}
+});
+
 ipcMain.on('packets:save', async (_, data) => {
 	const path = join(ROOT, 'packets.txt');
 	try {
+		await fs.ensureFile(path);
 		await fs.writeFile(path, data.join('\n'), {
 			encoding: 'utf-8',
 		});
