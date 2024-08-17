@@ -65,6 +65,28 @@ export default defineConfig({
     ],
     sidebar: [
       {
+        text: "Getting Started",
+        items: [
+          { text: "Downloading", link: "/getting-started/downloading" },
+          { text: "Compiling", link: "/getting-started/compiling" },
+          { text: "Contributing", link: "/getting-started/contributing" },
+          { text: "Credits", link: "/getting-started/credits" },
+          { text: "Disclaimer", link: "/getting-started/disclaimer" },
+        ],
+      },
+      {
+        text: "Usage",
+        items: [
+          { text: "Account Manager", link: "/usage/account-manager" },
+          {
+            text: "Scripts",
+            link: "/usage/scripts",
+          },
+          { text: "Tools", link: "/usage/tools" },
+          { text: "Packets", link: "/usage/packets" },
+        ],
+      },
+      {
         text: "Scripting API",
         items: [
           {
