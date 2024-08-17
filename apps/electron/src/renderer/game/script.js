@@ -114,7 +114,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 			window.windows.packets.spammer = window.open(
 				'./pages/packets/spammer/index.html',
 				null,
-				'width=490,height=170',
+				'width=596,height=325',
 			);
 		});
 	}
