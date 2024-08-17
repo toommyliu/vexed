@@ -98,10 +98,18 @@ async function clearIntervalAsync(timer) {
 	await SetIntervalAsyncTimer.stopTimer(timer);
 }
 
+/**
+ * Manager for timers and intervals.
+ */
 class TimerManager {
 	#intervals = new Set();
 	#timeouts = new Set();
 
+	/**
+	 * @param {Function} fn The interval function.
+	 * @param {number} interval The delay between each execution.
+	 * @returns {SetIntervalAsyncTimer} The interval id.
+	 */
 	setInterval(fn, interval) {
 		const id = setIntervalAsync(async () => {
 			await fn();
@@ -110,11 +118,21 @@ class TimerManager {
 		return id;
 	}
 
+	/**
+	 * @param {SetIntervalAsyncTimer} id The interval id.
+	 * @returns {Promise<void>}
+	 */
 	async clearInterval(id) {
 		clearIntervalAsync(id);
 		this.#intervals.delete(id);
 	}
 
+	/**
+	 * @param {Function} fn The timeout function.
+	 * @param {number} delay The delay before executing the function.
+	 * @param  {...any} args Arguments to pass to the function.
+	 * @returns {number} The timeout id.
+	 */
 	setTimeout(fn, delay, ...args) {
 		const timeout = setTimeout(() => {
 			this.#timeouts.delete(timeout);
@@ -124,6 +142,10 @@ class TimerManager {
 		return timeout;
 	}
 
+	/**
+	 * @param {number} timeout The timeout id.
+	 * @returns {void}
+	 */
 	clearTimeout(timeout) {
 		clearTimeout(timeout);
 		this.#timeouts.delete(timeout);
