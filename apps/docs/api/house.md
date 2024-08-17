@@ -1,35 +1,21 @@
-<a name="House"></a>
+---
+title: House
+outline: deep
+---
+# House
 
-## House
-**Kind**: global class  
 
-* [House](#House)
-    * [new House(bot)](#new_House_new)
-    * [.bot](#House+bot) : <code>Bot</code>
-    * [.items](#House+items) ⇒ <code>Array.&lt;HouseItem&gt;</code>
-    * [.totalSlots](#House+totalSlots) ⇒ <code>number</code>
 
-<a name="new_House_new"></a>
 
-### new House(bot)
 
-| Param | Type |
-| --- | --- |
-| bot | <code>Bot</code> | 
+## Properties
 
-<a name="House+bot"></a>
-
-### house.bot : <code>Bot</code>
-**Kind**: instance property of [<code>House</code>](#House)  
-<a name="House+items"></a>
-
-### house.items ⇒ <code>Array.&lt;HouseItem&gt;</code>
+### items<Badge text="getter" />
 Gets house items of the current player.
 
-**Kind**: instance property of [<code>House</code>](#House)  
-<a name="House+totalSlots"></a>
+Type: <code><a href="/api/struct/houseitem">HouseItem</a>[]</code>
 
-### house.totalSlots ⇒ <code>number</code>
+### totalSlots<Badge text="getter" />
 Gets the total number of house item slots.
 
-**Kind**: instance property of [<code>House</code>](#House)  
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code>

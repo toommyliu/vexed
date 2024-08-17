@@ -1,30 +1,18 @@
-const { app, ipcMain: ipc, BrowserWindow, dialog } = require('electron');
-const { createGame, assignWindowID, getGameWindow } = require('./windows');
-const { nanoid } = require('nanoid');
-
-const fs = require('fs-extra');
+const { ipcMain, app, BrowserWindow, dialog } = require('electron');
 const { join } = require('path');
+const fs = require('fs-extra');
 
 const ROOT = join(app.getPath('documents'), 'Vexed');
 
-ipc.handle('manager:get_path', function (event) {
+ipcMain.handle('root:get_documents_path', async () => {
 	return ROOT;
 });
 
-ipc.handle('manager:launch_game', async function (event, launchOptions) {
-	await createGame(launchOptions);
-});
+//#region scripts
+ipcMain.handle('root:load_script', async (ev) => {
+	const window = BrowserWindow.fromWebContents(ev.sender);
 
-ipc.on('game:generate_id', function (event) {
-	const window = BrowserWindow.fromWebContents(event.sender);
-	const windowID = nanoid();
-	assignWindowID(window, windowID);
-});
-
-ipc.on('game:load_script', async function (event) {
-	const window = BrowserWindow.fromWebContents(event.sender);
-
-	const dialog_ = await dialog
+	const res = await dialog
 		.showOpenDialog(window, {
 			filters: [{ name: 'JavaScript Files', extensions: ['js'] }],
 			properties: ['openFile'],
@@ -32,46 +20,51 @@ ipc.on('game:load_script', async function (event) {
 		})
 		.catch(() => null);
 
-	if (!dialog || dialog_.canceled) {
+	if (!dialog || res.canceled) {
 		return null;
 	}
 
-	const scriptPath = dialog_.filePaths[0];
+	const scriptPath = res.filePaths[0];
 	const scriptBody = await fs.readFile(scriptPath, 'utf8').catch(() => null);
 
 	if (!scriptBody?.toString()) {
 		return null;
 	}
 
-	const escapedScriptBody = scriptBody
-		.replace(/\\/g, '\\\\')
-		.replace(/`/g, '\\`')
-		.replace(/\$/g, '\\$')
-		.replace(/\r?\n/g, '\\n');
-
-	window.webContents.executeJavaScript(`
-		document.getElementById('loaded-script')?.remove();
-		var script = document.createElement('script');
-		script.id = 'loaded-script';
-		script.textContent = \`(async () => {
-			console.log("script started", new Date());
-			${escapedScriptBody}
-			console.log("script finished", new Date());
-		})();\`;
-		document.body.appendChild(script);
-	`);
+	return Buffer.from(scriptBody, 'utf-8').toString('base64');
 });
 
-ipc.on('game:toggle_devtools', (event) => {
-	event.sender.toggleDevTools();
+ipcMain.on('root:toggle-dev-tools', async (ev) => {
+	ev.sender.toggleDevTools();
 });
+//#endregion
 
-ipc.on('packets:logger:save', async function (event, packets) {
+ipcMain.on('tools:loadergrabber:export', async (ev, data) => {
+	const path = join(ROOT, 'grabber.json');
 	try {
-		await fs.writeFile(join(ROOT, 'packets.txt'), packets.join('\n'), {
+		await fs.ensureFile(path);
+		await fs.writeFile(path, JSON.stringify(data, null, 2), {
 			encoding: 'utf-8',
 		});
-	} catch {
-		dialog.showErrorBox('error', 'failed to write packets to file.');
+	} catch (error) {
+		console.log('Failed to write grabber data to file', error.stack);
+		dialog.showErrorBox(
+			'Failed to write grabber data to file',
+			error.stack,
+		);
+	}
+});
+
+ipcMain.on('packets:save', async (_, data) => {
+	const path = join(ROOT, 'packets.txt');
+	try {
+		await fs.ensureFile(path);
+		await fs.writeFile(path, data.join('\n'), {
+			encoding: 'utf-8',
+		});
+	} catch (error) {
+		// TODO: make this dialog reusable
+		console.log('Failed to write packets to file', error.stack);
+		dialog.showErrorBox('Failed to write packets to file', error.stack);
 	}
 });

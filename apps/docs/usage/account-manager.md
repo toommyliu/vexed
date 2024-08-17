@@ -1,22 +1,9 @@
 # Account Manager
 
-When you first launch Vexed, you will be prompted with an "accounts manager". You can add or remove accounts, as well as logging in and connecting to a game server automatically.
+The account manager is shown as a tray icon in the menubar (denoted by a purple V).
 
-Account data is stored in json at `Documents/Vexed/accounts.json`.
+Options are available to open a new window or to create a new window under a specific account, with the ability to login to some server.
 
 ::: warning
 
-Accounts are stored in plaintext json!
-
-:::
-
-If you do not want to use the account manager, open Finder > Documents > Vexed > preferences.json. This file should already exist if you launched before.
-
-Make sure the `launch` key is set to `game` like so:
-
-```json
-{
-    "launch": "manager" // [!code --]
-    "launch": "game" // [!code ++]
-}
-```
+Accounts are stored in plaintext json under `Documents/Vexed/accounts.json`.

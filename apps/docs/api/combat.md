@@ -1,97 +1,87 @@
-<a name="Combat"></a>
+---
+title: Combat
+outline: deep
+---
+# Combat
 
-## Combat
-**Kind**: global class  
+A `monsterResolvable` is either a monster name or monMapID prefixed with `id` and delimited by a `'`, `.`, `:`, `-` character
 
-* [Combat](#Combat)
-    * [new Combat(bot)](#new_Combat_new)
-    * [.skillSet](#Combat+skillSet) : <code>Array.&lt;number&gt;</code>
-    * [.skillDelay](#Combat+skillDelay) : <code>number</code>
-    * [.hasTarget](#Combat+hasTarget) ⇒ <code>boolean</code>
-    * [.attack(monsterResolvable)](#Combat+attack) ⇒ <code>void</code>
-    * [.useSkill(skillIndex, [force], [wait])](#Combat+useSkill)
-    * [.rest()](#Combat+rest) ⇒ <code>Promise.&lt;void&gt;</code>
-    * [.kill(name)](#Combat+kill) ⇒ <code>Promise.&lt;void&gt;</code>
-    * [.killForItem(name, itemResolvable, itemQuantity, [isTemp])](#Combat+killForItem) ⇒ <code>Promise.&lt;void&gt;</code>
 
-<a name="new_Combat_new"></a>
 
-### new Combat(bot)
+## Properties
 
-| Param | Type |
-| --- | --- |
-| bot | <code>Bot</code> | 
+### target<Badge text="getter" />
+Returns information about the target.
 
-<a name="Combat+skillSet"></a>
+Type: <code>Record<string, unknown> | null</code>
 
-### combat.skillSet : <code>Array.&lt;number&gt;</code>
-The skills to cycle through.
+## Methods
 
-**Kind**: instance property of [<code>Combat</code>](#Combat)  
-<a name="Combat+skillDelay"></a>
+### hasTarget
+Whether the player has a target.
 
-### combat.skillDelay : <code>number</code>
-The delay between skills.
+**Returns:** <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
 
-**Kind**: instance property of [<code>Combat</code>](#Combat)  
-<a name="Combat+hasTarget"></a>
-
-### combat.hasTarget ⇒ <code>boolean</code>
-Whether the current player has a target.
-
-**Kind**: instance property of [<code>Combat</code>](#Combat)  
-<a name="Combat+attack"></a>
-
-### combat.attack(monsterResolvable) ⇒ <code>void</code>
-Attacks a monster.
-
-**Kind**: instance method of [<code>Combat</code>](#Combat)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| monsterResolvable | <code>string</code> | The name or monMapID of the monster. |
-
-<a name="Combat+useSkill"></a>
-
-### combat.useSkill(skillIndex, [force], [wait])
+### useSkill
 Uses a skill.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| index | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code>\|<code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code> | The index of the skill. Skills range from 0 (skill 1) to 5 (potions). |
+| force | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code> | Whether to use the skill regardless if there is a target. |
+| wait | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code> | Whether to wait for the skill to be available. |
 
-**Kind**: instance method of [<code>Combat</code>](#Combat)  
+**Returns:** <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/promise">Promise</a>&lt;void&gt;</code>
 
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| skillIndex | <code>number</code> \| <code>string</code> |  | The index of the skill; indexes ranges from 1 to 4. |
-| [force] | <code>boolean</code> | <code>false</code> | Whether to force the skill to be used (e.g on a random target). |
-| [wait] | <code>boolean</code> | <code>false</code> | Whether to wait for the skill to be available |
+### attack
+Attacks a monster.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| monsterResolvable | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code> | The name or monMapID of the monster. |
 
-<a name="Combat+rest"></a>
+**Returns:** `void`
 
-### combat.rest() ⇒ <code>Promise.&lt;void&gt;</code>
-Rests the current player.
+### cancelTarget
+Cancels the current target.
 
-**Kind**: instance method of [<code>Combat</code>](#Combat)  
-<a name="Combat+kill"></a>
+**Returns:** `void`
 
-### combat.kill(name) ⇒ <code>Promise.&lt;void&gt;</code>
+### cancelAutoAttack
+Cancels an auto attack.
+
+**Returns:** `void`
+
+### kill
 Kills a monster.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| monsterResolvable | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code> | The name or monMapID of the monster. |
+| config | <code><a href="/api/typedefs/killconfig">KillConfig</a></code> | The configuration to use for the kill. |
 
-**Kind**: instance method of [<code>Combat</code>](#Combat)  
+**Returns:** <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/promise">Promise</a>&lt;void&gt;</code>
 
-| Param | Type | Description |
-| --- | --- | --- |
-| name | <code>string</code> \| <code>number</code> | The name or monMapID of the monster. |
+### killForItem
+Kills the monster until the expected quantity of the item is collected in the Inventory.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| monsterResolvable | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code> | The name or monMapID of the monster. |
+| itemName | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code> | The name or ID of the item. |
+| targetQty | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code> | The quantity of the item. |
+| killConfig | <code><a href="/api/typedefs/killconfig">KillConfig</a></code> | The configuration to use for the kill. |
 
-<a name="Combat+killForItem"></a>
+**Returns:** <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/promise">Promise</a>&lt;void&gt;</code>
 
-### combat.killForItem(name, itemResolvable, itemQuantity, [isTemp]) ⇒ <code>Promise.&lt;void&gt;</code>
-Kills a monster for a specific item.
+### killForTempItem
+Kills the monster until the expected quantity of the item is collected in the Temp Inventory.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| monsterResolvable | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code> | The name or monMapID of the monster. |
+| itemName | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code> | The name or ID of the item. |
+| targetQty | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code> | The quantity of the item. |
+| killConfig | <code><a href="/api/typedefs/killconfig">KillConfig</a></code> | The configuration to use for the kill. |
 
-**Kind**: instance method of [<code>Combat</code>](#Combat)  
+**Returns:** <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/promise">Promise</a>&lt;void&gt;</code>
 
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| name | <code>string</code> \| <code>number</code> |  | The name or monMapID of the monster. |
-| itemResolvable | <code>string</code> \| <code>number</code> |  | The name or ID of the item. |
-| itemQuantity | <code>number</code> |  | The quantity of the item. |
-| [isTemp] | <code>boolean</code> | <code>false</code> | Whether the item is temporary. |
+### exit
+Attempts to exit from combat.
 
+**Returns:** <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/promise">Promise</a>&lt;void&gt;</code>

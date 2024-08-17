@@ -1,40 +1,35 @@
-<a name="TempInventory"></a>
+---
+title: TempInventory
+outline: deep
+---
+# TempInventory
 
-## TempInventory
-**Kind**: global class  
 
-* [TempInventory](#TempInventory)
-    * [new TempInventory(bot)](#new_TempInventory_new)
-    * [.bot](#TempInventory+bot) : <code>Bot</code>
-    * [.items](#TempInventory+items) ⇒ <code>Array.&lt;TempInventoryItem&gt;</code>
-    * [.resolve(itemResolvable)](#TempInventory+resolve) ⇒ <code>TempInventoryItem</code>
 
-<a name="new_TempInventory_new"></a>
 
-### new TempInventory(bot)
 
-| Param | Type |
-| --- | --- |
-| bot | <code>Bot</code> | 
+## Properties
 
-<a name="TempInventory+bot"></a>
-
-### tempInventory.bot : <code>Bot</code>
-**Kind**: instance property of [<code>TempInventory</code>](#TempInventory)  
-<a name="TempInventory+items"></a>
-
-### tempInventory.items ⇒ <code>Array.&lt;TempInventoryItem&gt;</code>
+### items<Badge text="getter" />
 Gets items in the Temp Inventory of the current player.
 
-**Kind**: instance property of [<code>TempInventory</code>](#TempInventory)  
-<a name="TempInventory+resolve"></a>
+Type: <code><a href="/api/struct/tempinventoryitem">TempInventoryItem</a>[]</code>
 
-### tempInventory.resolve(itemResolvable) ⇒ <code>TempInventoryItem</code>
+## Methods
+
+### get
 Resolves an item from the Bank.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| itemKey | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code>\|<code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code> | The name or ID of the item. |
 
-**Kind**: instance method of [<code>TempInventory</code>](#TempInventory)  
+**Returns:** <code>?<a href="/api/struct/tempinventoryitem">TempInventoryItem</a></code>
 
-| Param | Type | Description |
-| --- | --- | --- |
-| itemResolvable | <code>string</code> \| <code>number</code> | The name or ID of the item. |
+### contains
+Whether the item meets some quantity in this store
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| itemKey | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code>\|<code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code> | The name or ID of the item |
+| quantity | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code> | The quantity of the item |
 
+**Returns:** <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>

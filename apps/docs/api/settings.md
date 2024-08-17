@@ -1,92 +1,90 @@
-<a name="Settings"></a>
+---
+title: Settings
+outline: deep
+---
+# Settings
 
-## Settings
-**Kind**: global class  
+`Provoke Map`: If enabled, tags all monsters in the map.
 
-* [Settings](#Settings)
-    * [new Settings(bot)](#new_Settings_new)
-    * [.bot](#Settings+bot) : <code>Bot</code>
-    * [.setInfiniteRange()](#Settings+setInfiniteRange) ⇒ <code>void</code>
-    * [.setProvokeMonsters()](#Settings+setProvokeMonsters) ⇒ <code>void</code>
-    * [.setEnemyMagnet()](#Settings+setEnemyMagnet) ⇒ <code>void</code>
-    * [.setLagKiller(on)](#Settings+setLagKiller)
-    * [.hidePlayers()](#Settings+hidePlayers) ⇒ <code>void</code>
-    * [.skipCutscenes()](#Settings+skipCutscenes) ⇒ <code>void</code>
-    * [.setWalkSpeed(walkSpeed)](#Settings+setWalkSpeed)
-    * [.setFPS(fps)](#Settings+setFPS) ⇒ <code>void</code>
 
-<a name="new_Settings_new"></a>
+`Provoke Cell`: If enabled, tags all monsters in the current cell.
 
-### new Settings(bot)
 
-| Param | Type |
-| --- | --- |
-| bot | <code>Bot</code> | 
+`Enemy Magnet`: If enabled, sets the target's position to that of the player.
 
-<a name="Settings+bot"></a>
 
-### settings.bot : <code>Bot</code>
-**Kind**: instance property of [<code>Settings</code>](#Settings)  
-<a name="Settings+setInfiniteRange"></a>
+`Lag Killer`: If enabled, disables rendering of most UI elements.
 
-### settings.setInfiniteRange() ⇒ <code>void</code>
-Allows the current player to attack from any range.
 
-**Kind**: instance method of [<code>Settings</code>](#Settings)  
-<a name="Settings+setProvokeMonsters"></a>
+`Hide Players`: If enabled, hides other players.
 
-### settings.setProvokeMonsters() ⇒ <code>void</code>
-Prompts all cell monsters to attack the current player.
 
-**Kind**: instance method of [<code>Settings</code>](#Settings)  
-<a name="Settings+setEnemyMagnet"></a>
+`Skip Cutscenes:` If enabled, skips cutscenes as needed.
 
-### settings.setEnemyMagnet() ⇒ <code>void</code>
-Sets all cell monsters to sit on the current player.
 
-**Kind**: instance method of [<code>Settings</code>](#Settings)  
-<a name="Settings+setLagKiller"></a>
+`Walk Speed`: The player's walk speed.
 
-### settings.setLagKiller(on)
-Whether to disable drawing of the game.
 
-**Kind**: instance method of [<code>Settings</code>](#Settings)  
+ Settings are updated in a background interval every 500ms.
 
-| Param | Type |
-| --- | --- |
-| on | <code>boolean</code> | 
 
-<a name="Settings+hidePlayers"></a>
 
-### settings.hidePlayers() ⇒ <code>void</code>
-Hides players in the world.
+## Properties
 
-**Kind**: instance method of [<code>Settings</code>](#Settings)  
-<a name="Settings+skipCutscenes"></a>
+### infiniteRange<Badge text="getter" /><Badge text="setter" />
+The state of "Infinite Range".
 
-### settings.skipCutscenes() ⇒ <code>void</code>
-Skips cutscenes.
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
 
-**Kind**: instance method of [<code>Settings</code>](#Settings)  
-<a name="Settings+setWalkSpeed"></a>
+### provokeMap<Badge text="getter" /><Badge text="setter" />
+The state of "Provoke Map".
 
-### settings.setWalkSpeed(walkSpeed)
-Sets the current player's walk speed.
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
 
-**Kind**: instance method of [<code>Settings</code>](#Settings)  
+### provokeCell<Badge text="getter" /><Badge text="setter" />
+The state of "Provoke Cell".
 
-| Param | Type |
-| --- | --- |
-| walkSpeed | <code>number</code> \| <code>string</code> | 
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
 
-<a name="Settings+setFPS"></a>
+### enemyMagnet<Badge text="getter" /><Badge text="setter" />
+The state of "Enemy Magnet".
 
-### settings.setFPS(fps) ⇒ <code>void</code>
-Sets the client's target fps.
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
 
-**Kind**: instance method of [<code>Settings</code>](#Settings)  
+### lagKiller<Badge text="getter" /><Badge text="setter" />
+Whether "Lag Killer" is enabled.
 
-| Param | Type | Description |
-| --- | --- | --- |
-| fps | <code>string</code> \| <code>number</code> | The client fps. |
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
 
+### hidePlayers<Badge text="getter" /><Badge text="setter" />
+Whether "Hide Players" is enabled.
+
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
+
+### skipCutscenes<Badge text="getter" /><Badge text="setter" />
+Whether "Skip Cutscenes" is enabled.
+
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
+
+### walkSpeed<Badge text="getter" /><Badge text="setter" />
+The player's walk speed.
+
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code>
+
+## Methods
+
+### setFPS
+Sets the target client FPS.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| fps | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code>\|<code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code> | The target fps. |
+
+**Returns:** `void`
+
+### setDeathAds
+Sets the visiblity of death ads.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| on | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code> | If enabled, death ads are shown. |
+
+**Returns:** `void`

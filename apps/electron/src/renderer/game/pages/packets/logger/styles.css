@@ -1,0 +1,29 @@
+.logger {
+	width: 100%;
+	height: 150px;
+	font-size: 11px;
+	overflow-y: auto;
+	cursor: text;
+	white-space: pre-wrap;
+	padding: 0px;
+}
+
+.line {
+	width: auto;
+	padding: 5px;
+	cursor: pointer;
+	color: lightgrey;
+}
+
+.line:hover {
+	background-color: grey;
+}
+
+#buttons {
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 4px;
+	padding: 0px;
+}

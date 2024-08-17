@@ -1,9 +1,9 @@
-const fs = require('fs-extra');
 const { join } = require('path');
 const { app } = require('electron');
 
-const { createManager, createGame } = require('./windows');
+const { createGame } = require('./windows');
 
+require('./tray');
 require('./ipc');
 
 function registerFlashPlugin() {
@@ -23,33 +23,13 @@ function registerFlashPlugin() {
 
 	const trustManager = flashTrust.initSync('Vexed', flashPath);
 	trustManager.empty();
-	trustManager.add(join(__dirname, '../renderer/game/grimoire.swf'));
+	trustManager.add(join(__dirname, '../../build/grimoire.swf'));
 }
 
 registerFlashPlugin();
 
 app.once('ready', async () => {
-	const base = join(app.getPath('documents'), 'Vexed');
-	const preferencesPath = join(base, 'preferences.json');
-
-	await fs.ensureDir(join(base, 'Scripts'));
-	await fs.ensureFile(preferencesPath);
-
-	const preferences = await fs.readJSON(preferencesPath).catch(async () => {
-		const def = { launch: 'manager' };
-		await fs.writeJSON(preferencesPath, def, { spaces: 4 });
-		return def;
-	});
-
-	if (
-		'launch' in preferences &&
-		typeof preferences.launch === 'string' &&
-		preferences.launch.toLowerCase() === 'game'
-	) {
-		await createGame();
-	} else {
-		await createManager();
-	}
+	await createGame();
 });
 
 app.on('window-all-closed', app.quit);

@@ -1,0 +1,30 @@
+{
+	"compilerOptions": {
+		"source-path": [
+			"src/"
+		],
+		"output": "../electron/build/grimoire.swf",
+		"default-frame-rate": 30,
+		"default-background-color": "#000000",
+		"default-size": {
+			"width": 958,
+			"height": 550
+		},
+		"target-player": "32.0",
+		"accessible": false,
+		"advanced-telemetry": false,
+		"benchmark": false,
+		"optimize": true,
+		"omit-trace-statements": true,
+		"show-unused-type-selector-warnings": true,
+		"strict": true,
+		"use-network": true,
+		"use-resource-bundle-metadata": true,
+		"warnings": true,
+		"verbose-stacktraces": false,
+		"static-link-runtime-shared-libraries": true
+	},
+	"files": [
+		"src/grimoire/Root.as"
+	]
+}

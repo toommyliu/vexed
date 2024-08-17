@@ -1,66 +1,83 @@
-<a name="Drops"></a>
+---
+title: Drops
+outline: deep
+---
+# Drops
 
-## Drops
-**Kind**: global class  
 
-* [Drops](#Drops)
-    * [new Drops(bot)](#new_Drops_new)
-    * [.stack](#Drops+stack) : <code>Map.&lt;number, number&gt;</code>
-    * [.addToStack(itemData)](#Drops+addToStack) ⇒ <code>void</code>
-    * [.removeFromStack(itemID)](#Drops+removeFromStack) ⇒ <code>void</code>
-    * [.reset()](#Drops+reset) ⇒ <code>void</code>
-    * [.pickup(itemResolvable)](#Drops+pickup) ⇒ <code>Promise.&lt;void&gt;</code>
 
-<a name="new_Drops_new"></a>
 
-### new Drops(bot)
 
-| Param | Type |
-| --- | --- |
-| bot | <code>Bot</code> | 
+## Properties
 
-<a name="Drops+stack"></a>
+### stack<Badge text="getter" />
+The drop stack as shown to the client. The mapping is of the form `itemID -> count`.
 
-### drops.stack : <code>Map.&lt;number, number&gt;</code>
-The items dropped and their quantity. Maps item ID to their quantity.
+Type: <code>Record<number, number></code>
 
-**Kind**: instance property of [<code>Drops</code>](#Drops)  
-<a name="Drops+addToStack"></a>
+## Methods
 
-### drops.addToStack(itemData) ⇒ <code>void</code>
-Adds an item to the drop stack.
+### getItemFromID
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| itemID | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code> | The ID of the item. |
 
-**Kind**: instance method of [<code>Drops</code>](#Drops)  
+**Returns:** <code>?<a href="/api/struct/item">import('./struct/Item').ItemData</a></code>
 
-| Param | Type | Description |
-| --- | --- | --- |
-| itemData | [<code>ItemData</code>](#ItemData) | The item to add. |
+The item data, if the item has previously dropped.
 
-<a name="Drops+removeFromStack"></a>
+### getItemFromName
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| itemName | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code> | The name of the item. |
 
-### drops.removeFromStack(itemID) ⇒ <code>void</code>
-Removes an item from the drop stack.
+**Returns:** <code>?<a href="/api/struct/item">import('./struct/Item').ItemData</a></code>
 
-**Kind**: instance method of [<code>Drops</code>](#Drops)  
+The item data, if the item has previously dropped.
 
-| Param | Type | Description |
-| --- | --- | --- |
-| itemID | <code>number</code> | The ID of the item to remove. |
+### getNameFromID
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| itemID | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code> | The ID of the item. |
 
-<a name="Drops+reset"></a>
+**Returns:** <code>?<a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code>
 
-### drops.reset() ⇒ <code>void</code>
-Resets the drop stack to a clean state.
+The name of the item, if the item has previously dropped.
 
-**Kind**: instance method of [<code>Drops</code>](#Drops)  
-<a name="Drops+pickup"></a>
+### getIDFromName
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| itemName | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code> | The name of the item. |
 
-### drops.pickup(itemResolvable) ⇒ <code>Promise.&lt;void&gt;</code>
-Collects an item from the drop stack, effectively removing it from the stack.
+**Returns:** <code>?<a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code>
 
-**Kind**: instance method of [<code>Drops</code>](#Drops)  
+The ID of the item, if the item has previously dropped.
 
-| Param | Type | Description |
-| --- | --- | --- |
-| itemResolvable | <code>string</code> \| <code>number</code> | The name or ID of the item to collect. |
+### getDropCount
+Returns the count of the item in the drop stack. Returns -1 if it hasn't dropped.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| itemID | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code> | The ID of the item. |
 
+**Returns:** <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code>
+
+The count of the item in the stack.
+
+### pickup
+Accepts the drop for an item in the stack.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| itemKey | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code>\|<code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code> | The item name or ID. |
+
+**Returns:** <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/promise">Promise</a>&lt;void&gt;</code>
+
+Whether the operation was successful.
+
+### reject
+Rejects the drop, effectively removing from the stack. Items can still be picked up with a getDrop packet.
+| Parameter | Type | Optional | Description |
+| --------- | ---- | -------- | ----------- |
+| itemKey | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code>\|<code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code> |  | The name or ID of the item. |
+| removeFromStore | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code> | ✅ | Whether to delete the item entry from the store. |
+
+**Returns:** <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/promise">Promise</a>&lt;void&gt;</code>

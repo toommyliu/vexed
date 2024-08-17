@@ -1,97 +1,75 @@
-<a name="Auth"></a>
+---
+title: Auth
+outline: deep
+---
+# Auth
 
-## Auth
-**Kind**: global class  
 
-* [Auth](#Auth)
-    * [new Auth(bot)](#new_Auth_new)
-    * [.username](#Auth+username) ⇒ <code>string</code>
-    * [.password](#Auth+password) ⇒ <code>string</code>
-    * [.loggedIn](#Auth+loggedIn) ⇒ <code>boolean</code>
-    * [.servers](#Auth+servers) ⇒ [<code>Array.&lt;Server&gt;</code>](#Server)
-    * [.ip](#Auth+ip) ⇒ <code>string</code>
-    * [.port](#Auth+port) ⇒ <code>number</code>
-    * [.login([username], [password])](#Auth+login) ⇒ <code>void</code>
-    * [.logout()](#Auth+logout) ⇒ <code>void</code>
-    * [.resetServers()](#Auth+resetServers) ⇒ <code>boolean</code>
-    * [.connect(name)](#Auth+connect) ⇒ <code>void</code>
 
-<a name="new_Auth_new"></a>
 
-### new Auth(bot)
 
-| Param | Type |
-| --- | --- |
-| bot | <code>Bot</code> | 
+## Properties
 
-<a name="Auth+username"></a>
+### username<Badge text="getter" />
+The username of the current user. This value is set after a successful login.
 
-### auth.username ⇒ <code>string</code>
-The username of the current user. This value is only updated after logging in.
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code>
 
-**Kind**: instance property of [<code>Auth</code>](#Auth)  
-<a name="Auth+password"></a>
+### password<Badge text="getter" />
+The password of the current user. This value is set after a successful login.
 
-### auth.password ⇒ <code>string</code>
-The password of the current user. This value is only updated after logging in.
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code>
 
-**Kind**: instance property of [<code>Auth</code>](#Auth)  
-<a name="Auth+loggedIn"></a>
-
-### auth.loggedIn ⇒ <code>boolean</code>
+### loggedIn<Badge text="getter" />
 Whether the user is logged in and connected to a server.
 
-**Kind**: instance property of [<code>Auth</code>](#Auth)  
-<a name="Auth+servers"></a>
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
 
-### auth.servers ⇒ [<code>Array.&lt;Server&gt;</code>](#Server)
-The list of servers the client can see. This list is updated after a successful login.
+### servers<Badge text="getter" />
+The list of servers as shown to the client. The list is updated after a successful login.
 
-**Kind**: instance property of [<code>Auth</code>](#Auth)  
-<a name="Auth+ip"></a>
+Type: <code><a href="/api/struct/server">Server</a>[]</code>
 
-### auth.ip ⇒ <code>string</code>
+### ip<Badge text="getter" />
 The server IP the client is connected to.
 
-**Kind**: instance property of [<code>Auth</code>](#Auth)  
-<a name="Auth+port"></a>
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code>
 
-### auth.port ⇒ <code>number</code>
+### port<Badge text="getter" />
 The server port the client is connected to.
 
-**Kind**: instance property of [<code>Auth</code>](#Auth)  
-<a name="Auth+login"></a>
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code>
 
-### auth.login([username], [password]) ⇒ <code>void</code>
-Log in with the given account or the account cached in memory.
+### isTemporarilyKicked<Badge text="getter" />
+Whether the client is temporarily kicked from the server.
 
-**Kind**: instance method of [<code>Auth</code>](#Auth)  
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
 
-| Param | Type |
-| --- | --- |
-| [username] | <code>string</code> | 
-| [password] | <code>string</code> | 
+## Methods
 
-<a name="Auth+logout"></a>
+### login
+Log in with the given account or the previous account (if available).
+| Parameter | Type | Optional | Description |
+| --------- | ---- | -------- | ----------- |
+| username | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code> | ✅ | The username to login with. |
+| password | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code> | ✅ | The password to login with. |
 
-### auth.logout() ⇒ <code>void</code>
+**Returns:** `void`
+
+### logout
 Logs out of the current account.
 
-**Kind**: instance method of [<code>Auth</code>](#Auth)  
-<a name="Auth+resetServers"></a>
+**Returns:** `void`
 
-### auth.resetServers() ⇒ <code>boolean</code>
+### resetServers
 Resets the list of servers that is available to the client.
 
-**Kind**: instance method of [<code>Auth</code>](#Auth)  
-<a name="Auth+connect"></a>
+**Returns:** <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
 
-### auth.connect(name) ⇒ <code>void</code>
+### connectTo
 Connects to a server.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| name | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code> | The name of the server. |
 
-**Kind**: instance method of [<code>Auth</code>](#Auth)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| name | <code>string</code> | The name of the server. |
-
+**Returns:** `void`

@@ -1,46 +1,37 @@
-const { join, parse } = require('path');
+const { join } = require('path');
 const { BrowserWindow, session } = require('electron');
-const { nanoid } = require('nanoid');
 
 const RENDERER = join(__dirname, '../renderer');
 
-// The account manager window (limit: 1)
-let managerWindow = null;
-
-const windows = new Map();
+/**
+ * @type {Map<number, {
+ *   game: Electron.BrowserWindow,
+ *   tools: {
+ *     fastTravels: Electron.BrowserWindow,
+ *     loaderGrabber: Electron.BrowserWindow,
+ *     follower: Electron.BrowserWindow
+ *   },
+ *   packets: {
+ *     logger: Electron.BrowserWindow,
+ *     spammer: Electron.BrowserWindow
+ *   }
+ * }}
+ */
+const store = new Map();
 
 const userAgent =
 	'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16_0) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36';
 
-async function createManager() {
-	if (managerWindow) {
-		managerWindow.focus();
-		return;
-	}
-
-	const window = new BrowserWindow({
-		width: 966,
-		height: 552,
-		title: 'Account Manager',
-		webPreferences: {
-			contextIsolation: false,
-			nodeIntegration: true,
-		},
-	});
-
-	window.on('closed', function () {
-		managerWindow = null;
-	});
-
-	await window.loadFile(join(RENDERER, 'manager/manager.html'));
-	managerWindow = window;
-}
-
+/**
+ * Creates a new game window
+ * @param {{username: string, password:string}} account The account to login with
+ * @returns {Promise<void>}
+ */
 async function createGame(account = null) {
 	const window = new BrowserWindow({
 		width: 966,
 		height: 552,
-		title: account?.username ?? '',
+		title: '',
 		webPreferences: {
 			contextIsolation: false,
 			nodeIntegration: true,
@@ -61,136 +52,166 @@ async function createGame(account = null) {
 		},
 	);
 
-	await window
-		.loadFile(join(RENDERER, 'game/game.html'))
-		.catch((error) => console.log('error', error));
-	// window.webContents.openDevTools({ mode: 'right' });
-	// window.maximize();
-
-	// TODO: race condition
-	const windowID = nanoid();
-	assignWindowID(window, windowID);
-
-	console.log(`Created a family with windowID: "${windowID}"`);
-
+	await window.loadFile(join(RENDERER, 'game/game.html'));
+	window.webContents.openDevTools({ mode: 'right' });
 	if (account) {
-		window.webContents.send('game:login', account);
+		window.webContents.send('root:login', account);
 	}
 
-	window.on('closed', () => {
-		console.log(`Removing family of windows under: "${windowID}".`);
+	window.on('close', () => {
+		const windows = store.get(window.id);
 
-		if (!windows.has(windowID)) {
-			return;
-		}
-
-		const _windows = windows.get(windowID);
-
-		for (const [k, v] of Object.entries(_windows)) {
-			try {
-				if (v !== null && !v?.isDestroyed()) {
-					v.close();
-					console.log(`Removing window "${k}" under: "${windowID}".`);
-				} else {
-					console.log(
-						`Window "${k}" does not exist under "${windowID}", skipping.`,
-					);
-				}
-			} catch (error) {
-				console.log(
-					`An error occurred while trying to remove "${k}" under: "${windowID}".`,
-					error,
-				);
-			}
-		}
-	});
-
-	window.webContents.on('new-window', async (event, url, _, __, options) => {
-		const _url = new URL(url);
 		if (
-			_url.hostname === 'account.aq.com' ||
-			_url.hostname === 'www.aq.com' ||
-			_url.hostname === 'www.artix.com'
+			windows.tools.fastTravels &&
+			!windows.tools.fastTravels.isDestroyed()
 		) {
-			return;
+			windows.tools.fastTravels.destroy();
 		}
-
-		event.preventDefault();
-
-		// *.html
-		const { base: file, dir } = parse(url);
-		const page = file.split('.')[0];
-		const dir_ = dir.substring(dir.lastIndexOf('/') + 1);
-
-		const _windows = windows.get(windowID);
-		const prevWindow = _windows[page];
-
-		if (prevWindow && !prevWindow?.webContents?.isDestroyed()) {
-			prevWindow.show();
-			return;
+		if (
+			windows.tools.loaderGrabber &&
+			!windows.tools.loaderGrabber.isDestroyed()
+		) {
+			windows.tools.loaderGrabber.destroy();
 		}
-
-		console.log(`Creating detour "${page}" window for "${windowID}".`);
-
-		const window = new BrowserWindow({ ...options });
-
-		event.newGuest = window;
-		_windows[page] = window;
-
-		await window.loadFile(
-			join(
-				RENDERER,
-				`game/pages/${dir_ === 'pages' ? '' : `${dir_}/`}${file}`,
-			),
-		);
-
-		//window.webContents.openDevTools({ mode: 'right' });
-
-		window.on('closed', () => {
-			console.log(`Closing "${page}" window under: "${windowID}".`);
-			_windows[page] = null;
-		});
-
-		// TODO: when parent is closed/closing, children should close
-		// window.on('close', (event) => {
-		// 	event.preventDefault();
-		// 	window.blur();
-
-		// 	console.log(
-		// 		`Blocked window "${page}" from closing because parent is not closed: "${windowID}".`,
-		// 	);
-		// });
-
-		return window;
+		if (windows.tools.follower && !windows.tools.follower.isDestroyed()) {
+			windows.tools.follower.destroy();
+		}
+		if (windows.packets.logger && !windows.packets.logger.isDestroyed()) {
+			windows.packets.logger.destroy();
+		}
+		if (windows.packets.spammer && !windows.packets.spammer.isDestroyed()) {
+			windows.packets.spammer.destroy();
+		}
 	});
 
-	// window refreshed?
-	window.webContents.on('did-finish-load', () => {
-		// send the window id again to avoid re-creation
-		window.webContents.send('generate-id', windowID);
-	});
-}
+	// Creates a child window, memoizing the instance
+	window.webContents.on(
+		'new-window',
+		async (
+			ev,
+			url,
+			_frameName,
+			_disposition,
+			options,
+			_additionalFeatures,
+			_referrer,
+		) => {
+			const _url = new URL(url);
 
-function assignWindowID(window, windowID) {
-	windows.set(windowID, {
+			if (_url.protocol === 'https:' || _url.protocol === 'http:') {
+				const domains = [
+					'www.aq.com',
+					'aq.com',
+					'www.artix.com',
+					'artix.com',
+					'www.account.aq.com',
+					'account.aq.com',
+					'www.aqwwiki.wikidot.com',
+					'aqwwiki.wikidot.com',
+				];
+				if (!domains.includes(_url.hostname)) {
+					console.log('Blocking url', _url);
+					ev.preventDefault();
+					ev.newGuest = null;
+					return null;
+				}
+			} else if (_url.protocol === 'file:') {
+				ev.preventDefault();
+
+				const file = url.substring(
+					url.lastIndexOf('/', url.lastIndexOf('/') - 1) + 1,
+					url.length,
+				);
+
+				const windows = store.get(window.id);
+				let ref = null;
+
+				switch (file) {
+					//#region tools
+					case 'fast-travels/index.html':
+						ref = windows.tools.fastTravels;
+						break;
+					case 'loader-grabber/index.html':
+						ref = windows.tools.loaderGrabber;
+						break;
+					case 'follower/index.html':
+						ref = windows.tools.follower;
+						break;
+					//#endregion
+					//#region packets
+					case 'logger/index.html':
+						ref = windows.packets.logger;
+						break;
+					case 'spammer/index.html':
+						ref = windows.packets.spammer;
+						break;
+					//#endregion
+				}
+
+				// Return the previously created window
+				if (ref && !ref?.isDestroyed()) {
+					ref.show();
+					ref.focus();
+					return ref;
+				}
+
+				const newWindow = new BrowserWindow({
+					...options,
+					// Moving the parent also moves the child, as well as minimizing it
+					parent: window,
+				});
+				ev.newGuest = newWindow;
+				newWindow.on('close', (ev) => {
+					ev.preventDefault();
+					newWindow.hide();
+				});
+
+				await newWindow.loadFile(
+					`${join(RENDERER, 'game/pages/')}` +
+						(url.includes('scripts')
+							? `scripts/${file}`
+							: url.includes('tools')
+								? `tools/${file}`
+								: url.includes('packets')
+									? `packets/${file}`
+									: null),
+				);
+
+				switch (file) {
+					//#region tools
+					case 'fast-travels/index.html':
+						windows.tools.fastTravels = newWindow;
+						break;
+					case 'loader-grabber/index.html':
+						windows.tools.loaderGrabber = newWindow;
+						break;
+					case 'follower/index.html':
+						windows.tools.follower = newWindow;
+						break;
+					//#endregion
+					//#region packets
+					case 'logger/index.html':
+						windows.packets.logger = newWindow;
+						break;
+					case 'spammer/index.html':
+						windows.packets.spammer = newWindow;
+						break;
+					//#endregion
+				}
+
+				return newWindow;
+			}
+		},
+	);
+	// window.maximize();
+
+	store.set(window.id, {
 		game: window,
-		'fast-travels': null,
-		'loader-grabber': null,
-		maid: null,
-		logger: null,
-		spammer: null,
+		tools: { fastTravels: null, loaderGrabber: null, follower: null },
+		packets: { logger: null, spammer: null },
 	});
-	window.webContents.send('generate-id', windowID);
-}
-
-function getGameWindow(windowID) {
-	const _windows = windows.get(windowID);
-	return _windows.game ?? null;
 }
 
 module.exports = {
-	createManager,
 	createGame,
-	assignWindowID,
-	getGameWindow,
 };

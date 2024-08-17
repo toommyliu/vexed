@@ -1,179 +1,140 @@
-<a name="World"></a>
+---
+title: World
+outline: deep
+---
+# World
 
-## World
-**Kind**: global class  
 
-* [World](#World)
-    * [new World(bot)](#new_World_new)
-    * [.players](#World+players) ⇒ [<code>Array.&lt;Avatar&gt;</code>](#Avatar)
-    * [.visibleMonsters](#World+visibleMonsters) ⇒ [<code>Array.&lt;Monster&gt;</code>](#Monster)
-    * [.availableMonsters](#World+availableMonsters) ⇒ [<code>Array.&lt;Monster&gt;</code>](#Monster)
-    * [.loading](#World+loading) ⇒ <code>boolean</code>
-    * [.cells](#World+cells) ⇒ <code>Array.&lt;string&gt;</code>
-    * [.roomId](#World+roomId) ⇒ <code>number</code>
-    * [.roomNumber](#World+roomNumber) ⇒ <code>number</code>
-    * [.name](#World+name) ⇒ <code>string</code>
-    * [.itemTree](#World+itemTree) ⇒ <code>Array.&lt;InventoryItemData&gt;</code>
-    * [.isMonsterAvailable(monsterResolvable)](#World+isMonsterAvailable) ⇒ <code>boolean</code>
-    * [.reload()](#World+reload) ⇒ <code>void</code>
-    * [.setSpawnpoint()](#World+setSpawnpoint) ⇒ <code>void</code>
-    * [.jump(cell, [pad], [force])](#World+jump) ⇒ <code>Promise.&lt;void&gt;</code>
-    * [.join(mapName, [cell], [pad])](#World+join) ⇒ <code>Promise.&lt;void&gt;</code>
-    * [.goto(name)](#World+goto) ⇒ <code>void</code>
-    * [.isActionAvailable(action)](#World+isActionAvailable) ⇒ <code>boolean</code>
-    * [.getMapItem(itemId)](#World+getMapItem) ⇒ <code>Promise.&lt;void&gt;</code>
-    * [.loadSWF(swf)](#World+loadSWF) ⇒ <code>void</code>
 
-<a name="new_World_new"></a>
 
-### new World(bot)
 
-| Param | Type |
-| --- | --- |
-| bot | <code>Bot</code> | 
+## Properties
 
-<a name="World+players"></a>
-
-### world.players ⇒ [<code>Array.&lt;Avatar&gt;</code>](#Avatar)
+### players<Badge text="getter" />
 Gets all players in the current map.
 
-**Kind**: instance property of [<code>World</code>](#World)  
-<a name="World+visibleMonsters"></a>
+Type: <code><a href="/api/struct/avatar">Avatar</a>[]</code>
 
-### world.visibleMonsters ⇒ [<code>Array.&lt;Monster&gt;</code>](#Monster)
+### monsters<Badge text="getter" />
+The monsters in the map.
+
+Type: <code><a href="/api/typedefs/monsterdata">MonsterData</a>[]</code>
+
+### visibleMonsters<Badge text="getter" />
 Gets all visible monsters in the current cell.
 
-**Kind**: instance property of [<code>World</code>](#World)  
-<a name="World+availableMonsters"></a>
+Type: <code><a href="/api/struct/monster">Monster</a>[]</code>
 
-### world.availableMonsters ⇒ [<code>Array.&lt;Monster&gt;</code>](#Monster)
+### availableMonsters<Badge text="getter" />
 Gets all available monsters in the current cell.
 
-**Kind**: instance property of [<code>World</code>](#World)  
-<a name="World+loading"></a>
+Type: <code><a href="/api/struct/monster">Monster</a>[]</code>
 
-### world.loading ⇒ <code>boolean</code>
+### loading<Badge text="getter" />
 Checks if the map is still loading.
 
-**Kind**: instance property of [<code>World</code>](#World)  
-<a name="World+cells"></a>
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
 
-### world.cells ⇒ <code>Array.&lt;string&gt;</code>
+### cells<Badge text="getter" />
 Gets all cells of the map.
 
-**Kind**: instance property of [<code>World</code>](#World)  
-<a name="World+roomId"></a>
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a>[]</code>
 
-### world.roomId ⇒ <code>number</code>
+### cellPads<Badge text="getter" />
+Get cell pads.
+
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a>[]</code>
+
+### roomID<Badge text="getter" />
 Gets the internal room ID of the current map.
 
-**Kind**: instance property of [<code>World</code>](#World)  
-<a name="World+roomNumber"></a>
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code>
 
-### world.roomNumber ⇒ <code>number</code>
+### roomNumber<Badge text="getter" />
 Gets the room number of the current map.
 
-**Kind**: instance property of [<code>World</code>](#World)  
-<a name="World+name"></a>
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code>
 
-### world.name ⇒ <code>string</code>
+### name<Badge text="getter" />
 Gets the name of the current map.
 
-**Kind**: instance property of [<code>World</code>](#World)  
-<a name="World+itemTree"></a>
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code>
 
-### world.itemTree ⇒ <code>Array.&lt;InventoryItemData&gt;</code>
-**Kind**: instance property of [<code>World</code>](#World)  
-<a name="World+isMonsterAvailable"></a>
+### itemTree<Badge text="getter" />
+The list of all items in the world.
 
-### world.isMonsterAvailable(monsterResolvable) ⇒ <code>boolean</code>
+Type: `InventoryItemData[]`
+
+## Methods
+
+### isMonsterAvailable
 Whether a monster is available.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| monsterResolvable | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code> | The name of the monster or in monMapID format. |
 
-**Kind**: instance method of [<code>World</code>](#World)  
+**Returns:** <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
 
-| Param | Type | Description |
-| --- | --- | --- |
-| monsterResolvable | <code>string</code> | The name of the monster or in monMapID format. |
-
-<a name="World+reload"></a>
-
-### world.reload() ⇒ <code>void</code>
+### reload
 Reloads the map.
 
-**Kind**: instance method of [<code>World</code>](#World)  
-<a name="World+setSpawnpoint"></a>
+**Returns:** `void`
 
-### world.setSpawnpoint() ⇒ <code>void</code>
-Sets the player's spawnpoint to the current cell and pad.
+### setSpawnPoint
+Sets the local player's spawnpoint to the current cell and pad.
 
-**Kind**: instance method of [<code>World</code>](#World)  
-<a name="World+jump"></a>
+**Returns:** `void`
 
-### world.jump(cell, [pad], [force]) ⇒ <code>Promise.&lt;void&gt;</code>
+### jump
 Jump to the specified cell and pad of the current map.
+| Parameter | Type | Optional | Default | Description |
+---------- | ---- | -------- | ------- | ----------- |
+| cell | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code> |  |  | The cell to jump to. |
+| pad | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code> | ✅ | "Spawn" | The pad to jump to. |
+| force | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code> | ✅ | false | Whether to allow jumping to the same cell. |
+| tries | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code> | ✅ | 5 | The number of times to try jumping. |
 
-**Kind**: instance method of [<code>World</code>](#World)  
+**Returns:** <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/promise">Promise</a>&lt;void&gt;</code>
 
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| cell | <code>string</code> |  | The cell to jump to. |
-| [pad] | <code>string</code> | <code>&quot;\&quot;Spawn\&quot;&quot;</code> | The pad to jump to. |
-| [force] | <code>boolean</code> | <code>false</code> | Whether to allow jumping to the same cell. |
-
-<a name="World+join"></a>
-
-### world.join(mapName, [cell], [pad]) ⇒ <code>Promise.&lt;void&gt;</code>
+### join
 Joins a map.
+| Parameter | Type | Optional | Default | Description |
+---------- | ---- | -------- | ------- | ----------- |
+| mapName | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code> |  |  | The name of the map to join. |
+| cell | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code> | ✅ | "Enter" | The cell to jump to. |
+| pad | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code> | ✅ | "Spawn" | The pad to jump to. |
+| tries | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code> | ✅ | 5 | Number of attempts to try and join the map |
 
-**Kind**: instance method of [<code>World</code>](#World)  
+**Returns:** <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/promise">Promise</a>&lt;void&gt;</code>
 
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| mapName | <code>string</code> |  | The name of the map to join. |
-| [cell] | <code>string</code> | <code>&quot;\&quot;Enter\&quot;&quot;</code> | The cell to jump to. |
-| [pad] | <code>string</code> | <code>&quot;\&quot;Spawn\&quot;&quot;</code> | The pad to jump to. |
-
-<a name="World+goto"></a>
-
-### world.goto(name) ⇒ <code>void</code>
+### goto
 Goto the specified player.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| name | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code> | The name of the player to goto. |
 
-**Kind**: instance method of [<code>World</code>](#World)  
+**Returns:** `void`
 
-| Param | Type | Description |
-| --- | --- | --- |
-| name | <code>string</code> | The name of the player to goto. |
-
-<a name="World+isActionAvailable"></a>
-
-### world.isActionAvailable(action) ⇒ <code>boolean</code>
+### isActionAvailable
 Whether the game action has cooled down.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| action | <code><a href="/api/enums/gameaction">GameAction</a></code> | The game action to check. |
 
-**Kind**: instance method of [<code>World</code>](#World)  
+**Returns:** <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
 
-| Param | Type | Description |
-| --- | --- | --- |
-| action | [<code>GameAction</code>](#GameAction) | The game action to check. |
-
-<a name="World+getMapItem"></a>
-
-### world.getMapItem(itemId) ⇒ <code>Promise.&lt;void&gt;</code>
+### getMapItem
 Gets a item in the world.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| itemID | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code> | The ID of the item. |
 
-**Kind**: instance method of [<code>World</code>](#World)  
+**Returns:** <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/promise">Promise</a>&lt;void&gt;</code>
 
-| Param | Type |
-| --- | --- |
-| itemId | <code>string</code> | 
-
-<a name="World+loadSWF"></a>
-
-### world.loadSWF(swf) ⇒ <code>void</code>
+### loadMap
 Loads a particular swf of the map.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| mapSWF | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code> | The swf to load. |
 
-**Kind**: instance method of [<code>World</code>](#World)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| swf | <code>string</code> | The swf to load |
-
+**Returns:** `void`

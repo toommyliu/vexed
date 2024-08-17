@@ -1,799 +1,156 @@
-<!doctype html>
-<html lang="en" data-bs-theme="dark">
-	<link rel="stylesheet" type="text/css" href="../shared/halfmoon.css" />
-	<script src="../shared/bootstrap.js"></script>
+<link rel="stylesheet" href="w3.css" />
+<link rel="stylesheet" href="shared.css" />
+<link rel="stylesheet" href="styles.css" />
 
-	<style>
-		:root {
-			/* grey-700 */
-			--bg-hover: #495057;
-		}
+<script src="botting/api/Bot.js" type="module"></script>
+<script src="handlers/index.js" type="module"></script>
 
-		#swf {
-			position: fixed;
-			bottom: 0;
-			right: 0;
-			width: 100%;
-			height: calc(100% - 27px);
-		}
+<script src="script.js" type="module"></script>
 
-		.checkmark {
-			position: absolute;
-			right: 10px;
-			margin-top: 4px;
-		}
+<div id="gameContainer">
+	<embed
+		id="swf"
+		src="../../../build/grimoire.swf"
+		type="application/x-shockwave-flash"
+	/>
+</div>
 
-		#scripts,
-		#tools,
-		#packets,
-		#options {
-			border: none;
-			border-radius: 0px;
-			outline: none;
-		}
-
-		#scripts:hover,
-		#tools:hover,
-		#packets:hover,
-		#options:hover {
-			background-color: var(--bg-hover);
-			border: none;
-			border-radius: 0px;
-			outline: none;
-		}
-
-		#scripts-load:hover,
-		#scripts-devtools:hover,
-		#tools-fasttravels:hover,
-		#tools-loadergrabber:hover,
-		#tools-maid:hover,
-		#packets-logger:hover,
-		#packets-spammer:hover,
-		#option-infinite-range:hover,
-		#option-provoke-all:hover,
-		#option-provoke-cell:hover,
-		#option-enemy-magnet:hover,
-		#option-lag-killer:hover,
-		#option-hide-players:hover,
-		#option-skip-cutscenes:hover,
-		#option-walkspeed-item:hover,
-		#scripts-load:active,
-		#scripts-devtools:active,
-		#tools-fasttravels:active,
-		#tools-loadergrabber:active,
-		#tools-maid:active,
-		#packets-logger:active,
-		#packets-spammer:active,
-		#option-infinite-range:active,
-		#option-provoke-all:active,
-		#option-provoke-cell:active,
-		#option-enemy-magnet:active,
-		#option-lag-killer:active,
-		#option-hide-players:active,
-		#option-skip-cutscenes:active,
-		#option-walkspeed-item:active {
-			background-color: var(--bg-hover);
-		}
-
-		#scripts-load:active,
-		#scripts-devtools:active {
-			background-color: var(--bg-hover);
-		}
-
-		#x,
-		#bank {
-			border: 1px solid lightgrey !important;
-			border-radius: 1px;
-			height: 21px;
-		}
-
-		#x {
-			margin-top: 2px;
-			margin-left: 6px;
-			margin-right: -1px;
-			padding: 0 4px;
-		}
-
-		#bank {
-			margin-top: 2px;
-			margin-left: 5px;
-			margin-right: 5px;
-			padding: 0 8px;
-		}
-
-		#x:hover,
-		#bank:hover {
-			background-color: var(--bg-hover);
-		}
-	</style>
-	<script>
-		// https://github.com/electron/electron/issues/254
-		window.$ = window.jQuery = require('../shared/jquery.js');
-	</script>
-
-	<script src="jsapi/ItemBase.js"></script>
-	<script src="jsapi/Faction.js"></script>
-	<script src="jsapi/Quest.js"></script>
-	<script src="jsapi/Avatar.js"></script>
-	<script src="jsapi/Monster.js"></script>
-
-	<script src="jsapi/Auth.js"></script>
-	<script src="jsapi/Bank.js"></script>
-	<script src="jsapi/Bot.js"></script>
-	<script src="jsapi/Combat.js"></script>
-	<script src="jsapi/Drops.js"></script>
-	<script src="jsapi/Flash.js"></script>
-	<script src="jsapi/House.js"></script>
-	<script src="jsapi/Inventory.js"></script>
-	<script src="jsapi/Packet.js"></script>
-	<script src="jsapi/Player.js"></script>
-	<script src="jsapi/Quests.js"></script>
-	<script src="jsapi/Server.js"></script>
-	<script src="jsapi/Settings.js"></script>
-	<script src="jsapi/Shops.js"></script>
-	<script src="jsapi/TempInventory.js"></script>
-	<script src="jsapi/World.js"></script>
-
-	<script src="ipc/flash-ipc.js" defer></script>
-	<script src="ipc/ipc.js" defer></script>
-
-	<script>
-		$(function () {
-			var script = $('<script><//script>').text(`
-			var bot = Bot.getInstance();
-			var auth = bot.auth;
-			var bank = bot.bank;
-			var combat = bot.combat;
-			var drops = bot.drops;
-			var flash = bot.flash;
-			var house = bot.house;
-			var inventory = bot.inventory;
-			var packets = bot.packets;
-			var player = bot.player;
-			var quests = bot.quests;
-			var settings = bot.settings;
-			var shops = bot.shops;
-			var tempInventory = bot.tempInventory;
-			var world = bot.world;
-		`);
-			$('body').append(script);
-		});
-
-		async function progress([percentage]) {
-			if (percentage === 100) {
-				// $('#nav').show();
-
-				if (window?.account) {
-					const { username, password, server } = window.account;
-					const bot = Bot.getInstance();
-					await bot.sleep(1000);
-					await auth.login(username, password);
-					if (server !== 'None') {
-						await bot.waitUntil(() => auth?.servers?.length > 0);
-						await bot.sleep(250);
-						auth.connect(server);
-						await bot.sleep(1000);
-					}
-					delete window.account;
-				}
-			}
-		}
-	</script>
-
-	<script>
-		$(() => {
-			const { ipcRenderer: ipc } = require('electron');
-			const { setIntervalAsync } = require('set-interval-async/fixed');
-
-			window.lastMap = null;
-			window.windows = {};
-
-			setTimeout(() => {
-				if (!window.id) {
-					ipc.send('game:generate_id');
-					console.log("Looks like we don't have an ID, assigning that now.");
-				}
-			}, 50);
-
-			$('#scripts-load').click(async () => {
-				ipc.send('game:load_script');
-			});
-
-			$('#scripts-devtools').click(() => {
-				ipc.send('game:toggle_devtools');
-			});
-
-			$('#tools-fasttravels').click(() => {
-				if (!windows?.fastTravels || windows.fastTravels.closed) {
-					windows.fastTravels = window.open(
-						'./pages/tools/fast-travels.html',
-						null,
-						'width=427,height=597',
-					);
-				} else {
-					windows.fastTravels.focus();
-				}
-			});
-
-			$('#tools-loadergrabber').click(() => {
-				if (!windows?.loaderGrabber || windows.loaderGrabber.closed) {
-					windows.loaderGrabber = window.open(
-						'./pages/tools/loader-grabber.html',
-						null,
-						'width=427,height=597',
-					);
-				} else {
-					windows.loaderGrabber.focus();
-				}
-			});
-
-			$('#tools-maid').click(() => {
-				if (!windows?.maid || windows.maid.closed) {
-					windows.maid = window.open(
-						'./pages/tools/maid.html',
-						null,
-						'width=544,height=597',
-					);
-				} else {
-					windows.maid.focus();
-				}
-			});
-
-			$('#packets-logger').click(() => {
-				if (!windows?.packetsLogger || windows.packetsLogger.closed) {
-					windows.packetsLogger = window.open(
-						'./pages/packets/logger.html',
-						null,
-						'width=544,height=270',
-					);
-				} else {
-					windows.packetsLogger.focus();
-				}
-			});
-
-			$('#packets-spammer').click(() => {
-				if (!windows?.packetsSpammer || windows.packetsSpammer.closed) {
-					windows.packetsSpammer = window.open(
-						'./pages/packets/spammer.html',
-						null,
-						'width=544,height=270',
-					);
-				} else {
-					windows.packetsSpammer.focus();
-				}
-			});
-
-			function updateCells() {
-				const bot = Bot.getInstance();
-				const { auth, player, world } = bot;
-
-				if (
-					!auth.loggedIn ||
-					world.loading ||
-					window.lastMap === bot.world.roomId
-				) {
-					return;
-				}
-
-				const elem = $('#cells');
-				elem.empty();
-
-				const { cells } = world;
-				$.each(cells, function (_, option) {
-					elem.append(
-						$('<option>', {
-							value: option,
-							text: option,
-						}),
-					);
-				});
-
-				window.lastMap = world.roomId;
-			}
-
-			$('#pads').change(async function () {
-				const { auth, world } = Bot.getInstance();
-				if (!auth.loggedIn || world.loading) {
-					return;
-				}
-
-				const cell = $('#cells').val() ?? player.cell;
-				const pad = $(this).val();
-
-				await Bot.getInstance().world.jump(cell, pad);
-			});
-
-			$('#cells')
-				.on('click', updateCells)
-				.change(async function () {
-					const { auth, world } = Bot.getInstance();
-					if (!auth.loggedIn || world.loading) {
-						return;
-					}
-
-					const cell = $(this).val();
-					const pad = $('#pads').val() ?? 'Spawn';
-
-					await Bot.getInstance().world.jump(cell, pad);
-				});
-
-			$('#x').on('click', async function () {
-				const { auth, player, world } = Bot.getInstance();
-				if (!auth.loggedIn || world.loading) {
-					return;
-				}
-
-				const cells = $('#cells');
-				const pads = $('#pads');
-
-				if (!cells.val()) {
-					updateCells();
-				}
-
-				cells.val(player.cell ?? 'Enter');
-				pads.val(player.pad ?? 'Spawn');
-
-				await world.jump(cells.val(), pads.val(), true);
-			});
-
-			$('#bank').on('click', function () {
-				const bot = Bot.getInstance();
-				if (!auth.loggedIn) {
-					return;
-				}
-
-				bot.flash.call('world.toggleBank');
-			});
-
-			$('[id^="option-"]').each(function () {
-				$(this).click(function (ev) {
-					const checked = $(this).attr('data-checked') === 'true';
-
-					if (checked) {
-						$(this).attr('data-checked', 'false');
-						$(this).find('.checkmark').hide();
-					} else {
-						$(this).attr('data-checked', 'true');
-						$(this).find('.checkmark').show();
-					}
-				});
-			});
-
-			setIntervalAsync(() => {
-				if (!auth.loggedIn || world.loading) {
-					return;
-				}
-
-				if ($('#option-infinite-range').attr('data-checked') === 'true') {
-					settings.setInfiniteRange();
-				}
-
-				if ($('#option-provoke-all').attr('data-checked') === 'true') {
-					const ids = world.monsters.map((mon) => mon.MonMapID);
-					if (ids.length > 0) {
-						packets.sendServer(
-							`%xt%zm%aggroMon%${world.roomId}%${ids.join('%')}%`,
-						);
-					}
-				}
-
-				if ($('#option-provoke-cell').attr('data-checked') === 'true') {
-					settings.setProvokeMonsters();
-				}
-
-				if ($('#option-enemy-magnet').attr('data-checked') === 'true') {
-					settings.setEnemyMagnet();
-				}
-
-				if ($('#option-skip-cutscenes').attr('data-checked') === 'true') {
-					settings.skipCutscenes();
-				}
-
-				settings.setLagKiller(
-					$('#option-lag-killer').attr('data-checked') === 'true',
-				);
-
-				if ($('#option-hide-players').attr('data-checked') === 'true') {
-					settings.hidePlayers();
-				}
-
-				settings.setWalkSpeed(Number.parseInt($('#option-walkspeed').val(), 10));
-			}, 1000);
-		});
-	</script>
-
-	<div style="position: relative">
-		<embed
-			id="swf"
-			src="grimoire.swf"
-			type="application/x-shockwave-flash"
-			quality="low"
-			wmode="direct"
-		/>
+<div class="w3-bar" id="topnav">
+	<div class="w3-dropdown-click">
+		<button class="w3-button w3-small" style="margin-top: -4px" id="scripts">
+			Scripts
+		</button>
+		<div class="w3-dropdown-content w3-small" id="scripts-dropdowncontent">
+			<button class="w3-button w3-small w3-block" id="scripts-load">Load</button>
+			<button class="w3-button w3-small w3-block" id="scripts-toggle-dev-tools">
+				Toggle Dev Tools
+			</button>
+		</div>
 	</div>
-
-	<nav
-		class="navbar navbar-expand fixed-top bg-dark-subtle"
-		style="height: 27px;"
-		id="nav"
-	>
-		<div class="d-flex justify-content-between w-100">
-			<div class="d-flex">
-				<div class="dropdown">
-					<button
-						class="btn btn-sm"
-						type="button"
-						data-bs-toggle="dropdown"
-						aria-expanded="false"
-						id="scripts"
-						style="color: lightgrey"
-					>
-						Scripts
-					</button>
-					<div
-						class="dropdown-menu bg-dark-subtle"
-						style="
-							padding: 0px;
-							border-radius: 0px;
-							min-width: auto;
-							width: max-content;
-						"
-					>
-						<button
-							class="dropdown-item"
-							type="button"
-							id="scripts-load"
-							style="color: lightgrey"
-						>
-							Load
-						</button>
-						<button
-							class="dropdown-item"
-							type="button"
-							id="scripts-devtools"
-							style="color: lightgrey"
-						>
-							Toggle Dev Tools
-						</button>
-					</div>
-				</div>
-
-				<div class="dropdown">
-					<button
-						class="btn btn-sm"
-						type="button"
-						data-bs-toggle="dropdown"
-						aria-expanded="false"
-						id="tools"
-						style="color: lightgrey"
-					>
-						Tools
-					</button>
-					<div
-						class="dropdown-menu bg-dark-subtle"
-						style="
-							padding: 0px;
-							border-radius: 0px;
-							min-width: auto;
-							width: max-content;
-						"
-					>
-						<button
-							class="dropdown-item"
-							type="button"
-							id="tools-fasttravels"
-							style="color: lightgrey"
-						>
-							Fast Travels
-						</button>
-						<button
-							class="dropdown-item"
-							type="button"
-							id="tools-loadergrabber"
-						>
-							Loader/Grabber
-						</button>
-						<button
-							class="dropdown-item"
-							type="button"
-							id="tools-maid"
-							style="color: lightgrey"
-						>
-							Maid
-						</button>
-					</div>
-				</div>
-
-				<div class="dropdown">
-					<button
-						class="btn btn-sm"
-						type="button"
-						data-bs-toggle="dropdown"
-						aria-expanded="false"
-						id="packets"
-						style="color: lightgrey"
-					>
-						Packets
-					</button>
-					<div
-						class="dropdown-menu bg-dark-subtle"
-						style="
-							padding: 0px;
-							border-radius: 0px;
-							min-width: auto;
-							width: max-content;
-						"
-					>
-						<button
-							class="dropdown-item"
-							type="button"
-							id="packets-logger"
-							style="color: lightgrey"
-						>
-							Logger
-						</button>
-						<button class="dropdown-item" type="button" id="packets-spammer">
-							Spammer
-						</button>
-					</div>
-				</div>
-
-				<div class="dropdown">
-					<button
-						class="btn btn-sm"
-						type="button"
-						data-bs-toggle="dropdown"
-						aria-expanded="false"
-						style="color: lightgrey"
-						id="options"
-					>
-						Options
-					</button>
-					<div
-						class="dropdown-menu bg-dark-subtle"
-						style="
-							padding: 0px;
-							border-radius: 0px;
-							min-width: auto;
-							width: max-content;
-						"
-					>
-						<button
-							class="dropdown-item"
-							type="button"
-							id="option-infinite-range"
-							style="color: lightgrey"
-						>
-							Infinite Range
-							<svg
-								class="checkmark"
-								viewBox="0 0 24 24"
-								style="
-									width: 1em;
-									height: 1em;
-									vertical-align: middle;
-									display: none;
-								"
-							>
-								<path
-									fill="currentColor"
-									d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
-								></path>
-							</svg>
-						</button>
-						<button
-							class="dropdown-item"
-							type="button"
-							id="option-provoke-all"
-							style="color: lightgrey"
-						>
-							Provoke All
-							<svg
-								class="checkmark"
-								viewBox="0 0 24 24"
-								style="
-									width: 1em;
-									height: 1em;
-									vertical-align: middle;
-									display: none;
-								"
-							>
-								<path
-									fill="currentColor"
-									d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
-								></path>
-							</svg>
-						</button>
-						<button
-							class="dropdown-item"
-							type="button"
-							id="option-provoke-cell"
-							style="color: lightgrey"
-						>
-							Provoke Cell
-							<svg
-								class="checkmark"
-								viewBox="0 0 24 24"
-								style="
-									width: 1em;
-									height: 1em;
-									vertical-align: middle;
-									display: none;
-								"
-							>
-								<path
-									fill="currentColor"
-									d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
-								></path>
-							</svg>
-						</button>
-						<button
-							class="dropdown-item"
-							type="button"
-							id="option-enemy-magnet"
-							style="color: lightgrey"
-						>
-							Enemy Magnet
-							<svg
-								class="checkmark"
-								viewBox="0 0 24 24"
-								style="
-									width: 1em;
-									height: 1em;
-									vertical-align: middle;
-									display: none;
-								"
-							>
-								<path
-									fill="currentColor"
-									d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
-								></path>
-							</svg>
-						</button>
-						<button
-							class="dropdown-item"
-							type="button"
-							id="option-lag-killer"
-							style="color: lightgrey"
-						>
-							Lag Killer
-							<svg
-								class="checkmark"
-								viewBox="0 0 24 24"
-								style="
-									width: 1em;
-									height: 1em;
-									vertical-align: middle;
-									display: none;
-								"
-							>
-								<path
-									fill="currentColor"
-									d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
-								></path>
-							</svg>
-						</button>
-						<button
-							class="dropdown-item"
-							type="button"
-							id="option-hide-players"
-							style="color: lightgrey"
-						>
-							Hide Players
-							<svg
-								class="checkmark"
-								viewBox="0 0 24 24"
-								style="
-									width: 1em;
-									height: 1em;
-									vertical-align: middle;
-									display: none;
-								"
-							>
-								<path
-									fill="currentColor"
-									d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
-								></path>
-							</svg>
-						</button>
-						<button
-							class="dropdown-item"
-							type="button"
-							id="option-skip-cutscenes"
-							style="color: lightgrey"
-						>
-							Skip Cutscenes
-							<svg
-								class="checkmark"
-								viewBox="0 0 24 24"
-								style="
-									width: 1em;
-									height: 1em;
-									vertical-align: middle;
-									display: none;
-								"
-							>
-								<path
-									fill="currentColor"
-									d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
-								></path>
-							</svg>
-						</button>
-						<div
-							class="dropdown-item d-flex align-items-center"
-							style="margin-top: -2px; padding: 0px"
-							id="option-walkspeed-item"
-						>
-							<span
-								style="
-									flex: 1;
-									padding: 8px;
-									color: lightgrey;
-									margin-left: 6px;
-								"
-								>Walk Speed</span
-							>
-							<input
-								type="number"
-								id="option-walkspeed"
-								style="
-									width: 40px;
-									height: auto;
-									line-height: 1;
-									padding: 0 2px;
-									margin-right: 4px;
-								"
-								value="8"
-								min="0"
-								max="99"
-							/>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="d-flex">
-				<select
-					class="bg-dark"
-					id="pads"
-					style="
-						height: 21px;
-						margin-top: 2px;
-						margin-right: -4px;
-						padding: 0 10px;
-						width: 100px;
-						color: lightgrey;
-					"
-					disabled
-				>
-					<option value="" selected disabled hidden></option>
-					<option value="Center">Center</option>
-					<option value="Spawn">Spawn</option>
-					<option value="Left">Left</option>
-					<option value="Right">Right</option>
-					<option value="Top">Top</option>
-					<option value="Bottom">Bottom</option>
-					<option value="Up">Up</option>
-					<option value="Down">Down</option>
-				</select>
-				<select
-					class="bg-dark"
-					id="cells"
-					style="
-						height: 21px;
-						margin-top: 2px;
-						margin-left: 10px;
-						padding: 0 4px;
-						width: 100px;
-						color: lightgrey;
-					"
-					disabled
-				></select>
-
-				<button class="btn btn-sm" id="x" style="color: lightgrey">x</button>
-				<button class="btn btn-sm" id="bank" style="color: lightgrey">
-					Bank
-				</button>
+	<div class="w3-dropdown-click">
+		<button class="w3-button w3-small" style="margin-top: -4px" id="tools">
+			Tools
+		</button>
+		<div class="w3-dropdown-content w3-small" id="tools-dropdowncontent">
+			<button class="w3-button w3-small w3-block">Fast Travels</button>
+			<button class="w3-button w3-small w3-block">Loader/Grabber</button>
+			<button class="w3-button w3-small w3-block">Follower</button>
+		</div>
+	</div>
+	<div class="w3-dropdown-click">
+		<button class="w3-button w3-small" style="margin-top: -4px" id="packets">
+			Packets
+		</button>
+		<div class="w3-dropdown-content w3-small" id="packets-dropdowncontent">
+			<button class="w3-button w3-small w3-block">Logger</button>
+			<button class="w3-button w3-small w3-block">Spammer</button>
+		</div>
+	</div>
+	<div class="w3-dropdown-click">
+		<button class="w3-button w3-small" style="margin-top: -3px" id="options">
+			Options
+		</button>
+		<div
+			class="w3-dropdown-content w3-small"
+			id="options-dropdowncontent"
+			style="margin-top: -4px"
+		>
+			<button class="w3-button w3-small w3-block" id="option-infinite-range">
+				Infinite Range
+				<svg class="checkmark" viewBox="0 0 24 24">
+					<path
+						fill="currentColor"
+						d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
+					></path>
+				</svg>
+			</button>
+			<button class="w3-button w3-small w3-block" id="option-provoke-map">
+				Provoke Map
+				<svg class="checkmark" viewBox="0 0 24 24">
+					<path
+						fill="currentColor"
+						d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
+					></path>
+				</svg>
+			</button>
+			<button class="w3-button w3-small w3-block" id="option-provoke-cell">
+				Provoke Cell
+				<svg class="checkmark" viewBox="0 0 24 24">
+					<path
+						fill="currentColor"
+						d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
+					></path>
+				</svg>
+			</button>
+			<button class="w3-button w3-small w3-block" id="option-enemy-magnet">
+				Enemy Magnet
+				<svg class="checkmark" viewBox="0 0 24 24">
+					<path
+						fill="currentColor"
+						d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
+					></path>
+				</svg>
+			</button>
+			<button class="w3-button w3-small w3-block" id="option-lag-killer">
+				Lag Killer
+				<svg class="checkmark" viewBox="0 0 24 24">
+					<path
+						fill="currentColor"
+						d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
+					></path>
+				</svg>
+			</button>
+			<button class="w3-button w3-small w3-block" id="option-hide-players">
+				Hide Players
+				<svg class="checkmark" viewBox="0 0 24 24">
+					<path
+						fill="currentColor"
+						d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
+					></path>
+				</svg>
+			</button>
+			<button class="w3-button w3-small w3-block" id="option-skip-cutscenes">
+				Skip Cutscenes
+				<svg class="checkmark" viewBox="0 0 24 24">
+					<path
+						fill="currentColor"
+						d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
+					></path>
+				</svg>
+			</button>
+			<div
+				class="w3-block"
+				style="text-align: left; display: flex; align-items: center; padding: 0"
+			>
+				<span style="flex: 1; padding: 8px; margin-left: 6px">Walk Speed</span>
+				<input
+					type="number"
+					class="w3-input w3-small"
+					id="option-walkspeed"
+					style="width: 50px; height: 20px; margin-right: 8px"
+					value="8"
+					min="0"
+					max="99"
+				/>
 			</div>
 		</div>
-	</nav>
-</html>
+	</div>
+	<button class="w3-bar-item w3-button w3-border w3-small w3-right" id="bank" disabled>
+		Bank
+	</button>
+	<button class="w3-bar-item w3-button w3-border w3-small w3-right" id="x" disabled>
+		x
+	</button>
+	<select class="w3-bar-item w3-border w3-small w3-right" id="cells" disabled></select>
+	<select class="w3-bar-item w3-border w3-small w3-right" id="pads" disabled>
+		<option value="" selected disabled hidden></option>
+		<option value="Center">Center</option>
+		<option value="Spawn">Spawn</option>
+		<option value="Left">Left</option>
+		<option value="Right">Right</option>
+		<option value="Top">Top</option>
+		<option value="Bottom">Bottom</option>
+		<option value="Up">Up</option>
+		<option value="Down">Down</option>
+	</select>
+</div>

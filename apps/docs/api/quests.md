@@ -1,90 +1,41 @@
-<a name="Quests"></a>
+---
+title: Quests
+outline: deep
+---
+# Quests
 
-## Quests
-**Kind**: global class  
 
-* [Quests](#Quests)
-    * [new Quests(bot)](#new_Quests_new)
-    * [.bot](#Quests+bot) : <code>Bot</code>
-    * [.tree](#Quests+tree) ⇒ [<code>Array.&lt;Quest&gt;</code>](#Quest)
-    * [.accept(questID)](#Quests+accept) ⇒ <code>Promise.&lt;void&gt;</code>
-    * [.load(questID)](#Quests+load) ⇒ <code>Promise.&lt;void&gt;</code>
-    * [.complete(questID, [turnIns], [itemID])](#Quests+complete) ⇒ <code>Promise.&lt;void&gt;</code>
-    * [.loadMultiple(questIDs)](#Quests+loadMultiple) ⇒ <code>Promise.&lt;void&gt;</code>
-    * [.resolve(questID)](#Quests+resolve) ⇒ [<code>Quest</code>](#Quest)
 
-<a name="new_Quests_new"></a>
 
-### new Quests(bot)
 
-| Param | Type |
-| --- | --- |
-| bot | <code>Bot</code> | 
+## Properties
 
-<a name="Quests+bot"></a>
-
-### quests.bot : <code>Bot</code>
-**Kind**: instance property of [<code>Quests</code>](#Quests)  
-<a name="Quests+tree"></a>
-
-### quests.tree ⇒ [<code>Array.&lt;Quest&gt;</code>](#Quest)
+### tree<Badge text="getter" />
 Gets all quests loaded in the client.
 
-**Kind**: instance property of [<code>Quests</code>](#Quests)  
-<a name="Quests+accept"></a>
+Type: <code><a href="/api/struct/quest">Quest</a>[]</code>
 
-### quests.accept(questID) ⇒ <code>Promise.&lt;void&gt;</code>
-Accepts a quest.
+### accepted<Badge text="getter" />
+Gets all accepted quests.
 
-**Kind**: instance method of [<code>Quests</code>](#Quests)  
+Type: <code><a href="/api/struct/quest">Quest</a>[]</code>
 
-| Param | Type |
-| --- | --- |
-| questID | <code>string</code> | 
+## Methods
 
-<a name="Quests+load"></a>
-
-### quests.load(questID) ⇒ <code>Promise.&lt;void&gt;</code>
-Loads a quest.
-
-**Kind**: instance method of [<code>Quests</code>](#Quests)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| questID | <code>string</code> | The quest id to load. |
-
-<a name="Quests+complete"></a>
-
-### quests.complete(questID, [turnIns], [itemID]) ⇒ <code>Promise.&lt;void&gt;</code>
+### complete
 Completes a quest.
+| Parameter | Type | Optional | Default | Description |
+---------- | ---- | -------- | ------- | ----------- |
+| questID | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code> |  |  | The quest id to complete. |
+| turnIns | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code> | ✅ | 1 | The number of times to turn-in the quest. |
+| itemID | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code> | ✅ | -1 | The ID of the quest rewards to select. |
 
-**Kind**: instance method of [<code>Quests</code>](#Quests)  
+**Returns:** <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/promise">Promise</a>&lt;void&gt;</code>
 
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| questID | <code>string</code> |  | The quest id to complete. |
-| [turnIns] | <code>number</code> | <code>1</code> | The number of times to turn-in the quest. |
-| [itemID] | <code>number</code> | <code>-1</code> | The ID of the quest rewards to select. |
-
-<a name="Quests+loadMultiple"></a>
-
-### quests.loadMultiple(questIDs) ⇒ <code>Promise.&lt;void&gt;</code>
-Loads multiple quests at once
-
-**Kind**: instance method of [<code>Quests</code>](#Quests)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| questIDs | <code>string</code> \| <code>Array.&lt;string&gt;</code> | Quest IDs deliminated by a comma |
-
-<a name="Quests+resolve"></a>
-
-### quests.resolve(questID) ⇒ [<code>Quest</code>](#Quest)
+### get
 Resolves a Quest instance from the quest tree
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| questKey | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code>\|<code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code> | The name or questID to get. |
 
-**Kind**: instance method of [<code>Quests</code>](#Quests)  
-
-| Param | Type |
-| --- | --- |
-| questID | <code>number</code> | 
-
+**Returns:** <code>?<a href="/api/struct/quest">Quest</a></code>

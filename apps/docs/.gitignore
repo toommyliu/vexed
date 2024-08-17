@@ -31,7 +31,7 @@ yarn-error.log*
 
 # turbo
 .turbo
-.vitepress/
+.vitepress/cache/
 
 .contentlayer
 .env

@@ -1,100 +1,91 @@
-<a name="Bank"></a>
+---
+title: Bank
+outline: deep
+---
+# Bank
 
-## Bank
-**Kind**: global class  
 
-* [Bank](#Bank)
-    * [new Bank(bot)](#new_Bank_new)
-    * [.items](#Bank+items) ⇒ <code>Array.&lt;BankItem&gt;</code>
-    * [.availableSlots](#Bank+availableSlots) ⇒ <code>number</code>
-    * [.usedSlots](#Bank+usedSlots) ⇒ <code>number</code>
-    * [.totalSlots](#Bank+totalSlots) ⇒ <code>number</code>
-    * [.resolve(itemResolvable)](#Bank+resolve) ⇒ <code>BankItem</code>
-    * [.deposit(itemName)](#Bank+deposit) ⇒ <code>Promise.&lt;void&gt;</code>
-    * [.withdraw(itemName)](#Bank+withdraw) ⇒ <code>Promise.&lt;void&gt;</code>
-    * [.swap(bankItem, inventoryItem)](#Bank+swap) ⇒ <code>Promise.&lt;void&gt;</code>
-    * [.open()](#Bank+open) ⇒ <code>Promise.&lt;void&gt;</code>
 
-<a name="new_Bank_new"></a>
 
-### new Bank(bot)
 
-| Param | Type |
-| --- | --- |
-| bot | <code>Bot</code> | 
+## Properties
 
-<a name="Bank+items"></a>
+### items<Badge text="getter" />
+The list of items in the bank.
 
-### bank.items ⇒ <code>Array.&lt;BankItem&gt;</code>
-Gets the items in the Bank of the current player. The Bank must have been loaded before.
+Type: <code><a href="/api/struct/bankitem">BankItem</a>[]</code>
 
-**Kind**: instance property of [<code>Bank</code>](#Bank)  
-<a name="Bank+availableSlots"></a>
-
-### bank.availableSlots ⇒ <code>number</code>
+### availableSlots<Badge text="getter" />
 Gets the count of available slots of bankable non-AC items.
 
-**Kind**: instance property of [<code>Bank</code>](#Bank)  
-<a name="Bank+usedSlots"></a>
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code>
 
-### bank.usedSlots ⇒ <code>number</code>
+### usedSlots<Badge text="getter" />
 Gets the count of used slots of bankable non-AC items.
 
-**Kind**: instance property of [<code>Bank</code>](#Bank)  
-<a name="Bank+totalSlots"></a>
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code>
 
-### bank.totalSlots ⇒ <code>number</code>
+### totalSlots<Badge text="getter" />
 Gets the total slots of bankable non-AC items.
 
-**Kind**: instance property of [<code>Bank</code>](#Bank)  
-<a name="Bank+resolve"></a>
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code>
 
-### bank.resolve(itemResolvable) ⇒ <code>BankItem</code>
-Resolves an item from the Bank.
+## Methods
 
-**Kind**: instance method of [<code>Bank</code>](#Bank)  
+### get
+Gets an item from the Bank, items should be loaded beforehand.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| itemKey | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code>\|<code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code> | The name or ID of the item. |
 
-| Param | Type | Description |
-| --- | --- | --- |
-| itemResolvable | <code>string</code> \| <code>number</code> | The name or ID of the item. |
+**Returns:** <code>?<a href="/api/struct/bankitem">BankItem</a></code>
 
-<a name="Bank+deposit"></a>
+### contains
+Whether the item meets some quantity in this store.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| itemKey | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code>\|<code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code> | The name or ID of the item. |
+| quantity | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code> | The quantity of the item. |
 
-### bank.deposit(itemName) ⇒ <code>Promise.&lt;void&gt;</code>
+**Returns:** <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
+
+### deposit
 Puts an item into the Bank.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| itemKey | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code> | The name or ID of the item. |
 
-**Kind**: instance method of [<code>Bank</code>](#Bank)  
+**Returns:** <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/promise">Promise</a>&lt;boolean&gt;</code>
 
-| Param | Type | Description |
-| --- | --- | --- |
-| itemName | <code>string</code> | The name of the item. |
+Whether the operation was successful.
 
-<a name="Bank+withdraw"></a>
-
-### bank.withdraw(itemName) ⇒ <code>Promise.&lt;void&gt;</code>
+### withdraw
 Takes an item out of the bank.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| itemKey | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code> | The name or ID of the item. |
 
-**Kind**: instance method of [<code>Bank</code>](#Bank)  
+**Returns:** <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/promise">Promise</a>&lt;boolean&gt;</code>
 
-| Param | Type | Description |
-| --- | --- | --- |
-| itemName | <code>string</code> | The name of the item. |
+Whether the operation was successful.
 
-<a name="Bank+swap"></a>
-
-### bank.swap(bankItem, inventoryItem) ⇒ <code>Promise.&lt;void&gt;</code>
+### swap
 Swaps an item from the bank with an item from the inventory.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| bankItem | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code> | The name or ID of the item from the Bank. |
+| inventoryItem | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code> | The name or ID of the item from the Inventory. |
 
-**Kind**: instance method of [<code>Bank</code>](#Bank)  
+**Returns:** <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/promise">Promise</a>&lt;void&gt;</code>
 
-| Param | Type |
-| --- | --- |
-| bankItem | <code>string</code> | 
-| inventoryItem | <code>string</code> | 
+Whether the operation was successful.
 
-<a name="Bank+open"></a>
+### open
+Opens the bank ui, and loads all items.
 
-### bank.open() ⇒ <code>Promise.&lt;void&gt;</code>
-Opens the bank ui.
+**Returns:** <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/promise">Promise</a>&lt;void&gt;</code>
 
-**Kind**: instance method of [<code>Bank</code>](#Bank)  
+### isOpen
+Whether the bank ui is open.
+
+**Returns:** <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>

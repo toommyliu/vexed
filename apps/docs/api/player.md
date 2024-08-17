@@ -1,143 +1,102 @@
-<a name="Player"></a>
+---
+title: Player
+outline: deep
+---
+# Player
 
-## Player
-Represents the local player.
 
-**Kind**: global class  
 
-* [Player](#Player)
-    * [new Player(bot)](#new_Player_new)
-    * [.factions](#Player+factions) ⇒ [<code>Array.&lt;Faction&gt;</code>](#Faction)
-    * [.className](#Player+className) ⇒ <code>string</code>
-    * [.state](#Player+state) ⇒ <code>number</code>
-    * [.hp](#Player+hp) ⇒ <code>number</code>
-    * [.maxHp](#Player+maxHp) ⇒ <code>number</code>
-    * [.alive](#Player+alive) ⇒ <code>boolean</code>
-    * [.mp](#Player+mp) ⇒ <code>number</code>
-    * [.maxMp](#Player+maxMp) ⇒ <code>number</code>
-    * [.level](#Player+level) ⇒ <code>number</code>
-    * [.gold](#Player+gold) ⇒ <code>number</code>
-    * [.afk](#Player+afk) ⇒ <code>boolean</code>
-    * [.isMember](#Player+isMember) ⇒ <code>boolean</code>
-    * [.xPos](#Player+xPos) ⇒ <code>number</code>
-    * [.yPos](#Player+yPos) ⇒ <code>number</code>
-    * [.cell](#Player+cell) ⇒ <code>string</code>
-    * [.pad](#Player+pad) ⇒ <code>string</code>
-    * [.walkTo(x, y)](#Player+walkTo) ⇒ <code>void</code>
 
-<a name="new_Player_new"></a>
 
-### new Player(bot)
+## Properties
 
-| Param | Type |
-| --- | --- |
-| bot | <code>Bot</code> | 
-
-<a name="Player+factions"></a>
-
-### player.factions ⇒ [<code>Array.&lt;Faction&gt;</code>](#Faction)
+### factions<Badge text="getter" />
 Get the player's factions data.
 
-**Kind**: instance property of [<code>Player</code>](#Player)  
-<a name="Player+className"></a>
+Type: <code><a href="/api/struct/faction">Faction</a>[]</code>
 
-### player.className ⇒ <code>string</code>
+### className<Badge text="getter" />
 Gets the name of the player's equipped class.
 
-**Kind**: instance property of [<code>Player</code>](#Player)  
-<a name="Player+state"></a>
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code>
 
-### player.state ⇒ <code>number</code>
+### state<Badge text="getter" />
 Gets the state of the current player.
 
-**Kind**: instance property of [<code>Player</code>](#Player)  
-<a name="Player+hp"></a>
+Type: <code><a href="/api/enums/playerstate">PlayerState</a></code>
 
-### player.hp ⇒ <code>number</code>
+### hp<Badge text="getter" />
 Gets the current health of the current player.
 
-**Kind**: instance property of [<code>Player</code>](#Player)  
-<a name="Player+maxHp"></a>
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code>
 
-### player.maxHp ⇒ <code>number</code>
+### maxHP<Badge text="getter" />
 Gets the maximum health of the current player.
 
-**Kind**: instance property of [<code>Player</code>](#Player)  
-<a name="Player+alive"></a>
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code>
 
-### player.alive ⇒ <code>boolean</code>
+### alive<Badge text="getter" />
 Checks if the current player is alive.
 
-**Kind**: instance property of [<code>Player</code>](#Player)  
-<a name="Player+mp"></a>
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
 
-### player.mp ⇒ <code>number</code>
+### mp<Badge text="getter" />
 Gets the current mana of the current player.
 
-**Kind**: instance property of [<code>Player</code>](#Player)  
-<a name="Player+maxMp"></a>
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code>
 
-### player.maxMp ⇒ <code>number</code>
+### maxMP<Badge text="getter" />
 Gets the maximum mana of the current player.
 
-**Kind**: instance property of [<code>Player</code>](#Player)  
-<a name="Player+level"></a>
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code>
 
-### player.level ⇒ <code>number</code>
+### level<Badge text="getter" />
 Gets the level of the current player.
 
-**Kind**: instance property of [<code>Player</code>](#Player)  
-<a name="Player+gold"></a>
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code>
 
-### player.gold ⇒ <code>number</code>
+### gold<Badge text="getter" />
 Gets the gold of the current player.
 
-**Kind**: instance property of [<code>Player</code>](#Player)  
-<a name="Player+isAfk"></a>
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code>
 
-### player.isAfk ⇒ <code>boolean</code>
+### afk<Badge text="getter" />
 Checks if the current player is AFK.
 
-**Kind**: instance property of [<code>Player</code>](#Player)  
-<a name="Player+isMember"></a>
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
 
-### player.isMember ⇒ <code>boolean</code>
-Checks if the current player has membership.
+### position<Badge text="getter" />
+The player's current position.
 
-**Kind**: instance property of [<code>Player</code>](#Player)  
-<a name="Player+xPos"></a>
+Type: `{x: number, y: number}`
 
-### player.xPos ⇒ <code>number</code>
-The X position of the current player
-
-**Kind**: instance property of [<code>Player</code>](#Player)  
-<a name="Player+yPos"></a>
-
-### player.yPos ⇒ <code>number</code>
-The Y position of the current player
-
-**Kind**: instance property of [<code>Player</code>](#Player)  
-<a name="Player+cell"></a>
-
-### player.cell ⇒ <code>string</code>
+### cell<Badge text="getter" />
 Get the cell of the current player in the map.
 
-**Kind**: instance property of [<code>Player</code>](#Player)  
-<a name="Player+pad"></a>
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code>
 
-### player.pad ⇒ <code>string</code>
+### pad<Badge text="getter" />
 Get the pad of the current player in the map.
 
-**Kind**: instance property of [<code>Player</code>](#Player)  
-<a name="Player+walkTo"></a>
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code>
 
-### player.walkTo(x, y) ⇒ <code>void</code>
+### loaded<Badge text="getter" />
+A check for if the world is fully loaded, aswell as the player's inventory items and art.
+
+Type: <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
+
+## Methods
+
+### isMember
+Whether the current player has membership.
+
+**Returns:** <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/boolean">boolean</a></code>
+
+### walkTo
 Walk to a position in the map.
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| x | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code>\|<code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code> | The x coordinate to walk to. |
+| y | <code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/string">string</a></code>\|<code><a href="https://developer.mozilla.org/en-us/docs/web/javascript/reference/global_objects/number">number</a></code> | The y coordinate to walk to. |
 
-**Kind**: instance method of [<code>Player</code>](#Player)  
-
-| Param | Type |
-| --- | --- |
-| x | <code>number</code> | 
-| y | <code>number</code> | 
-
+**Returns:** `void`
