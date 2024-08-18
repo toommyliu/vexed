@@ -9,10 +9,18 @@ require('./ipc');
 function registerFlashPlugin() {
 	const flashTrust = require('nw-flash-trust');
 	// TODO: add checks for app.isPackaged
-	app.commandLine.appendSwitch(
-		'ppapi-flash-path',
-		join(__dirname, '../../build/PepperFlashPlayer.plugin'),
-	);
+	const ppapi_flash_path = join(__dirname, '../../build');
+	let pluginName;
+	switch (process.platform) {
+		case 'win32':
+			pluginName = 'pepflashplayer.dll';
+			break;
+		case 'darwin':
+			pluginName = 'PepperFlashPlayer.plugin';
+			break;
+	}
+
+	app.commandLine.appendSwitch('ppapi-flash-path', join(ppapi_flash_path, pluginName));
 
 	const flashPath = join(
 		app.getPath('userData'),
