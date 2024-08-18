@@ -20,7 +20,10 @@ function registerFlashPlugin() {
 			break;
 	}
 
-	app.commandLine.appendSwitch('ppapi-flash-path', join(ppapi_flash_path, pluginName));
+	app.commandLine.appendSwitch(
+		'ppapi-flash-path',
+		join(ppapi_flash_path, pluginName),
+	);
 
 	const flashPath = join(
 		app.getPath('userData'),
