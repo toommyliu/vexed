@@ -8,6 +8,14 @@
 			"arch": ["x64"]
 		}
 	},
+	"win": {
+		"files": ["src/**/*", "build/**/*"],
+		"asar": "false",
+		"target": {
+			"target": "zip",
+			"arch": ["x64"]
+		}
+	},
 	"extraMetadata": {
 		"name": "Vexed"
 	}
