@@ -45,11 +45,11 @@ jobs:
         run: pnpm run build:all
         working-directory: apps/electron
 
-      - name: Rename file
+      - name: Rename file (macOS)
         run: mv Vexed-0.0.0-mac.zip Vexed-mac.zip
         working-directory: apps/electron/dist
 
-      - name: Rename file
+      - name: Rename file (Windows)
         run: mv Vexed-0.0.0-win.zip Vexed-win.zip
         working-directory: apps/electron/dist
 
