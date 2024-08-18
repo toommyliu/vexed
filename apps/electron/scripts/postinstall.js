@@ -1,5 +1,9 @@
 // https://github.com/electron/electron/blob/11-x-y/npm/install.js
 
+if (process.platform !== 'darwin') {
+    return;
+}
+
 console.log('Downloading Electron 11.5.0 Intel binary');
 
 const fs = require('fs-extra');

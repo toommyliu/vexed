@@ -40,4 +40,3 @@ module.exports = Avatar;
  * @property {number} ty
  * @property {string} uoName
  */
-
