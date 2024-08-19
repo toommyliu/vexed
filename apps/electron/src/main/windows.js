@@ -1,5 +1,5 @@
 const { join } = require('path');
-const { BrowserWindow, session } = require('electron');
+const { BrowserWindow, session, app } = require('electron');
 
 const RENDERER = join(__dirname, '../renderer');
 
@@ -53,7 +53,9 @@ async function createGame(account = null) {
 	);
 
 	await window.loadFile(join(RENDERER, 'game/game.html'));
-	window.webContents.openDevTools({ mode: 'right' });
+	if (!app.isPackaged) {
+		window.webContents.openDevTools({ mode: 'right' });
+	}
 	if (account) {
 		window.webContents.send('root:login', account);
 	}
