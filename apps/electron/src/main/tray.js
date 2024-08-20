@@ -101,14 +101,22 @@ app.on('ready', async () => {
 			.then(async (res) => {
 				const json = await res.json();
 				menu.push({
-					label: 'Login server',
-					submenu: json.map((srv) => {
+					label: 'Login Server',
+					submenu: [
+						{
+							label: 'None',
+							type: 'radio',
+							click: () => (server = null),
+							checked: true,
+						},
+						...json.map((srv) => {
 							return {
 								label: srv.sName,
 								type: 'radio',
 								click: () => (server = srv.sName),
 							};
 						}),
+					],
 				});
 			})
 			.catch(() => {
