@@ -21,7 +21,9 @@ Any modern version of Node.js should work fine. As long as its LTS or higher, yo
 
 ### Game loader compilation
 
-The following steps are only required if you want to modify and compile the game swf. While technically you can do the same through [JPEXS Flash Decompiler](https://github.com/jindrapetrik/jpexs-decompiler), it's quite tedious and not recommended since you'll only be looking through decompiled code which is not very helpful.
+The following steps are only required if you want to modify and compile the game swf. While technically the same can be done through [JPEXS Flash Decompiler](https://github.com/jindrapetrik/jpexs-decompiler), it's quite tedious and not recommended since you'll only be looking through decompiled code which is not very helpful as well as lacking enhanced code editing features.
+
+The following steps are specific to macOS, but should be similar for Windows:
 
 1. Install brew
 
@@ -61,6 +63,8 @@ The following steps are only required if you want to modify and compile the game
 
 To run in development mode, you can the `dev` script in either the project root or electron root. If you need HMR, run `dev:watch` inside the electron root.
 
+For macOS:
+
 If you recently just installed dependencies for the first time and are starting a dev build, it may take some time for Rosetta to translate the binary for x64.
 
 ### During development
@@ -75,4 +79,4 @@ Any changes made to the renderer process (src/renderer) can be updated through a
 
 ## Compilation
 
-To compile into a distributable application, you can run `pnpm build` in either the root directory or the electron directory.
+To compile into a distributable application, you can run `pnpm build` to build binaries for the current platform, or `pnpm build:all` to build binaries for all supported platforms. The `build:all` script is only available within the electron project, so make sure you run it in the correct directory.

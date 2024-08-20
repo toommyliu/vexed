@@ -3,7 +3,7 @@ layout: home
 
 hero:
   name: "Vexed"
-  text: "AQW Scripting Client for macOS"
+  text: "Crossplatform AQW Scripting Client"
   actions:
     - theme: brand
       text: Getting started
@@ -14,7 +14,7 @@ hero:
 
 features:
   - title: Platform Support
-    details: Works on macOS x64, including on Apple Silicon (Rosetta).
+    details: Works on Windows and macOS x64, including on Apple Silicon (Rosetta).
   - title: JavaScript Scripting API
     details: Uses the greatest programming language, JavaScript.
 ---

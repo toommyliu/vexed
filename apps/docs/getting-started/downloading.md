@@ -9,25 +9,22 @@ outline: deep
 
 Downloading Vexed is simple.
 
-Visit [the releases page](https://github.com/toommyliu/vexed/releases) and find the latest release. This will usually be the biggest number.
+Visit [the releases page](https://github.com/toommyliu/vexed/releases) and find the latest release. This will usually be the biggest number, or the one with the "Latest" badge.
 
-Download the `Vexed.zip` file.
+Download the aptly named zip file for your platform.
 
-You can choose to extract the application to the Applications folder, or place it wherever, it doesn't matter.
+Since it comes as a portable application/executable, you can extract it wherever.
+
+
+**For macOS users:**
 
 When running Vexed for the first time, you may see a warning regarding "Apple cannot check it for malicious software." To solve this, click OK then open Finder, find the Application file and CTRL+CLICK the icon and press Open.
 
 You may also be prompted to install [Rosetta](https://support.apple.com/en-us/102527), do so.
 
-> [!NOTE]
-> This is necessary for the app to run since Flash does not support Apple Silicon.
+**For Windows users:**
 
-
-You may also be prompted to allow Vexed to access the Documents folder, do so.
-
-> [!NOTE]
-This is necessary to store your accounts (Account Manager), preferences, and scripts.
->
+No further steps should be required. Create an issue if this is not the case.
 
 ## Updating
 
