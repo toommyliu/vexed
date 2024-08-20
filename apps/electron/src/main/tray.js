@@ -30,111 +30,147 @@ app.on('ready', async () => {
 			return [];
 		});
 
-		const menu = [
-			{ label: 'Launch New Window', click: createGame },
-			{
-				label: 'Launch All',
-				click: async () => {
-					for (const account of accounts) {
-						if ('username' in account && 'password' in account) {
-							await createGame({ ...account, server });
-							await new Promise((resolve) =>
-								setTimeout(resolve, 1500),
-							);
+		const updateMenu = async () => {
+			const menu = [
+				{ label: 'Launch New Window', click: createGame },
+				{
+					label: 'Launch All',
+					click: async () => {
+						for (const account of accounts) {
+							if (
+								'username' in account &&
+								'password' in account
+							) {
+								await createGame({ ...account, server });
+								await new Promise((resolve) =>
+									setTimeout(resolve, 1500),
+								);
+							}
 						}
-					}
+					},
 				},
-			},
-			{ type: 'separator' },
-			{
-				label: 'Add Account',
-				click: async () => {
-					const username = await prompt({
-						title: 'Add Account',
-						label: 'Username',
-						value: '',
-						inputAttrs: {
-							type: 'text',
-						},
-						type: 'input',
-					}).catch(() => null);
+				{ type: 'separator' },
+				{
+					label: 'Add Account',
+					click: async () => {
+						const username = await prompt({
+							title: 'Add Account',
+							label: 'Username',
+							value: '',
+							inputAttrs: {
+								type: 'text',
+							},
+							type: 'input',
+						}).catch(() => null);
 
-					if (!username) {
-						return;
-					}
+						if (!username) {
+							return;
+						}
 
-					const password = await prompt({
-						title: 'Add Account',
-						label: 'Password',
-						value: '',
-						inputAttrs: {
-							type: 'password',
-						},
-						type: 'input',
-					}).catch(() => null);
+						const password = await prompt({
+							title: 'Add Account',
+							label: 'Password',
+							value: '',
+							inputAttrs: {
+								type: 'password',
+							},
+							type: 'input',
+						}).catch(() => null);
 
-					if (!password) {
-						return;
-					}
+						if (!password) {
+							return;
+						}
 
-					const account = {
-						username,
-						password,
-					};
+						const account = {
+							username,
+							password,
+						};
 
-					await fs
-						.writeJSON(
-							accountsPath,
-							[...(await fs.readJSON(accountsPath)), account],
-							{ spaces: 4 },
+						await fs
+							.writeJSON(
+								accountsPath,
+								[...(await fs.readJSON(accountsPath)), account],
+								{ spaces: 4 },
+							)
+							.catch(() => {
+								dialog.showErrorBox(
+									'Failed to write accounts.',
+								);
+								app.quit();
+							});
+					},
+				},
+				{
+					label: 'Remove Account',
+					submenu: accounts
+						.filter(
+							(account) =>
+								'username' in account && 'password' in account,
 						)
-						.catch(() => {
-							dialog.showErrorBox('Failed to write accounts.');
-							app.quit();
-						});
+						.map((account, index) => ({
+							label: account.username,
+							click: async () => {
+								accounts.splice(index, 1);
+
+								await fs
+									.writeJSON(accountsPath, accounts, {
+										spaces: 4,
+									})
+									.catch(() => {
+										dialog.showErrorBox(
+											'Failed to update accounts.',
+										);
+										app.quit();
+									});
+								await updateMenu();
+							},
+						})),
 				},
-			},
-			{ type: 'separator' },
-		];
+				{ type: 'separator' },
+			];
 
-		await fetch('https://game.aq.com/game/api/data/servers')
-			.then(async (res) => {
-				const json = await res.json();
-				menu.push({
-					label: 'Login Server',
-					submenu: [
-						{
-							label: 'None',
-							type: 'radio',
-							click: () => (server = null),
-							checked: true,
-						},
-						...json.map((srv) => {
-							return {
-								label: srv.sName,
+			await fetch('https://game.aq.com/game/api/data/servers')
+				.then(async (res) => {
+					const json = await res.json();
+					menu.push({
+						label: 'Login Server',
+						submenu: [
+							{
+								label: 'None',
 								type: 'radio',
-								click: () => (server = srv.sName),
-							};
-						}),
-					],
+								click: () => (server = null),
+								checked: true,
+							},
+							...json.map((srv) => {
+								return {
+									label: srv.sName,
+									type: 'radio',
+									click: () => (server = srv.sName),
+								};
+							}),
+						],
+					});
+				})
+				.catch(() => {
+					dialog.showErrorBox('Failed to fetch servers.');
+					return [];
 				});
-			})
-			.catch(() => {
-				dialog.showErrorBox('Failed to fetch servers.');
-				return [];
-			});
 
-		menu.push({ type: 'separator' });
+			menu.push({ type: 'separator' });
 
-		for (const account of accounts) {
-			if ('username' in account && 'password' in account) {
-				menu.push({
-					label: account.username,
-					click: async () => await createGame({ ...account, server }),
-				});
+			for (const account of accounts) {
+				if ('username' in account && 'password' in account) {
+					menu.push({
+						label: account.username,
+						click: async () =>
+							await createGame({ ...account, server }),
+					});
+				}
 			}
-		}
 
-		tray.setContextMenu(Menu.buildFromTemplate(menu));
+			tray.setContextMenu(Menu.buildFromTemplate(menu));
+		};
+
+		await updateMenu();
 	}
 });
