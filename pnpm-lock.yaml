@@ -23,6 +23,9 @@ importers:
       async-mutex:
         specifier: ^0.5.0
         version: 0.5.0
+      electron-prompt:
+        specifier: ^1.7.0
+        version: 1.7.0
       fs-extra:
         specifier: ^11.2.0
         version: 11.2.0
@@ -902,6 +905,9 @@ packages:
     resolution: {integrity: sha512-yZSgVHft5dNVlo31qmJAe4BVKQfFdwpRw7sFp1iQglDRCDD6r22zfRJuZlhtB5gp9FHUxCMEoWGq10SkCnMAIg==}
     engines: {node: '>=14.0.0'}
     hasBin: true
+
+  electron-prompt@1.7.0:
+    resolution: {integrity: sha512-IfqJYEgcRO6NuyPROo8AtdkAiZ6N9I1lQEf4dJAkPuhV5YgOHdmLqZJf6OXumZJfzrjpzCM5jHeYOrhGdgbnEA==}
 
   electron-publish@24.13.1:
     resolution: {integrity: sha512-2ZgdEqJ8e9D17Hwp5LEq5mLQPjqU3lv/IALvgp+4W8VeNhryfGhYEQC/PgDPMrnWUp+l60Ou5SJLsu+k4mhQ8A==}
@@ -2866,6 +2872,8 @@ snapshots:
     transitivePeerDependencies:
       - electron-builder-squirrel-windows
       - supports-color
+
+  electron-prompt@1.7.0: {}
 
   electron-publish@24.13.1:
     dependencies:
