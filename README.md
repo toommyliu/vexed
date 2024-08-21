@@ -1,3 +1,3 @@
 # vexed
 
-AQW Scripting Client for macOS
+Crossplatform AQW Scripting Client
