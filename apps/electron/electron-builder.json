@@ -1,7 +1,7 @@
 {
 	"productName": "Vexed",
 	"mac": {
-		"files": ["src/**/*", "build/**/*"],
+		"files": ["src/**/*", "build/**/*", "!build/pepflashplayer.dll"],
 		"asar": "false",
 		"target": {
 			"target": "zip",
@@ -9,7 +9,7 @@
 		}
 	},
 	"win": {
-		"files": ["src/**/*", "build/**/*"],
+		"files": ["src/**/*", "build/**/*", "!build/PepperFlashPlayer.plugin"],
 		"asar": "false",
 		"target": {
 			"target": "zip",
