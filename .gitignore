@@ -9,4 +9,7 @@ node_modules/
 .next/
 .turbo/
 dist/
+!dist/*.css
+!dist/*.html
 out/
+build/
