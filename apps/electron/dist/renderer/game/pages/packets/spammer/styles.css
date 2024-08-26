@@ -1,0 +1,32 @@
+.spammer {
+	background-color: var(--bg-secondary);
+	color: lightgrey;
+	width: 100%;
+	min-height: 150px;
+	max-height: 150px;
+	overflow-y: auto;
+}
+
+.spammer:focus {
+	color: lightgrey;
+}
+
+.line {
+	width: auto;
+	padding: 5px;
+	cursor: pointer;
+}
+
+.line:hover,
+.line:nth-child(even):hover {
+	background-color: grey;
+}
+
+.line:nth-child(even) {
+	background-color: var(--bg-tertiary);
+}
+
+.selected-line {
+	background-color: #3a3a3a;
+	border: 1px solid #5a5a5a;
+}
