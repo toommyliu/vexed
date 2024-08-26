@@ -36,7 +36,7 @@ class Quests {
 	 */
 	// TODO: return whether quests were accepted
 	async load(questID) {
-		const quests = [];
+		let quests = [];
 		if (typeof questID === 'string') {
 			if (!questID.includes(',')) {
 				// single quest
@@ -74,7 +74,7 @@ class Quests {
 	 */
 	// TODO: return whether quests were accepted
 	async accept(questID) {
-		const quests = [];
+		let quests = [];
 		if (typeof questID === 'string') {
 			if (!questID.includes(',')) {
 				// single quest
