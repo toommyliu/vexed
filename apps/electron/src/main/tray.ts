@@ -15,7 +15,7 @@ let server;
 
 app.on('ready', async () => {
 	tray = new Tray(
-		nativeImage.createFromPath(join(__dirname, '../../build/logo.png')),
+		nativeImage.createFromPath(join(__dirname, '../../assets/logo.png')),
 	);
 
 	const exists = await fs.pathExists(accountsPath).catch(() => {

@@ -9,7 +9,7 @@ require('./ipc');
 function registerFlashPlugin() {
 	const flashTrust = require('nw-flash-trust');
 	// TODO: add checks for app.isPackaged
-	const ppapi_flash_path = join(__dirname, '../../build');
+	const assetsPath = join(__dirname, '../../assets');
 	let pluginName;
 	switch (process.platform) {
 		case 'win32':
@@ -22,7 +22,7 @@ function registerFlashPlugin() {
 
 	app.commandLine.appendSwitch(
 		'ppapi-flash-path',
-		join(ppapi_flash_path, pluginName),
+		join(assetsPath, pluginName),
 	);
 
 	const flashPath = join(
@@ -34,7 +34,7 @@ function registerFlashPlugin() {
 
 	const trustManager = flashTrust.initSync('Vexed', flashPath);
 	trustManager.empty();
-	trustManager.add(join(__dirname, '../../build/grimoire.swf'));
+	trustManager.add(join(assetsPath, 'grimoire.swf'));
 }
 
 registerFlashPlugin();
