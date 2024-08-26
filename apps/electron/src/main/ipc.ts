@@ -1,6 +1,7 @@
-const { ipcMain, app, BrowserWindow, dialog } = require('electron');
-const { join } = require('path');
-const fs = require('fs-extra');
+import { ipcMain, app, BrowserWindow, dialog } from 'electron';
+import { join } from 'path';
+import fs from 'fs-extra';
+import { showErrorDialog } from './utils';
 
 const ROOT = join(app.getPath('documents'), 'Vexed');
 
@@ -11,27 +12,32 @@ ipcMain.handle('root:get_documents_path', async () => {
 //#region scripts
 ipcMain.handle('root:load_script', async (ev) => {
 	const window = BrowserWindow.fromWebContents(ev.sender);
+	if (window) {
+		const res = await dialog
+			.showOpenDialog(window, {
+				filters: [{ name: 'JavaScript Files', extensions: ['js'] }],
+				properties: ['openFile'],
+				defaultPath: join(ROOT, 'Scripts'),
+			})
+			.catch(() => null);
 
-	const res = await dialog
-		.showOpenDialog(window, {
-			filters: [{ name: 'JavaScript Files', extensions: ['js'] }],
-			properties: ['openFile'],
-			defaultPath: join(ROOT, 'Scripts'),
-		})
-		.catch(() => null);
+		if (!dialog || res?.canceled) {
+			return null;
+		}
 
-	if (!dialog || res.canceled) {
-		return null;
+		const scriptPath = res!.filePaths[0];
+		const scriptBody = await fs
+			.readFile(scriptPath, 'utf8')
+			.catch(() => null);
+
+		if (!scriptBody?.toString()) {
+			return null;
+		}
+
+		return Buffer.from(scriptBody, 'utf-8').toString('base64');
 	}
 
-	const scriptPath = res.filePaths[0];
-	const scriptBody = await fs.readFile(scriptPath, 'utf8').catch(() => null);
-
-	if (!scriptBody?.toString()) {
-		return null;
-	}
-
-	return Buffer.from(scriptBody, 'utf-8').toString('base64');
+	return null;
 });
 
 ipcMain.on('root:toggle-dev-tools', async (ev) => {
@@ -46,11 +52,12 @@ ipcMain.on('tools:loadergrabber:export', async (ev, data) => {
 		await fs.writeFile(path, JSON.stringify(data, null, 2), {
 			encoding: 'utf-8',
 		});
+		throw new Error('hello world');
 	} catch (error) {
-		console.log('Failed to write grabber data to file', error.stack);
-		dialog.showErrorBox(
-			'Failed to write grabber data to file',
-			error.stack,
+		const err = error as Error;
+		showErrorDialog(
+			{ message: 'Failed to export grabber data', error: err },
+			false,
 		);
 	}
 });
@@ -63,8 +70,10 @@ ipcMain.on('packets:save', async (_, data) => {
 			encoding: 'utf-8',
 		});
 	} catch (error) {
-		// TODO: make this dialog reusable
-		console.log('Failed to write packets to file', error.stack);
-		dialog.showErrorBox('Failed to write packets to file', error.stack);
+		const err = error as Error;
+		showErrorDialog(
+			{ message: 'Failed to write packets to file', error: err },
+			false,
+		);
 	}
 });

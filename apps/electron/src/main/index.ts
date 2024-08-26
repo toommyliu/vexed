@@ -1,10 +1,11 @@
-const { join } = require('path');
-const { app } = require('electron');
+import { join } from 'path';
+import { app } from 'electron';
 
-const { createGame } = require('./windows');
+import { createGame } from './windows';
+import { showErrorDialog } from './utils';
 
-require('./tray');
-require('./ipc');
+import './tray';
+import './ipc';
 
 function registerFlashPlugin() {
 	const flashTrust = require('nw-flash-trust');
@@ -18,6 +19,11 @@ function registerFlashPlugin() {
 		case 'darwin':
 			pluginName = 'PepperFlashPlayer.plugin';
 			break;
+	}
+
+	if (!pluginName) {
+		showErrorDialog({ message: 'Unsupported platform.' });
+		return;
 	}
 
 	app.commandLine.appendSwitch(

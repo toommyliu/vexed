@@ -1,33 +1,20 @@
-const { join } = require('path');
-const { BrowserWindow, session, app } = require('electron');
+import { app, BrowserWindow, session } from 'electron';
+import { join } from 'path';
+import { showErrorDialog } from './utils';
 
 const RENDERER = join(__dirname, '../renderer');
 
-/**
- * @type {Map<number, {
- *   game: Electron.BrowserWindow,
- *   tools: {
- *     fastTravels: Electron.BrowserWindow,
- *     loaderGrabber: Electron.BrowserWindow,
- *     follower: Electron.BrowserWindow
- *   },
- *   packets: {
- *     logger: Electron.BrowserWindow,
- *     spammer: Electron.BrowserWindow
- *   }
- * }}
- */
-const store = new Map();
+const store: WindowStore = new Map();
 
 const userAgent =
 	'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16_0) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36';
 
 /**
  * Creates a new game window
- * @param {{username: string, password:string}} account The account to login with
+ * @param {{username: string, password:string}} [account=null] The account to login with
  * @returns {Promise<void>}
  */
-async function createGame(account = null) {
+async function createGame(account: Account | null = null): Promise<void> {
 	const window = new BrowserWindow({
 		width: 966,
 		height: 552,
@@ -62,6 +49,10 @@ async function createGame(account = null) {
 
 	window.on('close', () => {
 		const windows = store.get(window.id);
+		if (!windows) {
+			showErrorDialog({ message: 'Failed to find store (1).' }, true);
+			return;
+		}
 
 		if (
 			windows.tools.fastTravels &&
@@ -116,6 +107,7 @@ async function createGame(account = null) {
 				if (!domains.includes(_url.hostname)) {
 					console.log('Blocking url', _url);
 					ev.preventDefault();
+					// @ts-expect-error
 					ev.newGuest = null;
 					return null;
 				}
@@ -128,6 +120,13 @@ async function createGame(account = null) {
 				);
 
 				const windows = store.get(window.id);
+				if (!windows) {
+					showErrorDialog(
+						{ message: 'Failed to find store (2).' },
+						true,
+					);
+					return;
+				}
 				let ref = null;
 
 				switch (file) {
@@ -164,6 +163,7 @@ async function createGame(account = null) {
 					// Moving the parent also moves the child, as well as minimizing it
 					parent: window,
 				});
+				// @ts-expect-error
 				ev.newGuest = newWindow;
 				newWindow.on('close', (ev) => {
 					ev.preventDefault();
@@ -216,6 +216,25 @@ async function createGame(account = null) {
 	});
 }
 
-module.exports = {
-	createGame,
+export { createGame };
+
+type WindowStore = Map<
+	number,
+	{
+		game: Electron.BrowserWindow;
+		tools: {
+			fastTravels: Electron.BrowserWindow | null;
+			loaderGrabber: Electron.BrowserWindow | null;
+			follower: Electron.BrowserWindow | null;
+		};
+		packets: {
+			logger: Electron.BrowserWindow | null;
+			spammer: Electron.BrowserWindow | null;
+		};
+	}
+>;
+
+type Account = {
+	username: string;
+	password: string;
 };

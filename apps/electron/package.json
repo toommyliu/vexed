@@ -3,10 +3,10 @@
 	"version": "0.0.0",
 	"main": "dist/main/index.js",
 	"scripts": {
-		"dev": "electron .",
-		"dev:watch": "electronmon .",
 		"compile": "tsc",
 		"compile:watch": "tsc --watch",
+		"dev": "pnpm compile || true && electron .",
+		"dev:watch": "concurrently \"pnpm compile:watch\" \"electronmon .\"",
 		"build": "pnpm compile || true && electron-builder build",
 		"build:all": "pnpm compile || true && electron-builder build -mw",
 		"jsdoc": "node scripts/gen-jsdoc.js",
@@ -22,6 +22,9 @@
 		"set-interval-async": "^3.0.3"
 	},
 	"devDependencies": {
+		"@types/electron-prompt": "^1.6.5",
+		"@types/node-fetch": "^2.6.11",
+		"concurrently": "^8.2.2",
 		"doxxx": "^2.0.7",
 		"electron": "github:toommyliu/electron",
 		"electron-builder": "^24.13.3",
