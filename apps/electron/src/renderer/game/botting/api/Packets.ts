@@ -28,4 +28,4 @@ class Packets {
 	}
 }
 
-module.exports = Packets;
+export default Packets;

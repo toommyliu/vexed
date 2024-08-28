@@ -134,4 +134,4 @@ class Shops {
  * @property {string} ShopID
  */
 
-module.exports = Shops;
+export default Shops;

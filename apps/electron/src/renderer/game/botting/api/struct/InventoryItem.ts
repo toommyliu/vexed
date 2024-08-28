@@ -1,4 +1,4 @@
-const Item = require('./Item');
+import { Item } from './Item';
 
 /**
  * Represents an item in the inventory.
@@ -55,4 +55,4 @@ class InventoryItem extends Item {
 	}
 }
 
-module.exports = InventoryItem;
+export default InventoryItem;

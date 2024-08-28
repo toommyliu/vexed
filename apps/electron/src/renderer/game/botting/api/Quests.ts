@@ -1,4 +1,4 @@
-const Quest = require('./struct/Quest');
+import Quest from './struct/Quest';
 
 class Quests {
 	constructor(bot) {
@@ -160,4 +160,4 @@ class Quests {
 	}
 }
 
-module.exports = Quests;
+export default Quests;

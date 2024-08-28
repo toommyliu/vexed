@@ -1,8 +1,8 @@
-const Item = require('./Item');
+import { Item } from './Item';
 
 /**
  * Represents a temporary item in the temp. inventory.
  */
 class TempInventoryItem extends Item {}
 
-module.exports = TempInventoryItem;
+export default TempInventoryItem;

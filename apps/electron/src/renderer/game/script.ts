@@ -1,14 +1,13 @@
-require('./scripts/fast-travels');
-require('./scripts/follower');
-require('./scripts/loader-grabber');
-require('./scripts/packet-spammer');
+import './scripts/fast-travels';
+import './scripts/follower';
+import './scripts/loader-grabber';
+import './scripts/packet-spammer';
 
-const { ipcRenderer } = require('electron');
+import { ipcRenderer } from 'electron';
 
 /**
  * @type {import('./botting/api/Bot')}
  */
-const bot = Bot.getInstance();
 const { settings, auth, world, player, flash, bank } = bot;
 
 const mapping = new Map();

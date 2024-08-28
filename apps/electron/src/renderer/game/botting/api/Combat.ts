@@ -314,7 +314,7 @@ class Combat {
 	}
 }
 
-module.exports = Combat;
+export default Combat;
 
 /**
  * @typedef {Object} KillConfig

@@ -1,7 +1,3 @@
-/**
- * @type {import('../botting/api/Bot')}
- */
-const bot = Bot.getInstance();
 const { timerManager, auth, world, player, flash, combat } = bot;
 
 let timer = null;

@@ -9,4 +9,4 @@ function dropItem(bot, packet) {
 	}
 }
 
-module.exports = dropItem;
+export default dropItem;

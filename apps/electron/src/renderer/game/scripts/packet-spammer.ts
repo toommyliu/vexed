@@ -1,8 +1,3 @@
-/**
- * @type {import('../botting/api/Bot')}
- */
-const bot = Bot.getInstance();
-
 let timer = null;
 let index = 0;
 

@@ -1,4 +1,4 @@
-const BankItem = require('./struct/BankItem');
+import BankItem from './struct/BankItem';
 
 class Bank {
 	constructor(bot) {
@@ -169,4 +169,4 @@ class Bank {
 	}
 }
 
-module.exports = Bank;
+export default Bank;

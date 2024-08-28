@@ -21,4 +21,4 @@ async function addGoldExp(bot, packet) {
 	}
 }
 
-module.exports = addGoldExp;
+export default addGoldExp;

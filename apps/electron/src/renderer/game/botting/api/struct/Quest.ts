@@ -8,7 +8,9 @@ class Quest {
 	 */
 	#bot = Bot.getInstance();
 
-	constructor(data) {
+	data: QuestData;
+
+	constructor(data: QuestData) {
 		/**
 		 * Data about this quest.
 		 * @type {QuestData}
@@ -122,7 +124,7 @@ class Quest {
 	}
 }
 
-module.exports = Quest;
+export default Quest;
 
 /**
  * @typedef {Object} QuestData
@@ -156,6 +158,37 @@ module.exports = Quest;
  * @property {QuestTurnInRaw[]} turnin
  * @property {number} iRep The amount of reputation rewarded for completing this quest. Otherwise, this value is 0.
  */
+type QuestData = {
+	status: string;
+	bUpg: string;
+	iReqRep: number;
+	sFaction: string;
+	bOnce: string;
+	oItems: Record<string, import('./Item').ItemData>;
+	iSlot: number;
+	sEndText: string;
+	sName: string;
+	metaValues: Record<string, string>;
+	reward: QuestRewardRaw[];
+	iValue: number;
+	iWar: number;
+	oRewards: Record<string, QuestRewards2Raw>;
+	iClass: number;
+	bGuild: string;
+	iGold: number;
+	RequiredItems: QuestRequiredItemsRaw[];
+	iExp: number;
+	iReqCP: number;
+	QuestID: number;
+	Rewards: QuestRewards2Raw[];
+	sDesc: string;
+	bitSuccess: string;
+	iLvl: number;
+	bStaff: string;
+	FactionID: string;
+	turnin: QuestTurnInRaw[];
+	iRep: number;
+};
 
 /**
  * @typedef {Object} QuestRewardRaw
@@ -164,6 +197,12 @@ module.exports = Quest;
  * @property {string} iType
  * @property {string} iQty The quantity of the item.
  */
+type QuestRewardRaw = {
+	iRate: string;
+	ItemID: string;
+	iType: string;
+	iQty: number;
+};
 
 /**
  * @typedef {Object} QuestRequiredItemsRaw
@@ -171,6 +210,11 @@ module.exports = Quest;
  * @property {string} sName The name of the item.
  * @property {string} iQty The quantity of the item.
  */
+type QuestRequiredItemsRaw = {
+	ItemID: string;
+	sName: string;
+	iQty: number;
+};
 
 /**
  * @typedef {Object} QuestRewards2Raw
@@ -179,12 +223,22 @@ module.exports = Quest;
  * @property {string} iQty The quantity of the item.
  * @property {string} DropChance The drop chance of the item with a percent sign.
  */
+type QuestRewards2Raw = {
+	ItemID: string;
+	sName: string;
+	iQty: number;
+	DropChance: string;
+};
 
 /**
  * @typedef {Object} QuestTurnInRaw
  * @property {string} ItemID The item ID.
  * @property {string} iQty The quantity of the item.
  */
+type QuestTurnInRaw = {
+	ItemID: string;
+	iQty: number;
+};
 
 /**
  * @typedef {Object} QuestRequiredItem
@@ -192,6 +246,11 @@ module.exports = Quest;
  * @property {string} itemName The name of the item.
  * @property {number} quantity The quantity of the item.
  */
+type QuestRequiredItem = {
+	itemID: string;
+	itemName: string;
+	quantity: number;
+};
 
 /**
  * @typedef {Object} QuestReward
@@ -200,3 +259,9 @@ module.exports = Quest;
  * @property {string} itemName The name of the item.
  * @property {number} quantity The quantity of the item.
  */
+type QuestReward = {
+	dropChance: string;
+	itemID: string;
+	itemName: string;
+	quantity: number;
+};

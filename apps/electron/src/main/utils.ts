@@ -1,6 +1,6 @@
 import { dialog, app } from 'electron';
 
-export function showErrorDialog(error: DialogOptions, quit = true) {
+function showErrorDialog(error: DialogOptions, quit = true) {
 	dialog.showErrorBox(
 		'An error occured',
 		`${error.message}${error.error ? `\n${error.error?.stack}` : ''}`,
@@ -17,3 +17,5 @@ type DialogOptions = {
 	message: string;
 	error?: Error;
 };
+
+export { showErrorDialog };

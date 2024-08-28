@@ -1,5 +1,5 @@
-const Avatar = require('./struct/Avatar');
-const Monster = require('./struct/Monster');
+import Avatar from './struct/Avatar';
+import Monster from './struct/Monster';
 
 class World {
 	constructor(bot) {
@@ -374,4 +374,4 @@ Object.defineProperty(window, 'GameAction', {
 	writable: false,
 });
 
-module.exports = World;
+export default World;

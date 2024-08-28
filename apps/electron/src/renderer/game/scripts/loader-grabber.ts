@@ -1,10 +1,5 @@
 const { ipcRenderer } = require('electron');
 
-/**
- * @type {import('../botting/api/Bot')}
- */
-const bot = Bot.getInstance();
-
 window.addEventListener('message', async (ev) => {
 	if (!ev.data.event.startsWith('tools:loadergrabber')) {
 		return;

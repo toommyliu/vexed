@@ -1,4 +1,4 @@
-const Faction = require('./struct/Faction');
+import Faction from './struct/Faction';
 
 class Player {
 	constructor(bot) {
@@ -183,4 +183,4 @@ Object.defineProperty(window, 'PlayerState', {
 	writable: false,
 });
 
-module.exports = Player;
+export default Player;

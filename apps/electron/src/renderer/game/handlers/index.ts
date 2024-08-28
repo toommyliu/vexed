@@ -1,13 +1,8 @@
-const addGoldExp = require('./handlers/json/addGoldExp');
-const ct = require('./handlers/json/ct');
-const dropItem = require('./handlers/json/dropItem');
+import addGoldExp from './handlers/json/addGoldExp';
+import ct from './handlers/json/ct';
+import dropItem from './handlers/json/dropItem';
 
-/**
- * @type {import('../botting/api/Bot')}
- */
-const bot = Bot.getInstance();
-
-async function packetFromServer([packet]) {
+async function packetFromServer([packet]: [string]) {
 	bot.emit('packetFromServer', packet);
 
 	const isXT = packet.startsWith('%xt%');
@@ -51,7 +46,7 @@ async function packetFromServer([packet]) {
 }
 
 window.packetFromServer = packetFromServer;
-window.packetFromClient = async ([packet]) => {
+window.packetFromClient = async ([packet]: [string]) => {
 	bot.emit('packetFromClient', packet);
 
 	/**
@@ -63,11 +58,11 @@ window.packetFromClient = async ([packet]) => {
 	}
 };
 
-window.connection = ([state]) => {
-	const $cells = document.querySelector('#cells');
-	const $pads = document.querySelector('#pads');
-	const $x = document.querySelector('#x');
-	const $bank = document.querySelector('#bank');
+window.connection = ([state]: [string]) => {
+	const $cells = document.querySelector('#cells')!;
+	const $pads = document.querySelector('#pads')!;
+	const $x = document.querySelector('#x')!;
+	const $bank = document.querySelector('#bank')!;
 
 	switch (state) {
 		case 'OnConnectionLost':

@@ -1,4 +1,4 @@
-const { Mutex } = require('async-mutex');
+import { Mutex } from 'async-mutex';
 
 /**
  * @description
@@ -105,4 +105,4 @@ class AutoRelogin {
 	}
 }
 
-module.exports = AutoRelogin;
+export default AutoRelogin;

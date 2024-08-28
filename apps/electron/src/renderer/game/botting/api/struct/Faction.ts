@@ -2,7 +2,9 @@
  * Represents a game faction.
  */
 class Faction {
-	constructor(data) {
+	data: FactionData;
+
+	constructor(data: FactionData) {
 		/**
 		 * Data about this faction.
 		 * @type {FactionData}
@@ -67,7 +69,7 @@ class Faction {
 	}
 }
 
-module.exports = Faction;
+export default Faction;
 
 /**
  * @typedef {Object} FactionData
@@ -79,3 +81,12 @@ module.exports = Faction;
  * @property {string} FactionID The ID of the faction.
  * @property {number} iRepToRank The total required rep for the player to rank up.
  */
+type FactionData = {
+	CharFactionID: string;
+	sName: string;
+	iRep: number;
+	iSpillRep: number;
+	iRank: number;
+	FactionID: string;
+	iRepToRank: number;
+};

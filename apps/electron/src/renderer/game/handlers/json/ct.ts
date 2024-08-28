@@ -33,4 +33,4 @@ function ct(bot, packet) {
 	}
 }
 
-module.exports = ct;
+export default ct;

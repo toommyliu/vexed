@@ -1,4 +1,4 @@
-const InventoryItem = require('./struct/InventoryItem');
+import InventoryItem from './struct/InventoryItem';
 
 class Inventory {
 	constructor(bot) {
@@ -114,4 +114,4 @@ class Inventory {
 	}
 }
 
-module.exports = Inventory;
+export default Inventory;

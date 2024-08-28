@@ -1,4 +1,4 @@
-const { Mutex } = require('async-mutex');
+import { Mutex } from 'async-mutex';
 
 class Drops {
 	#mutex = new Mutex();
@@ -141,4 +141,4 @@ class Drops {
 	}
 }
 
-module.exports = Drops;
+export default Drops;

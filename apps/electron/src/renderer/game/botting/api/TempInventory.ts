@@ -1,4 +1,4 @@
-const TempInventoryItem = require('./struct/TempInventoryItem');
+import TempInventoryItem from './struct/TempInventoryItem';
 
 class TempInventory {
 	constructor(bot) {
@@ -57,4 +57,4 @@ class TempInventory {
 	}
 }
 
-module.exports = TempInventory;
+export default TempInventory;

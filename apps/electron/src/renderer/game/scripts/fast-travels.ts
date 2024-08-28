@@ -1,7 +1,4 @@
-/**
- * @type {import('../botting/api/Bot')}
- */
-const bot = Bot.getInstance();
+/// <reference path="../index.d.ts" />
 
 window.addEventListener('message', async (ev) => {
 	if (!ev.data.event.startsWith('tools:fasttravel')) {

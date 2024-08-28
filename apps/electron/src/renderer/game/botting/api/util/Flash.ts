@@ -8,7 +8,7 @@ class Flash {
 	 * @param  {...any} args The arguments to pass to the function.
 	 * @returns {any|null} If the provided function returned a value, it will be conditionally parsed to a primitive based on its result. Otherwise, null is returned.
 	 */
-	call(fn, ...args) {
+	call(fn: string | Function, ...args: any[]): any | null {
 		let _fn;
 		let _args = args;
 		let out;
@@ -57,7 +57,7 @@ class Flash {
 	 * @param {boolean} [parse=false] Whether to call JSON.parse on the return value.
 	 * @returns {any|null}
 	 */
-	get(path, parse = false) {
+	get(path: string, parse = false): any | null {
 		try {
 			const out = swf.getGameObject(path);
 			if (parse) {
@@ -66,7 +66,7 @@ class Flash {
 
 			return out;
 		} catch (error) {
-			console.error(error);
+			//console.error(error);
 			return null;
 		}
 	}
@@ -77,7 +77,7 @@ class Flash {
 	 * @param {boolean} [parse=false] Whether to call JSON.parse on the return value.
 	 * @returns {any|null}
 	 */
-	getStatic(path, parse = false, defaultValue = null) {
+	getStatic(path: string, parse = false, defaultValue = null): any | null {
 		try {
 			const out = swf.getGameObjectS(path);
 			if (parse) {
@@ -97,7 +97,7 @@ class Flash {
 	 * @param {any} value The value to set.
 	 * @returns {void}
 	 */
-	set(path, value) {
+	set(path: string, value: any): void {
 		try {
 			swf.setGameObject(path, value);
 		} catch (error) {
@@ -110,9 +110,9 @@ class Flash {
 	 * @param {string} path The path of the game object.
 	 * @returns {boolean}
 	 */
-	isNull(path) {
+	isNull(path: string): boolean {
 		return this.call(swf.isNull, path);
 	}
 }
 
-module.exports = Flash;
+export default Flash;

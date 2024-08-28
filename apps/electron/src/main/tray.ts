@@ -1,4 +1,4 @@
-import { nativeImage, Tray, Menu, dialog } from 'electron';
+import { nativeImage, Tray, Menu } from 'electron';
 import { app } from 'electron';
 import { join } from 'path';
 import fs from 'fs-extra';

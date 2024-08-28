@@ -2,7 +2,9 @@
  * Represents a monster.
  */
 class Monster {
-	constructor(data) {
+	data: MonsterData;
+
+	constructor(data: MonsterData) {
 		/**
 		 * Data about this monster.
 		 * @type {MonsterData}
@@ -83,7 +85,7 @@ class Monster {
 	}
 }
 
-module.exports = Monster;
+export default Monster;
 
 /**
  * @typedef {Object} MonsterData
@@ -96,3 +98,13 @@ module.exports = Monster;
  * @property {number} MonID
  * @property {number} intHPMax
  */
+type MonsterData = {
+	MonMapID: number;
+	iLvl: number;
+	intState: number;
+	sRace: string;
+	strMonName: string;
+	intHP: number;
+	MonID: number;
+	intHPMax: number;
+};

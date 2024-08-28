@@ -1,8 +1,8 @@
-const Item = require('./Item');
+import { Item } from './Item';
 
 /**
  * Represents an item in the bank.
  */
 class BankItem extends Item {}
 
-module.exports = BankItem;
+export default BankItem;

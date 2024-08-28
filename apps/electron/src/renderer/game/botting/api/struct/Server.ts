@@ -2,7 +2,9 @@
  * Represents a game server.
  */
 class Server {
-	constructor(data) {
+	data: ServerData;
+
+	constructor(data: ServerData) {
 		/**
 		 * Data about this server.
 		 * @type {ServerData}
@@ -75,12 +77,12 @@ class Server {
 	}
 }
 
-module.exports = Server;
+export default Server;
 
 /**
  * @typedef {Object} ServerData
- * @property {boolean} bOnline Indicates whether or not the server is online.
- * @property {boolean} bUpg Indicates whether this is an upgrade only server.
+ * @property {number} bOnline Indicates whether or not the server is online.
+ * @property {number} bUpg Indicates whether this is an upgrade only server.
  * @property {string} sIP The IP address of the game server.
  * @property {string} sLang The language of this server (en/pt).
  * @property {string} sName The name of the game server.
@@ -90,3 +92,15 @@ module.exports = Server;
  * @property {number} iMax The maximum number of players allowed on the server.
  * @property {number} iPort The port this server listens on.
  */
+type ServerData = {
+	bOnline: number;
+	bUpg: number;
+	sIP: string;
+	sLang: string;
+	sName: string;
+	iChat: number;
+	iCount: number;
+	iLevel: number;
+	iMax: number;
+	iPort: number;
+};

@@ -1,4 +1,4 @@
-const HouseItem = require('./struct/HouseItem');
+import HouseItem from './struct/HouseItem';
 
 class House {
 	constructor(bot) {
@@ -30,4 +30,4 @@ class House {
 	}
 }
 
-module.exports = House;
+export default House;

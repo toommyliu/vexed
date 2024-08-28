@@ -2,7 +2,9 @@
  * The base for all things item-related.
  */
 class Item {
-	constructor(data) {
+	data: ItemData;
+
+	constructor(data: ItemData) {
 		/**
 		 * Data about this item
 		 * @type {ItemData}
@@ -112,6 +114,8 @@ class Item {
 	 * @returns {string}
 	 */
 	get meta() {
+		// TODO:
+		// @ts-expect-error
 		return this.data.sMeta;
 	}
 
@@ -124,8 +128,7 @@ class Item {
 	}
 }
 
-module.exports = Item;
-
+export { Item };
 /**
  * @typedef {Object} ItemData
  * @property {number} CharID
@@ -137,12 +140,12 @@ module.exports = Item;
  * @property {number} EnhRng
  * @property {number} EnhRty
  * @property {number} ItemID
- * @property {boolean} bBank
- * @property {boolean} bCoins
- * @property {boolean} bEquip
- * @property {boolean} bStaff
- * @property {boolean} bTemp
- * @property {boolean} bUpg
+ * @property {number} bBank
+ * @property {number} bCoins
+ * @property {number} bEquip
+ * @property {number} bStaff
+ * @property {number} bTemp
+ * @property {number} bUpg
  * @property {string} dPurchase
  * @property {number} iCost
  * @property {number} iDPS
@@ -162,3 +165,38 @@ module.exports = Item;
  * @property {string} sName
  * @property {string} sType
  */
+export type ItemData = {
+	CharID: number;
+	CharItemID: number;
+	EnhDPS: number;
+	EnhID: number;
+	EnhLvl: number;
+	EnhPatternID: number;
+	EnhRng: number;
+	EnhRty: number;
+	ItemID: number;
+	bBank: number;
+	bCoins: number;
+	bEquip: number;
+	bStaff: number;
+	bTemp: number;
+	bUpg: number;
+	dPurchase: string;
+	iCost: number;
+	iDPS: number;
+	iHrs: number;
+	iLvl: number;
+	iQty: number;
+	iRng: number;
+	iRty: number;
+	iStk: number;
+	iType: number;
+	sDesc: string;
+	sES: string;
+	sElmt: string;
+	sFile: string;
+	sIcon: string;
+	sLink: string;
+	sName: string;
+	sType: string;
+};

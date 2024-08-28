@@ -1,4 +1,4 @@
-const Server = require('./struct/Server');
+import Server from './struct/Server';
 
 class Auth {
 	constructor(bot) {
@@ -109,4 +109,4 @@ class Auth {
 	}
 }
 
-module.exports = Auth;
+export default Auth;

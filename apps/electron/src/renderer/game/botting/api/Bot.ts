@@ -1,28 +1,30 @@
-const { EventEmitter } = require('events');
+import { EventEmitter } from 'events';
 
-const Auth = require('./botting/api/Auth');
-const Bank = require('./botting/api/Bank');
-const Combat = require('./botting/api/Combat');
-const Drops = require('./botting/api/Drops');
-const House = require('./botting/api/House');
-const Inventory = require('./botting/api/Inventory');
-const Player = require('./botting/api/Player');
-const Packets = require('./botting/api/Packets');
-const Quests = require('./botting/api/Quests');
-const Settings = require('./botting/api/Settings');
-const Shops = require('./botting/api/Shop');
-const TempInventory = require('./botting/api/TempInventory');
-const World = require('./botting/api/World');
+import Auth from './botting/api/Auth';
+import Bank from './botting/api/Bank';
+import Combat from './botting/api/Combat';
+import Drops from './botting/api/Drops';
+import House from './botting/api/House';
+import Inventory from './botting/api/Inventory';
+import Player from './botting/api/Player';
+import Packets from './botting/api/Packets';
+import Quests from './botting/api/Quests';
+import Settings from './botting/api/Settings';
+import Shops from './botting/api/Shop';
+import TempInventory from './botting/api/TempInventory';
+import World from './botting/api/World';
 
-const AutoRelogin = require('./botting/api/util/AutoRelogin.js');
-const Flash = require('./botting/api/util/Flash.js');
-const TimerManager = require('./botting/api/util/TimerManager.js');
+import AutoRelogin from './botting/api/util/AutoRelogin';
+import Flash from './botting/api/util/Flash';
+import TimerManager from './botting/api/util/TimerManager';
 
 class Bot extends EventEmitter {
 	/**
 	 * @type {AbortController}
 	 */
-	#ac;
+	#ac: AbortController | null = null;
+
+	static _instance: Bot | null = null;
 
 	constructor() {
 		super();
@@ -31,7 +33,7 @@ class Bot extends EventEmitter {
 			throw new Error('Bot is a singleton, use Bot.getInstance()');
 		}
 
-		this._instance = this;
+		Bot._instance = this;
 
 		/**
 		 * @type {import('./util/AutoRelogin')}
@@ -118,8 +120,8 @@ class Bot extends EventEmitter {
 	 * @param {number} ms The number of milliseconds to wait.
 	 * @returns {Promise<void>}
 	 */
-	sleep(ms) {
-		return new Promise((resolve) => {
+	sleep(ms: number) {
+		return new Promise<void>((resolve) => {
 			let id = this.timerManager.setTimeout(() => {
 				this.timerManager.clearTimeout(id);
 				resolve();
@@ -134,7 +136,11 @@ class Bot extends EventEmitter {
 	 * @param {number} [timeout=15] The maximum number of iterations to wait. -1 to wait indefinitely.
 	 * @returns {Promise<void>}
 	 */
-	async waitUntil(condition, prerequisite = null, timeout = 15) {
+	async waitUntil(
+		condition: () => boolean,
+		prerequisite: (() => boolean) | null = null,
+		timeout = 15,
+	) {
 		let iterations = 0;
 
 		while (
@@ -180,7 +186,7 @@ class Bot extends EventEmitter {
 	 * @returns {boolean}
 	 */
 	get running() {
-		return !this.#ac?.signal.aborted ?? false;
+		return this.#ac?.signal.aborted ?? false;
 	}
 
 	/**
@@ -188,7 +194,7 @@ class Bot extends EventEmitter {
 	 * @returns {Bot}
 	 * @static
 	 */
-	static getInstance() {
+	static getInstance(): Bot {
 		Bot._instance ??= new Bot();
 		return Bot._instance;
 	}
@@ -211,4 +217,4 @@ window.shops = window.bot.shops;
 window.tempInventory = window.bot.tempInventory;
 window.world = window.bot.world;
 
-module.exports = Bot;
+export default Bot;

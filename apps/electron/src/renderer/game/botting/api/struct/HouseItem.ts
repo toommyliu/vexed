@@ -1,8 +1,8 @@
-const Item = require('./Item');
+import { Item } from './Item';
 
 /**
  * Represents a house item.
  */
 class HouseItem extends Item {}
 
-module.exports = HouseItem;
+export default HouseItem;

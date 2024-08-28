@@ -152,4 +152,4 @@ class TimerManager {
 	}
 }
 
-module.exports = TimerManager;
+export default TimerManager;
