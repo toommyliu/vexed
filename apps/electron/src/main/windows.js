@@ -110,6 +110,8 @@ async function createGame(account = null) {
 					'account.aq.com',
 					'www.aqwwiki.wikidot.com',
 					'aqwwiki.wikidot.com',
+					'heromart.com',
+					'www.heromart.com',
 				];
 				if (!domains.includes(_url.hostname)) {
 					console.log('Blocking url', _url);
