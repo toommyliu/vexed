@@ -4,7 +4,7 @@
 	"main": "dist/main/index.js",
 	"scripts": {
 		"typecheck": "tsc --noEmit",
-		"compile": "pnpm typecheck || true && babel src/ --out-dir dist/ --extensions .ts",
+		"compile": "pnpm typecheck || true && node esbuild.config.js",
 		"compile:watch": "pnpm typecheck || true && babel src/ --out-dir dist/ --extensions .ts --watch",
 		"dev": "pnpm compile && electron .",
 		"dev:watch": "concurrently \"pnpm compile:watch\" \"electronmon .\"",
@@ -23,11 +23,6 @@
 		"set-interval-async": "^3.0.3"
 	},
 	"devDependencies": {
-		"@babel/cli": "^7.24.8",
-		"@babel/core": "^7.25.2",
-		"@babel/plugin-transform-modules-commonjs": "^7.24.8",
-		"@babel/preset-env": "^7.25.4",
-		"@babel/preset-typescript": "^7.24.7",
 		"@types/electron-prompt": "^1.6.5",
 		"@types/node-fetch": "^2.6.11",
 		"concurrently": "^8.2.2",
@@ -35,6 +30,8 @@
 		"electron": "github:toommyliu/electron",
 		"electron-builder": "^24.13.3",
 		"electronmon": "^2.0.3",
+		"esbuild": "^0.23.1",
+		"esbuild-plugin-tsconfig-paths": "^1.0.1",
 		"prettier": "^3.3.2",
 		"typescript": "^5.5.4"
 	},

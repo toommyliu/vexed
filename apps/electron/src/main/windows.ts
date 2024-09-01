@@ -30,7 +30,7 @@ async function createGame(account: Account | null = null): Promise<void> {
 	session.defaultSession.webRequest.onBeforeSendHeaders(
 		(details, callback) => {
 			details.requestHeaders['User-Agent'] = userAgent;
-			details.requestHeaders.artixmode = 'launcher';
+			details.requestHeaders['artixmode'] = 'launcher';
 			details.requestHeaders['x-requested-with'] =
 				'ShockwaveFlash/32.0.0.371';
 			details.requestHeaders['origin'] = 'https://game.aq.com';
@@ -39,7 +39,7 @@ async function createGame(account: Account | null = null): Promise<void> {
 		},
 	);
 
-	await window.loadFile(join(RENDERER, 'game/game.html'));
+	await window.loadFile(join(RENDERER, 'game.html'));
 	if (!app.isPackaged) {
 		window.webContents.openDevTools({ mode: 'right' });
 	}
@@ -107,7 +107,6 @@ async function createGame(account: Account | null = null): Promise<void> {
 				if (!domains.includes(_url.hostname)) {
 					console.log('Blocking url', _url);
 					ev.preventDefault();
-					// @ts-expect-error
 					ev.newGuest = null;
 					return null;
 				}

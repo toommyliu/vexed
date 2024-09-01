@@ -26,7 +26,7 @@ doc.contextPatternMatchers.push(function (str, parentContext) {
 	}
 });
 
-const inputDir = join(__dirname, '../src/renderer/game/botting/api');
+const inputDir = join(__dirname, '../src/renderer/botting/api');
 const outputDir = join(__dirname, '../../docs/api');
 
 const typePatterns = [

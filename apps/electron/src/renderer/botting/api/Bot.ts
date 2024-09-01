@@ -1,22 +1,22 @@
 import { EventEmitter } from 'events';
 
-import Auth from './botting/api/Auth';
-import Bank from './botting/api/Bank';
-import Combat from './botting/api/Combat';
-import Drops from './botting/api/Drops';
-import House from './botting/api/House';
-import Inventory from './botting/api/Inventory';
-import Player from './botting/api/Player';
-import Packets from './botting/api/Packets';
-import Quests from './botting/api/Quests';
-import Settings from './botting/api/Settings';
-import Shops from './botting/api/Shop';
-import TempInventory from './botting/api/TempInventory';
-import World from './botting/api/World';
+import Auth from '@renderer/botting/api/Auth';
+import Bank from '@renderer/botting/api/Bank';
+import Combat from '@renderer/botting/api/Combat';
+import Drops from '@renderer/botting/api/Drops';
+import House from '@renderer/botting/api/House';
+import Inventory from '@renderer/botting/api/Inventory';
+import Player from '@renderer/botting/api/Player';
+import Packets from '@renderer/botting/api/Packets';
+import Quests from '@renderer/botting/api/Quests';
+import Settings from '@renderer/botting/api/Settings';
+import Shops from '@renderer/botting/api/Shop';
+import TempInventory from '@renderer/botting/api/TempInventory';
+import World from '@renderer/botting/api/World';
 
-import AutoRelogin from './botting/api/util/AutoRelogin';
-import Flash from './botting/api/util/Flash';
-import TimerManager from './botting/api/util/TimerManager';
+import AutoRelogin from '@renderer/botting/api/util/AutoRelogin';
+import Flash from '@renderer/botting/api/util/Flash';
+import TimerManager from '@renderer/botting/api/util/TimerManager';
 
 class Bot extends EventEmitter {
 	/**

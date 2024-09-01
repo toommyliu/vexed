@@ -73,7 +73,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 		);
 		$btn.addEventListener('click', () => {
 			window.windows.tools.loaderGrabber = window.open(
-				'./pages/tools/loader-grabber/index.html',
+				'./pages/tools/loader-grabber/babel src/ --out-dir dist/ --extensions .tsindex.html',
 				null,
 				'width=363,height=542',
 			);

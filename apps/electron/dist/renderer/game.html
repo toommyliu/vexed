@@ -2,15 +2,33 @@
 <link rel="stylesheet" href="shared.css" />
 <link rel="stylesheet" href="styles.css" />
 
-<script src="botting/api/Bot.js" type="module"></script>
-<script src="handlers/index.js" type="module"></script>
-
-<script src="script.js" type="module"></script>
+<script type="module">
+	window.addEventListener('DOMContentLoaded', async () => {
+		{
+			const script = document.createElement('script');
+			script.type = 'module';
+			script.src = './botting/api/Bot.js';
+			document.body.appendChild(script);
+		}
+		{
+			const script = document.createElement('script');
+			script.type = 'module';
+			script.src = './handlers/index.js';
+			document.body.appendChild(script);
+		}
+		{
+			const script = document.createElement('script');
+			script.type = 'module';
+			script.src = 'script.js';
+			document.body.appendChild(script);
+		}
+	});
+</script>
 
 <div id="gameContainer">
 	<embed
 		id="swf"
-		src="../../../assets/grimoire.swf"
+		src="../../assets/grimoire.swf"
 		type="application/x-shockwave-flash"
 	/>
 </div>
