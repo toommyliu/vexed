@@ -1,5 +1,5 @@
 import { app, BrowserWindow, session } from 'electron';
-import { join } from 'path';
+import { join, resolve } from 'path';
 import { showErrorDialog } from './utils';
 
 const RENDERER = join(__dirname, '../renderer');
@@ -39,7 +39,7 @@ async function createGame(account: Account | null = null): Promise<void> {
 		},
 	);
 
-	await window.loadFile(join(RENDERER, 'game.html'));
+	await window.loadURL(`file://${resolve(RENDERER, 'index.html')}`);
 	if (!app.isPackaged) {
 		window.webContents.openDevTools({ mode: 'right' });
 	}

@@ -31,7 +31,6 @@
 		"electron-builder": "^24.13.3",
 		"electronmon": "^2.0.3",
 		"esbuild": "^0.23.1",
-		"esbuild-plugin-tsconfig-paths": "^1.0.1",
 		"prettier": "^3.3.2",
 		"typescript": "^5.5.4"
 	},
