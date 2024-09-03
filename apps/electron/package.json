@@ -5,7 +5,7 @@
 	"scripts": {
 		"typecheck": "tsc --noEmit",
 		"compile": "pnpm typecheck || true && node esbuild.config.js",
-		"compile:watch": "pnpm typecheck || true && babel src/ --out-dir dist/ --extensions .ts --watch",
+		"compile:watch": "pnpm typecheck || true && node esbuild.config.js --watch",
 		"dev": "pnpm compile && electron .",
 		"dev:watch": "concurrently \"pnpm compile:watch\" \"electronmon .\"",
 		"build": "pnpm compile || true && electron-builder build",

@@ -3,27 +3,11 @@
 <link rel="stylesheet" href="styles.css" />
 
 <script type="module">
-		const path = require('path');
-		window.addEventListener('DOMContentLoaded', async () => {
-			{
-				const script = document.createElement('script');
-				script.type = 'module';
-				script.src = `file://${path.join(__dirname, 'api/Bot.js')}`;
-				document.body.appendChild(script);
-			}
-			{
-				const script = document.createElement('script');
-				script.type = 'module';
-				script.src = 'handlers/index.js';
-				document.body.appendChild(script);
-			}
-			{
-				const script = document.createElement('script');
-				script.type = 'module';
-				script.src = 'script.js';
-				document.body.appendChild(script);
-			}
-		});
+	window.addEventListener('DOMContentLoaded', async () => {
+		require('./api/Bot.js');
+		require('./handlers/index.js');
+		require('./script.js');
+	});
 </script>
 
 <div id="gameContainer">

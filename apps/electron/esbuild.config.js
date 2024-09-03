@@ -1,7 +1,6 @@
 const fs = require('fs-extra');
 const path = require('path');
 
-const ts = require('typescript');
 const esbuild = require('esbuild');
 
 const readdirp = async (dir, ext, files = []) => {
@@ -54,80 +53,6 @@ async function transpile() {
 			return directories.join('/');
 		};
 
-		/**
-		 * Updates any import paths to be relative to the html file, and not the current file.
-		 * @type {import('esbuild').Plugin}
-		 */
-		const pathResolverPlugin = {
-			name: 'path-resolver',
-			setup(build) {
-				build.onLoad({ filter: /\.(ts)$/ }, async (args) => {
-					if (
-						args.path ===
-						'/Users/tommyliu/Documents/projects/repos/vexed/apps/electron/src/renderer/index.d.ts'
-					) {
-						return;
-					}
-
-					const code = await fs.promises.readFile(args.path, 'utf8');
-
-					const rendererSrc = path.join(__dirname, 'src/renderer');
-					const rendererDist = path.join(__dirname, 'dist/renderer');
-
-					// ts input path
-					const tsPath = args.path;
-					// js output path
-					const jsPath = `${path
-						.join(
-							rendererDist,
-							args.path.substring(rendererSrc.length),
-						)
-						.slice(0, -3)}.js`;
-
-					const indexPath = path.resolve(
-						__dirname,
-						'dist/renderer/index.html',
-					);
-
-					const transformedCode = code.replace(
-						/import\s+.*?\s+from\s+['"](.*)['"]/g,
-						(match, importPath) => {
-							if (importPath.startsWith('./')) {
-								// api/bot.js
-								const pathRelativeToRenderer = path.relative(
-									rendererDist,
-									jsPath,
-								);
-
-								// api
-								const pathToGetToTranspiledFile =
-									getDirectories(pathRelativeToRenderer);
-
-								// new import path
-								const normalizedPath = `${path.join(
-									pathToGetToTranspiledFile,
-									importPath,
-								)}.js`;
-
-								console.log(normalizedPath);
-
-								return match.replace(
-									importPath,
-									normalizedPath,
-								);
-							}
-							return match;
-						},
-					);
-
-					return {
-						contents: transformedCode,
-						loader: 'ts',
-					};
-				});
-			},
-		};
-
 		await esbuild
 			.build({
 				entryPoints: (await readdirp('./src/renderer/', ['.ts'])).map(
@@ -137,7 +62,6 @@ async function transpile() {
 				platform: 'node',
 				target: 'chrome80',
 				format: 'cjs',
-				plugins: [pathResolverPlugin],
 			})
 			.then(() => {
 				console.log(

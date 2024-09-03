@@ -1,6 +1,6 @@
-import addGoldExp from './handlers/json/addGoldExp';
-import ct from './handlers/json/ct';
-import dropItem from './handlers/json/dropItem';
+import addGoldExp from './json/addGoldExp';
+import ct from './json/ct';
+import dropItem from './json/dropItem';
 
 async function packetFromServer([packet]: [string]) {
 	bot.emit('packetFromServer', packet);
