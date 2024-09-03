@@ -19,8 +19,7 @@
 		"electron-prompt": "^1.7.0",
 		"fs-extra": "^11.2.0",
 		"node-fetch": "^2.7.0",
-		"nw-flash-trust": "^0.3.0",
-		"set-interval-async": "^3.0.3"
+		"nw-flash-trust": "^0.3.0"
 	},
 	"devDependencies": {
 		"@types/electron-prompt": "^1.6.5",

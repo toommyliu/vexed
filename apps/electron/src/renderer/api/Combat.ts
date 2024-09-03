@@ -1,15 +1,23 @@
+import type Bot from './Bot';
+import type { SetIntervalAsyncTimer } from './util/TimerManager';
+
 /**
  * @description A `monsterResolvable` is either a monster name or monMapID prefixed with `id` and
  * delimited by a `'`, `.`, `:`, `-` character
  */
 class Combat {
-	constructor(bot) {
+	bot: Bot;
+
+	pauseAttack: boolean;
+
+	constructor(bot: Bot) {
 		/**
 		 * @type {import('./Bot')}
 		 * @ignore
 		 */
 		this.bot = bot;
 
+		// TODO: make this a method
 		/**
 		 * Whether to stop attacking because a counter attack is active.
 		 * @type {boolean}
@@ -45,7 +53,7 @@ class Combat {
 				state: dataLeaf.intState,
 			};
 
-			if (ret.entType && ret.entType === 'p') {
+			if ('entType' in ret && ret.entType === 'p') {
 				ret.monID = dataLeaf.MonID;
 				ret.monMapID = dataLeaf.MonMapID;
 			}
@@ -62,7 +70,7 @@ class Combat {
 	 * @param {boolean} wait Whether to wait for the skill to be available.
 	 * @returns {Promise<void>}
 	 */
-	async useSkill(index, force = false, wait = false) {
+	async useSkill(index: string | number, force = false, wait = false) {
 		const fn = force ? swf.ForceUseSkill : swf.UseSkill;
 		if (wait) {
 			await this.bot.sleep(swf.SkillAvailable(index));
@@ -75,7 +83,7 @@ class Combat {
 	 * @param {string} monsterResolvable The name or monMapID of the monster.
 	 * @returns {void}
 	 */
-	attack(monsterResolvable) {
+	attack(monsterResolvable: string) {
 		// prettier-ignore
 		if (["id'", 'id.', 'id:', 'id-'].some((prefix) => monsterResolvable.startsWith(prefix))) {
 			const monMapID = monsterResolvable.substring(3);
@@ -108,7 +116,7 @@ class Combat {
 	 * @returns {Promise<void>}
 	 */
 	async kill(
-		monsterResolvable,
+		monsterResolvable: string,
 		config = {
 			killPriority: [],
 			skillSet: [1, 2, 3, 4],
@@ -133,12 +141,12 @@ class Combat {
 
 		const { killPriority, skillSet, skillDelay, skillWait } = config;
 
-		let timer_a;
-		let timer_b;
+		let timer_a: SetIntervalAsyncTimer<unknown[]> | null = null;
+		let timer_b: SetIntervalAsyncTimer<unknown[]> | null = null;
 
 		let index = 0;
 
-		return new Promise((resolve) => {
+		return new Promise<void>((resolve) => {
 			timer_a = this.bot.timerManager.setInterval(async () => {
 				if (this.pauseAttack) {
 					return;
@@ -186,10 +194,10 @@ class Combat {
 							),
 						);
 					}
-					await this.useSkill(skillSet[index++]);
-					if (index >= skillSet.length) {
-						index = 0;
-					}
+					await this.useSkill(
+						// @ts-expect-error
+						skillSet[(index + 1) % skillSet.length],
+					);
 					await this.bot.sleep(skillDelay);
 				}
 			}, 0);

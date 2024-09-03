@@ -1,4 +1,5 @@
 import { Mutex } from 'async-mutex';
+import type Bot from '../Bot';
 
 /**
  * @description
@@ -9,7 +10,11 @@ class AutoRelogin {
 	#intervalID = null;
 	#mutex = new Mutex();
 
-	constructor(bot) {
+	bot: Bot;
+	server: string | null;
+	delay: number;
+
+	constructor(bot: Bot) {
 		/**
 		 * @type {import('../Bot')}
 		 * @ignore

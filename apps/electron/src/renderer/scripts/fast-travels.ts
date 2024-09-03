@@ -1,5 +1,3 @@
-/// <reference path="../index.d.ts" />
-
 window.addEventListener('message', async (ev) => {
 	if (!ev.data.event.startsWith('tools:fasttravel')) {
 		return;
@@ -23,7 +21,7 @@ window.addEventListener('message', async (ev) => {
 				args.pad ?? 'Spawn',
 				1,
 			);
-			ev.source.postMessage({
+			ev.source!.postMessage({
 				event: 'tools:fasttravel:ready',
 			});
 			break;

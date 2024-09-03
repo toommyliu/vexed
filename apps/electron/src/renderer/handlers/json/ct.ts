@@ -1,11 +1,16 @@
+import type Bot from '../../api/Bot';
+
 /**
  * @param {import('../../botting/api/Bot')} bot
  * @param {JSON} packet
  */
-function ct(bot, packet) {
+function ct(bot: Bot, packet: JSON) {
+	// @ts-expect-error
 	if (Array.isArray(packet?.b?.o?.anims)) {
+		// @ts-expect-error
 		for (let i = 0; i < packet.b.o.anims.length; i++) {
 			if (
+				// @ts-expect-error
 				packet.b.o.anims[i]?.msg
 					?.toLowerCase()
 					?.includes('prepares a counter attack')
@@ -17,13 +22,17 @@ function ct(bot, packet) {
 			}
 		}
 	}
-
+	// @ts-expect-error
 	if (Array.isArray(packet.b.o.a)) {
+		// @ts-expect-error
 		for (let i = 0; i < packet.b.o.a.length; i++) {
 			if (
+				// @ts-expect-error
 				packet.b.o.a[i]?.cmd === 'aura--' &&
+				// @ts-expect-error
 				packet.b.o.a[i]?.aura?.nam === 'Counter Attack'
 			) {
+				// @ts-expect-error
 				const monMapID = packet.b.o.a[i]?.tInf.split(':')[1];
 				bot.combat.attack(`id:${monMapID}`);
 				bot.combat.pauseAttack = false;

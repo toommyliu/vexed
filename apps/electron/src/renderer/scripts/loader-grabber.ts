@@ -1,4 +1,4 @@
-const { ipcRenderer } = require('electron');
+import { ipcRenderer } from 'electron';
 
 window.addEventListener('message', async (ev) => {
 	if (!ev.data.event.startsWith('tools:loadergrabber')) {
@@ -87,7 +87,7 @@ window.addEventListener('message', async (ev) => {
 		}
 
 		if (ret) {
-			ev.source.postMessage({
+			ev.source!.postMessage({
 				event: 'tools:loadergrabber:grab',
 				args: { data: ret, type: type },
 			});

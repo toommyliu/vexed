@@ -1,8 +1,11 @@
 import Avatar from './struct/Avatar';
 import Monster from './struct/Monster';
+import type Bot from './Bot';
 
 class World {
-	constructor(bot) {
+	bot: Bot;
+
+	constructor(bot: Bot) {
 		/**
 		 * @type {import('./Bot')}
 		 * @ignore
@@ -42,7 +45,7 @@ class World {
 	 */
 	get visibleMonsters() {
 		const ret = this.bot.flash.call(swf.GetVisibleMonstersInCell);
-		if (Array.isArray(monsters)) {
+		if (Array.isArray(ret)) {
 			return ret.map((data) => new Monster(data));
 		}
 		return [];
@@ -65,7 +68,7 @@ class World {
 	 * @param {string} monsterResolvable The name of the monster or in monMapID format.
 	 * @returns {boolean}
 	 */
-	isMonsterAvailable(monsterResolvable) {
+	isMonsterAvailable(monsterResolvable: string) {
 		// prettier-ignore
 		if (["id'", 'id.', 'id:', 'id-'].some((prefix) => monsterResolvable.startsWith(prefix))) {
 			const monMapID = monsterResolvable.substring(3);
@@ -150,7 +153,12 @@ class World {
 	 * @param {number} [tries=5] The number of times to try jumping.
 	 * @returns {Promise<void>}
 	 */
-	async jump(cell, pad = 'Spawn', force = false, tries = 5) {
+	async jump(
+		cell: string,
+		pad = 'Spawn',
+		force = false,
+		tries = 5,
+	): Promise<void> {
 		const isSameCell = () =>
 			this.bot.player.cell.toLowerCase() === cell.toLowerCase();
 
@@ -176,7 +184,7 @@ class World {
 	 * @param {number} [tries=5] Number of attempts to try and join the map
 	 * @returns {Promise<void>}
 	 */
-	async join(mapName, cell = 'Enter', pad = 'Spawn', tries = 5) {
+	async join(mapName: string, cell = 'Enter', pad = 'Spawn', tries = 5) {
 		await this.bot.waitUntil(
 			() => this.isActionAvailable(GameAction.Transfer),
 			null,
@@ -191,7 +199,7 @@ class World {
 			map_number === '1e9' ||
 			map_number === '1e99' ||
 			Number.isNaN(
-				Number.parseInt(map_number),
+				Number.parseInt(map_number!),
 			) /* any non-number, e.g yulgar-a*/
 		) {
 			map_number = '100000';
@@ -201,7 +209,7 @@ class World {
 
 		while (
 			attempts > 0 &&
-			this.name.toLowerCase() !== map_name.toLowerCase()
+			this.name.toLowerCase() !== map_name!.toLowerCase()
 		) {
 			await this.bot.waitUntil(
 				() => this.isActionAvailable(GameAction.Transfer),
@@ -211,7 +219,7 @@ class World {
 			await this.bot.combat.exit();
 			this.bot.flash.call(swf.Join, map_str, cell, pad);
 			await this.bot.waitUntil(
-				() => this.name.toLowerCase() === map_name.toLowerCase(),
+				() => this.name.toLowerCase() === map_name!.toLowerCase(),
 				null,
 				10,
 			);
@@ -229,7 +237,7 @@ class World {
 	 * @param {string} name The name of the player to goto.
 	 * @returns {void}
 	 */
-	goto(name) {
+	goto(name: string) {
 		this.bot.flash.call(swf.GoTo, name);
 	}
 
@@ -243,10 +251,10 @@ class World {
 
 	/**
 	 * Whether the game action has cooled down.
-	 * @param {GameAction} action The game action to check.
+	 * @param {typeof GameAction} action The game action to check.
 	 * @returns {boolean}
 	 */
-	isActionAvailable(action) {
+	isActionAvailable(action: GameAction): boolean {
 		return this.bot.flash.call(swf.IsActionAvailable, action);
 	}
 
@@ -255,7 +263,7 @@ class World {
 	 * @param {string} itemID The ID of the item.
 	 * @returns {Promise<void>}
 	 */
-	async getMapItem(itemID) {
+	async getMapItem(itemID: string) {
 		await this.bot.waitUntil(() =>
 			this.isActionAvailable(GameAction.GetMapItem),
 		);
@@ -268,7 +276,7 @@ class World {
 	 * @param {string} mapSWF The swf to load.
 	 * @returns {void}
 	 */
-	loadMap(mapSWF) {
+	loadMap(mapSWF: string) {
 		if (!mapSWF.endsWith('.swf')) {
 			mapSWF += '.swf';
 		}
@@ -276,102 +284,96 @@ class World {
 	}
 }
 
-/**
- * Enum representing game actions.
- * @readonly
- * @enum {string}
- */
-const GameAction = Object.freeze({
+enum GameAction {
 	/**
 	 * Loading a shop.
 	 * @memberof GameAction
 	 * @type {string}
 	 */
-	LoadShop: 'loadShop',
+	LoadShop = 'loadShop',
 	/**
 	 * Loading an enhancement shop.
 	 * @memberof GameAction
 	 * @type {string}
 	 */
-	LoadEnhShop: 'loadEnhShop',
+	LoadEnhShop = 'loadEnhShop',
 	/**
 	 * Loading a hair shop.
 	 * @memberof GameAction
 	 * @type {string}
 	 */
-	LoadHairShop: 'loadHairShop',
+	LoadHairShop = 'loadHairShop',
 	/**
 	 * Equipping an item.
 	 * @memberof GameAction
 	 * @type {string}
 	 */
-	EquipItem: 'equipItem',
+	EquipItem = 'equipItem',
 	/**
 	 * Unequipping an item.
 	 * @memberof GameAction
 	 * @type {string}
 	 */
-	UnequipItem: 'unequipItem',
+	UnequipItem = 'unequipItem',
 	/**
 	 * Buying an item.
 	 * @memberof GameAction
 	 * @type {string}
 	 */
-	BuyItem: 'buyItem',
+	BuyItem = 'buyItem',
 	/**
 	 * Selling an item.
 	 * @memberof GameAction
 	 * @type {string}
 	 */
-	SellItem: 'sellItem',
+	SellItem = 'sellItem',
 	/**
 	 * Getting a map item (i.e. via the getMapItem packet).
 	 * @memberof GameAction
 	 * @type {string}
 	 */
-	GetMapItem: 'getMapItem',
+	GetMapItem = 'getMapItem',
 	/**
 	 * Sending a quest completion packet.
 	 * @memberof GameAction
 	 * @type {string}
 	 */
-	TryQuestComplete: 'tryQuestComplete',
+	TryQuestComplete = 'tryQuestComplete',
 	/**
 	 * Accepting a quest.
 	 * @memberof GameAction
 	 * @type {string}
 	 */
-	AcceptQuest: 'acceptQuest',
+	AcceptQuest = 'acceptQuest',
 	/**
 	 * Do IA action.
 	 * @memberof GameAction
 	 * @type {string}
 	 */
-	DoIA: 'doIA',
+	DoIA = 'doIA',
 	/**
 	 * Resting.
 	 * @memberof GameAction
 	 * @type {string}
 	 */
-	Rest: 'rest',
+	Rest = 'rest',
 	/**
 	 * Who action.
 	 * @memberof GameAction
 	 * @type {string}
 	 */
-	Who: 'who',
+	Who = 'who',
 	/**
 	 * Joining another map.
 	 * @memberof GameAction
 	 * @type {string}
 	 */
-	Transfer: 'tfer',
-});
+	Transfer = 'tfer',
+}
 
-window.GameAction = GameAction;
 Object.defineProperty(window, 'GameAction', {
 	value: GameAction,
 	writable: false,
 });
 
-export default World;
+export { World, GameAction };

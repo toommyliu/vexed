@@ -12,11 +12,11 @@ import Quests from './Quests';
 import Settings from './Settings';
 import Shops from './Shop';
 import TempInventory from './TempInventory';
-import World from './World';
+import { World } from './World';
 
 import AutoRelogin from './util/AutoRelogin';
 import Flash from './util/Flash';
-import TimerManager from './util/TimerManager';
+import { TimerManager } from './util/TimerManager';
 
 class Bot extends EventEmitter {
 	/**
@@ -25,6 +25,24 @@ class Bot extends EventEmitter {
 	#ac: AbortController | null = null;
 
 	static _instance: Bot | null = null;
+
+	auth: InstanceType<typeof Auth>;
+	bank: InstanceType<typeof Bank>;
+	combat: InstanceType<typeof Combat>;
+	drops: InstanceType<typeof Drops>;
+	house: InstanceType<typeof House>;
+	inventory: InstanceType<typeof Inventory>;
+	player: InstanceType<typeof Player>;
+	packets: InstanceType<typeof Packets>;
+	quests: InstanceType<typeof Quests>;
+	settings: InstanceType<typeof Settings>;
+	shops: InstanceType<typeof Shops>;
+	tempInventory: InstanceType<typeof TempInventory>;
+	world: InstanceType<typeof World>;
+
+	autoRelogin: InstanceType<typeof AutoRelogin>;
+	flash: InstanceType<typeof Flash>;
+	timerManager: InstanceType<typeof TimerManager>;
 
 	constructor() {
 		super();

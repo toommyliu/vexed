@@ -3,16 +3,29 @@
 
 const MIN_INTERVAL_MS = 10;
 const MAX_INTERVAL_MS = 2147483647;
-class SetIntervalAsyncTimer {
-	#timeout = undefined;
-	#promise = undefined;
+
+type NativeTimeout = unknown;
+type SetIntervalAsyncStrategy = 'dynamic' | 'fixed';
+type SetIntervalAsyncHandler<HandlerArgs extends unknown[]> = (
+	...handlerArgs: HandlerArgs
+) => void | Promise<void>;
+
+class SetIntervalAsyncTimer<HandlerArgs extends unknown[]> {
+	#timeout: NativeTimeout | undefined = undefined;
+	#promise: Promise<void> | undefined = undefined;
 	#stopped = false;
-	static startTimer(strategy, handler, intervalMs, ...handlerArgs) {
+
+	static startTimer<HandlerArgs extends unknown[]>(
+		strategy: SetIntervalAsyncStrategy,
+		handler: SetIntervalAsyncHandler<HandlerArgs>,
+		intervalMs: number,
+		...handlerArgs: HandlerArgs
+	): SetIntervalAsyncTimer<HandlerArgs> {
 		intervalMs = Math.min(
 			Math.max(Math.trunc(intervalMs), MIN_INTERVAL_MS),
 			MAX_INTERVAL_MS,
 		);
-		const timer = new SetIntervalAsyncTimer();
+		const timer = new SetIntervalAsyncTimer<HandlerArgs>();
 		timer.#scheduleTimeout(
 			strategy,
 			handler,
@@ -22,16 +35,27 @@ class SetIntervalAsyncTimer {
 		);
 		return timer;
 	}
-	static async stopTimer(timer) {
+
+	static async stopTimer<HandlerArgs extends unknown[]>(
+		timer: SetIntervalAsyncTimer<HandlerArgs>,
+	): Promise<void> {
 		timer.#stopped = true;
 		if (timer.#timeout) {
+			// @ts-expect-error
 			clearTimeout(timer.#timeout);
 		}
 		if (timer.#promise) {
 			await timer.#promise;
 		}
 	}
-	#scheduleTimeout(strategy, handler, intervalMs, delayMs, ...handlerArgs) {
+
+	#scheduleTimeout(
+		strategy: SetIntervalAsyncStrategy,
+		handler: SetIntervalAsyncHandler<HandlerArgs>,
+		intervalMs: number,
+		delayMs: number,
+		...handlerArgs: HandlerArgs
+	): void {
 		this.#timeout = setTimeout(async () => {
 			this.#timeout = undefined;
 			this.#promise = this.#runHandlerAndScheduleTimeout(
@@ -44,12 +68,13 @@ class SetIntervalAsyncTimer {
 			this.#promise = undefined;
 		}, delayMs);
 	}
+
 	async #runHandlerAndScheduleTimeout(
-		strategy,
-		handler,
-		intervalMs,
-		...handlerArgs
-	) {
+		strategy: SetIntervalAsyncStrategy,
+		handler: SetIntervalAsyncHandler<HandlerArgs>,
+		intervalMs: number,
+		...handlerArgs: HandlerArgs
+	): Promise<void> {
 		const startTimeMs = new Date().getTime();
 		try {
 			await handler(...handlerArgs);
@@ -74,7 +99,11 @@ class SetIntervalAsyncTimer {
 	}
 }
 
-function setIntervalAsync(handler, intervalMs, ...handlerArgs) {
+function setIntervalAsync<HandlerArgs extends unknown[]>(
+	handler: SetIntervalAsyncHandler<HandlerArgs>,
+	intervalMs: number,
+	...handlerArgs: HandlerArgs
+): SetIntervalAsyncTimer<HandlerArgs> {
 	if (!(typeof handler === 'function')) {
 		throw new TypeError('First argument is not a function');
 	}
@@ -89,7 +118,9 @@ function setIntervalAsync(handler, intervalMs, ...handlerArgs) {
 	);
 }
 
-async function clearIntervalAsync(timer) {
+async function clearIntervalAsync<HandlerArgs extends unknown[]>(
+	timer: SetIntervalAsyncTimer<HandlerArgs>,
+): Promise<void> {
 	if (!(timer instanceof SetIntervalAsyncTimer)) {
 		throw new TypeError(
 			'First argument is not an instance of SetIntervalAsyncTimer',
@@ -110,7 +141,7 @@ class TimerManager {
 	 * @param {number} interval The delay between each execution.
 	 * @returns {SetIntervalAsyncTimer} The interval id.
 	 */
-	setInterval(fn, interval) {
+	setInterval(fn: Function, interval: number): SetIntervalAsyncTimer {
 		const id = setIntervalAsync(async () => {
 			await fn();
 		}, interval);
@@ -122,7 +153,7 @@ class TimerManager {
 	 * @param {SetIntervalAsyncTimer} id The interval id.
 	 * @returns {Promise<void>}
 	 */
-	async clearInterval(id) {
+	async clearInterval(id: SetIntervalAsyncTimer<unknown[]>): Promise<void> {
 		clearIntervalAsync(id);
 		this.#intervals.delete(id);
 	}
@@ -133,12 +164,13 @@ class TimerManager {
 	 * @param  {...any} args Arguments to pass to the function.
 	 * @returns {number} The timeout id.
 	 */
-	setTimeout(fn, delay, ...args) {
+	setTimeout(fn: Function, delay: number, ...args: any[]): number {
 		const timeout = setTimeout(() => {
 			this.#timeouts.delete(timeout);
 			fn(...args);
 		}, delay);
 		this.#timeouts.add(timeout);
+		// @ts-expect-error
 		return timeout;
 	}
 
@@ -146,10 +178,9 @@ class TimerManager {
 	 * @param {number} timeout The timeout id.
 	 * @returns {void}
 	 */
-	clearTimeout(timeout) {
+	clearTimeout(timeout: number): void {
 		clearTimeout(timeout);
 		this.#timeouts.delete(timeout);
 	}
 }
-
-export default TimerManager;
+export { TimerManager, SetIntervalAsyncTimer };

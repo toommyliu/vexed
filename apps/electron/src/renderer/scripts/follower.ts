@@ -1,6 +1,8 @@
+import type { SetIntervalAsyncTimer } from '../api/util/TimerManager';
+
 const { timerManager, auth, world, player, flash, combat } = bot;
 
-let timer = null;
+let timer: SetIntervalAsyncTimer<unknown[]> | null = null;
 
 let index = 0;
 /**
@@ -33,7 +35,7 @@ const isPlayerInMap = () => {
 	return flash.call(swf.GetCellPlayers, config.player);
 };
 
-const onPacketFromServer = async (packet) => {
+const onPacketFromServer = async (packet: string) => {
 	if (isFollowerOn() && config.copyWalk && packet.startsWith('%xt')) {
 		const args = packet.split('%');
 		const key = args[2];

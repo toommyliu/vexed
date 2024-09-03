@@ -1,3 +1,6 @@
+import type Bot from './Bot';
+import type { SetIntervalAsyncTimer } from './util/TimerManager';
+
 /**
  *  @description
  * `Provoke Map`: If enabled, tags all monsters in the map.
@@ -10,7 +13,7 @@
  *  Settings are updated in a background interval every 500ms.
  */
 class Settings {
-	#intervalID = null;
+	#intervalID: SetIntervalAsyncTimer<unknown[]> | null = null;
 	#infiniteRange = false;
 	#provokeMap = false;
 	#provokeCell = false;
@@ -20,16 +23,18 @@ class Settings {
 	#skipCutscenes = false;
 	#walkSpeed = 8;
 
-	#optionInfiniteRange = null;
-	#optionProvokeMap = null;
-	#optionProvokeCell = null;
-	#optionEnemyMagnet = null;
-	#optionLagKiller = null;
-	#optionHidePlayers = null;
-	#optionSkipCutscenes = null;
-	#optionWalkSpeed = null;
+	#optionInfiniteRange: HTMLElement | null = null;
+	#optionProvokeMap: HTMLElement | null = null;
+	#optionProvokeCell: HTMLElement | null = null;
+	#optionEnemyMagnet: HTMLElement | null = null;
+	#optionLagKiller: HTMLElement | null = null;
+	#optionHidePlayers: HTMLElement | null = null;
+	#optionSkipCutscenes: HTMLElement | null = null;
+	#optionWalkSpeed: HTMLElement | null = null;
 
-	constructor(bot) {
+	bot: Bot;
+
+	constructor(bot: Bot) {
 		/**
 		 * @type {import('../api/Bot')}
 		 * @ignore
@@ -116,9 +121,9 @@ class Settings {
 	 * @param {boolean} on
 	 * @returns {void}
 	 */
-	set infiniteRange(on) {
+	set infiniteRange(on: boolean) {
 		this.#infiniteRange = on;
-		this.#updateOption(this.#optionInfiniteRange, on);
+		this.#updateOption(this.#optionInfiniteRange!, on);
 	}
 
 	/**
@@ -135,9 +140,9 @@ class Settings {
 	 * @param {boolean} on
 	 * @returns {void}
 	 */
-	set provokeMap(on) {
+	set provokeMap(on: boolean) {
 		this.#provokeMap = on;
-		this.#updateOption(this.#optionProvokeMap, on);
+		this.#updateOption(this.#optionProvokeMap!, on);
 	}
 
 	/**
@@ -154,9 +159,9 @@ class Settings {
 	 * @param {boolean} on
 	 * @returns {void}
 	 */
-	set provokeCell(on) {
+	set provokeCell(on: boolean) {
 		this.#provokeCell = on;
-		this.#updateOption(this.#optionProvokeCell, on);
+		this.#updateOption(this.#optionProvokeCell!, on);
 	}
 
 	/**
@@ -173,9 +178,9 @@ class Settings {
 	 * @param {boolean} on
 	 * @returns {void}
 	 */
-	set enemyMagnet(on) {
+	set enemyMagnet(on: boolean) {
 		this.#enemyMagnet = on;
-		this.#updateOption(this.#optionEnemyMagnet, on);
+		this.#updateOption(this.#optionEnemyMagnet!, on);
 	}
 
 	/**
@@ -192,9 +197,9 @@ class Settings {
 	 * @param {boolean} on
 	 * @returns {void}
 	 */
-	set lagKiller(on) {
+	set lagKiller(on: boolean) {
 		this.#lagKiller = on;
-		this.#updateOption(this.#optionLagKiller, on);
+		this.#updateOption(this.#optionLagKiller!, on);
 		// Call immediately
 		if (on) {
 			this.bot.flash.call(swf.SetLagKiller, 'True');
@@ -217,7 +222,7 @@ class Settings {
 	 * @param {boolean} on
 	 * @returns {void}
 	 */
-	set hidePlayers(on) {
+	set hidePlayers(on: boolean) {
 		this.#hidePlayers = on;
 		this.#updateOption(this.#optionHidePlayers, on);
 		this.bot.flash.call(swf.HidePlayers, this.#hidePlayers);
@@ -237,9 +242,9 @@ class Settings {
 	 * @param {boolean} on
 	 * @returns {void}
 	 */
-	set skipCutscenes(on) {
+	set skipCutscenes(on: boolean) {
 		this.#skipCutscenes = on;
-		this.#updateOption(this.#optionSkipCutscenes, on);
+		this.#updateOption(this.#optionSkipCutscenes!, on);
 	}
 
 	/**
@@ -256,10 +261,10 @@ class Settings {
 	 * @param {number} speed
 	 * @returns {void}
 	 */
-	set walkSpeed(speed) {
+	set walkSpeed(speed: number): void {
 		speed = Math.max(0, Math.min(99, speed));
 		this.#walkSpeed = speed;
-		this.#updateOption(this.#optionWalkSpeed, speed);
+		this.#updateOption(this.#optionWalkSpeed!, speed);
 	}
 
 	/**
@@ -267,7 +272,7 @@ class Settings {
 	 * @param {string|number} fps The target fps.
 	 * @returns {void}
 	 */
-	setFPS(fps) {
+	setFPS(fps: string | number): void {
 		this.bot.flash.call(swf.SetFPS, String(fps));
 	}
 
@@ -276,25 +281,25 @@ class Settings {
 	 * @param {boolean} on If enabled, death ads are shown.
 	 * @returns {void}
 	 */
-	setDeathAds(on) {
+	setDeathAds(on: boolean): void {
 		this.bot.flash.set('userPreference.data.bDeathAd', on);
 	}
 
 	/**
 	 * Updates an option.
 	 * @param {HTMLElement} option
-	 * @param {string} value
+	 * @param {string} boolean
 	 */
-	#updateOption(option, value) {
+	#updateOption(option: HTMLElement, value: boolean) {
 		switch (option.tagName) {
 			case 'INPUT':
-				option.value = value;
+				(option as HTMLInputElement).value = String(value);
 				break;
 			case 'BUTTON':
 				option.setAttribute('data-checked', value ? 'true' : 'false');
-				option.querySelector('.checkmark').style.display = value
-					? 'block'
-					: 'none';
+				(
+					option.querySelector('.checkmark') as HTMLElement
+				).style.display = value ? 'block' : 'none';
 				break;
 		}
 	}

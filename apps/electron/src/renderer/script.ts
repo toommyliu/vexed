@@ -13,7 +13,7 @@ const { settings, auth, world, player, flash, bank } = bot;
 const mapping = new Map();
 
 // room jump
-let lastRoomID;
+let lastRoomID: number | undefined;
 
 window.windows = {
 	game: window,
@@ -269,7 +269,7 @@ ipcRenderer.on('root:login', (ev, account) => {
 	window.account = account;
 });
 
-window.progress = async ([percentage]) => {
+window.progress = async ([percentage]: [number]) => {
 	if (
 		percentage === 100 &&
 		window?.account &&

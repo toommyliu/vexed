@@ -1,7 +1,10 @@
+import type Bot from './Bot';
 import BankItem from './struct/BankItem';
 
 class Bank {
-	constructor(bot) {
+	bot: Bot;
+
+	constructor(bot: Bot) {
 		/**
 		 * @type {import('./Bot')}
 		 * @ignore
@@ -26,7 +29,7 @@ class Bank {
 	 * @param {string|number} itemKey The name or ID of the item.
 	 * @returns {?BankItem}
 	 */
-	get(itemKey) {
+	get(itemKey: string | number): BankItem | null {
 		if (typeof itemKey === 'string') {
 			itemKey = itemKey.toLowerCase();
 		}
@@ -40,6 +43,8 @@ class Bank {
 				if (typeof itemKey === 'number') {
 					return item.id === itemKey;
 				}
+
+				return null;
 			}) ?? null
 		);
 	}
@@ -50,7 +55,7 @@ class Bank {
 	 * @param {number} quantity The quantity of the item.
 	 * @returns {boolean}
 	 */
-	contains(itemKey, quantity) {
+	contains(itemKey: string | number, quantity: number): boolean {
 		const item = this.get(itemKey);
 		if (!item) {
 			return false;
@@ -88,7 +93,7 @@ class Bank {
 	 * @param {string} itemKey The name or ID of the item.
 	 * @returns {Promise<boolean>} Whether the operation was successful.
 	 */
-	async deposit(itemKey) {
+	async deposit(itemKey: string | number): Promise<boolean> {
 		if (!this.bot.inventory.get(itemKey)) {
 			return false;
 		}
@@ -103,10 +108,10 @@ class Bank {
 
 	/**
 	 * Takes an item out of the bank.
-	 * @param {string} itemKey The name or ID of the item.
+	 * @param {string|number} itemKey The name or ID of the item.
 	 * @returns {Promise<boolean>} Whether the operation was successful.
 	 */
-	async withdraw(itemKey) {
+	async withdraw(itemKey: string | number): Promise<boolean> {
 		if (!this.get(itemKey)) {
 			return false;
 		}
@@ -121,11 +126,14 @@ class Bank {
 
 	/**
 	 * Swaps an item from the bank with an item from the inventory.
-	 * @param {string} bankItem The name or ID of the item from the Bank.
-	 * @param {string} inventoryItem The name or ID of the item from the Inventory.
-	 * @returns {Promise<void>} Whether the operation was successful.
+	 * @param {string|number} bankItem The name or ID of the item from the Bank.
+	 * @param {string|number} inventoryItem The name or ID of the item from the Inventory.
+	 * @returns {Promise<boolean>} Whether the operation was successful.
 	 */
-	async swap(bankItem, inventoryItem) {
+	async swap(
+		bankItem: string | number,
+		inventoryItem: string | number,
+	): Promise<boolean> {
 		const inBank = () => this.get(bankItem);
 		const inInventory = () => this.bot.inventory.get(inventoryItem);
 
@@ -143,10 +151,11 @@ class Bank {
 
 	/**
 	 * Opens the bank ui, and loads all items.
+	 * @param {boolean} force Whether to force open the bank ui.
 	 * @returns {Promise<void>}
 	 */
-	async open() {
-		if (this.isOpen()) {
+	async open(force: boolean = false) {
+		if (!force && this.isOpen()) {
 			return;
 		}
 

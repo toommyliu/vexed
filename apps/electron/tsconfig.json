@@ -27,9 +27,7 @@
 		// "rootDir": "./",
 		"moduleResolution": "node10",
 		"baseUrl": "./",
-		"paths": {
-			"@renderer/*": ["src/renderer/*"]
-		},
+		"paths": {},
 		// "rootDirs": [],
 		// "typeRoots": [],
 		"types": ["./src/renderer/index.d.ts"],

@@ -1,7 +1,10 @@
+import type Bot from './Bot';
 import Server from './struct/Server';
 
 class Auth {
-	constructor(bot) {
+	bot: Bot;
+
+	constructor(bot: Bot) {
 		/**
 		 * @type {import('./Bot')}
 		 * @ignore
@@ -35,11 +38,11 @@ class Auth {
 
 	/**
 	 * Log in with the given account or the previous account (if available).
-	 * @param {string} [username] The username to login with.
-	 * @param {string} [password] The password to login with.
+	 * @param {string|null} [username=null] The username to login with.
+	 * @param {string|null} [password=null] The password to login with.
 	 * @returns {void}
 	 */
-	login(username, password) {
+	login(username: string | null = null, password: string | null = null) {
 		if (username && password) {
 			this.bot.flash.call(swf.FixLogin, username, password);
 		} else {
@@ -80,7 +83,7 @@ class Auth {
 	 * @param {string} name The name of the server.
 	 * @returns {void}
 	 */
-	connectTo(name) {
+	connectTo(name: string) {
 		this.bot.flash.call(swf.Connect, name);
 	}
 

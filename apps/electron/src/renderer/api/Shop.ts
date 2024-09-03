@@ -1,5 +1,10 @@
+import type Bot from './Bot';
+import { GameAction } from './World';
+
 class Shops {
-	constructor(bot) {
+	bot: Bot;
+
+	constructor(bot: Bot) {
 		/**
 		 * @type {import('./Bot')}
 		 * @ignore
@@ -29,7 +34,7 @@ class Shops {
 	 * @param {?number} quantity The quantity of the item.
 	 * @returns {Promise<void>}
 	 */
-	async buyByName(name, quantity) {
+	async buyByName(name: string, quantity: number | null): Promise<void> {
 		await this.bot.waitUntil(() =>
 			this.bot.world.isActionAvailable(GameAction.BuyItem),
 		);
@@ -53,7 +58,11 @@ class Shops {
 	 * @param {number} quantity The quantity of the item.
 	 * @returns {Promise<void>}
 	 */
-	async buyByID(itemID, shopItemID, quantity) {
+	async buyByID(
+		itemID: number,
+		shopItemID: number,
+		quantity: number,
+	): Promise<void> {
 		await this.bot.waitUntil(() =>
 			this.bot.world.isActionAvailable(GameAction.BuyItem),
 		);
@@ -67,7 +76,7 @@ class Shops {
 	 * Reset loaded shop info.
 	 * @returns {void}
 	 */
-	reset() {
+	reset(): void {
 		this.bot.flash.call(swf.ResetShopInfo);
 	}
 
@@ -76,7 +85,7 @@ class Shops {
 	 * @param {number} shopID
 	 * @returns {Promise<void>}
 	 */
-	async load(shopID) {
+	async load(shopID: number): Promise<void> {
 		await this.bot.waitUntil(() =>
 			this.bot.world.isActionAvailable(GameAction.LoadShop),
 		);
@@ -90,7 +99,7 @@ class Shops {
 	 * @param {string} itemName
 	 * @returns {Promise<void>}
 	 */
-	async sell(itemName) {
+	async sell(itemName: string): Promise<void> {
 		await this.bot.waitUntil(() =>
 			this.bot.world.isActionAvailable(GameAction.SellItem),
 		);
@@ -108,7 +117,7 @@ class Shops {
 	 * @param {number} id
 	 * @returns {void}
 	 */
-	loadHairShop(id) {
+	loadHairShop(id: number): void {
 		this.bot.flash.call(swf.LoadHairShop, String(id));
 	}
 
@@ -116,7 +125,7 @@ class Shops {
 	 * Loads the Armor Customization menu.
 	 * @returns {void}
 	 */
-	loadArmorCustomise() {
+	loadArmorCustomise(): void {
 		this.bot.flash.call(swf.LoadArmorCustomizer);
 	}
 }

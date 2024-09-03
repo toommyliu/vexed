@@ -107,6 +107,7 @@ async function createGame(account: Account | null = null): Promise<void> {
 				if (!domains.includes(_url.hostname)) {
 					console.log('Blocking url', _url);
 					ev.preventDefault();
+					// @ts-expect-error
 					ev.newGuest = null;
 					return null;
 				}
@@ -204,6 +205,7 @@ async function createGame(account: Account | null = null): Promise<void> {
 
 				return newWindow;
 			}
+			return null;
 		},
 	);
 	// window.maximize();

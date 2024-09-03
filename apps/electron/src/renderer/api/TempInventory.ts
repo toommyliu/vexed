@@ -1,7 +1,10 @@
 import TempInventoryItem from './struct/TempInventoryItem';
+import type Bot from './Bot';
 
 class TempInventory {
-	constructor(bot) {
+	bot: Bot;
+
+	constructor(bot: Bot) {
 		/**
 		 * @type {import('./Bot')}
 		 * @ignore
@@ -26,19 +29,23 @@ class TempInventory {
 	 * @param {string|number} itemKey The name or ID of the item.
 	 * @returns {TempInventoryItem?}
 	 */
-	get(itemKey) {
+	get(itemKey: string | number): TempInventoryItem | null {
 		if (typeof itemKey === 'string') {
 			itemKey = itemKey.toLowerCase();
 		}
 
-		return this.items.find((item) => {
-			if (typeof itemKey === 'string') {
-				return item.name.toLowerCase() === itemKey;
-			}
-			if (typeof itemKey === 'number') {
-				return item.id === itemKey;
-			}
-		});
+		return (
+			this.items.find((item) => {
+				if (typeof itemKey === 'string') {
+					return item.name.toLowerCase() === itemKey;
+				}
+
+				if (typeof itemKey === 'number') {
+					return item.id === itemKey;
+				}
+				return null;
+			}) ?? null
+		);
 	}
 
 	/**
@@ -47,7 +54,7 @@ class TempInventory {
 	 * @param {number} quantity The quantity of the item
 	 * @returns {boolean}
 	 */
-	contains(itemKey, quantity) {
+	contains(itemKey: string | number, quantity: number): boolean {
 		const item = this.get(itemKey);
 		if (!item) {
 			return false;

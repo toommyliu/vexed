@@ -1,4 +1,6 @@
-let timer = null;
+import type { SetIntervalAsyncTimer } from '../api/util/TimerManager';
+
+let timer: SetIntervalAsyncTimer<unknown[]> | null = null;
 let index = 0;
 
 window.addEventListener('message', async (ev) => {
