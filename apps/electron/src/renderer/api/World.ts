@@ -3,9 +3,9 @@ import Monster from './struct/Monster';
 import type Bot from './Bot';
 
 class World {
-	bot: Bot;
+	public bot: Bot;
 
-	constructor(bot: Bot) {
+	public constructor(bot: Bot) {
 		/**
 		 * @type {import('./Bot')}
 		 * @ignore
@@ -17,7 +17,7 @@ class World {
 	 * Gets all players in the current map.
 	 * @returns {Avatar[]}
 	 */
-	get players() {
+	public get players() {
 		const _players = this.bot.flash.call(swf.Players) ?? [];
 		if (Object.keys(_players).length > 0) {
 			return Object.values(_players).map((data) => new Avatar(data));
@@ -29,7 +29,7 @@ class World {
 	 * The monsters in the map.
 	 * @returns {MonsterData[]}
 	 */
-	get monsters() {
+	public get monsters() {
 		try {
 			return JSON.parse(
 				swf.selectArrayObjects('world.monsters', 'objData'),
@@ -43,7 +43,7 @@ class World {
 	 * Gets all visible monsters in the current cell.
 	 * @returns {Monster[]}
 	 */
-	get visibleMonsters() {
+	public get visibleMonsters() {
 		const ret = this.bot.flash.call(swf.GetVisibleMonstersInCell);
 		if (Array.isArray(ret)) {
 			return ret.map((data) => new Monster(data));
@@ -55,7 +55,7 @@ class World {
 	 * Gets all available monsters in the current cell.
 	 * @returns {Monster[]}
 	 */
-	get availableMonsters() {
+	public get availableMonsters() {
 		const ret = this.bot.flash.call(swf.GetMonstersInCell);
 		if (Array.isArray(ret)) {
 			return ret.map((data) => new Monster(data));
@@ -68,24 +68,23 @@ class World {
 	 * @param {string} monsterResolvable The name of the monster or in monMapID format.
 	 * @returns {boolean}
 	 */
-	isMonsterAvailable(monsterResolvable: string) {
+	public isMonsterAvailable(monsterResolvable: string): boolean {
 		// prettier-ignore
 		if (["id'", 'id.', 'id:', 'id-'].some((prefix) => monsterResolvable.startsWith(prefix))) {
 			const monMapID = monsterResolvable.substring(3);
-		 	this.bot.flash.call(
+		 	return this.bot.flash.call(
 				swf.IsMonsterAvailableByMonMapID,
 				monMapID,
 			)
-			return;
 		}
-		this.bot.flash.call(swf.IsMonsterAvailable, monsterResolvable);
+		return this.bot.flash.call(swf.IsMonsterAvailable, monsterResolvable);
 	}
 
 	/**
 	 * Reloads the map.
 	 * @returns {void}
 	 */
-	reload() {
+	public reload(): void {
 		this.bot.flash.call(swf.ReloadMap);
 	}
 
@@ -93,7 +92,7 @@ class World {
 	 * Checks if the map is still loading.
 	 * @returns {boolean}
 	 */
-	get loading() {
+	public get loading(): boolean {
 		return !this.bot.flash.call(swf.MapLoadComplete);
 	}
 
@@ -101,7 +100,7 @@ class World {
 	 * Gets all cells of the map.
 	 * @returns {string[]}
 	 */
-	get cells() {
+	public get cells(): string[] {
 		return this.bot.flash.call(swf.GetCells);
 	}
 
@@ -109,7 +108,7 @@ class World {
 	 * Get cell pads.
 	 * @returns {string[]}
 	 */
-	get cellPads() {
+	public get cellPads(): string[] {
 		return this.bot.flash.call(swf.GetCellPads);
 	}
 
@@ -117,7 +116,7 @@ class World {
 	 * Sets the local player's spawnpoint to the current cell and pad.
 	 * @returns {void}
 	 */
-	setSpawnPoint() {
+	public setSpawnPoint(): void {
 		this.bot.flash.call(swf.SetSpawnPoint);
 	}
 
@@ -125,7 +124,7 @@ class World {
 	 * Gets the internal room ID of the current map.
 	 * @returns {number}
 	 */
-	get roomID() {
+	public get roomID(): number {
 		return this.bot.flash.call(swf.RoomId);
 	}
 
@@ -133,7 +132,7 @@ class World {
 	 * Gets the room number of the current map.
 	 * @returns {number}
 	 */
-	get roomNumber() {
+	public get roomNumber(): number {
 		return this.bot.flash.call(swf.RoomNumber);
 	}
 
@@ -141,7 +140,7 @@ class World {
 	 * Gets the name of the current map.
 	 * @returns {string}
 	 */
-	get name() {
+	public get name(): string {
 		return this.bot.flash.call(swf.Map);
 	}
 
@@ -153,7 +152,7 @@ class World {
 	 * @param {number} [tries=5] The number of times to try jumping.
 	 * @returns {Promise<void>}
 	 */
-	async jump(
+	public async jump(
 		cell: string,
 		pad = 'Spawn',
 		force = false,
@@ -184,7 +183,12 @@ class World {
 	 * @param {number} [tries=5] Number of attempts to try and join the map
 	 * @returns {Promise<void>}
 	 */
-	async join(mapName: string, cell = 'Enter', pad = 'Spawn', tries = 5) {
+	public async join(
+		mapName: string,
+		cell = 'Enter',
+		pad = 'Spawn',
+		tries = 5,
+	): Promise<void> {
 		await this.bot.waitUntil(
 			() => this.isActionAvailable(GameAction.Transfer),
 			null,
@@ -237,7 +241,7 @@ class World {
 	 * @param {string} name The name of the player to goto.
 	 * @returns {void}
 	 */
-	goto(name: string) {
+	public goto(name: string): void {
 		this.bot.flash.call(swf.GoTo, name);
 	}
 
@@ -245,7 +249,7 @@ class World {
 	 * The list of all items in the world.
 	 * @returns {InventoryItemData[]}
 	 */
-	get itemTree() {
+	public get itemTree() {
 		return this.bot.flash.call(swf.GetItemTree);
 	}
 
@@ -254,7 +258,7 @@ class World {
 	 * @param {typeof GameAction} action The game action to check.
 	 * @returns {boolean}
 	 */
-	isActionAvailable(action: GameAction): boolean {
+	public isActionAvailable(action: GameAction): boolean {
 		return this.bot.flash.call(swf.IsActionAvailable, action);
 	}
 
@@ -263,7 +267,7 @@ class World {
 	 * @param {string} itemID The ID of the item.
 	 * @returns {Promise<void>}
 	 */
-	async getMapItem(itemID: string) {
+	public async getMapItem(itemID: string): Promise<void> {
 		await this.bot.waitUntil(() =>
 			this.isActionAvailable(GameAction.GetMapItem),
 		);
@@ -276,7 +280,7 @@ class World {
 	 * @param {string} mapSWF The swf to load.
 	 * @returns {void}
 	 */
-	loadMap(mapSWF: string) {
+	public loadMap(mapSWF: string): void {
 		if (!mapSWF.endsWith('.swf')) {
 			mapSWF += '.swf';
 		}

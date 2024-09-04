@@ -5,9 +5,6 @@ import './scripts/packet-spammer';
 
 import { ipcRenderer } from 'electron';
 
-/**
- * @type {import('./botting/api/Bot')}
- */
 const { settings, auth, world, player, flash, bank } = bot;
 
 const mapping = new Map();
@@ -29,7 +26,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 	}
 
 	{
-		const $btn = document.querySelector('#scripts-load');
+		const $btn: HTMLButtonElement =
+			document.querySelector('#scripts-load')!;
 		$btn.addEventListener('click', async () => {
 			const scriptBody = await ipcRenderer.invoke('root:load_script');
 			if (!scriptBody) {
@@ -49,70 +47,72 @@ window.addEventListener('DOMContentLoaded', async () => {
 		});
 	}
 	{
-		const $btn = document.querySelector('#scripts-toggle-dev-tools');
+		const $btn: HTMLButtonElement = document.querySelector(
+			'#scripts-toggle-dev-tools',
+		)!;
 		$btn.addEventListener('click', () => {
 			ipcRenderer.send('root:toggle-dev-tools');
 		});
 	}
 
 	{
-		const $btn = document.querySelector(
+		const $btn: HTMLButtonElement = document.querySelector(
 			'#tools-dropdowncontent > button:nth-child(1)',
-		);
+		)!;
 		$btn.addEventListener('click', () => {
 			window.windows.tools.fastTravels = window.open(
 				'./pages/tools/fast-travels/index.html',
-				null,
+				undefined,
 				'width=510,height=494',
 			);
 		});
 	}
 	{
-		const $btn = document.querySelector(
+		const $btn: HTMLButtonElement = document.querySelector(
 			'#tools-dropdowncontent > button:nth-child(2)',
-		);
+		)!;
 		$btn.addEventListener('click', () => {
 			window.windows.tools.loaderGrabber = window.open(
 				'./pages/tools/loader-grabber/babel src/ --out-dir dist/ --extensions .tsindex.html',
-				null,
+				undefined,
 				'width=363,height=542',
 			);
 		});
 	}
 	{
-		const $btn = document.querySelector(
+		const $btn: HTMLButtonElement = document.querySelector(
 			'#tools-dropdowncontent > button:nth-child(3)',
-		);
+		)!;
 		$btn.addEventListener('click', () => {
 			window.windows.tools.follower = window.open(
 				'./pages/tools/follower/index.html',
-				null,
+				undefined,
 				'width=402,height=466',
 			);
 		});
 	}
 
 	{
-		const $btn = document.querySelector(
+		const $btn: HTMLButtonElement = document.querySelector(
 			'#packets-dropdowncontent > button:nth-child(1)',
-		);
+		)!;
 		$btn.addEventListener('click', () => {
 			window.windows.packets.logger = window.open(
 				'./pages/packets/logger/index.html',
-				null,
+				undefined,
 				'width=560,height=286',
 			);
 		});
 	}
 
 	{
-		const $btn = document.querySelector(
+		const $btn: HTMLButtonElement = document.querySelector(
 			'#packets-dropdowncontent > button:nth-child(2)',
-		);
+		)!;
 		$btn.addEventListener('click', () => {
 			window.windows.packets.spammer = window.open(
 				'./pages/packets/spammer/index.html',
-				null,
+				undefined,
 				'width=596,height=325',
 			);
 		});
@@ -123,7 +123,10 @@ window.addEventListener('DOMContentLoaded', async () => {
 		switch (option.tagName) {
 			case 'INPUT':
 				option.addEventListener('change', (ev) => {
-					settings.walkSpeed = ev.target.value;
+					settings.walkSpeed = Number.parseInt(
+						(ev.target as HTMLInputElement).value,
+						10,
+					);
 				});
 				break;
 			case 'BUTTON':
@@ -137,11 +140,11 @@ window.addEventListener('DOMContentLoaded', async () => {
 						'data-checked',
 						checked ? 'false' : 'true',
 					);
-					option.querySelector('.checkmark').style.display = checked
-						? 'none'
-						: 'block';
+					(
+						option.querySelector('.checkmark') as HTMLElement
+					).style.display = checked ? 'none' : 'block';
 
-					switch (option.textContent.trim()) {
+					switch (option.textContent!.trim()) {
 						case 'Infinite Range':
 							settings.infiniteRange = !checked;
 							break;
@@ -169,10 +172,10 @@ window.addEventListener('DOMContentLoaded', async () => {
 		}
 	}
 
-	const $cells = document.querySelector('#cells');
-	const $pads = document.querySelector('#pads');
-	const $x = document.querySelector('#x');
-	const $bank = document.querySelector('#bank');
+	const $cells: HTMLSelectElement = document.querySelector('#cells')!;
+	const $pads: HTMLSelectElement = document.querySelector('#pads')!;
+	const $x: HTMLButtonElement = document.querySelector('#x')!;
+	const $bank: HTMLButtonElement = document.querySelector('#bank')!;
 
 	const update = (force = false) => {
 		if (
@@ -224,12 +227,12 @@ window.addEventListener('DOMContentLoaded', async () => {
 //#region input
 window.addEventListener('click', (ev) => {
 	mapping.forEach((el, key) => {
-		if (ev.target.id === key) {
+		if ((ev.target as HTMLElement).id === key) {
 			// Show the selected dropdown
 			el.classList.toggle('w3-show');
 		} else {
 			// Don't close for this option
-			if (ev.target.id !== 'option-walkspeed') {
+			if ((ev.target as HTMLElement).id !== 'option-walkspeed') {
 				// Hide the other dropdowns
 				el.classList.remove('w3-show');
 			}
@@ -239,7 +242,7 @@ window.addEventListener('click', (ev) => {
 
 window.addEventListener('mousedown', (ev) => {
 	// Close all dropdowns when the game is focused
-	if (ev.target.id === 'swf') {
+	if ((ev.target as HTMLElement).id === 'swf') {
 		mapping.forEach((el) => {
 			el.classList.remove('w3-show');
 		});
@@ -248,7 +251,7 @@ window.addEventListener('mousedown', (ev) => {
 
 window.addEventListener('keydown', (ev) => {
 	// Allow certain shortcuts while the game is focused
-	if (ev.metaKey /* CMD */ && ev.target.id === 'swf') {
+	if (ev.metaKey /* CMD */ && (ev.target as HTMLElement).id === 'swf') {
 		switch (ev.key.toLowerCase()) {
 			case 'w': // CMD+W
 			case 'q': // CMD+Q
@@ -265,7 +268,7 @@ window.addEventListener('keydown', (ev) => {
 //#endregion
 
 //#region account manager
-ipcRenderer.on('root:login', (ev, account) => {
+ipcRenderer.on('root:login', (_, account: Account) => {
 	window.account = account;
 });
 

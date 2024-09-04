@@ -5,27 +5,27 @@ const { timerManager, auth, world, player, flash, combat } = bot;
 let timer: SetIntervalAsyncTimer<unknown[]> | null = null;
 
 let index = 0;
-/**
- * @type {{
- * 	player: string,
- * 	skills: string[],
- * 	skillWait: boolean,
- * 	skillDelay: number,
- * 	attackPriority: string[],
- * 	copyWalk: boolean,
- * }}
- */
-let config = {};
+
+const config: FollowerConfig = {
+	on: false,
+	player: '',
+	skills: [],
+	skillWait: false,
+	skillDelay: 150,
+	attackPriority: [],
+	copyWalk: false,
+};
+
 let tries = 5;
 
-const isFollowerOn = () => timer !== null;
+const isFollowerOn = () => config.on;
 
 const stop = async () => {
 	if (timer) {
 		bot.removeListener('packetFromServer', onPacketFromServer);
 		await timerManager.clearInterval(timer);
 		timer = null;
-		config = {};
+		config.on = false;
 		index = 0;
 		tries = 5;
 	}
@@ -36,20 +36,20 @@ const isPlayerInMap = () => {
 };
 
 const onPacketFromServer = async (packet: string) => {
-	if (isFollowerOn() && config.copyWalk && packet.startsWith('%xt')) {
+	if (isFollowerOn() && config!.copyWalk && packet.startsWith('%xt')) {
 		const args = packet.split('%');
 		const key = args[2];
 		if (key === 'uotls') {
-			const playerName = args[4].toLowerCase();
+			const playerName = args[4]!.toLowerCase();
 			if (playerName === config.player) {
-				const move = args[5].split(',');
+				const move = args[5]!.split(',');
 				// ?
 				if (move.length !== 4) {
 					// idk
 					return;
 				}
-				const x = Number.parseInt(move[1].split(':')[1]);
-				const y = Number.parseInt(move[2].split(':')[1]);
+				const x = Number.parseInt(move[1]!.split(':')[1]!, 10);
+				const y = Number.parseInt(move[2]!.split(':')[1]!, 10);
 				player.walkTo(x, y);
 			}
 		} else if (key === 'server') {
@@ -81,10 +81,16 @@ window.addEventListener('message', async (ev) => {
 			args.player = auth.username.toLowerCase();
 		}
 
-		config = args;
-		config.player = config.player.toLowerCase();
-		const delay = Number.parseInt(config.skillDelay);
+		const og_config = args as FollowerConfigRaw;
+		config.player = og_config.player.toLowerCase();
+
+		const delay = Number.parseInt(og_config.skillDelay, 10);
 		config.skillDelay = Number.isNaN(delay) ? 150 : delay;
+		config.skills = og_config.skills;
+		config.skillWait = og_config.skillWait;
+		config.attackPriority = og_config.attackPriority;
+		config.copyWalk = og_config.copyWalk;
+		config.on = true;
 
 		bot.on('packetFromServer', onPacketFromServer);
 
@@ -97,7 +103,7 @@ window.addEventListener('message', async (ev) => {
 				if (tries <= 0) {
 					stop();
 
-					ev.source.postMessage({
+					ev.source!.postMessage({
 						event: 'follower:stop',
 					});
 				}
@@ -134,7 +140,7 @@ window.addEventListener('message', async (ev) => {
 
 			if (combat.hasTarget()) {
 				await combat.useSkill(
-					config.skills[index],
+					config.skills[index]!,
 					false,
 					config.skillWait,
 				);
@@ -145,9 +151,27 @@ window.addEventListener('message', async (ev) => {
 	} else if (eventName === 'stop') {
 		await stop();
 	} else if (eventName === 'me') {
-		ev.source.postMessage({
+		ev.source!.postMessage({
 			event: 'follower:me',
 			args: auth.username,
 		});
 	}
 });
+
+type FollowerConfig = {
+	on: boolean;
+	player: string;
+	skills: string | string[];
+	skillWait: boolean;
+	skillDelay: number;
+	attackPriority: string | string[];
+	copyWalk: boolean;
+};
+type FollowerConfigRaw = {
+	player: string;
+	skills: string | string[];
+	skillWait: boolean;
+	skillDelay: string;
+	attackPriority: string | string[];
+	copyWalk: boolean;
+};

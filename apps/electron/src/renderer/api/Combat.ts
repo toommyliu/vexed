@@ -10,7 +10,7 @@ class Combat {
 
 	pauseAttack: boolean;
 
-	constructor(bot: Bot) {
+	public constructor(bot: Bot) {
 		/**
 		 * @type {import('./Bot')}
 		 * @ignore
@@ -30,7 +30,7 @@ class Combat {
 	 * Whether the player has a target.
 	 * @returns {boolean}
 	 */
-	hasTarget() {
+	public hasTarget(): boolean {
 		return !!this.bot.flash.call(swf.HasTarget);
 	}
 
@@ -38,7 +38,7 @@ class Combat {
 	 * Returns information about the target.
 	 * @returns {Record<string,unknown>|null}
 	 */
-	get target() {
+	public get target() {
 		// prettier-ignore
 		if (this.hasTarget()) {
 			const objData = this.bot.flash.get('world.myAvatar.target.objData', true);
@@ -70,12 +70,16 @@ class Combat {
 	 * @param {boolean} wait Whether to wait for the skill to be available.
 	 * @returns {Promise<void>}
 	 */
-	async useSkill(index: string | number, force = false, wait = false) {
+	public async useSkill(
+		index: string | number,
+		force = false,
+		wait = false,
+	): Promise<void> {
 		const fn = force ? swf.ForceUseSkill : swf.UseSkill;
 		if (wait) {
-			await this.bot.sleep(swf.SkillAvailable(index));
+			await this.bot.sleep(swf.SkillAvailable(String(index)));
 		}
-		fn(index);
+		fn(String(index));
 	}
 
 	/**
@@ -83,7 +87,7 @@ class Combat {
 	 * @param {string} monsterResolvable The name or monMapID of the monster.
 	 * @returns {void}
 	 */
-	attack(monsterResolvable: string) {
+	public attack(monsterResolvable: string): void {
 		// prettier-ignore
 		if (["id'", 'id.', 'id:', 'id-'].some((prefix) => monsterResolvable.startsWith(prefix))) {
 			const monMapID = monsterResolvable.substring(3);
@@ -97,7 +101,7 @@ class Combat {
 	 * Cancels the current target.
 	 * @returns {void}
 	 */
-	cancelTarget() {
+	public cancelTarget(): void {
 		this.bot.flash.call(swf.CancelTarget);
 	}
 
@@ -105,7 +109,7 @@ class Combat {
 	 * Cancels an auto attack.
 	 * @returns {void}
 	 */
-	cancelAutoAttack() {
+	public cancelAutoAttack(): void {
 		this.bot.flash.call(swf.CancelAutoAttack);
 	}
 
@@ -115,7 +119,7 @@ class Combat {
 	 * @param {KillConfig} config The configuration to use for the kill.
 	 * @returns {Promise<void>}
 	 */
-	async kill(
+	public async kill(
 		monsterResolvable: string,
 		config = {
 			killPriority: [],
@@ -123,7 +127,7 @@ class Combat {
 			skillDelay: 150,
 			skillWait: false,
 		},
-	) {
+	): Promise<void> {
 		await this.bot.waitUntil(
 			() => this.bot.world.isMonsterAvailable(monsterResolvable),
 			null,
