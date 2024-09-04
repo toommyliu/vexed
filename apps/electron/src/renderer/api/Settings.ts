@@ -64,7 +64,7 @@ class Settings {
 			if (
 				!this.bot.auth.loggedIn ||
 				this.bot.world.loading ||
-				!this.bot.player.loaded
+				!this.bot.player.isLoaded()
 			) {
 				return;
 			}
@@ -288,9 +288,9 @@ class Settings {
 	/**
 	 * Updates an option.
 	 * @param {HTMLElement} option
-	 * @param {string} boolean
+	 * @param {string|boolean|number} value
 	 */
-	#updateOption(option: HTMLElement, value: boolean) {
+	#updateOption(option: HTMLElement, value: string | boolean | number) {
 		switch (option.tagName) {
 			case 'INPUT':
 				(option as HTMLInputElement).value = String(value);

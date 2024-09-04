@@ -1,7 +1,11 @@
+import type Bot from './Bot';
 import InventoryItem from './struct/InventoryItem';
+import { GameAction } from './World';
 
 class Inventory {
-	constructor(bot) {
+	public bot: Bot;
+
+	constructor(bot: Bot) {
 		/**
 		 * @type {import('./Bot')}
 		 * @ignore
@@ -13,7 +17,7 @@ class Inventory {
 	 * Gets items in the Inventory of the current player.
 	 * @returns {InventoryItem[]}
 	 */
-	get items() {
+	public get items(): InventoryItem[] {
 		const ret = this.bot.flash.call(swf.GetInventoryItems);
 		if (Array.isArray(ret)) {
 			return ret.map((data) => new InventoryItem(data));
@@ -22,23 +26,28 @@ class Inventory {
 	}
 
 	/**
-	 * Resolves an item from the Inventory.
+	 * Resolves for an Item in the Inventory.
 	 * @param {string|number} itemKey The name or ID of the item.
-	 * @returns {InventoryItem?}
+	 * @returns {InventoryItem|null}
 	 */
-	get(itemKey) {
+	public get(itemKey: string | number): InventoryItem | null {
 		if (typeof itemKey === 'string') {
 			itemKey = itemKey.toLowerCase();
 		}
 
-		return this.items.find((item) => {
-			if (typeof itemKey === 'string') {
-				return item.name.toLowerCase() === itemKey;
-			}
-			if (typeof itemKey === 'number') {
-				return item.id === itemKey;
-			}
-		});
+		return (
+			this.items.find((item) => {
+				if (typeof itemKey === 'string') {
+					return item.name.toLowerCase() === itemKey;
+				}
+
+				if (typeof itemKey === 'number') {
+					return item.id === itemKey;
+				}
+
+				return undefined;
+			}) ?? null
+		);
 	}
 
 	/**
@@ -47,7 +56,7 @@ class Inventory {
 	 * @param {number} quantity The quantity of the item.
 	 * @returns {boolean}
 	 */
-	contains(itemKey, quantity) {
+	public contains(itemKey: string | number, quantity: number): boolean {
 		const item = this.get(itemKey);
 		if (!item) {
 			return false;
@@ -60,7 +69,7 @@ class Inventory {
 	 * Gets the total number of slots in the Inventory of the current player.
 	 * @returns {number}
 	 */
-	get totalSlots() {
+	public get totalSlots(): number {
 		return this.bot.flash.call(swf.InventorySlots);
 	}
 
@@ -68,7 +77,7 @@ class Inventory {
 	 * Gets the number of used slots in the Inventory of the current player.
 	 * @returns {number}
 	 */
-	get usedSlots() {
+	public get usedSlots(): number {
 		return this.bot.flash.call(swf.UsedInventorySlots);
 	}
 
@@ -76,16 +85,16 @@ class Inventory {
 	 * Gets the number of available slots in the Inventory of the current player.
 	 * @returns {number}
 	 */
-	get availableSlots() {
+	public get availableSlots(): number {
 		return this.totalSlots - this.usedSlots;
 	}
 
 	/**
 	 * Equips an item from the Inventory.
 	 * @param {string|number} itemKey The name or ID of the item.
-	 * @returns {Promise<void>}
+	 * @returns {Promise<boolean>} Whether the operation was successful.
 	 */
-	async equip(itemKey) {
+	public async equip(itemKey: string | number): Promise<boolean> {
 		const getItem = () => this.get(itemKey);
 
 		if (getItem()) {
@@ -97,7 +106,7 @@ class Inventory {
 					this.bot.world.isActionAvailable(GameAction.EquipItem),
 				);
 
-				const item = getItem();
+				const item = getItem()!;
 				if (item.category === 'Item') {
 					this.bot.flash.call(
 						swf.EquipPotion,
@@ -109,8 +118,10 @@ class Inventory {
 				} else {
 					this.bot.flash.call(swf.Equip, item.id.toString());
 				}
+				return true;
 			}
 		}
+		return false;
 	}
 }
 

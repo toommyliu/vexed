@@ -1,7 +1,11 @@
 import Quest from './struct/Quest';
+import type Bot from './Bot';
+import { GameAction } from './World';
 
 class Quests {
-	constructor(bot) {
+	public bot: Bot;
+
+	constructor(bot: Bot) {
 		/**
 		 * @type {import('./Bot')}
 		 * @ignore
@@ -13,7 +17,7 @@ class Quests {
 	 * Gets all quests loaded in the client.
 	 * @returns {Quest[]}
 	 */
-	get tree() {
+	public get tree(): Quest[] {
 		const ret = this.bot.flash.call(swf.GetQuestTree);
 		if (Array.isArray(ret)) {
 			return ret.map((data) => new Quest(data));
@@ -25,7 +29,7 @@ class Quests {
 	 * Gets all accepted quests.
 	 * @returns {Quest[]}
 	 */
-	get accepted() {
+	public get accepted(): Quest[] {
 		return this.tree.filter((q) => q.inProgress);
 	}
 
@@ -35,7 +39,9 @@ class Quests {
 	 * @returns {Promise<void>}
 	 */
 	// TODO: return whether quests were accepted
-	async load(questID) {
+	public async load(
+		questID: string | number | string[] | number[],
+	): Promise<void> {
 		let quests = [];
 		if (typeof questID === 'string') {
 			if (!questID.includes(',')) {
@@ -61,7 +67,7 @@ class Quests {
 				this.bot.flash.call(swf.LoadQuest, questID);
 				await this.bot.waitUntil(
 					() => this.get(questID),
-					() => this.bot.auth.loggedIn && this.bot.player.loaded,
+					() => this.bot.auth.loggedIn && this.bot.player.isLoaded(),
 				);
 			}
 		}
@@ -73,7 +79,7 @@ class Quests {
 	 * @returns {Promise<void>}
 	 */
 	// TODO: return whether quests were accepted
-	async accept(questID) {
+	public async accept(questID) {
 		let quests = [];
 		if (typeof questID === 'string') {
 			if (!questID.includes(',')) {
@@ -112,15 +118,20 @@ class Quests {
 	 * @param {number} [itemID=-1] The ID of the quest rewards to select.
 	 * @returns {Promise<void>}
 	 */
-	async complete(questID, turnIns = 1, itemID = -1) {
+	public async complete(questID: string | number, turnIns = 1, itemID = -1) {
 		await this.bot.waitUntil(() =>
 			this.bot.world.isActionAvailable(GameAction.TryQuestComplete),
 		);
 
 		if (itemID !== -1) {
-			this.bot.flash.call(swf.Complete, questID, turnIns, itemID);
+			this.bot.flash.call(
+				swf.Complete,
+				String(questID),
+				turnIns,
+				String(itemID),
+			);
 		} else {
-			this.bot.flash.call(swf.Complete, questID, turnIns);
+			this.bot.flash.call(swf.Complete, String(questID), String(itemID));
 		}
 	}
 
@@ -129,7 +140,7 @@ class Quests {
 	 * @param {string|number} questKey The name or questID to get.
 	 * @returns {Quest?}
 	 */
-	get(questKey) {
+	public get(questKey: string | number): Quest | undefined {
 		if (typeof questKey === 'string') {
 			questKey = questKey.toLowerCase();
 		}
@@ -143,7 +154,9 @@ class Quests {
 				if (typeof questKey === 'number') {
 					return quest.id === questKey;
 				}
-			}) ?? null
+
+				return undefined;
+			}) ?? undefined
 		);
 	}
 
@@ -151,7 +164,7 @@ class Quests {
 	 * @param {string|number} questKey
 	 * @returns {number}
 	 */
-	#parseQuestID(questKey) {
+	#parseQuestID(questKey: string | number): number {
 		if (typeof questKey === 'string') {
 			return Number.parseInt(questKey, 10);
 		}

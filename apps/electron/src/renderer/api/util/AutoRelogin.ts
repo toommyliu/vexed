@@ -87,7 +87,7 @@ class AutoRelogin {
 						() =>
 							this.bot.auth.loggedIn &&
 							!this.bot.world.loading &&
-							this.bot.player.loaded,
+							this.bot.player.isLoaded(),
 					);
 
 					// console.log('connected');

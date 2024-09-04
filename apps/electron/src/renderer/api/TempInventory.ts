@@ -2,9 +2,9 @@ import TempInventoryItem from './struct/TempInventoryItem';
 import type Bot from './Bot';
 
 class TempInventory {
-	bot: Bot;
+	public bot: Bot;
 
-	constructor(bot: Bot) {
+	public constructor(bot: Bot) {
 		/**
 		 * @type {import('./Bot')}
 		 * @ignore
@@ -16,7 +16,7 @@ class TempInventory {
 	 * Gets items in the Temp Inventory of the current player.
 	 * @returns {TempInventoryItem[]}
 	 */
-	get items() {
+	public get items(): TempInventoryItem[] {
 		const ret = this.bot.flash.call(swf.GetTempItems);
 		if (Array.isArray(ret)) {
 			return ret.map((data) => new TempInventoryItem(data));
@@ -25,11 +25,11 @@ class TempInventory {
 	}
 
 	/**
-	 * Resolves an item from the Bank.
+	 * Resolves for an item in the Temp Inventory.
 	 * @param {string|number} itemKey The name or ID of the item.
-	 * @returns {TempInventoryItem?}
+	 * @returns {TempInventoryItem|null}
 	 */
-	get(itemKey: string | number): TempInventoryItem | null {
+	public get(itemKey: string | number): TempInventoryItem | null {
 		if (typeof itemKey === 'string') {
 			itemKey = itemKey.toLowerCase();
 		}
@@ -49,12 +49,12 @@ class TempInventory {
 	}
 
 	/**
-	 * Whether the item meets some quantity in this store
-	 * @param {string|number} itemKey The name or ID of the item
-	 * @param {number} quantity The quantity of the item
+	 * Whether an item meets some quantity in this store.
+	 * @param {string|number} itemKey The name or ID of the item.
+	 * @param {number} quantity The quantity of the item.
 	 * @returns {boolean}
 	 */
-	contains(itemKey: string | number, quantity: number): boolean {
+	public contains(itemKey: string | number, quantity: number): boolean {
 		const item = this.get(itemKey);
 		if (!item) {
 			return false;

@@ -2,9 +2,9 @@ import type Bot from './Bot';
 import { GameAction } from './World';
 
 class Shops {
-	bot: Bot;
+	public bot: Bot;
 
-	constructor(bot: Bot) {
+	public constructor(bot: Bot) {
 		/**
 		 * @type {import('./Bot')}
 		 * @ignore
@@ -16,7 +16,7 @@ class Shops {
 	 * Whether a shop is loaded.
 	 * @returns {boolean}
 	 */
-	get loaded() {
+	public get loaded(): boolean {
 		return this.bot.flash.call(swf.IsShopLoaded);
 	}
 
@@ -34,20 +34,31 @@ class Shops {
 	 * @param {?number} quantity The quantity of the item.
 	 * @returns {Promise<void>}
 	 */
-	async buyByName(name: string, quantity: number | null): Promise<void> {
+	public async buyByName(
+		name: string,
+		quantity: number | null,
+	): Promise<void> {
 		await this.bot.waitUntil(() =>
 			this.bot.world.isActionAvailable(GameAction.BuyItem),
 		);
 		if (quantity) {
 			this.bot.flash.call(swf.BuyItemQty, name, quantity);
-			await this.bot.waitUntil(
-				() => this.bot.inventory.get(name)?.quantity >= quantity,
-			);
+			await this.bot.waitUntil(() => {
+				const item = this.bot.inventory.get(name);
+				if (item) {
+					return item.quantity >= quantity;
+				}
+				return false;
+			});
 		} else {
 			this.bot.flash.call(swf.BuyItem, name);
-			await this.bot.waitUntil(
-				() => this.bot.inventory.get(name)?.quantity >= 1,
-			);
+			await this.bot.waitUntil(() => {
+				const item = this.bot.inventory.get(name);
+				if (item) {
+					return item.quantity >= 1;
+				}
+				return false;
+			});
 		}
 	}
 
@@ -58,7 +69,7 @@ class Shops {
 	 * @param {number} quantity The quantity of the item.
 	 * @returns {Promise<void>}
 	 */
-	async buyByID(
+	public async buyByID(
 		itemID: number,
 		shopItemID: number,
 		quantity: number,
@@ -67,16 +78,20 @@ class Shops {
 			this.bot.world.isActionAvailable(GameAction.BuyItem),
 		);
 		this.bot.flash.call(swf.BuyItemQtyById, quantity, itemID, shopItemID);
-		await this.bot.waitUntil(
-			() => this.bot.inventory.get(itemID)?.quantity >= quantity,
-		);
+		await this.bot.waitUntil(() => {
+			const item = this.bot.inventory.get(itemID);
+			if (item) {
+				return item.quantity >= quantity;
+			}
+			return false;
+		});
 	}
 
 	/**
 	 * Reset loaded shop info.
 	 * @returns {void}
 	 */
-	reset(): void {
+	public reset(): void {
 		this.bot.flash.call(swf.ResetShopInfo);
 	}
 
@@ -97,9 +112,9 @@ class Shops {
 	/**
 	 * Sells an entire stack of an item.
 	 * @param {string} itemName
-	 * @returns {Promise<void>}
+	 * @returns {Promise<boolean>} Whether the operation was successful.
 	 */
-	async sell(itemName: string): Promise<void> {
+	public async sell(itemName: string): Promise<boolean> {
 		await this.bot.waitUntil(() =>
 			this.bot.world.isActionAvailable(GameAction.SellItem),
 		);
@@ -109,15 +124,17 @@ class Shops {
 			await this.bot.sleep(1000);
 			this.bot.flash.call(swf.SellItem, itemName);
 			await this.bot.waitUntil(() => !contains());
+			return true;
 		}
+		return false;
 	}
 
 	/**
 	 * Loads a Hair Shop menu.
-	 * @param {number} id
+	 * @param {string|number} id
 	 * @returns {void}
 	 */
-	loadHairShop(id: number): void {
+	public loadHairShop(id: string | number): void {
 		this.bot.flash.call(swf.LoadHairShop, String(id));
 	}
 
@@ -125,7 +142,7 @@ class Shops {
 	 * Loads the Armor Customization menu.
 	 * @returns {void}
 	 */
-	loadArmorCustomise(): void {
+	public loadArmorCustomise(): void {
 		this.bot.flash.call(swf.LoadArmorCustomizer);
 	}
 }

@@ -1,7 +1,10 @@
 import HouseItem from './struct/HouseItem';
+import type Bot from './Bot';
 
 class House {
-	constructor(bot) {
+	public bot: Bot;
+
+	constructor(bot: Bot) {
 		/**
 		 * @type {import('./Bot')}
 		 * @ignore
@@ -13,7 +16,7 @@ class House {
 	 * Gets house items of the current player.
 	 * @returns {HouseItem[]}
 	 */
-	get items() {
+	public get items(): HouseItem[] {
 		const ret = this.bot.flash.call(window.swf.GetHouseItems);
 		if (Array.isArray(ret)) {
 			return ret.map((data) => new HouseItem(data));
@@ -25,7 +28,7 @@ class House {
 	 * Gets the total number of house item slots.
 	 * @returns {number}
 	 */
-	get totalSlots() {
+	public get totalSlots(): number {
 		return this.bot.flash.call(window.swf.HouseSlots);
 	}
 }

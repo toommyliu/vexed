@@ -203,6 +203,10 @@ declare global {
 		callGameFunction0: (path: string) => void;
 		selectArrayObjects: (path: string, selector: string) => string;
 		isNull: (path: string) => StringBoolean;
+		sendClientPacket: (
+			packet: string,
+			type: 'xml' | 'json' | 'str',
+		) => void;
 	};
 
 	interface Window {

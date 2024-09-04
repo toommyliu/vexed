@@ -12,7 +12,7 @@ window.addEventListener('message', async (ev) => {
 	const eventName = event.split(':')[2];
 
 	if (eventName === 'load') {
-		if (!bot.auth.loggedIn) {
+		if (!bot.auth.loggedIn || bot.world.loading || !bot.player.isLoaded()) {
 			return;
 		}
 
@@ -33,7 +33,7 @@ window.addEventListener('message', async (ev) => {
 				break;
 		}
 	} else if (eventName === 'grab') {
-		if (!bot.auth.loggedIn) {
+		if (!bot.auth.loggedIn || bot.world.loading || !bot.player.isLoaded()) {
 			return;
 		}
 
@@ -53,32 +53,16 @@ window.addEventListener('message', async (ev) => {
 				ret = bot.flash.call(swf.GetQuestTree);
 				break;
 			case 2: // inventory
-				if (!bot.player.loaded || !bot.inventory.items.length) {
-					return;
-				}
-
 				ret = bot.flash.call(swf.GetInventoryItems);
 				break;
 			case 3: // temp. inventory
-				if (!bot.player.loaded) {
-					return;
-				}
-
 				ret = bot.flash.call(swf.GetTempItems);
 				break;
 			case 4: // bank
-				if (!bot.player.loaded) {
-					return;
-				}
-
 				ret = bot.flash.call(window.swf.GetBankItems);
 				break;
 			case 5: // cell monsters
 			case 6: // map monsters
-				if (bot.world.loading) {
-					return;
-				}
-
 				// prettier-ignore
 				ret = type === 5
 							? bot.flash.call(swf.GetMonstersInCell)

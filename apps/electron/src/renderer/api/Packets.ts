@@ -1,5 +1,9 @@
+import type Bot from './Bot';
+
 class Packets {
-	constructor(bot) {
+	bot: Bot;
+
+	constructor(bot: Bot) {
 		/**
 		 * @type {import('./Bot')}
 		 * @ignore
@@ -13,7 +17,7 @@ class Packets {
 	 * @param {"str"|"json"|"xml"} [type="str"] The type of packet.
 	 * @returns {void}
 	 */
-	sendClient(packet, type = 'str') {
+	sendClient(packet: string, type: 'xml' | 'json' | 'str' = 'str'): void {
 		this.bot.flash.call(swf.sendClientPacket, packet, type);
 	}
 
@@ -23,7 +27,7 @@ class Packets {
 	 * @param {"String"|"Json"} [type="String"] The type of packet.
 	 * @returns {void}
 	 */
-	sendServer(packet, type = 'String') {
+	sendServer(packet: string, type: 'String' | 'Json' = 'String'): void {
 		this.bot.flash.call(swf.callGameFunction, `sfc.send${type}`, packet);
 	}
 }

@@ -95,7 +95,7 @@ window.addEventListener('message', async (ev) => {
 		bot.on('packetFromServer', onPacketFromServer);
 
 		const isReady = () => {
-			return auth.loggedIn && !world.loading && player.loaded;
+			return auth.loggedIn && !world.loading && player.isLoaded();
 		};
 
 		timer = timerManager.setInterval(async () => {

@@ -1,11 +1,15 @@
 import { Mutex } from 'async-mutex';
+import type Bot from './Bot';
+import type { ItemData } from './struct/Item';
 
 class Drops {
 	#mutex = new Mutex();
-	#data = new Set();
-	#drops = {};
+	#data: Set<ItemData> = new Set();
+	#drops: Record<number, number> = {};
 
-	constructor(bot) {
+	public bot: Bot;
+
+	public constructor(bot: Bot) {
 		/**
 		 * @type {import('./Bot')}
 		 * @ignore
@@ -18,7 +22,7 @@ class Drops {
 	 * @returns {Record<number, number>}
 	 * @property
 	 */
-	get stack() {
+	public get stack() {
 		return this.#drops;
 	}
 
@@ -26,7 +30,7 @@ class Drops {
 	 * @param {number} itemID The ID of the item.
 	 * @returns {?import('./struct/Item').ItemData} The item data, if the item has previously dropped.
 	 */
-	getItemFromID(itemID) {
+	public getItemFromID(itemID: number): ItemData | undefined {
 		return [...this.#data].find((item) => item.ItemID === itemID);
 	}
 
@@ -34,7 +38,7 @@ class Drops {
 	 * @param {string} itemName The name of the item.
 	 * @returns {?import('./struct/Item').ItemData} The item data, if the item has previously dropped.
 	 */
-	getItemFromName(itemName) {
+	getItemFromName(itemName: string): ItemData | undefined {
 		itemName = itemName.toLowerCase();
 		return [...this.#data].find(
 			(item) => item.sName.toLowerCase() === itemName,
@@ -45,7 +49,7 @@ class Drops {
 	 * @param {number} itemID The ID of the item.
 	 * @returns {?string} The name of the item, if the item has previously dropped.
 	 */
-	getNameFromID(itemID) {
+	public getNameFromID(itemID: number): string | undefined {
 		return this.getItemFromID(itemID)?.sName;
 	}
 
@@ -53,16 +57,16 @@ class Drops {
 	 * @param {string} itemName The name of the item.
 	 * @returns {?number} The ID of the item, if the item has previously dropped.
 	 */
-	getIDFromName(itemName) {
+	getIDFromName(itemName: string): number | undefined {
 		return this.getItemFromName(itemName)?.ItemID;
 	}
 
 	/**
-	 * Returns the count of the item in the drop stack. Returns -1 if it hasn't dropped.
+	 * Retrieves the count of the item in the drop stack.
 	 * @param {number} itemID The ID of the item.
-	 * @returns {number} The count of the item in the stack.
+	 * @returns {number} The count of the item in the stack. The value is -1 if the item has not been dropped.
 	 */
-	getDropCount(itemID) {
+	getDropCount(itemID: number): number {
 		return this.#drops[itemID] ?? -1;
 	}
 
@@ -74,10 +78,10 @@ class Drops {
 	 *
 	 * The parser breaks here. The type is ItemData
 	 */
-	addDrop(itemData) {
+	addDrop(itemData: ItemData): void {
 		this.#data.add(itemData);
 
-		const { ItemID: itemID, sName: itemName, iQty: quantity } = itemData;
+		const { ItemID: itemID, iQty: quantity } = itemData;
 
 		this.#drops[itemID] ??= 0;
 		this.#drops[itemID] += quantity;
@@ -89,33 +93,30 @@ class Drops {
 	 * @returns {void}
 	 * @private
 	 */
-	#removeDrop(itemID) {
+	removeDrop(itemID: number): void {
 		delete this.#drops[itemID];
 	}
 
 	/**
 	 * Accepts the drop for an item in the stack.
 	 * @param {string|number} itemKey The item name or ID.
-	 * @returns {Promise<void>} Whether the operation was successful.
+	 * @returns {Promise<boolean>} Whether the operation was successful.
 	 */
-	async pickup(itemKey) {
-		const item =
-			this.getItemFromID(itemKey) || this.getItemFromName(itemKey);
-		if (item) {
+	async pickup(itemKey: string | number): Promise<boolean> {
+		const item = this.#resolveItem(itemKey);
+		if (item && this.getDropCount(item.ItemID) > 0) {
 			const { ItemID: itemID } = item;
 			await this.#mutex.runExclusive(async () => {
-				if (this.#drops[itemID] > 0) {
-					this.bot.packets.sendServer(
-						`%xt%zm%getDrop%${this.bot.world.roomID}%${itemID}%`,
-					);
-					this.#removeDrop(itemID);
-					await this.bot.waitUntil(
-						() => this.bot.inventory.get(itemKey),
-						() => this.bot.auth.loggedIn,
-						-1,
-					);
-					return true;
-				}
+				this.bot.packets.sendServer(
+					`%xt%zm%getDrop%${this.bot.world.roomID}%${itemID}%`,
+				);
+				this.removeDrop(itemID);
+				await this.bot.waitUntil(
+					() => this.bot.inventory.get(itemKey),
+					() => this.bot.auth.loggedIn,
+					-1,
+				);
+				return true;
 			});
 		}
 		return false;
@@ -125,19 +126,35 @@ class Drops {
 	 * Rejects the drop, effectively removing from the stack. Items can still be picked up with a getDrop packet.
 	 * @param {string|number} itemKey The name or ID of the item.
 	 * @param {boolean} [removeFromStore=false] Whether to delete the item entry from the store.
-	 * @returns {Promise<void>}
+	 * @returns {Promise<boolean>} Whether the operation was successful.
 	 */
-	async reject(itemKey, removeFromStore = false) {
-		const item =
-			this.getItemFromID(itemKey) || this.getItemFromName(itemKey);
+	async reject(
+		itemKey: string | number,
+		removeFromStore = false,
+	): Promise<boolean> {
+		const item = this.#resolveItem(itemKey);
 		if (item) {
 			this.bot.flash.call(swf.RejectDrop, item.sName, item.ItemID);
 			if (removeFromStore) {
-				this.#removeDrop(item.ItemID);
+				this.removeDrop(item.ItemID);
 			}
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Resolves for an item by its' name or itemID.
+	 * @param {string|number} itemKey The name or ID of the item.
+	 * @returns {ItemData|undefined}
+	 */
+	#resolveItem(itemKey: string | number): ItemData | undefined {
+		if (typeof itemKey === 'string') {
+			return this.getItemFromName(itemKey);
+		} else if (typeof itemKey === 'number') {
+			return this.getItemFromID(itemKey);
+		}
+		return undefined;
 	}
 }
 

@@ -1,7 +1,10 @@
 import Faction from './struct/Faction';
+import type Bot from './Bot';
 
 class Player {
-	constructor(bot) {
+	public bot: Bot;
+
+	constructor(bot: Bot) {
 		/**
 		 * @type {import('./Bot')}
 		 * @ignore
@@ -13,7 +16,7 @@ class Player {
 	 * Get the player's factions data.
 	 * @returns {Faction[]}
 	 */
-	get factions() {
+	public get factions(): Faction[] {
 		const ret = this.bot.flash.call(swf.GetFactions);
 		if (Array.isArray(ret)) {
 			return ret.map((data) => new Faction(data));
@@ -25,7 +28,7 @@ class Player {
 	 * Gets the name of the player's equipped class.
 	 * @returns {string}
 	 */
-	get className() {
+	public get className(): string {
 		return this.bot.flash.call(swf.Class);
 	}
 
@@ -33,7 +36,7 @@ class Player {
 	 * Gets the state of the current player.
 	 * @returns {PlayerState}
 	 */
-	get state() {
+	public get state(): PlayerState {
 		return this.bot.flash.call(swf.State);
 	}
 
@@ -41,7 +44,7 @@ class Player {
 	 * Gets the current health of the current player.
 	 * @returns {number}
 	 */
-	get hp() {
+	public get hp(): number {
 		return this.bot.flash.call(swf.Health);
 	}
 
@@ -49,7 +52,7 @@ class Player {
 	 * Gets the maximum health of the current player.
 	 * @returns {number}
 	 */
-	get maxHP() {
+	public get maxHP(): number {
 		return this.bot.flash.call(swf.HealthMax);
 	}
 
@@ -57,7 +60,7 @@ class Player {
 	 * Checks if the current player is alive.
 	 * @returns {boolean}
 	 */
-	get alive() {
+	public get alive(): boolean {
 		return this.hp > 0;
 	}
 
@@ -65,7 +68,7 @@ class Player {
 	 * Gets the current mana of the current player.
 	 * @returns {number}
 	 */
-	get mp() {
+	public get mp(): number {
 		return this.bot.flash.call(swf.Mana);
 	}
 
@@ -73,7 +76,7 @@ class Player {
 	 * Gets the maximum mana of the current player.
 	 * @returns {number}
 	 */
-	get maxMP() {
+	public get maxMP(): number {
 		return this.bot.flash.call(swf.ManaMax);
 	}
 
@@ -81,7 +84,7 @@ class Player {
 	 * Gets the level of the current player.
 	 * @returns {number}
 	 */
-	get level() {
+	public get level(): number {
 		return this.bot.flash.call(swf.Level);
 	}
 
@@ -89,15 +92,15 @@ class Player {
 	 * Gets the gold of the current player.
 	 * @returns {number}
 	 */
-	get gold() {
+	public get gold(): number {
 		return this.bot.flash.call(swf.Gold);
 	}
 
 	/**
-	 * Checks if the current player is AFK.
+	 * Whether the current player is AFK.
 	 * @returns {boolean}
 	 */
-	get afk() {
+	public isAFK(): boolean {
 		return this.bot.flash.call(swf.IsAfk);
 	}
 
@@ -105,15 +108,15 @@ class Player {
 	 * Whether the current player has membership.
 	 * @returns {boolean}
 	 */
-	isMember() {
+	public isMember(): boolean {
 		return this.bot.flash.call(swf.IsMember);
 	}
 
 	/**
 	 * The player's current position.
-	 * @returns {{ x: number, y: number }}
+	 * @returns {[number,number]}
 	 */
-	get position() {
+	public get position(): [number, number] {
 		return this.bot.flash.call(swf.Position);
 	}
 
@@ -123,15 +126,15 @@ class Player {
 	 * @param {string|number} y The y coordinate to walk to.
 	 * @returns {void}
 	 */
-	walkTo(x, y) {
-		this.bot.flash.call(swf.WalkToPoint, x, y);
+	public walkTo(x: string | number, y: string | number): void {
+		this.bot.flash.call(swf.WalkToPoint, String(x), String(y));
 	}
 
 	/**
 	 * Get the cell of the current player in the map.
 	 * @returns {string}
 	 */
-	get cell() {
+	public get cell(): string {
 		return this.bot.flash.call(swf.Cell);
 	}
 
@@ -139,7 +142,7 @@ class Player {
 	 * Get the pad of the current player in the map.
 	 * @returns {string}
 	 */
-	get pad() {
+	public get pad(): string {
 		return this.bot.flash.call(swf.Pad);
 	}
 
@@ -147,7 +150,7 @@ class Player {
 	 * A check for if the world is fully loaded, aswell as the player's inventory items and art.
 	 * @returns {boolean}
 	 */
-	get loaded() {
+	public isLoaded(): boolean {
 		return !!this.bot.flash.call(swf.IsPlayerLoaded);
 	}
 }
@@ -157,26 +160,26 @@ class Player {
  * @readonly
  * @enum {number}
  */
-const PlayerState = Object.freeze({
+enum PlayerState {
 	/**
 	 * The player is dead.
 	 * @memberof PlayerState
 	 * @type {number}
 	 */
-	Dead: 0,
+	Dead = 0,
 	/**
 	 * The player is idle, does not necessarily imply the player is afk.
 	 * @memberof PlayerState
 	 * @type {number}
 	 */
-	Idle: 1,
+	Idle = 1,
 	/**
 	 * The player is in combat.
 	 * @memberof PlayerState
 	 * @type {number}
 	 */
-	InCombat: 2,
-});
+	InCombat = 2,
+}
 
 Object.defineProperty(window, 'PlayerState', {
 	value: PlayerState,

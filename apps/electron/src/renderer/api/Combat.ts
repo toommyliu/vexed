@@ -212,7 +212,7 @@ class Combat {
 					if (
 						(!this.hasTarget() ||
 							(this.bot.player.state === PlayerState.Idle &&
-								!this.bot.player.afk)) &&
+								!this.bot.player.isAFK())) &&
 						!this.pauseAttack
 					) {
 						this.bot.timerManager.clearInterval(timer_a);

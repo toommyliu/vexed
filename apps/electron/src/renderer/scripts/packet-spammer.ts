@@ -30,7 +30,7 @@ window.addEventListener('message', async (ev) => {
 				if (
 					!bot.auth.loggedIn ||
 					bot.world.loading ||
-					!bot.player.loaded
+					!bot.player.isLoaded()
 				) {
 					return;
 				}

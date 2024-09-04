@@ -182,7 +182,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 			!force &&
 			(!auth.loggedIn ||
 				world.loading ||
-				!player.loaded ||
+				!player.isLoaded() ||
 				world.roomID === lastRoomID)
 		) {
 			return;
@@ -215,7 +215,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 	$x.addEventListener('click', () => update(true));
 
 	$bank.addEventListener('click', async () => {
-		if (!auth.loggedIn || world.loading || !player.loaded) {
+		if (!auth.loggedIn || world.loading || !player.isLoaded()) {
 			return;
 		}
 
@@ -285,7 +285,7 @@ window.progress = async ([percentage]: [number]) => {
 			await bot.waitUntil(() => auth.servers.length > 0);
 			auth.connectTo(window.account.server);
 			await bot.waitUntil(
-				() => auth.loggedIn && !world.loading && player.loaded,
+				() => auth.loggedIn && !world.loading && player.isLoaded(),
 			);
 		}
 		delete window.account;

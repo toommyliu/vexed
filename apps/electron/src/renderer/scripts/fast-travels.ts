@@ -11,7 +11,7 @@ window.addEventListener('message', async (ev) => {
 
 	switch (eventName) {
 		case 'join':
-			if (!bot.auth.loggedIn || bot.world.loading || !bot.player.loaded) {
+			if (!bot.auth.loggedIn || bot.world.loading || !bot.player.isLoaded()) {
 				return;
 			}
 
