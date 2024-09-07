@@ -11,49 +11,49 @@
 			return;
 		}
 
-		public static function IsInProgress(id:String):String
+		public static function IsInProgress(questID:String):String
 		{
-			return Root.Game.world.isQuestInProgress(parseInt(id)) ? Root.TrueString : Root.FalseString;
+			return Root.Game.world.isQuestInProgress(parseInt(questID)) ? Root.TrueString : Root.FalseString;
 		}
 
-		public static function Complete(id:String, qty:int = 1, itemID:String = "-1", special:String = "False"):void
+		public static function Complete(questID:String, qty:int = 1, itemID:String = "-1", special:String = "False"):void
 		{
-			Root.Game.world.tryQuestComplete(parseInt(id), parseInt(itemID), special == "True", qty);
+			Root.Game.world.tryQuestComplete(parseInt(questID), parseInt(itemID), special == "True", qty);
 		}
 
-		public static function Accept(id:String):void
+		public static function Accept(questID:String):void
 		{
-			Root.Game.world.acceptQuest(parseInt(id));
+			Root.Game.world.acceptQuest(parseInt(questID));
 		}
 
-		public static function Load(id:String):void
+		public static function Load(questID:String):void
 		{
-			Root.Game.world.showQuests([id], "q");
+			Root.Game.world.showQuests([questID], "q");
 		}
 
-		public static function LoadMultiple(ids:String):void
+		public static function LoadMultiple(questIDs:String):void
 		{
-			Root.Game.world.showQuests(ids.split(","), "q");
+			Root.Game.world.showQuests(questIDs.split(","), "q");
 		}
 
-		public static function GetQuests(ids:String):void
+		public static function GetQuests(questIDs:String):void
 		{
-			Root.Game.world.getQuests(ids.split(","));
+			Root.Game.world.getQuests(questIDs.split(","));
 		}
 
-		public static function IsAvailable(param1:String):String
+		public static function IsAvailable(questID:String):String
 		{
-			return GetQuestValidationString(parseInt(param1)) == "" ? (Root.TrueString) : (Root.FalseString);
+			return GetQuestValidationString(parseInt(questID)) == "" ? (Root.TrueString) : (Root.FalseString);
 		}
 
-		public static function CanComplete(id:String):String
+		public static function CanComplete(questID:String):String
 		{
 
-			var validation:String = GetQuestValidationString(parseInt(id));
+			var validation:String = GetQuestValidationString(parseInt(questID));
 			// if (validation != "") {
 			// Root.Game.chatF.pushMsg("warning", "Can\'t turn in quest(" + id + "), message : " + validation, "SERVER", "", 0);
 			// }
-			return Root.Game.world.canTurnInQuest(parseInt(id)) && validation == "" ? Root.TrueString : Root.FalseString;
+			return Root.Game.world.canTurnInQuest(parseInt(questID)) && validation == "" ? Root.TrueString : Root.FalseString;
 		}
 
 		private static function CloneObject(source:Object):Object

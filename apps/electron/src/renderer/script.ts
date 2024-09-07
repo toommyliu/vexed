@@ -7,9 +7,8 @@ import { ipcRenderer } from 'electron';
 
 const { settings, auth, world, player, flash, bank } = bot;
 
-const mapping = new Map();
+const mapping: Map<string, HTMLElement> = new Map();
 
-// room jump
 let lastRoomID: number | undefined;
 
 window.windows = {
@@ -20,9 +19,12 @@ window.windows = {
 
 //#region dom manipulation
 window.addEventListener('DOMContentLoaded', async () => {
-	const keys = ['scripts', 'tools', 'packets', 'options'];
-	for (const k of keys) {
-		mapping.set(k, document.getElementById(`${k}-dropdowncontent`));
+	{
+		const keys = ['scripts', 'tools', 'packets', 'options'];
+		for (const k of keys) {
+			const element = document.getElementById(`${k}-dropdowncontent`)!;
+			mapping.set(k, element);
+		}
 	}
 
 	{
@@ -73,7 +75,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 		)!;
 		$btn.addEventListener('click', () => {
 			window.windows.tools.loaderGrabber = window.open(
-				'./pages/tools/loader-grabber/babel src/ --out-dir dist/ --extensions .tsindex.html',
+				'./pages/tools/loader-grabber/index.html',
 				undefined,
 				'width=363,height=542',
 			);
@@ -222,7 +224,6 @@ window.addEventListener('DOMContentLoaded', async () => {
 		await bank.open();
 	});
 });
-//#endregion
 
 //#region input
 window.addEventListener('click', (ev) => {

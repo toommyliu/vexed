@@ -2,15 +2,15 @@
 {
 	import grimoire.*;
 
-	public class AutoRelogin 
+	public class AutoRelogin
 	{
 		public static function IsTemporarilyKicked():String
 		{
-			return (Root.Game.mcLogin != null && 
-					Root.Game.mcLogin.btnLogin != null && 
+			return (Root.Game.mcLogin != null &&
+					Root.Game.mcLogin.btnLogin != null &&
 					Root.Game.mcLogin.btnLogin.visible == false) ? Root.TrueString : Root.FalseString;
 		}
-		
+
 		public static function Login(): void
 		{
 			if (Root.Game.charCount() > 0) {
@@ -20,7 +20,7 @@
 			}
 			Root.Game.login(Root.Username, Root.Password);
 		}
-		
+
 		public static function FixLogin(username:String, password:String): void
 		{
 			if (Root.Game.charCount() > 0) {
@@ -32,7 +32,7 @@
 			Root.Password = password;
 			Root.Game.login(username, password);
 		}
-		
+
 		public static function ResetServers():String
 		{
 			try
@@ -47,7 +47,7 @@
 			}
 			return Root.FalseString;
 		}
-		
+
 		public static function AreServersLoaded():String
 		{
 			if (Root.Game.serialCmd != null)
@@ -59,12 +59,12 @@
 			}
 			return Root.FalseString;
 		}
-		
-		public static function Connect(name:String):void
+
+		public static function Connect(serverName:String):void
 		{
 			for each (var server:Object in Root.Game.serialCmd.servers)
 			{
-				if (server.sName == name)
+				if (server.sName == serverName)
 				{
 					server.iMax = 5000;
 					Root.Game.objServerInfo = server;

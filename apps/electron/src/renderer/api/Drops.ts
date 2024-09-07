@@ -112,7 +112,7 @@ class Drops {
 				);
 				this.removeDrop(itemID);
 				await this.bot.waitUntil(
-					() => this.bot.inventory.get(itemKey),
+					() => this.bot.inventory.get(itemKey) !== null,
 					() => this.bot.auth.loggedIn,
 					-1,
 				);

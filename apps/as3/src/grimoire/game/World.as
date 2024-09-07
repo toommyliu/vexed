@@ -87,10 +87,10 @@
 			return JSON.stringify(ret);
 		}
 
-		public static function GetMonsterHealth(monster:String):String
+		public static function GetMonsterHealth(monsterName:String):String
 		{
-			var mon:Object = World.GetMonsterByName(monster);
-			return mon.dataLeaf.intHP.toString();
+			var mon:Object = World.GetMonsterByName(monsterName);
+			return mon.dataLeaf.intHP;
 		}
 
 		public static function SetSpawnPoint():void
@@ -98,9 +98,9 @@
 			Root.Game.world.setSpawnPoint(Root.Game.world.strFrame, Root.Game.world.strPad);
 		}
 
-		public static function IsMonsterAvailable(name:String):String
+		public static function IsMonsterAvailable(monsterName:String):String
 		{
-			return GetMonsterByName(name) != null ? Root.TrueString : Root.FalseString;
+			return GetMonsterByName(monsterName) != null ? Root.TrueString : Root.FalseString;
 		}
 
 		public static function IsMonsterAvailableByMonMapID(monMapID:String):String
@@ -108,9 +108,9 @@
 			return GetMonsterByMonMapId(monMapID) != null ? Root.TrueString : Root.FalseString;
 		}
 
-		public static function GetSkillName(index:String):String
+		public static function GetSkillName(skillIndex:String):String
 		{
-			var i:int = parseInt(index);
+			var i:int = parseInt(skillIndex);
 			return "\"" + Root.Game.world.actions.active[i].nam + "\"";
 		}
 

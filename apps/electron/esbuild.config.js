@@ -19,7 +19,6 @@ const readdirp = async (dir, ext, files = []) => {
 async function transpile() {
 	{
 		const now = performance.now();
-
 		await esbuild
 			.build({
 				entryPoints: await readdirp('./src/main/', ['.ts']),
@@ -37,22 +36,6 @@ async function transpile() {
 
 	{
 		const now = performance.now();
-
-		const getDirectories = (filePath) => {
-			const directories = [];
-			let currentPath = filePath;
-
-			while (currentPath !== path.dirname(currentPath)) {
-				currentPath = path.dirname(currentPath);
-				// Exclude the current directory ('.') if present
-				if (currentPath !== '.') {
-					directories.unshift(path.basename(currentPath));
-				}
-			}
-
-			return directories.join('/');
-		};
-
 		await esbuild
 			.build({
 				entryPoints: (await readdirp('./src/renderer/', ['.ts'])).map(

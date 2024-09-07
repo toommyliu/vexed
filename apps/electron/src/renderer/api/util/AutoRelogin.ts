@@ -72,16 +72,14 @@ class AutoRelogin {
 					const server = this.bot.auth.servers.find(
 						(srv) =>
 							srv.name.toLowerCase() ===
-							this.server.toLowerCase(),
+							this.server!.toLowerCase(),
 					);
 
 					if (!server) {
-						// console.log('server not found');
 						return;
 					}
 
-					// console.log('connecting to ' + this.server);
-					this.bot.auth.connectTo(this.server);
+					this.bot.auth.connectTo(server.name);
 
 					await this.bot.waitUntil(
 						() =>
@@ -90,7 +88,6 @@ class AutoRelogin {
 							this.bot.player.isLoaded(),
 					);
 
-					// console.log('connected');
 					// TODO: restart the script ?
 				});
 			}

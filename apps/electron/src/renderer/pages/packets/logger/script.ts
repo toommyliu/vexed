@@ -1,21 +1,22 @@
-const { ipcRenderer } = require('electron');
+import { ipcRenderer } from 'electron';
 
+//@ts-expect-error
 const parent = window.opener;
 
-let container;
+let $container: HTMLElement | null = null;
 
-const packets = [];
+const packets: string[] = [];
 let on = false;
 
 window.addEventListener('DOMContentLoaded', () => {
-	container = document.getElementById('logger');
+	$container = document.getElementById('logger');
 
-	const save = document.getElementById('save');
-	const copy = document.getElementById('copy');
-	const clear = document.getElementById('clear');
+	const save = document.getElementById('save') as HTMLInputElement;
+	const copy = document.getElementById('copy') as HTMLButtonElement;
+	const clear = document.getElementById('clear') as HTMLButtonElement;
 
-	const stop = document.getElementById('stop');
-	const start = document.getElementById('start');
+	const stop = document.getElementById('stop') as HTMLButtonElement;
+	const start = document.getElementById('start') as HTMLButtonElement;
 
 	save.addEventListener('click', () => {
 		ipcRenderer.send('packets:save', packets);
@@ -27,7 +28,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 	clear.addEventListener('click', () => {
 		packets.length = 0;
-		container.innerHTML = '';
+		$container!.innerHTML = '';
 	});
 
 	stop.addEventListener('click', () => {
@@ -62,8 +63,8 @@ window.onmessage = (ev) => {
 					await navigator.clipboard.writeText(pkt);
 				});
 
-				container.appendChild(div);
-				container.scrollTop = container.scrollHeight;
+				$container!.appendChild(div);
+				$container!.scrollTop = $container!.scrollHeight;
 
 				packets.push(pkt);
 			}

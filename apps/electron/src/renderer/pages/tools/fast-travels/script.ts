@@ -1,17 +1,17 @@
-const FileManager = require('../../../botting/api/util/FileManager');
+import { FileManager } from '../../../api/util/FileManager';
 
 const fileManager = new FileManager();
 const parent = window.opener;
 
-let $container;
-let $buttons = [];
+let $container: HTMLElement | null = null;
+let $buttons: HTMLButtonElement[] = [];
 
 const getRoomNumber = () => {
-	return document.getElementById('room-number').value;
+	return (document.getElementById('room-number') as HTMLInputElement).value;
 };
 
 window.addEventListener('DOMContentLoaded', async () => {
-	$container = document.getElementById('locations');
+	$container = document.getElementById('locations')!;
 
 	const locations = await fileManager
 		.readJSON('fast-travels.json')

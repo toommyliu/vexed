@@ -1,7 +1,7 @@
-const { ipcRenderer } = require('electron');
+import { ipcRenderer } from 'electron';
 
-const path = require('path');
-const fs = require('fs-extra');
+import path from 'path';
+import fs from 'fs-extra';
 
 const defaultLocations = [
 	{ name: 'Oblivion', map: 'tercessuinotlim' },
@@ -113,4 +113,4 @@ class FileManager {
 	}
 }
 
-module.exports = FileManager;
+export { FileManager };

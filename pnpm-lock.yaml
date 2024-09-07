@@ -35,9 +35,6 @@ importers:
       nw-flash-trust:
         specifier: ^0.3.0
         version: 0.3.0
-      set-interval-async:
-        specifier: ^3.0.3
-        version: 3.0.3
     devDependencies:
       '@types/electron-prompt':
         specifier: ^1.6.5
@@ -1742,10 +1739,6 @@ packages:
   serialize-error@7.0.1:
     resolution: {integrity: sha512-8I8TjW5KMOKsZQTvoxjuSIa7foAwPWGOts+6o7sgjz41/qMD9VQHEDxi6PBvK2l0MXUmqZyNpUK+T2tQaaElvw==}
     engines: {node: '>=10'}
-
-  set-interval-async@3.0.3:
-    resolution: {integrity: sha512-o4DyBv6mko+A9cH3QKek4SAAT5UyJRkfdTi6JHii6ZCKUYFun8SwgBmQrOXd158JOwBQzA+BnO8BvT64xuCaSw==}
-    engines: {node: '>= 14.0.0'}
 
   shebang-command@2.0.0:
     resolution: {integrity: sha512-kHxr2zZpYtdmrN1qDjrrX/Z1rR1kG8Dx+gkpK1G4eXmvXswmcE1hTWBWYUzlraYw1/yZp6YuDY77YtvbN0dmDA==}
@@ -3856,8 +3849,6 @@ snapshots:
     dependencies:
       type-fest: 0.13.1
     optional: true
-
-  set-interval-async@3.0.3: {}
 
   shebang-command@2.0.0:
     dependencies:

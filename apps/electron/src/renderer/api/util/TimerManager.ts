@@ -141,7 +141,10 @@ class TimerManager {
 	 * @param {number} interval The delay between each execution.
 	 * @returns {SetIntervalAsyncTimer} The interval id.
 	 */
-	setInterval(fn: Function, interval: number): SetIntervalAsyncTimer {
+	setInterval(
+		fn: Function,
+		interval: number,
+	): SetIntervalAsyncTimer<unknown[]> {
 		const id = setIntervalAsync(async () => {
 			await fn();
 		}, interval);

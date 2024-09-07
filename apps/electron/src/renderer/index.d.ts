@@ -1,11 +1,12 @@
 import type Bot from './api/Bot';
 
+type StringBoolean = '"True"' | '"False"';
+
 declare global {
 	var bot: Bot;
 	var swf: GameSWF;
 
 	type Account = { username: string; password: string; server?: string };
-	type StringBoolean = '"True"' | '"False"';
 
 	type GameSWF = {
 		//Player
@@ -33,13 +34,9 @@ declare global {
 		MuteToggle: (param1: boolean) => void;
 		AttackMonster: (monsterName: string) => void;
 		AttackMonsterByMonMapId: (monMapId: string) => void;
-		Jump: (cell: string, pad: string = 'Spawn') => void;
+		Jump: (cell: string, pad: string) => void;
 		Rest: () => void;
-		Join: (
-			mapName: string,
-			cell: string = 'Enter',
-			pad: string = 'Spawn',
-		) => void;
+		Join: (mapName: string, cell: string, pad: string) => void;
 		Equip: (itemID: string) => void;
 		EquipPotion: (
 			itemId: string,
@@ -120,9 +117,9 @@ declare global {
 		IsInProgress: (questID: string) => StringBoolean;
 		Complete: (
 			questID: string,
-			qty: number = 1,
-			itemID: string = '-1',
-			special: string = 'True' | 'False',
+			qty: number,
+			itemID: string,
+			special: string,
 		) => void;
 		Accept: (questID: string) => void;
 		LoadQuest: (questID: string) => void;

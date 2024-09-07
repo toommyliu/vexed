@@ -1,3 +1,4 @@
+// @ts-expect-error
 const parent = window.opener;
 
 // square-plus
