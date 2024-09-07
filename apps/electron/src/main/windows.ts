@@ -171,7 +171,7 @@ async function createGame(account: Account | null = null): Promise<void> {
 				});
 
 				await newWindow.loadFile(
-					`${join(RENDERER, 'game/pages/')}` +
+					`${join(RENDERER, 'pages/')}` +
 						(url.includes('scripts')
 							? `scripts/${file}`
 							: url.includes('tools')
