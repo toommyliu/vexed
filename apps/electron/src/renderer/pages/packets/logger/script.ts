@@ -1,22 +1,19 @@
 import { ipcRenderer } from 'electron';
 
-//@ts-expect-error
-const parent = window.opener;
-
 let $container: HTMLElement | null = null;
 
 const packets: string[] = [];
 let on = false;
 
 window.addEventListener('DOMContentLoaded', () => {
-	$container = document.getElementById('logger');
+	$container = document.querySelector('#logger');
 
-	const save = document.getElementById('save') as HTMLInputElement;
-	const copy = document.getElementById('copy') as HTMLButtonElement;
-	const clear = document.getElementById('clear') as HTMLButtonElement;
+	const save = document.querySelector('#save') as HTMLInputElement;
+	const copy = document.querySelector('#copy') as HTMLButtonElement;
+	const clear = document.querySelector('#clear') as HTMLButtonElement;
 
-	const stop = document.getElementById('stop') as HTMLButtonElement;
-	const start = document.getElementById('start') as HTMLButtonElement;
+	const stop = document.querySelector('#stop') as HTMLButtonElement;
+	const start = document.querySelector('#start') as HTMLButtonElement;
 
 	save.addEventListener('click', () => {
 		ipcRenderer.send('packets:save', packets);
@@ -53,7 +50,7 @@ window.onmessage = (ev) => {
 		case 'logger:packet':
 			if (on) {
 				const packet = args;
-				const pkt = packet.substring(17);
+				const pkt = packet.slice(17);
 
 				const div = document.createElement('div');
 				div.classList.add('line');
@@ -68,6 +65,7 @@ window.onmessage = (ev) => {
 
 				packets.push(pkt);
 			}
+
 			break;
 	}
 };

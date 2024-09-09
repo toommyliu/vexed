@@ -1,15 +1,13 @@
-import { ipcMain, app, BrowserWindow, dialog } from 'electron';
 import { join } from 'path';
+import { ipcMain, app, BrowserWindow, dialog } from 'electron';
 import fs from 'fs-extra';
 import { showErrorDialog } from './utils';
 
 const ROOT = join(app.getPath('documents'), 'Vexed');
 
-ipcMain.handle('root:get_documents_path', async () => {
-	return ROOT;
-});
+ipcMain.handle('root:get_documents_path', async () => ROOT);
 
-//#region scripts
+// #region scripts
 ipcMain.handle('root:load_script', async (ev) => {
 	const window = BrowserWindow.fromWebContents(ev.sender);
 	if (window) {
@@ -25,16 +23,16 @@ ipcMain.handle('root:load_script', async (ev) => {
 			return null;
 		}
 
-		const scriptPath = res!.filePaths[0];
+		const scriptPath = res!.filePaths[0]!;
 		const scriptBody = await fs
 			.readFile(scriptPath, 'utf8')
 			.catch(() => null);
 
-		if (!scriptBody?.toString()) {
+		if (!scriptBody) {
 			return null;
 		}
 
-		return Buffer.from(scriptBody, 'utf-8').toString('base64');
+		return Buffer.from(scriptBody, 'utf8').toString('base64');
 	}
 
 	return null;
@@ -43,14 +41,14 @@ ipcMain.handle('root:load_script', async (ev) => {
 ipcMain.on('root:toggle-dev-tools', async (ev) => {
 	ev.sender.toggleDevTools();
 });
-//#endregion
+// #endregion
 
-ipcMain.on('tools:loadergrabber:export', async (ev, data) => {
+ipcMain.on('tools:loadergrabber:export', async (_, data) => {
 	const path = join(ROOT, 'grabber.json');
 	try {
 		await fs.ensureFile(path);
 		await fs.writeFile(path, JSON.stringify(data, null, 2), {
-			encoding: 'utf-8',
+			encoding: 'utf8',
 		});
 		throw new Error('hello world');
 	} catch (error) {
@@ -67,7 +65,7 @@ ipcMain.on('packets:save', async (_, data) => {
 	try {
 		await fs.ensureFile(path);
 		await fs.writeFile(path, data.join('\n'), {
-			encoding: 'utf-8',
+			encoding: 'utf8',
 		});
 	} catch (error) {
 		const err = error as Error;

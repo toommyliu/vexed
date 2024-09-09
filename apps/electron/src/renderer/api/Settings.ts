@@ -1,8 +1,6 @@
-import type Bot from './Bot';
-import type { SetIntervalAsyncTimer } from './util/TimerManager';
+import type { Bot } from './Bot';
 
 /**
- *  @description
  * `Provoke Map`: If enabled, tags all monsters in the map.
  * `Provoke Cell`: If enabled, tags all monsters in the current cell.
  * `Enemy Magnet`: If enabled, sets the target's position to that of the player.
@@ -12,55 +10,60 @@ import type { SetIntervalAsyncTimer } from './util/TimerManager';
  * `Walk Speed`: The player's walk speed.
  *  Settings are updated in a background interval every 500ms.
  */
-class Settings {
-	#intervalID: SetIntervalAsyncTimer<unknown[]> | null = null;
+export class Settings {
 	#infiniteRange = false;
+
 	#provokeMap = false;
+
 	#provokeCell = false;
+
 	#enemyMagnet = false;
+
 	#lagKiller = false;
+
 	#hidePlayers = false;
+
 	#skipCutscenes = false;
+
 	#walkSpeed = 8;
 
 	#optionInfiniteRange: HTMLElement | null = null;
+
 	#optionProvokeMap: HTMLElement | null = null;
+
 	#optionProvokeCell: HTMLElement | null = null;
+
 	#optionEnemyMagnet: HTMLElement | null = null;
+
 	#optionLagKiller: HTMLElement | null = null;
+
 	#optionHidePlayers: HTMLElement | null = null;
+
 	#optionSkipCutscenes: HTMLElement | null = null;
+
 	#optionWalkSpeed: HTMLElement | null = null;
 
-	bot: Bot;
+	public constructor(public bot: Bot) {
+		this.#optionInfiniteRange = document.querySelector(
+			'#option-infinite-range',
+		);
+		this.#optionProvokeMap = document.querySelector('#option-provoke-map');
+		this.#optionProvokeCell = document.querySelector(
+			'#option-provoke-cell',
+		);
+		this.#optionEnemyMagnet = document.querySelector(
+			'#option-enemy-magnet',
+		);
+		this.#optionLagKiller = document.querySelector('#option-lag-killer');
+		this.#optionHidePlayers = document.querySelector(
+			'#option-hide-players',
+		);
+		this.#optionSkipCutscenes = document.querySelector(
+			'#option-skip-cutscenes',
+		);
+		this.#optionWalkSpeed = document.querySelector('#option-walkspeed');
 
-	constructor(bot: Bot) {
-		/**
-		 * @type {import('../api/Bot')}
-		 * @ignore
-		 */
-		this.bot = bot;
-
-		this.#optionInfiniteRange = document.getElementById(
-			'option-infinite-range',
-		);
-		this.#optionProvokeMap = document.getElementById('option-provoke-map');
-		this.#optionProvokeCell = document.getElementById(
-			'option-provoke-cell',
-		);
-		this.#optionEnemyMagnet = document.getElementById(
-			'option-enemy-magnet',
-		);
-		this.#optionLagKiller = document.getElementById('option-lag-killer');
-		this.#optionHidePlayers = document.getElementById(
-			'option-hide-players',
-		);
-		this.#optionSkipCutscenes = document.getElementById(
-			'option-skip-cutscenes',
-		);
-		this.#optionWalkSpeed = document.getElementById('option-walkspeed');
-
-		this.#intervalID = this.bot.timerManager.setInterval(() => {
+		this.bot.timerManager.setInterval(() => {
 			if (
 				!this.bot.auth.loggedIn ||
 				this.bot.world.loading ||
@@ -70,7 +73,7 @@ class Settings {
 			}
 
 			if (this.infiniteRange) {
-				this.bot.flash.call(swf.SetInfiniteRange);
+				this.bot.flash.call(() => swf.SetInfiniteRange());
 			}
 
 			if (this.provokeMap && this.bot.world.monsters.length > 0) {
@@ -83,185 +86,156 @@ class Settings {
 			}
 
 			if (this.provokeCell) {
-				this.bot.flash.call(swf.SetProvokeMonsters);
+				this.bot.flash.call(() => swf.SetProvokeMonsters());
 			}
 
 			if (this.enemyMagnet) {
-				this.bot.flash.call(swf.SetEnemyMagnet);
+				this.bot.flash.call(() => swf.SetEnemyMagnet());
 			}
 
-			this.bot.flash.call(
-				swf.SetLagKiller,
-				this.lagKiller ? 'True' : 'False',
+			this.bot.flash.call(() =>
+				swf.SetLagKiller(this.lagKiller ? 'True' : 'False'),
 			);
 
-			this.bot.flash.call(swf.HidePlayers, this.hidePlayers);
+			this.bot.flash.call(() => swf.HidePlayers(this.hidePlayers));
 
 			if (this.skipCutscenes) {
-				this.bot.flash.call(swf.SetSkipCutscenes);
+				this.bot.flash.call(() => swf.SetSkipCutscenes());
 			}
 
 			if (this.walkSpeed !== 8) {
-				this.bot.flash.call(swf.SetWalkSpeed, String(this.walkSpeed));
+				this.bot.flash.call(() =>
+					swf.SetWalkSpeed(String(this.walkSpeed)),
+				);
 			}
 		}, 500);
 	}
 
 	/**
 	 * The state of "Infinite Range".
-	 * @type {boolean}
-	 * @property
 	 */
-	get infiniteRange() {
+	public get infiniteRange(): boolean {
 		return this.#infiniteRange;
 	}
 
 	/**
 	 * Sets state of "Infinite Range".
-	 * @param {boolean} on
-	 * @returns {void}
+	 *
 	 */
-	set infiniteRange(on: boolean) {
+	public set infiniteRange(on: boolean) {
 		this.#infiniteRange = on;
 		this.#updateOption(this.#optionInfiniteRange!, on);
 	}
 
 	/**
 	 * The state of "Provoke Map".
-	 * @type {boolean}
-	 * @property
 	 */
-	get provokeMap() {
+	public get provokeMap(): boolean {
 		return this.#provokeMap;
 	}
 
 	/**
 	 * Sets state of "Provoke Map".
-	 * @param {boolean} on
-	 * @returns {void}
 	 */
-	set provokeMap(on: boolean) {
+	public set provokeMap(on: boolean) {
 		this.#provokeMap = on;
 		this.#updateOption(this.#optionProvokeMap!, on);
 	}
 
 	/**
 	 * The state of "Provoke Cell".
-	 * @type {boolean}
-	 * @property
 	 */
-	get provokeCell() {
+	public get provokeCell(): boolean {
 		return this.#provokeCell;
 	}
 
 	/**
 	 * Sets state of "Provoke Cell".
-	 * @param {boolean} on
-	 * @returns {void}
 	 */
-	set provokeCell(on: boolean) {
+	public set provokeCell(on: boolean) {
 		this.#provokeCell = on;
 		this.#updateOption(this.#optionProvokeCell!, on);
 	}
 
 	/**
 	 * The state of "Enemy Magnet".
-	 * @type {boolean}
-	 * @property
 	 */
-	get enemyMagnet() {
+	public get enemyMagnet(): boolean {
 		return this.#enemyMagnet;
 	}
 
 	/**
 	 * Sets state of "Enemy Magnet".
-	 * @param {boolean} on
-	 * @returns {void}
 	 */
-	set enemyMagnet(on: boolean) {
+	public set enemyMagnet(on: boolean) {
 		this.#enemyMagnet = on;
 		this.#updateOption(this.#optionEnemyMagnet!, on);
 	}
 
 	/**
 	 * Whether "Lag Killer" is enabled.
-	 * @type {boolean}
-	 * @property
 	 */
-	get lagKiller() {
+	public get lagKiller(): boolean {
 		return this.#lagKiller;
 	}
 
 	/**
 	 * Sets state of "Lag Killer".
-	 * @param {boolean} on
-	 * @returns {void}
 	 */
-	set lagKiller(on: boolean) {
+	public set lagKiller(on: boolean) {
 		this.#lagKiller = on;
 		this.#updateOption(this.#optionLagKiller!, on);
 		// Call immediately
 		if (on) {
-			this.bot.flash.call(swf.SetLagKiller, 'True');
+			this.bot.flash.call(() => swf.SetLagKiller('True'));
 		} else {
-			this.bot.flash.call(swf.SetLagKiller, 'False');
+			this.bot.flash.call(() => swf.SetLagKiller('False'));
 		}
 	}
 
 	/**
 	 * Whether "Hide Players" is enabled.
-	 * @type {boolean}
-	 * @property
 	 */
-	get hidePlayers() {
+	public get hidePlayers(): boolean {
 		return this.#hidePlayers;
 	}
 
 	/**
 	 * Sets state of "Hide Players".
-	 * @param {boolean} on
-	 * @returns {void}
 	 */
-	set hidePlayers(on: boolean) {
+	public set hidePlayers(on: boolean) {
 		this.#hidePlayers = on;
-		this.#updateOption(this.#optionHidePlayers, on);
-		this.bot.flash.call(swf.HidePlayers, this.#hidePlayers);
+		this.#updateOption(this.#optionHidePlayers!, on);
+		this.bot.flash.call(() => swf.HidePlayers(this.#hidePlayers));
 	}
 
 	/**
 	 * Whether "Skip Cutscenes" is enabled.
-	 * @type {boolean}
-	 * @property
 	 */
-	get skipCutscenes() {
+	public get skipCutscenes(): boolean {
 		return this.#skipCutscenes;
 	}
 
 	/**
 	 * Sets state of "Skip Cutscenes".
-	 * @param {boolean} on
-	 * @returns {void}
 	 */
-	set skipCutscenes(on: boolean) {
+	public set skipCutscenes(on: boolean) {
 		this.#skipCutscenes = on;
 		this.#updateOption(this.#optionSkipCutscenes!, on);
 	}
 
 	/**
 	 * The player's walk speed.
-	 * @type {number}
-	 * @property
 	 */
-	get walkSpeed() {
+	public get walkSpeed(): number {
 		return this.#walkSpeed;
 	}
 
 	/**
 	 * Sets the player's walk speed.
-	 * @param {number} speed
-	 * @returns {void}
 	 */
-	set walkSpeed(speed: number): void {
+	public set walkSpeed(speed: number) {
+		// eslint-disable-next-line no-param-reassign
 		speed = Math.max(0, Math.min(99, speed));
 		this.#walkSpeed = speed;
 		this.#updateOption(this.#optionWalkSpeed!, speed);
@@ -269,28 +243,26 @@ class Settings {
 
 	/**
 	 * Sets the target client FPS.
-	 * @param {string|number} fps The target fps.
-	 * @returns {void}
+	 *
+	 * @param fps - The target fps.
 	 */
-	setFPS(fps: string | number): void {
-		this.bot.flash.call(swf.SetFPS, String(fps));
+	public setFPS(fps: number | string): void {
+		this.bot.flash.call(() => swf.SetFPS(String(fps)));
 	}
 
 	/**
 	 * Sets the visiblity of death ads.
-	 * @param {boolean} on If enabled, death ads are shown.
-	 * @returns {void}
+	 *
+	 * @param on - If enabled, death ads are shown.
 	 */
-	setDeathAds(on: boolean): void {
+	public setDeathAds(on: boolean): void {
 		this.bot.flash.set('userPreference.data.bDeathAd', on);
 	}
 
 	/**
-	 * Updates an option.
-	 * @param {HTMLElement} option
-	 * @param {string|boolean|number} value
+	 * Updates an option state in the ui.
 	 */
-	#updateOption(option: HTMLElement, value: string | boolean | number) {
+	#updateOption(option: HTMLElement, value: boolean | number | string): void {
 		switch (option.tagName) {
 			case 'INPUT':
 				(option as HTMLInputElement).value = String(value);
@@ -304,5 +276,3 @@ class Settings {
 		}
 	}
 }
-
-export default Settings;

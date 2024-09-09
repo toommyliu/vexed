@@ -1,4 +1,8 @@
-// @ts-expect-error
+import type { ItemData } from '../../../api/struct/Item';
+import type { MonsterData } from '../../../api/struct/Monster';
+import type { QuestData } from '../../../api/struct/Quest';
+import type { ShopItemData } from '../../../api/struct/ShopItem';
+
 const parent = window.opener;
 
 // square-plus
@@ -9,9 +13,9 @@ const svgOpen =
 const svgClose =
 	'<svg width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M64 32C28.7 32 0 60.7 0 96L0 416c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-320c0-35.3-28.7-64-64-64L64 32zm88 200l144 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-144 0c-13.3 0-24-10.7-24-24s10.7-24 24-24z"/></svg>';
 
-let lastData;
+let lastData: ItemData | MonsterData | QuestData | ShopItemData | null = null;
 
-function createTreeNode(data) {
+function createTreeNode(data: TreeNode) {
 	// The node
 	const $node = document.createElement('div');
 	$node.className = 'node';
@@ -67,9 +71,10 @@ function createTreeNode(data) {
 		if (!data.value) {
 			$text.textContent += ':';
 		}
+
 		$span.addEventListener('click', async (ev) => {
 			ev.stopPropagation();
-			await navigator.clipboard.writeText(data.value).catch(() => {});
+			await navigator.clipboard.writeText(data.value!).catch(() => {});
 		});
 		$content.appendChild($span);
 	}
@@ -77,22 +82,27 @@ function createTreeNode(data) {
 	return $node;
 }
 
-function createTree(data) {
+function createTree(data: TreeNode[]) {
 	const tree = document.createDocumentFragment();
 	for (const item of data) {
 		const node = createTreeNode(item);
 		tree.appendChild(node);
 	}
+
 	return tree;
 }
 
-function parseTreeData(data, type) {
-	let out = [];
+function parseTreeData(
+	data: ItemData[] | MonsterData[] | QuestData[] | { items: ShopItemData[] },
+	type: number,
+) {
+	let out: TreeRoot[] = [];
 
 	switch (type) {
 		case 0: // shop
-			out = data.items.map((item) => {
-				return {
+			// @ts-expect-error this is ok
+			out = (data.items as { items: ShopItemData[] }).items.map(
+				(item) => ({
 					name: item.sName,
 					children: [
 						{ name: 'Shop Item ID', value: item.ShopItemID },
@@ -104,136 +114,127 @@ function parseTreeData(data, type) {
 						{ name: 'Category', value: item.sType },
 						{ name: 'Description', value: item.sDesc },
 					],
-				};
-			});
+				}),
+			);
 			break;
 		case 1: // quest
-			out = data.map((quest) => {
-				return {
-					name: `${quest.QuestID} - ${quest.sName}`,
-					children: [
-						{ name: 'ID', value: quest.QuestID },
-						{ name: 'Description', value: quest.sDesc },
-						{
-							name: 'Required Items',
-							children: quest.RequiredItems.map((i) => {
-								return {
-									name: i.sName,
-									children: [
-										{ name: 'ID', value: i.ItemID },
-										{ name: 'Quantity', value: i.iQty },
-										{
-											name: 'Temporary',
-											value: i.bTemp ? 'Yes' : 'No',
-										},
-										{
-											name: 'Description',
-											value: i.sDesc,
-										},
-									],
-								};
-							}),
-						},
-						{
-							name: 'Rewards',
-							children: quest.Rewards.map((item) => {
-								return {
-									name: item.sName,
-									children: [
-										{
-											name: 'ID',
-											value: item.ItemID,
-										},
-										{
-											name: 'Quantity',
-											value: item.iQty,
-										},
-										{
-											name: 'Drop chance',
-											value: item.DropChance,
-										},
-									],
-								};
-							}),
-						},
-					],
-				};
-			});
+			out = (data as QuestData[]).map((quest: QuestData) => ({
+				name: `${quest.QuestID} - ${quest.sName}`,
+				children: [
+					{ name: 'ID', value: String(quest.QuestID) },
+					{ name: 'Description', value: quest.sDesc },
+					{
+						name: 'Required Items',
+						children: Object.values(quest.oItems).map((item) => ({
+							name: item.sName,
+							children: [
+								{ name: 'ID', value: String(item.ItemID) },
+								{ name: 'Quantity', value: String(item.iQty) },
+								{
+									name: 'Temporary',
+									value: item.bTemp ? 'Yes' : 'No',
+								},
+								{
+									name: 'Description',
+									value: item.sDesc,
+								},
+							],
+						})),
+					},
+					{
+						name: 'Rewards',
+						children: quest.Rewards.map((item) => ({
+							name: item.sName,
+							children: [
+								{
+									name: 'ID',
+									value: String(item.ItemID),
+								},
+								{
+									name: 'Quantity',
+									value: String(item.iQty),
+								},
+								{
+									name: 'Drop chance',
+									value: String(item.DropChance),
+								},
+							],
+						})),
+					},
+				],
+			}));
 			break;
 		case 2: // inventory
 		case 4: // bank
-			out = data.map((item) => {
-				return {
-					name: item.sName,
-					children: [
-						{
-							name: 'ID',
-							value: item.ItemID,
-						},
-						{
-							name: 'Char Item ID',
-							value: item.CharItemID,
-						},
-						{
-							name: 'Quantity',
-							value:
-								item.sType === 'Class'
-									? '1/1'
-									: `${item.iQty}/${item.iStk}`,
-						},
-						{
-							name: 'AC Tagged',
-							value: item.bCoins === 1 ? 'Yes' : 'No',
-						},
-						{
-							name: 'Category',
-							value: item.sType,
-						},
-						{
-							name: 'Description',
-							value: item.sDesc,
-						},
-					],
-				};
-			});
+			out = (data as ItemData[]).map((item: ItemData) => ({
+				name: item.sName,
+				children: [
+					{
+						name: 'ID',
+						value: String(item.ItemID),
+					},
+					{
+						name: 'Char Item ID',
+						value: String(item.CharItemID),
+					},
+					{
+						name: 'Quantity',
+						value:
+							item.sType === 'Class'
+								? '1/1'
+								: `${item.iQty}/${item.iStk}`,
+					},
+					{
+						name: 'AC Tagged',
+						value: item.bCoins === 1 ? 'Yes' : 'No',
+					},
+					{
+						name: 'Category',
+						value: item.sType,
+					},
+					{
+						name: 'Description',
+						value: item.sDesc,
+					},
+				],
+			}));
 			break;
 		case 3: // temp. inventory
-			out = data.map((item) => {
-				return {
-					name: item.sName,
-					children: [
-						{
-							name: 'ID',
-							value: item.ItemID,
-						},
-						{
-							name: 'Quantity',
-							value: `${item.iQty}/${item.iStk}`,
-						},
-					],
-				};
-			});
+			out = (data as ItemData[]).map((item: ItemData) => ({
+				name: item.sName,
+				children: [
+					{
+						name: 'ID',
+						value: String(item.ItemID),
+					},
+					{
+						name: 'Quantity',
+						value: `${item.iQty}/${item.iStk}`,
+					},
+				],
+			}));
 			break;
 		case 5: // cell monsters
 		case 6: // map monsters
-			out = data.map((mon) => {
+			out = (data as MonsterData[]).map((mon: MonsterData) => {
 				const ret = {
 					name: mon.strMonName,
 					children: [
 						{
 							name: 'ID',
-							value: mon.MonID,
+							value: String(mon.MonID),
 						},
 						{
 							name: 'MonMapID',
-							value: mon.MonMapID,
+							value: String(mon.MonMapID),
 						},
 					],
 				};
 
 				ret.children.push(
 					{ name: 'Race', value: mon.sRace },
-					{ name: 'Level', value: mon.iLvl ?? mon.intLevel },
+					// @ts-expect-error this is ok
+					{ name: 'Level', value: String(mon.iLvl ?? mon.intLevel) },
 				);
 
 				if (type === 5) {
@@ -244,6 +245,7 @@ function parseTreeData(data, type) {
 				} else {
 					ret.children.push({
 						name: 'Cell',
+						// @ts-expect-error world monsters will have this
 						value: mon.strFrame,
 					});
 				}
@@ -267,71 +269,92 @@ window.addEventListener('message', (ev) => {
 	let treeData;
 
 	switch (event) {
-		case 'tools:loadergrabber:grab':
+		case 'tools:loadergrabber:grab': {
 			treeData = parseTreeData(data, type);
 			lastData = data;
 
-			const container = document.getElementById('tree');
+			const container = document.querySelector('#tree');
 
 			// Clear the tree
-			while (container.firstChild) {
-				container.removeChild(container.firstChild);
+			while (container!.firstChild) {
+				container!.removeChild(container!.firstChild);
 			}
 
 			const tree = createTree(treeData);
-			container.appendChild(tree);
+			container!.appendChild(tree);
 			break;
+		}
 	}
 });
 
 window.addEventListener('DOMContentLoaded', async () => {
 	{
-		const $btn = document.getElementById('loader-btn');
-		$btn.addEventListener('click', async () => {
-			const $id = document.getElementById('loader-id');
-			const $source = document.getElementById('loader-select');
+		const $btn = document.querySelector('#loader-btn');
+		$btn!.addEventListener('click', async () => {
+			const $id = document.querySelector('#loader-id');
+			const $source = document.querySelector('#loader-select');
 
-			const source = $source.value;
-			const id = $id.value;
+			const source = ($source as HTMLInputElement).value;
+			const id = ($id as HTMLInputElement).value;
 
 			// Armor customizer does not require an ID
 			if (source !== '3' && !id) {
 				return;
 			}
 
-			parent.postMessage({
-				event: 'tools:loadergrabber:load',
-				args: {
-					type: Number.parseInt(source),
-					id: Number.parseInt(id),
+			parent.postMessage(
+				{
+					event: 'tools:loadergrabber:load',
+					args: {
+						type: Number.parseInt(source, 10),
+						id: Number.parseInt(id, 10),
+					},
 				},
-			});
+				{ targetOrigin: '*' },
+			);
 		});
 	}
 
 	{
-		const $btn = document.getElementById('grabber-btn');
-		const $source = document.getElementById('grabber-select');
-		$btn.addEventListener('click', async () => {
-			const type = $source.value;
+		const $btn = document.querySelector('#grabber-btn');
+		const $source = document.querySelector('#grabber-select');
+		$btn!.addEventListener('click', async () => {
+			const type = ($source as HTMLInputElement).value;
 			if (!type) {
 				return;
 			}
 
-			parent.postMessage({
-				event: 'tools:loadergrabber:grab',
-				args: { type: Number.parseInt(type) },
-			});
+			parent.postMessage(
+				{
+					event: 'tools:loadergrabber:grab',
+					args: { type: Number.parseInt(type, 10) },
+				},
+				{ targetOrigin: '*' },
+			);
 		});
 	}
 
 	{
-		const $btn = document.getElementById('grabber-export');
-		$btn.addEventListener('click', async () => {
-			parent.postMessage({
-				event: 'tools:loadergrabber:export',
-				args: { data: lastData },
-			});
+		const $btn = document.querySelector('#grabber-export');
+		$btn!.addEventListener('click', async () => {
+			parent.postMessage(
+				{
+					event: 'tools:loadergrabber:export',
+					args: { data: lastData },
+				},
+				{ targetOrigin: '*' },
+			);
 		});
 	}
 });
+
+type TreeNode = {
+	children?: TreeNode[];
+	name: string;
+	value?: string;
+};
+
+type TreeRoot = {
+	children: TreeNode[];
+	name: string;
+};

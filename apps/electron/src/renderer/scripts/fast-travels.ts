@@ -11,7 +11,7 @@ window.addEventListener('message', async (ev) => {
 
 	switch (eventName) {
 		case 'join':
-			if (!bot.auth.loggedIn || bot.world.loading || !bot.player.isLoaded()) {
+			if (!bot.player.isReady()) {
 				return;
 			}
 
@@ -21,9 +21,12 @@ window.addEventListener('message', async (ev) => {
 				args.pad ?? 'Spawn',
 				1,
 			);
-			ev.source!.postMessage({
-				event: 'tools:fasttravel:ready',
-			});
+			ev.source!.postMessage(
+				{
+					event: 'tools:fasttravel:ready',
+				},
+				{ targetOrigin: '*' },
+			);
 			break;
 	}
 });

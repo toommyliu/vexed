@@ -1,35 +1,33 @@
-import type Bot from './Bot';
+import type { Bot } from './Bot';
 
-class Packets {
-	bot: Bot;
-
-	constructor(bot: Bot) {
-		/**
-		 * @type {import('./Bot')}
-		 * @ignore
-		 */
-		this.bot = bot;
-	}
+export class Packets {
+	public constructor(public bot: Bot) {}
 
 	/**
 	 * Sends the specified packet to the client (simulates a response as if the server sent the packet).
-	 * @param {string} packet The packet to send.
-	 * @param {"str"|"json"|"xml"} [type="str"] The type of packet.
-	 * @returns {void}
+	 *
+	 * @param packet - The packet to send.
+	 * @param type - The type of packet.
 	 */
-	sendClient(packet: string, type: 'xml' | 'json' | 'str' = 'str'): void {
-		this.bot.flash.call(swf.sendClientPacket, packet, type);
+	public sendClient(
+		packet: string,
+		type: 'json' | 'str' | 'xml' = 'str',
+	): void {
+		this.bot.flash.call(() => swf.sendClientPacket(packet, type));
 	}
 
 	/**
 	 * Sends the specified packet to the server.
-	 * @param {string} packet The packet to send.
-	 * @param {"String"|"Json"} [type="String"] The type of packet.
-	 * @returns {void}
+	 *
+	 * @param packet - The packet to send.
+	 * @param type - The type of packet.
 	 */
-	sendServer(packet: string, type: 'String' | 'Json' = 'String'): void {
-		this.bot.flash.call(swf.callGameFunction, `sfc.send${type}`, packet);
+	public sendServer(
+		packet: string,
+		type: 'Json' | 'String' = 'String',
+	): void {
+		this.bot.flash.call(() =>
+			swf.callGameFunction(`sfc.send${type}`, packet),
+		);
 	}
 }
-
-export default Packets;

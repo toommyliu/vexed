@@ -1,110 +1,84 @@
 /**
  * Represents a monster.
  */
-class Monster {
-	data: MonsterData;
-
-	constructor(data: MonsterData) {
+export class Monster {
+	public constructor(
 		/**
 		 * Data about this monster.
-		 * @type {MonsterData}
-		 */
-		this.data = data;
-	}
+		 */ public data: MonsterData,
+	) {}
 
 	/**
 	 * The monMapID of the monster.
-	 * @returns {number}
 	 */
-	get monMapID() {
+	public get monMapID(): number {
 		return this.data.MonMapID;
 	}
 
 	/**
 	 * The global ID of the monster.
-	 * @returns {number}
 	 */
-	get id() {
+	public get id(): number {
 		return this.data.MonID;
 	}
 
 	/**
 	 * The level of the monster.
-	 * @returns {number}
 	 */
-	get level() {
+	public get level(): number {
 		return this.data.iLvl;
 	}
 
 	/**
 	 * The state of the monster.
-	 * @returns {number}
 	 */
-	get state() {
+	public get state(): number {
 		return this.data.intState;
 	}
 
 	/**
 	 * The race of the monster.
-	 * @returns {string}
 	 */
-	get race() {
+	public get race(): string {
 		return this.data.sRace;
 	}
 
 	/**
 	 * The name of the monster.
-	 * @returns {string}
 	 */
-	get name() {
+	public get name(): string {
 		return this.data.strMonName;
 	}
 
 	/**
 	 * The monster's current HP.
-	 * @returns {number}
 	 */
-	get hp() {
+	public get hp(): number {
 		return this.data.intHP;
 	}
 
 	/**
 	 * The monster's max HP.
-	 * @returns {number}
 	 */
-	get maxHP() {
+	public get maxHP(): number {
 		return this.data.intHPMax;
 	}
 
 	/**
 	 * Whether the monster is alive.
-	 * @returns {boolean}
 	 */
-	get alive() {
+	public get alive(): boolean {
 		return this.hp > 0;
 	}
 }
 
-export default Monster;
-
-/**
- * @typedef {Object} MonsterData
- * @property {number} MonMapID
- * @property {number} iLvl
- * @property {number} intState
- * @property {string} sRace
- * @property {string} strMonName
- * @property {number} intHP
- * @property {number} MonID
- * @property {number} intHPMax
- */
-type MonsterData = {
+export type MonsterData = {
+	MonID: number;
 	MonMapID: number;
 	iLvl: number;
+	intHP: number;
+	intHPMax: number;
 	intState: number;
 	sRace: string;
 	strMonName: string;
-	intHP: number;
-	MonID: number;
-	intHPMax: number;
 };

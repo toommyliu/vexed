@@ -1,170 +1,115 @@
 /**
  * The base for all things item-related.
  */
-class Item {
-	data: ItemData;
-
-	constructor(data: ItemData) {
+export class Item {
+	public constructor(
 		/**
 		 * Data about this item
-		 * @type {ItemData}
 		 */
-		this.data = data;
-	}
+		public data: ItemData,
+	) {}
 
 	/**
 	 * The ID of the item.
-	 * @returns {number}
 	 */
-	get id() {
+	public get id(): number {
 		return this.data.ItemID;
 	}
 
 	/**
 	 * The name of the item.
-	 * @returns {string}
 	 */
-	get name() {
+	public get name(): string {
 		return this.data.sName;
 	}
 
 	/**
 	 * The description of the item.
-	 * @returns {string}
 	 */
-	get description() {
+	public get description(): string {
 		return this.data.sDesc;
 	}
 
 	/**
 	 * The quantity of the item in this stack.
-	 * @returns {number}
 	 */
-	get quantity() {
+	public get quantity(): number {
 		return this.data.iQty;
 	}
 
 	/**
 	 * The maximum stack size this item can exist in.
-	 * @returns {number}
 	 */
-	get maxStack() {
+	public get maxStack(): number {
 		return this.data.iStk;
 	}
 
 	/**
 	 * Indicates if the item is a member/upgrade only item.
-	 * @returns {boolean}
 	 */
-	isUpgrade() {
+	public isUpgrade(): boolean {
 		return this.data.bUpg === 1;
 	}
 
 	/**
 	 * Indicates if the item is an AC item.
-	 * @returns {boolean}
 	 */
-	isAC() {
+	public isAC(): boolean {
 		return this.data.bCoins === 1;
 	}
 
 	/**
 	 * The category of the item.
-	 * @returns {string}
 	 */
-	get category() {
+	public get category(): string {
 		return this.data.sType;
 	}
 
 	/**
 	 * Whether the item is a temporary item.
-	 * @returns {boolean}
 	 */
-	isTemp() {
+	public isTemp(): boolean {
 		return this.data.bTemp === 1;
 	}
 
 	/**
 	 * The group of the item.
 	 * co = Armor, ba = Cape, he = Helm, pe = Pet, Weapon = Weapon
-	 * @returns {string}
 	 */
-	get itemGroup() {
+	public get itemGroup(): string {
 		return this.data.sES;
 	}
 
 	/**
 	 * The name of the source file of the item.
-	 * @returns {string}
 	 */
-	get fileName() {
+	public get fileName(): string {
 		return this.data.sLink;
 	}
 
 	/**
 	 * The link to the source file of the item
-	 * @returns {string}
 	 */
-	get fileLink() {
+	public get fileLink(): string {
 		return this.data.sFile;
 	}
 
 	/**
 	 * The meta value of the item (used for boosts).
-	 * @returns {string}
 	 */
-	get meta() {
+	public get meta(): string {
 		// TODO:
-		// @ts-expect-error
 		return this.data.sMeta;
 	}
 
 	/**
 	 * Whether the item is at its maximum stack size.
-	 * @returns {boolean}
 	 */
-	isMaxed() {
+	public isMaxed(): boolean {
 		return this.quantity === this.maxStack;
 	}
 }
 
-export { Item };
-/**
- * @typedef {Object} ItemData
- * @property {number} CharID
- * @property {number} CharItemID
- * @property {number} EnhDPS
- * @property {number} EnhID
- * @property {number} EnhLvl
- * @property {number} EnhPatternID
- * @property {number} EnhRng
- * @property {number} EnhRty
- * @property {number} ItemID
- * @property {number} bBank
- * @property {number} bCoins
- * @property {number} bEquip
- * @property {number} bStaff
- * @property {number} bTemp
- * @property {number} bUpg
- * @property {string} dPurchase
- * @property {number} iCost
- * @property {number} iDPS
- * @property {number} iHrs
- * @property {number} iLvl
- * @property {number} iQty
- * @property {number} iRng
- * @property {number} iRty
- * @property {number} iStk
- * @property {number} iType
- * @property {string} sDesc
- * @property {string} sES
- * @property {string} sElmt
- * @property {string} sFile
- * @property {string} sIcon
- * @property {string} sLink
- * @property {string} sName
- * @property {string} sType
- */
 export type ItemData = {
 	CharID: number;
 	CharItemID: number;
@@ -197,6 +142,7 @@ export type ItemData = {
 	sFile: string;
 	sIcon: string;
 	sLink: string;
+	sMeta: string;
 	sName: string;
 	sType: string;
 };

@@ -1,10 +1,8 @@
-import type Bot from '../../api/Bot';
+import type { Bot } from '../../api/Bot';
 
-/**
- * @param {import('../../botting/api/Bot')} bot
- * @param {JSON} packet
- */
 async function addGoldExp(bot: Bot, packet: JSON) {
+	console.log(packet);
+
 	// m = monster
 	// q = quest
 
@@ -14,8 +12,8 @@ async function addGoldExp(bot: Bot, packet: JSON) {
 		// @ts-expect-error
 		const monMapID = packet.b.o.id;
 
-		await bot.waitUntil(() =>
-			getMonsters().find((m) => m.monMapID === monMapID),
+		await bot.waitUntil(
+			() => getMonsters().find((m) => m.monMapID === monMapID) !== null,
 		);
 
 		bot.emit(

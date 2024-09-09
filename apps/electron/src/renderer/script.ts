@@ -17,13 +17,15 @@ window.windows = {
 	packets: { logger: null, spammer: null },
 };
 
-//#region dom manipulation
+// #region dom manipulation
 window.addEventListener('DOMContentLoaded', async () => {
 	{
 		const keys = ['scripts', 'tools', 'packets', 'options'];
-		for (const k of keys) {
-			const element = document.getElementById(`${k}-dropdowncontent`)!;
-			mapping.set(k, element);
+		for (const key of keys) {
+			const element = document.querySelector(
+				`#${key}-dropdowncontent`,
+			) as HTMLElement;
+			mapping.set(key, element);
 		}
 	}
 
@@ -36,7 +38,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 				return;
 			}
 
-			const b64_out = Buffer.from(scriptBody, 'base64').toString('utf-8');
+			const b64_out = Buffer.from(scriptBody, 'base64').toString('utf8');
 
 			const script = document.createElement('script');
 			script.type = 'module';
@@ -48,6 +50,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 			document.body.appendChild(script);
 		});
 	}
+
 	{
 		const $btn: HTMLButtonElement = document.querySelector(
 			'#scripts-toggle-dev-tools',
@@ -69,6 +72,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 			);
 		});
 	}
+
 	{
 		const $btn: HTMLButtonElement = document.querySelector(
 			'#tools-dropdowncontent > button:nth-child(2)',
@@ -81,6 +85,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 			);
 		});
 	}
+
 	{
 		const $btn: HTMLButtonElement = document.querySelector(
 			'#tools-dropdowncontent > button:nth-child(3)',
@@ -146,28 +151,22 @@ window.addEventListener('DOMContentLoaded', async () => {
 						option.querySelector('.checkmark') as HTMLElement
 					).style.display = checked ? 'none' : 'block';
 
-					switch (option.textContent!.trim()) {
-						case 'Infinite Range':
-							settings.infiniteRange = !checked;
-							break;
-						case 'Provoke Map':
-							settings.provokeMap = !checked;
-							break;
-						case 'Provoke Cell':
-							settings.provokeCell = !checked;
-							break;
-						case 'Enemy Magnet':
-							settings.enemyMagnet = !checked;
-							break;
-						case 'Lag Killer':
-							settings.lagKiller = !checked;
-							break;
-						case 'Hide Players':
-							settings.hidePlayers = !checked;
-							break;
-						case 'Skip Cutscenes':
-							settings.skipCutscenes = !checked;
-							break;
+					if (option.textContent!.trim() === 'Infinite Range') {
+						settings.infiniteRange = !checked;
+					} else if (option.textContent!.trim() === 'Provoke Map') {
+						settings.provokeMap = !checked;
+					} else if (option.textContent!.trim() === 'Provoke Cell') {
+						settings.provokeCell = !checked;
+					} else if (option.textContent!.trim() === 'Enemy Magnet') {
+						settings.enemyMagnet = !checked;
+					} else if (option.textContent!.trim() === 'Lag Killer') {
+						settings.lagKiller = !checked;
+					} else if (option.textContent!.trim() === 'Hide Players') {
+						settings.hidePlayers = !checked;
+					} else if (
+						option.textContent!.trim() === 'Skip Cutscenes'
+					) {
+						settings.skipCutscenes = !checked;
 					}
 				});
 				break;
@@ -225,28 +224,25 @@ window.addEventListener('DOMContentLoaded', async () => {
 	});
 });
 
-//#region input
+// #region input
 window.addEventListener('click', (ev) => {
-	mapping.forEach((el, key) => {
+	for (const [key, el] of mapping.entries()) {
 		if ((ev.target as HTMLElement).id === key) {
 			// Show the selected dropdown
 			el.classList.toggle('w3-show');
-		} else {
-			// Don't close for this option
-			if ((ev.target as HTMLElement).id !== 'option-walkspeed') {
-				// Hide the other dropdowns
-				el.classList.remove('w3-show');
-			}
+		} else if ((ev.target as HTMLElement).id !== 'option-walkspeed') {
+			// Hide the other dropdowns
+			el.classList.remove('w3-show');
 		}
-	});
+	}
 });
 
 window.addEventListener('mousedown', (ev) => {
 	// Close all dropdowns when the game is focused
 	if ((ev.target as HTMLElement).id === 'swf') {
-		mapping.forEach((el) => {
+		for (const el of mapping.values()) {
 			el.classList.remove('w3-show');
-		});
+		}
 	}
 });
 
@@ -262,13 +258,14 @@ window.addEventListener('keydown', (ev) => {
 				if (ev.shiftKey) {
 					window.location.reload();
 				}
+
 				break;
 		}
 	}
 });
-//#endregion
+// #endregion
 
-//#region account manager
+// #region account manager
 ipcRenderer.on('root:login', (_, account: Account) => {
 	window.account = account;
 });
@@ -280,7 +277,7 @@ window.progress = async ([percentage]: [number]) => {
 		'username' in window.account &&
 		'password' in window.account
 	) {
-		await bot.sleep(1000);
+		await bot.sleep(1_000);
 		auth.login(window.account.username, window.account.password);
 		if (window.account.server) {
 			await bot.waitUntil(() => auth.servers.length > 0);
@@ -289,7 +286,8 @@ window.progress = async ([percentage]: [number]) => {
 				() => auth.loggedIn && !world.loading && player.isLoaded(),
 			);
 		}
+
 		delete window.account;
 	}
 };
-//#endregion
+// #endregion

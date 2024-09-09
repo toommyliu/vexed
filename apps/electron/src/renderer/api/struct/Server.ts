@@ -1,106 +1,106 @@
 /**
  * Represents a game server.
  */
-class Server {
-	data: ServerData;
-
-	constructor(data: ServerData) {
+export class Server {
+	public constructor(
 		/**
 		 * Data about this server.
-		 * @type {ServerData}
-		 */
-		this.data = data;
-	}
+		 */ public data: ServerData,
+	) {}
 
 	/**
 	 * The maximum number of players.
-	 * @returns {number}
 	 */
-	get maxPlayers() {
+	public get maxPlayers(): number {
 		return this.data.iMax;
 	}
 
 	/**
 	 * The port number the server is on.
-	 * @returns {number}
 	 */
-	get port() {
+	public get port(): number {
 		return this.data.iPort;
 	}
 
 	/**
 	 * The language of the server (en/xx/it/pt).
-	 * @returns {string}
 	 */
-	get langCode() {
+	public get langCode(): string {
 		return this.data.sLang;
 	}
 
 	/**
 	 * The name of the server.
-	 * @returns {string}
 	 */
-	get name() {
+	public get name(): string {
 		return this.data.sName;
 	}
 
 	/**
 	 * The IP address of the server.
-	 * @returns {string}
 	 */
-	get ip() {
+	public get ip(): string {
 		return this.data.sIP;
 	}
 
 	/**
 	 * The number of current players.
-	 * @returns {number}
 	 */
-	get playerCount() {
+	public get playerCount(): number {
 		return this.data.iCount;
 	}
 
 	/**
 	 * Whether the server is an upgrade-only server.
-	 * @returns {boolean}
 	 */
-	isUpgrade() {
+	public isUpgraded(): boolean {
 		return this.data.bUpg === 1;
 	}
 
 	/**
 	 * The chat-level restriction of the server (0=canned, 2=free).
-	 * @returns {boolean}
 	 */
-	isCanned() {
+	public isCanned(): boolean {
 		return this.data.iChat === 0;
 	}
 }
 
-export default Server;
-
-/**
- * @typedef {Object} ServerData
- * @property {number} bOnline Indicates whether or not the server is online.
- * @property {number} bUpg Indicates whether this is an upgrade only server.
- * @property {string} sIP The IP address of the game server.
- * @property {string} sLang The language of this server (en/pt).
- * @property {string} sName The name of the game server.
- * @property {number} iChat The chat level of this server (canned = 0, free = 2).
- * @property {number} iCount The number of players currently on the server.
- * @property {number} iLevel
- * @property {number} iMax The maximum number of players allowed on the server.
- * @property {number} iPort The port this server listens on.
- */
-type ServerData = {
+export type ServerData = {
+	/**
+	 * Indicates if the server is online.
+	 */
 	bOnline: number;
+	/**
+	 * Indicates if this is an upgrade only server.
+	 */
 	bUpg: number;
-	sIP: string;
-	sLang: string;
-	sName: string;
+	/**
+	 * The chat-level restriction of the server (0=canned, 2=free).
+	 */
 	iChat: number;
+	/**
+	 * The number of players currently on the server.
+	 */
 	iCount: number;
 	iLevel: number;
+	/**
+	 * The maximum number of players allowed on the server.
+	 */
 	iMax: number;
+	/**
+	 * The port number the server is on.
+	 */
 	iPort: number;
+	/**
+	 * The IP address of the game server.
+	 */
+	sIP: string;
+	/**
+	 * The language of this server (en/xx/it/pt).
+	 */
+	sLang: string;
+	/**
+	 * The name of the game server.
+	 */
+	sName: string;
 };

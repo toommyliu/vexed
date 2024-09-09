@@ -20,22 +20,23 @@ let tries = 5;
 
 const isFollowerOn = () => config.on;
 
-const stop = async () => {
+async function stop() {
 	if (timer) {
 		bot.removeListener('packetFromServer', onPacketFromServer);
 		await timerManager.clearInterval(timer);
+		// eslint-disable-next-line require-atomic-updates
 		timer = null;
 		config.on = false;
 		index = 0;
 		tries = 5;
 	}
-};
+}
 
-const isPlayerInMap = () => {
-	return flash.call(swf.GetCellPlayers, config.player);
-};
+function isPlayerInMap() {
+	return flash.call(() => swf.GetCellPlayers(config.player));
+}
 
-const onPacketFromServer = async (packet: string) => {
+async function onPacketFromServer(packet: string) {
 	if (isFollowerOn() && config!.copyWalk && packet.startsWith('%xt')) {
 		const args = packet.split('%');
 		const key = args[2];
@@ -48,15 +49,16 @@ const onPacketFromServer = async (packet: string) => {
 					// idk
 					return;
 				}
+
 				const x = Number.parseInt(move[1]!.split(':')[1]!, 10);
 				const y = Number.parseInt(move[2]!.split(':')[1]!, 10);
 				player.walkTo(x, y);
 			}
 		} else if (key === 'server') {
-			//%xt%server%-1%PLAYERNAME is ignoring goto requests.%
+			// %xt%server%-1%PLAYERNAME is ignoring goto requests.%
 		}
 	}
-};
+}
 
 window.addEventListener('message', async (ev) => {
 	if (!ev.data.event.startsWith('follower:')) {
@@ -72,9 +74,8 @@ window.addEventListener('message', async (ev) => {
 	if (eventName === 'start') {
 		if (timer) {
 			await bot.timerManager.clearInterval(timer);
-			bot.removeListener('packetFromServer', onPacketFromServer);
-			timer = null;
-			await bot.sleep(1000);
+			await stop();
+			await bot.sleep(1_000);
 		}
 
 		if (!args.player || args.player === '') {
@@ -94,27 +95,28 @@ window.addEventListener('message', async (ev) => {
 
 		bot.on('packetFromServer', onPacketFromServer);
 
-		const isReady = () => {
-			return auth.loggedIn && !world.loading && player.isLoaded();
-		};
-
+		// eslint-disable-next-line require-atomic-updates
 		timer = timerManager.setInterval(async () => {
-			if (!isReady() || tries <= 0) {
+			if (!bot.player.isReady() || tries <= 0) {
 				if (tries <= 0) {
-					stop();
+					await stop();
 
-					ev.source!.postMessage({
-						event: 'follower:stop',
-					});
+					ev.source!.postMessage(
+						{
+							event: 'follower:stop',
+						},
+						{ targetOrigin: '*' },
+					);
 				}
+
 				return;
 			}
 
 			if (!isPlayerInMap() && tries !== 0) {
 				await combat.exit();
-				await bot.sleep(2000);
+				await bot.sleep(2_000);
 				bot.world.goto(config.player);
-				await bot.waitUntil(isReady);
+				await bot.waitUntil(() => bot.player.isReady());
 				if (!isPlayerInMap()) {
 					tries--;
 					return;
@@ -151,27 +153,30 @@ window.addEventListener('message', async (ev) => {
 	} else if (eventName === 'stop') {
 		await stop();
 	} else if (eventName === 'me') {
-		ev.source!.postMessage({
-			event: 'follower:me',
-			args: auth.username,
-		});
+		ev.source!.postMessage(
+			{
+				event: 'follower:me',
+				args: auth.username,
+			},
+			{ targetOrigin: '*' },
+		);
 	}
 });
 
 type FollowerConfig = {
+	attackPriority: string[] | string;
+	copyWalk: boolean;
 	on: boolean;
 	player: string;
-	skills: string | string[];
-	skillWait: boolean;
 	skillDelay: number;
-	attackPriority: string | string[];
-	copyWalk: boolean;
+	skillWait: boolean;
+	skills: string[] | string;
 };
 type FollowerConfigRaw = {
-	player: string;
-	skills: string | string[];
-	skillWait: boolean;
-	skillDelay: string;
-	attackPriority: string | string[];
+	attackPriority: string[] | string;
 	copyWalk: boolean;
+	player: string;
+	skillDelay: string;
+	skillWait: boolean;
+	skills: string[] | string;
 };

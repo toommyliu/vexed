@@ -12,7 +12,7 @@ window.addEventListener('message', async (ev) => {
 	const eventName = event.split(':')[2];
 
 	if (eventName === 'load') {
-		if (!bot.auth.loggedIn || bot.world.loading || !bot.player.isLoaded()) {
+		if (!bot.player.isReady()) {
 			return;
 		}
 
@@ -20,20 +20,20 @@ window.addEventListener('message', async (ev) => {
 
 		switch (type) {
 			case 0: // hair shop
-				bot.flash.call(swf.LoadHairShop, id);
+				bot.flash.call(() => swf.LoadHairShop(id));
 				break;
 			case 1: // shop
-				bot.flash.call(swf.LoadShop, id);
+				bot.flash.call(() => swf.LoadShop(id));
 				break;
 			case 2: // quest
-				bot.flash.call(swf.LoadQuest, id);
+				bot.flash.call(() => swf.LoadQuest(id));
 				break;
 			case 3: // armor customizer
-				bot.flash.call(swf.LoadArmorCustomizer);
+				bot.flash.call(() => swf.LoadArmorCustomizer());
 				break;
 		}
 	} else if (eventName === 'grab') {
-		if (!bot.auth.loggedIn || bot.world.loading || !bot.player.isLoaded()) {
+		if (!bot.player.isReady()) {
 			return;
 		}
 
@@ -50,31 +50,34 @@ window.addEventListener('message', async (ev) => {
 				ret = bot.shops.info;
 				break;
 			case 1: // quests
-				ret = bot.flash.call(swf.GetQuestTree);
+				ret = bot.flash.call(() => swf.GetQuestTree());
 				break;
 			case 2: // inventory
-				ret = bot.flash.call(swf.GetInventoryItems);
+				ret = bot.flash.call(() => swf.GetInventoryItems());
 				break;
 			case 3: // temp. inventory
-				ret = bot.flash.call(swf.GetTempItems);
+				ret = bot.flash.call(() => swf.GetTempItems());
 				break;
 			case 4: // bank
-				ret = bot.flash.call(window.swf.GetBankItems);
+				ret = bot.flash.call(() => swf.GetBankItems());
 				break;
 			case 5: // cell monsters
 			case 6: // map monsters
 				// prettier-ignore
 				ret = type === 5
-							? bot.flash.call(swf.GetMonstersInCell)
+							? bot.flash.call(() => swf.GetMonstersInCell())
 							: bot.world.monsters;
 				break;
 		}
 
 		if (ret) {
-			ev.source!.postMessage({
-				event: 'tools:loadergrabber:grab',
-				args: { data: ret, type: type },
-			});
+			ev.source!.postMessage(
+				{
+					event: 'tools:loadergrabber:grab',
+					args: { data: ret, type },
+				},
+				{ targetOrigin: '*' },
+			);
 		}
 	} else if (eventName === 'export') {
 		const { data } = args;

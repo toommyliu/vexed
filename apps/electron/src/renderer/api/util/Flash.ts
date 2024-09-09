@@ -1,7 +1,7 @@
 /**
  * Utilities to make interacting with the Flash api easier.
  */
-class Flash {
+export class Flash {
 	/**
 	 * Calls a game function, whether this be an interop function or an internal function. If "fn" is a string, it will be treated as an actionscript path.
 	 * @param {string|Function} fn The function to call.
@@ -114,5 +114,3 @@ class Flash {
 		return this.call(swf.isNull, path);
 	}
 }
-
-export default Flash;

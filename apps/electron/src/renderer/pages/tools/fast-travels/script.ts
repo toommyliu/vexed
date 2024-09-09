@@ -4,14 +4,13 @@ const fileManager = new FileManager();
 const parent = window.opener;
 
 let $container: HTMLElement | null = null;
-let $buttons: HTMLButtonElement[] = [];
+const $buttons: HTMLButtonElement[] = [];
 
-const getRoomNumber = () => {
-	return (document.getElementById('room-number') as HTMLInputElement).value;
-};
+const getRoomNumber = () =>
+	(document.querySelector('#room-number') as HTMLInputElement).value;
 
 window.addEventListener('DOMContentLoaded', async () => {
-	$container = document.getElementById('locations')!;
+	$container = document.querySelector('#locations')!;
 
 	const locations = await fileManager
 		.readJSON('fast-travels.json')
@@ -35,10 +34,13 @@ window.addEventListener('DOMContentLoaded', async () => {
 				btn.disabled = true;
 			}
 
-			parent.postMessage({
-				event: 'tools:fasttravel:join',
-				args: { ...location, roomNumber: getRoomNumber() },
-			});
+			parent.postMessage(
+				{
+					event: 'tools:fasttravel:join',
+					args: { ...location, roomNumber: getRoomNumber() },
+				},
+				{ targetOrigin: '*' },
+			);
 		});
 
 		$container.appendChild($btn);
@@ -56,6 +58,7 @@ window.addEventListener('message', (ev) => {
 			for (const btn of $buttons) {
 				btn.disabled = false;
 			}
+
 			break;
 	}
 });

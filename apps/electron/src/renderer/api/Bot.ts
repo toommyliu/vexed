@@ -1,50 +1,59 @@
 import { EventEmitter } from 'events';
-
-import Auth from './Auth';
-import Bank from './Bank';
-import Combat from './Combat';
-import Drops from './Drops';
-import House from './House';
-import Inventory from './Inventory';
-import Player from './Player';
-import Packets from './Packets';
-import Quests from './Quests';
-import Settings from './Settings';
-import Shops from './Shop';
-import TempInventory from './TempInventory';
+import { Auth } from './Auth';
+import { Bank } from './Bank';
+import { Combat } from './Combat';
+import { Drops } from './Drops';
+import { House } from './House';
+import { Inventory } from './Inventory';
+import { Packets } from './Packets';
+import { Player } from './Player';
+import { Quests } from './Quests';
+import { Settings } from './Settings';
+import { Shops } from './Shop';
+import { TempInventory } from './TempInventory';
 import { World } from './World';
-
-import AutoRelogin from './util/AutoRelogin';
-import Flash from './util/Flash';
+import { AutoRelogin } from './util/AutoRelogin';
+import { Flash } from './util/Flash';
 import { TimerManager } from './util/TimerManager';
 
-class Bot extends EventEmitter {
-	/**
-	 * @type {AbortController}
-	 */
+export class Bot extends EventEmitter {
 	#ac: AbortController | null = null;
 
-	static _instance: Bot | null = null;
+	public static _instance: Bot | null = null;
 
-	auth: InstanceType<typeof Auth>;
-	bank: InstanceType<typeof Bank>;
-	combat: InstanceType<typeof Combat>;
-	drops: InstanceType<typeof Drops>;
-	house: InstanceType<typeof House>;
-	inventory: InstanceType<typeof Inventory>;
-	player: InstanceType<typeof Player>;
-	packets: InstanceType<typeof Packets>;
-	quests: InstanceType<typeof Quests>;
-	settings: InstanceType<typeof Settings>;
-	shops: InstanceType<typeof Shops>;
-	tempInventory: InstanceType<typeof TempInventory>;
-	world: InstanceType<typeof World>;
+	public auth: InstanceType<typeof Auth>;
 
-	autoRelogin: InstanceType<typeof AutoRelogin>;
-	flash: InstanceType<typeof Flash>;
-	timerManager: InstanceType<typeof TimerManager>;
+	public bank: InstanceType<typeof Bank>;
 
-	constructor() {
+	public combat: InstanceType<typeof Combat>;
+
+	public drops: InstanceType<typeof Drops>;
+
+	public house: InstanceType<typeof House>;
+
+	public inventory: InstanceType<typeof Inventory>;
+
+	public player: InstanceType<typeof Player>;
+
+	public packets: InstanceType<typeof Packets>;
+
+	public quests: InstanceType<typeof Quests>;
+
+	public settings: InstanceType<typeof Settings>;
+
+	public shops: InstanceType<typeof Shops>;
+
+	public tempInventory: InstanceType<typeof TempInventory>;
+
+	public world: InstanceType<typeof World>;
+
+	public autoRelogin: InstanceType<typeof AutoRelogin>;
+
+	public flash: InstanceType<typeof Flash>;
+
+	public timerManager: InstanceType<typeof TimerManager>;
+
+	public constructor() {
 		super();
 
 		if (Bot._instance) {
@@ -53,94 +62,31 @@ class Bot extends EventEmitter {
 
 		Bot._instance = this;
 
-		/**
-		 * @type {import('./util/AutoRelogin')}
-		 */
 		this.autoRelogin = new AutoRelogin(this);
-
-		/**
-		 * @type {import('./util/Flash')}
-		 */
 		this.flash = new Flash();
-
-		/**
-		 * @type {import('./util/TimerManager')}
-		 */
 		this.timerManager = new TimerManager();
 
-		/**
-		 * @type {import('./Auth')}
-		 */
 		this.auth = new Auth(this);
-
-		/**
-		 * @type {import('./Bank')}
-		 */
 		this.bank = new Bank(this);
-
-		/**
-		 * @type {import('./Combat')}
-		 */
 		this.combat = new Combat(this);
-
-		/**
-		 * @type {import('./Drops')}
-		 */
 		this.drops = new Drops(this);
-
-		/**
-		 * @type {import('./House')}
-		 */
 		this.house = new House(this);
-
-		/**
-		 * @type {import('./Inventory')}
-		 */
 		this.inventory = new Inventory(this);
-
-		/**
-		 * @type {import('./Player')}
-		 */
 		this.player = new Player(this);
-
-		/**
-		 * @type {import('./Packets')}
-		 */
 		this.packets = new Packets(this);
-
-		/**
-		 * @type {import('./Quests')}
-		 */
 		this.quests = new Quests(this);
-
-		/**
-		 * @type {import('./Settings')}
-		 */
 		this.settings = new Settings(this);
-
-		/**
-		 * @type {import('./Shop')}
-		 */
 		this.shops = new Shops(this);
-
-		/**
-		 * @type {import('./TempInventory')}
-		 */
 		this.tempInventory = new TempInventory(this);
-
-		/**
-		 * @type {import('./World')}
-		 */
 		this.world = new World(this);
 	}
 
 	/**
-	 * @param {number} ms The number of milliseconds to wait.
-	 * @returns {Promise<void>}
+	 * @param ms - The number of milliseconds to wait.
 	 */
-	sleep(ms: number) {
+	public async sleep(ms: number): Promise<void> {
 		return new Promise<void>((resolve) => {
-			let id = this.timerManager.setTimeout(() => {
+			const id = this.timerManager.setTimeout(() => {
 				this.timerManager.clearTimeout(id);
 				resolve();
 			}, ms);
@@ -149,33 +95,37 @@ class Bot extends EventEmitter {
 
 	/**
 	 * Waits until the condition is met.
-	 * @param {Function} condition The condition to wait for.
-	 * @param {Function} [prerequisite=null] The prerequisite to be checked before waiting for the condition.
-	 * @param {number} [timeout=15] The maximum number of iterations to wait. -1 to wait indefinitely.
-	 * @returns {Promise<void>}
+	 *
+	 * @param condition - The condition to wait for until it returns true.
+	 * @param prerequisite - The prerequisite to be checked before waiting for the condition.
+	 * @param timeout - The maximum number of iterations to wait. -1 to wait indefinitely.
 	 */
-	async waitUntil(
+	public async waitUntil(
 		condition: () => boolean,
 		prerequisite: (() => boolean) | null = null,
 		timeout = 15,
-	) {
+	): Promise<void> {
 		let iterations = 0;
 
-		while (
-			(prerequisite === null || prerequisite()) &&
-			!condition() &&
-			(iterations < timeout || timeout === -1)
-		) {
-			await this.sleep(1000);
+		let prerequisiteResult = prerequisite ? prerequisite() : true;
+		let conditionResult = condition();
+		let timeoutResult = iterations < timeout || timeout === -1;
+
+		while (prerequisiteResult && !conditionResult && timeoutResult) {
+			await this.sleep(1_000);
 			iterations++;
+
+			prerequisiteResult = prerequisite ? prerequisite() : true;
+			conditionResult = condition();
+			timeoutResult = iterations < timeout || timeout === -1;
 		}
 	}
 
 	/**
-	 * Raises the running flag. While this does not start a script, it setups various tasks used during a script's runtime. For example, the auto relogin background task.
-	 * @returns {void}
+	 * Raises the running flag. While this does not start a script, it setups various tasks used during a script's runtime.
+	 * For example, the auto relogin background task.
 	 */
-	start() {
+	public start(): void {
 		if (this.#ac) {
 			console.log('Bot is already started');
 			return;
@@ -187,11 +137,10 @@ class Bot extends EventEmitter {
 
 	/**
 	 * Lowers the running flag. While this does not stop a script, it removes any background tasks that were set up on start.
-	 * @returns {void}
 	 */
-	stop() {
+	public stop(): void {
 		if (!this.#ac) {
-			console.log('Bot is already stopped');
+			console.log('Bot is already stopped or not running');
 			return;
 		}
 
@@ -200,39 +149,45 @@ class Bot extends EventEmitter {
 	}
 
 	/**
-	 * Whether the bot is running.
-	 * @returns {boolean}
+	 * Whether the bot is "running".
 	 */
-	get running() {
-		return this.#ac?.signal.aborted ?? false;
+	public get running(): boolean {
+		if (!this.#ac) {
+			return false;
+		}
+
+		return !this.#ac.signal.aborted;
 	}
 
 	/**
 	 * Gets the singleton instance of the Bot class.
-	 * @returns {Bot}
-	 * @static
 	 */
-	static getInstance(): Bot {
+	public static getInstance(): Bot {
 		Bot._instance ??= new Bot();
 		return Bot._instance;
 	}
 }
 
-window.Bot = Bot;
-window.bot = Bot.getInstance();
-window.auth = window.bot.auth;
-window.bank = window.bot.bank;
-window.combat = window.bot.combat;
-window.drops = window.bot.drops;
-window.flash = window.bot.flash;
-window.house = window.bot.house;
-window.inventory = window.bot.inventory;
-window.player = window.bot.player;
-window.packets = window.bot.packets;
-window.quests = window.bot.quests;
-window.settings = window.bot.settings;
-window.shops = window.bot.shops;
-window.tempInventory = window.bot.tempInventory;
-window.world = window.bot.world;
-
-export default Bot;
+// Prevent these from being overwritten
+Object.defineProperty(window, 'Bot', { value: Bot });
+Object.defineProperty(window, 'bot', { value: Bot.getInstance() });
+Object.defineProperty(window, 'auth', { value: Bot.getInstance().auth });
+Object.defineProperty(window, 'bank', { value: Bot.getInstance().bank });
+Object.defineProperty(window, 'combat', { value: Bot.getInstance().combat });
+Object.defineProperty(window, 'drops', { value: Bot.getInstance().drops });
+Object.defineProperty(window, 'flash', { value: Bot.getInstance().flash });
+Object.defineProperty(window, 'house', { value: Bot.getInstance().house });
+Object.defineProperty(window, 'inventory', {
+	value: Bot.getInstance().inventory,
+});
+Object.defineProperty(window, 'player', { value: Bot.getInstance().player });
+Object.defineProperty(window, 'packets', { value: Bot.getInstance().packets });
+Object.defineProperty(window, 'quests', { value: Bot.getInstance().quests });
+Object.defineProperty(window, 'settings', {
+	value: Bot.getInstance().settings,
+});
+Object.defineProperty(window, 'shops', { value: Bot.getInstance().shops });
+Object.defineProperty(window, 'tempInventory', {
+	value: Bot.getInstance().tempInventory,
+});
+Object.defineProperty(window, 'world', { value: Bot.getInstance().world });

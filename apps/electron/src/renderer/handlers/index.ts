@@ -2,7 +2,7 @@ import addGoldExp from './json/addGoldExp';
 import ct from './json/ct';
 import dropItem from './json/dropItem';
 
-async function packetFromServer([packet]: [string]) {
+window.packetFromServer = async ([packet]: [string]) => {
 	bot.emit('packetFromServer', packet);
 
 	const isXT = packet.startsWith('%xt%');
@@ -13,16 +13,16 @@ async function packetFromServer([packet]: [string]) {
 		const cmd = args[2];
 		switch (cmd) {
 			case 'respawnMon':
-				//%xt%respawnMon%-1%6%
 				break;
+
 			case 'exitArea':
-				const playerName = args[5];
-				bot.emit('playerLeave', playerName);
-				break;
-			case 'uotls':
-				break;
+				{
+					const playerName = args[5];
+					bot.emit('playerLeave', playerName);
+					break;
+				}
+
 			default:
-				// console.log(packet);
 				break;
 		}
 	}
@@ -36,25 +36,24 @@ async function packetFromServer([packet]: [string]) {
 				await addGoldExp(bot, pkt);
 				break;
 			case 'ct':
-				await ct(bot, pkt);
+				ct(bot, pkt);
 				break;
 			case 'dropItem':
-				await dropItem(bot, pkt);
+				dropItem(bot, pkt);
 				break;
 		}
 	}
-}
+};
 
-window.packetFromServer = packetFromServer;
 window.packetFromClient = async ([packet]: [string]) => {
 	bot.emit('packetFromClient', packet);
 
-	/**
-	 * @type {WindowProxy|null}
-	 */
-	const wnd = window.windows.packets.logger;
+	const wnd: WindowProxy | null = window.windows.packets.logger;
 	if (wnd) {
-		wnd.postMessage({ event: 'logger:packet', args: packet });
+		wnd.postMessage(
+			{ event: 'logger:packet', args: packet },
+			{ targetOrigin: '*' },
+		);
 	}
 };
 

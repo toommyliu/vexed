@@ -1,36 +1,28 @@
-import HouseItem from './struct/HouseItem';
-import type Bot from './Bot';
+import type { Bot } from './Bot';
+import { HouseItem } from './struct/HouseItem';
+import type { ItemData } from './struct/Item';
 
-class House {
-	public bot: Bot;
-
-	constructor(bot: Bot) {
-		/**
-		 * @type {import('./Bot')}
-		 * @ignore
-		 */
-		this.bot = bot;
-	}
+export class House {
+	public constructor(public bot: Bot) {}
 
 	/**
 	 * Gets house items of the current player.
-	 * @returns {HouseItem[]}
 	 */
 	public get items(): HouseItem[] {
-		const ret = this.bot.flash.call(window.swf.GetHouseItems);
+		const ret = this.bot.flash.call(() => swf.GetHouseItems());
 		if (Array.isArray(ret)) {
-			return ret.map((data) => new HouseItem(data));
+			return ret.map(
+				(data) => new HouseItem(data as unknown as ItemData),
+			);
 		}
+
 		return [];
 	}
 
 	/**
 	 * Gets the total number of house item slots.
-	 * @returns {number}
 	 */
 	public get totalSlots(): number {
-		return this.bot.flash.call(window.swf.HouseSlots);
+		return this.bot.flash.call(() => swf.HouseSlots());
 	}
 }
-
-export default House;

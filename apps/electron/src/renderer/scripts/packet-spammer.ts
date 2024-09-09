@@ -17,8 +17,8 @@ window.addEventListener('message', async (ev) => {
 	if (eventName === 'on') {
 		if (timer) {
 			await bot.timerManager.clearInterval(timer);
-			timer = null;
-			await bot.sleep(1000);
+			if (timer) timer = null;
+			await bot.sleep(1_000);
 		}
 
 		if (args.packets[0] === '') {
@@ -38,7 +38,7 @@ window.addEventListener('message', async (ev) => {
 				bot.packets.sendServer(args.packets[index]);
 				index = (index + 1) % args.packets.length;
 			},
-			Number.parseInt(args.delay) ?? 1000,
+			Number.parseInt(args.delay, 10) ?? 1_000,
 		);
 	} else if (eventName === 'off') {
 		if (timer) {

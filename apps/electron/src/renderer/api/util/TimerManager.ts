@@ -1,6 +1,6 @@
 // https://www.npmjs.com/package/set-interval-async
 // https://www.npmjs.com/package/@sapphire/timer-manager
-
+/* eslint-disable */
 const MIN_INTERVAL_MS = 10;
 const MAX_INTERVAL_MS = 2147483647;
 
@@ -10,7 +10,7 @@ type SetIntervalAsyncHandler<HandlerArgs extends unknown[]> = (
 	...handlerArgs: HandlerArgs
 ) => void | Promise<void>;
 
-class SetIntervalAsyncTimer<HandlerArgs extends unknown[]> {
+export class SetIntervalAsyncTimer<HandlerArgs extends unknown[]> {
 	#timeout: NativeTimeout | undefined = undefined;
 	#promise: Promise<void> | undefined = undefined;
 	#stopped = false;
@@ -99,7 +99,7 @@ class SetIntervalAsyncTimer<HandlerArgs extends unknown[]> {
 	}
 }
 
-function setIntervalAsync<HandlerArgs extends unknown[]>(
+export function setIntervalAsync<HandlerArgs extends unknown[]>(
 	handler: SetIntervalAsyncHandler<HandlerArgs>,
 	intervalMs: number,
 	...handlerArgs: HandlerArgs
@@ -118,7 +118,7 @@ function setIntervalAsync<HandlerArgs extends unknown[]>(
 	);
 }
 
-async function clearIntervalAsync<HandlerArgs extends unknown[]>(
+export async function clearIntervalAsync<HandlerArgs extends unknown[]>(
 	timer: SetIntervalAsyncTimer<HandlerArgs>,
 ): Promise<void> {
 	if (!(timer instanceof SetIntervalAsyncTimer)) {
@@ -132,16 +132,16 @@ async function clearIntervalAsync<HandlerArgs extends unknown[]>(
 /**
  * Manager for timers and intervals.
  */
-class TimerManager {
-	#intervals = new Set();
-	#timeouts = new Set();
+export class TimerManager {
+	#intervals: Set<SetIntervalAsyncTimer<unknown[]>> = new Set();
+	#timeouts: Set<NativeTimeout> = new Set();
 
 	/**
 	 * @param {Function} fn The interval function.
 	 * @param {number} interval The delay between each execution.
 	 * @returns {SetIntervalAsyncTimer} The interval id.
 	 */
-	setInterval(
+	public setInterval(
 		fn: Function,
 		interval: number,
 	): SetIntervalAsyncTimer<unknown[]> {
@@ -156,7 +156,9 @@ class TimerManager {
 	 * @param {SetIntervalAsyncTimer} id The interval id.
 	 * @returns {Promise<void>}
 	 */
-	async clearInterval(id: SetIntervalAsyncTimer<unknown[]>): Promise<void> {
+	public async clearInterval(
+		id: SetIntervalAsyncTimer<unknown[]>,
+	): Promise<void> {
 		clearIntervalAsync(id);
 		this.#intervals.delete(id);
 	}
@@ -167,7 +169,7 @@ class TimerManager {
 	 * @param  {...any} args Arguments to pass to the function.
 	 * @returns {number} The timeout id.
 	 */
-	setTimeout(fn: Function, delay: number, ...args: any[]): number {
+	public setTimeout(fn: Function, delay: number, ...args: any[]): number {
 		const timeout = setTimeout(() => {
 			this.#timeouts.delete(timeout);
 			fn(...args);
@@ -181,9 +183,9 @@ class TimerManager {
 	 * @param {number} timeout The timeout id.
 	 * @returns {void}
 	 */
-	clearTimeout(timeout: number): void {
+	public clearTimeout(timeout: number): void {
 		clearTimeout(timeout);
 		this.#timeouts.delete(timeout);
 	}
 }
-export { TimerManager, SetIntervalAsyncTimer };
+/* eslint-enable */

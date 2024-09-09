@@ -1,50 +1,37 @@
-import type Bot from './Bot';
+import type { Bot } from './Bot';
+import { PlayerState } from './Player';
 import type { SetIntervalAsyncTimer } from './util/TimerManager';
 
 /**
- * @description A `monsterResolvable` is either a monster name or monMapID prefixed with `id` and
- * delimited by a `'`, `.`, `:`, `-` character
+ * A `monsterResolvable` is either a monster name or monMapID prefixed with `id` and delimited by a `'`, `.`, `:`, `-` character.
  */
-class Combat {
-	bot: Bot;
+export class Combat {
+	public pauseAttack: boolean = false;
 
-	pauseAttack: boolean;
-
-	public constructor(bot: Bot) {
-		/**
-		 * @type {import('./Bot')}
-		 * @ignore
-		 */
-		this.bot = bot;
-
-		// TODO: make this a method
-		/**
-		 * Whether to stop attacking because a counter attack is active.
-		 * @type {boolean}
-		 * @ignore
-		 */
-		this.pauseAttack = false;
-	}
+	public constructor(public bot: Bot) {}
 
 	/**
 	 * Whether the player has a target.
-	 * @returns {boolean}
 	 */
 	public hasTarget(): boolean {
-		return !!this.bot.flash.call(swf.HasTarget);
+		return Boolean(this.bot.flash.call(() => swf.HasTarget()));
 	}
 
 	/**
 	 * Returns information about the target.
-	 * @returns {Record<string,unknown>|null}
 	 */
-	public get target() {
-		// prettier-ignore
+	public get target(): Record<string, unknown> | null {
 		if (this.hasTarget()) {
-			const objData = this.bot.flash.get('world.myAvatar.target.objData', true);
-			const dataLeaf = this.bot.flash.get('world.myAvatar.target.dataLeaf', true);
+			const objData = this.bot.flash.get(
+				'world.myAvatar.target.objData',
+				true,
+			);
+			const dataLeaf = this.bot.flash.get(
+				'world.myAvatar.target.dataLeaf',
+				true,
+			);
 
-			const ret = {
+			const ret: TargetInfo = {
 				name: objData.strMonName ?? objData.strUsername,
 				hp: dataLeaf.intHP,
 				maxHP: dataLeaf.intHPMax,
@@ -53,80 +40,79 @@ class Combat {
 				state: dataLeaf.intState,
 			};
 
-			if ('entType' in ret && ret.entType === 'p') {
+			if (dataLeaf.entType === 'p') {
 				ret.monID = dataLeaf.MonID;
 				ret.monMapID = dataLeaf.MonMapID;
 			}
 
 			return ret;
 		}
+
 		return null;
 	}
 
 	/**
 	 * Uses a skill.
-	 * @param {string|number} index The index of the skill. Skills range from 0 (skill 1) to 5 (potions).
-	 * @param {boolean} force Whether to use the skill regardless if there is a target.
-	 * @param {boolean} wait Whether to wait for the skill to be available.
-	 * @returns {Promise<void>}
+	 *
+	 * @param index - The index of the skill. Skills range from 0 (skill 1) to 5 (potions).
+	 * @param force - Whether to use the skill regardless if there is a target.
+	 * @param wait - Whether to wait for the skill to be available.
 	 */
 	public async useSkill(
-		index: string | number,
+		index: number | string,
 		force = false,
 		wait = false,
 	): Promise<void> {
+		// eslint-disable-next-line @typescript-eslint/unbound-method
 		const fn = force ? swf.ForceUseSkill : swf.UseSkill;
+		// eslint-disable-next-line no-param-reassign
+		index = String(index);
 		if (wait) {
-			await this.bot.sleep(swf.SkillAvailable(String(index)));
+			await this.bot.sleep(swf.SkillAvailable(index));
 		}
-		fn(String(index));
+
+		fn(index);
 	}
 
 	/**
 	 * Attacks a monster.
-	 * @param {string} monsterResolvable The name or monMapID of the monster.
-	 * @returns {void}
+	 *
+	 * @param monsterResolvable - The name or monMapID of the monster.
 	 */
 	public attack(monsterResolvable: string): void {
 		// prettier-ignore
 		if (["id'", 'id.', 'id:', 'id-'].some((prefix) => monsterResolvable.startsWith(prefix))) {
-			const monMapID = monsterResolvable.substring(3);
-			this.bot.flash.call(swf.AttackMonsterByMonMapId, monMapID);
+			const monMapID = monsterResolvable.slice(3);
+			this.bot.flash.call(() => swf.AttackMonsterByMonMapId(monMapID));
 			return;
 		}
-		this.bot.flash.call(swf.AttackMonster, monsterResolvable);
+
+		this.bot.flash.call(() => swf.AttackMonster(monsterResolvable));
 	}
 
 	/**
 	 * Cancels the current target.
-	 * @returns {void}
 	 */
 	public cancelTarget(): void {
-		this.bot.flash.call(swf.CancelTarget);
+		this.bot.flash.call(() => swf.CancelTarget());
 	}
 
 	/**
 	 * Cancels an auto attack.
-	 * @returns {void}
 	 */
 	public cancelAutoAttack(): void {
-		this.bot.flash.call(swf.CancelAutoAttack);
+		this.bot.flash.call(() => swf.CancelAutoAttack());
 	}
 
 	/**
 	 * Kills a monster.
-	 * @param {string} monsterResolvable The name or monMapID of the monster.
-	 * @param {KillConfig} config The configuration to use for the kill.
-	 * @returns {Promise<void>}
+	 *
+	 * @param monsterResolvable - The name or monMapID of the monster.
+	 * @param killConfig - The configuration to use for the kill.
 	 */
 	public async kill(
 		monsterResolvable: string,
-		config = {
-			killPriority: [],
-			skillSet: [1, 2, 3, 4],
-			skillDelay: 150,
-			skillWait: false,
-		},
+		killConfig: KillConfig = {},
 	): Promise<void> {
 		await this.bot.waitUntil(
 			() => this.bot.world.isMonsterAvailable(monsterResolvable),
@@ -138,17 +124,15 @@ class Combat {
 			return;
 		}
 
-		config.killPriority ??= [];
-		config.skillSet ??= [1, 2, 3, 4];
-		config.skillDelay ??= 150;
-		config.skillWait ??= false;
+		// eslint-disable-next-line no-param-reassign
+		killConfig = this.createConfig(killConfig);
 
-		const { killPriority, skillSet, skillDelay, skillWait } = config;
+		const { killPriority, skillSet, skillDelay, skillWait } = killConfig;
 
 		let timer_a: SetIntervalAsyncTimer<unknown[]> | null = null;
 		let timer_b: SetIntervalAsyncTimer<unknown[]> | null = null;
 
-		let index = 0;
+		const index = 0;
 
 		return new Promise<void>((resolve) => {
 			timer_a = this.bot.timerManager.setInterval(async () => {
@@ -176,8 +160,8 @@ class Combat {
 					kp = killPriority;
 				}
 
-				if (kp.length > 0) {
-					for (const _kp of kp) {
+				if (kp!.length > 0) {
+					for (const _kp of kp!) {
 						if (this.bot.world.isMonsterAvailable(_kp)) {
 							this.attack(_kp);
 							break;
@@ -192,15 +176,14 @@ class Combat {
 				if (this.hasTarget()) {
 					if (skillWait) {
 						await this.bot.sleep(
-							this.bot.flash.call(
-								swf.SkillAvailable,
-								skillSet[index],
+							this.bot.flash.call(() =>
+								swf.SkillAvailable(String(skillSet[index]!)),
 							),
 						);
 					}
+
 					await this.useSkill(
-						// @ts-expect-error
-						skillSet[(index + 1) % skillSet.length],
+						String(skillSet[(index + 1) % skillSet.length]),
 					);
 					await this.bot.sleep(skillDelay);
 				}
@@ -215,44 +198,55 @@ class Combat {
 								!this.bot.player.isAFK())) &&
 						!this.pauseAttack
 					) {
-						this.bot.timerManager.clearInterval(timer_a);
-						this.bot.timerManager.clearInterval(timer_b);
+						void this.bot.timerManager.clearInterval(timer_a!);
+						void this.bot.timerManager.clearInterval(timer_b!);
 
-						//await this.exit();
+						// await this.exit();
 
 						resolve();
 					}
 				}, 0);
-			}, this.skillDelay);
+			}, killConfig.skillDelay!);
 		});
 	}
 
 	/**
 	 * Kills the monster until the expected quantity of the item is collected in the Inventory.
-	 * @param {string} monsterResolvable The name or monMapID of the monster.
-	 * @param {string} itemName The name or ID of the item.
-	 * @param {number} targetQty The quantity of the item.
-	 * @param {KillConfig} killConfig The configuration to use for the kill.
-	 * @returns {Promise<void>}
+	 *
+	 * @param monsterResolvable - The name or monMapID of the monster.
+	 * @param itemName - The name or ID of the item.
+	 * @param targetQty - The quantity of the item.
+	 * @param killConfig - The configuration to use for the kill.
 	 */
-	async killForItem(monsterResolvable, itemName, targetQty, killConfig) {
+	public async killForItem(
+		monsterResolvable: string,
+		itemName: string,
+		targetQty: number,
+		killConfig: KillConfig = {},
+	): Promise<void> {
 		return this.#killForItem(
 			monsterResolvable,
 			itemName,
 			targetQty,
+			false,
 			killConfig,
 		);
 	}
 
 	/**
 	 * Kills the monster until the expected quantity of the item is collected in the Temp Inventory.
-	 * @param {string} monsterResolvable The name or monMapID of the monster.
-	 * @param {string} itemName The name or ID of the item.
-	 * @param {number} targetQty The quantity of the item.
-	 * @param {KillConfig} killConfig The configuration to use for the kill.
-	 * @returns {Promise<void>}
+	 *
+	 * @param monsterResolvable - The name or monMapID of the monster.
+	 * @param itemName - The name or ID of the item.
+	 * @param targetQty - The quantity of the item.
+	 * @param killConfig - The configuration to use for the kill.
 	 */
-	async killForTempItem(monsterResolvable, itemName, targetQty, killConfig) {
+	public async killForTempItem(
+		monsterResolvable: string,
+		itemName: string,
+		targetQty: number,
+		killConfig: KillConfig = {},
+	): Promise<void> {
 		return this.#killForItem(
 			monsterResolvable,
 			itemName,
@@ -264,21 +258,23 @@ class Combat {
 
 	/**
 	 * Kills the monster until the expected quantity of the item is collected in given store.
-	 * @param {string} monsterResolvable The name or monMapID of the monster.
-	 * @param {string} itemName The name or ID of the item.
-	 * @param {number} targetQty The quantity of the item.
-	 * @param {boolean} isTemp Whether the item is in the temp inventory.
-	 * @param {KillConfig} killConfig The configuration to use for the kill.
-	 * @returns {Promise<void>}
-	 * @private
+	 *
+	 * @param monsterResolvable - The name or monMapID of the monster.
+	 * @param itemName - The name or ID of the item.
+	 * @param targetQty - The quantity of the item.
+	 * @param isTemp - Whether the item is in the temp inventory.
+	 * @param killConfig - The configuration to use for the kill.
 	 */
 	async #killForItem(
-		monsterResolvable,
-		itemName,
-		targetQty,
+		monsterResolvable: string,
+		itemName: string,
+		targetQty: number,
 		isTemp = false,
-		killConfig,
-	) {
+		killConfig: KillConfig | {} = {},
+	): Promise<void> {
+		// eslint-disable-next-line no-param-reassign
+		killConfig = this.createConfig(killConfig);
+
 		const store = isTemp ? this.bot.tempInventory : this.bot.inventory;
 		const getItem = () => store.get(itemName);
 
@@ -306,9 +302,9 @@ class Combat {
 
 	/**
 	 * Attempts to exit from combat.
-	 * @returns {Promise<void>}
+	 *
 	 */
-	async exit() {
+	public async exit(): Promise<void> {
 		while (this.bot.player.state === PlayerState.InCombat) {
 			this.cancelTarget();
 			this.cancelAutoAttack();
@@ -321,17 +317,71 @@ class Combat {
 			await this.bot.waitUntil(
 				() => this.bot.player.state !== PlayerState.InCombat,
 			);
-			await this.bot.sleep(1000);
+			await this.bot.sleep(1_000);
 		}
+	}
+
+	private createConfig(config: KillConfig | {}): KillConfig {
+		return {
+			killPriority: [],
+			skillSet: [1, 2, 3, 4],
+			skillDelay: 150,
+			skillWait: false,
+			...config,
+		};
 	}
 }
 
-export default Combat;
+export type TargetInfo = {
+	/**
+	 * The cell the target is in.
+	 */
+	cell: string;
+	/**
+	 * The hp of the target.
+	 */
+	hp: number;
+	/**
+	 * The level of the target.
+	 */
+	level: number;
+	/**
+	 * The max hp of the target.
+	 */
+	maxHP: number;
+	/**
+	 * The monster id of the target.
+	 */
+	monID?: number;
+	/**
+	 * The monster map id of the target.
+	 */
+	monMapID?: string;
+	/**
+	 * The name of the target.
+	 */
+	name: string;
+	/**
+	 * The state of the target.
+	 */
+	state: number;
+};
 
-/**
- * @typedef {Object} KillConfig
- * @property {string|string[]} [killPriority=[]] An ascending list of monster names or monMapIDs to kill. This can also be a string of monsterResolvables deliminted by a comma.
- * @property {number[]} [skillSet=[1, 2, 3, 4]] The order of skills to use.
- * @property {number} [skillDelay=150] The delay between each skill cast.
- * @property {boolean} [skillWait=false] Whether to wait for the skill to be available.
- */
+export type KillConfig = {
+	/**
+	 * An ascending list of monster names or monMapIDs to kill. This can also be a string of monsterResolvables deliminted by a comma.
+	 */
+	killPriority: string[] | string;
+	/**
+	 * The delay between each skill cast.
+	 */
+	skillDelay: number;
+	/**
+	 * The order of skills to use.
+	 */
+	skillSet: number[];
+	/**
+	 * Whether to wait for the skill to be available before casting.
+	 */
+	skillWait: boolean;
+};

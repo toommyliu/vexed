@@ -1,12 +1,10 @@
-import { nativeImage, Tray, Menu } from 'electron';
-import { app } from 'electron';
 import { join } from 'path';
+import { nativeImage, Tray, Menu, app } from 'electron';
+import prompt from 'electron-prompt';
 import fs from 'fs-extra';
 import fetch from 'node-fetch';
-import prompt from 'electron-prompt';
-
-import { createGame } from './windows';
 import { showErrorDialog } from './utils';
+import { createGame } from './windows';
 
 const ROOT = join(app.getPath('documents'), 'Vexed');
 const accountsPath = join(ROOT, 'accounts.json');
@@ -48,9 +46,10 @@ app.on('ready', async () => {
 								'password' in account
 							) {
 								await createGame({ ...account, server });
-								await new Promise((resolve) =>
-									setTimeout(resolve, 1500),
-								);
+								// eslint-disable-next-line @typescript-eslint/no-loop-func
+								await new Promise((resolve) => {
+									setTimeout(resolve, 1_500);
+								});
 							}
 						}
 					},
@@ -151,13 +150,11 @@ app.on('ready', async () => {
 								click: () => (server = null),
 								checked: true,
 							},
-							...json.map((srv: Server) => {
-								return {
-									label: srv.sName,
-									type: 'radio',
-									click: () => (server = srv.sName),
-								};
-							}),
+							...json.map((srv: Server) => ({
+								label: srv.sName,
+								type: 'radio',
+								click: () => (server = srv.sName),
+							})),
 						],
 					});
 				})
@@ -175,13 +172,15 @@ app.on('ready', async () => {
 				if ('username' in account && 'password' in account) {
 					menu.push({
 						label: account.username,
-						click: async () =>
-							await createGame({ ...account, server }),
+						// eslint-disable-next-line @typescript-eslint/no-loop-func
+						click: async () => {
+							void createGame({ ...account, server })
+						},
 					});
 				}
 			}
 
-			// @ts-expect-error
+			// @ts-expect-error this is ok
 			tray!.setContextMenu(Menu.buildFromTemplate(menu));
 		};
 
@@ -190,8 +189,8 @@ app.on('ready', async () => {
 });
 
 type Account = {
-	username: string;
 	password: string;
+	username: string;
 };
 
 type Server = {

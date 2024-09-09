@@ -1,24 +1,22 @@
 import { join } from 'path';
 import { app } from 'electron';
-
-import { createGame } from './windows';
 import { showErrorDialog } from './utils';
+import { createGame } from './windows';
 
 import './tray';
 import './ipc';
 
 function registerFlashPlugin() {
+	// eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
 	const flashTrust = require('nw-flash-trust');
 	// TODO: add checks for app.isPackaged
 	const assetsPath = join(__dirname, '../../assets');
 	let pluginName;
-	switch (process.platform) {
-		case 'win32':
-			pluginName = 'pepflashplayer.dll';
-			break;
-		case 'darwin':
-			pluginName = 'PepperFlashPlayer.plugin';
-			break;
+
+	if (process.platform === 'win32') {
+		pluginName = 'pepflashplayer.dll';
+	} else if (process.platform === 'darwin') {
+		pluginName = 'PepperFlashPlayer.plugin';
 	}
 
 	if (!pluginName) {
@@ -49,4 +47,4 @@ app.once('ready', async () => {
 	await createGame();
 });
 
-app.on('window-all-closed', app.quit);
+app.on('window-all-closed', () => app.quit());

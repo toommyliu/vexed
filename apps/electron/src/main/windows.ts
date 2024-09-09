@@ -1,5 +1,5 @@
-import { app, BrowserWindow, session } from 'electron';
 import { join, resolve } from 'path';
+import { app, BrowserWindow, session } from 'electron';
 import { showErrorDialog } from './utils';
 
 const RENDERER = join(__dirname, '../renderer');
@@ -9,11 +9,6 @@ const store: WindowStore = new Map();
 const userAgent =
 	'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16_0) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36';
 
-/**
- * Creates a new game window
- * @param {{username: string, password:string}} [account=null] The account to login with
- * @returns {Promise<void>}
- */
 async function createGame(account: Account | null = null): Promise<void> {
 	const window = new BrowserWindow({
 		width: 966,
@@ -26,8 +21,9 @@ async function createGame(account: Account | null = null): Promise<void> {
 		},
 	});
 
-	window.webContents.setUserAgent(userAgent);
+	window.webContents.userAgent = userAgent;
 	session.defaultSession.webRequest.onBeforeSendHeaders(
+		// eslint-disable-next-line promise/prefer-await-to-callbacks
 		(details, callback) => {
 			details.requestHeaders['User-Agent'] = userAgent;
 			details.requestHeaders['artixmode'] = 'launcher';
@@ -35,6 +31,7 @@ async function createGame(account: Account | null = null): Promise<void> {
 				'ShockwaveFlash/32.0.0.371';
 			details.requestHeaders['origin'] = 'https://game.aq.com';
 			details.requestHeaders['sec-fetch-site'] = 'same-origin';
+			// eslint-disable-next-line promise/prefer-await-to-callbacks
 			callback({ requestHeaders: details.requestHeaders, cancel: false });
 		},
 	);
@@ -43,6 +40,7 @@ async function createGame(account: Account | null = null): Promise<void> {
 	if (!app.isPackaged) {
 		window.webContents.openDevTools({ mode: 'right' });
 	}
+
 	if (account) {
 		window.webContents.send('root:login', account);
 	}
@@ -60,18 +58,22 @@ async function createGame(account: Account | null = null): Promise<void> {
 		) {
 			windows.tools.fastTravels.destroy();
 		}
+
 		if (
 			windows.tools.loaderGrabber &&
 			!windows.tools.loaderGrabber.isDestroyed()
 		) {
 			windows.tools.loaderGrabber.destroy();
 		}
+
 		if (windows.tools.follower && !windows.tools.follower.isDestroyed()) {
 			windows.tools.follower.destroy();
 		}
+
 		if (windows.packets.logger && !windows.packets.logger.isDestroyed()) {
 			windows.packets.logger.destroy();
 		}
+
 		if (windows.packets.spammer && !windows.packets.spammer.isDestroyed()) {
 			windows.packets.spammer.destroy();
 		}
@@ -107,14 +109,14 @@ async function createGame(account: Account | null = null): Promise<void> {
 				if (!domains.includes(_url.hostname)) {
 					console.log('Blocking url', _url);
 					ev.preventDefault();
-					// @ts-expect-error
+					// @ts-expect-error this is ok
 					ev.newGuest = null;
 					return null;
 				}
 			} else if (_url.protocol === 'file:') {
 				ev.preventDefault();
 
-				const file = url.substring(
+				const file = url.slice(
 					url.lastIndexOf('/', url.lastIndexOf('/') - 1) + 1,
 					url.length,
 				);
@@ -127,10 +129,11 @@ async function createGame(account: Account | null = null): Promise<void> {
 					);
 					return;
 				}
+
 				let ref = null;
 
 				switch (file) {
-					//#region tools
+					// #region tools
 					case 'fast-travels/index.html':
 						ref = windows.tools.fastTravels;
 						break;
@@ -140,15 +143,15 @@ async function createGame(account: Account | null = null): Promise<void> {
 					case 'follower/index.html':
 						ref = windows.tools.follower;
 						break;
-					//#endregion
-					//#region packets
+					// #endregion
+					// #region packets
 					case 'logger/index.html':
 						ref = windows.packets.logger;
 						break;
 					case 'spammer/index.html':
 						ref = windows.packets.spammer;
 						break;
-					//#endregion
+					// #endregion
 				}
 
 				// Return the previously created window
@@ -163,7 +166,7 @@ async function createGame(account: Account | null = null): Promise<void> {
 					// Moving the parent also moves the child, as well as minimizing it
 					parent: window,
 				});
-				// @ts-expect-error
+				// @ts-expect-error this is ok
 				ev.newGuest = newWindow;
 				newWindow.on('close', (ev) => {
 					ev.preventDefault();
@@ -182,7 +185,7 @@ async function createGame(account: Account | null = null): Promise<void> {
 				);
 
 				switch (file) {
-					//#region tools
+					// #region tools
 					case 'fast-travels/index.html':
 						windows.tools.fastTravels = newWindow;
 						break;
@@ -192,19 +195,20 @@ async function createGame(account: Account | null = null): Promise<void> {
 					case 'follower/index.html':
 						windows.tools.follower = newWindow;
 						break;
-					//#endregion
-					//#region packets
+					// #endregion
+					// #region packets
 					case 'logger/index.html':
 						windows.packets.logger = newWindow;
 						break;
 					case 'spammer/index.html':
 						windows.packets.spammer = newWindow;
 						break;
-					//#endregion
+					// #endregion
 				}
 
 				return newWindow;
 			}
+
 			return null;
 		},
 	);
@@ -223,19 +227,19 @@ type WindowStore = Map<
 	number,
 	{
 		game: Electron.BrowserWindow;
-		tools: {
-			fastTravels: Electron.BrowserWindow | null;
-			loaderGrabber: Electron.BrowserWindow | null;
-			follower: Electron.BrowserWindow | null;
-		};
 		packets: {
 			logger: Electron.BrowserWindow | null;
 			spammer: Electron.BrowserWindow | null;
+		};
+		tools: {
+			fastTravels: Electron.BrowserWindow | null;
+			follower: Electron.BrowserWindow | null;
+			loaderGrabber: Electron.BrowserWindow | null;
 		};
 	}
 >;
 
 type Account = {
-	username: string;
 	password: string;
+	username: string;
 };

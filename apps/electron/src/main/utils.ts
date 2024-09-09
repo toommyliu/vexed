@@ -8,14 +8,15 @@ function showErrorDialog(error: DialogOptions, quit = true) {
 	if (error?.error instanceof Error) {
 		console.log(error.error);
 	}
+
 	if (quit) {
 		app.quit();
 	}
 }
 
 type DialogOptions = {
-	message: string;
 	error?: Error;
+	message: string;
 };
 
 export { showErrorDialog };

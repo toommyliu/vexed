@@ -1,37 +1,33 @@
-import type Bot from './Bot';
-import InventoryItem from './struct/InventoryItem';
+import type { Bot } from './Bot';
 import { GameAction } from './World';
+import { InventoryItem } from './struct/InventoryItem';
+import type { ItemData } from './struct/Item';
 
-class Inventory {
-	public bot: Bot;
-
-	constructor(bot: Bot) {
-		/**
-		 * @type {import('./Bot')}
-		 * @ignore
-		 */
-		this.bot = bot;
-	}
+export class Inventory {
+	public constructor(public bot: Bot) {}
 
 	/**
 	 * Gets items in the Inventory of the current player.
-	 * @returns {InventoryItem[]}
 	 */
 	public get items(): InventoryItem[] {
-		const ret = this.bot.flash.call(swf.GetInventoryItems);
+		const ret = this.bot.flash.call(() => swf.GetInventoryItems());
 		if (Array.isArray(ret)) {
-			return ret.map((data) => new InventoryItem(data));
+			return ret.map(
+				(data) => new InventoryItem(data as unknown as ItemData),
+			);
 		}
+
 		return [];
 	}
 
 	/**
 	 * Resolves for an Item in the Inventory.
-	 * @param {string|number} itemKey The name or ID of the item.
-	 * @returns {InventoryItem|null}
+	 *
+	 * @param itemKey - The name or ID of the item.
 	 */
-	public get(itemKey: string | number): InventoryItem | null {
+	public get(itemKey: number | string): InventoryItem | null {
 		if (typeof itemKey === 'string') {
+			// eslint-disable-next-line no-param-reassign
 			itemKey = itemKey.toLowerCase();
 		}
 
@@ -52,11 +48,11 @@ class Inventory {
 
 	/**
 	 * Whether the item meets some quantity in this store.
-	 * @param {string|number} itemKey The name or ID of the item.
-	 * @param {number} quantity The quantity of the item.
-	 * @returns {boolean}
+	 *
+	 * @param itemKey - The name or ID of the item.
+	 * @param quantity - The quantity of the item.
 	 */
-	public contains(itemKey: string | number, quantity: number): boolean {
+	public contains(itemKey: number | string, quantity: number): boolean {
 		const item = this.get(itemKey);
 		if (!item) {
 			return false;
@@ -67,23 +63,20 @@ class Inventory {
 
 	/**
 	 * Gets the total number of slots in the Inventory of the current player.
-	 * @returns {number}
 	 */
 	public get totalSlots(): number {
-		return this.bot.flash.call(swf.InventorySlots);
+		return this.bot.flash.call(() => swf.InventorySlots());
 	}
 
 	/**
 	 * Gets the number of used slots in the Inventory of the current player.
-	 * @returns {number}
 	 */
 	public get usedSlots(): number {
-		return this.bot.flash.call(swf.UsedInventorySlots);
+		return this.bot.flash.call(() => swf.UsedInventorySlots());
 	}
 
 	/**
 	 * Gets the number of available slots in the Inventory of the current player.
-	 * @returns {number}
 	 */
 	public get availableSlots(): number {
 		return this.totalSlots - this.usedSlots;
@@ -91,15 +84,17 @@ class Inventory {
 
 	/**
 	 * Equips an item from the Inventory.
-	 * @param {string|number} itemKey The name or ID of the item.
-	 * @returns {Promise<boolean>} Whether the operation was successful.
+	 *
+	 * @param itemKey - The name or ID of the item.
+	 * @returns Whether the operation was successful.
 	 */
-	public async equip(itemKey: string | number): Promise<boolean> {
+	public async equip(itemKey: number | string): Promise<boolean> {
 		const getItem = () => this.get(itemKey);
 
 		if (getItem()) {
-			const equipped = () => getItem()?.equipped;
+			const equipped = () => getItem()?.isEquipped();
 
+			// eslint-disable-next-line no-unreachable-loop, sonarjs/no-one-iteration-loop
 			while (!equipped()) {
 				await this.bot.combat.exit();
 				await this.bot.waitUntil(() =>
@@ -108,21 +103,24 @@ class Inventory {
 
 				const item = getItem()!;
 				if (item.category === 'Item') {
-					this.bot.flash.call(
-						swf.EquipPotion,
-						item.id.toString(),
-						item.description,
-						item.fileLink,
-						item.name,
+					// eslint-disable-next-line @typescript-eslint/no-loop-func
+					this.bot.flash.call(() =>
+						swf.EquipPotion(
+							item.id.toString(),
+							item.description,
+							item.fileLink,
+							item.name,
+						),
 					);
 				} else {
-					this.bot.flash.call(swf.Equip, item.id.toString());
+					// eslint-disable-next-line @typescript-eslint/no-loop-func
+					this.bot.flash.call(() => swf.Equip(item.id.toString()));
 				}
+
 				return true;
 			}
 		}
+
 		return false;
 	}
 }
-
-export default Inventory;

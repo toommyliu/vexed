@@ -3,36 +3,32 @@ import { Item } from './Item';
 /**
  * Represents an item in the inventory.
  */
-class InventoryItem extends Item {
+export class InventoryItem extends Item {
 	/**
 	 * The character ID of this item.
-	 * @returns {number}
 	 */
-	get charItemID() {
+	public get charItemID(): number {
 		return this.data.CharItemID;
 	}
 
 	/**
 	 * Whether the item is equipped.
-	 * @returns {boolean}
 	 */
-	get equipped() {
+	public isEquipped(): boolean {
 		return this.data.bEquip === 1;
 	}
 
 	/**
 	 * The level of the item.
-	 * @returns {number}
 	 */
-	get level() {
+	public get level(): number {
 		return this.data.iLvl;
 	}
 
 	/**
 	 * The enhancement level of the item.
-	 * @returns {number}
 	 */
-	get enhancementLevel() {
+	public get enhancementLevel(): number {
 		return this.data.EnhLvl;
 	}
 
@@ -48,11 +44,8 @@ class InventoryItem extends Item {
 	 * 8: Spellbreaker
 	 * 9: Lucky
 	 * 10: Forge (?)
-	 * @returns {number}
 	 */
-	get enhancementPatternID() {
+	public get enhancementPatternID(): number {
 		return this.data.EnhPatternID;
 	}
 }
-
-export default InventoryItem;

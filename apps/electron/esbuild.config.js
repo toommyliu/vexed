@@ -45,6 +45,8 @@ async function transpile() {
 				platform: 'node',
 				target: 'chrome80',
 				format: 'cjs',
+				minify: true,
+				sourcemap: true,
 			})
 			.then(() => {
 				console.log(

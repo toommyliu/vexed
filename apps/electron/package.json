@@ -22,7 +22,8 @@
 		"fs-extra": "^11.2.0",
 		"lodash.merge": "^4.6.2",
 		"node-fetch": "^2.7.0",
-		"nw-flash-trust": "^0.3.0"
+		"nw-flash-trust": "^0.3.0",
+		"source-map-support": "^0.5.21"
 	},
 	"devDependencies": {
 		"@types/electron-prompt": "^1.6.5",

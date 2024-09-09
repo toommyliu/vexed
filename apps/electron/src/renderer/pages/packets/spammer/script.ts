@@ -1,46 +1,58 @@
 let on = false;
-let delay = 1000;
+const delay = 1_000;
 
-let selectedLine = null;
+let selectedLine: HTMLElement | null = null;
 
+// @ts-expect-error this is what we actually want
 const parent = window.opener;
 
 window.addEventListener('DOMContentLoaded', () => {
-	const $stop = document.getElementById('stop');
-	const $start = document.getElementById('start');
+	const $stop: HTMLElement = document.querySelector('#stop')!;
+	const $start: HTMLElement = document.querySelector('#start')!;
 
 	$stop.addEventListener('click', () => {
 		on = false;
 		$stop.classList.add('w3-disabled');
 		$start.classList.remove('w3-disabled');
-		parent.postMessage({ event: 'packets:spammer:off' });
+		parent.postMessage(
+			{ event: 'packets:spammer:off' },
+			{ targetOrigin: '*' },
+		);
 	});
 	$start.addEventListener('click', () => {
 		on = true;
 		$start.classList.add('w3-disabled');
 		$stop.classList.remove('w3-disabled');
 
-		const packets = document.getElementById('spammer').value;
-		const delay = document.getElementById('delay').value;
-		parent.postMessage({
-			event: 'packets:spammer:on',
-			args: { packets: packets.split('\n'), delay },
-		});
+		const packets = (document.querySelector('#packets') as HTMLInputElement)
+			.value;
+		const delay = (document.querySelector('#delay') as HTMLInputElement)
+			.value;
+		parent.postMessage(
+			{
+				event: 'packets:spammer:on',
+				args: { packets: packets.split('\n'), delay },
+			},
+			{ targetOrigin: '*' },
+		);
 	});
 
 	{
-		const $btn = document.getElementById('clear');
+		const $btn = document.querySelector('#clear')!;
 		$btn.addEventListener('click', () => {
-			document.getElementById('spammer').innerHTML = '';
+			document.querySelector('#spammer')!.innerHTML = '';
 		});
 	}
+
 	{
-		const $spammer = document.getElementById('spammer');
-		const $addBtn = document.getElementById('add');
-		const $removeBtn = document.getElementById('remove');
+		const $spammer = document.querySelector('#spammer')!;
+		const $addBtn = document.querySelector('#add')!;
+		const $removeBtn = document.querySelector('#remove')!;
 
 		$addBtn.addEventListener('click', () => {
-			const packet = document.getElementById('packet').value;
+			const packet = (
+				document.querySelector('#packet') as HTMLInputElement
+			).value;
 			const $div = document.createElement('div');
 			$div.classList.add('line');
 			$div.innerHTML = packet;
@@ -52,7 +64,7 @@ window.addEventListener('DOMContentLoaded', () => {
 					selectedLine.classList.remove('selected-line');
 				}
 
-				selectedLine = ev.target;
+				selectedLine = ev.target as HTMLElement;
 				selectedLine.classList.add('selected-line');
 			});
 		});

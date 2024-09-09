@@ -1,9 +1,5 @@
-import type Bot from '../../api/Bot';
+import type { Bot } from '../../api/Bot';
 
-/**
- * @param {import('../../botting/api/Bot')} bot
- * @param {JSON} packet
- */
 function ct(bot: Bot, packet: JSON) {
 	// @ts-expect-error
 	if (Array.isArray(packet?.b?.o?.anims)) {

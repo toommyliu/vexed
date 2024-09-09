@@ -1,79 +1,70 @@
+import { Bot } from '../Bot';
+import type { ItemData } from './Item';
+
 /**
  * Represents a quest.
  */
-class Quest {
-	/**
-	 * @type {import('../Bot')}
-	 * @private
-	 */
+export class Quest {
 	#bot = Bot.getInstance();
 
-	data: QuestData;
-
-	constructor(data: QuestData) {
-		/**
-		 * Data about this quest.
-		 * @type {QuestData}
-		 */
-		this.data = data;
-	}
+	public constructor(public data: QuestData) {}
 
 	/**
 	 * The name of this quest.
-	 * @returns {string}
 	 */
-	get name() {
+	public get name(): string {
 		return this.data.sName;
 	}
 
 	/**
 	 * The ID of this quest.
-	 * @returns {number}
 	 */
-	get id() {
-		return Number.parseInt(this.data.QuestID, 10);
+	public get id(): number {
+		return this.data.QuestID;
 	}
 
 	/**
 	 * Whether this quest is in progress.
-	 * @returns {boolean}
 	 */
-	get inProgress() {
-		return this.#bot.flash.call(swf.IsInProgress, this.id);
+	public get inProgress(): boolean {
+		return this.#bot.flash.call(() => swf.IsInProgress(String(this.id)));
 	}
 
 	/**
 	 * Whether this quest can be completed.
-	 * @returns {boolean}
 	 */
-	get completable() {
+	public get completable(): boolean {
 		if (!this.#bot.quests.get(this.id)) {
 			return false;
 		}
-		return this.#bot.flash.call(swf.CanComplete, this.id) ?? false;
+
+		return (
+			this.#bot.flash.call(() => swf.CanComplete(String(this.id))) ??
+			false
+		);
 	}
 
 	/**
 	 * Whether this quest is available.
-	 * @returns {boolean}
 	 */
-	get available() {
-		return this.#bot.flash.call(swf.IsAvailable, this.id) ?? false;
+	public get available(): boolean {
+		return (
+			this.#bot.flash.call(() => swf.IsAvailable(String(this.id))) ??
+			false
+		);
 	}
 
 	/**
 	 * Whether this quest requires membership to accept.
-	 * @returns {boolean}
 	 */
-	isUpgrade() {
+	public isUpgrade(): boolean {
 		return this.data.bUpg === '1';
 	}
 
 	/**
 	 * Whether this quest has been completed before.
-	 * @returns {boolean}
 	 */
-	hasCompletedBefore() {
+	public hasCompletedBefore(): boolean {
 		const quest = this.#bot.quests.get(this.id);
 		if (!quest) {
 			return false;
@@ -90,17 +81,15 @@ class Quest {
 
 	/**
 	 * Whether this quest can only be completed once.
-	 * @returns {boolean}
 	 */
-	get once() {
+	public get once(): boolean {
 		return this.data.bOnce === '1';
 	}
 
 	/**
 	 * The rewards for completing this quest.
-	 * @returns {QuestReward[]}
 	 */
-	get rewards() {
+	public get rewards(): QuestReward[] {
 		const ret = this.data.Rewards;
 		return ret.map((reward) => ({
 			dropChance: reward.DropChance,
@@ -112,9 +101,8 @@ class Quest {
 
 	/**
 	 * The requirements needed to complete this quest.
-	 * @returns {QuestRequiredItem[]}
 	 */
-	get requirements() {
+	public get requirements(): QuestRequiredItem[] {
 		const ret = this.data.RequiredItems;
 		return ret.map((req) => ({
 			itemID: req.ItemID,
@@ -124,144 +112,189 @@ class Quest {
 	}
 }
 
-export default Quest;
-
-/**
- * @typedef {Object} QuestData
- * @property {string} status
- * @property {string} bUpg
- * @property {number} iReqRep The required faction rep to accept this quest.
- * @property {string} sFaction The name of the faction that this quest is for.
- * @property {string} bOnce Whether this quest can only be completed once.
- * @property {Record<string,import('./Item').ItemData>} oItems ItemIDs mapped to their data.
- * @property {number} iSlot
- * @property {string} sEndText The text when this quest can be completed.
- * @property {string} sName The name of this quest.
- * @property {Record<unknown,unknown>} metaValues
- * @property {QuestRewardRaw[]} reward
- * @property {number} iValue
- * @property {number} iWar
- * @property {Record<{ "itemsR": Record<string,import('./Item').ItemData>},unknown>} oRewards
- * @property {number} iClass The id of the class required to accept this quest. Otherwise, this value is 0.
- * @property {string} bGuild
- * @property {number} iGold The amount of gold rewarded for completing this quest.
- * @property {QuestRequiredItemsRaw[]} RequiredItems
- * @property {number} iExp The amount of experience rewarded for completing this quest.
- * @property {number} iReqCP The class points required to accept this quest. Otherwise, this value is 0.
- * @property {string} QuestID The ID of this quest.
- * @property {QuestRewards2Raw[]} Rewards
- * @property {string} sDesc The description of this quest.
- * @property {string} bitSuccess
- * @property {string} iLvl The required level to accept this quest.
- * @property {string} bStaff
- * @property {string} FactionID The faction required to accept this quest.
- * @property {QuestTurnInRaw[]} turnin
- * @property {number} iRep The amount of reputation rewarded for completing this quest. Otherwise, this value is 0.
- */
-type QuestData = {
-	status: string;
-	bUpg: string;
-	iReqRep: number;
-	sFaction: string;
+export type QuestData = {
+	FactionID: string;
+	/**
+	 * The ID of this quest.
+	 */
+	QuestID: number;
+	RequiredItems: QuestRequiredItemsRaw[];
+	Rewards: QuestRewards2Raw[];
+	bGuild: string;
+	/**
+	 * Whether this quest can only be completed once.
+	 */
 	bOnce: string;
-	oItems: Record<string, import('./Item').ItemData>;
+	bStaff: string;
+	bUpg: string;
+	bitSuccess: string;
+	iClass: number;
+	/**
+	 * The amount of experience rewarded for completing this quest.
+	 */
+	iExp: number;
+	/**
+	 * The amount of gold rewarded for completing this quest.
+	 */
+	iGold: number;
+	/**
+	 * The required level to accept this quest.
+	 */
+	iLvl: number;
+	/**
+	 * The amount of reputation rewarded for completing this quest. 0 if not applicable.
+	 */
+	iRep: number;
+	/**
+	 * The class points required to accept this quest. 0 if not applicable.
+	 */
+	iReqCP: number;
+	/**
+	 * The required faction reputation to accept this quest.
+	 */
+	iReqRep: number;
 	iSlot: number;
-	sEndText: string;
-	sName: string;
-	metaValues: Record<string, string>;
-	reward: QuestRewardRaw[];
 	iValue: number;
 	iWar: number;
+	metaValues: Record<string, string>;
+	oItems: Record<string, ItemData>;
 	oRewards: Record<string, QuestRewards2Raw>;
-	iClass: number;
-	bGuild: string;
-	iGold: number;
-	RequiredItems: QuestRequiredItemsRaw[];
-	iExp: number;
-	iReqCP: number;
-	QuestID: number;
-	Rewards: QuestRewards2Raw[];
+	reward: QuestRewardRaw[];
+	/**
+	 * The description of this quest.
+	 */
 	sDesc: string;
-	bitSuccess: string;
-	iLvl: number;
-	bStaff: string;
-	FactionID: string;
+	/**
+	 * The text displayed when this quest can be completed.
+	 */
+	sEndText: string;
+	/**
+	 * The name of the faction that this quest is for.
+	 */
+	sFaction: string;
+	/**
+	 * The name of this quest.
+	 */
+	sName: string;
+	/**
+	 * The status of the quest.
+	 */
+	status: string;
 	turnin: QuestTurnInRaw[];
-	iRep: number;
 };
 
 /**
- * @typedef {Object} QuestRewardRaw
- * @property {string} iRate The rate of the reward without a percent sign.
- * @property {string} ItemID  The item ID.
- * @property {string} iType
- * @property {string} iQty The quantity of the item.
+ * Represents the raw data structure for a quest reward.
  */
-type QuestRewardRaw = {
+export type QuestRewardRaw = {
+	/**
+	 * The item ID.
+	 */
+	ItemID: string;
+	/**
+	 * The quantity of the item.
+	 */
+	iQty: number;
+	/**
+	 * The rate of the reward without a percent sign.
+	 */
 	iRate: string;
-	ItemID: string;
+	/**
+	 * The type of the reward.
+	 */
 	iType: string;
-	iQty: number;
 };
 
 /**
- * @typedef {Object} QuestRequiredItemsRaw
- * @property {string} ItemID The item ID.
- * @property {string} sName The name of the item.
- * @property {string} iQty The quantity of the item.
+ * Represents the raw data structure for a quest's required item.
  */
-type QuestRequiredItemsRaw = {
+export type QuestRequiredItemsRaw = {
+	/**
+	 * The item ID.
+	 */
 	ItemID: string;
-	sName: string;
+	/**
+	 * The quantity of the item.
+	 */
 	iQty: number;
+	/**
+	 * The name of the item.
+	 */
+	sName: string;
 };
 
 /**
- * @typedef {Object} QuestRewards2Raw
- * @property {string} ItemID The item ID.
- * @property {string} sName The name of the item.
- * @property {string} iQty The quantity of the item.
- * @property {string} DropChance The drop chance of the item with a percent sign.
+ * Represents the raw data structure for additional quest rewards.
  */
-type QuestRewards2Raw = {
-	ItemID: string;
-	sName: string;
-	iQty: number;
+export type QuestRewards2Raw = {
+	/**
+	 * The drop chance of the item with a percent sign.
+	 */
 	DropChance: string;
+	/**
+	 * The item ID.
+	 */
+	ItemID: string;
+	/**
+	 * The quantity of the item.
+	 */
+	iQty: number;
+	/**
+	 * The name of the item.
+	 */
+	sName: string;
 };
 
 /**
- * @typedef {Object} QuestTurnInRaw
- * @property {string} ItemID The item ID.
- * @property {string} iQty The quantity of the item.
+ * Represents the raw data structure for quest turn-in requirements.
  */
-type QuestTurnInRaw = {
+export type QuestTurnInRaw = {
+	/**
+	 * The item ID.
+	 */
 	ItemID: string;
+	/**
+	 * The quantity of the item.
+	 */
 	iQty: number;
 };
 
 /**
- * @typedef {Object} QuestRequiredItem
- * @property {string} itemID The item ID.
- * @property {string} itemName The name of the item.
- * @property {number} quantity The quantity of the item.
+ * Represents a required item for a quest.
  */
-type QuestRequiredItem = {
+export type QuestRequiredItem = {
+	/**
+	 * The item ID.
+	 */
 	itemID: string;
+	/**
+	 * The name of the item.
+	 */
 	itemName: string;
+	/**
+	 * The quantity of the item.
+	 */
 	quantity: number;
 };
 
 /**
- * @typedef {Object} QuestReward
- * @property {string} dropChance The drop chance of the item with a percent sign.
- * @property {string} itemID The item ID.
- * @property {string} itemName The name of the item.
- * @property {number} quantity The quantity of the item.
+ * Represents a reward for a quest.
  */
-type QuestReward = {
+export type QuestReward = {
+	/**
+	 * The drop chance of the item with a percent sign.
+	 */
 	dropChance: string;
+	/**
+	 * The item ID.
+	 */
 	itemID: string;
+	/**
+	 * The name of the item.
+	 */
 	itemName: string;
+	/**
+	 * The quantity of the item.
+	 */
 	quantity: number;
 };

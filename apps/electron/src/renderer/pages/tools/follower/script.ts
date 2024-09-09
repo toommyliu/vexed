@@ -1,81 +1,90 @@
-// @ts-expect-error
+// @ts-expect-error this is what we actually want
 const parent = window.opener;
 
 const disableInput = () => {
-	(document.getElementById('player') as HTMLInputElement).disabled = true;
-	(document.getElementById('skills') as HTMLInputElement).disabled = true;
-	(document.getElementById('skill-wait') as HTMLInputElement).disabled = true;
-	(document.getElementById('skill-delay') as HTMLInputElement).disabled =
+	(document.querySelector('#player') as HTMLInputElement).disabled = true;
+	(document.querySelector('#skills') as HTMLInputElement).disabled = true;
+	(document.querySelector('#skill-wait') as HTMLInputElement).disabled = true;
+	(document.querySelector('#skill-delay') as HTMLInputElement).disabled =
 		true;
-	(document.getElementById('attack-priority') as HTMLInputElement).disabled =
+	(document.querySelector('#attack-priority') as HTMLInputElement).disabled =
 		true;
-	(document.getElementById('copy-walk') as HTMLInputElement).disabled = true;
-	(document.getElementById('me') as HTMLInputElement).disabled = true;
+	(document.querySelector('#copy-walk') as HTMLInputElement).disabled = true;
+	(document.querySelector('#me') as HTMLInputElement).disabled = true;
 };
 
 const enableInput = () => {
-	(document.getElementById('player') as HTMLInputElement).disabled = false;
-	(document.getElementById('skills') as HTMLInputElement).disabled = false;
-	(document.getElementById('skill-wait') as HTMLInputElement).disabled =
+	(document.querySelector('#player') as HTMLInputElement).disabled = false;
+	(document.querySelector('#skills') as HTMLInputElement).disabled = false;
+	(document.querySelector('#skill-wait') as HTMLInputElement).disabled =
 		false;
-	(document.getElementById('skill-delay') as HTMLInputElement).disabled =
+	(document.querySelector('#skill-delay') as HTMLInputElement).disabled =
 		false;
-	(document.getElementById('attack-priority') as HTMLInputElement).disabled =
+	(document.querySelector('#attack-priority') as HTMLInputElement).disabled =
 		false;
-	(document.getElementById('copy-walk') as HTMLInputElement).disabled = false;
-	(document.getElementById('me') as HTMLInputElement).disabled = false;
-	if ((document.getElementById('start') as HTMLInputElement).checked) {
-		(document.getElementById('start') as HTMLInputElement).checked = false;
+	(document.querySelector('#copy-walk') as HTMLInputElement).disabled = false;
+	(document.querySelector('#me') as HTMLInputElement).disabled = false;
+	if ((document.querySelector('#start') as HTMLInputElement).checked) {
+		(document.querySelector('#start') as HTMLInputElement).checked = false;
 	}
 };
 
 window.addEventListener('DOMContentLoaded', async () => {
 	{
-		const $btn = document.getElementById('me')!;
+		const $btn = document.querySelector('#me')!;
 		$btn.addEventListener('click', () => {
-			parent.postMessage({
-				event: 'follower:me',
-			});
+			parent.postMessage(
+				{
+					event: 'follower:me',
+				},
+				{ targetOrigin: '*' },
+			);
 		});
 	}
 
 	{
-		const $btn = document.getElementById('start') as HTMLInputElement;
+		const $btn = document.querySelector('#start') as HTMLInputElement;
 		$btn.addEventListener('click', () => {
 			if ($btn.checked) {
 				const player = (
-					document.getElementById('player') as HTMLInputElement
+					document.querySelector('#player') as HTMLInputElement
 				).value;
 				const skills = (
-					document.getElementById('skills') as HTMLInputElement
+					document.querySelector('#skills') as HTMLInputElement
 				).value;
 				const wait = (
-					document.getElementById('skill-wait') as HTMLInputElement
+					document.querySelector('#skill-wait') as HTMLInputElement
 				).checked;
 				const delay = (
-					document.getElementById('skill-delay') as HTMLInputElement
+					document.querySelector('#skill-delay') as HTMLInputElement
 				).value;
 				const attackPriority = (
-					document.getElementById(
-						'attack-priority',
+					document.querySelector(
+						'#attack-priority',
 					) as HTMLInputElement
 				).value;
 				const copyWalk = (
-					document.getElementById('copy-walk') as HTMLInputElement
+					document.querySelector('#copy-walk') as HTMLInputElement
 				).checked;
 
 				const config = {
 					player,
-					skills: skills.split(',').map((s: string) => s.trim()),
+					skills: skills.split(',').map((str: string) => str.trim()),
 					skillWait: wait ?? false,
 					skillDelay: delay ?? 150,
 					attackPriority: attackPriority ?? [],
 					copyWalk: copyWalk ?? false,
 				};
-				parent.postMessage({ event: 'follower:start', args: config });
+				parent.postMessage(
+					{ event: 'follower:start', args: config },
+					{ targetOrigin: '*' },
+				);
 				disableInput();
 			} else {
-				parent.postMessage({ event: 'follower:stop' });
+				parent.postMessage(
+					{ event: 'follower:stop' },
+					{ targetOrigin: '*' },
+				);
 				stop();
 			}
 		});
@@ -93,7 +102,7 @@ window.addEventListener('message', (ev) => {
 				return;
 			}
 
-			(document.getElementById('player') as HTMLInputElement).value =
+			(document.querySelector('#player') as HTMLInputElement).value =
 				args;
 			break;
 		case 'follower:stop':

@@ -1,60 +1,54 @@
-import TempInventoryItem from './struct/TempInventoryItem';
-import type Bot from './Bot';
+import type { Bot } from './Bot';
+import type { ItemData } from './struct/Item';
+import { TempInventoryItem } from './struct/TempInventoryItem';
 
-class TempInventory {
-	public bot: Bot;
-
-	public constructor(bot: Bot) {
-		/**
-		 * @type {import('./Bot')}
-		 * @ignore
-		 */
-		this.bot = bot;
-	}
+export class TempInventory {
+	public constructor(public bot: Bot) {}
 
 	/**
-	 * Gets items in the Temp Inventory of the current player.
-	 * @returns {TempInventoryItem[]}
+	 * Gets items in the Temp Inventory of the player.
 	 */
 	public get items(): TempInventoryItem[] {
-		const ret = this.bot.flash.call(swf.GetTempItems);
+		const ret = this.bot.flash.call(() => swf.GetTempItems());
 		if (Array.isArray(ret)) {
-			return ret.map((data) => new TempInventoryItem(data));
+			return ret.map(
+				(data) => new TempInventoryItem(data as unknown as ItemData),
+			);
 		}
+
 		return [];
 	}
 
 	/**
-	 * Resolves for an item in the Temp Inventory.
-	 * @param {string|number} itemKey The name or ID of the item.
-	 * @returns {TempInventoryItem|null}
+	 * Gets an item from the temp. inventory.
+	 *
+	 * @param itemKey - The name or ID of the item.
 	 */
-	public get(itemKey: string | number): TempInventoryItem | null {
-		if (typeof itemKey === 'string') {
-			itemKey = itemKey.toLowerCase();
-		}
+	public get(itemKey: number | string): TempInventoryItem | null {
+		const key =
+			typeof itemKey === 'string' ? itemKey.toLowerCase() : itemKey;
 
 		return (
 			this.items.find((item) => {
-				if (typeof itemKey === 'string') {
-					return item.name.toLowerCase() === itemKey;
+				if (typeof key === 'string') {
+					return item.name.toLowerCase() === key;
+				} else if (typeof key === 'number') {
+					return item.id === key;
+				} else {
+					return null;
 				}
-
-				if (typeof itemKey === 'number') {
-					return item.id === itemKey;
-				}
-				return null;
 			}) ?? null
 		);
 	}
 
 	/**
 	 * Whether an item meets some quantity in this store.
-	 * @param {string|number} itemKey The name or ID of the item.
-	 * @param {number} quantity The quantity of the item.
-	 * @returns {boolean}
+	 *
+	 * @param itemKey - The name or ID of the item.
+	 * @param quantity - The quantity of the item.
+	 * @returns Whether the item meets some quantity in this store.
 	 */
-	public contains(itemKey: string | number, quantity: number): boolean {
+	public contains(itemKey: number | string, quantity: number): boolean {
 		const item = this.get(itemKey);
 		if (!item) {
 			return false;
@@ -63,5 +57,3 @@ class TempInventory {
 		return item.quantity >= quantity;
 	}
 }
-
-export default TempInventory;
