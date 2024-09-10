@@ -1,17 +1,25 @@
+type ConditionalReturn<T> = T extends any ? T : T | null;
+
 /**
  * Utilities to make interacting with the Flash api easier.
  */
 export class Flash {
 	/**
 	 * Calls a game function, whether this be an interop function or an internal function. If "fn" is a string, it will be treated as an actionscript path.
-	 * @param {string|Function} fn The function to call.
-	 * @param  {...any} args The arguments to pass to the function.
-	 * @returns {any|null} If the provided function returned a value, it will be conditionally parsed to a primitive based on its result. Otherwise, null is returned.
+	 *
+	 * @param fn - The function to call.
+	 * @param args - The arguments to pass to the function.
+	 * @returns - If the provided function returned a value, it will be conditionally parsed to a primitive based on its result. Otherwise, null is returned.
 	 */
-	call(fn: string | Function, ...args: any[]): any | null {
-		let _fn;
+	public call<T>(fn: Function | string, ...args: any[]): T;
+	public call(fn: Function | string, ...args: any[]): any | null;
+	public call<T = any>(
+		fn: Function | string,
+		...args: any[]
+	): ConditionalReturn<T> {
+		let _fn: Function;
 		let _args = args;
-		let out;
+		let out: any;
 
 		if (typeof fn === 'function') {
 			// interop function
@@ -20,97 +28,97 @@ export class Flash {
 			// args[0] is the path
 			_fn =
 				args.length === 0
-					? swf.callGameFunction0
-					: swf.callGameFunction;
+					? // eslint-disable-next-line @typescript-eslint/unbound-method
+						swf.callGameFunction0
+					: // eslint-disable-next-line @typescript-eslint/unbound-method
+						swf.callGameFunction;
 			// args[1-n] are the actual args for the function
 			_args = [fn, ...args];
 		}
 
 		// call it
 		try {
-			out = _fn(..._args);
-		} catch (error) {
-			// console.error(error);
-			return null;
+			out = _fn!(..._args);
+		} catch {
+			return null as ConditionalReturn<T>;
 		}
 
 		if (typeof out === 'string') {
 			// boolean
 			if (['"True"', '"False"'].includes(out)) {
-				return out === '"True"';
+				return (out === '"True"') as ConditionalReturn<T>;
 			}
 
 			// void
 			if (out === 'undefined') {
-				return;
+				return undefined as ConditionalReturn<T>;
 			}
 
-			return JSON.parse(out);
+			return JSON.parse(out) as ConditionalReturn<T>;
 		}
 
-		return out;
+		return out as ConditionalReturn<T>;
 	}
 
 	/**
 	 * Gets an actionscript object at the given location.
-	 * @param {string} path The path of the object, relative to Game.
-	 * @param {boolean} [parse=false] Whether to call JSON.parse on the return value.
-	 * @returns {any|null}
+	 *
+	 * @param path - The path of the object, relative to Game.
+	 * @param parse - Whether to call JSON.parse on the return value.
 	 */
-	get(path: string, parse = false): any | null {
+	public get<T = any>(path: string, parse = false): T | null {
 		try {
 			const out = swf.getGameObject(path);
 			if (parse) {
-				return JSON.parse(out);
+				return JSON.parse(out) as T;
 			}
 
-			return out;
-		} catch (error) {
-			//console.error(error);
+			return out as T;
+		} catch {
 			return null;
 		}
 	}
 
 	/**
-	 * Gets an actionscript object at the given location
-	 * @param {string} path The path of the object, relative to Game.
-	 * @param {boolean} [parse=false] Whether to call JSON.parse on the return value.
-	 * @returns {any|null}
+	 * Gets an actionscript object at the given location.
+	 * @param path - The path of the object, relative to Game.
+	 * @param parse -  Whether to call JSON.parse on the return value.
 	 */
-	getStatic(path: string, parse = false, defaultValue = null): any | null {
+	public getStatic<T = any>(
+		path: string,
+		parse = false,
+		defaultValue = null,
+	): T | null {
 		try {
 			const out = swf.getGameObjectS(path);
 			if (parse) {
-				return JSON.parse(out);
+				return JSON.parse(out) as T;
 			}
 
-			return out;
-		} catch (error) {
-			// console.error(error);
+			return out as T;
+		} catch {
 			return defaultValue;
 		}
 	}
 
 	/**
 	 * Sets an actionscript object at the given location.
-	 * @param {string} path The path of the object, relative to Game.
-	 * @param {any} value The value to set.
-	 * @returns {void}
+	 *
+	 * @param path - The path of the object, relative to Game.
+	 * @param value - The value to set.
 	 */
-	set(path: string, value: any): void {
+	public set(path: string, value: any): void {
 		try {
 			swf.setGameObject(path, value);
-		} catch (error) {
-			// console.error(error);
-		}
+		} catch {}
 	}
 
 	/**
 	 * Determines whether an actionscript path is null.
-	 * @param {string} path The path of the game object.
-	 * @returns {boolean}
+	 *
+	 * @param path - The path of the game object.
 	 */
-	isNull(path: string): boolean {
-		return this.call(swf.isNull, path);
+	public isNull(path: string): boolean {
+		return this.call(() => swf.isNull(path));
 	}
 }

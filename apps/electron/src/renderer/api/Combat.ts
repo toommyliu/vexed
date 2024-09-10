@@ -112,7 +112,7 @@ export class Combat {
 	 */
 	public async kill(
 		monsterResolvable: string,
-		killConfig: KillConfig = {},
+		killConfig: Partial<KillConfig> = {},
 	): Promise<void> {
 		await this.bot.waitUntil(
 			() => this.bot.world.isMonsterAvailable(monsterResolvable),
@@ -127,7 +127,8 @@ export class Combat {
 		// eslint-disable-next-line no-param-reassign
 		killConfig = this.createConfig(killConfig);
 
-		const { killPriority, skillSet, skillDelay, skillWait } = killConfig;
+		const { killPriority, skillSet, skillDelay, skillWait } =
+			killConfig as KillConfig;
 
 		let timer_a: SetIntervalAsyncTimer<unknown[]> | null = null;
 		let timer_b: SetIntervalAsyncTimer<unknown[]> | null = null;
@@ -222,7 +223,7 @@ export class Combat {
 		monsterResolvable: string,
 		itemName: string,
 		targetQty: number,
-		killConfig: KillConfig = {},
+		killConfig: Partial<KillConfig> = {},
 	): Promise<void> {
 		return this.#killForItem(
 			monsterResolvable,
@@ -245,7 +246,7 @@ export class Combat {
 		monsterResolvable: string,
 		itemName: string,
 		targetQty: number,
-		killConfig: KillConfig = {},
+		killConfig: Partial<KillConfig> = {},
 	): Promise<void> {
 		return this.#killForItem(
 			monsterResolvable,
@@ -270,7 +271,7 @@ export class Combat {
 		itemName: string,
 		targetQty: number,
 		isTemp = false,
-		killConfig: KillConfig | {} = {},
+		killConfig: Partial<KillConfig> = {},
 	): Promise<void> {
 		// eslint-disable-next-line no-param-reassign
 		killConfig = this.createConfig(killConfig);
@@ -321,13 +322,13 @@ export class Combat {
 		}
 	}
 
-	private createConfig(config: KillConfig | {}): KillConfig {
+	private createConfig(userConfig: Partial<KillConfig>): KillConfig {
 		return {
 			killPriority: [],
-			skillSet: [1, 2, 3, 4],
 			skillDelay: 150,
+			skillSet: [1, 2, 3, 4],
 			skillWait: false,
-			...config,
+			...userConfig,
 		};
 	}
 }

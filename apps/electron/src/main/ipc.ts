@@ -1,7 +1,7 @@
 import { join } from 'path';
 import { ipcMain, app, BrowserWindow, dialog } from 'electron';
 import fs from 'fs-extra';
-import { showErrorDialog } from './utils';
+import { showErrorDialog, type ErrorDialogOptions } from './utils';
 
 const ROOT = join(app.getPath('documents'), 'Vexed');
 
@@ -75,3 +75,10 @@ ipcMain.on('packets:save', async (_, data) => {
 		);
 	}
 });
+
+ipcMain.on(
+	'root:show_error_dialog',
+	async (_, error: ErrorDialogOptions, quit = false) => {
+		showErrorDialog(error, quit);
+	},
+);

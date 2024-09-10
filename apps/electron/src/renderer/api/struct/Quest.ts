@@ -75,7 +75,7 @@ export class Quest {
 
 		return (
 			slot < 0 ||
-			this.#bot.flash.call('world.getQuestValue', slot) >= value
+			this.#bot.flash.call<number>('world.getQuestValue', slot) >= value
 		);
 	}
 

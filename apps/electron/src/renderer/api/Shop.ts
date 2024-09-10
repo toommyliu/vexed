@@ -15,7 +15,7 @@ export class Shops {
 	/**
 	 * The info about the current loaded shop.
 	 */
-	public get info(): ShopInfo {
+	public get info(): ShopInfo | null {
 		return this.bot.flash.get('world.shopinfo', true);
 	}
 

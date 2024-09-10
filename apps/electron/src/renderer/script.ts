@@ -207,7 +207,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 	const jump = () => {
 		const cell = $cells.value ?? 'Enter';
 		const pad = $pads.value ?? 'Spawn';
-		flash.call(swf.Jump, cell, pad);
+		flash.call(() => swf.Jump(cell, pad));
 	};
 
 	$cells.addEventListener('click', () => update(false));
@@ -216,7 +216,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 	$x.addEventListener('click', () => update(true));
 
 	$bank.addEventListener('click', async () => {
-		if (!auth.loggedIn || world.loading || !player.isLoaded()) {
+		if (!player.isReady()) {
 			return;
 		}
 
@@ -282,9 +282,7 @@ window.progress = async ([percentage]: [number]) => {
 		if (window.account.server) {
 			await bot.waitUntil(() => auth.servers.length > 0);
 			auth.connectTo(window.account.server);
-			await bot.waitUntil(
-				() => auth.loggedIn && !world.loading && player.isLoaded(),
-			);
+			await bot.waitUntil(() => player.isReady());
 		}
 
 		delete window.account;

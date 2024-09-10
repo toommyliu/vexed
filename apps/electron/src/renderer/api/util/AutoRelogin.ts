@@ -1,5 +1,5 @@
 import { Mutex } from 'async-mutex';
-import type Bot from '../Bot';
+import type { Bot } from '../Bot';
 import type { SetIntervalAsyncTimer } from './TimerManager';
 
 /**

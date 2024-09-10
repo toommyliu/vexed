@@ -97,9 +97,14 @@ export class Item {
 	/**
 	 * The meta value of the item (used for boosts).
 	 */
-	public get meta(): string {
-		// TODO:
-		return this.data.sMeta;
+	public get meta(): Record<string, number> {
+		return this.data.sMeta
+			.split(',')
+			.reduce<Record<string, number>>((acc, cur) => {
+				const [key, value] = cur.split(':') as [string, string];
+				acc[key] = Number.parseFloat(value);
+				return acc;
+			}, {});
 	}
 
 	/**

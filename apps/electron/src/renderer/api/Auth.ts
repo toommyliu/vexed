@@ -81,14 +81,14 @@ export class Auth {
 	 * The server IP the client is connected to.
 	 */
 	public get ip(): string {
-		return this.bot.flash.getStatic('serverIP', true);
+		return this.bot.flash.getStatic('serverIP', true)!;
 	}
 
 	/**
 	 * The server port the client is connected to.
 	 */
 	public get port(): number {
-		return this.bot.flash.getStatic('serverPort', true);
+		return this.bot.flash.getStatic('serverPort', true)!;
 	}
 
 	/**

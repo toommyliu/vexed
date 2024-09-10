@@ -14,6 +14,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 	const locations = await fileManager
 		.readJSON('fast-travels.json')
+		.then((data) => data as unknown as Location[])
 		.catch(() => null);
 
 	if (!locations) {
@@ -21,6 +22,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 	}
 
 	for (const location of locations) {
+		// The map to join is strictly required
 		if (!location.map) {
 			continue;
 		}
@@ -62,3 +64,22 @@ window.addEventListener('message', (ev) => {
 			break;
 	}
 });
+
+type Location = {
+	/**
+	 * The cell to jump to.
+	 */
+	cell?: string;
+	/**
+	 * The map name to join.
+	 */
+	map: string;
+	/**
+	 * The name as shown in the ui.
+	 */
+	name: string;
+	/**
+	 * The pad to jump to.
+	 */
+	pad?: string;
+};
