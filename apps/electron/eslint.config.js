@@ -25,6 +25,7 @@ const typeScriptRuleset = merge(...typescript, {
 	},
 	rules: {
 		'@typescript-eslint/quotes': ['error', 'single'],
+		'unicorn/require-post-message-target-origin': 'off',
 	},
 });
 
@@ -33,7 +34,7 @@ const prettierRuleset = merge(...prettier, { files: [`**/*${commonFiles}`] });
 /** @type {import('eslint').Linter.Config[]} */
 const rules = [
 	{
-		ignores: ['**/node_modules/', '.git/', '**/dist/', '**/build/'],
+		ignores: ['**/node_modules/', '.git/', '**/dist/', '**/build/', 'index.d.ts'],
 	},
 	commonRuleset,
 	nodeRuleset,
