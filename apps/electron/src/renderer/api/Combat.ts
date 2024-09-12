@@ -1,5 +1,6 @@
 import type { Bot } from './Bot';
 import { PlayerState } from './Player';
+import { GameAction } from './World';
 import type { SetIntervalAsyncTimer } from './util/TimerManager';
 
 /**
@@ -255,6 +256,31 @@ export class Combat {
 			true,
 			killConfig,
 		);
+	}
+	/**
+	 * Rests the player.
+	 *
+	 * @param full - Whether to rest until max hp and mp are reached.
+	 * @param exit - Whether to exit combat before attempting to rest.
+	 */
+	public async rest(full = false, exit = false): Promise<void> {
+		await this.bot.waitUntil(
+			() => this.bot.world.isActionAvailable(GameAction.Rest),
+			() => this.bot.auth.loggedIn,
+		);
+
+		if (exit) {
+			await this.exit();
+		}
+
+		swf.Rest();
+		if (full) {
+			await this.bot.waitUntil(
+				() =>
+					this.bot.player.hp >= this.bot.player.maxHP &&
+					this.bot.player.mp >= this.bot.player.maxMP,
+			);
+		}
 	}
 
 	/**
