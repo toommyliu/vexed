@@ -50,7 +50,6 @@ ipcMain.on('tools:loadergrabber:export', async (_, data) => {
 		await fs.writeFile(path, JSON.stringify(data, null, 2), {
 			encoding: 'utf8',
 		});
-		throw new Error('hello world');
 	} catch (error) {
 		const err = error as Error;
 		showErrorDialog(

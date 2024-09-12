@@ -8,8 +8,8 @@
 	<div class="w3-card-4 w3-padding-large w3-margin-bottom w3-round-medium" id="card1">
 		<div>
 			<span>Player:</span>
-			<div style="display: flex; flex-direction: row; gap: 8px">
-				<div style="flex-grow: 1">
+			<div style="display: flex; flex-direction: row">
+				<div style="flex-grow: 1; margin-right: 8px">
 					<input id="player" class="w3-input w3-border w3-round" type="text" />
 				</div>
 				<div style="flex-grow: 0">
@@ -25,8 +25,8 @@
 		</div>
 		<div>
 			<span>Skill List:</span>
-			<div style="display: flex; flex-direction: row; gap: 8px">
-				<div style="flex-grow: 1">
+			<div style="display: flex; flex-direction: row">
+				<div style="flex-grow: 1; margin-right: 8px">
 					<input
 						id="skills"
 						class="w3-input w3-border w3-round"
@@ -40,7 +40,7 @@
 					/>
 				</div>
 				<div
-					style="display: flex; flex-direction: row; margin-top: 8px; gap: 4px"
+					style="display: flex; flex-direction: row; margin-top: 8px"
 				>
 					<div>
 						<label class="w3-check">
@@ -58,21 +58,14 @@
 				<div>
 					<span>Skill Delay:</span>
 				</div>
-				<div
-					style="
-						display: flex;
-						flex-direction: row;
-						align-items: center;
-						gap: 8px;
-					"
-				>
+				<div style="display: flex; flex-direction: row; align-items: center">
 					<input
 						id="skill-delay"
 						class="w3-input w3-border w3-round"
 						type="number"
 						min="0"
 						value="150"
-						style="width: 50%"
+						style="width: 50%; margin-right: 8px;"
 					/>
 					<span>ms</span>
 				</div>
