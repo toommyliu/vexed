@@ -38,6 +38,9 @@ importers:
       nw-flash-trust:
         specifier: ^0.3.0
         version: 0.3.0
+      source-map-support:
+        specifier: ^0.5.21
+        version: 0.5.21
     devDependencies:
       '@types/electron-prompt':
         specifier: ^1.6.5
@@ -1711,8 +1714,8 @@ packages:
   electron-to-chromium@1.5.18:
     resolution: {integrity: sha512-1OfuVACu+zKlmjsNdcJuVQuVE61sZOLbNM4JAQ1Rvh6EOj0/EUKhMJjRH73InPlXSh8HIJk1cVZ8pyOV/FMdUQ==}
 
-  electron@32.0.2:
-    resolution: {integrity: sha512-nmZblq8wW3HZ17MAyaUuiMI9Mb0Cgc7UR3To85h/rVopbfyF5s34NxtK4gvyRfYPxpDGP4k+HoQIPniPPrdE3w==}
+  electron@32.1.0:
+    resolution: {integrity: sha512-4etE3K6vPUkHihf7nvawngbB5+jLuUJgZh31f9ki1Gfveo0qwNDkLv/doabw+4zFFWKUXI+uFUpyOpL5+RwS+Q==}
     engines: {node: '>= 12.20.55'}
     hasBin: true
 
@@ -2627,8 +2630,8 @@ packages:
     engines: {node: '>=6'}
     hasBin: true
 
-  json-alexander@0.1.10:
-    resolution: {integrity: sha512-+qykmkSBGK11ndn36sES0XM0vEJozenAbiI5Gk07FpRpwbSQQViIHa7Hm+9Bju92nfp44+i0V+Rz43XcARPImA==}
+  json-alexander@0.1.13:
+    resolution: {integrity: sha512-s84SuqZwnb7mGJB03sGlcdx458FR91Uwwy2lKJBDN+TBJ7ARbyP/ssGnjW9t5QyxwG/b23W22Dz9Ga6nuyHqnA==}
 
   json-buffer@3.0.1:
     resolution: {integrity: sha512-4bV5BfR2mqfQTJm+V5tPPdf+ZpuhiIvTuAB5g8kcrXOZpTT/QwwVRWBywX1ozr6lEuPdbHxwaJlm9G6mI2sfSQ==}
@@ -4743,7 +4746,7 @@ snapshots:
 
   '@types/electron-prompt@1.6.5':
     dependencies:
-      electron: 32.0.2
+      electron: 32.1.0
     transitivePeerDependencies:
       - supports-color
 
@@ -5897,7 +5900,7 @@ snapshots:
 
   electron-to-chromium@1.5.18: {}
 
-  electron@32.0.2:
+  electron@32.1.0:
     dependencies:
       '@electron/get': 2.0.3
       '@types/node': 20.16.3
@@ -7131,7 +7134,7 @@ snapshots:
 
   jsesc@3.0.2: {}
 
-  json-alexander@0.1.10: {}
+  json-alexander@0.1.13: {}
 
   json-buffer@3.0.1: {}
 
@@ -7752,7 +7755,7 @@ snapshots:
 
   oparser@2.2.1:
     dependencies:
-      json-alexander: 0.1.10
+      json-alexander: 0.1.13
 
   optionator@0.9.4:
     dependencies:

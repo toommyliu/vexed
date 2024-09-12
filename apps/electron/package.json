@@ -10,7 +10,7 @@
 		"dev:watch": "concurrently \"pnpm compile:watch\" \"electronmon .\"",
 		"build": "pnpm compile || true && electron-builder build",
 		"build:all": "pnpm compile || true && electron-builder build -mw",
-		"jsdoc": "node scripts/gen-jsdoc.js",
+		"docgen": "node scripts/docgen.js",
 		"format": "prettier src/",
 		"format:write": "prettier src/ --write",
 		"lint": "eslint",
