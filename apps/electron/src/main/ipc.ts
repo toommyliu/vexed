@@ -44,19 +44,44 @@ ipcMain.on('root:toggle-dev-tools', async (ev) => {
 // #endregion
 
 ipcMain.on('tools:loadergrabber:export', async (_, data) => {
-	const path = join(ROOT, 'grabber.json');
 	try {
-		await fs.ensureFile(path);
-		await fs.writeFile(path, JSON.stringify(data, null, 2), {
+		const dialogPath = await dialog
+			.showSaveDialog({
+				defaultPath: join(ROOT, 'grabber.json'),
+				filters: [{ name: 'JSON', extensions: ['json'] }],
+			})
+			.catch(() => null);
+
+		if (!dialogPath || dialogPath.canceled) {
+			return;
+		}
+
+		const { filePath } = dialogPath;
+
+		await fs.ensureFile(filePath!);
+		await fs.writeFile(filePath!, JSON.stringify(data, null, 2), {
 			encoding: 'utf8',
 		});
 	} catch (error) {
 		const err = error as Error;
 		showErrorDialog(
-			{ message: 'Failed to export grabber data', error: err },
+			{ message: 'Failed to export grabber data.', error: err },
 			false,
 		);
 	}
+	// const path = join(ROOT, 'grabber.json');
+	// try {
+	// 	await fs.ensureFile(path);
+	// 	await fs.writeFile(path, JSON.stringify(data, null, 2), {
+	// 		encoding: 'utf8',
+	// 	});
+	// } catch (error) {
+	// 	const err = error as Error;
+	// 	showErrorDialog(
+	// 		{ message: 'Failed to export grabber data', error: err },
+	// 		false,
+	// 	);
+	// }
 });
 
 ipcMain.on('packets:save', async (_, data) => {
