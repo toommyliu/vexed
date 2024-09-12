@@ -1,7 +1,7 @@
 import { ipcRenderer } from 'electron';
 
 window.addEventListener('message', async (ev) => {
-	if (!ev.data.event.startsWith('tools:loadergrabber')) {
+	if (!ev.data?.event?.startsWith('tools:loadergrabber')) {
 		return;
 	}
 
@@ -71,13 +71,10 @@ window.addEventListener('message', async (ev) => {
 		}
 
 		if (ret) {
-			ev.source!.postMessage(
-				{
-					event: 'tools:loadergrabber:grab',
-					args: { data: ret, type },
-				},
-				{ targetOrigin: '*' },
-			);
+			ev.source!.postMessage({
+				event: 'tools:loadergrabber:grab',
+				args: { data: ret, type },
+			});
 		}
 	} else if (eventName === 'export') {
 		const { data } = args;

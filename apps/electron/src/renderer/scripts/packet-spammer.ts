@@ -4,7 +4,7 @@ let timer: SetIntervalAsyncTimer<unknown[]> | null = null;
 let index = 0;
 
 window.addEventListener('message', async (ev) => {
-	if (!ev.data.event.startsWith('packets:spammer')) {
+	if (!ev.data?.event?.startsWith('packets:spammer')) {
 		return;
 	}
 

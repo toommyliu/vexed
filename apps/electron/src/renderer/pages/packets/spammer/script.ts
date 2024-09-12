@@ -14,10 +14,7 @@ window.addEventListener('DOMContentLoaded', () => {
 		on = false;
 		$stop.classList.add('w3-disabled');
 		$start.classList.remove('w3-disabled');
-		parent.postMessage(
-			{ event: 'packets:spammer:off' },
-			{ targetOrigin: '*' },
-		);
+		parent.postMessage({ event: 'packets:spammer:off' });
 	});
 	$start.addEventListener('click', () => {
 		on = true;
@@ -28,13 +25,10 @@ window.addEventListener('DOMContentLoaded', () => {
 			.value;
 		const delay = (document.querySelector('#delay') as HTMLInputElement)
 			.value;
-		parent.postMessage(
-			{
-				event: 'packets:spammer:on',
-				args: { packets: packets.split('\n'), delay },
-			},
-			{ targetOrigin: '*' },
-		);
+		parent.postMessage({
+			event: 'packets:spammer:on',
+			args: { packets: packets.split('\n'), delay },
+		});
 	});
 
 	{

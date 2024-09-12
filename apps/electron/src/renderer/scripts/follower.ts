@@ -61,7 +61,7 @@ async function onPacketFromServer(packet: string) {
 }
 
 window.addEventListener('message', async (ev) => {
-	if (!ev.data.event.startsWith('follower:')) {
+	if (!ev.data?.event?.startsWith('follower:')) {
 		return;
 	}
 
@@ -101,12 +101,9 @@ window.addEventListener('message', async (ev) => {
 				if (tries <= 0) {
 					await stop();
 
-					ev.source!.postMessage(
-						{
-							event: 'follower:stop',
-						},
-						{ targetOrigin: '*' },
-					);
+					ev.source!.postMessage({
+						event: 'follower:stop',
+					});
 				}
 
 				return;
@@ -153,13 +150,10 @@ window.addEventListener('message', async (ev) => {
 	} else if (eventName === 'stop') {
 		await stop();
 	} else if (eventName === 'me') {
-		ev.source!.postMessage(
-			{
-				event: 'follower:me',
-				args: auth.username,
-			},
-			{ targetOrigin: '*' },
-		);
+		ev.source!.postMessage({
+			event: 'follower:me',
+			args: auth.username,
+		});
 	}
 });
 

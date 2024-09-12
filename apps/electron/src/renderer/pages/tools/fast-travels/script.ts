@@ -36,13 +36,10 @@ window.addEventListener('DOMContentLoaded', async () => {
 				btn.disabled = true;
 			}
 
-			parent.postMessage(
-				{
-					event: 'tools:fasttravel:join',
-					args: { ...location, roomNumber: getRoomNumber() },
-				},
-				{ targetOrigin: '*' },
-			);
+			parent.postMessage({
+				event: 'tools:fasttravel:join',
+				args: { ...location, roomNumber: getRoomNumber() },
+			});
 		});
 
 		$container.appendChild($btn);

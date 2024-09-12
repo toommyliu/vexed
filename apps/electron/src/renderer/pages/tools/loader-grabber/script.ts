@@ -302,16 +302,13 @@ window.addEventListener('DOMContentLoaded', async () => {
 				return;
 			}
 
-			parent.postMessage(
-				{
-					event: 'tools:loadergrabber:load',
-					args: {
-						type: Number.parseInt(source, 10),
-						id: Number.parseInt(id, 10),
-					},
+			parent.postMessage({
+				event: 'tools:loadergrabber:load',
+				args: {
+					type: Number.parseInt(source, 10),
+					id: Number.parseInt(id, 10),
 				},
-				{ targetOrigin: '*' },
-			);
+			});
 		});
 	}
 
@@ -324,26 +321,20 @@ window.addEventListener('DOMContentLoaded', async () => {
 				return;
 			}
 
-			parent.postMessage(
-				{
-					event: 'tools:loadergrabber:grab',
-					args: { type: Number.parseInt(type, 10) },
-				},
-				{ targetOrigin: '*' },
-			);
+			parent.postMessage({
+				event: 'tools:loadergrabber:grab',
+				args: { type: Number.parseInt(type, 10) },
+			});
 		});
 	}
 
 	{
 		const $btn = document.querySelector('#grabber-export');
 		$btn!.addEventListener('click', async () => {
-			parent.postMessage(
-				{
-					event: 'tools:loadergrabber:export',
-					args: { data: lastData },
-				},
-				{ targetOrigin: '*' },
-			);
+			parent.postMessage({
+				event: 'tools:loadergrabber:export',
+				args: { data: lastData },
+			});
 		});
 	}
 });

@@ -33,12 +33,9 @@ window.addEventListener('DOMContentLoaded', async () => {
 	{
 		const $btn = document.querySelector('#me')!;
 		$btn.addEventListener('click', () => {
-			parent.postMessage(
-				{
-					event: 'follower:me',
-				},
-				{ targetOrigin: '*' },
-			);
+			parent.postMessage({
+				event: 'follower:me',
+			});
 		});
 	}
 
@@ -75,16 +72,10 @@ window.addEventListener('DOMContentLoaded', async () => {
 					attackPriority: attackPriority ?? [],
 					copyWalk: copyWalk ?? false,
 				};
-				parent.postMessage(
-					{ event: 'follower:start', args: config },
-					{ targetOrigin: '*' },
-				);
+				parent.postMessage({ event: 'follower:start', args: config });
 				disableInput();
 			} else {
-				parent.postMessage(
-					{ event: 'follower:stop' },
-					{ targetOrigin: '*' },
-				);
+				parent.postMessage({ event: 'follower:stop' });
 				stop();
 			}
 		});

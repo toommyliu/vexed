@@ -49,10 +49,7 @@ window.packetFromClient = async ([packet]: [string]) => {
 
 	const wnd: WindowProxy | null = window.windows.packets.logger;
 	if (wnd) {
-		wnd.postMessage(
-			{ event: 'logger:packet', args: packet },
-			{ targetOrigin: '*' },
-		);
+		wnd.postMessage({ event: 'logger:packet', args: packet });
 	}
 };
 
