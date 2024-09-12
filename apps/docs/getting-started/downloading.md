@@ -20,7 +20,7 @@ Since it comes as a portable application/executable, you can extract it wherever
 
 When running Vexed for the first time, you may see a warning regarding "Apple cannot check it for malicious software." To solve this, click OK then open Finder, find the Application file and CTRL+CLICK the icon and press Open.
 
-You may also be prompted to install [Rosetta](https://support.apple.com/en-us/102527), do so.
+You may also be prompted to install [Rosetta](https://support.apple.com/en-us/102527), do so. Rosetta may be difficult to uninstall, but you shouldn't ever need to, especially if you plan to use x64 apps on your Apple Silicon machine.
 
 **For Windows users:**
 
