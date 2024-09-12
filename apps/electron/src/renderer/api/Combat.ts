@@ -15,7 +15,7 @@ export class Combat {
 	 * Whether the player has a target.
 	 */
 	public hasTarget(): boolean {
-		return Boolean(this.bot.flash.call(() => swf.HasTarget()));
+		return Boolean(this.bot.flash.call<boolean>(() => swf.HasTarget()));
 	}
 
 	/**
@@ -53,7 +53,7 @@ export class Combat {
 	}
 
 	/**
-	 * Uses a skill.
+	 * Casts a skill.
 	 *
 	 * @param index - The index of the skill. Skills range from 0 (skill 1) to 5 (potions).
 	 * @param force - Whether to use the skill regardless if there is a target.
@@ -257,6 +257,7 @@ export class Combat {
 			killConfig,
 		);
 	}
+
 	/**
 	 * Rests the player.
 	 *

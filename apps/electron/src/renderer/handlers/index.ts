@@ -1,6 +1,6 @@
-import addGoldExp from './json/addGoldExp';
-import ct from './json/ct';
-import dropItem from './json/dropItem';
+import { addGoldExp } from './json/addGoldExp';
+import { ct } from './json/ct';
+import { dropItem } from './json/dropItem';
 
 window.packetFromServer = async ([packet]: [string]) => {
 	bot.emit('packetFromServer', packet);
@@ -15,12 +15,11 @@ window.packetFromServer = async ([packet]: [string]) => {
 			case 'respawnMon':
 				break;
 
-			case 'exitArea':
-				{
-					const playerName = args[5];
-					bot.emit('playerLeave', playerName);
-					break;
-				}
+			case 'exitArea': {
+				const playerName = args[5];
+				bot.emit('playerLeave', playerName);
+				break;
+			}
 
 			default:
 				break;

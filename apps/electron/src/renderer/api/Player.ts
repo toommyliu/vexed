@@ -128,7 +128,9 @@ export class Player {
 	 * A check for if the world is fully loaded, aswell as the player's inventory items and art.
 	 */
 	public isLoaded(): boolean {
-		return Boolean(this.bot.flash.call(() => swf.IsPlayerLoaded()));
+		return Boolean(
+			this.bot.flash.call<boolean>(() => swf.IsPlayerLoaded()),
+		);
 	}
 
 	/**

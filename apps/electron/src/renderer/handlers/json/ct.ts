@@ -1,6 +1,6 @@
 import type { Bot } from '../../api/Bot';
 
-function ct(bot: Bot, packet: JSON) {
+export function ct(bot: Bot, packet: JSON) {
 	// @ts-expect-error
 	if (Array.isArray(packet?.b?.o?.anims)) {
 		// @ts-expect-error
@@ -37,5 +37,3 @@ function ct(bot: Bot, packet: JSON) {
 		}
 	}
 }
-
-export default ct;

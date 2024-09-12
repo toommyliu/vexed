@@ -128,8 +128,9 @@ export class Bank {
 		bankItem: number | string,
 		inventoryItem: number | string,
 	): Promise<boolean> {
-		const inBank = () => this.get(bankItem);
-		const inInventory = () => this.bot.inventory.get(inventoryItem);
+		const inBank = () => Boolean(this.get(bankItem));
+		const inInventory = () =>
+			Boolean(this.bot.inventory.get(inventoryItem));
 
 		if (!inBank() || !inInventory()) {
 			return false;
@@ -148,19 +149,27 @@ export class Bank {
 	/**
 	 * Opens the bank ui, and loads all items.
 	 *
-	 * @param force - Whether to force open the bank ui.
+	 * @param force - Whether to force open the bank ui, regardless of whether it's open.
 	 */
 	public async open(force: boolean = false): Promise<void> {
 		if (!force && this.isOpen()) {
 			return;
 		}
 
+		// If it's already open, close it first.
+		if (this.isOpen()) {
+			this.bot.flash.call(() => swf.ShowBank());
+			await this.bot.waitUntil(() => !this.isOpen());
+			await this.bot.sleep(500);
+		}
+
+		// Load the items.
 		this.bot.flash.call(() => swf.ShowBank());
 		await this.bot.waitUntil(() => this.isOpen());
 		this.bot.flash.call(() => swf.LoadBankItems());
 		await this.bot.waitUntil(
 			// eslint-disable-next-line sonarjs/no-collection-size-mischeck
-			() => this.items.length >= 0,
+			() => this.items.length >= 0 /* wait until something is loaded */,
 			() => this.bot.auth.loggedIn && this.isOpen(),
 			10,
 		);

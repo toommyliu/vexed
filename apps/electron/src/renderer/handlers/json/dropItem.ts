@@ -1,12 +1,26 @@
 import type { Bot } from '../../api/Bot';
 import type { ItemData } from '../../api/struct/Item';
 
-function dropItem(bot: Bot, packet: JSON) {
-	// @ts-expect-error
+export function dropItem(bot: Bot, packet: DropItemPacket) {
 	const items = packet.b.o.items;
 	for (const itemData of Object.values(items)) {
-		bot.drops.addDrop(itemData as unknown as ItemData);
+		bot.drops.addDrop(itemData);
 	}
 }
 
-export default dropItem;
+export type DropItemPacket = {
+	b: {
+		o: {
+			cmd: 'dropItem';
+			/**
+			 * Mapping of item id and item data.
+			 */
+			items: Record<number, ItemData>;
+		};
+		/**
+		 * Always -1?
+		 */
+		r: number;
+	};
+	t: 'xt';
+};
