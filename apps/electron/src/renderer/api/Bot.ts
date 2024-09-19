@@ -19,6 +19,9 @@ import { TimerManager } from './util/TimerManager';
 export class Bot extends EventEmitter {
 	#ac: AbortController | null = null;
 
+	/**
+	 * The singleton instance of the Bot class.
+	 */
 	public static _instance: Bot | null = null;
 
 	public auth: InstanceType<typeof Auth>;

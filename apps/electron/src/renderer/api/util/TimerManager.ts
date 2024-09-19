@@ -137,9 +137,9 @@ export class TimerManager {
 	#timeouts: Set<NativeTimeout> = new Set();
 
 	/**
-	 * @param {Function} fn The interval function.
-	 * @param {number} interval The delay between each execution.
-	 * @returns {SetIntervalAsyncTimer} The interval id.
+	 * @param fn - The interval function.
+	 * @param interval - The delay between each execution.
+	 * @returns - The interval id.
 	 */
 	public setInterval(
 		fn: Function,
@@ -153,8 +153,7 @@ export class TimerManager {
 	}
 
 	/**
-	 * @param {SetIntervalAsyncTimer} id The interval id.
-	 * @returns {Promise<void>}
+	 * @param id - The interval id.
 	 */
 	public async clearInterval(
 		id: SetIntervalAsyncTimer<unknown[]>,
@@ -164,10 +163,10 @@ export class TimerManager {
 	}
 
 	/**
-	 * @param {Function} fn The timeout function.
-	 * @param {number} delay The delay before executing the function.
-	 * @param  {...any} args Arguments to pass to the function.
-	 * @returns {number} The timeout id.
+	 * @param fn - The timeout function.
+	 * @param delay - The delay before executing the function.
+	 * @param args - Arguments to pass to the function.
+	 * @returns - The timeout id.
 	 */
 	public setTimeout(fn: Function, delay: number, ...args: any[]): number {
 		const timeout = setTimeout(() => {
@@ -180,8 +179,7 @@ export class TimerManager {
 	}
 
 	/**
-	 * @param {number} timeout The timeout id.
-	 * @returns {void}
+	 * @param timeout - The timeout id.
 	 */
 	public clearTimeout(timeout: number): void {
 		clearTimeout(timeout);
