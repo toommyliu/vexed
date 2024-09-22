@@ -38,7 +38,9 @@
 		"esbuild": "^0.23.1",
 		"eslint": "^9.10.0",
 		"eslint-config-neon": "^0.2.0",
+		"nodemon": "^3.1.7",
 		"prettier": "^3.3.3",
+		"typedoc": "^0.26.7",
 		"typescript": "^5.5.4"
 	},
 	"electronmon": {

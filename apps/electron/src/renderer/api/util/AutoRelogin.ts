@@ -70,12 +70,7 @@ export class AutoRelogin {
 
 					this.bot.auth.connectTo(server.name);
 
-					await this.bot.waitUntil(
-						() =>
-							this.bot.auth.loggedIn &&
-							!this.bot.world.loading &&
-							this.bot.player.isLoaded(),
-					);
+					await this.bot.waitUntil(() => bot.player.isReady());
 
 					// TODO: restart the script ?
 				});

@@ -1,4 +1,3 @@
-//https://stackoverflow.com/a/75281896
 import { defineConfig } from "vitepress";
 
 import { join, basename } from "node:path";
@@ -89,38 +88,38 @@ export default defineConfig({
       {
         text: "Scripting API",
         items: [
-          {
-            text: "Examples",
-            link: "/api/examples/",
-          },
-          {
-            text: "Data classes",
-            items: structs.map((path) => ({
-              text: getMarkdownTitle(path),
-              link: `/api/struct/${basename(path)}`,
-            })),
-          },
-          {
-            text: "Enums",
-            items: enums.map((path) => ({
-              text: getMarkdownTitle(path),
-              link: `/api/enums/${basename(path)}`,
-            })),
-          },
-          {
-            text: "Typedefs",
-            items: typedefs.map((path) => ({
-              text: getMarkdownTitle(path),
-              link: `/api/typedefs/${basename(path)}`,
-            })),
-          },
-          {
-            text: "Utils",
-            items: utils.map((path) => ({
-              text: getMarkdownTitle(path),
-              link: `/api/utils/${basename(path)}`,
-            })),
-          },
+          // {
+          //   text: "Examples",
+          //   link: "/api/examples/",
+          // },
+          // {
+          //   text: "Data classes",
+          //   items: structs.map((path) => ({
+          //     text: getMarkdownTitle(path),
+          //     link: `/api/struct/${basename(path)}`,
+          //   })),
+          // },
+          // {
+          //   text: "Enums",
+          //   items: enums.map((path) => ({
+          //     text: getMarkdownTitle(path),
+          //     link: `/api/enums/${basename(path)}`,
+          //   })),
+          // },
+          // {
+          //   text: "Typedefs",
+          //   items: typedefs.map((path) => ({
+          //     text: getMarkdownTitle(path),
+          //     link: `/api/typedefs/${basename(path)}`,
+          //   })),
+          // },
+          // {
+          //   text: "Utils",
+          //   items: utils.map((path) => ({
+          //     text: getMarkdownTitle(path),
+          //     link: `/api/utils/${basename(path)}`,
+          //   })),
+          // },
           ...rest.map((path) => ({
             text: getMarkdownTitle(path),
             link: `/api/${basename(path)}`,

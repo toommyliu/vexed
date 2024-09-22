@@ -24,36 +24,84 @@ export class Bot extends EventEmitter {
 	 */
 	public static _instance: Bot | null = null;
 
+	/**
+	 * The Auth API class instance.
+	 */
 	public auth: InstanceType<typeof Auth>;
 
+	/**
+	 * The Bank API class instance.
+	 */
 	public bank: InstanceType<typeof Bank>;
 
+	/**
+	 * The Combat API class instance.
+	 */
 	public combat: InstanceType<typeof Combat>;
 
+	/**
+	 * The Drops API class instance.
+	 */
 	public drops: InstanceType<typeof Drops>;
 
+	/**
+	 * The House API class instance.
+	 */
 	public house: InstanceType<typeof House>;
 
+	/**
+	 * The Inventory API class instance.
+	 */
 	public inventory: InstanceType<typeof Inventory>;
 
+	/**
+	 * The local Player API class instance.
+	 */
 	public player: InstanceType<typeof Player>;
 
+	/**
+	 * The Packets API class instance.
+	 */
 	public packets: InstanceType<typeof Packets>;
 
+	/**
+	 * The Quests API class instance.
+	 */
 	public quests: InstanceType<typeof Quests>;
 
+	/**
+	 * The Settings API class instance.
+	 */
 	public settings: InstanceType<typeof Settings>;
 
+	/**
+	 * The Shops API class instance.
+	 */
 	public shops: InstanceType<typeof Shops>;
 
+	/**
+	 * The TempInventory API class instance.
+	 */
 	public tempInventory: InstanceType<typeof TempInventory>;
 
+	/**
+	 * The World API class instance.
+	 */
 	public world: InstanceType<typeof World>;
 
+	/**
+	 * The AutoRelogin API class instance.
+	 */
 	public autoRelogin: InstanceType<typeof AutoRelogin>;
 
+	/**
+	 * The Flash API class instance.
+	 */
 	public flash: InstanceType<typeof Flash>;
 
+	/**
+	 * The TimerManager API class instance.
+	 */
 	public timerManager: InstanceType<typeof TimerManager>;
 
 	public constructor() {
@@ -85,6 +133,8 @@ export class Bot extends EventEmitter {
 	}
 
 	/**
+	 * Blocks the current "thread" for the specified number of milliseconds.
+	 *
 	 * @param ms - The number of milliseconds to wait.
 	 */
 	public async sleep(ms: number): Promise<void> {
@@ -106,7 +156,7 @@ export class Bot extends EventEmitter {
 	public async waitUntil(
 		condition: () => boolean,
 		prerequisite: (() => boolean) | null = null,
-		timeout = 15,
+		timeout: number = 15,
 	): Promise<void> {
 		let iterations = 0;
 
@@ -125,8 +175,11 @@ export class Bot extends EventEmitter {
 	}
 
 	/**
-	 * Raises the running flag. While this does not start a script, it setups various tasks used during a script's runtime.
-	 * For example, the auto relogin background task.
+	 * Raises the running flag.
+	 *
+	 * This does not start a script, rather merely declares that a script is running.
+	 *
+	 * For example, the auto relogin background task runs if the bot is running.
 	 */
 	public start(): void {
 		if (this.#ac) {
@@ -139,7 +192,9 @@ export class Bot extends EventEmitter {
 	}
 
 	/**
-	 * Lowers the running flag. While this does not stop a script, it removes any background tasks that were set up on start.
+	 * Lowers the running flag.
+	 *
+	 * While this does not stop a script, it removes any background tasks that were set up on start.
 	 */
 	public stop(): void {
 		if (!this.#ac) {
