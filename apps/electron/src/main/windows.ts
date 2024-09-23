@@ -15,7 +15,6 @@ async function createGame(account: Account | null = null): Promise<void> {
 		height: 552,
 		title: '',
 		webPreferences: {
-			contextIsolation: false,
 			nodeIntegration: true,
 			plugins: true,
 		},
@@ -113,6 +112,22 @@ async function createGame(account: Account | null = null): Promise<void> {
 					ev.newGuest = null;
 					return null;
 				}
+
+				ev.preventDefault();
+
+				const newWindow = new BrowserWindow({
+					webPreferences: {
+						nodeIntegration: false,
+						plugins: true,
+					},
+					parent: window,
+				});
+				// @ts-expect-error this is ok
+				ev.newGuest = newWindow;
+
+				await newWindow.webContents.loadURL(_url.toString());
+
+				return newWindow;
 			} else if (_url.protocol === 'file:') {
 				ev.preventDefault();
 
