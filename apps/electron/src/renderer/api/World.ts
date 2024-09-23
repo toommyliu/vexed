@@ -135,12 +135,14 @@ export class World {
 	 *
 	 * @param cell - The cell to jump to.
 	 * @param pad - The pad to jump to.
+	 * @param autoCorrect - Whether to jump to a valid pad if the provided pad is invalid.
 	 * @param force - Whether to allow jumping to the same cell.
 	 * @param tries - The number of times to try jumping.
 	 */
 	public async jump(
 		cell: string,
 		pad = 'Spawn',
+		autoCorrect = false,
 		force = false,
 		tries = 5,
 	): Promise<void> {
@@ -154,6 +156,23 @@ export class World {
 			// eslint-disable-next-line @typescript-eslint/no-loop-func
 			this.bot.flash.call(() => swf.Jump(cell, pad));
 			await this.bot.sleep(1_000);
+
+			if (
+				autoCorrect &&
+				!this.cellPads.some(
+					(pad_) => pad_.toLowerCase() === pad.toLowerCase(),
+				)
+			) {
+				// eslint-disable-next-line @typescript-eslint/no-loop-func
+				this.bot.flash.call(() =>
+					swf.Jump(
+						cell,
+						this.cellPads[
+							Math.floor(Math.random() * this.cellPads.length)
+						]!,
+					),
+				);
+			}
 
 			if (isSameCell() && force) {
 				break;
