@@ -4,15 +4,21 @@ import type { SetIntervalAsyncTimer } from './TimerManager';
 
 /**
  * Auto Relogins are automatically ran if the bot is running and there has been a selected server.
- * There are no calls needed to enable auto-relogin besides starting the bot, and choosing a server.
+ * There are no calls needed to enable auto-relogin besides starting the bot and selecting the server to connect to.
  */
 export class AutoRelogin {
 	#intervalID: SetIntervalAsyncTimer<unknown[]> | null = null;
 
 	#mutex = new Mutex();
 
+	/**
+	 * The server name to connect to.
+	 */
 	public server: string | null;
 
+	/**
+	 * The delay after a logout or a disconnect before attempting to login.
+	 */
 	public delay: number;
 
 	public constructor(public bot: Bot) {

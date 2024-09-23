@@ -13,7 +13,7 @@ function concatComments(comments) {
 			?.map((comment) => {
 				if (
 					(comment.kind === 'text' || comment.kind === 'code') &&
-					comment.text
+					comment?.text?.length > 0
 				) {
 					return comment.text;
 				}
@@ -26,7 +26,8 @@ async function docgen() {
 	const jsonPath = path.join(__dirname, '../docs.json');
 	const outDir = path.join(__dirname, '../../docs/api');
 
-	await fs.rm(jsonPath, { force: true });
+	// TODO: exclude examples from filter
+	// await fs.rm(jsonPath, { force: true });
 
 	// Generate docs.json
 	const app = await typedoc.Application.bootstrap({
@@ -47,8 +48,7 @@ async function docgen() {
 			return;
 		}
 
-		const classes = json.children.filter((ch) => ch.kind === 2);
-		for (const cls of classes) {
+		for (const cls of json.children.filter((ch) => ch.kind === 2)) {
 			// We only need the first child which is the class/the named
 			const child = cls.children[0];
 
@@ -59,108 +59,150 @@ async function docgen() {
 				`---`,
 				`# ${child.name}`,
 			];
-			if (child.comment) {
-				md.push(concatComments(child.comment));
-			}
 
-			const properties = [];
-			const methods = [];
-
-			for (const child_ of child.children) {
-				if (
-					!child_?.flags?.isPublic ||
-					child_.name.startsWith('#') ||
-					child_.name.startsWith('_')
-				) {
-					continue;
+			// enum
+			if (child.kind === 8) {
+				if (child.comment?.summary) {
+					md.push(concatComments(child.comment));
+					md.push('');
 				}
 
-				switch (child_.kind) {
-					case 1024: // class property declaration
-					case 262144: // properties / getters
-						properties.push(`### ${child_.name}`);
-						if (child_.getSignature) {
-							const desc = concatComments(
-								child_.getSignature.comment,
-							);
-							if (desc) {
-								properties.push(desc);
-							}
+				md.push('## Members');
+
+				for (const child_ of child.children) {
+					if (child_.kind === 16) {
+						md.push(`### ${child_.name}`);
+
+						if (child_.comment?.summary) {
+							md.push(concatComments(child_.comment));
+							md.push('');
 						}
-						properties.push('');
-						properties.push('');
-						break;
-					case 2048: // method?
-						{
-							// console.log(
-							// 	inspect(cls, { depth: Infinity, colors: true }),
-							// );
 
-							const name = child_.signatures[0].name; // the name of the method
-							const desc =
-								child_.signatures[0].comment?.summary?.find(
-									(n) => n.kind === 'text' && n.text,
-								)?.text;
-							// const params =
-							// 	child_.signatures[0].parameters?.map(
-							// 		(param) => {
-							// 			if (name === 'accept') {
-							// 				console.log(
-							// 					inspect(param, {
-							// 						depth: Infinity,
-							// 						colors: true,
-							// 					}),
-							// 				);
-							// 			}
+						const type = typeof child_.type.value;
 
-							// 			const types =
-							// 				param.type.type === 'union'
-							// 					? `${param.type.types
-							// 							.map(
-							// 								(p) =>
-							// 									p.name ??
-							// 									`"${p.value}"`, // string literals
-							// 							)
-							// 							.join(
-							// 								' | ',
-							// 							)}${param.defaultValue ? ` = ${param.defaultValue.replaceAll("'", '"')}` : ''}`
-							// 					: param.type.name;
+						md.push(
+							`\`${child.name}.${child_.name}\` = \`${type === 'string' ? '"' : ''}${child_.type.value}${type === 'string' ? '"' : ''}\``,
+						);
 
-							// 			return `${param.name}: ${types}`;
-							// 		},
-							// 	) ?? [];
-							// const returnType = child_.signatures[0].type.name;
+						md.push('');
+						md.push('');
 
-							// console.log(
-							// 	`${name}(${params.join(', ')}) -> ${returnType}`,
-							// );
+						md.push(`Type: ${type}`);
 
-							methods.push(`### ${name}`);
-							if (desc) {
-								methods.push(desc);
-							}
-							methods.push('');
-							methods.push('');
-						}
-						break;
+						md.push('');
+						md.push('');
+					}
 				}
-			}
 
-			if (properties.length > 0) {
-				md.push('## Properties');
-				md.push(...properties);
-				md.push('');
-				md.push('');
-			}
+				const outPath = path.join(outDir, 'enums', `${child.name}.md`);
 
-			if (methods.length > 0) {
-				md.push('## Methods');
-				md.push(...methods);
-			}
+				await fs.ensureFile(outPath);
+				await fs.writeFile(outPath, md.join('\n')).catch((err) => err);
+			} else if (child.kind === 128) {
+				if (child.comment) {
+					md.push(concatComments(child.comment));
+				}
 
-			await fs
-				.writeFile(path.join(outDir, `${cls.name}.md`), md.join('\n'))
-				.catch((err) => err);
+				const properties = [];
+				const methods = [];
+
+				for (const child_ of child.children) {
+					if (
+						!child_?.flags?.isPublic ||
+						child_.name.startsWith('#') ||
+						child_.name.startsWith('_')
+					) {
+						continue;
+					}
+
+					switch (child_.kind) {
+						case 1024: // class property declaration
+						case 262144: // properties/getters
+							properties.push(`### ${child_.name}`);
+							if (child_.getSignature) {
+								const desc = concatComments(
+									child_.getSignature.comment,
+								);
+								if (desc) {
+									properties.push(desc);
+								}
+							}
+							properties.push('');
+							properties.push('');
+							break;
+						case 2048: // method
+							{
+								// console.log(
+								// 	inspect(cls, { depth: Infinity, colors: true }),
+								// );
+
+								const name = child_.signatures[0].name; // the name of the method
+								const desc =
+									child_.signatures[0].comment?.summary?.find(
+										(n) => n.kind === 'text' && n.text,
+									)?.text;
+								// const params =
+								// 	child_.signatures[0].parameters?.map(
+								// 		(param) => {
+								// 			if (name === 'accept') {
+								// 				console.log(
+								// 					inspect(param, {
+								// 						depth: Infinity,
+								// 						colors: true,
+								// 					}),
+								// 				);
+								// 			}
+
+								// 			const types =
+								// 				param.type.type === 'union'
+								// 					? `${param.type.types
+								// 							.map(
+								// 								(p) =>
+								// 									p.name ??
+								// 									`"${p.value}"`, // string literals
+								// 							)
+								// 							.join(
+								// 								' | ',
+								// 							)}${param.defaultValue ? ` = ${param.defaultValue.replaceAll("'", '"')}` : ''}`
+								// 					: param.type.name;
+
+								// 			return `${param.name}: ${types}`;
+								// 		},
+								// 	) ?? [];
+								// const returnType = child_.signatures[0].type.name;
+
+								// console.log(
+								// 	`${name}(${params.join(', ')}) -> ${returnType}`,
+								// );
+
+								methods.push(`### ${name}`);
+								if (desc) {
+									methods.push(desc);
+								}
+								methods.push('');
+								methods.push('');
+							}
+							break;
+					}
+				}
+
+				if (properties.length > 0) {
+					md.push('## Properties');
+					md.push(...properties);
+					md.push('');
+					md.push('');
+				}
+
+				if (methods.length > 0) {
+					md.push('## Methods');
+					md.push(...methods);
+				}
+
+				const outPath = path.join(outDir, `${cls.name}.md`);
+
+				await fs.ensureFile(outPath);
+				await fs.writeFile(outPath, md.join('\n'));
+			}
 		}
 	}
 }

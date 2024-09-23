@@ -23,8 +23,8 @@ const enums = md.filter((path) => path.includes("/enums/"));
 const examples = md.filter((path) => path.includes("/examples/"));
 const structs = md.filter((path) => path.includes("/struct/"));
 const typedefs = md.filter((path) => path.includes("/typedefs/"));
-const utils = md.filter((path) => path.includes("/utils/"));
-const excluded = [...enums, ...examples, ...structs, ...typedefs, utils];
+const util = md.filter((path) => path.includes("/util/"));
+const excluded = [...enums, ...examples, ...structs, ...typedefs, ...util];
 
 const rest = md.filter((path) => !excluded.includes(path));
 
@@ -88,38 +88,38 @@ export default defineConfig({
       {
         text: "Scripting API",
         items: [
-          // {
-          //   text: "Examples",
-          //   link: "/api/examples/",
-          // },
-          // {
-          //   text: "Data classes",
-          //   items: structs.map((path) => ({
-          //     text: getMarkdownTitle(path),
-          //     link: `/api/struct/${basename(path)}`,
-          //   })),
-          // },
-          // {
-          //   text: "Enums",
-          //   items: enums.map((path) => ({
-          //     text: getMarkdownTitle(path),
-          //     link: `/api/enums/${basename(path)}`,
-          //   })),
-          // },
-          // {
-          //   text: "Typedefs",
-          //   items: typedefs.map((path) => ({
-          //     text: getMarkdownTitle(path),
-          //     link: `/api/typedefs/${basename(path)}`,
-          //   })),
-          // },
-          // {
-          //   text: "Utils",
-          //   items: utils.map((path) => ({
-          //     text: getMarkdownTitle(path),
-          //     link: `/api/utils/${basename(path)}`,
-          //   })),
-          // },
+          {
+            text: "Examples",
+            link: "/api/examples/",
+          },
+          {
+            text: "Data classes",
+            items: structs.map((path) => ({
+              text: getMarkdownTitle(path),
+              link: `/api/struct/${basename(path)}`,
+            })),
+          },
+          {
+            text: "Enums",
+            items: enums.map((path) => ({
+              text: getMarkdownTitle(path),
+              link: `/api/enums/${basename(path)}`,
+            })),
+          },
+          {
+            text: "Typedefs",
+            items: typedefs.map((path) => ({
+              text: getMarkdownTitle(path),
+              link: `/api/typedefs/${basename(path)}`,
+            })),
+          },
+          {
+            text: "Util",
+            items: util.map((path) => ({
+              text: getMarkdownTitle(path),
+              link: `/api/util/${basename(path)}`,
+            })),
+          },
           ...rest.map((path) => ({
             text: getMarkdownTitle(path),
             link: `/api/${basename(path)}`,
