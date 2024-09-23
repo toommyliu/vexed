@@ -1,0 +1,4 @@
+!dist/
+dist/**/*.js
+dist/**/*.map
+docs.json

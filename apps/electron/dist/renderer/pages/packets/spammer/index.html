@@ -1,0 +1,93 @@
+<link rel="stylesheet" href="../../../w3.css" />
+<link rel="stylesheet" href="../../../shared.css" />
+<link rel="stylesheet" href="styles.css" />
+
+<script src="script.js" type="module"></script>
+
+<div class="w3-container w3-section">
+	<div class="spammer w3-border w3-round-medium" id="spammer"></div>
+	<div
+		style="
+			display: flex;
+			justify-content: space-between;
+			margin-left: -1px;
+			margin-right: -1px;
+		"
+	>
+		<div style="display: flex; width: 50%; margin-top: 4px; margin-left: -4px">
+			<input
+				class="w3-input w3-small w3-border w3-round-medium"
+				type="text"
+				style="width: 100%; height: 30px; margin: 12px 0 0 8px"
+				id="packet"
+			/>
+			<p style="margin: 12px 0 0 8px">Packet</p>
+		</div>
+		<div
+			style="
+				display: flex;
+				align-items: center;
+				margin-top: 12px;
+				margin-left: -2px;
+			"
+		>
+			<button
+				class="w3-btn w3-small w3-round-medium"
+				id="clear"
+				style="margin-left: 2px"
+			>
+				Clear
+			</button>
+			<button
+				class="w3-btn w3-small w3-round-medium"
+				id="remove"
+				style="margin-left: 4px"
+			>
+				Remove
+			</button>
+			<button
+				class="w3-btn w3-small w3-round-medium"
+				id="add"
+				style="margin-left: 4px"
+			>
+				Add
+			</button>
+		</div>
+	</div>
+	<div
+		style="
+			display: flex;
+			justify-content: space-between;
+			margin-left: -1px;
+			margin-right: -1px;
+		"
+	>
+		<div style="display: flex; margin-left: -4px">
+			<input
+				class="w3-input w3-small w3-border w3-round-medium"
+				type="number"
+				value="1000"
+				step="100"
+				style="width: 100px; height: 30px; margin: 12px 0 0 8px"
+				id="delay"
+			/>
+			<p style="margin: 12px 0 0 8px">Delay</p>
+		</div>
+		<div style="display: flex; align-items: center; margin-left: -2px">
+			<button
+				class="w3-btn w3-small w3-round-medium w3-disabled"
+				id="stop"
+				style="margin-left: 2px"
+			>
+				Stop
+			</button>
+			<button
+				class="w3-btn w3-small w3-round-medium"
+				id="start"
+				style="margin-left: 4px"
+			>
+				Start
+			</button>
+		</div>
+	</div>
+</div>

@@ -47,17 +47,17 @@ jobs:
 
       - name: Rename file (macOS)
         run: mv Vexed-0.0.0-mac.zip Vexed-mac.zip
-        working-directory: apps/electron/dist
+        working-directory: apps/electron/build
 
       - name: Rename file (Windows)
         run: mv Vexed-0.0.0-win.zip Vexed-win.zip
-        working-directory: apps/electron/dist
+        working-directory: apps/electron/build
 
       - name: Upload binary
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            apps/electron/dist/Vexed-mac.zip
-            apps/electron/dist/Vexed-win.zip
+            apps/electron/build/Vexed-mac.zip
+            apps/electron/build/Vexed-win.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

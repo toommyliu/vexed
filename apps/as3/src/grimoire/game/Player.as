@@ -200,7 +200,7 @@
 			}
 		}
 
-		public static function GetSkillCooldown(skill:String) : String
+		public static function GetSkillCooldown(skill:String) : int
 		{
 			return Root.Game.world.actions.active[parseInt(skill)].cd;
 		}

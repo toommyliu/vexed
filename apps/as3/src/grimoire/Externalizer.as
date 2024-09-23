@@ -54,7 +54,8 @@
 			this.addCallback("Gender", Player.Gender);
 			this.addCallback("SetEquip", Player.SetEquip);
 			this.addCallback("GetEquip", Player.GetEquip);
-			this.addCallback("Buff", Player.Buff);
+			//TODO:remove
+			// this.addCallback("Buff", Player.Buff);
 			this.addCallback("PlayerData", Player.PlayerData);
 			this.addCallback("GetFactions", Player.GetFactions);
 			this.addCallback("ChangeName", Player.ChangeName);
@@ -62,11 +63,14 @@
 			this.addCallback("SetTargetPlayer", Player.SetTargetPlayer);
 			this.addCallback("ChangeAccessLevel", Player.ChangeAccessLevel);
 			this.addCallback("GetTargetHealth", Player.GetTargetHealth);
-			this.addCallback("CheckPlayerInMyCell", Player.CheckPlayerInMyCell);
+			//TODO:remove
+			// this.addCallback("CheckPlayerInMyCell", Player.CheckPlayerInMyCell);
 			this.addCallback("GetSkillCooldown", Player.GetSkillCooldown);
-			this.addCallback("SetSkillCooldown", Player.SetSkillCooldown);
-			this.addCallback("SetSkillRange", Player.SetSkillRange);
-			this.addCallback("SetSkillMana", Player.SetSkillMana);
+			//TODO:remove
+			// this.addCallback("SetSkillCooldown", Player.SetSkillCooldown);
+			//TODO: remove
+			// this.addCallback("SetSkillRange", Player.SetSkillRange);
+			// this.addCallback("SetSkillMana", Player.SetSkillMana);
 			this.addCallback("SetTargetPvP", Player.SetTargetPvP);
 			this.addCallback("GetAvatars", Player.GetAvatars);
 			this.addCallback("IsMember", Player.IsMember);
@@ -95,6 +99,7 @@
 			this.addCallback("Players", World.Players);
 			this.addCallback("PlayerByName", World.PlayerByName);
 			this.addCallback("SetWalkSpeed", Player.SetWalkSpeed);
+			//TODO:this should be IsPlayerInSameCell
 			this.addCallback("GetCellPlayers", World.GetCellPlayers);
 			this.addCallback("CheckCellPlayer", World.CheckCellPlayer);
 			this.addCallback("GetPlayerHealth", World.GetPlayerHealth);
@@ -138,6 +143,7 @@
 			this.addCallback("GetInventoryItemByName", Inventory.GetItemByName2);
 			this.addCallback("InventorySlots", Inventory.InventorySlots);
 			this.addCallback("UsedInventorySlots", Inventory.UsedInventorySlots);
+
 			this.addCallback("GetTempItems", TempInventory.GetTempItems);
 			this.addCallback("ItemIsInTemp", TempInventory.ItemIsInTemp);
 

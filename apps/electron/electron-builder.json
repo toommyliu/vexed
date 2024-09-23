@@ -1,7 +1,11 @@
 {
 	"productName": "Vexed",
+	"electronVersion": "8.1.0",
+	"directories": {
+		"output": "build"
+	},
 	"mac": {
-		"files": ["src/**/*", "build/**/*", "!build/pepflashplayer.dll"],
+		"files": ["dist/**/*", "assets/**/*", "!assets/pepflashplayer.dll"],
 		"asar": "false",
 		"target": {
 			"target": "zip",
@@ -9,7 +13,11 @@
 		}
 	},
 	"win": {
-		"files": ["src/**/*", "build/**/*", "!build/PepperFlashPlayer.plugin"],
+		"files": [
+			"dist/**/*",
+			"assets/**/*",
+			"!assets/PepperFlashPlayer.plugin"
+		],
 		"asar": "false",
 		"target": {
 			"target": "zip",
@@ -17,6 +25,7 @@
 		}
 	},
 	"extraMetadata": {
-		"name": "Vexed"
+		"name": "Vexed",
+		"main": "./dist/main/index.js"
 	}
 }

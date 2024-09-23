@@ -1,4 +1,3 @@
-//https://stackoverflow.com/a/75281896
 import { defineConfig } from "vitepress";
 
 import { join, basename } from "node:path";
@@ -24,8 +23,8 @@ const enums = md.filter((path) => path.includes("/enums/"));
 const examples = md.filter((path) => path.includes("/examples/"));
 const structs = md.filter((path) => path.includes("/struct/"));
 const typedefs = md.filter((path) => path.includes("/typedefs/"));
-const utils = md.filter((path) => path.includes("/utils/"));
-const excluded = [...enums, ...examples, ...structs, ...typedefs, utils];
+const util = md.filter((path) => path.includes("/util/"));
+const excluded = [...enums, ...examples, ...structs, ...typedefs, ...util];
 
 const rest = md.filter((path) => !excluded.includes(path));
 
@@ -115,10 +114,10 @@ export default defineConfig({
             })),
           },
           {
-            text: "Utils",
-            items: utils.map((path) => ({
+            text: "Util",
+            items: util.map((path) => ({
               text: getMarkdownTitle(path),
-              link: `/api/utils/${basename(path)}`,
+              link: `/api/util/${basename(path)}`,
             })),
           },
           ...rest.map((path) => ({

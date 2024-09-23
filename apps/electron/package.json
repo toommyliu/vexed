@@ -1,31 +1,47 @@
 {
 	"name": "@vexed/electron",
 	"version": "0.0.0",
-	"main": "src/main/index.js",
+	"main": "dist/main/index.js",
 	"scripts": {
-		"postinstall": "node scripts/postinstall.js",
-		"dev": "electron .",
-		"dev:watch": "electronmon .",
-		"build": "electron-builder build",
-		"build:all": "electron-builder build -mw",
-		"jsdoc": "node scripts/gen-jsdoc.js",
+		"typecheck": "tsc --noEmit",
+		"compile": "pnpm typecheck || true && node esbuild.config.js",
+		"compile:watch": "pnpm typecheck || true && node esbuild.config.js --watch",
+		"dev": "pnpm compile && electron .",
+		"dev:watch": "concurrently \"pnpm compile:watch\" \"electronmon .\"",
+		"build": "pnpm compile || true && electron-builder build",
+		"build:all": "pnpm compile || true && electron-builder build -mw",
+		"docgen": "node scripts/docgen.js",
 		"format": "prettier src/",
-		"format:write": "prettier src/ --write"
+		"format:write": "prettier src/ --write",
+		"lint": "eslint",
+		"lint:fix": "eslint --fix"
 	},
 	"dependencies": {
 		"async-mutex": "^0.5.0",
 		"electron-prompt": "^1.7.0",
 		"fs-extra": "^11.2.0",
+		"lodash.merge": "^4.6.2",
 		"node-fetch": "^2.7.0",
 		"nw-flash-trust": "^0.3.0",
-		"set-interval-async": "^3.0.3"
+		"source-map-support": "^0.5.21"
 	},
 	"devDependencies": {
+		"@types/electron-prompt": "^1.6.5",
+		"@types/node-fetch": "^2.6.11",
+		"@typescript-eslint/eslint-plugin": "^8.4.0",
+		"@typescript-eslint/parser": "^8.4.0",
+		"concurrently": "^8.2.2",
 		"doxxx": "^2.0.7",
-		"electron": "11.5.0",
+		"electron": "github:toommyliu/electron",
 		"electron-builder": "^24.13.3",
 		"electronmon": "^2.0.3",
-		"prettier": "^3.3.2"
+		"esbuild": "^0.23.1",
+		"eslint": "^9.10.0",
+		"eslint-config-neon": "^0.2.0",
+		"nodemon": "^3.1.7",
+		"prettier": "^3.3.3",
+		"typedoc": "^0.26.7",
+		"typescript": "^5.5.4"
 	},
 	"electronmon": {
 		"patterns": [
