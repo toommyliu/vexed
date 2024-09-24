@@ -106,6 +106,10 @@ async function createGame(account: Account | null = null): Promise<void> {
 					'www.heromart.com',
 				];
 				if (!domains.includes(_url.hostname)) {
+					if (_url.hostname === 'www.facebook.com' && _url.searchParams.get('redirect_uri') === 'https://game.aq.com/game/AQWFB.html') {
+						return;
+					}
+
 					console.log('Blocking url', _url);
 					ev.preventDefault();
 					// @ts-expect-error this is ok
