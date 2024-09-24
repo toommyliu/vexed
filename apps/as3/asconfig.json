@@ -3,7 +3,7 @@
 		"source-path": [
 			"src/"
 		],
-		"output": "../electron/build/grimoire.swf",
+		"output": "../electron/assets/grimoire.swf",
 		"default-frame-rate": 30,
 		"default-background-color": "#000000",
 		"default-size": {
