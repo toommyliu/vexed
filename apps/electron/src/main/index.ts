@@ -38,7 +38,7 @@ function registerFlashPlugin() {
 
 	const trustManager = flashTrust.initSync('Vexed', flashPath);
 	trustManager.empty();
-	trustManager.add(join(assetsPath, 'grimoire.swf'));
+	trustManager.add(assetsPath);
 }
 
 registerFlashPlugin();

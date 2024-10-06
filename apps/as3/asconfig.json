@@ -1,9 +1,9 @@
 {
 	"compilerOptions": {
 		"source-path": [
-			"src/"
+			"src"
 		],
-		"output": "../electron/assets/grimoire.swf",
+		"output": "../electron/assets/loader.swf",
 		"default-frame-rate": 30,
 		"default-background-color": "#000000",
 		"default-size": {
@@ -25,6 +25,6 @@
 		"static-link-runtime-shared-libraries": true
 	},
 	"files": [
-		"src/grimoire/Root.as"
+		"src/skua/Main.as"
 	]
 }
