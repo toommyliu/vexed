@@ -1,9 +1,9 @@
-package skua.module
+package vexed.module
 {
 	import flash.events.Event;
-	import skua.Main;
-	import skua.module.Module;
-	import skua.module.modules.*;
+	import vexed.Main;
+	import vexed.module.Module;
+	import vexed.module.modules.*;
 
 	public class ModuleStore
 	{

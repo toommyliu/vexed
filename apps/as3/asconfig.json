@@ -25,6 +25,6 @@
 		"static-link-runtime-shared-libraries": true
 	},
 	"files": [
-		"src/skua/Main.as"
+		"src/vexed/Main.as"
 	]
 }

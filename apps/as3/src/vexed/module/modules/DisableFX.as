@@ -1,8 +1,8 @@
-package skua.module.modules
+package vexed.module.modules
 {
 	import flash.display.MovieClip;
 	import flash.utils.getQualifiedClassName;
-	import skua.module.Module;
+	import vexed.module.Module;
 
 	public class DisableFX extends Module
 	{

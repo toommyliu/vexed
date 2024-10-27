@@ -1,4 +1,4 @@
-package skua.util
+package vexed.util
 {
 	import flash.events.Event;
 

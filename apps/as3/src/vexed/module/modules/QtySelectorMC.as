@@ -1,4 +1,4 @@
-package skua.module.modules
+package vexed.module.modules
 {
 	import flash.display.MovieClip;
 	import flash.display.Sprite;

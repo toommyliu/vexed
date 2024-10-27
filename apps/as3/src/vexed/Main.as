@@ -1,4 +1,4 @@
-package skua
+package vexed
 {
 	import flash.display.Loader;
 	import flash.display.LoaderInfo;
@@ -12,9 +12,9 @@ package skua
 	import flash.display.StageQuality;
 	import flash.utils.getQualifiedClassName;
 
-	import skua.Externalizer;
-	import skua.util.SFSEvent;
-	import skua.module.ModuleStore;
+	import vexed.Externalizer;
+	import vexed.util.SFSEvent;
+	import vexed.module.ModuleStore;
 
 	public class Main extends MovieClip
 	{
@@ -36,7 +36,6 @@ package skua
 		private var isEU:Boolean;
 		private var urlLoader:URLLoader;
 		private var loader:Loader;
-		private var sTitle:String = "<font color='#FDAF2D'>Better Performance</font>";
 		private var vars:Object;
 
 		private var stg:Stage;
@@ -112,6 +111,8 @@ package skua
 			this.game.params.isEU = this.isEU;
 			this.game.params.loginURL = this.loginURL;
 
+			this.game.sfc.addEventListener(SFSEvent.onConnection, this.onConnection);
+			this.game.sfc.addEventListener(SFSEvent.onConnectionLost, this.onConnectionLost);
 			this.game.sfc.addEventListener(SFSEvent.onExtensionResponse, this.onExtensionResponse);
 
 			this.gameDomain = LoaderInfo(event.target).applicationDomain;
@@ -123,9 +124,49 @@ package skua
 			this.stg.addEventListener(Event.ENTER_FRAME, ModuleStore.handleFrame);
 		}
 
-		public function onExtensionResponse(packet:*):void
+		private function onConnection():void
 		{
-			this.external.call('pext', JSON.stringify(packet));
+			this.external.call("connection", "OnConnection");
+		}
+
+		private function onConnectionLost():void
+		{
+			this.external.call("connection", "OnConnectionLost");
+		}
+
+		private function onExtensionResponse(packet:*):void
+		{
+			if (packet.params.message.indexOf("%xt%zm%") > -1)
+			{
+				this.external.call("packetFromClient", packet.params.message.replace(/^\s+|\s+$/g, ''));
+			}
+			else
+			{
+				this.external.call("packetFromServer", this.processPacket(packet.params.message));
+			}
+		}
+
+		private function processPacket(packet:String):String
+		{
+			var index:int = 0;
+			if (packet.indexOf("[Sending - STR]: ") > -1)
+			{
+				packet = packet.replace("[Sending - STR]: ", "");
+			}
+			if (packet.indexOf("[ RECEIVED ]: ") > -1)
+			{
+				packet = packet.replace("[ RECEIVED ]: ", "");
+			}
+			if (packet.indexOf("[Sending]: ") > -1)
+			{
+				packet = packet.replace("[Sending]: ", "");
+			}
+			if (packet.indexOf(", (len: ") > -1)
+			{
+				index = packet.indexOf(", (len: ");
+				packet = packet.slice(0, index);
+			}
+			return packet;
 		}
 
 		public function getGame():*

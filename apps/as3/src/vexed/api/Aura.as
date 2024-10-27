@@ -1,11 +1,10 @@
-package skua.api
+package vexed.api
 {
-    import skua.Main;
+    import vexed.Main;
 
     public class Aura
     {
         private static var game:* = Main.instance.getGame();
-
         public static function compareAuras(target:String, operator:String, auraName:String, auraValue:int):String
         {
             var aura:Object = null;
@@ -19,19 +18,14 @@ package skua.api
                         return false.toString();
                     }
 
-                    if (operator == 'Greater' && aura.val.toFixed(0) > auraValue.toFixed(0))
+                    switch (operator.toLowerCase())
                     {
-                        return true.toString();
-                    }
-
-                    if (operator == 'Less' && aura.val.toFixed(0) < auraValue.toFixed(0))
-                    {
-                        return true.toString();
-                    }
-
-                    if (operator == 'Equal' && aura.val.toFixed(0) == auraValue.toFixed(0))
-                    {
-                        return true.toString();
+                        case 'greater':
+                            return (aura.val.toFixed(0) > auraValue.toFixed(0)).toString();
+                        case 'less':
+                            return (aura.val.toFixed(0) < auraValue.toFixed(0)).toString();
+                        case 'equal':
+                            return (aura.val.toFixed(0) == auraValue.toFixed(0)).toString();
                     }
                 }
             }
@@ -55,10 +49,10 @@ package skua.api
                     case 'self':
                         auras = game.world.myAvatar.dataLeaf.auras;
                         break;
-                    default:
+                    case 'target':
                         if (game.world.myAvatar.target != null &&
-                            game.world.myAvatar.target.dataLeaf != null &&
-                            game.world.myAvatar.target.dataLeaf.auras != null)
+                                game.world.myAvatar.target.dataLeaf != null &&
+                                game.world.myAvatar.target.dataLeaf.auras != null)
                         {
                             auras = game.world.myAvatar.target.dataLeaf.auras;
                         }

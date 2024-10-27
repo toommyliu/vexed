@@ -1,6 +1,6 @@
-package skua.module.modules
+package vexed.module.modules
 {
-	import skua.module.Module;
+	import vexed.module.Module;
 
 	public class HidePlayers extends Module
 	{

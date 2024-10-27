@@ -1,6 +1,6 @@
-package skua.api
+package vexed.api
 {
-    import skua.Main;
+    import vexed.Main;
     import flash.events.MouseEvent;
     import flash.utils.getQualifiedClassName;
 

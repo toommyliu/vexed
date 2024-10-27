@@ -1,4 +1,4 @@
-package skua.module
+package vexed.module
 {
 	public class Module
 	{

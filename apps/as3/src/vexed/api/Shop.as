@@ -1,6 +1,6 @@
-package skua.api
+package vexed.api
 {
-    import skua.Main;
+    import vexed.Main;
 
     public class Shop
     {
