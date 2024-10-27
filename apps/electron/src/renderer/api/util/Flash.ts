@@ -69,7 +69,7 @@ export class Flash {
 	public get<T = any>(path: string, parse = false): T | null {
 		try {
 			const out = swf.getGameObject(path);
-			if (parse) {
+			if (parse === true) {
 				return JSON.parse(out) as T;
 			}
 
@@ -91,7 +91,7 @@ export class Flash {
 	): T | null {
 		try {
 			const out = swf.getGameObjectS(path);
-			if (parse) {
+			if (parse === true) {
 				return JSON.parse(out) as T;
 			}
 
