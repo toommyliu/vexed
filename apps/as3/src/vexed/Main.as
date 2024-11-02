@@ -328,11 +328,6 @@ package vexed
 			return true.toString();
 		}
 
-		public static function catchPackets():void
-		{
-			instance.game.sfc.addEventListener(SFSEvent.onDebugMessage, packetReceived);
-		}
-
 		public static function sendClientPacket(packet:String, type:String):void
 		{
 			if (_handler == null)
@@ -371,14 +366,6 @@ package vexed
 		{
 			var array:Array = packet.substr(1, packet.length - 2).split('%');
 			_handler.handleMessage(array.splice(1, array.length - 1), 'str');
-		}
-
-		public static function packetReceived(packet:*):void
-		{
-			if (packet.params.message.indexOf('%xt%zm%') > -1)
-			{
-				instance.external.call('packet', packet.params.message.split(':', 2)[1].trim());
-			}
 		}
 	}
 }

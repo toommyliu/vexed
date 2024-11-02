@@ -64,6 +64,11 @@ package vexed.api
             return false;
         }
 
+        public static function getSkillCooldown(index:String):int
+        {
+            return game.world.actions.active[parseInt(index)].cd;
+        }
+
         private static function attackTarget(target:*):Boolean
         {
             if (target != null && target.pMC != null)
@@ -100,6 +105,25 @@ package vexed.api
         {
             var player:* = game.world.getAvatarByUserName(name.toLowerCase());
             return attackTarget(player);
+        }
+
+        public static function cancelAutoAttack():void
+        {
+            game.world.cancelAutoAttack();
+        }
+
+        public static function cancelTarget():void
+        {
+            game.world.cancelTarget();
+        }
+
+        public static function cancelTargetSelf():void
+        {
+            var target:* = game.world.myAvatar.target;
+            if (target && target == game.world.myAvatar)
+            {
+                game.world.cancelTarget();
+            }
         }
     }
 }

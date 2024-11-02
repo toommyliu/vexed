@@ -5,6 +5,7 @@ package vexed.api
     public class Aura
     {
         private static var game:* = Main.instance.getGame();
+
         public static function compareAuras(target:String, operator:String, auraName:String, auraValue:int):String
         {
             var aura:Object = null;
