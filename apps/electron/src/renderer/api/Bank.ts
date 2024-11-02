@@ -9,7 +9,7 @@ export class Bank {
 	 * The list of items in the bank.
 	 */
 	public get items(): BankItem[] {
-		const ret = this.bot.flash.call(() => swf.GetBankItems());
+		const ret = this.bot.flash.get('world.bankinfo.items', true);
 		if (Array.isArray(ret)) {
 			return ret.map((item) => new BankItem(item as unknown as ItemData));
 		}
@@ -57,21 +57,28 @@ export class Bank {
 	/**
 	 * Gets the count of available slots of bankable non-AC items.
 	 */
-	public get availableSlots(): number {
-		return this.bot.flash.call(() => swf.BankSlots());
+	public get availableSlots(): number | null {
+		return this.bot.flash.get<number>(
+			'world.myAvatar.objData.iBankSlots',
+			true,
+		);
 	}
 
 	/**
 	 * Gets the count of used slots of bankable non-AC items.
 	 */
-	public get usedSlots(): number {
-		return this.bot.flash.call(() => swf.UsedBankSlots());
+	public get usedSlots(): number | null {
+		return this.bot.flash.get<number>('world.myAvatar.iBankCount', true);
 	}
 
 	/**
 	 * Gets the total slots of bankable non-AC items.
 	 */
-	public get totalSlots(): number {
+	public get totalSlots(): number | null {
+		if (this.availableSlots === null || this.usedSlots === null) {
+			return null;
+		}
+
 		return this.availableSlots - this.usedSlots;
 	}
 

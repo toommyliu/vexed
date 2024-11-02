@@ -8,11 +8,16 @@
 	require('./handlers/index.js');
 	require('./script.js');
 </script>
+<script>
+	function debug(what) {
+		console.log('[debug]', what);
+	}
+</script>
 
 <div id="gameContainer">
 	<embed
 		id="swf"
-		src="../../assets/grimoire.swf"
+		src="../../assets/loader.swf"
 		type="application/x-shockwave-flash"
 	/>
 </div>
