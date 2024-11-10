@@ -7,9 +7,9 @@ import type { SetIntervalAsyncTimer } from './TimerManager';
  * There are no calls needed to enable auto-relogin besides starting the bot and selecting the server to connect to.
  */
 export class AutoRelogin {
-	#intervalID: SetIntervalAsyncTimer<unknown[]> | null = null;
+	private intervalId: SetIntervalAsyncTimer<unknown[]> | null = null;
 
-	#mutex = new Mutex();
+	private readonly mutex = new Mutex();
 
 	/**
 	 * The server name to connect to.
@@ -32,26 +32,34 @@ export class AutoRelogin {
 		 */
 		this.delay = 5_000;
 
-		// TODO: these might not be removed ?
-		this.bot.on('start', this.#run.bind(this));
-		this.bot.on('stop', this.#stop.bind(this));
+		this.bot.on('start', () => this.run());
+		this.bot.on('stop', () => this.stop());
 	}
 
 	/**
 	 * Runs the auto-login process.
 	 */
-	#run(): void {
-		this.#intervalID = this.bot.timerManager.setInterval(async () => {
-			if (this.#mutex.isLocked() || !this.server) {
+	private run(): void {
+		this.intervalId = this.bot.timerManager.setInterval(async () => {
+			if (this.mutex.isLocked() || !this.server) {
 				return;
 			}
 
 			if (this.bot.running && !this.bot.auth.loggedIn) {
-				void this.#mutex.runExclusive(async () => {
+				void this.mutex.runExclusive(async () => {
 					console.log(
 						`AutoRelogin triggered, waiting for ${this.delay}ms`,
 					);
 					await this.bot.sleep(this.delay);
+
+					// Check if we're still on the server select screen
+					if (
+						this.bot.flash.get('mcLogin.currentLabel') ===
+						'"Servers"'
+					) {
+						this.bot.flash.call('removeAllChildren');
+						this.bot.flash.call('gotoAndPlay', 'Login');
+					}
 
 					if (!this.bot.auth.resetServers()) {
 						return;
@@ -71,6 +79,7 @@ export class AutoRelogin {
 					);
 
 					if (!server) {
+						console.log('ret 2');
 						return;
 					}
 
@@ -87,10 +96,10 @@ export class AutoRelogin {
 	/**
 	 * Stops the auto-login task.
 	 */
-	#stop(): void {
-		if (this.#intervalID) {
-			void this.bot.timerManager.clearInterval(this.#intervalID);
-			this.#intervalID = null;
+	private stop(): void {
+		if (this.intervalId) {
+			void this.bot.timerManager.clearInterval(this.intervalId);
+			this.intervalId = null;
 		}
 	}
 }
