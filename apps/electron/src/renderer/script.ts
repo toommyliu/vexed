@@ -220,7 +220,11 @@ window.addEventListener('DOMContentLoaded', async () => {
 			return;
 		}
 
-		await bank.open();
+		if (bank.isOpen()) {
+			swf.ShowBank();
+		} else {
+			await bank.open();
+		}
 	});
 });
 
