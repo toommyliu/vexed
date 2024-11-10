@@ -9,7 +9,8 @@ export function ct(bot: Bot, packet: JSON) {
 				// @ts-expect-error
 				packet.b.o.anims[i]?.msg
 					?.toLowerCase()
-					?.includes('prepares a counter attack')
+					?.includes('prepares a counter attack') &&
+				bot.settings.counterAttack
 			) {
 				bot.combat.cancelTarget();
 				bot.combat.cancelAutoAttack();
@@ -26,7 +27,8 @@ export function ct(bot: Bot, packet: JSON) {
 				// @ts-expect-error
 				packet.b.o.a[i]?.cmd === 'aura--' &&
 				// @ts-expect-error
-				packet.b.o.a[i]?.aura?.nam === 'Counter Attack'
+				packet.b.o.a[i]?.aura?.nam === 'Counter Attack' &&
+				bot.settings.counterAttack
 			) {
 				// @ts-expect-error
 				const monMapID = packet.b.o.a[i]?.tInf.split(':')[1];
