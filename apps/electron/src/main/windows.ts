@@ -9,6 +9,19 @@ const store: WindowStore = new Map();
 const userAgent =
 	'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16_0) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36';
 
+const domains = [
+	'www.aq.com',
+	'aq.com',
+	'www.artix.com',
+	'artix.com',
+	'www.account.aq.com',
+	'account.aq.com',
+	'www.aqwwiki.wikidot.com',
+	'aqwwiki.wikidot.com',
+	'heromart.com',
+	'www.heromart.com',
+];
+
 async function createGame(account: Account | null = null): Promise<void> {
 	const window = new BrowserWindow({
 		width: 966,
@@ -93,24 +106,16 @@ async function createGame(account: Account | null = null): Promise<void> {
 			const _url = new URL(url);
 
 			if (_url.protocol === 'https:' || _url.protocol === 'http:') {
-				const domains = [
-					'www.aq.com',
-					'aq.com',
-					'www.artix.com',
-					'artix.com',
-					'www.account.aq.com',
-					'account.aq.com',
-					'www.aqwwiki.wikidot.com',
-					'aqwwiki.wikidot.com',
-					'heromart.com',
-					'www.heromart.com',
-				];
 				if (!domains.includes(_url.hostname)) {
-					if (_url.hostname === 'www.facebook.com' && _url.searchParams.get('redirect_uri') === 'https://game.aq.com/game/AQWFB.html') {
+					if (
+						_url.hostname === 'www.facebook.com' &&
+						_url.searchParams.get('redirect_uri') ===
+							'https://game.aq.com/game/AQWFB.html'
+					) {
 						return;
 					}
 
-					console.log('Blocking url', _url);
+					console.log('Blocking url (1)', _url);
 					ev.preventDefault();
 					// @ts-expect-error this is ok
 					ev.newGuest = null;
@@ -128,6 +133,13 @@ async function createGame(account: Account | null = null): Promise<void> {
 				});
 				// @ts-expect-error this is ok
 				ev.newGuest = newWindow;
+
+				newWindow.webContents.on('will-navigate', (event, url) => {
+					if (!domains.some((domain) => url.includes(domain))) {
+						event.preventDefault();
+						console.log('Blocking url (2)', url);
+					}
+				});
 
 				await newWindow.webContents.loadURL(_url.toString());
 
