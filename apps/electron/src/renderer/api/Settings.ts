@@ -19,6 +19,11 @@ import type { Bot } from './Bot';
  *
  */
 export class Settings {
+	/**
+	 * Whether to automatically stop attacking when the monster is countering.
+	 */
+	public counterAttack = false;
+
 	#infiniteRange = false;
 
 	#provokeMap = false;
