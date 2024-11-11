@@ -3,6 +3,7 @@ import type { Bot } from './Bot';
 import { PlayerState } from './Player';
 import { GameAction } from './World';
 import type { SetIntervalAsyncTimer } from './util/TimerManager';
+import { isMonsterMapId } from './util/utils';
 
 const DEFAULT_KILL_OPTIONS: KillOptions = {
 	killPriority: [],
@@ -83,19 +84,13 @@ export class Combat {
 		fn(index);
 	}
 
-	private isMonsterMapId(monsterResolvable: string): boolean {
-		return ["id'", 'id.', 'id:', 'id-'].some((prefix) =>
-			monsterResolvable.startsWith(prefix),
-		);
-	}
-
 	/**
 	 * Attacks a monster.
 	 *
 	 * @param monsterResolvable - The name or monMapID of the monster.
 	 */
 	public attack(monsterResolvable: string): void {
-		if (this.isMonsterMapId(monsterResolvable)) {
+		if (isMonsterMapId(monsterResolvable)) {
 			const monMapId = monsterResolvable.slice(3);
 			this.bot.flash.call(() => swf.AttackMonsterByMonMapId(monMapId));
 			return;
