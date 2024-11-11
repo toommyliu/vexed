@@ -1,11 +1,10 @@
 import { join } from 'path';
-import { ipcMain, app, BrowserWindow, dialog } from 'electron';
+import { BrowserWindow, dialog, ipcMain } from 'electron';
 import fs from 'fs-extra';
+import { DOCUMENTS_PATH } from './constants';
 import { showErrorDialog, type ErrorDialogOptions } from './utils';
 
-const ROOT = join(app.getPath('documents'), 'Vexed');
-
-ipcMain.handle('root:get_documents_path', async () => ROOT);
+ipcMain.handle('root:get_documents_path', () => DOCUMENTS_PATH);
 
 // #region scripts
 ipcMain.handle('root:load_script', async (ev) => {
@@ -15,7 +14,7 @@ ipcMain.handle('root:load_script', async (ev) => {
 			.showOpenDialog(window, {
 				filters: [{ name: 'JavaScript Files', extensions: ['js'] }],
 				properties: ['openFile'],
-				defaultPath: join(ROOT, 'Scripts'),
+				defaultPath: join(DOCUMENTS_PATH, 'Scripts'),
 			})
 			.catch(() => null);
 
@@ -47,7 +46,7 @@ ipcMain.on('tools:loadergrabber:export', async (_, data) => {
 	try {
 		const dialogPath = await dialog
 			.showSaveDialog({
-				defaultPath: join(ROOT, 'grabber.json'),
+				defaultPath: join(DOCUMENTS_PATH, 'grabber.json'),
 				filters: [{ name: 'JSON', extensions: ['json'] }],
 			})
 			.catch(() => null);
@@ -85,7 +84,7 @@ ipcMain.on('tools:loadergrabber:export', async (_, data) => {
 });
 
 ipcMain.on('packets:save', async (_, data) => {
-	const path = join(ROOT, 'packets.txt');
+	const path = join(DOCUMENTS_PATH, 'packets.txt');
 	try {
 		await fs.ensureFile(path);
 		await fs.writeFile(path, data.join('\n'), {
