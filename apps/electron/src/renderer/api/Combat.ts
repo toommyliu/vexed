@@ -315,12 +315,7 @@ export class Combat {
 		const opts = merge({}, DEFAULT_KILL_OPTIONS, options);
 
 		const store = isTemp ? this.bot.tempInventory : this.bot.inventory;
-		const getItem = () => store.get(itemName);
-
-		const shouldExit = () => {
-			const item = getItem();
-			return item !== null && store.contains(itemName, targetQty);
-		};
+		const shouldExit = () => store.contains(itemName, targetQty);
 
 		while (!shouldExit()) {
 			await this.kill(monsterResolvable, opts);

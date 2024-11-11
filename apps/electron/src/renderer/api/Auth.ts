@@ -92,7 +92,7 @@ export class Auth {
 	/**
 	 * Whether the client is temporarily kicked from the server.
 	 */
-	public get isTemporarilyKicked(): boolean {
+	public isTemporarilyKicked(): boolean {
 		return this.bot.flash.call(() => swf.IsTemporarilyKicked());
 	}
 }

@@ -12,7 +12,7 @@ export class Drops {
 	public constructor(public readonly bot: Bot) {}
 
 	/**
-	 * The drop stack as shown to the client. The mapping is of the form `itemID -> count`. The value is -1 if the item has not been dropped.
+	 * The drop stack as shown to the client. The mapping is of the form `itemID -> count`.
 	 */
 	public get stack(): Record<number, number> {
 		return Object.fromEntries(this.drops.entries());
@@ -54,8 +54,6 @@ export class Drops {
 	}
 
 	/**
-	 * Retrieves the count of the item in the drop stack.
-	 *
 	 * @param itemId - The ID of the item.
 	 * @returns The count of the item in the drop stack. -1 if the item has not been dropped.
 	 */
@@ -66,7 +64,7 @@ export class Drops {
 	/**
 	 * Adds an item to the internal store and the stack as visible to the client.
 	 *
-	 * @param item - The data of the item to add.
+	 * @param item - The item that was dropped.
 	 */
 	public addDrop(item: ItemData): void {
 		if (!this.items.has(item.ItemID)) {
