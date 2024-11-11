@@ -7,9 +7,9 @@ export class Flash {
 	/**
 	 * Calls a game function, whether this be an interop function or an internal function. If "fn" is a string, it will be treated as an actionscript path.
 	 *
-	 * @param fn - The function to call.
-	 * @param args - The arguments to pass to the function.
-	 * @returns - If the provided function returned a value, it will be conditionally parsed to a primitive based on its result. Otherwise, null is returned.
+	 * @param fn The function to call.
+	 * @param args The arguments to pass to the function.
+	 * @returns If the provided function returned a value, it will be conditionally parsed to a primitive based on its result. Otherwise, null is returned.
 	 */
 	public call<T>(fn: Function | string, ...args: any[]): T;
 	public call(fn: Function | string, ...args: any[]): any | null;

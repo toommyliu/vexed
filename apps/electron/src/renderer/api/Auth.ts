@@ -54,11 +54,9 @@ export class Auth {
 	 */
 	public get servers(): Server[] {
 		const ret = this.bot.flash.get('serialCmd.servers', true);
-		if (Array.isArray(ret)) {
-			return ret.map((data) => new Server(data as unknown as ServerData));
-		}
-
-		return [];
+		return Array.isArray(ret)
+			? ret.map((data) => new Server(data as unknown as ServerData))
+			: [];
 	}
 
 	/**

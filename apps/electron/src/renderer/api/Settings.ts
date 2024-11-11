@@ -77,11 +77,7 @@ export class Settings {
 		this.#optionWalkSpeed = document.querySelector('#option-walkspeed');
 
 		this.bot.timerManager.setInterval(() => {
-			if (
-				!this.bot.auth.loggedIn ||
-				this.bot.world.loading ||
-				!this.bot.player.isLoaded()
-			) {
+			if (!this.bot.player.isReady()) {
 				return;
 			}
 

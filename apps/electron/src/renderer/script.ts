@@ -44,9 +44,11 @@ window.addEventListener('DOMContentLoaded', async () => {
 			script.type = 'module';
 			script.textContent = `(async () => {
 			console.log('[' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }) + '] Script started');
+			while(!bot.player.isReady()) await bot.sleep(1000);
 			${b64_out}
 			console.log('[' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }) + '] Script finished');
 			})();`;
+			script.id = 'loaded-script';
 			document.body.appendChild(script);
 		});
 	}
@@ -179,13 +181,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 	const $bank: HTMLButtonElement = document.querySelector('#bank')!;
 
 	const update = (force = false) => {
-		if (
-			!force &&
-			(!auth.loggedIn ||
-				world.loading ||
-				!player.isLoaded() ||
-				world.roomID === lastRoomID)
-		) {
+		if (!force && !player.isReady() && world.roomID === lastRoomID) {
 			return;
 		}
 

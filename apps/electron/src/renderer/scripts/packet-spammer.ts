@@ -27,11 +27,7 @@ window.addEventListener('message', async (ev) => {
 
 		timer = bot.timerManager.setInterval(
 			async () => {
-				if (
-					!bot.auth.loggedIn ||
-					bot.world.loading ||
-					!bot.player.isLoaded()
-				) {
+				if (!bot.player.isReady()) {
 					return;
 				}
 

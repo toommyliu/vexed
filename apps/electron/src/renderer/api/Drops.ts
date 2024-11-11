@@ -3,86 +3,90 @@ import type { Bot } from './Bot';
 import type { ItemData } from './struct/Item';
 
 export class Drops {
-	#mutex = new Mutex();
+	private readonly mutex = new Mutex();
 
-	#data: Set<ItemData> = new Set();
+	private readonly items = new Map<number, ItemData>();
 
-	#drops: Record<number, number> = {};
+	private drops = new Map<number, number>();
 
-	public constructor(public bot: Bot) {}
+	public constructor(public readonly bot: Bot) {}
 
 	/**
 	 * The drop stack as shown to the client. The mapping is of the form `itemID -> count`. The value is -1 if the item has not been dropped.
 	 */
 	public get stack(): Record<number, number> {
-		return this.#drops;
+		return Object.fromEntries(this.drops.entries());
 	}
 
 	/**
-	 * @param itemID - The ID of the item.
+	 * @param itemId - The ID of the item.
 	 */
-	public getItemFromID(itemID: number): ItemData | null {
-		return [...this.#data].find((item) => item.ItemID === itemID) ?? null;
+	public getItemFromID(itemId: number): ItemData | null {
+		return this.items.get(itemId) ?? null;
 	}
 
 	/**
 	 * @param itemName - The name of the item.
 	 */
 	public getItemFromName(itemName: string): ItemData | null {
-		// eslint-disable-next-line no-param-reassign
-		itemName = itemName.toLowerCase();
-		return (
-			[...this.#data].find(
-				(item) => item.sName.toLowerCase() === itemName,
-			) ?? null
-		);
+		const val = itemName.toLowerCase();
+		for (const item of this.items.values()) {
+			if (item.sName.toLowerCase() === val) {
+				return item;
+			}
+		}
+
+		return null;
 	}
 
 	/**
-	 * @param itemID - The ID of the item.
+	 * @param itemId - The ID of the item.
 	 */
-	public getNameFromID(itemID: number): string | null {
-		return this.getItemFromID(itemID)?.sName ?? null;
+	public getItemName(itemId: number): string | null {
+		return this.getItemFromID(itemId)?.sName ?? null;
 	}
 
 	/**
 	 * @param itemName - The name of the item.
 	 */
-	public getIDFromName(itemName: string): number | null {
+	public getItemId(itemName: string): number | null {
 		return this.getItemFromName(itemName)?.ItemID ?? null;
 	}
 
 	/**
 	 * Retrieves the count of the item in the drop stack.
 	 *
-	 * @param itemID - The ID of the item.
+	 * @param itemId - The ID of the item.
+	 * @returns The count of the item in the drop stack. -1 if the item has not been dropped.
 	 */
-	public getDropCount(itemID: number): number {
-		return this.#drops[itemID] ?? -1;
+	public getDropCount(itemId: number): number {
+		return this.drops.get(itemId) ?? -1;
 	}
 
 	/**
 	 * Adds an item to the internal store and the stack as visible to the client.
 	 *
-	 * @param itemData - The data of the item to add.
+	 * @param item - The data of the item to add.
 	 */
-	public addDrop(itemData: ItemData): void {
-		this.#data.add(itemData);
+	public addDrop(item: ItemData): void {
+		if (!this.items.has(item.ItemID)) {
+			this.items.set(item.ItemID, item);
+		}
 
-		const { ItemID: itemID, iQty: quantity } = itemData;
-
-		this.#drops[itemID] ??= 0;
-		this.#drops[itemID] += quantity;
+		const count = this.getDropCount(item.ItemID);
+		this.drops.set(
+			item.ItemID,
+			count === -1 ? item.iQty : count + item.iQty,
+		);
 	}
 
 	/**
 	 * Removes an item from the drop stack. This does not reject the drop.
 	 *
-	 * @param itemID - The ID of the item to remove.
+	 * @param itemId - The ID of the item to remove.
 	 */
-	private removeDrop(itemID: number): void {
-		// eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-		delete this.#drops[itemID];
+	private removeDrop(itemId: number): void {
+		this.drops.delete(itemId);
 	}
 
 	/**
@@ -92,24 +96,25 @@ export class Drops {
 	 * @returns Whether the operation was successful.
 	 */
 	public async pickup(itemKey: number | string): Promise<boolean> {
-		const item = this.#resolveItem(itemKey);
-		if (item && this.getDropCount(item.ItemID) > 0) {
-			const { ItemID: itemID } = item;
-			await this.#mutex.runExclusive(async () => {
-				this.bot.packets.sendServer(
-					`%xt%zm%getDrop%${this.bot.world.roomID}%${itemID}%`,
-				);
-				this.removeDrop(itemID);
-				await this.bot.waitUntil(
-					() => this.bot.inventory.get(itemKey) !== null,
-					() => this.bot.auth.loggedIn,
-					-1,
-				);
-				return true;
-			});
+		const item = this.resolveItem(itemKey);
+		if (!item || this.getDropCount(item.ItemID) <= 0) {
+			return false;
 		}
 
-		return false;
+		const { ItemID: itemId } = item;
+		return this.mutex.runExclusive(async () => {
+			this.bot.packets.sendServer(
+				`%xt%zm%getDrop%${this.bot.world.roomID}%${itemId}%`,
+			);
+			this.removeDrop(itemId);
+			await this.bot.waitUntil(
+				() => this.bot.inventory.get(itemKey) !== null,
+				() => this.bot.auth.loggedIn,
+				-1,
+			);
+
+			return true;
+		});
 	}
 
 	/**
@@ -123,11 +128,12 @@ export class Drops {
 		itemKey: number | string,
 		removeFromStore: boolean = false,
 	): Promise<boolean> {
-		const item = this.#resolveItem(itemKey);
+		const item = this.resolveItem(itemKey);
 		if (item) {
 			this.bot.flash.call(() =>
 				swf.RejectDrop(item.sName, String(item.ItemID)),
 			);
+
 			if (removeFromStore) {
 				this.removeDrop(item.ItemID);
 			}
@@ -139,11 +145,11 @@ export class Drops {
 	}
 
 	/**
-	 * Resolves for an item by its' name or itemID.
+	 * Resolves for an item by its' name or item id.
 	 *
 	 * @param itemKey - The name or ID of the item.
 	 */
-	#resolveItem(itemKey: number | string): ItemData | null {
+	private resolveItem(itemKey: number | string): ItemData | null {
 		if (typeof itemKey === 'string') {
 			return this.getItemFromName(itemKey);
 		} else if (typeof itemKey === 'number') {

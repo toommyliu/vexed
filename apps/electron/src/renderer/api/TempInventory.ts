@@ -10,13 +10,12 @@ export class TempInventory {
 	 */
 	public get items(): TempInventoryItem[] {
 		const ret = this.bot.flash.call(() => swf.GetTempItems());
-		if (Array.isArray(ret)) {
-			return ret.map(
-				(data) => new TempInventoryItem(data as unknown as ItemData),
-			);
-		}
-
-		return [];
+		return Array.isArray(ret)
+			? ret.map(
+					(data) =>
+						new TempInventoryItem(data as unknown as ItemData),
+				)
+			: [];
 	}
 
 	/**
@@ -25,18 +24,18 @@ export class TempInventory {
 	 * @param itemKey - The name or ID of the item.
 	 */
 	public get(itemKey: number | string): TempInventoryItem | null {
-		const key =
+		const val =
 			typeof itemKey === 'string' ? itemKey.toLowerCase() : itemKey;
 
 		return (
 			this.items.find((item) => {
-				if (typeof key === 'string') {
-					return item.name.toLowerCase() === key;
-				} else if (typeof key === 'number') {
-					return item.id === key;
-				} else {
-					return null;
+				if (typeof val === 'string') {
+					return item.name.toLowerCase() === val;
+				} else if (typeof val === 'number') {
+					return item.id === val;
 				}
+
+				return false;
 			}) ?? null
 		);
 	}
@@ -50,10 +49,6 @@ export class TempInventory {
 	 */
 	public contains(itemKey: number | string, quantity: number): boolean {
 		const item = this.get(itemKey);
-		if (!item) {
-			return false;
-		}
-
-		return item.quantity >= quantity;
+		return item !== null && item.quantity >= quantity;
 	}
 }
