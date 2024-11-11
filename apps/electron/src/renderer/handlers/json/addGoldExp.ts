@@ -10,7 +10,7 @@ export async function addGoldExp(bot: Bot, packet: AddGoldExpPacket) {
 	if (isAddGoldExpMonster(packet)) {
 		const getMonster = () =>
 			bot.world.availableMonsters.find(
-				(mon) => mon.monMapID === packet.b.o.id,
+				(mon) => mon.monMapId === packet.b.o.id,
 			);
 
 		await bot.waitUntil(() => getMonster() !== null);

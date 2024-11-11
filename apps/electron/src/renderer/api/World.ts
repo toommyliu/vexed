@@ -102,7 +102,7 @@ export class World {
 	/**
 	 * Gets the internal room ID of the current map.
 	 */
-	public get roomID(): number {
+	public get roomId(): number {
 		return this.bot.flash.call(() => swf.RoomId());
 	}
 

@@ -50,8 +50,8 @@ export class Combat {
 			};
 
 			if (dataLeaf.entType === 'p') {
-				ret.monID = dataLeaf.MonID;
-				ret.monMapID = dataLeaf.MonMapID;
+				ret.monId = dataLeaf.MonID;
+				ret.monMapId = dataLeaf.MonMapID;
 			}
 
 			return ret;
@@ -96,8 +96,8 @@ export class Combat {
 	 */
 	public attack(monsterResolvable: string): void {
 		if (this.isMonsterMapId(monsterResolvable)) {
-			const monMapID = monsterResolvable.slice(3);
-			this.bot.flash.call(() => swf.AttackMonsterByMonMapId(monMapID));
+			const monMapId = monsterResolvable.slice(3);
+			this.bot.flash.call(() => swf.AttackMonsterByMonMapId(monMapId));
 			return;
 		}
 
@@ -374,11 +374,11 @@ export type TargetInfo = {
 	/**
 	 * The monster id of the target.
 	 */
-	monID?: number;
+	monId?: number;
 	/**
 	 * The monster map id of the target.
 	 */
-	monMapID?: string;
+	monMapId?: string;
 	/**
 	 * The name of the target.
 	 */

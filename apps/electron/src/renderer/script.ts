@@ -9,7 +9,7 @@ const { settings, auth, world, player, flash, bank } = bot;
 
 const mapping: Map<string, HTMLElement> = new Map();
 
-let lastRoomID: number | undefined;
+let lastRoomId: number | undefined;
 
 window.windows = {
 	game: window,
@@ -181,7 +181,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 	const $bank: HTMLButtonElement = document.querySelector('#bank')!;
 
 	const update = (force = false) => {
-		if (!force && !player.isReady() && world.roomID === lastRoomID) {
+		if (!force && !player.isReady() && world.roomId === lastRoomId) {
 			return;
 		}
 
@@ -197,7 +197,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 		$cells.value = player.cell;
 		$pads.value = player.pad;
 
-		lastRoomID = world.roomID;
+		lastRoomId = world.roomId;
 	};
 
 	const jump = () => {

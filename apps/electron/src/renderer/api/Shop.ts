@@ -52,7 +52,7 @@ export class Shops {
 	 * @param shopItemId - The ID of the item corresponding to the shopID.
 	 * @param quantity -The quantity of the item.
 	 */
-	public async buyByID(
+	public async buyById(
 		itemId: number,
 		shopItemId: number,
 		quantity: number,

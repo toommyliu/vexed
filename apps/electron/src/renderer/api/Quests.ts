@@ -90,18 +90,18 @@ export class Quests {
 	/**
 	 * Completes a quest.
 	 *
-	 * @param questID - The quest id to complete.
+	 * @param questId - The quest id to complete.
 	 * @param turnIns - The number of times to turn-in the quest.
 	 * @param itemId - The ID of the quest rewards to select.
 	 */
-	public async complete(questID: number | string, turnIns = 1, itemId = -1) {
+	public async complete(questId: number | string, turnIns = 1, itemId = -1) {
 		await this.bot.waitUntil(() =>
 			this.bot.world.isActionAvailable(GameAction.TryQuestComplete),
 		);
 
 		this.bot.flash.call(() => {
 			swf.Complete(
-				String(questID),
+				String(questId),
 				turnIns,
 				String(itemId),
 				itemId === -1 ? 'False' : 'True',

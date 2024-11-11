@@ -21,7 +21,7 @@ export class Drops {
 	/**
 	 * @param itemId - The ID of the item.
 	 */
-	public getItemFromID(itemId: number): ItemData | null {
+	public getItemFromId(itemId: number): ItemData | null {
 		return this.items.get(itemId) ?? null;
 	}
 
@@ -43,7 +43,7 @@ export class Drops {
 	 * @param itemId - The ID of the item.
 	 */
 	public getItemName(itemId: number): string | null {
-		return this.getItemFromID(itemId)?.sName ?? null;
+		return this.getItemFromId(itemId)?.sName ?? null;
 	}
 
 	/**
@@ -104,7 +104,7 @@ export class Drops {
 		const { ItemID: itemId } = item;
 		return this.mutex.runExclusive(async () => {
 			this.bot.packets.sendServer(
-				`%xt%zm%getDrop%${this.bot.world.roomID}%${itemId}%`,
+				`%xt%zm%getDrop%${this.bot.world.roomId}%${itemId}%`,
 			);
 			this.removeDrop(itemId);
 			await this.bot.waitUntil(
@@ -153,7 +153,7 @@ export class Drops {
 		if (typeof itemKey === 'string') {
 			return this.getItemFromName(itemKey);
 		} else if (typeof itemKey === 'number') {
-			return this.getItemFromID(itemKey);
+			return this.getItemFromId(itemKey);
 		}
 
 		return null;

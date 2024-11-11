@@ -86,11 +86,11 @@ export class Settings {
 			}
 
 			if (this.provokeMap && this.bot.world.monsters.length > 0) {
-				const monMapIDs = this.bot.world.monsters.map(
+				const ids = this.bot.world.monsters.map(
 					(mon) => mon.MonMapID,
 				);
 				this.bot.packets.sendServer(
-					`%xt%zm%aggroMon%${this.bot.world.roomID}%${monMapIDs.join('%')}%`,
+					`%xt%zm%aggroMon%${this.bot.world.roomId}%${ids.join('%')}%`,
 				);
 			}
 
