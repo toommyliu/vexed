@@ -93,7 +93,7 @@ export class Quest {
 		const ret = this.data.Rewards;
 		return ret.map((reward) => ({
 			dropChance: reward.DropChance,
-			itemID: reward.ItemID,
+			itemId: reward.ItemID,
 			itemName: reward.sName,
 			quantity: reward.iQty,
 		}));
@@ -105,7 +105,7 @@ export class Quest {
 	public get requirements(): QuestRequiredItem[] {
 		const ret = this.data.RequiredItems;
 		return ret.map((req) => ({
-			itemID: req.ItemID,
+			itemId: req.ItemID,
 			itemName: req.sName,
 			quantity: req.iQty,
 		}));
@@ -266,7 +266,7 @@ export type QuestRequiredItem = {
 	/**
 	 * The item ID.
 	 */
-	itemID: string;
+	itemId: string;
 	/**
 	 * The name of the item.
 	 */
@@ -288,7 +288,7 @@ export type QuestReward = {
 	/**
 	 * The item ID.
 	 */
-	itemID: string;
+	itemId: string;
 	/**
 	 * The name of the item.
 	 */

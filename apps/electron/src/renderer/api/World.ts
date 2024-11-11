@@ -266,14 +266,14 @@ export class World {
 	/**
 	 * Gets a item in the world.
 	 *
-	 * @param itemID - The ID of the item.
+	 * @param itemId - The ID of the item.
 	 */
-	public async getMapItem(itemID: string): Promise<void> {
+	public async getMapItem(itemId: string): Promise<void> {
 		await this.bot.waitUntil(() =>
 			// eslint-disable-next-line @typescript-eslint/no-use-before-define
 			this.isActionAvailable(GameAction.GetMapItem),
 		);
-		this.bot.flash.call(() => swf.GetMapItem(itemID));
+		this.bot.flash.call(() => swf.GetMapItem(itemId));
 		await this.bot.sleep(2_000);
 	}
 

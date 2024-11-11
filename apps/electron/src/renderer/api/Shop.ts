@@ -48,23 +48,23 @@ export class Shops {
 	/**
 	 * Buy an item from the shop using its ID.
 	 *
-	 * @param itemID - The ID of the item.
-	 * @param shopItemID - The ID of the item corresponding to the shopID.
+	 * @param itemId - The ID of the item.
+	 * @param shopItemId - The ID of the item corresponding to the shopID.
 	 * @param quantity -The quantity of the item.
 	 */
 	public async buyByID(
-		itemID: number,
-		shopItemID: number,
+		itemId: number,
+		shopItemId: number,
 		quantity: number,
 	): Promise<void> {
 		await this.bot.waitUntil(() =>
 			this.bot.world.isActionAvailable(GameAction.BuyItem),
 		);
 		this.bot.flash.call(() =>
-			swf.BuyItemQtyById(quantity, itemID, shopItemID),
+			swf.BuyItemQtyById(quantity, itemId, shopItemId),
 		);
 		await this.bot.waitUntil(() =>
-			this.bot.inventory.contains(itemID, quantity),
+			this.bot.inventory.contains(itemId, quantity),
 		);
 	}
 
@@ -78,14 +78,14 @@ export class Shops {
 	/**
 	 * Load a shop.
 	 *
-	 * @param shopID - The shop ID.
+	 * @param shopId - The shop ID.
 	 */
-	public async load(shopID: number | string): Promise<void> {
+	public async load(shopId: number | string): Promise<void> {
 		await this.bot.waitUntil(() =>
 			this.bot.world.isActionAvailable(GameAction.LoadShop),
 		);
 		this.resetShopInfo();
-		this.bot.flash.call(() => swf.LoadShop(String(shopID)));
+		this.bot.flash.call(() => swf.LoadShop(String(shopId)));
 		await this.bot.waitUntil(() => this.isShopLoaded());
 	}
 
@@ -114,10 +114,10 @@ export class Shops {
 	/**
 	 * Loads a hair shop.
 	 *
-	 * @param shopID - The shop ID.
+	 * @param shopId - The shop ID.
 	 */
-	public loadHairShop(shopID: number | string): void {
-		this.bot.flash.call(() => swf.LoadHairShop(String(shopID)));
+	public loadHairShop(shopId: number | string): void {
+		this.bot.flash.call(() => swf.LoadHairShop(String(shopId)));
 	}
 
 	/**
