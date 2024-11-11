@@ -41,7 +41,7 @@ export class AutoRelogin {
 				return;
 			}
 
-			if (this.bot.running && !this.bot.auth.isLoggedIn()) {
+			if (!this.bot.auth.isLoggedIn()) {
 				void this.mutex.runExclusive(async () => {
 					if (this.bot.auth.isTemporarilyKicked()) {
 						await this.bot.waitUntil(
