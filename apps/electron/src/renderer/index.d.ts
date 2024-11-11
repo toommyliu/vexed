@@ -37,7 +37,7 @@ declare global {
 		Jump(cell: string, pad: string): void;
 		Rest(): void;
 		Join(mapName: string, cell: string, pad: string): void;
-		Equip(itemID: string): void;
+		Equip(itemId: string): void;
 		EquipPotion(
 			itemId: string,
 			sDesc: string,
@@ -45,10 +45,10 @@ declare global {
 			sName: string,
 		): void;
 		GoTo(username: string): void;
-		UseBoost(itemID: string): void;
+		UseBoost(itemId: string): void;
 		UseSkill(skillIndex: string): void;
 		ForceUseSkill(skillIndex: string): void;
-		GetMapItem(itemID: string): void;
+		GetMapItem(itemId: string): void;
 		Logout(): void;
 		HasActiveBoost(boost: 'gold' | 'xp' | 'rep' | 'class' | string): string;
 		UserID(): number;
@@ -57,7 +57,7 @@ declare global {
 		// TODO:
 		SetEquip(param1: string, param2: Object): void;
 		// TODO:
-		GetEquip(itemID: string): JSON;
+		GetEquip(itemId: string): JSON;
 		// TODO:
 		PlayerData(): JSON;
 		// TODO:
@@ -110,33 +110,33 @@ declare global {
 		CheckCellPlayer(playerName: string, cell: string): StringBoolean;
 		GetPlayerHealth(target: string): string;
 		GetPlayerHealthPercentage(target: string): string;
-		RejectDrop(itemName: string, itemID: string): void;
+		RejectDrop(itemName: string, itemId: string): void;
 		// Quests
-		IsInProgress(questID: string): StringBoolean;
+		IsInProgress(questId: string): StringBoolean;
 		Complete(
-			questID: string,
+			questId: string,
 			qty: number,
-			itemID: string,
+			itemId: string,
 			special: string,
 		): void;
-		Accept(questID: string): void;
-		LoadQuest(questID: string): void;
-		LoadQuests(questIDs: string): void;
-		GetQuests(questIDs: string): void;
+		Accept(questId: string): void;
+		LoadQuest(questId: string): void;
+		LoadQuests(questIds: string): void;
+		GetQuests(questIds: string): void;
 		GetQuestTree(): string;
-		CanComplete(questID: string): StringBoolean;
-		IsAvailable(questID: string): StringBoolean;
+		CanComplete(questId: string): StringBoolean;
+		IsAvailable(questId: string): StringBoolean;
 		// Shops
 		GetShops(): string;
-		LoadShop(shopID: string): void;
-		LoadHairShop(shopID: string): void;
+		LoadShop(shopId: string): void;
+		LoadHairShop(shopId: string): void;
 		LoadArmorCustomizer(): void;
 		SellItem(itemName: string): void;
 		ResetShopInfo(): void;
 		IsShopLoaded(): StringBoolean;
 		BuyItem(itemName: string): void;
 		BuyItemQty(itemName: string, qty: number): void;
-		BuyItemQtyById(qty: number, itemID: number, shopItemID: number): void;
+		BuyItemQtyById(qty: number, itemId: number, shopitemId: number): void;
 		// Bank
 		GetBank(): void;
 		GetBankItems(): string;

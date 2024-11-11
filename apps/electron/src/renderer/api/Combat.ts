@@ -1,7 +1,16 @@
+import merge from 'lodash.merge';
 import type { Bot } from './Bot';
 import { PlayerState } from './Player';
 import { GameAction } from './World';
 import type { SetIntervalAsyncTimer } from './util/TimerManager';
+import { isMonsterMapId } from './util/utils';
+
+const DEFAULT_KILL_OPTIONS: KillOptions = {
+	killPriority: [],
+	skillDelay: 150,
+	skillSet: [1, 2, 3, 4],
+	skillWait: false,
+};
 
 /**
  * A `monsterResolvable` is either a monster name or monMapID prefixed with `id` and delimited by a `'`, `.`, `:`, `-` character.
@@ -42,8 +51,8 @@ export class Combat {
 			};
 
 			if (dataLeaf.entType === 'p') {
-				ret.monID = dataLeaf.MonID;
-				ret.monMapID = dataLeaf.MonMapID;
+				ret.monId = dataLeaf.MonID;
+				ret.monMapId = dataLeaf.MonMapID;
 			}
 
 			return ret;
@@ -81,10 +90,9 @@ export class Combat {
 	 * @param monsterResolvable - The name or monMapID of the monster.
 	 */
 	public attack(monsterResolvable: string): void {
-		// prettier-ignore
-		if (["id'", 'id.', 'id:', 'id-'].some((prefix) => monsterResolvable.startsWith(prefix))) {
-			const monMapID = monsterResolvable.slice(3);
-			this.bot.flash.call(() => swf.AttackMonsterByMonMapId(monMapID));
+		if (isMonsterMapId(monsterResolvable)) {
+			const monMapId = monsterResolvable.slice(3);
+			this.bot.flash.call(() => swf.AttackMonsterByMonMapId(monMapId));
 			return;
 		}
 
@@ -109,11 +117,11 @@ export class Combat {
 	 * Kills a monster.
 	 *
 	 * @param monsterResolvable - The name or monMapID of the monster.
-	 * @param killConfig - The configuration to use for the kill.
+	 * @param options - The configuration to use for the kill.
 	 */
 	public async kill(
 		monsterResolvable: string,
-		killConfig: Partial<KillConfig> = {},
+		options: Partial<KillOptions> = {},
 	): Promise<void> {
 		await this.bot.waitUntil(
 			() => this.bot.world.isMonsterAvailable(monsterResolvable),
@@ -121,15 +129,13 @@ export class Combat {
 			3,
 		);
 
-		if (!this.bot.player.alive || !this.bot.auth.loggedIn) {
+		if (!this.bot.player.isReady()) {
 			return;
 		}
 
-		// eslint-disable-next-line no-param-reassign
-		killConfig = this.createConfig(killConfig);
+		const opts = merge({}, DEFAULT_KILL_OPTIONS, options);
 
-		const { killPriority, skillSet, skillDelay, skillWait } =
-			killConfig as KillConfig;
+		const { killPriority, skillSet, skillDelay, skillWait } = opts;
 
 		let timer_a: SetIntervalAsyncTimer<unknown[]> | null = null;
 		let timer_b: SetIntervalAsyncTimer<unknown[]> | null = null;
@@ -200,15 +206,15 @@ export class Combat {
 								!this.bot.player.isAFK())) &&
 						!this.pauseAttack
 					) {
-						void this.bot.timerManager.clearInterval(timer_a!);
-						void this.bot.timerManager.clearInterval(timer_b!);
+						await this.bot.timerManager.clearInterval(timer_a!);
+						await this.bot.timerManager.clearInterval(timer_b!);
 
 						// await this.exit();
 
 						resolve();
 					}
 				}, 0);
-			}, killConfig.skillDelay!);
+			}, opts.skillDelay!);
 		});
 	}
 
@@ -218,20 +224,20 @@ export class Combat {
 	 * @param monsterResolvable - The name or monMapID of the monster.
 	 * @param itemName - The name or ID of the item.
 	 * @param targetQty - The quantity of the item.
-	 * @param killConfig - The configuration to use for the kill.
+	 * @param options - The configuration to use for the kill.
 	 */
 	public async killForItem(
 		monsterResolvable: string,
 		itemName: string,
 		targetQty: number,
-		killConfig: Partial<KillConfig> = {},
+		options: Partial<KillOptions> = {},
 	): Promise<void> {
 		return this.#killForItem(
 			monsterResolvable,
 			itemName,
 			targetQty,
 			false,
-			killConfig,
+			options,
 		);
 	}
 
@@ -241,20 +247,20 @@ export class Combat {
 	 * @param monsterResolvable - The name or monMapID of the monster.
 	 * @param itemName - The name or ID of the item.
 	 * @param targetQty - The quantity of the item.
-	 * @param killConfig - The configuration to use for the kill.
+	 * @param options - The configuration to use for the kill.
 	 */
 	public async killForTempItem(
 		monsterResolvable: string,
 		itemName: string,
 		targetQty: number,
-		killConfig: Partial<KillConfig> = {},
+		options: Partial<KillOptions> = {},
 	): Promise<void> {
 		return this.#killForItem(
 			monsterResolvable,
 			itemName,
 			targetQty,
 			true,
-			killConfig,
+			options,
 		);
 	}
 
@@ -267,7 +273,7 @@ export class Combat {
 	public async rest(full = false, exit = false): Promise<void> {
 		await this.bot.waitUntil(
 			() => this.bot.world.isActionAvailable(GameAction.Rest),
-			() => this.bot.auth.loggedIn,
+			() => this.bot.auth.isLoggedIn(),
 		);
 
 		if (exit) {
@@ -275,6 +281,7 @@ export class Combat {
 		}
 
 		swf.Rest();
+
 		if (full) {
 			await this.bot.waitUntil(
 				() =>
@@ -291,33 +298,22 @@ export class Combat {
 	 * @param itemName - The name or ID of the item.
 	 * @param targetQty - The quantity of the item.
 	 * @param isTemp - Whether the item is in the temp inventory.
-	 * @param killConfig - The configuration to use for the kill.
+	 * @param options - The configuration to use for the kill.
 	 */
 	async #killForItem(
 		monsterResolvable: string,
 		itemName: string,
 		targetQty: number,
 		isTemp = false,
-		killConfig: Partial<KillConfig> = {},
+		options: Partial<KillOptions> = {},
 	): Promise<void> {
-		// eslint-disable-next-line no-param-reassign
-		killConfig = this.createConfig(killConfig);
+		const opts = merge({}, DEFAULT_KILL_OPTIONS, options);
 
 		const store = isTemp ? this.bot.tempInventory : this.bot.inventory;
-		const getItem = () => store.get(itemName);
-
-		const shouldExit = () => {
-			const item = getItem();
-
-			if (!item) {
-				return false;
-			}
-
-			return store.contains(itemName, targetQty);
-		};
+		const shouldExit = () => store.contains(itemName, targetQty);
 
 		while (!shouldExit()) {
-			await this.kill(monsterResolvable, killConfig);
+			await this.kill(monsterResolvable, opts);
 			await this.bot.sleep(500);
 
 			if (!isTemp) {
@@ -348,16 +344,6 @@ export class Combat {
 			await this.bot.sleep(1_000);
 		}
 	}
-
-	private createConfig(userConfig: Partial<KillConfig>): KillConfig {
-		return {
-			killPriority: [],
-			skillDelay: 150,
-			skillSet: [1, 2, 3, 4],
-			skillWait: false,
-			...userConfig,
-		};
-	}
 }
 
 export type TargetInfo = {
@@ -380,11 +366,11 @@ export type TargetInfo = {
 	/**
 	 * The monster id of the target.
 	 */
-	monID?: number;
+	monId?: number;
 	/**
 	 * The monster map id of the target.
 	 */
-	monMapID?: string;
+	monMapId?: string;
 	/**
 	 * The name of the target.
 	 */
@@ -395,7 +381,7 @@ export type TargetInfo = {
 	state: number;
 };
 
-export type KillConfig = {
+export type KillOptions = {
 	/**
 	 * An ascending list of monster names or monMapIDs to kill. This can also be a string of monsterResolvables deliminted by a comma.
 	 */

@@ -10,11 +10,9 @@ export class Bank {
 	 */
 	public get items(): BankItem[] {
 		const ret = this.bot.flash.call(() => swf.GetBankItems());
-		if (Array.isArray(ret)) {
-			return ret.map((item) => new BankItem(item as unknown as ItemData));
-		}
-
-		return [];
+		return Array.isArray(ret)
+			? ret.map((item) => new BankItem(item as unknown as ItemData))
+			: [];
 	}
 
 	/**
@@ -23,18 +21,18 @@ export class Bank {
 	 * @param itemKey - The name or ID of the item.
 	 */
 	public get(itemKey: number | string): BankItem | null {
-		const key =
+		const val =
 			typeof itemKey === 'string' ? itemKey.toLowerCase() : itemKey;
 
 		return (
 			this.items.find((item) => {
-				if (typeof key === 'string') {
-					return item.name.toLowerCase() === key;
-				} else if (typeof key === 'number') {
-					return item.id === key;
-				} else {
-					return null;
+				if (typeof val === 'string') {
+					return item.name.toLowerCase() === val;
+				} else if (typeof val === 'number') {
+					return item.id === val;
 				}
+
+				return false;
 			}) ?? null
 		);
 	}
@@ -45,13 +43,12 @@ export class Bank {
 	 * @param itemKey - The name or ID of the item.
 	 * @param quantity - The quantity of the item.
 	 */
-	public contains(itemKey: number | string, quantity: number): boolean {
+	public contains(itemKey: number | string, quantity: number = 1): boolean {
 		const item = this.get(itemKey);
-		if (!item) {
-			return false;
-		}
-
-		return item.quantity >= quantity;
+		return (
+			item !== null &&
+			(item.quantity >= quantity || item.category === 'Class')
+		);
 	}
 
 	/**
@@ -91,7 +88,7 @@ export class Bank {
 			() =>
 				this.get(itemKey) !== null &&
 				this.bot.inventory.get(itemKey) === null,
-			() => this.bot.auth.loggedIn,
+			() => this.bot.auth.isLoggedIn(),
 		);
 		return true;
 	}
@@ -112,7 +109,7 @@ export class Bank {
 			() =>
 				this.get(itemKey) === null &&
 				this.bot.inventory.get(itemKey) !== null,
-			() => this.bot.auth.loggedIn,
+			() => this.bot.auth.isLoggedIn(),
 		);
 		return true;
 	}
@@ -141,7 +138,7 @@ export class Bank {
 		);
 		await this.bot.waitUntil(
 			() => !inBank() && !inInventory(),
-			() => this.bot.auth.loggedIn,
+			() => this.bot.auth.isLoggedIn(),
 		);
 		return true;
 	}
@@ -156,21 +153,22 @@ export class Bank {
 			return;
 		}
 
-		// If it's already open, close it first.
+		// If it's already open, close it first
 		if (this.isOpen()) {
 			this.bot.flash.call(() => swf.ShowBank());
 			await this.bot.waitUntil(() => !this.isOpen());
 			await this.bot.sleep(500);
 		}
 
-		// Load the items.
+		// Load the items
 		this.bot.flash.call(() => swf.ShowBank());
 		await this.bot.waitUntil(() => this.isOpen());
+		// Should only need to load once?
 		this.bot.flash.call(() => swf.LoadBankItems());
 		await this.bot.waitUntil(
 			// eslint-disable-next-line sonarjs/no-collection-size-mischeck
 			() => this.items.length >= 0 /* wait until something is loaded */,
-			() => this.bot.auth.loggedIn && this.isOpen(),
+			() => this.bot.auth.isLoggedIn() && this.isOpen(),
 			10,
 		);
 	}
@@ -179,6 +177,6 @@ export class Bank {
 	 * Whether the bank ui is open.
 	 */
 	public isOpen(): boolean {
-		return this.bot.flash.get('ui.mcPopup.currentLabel', true) === 'Bank';
+		return this.bot.flash.get('ui.mcPopup.currentLabel') === '"Bank"';
 	}
 }

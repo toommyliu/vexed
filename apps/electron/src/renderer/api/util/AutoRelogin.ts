@@ -1,14 +1,11 @@
 import { Mutex } from 'async-mutex';
 import type { Bot } from '../Bot';
-import type { SetIntervalAsyncTimer } from './TimerManager';
 
 /**
  * Auto Relogins are automatically ran if the bot is running and there has been a selected server.
  * There are no calls needed to enable auto-relogin besides starting the bot and selecting the server to connect to.
  */
 export class AutoRelogin {
-	private intervalId: SetIntervalAsyncTimer<unknown[]> | null = null;
-
 	private readonly mutex = new Mutex();
 
 	/**
@@ -21,7 +18,7 @@ export class AutoRelogin {
 	 */
 	public delay: number;
 
-	public constructor(public bot: Bot) {
+	public constructor(public readonly bot: Bot) {
 		/**
 		 * The server name to connect to.
 		 */
@@ -32,23 +29,31 @@ export class AutoRelogin {
 		 */
 		this.delay = 5_000;
 
-		this.bot.on('start', () => this.run());
-		this.bot.on('stop', () => this.stop());
+		this.bot.on('logout', () => this.run());
 	}
 
 	/**
 	 * Runs the auto-login process.
 	 */
 	private run(): void {
-		this.intervalId = this.bot.timerManager.setInterval(async () => {
+		this.bot.timerManager.setInterval(async () => {
 			if (this.mutex.isLocked() || !this.server) {
 				return;
 			}
 
-			if (this.bot.running && !this.bot.auth.loggedIn) {
+			if (!this.bot.auth.isLoggedIn()) {
 				void this.mutex.runExclusive(async () => {
+					if (this.bot.auth.isTemporarilyKicked()) {
+						await this.bot.waitUntil(
+							() => !this.bot.auth.isTemporarilyKicked(),
+							null,
+							-1,
+						);
+					}
+
 					console.log(
-						`AutoRelogin triggered, waiting for ${this.delay}ms`,
+						`AutoRelogin: waiting for ${this.delay}ms`,
+						new Date(),
 					);
 					await this.bot.sleep(this.delay);
 
@@ -79,27 +84,15 @@ export class AutoRelogin {
 					);
 
 					if (!server) {
-						console.log('ret 2');
 						return;
 					}
 
 					this.bot.auth.connectTo(server.name);
 
 					await this.bot.waitUntil(() => bot.player.isReady());
-
 					// TODO: restart the script ?
 				});
 			}
 		}, 1_000);
-	}
-
-	/**
-	 * Stops the auto-login task.
-	 */
-	private stop(): void {
-		if (this.intervalId) {
-			void this.bot.timerManager.clearInterval(this.intervalId);
-			this.intervalId = null;
-		}
 	}
 }

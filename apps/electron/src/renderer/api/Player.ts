@@ -1,19 +1,15 @@
 import type { Bot } from './Bot';
-import { Faction } from './struct/Faction';
+import { Faction, type FactionData } from './struct/Faction';
 
 export class Player {
-	public constructor(public bot: Bot) {}
+	public constructor(public readonly bot: Bot) {}
 
 	/**
 	 * Get the player's factions data.
 	 */
 	public get factions(): Faction[] {
-		const ret = this.bot.flash.call(() => swf.GetFactions());
-		if (Array.isArray(ret)) {
-			return ret.map((data) => new Faction(data));
-		}
-
-		return [];
+		const ret = this.bot.flash.call<FactionData[]>(() => swf.GetFactions());
+		return Array.isArray(ret) ? ret.map((data) => new Faction(data)) : [];
 	}
 
 	/**
@@ -138,7 +134,7 @@ export class Player {
 	 */
 	public isReady(): boolean {
 		return (
-			this.bot.auth.loggedIn && !this.bot.world.loading && this.isLoaded()
+			this.bot.auth.isLoggedIn() && !this.bot.world.isLoading() && this.isLoaded()
 		);
 	}
 }

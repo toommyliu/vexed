@@ -8,7 +8,7 @@ export class Shops {
 	/**
 	 * Whether any shop is loaded.
 	 */
-	public get loaded(): boolean {
+	public isShopLoaded(): boolean {
 		return this.bot.flash.call(() => swf.IsShopLoaded());
 	}
 
@@ -48,45 +48,45 @@ export class Shops {
 	/**
 	 * Buy an item from the shop using its ID.
 	 *
-	 * @param itemID - The ID of the item.
-	 * @param shopItemID - The ID of the item corresponding to the shopID.
+	 * @param itemId - The ID of the item.
+	 * @param shopItemId - The ID of the item corresponding to the shopID.
 	 * @param quantity -The quantity of the item.
 	 */
-	public async buyByID(
-		itemID: number,
-		shopItemID: number,
+	public async buyById(
+		itemId: number,
+		shopItemId: number,
 		quantity: number,
 	): Promise<void> {
 		await this.bot.waitUntil(() =>
 			this.bot.world.isActionAvailable(GameAction.BuyItem),
 		);
 		this.bot.flash.call(() =>
-			swf.BuyItemQtyById(quantity, itemID, shopItemID),
+			swf.BuyItemQtyById(quantity, itemId, shopItemId),
 		);
 		await this.bot.waitUntil(() =>
-			this.bot.inventory.contains(itemID, quantity),
+			this.bot.inventory.contains(itemId, quantity),
 		);
 	}
 
 	/**
 	 * Reset the loaded shop info.
 	 */
-	public reset(): void {
+	public resetShopInfo(): void {
 		this.bot.flash.call(() => swf.ResetShopInfo());
 	}
 
 	/**
 	 * Load a shop.
 	 *
-	 * @param shopID - The shop ID.
+	 * @param shopId - The shop ID.
 	 */
-	public async load(shopID: number): Promise<void> {
+	public async load(shopId: number | string): Promise<void> {
 		await this.bot.waitUntil(() =>
 			this.bot.world.isActionAvailable(GameAction.LoadShop),
 		);
-		this.reset();
-		this.bot.flash.call(() => swf.LoadShop(String(shopID)));
-		await this.bot.waitUntil(() => this.loaded);
+		this.resetShopInfo();
+		this.bot.flash.call(() => swf.LoadShop(String(shopId)));
+		await this.bot.waitUntil(() => this.isShopLoaded());
 	}
 
 	/**
@@ -100,11 +100,11 @@ export class Shops {
 			this.bot.world.isActionAvailable(GameAction.SellItem),
 		);
 
-		const contains = () => this.bot.inventory.get(itemName);
-		if (contains()) {
+		const hasItem = () => this.bot.inventory.get(itemName);
+		if (hasItem()) {
 			await this.bot.sleep(1_000);
 			this.bot.flash.call(() => swf.SellItem(itemName));
-			await this.bot.waitUntil(() => !contains());
+			await this.bot.waitUntil(() => !hasItem());
 			return true;
 		}
 
@@ -112,19 +112,18 @@ export class Shops {
 	}
 
 	/**
-	 * Loads a Hair Shop menu.
+	 * Loads a hair shop.
 	 *
-	 * @param shopID - The shop ID.
+	 * @param shopId - The shop ID.
 	 */
-	public loadHairShop(shopID: number | string): void {
-		this.bot.flash.call(() => swf.LoadHairShop(String(shopID)));
+	public loadHairShop(shopId: number | string): void {
+		this.bot.flash.call(() => swf.LoadHairShop(String(shopId)));
 	}
 
 	/**
-	 * Loads the Armor Customization menu.
-	 *
+	 * Opens the Armor Customization menu.
 	 */
-	public loadArmorCustomise(): void {
+	public openArmorCustomizer(): void {
 		this.bot.flash.call(() => swf.LoadArmorCustomizer());
 	}
 }

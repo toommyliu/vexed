@@ -9,7 +9,7 @@ const { settings, auth, world, player, flash, bank } = bot;
 
 const mapping: Map<string, HTMLElement> = new Map();
 
-let lastRoomID: number | undefined;
+let lastRoomId: number | undefined;
 
 window.windows = {
 	game: window,
@@ -44,9 +44,11 @@ window.addEventListener('DOMContentLoaded', async () => {
 			script.type = 'module';
 			script.textContent = `(async () => {
 			console.log('[' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }) + '] Script started');
+			while(!bot.player.isReady()) await bot.sleep(1000);
 			${b64_out}
 			console.log('[' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }) + '] Script finished');
 			})();`;
+			script.id = 'loaded-script';
 			document.body.appendChild(script);
 		});
 	}
@@ -179,13 +181,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 	const $bank: HTMLButtonElement = document.querySelector('#bank')!;
 
 	const update = (force = false) => {
-		if (
-			!force &&
-			(!auth.loggedIn ||
-				world.loading ||
-				!player.isLoaded() ||
-				world.roomID === lastRoomID)
-		) {
+		if (!force && !player.isReady() && world.roomId === lastRoomId) {
 			return;
 		}
 
@@ -201,7 +197,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 		$cells.value = player.cell;
 		$pads.value = player.pad;
 
-		lastRoomID = world.roomID;
+		lastRoomId = world.roomId;
 	};
 
 	const jump = () => {

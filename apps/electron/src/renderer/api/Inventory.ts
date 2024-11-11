@@ -4,20 +4,16 @@ import { InventoryItem } from './struct/InventoryItem';
 import type { ItemData } from './struct/Item';
 
 export class Inventory {
-	public constructor(public bot: Bot) {}
+	public constructor(public readonly bot: Bot) {}
 
 	/**
 	 * Gets items in the Inventory of the current player.
 	 */
 	public get items(): InventoryItem[] {
 		const ret = this.bot.flash.call(() => swf.GetInventoryItems());
-		if (Array.isArray(ret)) {
-			return ret.map(
-				(data) => new InventoryItem(data as unknown as ItemData),
-			);
-		}
-
-		return [];
+		return Array.isArray(ret)
+			? ret.map((data) => new InventoryItem(data as unknown as ItemData))
+			: [];
 	}
 
 	/**
@@ -26,22 +22,18 @@ export class Inventory {
 	 * @param itemKey - The name or ID of the item.
 	 */
 	public get(itemKey: number | string): InventoryItem | null {
-		if (typeof itemKey === 'string') {
-			// eslint-disable-next-line no-param-reassign
-			itemKey = itemKey.toLowerCase();
-		}
+		const val =
+			typeof itemKey === 'string' ? itemKey.toLowerCase() : itemKey;
 
 		return (
 			this.items.find((item) => {
-				if (typeof itemKey === 'string') {
-					return item.name.toLowerCase() === itemKey;
+				if (typeof val === 'string') {
+					return item.name.toLowerCase() === val;
+				} else if (typeof val === 'number') {
+					return item.id === val;
 				}
 
-				if (typeof itemKey === 'number') {
-					return item.id === itemKey;
-				}
-
-				return undefined;
+				return false;
 			}) ?? null
 		);
 	}
@@ -52,13 +44,12 @@ export class Inventory {
 	 * @param itemKey - The name or ID of the item.
 	 * @param quantity - The quantity of the item.
 	 */
-	public contains(itemKey: number | string, quantity: number): boolean {
+	public contains(itemKey: number | string, quantity: number = 1): boolean {
 		const item = this.get(itemKey);
-		if (!item) {
-			return false;
-		}
-
-		return item.quantity >= quantity;
+		return (
+			item !== null &&
+			(item.quantity >= quantity || item.category === 'Class')
+		);
 	}
 
 	/**

@@ -2,18 +2,20 @@ import type { Bot } from './Bot';
 import { Avatar, type AvatarData } from './struct/Avatar';
 import type { ItemData } from './struct/Item';
 import { Monster, type MonsterData } from './struct/Monster';
+import { isMonsterMapId } from './util/utils';
 
 export class World {
-	public constructor(public bot: Bot) {}
+	public constructor(public readonly bot: Bot) {}
 
 	/**
 	 * Gets all players in the current map.
 	 */
 	public get players(): Avatar[] {
-		const out = this.bot.flash.call(() => swf.Players()) ?? {};
-		return Object.values(out).map(
-			(data) => new Avatar(data as unknown as AvatarData),
-		);
+		const out =
+			this.bot.flash.call<Record<string, AvatarData>>(() =>
+				swf.Players(),
+			) ?? {};
+		return Object.values(out).map((data) => new Avatar(data));
 	}
 
 	/**
@@ -34,13 +36,7 @@ export class World {
 	 */
 	public get visibleMonsters() {
 		const ret = this.bot.flash.call(() => swf.GetVisibleMonstersInCell());
-		if (Array.isArray(ret)) {
-			return ret.map(
-				(data) => new Monster(data as unknown as MonsterData),
-			);
-		}
-
-		return [];
+		return Array.isArray(ret) ? ret.map((data) => new Monster(data)) : [];
 	}
 
 	/**
@@ -48,13 +44,7 @@ export class World {
 	 */
 	public get availableMonsters() {
 		const ret = this.bot.flash.call(() => swf.GetMonstersInCell());
-		if (Array.isArray(ret)) {
-			return ret.map(
-				(data) => new Monster(data as unknown as MonsterData),
-			);
-		}
-
-		return [];
+		return Array.isArray(ret) ? ret.map((data) => new Monster(data)) : [];
 	}
 
 	/**
@@ -63,10 +53,10 @@ export class World {
 	 * @param monsterResolvable - The name of the monster or in monMapID format.
 	 */
 	public isMonsterAvailable(monsterResolvable: string): boolean {
-		// prettier-ignore
-		if (["id'", 'id.', 'id:', 'id-'].some((prefix) => monsterResolvable.startsWith(prefix))) {
-			const monMapID = monsterResolvable.slice(3);
-		 	return this.bot.flash.call(() => swf.IsMonsterAvailableByMonMapID(monMapID));
+		if (isMonsterMapId(monsterResolvable)) {
+			return this.bot.flash.call(() =>
+				swf.IsMonsterAvailableByMonMapID(monsterResolvable),
+			);
 		}
 
 		return this.bot.flash.call(() =>
@@ -84,7 +74,7 @@ export class World {
 	/**
 	 * Checks if the map is still loading.
 	 */
-	public get loading(): boolean {
+	public isLoading(): boolean {
 		return !this.bot.flash.call(() => swf.MapLoadComplete());
 	}
 
@@ -112,7 +102,7 @@ export class World {
 	/**
 	 * Gets the internal room ID of the current map.
 	 */
-	public get roomID(): number {
+	public get roomId(): number {
 		return this.bot.flash.call(() => swf.RoomId());
 	}
 
@@ -149,10 +139,10 @@ export class World {
 		const isSameCell = () =>
 			this.bot.player.cell.toLowerCase() === cell.toLowerCase();
 
-		let count = tries;
+		let attempts = tries;
 
 		// eslint-disable-next-line no-unmodified-loop-condition
-		while ((!isSameCell() || force) && count > 0) {
+		while ((!isSameCell() || force) && attempts > 0) {
 			// eslint-disable-next-line @typescript-eslint/no-loop-func
 			this.bot.flash.call(() => swf.Jump(cell, pad));
 			await this.bot.sleep(1_000);
@@ -178,7 +168,7 @@ export class World {
 				break;
 			}
 
-			count--;
+			attempts--;
 		}
 	}
 
@@ -238,7 +228,7 @@ export class World {
 				null,
 				10,
 			);
-			await this.bot.waitUntil(() => !this.loading, null, 40);
+			await this.bot.waitUntil(() => !this.isLoading(), null, 40);
 
 			attempts--;
 		}
@@ -276,14 +266,14 @@ export class World {
 	/**
 	 * Gets a item in the world.
 	 *
-	 * @param itemID - The ID of the item.
+	 * @param itemId - The ID of the item.
 	 */
-	public async getMapItem(itemID: string): Promise<void> {
+	public async getMapItem(itemId: string): Promise<void> {
 		await this.bot.waitUntil(() =>
 			// eslint-disable-next-line @typescript-eslint/no-use-before-define
 			this.isActionAvailable(GameAction.GetMapItem),
 		);
-		this.bot.flash.call(() => swf.GetMapItem(itemID));
+		this.bot.flash.call(() => swf.GetMapItem(itemId));
 		await this.bot.sleep(2_000);
 	}
 

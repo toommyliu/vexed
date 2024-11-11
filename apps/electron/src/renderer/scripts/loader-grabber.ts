@@ -43,7 +43,7 @@ window.addEventListener('message', async (ev) => {
 
 		switch (type) {
 			case 0: // shop
-				if (!bot.shops.loaded || !bot.shops.info) {
+				if (!bot.shops.isShopLoaded || !bot.shops.info) {
 					return;
 				}
 

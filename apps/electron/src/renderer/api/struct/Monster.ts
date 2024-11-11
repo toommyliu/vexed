@@ -11,7 +11,7 @@ export class Monster {
 	/**
 	 * The monMapID of the monster.
 	 */
-	public get monMapID(): number {
+	public get monMapId(): number {
 		return this.data.MonMapID;
 	}
 

@@ -17,7 +17,7 @@ import { Flash } from './util/Flash';
 import { TimerManager } from './util/TimerManager';
 
 export class Bot extends EventEmitter {
-	#ac: AbortController | null = null;
+	private ac: AbortController | null = null;
 
 	/**
 	 * The singleton instance of the Bot class.
@@ -172,6 +172,8 @@ export class Bot extends EventEmitter {
 			conditionResult = condition();
 			timeoutResult = iterations < timeout || timeout === -1;
 		}
+
+		await this.sleep(250);
 	}
 
 	/**
@@ -182,13 +184,13 @@ export class Bot extends EventEmitter {
 	 * For example, the auto relogin background task runs if the bot is running.
 	 */
 	public start(): void {
-		if (this.#ac) {
+		if (this.ac) {
 			console.log('Bot is already started');
 			return;
 		}
 
 		this.emit('start');
-		this.#ac = new AbortController();
+		this.ac = new AbortController();
 	}
 
 	/**
@@ -197,24 +199,24 @@ export class Bot extends EventEmitter {
 	 * While this does not stop a script, it removes any background tasks that were set up on start.
 	 */
 	public stop(): void {
-		if (!this.#ac) {
+		if (!this.ac) {
 			console.log('Bot is already stopped or not running');
 			return;
 		}
 
 		this.emit('stop');
-		this.#ac = null;
+		this.ac = null;
 	}
 
 	/**
 	 * Whether the bot is "running".
 	 */
 	public get running(): boolean {
-		if (!this.#ac) {
+		if (!this.ac) {
 			return false;
 		}
 
-		return !this.#ac.signal.aborted;
+		return !this.ac.signal.aborted;
 	}
 
 	/**
