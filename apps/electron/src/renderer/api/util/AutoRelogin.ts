@@ -45,7 +45,7 @@ export class AutoRelogin {
 				return;
 			}
 
-			if (this.bot.running && !this.bot.auth.loggedIn) {
+			if (this.bot.running && !this.bot.auth.isLoggedIn()) {
 				void this.mutex.runExclusive(async () => {
 					console.log(
 						`AutoRelogin triggered, waiting for ${this.delay}ms`,
@@ -79,7 +79,6 @@ export class AutoRelogin {
 					);
 
 					if (!server) {
-						console.log('ret 2');
 						return;
 					}
 

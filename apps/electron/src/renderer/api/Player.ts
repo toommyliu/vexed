@@ -134,7 +134,7 @@ export class Player {
 	 */
 	public isReady(): boolean {
 		return (
-			this.bot.auth.loggedIn && !this.bot.world.isLoading() && this.isLoaded()
+			this.bot.auth.isLoggedIn() && !this.bot.world.isLoading() && this.isLoaded()
 		);
 	}
 }

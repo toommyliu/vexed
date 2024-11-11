@@ -2,7 +2,7 @@ import type { Bot } from './Bot';
 import { Server, type ServerData } from './struct/Server';
 
 export class Auth {
-	public constructor(public bot: Bot) {}
+	public constructor(public readonly bot: Bot) {}
 
 	/**
 	 * The username of the current user. This value is set after a successful login.
@@ -21,7 +21,7 @@ export class Auth {
 	/**
 	 * Whether the user is logged in and connected to a server.
 	 */
-	public get loggedIn(): boolean {
+	public isLoggedIn(): boolean {
 		return this.bot.flash.call(() => swf.IsLoggedIn());
 	}
 

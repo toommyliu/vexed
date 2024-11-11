@@ -134,7 +134,9 @@ export class Combat {
 			3,
 		);
 
-		if (!this.bot.player.isReady()) return;
+		if (!this.bot.player.isReady()) {
+			return;
+		}
 
 		const opts = merge({}, DEFAULT_KILL_OPTIONS, options);
 
@@ -276,7 +278,7 @@ export class Combat {
 	public async rest(full = false, exit = false): Promise<void> {
 		await this.bot.waitUntil(
 			() => this.bot.world.isActionAvailable(GameAction.Rest),
-			() => this.bot.auth.loggedIn,
+			() => this.bot.auth.isLoggedIn(),
 		);
 
 		if (exit) {

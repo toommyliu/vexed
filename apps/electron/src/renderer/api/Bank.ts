@@ -88,7 +88,7 @@ export class Bank {
 			() =>
 				this.get(itemKey) !== null &&
 				this.bot.inventory.get(itemKey) === null,
-			() => this.bot.auth.loggedIn,
+			() => this.bot.auth.isLoggedIn(),
 		);
 		return true;
 	}
@@ -109,7 +109,7 @@ export class Bank {
 			() =>
 				this.get(itemKey) === null &&
 				this.bot.inventory.get(itemKey) !== null,
-			() => this.bot.auth.loggedIn,
+			() => this.bot.auth.isLoggedIn(),
 		);
 		return true;
 	}
@@ -138,7 +138,7 @@ export class Bank {
 		);
 		await this.bot.waitUntil(
 			() => !inBank() && !inInventory(),
-			() => this.bot.auth.loggedIn,
+			() => this.bot.auth.isLoggedIn(),
 		);
 		return true;
 	}
@@ -168,7 +168,7 @@ export class Bank {
 		await this.bot.waitUntil(
 			// eslint-disable-next-line sonarjs/no-collection-size-mischeck
 			() => this.items.length >= 0 /* wait until something is loaded */,
-			() => this.bot.auth.loggedIn && this.isOpen(),
+			() => this.bot.auth.isLoggedIn() && this.isOpen(),
 			10,
 		);
 	}
