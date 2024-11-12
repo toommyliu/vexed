@@ -7,8 +7,6 @@ import { BRAND } from './constants';
 import { showErrorDialog } from './utils';
 import { createAccountManager, createGame } from './windows';
 
-// import './tray';
-
 function registerFlashPlugin() {
 	// eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
 	const flashTrust = require('nw-flash-trust');

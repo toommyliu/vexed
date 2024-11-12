@@ -2,14 +2,16 @@ import { join, resolve } from 'path';
 import { app, BrowserWindow, session } from 'electron';
 import { showErrorDialog } from './utils';
 
-const RENDERER = join(__dirname, '../renderer');
-
 const store: WindowStore = new Map();
 
-const userAgent =
+const PUBLIC = join(__dirname, '../../public/');
+const PUBLIC_GAME = join(PUBLIC, 'game/');
+const PUBLIC_MANAGER = join(PUBLIC, 'manager/');
+
+const ARTIX_USERAGENT =
 	'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16_0) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36';
 
-const domains = [
+const WHITELISTED_DOMAINS = [
 	'www.aq.com',
 	'aq.com',
 	'www.artix.com',
@@ -22,7 +24,30 @@ const domains = [
 	'www.heromart.com',
 ];
 
-async function createGame(account: Account | null = null): Promise<void> {
+let mgrWindow: BrowserWindow | null;
+
+export async function createAccountManager(): Promise<void> {
+	if (mgrWindow) {
+		return;
+	}
+
+	const window = new BrowserWindow({
+		width: 966,
+		height: 552,
+		title: '',
+		webPreferences: {
+			nodeIntegration: true,
+			plugins: true,
+		},
+	});
+	mgrWindow = window;
+
+	await window.loadURL(`file://${resolve(PUBLIC_MANAGER, 'index.html')}`);
+}
+
+export async function createGame(
+	account: Account | null = null,
+): Promise<void> {
 	const window = new BrowserWindow({
 		width: 966,
 		height: 552,
@@ -33,11 +58,12 @@ async function createGame(account: Account | null = null): Promise<void> {
 		},
 	});
 
-	window.webContents.userAgent = userAgent;
+	// Spoof headers to make the game think we are running as Artix Game Launcher
+	window.webContents.userAgent = ARTIX_USERAGENT;
 	session.defaultSession.webRequest.onBeforeSendHeaders(
 		// eslint-disable-next-line promise/prefer-await-to-callbacks
 		(details, callback) => {
-			details.requestHeaders['User-Agent'] = userAgent;
+			details.requestHeaders['User-Agent'] = ARTIX_USERAGENT;
 			details.requestHeaders['artixmode'] = 'launcher';
 			details.requestHeaders['x-requested-with'] =
 				'ShockwaveFlash/32.0.0.371';
@@ -48,7 +74,7 @@ async function createGame(account: Account | null = null): Promise<void> {
 		},
 	);
 
-	await window.loadURL(`file://${resolve(RENDERER, 'index.html')}`);
+	await window.loadURL(`file://${resolve(PUBLIC_GAME, 'index.html')}`);
 	if (!app.isPackaged) {
 		window.webContents.openDevTools({ mode: 'right' });
 	}
@@ -106,7 +132,7 @@ async function createGame(account: Account | null = null): Promise<void> {
 			const _url = new URL(url);
 
 			if (_url.protocol === 'https:' || _url.protocol === 'http:') {
-				if (!domains.includes(_url.hostname)) {
+				if (!WHITELISTED_DOMAINS.includes(_url.hostname)) {
 					if (
 						_url.hostname === 'www.facebook.com' &&
 						_url.searchParams.get('redirect_uri') ===
@@ -135,7 +161,11 @@ async function createGame(account: Account | null = null): Promise<void> {
 				ev.newGuest = newWindow;
 
 				newWindow.webContents.on('will-navigate', (event, url) => {
-					if (!domains.some((domain) => url.includes(domain))) {
+					if (
+						!WHITELISTED_DOMAINS.some((domain) =>
+							url.includes(domain),
+						)
+					) {
 						event.preventDefault();
 						console.log('Blocking url (2)', url);
 					}
@@ -205,7 +235,7 @@ async function createGame(account: Account | null = null): Promise<void> {
 				});
 
 				await newWindow.loadFile(
-					`${join(RENDERER, 'pages/')}` +
+					`${join(PUBLIC_GAME, 'pages/')}` +
 						(url.includes('scripts')
 							? `scripts/${file}`
 							: url.includes('tools')
@@ -251,8 +281,6 @@ async function createGame(account: Account | null = null): Promise<void> {
 		packets: { logger: null, spammer: null },
 	});
 }
-
-export { createGame };
 
 type WindowStore = Map<
 	number,
