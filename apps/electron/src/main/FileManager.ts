@@ -62,12 +62,6 @@ const DEFAULT_FAST_TRAVELS: Location[] = [
 		cell: 'Boss',
 		pad: 'Left',
 	},
-	{
-		name: 'Dage',
-		map: 'underworld',
-		cell: 'r11',
-		pad: 'Left',
-	},
 ] as const;
 
 const DEFAULT_ACCOUNTS: Account[] = [] as const;
@@ -111,14 +105,15 @@ export class FileManager {
 		return FileManager.instance;
 	}
 
-	private async initJsonFile<T>(path: string, json: T): Promise<void> {
+	private async ensureJsonFile<T>(path: string, json: T): Promise<void> {
 		try {
 			const exists = await fs.pathExists(path);
 			if (!exists) {
 				await this.writeJson(path, json);
 			}
-		} catch {
+		} catch (error) {
 			await this.writeJson(path, json);
+			throw error;
 		}
 	}
 
@@ -126,9 +121,9 @@ export class FileManager {
 		await fs.ensureDir(DOCUMENTS_PATH);
 
 		await Promise.all([
-			this.initJsonFile(this.settingsPath, DEFAULT_SETTINGS),
-			this.initJsonFile(this.fastTravelsPath, DEFAULT_FAST_TRAVELS),
-			this.initJsonFile(this.accountsPath, DEFAULT_ACCOUNTS),
+			this.ensureJsonFile(this.settingsPath, DEFAULT_SETTINGS),
+			this.ensureJsonFile(this.fastTravelsPath, DEFAULT_FAST_TRAVELS),
+			this.ensureJsonFile(this.accountsPath, DEFAULT_ACCOUNTS),
 		]);
 	}
 
