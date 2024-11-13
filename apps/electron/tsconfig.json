@@ -30,7 +30,7 @@
 		"paths": {},
 		// "rootDirs": [],
 		// "typeRoots": [],
-		"types": ["./src/renderer/index.d.ts"],
+		// "types": [],
 		// "allowUmdGlobalAccess": true,
 		// "moduleSuffixes": [],
 		// "allowImportingTsExtensions": true,
