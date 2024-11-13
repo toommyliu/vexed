@@ -1,5 +1,6 @@
 import { join, resolve } from 'path';
 import { app, BrowserWindow, session } from 'electron';
+import type { Account } from './FileManager';
 import { showErrorDialog } from './utils';
 
 const store: WindowStore = new Map();
@@ -37,7 +38,9 @@ export async function createAccountManager(): Promise<void> {
 		title: '',
 		webPreferences: {
 			nodeIntegration: true,
-			plugins: true,
+			// backgroundThrottling: false,
+			// offscreen: true,
+			// spellcheck: false,
 		},
 	});
 	mgrWindow = window;
@@ -53,6 +56,7 @@ export async function createGame(
 		height: 552,
 		title: '',
 		webPreferences: {
+			backgroundThrottling: false,
 			nodeIntegration: true,
 			plugins: true,
 		},
@@ -90,30 +94,16 @@ export async function createGame(
 			return;
 		}
 
-		if (
-			windows.tools.fastTravels &&
-			!windows.tools.fastTravels.isDestroyed()
-		) {
-			windows.tools.fastTravels.destroy();
+		for (const child of Object.values(windows.tools)) {
+			if (child && !child.isDestroyed()) {
+				child.destroy();
+			}
 		}
 
-		if (
-			windows.tools.loaderGrabber &&
-			!windows.tools.loaderGrabber.isDestroyed()
-		) {
-			windows.tools.loaderGrabber.destroy();
-		}
-
-		if (windows.tools.follower && !windows.tools.follower.isDestroyed()) {
-			windows.tools.follower.destroy();
-		}
-
-		if (windows.packets.logger && !windows.packets.logger.isDestroyed()) {
-			windows.packets.logger.destroy();
-		}
-
-		if (windows.packets.spammer && !windows.packets.spammer.isDestroyed()) {
-			windows.packets.spammer.destroy();
+		for (const child of Object.values(windows.packets)) {
+			if (child && !child.isDestroyed()) {
+				child.destroy();
+			}
 		}
 	});
 
@@ -297,8 +287,3 @@ type WindowStore = Map<
 		};
 	}
 >;
-
-type Account = {
-	password: string;
-	username: string;
-};
