@@ -1,4 +1,5 @@
 {
 	"extends": "../../../tsconfig.json",
-	"include": ["index.d.ts"]
+	"include": ["./*.ts", "./index.d.ts"],
+	"exclude": ["../manager/*.ts"]
 }
