@@ -1,1 +1,29 @@
-<p>hello account manager</p>
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+	<head>
+		<link href="../shared/style.css" rel="stylesheet" />
+		<link href="../shared/halfmoon.css" rel="stylesheet" />
+	</head>
+
+	<body class="container mt-5">
+		<div class="row row-cols-1 row-cols-md-2 g-4" id="accounts"></div>
+
+		<div class="d-flex flex-column gap-3 mt-4">
+			<div class="row g-2 align-items-center">
+				<div class="col-12 col-md-6 order-0">
+					<select id="servers" class="form-select rounded-md w-100 w-md-50">
+						<option value="" disabled selected>Select a server...</option>
+					</select>
+				</div>
+				<div class="col-12 col-md-6">
+					<div class="d-flex gap-2 justify-content-md-end">
+						<button class="btn btn-secondary w-50 w-md-auto me-2">Remove Selected</button>
+						<button class="btn btn-primary w-50 w-md-auto me-2">Start Selected</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script src="../../dist/renderer/manager/script.js"></script>
+	</body>
+</html>
