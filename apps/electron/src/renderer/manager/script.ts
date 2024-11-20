@@ -1,91 +1,202 @@
-const accounts = [
-	{ username: 'user1', password: 'password123' },
-	{ username: 'user2', password: 'securePassword!' },
-	{ username: 'user3', password: 'myPassword456' },
-	{ username: 'user4', password: 'qwerty789' },
-	{ username: 'user5', password: 'passw0rd!@' },
-	{ username: 'user6', password: 'helloWorld99' },
-	{ username: 'user7', password: 'sunshine123' },
-	{ username: 'user8', password: 'ilovepassword' },
-	{ username: 'user9', password: 'password789' },
-	{ username: 'user10', password: 'welcome2024' },
-];
+import { ipcRenderer } from 'electron';
 
-const serverList: { sName: string }[] = [];
+const accounts: Account[] = [];
+const servers: RawServer[] = [];
 
-async function renderServerList() {
-	const response = await fetch('https://game.aq.com/game/api/data/servers');
+async function init() {
+	const [accountsOut, serversOut] = await Promise.all([
+		ipcRenderer.invoke('manager:get_accounts'),
+		fetch('https://game.aq.com/game/api/data/servers').then(async (resp) =>
+			resp.json(),
+		),
+	]);
 
-	if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+	accounts.push(...accountsOut);
+	servers.push(...serversOut);
 
-	const data = await response.json();
+	// console.log('accounts', accounts);
+	// console.log('servers', servers);
 
-	serverList.splice(0, serverList.length, ...data);
+	renderAccounts();
 
-	const serversSelect = document.querySelector('#servers')!;
+	// {
+	// 	const select = document.querySelector('#servers') as HTMLSelectElement;
 
-	serversSelect.innerHTML = data
-		.map(
-			(server) =>
-				`<option value="${server.sName}">${server.sName}</option>`,
-		)
-		.join('');
+	// 	select.innerHTML = servers
+	// 		.map(
+	// 			(server: RawServer) =>
+	// 				`<option value="${server.sName}">${server.sName} (${server.iCount})</option>`,
+	// 		)
+	// 		.join('');
+	// }
+
+	ipcRenderer.on('manager:enable_button', (_, username: string) => {
+		console.log(`enable button for ${username}`);
+	});
+}
+
+function getActiveAccounts() {
+	return Array.from(
+		document.querySelectorAll<HTMLInputElement>(
+			'input[type="checkbox"]:checked',
+		),
+	).map((el, idx) => ({
+		username: el.dataset['username'],
+		password: el.dataset['password'],
+		idx,
+	}));
 }
 
 function renderAccounts() {
-	const $div = document.querySelector('#accounts')!;
-	$div.innerHTML = '';
+	const accountsDiv = document.querySelector('#accounts')!;
+	accountsDiv.innerHTML = '';
 
 	for (const account of accounts) {
+		if (!account?.username && !account?.password) {
+			continue;
+		}
+
+		const { username, password } = account;
+
 		const div = document.createElement('div');
-
-		div.className = 'col';
-		div.style.cursor = 'pointer';
-
-		div.innerHTML += `
-            <div class="card bg-dark text-white h-100">
-                <div class="card-body d-flex flex-column">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center gap-2">
-                            <div class="form-check">
-                                <input class="form-check-input mt-2" type="checkbox" id="check-${account.username}">
-                            </div>
-                            <h5 class="card-title mb-0">${account.username}</h5>
+		div.innerHTML = `
+    <div class="col">
+        <div class="card h-100 p-2" style="background-color: #111416">
+            <div class="card-body">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+                    <div class="d-flex align-items-center">
+                        <div class="form-check">
+                            <input type="checkbox"
+                                id="checkbox-${username}"
+                                data-username="${username}"
+                                data-password="${password}"
+                                class="form-check-input"
+                            >
+                            <label for="checkbox-${username}" class="form-check-label">${username}</label>
                         </div>
-                        <button class="btn btn-link text-danger p-0" data-username="${account.username}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-                                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
-                                <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
-                            </svg>
-                        </button>
                     </div>
+
+					<div class="d-grid d-md-flex">
+						<button class="btnRemove btn btn-secondary btn-sm mb-2 mb-md-0">Remove</button>
+						<button class="btnStart btn btn-primary btn-sm">Start</button>
+					</div>
                 </div>
             </div>
-        `;
+        </div>
+    </div>
+`;
 
-		div.addEventListener('click', () => {
-			const input = div.querySelector(
-				`#check-${account.username}`,
-			) as HTMLInputElement;
-			input.checked = !input.checked;
-		});
-
-		div
-			.querySelector(`button[data-username="${account.username}"]`)
+		{
+			const btn = div.querySelector('.btnRemove') as HTMLButtonElement;
 			// eslint-disable-next-line @typescript-eslint/no-loop-func
-			?.addEventListener('click', (ev) => {
-				ev.stopPropagation();
+			btn.onclick = async () => {
+				console.log(account);
+			};
+		}
 
-				const username2 = (ev.target as HTMLElement)
-					.closest('button')
-					?.getAttribute('data-username');
+		{
+			const btn = div.querySelector('.btnStart') as HTMLButtonElement;
+			// eslint-disable-next-line @typescript-eslint/no-loop-func
+			btn.onclick = async () => {
+				// const server = (
+				// 	document.querySelector('#servers') as HTMLSelectElement
+				// ).value;
+				await ipcRenderer.invoke('manager:launch_game', {
+					...account,
+					// server,
+				});
+			};
+		}
 
-				console.log('Delete account:', username2);
-			});
-
-		$div.appendChild(div);
+		accountsDiv.appendChild(div);
 	}
+
+	// {
+	// 	const btn = document.querySelector(
+	// 		'#remove-selected',
+	// 	)! as HTMLButtonElement;
+	// 	btn.onclick = async () => {
+	// 		const selectedAccounts = getActiveAccounts();
+	// 		if (selectedAccounts.length === 0) return;
+
+	// 		if (
+	// 			// eslint-disable-next-line no-alert
+	// 			confirm(
+	// 				`Are you sure you want to remove ${selectedAccounts.length} account(s)?`,
+	// 			)
+	// 		) {
+	// 			for (let idx = accounts.length - 1; idx >= 0; idx--) {
+	// 				if (
+	// 					selectedAccounts.some(
+	// 						(selected) =>
+	// 							selected.username === accounts[idx]?.username,
+	// 					)
+	// 				) {
+	// 					await ipcRenderer.invoke(
+	// 						'manager:remove_account',
+	// 						accounts[idx]?.username,
+	// 					);
+	// 					accounts.splice(idx, 1);
+	// 				}
+	// 			}
+
+	// 			renderAccounts();
+	// 		}
+	// 	};
+	// }
+
+	// {
+	// 	const btn = document.querySelector('#start-selected');
+	// 	btn!.addEventListener('click', async () => {
+	// 		const accounts = Array.from(
+	// 			document.querySelectorAll<HTMLInputElement>(
+	// 				'input[type="checkbox"]:checked',
+	// 			),
+	// 		).map((el) => ({
+	// 			username: el.dataset['username'],
+	// 			password: el.dataset['password'],
+	// 		}));
+
+	// 		// Disable all buttons
+	// 		const buttons = document.querySelectorAll('button');
+	// 		for (const button of buttons) {
+	// 			button.setAttribute('disabled', 'true');
+	// 		}
+
+	// 		for (const account of accounts) {
+	// 			await ipcRenderer.invoke('manager:launch_game', account);
+	// 			// eslint-disable-next-line @typescript-eslint/no-loop-func
+	// 			await new Promise((resolve) => {
+	// 				setTimeout(resolve, 1_000);
+	// 			});
+	// 		}
+
+	// 		// Enable all buttons
+	// 		for (const button of buttons) {
+	// 			button.removeAttribute('disabled');
+	// 		}
+	// 	});
+	// }
 }
 
-void renderServerList();
-renderAccounts();
+document.addEventListener('DOMContentLoaded', init);
+
+type RawServer = {
+	bOnline: number;
+	bUpg: number;
+	iChat: number;
+	iCount: number;
+	iLevel: number;
+	iMax: number;
+	iPort: number;
+	sIP: string;
+	sLang: string;
+	sName: string;
+};
+
+type Server = { name: string };
+
+type Account = {
+	password: string;
+	username: string;
+};

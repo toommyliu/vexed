@@ -1,4 +1,5 @@
-import './ipc';
+import './ipc/ipc.game';
+import './ipc/ipc.manager';
 
 import { join } from 'path';
 import { app } from 'electron';

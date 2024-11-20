@@ -38,11 +38,25 @@ export async function createAccountManager(): Promise<void> {
 		title: '',
 		webPreferences: {
 			nodeIntegration: true,
-			// backgroundThrottling: false,
-			// offscreen: true,
-			// spellcheck: false,
 		},
 	});
+
+	// Spoof headers to make the game think we are running as Artix Game Launcher
+	window.webContents.userAgent = ARTIX_USERAGENT;
+	session.defaultSession.webRequest.onBeforeSendHeaders(
+		// eslint-disable-next-line promise/prefer-await-to-callbacks
+		(details, callback) => {
+			details.requestHeaders['User-Agent'] = ARTIX_USERAGENT;
+			details.requestHeaders['artixmode'] = 'launcher';
+			details.requestHeaders['x-requested-with'] =
+				'ShockwaveFlash/32.0.0.371';
+			details.requestHeaders['origin'] = 'https://game.aq.com';
+			details.requestHeaders['sec-fetch-site'] = 'same-origin';
+			// eslint-disable-next-line promise/prefer-await-to-callbacks
+			callback({ requestHeaders: details.requestHeaders, cancel: false });
+		},
+	);
+
 	mgrWindow = window;
 
 	await window.loadURL(`file://${resolve(PUBLIC_MANAGER, 'index.html')}`);

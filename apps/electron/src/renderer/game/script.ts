@@ -273,9 +273,8 @@ ipcRenderer.on('root:login', (_, account: Account) => {
 window.progress = async ([percentage]: [number]) => {
 	if (
 		percentage === 100 &&
-		window?.account &&
-		'username' in window.account &&
-		'password' in window.account
+		window?.account?.username &&
+		window?.account?.password
 	) {
 		await bot.sleep(1_000);
 		auth.login(window.account.username, window.account.password);
@@ -283,6 +282,7 @@ window.progress = async ([percentage]: [number]) => {
 			await bot.waitUntil(() => auth.servers.length > 0);
 			auth.connectTo(window.account.server);
 			await bot.waitUntil(() => player.isReady());
+			ipcRenderer.send('root:login_success', window.account.username);
 		}
 
 		delete window.account;
