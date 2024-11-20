@@ -1,61 +1,102 @@
-const fs = require('fs-extra');
-const path = require('path');
+const { resolve } = require('path');
+const { readdir } = require('fs-extra');
+const { build, context } = require('esbuild');
 
-const esbuild = require('esbuild');
+const watch = process.argv.includes('--watch');
 
-const readdirp = async (dir, ext, files = []) => {
-	const entries = await fs.readdir(dir, { withFileTypes: true });
-	for (const entry of entries) {
-		const fullPath = path.join(dir, entry.name);
-		if (entry.isDirectory()) {
-			await readdirp(fullPath, ext, files);
-		} else if (ext.includes(path.extname(entry.name))) {
-			files.push(fullPath);
-		}
-	}
-	return files;
+const readdirp = async (dir) => {
+	const dirents = await readdir(dir, { withFileTypes: true });
+	const files = await Promise.all(
+		dirents.map((dirent) => {
+			const res = resolve(dir, dirent.name);
+			return dirent.isDirectory() ? readdirp(res) : res;
+		}),
+	);
+	return Array.prototype.concat(...files);
 };
 
 async function transpile() {
-	{
-		const now = performance.now();
-		await esbuild
-			.build({
-				entryPoints: await readdirp('./src/main/', ['.ts']),
-				outdir: 'dist/main/',
-				platform: 'node',
-				target: 'node12',
-				format: 'cjs',
-			})
-			.then(() => {
-				console.log(
-					`Built for main in ${(performance.now() - now).toFixed(2)}ms`,
-				);
-			});
-	}
+	try {
+		/**
+		 * @type {import('esbuild').BuildOptions}
+		 */
+		const config = {
+			platform: 'node',
+			target: 'chrome80',
+			format: 'cjs',
+			minify: true,
+			sourcemap: true,
+			treeShaking: true,
+		};
 
-	{
-		const now = performance.now();
-		await esbuild
-			.build({
-				entryPoints: (await readdirp('./src/renderer/', ['.ts'])).map(
-					(f) => path.join(__dirname, f),
-				),
-				outdir: 'dist/renderer/',
-				platform: 'node',
-				target: 'chrome80',
-				format: 'cjs',
-				minify: true,
-				sourcemap: true,
-			})
-			.then(() => {
-				console.log(
-					`Built for renderer in ${(performance.now() - now).toFixed(2)}ms`,
-				);
+		if (watch) {
+			const createRebuildPlugin = (context) => ({
+				name: `rebuild-logger-${context}`,
+				setup(build) {
+					build.onStart(() => {
+						console.time(`${context} rebuild`);
+					});
+
+					build.onEnd((result) => {
+						const timestamp = new Date().toLocaleTimeString();
+						if (result.errors.length > 0) {
+							console.error(
+								`[${timestamp}] ${context} rebuild failed:`,
+								result.errors,
+							);
+						} else {
+							console.timeEnd(`${context} rebuild`);
+							console.log(
+								`[${timestamp}] ${context} rebuilt successfully`,
+							);
+						}
+					});
+				},
 			});
+
+			const mainCtx = await context({
+				...config,
+				entryPoints: await readdirp('./src/main/'),
+				outdir: 'dist/main/',
+				plugins: [createRebuildPlugin('Main')],
+			});
+
+			const rendererCtx = await context({
+				...config,
+				entryPoints: await readdirp('./src/renderer/'),
+				outdir: 'dist/renderer/',
+				plugins: [createRebuildPlugin('Renderer')],
+			});
+
+			await mainCtx.watch();
+			await rendererCtx.watch();
+
+			console.log('Watching for changes...');
+		} else {
+			// One-time build
+			console.time('Main took');
+			await build({
+				...config,
+				entryPoints: await readdirp('./src/main/'),
+				outdir: 'dist/main/',
+			});
+			console.timeEnd('Main took');
+
+			console.time('Renderer took');
+			await build({
+				...config,
+				entryPoints: await readdirp('./src/renderer/'),
+				outdir: 'dist/renderer/',
+			});
+			console.timeEnd('Renderer took');
+		}
+	} catch (error) {
+		console.log(`An error occurred while transpiling: ${error}`);
+
+		if (!watch) {
+			process.exit(1);
+		}
 	}
 }
 
-transpile().catch((error) => {
-	console.log(`An error occurred while transpiling: ${error}`);
-});
+transpile();

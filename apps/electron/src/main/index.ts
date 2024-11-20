@@ -1,10 +1,12 @@
+import './ipc/ipc.game';
+import './ipc/ipc.manager';
+
 import { join } from 'path';
 import { app } from 'electron';
+import { FileManager } from './FileManager';
+import { BRAND } from './constants';
 import { showErrorDialog } from './utils';
-import { createGame } from './windows';
-
-import './tray';
-import './ipc';
+import { createAccountManager, createGame } from './windows';
 
 function registerFlashPlugin() {
 	// eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
@@ -36,7 +38,7 @@ function registerFlashPlugin() {
 		'WritableRoot',
 	);
 
-	const trustManager = flashTrust.initSync('Vexed', flashPath);
+	const trustManager = flashTrust.initSync(BRAND, flashPath);
 	trustManager.empty();
 	trustManager.add(join(assetsPath, 'grimoire.swf'));
 }
@@ -44,7 +46,18 @@ function registerFlashPlugin() {
 registerFlashPlugin();
 
 app.once('ready', async () => {
-	await createGame();
+	const fm = FileManager.getInstance();
+	await fm.initialize();
+
+	const settings = await fm
+		.readJson<typeof fm.defaultSettings>(fm.settingsPath)
+		.catch(() => fm.defaultSettings);
+
+	if (settings?.launchMode?.toLowerCase() === 'manager') {
+		await createAccountManager();
+	} else {
+		await createGame();
+	}
 });
 
 app.on('window-all-closed', () => app.quit());
