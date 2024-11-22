@@ -1,6 +1,7 @@
 import { join, resolve } from 'path';
 import { app, BrowserWindow, session } from 'electron';
 import type { Account } from './FileManager';
+import { ARTIX_USERAGENT, WHITELISTED_DOMAINS } from './constants';
 import { showErrorDialog } from './utils';
 
 const store: WindowStore = new Map();
@@ -8,22 +9,6 @@ const store: WindowStore = new Map();
 const PUBLIC = join(__dirname, '../../public/');
 const PUBLIC_GAME = join(PUBLIC, 'game/');
 const PUBLIC_MANAGER = join(PUBLIC, 'manager/');
-
-const ARTIX_USERAGENT =
-	'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16_0) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36';
-
-const WHITELISTED_DOMAINS = [
-	'www.aq.com',
-	'aq.com',
-	'www.artix.com',
-	'artix.com',
-	'www.account.aq.com',
-	'account.aq.com',
-	'www.aqwwiki.wikidot.com',
-	'aqwwiki.wikidot.com',
-	'heromart.com',
-	'www.heromart.com',
-];
 
 let mgrWindow: BrowserWindow | null;
 
@@ -60,6 +45,10 @@ export async function createAccountManager(): Promise<void> {
 	mgrWindow = window;
 
 	await window.loadURL(`file://${resolve(PUBLIC_MANAGER, 'index.html')}`);
+
+	if (!app.isPackaged) {
+		window.webContents.openDevTools({ mode: 'right' });
+	}
 }
 
 export async function createGame(
