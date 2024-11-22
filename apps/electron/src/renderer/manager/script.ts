@@ -1,9 +1,220 @@
-import { ipcRenderer } from 'electron';
+import { ipcRenderer } from 'electron/renderer';
 
 const accounts: Account[] = [];
 const servers: RawServer[] = [];
 
-async function init() {
+ipcRenderer.on('manager:enable_button', async (_, username: string) => {
+	await new Promise((resolve) => {
+		setTimeout(resolve, 500);
+	});
+
+	for (const el of document.querySelectorAll<HTMLButtonElement>('#start')) {
+		if (el.dataset['username'] === username) {
+			el.disabled = false;
+			el.classList.remove('btn-disabled');
+		}
+	}
+});
+
+async function startAccount({ username, password, server }: AccountWithServer) {
+	const serversSelect =
+		document.querySelector<HTMLSelectElement>('#servers')!;
+
+	await ipcRenderer.invoke('manager:launch_game', {
+		username,
+		password,
+		server: serversSelect.value,
+	});
+}
+
+async function removeAccount({ username }: Pick<Account, 'username'>) {
+	await ipcRenderer.invoke('manager:remove_account', username);
+	updateAccounts();
+}
+
+function toggleAccountState(ev: MouseEvent) {
+	const checkbox = (ev.target as Element)!
+		.closest('.card')!
+		.querySelector('input') as HTMLInputElement;
+
+	checkbox.checked = !checkbox.checked;
+}
+
+function updateAccounts() {
+	const accountsContainer =
+		document.querySelector<HTMLDivElement>('#accounts')!;
+	accountsContainer.innerHTML = '';
+	accountsContainer.innerHTML = accounts
+		.map(
+			(account) => `
+					<div class="col-12 col-sm-6">
+						<div class="card h-100">
+							<div class="card-body d-flex flex-column flex-md-row justify-content-md-between" style="margin-top: auto;">
+								<div class="d-flex align-items-center mb-3 mb-md-0">
+									<input
+										type="checkbox"
+										class="form-check-input me-2"
+										data-username="${account.username}"
+										data-password="${account.password}"
+									/>
+									<h5 class="card-title m-0">
+										<span class="username-toggle" style="cursor: pointer;">
+											${account.username}
+										</span>
+									</h5>
+								</div>
+								<div class="d-flex flex-column flex-md-row align-items-md-center gap-2">
+									<button class="btn btn-secondary" id="remove"
+										data-username="${account.username}"
+										data-password="${account.password}">Remove</button>
+									<button class="btn btn-info" id="start"
+										data-username="${account.username}"
+										data-password="${account.password}"
+									>Start</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				`,
+		)
+		.join('');
+
+	{
+		const btns = document.querySelectorAll<HTMLButtonElement>('#remove');
+		for (const el of btns) {
+			el.onclick = async () => {
+				const username = el.dataset['username']!;
+
+				const idx = accounts.findIndex(
+					(acc) => acc.username === username,
+				);
+				if (idx !== -1) {
+					accounts.splice(idx, 1);
+					await removeAccount({ username });
+				}
+			};
+		}
+	}
+
+	{
+		const btns = document.querySelectorAll<HTMLButtonElement>('#start');
+		for (const el of btns) {
+			el.onclick = async () => {
+				el.disabled = true;
+				el.classList.add('disabled');
+
+				const username = el.dataset['username']!;
+				const password = el.dataset['password']!;
+
+				await startAccount({ username, password, server: '' });
+			};
+		}
+	}
+}
+
+function updateServers() {
+	const select = document.querySelector<HTMLSelectElement>('#servers')!;
+	select.innerHTML = servers
+		.map(
+			(server) => `
+				<option value="${server.sName}">${server.sName} (${server.iCount})</option>
+			`,
+		)
+		.join('');
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+	{
+		const form = document.querySelector<HTMLFormElement>('#form')!;
+		const btn = document.querySelector<HTMLButtonElement>(
+			'button[type=submit]',
+		)!;
+
+		form.onsubmit = async (ev: SubmitEvent) => {
+			// Ensure the form cannot be submitted until the flow is complete
+			btn.classList.add('disabled');
+
+			ev.preventDefault();
+
+			const formData = new FormData(ev.target as HTMLFormElement);
+
+			const username = formData.get('username');
+			const password = formData.get('password');
+
+			if (!username || !password) {
+				return;
+			}
+
+			const el = document.querySelector('#alert') as HTMLDivElement;
+			const cl = el.classList;
+
+			try {
+				// Reset the alert to a clean state
+				el.innerHTML = '';
+				cl.remove(
+					'alert-success',
+					'alert-danger',
+					'alert-dismissible',
+					'show',
+				);
+
+				const account = {
+					username: String(username),
+					password: String(password),
+				};
+
+				const res = await ipcRenderer.invoke(
+					'manager:add_account',
+					account,
+				);
+
+				if (res?.success) {
+					el.innerText = 'Account added successfully';
+					accounts.push(account);
+					updateAccounts();
+				} else {
+					el.innerText =
+						'An error occured while trying to add the account';
+				}
+
+				cl.add(res?.success ? 'alert-success' : 'alert-danger', 'show');
+				cl.remove('d-none');
+
+				setTimeout(
+					() => {
+						cl.add('hide');
+						setTimeout(() => {
+							cl.add('d-none');
+							cl.remove(
+								'show',
+								'hide',
+								'alert-success',
+								'alert-danger',
+							);
+						}, 400);
+					},
+					res?.success ? 1_000 : 2_000,
+				);
+			} catch (error) {
+				const err = error as Error;
+
+				console.log(
+					'An error occured while trying to add the account',
+					err,
+				);
+
+				el.innerText = `An error occured while trying to add the account${err.message ? `: ${err.message}` : ''}`;
+				el.innerHTML +=
+					'<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
+
+				cl.add('alert-danger', 'alert-dismissable', 'show');
+				cl.remove('d-none');
+			} finally {
+				btn.classList.remove('disabled');
+			}
+		};
+	}
+
 	const [accountsOut, serversOut] = await Promise.all([
 		ipcRenderer.invoke('manager:get_accounts'),
 		fetch('https://game.aq.com/game/api/data/servers').then(async (resp) =>
@@ -14,172 +225,61 @@ async function init() {
 	accounts.push(...accountsOut);
 	servers.push(...serversOut);
 
-	// console.log('accounts', accounts);
-	// console.log('servers', servers);
+	updateAccounts();
+	updateServers();
 
-	renderAccounts();
-
-	// {
-	// 	const select = document.querySelector('#servers') as HTMLSelectElement;
-
-	// 	select.innerHTML = servers
-	// 		.map(
-	// 			(server: RawServer) =>
-	// 				`<option value="${server.sName}">${server.sName} (${server.iCount})</option>`,
-	// 		)
-	// 		.join('');
-	// }
-
-	ipcRenderer.on('manager:enable_button', (_, username: string) => {
-		console.log(`enable button for ${username}`);
-	});
-}
-
-function getActiveAccounts() {
-	return Array.from(
-		document.querySelectorAll<HTMLInputElement>(
-			'input[type="checkbox"]:checked',
-		),
-	).map((el, idx) => ({
-		username: el.dataset['username'],
-		password: el.dataset['password'],
-		idx,
-	}));
-}
-
-function renderAccounts() {
-	const accountsDiv = document.querySelector('#accounts')!;
-	accountsDiv.innerHTML = '';
-
-	for (const account of accounts) {
-		if (!account?.username && !account?.password) {
-			continue;
-		}
-
-		const { username, password } = account;
-
-		const div = document.createElement('div');
-		div.innerHTML = `
-    <div class="col">
-        <div class="card h-100 p-2" style="background-color: #111416">
-            <div class="card-body">
-                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
-                    <div class="d-flex align-items-center">
-                        <div class="form-check">
-                            <input type="checkbox"
-                                id="checkbox-${username}"
-                                data-username="${username}"
-                                data-password="${password}"
-                                class="form-check-input"
-                            >
-                            <label for="checkbox-${username}" class="form-check-label">${username}</label>
-                        </div>
-                    </div>
-
-					<div class="d-grid d-md-flex">
-						<button class="btnRemove btn btn-secondary btn-sm mb-2 mb-md-0">Remove</button>
-						<button class="btnStart btn btn-primary btn-sm">Start</button>
-					</div>
-                </div>
-            </div>
-        </div>
-    </div>
-`;
-
-		{
-			const btn = div.querySelector('.btnRemove') as HTMLButtonElement;
-			// eslint-disable-next-line @typescript-eslint/no-loop-func
-			btn.onclick = async () => {
-				console.log(account);
-			};
-		}
-
-		{
-			const btn = div.querySelector('.btnStart') as HTMLButtonElement;
-			// eslint-disable-next-line @typescript-eslint/no-loop-func
-			btn.onclick = async () => {
-				// const server = (
-				// 	document.querySelector('#servers') as HTMLSelectElement
-				// ).value;
-				await ipcRenderer.invoke('manager:launch_game', {
-					...account,
-					// server,
-				});
-			};
-		}
-
-		accountsDiv.appendChild(div);
+	for (const el of document.querySelectorAll('.username-toggle')) {
+		(el as HTMLSpanElement).onclick = toggleAccountState;
 	}
 
-	// {
-	// 	const btn = document.querySelector(
-	// 		'#remove-selected',
-	// 	)! as HTMLButtonElement;
-	// 	btn.onclick = async () => {
-	// 		const selectedAccounts = getActiveAccounts();
-	// 		if (selectedAccounts.length === 0) return;
+	{
+		const btn =
+			document.querySelector<HTMLButtonElement>('#remove-selected')!;
+		btn.onclick = async () => {
+			for (const el of document.querySelectorAll<HTMLButtonElement>(
+				'#remove',
+			)) {
+				const checkbox = el.closest('.card')!.querySelector('input')!;
+				if (!checkbox.checked) {
+					continue;
+				}
 
-	// 		if (
-	// 			// eslint-disable-next-line no-alert
-	// 			confirm(
-	// 				`Are you sure you want to remove ${selectedAccounts.length} account(s)?`,
-	// 			)
-	// 		) {
-	// 			for (let idx = accounts.length - 1; idx >= 0; idx--) {
-	// 				if (
-	// 					selectedAccounts.some(
-	// 						(selected) =>
-	// 							selected.username === accounts[idx]?.username,
-	// 					)
-	// 				) {
-	// 					await ipcRenderer.invoke(
-	// 						'manager:remove_account',
-	// 						accounts[idx]?.username,
-	// 					);
-	// 					accounts.splice(idx, 1);
-	// 				}
-	// 			}
+				const username = el.dataset['username']!;
+				await removeAccount({ username });
+			}
 
-	// 			renderAccounts();
-	// 		}
-	// 	};
-	// }
+			updateAccounts();
+		};
+	}
 
-	// {
-	// 	const btn = document.querySelector('#start-selected');
-	// 	btn!.addEventListener('click', async () => {
-	// 		const accounts = Array.from(
-	// 			document.querySelectorAll<HTMLInputElement>(
-	// 				'input[type="checkbox"]:checked',
-	// 			),
-	// 		).map((el) => ({
-	// 			username: el.dataset['username'],
-	// 			password: el.dataset['password'],
-	// 		}));
+	{
+		const btn =
+			document.querySelector<HTMLButtonElement>('#start-selected')!;
+		btn.onclick = async () => {
+			for (const el of document.querySelectorAll<HTMLButtonElement>(
+				'#start',
+			)) {
+				const checkbox = el.closest('.card')!.querySelector('input')!;
+				if (!checkbox.checked) {
+					continue;
+				}
 
-	// 		// Disable all buttons
-	// 		const buttons = document.querySelectorAll('button');
-	// 		for (const button of buttons) {
-	// 			button.setAttribute('disabled', 'true');
-	// 		}
+				el.disabled = true;
 
-	// 		for (const account of accounts) {
-	// 			await ipcRenderer.invoke('manager:launch_game', account);
-	// 			// eslint-disable-next-line @typescript-eslint/no-loop-func
-	// 			await new Promise((resolve) => {
-	// 				setTimeout(resolve, 1_000);
-	// 			});
-	// 		}
+				await startAccount({
+					username: el.dataset['username']!,
+					password: el.dataset['password']!,
+					server: '',
+				});
 
-	// 		// Enable all buttons
-	// 		for (const button of buttons) {
-	// 			button.removeAttribute('disabled');
-	// 		}
-	// 	});
-	// }
-}
-
-document.addEventListener('DOMContentLoaded', init);
+				// eslint-disable-next-line @typescript-eslint/no-loop-func
+				await new Promise((resolve) => {
+					setTimeout(resolve, 1_000);
+				});
+			}
+		};
+	}
+});
 
 type RawServer = {
 	bOnline: number;
@@ -200,3 +300,5 @@ type Account = {
 	password: string;
 	username: string;
 };
+
+type AccountWithServer = Account & { server: string };
