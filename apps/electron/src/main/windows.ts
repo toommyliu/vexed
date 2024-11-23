@@ -151,7 +151,7 @@ export async function createGame(
 					},
 					parent: window,
 				});
-				// @ts-expect-error this is ok
+
 				ev.newGuest = newWindow;
 
 				newWindow.webContents.on('will-navigate', (event, url) => {
@@ -221,7 +221,7 @@ export async function createGame(
 					// Moving the parent also moves the child, as well as minimizing it
 					parent: window,
 				});
-				// @ts-expect-error this is ok
+
 				ev.newGuest = newWindow;
 				newWindow.on('close', (ev) => {
 					ev.preventDefault();
