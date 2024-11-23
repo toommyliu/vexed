@@ -16,7 +16,7 @@ ipcRenderer.on('manager:enable_button', async (_, username: string) => {
 	}
 });
 
-async function startAccount({ username, password, server }: AccountWithServer) {
+async function startAccount({ username, password }: Account) {
 	const serversSelect =
 		document.querySelector<HTMLSelectElement>('#servers')!;
 
@@ -29,7 +29,6 @@ async function startAccount({ username, password, server }: AccountWithServer) {
 
 async function removeAccount({ username }: Pick<Account, 'username'>) {
 	await ipcRenderer.invoke('manager:remove_account', username);
-	updateAccounts();
 }
 
 function toggleAccountState(ev: MouseEvent) {
@@ -43,7 +42,6 @@ function toggleAccountState(ev: MouseEvent) {
 function updateAccounts() {
 	const accountsContainer =
 		document.querySelector<HTMLDivElement>('#accounts')!;
-
 	accountsContainer.innerHTML = '';
 	accountsContainer.innerHTML = accounts
 		.map(
@@ -80,44 +78,36 @@ function updateAccounts() {
 		)
 		.join('');
 
-	{
-		const els = document.querySelectorAll<HTMLButtonElement>('#remove');
-		for (const el of els) {
-			el.onclick = async () => {
-				const username = el.dataset['username']!;
-
-				const idx = accounts.findIndex(
-					(acc) => acc.username === username,
-				);
-				if (idx !== -1) {
-					accounts.splice(idx, 1);
-					await removeAccount({ username });
-				}
-			};
-		}
-	}
-
-	{
-		const els = document.querySelectorAll<HTMLButtonElement>('#start');
-		for (const el of els) {
-			el.onclick = async () => {
-				el.disabled = true;
-				el.classList.add('disabled');
-
-				const username = el.dataset['username']!;
-				const password = el.dataset['password']!;
-
-				await startAccount({ username, password, server: '' });
-			};
-		}
-	}
-
 	for (const el of document.querySelectorAll('.username-toggle')) {
-		if ('onclick' in el) {
-			continue;
-		}
-
 		(el as HTMLSpanElement).onclick = toggleAccountState;
+	}
+
+	const removeBtns = document.querySelectorAll<HTMLButtonElement>('#remove');
+	for (const el of removeBtns) {
+		el.onclick = async () => {
+			const username = el.dataset['username']!;
+
+			const idx = accounts.findIndex((acc) => acc.username === username);
+			if (idx !== -1) {
+				accounts.splice(idx, 1);
+				await removeAccount({ username });
+				updateAccounts();
+			}
+		};
+	}
+
+	const startBtns = document.querySelectorAll<HTMLButtonElement>('#start');
+	for (const el of startBtns) {
+		// eslint-disable-next-line @typescript-eslint/no-loop-func
+		el.onclick = async () => {
+			el.disabled = true;
+			el.classList.add('disabled');
+
+			const username = el.dataset['username']!;
+			const password = el.dataset['password']!;
+
+			await startAccount({ username, password });
+		};
 	}
 }
 
@@ -140,7 +130,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 		)!;
 
 		form.onsubmit = async (ev: SubmitEvent) => {
-			// Ensure the form cannot be submitted until the flow is complete
 			btn.classList.add('disabled');
 
 			ev.preventDefault();
@@ -158,7 +147,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 			const cl = el.classList;
 
 			try {
-				// Reset the alert to a clean state
 				el.innerHTML = '';
 				cl.remove(
 					'alert-success',
@@ -251,6 +239,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 				const username = el.dataset['username']!;
 				await removeAccount({ username });
+
+				const idx = accounts.findIndex((acc) => acc.username === username);
+				if (idx !== -1) {
+					accounts.splice(idx, 1);
+				}
 			}
 
 			updateAccounts();
@@ -274,7 +267,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 				await startAccount({
 					username: el.dataset['username']!,
 					password: el.dataset['password']!,
-					server: '',
 				});
 
 				// eslint-disable-next-line @typescript-eslint/no-loop-func
@@ -299,11 +291,7 @@ type RawServer = {
 	sName: string;
 };
 
-type Server = { name: string };
-
 type Account = {
 	password: string;
 	username: string;
 };
-
-type AccountWithServer = Account & { server: string };
