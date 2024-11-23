@@ -6,15 +6,20 @@ const watch = process.argv.includes('--watch');
 
 const readdirp = async (dir) => {
 	const dirents = await readdir(dir, { withFileTypes: true });
-	const filtered = dirents.filter((dirent) => !dirent.name.startsWith('.'));
+	const filtered = dirents.filter((dirent) => {
+		if (dirent.isFile()) {
+			return !dirent.name.startsWith('.') && dirent.name.endsWith('.ts');
+		}
+		return true;
+	});
 	const files = await Promise.all(
-	  filtered.map((dirent) => {
-		const res = resolve(dir, dirent.name);
-		return dirent.isDirectory() ? readdirp(res) : res;
-	  })
+		filtered.map((dirent) => {
+			const res = resolve(dir, dirent.name);
+			return dirent.isDirectory() ? readdirp(res) : res;
+		}),
 	);
 	return Array.prototype.concat(...files);
-  };
+};
 
 async function transpile() {
 	try {
