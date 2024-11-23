@@ -1,4 +1,4 @@
-import { ipcMain } from 'electron';
+import { ipcMain } from 'electron/main';
 import { FileManager } from '../FileManager';
 import { createGame } from '../windows';
 
@@ -16,7 +16,20 @@ ipcMain.handle('manager:get_accounts', async () => {
 	}
 });
 
-ipcMain.handle('manager:add_account', async (_, account: Account) => {});
+ipcMain.handle('manager:add_account', async (_, account: Account) => {
+	try {
+		const accounts =
+			(await fileMgr.readJson<Account[]>(fileMgr.accountsPath)) ?? [];
+
+		accounts.push(account);
+
+		await fileMgr.writeJson(fileMgr.accountsPath, accounts);
+		return { success: true };
+	} catch (error) {
+		const err = error as Error;
+		return { success: false, msg: err.message };
+	}
+});
 
 ipcMain.handle('manager:remove_account', async (_, username: string) => {
 	try {
@@ -38,13 +51,8 @@ ipcMain.handle('manager:remove_account', async (_, username: string) => {
 	}
 });
 
-ipcMain.handle(
-	'manager:launch_game',
-	async (ev, account: AccountWithServer) => {
-		console.log('launching game window for', account);
-		await createGame(account);
-		ev.sender.send('manager:enable_button', account.username);
-	},
-);
+ipcMain.handle('manager:launch_game', async (_, account: AccountWithServer) => {
+	await createGame(account);
+});
 
 type AccountWithServer = Account & { server: string };

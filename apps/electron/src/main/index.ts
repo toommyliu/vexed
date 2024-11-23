@@ -1,3 +1,4 @@
+import './ipc';
 import './ipc/ipc.game';
 import './ipc/ipc.manager';
 

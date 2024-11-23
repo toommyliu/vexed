@@ -93,8 +93,14 @@ export class Quests {
 	 * @param questId - The quest id to complete.
 	 * @param turnIns - The number of times to turn-in the quest.
 	 * @param itemId - The ID of the quest rewards to select.
+	 * @param special - Whether the quest is "special."
 	 */
-	public async complete(questId: number | string, turnIns = 1, itemId = -1) {
+	public async complete(
+		questId: number | string,
+		turnIns = 1,
+		itemId = -1,
+		special = false,
+	) {
 		await this.bot.waitUntil(() =>
 			this.bot.world.isActionAvailable(GameAction.TryQuestComplete),
 		);
@@ -104,7 +110,7 @@ export class Quests {
 				String(questId),
 				turnIns,
 				String(itemId),
-				itemId === -1 ? 'False' : 'True',
+				special === true ? 'True' : 'False',
 			);
 		});
 	}

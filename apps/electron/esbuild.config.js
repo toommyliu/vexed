@@ -6,8 +6,14 @@ const watch = process.argv.includes('--watch');
 
 const readdirp = async (dir) => {
 	const dirents = await readdir(dir, { withFileTypes: true });
+	const filtered = dirents.filter((dirent) => {
+		if (dirent.isFile()) {
+			return !dirent.name.startsWith('.') && dirent.name.endsWith('.ts');
+		}
+		return true;
+	});
 	const files = await Promise.all(
-		dirents.map((dirent) => {
+		filtered.map((dirent) => {
 			const res = resolve(dir, dirent.name);
 			return dirent.isDirectory() ? readdirp(res) : res;
 		}),
