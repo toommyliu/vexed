@@ -3,22 +3,41 @@ import { ipcRenderer } from 'electron/renderer';
 const accounts: Account[] = [];
 const servers: RawServer[] = [];
 
+const timeouts = new Map<string, NodeJS.Timeout>();
+
 ipcRenderer.on('manager:enable_button', async (_, username: string) => {
+	const timeout = timeouts.get(username);
+	if (timeout) {
+		clearTimeout(timeout);
+		timeouts.delete(username);
+	}
+
 	await new Promise((resolve) => {
 		setTimeout(resolve, 500);
 	});
 
+	enableAccount(username);
+});
+
+function enableAccount(username: string) {
 	for (const el of document.querySelectorAll<HTMLButtonElement>('#start')) {
 		if (el.dataset['username'] === username) {
 			el.disabled = false;
 			el.classList.remove('disabled');
 		}
 	}
-});
+}
 
 async function startAccount({ username, password }: Account) {
 	const serversSelect =
 		document.querySelector<HTMLSelectElement>('#servers')!;
+
+	const timeout = setTimeout(() => {
+		enableAccount(username);
+		timeouts.delete(username);
+	}, 10_000); // 10 seconds should be long enough for an account to login
+
+	timeouts.set(username, timeout);
 
 	await ipcRenderer.invoke('manager:launch_game', {
 		username,
@@ -28,6 +47,12 @@ async function startAccount({ username, password }: Account) {
 }
 
 async function removeAccount({ username }: Pick<Account, 'username'>) {
+	const timeout = timeouts.get(username);
+	if (timeout) {
+		clearTimeout(timeout);
+		timeouts.delete(username);
+	}
+
 	await ipcRenderer.invoke('manager:remove_account', username);
 }
 
@@ -40,6 +65,12 @@ function toggleAccountState(ev: MouseEvent) {
 }
 
 function updateAccounts() {
+	for (const timeout of timeouts.values()) {
+		clearTimeout(timeout);
+	}
+
+	timeouts.clear();
+
 	const accountsContainer =
 		document.querySelector<HTMLDivElement>('#accounts')!;
 	accountsContainer.innerHTML = '';
@@ -240,7 +271,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 				const username = el.dataset['username']!;
 				await removeAccount({ username });
 
-				const idx = accounts.findIndex((acc) => acc.username === username);
+				const idx = accounts.findIndex(
+					(acc) => acc.username === username,
+				);
 				if (idx !== -1) {
 					accounts.splice(idx, 1);
 				}
