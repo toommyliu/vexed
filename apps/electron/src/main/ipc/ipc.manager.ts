@@ -51,12 +51,8 @@ ipcMain.handle('manager:remove_account', async (_, username: string) => {
 	}
 });
 
-ipcMain.handle(
-	'manager:launch_game',
-	async (ev, account: AccountWithServer) => {
-		await createGame(account);
-		ev.sender.send('manager:enable_button', account.username);
-	},
-);
+ipcMain.handle('manager:launch_game', async (_, account: AccountWithServer) => {
+	await createGame(account);
+});
 
 type AccountWithServer = Account & { server: string };

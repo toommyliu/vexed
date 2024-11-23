@@ -10,7 +10,8 @@ const PUBLIC = join(__dirname, '../../public/');
 const PUBLIC_GAME = join(PUBLIC, 'game/');
 const PUBLIC_MANAGER = join(PUBLIC, 'manager/');
 
-let mgrWindow: BrowserWindow | null;
+// eslint-disable-next-line import-x/no-mutable-exports
+export let mgrWindow: BrowserWindow | null;
 
 export async function createAccountManager(): Promise<void> {
 	if (mgrWindow) {

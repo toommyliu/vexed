@@ -11,7 +11,7 @@ ipcRenderer.on('manager:enable_button', async (_, username: string) => {
 	for (const el of document.querySelectorAll<HTMLButtonElement>('#start')) {
 		if (el.dataset['username'] === username) {
 			el.disabled = false;
-			el.classList.remove('btn-disabled');
+			el.classList.remove('disabled');
 		}
 	}
 });
@@ -43,6 +43,7 @@ function toggleAccountState(ev: MouseEvent) {
 function updateAccounts() {
 	const accountsContainer =
 		document.querySelector<HTMLDivElement>('#accounts')!;
+
 	accountsContainer.innerHTML = '';
 	accountsContainer.innerHTML = accounts
 		.map(
@@ -80,8 +81,8 @@ function updateAccounts() {
 		.join('');
 
 	{
-		const btns = document.querySelectorAll<HTMLButtonElement>('#remove');
-		for (const el of btns) {
+		const els = document.querySelectorAll<HTMLButtonElement>('#remove');
+		for (const el of els) {
 			el.onclick = async () => {
 				const username = el.dataset['username']!;
 
@@ -97,8 +98,8 @@ function updateAccounts() {
 	}
 
 	{
-		const btns = document.querySelectorAll<HTMLButtonElement>('#start');
-		for (const el of btns) {
+		const els = document.querySelectorAll<HTMLButtonElement>('#start');
+		for (const el of els) {
 			el.onclick = async () => {
 				el.disabled = true;
 				el.classList.add('disabled');
@@ -109,6 +110,14 @@ function updateAccounts() {
 				await startAccount({ username, password, server: '' });
 			};
 		}
+	}
+
+	for (const el of document.querySelectorAll('.username-toggle')) {
+		if ('onclick' in el) {
+			continue;
+		}
+
+		(el as HTMLSpanElement).onclick = toggleAccountState;
 	}
 }
 
@@ -227,10 +236,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 	updateAccounts();
 	updateServers();
-
-	for (const el of document.querySelectorAll('.username-toggle')) {
-		(el as HTMLSpanElement).onclick = toggleAccountState;
-	}
 
 	{
 		const btn =
