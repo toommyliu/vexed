@@ -4,6 +4,10 @@ const { build, context } = require('esbuild');
 
 const watch = process.argv.includes('--watch');
 
+/**
+ * @param {string} dir
+ * @returns {Promise<string[]>}
+ */
 const readdirp = async (dir) => {
 	const dirents = await readdir(dir, { withFileTypes: true });
 	const filtered = dirents.filter((dirent) => {
@@ -21,6 +25,9 @@ const readdirp = async (dir) => {
 	return Array.prototype.concat(...files);
 };
 
+/**
+ * @returns {Promise<void>}
+ */
 async function transpile() {
 	try {
 		/**

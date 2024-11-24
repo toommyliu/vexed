@@ -47,10 +47,10 @@ window.packetFromServer = async ([packet]: [string]) => {
 window.packetFromClient = async ([packet]: [string]) => {
 	bot.emit('packetFromClient', packet);
 
-	const wnd: WindowProxy | null = window.windows.packets.logger;
-	if (wnd) {
-		wnd.postMessage({ event: 'logger:packet', args: packet });
-	}
+	// const wnd: WindowProxy | null = window.windows.packets.logger;
+	// if (wnd) {
+	// 	wnd.postMessage({ event: 'logger:packet', args: packet });
+	// }
 };
 
 window.connection = ([state]: [string]) => {

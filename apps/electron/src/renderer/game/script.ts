@@ -1,21 +1,17 @@
-import './scripts/fast-travels';
-import './scripts/follower';
-import './scripts/loader-grabber';
-import './scripts/packet-spammer';
+import './ipc/tools/fast-travels';
+import './ipc/tools/follower';
+import './ipc/tools/loader-grabber';
 
-import { ipcRenderer } from 'electron';
+import './ipc/packets/logger';
+import './ipc/packets/spammer';
+
+import { ipcRenderer } from 'electron/renderer';
 
 const { settings, auth, world, player, flash, bank } = bot;
 
 const mapping: Map<string, HTMLElement> = new Map();
 
 let lastRoomId: number | undefined;
-
-window.windows = {
-	game: window,
-	tools: { fastTravels: null, loaderGrabber: null, follower: null },
-	packets: { logger: null, spammer: null },
-};
 
 // #region dom manipulation
 window.addEventListener('DOMContentLoaded', async () => {
@@ -45,7 +41,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 			script.textContent = `(async () => {
 			console.log('[' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }) + '] Script started');
 			while(!bot.player.isReady()) await bot.sleep(1000);
-			${b64_out}
+			await (()=>{${b64_out}})();
 			console.log('[' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }) + '] Script finished');
 			})();`;
 			script.id = 'loaded-script';
@@ -66,26 +62,26 @@ window.addEventListener('DOMContentLoaded', async () => {
 		const $btn: HTMLButtonElement = document.querySelector(
 			'#tools-dropdowncontent > button:nth-child(1)',
 		)!;
-		$btn.addEventListener('click', () => {
-			window.windows.tools.fastTravels = window.open(
-				'./pages/tools/fast-travels/index.html',
-				undefined,
-				'width=510,height=494',
-			);
-		});
+		// $btn.addEventListener('click', () => {
+		// 	window.windows.tools.fastTravels = window.open(
+		// 		'./tools/fast-travels/index.html',
+		// 		undefined,
+		// 		'width=510,height=494',
+		// 	);
+		// });
 	}
 
 	{
 		const $btn: HTMLButtonElement = document.querySelector(
 			'#tools-dropdowncontent > button:nth-child(2)',
 		)!;
-		$btn.addEventListener('click', () => {
-			window.windows.tools.loaderGrabber = window.open(
-				'./pages/tools/loader-grabber/index.html',
-				undefined,
-				'width=363,height=542',
-			);
-		});
+		// $btn.addEventListener('click', () => {
+		// 	window.windows.tools.loaderGrabber = window.open(
+		// 		'./tools/loader-grabber/index.html',
+		// 		undefined,
+		// 		'width=363,height=542',
+		// 	);
+		// });
 	}
 
 	{
@@ -94,7 +90,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 		)!;
 		$btn.addEventListener('click', () => {
 			window.windows.tools.follower = window.open(
-				'./pages/tools/follower/index.html',
+				'./tools/follower/index.html',
 				undefined,
 				'width=402,height=466',
 			);
@@ -105,26 +101,26 @@ window.addEventListener('DOMContentLoaded', async () => {
 		const $btn: HTMLButtonElement = document.querySelector(
 			'#packets-dropdowncontent > button:nth-child(1)',
 		)!;
-		$btn.addEventListener('click', () => {
-			window.windows.packets.logger = window.open(
-				'./pages/packets/logger/index.html',
-				undefined,
-				'width=560,height=286',
-			);
-		});
+		// $btn.addEventListener('click', () => {
+		// 	window.windows.packets.logger = window.open(
+		// 		'./packets/logger/index.html',
+		// 		undefined,
+		// 		'width=560,height=286',
+		// 	);
+		// });
 	}
 
 	{
 		const $btn: HTMLButtonElement = document.querySelector(
 			'#packets-dropdowncontent > button:nth-child(2)',
 		)!;
-		$btn.addEventListener('click', () => {
-			window.windows.packets.spammer = window.open(
-				'./pages/packets/spammer/index.html',
-				undefined,
-				'width=596,height=325',
-			);
-		});
+		// $btn.addEventListener('click', () => {
+		// 	window.windows.packets.spammer = window.open(
+		// 		'./packets/spammer/index.html',
+		// 		undefined,
+		// 		'width=596,height=325',
+		// 	);
+		// });
 	}
 
 	const options = document.querySelectorAll('[id^="option-"]');

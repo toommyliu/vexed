@@ -91,6 +91,12 @@ export async function createGame(
 		window.webContents.send('root:login', account);
 	}
 
+	window.webContents.on('did-finish-load', () => {
+		console.log('did-finish-load');
+		console.log(store.get(window.id));
+		window.webContents.send('test', new Proxy(store.get(window.id)!, {}));
+	});
+
 	window.on('close', () => {
 		const windows = store.get(window.id);
 		if (!windows) {
@@ -229,14 +235,11 @@ export async function createGame(
 				});
 
 				await newWindow.loadFile(
-					`${join(PUBLIC_GAME, 'pages/')}` +
-						(url.includes('scripts')
-							? `scripts/${file}`
-							: url.includes('tools')
-								? `tools/${file}`
-								: url.includes('packets')
-									? `packets/${file}`
-									: null),
+					join(PUBLIC_GAME) + url.includes('tools')
+						? `tools/${file}`
+						: url.includes('packets')
+							? `packets/${file}`
+							: file,
 				);
 
 				switch (file) {

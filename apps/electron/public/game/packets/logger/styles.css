@@ -1,0 +1,27 @@
+body {
+	overflow: hidden;
+}
+
+#logger {
+	min-height: 200px;
+	max-height: calc(
+		100vh - 150px
+	);
+}
+
+@media (max-height: 500px) {
+	#logger {
+		min-height: 100px;
+	}
+}
+
+.line {
+	width: auto;
+	padding: 5px;
+	cursor: pointer;
+	color: white;
+}
+
+.line:hover {
+	background-color: lightslategrey;
+}
