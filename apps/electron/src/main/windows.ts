@@ -1,5 +1,6 @@
 import { join, resolve } from 'path';
 import { app, BrowserWindow, session } from 'electron';
+import { IPC_EVENTS } from '../common/ipc-events';
 import type { Account } from './FileManager';
 import { ARTIX_USERAGENT, WHITELISTED_DOMAINS } from './constants';
 import { showErrorDialog } from './utils';
@@ -88,14 +89,8 @@ export async function createGame(
 	}
 
 	if (account) {
-		window.webContents.send('root:login', account);
+		window.webContents.send(IPC_EVENTS.LOGIN, account);
 	}
-
-	window.webContents.on('did-finish-load', () => {
-		console.log('did-finish-load');
-		console.log(store.get(window.id));
-		window.webContents.send('test', new Proxy(store.get(window.id)!, {}));
-	});
 
 	window.on('close', () => {
 		const windows = store.get(window.id);

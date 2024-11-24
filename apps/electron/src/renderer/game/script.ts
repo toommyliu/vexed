@@ -6,8 +6,9 @@ import './ipc/packets/logger';
 import './ipc/packets/spammer';
 
 import { ipcRenderer } from 'electron/renderer';
+import { IPC_EVENTS } from '../../common/ipc-events';
 
-const { settings, auth, world, player, flash, bank } = bot;
+const { settings, world, player, flash, bank } = bot;
 
 const mapping: Map<string, HTMLElement> = new Map();
 
@@ -29,7 +30,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 		const $btn: HTMLButtonElement =
 			document.querySelector('#scripts-load')!;
 		$btn.addEventListener('click', async () => {
-			const scriptBody = await ipcRenderer.invoke('root:load_script');
+			const scriptBody = await ipcRenderer.invoke(IPC_EVENTS.LOAD_SCRIPT);
 			if (!scriptBody) {
 				return;
 			}
@@ -54,7 +55,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 			'#scripts-toggle-dev-tools',
 		)!;
 		$btn.addEventListener('click', () => {
-			ipcRenderer.send('root:toggle-dev-tools');
+			ipcRenderer.send(IPC_EVENTS.TOGGLE_DEV_TOOLS);
 		});
 	}
 
@@ -88,13 +89,13 @@ window.addEventListener('DOMContentLoaded', async () => {
 		const $btn: HTMLButtonElement = document.querySelector(
 			'#tools-dropdowncontent > button:nth-child(3)',
 		)!;
-		$btn.addEventListener('click', () => {
-			window.windows.tools.follower = window.open(
-				'./tools/follower/index.html',
-				undefined,
-				'width=402,height=466',
-			);
-		});
+		// $btn.addEventListener('click', () => {
+		// 	window.windows.tools.follower = window.open(
+		// 		'./tools/follower/index.html',
+		// 		undefined,
+		// 		'width=402,height=466',
+		// 	);
+		// });
 	}
 
 	{
@@ -262,26 +263,7 @@ window.addEventListener('keydown', (ev) => {
 // #endregion
 
 // #region account manager
-ipcRenderer.on('root:login', (_, account: Account) => {
+ipcRenderer.on(IPC_EVENTS.LOGIN, (_, account: Account) => {
 	window.account = account;
 });
-
-window.progress = async ([percentage]: [number]) => {
-	if (
-		percentage === 100 &&
-		window?.account?.username &&
-		window?.account?.password
-	) {
-		await bot.sleep(1_000);
-		auth.login(window.account.username, window.account.password);
-		if (window.account.server) {
-			await bot.waitUntil(() => auth.servers.length > 0);
-			auth.connectTo(window.account.server);
-			await bot.waitUntil(() => player.isReady());
-			ipcRenderer.send('root:login_success', window.account.username);
-		}
-
-		delete window.account;
-	}
-};
 // #endregion

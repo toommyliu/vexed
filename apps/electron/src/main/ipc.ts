@@ -1,13 +1,14 @@
 import { join } from 'path';
 import { BrowserWindow, dialog, ipcMain } from 'electron';
 import fs from 'fs-extra';
+import { IPC_EVENTS } from '../common/ipc-events';
 import { DOCUMENTS_PATH } from './constants';
 import { showErrorDialog, type ErrorDialogOptions } from './utils';
 
-ipcMain.handle('root:get_documents_path', () => DOCUMENTS_PATH);
+ipcMain.handle(IPC_EVENTS.GET_DOCUMENTS_PATH, () => DOCUMENTS_PATH);
 
 // #region scripts
-ipcMain.handle('root:load_script', async (ev) => {
+ipcMain.handle(IPC_EVENTS.LOAD_SCRIPT, async (ev) => {
 	const window = BrowserWindow.fromWebContents(ev.sender);
 	if (window) {
 		const res = await dialog
@@ -37,67 +38,54 @@ ipcMain.handle('root:load_script', async (ev) => {
 	return null;
 });
 
-ipcMain.on('root:toggle-dev-tools', async (ev) => {
+ipcMain.on(IPC_EVENTS.TOGGLE_DEV_TOOLS, async (ev) => {
 	ev.sender.toggleDevTools();
 });
 // #endregion
 
-ipcMain.on('tools:loadergrabber:export', async (_, data) => {
-	try {
-		const dialogPath = await dialog
-			.showSaveDialog({
-				defaultPath: join(DOCUMENTS_PATH, 'grabber.json'),
-				filters: [{ name: 'JSON', extensions: ['json'] }],
-			})
-			.catch(() => null);
+// ipcMain.on('tools:loadergrabber:export', async (_, data) => {
+// 	try {
+// 		const dialogPath = await dialog
+// 			.showSaveDialog({
+// 				defaultPath: join(DOCUMENTS_PATH, 'grabber.json'),
+// 				filters: [{ name: 'JSON', extensions: ['json'] }],
+// 			})
+// 			.catch(() => null);
 
-		if (!dialogPath || dialogPath.canceled) {
-			return;
-		}
+// 		if (!dialogPath || dialogPath.canceled) {
+// 			return;
+// 		}
 
-		const { filePath } = dialogPath;
+// 		const { filePath } = dialogPath;
 
-		await fs.ensureFile(filePath!);
-		await fs.writeFile(filePath!, JSON.stringify(data, null, 2), {
-			encoding: 'utf8',
-		});
-	} catch (error) {
-		const err = error as Error;
-		showErrorDialog(
-			{ message: 'Failed to export grabber data.', error: err },
-			false,
-		);
-	}
-	// const path = join(ROOT, 'grabber.json');
-	// try {
-	// 	await fs.ensureFile(path);
-	// 	await fs.writeFile(path, JSON.stringify(data, null, 2), {
-	// 		encoding: 'utf8',
-	// 	});
-	// } catch (error) {
-	// 	const err = error as Error;
-	// 	showErrorDialog(
-	// 		{ message: 'Failed to export grabber data', error: err },
-	// 		false,
-	// 	);
-	// }
-});
+// 		await fs.ensureFile(filePath!);
+// 		await fs.writeFile(filePath!, JSON.stringify(data, null, 2), {
+// 			encoding: 'utf8',
+// 		});
+// 	} catch (error) {
+// 		const err = error as Error;
+// 		showErrorDialog(
+// 			{ message: 'Failed to export grabber data.', error: err },
+// 			false,
+// 		);
+// 	}
+// });
 
-ipcMain.on('packets:save', async (_, data) => {
-	const path = join(DOCUMENTS_PATH, 'packets.txt');
-	try {
-		await fs.ensureFile(path);
-		await fs.writeFile(path, data.join('\n'), {
-			encoding: 'utf8',
-		});
-	} catch (error) {
-		const err = error as Error;
-		showErrorDialog(
-			{ message: 'Failed to write packets to file', error: err },
-			false,
-		);
-	}
-});
+// ipcMain.on('packets:save', async (_, data) => {
+// 	const path = join(DOCUMENTS_PATH, 'packets.txt');
+// 	try {
+// 		await fs.ensureFile(path);
+// 		await fs.writeFile(path, data.join('\n'), {
+// 			encoding: 'utf8',
+// 		});
+// 	} catch (error) {
+// 		const err = error as Error;
+// 		showErrorDialog(
+// 			{ message: 'Failed to write packets to file', error: err },
+// 			false,
+// 		);
+// 	}
+// });
 
 ipcMain.on(
 	'root:show_error_dialog',

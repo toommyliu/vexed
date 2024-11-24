@@ -218,19 +218,6 @@ declare global {
 		>;
 		world: InstanceType<typeof import('./api/World')>;
 
-		windows: {
-			game: WindowProxy;
-			tools: {
-				fastTravels: WindowProxy | null;
-				loaderGrabber: WindowProxy | null;
-				follower: WindowProxy | null;
-			};
-			packets: {
-				logger: WindowProxy | null;
-				spammer: WindowProxy | null;
-			};
-		};
-
 		swf: GameSWF;
 
 		packetFromServer([packet]: [string]): Promise<void> | void;
