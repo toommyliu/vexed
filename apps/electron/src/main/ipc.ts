@@ -1,8 +1,8 @@
 import { join } from 'path';
 import { BrowserWindow, dialog, ipcMain } from 'electron';
 import fs from 'fs-extra';
+import { DOCUMENTS_PATH } from '../common/constants';
 import { IPC_EVENTS } from '../common/ipc-events';
-import { DOCUMENTS_PATH } from './constants';
 import { showErrorDialog, type ErrorDialogOptions } from './utils';
 
 ipcMain.handle(IPC_EVENTS.GET_DOCUMENTS_PATH, () => DOCUMENTS_PATH);

@@ -1,6 +1,6 @@
 import { join } from 'path';
 import { app } from 'electron';
-import type { Account, Location, Settings } from './FileManager';
+import type { Account, Location, Settings } from '../main/FileManager';
 
 export const BRAND = 'Vexed';
 export const DOCUMENTS_PATH = join(app.getPath('documents'), BRAND);

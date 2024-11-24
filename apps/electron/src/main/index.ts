@@ -4,8 +4,8 @@ import './ipc/ipc.manager';
 
 import { join } from 'path';
 import { app } from 'electron';
+import { BRAND } from '../common/constants';
 import { FileManager } from './FileManager';
-import { BRAND } from './constants';
 import { showErrorDialog } from './utils';
 import { createAccountManager, createGame } from './windows';
 

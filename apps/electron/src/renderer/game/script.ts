@@ -1,9 +1,9 @@
-import './ipc/tools/fast-travels';
-import './ipc/tools/follower';
-import './ipc/tools/loader-grabber';
+// import './ipc/tools/fast-travels';
+// import './ipc/tools/follower';
+// import './ipc/tools/loader-grabber';
 
-import './ipc/packets/logger';
-import './ipc/packets/spammer';
+// import './ipc/packets/logger';
+// import './ipc/packets/spammer';
 
 import { ipcRenderer } from 'electron/renderer';
 import { IPC_EVENTS } from '../../common/ipc-events';
@@ -51,18 +51,21 @@ window.addEventListener('DOMContentLoaded', async () => {
 	}
 
 	{
-		const $btn: HTMLButtonElement = document.querySelector(
+		const btn: HTMLButtonElement = document.querySelector(
 			'#scripts-toggle-dev-tools',
 		)!;
-		$btn.addEventListener('click', () => {
-			ipcRenderer.send(IPC_EVENTS.TOGGLE_DEV_TOOLS);
-		});
+		btn.addEventListener('click', () =>
+			ipcRenderer.send(IPC_EVENTS.TOGGLE_DEV_TOOLS),
+		);
 	}
 
 	{
-		const $btn: HTMLButtonElement = document.querySelector(
+		const btn: HTMLButtonElement = document.querySelector(
 			'#tools-dropdowncontent > button:nth-child(1)',
 		)!;
+		btn.addEventListener('click', () => {
+			ipcRenderer.send(IPC_EVENTS.ACTIVATE_WINDOW, 'tools:fast-travels');
+		});
 		// $btn.addEventListener('click', () => {
 		// 	window.windows.tools.fastTravels = window.open(
 		// 		'./tools/fast-travels/index.html',
@@ -73,9 +76,15 @@ window.addEventListener('DOMContentLoaded', async () => {
 	}
 
 	{
-		const $btn: HTMLButtonElement = document.querySelector(
+		const btn: HTMLButtonElement = document.querySelector(
 			'#tools-dropdowncontent > button:nth-child(2)',
 		)!;
+		btn.addEventListener('click', () => {
+			ipcRenderer.send(
+				IPC_EVENTS.ACTIVATE_WINDOW,
+				'tools:loader-grabber',
+			);
+		});
 		// $btn.addEventListener('click', () => {
 		// 	window.windows.tools.loaderGrabber = window.open(
 		// 		'./tools/loader-grabber/index.html',
@@ -86,9 +95,12 @@ window.addEventListener('DOMContentLoaded', async () => {
 	}
 
 	{
-		const $btn: HTMLButtonElement = document.querySelector(
+		const btn: HTMLButtonElement = document.querySelector(
 			'#tools-dropdowncontent > button:nth-child(3)',
 		)!;
+		btn.addEventListener('click', () => {
+			ipcRenderer.send(IPC_EVENTS.ACTIVATE_WINDOW, 'tools:follower');
+		});
 		// $btn.addEventListener('click', () => {
 		// 	window.windows.tools.follower = window.open(
 		// 		'./tools/follower/index.html',
@@ -99,9 +111,12 @@ window.addEventListener('DOMContentLoaded', async () => {
 	}
 
 	{
-		const $btn: HTMLButtonElement = document.querySelector(
+		const btn: HTMLButtonElement = document.querySelector(
 			'#packets-dropdowncontent > button:nth-child(1)',
 		)!;
+		btn.addEventListener('click', () => {
+			ipcRenderer.send(IPC_EVENTS.ACTIVATE_WINDOW, 'packets:logger');
+		});
 		// $btn.addEventListener('click', () => {
 		// 	window.windows.packets.logger = window.open(
 		// 		'./packets/logger/index.html',
@@ -112,9 +127,12 @@ window.addEventListener('DOMContentLoaded', async () => {
 	}
 
 	{
-		const $btn: HTMLButtonElement = document.querySelector(
+		const btn: HTMLButtonElement = document.querySelector(
 			'#packets-dropdowncontent > button:nth-child(2)',
 		)!;
+		btn.addEventListener('click', () => {
+			ipcRenderer.send(IPC_EVENTS.ACTIVATE_WINDOW, 'packets:spammer');
+		});
 		// $btn.addEventListener('click', () => {
 		// 	window.windows.packets.spammer = window.open(
 		// 		'./packets/spammer/index.html',
