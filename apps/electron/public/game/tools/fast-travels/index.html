@@ -1,22 +1,32 @@
-<link rel="stylesheet" href="../../../w3.css" />
-<link rel="stylesheet" href="../../../shared.css" />
-<link rel="stylesheet" href="styles.css" />
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link href="../../../shared/halfmoon.css" rel="stylesheet" />
+	</head>
 
-<script src="script.js" type="module"></script>
+	<body class="m-2">
+		<div class="container">
+			<div class="mt-4">
+				<div class="input-group">
+					<label for="room-number" class="input-group-text">Room Number</label>
+					<input
+						type="number"
+						min="1"
+						max="100000"
+						value="100000"
+						id="room-number"
+						class="form-control"
+					/>
+				</div>
+			</div>
+		</div>
+		<div class="container">
+			<div class="row g-4 mt-1" id="locations"></div>
+		</div>
 
-<div class="w3-container w3-section" id="topcontainer">
-	<div style="width: 100%">
-		<span>Room number</span>
-		<input
-			type="number"
-			min="1"
-			max="100000"
-			value="100000"
-			id="room-number"
-			class="w3-input w3-margin-top w3-border w3-round-medium"
-		/>
-	</div>
-</div>
-<div class="w3-container w3-section">
-	<div id="locations"></div>
-</div>
+		<script type="module">
+			require('../../../../dist/renderer/game/scripts/fast-travels.js');
+		</script>
+	</body>
+</html>

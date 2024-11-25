@@ -1,7 +1,15 @@
 import { join } from 'path';
-import { BrowserWindow, ipcMain, type IpcMainEvent } from 'electron/main';
+import {
+	BrowserWindow,
+	ipcMain,
+	type IpcMainInvokeEvent,
+	type IpcMainEvent,
+} from 'electron/main';
 import { IPC_EVENTS } from '../../common/ipc-events';
+import { FileManager, type Location } from '../FileManager';
 import { mgrWindow, store } from '../windows';
+
+const fm = FileManager.getInstance();
 
 const PUBLIC = join(__dirname, '../../../public');
 
@@ -35,15 +43,15 @@ ipcMain.on(IPC_EVENTS.ACTIVATE_WINDOW, async (ev: IpcMainEvent, id: string) => {
 	switch (id) {
 		case 'tools:fast-travels':
 			ref = windows.tools.fastTravels;
-			path = join(PUBLIC, 'game/packets/logger/index.html');
+			path = join(PUBLIC, 'game/tools/fast-travels/index.html');
 			width = 510;
 			height = 494;
 			break;
 		case 'tools:loader-grabber':
 			ref = windows.tools.loaderGrabber;
 			path = join(PUBLIC, 'game/tools/loader-grabber/index.html');
-			width = 427;
-			height = 582;
+			width = 363;
+			height = 542;
 			break;
 		case 'tools:follower':
 			ref = windows.tools.follower;
@@ -54,14 +62,14 @@ ipcMain.on(IPC_EVENTS.ACTIVATE_WINDOW, async (ev: IpcMainEvent, id: string) => {
 		case 'packets:logger':
 			ref = windows.packets.logger;
 			path = join(PUBLIC, 'game/packets/logger/index.html');
-			width = 605;
+			width = 560;
 			height = 286;
 			break;
 		case 'packets:spammer':
 			ref = windows.packets.spammer;
 			path = join(PUBLIC, 'game/packets/spammer/index.html');
-			width = 496;
-			height = 170;
+			width = 596;
+			height = 325;
 			break;
 	}
 
@@ -79,6 +87,7 @@ ipcMain.on(IPC_EVENTS.ACTIVATE_WINDOW, async (ev: IpcMainEvent, id: string) => {
 			contextIsolation: false,
 			nodeIntegration: true,
 		},
+		// Parent is required in order to maintain parent-child relationships and for ipc calls
 		// Moving the parent also moves the child, as well as minimizing it
 		parent: sender,
 		width: width!,
@@ -116,3 +125,28 @@ ipcMain.on(IPC_EVENTS.ACTIVATE_WINDOW, async (ev: IpcMainEvent, id: string) => {
 
 	return true;
 });
+
+ipcMain.handle(
+	IPC_EVENTS.READ_FAST_TRAVELS,
+	async (_ev: IpcMainInvokeEvent) => {
+		try {
+			return await fm.readJson(fm.fastTravelsPath);
+		} catch {
+			return fm.defaultFastTravels;
+		}
+	},
+);
+
+ipcMain.on(
+	IPC_EVENTS.FAST_TRAVEL,
+	async (ev: IpcMainEvent, location: Location) => {
+		const sender = BrowserWindow.fromWebContents(ev.sender);
+		const parent = sender?.getParentWindow();
+
+		if (!sender || !parent) {
+			return;
+		}
+
+		parent.webContents.send(IPC_EVENTS.FAST_TRAVEL, location);
+	},
+);

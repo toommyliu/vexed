@@ -18,7 +18,7 @@ export const DEFAULT_FAST_TRAVELS: Location[] = [
 		pad: 'Left',
 	},
 	{
-		name: 'VHl/Taro/Zee',
+		name: 'VHL/Taro/Zee',
 		map: 'tercessuinotlim',
 		cell: 'Taro',
 		pad: 'Left',

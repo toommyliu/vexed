@@ -66,13 +66,6 @@ window.addEventListener('DOMContentLoaded', async () => {
 		btn.addEventListener('click', () => {
 			ipcRenderer.send(IPC_EVENTS.ACTIVATE_WINDOW, 'tools:fast-travels');
 		});
-		// $btn.addEventListener('click', () => {
-		// 	window.windows.tools.fastTravels = window.open(
-		// 		'./tools/fast-travels/index.html',
-		// 		undefined,
-		// 		'width=510,height=494',
-		// 	);
-		// });
 	}
 
 	{
@@ -85,13 +78,6 @@ window.addEventListener('DOMContentLoaded', async () => {
 				'tools:loader-grabber',
 			);
 		});
-		// $btn.addEventListener('click', () => {
-		// 	window.windows.tools.loaderGrabber = window.open(
-		// 		'./tools/loader-grabber/index.html',
-		// 		undefined,
-		// 		'width=363,height=542',
-		// 	);
-		// });
 	}
 
 	{
@@ -101,13 +87,6 @@ window.addEventListener('DOMContentLoaded', async () => {
 		btn.addEventListener('click', () => {
 			ipcRenderer.send(IPC_EVENTS.ACTIVATE_WINDOW, 'tools:follower');
 		});
-		// $btn.addEventListener('click', () => {
-		// 	window.windows.tools.follower = window.open(
-		// 		'./tools/follower/index.html',
-		// 		undefined,
-		// 		'width=402,height=466',
-		// 	);
-		// });
 	}
 
 	{
@@ -117,13 +96,6 @@ window.addEventListener('DOMContentLoaded', async () => {
 		btn.addEventListener('click', () => {
 			ipcRenderer.send(IPC_EVENTS.ACTIVATE_WINDOW, 'packets:logger');
 		});
-		// $btn.addEventListener('click', () => {
-		// 	window.windows.packets.logger = window.open(
-		// 		'./packets/logger/index.html',
-		// 		undefined,
-		// 		'width=560,height=286',
-		// 	);
-		// });
 	}
 
 	{
@@ -133,13 +105,6 @@ window.addEventListener('DOMContentLoaded', async () => {
 		btn.addEventListener('click', () => {
 			ipcRenderer.send(IPC_EVENTS.ACTIVATE_WINDOW, 'packets:spammer');
 		});
-		// $btn.addEventListener('click', () => {
-		// 	window.windows.packets.spammer = window.open(
-		// 		'./packets/spammer/index.html',
-		// 		undefined,
-		// 		'width=596,height=325',
-		// 	);
-		// });
 	}
 
 	const options = document.querySelectorAll('[id^="option-"]');

@@ -5,4 +5,7 @@ export const IPC_EVENTS = {
 	LOGIN_SUCCESS: 'root:login-success' as const,
 	LOAD_SCRIPT: 'root:load-script' as const,
 	ACTIVATE_WINDOW: 'root:activate-window' as const,
+	READ_FAST_TRAVELS: 'root:read-fast-travels' as const,
+
+	FAST_TRAVEL: 'tools:fast-travel' as const,
 } as const;
