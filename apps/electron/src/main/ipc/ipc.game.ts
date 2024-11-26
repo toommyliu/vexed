@@ -4,6 +4,7 @@ import {
 	ipcMain,
 	type IpcMainInvokeEvent,
 	type IpcMainEvent,
+	app,
 } from 'electron/main';
 import { IPC_EVENTS } from '../../common/ipc-events';
 import { FileManager, type Location } from '../FileManager';
@@ -96,6 +97,10 @@ ipcMain.on(IPC_EVENTS.ACTIVATE_WINDOW, async (ev: IpcMainEvent, id: string) => {
 		height: height!,
 	});
 
+	if (!app.isPackaged) {
+		newWindow.webContents.openDevTools({ mode: 'right' });
+	}
+
 	// Don't close the window, just hide it to be reused later
 	newWindow.on('close', (ev) => {
 		ev.preventDefault();
@@ -137,16 +142,13 @@ ipcMain.handle(
 	},
 );
 
-ipcMain.on(
-	IPC_EVENTS.FAST_TRAVEL,
-	async (ev: IpcMainEvent, location: Location) => {
-		const sender = BrowserWindow.fromWebContents(ev.sender);
-		const parent = sender?.getParentWindow();
+ipcMain.on(IPC_EVENTS.SETUP_IPC, (ev: IpcMainEvent, id: string) => {
+	const sender = BrowserWindow.fromWebContents(ev.sender);
+	const parent = sender?.getParentWindow();
 
-		if (!sender || !parent) {
-			return;
-		}
+	if (!sender || !parent || !id) {
+		return;
+	}
 
-		parent.webContents.send(IPC_EVENTS.FAST_TRAVEL, location);
-	},
-);
+	parent.webContents.postMessage(IPC_EVENTS.SETUP_IPC, id, [ev.ports[0]!]);
+});

@@ -1,3 +1,4 @@
+import type PortMonitor from '../../common/port-monitor';
 import type { Bot } from './api/Bot';
 
 type StringBoolean = '"False"' | '"True"';
@@ -225,5 +226,8 @@ declare global {
 		connection([state]: [string]): void;
 		progress([percentage]: [number]): void;
 		account?: Account;
-	};
+
+		ports: Map<string, MessagePort>;
+		portMonitors: Map<string, PortMonitor>;
+	}
 }
