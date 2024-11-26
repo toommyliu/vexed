@@ -1,9 +1,9 @@
+import os from 'os';
 import { join } from 'path';
-import { app } from 'electron';
 import type { Account, Location, Settings } from '../main/FileManager';
 
 export const BRAND = 'Vexed';
-export const DOCUMENTS_PATH = join(app.getPath('documents'), BRAND);
+export const DOCUMENTS_PATH = join(os.homedir(), 'Documents', BRAND);
 
 export const DEFAULT_SETTINGS: Settings = {
 	launchMode: 'game',

@@ -25,7 +25,7 @@ async function setupHeartbeat() {
 		transferPort,
 	]);
 
-	const pm = new PortMonitor(msgPort, () => {
+	/*const pm = */new PortMonitor(msgPort, () => {
 		console.log('Cleaned up existing ports (if any).');
 		msgPort.close();
 		transferPort.close();
