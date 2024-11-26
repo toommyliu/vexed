@@ -1,36 +1,24 @@
-import { Mutex } from 'async-mutex';
 import { ipcRenderer, type IpcRendererEvent } from 'electron/renderer';
 import { WINDOW_IDS } from '../../../common/constants';
 import { IPC_EVENTS } from '../../../common/ipc-events';
 import PortMonitor from '../../../common/port-monitor';
-import type { Location } from '../../../main/FileManager';
+import ipcFastTravelsHandler from './ipc.fast-travels';
 
-const { player, world } = bot;
-const mutex = new Mutex();
+const ports: Map<(typeof WINDOW_IDS)[keyof typeof WINDOW_IDS], MessagePort> =
+	new Map();
+const portMonitors: Map<
+	(typeof WINDOW_IDS)[keyof typeof WINDOW_IDS],
+	PortMonitor
+> = new Map();
+const handlers = new Map<
+	(typeof WINDOW_IDS)[keyof typeof WINDOW_IDS],
+	(ev: MessageEvent) => Promise<unknown> | unknown
+>();
 
-const ports: Map<string, MessagePort> = new Map();
-const portMonitors: Map<string, PortMonitor> = new Map();
+handlers.set(WINDOW_IDS.FAST_TRAVELS, ipcFastTravelsHandler);
 
 window.ports = ports;
 window.portMonitors = portMonitors;
-
-async function fastTravelsMsgHandler(ev: MessageEvent) {
-	if (ev.data.event === IPC_EVENTS.FAST_TRAVEL) {
-		const { args } = ev.data;
-
-		if (!bot.player.isReady()) {
-			return;
-		}
-
-		if (args?.map) {
-			const cell = args?.cell ?? 'Enter';
-			const pad = args?.pad ?? 'Spawn';
-			const roomNumber = args?.roomNumber ?? 100_000;
-
-			await world.join(`${args?.map}-${roomNumber}`, cell, pad);
-		}
-	}
-}
 
 ipcRenderer.on(
 	IPC_EVENTS.SETUP_IPC,
@@ -46,7 +34,10 @@ ipcRenderer.on(
 
 		console.log(`Established peer ${windowId}.`);
 
-		ports.set(windowId, port);
+		const _windowId =
+			windowId as (typeof WINDOW_IDS)[keyof typeof WINDOW_IDS];
+
+		ports.set(_windowId, port);
 		port.start();
 
 		port.addEventListener('message', async (ev) => {
@@ -58,12 +49,7 @@ ipcRenderer.on(
 				return;
 			}
 
-			switch (windowId) {
-				case WINDOW_IDS.FAST_TRAVELS: {
-					await fastTravelsMsgHandler(ev);
-					break;
-				}
-			}
+			handlers.get(_windowId)?.(ev);
 		});
 
 		const pm = new PortMonitor(port, () => {
@@ -74,20 +60,5 @@ ipcRenderer.on(
 		});
 
 		portMonitors.set(windowId, pm);
-	},
-);
-
-ipcRenderer.on(
-	IPC_EVENTS.FAST_TRAVEL,
-	async (ev: IpcRendererEvent, location: Location) => {
-		await mutex.runExclusive(async () => {
-			if (!player.isReady()) {
-				return;
-			}
-
-			const { map, cell, pad, roomNumber } = location;
-
-			await world.join(`${map}-${roomNumber}`, cell, pad);
-		});
 	},
 );

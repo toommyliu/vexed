@@ -92,4 +92,4 @@ export const WINDOW_IDS = {
 
 	PACKETS_LOGGER: 'packets:logger' as const,
 	PACKETS_SPAMMER: 'packets:spammer' as const,
-};
+} as const;
