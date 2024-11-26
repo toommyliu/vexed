@@ -4,14 +4,10 @@ import { IPC_EVENTS } from '../../../common/ipc-events';
 import PortMonitor from '../../../common/port-monitor';
 import ipcFastTravelsHandler from './ipc.fast-travels';
 
-const ports: Map<(typeof WINDOW_IDS)[keyof typeof WINDOW_IDS], MessagePort> =
-	new Map();
-const portMonitors: Map<
-	(typeof WINDOW_IDS)[keyof typeof WINDOW_IDS],
-	PortMonitor
-> = new Map();
+const ports: Map<WindowId, MessagePort> = new Map();
+const portMonitors: Map<WindowId, PortMonitor> = new Map();
 const handlers = new Map<
-	(typeof WINDOW_IDS)[keyof typeof WINDOW_IDS],
+	WindowId,
 	(ev: MessageEvent) => Promise<unknown> | unknown
 >();
 
@@ -22,7 +18,7 @@ window.portMonitors = portMonitors;
 
 ipcRenderer.on(
 	IPC_EVENTS.SETUP_IPC,
-	async (ev: IpcRendererEvent, windowId: string) => {
+	async (ev: IpcRendererEvent, windowId: WindowId) => {
 		const port = ev.ports[0];
 
 		if (!port) {
@@ -34,10 +30,7 @@ ipcRenderer.on(
 
 		console.log(`Established peer ${windowId}.`);
 
-		const _windowId =
-			windowId as (typeof WINDOW_IDS)[keyof typeof WINDOW_IDS];
-
-		ports.set(_windowId, port);
+		ports.set(windowId, port);
 		port.start();
 
 		port.addEventListener('message', async (ev) => {
@@ -49,7 +42,7 @@ ipcRenderer.on(
 				return;
 			}
 
-			handlers.get(_windowId)?.(ev);
+			handlers.get(windowId)?.(ev);
 		});
 
 		const pm = new PortMonitor(port, () => {

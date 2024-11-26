@@ -1,4 +1,4 @@
-import type { WINDOW_IDS } from '../../common/constants';
+import type { WINDOW_IDS, WindowId } from '../../common/constants';
 import type PortMonitor from '../../common/port-monitor';
 import type { Bot } from './api/Bot';
 
@@ -9,6 +9,8 @@ declare global {
 	const swf: GameSWF;
 
 	type Account = { password: string; server?: string; username: string };
+
+	type WindowId = (typeof WINDOW_IDS)[keyof typeof WINDOW_IDS];
 
 	type GameSWF = {
 		// Player
@@ -228,10 +230,7 @@ declare global {
 		progress([percentage]: [number]): void;
 		account?: Account;
 
-		ports: Map<(typeof WINDOW_IDS)[keyof typeof WINDOW_IDS], MessagePort>;
-		portMonitors: Map<
-			(typeof WINDOW_IDS)[keyof typeof WINDOW_IDS],
-			PortMonitor
-		>;
+		ports: Map<WindowId, MessagePort>;
+		portMonitors: Map<WindowId, PortMonitor>;
 	}
 }
