@@ -84,3 +84,12 @@ export const WHITELISTED_DOMAINS = [
 	'heromart.com',
 	'www.heromart.com',
 ];
+
+export const WINDOW_IDS = {
+	FAST_TRAVELS: 'tools:fast-travels' as const,
+	LOADER_GRABBER: 'tools:loader-grabber' as const,
+	FOLLOWER: 'tools:follower' as const,
+
+	PACKETS_LOGGER: 'packets:logger' as const,
+	PACKETS_SPAMMER: 'packets:spammer' as const,
+};

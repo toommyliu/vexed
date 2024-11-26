@@ -6,8 +6,9 @@ import {
 	type IpcMainEvent,
 	app,
 } from 'electron/main';
+import { WINDOW_IDS } from '../../common/constants';
 import { IPC_EVENTS } from '../../common/ipc-events';
-import { FileManager, type Location } from '../FileManager';
+import { FileManager } from '../FileManager';
 import { mgrWindow, store } from '../windows';
 
 const fm = FileManager.getInstance();
@@ -42,31 +43,31 @@ ipcMain.on(IPC_EVENTS.ACTIVATE_WINDOW, async (ev: IpcMainEvent, id: string) => {
 	let height: number;
 
 	switch (id) {
-		case 'tools:fast-travels':
+		case WINDOW_IDS.FAST_TRAVELS:
 			ref = windows.tools.fastTravels;
 			path = join(PUBLIC, 'game/tools/fast-travels/index.html');
 			width = 510;
 			height = 494;
 			break;
-		case 'tools:loader-grabber':
+		case WINDOW_IDS.LOADER_GRABBER:
 			ref = windows.tools.loaderGrabber;
 			path = join(PUBLIC, 'game/tools/loader-grabber/index.html');
 			width = 363;
 			height = 542;
 			break;
-		case 'tools:follower':
+		case WINDOW_IDS.FOLLOWER:
 			ref = windows.tools.follower;
 			path = join(PUBLIC, 'game/tools/follower/index.html');
 			width = 402;
 			height = 466;
 			break;
-		case 'packets:logger':
+		case WINDOW_IDS.PACKETS_LOGGER:
 			ref = windows.packets.logger;
 			path = join(PUBLIC, 'game/packets/logger/index.html');
 			width = 560;
 			height = 286;
 			break;
-		case 'packets:spammer':
+		case WINDOW_IDS.PACKETS_SPAMMER:
 			ref = windows.packets.spammer;
 			path = join(PUBLIC, 'game/packets/spammer/index.html');
 			width = 596;
@@ -111,19 +112,19 @@ ipcMain.on(IPC_EVENTS.ACTIVATE_WINDOW, async (ev: IpcMainEvent, id: string) => {
 
 	// Update the store
 	switch (id) {
-		case 'tools:fast-travels':
+		case WINDOW_IDS.FAST_TRAVELS:
 			windows.tools.fastTravels = newWindow;
 			break;
-		case 'tools:loader-grabber':
+		case WINDOW_IDS.LOADER_GRABBER:
 			windows.tools.loaderGrabber = newWindow;
 			break;
-		case 'tools:follower':
+		case WINDOW_IDS.FOLLOWER:
 			windows.tools.follower = newWindow;
 			break;
-		case 'packets:logger':
+		case WINDOW_IDS.PACKETS_LOGGER:
 			windows.packets.logger = newWindow;
 			break;
-		case 'packets:spammer':
+		case WINDOW_IDS.PACKETS_SPAMMER:
 			windows.packets.spammer = newWindow;
 			break;
 	}

@@ -6,6 +6,7 @@
 // import './ipc/packets/spammer';
 
 import { ipcRenderer } from 'electron/renderer';
+import { WINDOW_IDS } from '../../common/constants';
 import { IPC_EVENTS } from '../../common/ipc-events';
 
 const { settings, world, player, flash, bank } = bot;
@@ -64,7 +65,10 @@ window.addEventListener('DOMContentLoaded', async () => {
 			'#tools-dropdowncontent > button:nth-child(1)',
 		)!;
 		btn.addEventListener('click', () => {
-			ipcRenderer.send(IPC_EVENTS.ACTIVATE_WINDOW, 'tools:fast-travels');
+			ipcRenderer.send(
+				IPC_EVENTS.ACTIVATE_WINDOW,
+				WINDOW_IDS.FAST_TRAVELS,
+			);
 		});
 	}
 
@@ -75,7 +79,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 		btn.addEventListener('click', () => {
 			ipcRenderer.send(
 				IPC_EVENTS.ACTIVATE_WINDOW,
-				'tools:loader-grabber',
+				WINDOW_IDS.LOADER_GRABBER,
 			);
 		});
 	}
@@ -85,7 +89,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 			'#tools-dropdowncontent > button:nth-child(3)',
 		)!;
 		btn.addEventListener('click', () => {
-			ipcRenderer.send(IPC_EVENTS.ACTIVATE_WINDOW, 'tools:follower');
+			ipcRenderer.send(IPC_EVENTS.ACTIVATE_WINDOW, WINDOW_IDS.FOLLOWER);
 		});
 	}
 
@@ -94,7 +98,10 @@ window.addEventListener('DOMContentLoaded', async () => {
 			'#packets-dropdowncontent > button:nth-child(1)',
 		)!;
 		btn.addEventListener('click', () => {
-			ipcRenderer.send(IPC_EVENTS.ACTIVATE_WINDOW, 'packets:logger');
+			ipcRenderer.send(
+				IPC_EVENTS.ACTIVATE_WINDOW,
+				WINDOW_IDS.PACKETS_LOGGER,
+			);
 		});
 	}
 
@@ -103,7 +110,10 @@ window.addEventListener('DOMContentLoaded', async () => {
 			'#packets-dropdowncontent > button:nth-child(2)',
 		)!;
 		btn.addEventListener('click', () => {
-			ipcRenderer.send(IPC_EVENTS.ACTIVATE_WINDOW, 'packets:spammer');
+			ipcRenderer.send(
+				IPC_EVENTS.ACTIVATE_WINDOW,
+				WINDOW_IDS.PACKETS_SPAMMER,
+			);
 		});
 	}
 

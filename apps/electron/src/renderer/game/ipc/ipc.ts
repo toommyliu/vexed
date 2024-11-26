@@ -1,5 +1,6 @@
 import { Mutex } from 'async-mutex';
 import { ipcRenderer, type IpcRendererEvent } from 'electron/renderer';
+import { WINDOW_IDS } from '../../../common/constants';
 import { IPC_EVENTS } from '../../../common/ipc-events';
 import PortMonitor from '../../../common/port-monitor';
 import type { Location } from '../../../main/FileManager';
@@ -58,7 +59,7 @@ ipcRenderer.on(
 			}
 
 			switch (windowId) {
-				case 'tools:fast-travels': {
+				case WINDOW_IDS.FAST_TRAVELS: {
 					await fastTravelsMsgHandler(ev);
 					break;
 				}

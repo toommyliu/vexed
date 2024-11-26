@@ -1,4 +1,5 @@
 import { ipcRenderer } from 'electron/renderer';
+import { WINDOW_IDS } from '../../../common/constants';
 import { IPC_EVENTS } from '../../../common/ipc-events';
 import PortMonitor from '../../../common/port-monitor';
 
@@ -20,7 +21,7 @@ async function setupHeartbeat() {
 	transferPort.start();
 	msgPort.start();
 
-	ipcRenderer.postMessage(IPC_EVENTS.SETUP_IPC, 'tools:fast-travels', [
+	ipcRenderer.postMessage(IPC_EVENTS.SETUP_IPC, WINDOW_IDS.FAST_TRAVELS, [
 		transferPort,
 	]);
 
