@@ -37,8 +37,9 @@ export default class PortMonitor {
 
 		this.checkInterval = setInterval(() => {
 			if (!this.isAlive) {
-				console.log('Looks like we just lost our peer...');
+				// console.log('Looks like we just lost our peer...');
 				this.cleanup();
+
 				if (typeof this?.onLostConnection === 'function') {
 					this.onLostConnection();
 				}

@@ -30,6 +30,21 @@ ipcRenderer.on(
 			return;
 		}
 
+		const prevPort = ports.get(windowId);
+		const prevMonitor = portMonitors.get(windowId);
+
+		if (prevPort || prevMonitor) {
+			console.warn(`Cleaning existing ipc for ${windowId}.`);
+
+			prevPort?.close();
+			prevMonitor?.cleanup();
+
+			ports.delete(windowId);
+			portMonitors.delete(windowId);
+
+			await bot.sleep(100);
+		}
+
 		console.log(`Established ipc with window id: ${windowId}.`);
 
 		ports.set(windowId, port);
