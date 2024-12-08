@@ -25,15 +25,19 @@ async function setupHeartbeat() {
 		transferPort,
 	]);
 
-	/*const pm = */new PortMonitor(msgPort, () => {
-		console.log('Cleaned up existing ports (if any).');
-		msgPort.close();
-		transferPort.close();
-		g_msgPort = null;
-		// setTimeout(() => {
-		// 	setupHeartbeat();
-		// }, 10_000);
-	});
+	/*const pm = */ new PortMonitor(
+		msgPort,
+		() => {},
+		() => {
+			console.log('Cleaned up existing ports (if any).');
+			msgPort.close();
+			transferPort.close();
+			g_msgPort = null;
+			// setTimeout(() => {
+			// 	setupHeartbeat();
+			// }, 10_000);
+		},
+	);
 
 	msgPort.addEventListener('message', async (ev) => {
 		if (ev.data.type === 'heartbeat' || ev.data.type === 'heartbeat-ack') {
@@ -46,20 +50,6 @@ async function setupHeartbeat() {
 
 window.addEventListener('DOMContentLoaded', async () => {
 	await setupHeartbeat();
-
-	// {
-	// 	const input = document.querySelector(
-	// 		'#room-number',
-	// 	) as HTMLInputElement;
-	// 	input.addEventListener('change', (ev) => {
-	// 		console.log('ev', ev);
-	// 		console.log(ev.target.value);
-	// 	});
-	// 	input.addEventListener('input', (ev) => {
-	// 		console.log('ev', ev);
-	// 		console.log(ev.target.value);
-	// 	});
-	// }
 
 	container = document.querySelector('#locations')!;
 
@@ -96,8 +86,4 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 		buttons.push(btn);
 	}
-});
-
-window.addEventListener('message', (ev) => {
-	console.log('ev', ev);
 });

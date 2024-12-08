@@ -3,6 +3,7 @@ import { WINDOW_IDS } from '../../../common/constants';
 import { IPC_EVENTS } from '../../../common/ipc-events';
 import PortMonitor from '../../../common/port-monitor';
 import ipcFastTravelsHandler from './ipc.fast-travels';
+import ipcLoaderGrabberHandler from './ipc.loader-grabber';
 
 const ports: Map<WindowId, MessagePort> = new Map();
 const portMonitors: Map<WindowId, PortMonitor> = new Map();
@@ -12,6 +13,7 @@ const handlers = new Map<
 >();
 
 handlers.set(WINDOW_IDS.FAST_TRAVELS, ipcFastTravelsHandler);
+handlers.set(WINDOW_IDS.LOADER_GRABBER, ipcLoaderGrabberHandler);
 
 window.ports = ports;
 window.portMonitors = portMonitors;
@@ -23,12 +25,12 @@ ipcRenderer.on(
 
 		if (!port) {
 			console.log(
-				`Tried to set up ipc for ${windowId} but received no port?`,
+				`Tried to establish ipc for ${windowId} but received no port?`,
 			);
 			return;
 		}
 
-		console.log(`Established peer ${windowId}.`);
+		console.log(`Established ipc with window id: ${windowId}.`);
 
 		ports.set(windowId, port);
 		port.start();
@@ -42,15 +44,20 @@ ipcRenderer.on(
 				return;
 			}
 
+			// Forward this message to the correct handler
 			handlers.get(windowId)?.(ev);
 		});
 
-		const pm = new PortMonitor(port, () => {
-			console.log(`Cleaning up existing ports for ${windowId}.`);
-			port.close();
-			ports.delete(windowId);
-			portMonitors.delete(windowId);
-		});
+		const pm = new PortMonitor(
+			port,
+			() => {},
+			() => {
+				console.log(`Cleaning up existing ports for ${windowId}.`);
+				port.close();
+				ports.delete(windowId);
+				portMonitors.delete(windowId);
+			},
+		);
 
 		portMonitors.set(windowId, pm);
 	},

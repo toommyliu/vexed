@@ -9,4 +9,8 @@ export const IPC_EVENTS = {
 	SETUP_IPC: 'root:setup-ipc' as const,
 
 	FAST_TRAVEL: 'fast-travel' as const,
+
+	LOADER_GRABBER_LOAD: 'loader-grabber:load' as const,
+	LOADER_GRABBER_GRAB: 'loader-grabber:grab' as const,
+	LOADER_GRABBER_EXPORT: 'loader-grabber:export' as const,
 } as const;

@@ -7,10 +7,17 @@ export default class PortMonitor {
 
 	private readonly CHECK_INTERVAL = 1_000;
 
+	private readonly onSuccess: (() => void) | undefined;
+
 	private readonly onLostConnection: (() => void) | undefined;
 
-	public constructor(port: MessagePort, onLostConnection?: () => void) {
+	public constructor(
+		port: MessagePort,
+		onSuccess?: () => void,
+		onLostConnection?: () => void,
+	) {
 		this.port = port;
+		this.onSuccess = onSuccess;
 		this.onLostConnection = onLostConnection;
 		this.initialize();
 	}
