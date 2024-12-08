@@ -4,6 +4,10 @@ const { build, context } = require('esbuild');
 
 const watch = process.argv.includes('--watch');
 
+/**
+ * @param {string} dir
+ * @returns {Promise<string[]>}
+ */
 const readdirp = async (dir) => {
 	const dirents = await readdir(dir, { withFileTypes: true });
 	const filtered = dirents.filter((dirent) => {
@@ -21,6 +25,9 @@ const readdirp = async (dir) => {
 	return Array.prototype.concat(...files);
 };
 
+/**
+ * @returns {Promise<void>}
+ */
 async function transpile() {
 	try {
 		/**
@@ -67,6 +74,13 @@ async function transpile() {
 				plugins: [createRebuildPlugin('Main')],
 			});
 
+			const commonCtx = await context({
+				...config,
+				entryPoints: await readdirp('./src/common/'),
+				outdir: 'dist/common/',
+				plugins: [createRebuildPlugin('Common')],
+			});
+
 			const rendererCtx = await context({
 				...config,
 				entryPoints: await readdirp('./src/renderer/'),
@@ -75,6 +89,7 @@ async function transpile() {
 			});
 
 			await mainCtx.watch();
+			await commonCtx.watch();
 			await rendererCtx.watch();
 
 			console.log('Watching for changes...');
@@ -87,6 +102,14 @@ async function transpile() {
 				outdir: 'dist/main/',
 			});
 			console.timeEnd('Main took');
+
+			console.time('Common took');
+			await build({
+				...config,
+				entryPoints: await readdirp('./src/common/'),
+				outdir: 'dist/common/',
+			});
+			console.timeEnd('Common took');
 
 			console.time('Renderer took');
 			await build({

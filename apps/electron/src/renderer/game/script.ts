@@ -1,21 +1,19 @@
-import './scripts/fast-travels';
-import './scripts/follower';
-import './scripts/loader-grabber';
-import './scripts/packet-spammer';
+// import './ipc/tools/fast-travels';
+// import './ipc/tools/follower';
+// import './ipc/tools/loader-grabber';
 
-import { ipcRenderer } from 'electron';
+// import './ipc/packets/logger';
+// import './ipc/packets/spammer';
 
-const { settings, auth, world, player, flash, bank } = bot;
+import { ipcRenderer } from 'electron/renderer';
+import { WINDOW_IDS } from '../../common/constants';
+import { IPC_EVENTS } from '../../common/ipc-events';
+
+const { settings, world, player, flash, bank } = bot;
 
 const mapping: Map<string, HTMLElement> = new Map();
 
 let lastRoomId: number | undefined;
-
-window.windows = {
-	game: window,
-	tools: { fastTravels: null, loaderGrabber: null, follower: null },
-	packets: { logger: null, spammer: null },
-};
 
 // #region dom manipulation
 window.addEventListener('DOMContentLoaded', async () => {
@@ -33,7 +31,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 		const $btn: HTMLButtonElement =
 			document.querySelector('#scripts-load')!;
 		$btn.addEventListener('click', async () => {
-			const scriptBody = await ipcRenderer.invoke('root:load_script');
+			const scriptBody = await ipcRenderer.invoke(IPC_EVENTS.LOAD_SCRIPT);
 			if (!scriptBody) {
 				return;
 			}
@@ -45,7 +43,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 			script.textContent = `(async () => {
 			console.log('[' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }) + '] Script started');
 			while(!bot.player.isReady()) await bot.sleep(1000);
-			${b64_out}
+			await (()=>{${b64_out}})();
 			console.log('[' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }) + '] Script finished');
 			})();`;
 			script.id = 'loaded-script';
@@ -54,75 +52,67 @@ window.addEventListener('DOMContentLoaded', async () => {
 	}
 
 	{
-		const $btn: HTMLButtonElement = document.querySelector(
+		const btn: HTMLButtonElement = document.querySelector(
 			'#scripts-toggle-dev-tools',
 		)!;
-		$btn.addEventListener('click', () => {
-			ipcRenderer.send('root:toggle-dev-tools');
-		});
+		btn.addEventListener('click', () =>
+			ipcRenderer.send(IPC_EVENTS.TOGGLE_DEV_TOOLS),
+		);
 	}
 
 	{
-		const $btn: HTMLButtonElement = document.querySelector(
+		const btn: HTMLButtonElement = document.querySelector(
 			'#tools-dropdowncontent > button:nth-child(1)',
 		)!;
-		$btn.addEventListener('click', () => {
-			window.windows.tools.fastTravels = window.open(
-				'./pages/tools/fast-travels/index.html',
-				undefined,
-				'width=510,height=494',
+		btn.addEventListener('click', () => {
+			ipcRenderer.send(
+				IPC_EVENTS.ACTIVATE_WINDOW,
+				WINDOW_IDS.FAST_TRAVELS,
 			);
 		});
 	}
 
 	{
-		const $btn: HTMLButtonElement = document.querySelector(
+		const btn: HTMLButtonElement = document.querySelector(
 			'#tools-dropdowncontent > button:nth-child(2)',
 		)!;
-		$btn.addEventListener('click', () => {
-			window.windows.tools.loaderGrabber = window.open(
-				'./pages/tools/loader-grabber/index.html',
-				undefined,
-				'width=363,height=542',
+		btn.addEventListener('click', () => {
+			ipcRenderer.send(
+				IPC_EVENTS.ACTIVATE_WINDOW,
+				WINDOW_IDS.LOADER_GRABBER,
 			);
 		});
 	}
 
 	{
-		const $btn: HTMLButtonElement = document.querySelector(
+		const btn: HTMLButtonElement = document.querySelector(
 			'#tools-dropdowncontent > button:nth-child(3)',
 		)!;
-		$btn.addEventListener('click', () => {
-			window.windows.tools.follower = window.open(
-				'./pages/tools/follower/index.html',
-				undefined,
-				'width=402,height=466',
-			);
+		btn.addEventListener('click', () => {
+			ipcRenderer.send(IPC_EVENTS.ACTIVATE_WINDOW, WINDOW_IDS.FOLLOWER);
 		});
 	}
 
 	{
-		const $btn: HTMLButtonElement = document.querySelector(
+		const btn: HTMLButtonElement = document.querySelector(
 			'#packets-dropdowncontent > button:nth-child(1)',
 		)!;
-		$btn.addEventListener('click', () => {
-			window.windows.packets.logger = window.open(
-				'./pages/packets/logger/index.html',
-				undefined,
-				'width=560,height=286',
+		btn.addEventListener('click', () => {
+			ipcRenderer.send(
+				IPC_EVENTS.ACTIVATE_WINDOW,
+				WINDOW_IDS.PACKETS_LOGGER,
 			);
 		});
 	}
 
 	{
-		const $btn: HTMLButtonElement = document.querySelector(
+		const btn: HTMLButtonElement = document.querySelector(
 			'#packets-dropdowncontent > button:nth-child(2)',
 		)!;
-		$btn.addEventListener('click', () => {
-			window.windows.packets.spammer = window.open(
-				'./pages/packets/spammer/index.html',
-				undefined,
-				'width=596,height=325',
+		btn.addEventListener('click', () => {
+			ipcRenderer.send(
+				IPC_EVENTS.ACTIVATE_WINDOW,
+				WINDOW_IDS.PACKETS_SPAMMER,
 			);
 		});
 	}
@@ -266,26 +256,7 @@ window.addEventListener('keydown', (ev) => {
 // #endregion
 
 // #region account manager
-ipcRenderer.on('root:login', (_, account: Account) => {
+ipcRenderer.on(IPC_EVENTS.LOGIN, (_, account: Account) => {
 	window.account = account;
 });
-
-window.progress = async ([percentage]: [number]) => {
-	if (
-		percentage === 100 &&
-		window?.account?.username &&
-		window?.account?.password
-	) {
-		await bot.sleep(1_000);
-		auth.login(window.account.username, window.account.password);
-		if (window.account.server) {
-			await bot.waitUntil(() => auth.servers.length > 0);
-			auth.connectTo(window.account.server);
-			await bot.waitUntil(() => player.isReady());
-			ipcRenderer.send('root:login_success', window.account.username);
-		}
-
-		delete window.account;
-	}
-};
 // #endregion

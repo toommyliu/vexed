@@ -1,3 +1,5 @@
+import type { WINDOW_IDS, WindowId } from '../../common/constants';
+import type PortMonitor from '../../common/port-monitor';
 import type { Bot } from './api/Bot';
 
 type StringBoolean = '"False"' | '"True"';
@@ -7,6 +9,8 @@ declare global {
 	const swf: GameSWF;
 
 	type Account = { password: string; server?: string; username: string };
+
+	type WindowId = (typeof WINDOW_IDS)[keyof typeof WINDOW_IDS];
 
 	type GameSWF = {
 		// Player
@@ -218,19 +222,6 @@ declare global {
 		>;
 		world: InstanceType<typeof import('./api/World')>;
 
-		windows: {
-			game: WindowProxy;
-			tools: {
-				fastTravels: WindowProxy | null;
-				loaderGrabber: WindowProxy | null;
-				follower: WindowProxy | null;
-			};
-			packets: {
-				logger: WindowProxy | null;
-				spammer: WindowProxy | null;
-			};
-		};
-
 		swf: GameSWF;
 
 		packetFromServer([packet]: [string]): Promise<void> | void;
@@ -238,5 +229,8 @@ declare global {
 		connection([state]: [string]): void;
 		progress([percentage]: [number]): void;
 		account?: Account;
-	};
+
+		ports: Map<WindowId, MessagePort>;
+		portMonitors: Map<WindowId, PortMonitor>;
+	}
 }
