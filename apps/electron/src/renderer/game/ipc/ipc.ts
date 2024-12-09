@@ -67,11 +67,11 @@ ipcRenderer.on(
 			port,
 			() => {},
 			() => {
-				console.log(`Cleaning up existing ports for ${windowId}.`);
 				port.close();
 				ports.delete(windowId);
 				portMonitors.delete(windowId);
 			},
+			true,
 		);
 
 		portMonitors.set(windowId, pm);

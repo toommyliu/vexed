@@ -11,12 +11,19 @@ export default class PortMonitor {
 
 	private readonly onLostConnection: (() => void) | undefined;
 
+	private readonly isParent: boolean;
+
+	private once = true;
+
 	public constructor(
 		port: MessagePort,
 		onSuccess?: () => void,
 		onLostConnection?: () => void,
+		isParent: boolean = false,
 	) {
 		this.port = port;
+		this.isParent = isParent;
+
 		this.onSuccess = onSuccess;
 		this.onLostConnection = onLostConnection;
 		this.initialize();
@@ -32,12 +39,24 @@ export default class PortMonitor {
 			// The heartbeat was acknowledged
 			if (ev.data?.type === 'heartbeat-ack') {
 				this.isAlive = true;
+
+				if (this.once) {
+					this.once = false;
+					if (typeof this.onSuccess === 'function') {
+						this.onSuccess();
+					}
+				}
 			}
 		});
 
 		this.checkInterval = setInterval(() => {
 			if (!this.isAlive) {
-				// console.log('Looks like we just lost our peer...');
+				if (this.isParent) {
+					console.warn('Lost connection to child.');
+				} else {
+					console.warn('Lost connection to parent.');
+				}
+
 				this.cleanup();
 
 				if (typeof this?.onLostConnection === 'function') {

@@ -27,16 +27,19 @@ async function setupHeartbeat() {
 
 	/*const pm = */ new PortMonitor(
 		msgPort,
-		() => {},
 		() => {
-			console.log('Cleaned up existing ports (if any).');
+			console.info('Established ipc with parent.');
+		},
+		() => {
 			msgPort.close();
 			transferPort.close();
 			g_msgPort = null;
-			// setTimeout(() => {
-			// 	setupHeartbeat();
-			// }, 10_000);
+			console.info('Trying to re-establish heartbeat in 1s.');
+			setTimeout(() => {
+				void setupHeartbeat();
+			}, 1_000);
 		},
+		false,
 	);
 
 	msgPort.addEventListener('message', async (ev) => {
@@ -86,4 +89,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 		buttons.push(btn);
 	}
+});
+
+window.addEventListener('beforeunload', () => {
+	g_msgPort?.close();
 });

@@ -143,13 +143,15 @@ ipcMain.handle(
 	},
 );
 
-ipcMain.on(IPC_EVENTS.SETUP_IPC, (ev: IpcMainEvent, id: string) => {
+ipcMain.on(IPC_EVENTS.SETUP_IPC, (ev: IpcMainEvent, windowId: string) => {
 	const sender = BrowserWindow.fromWebContents(ev.sender);
 	const parent = sender?.getParentWindow();
 
-	if (!sender || !parent || !id) {
+	if (!sender || !parent || !windowId) {
 		return;
 	}
 
-	parent.webContents.postMessage(IPC_EVENTS.SETUP_IPC, id, [ev.ports[0]!]);
+	console.log(`Trying to setup ipc for ${windowId}.`);
+
+	parent.webContents.postMessage(IPC_EVENTS.SETUP_IPC, windowId, [ev.ports[0]!]);
 });

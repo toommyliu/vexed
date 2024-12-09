@@ -16,11 +16,11 @@ let lastData: unknown = null;
 
 function createTreeNode(data) {
 	// The node
-	const $node = document.createElement('div');
-	$node.className = 'node';
+	const div = document.createElement('div');
+	div.className = 'node';
 
 	if (data.children && data.children.length > 0) {
-		$node.classList.add('has-children');
+		div.classList.add('has-children');
 	}
 
 	// The content
@@ -32,7 +32,7 @@ function createTreeNode(data) {
 	$text.textContent = `${data.name}${data.value ? ':' : ''}`;
 
 	$content.appendChild($text);
-	$node.appendChild($content);
+	div.appendChild($content);
 
 	if (data.children && !data.value) {
 		// Branch (root)
@@ -52,7 +52,7 @@ function createTreeNode(data) {
 			$childcontainer.appendChild($childnode);
 		}
 
-		$node.appendChild($childcontainer);
+		div.appendChild($childcontainer);
 
 		$content.addEventListener('click', (ev) => {
 			ev.stopPropagation();
@@ -77,7 +77,7 @@ function createTreeNode(data) {
 		$content.appendChild($span);
 	}
 
-	return $node;
+	return div;
 }
 
 function createTree(data) {
@@ -93,7 +93,7 @@ function parseTreeData(data, type) {
 	let out = [];
 
 	switch (type) {
-		case 0: // shop
+		case '0':
 			out = data.items.map((item) => {
 				return {
 					name: item.sName,
@@ -110,7 +110,7 @@ function parseTreeData(data, type) {
 				};
 			});
 			break;
-		case 1: // quest
+		case '1': // quest
 			out = data.map((quest) => {
 				return {
 					name: `${quest.QuestID} - ${quest.sName}`,
@@ -163,8 +163,8 @@ function parseTreeData(data, type) {
 				};
 			});
 			break;
-		case 2: // inventory
-		case 4: // bank
+		case '2':
+		case '4':
 			out = data.map((item) => {
 				return {
 					name: item.sName,
@@ -200,7 +200,7 @@ function parseTreeData(data, type) {
 				};
 			});
 			break;
-		case 3: // temp. inventory
+		case '3':
 			out = data.map((item) => {
 				return {
 					name: item.sName,
@@ -217,8 +217,8 @@ function parseTreeData(data, type) {
 				};
 			});
 			break;
-		case 5: // cell monsters
-		case 6: // map monsters
+		case '5':
+		case '6':
 			out = data.map((mon) => {
 				const ret = {
 					name: mon.strMonName,
@@ -270,20 +270,23 @@ async function setupHeartbeat() {
 	transferPort.start();
 	msgPort.start();
 
-	console.log('Established ipc with parent.');
-
 	ipcRenderer.postMessage(IPC_EVENTS.SETUP_IPC, WINDOW_IDS.LOADER_GRABBER, [
 		transferPort,
 	]);
 
 	new PortMonitor(
 		msgPort,
-		() => {},
 		() => {
-			console.log('Cleaned up existing ports (if any).');
+			console.log('Established ipc with parent.');
+		},
+		() => {
 			msgPort.close();
 			transferPort.close();
 			g_msgPort = null;
+			console.info('Trying to re-establish heartbeat in 1s.');
+			setTimeout(() => {
+				void setupHeartbeat();
+			}, 1_000);
 		},
 	);
 
@@ -303,11 +306,7 @@ async function setupHeartbeat() {
 			lastData = data;
 
 			const container = document.querySelector('#tree');
-
-			// Clear the tree
-			while (container?.firstChild) {
-				container.removeChild(container.firstChild);
-			}
+			container!.innerHTML = '';
 
 			const tree = createTree(treeData);
 			container.appendChild(tree);
@@ -356,4 +355,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 			ipcRenderer.send(IPC_EVENTS.LOADER_GRABBER_EXPORT);
 		});
 	}
+});
+
+window.addEventListener('beforeunload', () => {
+	g_msgPort?.close();
 });
