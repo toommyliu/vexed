@@ -1,7 +1,21 @@
-import { ipcMain } from 'electron/main';
-import { mgrWindow } from '../windows';
+import { join } from 'path';
+import {
+	BrowserWindow,
+	ipcMain,
+	type IpcMainInvokeEvent,
+	type IpcMainEvent,
+	app,
+} from 'electron/main';
+import { WINDOW_IDS } from '../../common/constants';
+import { IPC_EVENTS } from '../../common/ipc-events';
+import { FileManager } from '../FileManager';
+import { mgrWindow, store } from '../windows';
 
-ipcMain.on('root:login_success', async (_, username: string) => {
+const fm = FileManager.getInstance();
+
+const PUBLIC = join(__dirname, '../../../public');
+
+ipcMain.on(IPC_EVENTS.LOGIN_SUCCESS, async (_, username: string) => {
 	if (!mgrWindow) {
 		return;
 	}
@@ -9,4 +23,135 @@ ipcMain.on('root:login_success', async (_, username: string) => {
 	console.log(`${username} successfully logged in`);
 
 	mgrWindow.webContents.send('manager:enable_button', username);
+});
+
+ipcMain.on(IPC_EVENTS.ACTIVATE_WINDOW, async (ev: IpcMainEvent, id: string) => {
+	const sender = BrowserWindow.fromWebContents(ev.sender);
+	if (!sender || !id) {
+		return false;
+	}
+
+	const windows = store.get(sender.id);
+	if (!windows) {
+		console.log(`${sender.id} was not found in store?`);
+		return false;
+	}
+
+	let ref: BrowserWindow | null = null;
+	let path: string | null = null;
+	let width: number;
+	let height: number;
+
+	switch (id) {
+		case WINDOW_IDS.FAST_TRAVELS:
+			ref = windows.tools.fastTravels;
+			path = join(PUBLIC, 'game/tools/fast-travels/index.html');
+			width = 510;
+			height = 494;
+			break;
+		case WINDOW_IDS.LOADER_GRABBER:
+			ref = windows.tools.loaderGrabber;
+			path = join(PUBLIC, 'game/tools/loader-grabber/index.html');
+			width = 363;
+			height = 542;
+			break;
+		case WINDOW_IDS.FOLLOWER:
+			ref = windows.tools.follower;
+			path = join(PUBLIC, 'game/tools/follower/index.html');
+			width = 402;
+			height = 466;
+			break;
+		case WINDOW_IDS.PACKETS_LOGGER:
+			ref = windows.packets.logger;
+			path = join(PUBLIC, 'game/packets/logger/index.html');
+			width = 560;
+			height = 286;
+			break;
+		case WINDOW_IDS.PACKETS_SPAMMER:
+			ref = windows.packets.spammer;
+			path = join(PUBLIC, 'game/packets/spammer/index.html');
+			width = 596;
+			height = 325;
+			break;
+	}
+
+	// Restore the previously created window
+	if (ref && !ref?.isDestroyed()) {
+		ref.show();
+		ref.focus();
+		return true;
+	}
+
+	// Create it
+	const newWindow = new BrowserWindow({
+		title: '',
+		webPreferences: {
+			contextIsolation: false,
+			nodeIntegration: true,
+		},
+		// Parent is required in order to maintain parent-child relationships and for ipc calls
+		// Moving the parent also moves the child, as well as minimizing it
+		parent: sender,
+		width: width!,
+		minWidth: width!,
+		minHeight: height!,
+		height: height!,
+	});
+
+	if (!app.isPackaged) {
+		newWindow.webContents.openDevTools({ mode: 'right' });
+	}
+
+	// Don't close the window, just hide it to be reused later
+	newWindow.on('close', (ev) => {
+		ev.preventDefault();
+		newWindow.hide();
+	});
+
+	await newWindow.loadFile(path!);
+
+	// Update the store
+	switch (id) {
+		case WINDOW_IDS.FAST_TRAVELS:
+			windows.tools.fastTravels = newWindow;
+			break;
+		case WINDOW_IDS.LOADER_GRABBER:
+			windows.tools.loaderGrabber = newWindow;
+			break;
+		case WINDOW_IDS.FOLLOWER:
+			windows.tools.follower = newWindow;
+			break;
+		case WINDOW_IDS.PACKETS_LOGGER:
+			windows.packets.logger = newWindow;
+			break;
+		case WINDOW_IDS.PACKETS_SPAMMER:
+			windows.packets.spammer = newWindow;
+			break;
+	}
+
+	return true;
+});
+
+ipcMain.handle(
+	IPC_EVENTS.READ_FAST_TRAVELS,
+	async (_ev: IpcMainInvokeEvent) => {
+		try {
+			return await fm.readJson(fm.fastTravelsPath);
+		} catch {
+			return fm.defaultFastTravels;
+		}
+	},
+);
+
+ipcMain.on(IPC_EVENTS.SETUP_IPC, (ev: IpcMainEvent, windowId: string) => {
+	const sender = BrowserWindow.fromWebContents(ev.sender);
+	const parent = sender?.getParentWindow();
+
+	if (!sender || !parent || !windowId) {
+		return;
+	}
+
+	console.log(`Trying to setup ipc for ${windowId}.`);
+
+	parent.webContents.postMessage(IPC_EVENTS.SETUP_IPC, windowId, [ev.ports[0]!]);
 });
