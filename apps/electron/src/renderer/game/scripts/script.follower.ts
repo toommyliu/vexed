@@ -92,6 +92,11 @@ window.addEventListener('DOMContentLoaded', async () => {
 								'#copy-walk',
 							) as HTMLInputElement
 						).checked,
+						attackPriority: (
+							document.querySelector(
+								'#attack-priority',
+							) as HTMLInputElement
+						).value,
 					},
 				});
 			} else {

@@ -1,11 +1,12 @@
 import merge from 'lodash.merge';
 import { IPC_EVENTS } from '../../../common/ipc-events';
 import type { SetIntervalAsyncTimer } from '../api/util/TimerManager';
+import { PlayerState } from '../api/Player';
 
 let intervalId: SetIntervalAsyncTimer<unknown[]> | null = null;
 let index = 0;
 
-const config = {};
+const config: Partial<FollowerConfig> = {};
 
 function packetHandler(packet: string) {
 	if (!intervalId) return;
@@ -15,20 +16,15 @@ function packetHandler(packet: string) {
 
 	if (packet.startsWith('%') && cmd === 'uotls') {
 		const playerName = args[4]!.toLowerCase();
-		if (
-			'name' in config &&
-			playerName === config.name &&
-			'copyWalk' in config &&
-			config.copyWalk
-		) {
-			const move = args[5]!.split(',');
+		if (config?.name && playerName === config.name && config?.copyWalk) {
+			const pkt = args[5]!.split(',');
 
 			// const spd = move.find((pkt) => pkt.startsWith('sp:'));
-			const xPos = move.find((pkt) => pkt.startsWith('tx:'));
-			const yPos = move.find((pkt) => pkt.startsWith('ty:'));
+			const xPos = pkt.find((pkt) => pkt.startsWith('tx:'));
+			const yPos = pkt.find((pkt) => pkt.startsWith('ty:'));
 
 			if (!xPos || !yPos) {
-				console.warn('No x or y position found in move packet');
+				console.warn('Follower: no x or y position found.');
 				return;
 			}
 
@@ -66,7 +62,9 @@ export default async function handler(ev: MessageEvent) {
 			skillWait: og_skillWait,
 			skillDelay: og_skillDelay,
 			copyWalk: og_copyWalk,
+			attackPriority: og_attackPriority,
 		}: {
+			attackPriority: string;
 			copyWalk: boolean;
 			name: string;
 			skillDelay: string;
@@ -81,27 +79,55 @@ export default async function handler(ev: MessageEvent) {
 		const skillWait = og_skillWait ?? false;
 		const skillDelay = Number.parseInt(og_skillDelay, 10) ?? 150;
 		const copyWalk = og_copyWalk ?? false;
+		const attackPriority = [];
 
-		merge(config, { copyWalk, name, skillList, skillWait, skillDelay });
+		if (og_attackPriority !== '') {
+			const prio = og_attackPriority.split(',').map((tgt) => tgt.trim());
+			attackPriority.push(...prio);
+		}
+
+		merge(config, {
+			attackPriority,
+			copyWalk,
+			name,
+			skillList,
+			skillWait,
+			skillDelay,
+		});
 
 		intervalId = bot.timerManager.setInterval(async () => {
 			if (!bot.player.isReady()) return;
 
 			// eslint-disable-next-line @typescript-eslint/no-loop-func
 			while (!bot.flash.call(() => swf.GetCellPlayers(name))) {
-				await bot.combat.exit();
+				if (bot.player.state === PlayerState.InCombat)
+					await bot.combat.exit();
+
 				await bot.sleep(1_000);
 				bot.world.goto(name);
 			}
 
 			bot.world.setSpawnPoint();
 
-			bot.combat.attack('*');
-			if (bot.combat.hasTarget()) {
-				await bot.combat.useSkill(skillList[index]!, false, skillWait);
-				index = (index + 1) % skillList.length;
-				await bot.sleep(skillDelay);
+			if (bot.world.monsters.length === 0)
+				return;
+
+			if ('attackPriority' in config) {
+				for (const tgt of config.attackPriority) {
+					if (bot.world.isMonsterAvailable(tgt)) {
+						bot.combat.attack(tgt);
+						break;
+					}
+				}
 			}
+
+			if (!bot.combat.hasTarget()) {
+				bot.combat.attack('*');
+			}
+
+			await bot.combat.useSkill(skillList[index]!, false, skillWait);
+			index = (index + 1) % skillList.length;
+			await bot.sleep(skillDelay);
 		}, 1_000);
 	} else if (ev.data.event === IPC_EVENTS.FOLLOWER_STOP) {
 		if (!intervalId) {
@@ -113,3 +139,12 @@ export default async function handler(ev: MessageEvent) {
 		intervalId = null;
 	}
 }
+
+type FollowerConfig = {
+	attackPriority: string[];
+	copyWalk: boolean;
+	name: string;
+	skillDelay: number;
+	skillList: string[];
+	skillWait: boolean;
+};
