@@ -49,6 +49,71 @@ async function setupHeartbeat() {
 	});
 }
 
+function toggleState(state: boolean) {
+	{
+		const input = document.querySelector('#player');
+		if (state) {
+			input?.setAttribute('disabled', 'true');
+		} else {
+			input?.removeAttribute('disabled');
+		}
+	}
+
+	{
+		const btn = document.querySelector('#me');
+		if (state) {
+			btn?.setAttribute('disabled', 'true');
+		} else {
+			btn?.removeAttribute('disabled');
+		}
+	}
+
+	{
+		const input = document.querySelector('#skill-list');
+		if (state) {
+			input?.setAttribute('disabled', 'true');
+		} else {
+			input?.removeAttribute('disabled');
+		}
+	}
+
+	{
+		const input = document.querySelector('#skill-wait');
+		if (state) {
+			input?.setAttribute('disabled', 'true');
+		} else {
+			input?.removeAttribute('disabled');
+		}
+	}
+
+	{
+		const input = document.querySelector('#skill-delay');
+		if (state) {
+			input?.setAttribute('disabled', 'true');
+		} else {
+			input?.removeAttribute('disabled');
+		}
+	}
+
+	{
+		const input = document.querySelector('#copy-walk');
+		if (state) {
+			input?.setAttribute('disabled', 'true');
+		} else {
+			input?.removeAttribute('disabled');
+		}
+	}
+
+	{
+		const input = document.querySelector('#attack-priority');
+		if (state) {
+			input?.setAttribute('disabled', 'true');
+		} else {
+			input?.removeAttribute('disabled');
+		}
+	}
+}
+
 window.addEventListener('DOMContentLoaded', async () => {
 	await setupHeartbeat();
 
@@ -62,6 +127,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 	{
 		const input = document.querySelector('#start') as HTMLInputElement;
 		input.addEventListener('click', async () => {
+			toggleState(input.checked);
+
 			// See if button is checked
 			if (input.checked) {
 				const name = (
