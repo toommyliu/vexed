@@ -1,94 +1,88 @@
-<link rel="stylesheet" href="../../../w3.css" />
-<link rel="stylesheet" href="../../../shared.css" />
-<link rel="stylesheet" href="styles.css" />
-
-<script src="script.js" type="module"></script>
-
-<div class="w3-container w3-padding-large">
-	<div class="w3-card-4 w3-padding-large w3-margin-bottom w3-round-medium" id="card1">
-		<div>
-			<span>Player:</span>
-			<div style="display: flex; flex-direction: row">
-				<div style="flex-grow: 1; margin-right: 8px">
-					<input id="player" class="w3-input w3-border w3-round" type="text" />
-				</div>
-				<div style="flex-grow: 0">
-					<button
-						class="w3-btn w3-round"
-						id="me"
-						style="width: 50px; height: 36px; padding: 0px"
-					>
-						me
-					</button>
-				</div>
-			</div>
-		</div>
-		<div>
-			<span>Skill List:</span>
-			<div style="display: flex; flex-direction: row">
-				<div style="flex-grow: 1; margin-right: 8px">
-					<input
-						id="skills"
-						class="w3-input w3-border w3-round"
-						type="text"
-						value="1,2,3,4"
-						style="
-							background-color: #3f3f3f;
-							color: white;
-							border-color: #4f4f4f;
-						"
-					/>
-				</div>
-				<div
-					style="display: flex; flex-direction: row; margin-top: 8px"
-				>
-					<div>
-						<label class="w3-check">
-							<input type="checkbox" id="skill-wait" />
-						</label>
+<!doctype html>
+<html data-bs-theme="dark">
+	<head>
+		<link href="../../../shared/halfmoon.css" rel="stylesheet" />
+	</head>
+	<body>
+		<div class="container py-4">
+			<div class="card mb-3">
+				<div class="card-body">
+					<div class="mb-3">
+						<label for="player" class="form-label">Player:</label>
+						<div class="input-group">
+							<input id="player" class="form-control" type="text" />
+							<button
+								class="btn btn-outline-secondary"
+								id="me"
+								type="button"
+							>
+								me
+							</button>
+						</div>
 					</div>
-					<div>
-						<span>Wait</span>
+					<div class="mb-3">
+						<label for="skills" class="form-label">Skill List:</label>
+						<div class="d-flex">
+							<input
+								id="skill-list"
+								class="form-control me-2"
+								type="text"
+								value="1,2,3,4"
+							/>
+							<div class="form-check align-self-center">
+								<input
+									class="form-check-input"
+									type="checkbox"
+									id="skill-wait"
+								/>
+								<label class="form-check-label" for="skill-wait"
+									>Wait</label
+								>
+							</div>
+						</div>
+					</div>
+					<div class="mb-3">
+						<label for="skill-delay" class="form-label">Skill Delay:</label>
+						<div class="input-group" style="width: 200px">
+							<input
+								id="skill-delay"
+								class="form-control"
+								type="number"
+								min="0"
+								value="150"
+							/>
+							<span class="input-group-text">ms</span>
+						</div>
+					</div>
+					<div class="form-check">
+						<input class="form-check-input" type="checkbox" id="start" />
+						<label class="form-check-label" for="start">Enable</label>
+					</div>
+				</div>
+			</div>
+			<div class="card">
+				<div class="card-body">
+					<div class="mb-3">
+						<label for="attack-priority" class="form-label"
+							>Attack Priority:</label
+						>
+						<input
+							id="attack-priority"
+							class="form-control"
+							type="text"
+							value="Defense Drone, Attack Drone"
+						/>
+					</div>
+					<div class="form-check">
+						<input class="form-check-input" type="checkbox" id="copy-walk" />
+						<label class="form-check-label" for="copy-walk">Copy Walk</label>
 					</div>
 				</div>
 			</div>
 		</div>
-		<div>
-			<div style="display: inline-flex; flex-direction: column">
-				<div>
-					<span>Skill Delay:</span>
-				</div>
-				<div style="display: flex; flex-direction: row; align-items: center">
-					<input
-						id="skill-delay"
-						class="w3-input w3-border w3-round"
-						type="number"
-						min="0"
-						value="150"
-						style="width: 50%; margin-right: 8px;"
-					/>
-					<span>ms</span>
-				</div>
-			</div>
-		</div>
-		<div>
-			<input type="checkbox" id="start" />
-			<span class="">Enable</span>
-		</div>
-	</div>
-	<div class="w3-card-4 w3-padding-large w3-margin-bottom w3-round-medium" id="card2">
-		<div>
-			<span>Attack Priority:</span>
-			<input
-				id="attack-priority"
-				class="w3-input w3-border w3-round"
-				type="text"
-				value="Defense Drone, Attack Drone"
-			/>
-		</div>
-		<div>
-			<input type="checkbox" id="copy-walk" />
-			<span class="w3-padding-small">Copy Walk</span>
-		</div>
-	</div>
-</div>
+
+		<script type="module">
+			require('../../../../dist/renderer/game/scripts/script.follower.js');
+		</script>
+	</body>
+</html>

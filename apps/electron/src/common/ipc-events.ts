@@ -13,4 +13,8 @@ export const IPC_EVENTS = {
 	LOADER_GRABBER_LOAD: 'loader-grabber:load' as const,
 	LOADER_GRABBER_GRAB: 'loader-grabber:grab' as const,
 	LOADER_GRABBER_EXPORT: 'loader-grabber:export' as const,
+
+	FOLLOWER_ME: 'follower:me' as const,
+	FOLLOWER_START: 'follower:start' as const,
+	FOLLOWER_STOP: 'follower:stop' as const,
 } as const;

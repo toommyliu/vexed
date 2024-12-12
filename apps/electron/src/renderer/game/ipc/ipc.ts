@@ -2,7 +2,9 @@ import { ipcRenderer, type IpcRendererEvent } from 'electron/renderer';
 import { WINDOW_IDS } from '../../../common/constants';
 import { IPC_EVENTS } from '../../../common/ipc-events';
 import PortMonitor from '../../../common/port-monitor';
+
 import ipcFastTravelsHandler from './ipc.fast-travels';
+import ipcFollower from './ipc.follower';
 import ipcLoaderGrabberHandler from './ipc.loader-grabber';
 
 const ports: Map<WindowId, MessagePort> = new Map();
@@ -13,6 +15,7 @@ const handlers = new Map<
 >();
 
 handlers.set(WINDOW_IDS.FAST_TRAVELS, ipcFastTravelsHandler);
+handlers.set(WINDOW_IDS.FOLLOWER, ipcFollower);
 handlers.set(WINDOW_IDS.LOADER_GRABBER, ipcLoaderGrabberHandler);
 
 window.ports = ports;
@@ -45,8 +48,6 @@ ipcRenderer.on(
 			await bot.sleep(100);
 		}
 
-		console.log(`Established ipc with window id: ${windowId}.`);
-
 		ports.set(windowId, port);
 		port.start();
 
@@ -59,13 +60,22 @@ ipcRenderer.on(
 				return;
 			}
 
+			if (!handlers.has(windowId)) {
+				console.warn(
+					`Received message from ${windowId} but no handler is registered.`,
+				);
+				return;
+			}
+
 			// Forward this message to the correct handler
 			handlers.get(windowId)?.(ev);
 		});
 
 		const pm = new PortMonitor(
 			port,
-			() => {},
+			() => {
+				console.log(`Established ipc with window id: ${windowId}.`);
+			},
 			() => {
 				port.close();
 				ports.delete(windowId);
