@@ -7,6 +7,7 @@ export const IPC_EVENTS = {
 	ACTIVATE_WINDOW: 'root:activate-window' as const,
 	READ_FAST_TRAVELS: 'root:read-fast-travels' as const,
 	SETUP_IPC: 'root:setup-ipc' as const,
+	GET_WINDOW_ID: 'root:get-window-id' as const,
 
 	FAST_TRAVEL: 'fast-travel' as const,
 

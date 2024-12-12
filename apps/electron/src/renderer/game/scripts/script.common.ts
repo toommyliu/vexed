@@ -12,6 +12,12 @@ function addMsgHandler(handler: MessageHandler) {
 }
 
 async function setupHeartbeat() {
+	const windowId = await ipcRenderer.invoke(IPC_EVENTS.GET_WINDOW_ID);
+	if (!windowId) {
+		console.warn('Failed to get window id, setup failed.');
+		return;
+	}
+
 	// New ports are required, if previous ones are closed
 	const channel = new MessageChannel();
 	const transferPort = channel.port1;
@@ -22,9 +28,7 @@ async function setupHeartbeat() {
 	transferPort.start();
 	sharedPort.start();
 
-	ipcRenderer.postMessage(IPC_EVENTS.SETUP_IPC, WINDOW_IDS.TEST, [
-		transferPort,
-	]);
+	ipcRenderer.postMessage(IPC_EVENTS.SETUP_IPC, windowId, [transferPort]);
 
 	new PortMonitor(
 		sharedPort,
