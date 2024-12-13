@@ -74,6 +74,7 @@ export async function createGame(
 		(details, callback) => {
 			details.requestHeaders['User-Agent'] = ARTIX_USERAGENT;
 			details.requestHeaders['artixmode'] = 'launcher';
+			// The rest of these are probably redundant
 			details.requestHeaders['x-requested-with'] =
 				'ShockwaveFlash/32.0.0.371';
 			details.requestHeaders['origin'] = 'https://game.aq.com';
@@ -138,14 +139,15 @@ export async function createGame(
 
 					console.log('Blocking url (1)', _url);
 					ev.preventDefault();
-					// @ts-expect-error this is ok
-					ev.newGuest = null;
+					// This doesn't seem to be needed, anymore?
+					// ev.newGuest = null;
 					return null;
 				}
 
 				ev.preventDefault();
 
 				const newWindow = new BrowserWindow({
+					title: '',
 					webPreferences: {
 						nodeIntegration: false,
 						plugins: true,
