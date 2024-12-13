@@ -23,36 +23,43 @@ window.addEventListener('ready', async () => {
 			await navigator.clipboard.writeText(packets.join('\n'));
 		});
 	}
+
 	{
 		const btn = document.querySelector('#clear') as HTMLButtonElement;
 		btn.addEventListener('click', () => {
-			document.querySelector("#logger")!.innerHTML = '';
+			document.querySelector('#logger')!.innerHTML = '';
 			packets.length = 0;
 		});
 	}
 
-	const stopBtn = document.querySelector('#stop') as HTMLButtonElement;
-	const onBtn = document.querySelector('#start') as HTMLButtonElement;
+	{
+		const stopBtn = document.querySelector('#stop') as HTMLButtonElement;
+		const onBtn = document.querySelector('#start') as HTMLButtonElement;
 
-	stopBtn.addEventListener('click', () => {
-		on = false;
-		stopBtn.disabled = true;
-		stopBtn.classList.add('disabled');
-		onBtn.disabled = false;
-		onBtn.classList.remove('disabled');
+		stopBtn.addEventListener('click', () => {
+			on = false;
+			stopBtn.disabled = true;
+			stopBtn.classList.add('disabled');
+			onBtn.disabled = false;
+			onBtn.classList.remove('disabled');
 
-		window.msgPort?.postMessage({ event: IPC_EVENTS.PACKET_LOGGER_STOP });
-	});
+			window.msgPort?.postMessage({
+				event: IPC_EVENTS.PACKET_LOGGER_STOP,
+			});
+		});
 
-	onBtn.addEventListener('click', () => {
-		on = true;
-		onBtn.disabled = true;
-		onBtn.classList.add('disabled');
-		stopBtn.disabled = false;
-		stopBtn.classList.remove('disabled');
+		onBtn.addEventListener('click', () => {
+			on = true;
+			onBtn.disabled = true;
+			onBtn.classList.add('disabled');
+			stopBtn.disabled = false;
+			stopBtn.classList.remove('disabled');
 
-		window.msgPort?.postMessage({ event: IPC_EVENTS.PACKET_LOGGER_START });
-	});
+			window.msgPort?.postMessage({
+				event: IPC_EVENTS.PACKET_LOGGER_START,
+			});
+		});
+	}
 
 	window.addMsgHandler(async (ev) => {
 		if (ev.data.event === IPC_EVENTS.PACKET_LOGGER_PACKET && on) {

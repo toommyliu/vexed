@@ -1,8 +1,10 @@
 import { IPC_EVENTS } from '../../../common/ipc-events';
 
-let cb: ((packet: string) => void) | null;
+let on = false;
 
-const onClientPacket = (ev: MessageEvent, packet: string) => {
+const fn = (ev: MessageEvent, packet: string) => {
+	if (!on) return;
+
 	(ev.target as MessagePort).postMessage({
 		event: IPC_EVENTS.PACKET_LOGGER_PACKET,
 		args: { packet },
@@ -13,10 +15,9 @@ export default async function handler(ev: MessageEvent) {
 	const { event } = ev.data;
 
 	if (event === IPC_EVENTS.PACKET_LOGGER_START) {
-		cb = (packet: string) => onClientPacket(ev, packet);
-		bot.on('packetFromClient', cb);
+		on = true;
+		bot.on('packetFromClient', (packet: string) => fn(ev, packet));
 	} else if (event === IPC_EVENTS.PACKET_LOGGER_STOP) {
-		bot.off('packetFromClient', cb!);
-		cb = null;
+		on = false;
 	}
 }

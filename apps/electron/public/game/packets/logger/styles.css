@@ -1,6 +1,6 @@
 #logger {
-	min-height: 100px;
-	max-height: calc(100vh - 125px);
+	height: calc(100vh - 400px);
+	overflow-y: auto;
 }
 
 .line {
@@ -11,5 +11,5 @@
 }
 
 .line:hover {
-	background-color: lightslategrey;
+	background-color: grey;
 }
