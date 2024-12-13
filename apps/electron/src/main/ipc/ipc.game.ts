@@ -154,7 +154,7 @@ ipcMain.on(IPC_EVENTS.SETUP_IPC, (ev: IpcMainEvent, windowId: string) => {
 		return;
 	}
 
-	console.log(`Trying to setup ipc for ${windowId}.`);
+	console.log(`Setting up ipc for ${windowId}.`);
 
 	parent.webContents.postMessage(IPC_EVENTS.SETUP_IPC, windowId, [
 		ev.ports[0]!,

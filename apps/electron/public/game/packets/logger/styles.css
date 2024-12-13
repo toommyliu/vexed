@@ -1,18 +1,6 @@
-body {
-	overflow: hidden;
-}
-
 #logger {
-	min-height: 200px;
-	max-height: calc(
-		100vh - 150px
-	);
-}
-
-@media (max-height: 500px) {
-	#logger {
-		min-height: 100px;
-	}
+	min-height: 100px;
+	max-height: calc(100vh - 125px);
 }
 
 .line {

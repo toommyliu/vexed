@@ -18,4 +18,8 @@ export const IPC_EVENTS = {
 	FOLLOWER_ME: 'follower:me' as const,
 	FOLLOWER_START: 'follower:start' as const,
 	FOLLOWER_STOP: 'follower:stop' as const,
+
+	PACKET_LOGGER_START: 'packet-logger:start' as const,
+	PACKET_LOGGER_STOP: 'packet-logger:stop' as const,
+	PACKET_LOGGER_PACKET: 'packet-logger:packet' as const,
 } as const;

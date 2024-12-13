@@ -5,6 +5,7 @@ import PortMonitor from '../../../common/port-monitor';
 import ipcFastTravelsHandler from './ipc.fast-travels';
 import ipcFollower from './ipc.follower';
 import ipcLoaderGrabberHandler from './ipc.loader-grabber';
+import ipcPacketLoggerHandler from './ipc.logger';
 
 const ports: Map<WindowId, MessagePort> = new Map();
 const portMonitors: Map<WindowId, PortMonitor> = new Map();
@@ -16,6 +17,7 @@ const handlers = new Map<
 handlers.set(WINDOW_IDS.FAST_TRAVELS, ipcFastTravelsHandler);
 handlers.set(WINDOW_IDS.FOLLOWER, ipcFollower);
 handlers.set(WINDOW_IDS.LOADER_GRABBER, ipcLoaderGrabberHandler);
+handlers.set(WINDOW_IDS.PACKETS_LOGGER, ipcPacketLoggerHandler);
 
 window.ports = ports;
 window.portMonitors = portMonitors;

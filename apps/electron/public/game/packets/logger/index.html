@@ -1,8 +1,11 @@
 <!doctype html>
 <html lang="en" data-bs-theme="dark">
 	<head>
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<link href="../../../../shared/halfmoon.css" rel="stylesheet" />
+		<meta
+			http-equiv="Content-Security-Policy"
+			content="default-src 'self'; script-src 'unsafe-inline';"
+		/>
+		<link href="../../../shared/halfmoon.css" rel="stylesheet" />
 		<link href="./styles.css" rel="stylesheet" />
 	</head>
 
@@ -15,7 +18,9 @@
 					<button class="btn btn-outline-primary" id="save">
 						Save To File
 					</button>
-					<button class="btn btn-outline-primary" id="copy">Copy All</button>
+					<button class="btn btn-outline-primary" id="copy-all">
+						Copy All
+					</button>
 					<button class="btn btn-outline-primary" id="clear">Clear</button>
 				</div>
 
@@ -26,9 +31,12 @@
 			</div>
 		</div>
 
-		<script
-			src="../../../../../dist/renderer/game/pages/packets/logger.js"
-			type="module"
-		></script>
+		<script>
+			require('../../../../dist/renderer/game/scripts/script.common.js');
+
+			window.addEventListener('DOMContentLoaded', () => {
+				require('../../../../dist/renderer/game/scripts/script.logger.js');
+			});
+		</script>
 	</body>
 </html>
