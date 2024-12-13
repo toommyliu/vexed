@@ -1,10 +1,10 @@
 import { join } from 'path';
 import {
+	app,
 	BrowserWindow,
 	ipcMain,
-	type IpcMainInvokeEvent,
 	type IpcMainEvent,
-	app,
+	type IpcMainInvokeEvent,
 } from 'electron/main';
 import { WINDOW_IDS } from '../../common/constants';
 import { IPC_EVENTS } from '../../common/ipc-events';
