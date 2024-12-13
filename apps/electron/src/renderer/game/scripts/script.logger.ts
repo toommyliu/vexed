@@ -6,12 +6,29 @@ let on = false;
 window.addEventListener('ready', async () => {
 	{
 		const btn = document.querySelector('#save') as HTMLButtonElement;
+		btn.addEventListener('click', async () => {
+			if (!packets.length) return;
+
+			const blob = new Blob([packets.join('\n')], { type: 'text/plain' });
+			const a = document.createElement('a');
+			a.href = URL.createObjectURL(blob);
+			a.download = 'packets.txt';
+			a.click();
+		});
 	}
+
 	{
 		const btn = document.querySelector('#copy-all') as HTMLButtonElement;
+		btn.addEventListener('click', async () => {
+			await navigator.clipboard.writeText(packets.join('\n'));
+		});
 	}
 	{
 		const btn = document.querySelector('#clear') as HTMLButtonElement;
+		btn.addEventListener('click', () => {
+			document.querySelector("#logger")!.innerHTML = '';
+			packets.length = 0;
+		});
 	}
 
 	const stopBtn = document.querySelector('#stop') as HTMLButtonElement;
@@ -38,29 +55,24 @@ window.addEventListener('ready', async () => {
 	});
 
 	window.addMsgHandler(async (ev) => {
-		if (ev.data.event === IPC_EVENTS.PACKET_LOGGER_PACKET) {
-			if (on) {
-				const packet: string = ev.data.args.packet;
-				const pkt = packet.substring(17);
+		if (ev.data.event === IPC_EVENTS.PACKET_LOGGER_PACKET && on) {
+			const { packet }: { packet: string } = ev.data.args;
+			const pkt = packet.slice(17);
 
+			const container = document.querySelector('#logger');
+
+			{
 				const div = document.createElement('div');
 				div.classList.add('line');
 				div.textContent = pkt;
-
 				div.addEventListener('click', async () => {
 					await navigator.clipboard.writeText(pkt);
 				});
-
-				document.querySelector('#logger')?.appendChild(div);
-				document
-					.querySelector('#logger')
-					?.scrollTo(
-						0,
-						document.querySelector('#logger')!.scrollHeight,
-					);
-
-				packets.push(pkt);
+				container!.appendChild(div);
 			}
+
+			container!.scrollTo(0, container!.scrollHeight);
+			packets.push(pkt);
 		}
 	});
 });
