@@ -22,4 +22,7 @@ export const IPC_EVENTS = {
 	PACKET_LOGGER_START: 'packet-logger:start' as const,
 	PACKET_LOGGER_STOP: 'packet-logger:stop' as const,
 	PACKET_LOGGER_PACKET: 'packet-logger:packet' as const,
+
+	PACKET_SPAMMER_START: 'packet-spammer:start' as const,
+	PACKET_SPAMMER_STOP: 'packet-spammer:stop' as const,
 } as const;

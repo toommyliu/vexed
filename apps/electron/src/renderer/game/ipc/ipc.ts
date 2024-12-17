@@ -6,6 +6,7 @@ import ipcFastTravelsHandler from './ipc.fast-travels';
 import ipcFollower from './ipc.follower';
 import ipcLoaderGrabberHandler from './ipc.loader-grabber';
 import ipcPacketLoggerHandler from './ipc.logger';
+import ipcPacketSpammerHandler from './ipc.spammer';
 
 const ports: Map<WindowId, MessagePort> = new Map();
 const portMonitors: Map<WindowId, PortMonitor> = new Map();
@@ -18,6 +19,7 @@ handlers.set(WINDOW_IDS.FAST_TRAVELS, ipcFastTravelsHandler);
 handlers.set(WINDOW_IDS.FOLLOWER, ipcFollower);
 handlers.set(WINDOW_IDS.LOADER_GRABBER, ipcLoaderGrabberHandler);
 handlers.set(WINDOW_IDS.PACKETS_LOGGER, ipcPacketLoggerHandler);
+handlers.set(WINDOW_IDS.PACKETS_SPAMMER, ipcPacketSpammerHandler);
 
 window.ports = ports;
 window.portMonitors = portMonitors;
