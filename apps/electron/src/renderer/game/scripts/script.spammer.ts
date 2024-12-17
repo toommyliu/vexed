@@ -2,7 +2,7 @@ import { IPC_EVENTS } from '../../../common/ipc-events';
 
 let selectedLine: HTMLElement | null = null;
 
-let packets: string[] = [];
+const packets: string[] = [];
 let on = false;
 
 window.addEventListener('ready', async () => {
@@ -10,6 +10,7 @@ window.addEventListener('ready', async () => {
 		const btn = document.querySelector('#clear') as HTMLButtonElement;
 		btn.addEventListener('click', () => {
 			document.querySelector('#spammer')!.innerHTML = '';
+			packets.length = 0;
 		});
 	}
 
@@ -60,8 +61,8 @@ window.addEventListener('ready', async () => {
 
 			removeBtn.classList.add('disabled');
 
-			const index = packets.findIndex(
-				(packet) => packet === selectedLine!.innerHTML,
+			const index = packets.indexOf(
+				selectedLine!.innerHTML,
 			);
 			packets.splice(index, 1);
 		});
@@ -94,13 +95,43 @@ window.addEventListener('ready', async () => {
 				event: IPC_EVENTS.PACKET_SPAMMER_START,
 				args: {
 					packets,
-					delay: Number.parseInt(
-						(document.querySelector('#delay') as HTMLInputElement)
-							.value,
-						10,
-					) ?? 1_000,
+					delay:
+						Number.parseInt(
+							(
+								document.querySelector(
+									'#delay',
+								) as HTMLInputElement
+							).value,
+							10,
+						) ?? 1_000,
 				},
 			});
 		});
 	}
+
+	window.addEventListener('port-ready', () => {
+		// Are we running but the port was closed?
+		if (on) {
+			console.warn('Port was closed but we are still running, stopping.');
+
+			// Let's just safely close everything
+			window.msgPort?.postMessage({
+				event: IPC_EVENTS.PACKET_SPAMMER_STOP,
+			});
+
+			// Enable buttons
+			const stopBtn = document.querySelector(
+				'#stop',
+			) as HTMLButtonElement;
+			const onBtn = document.querySelector('#start') as HTMLButtonElement;
+
+			on = false;
+
+			stopBtn.disabled = true;
+			stopBtn.classList.add('disabled');
+
+			onBtn.disabled = false;
+			onBtn.classList.remove('disabled');
+		}
+	});
 });
