@@ -69,8 +69,12 @@
 			</div>
 		</div>
 
-		<script type="module">
-			require('../../../../dist/renderer/game/scripts/loader-grabber.js');
+		<script>
+			require('../../../../dist/renderer/game/scripts/script.common.js');
+
+			window.addEventListener('DOMContentLoaded', () => {
+				require('../../../../dist/renderer/game/scripts/script.loader-grabber.js');
+			});
 		</script>
 	</body>
 </html>

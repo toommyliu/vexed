@@ -1,7 +1,5 @@
 import { ipcRenderer } from 'electron/renderer';
-import { WINDOW_IDS } from '../../../common/constants';
 import { IPC_EVENTS } from '../../../common/ipc-events';
-import PortMonitor from '../../../common/port-monitor';
 
 // square-plus
 const svgOpen =
@@ -11,7 +9,6 @@ const svgOpen =
 const svgClose =
 	'<svg width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M64 32C28.7 32 0 60.7 0 96L0 416c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-320c0-35.3-28.7-64-64-64L64 32zm88 200l144 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-144 0c-13.3 0-24-10.7-24-24s10.7-24 24-24z"/></svg>';
 
-let g_msgPort: MessagePort | null = null;
 let lastData: unknown = null;
 
 function createTreeNode(data) {
@@ -259,42 +256,48 @@ function parseTreeData(data, type) {
 	return out;
 }
 
-async function setupHeartbeat() {
-	// New ports are required, if previous ones are closed
-	const channel = new MessageChannel();
-	const transferPort = channel.port1;
-	const msgPort = channel.port2;
-	g_msgPort = msgPort;
+window.addEventListener('ready', async () => {
+	{
+		const btn = document.querySelector('#loader-btn') as HTMLButtonElement;
+		btn.addEventListener('click', async () => {
+			const id = (
+				document.querySelector('#loader-id') as HTMLInputElement
+			).value;
+			const type = (
+				document.querySelector('#loader-select') as HTMLSelectElement
+			).value;
 
-	// Start both ports
-	transferPort.start();
-	msgPort.start();
+			window.msgPort?.postMessage({
+				event: IPC_EVENTS.LOADER_GRABBER_LOAD,
+				args: { id, type },
+			});
+		});
+	}
 
-	ipcRenderer.postMessage(IPC_EVENTS.SETUP_IPC, WINDOW_IDS.LOADER_GRABBER, [
-		transferPort,
-	]);
+	{
+		const btn = document.querySelector('#grabber-btn') as HTMLButtonElement;
+		btn.addEventListener('click', async () => {
+			const type = (
+				document.querySelector('#grabber-select') as HTMLSelectElement
+			).value;
+			window.msgPort?.postMessage({
+				event: IPC_EVENTS.LOADER_GRABBER_GRAB,
+				args: { type },
+			});
+		});
+	}
 
-	new PortMonitor(
-		msgPort,
-		() => {
-			console.log('Established ipc with parent.');
-		},
-		() => {
-			msgPort.close();
-			transferPort.close();
-			g_msgPort = null;
-			console.info('Trying to re-establish heartbeat in 1s.');
-			setTimeout(() => {
-				void setupHeartbeat();
-			}, 1_000);
-		},
-	);
+	{
+		const btn = document.querySelector(
+			'#grabber-export',
+		) as HTMLButtonElement;
+		btn.addEventListener('click', async () => {
+			ipcRenderer.send(IPC_EVENTS.LOADER_GRABBER_EXPORT);
+		});
+	}
 
-	msgPort.addEventListener('message', async (ev) => {
-		if (ev.data.type === 'heartbeat' || ev.data.type === 'heartbeat-ack') {
-			return;
-		}
-
+	window.addMsgHandler(async (ev) => {
+		console.log('ev', ev);
 		if (ev.data.event === IPC_EVENTS.LOADER_GRABBER_GRAB) {
 			const {
 				args: { data, type },
@@ -312,51 +315,4 @@ async function setupHeartbeat() {
 			container.appendChild(tree);
 		}
 	});
-}
-
-window.addEventListener('DOMContentLoaded', async () => {
-	await setupHeartbeat();
-
-	{
-		const btn = document.querySelector('#loader-btn') as HTMLButtonElement;
-		btn.addEventListener('click', async () => {
-			const id = (
-				document.querySelector('#loader-id') as HTMLInputElement
-			).value;
-			const type = (
-				document.querySelector('#loader-select') as HTMLSelectElement
-			).value;
-
-			g_msgPort?.postMessage({
-				event: IPC_EVENTS.LOADER_GRABBER_LOAD,
-				args: { id, type },
-			});
-		});
-	}
-
-	{
-		const btn = document.querySelector('#grabber-btn') as HTMLButtonElement;
-		btn.addEventListener('click', async () => {
-			const type = (
-				document.querySelector('#grabber-select') as HTMLSelectElement
-			).value;
-			g_msgPort?.postMessage({
-				event: IPC_EVENTS.LOADER_GRABBER_GRAB,
-				args: { type },
-			});
-		});
-	}
-
-	{
-		const btn = document.querySelector(
-			'#grabber-export',
-		) as HTMLButtonElement;
-		btn.addEventListener('click', async () => {
-			ipcRenderer.send(IPC_EVENTS.LOADER_GRABBER_EXPORT);
-		});
-	}
-});
-
-window.addEventListener('beforeunload', () => {
-	g_msgPort?.close();
 });

@@ -1,4 +1,3 @@
-import { Mutex } from 'async-mutex';
 import merge from 'lodash.merge';
 import { IPC_EVENTS } from '../../../common/ipc-events';
 import { PlayerState } from '../api/Player';
@@ -9,7 +8,6 @@ let intervalId: SetIntervalAsyncTimer<unknown[]> | null = null;
 let index = 0;
 
 const config: Partial<FollowerConfig> = {};
-const mutex = new Mutex();
 
 function packetHandler(packet: string) {
 	if (!intervalId) return;
@@ -105,55 +103,53 @@ export default async function handler(ev: MessageEvent) {
 
 			if (!bot.player.isReady()) return;
 
-			await mutex.runExclusive(async () => {
-				if (!bot.flash.call(() => swf.GetCellPlayers(name))) {
-					if (bot.player.state === PlayerState.InCombat)
-						await bot.combat.exit();
+			if (!bot.flash.call(() => swf.GetCellPlayers(name))) {
+				if (bot.player.state === PlayerState.InCombat)
+					await bot.combat.exit();
 
-					await bot.sleep(1_000);
-					bot.world.goto(name);
-				}
+				await bot.sleep(1_000);
+				bot.world.goto(name);
+			}
 
-				bot.world.setSpawnPoint();
+			bot.world.setSpawnPoint();
 
-				if (bot.world.monsters.length === 0) return;
+			if (bot.world.monsters.length === 0) return;
 
-				if ('attackPriority' in config) {
-					for (const tgt of config.attackPriority) {
-						if (
-							!bot.combat.hasTarget() &&
-							bot.world.isMonsterAvailable(tgt)
-						) {
-							bot.combat.attack(tgt);
-							break;
-						}
+			if ('attackPriority' in config) {
+				for (const tgt of config.attackPriority) {
+					if (
+						!bot.combat.hasTarget() &&
+						bot.world.isMonsterAvailable(tgt)
+					) {
+						bot.combat.attack(tgt);
+						break;
 					}
 				}
+			}
 
-				if (!bot.combat.hasTarget()) {
-					bot.combat.attack('*');
-				}
+			if (!bot.combat.hasTarget()) {
+				bot.combat.attack('*');
+			}
 
+			if (bot.combat.hasTarget()) {
 				await bot.combat.useSkill(skillList[index]!, false, skillWait);
 				index = (index + 1) % skillList.length;
 				await bot.sleep(skillDelay);
-			});
+			}
 		}, 1_000);
 	} else if (ev.data.event === IPC_EVENTS.FOLLOWER_STOP) {
-		await mutex.runExclusive(async () => {
-			if (!intervalId) return;
+		if (!intervalId) return;
 
-			ac!.abort();
+		ac!.abort();
 
-			const tmp = intervalId;
-			await bot.timerManager.clearInterval(tmp);
+		const tmp = intervalId;
+		await bot.timerManager.clearInterval(tmp);
 
-			if (tmp === intervalId) {
-				intervalId = null;
-			}
+		if (tmp === intervalId) {
+			intervalId = null;
+		}
 
-			bot.off('packetFromServer', packetHandler);
-		});
+		bot.off('packetFromServer', packetHandler);
 	}
 }
 
