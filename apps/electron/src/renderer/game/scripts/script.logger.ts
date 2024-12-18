@@ -3,6 +3,21 @@ import { IPC_EVENTS } from '../../../common/ipc-events';
 const packets: string[] = [];
 let on = false;
 
+/**
+ * Sets the state of a button
+ *
+ * @param el - The button element
+ * @param state - The state to set the button to
+ */
+function setButtonState(el: HTMLButtonElement, state: boolean) {
+	el.disabled = state;
+	if (state) {
+		el.classList.add('disabled');
+	} else {
+		el.classList.remove('disabled');
+	}
+}
+
 window.addEventListener('ready', async () => {
 	{
 		const btn = document.querySelector('#save') as HTMLButtonElement;
@@ -38,10 +53,9 @@ window.addEventListener('ready', async () => {
 
 		stopBtn.addEventListener('click', () => {
 			on = false;
-			stopBtn.disabled = true;
-			stopBtn.classList.add('disabled');
-			onBtn.disabled = false;
-			onBtn.classList.remove('disabled');
+
+			setButtonState(stopBtn, true);
+			setButtonState(onBtn, false);
 
 			window.msgPort?.postMessage({
 				event: IPC_EVENTS.PACKET_LOGGER_STOP,
@@ -50,10 +64,9 @@ window.addEventListener('ready', async () => {
 
 		onBtn.addEventListener('click', () => {
 			on = true;
-			onBtn.disabled = true;
-			onBtn.classList.add('disabled');
-			stopBtn.disabled = false;
-			stopBtn.classList.remove('disabled');
+
+			setButtonState(stopBtn, false);
+			setButtonState(onBtn, true);
 
 			window.msgPort?.postMessage({
 				event: IPC_EVENTS.PACKET_LOGGER_START,
@@ -101,11 +114,8 @@ window.addEventListener('ready', async () => {
 
 			on = false;
 
-			stopBtn.disabled = true;
-			stopBtn.classList.add('disabled');
-
-			onBtn.disabled = false;
-			onBtn.classList.remove('disabled');
+			setButtonState(stopBtn, true);
+			setButtonState(onBtn, false);
 		}
 	});
 });

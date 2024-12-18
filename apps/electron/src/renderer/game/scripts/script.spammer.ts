@@ -1,9 +1,24 @@
 import { IPC_EVENTS } from '../../../common/ipc-events';
 
-let selectedLine: HTMLElement | null = null;
-
 const packets: string[] = [];
 let on = false;
+
+let selectedLine: HTMLElement | null = null;
+
+/**
+ * Sets the state of a button
+ *
+ * @param el - The button element
+ * @param state - The state to set the button to
+ */
+function setButtonState(el: HTMLButtonElement, state: boolean) {
+	el.disabled = state;
+	if (state) {
+		el.classList.add('disabled');
+	} else {
+		el.classList.remove('disabled');
+	}
+}
 
 window.addEventListener('ready', async () => {
 	{
@@ -59,11 +74,9 @@ window.addEventListener('ready', async () => {
 			selectedLine.remove();
 			selectedLine = null;
 
-			removeBtn.classList.add('disabled');
+			setButtonState(removeBtn, true);
 
-			const index = packets.indexOf(
-				selectedLine!.innerHTML,
-			);
+			const index = packets.indexOf(selectedLine!.innerHTML);
 			packets.splice(index, 1);
 		});
 	}
@@ -74,10 +87,9 @@ window.addEventListener('ready', async () => {
 
 		stopBtn.addEventListener('click', () => {
 			on = false;
-			stopBtn.disabled = true;
-			stopBtn.classList.add('disabled');
-			onBtn.disabled = false;
-			onBtn.classList.remove('disabled');
+
+			setButtonState(stopBtn, true);
+			setButtonState(onBtn, false);
 
 			window.msgPort?.postMessage({
 				event: IPC_EVENTS.PACKET_SPAMMER_STOP,
@@ -86,10 +98,9 @@ window.addEventListener('ready', async () => {
 
 		onBtn.addEventListener('click', () => {
 			on = true;
-			onBtn.disabled = true;
-			onBtn.classList.add('disabled');
-			stopBtn.disabled = false;
-			stopBtn.classList.remove('disabled');
+
+			setButtonState(stopBtn, false);
+			setButtonState(onBtn, true);
 
 			window.msgPort?.postMessage({
 				event: IPC_EVENTS.PACKET_SPAMMER_START,
@@ -127,11 +138,8 @@ window.addEventListener('ready', async () => {
 
 			on = false;
 
-			stopBtn.disabled = true;
-			stopBtn.classList.add('disabled');
-
-			onBtn.disabled = false;
-			onBtn.classList.remove('disabled');
+			setButtonState(stopBtn, true);
+			setButtonState(onBtn, false);
 		}
 	});
 });
