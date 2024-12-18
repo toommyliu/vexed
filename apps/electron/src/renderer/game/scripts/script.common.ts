@@ -35,6 +35,7 @@ async function setupHeartbeat() {
 				console.info('Established ipc with parent.');
 				g_msgPort = sharedPort;
 				window.msgPort = sharedPort;
+				window.dispatchEvent(new Event('port-ready'));
 				resolve(void 0);
 			},
 			() => {
