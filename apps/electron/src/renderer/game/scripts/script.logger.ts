@@ -82,4 +82,30 @@ window.addEventListener('ready', async () => {
 			packets.push(pkt);
 		}
 	});
+
+	window.addEventListener('port-ready', () => {
+		// Are we running but the port was closed?
+		if (on) {
+			console.warn('Port was closed but we are still running, stopping.');
+
+			// Let's just safely close everything
+			window.msgPort?.postMessage({
+				event: IPC_EVENTS.PACKET_LOGGER_STOP,
+			});
+
+			// Enable buttons
+			const stopBtn = document.querySelector(
+				'#stop',
+			) as HTMLButtonElement;
+			const onBtn = document.querySelector('#start') as HTMLButtonElement;
+
+			on = false;
+
+			stopBtn.disabled = true;
+			stopBtn.classList.add('disabled');
+
+			onBtn.disabled = false;
+			onBtn.classList.remove('disabled');
+		}
+	});
 });
