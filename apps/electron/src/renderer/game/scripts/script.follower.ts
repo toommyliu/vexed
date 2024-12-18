@@ -1,6 +1,10 @@
 import { IPC_EVENTS } from '../../../common/ipc-events';
 
+let on = false;
+
 function toggleState(state: boolean) {
+	on = state;
+
 	{
 		const input = document.querySelector('#player');
 		if (state) {
@@ -122,6 +126,15 @@ window.addEventListener('ready', async () => {
 			}
 		});
 	}
+
+	window.addEventListener('port-ready', async () => {
+		if (on) {
+			toggleState(false);
+
+			(document.querySelector('#start') as HTMLInputElement).checked =
+				false;
+		}
+	});
 
 	window.addMsgHandler(async (ev) => {
 		if (ev.data.event === IPC_EVENTS.FOLLOWER_ME) {
