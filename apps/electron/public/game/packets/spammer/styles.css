@@ -1,0 +1,24 @@
+.spammer {
+	height: calc(100vh - 250px);
+	overflow-y: auto;
+}
+
+.spammer:focus {
+	color: none;
+}
+
+.line {
+	color: white;
+	padding: 5px;
+	cursor: pointer;
+}
+
+.line:hover {
+	background-color: grey;
+}
+
+.selected-line {
+	padding: 4px;
+	background-color: #3a3a3a;
+	border: 1px solid #5a5a5a;
+}

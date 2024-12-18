@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+	<head>
+		<link href="../../../shared/halfmoon.css" rel="stylesheet" />
+		<link href="../../../shared/styles.css" rel="stylesheet" />
+		<link href="./styles.css" rel="stylesheet" />
+	</head>
+	<body data-bs-theme="dark">
+		<div class="container">
+			<div class="d-flex flex-column">
+				<div class="card mt-4 p-4 rounded" id="loader">
+					<div class="d-flex flex-column">
+						<input
+							type="number"
+							id="loader-id"
+							class="form-control mb-3 rounded"
+						/>
+						<select class="form-select mb-3 rounded" id="loader-select">
+							<option value="" selected disabled hidden></option>
+							<option value="0">Hair shop</option>
+							<option value="1">Shop</option>
+							<option value="2">Quest</option>
+							<option value="3">Armor customizer</option>
+						</select>
+						<button class="btn btn-outline-secondary rounded" id="loader-btn">
+							Load
+						</button>
+					</div>
+				</div>
+
+				<div class="card mt-4 rounded" id="grabber">
+					<div class="card-body">
+						<div class="mt-2">
+							<div class="border rounded" id="tree"></div>
+						</div>
+						<div class="mt-4 w-100">
+							<div class="d-flex flex-column">
+								<select
+									class="form-select mb-3 rounded"
+									id="grabber-select"
+								>
+									<option value="" disabled selected hidden></option>
+									<option value="0">Shop items</option>
+									<option value="1">Quests</option>
+									<option value="2">Inventory</option>
+									<option value="3">Temp. inventory</option>
+									<option value="4">Bank</option>
+									<option value="5">Cell Monsters</option>
+									<option value="6">Map Monsters</option>
+								</select>
+								<div class="d-flex gap-2">
+									<button
+										class="btn btn-outline-secondary rounded flex-grow-1"
+										id="grabber-btn"
+									>
+										Grab
+									</button>
+									<button
+										class="btn btn-outline-secondary rounded flex-grow-1"
+										id="grabber-export"
+									>
+										Export
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			require('../../../../dist/renderer/game/scripts/script.common.js');
+
+			window.addEventListener('DOMContentLoaded', () => {
+				require('../../../../dist/renderer/game/scripts/script.loader-grabber.js');
+			});
+		</script>
+	</body>
+</html>

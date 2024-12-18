@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+	<head>
+		<meta
+			http-equiv="Content-Security-Policy"
+			content="default-src 'self'; script-src 'unsafe-inline';"
+		/>
+		<link href="../../../shared/halfmoon.css" rel="stylesheet" />
+		<link href="../../../shared/styles.css" rel="stylesheet" />
+		<link href="./styles.css" rel="stylesheet" />
+	</head>
+
+	<body>
+		<div class="container mt-3">
+			<div class="card mb-3">
+				<div class="p-2 spammer" id="spammer"></div>
+			</div>
+			<div class="row mb-3">
+				<div class="col-md-6">
+					<div class="form-floating mb-2">
+						<input type="text" class="form-control" id="packet" />
+						<label for="packet">Packet</label>
+					</div>
+					<div class="form-floating mb-2">
+						<input
+							type="number"
+							class="form-control"
+							id="delay"
+							value="1000"
+							step="100"
+						/>
+						<label for="delay">Delay (ms)</label>
+					</div>
+				</div>
+				<div class="d-flex flex-column flex-sm-row justify-content-between gap-2">
+					<div class="d-flex flex-column flex-sm-row gap-2">
+						<button class="btn btn-secondary" id="clear">Clear</button>
+						<button class="btn btn-secondary disabled" id="remove">
+							Remove
+						</button>
+						<button class="btn btn-secondary" id="add">Add</button>
+					</div>
+					<div class="d-flex flex-column flex-sm-row gap-2">
+						<button class="btn btn-danger disabled" id="stop">Stop</button>
+						<button class="btn btn-primary" id="start">Start</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			require('../../../../dist/renderer/game/scripts/script.common.js');
+
+			window.addEventListener('DOMContentLoaded', () => {
+				require('../../../../dist/renderer/game/scripts/script.spammer.js');
+			});
+		</script>
+	</body>
+</html>
