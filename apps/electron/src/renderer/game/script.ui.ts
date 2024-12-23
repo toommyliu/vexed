@@ -40,31 +40,56 @@ window.addEventListener('DOMContentLoaded', async () => {
 			const b64_out = Buffer.from(scriptBody, 'base64').toString('utf8');
 
 			const scriptContent = `
-(async () => {
-	try {
-		console.log('[' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }) + '] Script started');
-		while (!bot.player.isReady()) await bot.sleep(1000);
-		bot._start();
+			(async () => {
+				const getTimestamp = () => '[' + new Date().toLocaleTimeString('en-US', {
+					hour: '2-digit',
+					minute: '2-digit',
+					second: '2-digit',
+					hour12: true
+				}) + ']';
 
-        const abortPromise = new Promise((_, reject) => {
-            bot.signal.addEventListener('abort', () => {
-                reject(new Error('Script aborted.'));
-            });
-        });
+				const consoleProxy = new Proxy(console, {
+					get(target, prop) {
+						if (typeof target[prop] === 'function') {
+							return (...args) => target[prop](getTimestamp(), ...args);
+						}
+						return target[prop];
+					}
+				});
 
-        await Promise.race([
-            (async () => { ${b64_out} })(),
-            abortPromise
-        ]);
+				const script = new Function('console', 'bot', \`
+					(async () => {
+						try {
+							console.log('Script started');
+							while (!bot.player.isReady()) await bot.sleep(1000);
+							bot._start();
 
-		console.log('[' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }) + '] Script finished');
-	} catch (error) {
-		if (error.message === 'Script aborted.') console.log(error.message);
-		else console.error('An error occured while executing the script:', error);
-	}
-})();
-//# sourceURL=script.ui.ts
-`;
+							const abortPromise = new Promise((_, reject) => {
+								bot.signal.addEventListener('abort', () => {
+									reject(new Error('Script aborted.'));
+								});
+							});
+
+							await Promise.race([
+								(async () => { ${b64_out} })(),
+								abortPromise
+							]);
+
+							console.log('Script finished');
+						} catch (error) {
+							if (error.message === 'Script aborted.') {
+								console.log('Script execution has stopped.');
+							} else {
+								console.error('An error occurred while executing the script:', error);
+							}
+						}
+					})();
+				\`);
+
+				await script(consoleProxy, bot);
+			})();
+			//# sourceURL=script.ui.ts
+			`;
 
 			const blob = new Blob([scriptContent], { type: 'application/javascript' });
 			const scriptUrl = URL.createObjectURL(blob);
