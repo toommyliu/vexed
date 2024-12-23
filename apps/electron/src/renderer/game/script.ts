@@ -1,262 +1,255 @@
-// import './ipc/tools/fast-travels';
-// import './ipc/tools/follower';
-// import './ipc/tools/loader-grabber';
+// import { ipcRenderer } from 'electron/renderer';
+// import { WINDOW_IDS } from '../../common/constants';
+// import { IPC_EVENTS } from '../../common/ipc-events';
 
-// import './ipc/packets/logger';
-// import './ipc/packets/spammer';
+// const { settings, world, player, flash, bank } = bot;
 
-import { ipcRenderer } from 'electron/renderer';
-import { WINDOW_IDS } from '../../common/constants';
-import { IPC_EVENTS } from '../../common/ipc-events';
+// const mapping: Map<string, HTMLElement> = new Map();
 
-const { settings, world, player, flash, bank } = bot;
+// let lastRoomId: number | undefined;
 
-const mapping: Map<string, HTMLElement> = new Map();
+// // #region dom manipulation
+// window.addEventListener('DOMContentLoaded', async () => {
+// 	{
+// 		const keys = ['scripts', 'tools', 'packets', 'options'];
+// 		for (const key of keys) {
+// 			const element = document.querySelector(
+// 				`#${key}-dropdowncontent`,
+// 			) as HTMLElement;
+// 			mapping.set(key, element);
+// 		}
+// 	}
 
-let lastRoomId: number | undefined;
+// 	{
+// 		const $btn: HTMLButtonElement =
+// 			document.querySelector('#scripts-load')!;
+// 		$btn.addEventListener('click', async () => {
+// 			const scriptBody = await ipcRenderer.invoke(IPC_EVENTS.LOAD_SCRIPT);
+// 			if (!scriptBody) {
+// 				return;
+// 			}
 
-// #region dom manipulation
-window.addEventListener('DOMContentLoaded', async () => {
-	{
-		const keys = ['scripts', 'tools', 'packets', 'options'];
-		for (const key of keys) {
-			const element = document.querySelector(
-				`#${key}-dropdowncontent`,
-			) as HTMLElement;
-			mapping.set(key, element);
-		}
-	}
+// 			const b64_out = Buffer.from(scriptBody, 'base64').toString('utf8');
 
-	{
-		const $btn: HTMLButtonElement =
-			document.querySelector('#scripts-load')!;
-		$btn.addEventListener('click', async () => {
-			const scriptBody = await ipcRenderer.invoke(IPC_EVENTS.LOAD_SCRIPT);
-			if (!scriptBody) {
-				return;
-			}
+// 			const script = document.createElement('script');
+// 			script.type = 'module';
+// 			script.textContent = `(async () => {
+// 			console.log('[' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }) + '] Script started');
+// 			while(!bot.player.isReady()) await bot.sleep(1000);
+// 			await (()=>{${b64_out}})();
+// 			console.log('[' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }) + '] Script finished');
+// 			})();`;
+// 			script.id = 'loaded-script';
+// 			document.body.appendChild(script);
+// 		});
+// 	}
 
-			const b64_out = Buffer.from(scriptBody, 'base64').toString('utf8');
+// 	{
+// 		const btn: HTMLButtonElement = document.querySelector(
+// 			'#scripts-toggle-dev-tools',
+// 		)!;
+// 		btn.addEventListener('click', () =>
+// 			ipcRenderer.send(IPC_EVENTS.TOGGLE_DEV_TOOLS),
+// 		);
+// 	}
 
-			const script = document.createElement('script');
-			script.type = 'module';
-			script.textContent = `(async () => {
-			console.log('[' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }) + '] Script started');
-			while(!bot.player.isReady()) await bot.sleep(1000);
-			await (()=>{${b64_out}})();
-			console.log('[' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }) + '] Script finished');
-			})();`;
-			script.id = 'loaded-script';
-			document.body.appendChild(script);
-		});
-	}
+// 	{
+// 		const btn: HTMLButtonElement = document.querySelector(
+// 			'#tools-dropdowncontent > button:nth-child(1)',
+// 		)!;
+// 		btn.addEventListener('click', () => {
+// 			ipcRenderer.send(
+// 				IPC_EVENTS.ACTIVATE_WINDOW,
+// 				WINDOW_IDS.FAST_TRAVELS,
+// 			);
+// 		});
+// 	}
 
-	{
-		const btn: HTMLButtonElement = document.querySelector(
-			'#scripts-toggle-dev-tools',
-		)!;
-		btn.addEventListener('click', () =>
-			ipcRenderer.send(IPC_EVENTS.TOGGLE_DEV_TOOLS),
-		);
-	}
+// 	{
+// 		const btn: HTMLButtonElement = document.querySelector(
+// 			'#tools-dropdowncontent > button:nth-child(2)',
+// 		)!;
+// 		btn.addEventListener('click', () => {
+// 			ipcRenderer.send(
+// 				IPC_EVENTS.ACTIVATE_WINDOW,
+// 				WINDOW_IDS.LOADER_GRABBER,
+// 			);
+// 		});
+// 	}
 
-	{
-		const btn: HTMLButtonElement = document.querySelector(
-			'#tools-dropdowncontent > button:nth-child(1)',
-		)!;
-		btn.addEventListener('click', () => {
-			ipcRenderer.send(
-				IPC_EVENTS.ACTIVATE_WINDOW,
-				WINDOW_IDS.FAST_TRAVELS,
-			);
-		});
-	}
+// 	{
+// 		const btn: HTMLButtonElement = document.querySelector(
+// 			'#tools-dropdowncontent > button:nth-child(3)',
+// 		)!;
+// 		btn.addEventListener('click', () => {
+// 			ipcRenderer.send(IPC_EVENTS.ACTIVATE_WINDOW, WINDOW_IDS.FOLLOWER);
+// 		});
+// 	}
 
-	{
-		const btn: HTMLButtonElement = document.querySelector(
-			'#tools-dropdowncontent > button:nth-child(2)',
-		)!;
-		btn.addEventListener('click', () => {
-			ipcRenderer.send(
-				IPC_EVENTS.ACTIVATE_WINDOW,
-				WINDOW_IDS.LOADER_GRABBER,
-			);
-		});
-	}
+// 	{
+// 		const btn: HTMLButtonElement = document.querySelector(
+// 			'#packets-dropdowncontent > button:nth-child(1)',
+// 		)!;
+// 		btn.addEventListener('click', () => {
+// 			ipcRenderer.send(
+// 				IPC_EVENTS.ACTIVATE_WINDOW,
+// 				WINDOW_IDS.PACKETS_LOGGER,
+// 			);
+// 		});
+// 	}
 
-	{
-		const btn: HTMLButtonElement = document.querySelector(
-			'#tools-dropdowncontent > button:nth-child(3)',
-		)!;
-		btn.addEventListener('click', () => {
-			ipcRenderer.send(IPC_EVENTS.ACTIVATE_WINDOW, WINDOW_IDS.FOLLOWER);
-		});
-	}
+// 	{
+// 		const btn: HTMLButtonElement = document.querySelector(
+// 			'#packets-dropdowncontent > button:nth-child(2)',
+// 		)!;
+// 		btn.addEventListener('click', () => {
+// 			ipcRenderer.send(
+// 				IPC_EVENTS.ACTIVATE_WINDOW,
+// 				WINDOW_IDS.PACKETS_SPAMMER,
+// 			);
+// 		});
+// 	}
 
-	{
-		const btn: HTMLButtonElement = document.querySelector(
-			'#packets-dropdowncontent > button:nth-child(1)',
-		)!;
-		btn.addEventListener('click', () => {
-			ipcRenderer.send(
-				IPC_EVENTS.ACTIVATE_WINDOW,
-				WINDOW_IDS.PACKETS_LOGGER,
-			);
-		});
-	}
+// 	const options = document.querySelectorAll('[id^="option-"]');
+// 	for (const option of options) {
+// 		switch (option.tagName) {
+// 			case 'INPUT':
+// 				option.addEventListener('change', (ev) => {
+// 					settings.walkSpeed = Number.parseInt(
+// 						(ev.target as HTMLInputElement).value,
+// 						10,
+// 					);
+// 				});
+// 				break;
+// 			case 'BUTTON':
+// 				option.addEventListener('click', (ev) => {
+// 					// Prevent the dropdown from closing when an option is clicked
+// 					ev.stopPropagation();
 
-	{
-		const btn: HTMLButtonElement = document.querySelector(
-			'#packets-dropdowncontent > button:nth-child(2)',
-		)!;
-		btn.addEventListener('click', () => {
-			ipcRenderer.send(
-				IPC_EVENTS.ACTIVATE_WINDOW,
-				WINDOW_IDS.PACKETS_SPAMMER,
-			);
-		});
-	}
+// 					const checked =
+// 						option.getAttribute('data-checked') === 'true';
+// 					option.setAttribute(
+// 						'data-checked',
+// 						checked ? 'false' : 'true',
+// 					);
+// 					(
+// 						option.querySelector('.checkmark') as HTMLElement
+// 					).style.display = checked ? 'none' : 'block';
 
-	const options = document.querySelectorAll('[id^="option-"]');
-	for (const option of options) {
-		switch (option.tagName) {
-			case 'INPUT':
-				option.addEventListener('change', (ev) => {
-					settings.walkSpeed = Number.parseInt(
-						(ev.target as HTMLInputElement).value,
-						10,
-					);
-				});
-				break;
-			case 'BUTTON':
-				option.addEventListener('click', (ev) => {
-					// Prevent the dropdown from closing when an option is clicked
-					ev.stopPropagation();
+// 					if (option.textContent!.trim() === 'Infinite Range') {
+// 						settings.infiniteRange = !checked;
+// 					} else if (option.textContent!.trim() === 'Provoke Map') {
+// 						settings.provokeMap = !checked;
+// 					} else if (option.textContent!.trim() === 'Provoke Cell') {
+// 						settings.provokeCell = !checked;
+// 					} else if (option.textContent!.trim() === 'Enemy Magnet') {
+// 						settings.enemyMagnet = !checked;
+// 					} else if (option.textContent!.trim() === 'Lag Killer') {
+// 						settings.lagKiller = !checked;
+// 					} else if (option.textContent!.trim() === 'Hide Players') {
+// 						settings.hidePlayers = !checked;
+// 					} else if (
+// 						option.textContent!.trim() === 'Skip Cutscenes'
+// 					) {
+// 						settings.skipCutscenes = !checked;
+// 					}
+// 				});
+// 				break;
+// 		}
+// 	}
 
-					const checked =
-						option.getAttribute('data-checked') === 'true';
-					option.setAttribute(
-						'data-checked',
-						checked ? 'false' : 'true',
-					);
-					(
-						option.querySelector('.checkmark') as HTMLElement
-					).style.display = checked ? 'none' : 'block';
+// 	const $cells: HTMLSelectElement = document.querySelector('#cells')!;
+// 	const $pads: HTMLSelectElement = document.querySelector('#pads')!;
+// 	const $x: HTMLButtonElement = document.querySelector('#x')!;
+// 	const $bank: HTMLButtonElement = document.querySelector('#bank')!;
 
-					if (option.textContent!.trim() === 'Infinite Range') {
-						settings.infiniteRange = !checked;
-					} else if (option.textContent!.trim() === 'Provoke Map') {
-						settings.provokeMap = !checked;
-					} else if (option.textContent!.trim() === 'Provoke Cell') {
-						settings.provokeCell = !checked;
-					} else if (option.textContent!.trim() === 'Enemy Magnet') {
-						settings.enemyMagnet = !checked;
-					} else if (option.textContent!.trim() === 'Lag Killer') {
-						settings.lagKiller = !checked;
-					} else if (option.textContent!.trim() === 'Hide Players') {
-						settings.hidePlayers = !checked;
-					} else if (
-						option.textContent!.trim() === 'Skip Cutscenes'
-					) {
-						settings.skipCutscenes = !checked;
-					}
-				});
-				break;
-		}
-	}
+// 	const update = (force = false) => {
+// 		if (!force && !player.isReady() && world.roomId === lastRoomId) {
+// 			return;
+// 		}
 
-	const $cells: HTMLSelectElement = document.querySelector('#cells')!;
-	const $pads: HTMLSelectElement = document.querySelector('#pads')!;
-	const $x: HTMLButtonElement = document.querySelector('#x')!;
-	const $bank: HTMLButtonElement = document.querySelector('#bank')!;
+// 		$cells.innerHTML = '';
 
-	const update = (force = false) => {
-		if (!force && !player.isReady() && world.roomId === lastRoomId) {
-			return;
-		}
+// 		for (const cell of world.cells) {
+// 			const option = document.createElement('option');
+// 			option.value = cell;
+// 			option.textContent = cell;
+// 			$cells.appendChild(option);
+// 		}
 
-		$cells.innerHTML = '';
+// 		$cells.value = player.cell;
+// 		$pads.value = player.pad;
 
-		for (const cell of world.cells) {
-			const option = document.createElement('option');
-			option.value = cell;
-			option.textContent = cell;
-			$cells.appendChild(option);
-		}
+// 		lastRoomId = world.roomId;
+// 	};
 
-		$cells.value = player.cell;
-		$pads.value = player.pad;
+// 	const jump = () => {
+// 		const cell = $cells.value ?? 'Enter';
+// 		const pad = $pads.value ?? 'Spawn';
+// 		flash.call(() => swf.Jump(cell, pad));
+// 	};
 
-		lastRoomId = world.roomId;
-	};
+// 	$cells.addEventListener('click', () => update(false));
+// 	$cells.addEventListener('change', jump);
+// 	$pads.addEventListener('change', jump);
+// 	$x.addEventListener('click', () => update(true));
 
-	const jump = () => {
-		const cell = $cells.value ?? 'Enter';
-		const pad = $pads.value ?? 'Spawn';
-		flash.call(() => swf.Jump(cell, pad));
-	};
+// 	$bank.addEventListener('click', async () => {
+// 		if (!player.isReady()) {
+// 			return;
+// 		}
 
-	$cells.addEventListener('click', () => update(false));
-	$cells.addEventListener('change', jump);
-	$pads.addEventListener('change', jump);
-	$x.addEventListener('click', () => update(true));
+// 		if (bank.isOpen()) {
+// 			swf.ShowBank();
+// 		} else {
+// 			await bank.open();
+// 		}
+// 	});
+// });
 
-	$bank.addEventListener('click', async () => {
-		if (!player.isReady()) {
-			return;
-		}
+// // #region input
+// window.addEventListener('click', (ev) => {
+// 	for (const [key, el] of mapping.entries()) {
+// 		if ((ev.target as HTMLElement).id === key) {
+// 			// Show the selected dropdown
+// 			el.classList.toggle('w3-show');
+// 		} else if ((ev.target as HTMLElement).id !== 'option-walkspeed') {
+// 			// Hide the other dropdowns
+// 			el.classList.remove('w3-show');
+// 		}
+// 	}
+// });
 
-		if (bank.isOpen()) {
-			swf.ShowBank();
-		} else {
-			await bank.open();
-		}
-	});
-});
+// window.addEventListener('mousedown', (ev) => {
+// 	// Close all dropdowns when the game is focused
+// 	if ((ev.target as HTMLElement).id === 'swf') {
+// 		for (const el of mapping.values()) {
+// 			el.classList.remove('w3-show');
+// 		}
+// 	}
+// });
 
-// #region input
-window.addEventListener('click', (ev) => {
-	for (const [key, el] of mapping.entries()) {
-		if ((ev.target as HTMLElement).id === key) {
-			// Show the selected dropdown
-			el.classList.toggle('w3-show');
-		} else if ((ev.target as HTMLElement).id !== 'option-walkspeed') {
-			// Hide the other dropdowns
-			el.classList.remove('w3-show');
-		}
-	}
-});
+// window.addEventListener('keydown', (ev) => {
+// 	// Allow certain shortcuts while the game is focused
+// 	if (ev.metaKey /* CMD */ && (ev.target as HTMLElement).id === 'swf') {
+// 		switch (ev.key.toLowerCase()) {
+// 			case 'w': // CMD+W
+// 			case 'q': // CMD+Q
+// 				window.close();
+// 				break;
+// 			case 'r': // CMD+SHIFT+R
+// 				if (ev.shiftKey) {
+// 					window.location.reload();
+// 				}
 
-window.addEventListener('mousedown', (ev) => {
-	// Close all dropdowns when the game is focused
-	if ((ev.target as HTMLElement).id === 'swf') {
-		for (const el of mapping.values()) {
-			el.classList.remove('w3-show');
-		}
-	}
-});
+// 				break;
+// 		}
+// 	}
+// });
+// // #endregion
 
-window.addEventListener('keydown', (ev) => {
-	// Allow certain shortcuts while the game is focused
-	if (ev.metaKey /* CMD */ && (ev.target as HTMLElement).id === 'swf') {
-		switch (ev.key.toLowerCase()) {
-			case 'w': // CMD+W
-			case 'q': // CMD+Q
-				window.close();
-				break;
-			case 'r': // CMD+SHIFT+R
-				if (ev.shiftKey) {
-					window.location.reload();
-				}
-
-				break;
-		}
-	}
-});
-// #endregion
-
-// #region account manager
-ipcRenderer.on(IPC_EVENTS.LOGIN, (_, account: Account) => {
-	window.account = account;
-});
-// #endregion
+// // #region account manager
+// ipcRenderer.on(IPC_EVENTS.LOGIN, (_, account: Account) => {
+// 	window.account = account;
+// });
+// // #endregion

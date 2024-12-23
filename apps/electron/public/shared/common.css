@@ -1,3 +1,9 @@
+@import url('./w3.css');
+
+:focus {
+	outline: none;
+}
+
 .show {
 	opacity: 1;
 }
@@ -9,23 +15,22 @@
 
 /* Dark scrollbar  */
 ::-webkit-scrollbar {
-	width: 10px;
-	height: 10px;
+	width: 9px;
+	height: 9px;
 }
 
 ::-webkit-scrollbar-track {
-	background-color: #1a1a1a;
+	background: #1a1a1a;
+}
+::-webkit-scrollbar-corner {
+	background: #1a1a1a;
 }
 
 ::-webkit-scrollbar-thumb {
-	background-color: #4a4a4a;
-	border-radius: 5px;
+	background: #888;
+	border-radius: 6px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-	background-color: #5a5a5a;
-}
-
-::-webkit-scrollbar-button {
-	background-color: #2a2a2a;
+	background: #555;
 }

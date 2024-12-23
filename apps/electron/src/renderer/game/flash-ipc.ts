@@ -50,32 +50,28 @@ window.packetFromServer = async ([packet]: [string]) => {
 
 window.packetFromClient = async ([packet]: [string]) => {
 	bot.emit('packetFromClient', packet);
-
-	// const wnd: WindowProxy | null = window.windows.packets.logger;
-	// if (wnd) {
-	// 	wnd.postMessage({ event: 'logger:packet', args: packet });
-	// }
 };
 
 window.connection = ([state]: [string]) => {
-	const $cells = document.querySelector('#cells')!;
-	const $pads = document.querySelector('#pads')!;
-	const $x = document.querySelector('#x')!;
-	const $bank = document.querySelector('#bank')!;
+	const elList = [
+		document.querySelector('#cells') as HTMLSelectElement,
+		document.querySelector('#pads') as HTMLSelectElement,
+		document.querySelector('#x') as HTMLButtonElement,
+		document.querySelector('#bank') as HTMLButtonElement,
+	];
 
-	if (state === 'OnConnection') {
-		$cells.removeAttribute('disabled');
-		$pads.removeAttribute('disabled');
-		$x.removeAttribute('disabled');
-		$bank.removeAttribute('disabled');
-		bot.emit('login');
-	} else if (state === 'OnConnectionLost') {
-		$cells.setAttribute('disabled', '');
-		$pads.setAttribute('disabled', '');
-		$x.setAttribute('disabled', '');
-		$bank.setAttribute('disabled', '');
-		bot.emit('logout');
+	for (const el of elList) {
+		if (state === 'OnConnection') {
+			el.removeAttribute('disabled');
+			el.classList.remove('w3-disabled');
+		} else if (state === 'OnConnectionLost') {
+			el.setAttribute('disabled', '');
+			el.classList.add('w3-disabled');
+		}
 	}
+
+	if (state === 'OnConnection') bot.emit('login');
+	else if (state === 'OnConnectionLost') bot.emit('logout');
 };
 
 window.progress = async ([percentage]: [number]) => {

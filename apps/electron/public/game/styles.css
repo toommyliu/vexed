@@ -1,104 +1,97 @@
 :root {
-	--navbar-height: 27px;
+	--bg-primary: #0a0a0a;
+	--bg-secondary: #171717;
+	--topnav-height: 32px;
 }
 
-:focus {
-	outline: none;
-}
-
-html,
 body {
-	margin: 0;
-	padding: 0;
-	width: 100%;
-	height: 100%;
-	overflow: hidden;
-	background-color: var(--bg-primary);
+	background-color: var(--bg-primary) !important;
+	color: #fff !important;
+	margin: 0px !important;
 }
 
-#gameContainer {
+.w3-dropdown-content {
+	color: white !important;
+	background-color: var(--bg-secondary) !important;
+}
+
+.w3-dropdown-content .w3-button {
+	text-align: left !important;
+	padding: 8px 16px !important;
+	width: 100%;
+	display: flex !important;
+	justify-content: space-between !important;
+	align-items: center !important;
+}
+
+.option-row {
+	display: flex !important;
+	justify-content: space-between !important;
+	align-items: center !important;
+	cursor: default !important;
+}
+
+.walkspeed-input {
+	width: 50px;
+	height: 20px;
+	background-color: var(--bg-secondary);
+	color: white;
+	border: 1px solid #444;
+	padding: 2px 4px;
+}
+
+.topnav-right-container {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	margin-right: 8px;
+}
+
+.select-group,
+.button-group {
+	display: flex;
+	gap: 8px;
+}
+
+#pads,
+#cells,
+#x,
+#bank {
+	background-color: var(--bg-secondary);
+	color: white;
+	height: 25px;
+	margin-top: 5px;
+	padding: 0 8px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-width: unset;
+}
+
+.gameContainer {
+	height: calc(100vh - var(--topnav-height));
 	position: relative;
 }
 
 #swf {
-	position: fixed;
-	bottom: 0;
-	right: 0;
-	width: 100%;
-	height: calc(100% - var(--navbar-height));
-}
-
-#topnav {
-	background-color: var(--bg-primary);
-	color: white;
-	height: var(--navbar-height);
-}
-
-#topnav .w3-dropdown-click .w3-dropdown-content,
-#topnav .w3-dropdown-hover .w3-dropdown-content {
-	background-color: var(--bg-primary);
-	color: white;
-	min-width: auto;
-	width: auto;
-	max-width: auto;
-}
-
-#topnav .w3-dropdown-click .w3-dropdown-content {
-	margin-top: -3.5px;
-}
-
-#topnav .w3-dropdown-click .w3-dropdown-content .w3-button,
-#topnav .w3-dropdown-hover .w3-dropdown-content .w3-button {
-	text-align: left;
-}
-
-.checkmark {
 	position: absolute;
-	right: 10px;
-	margin-top: -15px;
-	width: 1em;
-	height: 1em;
-	vertical-align: middle;
-	display: none;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
 }
 
-#x,
-#bank,
-#cells,
-#pads {
-	height: 21px;
-	margin-top: 4px;
+.option-checkmark {
+	display: flex;
+	align-items: center;
+	opacity: 0;
 }
 
-#x {
-	margin-left: 6px;
-	margin-right: -2px;
-	padding: 0 4px;
+.option-checkmark svg {
+	width: 16px;
+	height: 16px;
 }
 
-#bank {
-	margin-left: 10px;
-	margin-right: 5px;
-	padding: 0 8px;
-}
-
-#cells,
-#pads {
-	background-color: var(--bg-secondary);
-	color: white;
-	width: 100px;
-}
-
-#cells {
-	margin-left: 10px;
-	padding: 0 4px;
-}
-
-#pads {
-	margin-right: -4px;
-	padding: 0 10px;
-}
-
-.w3-button {
-	background-color: var(--bg-primary) !important;
+.option-active .option-checkmark {
+	opacity: 1;
 }
