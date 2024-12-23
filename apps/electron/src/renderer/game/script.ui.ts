@@ -57,11 +57,19 @@ window.addEventListener('DOMContentLoaded', async () => {
 					}
 				});
 
+				// const script = (console, bot) => { ... }
 				const script = new Function('console', 'bot', \`
 					(async () => {
 						try {
 							console.log('Script started');
-							while (!bot.player.isReady()) await bot.sleep(1000);
+							let once = false;
+							while (!bot.player.isReady()) {
+								if (!once) {
+									console.log('Waiting for the player to be ready...');
+									once = true;
+								}
+								await bot.sleep(1_000);
+							}
 							bot._start();
 
 							const abortPromise = new Promise((_, reject) => {
