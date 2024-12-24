@@ -68,6 +68,10 @@ body {
 	min-width: unset;
 }
 
+#pads, #cells {
+	width: 86px;
+}
+
 .gameContainer {
 	height: calc(100vh - var(--topnav-height));
 	position: relative;

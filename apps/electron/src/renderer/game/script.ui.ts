@@ -1,9 +1,10 @@
 // Script for managing topnav interactivity
+
 import { ipcRenderer } from 'electron/renderer';
+import { WINDOW_IDS } from '../../common/constants';
 import { IPC_EVENTS } from '../../common/ipc-events';
 
 const dropdowns = new Map<string, HTMLElement>();
-const optionStates = new Map<string, boolean>();
 
 const checkmarkSvg = `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -58,19 +59,23 @@ window.addEventListener('DOMContentLoaded', async () => {
 				});
 
 				// const script = (console, bot) => { ... }
-				const script = new Function('console', 'bot', \`
+				const script = new Function('console', 'bot', String.raw\`
 					(async () => {
 						try {
 							console.log('Script started');
 							let once = false;
 							while (!bot.player.isReady()) {
 								if (!once) {
-									console.log('Waiting for the player to be ready...');
+									console.log('Waiting for player to be in a ready state...');
 									once = true;
 								}
 								await bot.sleep(1_000);
 							}
+
+							await bot.sleep(500);
+
 							bot._start();
+							bot.settings.infiniteRange=true;bot.settings.lagKiller=true;bot.settings.skipCutscenes=true;bot.settings.setFPS(10);
 
 							const abortPromise = new Promise((_, reject) => {
 								bot.signal.addEventListener('abort', () => {
@@ -90,16 +95,21 @@ window.addEventListener('DOMContentLoaded', async () => {
 							} else {
 								console.error('An error occurred while executing the script:', error);
 							}
+						} finally {
+							bot.settings.infiniteRange=false;bot.settings.lagKiller=false;bot.settings.skipCutscenes=false;bot.settings.setFPS(30);
 						}
 					})();
 				\`);
 
+				// call the function with these args
 				await script(consoleProxy, bot);
 			})();
 			//# sourceURL=script.ui.ts
 			`;
 
-			const blob = new Blob([scriptContent], { type: 'application/javascript' });
+			const blob = new Blob([scriptContent], {
+				type: 'application/javascript',
+			});
 			const scriptUrl = URL.createObjectURL(blob);
 
 			const script = document.createElement('script');
@@ -124,35 +134,57 @@ window.addEventListener('DOMContentLoaded', async () => {
 		const btn = document.querySelector(
 			'#tools-dropdowncontent > button:nth-child(1)',
 		) as HTMLButtonElement;
-		btn.addEventListener('click', () => {});
+		btn.addEventListener('click', () => {
+			ipcRenderer.send(
+				IPC_EVENTS.ACTIVATE_WINDOW,
+				WINDOW_IDS.FAST_TRAVELS,
+			);
+		});
 	}
 
 	{
 		const btn = document.querySelector(
 			'#tools-dropdowncontent > button:nth-child(2)',
 		) as HTMLButtonElement;
-		btn.addEventListener('click', () => {});
+		btn.addEventListener('click', () => {
+			ipcRenderer.send(
+				IPC_EVENTS.ACTIVATE_WINDOW,
+				WINDOW_IDS.LOADER_GRABBER,
+			);
+		});
 	}
 
 	{
 		const btn = document.querySelector(
 			'#tools-dropdowncontent > button:nth-child(3)',
 		) as HTMLButtonElement;
-		btn.addEventListener('click', () => {});
+		btn.addEventListener('click', () => {
+			ipcRenderer.send(IPC_EVENTS.ACTIVATE_WINDOW, WINDOW_IDS.FOLLOWER);
+		});
 	}
 
 	{
 		const btn = document.querySelector(
 			'#packets-dropdowncontent > button:nth-child(1)',
 		) as HTMLButtonElement;
-		btn.addEventListener('click', () => {});
+		btn.addEventListener('click', () => {
+			ipcRenderer.send(
+				IPC_EVENTS.ACTIVATE_WINDOW,
+				WINDOW_IDS.PACKETS_LOGGER,
+			);
+		});
 	}
 
 	{
 		const btn = document.querySelector(
 			'#packets-dropdowncontent > button:nth-child(2)',
 		) as HTMLButtonElement;
-		btn.addEventListener('click', () => {});
+		btn.addEventListener('click', () => {
+			ipcRenderer.send(
+				IPC_EVENTS.ACTIVATE_WINDOW,
+				WINDOW_IDS.PACKETS_SPAMMER,
+			);
+		});
 	}
 
 	{
@@ -222,23 +254,72 @@ window.addEventListener('DOMContentLoaded', async () => {
 	}
 
 	{
-		// Add checkmarks to options
-		const optionButtons = document.querySelectorAll('[id^="option-"]');
-		optionButtons.forEach((button) => {
-			if (button.id === 'option-walkspeed') return;
+		const options = document.querySelectorAll('[id^="option-"]');
+		for (const option of options) {
+			if (option.id === 'option-walkspeed') {
+				const _option = option.querySelector(
+					'input',
+				) as HTMLInputElement;
 
-			const checkmark = document.createElement('div');
-			checkmark.className = 'option-checkmark';
-			checkmark.innerHTML = checkmarkSvg;
-			button.appendChild(checkmark);
+				// eslint-disable-next-line @typescript-eslint/no-loop-func
+				const handleWalkSpeed = (event: Event) => {
+					const value = Number.parseInt(_option.value, 10);
 
-			button.addEventListener('click', (e) => {
-				e.stopPropagation();
-				const state = !optionStates.get(button.id);
-				optionStates.set(button.id, state);
-				button.classList.toggle('option-active', state);
-			});
-		});
+					const newWalkSpeed = Number.isNaN(value)
+						? 8 // default 8
+						: Math.max(0, Math.min(99, value)); // clamp between 0 and 99
+
+					_option.value = newWalkSpeed.toString();
+
+					if (event.type === 'change')
+						bot.settings.walkSpeed = newWalkSpeed;
+				};
+
+				_option.addEventListener('input', handleWalkSpeed);
+				_option.addEventListener('change', handleWalkSpeed);
+			} else {
+				const checkmark = document.createElement('div');
+				checkmark.className = 'option-checkmark';
+				checkmark.innerHTML = checkmarkSvg;
+				option.appendChild(checkmark);
+
+				option.setAttribute('data-state', 'false');
+
+				// eslint-disable-next-line @typescript-eslint/no-loop-func
+				option.addEventListener('click', (ev) => {
+					// Prevent the dropdown from closing
+					ev.stopPropagation();
+
+					const currentState =
+						option.getAttribute('data-state') === 'true';
+					const newState = !currentState;
+
+					option.setAttribute('data-state', newState.toString());
+					option.classList.toggle('option-active', newState);
+
+					switch (option.id) {
+						case 'option-infinite-range':
+							bot.settings.infiniteRange = newState;
+							break;
+						case 'option-provoke-map':
+							bot.settings.provokeMap = newState;
+							break;
+						case 'option-provoke-cell':
+							bot.settings.provokeCell = newState;
+							break;
+						case 'option-lag-killer':
+							bot.settings.lagKiller = newState;
+							break;
+						case 'option-hide-players':
+							bot.settings.hidePlayers = newState;
+							break;
+						case 'option-skip-cutscenes':
+							bot.settings.skipCutscenes = newState;
+							break;
+					}
+				});
+			}
+		}
 	}
 });
 

@@ -54,10 +54,10 @@ window.packetFromClient = async ([packet]: [string]) => {
 
 window.connection = ([state]: [string]) => {
 	const elList = [
-		document.querySelector('#cells') as HTMLSelectElement,
-		document.querySelector('#pads') as HTMLSelectElement,
-		document.querySelector('#x') as HTMLButtonElement,
-		document.querySelector('#bank') as HTMLButtonElement,
+		document.querySelector('#cells')!,
+		document.querySelector('#pads')!,
+		document.querySelector('#x')!,
+		document.querySelector('#bank')!,
 	];
 
 	for (const el of elList) {
