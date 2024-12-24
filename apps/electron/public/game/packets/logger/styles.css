@@ -1,0 +1,15 @@
+#logger {
+	height: calc(100vh - 400px);
+	overflow-y: auto;
+}
+
+.line {
+	width: auto;
+	padding: 5px;
+	cursor: pointer;
+	color: white;
+}
+
+.line:hover {
+	background-color: grey;
+}

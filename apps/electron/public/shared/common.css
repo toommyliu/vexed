@@ -1,0 +1,36 @@
+@import url('./w3.css');
+
+:focus {
+	outline: none;
+}
+
+.show {
+	opacity: 1;
+}
+
+.hide {
+	opacity: 0;
+	transition: opacity 400ms;
+}
+
+/* Dark scrollbar  */
+::-webkit-scrollbar {
+	width: 9px;
+	height: 9px;
+}
+
+::-webkit-scrollbar-track {
+	background: #1a1a1a;
+}
+::-webkit-scrollbar-corner {
+	background: #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb {
+	background: #888;
+	border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: #555;
+}

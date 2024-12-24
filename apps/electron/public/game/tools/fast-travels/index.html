@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+	<head>
+		<meta
+			http-equiv="Content-Security-Policy"
+			content="default-src 'self'; script-src 'unsafe-inline';"
+		/>
+		<link href="../../../shared/halfmoon.css" rel="stylesheet" />
+	</head>
+
+	<body class="m-2">
+		<div class="container">
+			<div class="mt-4">
+				<div class="input-group">
+					<label for="room-number" class="input-group-text">Room Number</label>
+					<input
+						type="number"
+						min="1"
+						max="100000"
+						value="100000"
+						id="room-number"
+						class="form-control"
+					/>
+				</div>
+			</div>
+		</div>
+		<div class="container">
+			<div class="row g-4 mt-1" id="locations"></div>
+		</div>
+
+		<script>
+			require('../../../../dist/renderer/game/scripts/script.common.js');
+
+			window.addEventListener('DOMContentLoaded', () => {
+				require('../../../../dist/renderer/game/scripts/script.fast-travels.js');
+			});
+		</script>
+	</body>
+</html>

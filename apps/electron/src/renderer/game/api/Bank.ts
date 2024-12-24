@@ -3,6 +3,9 @@ import { BankItem } from './struct/BankItem';
 import type { ItemData } from './struct/Item';
 
 export class Bank {
+	// Whether bank items have loaded once.
+	private isLoaded = false;
+
 	public constructor(public bot: Bot) {}
 
 	/**
@@ -163,8 +166,13 @@ export class Bank {
 		// Load the items
 		this.bot.flash.call(() => swf.ShowBank());
 		await this.bot.waitUntil(() => this.isOpen());
-		// Should only need to load once?
-		this.bot.flash.call(() => swf.LoadBankItems());
+
+		// Only load bank items once
+		if (!this.isLoaded) {
+			this.bot.flash.call(() => swf.LoadBankItems());
+			this.isLoaded = true;
+		}
+
 		await this.bot.waitUntil(
 			// eslint-disable-next-line sonarjs/no-collection-size-mischeck
 			() => this.items.length >= 0 /* wait until something is loaded */,

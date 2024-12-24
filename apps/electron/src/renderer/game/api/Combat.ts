@@ -73,15 +73,16 @@ export class Combat {
 		force = false,
 		wait = false,
 	): Promise<void> {
-		// eslint-disable-next-line @typescript-eslint/unbound-method
-		const fn = force ? swf.ForceUseSkill : swf.UseSkill;
-		// eslint-disable-next-line no-param-reassign
-		index = String(index);
+		const strIndex = String(index);
 		if (wait) {
-			await this.bot.sleep(swf.SkillAvailable(index));
+			await this.bot.sleep(swf.SkillAvailable(strIndex));
 		}
 
-		fn(index);
+		if (force) {
+			this.bot.flash.call(() => swf.ForceUseSkill(strIndex));
+		} else {
+			this.bot.flash.call(() => swf.UseSkill(strIndex));
+		}
 	}
 
 	/**
@@ -123,98 +124,125 @@ export class Combat {
 		monsterResolvable: string,
 		options: Partial<KillOptions> = {},
 	): Promise<void> {
+		if (!this.bot.player.isReady()) return;
+
 		await this.bot.waitUntil(
 			() => this.bot.world.isMonsterAvailable(monsterResolvable),
 			null,
 			3,
 		);
 
-		if (!this.bot.player.isReady()) {
-			return;
-		}
-
 		const opts = merge({}, DEFAULT_KILL_OPTIONS, options);
-
 		const { killPriority, skillSet, skillDelay, skillWait } = opts;
+		let skillIndex = 0;
 
-		let timer_a: SetIntervalAsyncTimer<unknown[]> | null = null;
-		let timer_b: SetIntervalAsyncTimer<unknown[]> | null = null;
+		return new Promise<void>((resolve, reject) => {
+			let combatTimer: SetIntervalAsyncTimer<unknown[]> | null = null;
+			let checkTimer: SetIntervalAsyncTimer<unknown[]> | null = null;
 
-		const index = 0;
+			const cleanup = async () => {
+				if (combatTimer)
+					await this.bot.timerManager.clearInterval(combatTimer);
 
-		return new Promise<void>((resolve) => {
-			timer_a = this.bot.timerManager.setInterval(async () => {
-				if (this.pauseAttack) {
-					return;
-				}
+				if (checkTimer)
+					await this.bot.timerManager.clearInterval(checkTimer);
+			};
 
-				const _name = monsterResolvable.toLowerCase();
-				if (
-					_name === 'escherion' &&
-					this.bot.world.isMonsterAvailable('Staff of Inversion')
-				) {
-					this.attack('Staff of Inversion');
-				} else if (
-					_name === 'vath' &&
-					this.bot.world.isMonsterAvailable('Stalagbite')
-				) {
-					this.attack('Stalagbite');
-				}
+			try {
+				combatTimer = this.bot.timerManager.setInterval(async () => {
+					if (this.pauseAttack) {
+						this.cancelAutoAttack();
+						this.cancelTarget();
 
-				let kp;
-				if (typeof killPriority === 'string') {
-					kp = killPriority.split(',');
-				} else if (Array.isArray(killPriority)) {
-					kp = killPriority;
-				}
+						await this.bot.waitUntil(
+							() => !this.pauseAttack,
+							null,
+							-1,
+						);
 
-				if (kp!.length > 0) {
-					for (const _kp of kp!) {
-						if (this.bot.world.isMonsterAvailable(_kp)) {
-							this.attack(_kp);
-							break;
+						return;
+					}
+
+					const _name = monsterResolvable.toLowerCase();
+					if (
+						_name === 'escherion' &&
+						this.bot.world.isMonsterAvailable('Staff of Inversion')
+					) {
+						this.attack('Staff of Inversion');
+					} else if (
+						_name === 'vath' &&
+						this.bot.world.isMonsterAvailable('Stalagbite')
+					) {
+						this.attack('Stalagbite');
+					}
+
+					const kp = Array.isArray(killPriority)
+						? killPriority
+						: killPriority.split(',');
+					if (kp.length > 0) {
+						for (const target of kp) {
+							if (this.bot.world.isMonsterAvailable(target)) {
+								this.attack(target);
+								break;
+							}
 						}
 					}
-				}
 
-				if (!this.hasTarget()) {
-					this.attack(monsterResolvable);
-				}
-
-				if (this.hasTarget()) {
-					if (skillWait) {
-						await this.bot.sleep(
-							this.bot.flash.call(() =>
-								swf.SkillAvailable(String(skillSet[index]!)),
-							),
-						);
+					if (!this.hasTarget()) {
+						this.attack(monsterResolvable);
 					}
 
-					await this.useSkill(
-						String(skillSet[(index + 1) % skillSet.length]),
-					);
-					await this.bot.sleep(skillDelay);
-				}
-			}, 0);
+					if (this.hasTarget()) {
+						const skill = skillSet[skillIndex]!;
+						skillIndex = (skillIndex + 1) % skillSet.length;
 
-			this.bot.timerManager.setTimeout(() => {
-				timer_b = this.bot.timerManager.setInterval(async () => {
-					// TODO: improve kill detection
-					if (
-						(!this.hasTarget() ||
-							(this.bot.player.state === PlayerState.Idle &&
-								!this.bot.player.isAFK())) &&
-						!this.pauseAttack
-					) {
-						await this.bot.timerManager.clearInterval(timer_a!);
-						await this.bot.timerManager.clearInterval(timer_b!);
+						if (skillWait) {
+							await this.bot.sleep(
+								this.bot.flash.call(() =>
+									swf.SkillAvailable(String(skill)),
+								),
+							);
+						}
 
-						// await this.exit();
-
-						resolve();
+						await this.useSkill(String(skill));
+						await this.bot.sleep(skillDelay);
 					}
 				}, 0);
-			}, opts.skillDelay!);
+
+				void bot
+					.waitUntil(
+						() => this.bot.player.state === PlayerState.InCombat,
+						null,
+						-1,
+					)
+					// eslint-disable-next-line promise/prefer-await-to-then
+					.then(() => {
+						checkTimer = this.bot.timerManager.setInterval(
+							async () => {
+								if (
+									(!this.hasTarget() ||
+										(this.bot.player.state ===
+											PlayerState.Idle &&
+											!this.bot.player.isAFK())) &&
+									!this.pauseAttack
+								) {
+									await cleanup();
+
+									this.cancelAutoAttack();
+									this.cancelTarget();
+
+									resolve();
+								}
+							},
+							opts.skillDelay!,
+						);
+					});
+			} catch (error) {
+				// eslint-disable-next-line promise/prefer-await-to-then
+				void cleanup().then(() => {
+					reject(error);
+				});
+			}
 		});
 	}
 
