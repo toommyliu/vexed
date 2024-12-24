@@ -73,15 +73,16 @@ export class Combat {
 		force = false,
 		wait = false,
 	): Promise<void> {
-		// eslint-disable-next-line @typescript-eslint/unbound-method
-		const fn = force ? swf.ForceUseSkill : swf.UseSkill;
-		// eslint-disable-next-line no-param-reassign
-		index = String(index);
+		const strIndex = String(index);
 		if (wait) {
-			await this.bot.sleep(swf.SkillAvailable(index));
+			await this.bot.sleep(swf.SkillAvailable(strIndex));
 		}
 
-		fn(index);
+		if (force) {
+			this.bot.flash.call(() => swf.ForceUseSkill(strIndex));
+		} else {
+			this.bot.flash.call(() => swf.UseSkill(strIndex));
+		}
 	}
 
 	/**
@@ -208,11 +209,12 @@ export class Combat {
 					}
 				}, 0);
 
-				void bot.waitUntil(
-					() => this.bot.player.state === PlayerState.InCombat,
-					null,
-					-1,
-				)
+				void bot
+					.waitUntil(
+						() => this.bot.player.state === PlayerState.InCombat,
+						null,
+						-1,
+					)
 					// eslint-disable-next-line promise/prefer-await-to-then
 					.then(() => {
 						checkTimer = this.bot.timerManager.setInterval(
