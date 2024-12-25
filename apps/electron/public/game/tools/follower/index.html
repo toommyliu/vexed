@@ -1,18 +1,23 @@
 <!doctype html>
-<html data-bs-theme="dark">
+<html>
 	<head>
-		<link href="../../../shared/halfmoon.css" rel="stylesheet" />
+		<link href="../../../shared/common.css" rel="stylesheet" />
+		<link href="./styles.css" rel="stylesheet" />
 	</head>
 	<body>
-		<div class="container py-4">
-			<div class="card mb-3">
-				<div class="card-body">
-					<div class="mb-3">
-						<label for="player" class="form-label">Player:</label>
-						<div class="input-group">
-							<input id="player" class="form-control" type="text" />
+		<div class="w3-container">
+			<div class="w3-section card">
+				<div class="w3-container">
+					<div class="w3-section">
+						<label for="player">Player:</label>
+						<div id="player-name-row">
+							<input
+								id="player"
+								class="w3-input w3-border w3-round-medium"
+								type="text"
+							/>
 							<button
-								class="btn btn-outline-secondary"
+								class="w3-button w3-round-medium"
 								id="me"
 								type="button"
 							>
@@ -20,62 +25,56 @@
 							</button>
 						</div>
 					</div>
-					<div class="mb-3">
-						<label for="skills" class="form-label">Skill List:</label>
-						<div class="d-flex">
+					<div class="w3-section">
+						<label for="skills">Skill List:</label>
+						<div id="skill-list-row">
 							<input
 								id="skill-list"
-								class="form-control me-2"
+								class="w3-input w3-border w3-round-medium"
 								type="text"
 								value="1,2,3,4"
 							/>
-							<div class="form-check align-self-center">
-								<input
-									class="form-check-input"
-									type="checkbox"
-									id="skill-wait"
-								/>
-								<label class="form-check-label" for="skill-wait"
-									>Wait</label
-								>
+							<div class="skill-wait-row">
+								<input type="checkbox" id="skill-wait" />
+								<label for="skill-wait">Wait</label>
 							</div>
 						</div>
 					</div>
-					<div class="mb-3">
-						<label for="skill-delay" class="form-label">Skill Delay:</label>
-						<div class="input-group" style="width: 200px">
+					<div class="w3-section">
+						<label for="skill-delay">Skill Delay:</label>
+						<div class="input-group">
 							<input
 								id="skill-delay"
-								class="form-control"
+								class="w3-input w3-border w3-round-medium"
 								type="number"
 								min="0"
 								value="150"
 							/>
-							<span class="input-group-text">ms</span>
+							<label for="skill-delay">ms</label>
 						</div>
 					</div>
-					<div class="form-check">
-						<input class="form-check-input" type="checkbox" id="start" />
-						<label class="form-check-label" for="start">Enable</label>
+					<div class="w3-section">
+						<input type="checkbox" id="start" />
+						<label for="start">Enable</label>
 					</div>
 				</div>
 			</div>
-			<div class="card">
-				<div class="card-body">
-					<div class="mb-3">
+			<div class="w3-section card">
+				<div class="w3-container">
+					<div class="w3-section">
 						<label for="attack-priority" class="form-label"
 							>Attack Priority:</label
 						>
 						<input
 							id="attack-priority"
-							class="form-control"
+							class="w3-input w3-round-medium w3-border"
 							type="text"
 							value="Defense Drone, Attack Drone"
 						/>
 					</div>
-					<div class="form-check">
-						<input class="form-check-input" type="checkbox" id="copy-walk" />
-						<label class="form-check-label" for="copy-walk">Copy Walk</label>
+					<div class="w3-section">
+						<input type="checkbox" id="copy-walk" />
+						<label for="copy-walk">Copy Walk</label>
 					</div>
 				</div>
 			</div>

@@ -115,7 +115,7 @@ export default async function handler(ev: MessageEvent) {
 
 			if (bot.world.monsters.length === 0) return;
 
-			if ('attackPriority' in config) {
+			if ('attackPriority' in config && Array.isArray(config.attackPriority)) {
 				for (const tgt of config.attackPriority) {
 					if (
 						!bot.combat.hasTarget() &&
