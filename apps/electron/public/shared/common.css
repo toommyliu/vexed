@@ -4,6 +4,18 @@
 	outline: none;
 }
 
+:root {
+	--bg-primary: #121212;
+	--bg-secondary: #27272a;
+	--topnav-height: 32px;
+}
+
+body {
+	background-color: var(--bg-primary) !important;
+	color: #fff !important;
+	margin: 0px !important;
+}
+
 .show {
 	opacity: 1;
 }

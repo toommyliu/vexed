@@ -1,14 +1,26 @@
-#topcontainer {
-	width: 100%;
-	display: flex;
-	flex-direction: row;
-	justify-content: space-between;
-	align-items: center;
+#card {
+	background-color: var(--bg-secondary);
+}
+
+#card input {
+	background-color: var(--bg-primary) !important;
+	border: 1px solid #2d2d2d !important;
+	color: #fff !important;
 }
 
 #locations {
-	width: 100%;
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
 	gap: 16px;
+	width: 100%;
+}
+
+#locations .w3-button {
+	width: 100%;
+	background-color: #27272a !important; /* zinc-800 */
+}
+
+#locations .w3-button:hover {
+	color: white !important;
+	background-color: #18181b !important; /* zinc-900 */
 }

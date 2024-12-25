@@ -1,31 +1,27 @@
 <!doctype html>
-<html lang="en" data-bs-theme="dark">
+<html>
 	<head>
-		<meta
-			http-equiv="Content-Security-Policy"
-			content="default-src 'self'; script-src 'unsafe-inline';"
-		/>
-		<link href="../../../shared/halfmoon.css" rel="stylesheet" />
+		<link href="../../../shared/common.css" rel="stylesheet" />
+		<link href="./styles.css" rel="stylesheet" />
 	</head>
 
-	<body class="m-2">
-		<div class="container">
-			<div class="mt-4">
-				<div class="input-group">
-					<label for="room-number" class="input-group-text">Room Number</label>
-					<input
-						type="number"
-						min="1"
-						max="100000"
-						value="100000"
-						id="room-number"
-						class="form-control"
-					/>
-				</div>
+	<body>
+		<div class="w3-container w3-section">
+			<div class="w3-card-4 w3-round-medium w3-padding" id="card">
+				<label for="room-number">Room Number</label>
+				<input
+					type="number"
+					min="1"
+					max="100000"
+					value="100000"
+					id="room-number"
+					class="w3-input w3-round-medium w3-margin-top input-field"
+				/>
 			</div>
 		</div>
-		<div class="container">
-			<div class="row g-4 mt-1" id="locations"></div>
+
+		<div class="w3-container w3-section" id="locations-container">
+			<div id="locations"></div>
 		</div>
 
 		<script>

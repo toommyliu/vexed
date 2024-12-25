@@ -1,18 +1,6 @@
-:root {
-	--bg-primary: #0a0a0a;
-	--bg-secondary: #171717;
-	--topnav-height: 32px;
-}
-
-body {
-	background-color: var(--bg-primary) !important;
-	color: #fff !important;
-	margin: 0px !important;
-}
-
 .w3-dropdown-content {
-	color: white !important;
 	background-color: var(--bg-secondary) !important;
+	color: white !important;
 }
 
 .w3-dropdown-content .w3-button {
@@ -68,12 +56,13 @@ body {
 	min-width: unset;
 }
 
-#pads, #cells {
+#pads,
+#cells {
 	width: 86px;
 }
 
 .gameContainer {
-	height: calc(100vh - var(--topnav-height));
+	height: calc(100vh - var(--topnav-height) - 2px);
 	position: relative;
 }
 
