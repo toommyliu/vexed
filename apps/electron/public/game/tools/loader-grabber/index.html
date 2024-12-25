@@ -1,68 +1,79 @@
 <!doctype html>
 <html>
 	<head>
-		<link href="../../../shared/halfmoon.css" rel="stylesheet" />
-		<link href="../../../shared/styles.css" rel="stylesheet" />
+		<link href="../../../shared/common.css" rel="stylesheet" />
 		<link href="./styles.css" rel="stylesheet" />
 	</head>
-	<body data-bs-theme="dark">
-		<div class="container">
-			<div class="d-flex flex-column">
-				<div class="card mt-4 p-4 rounded" id="loader">
-					<div class="d-flex flex-column">
-						<input
-							type="number"
-							id="loader-id"
-							class="form-control mb-3 rounded"
-						/>
-						<select class="form-select mb-3 rounded" id="loader-select">
-							<option value="" selected disabled hidden></option>
-							<option value="0">Hair shop</option>
-							<option value="1">Shop</option>
-							<option value="2">Quest</option>
-							<option value="3">Armor customizer</option>
-						</select>
-						<button class="btn btn-outline-secondary rounded" id="loader-btn">
-							Load
-						</button>
+
+	<body>
+		<div class="w3-container">
+			<div class="w3-content">
+				<div class="w3-container w3-margin card" id="loader">
+					<div class="w3-margin-top">
+						<label>Loader</label>
+					</div>
+					<div class="w3-margin-top">
+						<div>
+							<label for="loader-id">ID</label>
+							<input
+								type="number"
+								id="loader-id"
+								class="w3-input w3-border w3-margin-bottom w3-round"
+							/>
+						</div>
+						<div class="w3-section">
+							<label for="loader-name">Type</label>
+							<select class="w3-select w3-border w3-round" id="loader-select">
+								<option value="" selected disabled hidden></option>
+								<option value="0">Hair shop</option>
+								<option value="1">Shop</option>
+								<option value="2">Quest</option>
+								<option value="3">Armor customizer</option>
+							</select>
+						</div>
+						<div class="w3-section">
+							<button class="w3-button w3-round" id="loader-btn">
+								Load
+							</button>
+						</div>
 					</div>
 				</div>
 
-				<div class="card mt-4 rounded" id="grabber">
-					<div class="card-body">
-						<div class="mt-2">
-							<div class="border rounded" id="tree"></div>
-						</div>
-						<div class="mt-4 w-100">
-							<div class="d-flex flex-column">
-								<select
-									class="form-select mb-3 rounded"
-									id="grabber-select"
-								>
-									<option value="" disabled selected hidden></option>
-									<option value="0">Shop items</option>
-									<option value="1">Quests</option>
-									<option value="2">Inventory</option>
-									<option value="3">Temp. inventory</option>
-									<option value="4">Bank</option>
-									<option value="5">Cell Monsters</option>
-									<option value="6">Map Monsters</option>
-								</select>
-								<div class="d-flex gap-2">
-									<button
-										class="btn btn-outline-secondary rounded flex-grow-1"
-										id="grabber-btn"
-									>
-										Grab
-									</button>
-									<button
-										class="btn btn-outline-secondary rounded flex-grow-1"
-										id="grabber-export"
-									>
-										Export
-									</button>
-								</div>
-							</div>
+				<div class="w3-container w3-margin card" id="grabber">
+					<div class="w3-margin-top">
+						<label class="w3-section">Grabber</label>
+					</div>
+					<div class="w3-margin-top">
+						<div class="w3-round w3-border w3-border-light-gray" id="tree"></div>
+					</div>
+					<div class="w3-margin-top">
+						<label for="grabber-select">Type</label>
+						<select
+							class="w3-select w3-border w3-margin-bottom w3-round"
+							id="grabber-select"
+						>
+							<option value="" disabled selected hidden></option>
+							<option value="0">Shop items</option>
+							<option value="1">Quests</option>
+							<option value="2">Inventory</option>
+							<option value="3">Temp Inventory</option>
+							<option value="4">Bank</option>
+							<option value="5">Cell Monsters</option>
+							<option value="6">Map Monsters</option>
+						</select>
+						<div class="w3-section">
+							<button
+								class="w3-button w3-round"
+								id="grabber-btn"
+							>
+								Grab
+							</button>
+							<button
+								class="w3-button w3-round"
+								id="grabber-export"
+							>
+								Export
+							</button>
 						</div>
 					</div>
 				</div>

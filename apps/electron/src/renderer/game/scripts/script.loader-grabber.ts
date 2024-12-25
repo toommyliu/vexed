@@ -67,10 +67,12 @@ function createTreeNode(data) {
 		if (!data.value) {
 			$text.textContent += ':';
 		}
+
 		$span.addEventListener('click', async (ev) => {
 			ev.stopPropagation();
 			await navigator.clipboard.writeText(data.value).catch(() => {});
 		});
+
 		$content.appendChild($span);
 	}
 
@@ -292,12 +294,19 @@ window.addEventListener('ready', async () => {
 			'#grabber-export',
 		) as HTMLButtonElement;
 		btn.addEventListener('click', async () => {
-			ipcRenderer.send(IPC_EVENTS.LOADER_GRABBER_EXPORT);
+			if (!lastData) return;
+
+			const blob = new Blob([JSON.stringify(lastData, null, 2)], {
+				type: 'text/plain',
+			});
+			const a = document.createElement('a');
+			a.href = URL.createObjectURL(blob);
+			a.download = 'data.json';
+			a.click();
 		});
 	}
 
 	window.addMsgHandler(async (ev) => {
-		console.log('ev', ev);
 		if (ev.data.event === IPC_EVENTS.LOADER_GRABBER_GRAB) {
 			const {
 				args: { data, type },
