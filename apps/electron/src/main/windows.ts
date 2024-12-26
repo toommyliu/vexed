@@ -66,6 +66,7 @@ export async function createGame(
 			plugins: true,
 		},
 	});
+	app.allowRendererProcessReuse = true;
 
 	// Spoof headers to make the game think we are running as Artix Game Launcher
 	window.webContents.userAgent = ARTIX_USERAGENT;
@@ -113,7 +114,6 @@ export async function createGame(
 		}
 	});
 
-	// Creates a child window, memoizing the instance
 	window.webContents.on(
 		'new-window',
 		async (
