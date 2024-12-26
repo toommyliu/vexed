@@ -103,6 +103,9 @@ ipcMain.on(
 			minWidth: width!,
 			minHeight: height!,
 			height: height!,
+			// When a child window is minimized, the parent window is also minimized,
+			// which is not desired. See https://github.com/electron/electron/issues/26031
+			minimizable: false,
 		});
 
 		// Update the store immediately, to ensure window can get its string id ASAP through IPC
