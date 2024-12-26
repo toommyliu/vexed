@@ -13,10 +13,13 @@ let selectedLine: HTMLElement | null = null;
  */
 function setButtonState(el: HTMLButtonElement, state: boolean) {
 	el.disabled = state;
+
 	if (state) {
-		el.classList.add('disabled');
+		el.classList.add('w3-disabled');
+		el.setAttribute('disabled', 'true');
 	} else {
-		el.classList.remove('disabled');
+		el.classList.remove('w3-disabled');
+		el.removeAttribute('disabled');
 	}
 }
 
@@ -31,7 +34,6 @@ window.addEventListener('ready', async () => {
 
 	{
 		const spammer = document.querySelector('#spammer') as HTMLDivElement;
-
 		const removeBtn = document.querySelector(
 			'#remove',
 		) as HTMLButtonElement;
@@ -56,10 +58,11 @@ window.addEventListener('ready', async () => {
 
 					if (ev.target === selectedLine) {
 						selectedLine = null;
+						setButtonState(removeBtn, true);
 					} else {
 						selectedLine = ev.target as HTMLElement;
 						selectedLine.classList.add('selected-line');
-						removeBtn.classList.remove('disabled');
+						setButtonState(removeBtn, false);
 					}
 				});
 				spammer.appendChild(div);
