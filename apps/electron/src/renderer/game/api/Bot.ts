@@ -186,8 +186,7 @@ export class Bot extends EventEmitter {
 	// @ts-expect-error - internal method
 	private _start(): void {
 		if (this.ac) {
-			console.log('Bot is already started');
-			return;
+			throw new Error('Bot is already running');
 		}
 
 		this.emit('start');
@@ -202,8 +201,7 @@ export class Bot extends EventEmitter {
 	// @ts-expect-error - internal method
 	private _stop(): void {
 		if (!this.ac) {
-			console.log('Bot is already stopped or not running');
-			return;
+			throw new Error('Bot is already stopped or not running');
 		}
 
 		this.emit('stop');
