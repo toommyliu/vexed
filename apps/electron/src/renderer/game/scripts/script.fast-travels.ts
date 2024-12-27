@@ -40,7 +40,7 @@ window.addEventListener('ready', async () => {
 
 		{
 			const btn = document.createElement('button');
-			btn.classList.add('w3-button', 'w3-round-medium');
+			btn.classList.add('w3-button', 'w3-round-medium', 'w3-block');
 			btn.textContent = location.name;
 
 			// eslint-disable-next-line @typescript-eslint/no-loop-func
