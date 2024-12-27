@@ -56,14 +56,14 @@ ipcMain.on(
 			case WINDOW_IDS.LOADER_GRABBER:
 				ref = windows.tools.loaderGrabber;
 				path = join(PUBLIC, 'game/tools/loader-grabber/index.html');
-				width = 363;
-				height = 542;
+				width = 478;
+				height = 689;
 				break;
 			case WINDOW_IDS.FOLLOWER:
 				ref = windows.tools.follower;
 				path = join(PUBLIC, 'game/tools/follower/index.html');
 				width = 402;
-				height = 466;
+				height = 499;
 				break;
 			case WINDOW_IDS.PACKETS_LOGGER:
 				ref = windows.packets.logger;
