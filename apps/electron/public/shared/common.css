@@ -17,15 +17,6 @@ body {
 	margin: 0px !important;
 }
 
-.show {
-	opacity: 1;
-}
-
-.hide {
-	opacity: 0;
-	transition: opacity 400ms;
-}
-
 /* Dark scrollbar  */
 ::-webkit-scrollbar {
 	width: 9px;

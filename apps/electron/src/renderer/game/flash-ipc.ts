@@ -80,15 +80,25 @@ window.progress = async ([percentage]: [number]) => {
 		window?.account?.username &&
 		window?.account?.password
 	) {
+		console.log('Logging in with:', window.account.username);
+
 		await bot.sleep(1_000);
 		auth.login(window.account.username, window.account.password);
 		if (window.account.server) {
 			await bot.waitUntil(() => auth.servers.length > 0);
+
 			auth.connectTo(window.account.server);
 			await bot.waitUntil(() => player.isReady());
+
+			// Let the manager know we're logged in and ready
 			ipcRenderer.send(IPC_EVENTS.LOGIN_SUCCESS, window.account.username);
 		}
 
 		delete window.account;
 	}
 };
+
+ipcRenderer.on(IPC_EVENTS.LOGIN, async (_, account) => {
+	console.log('Got an account to login with, setting that now.');
+	window.account = account;
+});

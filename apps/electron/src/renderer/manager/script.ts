@@ -1,11 +1,11 @@
 import { ipcRenderer } from 'electron/renderer';
 
 const accounts: Account[] = [];
-const servers: RawServer[] = [];
+const servers: Server[] = [];
 
 const timeouts = new Map<string, NodeJS.Timeout>();
 
-ipcRenderer.on('manager:enable_button', async (_, username: string) => {
+ipcRenderer.on('manager:enable_button', async (_, username) => {
 	const timeout = timeouts.get(username);
 	if (timeout) {
 		clearTimeout(timeout);
@@ -23,7 +23,7 @@ function enableAccount(username: string) {
 	for (const el of document.querySelectorAll<HTMLButtonElement>('#start')) {
 		if (el.dataset['username'] === username) {
 			el.disabled = false;
-			el.classList.remove('disabled');
+			el.classList.remove('w3-disabled');
 		}
 	}
 }
@@ -58,10 +58,11 @@ async function removeAccount({ username }: Pick<Account, 'username'>) {
 
 function toggleAccountState(ev: MouseEvent) {
 	const checkbox = (ev.target as Element)!
-		.closest('.card')!
+		.closest('.account-card')!
 		.querySelector('input') as HTMLInputElement;
 
 	checkbox.checked = !checkbox.checked;
+	checkbox.dispatchEvent(new Event('change', { bubbles: true }));
 }
 
 function updateAccounts() {
@@ -71,41 +72,35 @@ function updateAccounts() {
 
 	timeouts.clear();
 
-	const accountsContainer =
-		document.querySelector<HTMLDivElement>('#accounts')!;
-	accountsContainer.innerHTML = '';
+	const accountsContainer = document.querySelector('#accounts')!;
 	accountsContainer.innerHTML = accounts
 		.map(
 			(account) => `
-					<div class="col-12 col-sm-6">
-						<div class="card h-100">
-							<div class="card-body d-flex flex-column flex-md-row justify-content-md-between" style="margin-top: auto;">
-								<div class="d-flex align-items-center mb-3 mb-md-0">
-									<input
-										type="checkbox"
-										class="form-check-input me-2"
-										data-username="${account.username}"
-										data-password="${account.password}"
-									/>
-									<h5 class="card-title m-0">
-										<span class="username-toggle" style="cursor: pointer;">
-											${account.username}
-										</span>
-									</h5>
-								</div>
-								<div class="d-flex flex-column flex-md-row align-items-md-center gap-2">
-									<button class="btn btn-secondary" id="remove"
-										data-username="${account.username}"
-										data-password="${account.password}">Remove</button>
-									<button class="btn btn-info" id="start"
-										data-username="${account.username}"
-										data-password="${account.password}"
-									>Start</button>
-								</div>
-							</div>
-						</div>
-					</div>
-				`,
+                <div class="account-card">
+                    <div class="account-bar">
+                        <div class="account-info">
+                            <input
+                                type="checkbox"
+                                class="account-checkbox"
+                                data-username="${account.username}"
+                                data-password="${account.password}"
+                            />
+                            <h4 class="username-toggle">
+                                ${account.username}
+                            </h4>
+                        </div>
+                        <div class="account-actions">
+                            <button class="w3-button w3-round-medium" id="remove"
+                            data-username="${account.username}"
+                            data-password="${account.password}">Remove</button>
+                            <button class="w3-button w3-round-medium" id="start"
+                            data-username="${account.username}"
+                            data-password="${account.password}"
+                            >Start</button>
+                        </div>
+                    </div>
+                </div>
+            `,
 		)
 		.join('');
 
@@ -129,10 +124,9 @@ function updateAccounts() {
 
 	const startBtns = document.querySelectorAll<HTMLButtonElement>('#start');
 	for (const el of startBtns) {
-		// eslint-disable-next-line @typescript-eslint/no-loop-func
 		el.onclick = async () => {
 			el.disabled = true;
-			el.classList.add('disabled');
+			el.classList.add('w3-disabled');
 
 			const username = el.dataset['username']!;
 			const password = el.dataset['password']!;
@@ -153,15 +147,23 @@ function updateServers() {
 		.join('');
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
+window.addEventListener('DOMContentLoaded', async () => {
 	{
-		const form = document.querySelector<HTMLFormElement>('#form')!;
-		const btn = document.querySelector<HTMLButtonElement>(
-			'button[type=submit]',
-		)!;
+		const btn = document.querySelector('#accordion-toggle')!;
+		btn.addEventListener('click', () => {
+			const nextEl = btn.nextElementSibling;
+			if (nextEl) nextEl.classList.toggle('w3-show');
+		});
+	}
 
-		form.onsubmit = async (ev: SubmitEvent) => {
-			btn.classList.add('disabled');
+	{
+		const form = document.querySelector('#account-form') as HTMLFormElement;
+		const btn = document.querySelector(
+			'button[type=submit]',
+		) as HTMLButtonElement;
+
+		form.addEventListener('submit', async (ev) => {
+			btn.classList.add('w3-disabled');
 
 			ev.preventDefault();
 
@@ -174,17 +176,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 				return;
 			}
 
-			const el = document.querySelector('#alert') as HTMLDivElement;
+			const el = document.querySelector('#alert') as HTMLElement;
 			const cl = el.classList;
 
 			try {
 				el.innerHTML = '';
-				cl.remove(
-					'alert-success',
-					'alert-danger',
-					'alert-dismissible',
-					'show',
-				);
+				cl.remove('w3-green', 'w3-red', 'w3-hide', 'w3-show');
 
 				const account = {
 					username: String(username),
@@ -197,50 +194,64 @@ document.addEventListener('DOMContentLoaded', async () => {
 				);
 
 				if (res?.success) {
+					// eslint-disable-next-line require-atomic-updates
 					el.innerText = 'Account added successfully';
 					accounts.push(account);
 					updateAccounts();
 				} else {
+					// eslint-disable-next-line require-atomic-updates
 					el.innerText =
-						'An error occured while trying to add the account';
+						'An error occurred while trying to add the account';
 				}
 
-				cl.add(res?.success ? 'alert-success' : 'alert-danger', 'show');
-				cl.remove('d-none');
+				el!.style.display = 'block';
+				cl.remove('w3-hide');
 
+				cl.add(
+					res?.success ? 'w3-green' : 'w3-red',
+					'w3-animate-opacity',
+				);
+
+				cl.remove('w3-hide');
 				setTimeout(
 					() => {
-						cl.add('hide');
+						cl.add('w3-hide');
+						el.style.display = 'none';
 						setTimeout(() => {
-							cl.add('d-none');
+							el.innerText = '';
 							cl.remove(
-								'show',
-								'hide',
-								'alert-success',
-								'alert-danger',
+								'w3-show',
+								'w3-hide',
+								'w3-green',
+								'w3-red',
 							);
 						}, 400);
 					},
 					res?.success ? 1_000 : 2_000,
 				);
 			} catch (error) {
-				const err = error as Error;
-
 				console.log(
-					'An error occured while trying to add the account',
-					err,
+					'An error occurred while trying to add the account',
+					error,
 				);
 
-				el.innerText = `An error occured while trying to add the account${err.message ? `: ${err.message}` : ''}`;
-				el.innerHTML +=
-					'<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
+				el.innerText = `An error occurred while trying to add the account${error instanceof Error && error.message ? `: ${error.message}` : ''}`;
 
-				cl.add('alert-danger', 'alert-dismissable', 'show');
-				cl.remove('d-none');
+				cl.add('w3-red', 'show');
+				cl.remove('w3-hide');
+
+				setTimeout(() => {
+					cl.add('w3-hide');
+					el.style.display = 'none';
+					setTimeout(() => {
+						el.innerText = '';
+						cl.remove('w3-show', 'w3-hide', 'w3-green', 'w3-red');
+					}, 400);
+				}, 2_000);
 			} finally {
-				btn.classList.remove('disabled');
+				btn.classList.remove('w3-disabled');
 			}
-		};
+		});
 	}
 
 	const [accountsOut, serversOut] = await Promise.all([
@@ -250,68 +261,74 @@ document.addEventListener('DOMContentLoaded', async () => {
 		),
 	]);
 
-	accounts.push(...accountsOut);
+	try {
+		accounts.push(...accountsOut);
+	} catch (error) {
+		console.error(error);
+		// eslint-disable-next-line no-alert
+		alert('An error occured trying to read accounts file');
+	}
+
 	servers.push(...serversOut);
 
 	updateAccounts();
 	updateServers();
 
-	{
-		const btn =
-			document.querySelector<HTMLButtonElement>('#remove-selected')!;
-		btn.onclick = async () => {
-			for (const el of document.querySelectorAll<HTMLButtonElement>(
-				'#remove',
-			)) {
-				const checkbox = el.closest('.card')!.querySelector('input')!;
-				if (!checkbox.checked) {
-					continue;
-				}
-
-				const username = el.dataset['username']!;
-				await removeAccount({ username });
-
-				const idx = accounts.findIndex(
-					(acc) => acc.username === username,
-				);
-				if (idx !== -1) {
-					accounts.splice(idx, 1);
-				}
+	const removeSelectedBtn =
+		document.querySelector<HTMLButtonElement>('#remove-selected')!;
+	removeSelectedBtn.addEventListener('click', async () => {
+		for (const el of document.querySelectorAll<HTMLButtonElement>(
+			'#remove',
+		)) {
+			const input = el
+				.closest('.account-card')!
+				.querySelector<HTMLInputElement>('input')!;
+			if (!input.checked) {
+				continue;
 			}
 
-			updateAccounts();
-		};
-	}
+			const username = el.dataset['username']!;
+			await removeAccount({ username });
 
-	{
-		const btn =
-			document.querySelector<HTMLButtonElement>('#start-selected')!;
-		btn.onclick = async () => {
-			for (const el of document.querySelectorAll<HTMLButtonElement>(
-				'#start',
-			)) {
-				const checkbox = el.closest('.card')!.querySelector('input')!;
-				if (!checkbox.checked) {
-					continue;
-				}
-
-				el.disabled = true;
-
-				await startAccount({
-					username: el.dataset['username']!,
-					password: el.dataset['password']!,
-				});
-
-				// eslint-disable-next-line @typescript-eslint/no-loop-func
-				await new Promise((resolve) => {
-					setTimeout(resolve, 1_000);
-				});
+			const idx = accounts.findIndex((acc) => acc.username === username);
+			if (idx !== -1) {
+				accounts.splice(idx, 1);
 			}
-		};
-	}
+		}
+
+		updateAccounts();
+	});
+
+	const startSelectedBtn =
+		document.querySelector<HTMLButtonElement>('#start-selected')!;
+	startSelectedBtn.addEventListener('click', async () => {
+		for (const el of document.querySelectorAll<HTMLInputElement>(
+			'#start',
+		)) {
+			const input = el
+				.closest('.account-card')!
+				.querySelector<HTMLInputElement>('input')!;
+
+			if (!input.checked) {
+				continue;
+			}
+
+			el.disabled = true;
+
+			await startAccount({
+				username: el.dataset['username']!,
+				password: el.dataset['password']!,
+			});
+
+			// eslint-disable-next-line @typescript-eslint/no-loop-func
+			await new Promise((resolve) => {
+				setTimeout(resolve, 1_000);
+			});
+		}
+	});
 });
 
-type RawServer = {
+type Server = {
 	bOnline: number;
 	bUpg: number;
 	iChat: number;
