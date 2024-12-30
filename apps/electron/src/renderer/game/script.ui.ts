@@ -75,7 +75,10 @@ window.addEventListener('DOMContentLoaded', async () => {
 							await bot.sleep(500);
 
 							bot._start();
-							bot.settings.infiniteRange=true;bot.settings.lagKiller=true;bot.settings.skipCutscenes=true;bot.settings.setFPS(10);
+							bot.settings.infiniteRange=true;
+							bot.settings.lagKiller=true;
+							bot.settings.skipCutscenes=true;
+							bot.settings.setFPS(10);
 
 							const abortPromise = new Promise((_, reject) => {
 								bot.signal.addEventListener('abort', () => {
@@ -96,7 +99,11 @@ window.addEventListener('DOMContentLoaded', async () => {
 								console.error('An error occurred while executing the script:', error);
 							}
 						} finally {
-							bot.settings.infiniteRange=false;bot.settings.lagKiller=false;bot.settings.skipCutscenes=false;bot.settings.setFPS(30);
+							bot._stop();
+							bot.settings.infiniteRange=false;
+							bot.settings.lagKiller=false;
+							bot.settings.skipCutscenes=false;
+							bot.settings.setFPS(30);
 						}
 					})();
 				\`);
