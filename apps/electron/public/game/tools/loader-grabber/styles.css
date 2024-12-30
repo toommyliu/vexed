@@ -1,36 +1,3 @@
-body {
-	background-color: #111113 !important;
-	color: white !important;
-	font-family: -apple-system, 'system-ui', 'Segoe UI (Custom)', Roboto,
-		'Helvetica Neue', 'Open Sans (Custom)', system-ui, sans-serif,
-		'Apple Color Emoji', 'Segoe UI Emoji' !important;
-	font-weight: 500 !important;
-}
-
-.card {
-	background-color: #18191b !important;
-	border: 1px solid lightgrey !important;
-	border-radius: 6px;
-}
-
-#loader-id,
-#loader-name,
-#loader-select,
-#grabber-select {
-	background-color: #18191b !important;
-	color: white !important;
-}
-
-.w3-button {
-	background-color: #3e63dd !important;
-	color: white !important;
-}
-
-.w3-button:hover {
-	background-color: #5472e4 !important;
-	color: white !important;
-}
-
 #tree {
 	width: 100%;
 	height: 100%;
@@ -42,10 +9,15 @@ body {
 	color: white;
 	margin-bottom: 16px;
 }
-
 .node {
 	cursor: pointer;
 	position: relative;
+}
+.node:first-child {
+	margin-top: 6px;
+}
+.node:last-child {
+	margin-bottom: 6px;
 }
 .expander {
 	padding-left: 8px;

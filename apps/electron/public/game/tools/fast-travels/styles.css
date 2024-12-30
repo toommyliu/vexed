@@ -1,59 +1,20 @@
-body {
-	background-color: #111113 !important;
-	color: white !important;
-	font-family: -apple-system, 'system-ui', 'Segoe UI (Custom)', Roboto,
-		'Helvetica Neue', 'Open Sans (Custom)', system-ui, sans-serif,
-		'Apple Color Emoji', 'Segoe UI Emoji' !important;
-	font-weight: 500 !important;
-}
-
-.card {
-	background-color: #18191b !important;
-	border: 1px solid lightgrey !important;
-	border-radius: 6px;
-}
-
-/* Modified the bar layout to use flex */
 .w3-bar {
     display: flex;
     align-items: center;
     gap: 16px;
 }
 
-/* Make the label take minimum space */
 .w3-bar-item.w3-left {
     flex: 0 0 auto;
 }
 
-/* Make the right section expand */
 .w3-bar-item.w3-right {
     flex: 1;
 }
 
-/* Make the input take full width of its container */
 .w3-input {
     width: 100% !important;
     box-sizing: border-box;
-}
-
-.w3-button {
-	background-color: #3e63dd !important;
-	color: white !important;
-	padding-left: 12px !important;
-	padding-right: 12px !important;
-	padding-top: 0px !important;
-	padding-bottom: 0px !important;
-	height: 36px !important;
-}
-
-.w3-button:hover {
-	background-color: #5472e4 !important;
-	color: white !important;
-}
-
-input {
-	background-color: #18191b !important;
-	color: white !important;
 }
 
 #locations {

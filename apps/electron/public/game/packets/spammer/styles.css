@@ -1,72 +1,36 @@
-body {
-	background-color: #111113 !important;
-	color: white !important;
-	font-family: -apple-system, 'system-ui', 'Segoe UI (Custom)', Roboto,
-		'Helvetica Neue', 'Open Sans (Custom)', system-ui, sans-serif,
-		'Apple Color Emoji', 'Segoe UI Emoji' !important;
-	font-weight: 500 !important;
-	height: 100vh;
-	margin: 0;
-	display: flex;
-	flex-direction: column;
-	overflow: hidden;
-}
-
-.w3-button {
-	background-color: #3e63dd !important;
-	color: white !important;
-	padding-left: 12px !important;
-	padding-right: 12px !important;
-	padding-top: 0px !important;
-	padding-bottom: 0px !important;
-	height: 36px !important;
-}
-
-.w3-button:hover {
-	background-color: #5472e4 !important;
-	color: white !important;
-}
-
 .spammer {
 	height: calc(100vh - 230px);
 	overflow-y: auto;
 	resize: vertical;
 }
 
-
 .line {
-    display: block;
-    width: max-content;
-    margin-left: 4px;
-    margin-top: 4px;
-    cursor: pointer;
-    color: white;
-    border-radius: 4px;
-    font-size: 12px;
-    border: 1px solid transparent;
-    padding: 0px;
+	display: block;
+	width: max-content;
+	margin-left: 4px;
+	margin-top: 4px;
+	cursor: pointer;
+	color: white;
+	border-radius: 4px;
+	font-size: 12px;
+	border: 1px solid transparent;
+	padding: 0px;
 	user-select: none;
 }
 
 .line:first-of-type {
-    margin-top: 2px;
+	margin-top: 2px;
 }
 
 .line:hover {
-    background-color: grey;
+	background-color: grey;
 }
 
 .selected-line {
-    margin-left: 4px;
-    margin-top: 2px;
-    padding: 0px;
-    background-color: #3a3a3a;
-    border: 1px solid #5a5a5a;
+	margin-left: 4px;
+	margin-top: 2px;
+	padding: 0px;
+	background-color: #3a3a3a;
+	border: 1px solid #5a5a5a;
 	user-select: none;
-}
-
-input {
-	background-color: #18191b !important;
-	color: white !important;
-	width: 256px !important;
 }

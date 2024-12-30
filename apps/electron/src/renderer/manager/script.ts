@@ -58,7 +58,7 @@ async function removeAccount({ username }: Pick<Account, 'username'>) {
 
 function toggleAccountState(ev: MouseEvent) {
 	const checkbox = (ev.target as Element)!
-		.closest('.account-card')!
+		.closest('.w3-card')!
 		.querySelector('input') as HTMLInputElement;
 
 	checkbox.checked = !checkbox.checked;
@@ -76,7 +76,7 @@ function updateAccounts() {
 	accountsContainer.innerHTML = accounts
 		.map(
 			(account) => `
-                <div class="account-card">
+                <div class="w3-card w3-round-medium" style="border:0px !important;">
                     <div class="account-bar">
                         <div class="account-info">
                             <input
@@ -281,7 +281,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 			'#remove',
 		)) {
 			const input = el
-				.closest('.account-card')!
+				.closest('.w3-card')!
 				.querySelector<HTMLInputElement>('input')!;
 			if (!input.checked) {
 				continue;
@@ -306,7 +306,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 			'#start',
 		)) {
 			const input = el
-				.closest('.account-card')!
+				.closest('.w3-card')!
 				.querySelector<HTMLInputElement>('input')!;
 
 			if (!input.checked) {

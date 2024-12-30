@@ -2,13 +2,14 @@
 <html>
 	<head>
 		<link href="../shared/common.css" rel="stylesheet" />
+		<link href="../shared/styles.css" rel="stylesheet" />
 		<link href="./styles.css" rel="stylesheet" />
 	</head>
 	<body>
 		<div class="main-content">
 			<div class="add-account-section">
 				<div class="add-account-header" id="accordion-toggle">
-					<h5 style="margin: 0">Add Account</h5>
+					<h5>Add Account</h5>
 				</div>
 				<div class="add-account-content w3-hide" id="add-account-form">
 					<div id="alert" class="alert w3-hide"></div>
@@ -17,6 +18,7 @@
 							<div>
 								<label for="username">Username</label>
 								<input
+									class="w3-input w3-border w3-round-medium"
 									type="text"
 									id="username"
 									name="username"
@@ -27,6 +29,7 @@
 							<div>
 								<label for="password">Password</label>
 								<input
+									class="w3-input w3-border w3-round-medium"
 									type="password"
 									id="password"
 									name="password"
