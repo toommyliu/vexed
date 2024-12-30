@@ -1,4 +1,3 @@
-import { ipcRenderer } from 'electron/renderer';
 import { IPC_EVENTS } from '../../../common/ipc-events';
 
 // square-plus
@@ -11,7 +10,7 @@ const svgClose =
 
 let lastData: unknown = null;
 
-function createTreeNode(data) {
+function createTreeNode(data: TreeNode): HTMLDivElement {
 	// The node
 	const div = document.createElement('div');
 	div.className = 'node';
@@ -63,14 +62,16 @@ function createTreeNode(data) {
 		// Data leaf (child)
 		const $span = document.createElement('span');
 		$span.className = 'child-value';
-		$span.textContent = data.value ?? 'N/A';
+		$span.textContent = String(data.value ?? 'N/A');
 		if (!data.value) {
 			$text.textContent += ':';
 		}
 
 		$span.addEventListener('click', async (ev) => {
 			ev.stopPropagation();
-			await navigator.clipboard.writeText(data.value).catch(() => {});
+			await navigator.clipboard
+				.writeText(data.value?.toString() ?? '')
+				.catch(() => {});
 		});
 
 		$content.appendChild($span);
@@ -79,146 +80,135 @@ function createTreeNode(data) {
 	return div;
 }
 
-function createTree(data) {
+function createTree(data: TreeNode[]): DocumentFragment {
 	const tree = document.createDocumentFragment();
 	for (const item of data) {
 		const node = createTreeNode(item);
 		tree.appendChild(node);
 	}
+
 	return tree;
 }
 
-function parseTreeData(data, type) {
-	let out = [];
+function parseTreeData(data: TreeInputData, type: string): TreeNode[] {
+	let out: TreeNode[] = [];
 
 	switch (type) {
 		case '0':
-			out = data.items.map((item) => {
-				return {
-					name: item.sName,
-					children: [
-						{ name: 'Shop Item ID', value: item.ShopItemID },
-						{ name: 'ID', value: item.ItemID },
-						{
-							name: 'Cost',
-							value: `${item.iCost} ${item.bCoins === 1 ? 'ACs' : 'Gold'}`,
-						},
-						{ name: 'Category', value: item.sType },
-						{ name: 'Description', value: item.sDesc },
-					],
-				};
-			});
+			out = (data as ShopData).items.map((item) => ({
+				name: item.sName,
+				children: [
+					{ name: 'Shop Item ID', value: item.ShopItemID },
+					{ name: 'ID', value: item.ItemID },
+					{
+						name: 'Cost',
+						value: `${item.iCost} ${item.bCoins === 1 ? 'ACs' : 'Gold'}`,
+					},
+					{ name: 'Category', value: item.sType },
+					{ name: 'Description', value: item.sDesc },
+				],
+			}));
 			break;
 		case '1': // quest
-			out = data.map((quest) => {
-				return {
-					name: `${quest.QuestID} - ${quest.sName}`,
-					children: [
-						{ name: 'ID', value: quest.QuestID },
-						{ name: 'Description', value: quest.sDesc },
-						{
-							name: 'Required Items',
-							children: quest.RequiredItems.map((i) => {
-								return {
-									name: i.sName,
-									children: [
-										{ name: 'ID', value: i.ItemID },
-										{ name: 'Quantity', value: i.iQty },
-										{
-											name: 'Temporary',
-											value: i.bTemp ? 'Yes' : 'No',
-										},
-										{
-											name: 'Description',
-											value: i.sDesc,
-										},
-									],
-								};
-							}),
-						},
-						{
-							name: 'Rewards',
-							children: quest.Rewards.map((item) => {
-								return {
-									name: item.sName,
-									children: [
-										{
-											name: 'ID',
-											value: item.ItemID,
-										},
-										{
-											name: 'Quantity',
-											value: item.iQty,
-										},
-										{
-											name: 'Drop chance',
-											value: item.DropChance,
-										},
-									],
-								};
-							}),
-						},
-					],
-				};
-			});
+			out = (data as Quest[]).map((quest) => ({
+				name: `${quest.QuestID} - ${quest.sName}`,
+				children: [
+					{ name: 'ID', value: quest.QuestID },
+					{ name: 'Description', value: quest.sDesc },
+					{
+						name: 'Required Items',
+						children: quest.RequiredItems.map((i) => ({
+							name: i.sName,
+							children: [
+								{ name: 'ID', value: i.ItemID },
+								{ name: 'Quantity', value: i.iQty },
+								{
+									name: 'Temporary',
+									value: i.bTemp ? 'Yes' : 'No',
+								},
+								{
+									name: 'Description',
+									value: i.sDesc,
+								},
+							],
+						})),
+					},
+					{
+						name: 'Rewards',
+						children: quest.Rewards.map((item) => ({
+							name: item.sName,
+							children: [
+								{
+									name: 'ID',
+									value: item.ItemID,
+								},
+								{
+									name: 'Quantity',
+									value: item.iQty,
+								},
+								{
+									name: 'Drop chance',
+									value: item.DropChance,
+								},
+							],
+						})),
+					},
+				],
+			}));
 			break;
 		case '2':
 		case '4':
-			out = data.map((item) => {
-				return {
-					name: item.sName,
-					children: [
-						{
-							name: 'ID',
-							value: item.ItemID,
-						},
-						{
-							name: 'Char Item ID',
-							value: item.CharItemID,
-						},
-						{
-							name: 'Quantity',
-							value:
-								item.sType === 'Class'
-									? '1/1'
-									: `${item.iQty}/${item.iStk}`,
-						},
-						{
-							name: 'AC Tagged',
-							value: item.bCoins === 1 ? 'Yes' : 'No',
-						},
-						{
-							name: 'Category',
-							value: item.sType,
-						},
-						{
-							name: 'Description',
-							value: item.sDesc,
-						},
-					],
-				};
-			});
+			out = (data as InventoryItem[]).map((item) => ({
+				name: item.sName,
+				children: [
+					{
+						name: 'ID',
+						value: item.ItemID,
+					},
+					{
+						name: 'Char Item ID',
+						value: item.CharItemID,
+					},
+					{
+						name: 'Quantity',
+						value:
+							item.sType === 'Class'
+								? '1/1'
+								: `${item.iQty}/${item.iStk}`,
+					},
+					{
+						name: 'AC Tagged',
+						value: item.bCoins === 1 ? 'Yes' : 'No',
+					},
+					{
+						name: 'Category',
+						value: item.sType,
+					},
+					{
+						name: 'Description',
+						value: item.sDesc,
+					},
+				],
+			}));
 			break;
 		case '3':
-			out = data.map((item) => {
-				return {
-					name: item.sName,
-					children: [
-						{
-							name: 'ID',
-							value: item.ItemID,
-						},
-						{
-							name: 'Quantity',
-							value: `${item.iQty}/${item.iStk}`,
-						},
-					],
-				};
-			});
+			out = (data as InventoryItem[]).map((item) => ({
+				name: item.sName,
+				children: [
+					{
+						name: 'ID',
+						value: item.ItemID,
+					},
+					{
+						name: 'Quantity',
+						value: `${item.iQty}/${item.iStk}`,
+					},
+				],
+			}));
 			break;
 		case '5':
 		case '6':
-			out = data.map((mon) => {
+			out = (data as Monster[]).map((mon) => {
 				const ret = {
 					name: mon.strMonName,
 					children: [
@@ -235,10 +225,10 @@ function parseTreeData(data, type) {
 
 				ret.children.push(
 					{ name: 'Race', value: mon.sRace },
-					{ name: 'Level', value: mon.iLvl ?? mon.intLevel },
+					{ name: 'Level', value: (mon.iLvl ?? mon.intLevel)! },
 				);
 
-				if (type === 5) {
+				if (type === '5') {
 					ret.children.push({
 						name: 'Health',
 						value: `${mon.intHP}/${mon.intHPMax}`,
@@ -246,7 +236,7 @@ function parseTreeData(data, type) {
 				} else {
 					ret.children.push({
 						name: 'Cell',
-						value: mon.strFrame,
+						value: mon.strFrame!,
 					});
 				}
 
@@ -312,16 +302,79 @@ window.addEventListener('ready', async () => {
 				args: { data, type },
 			} = ev.data;
 
-			let treeData;
-
-			treeData = parseTreeData(data, type);
+			const treeData = parseTreeData(
+				data as TreeInputData,
+				type as string,
+			);
 			lastData = data;
 
-			const container = document.querySelector('#tree');
-			container!.innerHTML = '';
+			const container = document.querySelector('#tree')!;
+			container.innerHTML = '';
 
 			const tree = createTree(treeData);
 			container.appendChild(tree);
 		}
 	});
 });
+
+type TreeNode = {
+	children?: TreeNode[];
+	name: string;
+	value?: number | string;
+};
+
+type ShopData = {
+	items: {
+		ItemID: number | string;
+		ShopItemID: number | string;
+		bCoins: number;
+		iCost: number;
+		sDesc: string;
+		sName: string;
+		sType: string;
+	}[];
+};
+
+type Quest = {
+	QuestID: number | string;
+	RequiredItems: {
+		ItemID: number | string;
+		bTemp: boolean;
+		iQty: number;
+		sDesc: string;
+		sName: string;
+	}[];
+	Rewards: {
+		DropChance: number;
+		ItemID: number | string;
+		iQty: number;
+		sName: string;
+	}[];
+	sDesc: string;
+	sName: string;
+};
+
+type InventoryItem = {
+	CharItemID?: number | string;
+	ItemID: number | string;
+	bCoins?: number;
+	iQty: number;
+	iStk: number;
+	sDesc?: string;
+	sName: string;
+	sType: string;
+};
+
+type Monster = {
+	MonID: number | string;
+	MonMapID: number | string;
+	iLvl?: number;
+	intHP?: number;
+	intHPMax?: number;
+	intLevel?: number;
+	sRace: string;
+	strFrame?: string;
+	strMonName: string;
+};
+
+type TreeInputData = InventoryItem[] | Monster[] | Quest[] | ShopData;
