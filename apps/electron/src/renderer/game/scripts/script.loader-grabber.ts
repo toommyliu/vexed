@@ -320,7 +320,7 @@ window.addEventListener('ready', async () => {
 type TreeNode = {
 	children?: TreeNode[];
 	name: string;
-	value?: number | string;
+	value?: number | string | undefined;
 };
 
 type ShopData = {
