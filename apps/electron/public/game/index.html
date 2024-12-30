@@ -1,158 +1,162 @@
-<link rel="stylesheet" href="w3.css" />
-<link rel="stylesheet" href="shared.css" />
-<link rel="stylesheet" href="styles.css" />
+<!doctype html>
+<html>
+	<head>
+		<link href="../shared/common.css" rel="stylesheet" />
+		<link href="./styles.css" rel="stylesheet" />
+	</head>
 
-<script type="module">
-	require('source-map-support').install();
-	require('../../dist/renderer/game/api/Bot.js');
-	require('../../dist/renderer/game/handlers/index.js');
-	require('../../dist/renderer/game/script.js');
-</script>
-
-<div id="gameContainer">
-	<embed
-		id="swf"
-		src="../../assets/grimoire.swf"
-		type="application/x-shockwave-flash"
-	/>
-</div>
-
-<div class="w3-bar" id="topnav">
-	<div class="w3-dropdown-click">
-		<button class="w3-button w3-small" style="margin-top: -4px" id="scripts">
-			Scripts
-		</button>
-		<div class="w3-dropdown-content w3-small" id="scripts-dropdowncontent">
-			<button class="w3-button w3-small w3-block" id="scripts-load">Load</button>
-			<button class="w3-button w3-small w3-block" id="scripts-toggle-dev-tools">
-				Toggle Dev Tools
-			</button>
-		</div>
-	</div>
-	<div class="w3-dropdown-click">
-		<button class="w3-button w3-small" style="margin-top: -4px" id="tools">
-			Tools
-		</button>
-		<div class="w3-dropdown-content w3-small" id="tools-dropdowncontent">
-			<button class="w3-button w3-small w3-block">Fast Travels</button>
-			<button class="w3-button w3-small w3-block">Loader/Grabber</button>
-			<button class="w3-button w3-small w3-block">Follower</button>
-		</div>
-	</div>
-	<div class="w3-dropdown-click">
-		<button class="w3-button w3-small" style="margin-top: -4px" id="packets">
-			Packets
-		</button>
-		<div class="w3-dropdown-content w3-small" id="packets-dropdowncontent">
-			<button class="w3-button w3-small w3-block">Logger</button>
-			<button class="w3-button w3-small w3-block">Spammer</button>
-		</div>
-	</div>
-	<div class="w3-dropdown-click">
-		<button class="w3-button w3-small" style="margin-top: -3px" id="options">
-			Options
-		</button>
-		<div
-			class="w3-dropdown-content w3-small"
-			id="options-dropdowncontent"
-			style="margin-top: -4px"
-		>
-			<button class="w3-button w3-small w3-block" id="option-infinite-range">
-				Infinite Range
-				<svg class="checkmark" viewBox="0 0 24 24">
-					<path
-						fill="currentColor"
-						d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
-					></path>
-				</svg>
-			</button>
-			<button class="w3-button w3-small w3-block" id="option-provoke-map">
-				Provoke Map
-				<svg class="checkmark" viewBox="0 0 24 24">
-					<path
-						fill="currentColor"
-						d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
-					></path>
-				</svg>
-			</button>
-			<button class="w3-button w3-small w3-block" id="option-provoke-cell">
-				Provoke Cell
-				<svg class="checkmark" viewBox="0 0 24 24">
-					<path
-						fill="currentColor"
-						d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
-					></path>
-				</svg>
-			</button>
-			<button class="w3-button w3-small w3-block" id="option-enemy-magnet">
-				Enemy Magnet
-				<svg class="checkmark" viewBox="0 0 24 24">
-					<path
-						fill="currentColor"
-						d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
-					></path>
-				</svg>
-			</button>
-			<button class="w3-button w3-small w3-block" id="option-lag-killer">
-				Lag Killer
-				<svg class="checkmark" viewBox="0 0 24 24">
-					<path
-						fill="currentColor"
-						d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
-					></path>
-				</svg>
-			</button>
-			<button class="w3-button w3-small w3-block" id="option-hide-players">
-				Hide Players
-				<svg class="checkmark" viewBox="0 0 24 24">
-					<path
-						fill="currentColor"
-						d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
-					></path>
-				</svg>
-			</button>
-			<button class="w3-button w3-small w3-block" id="option-skip-cutscenes">
-				Skip Cutscenes
-				<svg class="checkmark" viewBox="0 0 24 24">
-					<path
-						fill="currentColor"
-						d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
-					></path>
-				</svg>
-			</button>
-			<div
-				class="w3-block"
-				style="text-align: left; display: flex; align-items: center; padding: 0"
-			>
-				<span style="flex: 1; padding: 8px; margin-left: 6px">Walk Speed</span>
-				<input
-					type="number"
-					class="w3-input w3-small"
-					id="option-walkspeed"
-					style="width: 50px; height: 20px; margin-right: 8px"
-					value="8"
-					min="0"
-					max="99"
-				/>
+	<body>
+		<div class="w3-bar" id="topnav">
+			<div class="w3-left">
+				<div class="w3-dropdown-click">
+					<button class="w3-button w3-small" id="scripts">Scripts</button>
+					<div
+						class="w3-dropdown-content w3-small"
+						id="scripts-dropdowncontent"
+					>
+						<button class="w3-button w3-small w3-block">Load</button>
+						<button class="w3-button w3-small w3-block">
+							Toggle Dev Tools
+						</button>
+					</div>
+				</div>
+				<div class="w3-dropdown-click">
+					<button class="w3-button w3-small" id="tools">Tools</button>
+					<div class="w3-dropdown-content w3-small" id="tools-dropdowncontent">
+						<button class="w3-button w3-small w3-block">Fast Travels</button>
+						<button class="w3-button w3-small w3-block">
+							Loader/Grabber
+						</button>
+						<button class="w3-button w3-small w3-block">Follower</button>
+					</div>
+				</div>
+				<div class="w3-dropdown-click">
+					<button class="w3-button w3-small" id="packets">Packets</button>
+					<div
+						class="w3-dropdown-content w3-small"
+						id="packets-dropdowncontent"
+					>
+						<button class="w3-button w3-small w3-block">Logger</button>
+						<button class="w3-button w3-small w3-block">Spammer</button>
+					</div>
+				</div>
+				<div class="w3-dropdown-hover">
+					<button class="w3-button w3-small" id="options">Options</button>
+					<div
+						class="w3-dropdown-content w3-small"
+						id="options-dropdowncontent"
+					>
+						<button
+							class="w3-button w3-small w3-block"
+							id="option-infinite-range"
+						>
+							Infinite Range
+						</button>
+						<button
+							class="w3-button w3-small w3-block"
+							id="option-provoke-map"
+						>
+							Provoke Map
+						</button>
+						<button
+							class="w3-button w3-small w3-block"
+							id="option-provoke-cell"
+						>
+							Provoke Cell
+						</button>
+						<button
+							class="w3-button w3-small w3-block"
+							id="option-enemy-magnet"
+						>
+							Enemy Magnet
+						</button>
+						<button
+							class="w3-button w3-small w3-block"
+							id="option-lag-killer"
+						>
+							Lag Killer
+						</button>
+						<button
+							class="w3-button w3-small w3-block"
+							id="option-hide-players"
+						>
+							Hide Players
+						</button>
+						<button
+							class="w3-button w3-small w3-block"
+							id="option-skip-cutscenes"
+						>
+							Skip Cutscenes
+						</button>
+						<div
+							class="w3-button w3-small w3-block option-row"
+							id="option-walkspeed"
+						>
+							<span>Walk Speed</span>
+							<input
+								type="number"
+								class="w3-small walkspeed-input"
+								value="8"
+								min="0"
+								max="99"
+							/>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="w3-right topnav-right-container">
+				<div class="select-group">
+					<select
+						class="w3-select w3-border w3-small w3-right w3-disabled"
+						id="pads"
+						disabled
+					>
+						<option value="" selected disabled hidden></option>
+						<option value="Center">Center</option>
+						<option value="Spawn">Spawn</option>
+						<option value="Left">Left</option>
+						<option value="Right">Right</option>
+						<option value="Top">Top</option>
+						<option value="Bottom">Bottom</option>
+						<option value="Up">Up</option>
+						<option value="Down">Down</option>
+					</select>
+					<select
+						class="w3-select w3-border w3-small w3-right w3-disabled"
+						id="cells"
+						disabled
+					></select>
+				</div>
+				<div class="button-group">
+					<button
+						class="w3-button w3-border w3-small w3-disabled"
+						id="x"
+						disabled
+					>
+						x
+					</button>
+					<button
+						class="w3-button w3-border w3-small w3-disabled"
+						id="bank"
+						disabled
+					>
+						Bank
+					</button>
+				</div>
 			</div>
 		</div>
-	</div>
-	<button class="w3-bar-item w3-button w3-border w3-small w3-right" id="bank" disabled>
-		Bank
-	</button>
-	<button class="w3-bar-item w3-button w3-border w3-small w3-right" id="x" disabled>
-		x
-	</button>
-	<select class="w3-bar-item w3-border w3-small w3-right" id="cells" disabled></select>
-	<select class="w3-bar-item w3-border w3-small w3-right" id="pads" disabled>
-		<option value="" selected disabled hidden></option>
-		<option value="Center">Center</option>
-		<option value="Spawn">Spawn</option>
-		<option value="Left">Left</option>
-		<option value="Right">Right</option>
-		<option value="Top">Top</option>
-		<option value="Bottom">Bottom</option>
-		<option value="Up">Up</option>
-		<option value="Down">Down</option>
-	</select>
-</div>
+
+		<div class="gameContainer">
+			<embed id="swf" src="../../assets/grimoire.swf" />
+		</div>
+
+		<script type="module">
+			require('source-map-support').install();
+
+			require('../../dist/renderer/game/api/Bot.js');
+			require('../../dist/renderer/game/script.ui.js');
+			require('../../dist/renderer/game/flash-ipc.js');
+			require('../../dist/renderer/game/ipc/ipc.js');
+		</script>
+	</body>
+</html>

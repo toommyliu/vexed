@@ -86,9 +86,7 @@ export class Settings {
 			}
 
 			if (this.provokeMap && this.bot.world.monsters.length > 0) {
-				const ids = this.bot.world.monsters.map(
-					(mon) => mon.MonMapID,
-				);
+				const ids = this.bot.world.monsters.map((mon) => mon.MonMapID);
 				this.bot.packets.sendServer(
 					`%xt%zm%aggroMon%${this.bot.world.roomId}%${ids.join('%')}%`,
 				);
@@ -102,15 +100,15 @@ export class Settings {
 				this.bot.flash.call(() => swf.SetEnemyMagnet());
 			}
 
+			if (this.skipCutscenes) {
+				this.bot.flash.call(() => swf.SetSkipCutscenes());
+			}
+
 			this.bot.flash.call(() =>
 				swf.SetLagKiller(this.lagKiller ? 'True' : 'False'),
 			);
 
 			this.bot.flash.call(() => swf.HidePlayers(this.hidePlayers));
-
-			if (this.skipCutscenes) {
-				this.bot.flash.call(() => swf.SetSkipCutscenes());
-			}
 
 			if (this.walkSpeed !== 8) {
 				this.bot.flash.call(() =>
@@ -243,11 +241,17 @@ export class Settings {
 	/**
 	 * Sets the player's walk speed.
 	 */
-	public set walkSpeed(speed: number) {
-		// eslint-disable-next-line no-param-reassign
-		speed = Math.max(0, Math.min(99, speed));
-		this.#walkSpeed = speed;
-		this.#updateOption(this.#optionWalkSpeed!, speed);
+	public set walkSpeed(speed: number | number) {
+		if (typeof speed === 'number') {
+			const val = Math.max(0, Math.min(99, speed));
+			this.#walkSpeed = val;
+			this.#updateOption(this.#optionWalkSpeed!, val);
+		} else if (typeof speed === 'string') {
+			const val = Number.parseInt(speed, 10);
+			const tmp = Number.isNaN(val) ? 8 : Math.max(0, Math.min(99, val));
+			this.#walkSpeed = tmp;
+			this.#updateOption(this.#optionWalkSpeed!, tmp);
+		}
 	}
 
 	/**
@@ -278,9 +282,7 @@ export class Settings {
 				break;
 			case 'BUTTON':
 				option.setAttribute('data-checked', value ? 'true' : 'false');
-				(
-					option.querySelector('.checkmark') as HTMLElement
-				).style.display = value ? 'block' : 'none';
+				option.classList.toggle('option-active', Boolean(value));
 				break;
 		}
 	}

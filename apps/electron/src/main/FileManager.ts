@@ -5,7 +5,7 @@ import {
 	DEFAULT_ACCOUNTS,
 	DEFAULT_FAST_TRAVELS,
 	DEFAULT_SETTINGS,
-} from './constants';
+} from '../common/constants';
 
 export class FileManager {
 	private static instance: FileManager;

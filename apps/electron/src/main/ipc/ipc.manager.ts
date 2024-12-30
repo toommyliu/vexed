@@ -52,6 +52,7 @@ ipcMain.handle('manager:remove_account', async (_, username: string) => {
 });
 
 ipcMain.handle('manager:launch_game', async (_, account: AccountWithServer) => {
+	console.log('Launching game for:', account.username);
 	await createGame(account);
 });
 

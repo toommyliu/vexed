@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<link href="../../../shared/common.css" rel="stylesheet" />
+		<link href="../../../shared/styles.css" rel="stylesheet" />
+		<link href="./styles.css" rel="stylesheet" />
+	</head>
+
+	<body class="w3-container">
+		<div class="w3-container w3-section">
+			<div class="w3-section w3-card w3-round-medium w3-border" id="logger"></div>
+
+			<div class="w3-section" id="button-row">
+				<div class="w3-left">
+					<button class="w3-button w3-round-medium" id="save">
+						Save To File
+					</button>
+					<button class="w3-button w3-round-medium" id="copy-all">
+						Copy All
+					</button>
+					<button class="w3-button w3-round-medium" id="clear">Clear</button>
+				</div>
+
+				<div class="w3-right">
+					<button class="w3-button w3-round-medium" id="stop">Stop</button>
+					<button class="w3-button w3-round-medium" id="start">Start</button>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			require('../../../../dist/renderer/game/scripts/script.common.js');
+
+			window.addEventListener('DOMContentLoaded', () => {
+				require('../../../../dist/renderer/game/scripts/script.logger.js');
+			});
+		</script>
+	</body>
+</html>

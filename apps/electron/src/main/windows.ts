@@ -1,14 +1,15 @@
 import { join, resolve } from 'path';
 import { app, BrowserWindow, session } from 'electron';
+import { ARTIX_USERAGENT, WHITELISTED_DOMAINS } from '../common/constants';
+import { IPC_EVENTS } from '../common/ipc-events';
 import type { Account } from './FileManager';
-import { ARTIX_USERAGENT, WHITELISTED_DOMAINS } from './constants';
 import { showErrorDialog } from './utils';
-
-const store: WindowStore = new Map();
 
 const PUBLIC = join(__dirname, '../../public/');
 const PUBLIC_GAME = join(PUBLIC, 'game/');
 const PUBLIC_MANAGER = join(PUBLIC, 'manager/');
+
+export const store: WindowStore = new Map();
 
 // eslint-disable-next-line import-x/no-mutable-exports
 export let mgrWindow: BrowserWindow | null;
@@ -65,6 +66,7 @@ export async function createGame(
 			plugins: true,
 		},
 	});
+	app.allowRendererProcessReuse = true;
 
 	// Spoof headers to make the game think we are running as Artix Game Launcher
 	window.webContents.userAgent = ARTIX_USERAGENT;
@@ -73,6 +75,7 @@ export async function createGame(
 		(details, callback) => {
 			details.requestHeaders['User-Agent'] = ARTIX_USERAGENT;
 			details.requestHeaders['artixmode'] = 'launcher';
+			// The rest of these are probably redundant
 			details.requestHeaders['x-requested-with'] =
 				'ShockwaveFlash/32.0.0.371';
 			details.requestHeaders['origin'] = 'https://game.aq.com';
@@ -88,7 +91,7 @@ export async function createGame(
 	}
 
 	if (account) {
-		window.webContents.send('root:login', account);
+		window.webContents.send(IPC_EVENTS.LOGIN, account);
 	}
 
 	window.on('close', () => {
@@ -111,7 +114,6 @@ export async function createGame(
 		}
 	});
 
-	// Creates a child window, memoizing the instance
 	window.webContents.on(
 		'new-window',
 		async (
@@ -119,7 +121,7 @@ export async function createGame(
 			url,
 			_frameName,
 			_disposition,
-			options,
+			_options,
 			_additionalFeatures,
 			_referrer,
 		) => {
@@ -137,14 +139,15 @@ export async function createGame(
 
 					console.log('Blocking url (1)', _url);
 					ev.preventDefault();
-					// @ts-expect-error this is ok
-					ev.newGuest = null;
+					// This doesn't seem to be needed, anymore?
+					// ev.newGuest = null;
 					return null;
 				}
 
 				ev.preventDefault();
 
 				const newWindow = new BrowserWindow({
+					title: '',
 					webPreferences: {
 						nodeIntegration: false,
 						plugins: true,
@@ -168,103 +171,10 @@ export async function createGame(
 				await newWindow.webContents.loadURL(_url.toString());
 
 				return newWindow;
-			} else if (_url.protocol === 'file:') {
+			} else {
 				ev.preventDefault();
-
-				const file = url.slice(
-					url.lastIndexOf('/', url.lastIndexOf('/') - 1) + 1,
-					url.length,
-				);
-
-				const windows = store.get(window.id);
-				if (!windows) {
-					showErrorDialog(
-						{ message: 'Failed to find store (2).' },
-						true,
-					);
-					return;
-				}
-
-				let ref = null;
-
-				switch (file) {
-					// #region tools
-					case 'fast-travels/index.html':
-						ref = windows.tools.fastTravels;
-						break;
-					case 'loader-grabber/index.html':
-						ref = windows.tools.loaderGrabber;
-						break;
-					case 'follower/index.html':
-						ref = windows.tools.follower;
-						break;
-					// #endregion
-					// #region packets
-					case 'logger/index.html':
-						ref = windows.packets.logger;
-						break;
-					case 'spammer/index.html':
-						ref = windows.packets.spammer;
-						break;
-					// #endregion
-				}
-
-				// Return the previously created window
-				if (ref && !ref?.isDestroyed()) {
-					ref.show();
-					ref.focus();
-					return ref;
-				}
-
-				const newWindow = new BrowserWindow({
-					...options,
-					// Moving the parent also moves the child, as well as minimizing it
-					parent: window,
-				});
-
-				ev.newGuest = newWindow;
-				newWindow.on('close', (ev) => {
-					ev.preventDefault();
-					newWindow.hide();
-				});
-
-				await newWindow.loadFile(
-					`${join(PUBLIC_GAME, 'pages/')}` +
-						(url.includes('scripts')
-							? `scripts/${file}`
-							: url.includes('tools')
-								? `tools/${file}`
-								: url.includes('packets')
-									? `packets/${file}`
-									: null),
-				);
-
-				switch (file) {
-					// #region tools
-					case 'fast-travels/index.html':
-						windows.tools.fastTravels = newWindow;
-						break;
-					case 'loader-grabber/index.html':
-						windows.tools.loaderGrabber = newWindow;
-						break;
-					case 'follower/index.html':
-						windows.tools.follower = newWindow;
-						break;
-					// #endregion
-					// #region packets
-					case 'logger/index.html':
-						windows.packets.logger = newWindow;
-						break;
-					case 'spammer/index.html':
-						windows.packets.spammer = newWindow;
-						break;
-					// #endregion
-				}
-
-				return newWindow;
+				return null;
 			}
-
-			return null;
 		},
 	);
 	// window.maximize();

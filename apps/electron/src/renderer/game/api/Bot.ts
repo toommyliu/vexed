@@ -183,10 +183,10 @@ export class Bot extends EventEmitter {
 	 *
 	 * For example, the auto relogin background task runs if the bot is running.
 	 */
-	public start(): void {
+	// @ts-expect-error - internal method
+	private _start(): void {
 		if (this.ac) {
-			console.log('Bot is already started');
-			return;
+			throw new Error('Bot is already running');
 		}
 
 		this.emit('start');
@@ -198,25 +198,26 @@ export class Bot extends EventEmitter {
 	 *
 	 * While this does not stop a script, it removes any background tasks that were set up on start.
 	 */
-	public stop(): void {
+	// @ts-expect-error - internal method
+	private _stop(): void {
 		if (!this.ac) {
-			console.log('Bot is already stopped or not running');
-			return;
+			throw new Error('Bot is already stopped or not running');
 		}
 
 		this.emit('stop');
+		this.ac.abort();
 		this.ac = null;
 	}
 
 	/**
 	 * Whether the bot is "running".
 	 */
-	public get running(): boolean {
-		if (!this.ac) {
-			return false;
-		}
+	public isRunning(): boolean {
+		return this.ac !== null && !this.ac.signal.aborted;
+	}
 
-		return !this.ac.signal.aborted;
+	public get signal(): AbortSignal | null {
+		return this.ac?.signal ?? null;
 	}
 
 	/**
