@@ -58,6 +58,30 @@ window.addEventListener('DOMContentLoaded', async () => {
 					}
 				});
 
+				{
+					const originalOn = bot.on.bind(bot);
+					const eventListeners = new Map();
+
+					bot.on = function(event, listener) {
+						if (!eventListeners.has(event)) {
+							eventListeners.set(event, new Set());
+						}
+						eventListeners.get(event).add(listener);
+						return originalOn(event, listener);
+					};
+					bot.cleanupEvents = function() {
+						for (const [event, listeners] of eventListeners) {
+							for (const listener of listeners) {
+								bot.removeListener(event, listener);
+							}
+						}
+						eventListeners.clear();
+						delete bot.on;
+						bot.on = originalOn;
+						delete bot.cleanupEvents;
+					}
+				}
+
 				// const script = (console, bot) => { ... }
 				const script = new Function('console', 'bot', String.raw\`
 					(async () => {
@@ -106,12 +130,14 @@ window.addEventListener('DOMContentLoaded', async () => {
 							}
 						} finally {
 							process.nextTick(() => {
-								if (bot.ac) {
+								if (bot.ac instanceof AbortController) {
 									bot.emit('stop');
 									bot.ac.abort();
 									bot.ac = null;
 								}
-
+								if (typeof bot.cleanupEvents === 'function') {
+									bot.cleanupEvents();
+								}
 								bot.settings.infiniteRange = false;
 								bot.settings.lagKiller = false;
 								bot.settings.skipCutscenes = false;
