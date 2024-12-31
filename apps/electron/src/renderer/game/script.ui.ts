@@ -74,11 +74,14 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 							await bot.sleep(500);
 
-							bot._start();
-							bot.settings.infiniteRange=true;
-							bot.settings.lagKiller=true;
-							bot.settings.skipCutscenes=true;
+							bot.settings.infiniteRange = true;
+							bot.settings.lagKiller = true;
+							bot.settings.skipCutscenes = true;
 							bot.settings.setFPS(10);
+
+							bot.ac = new AbortController();
+
+							process.nextTick(() => bot.emit('start'));
 
 							const abortPromise = new Promise((_, reject) => {
 								bot.signal.addEventListener('abort', () => {
@@ -87,7 +90,10 @@ window.addEventListener('DOMContentLoaded', async () => {
 							});
 
 							await Promise.race([
-								(async () => { ${b64_out} })(),
+								(async () => {
+									while (!bot.isRunning()) { await bot.sleep(1000); }
+									${b64_out}
+								})(),
 								abortPromise
 							]);
 
@@ -99,11 +105,16 @@ window.addEventListener('DOMContentLoaded', async () => {
 								console.error('An error occurred while executing the script:', error);
 							}
 						} finally {
-							bot._stop();
-							bot.settings.infiniteRange=false;
-							bot.settings.lagKiller=false;
-							bot.settings.skipCutscenes=false;
-							bot.settings.setFPS(30);
+							process.nextTick(() => {
+								if (bot.ac) {
+									bot.ac.abort();
+									bot.ac = null;
+								}
+							 	bot.settings.infiniteRange = false;
+							 	bot.settings.lagKiller = false;
+							 	bot.settings.skipCutscenes = false;
+						 		bot.settings.setFPS(30);
+        					});
 						}
 					})();
 				\`);

@@ -177,39 +177,6 @@ export class Bot extends EventEmitter {
 	}
 
 	/**
-	 * Raises the running flag.
-	 *
-	 * This does not start a script, rather merely declares that a script is running.
-	 *
-	 * For example, the auto relogin background task runs if the bot is running.
-	 */
-	// @ts-expect-error - internal method
-	private _start(): void {
-		if (this.ac) {
-			throw new Error('Bot is already running');
-		}
-
-		this.emit('start');
-		this.ac = new AbortController();
-	}
-
-	/**
-	 * Lowers the running flag.
-	 *
-	 * While this does not stop a script, it removes any background tasks that were set up on start.
-	 */
-	// @ts-expect-error - internal method
-	private _stop(): void {
-		if (!this.ac) {
-			throw new Error('Bot is already stopped or not running');
-		}
-
-		this.emit('stop');
-		this.ac.abort();
-		this.ac = null;
-	}
-
-	/**
 	 * Whether the bot is "running".
 	 */
 	public isRunning(): boolean {
