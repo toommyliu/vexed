@@ -111,10 +111,14 @@ window.addEventListener('DOMContentLoaded', async () => {
 									bot.ac.abort();
 									bot.ac = null;
 								}
-							 	bot.settings.infiniteRange = false;
-							 	bot.settings.lagKiller = false;
-							 	bot.settings.skipCutscenes = false;
-						 		bot.settings.setFPS(30);
+
+								bot.settings.infiniteRange = false;
+								bot.settings.lagKiller = false;
+								bot.settings.skipCutscenes = false;
+								bot.settings.setFPS(30);
+
+								window.scriptBlob = null;
+								document.querySelector('#loaded-script')?.remove();
 
 								const btn = document.querySelector('#scripts-dropdowncontent > button:nth-child(2)');
 								btn.textContent = 'Start script';
