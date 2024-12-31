@@ -107,6 +107,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 						} finally {
 							process.nextTick(() => {
 								if (bot.ac) {
+									bot.emit('stop');
 									bot.ac.abort();
 									bot.ac = null;
 								}
