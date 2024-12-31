@@ -107,13 +107,23 @@ window.addEventListener('DOMContentLoaded', async () => {
 						} finally {
 							process.nextTick(() => {
 								if (bot.ac) {
+									bot.emit('stop');
 									bot.ac.abort();
 									bot.ac = null;
 								}
-							 	bot.settings.infiniteRange = false;
-							 	bot.settings.lagKiller = false;
-							 	bot.settings.skipCutscenes = false;
-						 		bot.settings.setFPS(30);
+
+								bot.settings.infiniteRange = false;
+								bot.settings.lagKiller = false;
+								bot.settings.skipCutscenes = false;
+								bot.settings.setFPS(30);
+
+								window.scriptBlob = null;
+								document.querySelector('#loaded-script')?.remove();
+
+								const btn = document.querySelector('#scripts-dropdowncontent > button:nth-child(2)');
+								btn.textContent = 'Start script';
+								btn.classList.add('w3-disabled');
+								btn.setAttribute('disabled', '');
         					});
 						}
 					})();
@@ -128,20 +138,71 @@ window.addEventListener('DOMContentLoaded', async () => {
 			const blob = new Blob([scriptContent], {
 				type: 'application/javascript',
 			});
-			const scriptUrl = URL.createObjectURL(blob);
+			window.scriptBlob = blob;
 
-			const script = document.createElement('script');
-			script.type = 'module';
-			script.id = 'loaded-script';
-			script.src = scriptUrl;
+			{
+				const btn = document.querySelector(
+					'#scripts-dropdowncontent > button:nth-child(2)',
+				) as HTMLButtonElement;
+				btn.classList.remove('w3-disabled');
+				btn.removeAttribute('disabled');
+			}
 
-			document.body.appendChild(script);
+			console.log('Loaded script.');
 		});
 	}
 
 	{
 		const btn = document.querySelector(
 			'#scripts-dropdowncontent > button:nth-child(2)',
+		) as HTMLButtonElement;
+		btn.addEventListener('click', () => {
+			if (!window.scriptBlob) return;
+
+			// Start the script
+			if (!bot.isRunning() && window.scriptBlob instanceof Blob) {
+				btn.textContent = 'Stop script';
+
+				const scriptUrl = URL.createObjectURL(window.scriptBlob);
+
+				const script = document.createElement('script');
+				script.type = 'module';
+				script.id = 'loaded-script';
+				script.src = scriptUrl;
+
+				document.body.appendChild(script);
+				return;
+			}
+
+			try {
+				window.scriptBlob = null;
+				document.querySelector('#loaded-script')?.remove();
+				// @ts-expect-error its ok
+				bot.ac?.abort();
+				btn.textContent = 'Start script';
+				btn.classList.add('w3-disabled');
+				btn.setAttribute('disabled', '');
+			} catch (error) {
+				console.error(
+					'An error occurred while stopping the script:',
+					error,
+				);
+			}
+		});
+	}
+
+	{
+		const btn = document.querySelector(
+			'#scripts-dropdowncontent > button:nth-child(3)',
+		) as HTMLButtonElement;
+		btn.addEventListener('click', () => {
+			ipcRenderer.send(IPC_EVENTS.TOGGLE_DEV_TOOLS);
+		});
+	}
+
+	{
+		const btn = document.querySelector(
+			'#scripts-dropdowncontent > button:nth-child(3)',
 		) as HTMLButtonElement;
 		btn.addEventListener('click', () => {
 			ipcRenderer.send(IPC_EVENTS.TOGGLE_DEV_TOOLS);
