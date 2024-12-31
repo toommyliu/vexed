@@ -232,5 +232,7 @@ declare global {
 
 		ports: Map<WindowId, MessagePort>;
 		portMonitors: Map<WindowId, PortMonitor>;
+
+		scriptBlob?: Blob | null;
 	}
 }
