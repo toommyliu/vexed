@@ -81,19 +81,19 @@ export class Bank {
 	/**
 	 * Puts an item into the Bank.
 	 *
-	 * @param itemKey - The name or ID of the item.
+	 * @param item - The name or ID of the item.
 	 * @returns Whether the operation was successful.
 	 */
-	public async deposit(itemKey: number | string): Promise<boolean> {
-		if (!this.bot.inventory.get(itemKey)) {
+	public async deposit(item: number | string): Promise<boolean> {
+		if (!this.bot.inventory.get(item)) {
 			return false;
 		}
 
-		this.bot.flash.call(() => swf.TransferToBank(String(itemKey)));
+		this.bot.flash.call(() => swf.TransferToBank(String(item)));
 		await this.bot.waitUntil(
 			() =>
-				this.get(itemKey) !== null &&
-				this.bot.inventory.get(itemKey) === null,
+				this.get(item) !== null &&
+				this.bot.inventory.get(item) === null,
 			() => this.bot.auth.isLoggedIn(),
 		);
 		return true;
@@ -102,19 +102,19 @@ export class Bank {
 	/**
 	 * Takes an item out of the bank.
 	 *
-	 * @param itemKey - The name or ID of the item.
+	 * @param item - The name or ID of the item.
 	 * @returns Whether the operation was successful.
 	 */
-	public async withdraw(itemKey: number | string): Promise<boolean> {
-		if (!this.get(itemKey)) {
+	public async withdraw(item: number | string): Promise<boolean> {
+		if (!this.get(item)) {
 			return false;
 		}
 
-		this.bot.flash.call(() => swf.TransferToInventory(String(itemKey)));
+		this.bot.flash.call(() => swf.TransferToInventory(String(item)));
 		await this.bot.waitUntil(
 			() =>
-				this.get(itemKey) === null &&
-				this.bot.inventory.get(itemKey) !== null,
+				this.get(item) === null &&
+				this.bot.inventory.get(item) !== null,
 			() => this.bot.auth.isLoggedIn(),
 		);
 		return true;
@@ -131,11 +131,11 @@ export class Bank {
 		bankItem: number | string,
 		inventoryItem: number | string,
 	): Promise<boolean> {
-		const inBank = () => Boolean(this.get(bankItem));
-		const inInventory = () =>
+		const isInBank = () => Boolean(this.get(bankItem));
+		const isInInventory = () =>
 			Boolean(this.bot.inventory.get(inventoryItem));
 
-		if (!inBank() || !inInventory()) {
+		if (!isInBank() || !isInInventory()) {
 			return false;
 		}
 
@@ -143,18 +143,22 @@ export class Bank {
 			swf.BankSwap(String(inventoryItem), String(bankItem)),
 		);
 		await this.bot.waitUntil(
-			() => !inBank() && !inInventory(),
-			() => this.bot.auth.isLoggedIn(),
+			() => !isInBank() && !isInInventory(),
+			() => this.bot.player.isReady(),
 		);
 		return true;
 	}
 
 	/**
-	 * Opens the bank ui, and loads all items.
+	 * Opens the bank ui, and loads all items if needed.
 	 *
 	 * @param force - Whether to force open the bank ui, regardless of whether it's open.
+	 * @param loadItems - Whether to load all items in the bank, regardless of whether they've been loaded.
 	 */
-	public async open(force: boolean = false): Promise<void> {
+	public async open(
+		force: boolean = false,
+		loadItems: boolean = false,
+	): Promise<void> {
 		if (!force && this.isOpen()) {
 			return;
 		}
@@ -166,12 +170,12 @@ export class Bank {
 			await this.bot.sleep(500);
 		}
 
-		// Load the items
+		// Open the ui
 		this.bot.flash.call(() => swf.ShowBank());
 		await this.bot.waitUntil(() => this.isOpen());
 
-		// Only load bank items once
-		if (!this.isLoaded) {
+		// Load items if needed
+		if (!this.isLoaded || loadItems) {
 			this.bot.flash.call(() => swf.LoadBankItems());
 			this.isLoaded = true;
 		}
@@ -179,7 +183,7 @@ export class Bank {
 		await this.bot.waitUntil(
 			// eslint-disable-next-line sonarjs/no-collection-size-mischeck
 			() => this.items.length >= 0 /* wait until something is loaded */,
-			() => this.bot.auth.isLoggedIn() && this.isOpen(),
+			() => this.bot.player.isReady() && this.isOpen(),
 			10,
 		);
 	}
