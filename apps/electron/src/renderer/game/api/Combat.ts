@@ -338,8 +338,8 @@ export class Combat {
 		if (full) {
 			await this.bot.waitUntil(
 				() =>
-					this.bot.player.hp >= this.bot.player.maxHP &&
-					this.bot.player.mp >= this.bot.player.maxMP,
+					this.bot.player.hp >= this.bot.player.maxHp &&
+					this.bot.player.mp >= this.bot.player.maxMp,
 			);
 		}
 	}

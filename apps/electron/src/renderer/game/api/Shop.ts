@@ -1,6 +1,6 @@
 import type { Bot } from './Bot';
 import { GameAction } from './World';
-import type { ItemData } from './struct/Item';
+import type { ShopItem } from './struct/ShopItem';
 
 export class Shops {
 	public constructor(public bot: Bot) {}
@@ -23,7 +23,7 @@ export class Shops {
 	 * Buy an item from the shop.
 	 *
 	 * @param itemName - The name of the item.
-	 * @param quantity - The quantity of the item.
+	 * @param quantity - The quantity of the item. If not provided, it will default to 1.
 	 */
 	public async buyByName(
 		itemName: string,
@@ -32,44 +32,53 @@ export class Shops {
 		await this.bot.waitUntil(() =>
 			this.bot.world.isActionAvailable(GameAction.BuyItem),
 		);
+
+		const qty = quantity ?? 1;
+
 		if (quantity) {
 			this.bot.flash.call(() => swf.BuyItemQty(itemName, quantity));
-			await this.bot.waitUntil(() =>
-				this.bot.inventory.contains(itemName, quantity),
-			);
 		} else {
 			this.bot.flash.call(() => swf.BuyItem(itemName));
-			await this.bot.waitUntil(() =>
-				this.bot.inventory.contains(itemName, 1),
-			);
 		}
+
+		await this.bot.waitUntil(() =>
+			this.bot.inventory.contains(itemName, qty),
+		);
 	}
 
 	/**
-	 * Buy an item from the shop using its ID.
+	 * Buy an item from the shop.
 	 *
-	 * @param itemId - The ID of the item.
-	 * @param shopItemId - The ID of the item corresponding to the shopID.
+	 * @param itemId - The id of the item.
 	 * @param quantity -The quantity of the item.
 	 */
-	public async buyById(
-		itemId: number,
-		shopItemId: number,
-		quantity: number,
-	): Promise<void> {
+	public async buyById(itemId: number, quantity: number): Promise<void> {
 		await this.bot.waitUntil(() =>
 			this.bot.world.isActionAvailable(GameAction.BuyItem),
 		);
-		this.bot.flash.call(() =>
-			swf.BuyItemQtyById(quantity, itemId, shopItemId),
+
+		if (!this.isShopLoaded()) return;
+
+		const item = this.info!.items.find(
+			(shopItem) => shopItem.data.ItemID === itemId,
 		);
+		if (!item) return;
+
+		this.bot.flash.call(() =>
+			swf.BuyItemQtyById(
+				quantity,
+				itemId,
+				Number.parseInt(item.data.ShopItemID, 10),
+			),
+		);
+
 		await this.bot.waitUntil(() =>
 			this.bot.inventory.contains(itemId, quantity),
 		);
 	}
 
 	/**
-	 * Reset the loaded shop info.
+	 *
 	 */
 	public resetShopInfo(): void {
 		this.bot.flash.call(() => swf.ResetShopInfo());
@@ -92,23 +101,20 @@ export class Shops {
 	/**
 	 * Sells an entire stack of an item.
 	 *
-	 * @param itemName - The name of the item.
-	 * @returns Whether the operation was successful.
+	 * @param itemKey - The name or ID of the item.
 	 */
-	public async sell(itemName: string): Promise<boolean> {
+	public async sell(itemKey: string): Promise<void> {
 		await this.bot.waitUntil(() =>
 			this.bot.world.isActionAvailable(GameAction.SellItem),
 		);
 
-		const hasItem = () => this.bot.inventory.get(itemName);
-		if (hasItem()) {
-			await this.bot.sleep(1_000);
-			this.bot.flash.call(() => swf.SellItem(itemName));
-			await this.bot.waitUntil(() => !hasItem());
-			return true;
-		}
+		const item = this.bot.inventory.get(itemKey);
 
-		return false;
+		if (!item) return;
+
+		await this.bot.sleep(1_000);
+		this.bot.flash.call(() => swf.SellItem(item.name));
+		await this.bot.waitUntil(() => !this.bot.inventory.get(itemKey));
 	}
 
 	/**
@@ -135,7 +141,7 @@ export type ShopInfo = {
 	bStaff: string;
 	bUpgrd: string;
 	iIndex: string;
-	items: ItemData[];
+	items: ShopItem[];
 	sField: string;
 	sName: string;
 };

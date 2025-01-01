@@ -91,12 +91,11 @@ export class Drops {
 	 * Accepts the drop for an item in the stack.
 	 *
 	 * @param itemKey - The name or ID of the item.
-	 * @returns Whether the operation was successful.
 	 */
-	public async pickup(itemKey: number | string): Promise<boolean> {
+	public async pickup(itemKey: number | string) {
 		const item = this.resolveItem(itemKey);
 		if (!item || this.getDropCount(item.ItemID) <= 0) {
-			return false;
+			return;
 		}
 
 		const { ItemID: itemId } = item;
@@ -110,8 +109,6 @@ export class Drops {
 				() => this.bot.auth.isLoggedIn(),
 				-1,
 			);
-
-			return true;
 		});
 	}
 
@@ -120,12 +117,11 @@ export class Drops {
 	 *
 	 * @param itemKey - The name or ID of the item.
 	 * @param removeFromStore - Whether to delete the item entry from the store.
-	 * @returns Whether the operation was successful.
 	 */
 	public async reject(
 		itemKey: number | string,
 		removeFromStore: boolean = false,
-	): Promise<boolean> {
+	) {
 		const item = this.resolveItem(itemKey);
 		if (item) {
 			this.bot.flash.call(() =>
@@ -135,11 +131,7 @@ export class Drops {
 			if (removeFromStore) {
 				this.removeDrop(item.ItemID);
 			}
-
-			return true;
 		}
-
-		return false;
 	}
 
 	/**

@@ -6,7 +6,7 @@ export class TempInventory {
 	public constructor(public bot: Bot) {}
 
 	/**
-	 * Gets items in the Temp Inventory of the player.
+	 * A list of items in the temp inventory.
 	 */
 	public get items(): TempInventoryItem[] {
 		const ret = this.bot.flash.call(() => swf.GetTempItems());
@@ -19,7 +19,7 @@ export class TempInventory {
 	}
 
 	/**
-	 * Gets an item from the temp. inventory.
+	 * Gets an item from the temp inventory.
 	 *
 	 * @param itemKey - The name or ID of the item.
 	 */
@@ -41,11 +41,10 @@ export class TempInventory {
 	}
 
 	/**
-	 * Whether an item meets some quantity in this store.
+	 * Whether an item meets the quantity in the temp inventory.
 	 *
 	 * @param itemKey - The name or ID of the item.
 	 * @param quantity - The quantity of the item.
-	 * @returns Whether the item meets some quantity in this store.
 	 */
 	public contains(itemKey: number | string, quantity: number): boolean {
 		const item = this.get(itemKey);

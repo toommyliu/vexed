@@ -5,14 +5,20 @@ export class Auth {
 	public constructor(public readonly bot: Bot) {}
 
 	/**
-	 * The username of the current user. This value is set after a successful login.
+	 * The username of the current user.
+	 *
+	 * @remarks
+	 * This value is set after a successful login.
 	 */
 	public get username(): string {
 		return this.bot.flash.call(() => swf.GetUsername());
 	}
 
 	/**
-	 * The password of the current user. This value is set after a successful login.
+	 * The password of the current user.
+	 *
+	 * @remarks
+	 * This value is set after a successful login.
 	 */
 	public get password(): string {
 		return this.bot.flash.call(() => swf.GetPassword());
@@ -26,10 +32,14 @@ export class Auth {
 	}
 
 	/**
-	 * Log in with the given account or the previous account (if available).
+	 * Log in with the given account or the previous account.
 	 *
+	 * @remarks
+	 * If username and password are not provided, the client will attempt to login
+	 * with the values stored in the client.
 	 * @param username - The username to login with.
 	 * @param password - The password to login with.
+	 *
 	 */
 	public login(
 		username: string | null = null,
@@ -50,7 +60,10 @@ export class Auth {
 	}
 
 	/**
-	 * The list of servers as shown to the client. The value is set after a successful login.
+	 * The list of servers as shown to the client.
+	 *
+	 * @remarks
+	 * The value is set after a successful login.
 	 */
 	public get servers(): Server[] {
 		const ret = this.bot.flash.get('serialCmd.servers', true);

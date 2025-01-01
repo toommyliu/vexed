@@ -34,18 +34,29 @@ export class InventoryItem extends Item {
 
 	/**
 	 * The enhancement pattern ID of the item.
+	 *
+	 * @remarks
 	 * 1: Adventurer
+	 *
 	 * 2: Fighter
+	 *
 	 * 3: Thief
+	 *
 	 * 4: Armsman
+	 *
 	 * 5: Hybrid
+	 *
 	 * 6: Wizard
+	 *
 	 * 7: Healer
+	 *
 	 * 8: Spellbreaker
+	 *
 	 * 9: Lucky
+	 *
 	 * 10: Forge (?)
 	 */
-	public get enhancementPatternID(): number {
+	public get enchantmentPatternId(): number {
 		return this.data.EnhPatternID;
 	}
 }

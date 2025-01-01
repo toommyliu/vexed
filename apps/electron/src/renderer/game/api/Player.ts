@@ -5,7 +5,7 @@ export class Player {
 	public constructor(public readonly bot: Bot) {}
 
 	/**
-	 * Get the player's factions data.
+	 * The player's faction data.
 	 */
 	public get factions(): Faction[] {
 		const ret = this.bot.flash.call<FactionData[]>(() => swf.GetFactions());
@@ -13,77 +13,77 @@ export class Player {
 	}
 
 	/**
-	 * Gets the name of the player's equipped class.
+	 * The name of the player's equipped class.
 	 */
 	public get className(): string {
 		return this.bot.flash.call(() => swf.Class());
 	}
 
 	/**
-	 * Gets the state of the current player.
+	 * The state of the player.
 	 */
 	public get state(): PlayerState {
 		return this.bot.flash.call(() => swf.State());
 	}
 
 	/**
-	 * Gets the current health of the current player.
+	 * The health of the player.
 	 */
 	public get hp(): number {
 		return this.bot.flash.call(() => swf.Health());
 	}
 
 	/**
-	 * Gets the maximum health of the current player.
+	 * The maximum health of the player.
 	 */
-	public get maxHP(): number {
+	public get maxHp(): number {
 		return this.bot.flash.call(() => swf.HealthMax());
 	}
 
 	/**
-	 * Checks if the current player is alive.
+	 * Whether the player is alive.
 	 */
 	public get alive(): boolean {
 		return this.hp > 0;
 	}
 
 	/**
-	 * Gets the current mana of the current player.
+	 * The mana of the player.
 	 */
 	public get mp(): number {
 		return this.bot.flash.call(() => swf.Mana());
 	}
 
 	/**
-	 * Gets the maximum mana of the current player.
+	 * The maximum mana of the player.
 	 */
-	public get maxMP(): number {
+	public get maxMp(): number {
 		return this.bot.flash.call(() => swf.ManaMax());
 	}
 
 	/**
-	 * Gets the level of the current player.
+	 * The level of the player.
 	 */
 	public get level(): number {
 		return this.bot.flash.call(() => swf.Level());
 	}
 
 	/**
-	 * Gets the gold of the current player.
+	 * The player's gold.
 	 */
 	public get gold(): number {
 		return this.bot.flash.call(() => swf.Gold());
 	}
 
 	/**
-	 * Whether the current player is AFK.
+	 * Whether the player is AFK.
 	 */
 	public isAFK(): boolean {
 		return this.bot.flash.call(() => swf.IsAfk());
 	}
 
 	/**
-	 * Whether the current player has membership.
+	 * Whether the player has an active membership.
 	 */
 	public isMember(): boolean {
 		return this.bot.flash.call(() => swf.IsMember());
@@ -97,7 +97,7 @@ export class Player {
 	}
 
 	/**
-	 * Walk to a position in the map.
+	 * Walks to a position on the map.
 	 *
 	 * @param x - The x coordinate to walk to.
 	 * @param y - The y coordinate to walk to.
@@ -107,21 +107,21 @@ export class Player {
 	}
 
 	/**
-	 * Get the cell of our player in the map.
+	 * The cell the player is in, in the map.
 	 */
 	public get cell(): string {
 		return this.bot.flash.call(() => swf.Cell());
 	}
 
 	/**
-	 * Get the pad of the our player in the map.
+	 * The pad the player is in, in the map.
 	 */
 	public get pad(): string {
 		return this.bot.flash.call(() => swf.Pad());
 	}
 
 	/**
-	 * A check for if the world is fully loaded, aswell as the player's inventory items and art.
+	 * Whether the player has fully loaded in.
 	 */
 	public isLoaded(): boolean {
 		return Boolean(
@@ -130,7 +130,7 @@ export class Player {
 	}
 
 	/**
-	 * Shorthand for checking if the player is logged in, the world is loaded, and the player is fully loaded.
+	 * Comprehensive check to determine if the player is ready.
 	 */
 	public isReady(): boolean {
 		return (

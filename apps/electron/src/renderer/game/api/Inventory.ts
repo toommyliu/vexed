@@ -19,11 +19,10 @@ export class Inventory {
 	/**
 	 * Resolves for an Item in the Inventory.
 	 *
-	 * @param itemKey - The name or ID of the item.
+	 * @param item - The name or ID of the item.
 	 */
-	public get(itemKey: number | string): InventoryItem | null {
-		const val =
-			typeof itemKey === 'string' ? itemKey.toLowerCase() : itemKey;
+	public get(item: number | string): InventoryItem | null {
+		const val = typeof item === 'string' ? item.toLowerCase() : item;
 
 		return (
 			this.items.find((item) => {
@@ -39,8 +38,9 @@ export class Inventory {
 	}
 
 	/**
-	 * Whether the item meets some quantity in this store.
+	 * Whether an item meets the quantity in the inventory.
 	 *
+	 * @remarks If the item is a Class, the quantity is ignored.
 	 * @param itemKey - The name or ID of the item.
 	 * @param quantity - The quantity of the item.
 	 */
@@ -53,65 +53,58 @@ export class Inventory {
 	}
 
 	/**
-	 * Gets the total number of slots in the Inventory of the current player.
+	 * The total slots available in the player's inventory.
 	 */
 	public get totalSlots(): number {
 		return this.bot.flash.call(() => swf.InventorySlots());
 	}
 
 	/**
-	 * Gets the number of used slots in the Inventory of the current player.
+	 * The number of used slots in the player's inventory.
 	 */
 	public get usedSlots(): number {
 		return this.bot.flash.call(() => swf.UsedInventorySlots());
 	}
 
 	/**
-	 * Gets the number of available slots in the Inventory of the current player.
+	 * The number of available slots in the player's inventory.
 	 */
 	public get availableSlots(): number {
 		return this.totalSlots - this.usedSlots;
 	}
 
 	/**
-	 * Equips an item from the Inventory.
+	 * Equips an item from the inventory.
 	 *
 	 * @param itemKey - The name or ID of the item.
-	 * @returns Whether the operation was successful.
 	 */
-	public async equip(itemKey: number | string): Promise<boolean> {
-		const getItem = () => this.get(itemKey);
+	public async equip(itemKey: number | string): Promise<void> {
+		const item = this.get(itemKey);
 
-		if (getItem()) {
-			const equipped = () => getItem()?.isEquipped();
+		if (!item || item.isEquipped()) return;
 
-			// eslint-disable-next-line no-unreachable-loop, sonarjs/no-one-iteration-loop
-			while (!equipped()) {
-				await this.bot.combat.exit();
-				await this.bot.waitUntil(() =>
-					this.bot.world.isActionAvailable(GameAction.EquipItem),
-				);
+		await this.bot.waitUntil(() =>
+			this.bot.world.isActionAvailable(GameAction.EquipItem),
+		);
 
-				const item = getItem()!;
-				if (item.category === 'Item') {
-					// eslint-disable-next-line @typescript-eslint/no-loop-func
-					this.bot.flash.call(() =>
-						swf.EquipPotion(
-							item.id.toString(),
-							item.description,
-							item.fileLink,
-							item.name,
-						),
-					);
-				} else {
-					// eslint-disable-next-line @typescript-eslint/no-loop-func
-					this.bot.flash.call(() => swf.Equip(item.id.toString()));
-				}
-
-				return true;
-			}
+		if (item.category === 'Item') {
+			// potion / consumable
+			this.bot.flash.call(() =>
+				swf.EquipPotion(
+					item.id.toString(),
+					item.description,
+					item.fileLink,
+					item.name,
+				),
+			);
+		} else {
+			this.bot.flash.call(() => swf.Equip(item.id.toString()));
 		}
 
-		return false;
+		await this.bot.waitUntil(
+			() => Boolean(this.get(itemKey)?.isEquipped()),
+			() => this.bot.player.isReady(),
+			10,
+		);
 	}
 }

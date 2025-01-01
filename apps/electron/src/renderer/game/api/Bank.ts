@@ -43,11 +43,11 @@ export class Bank {
 	}
 
 	/**
-	 * Whether the item meets some quantity in this store.
+	 * Whether an item meets the quantity in the bank.
 	 *
+	 * @remarks If the item is a Class, the quantity is ignored.
 	 * @param itemKey - The name or ID of the item.
 	 * @param quantity - The quantity of the item.
-	 * @returns True if the item is found with the specified quantity, false otherwise.
 	 */
 	public contains(itemKey: number | string, quantity: number = 1): boolean {
 		const item = this.get(itemKey);
@@ -82,11 +82,10 @@ export class Bank {
 	 * Puts an item into the Bank.
 	 *
 	 * @param item - The name or ID of the item.
-	 * @returns Whether the operation was successful.
 	 */
-	public async deposit(item: number | string): Promise<boolean> {
+	public async deposit(item: number | string) {
 		if (!this.bot.inventory.get(item)) {
-			return false;
+			return;
 		}
 
 		this.bot.flash.call(() => swf.TransferToBank(String(item)));
@@ -96,18 +95,16 @@ export class Bank {
 				this.bot.inventory.get(item) === null,
 			() => this.bot.auth.isLoggedIn(),
 		);
-		return true;
 	}
 
 	/**
 	 * Takes an item out of the bank.
 	 *
 	 * @param item - The name or ID of the item.
-	 * @returns Whether the operation was successful.
 	 */
-	public async withdraw(item: number | string): Promise<boolean> {
+	public async withdraw(item: number | string) {
 		if (!this.get(item)) {
-			return false;
+			return;
 		}
 
 		this.bot.flash.call(() => swf.TransferToInventory(String(item)));
@@ -117,7 +114,6 @@ export class Bank {
 				this.bot.inventory.get(item) !== null,
 			() => this.bot.auth.isLoggedIn(),
 		);
-		return true;
 	}
 
 	/**
@@ -125,18 +121,17 @@ export class Bank {
 	 *
 	 * @param bankItem - The name or ID of the item from the Bank.
 	 * @param inventoryItem - The name or ID of the item from the Inventory.
-	 * @returns Whether the operation was successful.
 	 */
 	public async swap(
 		bankItem: number | string,
 		inventoryItem: number | string,
-	): Promise<boolean> {
+	): Promise<void> {
 		const isInBank = () => Boolean(this.get(bankItem));
 		const isInInventory = () =>
 			Boolean(this.bot.inventory.get(inventoryItem));
 
 		if (!isInBank() || !isInInventory()) {
-			return false;
+			return;
 		}
 
 		this.bot.flash.call(() =>
@@ -146,7 +141,6 @@ export class Bank {
 			() => !isInBank() && !isInInventory(),
 			() => this.bot.player.isReady(),
 		);
-		return true;
 	}
 
 	/**
