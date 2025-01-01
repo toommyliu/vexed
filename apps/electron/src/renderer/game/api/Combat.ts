@@ -117,8 +117,19 @@ export class Combat {
 	/**
 	 * Kills a monster.
 	 *
-	 * @param monsterResolvable - The name or monMapID of the monster.
-	 * @param options - The configuration to use for the kill.
+	 * @param monsterResolvable - The name or monMapId of the monster.
+	 * @param options - The optional configuration to use for the kill.
+	 * @example
+	 * // Basic usage
+	 * await combat.kill("Frogzard");
+	 *
+	 * // Advanced usage
+	 * // Kill Ultra Engineer, but prioritize attacking Defense Drone and Attack Drone first.
+	 * await combat.kill("Ultra Engineer", \{
+	 *   killPriority: ["Defense Drone", "Attack Drone"],
+	 *   skillSet: [5,3,2,1,4],
+	 *   skillDelay: 50,
+	 * \});
 	 */
 	public async kill(
 		monsterResolvable: string,
@@ -136,118 +147,97 @@ export class Combat {
 		const { killPriority, skillSet, skillDelay, skillWait } = opts;
 		let skillIndex = 0;
 
-		return new Promise<void>((resolve, reject) => {
+		return new Promise<void>((resolve) => {
 			let combatTimer: SetIntervalAsyncTimer<unknown[]> | null = null;
 			let checkTimer: SetIntervalAsyncTimer<unknown[]> | null = null;
 
 			const cleanup = async () => {
-				if (combatTimer)
-					await this.bot.timerManager.clearInterval(combatTimer);
+				if (combatTimer) {
+					const tmp = combatTimer;
+					await this.bot.timerManager.clearInterval(tmp);
+					if (combatTimer === tmp) {
+						combatTimer = null;
+					}
+				}
 
-				if (checkTimer)
-					await this.bot.timerManager.clearInterval(checkTimer);
+				if (checkTimer) {
+					const tmp = checkTimer;
+					await this.bot.timerManager.clearInterval(tmp);
+					if (checkTimer === tmp) {
+						checkTimer = null;
+					}
+				}
+
+				this.cancelAutoAttack();
+				this.cancelTarget();
 			};
 
-			try {
-				combatTimer = this.bot.timerManager.setInterval(async () => {
-					if (this.pauseAttack) {
-						this.cancelAutoAttack();
-						this.cancelTarget();
+			combatTimer = this.bot.timerManager.setInterval(async () => {
+				if (this.pauseAttack) {
+					this.cancelAutoAttack();
+					this.cancelTarget();
+					await this.bot.waitUntil(() => !this.pauseAttack, null, -1);
+					return;
+				}
 
-						await this.bot.waitUntil(
-							() => !this.pauseAttack,
-							null,
-							-1,
-						);
+				const _name = monsterResolvable.toLowerCase();
+				if (
+					_name === 'escherion' &&
+					this.bot.world.isMonsterAvailable('Staff of Inversion')
+				) {
+					this.attack('Staff of Inversion');
+				} else if (
+					_name === 'vath' &&
+					this.bot.world.isMonsterAvailable('Stalagbite')
+				) {
+					this.attack('Stalagbite');
+				}
 
-						return;
+				const kp = Array.isArray(killPriority)
+					? killPriority
+					: killPriority.split(',');
+
+				for (const target of kp) {
+					if (this.bot.world.isMonsterAvailable(target)) {
+						this.attack(target);
+						break;
 					}
+				}
 
-					const _name = monsterResolvable.toLowerCase();
-					if (
-						_name === 'escherion' &&
-						this.bot.world.isMonsterAvailable('Staff of Inversion')
-					) {
-						this.attack('Staff of Inversion');
-					} else if (
-						_name === 'vath' &&
-						this.bot.world.isMonsterAvailable('Stalagbite')
-					) {
-						this.attack('Stalagbite');
+				if (!this.hasTarget()) {
+					this.attack(monsterResolvable);
+				}
+
+				if (this.hasTarget()) {
+					const skill = skillSet[skillIndex]!;
+					skillIndex = (skillIndex + 1) % skillSet.length;
+
+					await this.useSkill(String(skill), false, skillWait);
+					await this.bot.sleep(skillDelay);
+				}
+			}, 0);
+
+			// Queue the checkTimer to run as soon as possible
+			process.nextTick(() => {
+				checkTimer = this.bot.timerManager.setInterval(async () => {
+					const isIdle =
+						this.bot.player.state === PlayerState.Idle &&
+						!this.bot.player.isAFK();
+					const noTarget = !this.hasTarget();
+					const shouldComplete =
+						noTarget && isIdle && !this.pauseAttack;
+
+					if (shouldComplete) {
+						await cleanup();
+						resolve();
 					}
-
-					const kp = Array.isArray(killPriority)
-						? killPriority
-						: killPriority.split(',');
-					if (kp.length > 0) {
-						for (const target of kp) {
-							if (this.bot.world.isMonsterAvailable(target)) {
-								this.attack(target);
-								break;
-							}
-						}
-					}
-
-					if (!this.hasTarget()) {
-						this.attack(monsterResolvable);
-					}
-
-					if (this.hasTarget()) {
-						const skill = skillSet[skillIndex]!;
-						skillIndex = (skillIndex + 1) % skillSet.length;
-
-						if (skillWait) {
-							await this.bot.sleep(
-								this.bot.flash.call(() =>
-									swf.SkillAvailable(String(skill)),
-								),
-							);
-						}
-
-						await this.useSkill(String(skill));
-						await this.bot.sleep(skillDelay);
-					}
-				}, 0);
-
-				void bot
-					.waitUntil(
-						() => this.bot.player.state === PlayerState.InCombat,
-						null,
-						-1,
-					)
-					// eslint-disable-next-line promise/prefer-await-to-then
-					.then(() => {
-						checkTimer = this.bot.timerManager.setInterval(
-							async () => {
-								if (
-									(!this.hasTarget() ||
-										(this.bot.player.state ===
-											PlayerState.Idle &&
-											!this.bot.player.isAFK())) &&
-									!this.pauseAttack
-								) {
-									await cleanup();
-
-									this.cancelAutoAttack();
-									this.cancelTarget();
-
-									resolve();
-								}
-							},
-							opts.skillDelay!,
-						);
-					});
-			} catch (error) {
-				// eslint-disable-next-line promise/prefer-await-to-then
-				void cleanup().then(() => {
-					reject(error);
-				});
-			}
+				}, 100);
+			});
 		});
 	}
 
 	/**
-	 * Kills the monster until the expected quantity of the item is collected in the Inventory.
+	 * Kills the monster until the quantity of the item is met in the inventory.
 	 *
 	 * @param monsterResolvable - The name or monMapID of the monster.
 	 * @param itemName - The name or ID of the item.
@@ -270,7 +260,7 @@ export class Combat {
 	}
 
 	/**
-	 * Kills the monster until the expected quantity of the item is collected in the Temp Inventory.
+	 * Kills the monster until the quantity of the item is met in the temp inventory.
 	 *
 	 * @param monsterResolvable - The name or monMapID of the monster.
 	 * @param itemName - The name or ID of the item.
@@ -290,6 +280,41 @@ export class Combat {
 			true,
 			options,
 		);
+	}
+
+	async #killForItem(
+		monsterResolvable: string,
+		itemName: string,
+		targetQty: number,
+		isTemp = false,
+		options: Partial<KillOptions> = {},
+	): Promise<void> {
+		const opts = merge({}, DEFAULT_KILL_OPTIONS, options);
+		const store = isTemp ? this.bot.tempInventory : this.bot.inventory;
+
+		const hasRequiredItems = () => store.contains(itemName, targetQty);
+
+		if (hasRequiredItems()) {
+			return;
+		}
+
+		while (!hasRequiredItems()) {
+			await this.kill(monsterResolvable, opts);
+
+			if (!isTemp) {
+				await this.bot.drops.pickup(itemName);
+			}
+
+			await this.bot.sleep(500);
+
+			if (hasRequiredItems()) {
+				break;
+			}
+
+			await this.bot.sleep(500);
+		}
+
+		await this.exit();
 	}
 
 	/**
@@ -317,39 +342,6 @@ export class Combat {
 					this.bot.player.mp >= this.bot.player.maxMP,
 			);
 		}
-	}
-
-	/**
-	 * Kills the monster until the expected quantity of the item is collected in given store.
-	 *
-	 * @param monsterResolvable - The name or monMapID of the monster.
-	 * @param itemName - The name or ID of the item.
-	 * @param targetQty - The quantity of the item.
-	 * @param isTemp - Whether the item is in the temp inventory.
-	 * @param options - The configuration to use for the kill.
-	 */
-	async #killForItem(
-		monsterResolvable: string,
-		itemName: string,
-		targetQty: number,
-		isTemp = false,
-		options: Partial<KillOptions> = {},
-	): Promise<void> {
-		const opts = merge({}, DEFAULT_KILL_OPTIONS, options);
-
-		const store = isTemp ? this.bot.tempInventory : this.bot.inventory;
-		const shouldExit = () => store.contains(itemName, targetQty);
-
-		while (!shouldExit()) {
-			await this.kill(monsterResolvable, opts);
-			await this.bot.sleep(500);
-
-			if (!isTemp) {
-				await this.bot.drops.pickup(itemName);
-			}
-		}
-
-		await this.exit();
 	}
 
 	/**
