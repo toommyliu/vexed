@@ -59,7 +59,9 @@ window.addEventListener('DOMContentLoaded', async () => {
 				});
 
 				{
-					const originalOn = bot.on.bind(bot);
+					const og_on = bot.on.bind(bot);
+					const og_once = bot.once.bind(bot);
+					const og_off = bot.off.bind(bot);
 					const eventListeners = new Map();
 
 					bot.on = function(event, listener) {
@@ -67,7 +69,33 @@ window.addEventListener('DOMContentLoaded', async () => {
 							eventListeners.set(event, new Set());
 						}
 						eventListeners.get(event).add(listener);
-						return originalOn(event, listener);
+						return og_on.call(this, event, listener);
+					};
+					bot.once = function(event, listener) {
+						if (!eventListeners.has(event)) {
+							eventListeners.set(event, new Set());
+						}
+						const wrappedListener = (...args) => {
+							const events = eventListeners.get(event);
+							events?.delete(listener);
+							if (events?.size === 0) {
+								eventListeners.delete(event);
+							}
+							eventListeners.get(event)?.delete(listener);
+							return listener.apply(this, args);
+						};
+						eventListeners.get(event).add(listener);
+						return og_once.call(this, event, wrappedListener);
+					};
+
+					bot.off = function(event, listener) {
+						if (eventListeners.has(event)) {
+							eventListeners.get(event).delete(listener);
+							if (eventListeners.get(event).size === 0) {
+								eventListeners.delete(event);
+							}
+						}
+						return og_off.call(this, event, listener);
 					};
 					bot.cleanupEvents = function() {
 						for (const [event, listeners] of eventListeners) {
@@ -77,7 +105,11 @@ window.addEventListener('DOMContentLoaded', async () => {
 						}
 						eventListeners.clear();
 						delete bot.on;
-						bot.on = originalOn;
+						delete bot.once;
+						delete bot.off;
+						bot.on = og_on;
+						bot.once = og_once;
+						bot.off = og_off;
 						delete bot.cleanupEvents;
 					}
 				}
