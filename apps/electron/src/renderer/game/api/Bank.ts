@@ -19,8 +19,10 @@ export class Bank {
 	}
 
 	/**
-	 * Gets an item from the Bank, items should be loaded beforehand.
+	 * Gets an item from the Bank.
 	 *
+	 * @remarks
+	 * Bank items must have been loaded beforehand to retrieve an item.
 	 * @param itemKey - The name or ID of the item.
 	 */
 	public get(itemKey: number | string): BankItem | null {
@@ -45,6 +47,7 @@ export class Bank {
 	 *
 	 * @param itemKey - The name or ID of the item.
 	 * @param quantity - The quantity of the item.
+	 * @returns True if the item is found with the specified quantity, false otherwise.
 	 */
 	public contains(itemKey: number | string, quantity: number = 1): boolean {
 		const item = this.get(itemKey);
@@ -55,23 +58,23 @@ export class Bank {
 	}
 
 	/**
-	 * Gets the count of available slots of bankable non-AC items.
+	 * The number of bank slots.
 	 */
-	public get availableSlots(): number {
+	public get totalSlots(): number {
 		return this.bot.flash.call(() => swf.BankSlots());
 	}
 
 	/**
-	 * Gets the count of used slots of bankable non-AC items.
+	 * The number of bank slots currently in use.
 	 */
 	public get usedSlots(): number {
 		return this.bot.flash.call(() => swf.UsedBankSlots());
 	}
 
 	/**
-	 * Gets the total slots of bankable non-AC items.
+	 * The number of bank slots available.
 	 */
-	public get totalSlots(): number {
+	public get availableSlots(): number {
 		return this.availableSlots - this.usedSlots;
 	}
 
