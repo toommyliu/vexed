@@ -3,7 +3,7 @@ import { BankItem } from './struct/BankItem';
 import type { ItemData } from './struct/Item';
 
 export class Bank {
-	// Whether bank items have loaded once.
+	// Whether bank items have loaded.
 	private isLoaded = false;
 
 	public constructor(public bot: Bot) {}
@@ -75,7 +75,7 @@ export class Bank {
 	 * The number of bank slots available.
 	 */
 	public get availableSlots(): number {
-		return this.availableSlots - this.usedSlots;
+		return this.totalSlots - this.usedSlots;
 	}
 
 	/**
