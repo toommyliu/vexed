@@ -189,45 +189,15 @@ export class World {
 	 *
 	 * @param cell - The cell to jump to.
 	 * @param pad - The pad to jump to.
-	 * @param options - Additional options.
 	 */
-	public async jump(
-		cell: string,
-		pad = 'Spawn',
-		{
-			autoCorrect = false,
-			force = false,
-			tries = 5,
-		}: { autoCorrect?: boolean; force?: boolean; tries?: number } = {},
-	): Promise<void> {
+	public async jump(cell: string, pad = 'Spawn'): Promise<void> {
 		const isSameCell = () =>
 			this.bot.player.cell.toLowerCase() === cell.toLowerCase();
 
-		let attempts = tries;
+		if (isSameCell()) return;
 
-		while ((!isSameCell() || force) && attempts > 0) {
-			this.bot.flash.call(() => swf.Jump(cell, pad));
-			await this.bot.sleep(1_000);
-
-			if (
-				autoCorrect &&
-				!this.cellPads.some(
-					(pad_) => pad_.toLowerCase() === pad.toLowerCase(),
-				)
-			) {
-				const randomPad =
-					this.cellPads[
-						Math.floor(Math.random() * this.cellPads.length)
-					];
-				this.bot.flash.call(() => swf.Jump(cell, randomPad));
-			}
-
-			if (isSameCell() && !force) {
-				break;
-			}
-
-			attempts--;
-		}
+		this.bot.flash.call(() => swf.Jump(cell, pad));
+		await this.bot.waitUntil(isSameCell, null, 5);
 	}
 
 	/**

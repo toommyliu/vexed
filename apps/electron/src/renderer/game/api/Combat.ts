@@ -349,20 +349,16 @@ export class Combat {
 	 *
 	 */
 	public async exit(): Promise<void> {
-		while (this.bot.player.state === PlayerState.InCombat) {
-			this.cancelTarget();
-			this.cancelAutoAttack();
+		if (this.bot.player.state !== PlayerState.InCombat) return;
 
-			await this.bot.world.jump(
-				this.bot.player.cell,
-				this.bot.player.pad,
-				true,
-			);
-			await this.bot.waitUntil(
-				() => this.bot.player.state !== PlayerState.InCombat,
-			);
-			await this.bot.sleep(1_000);
-		}
+		this.cancelTarget();
+		this.cancelAutoAttack();
+
+		await this.bot.world.jump(this.bot.player.cell, this.bot.player.pad);
+		await this.bot.waitUntil(
+			() => this.bot.player.state !== PlayerState.InCombat,
+		);
+		await this.bot.sleep(1_000);
 	}
 }
 
