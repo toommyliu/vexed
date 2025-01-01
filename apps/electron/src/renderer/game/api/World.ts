@@ -206,7 +206,6 @@ export class World {
 	 * @param mapName - The name of the map to join.
 	 * @param cell - The cell to jump to.
 	 * @param pad - The pad to jump to.
-	 * @param tries - Number of attempts to try and join the map.
 	 */
 	public async join(
 		mapName: string,
@@ -214,7 +213,6 @@ export class World {
 		pad = 'Spawn',
 	): Promise<void> {
 		await this.bot.waitUntil(
-			// eslint-disable-next-line @typescript-eslint/no-use-before-define
 			() => this.isActionAvailable(GameAction.Transfer),
 			null,
 			15,
@@ -223,6 +221,11 @@ export class World {
 		let map_str = mapName;
 		// eslint-disable-next-line prefer-const
 		let [map_name, map_number] = map_str.split('-');
+
+		if (this.name.toLowerCase() === map_name!.toLowerCase()) {
+			await this.jump(cell, pad);
+			return;
+		}
 
 		if (
 			map_number === '1e9' ||
@@ -237,7 +240,6 @@ export class World {
 		map_str = `${map_name}${map_number ? `-${map_number}` : ''}`;
 
 		await this.bot.waitUntil(
-			// eslint-disable-next-line @typescript-eslint/no-use-before-define
 			() => this.isActionAvailable(GameAction.Transfer),
 			null,
 			15,
@@ -250,10 +252,15 @@ export class World {
 			null,
 			10,
 		);
-
 		await this.bot.waitUntil(() => !this.isLoading(), null, 40);
 
-		await this.jump(cell, pad);
+		if (
+			this.bot.player.cell.toLowerCase() !== cell.toLowerCase() ||
+			this.bot.player.pad.toLowerCase() !== pad.toLowerCase()
+		) {
+			await this.jump(cell, pad);
+		}
+
 		this.setSpawnPoint();
 	}
 
