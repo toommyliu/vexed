@@ -146,7 +146,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 					process.nextTick(() => {
 						if (bot.ac instanceof AbortController) {
 							bot.emit('stop');
-							bot.ac.abort();
+							if (!bot.ac.signal.aborted) bot.ac.abort();
 							bot.ac = null;
 						}
 						if (typeof bot.cleanupEvents === 'function') {
