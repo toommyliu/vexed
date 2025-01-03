@@ -28,17 +28,8 @@ export class Quests {
 	 * @param questId - The id of the quest.
 	 */
 	public get(questId: number | string): Quest | null {
-		return (
-			this.tree.find((quest) => {
-				if (typeof questId === 'string') {
-					return String(quest.id) === questId;
-				} else if (typeof questId === 'number') {
-					return quest.id === questId;
-				}
-
-				return false;
-			}) ?? null
-		);
+		const id = String(questId);
+		return this.tree.find((quest) => String(quest.id) === id) ?? null;
 	}
 
 	/**
@@ -47,12 +38,11 @@ export class Quests {
 	 * @param questId - The quest id to load.
 	 */
 	public async load(questId: number | string): Promise<void> {
-		const _questId = String(questId);
+		const id = String(questId);
+		if (this.get(id)) return;
 
-		if (this.get(_questId)) return;
-
-		await this.bot.flash.call(() => swf.LoadQuest(_questId));
-		await this.bot.waitUntil(() => this.get(_questId) !== null, null, 5);
+		await this.bot.flash.call(() => swf.LoadQuest(id));
+		await this.bot.waitUntil(() => this.get(id) !== null, null, 5);
 	}
 
 	/**
@@ -61,16 +51,10 @@ export class Quests {
 	 * @param questIds - List of quest ids to load
 	 * @returns Promise<void>
 	 */
-	public async loadMultiple(questIds: number[] | string[]): Promise<void> {
-		if (!Array.isArray(questIds)) return;
+	public async loadMultiple(questIds: (number | string)[]): Promise<void> {
+		if (!Array.isArray(questIds) || !questIds.length) return;
 
-		const _questIds = questIds.map(String);
-
-		await Promise.all(
-			_questIds.map(async (id) => {
-				await this.load(id);
-			}),
-		);
+		await Promise.all(questIds.map(async (id) => this.load(id)));
 	}
 
 	/**
@@ -80,8 +64,9 @@ export class Quests {
 	 * @returns Promise<void>
 	 */
 	public async accept(questId: number | string): Promise<void> {
-		if (!this.get(questId)) {
-			await this.load(questId);
+		const id = String(questId);
+		if (!this.get(id)) {
+			await this.load(id);
 			await this.bot.sleep(500);
 		}
 
@@ -91,32 +76,24 @@ export class Quests {
 			3,
 		);
 
-		const _questId = String(questId);
-
-		this.bot.flash.call(() => swf.Accept(_questId));
+		this.bot.flash.call(() => swf.Accept(id));
 		await this.bot.waitUntil(
-			() => Boolean(this.get(_questId)?.inProgress),
+			() => Boolean(this.get(id)?.inProgress),
 			null,
 			3,
 		);
 	}
 
 	/**
-	 * Accepts multiple quests at once.
+	 * Accepts multiple quests concurrently.
 	 *
 	 * @param questIds - List of quest ids to accept.
 	 * @returns Promise<void>
 	 */
-	public async acceptMultiple(questIds: number[] | string[]): Promise<void> {
-		if (!Array.isArray(questIds)) return;
+	public async acceptMultiple(questIds: (number | string)[]): Promise<void> {
+		if (!Array.isArray(questIds) || !questIds.length) return;
 
-		const _questIds = questIds.map(String);
-
-		await Promise.all(
-			_questIds.map(async (id) => {
-				await this.accept(id);
-			}),
-		);
+		await Promise.all(questIds.map(async (id) => this.accept(id)));
 	}
 
 	/**
