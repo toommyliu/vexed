@@ -20,7 +20,7 @@ export class Quest {
 	 * The ID of this quest.
 	 */
 	public get id(): number {
-		return this.data.QuestID;
+		return Number.parseInt(this.data.QuestID, 10);
 	}
 
 	/**
@@ -117,7 +117,7 @@ export type QuestData = {
 	/**
 	 * The ID of this quest.
 	 */
-	QuestID: number;
+	QuestID: string;
 	RequiredItems: QuestRequiredItemsRaw[];
 	Rewards: QuestRewards2Raw[];
 	bGuild: string;
@@ -137,6 +137,7 @@ export type QuestData = {
 	 * The amount of gold rewarded for completing this quest.
 	 */
 	iGold: number;
+	iIndex?: number;
 	/**
 	 * The required level to accept this quest.
 	 */
@@ -172,6 +173,7 @@ export type QuestData = {
 	 * The name of the faction that this quest is for.
 	 */
 	sFaction: string;
+	sField?: string;
 	/**
 	 * The name of this quest.
 	 */
