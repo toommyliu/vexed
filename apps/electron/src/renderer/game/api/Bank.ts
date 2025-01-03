@@ -79,14 +79,14 @@ export class Bank {
 	}
 
 	/**
-	 * Puts an item into the Bank.
+	 * Puts an item into the bank.
 	 *
 	 * @param item - The name or ID of the item.
 	 */
-	public async deposit(item: number | string) {
-		if (!this.bot.inventory.get(item)) {
-			return;
-		}
+	public async deposit(item: number | string): Promise<void> {
+		if (!this.bot.inventory.get(item)) return;
+
+		await this.open();
 
 		this.bot.flash.call(() => swf.TransferToBank(String(item)));
 		await this.bot.waitUntil(
@@ -94,7 +94,19 @@ export class Bank {
 				this.get(item) !== null &&
 				this.bot.inventory.get(item) === null,
 			() => this.bot.auth.isLoggedIn(),
+			3,
 		);
+	}
+
+	/**
+	 * Puts multiple items into the bank.
+	 *
+	 * @param items - The list of items to deposit.
+	 */
+	public async depositMultiple(items: (number | string)[]): Promise<void> {
+		if (!Array.isArray(items) || !items.length) return;
+
+		await Promise.all(items.map(async (item) => this.deposit(item)));
 	}
 
 	/**
@@ -103,9 +115,9 @@ export class Bank {
 	 * @param item - The name or ID of the item.
 	 */
 	public async withdraw(item: number | string) {
-		if (!this.get(item)) {
-			return;
-		}
+		if (!this.get(item)) return;
+
+		await this.open();
 
 		this.bot.flash.call(() => swf.TransferToInventory(String(item)));
 		await this.bot.waitUntil(
@@ -113,7 +125,19 @@ export class Bank {
 				this.get(item) === null &&
 				this.bot.inventory.get(item) !== null,
 			() => this.bot.auth.isLoggedIn(),
+			3,
 		);
+	}
+
+	/**
+	 * Takes multiple items out of the bank.
+	 *
+	 * @param items - The list of items to withdraw.
+	 */
+	public async withdrawMultiple(items: (number | string)[]): Promise<void> {
+		if (!Array.isArray(items) || !items.length) return;
+
+		await Promise.all(items.map(async (item) => this.withdraw(item)));
 	}
 
 	/**
@@ -134,12 +158,32 @@ export class Bank {
 			return;
 		}
 
+		await this.open();
+
 		this.bot.flash.call(() =>
 			swf.BankSwap(String(inventoryItem), String(bankItem)),
 		);
 		await this.bot.waitUntil(
 			() => !isInBank() && !isInInventory(),
 			() => this.bot.player.isReady(),
+			3,
+		);
+	}
+
+	/**
+	 * Swaps multiple items between the bank and inventory.
+	 *
+	 * @param items - A list of item pairs to swap.
+	 */
+	public async swapMultiple(
+		items: [number | string, number | string][],
+	): Promise<void> {
+		if (!Array.isArray(items) || !items.length) return;
+
+		await Promise.all(
+			items.map(async ([bankItem, inventoryItem]) =>
+				this.swap(bankItem, inventoryItem),
+			),
 		);
 	}
 
@@ -175,8 +219,7 @@ export class Bank {
 		}
 
 		await this.bot.waitUntil(
-			// eslint-disable-next-line sonarjs/no-collection-size-mischeck
-			() => this.items.length >= 0 /* wait until something is loaded */,
+			() => this.items.length > 0 /* wait until something is loaded */,
 			() => this.bot.player.isReady() && this.isOpen(),
 			10,
 		);
