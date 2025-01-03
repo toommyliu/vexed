@@ -59,7 +59,7 @@
 			{
 				Root.Game.mcExtSWF.removeChildAt(0);
 			}
-			Root.Game.world.visible = true;
+			//Root.Game.world.visible = true;
 			Root.Game.showInterface();
 		}
 

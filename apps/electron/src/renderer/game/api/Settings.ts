@@ -1,6 +1,8 @@
 import type { Bot } from './Bot';
 
 /**
+ * @remarks
+ *
  * `Provoke Map`: If enabled, tags all monsters in the map.
  *
  * `Provoke Cell`: If enabled, tags all monsters in the current cell.
@@ -16,11 +18,10 @@ import type { Bot } from './Bot';
  * `Walk Speed`: The player's walk speed.
  *
  * Settings are updated in a background interval every 500ms.
- *
  */
 export class Settings {
 	/**
-	 * Whether to automatically stop attacking when the monster is countering.
+	 * Whether to automatically stop attacking a Counter Attack is active.
 	 */
 	public counterAttack = false;
 
@@ -119,15 +120,16 @@ export class Settings {
 	}
 
 	/**
-	 * The state of "Infinite Range".
+	 * Whether Infinite Range is enabled.
 	 */
 	public get infiniteRange(): boolean {
 		return this.#infiniteRange;
 	}
 
 	/**
-	 * Sets state of "Infinite Range".
+	 * Sets the state of Infinite Range.
 	 *
+	 * @param on - If true, enables Infinite Range. Otherwise, disables it.
 	 */
 	public set infiniteRange(on: boolean) {
 		this.#infiniteRange = on;
@@ -135,14 +137,16 @@ export class Settings {
 	}
 
 	/**
-	 * The state of "Provoke Map".
+	 * Whether Provoke Map is enabled.
 	 */
 	public get provokeMap(): boolean {
 		return this.#provokeMap;
 	}
 
 	/**
-	 * Sets state of "Provoke Map".
+	 * Sets the state of Provoke Map.
+	 *
+	 * @param on - If true, enables Provoke Map. Otherwise, disables it.
 	 */
 	public set provokeMap(on: boolean) {
 		this.#provokeMap = on;
@@ -150,14 +154,16 @@ export class Settings {
 	}
 
 	/**
-	 * The state of "Provoke Cell".
+	 * Whether Provoke Cell is enabled.
 	 */
 	public get provokeCell(): boolean {
 		return this.#provokeCell;
 	}
 
 	/**
-	 * Sets state of "Provoke Cell".
+	 * Sets the state of Provoke Cell.
+	 *
+	 * @param on - If true, enables Provoke Cell. Otherwise, disables it.
 	 */
 	public set provokeCell(on: boolean) {
 		this.#provokeCell = on;
@@ -165,14 +171,16 @@ export class Settings {
 	}
 
 	/**
-	 * The state of "Enemy Magnet".
+	 * Whether Enemy Magnet is enabled.
 	 */
 	public get enemyMagnet(): boolean {
 		return this.#enemyMagnet;
 	}
 
 	/**
-	 * Sets state of "Enemy Magnet".
+	 * Sets the state of Enemy Magnet.
+	 *
+	 * @param on - If true, enables Enemy Magnet. Otherwise, disables it.
 	 */
 	public set enemyMagnet(on: boolean) {
 		this.#enemyMagnet = on;
@@ -180,14 +188,16 @@ export class Settings {
 	}
 
 	/**
-	 * Whether "Lag Killer" is enabled.
+	 * Whether Lag Killer is enabled.
 	 */
 	public get lagKiller(): boolean {
 		return this.#lagKiller;
 	}
 
 	/**
-	 * Sets state of "Lag Killer".
+	 * Sets the state of Lag Killer.
+	 *
+	 * @param on - If true, enables Lag Killer. Otherwise, disables it.
 	 */
 	public set lagKiller(on: boolean) {
 		this.#lagKiller = on;
@@ -201,14 +211,16 @@ export class Settings {
 	}
 
 	/**
-	 * Whether "Hide Players" is enabled.
+	 * Whether Hide Players is enabled.
 	 */
 	public get hidePlayers(): boolean {
 		return this.#hidePlayers;
 	}
 
 	/**
-	 * Sets state of "Hide Players".
+	 * Sets the state of Hide Players.
+	 *
+	 * @param on - If true, enables Hide Players. Otherwise, disables it.
 	 */
 	public set hidePlayers(on: boolean) {
 		this.#hidePlayers = on;
@@ -217,14 +229,16 @@ export class Settings {
 	}
 
 	/**
-	 * Whether "Skip Cutscenes" is enabled.
+	 * Whether Skip Cutscenes is enabled.
 	 */
 	public get skipCutscenes(): boolean {
 		return this.#skipCutscenes;
 	}
 
 	/**
-	 * Sets state of "Skip Cutscenes".
+	 * Sets the state of Skip Cutscenes.
+	 *
+	 * @param on - If true, enables Skip Cutscenes. Otherwise, disables it.
 	 */
 	public set skipCutscenes(on: boolean) {
 		this.#skipCutscenes = on;
@@ -240,6 +254,8 @@ export class Settings {
 
 	/**
 	 * Sets the player's walk speed.
+	 *
+	 * @param speed - The walk speed.
 	 */
 	public set walkSpeed(speed: number | number) {
 		if (typeof speed === 'number') {
@@ -255,26 +271,23 @@ export class Settings {
 	}
 
 	/**
-	 * Sets the target client FPS.
+	 * Sets the client target fps.
 	 *
 	 * @param fps - The target fps.
 	 */
-	public setFPS(fps: number | string): void {
+	public setFps(fps: number | string): void {
 		this.bot.flash.call(() => swf.SetFPS(String(fps)));
 	}
 
 	/**
-	 * Sets the visiblity of death ads.
+	 * Sets the visibility of death ads.
 	 *
-	 * @param on - If enabled, death ads are shown.
+	 * @param on - If true, shows death ads. Otherwise, they are hidden.
 	 */
 	public setDeathAds(on: boolean): void {
 		this.bot.flash.set('userPreference.data.bDeathAd', on);
 	}
 
-	/**
-	 * Updates an option state in the ui.
-	 */
 	#updateOption(option: HTMLElement, value: boolean | number | string): void {
 		switch (option.tagName) {
 			case 'INPUT':

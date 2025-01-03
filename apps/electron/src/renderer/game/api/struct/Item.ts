@@ -1,5 +1,5 @@
 /**
- * The base for all things item-related.
+ * The base class for all-things item related.
  */
 export class Item {
 	public constructor(
@@ -45,14 +45,14 @@ export class Item {
 	}
 
 	/**
-	 * Indicates if the item is a member/upgrade only item.
+	 * Whether the item is member-only.
 	 */
 	public isUpgrade(): boolean {
 		return this.data.bUpg === 1;
 	}
 
 	/**
-	 * Indicates if the item is an AC item.
+	 * Whether the item is AC tagged.
 	 */
 	public isAC(): boolean {
 		return this.data.bCoins === 1;
@@ -66,7 +66,7 @@ export class Item {
 	}
 
 	/**
-	 * Whether the item is a temporary item.
+	 * Whether the item belongs to the temp inventory.
 	 */
 	public isTemp(): boolean {
 		return this.data.bTemp === 1;
@@ -74,7 +74,17 @@ export class Item {
 
 	/**
 	 * The group of the item.
-	 * co = Armor, ba = Cape, he = Helm, pe = Pet, Weapon = Weapon
+	 *
+	 * @remarks
+	 * co = Armor
+	 *
+	 * ba = Cape
+	 *
+	 * he = Helm
+	 *
+	 * pe = Pet
+	 *
+	 * Weapon = Weapon
 	 */
 	public get itemGroup(): string {
 		return this.data.sES;
@@ -95,7 +105,11 @@ export class Item {
 	}
 
 	/**
-	 * The meta value of the item (used for boosts).
+	 * The meta value of the item.
+	 *
+	 * @remarks
+	 *
+	 * This is specifically for items with boosts.
 	 */
 	public get meta(): Record<string, number> {
 		return this.data.sMeta
