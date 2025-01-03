@@ -113,7 +113,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 					bot.settings.infiniteRange = true;
 					bot.settings.lagKiller = true;
 					bot.settings.skipCutscenes = true;
-					bot.settings.setFPS(10);
+					bot.settings.setFps(10);
 
 					bot.ac = new AbortController();
 
@@ -155,7 +155,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 						bot.settings.infiniteRange = false;
 						bot.settings.lagKiller = false;
 						bot.settings.skipCutscenes = false;
-						bot.settings.setFPS(30);
+						bot.settings.setFps(30);
 
 						window.scriptBlob = null;
 						document.querySelector('#loaded-script')?.remove();

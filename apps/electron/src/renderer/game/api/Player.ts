@@ -131,10 +131,15 @@ export class Player {
 
 	/**
 	 * Comprehensive check to determine if the player is ready.
+	 *
+	 * @remarks
+	 * This checks if the player is logged in, the world has loaded, and the player has fully loaded in.
 	 */
 	public isReady(): boolean {
 		return (
-			this.bot.auth.isLoggedIn() && !this.bot.world.isLoading() && this.isLoaded()
+			this.bot.auth.isLoggedIn() &&
+			!this.bot.world.isLoading() &&
+			this.isLoaded()
 		);
 	}
 }

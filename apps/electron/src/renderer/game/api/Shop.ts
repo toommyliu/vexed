@@ -78,7 +78,7 @@ export class Shops {
 	}
 
 	/**
-	 *
+	 * Reset the loaded shop info.
 	 */
 	public resetShopInfo(): void {
 		this.bot.flash.call(() => swf.ResetShopInfo());
