@@ -39,7 +39,6 @@ export class Auth {
 	 * with the values stored in the client.
 	 * @param username - The username to login with.
 	 * @param password - The password to login with.
-	 *
 	 */
 	public login(
 		username: string | null = null,

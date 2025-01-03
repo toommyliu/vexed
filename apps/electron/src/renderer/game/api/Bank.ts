@@ -3,7 +3,7 @@ import { BankItem } from './struct/BankItem';
 import type { ItemData } from './struct/Item';
 
 export class Bank {
-	// Whether bank items have loaded.
+	// Whether bank items have been loaded.
 	private isLoaded = false;
 
 	public constructor(public bot: Bot) {}
@@ -14,7 +14,7 @@ export class Bank {
 	public get items(): BankItem[] {
 		const ret = this.bot.flash.call(() => swf.GetBankItems());
 		return Array.isArray(ret)
-			? ret.map((item) => new BankItem(item as unknown as ItemData))
+			? ret.map((item: ItemData) => new BankItem(item))
 			: [];
 	}
 

@@ -152,7 +152,7 @@ export class World {
 	}
 
 	/**
-	 * Sets the player's spawnpoint to the current cell and pad.
+	 * Sets the player's spawnpoint.
 	 */
 	public setSpawnPoint(cell?: string, pad?: string): void {
 		if (cell && pad) {
