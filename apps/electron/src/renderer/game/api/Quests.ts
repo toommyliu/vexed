@@ -65,10 +65,12 @@ export class Quests {
 	 */
 	public async accept(questId: number | string): Promise<void> {
 		const id = String(questId);
-		if (!this.get(id)) {
-			await this.load(id);
-			await this.bot.sleep(500);
-		}
+
+		if (!this.get(id)) await this.load(id);
+
+		// Ensure the quest is ready to be accepted
+		if (this.get(id)?.inProgress)
+			await this.bot.waitUntil(() => !this.get(id)?.inProgress, null, 3);
 
 		await this.bot.waitUntil(
 			() => this.bot.world.isActionAvailable(GameAction.AcceptQuest),
@@ -82,6 +84,7 @@ export class Quests {
 			null,
 			3,
 		);
+		console.log(`${id}: ${this.get(id)?.inProgress}`);
 	}
 
 	/**
