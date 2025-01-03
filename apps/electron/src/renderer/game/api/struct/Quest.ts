@@ -42,7 +42,6 @@ export class Quest {
 	 * - The player meets the class rank requirements.
 	 * - The player meets the faction rank requirements.
 	 * - The player has the required items.
-	 * @param questId - The quest id.
 	 * @returns boolean - Whether the quest is available.
 	 */
 	public canComplete(): boolean {
