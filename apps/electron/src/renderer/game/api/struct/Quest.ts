@@ -32,6 +32,18 @@ export class Quest {
 
 	/**
 	 * Whether this quest can be completed.
+	 *
+	 * @remarks
+	 * The following checks are performed:
+	 * - The quest is not time-gated (daily, weekly, monthly)
+	 * - The player has an active membership.
+	 * - The quest is unlocked (e.g storyline).
+	 * - The player meets the level requirements.
+	 * - The player meets the class rank requirements.
+	 * - The player meets the faction rank requirements.
+	 * - The player has the required items.
+	 * @param questId - The quest id.
+	 * @returns boolean - Whether the quest is available.
 	 */
 	public canComplete(): boolean {
 		if (!this.#bot.quests.get(this.id)) return false;
