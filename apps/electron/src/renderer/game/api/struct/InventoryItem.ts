@@ -7,7 +7,7 @@ export class InventoryItem extends Item {
 	/**
 	 * The character ID of this item.
 	 */
-	public get charItemID(): number {
+	public get charItemId(): number {
 		return this.data.CharItemID;
 	}
 
