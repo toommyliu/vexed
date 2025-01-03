@@ -115,7 +115,7 @@ export class Bank {
 	 * @param item - The name or ID of the item.
 	 */
 	public async withdraw(item: number | string) {
-		if (!this.get(item)) return;
+		if (!this.get(item) || this.bot.inventory.get(item)) return;
 
 		await this.open();
 
