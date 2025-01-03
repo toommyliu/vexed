@@ -33,24 +33,20 @@ export class Quest {
 	/**
 	 * Whether this quest can be completed.
 	 */
-	public get completable(): boolean {
-		if (!this.#bot.quests.get(this.id)) {
-			return false;
-		}
+	public canComplete(): boolean {
+		if (!this.#bot.quests.get(this.id)) return false;
 
-		return (
-			this.#bot.flash.call(() => swf.CanComplete(String(this.id))) ??
-			false
-		);
+		return this.#bot.flash.call(() => swf.CanComplete(String(this.id)));
 	}
 
 	/**
 	 * Whether this quest is available.
 	 */
-	public get available(): boolean {
-		return (
-			this.#bot.flash.call(() => swf.IsAvailable(String(this.id))) ??
-			false
+	public isAvailable(): boolean {
+		if (!this.#bot.quests.get(this.id)) return false;
+
+		return this.#bot.flash.call<boolean>(() =>
+			swf.IsAvailable(String(this.id)),
 		);
 	}
 
