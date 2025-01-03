@@ -43,6 +43,17 @@ export class AutoRelogin {
 
 			if (!this.bot.auth.isLoggedIn()) {
 				void this.mutex.runExclusive(async () => {
+					const og_lagKiller = this.bot.settings.lagKiller;
+					const og_skipCutscenes = this.bot.settings.skipCutscenes;
+
+					if (og_lagKiller) {
+						this.bot.settings.lagKiller = false;
+					}
+
+					if (og_skipCutscenes) {
+						this.bot.settings.skipCutscenes = false;
+					}
+
 					if (this.bot.auth.isTemporarilyKicked()) {
 						await this.bot.waitUntil(
 							() => !this.bot.auth.isTemporarilyKicked(),
@@ -91,6 +102,14 @@ export class AutoRelogin {
 
 					await this.bot.waitUntil(() => bot.player.isReady());
 					// TODO: restart the script ?
+
+					if (og_lagKiller) {
+						this.bot.settings.lagKiller = true;
+					}
+
+					if (og_skipCutscenes) {
+						this.bot.settings.skipCutscenes = true;
+					}
 				});
 			}
 		}, 1_000);
