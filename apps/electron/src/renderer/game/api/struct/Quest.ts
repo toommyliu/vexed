@@ -110,6 +110,27 @@ export class Quest {
 			quantity: req.iQty,
 		}));
 	}
+
+	/**
+	 * Whether this quest is a daily quest.
+	 */
+	public isDaily(): boolean {
+		return this.data?.sField === 'id0';
+	}
+
+	/**
+	 * Whether this quest is a weekly quest.
+	 */
+	public isWeekly(): boolean {
+		return this.data?.sField === 'iw0';
+	}
+
+	/**
+	 * Whether this quest is a monthly quest.
+	 */
+	public isMonthly(): boolean {
+		return this.data?.sField === 'im0';
+	}
 }
 
 export type QuestData = {
