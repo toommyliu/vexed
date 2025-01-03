@@ -84,7 +84,6 @@ export class Quests {
 			null,
 			3,
 		);
-		console.log(`${id}: ${this.get(id)?.inProgress}`);
 	}
 
 	/**
