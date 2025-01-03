@@ -136,6 +136,7 @@ export class Quests {
 		await this.bot.waitUntil(() =>
 			this.bot.world.isActionAvailable(GameAction.TryQuestComplete),
 		);
+		if (!this.get(questId)?.canComplete()) return;
 
 		this.bot.flash.call(() => {
 			swf.Complete(
