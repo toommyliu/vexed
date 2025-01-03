@@ -294,9 +294,7 @@ export class Combat {
 
 		const hasRequiredItems = () => store.contains(itemName, targetQty);
 
-		if (hasRequiredItems()) {
-			return;
-		}
+		if (hasRequiredItems()) return;
 
 		while (!hasRequiredItems()) {
 			await this.kill(monsterResolvable, opts);
@@ -305,13 +303,15 @@ export class Combat {
 				await this.bot.drops.pickup(itemName);
 			}
 
-			await this.bot.sleep(500);
-
-			if (hasRequiredItems()) {
-				break;
-			}
+			if (hasRequiredItems()) break;
 
 			await this.bot.sleep(500);
+
+			if (hasRequiredItems()) break;
+
+			await this.bot.sleep(500);
+
+			if (hasRequiredItems()) break;
 		}
 
 		await this.exit();
