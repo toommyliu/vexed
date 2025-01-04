@@ -68,6 +68,20 @@ const FIRST_HALF = String.raw`
 		}
 	}
 
+	const resetButtons = () => {
+		const loadBtn = document.querySelector('#scripts-dropdowncontent > button:nth-child(1)');
+		const startBtn = document.querySelector('#scripts-dropdowncontent > button:nth-child(2)');
+
+		loadBtn.classList.remove('w3-disabled');
+		loadBtn.removeAttribute('disabled');
+
+		startBtn.textContent = 'Start Script';
+		startBtn.classList.add('w3-disabled');
+		startBtn.setAttribute('disabled', '');
+	};
+
+	let cleanup = () => {};
+
 	try {
 		console.log('Script started.');
 
@@ -89,73 +103,55 @@ const FIRST_HALF = String.raw`
 
 		bot.ac = new AbortController();
 
-		const abortPromise = new Promise((_, reject) => {
+		cleanup = () => {
+			bot.emit('stop');
+			if (bot.ac instanceof AbortController && !bot.ac.signal.aborted) {
+				bot.ac.abort();
+			}
+			if (typeof bot.cleanupEvents === 'function') {
+				bot.cleanupEvents();
+			}
+			bot.ac = null;
+
+			bot.settings.infiniteRange = false;
+			bot.settings.lagKiller = false;
+			bot.settings.skipCutscenes = false;
+			bot.settings.setFps(30);
+
+			window.scriptBlob = null;
+			document.querySelector('#loaded-script')?.remove();
+
+			resetButtons();
+		};
+
+		await new Promise((resolve, reject) => {
 			bot.ac.signal.addEventListener('abort', () => {
 				reject(new Error('Script aborted'));
-			});
-		});
+			}, { once: true });
 
-		const scriptPromise = new Promise(async (resolve, reject) => {
-			try {
-				await bot.waitUntil(() => bot.isRunning(), null, -1);
-
-				const startPromise = new Promise(startResolve => {
-					(async () => {
+			(async () => {
+				try {
+					await bot.waitUntil(() => bot.isRunning(), null, -1);
+					bot.emit('start');
 `;
 
 const SECOND_HALF = String.raw`
-					})();
-
-					bot.emit('start');
-				});
-
-				await startPromise;
-				resolve();
-			} catch (error) {
-				reject(error);
-			}
+					console.log('Script finished successfully');
+					resolve();
+				} catch (error) {
+					reject(error);
+				}
+			})();
 		});
-
-		await Promise.race([
-			scriptPromise,
-			abortPromise
-		]);
-
-		console.log('Script finished successfully');
 	} catch (error) {
-		if (error.message === 'Script aborted') {
+		if (error?.message === 'Script aborted' || error?.message === 'Task interrupted') {
 			console.log('Script was manually stopped.');
 		} else {
-			bot.emit('error', error);
 			console.error('Script error:', error);
+			bot.emit('error', error);
 		}
 	} finally {
-		bot.emit('stop');
-		if (
-			bot.ac instanceof AbortController &&
-			bot.ac.signal && !bot.ac.signal.aborted
-		) {
-			bot.ac.abort();
-		}
-		if (typeof bot.cleanupEvents === 'function') {
-			bot.cleanupEvents();
-		}
-		bot.ac = null;
-
-		bot.settings.infiniteRange = false;
-		bot.settings.lagKiller = false;
-		bot.settings.skipCutscenes = false;
-		bot.settings.setFps(30);
-
-		window.scriptBlob = null;
-		document.querySelector('#loaded-script')?.remove();
-
-		const startButton = document.querySelector('#scripts-dropdowncontent > button:nth-child(2)');
-		if (startButton) {
-			startButton.textContent = 'Start script';
-			startButton.classList.add('w3-disabled');
-			startButton.setAttribute('disabled', '');
-		}
+		cleanup();
 	}
 })();
 //# sourceURL=script.js
@@ -214,7 +210,6 @@ window.addEventListener('DOMContentLoaded', async () => {
 		btn.addEventListener('click', () => {
 			if (!window.scriptBlob) return;
 
-			// Start the script
 			if (!bot.isRunning() && window.scriptBlob instanceof Blob) {
 				btn.textContent = 'Stop Script';
 
@@ -238,7 +233,6 @@ window.addEventListener('DOMContentLoaded', async () => {
 				return;
 			}
 
-			// Stop the script
 			try {
 				window.scriptBlob = null;
 				document.querySelector('#loaded-script')?.remove();
@@ -401,7 +395,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 			if (!bot.player.isReady()) return;
 
 			if (bot.bank.isOpen()) {
-				swf.ShowBank();
+				bot.flash.call(() => swf.ShowBank());
 			} else {
 				await bot.bank.open();
 			}

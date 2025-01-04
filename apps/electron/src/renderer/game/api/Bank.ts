@@ -1,6 +1,7 @@
 import type { Bot } from './Bot';
 import { BankItem } from './struct/BankItem';
 import type { ItemData } from './struct/Item';
+import { makeInterruptible } from './util/utils';
 
 export class Bank {
 	// Whether bank items have been loaded.
@@ -86,16 +87,18 @@ export class Bank {
 	public async deposit(item: number | string): Promise<void> {
 		if (!this.bot.inventory.get(item)) return;
 
-		await this.open();
+		return makeInterruptible(async () => {
+			await this.open();
 
-		this.bot.flash.call(() => swf.TransferToBank(String(item)));
-		await this.bot.waitUntil(
-			() =>
-				this.get(item) !== null &&
-				this.bot.inventory.get(item) === null,
-			() => this.bot.auth.isLoggedIn(),
-			3,
-		);
+			this.bot.flash.call(() => swf.TransferToBank(String(item)));
+			await this.bot.waitUntil(
+				() =>
+					this.get(item) !== null &&
+					this.bot.inventory.get(item) === null,
+				() => this.bot.auth.isLoggedIn(),
+				3,
+			);
+		}, this.bot.signal);
 	}
 
 	/**
@@ -117,16 +120,18 @@ export class Bank {
 	public async withdraw(item: number | string) {
 		if (!this.get(item) || this.bot.inventory.get(item)) return;
 
-		await this.open();
+		return makeInterruptible(async () => {
+			await this.open();
 
-		this.bot.flash.call(() => swf.TransferToInventory(String(item)));
-		await this.bot.waitUntil(
-			() =>
-				this.get(item) === null &&
-				this.bot.inventory.get(item) !== null,
-			() => this.bot.auth.isLoggedIn(),
-			3,
-		);
+			this.bot.flash.call(() => swf.TransferToInventory(String(item)));
+			await this.bot.waitUntil(
+				() =>
+					this.get(item) === null &&
+					this.bot.inventory.get(item) !== null,
+				() => this.bot.auth.isLoggedIn(),
+				3,
+			);
+		});
 	}
 
 	/**
@@ -158,16 +163,18 @@ export class Bank {
 			return;
 		}
 
-		await this.open();
+		return makeInterruptible(async () => {
+			await this.open();
 
-		this.bot.flash.call(() =>
-			swf.BankSwap(String(inventoryItem), String(bankItem)),
-		);
-		await this.bot.waitUntil(
-			() => !isInBank() && !isInInventory(),
-			() => this.bot.player.isReady(),
-			3,
-		);
+			this.bot.flash.call(() =>
+				swf.BankSwap(String(inventoryItem), String(bankItem)),
+			);
+			await this.bot.waitUntil(
+				() => !isInBank() && !isInInventory(),
+				() => this.bot.player.isReady(),
+				3,
+			);
+		}, this.bot.signal);
 	}
 
 	/**
@@ -201,28 +208,31 @@ export class Bank {
 			return;
 		}
 
-		// If it's already open, close it first
-		if (this.isOpen()) {
+		return makeInterruptible(async () => {
+			// If it's already open, close it first
+			if (this.isOpen()) {
+				this.bot.flash.call(() => swf.ShowBank());
+				await this.bot.waitUntil(() => !this.isOpen());
+				await this.bot.sleep(500);
+			}
+
+			// Open the ui
 			this.bot.flash.call(() => swf.ShowBank());
-			await this.bot.waitUntil(() => !this.isOpen());
-			await this.bot.sleep(500);
-		}
+			await this.bot.waitUntil(() => this.isOpen());
 
-		// Open the ui
-		this.bot.flash.call(() => swf.ShowBank());
-		await this.bot.waitUntil(() => this.isOpen());
+			// Load items if needed
+			if (!this.isLoaded || loadItems) {
+				this.bot.flash.call(() => swf.LoadBankItems());
+				this.isLoaded = true;
+			}
 
-		// Load items if needed
-		if (!this.isLoaded || loadItems) {
-			this.bot.flash.call(() => swf.LoadBankItems());
-			this.isLoaded = true;
-		}
-
-		await this.bot.waitUntil(
-			() => this.items.length > 0 /* wait until something is loaded */,
-			() => this.bot.player.isReady() && this.isOpen(),
-			10,
-		);
+			await this.bot.waitUntil(
+				() =>
+					this.items.length > 0 /* wait until something is loaded */,
+				() => this.bot.player.isReady() && this.isOpen(),
+				10,
+			);
+		}, this.bot.signal);
 	}
 
 	/**

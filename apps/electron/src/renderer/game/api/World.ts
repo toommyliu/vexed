@@ -2,7 +2,7 @@ import type { Bot } from './Bot';
 import { Avatar, type AvatarData } from './struct/Avatar';
 import type { ItemData } from './struct/Item';
 import { Monster, type MonsterData } from './struct/Monster';
-import { isMonsterMapId } from './util/utils';
+import { isMonsterMapId, makeInterruptible } from './util/utils';
 
 export enum GameAction {
 	/**
@@ -193,11 +193,12 @@ export class World {
 	public async jump(cell: string, pad = 'Spawn'): Promise<void> {
 		const isSameCell = () =>
 			this.bot.player.cell.toLowerCase() === cell.toLowerCase();
+		return makeInterruptible(async () => {
+			if (isSameCell()) return;
 
-		if (isSameCell()) return;
-
-		this.bot.flash.call(() => swf.Jump(cell, pad));
-		await this.bot.waitUntil(isSameCell, null, 5);
+			this.bot.flash.call(() => swf.Jump(cell, pad));
+			await this.bot.waitUntil(isSameCell, null, 5);
+		}, this.bot.signal);
 	}
 
 	/**
@@ -212,56 +213,58 @@ export class World {
 		cell = 'Enter',
 		pad = 'Spawn',
 	): Promise<void> {
-		await this.bot.waitUntil(
-			() => this.isActionAvailable(GameAction.Transfer),
-			null,
-			15,
-		);
+		return makeInterruptible(async () => {
+			await this.bot.waitUntil(
+				() => this.isActionAvailable(GameAction.Transfer),
+				null,
+				15,
+			);
 
-		let map_str = mapName;
-		// eslint-disable-next-line prefer-const
-		let [map_name, map_number] = map_str.split('-');
+			let map_str = mapName;
+			// eslint-disable-next-line prefer-const
+			let [map_name, map_number] = map_str.split('-');
 
-		if (this.name.toLowerCase() === map_name!.toLowerCase()) {
-			await this.jump(cell, pad);
-			return;
-		}
+			if (this.name.toLowerCase() === map_name!.toLowerCase()) {
+				await this.jump(cell, pad);
+				return;
+			}
 
-		if (
-			map_number === '1e9' ||
-			map_number === '1e99' ||
-			Number.isNaN(
-				Number.parseInt(map_number!, 10),
-			) /* any non-number, e.g yulgar-a*/
-		) {
-			map_number = '100000';
-		}
+			if (
+				map_number === '1e9' ||
+				map_number === '1e99' ||
+				Number.isNaN(
+					Number.parseInt(map_number!, 10),
+				) /* any non-number, e.g yulgar-a*/
+			) {
+				map_number = '100000';
+			}
 
-		map_str = `${map_name}${map_number ? `-${map_number}` : ''}`;
+			map_str = `${map_name}${map_number ? `-${map_number}` : ''}`;
 
-		await this.bot.waitUntil(
-			() => this.isActionAvailable(GameAction.Transfer),
-			null,
-			15,
-		);
+			await this.bot.waitUntil(
+				() => this.isActionAvailable(GameAction.Transfer),
+				null,
+				15,
+			);
 
-		await this.bot.combat.exit();
-		this.bot.flash.call(() => swf.Join(map_str, cell, pad));
-		await this.bot.waitUntil(
-			() => this.name.toLowerCase() === map_name!.toLowerCase(),
-			null,
-			10,
-		);
-		await this.bot.waitUntil(() => !this.isLoading(), null, 40);
+			await this.bot.combat.exit();
+			this.bot.flash.call(() => swf.Join(map_str, cell, pad));
+			await this.bot.waitUntil(
+				() => this.name.toLowerCase() === map_name!.toLowerCase(),
+				null,
+				10,
+			);
+			await this.bot.waitUntil(() => !this.isLoading(), null, 40);
 
-		if (
-			this.bot.player.cell.toLowerCase() !== cell.toLowerCase() ||
-			this.bot.player.pad.toLowerCase() !== pad.toLowerCase()
-		) {
-			await this.jump(cell, pad);
-		}
+			if (
+				this.bot.player.cell.toLowerCase() !== cell.toLowerCase() ||
+				this.bot.player.pad.toLowerCase() !== pad.toLowerCase()
+			) {
+				await this.jump(cell, pad);
+			}
 
-		this.setSpawnPoint();
+			this.setSpawnPoint();
+		}, this.bot.signal);
 	}
 
 	/**
@@ -296,11 +299,13 @@ export class World {
 	 * @param itemId - The ID of the item.
 	 */
 	public async getMapItem(itemId: string): Promise<void> {
-		await this.bot.waitUntil(() =>
-			this.isActionAvailable(GameAction.GetMapItem),
-		);
-		this.bot.flash.call(() => swf.GetMapItem(itemId));
-		await this.bot.sleep(2_000);
+		return makeInterruptible(async () => {
+			await this.bot.waitUntil(() =>
+				this.isActionAvailable(GameAction.GetMapItem),
+			);
+			this.bot.flash.call(() => swf.GetMapItem(itemId));
+			await this.bot.sleep(2_000);
+		}, this.bot.signal);
 	}
 
 	/**

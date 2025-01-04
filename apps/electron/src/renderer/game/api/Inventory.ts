@@ -2,6 +2,7 @@ import type { Bot } from './Bot';
 import { GameAction } from './World';
 import { InventoryItem } from './struct/InventoryItem';
 import type { ItemData } from './struct/Item';
+import { makeInterruptible } from './util/utils';
 
 export class Inventory {
 	public constructor(public readonly bot: Bot) {}
@@ -83,28 +84,30 @@ export class Inventory {
 
 		if (!item || item.isEquipped()) return;
 
-		await this.bot.waitUntil(() =>
-			this.bot.world.isActionAvailable(GameAction.EquipItem),
-		);
-
-		if (item.category === 'Item') {
-			// potion / consumable
-			this.bot.flash.call(() =>
-				swf.EquipPotion(
-					item.id.toString(),
-					item.description,
-					item.fileLink,
-					item.name,
-				),
+		return makeInterruptible(async () => {
+			await this.bot.waitUntil(() =>
+				this.bot.world.isActionAvailable(GameAction.EquipItem),
 			);
-		} else {
-			this.bot.flash.call(() => swf.Equip(item.id.toString()));
-		}
 
-		await this.bot.waitUntil(
-			() => Boolean(this.get(itemKey)?.isEquipped()),
-			() => this.bot.player.isReady(),
-			10,
-		);
+			if (item.category === 'Item') {
+				// potion / consumable
+				this.bot.flash.call(() =>
+					swf.EquipPotion(
+						item.id.toString(),
+						item.description,
+						item.fileLink,
+						item.name,
+					),
+				);
+			} else {
+				this.bot.flash.call(() => swf.Equip(item.id.toString()));
+			}
+
+			await this.bot.waitUntil(
+				() => Boolean(this.get(itemKey)?.isEquipped()),
+				() => this.bot.player.isReady(),
+				10,
+			);
+		}, this.bot.signal);
 	}
 }

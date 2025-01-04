@@ -1,6 +1,7 @@
 import type { Bot } from './Bot';
 import { GameAction } from './World';
 import { Quest, type QuestData } from './struct/Quest';
+import { makeInterruptible } from './util/utils';
 
 export class Quests {
 	public constructor(public bot: Bot) {}
@@ -41,8 +42,10 @@ export class Quests {
 		const id = String(questId);
 		if (this.get(id)) return;
 
-		await this.bot.flash.call(() => swf.LoadQuest(id));
-		await this.bot.waitUntil(() => this.get(id) !== null, null, 5);
+		return makeInterruptible(async () => {
+			await this.bot.flash.call(() => swf.LoadQuest(id));
+			await this.bot.waitUntil(() => this.get(id) !== null, null, 5);
+		}, this.bot.signal);
 	}
 
 	/**
@@ -66,24 +69,30 @@ export class Quests {
 	public async accept(questId: number | string): Promise<void> {
 		const id = String(questId);
 
-		if (!this.get(id)) await this.load(id);
+		return makeInterruptible(async () => {
+			if (!this.get(id)) await this.load(id);
 
-		// Ensure the quest is ready to be accepted
-		if (this.get(id)?.inProgress)
-			await this.bot.waitUntil(() => !this.get(id)?.inProgress, null, 3);
+			// Ensure the quest is ready to be accepted
+			if (this.get(id)?.inProgress)
+				await this.bot.waitUntil(
+					() => !this.get(id)?.inProgress,
+					null,
+					5,
+				);
 
-		await this.bot.waitUntil(
-			() => this.bot.world.isActionAvailable(GameAction.AcceptQuest),
-			null,
-			3,
-		);
+			await this.bot.waitUntil(
+				() => this.bot.world.isActionAvailable(GameAction.AcceptQuest),
+				null,
+				5,
+			);
 
-		this.bot.flash.call(() => swf.Accept(id));
-		await this.bot.waitUntil(
-			() => Boolean(this.get(id)?.inProgress),
-			null,
-			3,
-		);
+			this.bot.flash.call(() => swf.Accept(id));
+			await this.bot.waitUntil(
+				() => Boolean(this.get(id)?.inProgress),
+				null,
+				5,
+			);
+		}, this.bot.signal);
 	}
 
 	/**
@@ -112,19 +121,21 @@ export class Quests {
 		itemId = -1,
 		special = false,
 	) {
-		await this.bot.waitUntil(() =>
-			this.bot.world.isActionAvailable(GameAction.TryQuestComplete),
-		);
-
-		if (!this.get(questId)?.canComplete()) return;
-
-		this.bot.flash.call(() => {
-			swf.Complete(
-				String(questId),
-				turnIns,
-				String(itemId),
-				special === true ? 'True' : 'False',
+		return makeInterruptible(async () => {
+			await this.bot.waitUntil(() =>
+				this.bot.world.isActionAvailable(GameAction.TryQuestComplete),
 			);
-		});
+
+			if (!this.get(questId)?.canComplete()) return;
+
+			this.bot.flash.call(() => {
+				swf.Complete(
+					String(questId),
+					turnIns,
+					String(itemId),
+					special === true ? 'True' : 'False',
+				);
+			});
+		}, this.bot.signal);
 	}
 }

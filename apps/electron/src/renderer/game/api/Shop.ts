@@ -1,6 +1,7 @@
 import type { Bot } from './Bot';
 import { GameAction } from './World';
 import type { ShopItem } from './struct/ShopItem';
+import { makeInterruptible } from './util/utils';
 
 export class Shops {
 	public constructor(public bot: Bot) {}
@@ -29,21 +30,23 @@ export class Shops {
 		itemName: string,
 		quantity: number | null,
 	): Promise<void> {
-		await this.bot.waitUntil(() =>
-			this.bot.world.isActionAvailable(GameAction.BuyItem),
-		);
+		return makeInterruptible(async () => {
+			await this.bot.waitUntil(() =>
+				this.bot.world.isActionAvailable(GameAction.BuyItem),
+			);
 
-		const qty = quantity ?? 1;
+			const qty = quantity ?? 1;
 
-		if (quantity) {
-			this.bot.flash.call(() => swf.BuyItemQty(itemName, quantity));
-		} else {
-			this.bot.flash.call(() => swf.BuyItem(itemName));
-		}
+			if (quantity) {
+				this.bot.flash.call(() => swf.BuyItemQty(itemName, quantity));
+			} else {
+				this.bot.flash.call(() => swf.BuyItem(itemName));
+			}
 
-		await this.bot.waitUntil(() =>
-			this.bot.inventory.contains(itemName, qty),
-		);
+			await this.bot.waitUntil(() =>
+				this.bot.inventory.contains(itemName, qty),
+			);
+		}, this.bot.signal);
 	}
 
 	/**
@@ -53,28 +56,30 @@ export class Shops {
 	 * @param quantity -The quantity of the item.
 	 */
 	public async buyById(itemId: number, quantity: number): Promise<void> {
-		await this.bot.waitUntil(() =>
-			this.bot.world.isActionAvailable(GameAction.BuyItem),
-		);
+		return makeInterruptible(async () => {
+			await this.bot.waitUntil(() =>
+				this.bot.world.isActionAvailable(GameAction.BuyItem),
+			);
 
-		if (!this.isShopLoaded()) return;
+			if (!this.isShopLoaded()) return;
 
-		const item = this.info!.items.find(
-			(shopItem) => shopItem.data.ItemID === itemId,
-		);
-		if (!item) return;
+			const item = this.info!.items.find(
+				(shopItem) => shopItem.data.ItemID === itemId,
+			);
+			if (!item) return;
 
-		this.bot.flash.call(() =>
-			swf.BuyItemQtyById(
-				quantity,
-				itemId,
-				Number.parseInt(item.data.ShopItemID, 10),
-			),
-		);
+			this.bot.flash.call(() =>
+				swf.BuyItemQtyById(
+					quantity,
+					itemId,
+					Number.parseInt(item.data.ShopItemID, 10),
+				),
+			);
 
-		await this.bot.waitUntil(() =>
-			this.bot.inventory.contains(itemId, quantity),
-		);
+			await this.bot.waitUntil(() =>
+				this.bot.inventory.contains(itemId, quantity),
+			);
+		}, this.bot.signal);
 	}
 
 	/**
@@ -90,12 +95,14 @@ export class Shops {
 	 * @param shopId - The shop ID.
 	 */
 	public async load(shopId: number | string): Promise<void> {
-		await this.bot.waitUntil(() =>
-			this.bot.world.isActionAvailable(GameAction.LoadShop),
-		);
-		this.resetShopInfo();
-		this.bot.flash.call(() => swf.LoadShop(String(shopId)));
-		await this.bot.waitUntil(() => this.isShopLoaded());
+		return makeInterruptible(async () => {
+			await this.bot.waitUntil(() =>
+				this.bot.world.isActionAvailable(GameAction.LoadShop),
+			);
+			this.resetShopInfo();
+			this.bot.flash.call(() => swf.LoadShop(String(shopId)));
+			await this.bot.waitUntil(() => this.isShopLoaded());
+		}, this.bot.signal);
 	}
 
 	/**
@@ -104,17 +111,19 @@ export class Shops {
 	 * @param itemKey - The name or ID of the item.
 	 */
 	public async sell(itemKey: string): Promise<void> {
-		await this.bot.waitUntil(() =>
-			this.bot.world.isActionAvailable(GameAction.SellItem),
-		);
+		return makeInterruptible(async () => {
+			await this.bot.waitUntil(() =>
+				this.bot.world.isActionAvailable(GameAction.SellItem),
+			);
 
-		const item = this.bot.inventory.get(itemKey);
+			const item = this.bot.inventory.get(itemKey);
 
-		if (!item) return;
+			if (!item) return;
 
-		await this.bot.sleep(1_000);
-		this.bot.flash.call(() => swf.SellItem(item.name));
-		await this.bot.waitUntil(() => !this.bot.inventory.get(itemKey));
+			await this.bot.sleep(1_000);
+			this.bot.flash.call(() => swf.SellItem(item.name));
+			await this.bot.waitUntil(() => !this.bot.inventory.get(itemKey));
+		}, this.bot.signal);
 	}
 
 	/**
