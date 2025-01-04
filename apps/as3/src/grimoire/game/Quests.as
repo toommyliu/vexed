@@ -157,6 +157,10 @@
 				{
 					return "Monthly Quests are only available once per month.";
 				}
+				if(_loc10_.sField == "iw0")
+				{
+					return "Weekly Quests reset every Friday morning.";
+				}
 				return "Daily Quests are only available once per day.";
 			}
 			if (_loc10_.bUpg == 1 && !Root.Game.world.myAvatar.isUpgraded())

@@ -3,7 +3,7 @@ import type { Bot } from './Bot';
 import { PlayerState } from './Player';
 import { GameAction } from './World';
 import type { SetIntervalAsyncTimer } from './util/TimerManager';
-import { isMonsterMapId } from './util/utils';
+import { isMonsterMapId, makeInterruptible } from './util/utils';
 
 const DEFAULT_KILL_OPTIONS: KillOptions = {
 	killPriority: [],
@@ -117,8 +117,19 @@ export class Combat {
 	/**
 	 * Kills a monster.
 	 *
-	 * @param monsterResolvable - The name or monMapID of the monster.
-	 * @param options - The configuration to use for the kill.
+	 * @param monsterResolvable - The name or monMapId of the monster.
+	 * @param options - The optional configuration to use for the kill.
+	 * @example
+	 * // Basic usage
+	 * await combat.kill("Frogzard");
+	 *
+	 * // Advanced usage
+	 * // Kill Ultra Engineer, but prioritize attacking Defense Drone and Attack Drone first.
+	 * await combat.kill("Ultra Engineer", \{
+	 *   killPriority: ["Defense Drone", "Attack Drone"],
+	 *   skillSet: [5,3,2,1,4],
+	 *   skillDelay: 50,
+	 * \});
 	 */
 	public async kill(
 		monsterResolvable: string,
@@ -126,40 +137,51 @@ export class Combat {
 	): Promise<void> {
 		if (!this.bot.player.isReady()) return;
 
-		await this.bot.waitUntil(
-			() => this.bot.world.isMonsterAvailable(monsterResolvable),
-			null,
-			3,
-		);
+		await makeInterruptible(async () => {
+			await this.bot.waitUntil(
+				() => this.bot.world.isMonsterAvailable(monsterResolvable),
+				null,
+				3,
+			);
 
-		const opts = merge({}, DEFAULT_KILL_OPTIONS, options);
-		const { killPriority, skillSet, skillDelay, skillWait } = opts;
-		let skillIndex = 0;
+			const opts = merge({}, DEFAULT_KILL_OPTIONS, options);
+			const { killPriority, skillSet, skillDelay, skillWait } = opts;
+			let skillIndex = 0;
 
-		return new Promise<void>((resolve, reject) => {
-			let combatTimer: SetIntervalAsyncTimer<unknown[]> | null = null;
-			let checkTimer: SetIntervalAsyncTimer<unknown[]> | null = null;
+			return new Promise<void>((resolve) => {
+				let combatTimer: SetIntervalAsyncTimer<unknown[]> | null = null;
+				let checkTimer: SetIntervalAsyncTimer<unknown[]> | null = null;
 
-			const cleanup = async () => {
-				if (combatTimer)
-					await this.bot.timerManager.clearInterval(combatTimer);
+				const cleanup = async () => {
+					if (combatTimer) {
+						const tmp = combatTimer;
+						await this.bot.timerManager.clearInterval(tmp);
+						if (combatTimer === tmp) {
+							combatTimer = null;
+						}
+					}
 
-				if (checkTimer)
-					await this.bot.timerManager.clearInterval(checkTimer);
-			};
+					if (checkTimer) {
+						const tmp = checkTimer;
+						await this.bot.timerManager.clearInterval(tmp);
+						if (checkTimer === tmp) {
+							checkTimer = null;
+						}
+					}
 
-			try {
+					this.cancelAutoAttack();
+					this.cancelTarget();
+				};
+
 				combatTimer = this.bot.timerManager.setInterval(async () => {
 					if (this.pauseAttack) {
 						this.cancelAutoAttack();
 						this.cancelTarget();
-
 						await this.bot.waitUntil(
 							() => !this.pauseAttack,
 							null,
 							-1,
 						);
-
 						return;
 					}
 
@@ -179,12 +201,11 @@ export class Combat {
 					const kp = Array.isArray(killPriority)
 						? killPriority
 						: killPriority.split(',');
-					if (kp.length > 0) {
-						for (const target of kp) {
-							if (this.bot.world.isMonsterAvailable(target)) {
-								this.attack(target);
-								break;
-							}
+
+					for (const target of kp) {
+						if (this.bot.world.isMonsterAvailable(target)) {
+							this.attack(target);
+							break;
 						}
 					}
 
@@ -196,58 +217,33 @@ export class Combat {
 						const skill = skillSet[skillIndex]!;
 						skillIndex = (skillIndex + 1) % skillSet.length;
 
-						if (skillWait) {
-							await this.bot.sleep(
-								this.bot.flash.call(() =>
-									swf.SkillAvailable(String(skill)),
-								),
-							);
-						}
-
-						await this.useSkill(String(skill));
+						await this.useSkill(String(skill), false, skillWait);
 						await this.bot.sleep(skillDelay);
 					}
 				}, 0);
 
-				void bot
-					.waitUntil(
-						() => this.bot.player.state === PlayerState.InCombat,
-						null,
-						-1,
-					)
-					// eslint-disable-next-line promise/prefer-await-to-then
-					.then(() => {
-						checkTimer = this.bot.timerManager.setInterval(
-							async () => {
-								if (
-									(!this.hasTarget() ||
-										(this.bot.player.state ===
-											PlayerState.Idle &&
-											!this.bot.player.isAFK())) &&
-									!this.pauseAttack
-								) {
-									await cleanup();
+				// Queue the checkTimer to run as soon as possible
+				process.nextTick(() => {
+					checkTimer = this.bot.timerManager.setInterval(async () => {
+						const isIdle =
+							this.bot.player.state === PlayerState.Idle &&
+							!this.bot.player.isAFK();
+						const noTarget = !this.hasTarget();
+						const shouldComplete =
+							noTarget && isIdle && !this.pauseAttack;
 
-									this.cancelAutoAttack();
-									this.cancelTarget();
-
-									resolve();
-								}
-							},
-							opts.skillDelay!,
-						);
-					});
-			} catch (error) {
-				// eslint-disable-next-line promise/prefer-await-to-then
-				void cleanup().then(() => {
-					reject(error);
+						if (shouldComplete) {
+							await cleanup();
+							resolve();
+						}
+					}, 100);
 				});
-			}
-		});
+			});
+		}, this.bot.signal);
 	}
 
 	/**
-	 * Kills the monster until the expected quantity of the item is collected in the Inventory.
+	 * Kills the monster until the quantity of the item is met in the inventory.
 	 *
 	 * @param monsterResolvable - The name or monMapID of the monster.
 	 * @param itemName - The name or ID of the item.
@@ -270,7 +266,7 @@ export class Combat {
 	}
 
 	/**
-	 * Kills the monster until the expected quantity of the item is collected in the Temp Inventory.
+	 * Kills the monster until the quantity of the item is met in the temp inventory.
 	 *
 	 * @param monsterResolvable - The name or monMapID of the monster.
 	 * @param itemName - The name or ID of the item.
@@ -292,42 +288,6 @@ export class Combat {
 		);
 	}
 
-	/**
-	 * Rests the player.
-	 *
-	 * @param full - Whether to rest until max hp and mp are reached.
-	 * @param exit - Whether to exit combat before attempting to rest.
-	 */
-	public async rest(full = false, exit = false): Promise<void> {
-		await this.bot.waitUntil(
-			() => this.bot.world.isActionAvailable(GameAction.Rest),
-			() => this.bot.auth.isLoggedIn(),
-		);
-
-		if (exit) {
-			await this.exit();
-		}
-
-		swf.Rest();
-
-		if (full) {
-			await this.bot.waitUntil(
-				() =>
-					this.bot.player.hp >= this.bot.player.maxHP &&
-					this.bot.player.mp >= this.bot.player.maxMP,
-			);
-		}
-	}
-
-	/**
-	 * Kills the monster until the expected quantity of the item is collected in given store.
-	 *
-	 * @param monsterResolvable - The name or monMapID of the monster.
-	 * @param itemName - The name or ID of the item.
-	 * @param targetQty - The quantity of the item.
-	 * @param isTemp - Whether the item is in the temp inventory.
-	 * @param options - The configuration to use for the kill.
-	 */
 	async #killForItem(
 		monsterResolvable: string,
 		itemName: string,
@@ -335,21 +295,63 @@ export class Combat {
 		isTemp = false,
 		options: Partial<KillOptions> = {},
 	): Promise<void> {
-		const opts = merge({}, DEFAULT_KILL_OPTIONS, options);
+		return makeInterruptible(async () => {
+			const opts = merge({}, DEFAULT_KILL_OPTIONS, options);
+			const store = isTemp ? this.bot.tempInventory : this.bot.inventory;
 
-		const store = isTemp ? this.bot.tempInventory : this.bot.inventory;
-		const shouldExit = () => store.contains(itemName, targetQty);
+			const hasRequiredItems = () => store.contains(itemName, targetQty);
 
-		while (!shouldExit()) {
-			await this.kill(monsterResolvable, opts);
-			await this.bot.sleep(500);
+			if (hasRequiredItems()) return;
 
-			if (!isTemp) {
-				await this.bot.drops.pickup(itemName);
+			while (!hasRequiredItems()) {
+				await this.kill(monsterResolvable, opts);
+
+				if (!isTemp) {
+					await this.bot.drops.pickup(itemName);
+				}
+
+				if (hasRequiredItems()) break;
+
+				await this.bot.sleep(500);
+
+				if (hasRequiredItems()) break;
+
+				await this.bot.sleep(500);
+
+				if (hasRequiredItems()) break;
 			}
-		}
 
-		await this.exit();
+			await this.exit();
+		}, this.bot.signal);
+	}
+
+	/**
+	 * Rests the player.
+	 *
+	 * @param full - Whether to rest until max hp and mp are reached.
+	 * @param exit - Whether to exit combat before attempting to rest.
+	 */
+	public async rest(full = false, exit = false): Promise<void> {
+		return makeInterruptible(async () => {
+			await this.bot.waitUntil(
+				() => this.bot.world.isActionAvailable(GameAction.Rest),
+				() => this.bot.auth.isLoggedIn(),
+			);
+
+			if (exit) {
+				await this.exit();
+			}
+
+			swf.Rest();
+
+			if (full) {
+				await this.bot.waitUntil(
+					() =>
+						this.bot.player.hp >= this.bot.player.maxHp &&
+						this.bot.player.mp >= this.bot.player.maxMp,
+				);
+			}
+		}, this.bot.signal);
 	}
 
 	/**
@@ -357,20 +359,21 @@ export class Combat {
 	 *
 	 */
 	public async exit(): Promise<void> {
-		while (this.bot.player.state === PlayerState.InCombat) {
-			this.cancelTarget();
-			this.cancelAutoAttack();
+		if (this.bot.player.state !== PlayerState.InCombat) return;
 
+		this.cancelTarget();
+		this.cancelAutoAttack();
+
+		return makeInterruptible(async () => {
 			await this.bot.world.jump(
 				this.bot.player.cell,
 				this.bot.player.pad,
-				true,
 			);
 			await this.bot.waitUntil(
 				() => this.bot.player.state !== PlayerState.InCombat,
 			);
 			await this.bot.sleep(1_000);
-		}
+		}, this.bot.signal);
 	}
 }
 

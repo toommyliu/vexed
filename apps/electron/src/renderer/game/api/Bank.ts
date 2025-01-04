@@ -1,9 +1,10 @@
 import type { Bot } from './Bot';
 import { BankItem } from './struct/BankItem';
 import type { ItemData } from './struct/Item';
+import { makeInterruptible } from './util/utils';
 
 export class Bank {
-	// Whether bank items have loaded once.
+	// Whether bank items have been loaded.
 	private isLoaded = false;
 
 	public constructor(public bot: Bot) {}
@@ -14,13 +15,15 @@ export class Bank {
 	public get items(): BankItem[] {
 		const ret = this.bot.flash.call(() => swf.GetBankItems());
 		return Array.isArray(ret)
-			? ret.map((item) => new BankItem(item as unknown as ItemData))
+			? ret.map((item: ItemData) => new BankItem(item))
 			: [];
 	}
 
 	/**
-	 * Gets an item from the Bank, items should be loaded beforehand.
+	 * Gets an item from the Bank.
 	 *
+	 * @remarks
+	 * Bank items must have been loaded beforehand to retrieve an item.
 	 * @param itemKey - The name or ID of the item.
 	 */
 	public get(itemKey: number | string): BankItem | null {
@@ -41,8 +44,9 @@ export class Bank {
 	}
 
 	/**
-	 * Whether the item meets some quantity in this store.
+	 * Whether an item meets the quantity in the bank.
 	 *
+	 * @remarks If the item is a Class, the quantity is ignored.
 	 * @param itemKey - The name or ID of the item.
 	 * @param quantity - The quantity of the item.
 	 */
@@ -55,66 +59,90 @@ export class Bank {
 	}
 
 	/**
-	 * Gets the count of available slots of bankable non-AC items.
+	 * The number of bank slots.
 	 */
-	public get availableSlots(): number {
+	public get totalSlots(): number {
 		return this.bot.flash.call(() => swf.BankSlots());
 	}
 
 	/**
-	 * Gets the count of used slots of bankable non-AC items.
+	 * The number of bank slots currently in use.
 	 */
 	public get usedSlots(): number {
 		return this.bot.flash.call(() => swf.UsedBankSlots());
 	}
 
 	/**
-	 * Gets the total slots of bankable non-AC items.
+	 * The number of bank slots available.
 	 */
-	public get totalSlots(): number {
-		return this.availableSlots - this.usedSlots;
+	public get availableSlots(): number {
+		return this.totalSlots - this.usedSlots;
 	}
 
 	/**
-	 * Puts an item into the Bank.
+	 * Puts an item into the bank.
 	 *
-	 * @param itemKey - The name or ID of the item.
-	 * @returns Whether the operation was successful.
+	 * @param item - The name or ID of the item.
 	 */
-	public async deposit(itemKey: number | string): Promise<boolean> {
-		if (!this.bot.inventory.get(itemKey)) {
-			return false;
-		}
+	public async deposit(item: number | string): Promise<void> {
+		if (!this.bot.inventory.get(item)) return;
 
-		this.bot.flash.call(() => swf.TransferToBank(String(itemKey)));
-		await this.bot.waitUntil(
-			() =>
-				this.get(itemKey) !== null &&
-				this.bot.inventory.get(itemKey) === null,
-			() => this.bot.auth.isLoggedIn(),
-		);
-		return true;
+		return makeInterruptible(async () => {
+			await this.open();
+
+			this.bot.flash.call(() => swf.TransferToBank(String(item)));
+			await this.bot.waitUntil(
+				() =>
+					this.get(item) !== null &&
+					this.bot.inventory.get(item) === null,
+				() => this.bot.auth.isLoggedIn(),
+				3,
+			);
+		}, this.bot.signal);
+	}
+
+	/**
+	 * Puts multiple items into the bank.
+	 *
+	 * @param items - The list of items to deposit.
+	 */
+	public async depositMultiple(items: (number | string)[]): Promise<void> {
+		if (!Array.isArray(items) || !items.length) return;
+
+		await Promise.all(items.map(async (item) => this.deposit(item)));
 	}
 
 	/**
 	 * Takes an item out of the bank.
 	 *
-	 * @param itemKey - The name or ID of the item.
-	 * @returns Whether the operation was successful.
+	 * @param item - The name or ID of the item.
 	 */
-	public async withdraw(itemKey: number | string): Promise<boolean> {
-		if (!this.get(itemKey)) {
-			return false;
-		}
+	public async withdraw(item: number | string) {
+		if (!this.get(item) || this.bot.inventory.get(item)) return;
 
-		this.bot.flash.call(() => swf.TransferToInventory(String(itemKey)));
-		await this.bot.waitUntil(
-			() =>
-				this.get(itemKey) === null &&
-				this.bot.inventory.get(itemKey) !== null,
-			() => this.bot.auth.isLoggedIn(),
-		);
-		return true;
+		return makeInterruptible(async () => {
+			await this.open();
+
+			this.bot.flash.call(() => swf.TransferToInventory(String(item)));
+			await this.bot.waitUntil(
+				() =>
+					this.get(item) === null &&
+					this.bot.inventory.get(item) !== null,
+				() => this.bot.auth.isLoggedIn(),
+				3,
+			);
+		});
+	}
+
+	/**
+	 * Takes multiple items out of the bank.
+	 *
+	 * @param items - The list of items to withdraw.
+	 */
+	public async withdrawMultiple(items: (number | string)[]): Promise<void> {
+		if (!Array.isArray(items) || !items.length) return;
+
+		await Promise.all(items.map(async (item) => this.withdraw(item)));
 	}
 
 	/**
@@ -122,63 +150,89 @@ export class Bank {
 	 *
 	 * @param bankItem - The name or ID of the item from the Bank.
 	 * @param inventoryItem - The name or ID of the item from the Inventory.
-	 * @returns Whether the operation was successful.
 	 */
 	public async swap(
 		bankItem: number | string,
 		inventoryItem: number | string,
-	): Promise<boolean> {
-		const inBank = () => Boolean(this.get(bankItem));
-		const inInventory = () =>
+	): Promise<void> {
+		const isInBank = () => Boolean(this.get(bankItem));
+		const isInInventory = () =>
 			Boolean(this.bot.inventory.get(inventoryItem));
 
-		if (!inBank() || !inInventory()) {
-			return false;
+		if (!isInBank() || !isInInventory()) {
+			return;
 		}
 
-		this.bot.flash.call(() =>
-			swf.BankSwap(String(inventoryItem), String(bankItem)),
-		);
-		await this.bot.waitUntil(
-			() => !inBank() && !inInventory(),
-			() => this.bot.auth.isLoggedIn(),
-		);
-		return true;
+		return makeInterruptible(async () => {
+			await this.open();
+
+			this.bot.flash.call(() =>
+				swf.BankSwap(String(inventoryItem), String(bankItem)),
+			);
+			await this.bot.waitUntil(
+				() => !isInBank() && !isInInventory(),
+				() => this.bot.player.isReady(),
+				3,
+			);
+		}, this.bot.signal);
 	}
 
 	/**
-	 * Opens the bank ui, and loads all items.
+	 * Swaps multiple items between the bank and inventory.
+	 *
+	 * @param items - A list of item pairs to swap.
+	 */
+	public async swapMultiple(
+		items: [number | string, number | string][],
+	): Promise<void> {
+		if (!Array.isArray(items) || !items.length) return;
+
+		await Promise.all(
+			items.map(async ([bankItem, inventoryItem]) =>
+				this.swap(bankItem, inventoryItem),
+			),
+		);
+	}
+
+	/**
+	 * Opens the bank ui, and loads all items if needed.
 	 *
 	 * @param force - Whether to force open the bank ui, regardless of whether it's open.
+	 * @param loadItems - Whether to load all items in the bank, regardless of whether they've been loaded.
 	 */
-	public async open(force: boolean = false): Promise<void> {
+	public async open(
+		force: boolean = false,
+		loadItems: boolean = false,
+	): Promise<void> {
 		if (!force && this.isOpen()) {
 			return;
 		}
 
-		// If it's already open, close it first
-		if (this.isOpen()) {
+		return makeInterruptible(async () => {
+			// If it's already open, close it first
+			if (this.isOpen()) {
+				this.bot.flash.call(() => swf.ShowBank());
+				await this.bot.waitUntil(() => !this.isOpen());
+				await this.bot.sleep(500);
+			}
+
+			// Open the ui
 			this.bot.flash.call(() => swf.ShowBank());
-			await this.bot.waitUntil(() => !this.isOpen());
-			await this.bot.sleep(500);
-		}
+			await this.bot.waitUntil(() => this.isOpen());
 
-		// Load the items
-		this.bot.flash.call(() => swf.ShowBank());
-		await this.bot.waitUntil(() => this.isOpen());
+			// Load items if needed
+			if (!this.isLoaded || loadItems) {
+				this.bot.flash.call(() => swf.LoadBankItems());
+				this.isLoaded = true;
+			}
 
-		// Only load bank items once
-		if (!this.isLoaded) {
-			this.bot.flash.call(() => swf.LoadBankItems());
-			this.isLoaded = true;
-		}
-
-		await this.bot.waitUntil(
-			// eslint-disable-next-line sonarjs/no-collection-size-mischeck
-			() => this.items.length >= 0 /* wait until something is loaded */,
-			() => this.bot.auth.isLoggedIn() && this.isOpen(),
-			10,
-		);
+			await this.bot.waitUntil(
+				() =>
+					this.items.length > 0 /* wait until something is loaded */,
+				() => this.bot.player.isReady() && this.isOpen(),
+				10,
+			);
+		}, this.bot.signal);
 	}
 
 	/**

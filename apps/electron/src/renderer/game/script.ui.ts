@@ -11,6 +11,152 @@ const checkmarkSvg = `
     <polyline points="20 6 9 17 4 12"></polyline>
 </svg>`;
 
+const FIRST_HALF = String.raw`
+(async () => {
+	{
+		const og_on = bot.on.bind(bot);
+		const og_once = bot.once.bind(bot);
+		const og_off = bot.off.bind(bot);
+		const eventListeners = new Map();
+
+		bot.on = function(event, listener) {
+			if (!eventListeners.has(event)) {
+				eventListeners.set(event, new Set());
+			}
+			eventListeners.get(event).add(listener);
+			return og_on.call(this, event, listener);
+		};
+		bot.once = function(event, listener) {
+			if (!eventListeners.has(event)) {
+				eventListeners.set(event, new Set());
+			}
+			const wrappedListener = (...args) => {
+				const events = eventListeners.get(event);
+				events?.delete(listener);
+				if (events?.size === 0) {
+					eventListeners.delete(event);
+				}
+				eventListeners.get(event)?.delete(listener);
+				return listener.apply(this, args);
+			};
+			eventListeners.get(event).add(listener);
+			return og_once.call(this, event, wrappedListener);
+		};
+		bot.off = function(event, listener) {
+			if (eventListeners.has(event)) {
+				eventListeners.get(event).delete(listener);
+				if (eventListeners.get(event).size === 0) {
+					eventListeners.delete(event);
+				}
+			}
+			return og_off.call(this, event, listener);
+		};
+		bot.cleanupEvents = function() {
+			for (const [event, listeners] of eventListeners) {
+				for (const listener of listeners) {
+					bot.removeListener(event, listener);
+				}
+			}
+			eventListeners.clear();
+			delete bot.on;
+			delete bot.once;
+			delete bot.off;
+			bot.on = og_on;
+			bot.once = og_once;
+			bot.off = og_off;
+			delete bot.cleanupEvents;
+		}
+	}
+
+	const resetButtons = () => {
+		const loadBtn = document.querySelector('#scripts-dropdowncontent > button:nth-child(1)');
+		const startBtn = document.querySelector('#scripts-dropdowncontent > button:nth-child(2)');
+
+		loadBtn.classList.remove('w3-disabled');
+		loadBtn.removeAttribute('disabled');
+
+		startBtn.textContent = 'Start Script';
+		startBtn.classList.add('w3-disabled');
+		startBtn.setAttribute('disabled', '');
+	};
+
+	let cleanup = () => {};
+
+	try {
+		console.log('Script started.');
+
+		{
+			let once = false;
+			while (!bot.player.isReady()) {
+				if (!once) {
+					console.log('Waiting for player to be in a ready state...');
+					once = true;
+				}
+				await bot.sleep(1000);
+			}
+		}
+
+		bot.settings.infiniteRange = true;
+		bot.settings.lagKiller = true;
+		bot.settings.skipCutscenes = true;
+		bot.settings.setFps(10);
+
+		bot.ac = new AbortController();
+
+		cleanup = () => {
+			bot.emit('stop');
+			if (bot.ac instanceof AbortController && !bot.ac.signal.aborted) {
+				bot.ac.abort();
+			}
+			if (typeof bot.cleanupEvents === 'function') {
+				bot.cleanupEvents();
+			}
+			bot.ac = null;
+
+			bot.settings.infiniteRange = false;
+			bot.settings.lagKiller = false;
+			bot.settings.skipCutscenes = false;
+			bot.settings.setFps(30);
+
+			window.scriptBlob = null;
+			document.querySelector('#loaded-script')?.remove();
+
+			resetButtons();
+		};
+
+		await new Promise((resolve, reject) => {
+			bot.ac.signal.addEventListener('abort', () => {
+				reject(new Error('Script aborted'));
+			}, { once: true });
+
+			(async () => {
+				try {
+					await bot.waitUntil(() => bot.isRunning(), null, -1);
+					bot.emit('start');
+`;
+
+const SECOND_HALF = String.raw`
+					console.log('Script finished successfully');
+					resolve();
+				} catch (error) {
+					reject(error);
+				}
+			})();
+		});
+	} catch (error) {
+		if (error?.message === 'Script aborted' || error?.message === 'Task interrupted') {
+			console.log('Script was manually stopped.');
+		} else {
+			console.error('Script error:', error);
+			bot.emit('error', error);
+		}
+	} finally {
+		cleanup();
+	}
+})();
+//# sourceURL=script.js
+`;
+
 window.addEventListener('DOMContentLoaded', async () => {
 	dropdowns.set(
 		'scripts',
@@ -31,6 +177,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 			'#scripts-dropdowncontent > button:nth-child(1)',
 		) as HTMLButtonElement;
 		btn.addEventListener('click', async () => {
+			if (bot.isRunning()) return;
+
 			const scriptBody = await ipcRenderer.invoke(IPC_EVENTS.LOAD_SCRIPT);
 			if (!scriptBody) {
 				return;
@@ -39,132 +187,9 @@ window.addEventListener('DOMContentLoaded', async () => {
 			document.querySelector('#loaded-script')?.remove();
 
 			const b64_out = Buffer.from(scriptBody, 'base64').toString('utf8');
-
-			const scriptContent = `
-			(async () => {
-				const getTimestamp = () => '[' + new Date().toLocaleTimeString('en-US', {
-					hour: '2-digit',
-					minute: '2-digit',
-					second: '2-digit',
-					hour12: true
-				}) + ']';
-
-				const consoleProxy = new Proxy(console, {
-					get(target, prop) {
-						if (typeof target[prop] === 'function') {
-							return (...args) => target[prop](getTimestamp(), ...args);
-						}
-						return target[prop];
-					}
-				});
-
-				{
-					const originalOn = bot.on.bind(bot);
-					const eventListeners = new Map();
-
-					bot.on = function(event, listener) {
-						if (!eventListeners.has(event)) {
-							eventListeners.set(event, new Set());
-						}
-						eventListeners.get(event).add(listener);
-						return originalOn(event, listener);
-					};
-					bot.cleanupEvents = function() {
-						for (const [event, listeners] of eventListeners) {
-							for (const listener of listeners) {
-								bot.removeListener(event, listener);
-							}
-						}
-						eventListeners.clear();
-						delete bot.on;
-						bot.on = originalOn;
-						delete bot.cleanupEvents;
-					}
-				}
-
-				// const script = (console, bot) => { ... }
-				const script = new Function('console', 'bot', String.raw\`
-					(async () => {
-						try {
-							console.log('Script started');
-							let once = false;
-							while (!bot.player.isReady()) {
-								if (!once) {
-									console.log('Waiting for player to be in a ready state...');
-									once = true;
-								}
-								await bot.sleep(1_000);
-							}
-
-							await bot.sleep(500);
-
-							bot.settings.infiniteRange = true;
-							bot.settings.lagKiller = true;
-							bot.settings.skipCutscenes = true;
-							bot.settings.setFPS(10);
-
-							bot.ac = new AbortController();
-
-							process.nextTick(() => bot.emit('start'));
-
-							const abortPromise = new Promise((_, reject) => {
-								bot.signal.addEventListener('abort', () => {
-									reject(new Error('Script aborted.'));
-								});
-							});
-
-							await Promise.race([
-								(async () => {
-									while (!bot.isRunning()) { await bot.sleep(1000); }
-									${b64_out}
-								})(),
-								abortPromise
-							]);
-
-							console.log('Script finished');
-						} catch (error) {
-							if (error.message === 'Script aborted.') {
-								console.log('Script execution has stopped.');
-							} else {
-								console.error('An error occurred while executing the script:', error);
-							}
-						} finally {
-							process.nextTick(() => {
-								if (bot.ac instanceof AbortController) {
-									bot.emit('stop');
-									bot.ac.abort();
-									bot.ac = null;
-								}
-								if (typeof bot.cleanupEvents === 'function') {
-									bot.cleanupEvents();
-								}
-								bot.settings.infiniteRange = false;
-								bot.settings.lagKiller = false;
-								bot.settings.skipCutscenes = false;
-								bot.settings.setFPS(30);
-
-								window.scriptBlob = null;
-								document.querySelector('#loaded-script')?.remove();
-
-								const btn = document.querySelector('#scripts-dropdowncontent > button:nth-child(2)');
-								btn.textContent = 'Start script';
-								btn.classList.add('w3-disabled');
-								btn.setAttribute('disabled', '');
-        					});
-						}
-					})();
-				\`);
-
-				// call the function with these args
-				await script(consoleProxy, bot);
-			})();
-			//# sourceURL=script.ui.ts
-			`;
-
-			const blob = new Blob([scriptContent], {
+			window.scriptBlob = new Blob([FIRST_HALF, b64_out, SECOND_HALF], {
 				type: 'application/javascript',
 			});
-			window.scriptBlob = blob;
 
 			{
 				const btn = document.querySelector(
@@ -185,9 +210,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 		btn.addEventListener('click', () => {
 			if (!window.scriptBlob) return;
 
-			// Start the script
 			if (!bot.isRunning() && window.scriptBlob instanceof Blob) {
-				btn.textContent = 'Stop script';
+				btn.textContent = 'Stop Script';
 
 				const scriptUrl = URL.createObjectURL(window.scriptBlob);
 
@@ -197,17 +221,37 @@ window.addEventListener('DOMContentLoaded', async () => {
 				script.src = scriptUrl;
 
 				document.body.appendChild(script);
+
+				{
+					const btn = document.querySelector(
+						'#scripts-dropdowncontent > button:nth-child(1)',
+					) as HTMLButtonElement;
+					btn.classList.add('w3-disabled');
+					btn.setAttribute('disabled', '');
+				}
+
 				return;
 			}
 
 			try {
 				window.scriptBlob = null;
 				document.querySelector('#loaded-script')?.remove();
-				// @ts-expect-error its ok
-				bot.ac?.abort();
-				btn.textContent = 'Start script';
+
+				if (!bot.ac?.signal.aborted) {
+					bot.ac?.abort();
+				}
+
+				btn.textContent = 'Start Script';
 				btn.classList.add('w3-disabled');
 				btn.setAttribute('disabled', '');
+
+				{
+					const btn = document.querySelector(
+						'#scripts-dropdowncontent > button:nth-child(1)',
+					) as HTMLButtonElement;
+					btn.classList.remove('w3-disabled');
+					btn.removeAttribute('disabled');
+				}
 			} catch (error) {
 				console.error(
 					'An error occurred while stopping the script:',
@@ -351,7 +395,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 			if (!bot.player.isReady()) return;
 
 			if (bot.bank.isOpen()) {
-				swf.ShowBank();
+				bot.flash.call(() => swf.ShowBank());
 			} else {
 				await bot.bank.open();
 			}

@@ -2,295 +2,7 @@ import type { Bot } from './Bot';
 import { Avatar, type AvatarData } from './struct/Avatar';
 import type { ItemData } from './struct/Item';
 import { Monster, type MonsterData } from './struct/Monster';
-import { isMonsterMapId } from './util/utils';
-
-export class World {
-	public constructor(public readonly bot: Bot) {}
-
-	/**
-	 * Gets all players in the current map.
-	 */
-	public get players(): Avatar[] {
-		const out =
-			this.bot.flash.call<Record<string, AvatarData>>(() =>
-				swf.Players(),
-			) ?? {};
-		return Object.values(out).map((data) => new Avatar(data));
-	}
-
-	/**
-	 * The monsters in the map.
-	 */
-	public get monsters(): MonsterData[] {
-		try {
-			return JSON.parse(
-				swf.selectArrayObjects('world.monsters', 'objData'),
-			) as MonsterData[];
-		} catch {
-			return [];
-		}
-	}
-
-	/**
-	 * Gets all visible monsters in the current cell.
-	 */
-	public get visibleMonsters() {
-		const ret = this.bot.flash.call(() => swf.GetVisibleMonstersInCell());
-		return Array.isArray(ret) ? ret.map((data) => new Monster(data)) : [];
-	}
-
-	/**
-	 * Gets all available monsters in the current cell.
-	 */
-	public get availableMonsters() {
-		const ret = this.bot.flash.call(() => swf.GetMonstersInCell());
-		return Array.isArray(ret) ? ret.map((data) => new Monster(data)) : [];
-	}
-
-	/**
-	 * Whether a monster is available.
-	 *
-	 * @param monsterResolvable - The name of the monster or in monMapID format.
-	 */
-	public isMonsterAvailable(monsterResolvable: string): boolean {
-		if (isMonsterMapId(monsterResolvable)) {
-			return this.bot.flash.call(() =>
-				swf.IsMonsterAvailableByMonMapID(monsterResolvable),
-			);
-		}
-
-		return this.bot.flash.call(() =>
-			swf.IsMonsterAvailable(monsterResolvable),
-		);
-	}
-
-	/**
-	 * Reloads the map.
-	 */
-	public reload(): void {
-		this.bot.flash.call(() => swf.ReloadMap());
-	}
-
-	/**
-	 * Checks if the map is still loading.
-	 */
-	public isLoading(): boolean {
-		return !this.bot.flash.call(() => swf.MapLoadComplete());
-	}
-
-	/**
-	 * Gets all cells of the map.
-	 */
-	public get cells(): string[] {
-		return this.bot.flash.call(() => swf.GetCells());
-	}
-
-	/**
-	 * Get cell pads.
-	 */
-	public get cellPads(): string[] {
-		return this.bot.flash.call(() => swf.GetCellPads());
-	}
-
-	/**
-	 * Sets the local player's spawnpoint to the current cell and pad.
-	 */
-	public setSpawnPoint(): void {
-		this.bot.flash.call(() => swf.SetSpawnPoint());
-	}
-
-	/**
-	 * Gets the internal room ID of the current map.
-	 */
-	public get roomId(): number {
-		return this.bot.flash.call(() => swf.RoomId());
-	}
-
-	/**
-	 * Gets the room number of the current map.
-	 */
-	public get roomNumber(): number {
-		return this.bot.flash.call(() => swf.RoomNumber());
-	}
-
-	/**
-	 * Gets the name of the current map.
-	 */
-	public get name(): string {
-		return this.bot.flash.call(() => swf.Map());
-	}
-
-	/**
-	 * Jump to the specified cell and pad of the current map.
-	 *
-	 * @param cell - The cell to jump to.
-	 * @param pad - The pad to jump to.
-	 * @param autoCorrect - Whether to jump to a valid pad if the provided pad is invalid.
-	 * @param force - Whether to allow jumping to the same cell.
-	 * @param tries - The number of times to try jumping.
-	 */
-	public async jump(
-		cell: string,
-		pad = 'Spawn',
-		autoCorrect = false,
-		force = false,
-		tries = 5,
-	): Promise<void> {
-		const isSameCell = () =>
-			this.bot.player.cell.toLowerCase() === cell.toLowerCase();
-
-		let attempts = tries;
-
-		// eslint-disable-next-line no-unmodified-loop-condition
-		while ((!isSameCell() || force) && attempts > 0) {
-			// eslint-disable-next-line @typescript-eslint/no-loop-func
-			this.bot.flash.call(() => swf.Jump(cell, pad));
-			await this.bot.sleep(1_000);
-
-			if (
-				autoCorrect &&
-				!this.cellPads.some(
-					(pad_) => pad_.toLowerCase() === pad.toLowerCase(),
-				)
-			) {
-				// eslint-disable-next-line @typescript-eslint/no-loop-func
-				this.bot.flash.call(() =>
-					swf.Jump(
-						cell,
-						this.cellPads[
-							Math.floor(Math.random() * this.cellPads.length)
-						]!,
-					),
-				);
-			}
-
-			if (isSameCell() && force) {
-				break;
-			}
-
-			attempts--;
-		}
-	}
-
-	/**
-	 * Joins a map.
-	 *
-	 * @param mapName - The name of the map to join.
-	 * @param cell - The cell to jump to.
-	 * @param pad - The pad to jump to.
-	 * @param tries - Number of attempts to try and join the map.
-	 */
-	public async join(
-		mapName: string,
-		cell = 'Enter',
-		pad = 'Spawn',
-		tries = 5,
-	): Promise<void> {
-		await this.bot.waitUntil(
-			// eslint-disable-next-line @typescript-eslint/no-use-before-define
-			() => this.isActionAvailable(GameAction.Transfer),
-			null,
-			15,
-		);
-
-		let attempts = tries;
-		let map_str = mapName;
-		// eslint-disable-next-line prefer-const
-		let [map_name, map_number] = map_str.split('-');
-
-		if (
-			map_number === '1e9' ||
-			map_number === '1e99' ||
-			Number.isNaN(
-				Number.parseInt(map_number!, 10),
-			) /* any non-number, e.g yulgar-a*/
-		) {
-			map_number = '100000';
-		}
-
-		map_str = `${map_name}${map_number ? `-${map_number}` : ''}`;
-
-		while (
-			attempts > 0 &&
-			this.name.toLowerCase() !== map_name!.toLowerCase()
-		) {
-			await this.bot.waitUntil(
-				// eslint-disable-next-line @typescript-eslint/no-use-before-define
-				() => this.isActionAvailable(GameAction.Transfer),
-				null,
-				15,
-			);
-			await this.bot.combat.exit();
-			// eslint-disable-next-line @typescript-eslint/no-loop-func
-			this.bot.flash.call(() => swf.Join(map_str, cell, pad));
-			await this.bot.waitUntil(
-				() => this.name.toLowerCase() === map_name!.toLowerCase(),
-				null,
-				10,
-			);
-			await this.bot.waitUntil(() => !this.isLoading(), null, 40);
-
-			attempts--;
-		}
-
-		await this.jump(cell, pad);
-		this.setSpawnPoint();
-	}
-
-	/**
-	 * Goto the specified player.
-	 *
-	 * @param playerName - The name of the player to goto.
-	 */
-	public goto(playerName: string): void {
-		this.bot.flash.call(() => swf.GoTo(playerName));
-	}
-
-	/**
-	 * The list of all items in the world.
-	 *
-	 */
-	public get itemTree(): ItemData[] {
-		return this.bot.flash.call(() => swf.GetItemTree());
-	}
-
-	/**
-	 * Whether the game action has cooled down.
-	 *
-	 * @param gameAction - The game action to check.
-	 */
-	public isActionAvailable(gameAction: GameAction): boolean {
-		return this.bot.flash.call(() => swf.IsActionAvailable(gameAction));
-	}
-
-	/**
-	 * Gets a item in the world.
-	 *
-	 * @param itemId - The ID of the item.
-	 */
-	public async getMapItem(itemId: string): Promise<void> {
-		await this.bot.waitUntil(() =>
-			// eslint-disable-next-line @typescript-eslint/no-use-before-define
-			this.isActionAvailable(GameAction.GetMapItem),
-		);
-		this.bot.flash.call(() => swf.GetMapItem(itemId));
-		await this.bot.sleep(2_000);
-	}
-
-	/**
-	 * Loads a particular swf of the map.
-	 *
-	 * @param mapSWF - The swf to load.
-	 */
-	public loadMap(mapSWF: string): void {
-		if (!mapSWF.endsWith('.swf')) {
-			// eslint-disable-next-line no-param-reassign
-			mapSWF += '.swf';
-		}
-
-		this.bot.flash.call(() => swf.LoadMap(mapSWF));
-	}
-}
+import { isMonsterMapId, makeInterruptible } from './util/utils';
 
 export enum GameAction {
 	/**
@@ -351,7 +63,259 @@ export enum GameAction {
 	Who = 'who',
 }
 
-Object.defineProperty(window, 'GameAction', {
-	value: GameAction,
-	writable: false,
-});
+export class World {
+	public constructor(public readonly bot: Bot) {}
+
+	/**
+	 * A list of all players in the map.
+	 */
+	public get players(): Avatar[] {
+		const out =
+			this.bot.flash.call<Record<string, AvatarData>>(() =>
+				swf.Players(),
+			) ?? {};
+		return Object.values(out).map((data) => new Avatar(data));
+	}
+
+	/**
+	 *  A list of monsters in the map.
+	 */
+	public get monsters(): MonsterData[] {
+		try {
+			return JSON.parse(
+				swf.selectArrayObjects('world.monsters', 'objData'),
+			) as MonsterData[];
+		} catch {
+			return [];
+		}
+	}
+
+	/**
+	 * A list of visible monsters in the cell.
+	 */
+	public get visibleMonsters() {
+		const ret = this.bot.flash.call(() => swf.GetVisibleMonstersInCell());
+		return Array.isArray(ret) ? ret.map((data) => new Monster(data)) : [];
+	}
+
+	/**
+	 * A list of available monsters in the cell.
+	 */
+	public get availableMonsters() {
+		const ret = this.bot.flash.call(() => swf.GetMonstersInCell());
+		return Array.isArray(ret) ? ret.map((data) => new Monster(data)) : [];
+	}
+
+	/**
+	 * Whether a monster is available.
+	 *
+	 * @param monsterResolvable - The name of the monster or in monMapID format.
+	 */
+	public isMonsterAvailable(monsterResolvable: string): boolean {
+		if (isMonsterMapId(monsterResolvable)) {
+			return this.bot.flash.call(() =>
+				swf.IsMonsterAvailableByMonMapID(monsterResolvable),
+			);
+		}
+
+		return this.bot.flash.call(() =>
+			swf.IsMonsterAvailable(monsterResolvable),
+		);
+	}
+
+	/**
+	 * Reloads the map.
+	 */
+	public reload(): void {
+		this.bot.flash.call(() => swf.ReloadMap());
+	}
+
+	/**
+	 * Whether the map is still being loaded.
+	 */
+	public isLoading(): boolean {
+		return !this.bot.flash.call(() => swf.MapLoadComplete());
+	}
+
+	/**
+	 * A list of all cells in the map.
+	 */
+	public get cells(): string[] {
+		return this.bot.flash.call(() => swf.GetCells());
+	}
+
+	/**
+	 * A list of valid pads for the current cell.
+	 */
+	public get cellPads(): string[] {
+		return this.bot.flash.call(() => swf.GetCellPads());
+	}
+
+	/**
+	 * Sets the player's spawnpoint.
+	 */
+	public setSpawnPoint(cell?: string, pad?: string): void {
+		if (cell && pad) {
+			this.bot.flash.call('world.setSpawnPoint', cell, pad);
+			return;
+		}
+
+		this.bot.flash.call(() => swf.SetSpawnPoint());
+	}
+
+	/**
+	 * The current room area id.
+	 */
+	public get roomId(): number {
+		return this.bot.flash.call(() => swf.RoomId());
+	}
+
+	/**
+	 * The room number of the map.
+	 */
+	public get roomNumber(): number {
+		return this.bot.flash.call(() => swf.RoomNumber());
+	}
+
+	/**
+	 * The name of the map.
+	 */
+	public get name(): string {
+		return this.bot.flash.call(() => swf.Map());
+	}
+
+	/**
+	 * Jump to the specified cell and pad of the current map.
+	 *
+	 * @param cell - The cell to jump to.
+	 * @param pad - The pad to jump to.
+	 */
+	public async jump(cell: string, pad = 'Spawn'): Promise<void> {
+		const isSameCell = () =>
+			this.bot.player.cell.toLowerCase() === cell.toLowerCase();
+		return makeInterruptible(async () => {
+			if (isSameCell()) return;
+
+			this.bot.flash.call(() => swf.Jump(cell, pad));
+			await this.bot.waitUntil(isSameCell, null, 5);
+		}, this.bot.signal);
+	}
+
+	/**
+	 * Joins a map.
+	 *
+	 * @param mapName - The name of the map to join.
+	 * @param cell - The cell to jump to.
+	 * @param pad - The pad to jump to.
+	 */
+	public async join(
+		mapName: string,
+		cell = 'Enter',
+		pad = 'Spawn',
+	): Promise<void> {
+		return makeInterruptible(async () => {
+			await this.bot.waitUntil(
+				() => this.isActionAvailable(GameAction.Transfer),
+				null,
+				15,
+			);
+
+			let map_str = mapName;
+			// eslint-disable-next-line prefer-const
+			let [map_name, map_number] = map_str.split('-');
+
+			if (this.name.toLowerCase() === map_name!.toLowerCase()) {
+				await this.jump(cell, pad);
+				return;
+			}
+
+			if (
+				map_number === '1e9' ||
+				map_number === '1e99' ||
+				Number.isNaN(
+					Number.parseInt(map_number!, 10),
+				) /* any non-number, e.g yulgar-a*/
+			) {
+				map_number = '100000';
+			}
+
+			map_str = `${map_name}${map_number ? `-${map_number}` : ''}`;
+
+			await this.bot.waitUntil(
+				() => this.isActionAvailable(GameAction.Transfer),
+				null,
+				15,
+			);
+
+			await this.bot.combat.exit();
+			this.bot.flash.call(() => swf.Join(map_str, cell, pad));
+			await this.bot.waitUntil(
+				() => this.name.toLowerCase() === map_name!.toLowerCase(),
+				null,
+				10,
+			);
+			await this.bot.waitUntil(() => !this.isLoading(), null, 40);
+
+			if (
+				this.bot.player.cell.toLowerCase() !== cell.toLowerCase() ||
+				this.bot.player.pad.toLowerCase() !== pad.toLowerCase()
+			) {
+				await this.jump(cell, pad);
+			}
+
+			this.setSpawnPoint();
+		}, this.bot.signal);
+	}
+
+	/**
+	 * Goto the specified player.
+	 *
+	 * @param playerName - The name of the player to goto.
+	 */
+	public goto(playerName: string): void {
+		this.bot.flash.call(() => swf.GoTo(playerName));
+	}
+
+	/**
+	 * The list of all items in the world.
+	 *
+	 */
+	public get itemTree(): ItemData[] {
+		return this.bot.flash.call(() => swf.GetItemTree());
+	}
+
+	/**
+	 * Whether the game action has cooled down.
+	 *
+	 * @param gameAction - The game action to check.
+	 */
+	public isActionAvailable(gameAction: GameAction): boolean {
+		return this.bot.flash.call(() => swf.IsActionAvailable(gameAction));
+	}
+
+	/**
+	 * Gets a item in the world.
+	 *
+	 * @param itemId - The ID of the item.
+	 */
+	public async getMapItem(itemId: string): Promise<void> {
+		return makeInterruptible(async () => {
+			await this.bot.waitUntil(() =>
+				this.isActionAvailable(GameAction.GetMapItem),
+			);
+			this.bot.flash.call(() => swf.GetMapItem(itemId));
+			await this.bot.sleep(2_000);
+		}, this.bot.signal);
+	}
+
+	/**
+	 * Loads a particular swf of a map.
+	 *
+	 * @param mapSwf - The swf to load.
+	 */
+	public loadMapSwf(mapSwf: string): void {
+		this.bot.flash.call(() =>
+			swf.LoadMap(`${mapSwf}${mapSwf.endsWith('.swf') ? '' : '.swf'}`),
+		);
+	}
+}

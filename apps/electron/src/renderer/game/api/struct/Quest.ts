@@ -20,7 +20,7 @@ export class Quest {
 	 * The ID of this quest.
 	 */
 	public get id(): number {
-		return this.data.QuestID;
+		return Number.parseInt(this.data.QuestID, 10);
 	}
 
 	/**
@@ -32,25 +32,32 @@ export class Quest {
 
 	/**
 	 * Whether this quest can be completed.
+	 *
+	 * @remarks
+	 * The following checks are performed:
+	 * - The quest is not time-gated (daily, weekly, monthly)
+	 * - The player has an active membership.
+	 * - The quest is unlocked (e.g storyline).
+	 * - The player meets the level requirements.
+	 * - The player meets the class rank requirements.
+	 * - The player meets the faction rank requirements.
+	 * - The player has the required items.
+	 * @returns boolean - Whether the quest is available.
 	 */
-	public get completable(): boolean {
-		if (!this.#bot.quests.get(this.id)) {
-			return false;
-		}
+	public canComplete(): boolean {
+		if (!this.#bot.quests.get(this.id)) return false;
 
-		return (
-			this.#bot.flash.call(() => swf.CanComplete(String(this.id))) ??
-			false
-		);
+		return this.#bot.flash.call(() => swf.CanComplete(String(this.id)));
 	}
 
 	/**
 	 * Whether this quest is available.
 	 */
-	public get available(): boolean {
-		return (
-			this.#bot.flash.call(() => swf.IsAvailable(String(this.id))) ??
-			false
+	public isAvailable(): boolean {
+		if (!this.#bot.quests.get(this.id)) return false;
+
+		return this.#bot.flash.call<boolean>(() =>
+			swf.IsAvailable(String(this.id)),
 		);
 	}
 
@@ -110,6 +117,27 @@ export class Quest {
 			quantity: req.iQty,
 		}));
 	}
+
+	/**
+	 * Whether this quest is a daily quest.
+	 */
+	public isDaily(): boolean {
+		return this.data?.sField === 'id0';
+	}
+
+	/**
+	 * Whether this quest is a weekly quest.
+	 */
+	public isWeekly(): boolean {
+		return this.data?.sField === 'iw0';
+	}
+
+	/**
+	 * Whether this quest is a monthly quest.
+	 */
+	public isMonthly(): boolean {
+		return this.data?.sField === 'im0';
+	}
 }
 
 export type QuestData = {
@@ -117,7 +145,7 @@ export type QuestData = {
 	/**
 	 * The ID of this quest.
 	 */
-	QuestID: number;
+	QuestID: string;
 	RequiredItems: QuestRequiredItemsRaw[];
 	Rewards: QuestRewards2Raw[];
 	bGuild: string;
@@ -137,6 +165,7 @@ export type QuestData = {
 	 * The amount of gold rewarded for completing this quest.
 	 */
 	iGold: number;
+	iIndex?: number;
 	/**
 	 * The required level to accept this quest.
 	 */
@@ -172,6 +201,7 @@ export type QuestData = {
 	 * The name of the faction that this quest is for.
 	 */
 	sFaction: string;
+	sField?: string;
 	/**
 	 * The name of this quest.
 	 */

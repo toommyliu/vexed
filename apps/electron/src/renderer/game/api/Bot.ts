@@ -17,7 +17,7 @@ import { Flash } from './util/Flash';
 import { TimerManager } from './util/TimerManager';
 
 export class Bot extends EventEmitter {
-	private ac: AbortController | null = null;
+	public ac: AbortController | null = null;
 
 	/**
 	 * The singleton instance of the Bot class.
@@ -133,7 +133,7 @@ export class Bot extends EventEmitter {
 	}
 
 	/**
-	 * Blocks the current "thread" for the specified number of milliseconds.
+	 * Pauses execution for a specified amount of time.
 	 *
 	 * @param ms - The number of milliseconds to wait.
 	 */
@@ -177,7 +177,7 @@ export class Bot extends EventEmitter {
 	}
 
 	/**
-	 * Whether the bot is "running".
+	 * Whether the bot is running.
 	 */
 	public isRunning(): boolean {
 		return this.ac !== null && !this.ac.signal.aborted;
@@ -196,7 +196,6 @@ export class Bot extends EventEmitter {
 	}
 }
 
-// Prevent these from being overwritten
 Object.defineProperty(window, 'Bot', { value: Bot });
 Object.defineProperty(window, 'bot', { value: Bot.getInstance() });
 Object.defineProperty(window, 'auth', { value: Bot.getInstance().auth });
