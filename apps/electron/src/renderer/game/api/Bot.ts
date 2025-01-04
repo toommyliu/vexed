@@ -17,7 +17,7 @@ import { Flash } from './util/Flash';
 import { TimerManager } from './util/TimerManager';
 
 export class Bot extends EventEmitter {
-	private ac: AbortController | null = null;
+	public ac: AbortController | null = null;
 
 	/**
 	 * The singleton instance of the Bot class.
@@ -177,7 +177,7 @@ export class Bot extends EventEmitter {
 	}
 
 	/**
-	 * Whether the bot is
+	 * Whether the bot is running.
 	 */
 	public isRunning(): boolean {
 		return this.ac !== null && !this.ac.signal.aborted;
