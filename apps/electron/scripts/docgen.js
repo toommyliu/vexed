@@ -1,217 +1,693 @@
-const fs = require('fs-extra');
+const ts = require('typescript');
+const fs = require('fs');
 const path = require('path');
-const typedoc = require('typedoc');
 
-const { inspect } = require('util');
+const typeDefinitions = [];
 
-/**
- * Converts a TypeDoc comment into a Markdown string.
- */
-function concatComments(comments) {
-	return (
-		comments?.summary
-			?.map((comment) => {
-				if (
-					(comment.kind === 'text' || comment.kind === 'code') &&
-					comment?.text?.length > 0
-				) {
-					return comment.text;
-				}
-			})
-			.join(' ') ?? ''
+const projectTypes = new Set();
+const classTypes = new Set();
+
+const MDN_LINKS = {
+	string: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String',
+	number: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number',
+	boolean:
+		'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean',
+	Promise:
+		'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise',
+	Array: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array',
+	Object: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object',
+	AbortController:
+		'https://developer.mozilla.org/en-US/docs/Web/API/AbortController',
+	AbortSignal: 'https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal',
+	Map: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map',
+	Record: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object',
+	void: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void',
+	null: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/null',
+};
+
+function loadTsConfig(tsconfigPath) {
+	const configFile = ts.readConfigFile(tsconfigPath, ts.sys.readFile);
+	if (configFile.error) {
+		throw new Error(
+			`Failed to load tsconfig: ${configFile.error.messageText}`,
+		);
+	}
+
+	const parsedConfig = ts.parseJsonConfigFileContent(
+		configFile.config,
+		ts.sys,
+		path.dirname(tsconfigPath),
 	);
+
+	if (parsedConfig.errors.length) {
+		throw new Error(
+			`Failed to parse tsconfig: ${parsedConfig.errors[0].messageText}`,
+		);
+	}
+
+	return {
+		compilerOptions: parsedConfig.options,
+		fileNames: parsedConfig.fileNames.filter(
+			(file) =>
+				file.startsWith('src/renderer/game/api/') &&
+				file.endsWith('.ts') &&
+				!file.endsWith('.d.ts'),
+		),
+	};
 }
 
-async function docgen() {
-	const jsonPath = path.join(__dirname, '../docs.json');
-	const outDir = path.join(__dirname, '../../docs/api');
-
-	// TODO: exclude examples from filter
-	// await fs.rm(jsonPath, { force: true });
-
-	// Generate docs.json
-	const app = await typedoc.Application.bootstrap({
-		entryPoints: ['./src/renderer/api/**/*.ts'],
-		json: true,
-		out: jsonPath,
-	});
-
-	const project = await app.convert();
-
-	if (project) {
-		await app.generateJson(project, jsonPath);
-
-		console.log('Docs generated, starting to parse into Markdown now...');
-
-		const json = await fs.readJSON(jsonPath, { encoding: 'utf8' });
-		if (!('children' in json)) {
-			return;
-		}
-
-		for (const cls of json.children.filter((ch) => ch.kind === 2)) {
-			// We only need the first child which is the class/the named
-			const child = cls.children[0];
-
-			const md = [
-				`---`,
-				`title: ${child.name}`,
-				`outline: deep`,
-				`---`,
-				`# ${child.name}`,
-			];
-
-			// enum
-			if (child.kind === 8) {
-				if (child.comment?.summary) {
-					md.push(concatComments(child.comment));
-					md.push('');
-				}
-
-				md.push('## Members');
-
-				for (const child_ of child.children) {
-					if (child_.kind === 16) {
-						md.push(`### ${child_.name}`);
-
-						if (child_.comment?.summary) {
-							md.push(concatComments(child_.comment));
-							md.push('');
-						}
-
-						const type = typeof child_.type.value;
-
-						md.push(
-							`\`${child.name}.${child_.name}\` = \`${type === 'string' ? '"' : ''}${child_.type.value}${type === 'string' ? '"' : ''}\``,
-						);
-
-						md.push('');
-						md.push('');
-
-						md.push(`Type: ${type}`);
-
-						md.push('');
-						md.push('');
-					}
-				}
-
-				const outPath = path.join(outDir, 'enums', `${child.name}.md`);
-
-				await fs.ensureFile(outPath);
-				await fs.writeFile(outPath, md.join('\n')).catch((err) => err);
-			} else if (child.kind === 128) {
-				if (child.comment) {
-					md.push(concatComments(child.comment));
-				}
-
-				const properties = [];
-				const methods = [];
-
-				for (const child_ of child.children) {
-					if (
-						!child_?.flags?.isPublic ||
-						child_.name.startsWith('#') ||
-						child_.name.startsWith('_')
-					) {
-						continue;
-					}
-
-					switch (child_.kind) {
-						case 1024: // class property declaration
-						case 262144: // properties/getters
-							properties.push(`### ${child_.name}`);
-							if (child_.getSignature) {
-								const desc = concatComments(
-									child_.getSignature.comment,
-								);
-								if (desc) {
-									properties.push(desc);
-								}
-							}
-							properties.push('');
-							properties.push('');
-							break;
-						case 2048: // method
-							{
-								// console.log(
-								// 	inspect(cls, { depth: Infinity, colors: true }),
-								// );
-
-								const name = child_.signatures[0].name; // the name of the method
-								const desc =
-									child_.signatures[0].comment?.summary?.find(
-										(n) => n.kind === 'text' && n.text,
-									)?.text;
-								// const params =
-								// 	child_.signatures[0].parameters?.map(
-								// 		(param) => {
-								// 			if (name === 'accept') {
-								// 				console.log(
-								// 					inspect(param, {
-								// 						depth: Infinity,
-								// 						colors: true,
-								// 					}),
-								// 				);
-								// 			}
-
-								// 			const types =
-								// 				param.type.type === 'union'
-								// 					? `${param.type.types
-								// 							.map(
-								// 								(p) =>
-								// 									p.name ??
-								// 									`"${p.value}"`, // string literals
-								// 							)
-								// 							.join(
-								// 								' | ',
-								// 							)}${param.defaultValue ? ` = ${param.defaultValue.replaceAll("'", '"')}` : ''}`
-								// 					: param.type.name;
-
-								// 			return `${param.name}: ${types}`;
-								// 		},
-								// 	) ?? [];
-								// const returnType = child_.signatures[0].type.name;
-
-								// console.log(
-								// 	`${name}(${params.join(', ')}) -> ${returnType}`,
-								// );
-
-								methods.push(`### ${name}`);
-								if (desc) {
-									methods.push(desc);
-								}
-								methods.push('');
-								methods.push('');
-							}
-							break;
-					}
-				}
-
-				if (properties.length > 0) {
-					md.push('## Properties');
-					md.push(...properties);
-					md.push('');
-					md.push('');
-				}
-
-				if (methods.length > 0) {
-					md.push('## Methods');
-					md.push(...methods);
-				}
-
-				const outPath = path.join(outDir, `${cls.name}.md`);
-
-				await fs.ensureFile(outPath);
-				await fs.writeFile(outPath, md.join('\n'));
-			}
-		}
+function ensureDirectoryExists(dirPath) {
+	if (!fs.existsSync(dirPath)) {
+		fs.mkdirSync(dirPath, { recursive: true });
 	}
 }
 
-const start = performance.now();
-docgen()
-	.then(() => {
-		console.log(
-			`Took ${Math.floor(performance.now() - start).toFixed(2)}ms`,
+function isNodeExported(node) {
+	// Check if the node has an export modifier
+	const hasExportModifier =
+		(ts.getCombinedModifierFlags(node) & ts.ModifierFlags.Export) !== 0;
+
+	// Check if the node is directly in a source file (top-level declaration)
+	const isTopLevel =
+		node.parent && node.parent.kind === ts.SyntaxKind.SourceFile;
+
+	// Check if the node is part of an export declaration
+	const isExportDeclaration =
+		node.parent &&
+		(node.parent.kind === ts.SyntaxKind.ExportDeclaration ||
+			node.parent.kind === ts.SyntaxKind.ExportAssignment);
+
+	return hasExportModifier || isTopLevel || isExportDeclaration;
+}
+
+function getJsDocContent(symbol, checker) {
+	const documentation =
+		ts.displayPartsToString(symbol.getDocumentationComment(checker)) || '';
+
+	const jsDocNodes =
+		symbol.declarations
+			?.map((decl) => decl.jsDoc?.filter((doc) => doc.tags?.length > 0))
+			.flat()
+			.filter(Boolean) || [];
+
+	let fullDocumentation = documentation;
+
+	jsDocNodes.forEach((jsDoc) => {
+		if (!jsDoc?.tags) return;
+
+		const remarkTags = jsDoc.tags.filter(
+			(tag) => tag.tagName.text === 'remarks',
 		);
-	})
-	.catch(console.log);
+
+		remarkTags.forEach((tag) => {
+			if (tag.comment) {
+				const remarkText =
+					typeof tag.comment === 'string'
+						? tag.comment
+						: ts.displayPartsToString(tag.comment);
+
+				if (remarkText) {
+					if (fullDocumentation) {
+						fullDocumentation += '\n\n';
+					}
+					fullDocumentation += `**Remarks:** ${remarkText}`;
+				}
+			}
+		});
+	});
+
+	return fullDocumentation;
+}
+
+function getDefaultValue(node) {
+	if (!node.initializer) return undefined;
+
+	switch (node.initializer.kind) {
+		case ts.SyntaxKind.StringLiteral:
+			return `"${node.initializer.text}"`;
+		case ts.SyntaxKind.NumericLiteral:
+			return node.initializer.text;
+		case ts.SyntaxKind.TrueKeyword:
+			return 'true';
+		case ts.SyntaxKind.FalseKeyword:
+			return 'false';
+		case ts.SyntaxKind.NullKeyword:
+			return 'null';
+		case ts.SyntaxKind.UndefinedKeyword:
+			return 'undefined';
+		case ts.SyntaxKind.ArrayLiteralExpression:
+			return '[]';
+		case ts.SyntaxKind.ObjectLiteralExpression:
+			return '{}';
+		default:
+			return node.initializer.getText();
+	}
+}
+
+function createTypeLink(type, escape = false) {
+	if (!type) return '`void`';
+
+	const genericMatch = type.match(/^(Record|Map|Promise|Partial)<(.+)>$/);
+	if (genericMatch) {
+		const [_, baseType, params] = genericMatch;
+		const paramTypes = params
+			.split(',')
+			.map((t) => createTypeLink(t.trim(), escape));
+
+		if (MDN_LINKS[baseType]) {
+			return `[${baseType}](${MDN_LINKS[baseType]})<${paramTypes.join(', ')}>`;
+		}
+		return `${baseType}<${paramTypes.join(', ')}>`;
+	}
+
+	if (type.includes('|')) {
+		const unionTypes = type.split('|').map((t) => t.trim());
+		return unionTypes
+			.map((t) => createTypeLink(t, escape))
+			.join(escape ? ' \\| ' : ' | ');
+	}
+
+	if (type.endsWith('[]')) {
+		const baseType = type.slice(0, -2);
+		return `${createTypeLink(baseType, escape)}[]`;
+	}
+
+	const cleanType = type.replace(/[\(\)\[\]]/g, '').trim();
+
+	if (MDN_LINKS[cleanType]) {
+		return `[${type}](${MDN_LINKS[cleanType]})`;
+	}
+
+	if (projectTypes.has(cleanType)) {
+		const prefix = classTypes.has(cleanType) ? '.' : './typedefs/';
+		return `[${type}](${prefix}${cleanType}.md)`;
+	}
+
+	if (projectTypes.has(cleanType) && type.includes('enum')) {
+		return `[${type}](./enums/${cleanType}.md)`;
+	}
+
+	return `${type}`;
+}
+
+function generateDocs(fileNames, options) {
+	const program = ts.createProgram(fileNames, options);
+	const checker = program.getTypeChecker();
+	const documentation = new Map();
+
+	for (const sourceFile of program.getSourceFiles()) {
+		if (
+			sourceFile.fileName.includes('node_modules') ||
+			sourceFile.isDeclarationFile
+		)
+			continue;
+
+		const fileDoc = {
+			methods: [],
+			properties: [],
+			classes: [],
+			interfaces: [],
+			enums: [],
+			fileName: path.basename(sourceFile.fileName, '.ts'),
+			dir: path.dirname(sourceFile.fileName),
+		};
+
+		documentation.set(sourceFile.fileName, fileDoc);
+		ts.forEachChild(sourceFile, (node) => visit(node, fileDoc));
+	}
+
+	return { documentation, typeDefinitions, projectTypes, classTypes };
+
+	function visit(node, fileDoc) {
+		if (ts.isTypeAliasDeclaration(node)) {
+			const typedef = serializeTypeDefinition(node);
+			typeDefinitions.push(typedef);
+			projectTypes.add(typedef.name);
+			return;
+		}
+
+		if (ts.isEnumDeclaration(node)) {
+			const enumDoc = serializeEnum(node);
+			fileDoc.enums.push(enumDoc);
+			projectTypes.add(enumDoc.name);
+			return;
+		}
+
+		if (!isNodeExported(node)) return;
+
+		if (ts.isFunctionDeclaration(node) && node.name) {
+			const symbol = checker.getSymbolAtLocation(node.name);
+			if (symbol) fileDoc.methods.push(serializeFunction(symbol));
+		} else if (ts.isClassDeclaration(node) && node.name) {
+			const symbol = checker.getSymbolAtLocation(node.name);
+			if (symbol) {
+				const classDoc = serializeClass(symbol);
+				fileDoc.classes.push(classDoc);
+				projectTypes.add(classDoc.name);
+				classTypes.add(classDoc.name);
+			}
+		} else if (ts.isPropertyDeclaration(node) && node.name) {
+			const symbol = checker.getSymbolAtLocation(node.name);
+			if (symbol) fileDoc.properties.push(serializeProperty(symbol));
+		} else if (ts.isInterfaceDeclaration(node) && node.name) {
+			const symbol = checker.getSymbolAtLocation(node.name);
+			if (symbol) {
+				const interfaceDoc = serializeInterface(symbol);
+				fileDoc.interfaces.push(interfaceDoc);
+				projectTypes.add(interfaceDoc.name);
+			}
+		}
+
+		ts.forEachChild(node, (n) => visit(n, fileDoc));
+	}
+
+	function serializeEnum(node) {
+		const symbol = checker.getSymbolAtLocation(node.name);
+		return {
+			name: node.name.text,
+			documentation: getJsDocContent(symbol, checker),
+			members: node.members.map((member) => ({
+				name: member.name.getText(),
+				value: checker.getConstantValue(member),
+				documentation: member.name
+					? getJsDocContent(
+							checker.getSymbolAtLocation(member.name),
+							checker,
+						)
+					: '',
+			})),
+		};
+	}
+
+	function serializeTypeDefinition(node) {
+		const symbol = checker.getSymbolAtLocation(node.name);
+		const type = checker.getTypeAtLocation(node);
+		let fields = [];
+
+		if ((type.flags & ts.TypeFlags.Object) !== 0) {
+			if (type.isUnion()) {
+				return {
+					name: node.name.text,
+					documentation: getJsDocContent(symbol, checker),
+					type: checker.typeToString(type),
+					fields: [],
+				};
+			}
+
+			const properties = type.getProperties();
+			if (properties) {
+				properties.forEach((prop) => {
+					fields.push({
+						name: prop.getName(),
+						type: checker.typeToString(
+							checker.getTypeOfSymbolAtLocation(
+								prop,
+								prop.valueDeclaration,
+							),
+						),
+						documentation: getJsDocContent(prop, checker),
+					});
+				});
+			}
+		}
+
+		return {
+			name: node.name.text,
+			documentation: getJsDocContent(symbol, checker),
+			type: checker.typeToString(type),
+			fields,
+		};
+	}
+
+	function serializeFunction(symbol) {
+		const details = {
+			name: symbol.getName(),
+			documentation: getJsDocContent(symbol, checker),
+			parameters: [],
+			returnType: '',
+		};
+
+		const type = checker.getTypeOfSymbolAtLocation(
+			symbol,
+			symbol.valueDeclaration,
+		);
+		const signatures = type.getCallSignatures();
+
+		if (signatures.length) {
+			const signature = signatures[0];
+			const signatureDeclaration = signature.getDeclaration();
+
+			details.parameters = signature.parameters.map((param, index) => {
+				const paramDeclaration =
+					signatureDeclaration?.parameters[index];
+				const isOptional =
+					paramDeclaration?.questionToken !== undefined ||
+					paramDeclaration?.initializer !== undefined;
+				const defaultValue = paramDeclaration
+					? getDefaultValue(paramDeclaration)
+					: undefined;
+
+				return {
+					name: param.getName(),
+					documentation:
+						ts.displayPartsToString(
+							param.getDocumentationComment(checker),
+						) || '',
+					type: checker.typeToString(
+						checker.getTypeOfSymbolAtLocation(
+							param,
+							param.valueDeclaration,
+						),
+					),
+					isOptional,
+					defaultValue,
+				};
+			});
+
+			details.returnType = checker.typeToString(
+				signature.getReturnType(),
+			);
+		}
+
+		return details;
+	}
+
+	function serializeProperty(symbol) {
+		return {
+			name: symbol.getName(),
+			documentation:
+				ts.displayPartsToString(
+					symbol.getDocumentationComment(checker),
+				) || '',
+			type: checker.typeToString(
+				checker.getTypeOfSymbolAtLocation(
+					symbol,
+					symbol.valueDeclaration,
+				),
+			),
+		};
+	}
+
+	function serializeClass(symbol) {
+		const type = checker.getTypeOfSymbolAtLocation(
+			symbol,
+			symbol.valueDeclaration,
+		);
+		const details = {
+			name: symbol.getName(),
+			documentation:
+				ts.displayPartsToString(
+					symbol.getDocumentationComment(checker),
+				) || '',
+			methods: [],
+			properties: [],
+			accessors: [],
+		};
+
+		function serializeAccessor(symbol, declaration) {
+			const details = {
+				name: symbol.getName(),
+				documentation: getJsDocContent(symbol, checker),
+				type: '',
+			};
+
+			if (ts.isGetAccessor(declaration)) {
+				const signature =
+					checker.getSignatureFromDeclaration(declaration);
+				details.type = checker.typeToString(signature?.getReturnType());
+			} else if (ts.isSetAccessor(declaration)) {
+				const parameter = declaration.parameters[0];
+				if (parameter) {
+					details.type = checker.typeToString(
+						checker.getTypeAtLocation(parameter),
+					);
+				}
+			}
+
+			return details;
+		}
+
+		symbol.members?.forEach((member, key) => {
+			const declarations = member.declarations;
+			if (!declarations || declarations.length === 0) return;
+
+			const declaration = declarations[0];
+
+			if (
+				ts.isGetAccessor(declaration) ||
+				ts.isSetAccessor(declaration)
+			) {
+				const accessorDetails = serializeAccessor(member, declaration);
+
+				let existingAccessor = details.accessors.find(
+					(a) => a.name === accessorDetails.name,
+				);
+
+				if (!existingAccessor) {
+					existingAccessor = {
+						name: accessorDetails.name,
+						documentation: accessorDetails.documentation,
+						badges: [],
+						type: accessorDetails.type,
+						cleanType: accessorDetails.type
+							.replaceAll('(', '')
+							.replaceAll(')', '')
+							.replaceAll('[', '')
+							.replaceAll(']', ''),
+						getter: false,
+						setter: false,
+					};
+
+					// Hacky fix for it to recognize get and set accessors as the same
+					// The documentation includes both for getter and setter
+					if (
+						existingAccessor.documentation.includes('\n') &&
+						!existingAccessor.documentation.includes('**Remarks:**')
+					) {
+						existingAccessor.getter =
+							existingAccessor.setter = true;
+					}
+
+					details.accessors.push(existingAccessor);
+				}
+
+				if (ts.isGetAccessor(declaration)) {
+					existingAccessor.getter = true;
+					existingAccessor.type = accessorDetails.type;
+					existingAccessor.cleanType = accessorDetails.type
+						.replaceAll('(', '')
+						.replaceAll(')', '')
+						.replaceAll('[', '')
+						.replaceAll(']', '');
+				} else if (ts.isSetAccessor(declaration)) {
+					existingAccessor.setter = true;
+				}
+			} else if (member.flags & ts.SymbolFlags.Method) {
+				if (
+					member.getName().startsWith('#') ||
+					member.valueDeclaration?.modifiers?.some(
+						(m) => m.kind === ts.SyntaxKind.PrivateKeyword,
+					)
+				)
+					return;
+				details.methods.push(serializeFunction(member));
+			} else if (member.flags & ts.SymbolFlags.Property) {
+				if (
+					member.getName().startsWith('#') ||
+					member.valueDeclaration?.modifiers?.some(
+						(m) => m.kind === ts.SyntaxKind.PrivateKeyword,
+					)
+				)
+					return;
+				details.properties.push(serializeProperty(member));
+			}
+		});
+
+		return details;
+	}
+}
+
+function generateMarkdown(
+	documentation,
+	typeDefinitions,
+	projectTypes,
+	classTypes,
+) {
+	const docsDir = '../docs/api';
+	const structsDir = path.join(docsDir, 'structs');
+	const utilDir = path.join(docsDir, 'util');
+	const typedefsDir = path.join(docsDir, 'typedefs');
+	const enumsDir = path.join(docsDir, 'enums');
+
+	// fs.rmdirSync(docsDir, { recursive: true });
+
+	ensureDirectoryExists(docsDir);
+	ensureDirectoryExists(structsDir);
+	ensureDirectoryExists(typedefsDir);
+	ensureDirectoryExists(utilDir);
+	ensureDirectoryExists(enumsDir);
+
+	documentation.forEach((fileDoc) => {
+		fileDoc.enums.forEach((enumDoc) => {
+			let content = `# ${enumDoc.name}\n\n`;
+			content += enumDoc.documentation
+				? `${enumDoc.documentation}\n\n`
+				: '';
+
+			content += '| Name | Value | Description |\n';
+			content += '|------|-------|-------------|\n';
+			enumDoc.members.forEach((member) => {
+				content += `| \`${member.name}\` | \`${member.value}\` | ${member.documentation || ''} |\n`;
+			});
+			content += '\n';
+
+			fs.writeFileSync(
+				path.join(enumsDir, `${enumDoc.name}.md`),
+				content,
+			);
+		});
+	});
+
+	typeDefinitions.forEach((typedef) => {
+		let content = `# ${typedef.name}\n\n${typedef.documentation}\n\n`;
+
+		content += '```typescript\n';
+		content += `type ${typedef.name} = ${typedef.type}\n`;
+		content += '```\n\n';
+
+		if (typedef.fields.length > 0) {
+			content += '## Fields\n\n';
+			content += '| Name | Type | Description |\n';
+			content += '|------|------|-------------|\n';
+			typedef.fields.forEach((field) => {
+				const typeLink = createTypeLink(field.type, true);
+				content += `| \`${field.name}\` | ${typeLink} | ${field.documentation || ''} |\n`;
+			});
+		}
+
+		fs.writeFileSync(path.join(typedefsDir, `${typedef.name}.md`), content);
+	});
+	documentation.forEach((fileDoc, fileName) => {
+		let content = `---\noutline: deep\n---\n\n`;
+
+		fileDoc.classes.forEach((classDoc) => {
+			content += `# ${classDoc.name}\n\n`;
+			content += classDoc.documentation
+				? `${classDoc.documentation}\n\n`
+				: '';
+			content += '---\n\n';
+
+			if (
+				classDoc.properties.length > 0 ||
+				classDoc.accessors.length > 0
+			) {
+				content += '### Properties\n\n';
+
+				classDoc.properties.forEach((prop) => {
+					content += `#### ${prop.name}\n\n`;
+					content += `Type: ${createTypeLink(prop.type)}\n\n`;
+					content += prop.documentation
+						? `${prop.documentation}\n\n`
+						: '';
+				});
+
+				classDoc.accessors.forEach((accessor) => {
+					content += `#### ${accessor.name}\n\n`;
+
+					if (accessor.getter && accessor.setter) {
+						const lines = accessor.documentation.split('\n');
+
+						content += `​<Badge type="info">getter</Badge>${lines[0]}\n\n`;
+						content += `​<Badge type="info">setter</Badge>${lines[1]}\n\n`;
+					} else if (accessor.getter || accessor.setter) {
+						const badgeType = accessor.getter ? 'getter' : 'setter';
+						content += `​<Badge type="info">${badgeType}</Badge>${accessor.documentation}\n\n`;
+					} else {
+						content += `${accessor.documentation}\n\n`;
+					}
+
+					content += `Type: ${createTypeLink(accessor.type)}\n\n`;
+				});
+			}
+
+			if (classDoc.methods.length > 0) {
+				content += '### Methods\n\n';
+
+				classDoc.methods.forEach((method) => {
+					const returnTypeStr = createTypeLink(method.returnType);
+
+					content += `#### ${method.name}\n\n`;
+					content += method.documentation
+						? `${method.documentation}\n\n`
+						: '';
+
+					if (method.parameters.length > 0) {
+						const hasOptionalParams = method.parameters.some(
+							(param) => param.isOptional,
+						);
+						const hasDefaultParams = method.parameters.some(
+							(param) => param.defaultValue,
+						);
+
+						if (hasOptionalParams || hasDefaultParams) {
+							content += '**Parameters:**\n\n';
+							content +=
+								'| Name | Type | Optional | Default | Description |\n';
+							content +=
+								'|------|------|----------|---------|-------------|\n';
+							method.parameters.forEach((param) => {
+								const description =
+									param.documentation.startsWith('-')
+										? param.documentation.substring(2)
+										: param.documentation;
+								content += `| \`${param.name}\` | ${createTypeLink(param.type, true)} | ${param.isOptional ? '✓' : ''} | ${param.defaultValue ? `\`${param.defaultValue}\`` : ''} | ${description} |\n`;
+							});
+						} else {
+							content += '**Parameters:**\n\n';
+							content += '| Name | Type | Description |\n';
+							content += '|------|------|-------------|\n';
+							method.parameters.forEach((param) => {
+								const description =
+									param.documentation.startsWith('-')
+										? param.documentation.substring(2)
+										: param.documentation;
+								content += `| \`${param.name}\` | ${createTypeLink(param.type, true)} | ${description} |\n`;
+							});
+						}
+						content += '\n';
+					}
+
+					content += `**Returns:** ${returnTypeStr}\n\n`;
+				});
+			}
+
+			const outputPath = fileDoc.dir.endsWith('/struct')
+				? path.join(structsDir, `${fileDoc.fileName}.md`)
+				: fileDoc.dir.endsWith('/util')
+					? path.join(utilDir, `${fileDoc.fileName}.md`)
+					: path.join(
+							docsDir,
+							`${path.basename(fileName, '.ts')}.md`,
+						);
+
+			fs.writeFileSync(outputPath, content);
+		});
+	});
+}
+
+try {
+	const { compilerOptions, fileNames } = loadTsConfig('./tsconfig.json');
+
+	const { documentation, typeDefinitions, projectTypes, classTypes } =
+		generateDocs(fileNames, compilerOptions);
+
+	generateMarkdown(documentation, typeDefinitions, projectTypes, classTypes);
+
+	console.log('Documentation generated successfully!');
+	console.log(`Processed ${fileNames.length} files`);
+	console.log(`Generated ${documentation.size} API documentation files`);
+	console.log(`Generated ${typeDefinitions.length} type definition files`);
+} catch (error) {
+	console.log('Error generating documentation:', error);
+	process.exit(1);
+}

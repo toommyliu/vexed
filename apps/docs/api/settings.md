@@ -1,66 +1,110 @@
 ---
-title: Settings
 outline: deep
 ---
+
 # Settings
-`Provoke Map` : If enabled, tags all monsters in the map.
 
- `Provoke Cell` : If enabled, tags all monsters in the current cell.
+---
 
- `Enemy Magnet` : If enabled, sets the target's position to that of the player.
+### Properties
 
- `Lag Killer` : If enabled, disables rendering of most UI elements.
+#### counterAttack
 
- `Hide Players` : If enabled, hides other players.
+Type: [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
 
- `Skip Cutscenes:`  If enabled, skips cutscenes as needed.
+Whether to automatically stop attacking a Counter Attack is active.
 
- `Walk Speed` : The player's walk speed.
+#### bot
 
-Settings are updated in a background interval every 500ms.
-## Properties
-### bot
+Type: [Bot](.Bot.md)
 
+#### infiniteRange
 
-### enemyMagnet
-The state of "Enemy Magnet".
+​<Badge type="info">getter</Badge>Whether Infinite Range is enabled.
 
+​<Badge type="info">setter</Badge>Sets the state of Infinite Range.
 
-### hidePlayers
-Whether "Hide Players" is enabled.
+Type: [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
 
+#### provokeMap
 
-### infiniteRange
-The state of "Infinite Range".
+​<Badge type="info">getter</Badge>Whether Provoke Map is enabled.
 
+​<Badge type="info">setter</Badge>Sets the state of Provoke Map.
 
-### lagKiller
-Whether "Lag Killer" is enabled.
+Type: [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
 
+#### provokeCell
 
-### provokeCell
-The state of "Provoke Cell".
+​<Badge type="info">getter</Badge>Whether Provoke Cell is enabled.
 
+​<Badge type="info">setter</Badge>Sets the state of Provoke Cell.
 
-### provokeMap
-The state of "Provoke Map".
+Type: [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
 
+#### enemyMagnet
 
-### skipCutscenes
-Whether "Skip Cutscenes" is enabled.
+​<Badge type="info">getter</Badge>Whether Enemy Magnet is enabled.
 
+​<Badge type="info">setter</Badge>Sets the state of Enemy Magnet.
 
-### walkSpeed
-The player's walk speed.
+Type: [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
 
+#### lagKiller
 
+​<Badge type="info">getter</Badge>Whether Lag Killer is enabled.
 
+​<Badge type="info">setter</Badge>Sets the state of Lag Killer.
 
-## Methods
-### setDeathAds
-Sets the visiblity of death ads.
+Type: [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
 
+#### hidePlayers
 
-### setFPS
-Sets the target client FPS.
+​<Badge type="info">getter</Badge>Whether Hide Players is enabled.
+
+​<Badge type="info">setter</Badge>Sets the state of Hide Players.
+
+Type: [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
+
+#### skipCutscenes
+
+​<Badge type="info">getter</Badge>Whether Skip Cutscenes is enabled.
+
+​<Badge type="info">setter</Badge>Sets the state of Skip Cutscenes.
+
+Type: [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
+
+#### walkSpeed
+
+​<Badge type="info">getter</Badge>The player's walk speed.
+
+​<Badge type="info">setter</Badge>Sets the player's walk speed.
+
+Type: [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)
+
+### Methods
+
+#### setFps
+
+Sets the client target fps.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `fps` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) | The target fps. |
+
+**Returns:** [void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)
+
+#### setDeathAds
+
+Sets the visibility of death ads.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `on` | [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean) | If true, shows death ads. Otherwise, they are hidden. |
+
+**Returns:** [void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)
 

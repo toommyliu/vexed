@@ -17,6 +17,9 @@ import { Flash } from './util/Flash';
 import { TimerManager } from './util/TimerManager';
 
 export class Bot extends EventEmitter {
+	/**
+	 * The AbortController instance.
+	 */
 	public ac: AbortController | null = null;
 
 	/**
@@ -183,6 +186,9 @@ export class Bot extends EventEmitter {
 		return this.ac !== null && !this.ac.signal.aborted;
 	}
 
+	/**
+	 * Used to keep track of the current AbortController signal.
+	 */
 	public get signal(): AbortSignal | null {
 		return this.ac?.signal ?? null;
 	}

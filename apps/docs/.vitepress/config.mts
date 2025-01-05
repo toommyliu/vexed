@@ -21,7 +21,7 @@ walk(apiDir);
 
 const enums = md.filter((path) => path.includes("/enums/"));
 const examples = md.filter((path) => path.includes("/examples/"));
-const structs = md.filter((path) => path.includes("/struct/"));
+const structs = md.filter((path) => path.includes("/structs/"));
 const typedefs = md.filter((path) => path.includes("/typedefs/"));
 const util = md.filter((path) => path.includes("/util/"));
 const excluded = [...enums, ...examples, ...structs, ...typedefs, ...util];
@@ -90,14 +90,15 @@ export default defineConfig({
         items: [
           {
             text: "Examples",
-            link: "/api/examples/",
+            link: "/api/examples",
           },
           {
-            text: "Data classes",
+            text: "Data Types",
             items: structs.map((path) => ({
               text: getMarkdownTitle(path),
-              link: `/api/struct/${basename(path)}`,
+              link: `/api/structs/${basename(path)}`,
             })),
+            collapsed: true,
           },
           {
             text: "Enums",
@@ -105,6 +106,7 @@ export default defineConfig({
               text: getMarkdownTitle(path),
               link: `/api/enums/${basename(path)}`,
             })),
+            collapsed: true,
           },
           {
             text: "Typedefs",
@@ -112,6 +114,7 @@ export default defineConfig({
               text: getMarkdownTitle(path),
               link: `/api/typedefs/${basename(path)}`,
             })),
+            collapsed: true,
           },
           {
             text: "Util",
@@ -119,6 +122,7 @@ export default defineConfig({
               text: getMarkdownTitle(path),
               link: `/api/util/${basename(path)}`,
             })),
+            collapsed: true,
           },
           ...rest.map((path) => ({
             text: getMarkdownTitle(path),

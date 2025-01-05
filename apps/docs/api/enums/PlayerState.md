@@ -1,34 +1,10 @@
----
-title: PlayerState
-outline: deep
----
 # PlayerState
+
 Enum representing a player's state.
 
-## Members
-### Dead
-The player is dead.
-
-`PlayerState.Dead` = `0`
-
-
-Type: number
-
-
-### Idle
-The player is idle, does not necessarily imply the player is afk.
-
-`PlayerState.Idle` = `1`
-
-
-Type: number
-
-
-### InCombat
-The player is in combat.
-
-`PlayerState.InCombat` = `2`
-
-
-Type: number
+| Name | Value | Description |
+|------|-------|-------------|
+| `Dead` | `0` | The player is dead. |
+| `Idle` | `1` | The player is idle, does not necessarily imply the player is afk. |
+| `InCombat` | `2` | The player is in combat. |
 
