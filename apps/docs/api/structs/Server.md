@@ -12,7 +12,7 @@ Represents a game server.
 
 #### data
 
-Type: [ServerData](./typedefs/ServerData.md)
+Type: `ServerData`
 
 Data about this server.
 
@@ -20,37 +20,37 @@ Data about this server.
 
 ​<Badge type="info">getter</Badge>The maximum number of players.
 
-Type: [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)
+Type: `number`
 
 #### port
 
 ​<Badge type="info">getter</Badge>The port number the server is on.
 
-Type: [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)
+Type: `number`
 
 #### langCode
 
 ​<Badge type="info">getter</Badge>The language of the server (en/xx/it/pt).
 
-Type: [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)
+Type: `string`
 
 #### name
 
 ​<Badge type="info">getter</Badge>The name of the server.
 
-Type: [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)
+Type: `string`
 
 #### ip
 
 ​<Badge type="info">getter</Badge>The IP address of the server.
 
-Type: [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)
+Type: `string`
 
 #### playerCount
 
 ​<Badge type="info">getter</Badge>The number of current players.
 
-Type: [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)
+Type: `number`
 
 ### Methods
 
@@ -58,11 +58,11 @@ Type: [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference
 
 Whether the server is an upgrade-only server.
 
-**Returns:** [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
+**Returns:** `boolean`
 
 #### isCanned
 
 The chat-level restriction of the server (0=canned, 2=free).
 
-**Returns:** [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
+**Returns:** `boolean`
 

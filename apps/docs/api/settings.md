@@ -10,13 +10,13 @@ outline: deep
 
 #### counterAttack
 
-Type: [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
+Type: `boolean`
 
 Whether to automatically stop attacking a Counter Attack is active.
 
 #### bot
 
-Type: [Bot](.Bot.md)
+Type: `Bot`
 
 #### infiniteRange
 
@@ -24,7 +24,7 @@ Type: [Bot](.Bot.md)
 
 ​<Badge type="info">setter</Badge>Sets the state of Infinite Range.
 
-Type: [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
+Type: `boolean`
 
 #### provokeMap
 
@@ -32,7 +32,7 @@ Type: [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Referenc
 
 ​<Badge type="info">setter</Badge>Sets the state of Provoke Map.
 
-Type: [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
+Type: `boolean`
 
 #### provokeCell
 
@@ -40,7 +40,7 @@ Type: [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Referenc
 
 ​<Badge type="info">setter</Badge>Sets the state of Provoke Cell.
 
-Type: [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
+Type: `boolean`
 
 #### enemyMagnet
 
@@ -48,7 +48,7 @@ Type: [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Referenc
 
 ​<Badge type="info">setter</Badge>Sets the state of Enemy Magnet.
 
-Type: [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
+Type: `boolean`
 
 #### lagKiller
 
@@ -56,7 +56,7 @@ Type: [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Referenc
 
 ​<Badge type="info">setter</Badge>Sets the state of Lag Killer.
 
-Type: [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
+Type: `boolean`
 
 #### hidePlayers
 
@@ -64,7 +64,7 @@ Type: [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Referenc
 
 ​<Badge type="info">setter</Badge>Sets the state of Hide Players.
 
-Type: [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
+Type: `boolean`
 
 #### skipCutscenes
 
@@ -72,7 +72,7 @@ Type: [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Referenc
 
 ​<Badge type="info">setter</Badge>Sets the state of Skip Cutscenes.
 
-Type: [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
+Type: `boolean`
 
 #### walkSpeed
 
@@ -80,7 +80,7 @@ Type: [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Referenc
 
 ​<Badge type="info">setter</Badge>Sets the player's walk speed.
 
-Type: [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)
+Type: `number`
 
 ### Methods
 
@@ -92,9 +92,9 @@ Sets the client target fps.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `fps` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) | The target fps. |
+| `fps` | `string \| number` | The target fps. |
 
-**Returns:** [void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)
+**Returns:** `void`
 
 #### setDeathAds
 
@@ -104,7 +104,7 @@ Sets the visibility of death ads.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `on` | [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean) | If true, shows death ads. Otherwise, they are hidden. |
+| `on` | `boolean` | If true, shows death ads. Otherwise, they are hidden. |
 
-**Returns:** [void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)
+**Returns:** `void`
 

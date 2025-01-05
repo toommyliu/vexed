@@ -12,7 +12,7 @@ The base class for all-things item related.
 
 #### data
 
-Type: [ItemData](./typedefs/ItemData.md)
+Type: `ItemData`
 
 Data about this item
 
@@ -20,37 +20,37 @@ Data about this item
 
 ​<Badge type="info">getter</Badge>The ID of the item.
 
-Type: [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)
+Type: `number`
 
 #### name
 
 ​<Badge type="info">getter</Badge>The name of the item.
 
-Type: [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)
+Type: `string`
 
 #### description
 
 ​<Badge type="info">getter</Badge>The description of the item.
 
-Type: [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)
+Type: `string`
 
 #### quantity
 
 ​<Badge type="info">getter</Badge>The quantity of the item in this stack.
 
-Type: [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)
+Type: `number`
 
 #### maxStack
 
 ​<Badge type="info">getter</Badge>The maximum stack size this item can exist in.
 
-Type: [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)
+Type: `number`
 
 #### category
 
 ​<Badge type="info">getter</Badge>The category of the item.
 
-Type: [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)
+Type: `string`
 
 #### itemGroup
 
@@ -66,19 +66,19 @@ pe = Pet
 
 Weapon = Weapon
 
-Type: [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)
+Type: `string`
 
 #### fileName
 
 ​<Badge type="info">getter</Badge>The name of the source file of the item.
 
-Type: [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)
+Type: `string`
 
 #### fileLink
 
 ​<Badge type="info">getter</Badge>The link to the source file of the item
 
-Type: [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)
+Type: `string`
 
 #### meta
 
@@ -86,7 +86,7 @@ Type: [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference
 
 **Remarks:** This is specifically for items with boosts.
 
-Type: [Record](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)<[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String), [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)>
+Type: `Record<string, number>`
 
 ### Methods
 
@@ -94,23 +94,23 @@ Type: [Record](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference
 
 Whether the item is member-only.
 
-**Returns:** [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
+**Returns:** `boolean`
 
 #### isAC
 
 Whether the item is AC tagged.
 
-**Returns:** [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
+**Returns:** `boolean`
 
 #### isTemp
 
 Whether the item belongs to the temp inventory.
 
-**Returns:** [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
+**Returns:** `boolean`
 
 #### isMaxed
 
 Whether the item is at its maximum stack size.
 
-**Returns:** [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
+**Returns:** `boolean`
 

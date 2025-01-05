@@ -13,17 +13,17 @@ There are no calls needed to enable auto-relogin besides starting the bot and se
 
 #### server
 
-Type: [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) | [null](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/null)
+Type: `string \| null`
 
 The server name to connect to.
 
 #### delay
 
-Type: [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)
+Type: `number`
 
 The delay after a logout or a disconnect before attempting to login.
 
 #### bot
 
-Type: [Bot](.Bot.md)
+Type: `Bot`
 

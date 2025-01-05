@@ -10,7 +10,7 @@ outline: deep
 
 #### bot
 
-Type: [Bot](.Bot.md)
+Type: `Bot`
 
 #### username
 
@@ -18,7 +18,7 @@ Type: [Bot](.Bot.md)
 
 **Remarks:** This value is set after a successful login.
 
-Type: [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)
+Type: `string`
 
 #### password
 
@@ -26,7 +26,7 @@ Type: [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference
 
 **Remarks:** This value is set after a successful login.
 
-Type: [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)
+Type: `string`
 
 #### servers
 
@@ -34,19 +34,19 @@ Type: [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference
 
 **Remarks:** The value is set after a successful login.
 
-Type: [Server](.Server.md)[]
+Type: `Server[]`
 
 #### ip
 
 ​<Badge type="info">getter</Badge>The server IP the client is connected to.
 
-Type: [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)
+Type: `string`
 
 #### port
 
 ​<Badge type="info">getter</Badge>The server port the client is connected to.
 
-Type: [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)
+Type: `number`
 
 ### Methods
 
@@ -54,7 +54,7 @@ Type: [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference
 
 Whether the user is logged in and connected to a server.
 
-**Returns:** [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
+**Returns:** `boolean`
 
 #### login
 
@@ -67,22 +67,22 @@ with the values stored in the client.
 
 | Name | Type | Optional | Default | Description |
 |------|------|----------|---------|-------------|
-| `username` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [null](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/null) | ✓ | `null` | The username to login with. |
-| `password` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [null](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/null) | ✓ | `null` | The password to login with. |
+| `username` | `string \| null` | ✓ | `null` | The username to login with. |
+| `password` | `string \| null` | ✓ | `null` | The password to login with. |
 
-**Returns:** [void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)
+**Returns:** `void`
 
 #### logout
 
 Logs out of the current account.
 
-**Returns:** [void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)
+**Returns:** `void`
 
 #### resetServers
 
 Resets the list of servers that is available to the client.
 
-**Returns:** [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
+**Returns:** `boolean`
 
 #### connectTo
 
@@ -92,13 +92,13 @@ Connects to a server.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `name` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) | The name of the server. |
+| `name` | `string` | The name of the server. |
 
-**Returns:** [void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)
+**Returns:** `void`
 
 #### isTemporarilyKicked
 
 Whether the client is temporarily kicked from the server.
 
-**Returns:** [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
+**Returns:** `boolean`
 

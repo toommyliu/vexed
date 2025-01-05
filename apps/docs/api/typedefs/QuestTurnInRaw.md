@@ -10,5 +10,5 @@ type QuestTurnInRaw = QuestTurnInRaw
 
 | Name | Type | Description |
 |------|------|-------------|
-| `ItemID` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) | The item ID. |
-| `iQty` | [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) | The quantity of the item. |
+| `ItemID` | `string` | The item ID. |
+| `iQty` | `number` | The quantity of the item. |

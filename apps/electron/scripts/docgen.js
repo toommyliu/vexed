@@ -6,25 +6,10 @@ const typeDefinitions = [];
 
 const projectTypes = new Set();
 const classTypes = new Set();
-
-const MDN_LINKS = {
-	string: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String',
-	number: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number',
-	boolean:
-		'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean',
-	Promise:
-		'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise',
-	Array: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array',
-	Object: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object',
-	AbortController:
-		'https://developer.mozilla.org/en-US/docs/Web/API/AbortController',
-	AbortSignal: 'https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal',
-	Map: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map',
-	Record: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object',
-	void: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void',
-	null: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/null',
-};
-
+function createTypeLink(type) {
+	type = type.replace(/\|/g, '\\|');
+	return `\`${type}\``;
+}
 function loadTsConfig(tsconfigPath) {
 	const configFile = ts.readConfigFile(tsconfigPath, ts.sys.readFile);
 	if (configFile.error) {
@@ -142,52 +127,6 @@ function getDefaultValue(node) {
 		default:
 			return node.initializer.getText();
 	}
-}
-
-function createTypeLink(type, escape = false) {
-	if (!type) return '`void`';
-
-	const genericMatch = type.match(/^(Record|Map|Promise|Partial)<(.+)>$/);
-	if (genericMatch) {
-		const [_, baseType, params] = genericMatch;
-		const paramTypes = params
-			.split(',')
-			.map((t) => createTypeLink(t.trim(), escape));
-
-		if (MDN_LINKS[baseType]) {
-			return `[${baseType}](${MDN_LINKS[baseType]})<${paramTypes.join(', ')}>`;
-		}
-		return `${baseType}<${paramTypes.join(', ')}>`;
-	}
-
-	if (type.includes('|')) {
-		const unionTypes = type.split('|').map((t) => t.trim());
-		return unionTypes
-			.map((t) => createTypeLink(t, escape))
-			.join(escape ? ' \\| ' : ' | ');
-	}
-
-	if (type.endsWith('[]')) {
-		const baseType = type.slice(0, -2);
-		return `${createTypeLink(baseType, escape)}[]`;
-	}
-
-	const cleanType = type.replace(/[\(\)\[\]]/g, '').trim();
-
-	if (MDN_LINKS[cleanType]) {
-		return `[${type}](${MDN_LINKS[cleanType]})`;
-	}
-
-	if (projectTypes.has(cleanType)) {
-		const prefix = classTypes.has(cleanType) ? '.' : './typedefs/';
-		return `[${type}](${prefix}${cleanType}.md)`;
-	}
-
-	if (projectTypes.has(cleanType) && type.includes('enum')) {
-		return `[${type}](./enums/${cleanType}.md)`;
-	}
-
-	return `${type}`;
 }
 
 function generateDocs(fileNames, options) {
@@ -560,8 +499,7 @@ function generateMarkdown(
 			content += '| Name | Type | Description |\n';
 			content += '|------|------|-------------|\n';
 			typedef.fields.forEach((field) => {
-				const typeLink = createTypeLink(field.type, true);
-				content += `| \`${field.name}\` | ${typeLink} | ${field.documentation || ''} |\n`;
+				content += `| \`${field.name}\` | \`${field.type}\` | ${field.documentation || ''} |\n`;
 			});
 		}
 

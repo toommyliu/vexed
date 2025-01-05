@@ -12,7 +12,7 @@ Represents an item in the shop.
 
 #### data
 
-Type: [ShopItemData](./typedefs/ShopItemData.md)
+Type: `ShopItemData`
 
 Data about this item
 

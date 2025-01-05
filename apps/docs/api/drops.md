@@ -10,13 +10,13 @@ outline: deep
 
 #### bot
 
-Type: [Bot](.Bot.md)
+Type: `Bot`
 
 #### stack
 
 ​<Badge type="info">getter</Badge>The drop stack as shown to the client. The mapping is of the form `itemID -> count`.
 
-Type: [Record](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)<[number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number), [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)>
+Type: `Record<number, number>`
 
 ### Methods
 
@@ -28,9 +28,9 @@ Retrieves item data using it's ID.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `itemId` | [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) | The ID of the item. |
+| `itemId` | `number` | The ID of the item. |
 
-**Returns:** [ItemData](./typedefs/ItemData.md) | [null](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/null)
+**Returns:** `ItemData \| null`
 
 #### getItemFromName
 
@@ -40,9 +40,9 @@ Retrieves item data using it's name (case-insensitive).
 
 | Name | Type | Description |
 |------|------|-------------|
-| `itemName` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) | The name of the item. |
+| `itemName` | `string` | The name of the item. |
 
-**Returns:** [ItemData](./typedefs/ItemData.md) | [null](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/null)
+**Returns:** `ItemData \| null`
 
 #### getItemName
 
@@ -52,9 +52,9 @@ Retrieves the name of an item using it's ID.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `itemId` | [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) | The ID of the item. |
+| `itemId` | `number` | The ID of the item. |
 
-**Returns:** [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) | [null](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/null)
+**Returns:** `string \| null`
 
 #### getItemId
 
@@ -64,9 +64,9 @@ Retrieves the ID of an item using it's name.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `itemName` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) | The name of the item. |
+| `itemName` | `string` | The name of the item. |
 
-**Returns:** [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) | [null](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/null)
+**Returns:** `number \| null`
 
 #### getDropCount
 
@@ -76,9 +76,9 @@ Retrieves the count of an item in the drop stack.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `itemId` | [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) | The ID of the item. |
+| `itemId` | `number` | The ID of the item. |
 
-**Returns:** [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)
+**Returns:** `number`
 
 #### addDrop
 
@@ -88,9 +88,9 @@ Adds an item to the internal store and the stack as visible to the client.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `item` | [ItemData](./typedefs/ItemData.md) | The item that was dropped. |
+| `item` | `ItemData` | The item that was dropped. |
 
-**Returns:** [void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)
+**Returns:** `void`
 
 #### pickup
 
@@ -100,9 +100,9 @@ Accepts the drop for an item in the stack.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `itemKey` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) | The name or ID of the item. |
+| `itemKey` | `string \| number` | The name or ID of the item. |
 
-**Returns:** [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)<[void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)>
+**Returns:** `Promise<void>`
 
 #### reject
 
@@ -112,10 +112,10 @@ Rejects a drop from the stack.
 
 | Name | Type | Optional | Default | Description |
 |------|------|----------|---------|-------------|
-| `itemKey` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) |  |  | The name or ID of the item. |
-| `removeFromStore` | [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean) | ✓ | `false` | Whether to delete the item entry from the store. |
+| `itemKey` | `string \| number` |  |  | The name or ID of the item. |
+| `removeFromStore` | `boolean` | ✓ | `false` | Whether to delete the item entry from the store. |
 
-**Returns:** [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)<[void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)>
+**Returns:** `Promise<void>`
 
 #### hasDrop
 
@@ -125,7 +125,7 @@ Checks if an item exists in the drop stack.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `itemKey` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) | The name or ID of the item. |
+| `itemKey` | `string \| number` | The name or ID of the item. |
 
-**Returns:** [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
+**Returns:** `boolean`
 

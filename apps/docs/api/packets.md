@@ -10,7 +10,7 @@ outline: deep
 
 #### bot
 
-Type: [Bot](.Bot.md)
+Type: `Bot`
 
 ### Methods
 
@@ -22,10 +22,10 @@ Sends the specified packet to the client (simulates a response as if the server 
 
 | Name | Type | Optional | Default | Description |
 |------|------|----------|---------|-------------|
-| `packet` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) |  |  | The packet to send. |
-| `type` | "json" \| "str" \| "xml" | ✓ | `"str"` | The type of packet. |
+| `packet` | `string` |  |  | The packet to send. |
+| `type` | `"json" \| "str" \| "xml"` | ✓ | `"str"` | The type of packet. |
 
-**Returns:** [void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)
+**Returns:** `void`
 
 #### sendServer
 
@@ -35,8 +35,8 @@ Sends the specified packet to the server.
 
 | Name | Type | Optional | Default | Description |
 |------|------|----------|---------|-------------|
-| `packet` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) |  |  | The packet to send. |
-| `type` | "Json" \| "String" | ✓ | `"String"` | The type of packet. |
+| `packet` | `string` |  |  | The packet to send. |
+| `type` | `"Json" \| "String"` | ✓ | `"String"` | The type of packet. |
 
-**Returns:** [void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)
+**Returns:** `void`
 

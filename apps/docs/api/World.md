@@ -10,67 +10,67 @@ outline: deep
 
 #### bot
 
-Type: [Bot](.Bot.md)
+Type: `Bot`
 
 #### players
 
 ​<Badge type="info">getter</Badge>A list of all players in the map.
 
-Type: [Avatar](.Avatar.md)[]
+Type: `Avatar[]`
 
 #### monsters
 
 ​<Badge type="info">getter</Badge>A list of monsters in the map.
 
-Type: [MonsterData](./typedefs/MonsterData.md)[]
+Type: `MonsterData[]`
 
 #### visibleMonsters
 
 ​<Badge type="info">getter</Badge>A list of visible monsters in the cell.
 
-Type: [Monster](.Monster.md)[]
+Type: `Monster[]`
 
 #### availableMonsters
 
 ​<Badge type="info">getter</Badge>A list of available monsters in the cell.
 
-Type: [Monster](.Monster.md)[]
+Type: `Monster[]`
 
 #### cells
 
 ​<Badge type="info">getter</Badge>A list of all cells in the map.
 
-Type: [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)[]
+Type: `string[]`
 
 #### cellPads
 
 ​<Badge type="info">getter</Badge>A list of valid pads for the current cell.
 
-Type: [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)[]
+Type: `string[]`
 
 #### roomId
 
 ​<Badge type="info">getter</Badge>The current room area id.
 
-Type: [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)
+Type: `number`
 
 #### roomNumber
 
 ​<Badge type="info">getter</Badge>The room number of the map.
 
-Type: [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)
+Type: `number`
 
 #### name
 
 ​<Badge type="info">getter</Badge>The name of the map.
 
-Type: [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)
+Type: `string`
 
 #### itemTree
 
 ​<Badge type="info">getter</Badge>The list of all items in the world.
 
-Type: [ItemData](./typedefs/ItemData.md)[]
+Type: `ItemData[]`
 
 ### Methods
 
@@ -82,21 +82,21 @@ Whether a monster is available.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `monsterResolvable` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) | The name of the monster or in monMapID format. |
+| `monsterResolvable` | `string` | The name of the monster or in monMapID format. |
 
-**Returns:** [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
+**Returns:** `boolean`
 
 #### reload
 
 Reloads the map.
 
-**Returns:** [void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)
+**Returns:** `void`
 
 #### isLoading
 
 Whether the map is still being loaded.
 
-**Returns:** [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
+**Returns:** `boolean`
 
 #### setSpawnPoint
 
@@ -106,10 +106,10 @@ Sets the player's spawnpoint.
 
 | Name | Type | Optional | Default | Description |
 |------|------|----------|---------|-------------|
-| `cell` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| undefined | ✓ |  |  |
-| `pad` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| undefined | ✓ |  |  |
+| `cell` | `string \| undefined` | ✓ |  |  |
+| `pad` | `string \| undefined` | ✓ |  |  |
 
-**Returns:** [void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)
+**Returns:** `void`
 
 #### jump
 
@@ -119,10 +119,10 @@ Jump to the specified cell and pad of the current map.
 
 | Name | Type | Optional | Default | Description |
 |------|------|----------|---------|-------------|
-| `cell` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) |  |  | The cell to jump to. |
-| `pad` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) | ✓ | `"Spawn"` | The pad to jump to. |
+| `cell` | `string` |  |  | The cell to jump to. |
+| `pad` | `string` | ✓ | `"Spawn"` | The pad to jump to. |
 
-**Returns:** [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)<[void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)>
+**Returns:** `Promise<void>`
 
 #### join
 
@@ -132,11 +132,11 @@ Joins a map.
 
 | Name | Type | Optional | Default | Description |
 |------|------|----------|---------|-------------|
-| `mapName` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) |  |  | The name of the map to join. |
-| `cell` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) | ✓ | `"Enter"` | The cell to jump to. |
-| `pad` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) | ✓ | `"Spawn"` | The pad to jump to. |
+| `mapName` | `string` |  |  | The name of the map to join. |
+| `cell` | `string` | ✓ | `"Enter"` | The cell to jump to. |
+| `pad` | `string` | ✓ | `"Spawn"` | The pad to jump to. |
 
-**Returns:** [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)<[void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)>
+**Returns:** `Promise<void>`
 
 #### goto
 
@@ -146,9 +146,9 @@ Goto the specified player.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `playerName` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) | The name of the player to goto. |
+| `playerName` | `string` | The name of the player to goto. |
 
-**Returns:** [void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)
+**Returns:** `void`
 
 #### isActionAvailable
 
@@ -158,9 +158,9 @@ Whether the game action has cooled down.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `gameAction` | [GameAction](./typedefs/GameAction.md) | The game action to check. |
+| `gameAction` | `GameAction` | The game action to check. |
 
-**Returns:** [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
+**Returns:** `boolean`
 
 #### getMapItem
 
@@ -170,9 +170,9 @@ Gets a item in the world.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `itemId` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) | The ID of the item. |
+| `itemId` | `string` | The ID of the item. |
 
-**Returns:** [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)<[void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)>
+**Returns:** `Promise<void>`
 
 #### loadMapSwf
 
@@ -182,7 +182,7 @@ Loads a particular swf of a map.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `mapSwf` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) | The swf to load. |
+| `mapSwf` | `string` | The swf to load. |
 
-**Returns:** [void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)
+**Returns:** `void`
 

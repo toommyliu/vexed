@@ -14,19 +14,19 @@ Represents an item in the inventory.
 
 ​<Badge type="info">getter</Badge>The character ID of this item.
 
-Type: [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)
+Type: `number`
 
 #### level
 
 ​<Badge type="info">getter</Badge>The level of the item.
 
-Type: [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)
+Type: `number`
 
 #### enhancementLevel
 
 ​<Badge type="info">getter</Badge>The enhancement level of the item.
 
-Type: [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)
+Type: `number`
 
 #### enchantmentPatternId
 
@@ -52,7 +52,7 @@ Type: [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference
 
 10: Forge (?)
 
-Type: [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)
+Type: `number`
 
 ### Methods
 
@@ -60,5 +60,5 @@ Type: [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference
 
 Whether the item is equipped.
 
-**Returns:** [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
+**Returns:** `boolean`
 

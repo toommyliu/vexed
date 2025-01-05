@@ -10,103 +10,103 @@ outline: deep
 
 #### ac
 
-Type: [AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) | [null](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/null)
+Type: `AbortController \| null`
 
 The AbortController instance.
 
 #### auth
 
-Type: [Auth](.Auth.md)
+Type: `Auth`
 
 The Auth API class instance.
 
 #### bank
 
-Type: [Bank](.Bank.md)
+Type: `Bank`
 
 The Bank API class instance.
 
 #### combat
 
-Type: [Combat](.Combat.md)
+Type: `Combat`
 
 The Combat API class instance.
 
 #### drops
 
-Type: [Drops](.Drops.md)
+Type: `Drops`
 
 The Drops API class instance.
 
 #### house
 
-Type: [House](.House.md)
+Type: `House`
 
 The House API class instance.
 
 #### inventory
 
-Type: [Inventory](.Inventory.md)
+Type: `Inventory`
 
 The Inventory API class instance.
 
 #### player
 
-Type: [Player](.Player.md)
+Type: `Player`
 
 The local Player API class instance.
 
 #### packets
 
-Type: [Packets](.Packets.md)
+Type: `Packets`
 
 The Packets API class instance.
 
 #### quests
 
-Type: [Quests](.Quests.md)
+Type: `Quests`
 
 The Quests API class instance.
 
 #### settings
 
-Type: [Settings](.Settings.md)
+Type: `Settings`
 
 The Settings API class instance.
 
 #### shops
 
-Type: [Shops](.Shops.md)
+Type: `Shops`
 
 The Shops API class instance.
 
 #### tempInventory
 
-Type: [TempInventory](.TempInventory.md)
+Type: `TempInventory`
 
 The TempInventory API class instance.
 
 #### world
 
-Type: [World](.World.md)
+Type: `World`
 
 The World API class instance.
 
 #### autoRelogin
 
-Type: [AutoRelogin](.AutoRelogin.md)
+Type: `AutoRelogin`
 
 The AutoRelogin API class instance.
 
 #### flash
 
-Type: [Flash](.Flash.md)
+Type: `Flash`
 
 The Flash API class instance.
 
 #### timerManager
 
-Type: [TimerManager](.TimerManager.md)
+Type: `TimerManager`
 
 The TimerManager API class instance.
 
@@ -114,7 +114,7 @@ The TimerManager API class instance.
 
 ​<Badge type="info">getter</Badge>Used to keep track of the current AbortController signal.
 
-Type: [AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) | [null](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/null)
+Type: `AbortSignal \| null`
 
 ### Methods
 
@@ -126,9 +126,9 @@ Pauses execution for a specified amount of time.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `ms` | [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) | The number of milliseconds to wait. |
+| `ms` | `number` | The number of milliseconds to wait. |
 
-**Returns:** [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)<[void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)>
+**Returns:** `Promise<void>`
 
 #### waitUntil
 
@@ -138,15 +138,15 @@ Waits until the condition is met.
 
 | Name | Type | Optional | Default | Description |
 |------|------|----------|---------|-------------|
-| `condition` | () => boolean |  |  | The condition to wait for until it returns true. |
-| `prerequisite` | (() => boolean) \| [null](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/null) | ✓ | `null` | The prerequisite to be checked before waiting for the condition. |
-| `timeout` | [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) | ✓ | `15` | The maximum number of iterations to wait. -1 to wait indefinitely. |
+| `condition` | `() => boolean` |  |  | The condition to wait for until it returns true. |
+| `prerequisite` | `(() => boolean) \| null` | ✓ | `null` | The prerequisite to be checked before waiting for the condition. |
+| `timeout` | `number` | ✓ | `15` | The maximum number of iterations to wait. -1 to wait indefinitely. |
 
-**Returns:** [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)<[void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)>
+**Returns:** `Promise<void>`
 
 #### isRunning
 
 Whether the bot is running.
 
-**Returns:** [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
+**Returns:** `boolean`
 

@@ -12,7 +12,7 @@ Represents a player in the game.
 
 #### data
 
-Type: [AvatarData](./typedefs/AvatarData.md)
+Type: `AvatarData`
 
 Data about this player.
 

@@ -12,7 +12,7 @@ Represents a monster.
 
 #### data
 
-Type: [MonsterData](./typedefs/MonsterData.md)
+Type: `MonsterData`
 
 Data about this monster.
 
@@ -20,53 +20,53 @@ Data about this monster.
 
 ​<Badge type="info">getter</Badge>The monMapID of the monster.
 
-Type: [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)
+Type: `number`
 
 #### id
 
 ​<Badge type="info">getter</Badge>The global ID of the monster.
 
-Type: [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)
+Type: `number`
 
 #### level
 
 ​<Badge type="info">getter</Badge>The level of the monster.
 
-Type: [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)
+Type: `number`
 
 #### state
 
 ​<Badge type="info">getter</Badge>The state of the monster.
 
-Type: [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)
+Type: `number`
 
 #### race
 
 ​<Badge type="info">getter</Badge>The race of the monster.
 
-Type: [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)
+Type: `string`
 
 #### name
 
 ​<Badge type="info">getter</Badge>The name of the monster.
 
-Type: [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)
+Type: `string`
 
 #### hp
 
 ​<Badge type="info">getter</Badge>The monster's current HP.
 
-Type: [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)
+Type: `number`
 
 #### maxHP
 
 ​<Badge type="info">getter</Badge>The monster's max HP.
 
-Type: [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)
+Type: `number`
 
 #### alive
 
 ​<Badge type="info">getter</Badge>Whether the monster is alive.
 
-Type: [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
+Type: `boolean`
 

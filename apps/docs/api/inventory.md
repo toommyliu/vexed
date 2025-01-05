@@ -10,31 +10,31 @@ outline: deep
 
 #### bot
 
-Type: [Bot](.Bot.md)
+Type: `Bot`
 
 #### items
 
 ​<Badge type="info">getter</Badge>Gets items in the Inventory of the current player.
 
-Type: [InventoryItem](.InventoryItem.md)[]
+Type: `InventoryItem[]`
 
 #### totalSlots
 
 ​<Badge type="info">getter</Badge>The total slots available in the player's inventory.
 
-Type: [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)
+Type: `number`
 
 #### usedSlots
 
 ​<Badge type="info">getter</Badge>The number of used slots in the player's inventory.
 
-Type: [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)
+Type: `number`
 
 #### availableSlots
 
 ​<Badge type="info">getter</Badge>The number of available slots in the player's inventory.
 
-Type: [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)
+Type: `number`
 
 ### Methods
 
@@ -46,9 +46,9 @@ Resolves for an Item in the Inventory.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `item` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) | The name or ID of the item. |
+| `item` | `string \| number` | The name or ID of the item. |
 
-**Returns:** [InventoryItem](.InventoryItem.md) | [null](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/null)
+**Returns:** `InventoryItem \| null`
 
 #### contains
 
@@ -60,10 +60,10 @@ Whether an item meets the quantity in the inventory.
 
 | Name | Type | Optional | Default | Description |
 |------|------|----------|---------|-------------|
-| `itemKey` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) |  |  | The name or ID of the item. |
-| `quantity` | [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) | ✓ | `1` | The quantity of the item. |
+| `itemKey` | `string \| number` |  |  | The name or ID of the item. |
+| `quantity` | `number` | ✓ | `1` | The quantity of the item. |
 
-**Returns:** [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
+**Returns:** `boolean`
 
 #### equip
 
@@ -73,7 +73,7 @@ Equips an item from the inventory.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `itemKey` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) | The name or ID of the item. |
+| `itemKey` | `string \| number` | The name or ID of the item. |
 
-**Returns:** [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)<[void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)>
+**Returns:** `Promise<void>`
 

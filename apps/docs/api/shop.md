@@ -10,13 +10,13 @@ outline: deep
 
 #### bot
 
-Type: [Bot](.Bot.md)
+Type: `Bot`
 
 #### info
 
 ​<Badge type="info">getter</Badge>The info about the current loaded shop.
 
-Type: [ShopInfo](./typedefs/ShopInfo.md) | [null](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/null)
+Type: `ShopInfo \| null`
 
 ### Methods
 
@@ -24,7 +24,7 @@ Type: [ShopInfo](./typedefs/ShopInfo.md) | [null](https://developer.mozilla.org/
 
 Whether any shop is loaded.
 
-**Returns:** [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
+**Returns:** `boolean`
 
 #### buyByName
 
@@ -34,10 +34,10 @@ Buy an item from the shop.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `itemName` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) | The name of the item. |
-| `quantity` | [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) \| [null](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/null) | The quantity of the item. If not provided, it will default to 1. |
+| `itemName` | `string` | The name of the item. |
+| `quantity` | `number \| null` | The quantity of the item. If not provided, it will default to 1. |
 
-**Returns:** [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)<[void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)>
+**Returns:** `Promise<void>`
 
 #### buyById
 
@@ -47,16 +47,16 @@ Buy an item from the shop.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `itemId` | [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) | The id of the item. |
-| `quantity` | [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) | he quantity of the item. |
+| `itemId` | `number` | The id of the item. |
+| `quantity` | `number` | he quantity of the item. |
 
-**Returns:** [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)<[void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)>
+**Returns:** `Promise<void>`
 
 #### resetShopInfo
 
 Reset the loaded shop info.
 
-**Returns:** [void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)
+**Returns:** `void`
 
 #### load
 
@@ -66,9 +66,9 @@ Load a shop.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `shopId` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) | The shop ID. |
+| `shopId` | `string \| number` | The shop ID. |
 
-**Returns:** [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)<[void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)>
+**Returns:** `Promise<void>`
 
 #### sell
 
@@ -78,9 +78,9 @@ Sells an entire stack of an item.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `itemKey` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) | The name or ID of the item. |
+| `itemKey` | `string` | The name or ID of the item. |
 
-**Returns:** [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)<[void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)>
+**Returns:** `Promise<void>`
 
 #### loadHairShop
 
@@ -90,13 +90,13 @@ Loads a hair shop.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `shopId` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) | The shop ID. |
+| `shopId` | `string \| number` | The shop ID. |
 
-**Returns:** [void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)
+**Returns:** `void`
 
 #### openArmorCustomizer
 
 Opens the Armor Customization menu.
 
-**Returns:** [void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)
+**Returns:** `void`
 

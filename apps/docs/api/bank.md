@@ -10,31 +10,31 @@ outline: deep
 
 #### bot
 
-Type: [Bot](.Bot.md)
+Type: `Bot`
 
 #### items
 
 ​<Badge type="info">getter</Badge>The list of items in the bank.
 
-Type: [BankItem](.BankItem.md)[]
+Type: `BankItem[]`
 
 #### totalSlots
 
 ​<Badge type="info">getter</Badge>The number of bank slots.
 
-Type: [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)
+Type: `number`
 
 #### usedSlots
 
 ​<Badge type="info">getter</Badge>The number of bank slots currently in use.
 
-Type: [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)
+Type: `number`
 
 #### availableSlots
 
 ​<Badge type="info">getter</Badge>The number of bank slots available.
 
-Type: [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)
+Type: `number`
 
 ### Methods
 
@@ -48,9 +48,9 @@ Gets an item from the Bank.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `itemKey` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) | The name or ID of the item. |
+| `itemKey` | `string \| number` | The name or ID of the item. |
 
-**Returns:** [BankItem](.BankItem.md) | [null](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/null)
+**Returns:** `BankItem \| null`
 
 #### contains
 
@@ -62,10 +62,10 @@ Whether an item meets the quantity in the bank.
 
 | Name | Type | Optional | Default | Description |
 |------|------|----------|---------|-------------|
-| `itemKey` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) |  |  | The name or ID of the item. |
-| `quantity` | [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) | ✓ | `1` | The quantity of the item. |
+| `itemKey` | `string \| number` |  |  | The name or ID of the item. |
+| `quantity` | `number` | ✓ | `1` | The quantity of the item. |
 
-**Returns:** [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
+**Returns:** `boolean`
 
 #### deposit
 
@@ -75,9 +75,9 @@ Puts an item into the bank.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `item` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) | The name or ID of the item. |
+| `item` | `string \| number` | The name or ID of the item. |
 
-**Returns:** [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)<[void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)>
+**Returns:** `Promise<void>`
 
 #### depositMultiple
 
@@ -87,9 +87,9 @@ Puts multiple items into the bank.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `items` | [(string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [number)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)[] | The list of items to deposit. |
+| `items` | `(string \| number)[]` | The list of items to deposit. |
 
-**Returns:** [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)<[void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)>
+**Returns:** `Promise<void>`
 
 #### withdraw
 
@@ -99,9 +99,9 @@ Takes an item out of the bank.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `item` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) | The name or ID of the item. |
+| `item` | `string \| number` | The name or ID of the item. |
 
-**Returns:** [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)<[void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)>
+**Returns:** `Promise<void>`
 
 #### withdrawMultiple
 
@@ -111,9 +111,9 @@ Takes multiple items out of the bank.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `items` | [(string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [number)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)[] | The list of items to withdraw. |
+| `items` | `(string \| number)[]` | The list of items to withdraw. |
 
-**Returns:** [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)<[void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)>
+**Returns:** `Promise<void>`
 
 #### swap
 
@@ -123,10 +123,10 @@ Swaps an item from the bank with an item from the inventory.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `bankItem` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) | The name or ID of the item from the Bank. |
-| `inventoryItem` | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number) | The name or ID of the item from the Inventory. |
+| `bankItem` | `string \| number` | The name or ID of the item from the Bank. |
+| `inventoryItem` | `string \| number` | The name or ID of the item from the Inventory. |
 
-**Returns:** [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)<[void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)>
+**Returns:** `Promise<void>`
 
 #### swapMultiple
 
@@ -136,9 +136,9 @@ Swaps multiple items between the bank and inventory.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `items` | [[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String) \| number, string \| [number]](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)[] | A list of item pairs to swap. |
+| `items` | `[string \| number, string \| number][]` | A list of item pairs to swap. |
 
-**Returns:** [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)<[void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)>
+**Returns:** `Promise<void>`
 
 #### open
 
@@ -148,14 +148,14 @@ Opens the bank ui, and loads all items if needed.
 
 | Name | Type | Optional | Default | Description |
 |------|------|----------|---------|-------------|
-| `force` | [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean) | ✓ | `false` | Whether to force open the bank ui, regardless of whether it's open. |
-| `loadItems` | [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean) | ✓ | `false` | Whether to load all items in the bank, regardless of whether they've been loaded. |
+| `force` | `boolean` | ✓ | `false` | Whether to force open the bank ui, regardless of whether it's open. |
+| `loadItems` | `boolean` | ✓ | `false` | Whether to load all items in the bank, regardless of whether they've been loaded. |
 
-**Returns:** [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)<[void](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void)>
+**Returns:** `Promise<void>`
 
 #### isOpen
 
 Whether the bank ui is open.
 
-**Returns:** [boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)
+**Returns:** `boolean`
 

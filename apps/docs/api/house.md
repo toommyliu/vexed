@@ -10,17 +10,17 @@ outline: deep
 
 #### bot
 
-Type: [Bot](.Bot.md)
+Type: `Bot`
 
 #### items
 
 ​<Badge type="info">getter</Badge>Gets house items of the current player.
 
-Type: [HouseItem](.HouseItem.md)[]
+Type: `HouseItem[]`
 
 #### totalSlots
 
 ​<Badge type="info">getter</Badge>Gets the total number of house item slots.
 
-Type: [number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)
+Type: `number`
 
