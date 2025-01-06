@@ -1,10 +1,15 @@
 # Account Manager
 
-The account manager is shown as a purple V.
+As of writing, the account manager is only accessible through the `launchMode` flag in `settings.json`.
 
-On macOS, it is shown on top of the screen, and on Windows, it is shown in the system tray.
+```json
+{
+  "launchMode": "game" // default // [!code --]
+  "launchMode": "manager" // [!code ++]
+}
+```
 
-Options are available to open a new window or to create a new window under a specific account, with the ability to login to some server.
+Keep track of future development on this here: [#73](https://github.com/toommyliu/vexed/issues/73) [#77](https://github.com/toommyliu/vexed/issues/77)
 
 ::: warning
 

@@ -6,4 +6,4 @@ Logs all packets being sent by the game client.
 
 ## Packet spammer
 
-Self-explanatory.
+Sends packets to the server.

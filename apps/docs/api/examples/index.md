@@ -2,13 +2,17 @@
 outline: deep
 ---
 
-# Examples
+# Example Scripts
+
+These examples showcase just a few possibilities of what is possible. They can be used as-is, or as a starting point for your own scripts.
+
+If you'd like to contribute your own examples, please [open an issue](https://github.com/toommyliu/vexed/issues/new).
 
 ## Shop
 
 ::: code-group
 
-```js:line-numbers {1} [buy by id]
+```js:line-numbers [buy by id]
 const shop_id = 41; // armor shop
 const item_id = 774; // peasant rags
 const quantity = 1;
@@ -17,7 +21,7 @@ await shops.load(shop_id);
 await shops.buyById(item_id, quantity);
 ```
 
-```js:line-numbers {1} [buy by name]
+```js:line-numbers [buy by name]
 const shop_id = 211; // reens' potion shop
 const item_name = 'Scroll of Life Steal';
 const quantity = 99;
@@ -26,7 +30,7 @@ await shops.load(shop_id);
 await shops.buyByName(item_name, quantity);
 ```
 
-```js:line-numbers{1} [sell by name]
+```js:line-numbers [sell by name]
 const shop_id = 211;
 await world.join("arcangrove", "Potion", "Right");
 // technically, we could have loaded any valid shop
@@ -40,7 +44,7 @@ await shops.sell("Mana Potion");
 
 :::code-group
 
-```js:line-numbers {1} [basic]
+```js:line-numbers [basic]
 const id = 11;
 
 await quests.accept(id);
@@ -49,7 +53,7 @@ await combat.killForTempItem("Treeant", "Treeant Branch", 1);
 await quests.complete(id);
 ```
 
-```js:line-numbers {1} [selectable reward]
+```js:line-numbers [selectable reward]
 const questId = 4813;
 await quests.accept(questId);
 await world.join("graveyard-1e99", "Center", "Left");
@@ -57,7 +61,7 @@ await combat.killForTempItem("Skeletal Viking", "Nornir Triad Shard", 12);
 await quests.complete(questId, 1, 33502 /* amulet of glory */);
 ```
 
-```js:line-numbers {1} [commanding shadow essences]
+```js:line-numbers [commanding shadow essences]
 const sdka = "Sepulchure's DoomKnight Armor";
 
 const e1 = "Empowered Essence";
@@ -81,7 +85,7 @@ while (bot.isRunning()) {
 }
 ```
 
-```js:line-numbers {1} [new world new opportunities]
+```js:line-numbers [new world new opportunities]
 const questId = 6697; // nulgath birthday pet
 const start = {};
 const whitelist = [
@@ -143,7 +147,7 @@ while (bot.isRunning()) {
 ## Snippets
 
 ::: code-group
-```js:line-numbers {1} [using auto relogin]
+```js:line-numbers [using auto relogin]
 // auto relogin ONLY relogins you in, at this time.
 bot.on('start', () => {
   // set the login server
@@ -162,7 +166,7 @@ bot.on('logout', () => {
 // rest of your code
 ```
 
-```js:line-numbers {1} [packets]
+```js:line-numbers [packets]
 bot.on('packetFromClient', (packet/*string*/) => {
   // do something
 });
@@ -175,11 +179,11 @@ bot.on('packetFromServer',(packet/*string*/) => {
 packets.sendClient('...', 'str');
 
 // send to server
-packets.sendServer('');
+packets.sendServer('...', 'String');
 
 ```
 
-```js:line-numbers {1} [interacting with drop stack]
+```js:line-numbers [interacting with drop stack]
 // record (object) of all items that have dropped
 for (const [itemId, quantity] of Object.entries(drops.stack)) {
   const itemName = drops.getItemName(itemId);
@@ -201,7 +205,7 @@ if (drops.hasDrop('Treasure Chest')) {
 await drops.pickup('Essence of Nulgath');
 ```
 
-```js:line-numbers {1} [calling flash interop functions]
+```js:line-numbers [calling flash interop functions]
 // window.swf.getGameObject
 // window.swf.getGameObjectS
 // window.swf.setGameObject

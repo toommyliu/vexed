@@ -51,6 +51,9 @@ export default defineConfig({
       pattern: "https://github.com/toommyliu/vexed/edit/main/apps/docs/:path",
       text: "Edit this page on GitHub",
     },
+    search: {
+      provider: "local",
+    },
     lastUpdated: {
       text: "Updated at",
       formatOptions: {
@@ -67,10 +70,21 @@ export default defineConfig({
         text: "Getting Started",
         items: [
           { text: "Downloading", link: "/getting-started/downloading" },
-          { text: "Compiling", link: "/getting-started/compiling" },
-          { text: "Contributing", link: "/getting-started/contributing" },
           { text: "Credits", link: "/getting-started/credits" },
           { text: "Disclaimer", link: "/getting-started/disclaimer" },
+          {
+            text: "Advanced",
+            items: [
+              {
+                text: "Compiling",
+                link: "/getting-started/advanced/compiling",
+              },
+              {
+                text: "Contributing",
+                link: "/getting-started/advanced/contributing",
+              },
+            ],
+          },
         ],
       },
       {
