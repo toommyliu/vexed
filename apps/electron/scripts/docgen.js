@@ -6,8 +6,8 @@ const typeDefinitions = [];
 
 const projectTypes = new Set();
 const classTypes = new Set();
-function createTypeLink(type) {
-	type = type.replace(/\|/g, '\\|');
+function createTypeLink(type, escape) {
+	if (escape) type = type.replace(/\|/g, '\\|');
 	return `\`${type}\``;
 }
 function loadTsConfig(tsconfigPath) {
@@ -523,7 +523,7 @@ function generateMarkdown(
 
 				classDoc.properties.forEach((prop) => {
 					content += `#### ${prop.name}\n\n`;
-					content += `Type: ${createTypeLink(prop.type)}\n\n`;
+					content += `Type: ${createTypeLink(prop.type,false)}\n\n`;
 					content += prop.documentation
 						? `${prop.documentation}\n\n`
 						: '';
@@ -544,7 +544,7 @@ function generateMarkdown(
 						content += `${accessor.documentation}\n\n`;
 					}
 
-					content += `Type: ${createTypeLink(accessor.type)}\n\n`;
+					content += `Type: ${createTypeLink(accessor.type,false)}\n\n`;
 				});
 			}
 
@@ -552,7 +552,7 @@ function generateMarkdown(
 				content += '### Methods\n\n';
 
 				classDoc.methods.forEach((method) => {
-					const returnTypeStr = createTypeLink(method.returnType);
+					const returnTypeStr = createTypeLink(method.returnType,false);
 
 					content += `#### ${method.name}\n\n`;
 					content += method.documentation

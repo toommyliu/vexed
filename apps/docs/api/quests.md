@@ -36,7 +36,7 @@ Resolves for a Quest instance.
 |------|------|-------------|
 | `questId` | `string \| number` | The id of the quest. |
 
-**Returns:** `Quest \| null`
+**Returns:** `Quest | null`
 
 #### load
 

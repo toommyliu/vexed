@@ -16,7 +16,7 @@ Type: `Bot`
 
 ​<Badge type="info">getter</Badge>The info about the current loaded shop.
 
-Type: `ShopInfo \| null`
+Type: `ShopInfo | null`
 
 ### Methods
 

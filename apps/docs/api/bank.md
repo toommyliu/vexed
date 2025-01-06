@@ -50,7 +50,7 @@ Gets an item from the Bank.
 |------|------|-------------|
 | `itemKey` | `string \| number` | The name or ID of the item. |
 
-**Returns:** `BankItem \| null`
+**Returns:** `BankItem | null`
 
 #### contains
 

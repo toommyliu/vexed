@@ -30,7 +30,7 @@ Gets an item from the temp inventory.
 |------|------|-------------|
 | `itemKey` | `string \| number` | The name or ID of the item. |
 
-**Returns:** `TempInventoryItem \| null`
+**Returns:** `TempInventoryItem | null`
 
 #### contains
 

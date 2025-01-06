@@ -34,7 +34,7 @@ Gets an actionscript object at the given location.
 | `path` | `string` |  |  | The path of the object, relative to Game. |
 | `parse` | `boolean` | ✓ | `false` | Whether to call JSON.parse on the return value. |
 
-**Returns:** `T \| null`
+**Returns:** `T | null`
 
 #### getStatic
 
@@ -48,7 +48,7 @@ Gets an actionscript object at the given location.
 | `parse` | `boolean` | ✓ | `false` |  Whether to call JSON.parse on the return value. |
 | `defaultValue` | `null` | ✓ | `null` |  |
 
-**Returns:** `T \| null`
+**Returns:** `T | null`
 
 #### set
 

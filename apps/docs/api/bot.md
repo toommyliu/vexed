@@ -10,7 +10,7 @@ outline: deep
 
 #### ac
 
-Type: `AbortController \| null`
+Type: `AbortController | null`
 
 The AbortController instance.
 
@@ -114,7 +114,7 @@ The TimerManager API class instance.
 
 ​<Badge type="info">getter</Badge>Used to keep track of the current AbortController signal.
 
-Type: `AbortSignal \| null`
+Type: `AbortSignal | null`
 
 ### Methods
 

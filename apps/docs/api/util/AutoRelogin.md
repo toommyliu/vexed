@@ -13,7 +13,7 @@ There are no calls needed to enable auto-relogin besides starting the bot and se
 
 #### server
 
-Type: `string \| null`
+Type: `string | null`
 
 The server name to connect to.
 

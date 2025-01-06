@@ -48,7 +48,7 @@ Resolves for an Item in the Inventory.
 |------|------|-------------|
 | `item` | `string \| number` | The name or ID of the item. |
 
-**Returns:** `InventoryItem \| null`
+**Returns:** `InventoryItem | null`
 
 #### contains
 

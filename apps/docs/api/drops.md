@@ -30,7 +30,7 @@ Retrieves item data using it's ID.
 |------|------|-------------|
 | `itemId` | `number` | The ID of the item. |
 
-**Returns:** `ItemData \| null`
+**Returns:** `ItemData | null`
 
 #### getItemFromName
 
@@ -42,7 +42,7 @@ Retrieves item data using it's name (case-insensitive).
 |------|------|-------------|
 | `itemName` | `string` | The name of the item. |
 
-**Returns:** `ItemData \| null`
+**Returns:** `ItemData | null`
 
 #### getItemName
 
@@ -54,7 +54,7 @@ Retrieves the name of an item using it's ID.
 |------|------|-------------|
 | `itemId` | `number` | The ID of the item. |
 
-**Returns:** `string \| null`
+**Returns:** `string | null`
 
 #### getItemId
 
@@ -66,7 +66,7 @@ Retrieves the ID of an item using it's name.
 |------|------|-------------|
 | `itemName` | `string` | The name of the item. |
 
-**Returns:** `number \| null`
+**Returns:** `number | null`
 
 #### getDropCount
 
