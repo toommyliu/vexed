@@ -84,7 +84,7 @@ See [`FIRST_HALF`](https://github.com/toommyliu/vexed/blob/8619694a139220a56674d
 
 ## Writing Scripts
 
-It's recommended to view the [example scripts](../api/examples) to get a better understanding of how to write your own scripts.
+It's recommended to view the [example scripts](/api/examples/) to get a better understanding of how to write your own scripts.
 
 Because we are essentially running code in the browser, you can use any javascript feature supported by the browser.
 
