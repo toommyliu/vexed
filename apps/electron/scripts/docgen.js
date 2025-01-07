@@ -499,7 +499,7 @@ function generateMarkdown(
 			content += '| Name | Type | Description |\n';
 			content += '|------|------|-------------|\n';
 			typedef.fields.forEach((field) => {
-				content += `| \`${field.name}\` | \`${field.type}\` | ${field.documentation || ''} |\n`;
+				content += `| \`${field.name}\` | ${createTypeLink(field.type, true)} | ${field.documentation || ''} |\n`;
 			});
 		}
 
