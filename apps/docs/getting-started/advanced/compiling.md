@@ -69,8 +69,6 @@ To build: `pnpm build`
 
 ### Electron App
 
-Here’s a simplified clarification of the Electron folder structure:
-
 - **Renderer**: Handles anything the user interacts with (think ui/ux)
 
 - **Main**: Handles internal processes
