@@ -45,6 +45,7 @@ export default defineConfig({
   titleTemplate: false,
   description: "AQW Scripting Client for macOS",
   head: [["script", { src: "/_vercel/insights/script.js" }]],
+  cleanUrls: true,
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     editLink: {
