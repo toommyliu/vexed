@@ -367,7 +367,22 @@ function generateDocs(fileNames, options) {
 			methods: [],
 			properties: [],
 			accessors: [],
+			events: [],
 		};
+
+		function serializeEvent(symbol, declaration) {
+			const details = {
+				name: symbol.getName(),
+				documentation: getJsDocContent(symbol, checker),
+				type: checker.typeToString(
+					checker.getTypeOfSymbolAtLocation(
+						symbol,
+						symbol.valueDeclaration,
+					),
+				),
+			};
+			return details;
+		}
 
 		function serializeAccessor(symbol, declaration) {
 			const details = {
@@ -398,7 +413,13 @@ function generateDocs(fileNames, options) {
 
 			const declaration = declarations[0];
 
-			if (
+			const isEvent = declaration.jsDoc?.some((doc) =>
+				doc.tags?.some((tag) => tag.tagName.text === 'eventProperty'),
+			);
+
+			if (isEvent) {
+				details.events.push(serializeEvent(member, declaration));
+			} else if (
 				ts.isGetAccessor(declaration) ||
 				ts.isSetAccessor(declaration)
 			) {
@@ -535,6 +556,17 @@ function generateMarkdown(documentation, typeDefinitions) {
 				? `${classDoc.documentation}\n\n`
 				: '';
 			content += '---\n\n';
+
+			if (classDoc.events.length > 0) {
+				content += '### Events\n\n';
+				classDoc.events.forEach((event) => {
+					content += `#### ${event.name}\n\n`;
+					content += event.documentation
+						? `${event.documentation}\n\n`
+						: '';
+					content += `Type: ${formatType(event.type, false)}\n\n`;
+				});
+			}
 
 			if (
 				classDoc.properties.length > 0 ||

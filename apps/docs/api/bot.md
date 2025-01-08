@@ -6,6 +6,62 @@ outline: deep
 
 ---
 
+### Events
+
+#### login
+
+This event is emitted when the player logs in.
+
+Type: `() => void`
+
+#### logout
+
+This event is emitted when the player logs out.
+
+Type: `() => void`
+
+#### start
+
+This event is emitted when a script is started.
+
+Type: `() => void`
+
+#### stop
+
+This event is emitted when a script is stopped.
+
+Type: `() => void`
+
+#### error
+
+This event is emitted when an error occurs during a script.
+
+Type: `(error: Error) => void`
+
+#### monsterDeath
+
+This event is emitted when a monster has died and respawned.
+
+Type: `(monster: Monster) => void`
+
+#### packetFromServer
+
+This event is emitted when a packet is received from the server.
+
+Type: `(packet: string) => void`
+
+#### packetFromClient
+
+This event is emitted when a packet is sent to the server.
+
+Type: `(packet: string) => void`
+
+#### playerLeave
+
+This event is emitted when a player leaves the room.
+
+Type: `(playerName: string) => void`
+
 ### Properties
 
 #### ac
