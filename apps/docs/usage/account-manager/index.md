@@ -1,4 +1,10 @@
+---
+outline: deep
+---
+
 # Account Manager
+
+Effortlessly manage and switch between multiple game accounts, streamling opening multiple clients and logging in at once.
 
 As of writing, the account manager is only accessible through the `launchMode` flag in `settings.json`.
 
@@ -9,7 +15,7 @@ As of writing, the account manager is only accessible through the `launchMode` f
 }
 ```
 
-Keep track of future development on this here: [#73](https://github.com/toommyliu/vexed/issues/73) [#77](https://github.com/toommyliu/vexed/issues/77)
+Keep track of future development on this: [#73](https://github.com/toommyliu/vexed/issues/73) [#77](https://github.com/toommyliu/vexed/issues/77)
 
 ::: warning
 

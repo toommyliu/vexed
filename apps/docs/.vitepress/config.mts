@@ -73,7 +73,7 @@ export default defineConfig({
           { text: "Credits", link: "/getting-started/credits" },
           { text: "Disclaimer", link: "/getting-started/disclaimer" },
           {
-            text: "Advanced",
+            text: "For Developers",
             items: [
               {
                 text: "Compiling",
@@ -90,18 +90,20 @@ export default defineConfig({
       {
         text: "Usage",
         items: [
-          { text: "Account Manager", link: "/usage/account-manager" },
+          { text: "Account Manager", link: "/usage/account-manager/" },
           {
-            text: "Scripts",
-            link: "/usage/scripts",
+            text: "Game",
+            link: "/usage/game/",
           },
-          { text: "Tools", link: "/usage/tools" },
-          { text: "Packets", link: "/usage/packets" },
         ],
       },
       {
         text: "Scripting API",
         items: [
+          {
+            text: "Writing Scripts",
+            link: "/api/writing-scripts",
+          },
           {
             text: "Examples",
             link: "/api/examples",

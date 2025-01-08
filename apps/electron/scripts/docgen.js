@@ -4,12 +4,22 @@ const path = require('path');
 
 const typeDefinitions = [];
 
-const projectTypes = new Set();
-const classTypes = new Set();
-function createTypeLink(type, escape) {
+/**
+ * Formats a type string for markdown.
+ * @param {string} type The type to create a link for.
+ * @param {boolean} escape Whether to escape the pipe character, for use in markdown tables.
+ */
+
+function formatType(type, escape) {
 	if (escape) type = type.replace(/\|/g, '\\|');
 	return `\`${type}\``;
 }
+
+/**
+ *
+ * @param {string} tsconfigPath The path to the tsconfig file.
+ * @returns {{compilerOptions: ts.CompilerOptions, fileNames: string[]}} The parsed tsconfig file and file names.
+ */
 function loadTsConfig(tsconfigPath) {
 	const configFile = ts.readConfigFile(tsconfigPath, ts.sys.readFile);
 	if (configFile.error) {
@@ -47,6 +57,10 @@ function ensureDirectoryExists(dirPath) {
 	}
 }
 
+/**
+ * @param {ts.Declaration} node
+ * @returns {boolean} Whether the node is being exported.
+ */
 function isNodeExported(node) {
 	// Check if the node has an export modifier
 	const hasExportModifier =
@@ -65,9 +79,16 @@ function isNodeExported(node) {
 	return hasExportModifier || isTopLevel || isExportDeclaration;
 }
 
-function getJsDocContent(symbol, checker) {
+/**
+ * Parses jsdoc content from a symbol.
+ * @param {ts.Symbol} symbol
+ * @param {ts.TypeChecker} typeChecker
+ * @returns {string} The parsed jsdoc content.
+ */
+function getJsDocContent(symbol, typeChecker) {
 	const documentation =
-		ts.displayPartsToString(symbol.getDocumentationComment(checker)) || '';
+		ts.displayPartsToString(symbol.getDocumentationComment(typeChecker)) ||
+		'';
 
 	const jsDocNodes =
 		symbol.declarations
@@ -75,16 +96,16 @@ function getJsDocContent(symbol, checker) {
 			.flat()
 			.filter(Boolean) || [];
 
-	let fullDocumentation = documentation;
+	let out = documentation;
 
-	jsDocNodes.forEach((jsDoc) => {
-		if (!jsDoc?.tags) return;
+	for (const node of jsDocNodes) {
+		if (!node?.tags) return;
 
-		const remarkTags = jsDoc.tags.filter(
+		// Parse @remarks tags
+		const remarkTags = node.tags.filter(
 			(tag) => tag.tagName.text === 'remarks',
 		);
-
-		remarkTags.forEach((tag) => {
+		for (const tag of remarkTags) {
 			if (tag.comment) {
 				const remarkText =
 					typeof tag.comment === 'string'
@@ -92,18 +113,22 @@ function getJsDocContent(symbol, checker) {
 						: ts.displayPartsToString(tag.comment);
 
 				if (remarkText) {
-					if (fullDocumentation) {
-						fullDocumentation += '\n\n';
-					}
-					fullDocumentation += `**Remarks:** ${remarkText}`;
+					if (out) out += '\n\n';
+
+					out += `**Remarks:** ${remarkText}`;
 				}
 			}
-		});
-	});
+		}
+	}
 
-	return fullDocumentation;
+	return out;
 }
 
+/**
+ * Gets the default value for a node.
+ * @param {ts.Node} node - The node to get the default value of.
+ * @returns {string|undefined} - The default value of the node.
+ */
 function getDefaultValue(node) {
 	if (!node.initializer) return undefined;
 
@@ -135,6 +160,7 @@ function generateDocs(fileNames, options) {
 	const documentation = new Map();
 
 	for (const sourceFile of program.getSourceFiles()) {
+		// Skip
 		if (
 			sourceFile.fileName.includes('node_modules') ||
 			sourceFile.isDeclarationFile
@@ -155,20 +181,18 @@ function generateDocs(fileNames, options) {
 		ts.forEachChild(sourceFile, (node) => visit(node, fileDoc));
 	}
 
-	return { documentation, typeDefinitions, projectTypes, classTypes };
+	return { documentation, typeDefinitions };
 
 	function visit(node, fileDoc) {
 		if (ts.isTypeAliasDeclaration(node)) {
 			const typedef = serializeTypeDefinition(node);
 			typeDefinitions.push(typedef);
-			projectTypes.add(typedef.name);
 			return;
 		}
 
 		if (ts.isEnumDeclaration(node)) {
 			const enumDoc = serializeEnum(node);
 			fileDoc.enums.push(enumDoc);
-			projectTypes.add(enumDoc.name);
 			return;
 		}
 
@@ -182,8 +206,6 @@ function generateDocs(fileNames, options) {
 			if (symbol) {
 				const classDoc = serializeClass(symbol);
 				fileDoc.classes.push(classDoc);
-				projectTypes.add(classDoc.name);
-				classTypes.add(classDoc.name);
 			}
 		} else if (ts.isPropertyDeclaration(node) && node.name) {
 			const symbol = checker.getSymbolAtLocation(node.name);
@@ -193,13 +215,17 @@ function generateDocs(fileNames, options) {
 			if (symbol) {
 				const interfaceDoc = serializeInterface(symbol);
 				fileDoc.interfaces.push(interfaceDoc);
-				projectTypes.add(interfaceDoc.name);
 			}
 		}
 
 		ts.forEachChild(node, (n) => visit(n, fileDoc));
 	}
 
+	/**
+	 *
+	 * @param {ts.Node} node
+	 * @returns
+	 */
 	function serializeEnum(node) {
 		const symbol = checker.getSymbolAtLocation(node.name);
 		return {
@@ -446,12 +472,7 @@ function generateDocs(fileNames, options) {
 	}
 }
 
-function generateMarkdown(
-	documentation,
-	typeDefinitions,
-	projectTypes,
-	classTypes,
-) {
+function generateMarkdown(documentation, typeDefinitions) {
 	const docsDir = '../docs/api';
 	const structsDir = path.join(docsDir, 'structs');
 	const utilDir = path.join(docsDir, 'util');
@@ -499,7 +520,7 @@ function generateMarkdown(
 			content += '| Name | Type | Description |\n';
 			content += '|------|------|-------------|\n';
 			typedef.fields.forEach((field) => {
-				content += `| \`${field.name}\` | ${createTypeLink(field.type, true)} | ${field.documentation || ''} |\n`;
+				content += `| \`${field.name}\` | ${formatType(field.type, true)} | ${field.documentation || ''} |\n`;
 			});
 		}
 
@@ -523,7 +544,7 @@ function generateMarkdown(
 
 				classDoc.properties.forEach((prop) => {
 					content += `#### ${prop.name}\n\n`;
-					content += `Type: ${createTypeLink(prop.type,false)}\n\n`;
+					content += `Type: ${formatType(prop.type, false)}\n\n`;
 					content += prop.documentation
 						? `${prop.documentation}\n\n`
 						: '';
@@ -544,7 +565,7 @@ function generateMarkdown(
 						content += `${accessor.documentation}\n\n`;
 					}
 
-					content += `Type: ${createTypeLink(accessor.type,false)}\n\n`;
+					content += `Type: ${formatType(accessor.type, false)}\n\n`;
 				});
 			}
 
@@ -552,7 +573,7 @@ function generateMarkdown(
 				content += '### Methods\n\n';
 
 				classDoc.methods.forEach((method) => {
-					const returnTypeStr = createTypeLink(method.returnType,false);
+					const returnTypeStr = formatType(method.returnType, false);
 
 					content += `#### ${method.name}\n\n`;
 					content += method.documentation
@@ -578,7 +599,7 @@ function generateMarkdown(
 									param.documentation.startsWith('-')
 										? param.documentation.substring(2)
 										: param.documentation;
-								content += `| \`${param.name}\` | ${createTypeLink(param.type, true)} | ${param.isOptional ? '✓' : ''} | ${param.defaultValue ? `\`${param.defaultValue}\`` : ''} | ${description} |\n`;
+								content += `| \`${param.name}\` | ${formatType(param.type, true)} | ${param.isOptional ? '✓' : ''} | ${param.defaultValue ? `\`${param.defaultValue}\`` : ''} | ${description} |\n`;
 							});
 						} else {
 							content += '**Parameters:**\n\n';
@@ -589,7 +610,7 @@ function generateMarkdown(
 									param.documentation.startsWith('-')
 										? param.documentation.substring(2)
 										: param.documentation;
-								content += `| \`${param.name}\` | ${createTypeLink(param.type, true)} | ${description} |\n`;
+								content += `| \`${param.name}\` | ${formatType(param.type, true)} | ${description} |\n`;
 							});
 						}
 						content += '\n';
@@ -613,19 +634,24 @@ function generateMarkdown(
 	});
 }
 
-try {
+async function docgen() {
 	const { compilerOptions, fileNames } = loadTsConfig('./tsconfig.json');
 
-	const { documentation, typeDefinitions, projectTypes, classTypes } =
-		generateDocs(fileNames, compilerOptions);
+	const { documentation, typeDefinitions } = generateDocs(
+		fileNames,
+		compilerOptions,
+	);
 
-	generateMarkdown(documentation, typeDefinitions, projectTypes, classTypes);
+	generateMarkdown(documentation, typeDefinitions);
 
 	console.log('Documentation generated successfully!');
 	console.log(`Processed ${fileNames.length} files`);
 	console.log(`Generated ${documentation.size} API documentation files`);
 	console.log(`Generated ${typeDefinitions.length} type definition files`);
+}
+
+try {
+	docgen();
 } catch (error) {
-	console.log('Error generating documentation:', error);
-	process.exit(1);
+	console.log('error', error);
 }
