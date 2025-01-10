@@ -1,0 +1,43 @@
+# QuestData
+
+
+
+```typescript
+type QuestData = QuestData
+```
+
+## Fields
+
+| Name | Type | Description |
+|------|------|-------------|
+| `FactionID` | `string` |  |
+| `QuestID` | `string` | The ID of this quest. |
+| `RequiredItems` | `QuestRequiredItemsRaw[]` |  |
+| `Rewards` | `QuestRewards2Raw[]` |  |
+| `bGuild` | `string` |  |
+| `bOnce` | `string` | Whether this quest can only be completed once. |
+| `bStaff` | `string` |  |
+| `bUpg` | `string` |  |
+| `bitSuccess` | `string` |  |
+| `iClass` | `number` |  |
+| `iExp` | `number` | The amount of experience rewarded for completing this quest. |
+| `iGold` | `number` | The amount of gold rewarded for completing this quest. |
+| `iIndex` | `number` |  |
+| `iLvl` | `number` | The required level to accept this quest. |
+| `iRep` | `number` | The amount of reputation rewarded for completing this quest. 0 if not applicable. |
+| `iReqCP` | `number` | The class points required to accept this quest. 0 if not applicable. |
+| `iReqRep` | `number` | The required faction reputation to accept this quest. |
+| `iSlot` | `number` |  |
+| `iValue` | `number` |  |
+| `iWar` | `number` |  |
+| `metaValues` | `Record<string, string>` |  |
+| `oItems` | `Record<string, ItemData>` |  |
+| `oRewards` | `Record<string, QuestRewards2Raw>` |  |
+| `reward` | `QuestRewardRaw[]` |  |
+| `sDesc` | `string` | The description of this quest. |
+| `sEndText` | `string` | The text displayed when this quest can be completed. |
+| `sFaction` | `string` | The name of the faction that this quest is for. |
+| `sField` | `string` |  |
+| `sName` | `string` | The name of this quest. |
+| `status` | `string` | The status of the quest. |
+| `turnin` | `QuestTurnInRaw[]` |  |

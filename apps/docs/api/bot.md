@@ -1,86 +1,208 @@
 ---
-title: Bot
 outline: deep
 ---
-# Bot
-## Properties
-### auth
 
+# Bot ​<Badge type="info">extends EventEmitter</Badge>
 
-### autoRelogin
+---
 
+### Events
 
-### bank
+#### login
 
+This event is emitted when the player logs in.
 
-### combat
+Type: `() => void`
 
+#### logout
 
-### drops
+This event is emitted when the player logs out.
 
+Type: `() => void`
 
-### flash
+#### start
 
+This event is emitted when a script is started.
 
-### house
+Type: `() => void`
 
+#### stop
 
-### inventory
+This event is emitted when a script is stopped.
 
+Type: `() => void`
 
-### packets
+#### error
 
+This event is emitted when an error occurs during a script.
 
-### player
+Type: `(error: Error) => void`
 
+#### monsterDeath
 
-### quests
+This event is emitted when a monster has died and respawned.
 
+Type: `(monster: Monster) => void`
 
-### settings
+#### packetFromServer
 
+This event is emitted when a packet is received from the server.
 
-### shops
+Type: `(packet: string) => void`
 
+#### packetFromClient
 
-### tempInventory
+This event is emitted when a packet is sent to the server.
 
+Type: `(packet: string) => void`
 
-### timerManager
+#### playerLeave
 
+This event is emitted when a player leaves the room.
 
-### world
+Type: `(playerName: string) => void`
 
+### Properties
 
-### running
-Whether the bot is "running".
+#### ac
 
+Type: `AbortController | null`
 
+The AbortController instance.
 
+#### auth
 
-## Methods
-### sleep
-Blocks the current "thread" for the specified number of milliseconds.
+Type: `Auth`
 
+The Auth API class instance.
 
-### start
-Raises the running flag.
+#### bank
 
-This does not start a script, rather merely declares that a script is running.
+Type: `Bank`
 
-For example, the auto relogin background task runs if the bot is running.
+The Bank API class instance.
 
+#### combat
 
-### stop
-Lowers the running flag.
+Type: `Combat`
 
-While this does not stop a script, it removes any background tasks that were set up on start.
+The Combat API class instance.
 
+#### drops
 
-### waitUntil
+Type: `Drops`
+
+The Drops API class instance.
+
+#### house
+
+Type: `House`
+
+The House API class instance.
+
+#### inventory
+
+Type: `Inventory`
+
+The Inventory API class instance.
+
+#### player
+
+Type: `Player`
+
+The local Player API class instance.
+
+#### packets
+
+Type: `Packets`
+
+The Packets API class instance.
+
+#### quests
+
+Type: `Quests`
+
+The Quests API class instance.
+
+#### settings
+
+Type: `Settings`
+
+The Settings API class instance.
+
+#### shops
+
+Type: `Shops`
+
+The Shops API class instance.
+
+#### tempInventory
+
+Type: `TempInventory`
+
+The TempInventory API class instance.
+
+#### world
+
+Type: `World`
+
+The World API class instance.
+
+#### autoRelogin
+
+Type: `AutoRelogin`
+
+The AutoRelogin API class instance.
+
+#### flash
+
+Type: `Flash`
+
+The Flash API class instance.
+
+#### timerManager
+
+Type: `TimerManager`
+
+The TimerManager API class instance.
+
+#### signal
+
+​<Badge type="info">getter</Badge>Used to keep track of the current AbortController signal.
+
+Type: `AbortSignal | null`
+
+### Methods
+
+#### sleep
+
+Pauses execution for a specified amount of time.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `ms` | `number` | The number of milliseconds to wait. |
+
+**Returns:** `Promise<void>`
+
+#### waitUntil
+
 Waits until the condition is met.
 
+**Parameters:**
 
-### getInstance
-Gets the singleton instance of the Bot class.
+| Name | Type | Optional | Default | Description |
+|------|------|----------|---------|-------------|
+| `condition` | `() => boolean` |  |  | The condition to wait for until it returns true. |
+| `prerequisite` | `(() => boolean) \| null` | ✓ | `null` | The prerequisite to be checked before waiting for the condition. |
+| `timeout` | `number` | ✓ | `15` | The maximum number of iterations to wait. -1 to wait indefinitely. |
+
+**Returns:** `Promise<void>`
+
+#### isRunning
+
+Whether the bot is running.
+
+**Returns:** `boolean`
 

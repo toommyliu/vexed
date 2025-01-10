@@ -1,23 +1,47 @@
 ---
-title: TempInventory
 outline: deep
 ---
-# TempInventory
-## Properties
-### bot
 
+# TempInventory 
 
-### items
-Gets items in the Temp Inventory of the player.
+---
 
+### Properties
 
+#### bot
 
+Type: `Bot`
 
-## Methods
-### contains
-Whether an item meets some quantity in this store.
+#### items
 
+​<Badge type="info">getter</Badge>A list of items in the temp inventory.
 
-### get
-Gets an item from the temp. inventory.
+Type: `TempInventoryItem[]`
+
+### Methods
+
+#### get
+
+Gets an item from the temp inventory.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `itemKey` | `string \| number` | The name or ID of the item. |
+
+**Returns:** `TempInventoryItem | null`
+
+#### contains
+
+Whether an item meets the quantity in the temp inventory.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `itemKey` | `string \| number` | The name or ID of the item. |
+| `quantity` | `number` | The quantity of the item. |
+
+**Returns:** `boolean`
 

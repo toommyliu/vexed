@@ -1,66 +1,110 @@
 ---
-title: Settings
 outline: deep
 ---
-# Settings
-`Provoke Map` : If enabled, tags all monsters in the map.
 
- `Provoke Cell` : If enabled, tags all monsters in the current cell.
+# Settings 
 
- `Enemy Magnet` : If enabled, sets the target's position to that of the player.
+---
 
- `Lag Killer` : If enabled, disables rendering of most UI elements.
+### Properties
 
- `Hide Players` : If enabled, hides other players.
+#### counterAttack
 
- `Skip Cutscenes:`  If enabled, skips cutscenes as needed.
+Type: `boolean`
 
- `Walk Speed` : The player's walk speed.
+Whether to automatically stop attacking a Counter Attack is active.
 
-Settings are updated in a background interval every 500ms.
-## Properties
-### bot
+#### bot
 
+Type: `Bot`
 
-### enemyMagnet
-The state of "Enemy Magnet".
+#### infiniteRange
 
+​<Badge type="info">getter</Badge>Whether Infinite Range is enabled.
 
-### hidePlayers
-Whether "Hide Players" is enabled.
+​<Badge type="info">setter</Badge>Sets the state of Infinite Range.
 
+Type: `boolean`
 
-### infiniteRange
-The state of "Infinite Range".
+#### provokeMap
 
+​<Badge type="info">getter</Badge>Whether Provoke Map is enabled.
 
-### lagKiller
-Whether "Lag Killer" is enabled.
+​<Badge type="info">setter</Badge>Sets the state of Provoke Map.
 
+Type: `boolean`
 
-### provokeCell
-The state of "Provoke Cell".
+#### provokeCell
 
+​<Badge type="info">getter</Badge>Whether Provoke Cell is enabled.
 
-### provokeMap
-The state of "Provoke Map".
+​<Badge type="info">setter</Badge>Sets the state of Provoke Cell.
 
+Type: `boolean`
 
-### skipCutscenes
-Whether "Skip Cutscenes" is enabled.
+#### enemyMagnet
 
+​<Badge type="info">getter</Badge>Whether Enemy Magnet is enabled.
 
-### walkSpeed
-The player's walk speed.
+​<Badge type="info">setter</Badge>Sets the state of Enemy Magnet.
 
+Type: `boolean`
 
+#### lagKiller
 
+​<Badge type="info">getter</Badge>Whether Lag Killer is enabled.
 
-## Methods
-### setDeathAds
-Sets the visiblity of death ads.
+​<Badge type="info">setter</Badge>Sets the state of Lag Killer.
 
+Type: `boolean`
 
-### setFPS
-Sets the target client FPS.
+#### hidePlayers
+
+​<Badge type="info">getter</Badge>Whether Hide Players is enabled.
+
+​<Badge type="info">setter</Badge>Sets the state of Hide Players.
+
+Type: `boolean`
+
+#### skipCutscenes
+
+​<Badge type="info">getter</Badge>Whether Skip Cutscenes is enabled.
+
+​<Badge type="info">setter</Badge>Sets the state of Skip Cutscenes.
+
+Type: `boolean`
+
+#### walkSpeed
+
+​<Badge type="info">getter</Badge>The player's walk speed.
+
+​<Badge type="info">setter</Badge>Sets the player's walk speed.
+
+Type: `number`
+
+### Methods
+
+#### setFps
+
+Sets the client target fps.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `fps` | `string \| number` | The target fps. |
+
+**Returns:** `void`
+
+#### setDeathAds
+
+Sets the visibility of death ads.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `on` | `boolean` | If true, shows death ads. Otherwise, they are hidden. |
+
+**Returns:** `void`
 

@@ -27,16 +27,13 @@
 		"@typescript-eslint/eslint-plugin": "^8.4.0",
 		"@typescript-eslint/parser": "^8.4.0",
 		"concurrently": "^8.2.2",
-		"doxxx": "^2.0.7",
 		"electron": "^11.5.0",
 		"electron-builder": "^24.13.3",
 		"electronmon": "^2.0.3",
 		"esbuild": "^0.23.1",
 		"eslint": "^9.10.0",
 		"eslint-config-neon": "^0.2.0",
-		"nodemon": "^3.1.7",
 		"prettier": "^3.3.3",
-		"typedoc": "^0.26.7",
 		"typescript": "^5.5.4"
 	},
 	"electronmon": {

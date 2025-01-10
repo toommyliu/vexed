@@ -1,55 +1,161 @@
 ---
-title: Bank
 outline: deep
 ---
-# Bank
-## Properties
-### bot
 
+# Bank 
 
-### availableSlots
-Gets the count of available slots of bankable non-AC items.
+---
 
+### Properties
 
-### items
-The list of items in the bank.
+#### bot
 
+Type: `Bot`
 
-### totalSlots
-Gets the total slots of bankable non-AC items.
+#### items
 
+​<Badge type="info">getter</Badge>The list of items in the bank.
 
-### usedSlots
-Gets the count of used slots of bankable non-AC items.
+Type: `BankItem[]`
 
+#### totalSlots
 
+​<Badge type="info">getter</Badge>The number of bank slots.
 
+Type: `number`
 
-## Methods
-### contains
-Whether the item meets some quantity in this store.
+#### usedSlots
 
+​<Badge type="info">getter</Badge>The number of bank slots currently in use.
 
-### deposit
-Puts an item into the Bank.
+Type: `number`
 
+#### availableSlots
 
-### get
-Gets an item from the Bank, items should be loaded beforehand.
+​<Badge type="info">getter</Badge>The number of bank slots available.
 
+Type: `number`
 
-### isOpen
-Whether the bank ui is open.
+### Methods
 
+#### get
 
-### open
-Opens the bank ui, and loads all items.
+Gets an item from the Bank.
 
+**Remarks:** Bank items must have been loaded beforehand to retrieve an item.
 
-### swap
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `itemKey` | `string \| number` | The name or ID of the item. |
+
+**Returns:** `BankItem | null`
+
+#### contains
+
+Whether an item meets the quantity in the bank.
+
+**Remarks:** If the item is a Class, the quantity is ignored.
+
+**Parameters:**
+
+| Name | Type | Optional | Default | Description |
+|------|------|----------|---------|-------------|
+| `itemKey` | `string \| number` |  |  | The name or ID of the item. |
+| `quantity` | `number` | ✓ | `1` | The quantity of the item. |
+
+**Returns:** `boolean`
+
+#### deposit
+
+Puts an item into the bank.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `item` | `string \| number` | The name or ID of the item. |
+
+**Returns:** `Promise<void>`
+
+#### depositMultiple
+
+Puts multiple items into the bank.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `items` | `(string \| number)[]` | The list of items to deposit. |
+
+**Returns:** `Promise<void>`
+
+#### withdraw
+
+Takes an item out of the bank.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `item` | `string \| number` | The name or ID of the item. |
+
+**Returns:** `Promise<void>`
+
+#### withdrawMultiple
+
+Takes multiple items out of the bank.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `items` | `(string \| number)[]` | The list of items to withdraw. |
+
+**Returns:** `Promise<void>`
+
+#### swap
+
 Swaps an item from the bank with an item from the inventory.
 
+**Parameters:**
 
-### withdraw
-Takes an item out of the bank.
+| Name | Type | Description |
+|------|------|-------------|
+| `bankItem` | `string \| number` | The name or ID of the item from the Bank. |
+| `inventoryItem` | `string \| number` | The name or ID of the item from the Inventory. |
+
+**Returns:** `Promise<void>`
+
+#### swapMultiple
+
+Swaps multiple items between the bank and inventory.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `items` | `[string \| number, string \| number][]` | A list of item pairs to swap. |
+
+**Returns:** `Promise<void>`
+
+#### open
+
+Opens the bank ui, and loads all items if needed.
+
+**Parameters:**
+
+| Name | Type | Optional | Default | Description |
+|------|------|----------|---------|-------------|
+| `force` | `boolean` | ✓ | `false` | Whether to force open the bank ui, regardless of whether it's open. |
+| `loadItems` | `boolean` | ✓ | `false` | Whether to load all items in the bank, regardless of whether they've been loaded. |
+
+**Returns:** `Promise<void>`
+
+#### isOpen
+
+Whether the bank ui is open.
+
+**Returns:** `boolean`
 

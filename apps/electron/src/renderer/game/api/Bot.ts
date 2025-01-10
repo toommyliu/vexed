@@ -12,11 +12,78 @@ import { Settings } from './Settings';
 import { Shops } from './Shop';
 import { TempInventory } from './TempInventory';
 import { World } from './World';
+import type { Monster } from './struct/Monster';
 import { AutoRelogin } from './util/AutoRelogin';
 import { Flash } from './util/Flash';
 import { TimerManager } from './util/TimerManager';
 
 export class Bot extends EventEmitter {
+	/**
+	 * This event is emitted when the player logs in.
+	 *
+	 * @eventProperty
+	 */
+	public readonly login!: () => void;
+
+	/**
+	 * This event is emitted when the player logs out.
+	 *
+	 * @eventProperty
+	 */
+	public readonly logout!: () => void;
+
+	/**
+	 * This event is emitted when a script is started.
+	 *
+	 * @eventProperty
+	 */
+	public readonly start!: () => void;
+
+	/**
+	 * This event is emitted when a script is stopped.
+	 *
+	 * @eventProperty
+	 */
+	public readonly stop!: () => void;
+
+	/**
+	 * This event is emitted when an error occurs during a script.
+	 *
+	 * @eventProperty
+	 */
+	public readonly error!: (error: Error) => void;
+
+	/**
+	 * This event is emitted when a monster has died and respawned.
+	 *
+	 * @eventProperty
+	 */
+	public readonly monsterDeath!: (monster: Monster) => void;
+
+	/**
+	 * This event is emitted when a packet is received from the server.
+	 *
+	 * @eventProperty
+	 */
+	public readonly packetFromServer!: (packet: string) => void;
+
+	/**
+	 * This event is emitted when a packet is sent to the server.
+	 *
+	 * @eventProperty
+	 */
+	public readonly packetFromClient!: (packet: string) => void;
+
+	/**
+	 * This event is emitted when a player leaves the room.
+	 *
+	 * @eventProperty
+	 */
+	public readonly playerLeave!: (playerName: string) => void;
+
+	/**
+	 * The AbortController instance.
+	 */
 	public ac: AbortController | null = null;
 
 	/**
@@ -183,6 +250,9 @@ export class Bot extends EventEmitter {
 		return this.ac !== null && !this.ac.signal.aborted;
 	}
 
+	/**
+	 * Used to keep track of the current AbortController signal.
+	 */
 	public get signal(): AbortSignal | null {
 		return this.ac?.signal ?? null;
 	}

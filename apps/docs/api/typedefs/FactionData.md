@@ -1,0 +1,19 @@
+# FactionData
+
+
+
+```typescript
+type FactionData = FactionData
+```
+
+## Fields
+
+| Name | Type | Description |
+|------|------|-------------|
+| `CharFactionID` | `string` |  |
+| `FactionID` | `string` | The ID of the faction. |
+| `iRank` | `number` | The rank that the player has achieved in this faction. |
+| `iRep` | `number` | The total amount of rep the player has for this faction. |
+| `iRepToRank` | `number` | The total required rep for the player to rank up. |
+| `iSpillRep` | `number` | The amount of rep the player has for their current rank. |
+| `sName` | `string` | The name of the faction. |

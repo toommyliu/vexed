@@ -1,59 +1,134 @@
 ---
-title: Combat
 outline: deep
 ---
-# Combat
-A  `monsterResolvable`  is either a monster name or monMapID prefixed with  `id`  and delimited by a  `'` ,  `.` ,  `:` ,  `-`  character.
-## Properties
-### bot
 
+# Combat 
 
-### pauseAttack
+A `monsterResolvable` is either a monster name or monMapID prefixed with `id` and delimited by a `'`, `.`, `:`, `-` character.
 
+---
 
-### target
-Returns information about the target.
+### Properties
 
+#### pauseAttack
 
+Type: `boolean`
 
+#### bot
 
-## Methods
-### attack
-Attacks a monster.
+Type: `Bot`
 
+#### target
 
-### cancelAutoAttack
-Cancels an auto attack.
+​<Badge type="info">getter</Badge>Returns information about the target.
 
+Type: `Record<string, unknown> | null`
 
-### cancelTarget
-Cancels the current target.
+### Methods
 
+#### hasTarget
 
-### exit
-Attempts to exit from combat.
-
-
-### hasTarget
 Whether the player has a target.
 
+**Returns:** `boolean`
 
-### kill
+#### useSkill
+
+Casts a skill.
+
+**Parameters:**
+
+| Name | Type | Optional | Default | Description |
+|------|------|----------|---------|-------------|
+| `index` | `string \| number` |  |  | The index of the skill. Skills range from 0 (skill 1) to 5 (potions). |
+| `force` | `boolean` | ✓ | `false` | Whether to use the skill regardless if there is a target. |
+| `wait` | `boolean` | ✓ | `false` | Whether to wait for the skill to be available. |
+
+**Returns:** `Promise<void>`
+
+#### attack
+
+Attacks a monster.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `monsterResolvable` | `string` | The name or monMapID of the monster. |
+
+**Returns:** `void`
+
+#### cancelTarget
+
+Cancels the current target.
+
+**Returns:** `void`
+
+#### cancelAutoAttack
+
+Cancels an auto attack.
+
+**Returns:** `void`
+
+#### kill
+
 Kills a monster.
 
+**Parameters:**
 
-### killForItem
-Kills the monster until the expected quantity of the item is collected in the Inventory.
+| Name | Type | Optional | Default | Description |
+|------|------|----------|---------|-------------|
+| `monsterResolvable` | `string` |  |  | The name or monMapId of the monster. |
+| `options` | `Partial<KillOptions>` | ✓ | `{}` | The optional configuration to use for the kill. |
 
+**Returns:** `Promise<void>`
 
-### killForTempItem
-Kills the monster until the expected quantity of the item is collected in the Temp Inventory.
+#### killForItem
 
+Kills the monster until the quantity of the item is met in the inventory.
 
-### rest
+**Parameters:**
+
+| Name | Type | Optional | Default | Description |
+|------|------|----------|---------|-------------|
+| `monsterResolvable` | `string` |  |  | The name or monMapID of the monster. |
+| `itemName` | `string` |  |  | The name or ID of the item. |
+| `targetQty` | `number` |  |  | The quantity of the item. |
+| `options` | `Partial<KillOptions>` | ✓ | `{}` | The configuration to use for the kill. |
+
+**Returns:** `Promise<void>`
+
+#### killForTempItem
+
+Kills the monster until the quantity of the item is met in the temp inventory.
+
+**Parameters:**
+
+| Name | Type | Optional | Default | Description |
+|------|------|----------|---------|-------------|
+| `monsterResolvable` | `string` |  |  | The name or monMapID of the monster. |
+| `itemName` | `string` |  |  | The name or ID of the item. |
+| `targetQty` | `number` |  |  | The quantity of the item. |
+| `options` | `Partial<KillOptions>` | ✓ | `{}` | The configuration to use for the kill. |
+
+**Returns:** `Promise<void>`
+
+#### rest
+
 Rests the player.
 
+**Parameters:**
 
-### useSkill
-Casts a skill.
+| Name | Type | Optional | Default | Description |
+|------|------|----------|---------|-------------|
+| `full` | `boolean` | ✓ | `false` | Whether to rest until max hp and mp are reached. |
+| `exit` | `boolean` | ✓ | `false` | Whether to exit combat before attempting to rest. |
+
+**Returns:** `Promise<void>`
+
+#### exit
+
+Attempts to exit from combat.
+
+**Returns:** `Promise<void>`
 
