@@ -19,16 +19,26 @@ const walk = (dir) => {
 
 walk(apiDir);
 
-const enums = md.filter((path) => path.includes('/enums/'));
-const examples = md.filter((path) => path.includes('/examples/'));
-const structs = md.filter((path) => path.includes('/structs/'));
-const typedefs = md.filter((path) => path.includes('/typedefs/'));
-const util = md.filter((path) => path.includes('/util/'));
+const enums = md
+  .filter((path) => path.includes('/enums/'))
+  .sort((a, b) => basename(a).localeCompare(basename(b)));
+const examples = md
+  .filter((path) => path.includes('/examples/'))
+  .sort((a, b) => basename(a).localeCompare(basename(b)));
+const structs = md
+  .filter((path) => path.includes('/structs/'))
+  .sort((a, b) => basename(a).localeCompare(basename(b)));
+const typedefs = md
+  .filter((path) => path.includes('/typedefs/'))
+  .sort((a, b) => basename(a).localeCompare(basename(b)));
+const util = md
+  .filter((path) => path.includes('/util/'))
+  .sort((a, b) => basename(a).localeCompare(b));
 const excluded = [...enums, ...examples, ...structs, ...typedefs, ...util];
 
-const rest = md.filter(
-  (path) => !excluded.includes(path) && !path.includes('variables')
-);
+const rest = md
+  .filter((path) => !excluded.includes(path) && !path.includes('variables'))
+  .sort((a, b) => basename(a).localeCompare(basename(b)));
 
 function getMarkdownTitle(filePath: string): string {
   try {
