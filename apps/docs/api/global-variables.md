@@ -29,7 +29,6 @@ The following global variables are available:
 ## Utilities
 
 - `flash`: [Flash](./util/Flash) instance
-- `timerManager
 
 ## Enums
 - `GameAction`: [GameAction](./enums/GameAction.md) enum
