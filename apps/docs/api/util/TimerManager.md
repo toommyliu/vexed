@@ -2,11 +2,11 @@
 outline: deep
 ---
 
-# SetIntervalAsyncTimer
+# SetIntervalAsyncTimer 
 
 ---
 
-# TimerManager
+# TimerManager 
 
 Manager for timers and intervals.
 

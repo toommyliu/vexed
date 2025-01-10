@@ -2,7 +2,7 @@
 outline: deep
 ---
 
-# Avatar
+# Avatar 
 
 Represents a player in the game.
 

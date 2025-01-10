@@ -2,7 +2,7 @@
 outline: deep
 ---
 
-# Bot
+# Bot ​<Badge type="info">extends EventEmitter</Badge>
 
 ---
 

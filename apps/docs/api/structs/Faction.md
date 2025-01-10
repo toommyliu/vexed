@@ -2,7 +2,7 @@
 outline: deep
 ---
 
-# Faction
+# Faction 
 
 Represents a game faction.
 

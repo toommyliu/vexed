@@ -489,6 +489,22 @@ function generateDocs(fileNames, options) {
 			}
 		});
 
+		if (
+			symbol.valueDeclaration &&
+			ts.isClassDeclaration(symbol.valueDeclaration)
+		) {
+			const heritageClauses = symbol.valueDeclaration.heritageClauses;
+			if (heritageClauses) {
+				for (const clause of heritageClauses) {
+					if (clause.token === ts.SyntaxKind.ExtendsKeyword) {
+						const baseClass = clause.types[0];
+						details.extends = baseClass.expression.getText();
+						break;
+					}
+				}
+			}
+		}
+
 		return details;
 	}
 }
@@ -551,7 +567,7 @@ function generateMarkdown(documentation, typeDefinitions) {
 		let content = `---\noutline: deep\n---\n\n`;
 
 		fileDoc.classes.forEach((classDoc) => {
-			content += `# ${classDoc.name}\n\n`;
+			content += `# ${classDoc.name} ${classDoc.extends ? `​<Badge type="info">extends ${classDoc.extends}</Badge>` : ''}\n\n`;
 			content += classDoc.documentation
 				? `${classDoc.documentation}\n\n`
 				: '';

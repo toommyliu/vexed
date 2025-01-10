@@ -2,7 +2,7 @@
 outline: deep
 ---
 
-# BankItem
+# BankItem ​<Badge type="info">extends Item</Badge>
 
 Represents an item in the bank.
 

@@ -2,7 +2,7 @@
 outline: deep
 ---
 
-# HouseItem
+# HouseItem ​<Badge type="info">extends Item</Badge>
 
 Represents a house item.
 

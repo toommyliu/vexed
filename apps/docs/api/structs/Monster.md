@@ -2,7 +2,7 @@
 outline: deep
 ---
 
-# Monster
+# Monster 
 
 Represents a monster.
 

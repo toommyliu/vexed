@@ -2,7 +2,7 @@
 outline: deep
 ---
 
-# Quest
+# Quest 
 
 Represents a quest.
 

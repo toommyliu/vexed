@@ -2,7 +2,7 @@
 outline: deep
 ---
 
-# Inventory
+# Inventory 
 
 ---
 

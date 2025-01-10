@@ -2,7 +2,7 @@
 outline: deep
 ---
 
-# InventoryItem
+# InventoryItem ​<Badge type="info">extends Item</Badge>
 
 Represents an item in the inventory.
 

@@ -2,7 +2,7 @@
 outline: deep
 ---
 
-# Combat
+# Combat 
 
 A `monsterResolvable` is either a monster name or monMapID prefixed with `id` and delimited by a `'`, `.`, `:`, `-` character.
 
