@@ -1,10 +1,10 @@
-import { defineConfig } from "vitepress";
+import { defineConfig } from 'vitepress';
 
-import { join, basename } from "node:path";
-import fs from "node:fs";
+import { join, basename } from 'node:path';
+import fs from 'node:fs';
 
 const md: string[] = [];
-const apiDir = join(__dirname, "../api/");
+const apiDir = join(__dirname, '../api/');
 const walk = (dir) => {
   const files = fs.readdirSync(dir, { withFileTypes: true });
   for (const file of files) {
@@ -19,94 +19,100 @@ const walk = (dir) => {
 
 walk(apiDir);
 
-const enums = md.filter((path) => path.includes("/enums/"));
-const examples = md.filter((path) => path.includes("/examples/"));
-const structs = md.filter((path) => path.includes("/structs/"));
-const typedefs = md.filter((path) => path.includes("/typedefs/"));
-const util = md.filter((path) => path.includes("/util/"));
+const enums = md.filter((path) => path.includes('/enums/'));
+const examples = md.filter((path) => path.includes('/examples/'));
+const structs = md.filter((path) => path.includes('/structs/'));
+const typedefs = md.filter((path) => path.includes('/typedefs/'));
+const util = md.filter((path) => path.includes('/util/'));
 const excluded = [...enums, ...examples, ...structs, ...typedefs, ...util];
 
-const rest = md.filter((path) => !excluded.includes(path));
+const rest = md.filter(
+  (path) => !excluded.includes(path) && !path.includes('variables')
+);
 
 function getMarkdownTitle(filePath: string): string {
   try {
-    const content = fs.readFileSync(filePath, "utf-8");
+    const content = fs.readFileSync(filePath, 'utf-8');
     const match = content.match(/^#\s+([^<\n]+)/m);
-    return match ? match[1].trim() : basename(filePath, ".md");
+    return match ? match[1].trim() : basename(filePath, '.md');
   } catch (error) {
     console.error(`Error reading file ${filePath}:`, error);
-    return basename(filePath, ".md");
+    return basename(filePath, '.md');
   }
 }
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: "Vexed",
+  title: 'Vexed',
   titleTemplate: false,
-  description: "Crossplatform AQW Scripting Client",
-  head: [["script", { src: "/_vercel/insights/script.js" }]],
+  description: 'Crossplatform AQW Scripting Client',
+  head: [['script', { src: '/_vercel/insights/script.js' }]],
   cleanUrls: true,
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     editLink: {
-      pattern: "https://github.com/toommyliu/vexed/edit/main/apps/docs/:path",
-      text: "Edit this page on GitHub",
+      pattern: 'https://github.com/toommyliu/vexed/edit/main/apps/docs/:path',
+      text: 'Edit this page on GitHub',
     },
     search: {
-      provider: "local",
+      provider: 'local',
     },
     lastUpdated: {
-      text: "Updated at",
+      text: 'Updated at',
       formatOptions: {
-        dateStyle: "full",
-        timeStyle: "medium",
+        dateStyle: 'full',
+        timeStyle: 'medium',
       },
     },
     nav: [
-      { text: "Home", link: "/" },
-      { text: "API Reference", link: "/api" },
+      { text: 'Home', link: '/' },
+      { text: 'API Reference', link: '/api' },
     ],
     sidebar: [
       {
-        text: "Getting Started",
+        text: 'Getting Started',
         items: [
-          { text: "Downloading", link: "/getting-started/downloading" },
-          { text: "Credits", link: "/getting-started/credits" },
-          { text: "Disclaimer", link: "/getting-started/disclaimer" },
+          { text: 'Downloading', link: '/getting-started/downloading' },
+          { text: 'Credits', link: '/getting-started/credits' },
+          { text: 'Disclaimer', link: '/getting-started/disclaimer' },
           {
-            text: "For Developers",
+            text: 'For Developers',
             items: [
               {
-                text: "Compiling",
-                link: "/getting-started/advanced/compiling",
+                text: 'Compiling',
+                link: '/getting-started/advanced/compiling',
               },
               {
-                text: "Contributing",
-                link: "/getting-started/advanced/contributing",
+                text: 'Contributing',
+                link: '/getting-started/advanced/contributing',
               },
             ],
           },
         ],
       },
       {
-        text: "Usage",
+        text: 'Usage',
         items: [
-          { text: "Account Manager", link: "/usage/account-manager/" },
+          { text: 'Account Manager', link: '/usage/account-manager/' },
           {
-            text: "Game",
-            link: "/usage/game/",
+            text: 'Game',
+            link: '/usage/game/',
           },
         ],
       },
       {
-        text: "Scripting API",
+        text: 'Scripting API',
         items: [
           {
-            text: "Examples",
-            link: "/api/examples",
+            text: 'Globals Variables',
+            link: '/api/global-variables',
           },
           {
-            text: "Data Types",
+            text: 'Examples',
+            link: '/api/examples',
+          },
+          {
+            text: 'Data Types',
             items: structs.map((path) => ({
               text: getMarkdownTitle(path),
               link: `/api/structs/${basename(path)}`,
@@ -114,7 +120,7 @@ export default defineConfig({
             collapsed: true,
           },
           {
-            text: "Enums",
+            text: 'Enums',
             items: enums.map((path) => ({
               text: getMarkdownTitle(path),
               link: `/api/enums/${basename(path)}`,
@@ -122,7 +128,7 @@ export default defineConfig({
             collapsed: true,
           },
           {
-            text: "Typedefs",
+            text: 'Typedefs',
             items: typedefs.map((path) => ({
               text: getMarkdownTitle(path),
               link: `/api/typedefs/${basename(path)}`,
@@ -130,7 +136,7 @@ export default defineConfig({
             collapsed: true,
           },
           {
-            text: "Util",
+            text: 'Util',
             items: util.map((path) => ({
               text: getMarkdownTitle(path),
               link: `/api/util/${basename(path)}`,
@@ -145,7 +151,7 @@ export default defineConfig({
       },
     ],
     socialLinks: [
-      { icon: "github", link: "https://github.com/toommyliu/vexed" },
+      { icon: 'github', link: 'https://github.com/toommyliu/vexed' },
     ],
   },
 });
