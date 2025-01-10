@@ -43,7 +43,7 @@ function getMarkdownTitle(filePath: string): string {
 export default defineConfig({
   title: "Vexed",
   titleTemplate: false,
-  description: "AQW Scripting Client for macOS",
+  description: "Crossplatform AQW Scripting Client",
   head: [["script", { src: "/_vercel/insights/script.js" }]],
   cleanUrls: true,
   themeConfig: {
@@ -101,10 +101,6 @@ export default defineConfig({
       {
         text: "Scripting API",
         items: [
-          {
-            text: "Writing Scripts",
-            link: "/api/writing-scripts",
-          },
           {
             text: "Examples",
             link: "/api/examples",
