@@ -3,7 +3,7 @@ import type { Bot } from './Bot';
 import { PlayerState } from './Player';
 import { GameAction } from './World';
 import type { SetIntervalAsyncTimer } from './util/TimerManager';
-import { isMonsterMapId, makeInterruptible } from './util/utils';
+import { isMonsterMapId } from './util/utils';
 
 const DEFAULT_KILL_OPTIONS: KillOptions = {
 	killPriority: [],
@@ -137,109 +137,103 @@ export class Combat {
 	): Promise<void> {
 		if (!this.bot.player.isReady()) return;
 
-		await makeInterruptible(async () => {
-			await this.bot.waitUntil(
-				() => this.bot.world.isMonsterAvailable(monsterResolvable),
-				null,
-				3,
-			);
+		await this.bot.waitUntil(
+			() => this.bot.world.isMonsterAvailable(monsterResolvable),
+			null,
+			3,
+		);
 
-			const opts = merge({}, DEFAULT_KILL_OPTIONS, options);
-			const { killPriority, skillSet, skillDelay, skillWait } = opts;
-			let skillIndex = 0;
+		const opts = merge({}, DEFAULT_KILL_OPTIONS, options);
+		const { killPriority, skillSet, skillDelay, skillWait } = opts;
+		let skillIndex = 0;
 
-			return new Promise<void>((resolve) => {
-				let combatTimer: SetIntervalAsyncTimer<unknown[]> | null = null;
-				let checkTimer: SetIntervalAsyncTimer<unknown[]> | null = null;
+		return new Promise<void>((resolve) => {
+			let combatTimer: SetIntervalAsyncTimer<unknown[]> | null = null;
+			let checkTimer: SetIntervalAsyncTimer<unknown[]> | null = null;
 
-				const cleanup = async () => {
-					if (combatTimer) {
-						const tmp = combatTimer;
-						await this.bot.timerManager.clearInterval(tmp);
-						if (combatTimer === tmp) {
-							combatTimer = null;
-						}
+			const cleanup = async () => {
+				if (combatTimer) {
+					const tmp = combatTimer;
+					await this.bot.timerManager.clearInterval(tmp);
+					if (combatTimer === tmp) {
+						combatTimer = null;
 					}
+				}
 
-					if (checkTimer) {
-						const tmp = checkTimer;
-						await this.bot.timerManager.clearInterval(tmp);
-						if (checkTimer === tmp) {
-							checkTimer = null;
-						}
+				if (checkTimer) {
+					const tmp = checkTimer;
+					await this.bot.timerManager.clearInterval(tmp);
+					if (checkTimer === tmp) {
+						checkTimer = null;
 					}
+				}
 
+				this.cancelAutoAttack();
+				this.cancelTarget();
+			};
+
+			combatTimer = this.bot.timerManager.setInterval(async () => {
+				if (this.pauseAttack) {
 					this.cancelAutoAttack();
 					this.cancelTarget();
-				};
+					await this.bot.waitUntil(() => !this.pauseAttack, null, -1);
+					return;
+				}
 
-				combatTimer = this.bot.timerManager.setInterval(async () => {
-					if (this.pauseAttack) {
-						this.cancelAutoAttack();
-						this.cancelTarget();
-						await this.bot.waitUntil(
-							() => !this.pauseAttack,
-							null,
-							-1,
-						);
-						return;
+				const _name = monsterResolvable.toLowerCase();
+				if (
+					_name === 'escherion' &&
+					this.bot.world.isMonsterAvailable('Staff of Inversion')
+				) {
+					this.attack('Staff of Inversion');
+				} else if (
+					_name === 'vath' &&
+					this.bot.world.isMonsterAvailable('Stalagbite')
+				) {
+					this.attack('Stalagbite');
+				}
+
+				const kp = Array.isArray(killPriority)
+					? killPriority
+					: killPriority.split(',');
+
+				for (const target of kp) {
+					if (this.bot.world.isMonsterAvailable(target)) {
+						this.attack(target);
+						break;
 					}
+				}
 
-					const _name = monsterResolvable.toLowerCase();
-					if (
-						_name === 'escherion' &&
-						this.bot.world.isMonsterAvailable('Staff of Inversion')
-					) {
-						this.attack('Staff of Inversion');
-					} else if (
-						_name === 'vath' &&
-						this.bot.world.isMonsterAvailable('Stalagbite')
-					) {
-						this.attack('Stalagbite');
+				if (!this.hasTarget()) {
+					this.attack(monsterResolvable);
+				}
+
+				if (this.hasTarget()) {
+					const skill = skillSet[skillIndex]!;
+					skillIndex = (skillIndex + 1) % skillSet.length;
+
+					await this.useSkill(String(skill), false, skillWait);
+					await this.bot.sleep(skillDelay);
+				}
+			}, 0);
+
+			// Queue the checkTimer to run as soon as possible
+			process.nextTick(() => {
+				checkTimer = this.bot.timerManager.setInterval(async () => {
+					const isIdle =
+						this.bot.player.state === PlayerState.Idle &&
+						!this.bot.player.isAFK();
+					const noTarget = !this.hasTarget();
+					const shouldComplete =
+						noTarget && isIdle && !this.pauseAttack;
+
+					if (shouldComplete) {
+						await cleanup();
+						resolve();
 					}
-
-					const kp = Array.isArray(killPriority)
-						? killPriority
-						: killPriority.split(',');
-
-					for (const target of kp) {
-						if (this.bot.world.isMonsterAvailable(target)) {
-							this.attack(target);
-							break;
-						}
-					}
-
-					if (!this.hasTarget()) {
-						this.attack(monsterResolvable);
-					}
-
-					if (this.hasTarget()) {
-						const skill = skillSet[skillIndex]!;
-						skillIndex = (skillIndex + 1) % skillSet.length;
-
-						await this.useSkill(String(skill), false, skillWait);
-						await this.bot.sleep(skillDelay);
-					}
-				}, 0);
-
-				// Queue the checkTimer to run as soon as possible
-				process.nextTick(() => {
-					checkTimer = this.bot.timerManager.setInterval(async () => {
-						const isIdle =
-							this.bot.player.state === PlayerState.Idle &&
-							!this.bot.player.isAFK();
-						const noTarget = !this.hasTarget();
-						const shouldComplete =
-							noTarget && isIdle && !this.pauseAttack;
-
-						if (shouldComplete) {
-							await cleanup();
-							resolve();
-						}
-					}, 100);
-				});
+				}, 100);
 			});
-		}, this.bot.signal);
+		});
 	}
 
 	/**
@@ -295,34 +289,32 @@ export class Combat {
 		isTemp = false,
 		options: Partial<KillOptions> = {},
 	): Promise<void> {
-		return makeInterruptible(async () => {
-			const opts = merge({}, DEFAULT_KILL_OPTIONS, options);
-			const store = isTemp ? this.bot.tempInventory : this.bot.inventory;
+		const opts = merge({}, DEFAULT_KILL_OPTIONS, options);
+		const store = isTemp ? this.bot.tempInventory : this.bot.inventory;
 
-			const hasRequiredItems = () => store.contains(itemName, targetQty);
+		const hasRequiredItems = () => store.contains(itemName, targetQty);
 
-			if (hasRequiredItems()) return;
+		if (hasRequiredItems()) return;
 
-			while (!hasRequiredItems()) {
-				await this.kill(monsterResolvable, opts);
+		while (!hasRequiredItems()) {
+			await this.kill(monsterResolvable, opts);
 
-				if (!isTemp) {
-					await this.bot.drops.pickup(itemName);
-				}
-
-				if (hasRequiredItems()) break;
-
-				await this.bot.sleep(500);
-
-				if (hasRequiredItems()) break;
-
-				await this.bot.sleep(500);
-
-				if (hasRequiredItems()) break;
+			if (!isTemp) {
+				await this.bot.drops.pickup(itemName);
 			}
 
-			await this.exit();
-		}, this.bot.signal);
+			if (hasRequiredItems()) break;
+
+			await this.bot.sleep(500);
+
+			if (hasRequiredItems()) break;
+
+			await this.bot.sleep(500);
+
+			if (hasRequiredItems()) break;
+		}
+
+		await this.exit();
 	}
 
 	/**
@@ -332,26 +324,24 @@ export class Combat {
 	 * @param exit - Whether to exit combat before attempting to rest.
 	 */
 	public async rest(full = false, exit = false): Promise<void> {
-		return makeInterruptible(async () => {
+		await this.bot.waitUntil(
+			() => this.bot.world.isActionAvailable(GameAction.Rest),
+			() => this.bot.auth.isLoggedIn(),
+		);
+
+		if (exit) {
+			await this.exit();
+		}
+
+		swf.Rest();
+
+		if (full) {
 			await this.bot.waitUntil(
-				() => this.bot.world.isActionAvailable(GameAction.Rest),
-				() => this.bot.auth.isLoggedIn(),
+				() =>
+					this.bot.player.hp >= this.bot.player.maxHp &&
+					this.bot.player.mp >= this.bot.player.maxMp,
 			);
-
-			if (exit) {
-				await this.exit();
-			}
-
-			swf.Rest();
-
-			if (full) {
-				await this.bot.waitUntil(
-					() =>
-						this.bot.player.hp >= this.bot.player.maxHp &&
-						this.bot.player.mp >= this.bot.player.maxMp,
-				);
-			}
-		}, this.bot.signal);
+		}
 	}
 
 	/**
@@ -364,16 +354,11 @@ export class Combat {
 		this.cancelTarget();
 		this.cancelAutoAttack();
 
-		return makeInterruptible(async () => {
-			await this.bot.world.jump(
-				this.bot.player.cell,
-				this.bot.player.pad,
-			);
-			await this.bot.waitUntil(
-				() => this.bot.player.state !== PlayerState.InCombat,
-			);
-			await this.bot.sleep(1_000);
-		}, this.bot.signal);
+		await this.bot.world.jump(this.bot.player.cell, this.bot.player.pad);
+		await this.bot.waitUntil(
+			() => this.bot.player.state !== PlayerState.InCombat,
+		);
+		await this.bot.sleep(1_000);
 	}
 }
 
