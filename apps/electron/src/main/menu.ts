@@ -1,3 +1,4 @@
+import process from 'process';
 import { Menu, app } from 'electron';
 import { createAccountManager, createGame } from './windows';
 
@@ -12,4 +13,6 @@ const menu = Menu.buildFromTemplate([
 	},
 ]);
 
-app.once('ready', () => app.dock.setMenu(menu));
+app.once('ready', () => {
+	if (process.platform === 'darwin') app.dock.setMenu(menu);
+});
