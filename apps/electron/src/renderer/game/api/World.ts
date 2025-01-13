@@ -2,7 +2,7 @@ import type { Bot } from './Bot';
 import { Avatar, type AvatarData } from './struct/Avatar';
 import type { ItemData } from './struct/Item';
 import { Monster, type MonsterData } from './struct/Monster';
-import { isMonsterMapId, makeInterruptible } from './util/utils';
+import { isMonsterMapId } from './util/utils';
 
 export enum GameAction {
 	/**
@@ -193,12 +193,10 @@ export class World {
 	public async jump(cell: string, pad = 'Spawn'): Promise<void> {
 		const isSameCell = () =>
 			this.bot.player.cell.toLowerCase() === cell.toLowerCase();
-		return makeInterruptible(async () => {
-			if (isSameCell()) return;
+		if (isSameCell()) return;
 
-			this.bot.flash.call(() => swf.Jump(cell, pad));
-			await this.bot.waitUntil(isSameCell, null, 5);
-		}, this.bot.signal);
+		this.bot.flash.call(() => swf.Jump(cell, pad));
+		await this.bot.waitUntil(isSameCell, null, 5);
 	}
 
 	/**
@@ -213,7 +211,6 @@ export class World {
 		cell = 'Enter',
 		pad = 'Spawn',
 	): Promise<void> {
-		return makeInterruptible(async () => {
 			await this.bot.waitUntil(
 				() => this.isActionAvailable(GameAction.Transfer),
 				null,
@@ -264,7 +261,6 @@ export class World {
 			}
 
 			this.setSpawnPoint();
-		}, this.bot.signal);
 	}
 
 	/**
@@ -299,13 +295,11 @@ export class World {
 	 * @param itemId - The ID of the item.
 	 */
 	public async getMapItem(itemId: string): Promise<void> {
-		return makeInterruptible(async () => {
-			await this.bot.waitUntil(() =>
-				this.isActionAvailable(GameAction.GetMapItem),
-			);
-			this.bot.flash.call(() => swf.GetMapItem(itemId));
-			await this.bot.sleep(2_000);
-		}, this.bot.signal);
+		await this.bot.waitUntil(() =>
+			this.isActionAvailable(GameAction.GetMapItem),
+		);
+		this.bot.flash.call(() => swf.GetMapItem(itemId));
+		await this.bot.sleep(2_000);
 	}
 
 	/**
