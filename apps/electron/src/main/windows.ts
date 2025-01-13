@@ -16,6 +16,7 @@ export let mgrWindow: BrowserWindow | null;
 
 export async function createAccountManager(): Promise<void> {
 	if (mgrWindow) {
+		mgrWindow.focus();
 		return;
 	}
 
