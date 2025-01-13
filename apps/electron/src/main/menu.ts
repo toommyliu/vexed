@@ -3,11 +3,11 @@ import { createAccountManager, createGame } from './windows';
 
 const menu = Menu.buildFromTemplate([
 	{
-		label: 'Account Manager',
+		label: 'Open Account Manager',
 		click: () => void createAccountManager(),
 	},
 	{
-		label: 'Game',
+		label: 'Open Game',
 		click: () => void createGame(),
 	},
 ]);
