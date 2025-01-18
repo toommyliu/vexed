@@ -40,7 +40,13 @@ Type: `(error: Error) => void`
 
 #### monsterDeath
 
-This event is emitted when a monster has died and respawned.
+This event is emitted when a monster has died.
+
+Type: `(monster: Monster) => void`
+
+#### monsterRespawn
+
+This event is emitted when a monster has respawned.
 
 Type: `(monster: Monster) => void`
 
