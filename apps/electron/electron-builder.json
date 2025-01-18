@@ -5,7 +5,12 @@
 		"output": "build"
 	},
 	"mac": {
-		"files": ["dist/**/*", "assets/**/*", "!assets/pepflashplayer.dll"],
+		"files": [
+			"dist/**/*",
+			"assets/**/*",
+			"public/**/*",
+			"!assets/pepflashplayer.dll"
+		],
 		"asar": "false",
 		"target": {
 			"target": "zip",
@@ -17,6 +22,7 @@
 		"files": [
 			"dist/**/*",
 			"assets/**/*",
+			"public/**/*",
 			"!assets/PepperFlashPlayer.plugin"
 		],
 		"icon": "assets/dock.png",
