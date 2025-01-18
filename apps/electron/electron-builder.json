@@ -10,7 +10,8 @@
 		"target": {
 			"target": "zip",
 			"arch": ["x64"]
-		}
+		},
+		"icon": "assets/dock.png"
 	},
 	"win": {
 		"files": [
@@ -18,6 +19,7 @@
 			"assets/**/*",
 			"!assets/PepperFlashPlayer.plugin"
 		],
+		"icon": "assets/dock.png",
 		"asar": "false",
 		"target": {
 			"target": "zip",
