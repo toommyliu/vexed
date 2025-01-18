@@ -41,5 +41,8 @@
 			"!dist/**/*",
 			"!scripts/**/*"
 		]
+	},
+	"config": {
+		"arch": "x64"
 	}
 }
