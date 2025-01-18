@@ -62,9 +62,11 @@ export class FileManager {
 
 	public async initialize(): Promise<void> {
 		await Promise.all([
-			fs.ensureDir(DOCUMENTS_PATH),
+			fs.ensureDir(this.basePath),
 			fs.ensureDir(this.scriptsDir),
+		]);
 
+		await Promise.all([
 			this.ensureJsonFile(this.settingsPath, DEFAULT_SETTINGS),
 			this.ensureJsonFile(this.fastTravelsPath, DEFAULT_FAST_TRAVELS),
 			this.ensureJsonFile(this.accountsPath, DEFAULT_ACCOUNTS),
