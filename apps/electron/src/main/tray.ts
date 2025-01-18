@@ -1,6 +1,6 @@
 import { Menu, Tray, app, nativeImage } from 'electron';
-import process from 'process';
-import { DOCK_ICON, TRAY_ICON, BRAND } from '../common/constants';
+import { join, resolve } from 'path';
+import { BRAND } from '../common/constants';
 import { createAccountManager, createGame } from './windows';
 
 let tray: Tray | null = null;
@@ -21,14 +21,19 @@ const contextMenu = Menu.buildFromTemplate([
 	},
 ]);
 
-app.once('ready', () => {
-	if (process.platform === 'darwin') {
-		app.dock.setIcon(nativeImage.createFromPath(DOCK_ICON));
-	}
+app.on('ready', () => {
+	// menu bar on mac, tray icon on windows
+	const path = resolve(join(__dirname, '../../assets/16.png'));
+	const icon = nativeImage.createFromPath(path);
 
-	tray = new Tray(nativeImage.createFromPath(TRAY_ICON));
+	tray = new Tray(icon);
 	tray.setToolTip(BRAND);
 	tray.setContextMenu(contextMenu);
+
+	if (process.platform === 'darwin') {
+		const path = resolve(join(__dirname, '../../assets/1024.png'));
+		app.dock.setIcon(path);
+	}
 });
 
 app.on('before-quit', () => {

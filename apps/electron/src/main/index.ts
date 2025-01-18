@@ -1,6 +1,6 @@
 import './ipc/ipc.game';
 import './ipc/ipc.manager';
-import './menu';
+import './tray';
 
 import { join } from 'path';
 import { app } from 'electron';

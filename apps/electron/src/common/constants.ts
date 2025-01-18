@@ -5,9 +5,6 @@ import type { Account, Location, Settings } from '../main/FileManager';
 export const BRAND = 'Vexed';
 export const DOCUMENTS_PATH = join(os.homedir(), 'Documents', BRAND);
 
-export const TRAY_ICON = join(__dirname, '../../assets/tray.png');
-export const DOCK_ICON = join(__dirname, '../../assets/dock.png');
-
 export const DEFAULT_SETTINGS: Settings = {
 	launchMode: 'game',
 } as const;
