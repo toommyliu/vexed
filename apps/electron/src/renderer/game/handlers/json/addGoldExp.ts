@@ -12,9 +12,9 @@ export async function addGoldExp(bot: Bot, packet: AddGoldExpPacket) {
 			bot.world.availableMonsters.find(
 				(mon) => mon.monMapId === packet.b.o.id,
 			);
-
-		await bot.waitUntil(() => getMonster() !== null);
 		bot.emit('monsterDeath', getMonster());
+		await bot.waitUntil(() => Boolean(getMonster()?.alive));
+		bot.emit('monsterRespawn', getMonster());
 	}
 }
 

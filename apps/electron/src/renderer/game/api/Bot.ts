@@ -54,11 +54,18 @@ export class Bot extends EventEmitter {
 	public readonly error!: (error: Error) => void;
 
 	/**
-	 * This event is emitted when a monster has died and respawned.
+	 * This event is emitted when a monster has died.
 	 *
 	 * @eventProperty
 	 */
 	public readonly monsterDeath!: (monster: Monster) => void;
+
+	/**
+	 * This event is emitted when a monster has respawned.
+	 *
+	 * @eventProperty
+	 */
+	public readonly monsterRespawn!: (monster: Monster) => void;
 
 	/**
 	 * This event is emitted when a packet is received from the server.
