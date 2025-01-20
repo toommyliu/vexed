@@ -1,5 +1,5 @@
-import { app, BrowserWindow, session } from 'electron';
 import { join, resolve } from 'path';
+import { app, BrowserWindow, session } from 'electron';
 import {
 	ARTIX_USERAGENT,
 	BRAND,
@@ -73,7 +73,6 @@ export async function createGame(
 			plugins: true,
 		},
 	});
-	app.allowRendererProcessReuse = true;
 
 	// Spoof headers to make the game think we are running as Artix Game Launcher
 	window.webContents.userAgent = ARTIX_USERAGENT;

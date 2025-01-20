@@ -45,6 +45,7 @@ function registerFlashPlugin() {
 }
 
 registerFlashPlugin();
+app.disableHardwareAcceleration();
 
 app.once('ready', async () => {
 	const fm = FileManager.getInstance();
