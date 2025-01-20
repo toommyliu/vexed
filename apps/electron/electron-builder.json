@@ -16,7 +16,7 @@
 			"target": "zip",
 			"arch": ["x64"]
 		},
-		"icon": "assets/1024.png"
+		"icon": "assets/icon.png"
 	},
 	"win": {
 		"files": [
@@ -25,7 +25,7 @@
 			"public/**/*",
 			"!assets/PepperFlashPlayer.plugin"
 		],
-		"icon": "assets/1024.ico",
+		"icon": "assets/icon.ico",
 		"asar": "false",
 		"target": {
 			"target": "zip",

@@ -1,9 +1,9 @@
-import { join, resolve } from 'path';
 import { app, BrowserWindow, session } from 'electron';
+import { join, resolve } from 'path';
 import {
 	ARTIX_USERAGENT,
+	BRAND,
 	WHITELISTED_DOMAINS,
-	TRAY_ICON,
 } from '../common/constants';
 import { IPC_EVENTS } from '../common/ipc-events';
 import type { Account } from './FileManager';
@@ -27,11 +27,10 @@ export async function createAccountManager(): Promise<void> {
 	const window = new BrowserWindow({
 		width: 966,
 		height: 552,
-		title: '',
+		title: BRAND,
 		webPreferences: {
 			nodeIntegration: true,
 		},
-		icon: TRAY_ICON,
 	});
 
 	// Spoof headers to make the game think we are running as Artix Game Launcher
@@ -65,13 +64,14 @@ export async function createGame(
 	const window = new BrowserWindow({
 		width: 966,
 		height: 552,
-		title: '',
+		title: BRAND,
 		webPreferences: {
 			backgroundThrottling: false,
+			enableWebSQL: false,
+			webgl: false,
 			nodeIntegration: true,
 			plugins: true,
 		},
-		icon: TRAY_ICON,
 	});
 	app.allowRendererProcessReuse = true;
 

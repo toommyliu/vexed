@@ -1,5 +1,5 @@
+import { join } from 'path';
 import { Menu, Tray, app, nativeImage } from 'electron';
-import { join, resolve } from 'path';
 import { BRAND } from '../common/constants';
 import { createAccountManager, createGame } from './windows';
 
@@ -23,7 +23,7 @@ const contextMenu = Menu.buildFromTemplate([
 
 app.on('ready', () => {
 	// menu bar on mac, tray icon on windows
-	const path = resolve(join(__dirname, '../../assets/16.png'));
+	const path = join(__dirname, '../../assets/tray.png');
 	const icon = nativeImage.createFromPath(path);
 
 	tray = new Tray(icon);
@@ -31,8 +31,11 @@ app.on('ready', () => {
 	tray.setContextMenu(contextMenu);
 
 	if (process.platform === 'darwin') {
-		const path = resolve(join(__dirname, '../../assets/1024.png'));
-		app.dock.setIcon(path);
+		app.dock.setIcon(
+			nativeImage.createFromPath(
+				join(__dirname, '../../assets/icon.png'),
+			),
+		);
 	}
 });
 
