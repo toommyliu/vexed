@@ -15,13 +15,6 @@
 			return "\"" + Root.Game.world.strFrame + "\"";
 		}
 
-		public static function CheckPlayerInMyCell(param1:String) : String
-		{
-			var uoTree:* = Root.Game.world.uoTree;
-			var strFrame:* = Root.Game.world.strFrame;
-			return JSON.stringify(uoTree) + "  " + JSON.stringify(strFrame);
-		}
-
 		public static function GetFactions() : String
 		{
 			return JSON.stringify(Root.Game.world.myAvatar.factions);
@@ -205,21 +198,6 @@
 			return Root.Game.world.actions.active[parseInt(skill)].cd;
 		}
 
-		public static function SetSkillCooldown(skill:String, value:String) : void
-		{
-			Root.Game.world.actions.active[parseInt(skill)].cd = value;
-		}
-
-		public static function SetSkillRange(skill:String, value:String) : void
-		{
-			Root.Game.world.actions.active[parseInt(skill)].range = value;
-		}
-
-		public static function SetSkillMana(skill:String, value:String) : void
-		{
-			Root.Game.world.actions.active[parseInt(skill)].mp = value;
-		}
-
 		public static function MuteToggle(param1:Boolean) : void
 		{
 			if (param1)
@@ -289,21 +267,6 @@
 		public static function EquipPotion(param1:String, param2:String, param3:String, param4:String) : void
 		{
 			Root.Game.world.equipUseableItem({ItemID:parseInt(param1), sDesc:param2, sFile:param3, sName:param4});
-		}
-
-		public static function Buff() : void
-		{
-			Root.Game.world.myAvatar.dataLeaf.sta.$tha = 0.5;
-			Root.Game.world.myAvatar.objData.intMP = 100;
-			Root.Game.world.myAvatar.dataLeaf.intMP = 100;
-			Root.Game.world.myAvatar.objData.intLevel = 100;
-			Root.Game.world.actions.active[0].mp = 0;
-			Root.Game.world.actions.active[1].mp = 0;
-			Root.Game.world.actions.active[2].mp = 0;
-			Root.Game.world.actions.active[3].mp = 0;
-			Root.Game.world.actions.active[4].mp = 0;
-			Root.Game.world.actions.active[5].mp = 0;
-			return;
 		}
 
 		public static function GoTo(username:String) : void
