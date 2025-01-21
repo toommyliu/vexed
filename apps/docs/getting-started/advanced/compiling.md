@@ -36,6 +36,9 @@ rm -rf ../../node_modules # root
 Then reinstall dependencies: `pnpm i`
 If that still doesn't work, you can try forcing the config flag for pnpm: `pnpm i --config.arch=x64` (this should already be set in the `package.json`)
 
+> [!TIP]
+> Run the commands in the `apps/electron` directory.
+
 ## **Project Structure (Monorepo)**
 
 - **`apps/as3`**: Game loader
