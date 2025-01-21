@@ -4,7 +4,9 @@ outline: deep
 
 # Game Client
 
-The game client looks like a typical game client.
+The game client looks like the typical AQW client.
+
+You can always open another game client window by clicking the tray icon and selecting **Open Game**.
 
 Interact with the topnav dropdowns to display options for each feature.
 

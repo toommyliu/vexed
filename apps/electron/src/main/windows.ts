@@ -1,6 +1,10 @@
 import { join, resolve } from 'path';
 import { app, BrowserWindow, session } from 'electron';
-import { ARTIX_USERAGENT, WHITELISTED_DOMAINS } from '../common/constants';
+import {
+	ARTIX_USERAGENT,
+	BRAND,
+	WHITELISTED_DOMAINS,
+} from '../common/constants';
 import { IPC_EVENTS } from '../common/ipc-events';
 import type { Account } from './FileManager';
 import { showErrorDialog } from './utils';
@@ -23,7 +27,7 @@ export async function createAccountManager(): Promise<void> {
 	const window = new BrowserWindow({
 		width: 966,
 		height: 552,
-		title: '',
+		title: BRAND,
 		webPreferences: {
 			nodeIntegration: true,
 		},
@@ -60,14 +64,15 @@ export async function createGame(
 	const window = new BrowserWindow({
 		width: 966,
 		height: 552,
-		title: '',
+		title: BRAND,
 		webPreferences: {
 			backgroundThrottling: false,
+			enableWebSQL: false,
+			webgl: false,
 			nodeIntegration: true,
 			plugins: true,
 		},
 	});
-	app.allowRendererProcessReuse = true;
 
 	// Spoof headers to make the game think we are running as Artix Game Launcher
 	window.webContents.userAgent = ARTIX_USERAGENT;

@@ -54,7 +54,7 @@ Type: `number`
 
 ### Methods
 
-#### isUpgraded
+#### isUpgrade
 
 Whether the server is an upgrade-only server.
 

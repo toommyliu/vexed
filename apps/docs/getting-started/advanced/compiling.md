@@ -19,6 +19,26 @@ Any modern version of Node.js should work fine. As long as its LTS or higher, yo
 1. Clone the repository (`git clone`)
 2. Install dependencies (`pnpm i`)
 
+### Couldn't load plugin
+
+If you see a message similar to "Couldn't load plugin", this is due to electron not downloading for the correct platform.
+
+You can try clearing pnpm cache and node_modules:
+
+```bash
+pnpm store prune
+pnpm cache delete
+rm -rf ~/.cache/electron # ??
+rm -rf node_modules/ # apps/electron
+rm -rf ../../node_modules # root
+```
+
+Then reinstall dependencies: `pnpm i`
+If that still doesn't work, you can try forcing the config flag for pnpm: `pnpm i --config.arch=x64` (this should already be set in the `package.json`)
+
+> [!TIP]
+> Run the commands in the `apps/electron` directory.
+
 ## **Project Structure (Monorepo)**
 
 - **`apps/as3`**: Game loader
@@ -28,8 +48,6 @@ Any modern version of Node.js should work fine. As long as its LTS or higher, yo
 ### Game Loader / ActionScript
 
 The following steps are only required if you want to modify and compile the game loader swf file.
-
-Here’s a simplified version of your guide:
 
 1. **Install Homebrew (Optional)**
 
@@ -56,9 +74,8 @@ Here’s a simplified version of your guide:
 
 4. **Set Up VSCode**
    - Install the [ActionScript extension](https://marketplace.visualstudio.com/items?itemName=bowlerhatllc.vscode-as3mxml).
-   - Open the command palette (CMD+SHIFT+P) > **ActionScript: Select Workspace SDK** > **Add SDK** (choose your SDK directory).
-   - Test by compiling an ActionScript file (CMD+SHIFT+B) > **ActionScript: Compile Release**.
-
+   - Open the command palette (CTRL/CMD+SHIFT+P) > **ActionScript: Select Workspace SDK** > **Add SDK** (choose your SDK directory).
+   - Test by compiling an ActionScript file (CTRL/CMD+SHIFT+B) > **ActionScript: Compile Release**.
 
 ### Documentation App
 
@@ -83,7 +100,7 @@ Run a dev script using `pnpm dev` in the `apps/electron` directory first. This r
 
 If you make changes to a main process file, you will need to hard restart the app.
 
-Otherwise, you can refresh the window (CMD+SHIFT+R) and should see your changes.
+Otherwise, you can refresh the window (CMD+SHIFT+R) and should see your changes, as long as you transpile the code.
 
 You can also use a watch script `pnpm dev:watch` which might be more convenient.
 

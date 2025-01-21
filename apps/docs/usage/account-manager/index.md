@@ -6,7 +6,9 @@ outline: deep
 
 Effortlessly manage and switch between multiple game accounts, streamling opening multiple clients and logging in at once.
 
-As of writing, the account manager is only accessible through the `launchMode` flag in `settings.json`.
+You can open the account manager by clicking the tray icon and selecting **Open Account Manager**.
+
+You can also set the default launch mode for the app by editing `Documents/Vexed/settings.json`.
 
 ```json
 {
@@ -14,8 +16,6 @@ As of writing, the account manager is only accessible through the `launchMode` f
   "launchMode": "manager" // [!code ++]
 }
 ```
-
-Keep track of future development on this: [#73](https://github.com/toommyliu/vexed/issues/73) [#77](https://github.com/toommyliu/vexed/issues/77)
 
 ::: warning
 

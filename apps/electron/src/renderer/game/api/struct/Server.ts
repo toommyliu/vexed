@@ -53,7 +53,7 @@ export class Server {
 	/**
 	 * Whether the server is an upgrade-only server.
 	 */
-	public isUpgraded(): boolean {
+	public isUpgrade(): boolean {
 		return this.data.bUpg === 1;
 	}
 

@@ -1,6 +1,6 @@
 import './ipc/ipc.game';
 import './ipc/ipc.manager';
-import './menu';
+import './tray';
 
 import { join } from 'path';
 import { app } from 'electron';
@@ -45,6 +45,7 @@ function registerFlashPlugin() {
 }
 
 registerFlashPlugin();
+app.disableHardwareAcceleration();
 
 app.once('ready', async () => {
 	const fm = FileManager.getInstance();
