@@ -213,16 +213,6 @@
 				Game.mcCharSelect.passwordui.txtPassword.removeEventListener(KeyboardEvent.KEY_DOWN, Game.mcCharSelect.passwordui.onPasswordEnter);
 				Game.mcCharSelect.passwordui.txtPassword.addEventListener(KeyboardEvent.KEY_DOWN, this.onPasswordEnter);
 			}
-
-			if (Game.mcConnDetail != null)
-			{
-				Game.mcConnDetail.addEventListener(Event.ADDED_TO_STAGE, AddedStageConnDetail);
-				if (Game.mcConnDetail.txtDetail.text.indexOf("Error loading bank") >= 0 ||
-						Game.mcConnDetail.txtDetail.text.indexOf("Communication with server has been lost") >= 0)
-				{
-					Game.mcConnDetail.hideConn();
-				}
-			}
 		}
 
 		private function AddedStageConnDetail(event:Event):void
