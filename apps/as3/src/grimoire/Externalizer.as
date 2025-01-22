@@ -2,6 +2,7 @@
 {
 	import flash.external.ExternalInterface;
 	import grimoire.game.*;
+	import grimoire.modules.Modules;
 
 	public class Externalizer
 	{
@@ -54,7 +55,7 @@
 			this.addCallback("Gender", Player.Gender);
 			this.addCallback("SetEquip", Player.SetEquip);
 			this.addCallback("GetEquip", Player.GetEquip);
-			//TODO:remove
+			// TODO:remove
 			// this.addCallback("Buff", Player.Buff);
 			this.addCallback("PlayerData", Player.PlayerData);
 			this.addCallback("GetFactions", Player.GetFactions);
@@ -63,12 +64,12 @@
 			this.addCallback("SetTargetPlayer", Player.SetTargetPlayer);
 			this.addCallback("ChangeAccessLevel", Player.ChangeAccessLevel);
 			this.addCallback("GetTargetHealth", Player.GetTargetHealth);
-			//TODO:remove
+			// TODO:remove
 			// this.addCallback("CheckPlayerInMyCell", Player.CheckPlayerInMyCell);
 			this.addCallback("GetSkillCooldown", Player.GetSkillCooldown);
-			//TODO:remove
+			// TODO:remove
 			// this.addCallback("SetSkillCooldown", Player.SetSkillCooldown);
-			//TODO: remove
+			// TODO: remove
 			// this.addCallback("SetSkillRange", Player.SetSkillRange);
 			// this.addCallback("SetSkillMana", Player.SetSkillMana);
 			this.addCallback("SetTargetPvP", Player.SetTargetPvP);
@@ -99,7 +100,7 @@
 			this.addCallback("Players", World.Players);
 			this.addCallback("PlayerByName", World.PlayerByName);
 			this.addCallback("SetWalkSpeed", Player.SetWalkSpeed);
-			//TODO:this should be IsPlayerInSameCell
+			// TODO:this should be IsPlayerInSameCell
 			this.addCallback("GetCellPlayers", World.GetCellPlayers);
 			this.addCallback("CheckCellPlayer", World.CheckCellPlayer);
 			this.addCallback("GetPlayerHealth", World.GetPlayerHealth);
@@ -187,6 +188,10 @@
 			this.addCallback("isNull", Caller.isNull);
 			this.addCallback("sendClientPacket", Caller.sendClientPacket);
 
+			// Modules
+			this.addCallback("modEnable", Modules.enable);
+			this.addCallback("modDisable", Modules.disable);
+
 			this.debug("Externalizer::init done.");
 		}
 
@@ -195,7 +200,7 @@
 			ExternalInterface.addCallback(name, func);
 		}
 
-		public function call(name:String, ... rest):*
+		public function call(name:String, ...rest):*
 		{
 			return ExternalInterface.call(name, rest);
 		}

@@ -22,6 +22,7 @@
 	import flash.utils.Timer;
 	import grimoire.game.*;
 	import grimoire.tools.*;
+	import grimoire.modules.Modules;
 
 	public class Root extends MovieClip
 	{
@@ -38,7 +39,7 @@
 		private var isEU:Boolean;
 		private var isWeb:Boolean;
 		private var doSignup:Boolean;
-		private var stg:Object;
+		private var stg:Stage;
 		private var vars:URLVariables;
 		private var serversLoader:URLLoader = new URLLoader();
 
@@ -103,8 +104,8 @@
 
 			this.stg = stage;
 			this.stg.removeChildAt(0);
-			Game = this.stg.addChildAt(event.currentTarget.content, 0);
-			// Game = this.stg.addChild(this.loader.content);
+			// Game = this.stg.addChildAt(event.currentTarget.content, 0);
+			Game = this.stg.addChild(this.loader.content);
 
 			for (var param:String in root.loaderInfo.parameters)
 			{
@@ -123,9 +124,11 @@
 			Game.sfc.addEventListener(SFSEvent.onExtensionResponse, this.OnExtensionResponse);
 			GameDomain = LoaderInfo(event.target).applicationDomain;
 
+			Modules.init();
+			this.stg.addEventListener(Event.ENTER_FRAME, Modules.handleFrame);
+
 			Game.sfc.addEventListener(SFSEvent.onConnectionLost, this.OnConnectionLost);
 			Game.sfc.addEventListener(SFSEvent.onConnection, this.OnConnection);
-			Game.sfc.addEventListener(SFSEvent.onJoinRoomError, this.OnJoinRoomError);
 			Game.sfc.addEventListener(SFSEvent.onDebugMessage, this.PacketReceived);
 			Game.loginLoader.addEventListener(Event.COMPLETE, this.OnLoginComplete);
 			// getServers();
@@ -166,11 +169,6 @@
 		{
 			this.external.call("connection", "OnConnection");
 			RemoveCharSelectUI();
-		}
-
-		private function OnJoinRoomError(param1:Event):void
-		{
-			this.external.debug("OnJoinRoomError");
 		}
 
 		private function OnLoginComplete(event:Event):void
