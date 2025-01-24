@@ -83,10 +83,12 @@ package vexed.game
                 {
                   // This key throws: Failed conversion between PP_Var and V8 value
                   // Probably a circular reference or something
-                  if (key_ !== 'cLeaf')
+                  if (key_ !== 'cLeaf') // aura source
                   {
                     auraObj[key_] = playerAuras[index][key_];
                   }
+
+                  // Main.getInstance().getExternal().debug(ObjectUtil.toString(playerAuras[index][key_]));
                 }
 
                 auras.push(auraObj);
@@ -277,21 +279,17 @@ package vexed.game
       game.world.loadMap(swf);
     }
 
+    public static function getMapItem(itemId:int):void
+    {
+      if (!itemId)
+        return;
+
+      game.world.getMapItem(itemId);
+    }
+
     // TODO:
     // World
-    // Jump
-    // GoTo
-    // GetMapItem
     // Player
     // GetAurasValue
-    // public static function loadHairShop(shopId:int):void
-    // {
-    // game.world.sendLoadHairShopRequest(shopId);
-    // }
-
-    // public static function loadArmorCustomize():void
-    // {
-    // game.openArmorCustomize();
-    // }
   }
 }

@@ -186,7 +186,15 @@ package vexed.game
 
     public static function isLoaded():Boolean
     {
-      return Boolean(game.world.myAvatar.items.length > 0 && true /* World.MapLoadComplete() */ && game.world.myAvatar.pMC.artLoaded());
+      return Boolean(game.world.myAvatar.items.length > 0 && World.isLoaded() && game.world.myAvatar.pMC.artLoaded());
+    }
+
+    public static function goToPlayer(name:String):void
+    {
+      if (!name)
+        return;
+
+      game.world['goto'](name);
     }
   }
 }

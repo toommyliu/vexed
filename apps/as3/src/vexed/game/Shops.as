@@ -131,5 +131,15 @@ package vexed.game
     {
       game.world.sendLoadShopRequest(shopId);
     }
+
+    public static function loadHairShop(shopId:int):void
+    {
+      game.world.sendLoadHairShopRequest(shopId);
+    }
+
+    public static function loadArmorCustomize():void
+    {
+      game.openArmorCustomize();
+    }
   }
 }

@@ -29,6 +29,7 @@ package vexed
 			// Bank
 			this.addCallback("bankGetItems", Bank.getItems);
 			this.addCallback("bankGetItem", Bank.getItem);
+			this.addCallback("bankContains", Bank.contains);
 			this.addCallback("bankGetSlots", Bank.getSlots);
 			this.addCallback("bankGetUsedSlots", Bank.getUsedSlots);
 			this.addCallback("bankDeposit", Bank.deposit);
@@ -36,6 +37,18 @@ package vexed
 			this.addCallback("bankSwap", Bank.swap);
 			this.addCallback("bankOpen", Bank.open);
 			this.addCallback("bankIsOpen", Bank.isOpen);
+
+			// Combat
+			this.addCallback("combatHasTarget", Combat.hasTarget);
+			this.addCallback("combatGetTarget", Combat.getTarget);
+			this.addCallback("combatUseSkill", Combat.useSkill);
+			this.addCallback("combatForceUseSkill", Combat.forceUseSkill);
+			this.addCallback("combatCanUseSkill", Combat.canUseSkill);
+			this.addCallback("combatGetSkillCooldownRemaining", Combat.getSkillCooldownRemaining);
+			this.addCallback("combatCancelAutoAttack", Combat.cancelAutoAttack);
+			this.addCallback("combatCancelTarget", Combat.cancelTarget);
+			this.addCallback("combatAttackMonster", Combat.attackMonster);
+			this.addCallback("combatAttackMonsterById", Combat.attackMonsterById);
 
 			// House
 			this.addCallback("houseGetItems", House.getItems);
@@ -46,8 +59,11 @@ package vexed
 			// Inventory
 			this.addCallback("inventoryGetItems", Inventory.getItems);
 			this.addCallback("inventoryGetItem", Inventory.getItem);
+			this.addCallback("inventoryContains", Inventory.contains);
 			this.addCallback("inventoryGetSlots", Inventory.getSlots);
 			this.addCallback("inventoryGetUsedSlots", Inventory.getUsedSlots);
+			this.addCallback("inventoryEquip", Inventory.equip);
+			this.addCallback("inventoryEquipConsumable", Inventory.equipConsumable);
 
 			// Player
 			this.addCallback("playerJoinMap", Player.joinMap);
@@ -75,6 +91,8 @@ package vexed
 			this.addCallback("playerGetCharId", Player.getCharId);
 			this.addCallback("playerGetGender", Player.getGender);
 			this.addCallback("playerGetData", Player.getData);
+			this.addCallback("playerIsLoaded", Player.isLoaded);
+			this.addCallback("playerGoTo", Player.goToPlayer);
 
 			// Quests
 			this.addCallback("questsIsInProgress", Quests.isInProgress);
@@ -91,7 +109,10 @@ package vexed
 			this.addCallback("settingsEnemyMagnet", Settings.enemyMagnet);
 			this.addCallback("settingsLagKiller", Settings.lagKiller);
 			this.addCallback("settingsSkipCutscenes", Settings.skipCutscenes);
-			this.addCallback("settingsDisableCollisions", function(on:Boolean):void
+			this.addCallback("settingsSetName", Settings.setName);
+			this.addCallback("settingsSetGuild", Settings.setGuild);
+			this.addCallback("settingsSetAccessLevel", Settings.setAccessLevel);
+			this.addCallback("settingsSetDisableCollisions", function(on:Boolean):void
 				{
 					if (on)
 					{
@@ -102,7 +123,7 @@ package vexed
 						Modules.disable("DisableCollisions");
 					}
 				});
-			this.addCallback("settingsDisableFX", function(on:Boolean):void
+			this.addCallback("settingsSetDisableFX", function(on:Boolean):void
 				{
 					if (on)
 					{
@@ -128,13 +149,16 @@ package vexed
 				});
 
 			// Shops
-			this.addCallback("shopsGetItems", Shops.getItems);
-			this.addCallback("shopsGetItem", Shops.getItem);
-			this.addCallback("shopsBuyByName", Shops.buyByName);
-			this.addCallback("shopsBuyById", Shops.buyById);
-			this.addCallback("shopsSellByName", Shops.sellByName);
-			this.addCallback("shopsSellById", Shops.sellById);
-			this.addCallback("shopsLoad", Shops.load);
+			this.addCallback("shopGetInfo", Shops.getInfo);
+			this.addCallback("shopGetItems", Shops.getItems);
+			this.addCallback("shopGetItem", Shops.getItem);
+			this.addCallback("shopBuyByName", Shops.buyByName);
+			this.addCallback("shopBuyById", Shops.buyById);
+			this.addCallback("shopSellByName", Shops.sellByName);
+			this.addCallback("shopSellById", Shops.sellById);
+			this.addCallback("shopLoad", Shops.load);
+			this.addCallback("shopLoadHairShop", Shops.loadHairShop);
+			this.addCallback("shopLoadArmorCustomize", Shops.loadArmorCustomize);
 
 			// World
 			this.addCallback("worldIsLoaded", World.isLoaded);
@@ -154,6 +178,7 @@ package vexed
 			this.addCallback("worldGetRoomNumber", World.getRoomNumber);
 			this.addCallback("worldReload", World.reload);
 			this.addCallback("worldLoadSwf", World.loadSwf);
+			this.addCallback("worldGetMapItem", World.getMapItem);
 
 			this.debug("Externalizer::init done.");
 		}
