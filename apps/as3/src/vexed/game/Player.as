@@ -46,6 +46,11 @@ package vexed.game
       return game.world.strPad;
     }
 
+    public static function getFactions():Array
+    {
+      return game.world.myAvatar.factions;
+    }
+
     public static function getState():int
     {
       return game.world.myAvatar.dataLeaf.intState;

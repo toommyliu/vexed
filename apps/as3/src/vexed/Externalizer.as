@@ -55,6 +55,7 @@ package vexed
 			this.addCallback("playerJump", Player.jump);
 			this.addCallback("playerGetCell", Player.getCell);
 			this.addCallback("playerGetPad", Player.getPad);
+			this.addCallback("playerGetFactions", Player.getFactions);
 			this.addCallback("playerGetState", Player.getState);
 			this.addCallback("playerGetHp", Player.getHp);
 			this.addCallback("playerGetMaxHp", Player.getMaxHp);
@@ -151,8 +152,8 @@ package vexed
 			this.addCallback("worldGetItemTree", World.getItemTree);
 			this.addCallback("worldGetRoomId", World.getRoomId);
 			this.addCallback("worldGetRoomNumber", World.getRoomNumber);
-			this.addCallback('worldReload', World.reload);
-			this.addCallback('worldLoadSwf', World.loadSwf);
+			this.addCallback("worldReload", World.reload);
+			this.addCallback("worldLoadSwf", World.loadSwf);
 
 			this.debug("Externalizer::init done.");
 		}
