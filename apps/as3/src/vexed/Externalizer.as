@@ -128,6 +128,7 @@ package vexed
 			this.addCallback("settingsSetName", Settings.setName);
 			this.addCallback("settingsSetGuild", Settings.setGuild);
 			this.addCallback("settingsSetAccessLevel", Settings.setAccessLevel);
+			this.addCallback("settingsSetDeathAds", Settings.setDeathAds);
 			this.addCallback("settingsSetDisableCollisions", function(on:Boolean):void
 				{
 					if (on)

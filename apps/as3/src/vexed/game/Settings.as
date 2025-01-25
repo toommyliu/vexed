@@ -139,10 +139,9 @@ package vexed.game
       }
     }
 
-    // Player
-    // ChangeName
-    // ChangeGuild
-    // SetWalkSpeed
-    // ChangeAccessLevel
+    public static function setDeathAds(on:Boolean):void
+    {
+      game.userPreference.data.bDeathAd = on;
+    }
   }
 }
