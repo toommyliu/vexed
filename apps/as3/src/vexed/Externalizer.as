@@ -25,6 +25,7 @@ package vexed
 			this.addCallback("callGameFunction0", Main.callGameFunction0);
 			this.addCallback("selectArrayObjects", Main.selectArrayObjects);
 			this.addCallback("isNull", Main.isNull);
+			this.addCallback("sendClientPacket", Main.sendClientPacket);
 
 			// Auth
 			this.addCallback("authIsLoggedIn", Auth.isLoggedIn);
@@ -108,7 +109,6 @@ package vexed
 			this.addCallback("playerGetData", Player.getData);
 			this.addCallback("playerIsLoaded", Player.isLoaded);
 			this.addCallback("playerGoTo", Player.goToPlayer);
-			
 
 			// Quests
 			this.addCallback("questsIsInProgress", Quests.isInProgress);

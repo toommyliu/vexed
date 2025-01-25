@@ -242,12 +242,12 @@ package vexed
 			return JSON.stringify(narray);
 		}
 
-		public static function _getObjectS(root:*, path:String):*
+		private static function _getObjectS(root:*, path:String):*
 		{
 			return _getObjectA(root, path.split('.'));
 		}
 
-		public static function _getObjectA(root:*, parts:Array):*
+		private static function _getObjectA(root:*, parts:Array):*
 		{
 			var obj:* = root;
 			for (var i:int = 0; i < parts.length; i++)
@@ -257,16 +257,16 @@ package vexed
 			return obj;
 		}
 
-		public static function isNull(path:String):String
+		public static function isNull(path:String):Boolean
 		{
 			try
 			{
-				return (_getObjectS(_instance.game, path) == null).toString();
+				return _getObjectS(_instance.game, path) == null;
 			}
 			catch (ex:Error)
 			{
 			}
-			return 'true';
+			return true;
 		}
 
 		public static function sendClientPacket(packet:String, type:String):void
@@ -293,28 +293,20 @@ package vexed
 			;
 		}
 
-		public static function xmlReceived(packet:String):void
+		private static function xmlReceived(packet:String):void
 		{
 			_handler.handleMessage(new XML(packet), 'xml');
 		}
 
-		public static function jsonReceived(packet:String):void
+		private static function jsonReceived(packet:String):void
 		{
 			_handler.handleMessage(JSON.parse(packet)['b'], 'json');
 		}
 
-		public static function strReceived(packet:String):void
+		private static function strReceived(packet:String):void
 		{
 			var array:Array = packet.substr(1, packet.length - 2).split('%');
 			_handler.handleMessage(array.splice(1, array.length - 1), 'str');
-		}
-
-		public static function packetReceived(packet:*):void
-		{
-			if (packet.params.message.indexOf('%xt%zm%') > -1)
-			{
-				_instance.external.call('packet', packet.params.message.split(':', 2)[1].trim());
-			}
 		}
 	}
 }
