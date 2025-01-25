@@ -85,7 +85,8 @@ package vexed
 			this.game.params.isEU = this.vars.isEU;
 			this.game.params.loginURL = this.loginURL;
 
-			this.game.sfc.addEventListener(SFSEvent.onExtensionResponse, this.onExtensionResponse);
+			this.game.sfc.addEventListener(SFSEvent.onDebugMessage, this.onDebugMessage);
+			// this.game.sfc.addEventListener(SFSEvent.onExtensionResponse, this.onExtensionResponse);
 			this.gameDomain = LoaderInfo(ev.target).applicationDomain;
 
 			this.external = new Externalizer();
@@ -95,10 +96,46 @@ package vexed
 			this.stg.addEventListener(Event.ENTER_FRAME, Modules.handleFrame);
 		}
 
-		public function onExtensionResponse(packet:*):void
+		private function onDebugMessage(ev:SFSEvent):void
 		{
-			this.external.call('pext', JSON.stringify(packet));
+			var packet:String = ev.params.message;
+			if (packet.indexOf('%xt%zm%') > -1)
+			{
+				this.external.call('packetFromClient', packet.replace(/^\s+|\s+$/g, ''));
+			}
+			else
+			{
+				this.external.call('packetFromServer', processPacket(packet));
+			}
 		}
+
+		private function processPacket(packet:String):String
+		{
+			var index:int = 0;
+			if (packet.indexOf("[Sending - STR]: ") > -1)
+			{
+				packet = packet.replace("[Sending - STR]: ", "");
+			}
+			if (packet.indexOf("[ RECEIVED ]: ") > -1)
+			{
+				packet = packet.replace("[ RECEIVED ]: ", "");
+			}
+			if (packet.indexOf("[Sending]: ") > -1)
+			{
+				packet = packet.replace("[Sending]: ", "");
+			}
+			if (packet.indexOf(", (len: ") > -1)
+			{
+				index = packet.indexOf(", (len: ");
+				packet = packet.slice(0, index);
+			}
+			return packet;
+		}
+
+		// public function onExtensionResponse(packet:*):void
+		// {
+		// this.external.call('pext', JSON.stringify(packet));
+		// }
 
 		public static function getInstance():Main
 		{
@@ -230,11 +267,6 @@ package vexed
 			{
 			}
 			return 'true';
-		}
-
-		public static function catchPackets():void
-		{
-			_instance.game.sfc.addEventListener(SFSEvent.onDebugMessage, packetReceived);
 		}
 
 		public static function sendClientPacket(packet:String, type:String):void

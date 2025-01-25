@@ -48,11 +48,7 @@ package vexed.game
 
     public static function skipCutscenes():void
     {
-      while (game.mcExtSWF.numChildren > 0)
-      {
-        game.mcExtSWF.removeChildAt(0);
-      }
-      game.showInterface();
+      game.clearExternamSWF();
     }
 
     public static function setName(name:String):void
