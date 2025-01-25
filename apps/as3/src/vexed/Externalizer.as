@@ -26,6 +26,14 @@ package vexed
 			this.addCallback("selectArrayObjects", Main.selectArrayObjects);
 			this.addCallback("isNull", Main.isNull);
 
+			// Auth
+			this.addCallback("authIsLoggedIn", Auth.isLoggedIn);
+			this.addCallback("authIsTemporarilyKicked", Auth.isTemporarilyKicked);
+			this.addCallback("authLogin", Auth.login);
+			this.addCallback("authLogout", Auth.logout);
+			this.addCallback("authGetServers", Auth.getServers);
+			this.addCallback("authConnectTo", Auth.connectTo);
+
 			// Bank
 			this.addCallback("bankGetItems", Bank.getItems);
 			this.addCallback("bankGetItem", Bank.getItem);
