@@ -181,12 +181,12 @@ package vexed.game
 
     public static function getData():Object
     {
-      if (game.world === null)
+      if (!game.world)
       {
         return null;
       }
 
-      if (game.world.myAvatar === null)
+      if (!game.world.myAvatar)
       {
         return null;
       }
@@ -210,7 +210,7 @@ package vexed.game
     public static function getUsername():String
     {
       var playerData:* = getData();
-      if (playerData === null)
+      if (!playerData)
       {
         return null;
       }

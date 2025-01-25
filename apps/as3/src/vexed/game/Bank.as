@@ -48,7 +48,7 @@ package vexed.game
         return false;
 
       var item:Object = getItem(key);
-      if (item === null)
+      if (!item)
         return false;
 
       if (!quantity)
@@ -70,7 +70,7 @@ package vexed.game
     public static function deposit(key:*):Boolean
     {
       var item:Object = Inventory.getItem(key);
-      if (item == null)
+      if (!item)
       {
         return false;
       }
@@ -82,7 +82,7 @@ package vexed.game
     public static function withdraw(key:*):Boolean
     {
       var item:Object = getItem(key);
-      if (item == null)
+      if (!item)
       {
         return false;
       }
@@ -94,13 +94,13 @@ package vexed.game
     public static function swap(invKey:*, bankKey:*):Boolean
     {
       var invItem:Object = Inventory.getItem(invKey);
-      if (invItem == null)
+      if (!invItem)
       {
         return false;
       }
 
       var bankItem:Object = getItem(bankKey);
-      if (bankItem == null)
+      if (!bankItem)
       {
         return false;
       }

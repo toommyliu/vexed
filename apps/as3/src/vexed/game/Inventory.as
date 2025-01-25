@@ -31,7 +31,11 @@ package vexed.game
         }
         else if (key is int)
         {
-          return game.world.myAvatar.getItemByID(key);
+          for each (item in items)
+          {
+            if (item.ItemID === key)
+              return item;
+          }
         }
       }
 
@@ -47,7 +51,7 @@ package vexed.game
         return false;
 
       var item:Object = getItem(key);
-      if (item === null)
+      if (!item)
         return false;
 
       if (!quantity)
@@ -69,7 +73,7 @@ package vexed.game
     public static function equip(key:*):Boolean
     {
       var item:Object = getItem(key);
-      if (item == null)
+      if (!item)
       {
         return false;
       }

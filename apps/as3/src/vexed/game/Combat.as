@@ -10,9 +10,9 @@ package vexed.game
     public static function hasTarget():Boolean
     {
       var target:Object = game.world.myAvatar.target;
-      if (target !== null)
+      if (Boolean(target))
       {
-        if (target.dataLeaf !== null)
+        if (Boolean(target.dataLeaf))
         {
           return target.dataLeaf.intHP > 0;
         }
@@ -24,7 +24,7 @@ package vexed.game
     public static function getTarget():Object
     {
       var target:Object = game.world.myAvatar.target;
-      if (target !== null)
+      if (Boolean(target))
       {
         if (target.npcType === "monster")
         {
@@ -56,7 +56,7 @@ package vexed.game
     public static function forceUseSkill(index:int):void
     {
       var skill:* = game.world.actions.active[index];
-      if (skill)
+      if (Boolean(skill))
       {
         game.world.testAction(skill);
       }
@@ -91,7 +91,7 @@ package vexed.game
         return;
 
       var monster:Object = World.getMonsterByName(name);
-      if (monster !== null)
+      if (Boolean(monster))
       {
         game.world.setTarget(monster);
         game.world.approachTarget();
@@ -104,7 +104,7 @@ package vexed.game
         return;
 
       var monster:Object = World.getMonsterByMonMapId(monMapId);
-      if (monster !== null)
+      if (Boolean(monster))
       {
         game.world.setTarget(monster);
         game.world.approachTarget();

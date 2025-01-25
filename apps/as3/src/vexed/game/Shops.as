@@ -57,7 +57,7 @@ package vexed.game
         return false;
 
       var item:Object = getItem(name);
-      if (item === null)
+      if (!item)
         return false;
 
       if (quantity === 1)
@@ -96,7 +96,7 @@ package vexed.game
         return false;
 
       var item:Object = Inventory.getItem(name);
-      if (item === null)
+      if (!item)
         return false;
 
       if (quantity === -1)

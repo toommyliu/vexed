@@ -51,7 +51,7 @@ package vexed.game
         return false;
 
       var item:Object = getItem(key);
-      if (item === null)
+      if (!item)
         return false;
 
       if (!quantity)
