@@ -85,12 +85,12 @@ package vexed.game
       game.world.cancelTarget(); // cancel target
     }
 
-    public static function attackMonster(key:*):void
+    public static function attackMonster(name:*):void
     {
-      if (!key || !(key is String))
+      if (!name || !(name is String))
         return;
 
-      var monster:Object = World.getMonsterByName(key);
+      var monster:Object = World.getMonsterByName(name);
       if (monster !== null)
       {
         game.world.setTarget(monster);
@@ -98,12 +98,12 @@ package vexed.game
       }
     }
 
-    public static function attackMonsterById(key:int):void
+    public static function attackMonsterById(monMapId:int):void
     {
-      if (!key || !(key is int))
+      if (!monMapId || !(monMapId is int))
         return;
 
-      var monster:Object = World.getMonsterByMonMapId(key);
+      var monster:Object = World.getMonsterByMonMapId(monMapId);
       if (monster !== null)
       {
         game.world.setTarget(monster);

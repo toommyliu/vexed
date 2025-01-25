@@ -1,8 +1,13 @@
 import type { WINDOW_IDS, WindowId } from '../../common/constants';
 import type PortMonitor from '../../common/port-monitor';
 import type { Bot } from './api/Bot';
+import type { ShopInfo } from './api/Shop';
+import type { FactionData } from './api/struct/Faction';
+import type { ItemData } from './api/struct/Item';
+import type { MonsterData } from './api/struct/Monster';
+import type { ServerData } from './api/struct/Server';
 
-type StringBoolean = '"False"' | '"True"';
+type Nullable<T> = T | null;
 
 declare global {
 	const bot: Bot;
@@ -12,183 +17,8 @@ declare global {
 
 	type WindowId = (typeof WINDOW_IDS)[keyof typeof WINDOW_IDS];
 
+	/* eslint-disable typescript-sort-keys/interface */
 	type GameSWF = {
-		// Player
-		IsLoggedIn(): string;
-		Cell(): string;
-		Pad(): string;
-		Class(): string;
-		State(): number;
-		Health(): number;
-		HealthMax(): number;
-		Mana(): number;
-		ManaMax(): number;
-		Map(): string;
-		Level(): number;
-		Gold(): number;
-		HasTarget(): string;
-		IsAfk(): string;
-		AllSkillsAvailable(): number;
-		SkillAvailable(skillIndex: string): number;
-		Position(): [number, number];
-		WalkToPoint(xPosition: string, yPosition: string): void;
-		CancelAutoAttack(): void;
-		CancelTarget(): void;
-		CancelTargetSelf(): void;
-		MuteToggle(param1: boolean): void;
-		AttackMonster(monsterName: string): void;
-		AttackMonsterByMonMapId(monMapId: string): void;
-		Jump(cell: string, pad: string): void;
-		Rest(): void;
-		Join(mapName: string, cell: string, pad: string): void;
-		Equip(itemId: string): void;
-		EquipPotion(
-			itemId: string,
-			sDesc: string,
-			sFile: string,
-			sName: string,
-		): void;
-		GoTo(username: string): void;
-		UseBoost(itemId: string): void;
-		UseSkill(skillIndex: string): void;
-		ForceUseSkill(skillIndex: string): void;
-		GetMapItem(itemId: string): void;
-		Logout(): void;
-		HasActiveBoost(boost: 'gold' | 'xp' | 'rep' | 'class' | string): string;
-		UserID(): number;
-		CharID(): number;
-		Gender(): string;
-		// TODO:
-		SetEquip(param1: string, param2: Object): void;
-		// TODO:
-		GetEquip(itemId: string): JSON;
-		// TODO:
-		PlayerData(): JSON;
-		// TODO:
-		GetFactions(): JSON;
-		ChangeName(name: string): void;
-		ChangeGuild(guild: string): void;
-		SetTargetPlayer(username: string): void;
-		ChangeAccessLevel(
-			accessLevel:
-				| 'Non Member'
-				| 'Member'
-				| 'Moderator'
-				| '30'
-				| '40'
-				| '50'
-				| '60',
-		): void;
-		GetTargetHealth(): number;
-		GetSkillCooldown(skillIndex: string): number;
-		SetTargetPvP(username: string): void;
-		// TODO:
-		GetAvatars(): JSON;
-		IsMember(): string;
-		GetAurasValue(self: 'True' | 'False', auraName: string): number;
-		ChangeColorName(color: number): void;
-		GetAccessLevel(username: string): number;
-		IsPlayerLoaded(): string;
-		// World
-		MapLoadComplete(): string;
-		ReloadMap(): void;
-		LoadMap(swf: string): void;
-		PlayersInMap(): string;
-		IsActionAvailable(actionName: string): StringBoolean;
-		GetMonstersInCell(): string;
-		GetVisibleMonstersInCell(): string;
-		GetMonsterHealth(monsterName: string): string;
-		SetSpawnPoint(): void;
-		IsMonsterAvailable(monsterName: string): StringBoolean;
-		IsMonsterAvailableByMonMapID(monMapID: string): StringBoolean;
-		GetSkillName(skillIndex: string): string;
-		GetCells(): string;
-		GetCellPads(): string;
-		GetItemTree(): string;
-		RoomId(): string;
-		RoomNumber(): string;
-		Players(): string;
-		PlayerByName(target: string): string;
-		SetWalkSpeed(walkSpeed: string): void;
-		GetCellPlayers(playerName: string): StringBoolean;
-		CheckCellPlayer(playerName: string, cell: string): StringBoolean;
-		GetPlayerHealth(target: string): string;
-		GetPlayerHealthPercentage(target: string): string;
-		RejectDrop(itemName: string, itemId: string): void;
-		// Quests
-		IsInProgress(questId: string): StringBoolean;
-		Complete(
-			questId: string,
-			qty: number,
-			itemId: string,
-			special: string,
-		): void;
-		Accept(questId: string): void;
-		LoadQuest(questId: string): void;
-		LoadQuests(questIds: string): void;
-		GetQuests(questIds: string): void;
-		GetQuestTree(): string;
-		CanComplete(questId: string): StringBoolean;
-		IsAvailable(questId: string): StringBoolean;
-		// Shops
-		GetShops(): string;
-		LoadShop(shopId: string): void;
-		LoadHairShop(shopId: string): void;
-		LoadArmorCustomizer(): void;
-		SellItem(itemName: string): void;
-		ResetShopInfo(): void;
-		IsShopLoaded(): StringBoolean;
-		BuyItem(itemName: string): void;
-		BuyItemQty(itemName: string, qty: number): void;
-		BuyItemQtyById(qty: number, itemId: number, shopitemId: number): void;
-		// Bank
-		GetBank(): void;
-		GetBankItems(): string;
-		GetBankItemByName(itemName: string): string;
-		BankSlots(): number;
-		UsedBankSlots(): number;
-		TransferToBank(itemName: string): void;
-		TransferToInventory(itemName: string): void;
-		BankSwap(invItemName: string, bankItemName: string): void;
-		ShowBank(): void;
-		LoadBankItems(): void;
-		// Inventory
-		GetInventoryItems(): string;
-		GetInventoryItemByName(itemName: string): string;
-		InventorySlots(): number;
-		UsedInventorySlots(): number;
-		// TempInventory
-		GetTempItems(): string;
-		ItemIsInTemp(itemName: string): string;
-		// House
-		GetHouseItems(): string;
-		HouseSlots(): number;
-		// AutoRelogin
-		IsTemporarilyKicked(): StringBoolean;
-		Login(): void;
-		FixLogin(username: string, password: string): void;
-		ResetServers(): StringBoolean;
-		AreServersLoaded(): StringBoolean;
-		Connect(name: string): void;
-		// Settings
-		SetInfiniteRange(): void;
-		SetProvokeMonsters(): void;
-		SetEnemyMagnet(): void;
-		SetLagKiller(state: string): void;
-		HidePlayers(on: boolean): void;
-		SetSkipCutscenes(): void;
-		// Root
-		SetFPS(fps: string): void;
-		RealAddress(): string;
-		RealPort(): string;
-		GetUsername(): string;
-		GetPassword(): string;
-		SetTitle(title: string): void;
-		SendMessage(msg: string): void;
-		IsConnMCBackButtonVisible(): StringBoolean;
-		GetConnMC(): string;
-		HideConnMC(): void;
-		// Caller
 		getGameObject(path: string): string;
 		getGameObjectS(path: string): string;
 		setGameObject(path: string, value: unknown): void;
@@ -197,42 +27,214 @@ declare global {
 		callGameFunction(path: string, ...args: unknown[]): void;
 		callGameFunction0(path: string): void;
 		selectArrayObjects(path: string, selector: string): string;
-		isNull(path: string): StringBoolean;
-		sendClientPacket(packet: string, type: 'xml' | 'json' | 'str'): void;
-	};
+		isNull(path: string): boolean;
+		sendClientPacket(packet: string, type: 'json' | 'str' | 'xml'): void;
 
-	// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+		authIsLoggedIn(): boolean;
+		authIsTemporarilyKicked(): boolean;
+		authLogin(username: string, password: string): void;
+		authLogout(): void;
+		authGetServers(): ServerData[];
+		authConnectTo(server: string): void;
+
+		bankGetItems(): ItemData[];
+		bankGetItem(key: number | string): ItemData | null;
+		bankContains(key: number | string, quantity?: number): boolean;
+		bankGetSlots(): number;
+		bankGetUsedSlots(): number;
+		bankDeposit(key: number | string, quantity: number): boolean;
+		bankWithdraw(key: number | string, quantity: number): boolean;
+		bankSwap(invKey: number | string, bankKey: number | string): boolean;
+		bankOpen(): void;
+		bankIsOpen(): boolean;
+
+		combatHasTarget(): boolean;
+		combatGetTarget(): Record<string, unknown> | null;
+		combatUseSkill(index: number): void;
+		combatForceUseSkill(index: number): void;
+		combatCanUseSkill(index: number): boolean;
+		combatGetSkillCooldownRemaining(index: number): number;
+		combatCancelAutoAttack(): void;
+		combatCancelTarget(): void;
+		combatAttackMonster(name: string): void;
+		combatAttackMonsterById(monMapId: int): void;
+
+		dropStackAcceptDrop(itemId: number): void;
+		dropStackRejectDrop(itemName: string, itemId: number): void;
+		dropStackIsUsingCustomDrops(): boolean;
+		dropStackSetCustomDropsUiState(on: boolean): void;
+		dropStackIsCustomDropsUiOpen(): boolean;
+
+		houseGetItems(): ItemData[];
+		houseGetItem(key: number | string): Nullable<ItemData>;
+		houseContains(
+			key: number | string,
+			quantity: number | undefined,
+		): boolean;
+		houseGetSlots(): number;
+
+		inventoryGetItems(): ItemData[];
+		inventoryGetItem(key: number | string): Nullable<ItemData>;
+		inventoryContains(
+			key: number | string,
+			quantity: number | undefined,
+		): boolean;
+		inventoryGetSlots(): number;
+		inventoryGetUsedSlots(): number;
+		inventoryEquip(key: number | string): boolean;
+		inventoryEquipConsumable(
+			itemId: number,
+			sDesc: string,
+			sFile: string,
+			sName: string,
+		): boolean;
+
+		playerJoinMap(
+			map: string,
+			cell: string | null,
+			pad: string | null,
+		): void;
+		playerGetMap(): string;
+		playerJump(cell: string, pad: string | null): void;
+		playerGetCell(): string;
+		playerGetPad(): string;
+		playerGetFactions(): FactionData[];
+		playerGetState(): number;
+		playerGetHp(): number;
+		playerGetMaxHp(): number;
+		playerGetMp(): number;
+		playerGetMaxMp(): number;
+		playerGetLevel(): number;
+		playerGetGold(): number;
+		playerIsMember(): boolean;
+		playerIsAfk(): boolean;
+		playerGetPosition(): [number, number];
+		playerWalkTo(x: number, y: number, walkSpeed: number | null): void;
+		playerRest(): void;
+		playerUseBoost(itemId: int): boolean;
+		playerHasActiveBoost(boost: string): boolean;
+		playerGetClassName(): string;
+		playerGetUserId(): number;
+		playerGetCharId(): number;
+		playerGetGender(): string;
+		playerGetData(): Record<string, unknown>;
+		playerIsLoaded(): boolean;
+		playerGoTo(name: string): void;
+
+		questsIsInProgress(questId: number): boolean;
+		questsComplete(
+			questId: number,
+			turnIns?: number,
+			itemId?: number,
+			special?: boolean,
+		): void;
+		questsAccept(questId: number): void;
+		questsLoad(questId: number): void;
+		questsGet(questId: number): Nullable<Record<string, unknown>>;
+		questsGetTree(): Record<string, unknown>[];
+		questsIsOneTimeQuestDone(questId: number): boolean;
+
+		settingsInfiniteRange(): void;
+		settingsProvokeMap(): void;
+		settingsProvokeCell(): void;
+		settingsEnemyMagnet(): void;
+		settingsLagKiller(on: boolean): void;
+		settingsSkipCutscenes(): void;
+		settingsSetName(name: string): void;
+		settingsSetGuild(name: string): void;
+		settingsSetWalkSpeed(speed: number): void;
+		settingsSetAccessLevel(
+			accessLevel:
+				| '30'
+				| '40'
+				| '50'
+				| '60'
+				| 'Member'
+				| 'Moderator'
+				| 'Non Member',
+		);
+		settingsSetDeathAds(on: boolean): void;
+		settingsSetDisableCollisions(on: boolean): void;
+		settingsSetDisableFX(on: boolean): void;
+		settingsSetHidePlayers(on: boolean): void;
+
+		shopGetInfo(): Nullable<ShopInfo>;
+		shopGetItems(): ItemData[];
+		shopGetItem(key: number | string): Nullable<ItemData>;
+		shopBuyByName(name: string, quantity?: number): boolean;
+		shopBuyById(id: number | string, quantity?: number): boolean;
+		shopSellByName(name: string, quantity?: number): boolean;
+		shopSellById(id: number | string, quantity?: number): boolean;
+		shopLoad(shopId: number): void;
+		shopLoadHairShop(shopId: number): void;
+		shopLoadAmorCustomize(): void;
+
+		tempInventoryGetItems(): ItemData[];
+		tempInventoryGetItem(key: number | string): Nullable<ItemData>;
+		tempInventoryContains(key: number | string, quantity?: number): boolean;
+
+		worldIsLoaded(): boolean;
+		worldGetPlayerNames(): string[];
+		worldGetPlayers(): Record<string, PlayerData>[];
+		worldGetPlayer(name: string): Nullable<PlayerData>;
+		worldIsPlayerInCell(name: string, cell?: string): boolean;
+		worldIsActionAvailable(gameAction: string): boolean;
+		worldGetCellMonsters(): MonsterData[];
+		worldGetMonsterByName(key: string | '*'): Nullable<MonsterData>;
+		worldGetMonsterByMonMapId(key: number): Nullable<MonsterData>;
+		worldIsMonsterAvailable(key: number | string | '*'): boolean;
+		worldGetCells(): string[];
+		worldGetCellPads(): string[];
+		worldGetItemTree(): ItemData[];
+		worldGetRoomId(): number;
+		worldGetRoomNumber(): number;
+		worldReload(): void;
+		worldLoadSwf(swf: string): void;
+		worldGetMapItem(itemId: number): void;
+		worldSetSpawnPoint(cell?: string, pad?: string): void;
+	};
+	/* eslint-enable typescript-sort-keys/interface */
+
+	/* eslint-disable @typescript-eslint/consistent-type-definitions */
 	interface Window {
-		Bot: InstanceType<Bot>;
-		bot: InstanceType<typeof Bot>;
-		auth: InstanceType<typeof import('./api/Auth').Auth>;
-		bank: InstanceType<typeof import('./api/Bank').Bank>;
-		combat: InstanceType<typeof import('./api/Combat')>;
-		drops: InstanceType<typeof import('./api/Drops')>;
-		house: InstanceType<typeof import('./api/House')>;
-		flash: InstanceType<typeof import('./api/util/Flash')>;
-		inventory: InstanceType<typeof import('./api/Inventory')>;
-		player: InstanceType<typeof import('./api/Player')>;
-		packets: InstanceType<typeof import('./api/Packets')>;
-		quests: InstanceType<typeof import('./api/Quests')>;
-		settings: InstanceType<typeof import('./api/Settings')>;
-		shops: InstanceType<typeof import('./api/Shops')>;
-		tempInventory: InstanceType<
-			typeof import('./api/TempInventory').TempInventory
-		>;
-		world: InstanceType<typeof import('./api/World')>;
+		/* eslint-disable typescript-sort-keys/interface */
+		Bot: InstanceType<typeof Bot>;
+
+		auth: ReturnType<(typeof Bot)['auth']>;
+		bank: ReturnType<(typeof Bot)['bank']>;
+		combat: ReturnType<(typeof Bot)['combat']>;
+		drops: ReturnType<(typeof Bot)['drops']>;
+		house: ReturnType<(typeof Bot)['house']>;
+		inventory: ReturnType<(typeof Bot)['inventory']>;
+		quests: ReturnType<(typeof Bot)['quests']>;
+		player: ReturnType<(typeof Bot)['player']>;
+		packets: ReturnType<(typeof Bot)['packets']>;
+		settings: ReturnType<(typeof Bot)['settings']>;
+		shops: ReturnType<(typeof Bot)['shops']>;
+		tempInventory: ReturnType<(typeof Bot)['tempInventory']>;
+		world: ReturnType<(typeof Bot)['world']>;
+
+		// utilities
+
+		flash: ReturnType<(typeof Bot)['flash']>;
+		autoRelogin: ReturnType<(typeof Bot)['autoRelogin']>;
+		timerManager: ReturnType<(typeof Bot)['timerManager']>;
+
+		// interop
+		debug(...args: string[]): void;
+		packetFromClient(packet: [string]): Promise<void> | void;
+		packetFromServer(packet: [string]): Promise<void> | void;
+		loaded(): Promise<void> | void;
+		connection(state: [string]): void;
 
 		swf: GameSWF;
 
-		packetFromServer([packet]: [string]): Promise<void> | void;
-		packetFromClient([packet]: [string]): Promise<void> | void;
-		connection([state]: [string]): void;
-		progress([percentage]: [number]): void;
-		account?: Account;
-
+		// other
 		ports: Map<WindowId, MessagePort>;
 		portMonitors: Map<WindowId, PortMonitor>;
-
 		scriptBlob?: Blob | null;
+		account?: Account;
+		/* eslint-enable typescript-sort-keys/interface */
 	}
+	/* eslint-enable @typescript-eslint/consistent-type-definitions */
 }

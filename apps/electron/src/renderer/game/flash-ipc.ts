@@ -48,7 +48,7 @@ window.packetFromServer = async ([packet]: [string]) => {
 	}
 };
 
-window.packetFromClient = async ([packet]: [string]) => {
+window.packetFromClient = async (packet: [string]) => {
 	bot.emit('packetFromClient', packet);
 };
 
@@ -74,12 +74,8 @@ window.connection = ([state]: [string]) => {
 	else if (state === 'OnConnectionLost') bot.emit('logout');
 };
 
-window.progress = async ([percentage]: [number]) => {
-	if (
-		percentage === 100 &&
-		window?.account?.username &&
-		window?.account?.password
-	) {
+window.loaded = async () => {
+	if (window?.account?.username && window?.account?.password) {
 		console.log('Logging in with:', window.account.username);
 
 		await bot.sleep(1_000);

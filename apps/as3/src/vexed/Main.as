@@ -86,6 +86,14 @@ package vexed
 			this.game.params.loginURL = this.loginURL;
 
 			this.game.sfc.addEventListener(SFSEvent.onDebugMessage, this.onDebugMessage);
+			this.game.sfc.addEventListener(SFSEvent.onConnection, function():void
+				{
+					Main.getInstance().external.call('connection', 'OnConnection');
+				});
+			this.game.sfc.addEventListener(SFSEvent.onConnectionLost, function():void
+				{
+					Main.getInstance().external.call('connection', 'OnConnectionLost');
+				});
 			// this.game.sfc.addEventListener(SFSEvent.onExtensionResponse, this.onExtensionResponse);
 			this.gameDomain = LoaderInfo(ev.target).applicationDomain;
 
@@ -94,18 +102,19 @@ package vexed
 
 			Modules.init();
 			this.stg.addEventListener(Event.ENTER_FRAME, Modules.handleFrame);
+
+			this.external.call('loaded');
 		}
 
-		private function onDebugMessage(ev:SFSEvent):void
+		private function onDebugMessage(packet:*):void
 		{
-			var packet:String = ev.params.message;
-			if (packet.indexOf('%xt%zm%') > -1)
+			if (packet.params.message.indexOf("%xt%zm%") > -1)
 			{
-				this.external.call('packetFromClient', packet.replace(/^\s+|\s+$/g, ''));
+				this.external.call("packetFromClient", packet.params.message.replace(/^\s+|\s+$/g, ''));
 			}
 			else
 			{
-				this.external.call('packetFromServer', processPacket(packet));
+				this.external.call("packetFromServer", processPacket(packet.params.message));
 			}
 		}
 
@@ -132,7 +141,7 @@ package vexed
 			return packet;
 		}
 
-		// public function onExtensionResponse(packet:*):void
+		// private function onExtensionResponse(packet:*):void
 		// {
 		// this.external.call('pext', JSON.stringify(packet));
 		// }

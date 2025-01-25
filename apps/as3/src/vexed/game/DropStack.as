@@ -1,8 +1,6 @@
 package vexed.game
 {
   import vexed.Main;
-  import flash.system.ApplicationDomain;
-  import flash.utils.getDefinitionByName;
 
   public class DropStack
   {

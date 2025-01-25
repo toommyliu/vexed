@@ -117,6 +117,7 @@ package vexed
 			this.addCallback("questsLoad", Quests.load);
 			this.addCallback("questsGet", Quests.get );
 			this.addCallback("questsGetTree", Quests.getTree);
+			this.addCallback("questsIsOneTimeQuestDone", Quests.isOneTimeQuestDone);
 
 			// Settings
 			this.addCallback("settingsInfiniteRange", Settings.infiniteRange);
@@ -127,6 +128,7 @@ package vexed
 			this.addCallback("settingsSkipCutscenes", Settings.skipCutscenes);
 			this.addCallback("settingsSetName", Settings.setName);
 			this.addCallback("settingsSetGuild", Settings.setGuild);
+			this.addCallback("settingsSetWalkSpeed", Settings.setWalkSpeed);
 			this.addCallback("settingsSetAccessLevel", Settings.setAccessLevel);
 			this.addCallback("settingsSetDeathAds", Settings.setDeathAds);
 			this.addCallback("settingsSetDisableCollisions", function(on:Boolean):void
@@ -151,7 +153,7 @@ package vexed
 						Modules.disable("DisableFX");
 					}
 				});
-			this.addCallback("settingsHidePlayers", function(on:Boolean):void
+			this.addCallback("settingsSetHidePlayers", function(on:Boolean):void
 				{
 					if (on)
 					{
@@ -175,6 +177,11 @@ package vexed
 			this.addCallback("shopLoadHairShop", Shops.loadHairShop);
 			this.addCallback("shopLoadArmorCustomize", Shops.loadArmorCustomize);
 
+			// TempInventory
+			this.addCallback("tempInventoryGetItems", TempInventory.getItems);
+			this.addCallback("tempInventoryGetItem", TempInventory.getItem);
+			this.addCallback("tempInventoryContains", TempInventory.contains);
+
 			// World
 			this.addCallback("worldIsLoaded", World.isLoaded);
 			this.addCallback("worldGetPlayerNames", World.getPlayerNames);
@@ -194,6 +201,7 @@ package vexed
 			this.addCallback("worldReload", World.reload);
 			this.addCallback("worldLoadSwf", World.loadSwf);
 			this.addCallback("worldGetMapItem", World.getMapItem);
+			this.addCallback("worldSetSpawnPoint", World.setSpawnPoint);
 
 			this.debug("Externalizer::init done.");
 		}
