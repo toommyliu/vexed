@@ -115,6 +115,11 @@ package vexed
 			return this.external;
 		}
 
+		public function getGameDomain():ApplicationDomain
+		{
+			return this.gameDomain;
+		}
+
 		public static function getGameObject(path:String):String
 		{
 			var obj:* = _getObjectS(_instance.game, path);

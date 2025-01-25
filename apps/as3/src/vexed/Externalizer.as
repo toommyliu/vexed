@@ -58,6 +58,13 @@ package vexed
 			this.addCallback("combatAttackMonster", Combat.attackMonster);
 			this.addCallback("combatAttackMonsterById", Combat.attackMonsterById);
 
+			// DropStack
+			this.addCallback("dropStackAcceptDrop", DropStack.acceptDrop);
+			this.addCallback("dropStackRejectDrop", DropStack.rejectDrop);
+			this.addCallback("dropStackIsUsingCustomDrops", DropStack.isUsingCustomDrops);
+			this.addCallback("dropStackSetCustomDropsUi", DropStack.setCustomDropsUi);
+			this.addCallback("dropStackIsCustomDropsUiOpen", DropStack.isCustomDropsUiOpen);
+
 			// House
 			this.addCallback("houseGetItems", House.getItems);
 			this.addCallback("houseGetItem", House.getItem);
@@ -101,6 +108,7 @@ package vexed
 			this.addCallback("playerGetData", Player.getData);
 			this.addCallback("playerIsLoaded", Player.isLoaded);
 			this.addCallback("playerGoTo", Player.goToPlayer);
+			
 
 			// Quests
 			this.addCallback("questsIsInProgress", Quests.isInProgress);
@@ -135,12 +143,10 @@ package vexed
 				{
 					if (on)
 					{
-						Main.getInstance().getExternal().debug("Enabled DisableFX");
 						Modules.enable("DisableFX");
 					}
 					else
 					{
-						Main.getInstance().getExternal().debug("Disabled DisableFX");
 						Modules.disable("DisableFX");
 					}
 				});

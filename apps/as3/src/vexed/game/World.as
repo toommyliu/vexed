@@ -287,6 +287,17 @@ package vexed.game
       game.world.getMapItem(itemId);
     }
 
+    public static function setSpawnPoint(cell:String = null, pad:String = null):void
+    {
+      if (!cell)
+        cell = game.world.strFrame;
+
+      if (!pad)
+        pad = game.world.strPad;
+
+      game.world.setSpawnPoint(cell, pad);
+    }
+
     // TODO:
     // World
     // Player
