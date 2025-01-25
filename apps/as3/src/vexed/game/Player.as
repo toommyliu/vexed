@@ -181,6 +181,16 @@ package vexed.game
 
     public static function getData():Object
     {
+      if (game.world === null)
+      {
+        return null;
+      }
+
+      if (game.world.myAvatar === null)
+      {
+        return null;
+      }
+
       return game.world.myAvatar.objData;
     }
 
@@ -195,6 +205,28 @@ package vexed.game
         return;
 
       game.world['goto'](name);
+    }
+
+    public static function getUsername():String
+    {
+      var playerData:* = getData();
+      if (playerData === null)
+      {
+        return null;
+      }
+
+      return playerData.strUsername;
+    }
+
+    public static function getPassword():String
+    {
+      var loginInfo:String = Main.getGameObjectS("loginInfo");
+      if (loginInfo === "{}")
+      {
+        return null;
+      }
+
+      return JSON.parse(loginInfo).strPassword;
     }
   }
 }
