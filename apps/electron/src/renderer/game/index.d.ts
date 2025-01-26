@@ -2,9 +2,11 @@ import type { WINDOW_IDS, WindowId } from '../../common/constants';
 import type PortMonitor from '../../common/port-monitor';
 import type { Bot } from './api/Bot';
 import type { ShopInfo } from './api/Shop';
+import type { AvatarData } from './api/struct/Avatar';
 import type { FactionData } from './api/struct/Faction';
 import type { ItemData } from './api/struct/Item';
 import type { MonsterData } from './api/struct/Monster';
+import type { QuestData } from './api/struct/Quest';
 import type { ServerData } from './api/struct/Server';
 
 type Nullable<T> = T | null;
@@ -40,10 +42,11 @@ declare global {
 		bankGetItems(): ItemData[];
 		bankGetItem(key: number | string): ItemData | null;
 		bankContains(key: number | string, quantity?: number): boolean;
+		bankLoadItems(): void;
 		bankGetSlots(): number;
 		bankGetUsedSlots(): number;
-		bankDeposit(key: number | string, quantity: number): boolean;
-		bankWithdraw(key: number | string, quantity: number): boolean;
+		bankDeposit(key: number | string): boolean;
+		bankWithdraw(key: number | string): boolean;
 		bankSwap(invKey: number | string, bankKey: number | string): boolean;
 		bankOpen(): void;
 		bankIsOpen(): boolean;
@@ -109,7 +112,7 @@ declare global {
 		playerIsMember(): boolean;
 		playerIsAfk(): boolean;
 		playerGetPosition(): [number, number];
-		playerWalkTo(x: number, y: number, walkSpeed: number | null): void;
+		playerWalkTo(x: number, y: number, walkSpeed?: number): void;
 		playerRest(): void;
 		playerUseBoost(itemId: int): boolean;
 		playerHasActiveBoost(boost: string): boolean;
@@ -131,7 +134,7 @@ declare global {
 		questsAccept(questId: number): void;
 		questsLoad(questId: number): void;
 		questsGet(questId: number): Nullable<Record<string, unknown>>;
-		questsGetTree(): Record<string, unknown>[];
+		questsGetTree(): QuestData[];
 		questsIsOneTimeQuestDone(questId: number): boolean;
 
 		settingsInfiniteRange(): void;
@@ -175,8 +178,8 @@ declare global {
 
 		worldIsLoaded(): boolean;
 		worldGetPlayerNames(): string[];
-		worldGetPlayers(): Record<string, PlayerData>[];
-		worldGetPlayer(name: string): Nullable<PlayerData>;
+		worldGetPlayers(): Record<string, AvatarData>[];
+		worldGetPlayer(name: string): Nullable<AvatarData>;
 		worldIsPlayerInCell(name: string, cell?: string): boolean;
 		worldIsActionAvailable(gameAction: string): boolean;
 		worldGetCellMonsters(): MonsterData[];

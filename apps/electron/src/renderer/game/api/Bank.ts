@@ -12,7 +12,7 @@ export class Bank {
 	 * The list of items in the bank.
 	 */
 	public get items(): BankItem[] {
-		const ret = this.bot.flash.call(() => swf.GetBankItems());
+		const ret = this.bot.flash.call(() => swf.bankGetItems());
 		return Array.isArray(ret)
 			? ret.map((item: ItemData) => new BankItem(item))
 			: [];
@@ -23,52 +23,40 @@ export class Bank {
 	 *
 	 * @remarks
 	 * Bank items must have been loaded beforehand to retrieve an item.
-	 * @param itemKey - The name or ID of the item.
+	 * @param key - The name or ID of the item.
 	 */
-	public get(itemKey: number | string): BankItem | null {
-		const val =
-			typeof itemKey === 'string' ? itemKey.toLowerCase() : itemKey;
+	public get(key: number | string): BankItem | null {
+		return this.bot.flash.call(() => {
+			const item = swf.bankGetItem(key);
+			if (!item) return null;
 
-		return (
-			this.items.find((item) => {
-				if (typeof val === 'string') {
-					return item.name.toLowerCase() === val;
-				} else if (typeof val === 'number') {
-					return item.id === val;
-				}
-
-				return false;
-			}) ?? null
-		);
+			return new BankItem(item);
+		});
 	}
 
 	/**
 	 * Whether an item meets the quantity in the bank.
 	 *
 	 * @remarks If the item is a Class, the quantity is ignored.
-	 * @param itemKey - The name or ID of the item.
+	 * @param key - The name or ID of the item.
 	 * @param quantity - The quantity of the item.
 	 */
-	public contains(itemKey: number | string, quantity: number = 1): boolean {
-		const item = this.get(itemKey);
-		return (
-			item !== null &&
-			(item.quantity >= quantity || item.category === 'Class')
-		);
+	public contains(key: number | string, quantity: number = 1): boolean {
+		return this.bot.flash.call(() => swf.bankContains(key, quantity));
 	}
 
 	/**
 	 * The number of bank slots.
 	 */
 	public get totalSlots(): number {
-		return this.bot.flash.call(() => swf.BankSlots());
+		return this.bot.flash.call(() => swf.bankGetSlots());
 	}
 
 	/**
 	 * The number of bank slots currently in use.
 	 */
 	public get usedSlots(): number {
-		return this.bot.flash.call(() => swf.UsedBankSlots());
+		return this.bot.flash.call(() => swf.bankGetUsedSlots());
 	}
 
 	/**
@@ -81,18 +69,19 @@ export class Bank {
 	/**
 	 * Puts an item into the bank.
 	 *
-	 * @param item - The name or ID of the item.
+	 * @param key - The name or ID of the item.
 	 */
-	public async deposit(item: number | string): Promise<void> {
-		if (!this.bot.inventory.get(item)) return;
+	public async deposit(key: number | string): Promise<void> {
+		if (!this.bot.inventory.get(key)) {
+			throw new Error('Item not found in inventory');
+		}
 
 		await this.open();
 
-		this.bot.flash.call(() => swf.TransferToBank(String(item)));
+		this.bot.flash.call<boolean>(() => swf.bankDeposit(key));
 		await this.bot.waitUntil(
 			() =>
-				this.get(item) !== null &&
-				this.bot.inventory.get(item) === null,
+				this.get(key) !== null && this.bot.inventory.get(key) === null,
 			() => this.bot.auth.isLoggedIn(),
 			3,
 		);
@@ -112,28 +101,29 @@ export class Bank {
 	/**
 	 * Takes an item out of the bank.
 	 *
-	 * @param item - The name or ID of the item.
+	 * @param key - The name or ID of the item.
 	 */
-	public async withdraw(item: number | string) {
-		if (!this.get(item) || this.bot.inventory.get(item)) return;
+	public async withdraw(key: number | string): Promise<void> {
+		if (!this.get(key)) {
+			throw new Error('Item not found in bank');
+		}
+
+		if (this.bot.inventory.get(key)) {
+			throw new Error('Item already in inventory');
+		}
 
 		await this.open();
 
-		this.bot.flash.call(() => swf.TransferToInventory(String(item)));
+		this.bot.flash.call<boolean>(() => swf.bankWithdraw(key));
+
 		await this.bot.waitUntil(
 			() =>
-				this.get(item) === null &&
-				this.bot.inventory.get(item) !== null,
+				this.get(key) === null && this.bot.inventory.get(key) !== null,
 			() => this.bot.auth.isLoggedIn(),
 			3,
 		);
 	}
 
-	/**
-	 * Takes multiple items out of the bank.
-	 *
-	 * @param items - The list of items to withdraw.
-	 */
 	public async withdrawMultiple(items: (number | string)[]): Promise<void> {
 		if (!Array.isArray(items) || !items.length) return;
 
@@ -160,9 +150,7 @@ export class Bank {
 
 		await this.open();
 
-		this.bot.flash.call(() =>
-			swf.BankSwap(String(inventoryItem), String(bankItem)),
-		);
+		this.bot.flash.call(() => swf.bankSwap(inventoryItem, bankItem));
 		await this.bot.waitUntil(
 			() => !isInBank() && !isInInventory(),
 			() => this.bot.player.isReady(),
@@ -203,18 +191,18 @@ export class Bank {
 
 		// If it's already open, close it first
 		if (this.isOpen()) {
-			this.bot.flash.call(() => swf.ShowBank());
+			this.bot.flash.call(() => swf.bankOpen());
 			await this.bot.waitUntil(() => !this.isOpen());
 			await this.bot.sleep(500);
 		}
 
 		// Open the ui
-		this.bot.flash.call(() => swf.ShowBank());
+		this.bot.flash.call(() => swf.bankOpen());
 		await this.bot.waitUntil(() => this.isOpen());
 
 		// Load items if needed
 		if (!this.isLoaded || loadItems) {
-			this.bot.flash.call(() => swf.LoadBankItems());
+			this.bot.flash.call(() => swf.bankLoadItems());
 			this.isLoaded = true;
 		}
 
@@ -229,6 +217,6 @@ export class Bank {
 	 * Whether the bank ui is open.
 	 */
 	public isOpen(): boolean {
-		return this.bot.flash.get('ui.mcPopup.currentLabel') === '"Bank"';
+		return this.bot.flash.call(() => swf.bankIsOpen());
 	}
 }

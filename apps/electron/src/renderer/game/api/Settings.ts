@@ -83,37 +83,34 @@ export class Settings {
 			}
 
 			if (this.infiniteRange) {
-				this.bot.flash.call(() => swf.SetInfiniteRange());
+				this.bot.flash.call(() => swf.settingsInfiniteRange());
 			}
 
-			if (this.provokeMap && this.bot.world.monsters.length > 0) {
-				const ids = this.bot.world.monsters.map((mon) => mon.MonMapID);
-				this.bot.packets.sendServer(
-					`%xt%zm%aggroMon%${this.bot.world.roomId}%${ids.join('%')}%`,
-				);
+			if (this.provokeMap) {
+				this.bot.flash.call(() => swf.settingsProvokeMap());
 			}
 
 			if (this.provokeCell) {
-				this.bot.flash.call(() => swf.SetProvokeMonsters());
+				this.bot.flash.call(() => swf.settingsProvokeCell());
 			}
 
 			if (this.enemyMagnet) {
-				this.bot.flash.call(() => swf.SetEnemyMagnet());
+				this.bot.flash.call(() => swf.settingsEnemyMagnet());
 			}
 
 			if (this.skipCutscenes) {
-				this.bot.flash.call(() => swf.SetSkipCutscenes());
+				this.bot.flash.call(() => swf.settingsSkipCutscenes());
 			}
 
-			this.bot.flash.call(() =>
-				swf.SetLagKiller(this.lagKiller ? 'True' : 'False'),
-			);
+			this.bot.flash.call(() => swf.settingsLagKiller(!this.lagKiller));
 
-			this.bot.flash.call(() => swf.HidePlayers(this.hidePlayers));
+			this.bot.flash.call(() =>
+				swf.settingsSetHidePlayers(this.hidePlayers),
+			);
 
 			if (this.walkSpeed !== 8) {
 				this.bot.flash.call(() =>
-					swf.SetWalkSpeed(String(this.walkSpeed)),
+					swf.settingsSetWalkSpeed(this.walkSpeed),
 				);
 			}
 		}, 500);
@@ -202,12 +199,6 @@ export class Settings {
 	public set lagKiller(on: boolean) {
 		this.#lagKiller = on;
 		this.#updateOption(this.#optionLagKiller!, on);
-		// Call immediately
-		if (on) {
-			this.bot.flash.call(() => swf.SetLagKiller('True'));
-		} else {
-			this.bot.flash.call(() => swf.SetLagKiller('False'));
-		}
 	}
 
 	/**
@@ -225,7 +216,6 @@ export class Settings {
 	public set hidePlayers(on: boolean) {
 		this.#hidePlayers = on;
 		this.#updateOption(this.#optionHidePlayers!, on);
-		this.bot.flash.call(() => swf.HidePlayers(this.#hidePlayers));
 	}
 
 	/**
@@ -276,7 +266,7 @@ export class Settings {
 	 * @param fps - The target fps.
 	 */
 	public setFps(fps: number | string): void {
-		this.bot.flash.call(() => swf.SetFPS(String(fps)));
+		this.bot.flash.set('stg.frameRate', Number.parseInt(String(fps), 10));
 	}
 
 	/**

@@ -136,7 +136,7 @@ export class Drops {
 		if (!item) return;
 
 		this.bot.flash.call(() =>
-			swf.RejectDrop(item.sName, String(item.ItemID)),
+			swf.dropStackRejectDrop(item.sName, item.ItemID),
 		);
 
 		if (removeFromStore) {
@@ -152,6 +152,34 @@ export class Drops {
 	public hasDrop(itemKey: number | string): boolean {
 		const item = this.resolveItem(itemKey);
 		return item !== null && this.getDropCount(item.ItemID) > 0;
+	}
+
+	/**
+	 * Whether the player is using the custom drops ui.
+	 */
+	public isUsingCustomUi(): boolean {
+		return this.bot.flash.call<boolean>(() =>
+			swf.dropStackIsUsingCustomDrops(),
+		);
+	}
+
+	/**
+	 * Whether the custom drops ui is open.
+	 */
+	public isCustomUiOpen(): boolean {
+		return this.bot.flash.call<boolean>(() =>
+			swf.dropStackIsCustomDropsUiOpen(),
+		);
+	}
+
+	// TODO: doesn't work anymore?
+	/**
+	 * Sets the custom drops ui state.
+	 *
+	 * @param on - Whether to use the custom drops ui.
+	 */
+	public setCustomDropsUi(on: boolean): void {
+		this.bot.flash.call(() => swf.dropStackSetCustomDropsUiState(on));
 	}
 
 	private removeDrop(itemId: number): void {

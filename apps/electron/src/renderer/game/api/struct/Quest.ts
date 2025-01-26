@@ -27,7 +27,7 @@ export class Quest {
 	 * Whether this quest is in progress.
 	 */
 	public get inProgress(): boolean {
-		return this.#bot.flash.call(() => swf.IsInProgress(String(this.id)));
+		return this.#bot.flash.call(() => swf.questsIsInProgress(this.id));
 	}
 
 	/**
@@ -47,7 +47,9 @@ export class Quest {
 	public canComplete(): boolean {
 		if (!this.#bot.quests.get(this.id)) return false;
 
-		return this.#bot.flash.call(() => swf.CanComplete(String(this.id)));
+		// TODO:
+		return true;
+		// return this.#bot.flash.call(() => swf.CanComplete(String(this.id)));
 	}
 
 	/**
@@ -56,6 +58,7 @@ export class Quest {
 	public isAvailable(): boolean {
 		if (!this.#bot.quests.get(this.id)) return false;
 
+		// TODO: 
 		return this.#bot.flash.call<boolean>(() =>
 			swf.IsAvailable(String(this.id)),
 		);

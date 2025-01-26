@@ -24,7 +24,9 @@ export class Combat {
 	 * Whether the player has a target.
 	 */
 	public hasTarget(): boolean {
-		return Boolean(this.bot.flash.call<boolean>(() => swf.HasTarget()));
+		return Boolean(
+			this.bot.flash.call<boolean>(() => swf.combatHasTarget()),
+		);
 	}
 
 	/**
@@ -73,15 +75,15 @@ export class Combat {
 		force = false,
 		wait = false,
 	): Promise<void> {
-		const strIndex = String(index);
+		const idx = Number.parseInt(String(index), 10);
 		if (wait) {
-			await this.bot.sleep(swf.SkillAvailable(strIndex));
+			await this.bot.sleep(swf.combatGetSkillCooldownRemaining(idx));
 		}
 
 		if (force) {
-			this.bot.flash.call(() => swf.ForceUseSkill(strIndex));
+			this.bot.flash.call(() => swf.combatForceUseSkill(idx));
 		} else {
-			this.bot.flash.call(() => swf.UseSkill(strIndex));
+			this.bot.flash.call(() => swf.combatUseSkill(idx));
 		}
 	}
 
@@ -93,25 +95,25 @@ export class Combat {
 	public attack(monsterResolvable: string): void {
 		if (isMonsterMapId(monsterResolvable)) {
 			const monMapId = monsterResolvable.slice(3);
-			this.bot.flash.call(() => swf.AttackMonsterByMonMapId(monMapId));
+			this.bot.flash.call(() => swf.combatAttackMonsterById(monMapId));
 			return;
 		}
 
-		this.bot.flash.call(() => swf.AttackMonster(monsterResolvable));
+		this.bot.flash.call(() => swf.combatAttackMonster(monsterResolvable));
 	}
 
 	/**
 	 * Cancels the current target.
 	 */
 	public cancelTarget(): void {
-		this.bot.flash.call(() => swf.CancelTarget());
+		this.bot.flash.call(() => swf.combatCancelTarget());
 	}
 
 	/**
 	 * Cancels an auto attack.
 	 */
 	public cancelAutoAttack(): void {
-		this.bot.flash.call(() => swf.CancelAutoAttack());
+		this.bot.flash.call(() => swf.combatCancelAutoAttack());
 	}
 
 	/**
@@ -333,7 +335,7 @@ export class Combat {
 			await this.exit();
 		}
 
-		swf.Rest();
+		swf.playerRest();
 
 		if (full) {
 			await this.bot.waitUntil(

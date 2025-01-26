@@ -39,6 +39,11 @@ package vexed.game
       return null;
     }
 
+    public static function loadItems():void
+    {
+      game.world.sendBankLoadRequest(["*"]);
+    }
+
     public static function contains(key:*, quantity:int):Boolean
     {
       if (!key)

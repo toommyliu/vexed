@@ -9,10 +9,9 @@ export class Quests {
 	 * A list of quests loaded in the client.
 	 */
 	public get tree(): Quest[] {
-		const ret = this.bot.flash.call(() => swf.GetQuestTree());
-		return Array.isArray(ret)
-			? ret.map((data: QuestData) => new Quest(data))
-			: [];
+		return this.bot.flash.call(() =>
+			swf.questsGetTree().map((data: QuestData) => new Quest(data)),
+		);
 	}
 
 	/**
@@ -38,10 +37,11 @@ export class Quests {
 	 * @param questId - The quest id to load.
 	 */
 	public async load(questId: number | string): Promise<void> {
-		const id = String(questId);
+		const id = Number.parseInt(String(questId), 10);
 		if (this.get(id)) return;
 
-		await this.bot.flash.call(() => swf.LoadQuest(id));
+		this.bot.flash.call(() => swf.questsGet(id));
+		this.bot.flash.call(() => swf.questsLoad(id));
 		await this.bot.waitUntil(() => this.get(id) !== null, null, 5);
 	}
 
@@ -64,7 +64,7 @@ export class Quests {
 	 * @returns Promise<void>
 	 */
 	public async accept(questId: number | string): Promise<void> {
-		const id = String(questId);
+		const id = Number.parseInt(String(questId), 10);
 
 		if (!this.get(id)) await this.load(id);
 
@@ -78,7 +78,7 @@ export class Quests {
 			5,
 		);
 
-		this.bot.flash.call(() => swf.Accept(id));
+		this.bot.flash.call(() => swf.questsAccept(id));
 		await this.bot.waitUntil(
 			() => Boolean(this.get(id)?.inProgress),
 			null,
@@ -116,15 +116,12 @@ export class Quests {
 			this.bot.world.isActionAvailable(GameAction.TryQuestComplete),
 		);
 
-		if (!this.get(questId)?.canComplete()) return;
+		const id = Number.parseInt(String(questId), 10);
+
+		if (!this.get(id)?.canComplete()) return;
 
 		this.bot.flash.call(() => {
-			swf.Complete(
-				String(questId),
-				turnIns,
-				String(itemId),
-				special === true ? 'True' : 'False',
-			);
+			swf.questsComplete(id, turnIns, itemId, special);
 		});
 	}
 }

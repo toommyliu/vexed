@@ -9,7 +9,7 @@ export class TempInventory {
 	 * A list of items in the temp inventory.
 	 */
 	public get items(): TempInventoryItem[] {
-		const ret = this.bot.flash.call(() => swf.GetTempItems());
+		const ret = this.bot.flash.call(() => swf.tempInventoryGetItems());
 		return Array.isArray(ret)
 			? ret.map(
 					(data) =>

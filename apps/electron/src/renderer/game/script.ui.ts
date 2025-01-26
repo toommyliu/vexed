@@ -369,7 +369,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 			const _cell = el_cells.value ?? 'Enter';
 			const _pad = el_pads.value ?? 'Spawn';
 
-			bot.flash.call(() => swf.Jump(_cell, _pad));
+			bot.flash.call(() => swf.playerJump(_cell, _pad));
 		};
 
 		el_cells.addEventListener('mousedown', (ev) => {
@@ -392,10 +392,10 @@ window.addEventListener('DOMContentLoaded', async () => {
 	{
 		const btn = document.querySelector('#bank') as HTMLButtonElement;
 		btn.addEventListener('click', async () => {
-			if (!bot.player.isReady()) return;
+			// if (!bot.player.isReady()) return;
 
 			if (bot.bank.isOpen()) {
-				bot.flash.call(() => swf.ShowBank());
+				bot.flash.call(() => swf.bankOpen());
 			} else {
 				await bot.bank.open();
 			}
@@ -522,3 +522,8 @@ window.addEventListener('keydown', (ev) => {
 		}
 	}
 });
+
+// @ts-expect-error this conflict is ok
+window.debug = (...args: string[]) => {
+	console.log(...args);
+};

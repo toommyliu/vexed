@@ -10,31 +10,23 @@ export class Inventory {
 	 * Gets items in the Inventory of the current player.
 	 */
 	public get items(): InventoryItem[] {
-		const ret = this.bot.flash.call(() => swf.GetInventoryItems());
-		return Array.isArray(ret)
-			? ret.map((data) => new InventoryItem(data as unknown as ItemData))
-			: [];
+		return this.bot.flash
+			.call<unknown[]>(() => swf.inventoryGetItems())
+			.map((data) => new InventoryItem(data as unknown as ItemData));
 	}
 
 	/**
 	 * Resolves for an Item in the Inventory.
 	 *
-	 * @param item - The name or ID of the item.
+	 * @param key - The name or ID of the item.
 	 */
-	public get(item: number | string): InventoryItem | null {
-		const val = typeof item === 'string' ? item.toLowerCase() : item;
+	public get(key: number | string): InventoryItem | null {
+		return this.bot.flash.call(() => {
+			const item = swf.inventoryGetItem(key);
+			if (!item) return null;
 
-		return (
-			this.items.find((item) => {
-				if (typeof val === 'string') {
-					return item.name.toLowerCase() === val;
-				} else if (typeof val === 'number') {
-					return item.id === val;
-				}
-
-				return false;
-			}) ?? null
-		);
+			return new InventoryItem(item);
+		});
 	}
 
 	/**
@@ -56,14 +48,14 @@ export class Inventory {
 	 * The total slots available in the player's inventory.
 	 */
 	public get totalSlots(): number {
-		return this.bot.flash.call(() => swf.InventorySlots());
+		return this.bot.flash.call(() => swf.inventoryGetSlots());
 	}
 
 	/**
 	 * The number of used slots in the player's inventory.
 	 */
 	public get usedSlots(): number {
-		return this.bot.flash.call(() => swf.UsedInventorySlots());
+		return this.bot.flash.call(() => swf.inventoryGetUsedSlots());
 	}
 
 	/**
@@ -90,15 +82,15 @@ export class Inventory {
 		if (item.category === 'Item') {
 			// potion / consumable
 			this.bot.flash.call(() =>
-				swf.EquipPotion(
-					item.id.toString(),
+				swf.inventoryEquipConsumable(
+					item.id,
 					item.description,
 					item.fileLink,
 					item.name,
 				),
 			);
 		} else {
-			this.bot.flash.call(() => swf.Equip(item.id.toString()));
+			this.bot.flash.call(() => swf.inventoryEquip(item.id));
 		}
 
 		await this.bot.waitUntil(

@@ -1,5 +1,5 @@
 import type { Bot } from './Bot';
-import { Server, type ServerData } from './struct/Server';
+import { Server } from './struct/Server';
 
 export class Auth {
 	public constructor(public readonly bot: Bot) {}
@@ -11,7 +11,7 @@ export class Auth {
 	 * This value is set after a successful login.
 	 */
 	public get username(): string {
-		return this.bot.flash.call(() => swf.GetUsername());
+		return this.bot.flash.getStatic('loginInfo', true)?.strUsername ?? null;
 	}
 
 	/**
@@ -21,41 +21,39 @@ export class Auth {
 	 * This value is set after a successful login.
 	 */
 	public get password(): string {
-		return this.bot.flash.call(() => swf.GetPassword());
+		return this.bot.flash.getStatic('loginInfo', true)?.strPassword ?? null;
 	}
 
 	/**
 	 * Whether the user is logged in and connected to a server.
 	 */
 	public isLoggedIn(): boolean {
-		return this.bot.flash.call(() => swf.IsLoggedIn());
+		return this.bot.flash.call(() => swf.authIsLoggedIn());
 	}
 
 	/**
-	 * Log in with the given account or the previous account.
+	 * Log in with an account.
 	 *
-	 * @remarks
-	 * If username and password are not provided, the client will attempt to login
-	 * with the values stored in the client.
 	 * @param username - The username to login with.
 	 * @param password - The password to login with.
 	 */
-	public login(
-		username: string | null = null,
-		password: string | null = null,
-	): void {
-		if (username && password) {
-			this.bot.flash.call(() => swf.FixLogin(username, password));
-		} else {
-			this.bot.flash.call(() => swf.Login());
+	public login(username: string, password: string): void {
+		if (!username) {
+			throw new Error('Username is required');
 		}
+
+		if (!password) {
+			throw new Error('Password is required');
+		}
+
+		this.bot.flash.call(() => swf.authLogin(username, password));
 	}
 
 	/**
 	 * Logs out of the current account.
 	 */
 	public logout(): void {
-		this.bot.flash.call(() => swf.Logout());
+		this.bot.flash.call(() => swf.authLogout());
 	}
 
 	/**
@@ -65,17 +63,7 @@ export class Auth {
 	 * The value is set after a successful login.
 	 */
 	public get servers(): Server[] {
-		const ret = this.bot.flash.get('serialCmd.servers', true);
-		return Array.isArray(ret)
-			? ret.map((data) => new Server(data as unknown as ServerData))
-			: [];
-	}
-
-	/**
-	 * Resets the list of servers that is available to the client.
-	 */
-	public resetServers(): boolean {
-		return !this.bot.flash.call(() => swf.ResetServers());
+		return swf.authGetServers().map((server) => new Server(server));
 	}
 
 	/**
@@ -84,27 +72,29 @@ export class Auth {
 	 * @param name - The name of the server.
 	 */
 	public connectTo(name: string): void {
-		this.bot.flash.call(() => swf.Connect(name));
-	}
+		if (!name) {
+			throw new Error('Server name is required');
+		}
 
-	/**
-	 * The server IP the client is connected to.
-	 */
-	public get ip(): string {
-		return this.bot.flash.getStatic('serverIP', true)!;
-	}
+		if (!this.servers.length) {
+			throw new Error('No servers available');
+		}
 
-	/**
-	 * The server port the client is connected to.
-	 */
-	public get port(): number {
-		return this.bot.flash.getStatic('serverPort', true)!;
+		if (
+			!this.servers.some(
+				(server) => server.name.toLowerCase() === name.toLowerCase(),
+			)
+		) {
+			throw new Error(`Server "${name}" does not exist`);
+		}
+
+		this.bot.flash.call(() => swf.authConnectTo(name));
 	}
 
 	/**
 	 * Whether the client is temporarily kicked from the server.
 	 */
 	public isTemporarilyKicked(): boolean {
-		return this.bot.flash.call(() => swf.IsTemporarilyKicked());
+		return this.bot.flash.call(() => swf.authIsTemporarilyKicked());
 	}
 }

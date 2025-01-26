@@ -206,27 +206,5 @@ package vexed.game
 
       game.world['goto'](name);
     }
-
-    public static function getUsername():String
-    {
-      var playerData:* = getData();
-      if (!playerData)
-      {
-        return null;
-      }
-
-      return playerData.strUsername;
-    }
-
-    public static function getPassword():String
-    {
-      var loginInfo:String = Main.getGameObjectS("loginInfo");
-      if (loginInfo === "{}")
-      {
-        return null;
-      }
-
-      return JSON.parse(loginInfo).strPassword;
-    }
   }
 }

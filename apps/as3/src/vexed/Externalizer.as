@@ -39,6 +39,7 @@ package vexed
 			this.addCallback("bankGetItems", Bank.getItems);
 			this.addCallback("bankGetItem", Bank.getItem);
 			this.addCallback("bankContains", Bank.contains);
+			this.addCallback("bankLoadItems", Bank.loadItems);
 			this.addCallback("bankGetSlots", Bank.getSlots);
 			this.addCallback("bankGetUsedSlots", Bank.getUsedSlots);
 			this.addCallback("bankDeposit", Bank.deposit);
@@ -109,8 +110,6 @@ package vexed
 			this.addCallback("playerGetData", Player.getData);
 			this.addCallback("playerIsLoaded", Player.isLoaded);
 			this.addCallback("playerGoTo", Player.goToPlayer);
-			this.addCallback("playerGetUsername", Player.getUsername);
-			this.addCallback("playerGetPassword", Player.getPassword);
 
 			// Quests
 			this.addCallback("questsIsInProgress", Quests.isInProgress);
