@@ -465,6 +465,12 @@ window.addEventListener('DOMContentLoaded', async () => {
 						case 'option-skip-cutscenes':
 							bot.settings.skipCutscenes = newState;
 							break;
+						case 'option-disable-fx':
+							bot.settings.disableFx = newState;
+							break;
+						case 'option-disable-collisions':
+							bot.settings.disableCollisions = newState;
+							break;
 					}
 				});
 			}

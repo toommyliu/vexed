@@ -17,6 +17,10 @@ import type { Bot } from './Bot';
  *
  * `Walk Speed`: The player's walk speed.
  *
+ * `Disable FX`: Disables most visual effects.
+ *
+ * `Disable Collisions`: Disable collisions with world objects.
+ *
  * Settings are updated in a background interval every 500ms.
  */
 export class Settings {
@@ -41,6 +45,10 @@ export class Settings {
 
 	#walkSpeed = 8;
 
+	#disableFx = false;
+
+	#disableCollisions = false;
+
 	#optionInfiniteRange: HTMLElement | null = null;
 
 	#optionProvokeMap: HTMLElement | null = null;
@@ -56,6 +64,10 @@ export class Settings {
 	#optionSkipCutscenes: HTMLElement | null = null;
 
 	#optionWalkSpeed: HTMLElement | null = null;
+
+	#optionDisableFX: HTMLElement | null = null;
+
+	#optionDisableCollisions: HTMLElement | null = null;
 
 	public constructor(public bot: Bot) {
 		this.#optionInfiniteRange = document.querySelector(
@@ -76,6 +88,10 @@ export class Settings {
 			'#option-skip-cutscenes',
 		);
 		this.#optionWalkSpeed = document.querySelector('#option-walkspeed');
+		this.#optionDisableFX = document.querySelector('#option-disable-fx');
+		this.#optionDisableCollisions = document.querySelector(
+			'#option-disable-collisions',
+		);
 
 		this.bot.timerManager.setInterval(() => {
 			if (!this.bot.player.isReady()) {
@@ -113,6 +129,14 @@ export class Settings {
 					swf.settingsSetWalkSpeed(this.walkSpeed),
 				);
 			}
+
+			this.bot.flash.call(() =>
+				swf.settingsSetDisableFX(this.#disableFx),
+			);
+
+			this.bot.flash.call(() =>
+				swf.settingsSetDisableCollisions(this.#disableCollisions),
+			);
 		}, 500);
 	}
 
@@ -276,6 +300,35 @@ export class Settings {
 	 */
 	public setDeathAds(on: boolean): void {
 		this.bot.flash.set('userPreference.data.bDeathAd', on);
+	}
+
+	/**
+	 * Whether "Disable FX" is enabled.
+	 */
+	public get disableFx(): boolean {
+		return this.#disableFx;
+	}
+
+	/**
+	 * Sets the state of "Disable FX".
+	 *
+	 * @param on - If true, disables most visual effects.
+	 */
+	public set disableFx(on: boolean) {
+		this.#disableFx = on;
+		this.#updateOption(this.#optionDisableFX!, on);
+	}
+
+	/**
+	 * Whether "Disable Collisions" is enabled.
+	 */
+	public get disableCollisions(): boolean {
+		return this.#disableCollisions;
+	}
+
+	public set disableCollisions(on: boolean) {
+		this.#disableCollisions = on;
+		this.#updateOption(this.#optionDisableCollisions!, on);
 	}
 
 	#updateOption(option: HTMLElement, value: boolean | number | string): void {
