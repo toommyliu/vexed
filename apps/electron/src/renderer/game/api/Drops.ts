@@ -172,7 +172,6 @@ export class Drops {
 		);
 	}
 
-	// TODO: doesn't work anymore?
 	/**
 	 * Sets the custom drops ui state.
 	 *

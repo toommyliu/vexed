@@ -64,7 +64,7 @@ package vexed
 			this.addCallback("dropStackAcceptDrop", DropStack.acceptDrop);
 			this.addCallback("dropStackRejectDrop", DropStack.rejectDrop);
 			this.addCallback("dropStackIsUsingCustomDrops", DropStack.isUsingCustomDrops);
-			this.addCallback("dropStackSetCustomDropsUi", DropStack.setCustomDropsUi);
+			this.addCallback("dropStackSetCustomDropsUiState", DropStack.setCustomDropsUi);
 			this.addCallback("dropStackIsCustomDropsUiOpen", DropStack.isCustomDropsUiOpen);
 
 			// House

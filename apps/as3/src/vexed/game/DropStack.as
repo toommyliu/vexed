@@ -51,12 +51,10 @@ package vexed.game
 
       if (on)
       {
-        Main.getInstance().getExternal().debug('using');
         game.cDropsUI = new customDropsCls(game);
       }
-      else if (game.cDropsUI !== null)
+      else if (game.cDropsUI != null)
       {
-        Main.getInstance().getExternal().debug('not using');
         game.cDropsUI.cleanup();
       }
     }
