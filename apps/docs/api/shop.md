@@ -52,12 +52,6 @@ Buy an item from the shop.
 
 **Returns:** `Promise<void>`
 
-#### resetShopInfo
-
-Reset the loaded shop info.
-
-**Returns:** `void`
-
 #### load
 
 Load a shop.
@@ -78,7 +72,7 @@ Sells an entire stack of an item.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `itemKey` | `string` | The name or ID of the item. |
+| `key` | `string` | The name or ID of the item. |
 
 **Returns:** `Promise<void>`
 

@@ -24,3 +24,15 @@ Type: `HouseItem[]`
 
 Type: `number`
 
+### Methods
+
+#### get
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `key` | `string \| number` |  |
+
+**Returns:** `HouseItem | null`
+
