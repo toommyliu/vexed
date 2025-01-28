@@ -128,7 +128,13 @@ Rests the player.
 
 #### exit
 
-Attempts to exit from combat.
+Exit from combat state.
+
+**Parameters:**
+
+| Name | Type | Optional | Default | Description |
+|------|------|----------|---------|-------------|
+| `ensure` | `boolean \| undefined` | ✓ |  | Whether to look for safe areas if current cell is unsafe. |
 
 **Returns:** `Promise<void>`
 

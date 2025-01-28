@@ -111,7 +111,9 @@ export class Item {
 	 *
 	 * This is specifically for items with boosts.
 	 */
-	public get meta(): Record<string, number> {
+	public get meta(): Record<string, number> | null {
+		if (!this.data.sMeta) return null;
+
 		return this.data.sMeta
 			.split(',')
 			.reduce<Record<string, number>>((acc, cur) => {

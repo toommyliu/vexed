@@ -129,3 +129,27 @@ Checks if an item exists in the drop stack.
 
 **Returns:** `boolean`
 
+#### isUsingCustomUi
+
+Whether the player is using the custom drops ui.
+
+**Returns:** `boolean`
+
+#### isCustomUiOpen
+
+Whether the custom drops ui is open.
+
+**Returns:** `boolean`
+
+#### setCustomDropsUi
+
+Sets the custom drops ui state.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `on` | `boolean` | Whether to use the custom drops ui. |
+
+**Returns:** `void`
+

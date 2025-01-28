@@ -40,15 +40,15 @@ export default async function handler(ev: MessageEvent) {
 
 			ret = bot.shops.info;
 		} else if (type === '1') {
-			ret = bot.flash.call(() => swf.GetQuestTree());
+			ret = bot.flash.call(() => swf.questsGetTree());
 		} else if (type === '2') {
-			ret = bot.flash.call(() => swf.GetInventoryItems());
+			ret = bot.flash.call(() => swf.inventoryGetItems());
 		} else if (type === '3') {
-			ret = bot.flash.call(() => swf.GetTempItems());
+			ret = bot.flash.call(() => swf.tempInventoryGetItems());
 		} else if (type === '4') {
-			ret = bot.flash.call(() => swf.GetBankItems());
+			ret = bot.flash.call(() => swf.bankGetItems());
 		} else if (type === '5') {
-			ret = bot.flash.call(() => swf.GetMonstersInCell());
+			ret = bot.flash.call(() => swf.worldGetCellMonsters());
 		} else if (type === '6') {
 			ret = bot.world.monsters;
 		}

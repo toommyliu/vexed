@@ -54,7 +54,10 @@ export class Flash {
 				return undefined as ConditionalReturn<T>;
 			}
 
-			return JSON.parse(out) as ConditionalReturn<T>;
+			if (out.startsWith('{') || out.startsWith('['))
+				return JSON.parse(out) as ConditionalReturn<T>;
+
+			return out as ConditionalReturn<T>;
 		}
 
 		return out as ConditionalReturn<T>;

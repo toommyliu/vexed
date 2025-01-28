@@ -48,7 +48,7 @@ Gets an item from the Bank.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `itemKey` | `string \| number` | The name or ID of the item. |
+| `key` | `string \| number` | The name or ID of the item. |
 
 **Returns:** `BankItem | null`
 
@@ -62,7 +62,7 @@ Whether an item meets the quantity in the bank.
 
 | Name | Type | Optional | Default | Description |
 |------|------|----------|---------|-------------|
-| `itemKey` | `string \| number` |  |  | The name or ID of the item. |
+| `key` | `string \| number` |  |  | The name or ID of the item. |
 | `quantity` | `number` | ✓ | `1` | The quantity of the item. |
 
 **Returns:** `boolean`
@@ -75,7 +75,7 @@ Puts an item into the bank.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `item` | `string \| number` | The name or ID of the item. |
+| `key` | `string \| number` | The name or ID of the item. |
 
 **Returns:** `Promise<void>`
 
@@ -99,19 +99,17 @@ Takes an item out of the bank.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `item` | `string \| number` | The name or ID of the item. |
+| `key` | `string \| number` | The name or ID of the item. |
 
 **Returns:** `Promise<void>`
 
 #### withdrawMultiple
 
-Takes multiple items out of the bank.
-
 **Parameters:**
 
 | Name | Type | Description |
 |------|------|-------------|
-| `items` | `(string \| number)[]` | The list of items to withdraw. |
+| `items` | `(string \| number)[]` |  |
 
 **Returns:** `Promise<void>`
 

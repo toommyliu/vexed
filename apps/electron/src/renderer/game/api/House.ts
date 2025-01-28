@@ -9,16 +9,24 @@ export class House {
 	 * Gets house items of the current player.
 	 */
 	public get items(): HouseItem[] {
-		const ret = this.bot.flash.call(() => swf.GetHouseItems());
-		return Array.isArray(ret)
-			? ret.map((data) => new HouseItem(data as unknown as ItemData))
-			: [];
+		return this.bot.flash.call(() =>
+			swf.houseGetItems().map((data: ItemData) => new HouseItem(data)),
+		);
+	}
+
+	public get(key: number | string): HouseItem | null {
+		return this.bot.flash.call(() => {
+			const item = swf.houseGetItem(key);
+			if (!item) return null;
+
+			return new HouseItem(item);
+		});
 	}
 
 	/**
 	 * Gets the total number of house item slots.
 	 */
 	public get totalSlots(): number {
-		return this.bot.flash.call(() => swf.HouseSlots());
+		return this.bot.flash.call(() => swf.houseGetSlots());
 	}
 }

@@ -86,7 +86,7 @@ Type: `string`
 
 **Remarks:** This is specifically for items with boosts.
 
-Type: `Record<string, number>`
+Type: `Record<string, number> | null`
 
 ### Methods
 

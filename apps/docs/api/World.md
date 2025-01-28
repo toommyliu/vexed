@@ -12,11 +12,17 @@ outline: deep
 
 Type: `Bot`
 
+#### playerNames
+
+​<Badge type="info">getter</Badge>A list of all player names in the map.
+
+Type: `string[]`
+
 #### players
 
 ​<Badge type="info">getter</Badge>A list of all players in the map.
 
-Type: `Avatar[]`
+Type: `Map<string, Avatar> | null`
 
 #### monsters
 
@@ -24,15 +30,9 @@ Type: `Avatar[]`
 
 Type: `MonsterData[]`
 
-#### visibleMonsters
-
-​<Badge type="info">getter</Badge>A list of visible monsters in the cell.
-
-Type: `Monster[]`
-
 #### availableMonsters
 
-​<Badge type="info">getter</Badge>A list of available monsters in the cell.
+​<Badge type="info">getter</Badge>A list of monsters in the cell.
 
 Type: `Monster[]`
 
@@ -170,7 +170,7 @@ Gets a item in the world.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `itemId` | `string` | The ID of the item. |
+| `itemId` | `number` | The ID of the item. |
 
 **Returns:** `Promise<void>`
 

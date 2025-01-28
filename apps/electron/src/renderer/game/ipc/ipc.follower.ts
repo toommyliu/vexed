@@ -103,7 +103,7 @@ export default async function handler(ev: MessageEvent) {
 
 			if (!bot.player.isReady()) return;
 
-			if (!bot.flash.call(() => swf.GetCellPlayers(name))) {
+			if (!bot.world.playerNames.includes(name)) {
 				if (bot.player.state === PlayerState.InCombat)
 					await bot.combat.exit();
 
@@ -115,7 +115,10 @@ export default async function handler(ev: MessageEvent) {
 
 			if (bot.world.monsters.length === 0) return;
 
-			if ('attackPriority' in config && Array.isArray(config.attackPriority)) {
+			if (
+				'attackPriority' in config &&
+				Array.isArray(config.attackPriority)
+			) {
 				for (const tgt of config.attackPriority) {
 					if (
 						!bot.combat.hasTarget() &&

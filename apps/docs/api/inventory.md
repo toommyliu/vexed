@@ -46,7 +46,7 @@ Resolves for an Item in the Inventory.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `item` | `string \| number` | The name or ID of the item. |
+| `key` | `string \| number` | The name or ID of the item. |
 
 **Returns:** `InventoryItem | null`
 

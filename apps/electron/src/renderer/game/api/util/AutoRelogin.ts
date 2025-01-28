@@ -77,12 +77,17 @@ export class AutoRelogin {
 						this.bot.flash.call('gotoAndPlay', 'Login');
 					}
 
-					if (!this.bot.auth.resetServers()) {
+					await this.bot.sleep(1_000);
+
+					if (!this.bot.auth.username || !this.bot.auth.password) {
+						console.log('No credentials provided');
 						return;
 					}
 
-					await this.bot.sleep(1_000);
-					this.bot.auth.login();
+					this.bot.auth.login(
+						this.bot.auth.username,
+						this.bot.auth.password,
+					);
 
 					await this.bot.waitUntil(
 						() => this.bot.auth.servers.length > 0,

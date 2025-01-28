@@ -17,6 +17,10 @@ import type { Bot } from './Bot';
  *
  * `Walk Speed`: The player's walk speed.
  *
+ * `Disable FX`: Disables most visual effects.
+ *
+ * `Disable Collisions`: Disable collisions with world objects.
+ *
  * Settings are updated in a background interval every 500ms.
  */
 export class Settings {
@@ -41,6 +45,10 @@ export class Settings {
 
 	#walkSpeed = 8;
 
+	#disableFx = false;
+
+	#disableCollisions = false;
+
 	#optionInfiniteRange: HTMLElement | null = null;
 
 	#optionProvokeMap: HTMLElement | null = null;
@@ -56,6 +64,10 @@ export class Settings {
 	#optionSkipCutscenes: HTMLElement | null = null;
 
 	#optionWalkSpeed: HTMLElement | null = null;
+
+	#optionDisableFX: HTMLElement | null = null;
+
+	#optionDisableCollisions: HTMLElement | null = null;
 
 	public constructor(public bot: Bot) {
 		this.#optionInfiniteRange = document.querySelector(
@@ -76,6 +88,10 @@ export class Settings {
 			'#option-skip-cutscenes',
 		);
 		this.#optionWalkSpeed = document.querySelector('#option-walkspeed');
+		this.#optionDisableFX = document.querySelector('#option-disable-fx');
+		this.#optionDisableCollisions = document.querySelector(
+			'#option-disable-collisions',
+		);
 
 		this.bot.timerManager.setInterval(() => {
 			if (!this.bot.player.isReady()) {
@@ -83,39 +99,44 @@ export class Settings {
 			}
 
 			if (this.infiniteRange) {
-				this.bot.flash.call(() => swf.SetInfiniteRange());
+				this.bot.flash.call(() => swf.settingsInfiniteRange());
 			}
 
-			if (this.provokeMap && this.bot.world.monsters.length > 0) {
-				const ids = this.bot.world.monsters.map((mon) => mon.MonMapID);
-				this.bot.packets.sendServer(
-					`%xt%zm%aggroMon%${this.bot.world.roomId}%${ids.join('%')}%`,
-				);
+			if (this.provokeMap) {
+				this.bot.flash.call(() => swf.settingsProvokeMap());
 			}
 
 			if (this.provokeCell) {
-				this.bot.flash.call(() => swf.SetProvokeMonsters());
+				this.bot.flash.call(() => swf.settingsProvokeCell());
 			}
 
 			if (this.enemyMagnet) {
-				this.bot.flash.call(() => swf.SetEnemyMagnet());
+				this.bot.flash.call(() => swf.settingsEnemyMagnet());
 			}
 
 			if (this.skipCutscenes) {
-				this.bot.flash.call(() => swf.SetSkipCutscenes());
+				this.bot.flash.call(() => swf.settingsSkipCutscenes());
 			}
 
-			this.bot.flash.call(() =>
-				swf.SetLagKiller(this.lagKiller ? 'True' : 'False'),
-			);
+			this.bot.flash.call(() => swf.settingsLagKiller(!this.lagKiller));
 
-			this.bot.flash.call(() => swf.HidePlayers(this.hidePlayers));
+			this.bot.flash.call(() =>
+				swf.settingsSetHidePlayers(this.hidePlayers),
+			);
 
 			if (this.walkSpeed !== 8) {
 				this.bot.flash.call(() =>
-					swf.SetWalkSpeed(String(this.walkSpeed)),
+					swf.settingsSetWalkSpeed(this.walkSpeed),
 				);
 			}
+
+			this.bot.flash.call(() =>
+				swf.settingsSetDisableFX(this.#disableFx),
+			);
+
+			this.bot.flash.call(() =>
+				swf.settingsSetDisableCollisions(this.#disableCollisions),
+			);
 		}, 500);
 	}
 
@@ -202,12 +223,6 @@ export class Settings {
 	public set lagKiller(on: boolean) {
 		this.#lagKiller = on;
 		this.#updateOption(this.#optionLagKiller!, on);
-		// Call immediately
-		if (on) {
-			this.bot.flash.call(() => swf.SetLagKiller('True'));
-		} else {
-			this.bot.flash.call(() => swf.SetLagKiller('False'));
-		}
 	}
 
 	/**
@@ -225,7 +240,6 @@ export class Settings {
 	public set hidePlayers(on: boolean) {
 		this.#hidePlayers = on;
 		this.#updateOption(this.#optionHidePlayers!, on);
-		this.bot.flash.call(() => swf.HidePlayers(this.#hidePlayers));
 	}
 
 	/**
@@ -276,7 +290,7 @@ export class Settings {
 	 * @param fps - The target fps.
 	 */
 	public setFps(fps: number | string): void {
-		this.bot.flash.call(() => swf.SetFPS(String(fps)));
+		this.bot.flash.set('stg.frameRate', Number.parseInt(String(fps), 10));
 	}
 
 	/**
@@ -286,6 +300,35 @@ export class Settings {
 	 */
 	public setDeathAds(on: boolean): void {
 		this.bot.flash.set('userPreference.data.bDeathAd', on);
+	}
+
+	/**
+	 * Whether "Disable FX" is enabled.
+	 */
+	public get disableFx(): boolean {
+		return this.#disableFx;
+	}
+
+	/**
+	 * Sets the state of "Disable FX".
+	 *
+	 * @param on - If true, disables most visual effects.
+	 */
+	public set disableFx(on: boolean) {
+		this.#disableFx = on;
+		this.#updateOption(this.#optionDisableFX!, on);
+	}
+
+	/**
+	 * Whether "Disable Collisions" is enabled.
+	 */
+	public get disableCollisions(): boolean {
+		return this.#disableCollisions;
+	}
+
+	public set disableCollisions(on: boolean) {
+		this.#disableCollisions = on;
+		this.#updateOption(this.#optionDisableCollisions!, on);
 	}
 
 	#updateOption(option: HTMLElement, value: boolean | number | string): void {

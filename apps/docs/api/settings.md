@@ -82,6 +82,20 @@ Type: `boolean`
 
 Type: `number`
 
+#### disableFx
+
+​<Badge type="info">getter</Badge>Whether "Disable FX" is enabled.
+
+​<Badge type="info">setter</Badge>Sets the state of "Disable FX".
+
+Type: `boolean`
+
+#### disableCollisions
+
+​<Badge type="info">getter</Badge>Whether "Disable Collisions" is enabled.
+
+Type: `boolean`
+
 ### Methods
 
 #### setFps
