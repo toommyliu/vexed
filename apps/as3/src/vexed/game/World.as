@@ -131,11 +131,15 @@ package vexed.game
 
     public static function isActionAvailable(gameAction:String):Boolean
     {
-      var action:Object = game.world.lock[gameAction];
-      var currentTime:Date = new Date();
-      var currentTimeMs:Number = currentTime.getTime();
-      var actionTimeMs:Number = currentTimeMs - action.ts;
-      return actionTimeMs < action.cd;
+      var _loc_2:* = undefined;
+      var _loc_3:* = undefined;
+      var _loc_4:* = undefined;
+      var _loc_5:* = undefined;
+      _loc_2 = game.world.lock[gameAction];
+      _loc_3 = new Date();
+      _loc_4 = _loc_3.getTime();
+      _loc_5 = _loc_4 - _loc_2.ts;
+      return _loc_5 < _loc_2.cd ? false : true;
     }
 
     public static function getCellMonsters():Array
