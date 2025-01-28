@@ -347,20 +347,48 @@ export class Combat {
 	}
 
 	/**
-	 * Attempts to exit from combat.
+	 * Exit from combat state.
 	 *
+	 * @param ensure - Whether to look for safe areas if current cell is unsafe.
 	 */
-	public async exit(): Promise<void> {
+	public async exit(ensure?: boolean): Promise<void> {
 		if (this.bot.player.state !== PlayerState.InCombat) return;
 
 		this.cancelTarget();
 		this.cancelAutoAttack();
 
-		await this.bot.world.jump(this.bot.player.cell, this.bot.player.pad);
+		const currentCell = this.bot.player.cell;
+		await this.bot.world.jump(currentCell, this.bot.player.pad);
 		await this.bot.waitUntil(
 			() => this.bot.player.state !== PlayerState.InCombat,
+			null,
+			5,
 		);
-		await this.bot.sleep(1_000);
+		console.log(`first jump completed`);
+
+		if (ensure && this.bot.player.state === PlayerState.InCombat) {
+			const cells = this.bot.world.cells;
+
+			for (const cell of cells) {
+				if (cell === currentCell) continue;
+
+				console.log(`jumping to ${cell}:Spawn`);
+				await this.bot.world.jump(cell, 'Spawn');
+				await this.bot.waitUntil(
+					() => this.bot.player.state !== PlayerState.InCombat,
+					null,
+					5,
+				);
+
+				if (this.bot.player.state !== PlayerState.InCombat) {
+					break;
+				}
+			}
+		}
+
+		if (this.bot.player.state === PlayerState.InCombat) {
+			throw new Error('Failed to exit from combat');
+		}
 	}
 }
 
