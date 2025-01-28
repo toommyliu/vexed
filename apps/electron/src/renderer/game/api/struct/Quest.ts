@@ -45,22 +45,15 @@ export class Quest {
 	 * @returns boolean - Whether the quest is available.
 	 */
 	public canComplete(): boolean {
-		if (!this.#bot.quests.get(this.id)) return false;
-
-		// TODO:
-		return true;
-		// return this.#bot.flash.call(() => swf.CanComplete(String(this.id)));
+		return this.#bot.flash.call(() => swf.questsCanCompleteQuest(this.id));
 	}
 
 	/**
 	 * Whether this quest is available.
 	 */
 	public isAvailable(): boolean {
-		if (!this.#bot.quests.get(this.id)) return false;
-
-		// TODO: 
 		return this.#bot.flash.call<boolean>(() =>
-			swf.IsAvailable(String(this.id)),
+			swf.questsIsAvailable(this.id),
 		);
 	}
 

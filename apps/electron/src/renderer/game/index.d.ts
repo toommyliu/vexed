@@ -135,6 +135,10 @@ declare global {
 		questsLoad(questId: number): void;
 		questsGet(questId: number): Nullable<Record<string, unknown>>;
 		questsGetTree(): QuestData[];
+		questsGetQuestValidationString(quest: QuestData): string;
+		questsHasRequiredItemsForQuest(quest: QuestData): boolean;
+		questsIsAvailable(questId: number): boolean;
+		questsCanCompleteQuest(questId: number): boolean;
 		questsIsOneTimeQuestDone(questId: number): boolean;
 
 		settingsInfiniteRange(): void;

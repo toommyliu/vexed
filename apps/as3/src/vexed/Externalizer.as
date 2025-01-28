@@ -118,6 +118,10 @@ package vexed
 			this.addCallback("questsLoad", Quests.load);
 			this.addCallback("questsGet", Quests.get );
 			this.addCallback("questsGetTree", Quests.getTree);
+			this.addCallback("questsGetQuestValidationString", Quests.getQuestValidationString);
+			this.addCallback("questsHasRequiredItemsForQuest", Quests.hasRequiredItemsForQuest);
+			this.addCallback("questsIsAvailable", Quests.isAvailable);
+			this.addCallback("questsCanCompleteQuest", Quests.canComplete);
 			this.addCallback("questsIsOneTimeQuestDone", Quests.isOneTimeQuestDone);
 
 			// Settings
