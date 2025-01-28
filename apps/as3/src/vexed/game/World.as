@@ -32,7 +32,16 @@ package vexed.game
 
     public static function getPlayers():Object /* { [name: string]: PlayerData } */
     {
-      return game.world.uoTree;
+      var ret:Object = {};
+      for (var player:String in game.world.uoTree)
+      {
+        var playerObj:Object = game.world.uoTree[player];
+        if (playerObj !== null)
+        {
+          ret[player] = getPlayer(player);
+        }
+      }
+      return ret;
     }
 
     public static function getPlayer(name:String):Object
