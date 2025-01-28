@@ -22,7 +22,7 @@ Type: `string[]`
 
 ​<Badge type="info">getter</Badge>A list of all players in the map.
 
-Type: `Avatar[]`
+Type: `Map<string, Avatar> | null`
 
 #### monsters
 

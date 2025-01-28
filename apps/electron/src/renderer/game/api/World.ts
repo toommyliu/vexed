@@ -76,14 +76,19 @@ export class World {
 	/**
 	 * A list of all players in the map.
 	 */
-	public get players(): Avatar[] {
+	public get players(): Map<string, Avatar> | null {
 		const out = this.bot.flash.call<Record<string, AvatarData>>(() =>
 			swf.worldGetPlayers(),
 		);
 
-		if (!out) return [];
+		if (!out) return null;
 
-		return Object.values(out).map((data) => new Avatar(data));
+		const map = new Map<string, Avatar>();
+		for (const [name, data] of Object.entries(out)) {
+			map.set(name, new Avatar(data));
+		}
+
+		return map;
 	}
 
 	/**
