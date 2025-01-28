@@ -41,7 +41,7 @@ function registerFlashPlugin() {
 
 	const trustManager = flashTrust.initSync(BRAND, flashPath);
 	trustManager.empty();
-	trustManager.add(join(assetsPath, 'grimoire.swf'));
+	trustManager.add(join(assetsPath, 'loader.swf'));
 }
 
 registerFlashPlugin();
