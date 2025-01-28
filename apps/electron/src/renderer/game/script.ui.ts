@@ -528,8 +528,3 @@ window.addEventListener('keydown', (ev) => {
 		}
 	}
 });
-
-// @ts-expect-error this conflict is ok
-window.debug = (...args: string[]) => {
-	console.log(...args);
-};
