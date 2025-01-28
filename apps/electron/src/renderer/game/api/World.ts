@@ -239,12 +239,6 @@ export class World {
 
 		map_str = `${map_name}${map_number ? `-${map_number}` : ''}`;
 
-		await this.bot.waitUntil(
-			() => this.isActionAvailable(GameAction.Transfer),
-			null,
-			15,
-		);
-
 		await this.bot.combat.exit();
 		this.bot.flash.call(() => swf.playerJoinMap(map_str, cell, pad));
 		await this.bot.waitUntil(
