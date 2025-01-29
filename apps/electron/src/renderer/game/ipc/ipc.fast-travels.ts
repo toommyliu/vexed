@@ -1,6 +1,7 @@
 import { IPC_EVENTS } from '../../../common/ipc-events';
+import { Bot } from '../api/Bot';
 
-const { world } = bot;
+const bot = Bot.getInstance();
 
 export default async function handler(ev: MessageEvent) {
 	if (ev.data.event === IPC_EVENTS.FAST_TRAVEL) {
@@ -15,7 +16,7 @@ export default async function handler(ev: MessageEvent) {
 			const pad = args?.pad ?? 'Spawn';
 			const roomNumber = args?.roomNumber ?? 100_000;
 
-			await world.join(`${args?.map}-${roomNumber}`, cell, pad);
+			await bot.world.join(`${args?.map}-${roomNumber}`, cell, pad);
 		}
 	}
 }

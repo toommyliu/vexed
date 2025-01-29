@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events';
+import { CommandQueue } from '../command-queue';
 import { Auth } from './Auth';
 import { Bank } from './Bank';
 import { Combat } from './Combat';
@@ -178,6 +179,8 @@ export class Bot extends EventEmitter {
 	 */
 	public timerManager: InstanceType<typeof TimerManager>;
 
+	public commands: CommandQueue;
+
 	public constructor() {
 		super();
 
@@ -204,6 +207,8 @@ export class Bot extends EventEmitter {
 		this.shops = new Shops(this);
 		this.tempInventory = new TempInventory(this);
 		this.world = new World(this);
+
+		this.commands = new CommandQueue();
 	}
 
 	/**
@@ -272,26 +277,3 @@ export class Bot extends EventEmitter {
 		return Bot._instance;
 	}
 }
-
-Object.defineProperty(window, 'Bot', { value: Bot });
-Object.defineProperty(window, 'bot', { value: Bot.getInstance() });
-Object.defineProperty(window, 'auth', { value: Bot.getInstance().auth });
-Object.defineProperty(window, 'bank', { value: Bot.getInstance().bank });
-Object.defineProperty(window, 'combat', { value: Bot.getInstance().combat });
-Object.defineProperty(window, 'drops', { value: Bot.getInstance().drops });
-Object.defineProperty(window, 'flash', { value: Bot.getInstance().flash });
-Object.defineProperty(window, 'house', { value: Bot.getInstance().house });
-Object.defineProperty(window, 'inventory', {
-	value: Bot.getInstance().inventory,
-});
-Object.defineProperty(window, 'player', { value: Bot.getInstance().player });
-Object.defineProperty(window, 'packets', { value: Bot.getInstance().packets });
-Object.defineProperty(window, 'quests', { value: Bot.getInstance().quests });
-Object.defineProperty(window, 'settings', {
-	value: Bot.getInstance().settings,
-});
-Object.defineProperty(window, 'shops', { value: Bot.getInstance().shops });
-Object.defineProperty(window, 'tempInventory', {
-	value: Bot.getInstance().tempInventory,
-});
-Object.defineProperty(window, 'world', { value: Bot.getInstance().world });

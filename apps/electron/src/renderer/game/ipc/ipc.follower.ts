@@ -1,5 +1,6 @@
 import merge from 'lodash.merge';
 import { IPC_EVENTS } from '../../../common/ipc-events';
+import { Bot } from '../api/Bot';
 import { PlayerState } from '../api/Player';
 import type { SetIntervalAsyncTimer } from '../api/util/TimerManager';
 
@@ -8,6 +9,8 @@ let intervalId: SetIntervalAsyncTimer<unknown[]> | null = null;
 let index = 0;
 
 const config: Partial<FollowerConfig> = {};
+
+const bot = Bot.getInstance();
 
 function packetHandler(packet: string) {
 	if (!intervalId) return;

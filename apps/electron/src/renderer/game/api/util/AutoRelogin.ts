@@ -105,7 +105,7 @@ export class AutoRelogin {
 
 					this.bot.auth.connectTo(server.name);
 
-					await this.bot.waitUntil(() => bot.player.isReady());
+					await this.bot.waitUntil(() => this.bot.player.isReady());
 
 					// TODO: restart the script ?
 

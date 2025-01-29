@@ -12,7 +12,6 @@ import type { ServerData } from './api/struct/Server';
 type Nullable<T> = T | null;
 
 declare global {
-	const bot: Bot;
 	const swf: GameSWF;
 
 	type Account = { password: string; server?: string; username: string };
@@ -205,24 +204,8 @@ declare global {
 	/* eslint-disable @typescript-eslint/consistent-type-definitions */
 	interface Window {
 		/* eslint-disable typescript-sort-keys/interface */
-		Bot: InstanceType<typeof Bot>;
-
-		auth: ReturnType<(typeof Bot)['auth']>;
-		bank: ReturnType<(typeof Bot)['bank']>;
-		combat: ReturnType<(typeof Bot)['combat']>;
-		drops: ReturnType<(typeof Bot)['drops']>;
-		house: ReturnType<(typeof Bot)['house']>;
-		inventory: ReturnType<(typeof Bot)['inventory']>;
-		quests: ReturnType<(typeof Bot)['quests']>;
-		player: ReturnType<(typeof Bot)['player']>;
-		packets: ReturnType<(typeof Bot)['packets']>;
-		settings: ReturnType<(typeof Bot)['settings']>;
-		shops: ReturnType<(typeof Bot)['shops']>;
-		tempInventory: ReturnType<(typeof Bot)['tempInventory']>;
-		world: ReturnType<(typeof Bot)['world']>;
 
 		// utilities
-
 		flash: ReturnType<(typeof Bot)['flash']>;
 		autoRelogin: ReturnType<(typeof Bot)['autoRelogin']>;
 		timerManager: ReturnType<(typeof Bot)['timerManager']>;

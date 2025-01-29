@@ -1,4 +1,7 @@
 import { IPC_EVENTS } from '../../../common/ipc-events';
+import { Bot } from '../api/Bot';
+
+const bot = Bot.getInstance();
 
 let listener: ((packet: string) => void) | null = null;
 
