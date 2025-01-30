@@ -1,12 +1,12 @@
 import { Bot } from '../api/Bot';
 import { CommandQueue } from '../command-queue';
-
-const _bot = Bot.getInstance();
+import { logger } from '../../../common/logger';
 
 const logWithTime = (message: string) => {
-	const now = new Date().toISOString();
-	console.log(`[${now}] ${message}`);
+	logger.info(message);
 };
+
+const _bot = Bot.getInstance();
 
 const queue = new CommandQueue({ interval: 1_000 });
 

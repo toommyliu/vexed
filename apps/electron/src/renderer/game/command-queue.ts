@@ -1,8 +1,8 @@
 import { AsyncQueue } from '@sapphire/async-queue';
+import { logger } from '../../common/logger';
 
 const logWithTime = (message: string) => {
-	const now = new Date().toISOString();
-	console.log(`[${now}] ${message}`);
+	logger.info(message);
 };
 
 export class CommandQueue {
@@ -32,10 +32,8 @@ export class CommandQueue {
 	public async start() {
 		if (this.isRunning) return;
 		this.isRunning = true;
-
 		while (this.commands.length > 0) {
 			await this.queue.wait();
-
 			try {
 				const command = this.commands.shift();
 				if (command) {
@@ -56,10 +54,8 @@ export class CommandQueue {
 	}
 
 	public async stop() {
-		console.log('1', this.queue);
 		this.isRunning = false;
 		this.queue.abortAll();
 		this.commands = [];
-		console.log('2', this.queue);
 	}
 }

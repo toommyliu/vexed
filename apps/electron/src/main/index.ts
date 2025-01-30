@@ -8,6 +8,7 @@ import { BRAND } from '../common/constants';
 import { FileManager } from './FileManager';
 import { showErrorDialog } from './utils';
 import { createAccountManager, createGame } from './windows';
+import { logger } from '../common/logger';
 
 function registerFlashPlugin() {
 	// eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
@@ -48,6 +49,8 @@ registerFlashPlugin();
 app.disableHardwareAcceleration();
 
 app.once('ready', async () => {
+	logger.info('hello world!');
+
 	const fm = FileManager.getInstance();
 	await fm.initialize();
 
