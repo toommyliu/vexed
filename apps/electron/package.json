@@ -4,9 +4,9 @@
 	"main": "dist/main/index.js",
 	"scripts": {
 		"typecheck": "tsc --noEmit",
-		"compile": "pnpm typecheck && node esbuild.config.js",
-		"compile:watch": "pnpm typecheck && node esbuild.config.js --watch",
-		"dev": "pnpm compile && electron .",
+		"compile": "node esbuild.config.js",
+		"compile:watch": "node esbuild.config.js --watch",
+		"dev": "electron .",
 		"dev:watch": "concurrently \"pnpm compile:watch\" \"electronmon .\"",
 		"build": "pnpm compile && electron-builder build",
 		"build:all": "pnpm compile && electron-builder build -mw",
@@ -17,11 +17,11 @@
 		"lint:fix": "eslint \"src/**/*\" --fix"
 	},
 	"dependencies": {
+		"@sapphire/async-queue": "^1.5.5",
 		"async-mutex": "^0.5.0",
 		"fs-extra": "^11.2.0",
 		"lodash.merge": "^4.6.2",
 		"nw-flash-trust": "^0.3.0",
-		"queue": "^6.0.2",
 		"source-map-support": "^0.5.21"
 	},
 	"devDependencies": {
