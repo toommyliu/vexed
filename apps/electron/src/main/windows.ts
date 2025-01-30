@@ -20,6 +20,7 @@ export let mgrWindow: BrowserWindow | null;
 
 export async function createAccountManager(): Promise<void> {
 	if (mgrWindow) {
+		mgrWindow.show();
 		mgrWindow.focus();
 		return;
 	}
@@ -31,6 +32,10 @@ export async function createAccountManager(): Promise<void> {
 		webPreferences: {
 			nodeIntegration: true,
 		},
+	});
+	window.on('close', (ev) => {
+		ev.preventDefault();
+		window.hide();
 	});
 
 	// Spoof headers to make the game think we are running as Artix Game Launcher
