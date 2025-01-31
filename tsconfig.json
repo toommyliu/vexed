@@ -102,6 +102,6 @@
 		"skipDefaultLibCheck": true,
 		"skipLibCheck": true
 	},
-	"include": [],
+	"include": ["./src/**/*"],
 	"exclude": ["./dist/**/*", "./node_modules/"]
 }
