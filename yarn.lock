@@ -495,10 +495,12 @@
   dependencies:
     "@types/node" "*"
 
-"@types/lodash.merge@^4.6.9", "@types/lodash.merge@npm:@favware/skip-dependency@latest":
-  version "1.2.2"
-  resolved "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.2.2.tgz#af95a15ba5bdc8b0dd3092791c9abc507f78249d"
-  integrity sha512-HzAf0JkMDu8iT7v0wJZm5IpSlwPd5ozGigd7vTkFgX447eT8vkAuaUPJwamMsPMUkl5MW7PksfAReSSHG4Ep4Q==
+"@types/lodash.merge@^4.6.9":
+  version "4.6.9"
+  resolved "https://registry.yarnpkg.com/@types/lodash.merge/-/lodash.merge-4.6.9.tgz#93e94796997ed9a3ebe9ccf071ccaec4c6bc8fb8"
+  integrity sha512-23sHDPmzd59kUgWyKGiOMO2Qb9YtqRO/x4IhkgNUiPQ1+5MUVqi6bCZeq9nBJ17msjIMbEIO5u+XW4Kz6aGUhQ==
+  dependencies:
+    "@types/lodash" "*"
 
 "@types/lodash@*":
   version "4.17.15"
