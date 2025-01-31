@@ -17,17 +17,21 @@ jobs:
               uses: threeal/setup-yarn-action@v2.0.0
               with:
                   version: classic
+                  cache: false
 
             - name: Install Node.js
               uses: actions/setup-node@v4
               with:
                   node-version: '21.7.2'
+                  cache: 'yarn'
 
             - name: Install dependencies
               run: yarn install
 
             - name: Build Electron App
               run: yarn run build:all
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Rename file (macOS)
               run: mv vexed-0.0.0-mac.zip vexed-mac.zip
