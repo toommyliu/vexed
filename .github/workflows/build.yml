@@ -13,51 +13,35 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v4
 
-            - name: Install pnpm
-              uses: pnpm/action-setup@v4
+            - name: Setup Yarn
+              uses: threeal/setup-yarn-action@v2.0.0
               with:
-                  version: 9.0.6
+                  version: classic
 
             - name: Install Node.js
               uses: actions/setup-node@v4
               with:
                   node-version: '21.7.2'
-                  cache: 'pnpm'
-
-            - name: Get pnpm store directory
-              shell: bash
-              run: |
-                  echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-            - name: Setup pnpm cache
-              uses: actions/cache@v4
-              with:
-                  path: ${{ env.STORE_PATH }}
-                  key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-                  restore-keys: |
-                      ${{ runner.os }}-pnpm-store-
 
             - name: Install dependencies
-              run: pnpm install
-              working-directory: apps/electron
+              run: yarn install
 
             - name: Build Electron App
-              run: pnpm run build:all
-              working-directory: apps/electron
+              run: yarn run build:all
 
             - name: Rename file (macOS)
               run: mv vexed-0.0.0-mac.zip vexed-mac.zip
-              working-directory: apps/electron/build
+              working-directory: ./build
 
             - name: Rename file (Windows)
               run: mv vexed-0.0.0-win.zip vexed-win.zip
-              working-directory: apps/electron/build
+              working-directory: ./build
 
             - name: Upload binary
               uses: softprops/action-gh-release@v2
               with:
                   files: |
-                      apps/electron/build/vexed-mac.zip
-                      apps/electron/build/vexed-win.zip
+                      ./build/vexed-mac.zip
+                      ./build/vexed-win.zip
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
