@@ -1,5 +1,5 @@
 {
-	"productName": "Vexed",
+	"productName": "vexed",
 	"electronVersion": "11.5.0",
 	"directories": {
 		"output": "build"
@@ -33,7 +33,7 @@
 		}
 	},
 	"extraMetadata": {
-		"name": "Vexed",
+		"name": "vexed",
 		"main": "./dist/main/index.js"
 	}
 }

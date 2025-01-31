@@ -1,15 +1,5 @@
 node_modules/
-
-# other
-.DS_Store
-.vscode/
-!apps/as3/.vscode/
-
-# builds
-.next/
-.turbo/
 dist/
-!dist/*.css
-!dist/*.html
-out/
 build/
+
+.DS_Store

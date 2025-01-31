@@ -1,13 +1,69 @@
 {
-	"name": "@vexed/vexed",
-	"private": true,
+	"name": "@vexed/electron",
+	"version": "0.0.0",
+	"main": "dist/main/index.js",
 	"scripts": {
-		"lint": "turbo lint",
-		"dev": "turbo dev",
-		"build": "turbo build"
+		"typecheck": "tsc --noEmit",
+		"compile": "yarn typecheck && node esbuild.config.js",
+		"compile:watch": "yarn typecheck && node esbuild.config.js --watch",
+		"dev": "yarn compile && electron .",
+		"dev:watch": "concurrently \"yarn compile:watch\" \"electronmon .\"",
+		"build": "yarn compile && electron-builder build",
+		"build:all": "yarn compile && electron-builder build -mw",
+		"docgen": "node scripts/docgen.js",
+		"format": "prettier \"src/**/*\"",
+		"format:write": "prettier \"src/**/*\" --write",
+		"lint": "eslint \"src/**/*\"",
+		"lint:fix": "eslint \"src/**/*\" --fix"
+	},
+	"dependencies": {
+		"async-mutex": "^0.5.0",
+		"fs-extra": "^11.2.0",
+		"lodash.merge": "^4.6.2",
+		"nw-flash-trust": "^0.3.0",
+		"source-map-support": "^0.5.21"
 	},
 	"devDependencies": {
-		"turbo": "^1.13.3"
+		"@types/fs-extra": "^11.0.4",
+		"@typescript-eslint/eslint-plugin": "^8.4.0",
+		"@typescript-eslint/parser": "^8.4.0",
+		"concurrently": "^8.2.2",
+		"electron": "^11.5.0",
+		"electron-builder": "^24.13.3",
+		"electronmon": "^2.0.3",
+		"esbuild": "^0.23.1",
+		"eslint": "^9.10.0",
+		"eslint-config-neon": "^0.2.0",
+		"prettier": "^3.3.3",
+		"typescript": "^5.5.4"
 	},
-	"packageManager": "pnpm@9.0.6"
+	"electronmon": {
+		"patterns": [
+			"!dist/**/*",
+			"!scripts/**/*"
+		]
+	},
+	"resolutions": {
+		"@angular-eslint/eslint-plugin": "npm:@favware/skip-dependency@latest",
+		"@angular-eslint/eslint-plugin-template": "npm:@favware/skip-dependency@latest",
+		"@angular-eslint/template-parser": "npm:@favware/skip-dependency@latest",
+		"@next/eslint-plugin-next": "npm:@favware/skip-dependency@latest",
+		"@stylistic/eslint-plugin-jsx": "npm:@favware/skip-dependency@latest",
+		"astro-eslint-parser": "npm:@favware/skip-dependency@latest",
+		"eslint-mdx": "npm:@favware/skip-dependency@latest",
+		"eslint-plugin-astro": "npm:@favware/skip-dependency@latest",
+		"eslint-plugin-cypress": "npm:@favware/skip-dependency@latest",
+		"eslint-plugin-jsdoc": "npm:@favware/skip-dependency@latest",
+		"eslint-plugin-jsx-a11y": "npm:@favware/skip-dependency@latest",
+		"eslint-plugin-mdx": "npm:@favware/skip-dependency@latest",
+		"eslint-plugin-react": "npm:@favware/skip-dependency@latest",
+		"eslint-plugin-react-hooks": "npm:@favware/skip-dependency@latest",
+		"eslint-plugin-react-refresh": "npm:@favware/skip-dependency@latest",
+		"eslint-plugin-rxjs": "npm:@favware/skip-dependency@latest",
+		"eslint-plugin-rxjs-angular": "npm:@favware/skip-dependency@latest",
+		"eslint-plugin-sonarjs": "npm:@favware/skip-dependency@latest",
+		"eslint-plugin-svelte3": "npm:@favware/skip-dependency@latest",
+		"eslint-plugin-vue": "npm:@favware/skip-dependency@latest",
+		"vue-eslint-parser": "npm:@favware/skip-dependency@latest"
+	}
 }

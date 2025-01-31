@@ -1,63 +1,47 @@
 name: Build
 
 on:
-  push:
-    tags:
-      - '*.*.*'
+    push:
+        tags:
+            - '*.*.*'
 
 jobs:
-  build_electron:
-    name: Build Electron App
-    runs-on: macos-14
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+    build_electron:
+        name: Build Electron App
+        runs-on: macos-14
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9.0.6
+            - name: Setup Yarn
+              uses: threeal/setup-yarn-action@v2.0.0
+              with:
+                  version: classic
 
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '21.7.2'
-          cache: 'pnpm'
+            - name: Install Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '21.7.2'
 
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+            - name: Install dependencies
+              run: yarn install
 
-      - name: Setup pnpm cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+            - name: Build Electron App
+              run: yarn run build:all
 
-      - name: Install dependencies
-        run: pnpm install
-        working-directory: apps/electron
+            - name: Rename file (macOS)
+              run: mv vexed-0.0.0-mac.zip vexed-mac.zip
+              working-directory: ./build
 
-      - name: Build Electron App
-        run: pnpm run build:all
-        working-directory: apps/electron
+            - name: Rename file (Windows)
+              run: mv vexed-0.0.0-win.zip vexed-win.zip
+              working-directory: ./build
 
-      - name: Rename file (macOS)
-        run: mv Vexed-0.0.0-mac.zip Vexed-mac.zip
-        working-directory: apps/electron/build
-
-      - name: Rename file (Windows)
-        run: mv Vexed-0.0.0-win.zip Vexed-win.zip
-        working-directory: apps/electron/build
-
-      - name: Upload binary
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            apps/electron/build/Vexed-mac.zip
-            apps/electron/build/Vexed-win.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - name: Upload binary
+              uses: softprops/action-gh-release@v2
+              with:
+                  files: |
+                      ./build/vexed-mac.zip
+                      ./build/vexed-win.zip
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,8 @@
+{
+	"extends": "../../../tsconfig.json",
+	// "compilerOptions": {
+	// 	"lib": ["es2024"]
+	// },
+	"include": ["./**/*.ts", "./index.d.ts"],
+	"exclude": ["../manager/*.ts"]
+}

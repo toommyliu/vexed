@@ -305,9 +305,9 @@ window.addEventListener('DOMContentLoaded', async () => {
 		for (const el of document.querySelectorAll<HTMLInputElement>(
 			'#start',
 		)) {
-			const input = el
-				.closest('.w3-card')!
-				.querySelector<HTMLInputElement>('input')!;
+			const input = (el
+				.closest('.w3-card') as HTMLDivElement)
+				.querySelector('input') as HTMLInputElement;
 
 			if (!input.checked) {
 				continue;
