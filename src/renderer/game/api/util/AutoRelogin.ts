@@ -107,8 +107,6 @@ export class AutoRelogin {
 
 					await this.bot.waitUntil(() => bot.player.isReady());
 
-					// TODO: restart the script ?
-
 					if (og_lagKiller) {
 						this.bot.settings.lagKiller = true;
 					}

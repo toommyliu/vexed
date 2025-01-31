@@ -15,6 +15,9 @@ window.packetFromServer = async ([packet]: [string]) => {
 	if (isXT) {
 		const args = packet.split('%');
 		const cmd = args[2];
+
+		if (!cmd) return;
+
 		switch (cmd) {
 			case 'respawnMon':
 				break;
