@@ -2,7 +2,7 @@ import os from 'os';
 import { join } from 'path';
 import type { Account, Location, Settings } from '../main/FileManager';
 
-export const BRAND = 'Vexed';
+export const BRAND = 'vexed';
 export const DOCUMENTS_PATH = join(os.homedir(), 'Documents', BRAND);
 
 export const DEFAULT_SETTINGS: Settings = {
