@@ -30,6 +30,8 @@ jobs:
 
             - name: Build Electron App
               run: yarn run build:all
+              env:
+                  DEBUG: electron-builder
 
             - name: Rename file (macOS)
               run: mv vexed-0.0.0-mac.zip vexed-mac.zip
