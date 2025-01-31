@@ -9,7 +9,7 @@
 		"dev": "yarn compile && electron .",
 		"dev:watch": "concurrently \"yarn compile:watch\" \"electronmon .\"",
 		"build": "yarn compile && electron-builder build",
-		"build:all": "yarn compile && electron-builder build -mw",
+		"build:all": "yarn compile && electron-builder build -mw --debug",
 		"docgen": "node scripts/docgen.js",
 		"format": "prettier \"src/**/*\"",
 		"format:write": "prettier \"src/**/*\" --write",
