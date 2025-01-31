@@ -1,6 +1,7 @@
 import os from 'os';
 import { join } from 'path';
-import type { Account, Location, Settings } from '../main/FileManager';
+import type { Location, Settings } from '../main/FileManager';
+import type { Account } from './types';
 
 export const BRAND = 'vexed';
 export const DOCUMENTS_PATH = join(os.homedir(), 'Documents', BRAND);

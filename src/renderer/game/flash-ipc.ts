@@ -1,4 +1,4 @@
-import { ipcRenderer } from 'electron/renderer';
+import { ipcRenderer } from 'electron';
 import { IPC_EVENTS } from '../../common/ipc-events';
 import { addGoldExp } from './handlers/json/addGoldExp';
 import { ct } from './handlers/json/ct';

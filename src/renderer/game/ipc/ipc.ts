@@ -1,4 +1,4 @@
-import { ipcRenderer, type IpcRendererEvent } from 'electron/renderer';
+import { ipcRenderer, type IpcRendererEvent } from 'electron';
 import { WINDOW_IDS } from '../../../common/constants';
 import { IPC_EVENTS } from '../../../common/ipc-events';
 import PortMonitor from '../../../common/port-monitor';

@@ -113,15 +113,3 @@ export type Location = {
 	 */
 	pad?: string;
 };
-
-export type Account = {
-	/**
-	 * The password of the account.
-	 */
-	password: string;
-
-	/**
-	 * The username of the account.
-	 */
-	username: string;
-};

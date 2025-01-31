@@ -1,4 +1,5 @@
 export const IPC_EVENTS = {
+	// #region game
 	TOGGLE_DEV_TOOLS: 'root:toggle-dev-tools' as const,
 	LOGIN: 'root:login' as const,
 	LOGIN_SUCCESS: 'root:login-success' as const,
@@ -23,4 +24,9 @@ export const IPC_EVENTS = {
 
 	PACKET_SPAMMER_START: 'packet-spammer:start' as const,
 	PACKET_SPAMMER_STOP: 'packet-spammer:stop' as const,
+	// #endregion
+
+	// #region manager
+	GET_ACCOUNTS: 'manager:get_accounts' as const,
+	// #endregion
 } as const;

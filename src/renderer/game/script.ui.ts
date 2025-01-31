@@ -1,6 +1,6 @@
 // Script for managing topnav interactivity
 
-import { ipcRenderer } from 'electron/renderer';
+import { ipcRenderer } from 'electron';
 import { WINDOW_IDS } from '../../common/constants';
 import { IPC_EVENTS } from '../../common/ipc-events';
 

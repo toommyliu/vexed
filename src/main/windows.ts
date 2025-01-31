@@ -6,7 +6,7 @@ import {
 	WHITELISTED_DOMAINS,
 } from '../common/constants';
 import { IPC_EVENTS } from '../common/ipc-events';
-import type { Account } from './FileManager';
+import type { Account } from '../common/types';
 import { showErrorDialog } from './utils';
 
 const PUBLIC = join(__dirname, '../../public/');
@@ -30,7 +30,8 @@ export async function createAccountManager(): Promise<void> {
 		height: 552,
 		title: BRAND,
 		webPreferences: {
-			nodeIntegration: true,
+			contextIsolation: true,
+			preload: join(__dirname, '../renderer/manager/preload.js'),
 		},
 	});
 	window.on('close', (ev) => {

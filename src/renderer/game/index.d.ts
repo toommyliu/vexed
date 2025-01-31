@@ -1,4 +1,4 @@
-import type { WINDOW_IDS, WindowId } from '../../common/constants';
+import type { WINDOW_IDS } from '../../common/constants';
 import type PortMonitor from '../../common/port-monitor';
 import type { Bot } from './api/Bot';
 import type { ShopInfo } from './api/Shop';
@@ -10,12 +10,9 @@ import type { QuestData } from './api/struct/Quest';
 import type { ServerData } from './api/struct/Server';
 
 type Nullable<T> = T | null;
-
 declare global {
 	const bot: Bot;
 	const swf: GameSWF;
-
-	type Account = { password: string; server?: string; username: string };
 
 	type WindowId = (typeof WINDOW_IDS)[keyof typeof WINDOW_IDS];
 
@@ -60,7 +57,7 @@ declare global {
 		combatCancelAutoAttack(): void;
 		combatCancelTarget(): void;
 		combatAttackMonster(name: string): void;
-		combatAttackMonsterById(monMapId: int): void;
+		combatAttackMonsterById(monMapId: number): void;
 
 		dropStackAcceptDrop(itemId: number): void;
 		dropStackRejectDrop(itemName: string, itemId: number): void;
@@ -114,7 +111,7 @@ declare global {
 		playerGetPosition(): [number, number];
 		playerWalkTo(x: number, y: number, walkSpeed?: number): void;
 		playerRest(): void;
-		playerUseBoost(itemId: int): boolean;
+		playerUseBoost(itemId: number): boolean;
 		playerHasActiveBoost(boost: string): boolean;
 		playerGetClassName(): string;
 		playerGetUserId(): number;
@@ -207,25 +204,25 @@ declare global {
 		/* eslint-disable typescript-sort-keys/interface */
 		Bot: InstanceType<typeof Bot>;
 
-		auth: ReturnType<(typeof Bot)['auth']>;
-		bank: ReturnType<(typeof Bot)['bank']>;
-		combat: ReturnType<(typeof Bot)['combat']>;
-		drops: ReturnType<(typeof Bot)['drops']>;
-		house: ReturnType<(typeof Bot)['house']>;
-		inventory: ReturnType<(typeof Bot)['inventory']>;
-		quests: ReturnType<(typeof Bot)['quests']>;
-		player: ReturnType<(typeof Bot)['player']>;
-		packets: ReturnType<(typeof Bot)['packets']>;
-		settings: ReturnType<(typeof Bot)['settings']>;
-		shops: ReturnType<(typeof Bot)['shops']>;
-		tempInventory: ReturnType<(typeof Bot)['tempInventory']>;
-		world: ReturnType<(typeof Bot)['world']>;
+		auth: InstanceType<typeof Bot>['auth'];
+		bank: InstanceType<typeof Bot>['bank'];
+		combat: InstanceType<typeof Bot>['combat'];
+		drops: InstanceType<typeof Bot>['drops'];
+		house: InstanceType<typeof Bot>['house'];
+		inventory: InstanceType<typeof Bot>['inventory'];
+		quests: InstanceType<typeof Bot>['quests'];
+		player: InstanceType<typeof Bot>['player'];
+		packets: InstanceType<typeof Bot>['packets'];
+		settings: InstanceType<typeof Bot>['settings'];
+		shops: InstanceType<typeof Bot>['shops'];
+		tempInventory: InstanceType<typeof Bot>['tempInventory'];
+		world: InstanceType<typeof Bot>['world'];
 
 		// utilities
 
-		flash: ReturnType<(typeof Bot)['flash']>;
-		autoRelogin: ReturnType<(typeof Bot)['autoRelogin']>;
-		timerManager: ReturnType<(typeof Bot)['timerManager']>;
+		flash: InstanceType<typeof Bot>['flash'];
+		autoRelogin: InstanceType<typeof Bot>['autoRelogin'];
+		timerManager: InstanceType<typeof Bot>['timerManager'];
 
 		// interop
 		debug(...args: string[]): void;
@@ -240,8 +237,10 @@ declare global {
 		ports: Map<WindowId, MessagePort>;
 		portMonitors: Map<WindowId, PortMonitor>;
 		scriptBlob?: Blob | null;
-		account?: Account;
+		account?: AccountWithServer;
 		/* eslint-enable typescript-sort-keys/interface */
 	}
 	/* eslint-enable @typescript-eslint/consistent-type-definitions */
 }
+
+export {};
