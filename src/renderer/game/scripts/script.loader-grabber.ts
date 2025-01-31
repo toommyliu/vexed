@@ -117,18 +117,18 @@ function parseTreeData(data: TreeInputData, type: string): TreeNode[] {
 					{ name: 'Description', value: quest.sDesc },
 					{
 						name: 'Required Items',
-						children: quest.RequiredItems.map((i) => ({
-							name: i.sName,
+						children: quest.RequiredItems.map((quest) => ({
+							name: quest.sName,
 							children: [
-								{ name: 'ID', value: i.ItemID },
-								{ name: 'Quantity', value: i.iQty },
+								{ name: 'ID', value: quest.ItemID },
+								{ name: 'Quantity', value: quest.iQty },
 								{
 									name: 'Temporary',
-									value: i.bTemp ? 'Yes' : 'No',
+									value: quest.bTemp ? 'Yes' : 'No',
 								},
 								{
 									name: 'Description',
-									value: i.sDesc,
+									value: quest.sDesc,
 								},
 							],
 						})),

@@ -410,7 +410,6 @@ window.addEventListener('DOMContentLoaded', async () => {
 					'input',
 				) as HTMLInputElement;
 
-				// eslint-disable-next-line @typescript-eslint/no-loop-func
 				const handleWalkSpeed = (event: Event) => {
 					const value = Number.parseInt(_option.value, 10);
 
@@ -434,7 +433,6 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 				option.setAttribute('data-state', 'false');
 
-				// eslint-disable-next-line @typescript-eslint/no-loop-func
 				option.addEventListener('click', (ev) => {
 					// Prevent the dropdown from closing
 					ev.stopPropagation();

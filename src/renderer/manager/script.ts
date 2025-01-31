@@ -184,8 +184,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 				cl.remove('w3-green', 'w3-red', 'w3-hide', 'w3-show');
 
 				const account = {
-					username: String(username),
-					password: String(password),
+					username: username as string,
+					password: password as string,
 				};
 
 				const res = await ipcRenderer.invoke(
@@ -305,9 +305,9 @@ window.addEventListener('DOMContentLoaded', async () => {
 		for (const el of document.querySelectorAll<HTMLInputElement>(
 			'#start',
 		)) {
-			const input = (el
-				.closest('.w3-card') as HTMLDivElement)
-				.querySelector('input') as HTMLInputElement;
+			const input = (
+				el.closest('.w3-card') as HTMLDivElement
+			).querySelector('input') as HTMLInputElement;
 
 			if (!input.checked) {
 				continue;
@@ -320,7 +320,6 @@ window.addEventListener('DOMContentLoaded', async () => {
 				password: el.dataset['password']!,
 			});
 
-			// eslint-disable-next-line @typescript-eslint/no-loop-func
 			await new Promise((resolve) => {
 				setTimeout(resolve, 1_000);
 			});
