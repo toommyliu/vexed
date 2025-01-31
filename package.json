@@ -43,5 +43,29 @@
 			"!dist/**/*",
 			"!scripts/**/*"
 		]
+	},
+	"resolutions": {
+		"@angular-eslint/eslint-plugin": "npm:@favware/skip-dependency@latest",
+		"@angular-eslint/eslint-plugin-template": "npm:@favware/skip-dependency@latest",
+		"@angular-eslint/template-parser": "npm:@favware/skip-dependency@latest",
+		"@next/eslint-plugin-next": "npm:@favware/skip-dependency@latest",
+		"@stylistic/eslint-plugin-jsx": "npm:@favware/skip-dependency@latest",
+		"@types/lodash.merge": "npm:@favware/skip-dependency@latest",
+		"astro-eslint-parser": "npm:@favware/skip-dependency@latest",
+		"eslint-mdx": "npm:@favware/skip-dependency@latest",
+		"eslint-plugin-astro": "npm:@favware/skip-dependency@latest",
+		"eslint-plugin-cypress": "npm:@favware/skip-dependency@latest",
+		"eslint-plugin-jsdoc": "npm:@favware/skip-dependency@latest",
+		"eslint-plugin-jsx-a11y": "npm:@favware/skip-dependency@latest",
+		"eslint-plugin-mdx": "npm:@favware/skip-dependency@latest",
+		"eslint-plugin-react": "npm:@favware/skip-dependency@latest",
+		"eslint-plugin-react-hooks": "npm:@favware/skip-dependency@latest",
+		"eslint-plugin-react-refresh": "npm:@favware/skip-dependency@latest",
+		"eslint-plugin-rxjs": "npm:@favware/skip-dependency@latest",
+		"eslint-plugin-rxjs-angular": "npm:@favware/skip-dependency@latest",
+		"eslint-plugin-sonarjs": "npm:@favware/skip-dependency@latest",
+		"eslint-plugin-svelte3": "npm:@favware/skip-dependency@latest",
+		"eslint-plugin-vue": "npm:@favware/skip-dependency@latest",
+		"vue-eslint-parser": "npm:@favware/skip-dependency@latest"
 	}
 }
