@@ -94,7 +94,7 @@ export class Combat {
 	 */
 	public attack(monsterResolvable: string): void {
 		if (isMonsterMapId(monsterResolvable)) {
-			const monMapId = monsterResolvable.slice(3);
+			const monMapId = Number.parseInt(monsterResolvable.slice(3), 10);
 			this.bot.flash.call(() => swf.combatAttackMonsterById(monMapId));
 			return;
 		}

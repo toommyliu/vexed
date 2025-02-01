@@ -28,5 +28,9 @@ export const IPC_EVENTS = {
 
 	// #region manager
 	GET_ACCOUNTS: 'manager:get_accounts' as const,
+	LAUNCH_GAME: 'manager:launch_game' as const,
+	ADD_ACCOUNT: 'manager:add_account' as const,
+	REMOVE_ACCOUNT: 'manager:remove_account' as const,
+	ENABLE_BUTTON: 'manager:enable_button' as const,
 	// #endregion
 } as const;

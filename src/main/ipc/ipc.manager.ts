@@ -1,10 +1,11 @@
 import { ipcMain } from 'electron/main';
+import { IPC_EVENTS } from '../../common/ipc-events';
 import { FileManager } from '../FileManager';
 import { createGame } from '../windows';
 
 const fileMgr = FileManager.getInstance();
 
-ipcMain.handle('manager:get_accounts', async () => {
+ipcMain.handle(IPC_EVENTS.GET_ACCOUNTS, async () => {
 	try {
 		return await fileMgr.readJson<Account[]>(fileMgr.accountsPath);
 	} catch (error) {
@@ -16,7 +17,7 @@ ipcMain.handle('manager:get_accounts', async () => {
 	}
 });
 
-ipcMain.handle('manager:add_account', async (_, account: Account) => {
+ipcMain.handle(IPC_EVENTS.ADD_ACCOUNT, async (_, account: Account) => {
 	try {
 		const accounts =
 			(await fileMgr.readJson<Account[]>(fileMgr.accountsPath)) ?? [];
@@ -31,7 +32,7 @@ ipcMain.handle('manager:add_account', async (_, account: Account) => {
 	}
 });
 
-ipcMain.handle('manager:remove_account', async (_, username: string) => {
+ipcMain.handle(IPC_EVENTS.REMOVE_ACCOUNT, async (_, username: string) => {
 	try {
 		const accounts =
 			(await fileMgr.readJson<Account[]>(fileMgr.accountsPath)) ?? [];
@@ -51,9 +52,12 @@ ipcMain.handle('manager:remove_account', async (_, username: string) => {
 	}
 });
 
-ipcMain.handle('manager:launch_game', async (_, account: AccountWithServer) => {
-	console.log('Launching game for:', account.username);
-	await createGame(account);
-});
+ipcMain.handle(
+	IPC_EVENTS.LAUNCH_GAME,
+	async (_, account: AccountWithServer) => {
+		console.log('Launching game for:', account.username);
+		await createGame(account);
+	},
+);
 
 type AccountWithServer = Account & { server: string };

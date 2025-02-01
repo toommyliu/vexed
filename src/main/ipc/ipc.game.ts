@@ -24,7 +24,7 @@ ipcMain.on(IPC_EVENTS.LOGIN_SUCCESS, async (_, username: string) => {
 
 	console.log(`${username} successfully logged in`);
 
-	mgrWindow.webContents.send('manager:enable_button', username);
+	mgrWindow.webContents.send(IPC_EVENTS.ENABLE_BUTTON, username);
 });
 
 ipcMain.on(

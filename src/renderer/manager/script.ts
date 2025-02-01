@@ -1,22 +1,21 @@
-import { ipcRenderer } from 'electron/renderer';
+import type { ServerData } from '../game/api/struct/Server';
 
 const accounts: Account[] = [];
-const servers: Server[] = [];
+const servers: ServerData[] = [];
 
 const timeouts = new Map<string, NodeJS.Timeout>();
 
-ipcRenderer.on('manager:enable_button', async (_, username) => {
-	const timeout = timeouts.get(username);
+window.ipcRenderer.on(window.ipcEvents.ENABLE_BUTTON, (_, username) => {
+	const usernameStr = username as string;
+	const timeout = timeouts.get(usernameStr);
 	if (timeout) {
 		clearTimeout(timeout);
-		timeouts.delete(username);
+		timeouts.delete(usernameStr);
 	}
 
-	await new Promise((resolve) => {
-		setTimeout(resolve, 500);
-	});
-
-	enableAccount(username);
+	setTimeout(() => {
+		enableAccount(usernameStr);
+	}, 500);
 });
 
 function enableAccount(username: string) {
@@ -39,11 +38,7 @@ async function startAccount({ username, password }: Account) {
 
 	timeouts.set(username, timeout);
 
-	await ipcRenderer.invoke('manager:launch_game', {
-		username,
-		password,
-		server: serversSelect.value,
-	});
+	window.ipc.launchGame({ username, password, server: serversSelect.value });
 }
 
 async function removeAccount({ username }: Pick<Account, 'username'>) {
@@ -53,7 +48,7 @@ async function removeAccount({ username }: Pick<Account, 'username'>) {
 		timeouts.delete(username);
 	}
 
-	await ipcRenderer.invoke('manager:remove_account', username);
+	window.ipc.removeAccount(username);
 }
 
 function toggleAccountState(ev: MouseEvent) {
@@ -188,10 +183,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 					password: password as string,
 				};
 
-				const res = await ipcRenderer.invoke(
-					'manager:add_account',
-					account,
-				);
+				const res = await window.ipc.addAccount(account);
 
 				if (res?.success) {
 					// eslint-disable-next-line require-atomic-updates
@@ -255,7 +247,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 	}
 
 	const [accountsOut, serversOut] = await Promise.all([
-		ipcRenderer.invoke('manager:get_accounts'),
+		window.ipc.getAccounts(),
 		fetch('https://game.aq.com/game/api/data/servers').then(async (resp) =>
 			resp.json(),
 		),
@@ -326,21 +318,3 @@ window.addEventListener('DOMContentLoaded', async () => {
 		}
 	});
 });
-
-type Server = {
-	bOnline: number;
-	bUpg: number;
-	iChat: number;
-	iCount: number;
-	iLevel: number;
-	iMax: number;
-	iPort: number;
-	sIP: string;
-	sLang: string;
-	sName: string;
-};
-
-type Account = {
-	password: string;
-	username: string;
-};
