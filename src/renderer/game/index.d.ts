@@ -1,3 +1,4 @@
+import type { Logger } from 'winston';
 import type { WINDOW_IDS } from '../../common/constants';
 import type PortMonitor from '../../common/port-monitor';
 import type { Bot } from './api/Bot';
@@ -8,11 +9,10 @@ import type { ItemData } from './api/struct/Item';
 import type { MonsterData } from './api/struct/Monster';
 import type { QuestData } from './api/struct/Quest';
 import type { ServerData } from './api/struct/Server';
-import type { logger } from './util/logger';
 
 type Nullable<T> = T | null;
 declare global {
-	const logger: typeof logger;
+	const logger: Logger;
 	const swf: GameSWF;
 
 	type WindowId = (typeof WINDOW_IDS)[keyof typeof WINDOW_IDS];
@@ -223,7 +223,7 @@ declare global {
 		portMonitors: Map<WindowId, PortMonitor>;
 		scriptBlob?: Blob | null;
 		account?: AccountWithServer;
-		logger: typeof logger;
+		logger: Logger;
 		/* eslint-enable typescript-sort-keys/interface */
 	}
 }
