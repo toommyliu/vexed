@@ -1,6 +1,6 @@
 import { ipcMain } from 'electron/main';
-import { IPC_EVENTS } from '../../common/ipc-events';
 import { writeJsonSync, readJsonSync } from 'fs-extra';
+import { IPC_EVENTS } from '../../common/ipc-events';
 import { FileManager } from '../FileManager';
 import { createGame } from '../windows';
 
