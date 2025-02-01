@@ -406,7 +406,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 	}
 
 	{
-		const options = document.querySelectorAll('[id^="option-"]');
+		const options =
+			document.querySelectorAll<HTMLButtonElement>('[id^="option-"]');
 		for (const option of options) {
 			if (option.id === 'option-walkspeed') {
 				const _option = option.querySelector(
@@ -456,6 +457,9 @@ window.addEventListener('DOMContentLoaded', async () => {
 							break;
 						case 'option-provoke-cell':
 							bot.settings.provokeCell = newState;
+							break;
+						case 'option-enemy-magnet':
+							bot.settings.enemyMagnet = newState;
 							break;
 						case 'option-lag-killer':
 							bot.settings.lagKiller = newState;
