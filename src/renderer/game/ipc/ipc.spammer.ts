@@ -1,10 +1,13 @@
 import { Mutex } from 'async-mutex';
 import { IPC_EVENTS } from '../../../common/ipc-events';
+import { Bot } from '../api/Bot';
 import { type SetIntervalAsyncTimer } from '../api/util/TimerManager';
 
 const mutex = new Mutex();
 let intervalId: SetIntervalAsyncTimer<unknown[]> | null = null;
 let index = 0;
+
+const bot = Bot.getInstance();
 
 function stopInterval() {
 	if (intervalId) {

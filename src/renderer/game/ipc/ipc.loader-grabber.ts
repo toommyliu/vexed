@@ -1,4 +1,7 @@
 import { IPC_EVENTS } from '../../../common/ipc-events';
+import { Bot } from '../api/Bot';
+
+const bot = Bot.getInstance();
 
 export default async function handler(ev: MessageEvent) {
 	const port = ev.target as MessagePort;

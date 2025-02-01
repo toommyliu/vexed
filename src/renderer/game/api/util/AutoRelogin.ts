@@ -18,7 +18,7 @@ export class AutoRelogin {
 	 */
 	public delay: number;
 
-	public constructor(public readonly bot: Bot) {
+	public constructor(private readonly bot: Bot) {
 		/**
 		 * The server name to connect to.
 		 */
@@ -105,7 +105,7 @@ export class AutoRelogin {
 
 					this.bot.auth.connectTo(server.name);
 
-					await this.bot.waitUntil(() => bot.player.isReady());
+					await this.bot.waitUntil(() => this.bot.player.isReady());
 
 					if (og_lagKiller) {
 						this.bot.settings.lagKiller = true;

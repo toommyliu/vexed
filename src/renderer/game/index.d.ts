@@ -12,7 +12,7 @@ import type { logger } from './util/logger';
 
 type Nullable<T> = T | null;
 declare global {
-	const bot: Bot;
+	const logger: typeof logger;
 	const swf: GameSWF;
 
 	type WindowId = (typeof WINDOW_IDS)[keyof typeof WINDOW_IDS];
@@ -200,27 +200,11 @@ declare global {
 	};
 	/* eslint-enable typescript-sort-keys/interface */
 
-	/* eslint-disable @typescript-eslint/consistent-type-definitions */
+	// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 	interface Window {
 		/* eslint-disable typescript-sort-keys/interface */
-		Bot: InstanceType<typeof Bot>;
-
-		auth: InstanceType<typeof Bot>['auth'];
-		bank: InstanceType<typeof Bot>['bank'];
-		combat: InstanceType<typeof Bot>['combat'];
-		drops: InstanceType<typeof Bot>['drops'];
-		house: InstanceType<typeof Bot>['house'];
-		inventory: InstanceType<typeof Bot>['inventory'];
-		quests: InstanceType<typeof Bot>['quests'];
-		player: InstanceType<typeof Bot>['player'];
-		packets: InstanceType<typeof Bot>['packets'];
-		settings: InstanceType<typeof Bot>['settings'];
-		shops: InstanceType<typeof Bot>['shops'];
-		tempInventory: InstanceType<typeof Bot>['tempInventory'];
-		world: InstanceType<typeof Bot>['world'];
 
 		// utilities
-
 		flash: InstanceType<typeof Bot>['flash'];
 		autoRelogin: InstanceType<typeof Bot>['autoRelogin'];
 		timerManager: InstanceType<typeof Bot>['timerManager'];
@@ -242,7 +226,6 @@ declare global {
 		logger: typeof logger;
 		/* eslint-enable typescript-sort-keys/interface */
 	}
-	/* eslint-enable @typescript-eslint/consistent-type-definitions */
 }
 
 export {};

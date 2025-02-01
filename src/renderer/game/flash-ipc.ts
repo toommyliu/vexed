@@ -1,9 +1,11 @@
 import { ipcRenderer } from 'electron';
 import { IPC_EVENTS } from '../../common/ipc-events';
+import { Bot } from './api/Bot';
 import { addGoldExp } from './handlers/json/addGoldExp';
 import { ct } from './handlers/json/ct';
 import { dropItem } from './handlers/json/dropItem';
 
+const bot = Bot.getInstance();
 const { auth, player } = bot;
 
 window.packetFromServer = async ([packet]: [string]) => {
