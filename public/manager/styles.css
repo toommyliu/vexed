@@ -1,3 +1,10 @@
+html,
+body {
+	height: 100%;
+	margin: 0;
+	overflow-y: auto;
+}
+
 .main-content {
 	flex: 1 0 auto;
 	padding: 24px;
@@ -5,6 +12,8 @@
 	margin: 0 auto;
 	width: 100%;
 	box-sizing: border-box;
+	overflow-y: auto;
+	min-height: 0;
 }
 
 .account-bar {
@@ -45,6 +54,7 @@
 	background-color: var(--bg-secondary);
 	padding: 16px;
 	border-top: 1px solid var(--border-color);
+	z-index: 1;
 }
 
 .footer-content {
@@ -85,7 +95,6 @@
 
 .add-account-section {
 	background-color: var(--bg-secondary);
-	border-radius: 8px;
 	margin-bottom: 24px;
 }
 
