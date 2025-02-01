@@ -8,6 +8,7 @@ import type { ItemData } from './api/struct/Item';
 import type { MonsterData } from './api/struct/Monster';
 import type { QuestData } from './api/struct/Quest';
 import type { ServerData } from './api/struct/Server';
+import type { logger } from './util/logger';
 
 type Nullable<T> = T | null;
 declare global {
@@ -238,6 +239,7 @@ declare global {
 		portMonitors: Map<WindowId, PortMonitor>;
 		scriptBlob?: Blob | null;
 		account?: AccountWithServer;
+		logger: typeof logger;
 		/* eslint-enable typescript-sort-keys/interface */
 	}
 	/* eslint-enable @typescript-eslint/consistent-type-definitions */
