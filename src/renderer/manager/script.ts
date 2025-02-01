@@ -183,9 +183,9 @@ window.addEventListener('DOMContentLoaded', async () => {
 					password: password as string,
 				};
 
-				const res = await window.ipc.addAccount(account);
+				const success = await window.ipc.addAccount(account);
 
-				if (res?.success) {
+				if (success) {
 					// eslint-disable-next-line require-atomic-updates
 					el.innerText = 'Account added successfully';
 					accounts.push(account);
@@ -199,10 +199,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 				el!.style.display = 'block';
 				cl.remove('w3-hide');
 
-				cl.add(
-					res?.success ? 'w3-green' : 'w3-red',
-					'w3-animate-opacity',
-				);
+				cl.add(success ? 'w3-green' : 'w3-red', 'w3-animate-opacity');
 
 				cl.remove('w3-hide');
 				setTimeout(
@@ -219,7 +216,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 							);
 						}, 400);
 					},
-					res?.success ? 1_000 : 2_000,
+					success ? 1_000 : 2_000,
 				);
 			} catch (error) {
 				console.log(

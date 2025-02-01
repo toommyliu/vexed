@@ -1,5 +1,6 @@
 import { ipcMain } from 'electron/main';
 import { IPC_EVENTS } from '../../common/ipc-events';
+import { writeJsonSync, readJsonSync } from 'fs-extra';
 import { FileManager } from '../FileManager';
 import { createGame } from '../windows';
 
@@ -7,28 +8,21 @@ const fileMgr = FileManager.getInstance();
 
 ipcMain.handle(IPC_EVENTS.GET_ACCOUNTS, async () => {
 	try {
-		return await fileMgr.readJson<Account[]>(fileMgr.accountsPath);
-	} catch (error) {
-		console.log(
-			'An error occurred while reading accounts.json (1):',
-			error,
-		);
+		return readJsonSync(fileMgr.accountsPath);
+	} catch {
 		return [];
 	}
 });
 
 ipcMain.handle(IPC_EVENTS.ADD_ACCOUNT, async (_, account: Account) => {
 	try {
-		const accounts =
-			(await fileMgr.readJson<Account[]>(fileMgr.accountsPath)) ?? [];
-
+		const accounts: Account[] = readJsonSync(fileMgr.accountsPath) ?? [];
 		accounts.push(account);
 
-		await fileMgr.writeJson(fileMgr.accountsPath, accounts);
-		return { success: true };
-	} catch (error) {
-		const err = error as Error;
-		return { success: false, msg: err.message };
+		writeJsonSync(fileMgr.accountsPath, accounts);
+		return true;
+	} catch {
+		return false;
 	}
 });
 
