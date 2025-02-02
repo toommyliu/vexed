@@ -166,7 +166,9 @@ export class World {
 			return;
 		}
 
-		this.bot.flash.call(() => swf.worldSetSpawnPoint(cell, pad));
+		this.bot.flash.call(() =>
+			swf.worldSetSpawnPoint(this.bot.player.cell, this.bot.player.pad),
+		);
 	}
 
 	/**
