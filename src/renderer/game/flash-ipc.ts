@@ -53,7 +53,7 @@ window.packetFromServer = async ([packet]: [string]) => {
 	}
 };
 
-window.packetFromClient = async (packet: [string]) => {
+window.packetFromClient = async ([packet]: [string]) => {
 	bot.emit('packetFromClient', packet);
 };
 
