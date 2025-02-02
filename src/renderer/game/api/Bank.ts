@@ -104,6 +104,8 @@ export class Bank {
 	 * @param key - The name or ID of the item.
 	 */
 	public async withdraw(key: number | string): Promise<void> {
+		await this.open();
+
 		if (!this.get(key)) {
 			throw new Error('Item not found in bank');
 		}
@@ -111,8 +113,6 @@ export class Bank {
 		if (this.bot.inventory.get(key)) {
 			throw new Error('Item already in inventory');
 		}
-
-		await this.open();
 
 		this.bot.flash.call<boolean>(() => swf.bankWithdraw(key));
 
@@ -140,6 +140,8 @@ export class Bank {
 		bankItem: number | string,
 		inventoryItem: number | string,
 	): Promise<void> {
+		await this.open();
+
 		const isInBank = () => Boolean(this.get(bankItem));
 		const isInInventory = () =>
 			Boolean(this.bot.inventory.get(inventoryItem));
@@ -147,8 +149,6 @@ export class Bank {
 		if (!isInBank() || !isInInventory()) {
 			return;
 		}
-
-		await this.open();
 
 		this.bot.flash.call(() => swf.bankSwap(inventoryItem, bankItem));
 		await this.bot.waitUntil(
