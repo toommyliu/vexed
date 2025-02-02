@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events';
+import { CommandQueue } from '../commands/command-queue';
 import { Auth } from './Auth';
 import { Bank } from './Bank';
 import { Combat } from './Combat';
@@ -178,6 +179,8 @@ export class Bot extends EventEmitter {
 	 */
 	public timerManager: InstanceType<typeof TimerManager>;
 
+	public commandsQueue: InstanceType<typeof CommandQueue>;
+
 	public constructor() {
 		super();
 
@@ -204,6 +207,8 @@ export class Bot extends EventEmitter {
 		this.shops = new Shops(this);
 		this.tempInventory = new TempInventory(this);
 		this.world = new World(this);
+
+		this.commandsQueue = new CommandQueue();
 	}
 
 	/**

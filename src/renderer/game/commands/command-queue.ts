@@ -12,15 +12,19 @@ export class CommandQueue {
 
 	private commands: QueuedCommand[];
 
-	private isRunning: boolean;
+	private _isRunning: boolean;
 
-	private readonly interval: number;
+	private delay: number;
 
-	public constructor(options: { interval?: number } = {}) {
+	public constructor(options: { delay?: number } = {}) {
 		this.queue = new AsyncQueue();
 		this.commands = [];
-		this.isRunning = false;
-		this.interval = options.interval ?? 1_000;
+		this._isRunning = false;
+		this.delay = options.delay ?? 1_000;
+	}
+
+	public setDelay(delay: number) {
+		this.delay = delay;
 	}
 
 	public addCommand(command: Command, ...args: unknown[]) {
@@ -31,33 +35,44 @@ export class CommandQueue {
 		return this.commands.length === 0;
 	}
 
+	public get isRunning() {
+		return this._isRunning;
+	}
+
 	public async start() {
-		if (this.isRunning) return;
-		this.isRunning = true;
+		if (this._isRunning) return;
+		this._isRunning = true;
 
 		const bot = Bot.getInstance();
 		if (!bot.player.isLoaded()) {
-			logger.info('Waiting for player to load');
+			logger.info('waiting for load');
 			await bot.waitUntil(() => bot.player.isLoaded(), null, -1);
-			logger.info('Player loaded');
+			logger.info('player loaded');
 		}
 
 		let index = 0;
 
-		while (index < this.commands.length && this.isRunning) {
+		while (index < this.commands.length && this._isRunning) {
 			await this.queue.wait();
 			try {
 				const queuedCommand = this.commands[index];
-				if (queuedCommand) {
-					const { command, args } = queuedCommand;
-					const result = command.execute(...args);
-					if (result instanceof Promise) {
-						await result;
-					}
+				if (!queuedCommand) {
+					break;
+				}
+
+				const { command, args } = queuedCommand;
+
+				logger.info(
+					`${command.id}${args.length > 1 ? args.join(', ') : ''} (${index + 1}/${this.commands.length})`,
+				);
+
+				const result = command.execute(...args);
+				if (result instanceof Promise) {
+					await result;
 				}
 
 				await new Promise((resolve) => {
-					setTimeout(resolve, this.interval);
+					setTimeout(resolve, this.delay);
 				});
 			} finally {
 				this.queue.shift();
@@ -65,13 +80,13 @@ export class CommandQueue {
 			}
 		}
 
-		this.isRunning = false;
+		this._isRunning = false;
 		logger.info('bot finished');
 	}
 
 	public async stop() {
 		logger.info('bot stopping');
-		this.isRunning = false;
+		this._isRunning = false;
 		this.queue.abortAll();
 		this.commands = [];
 	}
