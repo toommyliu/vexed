@@ -75,6 +75,12 @@ export class Combat {
 		force = false,
 		wait = false,
 	): Promise<void> {
+		if (this.pauseAttack) {
+			this.cancelAutoAttack();
+			this.cancelTarget();
+			return;
+		}
+
 		const idx = Number.parseInt(String(index), 10);
 		if (wait) {
 			await this.bot.sleep(swf.combatGetSkillCooldownRemaining(idx));
@@ -93,6 +99,12 @@ export class Combat {
 	 * @param monsterResolvable - The name or monMapID of the monster.
 	 */
 	public attack(monsterResolvable: string): void {
+		if (this.pauseAttack) {
+			this.cancelAutoAttack();
+			this.cancelTarget();
+			return;
+		}
+
 		if (isMonsterMapId(monsterResolvable)) {
 			const monMapId = Number.parseInt(monsterResolvable.slice(3), 10);
 			this.bot.flash.call(() => swf.combatAttackMonsterById(monMapId));
