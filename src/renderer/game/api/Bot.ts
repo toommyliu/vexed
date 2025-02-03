@@ -277,3 +277,5 @@ export class Bot extends EventEmitter {
 		return Bot._instance;
 	}
 }
+// @ts-expect-error debugging
+window.Bot = Bot;

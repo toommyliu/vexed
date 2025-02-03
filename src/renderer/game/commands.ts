@@ -12,8 +12,15 @@ import {
 	SkillCommand,
 } from './commands/combat';
 import { Command } from './commands/command';
+import { GotoLabelCommand, LabelCommand } from './commands/misc';
 import { AcceptCommand, CompleteCommand } from './commands/quest';
-import { JoinCommand } from './commands/world';
+import { BuyCommand, SellCommand } from './commands/shop';
+import {
+	JoinCommand,
+	MoveToCellCommand,
+	SetSpawnCommand,
+	WalkToCommand,
+} from './commands/world';
 
 const queue = Bot.getInstance().commandsQueue;
 
@@ -172,9 +179,67 @@ const quest = {
 	},
 };
 
+const shop = {
+	buy_item(shopId: number, item: number | string, quantity: number) {
+		if (!shopId || typeof shopId !== 'number') {
+			logger.error('shopId is required');
+			return;
+		}
+
+		if (!item || (typeof item !== 'number' && typeof item !== 'string')) {
+			logger.error('item is required');
+			return;
+		}
+
+		if (!quantity || typeof quantity !== 'number') {
+			logger.error('quantity is required');
+			return;
+		}
+
+		queue.addCommand(new BuyCommand(), shopId, item, quantity);
+	},
+	sell_item(item: string) {
+		if (!item || typeof item !== 'string') {
+			logger.error('item is required');
+			return;
+		}
+
+		queue.addCommand(new SellCommand(), item);
+	},
+};
+
 const world = {
 	join(mapName: string, cell = 'Enter', pad = 'Spawn') {
+		if (!mapName || typeof mapName !== 'string') {
+			logger.error('mapName is required');
+			return;
+		}
+
 		queue.addCommand(new JoinCommand(), mapName, cell, pad);
+	},
+	move_to_cell(cell: string, pad = 'Spawn') {
+		if (!cell || typeof cell !== 'string') {
+			logger.error('cell is required');
+			return;
+		}
+
+		queue.addCommand(new MoveToCellCommand(), cell, pad);
+	},
+	set_spawn(cell?: string, pad?: string) {
+		queue.addCommand(new SetSpawnCommand(), cell, pad);
+	},
+	walk_to(x: number, y: number) {
+		if (!x || typeof x !== 'number') {
+			logger.error('x is required');
+			return;
+		}
+
+		if (!y || typeof y !== 'number') {
+			logger.error('y is required');
+			return;
+		}
+
+		queue.addCommand(new WalkToCommand(), x, y);
 	},
 };
 
@@ -216,6 +281,25 @@ const bot = {
 	},
 };
 
+const misc = {
+	label(name: string) {
+		if (!name || typeof name !== 'string') {
+			logger.error('name is required');
+			return;
+		}
+
+		queue.addCommand(new LabelCommand(), name);
+	},
+	goto_label(name: string) {
+		if (!name || typeof name !== 'string') {
+			logger.error('name is required');
+			return;
+		}
+
+		queue.addCommand(new GotoLabelCommand(), name);
+	},
+};
+
 declare global {
 	// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 	interface Window {
@@ -223,8 +307,10 @@ declare global {
 		bank: typeof bank;
 		bot: typeof bot;
 		combat: typeof combat;
+		misc: typeof misc;
 		quest: typeof quest;
 		queue: typeof queue;
+		shop: typeof shop;
 		world: typeof world;
 	}
 }
@@ -234,5 +320,7 @@ window.bank = bank;
 window.bot = bot;
 window.combat = combat;
 window.world = world;
+window.misc = misc;
 window.quest = quest;
+window.shop = shop;
 window.queue = queue;

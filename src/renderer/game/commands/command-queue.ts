@@ -7,6 +7,10 @@ type QueuedCommand = {
 	command: Command;
 };
 
+// TODO: expose indicies
+// TODO: refactor as executor class
+// TODO: refactor command args
+
 export class CommandQueue {
 	private readonly queue: AsyncQueue;
 
@@ -16,11 +20,14 @@ export class CommandQueue {
 
 	private delay: number;
 
+	private readonly labels: Map<string, number>;
+
 	public constructor(options: { delay?: number } = {}) {
 		this.queue = new AsyncQueue();
 		this.commands = [];
 		this._isRunning = false;
 		this.delay = options.delay ?? 1_000;
+		this.labels = new Map();
 	}
 
 	public setDelay(delay: number) {
@@ -42,6 +49,18 @@ export class CommandQueue {
 	public async start() {
 		if (this._isRunning) return;
 		this._isRunning = true;
+
+		for (const [index, { args }] of this.commands
+			.filter((cmd) => cmd.command.id === 'misc:label')
+			.entries()) {
+			const label = args[0] as string;
+
+			if (this.labels.has(label)) {
+				logger.warn(`label "${label}" already exists, overriding...`);
+			}
+
+			this.labels.set(label, index);
+		}
 
 		const bot = Bot.getInstance();
 		if (!bot.player.isLoaded()) {
@@ -66,18 +85,29 @@ export class CommandQueue {
 					`${command.id}${args.length > 1 ? args.join(', ') : ''} (${index + 1}/${this.commands.length})`,
 				);
 
-				const result = command.execute(...args);
-				if (result instanceof Promise) {
-					await result;
-				}
+				if (command.id === 'misc:goto-label') {
+					const jmpIndex = this.labels.get(args[0] as string);
+					if (jmpIndex === undefined) {
+						logger.error(`label "${args[0]}" not found...`);
+					} else {
+						index = jmpIndex;
+						continue;
+					}
+				} else {
+					const result = command.execute(...args);
+					if (result instanceof Promise) {
+						await result;
+					}
 
-				await new Promise((resolve) => {
-					setTimeout(resolve, this.delay);
-				});
+					await new Promise((resolve) => {
+						setTimeout(resolve, this.delay);
+					});
+				}
 			} finally {
 				this.queue.shift();
-				++index;
 			}
+
+			++index;
 		}
 
 		this._isRunning = false;
