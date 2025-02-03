@@ -308,7 +308,13 @@ const bot = {
 		void executor.start();
 	},
 	stop() {
-		executor.addCommand(new StopCommand());
+		if (executor.isRunning()) {
+			// stop immediately
+			void executor.stop();
+		} else {
+			// add a stop command
+			executor.addCommand(new StopCommand());
+		}
 	},
 	set_delay(delay: number) {
 		if ((!delay && delay < 0) || typeof delay !== 'number') {

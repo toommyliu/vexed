@@ -8,18 +8,17 @@ export class CommandExecutor {
 
 	private commands: Command[];
 
-	private _isRunning: boolean;
-
 	private delay: number;
 
 	public readonly labels: Map<string, number>;
 
 	private _index: number;
 
+	private ac: AbortController | null = null;
+
 	public constructor(options: { delay?: number } = {}) {
 		this.queue = new AsyncQueue();
 		this.commands = [];
-		this._isRunning = false;
 		this.delay = options.delay ?? 1_000;
 		this.labels = new Map();
 		this._index = 0;
@@ -45,14 +44,13 @@ export class CommandExecutor {
 		return this.commands.length === 0;
 	}
 
-	public get isRunning() {
-		return this._isRunning;
+	public isRunning() {
+		return this.ac !== null && !this.ac.signal.aborted;
 	}
 
 	public async start() {
-		if (this._isRunning) return;
-		this._isRunning = true;
 		this._index = 0;
+		this.ac = new AbortController();
 
 		for (const [index, cmd] of this.commands
 			.filter(
@@ -75,8 +73,13 @@ export class CommandExecutor {
 			logger.info('player loaded');
 		}
 
-		while (this._index < this.commands.length && this._isRunning) {
+		while (this._index < this.commands.length && this.isRunning) {
+			if (this.ac.signal.aborted) break;
+
 			await this.queue.wait();
+
+			if (this.ac.signal.aborted) break;
+
 			try {
 				const command = this.commands[this._index];
 				if (!command) {
@@ -87,23 +90,30 @@ export class CommandExecutor {
 					`${command.toString()} (${this._index + 1}/${this.commands.length})`,
 				);
 
+				if (this.ac.signal.aborted) break;
+
 				const result = command.execute();
 				if (result instanceof Promise) {
 					await result;
 				}
 
+				if (this.ac.signal.aborted) break;
+
 				await new Promise((resolve) => {
 					setTimeout(resolve, this.delay);
 				});
+
+				if (this.ac.signal.aborted) break;
 			} finally {
 				this.queue.shift();
 			}
 
-			++this._index;
+			if (!this.ac.signal.aborted) ++this._index;
 		}
 
 		logger.info('bot finished');
-		this._isRunning = false;
+		this.ac.abort();
+		this.ac = null;
 	}
 
 	public async stop() {
@@ -112,10 +122,10 @@ export class CommandExecutor {
 	}
 
 	private _stop() {
-		this._isRunning = false;
 		this.queue.abortAll();
 		this.commands = [];
 		this.labels.clear();
 		this._index = 0;
+		this.ac?.abort();
 	}
 }
