@@ -8,4 +8,7 @@ export class Command {
 	public execute(..._args: unknown[]): Promise<void> | void {
 		throw new Error('Method not implemented.');
 	}
+	public toString(): string {
+		return this.id ?? '';
+	}
 }
