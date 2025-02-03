@@ -14,6 +14,7 @@ import {
 import { Command } from './commands/command';
 import { GotoLabelCommand, LabelCommand } from './commands/misc';
 import { AcceptCommand, CompleteCommand } from './commands/quest';
+import { SettingsCommand } from './commands/settings';
 import { BuyCommand, SellCommand } from './commands/shop';
 import {
 	JoinCommand,
@@ -343,6 +344,31 @@ const bot = {
 	},
 };
 
+const settings = {
+	enable(option: string) {
+		if (!option || typeof option !== 'string') {
+			logger.error('option is required');
+			return;
+		}
+
+		const cmd = new SettingsCommand();
+		cmd.key = option;
+		cmd.val = true;
+		executor.addCommand(cmd);
+	},
+	disable(option: string) {
+		if (!option || typeof option !== 'string') {
+			logger.error('option is required');
+			return;
+		}
+
+		const cmd = new SettingsCommand();
+		cmd.key = option;
+		cmd.val = false;
+		executor.addCommand(cmd);
+	},
+};
+
 const misc = {
 	label(label: string) {
 		if (!label || typeof label !== 'string') {
@@ -376,6 +402,7 @@ declare global {
 		misc: typeof misc;
 		quest: typeof quest;
 		queue: typeof executor;
+		settings: typeof settings;
 		shop: typeof shop;
 		world: typeof world;
 	}
@@ -390,3 +417,4 @@ window.misc = misc;
 window.quest = quest;
 window.shop = shop;
 window.queue = executor;
+window.settings = settings;
