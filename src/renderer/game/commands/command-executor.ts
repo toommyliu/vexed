@@ -4,10 +4,8 @@ import type { Command } from './command';
 import { LabelCommand, type GotoLabelCommand } from './misc';
 
 // TODO: expose indicies
-// TODO: refactor as executor class
-// TODO: refactor command args
 
-export class CommandQueue {
+export class CommandExecutor {
 	private readonly queue: AsyncQueue;
 
 	private commands: Command[];

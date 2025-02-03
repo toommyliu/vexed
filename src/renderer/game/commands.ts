@@ -22,7 +22,7 @@ import {
 	WalkToCommand,
 } from './commands/world';
 
-const queue = Bot.getInstance().commandsQueue;
+const executor = Bot.getInstance().executor;
 
 const auth = {
 	login(username: string, password: string) {
@@ -39,10 +39,10 @@ const auth = {
 		const cmd = new LoginCommand();
 		cmd.username = username;
 		cmd.password = password;
-		queue.addCommand(cmd);
+		executor.addCommand(cmd);
 	},
 	logout() {
-		queue.addCommand(new LogoutCommand());
+		executor.addCommand(new LogoutCommand());
 	},
 };
 
@@ -55,7 +55,7 @@ const bank = {
 
 		const cmd = new DepositCommand();
 		cmd.item = item;
-		queue.addCommand(cmd);
+		executor.addCommand(cmd);
 	},
 	withdraw(item: number | string) {
 		if (!item || (typeof item !== 'number' && typeof item !== 'string')) {
@@ -65,7 +65,7 @@ const bank = {
 
 		const cmd = new WithdrawCommand();
 		cmd.item = item;
-		queue.addCommand(cmd);
+		executor.addCommand(cmd);
 	},
 	swap(bankItem: number | string, invItem: number | string) {
 		if (
@@ -87,7 +87,7 @@ const bank = {
 		const cmd = new SwapCommand();
 		cmd.bankItem = bankItem;
 		cmd.invItem = invItem;
-		queue.addCommand(cmd);
+		executor.addCommand(cmd);
 	},
 };
 
@@ -100,7 +100,7 @@ const combat = {
 
 		const cmd = new AttackCommand();
 		cmd.target = target;
-		queue.addCommand(cmd);
+		executor.addCommand(cmd);
 	},
 	kill(target: string) {
 		if (!target || typeof target !== 'string') {
@@ -110,7 +110,7 @@ const combat = {
 
 		const cmd = new KillCommand();
 		cmd.target = target;
-		queue.addCommand(cmd);
+		executor.addCommand(cmd);
 	},
 	kill_for_item(target: string, item: number | string, quantity: number) {
 		if (!target || typeof target !== 'string') {
@@ -132,7 +132,7 @@ const combat = {
 		cmd.target = target;
 		cmd.item = item;
 		cmd.quantity = quantity;
-		queue.addCommand(cmd);
+		executor.addCommand(cmd);
 	},
 	kill_for_temp_item(
 		target: string,
@@ -159,10 +159,10 @@ const combat = {
 		cmd.item = item;
 		cmd.quantity = quantity;
 		cmd.isTemp = true;
-		queue.addCommand(cmd);
+		executor.addCommand(cmd);
 	},
 	rest() {
-		queue.addCommand(new RestCommand());
+		executor.addCommand(new RestCommand());
 	},
 	use_skill(skill: number | string) {
 		if (
@@ -175,13 +175,13 @@ const combat = {
 
 		const cmd = new SkillCommand();
 		cmd.skill = skill;
-		queue.addCommand(cmd);
+		executor.addCommand(cmd);
 	},
 	exit() {
-		queue.addCommand(new ExitCommand());
+		executor.addCommand(new ExitCommand());
 	},
 	cancel_target() {
-		queue.addCommand(new CancelTargetCommand());
+		executor.addCommand(new CancelTargetCommand());
 	},
 };
 
@@ -194,7 +194,7 @@ const quest = {
 
 		const cmd = new AcceptCommand();
 		cmd.questId = questId;
-		queue.addCommand(cmd);
+		executor.addCommand(cmd);
 	},
 	complete(questId: number) {
 		if (!questId || typeof questId !== 'number') {
@@ -204,7 +204,7 @@ const quest = {
 
 		const cmd = new CompleteCommand();
 		cmd.questId = questId;
-		queue.addCommand(cmd);
+		executor.addCommand(cmd);
 	},
 };
 
@@ -229,7 +229,7 @@ const shop = {
 		cmd.shopId = shopId;
 		cmd.item = item;
 		cmd.quantity = quantity;
-		queue.addCommand(cmd);
+		executor.addCommand(cmd);
 	},
 	sell_item(item: string) {
 		if (!item || typeof item !== 'string') {
@@ -239,7 +239,7 @@ const shop = {
 
 		const cmd = new SellCommand();
 		cmd.item = item;
-		queue.addCommand(cmd);
+		executor.addCommand(cmd);
 	},
 };
 
@@ -254,7 +254,7 @@ const world = {
 		cmd.map = map;
 		cmd.cell = cell;
 		cmd.pad = pad;
-		queue.addCommand(cmd);
+		executor.addCommand(cmd);
 	},
 	move_to_cell(cell: string, pad = 'Spawn') {
 		if (!cell || typeof cell !== 'string') {
@@ -265,7 +265,7 @@ const world = {
 		const cmd = new MoveToCellCommand();
 		cmd.cell = cell;
 		cmd.pad = pad;
-		queue.addCommand(cmd);
+		executor.addCommand(cmd);
 	},
 	set_spawn(cell?: string, pad?: string) {
 		const cmd = new SetSpawnCommand();
@@ -277,7 +277,7 @@ const world = {
 			cmd.pad = pad;
 		}
 
-		queue.addCommand(cmd);
+		executor.addCommand(cmd);
 	},
 	walk_to(x: number, y: number) {
 		if (!x || typeof x !== 'number') {
@@ -293,22 +293,22 @@ const world = {
 		const cmd = new WalkToCommand();
 		cmd.x = x;
 		cmd.y = y;
-		queue.addCommand(cmd);
+		executor.addCommand(cmd);
 	},
 };
 
 const bot = {
 	start() {
-		if (queue.isEmpty) {
+		if (executor.isEmpty) {
 			logger.error('queue is empty');
 			return;
 		}
 
 		logger.info('bot started');
-		void queue.start();
+		void executor.start();
 	},
 	stop() {
-		queue.addCommand(new StopCommand());
+		executor.addCommand(new StopCommand());
 	},
 	set_delay(delay: number) {
 		if ((!delay && delay < 0) || typeof delay !== 'number') {
@@ -318,13 +318,13 @@ const bot = {
 
 		const cmd = new SetDelayCommand();
 		cmd.delay = delay;
-		queue.addCommand(cmd);
+		executor.addCommand(cmd);
 	},
 	reset() {
 		const _bot = Bot.getInstance();
-		_bot.commandsQueue.setDelay(1_000);
+		_bot.executor.setDelay(1_000);
 		// @ts-expect-error todo
-		_bot.commandsQueue.commands = [];
+		_bot.executor.commands = [];
 	},
 	log(msg: string) {
 		const cmd = new Command();
@@ -333,7 +333,7 @@ const bot = {
 			logger.info(msg);
 		};
 
-		queue.addCommand(cmd);
+		executor.addCommand(cmd);
 	},
 };
 
@@ -346,7 +346,7 @@ const misc = {
 
 		const cmd = new LabelCommand();
 		cmd.label = label;
-		queue.addCommand(cmd);
+		executor.addCommand(cmd);
 	},
 	goto_label(label: string) {
 		if (!label || typeof label !== 'string') {
@@ -356,7 +356,7 @@ const misc = {
 
 		const cmd = new GotoLabelCommand();
 		cmd.label = label;
-		queue.addCommand(cmd);
+		executor.addCommand(cmd);
 	},
 };
 
@@ -369,7 +369,7 @@ declare global {
 		combat: typeof combat;
 		misc: typeof misc;
 		quest: typeof quest;
-		queue: typeof queue;
+		queue: typeof executor;
 		shop: typeof shop;
 		world: typeof world;
 	}
@@ -383,4 +383,4 @@ window.world = world;
 window.misc = misc;
 window.quest = quest;
 window.shop = shop;
-window.queue = queue;
+window.queue = executor;
