@@ -9,7 +9,8 @@ export class GotoLabelCommand extends Command {
 		const jmpIndex = this.bot.executor.labels.get(this.label);
 		if (jmpIndex === undefined) return;
 
-		this.bot.executor.index = jmpIndex;
+		// jmpIndex - 1 goes to the label definition
+		this.bot.executor.index = jmpIndex - 1;
 	}
 
 	public override toString() {
