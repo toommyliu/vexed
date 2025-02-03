@@ -3,8 +3,6 @@ import { Bot } from '../api/Bot';
 import type { Command } from './command';
 import { LabelCommand, type GotoLabelCommand } from './misc';
 
-// TODO: expose indicies
-
 export class CommandExecutor {
 	private readonly queue: AsyncQueue;
 
@@ -14,7 +12,9 @@ export class CommandExecutor {
 
 	private delay: number;
 
-	private readonly labels: Map<string, number>;
+	public readonly labels: Map<string, number>;
+
+	private _index: number;
 
 	public constructor(options: { delay?: number } = {}) {
 		this.queue = new AsyncQueue();
@@ -22,6 +22,15 @@ export class CommandExecutor {
 		this._isRunning = false;
 		this.delay = options.delay ?? 1_000;
 		this.labels = new Map();
+		this._index = 0;
+	}
+
+	public get index() {
+		return this._index;
+	}
+
+	public set index(index: number) {
+		this._index = index;
 	}
 
 	public setDelay(delay: number) {
@@ -43,6 +52,7 @@ export class CommandExecutor {
 	public async start() {
 		if (this._isRunning) return;
 		this._isRunning = true;
+		this._index = 0;
 
 		for (const [index, cmd] of this.commands
 			.filter(
@@ -65,12 +75,10 @@ export class CommandExecutor {
 			logger.info('player loaded');
 		}
 
-		let index = 0;
-
-		while (index < this.commands.length && this._isRunning) {
+		while (this._index < this.commands.length && this._isRunning) {
 			await this.queue.wait();
 			try {
-				const queuedCommand = this.commands[index];
+				const queuedCommand = this.commands[this._index];
 				if (!queuedCommand) {
 					break;
 				}
@@ -78,7 +86,7 @@ export class CommandExecutor {
 				const command = queuedCommand;
 
 				logger.info(
-					`${command.toString()} (${index + 1}/${this.commands.length})`,
+					`${command.toString()} (${this._index + 1}/${this.commands.length})`,
 				);
 
 				if (command.id === 'misc:goto-label') {
@@ -90,7 +98,7 @@ export class CommandExecutor {
 							`label "${(command as GotoLabelCommand).label}" not found...`,
 						);
 					} else {
-						index = jmpIndex;
+						this._index = jmpIndex;
 						continue;
 					}
 				} else {
@@ -107,17 +115,23 @@ export class CommandExecutor {
 				this.queue.shift();
 			}
 
-			++index;
+			++this._index;
 		}
 
-		this._isRunning = false;
 		logger.info('bot finished');
+		this._isRunning = false;
 	}
 
 	public async stop() {
 		logger.info('bot stopping');
+		this._stop();
+	}
+
+	private _stop() {
 		this._isRunning = false;
 		this.queue.abortAll();
 		this.commands = [];
+		this.labels.clear();
+		this._index = 0;
 	}
 }
