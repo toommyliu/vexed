@@ -254,20 +254,20 @@ export class Combat {
 	 * Kills the monster until the quantity of the item is met in the inventory.
 	 *
 	 * @param monsterResolvable - The name or monMapID of the monster.
-	 * @param itemName - The name or ID of the item.
-	 * @param targetQty - The quantity of the item.
+	 * @param item - The name or ID of the item.
+	 * @param quantity - The quantity of the item.
 	 * @param options - The configuration to use for the kill.
 	 */
 	public async killForItem(
 		monsterResolvable: string,
-		itemName: string,
-		targetQty: number,
+		item: number | string,
+		quantity: number,
 		options: Partial<KillOptions> = {},
 	): Promise<void> {
 		return this.#killForItem(
 			monsterResolvable,
-			itemName,
-			targetQty,
+			item,
+			quantity,
 			false,
 			options,
 		);
@@ -277,20 +277,20 @@ export class Combat {
 	 * Kills the monster until the quantity of the item is met in the temp inventory.
 	 *
 	 * @param monsterResolvable - The name or monMapID of the monster.
-	 * @param itemName - The name or ID of the item.
-	 * @param targetQty - The quantity of the item.
+	 * @param item - The name or ID of the item.
+	 * @param quantity - The quantity of the item.
 	 * @param options - The configuration to use for the kill.
 	 */
 	public async killForTempItem(
 		monsterResolvable: string,
-		itemName: string,
-		targetQty: number,
+		item: number | string,
+		quantity: number,
 		options: Partial<KillOptions> = {},
 	): Promise<void> {
 		return this.#killForItem(
 			monsterResolvable,
-			itemName,
-			targetQty,
+			item,
+			quantity,
 			true,
 			options,
 		);
@@ -298,15 +298,15 @@ export class Combat {
 
 	async #killForItem(
 		monsterResolvable: string,
-		itemName: string,
-		targetQty: number,
+		item: number | string,
+		quantity: number,
 		isTemp = false,
 		options: Partial<KillOptions> = {},
 	): Promise<void> {
 		const opts = merge({}, DEFAULT_KILL_OPTIONS, options);
 		const store = isTemp ? this.bot.tempInventory : this.bot.inventory;
 
-		const hasRequiredItems = () => store.contains(itemName, targetQty);
+		const hasRequiredItems = () => store.contains(item, quantity);
 
 		if (hasRequiredItems()) return;
 
@@ -314,7 +314,7 @@ export class Combat {
 			await this.kill(monsterResolvable, opts);
 
 			if (!isTemp) {
-				await this.bot.drops.pickup(itemName);
+				await this.bot.drops.pickup(item);
 			}
 
 			if (hasRequiredItems()) break;
