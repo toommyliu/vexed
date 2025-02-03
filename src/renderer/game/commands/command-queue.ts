@@ -1,11 +1,7 @@
 import { AsyncQueue } from '@sapphire/async-queue';
 import { Bot } from '../api/Bot';
 import type { Command } from './command';
-
-type QueuedCommand = {
-	args: unknown[];
-	command: Command;
-};
+import { LabelCommand, type GotoLabelCommand } from './misc';
 
 // TODO: expose indicies
 // TODO: refactor as executor class
@@ -14,7 +10,7 @@ type QueuedCommand = {
 export class CommandQueue {
 	private readonly queue: AsyncQueue;
 
-	private commands: QueuedCommand[];
+	private commands: Command[];
 
 	private _isRunning: boolean;
 
@@ -34,8 +30,8 @@ export class CommandQueue {
 		this.delay = delay;
 	}
 
-	public addCommand(command: Command, ...args: unknown[]) {
-		this.commands.push({ command, args });
+	public addCommand(command: Command) {
+		this.commands.push(command);
 	}
 
 	public get isEmpty() {
@@ -50,10 +46,12 @@ export class CommandQueue {
 		if (this._isRunning) return;
 		this._isRunning = true;
 
-		for (const [index, { args }] of this.commands
-			.filter((cmd) => cmd.command.id === 'misc:label')
+		for (const [index, cmd] of this.commands
+			.filter(
+				(cmd) => cmd.id === 'misc:label' && cmd instanceof LabelCommand,
+			)
 			.entries()) {
-			const label = args[0] as string;
+			const label = (cmd as LabelCommand).label;
 
 			if (this.labels.has(label)) {
 				logger.warn(`label "${label}" already exists, overriding...`);
@@ -79,22 +77,26 @@ export class CommandQueue {
 					break;
 				}
 
-				const { command, args } = queuedCommand;
+				const command = queuedCommand;
 
 				logger.info(
-					`${command.id}${args.length > 1 ? args.join(', ') : ''} (${index + 1}/${this.commands.length})`,
+					`${command.toString()} (${index + 1}/${this.commands.length})`,
 				);
 
 				if (command.id === 'misc:goto-label') {
-					const jmpIndex = this.labels.get(args[0] as string);
+					const jmpIndex = this.labels.get(
+						(command as GotoLabelCommand).label,
+					);
 					if (jmpIndex === undefined) {
-						logger.error(`label "${args[0]}" not found...`);
+						logger.error(
+							`label "${(command as GotoLabelCommand).label}" not found...`,
+						);
 					} else {
 						index = jmpIndex;
 						continue;
 					}
 				} else {
-					const result = command.execute(...args);
+					const result = command.execute();
 					if (result instanceof Promise) {
 						await result;
 					}

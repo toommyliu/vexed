@@ -7,4 +7,8 @@ export class CancelTargetCommand extends Command {
 		this.bot.combat.cancelAutoAttack();
 		this.bot.combat.cancelTarget();
 	}
+
+	public override toString() {
+		return 'Cancel target';
+	}
 }

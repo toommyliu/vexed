@@ -3,17 +3,23 @@ import { Command } from '../command';
 export class BuyCommand extends Command {
 	public override id = 'shop:buy';
 
-	public override async execute(
-		shopId: number,
-		item: number | string,
-		quantity: number,
-	) {
-		await this.bot.shops.load(shopId);
+	public shopId!: number;
 
-		if (typeof item === 'number') {
-			await this.bot.shops.buyById(item, quantity);
+	public item!: number | string;
+
+	public quantity!: number;
+
+	public override async execute() {
+		await this.bot.shops.load(this.shopId);
+
+		if (typeof this.item === 'number') {
+			await this.bot.shops.buyById(this.item, this.quantity);
 		} else {
-			await this.bot.shops.buyByName(item, quantity);
+			await this.bot.shops.buyByName(this.item, this.quantity);
 		}
+	}
+
+	public override toString() {
+		return `Buy item: ${this.quantity}x ${this.item}`;
 	}
 }

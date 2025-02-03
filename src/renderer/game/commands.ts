@@ -36,7 +36,10 @@ const auth = {
 			return;
 		}
 
-		queue.addCommand(new LoginCommand(), username, password);
+		const cmd = new LoginCommand();
+		cmd.username = username;
+		cmd.password = password;
+		queue.addCommand(cmd);
 	},
 	logout() {
 		queue.addCommand(new LogoutCommand());
@@ -50,7 +53,9 @@ const bank = {
 			return;
 		}
 
-		queue.addCommand(new DepositCommand(), item);
+		const cmd = new DepositCommand();
+		cmd.item = item;
+		queue.addCommand(cmd);
 	},
 	withdraw(item: number | string) {
 		if (!item || (typeof item !== 'number' && typeof item !== 'string')) {
@@ -58,7 +63,9 @@ const bank = {
 			return;
 		}
 
-		queue.addCommand(new WithdrawCommand(), item);
+		const cmd = new WithdrawCommand();
+		cmd.item = item;
+		queue.addCommand(cmd);
 	},
 	swap(bankItem: number | string, invItem: number | string) {
 		if (
@@ -77,30 +84,37 @@ const bank = {
 			return;
 		}
 
-		queue.addCommand(new SwapCommand(), bankItem, invItem);
+		const cmd = new SwapCommand();
+		cmd.bankItem = bankItem;
+		cmd.invItem = invItem;
+		queue.addCommand(cmd);
 	},
 };
 
 const combat = {
-	attack(monster: string) {
-		if (!monster || typeof monster !== 'string') {
-			logger.error('monster is required');
+	attack(target: string) {
+		if (!target || typeof target !== 'string') {
+			logger.error('target is required');
 			return;
 		}
 
-		queue.addCommand(new AttackCommand(), monster);
+		const cmd = new AttackCommand();
+		cmd.target = target;
+		queue.addCommand(cmd);
 	},
-	kill(monster: string) {
-		if (!monster || typeof monster !== 'string') {
-			logger.error('monster is required');
+	kill(target: string) {
+		if (!target || typeof target !== 'string') {
+			logger.error('target is required');
 			return;
 		}
 
-		queue.addCommand(new KillCommand(), monster);
+		const cmd = new KillCommand();
+		cmd.target = target;
+		queue.addCommand(cmd);
 	},
-	kill_for_item(monster: string, item: number | string, quantity: number) {
-		if (!monster || typeof monster !== 'string') {
-			logger.error('monster is required');
+	kill_for_item(target: string, item: number | string, quantity: number) {
+		if (!target || typeof target !== 'string') {
+			logger.error('target is required');
 			return;
 		}
 
@@ -109,20 +123,24 @@ const combat = {
 			return;
 		}
 
-		if (!quantity || typeof quantity !== 'number') {
+		if (!quantity || typeof quantity !== 'number' || quantity < 1) {
 			logger.error('quantity is required');
 			return;
 		}
 
-		queue.addCommand(new KillForCommand(), monster, item, quantity);
+		const cmd = new KillForCommand();
+		cmd.target = target;
+		cmd.item = item;
+		cmd.quantity = quantity;
+		queue.addCommand(cmd);
 	},
 	kill_for_temp_item(
-		monster: string,
+		target: string,
 		item: number | string,
 		quantity: number,
 	) {
-		if (!monster || typeof monster !== 'string') {
-			logger.error('monster is required');
+		if (!target || typeof target !== 'string') {
+			logger.error('target is required');
 			return;
 		}
 
@@ -136,7 +154,12 @@ const combat = {
 			return;
 		}
 
-		queue.addCommand(new KillForCommand(), monster, item, quantity, true);
+		const cmd = new KillForCommand();
+		cmd.target = target;
+		cmd.item = item;
+		cmd.quantity = quantity;
+		cmd.isTemp = true;
+		queue.addCommand(cmd);
 	},
 	rest() {
 		queue.addCommand(new RestCommand());
@@ -150,7 +173,9 @@ const combat = {
 			return;
 		}
 
-		queue.addCommand(new SkillCommand(), skill);
+		const cmd = new SkillCommand();
+		cmd.skill = skill;
+		queue.addCommand(cmd);
 	},
 	exit() {
 		queue.addCommand(new ExitCommand());
@@ -161,21 +186,25 @@ const combat = {
 };
 
 const quest = {
-	accept(quest: number) {
-		if (!quest || typeof quest !== 'number') {
-			logger.error('quest is required');
+	accept(questId: number) {
+		if (!questId || typeof questId !== 'number') {
+			logger.error('questId is required');
 			return;
 		}
 
-		queue.addCommand(new AcceptCommand(), quest);
+		const cmd = new AcceptCommand();
+		cmd.questId = questId;
+		queue.addCommand(cmd);
 	},
-	complete(quest: number) {
-		if (!quest || typeof quest !== 'number') {
-			logger.error('quest is required');
+	complete(questId: number) {
+		if (!questId || typeof questId !== 'number') {
+			logger.error('questId is required');
 			return;
 		}
 
-		queue.addCommand(new CompleteCommand(), quest);
+		const cmd = new CompleteCommand();
+		cmd.questId = questId;
+		queue.addCommand(cmd);
 	},
 };
 
@@ -196,7 +225,11 @@ const shop = {
 			return;
 		}
 
-		queue.addCommand(new BuyCommand(), shopId, item, quantity);
+		const cmd = new BuyCommand();
+		cmd.shopId = shopId;
+		cmd.item = item;
+		cmd.quantity = quantity;
+		queue.addCommand(cmd);
 	},
 	sell_item(item: string) {
 		if (!item || typeof item !== 'string') {
@@ -204,18 +237,24 @@ const shop = {
 			return;
 		}
 
-		queue.addCommand(new SellCommand(), item);
+		const cmd = new SellCommand();
+		cmd.item = item;
+		queue.addCommand(cmd);
 	},
 };
 
 const world = {
-	join(mapName: string, cell = 'Enter', pad = 'Spawn') {
-		if (!mapName || typeof mapName !== 'string') {
-			logger.error('mapName is required');
+	join(map: string, cell = 'Enter', pad = 'Spawn') {
+		if (!map || typeof map !== 'string') {
+			logger.error('map is required');
 			return;
 		}
 
-		queue.addCommand(new JoinCommand(), mapName, cell, pad);
+		const cmd = new JoinCommand();
+		cmd.map = map;
+		cmd.cell = cell;
+		cmd.pad = pad;
+		queue.addCommand(cmd);
 	},
 	move_to_cell(cell: string, pad = 'Spawn') {
 		if (!cell || typeof cell !== 'string') {
@@ -223,10 +262,22 @@ const world = {
 			return;
 		}
 
-		queue.addCommand(new MoveToCellCommand(), cell, pad);
+		const cmd = new MoveToCellCommand();
+		cmd.cell = cell;
+		cmd.pad = pad;
+		queue.addCommand(cmd);
 	},
 	set_spawn(cell?: string, pad?: string) {
-		queue.addCommand(new SetSpawnCommand(), cell, pad);
+		const cmd = new SetSpawnCommand();
+		if (typeof cell === 'string') {
+			cmd.cell = cell;
+		}
+
+		if (typeof pad === 'string') {
+			cmd.pad = pad;
+		}
+
+		queue.addCommand(cmd);
 	},
 	walk_to(x: number, y: number) {
 		if (!x || typeof x !== 'number') {
@@ -239,7 +290,10 @@ const world = {
 			return;
 		}
 
-		queue.addCommand(new WalkToCommand(), x, y);
+		const cmd = new WalkToCommand();
+		cmd.x = x;
+		cmd.y = y;
+		queue.addCommand(cmd);
 	},
 };
 
@@ -262,7 +316,9 @@ const bot = {
 			return;
 		}
 
-		queue.addCommand(new SetDelayCommand(), delay);
+		const cmd = new SetDelayCommand();
+		cmd.delay = delay;
+		queue.addCommand(cmd);
 	},
 	reset() {
 		const _bot = Bot.getInstance();
@@ -273,30 +329,34 @@ const bot = {
 	log(msg: string) {
 		const cmd = new Command();
 		cmd.id = 'bot:log';
-		cmd.execute = (msg) => {
+		cmd.execute = () => {
 			logger.info(msg);
 		};
 
-		queue.addCommand(cmd, msg);
+		queue.addCommand(cmd);
 	},
 };
 
 const misc = {
-	label(name: string) {
-		if (!name || typeof name !== 'string') {
-			logger.error('name is required');
+	label(label: string) {
+		if (!label || typeof label !== 'string') {
+			logger.error('label is required');
 			return;
 		}
 
-		queue.addCommand(new LabelCommand(), name);
+		const cmd = new LabelCommand();
+		cmd.label = label;
+		queue.addCommand(cmd);
 	},
-	goto_label(name: string) {
-		if (!name || typeof name !== 'string') {
-			logger.error('name is required');
+	goto_label(label: string) {
+		if (!label || typeof label !== 'string') {
+			logger.error('label is required');
 			return;
 		}
 
-		queue.addCommand(new GotoLabelCommand(), name);
+		const cmd = new GotoLabelCommand();
+		cmd.label = label;
+		queue.addCommand(cmd);
 	},
 };
 

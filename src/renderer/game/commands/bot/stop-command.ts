@@ -12,4 +12,8 @@ export class StopCommand extends Command {
 			logger.info('bot.queue is unknown.');
 		}
 	}
+
+	public override toString(): string {
+		return 'Stop bot';
+	}
 }

@@ -6,4 +6,8 @@ export class ExitCommand extends Command {
 	public override async execute(): Promise<void> {
 		await this.bot.combat.exit(true);
 	}
+
+	public override toString() {
+		return 'Exit from combat';
+	}
 }

@@ -5,9 +5,10 @@ export class Command {
 
 	public id!: string;
 
-	public execute(..._args: unknown[]): Promise<void> | void {
+	public execute(): Promise<void> | void {
 		throw new Error('Method not implemented.');
 	}
+
 	public toString(): string {
 		return this.id ?? '';
 	}
