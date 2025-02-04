@@ -1,4 +1,5 @@
 import { Command } from '../command';
+import { LabelCommand } from './label-command';
 
 export class GotoLabelCommand extends Command {
 	public override id = 'misc:goto-label';
@@ -6,11 +7,15 @@ export class GotoLabelCommand extends Command {
 	public label!: string;
 
 	public override execute() {
-		const jmpIndex = this.bot.executor.labels.get(this.label);
-		if (jmpIndex === undefined) return;
+		const index = this.bot.executor.commands.findIndex(
+			(cmd) =>
+				cmd instanceof LabelCommand &&
+				cmd.label.toLowerCase() === this.label.toLowerCase(),
+		);
 
-		// jmpIndex - 1 goes to the label definition
-		this.bot.executor.index = jmpIndex - 1;
+		if (index > -1) {
+			this.bot.executor.index = index;
+		}
 	}
 
 	public override toString() {

@@ -6,7 +6,7 @@ import { LabelCommand } from './misc';
 export class CommandExecutor {
 	private readonly queue: AsyncQueue;
 
-	private commands: Command[];
+	private _commands: Command[];
 
 	private delay: number;
 
@@ -18,7 +18,7 @@ export class CommandExecutor {
 
 	public constructor(options: { delay?: number } = {}) {
 		this.queue = new AsyncQueue();
-		this.commands = [];
+		this._commands = [];
 		this.delay = options.delay ?? 1_000;
 		this.labels = new Map();
 		this._index = 0;
@@ -32,16 +32,24 @@ export class CommandExecutor {
 		this._index = index;
 	}
 
+	public get commands() {
+		return this._commands;
+	}
+
+	public getCommand(index: number) {
+		return this._commands[index];
+	}
+
 	public setDelay(delay: number) {
 		this.delay = delay;
 	}
 
 	public addCommand(command: Command) {
-		this.commands.push(command);
+		this._commands.push(command);
 	}
 
 	public get isEmpty() {
-		return this.commands.length === 0;
+		return this._commands.length === 0;
 	}
 
 	public isRunning() {
@@ -52,7 +60,7 @@ export class CommandExecutor {
 		this._index = 0;
 		this.ac = new AbortController();
 
-		for (const [index, cmd] of this.commands
+		for (const [index, cmd] of this._commands
 			.filter(
 				(cmd) => cmd.id === 'misc:label' && cmd instanceof LabelCommand,
 			)
@@ -73,7 +81,7 @@ export class CommandExecutor {
 			logger.info('player loaded');
 		}
 
-		while (this._index < this.commands.length && this.isRunning) {
+		while (this._index < this._commands.length && this.isRunning) {
 			if (this.ac.signal.aborted) break;
 
 			await this.queue.wait();
@@ -81,13 +89,13 @@ export class CommandExecutor {
 			if (this.ac.signal.aborted) break;
 
 			try {
-				const command = this.commands[this._index];
+				const command = this._commands[this._index];
 				if (!command) {
 					break;
 				}
 
 				logger.info(
-					`${command.toString()}(${this._index + 1}/${this.commands.length})`,
+					`${command.toString()} (${this._index + 1}/${this._commands.length})`,
 				);
 
 				if (this.ac.signal.aborted) break;
@@ -108,7 +116,7 @@ export class CommandExecutor {
 				this.queue.shift();
 			}
 
-			if (!this.ac.signal.aborted) ++this._index;
+			if (!this.ac.signal.aborted) this._index++;
 		}
 
 		logger.info('bot finished');
@@ -123,7 +131,7 @@ export class CommandExecutor {
 
 	private _stop() {
 		this.queue.abortAll();
-		this.commands = [];
+		this._commands = [];
 		this.labels.clear();
 		this._index = 0;
 		this.ac?.abort();

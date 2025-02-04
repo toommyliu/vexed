@@ -12,7 +12,9 @@ import {
 	SkillCommand,
 } from './commands/combat';
 import { Command } from './commands/command';
+import { PickupCommand, RejectCommand } from './commands/drops';
 import { GotoLabelCommand, LabelCommand } from './commands/misc';
+import { CellIsCommand, CellIsNotCommand } from './commands/misc/conditionals';
 import { AcceptCommand, CompleteCommand } from './commands/quest';
 import { SettingsCommand } from './commands/settings';
 import { BuyCommand, SellCommand } from './commands/shop';
@@ -22,7 +24,6 @@ import {
 	SetSpawnCommand,
 	WalkToCommand,
 } from './commands/world';
-import { PickupCommand, RejectCommand } from './commands/drops';
 
 const { executor } = Bot.getInstance();
 
@@ -355,7 +356,7 @@ const bot = {
 		const _bot = Bot.getInstance();
 		_bot.executor.setDelay(1_000);
 		// @ts-expect-error todo
-		_bot.executor.commands = [];
+		_bot.executor._stop();
 	},
 	log(msg: string) {
 		const cmd = new Command();
@@ -416,7 +417,32 @@ const misc = {
 	},
 };
 
+// TODO: rethink namespace
+
+window.is_in_cell = (cell: string) => {
+	if (!cell || typeof cell !== 'string') {
+		logger.error('cell is required');
+		return;
+	}
+
+	const cmd = new CellIsCommand();
+	cmd.cell = cell;
+	executor.addCommand(cmd);
+};
+
+window.is_not_in_cell = (cell: string) => {
+	if (!cell || typeof cell !== 'string') {
+		logger.error('cell is required');
+		return;
+	}
+
+	const cmd = new CellIsNotCommand();
+	cmd.cell = cell;
+	executor.addCommand(cmd);
+};
+
 declare global {
+	/* eslint-disable typescript-sort-keys/interface */
 	// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 	interface Window {
 		auth: typeof auth;
@@ -430,7 +456,12 @@ declare global {
 		settings: typeof settings;
 		shop: typeof shop;
 		world: typeof world;
+
+		// conditionals
+		is_in_cell(cell: string): void;
+		is_not_in_cell(cell: string): void;
 	}
+	/* eslint-enable typescript-sort-keys/interface */
 }
 
 window.auth = auth;
