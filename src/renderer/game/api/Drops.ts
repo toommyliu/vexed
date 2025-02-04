@@ -108,6 +108,13 @@ export class Drops {
 			return;
 		}
 
+		if (
+			this.bot.drops.isUsingCustomUi() &&
+			!this.bot.drops.isCustomUiOpen()
+		) {
+			this.bot.drops.setCustomDropsUi(true);
+		}
+
 		const { ItemID: itemId } = item;
 		return this.mutex.runExclusive(async () => {
 			this.bot.packets.sendServer(
@@ -134,6 +141,13 @@ export class Drops {
 	) {
 		const item = this.resolveItem(itemKey);
 		if (!item) return;
+
+		if (
+			this.bot.drops.isUsingCustomUi() &&
+			!this.bot.drops.isCustomUiOpen()
+		) {
+			this.bot.drops.setCustomDropsUi(true);
+		}
 
 		this.bot.flash.call(() =>
 			swf.dropStackRejectDrop(item.sName, item.ItemID),
