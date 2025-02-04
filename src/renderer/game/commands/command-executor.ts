@@ -87,7 +87,7 @@ export class CommandExecutor {
 				}
 
 				logger.info(
-					`${command.toString()} (${this._index + 1}/${this.commands.length})`,
+					`${command.toString()}(${this._index + 1}/${this.commands.length})`,
 				);
 
 				if (this.ac.signal.aborted) break;

@@ -28,6 +28,6 @@ export class KillForCommand extends Command {
 	}
 
 	public override toString(): string {
-		return `Kill for${this.isTemp ? ' temp' : ''} item: ${this.target} ${this.item} ${this.quantity} `;
+		return `Kill for${this.isTemp ? ' temp' : ''} item: ${this.target} ${this.item} ${this.quantity}`;
 	}
 }

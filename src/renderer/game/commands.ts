@@ -22,8 +22,9 @@ import {
 	SetSpawnCommand,
 	WalkToCommand,
 } from './commands/world';
+import { PickupCommand, RejectCommand } from './commands/drops';
 
-const executor = Bot.getInstance().executor;
+const { executor } = Bot.getInstance();
 
 const auth = {
 	login(username: string, password: string) {
@@ -183,6 +184,29 @@ const combat = {
 	},
 	cancel_target() {
 		executor.addCommand(new CancelTargetCommand());
+	},
+};
+
+const drops = {
+	pickup(item: number | string) {
+		if (!item || (typeof item !== 'number' && typeof item !== 'string')) {
+			logger.error('item is required');
+			return;
+		}
+
+		const cmd = new PickupCommand();
+		cmd.item = item;
+		executor.addCommand(cmd);
+	},
+	reject(item: number | string) {
+		if (!item || (typeof item !== 'number' && typeof item !== 'string')) {
+			logger.error('item is required');
+			return;
+		}
+
+		const cmd = new RejectCommand();
+		cmd.item = item;
+		executor.addCommand(cmd);
 	},
 };
 
@@ -399,6 +423,7 @@ declare global {
 		bank: typeof bank;
 		bot: typeof bot;
 		combat: typeof combat;
+		drops: typeof drops;
 		misc: typeof misc;
 		quest: typeof quest;
 		queue: typeof executor;
@@ -412,6 +437,7 @@ window.auth = auth;
 window.bank = bank;
 window.bot = bot;
 window.combat = combat;
+window.drops = drops;
 window.world = world;
 window.misc = misc;
 window.quest = quest;
