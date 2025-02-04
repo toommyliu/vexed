@@ -24,6 +24,7 @@
 		"lodash.merge": "^4.6.2",
 		"nw-flash-trust": "^0.3.0",
 		"source-map-support": "^0.5.21",
+		"watchlist": "^0.3.1",
 		"winston": "^3.17.0"
 	},
 	"devDependencies": {
