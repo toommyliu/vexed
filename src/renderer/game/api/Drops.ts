@@ -108,11 +108,8 @@ export class Drops {
 			return;
 		}
 
-		if (
-			this.bot.drops.isUsingCustomUi() &&
-			!this.bot.drops.isCustomUiOpen()
-		) {
-			this.bot.drops.setCustomDropsUi(true);
+		if (this.isUsingCustomUi() && !this.isCustomUiOpen()) {
+			this.setCustomDropsUi(true);
 		}
 
 		const { ItemID: itemId } = item;
@@ -142,11 +139,8 @@ export class Drops {
 		const item = this.resolveItem(itemKey);
 		if (!item) return;
 
-		if (
-			this.bot.drops.isUsingCustomUi() &&
-			!this.bot.drops.isCustomUiOpen()
-		) {
-			this.bot.drops.setCustomDropsUi(true);
+		if (this.isUsingCustomUi() && !this.isCustomUiOpen()) {
+			this.setCustomDropsUi(true);
 		}
 
 		this.bot.flash.call(() =>
