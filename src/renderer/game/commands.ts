@@ -13,7 +13,7 @@ import {
 } from './commands/combat';
 import { Command } from './commands/command';
 import { PickupCommand, RejectCommand } from './commands/drops';
-import { GotoLabelCommand, LabelCommand } from './commands/misc';
+import { DelayCommand, GotoLabelCommand, LabelCommand } from './commands/misc';
 import { CellIsCommand, CellIsNotCommand } from './commands/misc/conditionals';
 import { AcceptCommand, CompleteCommand } from './commands/quest';
 import { SettingsCommand } from './commands/settings';
@@ -395,14 +395,14 @@ const settings = {
 };
 
 const misc = {
-	label(label: string) {
-		if (!label || typeof label !== 'string') {
-			logger.error('label is required');
+	delay(ms: number) {
+		if (!ms || typeof ms !== 'number' || ms < 0) {
+			logger.error('ms is required');
 			return;
 		}
 
-		const cmd = new LabelCommand();
-		cmd.label = label;
+		const cmd = new DelayCommand();
+		cmd.delay = ms;
 		executor.addCommand(cmd);
 	},
 	goto_label(label: string) {
@@ -412,6 +412,16 @@ const misc = {
 		}
 
 		const cmd = new GotoLabelCommand();
+		cmd.label = label;
+		executor.addCommand(cmd);
+	},
+	label(label: string) {
+		if (!label || typeof label !== 'string') {
+			logger.error('label is required');
+			return;
+		}
+
+		const cmd = new LabelCommand();
 		cmd.label = label;
 		executor.addCommand(cmd);
 	},
