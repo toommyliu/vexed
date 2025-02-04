@@ -11,9 +11,13 @@ import {
 	RestCommand,
 	SkillCommand,
 } from './commands/combat';
-import { Command } from './commands/command';
 import { PickupCommand, RejectCommand } from './commands/drops';
-import { DelayCommand, GotoLabelCommand, LabelCommand } from './commands/misc';
+import {
+	DelayCommand,
+	GotoLabelCommand,
+	LabelCommand,
+	LogCommand,
+} from './commands/misc';
 import { CellIsCommand, CellIsNotCommand } from './commands/misc/conditionals';
 import { AcceptCommand, CompleteCommand } from './commands/quest';
 import { SettingsCommand } from './commands/settings';
@@ -358,15 +362,6 @@ const bot = {
 		// @ts-expect-error todo
 		_bot.executor._stop();
 	},
-	log(msg: string) {
-		const cmd = new Command();
-		cmd.id = 'bot:log';
-		cmd.execute = () => {
-			logger.info(msg);
-		};
-
-		executor.addCommand(cmd);
-	},
 };
 
 const settings = {
@@ -423,6 +418,22 @@ const misc = {
 
 		const cmd = new LabelCommand();
 		cmd.label = label;
+		executor.addCommand(cmd);
+	},
+	log(msg: string, level?: string) {
+		if (!msg || typeof msg !== 'string') {
+			logger.error('msg is required');
+			return;
+		}
+
+		if (level && !['info', 'warn', 'error'].includes(level)) {
+			logger.error('level must be one of: info, warn, error');
+			return;
+		}
+
+		const cmd = new LogCommand();
+		cmd.msg = msg;
+		cmd.level = level ?? 'info';
 		executor.addCommand(cmd);
 	},
 };
