@@ -21,7 +21,12 @@ import {
 	LogCommand,
 } from './commands/misc';
 import { CellIsCommand, CellIsNotCommand } from './commands/misc/conditionals';
-import { AcceptCommand, CompleteCommand } from './commands/quest';
+import {
+	AcceptCommand,
+	AddCommand,
+	CompleteCommand,
+	RemoveCommand,
+} from './commands/quest';
 import { SettingsCommand } from './commands/settings';
 import { BuyCommand, SellCommand } from './commands/shop';
 import {
@@ -244,12 +249,8 @@ const quest = {
 			return;
 		}
 
-		const cmd = new Command();
-		cmd.id = 'quest:add';
-		cmd.execute = () => {
-			window.context.addQuest(questId);
-		};
-
+		const cmd = new AddCommand();
+		cmd.questId = questId;
 		executor.addCommand(cmd);
 	},
 	remove(questId: number) {
@@ -258,12 +259,8 @@ const quest = {
 			return;
 		}
 
-		const cmd = new Command();
-		cmd.id = 'quest:remove';
-		cmd.execute = () => {
-			window.context.removeQuest(questId);
-		};
-
+		const cmd = new RemoveCommand();
+		cmd.questId = questId;
 		executor.addCommand(cmd);
 	},
 };
