@@ -1,4 +1,5 @@
 import { Bot } from './api/Bot';
+import { Context } from './botting/context';
 import { LoginCommand, LogoutCommand } from './commands/auth';
 import { DepositCommand, SwapCommand, WithdrawCommand } from './commands/bank';
 import { SetDelayCommand, StopCommand } from './commands/bot';
@@ -11,6 +12,7 @@ import {
 	RestCommand,
 	SkillCommand,
 } from './commands/combat';
+import { Command } from './commands/command';
 import { PickupCommand, RejectCommand } from './commands/drops';
 import {
 	DelayCommand,
@@ -236,6 +238,34 @@ const quest = {
 		cmd.questId = questId;
 		executor.addCommand(cmd);
 	},
+	add(questId: number) {
+		if (!questId || typeof questId !== 'number') {
+			logger.error('questId is required');
+			return;
+		}
+
+		const cmd = new Command();
+		cmd.id = 'quest:add';
+		cmd.execute = () => {
+			window.context.addQuest(questId);
+		};
+
+		executor.addCommand(cmd);
+	},
+	remove(questId: number) {
+		if (!questId || typeof questId !== 'number') {
+			logger.error('questId is required');
+			return;
+		}
+
+		const cmd = new Command();
+		cmd.id = 'quest:remove';
+		cmd.execute = () => {
+			window.context.removeQuest(questId);
+		};
+
+		executor.addCommand(cmd);
+	},
 };
 
 const shop = {
@@ -335,7 +365,8 @@ const bot = {
 		}
 
 		logger.info('bot started');
-		void executor.start();
+		// eslint-disable-next-line promise/prefer-await-to-then
+		void window.context.start().then(() => void executor.start());
 	},
 	stop() {
 		if (executor.isRunning()) {
@@ -345,6 +376,8 @@ const bot = {
 			// add a stop command
 			executor.addCommand(new StopCommand());
 		}
+
+		void window.context.stop();
 	},
 	set_delay(delay: number) {
 		if ((!delay && delay < 0) || typeof delay !== 'number') {
@@ -481,6 +514,8 @@ declare global {
 		// conditionals
 		is_in_cell(cell: string): void;
 		is_not_in_cell(cell: string): void;
+
+		context: InstanceType<typeof Context>;
 	}
 	/* eslint-enable typescript-sort-keys/interface */
 }
@@ -496,3 +531,4 @@ window.quest = quest;
 window.shop = shop;
 window.queue = executor;
 window.settings = settings;
+window.context = new Context();

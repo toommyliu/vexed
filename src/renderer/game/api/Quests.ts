@@ -28,7 +28,7 @@ export class Quests {
 	 */
 	public get(questId: number | string): Quest | null {
 		const id = String(questId);
-		return this.tree.find((quest) => String(quest.id) === id) ?? null;
+		return this.tree?.find((quest) => String(quest.id) === id) ?? null;
 	}
 
 	/**

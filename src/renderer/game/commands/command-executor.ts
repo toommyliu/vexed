@@ -94,9 +94,9 @@ export class CommandExecutor {
 					break;
 				}
 
-				logger.info(
-					`${command.toString()} (${this._index + 1}/${this._commands.length})`,
-				);
+				// logger.info(
+				// 	`${command.toString()} (${this._index + 1}/${this._commands.length})`,
+				// );
 
 				if (this.ac.signal.aborted) break;
 
