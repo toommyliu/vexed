@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { CommandExecutor } from '../commands/command-executor';
+import { CommandExecutor } from '../botting/commands/command-executor';
 import { Auth } from './Auth';
 import { Bank } from './Bank';
 import { Combat } from './Combat';

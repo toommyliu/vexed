@@ -1,4 +1,4 @@
-import { Bot } from '../api/Bot';
+import { Bot } from '../../api/Bot';
 
 export class Command {
 	protected readonly bot = Bot.getInstance();

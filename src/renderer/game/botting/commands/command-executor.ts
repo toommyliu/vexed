@@ -1,5 +1,5 @@
 import { AsyncQueue } from '@sapphire/async-queue';
-import { Bot } from '../api/Bot';
+import { Bot } from '../../api/Bot';
 import type { Command } from './command';
 import { LabelCommand } from './misc';
 

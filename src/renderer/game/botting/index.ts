@@ -1,5 +1,4 @@
-import { Bot } from './api/Bot';
-import { Context } from './botting/context';
+import { Bot } from '../api/Bot';
 import { LoginCommand, LogoutCommand } from './commands/auth';
 import { DepositCommand, SwapCommand, WithdrawCommand } from './commands/bank';
 import { SetDelayCommand, StopCommand } from './commands/bot';
@@ -12,7 +11,6 @@ import {
 	RestCommand,
 	SkillCommand,
 } from './commands/combat';
-import { Command } from './commands/command';
 import { PickupCommand, RejectCommand } from './commands/drops';
 import {
 	DelayCommand,
@@ -35,6 +33,7 @@ import {
 	SetSpawnCommand,
 	WalkToCommand,
 } from './commands/world';
+import { Context } from './context';
 
 const { executor } = Bot.getInstance();
 
