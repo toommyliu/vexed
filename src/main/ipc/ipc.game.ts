@@ -2,13 +2,11 @@ import { join } from 'path';
 import {
 	app,
 	BrowserWindow,
-	dialog,
 	ipcMain,
 	type IpcMainEvent,
 	type IpcMainInvokeEvent,
 } from 'electron/main';
-import fs from 'fs-extra';
-import { WINDOW_IDS, DOCUMENTS_PATH } from '../../common/constants';
+import { WINDOW_IDS } from '../../common/constants';
 import { IPC_EVENTS } from '../../common/ipc-events';
 import { FileManager } from '../FileManager';
 import { mgrWindow, store } from '../windows';
@@ -186,36 +184,6 @@ ipcMain.handle(IPC_EVENTS.GET_WINDOW_ID, (ev: IpcMainInvokeEvent) => {
 		return WINDOW_IDS.PACKETS_LOGGER;
 	} else if (sender.id === windows?.packets.spammer?.id) {
 		return WINDOW_IDS.PACKETS_SPAMMER;
-	}
-
-	return null;
-});
-
-ipcMain.handle(IPC_EVENTS.LOAD_SCRIPT, async (ev) => {
-	const window = BrowserWindow.fromWebContents(ev.sender);
-	if (window && !window?.isDestroyed()) {
-		const res = await dialog
-			.showOpenDialog(window, {
-				filters: [{ name: 'JavaScript Files', extensions: ['js'] }],
-				properties: ['openFile'],
-				defaultPath: join(DOCUMENTS_PATH, 'Scripts'),
-			})
-			.catch(() => null);
-
-		if (!dialog || res?.canceled) {
-			return null;
-		}
-
-		const scriptPath = res!.filePaths[0]!;
-		const scriptBody = await fs
-			.readFile(scriptPath, 'utf8')
-			.catch(() => null);
-
-		if (!scriptBody) {
-			return null;
-		}
-
-		return Buffer.from(scriptBody, 'utf8').toString('base64');
 	}
 
 	return null;

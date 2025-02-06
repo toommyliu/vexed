@@ -14,152 +14,6 @@ const checkmarkSvg = `
     <polyline points="20 6 9 17 4 12"></polyline>
 </svg>`;
 
-const FIRST_HALF = String.raw`
-(async () => {
-	{
-		const og_on = bot.on.bind(bot);
-		const og_once = bot.once.bind(bot);
-		const og_off = bot.off.bind(bot);
-		const eventListeners = new Map();
-
-		bot.on = function(event, listener) {
-			if (!eventListeners.has(event)) {
-				eventListeners.set(event, new Set());
-			}
-			eventListeners.get(event).add(listener);
-			return og_on.call(this, event, listener);
-		};
-		bot.once = function(event, listener) {
-			if (!eventListeners.has(event)) {
-				eventListeners.set(event, new Set());
-			}
-			const wrappedListener = (...args) => {
-				const events = eventListeners.get(event);
-				events?.delete(listener);
-				if (events?.size === 0) {
-					eventListeners.delete(event);
-				}
-				eventListeners.get(event)?.delete(listener);
-				return listener.apply(this, args);
-			};
-			eventListeners.get(event).add(listener);
-			return og_once.call(this, event, wrappedListener);
-		};
-		bot.off = function(event, listener) {
-			if (eventListeners.has(event)) {
-				eventListeners.get(event).delete(listener);
-				if (eventListeners.get(event).size === 0) {
-					eventListeners.delete(event);
-				}
-			}
-			return og_off.call(this, event, listener);
-		};
-		bot.cleanupEvents = function() {
-			for (const [event, listeners] of eventListeners) {
-				for (const listener of listeners) {
-					bot.removeListener(event, listener);
-				}
-			}
-			eventListeners.clear();
-			delete bot.on;
-			delete bot.once;
-			delete bot.off;
-			bot.on = og_on;
-			bot.once = og_once;
-			bot.off = og_off;
-			delete bot.cleanupEvents;
-		}
-	}
-
-	const resetButtons = () => {
-		const loadBtn = document.querySelector('#scripts-dropdowncontent > button:nth-child(1)');
-		const startBtn = document.querySelector('#scripts-dropdowncontent > button:nth-child(2)');
-
-		loadBtn.classList.remove('w3-disabled');
-		loadBtn.removeAttribute('disabled');
-
-		startBtn.textContent = 'Start Script';
-		startBtn.classList.add('w3-disabled');
-		startBtn.setAttribute('disabled', '');
-	};
-
-	let cleanup = () => {};
-
-	try {
-		console.log('Script started.');
-
-		{
-			let once = false;
-			while (!bot.player.isReady()) {
-				if (!once) {
-					console.log('Waiting for player to be in a ready state...');
-					once = true;
-				}
-				await bot.sleep(1000);
-			}
-		}
-
-		bot.settings.infiniteRange = true;
-		bot.settings.lagKiller = true;
-		bot.settings.skipCutscenes = true;
-		bot.settings.setFps(10);
-
-		bot.ac = new AbortController();
-
-		cleanup = () => {
-			bot.emit('stop');
-			if (bot.ac instanceof AbortController && !bot.ac.signal.aborted) {
-				bot.ac.abort();
-			}
-			if (typeof bot.cleanupEvents === 'function') {
-				bot.cleanupEvents();
-			}
-			bot.ac = null;
-
-			bot.settings.infiniteRange = false;
-			bot.settings.lagKiller = false;
-			bot.settings.skipCutscenes = false;
-			bot.settings.setFps(30);
-
-			window.scriptBlob = null;
-			document.querySelector('#loaded-script')?.remove();
-
-			resetButtons();
-		};
-
-		await new Promise((resolve, reject) => {
-			bot.ac.signal.addEventListener('abort', () => {
-				reject(new Error('Script aborted'));
-			}, { once: true });
-
-			(async () => {
-				try {
-					await bot.waitUntil(() => bot.isRunning(), null, -1);
-					bot.emit('start');
-`;
-
-const SECOND_HALF = String.raw`
-					console.log('Script finished successfully');
-					resolve();
-				} catch (error) {
-					reject(error);
-				}
-			})();
-		});
-	} catch (error) {
-		if (error?.message === 'Script aborted' || error?.message === 'Task interrupted') {
-			console.log('Script was manually stopped.');
-		} else {
-			console.error('Script error:', error);
-			bot.emit('error', error);
-		}
-	} finally {
-		cleanup();
-	}
-})();
-//# sourceURL=script.js
-`;
-
 window.addEventListener('DOMContentLoaded', async () => {
 	dropdowns.set(
 		'scripts',
@@ -179,103 +33,22 @@ window.addEventListener('DOMContentLoaded', async () => {
 		const btn = document.querySelector(
 			'#scripts-dropdowncontent > button:nth-child(1)',
 		) as HTMLButtonElement;
-		btn.addEventListener('click', async () => {
-			if (bot.isRunning()) return;
 
-			const scriptBody = await ipcRenderer.invoke(IPC_EVENTS.LOAD_SCRIPT);
-			if (!scriptBody) {
-				return;
+		btn.onclick = () => {
+			const { executor } = Bot.getInstance();
+			if (executor.isRunning()) {
+				void executor.stop();
+				btn.textContent = 'Start';
+			} else {
+				void executor.start();
+				btn.textContent = 'Stop';
 			}
-
-			document.querySelector('#loaded-script')?.remove();
-
-			const b64_out = Buffer.from(scriptBody, 'base64').toString('utf8');
-			window.scriptBlob = new Blob([FIRST_HALF, b64_out, SECOND_HALF], {
-				type: 'application/javascript',
-			});
-
-			{
-				const btn = document.querySelector(
-					'#scripts-dropdowncontent > button:nth-child(2)',
-				) as HTMLButtonElement;
-				btn.classList.remove('w3-disabled');
-				btn.removeAttribute('disabled');
-			}
-
-			console.log('Loaded script.');
-		});
+		};
 	}
 
 	{
 		const btn = document.querySelector(
 			'#scripts-dropdowncontent > button:nth-child(2)',
-		) as HTMLButtonElement;
-		btn.addEventListener('click', () => {
-			if (!window.scriptBlob) return;
-
-			if (!bot.isRunning() && window.scriptBlob instanceof Blob) {
-				btn.textContent = 'Stop Script';
-
-				const scriptUrl = URL.createObjectURL(window.scriptBlob);
-
-				const script = document.createElement('script');
-				script.type = 'module';
-				script.id = 'loaded-script';
-				script.src = scriptUrl;
-
-				document.body.appendChild(script);
-
-				{
-					const btn = document.querySelector(
-						'#scripts-dropdowncontent > button:nth-child(1)',
-					) as HTMLButtonElement;
-					btn.classList.add('w3-disabled');
-					btn.setAttribute('disabled', '');
-				}
-
-				return;
-			}
-
-			try {
-				window.scriptBlob = null;
-				document.querySelector('#loaded-script')?.remove();
-
-				if (!bot.ac?.signal.aborted) {
-					bot.ac?.abort();
-				}
-
-				btn.textContent = 'Start Script';
-				btn.classList.add('w3-disabled');
-				btn.setAttribute('disabled', '');
-
-				{
-					const btn = document.querySelector(
-						'#scripts-dropdowncontent > button:nth-child(1)',
-					) as HTMLButtonElement;
-					btn.classList.remove('w3-disabled');
-					btn.removeAttribute('disabled');
-				}
-			} catch (error) {
-				console.error(
-					'An error occurred while stopping the script:',
-					error,
-				);
-			}
-		});
-	}
-
-	{
-		const btn = document.querySelector(
-			'#scripts-dropdowncontent > button:nth-child(3)',
-		) as HTMLButtonElement;
-		btn.addEventListener('click', () => {
-			ipcRenderer.send(IPC_EVENTS.TOGGLE_DEV_TOOLS);
-		});
-	}
-
-	{
-		const btn = document.querySelector(
-			'#scripts-dropdowncontent > button:nth-child(3)',
 		) as HTMLButtonElement;
 		btn.addEventListener('click', () => {
 			ipcRenderer.send(IPC_EVENTS.TOGGLE_DEV_TOOLS);
@@ -395,7 +168,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 	{
 		const btn = document.querySelector('#bank') as HTMLButtonElement;
 		btn.addEventListener('click', async () => {
-			// if (!bot.player.isReady()) return;
+			if (!bot.player.isReady()) return;
 
 			if (bot.bank.isOpen()) {
 				bot.flash.call(() => swf.bankOpen());

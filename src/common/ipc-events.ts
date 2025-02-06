@@ -3,7 +3,6 @@ export const IPC_EVENTS = {
 	TOGGLE_DEV_TOOLS: 'root:toggle-dev-tools' as const,
 	LOGIN: 'root:login' as const,
 	LOGIN_SUCCESS: 'root:login-success' as const,
-	LOAD_SCRIPT: 'root:load-script' as const,
 	ACTIVATE_WINDOW: 'root:activate-window' as const,
 	READ_FAST_TRAVELS: 'root:read-fast-travels' as const,
 	SETUP_IPC: 'root:setup-ipc' as const,

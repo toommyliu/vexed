@@ -18,7 +18,7 @@ import {
 	LabelCommand,
 	LogCommand,
 } from './commands/misc';
-import { CellIsCommand, CellIsNotCommand } from './commands/misc/conditionals';
+// import { CellIsCommand, CellIsNotCommand } from './commands/misc/conditionals';
 import {
 	AcceptCommand,
 	AddCommand,
@@ -37,7 +37,7 @@ import { Context } from './context';
 
 const { executor } = Bot.getInstance();
 
-const auth = {
+export const auth = {
 	login(username: string, password: string) {
 		if (!username || typeof username !== 'string') {
 			logger.error('username is required');
@@ -59,7 +59,7 @@ const auth = {
 	},
 };
 
-const bank = {
+export const bank = {
 	deposit(item: number | string) {
 		if (!item || (typeof item !== 'number' && typeof item !== 'string')) {
 			logger.error('item is required');
@@ -104,7 +104,7 @@ const bank = {
 	},
 };
 
-const combat = {
+export const combat = {
 	attack(target: string) {
 		if (!target || typeof target !== 'string') {
 			logger.error('target is required');
@@ -198,7 +198,7 @@ const combat = {
 	},
 };
 
-const drops = {
+export const drops = {
 	pickup(item: number | string) {
 		if (!item || (typeof item !== 'number' && typeof item !== 'string')) {
 			logger.error('item is required');
@@ -221,7 +221,7 @@ const drops = {
 	},
 };
 
-const quest = {
+export const quest = {
 	accept(questId: number) {
 		if (!questId || typeof questId !== 'number') {
 			logger.error('questId is required');
@@ -264,7 +264,7 @@ const quest = {
 	},
 };
 
-const shop = {
+export const shop = {
 	buy_item(shopId: number, item: number | string, quantity: number) {
 		if (!shopId || typeof shopId !== 'number') {
 			logger.error('shopId is required');
@@ -299,7 +299,7 @@ const shop = {
 	},
 };
 
-const world = {
+export const world = {
 	join(map: string, cell = 'Enter', pad = 'Spawn') {
 		if (!map || typeof map !== 'string') {
 			logger.error('map is required');
@@ -353,7 +353,7 @@ const world = {
 	},
 };
 
-const bot = {
+export const bot = {
 	start() {
 		if (executor.isEmpty) {
 			logger.error('queue is empty');
@@ -393,7 +393,7 @@ const bot = {
 	},
 };
 
-const settings = {
+export const settings = {
 	enable(option: string) {
 		if (!option || typeof option !== 'string') {
 			logger.error('option is required');
@@ -418,7 +418,7 @@ const settings = {
 	},
 };
 
-const misc = {
+export const misc = {
 	delay(ms: number) {
 		if (!ms || typeof ms !== 'number' || ms < 0) {
 			logger.error('ms is required');
@@ -469,52 +469,27 @@ const misc = {
 
 // TODO: rethink namespace
 
-window.is_in_cell = (cell: string) => {
-	if (!cell || typeof cell !== 'string') {
-		logger.error('cell is required');
-		return;
-	}
+// window.is_in_cell = (cell: string) => {
+// 	if (!cell || typeof cell !== 'string') {
+// 		logger.error('cell is required');
+// 		return;
+// 	}
 
-	const cmd = new CellIsCommand();
-	cmd.cell = cell;
-	executor.addCommand(cmd);
-};
+// 	const cmd = new CellIsCommand();
+// 	cmd.cell = cell;
+// 	executor.addCommand(cmd);
+// };
 
-window.is_not_in_cell = (cell: string) => {
-	if (!cell || typeof cell !== 'string') {
-		logger.error('cell is required');
-		return;
-	}
+// window.is_not_in_cell = (cell: string) => {
+// 	if (!cell || typeof cell !== 'string') {
+// 		logger.error('cell is required');
+// 		return;
+// 	}
 
-	const cmd = new CellIsNotCommand();
-	cmd.cell = cell;
-	executor.addCommand(cmd);
-};
-
-declare global {
-	/* eslint-disable typescript-sort-keys/interface */
-	// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-	interface Window {
-		auth: typeof auth;
-		bank: typeof bank;
-		bot: typeof bot;
-		combat: typeof combat;
-		drops: typeof drops;
-		misc: typeof misc;
-		quest: typeof quest;
-		queue: typeof executor;
-		settings: typeof settings;
-		shop: typeof shop;
-		world: typeof world;
-
-		// conditionals
-		is_in_cell(cell: string): void;
-		is_not_in_cell(cell: string): void;
-
-		context: InstanceType<typeof Context>;
-	}
-	/* eslint-enable typescript-sort-keys/interface */
-}
+// 	const cmd = new CellIsNotCommand();
+// 	cmd.cell = cell;
+// 	executor.addCommand(cmd);
+// };
 
 window.auth = auth;
 window.bank = bank;
@@ -525,6 +500,6 @@ window.world = world;
 window.misc = misc;
 window.quest = quest;
 window.shop = shop;
-window.queue = executor;
+// window.queue = executor;
 window.settings = settings;
 window.context = new Context();

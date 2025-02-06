@@ -9,6 +9,19 @@ import type { ItemData } from './api/struct/Item';
 import type { MonsterData } from './api/struct/Monster';
 import type { QuestData } from './api/struct/Quest';
 import type { ServerData } from './api/struct/Server';
+import type { Context } from './botting/context';
+import type {
+	auth,
+	bank,
+	bot,
+	combat,
+	drops,
+	misc,
+	quest,
+	shop,
+	settings,
+	world,
+} from './botting/index';
 
 type Nullable<T> = T | null;
 declare global {
@@ -221,9 +234,21 @@ declare global {
 		// other
 		ports: Map<WindowId, MessagePort>;
 		portMonitors: Map<WindowId, PortMonitor>;
-		scriptBlob?: Blob | null;
 		account?: AccountWithServer;
 		logger: Logger;
+
+		// botting commands
+		auth: typeof auth;
+		bank: typeof bank;
+		bot: typeof bot;
+		combat: typeof combat;
+		drops: typeof drops;
+		misc: typeof misc;
+		quest: typeof quest;
+		shop: typeof shop;
+		settings: typeof settings;
+		world: typeof world;
+		context: Context;
 		/* eslint-enable typescript-sort-keys/interface */
 	}
 }
