@@ -287,7 +287,9 @@ export class World {
 	 *
 	 * @param gameAction - The game action to check.
 	 */
-	public isActionAvailable(gameAction: GameAction): boolean {
+	public isActionAvailable(
+		gameAction: (typeof GameAction)[keyof typeof GameAction],
+	): boolean {
 		return this.bot.flash.call(() =>
 			swf.worldIsActionAvailable(gameAction),
 		);

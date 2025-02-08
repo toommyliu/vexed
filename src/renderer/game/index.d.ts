@@ -16,6 +16,7 @@ import type {
 } from './botting/index';
 import type { Bot } from './lib/Bot';
 import type { ShopInfo } from './lib/Shop';
+import type { GameAction } from './lib/World';
 import type { AvatarData } from './lib/models/Avatar';
 import type { FactionData } from './lib/models/Faction';
 import type { ItemData } from './lib/models/Item';
@@ -196,7 +197,9 @@ declare global {
 		worldGetPlayers(): Record<string, AvatarData>[];
 		worldGetPlayer(name: string): Nullable<AvatarData>;
 		worldIsPlayerInCell(name: string, cell?: string): boolean;
-		worldIsActionAvailable(gameAction: string): boolean;
+		worldIsActionAvailable(
+			gameAction: (typeof GameAction)[keyof typeof GameAction],
+		): boolean;
 		worldGetCellMonsters(): MonsterData[];
 		worldGetMonsterByName(key: string | '*'): Nullable<MonsterData>;
 		worldGetMonsterByMonMapId(key: number): Nullable<MonsterData>;
