@@ -5,7 +5,7 @@ import { PlayerState } from '../lib/Player';
 import type { SetIntervalAsyncTimer } from '../lib/util/TimerManager';
 
 let ac: AbortController | null = null;
-let intervalId: SetIntervalAsyncTimer<unknown[]> | null = null;
+let intervalId: SetIntervalAsyncTimer | null = null;
 let index = 0;
 
 const config: Partial<FollowerConfig> = {};
