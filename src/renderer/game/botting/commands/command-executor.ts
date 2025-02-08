@@ -1,7 +1,6 @@
 import { AsyncQueue } from '@sapphire/async-queue';
 import { Bot } from '../../lib/Bot';
 import type { Command } from './command';
-import { LabelCommand } from './misc';
 
 export class CommandExecutor {
 	private readonly queue: AsyncQueue;
@@ -9,8 +8,6 @@ export class CommandExecutor {
 	private _commands: Command[];
 
 	private delay: number;
-
-	public readonly labels: Map<string, number>;
 
 	private _index: number;
 
@@ -20,7 +17,6 @@ export class CommandExecutor {
 		this.queue = new AsyncQueue();
 		this._commands = [];
 		this.delay = options.delay ?? 1_000;
-		this.labels = new Map();
 		this._index = 0;
 	}
 
@@ -59,20 +55,6 @@ export class CommandExecutor {
 	public async start() {
 		this._index = 0;
 		this.ac = new AbortController();
-
-		for (const [index, cmd] of this._commands
-			.filter(
-				(cmd) => cmd.id === 'misc:label' && cmd instanceof LabelCommand,
-			)
-			.entries()) {
-			const label = (cmd as LabelCommand).label;
-
-			if (this.labels.has(label)) {
-				logger.warn(`label "${label}" already exists, overriding...`);
-			}
-
-			this.labels.set(label, index);
-		}
 
 		const bot = Bot.getInstance();
 		if (!bot.player.isLoaded()) {
@@ -132,7 +114,6 @@ export class CommandExecutor {
 	private _stop() {
 		this.queue.abortAll();
 		this._commands = [];
-		this.labels.clear();
 		this._index = 0;
 		this.ac?.abort();
 	}
