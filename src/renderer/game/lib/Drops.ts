@@ -1,6 +1,6 @@
 import { Mutex } from 'async-mutex';
 import type { Bot } from './Bot';
-import type { ItemData } from './struct/Item';
+import type { ItemData } from './models/Item';
 
 export class Drops {
 	private readonly mutex = new Mutex();

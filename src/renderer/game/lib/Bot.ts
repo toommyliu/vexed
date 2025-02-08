@@ -13,7 +13,7 @@ import { Settings } from './Settings';
 import { Shops } from './Shop';
 import { TempInventory } from './TempInventory';
 import { World } from './World';
-import type { Monster } from './struct/Monster';
+import type { Monster } from './models/Monster';
 import { AutoRelogin } from './util/AutoRelogin';
 import { Flash } from './util/Flash';
 import { TimerManager } from './util/TimerManager';

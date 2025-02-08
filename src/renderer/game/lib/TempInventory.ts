@@ -1,6 +1,6 @@
 import type { Bot } from './Bot';
-import type { ItemData } from './struct/Item';
-import { TempInventoryItem } from './struct/TempInventoryItem';
+import type { ItemData } from './models/Item';
+import { TempInventoryItem } from './models/TempInventoryItem';
 
 export class TempInventory {
 	public constructor(public bot: Bot) {}

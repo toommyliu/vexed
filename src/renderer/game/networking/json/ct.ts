@@ -1,4 +1,4 @@
-import type { Bot } from '../../api/Bot';
+import type { Bot } from '../../lib/Bot';
 
 export function ct(bot: Bot, packet: JSON) {
 	// @ts-expect-error

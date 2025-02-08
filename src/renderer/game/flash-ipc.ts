@@ -1,9 +1,9 @@
 import { ipcRenderer } from 'electron';
 import { IPC_EVENTS } from '../../common/ipc-events';
-import { Bot } from './api/Bot';
-import { addGoldExp } from './handlers/json/addGoldExp';
-import { ct } from './handlers/json/ct';
-import { dropItem } from './handlers/json/dropItem';
+import { Bot } from './lib/Bot';
+import { addGoldExp } from './networking/json/add-gold-exp';
+import { ct } from './networking/json/ct';
+import { dropItem } from './networking/json/drop-item';
 
 const bot = Bot.getInstance();
 const { auth, player } = bot;

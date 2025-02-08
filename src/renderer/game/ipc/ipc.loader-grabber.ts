@@ -1,5 +1,5 @@
 import { IPC_EVENTS } from '../../../common/ipc-events';
-import { Bot } from '../api/Bot';
+import { Bot } from '../lib/Bot';
 
 const bot = Bot.getInstance();
 

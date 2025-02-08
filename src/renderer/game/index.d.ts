@@ -1,14 +1,6 @@
 import type { Logger } from 'winston';
 import type { WINDOW_IDS } from '../../common/constants';
 import type PortMonitor from '../../common/port-monitor';
-import type { Bot } from './api/Bot';
-import type { ShopInfo } from './api/Shop';
-import type { AvatarData } from './api/struct/Avatar';
-import type { FactionData } from './api/struct/Faction';
-import type { ItemData } from './api/struct/Item';
-import type { MonsterData } from './api/struct/Monster';
-import type { QuestData } from './api/struct/Quest';
-import type { ServerData } from './api/struct/Server';
 import type { Context } from './botting/context';
 import type {
 	auth,
@@ -22,6 +14,14 @@ import type {
 	settings,
 	world,
 } from './botting/index';
+import type { Bot } from './lib/Bot';
+import type { ShopInfo } from './lib/Shop';
+import type { AvatarData } from './lib/models/Avatar';
+import type { FactionData } from './lib/models/Faction';
+import type { ItemData } from './lib/models/Item';
+import type { MonsterData } from './lib/models/Monster';
+import type { QuestData } from './lib/models/Quest';
+import type { ServerData } from './lib/models/Server';
 
 type Nullable<T> = T | null;
 declare global {

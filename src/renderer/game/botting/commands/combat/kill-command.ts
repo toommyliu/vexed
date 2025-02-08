@@ -1,5 +1,7 @@
 import { Command } from '../command';
 
+// TODO: implement options
+
 export class KillCommand extends Command {
 	public override id = 'combat:kill';
 

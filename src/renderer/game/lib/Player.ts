@@ -1,5 +1,5 @@
 import type { Bot } from './Bot';
-import { Faction } from './struct/Faction';
+import { Faction } from './models/Faction';
 
 export class Player {
 	public constructor(public readonly bot: Bot) {}

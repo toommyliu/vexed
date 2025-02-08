@@ -1,6 +1,6 @@
 import type { Bot } from './Bot';
 import { GameAction } from './World';
-import { Quest, type QuestData } from './struct/Quest';
+import { Quest, type QuestData } from './models/Quest';
 
 export class Quests {
 	public constructor(public bot: Bot) {}

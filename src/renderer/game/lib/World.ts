@@ -1,67 +1,67 @@
+import { isMonsterMapId } from '../util/isMonMapId';
 import type { Bot } from './Bot';
-import { Avatar, type AvatarData } from './struct/Avatar';
-import type { ItemData } from './struct/Item';
-import { Monster, type MonsterData } from './struct/Monster';
-import { isMonsterMapId } from './util/utils';
+import { Avatar, type AvatarData } from './models/Avatar';
+import type { ItemData } from './models/Item';
+import { Monster, type MonsterData } from './models/Monster';
 
-export enum GameAction {
+export const GameAction = {
 	/**
 	 * Accepting a quest.
 	 */
-	AcceptQuest = 'acceptQuest',
+	AcceptQuest: 'acceptQuest',
 	/**
 	 * Buying an item.
 	 */
-	BuyItem = 'buyItem',
+	BuyItem: 'buyItem',
 	/**
 	 * Do IA action.
 	 */
-	DoIA = 'doIA',
+	DoIA: 'doIA',
 	/**
 	 * Equipping an item.
 	 */
-	EquipItem = 'equipItem',
+	EquipItem: 'equipItem',
 	/**
 	 * Getting a map item (i.e. via the getMapItem packet).
 	 */
-	GetMapItem = 'getMapItem',
+	GetMapItem: 'getMapItem',
 	/**
 	 * Loading an enhancement shop.
 	 */
-	LoadEnhShop = 'loadEnhShop',
+	LoadEnhShop: 'loadEnhShop',
 	/**
 	 * Loading a hair shop.
 	 */
-	LoadHairShop = 'loadHairShop',
+	LoadHairShop: 'loadHairShop',
 	/**
 	 * Loading a shop.
 	 */
-	LoadShop = 'loadShop',
+	LoadShop: 'loadShop',
 	/**
 	 * Resting.
 	 */
-	Rest = 'rest',
+	Rest: 'rest',
 	/**
 	 * Selling an item.
 	 */
-	SellItem = 'sellItem',
+	SellItem: 'sellItem',
 	/**
 	 * Joining another map.
 	 */
-	Transfer = 'tfer',
+	Transfer: 'tfer',
 	/**
 	 * Sending a quest completion packet.
 	 */
-	TryQuestComplete = 'tryQuestComplete',
+	TryQuestComplete: 'tryQuestComplete',
 	/**
 	 * Unequipping an item.
 	 */
-	UnequipItem = 'unequipItem',
+	UnequipItem: 'unequipItem',
 	/**
 	 * Who action.
 	 */
-	Who = 'who',
-}
+	Who: 'who',
+} as const;
 
 export class World {
 	public constructor(public readonly bot: Bot) {}

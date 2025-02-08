@@ -1,6 +1,6 @@
 import type { Bot } from './Bot';
 import { GameAction } from './World';
-import type { ShopItem } from './struct/ShopItem';
+import type { ShopItem } from './models/ShopItem';
 
 export class Shops {
 	public constructor(public bot: Bot) {}

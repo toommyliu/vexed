@@ -1,6 +1,6 @@
 import type { Bot } from './Bot';
-import { HouseItem } from './struct/HouseItem';
-import type { ItemData } from './struct/Item';
+import { HouseItem } from './models/HouseItem';
+import type { ItemData } from './models/Item';
 
 export class House {
 	public constructor(public readonly bot: Bot) {}

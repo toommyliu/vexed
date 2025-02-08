@@ -1,5 +1,5 @@
 import type { Bot } from './Bot';
-import { Server } from './struct/Server';
+import { Server } from './models/Server';
 
 export class Auth {
 	public constructor(public readonly bot: Bot) {}

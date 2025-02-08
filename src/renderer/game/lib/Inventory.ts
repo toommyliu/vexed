@@ -1,7 +1,7 @@
 import type { Bot } from './Bot';
 import { GameAction } from './World';
-import { InventoryItem } from './struct/InventoryItem';
-import type { ItemData } from './struct/Item';
+import { InventoryItem } from './models/InventoryItem';
+import type { ItemData } from './models/Item';
 
 export class Inventory {
 	public constructor(public readonly bot: Bot) {}

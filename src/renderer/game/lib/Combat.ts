@@ -1,9 +1,9 @@
 import merge from 'lodash.merge';
+import { isMonsterMapId } from '../util/isMonMapId';
 import type { Bot } from './Bot';
 import { PlayerState } from './Player';
 import { GameAction } from './World';
 import type { SetIntervalAsyncTimer } from './util/TimerManager';
-import { isMonsterMapId } from './util/utils';
 
 const DEFAULT_KILL_OPTIONS: KillOptions = {
 	killPriority: [],

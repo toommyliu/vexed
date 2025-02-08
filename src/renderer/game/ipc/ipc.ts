@@ -2,7 +2,7 @@ import { ipcRenderer, type IpcRendererEvent } from 'electron';
 import { WINDOW_IDS } from '../../../common/constants';
 import { IPC_EVENTS } from '../../../common/ipc-events';
 import PortMonitor from '../../../common/port-monitor';
-import { Bot } from '../api/Bot';
+import { Bot } from '../lib/Bot';
 import ipcFastTravelsHandler from './ipc.fast-travels';
 import ipcFollower from './ipc.follower';
 import ipcLoaderGrabberHandler from './ipc.loader-grabber';

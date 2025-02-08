@@ -1,4 +1,4 @@
-import { Bot } from '../api/Bot';
+import { Bot } from '../lib/Bot';
 import { LoginCommand, LogoutCommand } from './commands/auth';
 import { DepositCommand, SwapCommand, WithdrawCommand } from './commands/bank';
 import { SetDelayCommand, StopCommand } from './commands/bot';

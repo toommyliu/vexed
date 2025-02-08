@@ -1,5 +1,5 @@
-import { Bot } from '../api/Bot';
-import type { SetIntervalAsyncTimer } from '../api/util/TimerManager';
+import { Bot } from '../lib/Bot';
+import type { SetIntervalAsyncTimer } from '../lib/util/TimerManager';
 
 export class Context {
 	private readonly bot = Bot.getInstance();

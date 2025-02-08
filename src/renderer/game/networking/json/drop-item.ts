@@ -1,5 +1,5 @@
-import type { Bot } from '../../api/Bot';
-import type { ItemData } from '../../api/struct/Item';
+import type { Bot } from '../../lib/Bot';
+import type { ItemData } from '../../lib/models/Item';
 
 export function dropItem(bot: Bot, packet: DropItemPacket) {
 	const items = packet.b.o.items;
