@@ -19,11 +19,11 @@ export class Context {
 	 */
 	private readonly boostIds: Set<number>;
 
-	private questTimer!: SetIntervalAsyncTimer<unknown[]>;
+	private questTimer!: SetIntervalAsyncTimer;
 
-	private itemTimer!: SetIntervalAsyncTimer<unknown[]>;
+	private itemTimer!: SetIntervalAsyncTimer;
 
-	private boostTimer!: SetIntervalAsyncTimer<unknown[]>;
+	private boostTimer!: SetIntervalAsyncTimer;
 
 	private abortController!: AbortController;
 

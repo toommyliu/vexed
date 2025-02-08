@@ -162,8 +162,8 @@ export class Combat {
 		let skillIndex = 0;
 
 		return new Promise<void>((resolve) => {
-			let combatTimer: SetIntervalAsyncTimer<unknown[]> | null = null;
-			let checkTimer: SetIntervalAsyncTimer<unknown[]> | null = null;
+			let combatTimer: SetIntervalAsyncTimer | null = null;
+			let checkTimer: SetIntervalAsyncTimer | null = null;
 
 			const cleanup = async () => {
 				if (combatTimer) {
