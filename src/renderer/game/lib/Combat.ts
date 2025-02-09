@@ -245,7 +245,7 @@ export class Combat {
 						await cleanup();
 						resolve();
 					}
-				}, 100);
+				}, 0);
 			});
 		});
 	}
