@@ -1,8 +1,6 @@
 import { Command } from '../command';
 
 export class CommandAcceptQuest extends Command {
-	public override id = 'quest:accept';
-
 	public questId!: number;
 
 	public override async execute(): Promise<void> {
@@ -10,6 +8,6 @@ export class CommandAcceptQuest extends Command {
 	}
 
 	public override toString() {
-		return `Accept quest ${this.questId}`;
+		return `Accept quest: ${this.questId}`;
 	}
 }

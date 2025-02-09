@@ -3,8 +3,6 @@ import { Command } from '../command';
 // TODO: implement options
 
 export class CommandKill extends Command {
-	public override id = 'combat:kill';
-
 	public target!: string;
 
 	public override async execute(): Promise<void> {
@@ -12,6 +10,6 @@ export class CommandKill extends Command {
 	}
 
 	public override toString() {
-		return 'Kill';
+		return `Kill: ${this.target}`;
 	}
 }

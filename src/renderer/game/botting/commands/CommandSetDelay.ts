@@ -1,8 +1,6 @@
 import { Command } from '../command';
 
 export class CommandSetDelay extends Command {
-	public override id = 'bot:set-delay';
-
 	public delay!: number;
 
 	public override execute() {

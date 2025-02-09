@@ -1,8 +1,6 @@
 import { Command } from '../command';
 
 export class CommandKillFor extends Command {
-	public override id = 'combat:kill-for';
-
 	public target!: string;
 
 	public item!: number | string;

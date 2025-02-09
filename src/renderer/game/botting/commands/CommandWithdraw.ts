@@ -1,8 +1,6 @@
 import { Command } from '../command';
 
 export class CommandWithdraw extends Command {
-	public override id = 'bank:withdraw';
-
 	public item!: number | string;
 
 	public override async execute() {

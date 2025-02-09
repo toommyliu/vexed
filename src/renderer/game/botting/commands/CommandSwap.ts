@@ -1,8 +1,6 @@
 import { Command } from '../command';
 
 export class CommandSwap extends Command {
-	public override id = 'bank:swap';
-
 	public bankItem!: number | string;
 
 	public invItem!: number | string;

@@ -1,8 +1,6 @@
 import { Command } from '../command';
 
 export class CommandMoveToCell extends Command {
-	public override id = 'world:move-to-cell';
-
 	public cell!: string;
 
 	public pad = 'Spawn';

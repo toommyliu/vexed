@@ -1,8 +1,6 @@
 import { Command } from '../command';
 
 export class CommandAttack extends Command {
-	public override id = 'combat:attack';
-
 	public target!: string;
 
 	public override execute() {

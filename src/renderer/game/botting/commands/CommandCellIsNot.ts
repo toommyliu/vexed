@@ -1,8 +1,6 @@
 import { Command } from '../command';
 
 export class CommandCellIsNot extends Command {
-	public override id = 'misc:cell-is-not';
-
 	public cell!: string;
 
 	public override async execute() {

@@ -1,15 +1,13 @@
 import { Command } from '../command';
-import { LabelCommand } from './CommandLabel';
+import { CommandLabel } from './CommandLabel';
 
 export class CommandGotoLabel extends Command {
-	public override id = 'misc:goto-label';
-
 	public label!: string;
 
 	public override execute() {
 		const index = window.context.commands.findIndex(
 			(cmd) =>
-				cmd instanceof LabelCommand &&
+				cmd instanceof CommandLabel &&
 				cmd.label.toLowerCase() === this.label.toLowerCase(),
 		);
 

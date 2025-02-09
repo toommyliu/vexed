@@ -1,8 +1,6 @@
 import { Command } from '../command';
 
 export class CommandWalkTo extends Command {
-	public override id = 'world:walk-to';
-
 	public x!: number;
 
 	public y!: number;
@@ -16,6 +14,6 @@ export class CommandWalkTo extends Command {
 	}
 
 	public override toString() {
-		return `Walk to point: (${this.x}, ${this.y})`;
+		return `Walk to: (${this.x}, ${this.y})`;
 	}
 }

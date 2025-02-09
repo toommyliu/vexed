@@ -1,8 +1,6 @@
 import { Command } from '../command';
 
 export class CommandSetting extends Command {
-	public override id = 'settings:enable';
-
 	public key!: string;
 
 	public val!: boolean;

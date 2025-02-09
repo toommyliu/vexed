@@ -1,8 +1,6 @@
 import { Command } from '../command';
 
 export class CommandPickup extends Command {
-	public override id = 'drops:pickup';
-
 	public item!: number | string;
 
 	public override async execute() {
@@ -10,6 +8,6 @@ export class CommandPickup extends Command {
 	}
 
 	public override toString() {
-		return `Pickup drop: ${this.item}`;
+		return `Pickup: ${this.item}`;
 	}
 }

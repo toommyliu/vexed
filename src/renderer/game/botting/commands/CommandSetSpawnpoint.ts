@@ -1,8 +1,6 @@
 import { Command } from '../command';
 
 export class CommandSetSpawnpoint extends Command {
-	public override id = 'world:set-spawn';
-
 	public cell?: string;
 
 	public pad?: string;

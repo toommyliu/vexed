@@ -1,8 +1,6 @@
 import { Command } from '../command';
 
 export class CommandJoinMap extends Command {
-	public override id = 'world:join';
-
 	public map!: string;
 
 	public cell = 'Enter';

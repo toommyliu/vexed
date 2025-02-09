@@ -1,8 +1,6 @@
 import { Command } from '../command';
 
 export class CommandBuy extends Command {
-	public override id = 'shop:buy';
-
 	public shopId!: number;
 
 	public item!: number | string;

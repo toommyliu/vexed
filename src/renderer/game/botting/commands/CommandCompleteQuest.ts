@@ -1,8 +1,6 @@
 import { Command } from '../command';
 
 export class CommandCompleteQuest extends Command {
-	public override id = 'quest:complete';
-
 	public questId!: number;
 
 	public override async execute(): Promise<void> {
