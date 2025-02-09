@@ -126,7 +126,7 @@ export class TimerManager {
 	}
 
 	public async clearInterval(id: SetIntervalAsyncTimer): Promise<void> {
-		await clearIntervalAsync(id);
+		void clearIntervalAsync(id);
 		this.#intervals.delete(id);
 	}
 
