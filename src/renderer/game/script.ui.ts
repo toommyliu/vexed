@@ -39,6 +39,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 				void window.context.stop();
 				btn.textContent = 'Start';
 			} else {
+				if (!window.context.commands.length) return;
+
 				void window.context.start();
 				btn.textContent = 'Stop';
 			}
