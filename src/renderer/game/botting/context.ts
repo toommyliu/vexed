@@ -208,13 +208,13 @@ export class Context {
 			if (this.isRunning()) this._commandIndex++;
 		}
 
-		logger.info('command execution finished');
+		// logger.info('command execution finished');
 	}
 
 	private _stop() {
 		this.queue.abortAll();
-		this._commands = [];
-		this._commandIndex = 0;
+		// this._commands = [];
+		// this._commandIndex = 0;
 		this.abortController?.abort();
 		this.abortController = null;
 	}
