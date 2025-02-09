@@ -4,7 +4,7 @@ export class CommandRemoveQuest extends Command {
 	public questId!: number;
 
 	public override execute() {
-		window.context.removeQuest(this.questId);
+		this.ctx.removeQuest(this.questId);
 	}
 
 	public override toString() {

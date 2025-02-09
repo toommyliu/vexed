@@ -1,5 +1,6 @@
 import { AsyncQueue } from '@sapphire/async-queue';
 import { Bot } from '../lib/Bot';
+import type { SetIntervalAsyncTimer } from '../lib/util/TimerManager';
 import type { Command } from './command';
 
 export class Context {
@@ -10,6 +11,10 @@ export class Context {
 	private readonly questIds: Set<number>;
 
 	private readonly itemIds: Set<number>;
+
+	private questTimer!: SetIntervalAsyncTimer;
+
+	private itemTimer!: SetIntervalAsyncTimer;
 
 	// private readonly boostIds: Set<number>;
 
@@ -116,42 +121,44 @@ export class Context {
 	}
 
 	public async stop() {
-		logger.info('context stopping');
+		// logger.info('context stopping');
 		this._stop();
 	}
 
 	private async startContextTimers() {
-		// this.questTimer = this.bot.timerManager.setInterval(async () => {
-		// 	if (!this.isRunning()) {
-		// 		void this.bot.timerManager.clearInterval(this.questTimer);
-		// 		return;
-		// 	}
-		// 	for (const questId of Array.from(this.questIds)) {
-		// 		try {
-		// 			if (!swf.questsIsInProgress(questId)) {
-		// 				console.log('accept');
-		// 				swf.questsAccept(questId);
-		// 			}
-		// 			if (swf.questsCanCompleteQuest(questId)) {
-		// 				console.log('complete');
-		// 				void this.bot.quests.complete(questId);
-		// 				void this.bot.quests.accept(questId);
-		// 			}
-		// 		} catch {}
-		// 	}
-		// }, 1_000);
-		// this.itemTimer = this.bot.timerManager.setInterval(async () => {
-		// 	if (!this.isRunning()) {
-		// 		void this.bot.timerManager.clearInterval(this.itemTimer);
-		// 		return;
-		// 	}
-		// 	for (const itemId of Array.from(this.itemIds)) {
-		// 		try {
-		// 			if (this.bot.drops.hasDrop(itemId))
-		// 				await this.bot.drops.pickup(itemId);
-		// 		} catch {}
-		// 	}
-		// }, 1_000);
+		this.questTimer = this.bot.timerManager.setInterval(async () => {
+			if (!this.isRunning()) {
+				void this.bot.timerManager.clearInterval(this.questTimer);
+				return;
+			}
+
+			for (const questId of Array.from(this.questIds)) {
+				try {
+					if (!swf.questsIsInProgress(questId)) {
+						swf.questsAccept(questId);
+					}
+
+					if (swf.questsCanCompleteQuest(questId)) {
+						void this.bot.quests.complete(questId);
+						void this.bot.quests.accept(questId);
+					}
+				} catch {}
+			}
+		}, 1_000);
+
+		this.itemTimer = this.bot.timerManager.setInterval(async () => {
+			if (!this.isRunning()) {
+				void this.bot.timerManager.clearInterval(this.itemTimer);
+				return;
+			}
+
+			for (const itemId of Array.from(this.itemIds)) {
+				try {
+					if (this.bot.drops.hasDrop(itemId))
+						await this.bot.drops.pickup(itemId);
+				} catch {}
+			}
+		}, 1_000);
 	}
 
 	private async startCommandExecution() {
@@ -191,9 +198,7 @@ export class Context {
 
 				if (!this.isRunning()) break;
 
-				await new Promise((resolve) => {
-					setTimeout(resolve, this.commandDelay);
-				});
+				await this.bot.sleep(this.commandDelay);
 
 				if (!this.isRunning()) break;
 			} finally {

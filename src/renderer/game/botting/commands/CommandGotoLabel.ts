@@ -5,14 +5,14 @@ export class CommandGotoLabel extends Command {
 	public label!: string;
 
 	public override execute() {
-		const index = window.context.commands.findIndex(
+		const index = this.ctx.commands.findIndex(
 			(cmd) =>
 				cmd instanceof CommandLabel &&
 				cmd.label.toLowerCase() === this.label.toLowerCase(),
 		);
 
 		if (index > -1) {
-			window.context.commandIndex = index;
+			this.ctx.commandIndex = index;
 		}
 	}
 

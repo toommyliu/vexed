@@ -8,6 +8,6 @@ export class CommandCompleteQuest extends Command {
 	}
 
 	public override toString() {
-		return `Complete quest ${this.questId}`;
+		return `Complete quest: ${this.questId}`;
 	}
 }

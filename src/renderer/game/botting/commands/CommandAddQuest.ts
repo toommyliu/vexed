@@ -4,7 +4,7 @@ export class CommandAddQuest extends Command {
 	public questId!: number;
 
 	public override execute() {
-		window.context.addQuest(this.questId);
+		this.ctx.addQuest(this.questId);
 	}
 
 	public override toString() {

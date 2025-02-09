@@ -4,7 +4,7 @@ export class CommandSetDelay extends Command {
 	public delay!: number;
 
 	public override execute() {
-		window.context.setCommandDelay(this.delay);
+		this.ctx.setCommandDelay(this.delay);
 	}
 
 	public override toString() {
