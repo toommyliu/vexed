@@ -1,37 +1,38 @@
-import { LoginCommand, LogoutCommand } from './commands/auth';
-import { DepositCommand, SwapCommand, WithdrawCommand } from './commands/bank';
-import { SetDelayCommand, StopCommand } from './commands/bot';
 import {
-	AttackCommand,
-	CancelTargetCommand,
-	ExitCommand,
-	KillCommand,
-	KillForCommand,
-	RestCommand,
-	SkillCommand,
-} from './commands/combat';
-import { PickupCommand, RejectCommand } from './commands/drops';
-import {
-	DelayCommand,
-	GotoLabelCommand,
-	LabelCommand,
-	LogCommand,
-} from './commands/misc';
-// import { CellIsCommand, CellIsNotCommand } from './commands/misc/conditionals';
-import {
-	AcceptCommand,
-	AddCommand,
-	CompleteCommand,
-	RemoveCommand,
-} from './commands/quest';
-import { SettingsCommand } from './commands/settings';
-import { BuyCommand, SellCommand } from './commands/shop';
-import {
-	JoinCommand,
-	MoveToCellCommand,
-	SetSpawnCommand,
-	WalkToCommand,
-} from './commands/world';
+	CommandAcceptQuest,
+	CommandAddQuest,
+	CommandAttack,
+	CommandBuy,
+	CommandCancelTarget,
+	CommandCellIs,
+	CommandCellIsNot,
+	CommandCompleteQuest,
+	CommandDelay,
+	CommandDeposit,
+	CommandExitCombat,
+	CommandGotoLabel,
+	CommandJoinMap,
+	CommandKill,
+	CommandKillFor,
+	CommandLabel,
+	CommandLog,
+	CommandLogin,
+	CommandLogout,
+	CommandMoveToCell,
+	CommandPickup,
+	CommandReject,
+	CommandRemoveQuest,
+	CommandRest,
+	CommandSell,
+	CommandSetDelay,
+	CommandSetSpawnpoint,
+	CommandSetting,
+	CommandStop,
+	CommandSwap,
+	CommandUseSkill,
+	CommandWalkTo,
+	CommandWithdraw,
+} from './commands';
 import { Context } from './context';
 
 const context = new Context();
@@ -48,13 +49,13 @@ export const auth = {
 			return;
 		}
 
-		const cmd = new LoginCommand();
+		const cmd = new CommandLogin();
 		cmd.username = username;
 		cmd.password = password;
 		context.addCommand(cmd);
 	},
 	logout() {
-		context.addCommand(new LogoutCommand());
+		context.addCommand(new CommandLogout());
 	},
 };
 
@@ -65,7 +66,7 @@ export const bank = {
 			return;
 		}
 
-		const cmd = new DepositCommand();
+		const cmd = new CommandDeposit();
 		cmd.item = item;
 		context.addCommand(cmd);
 	},
@@ -75,7 +76,7 @@ export const bank = {
 			return;
 		}
 
-		const cmd = new WithdrawCommand();
+		const cmd = new CommandWithdraw();
 		cmd.item = item;
 		context.addCommand(cmd);
 	},
@@ -96,7 +97,7 @@ export const bank = {
 			return;
 		}
 
-		const cmd = new SwapCommand();
+		const cmd = new CommandSwap();
 		cmd.bankItem = bankItem;
 		cmd.invItem = invItem;
 		context.addCommand(cmd);
@@ -110,7 +111,7 @@ export const combat = {
 			return;
 		}
 
-		const cmd = new AttackCommand();
+		const cmd = new CommandAttack();
 		cmd.target = target;
 		context.addCommand(cmd);
 	},
@@ -120,7 +121,7 @@ export const combat = {
 			return;
 		}
 
-		const cmd = new KillCommand();
+		const cmd = new CommandKill();
 		cmd.target = target;
 		context.addCommand(cmd);
 	},
@@ -140,7 +141,7 @@ export const combat = {
 			return;
 		}
 
-		const cmd = new KillForCommand();
+		const cmd = new CommandKillFor();
 		cmd.target = target;
 		cmd.item = item;
 		cmd.quantity = quantity;
@@ -166,7 +167,7 @@ export const combat = {
 			return;
 		}
 
-		const cmd = new KillForCommand();
+		const cmd = new CommandKillFor();
 		cmd.target = target;
 		cmd.item = item;
 		cmd.quantity = quantity;
@@ -174,7 +175,7 @@ export const combat = {
 		context.addCommand(cmd);
 	},
 	rest() {
-		context.addCommand(new RestCommand());
+		context.addCommand(new CommandRest());
 	},
 	use_skill(skill: number | string) {
 		if (
@@ -185,15 +186,15 @@ export const combat = {
 			return;
 		}
 
-		const cmd = new SkillCommand();
+		const cmd = new CommandUseSkill();
 		cmd.skill = skill;
 		context.addCommand(cmd);
 	},
 	exit() {
-		context.addCommand(new ExitCommand());
+		context.addCommand(new CommandExitCombat());
 	},
 	cancel_target() {
-		context.addCommand(new CancelTargetCommand());
+		context.addCommand(new CommandCancelTarget());
 	},
 };
 
@@ -204,7 +205,7 @@ export const drops = {
 			return;
 		}
 
-		const cmd = new PickupCommand();
+		const cmd = new CommandPickup();
 		cmd.item = item;
 		context.addCommand(cmd);
 	},
@@ -214,7 +215,7 @@ export const drops = {
 			return;
 		}
 
-		const cmd = new RejectCommand();
+		const cmd = new CommandReject();
 		cmd.item = item;
 		context.addCommand(cmd);
 	},
@@ -227,7 +228,7 @@ export const quest = {
 			return;
 		}
 
-		const cmd = new AcceptCommand();
+		const cmd = new CommandAcceptQuest();
 		cmd.questId = questId;
 		context.addCommand(cmd);
 	},
@@ -237,7 +238,7 @@ export const quest = {
 			return;
 		}
 
-		const cmd = new CompleteCommand();
+		const cmd = new CommandCompleteQuest();
 		cmd.questId = questId;
 		context.addCommand(cmd);
 	},
@@ -247,7 +248,7 @@ export const quest = {
 			return;
 		}
 
-		const cmd = new AddCommand();
+		const cmd = new CommandAddQuest();
 		cmd.questId = questId;
 		context.addCommand(cmd);
 	},
@@ -257,7 +258,7 @@ export const quest = {
 			return;
 		}
 
-		const cmd = new RemoveCommand();
+		const cmd = new CommandRemoveQuest();
 		cmd.questId = questId;
 		context.addCommand(cmd);
 	},
@@ -280,7 +281,7 @@ export const shop = {
 			return;
 		}
 
-		const cmd = new BuyCommand();
+		const cmd = new CommandBuy();
 		cmd.shopId = shopId;
 		cmd.item = item;
 		cmd.quantity = quantity;
@@ -292,7 +293,7 @@ export const shop = {
 			return;
 		}
 
-		const cmd = new SellCommand();
+		const cmd = new CommandSell();
 		cmd.item = item;
 		context.addCommand(cmd);
 	},
@@ -305,7 +306,7 @@ export const world = {
 			return;
 		}
 
-		const cmd = new JoinCommand();
+		const cmd = new CommandJoinMap();
 		cmd.map = map;
 		cmd.cell = cell;
 		cmd.pad = pad;
@@ -317,13 +318,13 @@ export const world = {
 			return;
 		}
 
-		const cmd = new MoveToCellCommand();
+		const cmd = new CommandMoveToCell();
 		cmd.cell = cell;
 		cmd.pad = pad;
 		context.addCommand(cmd);
 	},
 	set_spawn(cell?: string, pad?: string) {
-		const cmd = new SetSpawnCommand();
+		const cmd = new CommandSetSpawnpoint();
 		if (typeof cell === 'string') {
 			cmd.cell = cell;
 		}
@@ -345,7 +346,7 @@ export const world = {
 			return;
 		}
 
-		const cmd = new WalkToCommand();
+		const cmd = new CommandWalkTo();
 		cmd.x = x;
 		cmd.y = y;
 		context.addCommand(cmd);
@@ -364,9 +365,11 @@ export const bot = {
 	},
 	stop() {
 		if (context.isRunning()) {
+			// stop checkbox
 			void context.stop();
 		} else {
-			context.addCommand(new StopCommand());
+			// adding stop command
+			context.addCommand(new CommandStop());
 		}
 	},
 	set_delay(delay: number) {
@@ -375,7 +378,7 @@ export const bot = {
 			return;
 		}
 
-		const cmd = new SetDelayCommand();
+		const cmd = new CommandSetDelay();
 		cmd.delay = delay;
 		context.addCommand(cmd);
 	},
@@ -395,7 +398,7 @@ export const settings = {
 			return;
 		}
 
-		const cmd = new SettingsCommand();
+		const cmd = new CommandSetting();
 		cmd.key = option;
 		cmd.val = true;
 		context.addCommand(cmd);
@@ -406,7 +409,7 @@ export const settings = {
 			return;
 		}
 
-		const cmd = new SettingsCommand();
+		const cmd = new CommandSetting();
 		cmd.key = option;
 		cmd.val = false;
 		context.addCommand(cmd);
@@ -420,7 +423,7 @@ export const misc = {
 			return;
 		}
 
-		const cmd = new DelayCommand();
+		const cmd = new CommandDelay();
 		cmd.delay = ms;
 		context.addCommand(cmd);
 	},
@@ -430,7 +433,7 @@ export const misc = {
 			return;
 		}
 
-		const cmd = new GotoLabelCommand();
+		const cmd = new CommandGotoLabel();
 		cmd.label = label;
 		context.addCommand(cmd);
 	},
@@ -440,7 +443,7 @@ export const misc = {
 			return;
 		}
 
-		const cmd = new LabelCommand();
+		const cmd = new CommandLabel();
 		cmd.label = label;
 		context.addCommand(cmd);
 	},
@@ -455,7 +458,7 @@ export const misc = {
 			return;
 		}
 
-		const cmd = new LogCommand();
+		const cmd = new CommandLog();
 		cmd.msg = msg;
 		cmd.level = level ?? 'info';
 		context.addCommand(cmd);

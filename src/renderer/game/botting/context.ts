@@ -1,6 +1,6 @@
 import { AsyncQueue } from '@sapphire/async-queue';
 import { Bot } from '../lib/Bot';
-import type { Command } from './commands/command';
+import type { Command } from './command';
 
 export class Context {
 	private readonly bot = Bot.getInstance();
