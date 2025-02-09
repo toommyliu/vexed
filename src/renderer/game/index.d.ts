@@ -2,18 +2,7 @@ import type { Logger } from 'winston';
 import type { WINDOW_IDS } from '../../common/constants';
 import type PortMonitor from '../../common/port-monitor';
 import type { Context } from './botting/context';
-import type {
-	auth,
-	bank,
-	bot,
-	combat,
-	drops,
-	misc,
-	quest,
-	shop,
-	settings,
-	world,
-} from './botting/index';
+import type { cmd } from './botting/index';
 import type { Bot } from './lib/Bot';
 import type { ShopInfo } from './lib/Shop';
 import type { GameAction } from './lib/World';
@@ -236,16 +225,7 @@ declare global {
 		logger: Logger;
 
 		// botting commands
-		auth: typeof auth;
-		bank: typeof bank;
-		bot: typeof bot;
-		combat: typeof combat;
-		drops: typeof drops;
-		misc: typeof misc;
-		quest: typeof quest;
-		shop: typeof shop;
-		settings: typeof settings;
-		world: typeof world;
+		cmd: typeof cmd;
 		context: Context;
 		/* eslint-enable typescript-sort-keys/interface */
 	}

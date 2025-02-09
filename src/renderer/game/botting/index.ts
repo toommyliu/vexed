@@ -37,7 +37,8 @@ import { Context } from './context';
 
 const context = new Context();
 
-export const auth = {
+export const cmd = {
+	// auth
 	login(username: string, password: string) {
 		if (!username || typeof username !== 'string') {
 			logger.error('username is required');
@@ -57,9 +58,8 @@ export const auth = {
 	logout() {
 		context.addCommand(new CommandLogout());
 	},
-};
 
-export const bank = {
+	// bank
 	deposit(item: number | string) {
 		if (!item || (typeof item !== 'number' && typeof item !== 'string')) {
 			logger.error('item is required');
@@ -102,9 +102,8 @@ export const bank = {
 		cmd.invItem = invItem;
 		context.addCommand(cmd);
 	},
-};
 
-export const combat = {
+	// combat
 	attack(target: string) {
 		if (!target || typeof target !== 'string') {
 			logger.error('target is required');
@@ -196,9 +195,8 @@ export const combat = {
 	cancel_target() {
 		context.addCommand(new CommandCancelTarget());
 	},
-};
 
-export const drops = {
+	// drops
 	pickup(item: number | string) {
 		if (!item || (typeof item !== 'number' && typeof item !== 'string')) {
 			logger.error('item is required');
@@ -219,9 +217,8 @@ export const drops = {
 		cmd.item = item;
 		context.addCommand(cmd);
 	},
-};
 
-export const quest = {
+	// quest
 	accept(questId: number) {
 		if (!questId || typeof questId !== 'number') {
 			logger.error('questId is required');
@@ -262,9 +259,8 @@ export const quest = {
 		cmd.questId = questId;
 		context.addCommand(cmd);
 	},
-};
 
-export const shop = {
+	// shop
 	buy_item(shopId: number, item: number | string, quantity: number) {
 		if (!shopId || typeof shopId !== 'number') {
 			logger.error('shopId is required');
@@ -297,9 +293,8 @@ export const shop = {
 		cmd.item = item;
 		context.addCommand(cmd);
 	},
-};
 
-export const world = {
+	// world
 	join(map: string, cell = 'Enter', pad = 'Spawn') {
 		if (!map || typeof map !== 'string') {
 			logger.error('map is required');
@@ -351,9 +346,8 @@ export const world = {
 		cmd.y = y;
 		context.addCommand(cmd);
 	},
-};
 
-export const bot = {
+	// bot
 	start() {
 		if (context.isCommandQueueEmpty) {
 			logger.error('queue is empty');
@@ -389,9 +383,8 @@ export const bot = {
 		// @ts-expect-error todo
 		context._commandIndex = 0;
 	},
-};
 
-export const settings = {
+	// settings
 	enable(option: string) {
 		if (!option || typeof option !== 'string') {
 			logger.error('option is required');
@@ -414,9 +407,8 @@ export const settings = {
 		cmd.val = false;
 		context.addCommand(cmd);
 	},
-};
 
-export const misc = {
+	// misc
 	delay(ms: number) {
 		if (!ms || typeof ms !== 'number' || ms < 0) {
 			logger.error('ms is required');
@@ -465,38 +457,5 @@ export const misc = {
 	},
 };
 
-// TODO: rethink namespace
-
-// window.is_in_cell = (cell: string) => {
-// 	if (!cell || typeof cell !== 'string') {
-// 		logger.error('cell is required');
-// 		return;
-// 	}
-
-// 	const cmd = new CellIsCommand();
-// 	cmd.cell = cell;
-// 	context.addCommand(cmd);
-// };
-
-// window.is_not_in_cell = (cell: string) => {
-// 	if (!cell || typeof cell !== 'string') {
-// 		logger.error('cell is required');
-// 		return;
-// 	}
-
-// 	const cmd = new CellIsNotCommand();
-// 	cmd.cell = cell;
-// 	context.addCommand(cmd);
-// };
-
-window.auth = auth;
-window.bank = bank;
-window.bot = bot;
-window.combat = combat;
-window.drops = drops;
-window.world = world;
-window.misc = misc;
-window.quest = quest;
-window.shop = shop;
-window.settings = settings;
+window.cmd = cmd;
 window.context = context;
