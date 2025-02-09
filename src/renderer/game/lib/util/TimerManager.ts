@@ -4,8 +4,10 @@
 const MIN_INTERVAL_MS = 10;
 const MAX_INTERVAL_MS = 2_147_483_647;
 
+type SetIntervalAsyncHandler = () => Promise<void> | void;
+
 export class SetIntervalAsyncTimer {
-	#timeout: ReturnType<typeof setTimeout> | undefined = undefined;
+	#timeout: ReturnType<typeof window.setTimeout> | undefined = undefined;
 
 	#promise: Promise<void> | undefined = undefined;
 
@@ -14,15 +16,13 @@ export class SetIntervalAsyncTimer {
 	public static startTimer(
 		handler: SetIntervalAsyncHandler,
 		intervalMs: number,
-		...handlerArgs: any[]
 	): SetIntervalAsyncTimer {
-		// eslint-disable-next-line no-param-reassign
-		intervalMs = Math.min(
+		const ms = Math.min(
 			Math.max(Math.trunc(intervalMs), MIN_INTERVAL_MS),
 			MAX_INTERVAL_MS,
 		);
 		const timer = new SetIntervalAsyncTimer();
-		timer.#scheduleTimeout(handler, intervalMs, intervalMs, ...handlerArgs);
+		timer.#scheduleTimeout(handler, ms, ms);
 		return timer;
 	}
 
@@ -41,14 +41,12 @@ export class SetIntervalAsyncTimer {
 		handler: SetIntervalAsyncHandler,
 		intervalMs: number,
 		delayMs: number,
-		...handlerArgs: any[]
 	): void {
 		this.#timeout = setTimeout(async () => {
 			this.#timeout = undefined;
 			this.#promise = this.#runHandlerAndScheduleTimeout(
 				handler,
 				intervalMs,
-				...handlerArgs,
 			);
 			await this.#promise;
 			this.#promise = undefined;
@@ -58,33 +56,30 @@ export class SetIntervalAsyncTimer {
 	async #runHandlerAndScheduleTimeout(
 		handler: SetIntervalAsyncHandler,
 		intervalMs: number,
-		...handlerArgs: any[]
 	): Promise<void> {
 		const startTimeMs = Date.now();
 		try {
-			await handler(...handlerArgs);
+			await handler();
 		} finally {
 			if (!this.#stopped) {
 				const executionTimeMs = Date.now() - startTimeMs;
 				const delayMs =
-					intervalMs > executionTimeMs
-						? intervalMs - executionTimeMs
-						: 0;
-				this.#scheduleTimeout(
-					handler,
-					intervalMs,
-					delayMs,
-					...handlerArgs,
-				);
+					/* strategy === 'dynamic'*/
+					true
+						? intervalMs > executionTimeMs
+							? intervalMs - executionTimeMs
+							: 0
+						: intervalMs;
+
+				this.#scheduleTimeout(handler, intervalMs, delayMs);
 			}
 		}
 	}
 }
 
-function setIntervalAsync(
+export function setIntervalAsync(
 	handler: SetIntervalAsyncHandler,
 	intervalMs: number,
-	...handlerArgs: any[]
 ): SetIntervalAsyncTimer {
 	if (typeof handler !== 'function') {
 		throw new TypeError('First argument is not a function');
@@ -94,14 +89,12 @@ function setIntervalAsync(
 		throw new TypeError('Second argument is not a number');
 	}
 
-	return SetIntervalAsyncTimer.startTimer(
-		handler,
-		intervalMs,
-		...handlerArgs,
-	);
+	return SetIntervalAsyncTimer.startTimer(handler, intervalMs);
 }
 
-async function clearIntervalAsync(timer: SetIntervalAsyncTimer): Promise<void> {
+export async function clearIntervalAsync(
+	timer: SetIntervalAsyncTimer,
+): Promise<void> {
 	if (!(timer instanceof SetIntervalAsyncTimer)) {
 		throw new TypeError(
 			'First argument is not an instance of SetIntervalAsyncTimer',
@@ -111,11 +104,19 @@ async function clearIntervalAsync(timer: SetIntervalAsyncTimer): Promise<void> {
 	await SetIntervalAsyncTimer.stopTimer(timer);
 }
 
+/**
+ * Manager for timers and intervals.
+ */
 export class TimerManager {
 	#intervals: Set<SetIntervalAsyncTimer> = new Set();
 
-	#timeouts: Set<ReturnType<typeof setTimeout>> = new Set();
+	#timeouts: Set<number> = new Set();
 
+	/**
+	 * @param fn - The interval function.
+	 * @param interval - The delay between each execution.
+	 * @returns - The interval id.
+	 */
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 	public setInterval(fn: Function, interval: number): SetIntervalAsyncTimer {
 		const id = setIntervalAsync(async () => {
@@ -125,29 +126,33 @@ export class TimerManager {
 		return id;
 	}
 
+	/**
+	 * @param id - The interval id.
+	 */
 	public async clearInterval(id: SetIntervalAsyncTimer): Promise<void> {
 		void clearIntervalAsync(id);
 		this.#intervals.delete(id);
 	}
 
-	public setTimeout(
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-		fn: Function,
-		delay: number,
-		...args: any[]
-	): ReturnType<typeof setTimeout> {
-		const timeout = setTimeout(() => {
+	/**
+	 * @param fn - The timeout function.
+	 * @param delay - The delay before executing the function.
+	 * @returns - The timeout id.
+	 */
+	public setTimeout(fn: SetIntervalAsyncHandler, delay: number): number {
+		const timeout = window.setTimeout(() => {
 			this.#timeouts.delete(timeout);
-			fn(...args);
+			void fn();
 		}, delay);
 		this.#timeouts.add(timeout);
 		return timeout;
 	}
 
-	public clearTimeout(timeout: ReturnType<typeof setTimeout>): void {
+	/**
+	 * @param timeout - The timeout id.
+	 */
+	public clearTimeout(timeout: number): void {
 		clearTimeout(timeout);
 		this.#timeouts.delete(timeout);
 	}
 }
-
-type SetIntervalAsyncHandler = (...args: any[]) => Promise<void> | void;
