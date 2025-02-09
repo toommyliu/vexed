@@ -35,12 +35,11 @@ window.addEventListener('DOMContentLoaded', async () => {
 		) as HTMLButtonElement;
 
 		btn.onclick = () => {
-			const { executor } = Bot.getInstance();
-			if (executor.isRunning()) {
-				void executor.stop();
+			if (window.context.isRunning()) {
+				void window.context.stop();
 				btn.textContent = 'Start';
 			} else {
-				void executor.start();
+				void window.context.start();
 				btn.textContent = 'Stop';
 			}
 		};

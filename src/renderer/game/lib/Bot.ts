@@ -1,5 +1,4 @@
 import { EventEmitter } from 'events';
-import { CommandExecutor } from '../botting/commands/command-executor';
 import { Auth } from './Auth';
 import { Bank } from './Bank';
 import { Combat } from './Combat';
@@ -179,8 +178,6 @@ export class Bot extends EventEmitter {
 	 */
 	public timerManager: InstanceType<typeof TimerManager>;
 
-	public executor: InstanceType<typeof CommandExecutor>;
-
 	public constructor() {
 		super();
 
@@ -207,8 +204,6 @@ export class Bot extends EventEmitter {
 		this.shops = new Shops(this);
 		this.tempInventory = new TempInventory(this);
 		this.world = new World(this);
-
-		this.executor = new CommandExecutor();
 	}
 
 	/**

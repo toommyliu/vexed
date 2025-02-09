@@ -220,11 +220,6 @@ declare global {
 	interface Window {
 		/* eslint-disable typescript-sort-keys/interface */
 
-		// utilities
-		flash: InstanceType<typeof Bot>['flash'];
-		autoRelogin: InstanceType<typeof Bot>['autoRelogin'];
-		timerManager: InstanceType<typeof Bot>['timerManager'];
-
 		// interop
 		debug(...args: string[]): void;
 		packetFromClient(packet: [string]): Promise<void> | void;

@@ -7,14 +7,14 @@ export class GotoLabelCommand extends Command {
 	public label!: string;
 
 	public override execute() {
-		const index = this.bot.executor.commands.findIndex(
+		const index = window.context.commands.findIndex(
 			(cmd) =>
 				cmd instanceof LabelCommand &&
 				cmd.label.toLowerCase() === this.label.toLowerCase(),
 		);
 
 		if (index > -1) {
-			this.bot.executor.index = index;
+			window.context.commandIndex = index;
 		}
 	}
 

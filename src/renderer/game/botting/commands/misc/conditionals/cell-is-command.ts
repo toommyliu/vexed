@@ -7,7 +7,7 @@ export class CellIsCommand extends Command {
 
 	public override async execute() {
 		if (this.bot.player.cell.toLowerCase() !== this.cell.toLowerCase()) {
-			this.bot.executor.index++;
+			window.context.commandIndex++;
 		}
 	}
 

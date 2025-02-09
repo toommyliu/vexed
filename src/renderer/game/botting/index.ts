@@ -1,4 +1,3 @@
-import { Bot } from '../lib/Bot';
 import { LoginCommand, LogoutCommand } from './commands/auth';
 import { DepositCommand, SwapCommand, WithdrawCommand } from './commands/bank';
 import { SetDelayCommand, StopCommand } from './commands/bot';
@@ -35,7 +34,7 @@ import {
 } from './commands/world';
 import { Context } from './context';
 
-const { executor } = Bot.getInstance();
+const context = new Context();
 
 export const auth = {
 	login(username: string, password: string) {
@@ -52,10 +51,10 @@ export const auth = {
 		const cmd = new LoginCommand();
 		cmd.username = username;
 		cmd.password = password;
-		executor.addCommand(cmd);
+		context.addCommand(cmd);
 	},
 	logout() {
-		executor.addCommand(new LogoutCommand());
+		context.addCommand(new LogoutCommand());
 	},
 };
 
@@ -68,7 +67,7 @@ export const bank = {
 
 		const cmd = new DepositCommand();
 		cmd.item = item;
-		executor.addCommand(cmd);
+		context.addCommand(cmd);
 	},
 	withdraw(item: number | string) {
 		if (!item || (typeof item !== 'number' && typeof item !== 'string')) {
@@ -78,7 +77,7 @@ export const bank = {
 
 		const cmd = new WithdrawCommand();
 		cmd.item = item;
-		executor.addCommand(cmd);
+		context.addCommand(cmd);
 	},
 	swap(bankItem: number | string, invItem: number | string) {
 		if (
@@ -100,7 +99,7 @@ export const bank = {
 		const cmd = new SwapCommand();
 		cmd.bankItem = bankItem;
 		cmd.invItem = invItem;
-		executor.addCommand(cmd);
+		context.addCommand(cmd);
 	},
 };
 
@@ -113,7 +112,7 @@ export const combat = {
 
 		const cmd = new AttackCommand();
 		cmd.target = target;
-		executor.addCommand(cmd);
+		context.addCommand(cmd);
 	},
 	kill(target: string) {
 		if (!target || typeof target !== 'string') {
@@ -123,7 +122,7 @@ export const combat = {
 
 		const cmd = new KillCommand();
 		cmd.target = target;
-		executor.addCommand(cmd);
+		context.addCommand(cmd);
 	},
 	kill_for_item(target: string, item: number | string, quantity: number) {
 		if (!target || typeof target !== 'string') {
@@ -145,7 +144,7 @@ export const combat = {
 		cmd.target = target;
 		cmd.item = item;
 		cmd.quantity = quantity;
-		executor.addCommand(cmd);
+		context.addCommand(cmd);
 	},
 	kill_for_temp_item(
 		target: string,
@@ -172,10 +171,10 @@ export const combat = {
 		cmd.item = item;
 		cmd.quantity = quantity;
 		cmd.isTemp = true;
-		executor.addCommand(cmd);
+		context.addCommand(cmd);
 	},
 	rest() {
-		executor.addCommand(new RestCommand());
+		context.addCommand(new RestCommand());
 	},
 	use_skill(skill: number | string) {
 		if (
@@ -188,13 +187,13 @@ export const combat = {
 
 		const cmd = new SkillCommand();
 		cmd.skill = skill;
-		executor.addCommand(cmd);
+		context.addCommand(cmd);
 	},
 	exit() {
-		executor.addCommand(new ExitCommand());
+		context.addCommand(new ExitCommand());
 	},
 	cancel_target() {
-		executor.addCommand(new CancelTargetCommand());
+		context.addCommand(new CancelTargetCommand());
 	},
 };
 
@@ -207,7 +206,7 @@ export const drops = {
 
 		const cmd = new PickupCommand();
 		cmd.item = item;
-		executor.addCommand(cmd);
+		context.addCommand(cmd);
 	},
 	reject(item: number | string) {
 		if (!item || (typeof item !== 'number' && typeof item !== 'string')) {
@@ -217,7 +216,7 @@ export const drops = {
 
 		const cmd = new RejectCommand();
 		cmd.item = item;
-		executor.addCommand(cmd);
+		context.addCommand(cmd);
 	},
 };
 
@@ -230,7 +229,7 @@ export const quest = {
 
 		const cmd = new AcceptCommand();
 		cmd.questId = questId;
-		executor.addCommand(cmd);
+		context.addCommand(cmd);
 	},
 	complete(questId: number) {
 		if (!questId || typeof questId !== 'number') {
@@ -240,7 +239,7 @@ export const quest = {
 
 		const cmd = new CompleteCommand();
 		cmd.questId = questId;
-		executor.addCommand(cmd);
+		context.addCommand(cmd);
 	},
 	add(questId: number) {
 		if (!questId || typeof questId !== 'number') {
@@ -250,7 +249,7 @@ export const quest = {
 
 		const cmd = new AddCommand();
 		cmd.questId = questId;
-		executor.addCommand(cmd);
+		context.addCommand(cmd);
 	},
 	remove(questId: number) {
 		if (!questId || typeof questId !== 'number') {
@@ -260,7 +259,7 @@ export const quest = {
 
 		const cmd = new RemoveCommand();
 		cmd.questId = questId;
-		executor.addCommand(cmd);
+		context.addCommand(cmd);
 	},
 };
 
@@ -285,7 +284,7 @@ export const shop = {
 		cmd.shopId = shopId;
 		cmd.item = item;
 		cmd.quantity = quantity;
-		executor.addCommand(cmd);
+		context.addCommand(cmd);
 	},
 	sell_item(item: string) {
 		if (!item || typeof item !== 'string') {
@@ -295,7 +294,7 @@ export const shop = {
 
 		const cmd = new SellCommand();
 		cmd.item = item;
-		executor.addCommand(cmd);
+		context.addCommand(cmd);
 	},
 };
 
@@ -310,7 +309,7 @@ export const world = {
 		cmd.map = map;
 		cmd.cell = cell;
 		cmd.pad = pad;
-		executor.addCommand(cmd);
+		context.addCommand(cmd);
 	},
 	move_to_cell(cell: string, pad = 'Spawn') {
 		if (!cell || typeof cell !== 'string') {
@@ -321,7 +320,7 @@ export const world = {
 		const cmd = new MoveToCellCommand();
 		cmd.cell = cell;
 		cmd.pad = pad;
-		executor.addCommand(cmd);
+		context.addCommand(cmd);
 	},
 	set_spawn(cell?: string, pad?: string) {
 		const cmd = new SetSpawnCommand();
@@ -333,7 +332,7 @@ export const world = {
 			cmd.pad = pad;
 		}
 
-		executor.addCommand(cmd);
+		context.addCommand(cmd);
 	},
 	walk_to(x: number, y: number) {
 		if (!x || typeof x !== 'number') {
@@ -349,31 +348,26 @@ export const world = {
 		const cmd = new WalkToCommand();
 		cmd.x = x;
 		cmd.y = y;
-		executor.addCommand(cmd);
+		context.addCommand(cmd);
 	},
 };
 
 export const bot = {
 	start() {
-		if (executor.isEmpty) {
+		if (context.isCommandQueueEmpty) {
 			logger.error('queue is empty');
 			return;
 		}
 
 		logger.info('bot started');
-		// eslint-disable-next-line promise/prefer-await-to-then
-		void window.context.start().then(() => void executor.start());
+		void context.start();
 	},
 	stop() {
-		if (executor.isRunning()) {
-			// stop immediately
-			void executor.stop();
+		if (context.isRunning()) {
+			void context.stop();
 		} else {
-			// add a stop command
-			executor.addCommand(new StopCommand());
+			context.addCommand(new StopCommand());
 		}
-
-		void window.context.stop();
 	},
 	set_delay(delay: number) {
 		if ((!delay && delay < 0) || typeof delay !== 'number') {
@@ -383,13 +377,14 @@ export const bot = {
 
 		const cmd = new SetDelayCommand();
 		cmd.delay = delay;
-		executor.addCommand(cmd);
+		context.addCommand(cmd);
 	},
 	reset() {
-		const _bot = Bot.getInstance();
-		_bot.executor.setDelay(1_000);
+		context.setCommandDelay(1_000);
 		// @ts-expect-error todo
-		_bot.executor._stop();
+		context._commands = [];
+		// @ts-expect-error todo
+		context._commandIndex = 0;
 	},
 };
 
@@ -403,7 +398,7 @@ export const settings = {
 		const cmd = new SettingsCommand();
 		cmd.key = option;
 		cmd.val = true;
-		executor.addCommand(cmd);
+		context.addCommand(cmd);
 	},
 	disable(option: string) {
 		if (!option || typeof option !== 'string') {
@@ -414,7 +409,7 @@ export const settings = {
 		const cmd = new SettingsCommand();
 		cmd.key = option;
 		cmd.val = false;
-		executor.addCommand(cmd);
+		context.addCommand(cmd);
 	},
 };
 
@@ -427,7 +422,7 @@ export const misc = {
 
 		const cmd = new DelayCommand();
 		cmd.delay = ms;
-		executor.addCommand(cmd);
+		context.addCommand(cmd);
 	},
 	goto_label(label: string) {
 		if (!label || typeof label !== 'string') {
@@ -437,7 +432,7 @@ export const misc = {
 
 		const cmd = new GotoLabelCommand();
 		cmd.label = label;
-		executor.addCommand(cmd);
+		context.addCommand(cmd);
 	},
 	label(label: string) {
 		if (!label || typeof label !== 'string') {
@@ -447,7 +442,7 @@ export const misc = {
 
 		const cmd = new LabelCommand();
 		cmd.label = label;
-		executor.addCommand(cmd);
+		context.addCommand(cmd);
 	},
 	log(msg: string, level?: string) {
 		if (!msg || typeof msg !== 'string') {
@@ -463,7 +458,7 @@ export const misc = {
 		const cmd = new LogCommand();
 		cmd.msg = msg;
 		cmd.level = level ?? 'info';
-		executor.addCommand(cmd);
+		context.addCommand(cmd);
 	},
 };
 
@@ -477,7 +472,7 @@ export const misc = {
 
 // 	const cmd = new CellIsCommand();
 // 	cmd.cell = cell;
-// 	executor.addCommand(cmd);
+// 	context.addCommand(cmd);
 // };
 
 // window.is_not_in_cell = (cell: string) => {
@@ -488,7 +483,7 @@ export const misc = {
 
 // 	const cmd = new CellIsNotCommand();
 // 	cmd.cell = cell;
-// 	executor.addCommand(cmd);
+// 	context.addCommand(cmd);
 // };
 
 window.auth = auth;
@@ -500,6 +495,5 @@ window.world = world;
 window.misc = misc;
 window.quest = quest;
 window.shop = shop;
-// window.queue = executor;
 window.settings = settings;
-window.context = new Context();
+window.context = context;

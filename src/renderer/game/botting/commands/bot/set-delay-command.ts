@@ -6,7 +6,7 @@ export class SetDelayCommand extends Command {
 	public delay!: number;
 
 	public override execute() {
-		this.bot.executor.setDelay(this.delay);
+		window.context.setCommandDelay(this.delay);
 	}
 
 	public override toString() {
