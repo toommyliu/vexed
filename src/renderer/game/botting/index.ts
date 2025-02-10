@@ -10,6 +10,7 @@ import {
 	CommandDelay,
 	CommandDeposit,
 	CommandExitCombat,
+	CommandGetMapItem,
 	CommandGotoLabel,
 	CommandJoinMap,
 	CommandKill,
@@ -23,6 +24,7 @@ import {
 	CommandReject,
 	CommandRemoveQuest,
 	CommandRest,
+	CommandRestart,
 	CommandSell,
 	CommandSetDelay,
 	CommandSetSpawnpoint,
@@ -344,6 +346,16 @@ export const cmd = {
 		const cmd = new CommandWalkTo();
 		cmd.x = x;
 		cmd.y = y;
+		context.addCommand(cmd);
+	},
+	get_map_item(itemId: number) {
+		if (!itemId || typeof itemId !== 'number') {
+			logger.error('itemId is required');
+			return;
+		}
+
+		const cmd = new CommandGetMapItem();
+		cmd.itemId = itemId;
 		context.addCommand(cmd);
 	},
 
