@@ -20,7 +20,7 @@ export class Context {
 
 	// private boostTimer!: SetIntervalAsyncTimer;
 
-	private _commands: Command[];
+	private readonly _commands: Command[];
 
 	private commandDelay: number;
 
