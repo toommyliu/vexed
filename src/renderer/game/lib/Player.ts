@@ -23,7 +23,7 @@ export class Player {
 	/**
 	 * The state of the player.
 	 */
-	public get state(): PlayerState {
+	public get state(): (typeof PlayerState)[keyof typeof PlayerState] {
 		return this.bot.flash.call(() => swf.playerGetState());
 	}
 
@@ -145,25 +145,17 @@ export class Player {
 	}
 }
 
-/**
- * Enum representing a player's state.
- */
-export enum PlayerState {
+export const PlayerState = {
 	/**
 	 * The player is dead.
 	 */
-	Dead = 0,
+	Dead: 0,
 	/**
-	 * The player is idle, does not necessarily imply the player is afk.
+	 * The player is idle.
 	 */
-	Idle = 1,
+	Idle: 1,
 	/**
 	 * The player is in combat.
 	 */
-	InCombat = 2,
-}
-
-Object.defineProperty(window, 'PlayerState', {
-	value: PlayerState,
-	writable: false,
-});
+	InCombat: 2,
+};
