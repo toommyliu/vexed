@@ -46,7 +46,7 @@ export class TempInventory {
 	 * @param itemKey - The name or ID of the item.
 	 * @param quantity - The quantity of the item.
 	 */
-	public contains(itemKey: number | string, quantity: number): boolean {
+	public contains(itemKey: number | string, quantity: number = 1): boolean {
 		const item = this.get(itemKey);
 		return item !== null && item.quantity >= quantity;
 	}
