@@ -1,4 +1,5 @@
 import { combatCommands } from './commands/combat';
+import { conditionsCommands } from './commands/conditions';
 import { itemCommands } from './commands/item';
 import { mapCommands } from './commands/map';
 import { miscCommands } from './commands/misc';
@@ -9,6 +10,7 @@ const context = new Context();
 
 export const cmd = {
 	...combatCommands,
+	...conditionsCommands,
 	...itemCommands,
 	...mapCommands,
 	...miscCommands,

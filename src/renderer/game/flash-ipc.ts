@@ -103,3 +103,6 @@ ipcRenderer.on(IPC_EVENTS.LOGIN, async (_, account) => {
 	console.log('Got an account to login with, setting that now.');
 	window.account = account;
 });
+
+// @ts-expect-error don't care
+window.debug = console.log;

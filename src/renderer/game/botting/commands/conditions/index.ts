@@ -12,6 +12,21 @@ import { CommandInBank } from './CommandInBank';
 import { CommandInCombat } from './CommandInCombat';
 import { CommandInHouse } from './CommandInHouse';
 import { CommandNotEquipped } from './CommandNotEquipped';
+import { CommandPlayerAurasGreaterThan } from './CommandPlayerAurasGreaterThan';
+import { CommandPlayerAurasLessThan } from './CommandPlayerAurasLessThan';
+import { CommandPlayerAuraEquals } from './CommandPlayerAuraEquals';
+import { CommandPlayerCountGreaterThan } from './CommandPlayerCountGreaterThan';
+import { CommandPlayerCountLessThan } from './CommandPlayerCountLessThan';
+import { CommandPlayerInMap } from './CommandPlayerInMap';
+import { CommandPlayerIsInCell } from './CommandPlayerIsInCell';
+import { CommandPlayerIsNotInMap } from './CommandPlayerIsNotInMap';
+import { CommandPlayerIsNotInCell } from './CommandPlayerIsNotInCell';
+import { CommandQuestCanComplete } from './CommandQuestCanComplete';
+import { CommandQuestCanNotComplete } from './CommandQuestCanNotComplete';
+import { CommandQuestInProgress } from './CommandQuestInProgress';
+import { CommandQuestIsAvailable } from './CommandQuestIsAvailable';
+import { CommandQuestIsNotAvailable } from './CommandQuestNotAvailable';
+import { CommandQuestNotInProgress } from './CommandQuestNotInProgress';
 
 export const conditionsCommands = {
 	is_cell(cell: string) {
@@ -165,6 +180,189 @@ export const conditionsCommands = {
 
 		const cmd = new CommandNotEquipped();
 		cmd.item = item;
+		window.context.addCommand(cmd);
+	},
+
+	player_auras_greater_than(aura: string, value: number) {
+		if (!aura || typeof aura !== 'string') {
+			logger.error('aura is required');
+			return;
+		}
+
+		if (!value || typeof value !== 'number') {
+			logger.error('value is required');
+			return;
+		}
+
+		const cmd = new CommandPlayerAurasGreaterThan();
+		cmd.aura = aura;
+		cmd.value = value;
+		window.context.addCommand(cmd);
+	},
+
+	player_auras_less_than(aura: string, value: number) {
+		if (!aura || typeof aura !== 'string') {
+			logger.error('aura is required');
+			return;
+		}
+
+		if (!value || typeof value !== 'number') {
+			logger.error('value is required');
+			return;
+		}
+
+		const cmd = new CommandPlayerAurasLessThan();
+		cmd.aura = aura;
+		cmd.value = value;
+		window.context.addCommand(cmd);
+	},
+
+	player_aura_equals(aura: string, value: number) {
+		if (!aura || typeof aura !== 'string') {
+			logger.error('aura is required');
+			return;
+		}
+
+		if (!value || typeof value !== 'number') {
+			logger.error('value is required');
+			return;
+		}
+
+		const cmd = new CommandPlayerAuraEquals();
+		cmd.aura = aura;
+		cmd.value = value;
+		window.context.addCommand(cmd);
+	},
+
+	player_count_greater_than(count: number) {
+		if (typeof count !== 'number') {
+			logger.error('count is required');
+			return;
+		}
+
+		const cmd = new CommandPlayerCountGreaterThan();
+		cmd.count = count;
+		window.context.addCommand(cmd);
+	},
+
+	player_count_less_than(count: number) {
+		if (typeof count !== 'number') {
+			logger.error('count is required');
+			return;
+		}
+
+		const cmd = new CommandPlayerCountLessThan();
+		cmd.count = count;
+		window.context.addCommand(cmd);
+	},
+
+	is_player_in_map(map: string) {
+		if (!map || typeof map !== 'string') {
+			logger.error('map name is required');
+			return;
+		}
+
+		const cmd = new CommandPlayerInMap();
+		cmd.map = map;
+		window.context.addCommand(cmd);
+	},
+
+	is_player_in_cell(cell: string) {
+		if (!cell || typeof cell !== 'string') {
+			logger.error('cell name is required');
+			return;
+		}
+
+		const cmd = new CommandPlayerIsInCell();
+		cmd.cell = cell;
+		window.context.addCommand(cmd);
+	},
+
+	is_player_not_in_map(name: string) {
+		if (!name || typeof name !== 'string') {
+			logger.error('player name is required');
+			return;
+		}
+
+		const cmd = new CommandPlayerIsNotInMap();
+		cmd.name = name;
+		window.context.addCommand(cmd);
+	},
+
+	is_player_not_in_cell(cell: string) {
+		if (!cell || typeof cell !== 'string') {
+			logger.error('cell name is required');
+			return;
+		}
+
+		const cmd = new CommandPlayerIsNotInCell();
+		cmd.cell = cell;
+		window.context.addCommand(cmd);
+	},
+
+	can_complete_quest(questId: number) {
+		if (!questId || typeof questId !== 'number') {
+			logger.error('quest is required');
+			return;
+		}
+
+		const cmd = new CommandQuestCanComplete();
+		cmd.questId = questId;
+		window.context.addCommand(cmd);
+	},
+
+	cannot_complete_quest(questId: number) {
+		if (!questId || typeof questId !== 'number') {
+			logger.error('quest is required');
+			return;
+		}
+
+		const cmd = new CommandQuestCanNotComplete();
+		cmd.questId = questId;
+		window.context.addCommand(cmd);
+	},
+
+	is_quest_in_progress(questId: number) {
+		if (!questId || typeof questId !== 'number') {
+			logger.error('quest is required');
+			return;
+		}
+
+		const cmd = new CommandQuestInProgress();
+		cmd.questId = questId;
+		window.context.addCommand(cmd);
+	},
+
+	is_quest_available(questId: number) {
+		if (!questId || typeof questId !== 'number') {
+			logger.error('quest is required');
+			return;
+		}
+
+		const cmd = new CommandQuestIsAvailable();
+		cmd.questId = questId;
+		window.context.addCommand(cmd);
+	},
+
+	is_quest_not_available(questId: number) {
+		if (!questId || typeof questId !== 'number') {
+			logger.error('quest is required');
+			return;
+		}
+
+		const cmd = new CommandQuestIsNotAvailable();
+		cmd.questId = questId;
+		window.context.addCommand(cmd);
+	},
+
+	is_quest_not_in_progress(questId: number) {
+		if (!questId || typeof questId !== 'number') {
+			logger.error('quest is required');
+			return;
+		}
+
+		const cmd = new CommandQuestNotInProgress();
+		cmd.questId = questId;
 		window.context.addCommand(cmd);
 	},
 };
