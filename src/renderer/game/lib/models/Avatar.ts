@@ -17,9 +17,34 @@ export class Avatar {
 		return this.data.strPad;
 	}
 
-	/**
-	 * A list of auras active on this player.
-	 */
+	public get hp() {
+		return this.data.intHP;
+	}
+
+	public get maxHp() {
+		return this.data.intHPMax;
+	}
+
+	public get mp() {
+		return this.data.intMP;
+	}
+
+	public get maxMp() {
+		return this.data.intMPMax;
+	}
+
+	public get level() {
+		return this.data.intLevel;
+	}
+
+	public get state() {
+		return this.data.intState;
+	}
+
+	public get username() {
+		return this.data.strUsername;
+	}
+
 	public get auras() {
 		return this.data.auras;
 	}
@@ -39,6 +64,7 @@ export class Avatar {
 }
 
 export type AvatarData = {
+	ID: number;
 	afk: boolean;
 	auras: Aura[];
 	bResting: boolean;
@@ -60,6 +86,7 @@ export type AvatarData = {
 	showHelm: boolean;
 	strFrame: string;
 	strPad: string;
+	strUsername: string;
 };
 
 export type Aura = {
