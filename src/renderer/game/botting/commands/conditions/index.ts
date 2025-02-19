@@ -12,21 +12,23 @@ import { CommandInBank } from './CommandInBank';
 import { CommandInCombat } from './CommandInCombat';
 import { CommandInHouse } from './CommandInHouse';
 import { CommandNotEquipped } from './CommandNotEquipped';
+import { CommandPlayerAuraEquals } from './CommandPlayerAuraEquals';
 import { CommandPlayerAurasGreaterThan } from './CommandPlayerAurasGreaterThan';
 import { CommandPlayerAurasLessThan } from './CommandPlayerAurasLessThan';
-import { CommandPlayerAuraEquals } from './CommandPlayerAuraEquals';
 import { CommandPlayerCountGreaterThan } from './CommandPlayerCountGreaterThan';
 import { CommandPlayerCountLessThan } from './CommandPlayerCountLessThan';
 import { CommandPlayerInMap } from './CommandPlayerInMap';
 import { CommandPlayerIsInCell } from './CommandPlayerIsInCell';
-import { CommandPlayerIsNotInMap } from './CommandPlayerIsNotInMap';
 import { CommandPlayerIsNotInCell } from './CommandPlayerIsNotInCell';
+import { CommandPlayerIsNotInMap } from './CommandPlayerIsNotInMap';
 import { CommandQuestCanComplete } from './CommandQuestCanComplete';
 import { CommandQuestCanNotComplete } from './CommandQuestCanNotComplete';
 import { CommandQuestInProgress } from './CommandQuestInProgress';
 import { CommandQuestIsAvailable } from './CommandQuestIsAvailable';
 import { CommandQuestIsNotAvailable } from './CommandQuestNotAvailable';
 import { CommandQuestNotInProgress } from './CommandQuestNotInProgress';
+import { CommandTargetHealthGreaterThan } from './CommandTargetHealthGreaterThan';
+import { CommandTargetHealthLessThan } from './CommandTargetHealthLessThan';
 
 export const conditionsCommands = {
 	is_cell(cell: string) {
@@ -363,6 +365,27 @@ export const conditionsCommands = {
 
 		const cmd = new CommandQuestNotInProgress();
 		cmd.questId = questId;
+		window.context.addCommand(cmd);
+	},
+
+	target_health_greater_than(hp: number) {
+		if (typeof hp !== 'number') {
+			logger.error('hp is required');
+			return;
+		}
+
+		const cmd = new CommandTargetHealthGreaterThan();
+		cmd.hp = hp;
+		window.context.addCommand(cmd);
+	},
+	target_health_less_than(hp: number) {
+		if (typeof hp !== 'number') {
+			logger.error('hp is required');
+			return;
+		}
+
+		const cmd = new CommandTargetHealthLessThan();
+		cmd.hp = hp;
 		window.context.addCommand(cmd);
 	},
 };

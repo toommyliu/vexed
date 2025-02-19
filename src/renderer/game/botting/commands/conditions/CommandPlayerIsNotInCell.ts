@@ -1,6 +1,6 @@
 import { Command } from '../../command';
 
-export class CommandPlayerIsInNotCell extends Command {
+export class CommandPlayerIsNotInCell extends Command {
 	public name!: string;
 
 	public cell!: string;
