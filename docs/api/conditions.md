@@ -1,5 +1,22 @@
 # conditions commands
 
+Conditions check if the statement is truthy or falsy. Given the command, it will skip past the next command if it is not met.
+
+For example:
+
+```
+cmd.is_equipped('Radiant Goddess Of War')
+cmd.goto_label('is equipped') // block to run if rgow is equipped
+cmd.goto_label('is not equipped') // block to run if rgow is not equipped
+cmd.label('is equipped')
+cmd.log('Radiant Goddess Of War is equipped')
+cmd.goto_label('end')
+cmd.label('is not equipped')
+cmd.log('Radiant Goddess Of War is not equipped')
+cmd.label('end')
+cmd.stop()
+```
+
 ## is_cell
 
 ```
