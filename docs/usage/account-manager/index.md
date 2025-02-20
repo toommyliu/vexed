@@ -12,7 +12,7 @@ You can also set the default launch mode for the app by editing `Documents/Vexed
 
 ```json
 {
-  "launchMode": "game" // default // [!code --]
+  "launchMode": "game" // default [!code --]
   "launchMode": "manager" // [!code ++]
 }
 ```

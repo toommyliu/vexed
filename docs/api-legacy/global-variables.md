@@ -4,7 +4,16 @@ outline: deep
 
 # Global Variables
 
-The following global variables are available:
+~~The following global variables are available:~~
+
+Use `Bot.getInstance()` to access the following instances:
+
+```js
+const bot = Bot.getInstance();
+const { auth } = bot;
+
+// rest of the code...
+```
 
 ## API
 
@@ -31,5 +40,9 @@ The following global variables are available:
 - `flash`: [Flash](./util/Flash) instance
 
 ## Enums
-- `GameAction`: [GameAction](./enums/GameAction.md) enum
-- `PlayerState`: [PlayerState](./enums/PlayerState.md) enum
+
+You can simply hardcode the enum values in your scripts.
+
+~~- `GameAction`: [GameAction](./enums/GameAction.md) enum~~
+
+~~- `PlayerState`: [PlayerState](./enums/PlayerState.md) enum~~

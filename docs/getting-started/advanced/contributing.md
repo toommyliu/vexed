@@ -2,4 +2,4 @@
 
 Any meaningful and worthwhile changes will be considered, feel free to create a PR if you are able to.
 
-Otherwise, open a issue to provide feedback or ask questions.
+Otherwise, feedback is always welcome.

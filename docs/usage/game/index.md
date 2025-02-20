@@ -14,16 +14,16 @@ Options can be toggled on and off without requiring any scripting interaction. T
 
 ## Scripts
 
-### Load Script
+### Load
 
-Loads a script file.
+Loads a script file. Scripts can be in the commands or legacy format.
 
-### Start/Stop Script
+### Start/Stop
 
 Starts or stops the script.
 
 > [!NOTE]
-> Scripts only "start" when the player is in a [ready](../../api/Player#isready) state. This behavior may change in the future.
+> Scripts only "start" when the player is in a [ready](../../api-legacy/Player#isready) state. This behavior may change in the future.
 
 ### Toggle Dev Tools
 

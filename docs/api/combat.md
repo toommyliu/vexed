@@ -1,140 +1,63 @@
----
-outline: deep
----
+# combat commands
 
-# Combat 
+> [!NOTE]
+>
+> - `target` refers to monster name or in the format "id:monMapId" (where `:` can be replaced with any of these delimiters: `'` `.` `-` )
+> - Example formats: `id.1` (left orb) | `id:3` (right orb)
 
-A `monsterResolvable` is either a monster name or monMapID prefixed with `id` and delimited by a `'`, `.`, `:`, `-` character.
+## attack
 
----
+```
+cmd.attack(target: string)
+```
 
-### Properties
+## cancel_target
 
-#### pauseAttack
+```
+cmd.cancel_target()
+```
 
-Type: `boolean`
+## exit_combat
 
-#### bot
+```
+cmd.exit_combat()
+```
 
-Type: `Bot`
+## kill
 
-#### target
+```
+cmd.kill(target: string)
+```
 
-​<Badge type="info">getter</Badge>Returns information about the target.
+## kill_for_item
 
-Type: `Record<string, unknown> | null`
+```
+cmd.kill_for_item(target: string, item: number | string, quantity: number)
+```
 
-### Methods
+> [!NOTE]
+> item can be item name or id
 
-#### hasTarget
+## kill_for_temp_item
 
-Whether the player has a target.
+```
+cmd.kill_for_temp_item(target: string, item: number | string, quantity: number)
+```
 
-**Returns:** `boolean`
+> [!TIP]
+> item can be item name or id
 
-#### useSkill
+## rest
 
-Casts a skill.
+```
+cmd.rest()
+```
 
-**Parameters:**
+## use_skill
 
-| Name | Type | Optional | Default | Description |
-|------|------|----------|---------|-------------|
-| `index` | `string \| number` |  |  | The index of the skill. Skills range from 0 (skill 1) to 5 (potions). |
-| `force` | `boolean` | ✓ | `false` | Whether to use the skill regardless if there is a target. |
-| `wait` | `boolean` | ✓ | `false` | Whether to wait for the skill to be available. |
+```
+cmd.use_skill(skill: number | string)
+```
 
-**Returns:** `Promise<void>`
-
-#### attack
-
-Attacks a monster.
-
-**Parameters:**
-
-| Name | Type | Description |
-|------|------|-------------|
-| `monsterResolvable` | `string` | The name or monMapID of the monster. |
-
-**Returns:** `void`
-
-#### cancelTarget
-
-Cancels the current target.
-
-**Returns:** `void`
-
-#### cancelAutoAttack
-
-Cancels an auto attack.
-
-**Returns:** `void`
-
-#### kill
-
-Kills a monster.
-
-**Parameters:**
-
-| Name | Type | Optional | Default | Description |
-|------|------|----------|---------|-------------|
-| `monsterResolvable` | `string` |  |  | The name or monMapId of the monster. |
-| `options` | `Partial<KillOptions>` | ✓ | `{}` | The optional configuration to use for the kill. |
-
-**Returns:** `Promise<void>`
-
-#### killForItem
-
-Kills the monster until the quantity of the item is met in the inventory.
-
-**Parameters:**
-
-| Name | Type | Optional | Default | Description |
-|------|------|----------|---------|-------------|
-| `monsterResolvable` | `string` |  |  | The name or monMapID of the monster. |
-| `itemName` | `string` |  |  | The name or ID of the item. |
-| `targetQty` | `number` |  |  | The quantity of the item. |
-| `options` | `Partial<KillOptions>` | ✓ | `{}` | The configuration to use for the kill. |
-
-**Returns:** `Promise<void>`
-
-#### killForTempItem
-
-Kills the monster until the quantity of the item is met in the temp inventory.
-
-**Parameters:**
-
-| Name | Type | Optional | Default | Description |
-|------|------|----------|---------|-------------|
-| `monsterResolvable` | `string` |  |  | The name or monMapID of the monster. |
-| `itemName` | `string` |  |  | The name or ID of the item. |
-| `targetQty` | `number` |  |  | The quantity of the item. |
-| `options` | `Partial<KillOptions>` | ✓ | `{}` | The configuration to use for the kill. |
-
-**Returns:** `Promise<void>`
-
-#### rest
-
-Rests the player.
-
-**Parameters:**
-
-| Name | Type | Optional | Default | Description |
-|------|------|----------|---------|-------------|
-| `full` | `boolean` | ✓ | `false` | Whether to rest until max hp and mp are reached. |
-| `exit` | `boolean` | ✓ | `false` | Whether to exit combat before attempting to rest. |
-
-**Returns:** `Promise<void>`
-
-#### exit
-
-Exit from combat state.
-
-**Parameters:**
-
-| Name | Type | Optional | Default | Description |
-|------|------|----------|---------|-------------|
-| `ensure` | `boolean \| undefined` | ✓ |  | Whether to look for safe areas if current cell is unsafe. |
-
-**Returns:** `Promise<void>`
-
+> [!TIP]
+> skill can be skill index, as a string or number (0-4)
