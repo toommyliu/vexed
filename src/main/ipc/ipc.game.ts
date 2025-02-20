@@ -3,9 +3,11 @@ import {
 	app,
 	BrowserWindow,
 	ipcMain,
+	dialog,
 	type IpcMainEvent,
 	type IpcMainInvokeEvent,
 } from 'electron/main';
+import { readFile } from 'fs-extra';
 import { WINDOW_IDS } from '../../common/constants';
 import { IPC_EVENTS } from '../../common/ipc-events';
 import { FileManager } from '../FileManager';
@@ -140,6 +142,44 @@ ipcMain.on(
 		return true;
 	},
 );
+
+ipcMain.on(IPC_EVENTS.LOAD_SCRIPT, async (ev) => {
+	const browserWindow = BrowserWindow.fromWebContents(ev.sender);
+	if (!browserWindow) return;
+
+	try {
+		const res = await dialog.showOpenDialog(browserWindow, {
+			defaultPath: join(fm.basePath, 'Bots'),
+			properties: ['openFile'],
+			filters: [{ name: 'Bots', extensions: ['js'] }],
+			message: 'Select a script to load',
+			title: 'Select a script to load',
+		});
+
+		if (res.canceled || !res.filePaths[0]) return;
+
+		const file = res.filePaths[0]!;
+		const content = await readFile(file, 'utf8');
+
+		await browserWindow.webContents
+			.executeJavaScript(content)
+			.then(() => {
+				browserWindow.webContents.send(IPC_EVENTS.SCRIPT_LOADED);
+			})
+			.catch(() => {
+				// some commands might have loaded before the error, clear them
+				void browserWindow.webContents.executeJavaScript(
+					'window.context._commands = []',
+				);
+
+				void dialog.showMessageBox(browserWindow, {
+					message:
+						'An error occured while trying to load the script.\n\nAre you missing any arguments?',
+					title: 'Error',
+				});
+			});
+	} catch {}
+});
 
 ipcMain.handle(IPC_EVENTS.READ_FAST_TRAVELS, async () => {
 	try {

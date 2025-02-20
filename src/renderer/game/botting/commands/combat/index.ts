@@ -9,8 +9,7 @@ import { CommandUseSkill } from './CommandUseSkill';
 export const combatCommands = {
 	attack(target: string) {
 		if (!target || typeof target !== 'string') {
-			logger.error('target is required');
-			return;
+			throw new Error('target is required');
 		}
 
 		const cmd = new CommandAttack();
@@ -25,8 +24,7 @@ export const combatCommands = {
 	},
 	kill(target: string) {
 		if (!target || typeof target !== 'string') {
-			logger.error('target is required');
-			return;
+			throw new Error('target is required');
 		}
 
 		const cmd = new CommandKill();
@@ -35,18 +33,15 @@ export const combatCommands = {
 	},
 	kill_for_item(target: string, item: number | string, quantity: number) {
 		if (!target || typeof target !== 'string') {
-			logger.error('target is required');
-			return;
+			throw new Error('target is required');
 		}
 
 		if (!item || (typeof item !== 'number' && typeof item !== 'string')) {
-			logger.error('item is required');
-			return;
+			throw new Error('item is required');
 		}
 
 		if (!quantity || typeof quantity !== 'number' || quantity < 1) {
-			logger.error('quantity is required');
-			return;
+			throw new Error('quantity is required');
 		}
 
 		const cmd = new CommandKillFor();
@@ -61,18 +56,15 @@ export const combatCommands = {
 		quantity: number,
 	) {
 		if (!target || typeof target !== 'string') {
-			logger.error('target is required');
-			return;
+			throw new Error('target is required');
 		}
 
 		if (!item || (typeof item !== 'number' && typeof item !== 'string')) {
-			logger.error('item is required');
-			return;
+			throw new Error('item is required');
 		}
 
 		if (!quantity || typeof quantity !== 'number') {
-			logger.error('quantity is required');
-			return;
+			throw new Error('quantity is required');
 		}
 
 		const cmd = new CommandKillFor();
@@ -90,8 +82,7 @@ export const combatCommands = {
 			!skill ||
 			(typeof skill !== 'number' && typeof skill !== 'string')
 		) {
-			logger.error('skill is required');
-			return;
+			throw new Error('skill is required');
 		}
 
 		const cmd = new CommandUseSkill();

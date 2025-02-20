@@ -14,6 +14,16 @@ const checkmarkSvg = `
     <polyline points="20 6 9 17 4 12"></polyline>
 </svg>`;
 
+ipcRenderer.on(IPC_EVENTS.SCRIPT_LOADED, () => {
+	const btn = document.querySelector(
+		'#scripts-dropdowncontent > button:nth-child(2)',
+	) as HTMLButtonElement;
+
+	btn.disabled = false;
+	btn.classList.remove('w3-disabled');
+	btn.textContent = 'Start';
+});
+
 window.addEventListener('DOMContentLoaded', async () => {
 	dropdowns.set(
 		'scripts',
@@ -34,12 +44,29 @@ window.addEventListener('DOMContentLoaded', async () => {
 			'#scripts-dropdowncontent > button:nth-child(1)',
 		) as HTMLButtonElement;
 
+		btn.onclick = async () => {
+			ipcRenderer.send(IPC_EVENTS.LOAD_SCRIPT);
+		};
+	}
+
+	{
+		const btn = document.querySelector(
+			'#scripts-dropdowncontent > button:nth-child(2)',
+		) as HTMLButtonElement;
+
+		const onEnd = () => {
+			btn.textContent = 'Start';
+			window.context.removeListener('end', onEnd);
+		};
+
 		btn.onclick = () => {
 			if (window.context.isRunning()) {
 				void window.context.stop();
 				btn.textContent = 'Start';
 			} else {
 				if (!window.context.commands.length) return;
+
+				window.context.on('end', onEnd);
 
 				void window.context.start();
 				btn.textContent = 'Stop';
@@ -49,7 +76,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 	{
 		const btn = document.querySelector(
-			'#scripts-dropdowncontent > button:nth-child(2)',
+			'#scripts-dropdowncontent > button:nth-child(3)',
 		) as HTMLButtonElement;
 		btn.addEventListener('click', () => {
 			ipcRenderer.send(IPC_EVENTS.TOGGLE_DEV_TOOLS);

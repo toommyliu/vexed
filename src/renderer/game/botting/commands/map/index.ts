@@ -6,8 +6,7 @@ import { CommandWalkTo } from './CommandWalkTo';
 export const mapCommands = {
 	join(map: string, cell = 'Enter', pad = 'Spawn') {
 		if (!map || typeof map !== 'string') {
-			logger.error('map is required');
-			return;
+			throw new Error('map is required');
 		}
 
 		const cmd = new CommandJoinMap();
@@ -18,8 +17,7 @@ export const mapCommands = {
 	},
 	move_to_cell(cell: string, pad = 'Spawn') {
 		if (!cell || typeof cell !== 'string') {
-			logger.error('cell is required');
-			return;
+			throw new Error('cell is required');
 		}
 
 		const cmd = new CommandMoveToCell();
@@ -41,13 +39,11 @@ export const mapCommands = {
 	},
 	walk_to(x: number, y: number) {
 		if (!x || typeof x !== 'number') {
-			logger.error('x is required');
-			return;
+			throw new Error('x is required');
 		}
 
 		if (!y || typeof y !== 'number') {
-			logger.error('y is required');
-			return;
+			throw new Error('y is required');
 		}
 
 		const cmd = new CommandWalkTo();

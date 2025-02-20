@@ -10,22 +10,18 @@ export class CommandKillFor extends Command {
 	public isTemp: boolean = false;
 
 	public override async execute() {
-		try {
-			if (this.isTemp) {
-				await this.bot.combat.killForTempItem(
-					this.target,
-					this.item,
-					this.quantity,
-				);
-			} else {
-				await this.bot.combat.killForItem(
-					this.target,
-					this.item,
-					this.quantity,
-				);
-			}
-		} catch (error) {
-			logger.error(error);
+		if (this.isTemp) {
+			await this.bot.combat.killForTempItem(
+				this.target,
+				this.item,
+				this.quantity,
+			);
+		} else {
+			await this.bot.combat.killForItem(
+				this.target,
+				this.item,
+				this.quantity,
+			);
 		}
 	}
 

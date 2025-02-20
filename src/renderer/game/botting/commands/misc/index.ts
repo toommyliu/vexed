@@ -11,8 +11,7 @@ import { CommandStop } from './CommandStop';
 export const miscCommands = {
 	delay(ms: number) {
 		if (!ms || typeof ms !== 'number' || ms < 0) {
-			logger.error('ms is required');
-			return;
+			throw new Error('ms is required');
 		}
 
 		const cmd = new CommandDelay();
@@ -21,8 +20,7 @@ export const miscCommands = {
 	},
 	goto_label(label: string) {
 		if (!label || typeof label !== 'string') {
-			logger.error('label is required');
-			return;
+			throw new Error('label is required');
 		}
 
 		const cmd = new CommandGotoLabel();
@@ -32,8 +30,7 @@ export const miscCommands = {
 
 	label(label: string) {
 		if (!label || typeof label !== 'string') {
-			logger.error('label is required');
-			return;
+			throw new Error('label is required');
 		}
 
 		const cmd = new CommandLabel();
@@ -42,13 +39,11 @@ export const miscCommands = {
 	},
 	log(msg: string, level?: string) {
 		if (!msg || typeof msg !== 'string') {
-			logger.error('msg is required');
-			return;
+			throw new Error('msg is required');
 		}
 
 		if (level && !['info', 'warn', 'error'].includes(level)) {
-			logger.error('level must be one of: info, warn, error');
-			return;
+			throw new Error('level must be one of: info, warn, error');
 		}
 
 		const cmd = new CommandLog();
@@ -61,8 +56,7 @@ export const miscCommands = {
 	},
 	set_delay(delay: number) {
 		if ((!delay && delay < 0) || typeof delay !== 'number') {
-			logger.error('delay is required');
-			return;
+			throw new Error('delay is required');
 		}
 
 		const cmd = new CommandSetDelay();
@@ -71,8 +65,7 @@ export const miscCommands = {
 	},
 	enable_setting(option: string) {
 		if (!option || typeof option !== 'string') {
-			logger.error('option is required');
-			return;
+			throw new Error('option is required');
 		}
 
 		const cmd = new CommandSetting();
@@ -82,8 +75,7 @@ export const miscCommands = {
 	},
 	disable_setting(option: string) {
 		if (!option || typeof option !== 'string') {
-			logger.error('option is required');
-			return;
+			throw new Error('option is required');
 		}
 
 		const cmd = new CommandSetting();

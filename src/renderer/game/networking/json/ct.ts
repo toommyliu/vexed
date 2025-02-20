@@ -19,6 +19,7 @@ export function ct(bot: Bot, packet: JSON) {
 			}
 		}
 	}
+
 	// @ts-expect-error
 	if (Array.isArray(packet.b.o.a)) {
 		// @ts-expect-error

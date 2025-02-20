@@ -6,8 +6,7 @@ import { CommandRemoveQuest } from './CommandRemoveQuest';
 export const questCommands = {
 	accept(questId: number) {
 		if (!questId || typeof questId !== 'number') {
-			logger.error('questId is required');
-			return;
+			throw new Error('questId is required');
 		}
 
 		const cmd = new CommandAcceptQuest();
@@ -16,8 +15,7 @@ export const questCommands = {
 	},
 	add(questId: number) {
 		if (!questId || typeof questId !== 'number') {
-			logger.error('questId is required');
-			return;
+			throw new Error('questId is required');
 		}
 
 		const cmd = new CommandAddQuest();
@@ -26,8 +24,7 @@ export const questCommands = {
 	},
 	complete(questId: number) {
 		if (!questId || typeof questId !== 'number') {
-			logger.error('questId is required');
-			return;
+			throw new Error('questId is required');
 		}
 
 		const cmd = new CommandCompleteQuest();
@@ -37,8 +34,7 @@ export const questCommands = {
 
 	remove(questId: number) {
 		if (!questId || typeof questId !== 'number') {
-			logger.error('questId is required');
-			return;
+			throw new Error('questId is required');
 		}
 
 		const cmd = new CommandRemoveQuest();

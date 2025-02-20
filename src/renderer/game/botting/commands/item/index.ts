@@ -10,18 +10,15 @@ import { CommandWithdraw } from './CommandWithdraw';
 export const itemCommands = {
 	buy_item(shopId: number, item: number | string, quantity: number) {
 		if (!shopId || typeof shopId !== 'number') {
-			logger.error('shopId is required');
-			return;
+			throw new Error('shopId is required');
 		}
 
 		if (!item || (typeof item !== 'number' && typeof item !== 'string')) {
-			logger.error('item is required');
-			return;
+			throw new Error('item is required');
 		}
 
 		if (!quantity || typeof quantity !== 'number') {
-			logger.error('quantity is required');
-			return;
+			throw new Error('quantity is required');
 		}
 
 		const cmd = new CommandBuy();
@@ -32,8 +29,7 @@ export const itemCommands = {
 	},
 	deposit(item: number | string) {
 		if (!item || (typeof item !== 'number' && typeof item !== 'string')) {
-			logger.error('item is required');
-			return;
+			throw new Error('item is required');
 		}
 
 		const cmd = new CommandDeposit();
@@ -42,16 +38,14 @@ export const itemCommands = {
 	},
 	get_map_item(item: number | string) {
 		if (!item || (typeof item !== 'number' && typeof item !== 'string')) {
-			logger.error('item is required');
-			return;
+			throw new Error('item is required');
 		}
 
 		if (
 			typeof item === 'string' &&
 			Number.isNaN(Number.parseInt(item, 10))
 		) {
-			logger.error('item is required');
-			return;
+			throw new Error('item is required');
 		}
 
 		const cmd = new CommandGetMapItem();
@@ -61,8 +55,7 @@ export const itemCommands = {
 	},
 	pickup(item: number | string) {
 		if (!item || (typeof item !== 'number' && typeof item !== 'string')) {
-			logger.error('item is required');
-			return;
+			throw new Error('item is required');
 		}
 
 		const cmd = new CommandPickup();
@@ -71,8 +64,7 @@ export const itemCommands = {
 	},
 	reject(item: number | string) {
 		if (!item || (typeof item !== 'number' && typeof item !== 'string')) {
-			logger.error('item is required');
-			return;
+			throw new Error('item is required');
 		}
 
 		const cmd = new CommandReject();
@@ -81,8 +73,7 @@ export const itemCommands = {
 	},
 	sell_item(item: string) {
 		if (!item || typeof item !== 'string') {
-			logger.error('item is required');
-			return;
+			throw new Error('item is required');
 		}
 
 		const cmd = new CommandSell();
@@ -94,16 +85,14 @@ export const itemCommands = {
 			!bankItem ||
 			(typeof bankItem !== 'number' && typeof bankItem !== 'string')
 		) {
-			logger.error('bankItem is required');
-			return;
+			throw new Error('bankItem is required');
 		}
 
 		if (
 			!invItem ||
 			(typeof invItem !== 'number' && typeof invItem !== 'string')
 		) {
-			logger.error('invItem is required');
-			return;
+			throw new Error('invItem is required');
 		}
 
 		const cmd = new CommandSwap();
@@ -113,8 +102,7 @@ export const itemCommands = {
 	},
 	withdraw(item: number | string) {
 		if (!item || (typeof item !== 'number' && typeof item !== 'string')) {
-			logger.error('item is required');
-			return;
+			throw new Error('item is required');
 		}
 
 		const cmd = new CommandWithdraw();

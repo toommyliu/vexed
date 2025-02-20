@@ -1,9 +1,10 @@
 import { AsyncQueue } from '@sapphire/async-queue';
+import { EventEmitter } from 'tseep';
 import { Bot } from '../lib/Bot';
 import type { SetIntervalAsyncTimer } from '../lib/util/TimerManager';
 import type { Command } from './command';
 
-export class Context {
+export class Context extends EventEmitter<Events> {
 	private readonly bot = Bot.getInstance();
 
 	private readonly queue: AsyncQueue;
@@ -29,6 +30,8 @@ export class Context {
 	private abortController: AbortController | null = null;
 
 	public constructor(options: { commandDelay?: number } = {}) {
+		super();
+
 		this.questIds = new Set();
 		this.itemIds = new Set();
 		// this.boostIds = new Set();
@@ -208,6 +211,8 @@ export class Context {
 			if (this.isRunning()) this._commandIndex++;
 		}
 
+		this.emit('end');
+		this._stop();
 		// logger.info('command execution finished');
 	}
 
@@ -219,3 +224,7 @@ export class Context {
 		this.abortController = null;
 	}
 }
+
+type Events = {
+	end(): void;
+};

@@ -1,5 +1,7 @@
 export const IPC_EVENTS = {
 	// #region game
+	LOAD_SCRIPT: 'game:load-script' as const,
+	SCRIPT_LOADED: 'game:script-loaded' as const,
 	TOGGLE_DEV_TOOLS: 'root:toggle-dev-tools' as const,
 	LOGIN: 'root:login' as const,
 	LOGIN_SUCCESS: 'root:login-success' as const,

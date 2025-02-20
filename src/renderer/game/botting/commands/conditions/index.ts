@@ -33,8 +33,7 @@ import { CommandTargetHealthLessThan } from './CommandTargetHealthLessThan';
 export const conditionsCommands = {
 	is_cell(cell: string) {
 		if (!cell || typeof cell !== 'string') {
-			logger.error('cell is required');
-			return;
+			throw new Error('cell is required');
 		}
 
 		const cmd = new CommandCellIs();
@@ -44,8 +43,7 @@ export const conditionsCommands = {
 
 	is_not_cell(cell: string) {
 		if (!cell || typeof cell !== 'string') {
-			logger.error('cell is required');
-			return;
+			throw new Error('cell is required');
 		}
 
 		const cmd = new CommandCellIsNot();
@@ -55,8 +53,7 @@ export const conditionsCommands = {
 
 	is_equipped(item: string) {
 		if (!item || typeof item !== 'string') {
-			logger.error('item is required');
-			return;
+			throw new Error('item is required');
 		}
 
 		const cmd = new CommandEquipped();
@@ -65,13 +62,11 @@ export const conditionsCommands = {
 	},
 	is_faction_rank_greater_than(faction: string, rank: number) {
 		if (!faction || typeof faction !== 'string') {
-			logger.error('faction is required');
-			return;
+			throw new Error('faction is required');
 		}
 
 		if (!rank || typeof rank !== 'number') {
-			logger.error('rank is required');
-			return;
+			throw new Error('rank is required');
 		}
 
 		const cmd = new CommandFactionRankGreaterThan();
@@ -81,13 +76,11 @@ export const conditionsCommands = {
 	},
 	is_faction_rank_less_than(faction: string, rank: number) {
 		if (!faction || typeof faction !== 'string') {
-			logger.error('faction is required');
-			return;
+			throw new Error('faction is required');
 		}
 
 		if (!rank || typeof rank !== 'number') {
-			logger.error('rank is required');
-			return;
+			throw new Error('rank is required');
 		}
 
 		const cmd = new CommandFactionRankLessThan();
@@ -97,9 +90,8 @@ export const conditionsCommands = {
 	},
 
 	is_gold_greater_than(gold: number) {
-		if (typeof gold !== 'number') {
-			logger.error('gold amount is required');
-			return;
+		if (!gold || typeof gold !== 'number') {
+			throw new Error('gold amount is required');
 		}
 
 		const cmd = new CommandGoldGreaterThan();
@@ -108,9 +100,8 @@ export const conditionsCommands = {
 	},
 
 	is_gold_less_than(gold: number) {
-		if (typeof gold !== 'number') {
-			logger.error('gold amount is required');
-			return;
+		if (!gold || typeof gold !== 'number') {
+			throw new Error('gold amount is required');
 		}
 
 		const cmd = new CommandGoldLessThan();
@@ -123,32 +114,29 @@ export const conditionsCommands = {
 		window.context.addCommand(cmd);
 	},
 
-	is_health_greater_than(health: number) {
-		if (typeof health !== 'number') {
-			logger.error('health amount is required');
-			return;
+	is_health_greater_than(hp: number) {
+		if (!hp || typeof hp !== 'number') {
+			throw new Error('hp is required');
 		}
 
 		const cmd = new CommandHealthGreaterThan();
-		cmd.health = health;
+		cmd.health = hp;
 		window.context.addCommand(cmd);
 	},
 
-	is_health_less_than(health: number) {
-		if (typeof health !== 'number') {
-			logger.error('health amount is required');
-			return;
+	is_health_less_than(hp: number) {
+		if (!hp || typeof hp !== 'number') {
+			throw new Error('hp is required');
 		}
 
 		const cmd = new CommandHealthLessThan();
-		cmd.health = health;
+		cmd.health = hp;
 		window.context.addCommand(cmd);
 	},
 
 	is_in_bank(item: string, quantity?: number) {
 		if (!item || typeof item !== 'string') {
-			logger.error('item name is required');
-			return;
+			throw new Error('item name is required');
 		}
 
 		const cmd = new CommandInBank();
@@ -164,8 +152,7 @@ export const conditionsCommands = {
 
 	is_in_house(item: string, quantity?: number) {
 		if (!item || typeof item !== 'string') {
-			logger.error('item name is required');
-			return;
+			throw new Error('item name is required');
 		}
 
 		const cmd = new CommandInHouse();
@@ -176,8 +163,7 @@ export const conditionsCommands = {
 
 	not_equipped(item: string) {
 		if (!item || typeof item !== 'string') {
-			logger.error('item is required');
-			return;
+			throw new Error('item is required');
 		}
 
 		const cmd = new CommandNotEquipped();
@@ -187,13 +173,11 @@ export const conditionsCommands = {
 
 	player_auras_greater_than(aura: string, value: number) {
 		if (!aura || typeof aura !== 'string') {
-			logger.error('aura is required');
-			return;
+			throw new Error('aura is required');
 		}
 
 		if (!value || typeof value !== 'number') {
-			logger.error('value is required');
-			return;
+			throw new Error('value is required');
 		}
 
 		const cmd = new CommandPlayerAurasGreaterThan();
@@ -204,13 +188,11 @@ export const conditionsCommands = {
 
 	player_auras_less_than(aura: string, value: number) {
 		if (!aura || typeof aura !== 'string') {
-			logger.error('aura is required');
-			return;
+			throw new Error('aura is required');
 		}
 
 		if (!value || typeof value !== 'number') {
-			logger.error('value is required');
-			return;
+			throw new Error('value is required');
 		}
 
 		const cmd = new CommandPlayerAurasLessThan();
@@ -221,13 +203,11 @@ export const conditionsCommands = {
 
 	player_aura_equals(aura: string, value: number) {
 		if (!aura || typeof aura !== 'string') {
-			logger.error('aura is required');
-			return;
+			throw new Error('aura is required');
 		}
 
 		if (!value || typeof value !== 'number') {
-			logger.error('value is required');
-			return;
+			throw new Error('value is required');
 		}
 
 		const cmd = new CommandPlayerAuraEquals();
@@ -237,9 +217,8 @@ export const conditionsCommands = {
 	},
 
 	player_count_greater_than(count: number) {
-		if (typeof count !== 'number') {
-			logger.error('count is required');
-			return;
+		if (!count || typeof count !== 'number') {
+			throw new Error('count is required');
 		}
 
 		const cmd = new CommandPlayerCountGreaterThan();
@@ -248,9 +227,8 @@ export const conditionsCommands = {
 	},
 
 	player_count_less_than(count: number) {
-		if (typeof count !== 'number') {
-			logger.error('count is required');
-			return;
+		if (!count || typeof count !== 'number') {
+			throw new Error('count is required');
 		}
 
 		const cmd = new CommandPlayerCountLessThan();
@@ -260,19 +238,17 @@ export const conditionsCommands = {
 
 	is_player_in_map(map: string) {
 		if (!map || typeof map !== 'string') {
-			logger.error('map name is required');
-			return;
+			throw new Error('map name is required');
 		}
 
 		const cmd = new CommandPlayerInMap();
-		cmd.map = map;
+		cmd.name = map;
 		window.context.addCommand(cmd);
 	},
 
 	is_player_in_cell(cell: string) {
 		if (!cell || typeof cell !== 'string') {
-			logger.error('cell name is required');
-			return;
+			throw new Error('cell name is required');
 		}
 
 		const cmd = new CommandPlayerIsInCell();
@@ -282,8 +258,7 @@ export const conditionsCommands = {
 
 	is_player_not_in_map(name: string) {
 		if (!name || typeof name !== 'string') {
-			logger.error('player name is required');
-			return;
+			throw new Error('player name is required');
 		}
 
 		const cmd = new CommandPlayerIsNotInMap();
@@ -293,8 +268,7 @@ export const conditionsCommands = {
 
 	is_player_not_in_cell(cell: string) {
 		if (!cell || typeof cell !== 'string') {
-			logger.error('cell name is required');
-			return;
+			throw new Error('cell name is required');
 		}
 
 		const cmd = new CommandPlayerIsNotInCell();
@@ -304,8 +278,7 @@ export const conditionsCommands = {
 
 	can_complete_quest(questId: number) {
 		if (!questId || typeof questId !== 'number') {
-			logger.error('quest is required');
-			return;
+			throw new Error('quest is required');
 		}
 
 		const cmd = new CommandQuestCanComplete();
@@ -315,8 +288,7 @@ export const conditionsCommands = {
 
 	cannot_complete_quest(questId: number) {
 		if (!questId || typeof questId !== 'number') {
-			logger.error('quest is required');
-			return;
+			throw new Error('quest is required');
 		}
 
 		const cmd = new CommandQuestCanNotComplete();
@@ -326,8 +298,7 @@ export const conditionsCommands = {
 
 	is_quest_in_progress(questId: number) {
 		if (!questId || typeof questId !== 'number') {
-			logger.error('quest is required');
-			return;
+			throw new Error('quest is required');
 		}
 
 		const cmd = new CommandQuestInProgress();
@@ -337,8 +308,7 @@ export const conditionsCommands = {
 
 	is_quest_available(questId: number) {
 		if (!questId || typeof questId !== 'number') {
-			logger.error('quest is required');
-			return;
+			throw new Error('quest is required');
 		}
 
 		const cmd = new CommandQuestIsAvailable();
@@ -348,8 +318,7 @@ export const conditionsCommands = {
 
 	is_quest_not_available(questId: number) {
 		if (!questId || typeof questId !== 'number') {
-			logger.error('quest is required');
-			return;
+			throw new Error('quest is required');
 		}
 
 		const cmd = new CommandQuestIsNotAvailable();
@@ -359,8 +328,7 @@ export const conditionsCommands = {
 
 	is_quest_not_in_progress(questId: number) {
 		if (!questId || typeof questId !== 'number') {
-			logger.error('quest is required');
-			return;
+			throw new Error('quest is required');
 		}
 
 		const cmd = new CommandQuestNotInProgress();
@@ -369,9 +337,8 @@ export const conditionsCommands = {
 	},
 
 	target_health_greater_than(hp: number) {
-		if (typeof hp !== 'number') {
-			logger.error('hp is required');
-			return;
+		if (!hp || typeof hp !== 'number') {
+			throw new Error('hp is required');
 		}
 
 		const cmd = new CommandTargetHealthGreaterThan();
@@ -379,9 +346,8 @@ export const conditionsCommands = {
 		window.context.addCommand(cmd);
 	},
 	target_health_less_than(hp: number) {
-		if (typeof hp !== 'number') {
-			logger.error('hp is required');
-			return;
+		if (!hp || typeof hp !== 'number') {
+			throw new Error('hp is required');
 		}
 
 		const cmd = new CommandTargetHealthLessThan();
