@@ -49,71 +49,44 @@ package vexed.game
       if (!name)
         return null;
 
-      const playerObj:Object = game.world.uoTree[name];
+      name = name.toLowerCase();
 
-      if (!playerObj || playerObj.strUsername.toLowerCase() !== name.toLowerCase())
+      const playerObj:Object = game.world.uoTree[name];
+      if (!playerObj)
         return null;
 
       const ret:Object = {};
 
       for (var key:String in playerObj)
       {
-        if (key === 'auras')
+        try
         {
-          // No auras
-          if (!playerObj[key])
+          if (key === 'auras')
           {
-            ret[key] = [];
-            continue;
-          }
-
-          // Empty auras
-          const data:XML = describeType(playerObj[key]);
-          if (playerObj[key] == null || playerObj[key] == '' ||
-              (playerObj[key] is Object &&
-                (data..accessor.length() < 0 || data..variable.length() < 0)))
-          {
-            ret[key] = [];
-            continue;
-          }
-
-          // Auras
-          if (playerObj[key] is Object)
-          {
-            var playerAuras:Object = playerObj[key];
-            var auras:Array = [];
-            for (var index:String in playerAuras)
+            var auras:* = playerObj['auras'];
+            if (auras is Object)
             {
+              var aurasArr:Array = [];
 
-              try
+              for (var index:String in auras)
               {
                 const auraObj:Object = {};
-                for (var key_:String in playerAuras[index]) // properties of the aura
-                {
-                  // This key throws: Failed conversion between PP_Var and V8 value
-                  // Probably a circular reference or something
-                  if (key_ !== 'cLeaf') // aura source
-                  {
-                    auraObj[key_] = playerAuras[index][key_];
-                  }
-
-                  // Main.getInstance().getExternal().debug(ObjectUtil.toString(playerAuras[index][key_]));
-                }
-
-                auras.push(auraObj);
+                auraObj['name'] = auras[index]['nam'];
+                auraObj['value'] = auras[index]['val'] ? auras[index]['val'] : 1;
+                aurasArr.push(auraObj);
               }
-              catch (e:Error)
-              {
-              }
+
+              ret[key] = aurasArr;
             }
-
-            ret[key] = auras;
+          }
+          else
+          {
+            // Should be serializable in some way
+            ret[key] = playerObj[key];
           }
         }
-        else
+        catch (e:Error)
         {
-          // Should be serializable in some way
-          ret[key] = playerObj[key];
         }
       }
 

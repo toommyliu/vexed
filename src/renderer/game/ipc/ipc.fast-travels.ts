@@ -1,5 +1,7 @@
 import { IPC_EVENTS } from '../../../common/ipc-events';
+import { Bot } from '../lib/Bot';
 
+const bot = Bot.getInstance();
 const { world } = bot;
 
 export default async function handler(ev: MessageEvent) {

@@ -1,13 +1,16 @@
 import merge from 'lodash.merge';
 import { IPC_EVENTS } from '../../../common/ipc-events';
-import { PlayerState } from '../api/Player';
-import type { SetIntervalAsyncTimer } from '../api/util/TimerManager';
+import { Bot } from '../lib/Bot';
+import { PlayerState } from '../lib/Player';
+import type { SetIntervalAsyncTimer } from '../lib/util/TimerManager';
 
 let ac: AbortController | null = null;
-let intervalId: SetIntervalAsyncTimer<unknown[]> | null = null;
+let intervalId: SetIntervalAsyncTimer | null = null;
 let index = 0;
 
 const config: Partial<FollowerConfig> = {};
+
+const bot = Bot.getInstance();
 
 function packetHandler(packet: string) {
 	if (!intervalId) return;

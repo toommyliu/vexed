@@ -1,7 +1,7 @@
 {
 	"extends": "../../tsconfig.json",
 	"compilerOptions": {
-		"lib": ["dom", "es2024"]
+		"lib": ["dom", "dom.iterable", "es2024"]
 	},
 	"files": ["./index.d.ts"]
 }

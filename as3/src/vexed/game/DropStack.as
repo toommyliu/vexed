@@ -51,6 +51,10 @@ package vexed.game
 
       if (on)
       {
+        if (game.cDropsUI)
+        {
+          game.cDropsUI.cleanup();
+        }
         game.cDropsUI = new customDropsCls(game);
       }
       else if (game.cDropsUI != null)

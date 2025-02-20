@@ -30,8 +30,7 @@ export async function createAccountManager(): Promise<void> {
 		height: 552,
 		title: BRAND,
 		webPreferences: {
-			contextIsolation: true,
-			preload: join(__dirname, '../renderer/manager/preload.js'),
+			nodeIntegration: true
 		},
 	});
 	window.on('close', (ev) => {

@@ -1,3 +1,3 @@
 # vexed
 
-Crossplatform AQW Scripting Client
+Crossplatform AQW "commands"-based Scripting Client

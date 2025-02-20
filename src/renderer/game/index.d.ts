@@ -1,17 +1,21 @@
+import type { Logger } from 'winston';
 import type { WINDOW_IDS } from '../../common/constants';
 import type PortMonitor from '../../common/port-monitor';
-import type { Bot } from './api/Bot';
-import type { ShopInfo } from './api/Shop';
-import type { AvatarData } from './api/struct/Avatar';
-import type { FactionData } from './api/struct/Faction';
-import type { ItemData } from './api/struct/Item';
-import type { MonsterData } from './api/struct/Monster';
-import type { QuestData } from './api/struct/Quest';
-import type { ServerData } from './api/struct/Server';
+import type { Context } from './botting/context';
+import type { cmd } from './botting/index';
+import type { Bot } from './lib/Bot';
+import type { ShopInfo } from './lib/Shop';
+import type { GameAction } from './lib/World';
+import type { AvatarData } from './lib/models/Avatar';
+import type { FactionData } from './lib/models/Faction';
+import type { ItemData } from './lib/models/Item';
+import type { MonsterData } from './lib/models/Monster';
+import type { QuestData } from './lib/models/Quest';
+import type { ServerData } from './lib/models/Server';
 
 type Nullable<T> = T | null;
 declare global {
-	const bot: Bot;
+	const logger: Logger;
 	const swf: GameSWF;
 
 	type WindowId = (typeof WINDOW_IDS)[keyof typeof WINDOW_IDS];
@@ -182,7 +186,9 @@ declare global {
 		worldGetPlayers(): Record<string, AvatarData>[];
 		worldGetPlayer(name: string): Nullable<AvatarData>;
 		worldIsPlayerInCell(name: string, cell?: string): boolean;
-		worldIsActionAvailable(gameAction: string): boolean;
+		worldIsActionAvailable(
+			gameAction: (typeof GameAction)[keyof typeof GameAction],
+		): boolean;
 		worldGetCellMonsters(): MonsterData[];
 		worldGetMonsterByName(key: string | '*'): Nullable<MonsterData>;
 		worldGetMonsterByMonMapId(key: number): Nullable<MonsterData>;
@@ -199,30 +205,9 @@ declare global {
 	};
 	/* eslint-enable typescript-sort-keys/interface */
 
-	/* eslint-disable @typescript-eslint/consistent-type-definitions */
+	// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 	interface Window {
 		/* eslint-disable typescript-sort-keys/interface */
-		Bot: InstanceType<typeof Bot>;
-
-		auth: InstanceType<typeof Bot>['auth'];
-		bank: InstanceType<typeof Bot>['bank'];
-		combat: InstanceType<typeof Bot>['combat'];
-		drops: InstanceType<typeof Bot>['drops'];
-		house: InstanceType<typeof Bot>['house'];
-		inventory: InstanceType<typeof Bot>['inventory'];
-		quests: InstanceType<typeof Bot>['quests'];
-		player: InstanceType<typeof Bot>['player'];
-		packets: InstanceType<typeof Bot>['packets'];
-		settings: InstanceType<typeof Bot>['settings'];
-		shops: InstanceType<typeof Bot>['shops'];
-		tempInventory: InstanceType<typeof Bot>['tempInventory'];
-		world: InstanceType<typeof Bot>['world'];
-
-		// utilities
-
-		flash: InstanceType<typeof Bot>['flash'];
-		autoRelogin: InstanceType<typeof Bot>['autoRelogin'];
-		timerManager: InstanceType<typeof Bot>['timerManager'];
 
 		// interop
 		debug(...args: string[]): void;
@@ -236,11 +221,14 @@ declare global {
 		// other
 		ports: Map<WindowId, MessagePort>;
 		portMonitors: Map<WindowId, PortMonitor>;
-		scriptBlob?: Blob | null;
 		account?: AccountWithServer;
+		logger: Logger;
+
+		// botting commands
+		cmd: typeof cmd;
+		context: Context;
 		/* eslint-enable typescript-sort-keys/interface */
 	}
-	/* eslint-enable @typescript-eslint/consistent-type-definitions */
 }
 
 export {};

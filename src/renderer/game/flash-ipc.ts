@@ -1,9 +1,11 @@
 import { ipcRenderer } from 'electron';
 import { IPC_EVENTS } from '../../common/ipc-events';
-import { addGoldExp } from './handlers/json/addGoldExp';
-import { ct } from './handlers/json/ct';
-import { dropItem } from './handlers/json/dropItem';
+import { Bot } from './lib/Bot';
+import { addGoldExp } from './networking/json/add-gold-exp';
+import { ct } from './networking/json/ct';
+import { dropItem } from './networking/json/drop-item';
 
+const bot = Bot.getInstance();
 const { auth, player } = bot;
 
 window.packetFromServer = async ([packet]: [string]) => {
@@ -51,7 +53,7 @@ window.packetFromServer = async ([packet]: [string]) => {
 	}
 };
 
-window.packetFromClient = async (packet: [string]) => {
+window.packetFromClient = async ([packet]: [string]) => {
 	bot.emit('packetFromClient', packet);
 };
 
@@ -101,3 +103,6 @@ ipcRenderer.on(IPC_EVENTS.LOGIN, async (_, account) => {
 	console.log('Got an account to login with, setting that now.');
 	window.account = account;
 });
+
+// @ts-expect-error don't care
+window.debug = console.log;

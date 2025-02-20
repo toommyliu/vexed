@@ -2,13 +2,13 @@ import { join } from 'path';
 import {
 	app,
 	BrowserWindow,
-	dialog,
 	ipcMain,
+	dialog,
 	type IpcMainEvent,
 	type IpcMainInvokeEvent,
 } from 'electron/main';
-import fs from 'fs-extra';
-import { WINDOW_IDS, DOCUMENTS_PATH } from '../../common/constants';
+import { readFile } from 'fs-extra';
+import { WINDOW_IDS } from '../../common/constants';
 import { IPC_EVENTS } from '../../common/ipc-events';
 import { FileManager } from '../FileManager';
 import { mgrWindow, store } from '../windows';
@@ -143,6 +143,44 @@ ipcMain.on(
 	},
 );
 
+ipcMain.on(IPC_EVENTS.LOAD_SCRIPT, async (ev) => {
+	const browserWindow = BrowserWindow.fromWebContents(ev.sender);
+	if (!browserWindow) return;
+
+	try {
+		const res = await dialog.showOpenDialog(browserWindow, {
+			defaultPath: join(fm.basePath, 'Bots'),
+			properties: ['openFile'],
+			filters: [{ name: 'Bots', extensions: ['js'] }],
+			message: 'Select a script to load',
+			title: 'Select a script to load',
+		});
+
+		if (res.canceled || !res.filePaths[0]) return;
+
+		const file = res.filePaths[0]!;
+		const content = await readFile(file, 'utf8');
+
+		await browserWindow.webContents
+			.executeJavaScript(content)
+			.then(() => {
+				browserWindow.webContents.send(IPC_EVENTS.SCRIPT_LOADED);
+			})
+			.catch(() => {
+				// some commands might have loaded before the error, clear them
+				void browserWindow.webContents.executeJavaScript(
+					'window.context._commands = []',
+				);
+
+				void dialog.showMessageBox(browserWindow, {
+					message:
+						'An error occured while trying to load the script.\n\nAre you missing any arguments?',
+					title: 'Error',
+				});
+			});
+	} catch {}
+});
+
 ipcMain.handle(IPC_EVENTS.READ_FAST_TRAVELS, async () => {
 	try {
 		return await fm.readJson(fm.fastTravelsPath);
@@ -186,36 +224,6 @@ ipcMain.handle(IPC_EVENTS.GET_WINDOW_ID, (ev: IpcMainInvokeEvent) => {
 		return WINDOW_IDS.PACKETS_LOGGER;
 	} else if (sender.id === windows?.packets.spammer?.id) {
 		return WINDOW_IDS.PACKETS_SPAMMER;
-	}
-
-	return null;
-});
-
-ipcMain.handle(IPC_EVENTS.LOAD_SCRIPT, async (ev) => {
-	const window = BrowserWindow.fromWebContents(ev.sender);
-	if (window && !window?.isDestroyed()) {
-		const res = await dialog
-			.showOpenDialog(window, {
-				filters: [{ name: 'JavaScript Files', extensions: ['js'] }],
-				properties: ['openFile'],
-				defaultPath: join(DOCUMENTS_PATH, 'Scripts'),
-			})
-			.catch(() => null);
-
-		if (!dialog || res?.canceled) {
-			return null;
-		}
-
-		const scriptPath = res!.filePaths[0]!;
-		const scriptBody = await fs
-			.readFile(scriptPath, 'utf8')
-			.catch(() => null);
-
-		if (!scriptBody) {
-			return null;
-		}
-
-		return Buffer.from(scriptBody, 'utf8').toString('base64');
 	}
 
 	return null;

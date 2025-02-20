@@ -4,12 +4,12 @@
 	"main": "dist/main/index.js",
 	"scripts": {
 		"typecheck": "tsc --noEmit",
-		"compile": "yarn typecheck && node esbuild.config.js",
-		"compile:watch": "yarn typecheck && node esbuild.config.js --watch",
-		"dev": "yarn compile && electron .",
+		"compile": "node esbuild.config.js",
+		"compile:watch": "node esbuild.config.js --watch",
+		"dev": "electron .",
 		"dev:watch": "concurrently \"yarn compile:watch\" \"electronmon .\"",
-		"build": "yarn compile && electron-builder build",
-		"build:all": "yarn compile && electron-builder build -mw",
+		"build": "electron-builder build",
+		"build:all": "electron-builder build -mw",
 		"docgen": "node scripts/docgen.js",
 		"format": "prettier \"src/**/*\"",
 		"format:write": "prettier \"src/**/*\" --write",
@@ -17,11 +17,15 @@
 		"lint:fix": "eslint \"src/**/*\" --fix"
 	},
 	"dependencies": {
+		"@sapphire/async-queue": "^1.5.5",
 		"async-mutex": "^0.5.0",
 		"fs-extra": "^11.2.0",
 		"lodash.merge": "^4.6.2",
 		"nw-flash-trust": "^0.3.0",
-		"source-map-support": "^0.5.21"
+		"source-map-support": "^0.5.21",
+		"tseep": "^1.3.1",
+		"watchlist": "^0.3.1",
+		"winston": "^3.17.0"
 	},
 	"devDependencies": {
 		"@types/fs-extra": "^11.0.4",

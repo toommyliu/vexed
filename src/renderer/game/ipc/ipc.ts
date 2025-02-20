@@ -2,6 +2,7 @@ import { ipcRenderer, type IpcRendererEvent } from 'electron';
 import { WINDOW_IDS } from '../../../common/constants';
 import { IPC_EVENTS } from '../../../common/ipc-events';
 import PortMonitor from '../../../common/port-monitor';
+import { Bot } from '../lib/Bot';
 import ipcFastTravelsHandler from './ipc.fast-travels';
 import ipcFollower from './ipc.follower';
 import ipcLoaderGrabberHandler from './ipc.loader-grabber';
@@ -14,6 +15,8 @@ const handlers = new Map<
 	WindowId,
 	(ev: MessageEvent) => Promise<unknown> | unknown
 >();
+
+const bot = Bot.getInstance();
 
 handlers.set(WINDOW_IDS.FAST_TRAVELS, ipcFastTravelsHandler);
 handlers.set(WINDOW_IDS.FOLLOWER, ipcFollower);
