@@ -23,7 +23,7 @@ Loads a script file.
 Starts or stops the script.
 
 > [!NOTE]
-> Scripts only "start" when the player is in a [ready](../../api/Player#isready) state. This behavior may change in the future.
+> Scripts only "start" when the player is in a [ready](../../api-legacy/Player#isready) state. This behavior may change in the future.
 
 ### Toggle Dev Tools
 
