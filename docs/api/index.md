@@ -23,11 +23,11 @@ console.log('got items');
 await bot.world.join('nexus-1e99');
 ```
 
-If we stopped execution somewhere inbetween a task, the rest of the tasks can execute. This can create undesired behavior and makes scripts difficult to manage. While we could simply just "add flags" within tasks, I don't think it's a good scalable solution and I don't think it's a reasonable responsibility for a user to do. We might have our own external functions defined in a script, those would also need to be managed.
+If we stopped execution somewhere inbetween a task, the rest of the tasks can execute. This can create undesired behavior and makes scripts difficult to manage. While we could simply just "add flags" within tasks, I don't think it's a good scalable solution. We might have our own external functions defined in a script, those would also need to be managed.
 
-Implementation-wise, I am satisfied with the pattern. I think it simplifies most of the abstraction of writing scripts similar to Grimoire. I am still interested in potentially re-evaluating how a scripting api could be implemented, but for now, this is what we have. Feel free to PR if you'd like to work on it.
+Implementation-wise, I am satisfied with the pattern. I think it simplifies most of the abstraction of writing scripts similar to Grimoire. I am still interested in potentially re-evaluating how a scripting api could be implemented, but for now, this is what we have. Feel free to create a PR if you'd like to work on it.
 
-Regarding legacy support, you can technically still load previously-compatible scripts. Through `Bot.getInstance()`, you can access all previously-available api namespaces. Now, there is no hand-holding.
+Regarding legacy support, you can technically still load previously-compatible scripts. Through `Bot.getInstance()`, you can access all previously-available api namespaces. Now, there is no hand-holding (async IIFE, globals, etc). Since you have to manage the lifetime yourself, the UI might be desynced with the script state, which could be technically managed yourself since you can access the DOM.
 
 ```js
 const bot = Bot.getInstance();

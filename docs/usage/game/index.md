@@ -14,11 +14,11 @@ Options can be toggled on and off without requiring any scripting interaction. T
 
 ## Scripts
 
-### Load Script
+### Load
 
-Loads a script file.
+Loads a script file. Scripts can be in the commands or legacy format.
 
-### Start/Stop Script
+### Start/Stop
 
 Starts or stops the script.
 
