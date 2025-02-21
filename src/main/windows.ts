@@ -7,7 +7,6 @@ import {
 } from '../common/constants';
 import { IPC_EVENTS } from '../common/ipc-events';
 import type { Account } from '../common/types';
-import { showErrorDialog } from './utils';
 
 const PUBLIC = join(__dirname, '../../public/');
 const PUBLIC_GAME = join(PUBLIC, 'game/');
