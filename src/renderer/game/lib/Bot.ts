@@ -225,18 +225,18 @@ export class Bot extends EventEmitter {
 	 *
 	 * @param condition - The condition to wait for until it returns true.
 	 * @param prerequisite - The prerequisite to be checked before waiting for the condition.
-	 * @param timeout - The maximum number of iterations to wait. -1 to wait indefinitely.
+	 * @param maxIterations - The maximum number of iterations to wait. -1 to wait indefinitely.
 	 */
 	public async waitUntil(
 		condition: () => boolean,
 		prerequisite: (() => boolean) | null = null,
-		timeout: number = 15,
+		maxIterations: number = 15,
 	): Promise<void> {
 		let iterations = 0;
 
 		let prerequisiteResult = prerequisite ? prerequisite() : true;
 		let conditionResult = condition();
-		let timeoutResult = iterations < timeout || timeout === -1;
+		let timeoutResult = iterations < maxIterations || maxIterations === -1;
 
 		while (prerequisiteResult && !conditionResult && timeoutResult) {
 			await this.sleep(1_000);
@@ -244,7 +244,7 @@ export class Bot extends EventEmitter {
 
 			prerequisiteResult = prerequisite ? prerequisite() : true;
 			conditionResult = condition();
-			timeoutResult = iterations < timeout || timeout === -1;
+			timeoutResult = iterations < maxIterations || maxIterations === -1;
 		}
 
 		await this.sleep(250);
