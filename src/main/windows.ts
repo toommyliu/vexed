@@ -7,7 +7,6 @@ import {
 } from '../common/constants';
 import { IPC_EVENTS } from '../common/ipc-events';
 import type { Account } from '../common/types';
-import { showErrorDialog } from './utils';
 
 const PUBLIC = join(__dirname, '../../public/');
 const PUBLIC_GAME = join(PUBLIC, 'game/');
@@ -30,7 +29,7 @@ export async function createAccountManager(): Promise<void> {
 		height: 552,
 		title: BRAND,
 		webPreferences: {
-			nodeIntegration: true
+			nodeIntegration: true,
 		},
 	});
 	window.on('close', (ev) => {
@@ -38,7 +37,6 @@ export async function createAccountManager(): Promise<void> {
 		window.hide();
 	});
 
-	// Spoof headers to make the game think we are running as Artix Game Launcher
 	window.webContents.userAgent = ARTIX_USERAGENT;
 	session.defaultSession.webRequest.onBeforeSendHeaders(
 		// eslint-disable-next-line promise/prefer-await-to-callbacks
@@ -47,8 +45,6 @@ export async function createAccountManager(): Promise<void> {
 			details.requestHeaders['artixmode'] = 'launcher';
 			details.requestHeaders['x-requested-with'] =
 				'ShockwaveFlash/32.0.0.371';
-			details.requestHeaders['origin'] = 'https://game.aq.com';
-			details.requestHeaders['sec-fetch-site'] = 'same-origin';
 			// eslint-disable-next-line promise/prefer-await-to-callbacks
 			callback({ requestHeaders: details.requestHeaders, cancel: false });
 		},
@@ -79,24 +75,9 @@ export async function createGame(
 		},
 	});
 
-	// Spoof headers to make the game think we are running as Artix Game Launcher
-	window.webContents.userAgent = ARTIX_USERAGENT;
-	session.defaultSession.webRequest.onBeforeSendHeaders(
-		// eslint-disable-next-line promise/prefer-await-to-callbacks
-		(details, callback) => {
-			details.requestHeaders['User-Agent'] = ARTIX_USERAGENT;
-			details.requestHeaders['artixmode'] = 'launcher';
-			// The rest of these are probably redundant
-			details.requestHeaders['x-requested-with'] =
-				'ShockwaveFlash/32.0.0.371';
-			details.requestHeaders['origin'] = 'https://game.aq.com';
-			details.requestHeaders['sec-fetch-site'] = 'same-origin';
-			// eslint-disable-next-line promise/prefer-await-to-callbacks
-			callback({ requestHeaders: details.requestHeaders, cancel: false });
-		},
-	);
-
 	await window.loadURL(`file://${resolve(PUBLIC_GAME, 'index.html')}`);
+	applySecurity(window);
+
 	if (!app.isPackaged) {
 		window.webContents.openDevTools({ mode: 'right' });
 	}
@@ -107,21 +88,55 @@ export async function createGame(
 
 	window.on('close', () => {
 		const windows = store.get(window.id);
-		if (!windows) {
-			showErrorDialog({ message: 'Failed to find store (1).' }, true);
-			return;
-		}
+		if (windows) {
+			for (const child of Object.values(windows.tools)) {
+				if (child && !child.isDestroyed()) {
+					child.destroy();
+				}
+			}
 
-		for (const child of Object.values(windows.tools)) {
-			if (child && !child.isDestroyed()) {
-				child.destroy();
+			for (const child of Object.values(windows.packets)) {
+				if (child && !child.isDestroyed()) {
+					child.destroy();
+				}
 			}
 		}
+	});
 
-		for (const child of Object.values(windows.packets)) {
-			if (child && !child.isDestroyed()) {
-				child.destroy();
-			}
+	store.set(window.id, {
+		game: window,
+		tools: { fastTravels: null, loaderGrabber: null, follower: null },
+		packets: { logger: null, spammer: null },
+	});
+}
+
+function applySecurity(window: BrowserWindow): void {
+	window.webContents.userAgent = ARTIX_USERAGENT;
+	session.defaultSession.webRequest.onBeforeSendHeaders(
+		// eslint-disable-next-line promise/prefer-await-to-callbacks
+		(details, callback) => {
+			details.requestHeaders['User-Agent'] = ARTIX_USERAGENT;
+			details.requestHeaders['artixmode'] = 'launcher';
+			details.requestHeaders['x-requested-with'] =
+				'ShockwaveFlash/32.0.0.371';
+			// eslint-disable-next-line promise/prefer-await-to-callbacks
+			callback({ requestHeaders: details.requestHeaders, cancel: false });
+		},
+	);
+
+	window.webContents.on('will-navigate', (ev, url) => {
+		const parsedUrl = new URL(url);
+		if (!WHITELISTED_DOMAINS.includes(parsedUrl.hostname)) {
+			console.log(`[will-navigate] blocking url: ${url}`);
+			ev.preventDefault();
+		}
+	});
+
+	window.webContents.on('will-redirect', (ev, url) => {
+		const parsedUrl = new URL(url);
+		if (!WHITELISTED_DOMAINS.includes(parsedUrl.hostname)) {
+			console.log(`[will-redirect] blocking url: ${url}`);
+			ev.preventDefault();
 		}
 	});
 
@@ -136,65 +151,40 @@ export async function createGame(
 			_additionalFeatures,
 			_referrer,
 		) => {
-			const _url = new URL(url);
+			const parsedUrl = new URL(url);
 
-			if (_url.protocol === 'https:' || _url.protocol === 'http:') {
-				if (!WHITELISTED_DOMAINS.includes(_url.hostname)) {
-					if (
-						_url.hostname === 'www.facebook.com' &&
-						_url.searchParams.get('redirect_uri') ===
-							'https://game.aq.com/game/AQWFB.html'
-					) {
-						return;
-					}
+			if (
+				parsedUrl.hostname === 'www.facebook.com' &&
+				parsedUrl.searchParams.get('redirect_uri') ===
+					'https://game.aq.com/game/AQWFB.html'
+			) {
+				return;
+			}
 
-					console.log('Blocking url (1)', _url);
-					ev.preventDefault();
-					// This doesn't seem to be needed, anymore?
-					// ev.newGuest = null;
-					return null;
-				}
-
-				ev.preventDefault();
-
-				const newWindow = new BrowserWindow({
-					title: '',
-					webPreferences: {
-						nodeIntegration: false,
-						plugins: true,
-					},
-					parent: window,
-				});
-
-				ev.newGuest = newWindow;
-
-				newWindow.webContents.on('will-navigate', (event, url) => {
-					if (
-						!WHITELISTED_DOMAINS.some((domain) =>
-							url.includes(domain),
-						)
-					) {
-						event.preventDefault();
-						console.log('Blocking url (2)', url);
-					}
-				});
-
-				await newWindow.webContents.loadURL(_url.toString());
-
-				return newWindow;
-			} else {
+			if (!WHITELISTED_DOMAINS.includes(parsedUrl.hostname)) {
+				console.log(`[new-window] blocking url: ${url}`);
 				ev.preventDefault();
 				return null;
 			}
+
+			ev.preventDefault();
+
+			const childWindow = new BrowserWindow({
+				title: '',
+				parent: window,
+				webPreferences: {
+					nodeIntegration: false, // some sites might use jquery, which conflict with nodeIntegration
+					plugins: true,
+				},
+			});
+
+			applySecurity(childWindow);
+
+			ev.newGuest = childWindow;
+			await childWindow.loadURL(url);
+			return childWindow;
 		},
 	);
-	// window.maximize();
-
-	store.set(window.id, {
-		game: window,
-		tools: { fastTravels: null, loaderGrabber: null, follower: null },
-		packets: { logger: null, spammer: null },
-	});
 }
 
 type WindowStore = Map<
