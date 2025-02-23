@@ -28,6 +28,14 @@ export class Player {
 	}
 
 	/**
+	 * Whether the player is in combat.
+	 */
+	public isInCombat() {
+		// eslint-disable-next-line @typescript-eslint/no-use-before-define
+		return this.state === PlayerState.InCombat;
+	}
+
+	/**
 	 * The health of the player.
 	 */
 	public get hp(): number {
@@ -102,9 +110,16 @@ export class Player {
 	 *
 	 * @param x - The x coordinate to walk to.
 	 * @param y - The y coordinate to walk to.
+	 * @param walkSpeed - The speed to walk at.
 	 */
-	public walkTo(x: number | string, y: number | string): void {
-		this.bot.flash.call(() => swf.playerWalkTo(Number(x), Number(y)));
+	public walkTo(
+		x: number | string,
+		y: number | string,
+		walkSpeed?: number | string,
+	): void {
+		this.bot.flash.call(() =>
+			swf.playerWalkTo(Number(x), Number(y), Number(walkSpeed)),
+		);
 	}
 
 	/**

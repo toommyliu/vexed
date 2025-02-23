@@ -70,7 +70,18 @@ export class World {
 	 * A list of all player names in the map.
 	 */
 	public get playerNames(): string[] {
-		return this.bot.flash.call(() => swf.worldGetPlayerNames());
+		return this.bot.flash.call(() => swf.worldGetPlayerNames()) ?? [];
+	}
+
+	/**
+	 * Whether a player is in the map.
+	 *
+	 * @param name - The player name to check.
+	 */
+	public isPlayerInMap(name: string) {
+		return this.playerNames.some((playerName) =>
+			playerName.toLowerCase().includes(name.toLowerCase()),
+		);
 	}
 
 	/**
