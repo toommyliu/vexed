@@ -6,7 +6,7 @@ import { join } from 'path';
 import { app } from 'electron';
 import { BRAND } from '../common/constants';
 import { FileManager } from './FileManager';
-import { showErrorDialog } from './utils';
+import { showErrorDialog } from './util/showErrorDialog';
 import { createAccountManager, createGame } from './windows';
 
 function registerFlashPlugin() {

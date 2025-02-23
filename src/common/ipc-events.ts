@@ -7,10 +7,8 @@ export const IPC_EVENTS = {
 	LOGIN_SUCCESS: 'root:login-success' as const,
 	ACTIVATE_WINDOW: 'root:activate-window' as const,
 	READ_FAST_TRAVELS: 'root:read-fast-travels' as const,
-	SETUP_IPC: 'root:setup-ipc' as const,
-	GET_WINDOW_ID: 'root:get-window-id' as const,
 
-	FAST_TRAVEL: 'fast-travel' as const,
+	FAST_TRAVEL: 'fast-travel:fast-travel' as const,
 
 	LOADER_GRABBER_LOAD: 'loader-grabber:load' as const,
 	LOADER_GRABBER_GRAB: 'loader-grabber:grab' as const,
@@ -29,5 +27,8 @@ export const IPC_EVENTS = {
 
 	// #region manager
 	GET_ACCOUNTS: 'manager:get_accounts' as const,
+	ADD_ACCOUNT: 'manager:add_account' as const,
+	REMOVE_ACCOUNT: 'manager:remove_account' as const,
+	LAUNCH_GAME: 'manager:launch_game' as const,
 	// #endregion
 } as const;

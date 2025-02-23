@@ -167,11 +167,15 @@
 
 		<script>
 			require('source-map-support').install();
+			require('../../dist/renderer/game/ipc/ipc.fast-travels.js');
+			require('../../dist/renderer/game/ipc/ipc.follower.js');
+			require('../../dist/renderer/game/ipc/ipc.loader-grabber.js');
+			require('../../dist/renderer/game/ipc/ipc.logger.js');
+			require('../../dist/renderer/game/ipc/ipc.spammer.js');
 
 			require('../../dist/renderer/game/lib/Bot.js');
 			require('../../dist/renderer/game/script.ui.js');
 			require('../../dist/renderer/game/flash-ipc.js');
-			require('../../dist/renderer/game/ipc/ipc.js');
 			require('../../dist/renderer/game/util/logger.js');
 		</script>
 		<script defer>

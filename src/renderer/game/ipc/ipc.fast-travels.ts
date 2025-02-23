@@ -1,23 +1,20 @@
+import { ipcRenderer } from 'electron';
 import { IPC_EVENTS } from '../../../common/ipc-events';
 import { Bot } from '../lib/Bot';
 
 const bot = Bot.getInstance();
-const { world } = bot;
 
-export default async function handler(ev: MessageEvent) {
-	if (ev.data.event === IPC_EVENTS.FAST_TRAVEL) {
-		const { args } = ev.data;
+ipcRenderer.on(IPC_EVENTS.FAST_TRAVEL, async (_ev, args: Args) => {
+	if (!bot.player.isReady()) return;
 
-		if (!bot.player.isReady()) {
-			return;
-		}
-
-		if (args?.map) {
-			const cell = args?.cell ?? 'Enter';
-			const pad = args?.pad ?? 'Spawn';
-			const roomNumber = args?.roomNumber ?? 100_000;
-
-			await world.join(`${args?.map}-${roomNumber}`, cell, pad);
-		}
+	if (args?.map) {
+		await bot.world.join(args.map, args?.cell, args?.pad).catch(() => {});
 	}
-}
+});
+
+type Args = {
+	cell?: string;
+	map: string;
+	pad?: string;
+	roomNumber: number;
+};

@@ -4,7 +4,7 @@ import { IPC_EVENTS } from '../../../common/ipc-events';
 let container: HTMLDivElement | null = null;
 let roomNumber = 100_000;
 
-window.addEventListener('ready', async () => {
+window.addEventListener('DOMContentLoaded', async () => {
 	container = document.querySelector('#locations')!;
 
 	const locations =
@@ -45,12 +45,9 @@ window.addEventListener('ready', async () => {
 
 			// eslint-disable-next-line @typescript-eslint/no-loop-func
 			btn.addEventListener('click', async () => {
-				window.msgPort?.postMessage({
-					event: IPC_EVENTS.FAST_TRAVEL,
-					args: {
-						...location,
-						roomNumber,
-					},
+				ipcRenderer.send(IPC_EVENTS.FAST_TRAVEL, {
+					...location,
+					roomNumber,
 				});
 			});
 

@@ -1,6 +1,5 @@
 import type { Logger } from 'winston';
 import type { WINDOW_IDS } from '../../common/constants';
-import type PortMonitor from '../../common/port-monitor';
 import type { Context } from './botting/context';
 import type { cmd } from './botting/index';
 import type { Bot } from './lib/Bot';
@@ -219,8 +218,6 @@ declare global {
 		swf: GameSWF;
 
 		// other
-		ports: Map<WindowId, MessagePort>;
-		portMonitors: Map<WindowId, PortMonitor>;
 		account?: AccountWithServer;
 		logger: Logger;
 
