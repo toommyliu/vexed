@@ -55,8 +55,6 @@ export default async function handler(ev: MessageEvent) {
 	} else if (ev.data.event === IPC_EVENTS.FOLLOWER_START) {
 		await bot.waitUntil(() => bot.player.isReady(), null, -1);
 
-		bot.on('packetFromServer', packetHandler);
-
 		const {
 			name: og_name,
 			skillList: og_skillList,
@@ -168,6 +166,8 @@ export default async function handler(ev: MessageEvent) {
 				/* eslint-enable require-atomic-updates */
 			} catch {}
 		};
+
+		bot.on('packetFromServer', packetHandler);
 
 		intervalId = bot.timerManager.setInterval(async () => {
 			if (!bot.player.isReady()) return;
