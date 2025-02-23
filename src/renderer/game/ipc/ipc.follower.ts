@@ -7,6 +7,7 @@ import { doPriorityAttack } from '../util/doPriorityAttack';
 
 let intervalId: SetIntervalAsyncTimer | null = null;
 let index = 0;
+let attempts = 3;
 
 const config: Partial<FollowerConfig> = {};
 const mutex = new Mutex();
@@ -38,13 +39,153 @@ function packetHandler(packet: string) {
 	}
 }
 
+async function startFollower() {
+	const cfg = config as FollowerConfig;
+	const { name } = cfg;
+
+	// goto player if needed
+	const goToPlayer = async () => {
+		try {
+			if (bot.world.isPlayerInMap(name)) return;
+
+			// logger.info(`not found: ${name}`);
+
+			const ogProvokeMap = bot.settings.provokeMap;
+			const ogProvokeCell = bot.settings.provokeCell;
+
+			bot.settings.provokeMap = false;
+			bot.settings.provokeCell = false;
+
+			if (bot.player.isInCombat()) {
+				// logger.info('in combat, trying to exit');
+
+				// immediately try to escape with current cell
+				await bot.world.jump(bot.player.cell, bot.player.pad);
+				await bot.sleep(1_000);
+
+				// we are still in combat?
+				if (bot.player.isInCombat()) {
+					let escaped = false;
+
+					const ogCell = bot.player.cell;
+
+					for (const cell of bot.world.cells) {
+						if (cell === ogCell) continue;
+
+						// logger.info(`escape to: ${cell}`);
+						await bot.world.jump(cell);
+
+						await bot.waitUntil(
+							() => bot.player.isInCombat(),
+							null,
+							3,
+						);
+
+						if (!bot.player.isInCombat()) {
+							// logger.info(`success: ${cell}`);
+							escaped = true;
+							break;
+						}
+					}
+
+					// we ran through all cells and are still in combat?
+					// realistically this would never happen
+					if (!escaped) return;
+				}
+			}
+
+			await bot.sleep(250);
+
+			if (attempts > 0) {
+				// logger.info(`goto player: ${name} [${attempts}]`);
+				attempts--;
+
+				bot.world.goto(name);
+			}
+
+			// wait
+			await bot.waitUntil(
+				() => !bot.world.isLoading() || bot.world.isPlayerInMap(name),
+				null,
+				3,
+			);
+
+			// we still haven't found them
+			if (attempts === 0 && !bot.world.isPlayerInMap(name)) {
+				// logger.info(`failed to find: ${name}`);
+				await stopFollower();
+				return;
+			}
+
+			/* eslint-disable require-atomic-updates */
+			bot.settings.provokeMap = ogProvokeMap;
+			bot.settings.provokeCell = ogProvokeCell;
+			/* eslint-enable require-atomic-updates */
+		} catch {}
+	};
+
+	bot.on('packetFromServer', packetHandler);
+
+	intervalId = bot.timerManager.setInterval(async () => {
+		if (!bot.player.isReady()) return;
+
+		try {
+			await mutex.acquire();
+
+			await goToPlayer();
+
+			bot.world.setSpawnPoint();
+
+			if (!bot.world.monsters.length) return;
+
+			if (Array.isArray(cfg.attackPriority)) {
+				doPriorityAttack(cfg.attackPriority);
+			}
+
+			// we still don't have a target?
+			while (!bot.combat.hasTarget()) {
+				bot.combat.attack('*');
+				await bot.waitUntil(() => bot.combat.hasTarget(), null, 3);
+			}
+
+			await bot.combat.useSkill(
+				cfg.skillList[index]!,
+				false,
+				cfg.skillWait,
+			);
+			index = (index + 1) % cfg.skillList!.length;
+		} finally {
+			mutex.release();
+		}
+	}, 1_000);
+}
+
+// TODO: relay back to follower script that we are finished
+
+async function stopFollower() {
+	if (mutex.isLocked()) {
+		mutex.release();
+	}
+
+	if (!intervalId) return;
+
+	const tmp = intervalId;
+	await bot.timerManager.clearInterval(tmp);
+	if (tmp === intervalId) {
+		intervalId = null;
+	}
+
+	index = 0;
+	attempts = 3;
+
+	bot.off('packetFromServer', packetHandler);
+}
+
 export default async function handler(ev: MessageEvent) {
 	const port = ev.target as MessagePort;
 
 	if (ev.data.event === IPC_EVENTS.FOLLOWER_ME) {
-		if (!bot.player.isReady()) {
-			return;
-		}
+		if (!bot.player.isReady()) return;
 
 		port.postMessage({
 			event: IPC_EVENTS.FOLLOWER_ME,
@@ -53,8 +194,6 @@ export default async function handler(ev: MessageEvent) {
 			},
 		});
 	} else if (ev.data.event === IPC_EVENTS.FOLLOWER_START) {
-		await bot.waitUntil(() => bot.player.isReady(), null, -1);
-
 		const {
 			name: og_name,
 			skillList: og_skillList,
@@ -96,127 +235,10 @@ export default async function handler(ev: MessageEvent) {
 			skillDelay,
 		});
 
-		const cfg = config as FollowerConfig;
-
-		// goto player if needed
-		const goToPlayer = async () => {
-			try {
-				if (bot.world.isPlayerInMap(name)) return;
-
-				// logger.info(`not found: ${name}`);
-
-				const ogProvokeMap = bot.settings.provokeMap;
-				const ogProvokeCell = bot.settings.provokeCell;
-
-				bot.settings.provokeMap = false;
-				bot.settings.provokeCell = false;
-
-				if (bot.player.isInCombat()) {
-					// logger.info('in combat, trying to exit');
-
-					// immediately try to escape with current cell
-					await bot.world.jump(bot.player.cell, bot.player.pad);
-					await bot.sleep(1_000);
-
-					// we are still in combat?
-					if (bot.player.isInCombat()) {
-						let escaped = false;
-
-						const ogCell = bot.player.cell;
-
-						for (const cell of bot.world.cells) {
-							if (cell === ogCell) continue;
-
-							// logger.info(`escape to: ${cell}`);
-							await bot.world.jump(cell);
-
-							await bot.waitUntil(
-								() => bot.player.isInCombat(),
-								null,
-								3,
-							);
-
-							if (!bot.player.isInCombat()) {
-								// logger.info(`success: ${cell}`);
-								escaped = true;
-								break;
-							}
-						}
-
-						// we ran through all cells and are still in combat?
-						// realistically this would never happen
-						if (!escaped) return;
-					}
-				}
-
-				await bot.sleep(250);
-
-				// logger.info(`goto player: ${name}`);
-				bot.world.goto(name);
-
-				await bot.waitUntil(
-					() => bot.world.isPlayerInMap(name),
-					null,
-					3,
-				);
-
-				/* eslint-disable require-atomic-updates */
-				bot.settings.provokeMap = ogProvokeMap;
-				bot.settings.provokeCell = ogProvokeCell;
-				/* eslint-enable require-atomic-updates */
-			} catch {}
-		};
-
-		bot.on('packetFromServer', packetHandler);
-
-		intervalId = bot.timerManager.setInterval(async () => {
-			if (!bot.player.isReady()) return;
-
-			try {
-				await mutex.acquire();
-
-				await goToPlayer();
-
-				bot.world.setSpawnPoint();
-
-				if (!bot.world.monsters.length) return;
-
-				if (Array.isArray(cfg.attackPriority)) {
-					doPriorityAttack(cfg.attackPriority);
-				}
-
-				// we still don't have a target?
-				while (!bot.combat.hasTarget()) {
-					bot.combat.attack('*');
-					await bot.waitUntil(() => bot.combat.hasTarget(), null, 3);
-				}
-
-				await bot.combat.useSkill(
-					cfg.skillList[index]!,
-					false,
-					cfg.skillWait,
-				);
-				index = (index + 1) % cfg.skillList!.length;
-			} finally {
-				mutex.release();
-			}
-		}, 1_000);
+		await bot.waitUntil(() => bot.player.isReady(), null, -1);
+		await startFollower();
 	} else if (ev.data.event === IPC_EVENTS.FOLLOWER_STOP) {
-		if (mutex.isLocked()) {
-			mutex.release();
-		}
-
-		if (!intervalId) return;
-
-		const tmp = intervalId;
-		await bot.timerManager.clearInterval(tmp);
-		if (tmp === intervalId) {
-			intervalId = null;
-		}
-
-		index = 0;
-
-		bot.off('packetFromServer', packetHandler);
+		await stopFollower();
 	}
 }
 
