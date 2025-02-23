@@ -174,7 +174,7 @@ declare global {
 		shopSellById(id: number | string, quantity?: number): boolean;
 		shopLoad(shopId: number): void;
 		shopLoadHairShop(shopId: number): void;
-		shopLoadAmorCustomize(): void;
+		shopLoadArmorCustomize(): void;
 
 		tempInventoryGetItems(): ItemData[];
 		tempInventoryGetItem(key: number | string): Nullable<ItemData>;
