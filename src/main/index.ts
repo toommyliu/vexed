@@ -46,6 +46,8 @@ function registerFlashPlugin() {
 
 registerFlashPlugin();
 app.disableHardwareAcceleration();
+app.commandLine.appendSwitch('disable-renderer-backgrounding');
+app.commandLine.appendArgument('--disable-renderer-backgrounding');
 
 app.once('ready', async () => {
 	const fm = FileManager.getInstance();

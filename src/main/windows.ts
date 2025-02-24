@@ -35,17 +35,13 @@ export async function createAccountManager(): Promise<void> {
 	});
 
 	window.webContents.userAgent = ARTIX_USERAGENT;
-	session.defaultSession.webRequest.onBeforeSendHeaders(
-		// eslint-disable-next-line promise/prefer-await-to-callbacks
-		(details, callback) => {
-			details.requestHeaders['User-Agent'] = ARTIX_USERAGENT;
-			details.requestHeaders['artixmode'] = 'launcher';
-			details.requestHeaders['x-requested-with'] =
-				'ShockwaveFlash/32.0.0.371';
-			// eslint-disable-next-line promise/prefer-await-to-callbacks
-			callback({ requestHeaders: details.requestHeaders, cancel: false });
-		},
-	);
+	session.defaultSession.webRequest.onBeforeSendHeaders((details, fn) => {
+		details.requestHeaders['User-Agent'] = ARTIX_USERAGENT;
+		details.requestHeaders['artixmode'] = 'launcher';
+		details.requestHeaders['x-requested-with'] =
+			'ShockwaveFlash/32.0.0.371';
+		fn({ requestHeaders: details.requestHeaders, cancel: false });
+	});
 
 	mgrWindow = window;
 
@@ -57,18 +53,34 @@ export async function createAccountManager(): Promise<void> {
 }
 
 export async function createGame(
-	account: Account | null = null,
+	account: AccountWithServer | null = null,
 ): Promise<void> {
+	const args: string[] = [];
+	if (account?.username) {
+		args.push(`--username=${account.username}`);
+	}
+
+	if (account?.password) {
+		args.push(`--password=${account.password}`);
+	}
+
+	if (account?.server) {
+		args.push(`--server=${account.server}`);
+	}
+
 	const window = new BrowserWindow({
 		width: 966,
 		height: 552,
 		title: BRAND,
 		webPreferences: {
 			backgroundThrottling: false,
-			enableWebSQL: false,
-			webgl: false,
 			nodeIntegration: true,
 			plugins: true,
+			additionalArguments: args,
+			// disable unuseful features
+			enableWebSQL: false,
+			spellcheck: false,
+			webgl: false,
 		},
 	});
 

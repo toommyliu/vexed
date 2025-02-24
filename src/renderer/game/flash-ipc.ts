@@ -1,3 +1,4 @@
+import process from 'process';
 import { ipcRenderer } from 'electron';
 import { IPC_EVENTS } from '../../common/ipc-events';
 import { Bot } from './lib/Bot';
@@ -80,29 +81,37 @@ window.connection = ([state]: [string]) => {
 };
 
 window.loaded = async () => {
-	if (window?.account?.username && window?.account?.password) {
-		console.log('Logging in with:', window.account.username);
+	const username = process.argv.find((arg) => arg.startsWith('--username='));
+	const password = process.argv.find((arg) => arg.startsWith('--password='));
+	const server = process.argv.find((arg) => arg.startsWith('--server='));
+
+	if (username && password) {
+		const [, user] = username.split('=');
+		const [, pass] = password.split('=');
+		const [, serv] = server?.split('=') ?? '';
+
+		logger.info(
+			`logging in with ${user}:${pass}${serv ? ` to ${serv}` : ''}`,
+		);
 
 		await bot.sleep(1_000);
-		auth.login(window.account.username, window.account.password);
-		if (window.account.server) {
-			await bot.waitUntil(() => auth.servers.length > 0);
+		auth.login(user!, pass!);
 
-			auth.connectTo(window.account.server);
+		await bot.waitUntil(
+			() => bot.flash.get('mcLogin.currentLabel', true) === 'Servers',
+			null,
+			-1,
+		);
+		await bot.sleep(500);
+
+		if (serv) {
+			bot.auth.connectTo(serv!);
 			await bot.waitUntil(() => player.isReady());
-
-			// Let the manager know we're logged in and ready
-			ipcRenderer.send(IPC_EVENTS.LOGIN_SUCCESS, window.account.username);
 		}
 
-		delete window.account;
+		ipcRenderer.send(IPC_EVENTS.LOGIN_SUCCESS, user);
 	}
 };
-
-ipcRenderer.on(IPC_EVENTS.LOGIN, async (_, account) => {
-	console.log('Got an account to login with, setting that now.');
-	window.account = account;
-});
 
 // @ts-expect-error don't care
 window.debug = console.log;
