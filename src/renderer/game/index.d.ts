@@ -1,4 +1,3 @@
-import type { Logger } from 'winston';
 import type { WINDOW_IDS } from '../../common/constants';
 import type { Context } from './botting/context';
 import type { cmd } from './botting/index';
@@ -11,6 +10,7 @@ import type { ItemData } from './lib/models/Item';
 import type { MonsterData } from './lib/models/Monster';
 import type { QuestData } from './lib/models/Quest';
 import type { ServerData } from './lib/models/Server';
+import type { Logger } from './util/logger';
 
 type Nullable<T> = T | null;
 declare global {

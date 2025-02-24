@@ -1,12 +1,27 @@
 import { Mutex } from 'async-mutex';
-import type { Bot } from '../Bot';
+import { Logger } from '../../util/logger';
+import { Bot } from '../Bot';
+
+const logger = Logger.get('AutoRelogin');
 
 /**
  * Auto Relogins are automatically ran if the bot is running and there has been a selected server.
  * There are no calls needed to enable auto-relogin besides starting the bot and selecting the server to connect to.
  */
 export class AutoRelogin {
+	private readonly bot = Bot.getInstance();
+
 	private readonly mutex = new Mutex();
+
+	/**
+	 * The username to login with.
+	 */
+	private username: string | null;
+
+	/**
+	 * The password to login with.
+	 */
+	private password: string | null;
 
 	/**
 	 * The server name to connect to.
@@ -14,22 +29,16 @@ export class AutoRelogin {
 	public server: string | null;
 
 	/**
-	 * The delay after a logout or a disconnect before attempting to login.
+	 * The delay after which a login attempt is made.
 	 */
 	public delay: number;
 
-	public constructor(private readonly bot: Bot) {
-		/**
-		 * The server name to connect to.
-		 */
+	public constructor() {
+		this.username = null;
+		this.password = null;
 		this.server = null;
-
-		/**
-		 * The delay after a logout or a disconnect before attempting to login.
-		 */
 		this.delay = 5_000;
-
-		this.bot.on('logout', () => this.run());
+		this.run();
 	}
 
 	/**
@@ -37,85 +46,90 @@ export class AutoRelogin {
 	 */
 	private run(): void {
 		this.bot.timerManager.setInterval(async () => {
-			if (this.mutex.isLocked() || !this.server) {
-				return;
-			}
+			if (this.bot.auth.isLoggedIn()) return;
 
-			if (!this.bot.auth.isLoggedIn()) {
-				void this.mutex.runExclusive(async () => {
-					const og_lagKiller = this.bot.settings.lagKiller;
-					const og_skipCutscenes = this.bot.settings.skipCutscenes;
+			if (!this.username || !this.password || !this.server) return;
 
-					if (og_lagKiller) {
-						this.bot.settings.lagKiller = false;
-					}
+			if (this.mutex.isLocked()) return;
 
-					if (og_skipCutscenes) {
-						this.bot.settings.skipCutscenes = false;
-					}
+			await this.mutex.runExclusive(async () => {
+				// logger.info(
+				// 	`logging in with ${this.username}:${this.password} to ${this.server}`,
+				// );
 
-					if (this.bot.auth.isTemporarilyKicked()) {
-						await this.bot.waitUntil(
-							() => !this.bot.auth.isTemporarilyKicked(),
-							null,
-							-1,
-						);
-					}
+				const og_lagKiller = this.bot.settings.lagKiller;
+				const og_skipCutscenes = this.bot.settings.skipCutscenes;
 
-					console.log(
-						`AutoRelogin: waiting for ${this.delay}ms`,
-						new Date(),
-					);
-					await this.bot.sleep(this.delay);
+				if (og_lagKiller) {
+					this.bot.settings.lagKiller = false;
+				}
 
-					// Check if we're still on the server select screen
-					if (
-						this.bot.flash.get('mcLogin.currentLabel') ===
-						'"Servers"'
-					) {
-						this.bot.flash.call('removeAllChildren');
-						this.bot.flash.call('gotoAndPlay', 'Login');
-					}
+				if (og_skipCutscenes) {
+					this.bot.settings.skipCutscenes = false;
+				}
 
-					await this.bot.sleep(1_000);
-
-					if (!this.bot.auth.username || !this.bot.auth.password) {
-						console.log('No credentials provided');
-						return;
-					}
-
-					this.bot.auth.login(
-						this.bot.auth.username,
-						this.bot.auth.password,
-					);
-
+				if (this.bot.auth.isTemporarilyKicked()) {
 					await this.bot.waitUntil(
-						() => this.bot.auth.servers.length > 0,
+						() => !this.bot.auth.isTemporarilyKicked(),
+						null,
+						-1,
 					);
+				}
 
-					const server = this.bot.auth.servers.find(
-						(srv) =>
-							srv.name.toLowerCase() ===
-							this.server!.toLowerCase(),
-					);
+				// logger.info(`waiting for ${this.delay}ms`);
+				await this.bot.sleep(this.delay);
 
-					if (!server) {
-						return;
-					}
+				// still on server select?
+				if (
+					this.bot.flash.get('mcLogin.currentLabel') === '"Servers"'
+				) {
+					// reset
+					this.bot.flash.call('removeAllChildren');
+					this.bot.flash.call('gotoAndPlay', 'Login');
+				}
 
-					this.bot.auth.connectTo(server.name);
+				await this.bot.sleep(1_000);
 
-					await this.bot.waitUntil(() => this.bot.player.isReady());
+				this.bot.auth.login(this.username!, this.password!);
 
-					if (og_lagKiller) {
-						this.bot.settings.lagKiller = true;
-					}
+				// wait for servers to be loaded
+				await this.bot.waitUntil(
+					() =>
+						this.bot.flash.get('mcLogin.currentLabel', true) ===
+							'Servers' && this.bot.auth.servers.length > 0,
+				);
 
-					if (og_skipCutscenes) {
-						this.bot.settings.skipCutscenes = true;
-					}
-				});
-			}
+				const server = this.bot.auth.servers.find(
+					(srv) =>
+						srv.name.toLowerCase() === this.server!.toLowerCase(),
+				);
+
+				// unknown server provided
+				if (!server) return;
+
+				this.bot.auth.connectTo(server.name);
+
+				await this.bot.waitUntil(() => this.bot.player.isReady());
+
+				// restore state
+				if (og_lagKiller) {
+					this.bot.settings.lagKiller = true;
+				}
+
+				if (og_skipCutscenes) {
+					this.bot.settings.skipCutscenes = true;
+				}
+			});
 		}, 1_000);
+	}
+
+	public setCredentials(
+		username: string,
+		password: string,
+		server: string,
+	): void {
+		this.username = username;
+		this.password = password;
+		this.server = server;
 	}
 }

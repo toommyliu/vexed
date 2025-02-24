@@ -187,9 +187,9 @@ export class Bot extends EventEmitter {
 
 		Bot._instance = this;
 
-		this.autoRelogin = new AutoRelogin(this);
-		this.flash = new Flash();
 		this.timerManager = new TimerManager();
+		this.flash = new Flash();
+		this.autoRelogin = new AutoRelogin();
 
 		this.auth = new Auth(this);
 		this.bank = new Bank(this);

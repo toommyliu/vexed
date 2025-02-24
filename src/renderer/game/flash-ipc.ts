@@ -7,7 +7,6 @@ import { ct } from './networking/json/ct';
 import { dropItem } from './networking/json/drop-item';
 
 const bot = Bot.getInstance();
-const { auth, player } = bot;
 
 window.packetFromServer = async ([packet]: [string]) => {
 	bot.emit('packetFromServer', packet);
@@ -85,29 +84,24 @@ window.loaded = async () => {
 	const password = process.argv.find((arg) => arg.startsWith('--password='));
 	const server = process.argv.find((arg) => arg.startsWith('--server='));
 
-	if (username && password) {
+	if (username && password && server) {
 		const [, user] = username.split('=');
 		const [, pass] = password.split('=');
-		const [, serv] = server?.split('=') ?? '';
+		const [, serv] = server.split('=');
 
-		logger.info(
-			`logging in with ${user}:${pass}${serv ? ` to ${serv}` : ''}`,
-		);
+		if (!user || !pass || !serv) return;
 
-		await bot.sleep(1_000);
-		auth.login(user!, pass!);
+		const ogDelay = bot.autoRelogin.delay;
 
-		await bot.waitUntil(
-			() => bot.flash.get('mcLogin.currentLabel', true) === 'Servers',
-			null,
-			-1,
-		);
-		await bot.sleep(500);
+		bot.autoRelogin.setCredentials(user!, pass!, serv!);
+		bot.autoRelogin.delay = 0;
 
-		if (serv) {
-			bot.auth.connectTo(serv!);
-			await bot.waitUntil(() => player.isReady());
-		}
+		// auto relogin should have triggered
+		await bot.waitUntil(() => bot.player.isReady(), null, -1);
+
+		// reset
+		bot.autoRelogin.setCredentials('', '', '');
+		bot.autoRelogin.delay = ogDelay;
 
 		ipcRenderer.send(IPC_EVENTS.LOGIN_SUCCESS, user);
 	}
