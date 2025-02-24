@@ -7,6 +7,7 @@ import { CommandLogout } from './CommandLogout';
 import { CommandSetDelay } from './CommandSetDelay';
 import { CommandSetting } from './CommandSetting';
 import { CommandStop } from './CommandStop';
+import { CommandWaitForPlayerCount } from './CommandWaitForPlayerCount';
 
 export const miscCommands = {
 	delay(ms: number) {
@@ -92,5 +93,14 @@ export const miscCommands = {
 		window.context._commands = [];
 		// @ts-expect-error todo
 		window.context._commandIndex = 0;
+	},
+	wait_for_player_count(count: number) {
+		if (typeof count !== 'number' || count < 0) {
+			throw new Error('count is required');
+		}
+
+		const cmd = new CommandWaitForPlayerCount();
+		cmd.count = count;
+		window.context.addCommand(cmd);
 	},
 };
