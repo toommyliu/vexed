@@ -1,17 +1,15 @@
 import { Command } from '../../command';
 
 export class CommandQuestCanNotComplete extends Command {
-	public questId!: number;
+  public questId!: number;
 
-	public override execute() {
-		if (
-			this.bot.flash.call(() => swf.questsCanCompleteQuest(this.questId))
-		) {
-			this.ctx.commandIndex++;
-		}
-	}
+  public override execute() {
+    if (this.bot.flash.call(() => swf.questsCanCompleteQuest(this.questId))) {
+      this.ctx.commandIndex++;
+    }
+  }
 
-	public override toString() {
-		return `If quest [${this.questId}] can not complete`;
-	}
+  public override toString() {
+    return `If quest [${this.questId}] can not complete`;
+  }
 }

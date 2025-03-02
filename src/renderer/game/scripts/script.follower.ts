@@ -1,92 +1,93 @@
+import { ipcRenderer } from '../../../common/ipc';
 import { IPC_EVENTS } from '../../../common/ipc-events';
+import { Logger } from '../../../common/logger';
+
+const logger = Logger.get('ScriptFollower');
 
 let on = false;
 
+const toggleElement = (el: HTMLElement, state: boolean) => {
+  el.classList.toggle('w3-disabled', state);
+  if (state) {
+    el.setAttribute('disabled', 'true');
+  } else {
+    el.removeAttribute('disabled');
+  }
+};
+
 window.addEventListener('DOMContentLoaded', async () => {
-	const elPlayer = document.querySelector('#player') as HTMLInputElement;
-	const elMe = document.querySelector('#me') as HTMLButtonElement;
-	const elSkillList = document.querySelector(
-		'#skill-list',
-	) as HTMLInputElement;
-	const elSkillWait = document.querySelector(
-		'#skill-wait',
-	) as HTMLInputElement;
-	const elSkillDelay = document.querySelector(
-		'#skill-delay',
-	) as HTMLInputElement;
-	const elCopyWalk = document.querySelector('#copy-walk') as HTMLInputElement;
-	const elAttackPriority = document.querySelector(
-		'#attack-priority',
-	) as HTMLInputElement;
+  const player = document.querySelector('#player') as HTMLInputElement;
+  const me = document.querySelector('#me') as HTMLButtonElement;
+  const skillList = document.querySelector('#skill-list') as HTMLInputElement;
+  const skillWait = document.querySelector('#skill-wait') as HTMLInputElement;
+  const skillDelay = document.querySelector('#skill-delay') as HTMLInputElement;
+  const copyWalk = document.querySelector('#copy-walk') as HTMLInputElement;
+  const attackPriority = document.querySelector(
+    '#attack-priority',
+  ) as HTMLInputElement;
+  const start = document.querySelector('#start') as HTMLInputElement;
 
-	const toggleElementState = (el: HTMLElement, state: boolean) => {
-		if (state) {
-			el.classList.add('w3-disabled');
-			el.setAttribute('disabled', 'true');
-		} else {
-			el.classList.remove('w3-disabled');
-			el.removeAttribute('disabled');
-		}
-	};
+  const toggleState = (state?: boolean) => {
+    // use the state to determine value
+    if (state === undefined) {
+      on = !on;
+    } else {
+      on = state;
+    }
 
-	const toggleState = (state: boolean) => {
-		on = state;
+    start.checked = on;
 
-		toggleElementState(elPlayer, state);
-		toggleElementState(elMe, state);
-		toggleElementState(elSkillList, state);
-		toggleElementState(elSkillWait, state);
-		toggleElementState(elSkillDelay, state);
-		toggleElementState(elCopyWalk, state);
-		toggleElementState(elAttackPriority, state);
-	};
+    toggleElement(player, on);
+    toggleElement(me, on);
+    toggleElement(skillList, on);
+    toggleElement(skillWait, on);
+    toggleElement(skillDelay, on);
+    toggleElement(copyWalk, on);
+    toggleElement(attackPriority, on);
+  };
 
-	window.addEventListener('ready', async () => {
-		elMe.addEventListener('click', async () => {
-			window.msgPort?.postMessage({ event: IPC_EVENTS.FOLLOWER_ME });
-		});
+  me.addEventListener('click', async () => {
+    const me = await ipcRenderer
+      .callMain(IPC_EVENTS.MSGBROKER, {
+        data: undefined,
+        ipcEvent: IPC_EVENTS.FOLLOWER_ME,
+      })
+      .then((res) => res as unknown as { name: string })
+      .catch(() => {
+        logger.error('Failed to get me');
+        return null;
+      });
 
-		{
-			const input = document.querySelector('#start') as HTMLInputElement;
-			input.addEventListener('click', async () => {
-				toggleState(input.checked);
+    if (!me) return;
 
-				// See if button is checked
-				if (input.checked) {
-					const name = (
-						document.querySelector('#player') as HTMLInputElement
-					).value;
+    player.value = me.name;
+  });
 
-					window.msgPort?.postMessage({
-						event: IPC_EVENTS.FOLLOWER_START,
-						args: {
-							name,
-							skillList: elSkillList.value,
-							skillWait: elSkillWait.checked,
-							skillDelay: elSkillDelay.value,
-							copyWalk: elCopyWalk.checked,
-							attackPriority: elAttackPriority.value,
-						},
-					});
-				} else {
-					window.msgPort?.postMessage({
-						event: IPC_EVENTS.FOLLOWER_STOP,
-					});
-				}
-			});
-		}
+  start.addEventListener('click', async () => {
+    toggleState();
 
-		window.addEventListener('port-ready', async () => {
-			if (on) {
-				toggleState(false);
+    if (on) {
+      await ipcRenderer.callMain(IPC_EVENTS.MSGBROKER, {
+        ipcEvent: IPC_EVENTS.FOLLOWER_START,
+        data: {
+          name: player.value,
+          skillList: skillList.value,
+          skillWait: skillWait.checked,
+          skillDelay: skillDelay.value,
+          copyWalk: copyWalk.checked,
+          attackPriority: attackPriority.value,
+        },
+      });
+    } else {
+      await ipcRenderer.callMain(IPC_EVENTS.MSGBROKER, {
+        ipcEvent: IPC_EVENTS.FOLLOWER_STOP,
+      });
+    }
+  });
 
-				window.msgPort?.postMessage({
-					event: IPC_EVENTS.FOLLOWER_STOP,
-				});
-
-				(document.querySelector('#start') as HTMLInputElement).checked =
-					false;
-			}
-		});
-	});
+  ipcRenderer.answerMain(
+    IPC_EVENTS.FOLLOWER_STOP,
+    toggleState.bind(null, false),
+  );
+  ipcRenderer.answerMain(IPC_EVENTS.REFRESHED, toggleState.bind(null, false));
 });

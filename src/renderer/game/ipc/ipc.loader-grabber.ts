@@ -1,66 +1,62 @@
+import { ipcRenderer } from '../../../common/ipc';
 import { IPC_EVENTS } from '../../../common/ipc-events';
+import { Logger } from '../../../common/logger';
 import { Bot } from '../lib/Bot';
 
+const logger = Logger.get('IpcLoaderGrabber');
 const bot = Bot.getInstance();
 
-export default async function handler(ev: MessageEvent) {
-	const port = ev.target as MessagePort;
+ipcRenderer.answerMain(IPC_EVENTS.LOADER_GRABBER_LOAD, async (data) => {
+  logger.info(data);
 
-	if (ev.data.event === IPC_EVENTS.LOADER_GRABBER_LOAD) {
-		if (!bot.player.isReady()) {
-			return;
-		}
+  if (!bot.player.isReady()) return;
 
-		const {
-			args: { type, id },
-		} = ev.data;
+  const { type, id } = data;
 
-		switch (type) {
-			case '0': // Hair shop
-				bot.shops.loadHairShop(String(id));
-				break;
-			case '1': // Shop
-				void bot.shops.load(String(id));
-				break;
-			case '2': // Quest
-				void bot.quests.load(String(id));
-				break;
-			case '3': // Armor Customizer
-				bot.shops.openArmorCustomizer();
-				break;
-		}
-	} else if (ev.data.event === IPC_EVENTS.LOADER_GRABBER_GRAB) {
-		if (!bot.player.isReady()) return;
+  switch (type) {
+    case '0': // Hair shop
+      bot.shops.loadHairShop(id);
+      break;
+    case '1': // Shop
+      await bot.shops.load(id);
+      break;
+    case '2': // Quest
+      await bot.quests.load(id);
+      break;
+    case '3': // Armor Customizer
+      bot.shops.openArmorCustomizer();
+      break;
+  }
+});
 
-		const {
-			args: { type },
-		} = ev.data;
+ipcRenderer.answerMain(IPC_EVENTS.LOADER_GRABBER_GRAB, async (data) => {
+  logger.info(data);
 
-		let ret: unknown;
+  const { type } = data;
+  const ret: { data: unknown; type: string } = {
+    data: undefined,
+    type,
+  };
 
-		if (type === '0') {
-			if (!bot.shops.isShopLoaded() || !bot.shops.info) return;
+  if (!bot.player.isReady()) return ret;
 
-			ret = bot.shops.info;
-		} else if (type === '1') {
-			ret = bot.flash.call(() => swf.questsGetTree());
-		} else if (type === '2') {
-			ret = bot.flash.call(() => swf.inventoryGetItems());
-		} else if (type === '3') {
-			ret = bot.flash.call(() => swf.tempInventoryGetItems());
-		} else if (type === '4') {
-			ret = bot.flash.call(() => swf.bankGetItems());
-		} else if (type === '5') {
-			ret = bot.flash.call(() => swf.worldGetCellMonsters());
-		} else if (type === '6') {
-			ret = bot.world.monsters;
-		}
+  if (type === '0') {
+    if (!bot.shops.isShopLoaded()) return ret;
 
-		if (ret) {
-			port.postMessage({
-				event: IPC_EVENTS.LOADER_GRABBER_GRAB,
-				args: { data: ret, type },
-			});
-		}
-	}
-}
+    ret.data = bot.shops.info;
+  } else if (type === '1') {
+    ret.data = bot.flash.call(() => swf.questsGetTree());
+  } else if (type === '2') {
+    ret.data = bot.flash.call(() => swf.inventoryGetItems());
+  } else if (type === '3') {
+    ret.data = bot.flash.call(() => swf.tempInventoryGetItems());
+  } else if (type === '4') {
+    ret.data = bot.flash.call(() => swf.bankGetItems());
+  } else if (type === '5') {
+    ret.data = bot.flash.call(() => swf.worldGetCellMonsters());
+  } else if (type === '6') {
+    ret.data = bot.world.monsters;
+  }
+
+  return ret;
+});

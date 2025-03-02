@@ -1,3 +1,8 @@
+/* fix vertical scrolling */
+body {
+	overflow-y: scroll;
+}
+
 /* custom css defines for w3.css, to be used anywhere but the main page */
 .w3-button {
 	background-color: #3e63dd !important;

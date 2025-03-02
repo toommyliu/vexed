@@ -1,58 +1,65 @@
-import { ipcRenderer } from 'electron';
+import { ipcRenderer } from '../../../common/ipc';
 import { IPC_EVENTS } from '../../../common/ipc-events';
+import { Logger } from '../../../common/logger';
 
-let container: HTMLDivElement | null = null;
+const logger = Logger.get('FastTravels');
+
 let roomNumber = 100_000;
 
+function toggleButtons(on: boolean) {
+  const buttons = document.querySelectorAll('button');
+  for (const button of buttons) {
+    button.disabled = !on;
+    button.classList.toggle('w3-disabled', !on);
+  }
+}
+
 window.addEventListener('DOMContentLoaded', async () => {
-	container = document.querySelector('#locations')!;
+  const locations = await ipcRenderer
+    .callMain(IPC_EVENTS.READ_FAST_TRAVELS)
+    .catch(() => {
+      logger.error('Failed to read fast travels list');
+      return [];
+    });
 
-	const locations =
-		(await ipcRenderer.invoke(IPC_EVENTS.READ_FAST_TRAVELS)) ?? [];
+  const input = document.querySelector('#room-number') as HTMLInputElement;
+  input.addEventListener('input', () => {
+    const val = Number.parseInt(input.value, 10);
 
-	const input = document.querySelector('#room-number') as HTMLInputElement;
+    if (Number.isNaN(val)) {
+      roomNumber = 100_000;
+      return;
+    }
 
-	input.addEventListener('input', () => {
-		const val = Number.parseInt(input.value, 10);
+    // clamp between 1 and 100_000
+    roomNumber = Math.max(1, Math.min(val, 100_000));
+    input.value = roomNumber.toString();
+  });
 
-		if (Number.isNaN(val)) {
-			roomNumber = 100_000;
-			return;
-		}
+  const container = document.querySelector('#locations') as HTMLDivElement;
 
-		if (val < 1) {
-			input.value = '1';
-			roomNumber = 1;
-		} else if (val > 100_000) {
-			input.value = '100000';
-			roomNumber = 100_000;
-		} else {
-			roomNumber = val;
-		}
-	});
+  for (const location of locations) {
+    if (!location.map) continue;
 
-	for (const location of locations) {
-		if (!location.map) {
-			continue;
-		}
+    const div = document.createElement('div');
 
-		const div = document.createElement('div');
+    const button = document.createElement('button');
+    button.classList.add('w3-button', 'w3-round-medium', 'w3-block');
+    button.textContent = location.name;
 
-		{
-			const btn = document.createElement('button');
-			btn.classList.add('w3-button', 'w3-round-medium', 'w3-block');
-			btn.textContent = location.name;
+    // eslint-disable-next-line @typescript-eslint/no-loop-func
+    button.addEventListener('click', async () => {
+      logger.info(location);
 
-			// eslint-disable-next-line @typescript-eslint/no-loop-func
-			btn.addEventListener('click', async () => {
-				ipcRenderer.send(IPC_EVENTS.FAST_TRAVEL, {
-					...location,
-					roomNumber,
-				});
-			});
+      toggleButtons(false);
+      await ipcRenderer.callMain(IPC_EVENTS.MSGBROKER, {
+        data: { ...location, roomNumber },
+        ipcEvent: IPC_EVENTS.FAST_TRAVEL,
+      });
+      toggleButtons(true);
+    });
 
-			div.appendChild(btn);
-			container.appendChild(div);
-		}
-	}
+    div.appendChild(button);
+    container.appendChild(div);
+  }
 });

@@ -1,11 +1,11 @@
 import { Command } from '../../command';
 
 export class CommandLabel extends Command {
-	public label!: string;
+  public label!: string;
 
-	public override execute() {}
+  public override execute() {}
 
-	public override toString() {
-		return `Label: ${this.label}`;
-	}
+  public override toString() {
+    return `Label: ${this.label}`;
+  }
 }

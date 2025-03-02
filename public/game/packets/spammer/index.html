@@ -1,69 +1,69 @@
 <!doctype html>
 <html>
-	<head>
-		<link href="../../../shared/common.css" rel="stylesheet" />
-		<link href="../../../shared/styles.css" rel="stylesheet" />
-		<link href="./styles.css" rel="stylesheet" />
-	</head>
+  <head>
+    <link href="../../../shared/common.css" rel="stylesheet" />
+    <link href="../../../shared/styles.css" rel="stylesheet" />
+    <link href="./styles.css" rel="stylesheet" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
+    />
+  </head>
 
-	<body>
-		<div class="w3-container w3-margin-top">
-			<div class="w3-container w3-margin-bottom">
-				<div class="w3-border w3-round-medium spammer" id="spammer"></div>
-			</div>
-			<div class="w3-section">
-				<div class="w3-section">
-					<div class="w3-bar">
-						<div class="w3-bar-item w3-left">
-							<label for="packet" class="w3-label">Packet</label>
-						</div>
-						<div class="w3-bar-item w3-right">
-							<input
-								type="text"
-								class="w3-input w3-border w3-round-medium"
-								id="packet"
-							/>
-						</div>
-					</div>
-					<div class="w3-bar">
-						<div class="w3-bar-item w3-left">
-							<label for="delay">Delay (ms)</label>
-						</div>
-						<div class="w3-bar-item w3-right">
-							<input
-								type="number"
-								class="w3-input w3-border w3-round-medium"
-								id="delay"
-								value="1000"
-								step="100"
-							/>
-						</div>
-					</div>
-				</div>
-				<div class="w3-container w3-bar">
-					<div class="w3-left">
-						<button class="w3-button w3-round-medium" id="clear">
-							Clear
-						</button>
-						<button class="w3-button w3-round-medium w3-disabled" id="remove">
-							Remove
-						</button>
-						<button class="w3-button w3-round-medium" id="add">Add</button>
-					</div>
-					<div class="w3-right">
-						<button class="w3-button w3-round-medium w3-disabled" id="stop">
-							Stop
-						</button>
-						<button class="w3-button w3-round-medium" id="start">
-							Start
-						</button>
-					</div>
-				</div>
-			</div>
-		</div>
+  <body>
+    <div class="w3-container w3-margin-top">
+      <div class="w3-container w3-margin-bottom">
+        <div class="w3-border w3-round-medium spammer" id="spammer"></div>
+      </div>
+      <div class="w3-section">
+        <div class="w3-section">
+          <div class="w3-bar">
+            <div class="w3-bar-item w3-left">
+              <label for="packet" class="w3-label">Packet</label>
+            </div>
+            <div class="w3-bar-item w3-right">
+              <input
+                type="text"
+                class="w3-input w3-border w3-round-medium"
+                id="packet"
+              />
+            </div>
+          </div>
+          <div class="w3-bar">
+            <div class="w3-bar-item w3-left">
+              <label for="delay">Delay (ms)</label>
+            </div>
+            <div class="w3-bar-item w3-right">
+              <input
+                type="number"
+                class="w3-input w3-border w3-round-medium"
+                id="delay"
+                value="1000"
+                step="100"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="w3-container w3-bar">
+          <div class="w3-left">
+            <button class="w3-button w3-round-medium" id="clear">Clear</button>
+            <button class="w3-button w3-round-medium w3-disabled" id="remove">
+              Remove
+            </button>
+            <button class="w3-button w3-round-medium" id="add">Add</button>
+          </div>
+          <div class="w3-right">
+            <button class="w3-button w3-round-medium w3-disabled" id="stop">
+              Stop
+            </button>
+            <button class="w3-button w3-round-medium" id="start">Start</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
-		<script>
-			require('../../../../dist/renderer/game/scripts/script.spammer.js');
-		</script>
-	</body>
+    <script>
+      require('../../../../dist/renderer/game/scripts/script.spammer.js');
+    </script>
+  </body>
 </html>

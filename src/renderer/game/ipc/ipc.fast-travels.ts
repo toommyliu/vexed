@@ -1,20 +1,17 @@
-import { ipcRenderer } from 'electron';
+import { ipcRenderer } from '../../../common/ipc';
 import { IPC_EVENTS } from '../../../common/ipc-events';
 import { Bot } from '../lib/Bot';
+import { Logger } from '../util/logger';
 
 const bot = Bot.getInstance();
+const logger = Logger.get('IpcFastTravels');
 
-ipcRenderer.on(IPC_EVENTS.FAST_TRAVEL, async (_ev, args: Args) => {
-	if (!bot.player.isReady()) return;
+ipcRenderer.answerMain(IPC_EVENTS.FAST_TRAVEL, async (args) => {
+  logger.info(args);
 
-	if (args?.map) {
-		await bot.world.join(args.map, args?.cell, args?.pad).catch(() => {});
-	}
+  if (bot.player.isReady() && args?.map) {
+    await bot.world
+      .join(`${args.map}-${args.roomNumber}`, args?.cell, args?.pad)
+      .catch(() => {});
+  }
 });
-
-type Args = {
-	cell?: string;
-	map: string;
-	pad?: string;
-	roomNumber: number;
-};

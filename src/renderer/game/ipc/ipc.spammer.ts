@@ -1,41 +1,49 @@
 import { Mutex } from 'async-mutex';
+import interval from 'interval-promise';
+import { ipcRenderer } from '../../../common/ipc';
 import { IPC_EVENTS } from '../../../common/ipc-events';
+import { Logger } from '../../../common/logger';
 import { Bot } from '../lib/Bot';
-import { type SetIntervalAsyncTimer } from '../lib/util/TimerManager';
 
 const mutex = new Mutex();
-let intervalId: SetIntervalAsyncTimer | null = null;
+
+let on = false;
 let index = 0;
 
 const bot = Bot.getInstance();
+const logger = Logger.get('IpcSpammer');
 
-function stopInterval() {
-	if (intervalId) {
-		const tmp = intervalId;
-		void bot.timerManager.clearInterval(tmp);
-		intervalId = null;
-		index = 0;
-	}
-}
+ipcRenderer.answerMain(IPC_EVENTS.PACKET_SPAMMER_START, async (data) => {
+  logger.info('start packet spammer', data);
 
-export default async function handler(ev: MessageEvent) {
-	if (ev.data.event === IPC_EVENTS.PACKET_SPAMMER_START) {
-		stopInterval();
+  const { packets, delay } = data;
+  on = true;
 
-		const { args } = ev.data;
+  await interval(
+    async (_, stop) => {
+      if (!on) {
+        stop();
+        return;
+      }
 
-		// test packets: %xt%zm%cmd%1%tfer%me%yulgar%
-		// %xt%zm%moveToCell%my_id%Enter%Spawn%
+      logger.info('tick');
 
-		intervalId = bot.timerManager.setInterval(async () => {
-			if (!bot.player.isReady()) return;
+      if (!bot.player.isReady()) return;
 
-			await mutex.runExclusive(() => {
-				bot.packets.sendServer(args.packets[index]);
-				index = (index + 1) % args.packets.length;
-			});
-		}, args.delay ?? 1_000);
-	} else if (ev.data.event === IPC_EVENTS.PACKET_SPAMMER_STOP) {
-		stopInterval();
-	}
-}
+      await mutex.runExclusive(() => {
+        // logger.info(`sending packet: ${packets[index]}`);
+        // bot.packets.sendServer(packets[index]!);
+        index = (index + 1) % packets.length;
+      });
+    },
+    delay,
+    { stopOnError: false },
+  ).catch(() => {});
+});
+
+ipcRenderer.answerMain(IPC_EVENTS.PACKET_SPAMMER_STOP, async () => {
+  logger.info('stop packet spammer');
+
+  on = false;
+  index = 0;
+});
