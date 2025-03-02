@@ -31,8 +31,8 @@ ipcRenderer.answerMain(IPC_EVENTS.PACKET_SPAMMER_START, async (data) => {
       if (!bot.player.isReady()) return;
 
       await mutex.runExclusive(() => {
-        // logger.info(`sending packet: ${packets[index]}`);
-        // bot.packets.sendServer(packets[index]!);
+        logger.info(`sending packet: ${packets[index]}`);
+        bot.packets.sendServer(packets[index]!);
         index = (index + 1) % packets.length;
       });
     },
