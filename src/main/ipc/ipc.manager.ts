@@ -1,20 +1,24 @@
-import { ipcMain } from 'electron/main';
+import { ipcMain } from '../../common/ipc';
 import { IPC_EVENTS } from '../../common/ipc-events';
 import { FileManager } from '../FileManager';
 import { createGame } from '../windows';
+import { Logger } from '../../common/logger';
 
 const fileMgr = FileManager.getInstance();
+const logger = Logger.get('IpcManager');
 
-ipcMain.handle(IPC_EVENTS.GET_ACCOUNTS, async () => {
+ipcMain.answerRenderer(IPC_EVENTS.GET_ACCOUNTS, async () => {
   try {
-    return await fileMgr.readJson<Account[]>(fileMgr.accountsPath);
+    return (await fileMgr.readJson<Account[]>(
+      fileMgr.accountsPath,
+    )) as Account[];
   } catch (error) {
-    console.log('An error occurred while reading accounts.json (1):', error);
+    logger.error('failed to read accounts.json:', error);
     return [];
   }
 });
 
-ipcMain.handle(IPC_EVENTS.ADD_ACCOUNT, async (_, account: Account) => {
+ipcMain.answerRenderer(IPC_EVENTS.ADD_ACCOUNT, async (account) => {
   try {
     const accounts =
       (await fileMgr.readJson<Account[]>(fileMgr.accountsPath)) ?? [];
@@ -29,7 +33,7 @@ ipcMain.handle(IPC_EVENTS.ADD_ACCOUNT, async (_, account: Account) => {
   }
 });
 
-ipcMain.handle(IPC_EVENTS.REMOVE_ACCOUNT, async (_, username: string) => {
+ipcMain.answerRenderer(IPC_EVENTS.REMOVE_ACCOUNT, async ({ username }) => {
   try {
     const accounts =
       (await fileMgr.readJson<Account[]>(fileMgr.accountsPath)) ?? [];
@@ -44,17 +48,12 @@ ipcMain.handle(IPC_EVENTS.REMOVE_ACCOUNT, async (_, username: string) => {
     await fileMgr.writeJson(fileMgr.accountsPath, accounts);
     return true;
   } catch (error) {
-    console.error('Failed to remove account:', error);
+    logger.error('failed to remove account:', error);
     return false;
   }
 });
 
-ipcMain.handle(
-  IPC_EVENTS.LAUNCH_GAME,
-  async (_, account: AccountWithServer) => {
-    console.log('Launching game for:', account.username);
-    await createGame(account);
-  },
-);
-
-type AccountWithServer = Account & { server: string };
+ipcMain.answerRenderer(IPC_EVENTS.LAUNCH_GAME, async (account) => {
+  logger.info(`launching game for: ${account.username}`);
+  await createGame(account);
+});

@@ -1,11 +1,15 @@
-import { ipcRenderer } from 'electron/renderer';
+import { ipcRenderer } from '../../common/ipc';
+import { IPC_EVENTS } from '../../common/ipc-events';
+import { Logger } from '../../common/logger';
+
+const logger = Logger.get('ScriptManager');
 
 const accounts: Account[] = [];
 const servers: Server[] = [];
 
 const timeouts = new Map<string, NodeJS.Timeout>();
 
-ipcRenderer.on('manager:enable_button', async (_, username) => {
+ipcRenderer.answerMain(IPC_EVENTS.ENABLE_BUTTON, async ({ username }) => {
   const timeout = timeouts.get(username);
   if (timeout) {
     clearTimeout(timeout);
@@ -38,11 +42,13 @@ async function startAccount({ username, password }: Account) {
 
   timeouts.set(username, timeout);
 
-  await ipcRenderer.invoke('manager:launch_game', {
-    username,
-    password,
-    server: serversSelect.value,
-  });
+  await ipcRenderer
+    .callMain(IPC_EVENTS.LAUNCH_GAME, {
+      username,
+      password,
+      server: serversSelect.value!,
+    })
+    .catch(() => {});
 }
 
 async function removeAccount({ username }: Pick<Account, 'username'>) {
@@ -52,7 +58,9 @@ async function removeAccount({ username }: Pick<Account, 'username'>) {
     timeouts.delete(username);
   }
 
-  await ipcRenderer.invoke('manager:remove_account', username);
+  await ipcRenderer
+    .callMain(IPC_EVENTS.REMOVE_ACCOUNT, { username })
+    .catch(() => {});
 }
 
 function toggleAccountState(ev: MouseEvent) {
@@ -187,7 +195,11 @@ window.addEventListener('DOMContentLoaded', async () => {
           password: password as string,
         };
 
-        const res = await ipcRenderer.invoke('manager:add_account', account);
+        const res = await ipcRenderer
+          .callMain(IPC_EVENTS.ADD_ACCOUNT, account)
+          .catch(() => ({
+            success: false,
+          }));
 
         if (res?.success) {
           // eslint-disable-next-line require-atomic-updates
@@ -217,7 +229,7 @@ window.addEventListener('DOMContentLoaded', async () => {
           res?.success ? 1_000 : 2_000,
         );
       } catch (error) {
-        console.log('An error occurred while trying to add the account', error);
+        logger.error('failed to add account:', error);
 
         el.innerText = `An error occurred while trying to add the account${error instanceof Error && error.message ? `: ${error.message}` : ''}`;
 
@@ -239,7 +251,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   const [accountsOut, serversOut] = await Promise.all([
-    ipcRenderer.invoke('manager:get_accounts'),
+    ipcRenderer.callMain(IPC_EVENTS.GET_ACCOUNTS),
     fetch('https://game.aq.com/game/api/data/servers').then(async (resp) =>
       resp.json(),
     ),

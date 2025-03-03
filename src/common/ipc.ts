@@ -115,6 +115,30 @@ type TypedIpcEvents = {
     args: undefined;
     response: undefined;
   };
+  [IPC_EVENTS.LOAD_SCRIPT]: {
+    args: undefined;
+    response: undefined;
+  };
+  [IPC_EVENTS.SCRIPT_LOADED]: {
+    args: undefined;
+    response: undefined;
+  };
+  [IPC_EVENTS.TOGGLE_DEV_TOOLS]: {
+    args: undefined;
+    response: undefined;
+  };
+  [IPC_EVENTS.LOGIN_SUCCESS]: {
+    args: {
+      username: string;
+    };
+    response: undefined;
+  };
+  [IPC_EVENTS.ACTIVATE_WINDOW]: {
+    args: {
+      windowId: string;
+    };
+    response: undefined;
+  };
   [IPC_EVENTS.FAST_TRAVEL]: {
     args: FastTravel & { roomNumber: number };
     response: undefined;
@@ -181,6 +205,29 @@ type TypedIpcEvents = {
   };
   [IPC_EVENTS.PACKET_SPAMMER_STOP]: {
     args: undefined;
+    response: undefined;
+  };
+
+  [IPC_EVENTS.GET_ACCOUNTS]: {
+    args: undefined;
+    response: Account[];
+  };
+  [IPC_EVENTS.ADD_ACCOUNT]: {
+    args: Account;
+    response: { msg: string; success: false } | { success: true };
+  };
+  [IPC_EVENTS.REMOVE_ACCOUNT]: {
+    args: { username: string };
+    response: boolean;
+  };
+  [IPC_EVENTS.LAUNCH_GAME]: {
+    args: AccountWithServer;
+    response: undefined;
+  };
+  [IPC_EVENTS.ENABLE_BUTTON]: {
+    args: {
+      username: string;
+    };
     response: undefined;
   };
 };

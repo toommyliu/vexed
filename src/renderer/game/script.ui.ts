@@ -1,7 +1,5 @@
-// Script for managing topnav interactivity
-
-import { ipcRenderer } from 'electron';
 import { WINDOW_IDS } from '../../common/constants';
+import { ipcRenderer } from '../../common/ipc';
 import { IPC_EVENTS } from '../../common/ipc-events';
 import { Bot } from './lib/Bot';
 
@@ -14,7 +12,7 @@ const checkmarkSvg = `
     <polyline points="20 6 9 17 4 12"></polyline>
 </svg>`;
 
-ipcRenderer.on(IPC_EVENTS.SCRIPT_LOADED, () => {
+ipcRenderer.answerMain(IPC_EVENTS.SCRIPT_LOADED, () => {
   const btn = document.querySelector(
     '#scripts-dropdowncontent > button:nth-child(2)',
   ) as HTMLButtonElement;
@@ -36,7 +34,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     ) as HTMLButtonElement;
 
     btn.onclick = async () => {
-      ipcRenderer.send(IPC_EVENTS.LOAD_SCRIPT);
+      await ipcRenderer.callMain(IPC_EVENTS.LOAD_SCRIPT).catch(() => {});
     };
   }
 
@@ -69,8 +67,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     const btn = document.querySelector(
       '#scripts-dropdowncontent > button:nth-child(3)',
     ) as HTMLButtonElement;
-    btn.addEventListener('click', () => {
-      ipcRenderer.send(IPC_EVENTS.TOGGLE_DEV_TOOLS);
+    btn.addEventListener('click', async () => {
+      await ipcRenderer.callMain(IPC_EVENTS.TOGGLE_DEV_TOOLS).catch(() => {});
     });
   }
 
@@ -78,8 +76,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     const btn = document.querySelector(
       '#tools-dropdowncontent > button:nth-child(1)',
     ) as HTMLButtonElement;
-    btn.addEventListener('click', () => {
-      ipcRenderer.send(IPC_EVENTS.ACTIVATE_WINDOW, WINDOW_IDS.FAST_TRAVELS);
+    btn.addEventListener('click', async () => {
+      await ipcRenderer
+        .callMain(IPC_EVENTS.ACTIVATE_WINDOW, {
+          windowId: WINDOW_IDS.FAST_TRAVELS,
+        })
+        .catch(() => {});
     });
   }
 
@@ -87,8 +89,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     const btn = document.querySelector(
       '#tools-dropdowncontent > button:nth-child(2)',
     ) as HTMLButtonElement;
-    btn.addEventListener('click', () => {
-      ipcRenderer.send(IPC_EVENTS.ACTIVATE_WINDOW, WINDOW_IDS.LOADER_GRABBER);
+    btn.addEventListener('click', async () => {
+      await ipcRenderer
+        .callMain(IPC_EVENTS.ACTIVATE_WINDOW, {
+          windowId: WINDOW_IDS.LOADER_GRABBER,
+        })
+        .catch(() => {});
     });
   }
 
@@ -96,8 +102,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     const btn = document.querySelector(
       '#tools-dropdowncontent > button:nth-child(3)',
     ) as HTMLButtonElement;
-    btn.addEventListener('click', () => {
-      ipcRenderer.send(IPC_EVENTS.ACTIVATE_WINDOW, WINDOW_IDS.FOLLOWER);
+    btn.addEventListener('click', async () => {
+      await ipcRenderer.callMain(IPC_EVENTS.ACTIVATE_WINDOW, {
+        windowId: WINDOW_IDS.FOLLOWER,
+      });
     });
   }
 
@@ -105,8 +113,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     const btn = document.querySelector(
       '#packets-dropdowncontent > button:nth-child(1)',
     ) as HTMLButtonElement;
-    btn.addEventListener('click', () => {
-      ipcRenderer.send(IPC_EVENTS.ACTIVATE_WINDOW, WINDOW_IDS.PACKETS_LOGGER);
+    btn.addEventListener('click', async () => {
+      await ipcRenderer
+        .callMain(IPC_EVENTS.ACTIVATE_WINDOW, {
+          windowId: WINDOW_IDS.PACKETS_LOGGER,
+        })
+        .catch(() => {});
     });
   }
 
@@ -114,8 +126,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     const btn = document.querySelector(
       '#packets-dropdowncontent > button:nth-child(2)',
     ) as HTMLButtonElement;
-    btn.addEventListener('click', () => {
-      ipcRenderer.send(IPC_EVENTS.ACTIVATE_WINDOW, WINDOW_IDS.PACKETS_SPAMMER);
+    btn.addEventListener('click', async () => {
+      await ipcRenderer
+        .callMain(IPC_EVENTS.ACTIVATE_WINDOW, {
+          windowId: WINDOW_IDS.PACKETS_SPAMMER,
+        })
+        .catch(() => {});
     });
   }
 

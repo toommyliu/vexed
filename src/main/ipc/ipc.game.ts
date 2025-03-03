@@ -1,15 +1,14 @@
 import { join } from 'path';
-import { ipcMain } from 'electron';
-import { app, BrowserWindow, dialog, type IpcMainEvent } from 'electron/main';
+import { app, BrowserWindow, dialog } from 'electron/main';
 import { readFile } from 'fs-extra';
 import { WINDOW_IDS } from '../../common/constants';
-import { ipcMain as ipc } from '../../common/ipc';
+import { ipcMain } from '../../common/ipc';
 import { IPC_EVENTS } from '../../common/ipc-events';
+import { Logger } from '../../common/logger';
 import type { FastTravel } from '../../common/types';
 import { FileManager } from '../FileManager';
 import { recursivelyApplySecurityPolicy } from '../util/recursivelyApplySecurityPolicy';
 import { mgrWindow, store } from '../windows';
-import { Logger } from '../../common/logger';
 
 const fm = FileManager.getInstance();
 const logger = Logger.get('IpcGame');
@@ -39,7 +38,7 @@ const getWindow = (
   }
 };
 
-ipc.answerRenderer(IPC_EVENTS.MSGBROKER, async (data, browserWindow) => {
+ipcMain.answerRenderer(IPC_EVENTS.MSGBROKER, async (data, browserWindow) => {
   const parent = browserWindow.getParentWindow();
   // if there is no parent, then it must be the parent window
   const windowStoreId = parent?.id ?? browserWindow.id;
@@ -66,31 +65,31 @@ ipc.answerRenderer(IPC_EVENTS.MSGBROKER, async (data, browserWindow) => {
   //
   // to return a response: the target renderer must .answerMain() and
   // return a value, otherwise, the promise resolves with undefined
-  return ipc.callRenderer(targetWindow, data.ipcEvent, data.data);
+  return ipcMain.callRenderer(targetWindow, data.ipcEvent, data.data);
 });
 
-ipcMain.on(IPC_EVENTS.LOGIN_SUCCESS, async (_, username: string) => {
-  if (!mgrWindow) {
-    return;
-  }
+ipcMain.answerRenderer(IPC_EVENTS.LOGIN_SUCCESS, async ({ username }) => {
+  if (!mgrWindow) return;
 
-  logger.info(`${username} successfully logged in`);
+  logger.info(`user ${username} successfully logged in`);
 
-  mgrWindow.webContents.send('manager:enable_button', username);
+  await ipcMain
+    .callRenderer(mgrWindow, IPC_EVENTS.ENABLE_BUTTON, {
+      username,
+    })
+    .catch(() => {});
 });
 
-ipcMain.on(
+ipcMain.answerRenderer(
   IPC_EVENTS.ACTIVATE_WINDOW,
-  async (ev: IpcMainEvent, windowId: string) => {
-    const sender = BrowserWindow.fromWebContents(ev.sender);
-    if (!sender || !windowId) {
-      return false;
-    }
-
-    const windows = store.get(sender.id);
+  async ({ windowId }, browserWindow) => {
+    const windows = store.get(browserWindow.id);
     if (!windows) {
-      logger.info(`${windowId} (${sender.id}) does not belong to any store?`);
-      return false;
+      logger.info(
+        `${windowId} (${browserWindow.id}) does not belong to any store?`,
+      );
+      return;
+      // return false;
     }
 
     let ref: BrowserWindow | null = null;
@@ -136,7 +135,8 @@ ipcMain.on(
       logger.info(`restoring window for ${windowId}`);
       ref.show();
       ref.focus();
-      return true;
+      return;
+      // return true;
     }
 
     logger.info(`creating new window for ${windowId}`);
@@ -150,7 +150,7 @@ ipcMain.on(
       },
       // Parent is required in order to maintain parent-child relationships and for ipc calls
       // Moving the parent also moves the child, as well as minimizing it
-      parent: sender,
+      parent: browserWindow,
       width: width!,
       minWidth: width!,
       minHeight: height!,
@@ -197,14 +197,11 @@ ipcMain.on(
     });
 
     await window.loadFile(path!);
-    return true;
+    // return true;
   },
 );
 
-ipcMain.on(IPC_EVENTS.LOAD_SCRIPT, async (ev) => {
-  const browserWindow = BrowserWindow.fromWebContents(ev.sender);
-  if (!browserWindow) return;
-
+ipcMain.answerRenderer(IPC_EVENTS.LOAD_SCRIPT, async (_, browserWindow) => {
   try {
     const res = await dialog.showOpenDialog(browserWindow, {
       defaultPath: join(fm.basePath, 'Bots'),
@@ -222,7 +219,9 @@ ipcMain.on(IPC_EVENTS.LOAD_SCRIPT, async (ev) => {
     await browserWindow.webContents
       .executeJavaScript(content)
       .then(async () => {
-        browserWindow.webContents.send(IPC_EVENTS.SCRIPT_LOADED);
+        await ipcMain
+          .callRenderer(browserWindow, IPC_EVENTS.SCRIPT_LOADED)
+          .catch(() => {});
       })
       .catch(async () => {
         // some commands might have loaded before the error was raised, clear them
@@ -239,7 +238,7 @@ ipcMain.on(IPC_EVENTS.LOAD_SCRIPT, async (ev) => {
   } catch {}
 });
 
-ipc.answerRenderer(IPC_EVENTS.READ_FAST_TRAVELS, async () => {
+ipcMain.answerRenderer(IPC_EVENTS.READ_FAST_TRAVELS, async () => {
   try {
     return (await fm.readJson(fm.fastTravelsPath)) as FastTravel[];
   } catch {
@@ -247,8 +246,9 @@ ipc.answerRenderer(IPC_EVENTS.READ_FAST_TRAVELS, async () => {
   }
 });
 
-ipcMain.on(IPC_EVENTS.TOGGLE_DEV_TOOLS, (ev) => {
+ipcMain.answerRenderer(IPC_EVENTS.TOGGLE_DEV_TOOLS, (_, browserWindow) => {
   try {
-    if (!ev.sender?.isDestroyed()) ev.sender.toggleDevTools();
+    if (!browserWindow.isDestroyed())
+      browserWindow.webContents.toggleDevTools();
   } catch {}
 });
