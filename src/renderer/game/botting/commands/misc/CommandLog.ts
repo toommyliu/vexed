@@ -6,7 +6,10 @@ export class CommandLog extends Command {
   public level!: string;
 
   public override execute() {
-    logger.log(this.level, this.msg);
+    // moderator
+    // server
+    // warning
+    this.bot.packets.sendClient(`%xt%warning%-1%${this.msg}%`);
   }
 
   public override toString() {

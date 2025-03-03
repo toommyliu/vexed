@@ -9,15 +9,24 @@ export class Context extends EventEmitter<Events> {
 
   private readonly queue: AsyncQueue;
 
+  /**
+   * List of quest ids to watch for.
+   */
   private readonly questIds: Set<number>;
 
+  /**
+   * List of item ids to watch for.
+   */
   private readonly itemIds: Set<number>;
+
+  /**
+   * List of boost ids to watch for.
+   */
+  // private readonly boostIds: Set<number>;
 
   private questTimer!: SetIntervalAsyncTimer;
 
   private itemTimer!: SetIntervalAsyncTimer;
-
-  // private readonly boostIds: Set<number>;
 
   // private boostTimer!: SetIntervalAsyncTimer;
 
@@ -66,7 +75,7 @@ export class Context extends EventEmitter<Events> {
     this._commands.push(command);
   }
 
-  public get isCommandQueueEmpty() {
+  public isCommandQueueEmpty() {
     return this._commands.length === 0;
   }
 
@@ -115,10 +124,9 @@ export class Context extends EventEmitter<Events> {
   public async start() {
     this.abortController = new AbortController();
 
-    // Start context timers
     await this.startContextTimers();
 
-    if (this._commands.length > 0) {
+    if (!this.isCommandQueueEmpty) {
       await this.startCommandExecution();
     }
   }
@@ -181,7 +189,7 @@ export class Context extends EventEmitter<Events> {
       if (!this.isRunning()) break;
 
       try {
-        const command = this._commands[this._commandIndex];
+        const command = this.getCommand(this.commandIndex);
         if (!command) {
           break;
         }
@@ -211,6 +219,9 @@ export class Context extends EventEmitter<Events> {
     this._stop();
     // logger.info('command execution finished');
   }
+
+  // TODO: add an option to restart if end is reached
+  // TODO: add drops, quests, boosts runtime
 
   private _stop() {
     this.queue.abortAll();

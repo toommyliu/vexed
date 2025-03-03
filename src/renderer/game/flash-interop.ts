@@ -1,6 +1,4 @@
 import process from 'process';
-import { ipcRenderer } from '../../common/ipc';
-import { IPC_EVENTS } from '../../common/ipc-events';
 import { Logger } from '../../common/logger';
 import { Bot } from './lib/Bot';
 import { addGoldExp } from './networking/json/add-gold-exp';

@@ -1,8 +1,7 @@
-import { IPC_EVENTS } from '../../../common/ipc-events';
 import { ipcRenderer } from '../../../common/ipc';
+import { IPC_EVENTS } from '../../../common/ipc-events';
 
 const packets: string[] = [];
-let on = false;
 
 let selectedLine: HTMLElement | null = null;
 
@@ -80,8 +79,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     const onBtn = document.querySelector('#start') as HTMLButtonElement;
 
     stopBtn.addEventListener('click', async () => {
-      on = false;
-
       toggleElement(stopBtn, true);
       toggleElement(onBtn, false);
 
@@ -93,8 +90,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     });
 
     onBtn.addEventListener('click', async () => {
-      on = true;
-
       toggleElement(stopBtn, false);
       toggleElement(onBtn, true);
 
@@ -120,8 +115,6 @@ window.addEventListener('DOMContentLoaded', async () => {
         ipcEvent: IPC_EVENTS.PACKET_SPAMMER_STOP,
       })
       .catch(() => {});
-
-    on = false;
 
     const stopBtn = document.querySelector('#stop') as HTMLButtonElement;
     const onBtn = document.querySelector('#start') as HTMLButtonElement;

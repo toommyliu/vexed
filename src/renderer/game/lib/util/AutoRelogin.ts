@@ -4,10 +4,6 @@ import { Bot } from '../Bot';
 
 const logger = Logger.get('AutoRelogin');
 
-/**
- * Auto Relogins are automatically ran if the bot is running and there has been a selected server.
- * There are no calls needed to enable auto-relogin besides starting the bot and selecting the server to connect to.
- */
 export class AutoRelogin {
   private readonly bot = Bot.getInstance();
 
@@ -53,10 +49,6 @@ export class AutoRelogin {
       if (this.mutex.isLocked()) return;
 
       await this.mutex.runExclusive(async () => {
-        // logger.info(
-        // 	`logging in with ${this.username}:${this.password} to ${this.server}`,
-        // );
-
         const og_lagKiller = this.bot.settings.lagKiller;
         const og_skipCutscenes = this.bot.settings.skipCutscenes;
 
@@ -76,7 +68,7 @@ export class AutoRelogin {
           );
         }
 
-        // logger.info(`waiting for ${this.delay}ms`);
+        logger.info(`triggered, waiting ${this.delay}ms`);
         await this.bot.sleep(this.delay);
 
         // still on server select?
@@ -120,6 +112,13 @@ export class AutoRelogin {
     }, 1_000);
   }
 
+  /**
+   * Sets the credentials for auto-login.
+   *
+   * @param username - The username to login with.
+   * @param password - The password to login with.
+   * @param server - The server name to connect to.
+   */
   public setCredentials(
     username: string,
     password: string,

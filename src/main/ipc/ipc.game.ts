@@ -9,8 +9,10 @@ import type { FastTravel } from '../../common/types';
 import { FileManager } from '../FileManager';
 import { recursivelyApplySecurityPolicy } from '../util/recursivelyApplySecurityPolicy';
 import { mgrWindow, store } from '../windows';
+import { Logger } from '../../common/logger';
 
 const fm = FileManager.getInstance();
+const logger = Logger.get('IpcGame');
 
 const PUBLIC = join(__dirname, '../../../public');
 
@@ -44,19 +46,19 @@ ipc.answerRenderer(IPC_EVENTS.MSGBROKER, async (data, browserWindow) => {
   const windows = store.get(windowStoreId);
 
   if (!windows) {
-    console.log(`No windows found for id ${windowStoreId}`);
+    logger.info(`no windows found for id: ${windowStoreId}`);
     return;
   }
 
   const targetWindow = getWindow(windows, data.windowId);
-  if (!targetWindow) {
-    console.log(`Target window not found: ${data.windowId ?? 'game'}`);
+  if (!targetWindow || targetWindow?.isDestroyed()) {
+    logger.info(`target window not found: ${data.windowId ?? 'game'}`);
     return;
   }
 
-  console.log(
-    `[msgbroker] forwarding event "${data.ipcEvent}" to ${data.windowId ?? 'game'}`,
-    JSON.stringify(data),
+  logger.info(
+    `forwarding event "${data.ipcEvent}" to ${data.windowId ?? 'game'}`,
+    data,
   );
 
   // relay the message to the target window and forward the
@@ -72,7 +74,7 @@ ipcMain.on(IPC_EVENTS.LOGIN_SUCCESS, async (_, username: string) => {
     return;
   }
 
-  console.log(`${username} successfully logged in`);
+  logger.info(`${username} successfully logged in`);
 
   mgrWindow.webContents.send('manager:enable_button', username);
 });
@@ -87,7 +89,7 @@ ipcMain.on(
 
     const windows = store.get(sender.id);
     if (!windows) {
-      console.log(`${sender.id} was not found in store?`);
+      logger.info(`${windowId} (${sender.id}) does not belong to any store?`);
       return false;
     }
 
@@ -131,13 +133,13 @@ ipcMain.on(
 
     // Restore the previously created window
     if (ref && !ref?.isDestroyed()) {
-      console.log(`Restoring window for ${windowId}.`);
+      logger.info(`restoring window for ${windowId}`);
       ref.show();
       ref.focus();
       return true;
     }
 
-    console.log(`Creating new window for ${windowId}.`);
+    logger.info(`creating new window for ${windowId}`);
 
     // Create it
     const window = new BrowserWindow({
@@ -199,15 +201,6 @@ ipcMain.on(
   },
 );
 
-// ipc.answerRenderer(IPC_EVENTS.LOADED, (_, browserWindow) => {
-//   if (browserWindow.webContents.isFocused()) {
-//     console.log('focused');
-//     browserWindow.show();
-//   } else {
-//     browserWindow.showInactive();
-//   }
-// });
-
 ipcMain.on(IPC_EVENTS.LOAD_SCRIPT, async (ev) => {
   const browserWindow = BrowserWindow.fromWebContents(ev.sender);
   if (!browserWindow) return;
@@ -228,7 +221,7 @@ ipcMain.on(IPC_EVENTS.LOAD_SCRIPT, async (ev) => {
 
     await browserWindow.webContents
       .executeJavaScript(content)
-      .then(() => {
+      .then(async () => {
         browserWindow.webContents.send(IPC_EVENTS.SCRIPT_LOADED);
       })
       .catch(async () => {
