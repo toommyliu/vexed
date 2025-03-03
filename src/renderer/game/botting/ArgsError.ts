@@ -5,7 +5,7 @@ export class ArgsError extends Error {
   public constructor(message?: string, options?: ErrorOptions) {
     super(message, options);
 
-    // Get stack trace and parse it
+    // get caller line
     const stackLines = new Error(' ').stack?.split('\n') ?? [];
     const callerLine = stackLines[2]!;
 

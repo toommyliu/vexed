@@ -245,8 +245,7 @@ ipcMain.answerRenderer(IPC_EVENTS.LOAD_SCRIPT, async (_, browserWindow) => {
             // ideally, this traces to the line of the (user) script back to
             // where the error occured, not where the error is thrown internally
             await dialog.showMessageBox(browserWindow, {
-              message: `cmd.${cmd} threw an error`,
-              detail: cmd_msg,
+              message: `"cmd.${cmd}()" threw an error: ${cmd_msg}`,
               type: 'error',
             });
           } catch {}
