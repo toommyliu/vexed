@@ -9,6 +9,7 @@ import type { FastTravel } from '../../common/types';
 import { FileManager } from '../FileManager';
 import { recursivelyApplySecurityPolicy } from '../util/recursivelyApplySecurityPolicy';
 import { mgrWindow, store } from '../windows';
+import { ArgsError } from '../../renderer/game/botting/ArgsError';
 
 const fm = FileManager.getInstance();
 const logger = Logger.get('IpcGame');
@@ -216,26 +217,57 @@ ipcMain.answerRenderer(IPC_EVENTS.LOAD_SCRIPT, async (_, browserWindow) => {
     const file = res.filePaths[0]!;
     const content = await readFile(file, 'utf8');
 
-    await browserWindow.webContents
-      .executeJavaScript(content)
-      .then(async () => {
-        await ipcMain
-          .callRenderer(browserWindow, IPC_EVENTS.SCRIPT_LOADED)
-          .catch(() => {});
-      })
-      .catch(async () => {
-        // some commands might have loaded before the error was raised, clear them
-        await browserWindow.webContents.executeJavaScript(
-          'window.context._commands = []',
-        );
+    // the error is thrown in the renderer
+    // so we need to listen for it here and handle it
+    browserWindow.webContents.once(
+      'console-message',
+      async (_, level, message, line) => {
+        const args = message.slice('Uncaught'.length).split(':');
 
-        await dialog.showMessageBox(browserWindow, {
-          message:
-            'An error occured while trying to load the script.\n\nAre you missing any arguments?',
-          title: 'Error',
-        });
-      });
+        const err = args[0]!; // Error
+        const _msg = args
+          .join(' ')
+          .slice(err!.length + 1)
+          .trim();
+
+        // bad args to a command
+        if (level === 3 && _msg.startsWith('Invalid args')) {
+          const split = _msg.split(';'); // Invalid args;delay;ms is required
+          const cmd = split[1]!; // delay
+          const cmd_msg = split[2]!; // ms is required
+
+          try {
+            // reset the commands
+            await browserWindow.webContents.executeJavaScript(
+              'window.context._commands = []',
+            );
+
+            // ideally, this traces to the line of the (user) script back to
+            // where the error occured, not where the error is thrown internally
+            await dialog.showMessageBox(browserWindow, {
+              message: `cmd.${cmd} threw an error`,
+              detail: cmd_msg,
+              type: 'error',
+            });
+          } catch {}
+        } else {
+          // some generic error (syntax, etc)
+          await dialog
+            .showMessageBox(browserWindow, {
+              message: err,
+              detail: `${_msg} (line ${line})`,
+              type: 'error',
+            })
+            .catch(() => {});
+        }
+      },
+    );
+
+    await browserWindow.webContents.executeJavaScript(content);
+    await ipcMain.callRenderer(browserWindow, IPC_EVENTS.SCRIPT_LOADED);
   } catch {}
+
+  browserWindow.webContents.removeAllListeners('console-message');
 });
 
 ipcMain.answerRenderer(IPC_EVENTS.READ_FAST_TRAVELS, async () => {

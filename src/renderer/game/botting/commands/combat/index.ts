@@ -5,11 +5,12 @@ import { CommandKill } from './CommandKill';
 import { CommandKillFor } from './CommandKillFor';
 import { CommandRest } from './CommandRest';
 import { CommandUseSkill } from './CommandUseSkill';
+import { ArgsError } from '../../ArgsError';
 
 export const combatCommands = {
   attack(target: string) {
     if (!target || typeof target !== 'string') {
-      throw new Error('target is required');
+      throw new ArgsError('target is required');
     }
 
     const cmd = new CommandAttack();
@@ -24,7 +25,7 @@ export const combatCommands = {
   },
   kill(target: string) {
     if (!target || typeof target !== 'string') {
-      throw new Error('target is required');
+      throw new ArgsError('target is required');
     }
 
     const cmd = new CommandKill();
@@ -33,15 +34,15 @@ export const combatCommands = {
   },
   kill_for_item(target: string, item: number | string, quantity: number) {
     if (!target || typeof target !== 'string') {
-      throw new Error('target is required');
+      throw new ArgsError('target is required');
     }
 
     if (!item || (typeof item !== 'number' && typeof item !== 'string')) {
-      throw new Error('item is required');
+      throw new ArgsError('item is required');
     }
 
     if (!quantity || typeof quantity !== 'number' || quantity < 1) {
-      throw new Error('quantity is required');
+      throw new ArgsError('quantity is required');
     }
 
     const cmd = new CommandKillFor();
@@ -52,15 +53,15 @@ export const combatCommands = {
   },
   kill_for_temp_item(target: string, item: number | string, quantity: number) {
     if (!target || typeof target !== 'string') {
-      throw new Error('target is required');
+      throw new ArgsError('target is required');
     }
 
     if (!item || (typeof item !== 'number' && typeof item !== 'string')) {
-      throw new Error('item is required');
+      throw new ArgsError('item is required');
     }
 
     if (!quantity || typeof quantity !== 'number') {
-      throw new Error('quantity is required');
+      throw new ArgsError('quantity is required');
     }
 
     const cmd = new CommandKillFor();
@@ -75,7 +76,7 @@ export const combatCommands = {
   },
   use_skill(skill: number | string) {
     if (!skill || (typeof skill !== 'number' && typeof skill !== 'string')) {
-      throw new Error('skill is required');
+      throw new ArgsError('skill is required');
     }
 
     const cmd = new CommandUseSkill();

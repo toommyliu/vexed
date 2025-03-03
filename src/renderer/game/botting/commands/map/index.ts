@@ -1,3 +1,4 @@
+import { ArgsError } from '../../ArgsError';
 import { CommandJoinMap } from './CommandJoinMap';
 import { CommandMoveToCell } from './CommandMoveToCell';
 import { CommandSetSpawnpoint } from './CommandSetSpawnpoint';
@@ -6,7 +7,7 @@ import { CommandWalkTo } from './CommandWalkTo';
 export const mapCommands = {
   join(map: string, cell = 'Enter', pad = 'Spawn') {
     if (!map || typeof map !== 'string') {
-      throw new Error('map is required');
+      throw new ArgsError('map is required');
     }
 
     const cmd = new CommandJoinMap();
@@ -17,7 +18,7 @@ export const mapCommands = {
   },
   move_to_cell(cell: string, pad = 'Spawn') {
     if (!cell || typeof cell !== 'string') {
-      throw new Error('cell is required');
+      throw new ArgsError('cell is required');
     }
 
     const cmd = new CommandMoveToCell();
@@ -39,11 +40,11 @@ export const mapCommands = {
   },
   walk_to(x: number, y: number) {
     if (!x || typeof x !== 'number') {
-      throw new Error('x is required');
+      throw new ArgsError('x is required');
     }
 
     if (!y || typeof y !== 'number') {
-      throw new Error('y is required');
+      throw new ArgsError('y is required');
     }
 
     const cmd = new CommandWalkTo();
