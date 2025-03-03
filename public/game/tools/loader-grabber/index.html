@@ -1,92 +1,88 @@
 <!doctype html>
 <html>
-	<head>
-		<link href="../../../shared/common.css" rel="stylesheet" />
-		<link href="../../../shared/styles.css" rel="stylesheet" />
-		<link href="./styles.css" rel="stylesheet" />
-	</head>
+  <head>
+    <link href="../../../shared/common.css" rel="stylesheet" />
+    <link href="../../../shared/styles.css" rel="stylesheet" />
+    <link href="./styles.css" rel="stylesheet" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:"
+    />
+  </head>
 
-	<body>
-		<div class="w3-container">
-			<div class="w3-content">
-				<div class="w3-container w3-card w3-round-medium w3-margin" id="loader">
-					<div class="w3-margin-top">
-						<label>Loader</label>
-					</div>
-					<div class="w3-margin-top">
-						<div>
-							<label for="loader-id">ID</label>
-							<input
-								type="number"
-								id="loader-id"
-								class="w3-input w3-border w3-margin-bottom w3-round"
-							/>
-						</div>
-						<div class="w3-section">
-							<label for="loader-name">Type</label>
-							<select class="w3-select w3-border w3-round" id="loader-select">
-								<option value="" selected disabled hidden></option>
-								<option value="0">Hair shop</option>
-								<option value="1">Shop</option>
-								<option value="2">Quest</option>
-								<option value="3">Armor customizer</option>
-							</select>
-						</div>
-						<div class="w3-section">
-							<button class="w3-button w3-round" id="loader-btn">
-								Load
-							</button>
-						</div>
-					</div>
-				</div>
+  <body>
+    <div class="w3-container">
+      <div class="w3-content">
+        <div class="w3-container w3-card w3-round-medium w3-margin" id="loader">
+          <div class="w3-margin-top">
+            <label>Loader</label>
+          </div>
+          <div class="w3-margin-top">
+            <div>
+              <label for="loader-id">ID</label>
+              <input
+                type="number"
+                id="loader-id"
+                class="w3-input w3-border w3-margin-bottom w3-round"
+              />
+            </div>
+            <div class="w3-section">
+              <label for="loader-name">Type</label>
+              <select class="w3-select w3-border w3-round" id="loader-select">
+                <option value="" selected disabled hidden></option>
+                <option value="0">Hair shop</option>
+                <option value="1">Shop</option>
+                <option value="2">Quest</option>
+                <option value="3">Armor customizer</option>
+              </select>
+            </div>
+            <div class="w3-section">
+              <button class="w3-button w3-round" id="loader-btn">Load</button>
+            </div>
+          </div>
+        </div>
 
-				<div class="w3-container w3-card w3-round-medium w3-margin" id="grabber">
-					<div class="w3-margin-top">
-						<label class="w3-section">Grabber</label>
-					</div>
-					<div class="w3-margin-top">
-						<div class="w3-round w3-border w3-border-light-gray" id="tree"></div>
-					</div>
-					<div class="w3-margin-top">
-						<label for="grabber-select">Type</label>
-						<select
-							class="w3-select w3-border w3-margin-bottom w3-round"
-							id="grabber-select"
-						>
-							<option value="" disabled selected hidden></option>
-							<option value="0">Shop items</option>
-							<option value="1">Quests</option>
-							<option value="2">Inventory</option>
-							<option value="3">Temp Inventory</option>
-							<option value="4">Bank</option>
-							<option value="5">Cell Monsters</option>
-							<option value="6">Map Monsters</option>
-						</select>
-						<div class="w3-section">
-							<button
-								class="w3-button w3-round"
-								id="grabber-btn"
-							>
-								Grab
-							</button>
-							<button
-								class="w3-button w3-round"
-								id="grabber-export"
-							>
-								Export
-							</button>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
+        <div
+          class="w3-container w3-card w3-round-medium w3-margin"
+          id="grabber"
+        >
+          <div class="w3-margin-top">
+            <label class="w3-section">Grabber</label>
+          </div>
+          <div class="w3-margin-top">
+            <div
+              class="w3-round w3-border w3-border-light-gray"
+              id="tree"
+            ></div>
+          </div>
+          <div class="w3-margin-top">
+            <label for="grabber-select">Type</label>
+            <select
+              class="w3-select w3-border w3-margin-bottom w3-round"
+              id="grabber-select"
+            >
+              <option value="" disabled selected hidden></option>
+              <option value="0">Shop items</option>
+              <option value="1">Quests</option>
+              <option value="2">Inventory</option>
+              <option value="3">Temp Inventory</option>
+              <option value="4">Bank</option>
+              <option value="5">Cell Monsters</option>
+              <option value="6">Map Monsters</option>
+            </select>
+            <div class="w3-section">
+              <button class="w3-button w3-round" id="grabber-btn">Grab</button>
+              <button class="w3-button w3-round" id="grabber-export">
+                Export
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-		<script>
-			require('../../../../dist/renderer/game/scripts/script.common.js');
-
-			window.addEventListener('DOMContentLoaded', () => {
-				require('../../../../dist/renderer/game/scripts/script.loader-grabber.js');
-			});
-		</script>
-	</body>
+    <script>
+      require('../../../../dist/renderer/game/scripts/script.loader-grabber.js');
+    </script>
+  </body>
 </html>

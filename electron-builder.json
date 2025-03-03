@@ -1,39 +1,39 @@
 {
-	"productName": "vexed",
-	"electronVersion": "11.5.0",
-	"directories": {
-		"output": "build"
-	},
-	"mac": {
-		"files": [
-			"dist/**/*",
-			"assets/**/*",
-			"public/**/*",
-			"!assets/pepflashplayer.dll"
-		],
-		"asar": "false",
-		"target": {
-			"target": "zip",
-			"arch": ["x64"]
-		},
-		"icon": "assets/icon.png"
-	},
-	"win": {
-		"files": [
-			"dist/**/*",
-			"assets/**/*",
-			"public/**/*",
-			"!assets/PepperFlashPlayer.plugin"
-		],
-		"icon": "assets/icon.ico",
-		"asar": "false",
-		"target": {
-			"target": "zip",
-			"arch": ["x64"]
-		}
-	},
-	"extraMetadata": {
-		"name": "vexed",
-		"main": "./dist/main/index.js"
-	}
+  "productName": "vexed",
+  "electronVersion": "11.5.0",
+  "directories": {
+    "output": "build"
+  },
+  "mac": {
+    "files": [
+      "dist/**/*",
+      "assets/**/*",
+      "public/**/*",
+      "!assets/pepflashplayer.dll"
+    ],
+    "asar": "false",
+    "target": {
+      "target": "zip",
+      "arch": ["x64"]
+    },
+    "icon": "assets/icon.png"
+  },
+  "win": {
+    "files": [
+      "dist/**/*",
+      "assets/**/*",
+      "public/**/*",
+      "!assets/PepperFlashPlayer.plugin"
+    ],
+    "icon": "assets/icon.ico",
+    "asar": "false",
+    "target": {
+      "target": "zip",
+      "arch": ["x64"]
+    }
+  },
+  "extraMetadata": {
+    "name": "vexed",
+    "main": "./dist/main/index.js"
+  }
 }

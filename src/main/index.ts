@@ -6,60 +6,62 @@ import { join } from 'path';
 import { app } from 'electron';
 import { BRAND } from '../common/constants';
 import { FileManager } from './FileManager';
-import { showErrorDialog } from './utils';
+import { showErrorDialog } from './util/showErrorDialog';
 import { createAccountManager, createGame } from './windows';
 
 function registerFlashPlugin() {
-	// eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
-	const flashTrust = require('nw-flash-trust');
-	// TODO: add checks for app.isPackaged
-	const assetsPath = join(__dirname, '../../assets');
-	let pluginName;
+  // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
+  const flashTrust = require('nw-flash-trust');
+  // TODO: add checks for app.isPackaged
+  const assetsPath = join(__dirname, '../../assets');
+  let pluginName;
 
-	if (process.platform === 'win32') {
-		pluginName = 'pepflashplayer.dll';
-	} else if (process.platform === 'darwin') {
-		pluginName = 'PepperFlashPlayer.plugin';
-	}
+  if (process.platform === 'win32') {
+    pluginName = 'pepflashplayer.dll';
+  } else if (process.platform === 'darwin') {
+    pluginName = 'PepperFlashPlayer.plugin';
+  }
 
-	if (!pluginName) {
-		showErrorDialog({ message: 'Unsupported platform.' });
-		return;
-	}
+  if (!pluginName) {
+    showErrorDialog({ message: 'Unsupported platform.' });
+    return;
+  }
 
-	app.commandLine.appendSwitch(
-		'ppapi-flash-path',
-		join(assetsPath, pluginName),
-	);
+  app.commandLine.appendSwitch(
+    'ppapi-flash-path',
+    join(assetsPath, pluginName),
+  );
 
-	const flashPath = join(
-		app.getPath('userData'),
-		'Pepper Data',
-		'Shockwave Flash',
-		'WritableRoot',
-	);
+  const flashPath = join(
+    app.getPath('userData'),
+    'Pepper Data',
+    'Shockwave Flash',
+    'WritableRoot',
+  );
 
-	const trustManager = flashTrust.initSync(BRAND, flashPath);
-	trustManager.empty();
-	trustManager.add(join(assetsPath, 'loader.swf'));
+  const trustManager = flashTrust.initSync(BRAND, flashPath);
+  trustManager.empty();
+  trustManager.add(join(assetsPath, 'loader.swf'));
 }
 
 registerFlashPlugin();
 app.disableHardwareAcceleration();
+app.commandLine.appendSwitch('disable-renderer-backgrounding');
+app.commandLine.appendArgument('--disable-renderer-backgrounding');
 
 app.once('ready', async () => {
-	const fm = FileManager.getInstance();
-	await fm.initialize();
+  const fm = FileManager.getInstance();
+  await fm.initialize();
 
-	const settings = await fm
-		.readJson<typeof fm.defaultSettings>(fm.settingsPath)
-		.catch(() => fm.defaultSettings);
+  const settings = await fm
+    .readJson<typeof fm.defaultSettings>(fm.settingsPath)
+    .catch(() => fm.defaultSettings);
 
-	if (settings?.launchMode?.toLowerCase() === 'manager') {
-		await createAccountManager();
-	} else {
-		await createGame();
-	}
+  if (settings?.launchMode?.toLowerCase() === 'manager') {
+    await createAccountManager();
+  } else {
+    await createGame();
+  }
 });
 
 app.on('window-all-closed', () => app.quit());

@@ -1,236 +1,254 @@
 import { join } from 'path';
-import {
-	app,
-	BrowserWindow,
-	ipcMain,
-	dialog,
-	type IpcMainEvent,
-	type IpcMainInvokeEvent,
-} from 'electron/main';
+import { app, BrowserWindow, dialog } from 'electron/main';
 import { readFile } from 'fs-extra';
 import { WINDOW_IDS } from '../../common/constants';
+import { ipcMain } from '../../common/ipc';
 import { IPC_EVENTS } from '../../common/ipc-events';
+import { Logger } from '../../common/logger';
+import type { FastTravel } from '../../common/types';
 import { FileManager } from '../FileManager';
+import { recursivelyApplySecurityPolicy } from '../util/recursivelyApplySecurityPolicy';
 import { mgrWindow, store } from '../windows';
 
 const fm = FileManager.getInstance();
+const logger = Logger.get('IpcGame');
 
 const PUBLIC = join(__dirname, '../../../public');
 
-ipcMain.on(IPC_EVENTS.LOGIN_SUCCESS, async (_, username: string) => {
-	if (!mgrWindow) {
-		return;
-	}
+const getWindow = (
+  windows: ReturnType<typeof store.get>,
+  windowId: WindowId | undefined,
+) => {
+  if (!windows) return undefined;
 
-	console.log(`${username} successfully logged in`);
+  switch (windowId) {
+    case WINDOW_IDS.FAST_TRAVELS:
+      return windows!.tools.fastTravels;
+    case WINDOW_IDS.LOADER_GRABBER:
+      return windows!.tools.loaderGrabber;
+    case WINDOW_IDS.FOLLOWER:
+      return windows!.tools.follower;
+    case WINDOW_IDS.PACKETS_LOGGER:
+      return windows!.packets.logger;
+    case WINDOW_IDS.PACKETS_SPAMMER:
+      return windows!.packets.spammer;
+    case undefined:
+      // no target was provided, default to the game window
+      return windows.game;
+  }
+};
 
-	mgrWindow.webContents.send('manager:enable_button', username);
+ipcMain.answerRenderer(IPC_EVENTS.MSGBROKER, async (data, browserWindow) => {
+  const parent = browserWindow.getParentWindow();
+  // if there is no parent, then it must be the parent window
+  const windowStoreId = parent?.id ?? browserWindow.id;
+  const windows = store.get(windowStoreId);
+
+  if (!windows) {
+    logger.info(`no windows found for id: ${windowStoreId}`);
+    return;
+  }
+
+  const targetWindow = getWindow(windows, data.windowId);
+  if (!targetWindow || targetWindow?.isDestroyed()) {
+    logger.info(`target window not found: ${data.windowId ?? 'game'}`);
+    return;
+  }
+
+  logger.info(
+    `forwarding event "${data.ipcEvent}" to ${data.windowId ?? 'game'}`,
+    data,
+  );
+
+  // relay the message to the target window and forward the
+  // response back to the sender if possible.
+  //
+  // to return a response: the target renderer must .answerMain() and
+  // return a value, otherwise, the promise resolves with undefined
+  return ipcMain.callRenderer(targetWindow, data.ipcEvent, data.data);
 });
 
-ipcMain.on(
-	IPC_EVENTS.ACTIVATE_WINDOW,
-	async (ev: IpcMainEvent, windowId: string) => {
-		const sender = BrowserWindow.fromWebContents(ev.sender);
-		if (!sender || !windowId) {
-			return false;
-		}
+ipcMain.answerRenderer(IPC_EVENTS.LOGIN_SUCCESS, async ({ username }) => {
+  if (!mgrWindow) return;
 
-		const windows = store.get(sender.id);
-		if (!windows) {
-			console.log(`${sender.id} was not found in store?`);
-			return false;
-		}
+  logger.info(`user ${username} successfully logged in`);
 
-		let ref: BrowserWindow | null = null;
-		let path: string | null = null;
-		let width: number;
-		let height: number;
+  await ipcMain
+    .callRenderer(mgrWindow, IPC_EVENTS.ENABLE_BUTTON, {
+      username,
+    })
+    .catch(() => {});
+});
 
-		switch (windowId) {
-			case WINDOW_IDS.FAST_TRAVELS:
-				ref = windows.tools.fastTravels;
-				path = join(PUBLIC, 'game/tools/fast-travels/index.html');
-				width = 510;
-				height = 494;
-				break;
-			case WINDOW_IDS.LOADER_GRABBER:
-				ref = windows.tools.loaderGrabber;
-				path = join(PUBLIC, 'game/tools/loader-grabber/index.html');
-				width = 478;
-				height = 689;
-				break;
-			case WINDOW_IDS.FOLLOWER:
-				ref = windows.tools.follower;
-				path = join(PUBLIC, 'game/tools/follower/index.html');
-				width = 402;
-				height = 499;
-				break;
-			case WINDOW_IDS.PACKETS_LOGGER:
-				ref = windows.packets.logger;
-				path = join(PUBLIC, 'game/packets/logger/index.html');
-				width = 560;
-				height = 286;
-				break;
-			case WINDOW_IDS.PACKETS_SPAMMER:
-				ref = windows.packets.spammer;
-				path = join(PUBLIC, 'game/packets/spammer/index.html');
-				width = 596;
-				height = 325;
-				break;
-		}
+ipcMain.answerRenderer(
+  IPC_EVENTS.ACTIVATE_WINDOW,
+  async ({ windowId }, browserWindow) => {
+    const windows = store.get(browserWindow.id);
+    if (!windows) {
+      logger.info(
+        `${windowId} (${browserWindow.id}) does not belong to any store?`,
+      );
+      return;
+      // return false;
+    }
 
-		// Restore the previously created window
-		if (ref && !ref?.isDestroyed()) {
-			console.log(`Restoring window for ${windowId}.`);
-			ref.show();
-			ref.focus();
-			return true;
-		}
+    let ref: BrowserWindow | null = null;
+    let path: string | null = null;
+    let width: number;
+    let height: number;
 
-		console.log(`Creating new window for ${windowId}.`);
+    switch (windowId) {
+      case WINDOW_IDS.FAST_TRAVELS:
+        ref = windows.tools.fastTravels;
+        path = join(PUBLIC, 'game/tools/fast-travels/index.html');
+        width = 510;
+        height = 494;
+        break;
+      case WINDOW_IDS.LOADER_GRABBER:
+        ref = windows.tools.loaderGrabber;
+        path = join(PUBLIC, 'game/tools/loader-grabber/index.html');
+        width = 478;
+        height = 689;
+        break;
+      case WINDOW_IDS.FOLLOWER:
+        ref = windows.tools.follower;
+        path = join(PUBLIC, 'game/tools/follower/index.html');
+        width = 402;
+        height = 499;
+        break;
+      case WINDOW_IDS.PACKETS_LOGGER:
+        ref = windows.packets.logger;
+        path = join(PUBLIC, 'game/packets/logger/index.html');
+        width = 560;
+        height = 286;
+        break;
+      case WINDOW_IDS.PACKETS_SPAMMER:
+        ref = windows.packets.spammer;
+        path = join(PUBLIC, 'game/packets/spammer/index.html');
+        width = 596;
+        height = 325;
+        break;
+    }
 
-		// Create it
-		const newWindow = new BrowserWindow({
-			title: '',
-			webPreferences: {
-				contextIsolation: false,
-				nodeIntegration: true,
-			},
-			// Parent is required in order to maintain parent-child relationships and for ipc calls
-			// Moving the parent also moves the child, as well as minimizing it
-			parent: sender,
-			width: width!,
-			minWidth: width!,
-			minHeight: height!,
-			height: height!,
-			// When a child window is minimized, the parent window is also minimized,
-			// which is not desired. See https://github.com/electron/electron/issues/26031
-			minimizable: false,
-		});
+    // Restore the previously created window
+    if (ref && !ref?.isDestroyed()) {
+      logger.info(`restoring window for ${windowId}`);
+      ref.show();
+      ref.focus();
+      return;
+      // return true;
+    }
 
-		// Update the store immediately, to ensure window can get its string id ASAP through IPC
-		switch (windowId) {
-			case WINDOW_IDS.FAST_TRAVELS:
-				windows.tools.fastTravels = newWindow;
-				break;
-			case WINDOW_IDS.LOADER_GRABBER:
-				windows.tools.loaderGrabber = newWindow;
-				break;
-			case WINDOW_IDS.FOLLOWER:
-				windows.tools.follower = newWindow;
-				break;
-			case WINDOW_IDS.PACKETS_LOGGER:
-				windows.packets.logger = newWindow;
-				break;
-			case WINDOW_IDS.PACKETS_SPAMMER:
-				windows.packets.spammer = newWindow;
-				break;
-		}
+    logger.info(`creating new window for ${windowId}`);
 
-		if (!app.isPackaged) {
-			newWindow.webContents.openDevTools({ mode: 'right' });
-		}
+    // Create it
+    const window = new BrowserWindow({
+      title: '',
+      webPreferences: {
+        contextIsolation: false,
+        nodeIntegration: true,
+      },
+      // Parent is required in order to maintain parent-child relationships and for ipc calls
+      // Moving the parent also moves the child, as well as minimizing it
+      parent: browserWindow,
+      width: width!,
+      minWidth: width!,
+      minHeight: height!,
+      height: height!,
+      // When a child window is minimized, the parent window is also minimized,
+      // which is not desired. See https://github.com/electron/electron/issues/26031
+      minimizable: false,
+      show: false,
+    });
 
-		// Don't close the window, just hide it to be reused later
-		newWindow.on('close', (ev) => {
-			ev.preventDefault();
-			newWindow.hide();
-		});
+    // Update the store immediately, to ensure window can get its string id ASAP through IPC
+    switch (windowId) {
+      case WINDOW_IDS.FAST_TRAVELS:
+        windows.tools.fastTravels = window;
+        break;
+      case WINDOW_IDS.LOADER_GRABBER:
+        windows.tools.loaderGrabber = window;
+        break;
+      case WINDOW_IDS.FOLLOWER:
+        windows.tools.follower = window;
+        break;
+      case WINDOW_IDS.PACKETS_LOGGER:
+        windows.packets.logger = window;
+        break;
+      case WINDOW_IDS.PACKETS_SPAMMER:
+        windows.packets.spammer = window;
+        break;
+    }
 
-		await newWindow.loadFile(path!);
+    if (!app.isPackaged) {
+      window.webContents.openDevTools({ mode: 'right' });
+    }
 
-		return true;
-	},
+    recursivelyApplySecurityPolicy(window);
+
+    window.on('ready-to-show', () => {
+      window.show();
+    });
+
+    // don't close the window, just hide it
+    window.on('close', (ev) => {
+      ev.preventDefault();
+      window.hide();
+    });
+
+    await window.loadFile(path!);
+    // return true;
+  },
 );
 
-ipcMain.on(IPC_EVENTS.LOAD_SCRIPT, async (ev) => {
-	const browserWindow = BrowserWindow.fromWebContents(ev.sender);
-	if (!browserWindow) return;
+ipcMain.answerRenderer(IPC_EVENTS.LOAD_SCRIPT, async (_, browserWindow) => {
+  try {
+    const res = await dialog.showOpenDialog(browserWindow, {
+      defaultPath: join(fm.basePath, 'Bots'),
+      properties: ['openFile'],
+      filters: [{ name: 'Bots', extensions: ['js'] }],
+      message: 'Select a script to load',
+      title: 'Select a script to load',
+    });
 
-	try {
-		const res = await dialog.showOpenDialog(browserWindow, {
-			defaultPath: join(fm.basePath, 'Bots'),
-			properties: ['openFile'],
-			filters: [{ name: 'Bots', extensions: ['js'] }],
-			message: 'Select a script to load',
-			title: 'Select a script to load',
-		});
+    if (res.canceled || !res.filePaths[0]) return;
 
-		if (res.canceled || !res.filePaths[0]) return;
+    const file = res.filePaths[0]!;
+    const content = await readFile(file, 'utf8');
 
-		const file = res.filePaths[0]!;
-		const content = await readFile(file, 'utf8');
+    await browserWindow.webContents
+      .executeJavaScript(content)
+      .then(async () => {
+        await ipcMain
+          .callRenderer(browserWindow, IPC_EVENTS.SCRIPT_LOADED)
+          .catch(() => {});
+      })
+      .catch(async () => {
+        // some commands might have loaded before the error was raised, clear them
+        await browserWindow.webContents.executeJavaScript(
+          'window.context._commands = []',
+        );
 
-		await browserWindow.webContents
-			.executeJavaScript(content)
-			.then(() => {
-				browserWindow.webContents.send(IPC_EVENTS.SCRIPT_LOADED);
-			})
-			.catch(() => {
-				// some commands might have loaded before the error, clear them
-				void browserWindow.webContents.executeJavaScript(
-					'window.context._commands = []',
-				);
-
-				void dialog.showMessageBox(browserWindow, {
-					message:
-						'An error occured while trying to load the script.\n\nAre you missing any arguments?',
-					title: 'Error',
-				});
-			});
-	} catch {}
+        await dialog.showMessageBox(browserWindow, {
+          message:
+            'An error occured while trying to load the script.\n\nAre you missing any arguments?',
+          title: 'Error',
+        });
+      });
+  } catch {}
 });
 
-ipcMain.handle(IPC_EVENTS.READ_FAST_TRAVELS, async () => {
-	try {
-		return await fm.readJson(fm.fastTravelsPath);
-	} catch {
-		return fm.defaultFastTravels;
-	}
+ipcMain.answerRenderer(IPC_EVENTS.READ_FAST_TRAVELS, async () => {
+  try {
+    return (await fm.readJson(fm.fastTravelsPath)) as FastTravel[];
+  } catch {
+    return fm.defaultFastTravels;
+  }
 });
 
-ipcMain.on(IPC_EVENTS.SETUP_IPC, (ev: IpcMainEvent, windowId: string) => {
-	const sender = BrowserWindow.fromWebContents(ev.sender);
-	const parent = sender?.getParentWindow();
-
-	if (!sender || !parent || !windowId) {
-		return;
-	}
-
-	console.log(`Setting up ipc for ${windowId}.`);
-
-	parent.webContents.postMessage(IPC_EVENTS.SETUP_IPC, windowId, [
-		ev.ports[0]!,
-	]);
-});
-
-ipcMain.handle(IPC_EVENTS.GET_WINDOW_ID, (ev: IpcMainInvokeEvent) => {
-	const sender = BrowserWindow.fromWebContents(ev.sender);
-	const parent = sender?.getParentWindow();
-
-	if (!sender || !parent) {
-		return null;
-	}
-
-	const windows = store.get(parent.id);
-
-	if (sender.id === windows?.tools.fastTravels?.id) {
-		return WINDOW_IDS.FAST_TRAVELS;
-	} else if (sender.id === windows?.tools.loaderGrabber?.id) {
-		return WINDOW_IDS.LOADER_GRABBER;
-	} else if (sender.id === windows?.tools.follower?.id) {
-		return WINDOW_IDS.FOLLOWER;
-	} else if (sender.id === windows?.packets.logger?.id) {
-		return WINDOW_IDS.PACKETS_LOGGER;
-	} else if (sender.id === windows?.packets.spammer?.id) {
-		return WINDOW_IDS.PACKETS_SPAMMER;
-	}
-
-	return null;
-});
-
-ipcMain.on(IPC_EVENTS.TOGGLE_DEV_TOOLS, (ev) => {
-	try {
-		if (!ev.sender?.isDestroyed()) ev.sender.toggleDevTools();
-	} catch {}
+ipcMain.answerRenderer(IPC_EVENTS.TOGGLE_DEV_TOOLS, (_, browserWindow) => {
+  try {
+    if (!browserWindow.isDestroyed())
+      browserWindow.webContents.toggleDevTools();
+  } catch {}
 });

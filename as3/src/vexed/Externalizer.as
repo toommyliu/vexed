@@ -223,7 +223,7 @@ package vexed
 
 		public function debug(message:String):void
 		{
-			this.call("debug", message);
+			this.call("flashDebug", message);
 		}
 	}
 }

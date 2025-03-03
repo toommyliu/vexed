@@ -9,12 +9,12 @@ import { Context } from './context';
 const context = new Context();
 
 export const cmd = {
-	...combatCommands,
-	...conditionsCommands,
-	...itemCommands,
-	...mapCommands,
-	...miscCommands,
-	...questCommands,
+  ...combatCommands,
+  ...conditionsCommands,
+  ...itemCommands,
+  ...mapCommands,
+  ...miscCommands,
+  ...questCommands,
 };
 
 window.cmd = cmd;

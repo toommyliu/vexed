@@ -1,81 +1,88 @@
-import { ipcRenderer } from 'electron/renderer';
+import { ipcRenderer } from '../../common/ipc';
+import { IPC_EVENTS } from '../../common/ipc-events';
+import { Logger } from '../../common/logger';
+
+const logger = Logger.get('ScriptManager');
 
 const accounts: Account[] = [];
 const servers: Server[] = [];
 
 const timeouts = new Map<string, NodeJS.Timeout>();
 
-ipcRenderer.on('manager:enable_button', async (_, username) => {
-	const timeout = timeouts.get(username);
-	if (timeout) {
-		clearTimeout(timeout);
-		timeouts.delete(username);
-	}
+ipcRenderer.answerMain(IPC_EVENTS.ENABLE_BUTTON, async ({ username }) => {
+  const timeout = timeouts.get(username);
+  if (timeout) {
+    clearTimeout(timeout);
+    timeouts.delete(username);
+  }
 
-	await new Promise((resolve) => {
-		setTimeout(resolve, 500);
-	});
+  await new Promise((resolve) => {
+    setTimeout(resolve, 500);
+  });
 
-	enableAccount(username);
+  enableAccount(username);
 });
 
 function enableAccount(username: string) {
-	for (const el of document.querySelectorAll<HTMLButtonElement>('#start')) {
-		if (el.dataset['username'] === username) {
-			el.disabled = false;
-			el.classList.remove('w3-disabled');
-		}
-	}
+  for (const el of document.querySelectorAll<HTMLButtonElement>('#start')) {
+    if (el.dataset['username'] === username) {
+      el.disabled = false;
+      el.classList.remove('w3-disabled');
+    }
+  }
 }
 
 async function startAccount({ username, password }: Account) {
-	const serversSelect =
-		document.querySelector<HTMLSelectElement>('#servers')!;
+  const serversSelect = document.querySelector<HTMLSelectElement>('#servers')!;
 
-	const timeout = setTimeout(() => {
-		enableAccount(username);
-		timeouts.delete(username);
-	}, 10_000); // 10 seconds should be long enough for an account to login
+  const timeout = setTimeout(() => {
+    enableAccount(username);
+    timeouts.delete(username);
+  }, 10_000); // 10 seconds should be long enough for an account to login
 
-	timeouts.set(username, timeout);
+  timeouts.set(username, timeout);
 
-	await ipcRenderer.invoke('manager:launch_game', {
-		username,
-		password,
-		server: serversSelect.value,
-	});
+  await ipcRenderer
+    .callMain(IPC_EVENTS.LAUNCH_GAME, {
+      username,
+      password,
+      server: serversSelect.value!,
+    })
+    .catch(() => {});
 }
 
 async function removeAccount({ username }: Pick<Account, 'username'>) {
-	const timeout = timeouts.get(username);
-	if (timeout) {
-		clearTimeout(timeout);
-		timeouts.delete(username);
-	}
+  const timeout = timeouts.get(username);
+  if (timeout) {
+    clearTimeout(timeout);
+    timeouts.delete(username);
+  }
 
-	await ipcRenderer.invoke('manager:remove_account', username);
+  await ipcRenderer
+    .callMain(IPC_EVENTS.REMOVE_ACCOUNT, { username })
+    .catch(() => {});
 }
 
 function toggleAccountState(ev: MouseEvent) {
-	const checkbox = (ev.target as Element)!
-		.closest('.w3-card')!
-		.querySelector('input') as HTMLInputElement;
+  const checkbox = (ev.target as Element)!
+    .closest('.w3-card')!
+    .querySelector('input') as HTMLInputElement;
 
-	checkbox.checked = !checkbox.checked;
-	checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+  checkbox.checked = !checkbox.checked;
+  checkbox.dispatchEvent(new Event('change', { bubbles: true }));
 }
 
 function updateAccounts() {
-	for (const timeout of timeouts.values()) {
-		clearTimeout(timeout);
-	}
+  for (const timeout of timeouts.values()) {
+    clearTimeout(timeout);
+  }
 
-	timeouts.clear();
+  timeouts.clear();
 
-	const accountsContainer = document.querySelector('#accounts')!;
-	accountsContainer.innerHTML = accounts
-		.map(
-			(account) => `
+  const accountsContainer = document.querySelector('#accounts')!;
+  accountsContainer.innerHTML = accounts
+    .map(
+      (account) => `
                 <div class="w3-card w3-round-medium" style="border:0px !important;">
                     <div class="account-bar">
                         <div class="account-info">
@@ -101,246 +108,231 @@ function updateAccounts() {
                     </div>
                 </div>
             `,
-		)
-		.join('');
+    )
+    .join('');
 
-	for (const el of document.querySelectorAll('.username-toggle')) {
-		(el as HTMLSpanElement).onclick = toggleAccountState;
-	}
+  for (const el of document.querySelectorAll('.username-toggle')) {
+    (el as HTMLSpanElement).onclick = toggleAccountState;
+  }
 
-	const removeBtns = document.querySelectorAll<HTMLButtonElement>('#remove');
-	for (const el of removeBtns) {
-		el.onclick = async () => {
-			const username = el.dataset['username']!;
+  const removeBtns = document.querySelectorAll<HTMLButtonElement>('#remove');
+  for (const el of removeBtns) {
+    el.onclick = async () => {
+      const username = el.dataset['username']!;
 
-			const idx = accounts.findIndex((acc) => acc.username === username);
-			if (idx !== -1) {
-				accounts.splice(idx, 1);
-				await removeAccount({ username });
-				updateAccounts();
-			}
-		};
-	}
+      const idx = accounts.findIndex((acc) => acc.username === username);
+      if (idx !== -1) {
+        accounts.splice(idx, 1);
+        await removeAccount({ username });
+        updateAccounts();
+      }
+    };
+  }
 
-	const startBtns = document.querySelectorAll<HTMLButtonElement>('#start');
-	for (const el of startBtns) {
-		el.onclick = async () => {
-			el.disabled = true;
-			el.classList.add('w3-disabled');
+  const startBtns = document.querySelectorAll<HTMLButtonElement>('#start');
+  for (const el of startBtns) {
+    el.onclick = async () => {
+      el.disabled = true;
+      el.classList.add('w3-disabled');
 
-			const username = el.dataset['username']!;
-			const password = el.dataset['password']!;
+      const username = el.dataset['username']!;
+      const password = el.dataset['password']!;
 
-			await startAccount({ username, password });
-		};
-	}
+      await startAccount({ username, password });
+    };
+  }
 }
 
 function updateServers() {
-	const select = document.querySelector<HTMLSelectElement>('#servers')!;
-	select.innerHTML = servers
-		.map(
-			(server) => `
+  const select = document.querySelector<HTMLSelectElement>('#servers')!;
+  select.innerHTML = servers
+    .map(
+      (server) => `
 				<option value="${server.sName}">${server.sName} (${server.iCount})</option>
 			`,
-		)
-		.join('');
+    )
+    .join('');
 }
 
 window.addEventListener('DOMContentLoaded', async () => {
-	{
-		const btn = document.querySelector('#accordion-toggle')!;
-		btn.addEventListener('click', () => {
-			const nextEl = btn.nextElementSibling;
-			if (nextEl) nextEl.classList.toggle('w3-show');
-		});
-	}
+  {
+    const btn = document.querySelector('#accordion-toggle')!;
+    btn.addEventListener('click', () => {
+      const nextEl = btn.nextElementSibling;
+      if (nextEl) nextEl.classList.toggle('w3-show');
+    });
+  }
 
-	{
-		const form = document.querySelector('#account-form') as HTMLFormElement;
-		const btn = document.querySelector(
-			'button[type=submit]',
-		) as HTMLButtonElement;
+  {
+    const form = document.querySelector('#account-form') as HTMLFormElement;
+    const btn = document.querySelector(
+      'button[type=submit]',
+    ) as HTMLButtonElement;
 
-		form.addEventListener('submit', async (ev) => {
-			btn.classList.add('w3-disabled');
+    form.addEventListener('submit', async (ev) => {
+      btn.classList.add('w3-disabled');
 
-			ev.preventDefault();
+      ev.preventDefault();
 
-			const formData = new FormData(ev.target as HTMLFormElement);
+      const formData = new FormData(ev.target as HTMLFormElement);
 
-			const username = formData.get('username');
-			const password = formData.get('password');
+      const username = formData.get('username');
+      const password = formData.get('password');
 
-			if (!username || !password) {
-				return;
-			}
+      if (!username || !password) {
+        return;
+      }
 
-			const el = document.querySelector('#alert') as HTMLElement;
-			const cl = el.classList;
+      const el = document.querySelector('#alert') as HTMLElement;
+      const cl = el.classList;
 
-			try {
-				el.innerHTML = '';
-				cl.remove('w3-green', 'w3-red', 'w3-hide', 'w3-show');
+      try {
+        el.innerHTML = '';
+        cl.remove('w3-green', 'w3-red', 'w3-hide', 'w3-show');
 
-				const account = {
-					username: username as string,
-					password: password as string,
-				};
+        const account = {
+          username: username as string,
+          password: password as string,
+        };
 
-				const res = await ipcRenderer.invoke(
-					'manager:add_account',
-					account,
-				);
+        const res = await ipcRenderer
+          .callMain(IPC_EVENTS.ADD_ACCOUNT, account)
+          .catch(() => ({
+            success: false,
+          }));
 
-				if (res?.success) {
-					// eslint-disable-next-line require-atomic-updates
-					el.innerText = 'Account added successfully';
-					accounts.push(account);
-					updateAccounts();
-				} else {
-					// eslint-disable-next-line require-atomic-updates
-					el.innerText =
-						'An error occurred while trying to add the account';
-				}
+        if (res?.success) {
+          // eslint-disable-next-line require-atomic-updates
+          el.innerText = 'Account added successfully';
+          accounts.push(account);
+          updateAccounts();
+        } else {
+          // eslint-disable-next-line require-atomic-updates
+          el.innerText = 'An error occurred while trying to add the account';
+        }
 
-				el!.style.display = 'block';
-				cl.remove('w3-hide');
+        el!.style.display = 'block';
+        cl.remove('w3-hide');
 
-				cl.add(
-					res?.success ? 'w3-green' : 'w3-red',
-					'w3-animate-opacity',
-				);
+        cl.add(res?.success ? 'w3-green' : 'w3-red', 'w3-animate-opacity');
 
-				cl.remove('w3-hide');
-				setTimeout(
-					() => {
-						cl.add('w3-hide');
-						el.style.display = 'none';
-						setTimeout(() => {
-							el.innerText = '';
-							cl.remove(
-								'w3-show',
-								'w3-hide',
-								'w3-green',
-								'w3-red',
-							);
-						}, 400);
-					},
-					res?.success ? 1_000 : 2_000,
-				);
-			} catch (error) {
-				console.log(
-					'An error occurred while trying to add the account',
-					error,
-				);
+        cl.remove('w3-hide');
+        setTimeout(
+          () => {
+            cl.add('w3-hide');
+            el.style.display = 'none';
+            setTimeout(() => {
+              el.innerText = '';
+              cl.remove('w3-show', 'w3-hide', 'w3-green', 'w3-red');
+            }, 400);
+          },
+          res?.success ? 1_000 : 2_000,
+        );
+      } catch (error) {
+        logger.error('failed to add account:', error);
 
-				el.innerText = `An error occurred while trying to add the account${error instanceof Error && error.message ? `: ${error.message}` : ''}`;
+        el.innerText = `An error occurred while trying to add the account${error instanceof Error && error.message ? `: ${error.message}` : ''}`;
 
-				cl.add('w3-red', 'show');
-				cl.remove('w3-hide');
+        cl.add('w3-red', 'show');
+        cl.remove('w3-hide');
 
-				setTimeout(() => {
-					cl.add('w3-hide');
-					el.style.display = 'none';
-					setTimeout(() => {
-						el.innerText = '';
-						cl.remove('w3-show', 'w3-hide', 'w3-green', 'w3-red');
-					}, 400);
-				}, 2_000);
-			} finally {
-				btn.classList.remove('w3-disabled');
-			}
-		});
-	}
+        setTimeout(() => {
+          cl.add('w3-hide');
+          el.style.display = 'none';
+          setTimeout(() => {
+            el.innerText = '';
+            cl.remove('w3-show', 'w3-hide', 'w3-green', 'w3-red');
+          }, 400);
+        }, 2_000);
+      } finally {
+        btn.classList.remove('w3-disabled');
+      }
+    });
+  }
 
-	const [accountsOut, serversOut] = await Promise.all([
-		ipcRenderer.invoke('manager:get_accounts'),
-		fetch('https://game.aq.com/game/api/data/servers').then(async (resp) =>
-			resp.json(),
-		),
-	]);
+  const [accountsOut, serversOut] = await Promise.all([
+    ipcRenderer.callMain(IPC_EVENTS.GET_ACCOUNTS),
+    fetch('https://game.aq.com/game/api/data/servers').then(async (resp) =>
+      resp.json(),
+    ),
+  ]);
 
-	try {
-		accounts.push(...accountsOut);
-	} catch (error) {
-		console.error(error);
-		// eslint-disable-next-line no-alert
-		alert('An error occured trying to read accounts file');
-	}
+  try {
+    accounts.push(...accountsOut);
+  } catch (error) {
+    console.error(error);
+    // eslint-disable-next-line no-alert
+    alert('An error occured trying to read accounts file');
+  }
 
-	servers.push(...serversOut);
+  servers.push(...serversOut);
 
-	updateAccounts();
-	updateServers();
+  updateAccounts();
+  updateServers();
 
-	const removeSelectedBtn =
-		document.querySelector<HTMLButtonElement>('#remove-selected')!;
-	removeSelectedBtn.addEventListener('click', async () => {
-		for (const el of document.querySelectorAll<HTMLButtonElement>(
-			'#remove',
-		)) {
-			const input = el
-				.closest('.w3-card')!
-				.querySelector<HTMLInputElement>('input')!;
-			if (!input.checked) {
-				continue;
-			}
+  const removeSelectedBtn =
+    document.querySelector<HTMLButtonElement>('#remove-selected')!;
+  removeSelectedBtn.addEventListener('click', async () => {
+    for (const el of document.querySelectorAll<HTMLButtonElement>('#remove')) {
+      const input = el
+        .closest('.w3-card')!
+        .querySelector<HTMLInputElement>('input')!;
+      if (!input.checked) {
+        continue;
+      }
 
-			const username = el.dataset['username']!;
-			await removeAccount({ username });
+      const username = el.dataset['username']!;
+      await removeAccount({ username });
 
-			const idx = accounts.findIndex((acc) => acc.username === username);
-			if (idx !== -1) {
-				accounts.splice(idx, 1);
-			}
-		}
+      const idx = accounts.findIndex((acc) => acc.username === username);
+      if (idx !== -1) {
+        accounts.splice(idx, 1);
+      }
+    }
 
-		updateAccounts();
-	});
+    updateAccounts();
+  });
 
-	const startSelectedBtn =
-		document.querySelector<HTMLButtonElement>('#start-selected')!;
-	startSelectedBtn.addEventListener('click', async () => {
-		for (const el of document.querySelectorAll<HTMLInputElement>(
-			'#start',
-		)) {
-			const input = (
-				el.closest('.w3-card') as HTMLDivElement
-			).querySelector('input') as HTMLInputElement;
+  const startSelectedBtn =
+    document.querySelector<HTMLButtonElement>('#start-selected')!;
+  startSelectedBtn.addEventListener('click', async () => {
+    for (const el of document.querySelectorAll<HTMLInputElement>('#start')) {
+      const input = (el.closest('.w3-card') as HTMLDivElement).querySelector(
+        'input',
+      ) as HTMLInputElement;
 
-			if (!input.checked) {
-				continue;
-			}
+      if (!input.checked) {
+        continue;
+      }
 
-			el.disabled = true;
+      el.disabled = true;
 
-			await startAccount({
-				username: el.dataset['username']!,
-				password: el.dataset['password']!,
-			});
+      await startAccount({
+        username: el.dataset['username']!,
+        password: el.dataset['password']!,
+      });
 
-			await new Promise((resolve) => {
-				setTimeout(resolve, 1_000);
-			});
-		}
-	});
+      await new Promise((resolve) => {
+        setTimeout(resolve, 1_000);
+      });
+    }
+  });
 });
 
 type Server = {
-	bOnline: number;
-	bUpg: number;
-	iChat: number;
-	iCount: number;
-	iLevel: number;
-	iMax: number;
-	iPort: number;
-	sIP: string;
-	sLang: string;
-	sName: string;
+  bOnline: number;
+  bUpg: number;
+  iChat: number;
+  iCount: number;
+  iLevel: number;
+  iMax: number;
+  iPort: number;
+  sIP: string;
+  sLang: string;
+  sName: string;
 };
 
 type Account = {
-	password: string;
-	username: string;
+  password: string;
+  username: string;
 };

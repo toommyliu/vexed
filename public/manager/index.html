@@ -1,70 +1,80 @@
 <!doctype html>
 <html>
-	<head>
-		<link href="../shared/common.css" rel="stylesheet" />
-		<link href="../shared/styles.css" rel="stylesheet" />
-		<link href="./styles.css" rel="stylesheet" />
-	</head>
-	<body>
-		<div class="main-content">
-			<div class="w3-round-medium add-account-section">
-				<div class="add-account-header" id="accordion-toggle">
-					<h5>Add Account</h5>
-				</div>
-				<div class="add-account-content w3-hide" id="add-account-form">
-					<div id="alert" class="alert w3-hide"></div>
-					<form id="account-form">
-						<div class="form-grid">
-							<div>
-								<label for="username">Username</label>
-								<input
-									class="w3-input w3-border w3-round-medium"
-									type="text"
-									id="username"
-									name="username"
-									required
-									placeholder="Enter username"
-								/>
-							</div>
-							<div>
-								<label for="password">Password</label>
-								<input
-									class="w3-input w3-border w3-round-medium"
-									type="password"
-									id="password"
-									name="password"
-									required
-									placeholder="Enter password"
-								/>
-							</div>
-						</div>
-						<button type="submit" class="w3-button w3-round-medium">
-							Add Account
-						</button>
-					</form>
-				</div>
-			</div>
+  <head>
+    <link href="../shared/common.css" rel="stylesheet" />
+    <link href="../shared/styles.css" rel="stylesheet" />
+    <link href="./styles.css" rel="stylesheet" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self';
+           script-src 'self' 'unsafe-inline';
+           style-src 'self' 'unsafe-inline';
+           img-src 'self' data:;
+           connect-src 'self' https://game.aq.com;"
+    />
+  </head>
+  <body>
+    <div class="main-content">
+      <div class="w3-round-medium add-account-section">
+        <div class="add-account-header" id="accordion-toggle">
+          <h5>Add Account</h5>
+        </div>
+        <div class="add-account-content w3-hide" id="add-account-form">
+          <div id="alert" class="alert w3-hide"></div>
+          <form id="account-form">
+            <div class="form-grid">
+              <div>
+                <label for="username">Username</label>
+                <input
+                  class="w3-input w3-border w3-round-medium"
+                  type="text"
+                  id="username"
+                  name="username"
+                  required
+                  placeholder="Enter username"
+                />
+              </div>
+              <div>
+                <label for="password">Password</label>
+                <input
+                  class="w3-input w3-border w3-round-medium"
+                  type="password"
+                  id="password"
+                  name="password"
+                  required
+                  placeholder="Enter password"
+                />
+              </div>
+            </div>
+            <button type="submit" class="w3-button w3-round-medium">
+              Add Account
+            </button>
+          </form>
+        </div>
+      </div>
 
-			<div id="accounts" class="accounts-grid"></div>
-		</div>
+      <div id="accounts" class="accounts-grid"></div>
+    </div>
 
-		<div class="footer">
-			<div class="footer-content">
-				<div class="server-selector">
-					<label for="servers">Login Server</label>
-					<select id="servers" class="w3-select"></select>
-				</div>
-				<div class="bulk-actions">
-					<button id="remove-selected" class="w3-button w3-round-medium">
-						Remove Selected
-					</button>
-					<button id="start-selected" class="w3-button w3-round-medium">
-						Start Selected
-					</button>
-				</div>
-			</div>
-		</div>
+    <div class="footer">
+      <div class="footer-content">
+        <div class="server-selector">
+          <label for="servers">Login Server</label>
+          <select id="servers" class="w3-select"></select>
+        </div>
+        <div class="bulk-actions">
+          <button id="remove-selected" class="w3-button w3-round-medium">
+            Remove Selected
+          </button>
+          <button id="start-selected" class="w3-button w3-round-medium">
+            Start Selected
+          </button>
+        </div>
+      </div>
+    </div>
 
-		<script src="../../dist/renderer/manager/script.js"></script>
-	</body>
+    <script>
+      require('../../dist/renderer/manager/script.js');
+    </script>
+  </body>
 </html>

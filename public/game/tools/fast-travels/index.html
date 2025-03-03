@@ -1,42 +1,40 @@
 <!doctype html>
 <html>
-	<head>
-		<link href="../../../shared/common.css" rel="stylesheet" />
-		<link href="../../../shared/styles.css" rel="stylesheet" />
-		<link href="./styles.css" rel="stylesheet" />
-	</head>
+  <head>
+    <link href="../../../shared/common.css" rel="stylesheet" />
+    <link href="../../../shared/styles.css" rel="stylesheet" />
+    <link href="./styles.css" rel="stylesheet" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
+    />
+  </head>
 
-	<body>
-		<div class="w3-container w3-section">
-			<div class="w3-section w3-card w3-round-medium">
-				<div class="w3-bar">
-					<div class="w3-bar-item w3-left">
-						<label for="room-number">Room Number</label>
-					</div>
-					<div class="w3-bar-item w3-right">
-						<input
-							type="number"
-							min="1"
-							max="100000"
-							value="100000"
-							id="room-number"
-							class="w3-input w3-border w3-round-medium"
-						/>
-					</div>
-				</div>
-			</div>
+  <body>
+    <div class="w3-container w3-section">
+      <div class="w3-section w3-card w3-round-medium w3-padding">
+        <label
+          title="The room number to use when joining a map"
+          for="room-number"
+          >Room Number</label
+        >
+        <input
+          type="number"
+          min="1"
+          max="100000"
+          value="100000"
+          id="room-number"
+          class="w3-input w3-border w3-round-medium"
+        />
+      </div>
 
-			<div class="w3-section" id="locations-container">
-				<div id="locations"></div>
-			</div>
-		</div>
+      <div class="w3-section" id="locations-container">
+        <div id="locations"></div>
+      </div>
+    </div>
 
-		<script>
-			require('../../../../dist/renderer/game/scripts/script.common.js');
-
-			window.addEventListener('DOMContentLoaded', () => {
-				require('../../../../dist/renderer/game/scripts/script.fast-travels.js');
-			});
-		</script>
-	</body>
+    <script>
+      require('../../../../dist/renderer/game/scripts/script.fast-travels.js');
+    </script>
+  </body>
 </html>

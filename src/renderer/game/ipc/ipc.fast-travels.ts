@@ -1,23 +1,17 @@
+import { ipcRenderer } from '../../../common/ipc';
 import { IPC_EVENTS } from '../../../common/ipc-events';
 import { Bot } from '../lib/Bot';
+import { Logger } from '../util/logger';
 
 const bot = Bot.getInstance();
-const { world } = bot;
+const logger = Logger.get('IpcFastTravels');
 
-export default async function handler(ev: MessageEvent) {
-	if (ev.data.event === IPC_EVENTS.FAST_TRAVEL) {
-		const { args } = ev.data;
+ipcRenderer.answerMain(IPC_EVENTS.FAST_TRAVEL, async (args) => {
+  logger.info(args);
 
-		if (!bot.player.isReady()) {
-			return;
-		}
-
-		if (args?.map) {
-			const cell = args?.cell ?? 'Enter';
-			const pad = args?.pad ?? 'Spawn';
-			const roomNumber = args?.roomNumber ?? 100_000;
-
-			await world.join(`${args?.map}-${roomNumber}`, cell, pad);
-		}
-	}
-}
+  if (bot.player.isReady() && args?.map) {
+    await bot.world
+      .join(`${args.map}-${args.roomNumber}`, args?.cell, args?.pad)
+      .catch(() => {});
+  }
+});

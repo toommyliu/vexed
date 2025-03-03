@@ -1,91 +1,86 @@
 <!doctype html>
 <html>
-	<head>
-		<link href="../../../shared/common.css" rel="stylesheet" />
-		<link href="../../../shared/styles.css" rel="stylesheet" />
-		<link href="./styles.css" rel="stylesheet" />
-	</head>
-	<body>
-		<div class="w3-container">
-			<div class="w3-section w3-card w3-round-medium">
-				<div class="w3-container">
-					<div class="w3-section">
-						<label for="player">Player:</label>
-						<div id="player-name-row">
-							<input
-								id="player"
-								class="w3-input w3-border w3-round-medium"
-								type="text"
-							/>
-							<button
-								class="w3-button w3-round-medium"
-								id="me"
-							>
-								me
-							</button>
-						</div>
-					</div>
-					<div class="w3-section">
-						<label for="skills">Skill List:</label>
-						<div id="skill-list-row">
-							<input
-								id="skill-list"
-								class="w3-input w3-border w3-round-medium"
-								type="text"
-								value="1,2,3,4"
-							/>
-							<div class="skill-wait-row">
-								<input type="checkbox" id="skill-wait" />
-								<label for="skill-wait">Wait</label>
-							</div>
-						</div>
-					</div>
-					<div class="w3-section">
-						<label for="skill-delay">Skill Delay:</label>
-						<div class="input-group">
-							<input
-								id="skill-delay"
-								class="w3-input w3-border w3-round-medium"
-								type="number"
-								min="0"
-								value="150"
-							/>
-							<label for="skill-delay">ms</label>
-						</div>
-					</div>
-					<div class="w3-section">
-						<input type="checkbox" id="start" />
-						<label for="start">Enable</label>
-					</div>
-				</div>
-			</div>
-			<div class="w3-section w3-card w3-round-medium">
-				<div class="w3-container">
-					<div class="w3-section">
-						<label for="attack-priority" class="form-label"
-							>Attack Priority:</label
-						>
-						<input
-							id="attack-priority"
-							class="w3-input w3-round-medium w3-border"
-							type="text"
-							value="Defense Drone, Attack Drone"
-						/>
-					</div>
-					<div class="w3-section">
-						<input type="checkbox" id="copy-walk" />
-						<label for="copy-walk">Copy Walk</label>
-					</div>
-				</div>
-			</div>
-		</div>
+  <head>
+    <link href="../../../shared/common.css" rel="stylesheet" />
+    <link href="../../../shared/styles.css" rel="stylesheet" />
+    <link href="./styles.css" rel="stylesheet" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
+    />
+  </head>
+  <body>
+    <div class="w3-container">
+      <div class="w3-section w3-card w3-round-medium">
+        <div class="w3-container">
+          <div class="w3-section">
+            <label for="player">Player:</label>
+            <div id="player-name-row">
+              <input
+                id="player"
+                class="w3-input w3-border w3-round-medium"
+                type="text"
+              />
+              <button class="w3-button w3-round-medium" id="me">me</button>
+            </div>
+          </div>
+          <div class="w3-section">
+            <label for="skills">Skill List:</label>
+            <div id="skill-list-row">
+              <input
+                id="skill-list"
+                class="w3-input w3-border w3-round-medium"
+                type="text"
+                value="1,2,3,4"
+              />
+              <div class="skill-wait-row">
+                <input type="checkbox" id="skill-wait" />
+                <label for="skill-wait">Wait</label>
+              </div>
+            </div>
+          </div>
+          <div class="w3-section">
+            <label for="skill-delay">Skill Delay:</label>
+            <div class="input-group">
+              <input
+                id="skill-delay"
+                class="w3-input w3-border w3-round-medium"
+                type="number"
+                min="0"
+                value="150"
+              />
+              <label for="skill-delay">ms</label>
+            </div>
+          </div>
+          <div class="w3-section">
+            <input type="checkbox" id="start" />
+            <label for="start">Enable</label>
+          </div>
+        </div>
+      </div>
+      <div class="w3-section w3-card w3-round-medium">
+        <div class="w3-container">
+          <div class="w3-section">
+            <label for="attack-priority" class="form-label"
+              >Attack Priority:</label
+            >
+            <input
+              id="attack-priority"
+              class="w3-input w3-round-medium w3-border"
+              type="text"
+              value="Defense Drone, Attack Drone"
+            />
+          </div>
+          <div class="w3-section">
+            <input type="checkbox" id="copy-walk" />
+            <label for="copy-walk">Copy Walk</label>
+          </div>
+        </div>
+      </div>
+    </div>
 
-		<script>
-			require('../../../../dist/renderer/game/scripts/script.common.js');
-
-			window.addEventListener('DOMContentLoaded', () => {
-				require('../../../../dist/renderer/game/scripts/script.follower.js');
-			});
-		</script>
-	</body>
+    <script>
+      require('../../../../dist/renderer/game/scripts/script.follower.js');
+    </script>
+  </body>
 </html>
