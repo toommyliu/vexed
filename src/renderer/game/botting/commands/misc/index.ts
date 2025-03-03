@@ -88,13 +88,13 @@ export const miscCommands = {
   stop() {
     window.context.addCommand(new CommandStop());
   },
-  reset() {
-    window.context.setCommandDelay(1_000);
-    // @ts-expect-error todo
-    window.context._commands = [];
-    // @ts-expect-error todo
-    window.context._commandIndex = 0;
-  },
+  // reset() {
+  //   window.context.setCommandDelay(1_000);
+  //   window.context.setCommands([]);
+  //   window.context._commands = [];
+  //   // @ts-expect-error todo
+  //   window.context._commandIndex = 0;
+  // },
   wait_for_player_count(count: number) {
     if (typeof count !== 'number' || count < 0) {
       throw new ArgsError('count is required');
