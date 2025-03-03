@@ -86,6 +86,7 @@ export class World {
 
   /**
    * Whether a player is in a given cell.
+   *
    * @param name - The player name to check.
    * @param cell - The cell to check.
    */

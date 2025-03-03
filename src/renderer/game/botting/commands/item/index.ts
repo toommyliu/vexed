@@ -42,7 +42,7 @@ export const itemCommands = {
     }
 
     if (typeof item === 'string' && Number.isNaN(Number.parseInt(item, 10))) {
-      throw new Error('item is required');
+      throw new TypeError('item is required');
     }
 
     const cmd = new CommandGetMapItem();
