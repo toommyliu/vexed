@@ -239,7 +239,7 @@ ipcMain.answerRenderer(IPC_EVENTS.LOAD_SCRIPT, async (_, browserWindow) => {
           try {
             // reset the commands
             await browserWindow.webContents.executeJavaScript(
-              'window.context._commands = []',
+              'window.context.setCommands([])',
             );
 
             // ideally, this traces to the line of the (user) script back to

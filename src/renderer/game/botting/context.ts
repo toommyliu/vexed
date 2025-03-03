@@ -30,7 +30,7 @@ export class Context extends EventEmitter<Events> {
 
   // private boostTimer!: SetIntervalAsyncTimer;
 
-  private readonly _commands: Command[];
+  private _commands: Command[];
 
   private commandDelay: number;
 
@@ -77,6 +77,10 @@ export class Context extends EventEmitter<Events> {
 
   public isCommandQueueEmpty() {
     return this._commands.length === 0;
+  }
+
+  public setCommands(commands: Command[]) {
+    this._commands = commands;
   }
 
   /**
@@ -126,7 +130,7 @@ export class Context extends EventEmitter<Events> {
 
     await this.startContextTimers();
 
-    if (!this.isCommandQueueEmpty) {
+    if (!this.isCommandQueueEmpty()) {
       await this.startCommandExecution();
     }
   }
