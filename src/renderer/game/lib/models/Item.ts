@@ -91,6 +91,41 @@ export class Item {
   }
 
   /**
+   * Whether the item is type Armor.
+   */
+  public isArmor(): boolean {
+    return this.itemGroup === 'co';
+  }
+
+  /**
+   * Whether the item is type Cape.
+   */
+  public isCape(): boolean {
+    return this.itemGroup === 'ba';
+  }
+
+  /**
+   * Whether the item is type Helm.
+   */
+  public isHelm(): boolean {
+    return this.itemGroup === 'he';
+  }
+
+  /**
+   * Whether the item is type Pet.
+   */
+  public isPet(): boolean {
+    return this.itemGroup === 'pe';
+  }
+
+  /**
+   * Whether the item is type Weapon.
+   */
+  public isWeapon(): boolean {
+    return this.itemGroup === 'Weapon';
+  }
+
+  /**
    * The name of the source file of the item.
    */
   public get fileName(): string {
@@ -113,6 +148,10 @@ export class Item {
    */
   public get meta(): Record<string, number> | null {
     if (!this.data.sMeta) return null;
+
+    // TODO:
+    // 1. boosted items
+    // 2. Gear of Doom
 
     return this.data.sMeta
       .split(',')

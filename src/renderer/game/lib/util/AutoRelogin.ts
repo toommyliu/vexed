@@ -1,5 +1,5 @@
 import { Mutex } from 'async-mutex';
-import { Logger } from '../../util/logger';
+import { Logger } from '../../../../common/logger';
 import { Bot } from '../Bot';
 
 const logger = Logger.get('AutoRelogin');

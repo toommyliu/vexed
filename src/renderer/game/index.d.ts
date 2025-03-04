@@ -14,7 +14,6 @@ import type { Logger } from './util/logger';
 
 type Nullable<T> = T | null;
 declare global {
-  const logger: Logger;
   const swf: GameSWF;
 
   type WindowId = (typeof WINDOW_IDS)[keyof typeof WINDOW_IDS];
@@ -213,7 +212,6 @@ declare global {
 
     // other
     account?: AccountWithServer;
-    logger: Logger;
 
     // botting commands
     cmd: typeof cmd;

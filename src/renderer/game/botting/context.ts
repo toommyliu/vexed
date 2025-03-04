@@ -1,8 +1,11 @@
 import { AsyncQueue } from '@sapphire/async-queue';
 import { EventEmitter } from 'tseep';
+import { Logger } from '../../../common/logger';
 import { Bot } from '../lib/Bot';
 import type { SetIntervalAsyncTimer } from '../lib/util/TimerManager';
 import type { Command } from './command';
+
+const logger = Logger.get('Context');
 
 export class Context extends EventEmitter<Events> {
   private readonly bot = Bot.getInstance();
@@ -30,7 +33,7 @@ export class Context extends EventEmitter<Events> {
 
   // private boostTimer!: SetIntervalAsyncTimer;
 
-  private readonly _commands: Command[];
+  private _commands: Command[];
 
   private commandDelay: number;
 
@@ -77,6 +80,10 @@ export class Context extends EventEmitter<Events> {
 
   public isCommandQueueEmpty() {
     return this._commands.length === 0;
+  }
+
+  public setCommands(commands: Command[]) {
+    this._commands = commands;
   }
 
   /**
@@ -126,7 +133,7 @@ export class Context extends EventEmitter<Events> {
 
     await this.startContextTimers();
 
-    if (!this.isCommandQueueEmpty) {
+    if (!this.isCommandQueueEmpty()) {
       await this.startCommandExecution();
     }
   }

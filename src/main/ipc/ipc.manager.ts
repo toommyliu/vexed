@@ -1,8 +1,8 @@
 import { ipcMain } from '../../common/ipc';
 import { IPC_EVENTS } from '../../common/ipc-events';
+import { Logger } from '../../common/logger';
 import { FileManager } from '../FileManager';
 import { createGame } from '../windows';
-import { Logger } from '../../common/logger';
 
 const fileMgr = FileManager.getInstance();
 const logger = Logger.get('IpcManager');
