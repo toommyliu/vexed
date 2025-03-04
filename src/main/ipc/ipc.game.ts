@@ -9,7 +9,6 @@ import type { FastTravel } from '../../common/types';
 import { FileManager } from '../FileManager';
 import { recursivelyApplySecurityPolicy } from '../util/recursivelyApplySecurityPolicy';
 import { mgrWindow, store } from '../windows';
-import { ArgsError } from '../../renderer/game/botting/ArgsError';
 
 const fm = FileManager.getInstance();
 const logger = Logger.get('IpcGame');

@@ -1,7 +1,7 @@
 import { ipcRenderer } from '../../../common/ipc';
 import { IPC_EVENTS } from '../../../common/ipc-events';
+import { Logger } from '../../../common/logger';
 import { Bot } from '../lib/Bot';
-import { Logger } from '../util/logger';
 
 const bot = Bot.getInstance();
 const logger = Logger.get('IpcFastTravels');

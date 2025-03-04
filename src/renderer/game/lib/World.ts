@@ -250,7 +250,7 @@ export class World {
 
     try {
       if (this.bot.player.isInCombat()) {
-        logger.info('in combat, trying to exit');
+        // logger.info('in combat, trying to exit');
 
         // immediately try to escape with current cell
         await this.bot.world.jump(this.bot.player.cell, this.bot.player.pad);
@@ -272,7 +272,7 @@ export class World {
             );
 
             if (!this.bot.player.isInCombat()) {
-              logger.info(`success: ${cell}`);
+              // logger.info(`success: ${cell}`);
               break;
             }
           }

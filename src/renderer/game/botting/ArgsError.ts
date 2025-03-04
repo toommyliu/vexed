@@ -2,8 +2,8 @@
  * Custom error for commands with invalid args
  */
 export class ArgsError extends Error {
-  public constructor(message?: string, options?: ErrorOptions) {
-    super(message, options);
+  public constructor(message?: string) {
+    super(message);
 
     // get caller line
     const stackLines = new Error(' ').stack?.split('\n') ?? [];

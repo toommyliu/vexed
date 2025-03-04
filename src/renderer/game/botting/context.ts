@@ -1,8 +1,11 @@
 import { AsyncQueue } from '@sapphire/async-queue';
 import { EventEmitter } from 'tseep';
+import { Logger } from '../../../common/logger';
 import { Bot } from '../lib/Bot';
 import type { SetIntervalAsyncTimer } from '../lib/util/TimerManager';
 import type { Command } from './command';
+
+const logger = Logger.get('Context');
 
 export class Context extends EventEmitter<Events> {
   private readonly bot = Bot.getInstance();
