@@ -4,7 +4,7 @@ import { Avatar, type AvatarData } from './models/Avatar';
 import type { ItemData } from './models/Item';
 import { Monster, type MonsterData } from './models/Monster';
 
-export const GameAction = {
+export const GameAction = Object.freeze({
   /**
    * Accepting a quest.
    */
@@ -61,7 +61,7 @@ export const GameAction = {
    * Who action.
    */
   Who: 'who',
-} as const;
+});
 
 export class World {
   public constructor(public readonly bot: Bot) {}
@@ -250,7 +250,7 @@ export class World {
 
     try {
       if (this.bot.player.isInCombat()) {
-        // logger.info('in combat, trying to exit');
+        logger.info('in combat, trying to exit');
 
         // immediately try to escape with current cell
         await this.bot.world.jump(this.bot.player.cell, this.bot.player.pad);
@@ -272,7 +272,7 @@ export class World {
             );
 
             if (!this.bot.player.isInCombat()) {
-              // logger.info(`success: ${cell}`);
+              logger.info(`success: ${cell}`);
               break;
             }
           }

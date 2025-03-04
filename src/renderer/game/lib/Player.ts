@@ -1,6 +1,21 @@
 import type { Bot } from './Bot';
 import { Faction } from './models/Faction';
 
+export const PlayerState = Object.freeze({
+  /**
+   * The player is dead.
+   */
+  Dead: 0,
+  /**
+   * The player is idle.
+   */
+  Idle: 1,
+  /**
+   * The player is in combat.
+   */
+  InCombat: 2,
+});
+
 export class Player {
   public constructor(public readonly bot: Bot) {}
 
@@ -157,18 +172,3 @@ export class Player {
     );
   }
 }
-
-export const PlayerState = {
-  /**
-   * The player is dead.
-   */
-  Dead: 0,
-  /**
-   * The player is idle.
-   */
-  Idle: 1,
-  /**
-   * The player is in combat.
-   */
-  InCombat: 2,
-};
