@@ -1,3 +1,4 @@
+import { exitFromCombat } from '../util/exitFromCombat';
 import { isMonsterMapId } from '../util/isMonMapId';
 import type { Bot } from './Bot';
 import { Avatar, type AvatarData } from './models/Avatar';
@@ -242,95 +243,54 @@ export class World {
     cell = 'Enter',
     pad = 'Spawn',
   ): Promise<void> {
-    const ogProvokeMap = this.bot.settings.provokeMap;
-    const ogProvokeCell = this.bot.settings.provokeCell;
+    await exitFromCombat();
 
-    this.bot.settings.provokeMap = false;
-    this.bot.settings.provokeCell = false;
+    await this.bot.sleep(1_000);
 
-    try {
-      if (this.bot.player.isInCombat()) {
-        // logger.info('in combat, trying to exit');
+    await this.bot.waitUntil(
+      () => this.isActionAvailable(GameAction.Transfer),
+      null,
+      15,
+    );
 
-        // immediately try to escape with current cell
-        await this.bot.world.jump(this.bot.player.cell, this.bot.player.pad);
-        await this.bot.sleep(1_000);
+    let map_str = mapName;
+    // eslint-disable-next-line prefer-const
+    let [map_name, map_number] = map_str.split('-');
 
-        // if we are still in combat, try to escape to another cell
-        if (this.bot.player.isInCombat()) {
-          const ogCell = this.bot.player.cell;
-
-          for (const cell of this.cells) {
-            if (cell === ogCell) continue;
-
-            await this.jump(cell);
-
-            await this.bot.waitUntil(
-              () => !this.bot.player.isInCombat(),
-              null,
-              3,
-            );
-
-            if (!this.bot.player.isInCombat()) {
-              // logger.info(`success: ${cell}`);
-              break;
-            }
-          }
-
-          // we didn't escape
-        }
-      }
-
-      await this.bot.sleep(1_000);
-
-      await this.bot.waitUntil(
-        () => this.isActionAvailable(GameAction.Transfer),
-        null,
-        15,
-      );
-
-      let map_str = mapName;
-      // eslint-disable-next-line prefer-const
-      let [map_name, map_number] = map_str.split('-');
-
-      if (this.name.toLowerCase() === map_name!.toLowerCase()) {
-        await this.jump(cell, pad);
-        return;
-      }
-
-      if (
-        map_number === '1e9' ||
-        map_number === '1e99' ||
-        Number.isNaN(
-          Number.parseInt(map_number!, 10),
-        ) /* any non-number, e.g yulgar-a*/
-      ) {
-        map_number = '100000';
-      }
-
-      map_str = `${map_name}${map_number ? `-${map_number}` : ''}`;
-
-      await this.bot.combat.exit();
-      this.bot.flash.call(() => swf.playerJoinMap(map_str, cell, pad));
-      await this.bot.waitUntil(
-        () => this.name.toLowerCase() === map_name!.toLowerCase(),
-        null,
-        10,
-      );
-      await this.bot.waitUntil(() => !this.isLoading(), null, 40);
-
-      if (
-        this.bot.player.cell.toLowerCase() !== cell.toLowerCase() ||
-        this.bot.player.pad.toLowerCase() !== pad.toLowerCase()
-      ) {
-        await this.jump(cell, pad);
-      }
-
-      this.setSpawnPoint();
-    } finally {
-      this.bot.settings.provokeMap = ogProvokeMap;
-      this.bot.settings.provokeCell = ogProvokeCell;
+    if (this.name.toLowerCase() === map_name!.toLowerCase()) {
+      await this.jump(cell, pad);
+      return;
     }
+
+    if (
+      map_number === '1e9' ||
+      map_number === '1e99' ||
+      Number.isNaN(
+        Number.parseInt(map_number!, 10),
+      ) /* any non-number, e.g yulgar-a*/
+    ) {
+      map_number = '100000';
+    }
+
+    map_str = `${map_name}${map_number ? `-${map_number}` : ''}`;
+
+    await this.bot.combat.exit();
+    this.bot.flash.call(() => swf.playerJoinMap(map_str, cell, pad));
+    await this.bot.waitUntil(
+      () => this.name.toLowerCase() === map_name!.toLowerCase(),
+      null,
+      10,
+    );
+    await this.bot.waitUntil(() => !this.isLoading(), null, 40);
+
+    if (
+      this.bot.player.cell.toLowerCase() !== cell.toLowerCase() ||
+      this.bot.player.pad.toLowerCase() !== pad.toLowerCase()
+    ) {
+      await this.jump(cell, pad);
+    }
+
+    this.setSpawnPoint();
   }
 
   /**
