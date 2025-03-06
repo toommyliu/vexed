@@ -10,21 +10,26 @@ import { Context } from './context';
 
 const context = new Context();
 
-export const cmd = {
+const builtIns = {
   ...combatCommands,
   ...conditionsCommands,
   ...itemCommands,
   ...mapCommands,
   ...miscCommands,
   ...questCommands,
+};
+
+export const cmd = {
+  ...builtIns,
 
   add_command(
     name: string,
     cmdFactory: (CommandClass: typeof Command) => Command,
   ) {
-    // don't allow built-ins to be overwritten or custom commands to be duplicated
-    if (name in this) {
-      throw new ArgsError(`command ${name} already exists`);
+    const _name = name.toLowerCase();
+    // don't allow built-ins to be overwritten
+    if (_name in builtIns) {
+      throw new ArgsError('built-in commands cannot be overwritten');
     }
 
     const command = cmdFactory(Command);
@@ -35,7 +40,7 @@ export const cmd = {
 
     // @ts-expect-error - dynamic property
     // eslint-disable-next-line func-names
-    this[name] = function (...args: unknown[]) {
+    this[_name] = function (...args: unknown[]) {
       const newCmd = Object.create(command);
       newCmd.args = args;
       window.context.addCommand(newCmd);
