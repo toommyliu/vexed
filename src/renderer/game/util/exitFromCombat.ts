@@ -1,8 +1,7 @@
 import { Bot } from '../lib/Bot';
 
-const bot = Bot.getInstance();
-
 export async function exitFromCombat() {
+  const bot = Bot.getInstance();
   const ogProvokeMap = bot.settings.provokeMap;
   const ogProvokeCell = bot.settings.provokeCell;
 
