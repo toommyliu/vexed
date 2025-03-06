@@ -1,4 +1,5 @@
 import merge from 'lodash.merge';
+import { doPriorityAttack } from '../util/doPriorityAttack';
 import { isMonsterMapId } from '../util/isMonMapId';
 import type { Bot } from './Bot';
 import { PlayerState } from './Player';
@@ -211,12 +212,7 @@ export class Combat {
           ? killPriority
           : killPriority.split(',');
 
-        for (const target of kp) {
-          if (this.bot.world.isMonsterAvailable(target)) {
-            this.attack(target);
-            break;
-          }
-        }
+        doPriorityAttack(kp);
 
         if (!this.hasTarget()) {
           this.attack(monsterResolvable);
