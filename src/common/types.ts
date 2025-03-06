@@ -17,7 +17,7 @@ export type FastTravel = {
    */
   map: string;
   /**
-   * The name of the location.
+   * The display name of the location.
    */
   name: string;
   /**

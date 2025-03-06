@@ -221,6 +221,7 @@ ipcMain.answerRenderer(IPC_EVENTS.LOAD_SCRIPT, async (_, browserWindow) => {
     browserWindow.webContents.once(
       'console-message',
       async (_, level, message, line) => {
+        if (!message.startsWith('Uncaught') || level !== 3) return;
         const args = message.slice('Uncaught'.length).split(':');
 
         const err = args[0]!; // Error
