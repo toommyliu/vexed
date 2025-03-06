@@ -35,7 +35,7 @@ export const cmd = {
     const command = cmdFactory(Command);
 
     if (!(command instanceof Command)) {
-      throw new ArgsError('cmdFactory must return an instance of Command');
+      throw new ArgsError('cmdFactory must return a valid Command');
     }
 
     // @ts-expect-error - dynamic property
