@@ -1,13 +1,14 @@
 # conditions commands
 
-Conditions check if the statement is truthy or falsy. Given the command, it will skip past the next command if it is not met.
+Conditions check if statement is satisfied.
+If so, the command preceding the condition is ran, otherwise it will skip past the next command.
 
 For example:
 
 ```
 cmd.is_equipped('Radiant Goddess Of War')
-cmd.goto_label('is equipped') // block to run if rgow is equipped
-cmd.goto_label('is not equipped') // block to run if rgow is not equipped
+cmd.goto_label('is equipped') // go to this label if item is equipped
+cmd.goto_label('is not equipped') // goto this label if item is not equipped
 cmd.label('is equipped')
 cmd.log('Radiant Goddess Of War is equipped')
 cmd.goto_label('end')
