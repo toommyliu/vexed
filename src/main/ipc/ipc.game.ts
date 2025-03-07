@@ -148,6 +148,7 @@ ipcMain.answerRenderer(
         contextIsolation: false,
         nodeIntegration: true,
       },
+      useContentSize: true,
       // Parent is required in order to maintain parent-child relationships and for ipc calls
       // Moving the parent also moves the child, as well as minimizing it
       parent: browserWindow,

@@ -3,16 +3,12 @@ import { ARTIX_USERAGENT, WHITELISTED_DOMAINS } from '../../common/constants';
 
 export function recursivelyApplySecurityPolicy(window: BrowserWindow): void {
   window.webContents.userAgent = ARTIX_USERAGENT;
-  session.defaultSession.webRequest.onBeforeSendHeaders(
-    // eslint-disable-next-line promise/prefer-await-to-callbacks
-    (details, callback) => {
-      details.requestHeaders['User-Agent'] = ARTIX_USERAGENT;
-      details.requestHeaders['artixmode'] = 'launcher';
-      details.requestHeaders['x-requested-with'] = 'ShockwaveFlash/32.0.0.371';
-      // eslint-disable-next-line promise/prefer-await-to-callbacks
-      callback({ requestHeaders: details.requestHeaders, cancel: false });
-    },
-  );
+  session.defaultSession.webRequest.onBeforeSendHeaders((details, fn) => {
+    details.requestHeaders['User-Agent'] = ARTIX_USERAGENT;
+    details.requestHeaders['artixmode'] = 'launcher';
+    details.requestHeaders['x-requested-with'] = 'ShockwaveFlash/32.0.0.371';
+    fn({ requestHeaders: details.requestHeaders, cancel: false });
+  });
 
   window.webContents.on('will-navigate', (ev, url) => {
     const parsedUrl = new URL(url);
@@ -63,9 +59,10 @@ export function recursivelyApplySecurityPolicy(window: BrowserWindow): void {
         title: '',
         parent: window,
         webPreferences: {
-          nodeIntegration: false, // some sites might use jquery, which conflict with nodeIntegration
+          nodeIntegration: false, // some sites might use jquery (e.g wiki), which conflict with nodeIntegration
           plugins: true,
         },
+        useContentSize: true,
       });
 
       recursivelyApplySecurityPolicy(childWindow);

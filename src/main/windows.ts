@@ -31,6 +31,7 @@ export async function createAccountManager(): Promise<void> {
     webPreferences: {
       nodeIntegration: true,
     },
+    useContentSize: true,
   });
   window.on('close', (ev) => {
     ev.preventDefault();
@@ -85,6 +86,7 @@ export async function createGame(
       spellcheck: false,
       webgl: false,
     },
+    useContentSize: true,
     // show once everything has loaded (to reduce flickering)
     show: false,
   });
