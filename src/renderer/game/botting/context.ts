@@ -2,8 +2,8 @@ import { AsyncQueue } from '@sapphire/async-queue';
 import { EventEmitter } from 'tseep';
 import { Logger } from '../../../common/logger';
 import { Bot } from '../lib/Bot';
-import type { SetIntervalAsyncTimer } from '../lib/util/TimerManager';
 import type { Command } from './command';
+import { interval } from '../../../common/interval';
 
 const logger = Logger.get('Context');
 
@@ -27,9 +27,9 @@ export class Context extends EventEmitter<Events> {
    */
   // private readonly boostIds: Set<number>;
 
-  private questTimer!: SetIntervalAsyncTimer;
+  // private questTimer!: SetIntervalAsyncTimer;
 
-  private itemTimer!: SetIntervalAsyncTimer;
+  // private itemTimer!: SetIntervalAsyncTimer;
 
   // private boostTimer!: SetIntervalAsyncTimer;
 
@@ -144,9 +144,8 @@ export class Context extends EventEmitter<Events> {
   }
 
   private async startContextTimers() {
-    this.questTimer = this.bot.timerManager.setInterval(async () => {
+    await interval(async (_, stop) => {
       if (!this.isRunning()) {
-        void this.bot.timerManager.clearInterval(this.questTimer);
         return;
       }
 
@@ -164,9 +163,8 @@ export class Context extends EventEmitter<Events> {
       }
     }, 1_000);
 
-    this.itemTimer = this.bot.timerManager.setInterval(async () => {
+    await interval(async (_, stop) => {
       if (!this.isRunning()) {
-        void this.bot.timerManager.clearInterval(this.itemTimer);
         return;
       }
 

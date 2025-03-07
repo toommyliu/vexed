@@ -1,11 +1,11 @@
 import merge from 'lodash.merge';
+import { interval } from '../../../common/interval';
 import { doPriorityAttack } from '../util/doPriorityAttack';
 import { exitFromCombat } from '../util/exitFromCombat';
 import { isMonsterMapId } from '../util/isMonMapId';
 import type { Bot } from './Bot';
 import { PlayerState } from './Player';
 import { GameAction } from './World';
-import type { SetIntervalAsyncTimer } from './util/TimerManager';
 
 const DEFAULT_KILL_OPTIONS: KillOptions = {
   killPriority: [],
@@ -164,73 +164,85 @@ export class Combat {
     let skillIndex = 0;
 
     return new Promise<void>((resolve) => {
-      let combatTimer: SetIntervalAsyncTimer | null = null;
-      let checkTimer: SetIntervalAsyncTimer | null = null;
+      let stopCombatInterval: (() => void) | null = null;
+      let stopCheckInterval: (() => void) | null = null;
+      let isResolved = false;
 
       const cleanup = async () => {
-        if (combatTimer) {
-          const tmp = combatTimer;
-          await this.bot.timerManager.clearInterval(tmp);
-          if (combatTimer === tmp) {
-            combatTimer = null;
-          }
+        if (stopCombatInterval) {
+          stopCombatInterval();
+          stopCombatInterval = null;
         }
 
-        if (checkTimer) {
-          const tmp = checkTimer;
-          await this.bot.timerManager.clearInterval(tmp);
-          if (checkTimer === tmp) {
-            checkTimer = null;
-          }
+        if (stopCheckInterval) {
+          stopCheckInterval();
+          stopCheckInterval = null;
         }
 
         this.cancelAutoAttack();
         this.cancelTarget();
       };
 
-      combatTimer = this.bot.timerManager.setInterval(async () => {
-        if (this.pauseAttack) {
-          this.cancelAutoAttack();
-          this.cancelTarget();
-          await this.bot.waitUntil(() => !this.pauseAttack, null, -1);
-          return;
-        }
+      // Combat logic
+      (async () => {
+        await interval(async (_, stop) => {
+          stopCombatInterval = stop;
 
-        const _name = monsterResolvable.toLowerCase();
-        if (
-          _name === 'escherion' &&
-          this.bot.world.isMonsterAvailable('Staff of Inversion')
-        ) {
-          this.attack('Staff of Inversion');
-        } else if (
-          _name === 'vath' &&
-          this.bot.world.isMonsterAvailable('Stalagbite')
-        ) {
-          this.attack('Stalagbite');
-        }
+          if (isResolved) {
+            stop();
+            return;
+          }
 
-        const kp = Array.isArray(killPriority)
-          ? killPriority
-          : killPriority.split(',');
+          if (this.pauseAttack) {
+            this.cancelAutoAttack();
+            this.cancelTarget();
+            await this.bot.waitUntil(() => !this.pauseAttack, null, -1);
+            return;
+          }
 
-        doPriorityAttack(kp);
+          const _name = monsterResolvable.toLowerCase();
+          if (
+            _name === 'escherion' &&
+            this.bot.world.isMonsterAvailable('Staff of Inversion')
+          ) {
+            this.attack('Staff of Inversion');
+          } else if (
+            _name === 'vath' &&
+            this.bot.world.isMonsterAvailable('Stalagbite')
+          ) {
+            this.attack('Stalagbite');
+          }
 
-        if (!this.hasTarget()) {
-          this.attack(monsterResolvable);
-        }
+          const kp = Array.isArray(killPriority)
+            ? killPriority
+            : killPriority.split(',');
 
-        if (this.hasTarget()) {
-          const skill = skillSet[skillIndex]!;
-          skillIndex = (skillIndex + 1) % skillSet.length;
+          doPriorityAttack(kp);
 
-          await this.useSkill(String(skill), false, skillWait);
-          await this.bot.sleep(skillDelay);
-        }
-      }, 0);
+          if (!this.hasTarget()) {
+            this.attack(monsterResolvable);
+          }
 
-      // Queue the checkTimer to run as soon as possible
-      process.nextTick(() => {
-        checkTimer = this.bot.timerManager.setInterval(async () => {
+          if (this.hasTarget()) {
+            const skill = skillSet[skillIndex]!;
+            skillIndex = (skillIndex + 1) % skillSet.length;
+
+            await this.useSkill(String(skill), false, skillWait);
+            await this.bot.sleep(skillDelay);
+          }
+        }, 0);
+      })();
+
+      // Check logic
+      (async () => {
+        await interval(async (_, stop) => {
+          stopCheckInterval = stop;
+
+          if (isResolved) {
+            stop();
+            return;
+          }
+
           const isIdle =
             this.bot.player.state === PlayerState.Idle &&
             !this.bot.player.isAFK();
@@ -238,11 +250,13 @@ export class Combat {
           const shouldComplete = noTarget && isIdle && !this.pauseAttack;
 
           if (shouldComplete) {
+            isResolved = true;
             await cleanup();
             resolve();
+            stop();
           }
         }, 0);
-      });
+      })();
     });
   }
 
