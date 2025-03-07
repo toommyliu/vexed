@@ -22,7 +22,7 @@ const builtIns = {
 export const cmd = {
   ...builtIns,
 
-  add_command(
+  register_command(
     name: string,
     cmdFactory: (CommandClass: typeof Command) => Command,
   ) {
