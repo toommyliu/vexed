@@ -1,9 +1,9 @@
 import { AsyncQueue } from '@sapphire/async-queue';
 import { EventEmitter } from 'tseep';
+import { interval } from '../../../common/interval';
 import { Logger } from '../../../common/logger';
 import { Bot } from '../lib/Bot';
 import type { Command } from './command';
-import { interval } from '../../../common/interval';
 
 const logger = Logger.get('Context');
 
@@ -39,7 +39,7 @@ export class Context extends EventEmitter<Events> {
 
   private _commandIndex: number;
 
-  private abortController: AbortController | null = null;
+  private _on: boolean;
 
   public constructor(options: { commandDelay?: number } = {}) {
     super();
@@ -52,6 +52,8 @@ export class Context extends EventEmitter<Events> {
     this._commands = [];
     this.commandDelay = options.commandDelay ?? 1_000;
     this._commandIndex = 0;
+
+    this._on = false;
   }
 
   public get commandIndex() {
@@ -123,19 +125,12 @@ export class Context extends EventEmitter<Events> {
   }
 
   public isRunning() {
-    return Boolean(
-      this.abortController && !this.abortController.signal.aborted,
-    );
+    return this._on;
   }
 
   public async start() {
-    this.abortController = new AbortController();
-
     await this.startContextTimers();
-
-    if (!this.isCommandQueueEmpty()) {
-      await this.startCommandExecution();
-    }
+    await this.startCommandExecution();
   }
 
   public async stop() {
@@ -144,10 +139,8 @@ export class Context extends EventEmitter<Events> {
   }
 
   private async startContextTimers() {
-    await interval(async () => {
-      if (!this.isRunning()) {
-        return;
-      }
+    void interval(async () => {
+      if (!this.isRunning()) return;
 
       for (const questId of Array.from(this.questIds)) {
         try {
@@ -163,10 +156,8 @@ export class Context extends EventEmitter<Events> {
       }
     }, 1_000);
 
-    await interval(async () => {
-      if (!this.isRunning()) {
-        return;
-      }
+    void interval(async () => {
+      if (!this.isRunning()) return;
 
       for (const itemId of Array.from(this.itemIds)) {
         try {
@@ -178,6 +169,8 @@ export class Context extends EventEmitter<Events> {
   }
 
   private async startCommandExecution() {
+    if (this.isCommandQueueEmpty()) return;
+
     this._commandIndex = 0;
 
     if (!this.bot.player.isLoaded()) {
@@ -232,8 +225,6 @@ export class Context extends EventEmitter<Events> {
     this.queue.abortAll();
     // this._commands = [];
     // this._commandIndex = 0;
-    this.abortController?.abort();
-    this.abortController = null;
   }
 }
 
