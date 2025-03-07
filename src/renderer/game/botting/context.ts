@@ -37,7 +37,7 @@ export class Context extends EventEmitter<Events> {
 
   private _on: boolean;
 
-  public constructor(options: { commandDelay?: number } = {}) {
+  public constructor() {
     super();
 
     this.questIds = new Set();
@@ -48,7 +48,7 @@ export class Context extends EventEmitter<Events> {
 
     this.queue = new AsyncQueue();
     this._commands = [];
-    this.commandDelay = options.commandDelay ?? 1_000;
+    this.commandDelay = 1_000;
     this._commandIndex = 0;
 
     this._on = false;
