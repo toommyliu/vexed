@@ -27,11 +27,7 @@ export class Context extends EventEmitter<Events> {
    */
   // private readonly boostIds: Set<number>;
 
-  // private questTimer!: SetIntervalAsyncTimer;
-
-  // private itemTimer!: SetIntervalAsyncTimer;
-
-  // private boostTimer!: SetIntervalAsyncTimer;
+  private readonly _handlers: Map<string, (packet: string) => void>;
 
   private _commands: Command[];
 
@@ -48,12 +44,44 @@ export class Context extends EventEmitter<Events> {
     this.itemIds = new Set();
     // this.boostIds = new Set();
 
+    this._handlers = new Map();
+
     this.queue = new AsyncQueue();
     this._commands = [];
     this.commandDelay = options.commandDelay ?? 1_000;
     this._commandIndex = 0;
 
     this._on = false;
+
+    this._runHandlers();
+  }
+
+  public registerHandler(name: string, handler: (packet: string) => void) {
+    this._handlers.set(name, handler);
+  }
+
+  public unregisterHandler(name: string) {
+    this._handlers.delete(name);
+  }
+
+  private _runHandlers() {
+    this.bot.on('packetFromServer', (packet) => {
+      if (!this.isRunning()) return;
+
+      if (packet.startsWith('{')) {
+        // run all handlers
+        try {
+          for (const [, handler] of this._handlers) {
+            handler.call(
+              {
+                bot: this.bot,
+              },
+              JSON.parse(packet),
+            );
+          }
+        } catch {}
+      }
+    });
   }
 
   public get commandIndex() {

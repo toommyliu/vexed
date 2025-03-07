@@ -66,6 +66,26 @@ export const cmd = {
       delete this[_name];
     }
   },
+  register_handler(name: string, handler: (packet: string) => void) {
+    if (!name || typeof name !== 'string') {
+      throw new ArgsError('handler name is required');
+    }
+
+    if (!handler || typeof handler !== 'function') {
+      throw new ArgsError('handler is required');
+    }
+
+    const _name = name.toLowerCase();
+    context.registerHandler(_name, handler);
+  },
+  unregister_handler(name: string) {
+    if (!name || typeof name !== 'string') {
+      throw new ArgsError('handler name is required');
+    }
+
+    const _name = name.toLowerCase();
+    context.unregisterHandler(_name);
+  },
 } as { [key: string]: (...args: unknown[]) => void };
 
 window.cmd = cmd;

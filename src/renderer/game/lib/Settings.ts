@@ -1,5 +1,5 @@
-import type { Bot } from './Bot';
 import { interval } from '../../../common/interval';
+import type { Bot } from './Bot';
 
 /**
  * @remarks
