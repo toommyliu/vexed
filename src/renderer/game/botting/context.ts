@@ -144,7 +144,7 @@ export class Context extends EventEmitter<Events> {
   }
 
   private async startContextTimers() {
-    await interval(async (_, stop) => {
+    await interval(async () => {
       if (!this.isRunning()) {
         return;
       }
@@ -163,7 +163,7 @@ export class Context extends EventEmitter<Events> {
       }
     }, 1_000);
 
-    await interval(async (_, stop) => {
+    await interval(async () => {
       if (!this.isRunning()) {
         return;
       }

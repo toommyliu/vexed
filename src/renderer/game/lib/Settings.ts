@@ -1,4 +1,5 @@
 import type { Bot } from './Bot';
+import { interval } from '../../../common/interval';
 
 /**
  * @remarks
@@ -87,7 +88,7 @@ export class Settings {
       '#option-disable-collisions',
     );
 
-    this.bot.timerManager.setInterval(() => {
+    void interval(async () => {
       if (!this.bot.player.isReady()) {
         return;
       }
