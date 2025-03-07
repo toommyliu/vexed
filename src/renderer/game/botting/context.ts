@@ -129,6 +129,8 @@ export class Context extends EventEmitter<Events> {
   }
 
   public async start() {
+    this._on = true;
+
     await this.startContextTimers();
     await this.startCommandExecution();
   }
@@ -222,6 +224,7 @@ export class Context extends EventEmitter<Events> {
   // TODO: add drops, quests, boosts runtime
 
   private _stop() {
+    this._on = false;
     this.queue.abortAll();
     // this._commands = [];
     // this._commandIndex = 0;
