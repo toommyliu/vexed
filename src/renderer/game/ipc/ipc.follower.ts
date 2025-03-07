@@ -1,18 +1,16 @@
 import { Mutex } from 'async-mutex';
 import merge from 'lodash.merge';
 import { WINDOW_IDS } from '../../../common/constants';
-import interval from '../../../common/interval';
+import { interval } from '../../../common/interval';
 import { ipcRenderer } from '../../../common/ipc';
 import { IPC_EVENTS } from '../../../common/ipc-events';
 import { Logger } from '../../../common/logger';
 import { Bot } from '../lib/Bot';
-// import type { SetIntervalAsyncTimer } from '../lib/util/TimerManager';
 import { doPriorityAttack } from '../util/doPriorityAttack';
 import { exitFromCombat } from '../util/exitFromCombat';
 
 let on = false;
 
-// let intervalId: SetIntervalAsyncTimer | null = null;
 let index = 0;
 let attempts = 3;
 

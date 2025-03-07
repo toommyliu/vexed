@@ -8,17 +8,7 @@ function isPromise(val: any): boolean {
   return val !== null && typeof val.then === 'function';
 }
 
-type IIntervalPromiseOptions = {
-  iterations?: number;
-  stopOnError?: boolean;
-};
-
-type stop = () => void;
-type func = (iterationNumber: number, stop: stop) => Promise<void>;
-type intervalLengthFn = (iterationNumber: number) => number;
-type intervalLength = intervalLengthFn | number;
-
-async function interval(
+export async function interval(
   func: func,
   intervalLength: intervalLength,
   options: IIntervalPromiseOptions = {},
@@ -183,4 +173,12 @@ function validateArgs(func: any, intervalLength: any, options: any): void {
   }
 }
 
-export default interval;
+type IIntervalPromiseOptions = {
+  iterations?: number;
+  stopOnError?: boolean;
+};
+
+type stop = () => void;
+type func = (iterationNumber: number, stop: stop) => Promise<void>;
+type intervalLengthFn = (iterationNumber: number) => number;
+type intervalLength = intervalLengthFn | number;
