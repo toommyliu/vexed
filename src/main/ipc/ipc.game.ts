@@ -262,6 +262,12 @@ ipcMain.answerRenderer(IPC_EVENTS.LOAD_SCRIPT, async (_, browserWindow) => {
       },
     );
 
+    // reset
+    await browserWindow.webContents.executeJavaScript(
+      'window.context.setCommands([])',
+    );
+
+    // load
     await browserWindow.webContents.executeJavaScript(content);
     await ipcMain.callRenderer(browserWindow, IPC_EVENTS.SCRIPT_LOADED);
   } catch {}
