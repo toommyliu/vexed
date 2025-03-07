@@ -4104,11 +4104,6 @@ internal-slot@^1.1.0:
     hasown "^2.0.2"
     side-channel "^1.1.0"
 
-interval-promise@^1.4.0:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/interval-promise/-/interval-promise-1.4.0.tgz#eef1a3633c6c6560488d8ca4b2f52cf901e16f8d"
-  integrity sha512-PUwEmGqUglJhb6M01JNvMDvxr4DA8FCeYoYCLHPEcBBZiq/8yOpCchfs1VJui7fXj69l170gAxzF1FeSA0nSlg==
-
 is-arguments@^1.1.1:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/is-arguments/-/is-arguments-1.2.0.tgz#ad58c6aecf563b78ef2bf04df540da8f5d7d8e1b"

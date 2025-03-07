@@ -1,5 +1,5 @@
 import { Mutex } from 'async-mutex';
-import interval from 'interval-promise';
+import interval from '../../../common/interval';
 import { ipcRenderer } from '../../../common/ipc';
 import { IPC_EVENTS } from '../../../common/ipc-events';
 import { Logger } from '../../../common/logger';

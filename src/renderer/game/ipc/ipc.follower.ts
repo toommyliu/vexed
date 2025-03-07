@@ -1,7 +1,7 @@
 import { Mutex } from 'async-mutex';
-import interval from 'interval-promise';
 import merge from 'lodash.merge';
 import { WINDOW_IDS } from '../../../common/constants';
+import interval from '../../../common/interval';
 import { ipcRenderer } from '../../../common/ipc';
 import { IPC_EVENTS } from '../../../common/ipc-events';
 import { Logger } from '../../../common/logger';
@@ -61,7 +61,7 @@ async function startFollower() {
   // goto player if needed
   async function goToPlayer() {
     if (foundPlayer()) {
-      attempts = 3; // Reset attempts when player is found
+      attempts = 3;
       return;
     }
 
