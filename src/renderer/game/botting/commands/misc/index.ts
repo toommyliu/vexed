@@ -9,6 +9,8 @@ import { CommandSetDelay } from './CommandSetDelay';
 import { CommandSetting } from './CommandSetting';
 import { CommandStop } from './CommandStop';
 import { CommandWaitForPlayerCount } from './CommandWaitForPlayerCount';
+import { CommandEnableAntiCounter } from './CommandEnableAntiCounter';
+import { CommandDisableAntiCounter } from './CommandDisableAntiCounter';
 
 export const miscCommands = {
   delay(ms: number) {
@@ -103,5 +105,11 @@ export const miscCommands = {
     const cmd = new CommandWaitForPlayerCount();
     cmd.count = count;
     window.context.addCommand(cmd);
+  },
+  enable_anti_counter() {
+    window.context.addCommand(new CommandEnableAntiCounter());
+  },
+  disable_anti_counter() {
+    window.context.addCommand(new CommandDisableAntiCounter());
   },
 };
