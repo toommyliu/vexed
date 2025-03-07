@@ -264,7 +264,7 @@ ipcMain.answerRenderer(IPC_EVENTS.LOAD_SCRIPT, async (_, browserWindow) => {
 
     // reset
     await browserWindow.webContents.executeJavaScript(
-      'window.context.setCommands([])',
+      'window.context.setCommands([]);window.context.commandIndex=0;',
     );
 
     // load
