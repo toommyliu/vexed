@@ -27,6 +27,10 @@ export const cmd = {
     name: string,
     cmdFactory: (CommandClass: typeof Command) => Command,
   ) {
+    if (!name || typeof name !== 'string') {
+      throw new ArgsError('command name is required');
+    }
+
     const _name = name.toLowerCase();
     // don't allow built-ins to be overwritten
     if (_name in builtIns) {
@@ -49,7 +53,9 @@ export const cmd = {
     };
   },
   unregister_command(name: string) {
-    if (!name || typeof name !== 'string') return;
+    if (!name || typeof name !== 'string') {
+      throw new Error('command name is required');
+    }
 
     const _name = name.toLowerCase();
     if (!customCommands.has(_name)) return;
