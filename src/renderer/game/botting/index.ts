@@ -9,6 +9,7 @@ import { questCommands } from './commands/quest';
 import { Context } from './context';
 
 const context = new Context();
+const customCommands = new Set<string>();
 
 const builtIns = {
   ...combatCommands,
@@ -32,13 +33,14 @@ export const cmd = {
       throw new ArgsError('built-in commands cannot be overwritten');
     }
 
+    customCommands.add(_name);
+
     const command = cmdFactory(Command);
 
     if (!(command instanceof Command)) {
       throw new ArgsError('cmdFactory must return a valid Command');
     }
 
-    // @ts-expect-error - dynamic property
     // eslint-disable-next-line func-names
     this[_name] = function (...args: unknown[]) {
       const newCmd = Object.create(command);
@@ -46,7 +48,19 @@ export const cmd = {
       window.context.addCommand(newCmd);
     };
   },
-};
+  unregister_command(name: string) {
+    if (!name || typeof name !== 'string') return;
+
+    const _name = name.toLowerCase();
+    if (!customCommands.has(_name)) return;
+
+    customCommands.delete(_name);
+    if (_name in this && typeof this[_name] === 'function') {
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+      delete this[_name];
+    }
+  },
+} as { [key: string]: (...args: unknown[]) => void };
 
 window.cmd = cmd;
 window.context = context;
