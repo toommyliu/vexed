@@ -20,7 +20,7 @@ export class Context extends EventEmitter<Events> {
   /**
    * List of item ids to watch for.
    */
-  private readonly itemIds: Set<number>;
+  private readonly items: Set<string>;
 
   /**
    * List of boost ids to watch for.
@@ -41,7 +41,7 @@ export class Context extends EventEmitter<Events> {
     super();
 
     this.questIds = new Set();
-    this.itemIds = new Set();
+    this.items = new Set();
     // this.boostIds = new Set();
 
     this._handlers = new Map();
@@ -56,10 +56,21 @@ export class Context extends EventEmitter<Events> {
     this._runHandlers();
   }
 
+  /**
+   * Registers a packet event handler.
+   *
+   * @param name - The name of the handler
+   * @param handler - The handler function
+   */
   public registerHandler(name: string, handler: (packet: string) => void) {
     this._handlers.set(name, handler);
   }
 
+  /**
+   * Unregisters a packet event handler.
+   *
+   * @param name - The name of the handler
+   */
   public unregisterHandler(name: string) {
     this._handlers.delete(name);
   }
@@ -135,21 +146,21 @@ export class Context extends EventEmitter<Events> {
   }
 
   /**
-   * Starts automated item pickup for the given item id.
+   * Starts automated pickup for an item.
    *
-   * @param itemId - The item id
+   * @param item - The item name
    */
-  public addItem(itemId: number) {
-    this.itemIds.add(itemId);
+  public addItem(item: string) {
+    this.items.add(item);
   }
 
   /**
-   * Stops automated item pickup for the given item id.
+   * Stops automated pickup for an item.
    *
-   * @param itemId - The item id
+   * @param item - The item name
    */
-  public removeItem(itemId: number) {
-    this.itemIds.delete(itemId);
+  public removeItem(item: string) {
+    this.items.delete(item);
   }
 
   public isRunning() {
@@ -159,8 +170,7 @@ export class Context extends EventEmitter<Events> {
   public async start() {
     this._on = true;
 
-    await this.startContextTimers();
-    await this.startCommandExecution();
+    await Promise.all([this.runTimers(), this.runCommands()]);
   }
 
   public async stop() {
@@ -168,6 +178,7 @@ export class Context extends EventEmitter<Events> {
     this._stop();
   }
 
+  private async runTimers() {
     void interval(async (_, stop) => {
       if (!this.isRunning()) {
         stop();
@@ -194,17 +205,19 @@ export class Context extends EventEmitter<Events> {
         return;
       }
 
-      for (const itemId of Array.from(this.itemIds)) {
+      for (const item of Array.from(this.items)) {
         try {
-          if (this.bot.drops.hasDrop(itemId))
-            await this.bot.drops.pickup(itemId);
+          if (this.bot.drops.hasDrop(item)) await this.bot.drops.pickup(item);
         } catch {}
       }
     }, 1_000);
   }
 
-  private async startCommandExecution() {
-    if (this.isCommandQueueEmpty()) return;
+  private async runCommands() {
+    if (this.isCommandQueueEmpty()) {
+      this._stop();
+      return;
+    }
 
     this._commandIndex = 0;
 
@@ -248,7 +261,6 @@ export class Context extends EventEmitter<Events> {
       if (this.isRunning()) this._commandIndex++;
     }
 
-    this.emit('end');
     this._stop();
     // logger.info('command execution finished');
   }
@@ -257,6 +269,7 @@ export class Context extends EventEmitter<Events> {
   // TODO: add drops, quests, boosts runtime
 
   private _stop() {
+    this.emit('end');
     this._on = false;
     this.queue.abortAll();
     // this._commands = [];

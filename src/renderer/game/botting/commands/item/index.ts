@@ -1,9 +1,11 @@
 import { ArgsError } from '../../ArgsError';
+import { CommandAddDrop } from './CommandAddDrop';
 import { CommandBuy } from './CommandBuy';
 import { CommandDeposit } from './CommandDeposit';
 import { CommandGetMapItem } from './CommandGetMapItem';
 import { CommandPickup } from './CommandPickup';
 import { CommandReject } from './CommandReject';
+import { CommandRemoveDrop } from './CommandRemoveDrop';
 import { CommandSell } from './CommandSell';
 import { CommandSwap } from './CommandSwap';
 import { CommandWithdraw } from './CommandWithdraw';
@@ -103,6 +105,24 @@ export const itemCommands = {
     }
 
     const cmd = new CommandWithdraw();
+    cmd.item = item;
+    window.context.addCommand(cmd);
+  },
+  add_drop(item: string) {
+    if (!item || typeof item !== 'string') {
+      throw new ArgsError('item is required');
+    }
+
+    const cmd = new CommandAddDrop();
+    cmd.item = item;
+    window.context.addCommand(cmd);
+  },
+  remove_drop(item: string) {
+    if (!item || typeof item !== 'string') {
+      throw new ArgsError('item is required');
+    }
+
+    const cmd = new CommandRemoveDrop();
     cmd.item = item;
     window.context.addCommand(cmd);
   },

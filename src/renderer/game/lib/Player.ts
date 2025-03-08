@@ -46,7 +46,6 @@ export class Player {
    * Whether the player is in combat.
    */
   public isInCombat() {
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
     return this.state === PlayerState.InCombat;
   }
 
