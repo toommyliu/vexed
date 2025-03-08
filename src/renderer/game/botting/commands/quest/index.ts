@@ -5,7 +5,7 @@ import { CommandCompleteQuest } from './CommandCompleteQuest';
 import { CommandRemoveQuest } from './CommandRemoveQuest';
 
 export const questCommands = {
-  accept(questId: number) {
+  accept_quest(questId: number) {
     if (!questId || typeof questId !== 'number') {
       throw new ArgsError('questId is required');
     }
@@ -14,7 +14,7 @@ export const questCommands = {
     cmd.questId = questId;
     window.context.addCommand(cmd);
   },
-  add(questId: number) {
+  add_quest(questId: number) {
     if (!questId || typeof questId !== 'number') {
       throw new ArgsError('questId is required');
     }
@@ -23,7 +23,7 @@ export const questCommands = {
     cmd.questId = questId;
     window.context.addCommand(cmd);
   },
-  complete(questId: number) {
+  complete_quest(questId: number) {
     if (!questId || typeof questId !== 'number') {
       throw new ArgsError('questId is required');
     }
@@ -33,7 +33,7 @@ export const questCommands = {
     window.context.addCommand(cmd);
   },
 
-  remove(questId: number) {
+  remove_quest(questId: number) {
     if (!questId || typeof questId !== 'number') {
       throw new ArgsError('questId is required');
     }
