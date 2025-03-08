@@ -99,10 +99,10 @@ export const miscCommands = {
     cmd.count = count;
     window.context.addCommand(cmd);
   },
-  enable_anti_counter() {
+  enable_anticounter() {
     window.context.addCommand(new CommandEnableAntiCounter());
   },
-  disable_anti_counter() {
+  disable_anticounter() {
     window.context.addCommand(new CommandDisableAntiCounter());
   },
 };
