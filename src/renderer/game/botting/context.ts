@@ -168,9 +168,11 @@ export class Context extends EventEmitter<Events> {
     this._stop();
   }
 
-  private async startContextTimers() {
-    void interval(async () => {
-      if (!this.isRunning()) return;
+    void interval(async (_, stop) => {
+      if (!this.isRunning()) {
+        stop();
+        return;
+      }
 
       for (const questId of Array.from(this.questIds)) {
         try {
@@ -186,8 +188,11 @@ export class Context extends EventEmitter<Events> {
       }
     }, 1_000);
 
-    void interval(async () => {
-      if (!this.isRunning()) return;
+    void interval(async (_, stop) => {
+      if (!this.isRunning()) {
+        stop();
+        return;
+      }
 
       for (const itemId of Array.from(this.itemIds)) {
         try {
