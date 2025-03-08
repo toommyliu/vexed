@@ -1,5 +1,7 @@
 import { ArgsError } from '../../ArgsError';
 import { CommandDelay } from './CommandDelay';
+import { CommandDisableAntiCounter } from './CommandDisableAntiCounter';
+import { CommandEnableAntiCounter } from './CommandEnableAntiCounter';
 import { CommandGotoLabel } from './CommandGotoLabel';
 import { CommandLabel } from './CommandLabel';
 import { CommandLog } from './CommandLog';
@@ -9,8 +11,6 @@ import { CommandSetDelay } from './CommandSetDelay';
 import { CommandSetting } from './CommandSetting';
 import { CommandStop } from './CommandStop';
 import { CommandWaitForPlayerCount } from './CommandWaitForPlayerCount';
-import { CommandEnableAntiCounter } from './CommandEnableAntiCounter';
-import { CommandDisableAntiCounter } from './CommandDisableAntiCounter';
 
 export const miscCommands = {
   delay(ms: number) {
@@ -90,13 +90,6 @@ export const miscCommands = {
   stop() {
     window.context.addCommand(new CommandStop());
   },
-  // reset() {
-  //   window.context.setCommandDelay(1_000);
-  //   window.context.setCommands([]);
-  //   window.context._commands = [];
-  //   // @ts-expect-error todo
-  //   window.context._commandIndex = 0;
-  // },
   wait_for_player_count(count: number) {
     if (typeof count !== 'number' || count < 0) {
       throw new ArgsError('count is required');
