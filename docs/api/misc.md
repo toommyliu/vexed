@@ -40,6 +40,10 @@ cmd.logout()
 cmd.set_delay(delay: number)
 ```
 
+> [!NOTE]
+>
+> `delay` is in milliseconds
+
 ## enable_setting
 
 ```
