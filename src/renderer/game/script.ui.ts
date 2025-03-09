@@ -2,15 +2,11 @@ import { WINDOW_IDS } from '../../common/constants';
 import { ipcRenderer } from '../../common/ipc';
 import { IPC_EVENTS } from '../../common/ipc-events';
 import { Bot } from './lib/Bot';
+import { createCheckbox } from './util/createCheckbox';
 
 const bot = Bot.getInstance();
 
 const dropdowns = new Map<string, HTMLElement>();
-
-const checkmarkSvg = `
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <polyline points="20 6 9 17 4 12"></polyline>
-</svg>`;
 
 ipcRenderer.answerMain(IPC_EVENTS.SCRIPT_LOADED, () => {
   const btn = document.querySelector(
@@ -223,50 +219,34 @@ window.addEventListener('DOMContentLoaded', async () => {
         _option.addEventListener('input', handleWalkSpeed);
         _option.addEventListener('change', handleWalkSpeed);
       } else {
-        const checkmark = document.createElement('div');
-        checkmark.className = 'option-checkmark';
-        checkmark.innerHTML = checkmarkSvg;
-        option.appendChild(checkmark);
-
-        option.setAttribute('data-state', 'false');
-
-        option.addEventListener('click', (ev) => {
-          // Prevent the dropdown from closing
-          ev.stopPropagation();
-
-          const currentState = option.getAttribute('data-state') === 'true';
-          const newState = !currentState;
-
-          option.setAttribute('data-state', newState.toString());
-          option.classList.toggle('option-active', newState);
-
+        createCheckbox(option, (on) => {
           switch (option.id) {
             case 'option-infinite-range':
-              bot.settings.infiniteRange = newState;
+              bot.settings.infiniteRange = on;
               break;
             case 'option-provoke-map':
-              bot.settings.provokeMap = newState;
+              bot.settings.provokeMap = on;
               break;
             case 'option-provoke-cell':
-              bot.settings.provokeCell = newState;
+              bot.settings.provokeCell = on;
               break;
             case 'option-enemy-magnet':
-              bot.settings.enemyMagnet = newState;
+              bot.settings.enemyMagnet = on;
               break;
             case 'option-lag-killer':
-              bot.settings.lagKiller = newState;
+              bot.settings.lagKiller = on;
               break;
             case 'option-hide-players':
-              bot.settings.hidePlayers = newState;
+              bot.settings.hidePlayers = on;
               break;
             case 'option-skip-cutscenes':
-              bot.settings.skipCutscenes = newState;
+              bot.settings.skipCutscenes = on;
               break;
             case 'option-disable-fx':
-              bot.settings.disableFx = newState;
+              bot.settings.disableFx = on;
               break;
             case 'option-disable-collisions':
-              bot.settings.disableCollisions = newState;
+              bot.settings.disableCollisions = on;
               break;
           }
         });
