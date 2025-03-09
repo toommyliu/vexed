@@ -1,25 +1,29 @@
 # quest commands
 
-## accept
+## accept_quest
 
 ```
-cmd.accept(questId: number)
+cmd.accept_quest(questId: number)
 ```
 
-## add
+## add_quest
+
+Adds a quest to the background quest list, which automatically manages accepting and completing the quest.
 
 ```
-cmd.add(questId: number)
+cmd.add_quest(questId: number)
 ```
 
-## complete
+## complete_quest
 
 ```
-cmd.complete(questId: number)
+cmd.complete_quest(questId: number)
 ```
 
-## remove
+## remove_quest
+
+Removes a quest from the background list.
 
 ```
-cmd.remove(questId: number)
+cmd.remove_quest(questId: number)
 ```

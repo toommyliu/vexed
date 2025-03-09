@@ -10,7 +10,7 @@ Each command is a function that can be called with a set of arguments.
 
 > [!TIP]
 >
-> If you've used Grimoire before, commands are implemented exactly the same way.
+> If you've used Cetera/Grimoire before, commands are implemented exactly the same way.
 
 ## Why the commands pattern?
 
@@ -33,11 +33,11 @@ Regarding legacy support, you can technically still load previously-compatible s
 const bot = Bot.getInstance();
 
 async function start() {
-	await world.join('nexus-1e99');
-	await combat.kill('frogzard');
+  await world.join('nexus-1e99');
+  await combat.kill('frogzard');
 }
 
 start().catch(() => {
-	console.error('some error occured');
+  console.error('some error occured');
 });
 ```

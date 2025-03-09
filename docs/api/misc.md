@@ -25,7 +25,7 @@ cmd.label(label: string)
 ## log
 
 ```
-cmd.log(msg: string, level?: string)
+cmd.log(msg: string)
 ```
 
 ## logout
@@ -58,8 +58,20 @@ cmd.disable_setting(option: string)
 cmd.stop()
 ```
 
-## reset
+## wait_for_player_count
 
 ```
-cmd.reset()
+cmd.wait_for_player_count(count: number)
+```
+
+## enable_anticounter
+
+```
+cmd.enable_anticounter()
+```
+
+## disable_anticounter
+
+```
+cmd.disable_anticounter()
 ```
