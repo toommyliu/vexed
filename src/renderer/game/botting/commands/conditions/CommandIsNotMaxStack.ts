@@ -11,6 +11,6 @@ export class CommandIsNotMaxStack extends Command {
   }
 
   public override toString() {
-    return `Is not maxed out: ${this.item}`;
+    return `Item is not maxed out: ${this.item}`;
   }
 }
