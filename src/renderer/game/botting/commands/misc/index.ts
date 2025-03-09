@@ -41,18 +41,19 @@ export const miscCommands = {
     cmd.label = label;
     window.context.addCommand(cmd);
   },
-  log(msg: string, level?: string) {
+  // log(msg: string, level?: string) {
+  log(msg: string) {
     if (!msg || typeof msg !== 'string') {
       throw new ArgsError('msg is required');
     }
 
-    if (level && !['info', 'warn', 'error'].includes(level)) {
-      throw new ArgsError('level must be one of: info, warn, error');
-    }
+    // if (level && !['info', 'warn', 'error'].includes(level)) {
+    //   throw new ArgsError('level must be one of: info, warn, error');
+    // }
 
     const cmd = new CommandLog();
     cmd.msg = msg;
-    cmd.level = level ?? 'info';
+    // cmd.level = level ?? 'info';
     window.context.addCommand(cmd);
   },
   logout() {
