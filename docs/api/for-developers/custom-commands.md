@@ -1,6 +1,6 @@
 # Custom Commands
 
-vexed might not have all scripting commands you might desire. With custom commands, you can register your own with more flexibility than pre-defined commands. Plus, you have full access to utilize internal apis (legacy api) but have to manage some minor details yourself.
+vexed might not have all scripting commands you might desire. With custom commands, you can register your own with more flexibility than pre-defined commands. Plus, you have full access to utilize internal apis (legacy api) but have to manage some minor details yourself. For example, a command might have a long task that isn't "finished" (like a Promise) and you want to "pause" the script until it's done. You can use a promise and resolve when the task can be marked as done or simply use a non-blocking asynchronous sleep.
 
 Custom commands need to be registered **BEFORE** they can be called. Therefore, you ideally would register them at the beginning of your script.
 
