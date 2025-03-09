@@ -31,7 +31,7 @@ cmd.kill(target: string, options?: KillOptions)
 
 > [!NOTE]
 >
-> [KillOptions](../../api-legacy/typedefs/KillOptions)
+> [KillOptions](/api-legacy/typedefs/KillOptions)
 
 ## kill_for_item
 
@@ -42,7 +42,7 @@ cmd.kill_for_item(target: string, item: number | string, quantity: number, optio
 > [!NOTE]
 > item can be item name or id
 >
-> [KillOptions](../../api-legacy/typedefs/KillOptions)
+> [KillOptions](/api-legacy/typedefs/KillOptions)
 
 ## kill_for_temp_item
 
@@ -53,7 +53,7 @@ cmd.kill_for_temp_item(target: string, item: number | string, quantity: number, 
 > [!NOTE]
 > item can be item name or id
 >
-> [KillOptions](../../api-legacy/typedefs/KillOptions)
+> [KillOptions](/api-legacy/typedefs/KillOptions)
 
 ## rest
 
