@@ -1,15 +1,15 @@
 import { Command } from '../../command';
 
-export class CommandMonsterNotInRoom extends Command {
+export class CommandMonsterInRoom extends Command {
   public monster!: string;
 
   public override execute() {
-    if (this.bot.world.isMonsterAvailable(this.monster)) {
+    if (!this.bot.world.isMonsterAvailable(this.monster)) {
       this.ctx.commandIndex++;
     }
   }
 
   public override toString() {
-    return `Monster is not in room: ${this.monster}`;
+    return `Monster is in room: ${this.monster}`;
   }
 }

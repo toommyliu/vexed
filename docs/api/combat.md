@@ -26,26 +26,34 @@ cmd.exit_combat()
 ## kill
 
 ```
-cmd.kill(target: string)
+cmd.kill(target: string, options?: KillOptions)
 ```
+
+> [!NOTE]
+>
+> [KillOptions](/api-legacy/typedefs/KillOptions)
 
 ## kill_for_item
 
 ```
-cmd.kill_for_item(target: string, item: number | string, quantity: number)
+cmd.kill_for_item(target: string, item: number | string, quantity: number, options?: KillOptions)
 ```
 
 > [!NOTE]
 > item can be item name or id
+>
+> [KillOptions](/api-legacy/typedefs/KillOptions)
 
 ## kill_for_temp_item
 
 ```
-cmd.kill_for_temp_item(target: string, item: number | string, quantity: number)
+cmd.kill_for_temp_item(target: string, item: number | string, quantity: number, options?: KillOptions)
 ```
 
-> [!TIP]
+> [!NOTE]
 > item can be item name or id
+>
+> [KillOptions](/api-legacy/typedefs/KillOptions)
 
 ## rest
 
@@ -60,4 +68,4 @@ cmd.use_skill(skill: number | string)
 ```
 
 > [!TIP]
-> skill can be skill index, as a string or number (0-4)
+> skill index as a string or number (0-5)

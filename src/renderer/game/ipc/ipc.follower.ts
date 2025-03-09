@@ -1,17 +1,16 @@
 import { Mutex } from 'async-mutex';
-import interval from 'interval-promise';
 import merge from 'lodash.merge';
 import { WINDOW_IDS } from '../../../common/constants';
+import { interval } from '../../../common/interval';
 import { ipcRenderer } from '../../../common/ipc';
 import { IPC_EVENTS } from '../../../common/ipc-events';
 import { Logger } from '../../../common/logger';
 import { Bot } from '../lib/Bot';
-// import type { SetIntervalAsyncTimer } from '../lib/util/TimerManager';
 import { doPriorityAttack } from '../util/doPriorityAttack';
+import { exitFromCombat } from '../util/exitFromCombat';
 
 let on = false;
 
-// let intervalId: SetIntervalAsyncTimer | null = null;
 let index = 0;
 let attempts = 3;
 
@@ -58,84 +57,67 @@ async function startFollower() {
     bot.world.isPlayerInCell(name, bot.player.cell);
 
   // goto player if needed
-  const goToPlayer = async () => {
-    try {
-      if (foundPlayer()) {
-        return;
-      }
+  async function goToPlayer() {
+    if (foundPlayer()) {
+      attempts = 3;
+      return;
+    }
 
-      logger.info(`not found: ${name}`);
+    logger.info(`not found: ${name}`);
 
-      const ogProvokeMap = bot.settings.provokeMap;
-      const ogProvokeCell = bot.settings.provokeCell;
+    const ogProvokeMap = bot.settings.provokeMap;
+    const ogProvokeCell = bot.settings.provokeCell;
 
-      bot.settings.provokeMap = false;
-      bot.settings.provokeCell = false;
+    bot.settings.provokeMap = false;
+    bot.settings.provokeCell = false;
 
-      if (bot.player.isInCombat()) {
-        logger.info('in combat, trying to exit');
+    /* const success = */ await exitFromCombat();
 
-        // immediately try to escape with current cell
-        await bot.world.jump(bot.player.cell, bot.player.pad);
-        await bot.sleep(1_000);
+    // didn't exit
+    // if (!success) {
+    //   attempts--;
+    //   logger.info(`failed to exit, ${attempts}/3`);
 
-        // if we are still in combat, try to escape to another cell
-        if (bot.player.isInCombat()) {
-          let escaped = false;
+    //   if (attempts <= 0) {
+    //     logger.info('max attempts, stopping');
+    //     await stopFollower();
+    //     return;
+    //   }
 
-          const ogCell = bot.player.cell;
+    //   /* eslint-disable require-atomic-updates */
+    //   bot.settings.provokeMap = ogProvokeMap;
+    //   bot.settings.provokeCell = ogProvokeCell;
+    //   /* eslint-enable require-atomic-updates */
 
-          for (const cell of bot.world.cells) {
-            if (cell === ogCell) continue;
+    //   return;
+    // }
 
-            // logger.info(`escape to: ${cell}`);
-            await bot.world.jump(cell);
+    logger.info(`goto ${name}`);
+    bot.world.goto(name);
 
-            await bot.waitUntil(() => !bot.player.isInCombat(), null, 3);
+    // wait
+    await bot.waitUntil(() => bot.player.isReady() && foundPlayer(), null, 3);
 
-            if (!bot.player.isInCombat()) {
-              logger.info(`success: ${cell}`);
-              escaped = true;
-              break;
-            }
-          }
+    // found them
+    if (foundPlayer()) {
+      attempts = 3;
+      logger.info(`found: ${name}`);
+    } else {
+      attempts--;
 
-          // we ran through all cells and are still in combat?
-          // realistically this would never happen
-          if (!escaped) return;
-        }
-      }
+      logger.info(`player ${name} not found: ${attempts}/3`);
 
-      if (attempts > 0) {
-        logger.info(`goto player: ${name} [${attempts}]`);
-        attempts--;
-        bot.world.goto(name);
-        await bot.sleep(1_000);
-      }
-
-      // wait
-      await bot.waitUntil(
-        () => !bot.world.isLoading() || foundPlayer(),
-        null,
-        3,
-      );
-
-      // we still haven't found them
-      if (attempts === 0 && !foundPlayer()) {
-        logger.info(`failed to find: ${name}`);
+      if (attempts <= 0) {
+        logger.info(`failed to find: ${name} after 3 attempts, stopping`);
         await stopFollower();
-        return;
-      } else if (foundPlayer()) {
-        attempts = 3;
-        logger.info(`found: ${name}`);
       }
+    }
 
-      // eslint-disable-next-line require-atomic-updates
-      bot.settings.provokeMap = ogProvokeMap;
-      // eslint-disable-next-line require-atomic-updates
-      bot.settings.provokeCell = ogProvokeCell;
-    } catch {}
-  };
+    /* eslint-disable require-atomic-updates */
+    bot.settings.provokeMap = ogProvokeMap;
+    bot.settings.provokeCell = ogProvokeCell;
+    /* eslint-enable require-atomic-updates */
+  }
 
   bot.on('packetFromServer', packetHandler);
 

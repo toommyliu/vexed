@@ -60,7 +60,7 @@ export class Monster {
   /**
    * The monster's max HP.
    */
-  public get maxHP(): number {
+  public get maxHp(): number {
     return this.data.intHPMax;
   }
 

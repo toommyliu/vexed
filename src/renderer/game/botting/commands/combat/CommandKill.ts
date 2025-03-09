@@ -1,12 +1,13 @@
+import type { KillOptions } from '../../../lib/Combat';
 import { Command } from '../../command';
-
-// TODO: implement options
 
 export class CommandKill extends Command {
   public target!: string;
 
+  public options!: Partial<KillOptions>;
+
   public override async execute(): Promise<void> {
-    await this.bot.combat.kill(this.target);
+    await this.bot.combat.kill(this.target, this.options);
   }
 
   public override toString() {

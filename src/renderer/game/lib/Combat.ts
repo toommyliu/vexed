@@ -1,9 +1,11 @@
 import merge from 'lodash.merge';
+import { interval } from '../../../common/interval';
+import { doPriorityAttack } from '../util/doPriorityAttack';
+import { exitFromCombat } from '../util/exitFromCombat';
 import { isMonsterMapId } from '../util/isMonMapId';
 import type { Bot } from './Bot';
 import { PlayerState } from './Player';
 import { GameAction } from './World';
-import type { SetIntervalAsyncTimer } from './util/TimerManager';
 
 const DEFAULT_KILL_OPTIONS: KillOptions = {
   killPriority: [],
@@ -162,78 +164,85 @@ export class Combat {
     let skillIndex = 0;
 
     return new Promise<void>((resolve) => {
-      let combatTimer: SetIntervalAsyncTimer | null = null;
-      let checkTimer: SetIntervalAsyncTimer | null = null;
+      let stopCombatInterval: (() => void) | null = null;
+      let stopCheckInterval: (() => void) | null = null;
+      let isResolved = false;
 
       const cleanup = async () => {
-        if (combatTimer) {
-          const tmp = combatTimer;
-          await this.bot.timerManager.clearInterval(tmp);
-          if (combatTimer === tmp) {
-            combatTimer = null;
-          }
+        if (stopCombatInterval) {
+          stopCombatInterval();
+          stopCombatInterval = null;
         }
 
-        if (checkTimer) {
-          const tmp = checkTimer;
-          await this.bot.timerManager.clearInterval(tmp);
-          if (checkTimer === tmp) {
-            checkTimer = null;
-          }
+        if (stopCheckInterval) {
+          stopCheckInterval();
+          stopCheckInterval = null;
         }
 
         this.cancelAutoAttack();
         this.cancelTarget();
       };
 
-      combatTimer = this.bot.timerManager.setInterval(async () => {
-        if (this.pauseAttack) {
-          this.cancelAutoAttack();
-          this.cancelTarget();
-          await this.bot.waitUntil(() => !this.pauseAttack, null, -1);
-          return;
-        }
+      // Combat logic
+      (async () => {
+        await interval(async (_, stop) => {
+          stopCombatInterval = stop;
 
-        const _name = monsterResolvable.toLowerCase();
-        if (
-          _name === 'escherion' &&
-          this.bot.world.isMonsterAvailable('Staff of Inversion')
-        ) {
-          this.attack('Staff of Inversion');
-        } else if (
-          _name === 'vath' &&
-          this.bot.world.isMonsterAvailable('Stalagbite')
-        ) {
-          this.attack('Stalagbite');
-        }
-
-        const kp = Array.isArray(killPriority)
-          ? killPriority
-          : killPriority.split(',');
-
-        for (const target of kp) {
-          if (this.bot.world.isMonsterAvailable(target)) {
-            this.attack(target);
-            break;
+          if (isResolved) {
+            stop();
+            return;
           }
-        }
 
-        if (!this.hasTarget()) {
-          this.attack(monsterResolvable);
-        }
+          if (this.pauseAttack) {
+            this.cancelAutoAttack();
+            this.cancelTarget();
+            await this.bot.waitUntil(() => !this.pauseAttack, null, -1);
+            return;
+          }
 
-        if (this.hasTarget()) {
-          const skill = skillSet[skillIndex]!;
-          skillIndex = (skillIndex + 1) % skillSet.length;
+          const _name = monsterResolvable.toLowerCase();
+          if (
+            _name === 'escherion' &&
+            this.bot.world.isMonsterAvailable('Staff of Inversion')
+          ) {
+            this.attack('Staff of Inversion');
+          } else if (
+            _name === 'vath' &&
+            this.bot.world.isMonsterAvailable('Stalagbite')
+          ) {
+            this.attack('Stalagbite');
+          }
 
-          await this.useSkill(String(skill), false, skillWait);
-          await this.bot.sleep(skillDelay);
-        }
-      }, 0);
+          const kp = Array.isArray(killPriority)
+            ? killPriority
+            : killPriority.split(',');
 
-      // Queue the checkTimer to run as soon as possible
-      process.nextTick(() => {
-        checkTimer = this.bot.timerManager.setInterval(async () => {
+          doPriorityAttack(kp);
+
+          if (!this.hasTarget()) {
+            this.attack(monsterResolvable);
+          }
+
+          if (this.hasTarget()) {
+            const skill = skillSet[skillIndex]!;
+            skillIndex = (skillIndex + 1) % skillSet.length;
+
+            await this.useSkill(String(skill), false, skillWait);
+            await this.bot.sleep(skillDelay);
+          }
+        }, 0);
+      })();
+
+      // Check logic
+      (async () => {
+        await interval(async (_, stop) => {
+          stopCheckInterval = stop;
+
+          if (isResolved) {
+            stop();
+            return;
+          }
+
           const isIdle =
             this.bot.player.state === PlayerState.Idle &&
             !this.bot.player.isAFK();
@@ -241,11 +250,13 @@ export class Combat {
           const shouldComplete = noTarget && isIdle && !this.pauseAttack;
 
           if (shouldComplete) {
+            isResolved = true;
             await cleanup();
             resolve();
+            stop();
           }
         }, 0);
-      });
+      })();
     });
   }
 
@@ -347,46 +358,10 @@ export class Combat {
 
   /**
    * Exit from combat state.
-   *
-   * @param ensure - Whether to look for safe areas if current cell is unsafe.
    */
-  public async exit(ensure?: boolean): Promise<void> {
-    if (this.bot.player.state !== PlayerState.InCombat) return;
-
-    this.cancelTarget();
-    this.cancelAutoAttack();
-
-    const currentCell = this.bot.player.cell;
-    await this.bot.world.jump(currentCell, this.bot.player.pad);
-    await this.bot.waitUntil(
-      () => this.bot.player.state !== PlayerState.InCombat,
-      null,
-      5,
-    );
-    console.log(`first jump completed`);
-
-    if (ensure && this.bot.player.state === PlayerState.InCombat) {
-      const cells = this.bot.world.cells;
-
-      for (const cell of cells) {
-        if (cell === currentCell) continue;
-
-        console.log(`jumping to ${cell}:Spawn`);
-        await this.bot.world.jump(cell, 'Spawn');
-        await this.bot.waitUntil(
-          () => this.bot.player.state !== PlayerState.InCombat,
-          null,
-          5,
-        );
-
-        if (this.bot.player.state !== PlayerState.InCombat) {
-          break;
-        }
-      }
-    }
-
-    if (this.bot.player.state === PlayerState.InCombat) {
-      throw new Error('Failed to exit from combat');
+  public async exit(): Promise<void> {
+    if (this.bot.player.isInCombat()) {
+      await exitFromCombat();
     }
   }
 }

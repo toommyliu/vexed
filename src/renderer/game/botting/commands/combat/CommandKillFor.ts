@@ -1,3 +1,4 @@
+import type { KillOptions } from '../../../lib/Combat';
 import { Command } from '../../command';
 
 export class CommandKillFor extends Command {
@@ -9,15 +10,23 @@ export class CommandKillFor extends Command {
 
   public isTemp: boolean = false;
 
+  public options!: Partial<KillOptions>;
+
   public override async execute() {
     if (this.isTemp) {
       await this.bot.combat.killForTempItem(
         this.target,
         this.item,
         this.quantity,
+        this.options,
       );
     } else {
-      await this.bot.combat.killForItem(this.target, this.item, this.quantity);
+      await this.bot.combat.killForItem(
+        this.target,
+        this.item,
+        this.quantity,
+        this.options,
+      );
     }
   }
 

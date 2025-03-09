@@ -25,7 +25,7 @@ cmd.label(label: string)
 ## log
 
 ```
-cmd.log(msg: string, level?: string)
+cmd.log(msg: string)
 ```
 
 ## logout
@@ -39,6 +39,10 @@ cmd.logout()
 ```
 cmd.set_delay(delay: number)
 ```
+
+> [!NOTE]
+>
+> `delay` is in milliseconds
 
 ## enable_setting
 
@@ -58,8 +62,22 @@ cmd.disable_setting(option: string)
 cmd.stop()
 ```
 
-## reset
+## wait_for_player_count
 
 ```
-cmd.reset()
+cmd.wait_for_player_count(count: number)
+```
+
+## enable_anticounter
+
+Enables the anti-counter attack handler when a "prepares a counter attack" message is detected.
+
+```
+cmd.enable_anticounter()
+```
+
+## disable_anticounter
+
+```
+cmd.disable_anticounter()
 ```

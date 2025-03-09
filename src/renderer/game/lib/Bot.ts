@@ -15,7 +15,6 @@ import { World } from './World';
 import type { Monster } from './models/Monster';
 import { AutoRelogin } from './util/AutoRelogin';
 import { Flash } from './util/Flash';
-import { TimerManager } from './util/TimerManager';
 
 export class Bot extends EventEmitter {
   /**
@@ -173,11 +172,6 @@ export class Bot extends EventEmitter {
    */
   public flash: InstanceType<typeof Flash>;
 
-  /**
-   * The TimerManager API class instance.
-   */
-  public timerManager: InstanceType<typeof TimerManager>;
-
   public constructor() {
     super();
 
@@ -187,7 +181,6 @@ export class Bot extends EventEmitter {
 
     Bot._instance = this;
 
-    this.timerManager = new TimerManager();
     this.flash = new Flash();
     this.autoRelogin = new AutoRelogin();
 
@@ -213,8 +206,8 @@ export class Bot extends EventEmitter {
    */
   public async sleep(ms: number): Promise<void> {
     return new Promise<void>((resolve) => {
-      const id = this.timerManager.setTimeout(() => {
-        this.timerManager.clearTimeout(id);
+      const id = window.setTimeout(() => {
+        window.clearTimeout(id);
         resolve();
       }, ms);
     });

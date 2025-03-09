@@ -1,6 +1,28 @@
 import type { Bot } from './Bot';
 import { Faction } from './models/Faction';
 
+export const PlayerState = Object.freeze({
+  /**
+   * The player is dead.
+   */
+  Dead: 0,
+  /**
+   * The player is idle.
+   */
+  Idle: 1,
+  /**
+   * The player is in combat.
+   */
+  InCombat: 2,
+});
+
+export const BoostType = Object.freeze({
+  Gold: 'gold',
+  Exp: 'exp',
+  Rep: 'rep',
+  ClassPoints: 'classPoints',
+});
+
 export class Player {
   public constructor(public readonly bot: Bot) {}
 
@@ -31,7 +53,6 @@ export class Player {
    * Whether the player is in combat.
    */
   public isInCombat() {
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
     return this.state === PlayerState.InCombat;
   }
 
@@ -156,19 +177,27 @@ export class Player {
       this.isLoaded()
     );
   }
-}
 
-export const PlayerState = {
   /**
-   * The player is dead.
+   * Checks if the player has an active boost.
+   *
+   * @param type - The type of boost to check.
+   * @returns Whether the boost is active.
    */
-  Dead: 0,
-  /**
-   * The player is idle.
-   */
-  Idle: 1,
-  /**
-   * The player is in combat.
-   */
-  InCombat: 2,
-};
+  public isBoostActive(
+    type: (typeof BoostType)[keyof typeof BoostType],
+  ): boolean {
+    switch (type) {
+      case BoostType.Gold:
+        return this.bot.flash.get('world.myAvatar.objData.iBoostG', true) > 0;
+      case BoostType.Exp:
+        return this.bot.flash.get('world.myAvatar.objData.iBoostXP', true) > 0;
+      case BoostType.Rep:
+        return this.bot.flash.get('world.myAvatar.objData.iBoostRep', true) > 0;
+      case BoostType.ClassPoints:
+        return this.bot.flash.get('world.myAvatar.objData.iBoostCP', true) > 0;
+      default:
+        return false;
+    }
+  }
+}

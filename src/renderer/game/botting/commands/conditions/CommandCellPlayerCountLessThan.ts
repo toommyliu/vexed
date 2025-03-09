@@ -1,15 +1,19 @@
 import { Command } from '../../command';
 
 export class CommandCellPlayerCountLessThan extends Command {
+  public cell!: string;
+
   public count!: number;
 
   public override execute() {
+    const cellToUse = (this.cell ?? this.bot.player.cell).toLowerCase();
     let cellCount = 0;
 
     for (const player of this.bot.world.playerNames) {
       const isSameCell =
-        this.bot.player.cell ===
-        this.bot.world.players?.get(player)?.data?.strFrame;
+        cellToUse ===
+        this.bot.world.players?.get(player)?.data?.strFrame.toLowerCase();
+
       if (isSameCell) cellCount++;
     }
 

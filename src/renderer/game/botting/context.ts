@@ -1,8 +1,12 @@
 import { AsyncQueue } from '@sapphire/async-queue';
 import { EventEmitter } from 'tseep';
+import { interval } from '../../../common/interval';
+import { Logger } from '../../../common/logger';
 import { Bot } from '../lib/Bot';
-import type { SetIntervalAsyncTimer } from '../lib/util/TimerManager';
+import { BoostType } from '../lib/Player';
 import type { Command } from './command';
+
+const logger = Logger.get('Context');
 
 export class Context extends EventEmitter<Events> {
   private readonly bot = Bot.getInstance();
@@ -17,38 +21,79 @@ export class Context extends EventEmitter<Events> {
   /**
    * List of item ids to watch for.
    */
-  private readonly itemIds: Set<number>;
+  private readonly items: Set<string>;
 
   /**
-   * List of boost ids to watch for.
+   * List of boost to watch and use.
    */
-  // private readonly boostIds: Set<number>;
+  private readonly boosts: Set<string>;
 
-  private questTimer!: SetIntervalAsyncTimer;
+  private readonly _handlers: Map<string, (packet: string) => void>;
 
-  private itemTimer!: SetIntervalAsyncTimer;
-
-  // private boostTimer!: SetIntervalAsyncTimer;
-
-  private readonly _commands: Command[];
+  private _commands: Command[];
 
   private commandDelay: number;
 
   private _commandIndex: number;
 
-  private abortController: AbortController | null = null;
+  private _on: boolean;
 
-  public constructor(options: { commandDelay?: number } = {}) {
+  public constructor() {
     super();
 
     this.questIds = new Set();
-    this.itemIds = new Set();
-    // this.boostIds = new Set();
+    this.items = new Set();
+    this.boosts = new Set();
+
+    this._handlers = new Map();
 
     this.queue = new AsyncQueue();
     this._commands = [];
-    this.commandDelay = options.commandDelay ?? 1_000;
+    this.commandDelay = 1_000;
     this._commandIndex = 0;
+
+    this._on = false;
+
+    this._runHandlers();
+  }
+
+  /**
+   * Registers a packet event handler.
+   *
+   * @param name - The name of the handler
+   * @param handler - The handler function
+   */
+  public registerHandler(name: string, handler: (packet: string) => void) {
+    this._handlers.set(name, handler);
+  }
+
+  /**
+   * Unregisters a packet event handler.
+   *
+   * @param name - The name of the handler
+   */
+  public unregisterHandler(name: string) {
+    this._handlers.delete(name);
+  }
+
+  private _runHandlers() {
+    this.bot.on('packetFromServer', (packet) => {
+      if (!this.isRunning()) return;
+
+      if (packet.startsWith('{')) {
+        // run all handlers
+        try {
+          for (const [, handler] of this._handlers) {
+            handler.call(
+              {
+                bot: this.bot,
+              },
+              JSON.parse(packet),
+            );
+          }
+        } catch {}
+      }
+    });
   }
 
   public get commandIndex() {
@@ -79,6 +124,10 @@ export class Context extends EventEmitter<Events> {
     return this._commands.length === 0;
   }
 
+  public setCommands(commands: Command[]) {
+    this._commands = commands;
+  }
+
   /**
    * Starts automated quest management for the given quest id.
    *
@@ -98,37 +147,50 @@ export class Context extends EventEmitter<Events> {
   }
 
   /**
-   * Starts automated item pickup for the given item id.
+   * Starts automated pickup for an item.
    *
-   * @param itemId - The item id
+   * @param item - The item name
    */
-  public addItem(itemId: number) {
-    this.itemIds.add(itemId);
+  public addItem(item: string) {
+    this.items.add(item);
   }
 
   /**
-   * Stops automated item pickup for the given item id.
+   * Stops automated pickup for an item.
    *
-   * @param itemId - The item id
+   * @param item - The item name
    */
-  public removeItem(itemId: number) {
-    this.itemIds.delete(itemId);
+  public removeItem(item: string) {
+    this.items.delete(item);
+  }
+
+  /**
+   * @param name - The item name of the boost.
+   * @remarks
+   */
+  public addBoost(name: string) {
+    if (!this.bot.inventory.contains(name)) return;
+
+    this.boosts.add(name);
+  }
+
+  /**
+   * @param name - The item name of the boost.
+   */
+  public removeBoost(name: string) {
+    this.boosts.delete(name);
   }
 
   public isRunning() {
-    return Boolean(
-      this.abortController && !this.abortController.signal.aborted,
-    );
+    return this._on;
   }
 
   public async start() {
-    this.abortController = new AbortController();
+    this._on = true;
 
-    await this.startContextTimers();
+    await this.prepare();
 
-    if (!this.isCommandQueueEmpty) {
-      await this.startCommandExecution();
-    }
+    await Promise.all([this.runTimers(), this.runCommands()]);
   }
 
   public async stop() {
@@ -136,10 +198,16 @@ export class Context extends EventEmitter<Events> {
     this._stop();
   }
 
-  private async startContextTimers() {
-    this.questTimer = this.bot.timerManager.setInterval(async () => {
+  private async prepare() {
+    // unbank all items
+    await this.bot.bank.withdrawMultiple(Array.from(this.items));
+    await this.bot.bank.withdrawMultiple(Array.from(this.boosts));
+  }
+
+  private async runTimers() {
+    void interval(async (_, stop) => {
       if (!this.isRunning()) {
-        void this.bot.timerManager.clearInterval(this.questTimer);
+        stop();
         return;
       }
 
@@ -157,22 +225,60 @@ export class Context extends EventEmitter<Events> {
       }
     }, 1_000);
 
-    this.itemTimer = this.bot.timerManager.setInterval(async () => {
+    void interval(async (_, stop) => {
       if (!this.isRunning()) {
-        void this.bot.timerManager.clearInterval(this.itemTimer);
+        stop();
         return;
       }
 
-      for (const itemId of Array.from(this.itemIds)) {
+      for (const item of Array.from(this.items)) {
         try {
-          if (this.bot.drops.hasDrop(itemId))
-            await this.bot.drops.pickup(itemId);
+          if (this.bot.drops.hasDrop(item)) await this.bot.drops.pickup(item);
+        } catch {}
+      }
+    }, 1_000);
+
+    void interval(async (_, stop) => {
+      if (!this.isRunning()) {
+        stop();
+        return;
+      }
+
+      for (const boost of Array.from(this.boosts)) {
+        try {
+          if (this.bot.inventory.contains(boost)) {
+            const _boost = boost.toLowerCase();
+            const variant = _boost.includes('gold')
+              ? BoostType.Gold
+              : _boost.includes('xp')
+                ? BoostType.Exp
+                : _boost.includes('rep')
+                  ? BoostType.Rep
+                  : _boost.includes('class')
+                    ? BoostType.ClassPoints
+                    : null;
+
+            if (!variant) continue;
+
+            // we don't have this boost type active, use it
+            if (!this.bot.player.isBoostActive(variant)) {
+              const item = this.bot.inventory.get(boost);
+              if (!item) continue;
+
+              this.bot.flash.call(() => swf.playerUseBoost(item.id));
+            }
+          }
         } catch {}
       }
     }, 1_000);
   }
 
-  private async startCommandExecution() {
+  private async runCommands() {
+    if (this.isCommandQueueEmpty()) {
+      this._stop();
+      return;
+    }
+
     this._commandIndex = 0;
 
     if (!this.bot.player.isLoaded()) {
@@ -194,9 +300,9 @@ export class Context extends EventEmitter<Events> {
           break;
         }
 
-        logger.info(
-          `${command.toString()} [${this._commandIndex + 1}/${this._commands.length}]`,
-        );
+        // logger.info(
+        //   `${command.toString()} [${this._commandIndex + 1}/${this._commands.length}]`,
+        // );
 
         const result = command.execute();
         if (result instanceof Promise) {
@@ -215,20 +321,16 @@ export class Context extends EventEmitter<Events> {
       if (this.isRunning()) this._commandIndex++;
     }
 
-    this.emit('end');
     this._stop();
     // logger.info('command execution finished');
   }
 
   // TODO: add an option to restart if end is reached
-  // TODO: add drops, quests, boosts runtime
 
   private _stop() {
+    this.emit('end');
+    this._on = false;
     this.queue.abortAll();
-    // this._commands = [];
-    // this._commandIndex = 0;
-    this.abortController?.abort();
-    this.abortController = null;
   }
 }
 

@@ -1,10 +1,11 @@
+import { exitFromCombat } from '../util/exitFromCombat';
 import { isMonsterMapId } from '../util/isMonMapId';
 import type { Bot } from './Bot';
 import { Avatar, type AvatarData } from './models/Avatar';
 import type { ItemData } from './models/Item';
 import { Monster, type MonsterData } from './models/Monster';
 
-export const GameAction = {
+export const GameAction = Object.freeze({
   /**
    * Accepting a quest.
    */
@@ -61,7 +62,7 @@ export const GameAction = {
    * Who action.
    */
   Who: 'who',
-} as const;
+});
 
 export class World {
   public constructor(public readonly bot: Bot) {}
@@ -86,6 +87,7 @@ export class World {
 
   /**
    * Whether a player is in a given cell.
+   *
    * @param name - The player name to check.
    * @param cell - The cell to check.
    */
@@ -241,6 +243,10 @@ export class World {
     cell = 'Enter',
     pad = 'Spawn',
   ): Promise<void> {
+    await exitFromCombat();
+
+    await this.bot.sleep(1_000);
+
     await this.bot.waitUntil(
       () => this.isActionAvailable(GameAction.Transfer),
       null,

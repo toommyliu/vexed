@@ -1,24 +1,29 @@
+import { ArgsError } from '../../ArgsError';
+import { CommandAddDrop } from './CommandAddDrop';
 import { CommandBuy } from './CommandBuy';
 import { CommandDeposit } from './CommandDeposit';
 import { CommandGetMapItem } from './CommandGetMapItem';
 import { CommandPickup } from './CommandPickup';
 import { CommandReject } from './CommandReject';
+import { CommandRemoveDrop } from './CommandRemoveDrop';
 import { CommandSell } from './CommandSell';
 import { CommandSwap } from './CommandSwap';
 import { CommandWithdraw } from './CommandWithdraw';
+import { CommandAddBoost } from './CommandAddBoost';
+import { CommandRemoveBoost } from './CommandRemoveBoost';
 
 export const itemCommands = {
   buy_item(shopId: number, item: number | string, quantity: number) {
     if (!shopId || typeof shopId !== 'number') {
-      throw new Error('shopId is required');
+      throw new ArgsError('shopId is required');
     }
 
     if (!item || (typeof item !== 'number' && typeof item !== 'string')) {
-      throw new Error('item is required');
+      throw new ArgsError('item is required');
     }
 
     if (!quantity || typeof quantity !== 'number') {
-      throw new Error('quantity is required');
+      throw new ArgsError('quantity is required');
     }
 
     const cmd = new CommandBuy();
@@ -29,7 +34,7 @@ export const itemCommands = {
   },
   deposit(item: number | string) {
     if (!item || (typeof item !== 'number' && typeof item !== 'string')) {
-      throw new Error('item is required');
+      throw new ArgsError('item is required');
     }
 
     const cmd = new CommandDeposit();
@@ -38,11 +43,11 @@ export const itemCommands = {
   },
   get_map_item(item: number | string) {
     if (!item || (typeof item !== 'number' && typeof item !== 'string')) {
-      throw new Error('item is required');
+      throw new ArgsError('item is required');
     }
 
     if (typeof item === 'string' && Number.isNaN(Number.parseInt(item, 10))) {
-      throw new Error('item is required');
+      throw new TypeError('item is required');
     }
 
     const cmd = new CommandGetMapItem();
@@ -51,7 +56,7 @@ export const itemCommands = {
   },
   pickup(item: number | string) {
     if (!item || (typeof item !== 'number' && typeof item !== 'string')) {
-      throw new Error('item is required');
+      throw new ArgsError('item is required');
     }
 
     const cmd = new CommandPickup();
@@ -60,7 +65,7 @@ export const itemCommands = {
   },
   reject(item: number | string) {
     if (!item || (typeof item !== 'number' && typeof item !== 'string')) {
-      throw new Error('item is required');
+      throw new ArgsError('item is required');
     }
 
     const cmd = new CommandReject();
@@ -69,7 +74,7 @@ export const itemCommands = {
   },
   sell_item(item: string) {
     if (!item || typeof item !== 'string') {
-      throw new Error('item is required');
+      throw new ArgsError('item is required');
     }
 
     const cmd = new CommandSell();
@@ -81,14 +86,14 @@ export const itemCommands = {
       !bankItem ||
       (typeof bankItem !== 'number' && typeof bankItem !== 'string')
     ) {
-      throw new Error('bankItem is required');
+      throw new ArgsError('bankItem is required');
     }
 
     if (
       !invItem ||
       (typeof invItem !== 'number' && typeof invItem !== 'string')
     ) {
-      throw new Error('invItem is required');
+      throw new ArgsError('invItem is required');
     }
 
     const cmd = new CommandSwap();
@@ -98,10 +103,46 @@ export const itemCommands = {
   },
   withdraw(item: number | string) {
     if (!item || (typeof item !== 'number' && typeof item !== 'string')) {
-      throw new Error('item is required');
+      throw new ArgsError('item is required');
     }
 
     const cmd = new CommandWithdraw();
+    cmd.item = item;
+    window.context.addCommand(cmd);
+  },
+  add_drop(item: string) {
+    if (!item || typeof item !== 'string') {
+      throw new ArgsError('item is required');
+    }
+
+    const cmd = new CommandAddDrop();
+    cmd.item = item;
+    window.context.addCommand(cmd);
+  },
+  remove_drop(item: string) {
+    if (!item || typeof item !== 'string') {
+      throw new ArgsError('item is required');
+    }
+
+    const cmd = new CommandRemoveDrop();
+    cmd.item = item;
+    window.context.addCommand(cmd);
+  },
+  add_boost(item: string) {
+    if (!item || typeof item !== 'string') {
+      throw new ArgsError('item is required');
+    }
+
+    const cmd = new CommandAddBoost();
+    cmd.item = item;
+    window.context.addCommand(cmd);
+  },
+  remove_boost(item: string) {
+    if (!item || typeof item !== 'string') {
+      throw new ArgsError('item is required');
+    }
+
+    const cmd = new CommandRemoveBoost();
     cmd.item = item;
     window.context.addCommand(cmd);
   },

@@ -1,5 +1,6 @@
 import { Mutex } from 'async-mutex';
-import { Logger } from '../../util/logger';
+import { interval } from '../../../../common/interval';
+import { Logger } from '../../../../common/logger';
 import { Bot } from '../Bot';
 
 const logger = Logger.get('AutoRelogin');
@@ -41,7 +42,7 @@ export class AutoRelogin {
    * Runs the auto-login process.
    */
   private run(): void {
-    this.bot.timerManager.setInterval(async () => {
+    void interval(async () => {
       if (this.bot.auth.isLoggedIn()) return;
 
       if (!this.username || !this.password || !this.server) return;

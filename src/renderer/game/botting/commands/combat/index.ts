@@ -1,3 +1,5 @@
+import type { KillOptions } from '../../../lib/Combat';
+import { ArgsError } from '../../ArgsError';
 import { CommandAttack } from './CommandAttack';
 import { CommandCancelTarget } from './CommandCancelTarget';
 import { CommandExitCombat } from './CommandExitCombat';
@@ -9,7 +11,7 @@ import { CommandUseSkill } from './CommandUseSkill';
 export const combatCommands = {
   attack(target: string) {
     if (!target || typeof target !== 'string') {
-      throw new Error('target is required');
+      throw new ArgsError('target is required');
     }
 
     const cmd = new CommandAttack();
@@ -22,45 +24,57 @@ export const combatCommands = {
   exit_combat() {
     window.context.addCommand(new CommandExitCombat());
   },
-  kill(target: string) {
+  kill(target: string, options: Partial<KillOptions>) {
     if (!target || typeof target !== 'string') {
-      throw new Error('target is required');
+      throw new ArgsError('target is required');
     }
 
     const cmd = new CommandKill();
     cmd.target = target;
+    cmd.options = options;
     window.context.addCommand(cmd);
   },
-  kill_for_item(target: string, item: number | string, quantity: number) {
+  kill_for_item(
+    target: string,
+    item: number | string,
+    quantity: number,
+    options: Partial<KillOptions>,
+  ) {
     if (!target || typeof target !== 'string') {
-      throw new Error('target is required');
+      throw new ArgsError('target is required');
     }
 
     if (!item || (typeof item !== 'number' && typeof item !== 'string')) {
-      throw new Error('item is required');
+      throw new ArgsError('item is required');
     }
 
     if (!quantity || typeof quantity !== 'number' || quantity < 1) {
-      throw new Error('quantity is required');
+      throw new ArgsError('quantity is required');
     }
 
     const cmd = new CommandKillFor();
     cmd.target = target;
     cmd.item = item;
     cmd.quantity = quantity;
+    cmd.options = options;
     window.context.addCommand(cmd);
   },
-  kill_for_temp_item(target: string, item: number | string, quantity: number) {
+  kill_for_temp_item(
+    target: string,
+    item: number | string,
+    quantity: number,
+    options: Partial<KillOptions>,
+  ) {
     if (!target || typeof target !== 'string') {
-      throw new Error('target is required');
+      throw new ArgsError('target is required');
     }
 
     if (!item || (typeof item !== 'number' && typeof item !== 'string')) {
-      throw new Error('item is required');
+      throw new ArgsError('item is required');
     }
 
     if (!quantity || typeof quantity !== 'number') {
-      throw new Error('quantity is required');
+      throw new ArgsError('quantity is required');
     }
 
     const cmd = new CommandKillFor();
@@ -68,6 +82,7 @@ export const combatCommands = {
     cmd.item = item;
     cmd.quantity = quantity;
     cmd.isTemp = true;
+    cmd.options = options;
     window.context.addCommand(cmd);
   },
   rest() {
@@ -75,7 +90,7 @@ export const combatCommands = {
   },
   use_skill(skill: number | string) {
     if (!skill || (typeof skill !== 'number' && typeof skill !== 'string')) {
-      throw new Error('skill is required');
+      throw new ArgsError('skill is required');
     }
 
     const cmd = new CommandUseSkill();
