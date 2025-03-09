@@ -3,8 +3,8 @@ import { EventEmitter } from 'tseep';
 import { interval } from '../../../common/interval';
 import { Logger } from '../../../common/logger';
 import { Bot } from '../lib/Bot';
-import type { Command } from './command';
 import { BoostType } from '../lib/Player';
+import type { Command } from './command';
 
 const logger = Logger.get('Context');
 
@@ -326,7 +326,6 @@ export class Context extends EventEmitter<Events> {
   }
 
   // TODO: add an option to restart if end is reached
-  // TODO: add drops, quests, boosts runtime
 
   private _stop() {
     this.emit('end');
