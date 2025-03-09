@@ -70,6 +70,8 @@ cmd.wait_for_player_count(count: number)
 
 ## enable_anticounter
 
+Enables the anti-counter attack handler when a "prepares a counter attack" message is detected.
+
 ```
 cmd.enable_anticounter()
 ```
