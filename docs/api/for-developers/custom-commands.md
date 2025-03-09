@@ -1,6 +1,6 @@
 # Custom Commands
 
-vexed might not have all scripting commands you might desire. With custom commands, you can register your own with more flexibility than pre-defined commands. Plus, you have full access to utilize internal apis but have to manage some minor details yourself.
+vexed might not have all scripting commands you might desire. With custom commands, you can register your own with more flexibility than pre-defined commands. Plus, you have full access to utilize internal apis (legacy api) but have to manage some minor details yourself.
 
 Custom commands need to be registered **BEFORE** they can be called. Therefore, you ideally would register them at the beginning of your script.
 
