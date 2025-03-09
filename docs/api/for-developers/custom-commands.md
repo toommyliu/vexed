@@ -45,12 +45,16 @@ cmd.register_command('is_in_bank_or_inventory', (Command) => {
 ## Unregistering
 
 ```js
+// cmd.unregister_command(name)
+
 cmd.unregister_command('is_in_bank_or_inventory');
 ```
 
 ## Usage
 
 ```js
+// previous "is_in_bank_or_inventory" command is registered
+
 cmd.is_in_bank_or_inventory('Barber');
 cmd.goto_label('yes');
 cmd.goto_label('no');

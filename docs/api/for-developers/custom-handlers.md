@@ -44,6 +44,8 @@ cmd.register_handler('auto zone ledgermayne', function (packet) {
 ## Unregistering
 
 ```js
+// cmd.unregister_handler(name)
+
 cmd.unregister_handler('auto zone ledgermayne');
 ```
 
