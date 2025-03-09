@@ -6,7 +6,7 @@
 
 ## add_drop
 
-Adds an item to background drop list, which automatically manages picking up.
+Adds an item to background drop list, which automatically picks up the item when it drops.
 
 ```
 cmd.add_drop(item: string)
