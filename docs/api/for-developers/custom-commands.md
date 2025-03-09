@@ -12,6 +12,7 @@ Custom commands persist across script lifetimes, so you can register them once a
 
 ```js
 // cmd.register_command(name, Command)
+
 cmd.register_command('is_in_bank_or_inventory', (Command) => {
   const command = new Command();
 
