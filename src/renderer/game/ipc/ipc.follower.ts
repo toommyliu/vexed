@@ -108,9 +108,7 @@ async function startFollower() {
       logger.info(`player ${name} not found: ${attempts}/3`);
 
       if (attempts <= 0) {
-        logger.info(
-          `failed to find: ${name} after ${attempts} attempts, stopping`,
-        );
+        logger.info(`failed to find: ${name} after 3 attempts, stopping`);
         await stopFollower();
       }
     }
