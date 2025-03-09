@@ -4,6 +4,7 @@ import { interval } from '../../../common/interval';
 import { Logger } from '../../../common/logger';
 import { Bot } from '../lib/Bot';
 import type { Command } from './command';
+import { BoostType } from '../lib/Player';
 
 const logger = Logger.get('Context');
 
@@ -23,9 +24,9 @@ export class Context extends EventEmitter<Events> {
   private readonly items: Set<string>;
 
   /**
-   * List of boost ids to watch for.
+   * List of boost to watch and use.
    */
-  // private readonly boostIds: Set<number>;
+  private readonly boosts: Set<string>;
 
   private readonly _handlers: Map<string, (packet: string) => void>;
 
@@ -42,7 +43,7 @@ export class Context extends EventEmitter<Events> {
 
     this.questIds = new Set();
     this.items = new Set();
-    // this.boostIds = new Set();
+    this.boosts = new Set();
 
     this._handlers = new Map();
 
@@ -163,6 +164,23 @@ export class Context extends EventEmitter<Events> {
     this.items.delete(item);
   }
 
+  /**
+   * @param name - The item name of the boost.
+   * @remarks
+   */
+  public addBoost(name: string) {
+    if (!this.bot.inventory.contains(name)) return;
+
+    this.boosts.add(name);
+  }
+
+  /**
+   * @param name - The item name of the boost.
+   */
+  public removeBoost(name: string) {
+    this.boosts.delete(name);
+  }
+
   public isRunning() {
     return this._on;
   }
@@ -170,12 +188,20 @@ export class Context extends EventEmitter<Events> {
   public async start() {
     this._on = true;
 
+    await this.prepare();
+
     await Promise.all([this.runTimers(), this.runCommands()]);
   }
 
   public async stop() {
     // logger.info('context stopping');
     this._stop();
+  }
+
+  private async prepare() {
+    // unbank all items
+    await this.bot.bank.withdrawMultiple(Array.from(this.items));
+    await this.bot.bank.withdrawMultiple(Array.from(this.boosts));
   }
 
   private async runTimers() {
@@ -211,6 +237,40 @@ export class Context extends EventEmitter<Events> {
         } catch {}
       }
     }, 1_000);
+
+    void interval(async (_, stop) => {
+      if (!this.isRunning()) {
+        stop();
+        return;
+      }
+
+      for (const boost of Array.from(this.boosts)) {
+        try {
+          if (this.bot.inventory.contains(boost)) {
+            const _boost = boost.toLowerCase();
+            const variant = _boost.includes('gold')
+              ? BoostType.Gold
+              : _boost.includes('xp')
+                ? BoostType.Exp
+                : _boost.includes('rep')
+                  ? BoostType.Rep
+                  : _boost.includes('class')
+                    ? BoostType.ClassPoints
+                    : null;
+
+            if (!variant) continue;
+
+            // we don't have this boost type active, use it
+            if (!this.bot.player.isBoostActive(variant)) {
+              const item = this.bot.inventory.get(boost);
+              if (!item) continue;
+
+              this.bot.flash.call(() => swf.playerUseBoost(item.id));
+            }
+          }
+        } catch {}
+      }
+    }, 1_000);
   }
 
   private async runCommands() {
@@ -240,9 +300,9 @@ export class Context extends EventEmitter<Events> {
           break;
         }
 
-        logger.info(
-          `${command.toString()} [${this._commandIndex + 1}/${this._commands.length}]`,
-        );
+        // logger.info(
+        //   `${command.toString()} [${this._commandIndex + 1}/${this._commands.length}]`,
+        // );
 
         const result = command.execute();
         if (result instanceof Promise) {
@@ -272,8 +332,6 @@ export class Context extends EventEmitter<Events> {
     this.emit('end');
     this._on = false;
     this.queue.abortAll();
-    // this._commands = [];
-    // this._commandIndex = 0;
   }
 }
 

@@ -9,6 +9,8 @@ import { CommandRemoveDrop } from './CommandRemoveDrop';
 import { CommandSell } from './CommandSell';
 import { CommandSwap } from './CommandSwap';
 import { CommandWithdraw } from './CommandWithdraw';
+import { CommandAddBoost } from './CommandAddBoost';
+import { CommandRemoveBoost } from './CommandRemoveBoost';
 
 export const itemCommands = {
   buy_item(shopId: number, item: number | string, quantity: number) {
@@ -123,6 +125,24 @@ export const itemCommands = {
     }
 
     const cmd = new CommandRemoveDrop();
+    cmd.item = item;
+    window.context.addCommand(cmd);
+  },
+  add_boost(item: string) {
+    if (!item || typeof item !== 'string') {
+      throw new ArgsError('item is required');
+    }
+
+    const cmd = new CommandAddBoost();
+    cmd.item = item;
+    window.context.addCommand(cmd);
+  },
+  remove_boost(item: string) {
+    if (!item || typeof item !== 'string') {
+      throw new ArgsError('item is required');
+    }
+
+    const cmd = new CommandRemoveBoost();
     cmd.item = item;
     window.context.addCommand(cmd);
   },
