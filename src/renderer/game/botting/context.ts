@@ -1,14 +1,15 @@
 import { AsyncQueue } from '@sapphire/async-queue';
-import { EventEmitter } from 'tseep';
+import { TypedEmitter } from 'tiny-typed-emitter';
 import { interval } from '../../../common/interval';
 import { Logger } from '../../../common/logger';
 import { Bot } from '../lib/Bot';
 import { BoostType } from '../lib/Player';
 import type { Command } from './command';
+import { CommandOverlay } from './overlay';
 
 const logger = Logger.get('Context');
 
-export class Context extends EventEmitter<Events> {
+export class Context extends TypedEmitter<Events> {
   private readonly bot = Bot.getInstance();
 
   private readonly queue: AsyncQueue;
@@ -38,6 +39,8 @@ export class Context extends EventEmitter<Events> {
 
   private _on: boolean;
 
+  public readonly overlay: CommandOverlay;
+
   public constructor() {
     super();
 
@@ -55,6 +58,8 @@ export class Context extends EventEmitter<Events> {
     this._on = false;
 
     this._runHandlers();
+
+    this.overlay = new CommandOverlay();
   }
 
   /**
@@ -187,8 +192,11 @@ export class Context extends EventEmitter<Events> {
 
   public async start() {
     this._on = true;
+    this.overlay.show();
 
     await this.prepare();
+
+    this.emit('start');
 
     await Promise.all([this.runTimers(), this.runCommands()]);
   }
@@ -300,6 +308,7 @@ export class Context extends EventEmitter<Events> {
           break;
         }
 
+        this.overlay.updateCommands(this._commands, this._commandIndex);
         // logger.info(
         //   `${command.toString()} [${this._commandIndex + 1}/${this._commands.length}]`,
         // );
@@ -328,6 +337,7 @@ export class Context extends EventEmitter<Events> {
   // TODO: add an option to restart if end is reached
 
   private _stop() {
+    this.overlay.hide();
     this.emit('end');
     this._on = false;
     this.queue.abortAll();
@@ -336,4 +346,5 @@ export class Context extends EventEmitter<Events> {
 
 type Events = {
   end(): void;
+  start(): void;
 };

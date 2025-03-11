@@ -5,11 +5,21 @@ ogDiv.innerHTML = `
     <polyline points="20 6 9 17 4 12"></polyline>
 </svg>`;
 
-export function createCheckbox(el: HTMLElement, fn: (on: boolean) => void) {
+export function addCheckbox(
+  el: HTMLElement,
+  fn: (on: boolean) => void,
+  defaultChecked = false,
+) {
   const div = ogDiv.cloneNode(true);
   el.appendChild(div);
 
-  el.setAttribute('data-state', 'false');
+  el.setAttribute('data-state', defaultChecked.toString());
+  if (defaultChecked) {
+    el.classList.add('option-active');
+  } else {
+    el.classList.remove('option-active');
+  }
+
   el.addEventListener('click', (ev) => {
     ev.stopPropagation();
 

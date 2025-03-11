@@ -1,95 +1,171 @@
 :root {
-	--topnav-height: 32px;
+  --topnav-height: 32px;
 }
 
 :focus {
-	outline: none;
+  outline: none;
 }
 
 .w3-dropdown-content {
-	background-color: var(--bg-secondary) !important;
-	color: white !important;
+  background-color: var(--bg-secondary) !important;
+  color: white !important;
 }
 
 .w3-dropdown-content .w3-button {
-	text-align: left !important;
-	padding: 8px 16px !important;
-	width: 100%;
-	display: flex !important;
-	justify-content: space-between !important;
-	align-items: center !important;
+  text-align: left !important;
+  padding: 8px 16px !important;
+  width: 100%;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
 }
 
 .option-row {
-	display: flex !important;
-	justify-content: space-between !important;
-	align-items: center !important;
-	cursor: default !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  cursor: default !important;
 }
 
 .walkspeed-input {
-	width: 50px;
-	height: 20px;
-	background-color: var(--bg-secondary);
-	color: white;
-	border: 1px solid #444;
-	padding: 2px 4px;
+  width: 50px;
+  height: 20px;
+  background-color: var(--bg-secondary);
+  color: white;
+  border: 1px solid #444;
+  padding: 2px 4px;
 }
 
 .topnav-right-container {
-	display: flex;
-	align-items: center;
-	gap: 16px;
-	margin-right: 8px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-right: 8px;
 }
 
 .select-group,
 .button-group {
-	display: flex;
-	gap: 8px;
+  display: flex;
+  gap: 8px;
 }
 
 #pads,
 #cells,
 #x,
 #bank {
-	background-color: var(--bg-secondary);
-	color: white;
-	height: 25px;
-	margin-top: 5px;
-	padding: 0 8px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	min-width: unset;
+  background-color: var(--bg-secondary);
+  color: white;
+  height: 25px;
+  margin-top: 5px;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: unset;
 }
 
 #pads,
 #cells {
-	width: 86px;
+  width: 86px;
 }
 
 .gameContainer {
-	height: calc(100vh - var(--topnav-height) - 2px);
-	position: relative;
+  height: calc(100vh - var(--topnav-height) - 2px);
+  position: relative;
 }
 
 #swf {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 .option-checkmark {
-	display: flex;
-	align-items: center;
-	opacity: 0;
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  visibility: hidden;
 }
 .option-checkmark svg {
-	width: 16px;
-	height: 16px;
+  width: 16px;
+  height: 16px;
 }
 .option-active .option-checkmark {
-	opacity: 1;
+  opacity: 1;
+  visibility: visible;
+}
+
+.command-overlay {
+  position: fixed;
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 0;
+  min-width: 200px;
+  display: none;
+  opacity: 0.95;
+  z-index: 9999;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  resize: both;
+  overflow: hidden;
+  min-height: 32px;
+  user-select: none;
+}
+
+.command-overlay.collapsed {
+  resize: none;
+  overflow: visible;
+  min-width: auto;
+  width: auto !important;
+  height: auto !important;
+}
+
+.command-overlay.dragging {
+  cursor: grabbing;
+  user-select: none;
+}
+
+.command-overlay-header {
+  background-color: #2a2a2a;
+  padding: 6px 10px;
+  cursor: grab;
+  color: #ccc;
+  border-bottom: 1px solid #333;
+  border-radius: 4px 4px 0 0;
+  user-select: none;
+  white-space: nowrap;
+  font-size: 13px;
+}
+
+.command-overlay.collapsed .command-overlay-header {
+  border-radius: 4px;
+  border-bottom: none;
+}
+
+.command-list-container {
+  color: white;
+  padding: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+  height: calc(100% - 30px);
+  user-select: none;
+}
+
+.command-item {
+  padding: 4px 8px;
+  font-size: 13px;
+  cursor: default;
+  user-select: none;
+  background-color: #151515;
+  margin-bottom: 2px;
+  border-radius: 2px;
+}
+
+.command-item.active {
+  background-color: #0066cc;
+}
+
+.command-item.hover {
+  background-color: #333;
 }

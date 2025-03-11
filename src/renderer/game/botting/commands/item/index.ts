@@ -1,16 +1,16 @@
 import { ArgsError } from '../../ArgsError';
+import { CommandAddBoost } from './CommandAddBoost';
 import { CommandAddDrop } from './CommandAddDrop';
 import { CommandBuy } from './CommandBuy';
 import { CommandDeposit } from './CommandDeposit';
 import { CommandGetMapItem } from './CommandGetMapItem';
 import { CommandPickup } from './CommandPickup';
 import { CommandReject } from './CommandReject';
+import { CommandRemoveBoost } from './CommandRemoveBoost';
 import { CommandRemoveDrop } from './CommandRemoveDrop';
 import { CommandSell } from './CommandSell';
 import { CommandSwap } from './CommandSwap';
 import { CommandWithdraw } from './CommandWithdraw';
-import { CommandAddBoost } from './CommandAddBoost';
-import { CommandRemoveBoost } from './CommandRemoveBoost';
 
 export const itemCommands = {
   buy_item(shopId: number, item: number | string, quantity: number) {

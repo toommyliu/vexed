@@ -2,20 +2,28 @@ import { WINDOW_IDS } from '../../common/constants';
 import { ipcRenderer } from '../../common/ipc';
 import { IPC_EVENTS } from '../../common/ipc-events';
 import { Bot } from './lib/Bot';
-import { createCheckbox } from './util/createCheckbox';
+import { addCheckbox } from './util/addCheckbox';
 
 const bot = Bot.getInstance();
 
 const dropdowns = new Map<string, HTMLElement>();
 
 ipcRenderer.answerMain(IPC_EVENTS.SCRIPT_LOADED, () => {
-  const btn = document.querySelector(
-    '#scripts-dropdowncontent > button:nth-child(2)',
-  ) as HTMLButtonElement;
+  {
+    const btn = document.querySelector(
+      '#scripts-dropdowncontent > button:nth-child(2)',
+    ) as HTMLButtonElement;
 
-  btn.disabled = false;
-  btn.classList.remove('w3-disabled');
-  btn.textContent = 'Start';
+    btn.disabled = false;
+    btn.classList.remove('w3-disabled');
+    btn.textContent = 'Start';
+  }
+
+  window.context.overlay.updateCommands(
+    window.context.commands,
+    window.context.commandIndex,
+  );
+  window.context.overlay.show();
 });
 
 window.addEventListener('DOMContentLoaded', async () => {
@@ -62,6 +70,42 @@ window.addEventListener('DOMContentLoaded', async () => {
   {
     const btn = document.querySelector(
       '#scripts-dropdowncontent > button:nth-child(3)',
+    ) as HTMLButtonElement;
+
+    const label = btn.querySelector('span') as HTMLSpanElement;
+
+    addCheckbox(
+      btn,
+      () => {
+        window.context.overlay.toggle();
+      },
+      false,
+    );
+
+    window.context.overlay.on('display', (visible) => {
+      btn.setAttribute('data-state', visible.toString());
+      label.textContent = visible ? 'Hide Overlay' : 'Show Overlay';
+      if (visible) {
+        btn.classList.add('option-active');
+      } else {
+        btn.classList.remove('option-active');
+      }
+    });
+
+    window.context.on('start', () => {
+      btn.setAttribute('data-state', 'true');
+      btn.classList.add('option-active');
+    });
+
+    window.context.on('end', () => {
+      btn.setAttribute('data-state', 'false');
+      btn.classList.remove('option-active');
+    });
+  }
+
+  {
+    const btn = document.querySelector(
+      '#scripts-dropdowncontent > button:nth-child(4)',
     ) as HTMLButtonElement;
     btn.addEventListener('click', async () => {
       await ipcRenderer.callMain(IPC_EVENTS.TOGGLE_DEV_TOOLS).catch(() => {});
@@ -219,7 +263,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         _option.addEventListener('input', handleWalkSpeed);
         _option.addEventListener('change', handleWalkSpeed);
       } else {
-        createCheckbox(option, (on) => {
+        addCheckbox(option, (on) => {
           switch (option.id) {
             case 'option-infinite-range':
               bot.settings.infiniteRange = on;
