@@ -3,6 +3,7 @@ package vexed
 	import flash.external.ExternalInterface;
 	import vexed.module.Modules;
 	import vexed.game.*;
+	import flash.utils.getQualifiedClassName;
 
 	public class Externalizer
 	{
@@ -211,8 +212,13 @@ package vexed
 			this.addCallback("isChatFocused", function():Boolean
 				{
 					var game:* = Main.getInstance().getGame();
-					if (game.ui && game.ui.mcInterface && game.ui.mcInterface.te)
-						return game.stage.focus == game.ui.mcInterface.te;
+
+					if (game.ui && game.ui.mcInterface)
+					{
+						var textField:Object = (game.intChatMode == 0) ? game.ui.mcInterface.te : game.ui.mcInterface.ncText;
+						if (textField)
+							return game.stage.focus == textField;
+					}
 
 					return false;
 				});
