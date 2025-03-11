@@ -90,12 +90,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     toggleState.bind(null, false),
   );
   ipcRenderer.answerMain(IPC_EVENTS.REFRESHED, toggleState.bind(null, false));
+});
 
-  window.addEventListener('beforeunload', async () => {
-    if (on) {
-      await ipcRenderer.callMain(IPC_EVENTS.MSGBROKER, {
-        ipcEvent: IPC_EVENTS.FOLLOWER_STOP,
-      });
-    }
-  });
+window.addEventListener('beforeunload', async () => {
+  if (on) {
+    await ipcRenderer.callMain(IPC_EVENTS.MSGBROKER, {
+      ipcEvent: IPC_EVENTS.FOLLOWER_STOP,
+    });
+  }
 });
