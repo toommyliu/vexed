@@ -109,3 +109,11 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
   });
 });
+
+window.addEventListener('beforeunload', async () => {
+  if (on) {
+    await ipcRenderer.callMain(IPC_EVENTS.MSGBROKER, {
+      ipcEvent: IPC_EVENTS.PACKET_LOGGER_STOP,
+    });
+  }
+});

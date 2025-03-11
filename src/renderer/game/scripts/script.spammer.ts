@@ -3,6 +3,7 @@ import { IPC_EVENTS } from '../../../common/ipc-events';
 
 const packets: string[] = [];
 
+let on = false;
 let selectedLine: HTMLElement | null = null;
 
 function toggleElement(el: HTMLButtonElement, state: boolean) {
@@ -79,6 +80,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     const onBtn = document.querySelector('#start') as HTMLButtonElement;
 
     stopBtn.addEventListener('click', async () => {
+      on = false;
+
       toggleElement(stopBtn, true);
       toggleElement(onBtn, false);
 
@@ -90,6 +93,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     });
 
     onBtn.addEventListener('click', async () => {
+      on = true;
+
       toggleElement(stopBtn, false);
       toggleElement(onBtn, true);
 
@@ -122,4 +127,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     toggleElement(stopBtn, true);
     toggleElement(onBtn, false);
   });
+});
+
+window.addEventListener('beforeunload', async () => {
+  if (on) {
+    await ipcRenderer.callMain(IPC_EVENTS.MSGBROKER, {
+      ipcEvent: IPC_EVENTS.PACKET_SPAMMER_STOP,
+    });
+  }
 });
