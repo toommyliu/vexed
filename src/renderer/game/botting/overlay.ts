@@ -26,6 +26,8 @@ export class CommandOverlay extends TypedEmitter<Events> {
 
   private listVisible: boolean = true;
 
+  private storageKey: string = 'command-overlay-position';
+
   public constructor() {
     super();
 
@@ -44,6 +46,7 @@ export class CommandOverlay extends TypedEmitter<Events> {
     this.overlay.appendChild(this.listContainer);
     document.body.appendChild(this.overlay);
 
+    this.loadPosition();
     this.setupDragging();
     this.setupContextMenu();
     this.setupHoverEffects();
@@ -109,6 +112,44 @@ export class CommandOverlay extends TypedEmitter<Events> {
     return window.getComputedStyle(this.overlay).display !== 'none';
   }
 
+  /**
+   * Save the current position of the overlay to localStorage.
+   */
+  private savePosition(): void {
+    const position = {
+      left: this.overlay.style.left,
+      top: this.overlay.style.top,
+      visible: this.listVisible,
+    };
+
+    localStorage.setItem(this.storageKey, JSON.stringify(position));
+  }
+
+  /**
+   * Load the saved position of the overlay from localStorage.
+   */
+  private loadPosition(): void {
+    const savedPosition = localStorage.getItem(this.storageKey);
+
+    if (savedPosition) {
+      const position = JSON.parse(savedPosition);
+
+      if (position.left && position.top) {
+        this.overlay.style.left = position.left;
+        this.overlay.style.top = position.top;
+      }
+
+      if (position.visible !== undefined) {
+        this.listVisible = position.visible;
+
+        if (!this.listVisible) {
+          this.listContainer.style.display = 'none';
+          this.overlay.classList.add('collapsed');
+        }
+      }
+    }
+  }
+
   private setupDragging(): void {
     // Start dragging
     this.headerElement.addEventListener('mousedown', (ev) => {
@@ -150,22 +191,25 @@ export class CommandOverlay extends TypedEmitter<Events> {
 
       this.isDragging = false;
       this.overlay.classList.remove('dragging');
+      this.savePosition();
     });
   }
 
   private setupContextMenu(): void {
-    // Right cick header
+    // Right click header
     this.headerElement.addEventListener('contextmenu', (ev) => {
       ev.preventDefault();
 
       this.toggleListVisibility();
       this.updateHeaderText();
+      this.savePosition();
     });
 
     // Double click header
     this.headerElement.addEventListener('dblclick', () => {
       this.toggleListVisibility();
       this.updateHeaderText();
+      this.savePosition();
     });
   }
 
@@ -221,12 +265,12 @@ export class CommandOverlay extends TypedEmitter<Events> {
           event.stopPropagation();
         }
       },
-      { passive: false }, // ?
+      { passive: false },
     );
   }
 
   /**
-   * Toggles the visbility of the command list.
+   * Toggles the visibility of the command list.
    */
   private toggleListVisibility(): void {
     this.listVisible = !this.listVisible;
