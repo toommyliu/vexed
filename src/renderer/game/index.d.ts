@@ -194,6 +194,8 @@ declare global {
     worldLoadSwf(swf: string): void;
     worldGetMapItem(itemId: number): void;
     worldSetSpawnPoint(cell?: string, pad?: string): void;
+
+    isChatFocused(): boolean;
   };
   /* eslint-enable typescript-sort-keys/interface */
 

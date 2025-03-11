@@ -208,6 +208,20 @@ package vexed
 			this.addCallback("worldGetMapItem", World.getMapItem);
 			this.addCallback("worldSetSpawnPoint", World.setSpawnPoint);
 
+			this.addCallback("isChatFocused", function():Boolean
+				{
+					var game:* = Main.getInstance().getGame();
+
+					if (game.ui && game.ui.mcInterface)
+					{
+						var textField:Object = (game.intChatMode == 0) ? game.ui.mcInterface.te : game.ui.mcInterface.ncText;
+						if (textField)
+							return game.stage.focus == textField;
+					}
+
+					return false;
+				});
+
 			this.debug("Externalizer::init done.");
 		}
 

@@ -24,7 +24,8 @@ package vexed.module
 					}
 
 					// Ground item
-					if (Boolean(player.getItemByEquipSlot('mi')))
+					// if (Boolean(player.getItemByEquipSlot('mi')))
+					if (true)
 					{
 						player.pMC.cShadow.visible = !enabled;
 						player.pMC.shadow.alpha = enabled ? 0 : 1;

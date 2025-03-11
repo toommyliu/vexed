@@ -47,7 +47,7 @@ package vexed.game
     public static function useSkill(index:int):void
     {
       var skill:* = game.world.actions.active[index];
-      if (ExtractedFuncs.actionTimeCheck(skill))
+      if (ExtractedFuncs.actionTimeCheck(skill) && canUseSkill(index) && getSkillCooldownRemaining(index) == 0)
       {
         game.world.testAction(skill);
       }
@@ -56,7 +56,7 @@ package vexed.game
     public static function forceUseSkill(index:int):void
     {
       var skill:* = game.world.actions.active[index];
-      if (Boolean(skill))
+      if (Boolean(skill) && canUseSkill(index) && getSkillCooldownRemaining(index) == 0)
       {
         game.world.testAction(skill);
       }
