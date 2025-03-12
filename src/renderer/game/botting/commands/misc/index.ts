@@ -1,16 +1,24 @@
 import { ArgsError } from '../../ArgsError';
 import { CommandDelay } from './CommandDelay';
 import { CommandDisableAntiCounter } from './CommandDisableAntiCounter';
+import { CommandDisableCollisions } from './CommandDisableCollisions';
+import { CommandDisableFx } from './CommandDisableFx';
 import { CommandEnableAntiCounter } from './CommandEnableAntiCounter';
+import { CommandEnemyMagnet } from './CommandEnemyMagnet';
 import { CommandGotoLabel } from './CommandGotoLabel';
+import { CommandHidePlayers } from './CommandHidePlayers';
+import { CommandInfiniteRange } from './CommandInfiniteRange';
 import { CommandLabel } from './CommandLabel';
+import { CommandLagKiller } from './CommandLagKiller';
 import { CommandLog } from './CommandLog';
-// import { CommandLogin } from './login';
 import { CommandLogout } from './CommandLogout';
+import { CommandProvokeCell } from './CommandProvokeCell';
+import { CommandProvokeMap } from './CommandProvokeMap';
 import { CommandSetDelay } from './CommandSetDelay';
-import { CommandSetting } from './CommandSetting';
+import { CommandSkipCutscenes } from './CommandSkipCutscenes';
 import { CommandStop } from './CommandStop';
 import { CommandWaitForPlayerCount } from './CommandWaitForPlayerCount';
+import { CommandWalkSpeed } from './CommandWalkSpeed';
 
 export const miscCommands = {
   delay(ms: number) {
@@ -68,24 +76,103 @@ export const miscCommands = {
     cmd.delay = delay;
     window.context.addCommand(cmd);
   },
-  enable_setting(option: string) {
-    if (!option || typeof option !== 'string') {
-      throw new ArgsError('option is required');
-    }
-
-    const cmd = new CommandSetting();
-    cmd.key = option;
+  enable_collisions() {
+    const cmd = new CommandDisableCollisions();
     cmd.state = true;
     window.context.addCommand(cmd);
   },
-  disable_setting(option: string) {
-    if (!option || typeof option !== 'string') {
-      throw new ArgsError('option is required');
+  disable_collisions() {
+    const cmd = new CommandDisableCollisions();
+    cmd.state = false;
+    window.context.addCommand(cmd);
+  },
+  enable_fx() {
+    const cmd = new CommandDisableFx();
+    cmd.state = true;
+    window.context.addCommand(cmd);
+  },
+  disable_fx() {
+    const cmd = new CommandDisableFx();
+    cmd.state = false;
+    window.context.addCommand(cmd);
+  },
+  enable_enemymagnet() {
+    const cmd = new CommandEnemyMagnet();
+    cmd.state = true;
+    window.context.addCommand(cmd);
+  },
+  disable_enemymagnet() {
+    const cmd = new CommandEnemyMagnet();
+    cmd.state = false;
+    window.context.addCommand(cmd);
+  },
+  enable_infiniterange() {
+    const cmd = new CommandInfiniteRange();
+    cmd.state = true;
+    window.context.addCommand(cmd);
+  },
+  disable_infiniterange() {
+    const cmd = new CommandInfiniteRange();
+    cmd.state = false;
+    window.context.addCommand(cmd);
+  },
+  enable_lagkiller() {
+    const cmd = new CommandLagKiller();
+    cmd.state = true;
+    window.context.addCommand(cmd);
+  },
+  disable_lagkiller() {
+    const cmd = new CommandLagKiller();
+    cmd.state = false;
+    window.context.addCommand(cmd);
+  },
+  enable_provokecell() {
+    const cmd = new CommandProvokeCell();
+    cmd.state = true;
+    window.context.addCommand(cmd);
+  },
+  disable_provokecell() {
+    const cmd = new CommandProvokeCell();
+    cmd.state = false;
+    window.context.addCommand(cmd);
+  },
+  enable_provokemap() {
+    const cmd = new CommandProvokeMap();
+    cmd.state = true;
+    window.context.addCommand(cmd);
+  },
+  disable_provokemap() {
+    const cmd = new CommandProvokeMap();
+    cmd.state = false;
+    window.context.addCommand(cmd);
+  },
+  enable_skipcutscenes() {
+    const cmd = new CommandSkipCutscenes();
+    cmd.state = true;
+    window.context.addCommand(cmd);
+  },
+  disable_skipcutscenes() {
+    const cmd = new CommandSkipCutscenes();
+    cmd.state = false;
+    window.context.addCommand(cmd);
+  },
+  enable_hideplayers() {
+    const cmd = new CommandHidePlayers();
+    cmd.state = true;
+    window.context.addCommand(cmd);
+  },
+  disable_hideplayers() {
+    const cmd = new CommandHidePlayers();
+    cmd.state = false;
+    window.context.addCommand(cmd);
+  },
+  set_walk_speed(speed: number) {
+    if (typeof speed !== 'number' || speed < 0) {
+      throw new ArgsError('speed must be a positive number');
     }
 
-    const cmd = new CommandSetting();
-    cmd.key = option;
-    cmd.state = false;
+    const cmd = new CommandWalkSpeed();
+    cmd.speed = speed;
     window.context.addCommand(cmd);
   },
   stop() {
