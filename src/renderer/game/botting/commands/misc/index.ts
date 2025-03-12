@@ -54,10 +54,6 @@ export const miscCommands = {
       throw new ArgsError('msg is required');
     }
 
-    // if (level && !['info', 'warn', 'error'].includes(level)) {
-    //   throw new ArgsError('level must be one of: info, warn, error');
-    // }
-
     const cmd = new CommandLog();
     cmd.msg = msg;
     // cmd.level = level ?? 'info';
@@ -170,8 +166,12 @@ export const miscCommands = {
       throw new ArgsError('speed must be a positive number');
     }
 
+    if (speed > 100) {
+      throw new ArgsError('speed must be less than or equal to 100');
+    }
+
     const cmd = new CommandWalkSpeed();
-    cmd.speed = speed;
+    cmd.speed = Math.trunc(speed);
     window.context.addCommand(cmd);
   },
   stop() {
@@ -183,7 +183,7 @@ export const miscCommands = {
     }
 
     const cmd = new CommandWaitForPlayerCount();
-    cmd.count = count;
+    cmd.count = Math.trunc(count);
     window.context.addCommand(cmd);
   },
   enable_anticounter() {

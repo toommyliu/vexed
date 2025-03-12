@@ -8,6 +8,6 @@ export class CommandWalkSpeed extends Command {
   }
 
   public override toString() {
-    return `Set walk speed to ${this.speed}`;
+    return `Set walk speed: ${this.speed}`;
   }
 }
