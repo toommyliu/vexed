@@ -1,6 +1,6 @@
 import { Command } from '../../command';
 
-export class CommandInfiniteRange extends Command {
+export class CommandSettingInfiniteRange extends Command {
   public state!: boolean;
 
   public override execute() {
@@ -8,6 +8,6 @@ export class CommandInfiniteRange extends Command {
   }
 
   public override toString() {
-    return `${this.state ? 'Enable' : 'Disable'} infinite range`;
+    return `${this.state ? 'Enable' : 'Disable'} setting: infinite range`;
   }
 }

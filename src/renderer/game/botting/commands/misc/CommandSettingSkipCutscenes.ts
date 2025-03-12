@@ -1,6 +1,6 @@
 import { Command } from '../../command';
 
-export class CommandSkipCutscenes extends Command {
+export class CommandSettingSkipCutscenes extends Command {
   public state!: boolean;
 
   public override execute() {
@@ -8,6 +8,6 @@ export class CommandSkipCutscenes extends Command {
   }
 
   public override toString() {
-    return `${this.state ? 'Enable' : 'Disable'} skip cutscenes`;
+    return `${this.state ? 'Enable' : 'Disable'} setting: skip cutscenes`;
   }
 }

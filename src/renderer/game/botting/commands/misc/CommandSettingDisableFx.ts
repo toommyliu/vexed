@@ -1,6 +1,6 @@
 import { Command } from '../../command';
 
-export class CommandDisableFx extends Command {
+export class CommandSettingDisableFx extends Command {
   public state!: boolean;
 
   public override execute() {
@@ -8,6 +8,6 @@ export class CommandDisableFx extends Command {
   }
 
   public override toString() {
-    return `${this.state ? 'Enable' : 'Disable'} FX`;
+    return `${this.state ? 'Enable' : 'Disable'} setting: FX`;
   }
 }
