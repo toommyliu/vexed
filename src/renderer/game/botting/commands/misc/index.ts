@@ -1,21 +1,20 @@
 import { ArgsError } from '../../ArgsError';
 import { CommandDelay } from './CommandDelay';
-import { CommandDisableAntiCounter } from './CommandDisableAntiCounter';
-import { CommandDisableCollisions } from './CommandDisableCollisions';
-import { CommandDisableFx } from './CommandDisableFx';
-import { CommandEnableAntiCounter } from './CommandEnableAntiCounter';
-import { CommandEnemyMagnet } from './CommandEnemyMagnet';
 import { CommandGotoLabel } from './CommandGotoLabel';
-import { CommandHidePlayers } from './CommandHidePlayers';
-import { CommandInfiniteRange } from './CommandInfiniteRange';
 import { CommandLabel } from './CommandLabel';
-import { CommandLagKiller } from './CommandLagKiller';
 import { CommandLog } from './CommandLog';
 import { CommandLogout } from './CommandLogout';
-import { CommandProvokeCell } from './CommandProvokeCell';
-import { CommandProvokeMap } from './CommandProvokeMap';
 import { CommandSetDelay } from './CommandSetDelay';
-import { CommandSkipCutscenes } from './CommandSkipCutscenes';
+import { CommandSettingAntiCounter } from './CommandSettingAntiCounter';
+import { CommandSettingDisableCollisions } from './CommandSettingDisableCollisions';
+import { CommandSettingDisableFx } from './CommandSettingDisableFx';
+import { CommandSettingEnemyMagnet } from './CommandSettingEnemyMagnet';
+import { CommandSettingHidePlayers } from './CommandSettingHidePlayers';
+import { CommandSettingInfiniteRange } from './CommandSettingInfiniteRange';
+import { CommandSettingLagKiller } from './CommandSettingLagKiller';
+import { CommandSettingProvokeCell } from './CommandSettingProvokeCell';
+import { CommandSettingProvokeMap } from './CommandSettingProvokeMap';
+import { CommandSettingSkipCutscenes } from './CommandSettingSkipCutscenes';
 import { CommandStop } from './CommandStop';
 import { CommandWaitForPlayerCount } from './CommandWaitForPlayerCount';
 import { CommandWalkSpeed } from './CommandWalkSpeed';
@@ -77,92 +76,92 @@ export const miscCommands = {
     window.context.addCommand(cmd);
   },
   enable_collisions() {
-    const cmd = new CommandDisableCollisions();
+    const cmd = new CommandSettingDisableCollisions();
     cmd.state = true;
     window.context.addCommand(cmd);
   },
   disable_collisions() {
-    const cmd = new CommandDisableCollisions();
+    const cmd = new CommandSettingDisableCollisions();
     cmd.state = false;
     window.context.addCommand(cmd);
   },
   enable_fx() {
-    const cmd = new CommandDisableFx();
+    const cmd = new CommandSettingDisableFx();
     cmd.state = true;
     window.context.addCommand(cmd);
   },
   disable_fx() {
-    const cmd = new CommandDisableFx();
+    const cmd = new CommandSettingDisableFx();
     cmd.state = false;
     window.context.addCommand(cmd);
   },
   enable_enemymagnet() {
-    const cmd = new CommandEnemyMagnet();
+    const cmd = new CommandSettingEnemyMagnet();
     cmd.state = true;
     window.context.addCommand(cmd);
   },
   disable_enemymagnet() {
-    const cmd = new CommandEnemyMagnet();
+    const cmd = new CommandSettingEnemyMagnet();
     cmd.state = false;
     window.context.addCommand(cmd);
   },
   enable_infiniterange() {
-    const cmd = new CommandInfiniteRange();
+    const cmd = new CommandSettingInfiniteRange();
     cmd.state = true;
     window.context.addCommand(cmd);
   },
   disable_infiniterange() {
-    const cmd = new CommandInfiniteRange();
+    const cmd = new CommandSettingInfiniteRange();
     cmd.state = false;
     window.context.addCommand(cmd);
   },
   enable_lagkiller() {
-    const cmd = new CommandLagKiller();
+    const cmd = new CommandSettingLagKiller();
     cmd.state = true;
     window.context.addCommand(cmd);
   },
   disable_lagkiller() {
-    const cmd = new CommandLagKiller();
+    const cmd = new CommandSettingLagKiller();
     cmd.state = false;
     window.context.addCommand(cmd);
   },
   enable_provokecell() {
-    const cmd = new CommandProvokeCell();
+    const cmd = new CommandSettingProvokeCell();
     cmd.state = true;
     window.context.addCommand(cmd);
   },
   disable_provokecell() {
-    const cmd = new CommandProvokeCell();
+    const cmd = new CommandSettingProvokeCell();
     cmd.state = false;
     window.context.addCommand(cmd);
   },
   enable_provokemap() {
-    const cmd = new CommandProvokeMap();
+    const cmd = new CommandSettingProvokeMap();
     cmd.state = true;
     window.context.addCommand(cmd);
   },
   disable_provokemap() {
-    const cmd = new CommandProvokeMap();
+    const cmd = new CommandSettingProvokeMap();
     cmd.state = false;
     window.context.addCommand(cmd);
   },
   enable_skipcutscenes() {
-    const cmd = new CommandSkipCutscenes();
+    const cmd = new CommandSettingSkipCutscenes();
     cmd.state = true;
     window.context.addCommand(cmd);
   },
   disable_skipcutscenes() {
-    const cmd = new CommandSkipCutscenes();
+    const cmd = new CommandSettingSkipCutscenes();
     cmd.state = false;
     window.context.addCommand(cmd);
   },
   enable_hideplayers() {
-    const cmd = new CommandHidePlayers();
+    const cmd = new CommandSettingHidePlayers();
     cmd.state = true;
     window.context.addCommand(cmd);
   },
   disable_hideplayers() {
-    const cmd = new CommandHidePlayers();
+    const cmd = new CommandSettingHidePlayers();
     cmd.state = false;
     window.context.addCommand(cmd);
   },
@@ -188,9 +187,13 @@ export const miscCommands = {
     window.context.addCommand(cmd);
   },
   enable_anticounter() {
-    window.context.addCommand(new CommandEnableAntiCounter());
+    const cmd = new CommandSettingAntiCounter();
+    cmd.state = true;
+    window.context.addCommand(cmd);
   },
   disable_anticounter() {
-    window.context.addCommand(new CommandDisableAntiCounter());
+    const cmd = new CommandSettingAntiCounter();
+    cmd.state = false;
+    window.context.addCommand(cmd);
   },
 };

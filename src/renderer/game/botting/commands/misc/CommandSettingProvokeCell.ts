@@ -1,6 +1,6 @@
 import { Command } from '../../command';
 
-export class CommandProvokeCell extends Command {
+export class CommandSettingProvokeCell extends Command {
   public state!: boolean;
 
   public override execute() {
@@ -8,6 +8,6 @@ export class CommandProvokeCell extends Command {
   }
 
   public override toString() {
-    return `${this.state ? 'Enable' : 'Disable'} provoke cell`;
+    return `${this.state ? 'Enable' : 'Disable'} setting: provoke cell`;
   }
 }

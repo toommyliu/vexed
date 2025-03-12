@@ -1,6 +1,6 @@
 import { Command } from '../../command';
 
-export class CommandEnemyMagnet extends Command {
+export class CommandSettingEnemyMagnet extends Command {
   public state!: boolean;
 
   public override execute() {
@@ -8,6 +8,6 @@ export class CommandEnemyMagnet extends Command {
   }
 
   public override toString() {
-    return `${this.state ? 'Enable' : 'Disable'} enemy magnet`;
+    return `${this.state ? 'Enable' : 'Disable'} setting: enemy magnet`;
   }
 }

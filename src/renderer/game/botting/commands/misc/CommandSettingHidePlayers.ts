@@ -1,6 +1,6 @@
 import { Command } from '../../command';
 
-export class CommandHidePlayers extends Command {
+export class CommandSettingHidePlayers extends Command {
   public state!: boolean;
 
   public override execute() {
@@ -8,6 +8,6 @@ export class CommandHidePlayers extends Command {
   }
 
   public override toString() {
-    return `${this.state ? 'Enable' : 'Disable'} hide players`;
+    return `${this.state ? 'Enable' : 'Disable'} setting: hide players`;
   }
 }
