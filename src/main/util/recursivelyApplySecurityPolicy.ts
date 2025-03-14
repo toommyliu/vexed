@@ -6,7 +6,8 @@ export function recursivelyApplySecurityPolicy(window: BrowserWindow): void {
   session.defaultSession.webRequest.onBeforeSendHeaders((details, fn) => {
     details.requestHeaders['User-Agent'] = ARTIX_USERAGENT;
     details.requestHeaders['artixmode'] = 'launcher';
-    details.requestHeaders['x-requested-with'] = 'ShockwaveFlash/32.0.0.371';
+    details.requestHeaders['X-Requested-With'] = 'ShockwaveFlash/32.0.0.371';
+
     fn({ requestHeaders: details.requestHeaders, cancel: false });
   });
 
