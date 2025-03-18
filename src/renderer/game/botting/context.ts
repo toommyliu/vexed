@@ -29,7 +29,10 @@ export class Context extends TypedEmitter<Events> {
    */
   private readonly boosts: Set<string>;
 
-  private readonly _handlers: Map<string, (packet: string) => void>;
+  private readonly _handlers: Map<
+    string,
+    (packet: JSON) => Promise<void> | void
+  >;
 
   private _commands: Command[];
 
@@ -68,7 +71,7 @@ export class Context extends TypedEmitter<Events> {
    * @param name - The name of the handler
    * @param handler - The handler function
    */
-  public registerHandler(name: string, handler: (packet: string) => void) {
+  public registerHandler(name: string, handler: (packet: JSON) => void) {
     this._handlers.set(name, handler);
   }
 
@@ -82,22 +85,20 @@ export class Context extends TypedEmitter<Events> {
   }
 
   private _runHandlers() {
-    this.bot.on('packetFromServer', (packet) => {
+    this.bot.on('pext', async (packet) => {
       if (!this.isRunning()) return;
 
-      if (packet.startsWith('{')) {
-        // run all handlers
-        try {
-          for (const [, handler] of this._handlers) {
-            handler.call(
-              {
-                bot: this.bot,
-              },
-              JSON.parse(packet),
-            );
-          }
-        } catch {}
-      }
+      // run all handlers
+      try {
+        for (const [, handler] of this._handlers) {
+          await handler.call(
+            {
+              bot: this.bot,
+            },
+            packet,
+          );
+        }
+      } catch {}
     });
   }
 

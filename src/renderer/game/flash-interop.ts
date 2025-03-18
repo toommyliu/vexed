@@ -32,6 +32,8 @@ window.pext = async ([packet]) => {
   delete pkt.cancelable;
   delete pkt.type;
 
+  Bot.getInstance().emit('pext', pkt);
+
   // await FileManager.getInstance().appendJson(
   //   FileManager.getInstance().basePath + '/packets.json',
   //   pkt,
@@ -40,11 +42,10 @@ window.pext = async ([packet]) => {
   if (pkt?.params?.type === 'str') {
     const dataObj = pkt?.params?.dataObj; // ['exitArea', '-1', 'ENT_ID', 'PLAYER']
 
-    // const ogPkt = `%xt${dataObj.join('%')}%`; // %xt%exitArea%-1%ENT_ID%PLAYER%
+    // const ogPkt = `%xt%${dataObj.join('%')}%`; // %xt%exitArea%-1%ENT_ID%PLAYER%
 
     switch (dataObj[0]) {
       case 'respawnMon':
-        console.log(dataObj);
         break;
       case 'exitArea':
         bot.emit('playerLeave', dataObj[dataObj.length - 1]);

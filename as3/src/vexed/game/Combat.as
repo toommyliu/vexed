@@ -33,11 +33,11 @@ package vexed.game {
     public static function forceUseSkill(index:String):void {
       var skill:Object = game.world.actions.active[parseInt(index)];
       if (Util.getSkillCooldownRemaining(skill) == 0) {
-        // if (game.world.myAvatar.dataLeaf.intMP >= skill.mp) {
-        if (skill.isOK && !skill.skillLock) {
-          game.world.testAction(skill);
+        if (game.world.myAvatar.dataLeaf.intMP >= skill.mp) {
+          if (skill.isOK && !skill.skillLock) {
+            game.world.testAction(skill);
+          }
         }
-        // }
       }
     }
 
