@@ -85,16 +85,31 @@ export const combatCommands = {
     cmd.options = options;
     window.context.addCommand(cmd);
   },
-  rest() {
-    window.context.addCommand(new CommandRest());
+  rest(full = false) {
+    const cmd = new CommandRest();
+    cmd.full = full;
+    window.context.addCommand(cmd);
   },
-  use_skill(skill: number | string) {
+  use_skill(skill: number | string, wait = false) {
     if (!skill || (typeof skill !== 'number' && typeof skill !== 'string')) {
       throw new ArgsError('skill is required');
     }
 
     const cmd = new CommandUseSkill();
     cmd.skill = skill;
+    cmd.wait = wait;
+    cmd.force = false;
+    window.context.addCommand(cmd);
+  },
+  force_use_skill(skill: number | string, wait = false) {
+    if (!skill || (typeof skill !== 'number' && typeof skill !== 'string')) {
+      throw new ArgsError('skill is required');
+    }
+
+    const cmd = new CommandUseSkill();
+    cmd.skill = skill;
+    cmd.wait = wait;
+    cmd.force = true;
     window.context.addCommand(cmd);
   },
 };
