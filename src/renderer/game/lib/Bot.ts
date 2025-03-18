@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events';
+import { TypedEmitter } from 'tiny-typed-emitter';
 import { Auth } from './Auth';
 import { Bank } from './Bank';
 import { Combat } from './Combat';
@@ -16,77 +16,34 @@ import type { Monster } from './models/Monster';
 import { AutoRelogin } from './util/AutoRelogin';
 import { Flash } from './util/Flash';
 
-export class Bot extends EventEmitter {
+type Events = {
   /**
    * This event is emitted when the player logs in.
-   *
-   * @eventProperty
    */
-  public readonly login!: () => void;
-
+  login(): void;
   /**
    * This event is emitted when the player logs out.
-   *
-   * @eventProperty
    */
-  public readonly logout!: () => void;
-
-  /**
-   * This event is emitted when a script is started.
-   *
-   * @eventProperty
-   */
-  public readonly start!: () => void;
-
-  /**
-   * This event is emitted when a script is stopped.
-   *
-   * @eventProperty
-   */
-  public readonly stop!: () => void;
-
-  /**
-   * This event is emitted when an error occurs during a script.
-   *
-   * @eventProperty
-   */
-  public readonly error!: (error: Error) => void;
-
+  logout(): void;
   /**
    * This event is emitted when a monster has died.
-   *
-   * @eventProperty
    */
-  public readonly monsterDeath!: (monster: Monster) => void;
-
+  monsterDeath(monster: Monster): void;
   /**
    * This event is emitted when a monster has respawned.
-   *
-   * @eventProperty
    */
-  public readonly monsterRespawn!: (monster: Monster) => void;
-
+  monsterRespawn(monster: Monster): void;
   /**
-   * This event is emitted when a packet is received from the server.
-   *
-   * @eventProperty
+   * OnExtensionResponse event.
    */
-  public readonly packetFromServer!: (packet: string) => void;
-
-  /**
-   * This event is emitted when a packet is sent to the server.
-   *
-   * @eventProperty
-   */
-  public readonly packetFromClient!: (packet: string) => void;
-
+  pext(packet: JSON): void;
   /**
    * This event is emitted when a player leaves the room.
-   *
-   * @eventProperty
    */
-  public readonly playerLeave!: (playerName: string) => void;
+  playerLeave(playerName: string): void;
+};
 
+export class Bot extends TypedEmitter<Events> {
   /**
    * The AbortController instance.
    */
