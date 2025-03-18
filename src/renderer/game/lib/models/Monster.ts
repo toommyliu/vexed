@@ -74,11 +74,12 @@ export class Monster {
 
 export type MonsterData = {
   MonID: number;
-  MonMapID: number;
+  MonMapID: string;
   iLvl: number;
   intHP: number;
   intHPMax: number;
   intState: number;
   sRace: string;
+  strFrame: string;
   strMonName: string;
 };
