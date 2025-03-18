@@ -1,44 +1,33 @@
 import type { Bot } from '../../lib/Bot';
 
-function isAddGoldExpMonster(
-  packet: AddGoldExpPacket,
-): packet is AddGoldExpPacket & { b: { o: AddGoldExpMonsterPacket } } {
-  return packet.b.o.typ === 'm';
+function isMonPkt(
+  packet: AddGoldExpPkt,
+): packet is AddGoldExpPkt & AddGoldExpPktMon {
+  return packet.typ === 'm';
 }
 
-export async function addGoldExp(bot: Bot, packet: AddGoldExpPacket) {
-  if (isAddGoldExpMonster(packet)) {
+export async function addGoldExp(bot: Bot, packet: AddGoldExpPkt) {
+  if (isMonPkt(packet)) {
     const getMonster = () =>
-      bot.world.availableMonsters.find((mon) => mon.monMapId === packet.b.o.id);
+      bot.world.availableMonsters.find((mon) => mon.monMapId === packet.id);
     bot.emit('monsterDeath', getMonster());
     await bot.waitUntil(() => Boolean(getMonster()?.alive));
     bot.emit('monsterRespawn', getMonster());
   }
 }
 
-type AddGoldExpMonsterPacket = {
-  bonusGold: number;
-  cmd: 'addGoldExp';
-  id: number;
-  intExp: number;
-  intGold: number;
+type AddGoldExpPktMon = {
+  id: number; // monMapId
   typ: 'm';
 };
 
-type AddGoldExpQuestPacket = {
-  cmd: 'addGoldExp';
-  intExp: number;
-  intGold: number;
+type AddGoldExpPktQuest = {
   typ: 'q';
 };
 
-export type AddGoldExpPacket = {
-  b: {
-    o: AddGoldExpMonsterPacket | AddGoldExpQuestPacket;
-    /**
-     * Always -1?
-     */
-    r: number;
-  };
-  t: 'xt';
-};
+export type AddGoldExpPkt = {
+  bonusGold?: number;
+  cmd: 'addGoldExp';
+  intExp: number;
+  intGold: number;
+} & (AddGoldExpPktMon | AddGoldExpPktQuest);

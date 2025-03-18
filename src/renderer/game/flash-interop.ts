@@ -7,61 +7,118 @@ import { addGoldExp } from './networking/json/add-gold-exp';
 import { ct } from './networking/json/ct';
 import { dropItem } from './networking/json/drop-item';
 
+// import { FileManager } from '../../main/FileManager';
+// FileManager.getInstance().writeJson(
+//   FileManager.getInstance().basePath + '/packets.json',
+//   [],
+// );
+
 const logger = Logger.get('FlashInterop');
 const bot = Bot.getInstance();
 
-window.packetFromServer = async ([packet]: [string]) => {
-  bot.emit('packetFromServer', packet);
+// window.clear = () => {
+//   FileManager.getInstance().writeJson(
+//     FileManager.getInstance().basePath + '/packets.json',
+//     [],
+//   );
+// };
 
-  if (packet.startsWith('%xt%')) {
-    const args = packet.split('%');
-    const cmd = args[2];
+window.pext = async ([packet]) => {
+  const pkt = JSON.parse(packet);
+  delete pkt.currentTarget;
+  delete pkt.target;
+  delete pkt.eventPhase;
+  delete pkt.bubbles;
+  delete pkt.cancelable;
+  delete pkt.type;
 
-    if (!cmd) return;
+  // await FileManager.getInstance().appendJson(
+  //   FileManager.getInstance().basePath + '/packets.json',
+  //   pkt,
+  // );
 
-    switch (cmd) {
+  if (pkt?.params?.type === 'str') {
+    const dataObj = pkt?.params?.dataObj; // ['exitArea', '-1', 'ENT_ID', 'PLAYER']
+
+    // const ogPkt = `%xt${dataObj.join('%')}%`; // %xt%exitArea%-1%ENT_ID%PLAYER%
+
+    switch (dataObj[0]) {
       case 'respawnMon':
+        console.log(dataObj);
         break;
-
-      case 'exitArea': {
-        const playerName = args[5];
-        bot.emit('playerLeave', playerName);
-        break;
-      }
-
-      default:
+      case 'exitArea':
+        bot.emit('playerLeave', dataObj[dataObj.length - 1]);
         break;
     }
-  }
+  } else if (pkt?.params?.type === 'json') {
+    const dataObj = pkt?.params?.dataObj; // { intGold: 8, cmd: '', intExp: 0, bonusGold: 2, typ: 'm' }
 
-  if (packet.startsWith('{')) {
-    try {
-      const pkt = JSON.parse(packet);
-      const cmd = pkt.b.o.cmd;
-
-      switch (cmd) {
-        case 'addGoldExp':
-          await addGoldExp(bot, pkt);
-          break;
-        case 'ct':
-          ct(bot, pkt);
-          break;
-        case 'dropItem':
-          dropItem(bot, pkt);
-          break;
-      }
-    } catch (error) {
-      // this threw once and i cant repro
-      logger.error(
-        `Failed to parse JSON packet:\nOriginal packet: ${packet}\nError: ${error}`,
-      );
+    switch (pkt?.params?.dataObj?.cmd) {
+      case 'addGoldExp':
+        await addGoldExp(bot, dataObj);
+        break;
+      case 'ct':
+        ct(bot, dataObj);
+        break;
+      case 'dropItem':
+        dropItem(bot, dataObj);
+        break;
     }
   }
 };
 
-window.packetFromClient = async ([packet]: [string]) => {
-  bot.emit('packetFromClient', packet);
-};
+// window.packetFromServer = async ([packet]: [string]) => {
+//   bot.emit('packetFromServer', packet);
+
+//   if (packet.startsWith('%xt%')) {
+//     const args = packet.split('%');
+//     const cmd = args[2];
+
+//     if (!cmd) return;
+
+//     switch (cmd) {
+//       case 'respawnMon':
+//         break;
+
+//       case 'exitArea': {
+//         const playerName = args[5];
+//         bot.emit('playerLeave', playerName);
+//         break;
+//       }
+
+//       default:
+//         break;
+//     }
+//   }
+
+//   if (packet.startsWith('{')) {
+//     try {
+//       const pkt = JSON.parse(packet);
+//       const cmd = pkt.b.o.cmd;
+
+//       switch (cmd) {
+//         case 'addGoldExp':
+//           await addGoldExp(bot, pkt);
+//           break;
+//         case 'ct':
+//           ct(bot, pkt);
+//           break;
+//         case 'dropItem':
+//           dropItem(bot, pkt);
+//           break;
+//       }
+//     } catch (error) {
+//       // this threw once and i cant repro
+//       logger.error(
+//         `Failed to parse JSON packet:\nOriginal packet: ${packet}\nError: ${error}`,
+//       );
+//     }
+//   }
+// };
+
+// window.packetFromClient = async ([packet]: [string]) => {
+//   bot.emit('packetFromClient', packet);
+// };
 
 window.connection = ([state]: [string]) => {
   const elList = [
@@ -120,4 +177,33 @@ window.loaded = async () => {
 
 window.flashDebug = (...args: string[]) => {
   logger.info(...args);
+};
+
+// @ts-expect-error - provided by flash and properly typed
+window.progress = ([percent]: number) => {
+  const progressBar = document.querySelector(
+    '.progress-bar',
+  )! as HTMLDivElement;
+  const progressText = document.querySelector(
+    '#progressText',
+  )! as HTMLDivElement;
+
+  progressBar.style.width = percent + '%';
+  progressText.innerText = percent + '%';
+
+  if (percent >= 100) {
+    const loaderContainer = document.querySelector(
+      '.loader-container',
+    )! as HTMLDivElement;
+    const gameContainer = document.querySelector(
+      '.gameContainer',
+    )! as HTMLDivElement;
+    const topnavContainer = document.querySelector(
+      '.topnav-container',
+    )! as HTMLDivElement;
+
+    loaderContainer.style.display = 'none';
+    gameContainer.classList.add('game-visible');
+    topnavContainer.classList.add('game-visible');
+  }
 };

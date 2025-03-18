@@ -45,23 +45,23 @@ function registerFlashPlugin() {
 }
 
 registerFlashPlugin();
-app.disableHardwareAcceleration();
-app.commandLine.appendSwitch('disable-renderer-backgrounding');
-app.commandLine.appendArgument('--disable-renderer-backgrounding');
+
+// app.commandLine.appendSwitch('disable-renderer-backgrounding');
+// app.commandLine.appendArgument('--disable-renderer-backgrounding');
 
 app.once('ready', async () => {
-  const fm = FileManager.getInstance();
-  await fm.initialize();
+  // const fm = FileManager.getInstance();
+  // await fm.initialize();
 
-  const settings = await fm
-    .readJson<typeof fm.defaultSettings>(fm.settingsPath)
-    .catch(() => fm.defaultSettings);
+  // const settings = await fm
+  //   .readJson<typeof fm.defaultSettings>(fm.settingsPath)
+  //   .catch(() => fm.defaultSettings);
 
-  if (settings?.launchMode?.toLowerCase() === 'manager') {
-    await createAccountManager();
-  } else {
-    await createGame();
-  }
+  // if (settings?.launchMode?.toLowerCase() === 'manager') {
+  // await createAccountManager();
+  // } else {
+  await createGame();
+  // }
 });
 
 app.on('window-all-closed', () => app.quit());

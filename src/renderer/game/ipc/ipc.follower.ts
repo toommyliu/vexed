@@ -137,6 +137,10 @@ async function startFollower() {
         if (bot.world.isPlayerInCell(name, bot.player.cell)) {
           bot.world.setSpawnPoint();
 
+          if (!bot.world.availableMonsters.length) {
+            return;
+          }
+
           if (Array.isArray(cfg.attackPriority)) {
             doPriorityAttack(cfg.attackPriority);
           }
@@ -159,10 +163,12 @@ async function startFollower() {
           }
         } else {
           logger.info('player is in map, but not in cell');
-          bot.world.goto(name);
-          await bot.sleep(500);
+          await goToPlayer();
+          // bot.world.goto(name);
+          // await bot.sleep(500);
         }
       } else {
+        logger.info('player not in map');
         await goToPlayer();
       }
     } finally {

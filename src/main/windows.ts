@@ -1,6 +1,6 @@
 import { join, resolve } from 'path';
-import { app, BrowserWindow, session } from 'electron';
-import { ARTIX_USERAGENT, BRAND } from '../common/constants';
+import { app, BrowserWindow } from 'electron';
+import { BRAND } from '../common/constants';
 import { ipcMain } from '../common/ipc';
 import { IPC_EVENTS } from '../common/ipc-events';
 import { Logger } from '../common/logger';
@@ -37,18 +37,10 @@ export async function createAccountManager(): Promise<void> {
     ev.preventDefault();
     window.hide();
   });
-
-  window.webContents.userAgent = ARTIX_USERAGENT;
-  session.defaultSession.webRequest.onBeforeSendHeaders((details, fn) => {
-    details.requestHeaders['User-Agent'] = ARTIX_USERAGENT;
-    details.requestHeaders['artixmode'] = 'launcher';
-    details.requestHeaders['x-requested-with'] = 'ShockwaveFlash/32.0.0.371';
-    fn({ requestHeaders: details.requestHeaders, cancel: false });
-  });
-
   mgrWindow = window;
 
-  await window.loadURL(`file://${resolve(PUBLIC_MANAGER, 'index.html')}`);
+  recursivelyApplySecurityPolicy(window);
+  window.loadURL(`file://${resolve(PUBLIC_MANAGER, 'index.html')}`);
 
   if (!app.isPackaged) {
     window.webContents.openDevTools({ mode: 'right' });
@@ -82,25 +74,21 @@ export async function createGame(
       // pass account data to run "Login With Account"
       additionalArguments: args,
       // disable unuseful features
-      enableWebSQL: false,
-      spellcheck: false,
+      // spellcheck: false,
       webgl: false,
     },
+    ...(account?.username
+      ? { tabbingIdentifier: `game-${account?.username}` }
+      : {}),
     useContentSize: true,
-    // show once everything has loaded (to reduce flickering)
-    show: false,
   });
 
-  await window.loadURL(`file://${resolve(PUBLIC_GAME, 'index.html')}`);
+  window.loadURL(`file://${resolve(PUBLIC_GAME, 'index.html')}`);
   recursivelyApplySecurityPolicy(window);
 
   if (!app.isPackaged) {
     window.webContents.openDevTools({ mode: 'right' });
   }
-
-  window.on('ready-to-show', () => {
-    window.show();
-  });
 
   // track refreshes to sync state across children
   // e.g main window refreshed and follower is on, it should be off

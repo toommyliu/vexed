@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { app, BrowserWindow, dialog } from 'electron/main';
+import { app, BrowserWindow, dialog } from 'electron';
 import { readFile } from 'fs-extra';
 import { WINDOW_IDS } from '../../common/constants';
 import { ipcMain } from '../../common/ipc';
@@ -197,14 +197,14 @@ ipcMain.answerRenderer(
       window.hide();
     });
 
-    await window.loadFile(path!);
+    window.loadFile(path!);
     // return true;
   },
 );
 
 ipcMain.answerRenderer(IPC_EVENTS.LOAD_SCRIPT, async (_, browserWindow) => {
   try {
-    const res = await dialog.showOpenDialog(browserWindow, {
+    const res = dialog.showOpenDialog(browserWindow, {
       defaultPath: join(fm.basePath, 'Bots'),
       properties: ['openFile'],
       filters: [{ name: 'Bots', extensions: ['js'] }],
@@ -212,9 +212,9 @@ ipcMain.answerRenderer(IPC_EVENTS.LOAD_SCRIPT, async (_, browserWindow) => {
       title: 'Select a script to load',
     });
 
-    if (res.canceled || !res.filePaths[0]) return;
+    if (!res?.[0]) return;
 
-    const file = res.filePaths[0]!;
+    const file = res[0];
     const content = await readFile(file, 'utf8');
 
     // the error is thrown in the renderer
@@ -245,20 +245,18 @@ ipcMain.answerRenderer(IPC_EVENTS.LOAD_SCRIPT, async (_, browserWindow) => {
 
             // ideally, this traces to the line of the (user) script back to
             // where the error occured, not where the error is thrown internally
-            await dialog.showMessageBox(browserWindow, {
+            dialog.showMessageBox(browserWindow, {
               message: `"cmd.${cmd}()" threw an error: ${cmd_msg}`,
               type: 'error',
             });
           } catch {}
         } else {
           // some generic error (syntax, etc)
-          await dialog
-            .showMessageBox(browserWindow, {
-              message: err,
-              detail: `${_msg} (line ${line})`,
-              type: 'error',
-            })
-            .catch(() => {});
+          dialog.showMessageBox(browserWindow, {
+            message: err,
+            detail: `${_msg} (line ${line})`,
+            type: 'error',
+          });
         }
       },
     );

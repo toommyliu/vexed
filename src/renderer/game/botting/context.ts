@@ -1,4 +1,4 @@
-import { AsyncQueue } from '@sapphire/async-queue';
+// import { AsyncQueue } from '@sapphire/async-queue';
 import { TypedEmitter } from 'tiny-typed-emitter';
 import { interval } from '../../../common/interval';
 import { Logger } from '../../../common/logger';
@@ -12,7 +12,7 @@ const logger = Logger.get('Context');
 export class Context extends TypedEmitter<Events> {
   private readonly bot = Bot.getInstance();
 
-  private readonly queue: AsyncQueue;
+  // private readonly queue: AsyncQueue;
 
   /**
    * List of quest ids to watch for.
@@ -50,7 +50,7 @@ export class Context extends TypedEmitter<Events> {
 
     this._handlers = new Map();
 
-    this.queue = new AsyncQueue();
+    // this.queue = new AsyncQueue();
     this._commands = [];
     this.commandDelay = 1_000;
     this._commandIndex = 0;
@@ -298,7 +298,7 @@ export class Context extends TypedEmitter<Events> {
     while (this._commandIndex < this._commands.length && this.isRunning()) {
       if (!this.isRunning()) break;
 
-      await this.queue.wait();
+      // await this.queue.wait();
 
       if (!this.isRunning()) break;
 
@@ -324,7 +324,7 @@ export class Context extends TypedEmitter<Events> {
 
         if (!this.isRunning()) break;
       } finally {
-        this.queue.shift();
+        // this.queue.shift();
       }
 
       if (this.isRunning()) this._commandIndex++;
@@ -340,7 +340,7 @@ export class Context extends TypedEmitter<Events> {
     this.overlay.hide();
     this.emit('end');
     this._on = false;
-    this.queue.abortAll();
+    // this.queue.abortAll();
   }
 }
 

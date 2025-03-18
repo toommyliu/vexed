@@ -1,40 +1,31 @@
-package vexed.game
-{
+package vexed.game {
   import vexed.Main;
 
-  public class Inventory
-  {
+  public class Inventory {
     private static var game:Object = Main.getInstance().getGame();
 
-    public static function getItems():Array
-    {
+    public static function getItems():Array {
       return game.world.myAvatar.items;
     }
 
-    public static function getItem(key:*):Object
-    {
-      if (!key)
+    public static function getItem(item:*):Object {
+      if (!item)
         return null;
 
-      if (game.world.myAvatar.items is Array && game.world.myAvatar.items.length > 0)
-      {
-        var item:Object;
-        var items:Array = game.world.myAvatar.items;
-        if (key is String)
-        {
-          key = key.toLowerCase();
-          for each (item in items)
-          {
-            if (item.sName.toLowerCase() === key)
-              return item;
+      var items:Array = game.world.myAvatar.items;
+      if (items is Array) {
+        var itemObj:Object;
+        if (item is String) {
+          item = item.toLowerCase();
+          for each (itemObj in items) {
+            if (itemObj.sName.toLowerCase() === item)
+              return itemObj;
           }
         }
-        else if (key is int)
-        {
-          for each (item in items)
-          {
-            if (item.ItemID === key)
-              return item;
+        else if (item is int) {
+          for each (itemObj in items) {
+            if (itemObj.ItemID === item)
+              return itemObj;
           }
         }
       }
@@ -42,60 +33,44 @@ package vexed.game
       return null;
     }
 
-    public static function contains(key:*, quantity:int):Boolean
-    {
-      if (!key)
+    public static function contains(item:*, quantity:int = 1):Boolean {
+      var itemObj:Object = getItem(item);
+      if (!itemObj) {
         return false;
+      }
 
-      if (quantity is int && quantity <= 0)
-        return false;
-
-      var item:Object = getItem(key);
-      if (!item)
-        return false;
-
-      if (!quantity)
-        return true;
-
-      return item.iQty >= quantity;
+      return itemObj.iQty >= quantity;
     }
 
-    public static function getSlots():int
-    {
+    public static function getSlots():int {
       return game.world.myAvatar.objData.iBagSlots;
     }
 
-    public static function getUsedSlots():int
-    {
+    public static function getUsedSlots():int {
       return game.world.myAvatar.items.length;
     }
 
-    public static function equip(key:*):Boolean
-    {
-      var item:Object = getItem(key);
-      if (!item)
-      {
+    public static function equip(item:*):Boolean {
+      var itemObj:Object = getItem(item);
+      if (!itemObj) {
         return false;
       }
 
-      game.world.sendEquipItemRequest({ItemID: item.ItemID});
-      return true;
-    }
+      if (itemObj.sType == "Item") {
+        var itemId:int = itemObj.ItemID;
+        var sDesc:String = itemObj.sDesc;
+        var sFile:String = itemObj.sFile;
+        var sName:String = itemObj.sName;
 
-    public static function equipConsumable(itemId:int, sDesc:String, sFile:String, sName:String):Boolean
-    {
-      if (!itemId || !sDesc || !sFile || !sName)
-      {
-        return false;
+        if (!itemId || !sDesc || !sFile || !sName) {
+          return false;
+        }
+
+        game.world.equipUseableItem({ItemID: itemId, sDesc: sDesc, sFile: sFile, sName: sName});
+        return true;
       }
 
-      var item:Object = getItem(itemId);
-      if (!item)
-      {
-        return false;
-      }
-
-      game.world.equipUseableItem({ItemID: item.ItemID, sDesc: sDesc, sFile: sFile, sName: sName});
+      game.world.sendEquipItemRequest({ItemID: itemObj.ItemID});
       return true;
     }
   }
