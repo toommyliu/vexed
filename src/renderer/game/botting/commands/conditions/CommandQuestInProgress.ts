@@ -10,6 +10,6 @@ export class CommandQuestInProgress extends Command {
   }
 
   public override toString() {
-    return `If quest [${this.questId}] in progress`;
+    return `Quest is in progress: ${this.questId}`;
   }
 }

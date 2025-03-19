@@ -10,7 +10,7 @@ export class CommandMonsterHealthLessThan extends Command {
       (mon) => mon.name.toLowerCase() === this.monster.toLowerCase(),
     );
 
-    if ((mon?.hp ?? -1) > this.health) {
+    if ((mon?.hp ?? 0) > this.health) {
       this.ctx.commandIndex++;
     }
   }

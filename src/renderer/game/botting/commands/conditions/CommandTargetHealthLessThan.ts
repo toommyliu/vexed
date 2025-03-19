@@ -10,6 +10,6 @@ export class CommandTargetHealthLessThan extends Command {
   }
 
   public override toString() {
-    return `Target health less than: ${this.hp}`;
+    return `Target HP less than: ${this.hp}`;
   }
 }

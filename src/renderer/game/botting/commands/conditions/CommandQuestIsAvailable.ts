@@ -10,6 +10,6 @@ export class CommandQuestIsAvailable extends Command {
   }
 
   public override toString() {
-    return `Quest [${this.questId}] is available`;
+    return `Quest is available: ${this.questId}`;
   }
 }
