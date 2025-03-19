@@ -69,7 +69,6 @@ export const conditionsCommands = {
     cmd.cell = cell;
     window.context.addCommand(cmd);
   },
-
   is_not_cell(cell: string) {
     if (!cell || typeof cell !== 'string') {
       throw new ArgsError('cell is required');
@@ -89,6 +88,16 @@ export const conditionsCommands = {
     cmd.item = item;
     window.context.addCommand(cmd);
   },
+  is_not_equipped(item: string) {
+    if (!item || typeof item !== 'string') {
+      throw new ArgsError('item is required');
+    }
+
+    const cmd = new CommandNotEquipped();
+    cmd.item = item;
+    window.context.addCommand(cmd);
+  },
+
   is_faction_rank_greater_than(faction: string, rank: number) {
     if (!faction || typeof faction !== 'string') {
       throw new ArgsError('faction is required');
@@ -117,6 +126,7 @@ export const conditionsCommands = {
     cmd.rank = rank;
     window.context.addCommand(cmd);
   },
+
   is_gold_greater_than(gold: number) {
     if (!gold || typeof gold !== 'number') {
       throw new ArgsError('gold amount is required');
@@ -135,15 +145,17 @@ export const conditionsCommands = {
     cmd.gold = gold;
     window.context.addCommand(cmd);
   },
+
   has_target() {
     const cmd = new CommandHasTarget();
     window.context.addCommand(cmd);
   },
-  not_has_target() {
+  has_no_target() {
     const cmd = new CommandNotHasTarget();
     window.context.addCommand(cmd);
   },
-  is_health_greater_than(hp: number) {
+
+  is_hp_greater_than(hp: number) {
     if (!hp || typeof hp !== 'number') {
       throw new ArgsError('hp is required');
     }
@@ -152,8 +164,7 @@ export const conditionsCommands = {
     cmd.health = hp;
     window.context.addCommand(cmd);
   },
-
-  is_health_less_than(hp: number) {
+  is_hp_less_than(hp: number) {
     if (!hp || typeof hp !== 'number') {
       throw new ArgsError('hp is required');
     }
@@ -162,7 +173,8 @@ export const conditionsCommands = {
     cmd.health = hp;
     window.context.addCommand(cmd);
   },
-  is_in_inventory(item: string, quantity?: number) {
+
+  is_in_inv(item: string, quantity?: number) {
     if (!item || typeof item !== 'string') {
       throw new ArgsError('item name is required');
     }
@@ -172,7 +184,7 @@ export const conditionsCommands = {
     if (quantity) cmd.qty = quantity;
     window.context.addCommand(cmd);
   },
-  is_not_in_inventory(item: string, quantity?: number) {
+  is_not_in_inv(item: string, quantity?: number) {
     if (!item || typeof item !== 'string') {
       throw new ArgsError('item name is required');
     }
@@ -182,7 +194,8 @@ export const conditionsCommands = {
     if (quantity) cmd.qty = quantity;
     window.context.addCommand(cmd);
   },
-  is_in_tempinventory(item: string, quantity?: number) {
+
+  is_in_tempinv(item: string, quantity?: number) {
     if (!item || typeof item !== 'string') {
       throw new ArgsError('item name is required');
     }
@@ -192,7 +205,7 @@ export const conditionsCommands = {
     if (quantity) cmd.qty = quantity;
     window.context.addCommand(cmd);
   },
-  is_not_in_tempinventory(item: string, quantity?: number) {
+  is_not_in_tempinv(item: string, quantity?: number) {
     if (!item || typeof item !== 'string') {
       throw new ArgsError('item name is required');
     }
@@ -202,6 +215,7 @@ export const conditionsCommands = {
     if (quantity) cmd.qty = quantity;
     window.context.addCommand(cmd);
   },
+
   is_in_bank(item: string, quantity?: number) {
     if (!item || typeof item !== 'string') {
       throw new ArgsError('item name is required');
@@ -222,6 +236,7 @@ export const conditionsCommands = {
     if (quantity) cmd.qty = quantity;
     window.context.addCommand(cmd);
   },
+
   is_in_combat() {
     const cmd = new CommandInCombat();
     window.context.addCommand(cmd);
@@ -230,6 +245,7 @@ export const conditionsCommands = {
     const cmd = new CommandNotInCombat();
     window.context.addCommand(cmd);
   },
+
   is_in_house(item: string, quantity?: number) {
     if (!item || typeof item !== 'string') {
       throw new ArgsError('item name is required');
@@ -250,16 +266,17 @@ export const conditionsCommands = {
     if (quantity) cmd.qty = quantity;
     window.context.addCommand(cmd);
   },
-  is_not_equipped(item: string) {
-    if (!item || typeof item !== 'string') {
-      throw new ArgsError('item is required');
-    }
 
-    const cmd = new CommandNotEquipped();
-    cmd.item = item;
+  is_member() {
+    const cmd = new CommandIsMember();
     window.context.addCommand(cmd);
   },
-  player_auras_greater_than(aura: string, value: number) {
+  is_not_member() {
+    const cmd = new CommandIsNotMember();
+    window.context.addCommand(cmd);
+  },
+
+  is_player_auras_greater_than(aura: string, value: number) {
     if (!aura || typeof aura !== 'string') {
       throw new ArgsError('aura is required');
     }
@@ -273,8 +290,7 @@ export const conditionsCommands = {
     cmd.value = value;
     window.context.addCommand(cmd);
   },
-
-  player_auras_less_than(aura: string, value: number) {
+  is_player_auras_less_than(aura: string, value: number) {
     if (!aura || typeof aura !== 'string') {
       throw new ArgsError('aura is required');
     }
@@ -304,7 +320,7 @@ export const conditionsCommands = {
     window.context.addCommand(cmd);
   },
 
-  player_count_greater_than(count: number) {
+  is_player_count_greater_than(count: number) {
     if (!count || typeof count !== 'number') {
       throw new ArgsError('count is required');
     }
@@ -313,8 +329,7 @@ export const conditionsCommands = {
     cmd.count = count;
     window.context.addCommand(cmd);
   },
-
-  player_count_less_than(count: number) {
+  is_player_count_less_than(count: number) {
     if (!count || typeof count !== 'number') {
       throw new ArgsError('count is required');
     }
@@ -374,7 +389,7 @@ export const conditionsCommands = {
     window.context.addCommand(cmd);
   },
 
-  cannot_complete_quest(questId: number) {
+  cant_complete_quest(questId: number) {
     if (!questId || typeof questId !== 'number') {
       throw new ArgsError('quest is required');
     }
@@ -390,6 +405,16 @@ export const conditionsCommands = {
     }
 
     const cmd = new CommandQuestInProgress();
+    cmd.questId = questId;
+    window.context.addCommand(cmd);
+  },
+
+  is_quest_not_in_progress(questId: number) {
+    if (!questId || typeof questId !== 'number') {
+      throw new ArgsError('quest is required');
+    }
+
+    const cmd = new CommandQuestNotInProgress();
     cmd.questId = questId;
     window.context.addCommand(cmd);
   },
@@ -410,16 +435,6 @@ export const conditionsCommands = {
     }
 
     const cmd = new CommandQuestIsNotAvailable();
-    cmd.questId = questId;
-    window.context.addCommand(cmd);
-  },
-
-  is_quest_not_in_progress(questId: number) {
-    if (!questId || typeof questId !== 'number') {
-      throw new ArgsError('quest is required');
-    }
-
-    const cmd = new CommandQuestNotInProgress();
     cmd.questId = questId;
     window.context.addCommand(cmd);
   },
@@ -480,14 +495,7 @@ export const conditionsCommands = {
     cmd.count = count;
     window.context.addCommand(cmd);
   },
-  is_member() {
-    const cmd = new CommandIsMember();
-    window.context.addCommand(cmd);
-  },
-  is_not_member() {
-    const cmd = new CommandIsNotMember();
-    window.context.addCommand(cmd);
-  },
+
   item_has_dropped(item: string) {
     if (!item || typeof item !== 'string') {
       throw new ArgsError('item is required');
@@ -506,6 +514,7 @@ export const conditionsCommands = {
     cmd.item = item;
     window.context.addCommand(cmd);
   },
+
   is_level(level: number) {
     if (!level || typeof level !== 'number') {
       throw new ArgsError('level is required');
@@ -533,6 +542,7 @@ export const conditionsCommands = {
     cmd.level = level;
     window.context.addCommand(cmd);
   },
+
   is_mana_greater_than(mana: number) {
     if (!mana || typeof mana !== 'number') {
       throw new ArgsError('mana is required');
@@ -551,6 +561,7 @@ export const conditionsCommands = {
     cmd.mana = mana;
     window.context.addCommand(cmd);
   },
+
   is_map(map: string) {
     if (!map || typeof map !== 'string') {
       throw new ArgsError('map is required');
@@ -569,7 +580,8 @@ export const conditionsCommands = {
     cmd.map = map;
     window.context.addCommand(cmd);
   },
-  is_monster_health_greater_than(monster: string, hp: number) {
+
+  is_monster_hp_greater_than(monster: string, hp: number) {
     if (!monster || typeof monster !== 'string') {
       throw new ArgsError('monster is required');
     }
@@ -583,7 +595,7 @@ export const conditionsCommands = {
     cmd.health = hp;
     window.context.addCommand(cmd);
   },
-  is_monster_health_less_than(monster: string, hp: number) {
+  is_monster_hp_less_than(monster: string, hp: number) {
     if (!monster || typeof monster !== 'string') {
       throw new ArgsError('monster is required');
     }
@@ -597,6 +609,7 @@ export const conditionsCommands = {
     cmd.health = hp;
     window.context.addCommand(cmd);
   },
+
   is_monster_in_room(monster: string) {
     if (!monster || typeof monster !== 'string') {
       throw new ArgsError('monster is required');
@@ -615,6 +628,7 @@ export const conditionsCommands = {
     cmd.monster = monster;
     window.context.addCommand(cmd);
   },
+
   is_player_name(name: string) {
     if (!name || typeof name !== 'string') {
       throw new ArgsError('player name is required');

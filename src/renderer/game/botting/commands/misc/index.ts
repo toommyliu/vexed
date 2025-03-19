@@ -68,7 +68,7 @@ export const miscCommands = {
     }
 
     const cmd = new CommandSetDelay();
-    cmd.delay = delay;
+    cmd.delay = Math.trunc(delay);
     window.context.addCommand(cmd);
   },
   enable_collisions() {

@@ -12,6 +12,6 @@ export class CommandUseSkill extends Command {
   }
 
   public override toString() {
-    return `Use skill: ${this.skill}`;
+    return `${this.force ? 'Force use' : 'Use'} skill: ${this.skill}${this.wait ? ' (wait)' : ''}`;
   }
 }
