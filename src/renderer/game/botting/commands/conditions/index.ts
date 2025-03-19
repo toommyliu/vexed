@@ -58,6 +58,7 @@ import { CommandQuestIsNotAvailable } from './CommandQuestNotAvailable';
 import { CommandQuestNotInProgress } from './CommandQuestNotInProgress';
 import { CommandTargetHealthGreaterThan } from './CommandTargetHealthGreaterThan';
 import { CommandTargetHealthLessThan } from './CommandTargetHealthLessThan';
+import { CommandTargetHpBetween } from './CommandTargetHpBetween';
 
 export const conditionsCommands = {
   is_cell(cell: string) {
@@ -439,7 +440,7 @@ export const conditionsCommands = {
     window.context.addCommand(cmd);
   },
 
-  target_health_greater_than(hp: number) {
+  is_target_health_greater_than(hp: number) {
     if (!hp || typeof hp !== 'number') {
       throw new ArgsError('hp is required');
     }
@@ -448,7 +449,7 @@ export const conditionsCommands = {
     cmd.hp = hp;
     window.context.addCommand(cmd);
   },
-  target_health_less_than(hp: number) {
+  is_target_health_less_than(hp: number) {
     if (!hp || typeof hp !== 'number') {
       throw new ArgsError('hp is required');
     }
@@ -457,6 +458,25 @@ export const conditionsCommands = {
     cmd.hp = hp;
     window.context.addCommand(cmd);
   },
+  is_target_hp_between(monster: string, min: number, max: number) {
+    if (!monster || typeof monster !== 'string') {
+      throw new ArgsError('monster is required');
+    }
+
+    if (!min || typeof min !== 'number') {
+      throw new ArgsError('min is required');
+    }
+
+    if (!max || typeof max !== 'number') {
+      throw new ArgsError('max is required');
+    }
+
+    const cmd = new CommandTargetHpBetween();
+    cmd.lower = min;
+    cmd.upper = max;
+    window.context.addCommand(cmd);
+  },
+
   is_maxed(item: string) {
     if (!item || typeof item !== 'string') {
       throw new ArgsError('item is required');
@@ -475,7 +495,7 @@ export const conditionsCommands = {
     cmd.item = item;
     window.context.addCommand(cmd);
   },
-  cell_player_count_greater_than(count: number, cell?: string) {
+  is_cell_player_count_greater_than(count: number, cell?: string) {
     if (!count || typeof count !== 'number') {
       throw new ArgsError('count is required');
     }
@@ -485,7 +505,7 @@ export const conditionsCommands = {
     cmd.count = count;
     window.context.addCommand(cmd);
   },
-  cell_player_count_less_than(count: number, cell?: string) {
+  is_cell_player_count_less_than(count: number, cell?: string) {
     if (!count || typeof count !== 'number') {
       throw new ArgsError('count is required');
     }
