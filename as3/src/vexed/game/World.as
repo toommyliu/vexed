@@ -81,7 +81,7 @@ package vexed.game {
         cell = game.world.strFrame;
       }
 
-      var player:Object = getPlayer(name);
+      var player:Object = game.world.uoTree[name.toLowerCase()];
       if (!player) {
         return false;
       }
@@ -243,12 +243,12 @@ package vexed.game {
     }
 
     public static function getPlayerAuras(name:String):Array {
-      var player:Object = getPlayer(name);
+      var player:Object = game.world.uoTree[name.toLowerCase()];
       if (!player) {
         return [];
       }
 
-      return player.auras;
+      return Util.serializeAuras(player.auras);
     }
   }
 }
