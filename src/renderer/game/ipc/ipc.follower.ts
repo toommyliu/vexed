@@ -20,31 +20,39 @@ const bot = Bot.getInstance();
 
 const logger = Logger.get('IpcFollower');
 
-function packetHandler(packet: string) {
+type UotlPacket = {
+  params: {
+    dataObj: string[];
+    type: string;
+  };
+};
+function packetHandler(packet: UotlPacket) {
   if (!on) return;
 
-  // if (!intervalId) return;
+  if (packet?.params?.type !== 'str') return;
 
-  const args = packet.split('%');
-  const cmd = args[2];
+  const args = packet.params.dataObj;
+  if (!args?.length) return;
 
-  if (packet.startsWith('%') && cmd === 'uotls') {
-    try {
-      const plyr = args[4]!.toLowerCase();
-      if (config?.name && plyr === config.name && config?.copyWalk) {
-        const data = args[5]!.split(',');
+  if (
+    config?.copyWalk &&
+    args[0] === 'uotls' &&
+    args[2]?.toLowerCase() === config.name &&
+    args[3]?.includes('sp:') &&
+    args[3]?.includes('tx:') &&
+    args[3]?.includes('ty:')
+  ) {
+    const data = args[3]!.split(',');
 
-        const spd = data.find((pkt) => pkt.startsWith('sp:'));
-        const xPos = data.find((pkt) => pkt.startsWith('tx:'));
-        const yPos = data.find((pkt) => pkt.startsWith('ty:'));
+    const spd = data.find((pkt) => pkt.startsWith('sp:'));
+    const xPos = data.find((pkt) => pkt.startsWith('tx:'));
+    const yPos = data.find((pkt) => pkt.startsWith('ty:'));
 
-        const x = Number.parseInt(xPos!.split(':')[1]!, 10) ?? 0;
-        const y = Number.parseInt(yPos!.split(':')[1]!, 10) ?? 0;
-        const speed = Number.parseInt(spd!.split(':')[1]!, 10) ?? 8;
+    const x = Number.parseInt(xPos!.split(':')[1]!, 10) ?? 0;
+    const y = Number.parseInt(yPos!.split(':')[1]!, 10) ?? 0;
+    const speed = Number.parseInt(spd!.split(':')[1]!, 10) ?? 8;
 
-        bot.player.walkTo(x, y, speed);
-      }
-    } catch {}
+    bot.player.walkTo(x, y, speed);
   }
 }
 
@@ -119,7 +127,7 @@ async function startFollower() {
     /* eslint-enable require-atomic-updates */
   }
 
-  bot.on('packetFromServer', packetHandler);
+  bot.on('pext', packetHandler);
 
   // intervalId = bot.timerManager.setInterval(async () => {
   await interval(async (_, stop) => {
@@ -196,7 +204,7 @@ async function stopFollower() {
   index = 0;
   attempts = 3;
 
-  bot.off('packetFromServer', packetHandler);
+  bot.off('pext', packetHandler);
   await ipcRenderer.callMain(IPC_EVENTS.MSGBROKER, {
     ipcEvent: IPC_EVENTS.FOLLOWER_STOP,
     windowId: WINDOW_IDS.FOLLOWER,

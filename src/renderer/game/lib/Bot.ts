@@ -40,7 +40,7 @@ type Events = {
   /**
    * OnExtensionResponse event.
    */
-  pext(packet: JSON): void;
+  pext(packet: Record<string, unknown>): void;
   /**
    * This event is emitted when a player joins the room.
    *
