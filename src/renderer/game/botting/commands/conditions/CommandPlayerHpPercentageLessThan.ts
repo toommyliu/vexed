@@ -10,7 +10,7 @@ export class CommandPlayerHpPercentageLessThan extends Command {
       (this.player ?? this.bot.auth.username).toLowerCase(),
     );
 
-    if (avatar?.isHpGreaterThanPercentage(this.percentage)) {
+    if (avatar?.isHpPercentageGreaterThan(this.percentage)) {
       this.ctx.commandIndex++;
     }
   }

@@ -107,7 +107,7 @@ export class Avatar {
    * @param value - The percentage value to compare the player's hp to.
    * @returns True if the player's hp is less than the percentage value, false otherwise.
    */
-  public isHpLessThanPercentage(value: number) {
+  public isHpPercentageLessThan(value: number) {
     return (this.hp / this.maxHp) * 100 <= value;
   }
 
@@ -117,7 +117,7 @@ export class Avatar {
    * @param value - The percentage value to compare the player's hp to.
    * @returns True if the player's hp is greater than the percentage value, false otherwise.
    */
-  public isHpGreaterThanPercentage(value: number) {
+  public isHpPercentageGreaterThan(value: number) {
     return (this.hp / this.maxHp) * 100 >= value;
   }
 
