@@ -47,7 +47,7 @@ export function startAutoAggro() {
     for (const [cell, monsters] of monstersByCell) {
       for (const plyr of bot.world.playerNames) {
         try {
-          const playerCell = swf.worldGetPlayer(plyr)?.strFrame;
+          const playerCell = bot.world.players?.get(plyr.toLowerCase())?.cell;
           if (playerCell === cell) {
             for (const id of monsters) monMapIdSet.add(id);
             break;
