@@ -9,8 +9,9 @@ function isMonPkt(
 export async function addGoldExp(bot: Bot, packet: AddGoldExpPkt) {
   if (isMonPkt(packet)) {
     const getMonster = () =>
-      bot.world.availableMonsters.find((mon) => mon.monMapId === packet.id);
-    bot.emit('monsterDeath', getMonster());
+      bot.world.availableMonsters.find((mon) => mon.monMapId === packet.id)!;
+
+    bot.emit('monsterDeath', packet.id);
     await bot.waitUntil(() => Boolean(getMonster()?.alive));
     bot.emit('monsterRespawn', getMonster());
   }

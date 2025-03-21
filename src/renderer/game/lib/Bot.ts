@@ -27,10 +27,14 @@ type Events = {
   logout(): void;
   /**
    * This event is emitted when a monster has died.
+   *
+   * @param monMapid - The monster map id.
    */
-  monsterDeath(monster: Monster): void;
+  monsterDeath(monMapid: number): void;
   /**
    * This event is emitted when a monster has respawned.
+   *
+   * @param monster - The monster that has respawned.
    */
   monsterRespawn(monster: Monster): void;
   /**
@@ -39,6 +43,8 @@ type Events = {
   pext(packet: JSON): void;
   /**
    * This event is emitted when a player leaves the room.
+   *
+   * @param playerName - The name of the player.
    */
   playerLeave(playerName: string): void;
 };

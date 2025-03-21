@@ -197,7 +197,7 @@ ipcMain.answerRenderer(
       window.hide();
     });
 
-    window.loadFile(path!);
+    await window.loadFile(path!);
     // return true;
   },
 );
@@ -250,14 +250,14 @@ ipcMain.answerRenderer(IPC_EVENTS.LOAD_SCRIPT, async (_, browserWindow) => {
 
             // ideally, this traces to the line of the (user) script back to
             // where the error occured, not where the error is thrown internally
-            dialog.showMessageBox(browserWindow, {
+            await dialog.showMessageBox(browserWindow, {
               message: `"cmd.${cmd}()" threw an error: ${cmd_msg}`,
               type: 'error',
             });
           } catch {}
         } else {
           // some generic error (syntax, etc)
-          dialog.showMessageBox(browserWindow, {
+          await dialog.showMessageBox(browserWindow, {
             message: err,
             detail: `${_msg} (line ${line})`,
             type: 'error',
@@ -274,8 +274,6 @@ ipcMain.answerRenderer(IPC_EVENTS.LOAD_SCRIPT, async (_, browserWindow) => {
     // load
     await browserWindow.webContents.executeJavaScript(content);
     await ipcMain.callRenderer(browserWindow, IPC_EVENTS.SCRIPT_LOADED);
-
-    console.log('done');
   } catch {}
 
   browserWindow.webContents.removeAllListeners('console-message');
