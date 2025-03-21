@@ -1,13 +1,15 @@
 import { Command } from '../../command';
 
 export class CommandPlayerAurasLessThan extends Command {
+  public player?: string;
+
   public aura!: string;
 
   public value!: number;
 
   public override execute() {
     const aura = this.bot.world.players
-      ?.get(this.bot.auth.username)
+      ?.get((this.player ?? this.bot.auth.username).toLowerCase())
       ?.getAura(this.aura);
 
     if ((aura?.value ?? 0) >= this.value) {
@@ -16,6 +18,6 @@ export class CommandPlayerAurasLessThan extends Command {
   }
 
   public override toString() {
-    return `Player aura less than: {${this.aura}, ${this.value}}`;
+    return `${this.player ?? 'This player'} aura less than: {${this.aura}, ${this.value}}`;
   }
 }

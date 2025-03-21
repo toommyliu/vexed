@@ -1,6 +1,6 @@
 import { Command } from '../../command';
 
-export class CommandTargetHealthLessThan extends Command {
+export class CommandTargetHpLessThan extends Command {
   public hp!: number;
 
   public override execute() {

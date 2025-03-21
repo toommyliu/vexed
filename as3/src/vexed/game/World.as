@@ -24,19 +24,22 @@ package vexed.game {
       return game.world.areaUsers;
     }
 
-    public static function getPlayers():Object /* { [name: string]: PlayerData } */
+    public static function getPlayers():String /* { [name: string]: PlayerData } */
     {
       var ret:Object = {};
       for (var player:String in game.world.uoTree) {
         var playerObj:Object = game.world.uoTree[player];
         if (playerObj !== null) {
-          ret[player] = getPlayer(player);
+          var playerObj_:Object = getPlayer(player);
+          if (playerObj_ !== null) {
+            ret[player] = getPlayer(player);
+          }
         }
       }
-      return ret;
+      return JSON.stringify(ret);
     }
 
-    public static function getPlayer(name:String):Object {
+    public static function getPlayer(name:String):String {
       if (!name)
         return null;
 
@@ -58,7 +61,6 @@ package vexed.game {
             }
           }
           else {
-            // Should be serializable in some way
             ret[key] = playerObj[key];
           }
         }
@@ -66,7 +68,7 @@ package vexed.game {
         }
       }
 
-      return ret;
+      return JSON.stringify(ret);
     }
 
     public static function isPlayerInCell(name:String, cell:String = null):Boolean {

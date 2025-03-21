@@ -12,6 +12,6 @@ export class CommandInTemp extends Command {
   }
 
   public override toString() {
-    return `Is in temp ${this.item} [x${this.qty}]`;
+    return `Is in temp: ${this.item} [x${this.qty}]`;
   }
 }

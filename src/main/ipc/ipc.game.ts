@@ -204,25 +204,30 @@ ipcMain.answerRenderer(
 
 ipcMain.answerRenderer(IPC_EVENTS.LOAD_SCRIPT, async (_, browserWindow) => {
   try {
-    const res = dialog.showOpenDialog(browserWindow, {
-      defaultPath: join(fm.basePath, 'Bots'),
-      properties: ['openFile'],
-      filters: [{ name: 'Bots', extensions: ['js'] }],
-      message: 'Select a script to load',
-      title: 'Select a script to load',
-    });
+    const res = await dialog
+      .showOpenDialog(browserWindow, {
+        defaultPath: join(fm.basePath, 'Bots'),
+        properties: ['openFile'],
+        filters: [{ name: 'Bots', extensions: ['js'] }],
+        message: 'Select a script to load',
+        title: 'Select a script to load',
+      })
+      .catch(() => ({ canceled: true, filePaths: [] }));
 
-    if (!res?.[0]) return;
+    if (res?.canceled || !res?.filePaths?.length) return;
 
-    const file = res[0];
-    const content = await readFile(file, 'utf8');
+    const file = res!.filePaths[0]!;
+    const content = await readFile(file!, 'utf8');
 
     // the error is thrown in the renderer
     // so we need to listen for it here and handle it
     browserWindow.webContents.once(
       'console-message',
       async (_, level, message, line) => {
-        if (!message.startsWith('Uncaught') || level !== 3) return;
+        if (!message.startsWith('Uncaught') || level !== 3) {
+          return;
+        }
+
         const args = message.slice('Uncaught'.length).split(':');
 
         const err = args[0]!; // Error
@@ -269,6 +274,8 @@ ipcMain.answerRenderer(IPC_EVENTS.LOAD_SCRIPT, async (_, browserWindow) => {
     // load
     await browserWindow.webContents.executeJavaScript(content);
     await ipcMain.callRenderer(browserWindow, IPC_EVENTS.SCRIPT_LOADED);
+
+    console.log('done');
   } catch {}
 
   browserWindow.webContents.removeAllListeners('console-message');

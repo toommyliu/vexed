@@ -8,6 +8,6 @@ export class CommandNotHasTarget extends Command {
   }
 
   public override toString() {
-    return 'Is not has target';
+    return 'Has no target';
   }
 }

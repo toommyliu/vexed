@@ -1,6 +1,7 @@
 import { ArgsError } from '../../ArgsError';
 import { CommandDelay } from './CommandDelay';
 import { CommandGotoLabel } from './CommandGotoLabel';
+import { CommandHouse } from './CommandHouse';
 import { CommandLabel } from './CommandLabel';
 import { CommandLog } from './CommandLog';
 import { CommandLogout } from './CommandLogout';
@@ -194,6 +195,15 @@ export const miscCommands = {
   disable_anticounter() {
     const cmd = new CommandSettingAntiCounter();
     cmd.state = false;
+    window.context.addCommand(cmd);
+  },
+  goto_house(player?: string) {
+    if (player && typeof player !== 'string') {
+      throw new ArgsError('player must be a string');
+    }
+
+    const cmd = new CommandHouse();
+    if (player) cmd.player = player;
     window.context.addCommand(cmd);
   },
 };

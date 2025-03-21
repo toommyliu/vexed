@@ -17,7 +17,6 @@
 		"lint:fix": "eslint \"src/**/*\" --fix"
 	},
 	"dependencies": {
-		"@sapphire/async-queue": "^1.5.5",
 		"async-mutex": "^0.5.0",
 		"electron-better-ipc": "^2.0.1",
 		"fs-extra": "^11.2.0",
@@ -33,7 +32,7 @@
 		"@typescript-eslint/eslint-plugin": "^8.4.0",
 		"@typescript-eslint/parser": "^8.4.0",
 		"concurrently": "^8.2.2",
-		"electron": "^4.2.12",
+		"electron": "^6.1.12",
 		"electron-builder": "^24.13.3",
 		"electronmon": "^2.0.3",
 		"esbuild": "^0.23.1",

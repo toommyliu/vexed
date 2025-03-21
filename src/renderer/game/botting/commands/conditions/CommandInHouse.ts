@@ -6,7 +6,7 @@ export class CommandInHouse extends Command {
   public qty = 1;
 
   public override execute() {
-    if ((this.bot.house.get(this.item)?.quantity ?? 0) > this.qty) {
+    if ((this.bot.house.get(this.item)?.quantity ?? 0) <= this.qty) {
       this.ctx.commandIndex++;
     }
   }

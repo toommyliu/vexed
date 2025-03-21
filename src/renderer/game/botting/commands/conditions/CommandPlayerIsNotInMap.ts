@@ -1,15 +1,15 @@
 import { Command } from '../../command';
 
 export class CommandPlayerIsNotInMap extends Command {
-  public name!: string;
+  public player!: string;
 
   public override execute() {
-    if (this.bot.world.playerNames.includes(this.name)) {
+    if (this.bot.world.playerNames.includes(this.player.toLowerCase())) {
       this.ctx.commandIndex++;
     }
   }
 
   public override toString() {
-    return `Player [${this.name}] is not in map`;
+    return `Player is not in map${this.player ? `: ${this.player}` : ''}`;
   }
 }

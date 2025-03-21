@@ -175,8 +175,8 @@ declare global {
 
     worldIsLoaded(): boolean;
     worldGetPlayerNames(): string[];
-    worldGetPlayers(): Record<string, AvatarData>[];
-    worldGetPlayer(name: string): Nullable<AvatarData>;
+    worldGetPlayers(): string;
+    worldGetPlayer(name: string): string;
     worldIsPlayerInCell(name: string, cell?: string): boolean;
     worldIsActionAvailable(
       gameAction: (typeof GameAction)[keyof typeof GameAction],
