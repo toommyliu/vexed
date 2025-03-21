@@ -74,7 +74,7 @@ export class Monster {
 
 export type MonsterData = {
   MonID: number;
-  MonMapID: string;
+  MonMapID: number;
   iLvl: number;
   intHP: number;
   intHPMax: number;
