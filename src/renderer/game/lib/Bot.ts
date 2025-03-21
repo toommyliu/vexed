@@ -42,6 +42,12 @@ type Events = {
    */
   pext(packet: JSON): void;
   /**
+   * This event is emitted when a player joins the room.
+   *
+   * @param playerName - The name of the player.
+   */
+  playerJoin(playerName: string): void;
+  /**
    * This event is emitted when a player leaves the room.
    *
    * @param playerName - The name of the player.

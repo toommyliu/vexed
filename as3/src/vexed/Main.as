@@ -14,7 +14,6 @@ package vexed {
 	import vexed.module.Modules;
 	import vexed.util.SFSEvent;
 	import flash.events.ProgressEvent;
-	import flash.external.ExternalInterface;
 
 	public class Main extends MovieClip {
 		private static var _instance:Main;

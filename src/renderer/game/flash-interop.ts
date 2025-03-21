@@ -6,6 +6,7 @@ import { Bot } from './lib/Bot';
 import { addGoldExp } from './networking/json/add-gold-exp';
 import { ct } from './networking/json/ct';
 import { dropItem } from './networking/json/drop-item';
+import { initUserData } from './networking/json/init-user-data';
 
 // import { FileManager } from '../../main/FileManager';
 // FileManager.getInstance().writeJson(
@@ -63,6 +64,10 @@ window.pext = async ([packet]) => {
         break;
       case 'dropItem':
         dropItem(bot, dataObj);
+        break;
+      case 'initUserData':
+        console.log('initUserData', dataObj);
+        initUserData(bot, dataObj);
         break;
     }
   }
