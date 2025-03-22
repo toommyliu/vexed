@@ -1,13 +1,13 @@
 import { Command } from '../../command';
 
-export class CommandAddBoost extends Command {
+export class CommandRegisterDrop extends Command {
   public item!: string;
 
   public override execute() {
-    this.ctx.addBoost(this.item);
+    this.ctx.addItem(this.item);
   }
 
   public override toString() {
-    return `Add boost: ${this.item}`;
+    return `Add drop: ${this.item}`;
   }
 }

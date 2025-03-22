@@ -1,15 +1,15 @@
 import { ArgsError } from '../../ArgsError';
-import { CommandAddBoost } from './CommandAddBoost';
-import { CommandAddDrop } from './CommandAddDrop';
 import { CommandBuy } from './CommandBuy';
 import { CommandDeposit } from './CommandDeposit';
 import { CommandGetMapItem } from './CommandGetMapItem';
 import { CommandPickup } from './CommandPickup';
+import { CommandRegisterBoost } from './CommandRegisterBoost';
+import { CommandRegisterDrop } from './CommandRegisterDrop';
 import { CommandReject } from './CommandReject';
-import { CommandRemoveBoost } from './CommandRemoveBoost';
-import { CommandRemoveDrop } from './CommandRemoveDrop';
 import { CommandSell } from './CommandSell';
 import { CommandSwap } from './CommandSwap';
+import { CommandUnregisterBoost } from './CommandUnregisterBoost';
+import { CommandUnregisterDrop } from './CommandUnregisterDrop';
 import { CommandWithdraw } from './CommandWithdraw';
 
 export const itemCommands = {
@@ -110,39 +110,39 @@ export const itemCommands = {
     cmd.item = item;
     window.context.addCommand(cmd);
   },
-  add_drop(item: string) {
+  register_drop(item: string) {
     if (!item || typeof item !== 'string') {
       throw new ArgsError('item is required');
     }
 
-    const cmd = new CommandAddDrop();
+    const cmd = new CommandRegisterDrop();
     cmd.item = item;
     window.context.addCommand(cmd);
   },
-  remove_drop(item: string) {
+  unregister_drop(item: string) {
     if (!item || typeof item !== 'string') {
       throw new ArgsError('item is required');
     }
 
-    const cmd = new CommandRemoveDrop();
+    const cmd = new CommandUnregisterDrop();
     cmd.item = item;
     window.context.addCommand(cmd);
   },
-  add_boost(item: string) {
+  register_boost(item: string) {
     if (!item || typeof item !== 'string') {
       throw new ArgsError('item is required');
     }
 
-    const cmd = new CommandAddBoost();
+    const cmd = new CommandRegisterBoost();
     cmd.item = item;
     window.context.addCommand(cmd);
   },
-  remove_boost(item: string) {
+  unregister_boost(item: string) {
     if (!item || typeof item !== 'string') {
       throw new ArgsError('item is required');
     }
 
-    const cmd = new CommandRemoveBoost();
+    const cmd = new CommandUnregisterBoost();
     cmd.item = item;
     window.context.addCommand(cmd);
   },

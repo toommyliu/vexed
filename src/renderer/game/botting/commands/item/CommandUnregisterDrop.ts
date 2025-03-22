@@ -1,13 +1,13 @@
 import { Command } from '../../command';
 
-export class CommandRemoveBoost extends Command {
+export class CommandUnregisterDrop extends Command {
   public item!: string;
 
   public override execute() {
-    this.ctx.removeBoost(this.item);
+    this.ctx.unregisterDrop(this.item);
   }
 
   public override toString() {
-    return `Remove boost: ${this.item}`;
+    return `Unregister drop: ${this.item}`;
   }
 }

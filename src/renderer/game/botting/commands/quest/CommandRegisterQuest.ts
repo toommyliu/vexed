@@ -1,13 +1,13 @@
 import { Command } from '../../command';
 
-export class CommandAddQuest extends Command {
+export class CommandRegisterQuest extends Command {
   public questId!: number;
 
   public override execute() {
-    this.ctx.addQuest(this.questId);
+    this.ctx.registerQuest(this.questId);
   }
 
   public override toString() {
-    return `Add quest: ${this.questId}`;
+    return `Register quest: ${this.questId}`;
   }
 }
