@@ -66,7 +66,10 @@ export const cmd = {
       delete this[_name];
     }
   },
-  register_handler(name: string, handler: (packet: string) => void) {
+  register_handler(
+    name: string,
+    handler: (packet: Record<string, unknown>) => void,
+  ) {
     if (!name || typeof name !== 'string') {
       throw new ArgsError('handler name is required');
     }

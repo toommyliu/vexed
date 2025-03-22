@@ -31,7 +31,7 @@ export class Context extends TypedEmitter<Events> {
 
   private readonly _handlers: Map<
     string,
-    (packet: JSON) => Promise<void> | void
+    (packet: Record<string, unknown>) => Promise<void> | void
   >;
 
   private _commands: Command[];
@@ -71,7 +71,10 @@ export class Context extends TypedEmitter<Events> {
    * @param name - The name of the handler
    * @param handler - The handler function
    */
-  public registerHandler(name: string, handler: (packet: JSON) => void) {
+  public registerHandler(
+    name: string,
+    handler: (packet: Record<string, unknown>) => void,
+  ) {
     this._handlers.set(name, handler);
   }
 
