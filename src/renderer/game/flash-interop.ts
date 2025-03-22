@@ -74,7 +74,6 @@ window.pext = async ([packet]) => {
         dropItem(bot, dataObj);
         break;
       case 'initUserData':
-        console.log('initUserData', dataObj);
         initUserData(bot, dataObj);
         break;
     }
