@@ -3,7 +3,7 @@ import { Command } from '../../command';
 export class CommandNotInInventory extends Command {
   public item!: string;
 
-  public qty?: number;
+  public qty = 1;
 
   public override execute() {
     if (!this.bot.inventory.contains(this.item, this.qty)) {

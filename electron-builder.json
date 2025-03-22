@@ -1,6 +1,6 @@
 {
   "productName": "vexed",
-  "electronVersion": "11.5.0",
+  "electronVersion": "4.2.12",
   "directories": {
     "output": "build"
   },

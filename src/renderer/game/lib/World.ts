@@ -101,15 +101,15 @@ export class World {
    * A list of all players in the map.
    */
   public get players(): Map<string, Avatar> | null {
-    const out = this.bot.flash.call<Record<string, AvatarData>>(() =>
-      swf.worldGetPlayers(),
-    );
+    const out = this.bot.flash.call<string>(() => swf.worldGetPlayers());
 
     if (!out) return null;
 
+    const parsedOut = out as unknown as Record<string, AvatarData>;
+
     const map = new Map<string, Avatar>();
-    for (const [name, data] of Object.entries(out)) {
-      map.set(name, new Avatar(data));
+    for (const [name, data] of Object.entries(parsedOut)) {
+      map.set(name, new Avatar(JSON.parse(data as unknown as string)));
     }
 
     return map;

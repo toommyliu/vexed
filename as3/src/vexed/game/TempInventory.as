@@ -1,40 +1,31 @@
-package vexed.game
-{
+package vexed.game {
   import vexed.Main;
 
-  public class TempInventory
-  {
+  public class TempInventory {
     private static var game:Object = Main.getInstance().getGame();
 
-    public static function getItems():Array
-    {
+    public static function getItems():Array {
       return game.world.myAvatar.tempitems;
     }
 
-    public static function getItem(key:*):Object
-    {
-      if (!key)
+    public static function getItem(item:*):Object {
+      if (!item)
         return null;
 
-      if (game.world.myAvatar.tempitems is Array && game.world.myAvatar.tempitems.length > 0)
-      {
-        var item:Object;
-        var items:Array = game.world.myAvatar.tempitems;
-        if (key is String)
-        {
-          key = key.toLowerCase();
-          for each (item in items)
-          {
-            if (item.sName.toLowerCase() === key)
-              return item;
+      var items:Array = game.world.myAvatar.tempitems;
+      if (items is Array) {
+        var ret:Object;
+        if (item is String) {
+          item = item.toLowerCase();
+          for each (ret in items) {
+            if (ret.sName.toLowerCase() === item)
+              return ret;
           }
         }
-        else if (key is int)
-        {
-          for each (item in items)
-          {
-            if (item.ItemID === key)
-              return item;
+        else if (item is int) {
+          for each (ret in items) {
+            if (ret.ItemID === item)
+              return ret;
           }
         }
       }
@@ -42,22 +33,13 @@ package vexed.game
       return null;
     }
 
-    public static function contains(key:*, quantity:int):Boolean
-    {
-      if (!key)
+    public static function contains(item:*, quantity:int = 1):Boolean {
+      var itemObj:Object = getItem(item);
+      if (!itemObj) {
         return false;
+      }
 
-      if (quantity is int && quantity <= 0)
-        return false;
-
-      var item:Object = getItem(key);
-      if (!item)
-        return false;
-
-      if (!quantity)
-        return true;
-
-      return item.iQty >= quantity;
+      return itemObj.iQty >= quantity;
     }
   }
 }

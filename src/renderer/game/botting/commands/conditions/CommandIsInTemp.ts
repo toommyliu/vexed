@@ -3,17 +3,15 @@ import { Command } from '../../command';
 export class CommandIsInTemp extends Command {
   public item!: string;
 
-  public qty?: number;
+  public qty = 1;
 
   public override execute() {
-    if (
-      (this.bot.tempInventory.get(this.item)?.quantity ?? -1) <= (this.qty ?? 1)
-    ) {
+    if ((this.bot.tempInventory.get(this.item)?.quantity ?? 0) <= this.qty) {
       this.ctx.commandIndex++;
     }
   }
 
   public override toString() {
-    return `Item is in temp ${this.item} [x${this.qty ?? 1}]`;
+    return `Item is in temp: ${this.item} [x${this.qty}]`;
   }
 }

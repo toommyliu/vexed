@@ -1,9 +1,8 @@
-import { PlayerState } from '../../../lib/Player';
 import { Command } from '../../command';
 
 export class CommandInCombat extends Command {
   public override execute() {
-    if (this.bot.player.state !== PlayerState.InCombat) {
+    if (!this.bot.player.isInCombat()) {
       this.ctx.commandIndex++;
     }
   }

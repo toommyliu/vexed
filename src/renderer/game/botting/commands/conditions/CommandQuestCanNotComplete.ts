@@ -10,6 +10,6 @@ export class CommandQuestCanNotComplete extends Command {
   }
 
   public override toString() {
-    return `If quest [${this.questId}] can not complete`;
+    return `Quest cannot complete: ${this.questId}`;
   }
 }

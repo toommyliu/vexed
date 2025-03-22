@@ -1,9 +1,7 @@
-package vexed.util
-{
+package vexed.util {
 	import flash.events.Event;
 
-	public class SFSEvent extends Event
-	{
+	public class SFSEvent extends Event {
 		public static const onAdminMessage:String = "onAdminMessage";
 		public static const onBuddyList:String = "onBuddyList";
 		public static const onBuddyListError:String = "onBuddyListError";
@@ -40,19 +38,16 @@ package vexed.util
 
 		public var params:Object;
 
-		public function SFSEvent(param1:String, param2:Object)
-		{
+		public function SFSEvent(param1:String, param2:Object) {
 			super(param1);
 			this.params = param2;
 		}
 
-		public override function clone():Event
-		{
+		public override function clone():Event {
 			return new SFSEvent(this.type, this.params);
 		}
 
-		public override function toString():String
-		{
+		public override function toString():String {
 			return formatToString("SFSEvent", "type", "bubbles", "cancelable", "eventPhase", "params");
 		}
 	}

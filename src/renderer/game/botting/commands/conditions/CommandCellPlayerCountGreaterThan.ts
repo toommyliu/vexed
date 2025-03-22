@@ -11,9 +11,9 @@ export class CommandCellPlayerCountGreaterThan extends Command {
     let cellCount = 0;
 
     for (const player of this.bot.world.playerNames) {
-      const isSameCell =
-        cellToUse ===
-        this.bot.world.players?.get(player)?.data?.strFrame.toLowerCase();
+      const isSameCell = this.bot.flash.call(() =>
+        swf.worldIsPlayerInCell(player, cellToUse),
+      );
 
       if (isSameCell) cellCount++;
     }

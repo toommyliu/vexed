@@ -1,6 +1,6 @@
 import { Command } from '../../command';
 
-export class CommandEquipped extends Command {
+export class CommandIsEquipped extends Command {
   public item!: string;
 
   public override execute() {
@@ -10,6 +10,6 @@ export class CommandEquipped extends Command {
   }
 
   public override toString() {
-    return `Item is equipped: ${this.item}`;
+    return `Is equipped: ${this.item}`;
   }
 }

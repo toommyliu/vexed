@@ -1,82 +1,71 @@
-package vexed.game
-{
+package vexed.game {
   import vexed.Main;
 
-  public class Bank
-  {
+  public class Bank {
     // BankController game.world.bankinfo
+
     private static var game:Object = Main.getInstance().getGame();
 
-    public static function getItems():Array
-    {
+    private static var loaded:Boolean = false;
+
+    public static function getItems():Array {
       return game.world.bankinfo.items;
     }
 
-    public static function getItem(key:* = null):Object
-    {
-      if (!key)
+    public static function getItem(item:*):Object {
+      if (!item)
         return null;
 
-      if (game.world.bankinfo.items is Array && game.world.bankinfo.items.length > 0)
-      {
-        var item:Object;
-        if (key is String)
-        {
-          key = key.toLowerCase();
-          for each (item in game.world.bankinfo.items)
-          {
-            if (item.sName.toLowerCase() === key)
-              return item;
+      var items:Array = game.world.bankinfo.items;
+      if (items is Array) {
+        var ret:Object;
+        if (item is String) {
+          item = item.toLowerCase();
+          for each (ret in items) {
+            if (ret.sName.toLowerCase() === item)
+              return ret;
           }
         }
-        else if (key is int)
-        {
-          if (game.world.bankinfo.isItemInBank(key))
-            return game.world.bankinfo.getBankItem(key);
+        else if (item is int) {
+          for each (ret in items) {
+            if (ret.ItemID === item)
+              return ret;
+          }
         }
       }
 
       return null;
     }
 
-    public static function loadItems():void
-    {
-      game.world.sendBankLoadRequest(["*"]);
+    public static function contains(item:*, quantity:int = 1):Boolean {
+      var itemObj:Object = getItem(item);
+      if (!itemObj) {
+        return false;
+      }
+
+      return itemObj.iQty >= quantity;
     }
 
-    public static function contains(key:*, quantity:int):Boolean
-    {
-      if (!key)
-        return false;
+    public static function loadItems(force:Boolean = false):void {
+      if (loaded && !force) {
+        return;
+      }
 
-      if (quantity is int && quantity <= 0)
-        return false;
-
-      var item:Object = getItem(key);
-      if (!item)
-        return false;
-
-      if (!quantity)
-        return true;
-
-      return item.iQty >= quantity;
+      game.sfc.sendXtMessage("zm", "loadBank", ["All"], "str", game.world.curRoom);
+      loaded = true;
     }
 
-    public static function getSlots():int
-    {
+    public static function getSlots():int {
       return game.world.myAvatar.objData.iBankSlots;
     }
 
-    public static function getUsedSlots():int
-    {
+    public static function getUsedSlots():int {
       return game.world.myAvatar.iBankCount;
     }
 
-    public static function deposit(key:*):Boolean
-    {
+    public static function deposit(key:*):Boolean {
       var item:Object = Inventory.getItem(key);
-      if (!item)
-      {
+      if (!item) {
         return false;
       }
 
@@ -84,11 +73,9 @@ package vexed.game
       return true;
     }
 
-    public static function withdraw(key:*):Boolean
-    {
+    public static function withdraw(key:*):Boolean {
       var item:Object = getItem(key);
-      if (!item)
-      {
+      if (!item) {
         return false;
       }
 
@@ -96,17 +83,11 @@ package vexed.game
       return true;
     }
 
-    public static function swap(invKey:*, bankKey:*):Boolean
-    {
+    public static function swap(invKey:*, bankKey:*):Boolean {
       var invItem:Object = Inventory.getItem(invKey);
-      if (!invItem)
-      {
-        return false;
-      }
-
       var bankItem:Object = getItem(bankKey);
-      if (!bankItem)
-      {
+
+      if (!invItem || !bankItem) {
         return false;
       }
 
@@ -114,13 +95,13 @@ package vexed.game
       return true;
     }
 
-    public static function open():void
-    {
+    public static function open():void {
+      // first loads the bank items if not already loaded
+      // then toggles the bank window
       game.world.toggleBank();
     }
 
-    public static function isOpen():Boolean
-    {
+    public static function isOpen():Boolean {
       return game.ui.mcPopup.currentLabel === "Bank";
     }
   }

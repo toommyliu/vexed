@@ -1,15 +1,15 @@
 import { Command } from '../../command';
 
-export class CommandManaGreaterThan extends Command {
+export class CommandMpLessThan extends Command {
   public mana!: number;
 
   public override execute() {
-    if (this.bot.player.mp <= this.mana) {
+    if (this.bot.player.mp >= this.mana) {
       this.ctx.commandIndex++;
     }
   }
 
   public override toString() {
-    return `Mana is greater than: ${this.mana}`;
+    return `MP is less than: ${this.mana}`;
   }
 }

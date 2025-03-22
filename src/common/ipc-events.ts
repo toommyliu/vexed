@@ -1,4 +1,4 @@
-// adding an event should be documented in electron-better-ipc.d.ts
+// adding an event should be documented in ipc.ts
 export const IPC_EVENTS = {
   MSGBROKER: 'ipc-broker' as const,
   /**

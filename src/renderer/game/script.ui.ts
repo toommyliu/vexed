@@ -3,6 +3,7 @@ import { ipcRenderer } from '../../common/ipc';
 import { IPC_EVENTS } from '../../common/ipc-events';
 import { Bot } from './lib/Bot';
 import { addCheckbox } from './util/addCheckbox';
+import { startAutoAggro, stopAutoAggro } from './autoaggro';
 
 const bot = Bot.getInstance();
 
@@ -31,6 +32,10 @@ window.addEventListener('DOMContentLoaded', async () => {
   dropdowns.set('tools', document.querySelector('#tools-dropdowncontent')!);
   dropdowns.set('packets', document.querySelector('#packets-dropdowncontent')!);
   dropdowns.set('options', document.querySelector('#options-dropdowncontent')!);
+  dropdowns.set(
+    'autoaggro',
+    document.querySelector('#autoaggro-dropdowncontent')!,
+  );
 
   {
     const btn = document.querySelector(
@@ -172,6 +177,20 @@ window.addEventListener('DOMContentLoaded', async () => {
           windowId: WINDOW_IDS.PACKETS_SPAMMER,
         })
         .catch(() => {});
+    });
+  }
+
+  {
+    const btn = document.querySelector(
+      '#autoaggro-dropdowncontent > button:nth-child(1)',
+    ) as HTMLButtonElement;
+
+    addCheckbox(btn, (on) => {
+      if (on) {
+        startAutoAggro();
+      } else {
+        stopAutoAggro();
+      }
     });
   }
 

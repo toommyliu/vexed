@@ -10,7 +10,7 @@ export class CommandFactionRankGreaterThan extends Command {
       (faction) => faction.name.toLowerCase() === this.faction.toLowerCase(),
     );
 
-    if ((faction?.rank ?? -1) < this.rank) {
+    if ((faction?.rank ?? 0) < this.rank) {
       this.ctx.commandIndex++;
     }
   }

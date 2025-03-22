@@ -10,6 +10,6 @@ export class CommandQuestIsNotAvailable extends Command {
   }
 
   public override toString() {
-    return `If quest [${this.questId}] is not available`;
+    return `Quest is not available: ${this.questId}`;
   }
 }

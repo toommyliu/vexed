@@ -21,11 +21,16 @@ export class Drops {
    * The drop stack as shown to the client. The mapping is of the form `itemID -> count`.
    */
   public get stack(): Record<number, number> {
-    return Object.freeze(Object.fromEntries(this.drops.entries()));
+    const result: Record<number, number> = {};
+    for (const [key, value] of this.drops.entries()) {
+      result[key] = value;
+    }
+
+    return Object.freeze(result);
   }
 
   /**
-   * Retrieves item data using it's ID.
+   * Retrieves item data using its ID.
    *
    * @param itemId - The ID of the item.
    * @returns The item data if found, null otherwise.
@@ -36,7 +41,7 @@ export class Drops {
   }
 
   /**
-   * Retrieves item data using it's name (case-insensitive).
+   * Retrieves item data using its name (case-insensitive).
    *
    * @param itemName - The name of the item.
    * @returns The item data if found, null otherwise.
@@ -51,7 +56,7 @@ export class Drops {
   }
 
   /**
-   * Retrieves the name of an item using it's ID.
+   * Retrieves the name of an item using its ID.
    *
    * @param itemId - The ID of the item.
    * @returns The name of the item if found, null otherwise.
@@ -61,7 +66,7 @@ export class Drops {
   }
 
   /**
-   * Retrieves the ID of an item using it's name.
+   * Retrieves the ID of an item using its name.
    *
    * @param itemName - The name of the item.
    * @returns The ID of the item if found, null otherwise.

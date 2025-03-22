@@ -72,6 +72,9 @@
 .gameContainer {
   height: calc(100vh - var(--topnav-height) - 2px);
   position: relative;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.5s;
 }
 
 #swf {
@@ -112,7 +115,6 @@
   min-height: 32px;
   user-select: none;
 }
-
 .command-overlay.collapsed {
   resize: none;
   overflow: visible;
@@ -120,12 +122,10 @@
   width: auto !important;
   height: auto !important;
 }
-
 .command-overlay.dragging {
   cursor: grabbing;
   user-select: none;
 }
-
 .command-overlay-header {
   background-color: #2a2a2a;
   padding: 6px 10px;
@@ -137,12 +137,10 @@
   white-space: nowrap;
   font-size: 13px;
 }
-
 .command-overlay.collapsed .command-overlay-header {
   border-radius: 4px;
   border-bottom: none;
 }
-
 .command-list-container {
   color: white;
   padding: 8px;
@@ -151,7 +149,6 @@
   height: calc(100% - 30px);
   user-select: none;
 }
-
 .command-item {
   padding: 4px 8px;
   font-size: 13px;
@@ -161,11 +158,45 @@
   margin-bottom: 2px;
   border-radius: 2px;
 }
-
 .command-item.active {
   background-color: #0066cc;
 }
-
 .command-item.hover {
   background-color: #333;
+}
+
+.loader-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60%;
+  text-align: center;
+  z-index: 10;
+}
+#progressText {
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.progress-bar-container {
+  width: 100%;
+  border-radius: 5px;
+  border: 1px solid gray;
+}
+.progress-bar {
+  width: 0%;
+  height: 30px;
+  background-color: gray;
+  border-radius: 5px;
+  transition: width 0.3s;
+}
+.topnav-container {
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+.game-visible {
+  visibility: visible;
+  opacity: 1;
 }
