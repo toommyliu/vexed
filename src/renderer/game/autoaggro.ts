@@ -5,7 +5,7 @@ let on = false;
 let prevMap: string | null = null;
 
 const bot = Bot.getInstance();
-const monstersByCell = new Map<string, Set<string>>();
+const monstersByCell = new Map<string, Set<number>>();
 
 function groupMonstersByCell() {
   if (prevMap === bot.world.name) {
@@ -43,7 +43,7 @@ export function startAutoAggro() {
 
     groupMonstersByCell();
 
-    const monMapIdSet = new Set<string>();
+    const monMapIdSet = new Set<number>();
     for (const [cell, monsters] of monstersByCell) {
       for (const plyr of bot.world.playerNames) {
         try {

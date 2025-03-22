@@ -37,6 +37,8 @@ type Events = {
    * @param monster - The monster that has respawned.
    */
   monsterRespawn(monster: Monster): void;
+  packetFromClient(packet: string): void;
+  packetFromServer(packet: string): void;
   /**
    * OnExtensionResponse event.
    */

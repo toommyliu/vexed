@@ -24,6 +24,14 @@ const bot = Bot.getInstance();
 //   );
 // };
 
+window.packetFromClient = ([packet]: [string]) => {
+  bot.emit('packetFromClient', packet);
+};
+
+window.packetFromServer = ([packet]: [string]) => {
+  bot.emit('packetFromServer', packet);
+};
+
 window.pext = async ([packet]) => {
   const pkt = JSON.parse(packet);
   delete pkt.currentTarget;
