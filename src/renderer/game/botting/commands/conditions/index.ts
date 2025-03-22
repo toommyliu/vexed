@@ -390,6 +390,24 @@ export const conditionsCommands = {
     cmd.percentage = percentage;
     window.context.addCommand(cmd);
   },
+  any_player_hp_percentage_greater_than(percentage: number) {
+    if (!percentage || typeof percentage !== 'number') {
+      throw new ArgsError('percentage is required');
+    }
+
+    const cmd = new CommandPlayerHpPercentageGreaterThan();
+    cmd.percentage = percentage;
+    window.context.addCommand(cmd);
+  },
+  any_player_hp_percentage_less_than(percentage: number) {
+    if (!percentage || typeof percentage !== 'number') {
+      throw new ArgsError('percentage is required');
+    }
+
+    const cmd = new CommandPlayerHpPercentageLessThan();
+    cmd.percentage = percentage;
+    window.context.addCommand(cmd);
+  },
 
   player_count_greater_than(count: number) {
     if (!count || typeof count !== 'number') {
