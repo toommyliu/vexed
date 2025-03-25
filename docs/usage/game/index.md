@@ -4,7 +4,7 @@ outline: deep
 
 # Game Client
 
-The game client looks like the typical AQW client.
+The game client looks like the typical AQW third-party client.
 
 You can always open another game client window by clicking the tray icon and selecting **Open Game**.
 
@@ -93,3 +93,9 @@ Skips cutscenes when possible.
 ### Walk Speed
 
 The player's walk speed.
+
+## AutoAggro
+
+### Enabled
+
+If enabled, the player will automatically aggro/tag monsters if there is a player in that monster's cell.

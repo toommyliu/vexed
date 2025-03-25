@@ -38,10 +38,10 @@ Whether an item meets the quantity in the temp inventory.
 
 **Parameters:**
 
-| Name | Type | Description |
-|------|------|-------------|
-| `itemKey` | `string \| number` | The name or ID of the item. |
-| `quantity` | `number` | The quantity of the item. |
+| Name | Type | Optional | Default | Description |
+|------|------|----------|---------|-------------|
+| `itemKey` | `string \| number` |  |  | The name or ID of the item. |
+| `quantity` | `number` | ✓ | `1` | The quantity of the item. |
 
 **Returns:** `boolean`
 

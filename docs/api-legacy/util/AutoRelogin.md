@@ -4,9 +4,6 @@ outline: deep
 
 # AutoRelogin 
 
-Auto Relogins are automatically ran if the bot is running and there has been a selected server.
-There are no calls needed to enable auto-relogin besides starting the bot and selecting the server to connect to.
-
 ---
 
 ### Properties
@@ -21,9 +18,21 @@ The server name to connect to.
 
 Type: `number`
 
-The delay after a logout or a disconnect before attempting to login.
+The delay after which a login attempt is made.
 
-#### bot
+### Methods
 
-Type: `Bot`
+#### setCredentials
+
+Sets the credentials for auto-login.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `username` | `string` | The username to login with. |
+| `password` | `string` | The password to login with. |
+| `server` | `string` | The server name to connect to. |
+
+**Returns:** `void`
 

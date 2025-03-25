@@ -58,7 +58,7 @@ Type: `string`
 
 Type: `number`
 
-#### maxHP
+#### maxHp
 
 ​<Badge type="info">getter</Badge>The monster's max HP.
 

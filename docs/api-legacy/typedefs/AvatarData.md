@@ -10,7 +10,9 @@ type AvatarData = AvatarData
 
 | Name | Type | Description |
 |------|------|-------------|
+| `ID` | `number` |  |
 | `afk` | `boolean` |  |
+| `auras` | `Aura[]` |  |
 | `bResting` | `boolean` |  |
 | `entID` | `number` |  |
 | `entType` | `string` |  |
@@ -30,3 +32,5 @@ type AvatarData = AvatarData
 | `showHelm` | `boolean` |  |
 | `strFrame` | `string` |  |
 | `strPad` | `string` |  |
+| `strUsername` | `string` |  |
+| `uoName` | `string` |  |

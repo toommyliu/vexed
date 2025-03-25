@@ -215,20 +215,6 @@ export class Bot extends TypedEmitter<Events> {
   }
 
   /**
-   * Whether the bot is running.
-   */
-  public isRunning(): boolean {
-    return this.ac !== null && !this.ac.signal.aborted;
-  }
-
-  /**
-   * Used to keep track of the current AbortController signal.
-   */
-  public get signal(): AbortSignal | null {
-    return this.ac?.signal ?? null;
-  }
-
-  /**
    * Gets the singleton instance of the Bot class.
    */
   public static getInstance(): Bot {
@@ -236,5 +222,6 @@ export class Bot extends TypedEmitter<Events> {
     return Bot._instance;
   }
 }
+
 // @ts-expect-error debugging
 window.Bot = Bot;

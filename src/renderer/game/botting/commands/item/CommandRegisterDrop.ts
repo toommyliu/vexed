@@ -4,7 +4,7 @@ export class CommandRegisterDrop extends Command {
   public item!: string;
 
   public override execute() {
-    this.ctx.addItem(this.item);
+    this.ctx.registerDrop(this.item);
   }
 
   public override toString() {

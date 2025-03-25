@@ -1,9 +1,9 @@
 import { WINDOW_IDS } from '../../common/constants';
 import { ipcRenderer } from '../../common/ipc';
 import { IPC_EVENTS } from '../../common/ipc-events';
+import { startAutoAggro, stopAutoAggro } from './autoaggro';
 import { Bot } from './lib/Bot';
 import { addCheckbox } from './util/addCheckbox';
-import { startAutoAggro, stopAutoAggro } from './autoaggro';
 
 const bot = Bot.getInstance();
 

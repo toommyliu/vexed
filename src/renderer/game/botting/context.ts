@@ -26,6 +26,9 @@ export class Context extends TypedEmitter<Events> {
    */
   private readonly boosts: Set<string>;
 
+  /*
+   * Packet event handlers.
+   */
   private readonly _handlers: Map<
     string,
     (packet: Record<string, unknown>) => Promise<void> | void
@@ -33,7 +36,7 @@ export class Context extends TypedEmitter<Events> {
 
   private _commands: Command[];
 
-  private commandDelay: number;
+  private _commandDelay: number;
 
   private _commandIndex: number;
 
@@ -51,7 +54,7 @@ export class Context extends TypedEmitter<Events> {
     this._handlers = new Map();
 
     this._commands = [];
-    this.commandDelay = 1_000;
+    this._commandDelay = 1_000;
     this._commandIndex = 0;
 
     this._on = false;
@@ -101,36 +104,69 @@ export class Context extends TypedEmitter<Events> {
     });
   }
 
+  /**
+   * Getter for the current command index.
+   */
   public get commandIndex() {
     return this._commandIndex;
   }
 
+  /**
+   * Setter for the current command index.
+   */
   public set commandIndex(index: number) {
     this._commandIndex = index;
   }
 
+  /**
+   * The list of commands to execute.
+   */
   public get commands() {
     return this._commands;
   }
 
+  /**
+   * Get the command at the given index.
+   *
+   * @param index - The index of the command.
+   * @returns The command at the given index.
+   */
   public getCommand(index: number) {
     return this._commands[index];
   }
 
-  public setCommandDelay(delay: number) {
-    this.commandDelay = delay;
-  }
-
+  /**
+   * Adds a command to the queue.
+   *
+   * @param command - The command to add.
+   */
   public addCommand(command: Command) {
     this._commands.push(command);
   }
 
+  /**
+   * Sets the list of commands to execute.
+   *
+   * @param commands - The list of commands to set.
+   */
+  public setCommands(commands: Command[]) {
+    this._commands = commands;
+  }
+
+  /**
+   * Whether the command queue is empty.
+   */
   public isCommandQueueEmpty() {
     return this._commands.length === 0;
   }
 
-  public setCommands(commands: Command[]) {
-    this._commands = commands;
+  /**
+   * Sets the delay between commands.
+   *
+   * @param delay - The delay between commands.
+   */
+  public setCommandDelay(delay: number) {
+    this._commandDelay = delay;
   }
 
   /**
@@ -156,7 +192,7 @@ export class Context extends TypedEmitter<Events> {
    *
    * @param item - The item name
    */
-  public addItem(item: string) {
+  public registerDrop(item: string) {
     this.items.add(item);
   }
 
@@ -174,8 +210,6 @@ export class Context extends TypedEmitter<Events> {
    * @remarks
    */
   public registerBoost(name: string) {
-    if (!this.bot.inventory.contains(name)) return;
-
     this.boosts.add(name);
   }
 
@@ -316,14 +350,14 @@ export class Context extends TypedEmitter<Events> {
 
         if (!this.isRunning()) break;
 
-        await this.bot.sleep(this.commandDelay);
+        await this.bot.sleep(this._commandDelay);
 
         if (!this.isRunning()) break;
-      } finally {
-        // this.queue.shift();
-      }
 
-      if (this.isRunning()) this._commandIndex++;
+        if (this.isRunning()) this._commandIndex++;
+      } catch (error) {
+        logger.error('Error executing a command', error);
+      }
     }
 
     this._stop();

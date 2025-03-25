@@ -46,6 +46,16 @@ Casts a skill.
 
 **Returns:** `Promise<void>`
 
+#### canUseSkill
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `index` | `string \| number` |  |
+
+**Returns:** `boolean`
+
 #### attack
 
 Attacks a monster.
@@ -92,8 +102,8 @@ Kills the monster until the quantity of the item is met in the inventory.
 | Name | Type | Optional | Default | Description |
 |------|------|----------|---------|-------------|
 | `monsterResolvable` | `string` |  |  | The name or monMapID of the monster. |
-| `itemName` | `string` |  |  | The name or ID of the item. |
-| `targetQty` | `number` |  |  | The quantity of the item. |
+| `item` | `string \| number` |  |  | The name or ID of the item. |
+| `quantity` | `number` |  |  | The quantity of the item. |
 | `options` | `Partial<KillOptions>` | ✓ | `{}` | The configuration to use for the kill. |
 
 **Returns:** `Promise<void>`
@@ -107,8 +117,8 @@ Kills the monster until the quantity of the item is met in the temp inventory.
 | Name | Type | Optional | Default | Description |
 |------|------|----------|---------|-------------|
 | `monsterResolvable` | `string` |  |  | The name or monMapID of the monster. |
-| `itemName` | `string` |  |  | The name or ID of the item. |
-| `targetQty` | `number` |  |  | The quantity of the item. |
+| `item` | `string \| number` |  |  | The name or ID of the item. |
+| `quantity` | `number` |  |  | The quantity of the item. |
 | `options` | `Partial<KillOptions>` | ✓ | `{}` | The configuration to use for the kill. |
 
 **Returns:** `Promise<void>`
@@ -129,12 +139,6 @@ Rests the player.
 #### exit
 
 Exit from combat state.
-
-**Parameters:**
-
-| Name | Type | Optional | Default | Description |
-|------|------|----------|---------|-------------|
-| `ensure` | `boolean \| undefined` | ✓ |  | Whether to look for safe areas if current cell is unsafe. |
 
 **Returns:** `Promise<void>`
 

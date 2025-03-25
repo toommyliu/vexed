@@ -108,6 +108,36 @@ Whether the item belongs to the temp inventory.
 
 **Returns:** `boolean`
 
+#### isArmor
+
+Whether the item is type Armor.
+
+**Returns:** `boolean`
+
+#### isCape
+
+Whether the item is type Cape.
+
+**Returns:** `boolean`
+
+#### isHelm
+
+Whether the item is type Helm.
+
+**Returns:** `boolean`
+
+#### isPet
+
+Whether the item is type Pet.
+
+**Returns:** `boolean`
+
+#### isWeapon
+
+Whether the item is type Weapon.
+
+**Returns:** `boolean`
+
 #### isMaxed
 
 Whether the item is at its maximum stack size.

@@ -1,95 +1,88 @@
 # item commands
 
-> [!NOTE]
->
-> `item` params that are type `number | string` can be either item name or item id
+## cmd.buy_item
 
-## add_drop
-
-Adds an item to background drop list, which automatically picks up the item when it drops.
-
-```
-cmd.add_drop(item: string)
-```
-
-> [!NOTE]
->
-> Drops should be registered as soon as possible.
-
-## remove_drop
-
-Removes an item from background drop list.
-
-```
-cmd.remove_drop(item: string)
-```
-
-## buy_item
-
-```
+```ts
 cmd.buy_item(shopId: number, item: number | string, quantity: number)
 ```
 
-## deposit
+## cmd.deposit
 
-```
+```ts
 cmd.deposit(item: number | string)
 ```
 
-## get_map_item
+## cmd.get_map_item
 
-```
+```ts
 cmd.get_map_item(item: number | string)
 ```
 
-## pickup
+## cmd.pickup
 
-```
+```ts
 cmd.pickup(item: number | string)
 ```
 
-## reject
+## cmd.reject
 
-```
+```ts
 cmd.reject(item: number | string)
 ```
 
-## sell_item
+## cmd.sell_item
 
-```
+```ts
 cmd.sell_item(item: string)
 ```
 
-## swap
+## cmd.swap
 
-```
+```ts
 cmd.swap(bankItem: number | string, invItem: number | string)
 ```
 
-## withdraw
+## cmd.withdraw
 
-```
+```ts
 cmd.withdraw(item: number | string)
 ```
 
-## add_boost
+## cmd.register_drop
 
-```
-cmd.add_boost(boost: string)
-```
-
-> [!NOTE]
->
-> `boost` should be the full name. For example `Daily Login XP Boost! (20 min)`
->
-> Boosts should be registered as soon as possible.
-
-## remove_boost
-
-```
-cmd.remove_boost(boost: string)
+```ts
+cmd.register_drop(item: string)
 ```
 
 > [!NOTE]
 >
-> `boost` should be the full name. For example `Daily Login XP Boost! (20 min)`
+> drops should be registered as soon as possible and must be the full name of the drop.
+
+## cmd.unregister_drop
+
+```ts
+cmd.unregister_drop(item: string)
+```
+
+## cmd.register_boost
+
+```ts
+cmd.register_boost(item: string)
+```
+
+> [!NOTE]
+>
+> Boosts should be registered as soon as possible and must be the full name of the boost.
+
+## cmd.unregister_boost
+
+```ts
+cmd.unregister_boost(item: string)
+```
+
+> [!NOTE]
+>
+> boost should be the full name of the boost.
+
+---
+

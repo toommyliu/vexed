@@ -1,413 +1,406 @@
 # conditions commands
 
-Conditions check if some condition is not satisifed.
-If so, the command preceding the condition is ran, otherwise it will skip past the next command.
+## cmd.in_cell
 
-For example:
-
-```
-cmd.is_equipped('Radiant Goddess Of War')
-cmd.goto_label('is equipped') // go to this label if item is equipped
-cmd.goto_label('is not equipped') // goto this label if item is not equipped
-cmd.label('is equipped')
-cmd.log('Radiant Goddess Of War is equipped')
-cmd.goto_label('end')
-cmd.label('is not equipped')
-cmd.log('Radiant Goddess Of War is not equipped')
-cmd.label('end')
-cmd.stop()
+```ts
+cmd.in_cell(cell: string)
 ```
 
-## is_cell
+## cmd.not_in_cell
 
-```
-cmd.is_cell(cell: string)
-```
-
-GitHub Copilot: Below is a markdown summary of each command with its usage signature:
-
-## is_cell
-
-```
-cmd.is_cell(cell: string)
+```ts
+cmd.not_in_cell(cell: string)
 ```
 
-## is_not_cell
+## cmd.equipped
 
-```
-cmd.is_not_cell(cell: string)
-```
-
-## is_equipped
-
-```
-cmd.is_equipped(item: string)
+```ts
+cmd.equipped(item: string)
 ```
 
-## is_faction_rank_greater_than
+## cmd.not_equipped
 
-```
-cmd.is_faction_rank_greater_than(faction: string, rank: number)
-```
-
-## is_faction_rank_less_than
-
-```
-cmd.is_faction_rank_less_than(faction: string, rank: number)
+```ts
+cmd.not_equipped(item: string)
 ```
 
-## is_gold_greater_than
+## cmd.faction_rank_greater_than
 
-```
-cmd.is_gold_greater_than(gold: number)
-```
-
-## is_gold_less_than
-
-```
-cmd.is_gold_less_than(gold: number)
+```ts
+cmd.faction_rank_greater_than(faction: string, rank: number)
 ```
 
-## has_target
+## cmd.faction_rank_less_than
 
+```ts
+cmd.faction_rank_less_than(faction: string, rank: number)
 ```
+
+## cmd.gold_greater_than
+
+```ts
+cmd.gold_greater_than(gold: number)
+```
+
+## cmd.gold_less_than
+
+```ts
+cmd.gold_less_than(gold: number)
+```
+
+## cmd.has_target
+
+```ts
 cmd.has_target()
 ```
 
-## not_has_target
+## cmd.has_no_target
 
+```ts
+cmd.has_no_target()
 ```
-cmd.not_has_target()
-```
-
-## is_health_greater_than
-
-```
-cmd.is_health_greater_than(hp: number)
-```
-
-## is_health_less_than
-
-```
-cmd.is_health_less_than(hp: number)
-```
-
-## is_in_inventory
-
-```
-cmd.is_in_inventory(item: string, quantity?: number)
-```
-
-> [!NOTE]
->
-> quantity defaults to 1 if not provided.
-
-## is_not_in_inventory
-
-```
-cmd.is_not_in_inventory(item: string, quantity?: number)
-```
-
-> [!NOTE]
->
-> quantity defaults to 1 if not provided.
-
-## is_in_tempinventory
-
-```
-cmd.is_in_tempinventory(item: string, quantity?: number)
-```
-
-> [!NOTE]
->
-> quantity defaults to 1 if not provided.
-
-## is_not_in_tempinventory
-
-```
-cmd.is_not_in_tempinventory(item: string, quantity?: number)
-```
-
-> [!NOTE]
->
-> quantity defaults to 1 if not provided.
-
-## is_in_bank
-
-```
-cmd.is_in_bank(item: string, quantity?: number)
-```
-
-> [!NOTE]
->
-> quantity defaults to 1 if not provided.
-
-## is_not_in_bank
-
-```
-cmd.is_not_in_bank(item: string, quantity?: number)
-```
-
-> [!NOTE]
->
-> quantity defaults to 1 if not provided.
-
-## is_in_combat
-
-```
-cmd.is_in_combat()
-```
-
-## is_not_in_combat
-
-```
-cmd.is_not_in_combat()
-```
-
-## is_in_house
-
-```
-cmd.is_in_house(item: string, quantity?: number)
-```
-
-## is_not_in_house
 
-```
-cmd.is_not_in_house(item: string, quantity?: number)
-```
-
-## is_not_equipped
-
-```
-cmd.is_not_equipped(item: string)
-```
-
-## player_auras_greater_than
-
-```
-cmd.player_auras_greater_than(aura: string, value: number)
-```
-
-## player_auras_less_than
-
-```
-cmd.player_auras_less_than(aura: string, value: number)
-```
-
-## player_aura_equals
-
-```
-cmd.player_aura_equals(aura: string, value: number)
-```
-
-## player_count_greater_than
-
-```
-cmd.player_count_greater_than(count: number)
-```
-
-## player_count_less_than
-
-```
-cmd.player_count_less_than(count: number)
-```
+## cmd.hp_greater_than
 
-## is_player_in_map
-
-```
-cmd.is_player_in_map(map: string)
-```
-
-## is_player_in_cell
-
-```
-cmd.is_player_in_cell(cell: string)
+```ts
+cmd.hp_greater_than(hp: number)
 ```
 
-## is_player_not_in_map
+## cmd.hp_less_than
 
+```ts
+cmd.hp_less_than(hp: number)
 ```
-cmd.is_player_not_in_map(name: string)
-```
-
-## is_player_not_in_cell
-
-```
-cmd.is_player_not_in_cell(cell: string)
-```
 
-## can_complete_quest
+## cmd.hp_percentage_greater_than
 
+```ts
+cmd.hp_percentage_greater_than(percentage: number)
 ```
-cmd.can_complete_quest(questId: number)
-```
 
-## cannot_complete_quest
+## cmd.hp_percentage_less_than
 
-```
-cmd.cannot_complete_quest(questId: number)
+```ts
+cmd.hp_percentage_less_than(percentage: number)
 ```
 
-## is_quest_in_progress
+## cmd.in_inventory
 
+```ts
+cmd.in_inventory(item: string, quantity?: number)
 ```
-cmd.is_quest_in_progress(questId: number)
-```
 
-## is_quest_available
+## cmd.not_in_inventory
 
+```ts
+cmd.not_in_inventory(item: string, quantity?: number)
 ```
-cmd.is_quest_available(questId: number)
-```
 
-## is_quest_not_available
+## cmd.in_tempinventory
 
-```
-cmd.is_quest_not_available(questId: number)
+```ts
+cmd.in_tempinventory(item: string, quantity?: number)
 ```
 
-## is_quest_not_in_progress
+## cmd.not_in_tempinventory
 
+```ts
+cmd.not_in_tempinventory(item: string, quantity?: number)
 ```
-cmd.is_quest_not_in_progress(questId: number)
-```
 
-## target_health_greater_than
+## cmd.in_bank
 
+```ts
+cmd.in_bank(item: string, quantity?: number)
 ```
-cmd.target_health_greater_than(hp: number)
-```
 
-## target_health_less_than
+## cmd.not_in_bank
 
-```
-cmd.target_health_less_than(hp: number)
+```ts
+cmd.not_in_bank(item: string, quantity?: number)
 ```
 
-## is_maxed
+## cmd.in_combat
 
+```ts
+cmd.in_combat()
 ```
-cmd.is_maxed(item: string)
-```
 
-## is_not_maxed
+## cmd.not_in_combat
 
+```ts
+cmd.not_in_combat()
 ```
-cmd.is_not_maxed(item: string)
-```
 
-## cell_player_count_greater_than
+## cmd.in_house
 
-```
-cmd.cell_player_count_greater_than(count: number, cell?: string)
+```ts
+cmd.in_house(item: string, quantity?: number)
 ```
 
-> [!NOTE]
->
-> If no cell is provided, it will default to the player's current cell.
+## cmd.not_in_house
 
-## cell_player_count_less_than
-
-```
-cmd.cell_player_count_less_than(count: number, cell?: string)
+```ts
+cmd.not_in_house(item: string, quantity?: number)
 ```
 
-> [!NOTE]
->
-> If no cell is provided, it will default to the player's current cell.
+## cmd.is_member
 
-## is_member
-
-```
+```ts
 cmd.is_member()
 ```
 
-## is_not_member
+## cmd.is_not_member
 
-```
+```ts
 cmd.is_not_member()
 ```
 
-## item_has_dropped
+## cmd.player_aura_greater_than
 
+```ts
+cmd.player_aura_greater_than(player: string, aura: string, value: number)
 ```
+
+## cmd.player_aura_less_than
+
+```ts
+cmd.player_aura_less_than(player: string, aura: string, value: number)
+```
+
+## cmd.player_hp_greater_than
+
+```ts
+cmd.player_hp_greater_than(player: string, hp: number)
+```
+
+## cmd.player_hp_less_than
+
+```ts
+cmd.player_hp_less_than(player: string, hp: number)
+```
+
+## cmd.player_hp_percentage_greater_than
+
+```ts
+cmd.player_hp_percentage_greater_than(player: string, percentage: number)
+```
+
+## cmd.player_hp_percentage_less_than
+
+```ts
+cmd.player_hp_percentage_less_than(player: string, percentage: number)
+```
+
+## cmd.any_player_hp_percentage_greater_than
+
+```ts
+cmd.any_player_hp_percentage_greater_than(percentage: number)
+```
+
+## cmd.any_player_hp_percentage_less_than
+
+```ts
+cmd.any_player_hp_percentage_less_than(percentage: number)
+```
+
+## cmd.player_count_greater_than
+
+```ts
+cmd.player_count_greater_than(count: number)
+```
+
+## cmd.player_count_less_than
+
+```ts
+cmd.player_count_less_than(count: number)
+```
+
+## cmd.player_in_map
+
+```ts
+cmd.player_in_map(map: string)
+```
+
+## cmd.player_in_cell
+
+```ts
+cmd.player_in_cell(cell: string)
+```
+
+## cmd.player_not_in_map
+
+```ts
+cmd.player_not_in_map(player: string)
+```
+
+## cmd.player_not_in_cell
+
+```ts
+cmd.player_not_in_cell(player: string, cell: string)
+```
+
+## cmd.player_name_equals
+
+```ts
+cmd.player_name_equals(player: string)
+```
+
+## cmd.can_complete_quest
+
+```ts
+cmd.can_complete_quest(questId: number)
+```
+
+## cmd.cannot_complete_quest
+
+```ts
+cmd.cannot_complete_quest(questId: number)
+```
+
+## cmd.quest_in_progress
+
+```ts
+cmd.quest_in_progress(questId: number)
+```
+
+## cmd.quest_not_in_progress
+
+```ts
+cmd.quest_not_in_progress(questId: number)
+```
+
+## cmd.quest_is_available
+
+```ts
+cmd.quest_is_available(questId: number)
+```
+
+## cmd.quest_not_available
+
+```ts
+cmd.quest_not_available(questId: number)
+```
+
+## cmd.target_hp_greater_than
+
+```ts
+cmd.target_hp_greater_than(hp: number)
+```
+
+## cmd.target_hp_less_than
+
+```ts
+cmd.target_hp_less_than(hp: number)
+```
+
+## cmd.target_hp_between
+
+```ts
+cmd.target_hp_between(monster: string, min: number, max: number)
+```
+
+## cmd.maxed
+
+```ts
+cmd.maxed(item: string)
+```
+
+## cmd.not_maxed
+
+```ts
+cmd.not_maxed(item: string)
+```
+
+## cmd.cell_player_count_greater_than
+
+```ts
+cmd.cell_player_count_greater_than(count: number, cell?: string)
+```
+
+## cmd.cell_player_count_less_than
+
+```ts
+cmd.cell_player_count_less_than(count: number, cell?: string)
+```
+
+## cmd.item_has_dropped
+
+```ts
 cmd.item_has_dropped(item: string)
 ```
 
-## item_has_not_dropped
+## cmd.item_has_not_dropped
 
-```
+```ts
 cmd.item_has_not_dropped(item: string)
 ```
 
-## is_level
+## cmd.level_is
 
-```
-cmd.is_level(level: number)
-```
-
-## is_level_greater_than
-
-```
-cmd.is_level_greater_than(level: number)
+```ts
+cmd.level_is(level: number)
 ```
 
-## is_level_less_than
+## cmd.level_greater_than
 
-```
-cmd.is_level_less_than(level: number)
-```
-
-## is_mana_greater_than
-
-```
-cmd.is_mana_greater_than(mana: number)
+```ts
+cmd.level_greater_than(level: number)
 ```
 
-## is_mana_less_than
+## cmd.level_less_than
 
-```
-cmd.is_mana_less_than(mana: number)
-```
-
-## is_map
-
-```
-cmd.is_map(map: string)
+```ts
+cmd.level_less_than(level: number)
 ```
 
-## is_map_not
+## cmd.mp_greater_than
 
-```
-cmd.is_map_not(map: string)
-```
-
-## is_monster_health_greater_than
-
-```
-cmd.is_monster_health_greater_than(monster: string, hp: number)
+```ts
+cmd.mp_greater_than(mana: number)
 ```
 
-## is_monster_health_less_than
+## cmd.mp_less_than
 
-```
-cmd.is_monster_health_less_than(monster: string, hp: number)
-```
-
-## is_monster_in_room
-
-```
-cmd.is_monster_in_room(monster: string)
+```ts
+cmd.mp_less_than(mana: number)
 ```
 
-## is_monster_not_in_room
+## cmd.in_map
 
-```
-cmd.is_monster_not_in_room(monster: string)
+```ts
+cmd.in_map(map: string)
 ```
 
-## is_player_name
+## cmd.not_in_map
 
+```ts
+cmd.not_in_map(map: string)
 ```
-cmd.is_player_name(name: string)
+
+## cmd.monster_hp_greater_than
+
+```ts
+cmd.monster_hp_greater_than(monster: string, hp: number)
 ```
+
+## cmd.monster_hp_less_than
+
+```ts
+cmd.monster_hp_less_than(monster: string, hp: number)
+```
+
+## cmd.monster_in_room
+
+```ts
+cmd.monster_in_room(monster: string)
+```
+
+## cmd.monster_not_in_room
+
+```ts
+cmd.monster_not_in_room(monster: string)
+```
+
+---
+

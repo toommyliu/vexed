@@ -5,7 +5,7 @@ import { CommandSetSpawnpoint } from './CommandSetSpawnpoint';
 import { CommandWalkTo } from './CommandWalkTo';
 
 export const mapCommands = {
-  join(map: string, cell = 'Enter', pad = 'Spawn') {
+  join(map: string, cell: string = 'Enter', pad: string = 'Spawn') {
     if (!map || typeof map !== 'string') {
       throw new ArgsError('map is required');
     }
@@ -16,7 +16,7 @@ export const mapCommands = {
     cmd.pad = pad;
     window.context.addCommand(cmd);
   },
-  move_to_cell(cell: string, pad = 'Spawn') {
+  move_to_cell(cell: string, pad: string = 'Spawn') {
     if (!cell || typeof cell !== 'string') {
       throw new ArgsError('cell is required');
     }
