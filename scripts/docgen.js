@@ -275,7 +275,7 @@ function generateMarkdown(inputPath, outputPath) {
   for (const fn of fileFunctions) {
     markdown += `## cmd.${fn.name}\n\n`;
 
-    markdown += `\`\`\`ts\n`;
+    markdown += '```ts\n';
     markdown += `cmd.${fn.name}(`;
 
     // Make params string
@@ -291,8 +291,8 @@ function generateMarkdown(inputPath, outputPath) {
       }
     }
 
-    markdown += `)\n`;
-    markdown += `\`\`\`\n\n`;
+    markdown += ')\n';
+    markdown += '```\n\n';
 
     if (fn.description) {
       markdown += `${fn.description}\n\n`;
@@ -300,7 +300,7 @@ function generateMarkdown(inputPath, outputPath) {
   }
 
   fs.writeFileSync(outputPath, markdown);
-  console.log(`Documentation saved to ${outputPath}`);
+  console.log(`Generated ${folderName}.md`);
 }
 
 async function generateDocs() {
