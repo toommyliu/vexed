@@ -4,6 +4,16 @@ const path = require('path');
 
 const typeDefinitions = [];
 
+const excludedTypedefs = [
+  'ConditionalReturn',
+  'Events',
+  'func',
+  'IIntervalPromiseOptions',
+  'intervalLength',
+  'intervalLengthFn',
+  'stop',
+];
+
 /**
  * Formats a type string for markdown.
  * @param {string} type The type to create a link for.
@@ -241,37 +251,63 @@ function generateDocs(fileNames, options) {
   function serializeTypeDefinition(node) {
     const symbol = checker.getSymbolAtLocation(node.name);
     const type = checker.getTypeAtLocation(node);
-    let fields = [];
+
+    if (type.isIntersection()) {
+      const baseTypes = type.types.map((t) => checker.typeToString(t));
+
+      const additionalProperties = type.getProperties().map((prop) => ({
+        name: prop.getName(),
+        type: checker.typeToString(
+          checker.getTypeOfSymbolAtLocation(prop, prop.valueDeclaration),
+        ),
+        documentation: getJsDocContent(prop, checker),
+        optional: Boolean(prop.getFlags() & ts.SymbolFlags.Optional),
+      }));
+
+      return {
+        name: node.name.text,
+        documentation: getJsDocContent(symbol, checker),
+        baseTypes,
+        fields: additionalProperties,
+        type: checker.typeToString(type),
+      };
+    }
+
+    if (type.isUnion()) {
+      return {
+        name: node.name.text,
+        documentation: getJsDocContent(symbol, checker),
+        type: checker.typeToString(type),
+        fields: [],
+      };
+    }
 
     if ((type.flags & ts.TypeFlags.Object) !== 0) {
-      if (type.isUnion()) {
-        return {
-          name: node.name.text,
-          documentation: getJsDocContent(symbol, checker),
-          type: checker.typeToString(type),
-          fields: [],
-        };
-      }
-
       const properties = type.getProperties();
-      if (properties) {
-        properties.forEach((prop) => {
-          fields.push({
+      const fields = properties
+        ? properties.map((prop) => ({
             name: prop.getName(),
             type: checker.typeToString(
               checker.getTypeOfSymbolAtLocation(prop, prop.valueDeclaration),
             ),
             documentation: getJsDocContent(prop, checker),
-          });
-        });
-      }
+            optional: prop.getFlags() & ts.SymbolFlags.Optional ? true : false,
+          }))
+        : [];
+
+      return {
+        name: node.name.text,
+        documentation: getJsDocContent(symbol, checker),
+        type: checker.typeToString(type),
+        fields,
+      };
     }
 
     return {
       name: node.name.text,
       documentation: getJsDocContent(symbol, checker),
       type: checker.typeToString(type),
-      fields,
+      fields: [],
     };
   }
 
@@ -514,6 +550,8 @@ function generateMarkdown(documentation, typeDefinitions) {
   });
 
   typeDefinitions.forEach((typedef) => {
+    if (excludedTypedefs.includes(typedef.name)) return;
+
     let content = `# ${typedef.name}\n\n${typedef.documentation}\n\n`;
 
     content += '```typescript\n';
