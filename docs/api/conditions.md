@@ -87,37 +87,37 @@ cmd.hp_percentage_less_than(percentage: number)
 ## cmd.in_inventory
 
 ```ts
-cmd.in_inventory(item: string, quantity?: number)
+cmd.in_inventory(item: string, quantity: number)
 ```
 
 ## cmd.not_in_inventory
 
 ```ts
-cmd.not_in_inventory(item: string, quantity?: number)
+cmd.not_in_inventory(item: string, quantity: number)
 ```
 
 ## cmd.in_tempinventory
 
 ```ts
-cmd.in_tempinventory(item: string, quantity?: number)
+cmd.in_tempinventory(item: string, quantity: number)
 ```
 
 ## cmd.not_in_tempinventory
 
 ```ts
-cmd.not_in_tempinventory(item: string, quantity?: number)
+cmd.not_in_tempinventory(item: string, quantity: number)
 ```
 
 ## cmd.in_bank
 
 ```ts
-cmd.in_bank(item: string, quantity?: number)
+cmd.in_bank(item: string, quantity: number)
 ```
 
 ## cmd.not_in_bank
 
 ```ts
-cmd.not_in_bank(item: string, quantity?: number)
+cmd.not_in_bank(item: string, quantity: number)
 ```
 
 ## cmd.in_combat
@@ -135,13 +135,13 @@ cmd.not_in_combat()
 ## cmd.in_house
 
 ```ts
-cmd.in_house(item: string, quantity?: number)
+cmd.in_house(item: string, quantity: number)
 ```
 
 ## cmd.not_in_house
 
 ```ts
-cmd.not_in_house(item: string, quantity?: number)
+cmd.not_in_house(item: string, quantity: number)
 ```
 
 ## cmd.is_member
@@ -315,13 +315,13 @@ cmd.not_maxed(item: string)
 ## cmd.cell_player_count_greater_than
 
 ```ts
-cmd.cell_player_count_greater_than(count: number, cell?: string)
+cmd.cell_player_count_greater_than(count: number, cell: string)
 ```
 
 ## cmd.cell_player_count_less_than
 
 ```ts
-cmd.cell_player_count_less_than(count: number, cell?: string)
+cmd.cell_player_count_less_than(count: number, cell: string)
 ```
 
 ## cmd.item_has_dropped
@@ -401,6 +401,4 @@ cmd.monster_in_room(monster: string)
 ```ts
 cmd.monster_not_in_room(monster: string)
 ```
-
----
 

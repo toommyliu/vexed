@@ -55,8 +55,8 @@ cmd.register_drop(item: string)
 ```
 
 > [!NOTE]
->
 > drops should be registered as soon as possible and must be the full name of the drop.
+
 
 ## cmd.unregister_drop
 
@@ -71,8 +71,8 @@ cmd.register_boost(item: string)
 ```
 
 > [!NOTE]
->
 > Boosts should be registered as soon as possible and must be the full name of the boost.
+
 
 ## cmd.unregister_boost
 
@@ -81,8 +81,6 @@ cmd.unregister_boost(item: string)
 ```
 
 > [!NOTE]
->
-> boost should be the full name of the boost.
+> Boosts should be registered as soon as possible and must be the full name of the boost.
 
----
 
