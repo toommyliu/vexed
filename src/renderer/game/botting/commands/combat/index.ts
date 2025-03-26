@@ -24,21 +24,21 @@ export const combatCommands = {
   exit_combat() {
     window.context.addCommand(new CommandExitCombat());
   },
-  kill(target: string, options: Partial<KillOptions>) {
+  kill(target: string, options?: Partial<KillOptions>) {
     if (!target || typeof target !== 'string') {
       throw new ArgsError('target is required');
     }
 
     const cmd = new CommandKill();
     cmd.target = target;
-    cmd.options = options;
+    if (options) cmd.options = options;
     window.context.addCommand(cmd);
   },
   kill_for_item(
     target: string,
     item: number | string,
     quantity: number,
-    options: Partial<KillOptions>,
+    options?: Partial<KillOptions>,
   ) {
     if (!target || typeof target !== 'string') {
       throw new ArgsError('target is required');
@@ -56,14 +56,14 @@ export const combatCommands = {
     cmd.target = target;
     cmd.item = item;
     cmd.quantity = quantity;
-    cmd.options = options;
+    if (options) cmd.options = options;
     window.context.addCommand(cmd);
   },
   kill_for_temp_item(
     target: string,
     item: number | string,
     quantity: number,
-    options: Partial<KillOptions>,
+    options?: Partial<KillOptions>,
   ) {
     if (!target || typeof target !== 'string') {
       throw new ArgsError('target is required');
@@ -82,7 +82,7 @@ export const combatCommands = {
     cmd.item = item;
     cmd.quantity = quantity;
     cmd.isTemp = true;
-    cmd.options = options;
+    if (options) cmd.options = options;
     window.context.addCommand(cmd);
   },
   rest(full: boolean = false) {
