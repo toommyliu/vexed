@@ -298,6 +298,9 @@ function generateMarkdown(inputPath, outputPath) {
       markdown += `${fn.description}\n\n`;
     }
   }
+  if (process.argv.includes('--clean')) {
+    fs.rmSync(outputPath, { force: true });
+  }
 
   fs.writeFileSync(outputPath, markdown);
   console.log(`Generated ${folderName}.md`);
