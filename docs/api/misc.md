@@ -196,5 +196,9 @@ cmd.disable_anticounter()
 cmd.goto_house(player?: string)
 ```
 
+> [!NOTE]
+> If no player is provided, it will go to your house.
+
+
 ---
 

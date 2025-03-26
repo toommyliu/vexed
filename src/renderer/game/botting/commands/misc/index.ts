@@ -16,7 +16,7 @@ import { CommandSettingLagKiller } from './CommandSettingLagKiller';
 import { CommandSettingProvokeCell } from './CommandSettingProvokeCell';
 import { CommandSettingProvokeMap } from './CommandSettingProvokeMap';
 import { CommandSettingSkipCutscenes } from './CommandSettingSkipCutscenes';
-import { CommandStop } from './CommandStop';
+import { CommandStopBot } from './CommandStopBot';
 import { CommandWaitForPlayerCount } from './CommandWaitForPlayerCount';
 import { CommandWalkSpeed } from './CommandWalkSpeed';
 
@@ -175,8 +175,8 @@ export const miscCommands = {
     cmd.speed = Math.trunc(speed);
     window.context.addCommand(cmd);
   },
-  stop() {
-    window.context.addCommand(new CommandStop());
+  stop_bot() {
+    window.context.addCommand(new CommandStopBot());
   },
   wait_for_player_count(count: number) {
     if (typeof count !== 'number' || count < 0) {

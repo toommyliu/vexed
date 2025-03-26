@@ -1,6 +1,6 @@
 import { Command } from '../../command';
 
-export class CommandStop extends Command {
+export class CommandStopBot extends Command {
   public override async execute() {
     await this.ctx.stop();
   }
