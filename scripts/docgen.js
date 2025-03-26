@@ -37,7 +37,7 @@ const typeReplacements = {
  */
 const descriptions = {
   files: {
-    './src/renderer/game/botting/commands/combat/index.ts': makeNoteAlert([
+    'combat/index.ts': makeNoteAlert([
       '- `target` refers to monster name or in the format "id:monMapId" (where `:` can be replaced with any of these delimiters: `\'` `.` `-` )',
       '   - Example formats: `id.1` (left orb) | `id:3` (right orb)',
       '- `item` can be name or id',
@@ -86,18 +86,6 @@ const descriptions = {
  * @returns {string | undefined} The description for the file, if any.
  */
 function getFileDescription(filePath) {
-  // Try exact match first
-  if (descriptions.files[filePath]) {
-    return descriptions.files[filePath];
-  }
-
-  // Try partial matching
-  const fileName = path.basename(filePath);
-  if (descriptions.files[fileName]) {
-    return descriptions.files[fileName];
-  }
-
-  // Find any partial matches in the file path
   for (const key of Object.keys(descriptions.files)) {
     if (filePath.includes(key)) {
       return descriptions.files[key];
@@ -298,6 +286,7 @@ function generateMarkdown(inputPath, outputPath) {
       markdown += `${fn.description}\n\n`;
     }
   }
+
   if (process.argv.includes('--clean')) {
     fs.rmSync(outputPath, { force: true });
   }

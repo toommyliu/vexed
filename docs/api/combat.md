@@ -1,5 +1,11 @@
 # combat commands
 
+> [!NOTE]
+> - `target` refers to monster name or in the format "id:monMapId" (where `:` can be replaced with any of these delimiters: `'` `.` `-` )
+>    - Example formats: `id.1` (left orb) | `id:3` (right orb)
+> - `item` can be name or id
+
+
 ## cmd.attack
 
 ```ts
