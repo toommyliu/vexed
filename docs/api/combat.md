@@ -27,7 +27,7 @@ cmd.exit_combat()
 ## cmd.kill
 
 ```ts
-cmd.kill(target: string, options: KillOptions)
+cmd.kill(target: string, options?: KillOptions)
 ```
 
 > [!NOTE]
@@ -37,7 +37,7 @@ cmd.kill(target: string, options: KillOptions)
 ## cmd.kill_for_item
 
 ```ts
-cmd.kill_for_item(target: string, item: number | string, quantity: number, options: KillOptions)
+cmd.kill_for_item(target: string, item: number | string, quantity: number, options?: KillOptions)
 ```
 
 > [!NOTE]
@@ -47,7 +47,7 @@ cmd.kill_for_item(target: string, item: number | string, quantity: number, optio
 ## cmd.kill_for_temp_item
 
 ```ts
-cmd.kill_for_temp_item(target: string, item: number | string, quantity: number, options: KillOptions)
+cmd.kill_for_temp_item(target: string, item: number | string, quantity: number, options?: KillOptions)
 ```
 
 > [!NOTE]

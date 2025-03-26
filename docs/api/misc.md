@@ -158,10 +158,10 @@ cmd.disable_hideplayers()
 cmd.set_walk_speed(speed: number)
 ```
 
-## cmd.stop
+## cmd.stop_bot
 
 ```ts
-cmd.stop()
+cmd.stop_bot()
 ```
 
 ## cmd.wait_for_player_count
