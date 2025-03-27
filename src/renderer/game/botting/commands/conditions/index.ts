@@ -428,22 +428,27 @@ export const conditionsCommands = {
     window.context.addCommand(cmd);
   },
 
-  player_in_map(map: string) {
-    if (!map || typeof map !== 'string') {
-      throw new ArgsError('map name is required');
+  player_in_map(player: string) {
+    if (!player || typeof player !== 'string') {
+      throw new ArgsError('player is required');
     }
 
     const cmd = new CommandPlayerIsInMap();
-    cmd.player = map;
+    cmd.player = player;
     window.context.addCommand(cmd);
   },
 
-  player_in_cell(cell: string) {
+  player_in_cell(player: string, cell: string) {
+    if (!player || typeof player !== 'string') {
+      throw new ArgsError('player is required');
+    }
+
     if (!cell || typeof cell !== 'string') {
       throw new ArgsError('cell name is required');
     }
 
     const cmd = new CommandPlayerIsInCell();
+    cmd.player = player;
     cmd.cell = cell;
     window.context.addCommand(cmd);
   },
@@ -580,7 +585,7 @@ export const conditionsCommands = {
     window.context.addCommand(cmd);
   },
 
-  maxed(item: string) {
+  is_maxed(item: string) {
     if (!item || typeof item !== 'string') {
       throw new ArgsError('item is required');
     }
@@ -589,7 +594,7 @@ export const conditionsCommands = {
     cmd.item = item;
     window.context.addCommand(cmd);
   },
-  not_maxed(item: string) {
+  is_not_maxed(item: string) {
     if (!item || typeof item !== 'string') {
       throw new ArgsError('item is required');
     }

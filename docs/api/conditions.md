@@ -219,13 +219,13 @@ cmd.player_count_less_than(count: number)
 ## cmd.player_in_map
 
 ```ts
-cmd.player_in_map(map: string)
+cmd.player_in_map(player: string)
 ```
 
 ## cmd.player_in_cell
 
 ```ts
-cmd.player_in_cell(cell: string)
+cmd.player_in_cell(player: string, cell: string)
 ```
 
 ## cmd.player_not_in_map
@@ -300,16 +300,16 @@ cmd.target_hp_less_than(hp: number)
 cmd.target_hp_between(monster: string, min: number, max: number)
 ```
 
-## cmd.maxed
+## cmd.is_maxed
 
 ```ts
-cmd.maxed(item: string)
+cmd.is_maxed(item: string)
 ```
 
-## cmd.not_maxed
+## cmd.is_not_maxed
 
 ```ts
-cmd.not_maxed(item: string)
+cmd.is_not_maxed(item: string)
 ```
 
 ## cmd.cell_player_count_greater_than
