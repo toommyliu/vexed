@@ -1,6 +1,7 @@
 package vexed.game {
   import vexed.Main;
   import flash.filters.GlowFilter;
+  import vexed.module.CustomName;
 
   public class Settings {
     private static var game:Object = Main.getInstance().getGame();
@@ -44,6 +45,20 @@ package vexed.game {
       if (!name)
         return;
 
+      CustomName.instance.customName = name;
+    }
+
+    public static function setGuild(name:String):void {
+      if (!name)
+        return;
+
+      CustomName.instance.customGuild = name;
+    }
+
+    public static function _setName(name:String):void {
+      if (!name)
+        return;
+
       name = name.toUpperCase();
 
       game.world.myAvatar.pMC.pname.ti.text = name;
@@ -52,7 +67,7 @@ package vexed.game {
       game.world.myAvatar.pMC.pAV.objData.strUsername = name;
     }
 
-    public static function setGuild(name:String):void {
+    public static function _setGuild(name:String):void {
       if (!name)
         return;
 
