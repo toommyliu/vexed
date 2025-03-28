@@ -200,3 +200,15 @@ cmd.goto_house(player: string)
 > If no player is provided, it will go to your house.
 
 
+## cmd.set_name
+
+```ts
+cmd.set_name(name: string)
+```
+
+## cmd.set_guild
+
+```ts
+cmd.set_guild(guild: string)
+```
+

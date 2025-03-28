@@ -7,6 +7,7 @@ import { addGoldExp } from './networking/json/add-gold-exp';
 import { ct } from './networking/json/ct';
 import { dropItem } from './networking/json/drop-item';
 import { initUserData } from './networking/json/init-user-data';
+import { moveToArea } from './networking/json/move-to-area';
 
 // import { FileManager } from '../../main/FileManager';
 // FileManager.getInstance().writeJson(
@@ -65,7 +66,7 @@ window.pext = async ([packet]) => {
 
     switch (pkt?.params?.dataObj?.cmd) {
       case 'addGoldExp':
-        await addGoldExp(bot, dataObj);
+        void addGoldExp(bot, dataObj);
         break;
       case 'ct':
         ct(bot, dataObj);
@@ -75,6 +76,9 @@ window.pext = async ([packet]) => {
         break;
       case 'initUserData':
         initUserData(bot, dataObj);
+        break;
+      case 'moveToArea':
+        void moveToArea(bot, dataObj);
         break;
     }
   }

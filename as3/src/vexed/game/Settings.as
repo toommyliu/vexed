@@ -42,23 +42,14 @@ package vexed.game {
     }
 
     public static function setName(name:String):void {
-      if (!name)
-        return;
-
-      CustomName.instance.customName = name;
+      CustomName.instance.customName = name || "";
     }
 
     public static function setGuild(name:String):void {
-      if (!name)
-        return;
-
-      CustomName.instance.customGuild = name;
+      CustomName.instance.customGuild = name || "";
     }
 
     public static function _setName(name:String):void {
-      if (!name)
-        return;
-
       name = name.toUpperCase();
 
       game.world.myAvatar.pMC.pname.ti.text = name;
@@ -68,9 +59,6 @@ package vexed.game {
     }
 
     public static function _setGuild(name:String):void {
-      if (!name)
-        return;
-
       name = name.toUpperCase();
 
       // Player isn't in a guild

@@ -1,34 +1,15 @@
 import { interval } from '../../../common/interval';
 import type { Bot } from './Bot';
 
-/**
- * @remarks
- *
- * `Provoke Map`: If enabled, tags all monsters in the map.
- *
- * `Provoke Cell`: If enabled, tags all monsters in the current cell.
- *
- * `Enemy Magnet`: If enabled, sets the target's position to that of the player.
- *
- * `Lag Killer`: If enabled, disables rendering of most UI elements.
- *
- * `Hide Players`: If enabled, hides other players.
- *
- * `Skip Cutscenes:` If enabled, skips cutscenes as needed.
- *
- * `Walk Speed`: The player's walk speed.
- *
- * `Disable FX`: Disables most visual effects.
- *
- * `Disable Collisions`: Disable collisions with world objects.
- *
- * Settings are updated in a background interval every 500ms.
- */
 export class Settings {
   /**
    * Whether to automatically stop attacking a Counter Attack is active.
    */
   public counterAttack = false;
+
+  #customName: string | null = null;
+
+  #customGuild: string | null = null;
 
   #infiniteRange = false;
 
@@ -92,6 +73,9 @@ export class Settings {
       if (!this.bot.player.isReady()) {
         return;
       }
+
+      // this.bot.flash.call(() => swf.settingsSetName(this.#customName ?? ''));
+      // this.bot.flash.call(() => swf.settingsSetGuild(this.#customGuild ?? ''));
 
       if (this.infiniteRange) {
         this.bot.flash.call(() => swf.settingsInfiniteRange());
@@ -271,6 +255,40 @@ export class Settings {
       this.#walkSpeed = tmp;
       this.#updateOption(this.#optionWalkSpeed!, tmp);
     }
+  }
+
+  /**
+   * The player's custom name.
+   */
+  public get customName(): string | null {
+    return this.#customName;
+  }
+
+  /**
+   * Sets the player's custom name.
+   *
+   * @param name - The custom name.
+   */
+  public set customName(name: string | null) {
+    this.#customName = name;
+    this.bot.flash.call(() => swf.settingsSetName(name ?? ''));
+  }
+
+  /**
+   * The player's custom guild.
+   */
+  public get customGuild(): string | null {
+    return this.#customGuild;
+  }
+
+  /**
+   * Sets the player's custom guild.
+   *
+   * @param guild - The custom guild.
+   */
+  public set customGuild(guild: string | null) {
+    this.#customGuild = guild;
+    this.bot.flash.call(() => swf.settingsSetGuild(guild ?? ''));
   }
 
   /**

@@ -19,6 +19,8 @@ import { CommandSettingSkipCutscenes } from './CommandSettingSkipCutscenes';
 import { CommandStopBot } from './CommandStopBot';
 import { CommandWaitForPlayerCount } from './CommandWaitForPlayerCount';
 import { CommandWalkSpeed } from './CommandWalkSpeed';
+import { CommandSetGuild } from './CommandSetGuild';
+import { CommandSetName } from './CommandSetName';
 
 export const miscCommands = {
   delay(ms: number) {
@@ -198,12 +200,30 @@ export const miscCommands = {
     window.context.addCommand(cmd);
   },
   goto_house(player?: string) {
-    if (player && typeof player !== 'string') {
+    if (player || typeof player !== 'string') {
       throw new ArgsError('player must be a string');
     }
 
     const cmd = new CommandHouse();
     if (player) cmd.player = player;
+    window.context.addCommand(cmd);
+  },
+  set_name(name: string) {
+    if (!name || typeof name !== 'string') {
+      throw new ArgsError('name is required');
+    }
+
+    const cmd = new CommandSetName();
+    cmd.name = name;
+    window.context.addCommand(cmd);
+  },
+  set_guild(guild: string) {
+    if (!guild || typeof guild !== 'string') {
+      throw new ArgsError('guild is required');
+    }
+
+    const cmd = new CommandSetGuild();
+    cmd.guild = guild;
     window.context.addCommand(cmd);
   },
 };

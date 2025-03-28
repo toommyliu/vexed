@@ -40,7 +40,7 @@ export async function createAccountManager(): Promise<void> {
   mgrWindow = window;
 
   recursivelyApplySecurityPolicy(window);
-  window.loadURL(`file://${resolve(PUBLIC_MANAGER, 'index.html')}`);
+  void window.loadURL(`file://${resolve(PUBLIC_MANAGER, 'index.html')}`);
 
   if (!app.isPackaged) {
     window.webContents.openDevTools({ mode: 'right' });
@@ -83,7 +83,7 @@ export async function createGame(
     useContentSize: true,
   });
 
-  window.loadURL(`file://${resolve(PUBLIC_GAME, 'index.html')}`);
+  void window.loadURL(`file://${resolve(PUBLIC_GAME, 'index.html')}`);
   recursivelyApplySecurityPolicy(window);
 
   if (!app.isPackaged) {
