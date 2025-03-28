@@ -1,18 +1,16 @@
-const browser = require('eslint-config-neon/browser');
 const common = require('eslint-config-neon/common');
 const node = require('eslint-config-neon/node');
 const prettier = require('eslint-config-neon/prettier');
 const typescript = require('eslint-config-neon/typescript');
+const browser = require('eslint-config-neon/browser');
+
 const merge = require('lodash.merge');
 
 const commonFiles = '.ts';
-const jsFiles = '.js';
 
 const commonRuleset = merge(...common, { files: [`**/*${commonFiles}`] });
 
-const nodeRuleset = merge(...node, {
-  files: [`**/main/${commonFiles}`, `**/main/${jsFiles}`],
-});
+const nodeRuleset = merge(...node, { files: [`**/main/${commonFiles}`] });
 
 const browserRuleset = merge(...browser, {
   files: [`**/renderer/${commonFiles}`],
@@ -27,11 +25,8 @@ const typeScriptRuleset = merge(...typescript, {
   },
   rules: {
     '@typescript-eslint/quotes': ['error', 'single'],
+    'unicorn/require-post-message-target-origin': 'off',
   },
-});
-
-const jsRuleset = merge(...common, ...node, ...prettier, {
-  files: [`**/*${jsFiles}`],
 });
 
 const prettierRuleset = merge(...prettier, { files: [`**/*${commonFiles}`] });
@@ -49,12 +44,8 @@ const rules = [
   },
   commonRuleset,
   nodeRuleset,
-  {
-    files: ['./scripts/**/*.js'],
-  },
   browserRuleset,
   typeScriptRuleset,
-  jsRuleset,
   {
     files: ['**/*.ts'],
   },
