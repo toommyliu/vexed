@@ -191,7 +191,7 @@ package vexed {
       externalize("worldLoadSwf", World.loadSwf);
       externalize("worldGetMapItem", World.getMapItem);
       externalize("worldSetSpawnPoint", World.setSpawnPoint);
-      externalize("worldgetPlayerAuras", World.getPlayerAuras);
+      externalize("worldGetPlayerAuras", World.getPlayerAuras);
 
       externalize("isChatFocused", function():Boolean {
           var game:* = Main.getInstance().getGame();
