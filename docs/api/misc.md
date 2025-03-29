@@ -1,83 +1,214 @@
 # misc commands
 
-> [!NOTE]
->
-> setting must be one of the following: `infiniteRange`, `provokeMap`, `provokeCell`, `enemyMagnet`, `lagKiller`, `hidePlayers`, `skipCutscenes`, `disableFx`, `disableCollisions`
+## cmd.delay
 
-## delay
-
-```
+```ts
 cmd.delay(ms: number)
 ```
 
-## goto_label
+> [!NOTE]
+> delay is in ms
 
-```
+
+## cmd.goto_label
+
+```ts
 cmd.goto_label(label: string)
 ```
 
-## label
+## cmd.label
 
-```
+```ts
 cmd.label(label: string)
 ```
 
-## log
+## cmd.log
 
-```
+```ts
 cmd.log(msg: string)
 ```
 
-## logout
+## cmd.logout
 
-```
+```ts
 cmd.logout()
 ```
 
-## set_delay
+## cmd.set_delay
 
-```
+```ts
 cmd.set_delay(delay: number)
 ```
 
 > [!NOTE]
->
-> `delay` is in milliseconds
+> delay is in ms
 
-## enable_setting
 
-```
-cmd.enable_setting(option: string)
-```
+## cmd.enable_collisions
 
-## disable_setting
-
-```
-cmd.disable_setting(option: string)
+```ts
+cmd.enable_collisions()
 ```
 
-## stop
+## cmd.disable_collisions
 
-```
-cmd.stop()
+```ts
+cmd.disable_collisions()
 ```
 
-## wait_for_player_count
+## cmd.enable_fx
 
+```ts
+cmd.enable_fx()
 ```
+
+## cmd.disable_fx
+
+```ts
+cmd.disable_fx()
+```
+
+## cmd.enable_enemymagnet
+
+```ts
+cmd.enable_enemymagnet()
+```
+
+## cmd.disable_enemymagnet
+
+```ts
+cmd.disable_enemymagnet()
+```
+
+## cmd.enable_infiniterange
+
+```ts
+cmd.enable_infiniterange()
+```
+
+## cmd.disable_infiniterange
+
+```ts
+cmd.disable_infiniterange()
+```
+
+## cmd.enable_lagkiller
+
+```ts
+cmd.enable_lagkiller()
+```
+
+## cmd.disable_lagkiller
+
+```ts
+cmd.disable_lagkiller()
+```
+
+## cmd.enable_provokecell
+
+```ts
+cmd.enable_provokecell()
+```
+
+## cmd.disable_provokecell
+
+```ts
+cmd.disable_provokecell()
+```
+
+## cmd.enable_provokemap
+
+```ts
+cmd.enable_provokemap()
+```
+
+## cmd.disable_provokemap
+
+```ts
+cmd.disable_provokemap()
+```
+
+## cmd.enable_skipcutscenes
+
+```ts
+cmd.enable_skipcutscenes()
+```
+
+## cmd.disable_skipcutscenes
+
+```ts
+cmd.disable_skipcutscenes()
+```
+
+## cmd.enable_hideplayers
+
+```ts
+cmd.enable_hideplayers()
+```
+
+## cmd.disable_hideplayers
+
+```ts
+cmd.disable_hideplayers()
+```
+
+## cmd.set_walk_speed
+
+```ts
+cmd.set_walk_speed(speed: number)
+```
+
+## cmd.stop_bot
+
+```ts
+cmd.stop_bot()
+```
+
+## cmd.wait_for_player_count
+
+```ts
 cmd.wait_for_player_count(count: number)
 ```
 
-## enable_anticounter
+> [!NOTE]
+> wait for map player count
 
-Enables the anti-counter attack handler when a "prepares a counter attack" message is detected.
 
-```
+## cmd.enable_anticounter
+
+```ts
 cmd.enable_anticounter()
 ```
 
-## disable_anticounter
+> [!NOTE]
+> Enables the anti-counter handler when a "prepares a counter attack" message is detected, which stops attacking until the counter attack ends.
 
-```
+
+## cmd.disable_anticounter
+
+```ts
 cmd.disable_anticounter()
 ```
+
+## cmd.goto_house
+
+```ts
+cmd.goto_house(player: string)
+```
+
+> [!NOTE]
+> If no player is provided, it will go to your house.
+
+
+## cmd.set_name
+
+```ts
+cmd.set_name(name: string)
+```
+
+## cmd.set_guild
+
+```ts
+cmd.set_guild(guild: string)
+```
+

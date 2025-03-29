@@ -175,8 +175,8 @@ declare global {
 
     worldIsLoaded(): boolean;
     worldGetPlayerNames(): string[];
-    worldGetPlayers(): Record<string, AvatarData>[];
-    worldGetPlayer(name: string): Nullable<AvatarData>;
+    worldGetPlayers(): string;
+    worldGetPlayer(name: string): string;
     worldIsPlayerInCell(name: string, cell?: string): boolean;
     worldIsActionAvailable(
       gameAction: (typeof GameAction)[keyof typeof GameAction],
@@ -209,6 +209,8 @@ declare global {
     packetFromServer(packet: [string]): Promise<void> | void;
     loaded(): Promise<void> | void;
     connection(state: [string]): void;
+    pext([packet]: [string]): Promise<void> | void;
+    progress([percent]: [number]): void;
 
     swf: GameSWF;
 

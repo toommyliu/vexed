@@ -2,13 +2,21 @@ import { BrowserWindow, session } from 'electron';
 import { ARTIX_USERAGENT, WHITELISTED_DOMAINS } from '../../common/constants';
 
 export function recursivelyApplySecurityPolicy(window: BrowserWindow): void {
-  window.webContents.userAgent = ARTIX_USERAGENT;
-  session.defaultSession.webRequest.onBeforeSendHeaders((details, fn) => {
-    details.requestHeaders['User-Agent'] = ARTIX_USERAGENT;
-    details.requestHeaders['artixmode'] = 'launcher';
-    details.requestHeaders['X-Requested-With'] = 'ShockwaveFlash/32.0.0.371';
+  window.webContents.setUserAgent(ARTIX_USERAGENT);
+  session.defaultSession?.webRequest.onBeforeSendHeaders((details, fn) => {
+    const requestHeaders = details.requestHeaders;
 
-    fn({ requestHeaders: details.requestHeaders, cancel: false });
+    Object.defineProperty(requestHeaders, 'User-Agent', {
+      value: ARTIX_USERAGENT,
+    });
+    Object.defineProperty(requestHeaders, 'artixmode', {
+      value: 'launcher',
+    });
+    Object.defineProperty(requestHeaders, 'X-Requested-With', {
+      value: 'ShockwaveFlash/32.0.0.371',
+    });
+
+    fn({ requestHeaders, cancel: false });
   });
 
   window.webContents.on('will-navigate', (ev, url) => {
@@ -69,8 +77,8 @@ export function recursivelyApplySecurityPolicy(window: BrowserWindow): void {
       recursivelyApplySecurityPolicy(childWindow);
 
       // unused: the return value for window.open?
-      ev.newGuest = childWindow;
-      await childWindow.loadURL(url);
+      // ev.newGuest = childWindow;
+      childWindow.loadURL(url);
       return childWindow;
     },
   );

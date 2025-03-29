@@ -1,71 +1,74 @@
 # combat commands
 
 > [!NOTE]
->
 > - `target` refers to monster name or in the format "id:monMapId" (where `:` can be replaced with any of these delimiters: `'` `.` `-` )
-> - Example formats: `id.1` (left orb) | `id:3` (right orb)
+>    - Example formats: `id.1` (left orb) | `id:3` (right orb)
+> - `item` can be name or id
 
-## attack
 
-```
+## cmd.attack
+
+```ts
 cmd.attack(target: string)
 ```
 
-## cancel_target
+## cmd.cancel_target
 
-```
+```ts
 cmd.cancel_target()
 ```
 
-## exit_combat
+## cmd.exit_combat
 
-```
+```ts
 cmd.exit_combat()
 ```
 
-## kill
+## cmd.kill
 
-```
-cmd.kill(target: string, options?: KillOptions)
-```
-
-> [!NOTE]
->
-> [KillOptions](/api-legacy/typedefs/KillOptions)
-
-## kill_for_item
-
-```
-cmd.kill_for_item(target: string, item: number | string, quantity: number, options?: KillOptions)
+```ts
+cmd.kill(target: string, options: KillOptions)
 ```
 
 > [!NOTE]
-> item can be item name or id
->
 > [KillOptions](/api-legacy/typedefs/KillOptions)
 
-## kill_for_temp_item
 
-```
-cmd.kill_for_temp_item(target: string, item: number | string, quantity: number, options?: KillOptions)
+## cmd.kill_for_item
+
+```ts
+cmd.kill_for_item(target: string, item: number | string, quantity: number, options: KillOptions)
 ```
 
 > [!NOTE]
-> item can be item name or id
->
 > [KillOptions](/api-legacy/typedefs/KillOptions)
 
-## rest
 
-```
-cmd.rest()
-```
+## cmd.kill_for_temp_item
 
-## use_skill
-
-```
-cmd.use_skill(skill: number | string)
+```ts
+cmd.kill_for_temp_item(target: string, item: number | string, quantity: number, options: KillOptions)
 ```
 
-> [!TIP]
-> skill index as a string or number (0-5)
+> [!NOTE]
+> [KillOptions](/api-legacy/typedefs/KillOptions)
+
+
+## cmd.rest
+
+```ts
+cmd.rest(full: boolean = false)
+```
+
+## cmd.use_skill
+
+```ts
+cmd.use_skill(skill: number | string, wait: boolean = false)
+```
+
+## cmd.force_use_skill
+
+```ts
+cmd.force_use_skill(skill: number | string, wait: boolean = false)
+```
+

@@ -1,72 +1,72 @@
 {
-	"name": "@vexed/electron",
-	"version": "0.0.0",
-	"main": "dist/main/index.js",
-	"scripts": {
-		"typecheck": "tsc --noEmit",
-		"compile": "node esbuild.config.js",
-		"compile:watch": "node esbuild.config.js --watch",
-		"dev": "electron .",
-		"dev:watch": "concurrently \"yarn compile:watch\" \"electronmon .\"",
-		"build": "electron-builder build",
-		"build:all": "electron-builder build -mw",
-		"docgen": "node scripts/docgen.js",
-		"format": "prettier \"src/**/*\"",
-		"format:write": "prettier \"src/**/*\" --write",
-		"lint": "eslint \"src/**/*\"",
-		"lint:fix": "eslint \"src/**/*\" --fix"
-	},
-	"dependencies": {
-		"@sapphire/async-queue": "^1.5.5",
-		"async-mutex": "^0.5.0",
-		"electron-better-ipc": "^2.0.1",
-		"fs-extra": "^11.2.0",
-		"lodash.merge": "^4.6.2",
-		"nw-flash-trust": "^0.3.0",
-		"source-map-support": "^0.5.21",
-		"tiny-typed-emitter": "^2.1.0",
-		"watchlist": "^0.3.1",
-		"winston": "^3.17.0"
-	},
-	"devDependencies": {
-		"@types/fs-extra": "^11.0.4",
-		"@typescript-eslint/eslint-plugin": "^8.4.0",
-		"@typescript-eslint/parser": "^8.4.0",
-		"concurrently": "^8.2.2",
-		"electron": "^11.5.0",
-		"electron-builder": "^24.13.3",
-		"electronmon": "^2.0.3",
-		"esbuild": "^0.23.1",
-		"eslint": "^9.10.0",
-		"eslint-config-neon": "^0.2.4",
-		"prettier": "^3.3.3",
-		"typescript": "^5.5.4"
-	},
-	"electronmon": {
-		"patterns": [
-			"!dist/**/*",
-			"!scripts/**/*"
-		]
-	},
-	"resolutions": {
-		"eslint-config-neon/@angular-eslint/eslint-plugin": "npm:@favware/skip-dependency@latest",
-		"eslint-config-neon/@angular-eslint/eslint-plugin-template": "npm:@favware/skip-dependency@latest",
-		"eslint-config-neon/@angular-eslint/template-parser": "npm:@favware/skip-dependency@latest",
-		"eslint-config-neon/@next/eslint-plugin-next": "npm:@favware/skip-dependency@latest",
-		"eslint-config-neon/@stylistic/eslint-plugin-jsx": "npm:@favware/skip-dependency@latest",
-		"eslint-config-neon/astro-eslint-parser": "npm:@favware/skip-dependency@latest",
-		"eslint-config-neon/eslint-mdx": "npm:@favware/skip-dependency@latest",
-		"eslint-config-neon/eslint-plugin-astro": "npm:@favware/skip-dependency@latest",
-		"eslint-config-neon/eslint-plugin-cypress": "npm:@favware/skip-dependency@latest",
-		"eslint-config-neon/eslint-plugin-jsx-a11y": "npm:@favware/skip-dependency@latest",
-		"eslint-config-neon/eslint-plugin-mdx": "npm:@favware/skip-dependency@latest",
-		"eslint-config-neon/eslint-plugin-react": "npm:@favware/skip-dependency@latest",
-		"eslint-config-neon/eslint-plugin-react-hooks": "npm:@favware/skip-dependency@latest",
-		"eslint-config-neon/eslint-plugin-react-refresh": "npm:@favware/skip-dependency@latest",
-		"eslint-config-neon/eslint-plugin-rxjs": "npm:@favware/skip-dependency@latest",
-		"eslint-config-neon/eslint-plugin-rxjs-angular": "npm:@favware/skip-dependency@latest",
-		"eslint-config-neon/eslint-plugin-svelte3": "npm:@favware/skip-dependency@latest",
-		"eslint-config-neon/eslint-plugin-vue": "npm:@favware/skip-dependency@latest",
-		"eslint-config-neon/vue-eslint-parser": "npm:@favware/skip-dependency@latest"
-	}
+  "name": "@vexed/electron",
+  "version": "0.0.0",
+  "main": "dist/main/index.js",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "compile": "node esbuild.config.js",
+    "compile:watch": "node esbuild.config.js --watch",
+    "dev": "electron .",
+    "dev:watch": "concurrently \"yarn compile:watch\" \"electronmon .\"",
+    "build": "electron-builder build",
+    "build:all": "electron-builder build -mw",
+    "docgen": "node scripts/docgen.js",
+    "docgen:legacy": "node scripts/docgen-legacy.js",
+    "format": "prettier \"src/**/*\"",
+    "format:write": "prettier \"src/**/*\" --write",
+    "lint": "eslint \"src/**/*\"",
+    "lint:fix": "eslint \"src/**/*\" --fix"
+  },
+  "dependencies": {
+    "async-mutex": "^0.5.0",
+    "electron-better-ipc": "^2.0.1",
+    "fs-extra": "^11.2.0",
+    "lodash.merge": "^4.6.2",
+    "nw-flash-trust": "^0.3.0",
+    "source-map-support": "^0.5.21",
+    "tiny-typed-emitter": "^2.1.0",
+    "watchlist": "^0.3.1",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@typescript-eslint/eslint-plugin": "^8.4.0",
+    "@typescript-eslint/parser": "^8.4.0",
+    "concurrently": "^8.2.2",
+    "electron": "^6.1.12",
+    "electron-builder": "^24.13.3",
+    "electronmon": "^2.0.3",
+    "esbuild": "^0.23.1",
+    "eslint": "^9.10.0",
+    "eslint-config-neon": "^0.2.4",
+    "prettier": "^3.3.3",
+    "typescript": "^5.5.4"
+  },
+  "electronmon": {
+    "patterns": [
+      "!dist/**/*",
+      "!scripts/**/*"
+    ]
+  },
+  "resolutions": {
+    "eslint-config-neon/@angular-eslint/eslint-plugin": "npm:@favware/skip-dependency@latest",
+    "eslint-config-neon/@angular-eslint/eslint-plugin-template": "npm:@favware/skip-dependency@latest",
+    "eslint-config-neon/@angular-eslint/template-parser": "npm:@favware/skip-dependency@latest",
+    "eslint-config-neon/@next/eslint-plugin-next": "npm:@favware/skip-dependency@latest",
+    "eslint-config-neon/@stylistic/eslint-plugin-jsx": "npm:@favware/skip-dependency@latest",
+    "eslint-config-neon/astro-eslint-parser": "npm:@favware/skip-dependency@latest",
+    "eslint-config-neon/eslint-mdx": "npm:@favware/skip-dependency@latest",
+    "eslint-config-neon/eslint-plugin-astro": "npm:@favware/skip-dependency@latest",
+    "eslint-config-neon/eslint-plugin-cypress": "npm:@favware/skip-dependency@latest",
+    "eslint-config-neon/eslint-plugin-jsx-a11y": "npm:@favware/skip-dependency@latest",
+    "eslint-config-neon/eslint-plugin-mdx": "npm:@favware/skip-dependency@latest",
+    "eslint-config-neon/eslint-plugin-react": "npm:@favware/skip-dependency@latest",
+    "eslint-config-neon/eslint-plugin-react-hooks": "npm:@favware/skip-dependency@latest",
+    "eslint-config-neon/eslint-plugin-react-refresh": "npm:@favware/skip-dependency@latest",
+    "eslint-config-neon/eslint-plugin-rxjs": "npm:@favware/skip-dependency@latest",
+    "eslint-config-neon/eslint-plugin-rxjs-angular": "npm:@favware/skip-dependency@latest",
+    "eslint-config-neon/eslint-plugin-svelte3": "npm:@favware/skip-dependency@latest",
+    "eslint-config-neon/eslint-plugin-vue": "npm:@favware/skip-dependency@latest",
+    "eslint-config-neon/vue-eslint-parser": "npm:@favware/skip-dependency@latest"
+  }
 }

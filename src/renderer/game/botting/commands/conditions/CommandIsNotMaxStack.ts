@@ -4,8 +4,7 @@ export class CommandIsNotMaxStack extends Command {
   public item!: string;
 
   public override execute() {
-    const item = this.bot.inventory.get(this.item);
-    if (!item?.isMaxed()) {
+    if (this.bot.inventory.get(this.item)?.isMaxed()) {
       this.ctx.commandIndex++;
     }
   }

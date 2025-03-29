@@ -74,6 +74,31 @@ Type: `ItemData[]`
 
 ### Methods
 
+#### isPlayerInMap
+
+Whether a player is in the map.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `name` | `string` | The player name to check. |
+
+**Returns:** `boolean`
+
+#### isPlayerInCell
+
+Whether a player is in a given cell.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `name` | `string` | The player name to check. |
+| `cell` | `string` | The cell to check. |
+
+**Returns:** `boolean`
+
 #### isMonsterAvailable
 
 Whether a monster is available.
@@ -158,7 +183,7 @@ Whether the game action has cooled down.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `gameAction` | `GameAction` | The game action to check. |
+| `gameAction` | `"acceptQuest" \| "buyItem" \| "doIA" \| "equipItem" \| "getMapItem" \| "loadEnhShop" \| "loadHairShop" \| "loadShop" \| "rest" \| "sellItem" \| "tfer" \| "tryQuestComplete" \| "unequipItem" \| "who"` | The game action to check. |
 
 **Returns:** `boolean`
 

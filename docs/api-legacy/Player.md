@@ -28,7 +28,7 @@ Type: `string`
 
 ​<Badge type="info">getter</Badge>The state of the player.
 
-Type: `PlayerState`
+Type: `0 | 2 | 1`
 
 #### hp
 
@@ -92,6 +92,12 @@ Type: `string`
 
 ### Methods
 
+#### isInCombat
+
+Whether the player is in combat.
+
+**Returns:** `boolean`
+
 #### isAFK
 
 Whether the player is AFK.
@@ -110,10 +116,11 @@ Walks to a position on the map.
 
 **Parameters:**
 
-| Name | Type | Description |
-|------|------|-------------|
-| `x` | `string \| number` | The x coordinate to walk to. |
-| `y` | `string \| number` | The y coordinate to walk to. |
+| Name | Type | Optional | Default | Description |
+|------|------|----------|---------|-------------|
+| `x` | `string \| number` |  |  | The x coordinate to walk to. |
+| `y` | `string \| number` |  |  | The y coordinate to walk to. |
+| `walkSpeed` | `string \| number \| undefined` | ✓ |  | The speed to walk at. |
 
 **Returns:** `void`
 
@@ -128,6 +135,18 @@ Whether the player has fully loaded in.
 Comprehensive check to determine if the player is ready.
 
 **Remarks:** This checks if the player is logged in, the world has loaded, and the player has fully loaded in.
+
+**Returns:** `boolean`
+
+#### isBoostActive
+
+Checks if the player has an active boost.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `type` | `"gold" \| "exp" \| "rep" \| "classPoints"` | The type of boost to check. |
 
 **Returns:** `boolean`
 

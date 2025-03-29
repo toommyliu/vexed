@@ -4,8 +4,8 @@ export class CommandWaitForPlayerCount extends Command {
   public count!: number;
 
   public override async execute() {
-    while (this.bot.world.playerNames.length !== this.count) {
-      await this.bot.sleep(100);
+    if (this.bot.world.playerNames.length !== this.count) {
+      this.ctx.commandIndex--;
     }
   }
 

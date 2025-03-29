@@ -22,11 +22,8 @@ walk(apiDir);
 const enums = md
   .filter((path) => path.includes('/enums/'))
   .sort((a, b) => basename(a).localeCompare(basename(b)));
-const examples = md
-  .filter((path) => path.includes('/examples/'))
-  .sort((a, b) => basename(a).localeCompare(basename(b)));
-const structs = md
-  .filter((path) => path.includes('/structs/'))
+const models = md
+  .filter((path) => path.includes('/models/'))
   .sort((a, b) => basename(a).localeCompare(basename(b)));
 const typedefs = md
   .filter((path) => path.includes('/typedefs/'))
@@ -34,7 +31,7 @@ const typedefs = md
 const util = md
   .filter((path) => path.includes('/util/'))
   .sort((a, b) => basename(a).localeCompare(b));
-const excluded = [...enums, ...examples, ...structs, ...typedefs, ...util];
+const excluded = [...enums, ...models, ...typedefs, ...util];
 
 const rest = md
   .filter((path) => !excluded.includes(path) && !path.includes('variables'))
@@ -171,46 +168,55 @@ export default defineConfig({
       {
         text: 'Scripting API (Legacy)',
         items: [
-          {
-            text: 'Globals Variables',
-            link: '/api-legacy/global-variables',
-          },
-          {
-            text: 'Examples',
-            link: '/api-legacy/examples',
-          },
-          {
-            text: 'Data Types',
-            items: structs.map((path) => ({
-              text: getMarkdownTitle(path),
-              link: `/api-legacy/structs/${basename(path)}`,
-            })),
-            collapsed: true,
-          },
-          {
-            text: 'Enums',
-            items: enums.map((path) => ({
-              text: getMarkdownTitle(path),
-              link: `/api-legacy/enums/${basename(path)}`,
-            })),
-            collapsed: true,
-          },
-          {
-            text: 'Typedefs',
-            items: typedefs.map((path) => ({
-              text: getMarkdownTitle(path),
-              link: `/api-legacy/typedefs/${basename(path)}`,
-            })),
-            collapsed: true,
-          },
-          {
-            text: 'Util',
-            items: util.map((path) => ({
-              text: getMarkdownTitle(path),
-              link: `/api-legacy/util/${basename(path)}`,
-            })),
-            collapsed: true,
-          },
+          // ...(models.length > 0
+          ...(true
+            ? [
+                {
+                  text: 'Models',
+                  items: models.map((path) => ({
+                    text: getMarkdownTitle(path),
+                    link: `/api-legacy/models/${basename(path)}`,
+                  })),
+                  collapsed: true,
+                },
+              ]
+            : []),
+          ...(enums.length > 0
+            ? [
+                {
+                  text: 'Enums',
+                  items: enums.map((path) => ({
+                    text: getMarkdownTitle(path),
+                    link: `/api-legacy/enums/${basename(path)}`,
+                  })),
+                  collapsed: true,
+                },
+              ]
+            : []),
+          ...(typedefs.length > 0
+            ? [
+                {
+                  text: 'Typedefs',
+                  items: typedefs.map((path) => ({
+                    text: getMarkdownTitle(path),
+                    link: `/api-legacy/typedefs/${basename(path)}`,
+                  })),
+                  collapsed: true,
+                },
+              ]
+            : []),
+          ...(util.length > 0
+            ? [
+                {
+                  text: 'Util',
+                  items: util.map((path) => ({
+                    text: getMarkdownTitle(path),
+                    link: `/api-legacy/util/${basename(path)}`,
+                  })),
+                  collapsed: true,
+                },
+              ]
+            : []),
           ...rest.map((path) => ({
             text: getMarkdownTitle(path),
             link: `/api-legacy/${basename(path)}`,

@@ -2,71 +2,9 @@
 outline: deep
 ---
 
-# Bot ​<Badge type="info">extends EventEmitter</Badge>
+# Bot ​<Badge type="info">extends TypedEmitter</Badge>
 
 ---
-
-### Events
-
-#### login
-
-This event is emitted when the player logs in.
-
-Type: `() => void`
-
-#### logout
-
-This event is emitted when the player logs out.
-
-Type: `() => void`
-
-#### start
-
-This event is emitted when a script is started.
-
-Type: `() => void`
-
-#### stop
-
-This event is emitted when a script is stopped.
-
-Type: `() => void`
-
-#### error
-
-This event is emitted when an error occurs during a script.
-
-Type: `(error: Error) => void`
-
-#### monsterDeath
-
-This event is emitted when a monster has died.
-
-Type: `(monster: Monster) => void`
-
-#### monsterRespawn
-
-This event is emitted when a monster has respawned.
-
-Type: `(monster: Monster) => void`
-
-#### packetFromServer
-
-This event is emitted when a packet is received from the server.
-
-Type: `(packet: string) => void`
-
-#### packetFromClient
-
-This event is emitted when a packet is sent to the server.
-
-Type: `(packet: string) => void`
-
-#### playerLeave
-
-This event is emitted when a player leaves the room.
-
-Type: `(playerName: string) => void`
 
 ### Properties
 
@@ -166,18 +104,6 @@ Type: `Flash`
 
 The Flash API class instance.
 
-#### timerManager
-
-Type: `TimerManager`
-
-The TimerManager API class instance.
-
-#### signal
-
-​<Badge type="info">getter</Badge>Used to keep track of the current AbortController signal.
-
-Type: `AbortSignal | null`
-
 ### Methods
 
 #### sleep
@@ -202,13 +128,7 @@ Waits until the condition is met.
 |------|------|----------|---------|-------------|
 | `condition` | `() => boolean` |  |  | The condition to wait for until it returns true. |
 | `prerequisite` | `(() => boolean) \| null` | ✓ | `null` | The prerequisite to be checked before waiting for the condition. |
-| `timeout` | `number` | ✓ | `15` | The maximum number of iterations to wait. -1 to wait indefinitely. |
+| `maxIterations` | `number` | ✓ | `15` | The maximum number of iterations to wait. -1 to wait indefinitely. |
 
 **Returns:** `Promise<void>`
-
-#### isRunning
-
-Whether the bot is running.
-
-**Returns:** `boolean`
 

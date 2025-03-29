@@ -1,243 +1,223 @@
-package vexed
-{
-	import flash.external.ExternalInterface;
-	import vexed.module.Modules;
-	import vexed.game.*;
+package vexed {
+  import flash.external.ExternalInterface;
+  import vexed.module.Modules;
+  import vexed.game.*;
 
-	public class Externalizer
-	{
+  public class Externalizer {
+    public function init(root:Main):void {
+      externalize("getGameObject", Main.getGameObject);
+      externalize("getGameObjectS", Main.getGameObjectS);
+      externalize("getGameObjectKey", Main.getGameObjectKey);
+      externalize("setGameObject", Main.setGameObject);
+      externalize("setGameObjectKey", Main.setGameObjectKey);
+      externalize("getArrayObject", Main.getArrayObject);
+      externalize("setArrayObject", Main.setArrayObject);
+      externalize("callGameFunction", Main.callGameFunction);
+      externalize("callGameFunction0", Main.callGameFunction0);
+      externalize("selectArrayObjects", Main.selectArrayObjects);
+      externalize("isNull", Main.isNull);
+      externalize("sendClientPacket", Main.sendClientPacket);
+      externalize("isConnMcBackButtonVisible", Main.isConnMcBackButtonVisible);
+      externalize("getConnMcText", Main.getConnMcText);
+      externalize("hideConnMc", Main.hideConnMc);
 
-		public function Externalizer()
-		{
-			super();
-		}
+      // Auth
+      externalize("authIsLoggedIn", Auth.isLoggedIn);
+      externalize("authIsTemporarilyKicked", Auth.isTemporarilyKicked);
+      externalize("authLogin", Auth.login);
+      externalize("authLogout", Auth.logout);
+      externalize("authGetServers", Auth.getServers);
+      externalize("authConnectTo", Auth.connectTo);
 
-		public function init(root:Main):void
-		{
-			this.addCallback("getGameObject", Main.getGameObject);
-			this.addCallback("getGameObjectS", Main.getGameObjectS);
-			this.addCallback("getGameObjectKey", Main.getGameObjectKey);
-			this.addCallback("setGameObject", Main.setGameObject);
-			this.addCallback("setGameObjectKey", Main.setGameObjectKey);
-			this.addCallback("getArrayObject", Main.getArrayObject);
-			this.addCallback("setArrayObject", Main.setArrayObject);
-			this.addCallback("callGameFunction", Main.callGameFunction);
-			this.addCallback("callGameFunction0", Main.callGameFunction0);
-			this.addCallback("selectArrayObjects", Main.selectArrayObjects);
-			this.addCallback("isNull", Main.isNull);
-			this.addCallback("sendClientPacket", Main.sendClientPacket);
+      // Bank
+      externalize("bankGetItems", Bank.getItems);
+      externalize("bankGetItem", Bank.getItem);
+      externalize("bankContains", Bank.contains);
+      externalize("bankLoadItems", Bank.loadItems);
+      externalize("bankGetSlots", Bank.getSlots);
+      externalize("bankGetUsedSlots", Bank.getUsedSlots);
+      externalize("bankDeposit", Bank.deposit);
+      externalize("bankWithdraw", Bank.withdraw);
+      externalize("bankSwap", Bank.swap);
+      externalize("bankOpen", Bank.open);
+      externalize("bankIsOpen", Bank.isOpen);
 
-			// Auth
-			this.addCallback("authIsLoggedIn", Auth.isLoggedIn);
-			this.addCallback("authIsTemporarilyKicked", Auth.isTemporarilyKicked);
-			this.addCallback("authLogin", Auth.login);
-			this.addCallback("authLogout", Auth.logout);
-			this.addCallback("authGetServers", Auth.getServers);
-			this.addCallback("authConnectTo", Auth.connectTo);
+      // Combat
+      externalize("combatHasTarget", Combat.hasTarget);
+      externalize("combatGetTarget", Combat.getTarget);
+      externalize("combatUseSkill", Combat.useSkill);
+      externalize("combatForceUseSkill", Combat.forceUseSkill);
+      // externalize("combatCanUseSkill", Combat.canUseSkill);
+      externalize("combatGetSkillCooldownRemaining", Combat.getSkillCooldownRemaining);
+      externalize("combatCancelAutoAttack", Combat.cancelAutoAttack);
+      externalize("combatCancelTarget", Combat.cancelTarget);
+      externalize("combatAttackMonster", Combat.attackMonster);
+      externalize("combatAttackMonsterById", Combat.attackMonsterById);
 
-			// Bank
-			this.addCallback("bankGetItems", Bank.getItems);
-			this.addCallback("bankGetItem", Bank.getItem);
-			this.addCallback("bankContains", Bank.contains);
-			this.addCallback("bankLoadItems", Bank.loadItems);
-			this.addCallback("bankGetSlots", Bank.getSlots);
-			this.addCallback("bankGetUsedSlots", Bank.getUsedSlots);
-			this.addCallback("bankDeposit", Bank.deposit);
-			this.addCallback("bankWithdraw", Bank.withdraw);
-			this.addCallback("bankSwap", Bank.swap);
-			this.addCallback("bankOpen", Bank.open);
-			this.addCallback("bankIsOpen", Bank.isOpen);
+      // DropStack
+      externalize("dropStackAcceptDrop", DropStack.acceptDrop);
+      externalize("dropStackRejectDrop", DropStack.rejectDrop);
+      externalize("dropStackIsUsingCustomDrops", DropStack.isUsingCustomDrops);
+      externalize("dropStackSetCustomDropsUiState", DropStack.setCustomDropsUi);
+      externalize("dropStackIsCustomDropsUiOpen", DropStack.isCustomDropsUiOpen);
 
-			// Combat
-			this.addCallback("combatHasTarget", Combat.hasTarget);
-			this.addCallback("combatGetTarget", Combat.getTarget);
-			this.addCallback("combatUseSkill", Combat.useSkill);
-			this.addCallback("combatForceUseSkill", Combat.forceUseSkill);
-			this.addCallback("combatCanUseSkill", Combat.canUseSkill);
-			this.addCallback("combatGetSkillCooldownRemaining", Combat.getSkillCooldownRemaining);
-			this.addCallback("combatCancelAutoAttack", Combat.cancelAutoAttack);
-			this.addCallback("combatCancelTarget", Combat.cancelTarget);
-			this.addCallback("combatAttackMonster", Combat.attackMonster);
-			this.addCallback("combatAttackMonsterById", Combat.attackMonsterById);
+      // House
+      externalize("houseGetItems", House.getItems);
+      externalize("houseGetItem", House.getItem);
+      externalize("houseGetSlots", House.getSlots);
+      externalize("houseGetUsedSlots", House.getUsedSlots);
 
-			// DropStack
-			this.addCallback("dropStackAcceptDrop", DropStack.acceptDrop);
-			this.addCallback("dropStackRejectDrop", DropStack.rejectDrop);
-			this.addCallback("dropStackIsUsingCustomDrops", DropStack.isUsingCustomDrops);
-			this.addCallback("dropStackSetCustomDropsUiState", DropStack.setCustomDropsUi);
-			this.addCallback("dropStackIsCustomDropsUiOpen", DropStack.isCustomDropsUiOpen);
+      // Inventory
+      externalize("inventoryGetItems", Inventory.getItems);
+      externalize("inventoryGetItem", Inventory.getItem);
+      externalize("inventoryContains", Inventory.contains);
+      externalize("inventoryGetSlots", Inventory.getSlots);
+      externalize("inventoryGetUsedSlots", Inventory.getUsedSlots);
+      externalize("inventoryEquip", Inventory.equip);
 
-			// House
-			this.addCallback("houseGetItems", House.getItems);
-			this.addCallback("houseGetItem", House.getItem);
-			this.addCallback("houseGetSlots", House.getSlots);
-			this.addCallback("houseGetUsedSlots", House.getUsedSlots);
+      // Player
+      externalize("playerJoinMap", Player.joinMap);
+      externalize("playerGetMap", Player.getMap);
+      externalize("playerJump", Player.jump);
+      externalize("playerGetCell", Player.getCell);
+      externalize("playerGetPad", Player.getPad);
+      externalize("playerGetFactions", Player.getFactions);
+      externalize("playerGetState", Player.getState);
+      externalize("playerGetHp", Player.getHp);
+      externalize("playerGetMaxHp", Player.getMaxHp);
+      externalize("playerGetMp", Player.getMp);
+      externalize("playerGetMaxMp", Player.getMaxMp);
+      externalize("playerGetLevel", Player.getLevel);
+      externalize("playerGetGold", Player.getGold);
+      externalize("playerIsMember", Player.isMember);
+      externalize("playerIsAfk", Player.isAfk);
+      externalize("playerGetPosition", Player.getPosition);
+      externalize("playerWalkTo", Player.walkTo);
+      externalize("playerRest", Player.rest);
+      externalize("playerUseBoost", Player.useBoost);
+      externalize("playerHasActiveBoost", Player.hasActiveBoost);
+      externalize("playerGetClassName", Player.getClassName);
+      externalize("playerGetUserId", Player.getUserId);
+      externalize("playerGetCharId", Player.getCharId);
+      externalize("playerGetGender", Player.getGender);
+      externalize("playerGetData", Player.getData);
+      externalize("playerIsLoaded", Player.isLoaded);
+      externalize("playerGoTo", Player.goToPlayer);
 
-			// Inventory
-			this.addCallback("inventoryGetItems", Inventory.getItems);
-			this.addCallback("inventoryGetItem", Inventory.getItem);
-			this.addCallback("inventoryContains", Inventory.contains);
-			this.addCallback("inventoryGetSlots", Inventory.getSlots);
-			this.addCallback("inventoryGetUsedSlots", Inventory.getUsedSlots);
-			this.addCallback("inventoryEquip", Inventory.equip);
-			this.addCallback("inventoryEquipConsumable", Inventory.equipConsumable);
+      // Quests
+      externalize("questsIsInProgress", Quests.isInProgress);
+      externalize("questsComplete", Quests.complete);
+      externalize("questsAccept", Quests.accept);
+      externalize("questsLoad", Quests.load);
+      externalize("questsGet", Quests.get );
+      externalize("questsGetTree", Quests.getTree);
+      externalize("questsGetQuestValidationString", Quests.getQuestValidationString);
+      externalize("questsHasRequiredItemsForQuest", Quests.hasRequiredItemsForQuest);
+      externalize("questsIsAvailable", Quests.isAvailable);
+      externalize("questsCanCompleteQuest", Quests.canComplete);
+      externalize("questsIsOneTimeQuestDone", Quests.isOneTimeQuestDone);
 
-			// Player
-			this.addCallback("playerJoinMap", Player.joinMap);
-			this.addCallback("playerGetMap", Player.getMap);
-			this.addCallback("playerJump", Player.jump);
-			this.addCallback("playerGetCell", Player.getCell);
-			this.addCallback("playerGetPad", Player.getPad);
-			this.addCallback("playerGetFactions", Player.getFactions);
-			this.addCallback("playerGetState", Player.getState);
-			this.addCallback("playerGetHp", Player.getHp);
-			this.addCallback("playerGetMaxHp", Player.getMaxHp);
-			this.addCallback("playerGetMp", Player.getMp);
-			this.addCallback("playerGetMaxMp", Player.getMaxMp);
-			this.addCallback("playerGetLevel", Player.getLevel);
-			this.addCallback("playerGetGold", Player.getGold);
-			this.addCallback("playerIsMember", Player.isMember);
-			this.addCallback("playerIsAfk", Player.isAfk);
-			this.addCallback("playerGetPosition", Player.getPosition);
-			this.addCallback("playerWalkTo", Player.walkTo);
-			this.addCallback("playerRest", Player.rest);
-			this.addCallback("playerUseBoost", Player.useBoost);
-			this.addCallback("playerHasActiveBoost", Player.hasActiveBoost);
-			this.addCallback("playerGetClassName", Player.getClassName);
-			this.addCallback("playerGetUserId", Player.getUserId);
-			this.addCallback("playerGetCharId", Player.getCharId);
-			this.addCallback("playerGetGender", Player.getGender);
-			this.addCallback("playerGetData", Player.getData);
-			this.addCallback("playerIsLoaded", Player.isLoaded);
-			this.addCallback("playerGoTo", Player.goToPlayer);
+      // Settings
+      externalize("settingsInfiniteRange", Settings.infiniteRange);
+      externalize("settingsProvokeMap", Settings.provokeMap);
+      externalize("settingsProvokeCell", Settings.provokeCell);
+      externalize("settingsEnemyMagnet", Settings.enemyMagnet);
+      externalize("settingsLagKiller", Settings.lagKiller);
+      externalize("settingsSkipCutscenes", Settings.skipCutscenes);
+      externalize("settingsSetName", Settings.setName);
+      externalize("settingsSetGuild", Settings.setGuild);
+      externalize("settingsSetWalkSpeed", Settings.setWalkSpeed);
+      externalize("settingsSetAccessLevel", Settings.setAccessLevel);
+      externalize("settingsSetDeathAds", Settings.setDeathAds);
+      externalize("settingsSetDisableCollisions", function(on:Boolean):void {
+          if (on) {
+            Modules.enable("DisableCollisions");
+          }
+          else {
+            Modules.disable("DisableCollisions");
+          }
+        });
+      externalize("settingsSetDisableFX", function(on:Boolean):void {
+          if (on) {
+            Modules.enable("DisableFX");
+          }
+          else {
+            Modules.disable("DisableFX");
+          }
+        });
+      externalize("settingsSetHidePlayers", function(on:Boolean):void {
+          if (on) {
+            Modules.enable("HidePlayers");
+          }
+          else {
+            Modules.disable("HidePlayers");
+          }
+        });
 
-			// Quests
-			this.addCallback("questsIsInProgress", Quests.isInProgress);
-			this.addCallback("questsComplete", Quests.complete);
-			this.addCallback("questsAccept", Quests.accept);
-			this.addCallback("questsLoad", Quests.load);
-			this.addCallback("questsGet", Quests.get );
-			this.addCallback("questsGetTree", Quests.getTree);
-			this.addCallback("questsGetQuestValidationString", Quests.getQuestValidationString);
-			this.addCallback("questsHasRequiredItemsForQuest", Quests.hasRequiredItemsForQuest);
-			this.addCallback("questsIsAvailable", Quests.isAvailable);
-			this.addCallback("questsCanCompleteQuest", Quests.canComplete);
-			this.addCallback("questsIsOneTimeQuestDone", Quests.isOneTimeQuestDone);
+      // Shops
+      externalize("shopGetInfo", Shops.getInfo);
+      externalize("shopGetItems", Shops.getItems);
+      externalize("shopGetItem", Shops.getItem);
+      externalize("shopBuyByName", Shops.buyByName);
+      externalize("shopBuyById", Shops.buyById);
+      externalize("shopSellByName", Shops.sellByName);
+      externalize("shopSellById", Shops.sellById);
+      externalize("shopLoad", Shops.load);
+      externalize("shopLoadHairShop", Shops.loadHairShop);
+      externalize("shopLoadArmorCustomize", Shops.loadArmorCustomize);
 
-			// Settings
-			this.addCallback("settingsInfiniteRange", Settings.infiniteRange);
-			this.addCallback("settingsProvokeMap", Settings.provokeMap);
-			this.addCallback("settingsProvokeCell", Settings.provokeCell);
-			this.addCallback("settingsEnemyMagnet", Settings.enemyMagnet);
-			this.addCallback("settingsLagKiller", Settings.lagKiller);
-			this.addCallback("settingsSkipCutscenes", Settings.skipCutscenes);
-			this.addCallback("settingsSetName", Settings.setName);
-			this.addCallback("settingsSetGuild", Settings.setGuild);
-			this.addCallback("settingsSetWalkSpeed", Settings.setWalkSpeed);
-			this.addCallback("settingsSetAccessLevel", Settings.setAccessLevel);
-			this.addCallback("settingsSetDeathAds", Settings.setDeathAds);
-			this.addCallback("settingsSetDisableCollisions", function(on:Boolean):void
-				{
-					if (on)
-					{
-						Modules.enable("DisableCollisions");
-					}
-					else
-					{
-						Modules.disable("DisableCollisions");
-					}
-				});
-			this.addCallback("settingsSetDisableFX", function(on:Boolean):void
-				{
-					if (on)
-					{
-						Modules.enable("DisableFX");
-					}
-					else
-					{
-						Modules.disable("DisableFX");
-					}
-				});
-			this.addCallback("settingsSetHidePlayers", function(on:Boolean):void
-				{
-					if (on)
-					{
-						Modules.enable("HidePlayers");
-					}
-					else
-					{
-						Modules.disable("HidePlayers");
-					}
-				});
+      // TempInventory
+      externalize("tempInventoryGetItems", TempInventory.getItems);
+      externalize("tempInventoryGetItem", TempInventory.getItem);
+      externalize("tempInventoryContains", TempInventory.contains);
 
-			// Shops
-			this.addCallback("shopGetInfo", Shops.getInfo);
-			this.addCallback("shopGetItems", Shops.getItems);
-			this.addCallback("shopGetItem", Shops.getItem);
-			this.addCallback("shopBuyByName", Shops.buyByName);
-			this.addCallback("shopBuyById", Shops.buyById);
-			this.addCallback("shopSellByName", Shops.sellByName);
-			this.addCallback("shopSellById", Shops.sellById);
-			this.addCallback("shopLoad", Shops.load);
-			this.addCallback("shopLoadHairShop", Shops.loadHairShop);
-			this.addCallback("shopLoadArmorCustomize", Shops.loadArmorCustomize);
+      // World
+      externalize("worldIsLoaded", World.isLoaded);
+      externalize("worldGetPlayerNames", World.getPlayerNames);
+      externalize("worldGetPlayers", World.getPlayers);
+      externalize("worldGetPlayer", World.getPlayer);
+      externalize("worldIsPlayerInCell", World.isPlayerInCell);
+      externalize("worldIsActionAvailable", World.isActionAvailable);
+      externalize("worldGetCellMonsters", World.getCellMonsters);
+      externalize("worldGetMonsterByName", World.getMonsterByName);
+      externalize("worldGetMonsterByMonMapId", World.getMonsterByMonMapId);
+      externalize("worldIsMonsterAvailable", World.isMonsterAvailable);
+      externalize("worldGetCells", World.getCells);
+      externalize("worldGetCellPads", World.getCellPads);
+      // externalize("worldGetItemTree", World.getItemTree);
+      externalize("worldGetRoomId", World.getRoomId);
+      externalize("worldGetRoomNumber", World.getRoomNumber);
+      externalize("worldReload", World.reload);
+      externalize("worldLoadSwf", World.loadSwf);
+      externalize("worldGetMapItem", World.getMapItem);
+      externalize("worldSetSpawnPoint", World.setSpawnPoint);
+      externalize("worldGetPlayerAuras", World.getPlayerAuras);
 
-			// TempInventory
-			this.addCallback("tempInventoryGetItems", TempInventory.getItems);
-			this.addCallback("tempInventoryGetItem", TempInventory.getItem);
-			this.addCallback("tempInventoryContains", TempInventory.contains);
+      externalize("isChatFocused", function():Boolean {
+          var game:* = Main.getInstance().getGame();
 
-			// World
-			this.addCallback("worldIsLoaded", World.isLoaded);
-			this.addCallback("worldGetPlayerNames", World.getPlayerNames);
-			this.addCallback("worldGetPlayers", World.getPlayers);
-			this.addCallback("worldGetPlayer", World.getPlayer);
-			this.addCallback("worldIsPlayerInCell", World.isPlayerInCell);
-			this.addCallback("worldIsActionAvailable", World.isActionAvailable);
-			this.addCallback("worldGetCellMonsters", World.getCellMonsters);
-			this.addCallback("worldGetMonsterByName", World.getMonsterByName);
-			this.addCallback("worldGetMonsterByMonMapId", World.getMonsterByMonMapId);
-			this.addCallback("worldIsMonsterAvailable", World.isMonsterAvailable);
-			this.addCallback("worldGetCells", World.getCells);
-			this.addCallback("worldGetCellPads", World.getCellPads);
-			this.addCallback("worldGetItemTree", World.getItemTree);
-			this.addCallback("worldGetRoomId", World.getRoomId);
-			this.addCallback("worldGetRoomNumber", World.getRoomNumber);
-			this.addCallback("worldReload", World.reload);
-			this.addCallback("worldLoadSwf", World.loadSwf);
-			this.addCallback("worldGetMapItem", World.getMapItem);
-			this.addCallback("worldSetSpawnPoint", World.setSpawnPoint);
+          if (game.ui && game.ui.mcInterface) {
+            var textField:Object = (game.intChatMode == 0) ? game.ui.mcInterface.te : game.ui.mcInterface.ncText;
+            if (textField)
+              return game.stage.focus == textField;
+          }
 
-			this.addCallback("isChatFocused", function():Boolean
-				{
-					var game:* = Main.getInstance().getGame();
+          return false;
+        });
 
-					if (game.ui && game.ui.mcInterface)
-					{
-						var textField:Object = (game.intChatMode == 0) ? game.ui.mcInterface.te : game.ui.mcInterface.ncText;
-						if (textField)
-							return game.stage.focus == textField;
-					}
+      debug("Externalizer::init done.");
+    }
 
-					return false;
-				});
+    public function externalize(name:String, func:Function):void {
+      ExternalInterface.addCallback(name, func);
+    }
 
-			this.debug("Externalizer::init done.");
-		}
+    public function call(name:String, ...rest):* {
+      return ExternalInterface.call(name, rest);
+    }
 
-		public function addCallback(name:String, func:Function):void
-		{
-			ExternalInterface.addCallback(name, func);
-		}
-
-		public function call(name:String, ...rest):*
-		{
-			return ExternalInterface.call(name, rest);
-		}
-
-		public function debug(message:String):void
-		{
-			this.call("flashDebug", message);
-		}
-	}
+    public function debug(message:String):void {
+      this.call("flashDebug", message);
+    }
+  }
 }

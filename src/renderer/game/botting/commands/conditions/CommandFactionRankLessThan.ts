@@ -10,12 +10,12 @@ export class CommandFactionRankLessThan extends Command {
       (faction) => faction.name.toLowerCase() === this.faction.toLowerCase(),
     );
 
-    if ((faction?.rank ?? -1) > this.rank) {
+    if ((faction?.rank ?? 0) > this.rank) {
       this.ctx.commandIndex++;
     }
   }
 
   public override toString() {
-    return `${this.faction} rank is less than than: ${this.rank}`;
+    return `${this.faction} rank is less than: ${this.rank}`;
   }
 }

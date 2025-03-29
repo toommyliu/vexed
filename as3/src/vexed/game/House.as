@@ -1,40 +1,31 @@
-package vexed.game
-{
+package vexed.game {
   import vexed.Main;
 
-  public class House
-  {
+  public class House {
     private static var game:Object = Main.getInstance().getGame();
 
-    public static function getItems():Array
-    {
+    public static function getItems():Array {
       return game.world.myAvatar.houseitems;
     }
 
-    public static function getItem(key:*):Object
-    {
-      if (!key)
+    public static function getItem(item:*):Object {
+      if (!item)
         return null;
 
-      if (game.world.myAvatar.houseitems is Array && game.world.myAvatar.houseitems.length > 0)
-      {
-        var item:Object;
-        var items:Array = game.world.myAvatar.houseitems;
-        if (key is String)
-        {
-          key = key.toLowerCase();
-          for each (item in items)
-          {
-            if (item.sName.toLowerCase() === key)
-              return item;
+      var items:Array = game.world.myAvatar.houseitems;
+      if (items is Array) {
+        var itemObj:Object;
+        if (item is String) {
+          item = item.toLowerCase();
+          for each (itemObj in items) {
+            if (itemObj.sName.toLowerCase() === item)
+              return itemObj;
           }
         }
-        else if (key is int)
-        {
-          for each (item in items)
-          {
-            if (item.ItemID === key)
-              return item;
+        else if (item is int) {
+          for each (itemObj in items) {
+            if (itemObj.ItemID === item)
+              return itemObj;
           }
         }
       }
@@ -42,13 +33,11 @@ package vexed.game
       return null;
     }
 
-    public static function getSlots():int
-    {
+    public static function getSlots():int {
       return game.world.myAvatar.objData.iHouseSlots;
     }
 
-    public static function getUsedSlots():int
-    {
+    public static function getUsedSlots():int {
       return game.world.myAvatar.houseitems.length;
     }
   }

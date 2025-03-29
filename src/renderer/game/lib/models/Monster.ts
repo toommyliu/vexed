@@ -80,5 +80,6 @@ export type MonsterData = {
   intHPMax: number;
   intState: number;
   sRace: string;
+  strFrame: string;
   strMonName: string;
 };

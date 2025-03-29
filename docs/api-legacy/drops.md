@@ -22,7 +22,7 @@ Type: `Record<number, number>`
 
 #### getItemFromId
 
-Retrieves item data using it's ID.
+Retrieves item data using its ID.
 
 **Parameters:**
 
@@ -34,7 +34,7 @@ Retrieves item data using it's ID.
 
 #### getItemFromName
 
-Retrieves item data using it's name (case-insensitive).
+Retrieves item data using its name (case-insensitive).
 
 **Parameters:**
 
@@ -46,7 +46,7 @@ Retrieves item data using it's name (case-insensitive).
 
 #### getItemName
 
-Retrieves the name of an item using it's ID.
+Retrieves the name of an item using its ID.
 
 **Parameters:**
 
@@ -58,7 +58,7 @@ Retrieves the name of an item using it's ID.
 
 #### getItemId
 
-Retrieves the ID of an item using it's name.
+Retrieves the ID of an item using its name.
 
 **Parameters:**
 
