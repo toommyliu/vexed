@@ -49,28 +49,6 @@ package vexed.game {
       CustomName.instance.customGuild = name || "";
     }
 
-    public static function _setName(name:String):void {
-      name = name.toUpperCase();
-
-      game.world.myAvatar.pMC.pname.ti.text = name;
-      game.ui.mcPortrait.strName.text = name;
-      game.world.myAvatar.objData.strUsername = name;
-      game.world.myAvatar.pMC.pAV.objData.strUsername = name;
-    }
-
-    public static function _setGuild(name:String):void {
-      name = name.toUpperCase();
-
-      // Player isn't in a guild
-      if (game.world.myAvatar.objData.guild == null) {
-        game.world.myAvatar.objData.guild = new Object();
-      }
-
-      game.world.myAvatar.pMC.pname.tg.text = name;
-      game.world.myAvatar.objData.guild.Name = name;
-      game.world.myAvatar.pMC.pAV.objData.guild.Name = name;
-    }
-
     public static function setWalkSpeed(speed:int):void {
       if (!speed)
         return;

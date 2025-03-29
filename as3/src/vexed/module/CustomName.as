@@ -19,8 +19,22 @@ package vexed.module {
         return;
       }
 
-      Settings._setName(customName);
-      Settings._setGuild(customGuild);
+      {
+        game.world.myAvatar.pMC.pname.ti.text = customName;
+        game.ui.mcPortrait.strName.text = customName;
+        game.world.myAvatar.objData.strUsername = customName;
+        game.world.myAvatar.pMC.pAV.objData.strUsername = customName;
+      }
+
+      {
+        if (game.world.myAvatar.objData.guild == null) {
+          game.world.myAvatar.objData.guild = new Object();
+        }
+
+        game.world.myAvatar.pMC.pname.tg.text = customGuild;
+        game.world.myAvatar.objData.guild.Name = customGuild;
+        game.world.myAvatar.pMC.pAV.objData.guild.Name = customGuild;
+      }
     }
 
     override public function onFrame(game:*):void {
