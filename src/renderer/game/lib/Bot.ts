@@ -28,9 +28,9 @@ type Events = {
   /**
    * This event is emitted when a monster has died.
    *
-   * @param monMapid - The monster map id.
+   * @param monMapId - The monster map id.
    */
-  monsterDeath(monMapid: number): void;
+  monsterDeath(monMapId: number): void;
   /**
    * This event is emitted when a monster has respawned.
    *
