@@ -52,6 +52,8 @@ export class CommandOverlay extends TypedEmitter<Events> {
     this.setupHoverEffects();
     this.setupKeybinds();
     this.setupScrollBehavior();
+
+    this.updateHeaderText();
   }
 
   public updateCommands(commands: Command[], currentIndex: number): void {

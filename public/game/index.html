@@ -144,27 +144,29 @@
           </div>
         </div>
         <div class="w3-right topnav-right-container">
-          <div class="select-group">
-            <select
-              class="w3-select w3-border w3-small w3-right w3-disabled"
-              id="pads"
-              disabled
-            >
-              <option value="" selected disabled hidden></option>
-              <option value="Center">Center</option>
-              <option value="Spawn">Spawn</option>
-              <option value="Left">Left</option>
-              <option value="Right">Right</option>
-              <option value="Top">Top</option>
-              <option value="Bottom">Bottom</option>
-              <option value="Up">Up</option>
-              <option value="Down">Down</option>
-            </select>
-            <select
-              class="w3-select w3-border w3-small w3-right w3-disabled"
-              id="cells"
-              disabled
-            ></select>
+          <div class="dropdown-group">
+            <div class="w3-dropdown-click">
+              <button
+                class="w3-button w3-border w3-small w3-right w3-disabled"
+                id="pads"
+                disabled
+              ></button>
+              <div
+                class="w3-dropdown-content w3-bar-block w3-small"
+                id="pads-dropdowncontent"
+              ></div>
+            </div>
+            <div class="w3-dropdown-click">
+              <button
+                class="w3-button w3-border w3-small w3-right w3-disabled"
+                id="cells"
+                disabled
+              ></button>
+              <div
+                class="w3-dropdown-content w3-bar-block w3-small"
+                id="cells-dropdowncontent"
+              ></div>
+            </div>
           </div>
           <div class="button-group">
             <button
@@ -206,7 +208,7 @@
       require('../../dist/renderer/game/ipc/ipc.spammer.js');
 
       require('../../dist/renderer/game/lib/Bot.js');
-      require('../../dist/renderer/game/script.ui.js');
+      require('../../dist/renderer/game/ui.js');
       require('../../dist/renderer/game/flash-interop.js');
     </script>
     <script defer>

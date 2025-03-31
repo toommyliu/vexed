@@ -78,7 +78,7 @@ export function recursivelyApplySecurityPolicy(window: BrowserWindow): void {
 
       // unused: the return value for window.open?
       // ev.newGuest = childWindow;
-      childWindow.loadURL(url);
+      void childWindow.loadURL(url);
       return childWindow;
     },
   );

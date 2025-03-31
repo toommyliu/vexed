@@ -84,59 +84,6 @@ window.pext = async ([packet]) => {
   }
 };
 
-// window.packetFromServer = async ([packet]: [string]) => {
-//   bot.emit('packetFromServer', packet);
-
-//   if (packet.startsWith('%xt%')) {
-//     const args = packet.split('%');
-//     const cmd = args[2];
-
-//     if (!cmd) return;
-
-//     switch (cmd) {
-//       case 'respawnMon':
-//         break;
-
-//       case 'exitArea': {
-//         const playerName = args[5];
-//         bot.emit('playerLeave', playerName);
-//         break;
-//       }
-
-//       default:
-//         break;
-//     }
-//   }
-
-//   if (packet.startsWith('{')) {
-//     try {
-//       const pkt = JSON.parse(packet);
-//       const cmd = pkt.b.o.cmd;
-
-//       switch (cmd) {
-//         case 'addGoldExp':
-//           await addGoldExp(bot, pkt);
-//           break;
-//         case 'ct':
-//           ct(bot, pkt);
-//           break;
-//         case 'dropItem':
-//           dropItem(bot, pkt);
-//           break;
-//       }
-//     } catch (error) {
-//       // this threw once and i cant repro
-//       logger.error(
-//         `Failed to parse JSON packet:\nOriginal packet: ${packet}\nError: ${error}`,
-//       );
-//     }
-//   }
-// };
-
-// window.packetFromClient = async ([packet]: [string]) => {
-//   bot.emit('packetFromClient', packet);
-// };
-
 window.connection = ([state]: [string]) => {
   const elList = [
     document.querySelector('#cells')!,
