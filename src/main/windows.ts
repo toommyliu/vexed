@@ -132,7 +132,7 @@ export async function createGame(
         }
       }
 
-      // TODO: mem leak
+      store.delete(window.id);
     }
   });
 
