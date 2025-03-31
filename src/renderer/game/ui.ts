@@ -1,3 +1,4 @@
+import process from 'process';
 import { WINDOW_IDS } from '../../common/constants';
 import { ipcRenderer } from '../../common/ipc';
 import { IPC_EVENTS } from '../../common/ipc-events';
@@ -6,8 +7,18 @@ import { Bot } from './lib/Bot';
 import { addCheckbox } from './util/addCheckbox';
 
 const bot = Bot.getInstance();
-
 const dropdowns = new Map<string, HTMLElement>();
+
+const DEFAULT_PADS = [
+  'Center',
+  'Spawn',
+  'Left',
+  'Right',
+  'Top',
+  'Bottom',
+  'Up',
+  'Down',
+] as const;
 
 ipcRenderer.answerMain(IPC_EVENTS.SCRIPT_LOADED, () => {
   {
@@ -36,15 +47,16 @@ window.addEventListener('DOMContentLoaded', async () => {
     'autoaggro',
     document.querySelector('#autoaggro-dropdowncontent')!,
   );
+  dropdowns.set('pads', document.querySelector('#pads-dropdowncontent')!);
+  dropdowns.set('cells', document.querySelector('#cells-dropdowncontent')!);
 
   {
     const btn = document.querySelector(
       '#scripts-dropdowncontent > button:nth-child(1)',
     ) as HTMLButtonElement;
-
-    btn.onclick = async () => {
-      await ipcRenderer.callMain(IPC_EVENTS.LOAD_SCRIPT).catch(() => {});
-    };
+    btn.addEventListener('click', () => {
+      void ipcRenderer.callMain(IPC_EVENTS.LOAD_SCRIPT);
+    });
   }
 
   {
@@ -112,8 +124,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     const btn = document.querySelector(
       '#scripts-dropdowncontent > button:nth-child(4)',
     ) as HTMLButtonElement;
-    btn.addEventListener('click', async () => {
-      await ipcRenderer.callMain(IPC_EVENTS.TOGGLE_DEV_TOOLS).catch(() => {});
+    btn.addEventListener('click', () => {
+      void ipcRenderer.callMain(IPC_EVENTS.TOGGLE_DEV_TOOLS);
     });
   }
 
@@ -121,12 +133,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     const btn = document.querySelector(
       '#tools-dropdowncontent > button:nth-child(1)',
     ) as HTMLButtonElement;
-    btn.addEventListener('click', async () => {
-      await ipcRenderer
-        .callMain(IPC_EVENTS.ACTIVATE_WINDOW, {
-          windowId: WINDOW_IDS.FAST_TRAVELS,
-        })
-        .catch(() => {});
+    btn.addEventListener('click', () => {
+      void ipcRenderer.callMain(IPC_EVENTS.ACTIVATE_WINDOW, {
+        windowId: WINDOW_IDS.FAST_TRAVELS,
+      });
     });
   }
 
@@ -134,12 +144,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     const btn = document.querySelector(
       '#tools-dropdowncontent > button:nth-child(2)',
     ) as HTMLButtonElement;
-    btn.addEventListener('click', async () => {
-      await ipcRenderer
-        .callMain(IPC_EVENTS.ACTIVATE_WINDOW, {
-          windowId: WINDOW_IDS.LOADER_GRABBER,
-        })
-        .catch(() => {});
+    btn.addEventListener('click', () => {
+      void ipcRenderer.callMain(IPC_EVENTS.ACTIVATE_WINDOW, {
+        windowId: WINDOW_IDS.LOADER_GRABBER,
+      });
     });
   }
 
@@ -147,8 +155,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     const btn = document.querySelector(
       '#tools-dropdowncontent > button:nth-child(3)',
     ) as HTMLButtonElement;
-    btn.addEventListener('click', async () => {
-      await ipcRenderer.callMain(IPC_EVENTS.ACTIVATE_WINDOW, {
+    btn.addEventListener('click', () => {
+      void ipcRenderer.callMain(IPC_EVENTS.ACTIVATE_WINDOW, {
         windowId: WINDOW_IDS.FOLLOWER,
       });
     });
@@ -158,12 +166,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     const btn = document.querySelector(
       '#packets-dropdowncontent > button:nth-child(1)',
     ) as HTMLButtonElement;
-    btn.addEventListener('click', async () => {
-      await ipcRenderer
-        .callMain(IPC_EVENTS.ACTIVATE_WINDOW, {
-          windowId: WINDOW_IDS.PACKETS_LOGGER,
-        })
-        .catch(() => {});
+    btn.addEventListener('click', () => {
+      void ipcRenderer.callMain(IPC_EVENTS.ACTIVATE_WINDOW, {
+        windowId: WINDOW_IDS.PACKETS_LOGGER,
+      });
     });
   }
 
@@ -171,12 +177,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     const btn = document.querySelector(
       '#packets-dropdowncontent > button:nth-child(2)',
     ) as HTMLButtonElement;
-    btn.addEventListener('click', async () => {
-      await ipcRenderer
-        .callMain(IPC_EVENTS.ACTIVATE_WINDOW, {
-          windowId: WINDOW_IDS.PACKETS_SPAMMER,
-        })
-        .catch(() => {});
+    btn.addEventListener('click', () => {
+      void ipcRenderer.callMain(IPC_EVENTS.ACTIVATE_WINDOW, {
+        windowId: WINDOW_IDS.PACKETS_SPAMMER,
+      });
     });
   }
 
@@ -195,56 +199,106 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   {
-    let lastRoomId: number | null;
+    let lastRoomId: number | null = null;
 
-    const el_cells = document.querySelector('#cells') as HTMLSelectElement;
-    const el_pads = document.querySelector('#pads') as HTMLSelectElement;
-    const el_x = document.querySelector('#x') as HTMLButtonElement;
+    const cellsBtn = document.querySelector('#cells') as HTMLButtonElement;
+    const cellsDropdown = document.querySelector(
+      '#cells-dropdowncontent',
+    ) as HTMLDivElement;
 
-    const updateSelectMenus = (forceUpdate: boolean = false) => {
-      if (!bot.player.isReady()) return;
+    const padsBtn = document.querySelector('#pads') as HTMLButtonElement;
+    const padsDropdown = document.querySelector(
+      '#pads-dropdowncontent',
+    ) as HTMLDivElement;
 
-      if (!forceUpdate && lastRoomId === bot.world.roomId) {
-        return;
-      }
+    const updateCellsDropdown = () => {
+      if (!bot.player.isReady() || bot.world.roomId === lastRoomId) return;
 
-      el_cells.innerHTML = '';
+      cellsDropdown.innerHTML = '';
+      const fragment = document.createDocumentFragment();
 
       for (const cell of bot.world.cells) {
-        const option = document.createElement('option');
-        option.value = cell;
-        option.text = cell;
-        el_cells.appendChild(option);
+        const cellBtn = document.createElement('button');
+        cellBtn.className = 'w3-button w3-block';
+        cellBtn.textContent = cell;
+        cellBtn.addEventListener('click', () => {
+          if (!bot.player.isReady()) return;
+
+          bot.flash.call(() => swf.playerJump(cell, bot.player.pad ?? 'Spawn'));
+          cellsBtn.innerHTML = `<span>${cell}</span>`;
+        });
+        fragment.appendChild(cellBtn);
       }
 
-      el_cells.value = bot.player.cell ?? 'Enter';
-      el_pads.value = bot.player.pad ?? 'Spawn';
-
+      cellsDropdown.appendChild(fragment);
       lastRoomId = bot.world.roomId;
     };
 
-    const jumpToCell = () => {
-      const _cell = el_cells.value ?? 'Enter';
-      const _pad = el_pads.value ?? 'Spawn';
+    const updatePadsDropdown = () => {
+      if (!bot.player.isReady()) return;
 
-      bot.flash.call(() => swf.playerJump(_cell, _pad));
+      padsDropdown.innerHTML = '';
+      const fragment = document.createDocumentFragment();
+
+      for (const pad of DEFAULT_PADS) {
+        const padBtn = document.createElement('button');
+        padBtn.className = 'w3-button w3-block';
+
+        // Highlight valid cell pads
+        if (bot.world.cellPads.includes(pad)) {
+          padBtn.classList.add('w3-text-green');
+        }
+
+        padBtn.textContent = pad;
+        padBtn.addEventListener('click', () => {
+          if (!bot.player.isReady()) return;
+
+          bot.flash.call(() => swf.playerJump(bot.player.cell ?? 'Enter', pad));
+          padsBtn.innerHTML = `<span>${pad}</span>`;
+        });
+        fragment.appendChild(padBtn);
+      }
+
+      padsDropdown.appendChild(fragment);
     };
 
-    el_cells.addEventListener('mousedown', (ev) => {
-      // Prevent the select from closing
-      ev.stopPropagation();
-      updateSelectMenus();
-    });
-    el_cells.addEventListener('change', jumpToCell);
+    cellsBtn.addEventListener('click', (ev) => {
+      if (!bot.player.isReady()) return;
 
-    el_pads.addEventListener('mousedown', (ev) => {
-      // Prevent the select from closing
-      ev.stopPropagation();
-      updateSelectMenus();
-    });
-    el_pads.addEventListener('change', jumpToCell);
+      updateCellsDropdown();
 
-    el_x.addEventListener('click', () => updateSelectMenus(true));
+      padsDropdown.classList.remove('w3-show');
+      cellsDropdown.classList.toggle('w3-show');
+
+      ev.stopPropagation();
+    });
+
+    padsBtn.addEventListener('click', (ev) => {
+      if (!bot.player.isReady()) return;
+
+      updatePadsDropdown();
+
+      cellsDropdown.classList.remove('w3-show');
+      padsDropdown.classList.toggle('w3-show');
+
+      ev.stopPropagation();
+    });
+
+    const xBtn = document.querySelector('#x') as HTMLButtonElement;
+    xBtn.addEventListener('click', () => {
+      if (!bot.player.isReady()) return;
+
+      updateCellsDropdown();
+      updatePadsDropdown();
+
+      const currentCell = bot.player.cell ?? 'Enter';
+      const currentPad = bot.player.pad ?? 'Spawn';
+
+      cellsBtn.innerHTML = `<span>${currentCell}</span>`;
+      padsBtn.innerHTML = `<span>${currentPad}</span>`;
+
+      bot.flash.call(() => swf.playerJump(currentCell, currentPad));
+    });
   }
 
   {
@@ -323,21 +377,29 @@ window.addEventListener('click', (ev) => {
   const optionsDropdown = document.querySelector('#options-dropdowncontent');
 
   for (const [key, el] of dropdowns.entries()) {
-    if (target.id === key) {
-      // Show the clicked dropdown
-      el.classList.toggle('w3-show');
-    } else if (
-      target.id !== 'option-walkspeed' &&
-      !(optionsDropdown?.contains(target) && target.closest('[id^="option-"]'))
-    ) {
-      // Hide other dropdowns, except when clicking an option
-      el.classList.remove('w3-show');
+    try {
+      if (target.id === key) {
+        // Toggle the dropdown
+        el.classList.toggle('w3-show');
+      } else if (
+        // Preserve dropdown state if:
+        // - Clicking option buttons within options menu
+        // - Using walkspeed input
+        target.id !== 'option-walkspeed' &&
+        !(
+          optionsDropdown?.contains(target) && target.closest('[id^="option-"]')
+        )
+      ) {
+        el.classList.remove('w3-show');
+      }
+    } catch {
+      // Ignore DOM errors
     }
   }
 });
 
+// Close all dropdowns when focusing the game
 window.addEventListener('mousedown', (ev) => {
-  // Close all dropdowns when focusing the game
   if ((ev.target as HTMLElement).id === 'swf') {
     for (const el of dropdowns.values()) {
       el.classList.remove('w3-show');
@@ -345,10 +407,13 @@ window.addEventListener('mousedown', (ev) => {
   }
 });
 
+// Allow certain shortcuts while the game is focused
 window.addEventListener('keydown', (ev) => {
-  // Allow certain shortcuts while the game is focused
+  const isMac = process.platform === 'darwin';
+  const isWindows = process.platform === 'win32';
+
   if (
-    (ev.ctrlKey /* ctrl */ || ev.metaKey) /* cmd */ &&
+    ((isMac && ev.metaKey) /* cmd */ || (isWindows && ev.ctrlKey)) /* ctrl */ &&
     (ev.target as HTMLElement).id === 'swf'
   ) {
     switch (ev.key.toLowerCase()) {

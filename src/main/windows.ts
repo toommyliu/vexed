@@ -74,9 +74,9 @@ export async function createGame(
       // pass account data to run "Login With Account"
       additionalArguments: args,
       // disable unuseful features
-      // spellcheck: false,
       webgl: false,
     },
+    // don't know
     ...(account?.username
       ? { tabbingIdentifier: `game-${account?.username}` }
       : {}),
@@ -116,6 +116,8 @@ export async function createGame(
   });
 
   window.on('close', () => {
+    console.log('close');
+
     const windows = store.get(window.id);
     if (windows) {
       for (const child of Object.values(windows.tools)) {
@@ -129,6 +131,8 @@ export async function createGame(
           child.destroy();
         }
       }
+
+      // TODO: mem leak
     }
   });
 

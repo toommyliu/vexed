@@ -43,14 +43,22 @@
   margin-right: 8px;
 }
 
-.select-group,
-.button-group {
-  display: flex;
-  gap: 8px;
+.topnav-right-container > .w3-dropdown-click:active,
+.topnav-right-container > .w3-dropdown-click:hover {
+  top: 5px !important;
 }
 
-#pads,
-#cells,
+.dropdown-group,
+.button-group {
+  display: flex;
+  margin-left: 6px;
+}
+
+.dropdown-group > *,
+.button-group > * {
+  margin-left: 2px;
+}
+
 #x,
 #bank {
   background-color: var(--bg-secondary);
@@ -64,9 +72,38 @@
   min-width: unset;
 }
 
-#pads,
-#cells {
+/* standardize top-right dropdown trigger styling */
+#topnav
+  > div.w3-right.topnav-right-container
+  > div.dropdown-group
+  > div.w3-dropdown-click
+  > button:first-child {
   width: 86px;
+  height: 25px;
+  padding: 0px !important;
+}
+
+/* standardize top-right dropdown styling */
+#topnav
+  > div.w3-right.topnav-right-container
+  > div.dropdown-group
+  > div.w3-dropdown-click {
+  width: 86px !important;
+  height: 25px !important;
+  margin-top: 5px !important;
+}
+
+/* standardize top-right dropdown content styling */
+#pads-dropdowncontent,
+#cells-dropdowncontent {
+  background-color: var(--bg-secondary) !important;
+  position: absolute;
+  top: var(--topnav-height);
+  margin-top: 2px;
+  /* we don't want the dropdown too tall, especially if they are many options */
+  max-height: 50vh !important;
+  height: auto !important;
+  overflow-y: visible !important;
 }
 
 .gameContainer {
