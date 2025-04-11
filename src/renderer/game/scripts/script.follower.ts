@@ -1,31 +1,33 @@
 import { ipcRenderer } from '../../../common/ipc';
 import { IPC_EVENTS } from '../../../common/ipc-events';
-import { Logger } from '../../../common/logger';
-
-const logger = Logger.get('ScriptFollower');
+import { toggleElement } from '../ui-utils';
 
 let on = false;
 
-const toggleElement = (el: HTMLElement, state: boolean) => {
-  el.classList.toggle('w3-disabled', state);
-  if (state) {
-    el.setAttribute('disabled', 'true');
-  } else {
-    el.removeAttribute('disabled');
-  }
-};
-
 window.addEventListener('DOMContentLoaded', async () => {
-  const player = document.querySelector('#player') as HTMLInputElement;
-  const me = document.querySelector('#me') as HTMLButtonElement;
-  const skillList = document.querySelector('#skill-list') as HTMLInputElement;
-  const skillWait = document.querySelector('#skill-wait') as HTMLInputElement;
-  const skillDelay = document.querySelector('#skill-delay') as HTMLInputElement;
-  const copyWalk = document.querySelector('#copy-walk') as HTMLInputElement;
-  const attackPriority = document.querySelector(
-    '#attack-priority',
-  ) as HTMLInputElement;
-  const start = document.querySelector('#start') as HTMLInputElement;
+  const inputPlayer =
+    document.querySelector<HTMLInputElement>('#input-player')!;
+  const btnMe = document.querySelector<HTMLButtonElement>('#btn-me')!;
+  const skillList = document.querySelector<HTMLInputElement>('#skill-list')!;
+  const skillWait = document.querySelector<HTMLInputElement>('#skill-wait')!;
+  const skillDelay = document.querySelector<HTMLInputElement>('#skill-delay')!;
+  const copyWalk = document.querySelector<HTMLInputElement>('#copy-walk')!;
+  const cbSafeSkill =
+    document.querySelector<HTMLInputElement>('#cb-safe-skill')!;
+  const inputSafeSkill =
+    document.querySelector<HTMLInputElement>('#input-safe-skill')!;
+  const inputSafeSkillHp = document.querySelector<HTMLInputElement>(
+    '#input-safe-skill-hp',
+  )!;
+  const attackPriority =
+    document.querySelector<HTMLInputElement>('#attack-priority')!;
+  const cbAntiCounter =
+    document.querySelector<HTMLInputElement>('#cb-anti-counter')!;
+  const textarea_quests =
+    document.querySelector<HTMLTextAreaElement>('#quests')!;
+  const textarea_drops = document.querySelector<HTMLTextAreaElement>('#drops')!;
+
+  const cbEnable = document.querySelector<HTMLInputElement>('#cb-enable')!;
 
   const toggleState = (state?: boolean) => {
     // use the state to determine value
@@ -35,55 +37,68 @@ window.addEventListener('DOMContentLoaded', async () => {
       on = state;
     }
 
-    start.checked = on;
+    cbEnable.checked = on;
 
-    toggleElement(player, on);
-    toggleElement(me, on);
-    toggleElement(skillList, on);
-    toggleElement(skillWait, on);
-    toggleElement(skillDelay, on);
-    toggleElement(copyWalk, on);
-    toggleElement(attackPriority, on);
+    toggleElement(inputPlayer, !on);
+    toggleElement(btnMe, !on);
+    toggleElement(skillList, !on);
+    toggleElement(skillWait, !on);
+    toggleElement(skillDelay, !on);
+    toggleElement(copyWalk, !on);
+    toggleElement(attackPriority, !on);
+    toggleElement(cbSafeSkill, !on);
+    toggleElement(inputSafeSkill, !on);
+    toggleElement(inputSafeSkillHp, !on);
+    toggleElement(cbAntiCounter, !on);
+    toggleElement(textarea_quests, !on);
+    toggleElement(textarea_drops, !on);
   };
 
-  me.addEventListener('click', async () => {
-    const me = await ipcRenderer
-      .callMain(IPC_EVENTS.MSGBROKER, {
-        data: undefined,
-        ipcEvent: IPC_EVENTS.FOLLOWER_ME,
-      })
-      .then((res) => res as unknown as { name: string })
-      .catch(() => {
-        logger.error('Failed to get me');
-        return null;
-      });
+  if (btnMe) {
+    btnMe.addEventListener('click', async () => {
+      const me = await ipcRenderer
+        .callMain(IPC_EVENTS.MSGBROKER, {
+          data: undefined,
+          ipcEvent: IPC_EVENTS.FOLLOWER_ME,
+        })
+        .then((res) => res as unknown as { name: string })
+        .catch(() => null);
 
-    if (!me) return;
+      if (!me) return;
 
-    player.value = me.name;
-  });
+      inputPlayer.value = me.name;
+    });
+  }
 
-  start.addEventListener('click', async () => {
-    toggleState();
+  if (cbEnable) {
+    cbEnable.addEventListener('click', async () => {
+      toggleState();
 
-    if (on) {
-      await ipcRenderer.callMain(IPC_EVENTS.MSGBROKER, {
-        ipcEvent: IPC_EVENTS.FOLLOWER_START,
-        data: {
-          name: player.value,
-          skillList: skillList.value,
-          skillWait: skillWait.checked,
-          skillDelay: skillDelay.value,
-          copyWalk: copyWalk.checked,
-          attackPriority: attackPriority.value,
-        },
-      });
-    } else {
-      await ipcRenderer.callMain(IPC_EVENTS.MSGBROKER, {
-        ipcEvent: IPC_EVENTS.FOLLOWER_STOP,
-      });
-    }
-  });
+      if (on) {
+        await ipcRenderer.callMain(IPC_EVENTS.MSGBROKER, {
+          ipcEvent: IPC_EVENTS.FOLLOWER_START,
+          data: {
+            name: inputPlayer.value,
+            skillList: skillList.value,
+            skillWait: skillWait.checked,
+            skillDelay: skillDelay.value,
+            safeSkillEnabled: cbSafeSkill.checked,
+            safeSkill: inputSafeSkill.value,
+            safeSkillHp: inputSafeSkillHp.value,
+            copyWalk: copyWalk.checked,
+            attackPriority: attackPriority.value,
+            antiCounter: cbAntiCounter.checked,
+            quests: textarea_quests.value,
+            drops: textarea_drops.value,
+          },
+        });
+      } else {
+        await ipcRenderer.callMain(IPC_EVENTS.MSGBROKER, {
+          ipcEvent: IPC_EVENTS.FOLLOWER_STOP,
+        });
+      }
+    });
+  }
 
   ipcRenderer.answerMain(
     IPC_EVENTS.FOLLOWER_STOP,

@@ -113,8 +113,8 @@ ipcMain.answerRenderer(
       case WINDOW_IDS.FOLLOWER:
         ref = windows.tools.follower;
         path = join(PUBLIC, 'game/tools/follower/index.html');
-        width = 402;
-        height = 499;
+        width = 830;
+        height = 527;
         break;
       case WINDOW_IDS.PACKETS_LOGGER:
         ref = windows.packets.logger;

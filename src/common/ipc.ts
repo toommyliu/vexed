@@ -169,9 +169,15 @@ type TypedIpcEvents = {
   };
   [IPC_EVENTS.FOLLOWER_START]: {
     args: {
+      antiCounter: boolean;
       attackPriority: string;
       copyWalk: boolean;
+      drops: string;
       name: string;
+      quests: string;
+      safeSkill: string;
+      safeSkillEnabled: boolean;
+      safeSkillHp: string;
       skillDelay: string;
       skillList: string;
       skillWait: boolean;

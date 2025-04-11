@@ -1,80 +1,330 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
-    <link href="../../../shared/common.css" rel="stylesheet" />
-    <link href="../../../shared/styles.css" rel="stylesheet" />
-    <link href="./styles.css" rel="stylesheet" />
-    <meta
-      http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
-    />
+    <link href="../../../output.css" rel="stylesheet" />
+    <style>
+      input[type='checkbox'] {
+        accent-color: #7e22ce;
+        background-color: #141622;
+      }
+      input[type='checkbox'] {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 16px;
+        height: 16px;
+        border: 1px solid #2d3748;
+        border-radius: 3px;
+        background-color: #141622;
+        display: inline-block;
+        position: relative;
+        margin-right: 4px;
+        vertical-align: middle;
+        cursor: pointer;
+      }
+      input[type='checkbox']:checked {
+        background-color: #7e22ce;
+        border-color: #7e22ce;
+      }
+      input[type='checkbox']:checked::after {
+        content: '';
+        position: absolute;
+        left: 5px;
+        top: 2px;
+        width: 5px;
+        height: 9px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+      }
+      input[type='text']:focus,
+      textarea:focus {
+        outline: 1px solid #9f7aea;
+      }
+
+      body {
+        user-select: none;
+        background-color: #0f111a;
+        background-image: radial-gradient(
+          circle at 50% 50%,
+          rgba(99, 102, 241, 0.03) 0%,
+          rgba(0, 0, 0, 0) 70%
+        );
+      }
+
+      textarea::-webkit-scrollbar {
+        width: 8px;
+      }
+      textarea::-webkit-scrollbar-track {
+        background: #141622;
+        border-radius: 4px;
+      }
+      textarea::-webkit-scrollbar-thumb {
+        background: #2d3748;
+        border-radius: 4px;
+      }
+      textarea::-webkit-scrollbar-thumb:hover {
+        background: #7e22ce;
+      }
+
+      .tooltip {
+        position: relative;
+        display: inline-block;
+        cursor: help;
+        border-bottom: 1px dashed #cbd5e1;
+      }
+      .tooltip .tooltip-text {
+        visibility: hidden;
+        width: 200px;
+        background-color: #1c1e2a;
+        color: #cbd5e1;
+        text-align: center;
+        border-radius: 6px;
+        padding: 8px;
+        position: absolute;
+        z-index: 10;
+        bottom: 130%;
+        left: 0;
+        margin-bottom: 5px;
+        transform: translateX(0);
+        opacity: 0;
+        transition: opacity 0.3s;
+        box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+        border: 1px solid #2d3748;
+        font-weight: normal;
+        font-size: 0.8rem;
+        pointer-events: none;
+      }
+      .tooltip .tooltip-text::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 15px;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: #2d3748 transparent transparent transparent;
+      }
+      .tooltip:hover .tooltip-text {
+        visibility: visible;
+        opacity: 1;
+      }
+      .tooltip-right .tooltip-text {
+        left: auto;
+        right: 0;
+      }
+      .tooltip-right .tooltip-text::after {
+        left: auto;
+        right: 15px;
+      }
+      .tooltip-left .tooltip-text {
+        left: auto;
+        right: 0;
+        transform: translateX(0);
+      }
+      .tooltip-left .tooltip-text::after {
+        left: auto;
+        right: 10px;
+      }
+    </style>
   </head>
-  <body>
-    <div class="w3-container">
-      <div class="w3-section w3-card w3-round-medium">
-        <div class="w3-container">
-          <div class="w3-section">
-            <label for="player">Player:</label>
-            <div id="player-name-row">
+  <body class="text-dark-text-primary font-sans min-h-screen">
+    <div class="max-w-4xl mx-auto p-4 w-full box-border">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+        <div
+          class="bg-dark-panel border border-dark-border rounded-lg p-4 w-full shadow-lg panel-hover transition-all duration-300"
+        >
+          <h3 class="text-base font-semibold m-0 mb-2 section-header">
+            Player Control
+          </h3>
+
+          <div class="mb-3 w-full">
+            <label for="input-player" class="block mb-2">Player</label>
+            <div class="flex items-center w-full">
               <input
-                id="player"
-                class="w3-input w3-border w3-round-medium"
                 type="text"
+                id="input-player"
+                placeholder="Follow player"
+                class="bg-dark-input border border-dark-border p-1 h-8 rounded-md flex-1 min-w-0"
               />
-              <button class="w3-button w3-round-medium" id="me">me</button>
+              <button
+                class="bg-dark-accent hover:bg-purple-800 text-white border border-purple-900 p-1 h-8 rounded-md ml-1 whitespace-nowrap transition-all duration-200 shadow-sm"
+                id="btn-me"
+              >
+                me
+              </button>
             </div>
           </div>
-          <div class="w3-section">
-            <label for="skills">Skill List:</label>
-            <div id="skill-list-row">
+
+          <div class="mb-3 w-full">
+            <div class="flex items-center w-full">
+              <label
+                for="skill-list"
+                class="text-dark-text-secondary mr-2 whitespace-nowrap"
+                >Skill List</label
+              >
               <input
-                id="skill-list"
-                class="w3-input w3-border w3-round-medium"
                 type="text"
+                id="skill-list"
                 value="1,2,3,4"
+                class="bg-dark-input border border-dark-border p-1 h-8 rounded-md flex-1 min-w-0 mr-2"
               />
-              <div class="skill-wait-row">
-                <input type="checkbox" id="skill-wait" />
-                <label for="skill-wait">Wait</label>
+              <div class="flex items-center whitespace-nowrap">
+                <input type="checkbox" id="skill-wait" class="flex-shrink-0" />
+                <label for="skill-wait" class="text-dark-text-secondary"
+                  >Wait</label
+                >
               </div>
             </div>
           </div>
-          <div class="w3-section">
-            <label for="skill-delay">Skill Delay:</label>
-            <div class="input-group">
+
+          <div class="mb-3 w-full">
+            <div class="flex items-center w-full">
+              <label
+                for="skill-delay"
+                class="text-dark-text-secondary mr-2 whitespace-nowrap"
+                >Skill Delay</label
+              >
               <input
+                type="text"
                 id="skill-delay"
-                class="w3-input w3-border w3-round-medium"
-                type="number"
-                min="0"
                 value="150"
+                class="bg-dark-input text-dark-text-primary border border-dark-border p-1 h-8 rounded-md flex-1 min-w-0"
               />
-              <label for="skill-delay">ms</label>
+              <span class="ml-1 text-dark-text-primary whitespace-nowrap"
+                >ms</span
+              >
             </div>
           </div>
-          <div class="w3-section">
-            <input type="checkbox" id="start" />
-            <label for="start">Enable</label>
+
+          <div class="flex items-center mt-3">
+            <div class="flex items-center whitespace-nowrap">
+              <input type="checkbox" id="cb-enable" class="flex-shrink-0" />
+              <label for="cb-enable" class="text-dark-text-secondary"
+                >Enable</label
+              >
+            </div>
           </div>
         </div>
-      </div>
-      <div class="w3-section w3-card w3-round-medium">
-        <div class="w3-container">
-          <div class="w3-section">
-            <label for="attack-priority" class="form-label"
-              >Attack Priority:</label
-            >
+
+        <div
+          class="bg-dark-panel border border-dark-border rounded-lg p-4 w-full shadow-lg panel-hover transition-all duration-300"
+        >
+          <h3 class="text-base font-semibold m-0 mb-2 section-header">
+            Options
+          </h3>
+
+          <div
+            class="flex flex-wrap items-center mb-3 overflow-x-auto whitespace-nowrap gap-2"
+          >
+            <div class="flex items-center flex-shrink-0">
+              <input type="checkbox" id="cb-safe-skill" class="flex-shrink-0" />
+              <label for="cb-safe-skill" class="text-dark-text-secondary mr-1"
+                >Use</label
+              >
+            </div>
+            <div class="flex items-center flex-shrink-0">
+              <input
+                type="text"
+                class="w-[50px] min-w-[50px] bg-dark-input border border-dark-border p-1 h-7 rounded-md"
+                value="2"
+                id="input-safe-skill"
+              />
+            </div>
+            <div class="flex items-center flex-shrink-0">
+              <label class="whitespace-nowrap text-dark-text-secondary mx-1"
+                >if any player hp &lt;</label
+              >
+            </div>
+            <div class="flex items-center flex-shrink-0">
+              <input
+                type="text"
+                class="w-[50px] min-w-[50px] bg-dark-input text-dark-text-primary border border-dark-border p-1 h-7 rounded-md"
+                value="60"
+                id="input-safe-skill-hp"
+              />
+              <span class="ml-1 text-dark-text-muted">%</span>
+            </div>
+          </div>
+
+          <div class="mb-3 w-full">
+            <label for="attack-priority" class="text-dark-text-secondary">
+              <span class="tooltip">
+                Attack Priority
+                <span class="tooltip-text">
+                  Monster name or monMapId format, separated by commas. The
+                  first available monster is attacked
+                </span>
+              </span>
+            </label>
             <input
-              id="attack-priority"
-              class="w3-input w3-round-medium w3-border"
               type="text"
-              value="Defense Drone, Attack Drone"
+              id="attack-priority"
+              placeholder="Defense Drone,Attack Drone"
+              class="bg-dark-input text-dark-text-primary border border-dark-border p-1 h-8 rounded-md w-full mt-2"
             />
           </div>
-          <div class="w3-section">
-            <input type="checkbox" id="copy-walk" />
-            <label for="copy-walk">Copy Walk</label>
+
+          <div class="flex flex-col mt-3">
+            <div class="flex items-center">
+              <div class="flex items-center mr-4">
+                <input type="checkbox" id="copy-walk" class="flex-shrink-0" />
+                <label for="copy-walk" class="text-dark-text-secondary"
+                  >Copy Walk</label
+                >
+              </div>
+
+              <div class="flex items-center">
+                <input
+                  type="checkbox"
+                  id="cb-anti-counter"
+                  class="flex-shrink-0"
+                />
+                <label for="cb-anti-counter" class="text-dark-text-secondary"
+                  >Anti Counter</label
+                >
+              </div>
+            </div>
           </div>
+        </div>
+
+        <div
+          class="bg-dark-panel border border-dark-border rounded-lg p-4 w-full shadow-lg panel-hover transition-all duration-300"
+        >
+          <h3 class="text-base font-semibold m-0 mb-2 section-header">
+            <span class="tooltip">
+              Quests
+              <span class="tooltip-text"
+                >Enter quest ids to auto-accept, separated by commas, new lines,
+                or both.</span
+              >
+            </span>
+          </h3>
+          <textarea
+            placeholder="4432
+4433,4434"
+            id="quests"
+            class="w-full min-h-[120px] bg-dark-input text-dark-text-primary border border-dark-border p-2 resize-y rounded-md"
+          ></textarea>
+        </div>
+
+        <div
+          class="bg-dark-panel border border-dark-border rounded-lg p-4 w-full shadow-lg panel-hover transition-all duration-300"
+        >
+          <h3 class="text-base font-semibold m-0 mb-2 section-header">
+            <span class="tooltip">
+              Drops
+              <span class="tooltip-text"
+                >Enter item names (or ids) to auto-pickup, separated by commas,
+                new-lines, or both</span
+              >
+            </span>
+          </h3>
+          <textarea
+            placeholder="Item 1
+Item 2,Item 3"
+            id="drops"
+            class="w-full min-h-[120px] bg-dark-input text-dark-text-primary border border-dark-border p-2 resize-y rounded-md"
+          ></textarea>
         </div>
       </div>
     </div>

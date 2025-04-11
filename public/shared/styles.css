@@ -34,13 +34,44 @@ body {
   background-size: 16px;
 }
 
-input[type='checkbox']:not(:checked) {
-  background-color: #131314 !important;
+/* reset checkbox */
+input[type='checkbox'] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
   appearance: none;
+  background-color: transparent;
+  margin: 0;
+  font: inherit;
   width: 13px;
   height: 13px;
   border: 1px solid #474951;
   border-radius: 3px;
+  display: inline-block;
+  position: relative;
+}
+
+input[type='checkbox']:not(:checked) {
+  background-color: #131314;
+  width: 13px;
+  height: 13px;
+}
+
+input[type='checkbox']:checked {
+  background-color: #131314;
+  width: 13px;
+  height: 13px;
+}
+
+input[type='checkbox']:checked::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 0px;
+  width: 5px;
+  height: 9px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
 }
 
 .w3-card {

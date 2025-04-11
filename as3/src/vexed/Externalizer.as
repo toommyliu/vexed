@@ -110,6 +110,7 @@ package vexed {
       externalize("questsAccept", Quests.accept);
       externalize("questsLoad", Quests.load);
       externalize("questsGet", Quests.get );
+      externalize("questsGetMultiple", Quests.getMultiple);
       externalize("questsGetTree", Quests.getTree);
       externalize("questsGetQuestValidationString", Quests.getQuestValidationString);
       externalize("questsHasRequiredItemsForQuest", Quests.hasRequiredItemsForQuest);

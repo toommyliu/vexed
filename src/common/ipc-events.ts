@@ -1,4 +1,3 @@
-// adding an event should be documented in ipc.ts
 export const IPC_EVENTS = {
   MSGBROKER: 'ipc-broker' as const,
   /**

@@ -2,6 +2,8 @@ node_modules/
 dist/
 build/
 
+public/output.css
+
 .DS_Store
 
 .vscode/settings.json

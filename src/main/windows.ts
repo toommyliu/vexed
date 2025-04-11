@@ -116,8 +116,6 @@ export async function createGame(
   });
 
   window.on('close', () => {
-    console.log('close');
-
     const windows = store.get(window.id);
     if (windows) {
       for (const child of Object.values(windows.tools)) {
