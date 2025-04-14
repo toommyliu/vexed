@@ -37,7 +37,9 @@ function parseConfig(rawConfig: FollowerConfigRaw): FollowerConfig {
     safeSkillHp: rawSafeSkillHp,
   } = rawConfig;
 
-  const name = (rawName === '' ? bot.auth.username : rawName).toLowerCase();
+  const name = (
+    rawName === '' ? (bot.auth?.username ?? '') : rawName
+  ).toLowerCase();
 
   const skillList =
     typeof rawSkillList === 'string' && rawSkillList.trim() !== ''
@@ -107,7 +109,7 @@ type UotlPacket = {
 function packetHandler(packet: UotlPacket) {
   if (!on) return;
 
-  if (packet?.params?.type !== 'str') return;
+  if (packet?.params?.type !== 'str' || !config?.name) return;
 
   const args = packet.params.dataObj;
   if (!args?.length) return;
@@ -138,9 +140,14 @@ async function startFollower() {
   const cfg = config as FollowerConfig;
   const { name } = cfg;
 
-  const foundPlayer = () =>
-    bot.world.isPlayerInMap(name) &&
-    bot.world.isPlayerInCell(name, bot.player.cell);
+  const foundPlayer = () => {
+    if (!name) return true;
+
+    return (
+      bot.world.isPlayerInMap(name) &&
+      bot.world.isPlayerInCell(name, bot.player.cell)
+    );
+  };
 
   // goto player if needed
   async function goToPlayer() {
@@ -226,8 +233,10 @@ async function startFollower() {
     try {
       await mutex.acquire();
 
-      if (bot.world.isPlayerInMap(name)) {
-        if (bot.world.isPlayerInCell(name, bot.player.cell)) {
+      if (bot.world.isPlayerInMap(name || bot.auth.username)) {
+        if (
+          bot.world.isPlayerInCell(name || bot.auth.username, bot.player.cell)
+        ) {
           bot.world.setSpawnPoint();
 
           if (!bot.world.availableMonsters.length) {
@@ -249,9 +258,7 @@ async function startFollower() {
             }
           }
 
-          if (Array.isArray(cfg.attackPriority)) {
-            doPriorityAttack(cfg.attackPriority);
-          }
+          doPriorityAttack(cfg.attackPriority);
 
           if (
             bot.world.isMonsterAvailable('*') &&
@@ -326,6 +333,7 @@ ipcRenderer.answerMain(IPC_EVENTS.FOLLOWER_START, async (args) => {
     }
 
     if (config.antiCounter) {
+      // eslint-disable-next-line require-atomic-updates
       bot.settings.counterAttack = true;
     }
 
