@@ -103,7 +103,9 @@
   /* we don't want the dropdown too tall, especially if they are many options */
   max-height: 50vh !important;
   height: auto !important;
-  overflow-y: visible !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  z-index: 1000;
 }
 
 .gameContainer {
