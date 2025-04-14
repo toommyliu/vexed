@@ -34,7 +34,11 @@ export function startQuestTimer(quests: string[]) {
         }
 
         if (swf.questsCanCompleteQuest(_questId)) {
-          void bot.quests.complete(_questId);
+          const maxTurnIns = bot.flash.call<number>(
+            'world.maximumQuestTurnIns',
+            _questId,
+          );
+          void bot.quests.complete(_questId, maxTurnIns);
           void bot.quests.accept(_questId);
         }
       } catch {}
