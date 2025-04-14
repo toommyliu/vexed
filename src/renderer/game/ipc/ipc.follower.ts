@@ -127,7 +127,6 @@ function packetHandler(packet: UotlPacket) {
     const spd = data.find((pkt) => pkt.startsWith('sp:'));
     const xPos = data.find((pkt) => pkt.startsWith('tx:'));
     const yPos = data.find((pkt) => pkt.startsWith('ty:'));
-
     const x = Number.parseInt(xPos!.split(':')[1]!, 10) ?? 0;
     const y = Number.parseInt(yPos!.split(':')[1]!, 10) ?? 0;
     const speed = Number.parseInt(spd!.split(':')[1]!, 10) ?? 8;
@@ -243,7 +242,7 @@ async function startFollower() {
             return;
           }
 
-          if (cfg.safeSkillEnabled) {
+          if (cfg.safeSkillEnabled && cfg.safeSkill.length) {
             for (const playerName of bot.world.playerNames) {
               const player = bot.world.players?.get(playerName);
               if (player?.isHpPercentageLessThan(cfg.safeSkillHp)) {
