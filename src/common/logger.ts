@@ -2,6 +2,8 @@ import util from 'util';
 import type { Logger as WinstonLogger } from 'winston';
 import winston, { createLogger, format, transports } from 'winston';
 
+// TODO: add debug flag to enable debug logging
+
 export class Logger {
   private readonly scope: string;
 

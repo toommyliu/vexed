@@ -127,6 +127,7 @@ declare global {
     questsAccept(questId: number): void;
     questsLoad(questId: number): void;
     questsGet(questId: number): Nullable<Record<string, unknown>>;
+    questsGetMultiple(questIds: string): void;
     questsGetTree(): QuestData[];
     questsGetQuestValidationString(quest: QuestData): string;
     questsHasRequiredItemsForQuest(quest: QuestData): boolean;

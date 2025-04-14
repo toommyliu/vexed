@@ -25,6 +25,10 @@ package vexed.game {
       game.world.getQuests([questId]);
     }
 
+    public static function getMultiple(questIds:String):void {
+      game.world.getQuests(questIds.split(","));
+    }
+
     public static function getTree():Array {
       var quests:Array = [];
       for each (var q:Object in game.world.questTree) {

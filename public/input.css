@@ -1,0 +1,109 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  color: white !important;
+}
+
+input[type='checkbox'] {
+  position: relative;
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+input[type='checkbox']:not(:checked) {
+  appearance: none;
+  background-color: rgb(24 24 27); /* bg-zinc-900 */
+  border-radius: 2px;
+  border: 1px solid #4b5563;
+}
+
+input[type='checkbox']:checked {
+  position: relative;
+  width: 14px;
+  height: 14px;
+}
+
+input[type='checkbox'] + label {
+  margin-left: 5px;
+  cursor: pointer;
+}
+
+textarea::-webkit-scrollbar {
+  width: 8px;
+}
+textarea::-webkit-scrollbar-track {
+  background: #0f0f0f;
+  border-radius: 4px;
+}
+textarea::-webkit-scrollbar-thumb {
+  background: #333333;
+  border-radius: 4px;
+}
+textarea::-webkit-scrollbar-thumb:hover {
+  background: #444444;
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+  cursor: help;
+  border-bottom: 1px dashed #4b5563;
+}
+.tooltip .tooltip-text {
+  visibility: hidden;
+  width: 200px;
+  background-color: #0f0f0f;
+  color: #d1d5db;
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px;
+  position: absolute;
+  z-index: 10;
+  bottom: 130%;
+  left: 0;
+  margin-bottom: 5px;
+  transform: translateX(0);
+  opacity: 0;
+  transition: opacity 0.3s;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+  border: 1px solid #333333;
+  font-weight: normal;
+  font-size: 0.8rem;
+  pointer-events: none;
+}
+.tooltip .tooltip-text::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 15px;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #333333 transparent transparent transparent;
+}
+.tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+.tooltip-right .tooltip-text {
+  left: auto;
+  right: 0;
+}
+.tooltip-right .tooltip-text::after {
+  left: auto;
+  right: 15px;
+}
+.tooltip-left .tooltip-text {
+  left: auto;
+  right: 0;
+  transform: translateX(0);
+}
+.tooltip-left .tooltip-text::after {
+  left: auto;
+  right: 10px;
+}

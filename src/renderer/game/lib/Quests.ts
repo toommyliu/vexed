@@ -54,7 +54,8 @@ export class Quests {
   public async loadMultiple(questIds: (number | string)[]): Promise<void> {
     if (!Array.isArray(questIds) || !questIds.length) return;
 
-    await Promise.all(questIds.map(async (id) => this.load(id)));
+    this.bot.flash.call(() => swf.questsGetMultiple(questIds.join(',')));
+    // await Promise.all(questIds.map(async (id) => this.load(id)));
   }
 
   /**

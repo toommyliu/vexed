@@ -5,6 +5,8 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "compile": "node esbuild.config.js",
+    "compile:css": "npx tailwindcss -i ./public/input.css -o ./public/output.css",
+    "compile:css:watch": "npx tailwindcss -i ./public/input.css -o ./public/output.css --watch",
     "compile:watch": "node esbuild.config.js --watch",
     "dev": "electron .",
     "dev:watch": "concurrently \"yarn compile:watch\" \"electronmon .\"",
@@ -40,6 +42,7 @@
     "eslint": "^9.10.0",
     "eslint-config-neon": "^0.2.4",
     "prettier": "^3.3.3",
+    "tailwindcss": "3",
     "typescript": "^5.5.4"
   },
   "electronmon": {

@@ -106,11 +106,11 @@ export class Bank {
     await this.open();
 
     if (!this.get(key)) {
-      throw new Error('Item not found in bank');
+      return;
     }
 
     if (this.bot.inventory.get(key)) {
-      throw new Error('Item already in inventory');
+      return;
     }
 
     this.bot.flash.call<boolean>(() => swf.bankWithdraw(key));

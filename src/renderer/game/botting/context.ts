@@ -247,6 +247,8 @@ export class Context extends TypedEmitter<Events> {
   }
 
   private async runTimers() {
+    // TODO: use utilty helper
+
     void interval(async (_, stop) => {
       if (!this.isRunning()) {
         stop();

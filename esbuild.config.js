@@ -104,9 +104,9 @@ async function transpile() {
      */
     const config = {
       platform: 'node',
-      target: 'chrome67',
+      target: 'chrome76',
       format: 'cjs',
-      minify: true,
+      // minify: true,
       sourcemap: true,
       treeShaking: true,
     };
