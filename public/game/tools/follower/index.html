@@ -1,141 +1,15 @@
 <!doctype html>
-<html lang="en">
+<html class="dark">
   <head>
     <link href="../../../output.css" rel="stylesheet" />
-    <style>
-      input[type='checkbox'] {
-        accent-color: #7e22ce;
-        background-color: #141622;
-      }
-      input[type='checkbox'] {
-        appearance: none;
-        -webkit-appearance: none;
-        width: 16px;
-        height: 16px;
-        border: 1px solid #2d3748;
-        border-radius: 3px;
-        background-color: #141622;
-        display: inline-block;
-        position: relative;
-        margin-right: 4px;
-        vertical-align: middle;
-        cursor: pointer;
-      }
-      input[type='checkbox']:checked {
-        background-color: #7e22ce;
-        border-color: #7e22ce;
-      }
-      input[type='checkbox']:checked::after {
-        content: '';
-        position: absolute;
-        left: 5px;
-        top: 2px;
-        width: 5px;
-        height: 9px;
-        border: solid white;
-        border-width: 0 2px 2px 0;
-        transform: rotate(45deg);
-      }
-      input[type='text']:focus,
-      textarea:focus {
-        outline: 1px solid #9f7aea;
-      }
-
-      body {
-        user-select: none;
-        background-color: #0f111a;
-        background-image: radial-gradient(
-          circle at 50% 50%,
-          rgba(99, 102, 241, 0.03) 0%,
-          rgba(0, 0, 0, 0) 70%
-        );
-      }
-
-      textarea::-webkit-scrollbar {
-        width: 8px;
-      }
-      textarea::-webkit-scrollbar-track {
-        background: #141622;
-        border-radius: 4px;
-      }
-      textarea::-webkit-scrollbar-thumb {
-        background: #2d3748;
-        border-radius: 4px;
-      }
-      textarea::-webkit-scrollbar-thumb:hover {
-        background: #7e22ce;
-      }
-
-      .tooltip {
-        position: relative;
-        display: inline-block;
-        cursor: help;
-        border-bottom: 1px dashed #cbd5e1;
-      }
-      .tooltip .tooltip-text {
-        visibility: hidden;
-        width: 200px;
-        background-color: #1c1e2a;
-        color: #cbd5e1;
-        text-align: center;
-        border-radius: 6px;
-        padding: 8px;
-        position: absolute;
-        z-index: 10;
-        bottom: 130%;
-        left: 0;
-        margin-bottom: 5px;
-        transform: translateX(0);
-        opacity: 0;
-        transition: opacity 0.3s;
-        box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
-        border: 1px solid #2d3748;
-        font-weight: normal;
-        font-size: 0.8rem;
-        pointer-events: none;
-      }
-      .tooltip .tooltip-text::after {
-        content: '';
-        position: absolute;
-        top: 100%;
-        left: 15px;
-        margin-left: -5px;
-        border-width: 5px;
-        border-style: solid;
-        border-color: #2d3748 transparent transparent transparent;
-      }
-      .tooltip:hover .tooltip-text {
-        visibility: visible;
-        opacity: 1;
-      }
-      .tooltip-right .tooltip-text {
-        left: auto;
-        right: 0;
-      }
-      .tooltip-right .tooltip-text::after {
-        left: auto;
-        right: 15px;
-      }
-      .tooltip-left .tooltip-text {
-        left: auto;
-        right: 0;
-        transform: translateX(0);
-      }
-      .tooltip-left .tooltip-text::after {
-        left: auto;
-        right: 10px;
-      }
-    </style>
   </head>
-  <body class="text-dark-text-primary font-sans min-h-screen">
+  <body class="bg-black font-sans min-h-screen select-none">
     <div class="max-w-4xl mx-auto p-4 w-full box-border">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
         <div
-          class="bg-dark-panel border border-dark-border rounded-lg p-4 w-full shadow-lg panel-hover transition-all duration-300"
+          class="bg-zinc-900 border border-zinc-800 rounded-md p-4 w-full shadow-md"
         >
-          <h3 class="text-base font-semibold m-0 mb-2 section-header">
-            Player Control
-          </h3>
+          <h3 class="text-base m-0 mb-2">Player Control</h3>
 
           <div class="mb-3 w-full">
             <label for="input-player" class="block mb-2">Player</label>
@@ -144,10 +18,10 @@
                 type="text"
                 id="input-player"
                 placeholder="Follow player"
-                class="bg-dark-input border border-dark-border p-1 h-8 rounded-md flex-1 min-w-0"
+                class="bg-black border border-zinc-800 p-1 h-8 rounded-md flex-1 min-w-0"
               />
               <button
-                class="bg-dark-accent hover:bg-purple-800 text-white border border-purple-900 p-1 h-8 rounded-md ml-1 whitespace-nowrap transition-all duration-200 shadow-sm"
+                class="bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 p-1 h-8 rounded-md ml-1 whitespace-nowrap transition-all duration-200 shadow-sm"
                 id="btn-me"
               >
                 me
@@ -159,20 +33,18 @@
             <div class="flex items-center w-full">
               <label
                 for="skill-list"
-                class="text-dark-text-secondary mr-2 whitespace-nowrap"
+                class="text-gray-400 mr-2 whitespace-nowrap"
                 >Skill List</label
               >
               <input
                 type="text"
                 id="skill-list"
                 value="1,2,3,4"
-                class="bg-dark-input border border-dark-border p-1 h-8 rounded-md flex-1 min-w-0 mr-2"
+                class="bg-black border border-zinc-800 p-1 h-8 rounded-md flex-1 min-w-0 mr-2"
               />
               <div class="flex items-center whitespace-nowrap">
                 <input type="checkbox" id="skill-wait" class="flex-shrink-0" />
-                <label for="skill-wait" class="text-dark-text-secondary"
-                  >Wait</label
-                >
+                <label for="skill-wait" class="text-gray-400">Wait</label>
               </div>
             </div>
           </div>
@@ -181,73 +53,65 @@
             <div class="flex items-center w-full">
               <label
                 for="skill-delay"
-                class="text-dark-text-secondary mr-2 whitespace-nowrap"
+                class="text-gray-400 mr-2 whitespace-nowrap"
                 >Skill Delay</label
               >
               <input
                 type="text"
                 id="skill-delay"
                 value="150"
-                class="bg-dark-input text-dark-text-primary border border-dark-border p-1 h-8 rounded-md flex-1 min-w-0"
+                class="bg-black border border-zinc-800 p-1 h-8 rounded-md flex-1 min-w-0"
               />
-              <span class="ml-1 text-dark-text-primary whitespace-nowrap"
-                >ms</span
-              >
+              <span class="ml-1 whitespace-nowrap">ms</span>
             </div>
           </div>
 
           <div class="flex items-center mt-3">
             <div class="flex items-center whitespace-nowrap">
               <input type="checkbox" id="cb-enable" class="flex-shrink-0" />
-              <label for="cb-enable" class="text-dark-text-secondary"
-                >Enable</label
-              >
+              <label for="cb-enable" class="text-gray-400">Enable</label>
             </div>
           </div>
         </div>
 
         <div
-          class="bg-dark-panel border border-dark-border rounded-lg p-4 w-full shadow-lg panel-hover transition-all duration-300"
+          class="bg-zinc-900 border border-zinc-800 rounded-md p-4 w-full shadow-md"
         >
-          <h3 class="text-base font-semibold m-0 mb-2 section-header">
-            Options
-          </h3>
+          <h3 class="text-base font-semibold m-0 mb-2">Options</h3>
 
           <div
             class="flex flex-wrap items-center mb-3 overflow-x-auto whitespace-nowrap gap-2"
           >
             <div class="flex items-center flex-shrink-0">
               <input type="checkbox" id="cb-safe-skill" class="flex-shrink-0" />
-              <label for="cb-safe-skill" class="text-dark-text-secondary mr-1"
-                >Use</label
-              >
+              <label for="cb-safe-skill" class="text-gray-400 mr-1">Use</label>
             </div>
             <div class="flex items-center flex-shrink-0">
               <input
                 type="text"
-                class="w-[50px] min-w-[50px] bg-dark-input border border-dark-border p-1 h-7 rounded-md"
+                class="w-[50px] min-w-[50px] bg-black border border-zinc-800 p-1 h-7 rounded-md"
                 value="2"
                 id="input-safe-skill"
               />
             </div>
             <div class="flex items-center flex-shrink-0">
-              <label class="whitespace-nowrap text-dark-text-secondary mx-1"
+              <label class="whitespace-nowrap text-gray-400 mx-1"
                 >if any player hp &lt;</label
               >
             </div>
             <div class="flex items-center flex-shrink-0">
               <input
                 type="text"
-                class="w-[50px] min-w-[50px] bg-dark-input text-dark-text-primary border border-dark-border p-1 h-7 rounded-md"
+                class="w-[50px] min-w-[50px] bg-black border border-zinc-800 p-1 h-7 rounded-md"
                 value="60"
                 id="input-safe-skill-hp"
               />
-              <span class="ml-1 text-dark-text-muted">%</span>
+              <span class="ml-1 text-gray-500">%</span>
             </div>
           </div>
 
           <div class="mb-3 w-full">
-            <label for="attack-priority" class="text-dark-text-secondary">
+            <label for="attack-priority" class="text-gray-400">
               <span class="tooltip">
                 Attack Priority
                 <span class="tooltip-text">
@@ -260,7 +124,7 @@
               type="text"
               id="attack-priority"
               placeholder="Defense Drone,Attack Drone"
-              class="bg-dark-input text-dark-text-primary border border-dark-border p-1 h-8 rounded-md w-full mt-2"
+              class="bg-black border border-zinc-800 p-1 h-8 rounded-md w-full mt-2"
             />
           </div>
 
@@ -268,9 +132,7 @@
             <div class="flex items-center">
               <div class="flex items-center mr-4">
                 <input type="checkbox" id="copy-walk" class="flex-shrink-0" />
-                <label for="copy-walk" class="text-dark-text-secondary"
-                  >Copy Walk</label
-                >
+                <label for="copy-walk" class="text-gray-400">Copy Walk</label>
               </div>
 
               <div class="flex items-center">
@@ -279,7 +141,7 @@
                   id="cb-anti-counter"
                   class="flex-shrink-0"
                 />
-                <label for="cb-anti-counter" class="text-dark-text-secondary"
+                <label for="cb-anti-counter" class="text-gray-400"
                   >Anti Counter</label
                 >
               </div>
@@ -288,14 +150,14 @@
         </div>
 
         <div
-          class="bg-dark-panel border border-dark-border rounded-lg p-4 w-full shadow-lg panel-hover transition-all duration-300"
+          class="bg-zinc-900 border border-zinc-800 rounded-md p-4 w-full shadow-md"
         >
-          <h3 class="text-base font-semibold m-0 mb-2 section-header">
+          <h3 class="text-base font-semibold m-0 mb-2">
             <span class="tooltip">
               Quests
               <span class="tooltip-text"
-                >Enter quest ids to auto-accept, separated by commas, new lines,
-                or both.</span
+                >Quest ids to accept and turn-in, separated by commas, new
+                lines, or both.</span
               >
             </span>
           </h3>
@@ -303,18 +165,18 @@
             placeholder="4432
 4433,4434"
             id="quests"
-            class="w-full min-h-[120px] bg-dark-input text-dark-text-primary border border-dark-border p-2 resize-y rounded-md"
+            class="w-full min-h-[120px] bg-black border border-zinc-800 p-2 resize-y rounded-md"
           ></textarea>
         </div>
 
         <div
-          class="bg-dark-panel border border-dark-border rounded-lg p-4 w-full shadow-lg panel-hover transition-all duration-300"
+          class="bg-zinc-900 border border-zinc-800 rounded-md p-4 w-full shadow-md"
         >
-          <h3 class="text-base font-semibold m-0 mb-2 section-header">
+          <h3 class="text-base font-semibold m-0 mb-2">
             <span class="tooltip">
               Drops
               <span class="tooltip-text"
-                >Enter item names (or ids) to auto-pickup, separated by commas,
+                >Item names or ids to auto-pickup, separated by commas,
                 new-lines, or both</span
               >
             </span>
@@ -323,7 +185,7 @@
             placeholder="Item 1
 Item 2,Item 3"
             id="drops"
-            class="w-full min-h-[120px] bg-dark-input text-dark-text-primary border border-dark-border p-2 resize-y rounded-md"
+            class="w-full min-h-[120px] bg-black border border-zinc-800 p-2 resize-y rounded-md"
           ></textarea>
         </div>
       </div>
