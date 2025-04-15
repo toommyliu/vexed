@@ -1,62 +1,87 @@
 <!doctype html>
 <html>
   <head>
-    <link href="../../../shared/common.css" rel="stylesheet" />
-    <link href="../../../shared/styles.css" rel="stylesheet" />
-    <link href="./styles.css" rel="stylesheet" />
+    <link href="../../../output.css" rel="stylesheet" />
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
     />
   </head>
 
-  <body>
-    <div class="w3-container w3-margin-top">
-      <div class="w3-container w3-margin-bottom">
-        <div class="w3-border w3-round-medium spammer" id="spammer"></div>
-      </div>
-      <div class="w3-section">
-        <div class="w3-section">
-          <div class="w3-bar">
-            <div class="w3-bar-item w3-left">
-              <label for="packet" class="w3-label">Packet</label>
-            </div>
-            <div class="w3-bar-item w3-right">
+  <body class="min-h-screen bg-black text-white">
+    <div class="mx-auto box-border w-full max-w-4xl p-4">
+      <div class="w-full">
+        <div class="mb-4">
+          <div
+            class="w-full rounded-md border border-zinc-800 bg-zinc-900 p-4 shadow-md"
+          >
+            <div
+              class="h-[135px] max-h-[350px] min-h-[135px] w-full resize-y overflow-auto rounded border border-zinc-800 bg-black"
+              id="spammer"
+            ></div>
+          </div>
+        </div>
+
+        <div
+          class="w-full rounded-md border border-zinc-800 bg-zinc-900 p-4 shadow-md"
+        >
+          <div class="mb-4 space-y-3">
+            <div class="flex w-full items-center justify-between">
+              <label for="packet" class="w-1/4 text-gray-400">Packet</label>
               <input
                 type="text"
-                class="w3-input w3-border w3-round-medium"
                 id="packet"
+                class="h-8 w-3/4 rounded-md border border-zinc-800 bg-black p-1"
               />
             </div>
-          </div>
-          <div class="w3-bar">
-            <div class="w3-bar-item w3-left">
-              <label for="delay">Delay (ms)</label>
-            </div>
-            <div class="w3-bar-item w3-right">
+
+            <div class="flex w-full items-center justify-between">
+              <label for="delay" class="w-1/4 text-gray-400">Delay (ms)</label>
               <input
                 type="number"
-                class="w3-input w3-border w3-round-medium"
                 id="delay"
                 value="1000"
                 step="100"
+                class="h-8 w-3/4 rounded-md border border-zinc-800 bg-black p-1"
               />
             </div>
           </div>
-        </div>
-        <div class="w3-container w3-bar">
-          <div class="w3-left">
-            <button class="w3-button w3-round-medium" id="clear">Clear</button>
-            <button class="w3-button w3-round-medium w3-disabled" id="remove">
-              Remove
-            </button>
-            <button class="w3-button w3-round-medium" id="add">Add</button>
-          </div>
-          <div class="w3-right">
-            <button class="w3-button w3-round-medium w3-disabled" id="stop">
-              Stop
-            </button>
-            <button class="w3-button w3-round-medium" id="start">Start</button>
+
+          <div class="mt-4 flex justify-between">
+            <div class="space-x-2">
+              <button
+                class="rounded-md border border-zinc-700 bg-zinc-800 px-3 py-1 transition-colors hover:bg-zinc-700"
+                id="clear"
+              >
+                Clear
+              </button>
+              <button
+                class="cursor-not-allowed rounded-md border border-zinc-700 bg-zinc-800 px-3 py-1 opacity-50"
+                id="remove"
+              >
+                Remove
+              </button>
+              <button
+                class="rounded-md border border-zinc-700 bg-zinc-800 px-3 py-1 transition-colors hover:bg-zinc-700"
+                id="add"
+              >
+                Add
+              </button>
+            </div>
+            <div class="space-x-2">
+              <button
+                class="cursor-not-allowed rounded-md border border-zinc-700 bg-zinc-800 px-3 py-1 opacity-50"
+                id="stop"
+              >
+                Stop
+              </button>
+              <button
+                class="rounded-md border border-zinc-700 bg-zinc-800 px-3 py-1 transition-colors hover:bg-zinc-700"
+                id="start"
+              >
+                Start
+              </button>
+            </div>
           </div>
         </div>
       </div>

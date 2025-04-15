@@ -126,7 +126,7 @@ ipcMain.answerRenderer(
         ref = windows.packets.spammer;
         path = join(PUBLIC, 'game/packets/spammer/index.html');
         width = 596;
-        height = 325;
+        height = 402;
         break;
     }
 
