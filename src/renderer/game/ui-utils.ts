@@ -22,7 +22,7 @@ export function disableElement<T extends HTMLElement>(el: T) {
   }
 }
 
-export function toggleElement<T extends HTMLElement>(el: T, state: boolean) {
+export function setElement<T extends HTMLElement>(el: T, state: boolean) {
   if (state) {
     enableElement(el);
   } else {
