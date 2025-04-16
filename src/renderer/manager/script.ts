@@ -138,7 +138,7 @@ function updateAccounts() {
 
   const removeBtns = document.querySelectorAll<HTMLButtonElement>('#remove');
   for (const el of removeBtns) {
-    el.onclick = async () => {
+    el.addEventListener('click', async () => {
       const username = el.dataset['username']!;
 
       const idx = accounts.findIndex((acc) => acc.username === username);
@@ -147,7 +147,7 @@ function updateAccounts() {
         await removeAccount({ username });
         updateAccounts();
       }
-    };
+    });
   }
 
   const startBtns = document.querySelectorAll<HTMLButtonElement>('#start');
