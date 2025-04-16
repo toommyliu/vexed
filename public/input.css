@@ -108,19 +108,48 @@ textarea::-webkit-scrollbar-thumb:hover {
   right: 10px;
 }
 
-.line {
-  display: block;
-  width: max-content;
-  margin-left: 4px;
-  margin-top: 4px;
-  cursor: pointer;
-  color: white;
-  border-radius: 4px;
-  font-size: 14px;
-}
-.line:first-of-type {
-  margin-top: 2px;
-}
-.line:hover {
-  background-color: grey;
+@layer components {
+  .tree-container {
+    @apply mb-4 h-[200px] w-full overflow-y-auto rounded-md border border-zinc-800 bg-black p-2 text-gray-200;
+  }
+
+  .tree-node {
+    @apply relative py-1 transition-colors duration-150;
+  }
+
+  .tree-node-content {
+    @apply flex items-center rounded-sm px-1 py-0.5 transition-colors hover:bg-zinc-800;
+  }
+
+  .tree-expander {
+    @apply flex h-5 w-5 cursor-pointer items-center justify-center text-gray-400 transition-transform duration-200;
+  }
+
+  .tree-expander.expanded {
+    @apply text-gray-300;
+  }
+
+  .tree-node-name {
+    @apply ml-1 font-medium text-gray-300;
+  }
+
+  .tree-node-value {
+    @apply ml-1 cursor-pointer truncate border-b border-transparent text-gray-400 hover:border-gray-600 hover:text-gray-200;
+  }
+
+  .tree-node-value.copied {
+    @apply border-green-700 text-green-400;
+  }
+
+  .tree-children {
+    @apply ml-2 mt-1 border-l border-zinc-700 pl-5;
+  }
+
+  .tree-child-item {
+    @apply flex items-center rounded-sm px-1 py-0.5 hover:bg-zinc-800;
+  }
+
+  .tree-key {
+    @apply mr-2 min-w-[100px] text-gray-400;
+  }
 }
