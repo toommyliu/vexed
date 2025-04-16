@@ -1,11 +1,14 @@
 import { ipcRenderer } from '../../common/ipc';
 import { IPC_EVENTS } from '../../common/ipc-events';
 import { Logger } from '../../common/logger';
+import type { Account } from '../../common/types';
+import type { ServerData } from '../game/lib/models/Server';
+import { enableElement, disableElement } from '../game/ui-utils';
 
 const logger = Logger.get('ScriptManager');
 
 const accounts: Account[] = [];
-const servers: Server[] = [];
+const servers: ServerData[] = [];
 
 const timeouts = new Map<string, NodeJS.Timeout>();
 
@@ -26,8 +29,15 @@ ipcRenderer.answerMain(IPC_EVENTS.ENABLE_BUTTON, async ({ username }) => {
 function enableAccount(username: string) {
   for (const el of document.querySelectorAll<HTMLButtonElement>('#start')) {
     if (el.dataset['username'] === username) {
-      el.disabled = false;
-      el.classList.remove('w3-disabled');
+      enableElement(el);
+    }
+  }
+}
+
+function disableAccount(username: string) {
+  for (const el of document.querySelectorAll<HTMLButtonElement>('#start')) {
+    if (el.dataset['username'] === username) {
+      disableElement(el);
     }
   }
 }
@@ -39,7 +49,6 @@ async function startAccount({ username, password }: Account) {
     enableAccount(username);
     timeouts.delete(username);
   }, 10_000); // 10 seconds should be long enough for an account to login
-
   timeouts.set(username, timeout);
 
   await ipcRenderer
@@ -63,56 +72,68 @@ async function removeAccount({ username }: Pick<Account, 'username'>) {
     .catch(() => {});
 }
 
-function toggleAccountState(ev: MouseEvent) {
+function updateAccountState(ev: MouseEvent) {
   const checkbox = (ev.target as Element)!
-    .closest('.w3-card')!
+    .closest('.account-card')!
     .querySelector('input') as HTMLInputElement;
 
   checkbox.checked = !checkbox.checked;
   checkbox.dispatchEvent(new Event('change', { bubbles: true }));
 }
 
-function updateAccounts() {
-  for (const timeout of timeouts.values()) {
-    clearTimeout(timeout);
-  }
+function updateSelectedCount() {
+  const selectedCount = document.querySelectorAll<HTMLInputElement>(
+    '.account-checkbox:checked',
+  ).length;
+  const startSelectedBtn =
+    document.querySelector<HTMLButtonElement>('#start-selected')!;
+  startSelectedBtn.textContent = `Start Selected (${selectedCount})`;
+}
 
+function updateAccounts() {
+  for (const timeout of timeouts.values()) clearTimeout(timeout);
   timeouts.clear();
 
   const accountsContainer = document.querySelector('#accounts')!;
   accountsContainer.innerHTML = accounts
     .map(
       (account) => `
-                <div class="w3-card w3-round-medium" style="border:0px !important;">
-                    <div class="account-bar">
-                        <div class="account-info">
-                            <input
-                                type="checkbox"
-                                class="account-checkbox"
-                                data-username="${account.username}"
-                                data-password="${account.password}"
-                            />
-                            <h4 class="username-toggle">
-                                ${account.username}
-                            </h4>
-                        </div>
-                        <div class="account-actions">
-                            <button class="w3-button w3-round-medium" id="remove"
-                            data-username="${account.username}"
-                            data-password="${account.password}">Remove</button>
-                            <button class="w3-button w3-round-medium" id="start"
-                            data-username="${account.username}"
-                            data-password="${account.password}"
-                            >Start</button>
-                        </div>
-                    </div>
-                </div>
-            `,
+      <div class="account-card rounded-md border border-zinc-800 bg-zinc-900 shadow-md">
+        <div class="flex justify-between items-center p-4 space-x-4">
+          <div class="flex items-center space-x-3 flex-1">
+            <input
+              type="checkbox"
+              class="account-checkbox flex-shrink-0"
+              data-username="${account.username}"
+              data-password="${account.password}"
+            />
+            <h4 class="m-0 cursor-pointer select-none break-all whitespace-nowrap overflow-visible text-white username-toggle">
+              ${account.username}
+            </h4>
+          </div>
+          <div class="flex space-x-2">
+            <button id="remove" class="rounded-md border border-zinc-700 bg-zinc-800 p-2 shadow-sm transition-all duration-200 hover:bg-zinc-700 text-white"
+              data-username="${account.username}"
+              data-password="${account.password}">Remove</button>
+            <button id="start" class="rounded-md border border-zinc-700 bg-zinc-800 p-2 shadow-sm transition-all duration-200 hover:bg-zinc-700 text-white"
+              data-username="${account.username}"
+              data-password="${account.password}"
+              >Start</button>
+          </div>
+        </div>
+      </div>
+    `,
     )
     .join('');
 
   for (const el of document.querySelectorAll('.username-toggle')) {
-    (el as HTMLSpanElement).onclick = toggleAccountState;
+    (el as HTMLSpanElement).addEventListener('click', updateAccountState);
+  }
+
+  const checkboxes =
+    document.querySelectorAll<HTMLInputElement>('.account-checkbox');
+  for (const checkbox of checkboxes) {
+    checkbox.addEventListener('change', updateSelectedCount);
   }
 
   const removeBtns = document.querySelectorAll<HTMLButtonElement>('#remove');
@@ -131,16 +152,17 @@ function updateAccounts() {
 
   const startBtns = document.querySelectorAll<HTMLButtonElement>('#start');
   for (const el of startBtns) {
-    el.onclick = async () => {
-      el.disabled = true;
-      el.classList.add('w3-disabled');
+    el.addEventListener('click', async () => {
+      disableElement(el);
 
       const username = el.dataset['username']!;
       const password = el.dataset['password']!;
 
       await startAccount({ username, password });
-    };
+    });
   }
+
+  updateSelectedCount();
 }
 
 function updateServers() {
@@ -157,9 +179,19 @@ function updateServers() {
 window.addEventListener('DOMContentLoaded', async () => {
   {
     const btn = document.querySelector('#accordion-toggle')!;
+    const form = document.querySelector('#add-account-form')!;
+
+    form.classList.add(
+      'transition-all',
+      'duration-100',
+      'ease-linear',
+      'transform',
+    );
+
     btn.addEventListener('click', () => {
-      const nextEl = btn.nextElementSibling;
-      if (nextEl) nextEl.classList.toggle('w3-show');
+      form.classList.toggle('scale-y-0');
+      form.classList.toggle('opacity-0');
+      form.classList.toggle('h-0');
     });
   }
 
@@ -170,8 +202,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     ) as HTMLButtonElement;
 
     form.addEventListener('submit', async (ev) => {
-      btn.classList.add('w3-disabled');
-
+      disableElement(btn);
       ev.preventDefault();
 
       const formData = new FormData(ev.target as HTMLFormElement);
@@ -188,7 +219,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
       try {
         el.innerHTML = '';
-        cl.remove('w3-green', 'w3-red', 'w3-hide', 'w3-show');
+        cl.remove('text-green-500', 'text-red-500', 'hidden', 'block');
 
         const account = {
           username: username as string,
@@ -212,40 +243,41 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
 
         el!.style.display = 'block';
-        cl.remove('w3-hide');
+        cl.remove('hidden');
+        cl.add('block');
 
-        cl.add(res?.success ? 'w3-green' : 'w3-red', 'w3-animate-opacity');
+        cl.add(res?.success ? 'text-green-500' : 'text-red-500', 'opacity-100');
 
-        cl.remove('w3-hide');
+        cl.remove('hidden');
         setTimeout(
           () => {
-            cl.add('w3-hide');
+            cl.add('hidden');
             el.style.display = 'none';
             setTimeout(() => {
               el.innerText = '';
-              cl.remove('w3-show', 'w3-hide', 'w3-green', 'w3-red');
+              cl.remove('block', 'hidden', 'text-green-500', 'text-red-500');
             }, 400);
           },
-          res?.success ? 1_000 : 2_000,
+          1_000 * (res?.success ? 1 : 2),
         );
       } catch (error) {
         logger.error('failed to add account:', error);
 
         el.innerText = `An error occurred while trying to add the account${error instanceof Error && error.message ? `: ${error.message}` : ''}`;
 
-        cl.add('w3-red', 'show');
-        cl.remove('w3-hide');
+        cl.add('text-red-500', 'block');
+        cl.remove('hidden');
 
         setTimeout(() => {
-          cl.add('w3-hide');
+          cl.add('hidden');
           el.style.display = 'none';
           setTimeout(() => {
             el.innerText = '';
-            cl.remove('w3-show', 'w3-hide', 'w3-green', 'w3-red');
+            cl.remove('block', 'hidden', 'text-green-500', 'text-red-500');
           }, 400);
         }, 2_000);
       } finally {
-        btn.classList.remove('w3-disabled');
+        enableElement(btn);
       }
     });
   }
@@ -297,9 +329,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     document.querySelector<HTMLButtonElement>('#start-selected')!;
   startSelectedBtn.addEventListener('click', async () => {
     for (const el of document.querySelectorAll<HTMLInputElement>('#start')) {
-      const input = (el.closest('.w3-card') as HTMLDivElement).querySelector(
-        'input',
-      ) as HTMLInputElement;
+      const input = (
+        el.closest('.account-card') as HTMLDivElement
+      ).querySelector('input') as HTMLInputElement;
 
       if (!input.checked) {
         continue;
@@ -318,21 +350,3 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
   });
 });
-
-type Server = {
-  bOnline: number;
-  bUpg: number;
-  iChat: number;
-  iCount: number;
-  iLevel: number;
-  iMax: number;
-  iPort: number;
-  sIP: string;
-  sLang: string;
-  sName: string;
-};
-
-type Account = {
-  password: string;
-  username: string;
-};

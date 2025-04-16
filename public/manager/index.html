@@ -1,9 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    <link href="../shared/common.css" rel="stylesheet" />
-    <link href="../shared/styles.css" rel="stylesheet" />
-    <link href="./styles.css" rel="stylesheet" />
+    <link href="../output.css" rel="stylesheet" />
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src 'self';
@@ -13,60 +11,94 @@
            connect-src 'self' https://game.aq.com;"
     />
   </head>
-  <body>
-    <div class="main-content">
-      <div class="w3-round-medium add-account-section">
-        <div class="add-account-header" id="accordion-toggle">
-          <h5>Add Account</h5>
+  <body class="min-h-screen select-none bg-black">
+    <div class="mx-auto box-border w-full max-w-4xl p-4">
+      <div
+        class="mb-2 w-full rounded-md border border-zinc-800 bg-zinc-900 shadow-md"
+        id="add-account-section"
+      >
+        <div
+          class="flex h-10 cursor-pointer select-none items-center px-2"
+          id="accordion-toggle"
+        >
+          <span class="text-base font-medium text-white">Add Account</span>
         </div>
-        <div class="add-account-content w3-hide" id="add-account-form">
-          <div id="alert" class="alert w3-hide"></div>
-          <form id="account-form">
-            <div class="form-grid">
-              <div>
-                <label for="username">Username</label>
-                <input
-                  class="w3-input w3-border w3-round-medium"
-                  type="text"
-                  id="username"
-                  name="username"
-                  required
-                  placeholder="Enter username"
-                />
+        <div
+          class="h-0 scale-y-0 overflow-hidden border-t border-zinc-800 opacity-0 transition-all duration-200 ease-out"
+          id="add-account-form"
+        >
+          <div class="p-4">
+            <div id="alert" class="mb-4 hidden rounded-md p-3"></div>
+            <form id="account-form">
+              <div class="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div>
+                  <label for="username" class="mb-2 block text-gray-400"
+                    >Username</label
+                  >
+                  <input
+                    class="w-full rounded-md border border-zinc-800 bg-black p-2 text-white"
+                    type="text"
+                    id="username"
+                    name="username"
+                    required
+                    placeholder="Enter username"
+                  />
+                </div>
+                <div>
+                  <label for="password" class="mb-2 block text-gray-400"
+                    >Password</label
+                  >
+                  <input
+                    class="w-full rounded-md border border-zinc-800 bg-black p-2 text-white"
+                    id="password"
+                    name="password"
+                    required
+                    placeholder="Enter password"
+                  />
+                </div>
               </div>
-              <div>
-                <label for="password">Password</label>
-                <input
-                  class="w3-input w3-border w3-round-medium"
-                  type="password"
-                  id="password"
-                  name="password"
-                  required
-                  placeholder="Enter password"
-                />
-              </div>
-            </div>
-            <button type="submit" class="w3-button w3-round-medium">
-              Add Account
-            </button>
-          </form>
+              <button
+                type="submit"
+                class="rounded-md border border-zinc-700 bg-zinc-800 p-2 text-white shadow-sm transition-all duration-200 hover:bg-zinc-700"
+              >
+                Add Account
+              </button>
+            </form>
+          </div>
         </div>
       </div>
 
-      <div id="accounts" class="accounts-grid"></div>
+      <div id="accounts" class="grid grid-cols-1 gap-2 sm:grid-cols-2"></div>
     </div>
 
-    <div class="footer">
-      <div class="footer-content">
-        <div class="server-selector">
-          <label for="servers">Login Server</label>
-          <select id="servers" class="w3-select"></select>
+    <div
+      class="sticky bottom-0 z-10 flex-shrink-0 border-t border-zinc-800 bg-zinc-900 p-4 shadow-lg"
+    >
+      <div
+        class="mx-auto flex w-full max-w-4xl flex-col gap-3 md:flex-row md:items-center md:justify-between"
+      >
+        <div class="flex items-center space-x-2">
+          <label
+            for="servers"
+            class="whitespace-nowrap text-sm font-medium text-gray-400"
+            >Login Server:</label
+          >
+          <select
+            id="servers"
+            class="min-w-[200px] flex-grow rounded-md border border-zinc-800 bg-black p-1.5 text-white focus:border-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-600"
+          ></select>
         </div>
-        <div class="bulk-actions">
-          <button id="remove-selected" class="w3-button w3-round-medium">
+        <div class="flex space-x-3">
+          <button
+            id="remove-selected"
+            class="rounded-md border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-sm text-white shadow-sm transition-all duration-200 hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-zinc-600"
+          >
             Remove Selected
           </button>
-          <button id="start-selected" class="w3-button w3-round-medium">
+          <button
+            id="start-selected"
+            class="rounded-md border border-green-800 bg-green-900 px-3 py-1.5 text-sm text-white shadow-sm transition-all duration-200 hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-600"
+          >
             Start Selected
           </button>
         </div>
