@@ -1,19 +1,9 @@
 import { ipcRenderer } from '../../../common/ipc';
 import { IPC_EVENTS } from '../../../common/ipc-events';
+import { setElement } from '../ui-utils';
 
 const packets: string[] = [];
 let on = false;
-
-function toggleElement(el: HTMLButtonElement, state: boolean) {
-  el.disabled = state;
-  if (state) {
-    el.classList.add('w3-disabled');
-    el.setAttribute('disabled', 'true');
-  } else {
-    el.classList.remove('w3-disabled');
-    el.removeAttribute('disabled');
-  }
-}
 
 window.addEventListener('DOMContentLoaded', async () => {
   {
@@ -51,8 +41,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     stopBtn.addEventListener('click', async () => {
       on = false;
 
-      toggleElement(stopBtn, true);
-      toggleElement(onBtn, false);
+      setElement(stopBtn, false);
+      setElement(onBtn, true);
 
       await ipcRenderer
         .callMain(IPC_EVENTS.MSGBROKER, {
@@ -64,8 +54,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     onBtn.addEventListener('click', async () => {
       on = true;
 
-      toggleElement(stopBtn, false);
-      toggleElement(onBtn, true);
+      setElement(stopBtn, true);
+      setElement(onBtn, false);
 
       await ipcRenderer
         .callMain(IPC_EVENTS.MSGBROKER, {
@@ -85,10 +75,10 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     {
       const div = document.createElement('div');
-      div.classList.add('line');
+      div.className = 'line';
       div.textContent = pkt;
-      div.addEventListener('click', async () => {
-        await navigator.clipboard.writeText(pkt).catch(() => {});
+      div.addEventListener('click', () => {
+        void navigator.clipboard.writeText(pkt);
       });
       container.appendChild(div);
     }
@@ -104,8 +94,8 @@ window.addEventListener('DOMContentLoaded', async () => {
       const stopBtn = document.querySelector('#stop') as HTMLButtonElement;
       const onBtn = document.querySelector('#start') as HTMLButtonElement;
 
-      toggleElement(stopBtn, true);
-      toggleElement(onBtn, false);
+      setElement(stopBtn, true);
+      setElement(onBtn, false);
     }
   });
 });

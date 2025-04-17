@@ -1,18 +1,11 @@
 import { ipcRenderer } from '../../../common/ipc';
 import { IPC_EVENTS } from '../../../common/ipc-events';
 import { Logger } from '../../../common/logger';
+import { disableElement, enableElement } from '../ui-utils';
 
 const logger = Logger.get('FastTravels');
 
 let roomNumber = 100_000;
-
-function toggleButtons(on: boolean) {
-  const buttons = document.querySelectorAll('button');
-  for (const button of buttons) {
-    button.disabled = !on;
-    button.classList.toggle('w3-disabled', !on);
-  }
-}
 
 window.addEventListener('DOMContentLoaded', async () => {
   const locations = await ipcRenderer
@@ -43,23 +36,30 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     const div = document.createElement('div');
 
-    const button = document.createElement('button');
-    button.classList.add('w3-button', 'w3-round-medium', 'w3-block');
-    button.textContent = location.name;
+    const btn = document.createElement('button');
+    btn.className =
+      'bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 p-2 rounded-md w-full transition-all duration-200 shadow-sm';
+    btn.textContent = location.name;
 
     // eslint-disable-next-line @typescript-eslint/no-loop-func
-    button.addEventListener('click', async () => {
+    btn.addEventListener('click', async () => {
       logger.info(location);
 
-      toggleButtons(false);
+      for (const el of container.querySelectorAll('button')) {
+        disableElement(el);
+      }
+
       await ipcRenderer.callMain(IPC_EVENTS.MSGBROKER, {
         data: { ...location, roomNumber },
         ipcEvent: IPC_EVENTS.FAST_TRAVEL,
       });
-      toggleButtons(true);
+
+      for (const el of container.querySelectorAll('button')) {
+        enableElement(el);
+      }
     });
 
-    div.appendChild(button);
+    div.appendChild(btn);
     container.appendChild(div);
   }
 });

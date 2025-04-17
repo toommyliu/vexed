@@ -19,7 +19,11 @@ ipcRenderer.answerMain(IPC_EVENTS.PACKET_SPAMMER_START, async (data) => {
   const { packets, delay } = data;
   on = true;
 
-  await interval(
+  if (!packets?.length) {
+    return;
+  }
+
+  void interval(
     async (_, stop) => {
       if (!on) {
         stop();
@@ -38,7 +42,7 @@ ipcRenderer.answerMain(IPC_EVENTS.PACKET_SPAMMER_START, async (data) => {
     },
     delay,
     { stopOnError: false },
-  ).catch(() => {});
+  );
 });
 
 ipcRenderer.answerMain(IPC_EVENTS.PACKET_SPAMMER_STOP, async () => {

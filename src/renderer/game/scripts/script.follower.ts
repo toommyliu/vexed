@@ -1,6 +1,6 @@
 import { ipcRenderer } from '../../../common/ipc';
 import { IPC_EVENTS } from '../../../common/ipc-events';
-import { toggleElement } from '../ui-utils';
+import { setElement } from '../ui-utils';
 
 let on = false;
 
@@ -39,19 +39,19 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     cbEnable.checked = on;
 
-    toggleElement(inputPlayer, !on);
-    toggleElement(btnMe, !on);
-    toggleElement(skillList, !on);
-    toggleElement(skillWait, !on);
-    toggleElement(skillDelay, !on);
-    toggleElement(copyWalk, !on);
-    toggleElement(attackPriority, !on);
-    toggleElement(cbSafeSkill, !on);
-    toggleElement(inputSafeSkill, !on);
-    toggleElement(inputSafeSkillHp, !on);
-    toggleElement(cbAntiCounter, !on);
-    toggleElement(textarea_quests, !on);
-    toggleElement(textarea_drops, !on);
+    setElement(inputPlayer, !on);
+    setElement(btnMe, !on);
+    setElement(skillList, !on);
+    setElement(skillWait, !on);
+    setElement(skillDelay, !on);
+    setElement(copyWalk, !on);
+    setElement(attackPriority, !on);
+    setElement(cbSafeSkill, !on);
+    setElement(inputSafeSkill, !on);
+    setElement(inputSafeSkillHp, !on);
+    setElement(cbAntiCounter, !on);
+    setElement(textarea_quests, !on);
+    setElement(textarea_drops, !on);
   };
 
   if (btnMe) {
