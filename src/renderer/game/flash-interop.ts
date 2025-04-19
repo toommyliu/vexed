@@ -144,30 +144,37 @@ window.flashDebug = (...args: string[]) => {
 };
 
 // @ts-expect-error - provided by flash and properly typed
-window.progress = ([percent]: number) => {
-  const progressBar = document.querySelector(
-    '.progress-bar',
-  )! as HTMLDivElement;
-  const progressText = document.querySelector(
-    '#progressText',
-  )! as HTMLDivElement;
+window.progress = (percent: number) => {
+  const progressBar = document.querySelector('#progress-bar') as HTMLDivElement;
+  progressBar.style.width = `${percent}%`;
 
-  progressBar.style.width = percent + '%';
-  progressText.innerText = percent + '%';
+  // setImmediate(() => {
+  //   progressBar.textContent = `${percent}%`;
+  // });
 
   if (percent >= 100) {
     const loaderContainer = document.querySelector(
-      '.loader-container',
-    )! as HTMLDivElement;
-    const gameContainer = document.querySelector(
-      '.gameContainer',
-    )! as HTMLDivElement;
+      '#loader-container',
+    ) as HTMLDivElement;
     const topnavContainer = document.querySelector(
-      '.topnav-container',
-    )! as HTMLDivElement;
+      '#topnav-container',
+    ) as HTMLDivElement;
+    const gameContainer = document.querySelector(
+      '#game-container',
+    ) as HTMLDivElement;
 
-    loaderContainer.style.display = 'none';
-    gameContainer.classList.add('game-visible');
-    topnavContainer.classList.add('game-visible');
+    loaderContainer.classList.add('hidden');
+
+    {
+      const cl = topnavContainer.classList;
+      cl.remove('invisible', 'opacity-0');
+      cl.add('opacity-100', 'visible');
+    }
+
+    {
+      const cl = gameContainer.classList;
+      cl.remove('invisible', 'opacity-0');
+      cl.add('opacity-100', 'visible');
+    }
   }
 };

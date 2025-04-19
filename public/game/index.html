@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    <link href="../shared/common.css" rel="stylesheet" />
+    <link href="../output.css" rel="stylesheet" />
     <link href="./styles.css" rel="stylesheet" />
     <meta
       http-equiv="Content-Security-Policy"
@@ -9,8 +9,8 @@
     />
   </head>
 
-  <body>
-    <div class="topnav-container">
+  <body class="bg-black focus:outline-none">
+    <div id="topnav-container">
       <div class="w3-bar" id="topnav">
         <div class="w3-left">
           <div class="w3-dropdown-click">
@@ -188,14 +188,24 @@
       </div>
     </div>
 
-    <div class="loader-container">
-      <div id="progressText"></div>
-      <div class="progress-bar-container">
-        <div class="progress-bar"></div>
+    <div
+      class="flex min-h-screen flex-col items-center justify-center"
+      id="loader-container"
+    >
+      <div
+        class="flex h-4 w-full max-w-md overflow-hidden rounded-md bg-neutral-700"
+      >
+        <div
+          class="flex flex-col justify-center overflow-hidden whitespace-nowrap rounded-full bg-blue-600 text-center text-xs text-white transition duration-500"
+          style="width: 0%"
+          id="progress-bar"
+        >
+          0%
+        </div>
       </div>
     </div>
 
-    <div class="gameContainer">
+    <div class="invisible opacity-0" id="game-container">
       <embed id="swf" src="../../assets/loader.swf" />
     </div>
 
