@@ -6,6 +6,7 @@ module.exports = {
     './src/renderer/game/ui.ts',
     './src/renderer/game/ui-utils.ts',
     './src/renderer/game/flash-interop.ts',
+    './src/renderer/game/util/addCheckbox.ts',
     './src/renderer/game/scripts/**/*.ts',
     './src/renderer/manager/**/*.ts',
   ],

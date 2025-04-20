@@ -4,6 +4,7 @@ import { ipcRenderer } from '../../common/ipc';
 import { IPC_EVENTS } from '../../common/ipc-events';
 import { startAutoAggro, stopAutoAggro } from './autoaggro';
 import { Bot } from './lib/Bot';
+import { enableElement } from './ui-utils';
 import { addCheckbox } from './util/addCheckbox';
 
 const bot = Bot.getInstance();
@@ -26,9 +27,7 @@ ipcRenderer.answerMain(IPC_EVENTS.SCRIPT_LOADED, () => {
       '#scripts-dropdowncontent > button:nth-child(2)',
     ) as HTMLButtonElement;
 
-    btn.disabled = false;
-    btn.classList.remove('w3-disabled');
-    btn.textContent = 'Start';
+    enableElement(btn);
   }
 
   window.context.overlay.updateCommands(
@@ -219,7 +218,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 
       for (const cell of bot.world.cells) {
         const cellBtn = document.createElement('button');
-        cellBtn.className = 'w3-button w3-block';
+        cellBtn.className =
+          'px-4 py-2 text-xs block w-full text-left hover:bg-gray-700';
         cellBtn.textContent = cell;
         cellBtn.addEventListener('click', () => {
           if (!bot.player.isReady()) return;
@@ -242,11 +242,12 @@ window.addEventListener('DOMContentLoaded', async () => {
 
       for (const pad of DEFAULT_PADS) {
         const padBtn = document.createElement('button');
-        padBtn.className = 'w3-button w3-block';
+        padBtn.className =
+          'px-4 py-2 text-xs block w-full text-left hover:bg-gray-700';
 
         // Highlight valid cell pads
         if (bot.world.cellPads.includes(pad)) {
-          padBtn.classList.add('w3-text-green');
+          padBtn.classList.add('text-green-500');
         }
 
         padBtn.textContent = pad;
@@ -267,8 +268,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 
       updateCellsDropdown();
 
-      padsDropdown.classList.remove('w3-show');
-      cellsDropdown.classList.toggle('w3-show');
+      padsDropdown.classList.add('hidden');
+      cellsDropdown.classList.toggle('hidden');
 
       ev.stopPropagation();
     });
@@ -278,8 +279,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 
       updatePadsDropdown();
 
-      cellsDropdown.classList.remove('w3-show');
-      padsDropdown.classList.toggle('w3-show');
+      cellsDropdown.classList.add('hidden');
+      padsDropdown.classList.toggle('hidden');
 
       ev.stopPropagation();
     });
@@ -380,7 +381,7 @@ window.addEventListener('click', (ev) => {
     try {
       if (target.id === key) {
         // Toggle the dropdown
-        el.classList.toggle('w3-show');
+        el.classList.toggle('hidden');
       } else if (
         // Preserve dropdown state if:
         // - Clicking option buttons within options menu
@@ -390,11 +391,9 @@ window.addEventListener('click', (ev) => {
           optionsDropdown?.contains(target) && target.closest('[id^="option-"]')
         )
       ) {
-        el.classList.remove('w3-show');
+        el.classList.add('hidden');
       }
-    } catch {
-      // Ignore DOM errors
-    }
+    } catch {}
   }
 });
 
@@ -402,7 +401,7 @@ window.addEventListener('click', (ev) => {
 window.addEventListener('mousedown', (ev) => {
   if ((ev.target as HTMLElement).id === 'swf') {
     for (const el of dropdowns.values()) {
-      el.classList.remove('w3-show');
+      el.classList.add('hidden');
     }
   }
 });

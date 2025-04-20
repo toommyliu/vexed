@@ -3,57 +3,12 @@
   --bg-primary: #111113;
   --bg-secondary: #18191b;
 }
-body {
-  margin: 0;
+
+:focus {
+  outline: none;
 }
-button,
-input {
-  font: inherit;
-  margin: 0;
-}
-button,
-input {
-  overflow: visible;
-}
+
 button {
-  text-transform: none;
-}
-[type='button'],
-[type='reset'],
-[type='submit'],
-button {
-  -webkit-appearance: button;
-}
-[type='checkbox'],
-[type='radio'] {
-  padding: 0;
-}
-[type='number']::-webkit-inner-spin-button,
-[type='number']::-webkit-outer-spin-button {
-  height: auto;
-}
-[type='search'] {
-  -webkit-appearance: textfield;
-  outline-offset: -2px;
-}
-[type='search']::-webkit-search-decoration {
-  -webkit-appearance: none;
-}
-::-webkit-file-upload-button {
-  -webkit-appearance: button;
-  font: inherit;
-}
-body,
-html {
-  font-family: Verdana, sans-serif;
-  font-size: 15px;
-  line-height: 1.5;
-}
-html {
-  overflow-x: hidden;
-}
-.w3-button {
-  border: none;
   display: inline-block;
   padding: 8px 16px;
   vertical-align: middle;
@@ -65,239 +20,16 @@ html {
   cursor: pointer;
   white-space: nowrap;
 }
-.w3-button {
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-.w3-button:disabled,
-.w3-disabled {
-  cursor: not-allowed;
-  opacity: 0.3;
-}
-.w3-disabled *,
-:disabled * {
-  pointer-events: none;
-}
-.w3-dropdown-click,
-.w3-dropdown-hover {
-  position: relative;
-  display: inline-block;
-  cursor: pointer;
-}
-.w3-dropdown-hover:hover .w3-dropdown-content {
-  display: block;
-}
-.w3-dropdown-click:hover,
-.w3-dropdown-hover:first-child {
-  background-color: #ccc;
-  color: #000;
-}
-.w3-dropdown-click:hover > .w3-button:first-child,
-.w3-dropdown-hover:hover > .w3-button:first-child {
-  background-color: #ccc;
-  color: #000;
-}
-.w3-dropdown-content {
-  cursor: auto;
-  color: #000;
-  background-color: #fff;
-  display: none;
-  position: absolute;
-  min-width: 160px;
-  margin: 0;
-  padding: 0;
-  z-index: 1;
-}
-.w3-bar-block .w3-dropdown-click,
-.w3-bar-block .w3-dropdown-hover {
-  width: 100%;
-}
-.w3-bar-block .w3-dropdown-click .w3-dropdown-content,
-.w3-bar-block .w3-dropdown-hover .w3-dropdown-content {
-  min-width: 100%;
-}
-.w3-bar-block .w3-dropdown-click .w3-button,
-.w3-bar-block .w3-dropdown-hover .w3-button {
-  width: 100%;
-  text-align: left;
-  padding: 8px 16px;
-}
-.w3-bar {
-  width: 100%;
-  overflow: hidden;
-}
-.w3-bar .w3-dropdown-click,
-.w3-bar .w3-dropdown-hover {
-  position: static;
-  float: left;
-}
-.w3-bar .w3-button {
-  white-space: normal;
-}
-.w3-block {
-  display: block;
-  width: 100%;
-}
-.w3-bar:after,
-.w3-bar:before {
-  content: '';
-  display: table;
-  clear: both;
-}
-.w3-small {
-  font-size: 12px !important;
-}
-.w3-border {
-  border: 1px solid #ccc !important;
-}
-.w3-left {
-  float: left !important;
-}
-.w3-right {
-  float: right !important;
-}
-.w3-button:hover {
+button:hover {
   color: #000 !important;
   background-color: #ccc !important;
 }
-:root {
-  --bg-primary: #111113;
-  --bg-secondary: #18191b;
-}
-body {
-  background-color: var(--bg-primary) !important;
-  color: #fff !important;
-  height: 100vh;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-:focus {
-  outline: none;
-}
-.w3-dropdown-content {
-  background-color: var(--bg-secondary) !important;
-  color: white !important;
-}
 
-.w3-dropdown-content .w3-button {
-  text-align: left !important;
-  padding: 8px 16px !important;
-  width: 100%;
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-}
-
-.option-row {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  cursor: default !important;
-}
-
-.walkspeed-input {
-  width: 50px;
-  height: 20px;
-  background-color: var(--bg-secondary);
-  color: white;
-  border: 1px solid #444;
-  padding: 2px 4px;
-}
-
-.topnav-right-container {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-right: 8px;
-}
-
-.topnav-right-container > .w3-dropdown-click:active,
-.topnav-right-container > .w3-dropdown-click:hover {
-  top: 5px !important;
-}
-
-.dropdown-group,
-.button-group {
-  display: flex;
-  margin-left: 6px;
-}
-
-.dropdown-group > *,
-.button-group > * {
-  margin-left: 2px;
-}
-
-#x,
-#bank {
-  background-color: var(--bg-secondary);
-  color: white;
-  height: 25px;
-  margin-top: 5px;
-  padding: 0 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: unset;
-}
-
-/* standardize top-right dropdown trigger styling */
-#topnav
-  > div.w3-right.topnav-right-container
-  > div.dropdown-group
-  > div.w3-dropdown-click
-  > button:first-child {
-  width: 86px;
-  height: 25px;
-  padding: 0px !important;
-}
-
-/* standardize top-right dropdown styling */
-#topnav
-  > div.w3-right.topnav-right-container
-  > div.dropdown-group
-  > div.w3-dropdown-click {
-  width: 86px !important;
-  height: 25px !important;
-  margin-top: 5px !important;
-}
-
-/* standardize top-right dropdown content styling */
-#pads-dropdowncontent,
-#cells-dropdowncontent {
-  background-color: var(--bg-secondary) !important;
-  position: absolute;
-  top: var(--topnav-height);
-  margin-top: 2px;
-  /* we don't want the dropdown too tall, especially if they are many options */
-  max-height: 50vh !important;
-  height: auto !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  z-index: 1000;
-}
-
-#topnav-container {
-  background-color: var(--bg-primary);
-  height: var(--topnav-height);
-}
 #game-container {
   height: calc(100vh - var(--topnav-height) - 2px);
   position: relative;
 }
 
-#swf {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
 .option-checkmark {
   display: flex;
   align-items: center;
@@ -311,6 +43,49 @@ body {
 .option-active .option-checkmark {
   opacity: 1;
   visibility: visible;
+}
+
+.walkspeed-input {
+  width: 50px;
+  height: 20px;
+  background-color: var(--bg-secondary);
+  color: white;
+  border: 1px solid #444;
+  padding: 2px 4px;
+}
+
+.group {
+  background-color: inherit;
+}
+.group div {
+  background-color: var(--bg-primary);
+}
+
+.group:hover .group-hover\:block {
+  display: block;
+}
+
+#topnav > div.ml-auto.mr-2.flex.items-center.gap-4 {
+  margin-top: -5px;
+}
+
+[id$='-dropdowncontent'] {
+  background-color: var(--bg-secondary);
+}
+
+#cells-dropdowncontent,
+#pads-dropdowncontent {
+  position: absolute;
+  top: var(--topnav-height);
+  margin-top: -6px;
+  width: inherit;
+  min-width: 160px;
+  /* we don't want the dropdown too tall, especially if they are many options */
+  max-height: 50vh !important;
+  height: auto !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  z-index: 1000;
 }
 
 .command-overlay {
