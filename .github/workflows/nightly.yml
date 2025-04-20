@@ -1,0 +1,67 @@
+name: Nightly Build
+
+on:
+  schedule:
+    # Run at 12:00 AM UTC (00:00)
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: nightly
+  cancel-in-progress: true
+
+jobs:
+  nightly_build:
+    name: Nightly Build
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Yarn
+        uses: threeal/setup-yarn-action@v2.0.0
+        with:
+          version: classic
+          cache: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.11.0'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Compile Typescript
+        run: yarn compile
+
+      - name: Build Electron App
+        run: yarn run build:all
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Get current date for file naming
+      - name: Get current date
+        id: date
+        run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+
+      # Rename files with date
+      - name: Rename files with date
+        run: |
+          mv vexed-0.0.0-mac.zip vexed-nightly-${{ steps.date.outputs.date }}-mac.zip
+          mv vexed-0.0.0-win.zip vexed-nightly-${{ steps.date.outputs.date }}-win.zip
+        working-directory: ./build
+
+      # Create a nightly release
+      - name: Create nightly release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: nightly-${{ steps.date.outputs.date }}
+          name: Nightly Build ${{ steps.date.outputs.date }}
+          prerelease: true
+          files: |
+            ./build/vexed-nightly-${{ steps.date.outputs.date }}-mac.zip
+            ./build/vexed-nightly-${{ steps.date.outputs.date }}-win.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
