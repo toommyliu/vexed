@@ -34,14 +34,6 @@ function enableAccount(username: string) {
   }
 }
 
-function disableAccount(username: string) {
-  for (const el of document.querySelectorAll<HTMLButtonElement>('#start')) {
-    if (el.dataset['username'] === username) {
-      disableElement(el);
-    }
-  }
-}
-
 async function startAccount({ username, password }: Account) {
   const serversSelect = document.querySelector<HTMLSelectElement>('#servers')!;
 

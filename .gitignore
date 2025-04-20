@@ -7,3 +7,5 @@ public/output.css
 .DS_Store
 
 .vscode/settings.json
+
+*.lock
