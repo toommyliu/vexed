@@ -1,98 +1,140 @@
 import { ipcRenderer } from '../../../common/ipc';
 import { IPC_EVENTS } from '../../../common/ipc-events';
 
-// square-plus
-const svgOpen =
-  '<svg width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M64 32C28.7 32 0 60.7 0 96L0 416c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-320c0-35.3-28.7-64-64-64L64 32zM200 344l0-64-64 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l64 0 0-64c0-13.3 10.7-24 24-24s24 10.7 24 24l0 64 64 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-64 0 0 64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"/></svg>';
+const iconCollapsed = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+  <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+</svg>`;
 
-// square-minus
-const svgClose =
-  '<svg width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M64 32C28.7 32 0 60.7 0 96L0 416c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-320c0-35.3-28.7-64-64-64L64 32zm88 200l144 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-144 0c-13.3 0-24-10.7-24-24s10.7-24 24-24z"/></svg>';
+const iconExpanded = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+  <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+</svg>`;
 
-let lastData: unknown = null;
+let lastData: { data: unknown; type: string } | null = null;
 
 function createTreeNode(data: TreeNode): HTMLDivElement {
-  // The node
-  const div = document.createElement('div');
-  div.className = 'node';
+  const node = document.createElement('div');
+  node.className = 'tree-node';
 
-  if (data.children && data.children.length > 0) {
-    div.classList.add('has-children');
-  }
+  const nodeContent = document.createElement('div');
+  nodeContent.className = 'tree-node-content';
 
-  // The content
-  const content = document.createElement('div');
-  content.className = 'content';
+  const nodeName = document.createElement('span');
+  nodeName.className = 'tree-node-name';
+  nodeName.textContent = data.name;
 
-  // The name of the node
-  const text = document.createElement('span');
-  text.textContent = `${data.name}${data.value ? ':' : ''}`;
-
-  content.appendChild(text);
-  div.appendChild(content);
-
-  if (data.children && !data.value) {
-    // Branch (root)
+  if (data?.children?.length) {
     const expander = document.createElement('div');
-    expander.className = 'expander';
-    expander.innerHTML = svgOpen;
+    expander.className = 'tree-expander';
+    expander.innerHTML = iconCollapsed;
+    nodeContent.appendChild(expander);
+    nodeContent.appendChild(nodeName);
 
-    content.insertBefore(expander, text);
+    const childrenContainer = document.createElement('div');
+    childrenContainer.className = 'tree-children';
+    childrenContainer.style.display = 'none';
 
-    const childContainer = document.createElement('div');
-    childContainer.className = 'child-container';
-    childContainer.style.display = 'none';
-
-    // Recursively create child nodes
+    // Recursively add child nodes
     for (const child of data.children) {
-      const $childnode = createTreeNode(child);
-      childContainer.appendChild($childnode);
+      if (child.value) {
+        // Leaf with value
+        const childItem = document.createElement('div');
+        childItem.className = 'tree-child-item';
+
+        const key = document.createElement('span');
+        key.className = 'tree-key';
+        key.textContent = child.name + ':';
+
+        const value = document.createElement('span');
+        value.className = 'tree-node-value';
+        value.textContent = String(child.value ?? 'N/A');
+        value.title = String(child.value ?? 'N/A');
+
+        childItem.appendChild(key);
+        childItem.appendChild(value);
+        childrenContainer.appendChild(childItem);
+      } else {
+        // Child is another branch node
+        childrenContainer.appendChild(createTreeNode(child));
+      }
     }
 
-    div.appendChild(childContainer);
+    // Append
+    node.appendChild(nodeContent);
+    node.appendChild(childrenContainer);
+  } else {
+    // Leaf without children
+    nodeContent.appendChild(nodeName);
 
-    content.addEventListener('click', (ev) => {
-      ev.stopPropagation();
-      childContainer.style.display =
-        childContainer.style.display === 'none' ? '' : 'none';
-      const isHidden = childContainer.style.display === 'none';
-      expander.innerHTML = isHidden ? svgOpen : svgClose;
-    });
-  } else if (!data.children && (data.value || !data.value)) {
-    text.classList.add('child-name');
-    // Data leaf (child)
-    const span = document.createElement('span');
-    span.className = 'child-value';
-    span.textContent = String(data.value ?? 'N/A');
-    if (!data.value) {
-      text.textContent += ':';
+    if (data.value !== undefined) {
+      const valueEl = document.createElement('span');
+      valueEl.className = 'tree-node-value';
+      valueEl.textContent = String(data.value ?? 'N/A');
+
+      nodeContent.appendChild(document.createTextNode(': '));
+      nodeContent.appendChild(valueEl);
     }
 
-    span.addEventListener('click', async (ev) => {
-      ev.stopPropagation();
-      await navigator.clipboard
-        .writeText(data.value?.toString() ?? '')
-        .catch(() => {});
-    });
-
-    content.appendChild(span);
+    node.appendChild(nodeContent);
   }
 
-  return div;
+  return node;
 }
 
-function createTree(data: TreeNode[]): DocumentFragment {
-  const tree = document.createDocumentFragment();
+function renderTree(data: TreeNode[]) {
+  const container = document.querySelector('#tree') as HTMLDivElement;
+  container.innerHTML = '';
+
   for (const item of data) {
-    const node = createTreeNode(item);
-    tree.appendChild(node);
+    container.appendChild(createTreeNode(item));
+  }
+}
+
+document.addEventListener('click', async (ev) => {
+  const target = ev.target as HTMLElement;
+
+  // Find the closest tree-node-content parent if we clicked on a child element
+  const nodeContent = target.closest('.tree-node-content');
+
+  // Handle expander
+  if (nodeContent) {
+    ev.stopPropagation();
+    const node = nodeContent.parentElement;
+    const childrenContainer = node?.querySelector(
+      ':scope > .tree-children',
+    ) as HTMLElement;
+
+    if (!childrenContainer) return;
+
+    const isExpanded = childrenContainer.style.display !== 'none';
+    const expander = nodeContent.querySelector('.tree-expander');
+
+    if (!expander) return;
+
+    if (isExpanded) {
+      expander.innerHTML = iconCollapsed;
+      expander.classList.remove('expanded');
+      childrenContainer.style.display = 'none';
+    } else {
+      expander.innerHTML = iconExpanded;
+      expander.classList.add('expanded');
+      childrenContainer.style.display = 'block';
+    }
+
+    return;
   }
 
-  return tree;
-}
+  // Handle value copy
+  if (target.classList.contains('tree-node-value')) {
+    ev.stopPropagation();
+    const value = target.textContent ?? '';
+    void navigator.clipboard.writeText(value);
+  }
+});
 
 function parseTreeData(data: TreeInputData, type: string): TreeNode[] {
   let out: TreeNode[] = [];
+
+  if (!data) return out;
 
   switch (type) {
     case '0':
@@ -274,20 +316,17 @@ window.addEventListener('DOMContentLoaded', async () => {
           ipcEvent: IPC_EVENTS.LOADER_GRABBER_GRAB,
           data: { type },
         })
-        .then((res) => res as { data: unknown[]; type: string });
+        .then((res) => res as { data: TreeInputData; type: string });
 
       if (!ret) return;
 
       {
         const { data, type } = ret;
-        const treeData = parseTreeData(data as TreeInputData, type as string);
+        const treeData = parseTreeData(data as TreeInputData, type);
+
         lastData = ret;
 
-        const container = document.querySelector('#tree')!;
-        container.innerHTML = '';
-
-        const tree = createTree(treeData);
-        container.appendChild(tree);
+        renderTree(treeData);
       }
     });
   }

@@ -64,4 +64,4 @@ app.once('ready', async () => {
   }
 });
 
-app.on('window-all-closed', () => app.quit());
+app.on('window-all-closed', () => app.exit());

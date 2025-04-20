@@ -1,128 +1,35 @@
 :root {
   --topnav-height: 32px;
+  --bg-primary: #111113;
+  --bg-secondary: #18191b;
 }
 
 :focus {
   outline: none;
 }
 
-.w3-dropdown-content {
-  background-color: var(--bg-secondary) !important;
-  color: white !important;
+button {
+  display: inline-block;
+  padding: 8px 16px;
+  vertical-align: middle;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  background-color: inherit;
+  text-align: center;
+  cursor: pointer;
+  white-space: nowrap;
+}
+button:hover {
+  color: #000 !important;
+  background-color: #ccc !important;
 }
 
-.w3-dropdown-content .w3-button {
-  text-align: left !important;
-  padding: 8px 16px !important;
-  width: 100%;
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-}
-
-.option-row {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  cursor: default !important;
-}
-
-.walkspeed-input {
-  width: 50px;
-  height: 20px;
-  background-color: var(--bg-secondary);
-  color: white;
-  border: 1px solid #444;
-  padding: 2px 4px;
-}
-
-.topnav-right-container {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-right: 8px;
-}
-
-.topnav-right-container > .w3-dropdown-click:active,
-.topnav-right-container > .w3-dropdown-click:hover {
-  top: 5px !important;
-}
-
-.dropdown-group,
-.button-group {
-  display: flex;
-  margin-left: 6px;
-}
-
-.dropdown-group > *,
-.button-group > * {
-  margin-left: 2px;
-}
-
-#x,
-#bank {
-  background-color: var(--bg-secondary);
-  color: white;
-  height: 25px;
-  margin-top: 5px;
-  padding: 0 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: unset;
-}
-
-/* standardize top-right dropdown trigger styling */
-#topnav
-  > div.w3-right.topnav-right-container
-  > div.dropdown-group
-  > div.w3-dropdown-click
-  > button:first-child {
-  width: 86px;
-  height: 25px;
-  padding: 0px !important;
-}
-
-/* standardize top-right dropdown styling */
-#topnav
-  > div.w3-right.topnav-right-container
-  > div.dropdown-group
-  > div.w3-dropdown-click {
-  width: 86px !important;
-  height: 25px !important;
-  margin-top: 5px !important;
-}
-
-/* standardize top-right dropdown content styling */
-#pads-dropdowncontent,
-#cells-dropdowncontent {
-  background-color: var(--bg-secondary) !important;
-  position: absolute;
-  top: var(--topnav-height);
-  margin-top: 2px;
-  /* we don't want the dropdown too tall, especially if they are many options */
-  max-height: 50vh !important;
-  height: auto !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  z-index: 1000;
-}
-
-.gameContainer {
+#game-container {
   height: calc(100vh - var(--topnav-height) - 2px);
   position: relative;
-  visibility: hidden;
-  opacity: 0;
-  transition: opacity 0.5s;
 }
 
-#swf {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
 .option-checkmark {
   display: flex;
   align-items: center;
@@ -136,6 +43,49 @@
 .option-active .option-checkmark {
   opacity: 1;
   visibility: visible;
+}
+
+.walkspeed-input {
+  width: 50px;
+  height: 20px;
+  background-color: var(--bg-secondary);
+  color: white;
+  border: 1px solid #444;
+  padding: 2px 4px;
+}
+
+.group {
+  background-color: inherit;
+}
+.group div {
+  background-color: var(--bg-primary);
+}
+
+.group:hover .group-hover\:block {
+  display: block;
+}
+
+#topnav > div.ml-auto.mr-2.flex.items-center.gap-4 {
+  margin-top: -5px;
+}
+
+[id$='-dropdowncontent'] {
+  background-color: var(--bg-secondary);
+}
+
+#cells-dropdowncontent,
+#pads-dropdowncontent {
+  position: absolute;
+  top: var(--topnav-height);
+  margin-top: -6px;
+  width: inherit;
+  min-width: 160px;
+  /* we don't want the dropdown too tall, especially if they are many options */
+  max-height: 50vh !important;
+  height: auto !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  z-index: 1000;
 }
 
 .command-overlay {
@@ -202,40 +152,4 @@
 }
 .command-item.hover {
   background-color: #333;
-}
-
-.loader-container {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 60%;
-  text-align: center;
-  z-index: 10;
-}
-#progressText {
-  margin-bottom: 10px;
-  font-size: 16px;
-}
-
-.progress-bar-container {
-  width: 100%;
-  border-radius: 5px;
-  border: 1px solid gray;
-}
-.progress-bar {
-  width: 0%;
-  height: 30px;
-  background-color: gray;
-  border-radius: 5px;
-  transition: width 0.3s;
-}
-.topnav-container {
-  visibility: hidden;
-  opacity: 0;
-  transition: opacity 0.5s;
-}
-.game-visible {
-  visibility: visible;
-  opacity: 1;
 }

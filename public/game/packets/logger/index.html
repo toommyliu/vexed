@@ -1,36 +1,55 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <link href="../../../shared/common.css" rel="stylesheet" />
-    <link href="../../../shared/styles.css" rel="stylesheet" />
-    <link href="./styles.css" rel="stylesheet" />
+    <link href="../../../output.css" rel="stylesheet" />
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
     />
   </head>
-
-  <body class="w3-container">
-    <div class="w3-container w3-section">
+  <body class="min-h-screen select-none bg-black">
+    <div class="mx-auto box-border w-full max-w-4xl p-4">
       <div
-        class="w3-section w3-card w3-round-medium w3-border"
         id="logger"
+        class="mb-4 h-[200px] max-h-[350px] min-h-[200px] w-full resize-y overflow-auto rounded-md border border-zinc-800 bg-zinc-900 p-2 shadow-md"
       ></div>
 
-      <div class="w3-section" id="button-row">
-        <div class="w3-left">
-          <button class="w3-button w3-round-medium" id="save">
+      <div
+        class="mb-4 flex w-full flex-wrap items-center justify-between space-x-2"
+      >
+        <div class="flex flex-wrap space-x-2">
+          <button
+            id="save"
+            class="rounded-md border border-zinc-700 bg-zinc-800 p-2 shadow-sm transition-all duration-200 hover:bg-zinc-700"
+          >
             Save To File
           </button>
-          <button class="w3-button w3-round-medium" id="copy-all">
+          <button
+            id="copy-all"
+            class="rounded-md border border-zinc-700 bg-zinc-800 p-2 shadow-sm transition-all duration-200 hover:bg-zinc-700"
+          >
             Copy All
           </button>
-          <button class="w3-button w3-round-medium" id="clear">Clear</button>
+          <button
+            id="clear"
+            class="rounded-md border border-zinc-700 bg-zinc-800 p-2 shadow-sm transition-all duration-200 hover:bg-zinc-700"
+          >
+            Clear
+          </button>
         </div>
-
-        <div class="w3-right">
-          <button class="w3-button w3-round-medium" id="stop">Stop</button>
-          <button class="w3-button w3-round-medium" id="start">Start</button>
+        <div class="flex flex-wrap space-x-2">
+          <button
+            id="stop"
+            class="rounded-md border border-zinc-700 bg-zinc-800 p-2 shadow-sm transition-all duration-200 hover:bg-zinc-700"
+          >
+            Stop
+          </button>
+          <button
+            id="start"
+            class="rounded-md border border-zinc-700 bg-zinc-800 p-2 shadow-sm transition-all duration-200 hover:bg-zinc-700"
+          >
+            Start
+          </button>
         </div>
       </div>
     </div>

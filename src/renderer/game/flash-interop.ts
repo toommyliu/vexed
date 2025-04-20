@@ -8,6 +8,7 @@ import { ct } from './networking/json/ct';
 import { dropItem } from './networking/json/drop-item';
 import { initUserData } from './networking/json/init-user-data';
 import { moveToArea } from './networking/json/move-to-area';
+import { disableElement, enableElement } from './ui-utils';
 
 // import { FileManager } from '../../main/FileManager';
 // FileManager.getInstance().writeJson(
@@ -84,7 +85,7 @@ window.pext = async ([packet]) => {
   }
 };
 
-window.connection = ([state]: [string]) => {
+window.connection = async ([state]: [string]) => {
   const elList = [
     document.querySelector('#cells')!,
     document.querySelector('#pads')!,
@@ -92,13 +93,15 @@ window.connection = ([state]: [string]) => {
     document.querySelector('#bank')!,
   ];
 
+  if (state === 'OnConnection') {
+    await bot.waitUntil(() => bot.player.isReady(), null, -1);
+  }
+
   for (const el of elList) {
     if (state === 'OnConnection') {
-      el.removeAttribute('disabled');
-      el.classList.remove('w3-disabled');
+      enableElement(el as HTMLElement);
     } else if (state === 'OnConnectionLost') {
-      el.setAttribute('disabled', '');
-      el.classList.add('w3-disabled');
+      disableElement(el as HTMLElement);
     }
   }
 
@@ -144,30 +147,40 @@ window.flashDebug = (...args: string[]) => {
 };
 
 // @ts-expect-error - provided by flash and properly typed
-window.progress = ([percent]: number) => {
-  const progressBar = document.querySelector(
-    '.progress-bar',
-  )! as HTMLDivElement;
-  const progressText = document.querySelector(
-    '#progressText',
-  )! as HTMLDivElement;
+window.progress = (percent: number) => {
+  const progressBar = document.querySelector('#progress-bar') as HTMLDivElement;
+  const percentStr = `${percent}%`;
 
-  progressBar.style.width = percent + '%';
-  progressText.innerText = percent + '%';
+  progressBar.style.width = percentStr;
+  progressBar.textContent = percentStr;
+
+  setImmediate(() => {
+    progressBar.textContent = percentStr;
+  });
 
   if (percent >= 100) {
     const loaderContainer = document.querySelector(
-      '.loader-container',
-    )! as HTMLDivElement;
-    const gameContainer = document.querySelector(
-      '.gameContainer',
-    )! as HTMLDivElement;
+      '#loader-container',
+    ) as HTMLDivElement;
     const topnavContainer = document.querySelector(
-      '.topnav-container',
-    )! as HTMLDivElement;
+      '#topnav-container',
+    ) as HTMLDivElement;
+    const gameContainer = document.querySelector(
+      '#game-container',
+    ) as HTMLDivElement;
 
-    loaderContainer.style.display = 'none';
-    gameContainer.classList.add('game-visible');
-    topnavContainer.classList.add('game-visible');
+    loaderContainer.classList.add('hidden');
+
+    {
+      const cl = topnavContainer.classList;
+      cl.remove('invisible', 'opacity-0');
+      cl.add('opacity-100', 'visible');
+    }
+
+    {
+      const cl = gameContainer.classList;
+      cl.remove('invisible', 'opacity-0');
+      cl.add('opacity-100', 'visible');
+    }
   }
 };

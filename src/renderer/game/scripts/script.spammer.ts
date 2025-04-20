@@ -1,22 +1,11 @@
 import { ipcRenderer } from '../../../common/ipc';
 import { IPC_EVENTS } from '../../../common/ipc-events';
+import { setElement } from '../ui-utils';
 
 const packets: string[] = [];
 
 let on = false;
 let selectedLine: HTMLElement | null = null;
-
-function toggleElement(el: HTMLButtonElement, state: boolean) {
-  el.disabled = state;
-
-  if (state) {
-    el.classList.add('w3-disabled');
-    el.setAttribute('disabled', 'true');
-  } else {
-    el.classList.remove('w3-disabled');
-    el.removeAttribute('disabled');
-  }
-}
 
 window.addEventListener('DOMContentLoaded', async () => {
   {
@@ -42,18 +31,29 @@ window.addEventListener('DOMContentLoaded', async () => {
 
       {
         const div = document.createElement('div');
-        div.classList.add('line', 'rounded');
+        div.classList.add(
+          'block',
+          'w-max',
+          'cursor-pointer',
+          'text-white',
+          'rounded',
+          'text-sm',
+          'm-1',
+          'p-1',
+        );
         div.innerHTML = packet;
         div.addEventListener('click', (ev) => {
-          if (selectedLine) selectedLine.classList.remove('selected-line');
+          if (selectedLine) {
+            selectedLine.classList.remove('bg-zinc-700');
+          }
 
           if (ev.target === selectedLine) {
             selectedLine = null;
-            toggleElement(removeBtn, true);
+            setElement(removeBtn, false);
           } else {
             selectedLine = ev.target as HTMLElement;
-            selectedLine.classList.add('selected-line');
-            toggleElement(removeBtn, false);
+            selectedLine.classList.add('bg-zinc-700');
+            setElement(removeBtn, true);
           }
         });
         spammer.appendChild(div);
@@ -65,25 +65,26 @@ window.addEventListener('DOMContentLoaded', async () => {
     removeBtn.addEventListener('click', () => {
       if (!selectedLine) return;
 
+      const lineContent = selectedLine.innerHTML;
       selectedLine.remove();
       selectedLine = null;
 
-      toggleElement(removeBtn, true);
+      setElement(removeBtn, false);
 
-      const index = packets.indexOf(selectedLine!.innerHTML);
+      const index = packets.indexOf(lineContent);
       packets.splice(index, 1);
     });
   }
 
   {
     const stopBtn = document.querySelector('#stop') as HTMLButtonElement;
-    const onBtn = document.querySelector('#start') as HTMLButtonElement;
+    const startBtn = document.querySelector('#start') as HTMLButtonElement;
 
     stopBtn.addEventListener('click', async () => {
       on = false;
 
-      toggleElement(stopBtn, true);
-      toggleElement(onBtn, false);
+      setElement(stopBtn, false);
+      setElement(startBtn, true);
 
       await ipcRenderer
         .callMain(IPC_EVENTS.MSGBROKER, {
@@ -92,11 +93,11 @@ window.addEventListener('DOMContentLoaded', async () => {
         .catch(() => {});
     });
 
-    onBtn.addEventListener('click', async () => {
+    startBtn.addEventListener('click', async () => {
       on = true;
 
-      toggleElement(stopBtn, false);
-      toggleElement(onBtn, true);
+      setElement(stopBtn, true);
+      setElement(startBtn, false);
 
       await ipcRenderer
         .callMain(IPC_EVENTS.MSGBROKER, {
@@ -122,10 +123,10 @@ window.addEventListener('DOMContentLoaded', async () => {
       .catch(() => {});
 
     const stopBtn = document.querySelector('#stop') as HTMLButtonElement;
-    const onBtn = document.querySelector('#start') as HTMLButtonElement;
+    const startBtn = document.querySelector('#start') as HTMLButtonElement;
 
-    toggleElement(stopBtn, true);
-    toggleElement(onBtn, false);
+    setElement(stopBtn, true);
+    setElement(startBtn, false);
   });
 });
 

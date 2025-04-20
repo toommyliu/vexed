@@ -1,4 +1,5 @@
 import { join } from 'path';
+import process from 'process';
 import { Menu, Tray, app, nativeImage } from 'electron';
 import { BRAND } from '../common/constants';
 import { createAccountManager, createGame } from './windows';
@@ -17,7 +18,9 @@ const contextMenu = Menu.buildFromTemplate([
   { type: 'separator' },
   {
     label: 'Quit',
-    click: () => app.quit(),
+    click: () => {
+      app.exit();
+    },
   },
 ]);
 

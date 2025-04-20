@@ -1,17 +1,20 @@
-const ogDiv = document.createElement('div');
-ogDiv.className = 'option-checkmark';
-ogDiv.innerHTML = `
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <polyline points="20 6 9 17 4 12"></polyline>
-</svg>`;
-
 export function addCheckbox(
   el: HTMLElement,
   fn: (on: boolean) => void,
-  defaultChecked = false,
+  defaultChecked: boolean = false,
 ) {
-  const div = ogDiv.cloneNode(true);
-  el.appendChild(div);
+  el.style.position = 'relative';
+
+  const checkmark = document.createElement('span');
+  checkmark.className = 'option-checkmark';
+  checkmark.style.position = 'absolute';
+  checkmark.style.right = '8px';
+  checkmark.style.top = '50%';
+  checkmark.style.transform = 'translateY(-50%)';
+  checkmark.style.pointerEvents = 'none';
+  checkmark.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+
+  el.appendChild(checkmark);
 
   el.setAttribute('data-state', defaultChecked.toString());
   if (defaultChecked) {
