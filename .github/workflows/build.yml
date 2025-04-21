@@ -25,8 +25,11 @@ jobs:
           node-version: '22.11.0'
           cache: 'yarn'
 
-      - name: Run build script
-        run: yarn build:all
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build electron app
+        run: yarn run build:all
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
