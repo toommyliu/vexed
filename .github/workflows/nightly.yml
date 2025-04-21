@@ -84,6 +84,16 @@ jobs:
     needs: build_electron
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get Commit History
+        id: commits
+        run: |
+          COMMITS=$(git log $(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)..HEAD --pretty=format:"- %s (%h)" || git log --pretty=format:"- %s (%h)" -n 10)
+          echo "history<<EOF" >> $GITHUB_OUTPUT
+          echo "$COMMITS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Delete Existing Release
         id: delete_release
@@ -153,6 +163,9 @@ jobs:
             [Link to build](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
 
             Last updated: ${{ steps.checksums.outputs.current_date }}
+
+            **Changes since last nightly build:**
+            ${{ steps.commits.outputs.history }}
 
             Build SHA256:
             ```
