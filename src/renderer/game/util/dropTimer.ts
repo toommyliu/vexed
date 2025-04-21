@@ -4,7 +4,7 @@ import { Bot } from '../lib/Bot';
 const bot = Bot.getInstance();
 let on = false;
 
-export function startDropsTimer(drops: string[], rejectElse?: boolean) {
+export function startDropsTimer(drops: string[], rejectElse: boolean = false) {
   on = true;
 
   const allowedDrops = new Set(drops);
@@ -26,7 +26,7 @@ export function startDropsTimer(drops: string[], rejectElse?: boolean) {
         try {
           await bot.drops.pickup(drop);
         } catch {}
-      } else {
+      } else if (rejectElse) {
         try {
           await bot.drops.reject(drop);
         } catch {}
