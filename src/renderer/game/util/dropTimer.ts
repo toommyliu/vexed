@@ -4,8 +4,13 @@ import { Bot } from '../lib/Bot';
 const bot = Bot.getInstance();
 let on = false;
 
-export function startDropsTimer(drops: string[]) {
+export function startDropsTimer(drops: string[], rejectElse?: boolean) {
   on = true;
+
+  const allowedDrops = new Set(drops);
+  if (!allowedDrops.size) {
+    return;
+  }
 
   void interval(async (_, stop) => {
     if (!on) {
@@ -13,12 +18,19 @@ export function startDropsTimer(drops: string[]) {
       return;
     }
 
-    if (!drops.length) return;
+    if (!bot.player.isReady()) return;
 
-    for (const drop of drops) {
-      try {
-        void bot.drops.pickup(drop);
-      } catch {}
+    const currentDrops = Object.keys(bot.drops.stack);
+    for (const drop of currentDrops) {
+      if (allowedDrops.has(drop)) {
+        try {
+          await bot.drops.pickup(drop);
+        } catch {}
+      } else {
+        try {
+          await bot.drops.reject(drop);
+        } catch {}
+      }
     }
   }, 1_000);
 }

@@ -116,6 +116,8 @@ export class Drops {
 
     const { ItemID: itemId } = item;
     return this.mutex.runExclusive(async () => {
+      if (!this.bot.player.isReady()) return;
+
       this.bot.packets.sendServer(
         `%xt%zm%getDrop%${this.bot.world.roomId}%${itemId}%`,
       );

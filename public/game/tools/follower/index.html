@@ -13,7 +13,7 @@
         <div
           class="w-full rounded-md border border-zinc-800 bg-zinc-900 p-4 shadow-md"
         >
-          <h3 class="m-0 mb-2 text-base">Player Control</h3>
+          <h3 class="m-0 mb-2 text-base font-bold">Player Control</h3>
 
           <div class="mb-3 w-full">
             <label for="input-player" class="mb-2 block">Player</label>
@@ -81,7 +81,7 @@
         <div
           class="w-full rounded-md border border-zinc-800 bg-zinc-900 p-4 shadow-md"
         >
-          <h3 class="m-0 mb-2 text-base font-semibold">Options</h3>
+          <h3 class="m-0 mb-2 text-base font-bold">Options</h3>
 
           <div
             class="mb-3 flex flex-wrap items-center gap-2 overflow-x-auto whitespace-nowrap"
@@ -156,7 +156,7 @@
         <div
           class="w-full rounded-md border border-zinc-800 bg-zinc-900 p-4 shadow-md"
         >
-          <h3 class="m-0 mb-2 text-base font-semibold">
+          <h3 class="m-0 mb-2 text-base font-bold">
             <span class="tooltip">
               Quests
               <span class="tooltip-text"
@@ -176,15 +176,25 @@
         <div
           class="w-full rounded-md border border-zinc-800 bg-zinc-900 p-4 shadow-md"
         >
-          <h3 class="m-0 mb-2 text-base font-semibold">
-            <span class="tooltip">
-              Drops
-              <span class="tooltip-text"
-                >Item names or ids to auto-pickup, separated by commas,
-                new-lines, or both</span
-              >
-            </span>
-          </h3>
+          <div class="mb-2 flex items-center justify-between">
+            <h3 class="m-0 text-base font-bold">
+              <span class="tooltip">
+                Drops
+                <span class="tooltip-text"
+                  >Item names or ids to auto-pickup, separated by commas,
+                  new-lines, or both</span
+                >
+              </span>
+            </h3>
+            <div class="flex items-center">
+              <input
+                type="checkbox"
+                id="reject-else"
+                class="mr-1 flex-shrink-0"
+              />
+              <label for="reject-else" class="text-gray-400">Reject else</label>
+            </div>
+          </div>
           <textarea
             placeholder="Item 1
 Item 2,Item 3"
