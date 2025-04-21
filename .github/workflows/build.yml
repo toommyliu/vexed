@@ -1,54 +1,48 @@
 name: Build
 
 on:
-    push:
-        tags:
-            - '*.*.*'
+  push:
+    tags:
+      - '*.*.*'
 
 jobs:
-    build_electron:
-        name: Build Electron App
-        runs-on: macos-14
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
+  build_electron:
+    name: Build Electron App
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-            - name: Setup Yarn
-              uses: threeal/setup-yarn-action@v2.0.0
-              with:
-                  version: classic
-                  cache: false
+      - name: Setup Yarn
+        uses: threeal/setup-yarn-action@v2.0.0
+        with:
+          version: classic
+          cache: false
 
-            - name: Install Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: '22.11.0'
-                  cache: 'yarn'
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.11.0'
+          cache: 'yarn'
 
-            - name: Install dependencies
-              run: yarn install
+      - name: Run build script
+        run: yarn build:all
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Compile Typescript
-              run: yarn compile
+      - name: Rename file (macOS)
+        run: mv vexed-0.0.0-mac.zip vexed-mac.zip
+        working-directory: ./build
 
-            - name: Build Electron App
-              run: yarn run build:all
-              env:
-                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Rename file (Windows)
+        run: mv vexed-0.0.0-win.zip vexed-win.zip
+        working-directory: ./build
 
-            - name: Rename file (macOS)
-              run: mv vexed-0.0.0-mac.zip vexed-mac.zip
-              working-directory: ./build
-
-            - name: Rename file (Windows)
-              run: mv vexed-0.0.0-win.zip vexed-win.zip
-              working-directory: ./build
-
-            - name: Upload binary
-              uses: softprops/action-gh-release@v2
-              with:
-                  files: |
-                      ./build/vexed-mac.zip
-                      ./build/vexed-win.zip
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload binary
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            ./build/vexed-mac.zip
+            ./build/vexed-win.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
