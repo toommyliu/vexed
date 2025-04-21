@@ -141,18 +141,18 @@ jobs:
         run: |
           echo "mac_sha=$(sha256sum vexed-nightly-mac.zip | awk '{print $1}')" >> $GITHUB_OUTPUT
           echo "win_sha=$(sha256sum vexed-nightly-win.zip | awk '{print $1}')" >> $GITHUB_OUTPUT
+          echo "current_date=$(date +'%Y-%m-%d %H:%M UTC')" >> $GITHUB_OUTPUT
 
       - name: Create Nightly Release
         uses: softprops/action-gh-release@v2
         with:
           name: Nightly Build [${{ needs.build_electron.outputs.short_sha }}]
           tag_name: nightly
-          prerelease: true
           body: |
             **This release has been built by Github Actions**
             [Link to build](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
 
-            Last updated: $(date +'%Y-%m-%d %H:%M UTC')
+            Last updated: ${{ steps.checksums.outputs.current_date }}
 
             Build SHA256:
             ```
