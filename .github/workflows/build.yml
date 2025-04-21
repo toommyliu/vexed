@@ -33,14 +33,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Rename file (macOS)
-        run: mv vexed-0.0.0-mac.zip vexed-mac.zip
-        working-directory: ./build
-
-      - name: Rename file (Windows)
-        run: mv vexed-0.0.0-win.zip vexed-win.zip
-        working-directory: ./build
-
       - name: Upload binary
         uses: softprops/action-gh-release@v2
         with:

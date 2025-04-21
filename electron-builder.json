@@ -16,7 +16,8 @@
       "target": "zip",
       "arch": ["x64"]
     },
-    "icon": "assets/icon.png"
+    "icon": "assets/icon.png",
+    "artifactName": "${productName}-${os}.${ext}"
   },
   "win": {
     "files": [
@@ -30,7 +31,8 @@
     "target": {
       "target": "zip",
       "arch": ["x64"]
-    }
+    },
+    "artifactName": "${productName}-${os}.${ext}"
   },
   "extraMetadata": {
     "name": "vexed",

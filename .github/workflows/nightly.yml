@@ -69,8 +69,8 @@ jobs:
         with:
           name: electron-builds
           path: |
-            ./build/vexed-0.0.0-mac.zip
-            ./build/vexed-0.0.0-win.zip
+            ./build/vexed-mac.zip
+            ./build/vexed-win.zip
 
       - name: Generate Build Info
         id: var
@@ -131,16 +131,16 @@ jobs:
         with:
           name: electron-builds
 
-      - name: Rename files
-        run: |
-          mv vexed-0.0.0-mac.zip vexed-nightly-mac.zip
-          mv vexed-0.0.0-win.zip vexed-nightly-win.zip
+      # - name: Rename files
+      #   run: |
+      #     mv vexed-0.0.0-mac.zip vexed-mac.zip
+      #     mv vexed-0.0.0-win.zip vexed-win.zip
 
       - name: Calculate checksums
         id: checksums
         run: |
-          echo "mac_sha=$(sha256sum vexed-nightly-mac.zip | awk '{print $1}')" >> $GITHUB_OUTPUT
-          echo "win_sha=$(sha256sum vexed-nightly-win.zip | awk '{print $1}')" >> $GITHUB_OUTPUT
+          echo "mac_sha=$(sha256sum vexed-mac.zip | awk '{print $1}')" >> $GITHUB_OUTPUT
+          echo "win_sha=$(sha256sum vexed-win.zip | awk '{print $1}')" >> $GITHUB_OUTPUT
           echo "current_date=$(date +'%Y-%m-%d %H:%M UTC')" >> $GITHUB_OUTPUT
 
       - name: Create Nightly Release
@@ -165,7 +165,7 @@ jobs:
             ${{ needs.build_electron.outputs.full_sha }}
             ```
           files: |
-            vexed-nightly-mac.zip
-            vexed-nightly-win.zip
+            vexed-mac.zip
+            vexed-win.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
