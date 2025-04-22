@@ -8,9 +8,6 @@ export function startDropsTimer(drops: string[], rejectElse: boolean = false) {
   on = true;
 
   const allowedDrops = new Set(drops);
-  if (!allowedDrops.size) {
-    return;
-  }
 
   void interval(async (_, stop) => {
     if (!on) {
