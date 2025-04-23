@@ -2,22 +2,19 @@ import { interval } from '../../../common/interval';
 import { Bot } from '../lib/Bot';
 
 const bot = Bot.getInstance();
-let on = false;
+let stopFn: (() => void) | null = null;
 
 export function startQuestTimer(quests: string[]) {
-  on = true;
+  stopQuestTimer();
+
+  void bot.quests.loadMultiple(quests);
 
   void interval(async (_, stop) => {
-    if (!on) {
-      stop();
-      return;
+    if (!stopFn) {
+      stopFn = stop;
     }
 
     if (!bot.player.isReady()) return;
-
-    await bot.quests.loadMultiple(quests);
-
-    // TODO: batch complete
 
     for (const questId of quests) {
       try {
@@ -47,5 +44,8 @@ export function startQuestTimer(quests: string[]) {
 }
 
 export function stopQuestTimer() {
-  on = false;
+  if (stopFn) {
+    stopFn();
+    stopFn = null;
+  }
 }

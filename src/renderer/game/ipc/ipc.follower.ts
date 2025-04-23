@@ -35,6 +35,7 @@ function parseConfig(rawConfig: FollowerConfigRaw): FollowerConfig {
     safeSkillEnabled: rawSafeSkillEnabled,
     safeSkill: rawSafeSkill,
     safeSkillHp: rawSafeSkillHp,
+    rejectElse: rawRejectElse,
   } = rawConfig;
 
   const name = (
@@ -93,6 +94,7 @@ function parseConfig(rawConfig: FollowerConfigRaw): FollowerConfig {
     safeSkillHp,
     quests,
     drops,
+    rejectElse: Boolean(rawRejectElse),
   };
 
   console.log('parsed config', ret);
@@ -357,6 +359,7 @@ type FollowerConfig = {
   drops: string[];
   name: string;
   quests: string[];
+  rejectElse: boolean;
   safeSkill: string[];
   safeSkillEnabled: boolean;
   safeSkillHp: number;
@@ -371,6 +374,7 @@ type FollowerConfigRaw = {
   drops: string;
   name: string;
   quests: string;
+  rejectElse: boolean;
   safeSkill: string;
   safeSkillEnabled: boolean;
   safeSkillHp: string;

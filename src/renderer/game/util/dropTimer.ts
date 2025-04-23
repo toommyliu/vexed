@@ -2,27 +2,43 @@ import { interval } from '../../../common/interval';
 import { Bot } from '../lib/Bot';
 
 const bot = Bot.getInstance();
-let on = false;
+let stopFn: (() => void) | null = null;
 
-export function startDropsTimer(drops: string[]) {
-  on = true;
+export function startDropsTimer(drops: string[], rejectElse: boolean = false) {
+  stopDropsTimer();
+
+  const allowedDrops = new Set(drops);
 
   void interval(async (_, stop) => {
-    if (!on) {
-      stop();
-      return;
+    if (!stopFn) {
+      stopFn = stop;
     }
 
-    if (!drops.length) return;
+    if (!bot.player.isReady()) return;
 
-    for (const drop of drops) {
-      try {
-        void bot.drops.pickup(drop);
-      } catch {}
+    const currentDrops = Object.keys(bot.drops.stack);
+    for (const drop of currentDrops) {
+      if (allowedDrops.has(drop)) {
+        try {
+          await bot.drops.pickup(drop);
+        } catch {}
+      } else if (rejectElse) {
+        try {
+          await bot.drops.reject(drop);
+        } catch {}
+      }
     }
-  }, 1_000);
+  }, 1_000).finally(() => {
+    if (stopFn) {
+      stopFn();
+      stopFn = null;
+    }
+  });
 }
 
 export function stopDropsTimer() {
-  on = false;
+  if (stopFn) {
+    stopFn();
+    stopFn = null;
+  }
 }

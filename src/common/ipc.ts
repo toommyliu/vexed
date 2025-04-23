@@ -175,6 +175,7 @@ type TypedIpcEvents = {
       drops: string;
       name: string;
       quests: string;
+      rejectElse: boolean;
       safeSkill: string;
       safeSkillEnabled: boolean;
       safeSkillHp: string;

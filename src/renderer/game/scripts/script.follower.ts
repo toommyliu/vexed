@@ -26,6 +26,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   const textarea_quests =
     document.querySelector<HTMLTextAreaElement>('#quests')!;
   const textarea_drops = document.querySelector<HTMLTextAreaElement>('#drops')!;
+  const cbRejectElse =
+    document.querySelector<HTMLInputElement>('#reject-else')!;
 
   const cbEnable = document.querySelector<HTMLInputElement>('#cb-enable')!;
 
@@ -52,6 +54,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     setElement(cbAntiCounter, !on);
     setElement(textarea_quests, !on);
     setElement(textarea_drops, !on);
+    setElement(cbRejectElse, !on);
   };
 
   if (btnMe) {
@@ -90,6 +93,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             antiCounter: cbAntiCounter.checked,
             quests: textarea_quests.value,
             drops: textarea_drops.value,
+            rejectElse: cbRejectElse.checked,
           },
         });
       } else {
