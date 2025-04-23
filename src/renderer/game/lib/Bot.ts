@@ -59,11 +59,6 @@ type Events = {
 
 export class Bot extends TypedEmitter<Events> {
   /**
-   * The AbortController instance.
-   */
-  public ac: AbortController | null = null;
-
-  /**
    * The singleton instance of the Bot class.
    */
   public static _instance: Bot | null = null;

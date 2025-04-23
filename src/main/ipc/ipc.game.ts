@@ -1,16 +1,15 @@
 import { join } from "path";
 import { app, BrowserWindow, dialog } from "electron";
 import { readFile } from "fs-extra";
-import { WINDOW_IDS } from "../../common/constants";
+import { FileManager } from "../../common/FileManager";
+import { DEFAULT_FAST_TRAVELS, WINDOW_IDS } from "../../common/constants";
 import { ipcMain } from "../../common/ipc";
 import { IPC_EVENTS } from "../../common/ipc-events";
 import { Logger } from "../../common/logger";
 import type { FastTravel } from "../../common/types";
-import { FileManager } from "../FileManager";
 import { recursivelyApplySecurityPolicy } from "../util/recursivelyApplySecurityPolicy";
 import { mgrWindow, store } from "../windows";
 
-const fm = FileManager.getInstance();
 const logger = Logger.get("IpcGame");
 
 const PUBLIC = join(__dirname, "../../../public");
@@ -291,15 +290,17 @@ ipcMain.answerRenderer(IPC_EVENTS.LOAD_SCRIPT, async (args, browserWindow) => {
 
 ipcMain.answerRenderer(IPC_EVENTS.READ_FAST_TRAVELS, async () => {
   try {
-    return (await fm.readJson(fm.fastTravelsPath)) as FastTravel[];
+    return (await FileManager.readJson<FastTravel[]>(
+      FileManager.fastTravelsPath,
+    )) as FastTravel[];
   } catch {
-    return fm.defaultFastTravels;
+    return DEFAULT_FAST_TRAVELS;
   }
 });
 
 ipcMain.answerRenderer(IPC_EVENTS.TOGGLE_DEV_TOOLS, (_, browserWindow) => {
   try {
-    if (!browserWindow.isDestroyed())
+    if (!browserWindow?.isDestroyed())
       browserWindow.webContents.toggleDevTools();
   } catch {}
 });

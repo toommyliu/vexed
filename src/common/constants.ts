@@ -1,16 +1,16 @@
 import os from "os";
 import { join } from "path";
-import type { Location, Settings } from "../main/FileManager";
-import type { Account } from "./types";
+import type { Account, FastTravel, Settings } from "./types";
 
 export const BRAND = "vexed";
 export const DOCUMENTS_PATH = join(os.homedir(), "Documents", BRAND);
 
 export const DEFAULT_SETTINGS: Settings = {
   launchMode: "game",
+  debug: false,
 } as const;
 
-export const DEFAULT_FAST_TRAVELS: Location[] = [
+export const DEFAULT_FAST_TRAVELS: FastTravel[] = [
   { name: "Oblivion", map: "tercessuinotlim" },
   {
     name: "Twins",

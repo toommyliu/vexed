@@ -1,21 +1,17 @@
-import { join } from 'path';
-import { dialog } from 'electron';
-import { ipcMain } from '../../common/ipc';
-import { IPC_EVENTS } from '../../common/ipc-events';
-import { Logger } from '../../common/logger';
-import { FileManager } from '../FileManager';
-import { createGame } from '../windows';
+import { FileManager } from "../../common/FileManager";
+import { ipcMain } from "../../common/ipc";
+import { IPC_EVENTS } from "../../common/ipc-events";
+import { Logger } from "../../common/logger";
+import { createGame } from "../windows";
 
-const fileMgr = FileManager.getInstance();
 const logger = Logger.get("IpcManager");
 
 ipcMain.answerRenderer(IPC_EVENTS.GET_ACCOUNTS, async () => {
   try {
-    return (await fileMgr.readJson<Account[]>(
-      fileMgr.accountsPath,
+    return (await FileManager.readJson<Account[]>(
+      FileManager.accountsPath,
     )) as Account[];
-  } catch (error) {
-    logger.error("failed to read accounts.json:", error);
+  } catch {
     return [];
   }
 });
@@ -23,11 +19,11 @@ ipcMain.answerRenderer(IPC_EVENTS.GET_ACCOUNTS, async () => {
 ipcMain.answerRenderer(IPC_EVENTS.ADD_ACCOUNT, async (account) => {
   try {
     const accounts =
-      (await fileMgr.readJson<Account[]>(fileMgr.accountsPath)) ?? [];
+      (await FileManager.readJson<Account[]>(FileManager.accountsPath)) ?? [];
 
     accounts.push(account);
 
-    await fileMgr.writeJson(fileMgr.accountsPath, accounts);
+    await FileManager.writeJson(FileManager.accountsPath, accounts);
     return { success: true };
   } catch (error) {
     const err = error as Error;
@@ -38,7 +34,7 @@ ipcMain.answerRenderer(IPC_EVENTS.ADD_ACCOUNT, async (account) => {
 ipcMain.answerRenderer(IPC_EVENTS.REMOVE_ACCOUNT, async ({ username }) => {
   try {
     const accounts =
-      (await fileMgr.readJson<Account[]>(fileMgr.accountsPath)) ?? [];
+      (await FileManager.readJson<Account[]>(FileManager.accountsPath)) ?? [];
 
     const idx = accounts.findIndex((acc) => acc.username === username);
     if (idx === -1) {
@@ -47,7 +43,7 @@ ipcMain.answerRenderer(IPC_EVENTS.REMOVE_ACCOUNT, async ({ username }) => {
 
     accounts.splice(idx, 1);
 
-    await fileMgr.writeJson(fileMgr.accountsPath, accounts);
+    await FileManager.writeJson(FileManager.accountsPath, accounts);
     return true;
   } catch (error) {
     logger.error("failed to remove account:", error);

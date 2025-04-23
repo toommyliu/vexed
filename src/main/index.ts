@@ -5,8 +5,9 @@ import "./tray";
 import { join } from "path";
 import process from "process";
 import { app } from "electron";
+import { FileManager } from "../common/FileManager";
 import { BRAND } from "../common/constants";
-import { FileManager } from "./FileManager";
+import type { Settings } from "../common/types";
 import { showErrorDialog } from "./util/showErrorDialog";
 import { createAccountManager, createGame } from "./windows";
 
@@ -51,17 +52,24 @@ registerFlashPlugin();
 // app.commandLine.appendArgument('--disable-renderer-backgrounding');
 
 app.once("ready", async () => {
-  const fm = FileManager.getInstance();
-  await fm.initialize();
+  try {
+    await FileManager.initialize();
 
-  const settings = await fm
-    .readJson<typeof fm.defaultSettings>(fm.settingsPath)
-    .catch(() => fm.defaultSettings);
+    const settings = await FileManager.readJson<Settings>(
+      FileManager.settingsPath,
+    );
 
-  if (settings?.launchMode?.toLowerCase() === "manager") {
-    await createAccountManager();
-  } else {
-    await createGame();
+    if (settings?.launchMode?.toLowerCase() === "manager") {
+      await createAccountManager();
+    } else {
+      await createGame();
+    }
+  } catch (error) {
+    const err = error as Error;
+    showErrorDialog({
+      error: err,
+      message: "Failed to initialize the application.",
+    });
   }
 });
 
