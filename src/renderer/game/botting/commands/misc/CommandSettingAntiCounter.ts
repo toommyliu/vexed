@@ -1,4 +1,4 @@
-import { Command } from '../../command';
+import { Command } from "../../command";
 
 export class CommandSettingAntiCounter extends Command {
   public state!: boolean;
@@ -8,6 +8,6 @@ export class CommandSettingAntiCounter extends Command {
   }
 
   public override toString() {
-    return `${this.state ? 'Enable' : 'Disable'} setting: anti counter`;
+    return `${this.state ? "Enable" : "Disable"} setting: anti counter`;
   }
 }

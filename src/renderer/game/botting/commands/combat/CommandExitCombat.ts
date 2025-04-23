@@ -1,4 +1,4 @@
-import { Command } from '../../command';
+import { Command } from "../../command";
 
 export class CommandExitCombat extends Command {
   public override async execute(): Promise<void> {
@@ -6,6 +6,6 @@ export class CommandExitCombat extends Command {
   }
 
   public override toString() {
-    return 'Exit from combat';
+    return "Exit from combat";
   }
 }

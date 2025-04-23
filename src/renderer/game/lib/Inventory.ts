@@ -1,7 +1,7 @@
-import type { Bot } from './Bot';
-import { GameAction } from './World';
-import { InventoryItem } from './models/InventoryItem';
-import type { ItemData } from './models/Item';
+import type { Bot } from "./Bot";
+import { GameAction } from "./World";
+import { InventoryItem } from "./models/InventoryItem";
+import type { ItemData } from "./models/Item";
 
 export class Inventory {
   public constructor(public readonly bot: Bot) {}
@@ -39,7 +39,7 @@ export class Inventory {
   public contains(itemKey: number | string, quantity: number = 1): boolean {
     const item = this.get(itemKey);
     return (
-      item !== null && (item.quantity >= quantity || item.category === 'Class')
+      item !== null && (item.quantity >= quantity || item.category === "Class")
     );
   }
 
@@ -78,7 +78,7 @@ export class Inventory {
       this.bot.world.isActionAvailable(GameAction.EquipItem),
     );
 
-    if (item.category === 'Item') {
+    if (item.category === "Item") {
       // potion / consumable
       this.bot.flash.call(() =>
         swf.inventoryEquipConsumable(

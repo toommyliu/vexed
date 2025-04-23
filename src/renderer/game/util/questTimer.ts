@@ -1,5 +1,5 @@
-import { interval } from '../../../common/interval';
-import { Bot } from '../lib/Bot';
+import { interval } from "../../../common/interval";
+import { Bot } from "../lib/Bot";
 
 const bot = Bot.getInstance();
 let stopFn: (() => void) | null = null;
@@ -10,9 +10,7 @@ export function startQuestTimer(quests: string[]) {
   void bot.quests.loadMultiple(quests);
 
   void interval(async (_, stop) => {
-    if (!stopFn) {
-      stopFn = stop;
-    }
+    stopFn ??= stop;
 
     if (!bot.player.isReady()) return;
 
@@ -32,7 +30,7 @@ export function startQuestTimer(quests: string[]) {
 
         if (swf.questsCanCompleteQuest(_questId)) {
           const maxTurnIns = bot.flash.call<number>(
-            'world.maximumQuestTurnIns',
+            "world.maximumQuestTurnIns",
             _questId,
           );
           void bot.quests.complete(_questId, maxTurnIns);

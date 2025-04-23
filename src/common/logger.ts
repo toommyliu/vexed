@@ -1,6 +1,6 @@
-import util from 'util';
-import type { Logger as WinstonLogger } from 'winston';
-import winston, { createLogger, format, transports } from 'winston';
+import util from "util";
+import type { Logger as WinstonLogger } from "winston";
+import winston, { createLogger, format, transports } from "winston";
 
 // TODO: add debug flag to enable debug logging
 
@@ -12,16 +12,16 @@ export class Logger {
   private constructor(scope: string) {
     this.scope = scope;
     this.logger = createLogger({
-      level: 'debug',
+      level: "debug",
       levels: winston.config.cli.levels,
-      transports: [new transports.Console({ level: 'debug' })],
+      transports: [new transports.Console({ level: "debug" })],
       format: format.combine(
-        format.timestamp({ format: 'HH:mm:ss' }),
+        format.timestamp({ format: "HH:mm:ss" }),
         // color only for main
-        process.type === 'browser' ? format.colorize() : format.uncolorize(),
+        process.type === "browser" ? format.colorize() : format.uncolorize(),
         format.printf(
           ({ level, message, timestamp }) =>
-            `[${timestamp}] [${level}]${this.scope ? ` (${this.scope})` : ''} ${message}`,
+            `[${timestamp}] [${level}]${this.scope ? ` (${this.scope})` : ""} ${message}`,
         ),
       ),
     });
@@ -33,10 +33,10 @@ export class Logger {
         if (Array.isArray(arg)) {
           return arg
             .map((a) => util.inspect(a, { depth: null, colors: false }))
-            .join(' ');
+            .join(" ");
         }
 
-        if (typeof arg === 'object' && arg !== null) {
+        if (typeof arg === "object" && arg !== null) {
           try {
             return util.inspect(arg, { depth: null, colors: false });
           } catch {
@@ -47,7 +47,7 @@ export class Logger {
 
         return String(arg);
       })
-      .join(' ');
+      .join(" ");
   }
 
   public info(...args: unknown[]): void {

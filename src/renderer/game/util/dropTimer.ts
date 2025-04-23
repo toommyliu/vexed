@@ -1,5 +1,5 @@
-import { interval } from '../../../common/interval';
-import { Bot } from '../lib/Bot';
+import { interval } from "../../../common/interval";
+import { Bot } from "../lib/Bot";
 
 const bot = Bot.getInstance();
 let stopFn: (() => void) | null = null;
@@ -10,9 +10,7 @@ export function startDropsTimer(drops: string[], rejectElse: boolean = false) {
   const allowedDrops = new Set(drops);
 
   void interval(async (_, stop) => {
-    if (!stopFn) {
-      stopFn = stop;
-    }
+    stopFn ??= stop;
 
     if (!bot.player.isReady()) return;
 
@@ -28,6 +26,7 @@ export function startDropsTimer(drops: string[], rejectElse: boolean = false) {
         } catch {}
       }
     }
+    // eslint-disable-next-line promise/prefer-await-to-then
   }, 1_000).finally(() => {
     if (stopFn) {
       stopFn();

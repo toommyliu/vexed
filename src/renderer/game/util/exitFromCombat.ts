@@ -1,4 +1,4 @@
-import { Bot } from '../lib/Bot';
+import { Bot } from "../lib/Bot";
 
 export async function exitFromCombat() {
   const bot = Bot.getInstance();

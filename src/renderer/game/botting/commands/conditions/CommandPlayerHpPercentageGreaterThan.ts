@@ -1,4 +1,4 @@
-import { Command } from '../../command';
+import { Command } from "../../command";
 
 export class CommandPlayerHpPercentageGreaterThan extends Command {
   public player?: string;
@@ -16,6 +16,6 @@ export class CommandPlayerHpPercentageGreaterThan extends Command {
   }
 
   public override toString() {
-    return `${this.player ?? 'This player'} HP is greater than: ${this.percentage}%`;
+    return `${this.player ?? "This player"} HP is greater than: ${this.percentage}%`;
   }
 }

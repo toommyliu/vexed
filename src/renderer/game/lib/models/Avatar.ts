@@ -1,4 +1,4 @@
-import { PlayerState } from '../Player';
+import { PlayerState } from "../Player";
 
 /**
  * Represents a player in the world.
@@ -145,7 +145,7 @@ export class Avatar {
   public hasAura(name: string, value?: number) {
     const aura = this.getAura(name);
     if (!aura) return false;
-    if (typeof value === 'number') return aura.value === value;
+    if (typeof value === "number") return aura.value === value;
     return true;
   }
 

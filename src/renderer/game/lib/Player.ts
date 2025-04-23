@@ -1,5 +1,5 @@
-import type { Bot } from './Bot';
-import { Faction } from './models/Faction';
+import type { Bot } from "./Bot";
+import { Faction } from "./models/Faction";
 
 export const PlayerState = Object.freeze({
   /**
@@ -17,10 +17,10 @@ export const PlayerState = Object.freeze({
 });
 
 export const BoostType = Object.freeze({
-  Gold: 'gold',
-  Exp: 'exp',
-  Rep: 'rep',
-  ClassPoints: 'classPoints',
+  Gold: "gold",
+  Exp: "exp",
+  Rep: "rep",
+  ClassPoints: "classPoints",
 });
 
 export class Player {
@@ -189,13 +189,13 @@ export class Player {
   ): boolean {
     switch (type) {
       case BoostType.Gold:
-        return this.bot.flash.get('world.myAvatar.objData.iBoostG', true) > 0;
+        return this.bot.flash.get("world.myAvatar.objData.iBoostG", true) > 0;
       case BoostType.Exp:
-        return this.bot.flash.get('world.myAvatar.objData.iBoostXP', true) > 0;
+        return this.bot.flash.get("world.myAvatar.objData.iBoostXP", true) > 0;
       case BoostType.Rep:
-        return this.bot.flash.get('world.myAvatar.objData.iBoostRep', true) > 0;
+        return this.bot.flash.get("world.myAvatar.objData.iBoostRep", true) > 0;
       case BoostType.ClassPoints:
-        return this.bot.flash.get('world.myAvatar.objData.iBoostCP', true) > 0;
+        return this.bot.flash.get("world.myAvatar.objData.iBoostCP", true) > 0;
       default:
         return false;
     }

@@ -1,4 +1,4 @@
-import { Command } from '../../command';
+import { Command } from "../../command";
 
 export class CommandHouse extends Command {
   public player?: string;
@@ -11,6 +11,6 @@ export class CommandHouse extends Command {
   }
 
   public override toString() {
-    return `Goto house${this.player ? `: ${this.player}` : ''}`;
+    return `Goto house${this.player ? `: ${this.player}` : ""}`;
   }
 }

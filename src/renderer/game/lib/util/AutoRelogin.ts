@@ -1,9 +1,9 @@
-import { Mutex } from 'async-mutex';
-import { interval } from '../../../../common/interval';
-import { Logger } from '../../../../common/logger';
-import { Bot } from '../Bot';
+import { Mutex } from "async-mutex";
+import { interval } from "../../../../common/interval";
+import { Logger } from "../../../../common/logger";
+import { Bot } from "../Bot";
 
-const logger = Logger.get('AutoRelogin');
+const logger = Logger.get("AutoRelogin");
 
 export class AutoRelogin {
   private readonly bot = Bot.getInstance();
@@ -73,10 +73,10 @@ export class AutoRelogin {
         await this.bot.sleep(this.delay);
 
         // still on server select?
-        if (this.bot.flash.get('mcLogin.currentLabel') === '"Servers"') {
+        if (this.bot.flash.get("mcLogin.currentLabel") === '"Servers"') {
           // reset
-          this.bot.flash.call('removeAllChildren');
-          this.bot.flash.call('gotoAndPlay', 'Login');
+          this.bot.flash.call("removeAllChildren");
+          this.bot.flash.call("gotoAndPlay", "Login");
         }
 
         await this.bot.sleep(1_000);
@@ -86,7 +86,7 @@ export class AutoRelogin {
         // wait for servers to be loaded
         await this.bot.waitUntil(
           () =>
-            this.bot.flash.get('mcLogin.currentLabel', true) === 'Servers' &&
+            this.bot.flash.get("mcLogin.currentLabel", true) === "Servers" &&
             this.bot.auth.servers.length > 0,
         );
 

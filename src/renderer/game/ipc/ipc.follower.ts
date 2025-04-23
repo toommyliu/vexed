@@ -1,14 +1,14 @@
-import { Mutex } from 'async-mutex';
-import { WINDOW_IDS } from '../../../common/constants';
-import { interval } from '../../../common/interval';
-import { ipcRenderer } from '../../../common/ipc';
-import { IPC_EVENTS } from '../../../common/ipc-events';
-import { Logger } from '../../../common/logger';
-import { Bot } from '../lib/Bot';
-import { doPriorityAttack } from '../util/doPriorityAttack';
-import { startDropsTimer, stopDropsTimer } from '../util/dropTimer';
-import { exitFromCombat } from '../util/exitFromCombat';
-import { startQuestTimer, stopQuestTimer } from '../util/questTimer';
+import { Mutex } from "async-mutex";
+import { WINDOW_IDS } from "../../../common/constants";
+import { interval } from "../../../common/interval";
+import { ipcRenderer } from "../../../common/ipc";
+import { IPC_EVENTS } from "../../../common/ipc-events";
+import { Logger } from "../../../common/logger";
+import { Bot } from "../lib/Bot";
+import { doPriorityAttack } from "../util/doPriorityAttack";
+import { startDropsTimer, stopDropsTimer } from "../util/dropTimer";
+import { exitFromCombat } from "../util/exitFromCombat";
+import { startQuestTimer, stopQuestTimer } from "../util/questTimer";
 
 let on = false;
 
@@ -21,7 +21,7 @@ let config: Partial<FollowerConfig> = {};
 const mutex = new Mutex();
 const bot = Bot.getInstance();
 
-const logger = Logger.get('IpcFollower');
+const logger = Logger.get("IpcFollower");
 
 function parseConfig(rawConfig: FollowerConfigRaw): FollowerConfig {
   const {
@@ -39,13 +39,13 @@ function parseConfig(rawConfig: FollowerConfigRaw): FollowerConfig {
   } = rawConfig;
 
   const name = (
-    rawName === '' ? (bot.auth?.username ?? '') : rawName
+    rawName === "" ? (bot.auth?.username ?? "") : rawName
   ).toLowerCase();
 
   const skillList =
-    typeof rawSkillList === 'string' && rawSkillList.trim() !== ''
-      ? rawSkillList.split(',').map((x) => x.trim())
-      : ['1', '2', '3', '4'];
+    typeof rawSkillList === "string" && rawSkillList.trim() !== ""
+      ? rawSkillList.split(",").map((x) => x.trim())
+      : ["1", "2", "3", "4"];
 
   const skillWait = Boolean(rawSkillWait);
   const copyWalk = Boolean(rawCopyWalk);
@@ -56,25 +56,25 @@ function parseConfig(rawConfig: FollowerConfigRaw): FollowerConfig {
   const safeSkillHp = Number.parseInt(rawSafeSkillHp, 10);
 
   const attackPriority =
-    typeof rawAttackPriority === 'string' && rawAttackPriority.trim() !== ''
-      ? rawAttackPriority.split(',').map((tgt) => tgt.trim())
+    typeof rawAttackPriority === "string" && rawAttackPriority.trim() !== ""
+      ? rawAttackPriority.split(",").map((tgt) => tgt.trim())
       : [];
 
   const safeSkill =
-    typeof rawSafeSkill === 'string' && rawSafeSkill.trim() !== ''
-      ? rawSafeSkill.split(',').map((x) => x.trim())
+    typeof rawSafeSkill === "string" && rawSafeSkill.trim() !== ""
+      ? rawSafeSkill.split(",").map((x) => x.trim())
       : [];
 
   // can be csv AND new line
   const quests =
-    typeof rawConfig.quests === 'string' && rawConfig.quests.trim() !== ''
+    typeof rawConfig.quests === "string" && rawConfig.quests.trim() !== ""
       ? rawConfig.quests
           .split(/[\n,]/)
           .map((quest) => quest.trim())
           .filter(Boolean)
       : [];
   const drops =
-    typeof rawConfig.drops === 'string' && rawConfig.drops.trim() !== ''
+    typeof rawConfig.drops === "string" && rawConfig.drops.trim() !== ""
       ? rawConfig.drops
           .split(/[\n,]/)
           .map((drop) => drop.trim())
@@ -97,7 +97,7 @@ function parseConfig(rawConfig: FollowerConfigRaw): FollowerConfig {
     rejectElse: Boolean(rawRejectElse),
   };
 
-  console.log('parsed config', ret);
+  console.log("parsed config", ret);
 
   return ret;
 }
@@ -111,27 +111,27 @@ type UotlPacket = {
 function packetHandler(packet: UotlPacket) {
   if (!on) return;
 
-  if (packet?.params?.type !== 'str' || !config?.name) return;
+  if (packet?.params?.type !== "str" || !config?.name) return;
 
   const args = packet.params.dataObj;
   if (!args?.length) return;
 
   if (
     config?.copyWalk &&
-    args[0] === 'uotls' &&
+    args[0] === "uotls" &&
     args[2]?.toLowerCase() === config.name &&
-    args[3]?.includes('sp:') &&
-    args[3]?.includes('tx:') &&
-    args[3]?.includes('ty:')
+    args[3]?.includes("sp:") &&
+    args[3]?.includes("tx:") &&
+    args[3]?.includes("ty:")
   ) {
-    const data = args[3]!.split(',');
+    const data = args[3]!.split(",");
 
-    const spd = data.find((pkt) => pkt.startsWith('sp:'));
-    const xPos = data.find((pkt) => pkt.startsWith('tx:'));
-    const yPos = data.find((pkt) => pkt.startsWith('ty:'));
-    const x = Number.parseInt(xPos!.split(':')[1]!, 10) ?? 0;
-    const y = Number.parseInt(yPos!.split(':')[1]!, 10) ?? 0;
-    const speed = Number.parseInt(spd!.split(':')[1]!, 10) ?? 8;
+    const spd = data.find((pkt) => pkt.startsWith("sp:"));
+    const xPos = data.find((pkt) => pkt.startsWith("tx:"));
+    const yPos = data.find((pkt) => pkt.startsWith("ty:"));
+    const x = Number.parseInt(xPos!.split(":")[1]!, 10) ?? 0;
+    const y = Number.parseInt(yPos!.split(":")[1]!, 10) ?? 0;
+    const speed = Number.parseInt(spd!.split(":")[1]!, 10) ?? 8;
 
     bot.player.walkTo(x, y, speed);
   }
@@ -213,7 +213,7 @@ async function startFollower() {
     /* eslint-enable require-atomic-updates */
   }
 
-  bot.on('pext', packetHandler);
+  bot.on("pext", packetHandler);
 
   if (cfg.quests.length) {
     startQuestTimer(cfg.quests);
@@ -262,10 +262,10 @@ async function startFollower() {
           doPriorityAttack(cfg.attackPriority);
 
           if (
-            bot.world.isMonsterAvailable('*') &&
-            bot.flash.get('world.myAvatar.target.npcType', true) !== 'monster'
+            bot.world.isMonsterAvailable("*") &&
+            bot.flash.get("world.myAvatar.target.npcType", true) !== "monster"
           ) {
-            bot.combat.attack('*');
+            bot.combat.attack("*");
           }
 
           if (bot.combat.hasTarget()) {
@@ -278,13 +278,13 @@ async function startFollower() {
             await bot.sleep(cfg.skillDelay);
           }
         } else {
-          logger.info('player is in map, but not in cell');
+          logger.info("player is in map, but not in cell");
           await goToPlayer();
           // bot.world.goto(name);
           // await bot.sleep(500);
         }
       } else {
-        logger.info('player not in map');
+        logger.info("player not in map");
         await goToPlayer();
       }
     } finally {
@@ -307,7 +307,7 @@ async function stopFollower() {
   stopQuestTimer();
   stopDropsTimer();
 
-  bot.off('pext', packetHandler);
+  bot.off("pext", packetHandler);
   await ipcRenderer.callMain(IPC_EVENTS.MSGBROKER, {
     ipcEvent: IPC_EVENTS.FOLLOWER_STOP,
     windowId: WINDOW_IDS.FOLLOWER,
@@ -324,7 +324,7 @@ ipcRenderer.answerMain(IPC_EVENTS.FOLLOWER_ME, () => {
 
 ipcRenderer.answerMain(IPC_EVENTS.FOLLOWER_START, async (args) => {
   try {
-    logger.info('starting follower', args);
+    logger.info("starting follower", args);
 
     config = parseConfig(args as unknown as FollowerConfigRaw);
 
@@ -343,12 +343,12 @@ ipcRenderer.answerMain(IPC_EVENTS.FOLLOWER_START, async (args) => {
     await bot.waitUntil(() => bot.player.isReady(), null, -1);
     await startFollower();
   } catch (error) {
-    logger.error('follower start error', error);
+    logger.error("follower start error", error);
   }
 });
 
 ipcRenderer.answerMain(IPC_EVENTS.FOLLOWER_STOP, async () => {
-  logger.info('stopping follower');
+  logger.info("stopping follower");
   await stopFollower();
 });
 

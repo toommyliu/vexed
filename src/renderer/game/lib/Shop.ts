@@ -1,6 +1,6 @@
-import type { Bot } from './Bot';
-import { GameAction } from './World';
-import type { ShopItem } from './models/ShopItem';
+import type { Bot } from "./Bot";
+import { GameAction } from "./World";
+import type { ShopItem } from "./models/ShopItem";
 
 export class Shops {
   public constructor(public bot: Bot) {}
@@ -16,7 +16,7 @@ export class Shops {
    * The info about the current loaded shop.
    */
   public get info(): ShopInfo | null {
-    return this.bot.flash.get('world.shopinfo', true);
+    return this.bot.flash.get("world.shopinfo", true);
   }
 
   /**

@@ -1,5 +1,5 @@
-import type { KillOptions } from '../../../lib/Combat';
-import { Command } from '../../command';
+import type { KillOptions } from "../../../lib/Combat";
+import { Command } from "../../command";
 
 export class CommandKill extends Command {
   public target!: string;

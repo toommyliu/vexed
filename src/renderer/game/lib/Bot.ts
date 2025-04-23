@@ -1,20 +1,20 @@
-import { TypedEmitter } from 'tiny-typed-emitter';
-import { Auth } from './Auth';
-import { Bank } from './Bank';
-import { Combat } from './Combat';
-import { Drops } from './Drops';
-import { House } from './House';
-import { Inventory } from './Inventory';
-import { Packets } from './Packets';
-import { Player } from './Player';
-import { Quests } from './Quests';
-import { Settings } from './Settings';
-import { Shops } from './Shop';
-import { TempInventory } from './TempInventory';
-import { World } from './World';
-import type { Monster } from './models/Monster';
-import { AutoRelogin } from './util/AutoRelogin';
-import { Flash } from './util/Flash';
+import { TypedEmitter } from "tiny-typed-emitter";
+import { Auth } from "./Auth";
+import { Bank } from "./Bank";
+import { Combat } from "./Combat";
+import { Drops } from "./Drops";
+import { House } from "./House";
+import { Inventory } from "./Inventory";
+import { Packets } from "./Packets";
+import { Player } from "./Player";
+import { Quests } from "./Quests";
+import { Settings } from "./Settings";
+import { Shops } from "./Shop";
+import { TempInventory } from "./TempInventory";
+import { World } from "./World";
+import type { Monster } from "./models/Monster";
+import { AutoRelogin } from "./util/AutoRelogin";
+import { Flash } from "./util/Flash";
 
 type Events = {
   /**
@@ -147,7 +147,7 @@ export class Bot extends TypedEmitter<Events> {
     super();
 
     if (Bot._instance) {
-      throw new Error('Bot is a singleton, use Bot.getInstance()');
+      throw new Error("Bot is a singleton, use Bot.getInstance()");
     }
 
     Bot._instance = this;

@@ -1,11 +1,11 @@
-import merge from 'lodash.merge';
-import { interval } from '../../../common/interval';
-import { doPriorityAttack } from '../util/doPriorityAttack';
-import { exitFromCombat } from '../util/exitFromCombat';
-import { isMonsterMapId } from '../util/isMonMapId';
-import type { Bot } from './Bot';
-import { PlayerState } from './Player';
-import { GameAction } from './World';
+import merge from "lodash.merge";
+import { interval } from "../../../common/interval";
+import { doPriorityAttack } from "../util/doPriorityAttack";
+import { exitFromCombat } from "../util/exitFromCombat";
+import { isMonsterMapId } from "../util/isMonMapId";
+import type { Bot } from "./Bot";
+import { PlayerState } from "./Player";
+import { GameAction } from "./World";
 
 const DEFAULT_KILL_OPTIONS: KillOptions = {
   killPriority: [],
@@ -34,9 +34,9 @@ export class Combat {
    */
   public get target(): Record<string, unknown> | null {
     if (this.hasTarget()) {
-      const objData = this.bot.flash.get('world.myAvatar.target.objData', true);
+      const objData = this.bot.flash.get("world.myAvatar.target.objData", true);
       const dataLeaf = this.bot.flash.get(
-        'world.myAvatar.target.dataLeaf',
+        "world.myAvatar.target.dataLeaf",
         true,
       );
 
@@ -49,7 +49,7 @@ export class Combat {
         state: dataLeaf.intState,
       };
 
-      if (dataLeaf.entType === 'p') {
+      if (dataLeaf.entType === "p") {
         ret.monId = dataLeaf.MonID;
         ret.monMapId = dataLeaf.MonMapID;
       }
@@ -202,20 +202,20 @@ export class Combat {
 
           const _name = monsterResolvable.toLowerCase();
           if (
-            _name === 'escherion' &&
-            this.bot.world.isMonsterAvailable('Staff of Inversion')
+            _name === "escherion" &&
+            this.bot.world.isMonsterAvailable("Staff of Inversion")
           ) {
-            this.attack('Staff of Inversion');
+            this.attack("Staff of Inversion");
           } else if (
-            _name === 'vath' &&
-            this.bot.world.isMonsterAvailable('Stalagbite')
+            _name === "vath" &&
+            this.bot.world.isMonsterAvailable("Stalagbite")
           ) {
-            this.attack('Stalagbite');
+            this.attack("Stalagbite");
           }
 
           const kp = Array.isArray(killPriority)
             ? killPriority
-            : killPriority.split(',');
+            : killPriority.split(",");
 
           doPriorityAttack(kp);
 

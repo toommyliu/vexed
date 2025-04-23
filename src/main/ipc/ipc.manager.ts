@@ -7,7 +7,7 @@ import { FileManager } from '../FileManager';
 import { createGame } from '../windows';
 
 const fileMgr = FileManager.getInstance();
-const logger = Logger.get('IpcManager');
+const logger = Logger.get("IpcManager");
 
 ipcMain.answerRenderer(IPC_EVENTS.GET_ACCOUNTS, async () => {
   try {
@@ -15,7 +15,7 @@ ipcMain.answerRenderer(IPC_EVENTS.GET_ACCOUNTS, async () => {
       fileMgr.accountsPath,
     )) as Account[];
   } catch (error) {
-    logger.error('failed to read accounts.json:', error);
+    logger.error("failed to read accounts.json:", error);
     return [];
   }
 });
@@ -50,7 +50,7 @@ ipcMain.answerRenderer(IPC_EVENTS.REMOVE_ACCOUNT, async ({ username }) => {
     await fileMgr.writeJson(fileMgr.accountsPath, accounts);
     return true;
   } catch (error) {
-    logger.error('failed to remove account:', error);
+    logger.error("failed to remove account:", error);
     return false;
   }
 });

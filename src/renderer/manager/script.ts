@@ -1,10 +1,11 @@
-import { ipcRenderer } from '../../common/ipc';
-import { IPC_EVENTS } from '../../common/ipc-events';
-import { Logger } from '../../common/logger';
-import type { ServerData } from '../game/lib/models/Server';
-import { enableElement, disableElement } from '../game/ui-utils';
+import { ipcRenderer } from "../../common/ipc";
+import { IPC_EVENTS } from "../../common/ipc-events";
+import { Logger } from "../../common/logger";
+import type { Account } from "../../common/types";
+import type { ServerData } from "../game/lib/models/Server";
+import { enableElement, disableElement } from "../game/ui-utils";
 
-const logger = Logger.get('ScriptManager');
+const logger = Logger.get("ScriptManager");
 
 // TODO: refactor
 const accounts: Account[] = [];
@@ -29,15 +30,15 @@ ipcRenderer.answerMain(IPC_EVENTS.ENABLE_BUTTON, async ({ username }) => {
 });
 
 function enableAccount(username: string) {
-  for (const el of document.querySelectorAll<HTMLButtonElement>('#start')) {
-    if (el.dataset['username'] === username) {
+  for (const el of document.querySelectorAll<HTMLButtonElement>("#start")) {
+    if (el.dataset["username"] === username) {
       enableElement(el);
     }
   }
 }
 
 async function startAccount({ username, password }: Account) {
-  const serversSelect = document.querySelector<HTMLSelectElement>('#servers')!;
+  const serversSelect = document.querySelector<HTMLSelectElement>("#servers")!;
 
   const timeout = setTimeout(() => {
     enableAccount(username);
@@ -55,7 +56,7 @@ async function startAccount({ username, password }: Account) {
     .catch(() => {});
 }
 
-async function removeAccount({ username }: Pick<Account, 'username'>) {
+async function removeAccount({ username }: Pick<Account, "username">) {
   const timeout = timeouts.get(username);
   if (timeout) {
     clearTimeout(timeout);
@@ -69,19 +70,19 @@ async function removeAccount({ username }: Pick<Account, 'username'>) {
 
 function updateAccountState(ev: MouseEvent) {
   const checkbox = (ev.target as Element)!
-    .closest('.account-card')!
-    .querySelector('input') as HTMLInputElement;
+    .closest(".account-card")!
+    .querySelector("input") as HTMLInputElement;
 
   checkbox.checked = !checkbox.checked;
-  checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+  checkbox.dispatchEvent(new Event("change", { bubbles: true }));
 }
 
 function updateSelectedCount() {
   const selectedCount = document.querySelectorAll<HTMLInputElement>(
-    '.account-checkbox:checked',
+    ".account-checkbox:checked",
   ).length;
   const startSelectedBtn =
-    document.querySelector<HTMLButtonElement>('#start-selected')!;
+    document.querySelector<HTMLButtonElement>("#start-selected")!;
   startSelectedBtn.textContent = `Start Selected (${selectedCount})`;
 }
 
@@ -89,8 +90,8 @@ function updateAccounts() {
   for (const timeout of timeouts.values()) clearTimeout(timeout);
   timeouts.clear();
 
-  const accountsContainer = document.querySelector('#accounts')!;
-  accountsContainer.innerHTML = accounts
+  const accountsContainer = document.querySelector("#accounts")!;
+  accountsContainer.textContent = accounts
     .map(
       (account) => `
       <div class="account-card rounded-md border border-zinc-800 bg-zinc-900 shadow-md">
@@ -119,22 +120,22 @@ function updateAccounts() {
       </div>
     `,
     )
-    .join('');
+    .join("");
 
-  for (const el of document.querySelectorAll('.username-toggle')) {
-    (el as HTMLSpanElement).addEventListener('click', updateAccountState);
+  for (const el of document.querySelectorAll(".username-toggle")) {
+    (el as HTMLSpanElement).addEventListener("click", updateAccountState);
   }
 
   const checkboxes =
-    document.querySelectorAll<HTMLInputElement>('.account-checkbox');
+    document.querySelectorAll<HTMLInputElement>(".account-checkbox");
   for (const checkbox of checkboxes) {
-    checkbox.addEventListener('change', updateSelectedCount);
+    checkbox.addEventListener("change", updateSelectedCount);
   }
 
-  const removeBtns = document.querySelectorAll<HTMLButtonElement>('#remove');
+  const removeBtns = document.querySelectorAll<HTMLButtonElement>("#remove");
   for (const el of removeBtns) {
-    el.addEventListener('click', async () => {
-      const username = el.dataset['username']!;
+    el.addEventListener("click", async () => {
+      const username = el.dataset["username"]!;
 
       const idx = accounts.findIndex((acc) => acc.username === username);
       if (idx !== -1) {
@@ -145,13 +146,13 @@ function updateAccounts() {
     });
   }
 
-  const startBtns = document.querySelectorAll<HTMLButtonElement>('#start');
+  const startBtns = document.querySelectorAll<HTMLButtonElement>("#start");
   for (const el of startBtns) {
-    el.addEventListener('click', async () => {
+    el.addEventListener("click", async () => {
       disableElement(el);
 
-      const username = el.dataset['username']!;
-      const password = el.dataset['password']!;
+      const username = el.dataset["username"]!;
+      const password = el.dataset["password"]!;
 
       await startAccount({ username, password });
     });
@@ -161,60 +162,60 @@ function updateAccounts() {
 }
 
 function updateServers() {
-  const select = document.querySelector<HTMLSelectElement>('#servers')!;
-  select.innerHTML = servers
+  const select = document.querySelector<HTMLSelectElement>("#servers")!;
+  select.textContent = servers
     .map(
       (server) => `
 				<option value="${server.sName}">${server.sName} (${server.iCount})</option>
 			`,
     )
-    .join('');
+    .join("");
 }
 
-window.addEventListener('DOMContentLoaded', async () => {
+window.addEventListener("DOMContentLoaded", async () => {
   {
-    const btn = document.querySelector('#accordion-toggle')!;
-    const form = document.querySelector('#add-account-form')!;
+    const btn = document.querySelector("#accordion-toggle")!;
+    const form = document.querySelector("#add-account-form")!;
 
     form.classList.add(
-      'transition-all',
-      'duration-100',
-      'ease-linear',
-      'transform',
+      "transition-all",
+      "duration-100",
+      "ease-linear",
+      "transform",
     );
 
-    btn.addEventListener('click', () => {
-      form.classList.toggle('scale-y-0');
-      form.classList.toggle('opacity-0');
-      form.classList.toggle('h-0');
+    btn.addEventListener("click", () => {
+      form.classList.toggle("scale-y-0");
+      form.classList.toggle("opacity-0");
+      form.classList.toggle("h-0");
     });
   }
 
   {
-    const form = document.querySelector('#account-form') as HTMLFormElement;
+    const form = document.querySelector("#account-form") as HTMLFormElement;
     const btn = document.querySelector(
-      'button[type=submit]',
+      "button[type=submit]",
     ) as HTMLButtonElement;
 
-    form.addEventListener('submit', async (ev) => {
+    form.addEventListener("submit", async (ev) => {
       disableElement(btn);
       ev.preventDefault();
 
       const formData = new FormData(ev.target as HTMLFormElement);
 
-      const username = formData.get('username');
-      const password = formData.get('password');
+      const username = formData.get("username");
+      const password = formData.get("password");
 
       if (!username || !password) {
         return;
       }
 
-      const el = document.querySelector('#alert') as HTMLElement;
+      const el = document.querySelector("#alert") as HTMLElement;
       const cl = el.classList;
 
       try {
-        el.innerHTML = '';
-        cl.remove('text-green-500', 'text-red-500', 'hidden', 'block');
+        el.textContent = "";
+        cl.remove("text-green-500", "text-red-500", "hidden", "block");
 
         const account = {
           username: username as string,
@@ -229,46 +230,46 @@ window.addEventListener('DOMContentLoaded', async () => {
 
         if (res?.success) {
           // eslint-disable-next-line require-atomic-updates
-          el.innerText = 'Account added successfully';
+          el.textContent = "Account added successfully";
           accounts.push(account);
           updateAccounts();
         } else {
           // eslint-disable-next-line require-atomic-updates
-          el.innerText = 'An error occurred while trying to add the account';
+          el.textContent = "An error occurred while trying to add the account";
         }
 
-        el!.style.display = 'block';
-        cl.remove('hidden');
-        cl.add('block');
+        el!.style.display = "block";
+        cl.remove("hidden");
+        cl.add("block");
 
-        cl.add(res?.success ? 'text-green-500' : 'text-red-500', 'opacity-100');
+        cl.add(res?.success ? "text-green-500" : "text-red-500", "opacity-100");
 
-        cl.remove('hidden');
+        cl.remove("hidden");
         setTimeout(
           () => {
-            cl.add('hidden');
-            el.style.display = 'none';
+            cl.add("hidden");
+            el.style.display = "none";
             setTimeout(() => {
-              el.innerText = '';
-              cl.remove('block', 'hidden', 'text-green-500', 'text-red-500');
+              el.textContent = "";
+              cl.remove("block", "hidden", "text-green-500", "text-red-500");
             }, 400);
           },
           1_000 * (res?.success ? 1 : 2),
         );
       } catch (error) {
-        logger.error('failed to add account:', error);
+        logger.error("failed to add account:", error);
 
-        el.innerText = `An error occurred while trying to add the account${error instanceof Error && error.message ? `: ${error.message}` : ''}`;
+        el.textContent = `An error occurred while trying to add the account${error instanceof Error && error.message ? `: ${error.message}` : ""}`;
 
-        cl.add('text-red-500', 'block');
-        cl.remove('hidden');
+        cl.add("text-red-500", "block");
+        cl.remove("hidden");
 
         setTimeout(() => {
-          cl.add('hidden');
-          el.style.display = 'none';
+          cl.add("hidden");
+          el.style.display = "none";
           setTimeout(() => {
-            el.innerText = '';
-            cl.remove('block', 'hidden', 'text-green-500', 'text-red-500');
+            el.textContent = "";
+            cl.remove("block", "hidden", "text-green-500", "text-red-500");
           }, 400);
         }, 2_000);
       } finally {
@@ -310,8 +311,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   const [accountsOut, serversOut] = await Promise.all([
     ipcRenderer.callMain(IPC_EVENTS.GET_ACCOUNTS),
-    // TODO: move to main
-    fetch('https://game.aq.com/game/api/data/servers').then(async (resp) =>
+    fetch("https://game.aq.com/game/api/data/servers").then(async (resp) =>
       resp.json(),
     ),
   ]);
@@ -321,7 +321,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   } catch (error) {
     console.error(error);
     // eslint-disable-next-line no-alert
-    alert('An error occured trying to read accounts file');
+    alert("An error occured trying to read accounts file");
   }
 
   servers.push(...serversOut);
@@ -330,17 +330,17 @@ window.addEventListener('DOMContentLoaded', async () => {
   updateServers();
 
   const removeSelectedBtn =
-    document.querySelector<HTMLButtonElement>('#remove-selected')!;
-  removeSelectedBtn.addEventListener('click', async () => {
-    for (const el of document.querySelectorAll<HTMLButtonElement>('#remove')) {
+    document.querySelector<HTMLButtonElement>("#remove-selected")!;
+  removeSelectedBtn.addEventListener("click", async () => {
+    for (const el of document.querySelectorAll<HTMLButtonElement>("#remove")) {
       const input = el
-        .closest('.w3-card')!
-        .querySelector<HTMLInputElement>('input')!;
+        .closest(".w3-card")!
+        .querySelector<HTMLInputElement>("input")!;
       if (!input.checked) {
         continue;
       }
 
-      const username = el.dataset['username']!;
+      const username = el.dataset["username"]!;
       await removeAccount({ username });
 
       const idx = accounts.findIndex((acc) => acc.username === username);
@@ -353,12 +353,12 @@ window.addEventListener('DOMContentLoaded', async () => {
   });
 
   const startSelectedBtn =
-    document.querySelector<HTMLButtonElement>('#start-selected')!;
-  startSelectedBtn.addEventListener('click', async () => {
-    for (const el of document.querySelectorAll<HTMLInputElement>('#start')) {
+    document.querySelector<HTMLButtonElement>("#start-selected")!;
+  startSelectedBtn.addEventListener("click", async () => {
+    for (const el of document.querySelectorAll<HTMLInputElement>("#start")) {
       const input = (
-        el.closest('.account-card') as HTMLDivElement
-      ).querySelector('input') as HTMLInputElement;
+        el.closest(".account-card") as HTMLDivElement
+      ).querySelector("input") as HTMLInputElement;
 
       if (!input.checked) {
         continue;
@@ -367,8 +367,8 @@ window.addEventListener('DOMContentLoaded', async () => {
       el.disabled = true;
 
       await startAccount({
-        username: el.dataset['username']!,
-        password: el.dataset['password']!,
+        username: el.dataset["username"]!,
+        password: el.dataset["password"]!,
       });
 
       await new Promise((resolve) => {

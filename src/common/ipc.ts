@@ -1,9 +1,9 @@
 import {
   ipcMain as ogIpcMain,
   ipcRenderer as ogIpcRenderer,
-} from 'electron-better-ipc';
-import type { IPC_EVENTS } from './ipc-events';
-import type { FastTravel } from './types';
+} from "electron-better-ipc";
+import type { IPC_EVENTS } from "./ipc-events";
+import type { FastTravel } from "./types";
 
 // TODO: add a broker method?
 
@@ -36,31 +36,31 @@ type TypedRendererIpc = {
   answerMain<K extends keyof TypedIpcEvents>(
     channel: K,
     callback: (
-      data: TypedIpcEvents[K]['args'] extends undefined
+      data: TypedIpcEvents[K]["args"] extends undefined
         ? never
-        : TypedIpcEvents[K]['args'],
-    ) => TypedIpcEvents[K]['response'] extends undefined
+        : TypedIpcEvents[K]["args"],
+    ) => TypedIpcEvents[K]["response"] extends undefined
       ? Promise<void> | void
-      : Promise<TypedIpcEvents[K]['response']> | TypedIpcEvents[K]['response'],
+      : Promise<TypedIpcEvents[K]["response"]> | TypedIpcEvents[K]["response"],
   ): () => void;
 
   // For events without args
   callMain<K extends keyof TypedIpcEvents>(
     channel: K &
       keyof {
-        [P in keyof TypedIpcEvents as TypedIpcEvents[P]['args'] extends undefined
+        [P in keyof TypedIpcEvents as TypedIpcEvents[P]["args"] extends undefined
           ? P
           : never]: true;
       },
-  ): Promise<TypedIpcEvents[K]['response']>;
+  ): Promise<TypedIpcEvents[K]["response"]>;
 
   // For events with args
   callMain<K extends keyof TypedIpcEvents>(
     channel: K,
-    data: TypedIpcEvents[K]['args'] extends undefined
+    data: TypedIpcEvents[K]["args"] extends undefined
       ? never
-      : TypedIpcEvents[K]['args'],
-  ): Promise<TypedIpcEvents[K]['response']>;
+      : TypedIpcEvents[K]["args"],
+  ): Promise<TypedIpcEvents[K]["response"]>;
 };
 
 type TypedMainIpc = {
@@ -68,11 +68,11 @@ type TypedMainIpc = {
   answerRenderer<K extends keyof TypedIpcEvents>(
     channel: K,
     callback: (
-      data: TypedIpcEvents[K]['args'],
+      data: TypedIpcEvents[K]["args"],
       browserWindow: Electron.BrowserWindow,
-    ) => TypedIpcEvents[K]['response'] extends undefined
+    ) => TypedIpcEvents[K]["response"] extends undefined
       ? Promise<void> | void
-      : Promise<TypedIpcEvents[K]['response']> | TypedIpcEvents[K]['response'],
+      : Promise<TypedIpcEvents[K]["response"]> | TypedIpcEvents[K]["response"],
   ): () => void;
 
   // For events without args
@@ -80,20 +80,20 @@ type TypedMainIpc = {
     window: Electron.BrowserWindow,
     channel: K &
       keyof {
-        [P in keyof TypedIpcEvents as TypedIpcEvents[P]['args'] extends undefined
+        [P in keyof TypedIpcEvents as TypedIpcEvents[P]["args"] extends undefined
           ? P
           : never]: true;
       },
-  ): Promise<TypedIpcEvents[K]['response']>;
+  ): Promise<TypedIpcEvents[K]["response"]>;
 
   // For events with args
   callRenderer<K extends keyof TypedIpcEvents>(
     window: Electron.BrowserWindow,
     channel: K,
-    data: TypedIpcEvents[K]['args'] extends undefined
+    data: TypedIpcEvents[K]["args"] extends undefined
       ? never
-      : TypedIpcEvents[K]['args'],
-  ): Promise<TypedIpcEvents[K]['response']>;
+      : TypedIpcEvents[K]["args"],
+  ): Promise<TypedIpcEvents[K]["response"]>;
 };
 
 type TypedIpcEvents = {

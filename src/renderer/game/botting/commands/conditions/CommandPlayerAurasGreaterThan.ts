@@ -1,4 +1,4 @@
-import { Command } from '../../command';
+import { Command } from "../../command";
 
 export class CommandPlayerAurasGreaterThan extends Command {
   public player?: string;
@@ -18,6 +18,6 @@ export class CommandPlayerAurasGreaterThan extends Command {
   }
 
   public override toString() {
-    return `${this.player ?? 'This player'} aura greater than: {${this.aura}, ${this.value}}`;
+    return `${this.player ?? "This player"} aura greater than: {${this.aura}, ${this.value}}`;
   }
 }

@@ -1,44 +1,44 @@
-import { ipcRenderer } from '../../../common/ipc';
-import { IPC_EVENTS } from '../../../common/ipc-events';
-import { setElement } from '../ui-utils';
+import { ipcRenderer } from "../../../common/ipc";
+import { IPC_EVENTS } from "../../../common/ipc-events";
+import { setElement } from "../ui-utils";
 
 const packets: string[] = [];
 let on = false;
 
-window.addEventListener('DOMContentLoaded', async () => {
+window.addEventListener("DOMContentLoaded", async () => {
   {
-    const btn = document.querySelector('#save') as HTMLButtonElement;
-    btn.addEventListener('click', async () => {
+    const btn = document.querySelector("#save") as HTMLButtonElement;
+    btn.addEventListener("click", async () => {
       if (!packets.length) return;
 
-      const blob = new Blob([packets.join('\n')], { type: 'text/plain' });
-      const a = document.createElement('a');
+      const blob = new Blob([packets.join("\n")], { type: "text/plain" });
+      const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = 'packets.txt';
+      a.download = "packets.txt";
       a.click();
     });
   }
 
   {
-    const btn = document.querySelector('#copy-all') as HTMLButtonElement;
-    btn.addEventListener('click', async () => {
-      await navigator.clipboard.writeText(packets.join('\n')).catch(() => {});
+    const btn = document.querySelector("#copy-all") as HTMLButtonElement;
+    btn.addEventListener("click", async () => {
+      await navigator.clipboard.writeText(packets.join("\n")).catch(() => {});
     });
   }
 
   {
-    const btn = document.querySelector('#clear') as HTMLButtonElement;
-    btn.addEventListener('click', () => {
-      document.querySelector('#logger')!.innerHTML = '';
+    const btn = document.querySelector("#clear") as HTMLButtonElement;
+    btn.addEventListener("click", () => {
+      document.querySelector("#logger")!.innerHTML = "";
       packets.length = 0;
     });
   }
 
   {
-    const stopBtn = document.querySelector('#stop') as HTMLButtonElement;
-    const onBtn = document.querySelector('#start') as HTMLButtonElement;
+    const stopBtn = document.querySelector("#stop") as HTMLButtonElement;
+    const onBtn = document.querySelector("#start") as HTMLButtonElement;
 
-    stopBtn.addEventListener('click', async () => {
+    stopBtn.addEventListener("click", async () => {
       on = false;
 
       setElement(stopBtn, false);
@@ -51,7 +51,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         .catch(() => {});
     });
 
-    onBtn.addEventListener('click', async () => {
+    onBtn.addEventListener("click", async () => {
       on = true;
 
       setElement(stopBtn, true);
@@ -71,16 +71,16 @@ window.addEventListener('DOMContentLoaded', async () => {
     // "[Sending - STR]: "
     const pkt = args.packet.slice(17);
 
-    const container = document.querySelector('#logger')!;
+    const container = document.querySelector("#logger")!;
 
     {
-      const div = document.createElement('div');
-      div.className = 'line';
+      const div = document.createElement("div");
+      div.className = "line";
       div.textContent = pkt;
-      div.addEventListener('click', () => {
+      div.addEventListener("click", () => {
         void navigator.clipboard.writeText(pkt);
       });
-      container.appendChild(div);
+      container.append(div);
     }
 
     container.scrollTo(0, container!.scrollHeight);
@@ -91,8 +91,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (on) {
       on = false;
 
-      const stopBtn = document.querySelector('#stop') as HTMLButtonElement;
-      const onBtn = document.querySelector('#start') as HTMLButtonElement;
+      const stopBtn = document.querySelector("#stop") as HTMLButtonElement;
+      const onBtn = document.querySelector("#start") as HTMLButtonElement;
 
       setElement(stopBtn, true);
       setElement(onBtn, false);
@@ -100,7 +100,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   });
 });
 
-window.addEventListener('beforeunload', async () => {
+window.addEventListener("beforeunload", async () => {
   if (on) {
     await ipcRenderer.callMain(IPC_EVENTS.MSGBROKER, {
       ipcEvent: IPC_EVENTS.PACKET_LOGGER_STOP,

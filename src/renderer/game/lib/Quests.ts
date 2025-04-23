@@ -1,6 +1,6 @@
-import type { Bot } from './Bot';
-import { GameAction } from './World';
-import { Quest, type QuestData } from './models/Quest';
+import type { Bot } from "./Bot";
+import { GameAction } from "./World";
+import { Quest, type QuestData } from "./models/Quest";
 
 export class Quests {
   public constructor(public bot: Bot) {}
@@ -54,7 +54,7 @@ export class Quests {
   public async loadMultiple(questIds: (number | string)[]): Promise<void> {
     if (!Array.isArray(questIds) || !questIds.length) return;
 
-    this.bot.flash.call(() => swf.questsGetMultiple(questIds.join(',')));
+    this.bot.flash.call(() => swf.questsGetMultiple(questIds.join(",")));
     // await Promise.all(questIds.map(async (id) => this.load(id)));
   }
 

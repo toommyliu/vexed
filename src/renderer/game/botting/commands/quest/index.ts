@@ -1,13 +1,13 @@
-import { ArgsError } from '../../ArgsError';
-import { CommandAcceptQuest } from './CommandAcceptQuest';
-import { CommandCompleteQuest } from './CommandCompleteQuest';
-import { CommandRegisterQuest } from './CommandRegisterQuest';
-import { CommandUnregisterQuest } from './CommandUnregisterQuest';
+import { ArgsError } from "../../ArgsError";
+import { CommandAcceptQuest } from "./CommandAcceptQuest";
+import { CommandCompleteQuest } from "./CommandCompleteQuest";
+import { CommandRegisterQuest } from "./CommandRegisterQuest";
+import { CommandUnregisterQuest } from "./CommandUnregisterQuest";
 
 export const questCommands = {
   accept_quest(questId: number) {
-    if (!questId || typeof questId !== 'number') {
-      throw new ArgsError('questId is required');
+    if (!questId || typeof questId !== "number") {
+      throw new ArgsError("questId is required");
     }
 
     const cmd = new CommandAcceptQuest();
@@ -16,8 +16,8 @@ export const questCommands = {
   },
 
   complete_quest(questId: number) {
-    if (!questId || typeof questId !== 'number') {
-      throw new ArgsError('questId is required');
+    if (!questId || typeof questId !== "number") {
+      throw new ArgsError("questId is required");
     }
 
     const cmd = new CommandCompleteQuest();
@@ -26,8 +26,8 @@ export const questCommands = {
   },
 
   register_quest(questId: number) {
-    if (!questId || typeof questId !== 'number') {
-      throw new ArgsError('questId is required');
+    if (!questId || typeof questId !== "number") {
+      throw new ArgsError("questId is required");
     }
 
     const cmd = new CommandRegisterQuest();
@@ -36,8 +36,8 @@ export const questCommands = {
   },
 
   unregister_quest(questId: number) {
-    if (!questId || typeof questId !== 'number') {
-      throw new ArgsError('questId is required');
+    if (!questId || typeof questId !== "number") {
+      throw new ArgsError("questId is required");
     }
 
     const cmd = new CommandUnregisterQuest();

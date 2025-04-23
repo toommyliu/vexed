@@ -1,12 +1,12 @@
-import { TypedEmitter } from 'tiny-typed-emitter';
-import { interval } from '../../../common/interval';
-import { Logger } from '../../../common/logger';
-import { Bot } from '../lib/Bot';
-import { BoostType } from '../lib/Player';
-import type { Command } from './command';
-import { CommandOverlay } from './overlay';
+import { TypedEmitter } from "tiny-typed-emitter";
+import { interval } from "../../../common/interval";
+import { Logger } from "../../../common/logger";
+import { Bot } from "../lib/Bot";
+import { BoostType } from "../lib/Player";
+import type { Command } from "./command";
+import { CommandOverlay } from "./overlay";
 
-const logger = Logger.get('Context');
+const logger = Logger.get("Context");
 
 export class Context extends TypedEmitter<Events> {
   private readonly bot = Bot.getInstance();
@@ -82,6 +82,7 @@ export class Context extends TypedEmitter<Events> {
 
     this.overlay = new CommandOverlay();
   }
+
   /**
    * Registers a packet event handler.
    *
@@ -90,41 +91,36 @@ export class Context extends TypedEmitter<Events> {
    * @param handler - The handler function
    */
   public registerHandler(
-    type: 'pext',
+    type: "pext",
     name: string,
     handler: (packet: Record<string, unknown>) => Promise<void> | void,
   ): void;
   public registerHandler(
-    type: 'packetFromServer',
+    type: "packetFromClient" | "packetFromServer",
     name: string,
     handler: (packet: string) => Promise<void> | void,
   ): void;
   public registerHandler(
-    type: 'packetFromClient',
-    name: string,
-    handler: (packet: string) => Promise<void> | void,
-  ): void;
-  public registerHandler(
-    type: 'pext' | 'packetFromServer' | 'packetFromClient',
+    type: "packetFromClient" | "packetFromServer" | "pext",
     name: string,
     handler:
       | ((packet: Record<string, unknown>) => Promise<void> | void)
       | ((packet: string) => Promise<void> | void),
   ) {
     switch (type) {
-      case 'pext':
+      case "pext":
         this._pextHandlers.set(
           name,
           handler as (packet: Record<string, unknown>) => Promise<void> | void,
         );
         break;
-      case 'packetFromServer':
+      case "packetFromServer":
         this._packetFromServerHandlers.set(
           name,
           handler as (packet: string) => Promise<void> | void,
         );
         break;
-      case 'packetFromClient':
+      case "packetFromClient":
         this._packetFromClientHandlers.set(
           name,
           handler as (packet: string) => Promise<void> | void,
@@ -141,17 +137,17 @@ export class Context extends TypedEmitter<Events> {
    * @param name - The name of the handler
    */
   public unregisterHandler(
-    type: 'pext' | 'packetFromServer' | 'packetFromClient',
+    type: "packetFromClient" | "packetFromServer" | "pext",
     name: string,
   ) {
     switch (type) {
-      case 'pext':
+      case "pext":
         this._pextHandlers.delete(name);
         break;
-      case 'packetFromServer':
+      case "packetFromServer":
         this._packetFromServerHandlers.delete(name);
         break;
-      case 'packetFromClient':
+      case "packetFromClient":
         this._packetFromClientHandlers.delete(name);
         break;
       default:
@@ -159,7 +155,7 @@ export class Context extends TypedEmitter<Events> {
   }
 
   private _runHandlers() {
-    this.bot.on('pext', async (packet: Record<string, unknown>) => {
+    this.bot.on("pext", async (packet: Record<string, unknown>) => {
       if (!this.isRunning()) return;
 
       try {
@@ -174,7 +170,7 @@ export class Context extends TypedEmitter<Events> {
       } catch {}
     });
 
-    this.bot.on('packetFromServer', async (packet: string) => {
+    this.bot.on("packetFromServer", async (packet: string) => {
       if (!this.isRunning()) return;
 
       try {
@@ -189,7 +185,7 @@ export class Context extends TypedEmitter<Events> {
       } catch {}
     });
 
-    this.bot.on('packetFromClient', async (packet: string) => {
+    this.bot.on("packetFromClient", async (packet: string) => {
       if (!this.isRunning()) return;
 
       try {
@@ -331,7 +327,7 @@ export class Context extends TypedEmitter<Events> {
 
     await this.prepare();
 
-    this.emit('start');
+    this.emit("start");
 
     await Promise.all([this.runTimers(), this.runCommands()]);
   }
@@ -393,13 +389,13 @@ export class Context extends TypedEmitter<Events> {
         try {
           if (this.bot.inventory.contains(boost)) {
             const _boost = boost.toLowerCase();
-            const variant = _boost.includes('gold')
+            const variant = _boost.includes("gold")
               ? BoostType.Gold
-              : _boost.includes('xp')
+              : _boost.includes("xp")
                 ? BoostType.Exp
-                : _boost.includes('rep')
+                : _boost.includes("rep")
                   ? BoostType.Rep
-                  : _boost.includes('class')
+                  : _boost.includes("class")
                     ? BoostType.ClassPoints
                     : null;
 
@@ -427,9 +423,9 @@ export class Context extends TypedEmitter<Events> {
     this._commandIndex = 0;
 
     if (!this.bot.player.isLoaded()) {
-      logger.info('waiting for load');
+      logger.info("waiting for load");
       await this.bot.waitUntil(() => this.bot.player.isLoaded(), null, -1);
-      logger.info('player loaded');
+      logger.info("player loaded");
     }
 
     while (this._commandIndex < this._commands.length && this.isRunning()) {
@@ -459,7 +455,7 @@ export class Context extends TypedEmitter<Events> {
 
         if (this.isRunning()) this._commandIndex++;
       } catch (error) {
-        logger.error('Error executing a command', error);
+        logger.error("Error executing a command", error);
       }
     }
 
@@ -471,7 +467,7 @@ export class Context extends TypedEmitter<Events> {
 
   private _stop() {
     this.overlay.hide();
-    this.emit('end');
+    this.emit("end");
     this._on = false;
   }
 }

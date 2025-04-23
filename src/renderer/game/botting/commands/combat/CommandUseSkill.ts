@@ -1,4 +1,4 @@
-import { Command } from '../../command';
+import { Command } from "../../command";
 
 export class CommandUseSkill extends Command {
   public skill!: number | string;
@@ -12,6 +12,6 @@ export class CommandUseSkill extends Command {
   }
 
   public override toString() {
-    return `${this.force ? 'Force use' : 'Use'} skill: ${this.skill}${this.wait ? ' (wait)' : ''}`;
+    return `${this.force ? "Force use" : "Use"} skill: ${this.skill}${this.wait ? " (wait)" : ""}`;
   }
 }

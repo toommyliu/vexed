@@ -1,5 +1,5 @@
-import type { KillOptions } from '../../../lib/Combat';
-import { Command } from '../../command';
+import type { KillOptions } from "../../../lib/Combat";
+import { Command } from "../../command";
 
 export class CommandKillFor extends Command {
   public target!: string;
@@ -31,6 +31,6 @@ export class CommandKillFor extends Command {
   }
 
   public override toString(): string {
-    return `Kill for${this.isTemp ? ' temp' : ''} item: [${this.target}] [x${this.quantity} ${this.item}]`;
+    return `Kill for${this.isTemp ? " temp" : ""} item: [${this.target}] [x${this.quantity} ${this.item}]`;
   }
 }

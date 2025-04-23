@@ -6,7 +6,7 @@ export class ArgsError extends Error {
     super(message);
 
     // get caller line
-    const stackLines = new Error(' ').stack?.split('\n') ?? [];
+    const stackLines = new Error(" ").stack?.split("\n") ?? [];
     const callerLine = stackLines[2]!;
 
     // extract function name from line
@@ -14,7 +14,7 @@ export class ArgsError extends Error {
     const functionMatch = /at Object\.([a-zA-Z_$][a-zA-Z0-9_$]*)/.exec(
       callerLine,
     );
-    const functionName = functionMatch?.[1] ?? 'unknown';
+    const functionName = functionMatch?.[1] ?? "unknown";
 
     this.message = `Invalid args;${functionName};${message}`;
     Error.captureStackTrace(this, this.constructor);

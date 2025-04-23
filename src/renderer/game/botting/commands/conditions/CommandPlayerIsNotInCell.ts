@@ -1,4 +1,4 @@
-import { Command } from '../../command';
+import { Command } from "../../command";
 
 export class CommandPlayerIsNotInCell extends Command {
   public player!: string;
@@ -14,6 +14,6 @@ export class CommandPlayerIsNotInCell extends Command {
   }
 
   public override toString() {
-    return `${this.player ?? 'This player'} is not in cell: ${this.cell}`;
+    return `${this.player ?? "This player"} is not in cell: ${this.cell}`;
   }
 }

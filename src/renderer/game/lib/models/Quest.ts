@@ -1,5 +1,5 @@
-import { Bot } from '../Bot';
-import type { ItemData } from './Item';
+import { Bot } from "../Bot";
+import type { ItemData } from "./Item";
 
 /**
  * Represents a quest.
@@ -59,7 +59,7 @@ export class Quest {
    * Whether this quest requires membership to accept.
    */
   public isUpgrade(): boolean {
-    return this.data.bUpg === '1';
+    return this.data.bUpg === "1";
   }
 
   /**
@@ -76,7 +76,7 @@ export class Quest {
 
     return (
       slot < 0 ||
-      this.#bot.flash.call<number>('world.getQuestValue', slot) >= value
+      this.#bot.flash.call<number>("world.getQuestValue", slot) >= value
     );
   }
 
@@ -84,7 +84,7 @@ export class Quest {
    * Whether this quest can only be completed once.
    */
   public get once(): boolean {
-    return this.data.bOnce === '1';
+    return this.data.bOnce === "1";
   }
 
   /**
@@ -116,21 +116,21 @@ export class Quest {
    * Whether this quest is a daily quest.
    */
   public isDaily(): boolean {
-    return this.data?.sField === 'id0';
+    return this.data?.sField === "id0";
   }
 
   /**
    * Whether this quest is a weekly quest.
    */
   public isWeekly(): boolean {
-    return this.data?.sField === 'iw0';
+    return this.data?.sField === "iw0";
   }
 
   /**
    * Whether this quest is a monthly quest.
    */
   public isMonthly(): boolean {
-    return this.data?.sField === 'im0';
+    return this.data?.sField === "im0";
   }
 }
 

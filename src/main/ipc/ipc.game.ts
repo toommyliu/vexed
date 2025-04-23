@@ -1,19 +1,19 @@
-import { join } from 'path';
-import { app, BrowserWindow, dialog } from 'electron';
-import { readFile } from 'fs-extra';
-import { WINDOW_IDS } from '../../common/constants';
-import { ipcMain } from '../../common/ipc';
-import { IPC_EVENTS } from '../../common/ipc-events';
-import { Logger } from '../../common/logger';
-import type { FastTravel } from '../../common/types';
-import { FileManager } from '../FileManager';
-import { recursivelyApplySecurityPolicy } from '../util/recursivelyApplySecurityPolicy';
-import { mgrWindow, store } from '../windows';
+import { join } from "path";
+import { app, BrowserWindow, dialog } from "electron";
+import { readFile } from "fs-extra";
+import { WINDOW_IDS } from "../../common/constants";
+import { ipcMain } from "../../common/ipc";
+import { IPC_EVENTS } from "../../common/ipc-events";
+import { Logger } from "../../common/logger";
+import type { FastTravel } from "../../common/types";
+import { FileManager } from "../FileManager";
+import { recursivelyApplySecurityPolicy } from "../util/recursivelyApplySecurityPolicy";
+import { mgrWindow, store } from "../windows";
 
 const fm = FileManager.getInstance();
-const logger = Logger.get('IpcGame');
+const logger = Logger.get("IpcGame");
 
-const PUBLIC = join(__dirname, '../../../public');
+const PUBLIC = join(__dirname, "../../../public");
 
 const getWindow = (
   windows: ReturnType<typeof store.get>,
@@ -51,12 +51,12 @@ ipcMain.answerRenderer(IPC_EVENTS.MSGBROKER, async (data, browserWindow) => {
 
   const targetWindow = getWindow(windows, data.windowId);
   if (!targetWindow || targetWindow?.isDestroyed()) {
-    logger.info(`target window not found: ${data.windowId ?? 'game'}`);
+    logger.info(`target window not found: ${data.windowId ?? "game"}`);
     return;
   }
 
   logger.info(
-    `forwarding event "${data.ipcEvent}" to ${data.windowId ?? 'game'}`,
+    `forwarding event "${data.ipcEvent}" to ${data.windowId ?? "game"}`,
     data,
   );
 
@@ -100,31 +100,31 @@ ipcMain.answerRenderer(
     switch (windowId) {
       case WINDOW_IDS.FAST_TRAVELS:
         ref = windows.tools.fastTravels;
-        path = join(PUBLIC, 'game/tools/fast-travels/index.html');
+        path = join(PUBLIC, "game/tools/fast-travels/index.html");
         width = 510;
         height = 494;
         break;
       case WINDOW_IDS.LOADER_GRABBER:
         ref = windows.tools.loaderGrabber;
-        path = join(PUBLIC, 'game/tools/loader-grabber/index.html');
+        path = join(PUBLIC, "game/tools/loader-grabber/index.html");
         width = 478;
         height = 689;
         break;
       case WINDOW_IDS.FOLLOWER:
         ref = windows.tools.follower;
-        path = join(PUBLIC, 'game/tools/follower/index.html');
+        path = join(PUBLIC, "game/tools/follower/index.html");
         width = 830;
         height = 527;
         break;
       case WINDOW_IDS.PACKETS_LOGGER:
         ref = windows.packets.logger;
-        path = join(PUBLIC, 'game/packets/logger/index.html');
+        path = join(PUBLIC, "game/packets/logger/index.html");
         width = 560;
         height = 286;
         break;
       case WINDOW_IDS.PACKETS_SPAMMER:
         ref = windows.packets.spammer;
-        path = join(PUBLIC, 'game/packets/spammer/index.html');
+        path = join(PUBLIC, "game/packets/spammer/index.html");
         width = 596;
         height = 402;
         break;
@@ -143,7 +143,7 @@ ipcMain.answerRenderer(
 
     // Create it
     const window = new BrowserWindow({
-      title: '',
+      title: "",
       webPreferences: {
         contextIsolation: false,
         nodeIntegration: true,
@@ -182,17 +182,17 @@ ipcMain.answerRenderer(
     }
 
     if (!app.isPackaged) {
-      window.webContents.openDevTools({ mode: 'right' });
+      window.webContents.openDevTools({ mode: "right" });
     }
 
     recursivelyApplySecurityPolicy(window);
 
-    window.on('ready-to-show', () => {
+    window.on("ready-to-show", () => {
       window.show();
     });
 
     // don't close the window, just hide it
-    window.on('close', (ev) => {
+    window.on("close", (ev) => {
       ev.preventDefault();
       window.hide();
     });
@@ -232,37 +232,37 @@ ipcMain.answerRenderer(IPC_EVENTS.LOAD_SCRIPT, async (args, browserWindow) => {
     // the error is thrown in the renderer
     // so we need to listen for it here and handle it
     browserWindow.webContents.once(
-      'console-message',
+      "console-message",
       async (_, level, message, line) => {
-        if (!message.startsWith('Uncaught') || level !== 3) {
+        if (!message.startsWith("Uncaught") || level !== 3) {
           return;
         }
 
-        const args = message.slice('Uncaught'.length).split(':');
+        const args = message.slice("Uncaught".length).split(":");
 
         const err = args[0]!; // Error
         const _msg = args
-          .join(' ')
+          .join(" ")
           .slice(err!.length + 1)
           .trim();
 
         // bad args to a command
-        if (level === 3 && _msg.startsWith('Invalid args')) {
-          const split = _msg.split(';'); // Invalid args;delay;ms is required
+        if (level === 3 && _msg.startsWith("Invalid args")) {
+          const split = _msg.split(";"); // Invalid args;delay;ms is required
           const cmd = split[1]!; // delay
           const cmd_msg = split[2]!; // ms is required
 
           try {
             // reset the commands
             await browserWindow.webContents.executeJavaScript(
-              'window.context.setCommands([])',
+              "window.context.setCommands([])",
             );
 
             // ideally, this traces to the line of the (user) script back to
             // where the error occurred, not where the error is thrown internally
             await dialog.showMessageBox(browserWindow, {
               message: `"cmd.${cmd}()" threw an error: ${cmd_msg}`,
-              type: 'error',
+              type: "error",
             });
           } catch {}
         } else {
@@ -270,7 +270,7 @@ ipcMain.answerRenderer(IPC_EVENTS.LOAD_SCRIPT, async (args, browserWindow) => {
           await dialog.showMessageBox(browserWindow, {
             message: err,
             detail: `${_msg} (line ${line})`,
-            type: 'error',
+            type: "error",
           });
         }
       },
@@ -278,7 +278,7 @@ ipcMain.answerRenderer(IPC_EVENTS.LOAD_SCRIPT, async (args, browserWindow) => {
 
     // reset
     await browserWindow.webContents.executeJavaScript(
-      'window.context.setCommands([]);window.context.commandIndex=0;',
+      "window.context.setCommands([]);window.context.commandIndex=0;",
     );
 
     // load
@@ -286,7 +286,7 @@ ipcMain.answerRenderer(IPC_EVENTS.LOAD_SCRIPT, async (args, browserWindow) => {
     await ipcMain.callRenderer(browserWindow, IPC_EVENTS.SCRIPT_LOADED);
   } catch {}
 
-  browserWindow.webContents.removeAllListeners('console-message');
+  browserWindow.webContents.removeAllListeners("console-message");
 });
 
 ipcMain.answerRenderer(IPC_EVENTS.READ_FAST_TRAVELS, async () => {

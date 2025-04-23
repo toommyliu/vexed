@@ -1,4 +1,4 @@
-import { Command } from '../../command';
+import { Command } from "../../command";
 
 export class CommandTargetHpBetween extends Command {
   public lower!: number;
@@ -8,8 +8,8 @@ export class CommandTargetHpBetween extends Command {
   public override execute() {
     if (
       (this.bot.combat.hasTarget() &&
-        (this.bot.combat.target?.['hp'] as number) <= this.lower) ||
-      (this.bot.combat.target?.['hp'] as number) >= this.upper
+        (this.bot.combat.target?.["hp"] as number) <= this.lower) ||
+      (this.bot.combat.target?.["hp"] as number) >= this.upper
     ) {
       this.ctx.commandIndex++;
     }

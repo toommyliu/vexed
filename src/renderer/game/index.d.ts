@@ -1,16 +1,16 @@
-import type { WINDOW_IDS } from '../../common/constants';
-import type { Context } from './botting/context';
-import type { cmd } from './botting/index';
-import type { Bot } from './lib/Bot';
-import type { ShopInfo } from './lib/Shop';
-import type { GameAction } from './lib/World';
-import type { AvatarData } from './lib/models/Avatar';
-import type { FactionData } from './lib/models/Faction';
-import type { ItemData } from './lib/models/Item';
-import type { MonsterData } from './lib/models/Monster';
-import type { QuestData } from './lib/models/Quest';
-import type { ServerData } from './lib/models/Server';
-import type { Logger } from './util/logger';
+import type { WINDOW_IDS } from "../../common/constants";
+import type { Context } from "./botting/context";
+import type { cmd } from "./botting/index";
+import type { Bot } from "./lib/Bot";
+import type { ShopInfo } from "./lib/Shop";
+import type { GameAction } from "./lib/World";
+import type { AvatarData } from "./lib/models/Avatar";
+import type { FactionData } from "./lib/models/Faction";
+import type { ItemData } from "./lib/models/Item";
+import type { MonsterData } from "./lib/models/Monster";
+import type { QuestData } from "./lib/models/Quest";
+import type { ServerData } from "./lib/models/Server";
+import type { Logger } from "./util/logger";
 
 type Nullable<T> = T | null;
 declare global {
@@ -30,7 +30,7 @@ declare global {
     callGameFunction0(path: string): void;
     selectArrayObjects(path: string, selector: string): string;
     isNull(path: string): boolean;
-    sendClientPacket(packet: string, type: 'json' | 'str' | 'xml'): void;
+    sendClientPacket(packet: string, type: "json" | "str" | "xml"): void;
 
     authIsLoggedIn(): boolean;
     authIsTemporarilyKicked(): boolean;
@@ -146,13 +146,13 @@ declare global {
     settingsSetWalkSpeed(speed: number): void;
     settingsSetAccessLevel(
       accessLevel:
-        | '30'
-        | '40'
-        | '50'
-        | '60'
-        | 'Member'
-        | 'Moderator'
-        | 'Non Member',
+        | "30"
+        | "40"
+        | "50"
+        | "60"
+        | "Member"
+        | "Moderator"
+        | "Non Member",
     );
     settingsSetDeathAds(on: boolean): void;
     settingsSetDisableCollisions(on: boolean): void;
@@ -183,9 +183,9 @@ declare global {
       gameAction: (typeof GameAction)[keyof typeof GameAction],
     ): boolean;
     worldGetCellMonsters(): MonsterData[];
-    worldGetMonsterByName(key: string | '*'): Nullable<MonsterData>;
+    worldGetMonsterByName(key: string | "*"): Nullable<MonsterData>;
     worldGetMonsterByMonMapId(key: number): Nullable<MonsterData>;
-    worldIsMonsterAvailable(key: number | string | '*'): boolean;
+    worldIsMonsterAvailable(key: number | string | "*"): boolean;
     worldGetCells(): string[];
     worldGetCellPads(): string[];
     worldGetItemTree(): ItemData[];

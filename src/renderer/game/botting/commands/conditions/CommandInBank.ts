@@ -1,4 +1,4 @@
-import { Command } from '../../command';
+import { Command } from "../../command";
 
 export class CommandInBank extends Command {
   public item!: string;
@@ -12,6 +12,6 @@ export class CommandInBank extends Command {
   }
 
   public override toString() {
-    return `Item is in bank: ${this.item}${this.qty ? ` [x${this.qty}]` : ''}`;
+    return `Item is in bank: ${this.item}${this.qty ? ` [x${this.qty}]` : ""}`;
   }
 }

@@ -1,11 +1,11 @@
-import { join } from 'path';
-import fs from 'fs-extra';
+import { join } from "path";
+import fs from "fs-extra";
 import {
   DOCUMENTS_PATH,
   DEFAULT_ACCOUNTS,
   DEFAULT_FAST_TRAVELS,
   DEFAULT_SETTINGS,
-} from '../common/constants';
+} from "../common/constants";
 
 // TODO: refactor
 
@@ -14,23 +14,23 @@ export class FileManager {
 
   public basePath = DOCUMENTS_PATH;
 
-  public scriptsDir = join(this.basePath, 'scripts');
+  public scriptsDir = join(this.basePath, "scripts");
 
   public get settingsPath() {
-    return join(this.basePath, 'settings.json');
+    return join(this.basePath, "settings.json");
   }
 
   public get fastTravelsPath() {
-    return join(this.basePath, 'fast-travels.json');
+    return join(this.basePath, "fast-travels.json");
   }
 
   public get accountsPath() {
-    return join(this.basePath, 'accounts.json');
+    return join(this.basePath, "accounts.json");
   }
 
   public get defaultSettings() {
     return {
-      launchMode: 'game',
+      launchMode: "game",
     };
   }
 
@@ -94,7 +94,7 @@ export type Settings = {
   /**
    * The launch mode of the application.
    */
-  launchMode: 'game' | 'manager';
+  launchMode: "game" | "manager";
 };
 
 export type Location = {

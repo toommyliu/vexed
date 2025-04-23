@@ -94,35 +94,35 @@ export class Item {
    * Whether the item is type Armor.
    */
   public isArmor(): boolean {
-    return this.itemGroup === 'co';
+    return this.itemGroup === "co";
   }
 
   /**
    * Whether the item is type Cape.
    */
   public isCape(): boolean {
-    return this.itemGroup === 'ba';
+    return this.itemGroup === "ba";
   }
 
   /**
    * Whether the item is type Helm.
    */
   public isHelm(): boolean {
-    return this.itemGroup === 'he';
+    return this.itemGroup === "he";
   }
 
   /**
    * Whether the item is type Pet.
    */
   public isPet(): boolean {
-    return this.itemGroup === 'pe';
+    return this.itemGroup === "pe";
   }
 
   /**
    * Whether the item is type Weapon.
    */
   public isWeapon(): boolean {
-    return this.itemGroup === 'Weapon';
+    return this.itemGroup === "Weapon";
   }
 
   /**
@@ -154,9 +154,9 @@ export class Item {
     // 2. Gear of Doom
 
     return this.data.sMeta
-      .split(',')
+      .split(",")
       .reduce<Record<string, number>>((acc, cur) => {
-        const [key, value] = cur.split(':') as [string, string];
+        const [key, value] = cur.split(":") as [string, string];
         acc[key] = Number.parseFloat(value);
         return acc;
       }, {});

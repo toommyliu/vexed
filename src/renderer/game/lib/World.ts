@@ -1,67 +1,67 @@
-import { exitFromCombat } from '../util/exitFromCombat';
-import { isMonsterMapId } from '../util/isMonMapId';
-import type { Bot } from './Bot';
-import { Avatar, type AvatarData } from './models/Avatar';
-import type { ItemData } from './models/Item';
-import { Monster, type MonsterData } from './models/Monster';
+import { exitFromCombat } from "../util/exitFromCombat";
+import { isMonsterMapId } from "../util/isMonMapId";
+import type { Bot } from "./Bot";
+import { Avatar, type AvatarData } from "./models/Avatar";
+import type { ItemData } from "./models/Item";
+import { Monster, type MonsterData } from "./models/Monster";
 
 export const GameAction = Object.freeze({
   /**
    * Accepting a quest.
    */
-  AcceptQuest: 'acceptQuest',
+  AcceptQuest: "acceptQuest",
   /**
    * Buying an item.
    */
-  BuyItem: 'buyItem',
+  BuyItem: "buyItem",
   /**
    * Do IA action.
    */
-  DoIA: 'doIA',
+  DoIA: "doIA",
   /**
    * Equipping an item.
    */
-  EquipItem: 'equipItem',
+  EquipItem: "equipItem",
   /**
    * Getting a map item (i.e. via the getMapItem packet).
    */
-  GetMapItem: 'getMapItem',
+  GetMapItem: "getMapItem",
   /**
    * Loading an enhancement shop.
    */
-  LoadEnhShop: 'loadEnhShop',
+  LoadEnhShop: "loadEnhShop",
   /**
    * Loading a hair shop.
    */
-  LoadHairShop: 'loadHairShop',
+  LoadHairShop: "loadHairShop",
   /**
    * Loading a shop.
    */
-  LoadShop: 'loadShop',
+  LoadShop: "loadShop",
   /**
    * Resting.
    */
-  Rest: 'rest',
+  Rest: "rest",
   /**
    * Selling an item.
    */
-  SellItem: 'sellItem',
+  SellItem: "sellItem",
   /**
    * Joining another map.
    */
-  Transfer: 'tfer',
+  Transfer: "tfer",
   /**
    * Sending a quest completion packet.
    */
-  TryQuestComplete: 'tryQuestComplete',
+  TryQuestComplete: "tryQuestComplete",
   /**
    * Unequipping an item.
    */
-  UnequipItem: 'unequipItem',
+  UnequipItem: "unequipItem",
   /**
    * Who action.
    */
-  Who: 'who',
+  Who: "who",
 });
 
 export class World {
@@ -121,7 +121,7 @@ export class World {
   public get monsters(): MonsterData[] {
     try {
       return JSON.parse(
-        swf.selectArrayObjects('world.monsters', 'objData'),
+        swf.selectArrayObjects("world.monsters", "objData"),
       ) as MonsterData[];
     } catch {
       return [];
@@ -186,7 +186,7 @@ export class World {
    */
   public setSpawnPoint(cell?: string, pad?: string): void {
     if (cell && pad) {
-      this.bot.flash.call('world.setSpawnPoint', cell, pad);
+      this.bot.flash.call("world.setSpawnPoint", cell, pad);
       return;
     }
 
@@ -222,7 +222,7 @@ export class World {
    * @param cell - The cell to jump to.
    * @param pad - The pad to jump to.
    */
-  public async jump(cell: string, pad = 'Spawn'): Promise<void> {
+  public async jump(cell: string, pad = "Spawn"): Promise<void> {
     const isSameCell = () =>
       this.bot.player.cell.toLowerCase() === cell.toLowerCase();
     if (isSameCell()) return;
@@ -240,8 +240,8 @@ export class World {
    */
   public async join(
     mapName: string,
-    cell = 'Enter',
-    pad = 'Spawn',
+    cell = "Enter",
+    pad = "Spawn",
   ): Promise<void> {
     await exitFromCombat();
 
@@ -255,7 +255,7 @@ export class World {
 
     let map_str = mapName;
     // eslint-disable-next-line prefer-const
-    let [map_name, map_number] = map_str.split('-');
+    let [map_name, map_number] = map_str.split("-");
 
     if (this.name.toLowerCase() === map_name!.toLowerCase()) {
       await this.jump(cell, pad);
@@ -263,16 +263,16 @@ export class World {
     }
 
     if (
-      map_number === '1e9' ||
-      map_number === '1e99' ||
+      map_number === "1e9" ||
+      map_number === "1e99" ||
       Number.isNaN(
         Number.parseInt(map_number!, 10),
       ) /* any non-number, e.g yulgar-a*/
     ) {
-      map_number = '100000';
+      map_number = "100000";
     }
 
-    map_str = `${map_name}${map_number ? `-${map_number}` : ''}`;
+    map_str = `${map_name}${map_number ? `-${map_number}` : ""}`;
 
     await this.bot.combat.exit();
     this.bot.flash.call(() => swf.playerJoinMap(map_str, cell, pad));
@@ -341,7 +341,7 @@ export class World {
    */
   public loadMapSwf(mapSwf: string): void {
     this.bot.flash.call(() =>
-      swf.worldLoadSwf(`${mapSwf}${mapSwf.endsWith('.swf') ? '' : '.swf'}`),
+      swf.worldLoadSwf(`${mapSwf}${mapSwf.endsWith(".swf") ? "" : ".swf"}`),
     );
   }
 }

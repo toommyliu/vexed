@@ -1,4 +1,4 @@
-import { Command } from '../../command';
+import { Command } from "../../command";
 
 export class CommandItemHasNotDropped extends Command {
   public item!: string;

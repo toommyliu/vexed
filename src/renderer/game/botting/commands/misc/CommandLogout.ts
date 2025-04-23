@@ -1,4 +1,4 @@
-import { Command } from '../../command';
+import { Command } from "../../command";
 
 export class CommandLogout extends Command {
   public override execute() {
@@ -8,6 +8,6 @@ export class CommandLogout extends Command {
   }
 
   public override toString() {
-    return 'Logout';
+    return "Logout";
   }
 }

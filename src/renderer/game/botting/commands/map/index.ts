@@ -1,13 +1,13 @@
-import { ArgsError } from '../../ArgsError';
-import { CommandJoinMap } from './CommandJoinMap';
-import { CommandMoveToCell } from './CommandMoveToCell';
-import { CommandSetSpawnpoint } from './CommandSetSpawnpoint';
-import { CommandWalkTo } from './CommandWalkTo';
+import { ArgsError } from "../../ArgsError";
+import { CommandJoinMap } from "./CommandJoinMap";
+import { CommandMoveToCell } from "./CommandMoveToCell";
+import { CommandSetSpawnpoint } from "./CommandSetSpawnpoint";
+import { CommandWalkTo } from "./CommandWalkTo";
 
 export const mapCommands = {
-  join(map: string, cell: string = 'Enter', pad: string = 'Spawn') {
-    if (!map || typeof map !== 'string') {
-      throw new ArgsError('map is required');
+  join(map: string, cell: string = "Enter", pad: string = "Spawn") {
+    if (!map || typeof map !== "string") {
+      throw new ArgsError("map is required");
     }
 
     const cmd = new CommandJoinMap();
@@ -16,9 +16,9 @@ export const mapCommands = {
     cmd.pad = pad;
     window.context.addCommand(cmd);
   },
-  move_to_cell(cell: string, pad: string = 'Spawn') {
-    if (!cell || typeof cell !== 'string') {
-      throw new ArgsError('cell is required');
+  move_to_cell(cell: string, pad: string = "Spawn") {
+    if (!cell || typeof cell !== "string") {
+      throw new ArgsError("cell is required");
     }
 
     const cmd = new CommandMoveToCell();
@@ -28,23 +28,23 @@ export const mapCommands = {
   },
   set_spawn(cell?: string, pad?: string) {
     const cmd = new CommandSetSpawnpoint();
-    if (typeof cell === 'string') {
+    if (typeof cell === "string") {
       cmd.cell = cell;
     }
 
-    if (typeof pad === 'string') {
+    if (typeof pad === "string") {
       cmd.pad = pad;
     }
 
     window.context.addCommand(cmd);
   },
   walk_to(x: number, y: number) {
-    if (!x || typeof x !== 'number') {
-      throw new ArgsError('x is required');
+    if (!x || typeof x !== "number") {
+      throw new ArgsError("x is required");
     }
 
-    if (!y || typeof y !== 'number') {
-      throw new ArgsError('y is required');
+    if (!y || typeof y !== "number") {
+      throw new ArgsError("y is required");
     }
 
     const cmd = new CommandWalkTo();
