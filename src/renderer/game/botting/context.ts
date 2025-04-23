@@ -26,13 +26,31 @@ export class Context extends TypedEmitter<Events> {
    */
   private readonly boosts: Set<string>;
 
-  /*
-   * Packet event handlers.
+  /**
+   * "pext" handlers.
    */
-  private readonly _handlers: Map<
+  private readonly _pextHandlers: Map<
     string,
     (packet: Record<string, unknown>) => Promise<void> | void
-  >;
+  > = new Map();
+
+  /**
+   * "packetFromServer" handlers.
+   * Server packets can be XML or JSON strings that need parsing
+   */
+  private readonly _packetFromServerHandlers: Map<
+    string,
+    (packet: string) => Promise<void> | void
+  > = new Map();
+
+  /**
+   * "packetFromClient" handlers.
+   * Client packets are XT packet strings
+   */
+  private readonly _packetFromClientHandlers: Map<
+    string,
+    (packet: string) => Promise<void> | void
+  > = new Map();
 
   private _commands: Command[];
 
@@ -51,7 +69,10 @@ export class Context extends TypedEmitter<Events> {
     this.items = new Set();
     this.boosts = new Set();
 
-    this._handlers = new Map();
+    this._pextHandlers = new Map();
+    this._packetFromServerHandlers = new Map();
+    this._packetFromClientHandlers = new Map();
+    this._runHandlers();
 
     this._commands = [];
     this._commandDelay = 1_000;
@@ -59,40 +80,120 @@ export class Context extends TypedEmitter<Events> {
 
     this._on = false;
 
-    this._runHandlers();
-
     this.overlay = new CommandOverlay();
   }
-
   /**
    * Registers a packet event handler.
    *
+   * @param type - The type of handler to register
    * @param name - The name of the handler
    * @param handler - The handler function
    */
   public registerHandler(
+    type: 'pext',
     name: string,
-    handler: (packet: Record<string, unknown>) => void,
+    handler: (packet: Record<string, unknown>) => Promise<void> | void,
+  ): void;
+  public registerHandler(
+    type: 'packetFromServer',
+    name: string,
+    handler: (packet: string) => Promise<void> | void,
+  ): void;
+  public registerHandler(
+    type: 'packetFromClient',
+    name: string,
+    handler: (packet: string) => Promise<void> | void,
+  ): void;
+  public registerHandler(
+    type: 'pext' | 'packetFromServer' | 'packetFromClient',
+    name: string,
+    handler:
+      | ((packet: Record<string, unknown>) => Promise<void> | void)
+      | ((packet: string) => Promise<void> | void),
   ) {
-    this._handlers.set(name, handler);
+    switch (type) {
+      case 'pext':
+        this._pextHandlers.set(
+          name,
+          handler as (packet: Record<string, unknown>) => Promise<void> | void,
+        );
+        break;
+      case 'packetFromServer':
+        this._packetFromServerHandlers.set(
+          name,
+          handler as (packet: string) => Promise<void> | void,
+        );
+        break;
+      case 'packetFromClient':
+        this._packetFromClientHandlers.set(
+          name,
+          handler as (packet: string) => Promise<void> | void,
+        );
+        break;
+      default:
+    }
   }
 
   /**
    * Unregisters a packet event handler.
    *
+   * @param type - The type of handler to unregister
    * @param name - The name of the handler
    */
-  public unregisterHandler(name: string) {
-    this._handlers.delete(name);
+  public unregisterHandler(
+    type: 'pext' | 'packetFromServer' | 'packetFromClient',
+    name: string,
+  ) {
+    switch (type) {
+      case 'pext':
+        this._pextHandlers.delete(name);
+        break;
+      case 'packetFromServer':
+        this._packetFromServerHandlers.delete(name);
+        break;
+      case 'packetFromClient':
+        this._packetFromClientHandlers.delete(name);
+        break;
+      default:
+    }
   }
 
   private _runHandlers() {
-    this.bot.on('pext', async (packet) => {
+    this.bot.on('pext', async (packet: Record<string, unknown>) => {
       if (!this.isRunning()) return;
 
-      // run all handlers
       try {
-        for (const [, handler] of this._handlers) {
+        for (const [, handler] of this._pextHandlers) {
+          await handler.call(
+            {
+              bot: this.bot,
+            },
+            packet,
+          );
+        }
+      } catch {}
+    });
+
+    this.bot.on('packetFromServer', async (packet: string) => {
+      if (!this.isRunning()) return;
+
+      try {
+        for (const [, handler] of this._packetFromServerHandlers) {
+          await handler.call(
+            {
+              bot: this.bot,
+            },
+            packet,
+          );
+        }
+      } catch {}
+    });
+
+    this.bot.on('packetFromClient', async (packet: string) => {
+      if (!this.isRunning()) return;
+
+      try {
+        for (const [, handler] of this._packetFromClientHandlers) {
           await handler.call(
             {
               bot: this.bot,

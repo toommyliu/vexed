@@ -67,9 +67,19 @@ export const cmd = {
     }
   },
   register_handler(
+    type: 'pext' | 'packetFromServer' | 'packetFromClient',
     name: string,
-    handler: (packet: Record<string, unknown>) => void,
+    handler:
+      | ((packet: Record<string, unknown>) => Promise<void> | void)
+      | ((packet: string) => Promise<void> | void),
   ) {
+    if (
+      !type ||
+      !['pext', 'packetFromServer', 'packetFromClient'].includes(type)
+    ) {
+      throw new ArgsError('handler type is required');
+    }
+
     if (!name || typeof name !== 'string') {
       throw new ArgsError('handler name is required');
     }
@@ -79,15 +89,50 @@ export const cmd = {
     }
 
     const _name = name.toLowerCase();
-    context.registerHandler(_name, handler);
+
+    if (type === 'pext') {
+      context.registerHandler(
+        type,
+        _name,
+        handler as (packet: Record<string, unknown>) => Promise<void> | void,
+      );
+    } else if (type === 'packetFromServer') {
+      context.registerHandler(
+        type,
+        _name,
+        handler as (packet: string) => Promise<void> | void,
+      );
+    } else if (type === 'packetFromClient') {
+      context.registerHandler(
+        type,
+        _name,
+        handler as (packet: string) => Promise<void> | void,
+      );
+    }
   },
-  unregister_handler(name: string) {
+  unregister_handler(
+    type: 'pext' | 'packetFromServer' | 'packetFromClient',
+    name: string,
+  ) {
+    if (
+      !type ||
+      !['pext', 'packetFromServer', 'packetFromClient'].includes(type)
+    ) {
+      throw new ArgsError('handler type is required');
+    }
+
     if (!name || typeof name !== 'string') {
       throw new ArgsError('handler name is required');
     }
 
     const _name = name.toLowerCase();
-    context.unregisterHandler(_name);
+    if (type === 'pext') {
+      context.unregisterHandler(type, _name);
+    } else if (type === 'packetFromServer') {
+      context.unregisterHandler(type, _name);
+    } else if (type === 'packetFromClient') {
+      context.unregisterHandler(type, _name);
+    }
   },
 } as { [key: string]: (...args: unknown[]) => void };
 
