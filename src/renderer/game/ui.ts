@@ -56,6 +56,13 @@ window.addEventListener("DOMContentLoaded", async () => {
     btn.addEventListener("click", () => {
       void ipcRenderer.callMain(IPC_EVENTS.LOAD_SCRIPT);
     });
+
+    document.addEventListener("keydown", (ev) => {
+      if (ev.key === "PageUp") {
+        ev.preventDefault();
+        void ipcRenderer.callMain(IPC_EVENTS.LOAD_SCRIPT);
+      }
+    });
   }
 
   {

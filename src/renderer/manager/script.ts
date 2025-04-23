@@ -83,7 +83,7 @@ function updateSelectedCount() {
   ).length;
   const startSelectedBtn =
     document.querySelector<HTMLButtonElement>("#start-selected")!;
-  startSelectedBtn.textContent = `Start Selected (${selectedCount})`;
+  startSelectedBtn.innerHTML = `Start Selected (${selectedCount})`;
 }
 
 function updateAccounts() {
@@ -91,7 +91,7 @@ function updateAccounts() {
   timeouts.clear();
 
   const accountsContainer = document.querySelector("#accounts")!;
-  accountsContainer.textContent = accounts
+  accountsContainer.innerHTML = accounts
     .map(
       (account) => `
       <div class="account-card rounded-md border border-zinc-800 bg-zinc-900 shadow-md">
@@ -163,7 +163,7 @@ function updateAccounts() {
 
 function updateServers() {
   const select = document.querySelector<HTMLSelectElement>("#servers")!;
-  select.textContent = servers
+  select.innerHTML = servers
     .map(
       (server) => `
 				<option value="${server.sName}">${server.sName} (${server.iCount})</option>
@@ -214,7 +214,7 @@ window.addEventListener("DOMContentLoaded", async () => {
       const cl = el.classList;
 
       try {
-        el.textContent = "";
+        el.innerHTML = "";
         cl.remove("text-green-500", "text-red-500", "hidden", "block");
 
         const account = {
@@ -230,12 +230,12 @@ window.addEventListener("DOMContentLoaded", async () => {
 
         if (res?.success) {
           // eslint-disable-next-line require-atomic-updates
-          el.textContent = "Account added successfully";
+          el.innerHTML = "Account added successfully";
           accounts.push(account);
           updateAccounts();
         } else {
           // eslint-disable-next-line require-atomic-updates
-          el.textContent = "An error occurred while trying to add the account";
+          el.innerHTML = "An error occurred while trying to add the account";
         }
 
         el!.style.display = "block";
@@ -250,7 +250,7 @@ window.addEventListener("DOMContentLoaded", async () => {
             cl.add("hidden");
             el.style.display = "none";
             setTimeout(() => {
-              el.textContent = "";
+              el.innerHTML = "";
               cl.remove("block", "hidden", "text-green-500", "text-red-500");
             }, 400);
           },
@@ -259,7 +259,7 @@ window.addEventListener("DOMContentLoaded", async () => {
       } catch (error) {
         logger.error("failed to add account:", error);
 
-        el.textContent = `An error occurred while trying to add the account${error instanceof Error && error.message ? `: ${error.message}` : ""}`;
+        el.innerHTML = `An error occurred while trying to add the account${error instanceof Error && error.message ? `: ${error.message}` : ""}`;
 
         cl.add("text-red-500", "block");
         cl.remove("hidden");
@@ -268,7 +268,7 @@ window.addEventListener("DOMContentLoaded", async () => {
           cl.add("hidden");
           el.style.display = "none";
           setTimeout(() => {
-            el.textContent = "";
+            el.innerHTML = "";
             cl.remove("block", "hidden", "text-green-500", "text-red-500");
           }, 400);
         }, 2_000);

@@ -53,13 +53,24 @@ window.pext = async ([packet]) => {
   if (pkt?.params?.type === "str") {
     const dataObj = pkt?.params?.dataObj; // ['exitArea', '-1', 'ENT_ID', 'PLAYER']
 
-    // const ogPkt = `%xt%${dataObj.join('%')}%`; // %xt%exitArea%-1%ENT_ID%PLAYER%
+    // const ogPkt = `%xt%${dataObj.join("%")}%`; // %xt%exitArea%-1%ENT_ID%PLAYER%
 
     switch (dataObj[0]) {
       case "respawnMon":
         break;
       case "exitArea":
         bot.emit("playerLeave", dataObj[dataObj.length - 1]);
+        break;
+      case "uotls":
+        if (
+          Array.isArray(dataObj) &&
+          dataObj?.length === 4 &&
+          dataObj[2]?.toLowerCase() === bot.auth.username.toLowerCase() &&
+          dataObj[3] === "afk:true"
+        ) {
+          bot.emit("afk");
+        }
+
         break;
     }
   } else if (pkt?.params?.type === "json") {

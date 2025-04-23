@@ -422,7 +422,7 @@ export class Context extends TypedEmitter<Events> {
 
     this._commandIndex = 0;
 
-    if (!this.bot.player.isLoaded()) {
+    if (!this.bot.player.isReady()) {
       logger.info("waiting for load");
       await this.bot.waitUntil(() => this.bot.player.isLoaded(), null, -1);
       logger.info("player loaded");

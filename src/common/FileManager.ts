@@ -1,6 +1,13 @@
 import { join, dirname } from "path";
-import { readFile, writeFile } from "atomically";
-import { ensureDir, pathExists } from "fs-extra";
+import {
+  readFile as atomicReadFile,
+  writeFile as atomicWriteFile,
+} from "atomically";
+import {
+  ensureDir,
+  pathExists,
+  appendFile as fsExtraAppendFile,
+} from "fs-extra";
 import {
   DEFAULT_ACCOUNTS,
   DEFAULT_FAST_TRAVELS,
@@ -25,6 +32,10 @@ export class FileManager {
 
   public static get accountsPath() {
     return join(FileManager.basePath, "accounts.json");
+  }
+
+  public static get storagePath() {
+    return join(FileManager.basePath, "storage");
   }
 
   private static async ensureJsonFile<T>(path: string, json: T): Promise<void> {
@@ -52,6 +63,7 @@ export class FileManager {
     await Promise.all([
       ensureDir(FileManager.basePath),
       ensureDir(FileManager.scriptsDir),
+      ensureDir(FileManager.storagePath),
     ]);
 
     await Promise.all([
@@ -72,7 +84,7 @@ export class FileManager {
    */
   public static async readFile(path: string): Promise<string | null> {
     try {
-      return await readFile(path, "utf8");
+      return await atomicReadFile(path, "utf8");
     } catch {
       return null;
     }
@@ -86,7 +98,12 @@ export class FileManager {
    */
   public static async writeFile(path: string, data: string): Promise<void> {
     await ensureDir(dirname(path));
-    await writeFile(path, data, "utf8");
+    await atomicWriteFile(path, data, "utf8");
+  }
+
+  public static async appendFile(path: string, data: string): Promise<void> {
+    await ensureDir(dirname(path));
+    await fsExtraAppendFile(path, data, "utf8");
   }
 
   /**
@@ -97,7 +114,7 @@ export class FileManager {
    */
   public static async readJson<T>(path: string): Promise<T | null> {
     try {
-      const data = await readFile(path, "utf8");
+      const data = await atomicReadFile(path, "utf8");
       return JSON.parse(data) as T;
     } catch {
       return null;
@@ -111,6 +128,6 @@ export class FileManager {
    * @param data  - The data to write to the JSON file.
    */
   public static async writeJson(path: string, data: unknown): Promise<void> {
-    await writeFile(path, JSON.stringify(data, null, 4), "utf8");
+    await atomicWriteFile(path, JSON.stringify(data, null, 4), "utf8");
   }
 }

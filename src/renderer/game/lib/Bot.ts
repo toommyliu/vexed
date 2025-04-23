@@ -12,11 +12,16 @@ import { Settings } from "./Settings";
 import { Shops } from "./Shop";
 import { TempInventory } from "./TempInventory";
 import { World } from "./World";
+import { Army } from "./army/Army";
 import type { Monster } from "./models/Monster";
 import { AutoRelogin } from "./util/AutoRelogin";
 import { Flash } from "./util/Flash";
 
 type Events = {
+  /**
+   * This event is emitted when the player goes AFK.
+   */
+  afk(): void;
   /**
    * This event is emitted when the player logs in.
    */
@@ -62,6 +67,11 @@ export class Bot extends TypedEmitter<Events> {
    * The singleton instance of the Bot class.
    */
   public static _instance: Bot | null = null;
+
+  /**
+   * The army API class instance.
+   */
+  public army: InstanceType<typeof Army>;
 
   /**
    * The Auth API class instance.
@@ -150,6 +160,7 @@ export class Bot extends TypedEmitter<Events> {
     this.flash = new Flash();
     this.autoRelogin = new AutoRelogin();
 
+    this.army = new Army(this);
     this.auth = new Auth(this);
     this.bank = new Bank(this);
     this.combat = new Combat(this);

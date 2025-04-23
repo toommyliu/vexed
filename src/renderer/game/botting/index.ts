@@ -1,5 +1,6 @@
 import { ArgsError } from "./ArgsError";
 import { Command } from "./command";
+import { armyCommands } from "./commands/army";
 import { combatCommands } from "./commands/combat";
 import { conditionsCommands } from "./commands/conditions";
 import { itemCommands } from "./commands/item";
@@ -12,6 +13,7 @@ const context = new Context();
 const customCommands = new Set<string>();
 
 const builtIns = {
+  ...armyCommands,
   ...combatCommands,
   ...conditionsCommands,
   ...itemCommands,
