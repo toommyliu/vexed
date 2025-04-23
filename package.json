@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "async-mutex": "^0.5.0",
-    "atomically": "^2.0.3",
+    "atomically": "1.7.0",
     "electron-better-ipc": "^2.0.1",
     "fs-extra": "^11.3.0",
     "lodash.merge": "^4.6.2",
