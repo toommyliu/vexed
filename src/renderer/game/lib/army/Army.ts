@@ -78,15 +78,27 @@ export class Army {
     // Load the config file
     await this.config.load();
 
-    // Register the players in this army
-    const p_1 = this.config.get("Player1");
-    const p_2 = this.config.get("Player2");
-    const p_3 = this.config.get("Player3");
-    const p_4 = this.config.get("Player4");
-    if (p_1) this.players.add(p_1);
-    if (p_2) this.players.add(p_2);
-    if (p_3) this.players.add(p_3);
-    if (p_4) this.players.add(p_4);
+    const playerCount = this.config.get("PlayerCount");
+
+    if (!playerCount) {
+      console.warn("Army: PlayerCount not set in config file.");
+      return;
+    }
+
+    const playerCountNum = Number.parseInt(playerCount, 10);
+    if (Number.isNaN(playerCountNum)) {
+      console.warn("Army: PlayerCount is not a number.");
+      return;
+    }
+
+    for (let index = 1; index <= playerCountNum; index++) {
+      const player = this.config.get(`Player${index}`);
+      if (player) {
+        this.players.add(player);
+      } else {
+        console.warn(`Army: Player${index} not set in config file.`);
+      }
+    }
 
     // this.isInitialized = true;
   }
@@ -97,12 +109,16 @@ export class Army {
    * @returns True if this player is the leader, false otherwise.
    */
   public isLeader(): boolean {
-    const p_1 = this.config.get("Player1");
-    if (p_1) {
-      return this.bot.auth.username.toLowerCase() === p_1.toLowerCase();
-    }
+    // const p_1 = this.config.get("Player1");
+    // if (p_1) {
+    //   return this.bot.auth.username.toLowerCase() === p_1.toLowerCase();
+    // }
 
-    return false;
+    // return false;
+    return (
+      this.bot.auth.username.toLowerCase() ===
+      this.config.get("Player1")?.toLowerCase()
+    );
   }
 
   /**
@@ -140,18 +156,11 @@ export class Army {
    */
   public async waitForAll() {
     const playerList = Array.from(this.players);
-    let allInMap = true;
 
-    await this.bot.waitUntil(() => {
-      allInMap = true;
-      for (const player of playerList) {
-        if (!this.bot.world.isPlayerInMap(player)) {
-          allInMap = false;
-          break;
-        }
-      }
-
-      return allInMap;
-    });
+    while (
+      !playerList.every((player) => this.bot.world.isPlayerInMap(player))
+    ) {
+      await this.bot.sleep(1_000);
+    }
   }
 }

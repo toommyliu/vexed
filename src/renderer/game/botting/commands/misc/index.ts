@@ -1,4 +1,6 @@
 import { ArgsError } from "../../ArgsError";
+import { CommandBuff } from "./CommandBuff";
+import { CommandBuyScrollOfLifeSteal } from "./CommandBuyScrollOfLifeSteal";
 import { CommandDelay } from "./CommandDelay";
 import { CommandGotoLabel } from "./CommandGotoLabel";
 import { CommandHouse } from "./CommandHouse";
@@ -224,6 +226,19 @@ export const miscCommands = {
 
     const cmd = new CommandSetGuild();
     cmd.guild = guild;
+    window.context.addCommand(cmd);
+  },
+  buff() {
+    const cmd = new CommandBuff();
+    window.context.addCommand(cmd);
+  },
+  buy_lifesteal(qty: number) {
+    if (!qty || typeof qty !== "number" || qty < 0) {
+      throw new ArgsError("qty is required");
+    }
+
+    const cmd = new CommandBuyScrollOfLifeSteal();
+    cmd.qty = Math.trunc(qty);
     window.context.addCommand(cmd);
   },
 };

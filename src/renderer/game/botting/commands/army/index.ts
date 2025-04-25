@@ -1,11 +1,11 @@
 import { ArgsError } from "../../ArgsError";
 import { CommandArmyInit } from "./CommandArmyInit";
-import { CommandArmyKill } from "./CommandKillWithArmy";
+import { CommandArmyJoin } from "./CommandArmyJoin";
 import { CommandArmyRegisterMessage } from "./CommandArmyRegisterMessage";
 import { CommandArmySetConfigCommand } from "./CommandArmySetConfig";
 import { CommandArmySetLogFileName } from "./CommandArmySetLogFileName";
 import { CommandArmyWaitForArmy } from "./CommandArmyWaitForArmy";
-import { CommandArmyBuff } from "./CommandArmyBuff";
+
 export const armyCommands = {
   army_init() {
     const cmd = new CommandArmyInit();
@@ -38,27 +38,42 @@ export const armyCommands = {
     cmd.fileName = fileName;
     window.context.addCommand(cmd);
   },
+  army_join(map: string, cell: string, pad: string) {
+    if (!map || typeof map !== "string") {
+      throw new ArgsError("map is required");
+    }
+
+    if (!cell || typeof cell !== "string") {
+      throw new ArgsError("cell is required");
+    }
+
+    if (!pad || typeof pad !== "string") {
+      throw new ArgsError("pad is required");
+    }
+
+    const cmd = new CommandArmyJoin();
+    cmd.mapName = map;
+    cmd.cellName = cell;
+    cmd.padName = pad;
+    window.context.addCommand(cmd);
+  },
   wait_for_army(map?: string, cell?: string, pad?: string) {
     if (map && typeof map !== "string") {
-      throw new ArgsError("map must be a string");
+      throw new ArgsError("map is required");
     }
 
     if (cell && typeof cell !== "string") {
-      throw new ArgsError("cell must be a string");
+      throw new ArgsError("cell is required");
     }
 
     if (pad && typeof pad !== "string") {
-      throw new ArgsError("pad must be a string");
+      throw new ArgsError("pad is required");
     }
 
     const cmd = new CommandArmyWaitForArmy();
     if (map) cmd.map = map;
     cmd.cell = cell ?? "Enter";
     cmd.pad = pad ?? "Spawn";
-    window.context.addCommand(cmd);
-  },
-  buff() {
-    const cmd = new CommandArmyBuff();
     window.context.addCommand(cmd);
   },
 };
