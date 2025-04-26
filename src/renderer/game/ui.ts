@@ -75,7 +75,7 @@ window.addEventListener("DOMContentLoaded", async () => {
       window.context.removeListener("end", onEnd);
     };
 
-    btn.onclick = () => {
+    const toggleScript = () => {
       if (window.context.isRunning()) {
         void window.context.stop();
         btn.textContent = "Start";
@@ -88,6 +88,15 @@ window.addEventListener("DOMContentLoaded", async () => {
         btn.textContent = "Stop";
       }
     };
+
+    btn.onclick = toggleScript;
+
+    document.addEventListener("keydown", (ev) => {
+      if (ev.key === "PageDown") {
+        ev.preventDefault();
+        toggleScript();
+      }
+    });
   }
 
   {

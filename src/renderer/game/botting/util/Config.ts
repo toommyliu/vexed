@@ -13,12 +13,16 @@ export class Config {
    */
   protected data: Record<string, string> = {};
 
+  public readonly fileName: string;
+
   public constructor(filePath: string) {
-    const cleanFilePath = filePath.endsWith(".txt")
+    const cleanFileName = filePath.endsWith(".txt")
       ? filePath.slice(0, -4)
       : filePath;
 
-    this.filePath = join(FileManager.basePath, `${cleanFilePath}.txt`);
+    this.filePath = join(FileManager.basePath, `${cleanFileName}.txt`);
+    this.fileName = cleanFileName;
+
     console.log(`Config file path: ${this.filePath}`);
   }
 

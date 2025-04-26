@@ -5,8 +5,6 @@ import {
 import type { IPC_EVENTS } from "./ipc-events";
 import type { FastTravel } from "./types";
 
-// TODO: add a broker method?
-
 export const ipcRenderer: TypedRendererIpc = {
   callMain: async (channel, data?: unknown) => {
     if (data === undefined) {
@@ -15,8 +13,12 @@ export const ipcRenderer: TypedRendererIpc = {
 
     return ogIpcRenderer.callMain(channel, data);
   },
-  // @ts-expect-error i don't even know...
   answerMain: (channel, handler) => ogIpcRenderer.answerMain(channel, handler),
+  removeListener: (channel, handler) =>
+    ogIpcRenderer.removeListener(channel, handler),
+  on: (channel, handler) => ogIpcRenderer.on(channel, handler),
+  once: (channel, handler) => ogIpcRenderer.once(channel, handler),
+  removeAllListeners: (channel) => ogIpcRenderer.removeAllListeners(channel),
 };
 
 export const ipcMain: TypedMainIpc = {
@@ -28,8 +30,12 @@ export const ipcMain: TypedMainIpc = {
     return ogIpcMain.callRenderer(browserWindow, channel, data);
   },
   answerRenderer: (channel, handler) =>
-    // @ts-expect-error i don't even know...
     ogIpcMain.answerRenderer(channel, handler),
+  removeListener: (channel, handler) =>
+    ogIpcMain.removeListener(channel, handler),
+  on: (channel, handler) => ogIpcMain.on(channel, handler),
+  once: (channel, handler) => ogIpcMain.once(channel, handler),
+  removeAllListeners: (channel) => ogIpcMain.removeAllListeners(channel),
 };
 
 type TypedRendererIpc = {
@@ -61,6 +67,35 @@ type TypedRendererIpc = {
       ? never
       : TypedIpcEvents[K]["args"],
   ): Promise<TypedIpcEvents[K]["response"]>;
+
+  on<K extends keyof TypedIpcEvents>(
+    channel: K,
+    listener: (
+      data: TypedIpcEvents[K]["args"] extends undefined
+        ? never
+        : TypedIpcEvents[K]["args"],
+    ) => void,
+  ): void;
+
+  once<K extends keyof TypedIpcEvents>(
+    channel: K,
+    listener: (
+      data: TypedIpcEvents[K]["args"] extends undefined
+        ? never
+        : TypedIpcEvents[K]["args"],
+    ) => void,
+  ): void;
+
+  removeAllListeners(channel: keyof TypedIpcEvents): void;
+
+  removeListener<K extends keyof TypedIpcEvents>(
+    channel: K,
+    listener: (
+      data: TypedIpcEvents[K]["args"] extends undefined
+        ? never
+        : TypedIpcEvents[K]["args"],
+    ) => void,
+  ): void;
 };
 
 type TypedMainIpc = {
@@ -94,6 +129,32 @@ type TypedMainIpc = {
       ? never
       : TypedIpcEvents[K]["args"],
   ): Promise<TypedIpcEvents[K]["response"]>;
+
+  on<K extends keyof TypedIpcEvents>(
+    channel: K,
+    listener: (
+      data: TypedIpcEvents[K]["args"],
+      browserWindow: Electron.BrowserWindow,
+    ) => void,
+  ): void;
+
+  once<K extends keyof TypedIpcEvents>(
+    channel: K,
+    listener: (
+      data: TypedIpcEvents[K]["args"],
+      browserWindow: Electron.BrowserWindow,
+    ) => void,
+  ): void;
+
+  removeAllListeners(channel: keyof TypedIpcEvents): void;
+
+  removeListener<K extends keyof TypedIpcEvents>(
+    channel: K,
+    listener: (
+      data: TypedIpcEvents[K]["args"],
+      browserWindow: Electron.BrowserWindow,
+    ) => void,
+  ): void;
 };
 
 type TypedIpcEvents = {
@@ -217,6 +278,32 @@ type TypedIpcEvents = {
     response: undefined;
   };
 
+  // #region Army
+  [IPC_EVENTS.ARMY_INIT]: {
+    args: {
+      fileName: string;
+      playerName: string;
+      players: string[];
+    };
+  };
+  [IPC_EVENTS.ARMY_JOIN]: {
+    args: {
+      fileName: string;
+      playerName: string;
+    };
+    response: undefined;
+  };
+  [IPC_EVENTS.ARMY_START_JOB]: {
+    args: undefined;
+    response: undefined;
+  };
+  [IPC_EVENTS.ARMY_FINISH_JOB]: { args: undefined; response: undefined };
+  [IPC_EVENTS.ARMY_READY]: {
+    args: undefined;
+    response: undefined;
+  };
+
+  // #region Manager
   [IPC_EVENTS.GET_ACCOUNTS]: {
     args: undefined;
     response: Account[];

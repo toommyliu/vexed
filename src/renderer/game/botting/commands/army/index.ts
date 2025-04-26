@@ -3,22 +3,11 @@ import { CommandArmyEquipLoadout } from "./CommandArmyEquipLoadout";
 import { CommandArmyInit } from "./CommandArmyInit";
 import { CommandArmyJoin } from "./CommandArmyJoin";
 import { CommandArmyKill } from "./CommandArmyKill";
-import { CommandArmyRegisterMessage } from "./CommandArmyRegisterMessage";
 import { CommandArmySetConfigCommand } from "./CommandArmySetConfig";
-import { CommandArmySetLogFileName } from "./CommandArmySetLogFileName";
 
 export const armyCommands = {
   army_init() {
     const cmd = new CommandArmyInit();
-    window.context.addCommand(cmd);
-  },
-  army_register_msg(msg: string) {
-    if (!msg || typeof msg !== "string") {
-      throw new Error("msg is required");
-    }
-
-    const cmd = new CommandArmyRegisterMessage();
-    cmd.message = msg;
     window.context.addCommand(cmd);
   },
   army_set_config(fileName: string) {
@@ -27,15 +16,6 @@ export const armyCommands = {
     }
 
     const cmd = new CommandArmySetConfigCommand();
-    cmd.fileName = fileName;
-    window.context.addCommand(cmd);
-  },
-  set_log(fileName: string) {
-    if (!fileName || typeof fileName !== "string") {
-      throw new ArgsError("fileName is required");
-    }
-
-    const cmd = new CommandArmySetLogFileName();
     cmd.fileName = fileName;
     window.context.addCommand(cmd);
   },

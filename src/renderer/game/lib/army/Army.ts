@@ -1,14 +1,11 @@
 // https://github.com/BrenoHenrike/Scripts/blob/Skua/Army/CoreArmyLite.cs
 
+import { ipcRenderer } from "../../../../common/ipc";
+import { IPC_EVENTS } from "../../../../common/ipc-events";
 import { Config } from "../../botting/util/Config";
 import type { Bot } from "../Bot";
-import { ArmyLogging } from "./ArmyLogging";
-
-// window.Config = Config;
 
 export class Army {
-  public armyLogging = new ArmyLogging();
-
   /**
    * The config file for this army.
    */
@@ -41,50 +38,12 @@ export class Army {
   }
 
   /**
-   * Sets the log file name.
-   *
-   * @param fileName - The name of the log file.
-   */
-  public setLogName(fileName: string) {
-    this.armyLogging.setLogName(fileName);
-  }
-
-  /**
-   * Registers a message to be logged.
-   *
-   * @param msg - The message to register.
-   */
-  public registerMessage(msg: string): void {
-    this.armyLogging.registerMessage(msg);
-  }
-
-  /**
-   * Clears the log file.
-   */
-  public async clearLog(): Promise<void> {
-    if (this.isLeader()) {
-      await this.armyLogging.clearLog();
-    }
-  }
-
-  /**
-   * Whether the log file is empty.
-   *
-   * @returns True if the log file is empty, false otherwise.
-   */
-  public async isEmpty(): Promise<boolean> {
-    return this.armyLogging.isEmpty();
-  }
-
-  /**
    * Initializes everything needed to begin armying.
    */
   public async init(): Promise<void> {
-    // Read the config file
     await this.config.load();
 
-    // Setup the log file sync-ing mechanism
-    await this.armyLogging.init();
+    console.log("Army: Config loaded", this.config.getAll());
 
     const playerCount = this.config.get("PlayerCount");
 
@@ -108,6 +67,22 @@ export class Army {
       }
     }
 
+    const args = {
+      fileName: this.config.fileName,
+      playerName: this.bot.auth.username,
+    };
+
+    if (this.isLeader()) {
+      console.log("Army: Leader");
+      await ipcRenderer.callMain(IPC_EVENTS.ARMY_INIT, {
+        ...args,
+        players: Array.from(this.players),
+      });
+    } else {
+      console.log("Army: Follower");
+      await ipcRenderer.callMain(IPC_EVENTS.ARMY_JOIN, args);
+    }
+
     this.isInitialized = true;
   }
 
@@ -121,36 +96,6 @@ export class Army {
       this.bot.auth.username.toLowerCase() ===
       this.config.get("Player1")?.toLowerCase()
     );
-  }
-
-  /**
-   * Writes to the log file that this player is done with a task.
-   *
-   * @returns True if the message was sent, false if it was already in the log.
-   */
-  public async sendDone(): Promise<boolean> {
-    try {
-      const alreadyInLog = await this.armyLogging.isAlreadyInLog(this.players);
-      if (!alreadyInLog) {
-        this.armyLogging.registerMessage(
-          `${this.bot.auth.username}:done:${this.armyLogging.message}`,
-        );
-        return true;
-      }
-    } catch {
-      return false;
-    }
-
-    return false;
-  }
-
-  /**
-   * Whether all players in the army are done with the task.
-   *
-   * @returns True if all players are done, false otherwise.
-   */
-  public async isAllDone() {
-    return this.armyLogging.isAlreadyInLog(this.players);
   }
 
   /**

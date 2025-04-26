@@ -44,6 +44,12 @@ export const IPC_EVENTS = {
 
   PACKET_SPAMMER_START: "packet-spammer:start" as const,
   PACKET_SPAMMER_STOP: "packet-spammer:stop" as const,
+
+  ARMY_INIT: "army:init" as const,
+  ARMY_JOIN: "army:join" as const,
+  ARMY_START_JOB: "army:start_job" as const, // i am ready
+  ARMY_FINISH_JOB: "army:finish_job" as const, // i am done
+  ARMY_READY: "army:ready" as const, // all are done
   // #endregion
 
   // #region manager
