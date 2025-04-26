@@ -1,17 +1,18 @@
 import { ArgsError } from "../../ArgsError";
+import { CommandArmyEquipLoadout } from "./CommandArmyEquipLoadout";
 import { CommandArmyInit } from "./CommandArmyInit";
 import { CommandArmyJoin } from "./CommandArmyJoin";
+import { CommandArmyKill } from "./CommandArmyKill";
 import { CommandArmyRegisterMessage } from "./CommandArmyRegisterMessage";
 import { CommandArmySetConfigCommand } from "./CommandArmySetConfig";
 import { CommandArmySetLogFileName } from "./CommandArmySetLogFileName";
-import { CommandArmyWaitForArmy } from "./CommandArmyWaitForArmy";
 
 export const armyCommands = {
   army_init() {
     const cmd = new CommandArmyInit();
     window.context.addCommand(cmd);
   },
-  register_msg(msg: string) {
+  army_register_msg(msg: string) {
     if (!msg || typeof msg !== "string") {
       throw new Error("msg is required");
     }
@@ -20,7 +21,7 @@ export const armyCommands = {
     cmd.message = msg;
     window.context.addCommand(cmd);
   },
-  set_config(fileName: string) {
+  army_set_config(fileName: string) {
     if (!fileName || typeof fileName !== "string") {
       throw new ArgsError("fileName is required");
     }
@@ -57,23 +58,17 @@ export const armyCommands = {
     cmd.padName = pad;
     window.context.addCommand(cmd);
   },
-  wait_for_army(map?: string, cell?: string, pad?: string) {
-    if (map && typeof map !== "string") {
-      throw new ArgsError("map is required");
+  army_equip_loadout(loadoutName: string) {
+    if (!loadoutName || typeof loadoutName !== "string") {
+      throw new ArgsError("loadoutName is required");
     }
 
-    if (cell && typeof cell !== "string") {
-      throw new ArgsError("cell is required");
-    }
-
-    if (pad && typeof pad !== "string") {
-      throw new ArgsError("pad is required");
-    }
-
-    const cmd = new CommandArmyWaitForArmy();
-    if (map) cmd.map = map;
-    cmd.cell = cell ?? "Enter";
-    cmd.pad = pad ?? "Spawn";
+    const cmd = new CommandArmyEquipLoadout();
+    cmd.loadoutName = loadoutName;
+    window.context.addCommand(cmd);
+  },
+  army_kill() {
+    const cmd = new CommandArmyKill();
     window.context.addCommand(cmd);
   },
 };

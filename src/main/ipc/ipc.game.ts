@@ -1,3 +1,5 @@
+import "./ipc-army";
+
 import { join } from "path";
 import { app, BrowserWindow, dialog } from "electron";
 import { readFile } from "fs-extra";

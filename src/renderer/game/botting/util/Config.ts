@@ -11,14 +11,15 @@ export class Config {
   /**
    * The data stored in the config.
    */
-  private data: Record<string, string> = {};
+  protected data: Record<string, string> = {};
 
   public constructor(filePath: string) {
     const cleanFilePath = filePath.endsWith(".txt")
       ? filePath.slice(0, -4)
       : filePath;
 
-    this.filePath = join(FileManager.storagePath, `${cleanFilePath}.txt`);
+    this.filePath = join(FileManager.basePath, `${cleanFilePath}.txt`);
+    console.log(`Config file path: ${this.filePath}`);
   }
 
   /**
@@ -30,6 +31,13 @@ export class Config {
    */
   public get(key: string, defaultValue: string = ""): string {
     return this.data[key] ?? defaultValue;
+  }
+
+  /**
+   * Get all values from the config.
+   */
+  public getAll(): Record<string, string> {
+    return Object.freeze(this.data);
   }
 
   /**
@@ -60,6 +68,11 @@ export class Config {
 
       const lines = data.split("\n");
       for (const line of lines) {
+        if (!line || line.trim() === "") continue;
+
+        // Skip comments
+        if (line.startsWith("#")) continue;
+
         // eslint-disable-next-line prefer-named-capture-group
         const match = /^(.*?[^\\]):(.*)$/.exec(line);
         if (match) {

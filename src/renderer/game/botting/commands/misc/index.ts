@@ -2,6 +2,7 @@ import { ArgsError } from "../../ArgsError";
 import { CommandBuff } from "./CommandBuff";
 import { CommandBuyScrollOfLifeSteal } from "./CommandBuyScrollOfLifeSteal";
 import { CommandDelay } from "./CommandDelay";
+import { CommandEquipLoadout } from "./CommandEquipLoadout";
 import { CommandGotoLabel } from "./CommandGotoLabel";
 import { CommandHouse } from "./CommandHouse";
 import { CommandLabel } from "./CommandLabel";
@@ -239,6 +240,15 @@ export const miscCommands = {
 
     const cmd = new CommandBuyScrollOfLifeSteal();
     cmd.qty = Math.trunc(qty);
+    window.context.addCommand(cmd);
+  },
+  equip_loadout(loadoutName: string) {
+    if (!loadoutName || typeof loadoutName !== "string") {
+      throw new ArgsError("loadoutName is required");
+    }
+
+    const cmd = new CommandEquipLoadout();
+    cmd.loadoutName = loadoutName;
     window.context.addCommand(cmd);
   },
 };

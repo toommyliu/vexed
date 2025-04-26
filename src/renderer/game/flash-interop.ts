@@ -130,16 +130,16 @@ window.loaded = async () => {
     arg.startsWith('--scriptPath='),
   );
 
-  if (username && password && server) {
-    const [, user] = username.split("=");
-    const [, pass] = password.split("=");
-    const [, serv] = server.split("=");
+  if (usernameArg && passwordArg && serverArg) {
+    const [, username] = usernameArg.split("=");
+    const [, password] = passwordArg.split("=");
+    const [, server] = serverArg.split("=");
 
-    if (!user || !pass || !serv) return;
+    if (!username || !password || !server) return;
 
     const ogDelay = bot.autoRelogin.delay;
 
-    bot.autoRelogin.setCredentials(user!, pass!, serv!);
+    bot.autoRelogin.setCredentials(username!, password!, server!);
     bot.autoRelogin.delay = 0;
 
     // auto relogin should have triggered
@@ -151,7 +151,7 @@ window.loaded = async () => {
 
     logger.info("auto relogin success, responding");
     await ipcRenderer
-      .callMain(IPC_EVENTS.LOGIN_SUCCESS, { username: user })
+      .callMain(IPC_EVENTS.LOGIN_SUCCESS, { username })
       .catch(() => {});
   }
 

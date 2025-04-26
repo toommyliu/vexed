@@ -223,6 +223,8 @@ window.addEventListener("DOMContentLoaded", async () => {
       cellsDropdown.innerHTML = "";
       const fragment = document.createDocumentFragment();
 
+      // TODO: if we change rooms, we need to update the current cell display as needed
+
       for (const cell of bot.world.cells) {
         const cellBtn = document.createElement("button");
         cellBtn.className =

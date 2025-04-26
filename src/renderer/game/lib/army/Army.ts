@@ -19,6 +19,11 @@ export class Army {
    */
   public players: Set<string> = new Set();
 
+  /**
+   * Whether the army is initialized.
+   */
+  public isInitialized!: boolean;
+
   // private isInitialized = false;
 
   public constructor(public readonly bot: Bot) {}
@@ -75,8 +80,11 @@ export class Army {
    * Initializes everything needed to begin armying.
    */
   public async init(): Promise<void> {
-    // Load the config file
+    // Read the config file
     await this.config.load();
+
+    // Setup the log file sync-ing mechanism
+    await this.armyLogging.init();
 
     const playerCount = this.config.get("PlayerCount");
 
@@ -100,7 +108,7 @@ export class Army {
       }
     }
 
-    // this.isInitialized = true;
+    this.isInitialized = true;
   }
 
   /**
@@ -109,12 +117,6 @@ export class Army {
    * @returns True if this player is the leader, false otherwise.
    */
   public isLeader(): boolean {
-    // const p_1 = this.config.get("Player1");
-    // if (p_1) {
-    //   return this.bot.auth.username.toLowerCase() === p_1.toLowerCase();
-    // }
-
-    // return false;
     return (
       this.bot.auth.username.toLowerCase() ===
       this.config.get("Player1")?.toLowerCase()
@@ -162,5 +164,19 @@ export class Army {
     ) {
       await this.bot.sleep(1_000);
     }
+  }
+
+  /**
+   * Gets the player number position in the army.
+   */
+  public getPlayerNumber(): number {
+    const playerList = Array.from(this.players);
+    const playerIndex = playerList.indexOf(this.bot.auth.username);
+
+    if (playerIndex === -1) {
+      return -1;
+    }
+
+    return playerIndex + 1;
   }
 }

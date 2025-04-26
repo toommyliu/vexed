@@ -4,7 +4,11 @@ export class CommandArmySetConfigCommand extends Command {
   public fileName!: string;
 
   public override execute() {
-    this.bot.army.setConfigName(this.fileName);
+    const cleanName = this.fileName.startsWith("storage/")
+      ? this.fileName
+      : `storage/${this.fileName}`;
+
+    this.bot.army.setConfigName(cleanName);
   }
 
   public override toString() {
