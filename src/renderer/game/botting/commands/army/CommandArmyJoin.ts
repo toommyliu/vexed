@@ -25,7 +25,7 @@ export class CommandArmyJoin extends Command {
     this.bot.on("afk", fn_afk);
     this.ctx.once("end", cleanup);
 
-    // Wait for all players to join
+    // Set up listener FIRST before any actions
     const allJoinedPromise = new Promise<void>((resolve) => {
       const listener = () => {
         console.log("All players have joined");
@@ -36,10 +36,13 @@ export class CommandArmyJoin extends Command {
       ipcRenderer.on(IPC_EVENTS.ARMY_READY, listener);
     });
 
-    // Join the map first
+    // Then join the map
     await this.bot.world.join(this.mapName, this.cellName, this.padName);
 
-    // Notify that this player has joined
+    // Add a small delay to ensure IPC listener registration
+    await this.bot.sleep(100);
+
+    // Then notify join
     await ipcRenderer.callMain(IPC_EVENTS.ARMY_FINISH_JOB);
     console.log("Notified joined, waiting for others...");
 
