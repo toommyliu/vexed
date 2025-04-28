@@ -344,7 +344,7 @@ export class Settings {
         (option as HTMLInputElement).value = String(value);
         break;
       case 'BUTTON':
-        option.setAttribute('data-checked', value ? 'true' : 'false');
+        option.setAttribute('data-state', value ? 'true' : 'false');
         option.classList.toggle('option-active', Boolean(value));
         break;
     }
