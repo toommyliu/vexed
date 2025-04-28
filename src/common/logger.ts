@@ -80,7 +80,6 @@ export class Logger {
   ): void {
     if (this.isRenderer) {
       try {
-        // $"%xt%moderator%-1%{text}%")
         const text = this.formatArgs(args);
         const message = `%xt%moderator%-1%(${scope}) ${text}%`;
         window.swf.sendClientPacket(message, "str");
