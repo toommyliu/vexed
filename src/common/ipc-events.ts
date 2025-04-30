@@ -52,5 +52,6 @@ export const IPC_EVENTS = {
   REMOVE_ACCOUNT: 'manager:remove_account' as const,
   LAUNCH_GAME: 'manager:launch_game' as const,
   ENABLE_BUTTON: 'manager:enable_button' as const,
+  MGR_LOAD_SCRIPT: 'manager:load_script' as const,
   // #endregion
 } as const;

@@ -75,20 +75,48 @@
       class="sticky bottom-0 z-10 flex-shrink-0 border-t border-zinc-800 bg-zinc-900 p-4 shadow-lg"
     >
       <div
-        class="mx-auto flex w-full max-w-4xl flex-col gap-3 md:flex-row md:items-center md:justify-between"
+        class="mx-auto flex w-full max-w-4xl flex-col sm:flex-row sm:items-center sm:justify-between sm:space-x-4"
       >
-        <div class="flex items-center space-x-2">
-          <label
-            for="servers"
-            class="whitespace-nowrap text-sm font-medium text-gray-400"
-            >Login Server:</label
-          >
-          <select
-            id="servers"
-            class="min-w-[200px] flex-grow rounded-md border border-zinc-800 bg-black p-1.5 text-white focus:border-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-600"
-          ></select>
+        <div class="flex flex-col space-y-3 sm:w-1/2">
+          <div class="flex items-center space-x-2">
+            <label
+              for="servers"
+              class="whitespace-nowrap text-sm font-medium text-gray-400"
+              >Login Server:</label
+            >
+            <select
+              id="servers"
+              class="w-full rounded-md border border-zinc-800 bg-black p-1.5 text-white focus:border-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-600"
+            ></select>
+          </div>
+
+          <div class="flex flex-col">
+            <div class="flex items-center space-x-2 text-sm text-gray-400">
+              <input
+                type="checkbox"
+                id="start-with-script"
+                class="rounded border-zinc-700 bg-black text-green-600 focus:ring-green-600"
+              />
+              <label for="start-with-script">Start with script</label>
+              <button
+                id="select-script"
+                class="pointer-events-none cursor-not-allowed rounded border border-zinc-700 bg-zinc-800 px-2 py-0.5 text-xs text-white opacity-50 transition-all duration-200 hover:bg-zinc-700"
+                disabled
+              >
+                Select file
+              </button>
+            </div>
+            <div>
+              <span
+                id="selected-script-name"
+                class="max-w-[120px] truncate text-xs"
+              ></span>
+            </div>
+          </div>
         </div>
-        <div class="flex space-x-3">
+        <div
+          class="mt-4 flex items-center justify-start space-x-3 sm:mt-0 sm:w-1/2 sm:justify-end"
+        >
           <button
             id="remove-selected"
             class="rounded-md border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-sm text-white shadow-sm transition-all duration-200 hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-zinc-600"

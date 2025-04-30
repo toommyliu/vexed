@@ -4,8 +4,10 @@ import type {
 } from '../common/types';
 
 declare global {
-  type Account = ogAccount;
-  type AccountWithServer = ogAccountWithServer;
+  type Account = ogAccount & {
+    scriptPath?: string;
+  };
+  type AccountWithServer = Account & ogAccountWithServer;
 }
 
 export {};

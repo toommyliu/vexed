@@ -63,6 +63,11 @@ export async function createGame(
     args.push(`--server=${account.server}`);
   }
 
+  if (account?.scriptPath) {
+    const encodedScriptPath = encodeURIComponent(account.scriptPath);
+    args.push(`--scriptPath=${encodedScriptPath}`);
+  }
+
   const window = new BrowserWindow({
     width: 966,
     height: 552,
