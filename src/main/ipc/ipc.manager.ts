@@ -1,3 +1,5 @@
+import { join } from 'path';
+import { dialog } from 'electron';
 import { ipcMain } from '../../common/ipc';
 import { IPC_EVENTS } from '../../common/ipc-events';
 import { Logger } from '../../common/logger';
@@ -56,4 +58,26 @@ ipcMain.answerRenderer(IPC_EVENTS.REMOVE_ACCOUNT, async ({ username }) => {
 ipcMain.answerRenderer(IPC_EVENTS.LAUNCH_GAME, async (account) => {
   logger.info(`launching game for: ${account.username}`);
   await createGame(account);
+});
+
+ipcMain.answerRenderer(IPC_EVENTS.MGR_LOAD_SCRIPT, async (_, browserWindow) => {
+  try {
+    const res = await dialog.showOpenDialog(browserWindow, {
+      defaultPath: join(fileMgr.basePath, 'Bots'),
+      properties: ['openFile'],
+      filters: [{ name: 'Bots', extensions: ['js'] }],
+      message: 'Select a script to load',
+      title: 'Select a script to load',
+    });
+
+    if (res?.canceled || !res?.filePaths?.length) return '';
+
+    const filePath = res.filePaths[0];
+    if (!filePath) return '';
+
+    console.log('Selected script:', filePath);
+    return filePath;
+  } catch {
+    return '';
+  }
 });

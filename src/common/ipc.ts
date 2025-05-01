@@ -116,7 +116,9 @@ type TypedIpcEvents = {
     response: undefined;
   };
   [IPC_EVENTS.LOAD_SCRIPT]: {
-    args: undefined;
+    args: {
+      scriptPath?: string;
+    };
     response: undefined;
   };
   [IPC_EVENTS.SCRIPT_LOADED]: {
@@ -236,5 +238,9 @@ type TypedIpcEvents = {
       username: string;
     };
     response: undefined;
+  };
+  [IPC_EVENTS.MGR_LOAD_SCRIPT]: {
+    args: undefined;
+    response: string;
   };
 };

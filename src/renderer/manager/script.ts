@@ -1,14 +1,16 @@
 import { ipcRenderer } from '../../common/ipc';
 import { IPC_EVENTS } from '../../common/ipc-events';
 import { Logger } from '../../common/logger';
-import type { Account } from '../../common/types';
 import type { ServerData } from '../game/lib/models/Server';
 import { enableElement, disableElement } from '../game/ui-utils';
 
 const logger = Logger.get('ScriptManager');
 
+// TODO: refactor
 const accounts: Account[] = [];
 const servers: ServerData[] = [];
+
+let scriptPath: string | null = null;
 
 const timeouts = new Map<string, NodeJS.Timeout>();
 
@@ -48,6 +50,7 @@ async function startAccount({ username, password }: Account) {
       username,
       password,
       server: serversSelect.value!,
+      scriptPath: scriptPath ?? '',
     })
     .catch(() => {});
 }
@@ -274,8 +277,40 @@ window.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  {
+    const cb = document.querySelector<HTMLInputElement>('#start-with-script')!;
+    const btn = document.querySelector<HTMLButtonElement>('#select-script')!;
+
+    const selectedScriptName = document.querySelector<HTMLSpanElement>(
+      '#selected-script-name',
+    )!;
+
+    cb.addEventListener('change', () => {
+      btn.disabled = !cb.checked;
+
+      if (cb.checked) {
+        enableElement(btn);
+      } else {
+        disableElement(btn);
+        scriptPath = null;
+        selectedScriptName.textContent = '';
+      }
+    });
+
+    btn.addEventListener('click', async () => {
+      if (!cb.checked) return;
+
+      const ret = await ipcRenderer.callMain(IPC_EVENTS.MGR_LOAD_SCRIPT);
+      if (!ret) return;
+
+      console.log('Selected script:', ret);
+      scriptPath = ret;
+    });
+  }
+
   const [accountsOut, serversOut] = await Promise.all([
     ipcRenderer.callMain(IPC_EVENTS.GET_ACCOUNTS),
+    // TODO: move to main
     fetch('https://game.aq.com/game/api/data/servers').then(async (resp) =>
       resp.json(),
     ),

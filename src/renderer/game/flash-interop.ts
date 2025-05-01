@@ -115,6 +115,9 @@ window.loaded = async () => {
   const username = process.argv.find((arg) => arg.startsWith('--username='));
   const password = process.argv.find((arg) => arg.startsWith('--password='));
   const server = process.argv.find((arg) => arg.startsWith('--server='));
+  const scriptPath = process.argv.find((arg) =>
+    arg.startsWith('--scriptPath='),
+  );
 
   if (username && password && server) {
     const [, user] = username.split('=');
@@ -139,6 +142,23 @@ window.loaded = async () => {
     await ipcRenderer
       .callMain(IPC_EVENTS.LOGIN_SUCCESS, { username: user })
       .catch(() => {});
+  }
+
+  if (scriptPath) {
+    try {
+      await bot.waitUntil(() => bot.player.isReady(), null, -1);
+
+      if (window.context.isRunning()) return;
+
+      const [, path] = scriptPath.split('=');
+      const decodedPath = decodeURIComponent(path!);
+
+      console.log('decodedPath', decodedPath);
+
+      await ipcRenderer.callMain(IPC_EVENTS.LOAD_SCRIPT, {
+        scriptPath: decodedPath,
+      });
+    } catch {}
   }
 };
 

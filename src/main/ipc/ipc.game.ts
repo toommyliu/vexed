@@ -202,22 +202,32 @@ ipcMain.answerRenderer(
   },
 );
 
-ipcMain.answerRenderer(IPC_EVENTS.LOAD_SCRIPT, async (_, browserWindow) => {
+ipcMain.answerRenderer(IPC_EVENTS.LOAD_SCRIPT, async (args, browserWindow) => {
   try {
-    const res = await dialog
-      .showOpenDialog(browserWindow, {
-        defaultPath: join(fm.basePath, 'Bots'),
-        properties: ['openFile'],
-        filters: [{ name: 'Bots', extensions: ['js'] }],
-        message: 'Select a script to load',
-        title: 'Select a script to load',
-      })
-      .catch(() => ({ canceled: true, filePaths: [] }));
+    const scriptPath = args?.scriptPath;
 
-    if (res?.canceled || !res?.filePaths?.length) return;
+    let file: string;
+    if (scriptPath) {
+      file = scriptPath;
+    } else {
+      const res = await dialog
+        .showOpenDialog(browserWindow, {
+          defaultPath: join(fm.basePath, 'Bots'),
+          properties: ['openFile'],
+          filters: [{ name: 'Bots', extensions: ['js'] }],
+          message: 'Select a script to load',
+          title: 'Select a script to load',
+        })
+        .catch(() => ({ canceled: true, filePaths: [] }));
 
-    const file = res!.filePaths[0]!;
-    const content = await readFile(file!, 'utf8');
+      if (res?.canceled || !res?.filePaths?.[0]) return;
+
+      file = res.filePaths[0];
+    }
+
+    console.log('Loaded script path:', file);
+
+    const content = await readFile(file, 'utf8');
 
     // the error is thrown in the renderer
     // so we need to listen for it here and handle it
@@ -249,7 +259,7 @@ ipcMain.answerRenderer(IPC_EVENTS.LOAD_SCRIPT, async (_, browserWindow) => {
             );
 
             // ideally, this traces to the line of the (user) script back to
-            // where the error occured, not where the error is thrown internally
+            // where the error occurred, not where the error is thrown internally
             await dialog.showMessageBox(browserWindow, {
               message: `"cmd.${cmd}()" threw an error: ${cmd_msg}`,
               type: 'error',
