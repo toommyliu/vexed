@@ -13,11 +13,14 @@ export const ipcRenderer: TypedRendererIpc = {
 
     return ogIpcRenderer.callMain(channel, data);
   },
-  answerMain: (channel, handler) => ogIpcRenderer.answerMain(channel, handler),
+  answerMain: (channel, handler) =>
+    ogIpcRenderer.answerMain(channel, async (data) => handler(data as any)),
   removeListener: (channel, handler) =>
     ogIpcRenderer.removeListener(channel, handler),
-  on: (channel, handler) => ogIpcRenderer.on(channel, handler),
-  once: (channel, handler) => ogIpcRenderer.once(channel, handler),
+  on: (channel, handler) =>
+    ogIpcRenderer.on(channel, (_event, data) => handler(data)),
+  once: (channel, handler) =>
+    ogIpcRenderer.once(channel, (_event, data) => handler(data)),
   removeAllListeners: (channel) => ogIpcRenderer.removeAllListeners(channel),
 };
 
@@ -30,11 +33,15 @@ export const ipcMain: TypedMainIpc = {
     return ogIpcMain.callRenderer(browserWindow, channel, data);
   },
   answerRenderer: (channel, handler) =>
-    ogIpcMain.answerRenderer(channel, handler),
+    ogIpcMain.answerRenderer(channel, async (data, browserWindow) =>
+      handler(data as TypedIpcEvents[typeof channel]["args"], browserWindow),
+    ),
   removeListener: (channel, handler) =>
     ogIpcMain.removeListener(channel, handler),
-  on: (channel, handler) => ogIpcMain.on(channel, handler),
-  once: (channel, handler) => ogIpcMain.once(channel, handler),
+  on: (channel, handler) =>
+    ogIpcMain.on(channel, (_event, data) => handler(data)),
+  once: (channel, handler) =>
+    ogIpcMain.once(channel, (_event, data) => handler(data)),
   removeAllListeners: (channel) => ogIpcMain.removeAllListeners(channel),
 };
 
@@ -132,28 +139,19 @@ type TypedMainIpc = {
 
   on<K extends keyof TypedIpcEvents>(
     channel: K,
-    listener: (
-      data: TypedIpcEvents[K]["args"],
-      browserWindow: Electron.BrowserWindow,
-    ) => void,
+    listener: (data: TypedIpcEvents[K]["args"]) => void,
   ): void;
 
   once<K extends keyof TypedIpcEvents>(
     channel: K,
-    listener: (
-      data: TypedIpcEvents[K]["args"],
-      browserWindow: Electron.BrowserWindow,
-    ) => void,
+    listener: (data: TypedIpcEvents[K]["args"]) => void,
   ): void;
 
   removeAllListeners(channel: keyof TypedIpcEvents): void;
 
   removeListener<K extends keyof TypedIpcEvents>(
     channel: K,
-    listener: (
-      data: TypedIpcEvents[K]["args"],
-      browserWindow: Electron.BrowserWindow,
-    ) => void,
+    listener: (data: TypedIpcEvents[K]["args"]) => void,
   ): void;
 };
 
@@ -285,6 +283,7 @@ type TypedIpcEvents = {
       playerName: string;
       players: string[];
     };
+    response: undefined;
   };
   [IPC_EVENTS.ARMY_JOIN]: {
     args: {
@@ -310,7 +309,7 @@ type TypedIpcEvents = {
   };
   [IPC_EVENTS.ADD_ACCOUNT]: {
     args: Account;
-    response: { msg: string; success: false } | { success: true };
+    response: { msg: string; success: false } | { msg?: string; success: true };
   };
   [IPC_EVENTS.REMOVE_ACCOUNT]: {
     args: { username: string };

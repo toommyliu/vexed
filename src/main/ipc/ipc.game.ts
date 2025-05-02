@@ -213,11 +213,11 @@ ipcMain.answerRenderer(IPC_EVENTS.LOAD_SCRIPT, async (args, browserWindow) => {
     } else {
       const res = await dialog
         .showOpenDialog(browserWindow, {
-          defaultPath: join(fm.basePath, 'Bots'),
-          properties: ['openFile'],
-          filters: [{ name: 'Bots', extensions: ['js'] }],
-          message: 'Select a script to load',
-          title: 'Select a script to load',
+          defaultPath: join(FileManager.basePath, "Bots"),
+          properties: ["openFile"],
+          filters: [{ name: "Bots", extensions: ["js"] }],
+          message: "Select a script to load",
+          title: "Select a script to load",
         })
         .catch(() => ({ canceled: true, filePaths: [] }));
 
@@ -226,9 +226,9 @@ ipcMain.answerRenderer(IPC_EVENTS.LOAD_SCRIPT, async (args, browserWindow) => {
       file = res.filePaths[0];
     }
 
-    console.log('Loaded script path:', file);
+    console.log("Loaded script path:", file);
 
-    const content = await readFile(file, 'utf8');
+    const content = await readFile(file, "utf8");
 
     // the error is thrown in the renderer
     // so we need to listen for it here and handle it

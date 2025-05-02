@@ -54,13 +54,13 @@ window.addEventListener("DOMContentLoaded", async () => {
       "#scripts-dropdowncontent > button:nth-child(1)",
     ) as HTMLButtonElement;
     btn.addEventListener("click", () => {
-      void ipcRenderer.callMain(IPC_EVENTS.LOAD_SCRIPT);
+      void ipcRenderer.callMain(IPC_EVENTS.LOAD_SCRIPT, {});
     });
 
     document.addEventListener("keydown", (ev) => {
       if (ev.key === "PageUp") {
         ev.preventDefault();
-        void ipcRenderer.callMain(IPC_EVENTS.LOAD_SCRIPT);
+        void ipcRenderer.callMain(IPC_EVENTS.LOAD_SCRIPT, {});
       }
     });
   }

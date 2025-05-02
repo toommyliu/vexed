@@ -123,11 +123,11 @@ window.connection = async ([state]: [string]) => {
 window.loaded = async () => {
   // await ipcRenderer.callMain(IPC_EVENTS.LOADED);
 
-  const username = process.argv.find((arg) => arg.startsWith('--username='));
-  const password = process.argv.find((arg) => arg.startsWith('--password='));
-  const server = process.argv.find((arg) => arg.startsWith('--server='));
+  const usernameArg = process.argv.find((arg) => arg.startsWith("--username="));
+  const passwordArg = process.argv.find((arg) => arg.startsWith("--password="));
+  const serverArg = process.argv.find((arg) => arg.startsWith("--server="));
   const scriptPath = process.argv.find((arg) =>
-    arg.startsWith('--scriptPath='),
+    arg.startsWith("--scriptPath="),
   );
 
   if (usernameArg && passwordArg && serverArg) {
@@ -161,10 +161,10 @@ window.loaded = async () => {
 
       if (window.context.isRunning()) return;
 
-      const [, path] = scriptPath.split('=');
+      const [, path] = scriptPath.split("=");
       const decodedPath = decodeURIComponent(path!);
 
-      console.log('decodedPath', decodedPath);
+      console.log("decodedPath", decodedPath);
 
       await ipcRenderer.callMain(IPC_EVENTS.LOAD_SCRIPT, {
         scriptPath: decodedPath,

@@ -3,7 +3,7 @@ import type { BrowserWindow } from "electron";
 import { ipcMain } from "../../common/ipc";
 import { IPC_EVENTS } from "../../common/ipc-events";
 
-function getPlayerName(browserWindow: BrowserWindow) {}
+// function getPlayerName(browserWindow: BrowserWindow) {}
 
 /**
  * fileName - the name of the config file
@@ -65,7 +65,7 @@ ipcMain.answerRenderer(IPC_EVENTS.ARMY_JOIN, async (args, browserWindow) => {
   console.log("Joined army", args);
 });
 
-ipcMain.answerRenderer(IPC_EVENTS.ARMY_START_JOB, (args, browserWindow) => {});
+// ipcMain.answerRenderer(IPC_EVENTS.ARMY_START_JOB, (args, browserWindow) => {});
 
 ipcMain.answerRenderer(IPC_EVENTS.ARMY_FINISH_JOB, async (_, browserWindow) => {
   console.log("Army finish job");
