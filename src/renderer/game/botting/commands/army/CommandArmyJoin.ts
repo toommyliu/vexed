@@ -2,9 +2,6 @@ import { ipcRenderer } from "../../../../../common/ipc";
 import { IPC_EVENTS } from "../../../../../common/ipc-events";
 import { Command } from "../../command";
 
-const getRandInt = (min: number, max: number) =>
-  Math.floor(Math.random() * (max - min + 1)) + min;
-
 export class CommandArmyJoin extends Command {
   public mapName!: string;
 
@@ -12,20 +9,9 @@ export class CommandArmyJoin extends Command {
 
   public padName!: string;
 
-  private async afkHandler() {
-    console.log("anti-afk triggered");
-    this.bot.player.walkTo(getRandInt(150, 700), getRandInt(320, 450));
-    await this.bot.sleep(5_000);
-  }
-
   public override async execute() {
-    const fn_afk = this.afkHandler.bind(this);
+    console.log("Army join command");
 
-    const cleanup = () => this.bot.off("afk", fn_afk);
-    this.bot.on("afk", fn_afk);
-    this.ctx.once("end", cleanup);
-
-    // Set up listener FIRST before any actions
     const allJoinedPromise = new Promise<void>((resolve) => {
       const listener = () => {
         console.log("All players have joined");
@@ -33,13 +19,11 @@ export class CommandArmyJoin extends Command {
         resolve();
       };
 
+      console.log("Registered listener for army ready");
       ipcRenderer.on(IPC_EVENTS.ARMY_READY, listener);
     });
 
-    // Then join the map
     await this.bot.world.join(this.mapName, this.cellName, this.padName);
-
-    // Add a small delay to ensure IPC listener registration
     await this.bot.sleep(100);
 
     // Then notify join
@@ -48,9 +32,6 @@ export class CommandArmyJoin extends Command {
 
     // Wait until all players have joined
     await allJoinedPromise;
-
-    cleanup();
-    this.ctx.off("end", cleanup);
   }
 
   public override toString() {

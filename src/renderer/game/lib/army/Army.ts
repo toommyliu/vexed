@@ -41,12 +41,12 @@ export class Army {
    * Initializes everything needed to begin armying.
    */
   public async init(): Promise<void> {
+    // Load the config
     await this.config.load();
 
     console.log("Army: Config loaded", this.config.getAll());
 
     const playerCount = this.config.get("PlayerCount");
-
     if (!playerCount) {
       console.warn("Army: PlayerCount not set in config file.");
       return;
@@ -73,17 +73,25 @@ export class Army {
     };
 
     if (this.isLeader()) {
+      // Init army for everyone else
       console.log("Army: Leader");
       await ipcRenderer.callMain(IPC_EVENTS.ARMY_INIT, {
         ...args,
         players: Array.from(this.players),
       });
     } else {
+      // Join the army
       console.log("Army: Follower");
       await ipcRenderer.callMain(IPC_EVENTS.ARMY_JOIN, args);
     }
 
     this.isInitialized = true;
+
+    const fn = this.onAfk.bind(this);
+    this.bot.on("afk", fn);
+    window.context.once("end", () => {
+      this.bot.off("afk", fn);
+    });
   }
 
   /**
@@ -123,5 +131,14 @@ export class Army {
     }
 
     return playerIndex + 1;
+  }
+
+  private async onAfk() {
+    console.log("Army: Anti-AFK triggered");
+    this.bot.player.walkTo(
+      Math.floor(Math.random() * (700 - 150 + 1)) + 150,
+      Math.floor(Math.random() * (450 - 320 + 1)) + 320,
+    );
+    await this.bot.sleep(5_000);
   }
 }

@@ -5,18 +5,13 @@ import { IPC_EVENTS } from "../../common/ipc-events";
 
 // function getPlayerName(browserWindow: BrowserWindow) {}
 
-/**
- * fileName - the name of the config file
- * - players: { playerN: { window: BrowserWindow, name: string }}
- * - done: Set<string> //
- */
 const map: Map<
-  string,
+  string, // config fileName
   {
-    windows: Map<string, BrowserWindow>;
-    done: Set<string>;
-    playerList: Set<string>;
-    leader: string;
+    done: Set<string>; // set of players done
+    leader: string; // playerName of the leader
+    playerList: Set<string>; // set of players
+    windows: Map<string, BrowserWindow>; // playerName -> browser window
   }
 > = new Map();
 const windowToPlayerMap: WeakMap<BrowserWindow, string> = new WeakMap();
@@ -32,10 +27,10 @@ ipcMain.answerRenderer(IPC_EVENTS.ARMY_INIT, (args, browserWindow) => {
   windowToPlayerMap.set(browserWindow, playerName);
 
   map.set(fileName, {
-    windows, // map of players -> browser window
-    done: new Set(), // set of players done
-    playerList: new Set(players), // list of players
-    leader: playerName, // the leader of the army
+    windows,
+    done: new Set(),
+    playerList: new Set(players),
+    leader: playerName,
   });
 
   console.log("Army init done", map);
@@ -43,7 +38,10 @@ ipcMain.answerRenderer(IPC_EVENTS.ARMY_INIT, (args, browserWindow) => {
 
 // Follower
 ipcMain.answerRenderer(IPC_EVENTS.ARMY_JOIN, async (args, browserWindow) => {
+  const { fileName, playerName } = args;
+
   let tmp = 0;
+
   while (!map.has(args.fileName)) {
     if (tmp % 20 === 0) {
       console.log("Waiting for leader to initialize army");
@@ -55,8 +53,6 @@ ipcMain.answerRenderer(IPC_EVENTS.ARMY_JOIN, async (args, browserWindow) => {
 
     tmp++;
   }
-
-  const { fileName, playerName } = args;
 
   const { windows } = map.get(fileName)!;
   windows.set(playerName, browserWindow);

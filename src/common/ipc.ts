@@ -181,7 +181,9 @@ type TypedIpcEvents = {
     response: undefined;
   };
   [IPC_EVENTS.SCRIPT_LOADED]: {
-    args: undefined;
+    args: {
+      fromManager: boolean;
+    };
     response: undefined;
   };
   [IPC_EVENTS.TOGGLE_DEV_TOOLS]: {

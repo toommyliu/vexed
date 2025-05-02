@@ -21,13 +21,30 @@ const DEFAULT_PADS = [
   "Down",
 ] as const;
 
-ipcRenderer.answerMain(IPC_EVENTS.SCRIPT_LOADED, () => {
+ipcRenderer.answerMain(IPC_EVENTS.SCRIPT_LOADED, (args) => {
   {
     const btn = document.querySelector(
       "#scripts-dropdowncontent > button:nth-child(2)",
     ) as HTMLButtonElement;
 
     enableElement(btn);
+
+    btn.textContent = "Start";
+
+    if (
+      args?.fromManager &&
+      window.context.commands.length > 0 &&
+      !window.context.isRunning()
+    ) {
+      const onEnd = () => {
+        btn.textContent = "Start";
+        window.context.removeListener("end", onEnd);
+      };
+
+      window.context.on("end", onEnd);
+      void window.context.start();
+      btn.textContent = "Stop";
+    }
   }
 
   window.context.overlay.updateCommands(
@@ -89,7 +106,7 @@ window.addEventListener("DOMContentLoaded", async () => {
       }
     };
 
-    btn.onclick = toggleScript;
+    btn.addEventListener("click", toggleScript);
 
     document.addEventListener("keydown", (ev) => {
       if (ev.key === "PageDown") {

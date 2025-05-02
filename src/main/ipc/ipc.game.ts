@@ -208,8 +208,10 @@ ipcMain.answerRenderer(IPC_EVENTS.LOAD_SCRIPT, async (args, browserWindow) => {
     const scriptPath = args?.scriptPath;
 
     let file: string;
+    let fromManager = false;
     if (scriptPath) {
       file = scriptPath;
+      fromManager = true;
     } else {
       const res = await dialog
         .showOpenDialog(browserWindow, {
@@ -284,7 +286,9 @@ ipcMain.answerRenderer(IPC_EVENTS.LOAD_SCRIPT, async (args, browserWindow) => {
 
     // load
     await browserWindow.webContents.executeJavaScript(content);
-    await ipcMain.callRenderer(browserWindow, IPC_EVENTS.SCRIPT_LOADED);
+    await ipcMain.callRenderer(browserWindow, IPC_EVENTS.SCRIPT_LOADED, {
+      fromManager,
+    });
   } catch {}
 
   browserWindow.webContents.removeAllListeners("console-message");
