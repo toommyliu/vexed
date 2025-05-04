@@ -23,6 +23,8 @@ export abstract class ArmyCommand extends Command {
     // Call the action
     await action();
 
+    // Need to wait for the listener to be registered before notifying,
+    // Else we might miss the event or finish too early
     while (!this.registeredListener) {
       await this.bot.sleep(100);
     }

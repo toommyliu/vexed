@@ -3,18 +3,18 @@ import type { BrowserWindow } from "electron";
 import { ipcMain } from "../../common/ipc";
 import { IPC_EVENTS } from "../../common/ipc-events";
 
-// function getPlayerName(browserWindow: BrowserWindow) {}
-
 const map: Map<
   string, // config fileName
   {
     done: Set<string>; // set of players done
     leader: string; // playerName of the leader
-    playerList: Set<string>; // set of players
+    playerList: Set<string>; // set of playerName, including leader
     windows: Map<string, BrowserWindow>; // playerName -> browser window
   }
 > = new Map();
 const windowToPlayerMap: WeakMap<BrowserWindow, string> = new WeakMap();
+
+// function getPlayerName(browserWindow: BrowserWindow) {}
 
 // Leader
 ipcMain.answerRenderer(IPC_EVENTS.ARMY_INIT, (args, browserWindow) => {
@@ -65,7 +65,7 @@ ipcMain.answerRenderer(IPC_EVENTS.ARMY_JOIN, async (args, browserWindow) => {
 
 ipcMain.answerRenderer(IPC_EVENTS.ARMY_FINISH_JOB, async (_, browserWindow) => {
   console.log("Army finish job");
-  browserWindow.webContents.send(IPC_EVENTS.ARMY_FINISH_JOB);
+  // browserWindow.webContents.send(IPC_EVENTS.ARMY_FINISH_JOB);
 
   const playerName = windowToPlayerMap.get(browserWindow);
   if (!playerName) {
@@ -94,9 +94,9 @@ ipcMain.answerRenderer(IPC_EVENTS.ARMY_FINISH_JOB, async (_, browserWindow) => {
   let tmp = 0;
 
   while (doneSet.size !== playerList.size) {
-    if (tmp % 20 === 0) {
+    if (tmp % 1_000 === 0) {
       console.log(
-        `Waiting for all players to finish job: ${Array.from(playerList)
+        `Leader: Waiting for all players to finish job: ${Array.from(playerList)
           .filter((player) => !doneSet.has(player))
           .join(", ")} (${doneSet.size}/${playerList.size})`,
       );

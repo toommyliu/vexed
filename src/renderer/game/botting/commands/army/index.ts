@@ -4,6 +4,7 @@ import { CommandArmyInit } from "./CommandArmyInit";
 import { CommandArmyJoin } from "./CommandArmyJoin";
 import { CommandArmyKill } from "./CommandArmyKill";
 import { CommandArmySetConfigCommand } from "./CommandArmySetConfig";
+import { CommandExecuteWithArmy } from "./CommandExecuteWithArmy";
 
 export const armyCommands = {
   army_init() {
@@ -49,6 +50,15 @@ export const armyCommands = {
   },
   army_kill() {
     const cmd = new CommandArmyKill();
+    window.context.addCommand(cmd);
+  },
+  execute_with_army(fn: () => Promise<void>) {
+    if (!fn || typeof fn !== "function") {
+      throw new ArgsError("fn is required");
+    }
+
+    const cmd = new CommandExecuteWithArmy();
+    cmd.fn = fn;
     window.context.addCommand(cmd);
   },
 };
