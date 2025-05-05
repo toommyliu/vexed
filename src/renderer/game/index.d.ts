@@ -82,12 +82,6 @@ declare global {
     inventoryGetSlots(): number;
     inventoryGetUsedSlots(): number;
     inventoryEquip(key: number | string): boolean;
-    inventoryEquipConsumable(
-      itemId: number,
-      sDesc: string,
-      sFile: string,
-      sName: string,
-    ): boolean;
 
     playerJoinMap(map: string, cell: string | null, pad: string | null): void;
     playerGetMap(): string;

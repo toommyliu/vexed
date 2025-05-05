@@ -78,19 +78,7 @@ export class Inventory {
       this.bot.world.isActionAvailable(GameAction.EquipItem),
     );
 
-    if (item.category === "Item") {
-      // potion / consumable
-      this.bot.flash.call(() =>
-        swf.inventoryEquipConsumable(
-          item.id,
-          item.description,
-          item.fileLink,
-          item.name,
-        ),
-      );
-    } else {
-      this.bot.flash.call(() => swf.inventoryEquip(item.id));
-    }
+    this.bot.flash.call(() => swf.inventoryEquip(itemKey));
 
     await this.bot.waitUntil(
       () => Boolean(this.get(itemKey)?.isEquipped()),
