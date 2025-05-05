@@ -99,7 +99,14 @@ export class AutoRelogin {
 
         this.bot.auth.connectTo(server.name);
 
-        await this.bot.waitUntil(() => this.bot.player.isReady());
+        await this.bot.waitUntil(() => this.bot.player.isReady(), null, 25);
+
+        // TODO: needs further testing
+        // e.g. still stuck in blue flame
+        if (!this.bot.player.isReady()) {
+          console.warn("Player not ready after login, retrying...");
+          return;
+        }
 
         // restore state
         if (og_lagKiller) {
