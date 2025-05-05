@@ -5,16 +5,26 @@ import { IPC_EVENTS } from "../../../../common/ipc-events";
 import { Config } from "../../botting/util/Config";
 import type { Bot } from "../Bot";
 
+// Terminology:
+// Army/group: a group of players working together
+// Leader: player who "dictates" the actions of the group
+// Follower: player who follows the leader's actions
+
 export class Army {
   /**
-   * The config file for this army.
+   * The config file for this group.
    */
   public config!: Config;
 
   /**
-   * The players in this army.
+   * The players in this group.
    */
   public players: Set<string> = new Set();
+
+  /**
+   * The room number to join.
+   */
+  public roomNumber!: string;
 
   /**
    * Whether the army is initialized.
@@ -51,6 +61,14 @@ export class Army {
       console.warn("Army: PlayerCount not set in config file.");
       return;
     }
+
+    const roomNumber = this.config.get("RoomNumber");
+    if (!roomNumber) {
+      console.warn("Army: RoomNumber not set in config file.");
+      return;
+    }
+
+    this.roomNumber = roomNumber;
 
     const playerCountNum = Number.parseInt(playerCount, 10);
     if (Number.isNaN(playerCountNum)) {

@@ -9,7 +9,16 @@ export class CommandArmyJoin extends ArmyCommand {
 
   public override async execute(): Promise<void> {
     await this.executeWithArmy(async () => {
-      await this.bot.world.join(this.mapName, this.cellName, this.padName);
+      // mapName-roomNumber
+
+      const split = this.mapName.split("-");
+      const mapName = split[0];
+      const roomNumber = split[1] ?? this.bot.army.roomNumber;
+      const mapNameStr = `${mapName}-${roomNumber}`;
+
+      console.log("mapNameStr", mapNameStr);
+
+      await this.bot.world.join(mapNameStr, this.cellName, this.padName);
     });
   }
 

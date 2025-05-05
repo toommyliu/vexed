@@ -245,23 +245,23 @@ export class World {
   ): Promise<void> {
     await exitFromCombat();
 
-    await this.bot.sleep(1_000);
-
     await this.bot.waitUntil(
       () => this.isActionAvailable(GameAction.Transfer),
       null,
       15,
     );
 
-    let map_str = mapName;
+    let mapStr = mapName;
     // eslint-disable-next-line prefer-const
-    let [map_name, map_number] = map_str.split("-");
+    let [map_name, map_number] = mapStr.split("-");
 
+    // Already in the map, jump to the cell and pad
     if (this.name.toLowerCase() === map_name!.toLowerCase()) {
       await this.jump(cell, pad);
       return;
     }
 
+    // Game doesn't like 1e9 or 1e99 anymore...
     if (
       map_number === "1e9" ||
       map_number === "1e99" ||
@@ -272,10 +272,9 @@ export class World {
       map_number = "100000";
     }
 
-    map_str = `${map_name}${map_number ? `-${map_number}` : ""}`;
+    mapStr = `${map_name}${map_number ? `-${map_number}` : ""}`;
 
-    await this.bot.combat.exit();
-    this.bot.flash.call(() => swf.playerJoinMap(map_str, cell, pad));
+    this.bot.flash.call(() => swf.playerJoinMap(mapStr, cell, pad));
     await this.bot.waitUntil(
       () => this.name.toLowerCase() === map_name!.toLowerCase(),
       null,
@@ -283,6 +282,7 @@ export class World {
     );
     await this.bot.waitUntil(() => !this.isLoading(), null, 40);
 
+    // Still not in the correct cell/pad, jump
     if (
       this.bot.player.cell.toLowerCase() !== cell.toLowerCase() ||
       this.bot.player.pad.toLowerCase() !== pad.toLowerCase()
