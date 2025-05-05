@@ -48,8 +48,33 @@ export const armyCommands = {
     cmd.loadoutName = loadoutName;
     window.context.addCommand(cmd);
   },
-  army_kill() {
+  army_kill_for(
+    targetName: string,
+    itemName: string,
+    qty: number,
+    isTemp: boolean,
+  ) {
+    if (!targetName || typeof targetName !== "string") {
+      throw new ArgsError("targetName is required");
+    }
+
+    if (!itemName || typeof itemName !== "string") {
+      throw new ArgsError("itemName is required");
+    }
+
+    if (!qty || typeof qty !== "number") {
+      throw new ArgsError("qty is required");
+    }
+
+    if (typeof isTemp !== "boolean") {
+      throw new ArgsError("isTemp is required");
+    }
+
     const cmd = new CommandArmyKill();
+    cmd.targetName = targetName;
+    cmd.itemName = itemName;
+    cmd.qty = qty;
+    cmd.isTemp = isTemp;
     window.context.addCommand(cmd);
   },
   execute_with_army(fn: () => Promise<void>) {

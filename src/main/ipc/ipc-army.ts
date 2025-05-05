@@ -66,15 +66,15 @@ ipcMain.answerRenderer(IPC_EVENTS.ARMY_INIT, (args, browserWindow) => {
 ipcMain.answerRenderer(IPC_EVENTS.ARMY_JOIN, async (args, browserWindow) => {
   const { fileName, playerName } = args;
 
-  let tmp = 0;
+  let iter = 0;
 
   while (!map.has(args.fileName)) {
-    if (tmp % 20 === 0) {
+    if (iter % 100 === 0) {
       console.log(`${playerName} waiting for army init...`);
     }
 
     await sleep(100);
-    tmp++;
+    iter++;
   }
 
   await sleep(1_000);
@@ -119,10 +119,10 @@ ipcMain.answerRenderer(IPC_EVENTS.ARMY_FINISH_JOB, async (_, browserWindow) => {
     return;
   }
 
-  let tmp = 0;
+  let iter = 0;
 
   while (doneSet.size !== playerList.size) {
-    if (tmp % 1_000 === 0) {
+    if (iter % 100 === 0) {
       console.log(
         `Leader: Waiting for all players to finish job: ${Array.from(playerList)
           .filter((player) => !doneSet.has(player))
@@ -130,11 +130,9 @@ ipcMain.answerRenderer(IPC_EVENTS.ARMY_FINISH_JOB, async (_, browserWindow) => {
       );
     }
 
-    await new Promise((resolve) => {
-      setTimeout(resolve, 100);
-    });
+    await sleep(100);
 
-    tmp++;
+    iter++;
   }
 
   console.log("All players are done and ready");

@@ -1,46 +1,45 @@
-import { Command } from "../../command";
+import { interval } from "../../../../../common/interval";
+import { ArmyCommand } from "./ArmyCommand";
 
-export class CommandArmyKill extends Command {
+export class CommandArmyKill extends ArmyCommand {
+  public targetName!: string;
+
+  public itemName!: string;
+
+  public qty!: number;
+
+  public isTemp = false;
+
   public override async execute() {
-    // if (!this.bot.army.isInitialized) {
-    //   console.warn("Army is not initialized");
-    //   return;
-    // }
-    // for (const skillId of [1, 2, 3]) {
-    //   await this.bot.combat.useSkill(skillId, true);
-    //   await this.bot.sleep(1_000);
-    // }
-    // console.log("Buff done");
-    // this.bot.settings.infiniteRange = true;
-    // this.bot.settings.lagKiller = true;
-    // this.bot.settings.enemyMagnet = true;
-    // this.bot.settings.counterAttack = true;
-    // console.log("Settings done");
-    // if (this.bot.player.className === "ArchPaladin") {
-    //   await this.bot.combat.useSkill(2, true);
-    // } else {
-    //   await this.bot.sleep(200);
-    // }
-    // let killDone = false;
-    // this.bot.on("monsterDeath", async () => {
-    //   if (!killDone) {
-    //     killDone = true;
-    //     const done = await this.bot.army.sendDone();
-    //     console.log("Army kill done success:", done);
-    //   }
-    // });
-    // while (!(await this.bot.army.isAllDone())) {
-    //   await this.bot.combat.kill("*");
-    // }
-    // console.log("Kill done");
-    // this.bot.settings.infiniteRange = false;
-    // this.bot.settings.lagKiller = false;
-    // this.bot.settings.enemyMagnet = false;
-    // this.bot.settings.counterAttack = false;
-    // console.log("Kill with army done");
+    await this.executeWithArmy(
+      async () =>
+        new Promise<void>((resolve) => {
+          void interval(async (_, stop) => {
+            if (this.allDone) {
+              console.log("allDone: stopping");
+              resolve();
+              stop();
+              return;
+            }
+
+            await this.bot.combat.kill(this.targetName);
+
+            if (!this.isDone) {
+              const done = this.isTemp
+                ? this.bot.tempInventory.contains(this.itemName, this.qty)
+                : this.bot.inventory.contains(this.itemName, this.qty);
+
+              if (done) {
+                await this.sendDone();
+                console.log("this player is done");
+              }
+            }
+          }, 150);
+        }),
+    );
   }
 
   public override toString() {
-    return "Army kill";
+    return `Army kill for ${this.isTemp ? "temp item" : "item:"} ${this.itemName} (${this.qty})`;
   }
 }
