@@ -1,4 +1,5 @@
 import { ArgsError } from "../../ArgsError";
+import { CommandArmyEquipItem } from "./CommandArmyEquipItem";
 import { CommandArmyEquipLoadout } from "./CommandArmyEquipLoadout";
 import { CommandArmyInit } from "./CommandArmyInit";
 import { CommandArmyJoin } from "./CommandArmyJoin";
@@ -84,6 +85,15 @@ export const armyCommands = {
 
     const cmd = new CommandExecuteWithArmy();
     cmd.fn = fn.bind({ allDone: cmd.allDone });
+    window.context.addCommand(cmd);
+  },
+  army_equip_item(itemName: string) {
+    if (!itemName || typeof itemName !== "string") {
+      throw new ArgsError("itemName is required");
+    }
+
+    const cmd = new CommandArmyEquipItem();
+    cmd.itemName = itemName;
     window.context.addCommand(cmd);
   },
 };
