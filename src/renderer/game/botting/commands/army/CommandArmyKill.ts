@@ -1,4 +1,5 @@
 import { interval } from "../../../../../common/interval";
+import type { KillOptions } from "../../../lib/Combat";
 import { ArmyCommand } from "./ArmyCommand";
 
 export class CommandArmyKill extends ArmyCommand {
@@ -9,6 +10,8 @@ export class CommandArmyKill extends ArmyCommand {
   public qty?: number;
 
   public isTemp = false;
+
+  public options!: Partial<KillOptions>;
 
   public override async execute() {
     await this.executeWithArmy(
@@ -22,7 +25,7 @@ export class CommandArmyKill extends ArmyCommand {
               return;
             }
 
-            await this.bot.combat.kill(this.targetName);
+            await this.bot.combat.kill(this.targetName, this.options);
 
             if (!this.isDone) {
               // If no item checking is needed, mark as done

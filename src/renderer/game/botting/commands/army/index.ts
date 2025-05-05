@@ -1,3 +1,4 @@
+import { KillOptions } from "../../../lib/Combat";
 import { ArgsError } from "../../ArgsError";
 import { CommandArmyEquipItem } from "./CommandArmyEquipItem";
 import { CommandArmyInit } from "./CommandArmyInit";
@@ -39,13 +40,14 @@ export const armyCommands = {
     cmd.padName = pad;
     window.context.addCommand(cmd);
   },
-  army_kill(targetName: string) {
+  army_kill(targetName: string, options?: Partial<KillOptions>) {
     if (!targetName || typeof targetName !== "string") {
       throw new ArgsError("targetName is required");
     }
 
     const cmd = new CommandArmyKill();
     cmd.targetName = targetName;
+    cmd.options = options ?? {};
     window.context.addCommand(cmd);
   },
   army_kill_for(
@@ -53,6 +55,7 @@ export const armyCommands = {
     itemName: string,
     qty: number,
     isTemp: boolean,
+    options?: Partial<KillOptions>,
   ) {
     if (!targetName || typeof targetName !== "string") {
       throw new ArgsError("targetName is required");
@@ -75,6 +78,7 @@ export const armyCommands = {
     cmd.itemName = itemName;
     cmd.qty = qty;
     cmd.isTemp = isTemp;
+    cmd.options = options ?? {};
     window.context.addCommand(cmd);
   },
   execute_with_army(fn: () => Promise<void>) {
