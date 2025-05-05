@@ -58,7 +58,7 @@ export const armyCommands = {
     }
 
     const cmd = new CommandExecuteWithArmy();
-    cmd.fn = fn;
+    cmd.fn = fn.bind({ allDone: cmd.allDone });
     window.context.addCommand(cmd);
   },
 };

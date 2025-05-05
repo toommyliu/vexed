@@ -5,6 +5,11 @@ import { Command } from "../../command";
 export abstract class ArmyCommand extends Command {
   private registeredListener = false;
 
+  /**
+   * Whether all players have completed the action.
+   */
+  public allDone = false;
+
   protected async executeWithArmy(action: () => Promise<void>): Promise<void> {
     console.log("Executing army command");
 
@@ -20,19 +25,21 @@ export abstract class ArmyCommand extends Command {
       this.registeredListener = true;
     });
 
-    // Call the action
-    await action();
-
     // Need to wait for the listener to be registered before notifying,
     // Else we might miss the event or finish too early
     while (!this.registeredListener) {
       await this.bot.sleep(100);
     }
 
+    // Call the action
+    await action();
+
+    console.log("Notifying action completion...");
     await ipcRenderer.callMain(IPC_EVENTS.ARMY_FINISH_JOB);
     console.log("Notified action completion, waiting for others...");
 
     // Wait until all players have completed the action
     await allReadyPromise;
+    this.allDone = true;
   }
 }

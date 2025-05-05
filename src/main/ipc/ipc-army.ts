@@ -3,18 +3,41 @@ import type { BrowserWindow } from "electron";
 import { ipcMain } from "../../common/ipc";
 import { IPC_EVENTS } from "../../common/ipc-events";
 
+type PlayerStatus = {
+  done: Set<string>; // set of players done
+  leader: string; // playerName of the leader
+  playerList: Set<string>; // set of playerName, including leader
+  windows: Map<string, BrowserWindow>; // playerName -> browser window
+};
 const map: Map<
   string, // config fileName
-  {
-    done: Set<string>; // set of players done
-    leader: string; // playerName of the leader
-    playerList: Set<string>; // set of playerName, including leader
-    windows: Map<string, BrowserWindow>; // playerName -> browser window
-  }
+  PlayerStatus
 > = new Map();
 const windowToPlayerMap: WeakMap<BrowserWindow, string> = new WeakMap();
 
 // function getPlayerName(browserWindow: BrowserWindow) {}
+
+// Cleanup map to get a clean state (useful for testing when reloading the window)
+const handleCleanup = (
+  browserWindow: BrowserWindow,
+  configFileName?: string,
+) => {
+  // only useful for Leader?
+  const _cleanup = () => {
+    if (configFileName) {
+      map.delete(configFileName);
+      console.log(`Leader disconnected, cleaned up: ${configFileName}`);
+    }
+  };
+
+  browserWindow.webContents.once("did-finish-load", _cleanup);
+  browserWindow.once("close", _cleanup);
+};
+
+const sleep = async (ms: number) =>
+  new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 
 // Leader
 ipcMain.answerRenderer(IPC_EVENTS.ARMY_INIT, (args, browserWindow) => {
@@ -26,12 +49,15 @@ ipcMain.answerRenderer(IPC_EVENTS.ARMY_INIT, (args, browserWindow) => {
   windows.set(playerName, browserWindow);
   windowToPlayerMap.set(browserWindow, playerName);
 
-  map.set(fileName, {
-    windows,
-    done: new Set(),
-    playerList: new Set(players),
+  const playerStatus = {
+    done: new Set<string>(),
     leader: playerName,
-  });
+    playerList: new Set(players),
+    windows,
+  };
+  map.set(fileName, playerStatus);
+
+  handleCleanup(browserWindow, fileName);
 
   console.log("Army init done", map);
 });
@@ -44,19 +70,20 @@ ipcMain.answerRenderer(IPC_EVENTS.ARMY_JOIN, async (args, browserWindow) => {
 
   while (!map.has(args.fileName)) {
     if (tmp % 20 === 0) {
-      console.log("Waiting for leader to initialize army");
+      console.log(`${playerName} waiting for army init...`);
     }
 
-    await new Promise((resolve) => {
-      setTimeout(resolve, 100);
-    });
-
+    await sleep(100);
     tmp++;
   }
+
+  await sleep(1_000);
 
   const { windows } = map.get(fileName)!;
   windows.set(playerName, browserWindow);
   windowToPlayerMap.set(browserWindow, playerName);
+
+  handleCleanup(browserWindow);
 
   console.log("Joined army", args);
 });
@@ -64,7 +91,6 @@ ipcMain.answerRenderer(IPC_EVENTS.ARMY_JOIN, async (args, browserWindow) => {
 // ipcMain.answerRenderer(IPC_EVENTS.ARMY_START_JOB, (args, browserWindow) => {});
 
 ipcMain.answerRenderer(IPC_EVENTS.ARMY_FINISH_JOB, async (_, browserWindow) => {
-  console.log("Army finish job");
   // browserWindow.webContents.send(IPC_EVENTS.ARMY_FINISH_JOB);
 
   const playerName = windowToPlayerMap.get(browserWindow);
@@ -72,6 +98,8 @@ ipcMain.answerRenderer(IPC_EVENTS.ARMY_FINISH_JOB, async (_, browserWindow) => {
     console.warn("No player name found for browser window");
     return;
   }
+
+  console.log(`Player ${playerName} finished job`);
 
   // Update the map to mark this player as done
   const fileName = [...map.keys()].find((fileName) =>
