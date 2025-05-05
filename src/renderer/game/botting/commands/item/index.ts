@@ -1,6 +1,7 @@
 import { ArgsError } from "../../ArgsError";
 import { CommandBuy } from "./CommandBuy";
 import { CommandDeposit } from "./CommandDeposit";
+import { CommandEquipItem } from "./CommandEquipItem";
 import { CommandGetMapItem } from "./CommandGetMapItem";
 import { CommandPickup } from "./CommandPickup";
 import { CommandRegisterBoost } from "./CommandRegisterBoost";
@@ -144,6 +145,15 @@ export const itemCommands = {
 
     const cmd = new CommandUnregisterBoost();
     cmd.item = item;
+    window.context.addCommand(cmd);
+  },
+  equip_item(item: string) {
+    if (!item || typeof item !== "string") {
+      throw new ArgsError("item is required");
+    }
+
+    const cmd = new CommandEquipItem();
+    cmd.itemName = item;
     window.context.addCommand(cmd);
   },
 };
