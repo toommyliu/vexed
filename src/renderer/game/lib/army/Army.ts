@@ -135,10 +135,7 @@ export class Army {
 
   private async onAfk() {
     console.log("Army: Anti-AFK triggered");
-    this.bot.player.walkTo(
-      Math.floor(Math.random() * (700 - 150 + 1)) + 150,
-      Math.floor(Math.random() * (450 - 320 + 1)) + 320,
-    );
-    await this.bot.sleep(5_000);
+    await this.bot.sleep(1_500);
+    this.bot.packets.sendServer("%xt%zm%afk%1%false%");
   }
 }
