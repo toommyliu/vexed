@@ -338,14 +338,14 @@ export class Settings {
     this.#updateOption(this.#optionDisableCollisions!, on);
   }
 
-  #updateOption(option: HTMLElement, value: boolean | number | string): void {
-    switch (option.tagName) {
+  #updateOption(el: HTMLElement, value: boolean | number | string): void {
+    switch (el.tagName) {
       case "INPUT":
-        (option as HTMLInputElement).value = String(value);
+        (el as HTMLInputElement).value = String(value);
         break;
-      case 'BUTTON':
-        option.setAttribute('data-state', value ? 'true' : 'false');
-        option.classList.toggle('option-active', Boolean(value));
+      case "BUTTON":
+        el.dataset["state"] = value.toString();
+        el.classList.toggle("option-active", Boolean(value));
         break;
     }
   }

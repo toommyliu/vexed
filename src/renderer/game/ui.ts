@@ -5,7 +5,7 @@ import { IPC_EVENTS } from "../../common/ipc-events";
 import { startAutoAggro, stopAutoAggro } from "./autoaggro";
 import { Bot } from "./lib/Bot";
 import { enableElement } from "./ui-utils";
-import { addCheckbox } from "./util/addCheckbox";
+import { createToggleCheckbox } from "./util/createToggleCheckbox";
 
 const bot = Bot.getInstance();
 const dropdowns = new Map<string, HTMLElement>();
@@ -123,7 +123,7 @@ window.addEventListener("DOMContentLoaded", async () => {
 
     const label = btn.querySelector("span") as HTMLSpanElement;
 
-    addCheckbox(
+    createToggleCheckbox(
       btn,
       () => {
         window.context.overlay.toggle();
@@ -221,7 +221,7 @@ window.addEventListener("DOMContentLoaded", async () => {
       "#autoaggro-dropdowncontent > button:nth-child(1)",
     ) as HTMLButtonElement;
 
-    addCheckbox(btn, (on) => {
+    createToggleCheckbox(btn, (on) => {
       if (on) {
         startAutoAggro();
       } else {
@@ -372,7 +372,7 @@ window.addEventListener("DOMContentLoaded", async () => {
         _option.addEventListener("input", handleWalkSpeed);
         _option.addEventListener("change", handleWalkSpeed);
       } else {
-        addCheckbox(option, (on) => {
+        createToggleCheckbox(option, (on) => {
           switch (option.id) {
             case "option-infinite-range":
               bot.settings.infiniteRange = on;

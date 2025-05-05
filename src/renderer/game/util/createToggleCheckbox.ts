@@ -7,14 +7,15 @@ checkmark.style.transform = "translateY(-50%)";
 checkmark.style.pointerEvents = "none";
 checkmark.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
 
-export function addCheckbox(
+export function createToggleCheckbox(
   el: HTMLElement,
   fn: (on: boolean) => void,
   defaultChecked: boolean = false,
 ) {
   el.style.position = "relative";
 
-  el.append(checkmark);
+  const elementCheckmark = checkmark.cloneNode(true) as HTMLElement;
+  el.append(elementCheckmark);
   el.dataset["state"] = defaultChecked.toString();
 
   if (defaultChecked) {
