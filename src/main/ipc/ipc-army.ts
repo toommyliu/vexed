@@ -68,7 +68,7 @@ ipcMain.answerRenderer(IPC_EVENTS.ARMY_JOIN, async (args, browserWindow) => {
 
   let iter = 0;
 
-  while (!map.has(args.fileName)) {
+  while (!map.has(fileName)) {
     if (iter % 100 === 0) {
       console.log(`${playerName} waiting for army init...`);
     }
@@ -121,7 +121,7 @@ ipcMain.answerRenderer(IPC_EVENTS.ARMY_FINISH_JOB, async (_, browserWindow) => {
 
   let iter = 0;
 
-  while (doneSet.size !== playerList.size) {
+  while (doneSet.size !== playerList.size && map.has(fileName)) {
     if (iter % 100 === 0) {
       console.log(
         `Leader: Waiting for all players to finish job: ${Array.from(playerList)
@@ -133,6 +133,11 @@ ipcMain.answerRenderer(IPC_EVENTS.ARMY_FINISH_JOB, async (_, browserWindow) => {
     await sleep(100);
 
     iter++;
+  }
+
+  if (!map.has(fileName)) {
+    console.log("(2) Map has been cleared, exiting");
+    return;
   }
 
   console.log("All players are done and ready");
