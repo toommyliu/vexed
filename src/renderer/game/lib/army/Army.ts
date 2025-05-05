@@ -63,12 +63,12 @@ export class Army {
     }
 
     const roomNumber = this.config.get("RoomNumber");
-    if (!roomNumber) {
+    if (roomNumber) {
+      this.roomNumber = roomNumber;
+    } else {
       console.warn("Army: RoomNumber not set in config file.");
       return;
     }
-
-    this.roomNumber = roomNumber;
 
     const playerCountNum = Number.parseInt(playerCount, 10);
     if (Number.isNaN(playerCountNum)) {

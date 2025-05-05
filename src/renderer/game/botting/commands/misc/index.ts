@@ -24,6 +24,7 @@ import { CommandSettingSkipCutscenes } from "./CommandSettingSkipCutscenes";
 import { CommandStopBot } from "./CommandStopBot";
 import { CommandWaitForPlayerCount } from "./CommandWaitForPlayerCount";
 import { CommandWalkSpeed } from "./CommandWalkSpeed";
+import { CommandAutoAggro } from "./CommandAutoAggro";
 
 export const miscCommands = {
   delay(ms: number) {
@@ -249,6 +250,16 @@ export const miscCommands = {
 
     const cmd = new CommandEquipLoadout();
     cmd.loadoutName = loadoutName;
+    window.context.addCommand(cmd);
+  },
+  start_autoaggro() {
+    const cmd = new CommandAutoAggro();
+    cmd.state = true;
+    window.context.addCommand(cmd);
+  },
+  stop_autoaggro() {
+    const cmd = new CommandAutoAggro();
+    cmd.state = false;
     window.context.addCommand(cmd);
   },
 };
