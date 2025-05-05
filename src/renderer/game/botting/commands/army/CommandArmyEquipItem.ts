@@ -4,14 +4,16 @@ import { Command } from "../../command";
 // ArmyCommand not necessary?
 
 export class CommandArmyEquipItem extends Command {
-  // This is the name of the item in the config file
+  // This is the key holding the itemName in the config file
   // For armying purposes, items are referenced by their enchantment name (e.g. Dauntless)
-  public itemName!: string;
+  public configKey!: string;
 
   public override async execute() {
-    const item = this.bot.army.config.get(this.itemName);
+    const item = this.bot.army.config.get(this.configKey);
     if (!item) {
-      console.warn(`ArmyEquipItem: Item not found in config: ${this.itemName}`);
+      console.warn(
+        `ArmyEquipItem: Item not found in config: ${this.configKey}`,
+      );
       return;
     }
 
@@ -19,6 +21,6 @@ export class CommandArmyEquipItem extends Command {
   }
 
   public override toString() {
-    return `Army equip item: ${this.itemName}`;
+    return `Army equip item: ${this.configKey}`;
   }
 }

@@ -11,6 +11,6 @@ export class CommandExecuteWithArmy extends ArmyCommand {
   }
 
   public override toString(): string {
-    return `Execute with army: ${this.fn.name}`;
+    return "Execute with army";
   }
 }

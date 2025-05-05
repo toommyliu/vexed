@@ -1,6 +1,5 @@
 import { ArgsError } from "../../ArgsError";
 import { CommandArmyEquipItem } from "./CommandArmyEquipItem";
-import { CommandArmyEquipLoadout } from "./CommandArmyEquipLoadout";
 import { CommandArmyInit } from "./CommandArmyInit";
 import { CommandArmyJoin } from "./CommandArmyJoin";
 import { CommandArmyKill } from "./CommandArmyKill";
@@ -40,13 +39,13 @@ export const armyCommands = {
     cmd.padName = pad;
     window.context.addCommand(cmd);
   },
-  army_equip_loadout(loadoutName: string) {
-    if (!loadoutName || typeof loadoutName !== "string") {
-      throw new ArgsError("loadoutName is required");
+  army_kill(targetName: string) {
+    if (!targetName || typeof targetName !== "string") {
+      throw new ArgsError("targetName is required");
     }
 
-    const cmd = new CommandArmyEquipLoadout();
-    cmd.loadoutName = loadoutName;
+    const cmd = new CommandArmyKill();
+    cmd.targetName = targetName;
     window.context.addCommand(cmd);
   },
   army_kill_for(
@@ -93,7 +92,7 @@ export const armyCommands = {
     }
 
     const cmd = new CommandArmyEquipItem();
-    cmd.itemName = itemName;
+    cmd.configKey = itemName;
     window.context.addCommand(cmd);
   },
 };

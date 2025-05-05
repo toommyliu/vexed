@@ -12,6 +12,6 @@ export class CommandArmySetConfigCommand extends Command {
   }
 
   public override toString() {
-    return `Set config name: ${this.fileName}`;
+    return `Army set config name: ${this.fileName}`;
   }
 }

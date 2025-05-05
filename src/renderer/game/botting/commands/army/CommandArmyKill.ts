@@ -4,9 +4,9 @@ import { ArmyCommand } from "./ArmyCommand";
 export class CommandArmyKill extends ArmyCommand {
   public targetName!: string;
 
-  public itemName!: string;
+  public itemName?: string;
 
-  public qty!: number;
+  public qty?: number;
 
   public isTemp = false;
 
@@ -25,13 +25,21 @@ export class CommandArmyKill extends ArmyCommand {
             await this.bot.combat.kill(this.targetName);
 
             if (!this.isDone) {
+              // If no item checking is needed, mark as done
+              if (!this.itemName || !this.qty) {
+                await this.sendDone();
+                console.log("(1) this player is done");
+                return;
+              }
+
+              // Kill for (temp) item
               const done = this.isTemp
                 ? this.bot.tempInventory.contains(this.itemName, this.qty)
                 : this.bot.inventory.contains(this.itemName, this.qty);
 
               if (done) {
                 await this.sendDone();
-                console.log("this player is done");
+                console.log("(2) this player is done");
               }
             }
           }, 150);
@@ -40,6 +48,10 @@ export class CommandArmyKill extends ArmyCommand {
   }
 
   public override toString() {
-    return `Army kill for ${this.isTemp ? "temp item" : "item:"} ${this.itemName} (${this.qty})`;
+    if (!this.itemName) {
+      return `Army kill: ${this.targetName}`;
+    }
+
+    return `Army kill for ${this.isTemp ? "temp item" : "item"}: ${this.itemName} (${this.qty})`;
   }
 }
