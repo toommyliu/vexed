@@ -44,16 +44,6 @@ export abstract class ArmyCommand extends Command {
   }
 
   /**
-   * Do cleanup.
-   */
-  private dispose(): void {
-    this.armyReadyPromise = null;
-    this.isListenerRegistered = false;
-    this.allDone = false;
-    this.isDone = false;
-  }
-
-  /**
    * Executes an action that requires coordination with the army
    *
    * @param action - The action to execute
@@ -61,7 +51,7 @@ export abstract class ArmyCommand extends Command {
   protected async executeWithArmy(action: () => Promise<void>): Promise<void> {
     console.log("Executing army command");
 
-    await this.setupArmyReadyListener();
+    const allReadyPromise = this.setupArmyReadyListener();
 
     // Wait for listener registration
     while (!this.isListenerRegistered) {
@@ -71,26 +61,19 @@ export abstract class ArmyCommand extends Command {
     // Execute the action
     await action();
 
-    // If action() has a call to sendDone(), it will be called before this line
+    console.log("Notifying action completion...");
     await this.sendDone();
-    await this.waitForAll();
+    console.log("Notified action completion, waiting for others...");
 
-    // ?
-    this.dispose();
+    // Wait for all players
+    await allReadyPromise;
   }
 
   /**
    * Notifies to other players in the group that this player has completed their action
    */
   public async sendDone(): Promise<void> {
-    if (this.isDone) {
-      console.warn("Already marked as done, not sending again");
-      return;
-    }
-
-    console.log("Notifying action completion...");
     await ipcRenderer.callMain(IPC_EVENTS.ARMY_FINISH_JOB);
-    console.log("Notified action completion, waiting for others...");
     this.isDone = true;
   }
 
@@ -98,6 +81,10 @@ export abstract class ArmyCommand extends Command {
    * Waits for all players in the group to complete their action
    */
   public async waitForAll(): Promise<void> {
+    if (!this.isListenerRegistered) {
+      await this.setupArmyReadyListener();
+    }
+
     await this.armyReadyPromise;
   }
 }
