@@ -1,4 +1,5 @@
 import { ArgsError } from "../../ArgsError";
+import { CommandAutoAggro } from "./CommandAutoAggro";
 import { CommandBuff } from "./CommandBuff";
 import { CommandBuyScrollOfLifeSteal } from "./CommandBuyScrollOfLifeSteal";
 import { CommandDelay } from "./CommandDelay";
@@ -24,7 +25,6 @@ import { CommandSettingSkipCutscenes } from "./CommandSettingSkipCutscenes";
 import { CommandStopBot } from "./CommandStopBot";
 import { CommandWaitForPlayerCount } from "./CommandWaitForPlayerCount";
 import { CommandWalkSpeed } from "./CommandWalkSpeed";
-import { CommandAutoAggro } from "./CommandAutoAggro";
 
 export const miscCommands = {
   delay(ms: number) {
@@ -204,7 +204,7 @@ export const miscCommands = {
     window.context.addCommand(cmd);
   },
   goto_house(player?: string) {
-    if (player || typeof player !== "string") {
+    if (player && typeof player !== "string") {
       throw new ArgsError("player must be a string");
     }
 
