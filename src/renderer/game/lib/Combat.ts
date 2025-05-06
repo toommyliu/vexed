@@ -162,33 +162,25 @@ export class Combat {
 
     const opts = merge({}, DEFAULT_KILL_OPTIONS, options);
     const { killPriority, skillSet, skillDelay, skillWait, skillAction } = opts;
+    const _boundedSkillAction =
+      typeof skillAction === "function"
+        ? skillAction
+            .bind({
+              bot: this.bot,
+              // isRunning: () => !isResolved,
+            })() // the skillAction function
+            .bind({
+              bot: this.bot,
+              // isRunning: () => !isResolved,
+            }) // the returned function (the actual closure)
+        : null;
+
     let skillIndex = 0;
 
     return new Promise<void>((resolve) => {
       let stopCombatInterval: (() => void) | null = null;
       let stopCheckInterval: (() => void) | null = null;
       let isResolved = false;
-
-      // The actual function to call
-      let _boundedSkillAction: (() => Promise<void>) | null = null;
-
-      if (typeof skillAction === "function") {
-        const _this = {
-          bot: this.bot,
-          isRunning: () => !isResolved,
-        };
-
-        const boundFunction = skillAction.bind(_this);
-        const result = boundFunction();
-
-        // If the result is a function, it was a closure
-        if (typeof result === "function") {
-          _boundedSkillAction = result;
-        } else {
-          // It was a regular function returning a Promise
-          _boundedSkillAction = boundFunction as () => Promise<void>;
-        }
-      }
 
       const cleanup = async () => {
         if (stopCombatInterval) {
@@ -246,7 +238,9 @@ export class Combat {
 
         if (this.hasTarget()) {
           if (_boundedSkillAction) {
-            await _boundedSkillAction().catch(() => {});
+            try {
+              await _boundedSkillAction();
+            } catch {}
           } else {
             const skill = skillSet[skillIndex]!;
             skillIndex = (skillIndex + 1) % skillSet.length;
@@ -432,7 +426,7 @@ export type KillOptions = {
    * Custom skill action function. If provided, the skillSet and skillDelay will be ignored.
    * Recommended to be a closure function.
    */
-  skillAction: (() => () => Promise<void>) | (() => Promise<void>) | null;
+  skillAction: (() => () => Promise<void>) | null;
   /**
    * The delay between each skill cast.
    */
