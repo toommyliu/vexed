@@ -154,24 +154,23 @@ export class Combat {
   ): Promise<void> {
     if (!this.bot.player.isReady()) return;
 
-    await this.bot.waitUntil(
-      () => this.bot.world.isMonsterAvailable(monsterResolvable),
-      null,
-      3,
-    );
+    // await this.bot.waitUntil(
+    //   () => this.bot.world.isMonsterAvailable(monsterResolvable),
+    //   null,
+    //   3,
+    // );
 
     const opts = merge({}, DEFAULT_KILL_OPTIONS, options);
     const { killPriority, skillSet, skillDelay, skillWait, skillAction } = opts;
+
     const _boundedSkillAction =
       typeof skillAction === "function"
         ? skillAction
             .bind({
               bot: this.bot,
-              // isRunning: () => !isResolved,
             })() // the skillAction function
             .bind({
               bot: this.bot,
-              // isRunning: () => !isResolved,
             }) // the returned function (the actual closure)
         : null;
 
@@ -229,9 +228,9 @@ export class Combat {
         const kp = Array.isArray(killPriority)
           ? killPriority
           : killPriority.split(",");
+        // console.log("kp", kp);
 
         doPriorityAttack(kp);
-
         if (!this.hasTarget()) {
           this.attack(monsterResolvable);
         }

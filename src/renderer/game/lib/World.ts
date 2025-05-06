@@ -1,5 +1,5 @@
 import { exitFromCombat } from "../util/exitFromCombat";
-import { isMonsterMapId } from "../util/isMonMapId";
+import { extractMonsterMapId, isMonsterMapId } from "../util/isMonMapId";
 import type { Bot } from "./Bot";
 import { Avatar, type AvatarData } from "./models/Avatar";
 import type { ItemData } from "./models/Item";
@@ -143,13 +143,14 @@ export class World {
    */
   public isMonsterAvailable(monsterResolvable: string): boolean {
     if (isMonsterMapId(monsterResolvable)) {
-      return this.bot.flash.call(() =>
-        swf.worldIsMonsterAvailable(monsterResolvable),
-      );
+      const monMapIdStr = extractMonsterMapId(monsterResolvable);
+      const monMapId = Number.parseInt(monMapIdStr, 10);
+
+      return this.availableMonsters.some((mon) => mon.monMapId === monMapId);
     }
 
-    return this.bot.flash.call(() =>
-      swf.worldIsMonsterAvailable(monsterResolvable),
+    return this.availableMonsters.some((mon) =>
+      mon.name.toLowerCase().includes(monsterResolvable.toLowerCase()),
     );
   }
 

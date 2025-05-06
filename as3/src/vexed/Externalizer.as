@@ -182,7 +182,7 @@ package vexed {
       externalize("worldGetCellMonsters", World.getCellMonsters);
       externalize("worldGetMonsterByName", World.getMonsterByName);
       externalize("worldGetMonsterByMonMapId", World.getMonsterByMonMapId);
-      externalize("worldIsMonsterAvailable", World.isMonsterAvailable);
+      // externalize("worldIsMonsterAvailable", World.isMonsterAvailable);
       externalize("worldGetCells", World.getCells);
       externalize("worldGetCellPads", World.getCellPads);
       // externalize("worldGetItemTree", World.getItemTree);

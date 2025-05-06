@@ -144,35 +144,21 @@ package vexed.game {
       return null;
     }
 
-    public static function getMonsterByMonMapId(monMapId:int):Object {
-      if (!monMapId)
+    public static function getMonsterByMonMapId(monMapId:*):Object {
+      if (!monMapId) {
         return null;
+      }
 
       for each (var mon:Object in game.world.getMonstersByCell(game.world.strFrame)) {
         if (mon.pMC) {
           var monster:int = mon.dataLeaf.MonMapID;
-          if (monster === monMapId && mon.dataLeaf.intState > 0) {
+          if (monster == monMapId && mon.dataLeaf.intState > 0) {
             return mon;
           }
         }
       }
 
       return null;
-    }
-
-    public static function isMonsterAvailable(mon:*):Boolean {
-      if (!mon) {
-        return false;
-      }
-
-      if (mon is String) {
-        return getMonsterByName(mon) !== null;
-      }
-      else if (mon is int) {
-        return getMonsterByMonMapId(mon) !== null;
-      }
-
-      return false;
     }
 
     public static function getCells():Array {
