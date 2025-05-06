@@ -105,6 +105,7 @@ export class AutoRelogin {
         // e.g. still stuck in blue flame
         if (!this.bot.player.isReady()) {
           console.warn("Player not ready after login, retrying...");
+          this.bot.auth.logout();
           return;
         }
 
