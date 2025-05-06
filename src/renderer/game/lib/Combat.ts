@@ -12,6 +12,7 @@ const DEFAULT_KILL_OPTIONS: KillOptions = {
   skillDelay: 150,
   skillSet: [1, 2, 3, 4],
   skillWait: false,
+  skillAction: null,
 };
 
 /**
@@ -160,13 +161,21 @@ export class Combat {
     );
 
     const opts = merge({}, DEFAULT_KILL_OPTIONS, options);
-    const { killPriority, skillSet, skillDelay, skillWait } = opts;
+    const { killPriority, skillSet, skillDelay, skillWait, skillAction } = opts;
     let skillIndex = 0;
 
     return new Promise<void>((resolve) => {
       let stopCombatInterval: (() => void) | null = null;
       let stopCheckInterval: (() => void) | null = null;
       let isResolved = false;
+
+      const _boundedSkillAction =
+        typeof skillAction === "function"
+          ? skillAction.bind({
+              bot: this.bot,
+              isRunning: () => !isResolved,
+            })()
+          : null;
 
       const cleanup = async () => {
         if (stopCombatInterval) {
@@ -184,79 +193,80 @@ export class Combat {
       };
 
       // Combat logic
-      (async () => {
-        await interval(async (_, stop) => {
-          stopCombatInterval = stop;
+      void interval(async (_, stop) => {
+        stopCombatInterval = stop;
 
-          if (isResolved) {
-            stop();
-            return;
-          }
+        if (isResolved) {
+          stop();
+          return;
+        }
 
-          if (this.pauseAttack) {
-            this.cancelAutoAttack();
-            this.cancelTarget();
-            await this.bot.waitUntil(() => !this.pauseAttack, null, -1);
-            return;
-          }
+        if (this.pauseAttack) {
+          this.cancelAutoAttack();
+          this.cancelTarget();
+          await this.bot.waitUntil(() => !this.pauseAttack, null, -1);
+          return;
+        }
 
-          const _name = monsterResolvable.toLowerCase();
-          if (
-            _name === "escherion" &&
-            this.bot.world.isMonsterAvailable("Staff of Inversion")
-          ) {
-            this.attack("Staff of Inversion");
-          } else if (
-            _name === "vath" &&
-            this.bot.world.isMonsterAvailable("Stalagbite")
-          ) {
-            this.attack("Stalagbite");
-          }
+        const _name = monsterResolvable.toLowerCase();
+        if (
+          _name === "escherion" &&
+          this.bot.world.isMonsterAvailable("Staff of Inversion")
+        ) {
+          this.attack("Staff of Inversion");
+        } else if (
+          _name === "vath" &&
+          this.bot.world.isMonsterAvailable("Stalagbite")
+        ) {
+          this.attack("Stalagbite");
+        }
 
-          const kp = Array.isArray(killPriority)
-            ? killPriority
-            : killPriority.split(",");
+        const kp = Array.isArray(killPriority)
+          ? killPriority
+          : killPriority.split(",");
 
-          doPriorityAttack(kp);
+        doPriorityAttack(kp);
 
-          if (!this.hasTarget()) {
-            this.attack(monsterResolvable);
-          }
+        if (!this.hasTarget()) {
+          this.attack(monsterResolvable);
+        }
 
-          if (this.hasTarget()) {
+        if (this.hasTarget()) {
+          if (_boundedSkillAction) {
+            console.log("tick");
+            await _boundedSkillAction().catch(() => {});
+          } else {
             const skill = skillSet[skillIndex]!;
             skillIndex = (skillIndex + 1) % skillSet.length;
 
             await this.useSkill(String(skill), false, skillWait);
             await this.bot.sleep(skillDelay);
           }
-        }, 0);
-      })();
+        }
+      }, 0);
 
       // Check logic
-      (async () => {
-        await interval(async (_, stop) => {
-          stopCheckInterval = stop;
+      void interval(async (_, stop) => {
+        stopCheckInterval = stop;
 
-          if (isResolved) {
-            stop();
-            return;
-          }
+        if (isResolved) {
+          stop();
+          return;
+        }
 
-          const isIdle =
-            this.bot.player.state === PlayerState.Idle &&
-            !this.bot.player.isAFK();
-          const noTarget = !this.hasTarget();
-          const shouldComplete = noTarget && isIdle && !this.pauseAttack;
+        const isIdle =
+          this.bot.player.state === PlayerState.Idle &&
+          !this.bot.player.isAFK();
+        const noTarget = !this.hasTarget();
+        const shouldComplete = noTarget && isIdle && !this.pauseAttack;
 
-          if (shouldComplete) {
-            isResolved = true;
-            await cleanup();
-            resolve();
-            stop();
-          }
-        }, 0);
-      })();
+        if (shouldComplete) {
+          isResolved = true;
+          await cleanup();
+          resolve();
+          stop();
+        }
+      }, 0);
     });
   }
 
@@ -406,6 +416,11 @@ export type KillOptions = {
    * An ascending list of monster names or monMapIDs to kill. This can also be a string of monsterResolvables deliminted by a comma.
    */
   killPriority: string[] | string;
+  /**
+   * Custom skill action function. If provided, the skillSet and skillDelay will be ignored.
+   * Recommended to be a closure function.
+   */
+  skillAction: (() => () => Promise<void>) | null;
   /**
    * The delay between each skill cast.
    */
