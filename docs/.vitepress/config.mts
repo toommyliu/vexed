@@ -55,6 +55,7 @@ export default defineConfig({
   description: "Crossplatform AQW Scripting Client",
   head: [["script", { src: "/_vercel/insights/script.js" }]],
   cleanUrls: true,
+  base: "/",
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     editLink: {
