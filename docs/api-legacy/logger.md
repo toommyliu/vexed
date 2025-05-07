@@ -38,23 +38,3 @@ outline: deep
 
 **Returns:** `void`
 
-#### debug
-
-**Parameters:**
-
-| Name | Type | Description |
-|------|------|-------------|
-| `args` | `unknown[]` |  |
-
-**Returns:** `void`
-
-#### log
-
-**Parameters:**
-
-| Name | Type | Description |
-|------|------|-------------|
-| `args` | `unknown[]` |  |
-
-**Returns:** `void`
-

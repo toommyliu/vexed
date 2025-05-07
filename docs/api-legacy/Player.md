@@ -150,3 +150,17 @@ Checks if the player has an active boost.
 
 **Returns:** `boolean`
 
+#### equipLoadout
+
+Equips a loadout for the player.
+
+**Remarks:** A loadout is to be read from file, not the player's outfits.
+
+**Parameters:**
+
+| Name | Type | Description |
+|------|------|-------------|
+| `loadout` | `Loadout` | The loadout to equip. |
+
+**Returns:** `Promise<void>`
+

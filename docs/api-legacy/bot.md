@@ -8,11 +8,11 @@ outline: deep
 
 ### Properties
 
-#### ac
+#### army
 
-Type: `AbortController | null`
+Type: `Army`
 
-The AbortController instance.
+The army API class instance.
 
 #### auth
 

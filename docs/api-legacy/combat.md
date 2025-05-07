@@ -22,7 +22,7 @@ Type: `Bot`
 
 ​<Badge type="info">getter</Badge>Returns information about the target.
 
-Type: `Record<string, unknown> | null`
+Type: `TargetInfo | null`
 
 ### Methods
 

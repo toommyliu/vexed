@@ -82,6 +82,22 @@ Type: `boolean`
 
 Type: `number`
 
+#### customName
+
+​<Badge type="info">getter</Badge>The player's custom name.
+
+​<Badge type="info">setter</Badge>Sets the player's custom name.
+
+Type: `string | null`
+
+#### customGuild
+
+​<Badge type="info">getter</Badge>The player's custom guild.
+
+​<Badge type="info">setter</Badge>Sets the player's custom guild.
+
+Type: `string | null`
+
 #### disableFx
 
 ​<Badge type="info">getter</Badge>Whether "Disable FX" is enabled.

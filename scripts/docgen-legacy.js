@@ -1,17 +1,20 @@
-const ts = require('typescript');
-const fs = require('fs');
-const path = require('path');
+const ts = require("typescript");
+const fs = require("fs");
+const path = require("path");
 
 const typeDefinitions = [];
 
 const excludedTypedefs = [
-  'ConditionalReturn',
-  'Events',
-  'func',
-  'IIntervalPromiseOptions',
-  'intervalLength',
-  'intervalLengthFn',
-  'stop',
+  "ConditionalReturn",
+  "Events",
+  "func",
+  "IIntervalPromiseOptions",
+  "intervalLength",
+  "intervalLengthFn",
+  "stop",
+  "TypedIpcEvents",
+  "TypedMainIpc",
+  "TypedRendererIpc",
 ];
 
 /**
@@ -21,7 +24,7 @@ const excludedTypedefs = [
  */
 
 function formatType(type, escape) {
-  if (escape) type = type.replace(/\|/g, '\\|');
+  if (escape) type = type.replace(/\|/g, "\\|");
   return `\`${type}\``;
 }
 
@@ -52,9 +55,9 @@ function loadTsConfig(tsconfigPath) {
     compilerOptions: parsedConfig.options,
     fileNames: parsedConfig.fileNames.filter(
       (file) =>
-        file.startsWith('src/renderer/game/lib/') &&
-        file.endsWith('.ts') &&
-        !file.endsWith('.d.ts'),
+        file.startsWith("src/renderer/game/lib/") &&
+        file.endsWith(".ts") &&
+        !file.endsWith(".d.ts"),
     ),
   };
 }
@@ -95,7 +98,7 @@ function isNodeExported(node) {
  */
 function getJsDocContent(symbol, typeChecker) {
   const documentation =
-    ts.displayPartsToString(symbol.getDocumentationComment(typeChecker)) || '';
+    ts.displayPartsToString(symbol.getDocumentationComment(typeChecker)) || "";
 
   const jsDocNodes =
     symbol.declarations
@@ -110,17 +113,17 @@ function getJsDocContent(symbol, typeChecker) {
 
     // Parse @remarks tags
     const remarkTags = node.tags.filter(
-      (tag) => tag.tagName.text === 'remarks',
+      (tag) => tag.tagName.text === "remarks",
     );
     for (const tag of remarkTags) {
       if (tag.comment) {
         const remarkText =
-          typeof tag.comment === 'string'
+          typeof tag.comment === "string"
             ? tag.comment
             : ts.displayPartsToString(tag.comment);
 
         if (remarkText) {
-          if (out) out += '\n\n';
+          if (out) out += "\n\n";
 
           out += `**Remarks:** ${remarkText}`;
         }
@@ -145,17 +148,17 @@ function getDefaultValue(node) {
     case ts.SyntaxKind.NumericLiteral:
       return node.initializer.text;
     case ts.SyntaxKind.TrueKeyword:
-      return 'true';
+      return "true";
     case ts.SyntaxKind.FalseKeyword:
-      return 'false';
+      return "false";
     case ts.SyntaxKind.NullKeyword:
-      return 'null';
+      return "null";
     case ts.SyntaxKind.UndefinedKeyword:
-      return 'undefined';
+      return "undefined";
     case ts.SyntaxKind.ArrayLiteralExpression:
-      return '[]';
+      return "[]";
     case ts.SyntaxKind.ObjectLiteralExpression:
-      return '{}';
+      return "{}";
     default:
       return node.initializer.getText();
   }
@@ -169,7 +172,7 @@ function generateDocs(fileNames, options) {
   for (const sourceFile of program.getSourceFiles()) {
     // Skip
     if (
-      sourceFile.fileName.includes('node_modules') ||
+      sourceFile.fileName.includes("node_modules") ||
       sourceFile.isDeclarationFile
     )
       continue;
@@ -180,7 +183,7 @@ function generateDocs(fileNames, options) {
       classes: [],
       interfaces: [],
       enums: [],
-      fileName: path.basename(sourceFile.fileName, '.ts'),
+      fileName: path.basename(sourceFile.fileName, ".ts"),
       dir: path.dirname(sourceFile.fileName),
     };
 
@@ -243,7 +246,7 @@ function generateDocs(fileNames, options) {
         value: checker.getConstantValue(member),
         documentation: member.name
           ? getJsDocContent(checker.getSymbolAtLocation(member.name), checker)
-          : '',
+          : "",
       })),
     };
   }
@@ -316,7 +319,7 @@ function generateDocs(fileNames, options) {
       name: symbol.getName(),
       documentation: getJsDocContent(symbol, checker),
       parameters: [],
-      returnType: '',
+      returnType: "",
     };
 
     const type = checker.getTypeOfSymbolAtLocation(
@@ -342,7 +345,7 @@ function generateDocs(fileNames, options) {
           name: param.getName(),
           documentation:
             ts.displayPartsToString(param.getDocumentationComment(checker)) ||
-            '',
+            "",
           type: checker.typeToString(
             checker.getTypeOfSymbolAtLocation(param, param.valueDeclaration),
           ),
@@ -361,7 +364,7 @@ function generateDocs(fileNames, options) {
     return {
       name: symbol.getName(),
       documentation:
-        ts.displayPartsToString(symbol.getDocumentationComment(checker)) || '',
+        ts.displayPartsToString(symbol.getDocumentationComment(checker)) || "",
       type: checker.typeToString(
         checker.getTypeOfSymbolAtLocation(symbol, symbol.valueDeclaration),
       ),
@@ -376,7 +379,7 @@ function generateDocs(fileNames, options) {
     const details = {
       name: symbol.getName(),
       documentation:
-        ts.displayPartsToString(symbol.getDocumentationComment(checker)) || '',
+        ts.displayPartsToString(symbol.getDocumentationComment(checker)) || "",
       methods: [],
       properties: [],
       accessors: [],
@@ -398,7 +401,7 @@ function generateDocs(fileNames, options) {
       const details = {
         name: symbol.getName(),
         documentation: getJsDocContent(symbol, checker),
-        type: '',
+        type: "",
       };
 
       if (ts.isGetAccessor(declaration)) {
@@ -423,7 +426,7 @@ function generateDocs(fileNames, options) {
       const declaration = declarations[0];
 
       const isEvent = declaration.jsDoc?.some((doc) =>
-        doc.tags?.some((tag) => tag.tagName.text === 'eventProperty'),
+        doc.tags?.some((tag) => tag.tagName.text === "eventProperty"),
       );
 
       if (isEvent) {
@@ -445,10 +448,10 @@ function generateDocs(fileNames, options) {
             badges: [],
             type: accessorDetails.type,
             cleanType: accessorDetails.type
-              .replaceAll('(', '')
-              .replaceAll(')', '')
-              .replaceAll('[', '')
-              .replaceAll(']', ''),
+              .replaceAll("(", "")
+              .replaceAll(")", "")
+              .replaceAll("[", "")
+              .replaceAll("]", ""),
             getter: false,
             setter: false,
           };
@@ -456,8 +459,8 @@ function generateDocs(fileNames, options) {
           // Hacky fix for it to recognize get and set accessors as the same
           // The documentation includes both for getter and setter
           if (
-            existingAccessor.documentation.includes('\n') &&
-            !existingAccessor.documentation.includes('**Remarks:**')
+            existingAccessor.documentation.includes("\n") &&
+            !existingAccessor.documentation.includes("**Remarks:**")
           ) {
             existingAccessor.getter = existingAccessor.setter = true;
           }
@@ -469,16 +472,16 @@ function generateDocs(fileNames, options) {
           existingAccessor.getter = true;
           existingAccessor.type = accessorDetails.type;
           existingAccessor.cleanType = accessorDetails.type
-            .replaceAll('(', '')
-            .replaceAll(')', '')
-            .replaceAll('[', '')
-            .replaceAll(']', '');
+            .replaceAll("(", "")
+            .replaceAll(")", "")
+            .replaceAll("[", "")
+            .replaceAll("]", "");
         } else if (ts.isSetAccessor(declaration)) {
           existingAccessor.setter = true;
         }
       } else if (member.flags & ts.SymbolFlags.Method) {
         if (
-          member.getName().startsWith('#') ||
+          member.getName().startsWith("#") ||
           member.valueDeclaration?.modifiers?.some(
             (m) => m.kind === ts.SyntaxKind.PrivateKeyword,
           )
@@ -487,7 +490,7 @@ function generateDocs(fileNames, options) {
         details.methods.push(serializeFunction(member));
       } else if (member.flags & ts.SymbolFlags.Property) {
         if (
-          member.getName().startsWith('#') ||
+          member.getName().startsWith("#") ||
           member.valueDeclaration?.modifiers?.some(
             (m) => m.kind === ts.SyntaxKind.PrivateKeyword,
           )
@@ -518,12 +521,12 @@ function generateDocs(fileNames, options) {
 }
 
 function generateMarkdown(documentation, typeDefinitions) {
-  const docsDir = '../docs/api-legacy';
-  const structsDir = path.join(docsDir, 'models');
-  const utilDir = path.join(docsDir, 'util');
-  const typedefsDir = path.join(docsDir, 'typedefs');
+  const docsDir = "../docs/api-legacy";
+  const structsDir = path.join(docsDir, "models");
+  const utilDir = path.join(docsDir, "util");
+  const typedefsDir = path.join(docsDir, "typedefs");
   // not required and doesnt work anymore because we just use object literals now
-  const enumsDir = path.join(docsDir, 'enums');
+  const enumsDir = path.join(docsDir, "enums");
 
   // fs.rmdirSync(docsDir, { recursive: true });
 
@@ -536,14 +539,14 @@ function generateMarkdown(documentation, typeDefinitions) {
   documentation.forEach((fileDoc) => {
     fileDoc.enums.forEach((enumDoc) => {
       let content = `# ${enumDoc.name}\n\n`;
-      content += enumDoc.documentation ? `${enumDoc.documentation}\n\n` : '';
+      content += enumDoc.documentation ? `${enumDoc.documentation}\n\n` : "";
 
-      content += '| Name | Value | Description |\n';
-      content += '|------|-------|-------------|\n';
+      content += "| Name | Value | Description |\n";
+      content += "|------|-------|-------------|\n";
       enumDoc.members.forEach((member) => {
-        content += `| \`${member.name}\` | \`${member.value}\` | ${member.documentation || ''} |\n`;
+        content += `| \`${member.name}\` | \`${member.value}\` | ${member.documentation || ""} |\n`;
       });
-      content += '\n';
+      content += "\n";
 
       fs.writeFileSync(path.join(enumsDir, `${enumDoc.name}.md`), content);
     });
@@ -554,16 +557,16 @@ function generateMarkdown(documentation, typeDefinitions) {
 
     let content = `# ${typedef.name}\n\n${typedef.documentation}\n\n`;
 
-    content += '```typescript\n';
+    content += "```typescript\n";
     content += `type ${typedef.name} = ${typedef.type}\n`;
-    content += '```\n\n';
+    content += "```\n\n";
 
     if (typedef.fields.length > 0) {
-      content += '## Fields\n\n';
-      content += '| Name | Type | Description |\n';
-      content += '|------|------|-------------|\n';
+      content += "## Fields\n\n";
+      content += "| Name | Type | Description |\n";
+      content += "|------|------|-------------|\n";
       typedef.fields.forEach((field) => {
-        content += `| \`${field.name}\` | ${formatType(field.type, true)} | ${field.documentation || ''} |\n`;
+        content += `| \`${field.name}\` | ${formatType(field.type, true)} | ${field.documentation || ""} |\n`;
       });
     }
 
@@ -576,38 +579,38 @@ function generateMarkdown(documentation, typeDefinitions) {
     let content = `---\noutline: deep\n---\n\n`;
 
     fileDoc.classes.forEach((classDoc) => {
-      content += `# ${classDoc.name} ${classDoc.extends ? `​<Badge type="info">extends ${classDoc.extends}</Badge>` : ''}\n\n`;
-      content += classDoc.documentation ? `${classDoc.documentation}\n\n` : '';
-      content += '---\n\n';
+      content += `# ${classDoc.name} ${classDoc.extends ? `​<Badge type="info">extends ${classDoc.extends}</Badge>` : ""}\n\n`;
+      content += classDoc.documentation ? `${classDoc.documentation}\n\n` : "";
+      content += "---\n\n";
 
       if (classDoc.events.length > 0) {
-        content += '### Events\n\n';
+        content += "### Events\n\n";
         classDoc.events.forEach((event) => {
           content += `#### ${event.name}\n\n`;
-          content += event.documentation ? `${event.documentation}\n\n` : '';
+          content += event.documentation ? `${event.documentation}\n\n` : "";
           content += `Type: ${formatType(event.type, false)}\n\n`;
         });
       }
 
       if (classDoc.properties.length > 0 || classDoc.accessors.length > 0) {
-        content += '### Properties\n\n';
+        content += "### Properties\n\n";
 
         classDoc.properties.forEach((prop) => {
           content += `#### ${prop.name}\n\n`;
           content += `Type: ${formatType(prop.type, false)}\n\n`;
-          content += prop.documentation ? `${prop.documentation}\n\n` : '';
+          content += prop.documentation ? `${prop.documentation}\n\n` : "";
         });
 
         classDoc.accessors.forEach((accessor) => {
           content += `#### ${accessor.name}\n\n`;
 
           if (accessor.getter && accessor.setter) {
-            const lines = accessor.documentation.split('\n');
+            const lines = accessor.documentation.split("\n");
 
             content += `​<Badge type="info">getter</Badge>${lines[0]}\n\n`;
             content += `​<Badge type="info">setter</Badge>${lines[1]}\n\n`;
           } else if (accessor.getter || accessor.setter) {
-            const badgeType = accessor.getter ? 'getter' : 'setter';
+            const badgeType = accessor.getter ? "getter" : "setter";
             content += `​<Badge type="info">${badgeType}</Badge>${accessor.documentation}\n\n`;
           } else {
             content += `${accessor.documentation}\n\n`;
@@ -618,13 +621,13 @@ function generateMarkdown(documentation, typeDefinitions) {
       }
 
       if (classDoc.methods.length > 0) {
-        content += '### Methods\n\n';
+        content += "### Methods\n\n";
 
         classDoc.methods.forEach((method) => {
           const returnTypeStr = formatType(method.returnType, false);
 
           content += `#### ${method.name}\n\n`;
-          content += method.documentation ? `${method.documentation}\n\n` : '';
+          content += method.documentation ? `${method.documentation}\n\n` : "";
 
           if (method.parameters.length > 0) {
             const hasOptionalParams = method.parameters.some(
@@ -635,38 +638,38 @@ function generateMarkdown(documentation, typeDefinitions) {
             );
 
             if (hasOptionalParams || hasDefaultParams) {
-              content += '**Parameters:**\n\n';
-              content += '| Name | Type | Optional | Default | Description |\n';
-              content += '|------|------|----------|---------|-------------|\n';
+              content += "**Parameters:**\n\n";
+              content += "| Name | Type | Optional | Default | Description |\n";
+              content += "|------|------|----------|---------|-------------|\n";
               method.parameters.forEach((param) => {
-                const description = param.documentation.startsWith('-')
+                const description = param.documentation.startsWith("-")
                   ? param.documentation.substring(2)
                   : param.documentation;
-                content += `| \`${param.name}\` | ${formatType(param.type, true)} | ${param.isOptional ? '✓' : ''} | ${param.defaultValue ? `\`${param.defaultValue}\`` : ''} | ${description} |\n`;
+                content += `| \`${param.name}\` | ${formatType(param.type, true)} | ${param.isOptional ? "✓" : ""} | ${param.defaultValue ? `\`${param.defaultValue}\`` : ""} | ${description} |\n`;
               });
             } else {
-              content += '**Parameters:**\n\n';
-              content += '| Name | Type | Description |\n';
-              content += '|------|------|-------------|\n';
+              content += "**Parameters:**\n\n";
+              content += "| Name | Type | Description |\n";
+              content += "|------|------|-------------|\n";
               method.parameters.forEach((param) => {
-                const description = param.documentation.startsWith('-')
+                const description = param.documentation.startsWith("-")
                   ? param.documentation.substring(2)
                   : param.documentation;
                 content += `| \`${param.name}\` | ${formatType(param.type, true)} | ${description} |\n`;
               });
             }
-            content += '\n';
+            content += "\n";
           }
 
           content += `**Returns:** ${returnTypeStr}\n\n`;
         });
       }
 
-      const outputPath = fileDoc.dir.endsWith('/models')
+      const outputPath = fileDoc.dir.endsWith("/models")
         ? path.join(structsDir, `${fileDoc.fileName}.md`)
-        : fileDoc.dir.endsWith('/util')
+        : fileDoc.dir.endsWith("/util")
           ? path.join(utilDir, `${fileDoc.fileName}.md`)
-          : path.join(docsDir, `${path.basename(fileName, '.ts')}.md`);
+          : path.join(docsDir, `${path.basename(fileName, ".ts")}.md`);
 
       fs.writeFileSync(path.join(__dirname, outputPath), content);
     });
@@ -674,7 +677,7 @@ function generateMarkdown(documentation, typeDefinitions) {
 }
 
 async function docgen() {
-  const { compilerOptions, fileNames } = loadTsConfig('./tsconfig.json');
+  const { compilerOptions, fileNames } = loadTsConfig("./tsconfig.json");
 
   const { documentation, typeDefinitions } = generateDocs(
     fileNames,
@@ -683,7 +686,7 @@ async function docgen() {
 
   generateMarkdown(documentation, typeDefinitions);
 
-  console.log('Documentation generated successfully!');
+  console.log("Documentation generated successfully!");
   console.log(`Processed ${fileNames.length} files`);
   console.log(`Generated ${documentation.size} API documentation files`);
   console.log(`Generated ${typeDefinitions.length} type definition files`);
@@ -692,5 +695,5 @@ async function docgen() {
 try {
   docgen();
 } catch (error) {
-  console.log('error', error);
+  console.log("error", error);
 }

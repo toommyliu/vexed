@@ -170,3 +170,13 @@ Whether the player is in combat.
 
 **Returns:** `boolean`
 
+#### isDead
+
+**Returns:** `boolean`
+
+#### isIdle
+
+Whether the player is idle.
+
+**Returns:** `boolean`
+
