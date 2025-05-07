@@ -139,7 +139,7 @@ package vexed.game {
         if (mon.pMC) {
           var monsterName:String = mon.pMC.pname.ti.text.toLowerCase();
           if (((monsterName.indexOf(name) > -1) || (name == "*")) && mon.dataLeaf.intState > 0) {
-            return mon.dataLeaf;
+            return mon;
           }
         }
       }
@@ -156,7 +156,7 @@ package vexed.game {
         if (mon.pMC) {
           var monster:int = mon.dataLeaf.MonMapID;
           if (mon != null && mon.dataLeaf != null && mon.dataLeaf.MonMapID == monMapId) {
-            return mon.dataLeaf;
+            return mon;
           }
         }
       }

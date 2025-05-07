@@ -149,6 +149,10 @@ export class World {
       return this.availableMonsters.some((mon) => mon.monMapId === monMapId);
     }
 
+    if (monsterResolvable === "*") {
+      return this.availableMonsters.length > 0;
+    }
+
     return this.availableMonsters.some((mon) =>
       mon.name.toLowerCase().includes(monsterResolvable.toLowerCase()),
     );

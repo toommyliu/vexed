@@ -142,7 +142,8 @@ async function startFollower() {
   const { name } = cfg;
 
   const foundPlayer = () => {
-    if (!name) return true;
+    if (!name || name.toLowerCase() === bot.auth?.username?.toLowerCase())
+      return true;
 
     return (
       bot.world.isPlayerInMap(name) &&
@@ -263,7 +264,7 @@ async function startFollower() {
 
           if (
             bot.world.isMonsterAvailable("*") &&
-            bot.flash.get("world.myAvatar.target.npcType", true) !== "monster"
+            bot.combat?.target?.type !== "monster"
           ) {
             bot.combat.attack("*");
           }
