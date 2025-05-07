@@ -1,8 +1,7 @@
-/* eslint-disable n/no-sync */
-const fs = require('node:fs');
-const path = require('node:path');
-const process = require('node:process');
-const ts = require('typescript');
+const fs = require("node:fs");
+const path = require("node:path");
+const process = require("node:process");
+const ts = require("typescript");
 
 /**
  * Makes a NOTE alert with the given lines.
@@ -11,7 +10,7 @@ const ts = require('typescript');
  * @returns {string} The formatted note alert.
  */
 const makeNoteAlert = (lines) =>
-  `> [!NOTE]\n${lines.map((str) => `> ${str}`).join('\n')}\n`;
+  `> [!NOTE]\n${lines.map((str) => `> ${str}`).join("\n")}\n`;
 
 /**
  * Map of function names to type replacements for their parameters.
@@ -20,13 +19,19 @@ const makeNoteAlert = (lines) =>
  */
 const typeReplacements = {
   kill: {
-    'Partial<KillOptions>': 'KillOptions',
+    "Partial<KillOptions>": "KillOptions",
   },
   kill_for_item: {
-    'Partial<KillOptions>': 'KillOptions',
+    "Partial<KillOptions>": "KillOptions",
   },
   kill_for_temp_item: {
-    'Partial<KillOptions>': 'KillOptions',
+    "Partial<KillOptions>": "KillOptions",
+  },
+  army_kill: {
+    "Partial<KillOptions>": "KillOptions",
+  },
+  army_kill_for: {
+    "Partial<KillOptions>": "KillOptions",
   },
 };
 
@@ -37,43 +42,143 @@ const typeReplacements = {
  */
 const descriptions = {
   files: {
-    'combat/index.ts': makeNoteAlert([
+    "combat/index.ts": makeNoteAlert([
       '- `target` refers to monster name or in the format "id:monMapId" (where `:` can be replaced with any of these delimiters: `\'` `.` `-` )',
-      '   - Example formats: `id.1` (left orb) | `id:3` (right orb)',
-      '- `item` can be name or id',
+      "   - Example formats: `id.1` (left orb) | `id:3` (right orb)",
+      "- `item` can be name or id",
+    ]),
+    "army/index.ts": makeNoteAlert([
+      "Army commands are for advanced users only.",
     ]),
   },
   functions: {
-    'cmd.kill': makeNoteAlert([
-      '[KillOptions](/api-legacy/typedefs/KillOptions)',
+    // # region army commands
+    "cmd.army_init": makeNoteAlert([
+      "Must be called before any other army commands to load the config file.",
+      "Recommended to call this right after cmd.army_set_config to load the config asap.",
     ]),
-    'cmd.kill_for_item': makeNoteAlert([
-      '[KillOptions](/api-legacy/typedefs/KillOptions)',
+    "cmd.army_set_config": makeNoteAlert([
+      "Sets the config file to use for armying. The file will be searched in:",
+      "",
+      "- The app's documents folder (Documents/vexed)",
+      "",
+      "- The app's storage folder (Documents/vexed/storage)",
+      "",
+      "Just the filename without the path or extension.",
     ]),
-    'cmd.kill_for_temp_item': makeNoteAlert([
-      '[KillOptions](/api-legacy/typedefs/KillOptions)',
+    "cmd.army_join": makeNoteAlert([
+      "Like [World#join](/api-legacy/world#join) but waits for all players to join before proceeding to the next command.",
     ]),
-    'cmd.register_drop': makeNoteAlert([
-      'drops should be registered as soon as possible and must be the full name of the drop.',
+    "cmd.army_kill_for": makeNoteAlert([
+      "Recommended to pass a custom skillAction function to options when you need granular control for skill casting (should be a closure).",
+      "",
+      "[bot](/api-legacy/Bot) is bounded as the **this** context in the skillAction and closure functions. Note the functions, not arrow functions.",
+      "",
+      "Note that internally, this wraps [Combat#kill](/api-legacy/combat#kill) but with laxed item checks.",
+      "Therefore, the closure can be re-created every call to kill(), so try and avoid storing sensitive state in the closure.",
+      "",
+      "```js",
+      "cmd.army_kill_for(",
+      "	'Ultra Engineer',",
+      "	'Ultra Engineer Defeated',",
+      "	1,",
+      "	true,",
+      "	{",
+      "		skillPriority: ['id.1','id.2']",
+      "		skillAction() {",
+      "			let a = []",
+      "			let i = 0",
+      "			let h",
+      "",
+      "			switch (this.bot.player.className) {",
+      '			case "LEGION REVENANT":',
+      "				a=[3,1,2,4,5]",
+      "				break",
+      '			case "STONECRUSHER":',
+      "				a=[1,2,3,4,5]",
+      "				break",
+      '			case "LORD OF ORDER":',
+      "				a=[1,3,4,5]",
+      "				h=2",
+      "				break",
+      '			case "ARCHPALADIN":',
+      "				a=[1,3,4,5]",
+      "				h=2",
+      "			}",
+      "",
+      "			return async function() {",
+      "				for (const plyr /* string */ of this.bot.army.players) {",
+      "					const p = this.bot.world.players.get(plyr)",
+      "					if (p.isHpPercentageLessThan(70) && h) {",
+      "						await this.bot.combat.useSkill(h)",
+      "						return",
+      "					}",
+      "				}",
+      "",
+      "				await this.bot.combat.useSkill(a[i])",
+      "				i = (i + 1) % a.length",
+      "			}",
+      "		}",
+      "	}",
+      ")",
+      "```",
     ]),
-    'cmd.register_boost': makeNoteAlert([
-      'Boosts should be registered as soon as possible and must be the full name of the boost.',
+    "cmd.execute_with_army": makeNoteAlert([
+      "Executes the given function. Once the function resolves, the player will be marked as done.",
+      "",
+      "The proceeding command cannot proceed until all players are done.",
+      "",
+      "The function is called with [bot](/api-legacy/Bot) as the first argument.",
     ]),
-    'cmd.unregister_boost': makeNoteAlert([
-      'Boosts should be registered as soon as possible and must be the full name of the boost.',
+    // # endregion
+    // # region combat commands
+    "cmd.kill": makeNoteAlert([
+      "[KillOptions](/api-legacy/typedefs/KillOptions)",
     ]),
-    'cmd.set_spawn': makeNoteAlert([
-      'Sets the player spawnpoint to the current cell if no arguments are provided.',
+    "cmd.kill_for_item": makeNoteAlert([
+      "[KillOptions](/api-legacy/typedefs/KillOptions)",
     ]),
-    'cmd.delay': makeNoteAlert(['delay is in ms']),
-    'cmd.set_delay': makeNoteAlert(['delay is in ms']),
-    'cmd.wait_for_player_count': makeNoteAlert(['wait for map player count']),
-    'cmd.enable_anticounter': makeNoteAlert([
+    "cmd.kill_for_temp_item": makeNoteAlert([
+      "[KillOptions](/api-legacy/typedefs/KillOptions)",
+    ]),
+    // #endregion
+    "cmd.register_drop": makeNoteAlert([
+      "drops should be registered as soon as possible and must be the full name of the drop.",
+    ]),
+    "cmd.register_boost": makeNoteAlert([
+      "Boosts should be registered as soon as possible and must be the full name of the boost.",
+    ]),
+    "cmd.unregister_boost": makeNoteAlert([
+      "Boosts should be registered as soon as possible and must be the full name of the boost.",
+    ]),
+    "cmd.set_spawn": makeNoteAlert([
+      "Sets the player spawnpoint to the current cell if no arguments are provided.",
+    ]),
+    // #region misc commands
+    "cmd.delay": makeNoteAlert(["delay is in ms"]),
+    "cmd.set_delay": makeNoteAlert(["delay is in ms"]),
+    "cmd.wait_for_player_count": makeNoteAlert(["wait for map player count"]),
+    "cmd.enable_anticounter": makeNoteAlert([
       'Enables the anti-counter handler when a "prepares a counter attack" message is detected, which stops attacking until the counter attack ends.',
     ]),
-    'cmd.goto_house': makeNoteAlert([
-      'If no player is provided, it will go to your house.',
+    "cmd.goto_house": makeNoteAlert([
+      "If no player is provided, it will go to your house.",
     ]),
+    "cmd.buff": makeNoteAlert([
+      "Naively buffs by casting the first three skills.",
+    ]),
+    "cmd.buy_lifesteal": makeNoteAlert(["Buys Scroll of Life Steal."]),
+    "cmd.start_autoaggro": makeNoteAlert([
+      `Starts autoaggro, which is different to [cmd.start_aggromon](/api/misc#cmd-start-aggromon),
+in that it automatically aggros monsters in which their cell contains a player.`,
+    ]),
+    "cmd.start_aggromon": makeNoteAlert([
+      "Starts aggromon for the given monsters.",
+      "",
+      "If a monster name is provided, all instances of that monster will be tagged.",
+      "If a monMapId is provided, only that monster will be tagged.",
+    ]),
+    // #endregion
   },
 };
 
@@ -132,9 +237,9 @@ function getTypeReplacement(functionName, originalType) {
  * @returns {FunctionInfo[]} The list of functions in the file.
  */
 function extractFunctionsFromFile(filePath) {
-  const code = fs.readFileSync(filePath, 'utf8');
+  const code = fs.readFileSync(filePath, "utf8");
   const sourceFile = ts.createSourceFile(
-    'temp.ts',
+    "temp.ts",
     code,
     ts.ScriptTarget.Latest,
     true,
@@ -204,7 +309,7 @@ function extractFunctionsFromFile(filePath) {
     const params = [];
     for (const param of parameters) {
       const paramName = param.name.getText(sourceFile);
-      let paramType = param.type ? param.type.getText(sourceFile) : 'any';
+      let paramType = param.type ? param.type.getText(sourceFile) : "any";
 
       paramType = getTypeReplacement(name, paramType);
 
@@ -245,7 +350,7 @@ function generateMarkdown(inputPath, outputPath) {
   const stats = fs.statSync(inputPath);
 
   if (!stats.isFile()) {
-    throw new Error('Only files are supported');
+    throw new Error("Only files are supported");
   }
 
   const fileFunctions = extractFunctionsFromFile(inputPath);
@@ -263,7 +368,7 @@ function generateMarkdown(inputPath, outputPath) {
   for (const fn of fileFunctions) {
     markdown += `## cmd.${fn.name}\n\n`;
 
-    markdown += '```ts\n';
+    markdown += "```ts\n";
     markdown += `cmd.${fn.name}(`;
 
     // Make params string
@@ -275,19 +380,19 @@ function generateMarkdown(inputPath, outputPath) {
       }
 
       if (index < fn.parameters.length - 1) {
-        markdown += ', ';
+        markdown += ", ";
       }
     }
 
-    markdown += ')\n';
-    markdown += '```\n\n';
+    markdown += ")\n";
+    markdown += "```\n\n";
 
     if (fn.description) {
       markdown += `${fn.description}\n\n`;
     }
   }
 
-  if (process.argv.includes('--clean')) {
+  if (process.argv.includes("--clean")) {
     fs.rmSync(outputPath, { force: true });
   }
 
@@ -296,7 +401,7 @@ function generateMarkdown(inputPath, outputPath) {
 }
 
 async function generateDocs() {
-  const BASEDIR = path.join(__dirname, '../src/renderer/game/botting/commands');
+  const BASEDIR = path.join(__dirname, "../src/renderer/game/botting/commands");
 
   // Get all names of the directories in the commands folder
 
@@ -306,15 +411,14 @@ async function generateDocs() {
     .map((dirent) => dirent.name);
 
   for (const dir of directories) {
-    const inputPath = path.join(BASEDIR, dir, 'index.ts');
+    const inputPath = path.join(BASEDIR, dir, "index.ts");
     const outputPath = path.join(__dirname, `../docs/api/${dir}.md`);
     generateMarkdown(inputPath, outputPath);
   }
 }
 
-// eslint-disable-next-line promise/prefer-await-to-callbacks
 generateDocs().catch((error) => {
-  console.error('Error generating documentation', error);
+  console.error("Error generating documentation", error);
   process.exit(1);
 });
 

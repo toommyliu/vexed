@@ -218,11 +218,19 @@ cmd.set_guild(guild: string)
 cmd.buff()
 ```
 
+> [!NOTE]
+> Naively buffs by casting the first three skills.
+
+
 ## cmd.buy_lifesteal
 
 ```ts
 cmd.buy_lifesteal(qty: number)
 ```
+
+> [!NOTE]
+> Buys Scroll of Life Steal.
+
 
 ## cmd.equip_loadout
 
@@ -236,6 +244,11 @@ cmd.equip_loadout(loadoutName: string)
 cmd.start_autoaggro()
 ```
 
+> [!NOTE]
+> Starts autoaggro, which is different to [cmd.start_aggromon](/api/misc#cmd-start-aggromon),
+in that it automatically aggros monsters in which their cell contains a player.
+
+
 ## cmd.stop_autoaggro
 
 ```ts
@@ -247,6 +260,13 @@ cmd.stop_autoaggro()
 ```ts
 cmd.start_aggromon(args: string[])
 ```
+
+> [!NOTE]
+> Starts aggromon for the given monsters.
+> 
+> If a monster name is provided, all instances of that monster will be tagged.
+> If a monMapId is provided, only that monster will be tagged.
+
 
 ## cmd.stop_aggromon
 
