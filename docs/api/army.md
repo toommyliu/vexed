@@ -119,7 +119,7 @@ cmd.execute_with_army(fn: () => Promise<void>)
 > 
 > The proceeding command cannot proceed until all players are done.
 > 
-> The function is called with [bot](/api-legacy/Bot.md) as the first argument.
+> The function is called with [bot](../api-legacy/Bot.md) as the first argument.
 
 
 ## cmd.army_equip_item
