@@ -249,7 +249,8 @@ window.addEventListener("DOMContentLoaded", async () => {
       cellsDropdown.innerHTML = "";
       const fragment = document.createDocumentFragment();
 
-      // TODO: if we change rooms, we need to update the current cell display as needed
+      const currentCell = bot.player.cell ?? "Enter";
+      cellsBtn.innerHTML = `<span>${currentCell}</span>`;
 
       for (const cell of bot.world.cells) {
         const cellBtn = document.createElement("button");
@@ -267,6 +268,10 @@ window.addEventListener("DOMContentLoaded", async () => {
 
       cellsDropdown.append(fragment);
       lastRoomId = bot.world.roomId;
+
+      requestAnimationFrame(() => {
+        cellsDropdown.scrollTop = 0;
+      });
     };
 
     const updatePadsDropdown = () => {
