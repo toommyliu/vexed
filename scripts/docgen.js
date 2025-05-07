@@ -67,14 +67,14 @@ const descriptions = {
       "Just the filename without the path or extension.",
     ]),
     "cmd.army_join": makeNoteAlert([
-      "Like [World#join](/api-legacy/world#join) but waits for all players to join before proceeding to the next command.",
+      "Like [World#join](../api-legacy/World.md#join) but waits for all players to join before proceeding to the next command.",
     ]),
     "cmd.army_kill_for": makeNoteAlert([
       "Recommended to pass a custom skillAction function to options when you need granular control for skill casting (should be a closure).",
       "",
-      "[bot](/api-legacy/Bot) is bounded as the **this** context in the skillAction and closure functions. Note the functions, not arrow functions.",
+      "[bot](/api-legacy/Bot.md) is bounded as the **this** context in the skillAction and closure functions. Note the functions, not arrow functions.",
       "",
-      "Note that internally, this wraps [Combat#kill](/api-legacy/combat#kill) but with laxed item checks.",
+      "Note that internally, this wraps [Combat#kill](../api-legacy/Combat.md#kill) but with laxed item checks.",
       "Therefore, the closure can be re-created every call to kill(), so try and avoid storing sensitive state in the closure.",
       "",
       "```js",
@@ -128,7 +128,7 @@ const descriptions = {
       "",
       "The proceeding command cannot proceed until all players are done.",
       "",
-      "The function is called with [bot](/api-legacy/Bot) as the first argument.",
+      "The function is called with [bot](/api-legacy/Bot.md) as the first argument.",
     ]),
     // # endregion
     // # region combat commands
@@ -392,8 +392,8 @@ function generateMarkdown(inputPath, outputPath) {
     }
   }
 
-  if (process.argv.includes("--clean")) {
-    fs.rmSync(outputPath, { force: true });
+  if (!fs.existsSync(path.dirname(outputPath))) {
+    fs.mkdirSync(path.dirname(outputPath), { recursive: true });
   }
 
   fs.writeFileSync(outputPath, markdown);
@@ -404,21 +404,39 @@ async function generateDocs() {
   const BASEDIR = path.join(__dirname, "../src/renderer/game/botting/commands");
 
   // Get all names of the directories in the commands folder
-
   const directories = fs
     .readdirSync(BASEDIR, { withFileTypes: true })
     .filter((dirent) => dirent.isDirectory())
     .map((dirent) => dirent.name);
 
+  if (process.argv.includes("--clean")) {
+    const excluded = [
+      "for-developers",
+      "examples.md",
+      "index.md",
+      "for-developers",
+    ];
+    const outputDir = path.join(__dirname, "../docs/api");
+
+    const files = fs
+      .readdirSync(outputDir)
+      .filter((file) => !excluded.includes(file));
+
+    for (const file of files) {
+      fs.rmSync(path.join(outputDir, file), { force: true });
+    }
+  }
+
   for (const dir of directories) {
     const inputPath = path.join(BASEDIR, dir, "index.ts");
     const outputPath = path.join(__dirname, `../docs/api/${dir}.md`);
+
     generateMarkdown(inputPath, outputPath);
   }
 }
 
 generateDocs().catch((error) => {
-  console.error("Error generating documentation", error);
+  console.error(error);
   process.exit(1);
 });
 

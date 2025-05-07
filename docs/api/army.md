@@ -38,7 +38,7 @@ cmd.army_join(map: string, cell: string, pad: string)
 ```
 
 > [!NOTE]
-> Like [World#join](/api-legacy/world#join) but waits for all players to join before proceeding to the next command.
+> Like [World#join](../api-legacy/World.md#join) but waits for all players to join before proceeding to the next command.
 
 
 ## cmd.army_kill
@@ -56,9 +56,9 @@ cmd.army_kill_for(targetName: string, itemName: string, qty: number, isTemp: boo
 > [!NOTE]
 > Recommended to pass a custom skillAction function to options when you need granular control for skill casting (should be a closure).
 > 
-> [bot](/api-legacy/Bot) is bounded as the **this** context in the skillAction and closure functions. Note the functions, not arrow functions.
+> [bot](/api-legacy/Bot.md) is bounded as the **this** context in the skillAction and closure functions. Note the functions, not arrow functions.
 > 
-> Note that internally, this wraps [Combat#kill](/api-legacy/combat#kill) but with laxed item checks.
+> Note that internally, this wraps [Combat#kill](../api-legacy/Combat.md#kill) but with laxed item checks.
 > Therefore, the closure can be re-created every call to kill(), so try and avoid storing sensitive state in the closure.
 > 
 > ```js
@@ -119,7 +119,7 @@ cmd.execute_with_army(fn: () => Promise<void>)
 > 
 > The proceeding command cannot proceed until all players are done.
 > 
-> The function is called with [bot](/api-legacy/Bot) as the first argument.
+> The function is called with [bot](/api-legacy/Bot.md) as the first argument.
 
 
 ## cmd.army_equip_item
