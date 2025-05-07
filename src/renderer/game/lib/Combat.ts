@@ -33,7 +33,7 @@ export class Combat {
   /**
    * Returns information about the target.
    */
-  public get target(): Record<string, unknown> | null {
+  public get target(): TargetInfo | null {
     if (this.hasTarget()) {
       const objData = this.bot.flash.get("world.myAvatar.target.objData", true);
       const dataLeaf = this.bot.flash.get(
@@ -41,7 +41,7 @@ export class Combat {
         true,
       );
 
-      const ret: TargetInfo = {
+      const baseInfo = {
         name: objData.strMonName ?? objData.strUsername,
         hp: dataLeaf.intHP,
         maxHP: dataLeaf.intHPMax,
@@ -50,10 +50,15 @@ export class Combat {
         state: dataLeaf.intState,
       };
 
-      if (dataLeaf.entType === "p") {
-        ret.monId = dataLeaf.MonID;
-        ret.monMapId = dataLeaf.MonMapID;
-      }
+      const ret: TargetInfo =
+        dataLeaf?.entType === "p"
+          ? { ...baseInfo, type: "player" }
+          : {
+              ...baseInfo,
+              type: "monster",
+              monId: dataLeaf.MonID,
+              monMapId: dataLeaf.MonMapID,
+            };
 
       return ret;
     }
@@ -387,7 +392,7 @@ export type TargetInfo = {
    */
   cell: string;
   /**
-   * The hp of the target.
+   * The current hp of the target.
    */
   hp: number;
   /**
@@ -395,26 +400,29 @@ export type TargetInfo = {
    */
   level: number;
   /**
-   * The max hp of the target.
+   * The maximum hp of the target.
    */
   maxHP: number;
-  /**
-   * The monster id of the target.
-   */
-  monId?: number;
-  /**
-   * The monster map id of the target.
-   */
-  monMapId?: string;
   /**
    * The name of the target.
    */
   name: string;
   /**
    * The state of the target.
+   *
+   * @see {@link PlayerState}
    */
   state: number;
-};
+} & (
+  | {
+      monId: number;
+      monMapId: number;
+      type: "monster";
+    }
+  | {
+      type: "player";
+    }
+);
 
 export type KillOptions = {
   /**
