@@ -1,4 +1,4 @@
-import { KillOptions } from "../../../lib/Combat";
+import type { KillOptions } from "../../../lib/Combat";
 import { ArgsError } from "../../ArgsError";
 import { CommandArmyEquipItem } from "./CommandArmyEquipItem";
 import { CommandArmyInit } from "./CommandArmyInit";
