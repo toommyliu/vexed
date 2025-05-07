@@ -56,6 +56,7 @@ export default defineConfig({
   head: [["script", { src: "/_vercel/insights/script.js" }]],
   cleanUrls: true,
   base: "/",
+  ignoreDeadLinks: true,
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     editLink: {
