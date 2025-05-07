@@ -72,7 +72,7 @@ const descriptions = {
     "cmd.army_kill_for": makeNoteAlert([
       "Recommended to pass a custom skillAction function to options when you need granular control for skill casting (should be a closure).",
       "",
-      "[bot](/api-legacy/Bot.md) is bounded as the **this** context in the skillAction and closure functions. Note the functions, not arrow functions.",
+      "[bot](../api-legacy/Bot.md) is bounded as the **this** context in the skillAction and closure functions. Note the functions, not arrow functions.",
       "",
       "Note that internally, this wraps [Combat#kill](../api-legacy/Combat.md#kill) but with laxed item checks.",
       "Therefore, the closure can be re-created every call to kill(), so try and avoid storing sensitive state in the closure.",
@@ -128,7 +128,7 @@ const descriptions = {
       "",
       "The proceeding command cannot proceed until all players are done.",
       "",
-      "The function is called with [bot](/api-legacy/Bot.md) as the first argument.",
+      "The function is called with [bot](../api-legacy/Bot.md) as the first argument.",
     ]),
     // # endregion
     // # region combat commands
