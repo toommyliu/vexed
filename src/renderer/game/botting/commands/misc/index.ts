@@ -22,6 +22,8 @@ import { CommandSettingLagKiller } from "./CommandSettingLagKiller";
 import { CommandSettingProvokeCell } from "./CommandSettingProvokeCell";
 import { CommandSettingProvokeMap } from "./CommandSettingProvokeMap";
 import { CommandSettingSkipCutscenes } from "./CommandSettingSkipCutscenes";
+import { CommandStartAggroMon } from "./CommandStartAggroMon";
+import { CommandStopAggroMon } from "./CommandStopAggroMon";
 import { CommandStopBot } from "./CommandStopBot";
 import { CommandWaitForPlayerCount } from "./CommandWaitForPlayerCount";
 import { CommandWalkSpeed } from "./CommandWalkSpeed";
@@ -260,6 +262,25 @@ export const miscCommands = {
   stop_autoaggro() {
     const cmd = new CommandAutoAggro();
     cmd.state = false;
+    window.context.addCommand(cmd);
+  },
+  start_aggromon(...args: string[]) {
+    const monstersList = Array.isArray(args[0]) ? args[0] : args;
+
+    if (
+      !monstersList ||
+      !Array.isArray(monstersList) ||
+      !monstersList?.length
+    ) {
+      throw new ArgsError("monstersList is required");
+    }
+
+    const cmd = new CommandStartAggroMon();
+    cmd.monstersList = monstersList;
+    window.context.addCommand(cmd);
+  },
+  stop_aggromon() {
+    const cmd = new CommandStopAggroMon();
     window.context.addCommand(cmd);
   },
 };
