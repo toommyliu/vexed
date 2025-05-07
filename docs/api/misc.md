@@ -212,3 +212,45 @@ cmd.set_name(name: string)
 cmd.set_guild(guild: string)
 ```
 
+## cmd.buff
+
+```ts
+cmd.buff()
+```
+
+## cmd.buy_lifesteal
+
+```ts
+cmd.buy_lifesteal(qty: number)
+```
+
+## cmd.equip_loadout
+
+```ts
+cmd.equip_loadout(loadoutName: string)
+```
+
+## cmd.start_autoaggro
+
+```ts
+cmd.start_autoaggro()
+```
+
+## cmd.stop_autoaggro
+
+```ts
+cmd.stop_autoaggro()
+```
+
+## cmd.start_aggromon
+
+```ts
+cmd.start_aggromon(args: string[])
+```
+
+## cmd.stop_aggromon
+
+```ts
+cmd.stop_aggromon()
+```
+

@@ -84,3 +84,9 @@ cmd.unregister_boost(item: string)
 > Boosts should be registered as soon as possible and must be the full name of the boost.
 
 
+## cmd.equip_item
+
+```ts
+cmd.equip_item(item: string)
+```
+
