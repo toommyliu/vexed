@@ -61,19 +61,23 @@ export abstract class ArmyCommand extends Command {
     // Execute the action
     await action();
 
-    console.log("Notifying action completion...");
     await this.sendDone();
-    console.log("Notified action completion, waiting for others...");
 
     // Wait for all players
+    console.log("Waiting for all players to finish...");
     await allReadyPromise;
+    console.log("All players have finished");
   }
 
   /**
    * Notifies to other players in the group that this player has completed their action
    */
   public async sendDone(): Promise<void> {
+    if (this.isDone) return;
+
+    console.log("Sending done notification...");
     await ipcRenderer.callMain(IPC_EVENTS.ARMY_FINISH_JOB);
+    console.log("Done notification sent...");
     this.isDone = true;
   }
 
