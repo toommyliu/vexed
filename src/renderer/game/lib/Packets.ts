@@ -1,5 +1,16 @@
 import type { Bot } from "./Bot";
 
+export enum ClientPacket {
+  Json = "json",
+  String = "str",
+  Xml = "xml",
+}
+
+export enum ServerPacket {
+  Json = "Json",
+  String = "String",
+}
+
 export class Packets {
   public constructor(public bot: Bot) {}
 
@@ -11,7 +22,7 @@ export class Packets {
    */
   public sendClient(
     packet: string,
-    type: "json" | "str" | "xml" = "str",
+    type: ClientPacket = ClientPacket.String,
   ): void {
     this.bot.flash.call(() => swf.sendClientPacket(packet, type));
   }
@@ -22,7 +33,10 @@ export class Packets {
    * @param packet - The packet to send.
    * @param type - The type of packet.
    */
-  public sendServer(packet: string, type: "Json" | "String" = "String"): void {
+  public sendServer(
+    packet: string,
+    type: ServerPacket = ServerPacket.String,
+  ): void {
     this.bot.flash.call(() => swf.callGameFunction(`sfc.send${type}`, packet));
   }
 }

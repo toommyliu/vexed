@@ -2,6 +2,7 @@ import type { WINDOW_IDS } from "../../common/constants";
 import type { Context } from "./botting/context";
 import type { cmd } from "./botting/index";
 import type { Bot } from "./lib/Bot";
+import type { ClientPacket } from "./lib/Packets";
 import type { ShopInfo } from "./lib/Shop";
 import type { GameAction } from "./lib/World";
 import type { AvatarData } from "./lib/models/Avatar";
@@ -30,7 +31,7 @@ declare global {
     callGameFunction0(path: string): void;
     selectArrayObjects(path: string, selector: string): string;
     isNull(path: string): boolean;
-    sendClientPacket(packet: string, type: "json" | "str" | "xml"): void;
+    sendClientPacket(packet: string, type: ClientPacket): void;
 
     authIsLoggedIn(): boolean;
     authIsTemporarilyKicked(): boolean;
