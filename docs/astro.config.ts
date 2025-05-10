@@ -1,16 +1,13 @@
 import starlight from "@astrojs/starlight";
 import { defineConfig, passthroughImageService } from "astro/config";
 import apiLegacyJson from "./api-legacy.json";
-import sitemap from "@astrojs/sitemap";
 
 // https://astro.build/config
 
 console.log(apiLegacyJson);
 
 export default defineConfig({
-  site: "http://localhost:4321",
   integrations: [
-    sitemap(),
     starlight({
       title: "vexed",
       customCss: [
