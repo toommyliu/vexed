@@ -5,22 +5,29 @@ import vercel from "@astrojs/vercel";
 
 // https://astro.build/config
 
-console.log(apiLegacyJson);
-
 export default defineConfig({
   integrations: [
     starlight({
       title: "vexed",
       customCss: [
-        "@fontsource/inter/100.css",
-        "@fontsource/inter/200.css",
-        "@fontsource/inter/300.css",
-        "@fontsource/inter/400.css",
-        "@fontsource/inter/500.css",
-        "@fontsource/inter/600.css",
-        "@fontsource/inter/700.css",
-        "@fontsource/inter/800.css",
-        "@fontsource/inter/900.css",
+        "@fontsource/geist-mono/100.css",
+        "@fontsource/geist-mono/200.css",
+        "@fontsource/geist-mono/300.css",
+        "@fontsource/geist-mono/400.css",
+        "@fontsource/geist-mono/500.css",
+        "@fontsource/geist-mono/600.css",
+        "@fontsource/geist-mono/700.css",
+        "@fontsource/geist-mono/800.css",
+        "@fontsource/geist-mono/900.css",
+        "@fontsource/geist-sans/100.css",
+        "@fontsource/geist-sans/200.css",
+        "@fontsource/geist-sans/300.css",
+        "@fontsource/geist-sans/400.css",
+        "@fontsource/geist-sans/500.css",
+        "@fontsource/geist-sans/600.css",
+        "@fontsource/geist-sans/700.css",
+        "@fontsource/geist-sans/800.css",
+        "@fontsource/geist-sans/900.css",
         "./src/styles/global.css",
         "./src/styles/theme.css",
       ],
