@@ -5,64 +5,64 @@ import { Avatar, type AvatarData } from "./models/Avatar";
 import type { ItemData } from "./models/Item";
 import { Monster, type MonsterData } from "./models/Monster";
 
-export const GameAction = Object.freeze({
+export enum GameAction {
   /**
    * Accepting a quest.
    */
-  AcceptQuest: "acceptQuest",
+  AcceptQuest = "acceptQuest",
   /**
    * Buying an item.
    */
-  BuyItem: "buyItem",
+  BuyItem = "buyItem",
   /**
    * Do IA action.
    */
-  DoIA: "doIA",
+  DoIA = "doIA",
   /**
    * Equipping an item.
    */
-  EquipItem: "equipItem",
+  EquipItem = "equipItem",
   /**
    * Getting a map item (i.e. via the getMapItem packet).
    */
-  GetMapItem: "getMapItem",
+  GetMapItem = "getMapItem",
   /**
    * Loading an enhancement shop.
    */
-  LoadEnhShop: "loadEnhShop",
+  LoadEnhShop = "loadEnhShop",
   /**
    * Loading a hair shop.
    */
-  LoadHairShop: "loadHairShop",
+  LoadHairShop = "loadHairShop",
   /**
    * Loading a shop.
    */
-  LoadShop: "loadShop",
+  LoadShop = "loadShop",
   /**
    * Resting.
    */
-  Rest: "rest",
+  Rest = "rest",
   /**
    * Selling an item.
    */
-  SellItem: "sellItem",
+  SellItem = "sellItem",
   /**
    * Joining another map.
    */
-  Transfer: "tfer",
+  Transfer = "tfer",
   /**
    * Sending a quest completion packet.
    */
-  TryQuestComplete: "tryQuestComplete",
+  TryQuestComplete = "tryQuestComplete",
   /**
    * Unequipping an item.
    */
-  UnequipItem: "unequipItem",
+  UnequipItem = "unequipItem",
   /**
    * Who action.
    */
-  Who: "who",
-});
+  Who = "who",
+}
 
 export class World {
   public constructor(public readonly bot: Bot) {}
@@ -320,9 +320,7 @@ export class World {
    *
    * @param gameAction - The game action to check.
    */
-  public isActionAvailable(
-    gameAction: (typeof GameAction)[keyof typeof GameAction],
-  ): boolean {
+  public isActionAvailable(gameAction: GameAction): boolean {
     return this.bot.flash.call(() => swf.worldIsActionAvailable(gameAction));
   }
 

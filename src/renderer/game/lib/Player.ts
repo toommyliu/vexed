@@ -2,27 +2,27 @@ import type { Loadout } from "../botting/util/LoadoutConfig";
 import type { Bot } from "./Bot";
 import { Faction } from "./models/Faction";
 
-export const PlayerState = Object.freeze({
+export enum PlayerState {
   /**
    * The player is dead.
    */
-  Dead: 0,
+  Dead = 0,
   /**
    * The player is idle.
    */
-  Idle: 1,
+  Idle = 1,
   /**
    * The player is in combat.
    */
-  InCombat: 2,
-});
+  InCombat = 2,
+}
 
-export const BoostType = Object.freeze({
-  Gold: "gold",
-  Exp: "exp",
-  Rep: "rep",
-  ClassPoints: "classPoints",
-});
+export enum BoostType {
+  ClassPoints = "classPoints",
+  Exp = "exp",
+  Gold = "gold",
+  Rep = "rep",
+}
 
 export class Player {
   public constructor(public readonly bot: Bot) {}
