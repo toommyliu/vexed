@@ -32,6 +32,8 @@ Buy an item from the shop.
 |-----------|------|-------------|
 | itemId | `number` | The id of the item. |
 | quantity | `number` | The quantity of the item. |
+
+
 **Returns**: `Promise<void>`
 
 ### buyByName
@@ -42,11 +44,15 @@ Buy an item from the shop.
 |-----------|------|-------------|
 | itemName | `string` | The name of the item. |
 | quantity | `null` \| `number` | The quantity of the item. If not provided, it will default to 1. |
+
+
 **Returns**: `Promise<void>`
 
 ### isShopLoaded
 
 Whether any shop is loaded.
+
+
 
 **Returns**: `boolean`
 
@@ -57,6 +63,8 @@ Load a shop.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | shopId | `string` \| `number` | The shop ID. |
+
+
 **Returns**: `Promise<void>`
 
 ### loadHairShop
@@ -66,11 +74,15 @@ Loads a hair shop.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | shopId | `string` \| `number` | The shop ID. |
+
+
 **Returns**: `void`
 
 ### openArmorCustomizer
 
 Opens the Armor Customization menu.
+
+
 
 **Returns**: `void`
 
@@ -81,4 +93,6 @@ Sells an entire stack of an item.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | key | `string` | The name or ID of the item. |
+
+
 **Returns**: `Promise<void>`

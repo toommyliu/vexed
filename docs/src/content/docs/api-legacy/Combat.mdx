@@ -42,17 +42,23 @@ Attacks a monster.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | monsterResolvable | `string` | The name or monMapID of the monster. |
+
+
 **Returns**: `void`
 
 ### cancelAutoAttack
 
 Cancels an auto attack.
 
+
+
 **Returns**: `void`
 
 ### cancelTarget
 
 Cancels the current target.
+
+
 
 **Returns**: `void`
 
@@ -61,17 +67,23 @@ Cancels the current target.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | index | `string` \| `number` |  |
+
+
 **Returns**: `boolean`
 
 ### exit
 
 Exit from combat state.
 
+
+
 **Returns**: `Promise<void>`
 
 ### hasTarget
 
 Whether the player has a target.
+
+
 
 **Returns**: `boolean`
 
@@ -83,6 +95,8 @@ Kills a monster.
 |-----------|------|----------|---------|-------------|
 | monsterResolvable | `string` |  |  | The name or monMapId of the monster. |
 | options | `Partial<KillOptions>` | ✓ | `{}` | The optional configuration to use for the kill. |
+
+
 **Returns**: `Promise<void>`
 
 ### killForItem
@@ -95,6 +109,8 @@ Kills the monster until the quantity of the item is met in the inventory.
 | item | `string` \| `number` |  |  | The name or ID of the item. |
 | quantity | `number` |  |  | The quantity of the item. |
 | options | `Partial<KillOptions>` | ✓ | `{}` | The configuration to use for the kill. |
+
+
 **Returns**: `Promise<void>`
 
 ### killForTempItem
@@ -107,6 +123,8 @@ Kills the monster until the quantity of the item is met in the temp inventory.
 | item | `string` \| `number` |  |  | The name or ID of the item. |
 | quantity | `number` |  |  | The quantity of the item. |
 | options | `Partial<KillOptions>` | ✓ | `{}` | The configuration to use for the kill. |
+
+
 **Returns**: `Promise<void>`
 
 ### rest
@@ -117,6 +135,8 @@ Rests the player.
 |-----------|------|----------|---------|-------------|
 | full | `boolean` | ✓ | `false` | Whether to rest until max hp and mp are reached. |
 | exit | `boolean` | ✓ | `false` | Whether to exit combat before attempting to rest. |
+
+
 **Returns**: `Promise<void>`
 
 ### useSkill
@@ -128,4 +148,6 @@ Casts a skill.
 | index | `string` \| `number` |  |  | The index of the skill. Skills range from 0 (skill 1) to 5 (potions). |
 | force | `boolean` | ✓ | `false` | Whether to use the skill regardless if there is a target. |
 | wait | `boolean` | ✓ | `false` | Whether to wait for the skill to be available. |
+
+
 **Returns**: `Promise<void>`
