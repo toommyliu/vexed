@@ -16,12 +16,18 @@ const { toc, isMobile = false, depth = 0 } = Astro.props;
 <ul class:list={{ isMobile }}>
   {
     toc.map((heading) => {
+      const isEnumMember = heading.text.includes(" = ");
+
+      const finalHeadingText = isEnumMember
+        ? heading.text.split(" = ")[0]
+        : heading.text;
+
       return (
         <li>
           <a href={"#" + heading.slug}>
             <span>
               {/* hide (getter) (setter) from ToC which looks weird, but they should still be displayed in the main content */}
-              {heading.text.replace("(getter)", "").replace("(setter)", "")}
+              {finalHeadingText.replace("(getter)", "").replace("(setter)", "")}
             </span>
           </a>
           {heading.children.length > 0 && (

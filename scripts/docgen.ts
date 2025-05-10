@@ -35,6 +35,8 @@ const excludedMethods: Record<string, string[]> = {
   ],
 };
 
+const enumItems: Array<{ label: string; link: string }> = [];
+
 /**
  * Converts a summary block to a description string.
  */
@@ -106,6 +108,61 @@ async function generateDocumentation() {
 
         // TODO: we can read child.groups and find by title instead
         // of filtering by kind
+
+        const enums =
+          child?.children?.filter(
+            (child) => child.kind === typedoc.ReflectionKind.Enum /* 8 */,
+          ) ?? [];
+
+        for (const enum_ of enums) {
+          const mdxFileContent = [
+            "---",
+            `title: ${enum_.name}`,
+            "---",
+            "## Members",
+          ];
+
+          console.log(`Enum name: ${enum_.name}...`);
+
+          for (let idx = 0; idx < (enum_.children ?? [])?.length; idx++) {
+            const enumChild = enum_.children?.[idx];
+            if (!enumChild) continue;
+
+            if (enumChild.kind === typedoc.ReflectionKind.EnumMember /* 16 */) {
+              const memberName = enumChild.name;
+              const memberDescription =
+                makeDescription(enumChild.comment?.summary ?? []) || "";
+
+              // console.log(
+              //   `\tEnum member name: ${memberName} (${enumChild?.type?.toString()}): ${makeDescription(enumChild?.comment?.summary ?? [])}...`,
+              // );
+
+              mdxFileContent.push(
+                `### ${memberName} = \`${enumChild.type?.toString()}\``,
+              );
+              if (memberDescription) {
+                mdxFileContent.push(memberDescription.split("\n").join("\n"));
+              }
+              mdxFileContent.push("");
+              mdxFileContent.push("---");
+            }
+          }
+
+          const mdxFilePath = join(docsEntryPath, "enums", `${enum_.name}.mdx`);
+          // console.log(`Writing enum file: ${mdxFilePath}...`);
+
+          await fs.mkdir(dirname(mdxFilePath), {
+            recursive: true,
+          });
+          await fs.writeFile(mdxFilePath, mdxFileContent.join("\n"), {
+            encoding: "utf-8",
+          });
+
+          enumItems.push({
+            label: enum_.name,
+            link: `/api-legacy/enums/${enum_.name.toLowerCase()}`,
+          });
+        }
 
         for (const cls of classes) {
           const className = cls.name;
@@ -355,6 +412,15 @@ async function generateDocumentation() {
           }
         }
       }
+    }
+
+    // Add the enum group
+    if (enumItems.length > 0) {
+      jsonData.unshift({
+        label: "Enums",
+        items: enumItems,
+        collapsed: true,
+      });
     }
 
     // Nested items first
