@@ -307,7 +307,7 @@ async function generateDocumentation() {
           // console.log(`Class: ${className}: ${classDescription}...`);
 
           for (const prop of properties) {
-            if (!prop.flags.isPublic) continue;
+            if (!prop.flags.isPublic || prop.name.startsWith("_")) continue;
 
             const propName = prop.name;
             const propDescription =
