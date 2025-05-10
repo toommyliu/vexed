@@ -2,7 +2,6 @@
 /* https://github.com/trueberryless-org/starlight-nextjs-theme */
 
 :root {
-  --sl-font: "Inter", --system-ui, sans-serif;
   --sl-mobile-toc-height: 5rem;
   font-display: swap;
 }
