@@ -5,6 +5,7 @@
   --sl-font: "Geist Sans", sans-serif;
   --sl-font-mono: "Geist Mono", monospace;
   --sl-mobile-toc-height: 5rem;
+  font-display: swap;
 }
 
 /* Dark mode colors. */
