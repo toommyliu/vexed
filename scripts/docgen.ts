@@ -111,6 +111,7 @@ async function generateDocumentation() {
           const className = cls.name;
           const classDescription =
             makeDescription(cls.comment?.summary ?? []) || "";
+          const baseClass = cls?.extendedTypes?.[0]?.toString() || "";
 
           const classProperties: Property[] = [];
           const classMethods: Method[] = [];
@@ -220,6 +221,7 @@ async function generateDocumentation() {
             description: classDescription,
             properties: classProperties,
             methods: classMethods,
+            baseClass,
           });
 
           const fileName = cls?.sources?.[0]?.fullFileName?.replace(
@@ -303,6 +305,10 @@ type Class = {
    * The methods of the class.
    */
   methods?: Method[];
+  /**
+   * The base class of the class.
+   */
+  baseClass?: string;
 };
 type Property = {
   /**
