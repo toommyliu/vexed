@@ -2,7 +2,7 @@
 title: Combat
 ---
 
-import { Badge } from "@astrojs/starlight/components";
+import { Badge, Code } from "@astrojs/starlight/components";
 
 A `monsterResolvable` is either a monster name or monMapID prefixed with `id` and delimited by a `'`, `.`, `:`, `-` character.
 
@@ -61,6 +61,19 @@ Whether the player has a target.
 
 ### kill
 Kills a monster.
+
+<Code code={`
+// Basic usage
+await combat.kill("Frogzard");
+
+// Advanced usage
+// Kill Ultra Engineer, but prioritize attacking Defense Drone and Attack Drone first.
+await combat.kill("Ultra Engineer", {
+    killPriority: ["Defense Drone", "Attack Drone"],
+    skillSet: [5,3,2,1,4],
+    skillDelay: 50,
+});
+`} lang="js" title="Combat.ts" />
 | Parameter | Type | Optional | Default | Description |
 |-----------|------|----------|---------|-------------|
 | monsterResolvable | `string` |  |  | The name or monMapId of the monster. |

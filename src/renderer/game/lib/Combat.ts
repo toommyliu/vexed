@@ -151,9 +151,9 @@ export class Combat {
    * // Advanced usage
    * // Kill Ultra Engineer, but prioritize attacking Defense Drone and Attack Drone first.
    * await combat.kill("Ultra Engineer", \{
-   *   killPriority: ["Defense Drone", "Attack Drone"],
-   *   skillSet: [5,3,2,1,4],
-   *   skillDelay: 50,
+   *     killPriority: ["Defense Drone", "Attack Drone"],
+   *     skillSet: [5,3,2,1,4],
+   *     skillDelay: 50,
    * \});
    */
   public async kill(

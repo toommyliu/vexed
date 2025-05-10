@@ -50,6 +50,19 @@ function makeDescription(summary: typedoc.CommentDisplayPart[]) {
   }, "");
 }
 
+/**
+ * Converts a block tag to a string.
+ */
+function makeBlockTag(tag: typedoc.CommentTag[]) {
+  return tag.reduce((acc, part) => {
+    if (part.tag === "@example") {
+      return acc + part.content.map((p) => p.text).join("");
+    }
+
+    return "";
+  }, "");
+}
+
 async function generateDocumentation() {
   if (process.argv.includes("--clean") || process.argv.includes("-c")) {
     const docsExists = await fs.access(docsEntryPath).catch(() => false);
@@ -254,8 +267,11 @@ async function generateDocumentation() {
                 };
               })
               .filter((param) => Boolean(param)) as Parameter[];
-
-            const returnType = mth.signatures?.[0]?.type?.toString() ?? "";
+            const returnType = mth.signatures?.[0]?.type?.toString() || "";
+            const exampleCode =
+              makeBlockTag(mth?.signatures?.[0]?.comment?.blockTags ?? [])
+                .replace("```ts", "")
+                .replace("```", "") || "";
 
             // console.log(
             //   `Method: ${methodName} [${returnType}] (${isStatic}) ${methodDescription}...`,
@@ -263,11 +279,17 @@ async function generateDocumentation() {
             // console.log(`
             // ${className}::${methodName}(${methodParameters?.map((param) => `${param.name}: ${param.type}${param.defaultValue ? ` = ${param.defaultValue}` : ""}`).join(", ")}) [${returnType}]`);
 
+            if (exampleCode)
+              console.log(
+                `${className}::${methodName} has example: ${exampleCode}`,
+              );
+
             const method: Method = {
               name: methodName,
               description: methodDescription,
               parameters: methodParameters,
               returnType,
+              example: exampleCode,
               isStatic,
             };
             classMethods.push(method);
@@ -294,7 +316,7 @@ async function generateDocumentation() {
             `title: ${className}`,
             "---",
             "",
-            `import { Badge } from "@astrojs/starlight/components";`,
+            `import { Badge, Code } from "@astrojs/starlight/components";`,
             "",
           ];
 
@@ -330,6 +352,13 @@ async function generateDocumentation() {
 
               if (mth.description) {
                 mdxFileContent.push(`${mth.description}`);
+              }
+
+              if (mth.example) {
+                // <Code code={exampleCode} lang="js" title={fileName} mark={highlights} />
+                mdxFileContent.push(
+                  `\n<Code code={\`${mth.example}\`} lang="js" title="${fileName}" />`,
+                );
               }
 
               if (mth.parameters && mth.parameters.length > 0) {
@@ -507,6 +536,10 @@ type Method = {
    * The return type of the method.
    */
   returnType: string;
+  /**
+   * Example code for the method.
+   */
+  example?: string;
   /**
    * Whether the method is static.
    */
