@@ -9,3 +9,5 @@ public/output.css
 .vscode/settings.json
 
 *.lock
+api-legacy.json
+api.json
