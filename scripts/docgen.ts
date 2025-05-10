@@ -35,8 +35,6 @@ const excludedMethods: Record<string, string[]> = {
   ],
 };
 
-const enumItems: Array<{ label: string; link: string }> = [];
-
 /**
  * Converts a summary block to a description string.
  */
@@ -61,6 +59,51 @@ function makeBlockTag(tag: typedoc.CommentTag[]) {
 
     return "";
   }, "");
+}
+
+/**
+ * Extracts properties from an intersection type
+ */
+function extractIntersectionProperties(
+  typedef: typedoc.DeclarationReflection,
+): typedoc.DeclarationReflection[] {
+  const properties: typedoc.DeclarationReflection[] = [];
+
+  if (typedef.type?.type === "intersection") {
+    // Handle intersection types
+    const types = (typedef.type as typedoc.IntersectionType).types;
+    for (const type of types) {
+      if (type.type === "reference" && type.reflection?.children) {
+        properties.push(...type.reflection.children);
+      } else if (type.type === "reflection" && type.declaration.children) {
+        // Handle inline object types
+        properties.push(...type.declaration.children);
+      } else if (type.type === "union") {
+        // Handle union types
+        for (const unionType of type.types) {
+          if (
+            unionType.type === "reflection" &&
+            unionType.declaration.children
+          ) {
+            properties.push(...unionType.declaration.children);
+          }
+        }
+      }
+    }
+  }
+
+  if (typedef.children) {
+    properties.push(...typedef.children);
+  }
+
+  const uniqueProps = new Map<string, typedoc.DeclarationReflection>();
+  for (const prop of properties) {
+    if (!uniqueProps.has(prop.name)) {
+      uniqueProps.set(prop.name, prop);
+    }
+  }
+
+  return Array.from(uniqueProps.values());
 }
 
 async function generateDocumentation() {
@@ -127,6 +170,11 @@ async function generateDocumentation() {
             (child) => child.kind === typedoc.ReflectionKind.Enum /* 8 */,
           ) ?? [];
 
+        const typedefs =
+          child?.children?.filter(
+            (child) => child.kind === typedoc.ReflectionKind.TypeAlias /* 64 */,
+          ) ?? [];
+
         for (const enum_ of enums) {
           const mdxFileContent = [
             "---",
@@ -177,6 +225,62 @@ async function generateDocumentation() {
           sidebarGroups.get("enums")?.push({
             label: enum_.name,
             link: `/api-legacy/enums/${enum_.name.toLowerCase()}`,
+          });
+        }
+
+        for (const typedef of typedefs) {
+          // console.log(
+          //   `typedef: ${typedef.name} (${typedef?.type?.toString()}): ${makeDescription(
+          //     typedef?.comment?.summary ?? [],
+          //   )}...`,
+          // );
+
+          const mdxFileContent = ["---", `title: ${typedef.name}`, "---", ""];
+
+          // Make a table of the typedef, Name | Type | Description
+          mdxFileContent.push("| Name | Type | Description |");
+          mdxFileContent.push("|------|------|-------------|");
+          const properties = extractIntersectionProperties(typedef);
+          for (const child of properties) {
+            if (child.kind === typedoc.ReflectionKind.Property /* 1024 */) {
+              const propName = child.name;
+              const propDescription =
+                makeDescription(child.comment?.summary ?? []) || "";
+              const propType = child.type?.toString() || "";
+
+              const safeType = propType.includes("|")
+                ? propType
+                    .split("|")
+                    .map((t) => `\`${t.trim()}\``)
+                    .join(" \\| ")
+                : `\`${propType}\``;
+
+              mdxFileContent.push(
+                `| ${propName} | ${safeType} | ${propDescription} |`,
+              );
+            }
+          }
+
+          const mdxFilePath = join(
+            docsEntryPath,
+            "typedefs",
+            `${typedef.name}.mdx`,
+          );
+
+          await fs.mkdir(dirname(mdxFilePath), {
+            recursive: true,
+          });
+          await fs.writeFile(mdxFilePath, mdxFileContent.join("\n"), {
+            encoding: "utf-8",
+          });
+
+          if (!sidebarGroups.has("typedefs")) {
+            sidebarGroups.set("typedefs", []);
+          }
+
+          sidebarGroups.get("typedefs")?.push({
+            label: typedef.name,
+            link: `/api-legacy/typedefs/${typedef.name.toLowerCase()}`,
           });
         }
 
@@ -441,7 +545,7 @@ async function generateDocumentation() {
       }
     }
 
-    const priority = ["models", "enums", "util"];
+    const priority = ["models", "typedefs", "enums", "util"];
 
     // Sort sidebar groups by priority
     const sortedSidebarGroups = [...sidebarGroups.entries()].sort(
@@ -452,7 +556,7 @@ async function generateDocumentation() {
     // Add sorted sidebar groups to jsonData
     for (const [groupName, items] of sortedSidebarGroups) {
       jsonData.unshift({
-        label: groupName.slice(0, 1).toUpperCase() + groupName.slice(1),
+        label: groupName.charAt(0).toUpperCase() + groupName.slice(1),
         items: items,
         collapsed: true,
       });

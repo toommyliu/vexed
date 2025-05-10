@@ -50,6 +50,80 @@
     "collapsed": true
   },
   {
+    "label": "Typedefs",
+    "items": [
+      {
+        "label": "KillOptions",
+        "link": "/api-legacy/typedefs/killoptions"
+      },
+      {
+        "label": "TargetInfo",
+        "link": "/api-legacy/typedefs/targetinfo"
+      },
+      {
+        "label": "Aura",
+        "link": "/api-legacy/typedefs/aura"
+      },
+      {
+        "label": "AvatarData",
+        "link": "/api-legacy/typedefs/avatardata"
+      },
+      {
+        "label": "FactionData",
+        "link": "/api-legacy/typedefs/factiondata"
+      },
+      {
+        "label": "ItemData",
+        "link": "/api-legacy/typedefs/itemdata"
+      },
+      {
+        "label": "MonsterData",
+        "link": "/api-legacy/typedefs/monsterdata"
+      },
+      {
+        "label": "QuestData",
+        "link": "/api-legacy/typedefs/questdata"
+      },
+      {
+        "label": "QuestRequiredItem",
+        "link": "/api-legacy/typedefs/questrequireditem"
+      },
+      {
+        "label": "QuestRequiredItemsRaw",
+        "link": "/api-legacy/typedefs/questrequireditemsraw"
+      },
+      {
+        "label": "QuestReward",
+        "link": "/api-legacy/typedefs/questreward"
+      },
+      {
+        "label": "QuestRewardRaw",
+        "link": "/api-legacy/typedefs/questrewardraw"
+      },
+      {
+        "label": "QuestRewards2Raw",
+        "link": "/api-legacy/typedefs/questrewards2raw"
+      },
+      {
+        "label": "QuestTurnInRaw",
+        "link": "/api-legacy/typedefs/questturninraw"
+      },
+      {
+        "label": "ServerData",
+        "link": "/api-legacy/typedefs/serverdata"
+      },
+      {
+        "label": "ShopItemData",
+        "link": "/api-legacy/typedefs/shopitemdata"
+      },
+      {
+        "label": "ShopInfo",
+        "link": "/api-legacy/typedefs/shopinfo"
+      }
+    ],
+    "collapsed": true
+  },
+  {
     "label": "Enums",
     "items": [
       {
