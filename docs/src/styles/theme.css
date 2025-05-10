@@ -619,3 +619,77 @@ starlight-tabs
 .right-sidebar mobile-starlight-toc > nav summary {
   margin-top: 1rem;
 }
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 2rem 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Table header */
+thead {
+  background-color: var(--sl-color-gray-6);
+  color: var(--sl-color-white);
+}
+
+thead tr {
+  border-bottom: none;
+}
+
+th {
+  font-weight: 600;
+  text-align: left;
+  padding: 1rem;
+  border-bottom: 2px solid var(--sl-color-gray-5);
+  position: relative;
+}
+
+/* Divider between heading cells */
+th:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 25%;
+  height: 50%;
+  width: 1px;
+  background-color: var(--sl-color-gray-5);
+}
+
+/* Table body */
+tbody tr {
+  border-bottom: 1px solid var(--sl-color-gray-2);
+  transition: background-color 0.2s ease;
+}
+
+tbody tr:last-child {
+  border-bottom: none;
+}
+tbody tr:nth-child(even) {
+  background-color: var(--sl-color-gray-1);
+}
+
+/* Table cells */
+td {
+  padding: 1rem;
+  vertical-align: top;
+}
+
+@media (max-width: 768px) {
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    font-size: 0.9rem;
+  }
+
+  th,
+  td {
+    padding: 0.75rem;
+  }
+}
