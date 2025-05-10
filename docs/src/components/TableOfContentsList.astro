@@ -20,7 +20,7 @@ const { toc, isMobile = false, depth = 0 } = Astro.props;
         <li>
           <a href={"#" + heading.slug}>
             <span>
-              {/* hide from  */}
+              {/* hide (getter) (setter) from ToC which looks weird, but they should still be displayed in the main content */}
               {heading.text.replace("(getter)", "").replace("(setter)", "")}
             </span>
           </a>

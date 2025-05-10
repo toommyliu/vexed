@@ -54,3 +54,40 @@ The room number to join.
 
 Type: `string`
 
+
+## Methods
+
+### getPlayerNumber
+
+Gets the player number position in the army.
+
+**Returns**: `number`
+
+### init
+
+Initializes everything needed to begin armying.
+
+**Returns**: `Promise<void>`
+
+### isLeader
+
+Whether this player is the leader of the army.
+
+**Returns**: `boolean`
+
+### setConfigName
+
+Sets the config file name.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| fileName | string | The name of the config file. |
+
+
+**Returns**: `void`
+
+### waitForAll
+
+Waits for all players in the army in the map.
+
+**Returns**: `Promise<void>`

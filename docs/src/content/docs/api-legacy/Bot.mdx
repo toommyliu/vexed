@@ -157,3 +157,35 @@ The singleton instance of the Bot class.
 
 Type: `null | Bot`
 
+
+## Methods
+
+### sleep
+
+Pauses execution for a specified amount of time.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| ms | number | The number of milliseconds to wait. |
+
+
+**Returns**: `Promise<void>`
+
+### waitUntil
+
+Waits until the condition is met.
+
+| Parameter | Type | Optional | Default | Description |
+|-----------|------|----------|---------|-------------|
+| condition | () => boolean |  |  | The condition to wait for until it returns true. |
+| prerequisite | `null` \| `(() => boolean)` | ✓ | `null` | The prerequisite to be checked before waiting for the condition. |
+| maxIterations | number | ✓ | `15` | The maximum number of iterations to wait. -1 to wait indefinitely. |
+
+
+**Returns**: `Promise<void>`
+
+### getInstance <Badge text="static" />
+
+Gets the singleton instance of the Bot class.
+
+**Returns**: `Bot`

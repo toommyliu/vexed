@@ -48,3 +48,111 @@ The number of bank slots currently in use.
 
 Type: `number`
 
+
+## Methods
+
+### contains
+
+Whether an item meets the quantity in the bank.
+
+| Parameter | Type | Optional | Default | Description |
+|-----------|------|----------|---------|-------------|
+| key | `string` \| `number` |  |  | The name or ID of the item. |
+| quantity | number | ✓ | `1` | The quantity of the item. |
+
+
+**Returns**: `boolean`
+
+### deposit
+
+Puts an item into the bank.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| key | `string` \| `number` | The name or ID of the item. |
+
+
+**Returns**: `Promise<void>`
+
+### depositMultiple
+
+Puts multiple items into the bank.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| items | `(string` \| `number)[]` | The list of items to deposit. |
+
+
+**Returns**: `Promise<void>`
+
+### get
+
+Gets an item from the Bank.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| key | `string` \| `number` | The name or ID of the item. |
+
+
+**Returns**: `null | BankItem`
+
+### isOpen
+
+Whether the bank ui is open.
+
+**Returns**: `boolean`
+
+### open
+
+Opens the bank ui, and loads all items if needed.
+
+| Parameter | Type | Optional | Default | Description |
+|-----------|------|----------|---------|-------------|
+| force | boolean | ✓ | `false` | Whether to force open the bank ui, regardless of whether it's open. |
+| loadItems | boolean | ✓ | `false` | Whether to load all items in the bank, regardless of whether they've been loaded. |
+
+
+**Returns**: `Promise<void>`
+
+### swap
+
+Swaps an item from the bank with an item from the inventory.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| bankItem | `string` \| `number` | The name or ID of the item from the Bank. |
+| inventoryItem | `string` \| `number` | The name or ID of the item from the Inventory. |
+
+
+**Returns**: `Promise<void>`
+
+### swapMultiple
+
+Swaps multiple items between the bank and inventory.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| items | `[string` \| `number, string` \| `number][]` | A list of item pairs to swap. |
+
+
+**Returns**: `Promise<void>`
+
+### withdraw
+
+Takes an item out of the bank.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| key | `string` \| `number` | The name or ID of the item. |
+
+
+**Returns**: `Promise<void>`
+
+### withdrawMultiple
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| items | `(string` \| `number)[]` |  |
+
+
+**Returns**: `Promise<void>`

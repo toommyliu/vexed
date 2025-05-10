@@ -48,3 +48,39 @@ The number of used slots in the player's inventory.
 
 Type: `number`
 
+
+## Methods
+
+### contains
+
+Whether an item meets the quantity in the inventory.
+
+| Parameter | Type | Optional | Default | Description |
+|-----------|------|----------|---------|-------------|
+| itemKey | `string` \| `number` |  |  | The name or ID of the item. |
+| quantity | number | ✓ | `1` | The quantity of the item. |
+
+
+**Returns**: `boolean`
+
+### equip
+
+Equips an item from the inventory.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| itemKey | `string` \| `number` | The name or ID of the item. |
+
+
+**Returns**: `Promise<void>`
+
+### get
+
+Resolves for an Item in the Inventory.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| key | `string` \| `number` | The name or ID of the item. |
+
+
+**Returns**: `null | InventoryItem`

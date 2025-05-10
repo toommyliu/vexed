@@ -261,6 +261,73 @@ async function generateDocumentation() {
             }
           }
 
+          if (classMethods.length) {
+            mdxFileContent.push("## Methods\n");
+
+            for (const mth of classMethods) {
+              mdxFileContent.push(
+                `### ${mth.name}${mth.isStatic ? ' <Badge text="static" />' : ""}\n`,
+              );
+
+              if (mth.description) {
+                mdxFileContent.push(`${mth.description}\n`);
+              }
+
+              if (mth.parameters && mth.parameters.length > 0) {
+                const hasOptionalOrDefaultParams = mth.parameters.some(
+                  (param) => param.defaultValue,
+                );
+
+                if (hasOptionalOrDefaultParams) {
+                  mdxFileContent.push(
+                    "| Parameter | Type | Optional | Default | Description |",
+                  );
+                  mdxFileContent.push(
+                    "|-----------|------|----------|---------|-------------|",
+                  );
+
+                  for (const param of mth.parameters) {
+                    const safeType = param.type.includes("|")
+                      ? param.type
+                          .split("|")
+                          .map((t) => `\`${t.trim()}\``)
+                          .join(" \\| ")
+                      : param.type;
+                    const defaultValue = param.defaultValue
+                      ? `\`${param.defaultValue}\``
+                      : "";
+                    const isOptional = param.defaultValue ? "✓" : "";
+                    const description = param.description || "";
+
+                    mdxFileContent.push(
+                      `| ${param.name} | ${safeType} | ${isOptional} | ${defaultValue} | ${description} |`,
+                    );
+                  }
+                } else {
+                  mdxFileContent.push("| Parameter | Type | Description |");
+                  mdxFileContent.push("|-----------|------|-------------|");
+
+                  for (const param of mth.parameters) {
+                    const safeType = param.type.includes("|")
+                      ? param.type
+                          .split("|")
+                          .map((t) => `\`${t.trim()}\``)
+                          .join(" \\| ")
+                      : param.type;
+                    const description = param.description || "";
+
+                    mdxFileContent.push(
+                      `| ${param.name} | ${safeType} | ${description} |`,
+                    );
+                  }
+                }
+                mdxFileContent.push("\n");
+              }
+
+              mdxFileContent.push(`**Returns**: \`${mth.returnType}\`\n`);
+            }
+          }
+
           await fs.mkdir(dirname(mdxFilePath), { recursive: true });
           await fs.writeFile(mdxFilePath, mdxFileContent.join("\n"), {
             encoding: "utf-8",
@@ -315,9 +382,6 @@ type Class = {
    */
   name: string;
   /**
-   * The description of the class.
-   */
-  description?: string;
   /**
    * The properties of the class.
    */
