@@ -5,7 +5,7 @@ title: KillOptions
 | Name | Type | Description |
 |------|------|-------------|
 | killPriority | `string[]` \| `string` | An ascending list of monster names or monMapIDs to kill. This can also be a string of monsterResolvables deliminted by a comma. |
-| skillAction | `(() => () => Promise<void>)` \| `null` | Custom skill action function. If provided, the skillSet and skillDelay will be ignored. Recommended to be a closure function. |
+| skillAction | `(() => () => Promise<void>)` \| `null` | Custom skill action function that provides alternative combat logic. It should be implemented as a closure that returns an async function. When provided, this function replaces the default skill rotation logic. The outer and inner functions are bound with `bot` context. Skill logic should be implemented in the inner function. |
 | skillDelay | `number` | The delay between each skill cast. |
 | skillSet | `number[]` | The order of skills to use. |
 | skillWait | `boolean` | Whether to wait for the skill to be available before casting. |
