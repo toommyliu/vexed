@@ -1,0 +1,126 @@
+[
+  {
+    "label": "util",
+    "items": [
+      {
+        "label": "AutoRelogin",
+        "link": "/api-legacy/util/autorelogin"
+      },
+      {
+        "label": "Flash",
+        "link": "/api-legacy/util/flash"
+      }
+    ],
+    "collapsed": true
+  },
+  {
+    "label": "models",
+    "items": [
+      {
+        "label": "Avatar",
+        "link": "/api-legacy/models/avatar"
+      },
+      {
+        "label": "BankItem",
+        "link": "/api-legacy/models/bankitem"
+      },
+      {
+        "label": "Faction",
+        "link": "/api-legacy/models/faction"
+      },
+      {
+        "label": "HouseItem",
+        "link": "/api-legacy/models/houseitem"
+      },
+      {
+        "label": "InventoryItem",
+        "link": "/api-legacy/models/inventoryitem"
+      },
+      {
+        "label": "Item",
+        "link": "/api-legacy/models/item"
+      },
+      {
+        "label": "Monster",
+        "link": "/api-legacy/models/monster"
+      },
+      {
+        "label": "Quest",
+        "link": "/api-legacy/models/quest"
+      },
+      {
+        "label": "Server",
+        "link": "/api-legacy/models/server"
+      },
+      {
+        "label": "ShopItem",
+        "link": "/api-legacy/models/shopitem"
+      },
+      {
+        "label": "TempInventoryItem",
+        "link": "/api-legacy/models/tempinventoryitem"
+      }
+    ],
+    "collapsed": true
+  },
+  {
+    "label": "Army",
+    "link": "/api-legacy/army"
+  },
+  {
+    "label": "Auth",
+    "link": "/api-legacy/auth"
+  },
+  {
+    "label": "Bank",
+    "link": "/api-legacy/bank"
+  },
+  {
+    "label": "Bot",
+    "link": "/api-legacy/bot"
+  },
+  {
+    "label": "Combat",
+    "link": "/api-legacy/combat"
+  },
+  {
+    "label": "Drops",
+    "link": "/api-legacy/drops"
+  },
+  {
+    "label": "House",
+    "link": "/api-legacy/house"
+  },
+  {
+    "label": "Inventory",
+    "link": "/api-legacy/inventory"
+  },
+  {
+    "label": "Packets",
+    "link": "/api-legacy/packets"
+  },
+  {
+    "label": "Player",
+    "link": "/api-legacy/player"
+  },
+  {
+    "label": "Quests",
+    "link": "/api-legacy/quests"
+  },
+  {
+    "label": "Settings",
+    "link": "/api-legacy/settings"
+  },
+  {
+    "label": "Shops",
+    "link": "/api-legacy/shops"
+  },
+  {
+    "label": "TempInventory",
+    "link": "/api-legacy/tempinventory"
+  },
+  {
+    "label": "World",
+    "link": "/api-legacy/world"
+  }
+]

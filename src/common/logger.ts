@@ -2,6 +2,7 @@ import process from "process";
 import util from "util";
 import type { Logger as WinstonLogger } from "winston";
 import winston, { createLogger, format, transports } from "winston";
+import { ClientPacket } from "../renderer/game/lib/Packets";
 
 // TODO: add debug flag to enable debug logging
 
@@ -82,7 +83,7 @@ export class Logger {
       try {
         const text = this.formatArgs(args);
         const message = `%xt%moderator%-1%(${scope}) ${text}%`;
-        window.swf.sendClientPacket(message, "str");
+        window.swf.sendClientPacket(message, ClientPacket.String);
       } catch {}
     }
   }

@@ -4,6 +4,7 @@ const path = require("path");
 
 const typeDefinitions = [];
 
+const excludedClasses = ["Logger", "FileManager"];
 const excludedTypedefs = [
   "ConditionalReturn",
   "Events",
@@ -63,8 +64,8 @@ function loadTsConfig(tsconfigPath) {
 }
 
 function ensureDirectoryExists(dirPath) {
-  if (!fs.existsSync(path.join(__dirname, dirPath))) {
-    fs.mkdirSync(path.join(__dirname, dirPath), { recursive: true });
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
   }
 }
 
@@ -521,14 +522,19 @@ function generateDocs(fileNames, options) {
 }
 
 function generateMarkdown(documentation, typeDefinitions) {
-  const docsDir = "../docs/api-legacy";
-  const structsDir = path.join(docsDir, "models");
-  const utilDir = path.join(docsDir, "util");
-  const typedefsDir = path.join(docsDir, "typedefs");
-  // not required and doesnt work anymore because we just use object literals now
-  const enumsDir = path.join(docsDir, "enums");
+  const docsDir = path.resolve(
+    process.cwd(),
+    "docs/src/content/docs/api-legacy/",
+  );
+  const structsDir = path.join(docsDir, "models/");
+  const utilDir = path.join(docsDir, "util/");
+  const typedefsDir = path.join(docsDir, "typedefs/");
+  const enumsDir = path.join(docsDir, "enums/");
 
-  // fs.rmdirSync(docsDir, { recursive: true });
+  if (process.argv.includes("--clean") && fs.existsSync(docsDir)) {
+    console.log("Cleaning up docs directory...");
+    fs.rmSync(docsDir, { recursive: true });
+  }
 
   ensureDirectoryExists(docsDir);
   ensureDirectoryExists(structsDir);
@@ -536,26 +542,15 @@ function generateMarkdown(documentation, typeDefinitions) {
   ensureDirectoryExists(utilDir);
   ensureDirectoryExists(enumsDir);
 
-  documentation.forEach((fileDoc) => {
-    fileDoc.enums.forEach((enumDoc) => {
-      let content = `# ${enumDoc.name}\n\n`;
-      content += enumDoc.documentation ? `${enumDoc.documentation}\n\n` : "";
-
-      content += "| Name | Value | Description |\n";
-      content += "|------|-------|-------------|\n";
-      enumDoc.members.forEach((member) => {
-        content += `| \`${member.name}\` | \`${member.value}\` | ${member.documentation || ""} |\n`;
-      });
-      content += "\n";
-
-      fs.writeFileSync(path.join(enumsDir, `${enumDoc.name}.md`), content);
-    });
-  });
-
   typeDefinitions.forEach((typedef) => {
     if (excludedTypedefs.includes(typedef.name)) return;
 
-    let content = `# ${typedef.name}\n\n${typedef.documentation}\n\n`;
+    let content = "---\n";
+    content += `title: ${typedef.name}\n`;
+    content += typedef.documentation
+      ? `description: ${typedef.documentation}\n`
+      : "";
+    content += "---\n\n";
 
     content += "```typescript\n";
     content += `type ${typedef.name} = ${typedef.type}\n`;
@@ -564,83 +559,99 @@ function generateMarkdown(documentation, typeDefinitions) {
     if (typedef.fields.length > 0) {
       content += "## Fields\n\n";
       content += "| Name | Type | Description |\n";
-      content += "|------|------|-------------|\n";
+      content += "| ---- | ---- | ----------- |\n";
       typedef.fields.forEach((field) => {
         content += `| \`${field.name}\` | ${formatType(field.type, true)} | ${field.documentation || ""} |\n`;
       });
+      content += "\n";
     }
 
-    fs.writeFileSync(
-      path.join(__dirname, typedefsDir, `${typedef.name}.md`),
-      content,
-    );
+    fs.writeFileSync(path.join(typedefsDir, `${typedef.name}.mdx`), content);
   });
-  documentation.forEach((fileDoc, fileName) => {
-    let content = `---\noutline: deep\n---\n\n`;
 
+  documentation.forEach((fileDoc, fileName) => {
     fileDoc.classes.forEach((classDoc) => {
-      content += `# ${classDoc.name} ${classDoc.extends ? `​<Badge type="info">extends ${classDoc.extends}</Badge>` : ""}\n\n`;
-      content += classDoc.documentation ? `${classDoc.documentation}\n\n` : "";
+      if (excludedClasses.includes(classDoc.name)) return;
+
+      let content = "---\n";
+      content += `title: ${classDoc.name}\n`;
+      content += classDoc.documentation
+        ? `description: ${classDoc.documentation}\n`
+        : "";
       content += "---\n\n";
 
+      const requiresBadges =
+        Boolean(classDoc?.extends) ||
+        Boolean(
+          classDoc?.accessors?.some(
+            (accessor) => accessor.getter || accessor.setter,
+          ),
+        );
+
+      if (requiresBadges) {
+        content += "\n";
+        content += "import { Badge } from '@astrojs/starlight/components';";
+        content += "\n\n";
+      }
+
       if (classDoc.events.length > 0) {
-        content += "### Events\n\n";
+        content += "## Events\n\n";
         classDoc.events.forEach((event) => {
-          content += `#### ${event.name}\n\n`;
+          content += `### ${event.name}\n\n`;
           content += event.documentation ? `${event.documentation}\n\n` : "";
-          content += `Type: ${formatType(event.type, false)}\n\n`;
+          content += `**Type:** ${formatType(event.type, false)}\n\n`;
         });
       }
 
       if (classDoc.properties.length > 0 || classDoc.accessors.length > 0) {
-        content += "### Properties\n\n";
+        content += "## Properties\n\n";
 
         classDoc.properties.forEach((prop) => {
-          content += `#### ${prop.name}\n\n`;
-          content += `Type: ${formatType(prop.type, false)}\n\n`;
+          content += `### ${prop.name}\n\n`;
+          content += `**Type:** ${formatType(prop.type, false)}\n\n`;
           content += prop.documentation ? `${prop.documentation}\n\n` : "";
         });
 
         classDoc.accessors.forEach((accessor) => {
-          content += `#### ${accessor.name}\n\n`;
+          content += `### ${accessor.name} `;
 
           if (accessor.getter && accessor.setter) {
-            const lines = accessor.documentation.split("\n");
-
-            content += `​<Badge type="info">getter</Badge>${lines[0]}\n\n`;
-            content += `​<Badge type="info">setter</Badge>${lines[1]}\n\n`;
-          } else if (accessor.getter || accessor.setter) {
-            const badgeType = accessor.getter ? "getter" : "setter";
-            content += `​<Badge type="info">${badgeType}</Badge>${accessor.documentation}\n\n`;
-          } else {
-            content += `${accessor.documentation}\n\n`;
+            content += `<Badge text="Getter" variant="note" /> <Badge text="Setter" variant="note" />\n\n`;
+          } else if (accessor.getter) {
+            content += `<Badge text="Getter" variant="note" />\n\n`;
+          } else if (accessor.setter) {
+            content += `<Badge text="Setter" variant="note" />\n\n`;
           }
 
-          content += `Type: ${formatType(accessor.type, false)}\n\n`;
+          content += `**Type:** ${formatType(accessor.type, false)}\n\n`;
+          if (accessor.documentation) {
+            content += `${accessor.documentation}\n\n`;
+          }
         });
       }
 
       if (classDoc.methods.length > 0) {
-        content += "### Methods\n\n";
+        content += "## Methods\n\n";
 
         classDoc.methods.forEach((method) => {
           const returnTypeStr = formatType(method.returnType, false);
 
-          content += `#### ${method.name}\n\n`;
+          content += `### ${method.name}\n\n`;
           content += method.documentation ? `${method.documentation}\n\n` : "";
 
           if (method.parameters.length > 0) {
             const hasOptionalParams = method.parameters.some(
-              (param) => param.isOptional,
+              (p) => p.isOptional,
             );
             const hasDefaultParams = method.parameters.some(
-              (param) => param.defaultValue,
+              (p) => p.defaultValue,
             );
 
+            content += "#### Parameters\n\n";
+
             if (hasOptionalParams || hasDefaultParams) {
-              content += "**Parameters:**\n\n";
               content += "| Name | Type | Optional | Default | Description |\n";
-              content += "|------|------|----------|---------|-------------|\n";
+              content += "| ---- | ---- | -------- | ------- | ----------- |\n";
               method.parameters.forEach((param) => {
                 const description = param.documentation.startsWith("-")
                   ? param.documentation.substring(2)
@@ -648,9 +659,8 @@ function generateMarkdown(documentation, typeDefinitions) {
                 content += `| \`${param.name}\` | ${formatType(param.type, true)} | ${param.isOptional ? "✓" : ""} | ${param.defaultValue ? `\`${param.defaultValue}\`` : ""} | ${description} |\n`;
               });
             } else {
-              content += "**Parameters:**\n\n";
               content += "| Name | Type | Description |\n";
-              content += "|------|------|-------------|\n";
+              content += "| ---- | ---- | ----------- |\n";
               method.parameters.forEach((param) => {
                 const description = param.documentation.startsWith("-")
                   ? param.documentation.substring(2)
@@ -661,17 +671,17 @@ function generateMarkdown(documentation, typeDefinitions) {
             content += "\n";
           }
 
-          content += `**Returns:** ${returnTypeStr}\n\n`;
+          content += `#### Returns\n\n${returnTypeStr}\n\n`;
         });
       }
 
       const outputPath = fileDoc.dir.endsWith("/models")
-        ? path.join(structsDir, `${fileDoc.fileName}.md`)
+        ? path.join(structsDir, `${fileDoc.fileName}.mdx`)
         : fileDoc.dir.endsWith("/util")
-          ? path.join(utilDir, `${fileDoc.fileName}.md`)
-          : path.join(docsDir, `${path.basename(fileName, ".ts")}.md`);
+          ? path.join(utilDir, `${fileDoc.fileName}.mdx`)
+          : path.join(docsDir, `${path.basename(fileName, ".ts")}.mdx`);
 
-      fs.writeFileSync(path.join(__dirname, outputPath), content);
+      fs.writeFileSync(outputPath, content);
     });
   });
 }
