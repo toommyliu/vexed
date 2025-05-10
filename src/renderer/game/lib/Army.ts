@@ -1,9 +1,9 @@
 // https://github.com/BrenoHenrike/Scripts/blob/Skua/Army/CoreArmyLite.cs
 
-import { ipcRenderer } from "../../../../common/ipc";
-import { IPC_EVENTS } from "../../../../common/ipc-events";
-import { Config } from "../../botting/util/Config";
-import type { Bot } from "../Bot";
+import { ipcRenderer } from "../../../common/ipc";
+import { IPC_EVENTS } from "../../../common/ipc-events";
+import { Config } from "../botting/util/Config";
+import type { Bot } from "./Bot";
 
 // Terminology:
 // Army/group: a group of players working together

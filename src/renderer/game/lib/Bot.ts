@@ -1,4 +1,5 @@
 import { TypedEmitter } from "tiny-typed-emitter";
+import { Army } from "./Army";
 import { Auth } from "./Auth";
 import { Bank } from "./Bank";
 import { Combat } from "./Combat";
@@ -12,7 +13,6 @@ import { Settings } from "./Settings";
 import { Shops } from "./Shop";
 import { TempInventory } from "./TempInventory";
 import { World } from "./World";
-import { Army } from "./army/Army";
 import type { Monster } from "./models/Monster";
 import { AutoRelogin } from "./util/AutoRelogin";
 import { Flash } from "./util/Flash";
