@@ -7,42 +7,28 @@ import { Badge } from "@astrojs/starlight/components";
 ## Properties
 ### bot
 
-
-
-
 Type: `Bot`
 
-
 ### items <Badge text="Getter" size="small" />	
-
-
 A list of items in the temp inventory.
 
-
 Type: `TempInventoryItem[]`
-
 
 ## Methods
 
 ### contains
-
 Whether an item meets the quantity in the temp inventory.
-
 | Parameter | Type | Optional | Default | Description |
 |-----------|------|----------|---------|-------------|
 | itemKey | `string` \| `number` |  |  | The name or ID of the item. |
 | quantity | `number` | ✓ | `1` | The quantity of the item. |
 
-
 **Returns**: `boolean`
 
 ### get
-
 Gets an item from the temp inventory.
-
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | itemKey | `string` \| `number` | The name or ID of the item. |
-
 
 **Returns**: `null | TempInventoryItem`

@@ -13,89 +13,54 @@ Follower: player who follows the leader's actions
 ## Properties
 ### bot
 
-
-
-
 Type: `Bot`
 
-
 ### config
-
-
 The config file for this group.
-
 
 Type: `Config`
 
-
 ### isInitialized
-
-
 Whether the army is initialized.
-
 
 Type: `boolean`
 
-
 ### players
-
-
 The players in this group.
-
 
 Type: `Set<string>`
 
-
 ### roomNumber
-
-
 The room number to join.
 
-
 Type: `string`
-
 
 ## Methods
 
 ### getPlayerNumber
-
 Gets the player number position in the army.
-
-
 
 **Returns**: `number`
 
 ### init
-
 Initializes everything needed to begin armying.
-
-
 
 **Returns**: `Promise<void>`
 
 ### isLeader
-
 Whether this player is the leader of the army.
-
-
 
 **Returns**: `boolean`
 
 ### setConfigName
-
 Sets the config file name.
-
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | fileName | `string` | The name of the config file. |
 
-
 **Returns**: `void`
 
 ### waitForAll
-
 Waits for all players in the army in the map.
-
-
 
 **Returns**: `Promise<void>`

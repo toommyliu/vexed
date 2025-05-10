@@ -7,202 +7,122 @@ import { Badge } from "@astrojs/starlight/components";
 ## Properties
 ### bot
 
-
-
-
 Type: `Bot`
 
-
 ### alive <Badge text="Getter" size="small" />	
-
-
 Whether the player is alive.
-
 
 Type: `boolean`
 
-
 ### cell <Badge text="Getter" size="small" />	
-
-
 The cell the player is in, in the map.
 
-
 Type: `string`
-
 
 ### className <Badge text="Getter" size="small" />	
-
-
 The name of the player's equipped class.
-
 
 Type: `string`
 
-
 ### factions <Badge text="Getter" size="small" />	
-
-
 The player's faction data.
-
 
 Type: `Faction[]`
 
-
 ### gold <Badge text="Getter" size="small" />	
-
-
 The player's gold.
 
-
 Type: `number`
-
 
 ### hp <Badge text="Getter" size="small" />	
-
-
 The health of the player.
 
-
 Type: `number`
-
 
 ### level <Badge text="Getter" size="small" />	
-
-
 The level of the player.
 
-
 Type: `number`
-
 
 ### maxHp <Badge text="Getter" size="small" />	
-
-
 The maximum health of the player.
 
-
 Type: `number`
-
 
 ### maxMp <Badge text="Getter" size="small" />	
-
-
 The maximum mana of the player.
 
-
 Type: `number`
-
 
 ### mp <Badge text="Getter" size="small" />	
-
-
 The mana of the player.
-
 
 Type: `number`
 
-
 ### pad <Badge text="Getter" size="small" />	
-
-
 The pad the player is in, in the map.
-
 
 Type: `string`
 
-
 ### position <Badge text="Getter" size="small" />	
-
-
 The player's current position.
-
 
 Type: `[number, number]`
 
-
 ### state <Badge text="Getter" size="small" />	
-
-
 The state of the player.
 
-
 Type: `PlayerState`
-
 
 ## Methods
 
 ### equipLoadout
-
 Equips a loadout for the player.
-
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | loadout | `Loadout` | The loadout to equip. |
 
-
 **Returns**: `Promise<void>`
 
 ### isAFK
-
 Whether the player is AFK.
-
-
 
 **Returns**: `boolean`
 
 ### isBoostActive
-
 Checks if the player has an active boost.
-
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | type | `BoostType` | The type of boost to check. |
 
-
 **Returns**: `boolean`
 
 ### isInCombat
-
 Whether the player is in combat.
-
-
 
 **Returns**: `boolean`
 
 ### isLoaded
-
 Whether the player has fully loaded in.
-
-
 
 **Returns**: `boolean`
 
 ### isMember
-
 Whether the player has an active membership.
-
-
 
 **Returns**: `boolean`
 
 ### isReady
-
 Comprehensive check to determine if the player is ready.
-
-
 
 **Returns**: `boolean`
 
 ### walkTo
-
 Walks to a position on the map.
-
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | x | `string` \| `number` | The x coordinate to walk to. |
 | y | `string` \| `number` | The y coordinate to walk to. |
 | walkSpeed | `string` \| `number` | The speed to walk at. |
-
 
 **Returns**: `void`

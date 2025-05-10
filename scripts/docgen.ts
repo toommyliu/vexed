@@ -113,6 +113,10 @@ async function generateDocumentation() {
             makeDescription(cls.comment?.summary ?? []) || "";
           const baseClass = cls?.extendedTypes?.[0]?.toString() || "";
 
+          if (cls.name === "Army") {
+            console.log(classDescription);
+          }
+
           const classProperties: Property[] = [];
           const classMethods: Method[] = [];
 
@@ -251,26 +255,25 @@ async function generateDocumentation() {
               mdxFileContent.push(
                 `### ${prop.name}${prop.isGetter ? ' <Badge text="Getter" size="small" />\t' : ""}${prop.isSetter ? ' <Badge text="Setter" size="small" />' : ""}`,
               );
-              mdxFileContent.push("\n");
               if (prop.description) {
                 mdxFileContent.push(prop.description.split("\n").join("\n"));
               }
-              mdxFileContent.push("\n");
+              mdxFileContent.push("");
               mdxFileContent.push(`Type: \`${prop.type}\``);
-              mdxFileContent.push("\n");
+              mdxFileContent.push("");
             }
           }
 
           if (classMethods.length) {
-            mdxFileContent.push("## Methods\n");
-
+            mdxFileContent.push("## Methods");
+            mdxFileContent.push("");
             for (const mth of classMethods) {
               mdxFileContent.push(
-                `### ${mth.name}${mth.isStatic ? ' <Badge text="static" />' : ""}\n`,
+                `### ${mth.name}${mth.isStatic ? ' <Badge text="static" />' : ""}`,
               );
 
               if (mth.description) {
-                mdxFileContent.push(`${mth.description}\n`);
+                mdxFileContent.push(`${mth.description}`);
               }
 
               if (mth.parameters && mth.parameters.length > 0) {
@@ -324,8 +327,9 @@ async function generateDocumentation() {
                 }
               }
 
-              mdxFileContent.push("\n");
-              mdxFileContent.push(`**Returns**: \`${mth.returnType}\`\n`);
+              mdxFileContent.push("");
+              mdxFileContent.push(`**Returns**: \`${mth.returnType}\``);
+              mdxFileContent.push("");
             }
           }
 
@@ -383,6 +387,9 @@ type Class = {
    */
   name: string;
   /**
+   * The description of the class.
+   */
+  description?: string;
   /**
    * The properties of the class.
    */

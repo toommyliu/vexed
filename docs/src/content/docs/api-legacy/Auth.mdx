@@ -7,84 +7,53 @@ import { Badge } from "@astrojs/starlight/components";
 ## Properties
 ### bot
 
-
-
-
 Type: `Bot`
 
-
 ### password <Badge text="Getter" size="small" />	
-
-
 The password of the current user.
-
 
 Type: `string`
 
-
 ### servers <Badge text="Getter" size="small" />	
-
-
 The list of servers as shown to the client.
-
 
 Type: `Server[]`
 
-
 ### username <Badge text="Getter" size="small" />	
-
-
 The username of the current user.
 
-
 Type: `string`
-
 
 ## Methods
 
 ### connectTo
-
 Connects to a server.
-
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | name | `string` | The name of the server. |
 
-
 **Returns**: `void`
 
 ### isLoggedIn
-
 Whether the user is logged in and connected to a server.
-
-
 
 **Returns**: `boolean`
 
 ### isTemporarilyKicked
-
 Whether the client is temporarily kicked from the server.
-
-
 
 **Returns**: `boolean`
 
 ### login
-
 Log in with an account.
-
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | username | `string` | The username to login with. |
 | password | `string` | The password to login with. |
 
-
 **Returns**: `void`
 
 ### logout
-
 Logs out of the current account.
-
-
 
 **Returns**: `void`
