@@ -5,6 +5,9 @@ import { Bot } from "../Bot";
 
 const logger = Logger.get("AutoRelogin");
 
+/**
+ * As long as credentials are set, an auto relogin will be attempted.
+ */
 export class AutoRelogin {
   private readonly bot = Bot.getInstance();
 

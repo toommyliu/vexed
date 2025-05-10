@@ -122,7 +122,7 @@ async function generateDocumentation() {
             "## Members",
           ];
 
-          console.log(`Enum name: ${enum_.name}...`);
+          // console.log(`Enum name: ${enum_.name}...`);
 
           for (let idx = 0; idx < (enum_.children ?? [])?.length; idx++) {
             const enumChild = enum_.children?.[idx];
