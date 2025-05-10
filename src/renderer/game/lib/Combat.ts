@@ -433,7 +433,7 @@ export type KillOptions = {
    */
   killPriority: string[] | string;
   /**
-   * Custom skill action function. If provided, the skillSet and skillDelay will be ignored. Recommended to be a closure function.
+   *  Custom skill action function that provides alternative combat logic. It should be implemented as a closure that returns an async function. When provided, this function replaces the default skill rotation logic. The outer and inner functions are bound with `bot` context. Skill logic should be implemented in the inner function.
    */
   skillAction: (() => () => Promise<void>) | null;
   /**

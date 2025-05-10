@@ -10,7 +10,7 @@ import { Packets } from "./Packets";
 import { Player } from "./Player";
 import { Quests } from "./Quests";
 import { Settings } from "./Settings";
-import { Shops } from "./Shop";
+import { Shops } from "./Shops";
 import { TempInventory } from "./TempInventory";
 import { World } from "./World";
 import type { Monster } from "./models/Monster";

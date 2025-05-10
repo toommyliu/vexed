@@ -3,7 +3,7 @@ import type { Context } from "./botting/context";
 import type { cmd } from "./botting/index";
 import type { Bot } from "./lib/Bot";
 import type { ClientPacket } from "./lib/Packets";
-import type { ShopInfo } from "./lib/Shop";
+import type { ShopInfo } from "./lib/Shops";
 import type { GameAction } from "./lib/World";
 import type { AvatarData } from "./lib/models/Avatar";
 import type { FactionData } from "./lib/models/Faction";
