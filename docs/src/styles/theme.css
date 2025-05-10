@@ -2,8 +2,7 @@
 /* https://github.com/trueberryless-org/starlight-nextjs-theme */
 
 :root {
-  --sl-font: "Geist Sans", sans-serif;
-  --sl-font-mono: "Geist Mono", monospace;
+  --sl-font: "Inter", --system-ui, sans-serif;
   --sl-mobile-toc-height: 5rem;
   font-display: swap;
 }
