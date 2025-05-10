@@ -1,6 +1,7 @@
 import starlight from "@astrojs/starlight";
 import { defineConfig, passthroughImageService } from "astro/config";
 import apiLegacyJson from "./api-legacy.json";
+import vercel from "@astrojs/vercel";
 
 // https://astro.build/config
 
@@ -53,8 +54,11 @@ export default defineConfig({
       ],
     }),
   ],
+
   // https://docs.astro.build/en/reference/errors/missing-sharp/
   image: {
     service: passthroughImageService(),
   },
+
+  adapter: vercel(),
 });
