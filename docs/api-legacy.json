@@ -14,6 +14,32 @@
     "collapsed": true
   },
   {
+    "label": "enums",
+    "items": [
+      {
+        "label": "ClientPacket",
+        "link": "/api-legacy/enums/clientpacket"
+      },
+      {
+        "label": "ServerPacket",
+        "link": "/api-legacy/enums/serverpacket"
+      },
+      {
+        "label": "BoostType",
+        "link": "/api-legacy/enums/boosttype"
+      },
+      {
+        "label": "PlayerState",
+        "link": "/api-legacy/enums/playerstate"
+      },
+      {
+        "label": "GameAction",
+        "link": "/api-legacy/enums/gameaction"
+      }
+    ],
+    "collapsed": true
+  },
+  {
     "label": "models",
     "items": [
       {
@@ -59,32 +85,6 @@
       {
         "label": "TempInventoryItem",
         "link": "/api-legacy/models/tempinventoryitem"
-      }
-    ],
-    "collapsed": true
-  },
-  {
-    "label": "Enums",
-    "items": [
-      {
-        "label": "ClientPacket",
-        "link": "/api-legacy/enums/clientpacket"
-      },
-      {
-        "label": "ServerPacket",
-        "link": "/api-legacy/enums/serverpacket"
-      },
-      {
-        "label": "BoostType",
-        "link": "/api-legacy/enums/boosttype"
-      },
-      {
-        "label": "PlayerState",
-        "link": "/api-legacy/enums/playerstate"
-      },
-      {
-        "label": "GameAction",
-        "link": "/api-legacy/enums/gameaction"
       }
     ],
     "collapsed": true

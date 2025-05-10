@@ -132,10 +132,10 @@ async function generateDocumentation() {
             "---",
             `title: ${enum_.name}`,
             "---",
+            "",
             "## Members",
+            "",
           ];
-
-          // console.log(`Enum name: ${enum_.name}...`);
 
           for (let idx = 0; idx < (enum_.children ?? [])?.length; idx++) {
             const enumChild = enum_.children?.[idx];
@@ -162,7 +162,6 @@ async function generateDocumentation() {
           }
 
           const mdxFilePath = join(docsEntryPath, "enums", `${enum_.name}.mdx`);
-          // console.log(`Writing enum file: ${mdxFilePath}...`);
 
           await fs.mkdir(dirname(mdxFilePath), {
             recursive: true,
@@ -171,7 +170,11 @@ async function generateDocumentation() {
             encoding: "utf-8",
           });
 
-          enumItems.push({
+          if (!sidebarGroups.has("enums")) {
+            sidebarGroups.set("enums", []);
+          }
+
+          sidebarGroups.get("enums")?.push({
             label: enum_.name,
             link: `/api-legacy/enums/${enum_.name.toLowerCase()}`,
           });
@@ -278,11 +281,6 @@ async function generateDocumentation() {
             // );
             // console.log(`
             // ${className}::${methodName}(${methodParameters?.map((param) => `${param.name}: ${param.type}${param.defaultValue ? ` = ${param.defaultValue}` : ""}`).join(", ")}) [${returnType}]`);
-
-            if (exampleCode)
-              console.log(
-                `${className}::${methodName} has example: ${exampleCode}`,
-              );
 
             const method: Method = {
               name: methodName,
@@ -441,15 +439,6 @@ async function generateDocumentation() {
           }
         }
       }
-    }
-
-    // Add the enum group
-    if (enumItems.length > 0) {
-      jsonData.unshift({
-        label: "Enums",
-        items: enumItems,
-        collapsed: true,
-      });
     }
 
     // Nested items first
