@@ -113,10 +113,6 @@ async function generateDocumentation() {
             makeDescription(cls.comment?.summary ?? []) || "";
           const baseClass = cls?.extendedTypes?.[0]?.toString() || "";
 
-          if (cls.name === "Army") {
-            console.log(classDescription);
-          }
-
           const classProperties: Property[] = [];
           const classMethods: Method[] = [];
 
@@ -246,7 +242,10 @@ async function generateDocumentation() {
           ];
 
           if (classDescription) {
-            mdxFileContent.push(classDescription, "\n");
+            mdxFileContent.push(
+              classDescription.split("\n").join("\n\n"),
+              "\n",
+            );
           }
 
           if (classProperties.length) {
