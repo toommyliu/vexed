@@ -1,7 +1,9 @@
 import starlight from "@astrojs/starlight";
 import { defineConfig, passthroughImageService } from "astro/config";
-import apiLegacyJson from "./api-legacy.json";
 import vercel from "@astrojs/vercel";
+
+import apiJson from "./api.json";
+import apiLegacyJson from "./api-legacy.json";
 
 // https://astro.build/config
 
@@ -33,6 +35,10 @@ export default defineConfig({
         {
           label: "Reference",
           autogenerate: { directory: "reference" },
+        },
+        {
+          label: "API",
+          items: apiJson,
         },
         {
           label: "API (Legacy)",

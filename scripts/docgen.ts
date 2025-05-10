@@ -1,112 +1,220 @@
-import { dirname, join } from "node:path";
+import { dirname, join, basename } from "node:path";
 import { totalist } from "totalist";
 import * as typedoc from "typedoc";
 import fs from "node:fs/promises";
 
 const logger = new typedoc.ConsoleLogger();
 
-// Legacy api path
-const apiEntryPath = join(process.cwd(), "src/renderer/game/lib/");
+const generateCommandsApiDoc = async () => {
+  const apiEntryPath = join(
+    process.cwd(),
+    "src/renderer/game/botting/commands/",
+  );
 
-// Legacy api docs path
-const docsEntryPath = join(process.cwd(), "docs/src/content/docs/api-legacy/");
+  const docsEntryPath = join(process.cwd(), "docs/src/content/docs/api");
 
-// The set of typescript files to parse
-const files = new Set<string>();
+  const files = new Set<string>();
 
-// Class name: methods
-const excludedMethods: Record<string, string[]> = {
-  Bot: [
-    "addListener",
-    "emit",
-    "eventNames",
-    "getMaxListeners",
-    "listenerCount",
-    "listeners",
-    "off",
-    "on",
-    "once",
-    "prependListener",
-    "prependOnceListener",
-    "rawListeners",
-    "removeAllListeners",
-    "removeListener",
-    "setMaxListeners",
-  ],
-};
+  if (process.argv.includes("--clean") || process.argv.includes("-c")) {
+    const docsExists = await fs.access(docsEntryPath).catch(() => false);
+    if (docsExists) {
+      logger.info("Cleaning up old files...");
+      await fs.rm(docsEntryPath, { force: true });
+    }
+  }
 
-/**
- * Converts a summary block to a description string.
- */
-function makeDescription(summary: typedoc.CommentDisplayPart[]) {
-  return summary.reduce((acc, part) => {
-    if (part.kind === "text" || part.kind === "code") {
-      return acc + part.text;
+  const docsExists = await fs.access(docsEntryPath).catch(() => false);
+  if (!docsExists) {
+    logger.info("Creating api directory...");
+    await fs.mkdir(docsEntryPath, { recursive: true });
+  }
+
+  await totalist(apiEntryPath, async (_, absPath) => {
+    if (basename(absPath) !== "index.ts") return;
+
+    // console.log(`Processing ${absPath}...`);
+    files.add(absPath);
+  });
+
+  const namespaces = new Set<string>();
+
+  for (const file of files) {
+    const dirname_ = dirname(file);
+    // get the last part of the path as the namespace
+    const namespace = dirname_.split("/").pop();
+    if (namespace) {
+      namespaces.add(namespace);
+    }
+  }
+
+  try {
+    logger.info("Bootstrapping documentation...");
+    const app = await typedoc.Application.bootstrap({
+      entryPoints: [...files],
+      name: "api",
+    });
+
+    const project = await app.convert();
+    if (!project) {
+      throw new Error("Failed to generate project");
     }
 
-    return "";
-  }, "");
-}
+    await app.generateJson(project!, join(process.cwd(), "api.json"));
 
-/**
- * Converts a block tag to a string.
- */
-function makeBlockTag(tag: typedoc.CommentTag[]) {
-  return tag.reduce((acc, part) => {
-    if (part.tag === "@example") {
-      return acc + part.content.map((p) => p.text).join("");
-    }
+    const namespaces = new Map<string, Namespace>();
 
-    return "";
-  }, "");
-}
+    for (const child of project.children ?? []) {
+      if (child.kind === typedoc.ReflectionKind.Module /* 2 */) {
+        // should be the only one available
+        const commands = child.children?.find((child_) => {
+          return (
+            child_?.name === `${child.name}Commands` &&
+            child_.kind === typedoc.ReflectionKind.Variable /* 32 */ &&
+            child_?.flags?.isConst
+          );
+        });
 
-/**
- * Extracts properties from an intersection type
- */
-function extractIntersectionProperties(
-  typedef: typedoc.DeclarationReflection,
-): typedoc.DeclarationReflection[] {
-  const properties: typedoc.DeclarationReflection[] = [];
-
-  if (typedef.type?.type === "intersection") {
-    // Handle intersection types
-    const types = (typedef.type as typedoc.IntersectionType).types;
-    for (const type of types) {
-      if (type.type === "reference" && type.reflection?.children) {
-        properties.push(...type.reflection.children);
-      } else if (type.type === "reflection" && type.declaration.children) {
-        // Handle inline object types
-        properties.push(...type.declaration.children);
-      } else if (type.type === "union") {
-        // Handle union types
-        for (const unionType of type.types) {
-          if (
-            unionType.type === "reflection" &&
-            unionType.declaration.children
-          ) {
-            properties.push(...unionType.declaration.children);
-          }
+        if (!commands) {
+          continue;
         }
+
+        const namespaceName = child.name;
+        const namespaceDescription =
+          makeDescription(child.comment?.summary ?? []) || "";
+        const namespaceMethods: Method[] = [];
+
+        console.log(`Namespace: ${child.name}`);
+        if (commands?.type instanceof typedoc.ReflectionType) {
+          for (const child of (commands?.type as typedoc.ReflectionType)
+            ?.declaration?.children ?? []) {
+            if (child?.kind === typedoc.ReflectionKind.Method /* 512 */) {
+              const funcName = child.name;
+              const funcDescription =
+                makeDescription(
+                  child?.signatures?.[0]?.comment?.summary ?? [],
+                ) || "";
+              const funcParameters = child?.signatures?.[0]?.parameters
+                ?.map((param) => {
+                  const paramName = param.name;
+                  const paramDescription =
+                    makeDescription(param.comment?.summary ?? []) || "";
+                  const paramType = param.type?.toString() || "";
+                  const paramDefaultValue =
+                    param?.defaultValue?.toString() || "";
+
+                  return {
+                    name: paramName,
+                    description: paramDescription,
+                    type: paramType,
+                    defaultValue: paramDefaultValue,
+                  };
+                })
+                .filter((param) => Boolean(param)) as Parameter[];
+
+              // console.log(
+              //   `\tcmd.${funcName}(${funcParameters.map((p) => `${p.name}: ${p.type}`).join(", ")}) ${funcDescription}...`,
+              // );
+              const method: Method = {
+                name: funcName,
+                description: funcDescription,
+                parameters: funcParameters,
+                returnType: "",
+                isStatic: false,
+              };
+              namespaceMethods.push(method);
+            }
+          }
+
+          const namespace: Namespace = {
+            name: namespaceName,
+            description: namespaceDescription,
+            methods: namespaceMethods,
+          };
+          namespaces.set(namespaceName, namespace);
+
+          const mdxFileContent = [
+            "---",
+            `title: ${makeTitleCase(namespaceName)}`,
+            "head:",
+            " - tag: title",
+            `   content: ${makeTitleCase(namespaceName)} commands`,
+            "---",
+            "",
+            `import { Badge, Code } from "@astrojs/starlight/components";`,
+            "",
+          ];
+          if (namespaceDescription) {
+            mdxFileContent.push(
+              namespaceDescription.split("\n").join("\n\n"),
+              "",
+            );
+          }
+
+          const mdxFilePath = join(docsEntryPath, `${namespaceName}.mdx`);
+          // console.log(`Writing ${mdxFilePath}...`);
+          await fs.mkdir(dirname(mdxFilePath), { recursive: true });
+          await fs.writeFile(mdxFilePath, mdxFileContent.join("\n"), {
+            encoding: "utf-8",
+          });
+        }
+
+        // console.log(Array.from(namespaces.values()));
       }
     }
+
+    // generate the sidebar
+    const sidebar = Array.from(namespaces.values()).map((namespace) => {
+      return {
+        label: makeTitleCase(namespace.name),
+        link: `/api/${namespace.name.toLowerCase()}`,
+      };
+    });
+
+    const sorted = sidebar.sort((a, b) => a.label.localeCompare(b.label));
+
+    const sidebarFilePath = join(process.cwd(), "docs/api.json");
+    await fs.writeFile(sidebarFilePath, JSON.stringify(sorted, null, 2), {
+      encoding: "utf-8",
+    });
+  } catch (error) {
+    logger.error(`Error generating documentation: ${error}`);
   }
+};
 
-  if (typedef.children) {
-    properties.push(...typedef.children);
-  }
+const generateLegacyApiDoc = async () => {
+  // Legacy api path
+  const apiEntryPath = join(process.cwd(), "src/renderer/game/lib/");
 
-  const uniqueProps = new Map<string, typedoc.DeclarationReflection>();
-  for (const prop of properties) {
-    if (!uniqueProps.has(prop.name)) {
-      uniqueProps.set(prop.name, prop);
-    }
-  }
+  // Legacy api docs path
+  const docsEntryPath = join(
+    process.cwd(),
+    "docs/src/content/docs/api-legacy/",
+  );
 
-  return Array.from(uniqueProps.values());
-}
+  // The set of typescript files to parse
+  const files = new Set<string>();
 
-async function generateDocumentation() {
+  // Class name: methods
+  const excludedMethods: Record<string, string[]> = {
+    Bot: [
+      "addListener",
+      "emit",
+      "eventNames",
+      "getMaxListeners",
+      "listenerCount",
+      "listeners",
+      "off",
+      "on",
+      "once",
+      "prependListener",
+      "prependOnceListener",
+      "rawListeners",
+      "removeAllListeners",
+      "removeListener",
+      "setMaxListeners",
+    ],
+  };
+
   if (process.argv.includes("--clean") || process.argv.includes("-c")) {
     const docsExists = await fs.access(docsEntryPath).catch(() => false);
     if (docsExists) {
@@ -572,9 +680,99 @@ async function generateDocumentation() {
   } catch (error) {
     logger.error(`Error generating documentation: ${error}`);
   }
+};
+
+generateCommandsApiDoc();
+
+/**
+ * Converts a summary block to a description string.
+ */
+function makeDescription(summary: typedoc.CommentDisplayPart[]) {
+  return summary.reduce((acc, part) => {
+    if (part.kind === "text" || part.kind === "code") {
+      return acc + part.text;
+    }
+
+    return "";
+  }, "");
 }
 
-generateDocumentation();
+/**
+ * Converts a block tag to a string.
+ */
+function makeBlockTag(tag: typedoc.CommentTag[]) {
+  return tag.reduce((acc, part) => {
+    if (part.tag === "@example") {
+      return acc + part.content.map((p) => p.text).join("");
+    }
+
+    return "";
+  }, "");
+}
+
+/**
+ * Extracts properties from an intersection type
+ */
+function extractIntersectionProperties(
+  typedef: typedoc.DeclarationReflection,
+): typedoc.DeclarationReflection[] {
+  const properties: typedoc.DeclarationReflection[] = [];
+
+  if (typedef.type?.type === "intersection") {
+    // Handle intersection types
+    const types = (typedef.type as typedoc.IntersectionType).types;
+    for (const type of types) {
+      if (type.type === "reference" && type.reflection?.children) {
+        properties.push(...type.reflection.children);
+      } else if (type.type === "reflection" && type.declaration.children) {
+        // Handle inline object types
+        properties.push(...type.declaration.children);
+      } else if (type.type === "union") {
+        // Handle union types
+        for (const unionType of type.types) {
+          if (
+            unionType.type === "reflection" &&
+            unionType.declaration.children
+          ) {
+            properties.push(...unionType.declaration.children);
+          }
+        }
+      }
+    }
+  }
+
+  if (typedef.children) {
+    properties.push(...typedef.children);
+  }
+
+  const uniqueProps = new Map<string, typedoc.DeclarationReflection>();
+  for (const prop of properties) {
+    if (!uniqueProps.has(prop.name)) {
+      uniqueProps.set(prop.name, prop);
+    }
+  }
+
+  return Array.from(uniqueProps.values());
+}
+
+function makeTitleCase(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+type Namespace = {
+  /**
+   * The name of the namespace.
+   */
+  name: string;
+  /**
+   * The description of the namespace.
+   */
+  description?: string;
+  /**
+   * The methods of the namespace.
+   */
+  methods?: Method[];
+};
 
 type Class = {
   /**

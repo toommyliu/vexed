@@ -8,10 +8,18 @@ import { CommandArmySetConfigCommand } from "./CommandArmySetConfig";
 import { CommandExecuteWithArmy } from "./CommandExecuteWithArmy";
 
 export const armyCommands = {
+  /**
+   * Initializes the army.
+   */
   army_init() {
     const cmd = new CommandArmyInit();
     window.context.addCommand(cmd);
   },
+  /**
+   * Sets the config file name.
+   *
+   * @param fileName - The name of the config file.
+   */
   army_set_config(fileName: string) {
     if (!fileName || typeof fileName !== "string") {
       throw new ArgsError("fileName is required");
@@ -21,6 +29,13 @@ export const armyCommands = {
     cmd.fileName = fileName;
     window.context.addCommand(cmd);
   },
+  /**
+   * Joins the map but waits for all players in the group to join before proceeding.
+   *
+   * @param map - The name of the map to join.
+   * @param cell - The name of the cell to join.
+   * @param pad - The name of the pad to join.
+   */
   army_join(map: string, cell: string, pad: string) {
     if (!map || typeof map !== "string") {
       throw new ArgsError("map is required");
@@ -40,6 +55,12 @@ export const armyCommands = {
     cmd.padName = pad;
     window.context.addCommand(cmd);
   },
+  /**
+   * Kills the target, but waits for all players in the group to finish before proceeding.
+   *
+   * @param targetName - The name of the target to kill.
+   * @param options - The options for the kill.
+   */
   army_kill(targetName: string, options?: Partial<KillOptions>) {
     if (!targetName || typeof targetName !== "string") {
       throw new ArgsError("targetName is required");
@@ -81,6 +102,11 @@ export const armyCommands = {
     cmd.options = options ?? {};
     window.context.addCommand(cmd);
   },
+  /**
+   * Executes a function, but waits for the function (a.k.a for all players) to finish before proceeding.
+   *
+   * @param fn - The function to execute with the army.
+   */
   execute_with_army(fn: () => Promise<void>) {
     if (!fn || typeof fn !== "function") {
       throw new ArgsError("fn is required");
@@ -90,6 +116,11 @@ export const armyCommands = {
     cmd.fn = fn.bind({ allDone: cmd.allDone });
     window.context.addCommand(cmd);
   },
+  /**
+   * Equips an item by key from the config file.
+   *
+   * @param itemName - The name of the item to equip.
+   */
   army_equip_item(itemName: string) {
     if (!itemName || typeof itemName !== "string") {
       throw new ArgsError("itemName is required");

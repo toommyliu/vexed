@@ -62,6 +62,11 @@ import { CommandTargetHealthGreaterThan as CommandTargetHpGreaterThan } from "./
 import { CommandTargetHpLessThan } from "./CommandTargetHpLessThan";
 
 export const conditionsCommands = {
+  /**
+   * Whether the player is in the specified cell.
+   *
+   * @param cell - THe name of the cell.
+   */
   in_cell(cell: string) {
     if (!cell || typeof cell !== "string") {
       throw new ArgsError("cell is required");
@@ -71,6 +76,11 @@ export const conditionsCommands = {
     cmd.cell = cell;
     window.context.addCommand(cmd);
   },
+  /**
+   * Whether the player is not in the specified cell.
+   *
+   * @param cell - The name of the cell.
+   */
   not_in_cell(cell: string) {
     if (!cell || typeof cell !== "string") {
       throw new ArgsError("cell is required");
@@ -80,7 +90,11 @@ export const conditionsCommands = {
     cmd.cell = cell;
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Whether the player has the specified item equipped.
+   *
+   * @param item - The name of the item.
+   */
   equipped(item: string) {
     if (!item || typeof item !== "string") {
       throw new ArgsError("item is required");
@@ -90,6 +104,11 @@ export const conditionsCommands = {
     cmd.item = item;
     window.context.addCommand(cmd);
   },
+  /**
+   * Whether the player does not have the specified item equipped.
+   *
+   * @param item - The name of the item.
+   */
   not_equipped(item: string) {
     if (!item || typeof item !== "string") {
       throw new ArgsError("item is required");
@@ -99,7 +118,12 @@ export const conditionsCommands = {
     cmd.item = item;
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Whether the player faction rank is greater than the specified rank.
+   *
+   * @param faction - The name of the faction.
+   * @param rank - The rank to compare against.
+   */
   faction_rank_greater_than(faction: string, rank: number) {
     if (!faction || typeof faction !== "string") {
       throw new ArgsError("faction is required");
@@ -114,6 +138,12 @@ export const conditionsCommands = {
     cmd.rank = rank;
     window.context.addCommand(cmd);
   },
+  /**
+   * Whether the player faction rank is less than the specified rank.
+   *
+   * @param faction - The name of the faction.
+   * @param rank - The rank to compare against.
+   */
   faction_rank_less_than(faction: string, rank: number) {
     if (!faction || typeof faction !== "string") {
       throw new ArgsError("faction is required");
@@ -128,7 +158,11 @@ export const conditionsCommands = {
     cmd.rank = rank;
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Whether the player has more than the specified amount of gold.
+   *
+   * @param gold - The amount of gold to compare against.
+   */
   gold_greater_than(gold: number) {
     if (!gold || typeof gold !== "number") {
       throw new ArgsError("gold is required");
@@ -138,6 +172,11 @@ export const conditionsCommands = {
     cmd.gold = gold;
     window.context.addCommand(cmd);
   },
+  /**
+   * Whether the player has less than the specified amount of gold.
+   *
+   * @param gold - The amount of gold to compare against.
+   */
   gold_less_than(gold: number) {
     if (!gold || typeof gold !== "number") {
       throw new ArgsError("gold is required");
@@ -147,16 +186,25 @@ export const conditionsCommands = {
     cmd.gold = gold;
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Whether the player has a target.
+   */
   has_target() {
     const cmd = new CommandHasTarget();
     window.context.addCommand(cmd);
   },
+  /**
+   * Whether the player does not have a target.
+   */
   has_no_target() {
     const cmd = new CommandNotHasTarget();
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Whether the player's hp is greater than the specified amount.
+   *
+   * @param hp - The amount of health to compare against.
+   */
   hp_greater_than(hp: number) {
     if (!hp || typeof hp !== "number") {
       throw new ArgsError("hp is required");
@@ -166,6 +214,11 @@ export const conditionsCommands = {
     cmd.hp = hp;
     window.context.addCommand(cmd);
   },
+  /**
+   * Whether the player's hp is less than the specified amount.
+   *
+   * @param hp - The amount of health to compare against.
+   */
   hp_less_than(hp: number) {
     if (!hp || typeof hp !== "number") {
       throw new ArgsError("hp is required");
@@ -175,6 +228,11 @@ export const conditionsCommands = {
     cmd.hp = hp;
     window.context.addCommand(cmd);
   },
+  /**
+   * Whether the player's hp is greater than the specified percentage.
+   *
+   * @param percentage - The percentage of health to compare against.
+   */
   hp_percentage_greater_than(percentage: number) {
     if (!percentage || typeof percentage !== "number") {
       throw new ArgsError("percentage is required");
@@ -184,6 +242,11 @@ export const conditionsCommands = {
     cmd.percentage = percentage;
     window.context.addCommand(cmd);
   },
+  /**
+   * Whether the player's hp is less than the specified percentage.
+   *
+   * @param percentage - The percentage of health to compare against.
+   */
   hp_percentage_less_than(percentage: number) {
     if (!percentage || typeof percentage !== "number") {
       throw new ArgsError("percentage is required");
@@ -193,7 +256,12 @@ export const conditionsCommands = {
     cmd.percentage = percentage;
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Whether a specific item exists in the player's inventory.
+   *
+   * @param item - The name of the item.
+   * @param quantity - The minimum quantity required. If not provided, it will default to 1.
+   */
   in_inventory(item: string, quantity?: number) {
     if (!item || typeof item !== "string") {
       throw new ArgsError("item name is required");
@@ -204,6 +272,12 @@ export const conditionsCommands = {
     if (quantity) cmd.qty = quantity;
     window.context.addCommand(cmd);
   },
+  /**
+   * Whether a specific item does not exist in the player's inventory.
+   *
+   * @param item - The name of the item.
+   * @param quantity - The minimum quantity required. If not provided, it will default to 1.
+   */
   not_in_inventory(item: string, quantity?: number) {
     if (!item || typeof item !== "string") {
       throw new ArgsError("item name is required");
@@ -214,7 +288,12 @@ export const conditionsCommands = {
     if (quantity) cmd.qty = quantity;
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Whether a specific item exists in the player's tempinventory.
+   *
+   * @param item - The name of the item.
+   * @param quantity - The minimum quantity required. If not provided, it will default to 1.
+   */
   in_tempinventory(item: string, quantity?: number) {
     if (!item || typeof item !== "string") {
       throw new ArgsError("item name is required");
@@ -225,6 +304,12 @@ export const conditionsCommands = {
     if (quantity) cmd.qty = quantity;
     window.context.addCommand(cmd);
   },
+  /**
+   * Whether a specific item does not exist in the player's tempinventory.
+   *
+   * @param item - The name of the item.
+   * @param quantity - The minimum quantity required. If not provided, it will default to 1.
+   */
   not_in_tempinventory(item: string, quantity?: number) {
     if (!item || typeof item !== "string") {
       throw new ArgsError("item name is required");
@@ -235,7 +320,12 @@ export const conditionsCommands = {
     if (quantity) cmd.qty = quantity;
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Whether a specific item exists in the player's bank.
+   *
+   * @param item - The name of the item.
+   * @param quantity - The minimum quantity required. If not provided, it will default to 1.
+   */
   in_bank(item: string, quantity?: number) {
     if (!item || typeof item !== "string") {
       throw new ArgsError("item name is required");
@@ -246,6 +336,12 @@ export const conditionsCommands = {
     if (quantity) cmd.qty = quantity;
     window.context.addCommand(cmd);
   },
+  /**
+   * Whether a specific item does not exist in the player's bank.
+   *
+   * @param item - The name of the item.
+   * @param quantity - The minimum quantity required. If not provided, it will default to 1.
+   */
   not_in_bank(item: string, quantity?: number) {
     if (!item || typeof item !== "string") {
       throw new ArgsError("item name is required");
@@ -256,16 +352,26 @@ export const conditionsCommands = {
     if (quantity) cmd.qty = quantity;
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Whether the player is in combat.
+   */
   in_combat() {
     const cmd = new CommandInCombat();
     window.context.addCommand(cmd);
   },
+  /**
+   * Whether the player is not in combat.
+   */
   not_in_combat() {
     const cmd = new CommandNotInCombat();
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Whether the specified item is in the player's house inventory.
+   *
+   * @param item - The name of the item.
+   * @param quantity - The minimum quantity required. If not provided, it will default to 1.
+   */
   in_house(item: string, quantity?: number) {
     if (!item || typeof item !== "string") {
       throw new ArgsError("item name is required");
@@ -276,6 +382,12 @@ export const conditionsCommands = {
     if (quantity) cmd.qty = quantity;
     window.context.addCommand(cmd);
   },
+  /**
+   * Whether the specified item is not in the player's house inventory.
+   *
+   * @param item - The name of the item.
+   * @param quantity - The minimum quantity required. If not provided, it will default to 1.
+   */
   not_in_house(item: string, quantity?: number) {
     if (!item || typeof item !== "string") {
       throw new ArgsError("item name is required");
@@ -286,16 +398,27 @@ export const conditionsCommands = {
     if (quantity) cmd.qty = quantity;
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Whether the player has an active membership.
+   */
   is_member() {
     const cmd = new CommandIsMember();
     window.context.addCommand(cmd);
   },
+  /**
+   * Whether the player does not have an active membership.
+   */
   is_not_member() {
     const cmd = new CommandIsNotMember();
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Whether a player's aura value is greater than the specified value.
+   *
+   * @param player - The name of the player.
+   * @param aura - The name of the aura.
+   * @param value - The value to compare against.
+   */
   player_aura_greater_than(player: string, aura: string, value: number) {
     if (!player || typeof player !== "string") {
       throw new ArgsError("player is required");
@@ -314,6 +437,13 @@ export const conditionsCommands = {
     cmd.value = value;
     window.context.addCommand(cmd);
   },
+  /**
+   * Whether a player's aura value is less than the specified value.
+   *
+   * @param player - The name of the player.
+   * @param aura - The name of the aura.
+   * @param value - The value to compare against.
+   */
   player_aura_less_than(player: string, aura: string, value: number) {
     if (!player || typeof player !== "string") {
       throw new ArgsError("player is required");
@@ -332,7 +462,12 @@ export const conditionsCommands = {
     cmd.value = value;
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Whether a specified player's hp is greater than the specified value.
+   *
+   * @param player - The name of the player.
+   * @param hp - The health value to compare against.
+   */
   player_hp_greater_than(player: string, hp: number) {
     if (!player || typeof player !== "string") {
       throw new ArgsError("player is required");
@@ -347,6 +482,12 @@ export const conditionsCommands = {
     cmd.hp = hp;
     window.context.addCommand(cmd);
   },
+  /**
+   * Whether a specified player's hp is less than the specified value.
+   *
+   * @param player - The name of the player.
+   * @param hp - The health value to compare against.
+   */
   player_hp_less_than(player: string, hp: number) {
     if (!player || typeof player !== "string") {
       throw new ArgsError("player is required");
@@ -361,7 +502,12 @@ export const conditionsCommands = {
     cmd.hp = hp;
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Whether a specified player's hp percentage is greater than the specified value.
+   *
+   * @param player - The name of the player.
+   * @param percentage - The health percentage to compare against.
+   */
   player_hp_percentage_greater_than(player: string, percentage: number) {
     if (!player || typeof player !== "string") {
       throw new ArgsError("player is required");
@@ -376,6 +522,12 @@ export const conditionsCommands = {
     cmd.percentage = percentage;
     window.context.addCommand(cmd);
   },
+  /**
+   * Whether a specified player's hp percentage is less than the specified value.
+   *
+   * @param player - The name of the player.
+   * @param percentage - The health percentage to compare against.
+   */
   player_hp_percentage_less_than(player: string, percentage: number) {
     if (!player || typeof player !== "string") {
       throw new ArgsError("player is required");
@@ -390,6 +542,11 @@ export const conditionsCommands = {
     cmd.percentage = percentage;
     window.context.addCommand(cmd);
   },
+  /**
+   * Whether any player's hp percentage is greater than the specified value.
+   *
+   * @param percentage - The health percentage to compare against.
+   */
   any_player_hp_percentage_greater_than(percentage: number) {
     if (!percentage || typeof percentage !== "number") {
       throw new ArgsError("percentage is required");
@@ -399,6 +556,11 @@ export const conditionsCommands = {
     cmd.percentage = percentage;
     window.context.addCommand(cmd);
   },
+  /**
+   * Whether any player's hp percentage is less than the specified value.
+   *
+   * @param percentage - The health percentage to compare against.
+   */
   any_player_hp_percentage_less_than(percentage: number) {
     if (!percentage || typeof percentage !== "number") {
       throw new ArgsError("percentage is required");
@@ -408,7 +570,11 @@ export const conditionsCommands = {
     cmd.percentage = percentage;
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Whether the player count in the map is greater than the specified value.
+   *
+   * @param count - The number of players to compare against.
+   */
   player_count_greater_than(count: number) {
     if (!count || typeof count !== "number") {
       throw new ArgsError("count is required");
@@ -418,6 +584,11 @@ export const conditionsCommands = {
     cmd.count = count;
     window.context.addCommand(cmd);
   },
+  /**
+   * Whether the player count in the map is less than the specified value.
+   *
+   * @param count - The number of players to compare against.
+   */
   player_count_less_than(count: number) {
     if (!count || typeof count !== "number") {
       throw new ArgsError("count is required");
@@ -427,7 +598,11 @@ export const conditionsCommands = {
     cmd.count = count;
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Whether a player is in the map.
+   *
+   * @param player - The name of the player.
+   */
   player_in_map(player: string) {
     if (!player || typeof player !== "string") {
       throw new ArgsError("player is required");
@@ -437,7 +612,12 @@ export const conditionsCommands = {
     cmd.player = player;
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Whether a player is in the specified cell.
+   *
+   * @param player - The name of the player.
+   * @param cell - The name of the cell.
+   */
   player_in_cell(player: string, cell: string) {
     if (!player || typeof player !== "string") {
       throw new ArgsError("player is required");
@@ -452,7 +632,11 @@ export const conditionsCommands = {
     cmd.cell = cell;
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Whether a player is not in the map.
+   *
+   * @param player - The name of the player.
+   */
   player_not_in_map(player: string) {
     if (!player || typeof player !== "string") {
       throw new ArgsError("player is required");
@@ -462,7 +646,12 @@ export const conditionsCommands = {
     cmd.player = player;
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Whether a player is not in the specified cell.
+   *
+   * @param player - The name of the player.
+   * @param cell - The name of the cell.
+   */
   player_not_in_cell(player: string, cell: string) {
     if (!player || typeof player !== "string") {
       throw new ArgsError("player is required");
@@ -477,7 +666,11 @@ export const conditionsCommands = {
     cmd.cell = cell;
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Whether the player's name is equal to the specified name.
+   *
+   * @param player - The name to compare against.
+   */
   player_name_equals(player: string) {
     if (!player || typeof player !== "string") {
       throw new ArgsError("player is required");
@@ -487,7 +680,11 @@ export const conditionsCommands = {
     cmd.player = player;
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Whether the specified quest can be completed.
+   *
+   * @param questId - The ID of the quest to check.
+   */
   can_complete_quest(questId: number) {
     if (!questId || typeof questId !== "number") {
       throw new ArgsError("questId is required");
@@ -497,7 +694,11 @@ export const conditionsCommands = {
     cmd.questId = questId;
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Whether the specified quest cannot be completed.
+   *
+   * @param questId - The ID of the quest to check.
+   */
   cannot_complete_quest(questId: number) {
     if (!questId || typeof questId !== "number") {
       throw new ArgsError("questId is required");
@@ -507,7 +708,11 @@ export const conditionsCommands = {
     cmd.questId = questId;
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Whether the specified quest is in progress.
+   *
+   * @param questId - The ID of the quest to check.
+   */
   quest_in_progress(questId: number) {
     if (!questId || typeof questId !== "number") {
       throw new ArgsError("questId is required");
@@ -517,7 +722,11 @@ export const conditionsCommands = {
     cmd.questId = questId;
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Whether the specified quest is not in progress.
+   *
+   * @param questId - The ID of the quest to check.
+   */
   quest_not_in_progress(questId: number) {
     if (!questId || typeof questId !== "number") {
       throw new ArgsError("questId is required");
@@ -527,7 +736,11 @@ export const conditionsCommands = {
     cmd.questId = questId;
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Whether the specified quest is available.
+   *
+   * @param questId - The ID of the quest to check.
+   */
   quest_is_available(questId: number) {
     if (!questId || typeof questId !== "number") {
       throw new ArgsError("questId is required");
@@ -537,7 +750,11 @@ export const conditionsCommands = {
     cmd.questId = questId;
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Whether the specified quest is not available.
+   *
+   * @param questId - The ID of the quest to check.
+   */
   quest_not_available(questId: number) {
     if (!questId || typeof questId !== "number") {
       throw new ArgsError("questId is required");
@@ -547,7 +764,11 @@ export const conditionsCommands = {
     cmd.questId = questId;
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Whether the target's hp is greater than the specified amount.
+   *
+   * @param hp - Hp to compare against.
+   */
   target_hp_greater_than(hp: number) {
     if (!hp || typeof hp !== "number") {
       throw new ArgsError("hp is required");
@@ -557,6 +778,11 @@ export const conditionsCommands = {
     cmd.hp = hp;
     window.context.addCommand(cmd);
   },
+  /**
+   * Whether the target's hp is less than the specified amount.
+   *
+   * @param hp - Hp to compare against.
+   */
   target_hp_less_than(hp: number) {
     if (!hp || typeof hp !== "number") {
       throw new ArgsError("hp is required");
@@ -566,6 +792,13 @@ export const conditionsCommands = {
     cmd.hp = hp;
     window.context.addCommand(cmd);
   },
+  /**
+   * Whether the target's hp is between the specified range.
+   *
+   * @param monster - The name of the monster.
+   * @param min - The minimum hp.
+   * @param max - The maximum hp.
+   */
   target_hp_between(monster: string, min: number, max: number) {
     if (!monster || typeof monster !== "string") {
       throw new ArgsError("monster is required");
@@ -584,7 +817,11 @@ export const conditionsCommands = {
     cmd.upper = max;
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Whether the specified item is maxed in the player's inventory.
+   *
+   * @param item - The name of the item.
+   */
   is_maxed(item: string) {
     if (!item || typeof item !== "string") {
       throw new ArgsError("item is required");
@@ -594,6 +831,11 @@ export const conditionsCommands = {
     cmd.item = item;
     window.context.addCommand(cmd);
   },
+  /**
+   * Whether the specified item is not maxed in the player's inventory.
+   *
+   * @param item - The name of the item.
+   */
   is_not_maxed(item: string) {
     if (!item || typeof item !== "string") {
       throw new ArgsError("item is required");
@@ -603,7 +845,12 @@ export const conditionsCommands = {
     cmd.item = item;
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Whether the player count in the specified cell is greater than the specified value.
+   *
+   * @param count - The number of players to compare against.
+   * @param cell - The name of the cell. If not provided, it will default to the current cell.
+   */
   cell_player_count_greater_than(count: number, cell?: string) {
     if (!count || typeof count !== "number") {
       throw new ArgsError("count is required");
@@ -614,6 +861,12 @@ export const conditionsCommands = {
     cmd.count = count;
     window.context.addCommand(cmd);
   },
+  /**
+   * Whether the player count in the specified cell is less than the specified value.
+   *
+   * @param count - The number of players to compare against.
+   * @param cell - The name of the cell. If not provided, it will default to the current cell.
+   */
   cell_player_count_less_than(count: number, cell?: string) {
     if (!count || typeof count !== "number") {
       throw new ArgsError("count is required");
@@ -624,7 +877,11 @@ export const conditionsCommands = {
     cmd.count = count;
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Whether the specified item has dropped.
+   *
+   * @param item - The name of the item.
+   */
   item_has_dropped(item: string) {
     if (!item || typeof item !== "string") {
       throw new ArgsError("item is required");
@@ -634,6 +891,11 @@ export const conditionsCommands = {
     cmd.item = item;
     window.context.addCommand(cmd);
   },
+  /**
+   * Whether the specified item has not dropped.
+   *
+   * @param item - The name of the item.
+   */
   item_has_not_dropped(item: string) {
     if (!item || typeof item !== "string") {
       throw new ArgsError("item is required");
@@ -643,16 +905,25 @@ export const conditionsCommands = {
     cmd.item = item;
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Whether the player's level equals the specified level.
+   *
+   * @param level - The level to compare against.
+   */
   level_is(level: number) {
     if (!level || typeof level !== "number") {
       throw new ArgsError("level is required");
     }
 
     const cmd = new CommandLevelIs();
-    cmd.level = level;
+    cmd.level = Math.floor(level);
     window.context.addCommand(cmd);
   },
+  /**
+   * Whether the player's level is greater than the specified level.
+   *
+   * @param level - The level to compare against.
+   */
   level_greater_than(level: number) {
     if (!level || typeof level !== "number") {
       throw new ArgsError("level is required");
@@ -662,6 +933,11 @@ export const conditionsCommands = {
     cmd.level = level;
     window.context.addCommand(cmd);
   },
+  /**
+   * Whether the player's level is less than the specified level.
+   *
+   * @param level - The level to compare against.
+   */
   level_less_than(level: number) {
     if (!level || typeof level !== "number") {
       throw new ArgsError("level is required");
@@ -671,16 +947,25 @@ export const conditionsCommands = {
     cmd.level = level;
     window.context.addCommand(cmd);
   },
-
-  mp_greater_than(mana: number) {
-    if (!mana || typeof mana !== "number") {
+  /**
+   * Whether the player's mp is greater than the specified amount.
+   *
+   * @param mp - The mp value to compare against.
+   */
+  mp_greater_than(mp: number) {
+    if (!mp || typeof mp !== "number") {
       throw new ArgsError("mana is required");
     }
 
     const cmd = new CommandMpGreaterThan();
-    cmd.mana = mana;
+    cmd.mana = mp;
     window.context.addCommand(cmd);
   },
+  /**
+   * Whether the player's mp is less than the specified amount.
+   *
+   * @param mp - The mp value to compare against.
+   */
   mp_less_than(mana: number) {
     if (!mana || typeof mana !== "number") {
       throw new ArgsError("mana is required");
@@ -690,7 +975,11 @@ export const conditionsCommands = {
     cmd.mana = mana;
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Whether the player is in the specified map.
+   *
+   * @param map - The name of the map.
+   */
   in_map(map: string) {
     if (!map || typeof map !== "string") {
       throw new ArgsError("map is required");
@@ -700,6 +989,11 @@ export const conditionsCommands = {
     cmd.map = map;
     window.context.addCommand(cmd);
   },
+  /**
+   * Whether the player is not in the specified map.
+   *
+   * @param map - The name of the map.
+   */
   not_in_map(map: string) {
     if (!map || typeof map !== "string") {
       throw new ArgsError("map is required");
@@ -709,7 +1003,12 @@ export const conditionsCommands = {
     cmd.map = map;
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Whether the specified monster's hp is greater than the specified amount.
+   *
+   * @param monster - The name of the monster.
+   * @param hp - The health value to compare against.
+   */
   monster_hp_greater_than(monster: string, hp: number) {
     if (!monster || typeof monster !== "string") {
       throw new ArgsError("monster is required");
@@ -724,6 +1023,12 @@ export const conditionsCommands = {
     cmd.health = hp;
     window.context.addCommand(cmd);
   },
+  /**
+   * Whether the specified monster's hp is less than the specified amount.
+   *
+   * @param monster - The name of the monster.
+   * @param hp - The health value to compare against.
+   */
   monster_hp_less_than(monster: string, hp: number) {
     if (!monster || typeof monster !== "string") {
       throw new ArgsError("monster is required");
@@ -738,7 +1043,11 @@ export const conditionsCommands = {
     cmd.health = hp;
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Whether the specified monster is in the room (is not dead).
+   *
+   * @param monster - The name of the monster.
+   */
   monster_in_room(monster: string) {
     if (!monster || typeof monster !== "string") {
       throw new ArgsError("monster is required");
@@ -748,6 +1057,11 @@ export const conditionsCommands = {
     cmd.monster = monster;
     window.context.addCommand(cmd);
   },
+  /**
+   * Whether the specified monster is not in the room (is dead).
+   *
+   * @param monster - The name of the monster.
+   */
   monster_not_in_room(monster: string) {
     if (!monster || typeof monster !== "string") {
       throw new ArgsError("monster is required");
