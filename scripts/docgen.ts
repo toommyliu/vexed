@@ -441,10 +441,18 @@ async function generateDocumentation() {
       }
     }
 
-    // Nested items first
-    for (const [groupName, items] of sidebarGroups.entries()) {
+    const priority = ["models", "enums", "util"];
+
+    // Sort sidebar groups by priority
+    const sortedSidebarGroups = [...sidebarGroups.entries()].sort(
+      ([groupA], [groupB]) =>
+        priority.indexOf(groupB) - priority.indexOf(groupA),
+    );
+
+    // Add sorted sidebar groups to jsonData
+    for (const [groupName, items] of sortedSidebarGroups) {
       jsonData.unshift({
-        label: groupName,
+        label: groupName.slice(0, 1).toUpperCase() + groupName.slice(1),
         items: items,
         collapsed: true,
       });

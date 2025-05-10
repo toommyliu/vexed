@@ -1,46 +1,6 @@
 [
   {
-    "label": "util",
-    "items": [
-      {
-        "label": "AutoRelogin",
-        "link": "/api-legacy/util/autorelogin"
-      },
-      {
-        "label": "Flash",
-        "link": "/api-legacy/util/flash"
-      }
-    ],
-    "collapsed": true
-  },
-  {
-    "label": "enums",
-    "items": [
-      {
-        "label": "ClientPacket",
-        "link": "/api-legacy/enums/clientpacket"
-      },
-      {
-        "label": "ServerPacket",
-        "link": "/api-legacy/enums/serverpacket"
-      },
-      {
-        "label": "BoostType",
-        "link": "/api-legacy/enums/boosttype"
-      },
-      {
-        "label": "PlayerState",
-        "link": "/api-legacy/enums/playerstate"
-      },
-      {
-        "label": "GameAction",
-        "link": "/api-legacy/enums/gameaction"
-      }
-    ],
-    "collapsed": true
-  },
-  {
-    "label": "models",
+    "label": "Models",
     "items": [
       {
         "label": "Avatar",
@@ -85,6 +45,46 @@
       {
         "label": "TempInventoryItem",
         "link": "/api-legacy/models/tempinventoryitem"
+      }
+    ],
+    "collapsed": true
+  },
+  {
+    "label": "Enums",
+    "items": [
+      {
+        "label": "ClientPacket",
+        "link": "/api-legacy/enums/clientpacket"
+      },
+      {
+        "label": "ServerPacket",
+        "link": "/api-legacy/enums/serverpacket"
+      },
+      {
+        "label": "BoostType",
+        "link": "/api-legacy/enums/boosttype"
+      },
+      {
+        "label": "PlayerState",
+        "link": "/api-legacy/enums/playerstate"
+      },
+      {
+        "label": "GameAction",
+        "link": "/api-legacy/enums/gameaction"
+      }
+    ],
+    "collapsed": true
+  },
+  {
+    "label": "Util",
+    "items": [
+      {
+        "label": "AutoRelogin",
+        "link": "/api-legacy/util/autorelogin"
+      },
+      {
+        "label": "Flash",
+        "link": "/api-legacy/util/flash"
       }
     ],
     "collapsed": true
