@@ -181,6 +181,13 @@ header.header {
   font-weight: 700;
 }
 
+#starlight__on-this-page--mobile {
+  margin-left: 3rem;
+}
+body > div > div > div {
+  margin-left: 3rem;
+}
+
 /* .sidebar-content .caret {
   display: none;
 }
