@@ -232,13 +232,34 @@ async function generateDocumentation() {
           const mdxFileName = fileName?.replace(/\.ts$/, ".mdx");
           const mdxFilePath = join(docsEntryPath, mdxFileName ?? "");
 
-          const mdxFileContent = ["---", `title: ${className}`];
+          const mdxFileContent = [
+            "---",
+            `title: ${className}`,
+            "---",
+            "",
+            `import { Badge } from "@astrojs/starlight/components";`,
+            "",
+          ];
 
           if (classDescription) {
-            mdxFileContent.push(`description: ${classDescription}`);
+            mdxFileContent.push(classDescription, "\n");
           }
 
-          mdxFileContent.push("---\n\n");
+          if (classProperties.length) {
+            mdxFileContent.push("## Properties");
+            for (const prop of classProperties) {
+              mdxFileContent.push(
+                `### ${prop.name}${prop.isGetter ? ' <Badge text="Getter" size="small" />\t' : ""}${prop.isSetter ? ' <Badge text="Setter" size="small" />' : ""}`,
+              );
+              mdxFileContent.push("\n");
+              if (prop.description) {
+                mdxFileContent.push(prop.description.split("\n").join("\n"));
+              }
+              mdxFileContent.push("\n");
+              mdxFileContent.push(`Type: \`${prop.type}\``);
+              mdxFileContent.push("\n");
+            }
+          }
 
           await fs.mkdir(dirname(mdxFilePath), { recursive: true });
           await fs.writeFile(mdxFilePath, mdxFileContent.join("\n"), {

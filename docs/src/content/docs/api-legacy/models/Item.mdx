@@ -1,5 +1,108 @@
 ---
 title: Item
-description: The base class for all-things item related.
 ---
+
+import { Badge } from "@astrojs/starlight/components";
+
+The base class for all-things item related.
+
+
+## Properties
+### data
+
+
+Data about this item
+
+
+Type: `ItemData`
+
+
+### category <Badge text="Getter" size="small" />	
+
+
+The category of the item.
+
+
+Type: `string`
+
+
+### description <Badge text="Getter" size="small" />	
+
+
+The description of the item.
+
+
+Type: `string`
+
+
+### fileLink <Badge text="Getter" size="small" />	
+
+
+The link to the source file of the item
+
+
+Type: `string`
+
+
+### fileName <Badge text="Getter" size="small" />	
+
+
+The name of the source file of the item.
+
+
+Type: `string`
+
+
+### id <Badge text="Getter" size="small" />	
+
+
+The ID of the item.
+
+
+Type: `number`
+
+
+### itemGroup <Badge text="Getter" size="small" />	
+
+
+The group of the item.
+
+
+Type: `string`
+
+
+### maxStack <Badge text="Getter" size="small" />	
+
+
+The maximum stack size this item can exist in.
+
+
+Type: `number`
+
+
+### meta <Badge text="Getter" size="small" />	
+
+
+The meta value of the item.
+
+
+Type: `null | Record<string, number>`
+
+
+### name <Badge text="Getter" size="small" />	
+
+
+The name of the item.
+
+
+Type: `string`
+
+
+### quantity <Badge text="Getter" size="small" />	
+
+
+The quantity of the item in this stack.
+
+
+Type: `number`
 

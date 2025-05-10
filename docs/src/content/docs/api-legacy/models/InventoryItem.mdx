@@ -1,5 +1,144 @@
 ---
 title: InventoryItem
-description: Represents an item in the inventory.
 ---
+
+import { Badge } from "@astrojs/starlight/components";
+
+Represents an item in the inventory.
+
+
+## Properties
+### data
+
+
+Data about this item
+
+
+Type: `ItemData`
+
+
+### category <Badge text="Getter" size="small" />	
+
+
+The category of the item.
+
+
+Type: `string`
+
+
+### charItemId <Badge text="Getter" size="small" />	
+
+
+The character ID of this item.
+
+
+Type: `number`
+
+
+### description <Badge text="Getter" size="small" />	
+
+
+The description of the item.
+
+
+Type: `string`
+
+
+### enchantmentPatternId <Badge text="Getter" size="small" />	
+
+
+The enhancement pattern ID of the item.
+
+
+Type: `number`
+
+
+### enhancementLevel <Badge text="Getter" size="small" />	
+
+
+The enhancement level of the item.
+
+
+Type: `number`
+
+
+### fileLink <Badge text="Getter" size="small" />	
+
+
+The link to the source file of the item
+
+
+Type: `string`
+
+
+### fileName <Badge text="Getter" size="small" />	
+
+
+The name of the source file of the item.
+
+
+Type: `string`
+
+
+### id <Badge text="Getter" size="small" />	
+
+
+The ID of the item.
+
+
+Type: `number`
+
+
+### itemGroup <Badge text="Getter" size="small" />	
+
+
+The group of the item.
+
+
+Type: `string`
+
+
+### level <Badge text="Getter" size="small" />	
+
+
+The level of the item.
+
+
+Type: `number`
+
+
+### maxStack <Badge text="Getter" size="small" />	
+
+
+The maximum stack size this item can exist in.
+
+
+Type: `number`
+
+
+### meta <Badge text="Getter" size="small" />	
+
+
+The meta value of the item.
+
+
+Type: `null | Record<string, number>`
+
+
+### name <Badge text="Getter" size="small" />	
+
+
+The name of the item.
+
+
+Type: `string`
+
+
+### quantity <Badge text="Getter" size="small" />	
+
+
+The quantity of the item in this stack.
+
+
+Type: `number`
 

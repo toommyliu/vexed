@@ -1,5 +1,34 @@
 ---
 title: Combat
-description: A `monsterResolvable` is either a monster name or monMapID prefixed with `id` and delimited by a `'`, `.`, `:`, `-` character.
 ---
+
+import { Badge } from "@astrojs/starlight/components";
+
+A `monsterResolvable` is either a monster name or monMapID prefixed with `id` and delimited by a `'`, `.`, `:`, `-` character.
+
+
+## Properties
+### bot
+
+
+
+
+Type: `Bot`
+
+
+### pauseAttack
+
+
+
+
+Type: `boolean`
+
+
+### target <Badge text="Getter" size="small" />	
+
+
+Returns information about the target.
+
+
+Type: `null | TargetInfo`
 

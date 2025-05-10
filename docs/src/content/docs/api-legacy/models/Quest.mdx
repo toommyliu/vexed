@@ -1,5 +1,71 @@
 ---
 title: Quest
-description: Represents a quest.
 ---
+
+import { Badge } from "@astrojs/starlight/components";
+
+Represents a quest.
+
+
+## Properties
+### data
+
+
+
+
+Type: `QuestData`
+
+
+### id <Badge text="Getter" size="small" />	
+
+
+The ID of this quest.
+
+
+Type: `number`
+
+
+### inProgress <Badge text="Getter" size="small" />	
+
+
+Whether this quest is in progress.
+
+
+Type: `boolean`
+
+
+### name <Badge text="Getter" size="small" />	
+
+
+The name of this quest.
+
+
+Type: `string`
+
+
+### once <Badge text="Getter" size="small" />	
+
+
+Whether this quest can only be completed once.
+
+
+Type: `boolean`
+
+
+### requirements <Badge text="Getter" size="small" />	
+
+
+The requirements needed to complete this quest.
+
+
+Type: `QuestRequiredItem[]`
+
+
+### rewards <Badge text="Getter" size="small" />	
+
+
+The rewards for completing this quest.
+
+
+Type: `QuestReward[]`
 

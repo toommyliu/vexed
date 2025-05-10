@@ -26,6 +26,7 @@ export default defineConfig({
       ],
       components: {
         SocialIcons: "./src/components/SocialIcons.astro",
+        TableOfContents: "./src/components/TableOfContents.astro",
         ThemeSelect: "./src/components/ThemeSelect.astro",
       },
       social: [

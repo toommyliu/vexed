@@ -1,4 +1,56 @@
 ---
 title: Army
-description: hello
 ---
+
+import { Badge } from "@astrojs/starlight/components";
+
+Terminology:
+Army/group: a group of players working together
+Leader: player who "dictates" the actions of the group
+Follower: player who follows the leader's actions
+
+
+## Properties
+### bot
+
+
+
+
+Type: `Bot`
+
+
+### config
+
+
+The config file for this group.
+
+
+Type: `Config`
+
+
+### isInitialized
+
+
+Whether the army is initialized.
+
+
+Type: `boolean`
+
+
+### players
+
+
+The players in this group.
+
+
+Type: `Set<string>`
+
+
+### roomNumber
+
+
+The room number to join.
+
+
+Type: `string`
+
