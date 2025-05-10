@@ -30,7 +30,7 @@ Adds an item to the internal store and the stack as visible to the client.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| item | ItemData | The item that was dropped. |
+| item | `ItemData` | The item that was dropped. |
 
 
 **Returns**: `void`
@@ -41,7 +41,7 @@ Retrieves the count of an item in the drop stack.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| itemId | number | The ID of the item. |
+| itemId | `number` | The ID of the item. |
 
 
 **Returns**: `number`
@@ -52,7 +52,7 @@ Retrieves item data using its ID.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| itemId | number | The ID of the item. |
+| itemId | `number` | The ID of the item. |
 
 
 **Returns**: `null | ItemData`
@@ -63,7 +63,7 @@ Retrieves item data using its name (case-insensitive).
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| itemName | string | The name of the item. |
+| itemName | `string` | The name of the item. |
 
 
 **Returns**: `null | ItemData`
@@ -74,7 +74,7 @@ Retrieves the ID of an item using its name.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| itemName | string | The name of the item. |
+| itemName | `string` | The name of the item. |
 
 
 **Returns**: `null | number`
@@ -85,7 +85,7 @@ Retrieves the name of an item using its ID.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| itemId | number | The ID of the item. |
+| itemId | `number` | The ID of the item. |
 
 
 **Returns**: `null | string`
@@ -131,7 +131,7 @@ Rejects a drop from the stack.
 | Parameter | Type | Optional | Default | Description |
 |-----------|------|----------|---------|-------------|
 | itemKey | `string` \| `number` |  |  | The name or ID of the item. |
-| removeFromStore | boolean | ✓ | `false` | Whether to delete the item entry from the store. |
+| removeFromStore | `boolean` | ✓ | `false` | Whether to delete the item entry from the store. |
 
 
 **Returns**: `Promise<void>`
@@ -142,7 +142,7 @@ Sets the custom drops ui state.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| on | boolean | Whether to use the custom drops ui. |
+| on | `boolean` | Whether to use the custom drops ui. |
 
 
 **Returns**: `void`

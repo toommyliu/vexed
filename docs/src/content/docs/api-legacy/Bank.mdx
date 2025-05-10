@@ -58,7 +58,7 @@ Whether an item meets the quantity in the bank.
 | Parameter | Type | Optional | Default | Description |
 |-----------|------|----------|---------|-------------|
 | key | `string` \| `number` |  |  | The name or ID of the item. |
-| quantity | number | ✓ | `1` | The quantity of the item. |
+| quantity | `number` | ✓ | `1` | The quantity of the item. |
 
 
 **Returns**: `boolean`
@@ -108,8 +108,8 @@ Opens the bank ui, and loads all items if needed.
 
 | Parameter | Type | Optional | Default | Description |
 |-----------|------|----------|---------|-------------|
-| force | boolean | ✓ | `false` | Whether to force open the bank ui, regardless of whether it's open. |
-| loadItems | boolean | ✓ | `false` | Whether to load all items in the bank, regardless of whether they've been loaded. |
+| force | `boolean` | ✓ | `false` | Whether to force open the bank ui, regardless of whether it's open. |
+| loadItems | `boolean` | ✓ | `false` | Whether to load all items in the bank, regardless of whether they've been loaded. |
 
 
 **Returns**: `Promise<void>`

@@ -16,7 +16,7 @@ Calls a game function, whether this be an interop function or an internal functi
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | fn | `string` \| `Function` | The function to call. |
-| args | any[] | The arguments to pass to the function. |
+| args | `any[]` | The arguments to pass to the function. |
 
 
 **Returns**: `T`
@@ -27,8 +27,8 @@ Gets an actionscript object at the given location.
 
 | Parameter | Type | Optional | Default | Description |
 |-----------|------|----------|---------|-------------|
-| path | string |  |  | The path of the object, relative to Game. |
-| parse | boolean | ✓ | `false` | Whether to call JSON.parse on the return value. |
+| path | `string` |  |  | The path of the object, relative to Game. |
+| parse | `boolean` | ✓ | `false` | Whether to call JSON.parse on the return value. |
 
 
 **Returns**: `null | T`
@@ -39,9 +39,9 @@ Gets an actionscript object at the given location.
 
 | Parameter | Type | Optional | Default | Description |
 |-----------|------|----------|---------|-------------|
-| path | string |  |  | The path of the object, relative to Game. |
-| parse | boolean | ✓ | `false` | Whether to call JSON.parse on the return value. |
-| defaultValue | null | ✓ | `null` |  |
+| path | `string` |  |  | The path of the object, relative to Game. |
+| parse | `boolean` | ✓ | `false` | Whether to call JSON.parse on the return value. |
+| defaultValue | `null` | ✓ | `null` |  |
 
 
 **Returns**: `null | T`
@@ -52,7 +52,7 @@ Determines whether an actionscript path is null.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| path | string | The path of the game object. |
+| path | `string` | The path of the game object. |
 
 
 **Returns**: `boolean`
@@ -63,8 +63,8 @@ Sets an actionscript object at the given location.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| path | string | The path of the object, relative to Game. |
-| value | any | The value to set. |
+| path | `string` | The path of the object, relative to Game. |
+| value | `any` | The value to set. |
 
 
 **Returns**: `void`

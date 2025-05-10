@@ -287,12 +287,13 @@ async function generateDocumentation() {
                   );
 
                   for (const param of mth.parameters) {
+                    // TODO: ideally we have hyperlinks to types
                     const safeType = param.type.includes("|")
                       ? param.type
                           .split("|")
                           .map((t) => `\`${t.trim()}\``)
                           .join(" \\| ")
-                      : param.type;
+                      : `\`${param.type}\``;
                     const defaultValue = param.defaultValue
                       ? `\`${param.defaultValue}\``
                       : "";
@@ -313,7 +314,7 @@ async function generateDocumentation() {
                           .split("|")
                           .map((t) => `\`${t.trim()}\``)
                           .join(" \\| ")
-                      : param.type;
+                      : `\`${param.type}\``; // Wrap all types in backticks
                     const description = param.description || "";
 
                     mdxFileContent.push(
