@@ -5,11 +5,12 @@ import { IPC_EVENTS } from "../../../common/ipc-events";
 import { Config } from "../botting/util/Config";
 import type { Bot } from "./Bot";
 
-// Terminology:
-// Army/group: a group of players working together
-// Leader: player who "dictates" the actions of the group
-// Follower: player who follows the leader's actions
-
+/**
+ * Terminology:
+ * Army/group: a group of players working together
+ * Leader: player who "dictates" the actions of the group
+ * Follower: player who follows the leader's actions
+ */
 export class Army {
   /**
    * The config file for this group.
