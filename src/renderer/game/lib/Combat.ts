@@ -19,6 +19,9 @@ const DEFAULT_KILL_OPTIONS: KillOptions = {
  * A `monsterResolvable` is either a monster name or monMapID prefixed with `id` and delimited by a `'`, `.`, `:`, `-` character.
  */
 export class Combat {
+  /**
+   * Whether attacks are paused due to an active counter attack.
+   */
   public pauseAttack: boolean = false;
 
   public constructor(public bot: Bot) {}
