@@ -67,6 +67,11 @@
   --sl-nextjs-header-bg-color: rgba(255, 255, 255, 0.5);
 }
 
+/* Site title */
+.site-title {
+  margin-left: 8px;
+}
+
 /* Header */
 
 header.header {
