@@ -433,8 +433,7 @@ export type KillOptions = {
    */
   killPriority: string[] | string;
   /**
-   * Custom skill action function. If provided, the skillSet and skillDelay will be ignored.
-   * Recommended to be a closure function.
+   * Custom skill action function. If provided, the skillSet and skillDelay will be ignored. Recommended to be a closure function.
    */
   skillAction: (() => () => Promise<void>) | null;
   /**
