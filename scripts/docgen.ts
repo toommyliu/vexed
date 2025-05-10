@@ -322,7 +322,6 @@ async function generateDocumentation() {
                     );
                   }
                 }
-                mdxFileContent.push("\n");
               }
 
               mdxFileContent.push(`**Returns**: \`${mth.returnType}\`\n`);

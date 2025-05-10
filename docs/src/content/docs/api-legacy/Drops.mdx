@@ -31,8 +31,6 @@ Adds an item to the internal store and the stack as visible to the client.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | item | `ItemData` | The item that was dropped. |
-
-
 **Returns**: `void`
 
 ### getDropCount
@@ -42,8 +40,6 @@ Retrieves the count of an item in the drop stack.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | itemId | `number` | The ID of the item. |
-
-
 **Returns**: `number`
 
 ### getItemFromId
@@ -53,8 +49,6 @@ Retrieves item data using its ID.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | itemId | `number` | The ID of the item. |
-
-
 **Returns**: `null | ItemData`
 
 ### getItemFromName
@@ -64,8 +58,6 @@ Retrieves item data using its name (case-insensitive).
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | itemName | `string` | The name of the item. |
-
-
 **Returns**: `null | ItemData`
 
 ### getItemId
@@ -75,8 +67,6 @@ Retrieves the ID of an item using its name.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | itemName | `string` | The name of the item. |
-
-
 **Returns**: `null | number`
 
 ### getItemName
@@ -86,8 +76,6 @@ Retrieves the name of an item using its ID.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | itemId | `number` | The ID of the item. |
-
-
 **Returns**: `null | string`
 
 ### hasDrop
@@ -97,8 +85,6 @@ Checks if an item exists in the drop stack.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | itemKey | `string` \| `number` | The name or ID of the item. |
-
-
 **Returns**: `boolean`
 
 ### isCustomUiOpen
@@ -120,8 +106,6 @@ Accepts the drop for an item in the stack.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | itemKey | `string` \| `number` | The name or ID of the item. |
-
-
 **Returns**: `Promise<void>`
 
 ### reject
@@ -132,8 +116,6 @@ Rejects a drop from the stack.
 |-----------|------|----------|---------|-------------|
 | itemKey | `string` \| `number` |  |  | The name or ID of the item. |
 | removeFromStore | `boolean` | ✓ | `false` | Whether to delete the item entry from the store. |
-
-
 **Returns**: `Promise<void>`
 
 ### setCustomDropsUi
@@ -143,6 +125,4 @@ Sets the custom drops ui state.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | on | `boolean` | Whether to use the custom drops ui. |
-
-
 **Returns**: `void`
