@@ -71,6 +71,15 @@ export const armyCommands = {
     cmd.options = options ?? {};
     window.context.addCommand(cmd);
   },
+  /**
+   * Kills the target for a specified item, but waits for all players in the group to get the item before proceeding.
+   *
+   * @param targetName - The name of the target to kill.
+   * @param itemName - The name of the item to get.
+   * @param qty - The quantity of the item to get.
+   * @param isTemp - Whether the item is temporary or not.
+   * @param options - The options for the kill.
+   */
   army_kill_for(
     targetName: string,
     itemName: string,

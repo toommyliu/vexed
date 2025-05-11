@@ -1,8 +1,208 @@
 ---
-title: Misc
+title: Misc commands
 head:
  - tag: title
    content: Misc commands
 ---
 
 import { Badge, Code } from "@astrojs/starlight/components";
+
+### cmd.buff
+Buffs by casting the first 3 skills.
+
+
+### cmd.buy_lifesteal
+Buys the specified quantity of Scroll of Life Steal.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| qty | `number` | The quantity to buy. |
+
+
+### cmd.delay
+Delays command execution for a specified amount of time.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| ms | `number` | The delay in milliseconds. |
+
+
+### cmd.disable_anticounter
+Disables the anti-counter attack setting.
+
+
+### cmd.disable_collisions
+Disables the "Disable collisions" setting.
+
+
+### cmd.disable_enemymagnet
+Disables the "Enemy magnet" setting.
+
+
+### cmd.disable_fx
+Disables the "Disable FX" setting.
+
+
+### cmd.disable_hideplayers
+Disables the "Hide players" setting.
+
+
+### cmd.disable_infiniterange
+Disables the "Infinite range" setting.
+
+
+### cmd.disable_lagkiller
+Disables the "Lag killer" setting.
+
+
+### cmd.disable_provokecell
+Disables the "Provoke cell" setting.
+
+
+### cmd.disable_provokemap
+Disables the "Provoke map" setting.
+
+
+### cmd.disable_skipcutscenes
+Disables the "Skip cutscenes" setting.
+
+
+### cmd.enable_anticounter
+Enables the anti-counter attack setting.
+
+
+### cmd.enable_collisions
+Enables the "Disable collisions" setting.
+
+
+### cmd.enable_enemymagnet
+Enables the "Enemy magnet" setting.
+
+
+### cmd.enable_fx
+Enables the "Disable FX" setting.
+
+
+### cmd.enable_hideplayers
+Enables the "Hide players" setting.
+
+
+### cmd.enable_infiniterange
+Enables the "Infinite range" setting.
+
+
+### cmd.enable_lagkiller
+Enables the "Lag killer" setting.
+
+
+### cmd.enable_provokecell
+Enables the "Provoke cell" setting.
+
+
+### cmd.enable_provokemap
+Enables the "Provoke map" setting.
+
+
+### cmd.enable_skipcutscenes
+Enables the "Skip cutscenes" setting.
+
+
+### cmd.goto_house
+Goes to a player's house.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| player | `string` | The name of the player. |
+
+
+### cmd.goto_label
+Goes to a label in the script.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| label | `string` | The name of the label. |
+
+
+### cmd.label
+Defines a label in the script.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| label | `string` | The name of the label. |
+
+
+### cmd.log
+Logs a message ingame.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| msg | `string` | The message to log. |
+
+
+### cmd.logout
+Logs out of the game.
+
+
+### cmd.set_delay
+Sets the delay between commands.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| delay | `number` | The delay in milliseconds. |
+
+
+### cmd.set_guild
+Sets the client's locally visible guild name.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| guild | `string` | The name of the guild. |
+
+
+### cmd.set_name
+Sets the client's locally visible name.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| name | `string` | The name of the player. |
+
+
+### cmd.set_walk_speed
+Sets the walk speed of the player.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| speed | `number` | The walk speed (0-100). |
+
+
+### cmd.start_aggromon
+Starts aggromon for the specified monsters. This is independent of Provoke setting and Auto Aggro.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| args | `string[]` | The list of monsters. |
+
+
+### cmd.start_autoaggro
+Enables the "Auto Aggro" feature.
+
+
+### cmd.stop_aggromon
+Stops aggromon.
+
+
+### cmd.stop_autoaggro
+Disables the "Auto Aggro" feature.
+
+
+### cmd.stop_bot
+Stops the bot.
+
+
+### cmd.wait_for_player_count
+Waits for a specified number of players to be in the map.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| count | `number` | The number of players to wait for. |
+

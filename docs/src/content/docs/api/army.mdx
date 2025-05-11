@@ -1,8 +1,67 @@
 ---
-title: Army
+title: Army commands
 head:
  - tag: title
    content: Army commands
 ---
 
 import { Badge, Code } from "@astrojs/starlight/components";
+
+### cmd.army_equip_item
+Equips an item by key from the config file.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| itemName | `string` | The name of the item to equip. |
+
+
+### cmd.army_init
+Initializes the army.
+
+
+### cmd.army_join
+Joins the map but waits for all players in the group to join before proceeding.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| map | `string` | The name of the map to join. |
+| cell | `string` | The name of the cell to join. |
+| pad | `string` | The name of the pad to join. |
+
+
+### cmd.army_kill
+Kills the target, but waits for all players in the group to finish before proceeding.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| targetName | `string` | The name of the target to kill. |
+| options | `Partial<KillOptions>` | The options for the kill. |
+
+
+### cmd.army_kill_for
+Kills the target for a specified item, but waits for all players in the group to get the item before proceeding.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| targetName | `string` | The name of the target to kill. |
+| itemName | `string` | The name of the item to get. |
+| qty | `number` | The quantity of the item to get. |
+| isTemp | `boolean` | Whether the item is temporary or not. |
+| options | `Partial<KillOptions>` | The options for the kill. |
+
+
+### cmd.army_set_config
+Sets the config file name.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| fileName | `string` | The name of the config file. |
+
+
+### cmd.execute_with_army
+Executes a function, but waits for the function (a.k.a for all players) to finish before proceeding.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| fn | `() => Promise<void>` | The function to execute with the army. |
+

@@ -134,7 +134,7 @@ const generateCommandsApiDoc = async () => {
 
           const mdxFileContent = [
             "---",
-            `title: ${makeTitleCase(namespaceName)}`,
+            `title: ${makeTitleCase(namespaceName)} commands`,
             "head:",
             " - tag: title",
             `   content: ${makeTitleCase(namespaceName)} commands`,
@@ -148,6 +148,68 @@ const generateCommandsApiDoc = async () => {
               namespaceDescription.split("\n").join("\n\n"),
               "",
             );
+          }
+
+          for (const method of namespaceMethods) {
+            mdxFileContent.push(`### cmd.${method.name}`);
+
+            if (method.description) {
+              mdxFileContent.push(method.description);
+              mdxFileContent.push("");
+            }
+
+            if (method.parameters && method.parameters.length > 0) {
+              const hasOptionalOrDefaultParams = method.parameters.some(
+                (param) => param.defaultValue,
+              );
+
+              if (hasOptionalOrDefaultParams) {
+                mdxFileContent.push(
+                  "| Parameter | Type | Optional | Default | Description |",
+                  "|-----------|------|----------|---------|-------------|",
+                );
+
+                for (const param of method.parameters) {
+                  const safeType = param.type.includes("|")
+                    ? param.type
+                        .split("|")
+                        .map((t) => `\`${t.trim()}\``)
+                        .join(" \\| ")
+                    : `\`${param.type}\``;
+                  const defaultValue = param.defaultValue
+                    ? `\`${param.defaultValue}\``
+                    : "";
+                  const isOptional = param.defaultValue ? "✓" : "";
+                  const description = param.description || "";
+
+                  mdxFileContent.push(
+                    `| ${param.name} | ${safeType} | ${isOptional} | ${defaultValue} | ${description} |`,
+                  );
+                }
+              } else {
+                mdxFileContent.push(
+                  "| Parameter | Type | Description |",
+                  "|-----------|------|-------------|",
+                );
+
+                for (const param of method.parameters) {
+                  const safeType = param.type.includes("|")
+                    ? param.type
+                        .split("|")
+                        .map((t) => `\`${t.trim()}\``)
+                        .join(" \\| ")
+                    : `\`${param.type}\``;
+                  const description = param.description || "";
+
+                  mdxFileContent.push(
+                    `| ${param.name} | ${safeType} | ${description} |`,
+                  );
+                }
+              }
+              mdxFileContent.push("");
+            }
+
+            mdxFileContent.push("");
           }
 
           const mdxFilePath = join(docsEntryPath, `${namespaceName}.mdx`);

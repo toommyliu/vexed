@@ -1,8 +1,89 @@
 ---
-title: Item
+title: Item commands
 head:
  - tag: title
    content: Item commands
 ---
 
 import { Badge, Code } from "@astrojs/starlight/components";
+
+### cmd.buy_item
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| shopId | `number` |  |
+| item | `string` \| `number` |  |
+| quantity | `number` |  |
+
+
+### cmd.deposit
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| item | `string` \| `number` |  |
+
+
+### cmd.equip_item
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| item | `string` |  |
+
+
+### cmd.get_map_item
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| item | `string` \| `number` |  |
+
+
+### cmd.pickup
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| item | `string` \| `number` |  |
+
+
+### cmd.register_boost
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| item | `string` |  |
+
+
+### cmd.register_drop
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| item | `string` |  |
+
+
+### cmd.reject
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| item | `string` \| `number` |  |
+
+
+### cmd.sell_item
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| item | `string` |  |
+
+
+### cmd.swap
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| bankItem | `string` \| `number` |  |
+| invItem | `string` \| `number` |  |
+
+
+### cmd.unregister_boost
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| item | `string` |  |
+
+
+### cmd.unregister_drop
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| item | `string` |  |
+
+
+### cmd.withdraw
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| item | `string` \| `number` |  |
+
