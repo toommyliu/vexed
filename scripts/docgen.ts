@@ -5,61 +5,25 @@ import fs from "node:fs/promises";
 
 const logger = new typedoc.ConsoleLogger();
 
+// Generate api documentation for the commands
 const generateCommandsApiDoc = async () => {
   const apiEntryPath = join(
     process.cwd(),
     "src/renderer/game/botting/commands/",
   );
-
   const docsEntryPath = join(process.cwd(), "docs/src/content/docs/api");
 
+  await initializeDirectory(docsEntryPath);
+
   const files = new Set<string>();
-
-  if (process.argv.includes("--clean") || process.argv.includes("-c")) {
-    const docsExists = await fs.access(docsEntryPath).catch(() => false);
-    if (docsExists) {
-      logger.info("Cleaning up old files...");
-      await fs.rm(docsEntryPath, { force: true });
+  await totalist(apiEntryPath, (_, absPath) => {
+    if (basename(absPath) === "index.ts") {
+      files.add(absPath);
     }
-  }
-
-  const docsExists = await fs.access(docsEntryPath).catch(() => false);
-  if (!docsExists) {
-    logger.info("Creating api directory...");
-    await fs.mkdir(docsEntryPath, { recursive: true });
-  }
-
-  await totalist(apiEntryPath, async (_, absPath) => {
-    if (basename(absPath) !== "index.ts") return;
-
-    // console.log(`Processing ${absPath}...`);
-    files.add(absPath);
   });
 
-  const namespaces = new Set<string>();
-
-  for (const file of files) {
-    const dirname_ = dirname(file);
-    // get the last part of the path as the namespace
-    const namespace = dirname_.split("/").pop();
-    if (namespace) {
-      namespaces.add(namespace);
-    }
-  }
-
   try {
-    logger.info("Bootstrapping documentation...");
-    const app = await typedoc.Application.bootstrap({
-      entryPoints: [...files],
-      name: "api",
-    });
-
-    const project = await app.convert();
-    if (!project) {
-      throw new Error("Failed to generate project");
-    }
-
-    await app.generateJson(project!, join(process.cwd(), "api.json"));
+    const project = await createTypedocApp([...files], "api");
 
     const namespaces = new Map<string, Namespace>();
 
@@ -83,7 +47,6 @@ const generateCommandsApiDoc = async () => {
           makeDescription(child.comment?.summary ?? []) || "";
         const namespaceMethods: Method[] = [];
 
-        console.log(`Namespace: ${child.name}`);
         if (commands?.type instanceof typedoc.ReflectionType) {
           for (const child of (commands?.type as typedoc.ReflectionType)
             ?.declaration?.children ?? []) {
@@ -111,9 +74,6 @@ const generateCommandsApiDoc = async () => {
                 })
                 .filter((param) => Boolean(param)) as Parameter[];
 
-              // console.log(
-              //   `\tcmd.${funcName}(${funcParameters.map((p) => `${p.name}: ${p.type}`).join(", ")}) ${funcDescription}...`,
-              // );
               const method: Method = {
                 name: funcName,
                 description: funcDescription,
@@ -170,12 +130,7 @@ const generateCommandsApiDoc = async () => {
                 );
 
                 for (const param of method.parameters) {
-                  const safeType = param.type.includes("|")
-                    ? param.type
-                        .split("|")
-                        .map((t) => `\`${t.trim()}\``)
-                        .join(" \\| ")
-                    : `\`${param.type}\``;
+                  const paramType = makeSafeType(param.type);
                   const defaultValue = param.defaultValue
                     ? `\`${param.defaultValue}\``
                     : "";
@@ -183,7 +138,7 @@ const generateCommandsApiDoc = async () => {
                   const description = param.description || "";
 
                   mdxFileContent.push(
-                    `| ${param.name} | ${safeType} | ${isOptional} | ${defaultValue} | ${description} |`,
+                    `| ${param.name} | ${paramType} | ${isOptional} | ${defaultValue} | ${description} |`,
                   );
                 }
               } else {
@@ -213,14 +168,8 @@ const generateCommandsApiDoc = async () => {
           }
 
           const mdxFilePath = join(docsEntryPath, `${namespaceName}.mdx`);
-          // console.log(`Writing ${mdxFilePath}...`);
-          await fs.mkdir(dirname(mdxFilePath), { recursive: true });
-          await fs.writeFile(mdxFilePath, mdxFileContent.join("\n"), {
-            encoding: "utf-8",
-          });
+          await writeFile(mdxFilePath, mdxFileContent);
         }
-
-        // console.log(Array.from(namespaces.values()));
       }
     }
 
@@ -238,25 +187,32 @@ const generateCommandsApiDoc = async () => {
     await fs.writeFile(sidebarFilePath, JSON.stringify(sorted, null, 2), {
       encoding: "utf-8",
     });
+
+    logger.info("API documentation generated successfully!");
   } catch (error) {
-    logger.error(`Error generating documentation: ${error}`);
+    logger.error(
+      `Error generating api documentation: ${error}\n${(error as Error)?.stack}`,
+    );
   }
 };
 
+// Generate api documentation for the legacy API
 const generateLegacyApiDoc = async () => {
-  // Legacy api path
   const apiEntryPath = join(process.cwd(), "src/renderer/game/lib/");
-
-  // Legacy api docs path
   const docsEntryPath = join(
     process.cwd(),
     "docs/src/content/docs/api-legacy/",
   );
 
-  // The set of typescript files to parse
-  const files = new Set<string>();
+  await initializeDirectory(docsEntryPath);
 
-  // Class name: methods
+  const files = new Set<string>();
+  await totalist(apiEntryPath, (_, absPath) => {
+    if (!absPath.endsWith(".d.ts") && absPath.endsWith(".ts")) {
+      files.add(absPath);
+    }
+  });
+
   const excludedMethods: Record<string, string[]> = {
     Bot: [
       "addListener",
@@ -277,39 +233,8 @@ const generateLegacyApiDoc = async () => {
     ],
   };
 
-  if (process.argv.includes("--clean") || process.argv.includes("-c")) {
-    const docsExists = await fs.access(docsEntryPath).catch(() => false);
-    if (docsExists) {
-      logger.info("Cleaning up old files...");
-      await fs.rm(docsEntryPath, { force: true });
-    }
-  }
-
-  const docsExists = await fs.access(docsEntryPath).catch(() => false);
-  if (!docsExists) {
-    logger.info("Creating api-legacy directory...");
-    await fs.mkdir(docsEntryPath, { recursive: true });
-  }
-
-  await totalist(apiEntryPath, async (_, absPath) => {
-    if (absPath.endsWith(".d.ts") || !absPath.endsWith(".ts")) return;
-
-    files.add(absPath);
-  });
-
   try {
-    logger.info("Bootstrapping documentation...");
-    const app = await typedoc.Application.bootstrap({
-      entryPoints: [...files],
-      name: "api-legacy",
-    });
-
-    const project = await app.convert();
-    if (!project) {
-      throw new Error("Failed to generate project");
-    }
-
-    await app.generateJson(project!, join(process.cwd(), "api-legacy.json"));
+    const project = await createTypedocApp([...files], "api-legacy");
 
     let jsonData: Array<{
       label: string;
@@ -381,12 +306,7 @@ const generateLegacyApiDoc = async () => {
 
           const mdxFilePath = join(docsEntryPath, "enums", `${enum_.name}.mdx`);
 
-          await fs.mkdir(dirname(mdxFilePath), {
-            recursive: true,
-          });
-          await fs.writeFile(mdxFilePath, mdxFileContent.join("\n"), {
-            encoding: "utf-8",
-          });
+          await writeFile(mdxFilePath, mdxFileContent);
 
           if (!sidebarGroups.has("enums")) {
             sidebarGroups.set("enums", []);
@@ -399,15 +319,8 @@ const generateLegacyApiDoc = async () => {
         }
 
         for (const typedef of typedefs) {
-          // console.log(
-          //   `typedef: ${typedef.name} (${typedef?.type?.toString()}): ${makeDescription(
-          //     typedef?.comment?.summary ?? [],
-          //   )}...`,
-          // );
-
           const mdxFileContent = ["---", `title: ${typedef.name}`, "---", ""];
 
-          // Make a table of the typedef, Name | Type | Description
           mdxFileContent.push("| Name | Type | Description |");
           mdxFileContent.push("|------|------|-------------|");
           const properties = extractIntersectionProperties(typedef);
@@ -416,17 +329,10 @@ const generateLegacyApiDoc = async () => {
               const propName = child.name;
               const propDescription =
                 makeDescription(child.comment?.summary ?? []) || "";
-              const propType = child.type?.toString() || "";
-
-              const safeType = propType.includes("|")
-                ? propType
-                    .split("|")
-                    .map((t) => `\`${t.trim()}\``)
-                    .join(" \\| ")
-                : `\`${propType}\``;
+              const propType = makeSafeType(child.type?.toString() || "");
 
               mdxFileContent.push(
-                `| ${propName} | ${safeType} | ${propDescription} |`,
+                `| ${propName} | ${propType} | ${propDescription} |`,
               );
             }
           }
@@ -437,12 +343,7 @@ const generateLegacyApiDoc = async () => {
             `${typedef.name}.mdx`,
           );
 
-          await fs.mkdir(dirname(mdxFilePath), {
-            recursive: true,
-          });
-          await fs.writeFile(mdxFilePath, mdxFileContent.join("\n"), {
-            encoding: "utf-8",
-          });
+          await writeFile(mdxFilePath, mdxFileContent);
 
           if (!sidebarGroups.has("typedefs")) {
             sidebarGroups.set("typedefs", []);
@@ -627,7 +528,6 @@ const generateLegacyApiDoc = async () => {
               }
 
               if (mth.example) {
-                // <Code code={exampleCode} lang="js" title={fileName} mark={highlights} />
                 mdxFileContent.push(
                   `\n<Code code={\`${mth.example}\`} lang="js" title="${fileName}" />`,
                 );
@@ -647,13 +547,8 @@ const generateLegacyApiDoc = async () => {
                   );
 
                   for (const param of mth.parameters) {
-                    // TODO: ideally we have hyperlinks to types
-                    const safeType = param.type.includes("|")
-                      ? param.type
-                          .split("|")
-                          .map((t) => `\`${t.trim()}\``)
-                          .join(" \\| ")
-                      : `\`${param.type}\``;
+                    const paramName = param.name;
+                    const paramType = makeSafeType(param.type);
                     const defaultValue = param.defaultValue
                       ? `\`${param.defaultValue}\``
                       : "";
@@ -661,7 +556,7 @@ const generateLegacyApiDoc = async () => {
                     const description = param.description || "";
 
                     mdxFileContent.push(
-                      `| ${param.name} | ${safeType} | ${isOptional} | ${defaultValue} | ${description} |`,
+                      `| ${paramName} | ${paramType} | ${isOptional} | ${defaultValue} | ${description} |`,
                     );
                   }
                 } else {
@@ -669,16 +564,12 @@ const generateLegacyApiDoc = async () => {
                   mdxFileContent.push("|-----------|------|-------------|");
 
                   for (const param of mth.parameters) {
-                    const safeType = param.type.includes("|")
-                      ? param.type
-                          .split("|")
-                          .map((t) => `\`${t.trim()}\``)
-                          .join(" \\| ")
-                      : `\`${param.type}\``; // Wrap all types in backticks
+                    const paramName = param.name;
+                    const paramType = makeSafeType(param.type);
                     const description = param.description || "";
 
                     mdxFileContent.push(
-                      `| ${param.name} | ${safeType} | ${description} |`,
+                      `| ${paramName} | ${paramType} | ${description} |`,
                     );
                   }
                 }
@@ -738,23 +629,22 @@ const generateLegacyApiDoc = async () => {
       { encoding: "utf-8" },
     );
 
-    // logger.info("Generating documentation...");
+    logger.info("API legacy documentation generated successfully!");
   } catch (error) {
-    logger.error(`Error generating documentation: ${error}`);
+    logger.error(
+      `Error generating api-legacy documentation: ${error}\n${(error as Error)?.stack}`,
+    );
   }
 };
-
-generateCommandsApiDoc();
 
 /**
  * Converts a summary block to a description string.
  */
-function makeDescription(summary: typedoc.CommentDisplayPart[]) {
+function makeDescription(summary: typedoc.CommentDisplayPart[]): string {
   return summary.reduce((acc, part) => {
     if (part.kind === "text" || part.kind === "code") {
       return acc + part.text;
     }
-
     return "";
   }, "");
 }
@@ -762,12 +652,11 @@ function makeDescription(summary: typedoc.CommentDisplayPart[]) {
 /**
  * Converts a block tag to a string.
  */
-function makeBlockTag(tag: typedoc.CommentTag[]) {
+function makeBlockTag(tag: typedoc.CommentTag[]): string {
   return tag.reduce((acc, part) => {
     if (part.tag === "@example") {
       return acc + part.content.map((p) => p.text).join("");
     }
-
     return "";
   }, "");
 }
@@ -781,16 +670,13 @@ function extractIntersectionProperties(
   const properties: typedoc.DeclarationReflection[] = [];
 
   if (typedef.type?.type === "intersection") {
-    // Handle intersection types
     const types = (typedef.type as typedoc.IntersectionType).types;
     for (const type of types) {
       if (type.type === "reference" && type.reflection?.children) {
         properties.push(...type.reflection.children);
       } else if (type.type === "reflection" && type.declaration.children) {
-        // Handle inline object types
         properties.push(...type.declaration.children);
       } else if (type.type === "union") {
-        // Handle union types
         for (const unionType of type.types) {
           if (
             unionType.type === "reflection" &&
@@ -817,9 +703,72 @@ function extractIntersectionProperties(
   return Array.from(uniqueProps.values());
 }
 
-function makeTitleCase(str: string) {
+/**
+ * Converts a string to title case.
+ *
+ * @param str - The string to convert.
+ */
+function makeTitleCase(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+/**
+ * Safely converts a string type to a table-safe type.
+ *
+ * @param type - The type to convert.
+ */
+function makeSafeType(type: string): string {
+  if (type.includes("|")) {
+    return type
+      .split("|")
+      .map((t) => `\`${t.trim()}\``)
+      .join(" \\| ");
+  }
+  return `\`${type}\``;
+}
+
+async function initializeDirectory(path: string): Promise<void> {
+  const exists = await fs.access(path).catch(() => false);
+  if (process.argv.includes("--clean") || process.argv.includes("-c")) {
+    if (exists) {
+      logger.info("Cleaning up old files...");
+      await fs.rm(path, { force: true });
+    }
+  }
+  if (!exists) {
+    logger.info(`Creating directory: ${path}`);
+    await fs.mkdir(path, { recursive: true });
+  }
+}
+
+/**
+ * Generates a TypeDoc application.
+ *
+ * @param files - The files to include.
+ * @param name - The name of the project.
+ */
+async function createTypedocApp(files: string[], name: string) {
+  logger.info("Bootstrapping documentation...");
+  const app = await typedoc.Application.bootstrap({
+    entryPoints: [...files],
+    name,
+  });
+
+  const project = await app.convert();
+  if (!project) {
+    throw new Error(`Failed to generate project: ${name}`);
+  }
+
+  await app.generateJson(project, join(process.cwd(), `${name}.json`));
+  return project;
+}
+
+async function writeFile(filePath: string, content: string[]) {
+  await fs.mkdir(dirname(filePath), { recursive: true });
+  await fs.writeFile(filePath, content.join("\n"), { encoding: "utf-8" });
+}
+
+Promise.all([generateCommandsApiDoc(), generateLegacyApiDoc()]);
 
 type Namespace = {
   /**
@@ -835,7 +784,6 @@ type Namespace = {
    */
   methods?: Method[];
 };
-
 type Class = {
   /**
    * The name of the class.
