@@ -11,7 +11,7 @@ const generateCommandsApiDoc = async () => {
     process.cwd(),
     "src/renderer/game/botting/commands/",
   );
-  const docsEntryPath = join(process.cwd(), "docs/src/content/docs/api");
+  const docsEntryPath = join(process.cwd(), "docs/src/content/docs/api/");
 
   await initializeDirectory(docsEntryPath);
 
@@ -728,13 +728,22 @@ function makeSafeType(type: string): string {
 }
 
 async function initializeDirectory(path: string): Promise<void> {
-  const exists = await fs.access(path).catch(() => false);
+  let exists = false;
+
+  try {
+    await fs.access(path);
+    exists = true;
+  } catch {
+    exists = false;
+  }
+
   if (process.argv.includes("--clean") || process.argv.includes("-c")) {
     if (exists) {
       logger.info("Cleaning up old files...");
       await fs.rm(path, { force: true });
     }
   }
+
   if (!exists) {
     logger.info(`Creating directory: ${path}`);
     await fs.mkdir(path, { recursive: true });
