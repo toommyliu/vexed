@@ -664,7 +664,6 @@ th:not(:last-child)::after {
 /* Table body */
 tbody tr {
   border-bottom: 1px solid var(--sl-color-gray-2);
-  transition: background-color 0.2s ease;
 }
 
 tbody tr:last-child {
