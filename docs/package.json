@@ -12,6 +12,7 @@
   "dependencies": {
     "@astrojs/starlight": "^0.34.3",
     "@astrojs/vercel": "^8.1.4",
+    "@expressive-code/plugin-line-numbers": "^0.41.2",
     "astro": "^5.6.1",
     "sharp": "^0.32.5",
     "totalist": "^3.0.1"

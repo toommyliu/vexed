@@ -1,6 +1,7 @@
 import starlight from "@astrojs/starlight";
 import { defineConfig, passthroughImageService } from "astro/config";
 import vercel from "@astrojs/vercel";
+import { pluginLineNumbers } from "@expressive-code/plugin-line-numbers";
 
 import apiJson from "./api.json";
 import apiLegacyJson from "./api-legacy.json";
@@ -27,10 +28,7 @@ export default defineConfig({
       sidebar: [
         {
           label: "Guides",
-          items: [
-            // Each item here is one entry in the navigation menu.
-            { label: "Example Guide", slug: "guides/example" },
-          ],
+          autogenerate: { directory: "guides" },
         },
         {
           label: "Reference",
@@ -48,11 +46,9 @@ export default defineConfig({
       ],
     }),
   ],
-
   // https://docs.astro.build/en/reference/errors/missing-sharp/
   image: {
     service: passthroughImageService(),
   },
-
   adapter: vercel(),
 });
