@@ -1,5 +1,5 @@
-import { ipcRenderer } from '../../../common/ipc';
-import { IPC_EVENTS } from '../../../common/ipc-events';
+import { ipcRenderer } from "../../../common/ipc";
+import { IPC_EVENTS } from "../../../common/ipc-events";
 
 const iconCollapsed = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
   <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
@@ -12,121 +12,121 @@ const iconExpanded = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" vi
 let lastData: { data: unknown; type: string } | null = null;
 
 function createTreeNode(data: TreeNode): HTMLDivElement {
-  const node = document.createElement('div');
-  node.className = 'tree-node';
+  const node = document.createElement("div");
+  node.className = "tree-node";
 
-  const nodeContent = document.createElement('div');
-  nodeContent.className = 'tree-node-content';
+  const nodeContent = document.createElement("div");
+  nodeContent.className = "tree-node-content";
 
-  const nodeName = document.createElement('span');
-  nodeName.className = 'tree-node-name';
+  const nodeName = document.createElement("span");
+  nodeName.className = "tree-node-name";
   nodeName.textContent = data.name;
 
   if (data?.children?.length) {
-    const expander = document.createElement('div');
-    expander.className = 'tree-expander';
+    const expander = document.createElement("div");
+    expander.className = "tree-expander";
     expander.innerHTML = iconCollapsed;
-    nodeContent.appendChild(expander);
-    nodeContent.appendChild(nodeName);
+    nodeContent.append(expander);
+    nodeContent.append(nodeName);
 
-    const childrenContainer = document.createElement('div');
-    childrenContainer.className = 'tree-children';
-    childrenContainer.style.display = 'none';
+    const childrenContainer = document.createElement("div");
+    childrenContainer.className = "tree-children";
+    childrenContainer.style.display = "none";
 
     // Recursively add child nodes
     for (const child of data.children) {
       if (child.value) {
         // Leaf with value
-        const childItem = document.createElement('div');
-        childItem.className = 'tree-child-item';
+        const childItem = document.createElement("div");
+        childItem.className = "tree-child-item";
 
-        const key = document.createElement('span');
-        key.className = 'tree-key';
-        key.textContent = child.name + ':';
+        const key = document.createElement("span");
+        key.className = "tree-key";
+        key.textContent = child.name + ":";
 
-        const value = document.createElement('span');
-        value.className = 'tree-node-value';
-        value.textContent = String(child.value ?? 'N/A');
-        value.title = String(child.value ?? 'N/A');
+        const value = document.createElement("span");
+        value.className = "tree-node-value";
+        value.textContent = String(child.value ?? "N/A");
+        value.title = String(child.value ?? "N/A");
 
-        childItem.appendChild(key);
-        childItem.appendChild(value);
-        childrenContainer.appendChild(childItem);
+        childItem.append(key);
+        childItem.append(value);
+        childrenContainer.append(childItem);
       } else {
         // Child is another branch node
-        childrenContainer.appendChild(createTreeNode(child));
+        childrenContainer.append(createTreeNode(child));
       }
     }
 
     // Append
-    node.appendChild(nodeContent);
-    node.appendChild(childrenContainer);
+    node.append(nodeContent);
+    node.append(childrenContainer);
   } else {
     // Leaf without children
-    nodeContent.appendChild(nodeName);
+    nodeContent.append(nodeName);
 
     if (data.value !== undefined) {
-      const valueEl = document.createElement('span');
-      valueEl.className = 'tree-node-value';
-      valueEl.textContent = String(data.value ?? 'N/A');
+      const valueEl = document.createElement("span");
+      valueEl.className = "tree-node-value";
+      valueEl.textContent = String(data.value ?? "N/A");
 
-      nodeContent.appendChild(document.createTextNode(': '));
-      nodeContent.appendChild(valueEl);
+      nodeContent.append(document.createTextNode(": "));
+      nodeContent.append(valueEl);
     }
 
-    node.appendChild(nodeContent);
+    node.append(nodeContent);
   }
 
   return node;
 }
 
 function renderTree(data: TreeNode[]) {
-  const container = document.querySelector('#tree') as HTMLDivElement;
-  container.innerHTML = '';
+  const container = document.querySelector("#tree") as HTMLDivElement;
+  container.innerHTML = "";
 
   for (const item of data) {
-    container.appendChild(createTreeNode(item));
+    container.append(createTreeNode(item));
   }
 }
 
-document.addEventListener('click', async (ev) => {
+document.addEventListener("click", async (ev) => {
   const target = ev.target as HTMLElement;
 
   // Find the closest tree-node-content parent if we clicked on a child element
-  const nodeContent = target.closest('.tree-node-content');
+  const nodeContent = target.closest(".tree-node-content");
 
   // Handle expander
   if (nodeContent) {
     ev.stopPropagation();
     const node = nodeContent.parentElement;
     const childrenContainer = node?.querySelector(
-      ':scope > .tree-children',
+      ":scope > .tree-children",
     ) as HTMLElement;
 
     if (!childrenContainer) return;
 
-    const isExpanded = childrenContainer.style.display !== 'none';
-    const expander = nodeContent.querySelector('.tree-expander');
+    const isExpanded = childrenContainer.style.display !== "none";
+    const expander = nodeContent.querySelector(".tree-expander");
 
     if (!expander) return;
 
     if (isExpanded) {
       expander.innerHTML = iconCollapsed;
-      expander.classList.remove('expanded');
-      childrenContainer.style.display = 'none';
+      expander.classList.remove("expanded");
+      childrenContainer.style.display = "none";
     } else {
       expander.innerHTML = iconExpanded;
-      expander.classList.add('expanded');
-      childrenContainer.style.display = 'block';
+      expander.classList.add("expanded");
+      childrenContainer.style.display = "block";
     }
 
     return;
   }
 
   // Handle value copy
-  if (target.classList.contains('tree-node-value')) {
+  if (target.classList.contains("tree-node-value")) {
     ev.stopPropagation();
-    const value = target.textContent ?? '';
+    const value = target.textContent ?? "";
     void navigator.clipboard.writeText(value);
   }
 });
@@ -137,60 +137,60 @@ function parseTreeData(data: TreeInputData, type: string): TreeNode[] {
   if (!data) return out;
 
   switch (type) {
-    case '0':
+    case "0":
       out = (data as ShopData).items.map((item) => ({
         name: item.sName,
         children: [
-          { name: 'Shop Item ID', value: item.ShopItemID },
-          { name: 'ID', value: item.ItemID },
+          { name: "Shop Item ID", value: item.ShopItemID },
+          { name: "ID", value: item.ItemID },
           {
-            name: 'Cost',
-            value: `${item.iCost} ${item.bCoins === 1 ? 'ACs' : 'Gold'}`,
+            name: "Cost",
+            value: `${item.iCost} ${item.bCoins === 1 ? "ACs" : "Gold"}`,
           },
-          { name: 'Category', value: item.sType },
-          { name: 'Description', value: item.sDesc },
+          { name: "Category", value: item.sType },
+          { name: "Description", value: item.sDesc },
         ],
       }));
       break;
-    case '1': // quest
+    case "1": // quest
       out = (data as Quest[]).map((quest) => ({
         name: `${quest.QuestID} - ${quest.sName}`,
         children: [
-          { name: 'ID', value: quest.QuestID },
-          { name: 'Description', value: quest.sDesc },
+          { name: "ID", value: quest.QuestID },
+          { name: "Description", value: quest.sDesc },
           {
-            name: 'Required Items',
+            name: "Required Items",
             children: quest.RequiredItems.map((quest) => ({
               name: quest.sName,
               children: [
-                { name: 'ID', value: quest.ItemID },
-                { name: 'Quantity', value: quest.iQty },
+                { name: "ID", value: quest.ItemID },
+                { name: "Quantity", value: quest.iQty },
                 {
-                  name: 'Temporary',
-                  value: quest.bTemp ? 'Yes' : 'No',
+                  name: "Temporary",
+                  value: quest.bTemp ? "Yes" : "No",
                 },
                 {
-                  name: 'Description',
+                  name: "Description",
                   value: quest.sDesc,
                 },
               ],
             })),
           },
           {
-            name: 'Rewards',
+            name: "Rewards",
             children: quest.Rewards.map((item) => ({
               name: item.sName,
               children: [
                 {
-                  name: 'ID',
+                  name: "ID",
                   value: item.ItemID,
                 },
                 {
-                  name: 'Quantity',
+                  name: "Quantity",
                   value: item.iQty,
                 },
                 {
-                  name: 'Drop chance',
+                  name: "Drop chance",
                   value: item.DropChance,
                 },
               ],
@@ -199,83 +199,83 @@ function parseTreeData(data: TreeInputData, type: string): TreeNode[] {
         ],
       }));
       break;
-    case '2':
-    case '4':
+    case "2":
+    case "4":
       out = (data as InventoryItem[]).map((item) => ({
         name: item.sName,
         children: [
           {
-            name: 'ID',
+            name: "ID",
             value: item.ItemID,
           },
           {
-            name: 'Char Item ID',
+            name: "Char Item ID",
             value: item.CharItemID,
           },
           {
-            name: 'Quantity',
-            value: item.sType === 'Class' ? '1/1' : `${item.iQty}/${item.iStk}`,
+            name: "Quantity",
+            value: item.sType === "Class" ? "1/1" : `${item.iQty}/${item.iStk}`,
           },
           {
-            name: 'AC Tagged',
-            value: item.bCoins === 1 ? 'Yes' : 'No',
+            name: "AC Tagged",
+            value: item.bCoins === 1 ? "Yes" : "No",
           },
           {
-            name: 'Category',
+            name: "Category",
             value: item.sType,
           },
           {
-            name: 'Description',
+            name: "Description",
             value: item.sDesc,
           },
         ],
       }));
       break;
-    case '3':
+    case "3":
       out = (data as InventoryItem[]).map((item) => ({
         name: item.sName,
         children: [
           {
-            name: 'ID',
+            name: "ID",
             value: item.ItemID,
           },
           {
-            name: 'Quantity',
+            name: "Quantity",
             value: `${item.iQty}/${item.iStk}`,
           },
         ],
       }));
       break;
-    case '5':
-    case '6':
+    case "5":
+    case "6":
       out = (data as Monster[]).map((mon) => {
         const ret = {
           name: mon.strMonName,
           children: [
             {
-              name: 'ID',
+              name: "ID",
               value: mon.MonID,
             },
             {
-              name: 'MonMapID',
+              name: "MonMapID",
               value: mon.MonMapID,
             },
           ],
         };
 
         ret.children.push(
-          { name: 'Race', value: mon.sRace },
-          { name: 'Level', value: (mon.iLvl ?? mon.intLevel)! },
+          { name: "Race", value: mon.sRace },
+          { name: "Level", value: (mon.iLvl ?? mon.intLevel)! },
         );
 
-        if (type === '5') {
+        if (type === "5") {
           ret.children.push({
-            name: 'Health',
+            name: "Health",
             value: `${mon.intHP}/${mon.intHPMax}`,
           });
         } else {
           ret.children.push({
-            name: 'Cell',
+            name: "Cell",
             value: mon.strFrame!,
           });
         }
@@ -288,14 +288,14 @@ function parseTreeData(data: TreeInputData, type: string): TreeNode[] {
   return out;
 }
 
-window.addEventListener('DOMContentLoaded', async () => {
+window.addEventListener("DOMContentLoaded", async () => {
   {
-    const btn = document.querySelector('#loader-btn') as HTMLButtonElement;
-    btn.addEventListener('click', async () => {
-      const id = (document.querySelector('#loader-id') as HTMLInputElement)
+    const btn = document.querySelector("#loader-btn") as HTMLButtonElement;
+    btn.addEventListener("click", async () => {
+      const id = (document.querySelector("#loader-id") as HTMLInputElement)
         .value;
       const type = (
-        document.querySelector('#loader-select') as HTMLSelectElement
+        document.querySelector("#loader-select") as HTMLSelectElement
       ).value;
       await ipcRenderer.callMain(IPC_EVENTS.MSGBROKER, {
         ipcEvent: IPC_EVENTS.LOADER_GRABBER_LOAD,
@@ -305,10 +305,10 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   {
-    const btn = document.querySelector('#grabber-btn') as HTMLButtonElement;
-    btn.addEventListener('click', async () => {
+    const btn = document.querySelector("#grabber-btn") as HTMLButtonElement;
+    btn.addEventListener("click", async () => {
       const type = (
-        document.querySelector('#grabber-select') as HTMLSelectElement
+        document.querySelector("#grabber-select") as HTMLSelectElement
       ).value;
 
       const ret = await ipcRenderer
@@ -332,16 +332,16 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   {
-    const btn = document.querySelector('#grabber-export') as HTMLButtonElement;
-    btn.addEventListener('click', async () => {
+    const btn = document.querySelector("#grabber-export") as HTMLButtonElement;
+    btn.addEventListener("click", async () => {
       if (!lastData) return;
 
       const blob = new Blob([JSON.stringify(lastData, null, 2)], {
-        type: 'text/plain',
+        type: "text/plain",
       });
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = 'data.json';
+      a.download = "data.json";
       a.click();
     });
   }

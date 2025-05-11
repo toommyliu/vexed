@@ -1,0 +1,56 @@
+---
+title: Server
+---
+
+import { Badge, Code } from "@astrojs/starlight/components";
+
+Represents a game server.
+
+
+## Properties
+### data
+Data about this server.
+
+Type: `ServerData`
+
+### ip <Badge text="Getter" size="small" />	
+The IP address of the server.
+
+Type: `string`
+
+### langCode <Badge text="Getter" size="small" />	
+The language of the server (en/xx/it/pt).
+
+Type: `string`
+
+### maxPlayers <Badge text="Getter" size="small" />	
+The maximum number of players.
+
+Type: `number`
+
+### name <Badge text="Getter" size="small" />	
+The name of the server.
+
+Type: `string`
+
+### playerCount <Badge text="Getter" size="small" />	
+The number of current players.
+
+Type: `number`
+
+### port <Badge text="Getter" size="small" />	
+The port number the server is on.
+
+Type: `number`
+
+## Methods
+
+### isCanned
+The chat-level restriction of the server (0=canned, 2=free).
+
+**Returns**: `boolean`
+
+### isUpgrade
+Whether the server is an upgrade-only server.
+
+**Returns**: `boolean`

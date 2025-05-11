@@ -1,0 +1,40 @@
+---
+title: Quest commands
+head:
+ - tag: title
+   content: Quest commands
+---
+
+import { Badge, Code } from "@astrojs/starlight/components";
+
+### cmd.accept_quest
+Accepts a quest.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| questId | `number` | The ID of the quest. |
+
+
+### cmd.complete_quest
+Completes a quest.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| questId | `number` | The ID of the quest. |
+
+
+### cmd.register_quest
+Registers a quest, which automatically handles accepting and completing it.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| questId | `number` | The ID of the quest. |
+
+
+### cmd.unregister_quest
+Unregisters a quest.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| questId | `number` | The ID of the quest. |
+

@@ -1,0 +1,80 @@
+---
+title: Quest
+---
+
+import { Badge, Code } from "@astrojs/starlight/components";
+
+Represents a quest.
+
+
+## Properties
+### data
+
+Type: `QuestData`
+
+### id <Badge text="Getter" size="small" />	
+The ID of this quest.
+
+Type: `number`
+
+### inProgress <Badge text="Getter" size="small" />	
+Whether this quest is in progress.
+
+Type: `boolean`
+
+### name <Badge text="Getter" size="small" />	
+The name of this quest.
+
+Type: `string`
+
+### once <Badge text="Getter" size="small" />	
+Whether this quest can only be completed once.
+
+Type: `boolean`
+
+### requirements <Badge text="Getter" size="small" />	
+The requirements needed to complete this quest.
+
+Type: `QuestRequiredItem[]`
+
+### rewards <Badge text="Getter" size="small" />	
+The rewards for completing this quest.
+
+Type: `QuestReward[]`
+
+## Methods
+
+### canComplete
+Whether this quest can be completed.
+
+**Returns**: `boolean`
+
+### hasCompletedBefore
+Whether this quest has been completed before.
+
+**Returns**: `boolean`
+
+### isAvailable
+Whether this quest is available.
+
+**Returns**: `boolean`
+
+### isDaily
+Whether this quest is a daily quest.
+
+**Returns**: `boolean`
+
+### isMonthly
+Whether this quest is a monthly quest.
+
+**Returns**: `boolean`
+
+### isUpgrade
+Whether this quest requires membership to accept.
+
+**Returns**: `boolean`
+
+### isWeekly
+Whether this quest is a weekly quest.
+
+**Returns**: `boolean`

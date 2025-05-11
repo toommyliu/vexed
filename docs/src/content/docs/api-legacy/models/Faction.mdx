@@ -1,0 +1,49 @@
+---
+title: Faction
+---
+
+import { Badge, Code } from "@astrojs/starlight/components";
+
+Represents a game faction.
+
+
+## Properties
+### data
+Data about this faction.
+
+Type: `FactionData`
+
+### id <Badge text="Getter" size="small" />	
+The ID of the faction.
+
+Type: `number`
+
+### name <Badge text="Getter" size="small" />	
+The in-game name of the faction.
+
+Type: `string`
+
+### rank <Badge text="Getter" size="small" />	
+The rank that the player has achieved in this faction.
+
+Type: `number`
+
+### remainingRep <Badge text="Getter" size="small" />	
+The remaining amount of rep required for the player to rank up.
+
+Type: `number`
+
+### rep <Badge text="Getter" size="small" />	
+The amount of rep the player has for their current rank.
+
+Type: `number`
+
+### requiredRep <Badge text="Getter" size="small" />	
+The total required rep for the player to rank up.
+
+Type: `number`
+
+### totalRep <Badge text="Getter" size="small" />	
+The total amount of rep the player has for this faction.
+
+Type: `number`

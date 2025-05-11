@@ -1,4 +1,4 @@
-import { Item, type ItemData } from './Item';
+import { Item, type ItemData } from "./Item";
 
 /**
  * Represents an item in the shop.

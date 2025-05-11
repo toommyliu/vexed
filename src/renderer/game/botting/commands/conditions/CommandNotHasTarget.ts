@@ -1,4 +1,4 @@
-import { Command } from '../../command';
+import { Command } from "../../command";
 
 export class CommandNotHasTarget extends Command {
   public override execute() {
@@ -8,6 +8,6 @@ export class CommandNotHasTarget extends Command {
   }
 
   public override toString() {
-    return 'Has no target';
+    return "Has no target";
   }
 }

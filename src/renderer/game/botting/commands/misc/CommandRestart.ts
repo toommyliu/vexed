@@ -1,4 +1,4 @@
-import { Command } from '../../command';
+import { Command } from "../../command";
 
 export class CommandRestart extends Command {
   public override async execute(): Promise<void> {
@@ -6,6 +6,6 @@ export class CommandRestart extends Command {
   }
 
   public override toString() {
-    return 'Restart Bot';
+    return "Restart Bot";
   }
 }

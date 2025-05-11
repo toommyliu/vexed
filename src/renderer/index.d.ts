@@ -1,7 +1,7 @@
 import type {
   Account as ogAccount,
   AccountWithServer as ogAccountWithServer,
-} from '../common/types';
+} from "../common/types";
 
 declare global {
   type Account = ogAccount & {

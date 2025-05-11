@@ -1,5 +1,5 @@
-import { TypedEmitter } from 'tiny-typed-emitter';
-import type { Command } from './command';
+import { TypedEmitter } from "tiny-typed-emitter";
+import type { Command } from "./command";
 
 type Events = {
   display(visible: boolean): void;
@@ -26,25 +26,25 @@ export class CommandOverlay extends TypedEmitter<Events> {
 
   private listVisible: boolean = true;
 
-  private storageKey: string = 'command-overlay-position';
+  private storageKey: string = "command-overlay-position";
 
   public constructor() {
     super();
 
-    this.overlay = document.createElement('div');
-    this.overlay.id = 'command-overlay';
-    this.overlay.className = 'command-overlay';
+    this.overlay = document.createElement("div");
+    this.overlay.id = "command-overlay";
+    this.overlay.className = "command-overlay";
 
-    this.headerElement = document.createElement('div');
-    this.headerElement.className = 'command-overlay-header';
-    this.headerElement.textContent = 'Commands';
+    this.headerElement = document.createElement("div");
+    this.headerElement.className = "command-overlay-header";
+    this.headerElement.textContent = "Commands";
 
-    this.listContainer = document.createElement('div');
-    this.listContainer.className = 'command-list-container';
+    this.listContainer = document.createElement("div");
+    this.listContainer.className = "command-list-container";
 
-    this.overlay.appendChild(this.headerElement);
-    this.overlay.appendChild(this.listContainer);
-    document.body.appendChild(this.overlay);
+    this.overlay.append(this.headerElement);
+    this.overlay.append(this.listContainer);
+    document.body.append(this.overlay);
 
     this.loadPosition();
     this.setupDragging();
@@ -71,27 +71,27 @@ export class CommandOverlay extends TypedEmitter<Events> {
    * Show the overlay.
    */
   public show(): void {
-    this.overlay.style.display = 'block';
+    this.overlay.style.display = "block";
 
     if (this.listVisible) {
-      this.listContainer.style.display = 'block';
-      this.overlay.classList.remove('collapsed');
+      this.listContainer.style.display = "block";
+      this.overlay.classList.remove("collapsed");
     } else {
-      this.listContainer.style.display = 'none';
-      this.overlay.classList.add('collapsed');
+      this.listContainer.style.display = "none";
+      this.overlay.classList.add("collapsed");
     }
 
-    this.emit('display', true);
-    this.emit('show');
+    this.emit("display", true);
+    this.emit("show");
   }
 
   /**
    * Hide the overlay.
    */
   public hide(): void {
-    this.overlay.style.display = 'none';
-    this.emit('display', false);
-    this.emit('hide');
+    this.overlay.style.display = "none";
+    this.emit("display", false);
+    this.emit("hide");
   }
 
   /**
@@ -100,7 +100,7 @@ export class CommandOverlay extends TypedEmitter<Events> {
   public toggle(): void {
     const currentDisplay = window.getComputedStyle(this.overlay).display;
 
-    if (currentDisplay === 'none') {
+    if (currentDisplay === "none") {
       this.show();
     } else {
       this.hide();
@@ -111,7 +111,7 @@ export class CommandOverlay extends TypedEmitter<Events> {
    * Whether the overlay is currently visible.
    */
   public isVisible(): boolean {
-    return window.getComputedStyle(this.overlay).display !== 'none';
+    return window.getComputedStyle(this.overlay).display !== "none";
   }
 
   /**
@@ -145,8 +145,8 @@ export class CommandOverlay extends TypedEmitter<Events> {
         this.listVisible = position.visible;
 
         if (!this.listVisible) {
-          this.listContainer.style.display = 'none';
-          this.overlay.classList.add('collapsed');
+          this.listContainer.style.display = "none";
+          this.overlay.classList.add("collapsed");
         }
       }
     }
@@ -154,7 +154,7 @@ export class CommandOverlay extends TypedEmitter<Events> {
 
   private setupDragging(): void {
     // Start dragging
-    this.headerElement.addEventListener('mousedown', (ev) => {
+    this.headerElement.addEventListener("mousedown", (ev) => {
       // Left click not pressed?
       if (ev.button !== 0) return;
 
@@ -166,11 +166,11 @@ export class CommandOverlay extends TypedEmitter<Events> {
         y: ev.clientY - rect.top,
       };
 
-      this.overlay.classList.add('dragging');
+      this.overlay.classList.add("dragging");
     });
 
     // Dragging
-    document.addEventListener('mousemove', (ev) => {
+    document.addEventListener("mousemove", (ev) => {
       if (!this.isDragging) return;
 
       // Calculate new position
@@ -188,18 +188,18 @@ export class CommandOverlay extends TypedEmitter<Events> {
     });
 
     // Stop dragging
-    document.addEventListener('mouseup', () => {
+    document.addEventListener("mouseup", () => {
       if (!this.isDragging) return;
 
       this.isDragging = false;
-      this.overlay.classList.remove('dragging');
+      this.overlay.classList.remove("dragging");
       this.savePosition();
     });
   }
 
   private setupContextMenu(): void {
     // Right click header
-    this.headerElement.addEventListener('contextmenu', (ev) => {
+    this.headerElement.addEventListener("contextmenu", (ev) => {
       ev.preventDefault();
 
       this.toggleListVisibility();
@@ -208,7 +208,7 @@ export class CommandOverlay extends TypedEmitter<Events> {
     });
 
     // Double click header
-    this.headerElement.addEventListener('dblclick', () => {
+    this.headerElement.addEventListener("dblclick", () => {
       this.toggleListVisibility();
       this.updateHeaderText();
       this.savePosition();
@@ -216,35 +216,35 @@ export class CommandOverlay extends TypedEmitter<Events> {
   }
 
   private setupHoverEffects(): void {
-    this.listContainer.addEventListener('mouseover', (ev) => {
+    this.listContainer.addEventListener("mouseover", (ev) => {
       const target = ev.target as HTMLElement;
       // Hover in on command
       if (
-        target.classList.contains('command-item') &&
-        !target.classList.contains('active')
+        target.classList.contains("command-item") &&
+        !target.classList.contains("active")
       ) {
-        target.classList.add('hover');
+        target.classList.add("hover");
       }
     });
 
-    this.listContainer.addEventListener('mouseout', (ev) => {
+    this.listContainer.addEventListener("mouseout", (ev) => {
       const target = ev.target as HTMLElement;
       // Hover out on command
-      if (target.classList.contains('command-item')) {
-        target.classList.remove('hover');
+      if (target.classList.contains("command-item")) {
+        target.classList.remove("hover");
       }
     });
   }
 
   private setupKeybinds(): void {
-    document.addEventListener('keydown', (ev: KeyboardEvent) => {
+    document.addEventListener("keydown", (ev: KeyboardEvent) => {
       try {
         // if for some reason, they need to type in chat, block
         if (swf.isChatFocused()) return;
 
         // TODO: reassignable
 
-        if (ev.key === '`' || ev.key === '~') {
+        if (ev.key === "`" || ev.key === "~") {
           ev.preventDefault();
           this.toggle();
         }
@@ -254,7 +254,7 @@ export class CommandOverlay extends TypedEmitter<Events> {
 
   private setupScrollBehavior(): void {
     this.listContainer.addEventListener(
-      'wheel',
+      "wheel",
       (event) => {
         const container = this.listContainer;
         const { scrollTop, scrollHeight, clientHeight } = container;
@@ -278,11 +278,11 @@ export class CommandOverlay extends TypedEmitter<Events> {
     this.listVisible = !this.listVisible;
 
     if (this.listVisible) {
-      this.listContainer.style.display = 'block';
-      this.overlay.classList.remove('collapsed');
+      this.listContainer.style.display = "block";
+      this.overlay.classList.remove("collapsed");
     } else {
-      this.listContainer.style.display = 'none';
-      this.overlay.classList.add('collapsed');
+      this.listContainer.style.display = "none";
+      this.overlay.classList.add("collapsed");
     }
   }
 
@@ -291,7 +291,7 @@ export class CommandOverlay extends TypedEmitter<Events> {
    */
   private updateHeaderText(): void {
     const count = this.lastCommands.length;
-    const statusIcon = this.listVisible ? '▼' : '▶';
+    const statusIcon = this.listVisible ? "▼" : "▶";
     this.headerElement.textContent = `${statusIcon} Commands (${count})`;
   }
 
@@ -327,26 +327,26 @@ export class CommandOverlay extends TypedEmitter<Events> {
         }
 
         if (index === currentIndex) {
-          element.classList.add('active');
+          element.classList.add("active");
         } else {
-          element.classList.remove('active');
+          element.classList.remove("active");
         }
       }
     } else {
       const fragment = document.createDocumentFragment();
       for (const [index, cmdString] of commandStrings.entries()) {
-        const commandElement = document.createElement('div');
+        const commandElement = document.createElement("div");
         commandElement.textContent = cmdString;
-        commandElement.className = 'command-item';
+        commandElement.className = "command-item";
         if (index === currentIndex) {
-          commandElement.classList.add('active');
+          commandElement.classList.add("active");
         }
 
-        fragment.appendChild(commandElement);
+        fragment.append(commandElement);
       }
 
-      this.listContainer.innerHTML = '';
-      this.listContainer.appendChild(fragment);
+      this.listContainer.innerHTML = "";
+      this.listContainer.append(fragment);
     }
 
     this.updateHeaderText();

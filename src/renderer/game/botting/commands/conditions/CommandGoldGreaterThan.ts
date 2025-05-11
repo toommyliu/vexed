@@ -1,4 +1,4 @@
-import { Command } from '../../command';
+import { Command } from "../../command";
 
 export class CommandGoldGreaterThan extends Command {
   public gold!: number;

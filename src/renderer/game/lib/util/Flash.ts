@@ -21,10 +21,10 @@ export class Flash {
     let _args = args;
     let out: any;
 
-    if (typeof fn === 'function') {
+    if (typeof fn === "function") {
       // interop function
       _fn = fn;
-    } else if (typeof fn === 'string') {
+    } else if (typeof fn === "string") {
       // args[0] is the path
       _fn =
         args.length === 0
@@ -43,18 +43,18 @@ export class Flash {
       return null as ConditionalReturn<T>;
     }
 
-    if (typeof out === 'string') {
+    if (typeof out === "string") {
       // boolean
       if (['"True"', '"False"'].includes(out)) {
         return (out === '"True"') as ConditionalReturn<T>;
       }
 
       // void
-      if (out === 'undefined') {
+      if (out === "undefined") {
         return undefined as ConditionalReturn<T>;
       }
 
-      if (out.startsWith('{') || out.startsWith('['))
+      if (out.startsWith("{") || out.startsWith("["))
         return JSON.parse(out) as ConditionalReturn<T>;
 
       return out as ConditionalReturn<T>;

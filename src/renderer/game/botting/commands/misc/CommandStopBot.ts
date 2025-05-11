@@ -1,4 +1,4 @@
-import { Command } from '../../command';
+import { Command } from "../../command";
 
 export class CommandStopBot extends Command {
   public override async execute() {
@@ -6,6 +6,6 @@ export class CommandStopBot extends Command {
   }
 
   public override toString(): string {
-    return 'Stop bot';
+    return "Stop bot";
   }
 }

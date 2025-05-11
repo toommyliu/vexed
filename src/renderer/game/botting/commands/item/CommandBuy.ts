@@ -1,4 +1,4 @@
-import { Command } from '../../command';
+import { Command } from "../../command";
 
 export class CommandBuy extends Command {
   public shopId!: number;
@@ -10,7 +10,7 @@ export class CommandBuy extends Command {
   public override async execute() {
     await this.bot.shops.load(this.shopId);
 
-    if (typeof this.item === 'number') {
+    if (typeof this.item === "number") {
       await this.bot.shops.buyById(this.item, this.quantity);
     } else {
       await this.bot.shops.buyByName(this.item, this.quantity);

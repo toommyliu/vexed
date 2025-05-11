@@ -1,4 +1,4 @@
-import { PlayerState } from '../Player';
+import { PlayerState } from "../Player";
 
 /**
  * Represents a player in the world.
@@ -88,7 +88,7 @@ export class Avatar {
    * @returns True if the player's hp is less than the value, false otherwise.
    */
   public isHpLessThan(value: number) {
-    return this.hp <= value;
+    return this.hp <= value && !this.isDead();
   }
 
   /**
@@ -98,7 +98,7 @@ export class Avatar {
    * @returns True if the player's hp is greater than the value, false otherwise.
    */
   public isHpGreaterThan(value: number) {
-    return this.hp >= value;
+    return this.hp >= value && !this.isDead();
   }
 
   /**
@@ -108,7 +108,7 @@ export class Avatar {
    * @returns True if the player's hp is less than the percentage value, false otherwise.
    */
   public isHpPercentageLessThan(value: number) {
-    return (this.hp / this.maxHp) * 100 <= value;
+    return (this.hp / this.maxHp) * 100 <= value && !this.isDead();
   }
 
   /**
@@ -118,7 +118,7 @@ export class Avatar {
    * @returns True if the player's hp is greater than the percentage value, false otherwise.
    */
   public isHpPercentageGreaterThan(value: number) {
-    return (this.hp / this.maxHp) * 100 >= value;
+    return (this.hp / this.maxHp) * 100 >= value && !this.isDead();
   }
 
   /**
@@ -145,7 +145,7 @@ export class Avatar {
   public hasAura(name: string, value?: number) {
     const aura = this.getAura(name);
     if (!aura) return false;
-    if (typeof value === 'number') return aura.value === value;
+    if (typeof value === "number") return aura.value === value;
     return true;
   }
 
@@ -166,6 +166,17 @@ export class Avatar {
    */
   public isInCombat() {
     return this.state === PlayerState.InCombat;
+  }
+
+  public isDead() {
+    return this.state === PlayerState.Dead;
+  }
+
+  /**
+   * Whether the player is idle.
+   */
+  public isIdle() {
+    return this.state === PlayerState.Idle;
   }
 }
 

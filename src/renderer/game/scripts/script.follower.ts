@@ -1,35 +1,35 @@
-import { ipcRenderer } from '../../../common/ipc';
-import { IPC_EVENTS } from '../../../common/ipc-events';
-import { setElement } from '../ui-utils';
+import { ipcRenderer } from "../../../common/ipc";
+import { IPC_EVENTS } from "../../../common/ipc-events";
+import { setElement } from "../ui-utils";
 
 let on = false;
 
-window.addEventListener('DOMContentLoaded', async () => {
+window.addEventListener("DOMContentLoaded", async () => {
   const inputPlayer =
-    document.querySelector<HTMLInputElement>('#input-player')!;
-  const btnMe = document.querySelector<HTMLButtonElement>('#btn-me')!;
-  const skillList = document.querySelector<HTMLInputElement>('#skill-list')!;
-  const skillWait = document.querySelector<HTMLInputElement>('#skill-wait')!;
-  const skillDelay = document.querySelector<HTMLInputElement>('#skill-delay')!;
-  const copyWalk = document.querySelector<HTMLInputElement>('#copy-walk')!;
+    document.querySelector<HTMLInputElement>("#input-player")!;
+  const btnMe = document.querySelector<HTMLButtonElement>("#btn-me")!;
+  const skillList = document.querySelector<HTMLInputElement>("#skill-list")!;
+  const skillWait = document.querySelector<HTMLInputElement>("#skill-wait")!;
+  const skillDelay = document.querySelector<HTMLInputElement>("#skill-delay")!;
+  const copyWalk = document.querySelector<HTMLInputElement>("#copy-walk")!;
   const cbSafeSkill =
-    document.querySelector<HTMLInputElement>('#cb-safe-skill')!;
+    document.querySelector<HTMLInputElement>("#cb-safe-skill")!;
   const inputSafeSkill =
-    document.querySelector<HTMLInputElement>('#input-safe-skill')!;
+    document.querySelector<HTMLInputElement>("#input-safe-skill")!;
   const inputSafeSkillHp = document.querySelector<HTMLInputElement>(
-    '#input-safe-skill-hp',
+    "#input-safe-skill-hp",
   )!;
   const attackPriority =
-    document.querySelector<HTMLInputElement>('#attack-priority')!;
+    document.querySelector<HTMLInputElement>("#attack-priority")!;
   const cbAntiCounter =
-    document.querySelector<HTMLInputElement>('#cb-anti-counter')!;
+    document.querySelector<HTMLInputElement>("#cb-anti-counter")!;
   const textarea_quests =
-    document.querySelector<HTMLTextAreaElement>('#quests')!;
-  const textarea_drops = document.querySelector<HTMLTextAreaElement>('#drops')!;
+    document.querySelector<HTMLTextAreaElement>("#quests")!;
+  const textarea_drops = document.querySelector<HTMLTextAreaElement>("#drops")!;
   const cbRejectElse =
-    document.querySelector<HTMLInputElement>('#reject-else')!;
+    document.querySelector<HTMLInputElement>("#reject-else")!;
 
-  const cbEnable = document.querySelector<HTMLInputElement>('#cb-enable')!;
+  const cbEnable = document.querySelector<HTMLInputElement>("#cb-enable")!;
 
   const toggleState = (state?: boolean) => {
     // use the state to determine value
@@ -58,7 +58,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   };
 
   if (btnMe) {
-    btnMe.addEventListener('click', async () => {
+    btnMe.addEventListener("click", async () => {
       const me = await ipcRenderer
         .callMain(IPC_EVENTS.MSGBROKER, {
           data: undefined,
@@ -74,7 +74,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   if (cbEnable) {
-    cbEnable.addEventListener('click', async () => {
+    cbEnable.addEventListener("click", async () => {
       toggleState();
 
       if (on) {
@@ -111,7 +111,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   ipcRenderer.answerMain(IPC_EVENTS.REFRESHED, toggleState.bind(null, false));
 });
 
-window.addEventListener('beforeunload', async () => {
+window.addEventListener("beforeunload", async () => {
   if (on) {
     await ipcRenderer.callMain(IPC_EVENTS.MSGBROKER, {
       ipcEvent: IPC_EVENTS.FOLLOWER_STOP,

@@ -1,6 +1,6 @@
-import { Mutex } from 'async-mutex';
-import type { Bot } from './Bot';
-import type { ItemData } from './models/Item';
+import { Mutex } from "async-mutex";
+import type { Bot } from "./Bot";
+import type { ItemData } from "./models/Item";
 
 export class Drops {
   private readonly mutex = new Mutex();
@@ -196,9 +196,9 @@ export class Drops {
   }
 
   private resolveItem(itemKey: number | string): ItemData | null {
-    if (typeof itemKey === 'string') {
+    if (typeof itemKey === "string") {
       return this.getItemFromName(itemKey);
-    } else if (typeof itemKey === 'number') {
+    } else if (typeof itemKey === "number") {
       return this.getItemFromId(itemKey);
     }
 

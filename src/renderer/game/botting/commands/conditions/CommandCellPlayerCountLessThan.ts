@@ -1,4 +1,4 @@
-import { Command } from '../../command';
+import { Command } from "../../command";
 
 export class CommandCellPlayerCountLessThan extends Command {
   public cell!: string;

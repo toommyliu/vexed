@@ -1,6 +1,6 @@
-import type { Bot } from './Bot';
-import { BankItem } from './models/BankItem';
-import type { ItemData } from './models/Item';
+import type { Bot } from "./Bot";
+import { BankItem } from "./models/BankItem";
+import type { ItemData } from "./models/Item";
 
 export class Bank {
   // Whether bank items have been loaded.
@@ -73,7 +73,7 @@ export class Bank {
    */
   public async deposit(key: number | string): Promise<void> {
     if (!this.bot.inventory.get(key)) {
-      throw new Error('Item not found in inventory');
+      throw new Error("Item not found in inventory");
     }
 
     await this.open();

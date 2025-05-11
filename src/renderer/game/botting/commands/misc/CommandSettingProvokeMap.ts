@@ -1,4 +1,4 @@
-import { Command } from '../../command';
+import { Command } from "../../command";
 
 export class CommandSettingProvokeMap extends Command {
   public state!: boolean;
@@ -8,6 +8,6 @@ export class CommandSettingProvokeMap extends Command {
   }
 
   public override toString() {
-    return `${this.state ? 'Enable' : 'Disable'} setting: provoke map`;
+    return `${this.state ? "Enable" : "Disable"} setting: provoke map`;
   }
 }

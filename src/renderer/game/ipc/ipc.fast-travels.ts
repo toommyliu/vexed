@@ -1,10 +1,10 @@
-import { ipcRenderer } from '../../../common/ipc';
-import { IPC_EVENTS } from '../../../common/ipc-events';
-import { Logger } from '../../../common/logger';
-import { Bot } from '../lib/Bot';
+import { ipcRenderer } from "../../../common/ipc";
+import { IPC_EVENTS } from "../../../common/ipc-events";
+import { Logger } from "../../../common/logger";
+import { Bot } from "../lib/Bot";
 
 const bot = Bot.getInstance();
-const logger = Logger.get('IpcFastTravels');
+const logger = Logger.get("IpcFastTravels");
 
 ipcRenderer.answerMain(IPC_EVENTS.FAST_TRAVEL, async (args) => {
   logger.info(args);

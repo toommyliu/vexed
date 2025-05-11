@@ -25,3 +25,14 @@ export type FastTravel = {
    */
   pad?: string;
 };
+
+export type Settings = {
+  /**
+   * Whether debug logging is enabled.
+   */
+  debug: boolean;
+  /**
+   * The launch mode of the application.
+   */
+  launchMode: "game" | "manager";
+};

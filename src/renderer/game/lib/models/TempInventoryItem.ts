@@ -1,4 +1,4 @@
-import { Item } from './Item';
+import { Item } from "./Item";
 
 /**
  * Represents an item in the temp inventory.

@@ -1,5 +1,5 @@
-import type { Bot } from './Bot';
-import { Server } from './models/Server';
+import type { Bot } from "./Bot";
+import { Server } from "./models/Server";
 
 export class Auth {
   public constructor(public readonly bot: Bot) {}
@@ -11,7 +11,7 @@ export class Auth {
    * This value is set after a successful login.
    */
   public get username(): string {
-    return this.bot.flash.getStatic('loginInfo', true)?.strUsername ?? null;
+    return this.bot.flash.getStatic("loginInfo", true)?.strUsername ?? null;
   }
 
   /**
@@ -21,7 +21,7 @@ export class Auth {
    * This value is set after a successful login.
    */
   public get password(): string {
-    return this.bot.flash.getStatic('loginInfo', true)?.strPassword ?? null;
+    return this.bot.flash.getStatic("loginInfo", true)?.strPassword ?? null;
   }
 
   /**
@@ -39,11 +39,11 @@ export class Auth {
    */
   public login(username: string, password: string): void {
     if (!username) {
-      throw new Error('Username is required');
+      throw new Error("Username is required");
     }
 
     if (!password) {
-      throw new Error('Password is required');
+      throw new Error("Password is required");
     }
 
     this.bot.flash.call(() => swf.authLogin(username, password));
@@ -73,11 +73,11 @@ export class Auth {
    */
   public connectTo(name: string): void {
     if (!name) {
-      throw new Error('Server name is required');
+      throw new Error("Server name is required");
     }
 
     if (!this.servers.length) {
-      throw new Error('No servers available');
+      throw new Error("No servers available");
     }
 
     if (
