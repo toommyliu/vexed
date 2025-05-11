@@ -43,6 +43,7 @@ export default defineConfig({
         {
           label: "API (Legacy)",
           items: apiLegacyJson,
+          collapsed: true,
         },
       ],
     }),
