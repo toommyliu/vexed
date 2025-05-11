@@ -45,7 +45,7 @@ Whether the player count in the specified cell is greater than the specified val
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | count | `number` | The number of players to compare against. |
-| cell | `string` | The name of the cell. If not provided, it will default to the current cell. |
+| cell | `string?` | The name of the cell. If not provided, it will default to the current cell. |
 
 
 ### cmd.cell_player_count_less_than
@@ -54,7 +54,7 @@ Whether the player count in the specified cell is less than the specified value.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | count | `number` | The number of players to compare against. |
-| cell | `string` | The name of the cell. If not provided, it will default to the current cell. |
+| cell | `string?` | The name of the cell. If not provided, it will default to the current cell. |
 
 
 ### cmd.equipped
@@ -145,7 +145,7 @@ Whether a specific item exists in the player's bank.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | item | `string` | The name of the item. |
-| quantity | `number` | The minimum quantity required. If not provided, it will default to 1. |
+| quantity | `number?` | The minimum quantity required. If not provided, it will default to 1. |
 
 
 ### cmd.in_cell
@@ -166,7 +166,7 @@ Whether the specified item is in the player's house inventory.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | item | `string` | The name of the item. |
-| quantity | `number` | The minimum quantity required. If not provided, it will default to 1. |
+| quantity | `number?` | The minimum quantity required. If not provided, it will default to 1. |
 
 
 ### cmd.in_inventory
@@ -175,7 +175,7 @@ Whether a specific item exists in the player's inventory.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | item | `string` | The name of the item. |
-| quantity | `number` | The minimum quantity required. If not provided, it will default to 1. |
+| quantity | `number?` | The minimum quantity required. If not provided, it will default to 1. |
 
 
 ### cmd.in_map
@@ -192,7 +192,7 @@ Whether a specific item exists in the player's tempinventory.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | item | `string` | The name of the item. |
-| quantity | `number` | The minimum quantity required. If not provided, it will default to 1. |
+| quantity | `number?` | The minimum quantity required. If not provided, it will default to 1. |
 
 
 ### cmd.is_maxed
@@ -323,7 +323,7 @@ Whether a specific item does not exist in the player's bank.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | item | `string` | The name of the item. |
-| quantity | `number` | The minimum quantity required. If not provided, it will default to 1. |
+| quantity | `number?` | The minimum quantity required. If not provided, it will default to 1. |
 
 
 ### cmd.not_in_cell
@@ -344,7 +344,7 @@ Whether the specified item is not in the player's house inventory.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | item | `string` | The name of the item. |
-| quantity | `number` | The minimum quantity required. If not provided, it will default to 1. |
+| quantity | `number?` | The minimum quantity required. If not provided, it will default to 1. |
 
 
 ### cmd.not_in_inventory
@@ -353,7 +353,7 @@ Whether a specific item does not exist in the player's inventory.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | item | `string` | The name of the item. |
-| quantity | `number` | The minimum quantity required. If not provided, it will default to 1. |
+| quantity | `number?` | The minimum quantity required. If not provided, it will default to 1. |
 
 
 ### cmd.not_in_map
@@ -370,7 +370,7 @@ Whether a specific item does not exist in the player's tempinventory.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | item | `string` | The name of the item. |
-| quantity | `number` | The minimum quantity required. If not provided, it will default to 1. |
+| quantity | `number?` | The minimum quantity required. If not provided, it will default to 1. |
 
 
 ### cmd.player_aura_greater_than

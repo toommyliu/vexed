@@ -35,7 +35,7 @@ Kills the target, but waits for all players in the group to finish before procee
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | targetName | `string` | The name of the target to kill. |
-| options | `Partial<KillOptions>` | The options for the kill. |
+| options | `Partial<KillOptions>?` | The options for the kill. |
 
 
 ### cmd.army_kill_for
@@ -47,7 +47,7 @@ Kills the target for a specified item, but waits for all players in the group to
 | itemName | `string` | The name of the item to get. |
 | qty | `number` | The quantity of the item to get. |
 | isTemp | `boolean` | Whether the item is temporary or not. |
-| options | `Partial<KillOptions>` | The options for the kill. |
+| options | `Partial<KillOptions>?` | The options for the kill. |
 
 
 ### cmd.army_set_config

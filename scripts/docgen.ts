@@ -64,12 +64,14 @@ const generateCommandsApiDoc = async () => {
                   const paramType = param.type?.toString() || "";
                   const paramDefaultValue =
                     param?.defaultValue?.toString() || "";
+                  const paramIsOptional = param?.flags?.isOptional;
 
                   return {
                     name: paramName,
                     description: paramDescription,
                     type: paramType,
                     defaultValue: paramDefaultValue,
+                    isOptional: paramIsOptional,
                   };
                 })
                 .filter((param) => Boolean(param)) as Parameter[];
@@ -130,15 +132,18 @@ const generateCommandsApiDoc = async () => {
                 );
 
                 for (const param of method.parameters) {
-                  const paramType = makeSafeType(param.type);
-                  const defaultValue = param.defaultValue
+                  const paramType = param.isOptional
+                    ? `${makeSafeType(`${param.type}?`)}`
+                    : makeSafeType(param.type);
+                  const paramDefaultValue = param.defaultValue
                     ? `\`${param.defaultValue}\``
                     : "";
-                  const isOptional = param.defaultValue ? "✓" : "";
+                  const paramIsOptional =
+                    param.isOptional || param.defaultValue ? "✓" : "";
                   const description = param.description || "";
 
                   mdxFileContent.push(
-                    `| ${param.name} | ${paramType} | ${isOptional} | ${defaultValue} | ${description} |`,
+                    `| ${param.name} | ${paramType} | ${paramIsOptional} | ${paramDefaultValue} | ${description} |`,
                   );
                 }
               } else {
@@ -148,16 +153,14 @@ const generateCommandsApiDoc = async () => {
                 );
 
                 for (const param of method.parameters) {
-                  const safeType = param.type.includes("|")
-                    ? param.type
-                        .split("|")
-                        .map((t) => `\`${t.trim()}\``)
-                        .join(" \\| ")
-                    : `\`${param.type}\``;
+                  const paramSafeType = param.isOptional
+                    ? `${makeSafeType(`${param.type}?`)}`
+                    : makeSafeType(param.type);
+
                   const description = param.description || "";
 
                   mdxFileContent.push(
-                    `| ${param.name} | ${safeType} | ${description} |`,
+                    `| ${param.name} | ${paramSafeType} | ${description} |`,
                   );
                 }
               }
@@ -873,4 +876,8 @@ type Parameter = {
    * The default value of the parameter.
    */
   defaultValue?: string;
+  /**
+   * Whether the parameter is optional.
+   */
+  isOptional?: boolean;
 };

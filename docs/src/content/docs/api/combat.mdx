@@ -38,7 +38,7 @@ Kills the target.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | target | `string` | The name of the target to kill. |
-| options | `Partial<KillOptions>` | The options for the kill command. |
+| options | `Partial<KillOptions>?` | The options for the kill command. |
 
 
 ### cmd.kill_for_item
@@ -49,7 +49,7 @@ Kills the target for an inventory item, until the specified quantity is reached.
 | target | `string` | The name of the target to kill. |
 | item | `string` \| `number` | The name or ID of the item. |
 | quantity | `number` | The quantity of the item. |
-| options | `Partial<KillOptions>` | The options for the kill command. |
+| options | `Partial<KillOptions>?` | The options for the kill command. |
 
 
 ### cmd.kill_for_temp_item
@@ -60,7 +60,7 @@ Kills the target for a temporary item, until the specified quantity is reached.
 | target | `string` | The name of the target to kill. |
 | item | `string` \| `number` | The name or ID of the item. |
 | quantity | `number` | The quantity of the item. |
-| options | `Partial<KillOptions>` | The options for the kill command. |
+| options | `Partial<KillOptions>?` | The options for the kill command. |
 
 
 ### cmd.rest
