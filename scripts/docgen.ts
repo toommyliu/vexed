@@ -289,10 +289,6 @@ const generateLegacyApiDoc = async () => {
               const memberDescription =
                 makeDescription(enumChild.comment?.summary ?? []) || "";
 
-              // console.log(
-              //   `\tEnum member name: ${memberName} (${enumChild?.type?.toString()}): ${makeDescription(enumChild?.comment?.summary ?? [])}...`,
-              // );
-
               mdxFileContent.push(
                 `### ${memberName} = \`${enumChild.type?.toString()}\``,
               );
@@ -323,6 +319,7 @@ const generateLegacyApiDoc = async () => {
 
           mdxFileContent.push("| Name | Type | Description |");
           mdxFileContent.push("|------|------|-------------|");
+
           const properties = extractIntersectionProperties(typedef);
           for (const child of properties) {
             if (child.kind === typedoc.ReflectionKind.Property /* 1024 */) {
@@ -728,14 +725,10 @@ function makeSafeType(type: string): string {
 }
 
 async function initializeDirectory(path: string): Promise<void> {
-  let exists = false;
-
-  try {
-    await fs.access(path);
-    exists = true;
-  } catch {
-    exists = false;
-  }
+  const exists = await fs
+    .access(path)
+    .then(() => true)
+    .catch(() => false);
 
   if (process.argv.includes("--clean") || process.argv.includes("-c")) {
     if (exists) {

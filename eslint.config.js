@@ -44,6 +44,7 @@ const rules = [
       ".git/",
       "./dist/",
       "./build/",
+      "./scripts/",
       "./src/**/index.d.ts",
     ],
   },
