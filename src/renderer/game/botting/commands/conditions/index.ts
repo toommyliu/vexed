@@ -954,7 +954,7 @@ export const conditionsCommands = {
    */
   mp_greater_than(mp: number) {
     if (!mp || typeof mp !== "number") {
-      throw new ArgsError("mana is required");
+      throw new ArgsError("mp is required");
     }
 
     const cmd = new CommandMpGreaterThan();
@@ -966,13 +966,13 @@ export const conditionsCommands = {
    *
    * @param mp - The mp value to compare against.
    */
-  mp_less_than(mana: number) {
-    if (!mana || typeof mana !== "number") {
-      throw new ArgsError("mana is required");
+  mp_less_than(mp: number) {
+    if (!mp || typeof mp !== "number") {
+      throw new ArgsError("mp is required");
     }
 
     const cmd = new CommandMpLessThan();
-    cmd.mana = mana;
+    cmd.mana = mp;
     window.context.addCommand(cmd);
   },
   /**
