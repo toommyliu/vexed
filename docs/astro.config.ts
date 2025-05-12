@@ -27,6 +27,14 @@ export default defineConfig({
       ],
       sidebar: [
         {
+          label: "Disclaimer",
+          link: "/disclaimer/",
+        },
+        {
+          label: "Credits",
+          link: "/credits/",
+        },
+        {
           label: "Guides",
           items: [
             {
