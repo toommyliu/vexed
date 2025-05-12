@@ -14,6 +14,7 @@ export default defineConfig({
       title: "vexed",
       customCss: ["./src/styles/global.css", "./src/styles/theme.css"],
       components: {
+        Hero: "./src/components/Hero.astro",
         SocialIcons: "./src/components/SocialIcons.astro",
         TableOfContents: "./src/components/TableOfContents.astro",
         ThemeSelect: "./src/components/ThemeSelect.astro",
