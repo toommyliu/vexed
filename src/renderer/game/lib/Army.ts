@@ -77,6 +77,7 @@ export class Army {
       return;
     }
 
+    // TODO: validate player count
     for (let index = 1; index <= playerCountNum; index++) {
       const player = this.config.get(`Player${index}`);
       if (player) {

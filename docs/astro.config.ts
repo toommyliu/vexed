@@ -1,7 +1,6 @@
 import starlight from "@astrojs/starlight";
 import { defineConfig, passthroughImageService } from "astro/config";
 import vercel from "@astrojs/vercel";
-import { pluginLineNumbers } from "@expressive-code/plugin-line-numbers";
 
 import apiJson from "./api.json";
 import apiLegacyJson from "./api-legacy.json";
@@ -23,17 +22,43 @@ export default defineConfig({
         {
           icon: "github",
           label: "GitHub",
-          href: "https://github.com/withastro/starlight",
+          href: "https://github.com/toommyliu/vexed",
         },
       ],
       sidebar: [
         {
           label: "Guides",
-          autogenerate: { directory: "guides" },
+          items: [
+            {
+              label: "Getting Started",
+              link: "/guides/getting-started/",
+            },
+            {
+              label: "Custom Commands",
+              link: "/guides/custom-commands/",
+            },
+            {
+              label: "Custom Handlers",
+              link: "/guides/custom-handlers/",
+            },
+            {
+              label: "Advanced",
+              items: [
+                {
+                  label: "Armying",
+                  link: "/guides/armying",
+                },
+                {
+                  label: "Development",
+                  link: "/guides/development",
+                },
+              ],
+            },
+          ],
         },
         {
           label: "Reference",
-          autogenerate: { directory: "reference" },
+          items: [],
         },
         {
           label: "API",
