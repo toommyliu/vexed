@@ -69,7 +69,7 @@ export default defineConfig({
           items: [],
         },
         {
-          label: "API",
+          label: "API (Commands)",
           items: apiJson,
         },
         {
