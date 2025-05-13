@@ -11,6 +11,11 @@ export default defineConfig({
   integrations: [
     starlight({
       title: "vexed",
+      favicon: "/favicon.ico",
+      editLink: {
+        baseUrl: "https://github.com/toommyliu/vexed/docs/",
+      },
+      lastUpdated: true,
       customCss: ["./src/styles/global.css", "./src/styles/theme.css"],
       components: {
         Hero: "./src/components/Hero.astro",
