@@ -1,28 +1,51 @@
 ---
 title: Development
-description: How to bootstrap your environment to work on this project locally
+description: Instructions to bootstrap your development environment to work on vexed locally
+head:
+  - tag: title
+    content: Development guide
 ---
 
 import { Aside, Steps } from "@astrojs/starlight/components";
 
 ## Prerequisities
 
-1. [Node.js / npm](https://nodejs.org/en) AND [yarn classic](https://classic.yarnpkg.com/en/docs/install#mac-stable)
+1. [Node.js / npm](https://nodejs.org/en) AND [yarn classic](https://classic.yarnpkg.com/en/docs/install)
 2. [git](https://git-scm.com/downloads)
 
-Optionally:
+<Aside>Any modern version of Node.js should suffice (LTS or above).</Aside>
+
+## Project Layout
+
+vexed consists of three core codebases.
+
+### Actionscript
+
+We recommend using VSCode for ActionScript development. Decompilers like JPEXS work but lack good developer experience (in our experience, atleast). Plus, we aren't aware of any modern tooling for Actionscript besides in VSCode.
+
+#### Prerequisites
 
 1. [OpenJDK](https://openjdk.org/)
 2. [Flash SDK](https://moonshine-ide.com/download-sdk-installer/)
+3. [ActionScript Extension for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=bowlerhatllc.vscode-as3mxml)
 
-<Aside>
-  Any modern version of Node.js should work fine. As long as its LTS or higher,
-  you'll probably be ok.
-</Aside>
+<Steps>
+  1. Select ActionScript SDK
+      In VSCode, execute the command **ActionScript: Select Workspace SDK**, where you find the path to the **Apache Flex SDK (Harman AIR)** install.
 
-## First steps
+2. Test Compilation
+   Demo compilation by opening an Actionscript file and executing **ActionScript: Compile Release/Debug**
 
-1. Clone the repository (`git clone`)
-2. Install dependencies (`yarn install`)
+</Steps>
 
-The project consists of three components
+### Documentation
+
+1. Install dependencies **yarn install**
+
+2. Start dev server **yarn dev**
+
+### Electron app
+
+1. Install dependencies **yarn install**
+
+2. Start dev run **yarn dev** or **yarn dev:watch**

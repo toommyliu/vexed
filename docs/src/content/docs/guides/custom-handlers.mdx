@@ -1,6 +1,9 @@
 ---
 title: Custom Handlers
 description: Create automatic responses to network packets
+head:
+  - tag: title
+    content: Custom handlers guide
 ---
 
 ## What are custom handlers
@@ -18,9 +21,9 @@ Custom handlers let you create automatic responses to some network message. Unli
 
 You probably want `packetFromServer` or `pext` (OnExtensionResponse).
 
-* `packetFromServer`: json, xml
-* `packetFromClient`: str
-* `pext`: json, xml, str (?)
+- `packetFromServer`: json, xml
+- `packetFromClient`: str
+- `pext`: json, xml, str (?)
 
 Handlers are invoked asychronously as soon as the packet is received.
 
@@ -33,57 +36,58 @@ Handlers are invoked asychronously as soon as the packet is received.
 // - name: unique identifier for your handler
 // - handlerFunction: receives packet data and has bot instance bound
 
-cmd.register_handler(type, name, handlerFunction)
+cmd.register_handler(type, name, handlerFunction);
 ```
 
 ### Unregistering a custom handler
 
 ```js showLineNumbers
-cmd.unregister_handler(name)
+cmd.unregister_handler(name);
 ```
 
 ## Example
 
 ```js showLineNumbers
-cmd.register_handler(
-	"pext",
-	"auto zone ledgermayne",
-	async function (packet) {
-	if (packet.params.type == "json") {
-		if (packet.params.dataObj.cmd === "event") {
-			const zone = packet.params.dataObj.args.zoneSet
-			this.bot.settings.disableCollisions=true
-			let x
-			let y
-			switch (zone) {
-			case "A": // left
-				x = 196
-				y = 355
-				break;
-			case "B": // right
-				x = 869
-				y = 354
-				break;
-			default: // center
-				x = 501
-				y = 243
-			}
-			this.bot.player.walkTo(x,y)
-			await this.bot.waitUntil(() => {
-				let [x_, y_] = this.bot.player.position
-				if (x != x_ && y != y_) return false
-				return true
-			}, null, -1)
-			this.bot.settings.disableCollisions=false
-		}
-	}
-})
+cmd.register_handler("pext", "auto zone ledgermayne", async function (packet) {
+  if (packet.params.type == "json") {
+    if (packet.params.dataObj.cmd === "event") {
+      const zone = packet.params.dataObj.args.zoneSet;
+      this.bot.settings.disableCollisions = true;
+      let x;
+      let y;
+      switch (zone) {
+        case "A": // left
+          x = 196;
+          y = 355;
+          break;
+        case "B": // right
+          x = 869;
+          y = 354;
+          break;
+        default: // center
+          x = 501;
+          y = 243;
+      }
+      this.bot.player.walkTo(x, y);
+      await this.bot.waitUntil(
+        () => {
+          let [x_, y_] = this.bot.player.position;
+          if (x != x_ && y != y_) return false;
+          return true;
+        },
+        null,
+        -1,
+      );
+      this.bot.settings.disableCollisions = false;
+    }
+  }
+});
 
-cmd.enable_infiniterange()
-cmd.join("ledgermayne", "Boss")
-cmd.kill("*")
+cmd.enable_infiniterange();
+cmd.join("ledgermayne", "Boss");
+cmd.kill("*");
 
-cmd.log("dead")
+cmd.log("dead");
 
-cmd.unregister_handler("auto zone ledgermayne")
+cmd.unregister_handler("auto zone ledgermayne");
 ```
