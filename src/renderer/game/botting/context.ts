@@ -3,7 +3,13 @@ import { interval } from "../../../common/interval";
 import { Logger } from "../../../common/logger";
 import { Bot } from "../lib/Bot";
 import { BoostType } from "../lib/Player";
-import { startDropsTimer, stopDropsTimer } from "../util/dropTimer";
+import {
+  getActiveDrops,
+  registerDrop,
+  startDropsTimer,
+  stopDropsTimer,
+  unregisterDrop,
+} from "../util/dropTimer";
 import {
   startQuestTimer,
   stopQuestTimer,
@@ -19,11 +25,6 @@ export class Context extends TypedEmitter<Events> {
   private readonly bot = Bot.getInstance();
 
   public static _instance: Context | null = null;
-
-  /**
-   * List of item ids to watch for.
-   */
-  private readonly items: Set<string>;
 
   /**
    * List of boost to watch and use.
@@ -69,7 +70,6 @@ export class Context extends TypedEmitter<Events> {
   public constructor() {
     super();
 
-    this.items = new Set();
     this.boosts = new Set();
 
     this._pextHandlers = new Map();
@@ -299,7 +299,7 @@ export class Context extends TypedEmitter<Events> {
    * @param item - The item name
    */
   public registerDrop(item: string) {
-    this.items.add(item);
+    registerDrop(item);
   }
 
   /**
@@ -308,7 +308,7 @@ export class Context extends TypedEmitter<Events> {
    * @param item - The item name
    */
   public unregisterDrop(item: string) {
-    this.items.delete(item);
+    unregisterDrop(item);
   }
 
   /**
@@ -352,13 +352,12 @@ export class Context extends TypedEmitter<Events> {
   }
 
   private async prepare() {
-    // unbank all items
-    await this.bot.bank.withdrawMultiple(Array.from(this.items));
+    await this.bot.bank.withdrawMultiple(getActiveDrops());
     await this.bot.bank.withdrawMultiple(Array.from(this.boosts));
   }
 
   private async runTimers() {
-    startDropsTimer(Array.from(this.items), false);
+    startDropsTimer();
     startQuestTimer();
 
     void interval(async (_, stop) => {

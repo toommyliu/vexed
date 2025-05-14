@@ -6,7 +6,11 @@ import { IPC_EVENTS } from "../../../common/ipc-events";
 import { Logger } from "../../../common/logger";
 import { Bot } from "../lib/Bot";
 import { doPriorityAttack } from "../util/doPriorityAttack";
-import { startDropsTimer, stopDropsTimer } from "../util/dropTimer";
+import {
+  registerDrop,
+  startDropsTimer,
+  stopDropsTimer,
+} from "../util/dropTimer";
 import { exitFromCombat } from "../util/exitFromCombat";
 import {
   registerQuest,
@@ -226,7 +230,8 @@ async function startFollower() {
   }
 
   if (cfg.drops.length) {
-    startDropsTimer(cfg.drops);
+    for (const drop of cfg.drops) registerDrop(drop, cfg.rejectElse);
+    startDropsTimer();
   }
 
   void interval(async (_, stop) => {
