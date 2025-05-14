@@ -8,7 +8,11 @@ import { Bot } from "../lib/Bot";
 import { doPriorityAttack } from "../util/doPriorityAttack";
 import { startDropsTimer, stopDropsTimer } from "../util/dropTimer";
 import { exitFromCombat } from "../util/exitFromCombat";
-import { startQuestTimer, stopQuestTimer } from "../util/questTimer";
+import {
+  registerQuest,
+  startQuestTimer,
+  stopQuestTimer,
+} from "../util/questTimer";
 
 let on = false;
 
@@ -217,7 +221,8 @@ async function startFollower() {
   bot.on("pext", packetHandler);
 
   if (cfg.quests.length) {
-    startQuestTimer(cfg.quests);
+    for (const quest of cfg.quests) registerQuest(quest);
+    startQuestTimer();
   }
 
   if (cfg.drops.length) {

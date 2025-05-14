@@ -4,7 +4,12 @@ import { Logger } from "../../../common/logger";
 import { Bot } from "../lib/Bot";
 import { BoostType } from "../lib/Player";
 import { startDropsTimer, stopDropsTimer } from "../util/dropTimer";
-import { startQuestTimer, stopQuestTimer } from "../util/questTimer";
+import {
+  startQuestTimer,
+  stopQuestTimer,
+  registerQuest,
+  unregisterQuest,
+} from "../util/questTimer";
 import type { Command } from "./command";
 import { CommandOverlay } from "./overlay";
 
@@ -14,11 +19,6 @@ export class Context extends TypedEmitter<Events> {
   private readonly bot = Bot.getInstance();
 
   public static _instance: Context | null = null;
-
-  /**
-   * List of quest ids to watch for.
-   */
-  private readonly questIds: Set<number>;
 
   /**
    * List of item ids to watch for.
@@ -69,7 +69,6 @@ export class Context extends TypedEmitter<Events> {
   public constructor() {
     super();
 
-    this.questIds = new Set();
     this.items = new Set();
     this.boosts = new Set();
 
@@ -282,7 +281,7 @@ export class Context extends TypedEmitter<Events> {
    * @param questId - The quest id
    */
   public registerQuest(questId: number) {
-    this.questIds.add(questId);
+    registerQuest(questId?.toString());
   }
 
   /**
@@ -291,7 +290,7 @@ export class Context extends TypedEmitter<Events> {
    * @param questId - The quest id
    */
   public unregisterQuest(questId: number) {
-    this.questIds.delete(questId);
+    unregisterQuest(questId?.toString());
   }
 
   /**
@@ -360,7 +359,7 @@ export class Context extends TypedEmitter<Events> {
 
   private async runTimers() {
     startDropsTimer(Array.from(this.items), false);
-    startQuestTimer(Array.from(this.questIds).map((id) => id.toString()));
+    startQuestTimer();
 
     void interval(async (_, stop) => {
       if (!this.isRunning()) {
