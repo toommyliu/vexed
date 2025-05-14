@@ -3,6 +3,8 @@ title: Custom Commands
 description: Extend vexed's functionality by creating your own custom commands
 ---
 
+import { Aside } from "@astrojs/starlight/components";
+
 ## What are custom commands?
 
 Custom commands let you extend vexed with your own functionality. Once created, they work just like built-in commands.
@@ -26,65 +28,71 @@ Custom commands let you extend vexed with your own functionality. Once created, 
 // - commandFunction: function that returns a Command object
 
 cmd.register_command("name", function (Command) {
-  const command = new Command()
+  const command = new Command();
 
   command.execute = function () {
     // this.bot -> Bot
     // this.args -> [] ; arguments passed to the command
     // this.ctx -> Context (undocumented)
-  }
+  };
 
-  command.toString = function() {
-    return "Command description"
-  }
+  command.toString = function () {
+    return "Command description";
+  };
 
-  return command
-})
+  return command;
+});
 ```
+
+<Aside>
+  Custom commands don't have any input validation. Typically, we would do this
+  before a command is registered. As the creator, it's assumed you understand
+  what's needed.
+</Aside>
 
 ### Unregistering a custom command
 
 ```js showLineNumbers
-cmd.unregister_command(name)
+cmd.unregister_command(name);
 ```
 
 ## Example
 
 ```js showLineNumbers
 cmd.register_command("is_in_bank_or_inventory", (Command) => {
-  const command = new Command()
+  const command = new Command();
 
   // Important: Use regular functions, not arrow functions
   // This ensures proper "this" context
   command.execute = function () {
     const item = this.args[0]; // "Barber"
 
-    const isInBank = this.bot.bank.contains(item)
-    const isInInventory = this.bot.inventory.contains(item)
+    const isInBank = this.bot.bank.contains(item);
+    const isInInventory = this.bot.inventory.contains(item);
 
     // Skip to the command after this command if item is not in bank or inventory
     if (!(isInBank || isInInventory)) this.ctx.commandIndex++;
   };
 
-  command.toString = function() {
-    return `Item is in bank or inventory: ${this.args[0]}`
-  }
+  command.toString = function () {
+    return `Item is in bank or inventory: ${this.args[0]}`;
+  };
 
-  return command
-})
+  return command;
+});
 
-cmd.is_in_bank_or_inventory("Barber")
-cmd.goto_label("yes")
-cmd.goto_label("no")
+cmd.is_in_bank_or_inventory("Barber");
+cmd.goto_label("yes");
+cmd.goto_label("no");
 
-cmd.label("yes")
-cmd.log("yes to is_in_bank_or_inventory")
-cmd.goto_label("stop")
+cmd.label("yes");
+cmd.log("yes to is_in_bank_or_inventory");
+cmd.goto_label("stop");
 
-cmd.label("no")
-cmd.log("no to is_in_bank_or_inventory")
-cmd.goto_label("stop")
+cmd.label("no");
+cmd.log("no to is_in_bank_or_inventory");
+cmd.goto_label("stop");
 
-cmd.label("stop")
-cmd.log("stop!")
+cmd.label("stop");
+cmd.log("stop!");
 ```
