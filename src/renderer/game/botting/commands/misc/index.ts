@@ -442,7 +442,11 @@ export const miscCommands = {
 
     const command = cmdFactory(Command);
 
-    if (!(command instanceof Command)) {
+    if (
+      !(command instanceof Command) ||
+      typeof command?.execute !== "function" ||
+      typeof command?.toString !== "function"
+    ) {
       throw new ArgsError("cmdFactory must return a valid Command");
     }
 
@@ -531,6 +535,7 @@ export const miscCommands = {
 
     const context = Context.getInstance();
     const _name = name.toLowerCase();
+
     if (type === "pext") {
       context.unregisterHandler("pext", _name);
     } else if (type === "packetFromServer") {
