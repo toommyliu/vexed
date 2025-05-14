@@ -75,7 +75,16 @@ export default defineConfig({
         },
         {
           label: "Reference",
-          items: [],
+          items: [
+            {
+              label: "Game",
+              link: "/reference/game/",
+            },
+            {
+              label: "Manager",
+              link: "/reference/manager/",
+            },
+          ],
         },
         {
           label: "API (Commands)",
