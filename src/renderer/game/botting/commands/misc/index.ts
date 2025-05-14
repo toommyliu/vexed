@@ -1,4 +1,7 @@
 import { ArgsError } from "../../ArgsError";
+import { Command } from "../../command";
+import { CommandRegistry } from "../../command-registry";
+import { Context } from "../../context";
 import { CommandAutoAggro } from "./CommandAutoAggro";
 import { CommandBuff } from "./CommandBuff";
 import { CommandBuyScrollOfLifeSteal } from "./CommandBuyScrollOfLifeSteal";
@@ -418,5 +421,122 @@ export const miscCommands = {
   stop_aggromon() {
     const cmd = new CommandStopAggroMon();
     window.context.addCommand(cmd);
+  },
+  register_command(
+    name: string,
+    cmdFactory: (CommandClass: typeof Command) => Command,
+  ) {
+    if (!name || typeof name !== "string") {
+      throw new ArgsError("command name is required");
+    }
+
+    const commandRegistry = CommandRegistry.getInstance();
+
+    const _name = name.toLowerCase();
+    // don't allow built-ins to be overwritten
+    if (commandRegistry.commands.has(_name)) {
+      throw new ArgsError("built-in commands cannot be overwritten");
+    }
+
+    commandRegistry.registerCustomCommand(_name, () => {});
+
+    const command = cmdFactory(Command);
+
+    if (!(command instanceof Command)) {
+      throw new ArgsError("cmdFactory must return a valid Command");
+    }
+
+    // eslint-disable-next-line func-names
+    window.cmd[_name] = function (...args: unknown[]) {
+      const newCmd = Object.create(command);
+      newCmd.args = args;
+      window.context.addCommand(newCmd);
+    };
+  },
+  unregister_command(name: string) {
+    if (!name || typeof name !== "string") {
+      throw new Error("command name is required");
+    }
+
+    const commandRegistry = CommandRegistry.getInstance();
+    const _name = name.toLowerCase();
+    if (!commandRegistry.customCommands.has(_name)) return;
+
+    commandRegistry.unregisterCommand(_name);
+
+    if (_name in window.cmd && typeof window.cmd?.[_name] === "function") {
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+      delete window.cmd[_name];
+    }
+  },
+  register_handler(
+    type: "packetFromClient" | "packetFromServer" | "pext",
+    name: string,
+    handler:
+      | ((packet: Record<string, unknown>) => Promise<void> | void)
+      | ((packet: string) => Promise<void> | void),
+  ) {
+    if (
+      !type ||
+      !["pext", "packetFromServer", "packetFromClient"].includes(type)
+    ) {
+      throw new ArgsError("handler type is required");
+    }
+
+    if (!name || typeof name !== "string") {
+      throw new ArgsError("handler name is required");
+    }
+
+    if (!handler || typeof handler !== "function") {
+      throw new ArgsError("handler is required");
+    }
+
+    const context = Context.getInstance();
+    const _name = name.toLowerCase();
+
+    if (type === "pext") {
+      context.registerHandler(
+        "pext",
+        _name,
+        handler as (packet: Record<string, unknown>) => Promise<void> | void,
+      );
+    } else if (type === "packetFromServer") {
+      context.registerHandler(
+        "packetFromServer",
+        _name,
+        handler as (packet: string) => Promise<void> | void,
+      );
+    } else if (type === "packetFromClient") {
+      context.registerHandler(
+        "packetFromClient",
+        _name,
+        handler as (packet: string) => Promise<void> | void,
+      );
+    }
+  },
+  unregister_handler(
+    type: "packetFromClient" | "packetFromServer" | "pext",
+    name: string,
+  ) {
+    if (
+      !type ||
+      !["pext", "packetFromServer", "packetFromClient"].includes(type)
+    ) {
+      throw new ArgsError("handler type is required");
+    }
+
+    if (!name || typeof name !== "string") {
+      throw new ArgsError("handler name is required");
+    }
+
+    const context = Context.getInstance();
+    const _name = name.toLowerCase();
+    if (type === "pext") {
+      context.unregisterHandler("pext", _name);
+    } else if (type === "packetFromServer") {
+      context.unregisterHandler("packetFromServer", _name);
+    } else if (type === "packetFromClient") {
+      context.unregisterHandler("packetFromClient", _name);
+    }
   },
 };

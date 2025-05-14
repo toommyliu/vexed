@@ -6,7 +6,7 @@ const { toc } = Astro.locals.starlightRoute;
 
 {
   toc && (
-    <starlight-toc
+    <starlight-toc-custom
       data-min-h={toc.minHeadingLevel}
       data-max-h={toc.maxHeadingLevel}
     >
@@ -16,7 +16,7 @@ const { toc } = Astro.locals.starlightRoute;
         </h2>
         <TableOfContentsList toc={toc.items} />
       </nav>
-    </starlight-toc>
+    </starlight-toc-custom>
   )
 }
 

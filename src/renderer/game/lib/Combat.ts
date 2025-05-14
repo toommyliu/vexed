@@ -88,6 +88,11 @@ export class Combat {
     }
 
     const idx = Number.parseInt(String(index), 10);
+
+    if (idx < 0 || idx > 5) {
+      return;
+    }
+
     if (wait) {
       await this.bot.sleep(swf.combatGetSkillCooldownRemaining(idx));
     }
@@ -101,6 +106,10 @@ export class Combat {
 
   public canUseSkill(index: number | string): boolean {
     const idx = Number.parseInt(String(index), 10);
+    if (idx < 0 || idx > 5) {
+      return false;
+    }
+
     return this.bot.flash.call<boolean>(() => swf.combatCanUseSkill(idx));
   }
 
@@ -206,7 +215,7 @@ export class Combat {
 
       // Combat logic
       void interval(async (_, stop) => {
-        stopCombatInterval = stop;
+        stopCombatInterval ??= stop;
 
         if (isResolved) {
           stop();
@@ -260,7 +269,7 @@ export class Combat {
 
       // Check logic
       void interval(async (_, stop) => {
-        stopCheckInterval = stop;
+        stopCheckInterval ??= stop;
 
         if (isResolved) {
           stop();

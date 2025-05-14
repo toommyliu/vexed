@@ -3,6 +3,8 @@ import { interval } from "../../../common/interval";
 import { Logger } from "../../../common/logger";
 import { Bot } from "../lib/Bot";
 import { BoostType } from "../lib/Player";
+import { startDropsTimer, stopDropsTimer } from "../util/dropTimer";
+import { startQuestTimer, stopQuestTimer } from "../util/questTimer";
 import type { Command } from "./command";
 import { CommandOverlay } from "./overlay";
 
@@ -10,6 +12,8 @@ const logger = Logger.get("Context");
 
 export class Context extends TypedEmitter<Events> {
   private readonly bot = Bot.getInstance();
+
+  public static _instance: Context | null = null;
 
   /**
    * List of quest ids to watch for.
@@ -160,6 +164,8 @@ export class Context extends TypedEmitter<Events> {
 
       try {
         for (const [, handler] of this._pextHandlers) {
+          if (!this.isRunning()) break;
+
           await handler.call(
             {
               bot: this.bot,
@@ -175,6 +181,8 @@ export class Context extends TypedEmitter<Events> {
 
       try {
         for (const [, handler] of this._packetFromServerHandlers) {
+          if (!this.isRunning()) break;
+
           await handler.call(
             {
               bot: this.bot,
@@ -190,6 +198,8 @@ export class Context extends TypedEmitter<Events> {
 
       try {
         for (const [, handler] of this._packetFromClientHandlers) {
+          if (!this.isRunning()) break;
+
           await handler.call(
             {
               bot: this.bot,
@@ -337,6 +347,11 @@ export class Context extends TypedEmitter<Events> {
     this._stop();
   }
 
+  public static getInstance() {
+    this._instance ??= new Context();
+    return this._instance;
+  }
+
   private async prepare() {
     // unbank all items
     await this.bot.bank.withdrawMultiple(Array.from(this.items));
@@ -344,40 +359,8 @@ export class Context extends TypedEmitter<Events> {
   }
 
   private async runTimers() {
-    // TODO: use utilty helper
-
-    void interval(async (_, stop) => {
-      if (!this.isRunning()) {
-        stop();
-        return;
-      }
-
-      for (const questId of Array.from(this.questIds)) {
-        try {
-          if (!swf.questsIsInProgress(questId)) {
-            swf.questsAccept(questId);
-          }
-
-          if (swf.questsCanCompleteQuest(questId)) {
-            void this.bot.quests.complete(questId);
-            void this.bot.quests.accept(questId);
-          }
-        } catch {}
-      }
-    }, 1_000);
-
-    void interval(async (_, stop) => {
-      if (!this.isRunning()) {
-        stop();
-        return;
-      }
-
-      for (const item of Array.from(this.items)) {
-        try {
-          if (this.bot.drops.hasDrop(item)) await this.bot.drops.pickup(item);
-        } catch {}
-      }
-    }, 1_000);
+    startDropsTimer(Array.from(this.items), false);
+    startQuestTimer(Array.from(this.questIds).map((id) => id.toString()));
 
     void interval(async (_, stop) => {
       if (!this.isRunning()) {
@@ -466,6 +449,9 @@ export class Context extends TypedEmitter<Events> {
   // TODO: add an option to restart if end is reached
 
   private _stop() {
+    stopDropsTimer();
+    stopQuestTimer();
+
     this.overlay.hide();
     this.emit("end");
     this._on = false;

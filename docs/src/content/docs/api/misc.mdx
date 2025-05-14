@@ -143,6 +143,21 @@ Logs a message ingame.
 Logs out of the game.
 
 
+### cmd.register_command
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| name | `string` |  |
+| cmdFactory | `(CommandClass: typeof Command) => Command` |  |
+
+
+### cmd.register_handler
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| type | `"packetFromClient"` \| `"packetFromServer"` \| `"pext"` |  |
+| name | `string` |  |
+| handler | `((packet: Record<string, unknown>) => void` \| `Promise<void>)` \| `((packet: string) => void` \| `Promise<void>)` |  |
+
+
 ### cmd.set_delay
 Sets the delay between commands.
 
@@ -197,6 +212,19 @@ Disables the "Auto Aggro" feature.
 
 ### cmd.stop_bot
 Stops the bot.
+
+
+### cmd.unregister_command
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| name | `string` |  |
+
+
+### cmd.unregister_handler
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| type | `"packetFromClient"` \| `"packetFromServer"` \| `"pext"` |  |
+| name | `string` |  |
 
 
 ### cmd.wait_for_player_count
