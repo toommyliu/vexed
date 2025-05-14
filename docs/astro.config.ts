@@ -40,6 +40,10 @@ export default defineConfig({
           link: "/credits/",
         },
         {
+          label: "Contributing",
+          link: "/contributing/",
+        },
+        {
           label: "Guides",
           items: [
             {
