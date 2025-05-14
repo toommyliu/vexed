@@ -84,6 +84,10 @@ export default defineConfig({
               label: "Manager",
               link: "/reference/manager/",
             },
+            {
+              label: "Example Scripts",
+              autogenerate: { directory: "/reference/example-scripts/" },
+            },
           ],
         },
         {
