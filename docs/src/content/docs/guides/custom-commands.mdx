@@ -27,7 +27,7 @@ Custom commands let you extend vexed with your own functionality. Once created, 
 // - name: name of the command
 // - commandFunction: function that returns a Command object
 
-cmd.register_command("name", function (Command) {
+cmd.register_command("name", (Command) {
   const command = new Command();
 
   command.execute = function () {
