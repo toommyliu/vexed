@@ -50,6 +50,28 @@ Kills the target for a specified item, but waits for all players in the group to
 | options | `Partial<KillOptions>?` | The options for the kill. |
 
 
+### cmd.army_kill_for_item
+Kills the target for a specified permanent item, waiting for all players to get the item.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| targetName | `string` | The name of the target to kill. |
+| itemName | `string` | The name of the item to get. |
+| qty | `number` | The quantity of the item to get. |
+| options | `Partial<KillOptions>?` | The options for the kill. |
+
+
+### cmd.army_kill_for_tempitem
+Kills the target for a specified temporary item, waiting for all players to get the item.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| targetName | `string` | The name of the target to kill. |
+| itemName | `string` | The name of the temporary item to get. |
+| qty | `number` | The quantity of the item to get. |
+| options | `Partial<KillOptions>?` | The options for the kill. |
+
+
 ### cmd.army_set_config
 Sets the config file name.
 
