@@ -4,7 +4,6 @@ import { Logger } from "../../../common/logger";
 import { Bot } from "../lib/Bot";
 import { BoostType } from "../lib/Player";
 import {
-  getActiveDrops,
   registerDrop,
   startDropsTimer,
   stopDropsTimer,
@@ -17,6 +16,9 @@ import {
   unregisterQuest,
 } from "../util/questTimer";
 import type { Command } from "./command";
+import { CommandRegisterDrop } from "./commands/item/CommandRegisterDrop";
+import { CommandAcceptQuest } from "./commands/quest/CommandAcceptQuest";
+import { CommandRegisterQuest } from "./commands/quest/CommandRegisterQuest";
 import { CommandOverlay } from "./overlay";
 
 const logger = Logger.get("Context");
@@ -297,9 +299,10 @@ export class Context extends TypedEmitter<Events> {
    * Starts automated pickup for an item.
    *
    * @param item - The item name
+   * @param rejectElse - Whether to reject all other items
    */
-  public registerDrop(item: string) {
-    registerDrop(item);
+  public registerDrop(item: string, rejectElse?: boolean) {
+    registerDrop(item, rejectElse);
   }
 
   /**
@@ -334,7 +337,7 @@ export class Context extends TypedEmitter<Events> {
     this._on = true;
     this.overlay.show();
 
-    await this.prepare();
+    await this.doPreInit();
 
     this.emit("start");
 
@@ -351,8 +354,24 @@ export class Context extends TypedEmitter<Events> {
     return this._instance;
   }
 
-  private async prepare() {
-    await this.bot.bank.withdrawMultiple(getActiveDrops());
+  private async doPreInit() {
+    const questList = this._commands
+      .filter(
+        (cmd) =>
+          cmd instanceof CommandRegisterQuest ||
+          cmd instanceof CommandAcceptQuest,
+      )
+      .map((cmd) => cmd.questId);
+
+    const unbankList = this._commands
+      .filter((command) => command instanceof CommandRegisterDrop)
+      .map((cmd) => cmd.item);
+
+    console.log("Quest list", questList);
+    console.log("Unbank list", unbankList);
+
+    await this.bot.quests.loadMultiple(questList);
+    await this.bot.bank.withdrawMultiple(unbankList);
     await this.bot.bank.withdrawMultiple(Array.from(this.boosts));
   }
 

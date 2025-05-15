@@ -106,10 +106,12 @@ export class Bank {
     await this.open();
 
     if (!this.get(key)) {
+      // console.log(`${key} is not in bank`);
       return;
     }
 
     if (this.bot.inventory.get(key)) {
+      // console.log(`${key} is already in inventory`);
       return;
     }
 
@@ -117,7 +119,7 @@ export class Bank {
 
     await this.bot.waitUntil(
       () => this.get(key) === null && this.bot.inventory.get(key) !== null,
-      () => this.bot.auth.isLoggedIn(),
+      () => this.bot.player.isReady(),
       3,
     );
   }
@@ -125,7 +127,9 @@ export class Bank {
   public async withdrawMultiple(items: (number | string)[]): Promise<void> {
     if (!Array.isArray(items) || !items.length) return;
 
-    await Promise.all(items.map(async (item) => this.withdraw(item)));
+    for (const item of items) {
+      await this.withdraw(item);
+    }
   }
 
   /**

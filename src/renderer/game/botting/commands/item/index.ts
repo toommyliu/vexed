@@ -111,13 +111,18 @@ export const itemCommands = {
     cmd.item = item;
     window.context.addCommand(cmd);
   },
-  register_drop(item: string) {
+  register_drop(item: string, rejectElse: boolean = false) {
     if (!item || typeof item !== "string") {
       throw new ArgsError("item is required");
     }
 
+    if (typeof rejectElse !== "boolean") {
+      throw new ArgsError("rejectElse is required");
+    }
+
     const cmd = new CommandRegisterDrop();
     cmd.item = item;
+    cmd.rejectElse = rejectElse;
     window.context.addCommand(cmd);
   },
   unregister_drop(item: string) {

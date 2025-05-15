@@ -18,10 +18,15 @@ export function startDropsTimer() {
     for (const drop of Object.keys(bot.drops.stack)) {
       if (activeDrops.has(drop)) {
         try {
+          // const itemName = bot.drops.getItemName(Number.parseInt(drop, 10));
+          // console.log(`picking up drop ${itemName}`);
           await bot.drops.pickup(drop);
         } catch {}
       } else if (rejectElseEnabled) {
         try {
+          // TOOD: ui doesn't update?
+          // const itemName = bot.drops.getItemName(Number.parseInt(drop, 10));
+          // console.log(`rejecting drop ${itemName}`);
           await bot.drops.reject(drop);
         } catch {}
       }
