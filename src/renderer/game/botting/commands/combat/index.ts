@@ -92,7 +92,7 @@ export const combatCommands = {
    * @param quantity - The quantity of the item.
    * @param options - The options for the kill command.
    */
-  kill_for_temp_item(
+  kill_for_tempitem(
     target: string,
     item: number | string,
     quantity: number,

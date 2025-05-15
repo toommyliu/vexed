@@ -112,6 +112,74 @@ export const armyCommands = {
     window.context.addCommand(cmd);
   },
   /**
+   * Kills the target for a specified permanent item, waiting for all players to get the item.
+   *
+   * @param targetName - The name of the target to kill.
+   * @param itemName - The name of the item to get.
+   * @param qty - The quantity of the item to get.
+   * @param options - The options for the kill.
+   */
+  army_kill_for_item(
+    targetName: string,
+    itemName: string,
+    qty: number,
+    options?: Partial<KillOptions>,
+  ) {
+    if (!targetName || typeof targetName !== "string") {
+      throw new ArgsError("targetName is required");
+    }
+
+    if (!itemName || typeof itemName !== "string") {
+      throw new ArgsError("itemName is required");
+    }
+
+    if (!qty || typeof qty !== "number") {
+      throw new ArgsError("qty is required");
+    }
+
+    const cmd = new CommandArmyKill();
+    cmd.targetName = targetName;
+    cmd.itemName = itemName;
+    cmd.qty = qty;
+    cmd.isTemp = false;
+    cmd.options = options ?? {};
+    window.context.addCommand(cmd);
+  },
+  /**
+   * Kills the target for a specified temporary item, waiting for all players to get the item.
+   *
+   * @param targetName - The name of the target to kill.
+   * @param itemName - The name of the temporary item to get.
+   * @param qty - The quantity of the item to get.
+   * @param options - The options for the kill.
+   */
+  army_kill_for_tempitem(
+    targetName: string,
+    itemName: string,
+    qty: number,
+    options?: Partial<KillOptions>,
+  ) {
+    if (!targetName || typeof targetName !== "string") {
+      throw new ArgsError("targetName is required");
+    }
+
+    if (!itemName || typeof itemName !== "string") {
+      throw new ArgsError("itemName is required");
+    }
+
+    if (!qty || typeof qty !== "number") {
+      throw new ArgsError("qty is required");
+    }
+
+    const cmd = new CommandArmyKill();
+    cmd.targetName = targetName;
+    cmd.itemName = itemName;
+    cmd.qty = qty;
+    cmd.isTemp = true;
+    cmd.options = options ?? {};
+    window.context.addCommand(cmd);
+  },
+  /**
    * Executes a function, but waits for the function (a.k.a for all players) to finish before proceeding.
    *
    * @param fn - The function to execute with the army.
