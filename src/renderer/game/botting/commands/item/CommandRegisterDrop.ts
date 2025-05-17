@@ -10,6 +10,6 @@ export class CommandRegisterDrop extends Command {
   }
 
   public override toString() {
-    return `Add drop: ${this.item}`;
+    return `Register drop: ${this.item}`;
   }
 }
