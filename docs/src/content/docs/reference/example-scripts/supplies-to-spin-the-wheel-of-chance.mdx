@@ -3,30 +3,41 @@ title: Supplies to spin The Wheel of Chance
 description: Example script for Supplies to spin The Wheel of Chance
 ---
 
-import { Code } from "@astrojs/starlight/components";
+import { Code, Aside } from "@astrojs/starlight/components";
 
 export const suppliesEscherion = String.raw`
-const whitelist = [
-  "Unidentified 13",
-  "Unidentified 10",
-  "Tainted Gem",
-  "Dark Crystal Shard",
-  "Diamond of Nulgath",
-  "Voucher of Nulgath (non-mem)",
-  "Gem of Nulgath",
-  "Essence of Nulgath"
-]
+{
+  const whitelist = [
+    "Unidentified 13",
+    "Unidentified 10",
+    "Tainted Gem",
+    "Dark Crystal Shard",
+    "Diamond of Nulgath",
+    "Voucher of Nulgath (non-mem)",
+    "Gem of Nulgath",
+    "Essence of Nulgath"
+  ]
 
-cmd.set_delay(0)
-for (const item of whitelist) {
-  cmd.register_drop(item)
+  cmd.set_delay(0)
+  for (const item of whitelist) {
+    cmd.register_drop(item)
+  }
+  cmd.set_delay(1000)
+
+  cmd.join("escherion-1e99", "Boss", "Left")
+  cmd.register_quest(2857)
+
+  cmd.label("kill")
+  cmd.kill_for_item("Escherion", "Relic of Chaos", 1)
+  cmd.goto_label("kill")
 }
-cmd.set_delay(1000)
-
-cmd.join("escherion-1e99", "Boss", "Left")
-cmd.register_quest(2857)
-
-cmd.label("kill")
-cmd.kill_for_item("Escherion", "Relic of Chaos", 1)
-cmd.goto_label("kill")
 `
+
+<Code code={suppliesEscherion} lang="ts" title="script.js" />
+
+<Aside>
+Notice that we create a new block so `whitelist` doesn't pollute the global namespace. If the script was ran multiple times, it would fail because
+`whitelist` has already been declared.
+
+We can use `let` instead, too.
+</Aside>
