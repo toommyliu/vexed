@@ -188,44 +188,44 @@ export class Drops {
     return item !== null && this.getDropCount(item.ItemID) > 0;
   }
 
-  /**
-   * Whether the player is using the custom drops ui.
-   */
-  public isUsingCustomUi(): boolean {
-    return this.bot.flash.call<boolean>(() =>
-      swf.dropStackIsUsingCustomDrops(),
-    );
-  }
+  // /**
+  //  * Whether the player is using the custom drops ui.
+  //  */
+  // public isUsingCustomUi(): boolean {
+  //   return this.bot.flash.call<boolean>(() =>
+  //     swf.dropStackIsUsingCustomDrops(),
+  //   );
+  // }
 
-  /**
-   * Whether the custom drops ui is open.
-   */
-  public isCustomUiOpen(): boolean {
-    return this.bot.flash.call<boolean>(() =>
-      swf.dropStackIsCustomDropsUiOpen(),
-    );
-  }
+  // /**
+  //  * Whether the custom drops ui is open.
+  //  */
+  // public isCustomUiOpen(): boolean {
+  //   return this.bot.flash.call<boolean>(() =>
+  //     swf.dropStackIsCustomDropsUiOpen(),
+  //   );
+  // }
 
-  /**
-   * Sets the custom drops ui state.
-   *
-   * @param on - Whether to use the custom drops ui.
-   * @param draggable - Whether to use the draggable custom drops ui.
-   */
-  public setCustomDropsUi(on: boolean, draggable: boolean): void {
-    this.bot.flash.call(() =>
-      swf.dropStackSetCustomDropsUiState(on, draggable),
-    );
-  }
+  // /**
+  //  * Sets the custom drops ui state.
+  //  *
+  //  * @param on - Whether to use the custom drops ui.
+  //  * @param draggable - Whether to use the draggable custom drops ui.
+  //  */
+  // public setCustomDropsUi(on: boolean, draggable: boolean): void {
+  //   this.bot.flash.call(() =>
+  //     swf.dropStackSetCustomDropsUiState(on, draggable),
+  //   );
+  // }
 
-  /**
-   * Sets the custom drops ui open state.
-   *
-   * @param on - Whether to open the custom drops ui.
-   */
-  public setCustomDropsUiOpen(on: boolean): void {
-    this.bot.flash.call(() => swf.dropStackSetCustomDropsUiOpen(on));
-  }
+  // /**
+  //  * Sets the custom drops ui open state.
+  //  *
+  //  * @param on - Whether to open the custom drops ui.
+  //  */
+  // public setCustomDropsUiOpen(on: boolean): void {
+  //   this.bot.flash.call(() => swf.dropStackSetCustomDropsUiOpen(on));
+  // }
 
   #removeDrop(itemId: number): void {
     this.#dropCounts.delete(itemId);

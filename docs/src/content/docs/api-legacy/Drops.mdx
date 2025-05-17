@@ -9,10 +9,10 @@ import { Badge, Code } from "@astrojs/starlight/components";
 
 Type: `Bot`
 
-### stack <Badge text="Getter" size="small" />	
-The drop stack as shown to the client. The mapping is of the form `itemID -> count`.
+### dropCounts <Badge text="Getter" size="small" />	
+Retrieves the drop stack as is.
 
-Type: `Record<number, number>`
+Type: `Readonly<Map<number, number>>`
 
 ## Methods
 
@@ -72,21 +72,11 @@ Checks if an item exists in the drop stack.
 
 **Returns**: `boolean`
 
-### isCustomUiOpen
-Whether the custom drops ui is open.
-
-**Returns**: `boolean`
-
-### isUsingCustomUi
-Whether the player is using the custom drops ui.
-
-**Returns**: `boolean`
-
 ### pickup
 Accepts the drop for an item in the stack.
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| itemKey | `string` \| `number` | The name or ID of the item. |
+| item | `string` \| `number` | The name or ID of the item. |
 
 **Returns**: `Promise<void>`
 
@@ -98,11 +88,3 @@ Rejects a drop from the stack.
 | removeFromStore | `boolean` | ✓ | `false` | Whether to delete the item entry from the store. |
 
 **Returns**: `Promise<void>`
-
-### setCustomDropsUi
-Sets the custom drops ui state.
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| on | `boolean` | Whether to use the custom drops ui. |
-
-**Returns**: `void`
