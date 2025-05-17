@@ -95,11 +95,13 @@ export async function createGame(
     window.webContents.openDevTools({ mode: "right" });
   }
 
-  // track refreshes to sync state across children
-  // e.g main window refreshed and follower is on, it should be off
-  // to prevent desync
+  // Track refreshes to re-sync states across windows
   window.webContents.on("did-finish-load", async () => {
     logger.info("game window re(loaded)");
+
+    if (!window || window?.isDestroyed()) {
+      return;
+    }
 
     const windows = store.get(window.id);
 

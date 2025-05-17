@@ -338,9 +338,6 @@ export class Context extends TypedEmitter<Events> {
     this.overlay.show();
 
     await this.doPreInit();
-
-    this.emit("start");
-
     await Promise.all([this.runTimers(), this.runCommands()]);
   }
 
@@ -355,6 +352,12 @@ export class Context extends TypedEmitter<Events> {
   }
 
   private async doPreInit() {
+    if (!this.bot.player.isReady()) {
+      logger.info("waiting for load (1)");
+      await this.bot.waitUntil(() => this.bot.player.isLoaded(), null, -1);
+      logger.info("player loaded (2)");
+    }
+
     const questList = this._commands
       .filter(
         (cmd) =>
@@ -373,6 +376,8 @@ export class Context extends TypedEmitter<Events> {
     await this.bot.quests.loadMultiple(questList);
     await this.bot.bank.withdrawMultiple(unbankList);
     await this.bot.bank.withdrawMultiple(Array.from(this.boosts));
+
+    this.emit("start");
   }
 
   private async runTimers() {

@@ -164,7 +164,7 @@ window.loaded = async () => {
       const [, path] = scriptPath.split("=");
       const decodedPath = decodeURIComponent(path!);
 
-      console.log("decodedPath", decodedPath);
+      // console.log("decodedPath", decodedPath);
 
       await ipcRenderer.callMain(IPC_EVENTS.LOAD_SCRIPT, {
         scriptPath: decodedPath,

@@ -7,6 +7,9 @@ type Events = {
   show(): void;
 };
 
+// TODO: handle window resize
+// TODO: various
+
 export class CommandOverlay extends TypedEmitter<Events> {
   private readonly overlay!: HTMLDivElement;
 

@@ -340,7 +340,7 @@ export class Combat {
 
     if (hasRequiredItems()) return;
 
-    while (!hasRequiredItems()) {
+    while (!hasRequiredItems() && window.context.isRunning()) {
       await this.kill(monsterResolvable, opts);
 
       if (!isTemp) {

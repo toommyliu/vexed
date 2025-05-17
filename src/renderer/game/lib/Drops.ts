@@ -3,30 +3,32 @@ import type { Bot } from "./Bot";
 import type { ItemData } from "./models/Item";
 
 export class Drops {
-  private readonly mutex = new Mutex();
+  readonly #mutex = new Mutex();
 
   /**
    * A map of item IDs to their associated item data.
    */
-  private readonly items = new Map<number, ItemData>();
+  readonly #itemData = new Map<number, ItemData>();
 
   /**
    * A map of item IDs to their count in the drop stack.
    */
-  private drops = new Map<number, number>();
+  #dropCounts = new Map<number, number>();
 
   public constructor(public readonly bot: Bot) {}
 
   /**
-   * The drop stack as shown to the client. The mapping is of the form `itemID -> count`.
+   * Retrieves the drop stack as is.
    */
-  public get stack(): Record<number, number> {
-    const result: Record<number, number> = {};
-    for (const [key, value] of this.drops.entries()) {
-      result[key] = value;
-    }
+  public get dropCounts(): Readonly<Map<number, number>> {
+    // const result: Record<number, number> = {};
+    // for (const [key, value] of this.#dropCounts.entries()) {
+    //   // const item = this.getItemFromId(key);
+    //   // console.log(`${item?.sName} - ${value}`);
+    //   result[key] = value;
+    // }
 
-    return Object.freeze(result);
+    return Object.freeze(this.#dropCounts);
   }
 
   /**
@@ -36,8 +38,7 @@ export class Drops {
    * @returns The item data if found, null otherwise.
    */
   public getItemFromId(itemId: number): ItemData | null {
-    const item = this.items.get(itemId);
-    return item ? Object.freeze(item) : null;
+    return this.#itemData.get(itemId) ?? null;
   }
 
   /**
@@ -48,11 +49,14 @@ export class Drops {
    */
   public getItemFromName(itemName: string): ItemData | null {
     const normalizedName = itemName.toLowerCase();
-    const item = Array.from(this.items.values()).find(
-      (item) => item.sName.toLowerCase() === normalizedName,
-    );
 
-    return item ? Object.freeze({ ...item }) : null;
+    for (const item of this.#itemData.values()) {
+      if (item.sName.toLowerCase() === normalizedName) {
+        return item;
+      }
+    }
+
+    return null;
   }
 
   /**
@@ -82,7 +86,7 @@ export class Drops {
    * @returns The count of the item in the drop stack, or -1 if not found.
    */
   public getDropCount(itemId: number): number {
-    return this.drops.get(itemId) ?? -1;
+    return this.#dropCounts.get(itemId) ?? -1;
   }
 
   /**
@@ -91,42 +95,55 @@ export class Drops {
    * @param item - The item that was dropped.
    */
   public addDrop(item: ItemData): void {
-    if (!this.items.has(item.ItemID)) {
-      this.items.set(item.ItemID, { ...item });
+    // console.log(
+    // `Adding drop: ${item.sName} (${item.ItemID}) [${typeof item.sName} : ${typeof item.ItemID}]`,
+    // );
+    if (!this.#itemData.has(item.ItemID)) {
+      this.#itemData.set(item.ItemID, Object.freeze({ ...item }));
     }
 
     const count = this.getDropCount(item.ItemID);
-    this.drops.set(item.ItemID, count === -1 ? item.iQty : count + item.iQty);
+    this.#dropCounts.set(
+      item.ItemID,
+      count === -1 ? item.iQty : count + item.iQty,
+    );
+    // console.log(
+    // `${item.sName} (${item.ItemID}) added to drop stack, now at ${this.#dropCounts.get(item.ItemID)}`,
+    // );
   }
 
   /**
    * Accepts the drop for an item in the stack.
    *
-   * @param itemKey - The name or ID of the item.
+   * @param item - The name or ID of the item.
    */
-  public async pickup(itemKey: number | string): Promise<void> {
-    const item = this.resolveItem(itemKey);
-    if (!item || this.getDropCount(item.ItemID) <= 0) {
+  public async pickup(item: number | string): Promise<void> {
+    const itemData = this.#resolveItem(item);
+    if (!itemData || this.getDropCount(itemData.ItemID) <= 0) {
+      // console.log("Item not found in drop stack (1)", item);
       return;
     }
 
+    // console.log(`Pickup item: ${itemData.sName} (${itemData.ItemID})`);
+
     // if (this.isUsingCustomUi() && !this.isCustomUiOpen()) {
-    //   this.setCustomDropsUi(true);
+    //   console.log("Set custom drops ui open (1)");
+    //   this.setCustomDropsUiOpen(true);
     // }
 
-    const { ItemID: itemId } = item;
-    return this.mutex.runExclusive(async () => {
+    const { ItemID: itemId } = itemData;
+    return this.#mutex.runExclusive(async () => {
       if (!this.bot.player.isReady()) return;
 
       this.bot.packets.sendServer(
         `%xt%zm%getDrop%${this.bot.world.roomId}%${itemId}%`,
       );
-      this.removeDrop(itemId);
       await this.bot.waitUntil(
-        () => this.bot.inventory.get(itemKey) !== null,
+        () => this.bot.inventory.get(item) !== null,
         () => this.bot.player.isReady(),
         -1,
       );
+      this.#removeDrop(itemId);
     });
   }
 
@@ -140,17 +157,24 @@ export class Drops {
     itemKey: number | string,
     removeFromStore: boolean = false,
   ) {
-    const item = this.resolveItem(itemKey);
-    if (!item) return;
+    const item = this.#resolveItem(itemKey);
+    if (!item) {
+      return;
+    }
 
     // if (this.isUsingCustomUi() && !this.isCustomUiOpen()) {
-    //   this.setCustomDropsUi(true);
+    //   console.log("Set custom drops ui open (2)");
+    //   this.setCustomDropsUiOpen(true);
     // }
 
-    this.bot.flash.call(() => swf.dropStackRejectDrop(item.sName, item.ItemID));
+    // console.log("Rejecting drop", item.sName, item.ItemID);
+
+    this.bot.flash.call(() =>
+      swf.dropStackRejectDrop(item.sName, item.ItemID.toString()),
+    );
 
     if (removeFromStore) {
-      this.removeDrop(item.ItemID);
+      this.#removeDrop(item.ItemID);
     }
   }
 
@@ -160,7 +184,7 @@ export class Drops {
    * @param itemKey - The name or ID of the item.
    */
   public hasDrop(itemKey: number | string): boolean {
-    const item = this.resolveItem(itemKey);
+    const item = this.#resolveItem(itemKey);
     return item !== null && this.getDropCount(item.ItemID) > 0;
   }
 
@@ -186,20 +210,38 @@ export class Drops {
    * Sets the custom drops ui state.
    *
    * @param on - Whether to use the custom drops ui.
+   * @param draggable - Whether to use the draggable custom drops ui.
    */
-  public setCustomDropsUi(on: boolean): void {
-    this.bot.flash.call(() => swf.dropStackSetCustomDropsUiState(on));
+  public setCustomDropsUi(on: boolean, draggable: boolean): void {
+    this.bot.flash.call(() =>
+      swf.dropStackSetCustomDropsUiState(on, draggable),
+    );
   }
 
-  private removeDrop(itemId: number): void {
-    this.drops.delete(itemId);
+  /**
+   * Sets the custom drops ui open state.
+   *
+   * @param on - Whether to open the custom drops ui.
+   */
+  public setCustomDropsUiOpen(on: boolean): void {
+    this.bot.flash.call(() => swf.dropStackSetCustomDropsUiOpen(on));
   }
 
-  private resolveItem(itemKey: number | string): ItemData | null {
-    if (typeof itemKey === "string") {
-      return this.getItemFromName(itemKey);
-    } else if (typeof itemKey === "number") {
-      return this.getItemFromId(itemKey);
+  #removeDrop(itemId: number): void {
+    this.#dropCounts.delete(itemId);
+  }
+
+  /**
+   * Resolves for an item using its name or ID.
+   *
+   * @param key - The name or ID of the item.
+   * @returns The item data if found, null otherwise.
+   */
+  #resolveItem(key: number | string): ItemData | null {
+    if (typeof key === "string") {
+      return this.getItemFromName(key);
+    } else if (typeof key === "number") {
+      return this.getItemFromId(key);
     }
 
     return null;

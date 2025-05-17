@@ -6,36 +6,65 @@ const activeDrops = new Set<string>();
 
 let rejectElseEnabled = false;
 let stopFn: (() => void) | null = null;
+let isTimerActive = false;
+let abortController: AbortController | null = null;
 
 export function startDropsTimer() {
   stopDropsTimer();
 
+  isTimerActive = true;
+  abortController = new AbortController();
+
   void interval(async (_, stop) => {
     stopFn ??= stop;
 
-    if (!bot.player.isReady()) return;
+    if (!isTimerActive || !bot.player.isReady()) return;
 
-    for (const drop of Object.keys(bot.drops.stack)) {
-      if (activeDrops.has(drop)) {
+    const signal = abortController?.signal;
+    if (signal?.aborted) return;
+
+    for (const drop of bot.drops.dropCounts.keys()) {
+      if (!isTimerActive || signal?.aborted) break;
+
+      if (activeDrops.has(drop.toString())) {
         try {
-          // const itemName = bot.drops.getItemName(Number.parseInt(drop, 10));
-          // console.log(`picking up drop ${itemName}`);
-          await bot.drops.pickup(drop);
+          await Promise.race([
+            bot.drops.pickup(drop),
+            new Promise((_resolve, reject) => {
+              signal?.addEventListener("abort", () =>
+                reject(new Error("Operation aborted")),
+              );
+            }),
+          ]);
         } catch {}
       } else if (rejectElseEnabled) {
         try {
-          // TOOD: ui doesn't update?
-          // const itemName = bot.drops.getItemName(Number.parseInt(drop, 10));
-          // console.log(`rejecting drop ${itemName}`);
-          await bot.drops.reject(drop);
+          await Promise.race([
+            bot.drops.reject(drop).catch(() => {}),
+            new Promise((_resolve, reject) => {
+              signal?.addEventListener("abort", () =>
+                reject(new Error("Operation aborted")),
+              );
+            }),
+          ]);
         } catch {}
       }
+
+      await bot.sleep(500);
     }
   }, 1_000);
 }
 
 export function stopDropsTimer() {
+  isTimerActive = false;
+
+  if (abortController) {
+    abortController.abort();
+    abortController = null;
+  }
+
   if (stopFn) {
+    // console.log("Stopping drops timer");
     stopFn();
     stopFn = null;
   }
@@ -65,8 +94,4 @@ export function unregisterDrop(drop: string) {
   if (!activeDrops.has(drop)) return;
 
   activeDrops.delete(drop);
-}
-
-export function getActiveDrops() {
-  return Array.from(activeDrops);
 }
