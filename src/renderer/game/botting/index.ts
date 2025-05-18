@@ -19,7 +19,7 @@ const builtIns = {
   ...questCommands,
 };
 
-export const cmd = {};
+export const cmd = {} as { [key: string]: (...args: unknown[]) => void };
 
 for (const [key, value] of Object.entries(builtIns)) {
   Object.defineProperty(cmd, key, {
