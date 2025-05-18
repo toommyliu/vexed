@@ -1,14 +1,9 @@
 import { interval } from "../../../common/interval";
 import { Bot } from "../lib/Bot";
 import { extractMonsterMapId, isMonsterMapId } from "./isMonMapId";
+import { makeAggromonPacket } from "./makeAggromonPacket";
 
 let _stop: (() => void) | null = null;
-
-const makeAggromonPacket = (monMapIds: number[], roomId: number) => {
-  // roomId is probably not necessary, but we will use it to be safe
-  if (!roomId) return null;
-  return `%xt%zm%aggroMon%${roomId}%${monMapIds.join("%")}%`;
-};
 
 export function startAggromon(monstersList: string[]) {
   const bot = Bot.getInstance();
