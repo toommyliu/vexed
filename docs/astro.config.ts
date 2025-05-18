@@ -13,7 +13,7 @@ export default defineConfig({
       title: "vexed",
       favicon: "/favicon.ico",
       editLink: {
-        baseUrl: "https://github.com/toommyliu/vexed/docs/",
+        baseUrl: "https://github.com/toommyliu/vexed/docs/edit/main",
       },
       lastUpdated: true,
       customCss: ["./src/styles/global.css", "./src/styles/theme.css"],
@@ -22,6 +22,7 @@ export default defineConfig({
         SocialIcons: "./src/components/SocialIcons.astro",
         TableOfContents: "./src/components/TableOfContents.astro",
         ThemeSelect: "./src/components/ThemeSelect.astro",
+        Footer: "./src/components/Footer.astro",
       },
       social: [
         {
