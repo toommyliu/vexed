@@ -1,0 +1,109 @@
+---
+title: Game
+description: Core features and controls of the game client.
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+The game client looks like the typical AQW third-party client.
+
+You can always open another game client window by clicking the tray icon and selecting **Open Game**.
+
+Interact with the topnav dropdowns to display options for each feature.
+
+## Scripts
+
+### Load
+
+Loads a script file. Scripts can be in the commands or legacy format.
+
+### Start/Stop
+
+Starts or stops the script.
+
+<Aside>
+  Scripts can only begin executing when the player is in a
+  [ready](/api-legacy/player#isready) state.
+</Aside>
+
+### Toggle Dev Tools
+
+Toggles the chrome dev tools.
+
+## Tools
+
+### Fast Travels
+
+Shortcuts to popular areas in the game.
+
+The list of locations are stored in `Documents/Vexed/locations.json`.
+
+### Loader/Grabber
+
+Grabs and loads various forms of game data.
+
+Grabber displays data in a tree view.
+
+### Follower
+
+Follows a player around, acting as a combat assistant.
+
+## Packets
+
+### Logger
+
+Logs packets being sent by the game client.
+
+### Spammer
+
+Sends a set of packets to the game server.
+
+## Options
+
+<Aside type="tip">Settings are a two-way binding between the ui and api.</Aside>
+
+### Infinite Range
+
+Allows the player to attack from any distance.
+
+### Provoke Map
+
+Tags all monsters in the map.
+
+### Provoke Cell
+
+Tags all monsters in the cell.
+
+### Enemy Magnet
+
+Sets the position of the current target to the player's position.
+
+### Lag Killer
+
+Mostly disables rendering.
+
+### Hide Players
+
+Hide all other players.
+
+### Skip Cutscenes
+
+Skips cutscenes when possible.
+
+### Disable FX
+
+If checked, mostly disables animations and effects.
+
+### Disable Collisions
+
+If checked, disables the map's collision mechanics.
+
+### Walk Speed
+
+The player's walk speed.
+
+## AutoAggro
+
+### Enabled
+
+If checked, the player will automatically aggro map monsters if there is a player in that monster's cell.

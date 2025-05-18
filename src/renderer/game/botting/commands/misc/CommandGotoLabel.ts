@@ -1,5 +1,5 @@
-import { Command } from '../../command';
-import { CommandLabel } from './CommandLabel';
+import { Command } from "../../command";
+import { CommandLabel } from "./CommandLabel";
 
 export class CommandGotoLabel extends Command {
   public label!: string;

@@ -1,4 +1,4 @@
-import { Command } from '../../command';
+import { Command } from "../../command";
 
 export class CommandSettingLagKiller extends Command {
   public state!: boolean;
@@ -8,6 +8,6 @@ export class CommandSettingLagKiller extends Command {
   }
 
   public override toString() {
-    return `${this.state ? 'Enable' : 'Disable'} setting: lag killer`;
+    return `${this.state ? "Enable" : "Disable"} setting: lag killer`;
   }
 }

@@ -1,28 +1,28 @@
-import { ipcRenderer } from '../../../common/ipc';
-import { IPC_EVENTS } from '../../../common/ipc-events';
-import { setElement } from '../ui-utils';
+import { ipcRenderer } from "../../../common/ipc";
+import { IPC_EVENTS } from "../../../common/ipc-events";
+import { setElement } from "../ui-utils";
 
 const packets: string[] = [];
 
 let on = false;
 let selectedLine: HTMLElement | null = null;
 
-window.addEventListener('DOMContentLoaded', async () => {
+window.addEventListener("DOMContentLoaded", async () => {
   {
-    const btn = document.querySelector('#clear') as HTMLButtonElement;
-    btn.addEventListener('click', () => {
-      document.querySelector('#spammer')!.innerHTML = '';
+    const btn = document.querySelector("#clear") as HTMLButtonElement;
+    btn.addEventListener("click", () => {
+      document.querySelector("#spammer")!.innerHTML = "";
       packets.length = 0;
     });
   }
 
   {
-    const spammer = document.querySelector('#spammer') as HTMLDivElement;
-    const removeBtn = document.querySelector('#remove') as HTMLButtonElement;
-    const addBtn = document.querySelector('#add') as HTMLButtonElement;
+    const spammer = document.querySelector("#spammer") as HTMLDivElement;
+    const removeBtn = document.querySelector("#remove") as HTMLButtonElement;
+    const addBtn = document.querySelector("#add") as HTMLButtonElement;
 
-    addBtn.addEventListener('click', () => {
-      const packet = (document.querySelector('#packet') as HTMLInputElement)
+    addBtn.addEventListener("click", () => {
+      const packet = (document.querySelector("#packet") as HTMLInputElement)
         .value;
 
       if (!packet.length) return;
@@ -30,21 +30,21 @@ window.addEventListener('DOMContentLoaded', async () => {
       packets.push(packet);
 
       {
-        const div = document.createElement('div');
+        const div = document.createElement("div");
         div.classList.add(
-          'block',
-          'w-max',
-          'cursor-pointer',
-          'text-white',
-          'rounded',
-          'text-sm',
-          'm-1',
-          'p-1',
+          "block",
+          "w-max",
+          "cursor-pointer",
+          "text-white",
+          "rounded",
+          "text-sm",
+          "m-1",
+          "p-1",
         );
         div.innerHTML = packet;
-        div.addEventListener('click', (ev) => {
+        div.addEventListener("click", (ev) => {
           if (selectedLine) {
-            selectedLine.classList.remove('bg-zinc-700');
+            selectedLine.classList.remove("bg-zinc-700");
           }
 
           if (ev.target === selectedLine) {
@@ -52,17 +52,17 @@ window.addEventListener('DOMContentLoaded', async () => {
             setElement(removeBtn, false);
           } else {
             selectedLine = ev.target as HTMLElement;
-            selectedLine.classList.add('bg-zinc-700');
+            selectedLine.classList.add("bg-zinc-700");
             setElement(removeBtn, true);
           }
         });
-        spammer.appendChild(div);
+        spammer.append(div);
       }
 
       spammer.scrollTo(0, spammer.scrollHeight);
     });
 
-    removeBtn.addEventListener('click', () => {
+    removeBtn.addEventListener("click", () => {
       if (!selectedLine) return;
 
       const lineContent = selectedLine.innerHTML;
@@ -77,10 +77,10 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   {
-    const stopBtn = document.querySelector('#stop') as HTMLButtonElement;
-    const startBtn = document.querySelector('#start') as HTMLButtonElement;
+    const stopBtn = document.querySelector("#stop") as HTMLButtonElement;
+    const startBtn = document.querySelector("#start") as HTMLButtonElement;
 
-    stopBtn.addEventListener('click', async () => {
+    stopBtn.addEventListener("click", async () => {
       on = false;
 
       setElement(stopBtn, false);
@@ -93,7 +93,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         .catch(() => {});
     });
 
-    startBtn.addEventListener('click', async () => {
+    startBtn.addEventListener("click", async () => {
       on = true;
 
       setElement(stopBtn, true);
@@ -106,7 +106,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             packets,
             delay:
               Number.parseInt(
-                (document.querySelector('#delay') as HTMLInputElement).value,
+                (document.querySelector("#delay") as HTMLInputElement).value,
                 10,
               ) ?? 1_000,
           },
@@ -122,15 +122,15 @@ window.addEventListener('DOMContentLoaded', async () => {
       })
       .catch(() => {});
 
-    const stopBtn = document.querySelector('#stop') as HTMLButtonElement;
-    const startBtn = document.querySelector('#start') as HTMLButtonElement;
+    const stopBtn = document.querySelector("#stop") as HTMLButtonElement;
+    const startBtn = document.querySelector("#start") as HTMLButtonElement;
 
     setElement(stopBtn, true);
     setElement(startBtn, false);
   });
 });
 
-window.addEventListener('beforeunload', async () => {
+window.addEventListener("beforeunload", async () => {
   if (on) {
     await ipcRenderer.callMain(IPC_EVENTS.MSGBROKER, {
       ipcEvent: IPC_EVENTS.PACKET_SPAMMER_STOP,

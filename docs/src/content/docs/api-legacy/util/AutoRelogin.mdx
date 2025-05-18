@@ -1,0 +1,31 @@
+---
+title: AutoRelogin
+---
+
+import { Badge, Code } from "@astrojs/starlight/components";
+
+As long as credentials are set, an auto relogin will be attempted.
+
+
+## Properties
+### delay
+The delay after which a login attempt is made.
+
+Type: `number`
+
+### server
+The server name to connect to.
+
+Type: `null | string`
+
+## Methods
+
+### setCredentials
+Sets the credentials for auto-login.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| username | `string` | The username to login with. |
+| password | `string` | The password to login with. |
+| server | `string` | The server name to connect to. |
+
+**Returns**: `void`

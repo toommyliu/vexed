@@ -1,11 +1,11 @@
-import { Command } from '../../command';
+import { Command } from "../../command";
 
 export class CommandMapIsNot extends Command {
   public map!: string;
 
   public override execute() {
-    if (this.map.includes('-')) {
-      const [map, room] = this.map.split('-');
+    if (this.map.includes("-")) {
+      const [map, room] = this.map.split("-");
       if (
         map &&
         room &&

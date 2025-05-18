@@ -1,68 +1,68 @@
-import { exitFromCombat } from '../util/exitFromCombat';
-import { isMonsterMapId } from '../util/isMonMapId';
-import type { Bot } from './Bot';
-import { Avatar, type AvatarData } from './models/Avatar';
-import type { ItemData } from './models/Item';
-import { Monster, type MonsterData } from './models/Monster';
+import { exitFromCombat } from "../util/exitFromCombat";
+import { extractMonsterMapId, isMonsterMapId } from "../util/isMonMapId";
+import type { Bot } from "./Bot";
+import { Avatar, type AvatarData } from "./models/Avatar";
+import type { ItemData } from "./models/Item";
+import { Monster, type MonsterData } from "./models/Monster";
 
-export const GameAction = Object.freeze({
+export enum GameAction {
   /**
    * Accepting a quest.
    */
-  AcceptQuest: 'acceptQuest',
+  AcceptQuest = "acceptQuest",
   /**
    * Buying an item.
    */
-  BuyItem: 'buyItem',
+  BuyItem = "buyItem",
   /**
    * Do IA action.
    */
-  DoIA: 'doIA',
+  DoIA = "doIA",
   /**
    * Equipping an item.
    */
-  EquipItem: 'equipItem',
+  EquipItem = "equipItem",
   /**
    * Getting a map item (i.e. via the getMapItem packet).
    */
-  GetMapItem: 'getMapItem',
+  GetMapItem = "getMapItem",
   /**
    * Loading an enhancement shop.
    */
-  LoadEnhShop: 'loadEnhShop',
+  LoadEnhShop = "loadEnhShop",
   /**
    * Loading a hair shop.
    */
-  LoadHairShop: 'loadHairShop',
+  LoadHairShop = "loadHairShop",
   /**
    * Loading a shop.
    */
-  LoadShop: 'loadShop',
+  LoadShop = "loadShop",
   /**
    * Resting.
    */
-  Rest: 'rest',
+  Rest = "rest",
   /**
    * Selling an item.
    */
-  SellItem: 'sellItem',
+  SellItem = "sellItem",
   /**
    * Joining another map.
    */
-  Transfer: 'tfer',
+  Transfer = "tfer",
   /**
    * Sending a quest completion packet.
    */
-  TryQuestComplete: 'tryQuestComplete',
+  TryQuestComplete = "tryQuestComplete",
   /**
    * Unequipping an item.
    */
-  UnequipItem: 'unequipItem',
+  UnequipItem = "unequipItem",
   /**
    * Who action.
    */
-  Who: 'who',
-});
+  Who = "who",
+}
 
 export class World {
   public constructor(public readonly bot: Bot) {}
@@ -121,7 +121,7 @@ export class World {
   public get monsters(): MonsterData[] {
     try {
       return JSON.parse(
-        swf.selectArrayObjects('world.monsters', 'objData'),
+        swf.selectArrayObjects("world.monsters", "objData"),
       ) as MonsterData[];
     } catch {
       return [];
@@ -143,13 +143,18 @@ export class World {
    */
   public isMonsterAvailable(monsterResolvable: string): boolean {
     if (isMonsterMapId(monsterResolvable)) {
-      return this.bot.flash.call(() =>
-        swf.worldIsMonsterAvailable(monsterResolvable),
-      );
+      const monMapIdStr = extractMonsterMapId(monsterResolvable);
+      const monMapId = Number.parseInt(monMapIdStr, 10);
+
+      return this.availableMonsters.some((mon) => mon.monMapId === monMapId);
     }
 
-    return this.bot.flash.call(() =>
-      swf.worldIsMonsterAvailable(monsterResolvable),
+    if (monsterResolvable === "*") {
+      return this.availableMonsters.length > 0;
+    }
+
+    return this.availableMonsters.some((mon) =>
+      mon.name.toLowerCase().includes(monsterResolvable.toLowerCase()),
     );
   }
 
@@ -186,7 +191,7 @@ export class World {
    */
   public setSpawnPoint(cell?: string, pad?: string): void {
     if (cell && pad) {
-      this.bot.flash.call('world.setSpawnPoint', cell, pad);
+      this.bot.flash.call("world.setSpawnPoint", cell, pad);
       return;
     }
 
@@ -222,7 +227,7 @@ export class World {
    * @param cell - The cell to jump to.
    * @param pad - The pad to jump to.
    */
-  public async jump(cell: string, pad = 'Spawn'): Promise<void> {
+  public async jump(cell: string, pad = "Spawn"): Promise<void> {
     const isSameCell = () =>
       this.bot.player.cell.toLowerCase() === cell.toLowerCase();
     if (isSameCell()) return;
@@ -240,12 +245,10 @@ export class World {
    */
   public async join(
     mapName: string,
-    cell = 'Enter',
-    pad = 'Spawn',
+    cell = "Enter",
+    pad = "Spawn",
   ): Promise<void> {
     await exitFromCombat();
-
-    await this.bot.sleep(1_000);
 
     await this.bot.waitUntil(
       () => this.isActionAvailable(GameAction.Transfer),
@@ -253,29 +256,30 @@ export class World {
       15,
     );
 
-    let map_str = mapName;
+    let mapStr = mapName;
     // eslint-disable-next-line prefer-const
-    let [map_name, map_number] = map_str.split('-');
+    let [map_name, map_number] = mapStr.split("-");
 
+    // Already in the map, jump to the cell and pad
     if (this.name.toLowerCase() === map_name!.toLowerCase()) {
       await this.jump(cell, pad);
       return;
     }
 
+    // Game doesn't like 1e9 or 1e99 anymore...
     if (
-      map_number === '1e9' ||
-      map_number === '1e99' ||
+      map_number === "1e9" ||
+      map_number === "1e99" ||
       Number.isNaN(
         Number.parseInt(map_number!, 10),
       ) /* any non-number, e.g yulgar-a*/
     ) {
-      map_number = '100000';
+      map_number = "100000";
     }
 
-    map_str = `${map_name}${map_number ? `-${map_number}` : ''}`;
+    mapStr = `${map_name}${map_number ? `-${map_number}` : ""}`;
 
-    await this.bot.combat.exit();
-    this.bot.flash.call(() => swf.playerJoinMap(map_str, cell, pad));
+    this.bot.flash.call(() => swf.playerJoinMap(mapStr, cell, pad));
     await this.bot.waitUntil(
       () => this.name.toLowerCase() === map_name!.toLowerCase(),
       null,
@@ -283,6 +287,7 @@ export class World {
     );
     await this.bot.waitUntil(() => !this.isLoading(), null, 40);
 
+    // Still not in the correct cell/pad, jump
     if (
       this.bot.player.cell.toLowerCase() !== cell.toLowerCase() ||
       this.bot.player.pad.toLowerCase() !== pad.toLowerCase()
@@ -315,9 +320,7 @@ export class World {
    *
    * @param gameAction - The game action to check.
    */
-  public isActionAvailable(
-    gameAction: (typeof GameAction)[keyof typeof GameAction],
-  ): boolean {
+  public isActionAvailable(gameAction: GameAction): boolean {
     return this.bot.flash.call(() => swf.worldIsActionAvailable(gameAction));
   }
 
@@ -341,7 +344,7 @@ export class World {
    */
   public loadMapSwf(mapSwf: string): void {
     this.bot.flash.call(() =>
-      swf.worldLoadSwf(`${mapSwf}${mapSwf.endsWith('.swf') ? '' : '.swf'}`),
+      swf.worldLoadSwf(`${mapSwf}${mapSwf.endsWith(".swf") ? "" : ".swf"}`),
     );
   }
 }

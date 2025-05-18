@@ -1,11 +1,11 @@
-import type { Bot } from '../../lib/Bot';
+import type { Bot } from "../../lib/Bot";
 
 export function initUserData(bot: Bot, packet: Packet) {
-  bot.emit('playerJoin', packet.data.strUsername);
+  bot.emit("playerJoin", packet.data.strUsername);
 }
 
 type Packet = {
-  cmd: 'initUserData';
+  cmd: "initUserData";
   data: {
     strUsername: string;
   };

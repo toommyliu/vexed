@@ -1,27 +1,28 @@
-import type { Bot } from './Bot';
-import { Faction } from './models/Faction';
+import type { Loadout } from "../botting/util/LoadoutConfig";
+import type { Bot } from "./Bot";
+import { Faction } from "./models/Faction";
 
-export const PlayerState = Object.freeze({
+export enum PlayerState {
   /**
    * The player is dead.
    */
-  Dead: 0,
+  Dead = 0,
   /**
    * The player is idle.
    */
-  Idle: 1,
+  Idle = 1,
   /**
    * The player is in combat.
    */
-  InCombat: 2,
-});
+  InCombat = 2,
+}
 
-export const BoostType = Object.freeze({
-  Gold: 'gold',
-  Exp: 'exp',
-  Rep: 'rep',
-  ClassPoints: 'classPoints',
-});
+export enum BoostType {
+  ClassPoints = "classPoints",
+  Exp = "exp",
+  Gold = "gold",
+  Rep = "rep",
+}
 
 export class Player {
   public constructor(public readonly bot: Bot) {}
@@ -189,15 +190,46 @@ export class Player {
   ): boolean {
     switch (type) {
       case BoostType.Gold:
-        return this.bot.flash.get('world.myAvatar.objData.iBoostG', true) > 0;
+        return this.bot.flash.get("world.myAvatar.objData.iBoostG", true) > 0;
       case BoostType.Exp:
-        return this.bot.flash.get('world.myAvatar.objData.iBoostXP', true) > 0;
+        return this.bot.flash.get("world.myAvatar.objData.iBoostXP", true) > 0;
       case BoostType.Rep:
-        return this.bot.flash.get('world.myAvatar.objData.iBoostRep', true) > 0;
+        return this.bot.flash.get("world.myAvatar.objData.iBoostRep", true) > 0;
       case BoostType.ClassPoints:
-        return this.bot.flash.get('world.myAvatar.objData.iBoostCP', true) > 0;
+        return this.bot.flash.get("world.myAvatar.objData.iBoostCP", true) > 0;
       default:
         return false;
+    }
+  }
+
+  /**
+   * Equips a loadout for the player.
+   *
+   * @remarks
+   * A loadout is to be read from file, not the player's outfits.
+   * @param loadout - The loadout to equip.
+   */
+  public async equipLoadout(loadout: Loadout) {
+    const { Cape, Class, Helm, Pet, Weapon } = loadout;
+
+    if (Cape) {
+      await this.bot.inventory.equip(Cape);
+    }
+
+    if (Class) {
+      await this.bot.inventory.equip(Class);
+    }
+
+    if (Helm) {
+      await this.bot.inventory.equip(Helm);
+    }
+
+    if (Pet) {
+      await this.bot.inventory.equip(Pet);
+    }
+
+    if (Weapon) {
+      await this.bot.inventory.equip(Weapon);
     }
   }
 }

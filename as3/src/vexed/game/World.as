@@ -6,6 +6,8 @@ package vexed.game {
   public class World {
     private static var game:Object = Main.getInstance().getGame();
 
+    private static var padNames:RegExp = /(Spawn|Center|Left|Right|Up|Down|Top|Bottom)/;
+
     public static function isLoaded():Boolean {
       if (!game.world.mapLoadInProgress) {
         try {
@@ -128,8 +130,9 @@ package vexed.game {
     }
 
     public static function getMonsterByName(name:String):Object {
-      if (!name)
+      if (!name) {
         return null;
+      }
 
       name = name.toLowerCase();
       for each (var mon:Object in game.world.getMonstersByCell(game.world.strFrame)) {
@@ -144,35 +147,21 @@ package vexed.game {
       return null;
     }
 
-    public static function getMonsterByMonMapId(monMapId:int):Object {
-      if (!monMapId)
+    public static function getMonsterByMonMapId(monMapId:*):Object {
+      if (!monMapId) {
         return null;
+      }
 
       for each (var mon:Object in game.world.getMonstersByCell(game.world.strFrame)) {
         if (mon.pMC) {
           var monster:int = mon.dataLeaf.MonMapID;
-          if (monster === monMapId && mon.dataLeaf.intState > 0) {
+          if (mon != null && mon.dataLeaf != null && mon.dataLeaf.MonMapID == monMapId) {
             return mon;
           }
         }
       }
 
       return null;
-    }
-
-    public static function isMonsterAvailable(mon:*):Boolean {
-      if (!mon) {
-        return false;
-      }
-
-      if (mon is String) {
-        return getMonsterByName(mon) !== null;
-      }
-      else if (mon is int) {
-        return getMonsterByMonMapId(mon) !== null;
-      }
-
-      return false;
     }
 
     public static function getCells():Array {
@@ -185,7 +174,6 @@ package vexed.game {
 
     public static function getCellPads():Array {
       var cellPads:Array = new Array();
-      var padNames:RegExp = /(Spawn|Center|Left|Right|Up|Down|Top|Bottom)/;
       var cellPadsCnt:int = game.world.map.numChildren;
       for (var i:int = 0; i < cellPadsCnt; ++i) {
         var child:DisplayObject = game.world.map.getChildAt(i);

@@ -1,9 +1,9 @@
-import { Mutex } from 'async-mutex';
-import { interval } from '../../../common/interval';
-import { ipcRenderer } from '../../../common/ipc';
-import { IPC_EVENTS } from '../../../common/ipc-events';
-import { Logger } from '../../../common/logger';
-import { Bot } from '../lib/Bot';
+import { Mutex } from "async-mutex";
+import { interval } from "../../../common/interval";
+import { ipcRenderer } from "../../../common/ipc";
+import { IPC_EVENTS } from "../../../common/ipc-events";
+import { Logger } from "../../../common/logger";
+import { Bot } from "../lib/Bot";
 
 const mutex = new Mutex();
 
@@ -11,10 +11,10 @@ let on = false;
 let index = 0;
 
 const bot = Bot.getInstance();
-const logger = Logger.get('IpcSpammer');
+const logger = Logger.get("IpcSpammer");
 
 ipcRenderer.answerMain(IPC_EVENTS.PACKET_SPAMMER_START, async (data) => {
-  logger.info('start packet spammer', data);
+  logger.info("start packet spammer", data);
 
   const { packets, delay } = data;
   on = true;
@@ -30,7 +30,7 @@ ipcRenderer.answerMain(IPC_EVENTS.PACKET_SPAMMER_START, async (data) => {
         return;
       }
 
-      logger.info('tick');
+      logger.info("tick");
 
       if (!bot.player.isReady()) return;
 
@@ -46,7 +46,7 @@ ipcRenderer.answerMain(IPC_EVENTS.PACKET_SPAMMER_START, async (data) => {
 });
 
 ipcRenderer.answerMain(IPC_EVENTS.PACKET_SPAMMER_STOP, async () => {
-  logger.info('stop packet spammer');
+  logger.info("stop packet spammer");
 
   on = false;
   index = 0;

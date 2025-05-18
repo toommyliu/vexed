@@ -1,9 +1,9 @@
-import type { Bot } from '../../lib/Bot';
+import type { Bot } from "../../lib/Bot";
 
 export function ct(bot: Bot, packet: CtPacket) {
   for (const anim of packet?.anims ?? []) {
     if (
-      anim?.msg?.toLowerCase()?.includes('prepares a counter attack') &&
+      anim?.msg?.toLowerCase()?.includes("prepares a counter attack") &&
       bot.settings.counterAttack
     ) {
       bot.combat.cancelTarget();
@@ -15,11 +15,11 @@ export function ct(bot: Bot, packet: CtPacket) {
 
   for (const aura of packet?.a ?? []) {
     if (
-      aura?.cmd === 'aura--' &&
-      aura?.aura?.nam === 'Counter Attack' &&
+      aura?.cmd === "aura--" &&
+      aura?.aura?.nam === "Counter Attack" &&
       bot.settings.counterAttack
     ) {
-      const monMapID = aura!.tInf!.split(':')[1];
+      const monMapID = aura!.tInf!.split(":")[1];
       bot.combat.attack(`id:${monMapID}`);
       bot.combat.pauseAttack = false;
       break;

@@ -1,0 +1,30 @@
+---
+title: Packets
+---
+
+import { Badge, Code } from "@astrojs/starlight/components";
+
+## Properties
+### bot
+
+Type: `Bot`
+
+## Methods
+
+### sendClient
+Sends the specified packet to the client (simulates a response as if the server sent the packet).
+| Parameter | Type | Optional | Default | Description |
+|-----------|------|----------|---------|-------------|
+| packet | `string` |  |  | The packet to send. |
+| type | `ClientPacket` | ✓ | `ClientPacket.String` | The type of packet. |
+
+**Returns**: `void`
+
+### sendServer
+Sends the specified packet to the server.
+| Parameter | Type | Optional | Default | Description |
+|-----------|------|----------|---------|-------------|
+| packet | `string` |  |  | The packet to send. |
+| type | `ServerPacket` | ✓ | `ServerPacket.String` | The type of packet. |
+
+**Returns**: `void`

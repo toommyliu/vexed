@@ -1,4 +1,4 @@
-import { Command } from '../../command';
+import { Command } from "../../command";
 
 export class CommandSetSpawnpoint extends Command {
   public cell?: string;
@@ -10,6 +10,6 @@ export class CommandSetSpawnpoint extends Command {
   }
 
   public override toString() {
-    return `Set spawnpoint${this.cell ? `: ${this.cell}${this.pad ? `:${this.pad}` : ''}` : ''}`;
+    return `Set spawnpoint${this.cell ? `: ${this.cell}${this.pad ? `:${this.pad}` : ""}` : ""}`;
   }
 }

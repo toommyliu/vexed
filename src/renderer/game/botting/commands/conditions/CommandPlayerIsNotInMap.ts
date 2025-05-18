@@ -1,4 +1,4 @@
-import { Command } from '../../command';
+import { Command } from "../../command";
 
 export class CommandPlayerIsNotInMap extends Command {
   public player!: string;
@@ -10,6 +10,6 @@ export class CommandPlayerIsNotInMap extends Command {
   }
 
   public override toString() {
-    return `Player is not in map${this.player ? `: ${this.player}` : ''}`;
+    return `Player is not in map${this.player ? `: ${this.player}` : ""}`;
   }
 }

@@ -1,0 +1,45 @@
+---
+title: Map commands
+head:
+ - tag: title
+   content: Map commands
+---
+
+import { Badge, Code } from "@astrojs/starlight/components";
+
+### cmd.join
+Joins a map.
+
+| Parameter | Type | Optional | Default | Description |
+|-----------|------|----------|---------|-------------|
+| map | `string` |  |  | The map to join. |
+| cell | `string` | ✓ | `"Enter"` | The cell to join. |
+| pad | `string` | ✓ | `"Spawn"` | The pad to join. |
+
+
+### cmd.move_to_cell
+Moves to a cell.
+
+| Parameter | Type | Optional | Default | Description |
+|-----------|------|----------|---------|-------------|
+| cell | `string` |  |  | The cell to move to. |
+| pad | `string` | ✓ | `"Spawn"` | The pad to move to. |
+
+
+### cmd.set_spawn
+Sets the spawnpoint.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| cell | `string?` | The cell to spawn in. |
+| pad | `string?` | The pad to spawn in. |
+
+
+### cmd.walk_to
+Walks to a point on the map.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| x | `number` | The x coordinate to walk to. |
+| y | `number` | The y coordinate to walk to. |
+
