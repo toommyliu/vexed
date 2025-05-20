@@ -22,6 +22,11 @@ The entity's auras.
 
 Type: `Aura[]`
 
+### cell <Badge text="Getter" size="small" />	
+The cell the entity is in.
+
+Type: `string`
+
 ### hp <Badge text="Getter" size="small" />	
 The entity's current HP.
 
@@ -95,6 +100,14 @@ Whether the entity's hp is less than a percentage value.
 
 ### isIdle
 Whether the entity is idle.
+
+**Returns**: `boolean`
+
+### isInCell
+Whether the player is in the specified cell.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| cell | `string` | The cell to check. |
 
 **Returns**: `boolean`
 
