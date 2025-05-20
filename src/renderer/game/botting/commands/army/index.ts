@@ -1,6 +1,7 @@
 import type { KillOptions } from "../../../lib/Combat";
 import { ArgsError } from "../../ArgsError";
-import { CommandArmyEquipItem } from "./CommandArmyEquipItem";
+import { CommandArmyEquipSet } from "./CommandArmyEquipSet";
+// import { CommandArmyEquipItem } from "./CommandArmyEquipItem";
 import { CommandArmyInit } from "./CommandArmyInit";
 import { CommandArmyJoin } from "./CommandArmyJoin";
 import { CommandArmyKill } from "./CommandArmyKill";
@@ -193,18 +194,27 @@ export const armyCommands = {
     cmd.fn = fn.bind({ allDone: cmd.allDone });
     window.context.addCommand(cmd);
   },
-  /**
-   * Equips an item by key from the config file.
-   *
-   * @param itemName - The name of the item to equip.
-   */
-  army_equip_item(itemName: string) {
-    if (!itemName || typeof itemName !== "string") {
-      throw new ArgsError("itemName is required");
+  // /**
+  //  * Equips an item by key from the config file.
+  //  *
+  //  * @param itemName - The name of the item to equip.
+  //  */
+  // army_equip_item(itemName: string) {
+  //   if (!itemName || typeof itemName !== "string") {
+  //     throw new ArgsError("itemName is required");
+  //   }
+
+  //   const cmd = new CommandArmyEquipItem();
+  //   cmd.configKey = itemName;
+  //   window.context.addCommand(cmd);
+  // },
+  army_equip_set(setName: string) {
+    if (!setName || typeof setName !== "string") {
+      throw new ArgsError("setName is required");
     }
 
-    const cmd = new CommandArmyEquipItem();
-    cmd.configKey = itemName;
+    const cmd = new CommandArmyEquipSet();
+    cmd.setName = setName;
     window.context.addCommand(cmd);
   },
 };

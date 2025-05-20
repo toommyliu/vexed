@@ -57,13 +57,13 @@ export class Army {
 
     console.log("Army: Config loaded", this.config.getAll());
 
-    const playerCount = this.config.get("PlayerCount");
+    const playerCount = this.config.get<string>("PlayerCount");
     if (!playerCount) {
       console.warn("Army: PlayerCount not set in config file.");
       return;
     }
 
-    const roomNumber = this.config.get("RoomNumber");
+    const roomNumber = this.config.get<string>("RoomNumber");
     if (roomNumber) {
       this.roomNumber = roomNumber;
     } else {
@@ -79,7 +79,7 @@ export class Army {
 
     // TODO: validate player count
     for (let index = 1; index <= playerCountNum; index++) {
-      const player = this.config.get(`Player${index}`);
+      const player = this.config.get<string>(`Player${index}`);
       if (player) {
         this.players.add(player);
       } else {
@@ -122,7 +122,7 @@ export class Army {
   public isLeader(): boolean {
     return (
       this.bot.auth.username.toLowerCase() ===
-      this.config.get("Player1")?.toLowerCase()
+      this.config.get<string>("Player1")?.toLowerCase()
     );
   }
 
