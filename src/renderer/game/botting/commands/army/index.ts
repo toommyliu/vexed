@@ -208,6 +208,11 @@ export const armyCommands = {
   //   cmd.configKey = itemName;
   //   window.context.addCommand(cmd);
   // },
+  /**
+   * Equips a set from the army config file.
+   *
+   * @param setName - The name of the set to equip.
+   */
   army_equip_set(setName: string) {
     if (!setName || typeof setName !== "string") {
       throw new ArgsError("setName is required");
