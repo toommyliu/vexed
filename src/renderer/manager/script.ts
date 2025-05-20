@@ -13,6 +13,8 @@ const servers: ServerData[] = [];
 
 let scriptPath: string | null = null;
 
+// TODO: remove selected doesn't work?
+
 const timeouts = new Map<string, NodeJS.Timeout>();
 
 ipcRenderer.answerMain(IPC_EVENTS.ENABLE_BUTTON, async ({ username }) => {
@@ -51,7 +53,7 @@ async function startAccount({ username, password }: Account) {
       username,
       password,
       server: serversSelect.value!,
-      scriptPath: scriptPath ?? '',
+      scriptPath: scriptPath ?? "",
     })
     .catch(() => {});
 }
@@ -279,14 +281,14 @@ window.addEventListener("DOMContentLoaded", async () => {
   }
 
   {
-    const cb = document.querySelector<HTMLInputElement>('#start-with-script')!;
-    const btn = document.querySelector<HTMLButtonElement>('#select-script')!;
+    const cb = document.querySelector<HTMLInputElement>("#start-with-script")!;
+    const btn = document.querySelector<HTMLButtonElement>("#select-script")!;
 
     const selectedScriptName = document.querySelector<HTMLSpanElement>(
-      '#selected-script-name',
+      "#selected-script-name",
     )!;
 
-    cb.addEventListener('change', () => {
+    cb.addEventListener("change", () => {
       btn.disabled = !cb.checked;
 
       if (cb.checked) {
@@ -294,17 +296,17 @@ window.addEventListener("DOMContentLoaded", async () => {
       } else {
         disableElement(btn);
         scriptPath = null;
-        selectedScriptName.textContent = '';
+        selectedScriptName.textContent = "";
       }
     });
 
-    btn.addEventListener('click', async () => {
+    btn.addEventListener("click", async () => {
       if (!cb.checked) return;
 
       const ret = await ipcRenderer.callMain(IPC_EVENTS.MGR_LOAD_SCRIPT);
       if (!ret) return;
 
-      console.log('Selected script:', ret);
+      console.log("Selected script:", ret);
       scriptPath = ret;
     });
   }

@@ -54,8 +54,6 @@ export class Combat {
       return null;
     }
 
-    console.log("target", target);
-
     return monType === "monster"
       ? new Monster(target as MonsterData)
       : new Avatar(target as AvatarData);
