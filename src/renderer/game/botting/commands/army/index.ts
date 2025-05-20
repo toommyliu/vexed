@@ -184,14 +184,16 @@ export const armyCommands = {
    * Executes a function, but waits for the function (a.k.a for all players) to finish before proceeding.
    *
    * @param fn - The function to execute with the army.
+   * @param fnName - The name of the function to execute.
    */
-  execute_with_army(fn: () => Promise<void>) {
+  execute_with_army(fn: () => Promise<void>, fnName?: string) {
     if (!fn || typeof fn !== "function") {
       throw new ArgsError("fn is required");
     }
 
     const cmd = new CommandExecuteWithArmy();
-    cmd.fn = fn.bind({ allDone: cmd.allDone });
+    cmd.fn = fn;
+    if (typeof fnName === "string") cmd.fnName = fnName;
     window.context.addCommand(cmd);
   },
   // /**

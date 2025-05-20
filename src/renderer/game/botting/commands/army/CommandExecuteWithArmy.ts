@@ -4,6 +4,8 @@ import { ArmyCommand } from "./ArmyCommand";
 export class CommandExecuteWithArmy extends ArmyCommand {
   public fn!: (bot: Bot) => Promise<void>;
 
+  public fnName?: string;
+
   public override async execute(): Promise<void> {
     await this.executeWithArmy(async () => {
       await this.fn?.(this.bot);
@@ -11,6 +13,6 @@ export class CommandExecuteWithArmy extends ArmyCommand {
   }
 
   public override toString(): string {
-    return "Execute with army";
+    return `Execute with army${this.fnName ? `: ${this.fnName}` : ""}`;
   }
 }
