@@ -11,90 +11,99 @@ export const sampleCode = String.raw`
 // cmd.accept_quest(8152..8154)
 // cmd.complete_quest(8152..8154)
 
+cmd.set_delay(0)
+cmd.goto_house()
 cmd.enable_lagkiller()
 cmd.enable_infiniterange()
 cmd.enable_anticounter()
-cmd.goto_house()
-
 cmd.army_set_config('army_config')
 cmd.army_init()
+cmd.set_delay(1000)
+cmd.execute_with_army(async function(bot) {
+	const player_number = bot.army.getPlayerNumber()
+	if (player_number === 1 || player_number === 2) {
+		await bot.inventory.equip('Scroll of Enrage')
+	}
+}, "equip pot")
 
-cmd.accept_quest(8152)
-cmd.accept_quest(8153)
-cmd.accept_quest(8154)
-cmd.equip_item("Elders' Blood")
-cmd.equip_item('Scroll of Enrage')
+cmd.army_equip_set('timeinn')
 
-let opts = {
-    skillAction() {
-      let a = [] // skill combo
-      let i = 0 // current skill index
-      let h // optional heal skill
-      switch (this.bot.player.className) {
-        case "LEGION REVENANT":
-          a=[3,1,2,4,5]
-          break
-        case "STONECRUSHER":
-          a=[1,2,3,4,5]
-          break
-        case "LORD OF ORDER":
-          a=[1,3,4,5]
-          h=2
-          break
-        case "ARCHPALADIN":
-          a=[1,3,4,5]
-          h=2
-      }
+let opts = 	{
+	skillAction() {
+		let a = []
+		let i = 0
+		let h
 
-      return async function() {
-        for (const plyr /* string */ of this.bot.army.players) {
-          const p = this.bot.world.players.get(plyr)
-          if (p.isHpPercentageLessThan(70) && h) {
-            await this.bot.combat.useSkill(h)
-            return;
-          }
-        }
+		switch (this.bot.player.className) {
+		case "LEGION REVENANT":
+			a=[3,1,2,4,5]
+			break
+		case "CHAOS AVENGER":
+			a=[5,1,3,4,2]
+			break
+		case "LORD OF ORDER":
+			a=[1,3,4]
+			h=2
+			break
+		case "ARCHPALADIN":
+			a=[1,3,4]
+			h=2
+		}
 
-        await this.bot.combat.useSkill(a[i])
-        i = (i + 1) % a.length;
-      }
-    }
-  }
+		return async function() {
+			for (const plyr /* string */ of this.bot.army.players) {
+				const p = this.bot.world.players.get(plyr)
+				if (p.isHpPercentageLessThan(70) && h) {
+					await this.bot.combat.useSkill(h)
+					return;
+				}
+			}
+
+			await this.bot.combat.useSkill(a[i])
+			i = (i + 1) % a.length;
+		}
+	}
 }
 
-cmd.army_join('ultraezrajal','r2','Left')
+cmd.army_join('ultraezrajal','Enter','Spawn')
+cmd.buff()
+cmd.move_to_cell('r2','Left')
 cmd.set_spawn()
 cmd.army_kill_for(
-  'Ultra Ezrajal',
-  'Ultra Ezrajal Defeated',
-  1,
-  true,
-  opts
+	'Ultra Ezrajal',
+	'Ultra Ezrajal Defeated',
+	1,
+	true,
+	opts
 )
 cmd.move_to_cell('Enter','Spawn')
 
-cmd.army_join('ultrawarden','r2','Left')
+cmd.army_join('ultrawarden','Enter','Spawn')
+cmd.buff()
+cmd.move_to_cell('r2','Left')
 cmd.set_spawn()
 cmd.army_kill_for(
-  'Ultra Warden',
-  'Ultra Warden Defeated',
-  1,
-  true,
-  opts
+	'Ultra Warden',
+	'Ultra Warden Defeated',
+	1,
+	true,
+	opts
 )
 cmd.move_to_cell('Enter','Spawn')
 
-cmd.army_join('ultraengineer','r2','Left')
+cmd.army_join('ultraengineer','Enter','Spawn')
+cmd.buff()
+cmd.move_to_cell('r2','Left')
 cmd.set_spawn()
 cmd.army_kill_for(
-  'id.3',
-  'Ultra Engineer Defeated',
-  1,
-  true,
-  {
-    ...opts,
-    killPriority: ['id.1','id.2']
-  }
+	'id.3',
+	'Ultra Engineer Defeated',
+	1,
+	true,
+	{
+		killPriority: ['id.1','id.2'],
+		...opts,
+	}
 )
 cmd.move_to_cell('Enter','Spawn')
 `
