@@ -1,17 +1,16 @@
 ---
-title: Monster
+title: BaseEntity
 ---
 
 import { Badge, Code } from "@astrojs/starlight/components";
 
-Represents a monster.
+Base class for entities in the game world.
 
 
 ## Properties
 ### data
-Data about this monster.
 
-Type: `MonsterData`
+Type: `BaseEntityData`
 
 ### alive <Badge text="Getter" size="small" />	
 Whether the entity is alive.
@@ -28,35 +27,10 @@ The entity's current HP.
 
 Type: `number`
 
-### id <Badge text="Getter" size="small" />	
-The global ID of the monster.
-
-Type: `number`
-
-### level <Badge text="Getter" size="small" />	
-The level of the monster.
-
-Type: `number`
-
 ### maxHp <Badge text="Getter" size="small" />	
 The entity's max HP.
 
 Type: `number`
-
-### monMapId <Badge text="Getter" size="small" />	
-The monMapID of the monster.
-
-Type: `number`
-
-### name <Badge text="Getter" size="small" />	
-The name of the monster.
-
-Type: `string`
-
-### race <Badge text="Getter" size="small" />	
-The race of the monster.
-
-Type: `string`
 
 ### state <Badge text="Getter" size="small" />	
 The entity's state.

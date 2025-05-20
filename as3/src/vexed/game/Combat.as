@@ -17,11 +17,43 @@ package vexed.game {
     public static function getTarget():Object {
       var target:Object = game.world.myAvatar.target;
       if (target != null) {
-        var ret:Object = target.dataLeaf;
-        var auras:Array = [];
+        var dataLeaf:Object = target.dataLeaf;
+        var objData:Object = target.objData;
+
+        if (!dataLeaf || !objData) {
+          return null;
+        }
+
         if (target.npcType === "monster" || target.npcType == "player") {
-          auras = Util.serializeAuras(ret.auras);
+          var auras:Array = Util.serializeAuras(dataLeaf.auras);
+          var ret:* = {};
+
+          ret.type = target.npcType;
+          ret.intHP = dataLeaf.intHP;
+          ret.intHPMax = dataLeaf.intHPMax;
+          ret.intState = dataLeaf.intState;
           ret.auras = auras;
+          ret.strFrame = dataLeaf.strFrame;
+
+          if (target.npcType === "monster") {
+            ret.MonID = dataLeaf.MonID;
+            ret.MonMapID = dataLeaf.MonMapID;
+            ret.iLvl = dataLeaf.iLvl;
+            ret.sRace = objData.sRace;
+            ret.strMonName = objData.strMonName;
+          }
+          else if (target.npcType === "player") {
+            ret.afk = dataLeaf.afk;
+            ret.entID = dataLeaf.entID;
+            ret.entType = dataLeaf.entType;
+            ret.intLevel = dataLeaf.intLevel;
+            ret.intMP = dataLeaf.intMP;
+            ret.intMPMax = dataLeaf.intMPMax;
+            ret.intSP = dataLeaf.intSP;
+            ret.strPad = dataLeaf.strPad;
+            ret.strUsername = dataLeaf.strUsername;
+            ret.uoName = dataLeaf.uoName;
+          }
         }
 
         return ret;

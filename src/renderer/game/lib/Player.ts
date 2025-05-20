@@ -1,21 +1,7 @@
 import type { Loadout } from "../botting/util/LoadoutConfig";
 import type { Bot } from "./Bot";
+import { EntityState } from "./models/BaseEntity";
 import { Faction } from "./models/Faction";
-
-export enum PlayerState {
-  /**
-   * The player is dead.
-   */
-  Dead = 0,
-  /**
-   * The player is idle.
-   */
-  Idle = 1,
-  /**
-   * The player is in combat.
-   */
-  InCombat = 2,
-}
 
 export enum BoostType {
   ClassPoints = "classPoints",
@@ -46,7 +32,7 @@ export class Player {
   /**
    * The state of the player.
    */
-  public get state(): (typeof PlayerState)[keyof typeof PlayerState] {
+  public get state(): (typeof EntityState)[keyof typeof EntityState] {
     return this.bot.flash.call(() => swf.playerGetState());
   }
 
@@ -54,7 +40,7 @@ export class Player {
    * Whether the player is in combat.
    */
   public isInCombat() {
-    return this.state === PlayerState.InCombat;
+    return this.state === EntityState.InCombat;
   }
 
   /**

@@ -2,10 +2,12 @@ import merge from "lodash.merge";
 import { interval } from "../../../common/interval";
 import { doPriorityAttack } from "../util/doPriorityAttack";
 import { exitFromCombat } from "../util/exitFromCombat";
-import { isMonsterMapId } from "../util/isMonMapId";
+import { extractMonsterMapId, isMonsterMapId } from "../util/isMonMapId";
 import type { Bot } from "./Bot";
-import { PlayerState } from "./Player";
 import { GameAction } from "./World";
+import { type AvatarData, Avatar } from "./models/Avatar";
+import { EntityState } from "./models/BaseEntity";
+import { type MonsterData, Monster } from "./models/Monster";
 
 const DEFAULT_KILL_OPTIONS: KillOptions = {
   killPriority: [],
@@ -30,43 +32,33 @@ export class Combat {
    * Whether the player has a target.
    */
   public hasTarget(): boolean {
-    return Boolean(this.bot.flash.call<boolean>(() => swf.combatHasTarget()));
+    return Boolean(swf.combatHasTarget());
   }
 
   /**
-   * Returns information about the target.
+   * Gets the target of the player.
+   *
+   * @returns The target of the player, or null if there is no target.
    */
-  public get target(): TargetInfo | null {
-    if (this.hasTarget()) {
-      const objData = this.bot.flash.get("world.myAvatar.target.objData", true);
-      const dataLeaf = this.bot.flash.get(
-        "world.myAvatar.target.dataLeaf",
-        true,
-      );
+  public get target(): Avatar | Monster | null {
+    const target = this.bot.flash.call<AvatarData | MonsterData | null>(() =>
+      swf.combatGetTarget(),
+    );
 
-      const baseInfo = {
-        name: objData.strMonName ?? objData.strUsername,
-        hp: dataLeaf.intHP,
-        maxHP: dataLeaf.intHPMax,
-        cell: dataLeaf.strFrame,
-        level: dataLeaf.iLvl ?? dataLeaf.intLevel,
-        state: dataLeaf.intState,
-      };
-
-      const ret: TargetInfo =
-        dataLeaf?.entType === "p"
-          ? { ...baseInfo, type: "player" }
-          : {
-              ...baseInfo,
-              type: "monster",
-              monId: dataLeaf.MonID,
-              monMapId: dataLeaf.MonMapID,
-            };
-
-      return ret;
+    if (!target) {
+      return null;
     }
 
-    return null;
+    const monType = "type" in target ? (target.type as string) : null;
+    if (!monType) {
+      return null;
+    }
+
+    console.log("target", target);
+
+    return monType === "monster"
+      ? new Monster(target as MonsterData)
+      : new Avatar(target as AvatarData);
   }
 
   /**
@@ -126,7 +118,10 @@ export class Combat {
     }
 
     if (isMonsterMapId(monsterResolvable)) {
-      const monMapId = Number.parseInt(monsterResolvable.slice(3), 10);
+      const monMapId = Number.parseInt(
+        extractMonsterMapId(monsterResolvable),
+        10,
+      );
       this.bot.flash.call(() => swf.combatAttackMonsterById(monMapId));
       return;
     }
@@ -170,12 +165,6 @@ export class Combat {
     options: Partial<KillOptions> = {},
   ): Promise<void> {
     if (!this.bot.player.isReady()) return;
-
-    // await this.bot.waitUntil(
-    //   () => this.bot.world.isMonsterAvailable(monsterResolvable),
-    //   null,
-    //   3,
-    // );
 
     const opts = merge({}, DEFAULT_KILL_OPTIONS, options);
     const { killPriority, skillSet, skillDelay, skillWait, skillAction } = opts;
@@ -245,9 +234,8 @@ export class Combat {
         const kp = Array.isArray(killPriority)
           ? killPriority
           : killPriority.split(",");
-        // console.log("kp", kp);
-
         doPriorityAttack(kp);
+
         if (!this.hasTarget()) {
           this.attack(monsterResolvable);
         }
@@ -277,7 +265,7 @@ export class Combat {
         }
 
         const isIdle =
-          this.bot.player.state === PlayerState.Idle &&
+          this.bot.player.state === EntityState.Idle &&
           !this.bot.player.isAFK();
         const noTarget = !this.hasTarget();
         const shouldComplete = noTarget && isIdle && !this.pauseAttack;
@@ -422,7 +410,7 @@ export type TargetInfo = {
   /**
    * The state of the target.
    *
-   * @see {@link PlayerState}
+   * @see {@link EntityState}
    */
   state: number;
 } & (

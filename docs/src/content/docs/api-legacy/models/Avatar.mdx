@@ -13,8 +13,13 @@ Data about this player.
 
 Type: `AvatarData`
 
+### alive <Badge text="Getter" size="small" />	
+Whether the entity is alive.
+
+Type: `boolean`
+
 ### auras <Badge text="Getter" size="small" />	
-The player's active auras.
+The entity's auras.
 
 Type: `Aura[]`
 
@@ -24,7 +29,7 @@ The cell the player is in.
 Type: `string`
 
 ### hp <Badge text="Getter" size="small" />	
-The player's current hp.
+The entity's current HP.
 
 Type: `number`
 
@@ -34,7 +39,7 @@ The player's level.
 Type: `number`
 
 ### maxHp <Badge text="Getter" size="small" />	
-The player's max hp.
+The entity's max HP.
 
 Type: `number`
 
@@ -54,9 +59,9 @@ The pad the player is in.
 Type: `string`
 
 ### state <Badge text="Getter" size="small" />	
-The player's current state.
+The entity's state.
 
-Type: `PlayerState`
+Type: `EntityState`
 
 ### username <Badge text="Getter" size="small" />	
 The player's username.
@@ -66,7 +71,7 @@ Type: `string`
 ## Methods
 
 ### getAura
-Retrieves an aura active on the player.
+Retrieves an aura active on the entity.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | name | `string` | The aura name. |
@@ -74,7 +79,7 @@ Retrieves an aura active on the player.
 **Returns**: `undefined | Aura`
 
 ### hasAura
-Whether the player has the specified aura. If a value is provided,
+Whether the entity has the specified aura. If a value is provided,
 it will check if the aura has the specified value.
 | Parameter | Type | Description |
 |-----------|------|-------------|
@@ -88,39 +93,39 @@ it will check if the aura has the specified value.
 **Returns**: `boolean`
 
 ### isHpGreaterThan
-Whether the player's hp is greater than a value.
+Whether the entity's hp is greater than a value.
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| value | `number` | The value to compare the player's hp to. |
+| value | `number` | The value to compare the entity's hp to. |
 
 **Returns**: `boolean`
 
 ### isHpLessThan
-Whether the player's hp is less than a value.
+Whether the entity's hp is less than a value.
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| value | `number` | The value to compare the player's hp to. |
+| value | `number` | The value to compare the entity's hp to. |
 
 **Returns**: `boolean`
 
 ### isHpPercentageGreaterThan
-Whether the player's hp is greater than a percentage value.
+Whether the entity's hp is greater than a percentage value.
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| value | `number` | The percentage value to compare the player's hp to. |
+| value | `number` | The percentage value to compare the entity's hp to. |
 
 **Returns**: `boolean`
 
 ### isHpPercentageLessThan
-Whether the player's hp is less than a percentage value.
+Whether the entity's hp is less than a percentage value.
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| value | `number` | The percentage value to compare the player's hp to. |
+| value | `number` | The percentage value to compare the entity's hp to. |
 
 **Returns**: `boolean`
 
 ### isIdle
-Whether the player is idle.
+Whether the entity is idle.
 
 **Returns**: `boolean`
 
@@ -133,6 +138,16 @@ Whether the player is in the specified cell.
 **Returns**: `boolean`
 
 ### isInCombat
-Whether the player is in combat.
+Whether the entity is in combat.
 
 **Returns**: `boolean`
+
+### isMonster
+Whether the entity is a monster.
+
+**Returns**: `this is Monster`
+
+### isPlayer
+Whether the entity is a player.
+
+**Returns**: `this is Avatar`

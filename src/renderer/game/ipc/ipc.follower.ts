@@ -274,7 +274,7 @@ async function startFollower() {
 
           if (
             bot.world.isMonsterAvailable("*") &&
-            bot.combat?.target?.type !== "monster"
+            bot.combat?.target?.isMonster()
           ) {
             bot.combat.attack("*");
           }

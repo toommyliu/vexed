@@ -11,6 +11,10 @@
         "link": "/api-legacy/models/bankitem"
       },
       {
+        "label": "BaseEntity",
+        "link": "/api-legacy/models/baseentity"
+      },
+      {
         "label": "Faction",
         "link": "/api-legacy/models/faction"
       },
@@ -61,12 +65,16 @@
         "link": "/api-legacy/typedefs/targetinfo"
       },
       {
+        "label": "AvatarData",
+        "link": "/api-legacy/typedefs/avatardata"
+      },
+      {
         "label": "Aura",
         "link": "/api-legacy/typedefs/aura"
       },
       {
-        "label": "AvatarData",
-        "link": "/api-legacy/typedefs/avatardata"
+        "label": "BaseEntityData",
+        "link": "/api-legacy/typedefs/baseentitydata"
       },
       {
         "label": "FactionData",
@@ -127,6 +135,10 @@
     "label": "Enums",
     "items": [
       {
+        "label": "EntityState",
+        "link": "/api-legacy/enums/entitystate"
+      },
+      {
         "label": "ClientPacket",
         "link": "/api-legacy/enums/clientpacket"
       },
@@ -137,10 +149,6 @@
       {
         "label": "BoostType",
         "link": "/api-legacy/enums/boosttype"
-      },
-      {
-        "label": "PlayerState",
-        "link": "/api-legacy/enums/playerstate"
       },
       {
         "label": "GameAction",
