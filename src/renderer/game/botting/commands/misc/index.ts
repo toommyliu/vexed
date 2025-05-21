@@ -8,6 +8,7 @@ import { CommandBuyScrollOfLifeSteal } from "./CommandBuyScrollOfLifeSteal";
 import { CommandDelay } from "./CommandDelay";
 // import { CommandEquipLoadout } from "./CommandEquipLoadout";
 import { CommandGotoLabel } from "./CommandGotoLabel";
+import { CommandGotoPlayer } from "./CommandGotoPlayer";
 import { CommandHouse } from "./CommandHouse";
 import { CommandLabel } from "./CommandLabel";
 import { CommandLog } from "./CommandLog";
@@ -30,7 +31,6 @@ import { CommandStopAggroMon } from "./CommandStopAggroMon";
 import { CommandStopBot } from "./CommandStopBot";
 import { CommandWaitForPlayerCount } from "./CommandWaitForPlayerCount";
 import { CommandWalkSpeed } from "./CommandWalkSpeed";
-import { CommandGotoPlayer } from "./CommandGotoPlayer";
 
 export const miscCommands = {
   /**
