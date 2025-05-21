@@ -19,7 +19,7 @@ export class CommandArmyKill extends ArmyCommand {
         new Promise<void>((resolve) => {
           void interval(async (_, stop) => {
             if (this.allDone) {
-              console.log("allDone: stopping");
+              // console.log("allDone: stopping");
               resolve();
               stop();
               return;
@@ -31,7 +31,7 @@ export class CommandArmyKill extends ArmyCommand {
               // If no item checking is needed, mark as done
               if (!this.itemName || !this.qty) {
                 await this.sendDone();
-                console.log("(1) this player is done");
+                // console.log("(1) this player is done");
                 return;
               }
 
@@ -42,7 +42,7 @@ export class CommandArmyKill extends ArmyCommand {
 
               if (done) {
                 await this.sendDone();
-                console.log("(2) this player is done");
+                // console.log("(2) this player is done");
               }
             }
           }, 150);

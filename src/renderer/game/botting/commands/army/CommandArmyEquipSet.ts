@@ -27,7 +27,6 @@ export class CommandArmyEquipSet extends ArmyCommand {
     }
 
     for (const item of Object.values(playerSet)) {
-      console.log(`Equipping ${item}`);
       await this.bot.inventory.equip(item);
     }
   }

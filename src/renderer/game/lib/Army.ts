@@ -55,11 +55,11 @@ export class Army {
     // Load the config
     await this.config.load();
 
-    console.log("Army: Config loaded", this.config.getAll());
+    // console.log("Army: Config loaded", this.config.getAll());
 
     const playerCount = this.config.get<string>("PlayerCount");
     if (!playerCount) {
-      console.warn("Army: PlayerCount not set in config file.");
+      // console.warn("Army: PlayerCount not set in config file.");
       return;
     }
 
@@ -67,13 +67,13 @@ export class Army {
     if (roomNumber) {
       this.roomNumber = roomNumber;
     } else {
-      console.warn("Army: RoomNumber not set in config file.");
+      // console.warn("Army: RoomNumber not set in config file.");
       return;
     }
 
     const playerCountNum = Number.parseInt(playerCount, 10);
     if (Number.isNaN(playerCountNum)) {
-      console.warn("Army: PlayerCount is not a number.");
+      // console.warn("Army: PlayerCount is not a number.");
       return;
     }
 
@@ -83,7 +83,7 @@ export class Army {
       if (player) {
         this.players.add(player);
       } else {
-        console.warn(`Army: Player${index} not set in config file.`);
+        // console.warn(`Army: Player${index} not set in config file.`);
       }
     }
 
@@ -94,14 +94,14 @@ export class Army {
 
     if (this.isLeader()) {
       // Init army for everyone else
-      console.log("Army: Leader");
+      // console.log("Army: Leader");
       await ipcRenderer.callMain(IPC_EVENTS.ARMY_INIT, {
         ...args,
         players: Array.from(this.players),
       });
     } else {
       // Join the army
-      console.log("Army: Follower");
+      // console.log("Army: Follower");
       await ipcRenderer.callMain(IPC_EVENTS.ARMY_JOIN, args);
     }
 
@@ -154,7 +154,7 @@ export class Army {
   }
 
   private async onAfk() {
-    console.log("Army: Anti-AFK triggered");
+    // console.log("Army: Anti-AFK triggered");
     await this.bot.sleep(1_500);
     this.bot.packets.sendServer("%xt%zm%afk%1%false%");
   }
