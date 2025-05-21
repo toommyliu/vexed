@@ -8,6 +8,7 @@ import { CommandBuyScrollOfLifeSteal } from "./CommandBuyScrollOfLifeSteal";
 import { CommandDelay } from "./CommandDelay";
 // import { CommandEquipLoadout } from "./CommandEquipLoadout";
 import { CommandGotoLabel } from "./CommandGotoLabel";
+import { CommandGotoPlayer } from "./CommandGotoPlayer";
 import { CommandHouse } from "./CommandHouse";
 import { CommandLabel } from "./CommandLabel";
 import { CommandLog } from "./CommandLog";
@@ -543,5 +544,19 @@ export const miscCommands = {
     } else if (type === "packetFromClient") {
       context.unregisterHandler("packetFromClient", _name);
     }
+  },
+  /**
+   * Goes to a player.
+   *
+   * @param player - The name of the player.
+   */
+  goto_player(player: string) {
+    if (!player || typeof player !== "string") {
+      throw new ArgsError("player is required");
+    }
+
+    const cmd = new CommandGotoPlayer();
+    cmd.playerName = player;
+    window.context.addCommand(cmd);
   },
 };
