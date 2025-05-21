@@ -368,7 +368,7 @@ export class Context extends TypedEmitter<Events> {
 
     const unbankList = this._commands
       .filter((command) => command instanceof CommandRegisterDrop)
-      .map((cmd) => cmd.item);
+      .flatMap((cmd) => cmd.item);
 
     console.log("Quest list", questList);
     console.log("Unbank list", unbankList);
