@@ -30,6 +30,7 @@ import { CommandStopAggroMon } from "./CommandStopAggroMon";
 import { CommandStopBot } from "./CommandStopBot";
 import { CommandWaitForPlayerCount } from "./CommandWaitForPlayerCount";
 import { CommandWalkSpeed } from "./CommandWalkSpeed";
+import { CommandGotoPlayer } from "./CommandGotoPlayer";
 
 export const miscCommands = {
   /**
@@ -543,5 +544,19 @@ export const miscCommands = {
     } else if (type === "packetFromClient") {
       context.unregisterHandler("packetFromClient", _name);
     }
+  },
+  /**
+   * Goes to a player.
+   *
+   * @param player - The name of the player.
+   */
+  goto_player(player: string) {
+    if (!player || typeof player !== "string") {
+      throw new ArgsError("player is required");
+    }
+
+    const cmd = new CommandGotoPlayer();
+    cmd.playerName = player;
+    window.context.addCommand(cmd);
   },
 };
