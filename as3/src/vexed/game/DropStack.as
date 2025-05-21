@@ -119,18 +119,19 @@ package vexed.game {
         else {
           game.cDropsUI.inner_menu.visible = on;
           if (on) {
-            Main.getInstance().getExternal().debug("redrawing custom drops ui");
+            // Main.getInstance().getExternal().debug("redrawing custom drops ui");
             game.cDropsUI.reDraw();
             game.cDropsUI.inner_menu.filters = [];
           }
           else {
-            Main.getInstance().getExternal().debug("hiding custom drops ui");
+            // Main.getInstance().getExternal().debug("hiding custom drops ui");
             game.cDropsUI.inner_menu.filters = [inactive];
           }
         }
       }
     }
 
+    // TODO: we'll probably remove these apis in the future
     public static function isCustomDropsUiOpen():Boolean {
       if (game.cDropsUI) {
         if (game.cDropsUI.mcDraggable) {
@@ -141,7 +142,7 @@ package vexed.game {
         }
       }
       else {
-        return game.cDropsUI.isOpen;
+        return false;
       }
     }
   }
