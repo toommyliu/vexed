@@ -8,9 +8,11 @@ head:
 import { Badge, Code } from "@astrojs/starlight/components";
 
 ### cmd.army_equip_set
+Equips a set from the army config file.
+
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| setName | `string` |  |
+| setName | `string` | The name of the set to equip. |
 
 
 ### cmd.army_init
@@ -84,4 +86,5 @@ Executes a function, but waits for the function (a.k.a for all players) to finis
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | fn | `() => Promise<void>` | The function to execute with the army. |
+| fnName | `string?` | The name of the function to execute. |
 
