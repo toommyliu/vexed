@@ -18,7 +18,7 @@ import { Badge, Code } from "@astrojs/starlight/components";
 ### cmd.deposit
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| item | `string` \| `number` |  |
+| item | `string` \| `number` \| `(string` \| `number)[]` |  |
 
 
 ### cmd.equip_item
@@ -48,7 +48,7 @@ import { Badge, Code } from "@astrojs/starlight/components";
 ### cmd.register_drop
 | Parameter | Type | Optional | Default | Description |
 |-----------|------|----------|---------|-------------|
-| item | `string` |  |  |  |
+| item | `string` \| `string[]` |  |  |  |
 | rejectElse | `boolean` | ✓ | `false` |  |
 
 
@@ -80,11 +80,11 @@ import { Badge, Code } from "@astrojs/starlight/components";
 ### cmd.unregister_drop
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| item | `string` |  |
+| item | `string` \| `string[]` |  |
 
 
 ### cmd.withdraw
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| item | `string` \| `number` |  |
+| item | `string` \| `number` \| `(string` \| `number)[]` |  |
 

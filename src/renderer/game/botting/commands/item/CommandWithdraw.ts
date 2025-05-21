@@ -1,13 +1,16 @@
 import { Command } from "../../command";
 
 export class CommandWithdraw extends Command {
-  public item!: number | string;
+  public item!: (number | string)[] | number | string;
 
   public override async execute() {
-    await this.bot.bank.withdraw(this.item);
+    const items = Array.isArray(this.item) ? this.item : [this.item];
+    for (const item of items) {
+      await this.bot.bank.withdraw(item);
+    }
   }
 
   public override toString() {
-    return `Withdraw: ${this.item}`;
+    return `Withdraw: ${Array.isArray(this.item) ? this.item.join(", ") : this.item}`;
   }
 }

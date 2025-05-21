@@ -33,8 +33,14 @@ export const itemCommands = {
     cmd.quantity = quantity;
     window.context.addCommand(cmd);
   },
-  deposit(item: number | string) {
-    if (!item || (typeof item !== "number" && typeof item !== "string")) {
+  deposit(item: (number | string)[] | number | string) {
+    if (
+      !item ||
+      (Array.isArray(item) && item.length === 0) ||
+      (!Array.isArray(item) &&
+        typeof item !== "number" &&
+        typeof item !== "string")
+    ) {
       throw new ArgsError("item is required");
     }
 
@@ -102,8 +108,14 @@ export const itemCommands = {
     cmd.invItem = invItem;
     window.context.addCommand(cmd);
   },
-  withdraw(item: number | string) {
-    if (!item || (typeof item !== "number" && typeof item !== "string")) {
+  withdraw(item: (number | string)[] | number | string) {
+    if (
+      !item ||
+      (Array.isArray(item) && item.length === 0) ||
+      (!Array.isArray(item) &&
+        typeof item !== "number" &&
+        typeof item !== "string")
+    ) {
       throw new ArgsError("item is required");
     }
 
@@ -111,8 +123,12 @@ export const itemCommands = {
     cmd.item = item;
     window.context.addCommand(cmd);
   },
-  register_drop(item: string, rejectElse: boolean = false) {
-    if (!item || typeof item !== "string") {
+  register_drop(item: string[] | string, rejectElse: boolean = false) {
+    if (
+      !item ||
+      (Array.isArray(item) && item.length === 0) ||
+      (!Array.isArray(item) && typeof item !== "string")
+    ) {
       throw new ArgsError("item is required");
     }
 
@@ -125,8 +141,12 @@ export const itemCommands = {
     cmd.rejectElse = rejectElse;
     window.context.addCommand(cmd);
   },
-  unregister_drop(item: string) {
-    if (!item || typeof item !== "string") {
+  unregister_drop(item: string[] | string) {
+    if (
+      !item ||
+      (Array.isArray(item) && item.length === 0) ||
+      (!Array.isArray(item) && typeof item !== "string")
+    ) {
       throw new ArgsError("item is required");
     }
 

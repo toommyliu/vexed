@@ -5,6 +5,8 @@ head:
     content: Getting started guide
 ---
 
+import { Aside } from "@astrojs/starlight/components";
+
 ## Downloading
 
 Download the latest version (tagged `nightly`) from the [releases page](https://github.com/toommyliu/vexed/releases/tag/nightly).
@@ -15,13 +17,27 @@ Select the correct file for your platform.
 
 ### macOS
 
-When running the app for the first time, you might see a warning along the lines **Apple cannot check it for malicious software**. To solve this, click **OK** then open Finder, find the app, and hold **CTRL** and right click the icon and press **Open**.
+When running the app for the first time, you might see a warning saying **vexed cannot be opened because Apple cannot check it for malicious software**. This happens because the app isn't signed with an Apple developer certificate. To run the app:
 
-It might also tell you to install Rosetta, which is required to support x86_64 apps on Apple Silicon machines.
+1. Click **OK** to dismiss the initial warning
+2. Open **Finder** and locate the app
+3. Hold **Control (⌃)** and click the app icon
+4. Select **Open** from the context menu
+5. Click **Open** in the dialog that appears
+
+It might also prompt you to install Rosetta 2, which is required to run x86_64 apps on Apple Silicon Macs.
 
 ### Windows
 
-No further steps are required.
+Microsoft Defender SmartScreen will stop the app from running when you first try to open it.
+
+1. Click **More info** when the SmartScreen warning appears
+2. Click **Run anyway**
+
+<Aside>
+  These warnings are only a result of the app not being signed, which costs
+  money. They only show the first time you run the app anyways.
+</Aside>
 
 ## Updates
 
