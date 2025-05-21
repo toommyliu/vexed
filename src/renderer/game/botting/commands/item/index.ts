@@ -33,8 +33,14 @@ export const itemCommands = {
     cmd.quantity = quantity;
     window.context.addCommand(cmd);
   },
-  deposit(item: number | string) {
-    if (!item || (typeof item !== "number" && typeof item !== "string")) {
+  deposit(item: (number | string)[] | number | string) {
+    if (
+      !item ||
+      (Array.isArray(item) && item.length === 0) ||
+      (!Array.isArray(item) &&
+        typeof item !== "number" &&
+        typeof item !== "string")
+    ) {
       throw new ArgsError("item is required");
     }
 
@@ -102,8 +108,14 @@ export const itemCommands = {
     cmd.invItem = invItem;
     window.context.addCommand(cmd);
   },
-  withdraw(item: number | string) {
-    if (!item || (typeof item !== "number" && typeof item !== "string")) {
+  withdraw(item: (number | string)[] | number | string) {
+    if (
+      !item ||
+      (Array.isArray(item) && item.length === 0) ||
+      (!Array.isArray(item) &&
+        typeof item !== "number" &&
+        typeof item !== "string")
+    ) {
       throw new ArgsError("item is required");
     }
 
