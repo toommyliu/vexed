@@ -1,25 +1,32 @@
-import { TypedEmitter } from 'tiny-typed-emitter';
-import { interval } from '../../../common/interval';
-import { Logger } from '../../../common/logger';
-import { Bot } from '../lib/Bot';
-import { BoostType } from '../lib/Player';
-import type { Command } from './command';
-import { CommandOverlay } from './overlay';
+import { TypedEmitter } from "tiny-typed-emitter";
+import { interval } from "../../../common/interval";
+import { Logger } from "../../../common/logger";
+import { Bot } from "../lib/Bot";
+import { BoostType } from "../lib/Player";
+import {
+  registerDrop,
+  startDropsTimer,
+  stopDropsTimer,
+  unregisterDrop,
+} from "../util/dropTimer";
+import {
+  startQuestTimer,
+  stopQuestTimer,
+  registerQuest,
+  unregisterQuest,
+} from "../util/questTimer";
+import type { Command } from "./command";
+import { CommandRegisterDrop } from "./commands/item/CommandRegisterDrop";
+import { CommandAcceptQuest } from "./commands/quest/CommandAcceptQuest";
+import { CommandRegisterQuest } from "./commands/quest/CommandRegisterQuest";
+import { CommandOverlay } from "./overlay";
 
-const logger = Logger.get('Context');
+const logger = Logger.get("Context");
 
 export class Context extends TypedEmitter<Events> {
   private readonly bot = Bot.getInstance();
 
-  /**
-   * List of quest ids to watch for.
-   */
-  private readonly questIds: Set<number>;
-
-  /**
-   * List of item ids to watch for.
-   */
-  private readonly items: Set<string>;
+  public static _instance: Context | null = null;
 
   /**
    * List of boost to watch and use.
@@ -65,8 +72,6 @@ export class Context extends TypedEmitter<Events> {
   public constructor() {
     super();
 
-    this.questIds = new Set();
-    this.items = new Set();
     this.boosts = new Set();
 
     this._pextHandlers = new Map();
@@ -82,6 +87,7 @@ export class Context extends TypedEmitter<Events> {
 
     this.overlay = new CommandOverlay();
   }
+
   /**
    * Registers a packet event handler.
    *
@@ -90,41 +96,36 @@ export class Context extends TypedEmitter<Events> {
    * @param handler - The handler function
    */
   public registerHandler(
-    type: 'pext',
+    type: "pext",
     name: string,
     handler: (packet: Record<string, unknown>) => Promise<void> | void,
   ): void;
   public registerHandler(
-    type: 'packetFromServer',
+    type: "packetFromClient" | "packetFromServer",
     name: string,
     handler: (packet: string) => Promise<void> | void,
   ): void;
   public registerHandler(
-    type: 'packetFromClient',
-    name: string,
-    handler: (packet: string) => Promise<void> | void,
-  ): void;
-  public registerHandler(
-    type: 'pext' | 'packetFromServer' | 'packetFromClient',
+    type: "packetFromClient" | "packetFromServer" | "pext",
     name: string,
     handler:
       | ((packet: Record<string, unknown>) => Promise<void> | void)
       | ((packet: string) => Promise<void> | void),
   ) {
     switch (type) {
-      case 'pext':
+      case "pext":
         this._pextHandlers.set(
           name,
           handler as (packet: Record<string, unknown>) => Promise<void> | void,
         );
         break;
-      case 'packetFromServer':
+      case "packetFromServer":
         this._packetFromServerHandlers.set(
           name,
           handler as (packet: string) => Promise<void> | void,
         );
         break;
-      case 'packetFromClient':
+      case "packetFromClient":
         this._packetFromClientHandlers.set(
           name,
           handler as (packet: string) => Promise<void> | void,
@@ -141,17 +142,17 @@ export class Context extends TypedEmitter<Events> {
    * @param name - The name of the handler
    */
   public unregisterHandler(
-    type: 'pext' | 'packetFromServer' | 'packetFromClient',
+    type: "packetFromClient" | "packetFromServer" | "pext",
     name: string,
   ) {
     switch (type) {
-      case 'pext':
+      case "pext":
         this._pextHandlers.delete(name);
         break;
-      case 'packetFromServer':
+      case "packetFromServer":
         this._packetFromServerHandlers.delete(name);
         break;
-      case 'packetFromClient':
+      case "packetFromClient":
         this._packetFromClientHandlers.delete(name);
         break;
       default:
@@ -159,11 +160,13 @@ export class Context extends TypedEmitter<Events> {
   }
 
   private _runHandlers() {
-    this.bot.on('pext', async (packet: Record<string, unknown>) => {
+    this.bot.on("pext", async (packet: Record<string, unknown>) => {
       if (!this.isRunning()) return;
 
       try {
         for (const [, handler] of this._pextHandlers) {
+          if (!this.isRunning()) break;
+
           await handler.call(
             {
               bot: this.bot,
@@ -174,11 +177,13 @@ export class Context extends TypedEmitter<Events> {
       } catch {}
     });
 
-    this.bot.on('packetFromServer', async (packet: string) => {
+    this.bot.on("packetFromServer", async (packet: string) => {
       if (!this.isRunning()) return;
 
       try {
         for (const [, handler] of this._packetFromServerHandlers) {
+          if (!this.isRunning()) break;
+
           await handler.call(
             {
               bot: this.bot,
@@ -189,11 +194,13 @@ export class Context extends TypedEmitter<Events> {
       } catch {}
     });
 
-    this.bot.on('packetFromClient', async (packet: string) => {
+    this.bot.on("packetFromClient", async (packet: string) => {
       if (!this.isRunning()) return;
 
       try {
         for (const [, handler] of this._packetFromClientHandlers) {
+          if (!this.isRunning()) break;
+
           await handler.call(
             {
               bot: this.bot,
@@ -276,7 +283,7 @@ export class Context extends TypedEmitter<Events> {
    * @param questId - The quest id
    */
   public registerQuest(questId: number) {
-    this.questIds.add(questId);
+    registerQuest(questId?.toString());
   }
 
   /**
@@ -285,16 +292,17 @@ export class Context extends TypedEmitter<Events> {
    * @param questId - The quest id
    */
   public unregisterQuest(questId: number) {
-    this.questIds.delete(questId);
+    unregisterQuest(questId?.toString());
   }
 
   /**
    * Starts automated pickup for an item.
    *
    * @param item - The item name
+   * @param rejectElse - Whether to reject all other items
    */
-  public registerDrop(item: string) {
-    this.items.add(item);
+  public registerDrop(item: string, rejectElse?: boolean) {
+    registerDrop(item, rejectElse);
   }
 
   /**
@@ -303,7 +311,7 @@ export class Context extends TypedEmitter<Events> {
    * @param item - The item name
    */
   public unregisterDrop(item: string) {
-    this.items.delete(item);
+    unregisterDrop(item);
   }
 
   /**
@@ -329,10 +337,7 @@ export class Context extends TypedEmitter<Events> {
     this._on = true;
     this.overlay.show();
 
-    await this.prepare();
-
-    this.emit('start');
-
+    await this.doPreInit();
     await Promise.all([this.runTimers(), this.runCommands()]);
   }
 
@@ -341,47 +346,43 @@ export class Context extends TypedEmitter<Events> {
     this._stop();
   }
 
-  private async prepare() {
-    // unbank all items
-    await this.bot.bank.withdrawMultiple(Array.from(this.items));
+  public static getInstance() {
+    this._instance ??= new Context();
+    return this._instance;
+  }
+
+  private async doPreInit() {
+    if (!this.bot.player.isReady()) {
+      logger.info("waiting for load (1)");
+      await this.bot.waitUntil(() => this.bot.player.isLoaded(), null, -1);
+      logger.info("player loaded (2)");
+    }
+
+    const questList = this._commands
+      .filter(
+        (cmd) =>
+          cmd instanceof CommandRegisterQuest ||
+          cmd instanceof CommandAcceptQuest,
+      )
+      .map((cmd) => cmd.questId);
+
+    const unbankList = this._commands
+      .filter((command) => command instanceof CommandRegisterDrop)
+      .map((cmd) => cmd.item);
+
+    console.log("Quest list", questList);
+    console.log("Unbank list", unbankList);
+
+    await this.bot.quests.loadMultiple(questList);
+    await this.bot.bank.withdrawMultiple(unbankList);
     await this.bot.bank.withdrawMultiple(Array.from(this.boosts));
+
+    this.emit("start");
   }
 
   private async runTimers() {
-    // TODO: use utilty helper
-
-    void interval(async (_, stop) => {
-      if (!this.isRunning()) {
-        stop();
-        return;
-      }
-
-      for (const questId of Array.from(this.questIds)) {
-        try {
-          if (!swf.questsIsInProgress(questId)) {
-            swf.questsAccept(questId);
-          }
-
-          if (swf.questsCanCompleteQuest(questId)) {
-            void this.bot.quests.complete(questId);
-            void this.bot.quests.accept(questId);
-          }
-        } catch {}
-      }
-    }, 1_000);
-
-    void interval(async (_, stop) => {
-      if (!this.isRunning()) {
-        stop();
-        return;
-      }
-
-      for (const item of Array.from(this.items)) {
-        try {
-          if (this.bot.drops.hasDrop(item)) await this.bot.drops.pickup(item);
-        } catch {}
-      }
-    }, 1_000);
+    startDropsTimer();
+    startQuestTimer();
 
     void interval(async (_, stop) => {
       if (!this.isRunning()) {
@@ -393,13 +394,13 @@ export class Context extends TypedEmitter<Events> {
         try {
           if (this.bot.inventory.contains(boost)) {
             const _boost = boost.toLowerCase();
-            const variant = _boost.includes('gold')
+            const variant = _boost.includes("gold")
               ? BoostType.Gold
-              : _boost.includes('xp')
+              : _boost.includes("xp")
                 ? BoostType.Exp
-                : _boost.includes('rep')
+                : _boost.includes("rep")
                   ? BoostType.Rep
-                  : _boost.includes('class')
+                  : _boost.includes("class")
                     ? BoostType.ClassPoints
                     : null;
 
@@ -426,10 +427,10 @@ export class Context extends TypedEmitter<Events> {
 
     this._commandIndex = 0;
 
-    if (!this.bot.player.isLoaded()) {
-      logger.info('waiting for load');
+    if (!this.bot.player.isReady()) {
+      logger.info("waiting for load");
       await this.bot.waitUntil(() => this.bot.player.isLoaded(), null, -1);
-      logger.info('player loaded');
+      logger.info("player loaded");
     }
 
     while (this._commandIndex < this._commands.length && this.isRunning()) {
@@ -459,7 +460,7 @@ export class Context extends TypedEmitter<Events> {
 
         if (this.isRunning()) this._commandIndex++;
       } catch (error) {
-        logger.error('Error executing a command', error);
+        logger.error("Error executing a command", error);
       }
     }
 
@@ -470,8 +471,11 @@ export class Context extends TypedEmitter<Events> {
   // TODO: add an option to restart if end is reached
 
   private _stop() {
+    stopDropsTimer();
+    stopQuestTimer();
+
     this.overlay.hide();
-    this.emit('end');
+    this.emit("end");
     this._on = false;
   }
 }

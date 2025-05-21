@@ -1,0 +1,123 @@
+---
+title: Combat
+---
+
+import { Badge, Code } from "@astrojs/starlight/components";
+
+A `monsterResolvable` is either a monster name or monMapID prefixed with `id` and delimited by a `'`, `.`, `:`, `-` character.
+
+
+## Properties
+### bot
+
+Type: `Bot`
+
+### pauseAttack
+Whether attacks are paused due to an active counter attack.
+
+Type: `boolean`
+
+### target <Badge text="Getter" size="small" />	
+Gets the target of the player.
+
+Type: `null | Monster | Avatar`
+
+## Methods
+
+### attack
+Attacks a monster.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| monsterResolvable | `string` | The name or monMapID of the monster. |
+
+**Returns**: `void`
+
+### cancelAutoAttack
+Cancels an auto attack.
+
+**Returns**: `void`
+
+### cancelTarget
+Cancels the current target.
+
+**Returns**: `void`
+
+### canUseSkill
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| index | `string` \| `number` |  |
+
+**Returns**: `boolean`
+
+### exit
+Exit from combat state.
+
+**Returns**: `Promise<void>`
+
+### hasTarget
+Whether the player has a target.
+
+**Returns**: `boolean`
+
+### kill
+Kills a monster.
+
+<Code code={`
+// Basic usage
+await combat.kill("Frogzard");
+
+// Advanced usage
+// Kill Ultra Engineer, but prioritize attacking Defense Drone and Attack Drone first.
+await combat.kill("Ultra Engineer", {
+    killPriority: ["Defense Drone", "Attack Drone"],
+    skillSet: [5,3,2,1,4],
+    skillDelay: 50,
+});
+`} lang="js" title="Combat.ts" />
+| Parameter | Type | Optional | Default | Description |
+|-----------|------|----------|---------|-------------|
+| monsterResolvable | `string` |  |  | The name or monMapId of the monster. |
+| options | `Partial<KillOptions>` | ✓ | `{}` | The optional configuration to use for the kill. |
+
+**Returns**: `Promise<void>`
+
+### killForItem
+Kills the monster until the quantity of the item is met in the inventory.
+| Parameter | Type | Optional | Default | Description |
+|-----------|------|----------|---------|-------------|
+| monsterResolvable | `string` |  |  | The name or monMapID of the monster. |
+| item | `string` \| `number` |  |  | The name or ID of the item. |
+| quantity | `number` |  |  | The quantity of the item. |
+| options | `Partial<KillOptions>` | ✓ | `{}` | The configuration to use for the kill. |
+
+**Returns**: `Promise<void>`
+
+### killForTempItem
+Kills the monster until the quantity of the item is met in the temp inventory.
+| Parameter | Type | Optional | Default | Description |
+|-----------|------|----------|---------|-------------|
+| monsterResolvable | `string` |  |  | The name or monMapID of the monster. |
+| item | `string` \| `number` |  |  | The name or ID of the item. |
+| quantity | `number` |  |  | The quantity of the item. |
+| options | `Partial<KillOptions>` | ✓ | `{}` | The configuration to use for the kill. |
+
+**Returns**: `Promise<void>`
+
+### rest
+Rests the player.
+| Parameter | Type | Optional | Default | Description |
+|-----------|------|----------|---------|-------------|
+| full | `boolean` | ✓ | `false` | Whether to rest until max hp and mp are reached. |
+| exit | `boolean` | ✓ | `false` | Whether to exit combat before attempting to rest. |
+
+**Returns**: `Promise<void>`
+
+### useSkill
+Casts a skill.
+| Parameter | Type | Optional | Default | Description |
+|-----------|------|----------|---------|-------------|
+| index | `string` \| `number` |  |  | The index of the skill. Skills range from 0 (skill 1) to 5 (potions). |
+| force | `boolean` | ✓ | `false` | Whether to use the skill regardless if there is a target. |
+| wait | `boolean` | ✓ | `false` | Whether to wait for the skill to be available. |
+
+**Returns**: `Promise<void>`

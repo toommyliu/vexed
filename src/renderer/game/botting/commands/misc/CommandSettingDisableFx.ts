@@ -1,4 +1,4 @@
-import { Command } from '../../command';
+import { Command } from "../../command";
 
 export class CommandSettingDisableFx extends Command {
   public state!: boolean;
@@ -8,6 +8,6 @@ export class CommandSettingDisableFx extends Command {
   }
 
   public override toString() {
-    return `${this.state ? 'Enable' : 'Disable'} setting: FX`;
+    return `${this.state ? "Enable" : "Disable"} setting: FX`;
   }
 }

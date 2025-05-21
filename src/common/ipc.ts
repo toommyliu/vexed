@@ -1,11 +1,9 @@
 import {
   ipcMain as ogIpcMain,
   ipcRenderer as ogIpcRenderer,
-} from 'electron-better-ipc';
-import type { IPC_EVENTS } from './ipc-events';
-import type { FastTravel } from './types';
-
-// TODO: add a broker method?
+} from "electron-better-ipc";
+import type { IPC_EVENTS } from "./ipc-events";
+import type { FastTravel } from "./types";
 
 export const ipcRenderer: TypedRendererIpc = {
   callMain: async (channel, data?: unknown) => {
@@ -15,8 +13,15 @@ export const ipcRenderer: TypedRendererIpc = {
 
     return ogIpcRenderer.callMain(channel, data);
   },
-  // @ts-expect-error i don't even know...
-  answerMain: (channel, handler) => ogIpcRenderer.answerMain(channel, handler),
+  answerMain: (channel, handler) =>
+    ogIpcRenderer.answerMain(channel, async (data) => handler(data as any)),
+  removeListener: (channel, handler) =>
+    ogIpcRenderer.removeListener(channel, handler),
+  on: (channel, handler) =>
+    ogIpcRenderer.on(channel, (_event, data) => handler(data)),
+  once: (channel, handler) =>
+    ogIpcRenderer.once(channel, (_event, data) => handler(data)),
+  removeAllListeners: (channel) => ogIpcRenderer.removeAllListeners(channel),
 };
 
 export const ipcMain: TypedMainIpc = {
@@ -28,39 +33,76 @@ export const ipcMain: TypedMainIpc = {
     return ogIpcMain.callRenderer(browserWindow, channel, data);
   },
   answerRenderer: (channel, handler) =>
-    // @ts-expect-error i don't even know...
-    ogIpcMain.answerRenderer(channel, handler),
+    ogIpcMain.answerRenderer(channel, async (data, browserWindow) =>
+      handler(data as TypedIpcEvents[typeof channel]["args"], browserWindow),
+    ),
+  removeListener: (channel, handler) =>
+    ogIpcMain.removeListener(channel, handler),
+  on: (channel, handler) =>
+    ogIpcMain.on(channel, (_event, data) => handler(data)),
+  once: (channel, handler) =>
+    ogIpcMain.once(channel, (_event, data) => handler(data)),
+  removeAllListeners: (channel) => ogIpcMain.removeAllListeners(channel),
 };
 
 type TypedRendererIpc = {
   answerMain<K extends keyof TypedIpcEvents>(
     channel: K,
     callback: (
-      data: TypedIpcEvents[K]['args'] extends undefined
+      data: TypedIpcEvents[K]["args"] extends undefined
         ? never
-        : TypedIpcEvents[K]['args'],
-    ) => TypedIpcEvents[K]['response'] extends undefined
+        : TypedIpcEvents[K]["args"],
+    ) => TypedIpcEvents[K]["response"] extends undefined
       ? Promise<void> | void
-      : Promise<TypedIpcEvents[K]['response']> | TypedIpcEvents[K]['response'],
+      : Promise<TypedIpcEvents[K]["response"]> | TypedIpcEvents[K]["response"],
   ): () => void;
 
   // For events without args
   callMain<K extends keyof TypedIpcEvents>(
     channel: K &
       keyof {
-        [P in keyof TypedIpcEvents as TypedIpcEvents[P]['args'] extends undefined
+        [P in keyof TypedIpcEvents as TypedIpcEvents[P]["args"] extends undefined
           ? P
           : never]: true;
       },
-  ): Promise<TypedIpcEvents[K]['response']>;
+  ): Promise<TypedIpcEvents[K]["response"]>;
 
   // For events with args
   callMain<K extends keyof TypedIpcEvents>(
     channel: K,
-    data: TypedIpcEvents[K]['args'] extends undefined
+    data: TypedIpcEvents[K]["args"] extends undefined
       ? never
-      : TypedIpcEvents[K]['args'],
-  ): Promise<TypedIpcEvents[K]['response']>;
+      : TypedIpcEvents[K]["args"],
+  ): Promise<TypedIpcEvents[K]["response"]>;
+
+  on<K extends keyof TypedIpcEvents>(
+    channel: K,
+    listener: (
+      data: TypedIpcEvents[K]["args"] extends undefined
+        ? never
+        : TypedIpcEvents[K]["args"],
+    ) => void,
+  ): void;
+
+  once<K extends keyof TypedIpcEvents>(
+    channel: K,
+    listener: (
+      data: TypedIpcEvents[K]["args"] extends undefined
+        ? never
+        : TypedIpcEvents[K]["args"],
+    ) => void,
+  ): void;
+
+  removeAllListeners(channel: keyof TypedIpcEvents): void;
+
+  removeListener<K extends keyof TypedIpcEvents>(
+    channel: K,
+    listener: (
+      data: TypedIpcEvents[K]["args"] extends undefined
+        ? never
+        : TypedIpcEvents[K]["args"],
+    ) => void,
+  ): void;
 };
 
 type TypedMainIpc = {
@@ -68,11 +110,11 @@ type TypedMainIpc = {
   answerRenderer<K extends keyof TypedIpcEvents>(
     channel: K,
     callback: (
-      data: TypedIpcEvents[K]['args'],
+      data: TypedIpcEvents[K]["args"],
       browserWindow: Electron.BrowserWindow,
-    ) => TypedIpcEvents[K]['response'] extends undefined
+    ) => TypedIpcEvents[K]["response"] extends undefined
       ? Promise<void> | void
-      : Promise<TypedIpcEvents[K]['response']> | TypedIpcEvents[K]['response'],
+      : Promise<TypedIpcEvents[K]["response"]> | TypedIpcEvents[K]["response"],
   ): () => void;
 
   // For events without args
@@ -80,20 +122,37 @@ type TypedMainIpc = {
     window: Electron.BrowserWindow,
     channel: K &
       keyof {
-        [P in keyof TypedIpcEvents as TypedIpcEvents[P]['args'] extends undefined
+        [P in keyof TypedIpcEvents as TypedIpcEvents[P]["args"] extends undefined
           ? P
           : never]: true;
       },
-  ): Promise<TypedIpcEvents[K]['response']>;
+  ): Promise<TypedIpcEvents[K]["response"]>;
 
   // For events with args
   callRenderer<K extends keyof TypedIpcEvents>(
     window: Electron.BrowserWindow,
     channel: K,
-    data: TypedIpcEvents[K]['args'] extends undefined
+    data: TypedIpcEvents[K]["args"] extends undefined
       ? never
-      : TypedIpcEvents[K]['args'],
-  ): Promise<TypedIpcEvents[K]['response']>;
+      : TypedIpcEvents[K]["args"],
+  ): Promise<TypedIpcEvents[K]["response"]>;
+
+  on<K extends keyof TypedIpcEvents>(
+    channel: K,
+    listener: (data: TypedIpcEvents[K]["args"]) => void,
+  ): void;
+
+  once<K extends keyof TypedIpcEvents>(
+    channel: K,
+    listener: (data: TypedIpcEvents[K]["args"]) => void,
+  ): void;
+
+  removeAllListeners(channel: keyof TypedIpcEvents): void;
+
+  removeListener<K extends keyof TypedIpcEvents>(
+    channel: K,
+    listener: (data: TypedIpcEvents[K]["args"]) => void,
+  ): void;
 };
 
 type TypedIpcEvents = {
@@ -122,7 +181,9 @@ type TypedIpcEvents = {
     response: undefined;
   };
   [IPC_EVENTS.SCRIPT_LOADED]: {
-    args: undefined;
+    args: {
+      fromManager: boolean;
+    };
     response: undefined;
   };
   [IPC_EVENTS.TOGGLE_DEV_TOOLS]: {
@@ -217,13 +278,40 @@ type TypedIpcEvents = {
     response: undefined;
   };
 
+  // #region Army
+  [IPC_EVENTS.ARMY_INIT]: {
+    args: {
+      fileName: string;
+      playerName: string;
+      players: string[];
+    };
+    response: undefined;
+  };
+  [IPC_EVENTS.ARMY_JOIN]: {
+    args: {
+      fileName: string;
+      playerName: string;
+    };
+    response: undefined;
+  };
+  [IPC_EVENTS.ARMY_START_JOB]: {
+    args: undefined;
+    response: undefined;
+  };
+  [IPC_EVENTS.ARMY_FINISH_JOB]: { args: undefined; response: undefined };
+  [IPC_EVENTS.ARMY_READY]: {
+    args: undefined;
+    response: undefined;
+  };
+
+  // #region Manager
   [IPC_EVENTS.GET_ACCOUNTS]: {
     args: undefined;
     response: Account[];
   };
   [IPC_EVENTS.ADD_ACCOUNT]: {
     args: Account;
-    response: { msg: string; success: false } | { success: true };
+    response: { msg: string; success: false } | { msg?: string; success: true };
   };
   [IPC_EVENTS.REMOVE_ACCOUNT]: {
     args: { username: string };

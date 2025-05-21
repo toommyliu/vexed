@@ -5,7 +5,7 @@
  * @returns true if the value is then-able
  */
 function isPromise(val: any): boolean {
-  return val !== null && typeof val.then === 'function';
+  return val !== null && typeof val.then === "function";
 }
 
 export async function interval(
@@ -61,13 +61,13 @@ export async function interval(
 
       // Calculate our interval length
       const calculatedIntervalLength: number =
-        typeof intervalLength === 'function'
+        typeof intervalLength === "function"
           ? intervalLength(currentIteration)
           : intervalLength;
 
       // If the interval length was calculated, validate the result
       if (
-        typeof intervalLength === 'function' &&
+        typeof intervalLength === "function" &&
         (!Number.isInteger(calculatedIntervalLength) ||
           calculatedIntervalLength < 0)
       ) {
@@ -122,30 +122,30 @@ export async function interval(
  */
 function validateArgs(func: any, intervalLength: any, options: any): void {
   // Validate "func"
-  if (typeof func !== 'function') {
+  if (typeof func !== "function") {
     throw new TypeError('Argument 1, "func", must be a function.');
   }
 
   // Validate "intervalLength"
-  if (typeof intervalLength === 'number') {
+  if (typeof intervalLength === "number") {
     if (!Number.isInteger(intervalLength) || intervalLength < 0) {
       throw new TypeError(
         'Argument 2, "intervalLength", must be a non-negative integer or a function that returns a non-negative integer.',
       );
     }
-  } else if (typeof intervalLength !== 'function') {
+  } else if (typeof intervalLength !== "function") {
     throw new TypeError(
       'Argument 2, "intervalLength", must be a non-negative integer or a function that returns a non-negative integer.',
     );
   }
 
   // Validate options...
-  if (typeof options !== 'object') {
+  if (typeof options !== "object") {
     throw new TypeError('Argument 3, "options", must be an object.');
   }
 
   // Validate passed keys
-  const allowedKeys = ['iterations', 'stopOnError'];
+  const allowedKeys = ["iterations", "stopOnError"];
 
   for (const key of Object.keys(options)) {
     if (!allowedKeys.includes(key)) {
@@ -155,7 +155,7 @@ function validateArgs(func: any, intervalLength: any, options: any): void {
 
   // validate "iterations" option (if passed)
   if (
-    typeof options.iterations !== 'undefined' &&
+    typeof options.iterations !== "undefined" &&
     options.iterations !== Infinity &&
     (!Number.isInteger(options.iterations) || options.iterations < 1)
   ) {
@@ -166,8 +166,8 @@ function validateArgs(func: any, intervalLength: any, options: any): void {
 
   // validate "stopOnError" option (if passed)
   if (
-    typeof options.stopOnError !== 'undefined' &&
-    typeof options.stopOnError !== 'boolean'
+    typeof options.stopOnError !== "undefined" &&
+    typeof options.stopOnError !== "boolean"
   ) {
     throw new TypeError('Option "stopOnError" must be a boolean.');
   }

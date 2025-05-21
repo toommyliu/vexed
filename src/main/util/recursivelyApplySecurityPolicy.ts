@@ -1,25 +1,26 @@
-import { BrowserWindow, session } from 'electron';
-import { ARTIX_USERAGENT, WHITELISTED_DOMAINS } from '../../common/constants';
+import { URL } from "url";
+import { BrowserWindow, session } from "electron";
+import { ARTIX_USERAGENT, WHITELISTED_DOMAINS } from "../../common/constants";
 
 export function recursivelyApplySecurityPolicy(window: BrowserWindow): void {
   window.webContents.setUserAgent(ARTIX_USERAGENT);
   session.defaultSession?.webRequest.onBeforeSendHeaders((details, fn) => {
     const requestHeaders = details.requestHeaders;
 
-    Object.defineProperty(requestHeaders, 'User-Agent', {
+    Object.defineProperty(requestHeaders, "User-Agent", {
       value: ARTIX_USERAGENT,
     });
-    Object.defineProperty(requestHeaders, 'artixmode', {
-      value: 'launcher',
+    Object.defineProperty(requestHeaders, "artixmode", {
+      value: "launcher",
     });
-    Object.defineProperty(requestHeaders, 'X-Requested-With', {
-      value: 'ShockwaveFlash/32.0.0.371',
+    Object.defineProperty(requestHeaders, "X-Requested-With", {
+      value: "ShockwaveFlash/32.0.0.371",
     });
 
     fn({ requestHeaders, cancel: false });
   });
 
-  window.webContents.on('will-navigate', (ev, url) => {
+  window.webContents.on("will-navigate", (ev, url) => {
     const parsedUrl = new URL(url);
     if (!WHITELISTED_DOMAINS.includes(parsedUrl.hostname)) {
       console.log(`[will-navigate] blocking url: ${url}`);
@@ -27,7 +28,7 @@ export function recursivelyApplySecurityPolicy(window: BrowserWindow): void {
     }
   });
 
-  window.webContents.on('will-redirect', (ev, url) => {
+  window.webContents.on("will-redirect", (ev, url) => {
     const parsedUrl = new URL(url);
     if (!WHITELISTED_DOMAINS.includes(parsedUrl.hostname)) {
       console.log(`[will-redirect] blocking url: ${url}`);
@@ -36,7 +37,7 @@ export function recursivelyApplySecurityPolicy(window: BrowserWindow): void {
   });
 
   window.webContents.on(
-    'new-window',
+    "new-window",
     async (
       ev,
       url,
@@ -49,9 +50,9 @@ export function recursivelyApplySecurityPolicy(window: BrowserWindow): void {
       const parsedUrl = new URL(url);
 
       if (
-        parsedUrl.hostname === 'www.facebook.com' &&
-        parsedUrl.searchParams.get('redirect_uri') ===
-          'https://game.aq.com/game/AQWFB.html'
+        parsedUrl.hostname === "www.facebook.com" &&
+        parsedUrl.searchParams.get("redirect_uri") ===
+          "https://game.aq.com/game/AQWFB.html"
       ) {
         return;
       }
@@ -65,7 +66,7 @@ export function recursivelyApplySecurityPolicy(window: BrowserWindow): void {
       ev.preventDefault();
 
       const childWindow = new BrowserWindow({
-        title: '',
+        title: "",
         parent: window,
         webPreferences: {
           nodeIntegration: false, // some sites might use jquery (e.g wiki), which conflict with nodeIntegration

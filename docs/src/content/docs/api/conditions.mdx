@@ -1,0 +1,546 @@
+---
+title: Conditions commands
+head:
+ - tag: title
+   content: Conditions commands
+---
+
+import { Badge, Code } from "@astrojs/starlight/components";
+
+### cmd.any_player_hp_percentage_greater_than
+Whether any player's hp percentage is greater than the specified value.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| percentage | `number` | The health percentage to compare against. |
+
+
+### cmd.any_player_hp_percentage_less_than
+Whether any player's hp percentage is less than the specified value.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| percentage | `number` | The health percentage to compare against. |
+
+
+### cmd.can_complete_quest
+Whether the specified quest can be completed.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| questId | `number` | The ID of the quest to check. |
+
+
+### cmd.cannot_complete_quest
+Whether the specified quest cannot be completed.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| questId | `number` | The ID of the quest to check. |
+
+
+### cmd.cell_player_count_greater_than
+Whether the player count in the specified cell is greater than the specified value.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| count | `number` | The number of players to compare against. |
+| cell | `string?` | The name of the cell. If not provided, it will default to the current cell. |
+
+
+### cmd.cell_player_count_less_than
+Whether the player count in the specified cell is less than the specified value.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| count | `number` | The number of players to compare against. |
+| cell | `string?` | The name of the cell. If not provided, it will default to the current cell. |
+
+
+### cmd.equipped
+Whether the player has the specified item equipped.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| item | `string` | The name of the item. |
+
+
+### cmd.faction_rank_greater_than
+Whether the player faction rank is greater than the specified rank.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| faction | `string` | The name of the faction. |
+| rank | `number` | The rank to compare against. |
+
+
+### cmd.faction_rank_less_than
+Whether the player faction rank is less than the specified rank.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| faction | `string` | The name of the faction. |
+| rank | `number` | The rank to compare against. |
+
+
+### cmd.gold_greater_than
+Whether the player has more than the specified amount of gold.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| gold | `number` | The amount of gold to compare against. |
+
+
+### cmd.gold_less_than
+Whether the player has less than the specified amount of gold.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| gold | `number` | The amount of gold to compare against. |
+
+
+### cmd.has_no_target
+Whether the player does not have a target.
+
+
+### cmd.has_target
+Whether the player has a target.
+
+
+### cmd.hp_greater_than
+Whether the player's hp is greater than the specified amount.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| hp | `number` | The amount of health to compare against. |
+
+
+### cmd.hp_less_than
+Whether the player's hp is less than the specified amount.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| hp | `number` | The amount of health to compare against. |
+
+
+### cmd.hp_percentage_greater_than
+Whether the player's hp is greater than the specified percentage.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| percentage | `number` | The percentage of health to compare against. |
+
+
+### cmd.hp_percentage_less_than
+Whether the player's hp is less than the specified percentage.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| percentage | `number` | The percentage of health to compare against. |
+
+
+### cmd.in_bank
+Whether a specific item exists in the player's bank.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| item | `string` | The name of the item. |
+| quantity | `number?` | The minimum quantity required. If not provided, it will default to 1. |
+
+
+### cmd.in_cell
+Whether the player is in the specified cell.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| cell | `string` | THe name of the cell. |
+
+
+### cmd.in_combat
+Whether the player is in combat.
+
+
+### cmd.in_house
+Whether the specified item is in the player's house inventory.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| item | `string` | The name of the item. |
+| quantity | `number?` | The minimum quantity required. If not provided, it will default to 1. |
+
+
+### cmd.in_inventory
+Whether a specific item exists in the player's inventory.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| item | `string` | The name of the item. |
+| quantity | `number?` | The minimum quantity required. If not provided, it will default to 1. |
+
+
+### cmd.in_map
+Whether the player is in the specified map.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| map | `string` | The name of the map. |
+
+
+### cmd.in_tempinventory
+Whether a specific item exists in the player's tempinventory.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| item | `string` | The name of the item. |
+| quantity | `number?` | The minimum quantity required. If not provided, it will default to 1. |
+
+
+### cmd.is_maxed
+Whether the specified item is maxed in the player's inventory.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| item | `string` | The name of the item. |
+
+
+### cmd.is_member
+Whether the player has an active membership.
+
+
+### cmd.is_not_maxed
+Whether the specified item is not maxed in the player's inventory.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| item | `string` | The name of the item. |
+
+
+### cmd.is_not_member
+Whether the player does not have an active membership.
+
+
+### cmd.item_has_dropped
+Whether the specified item has dropped.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| item | `string` | The name of the item. |
+
+
+### cmd.item_has_not_dropped
+Whether the specified item has not dropped.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| item | `string` | The name of the item. |
+
+
+### cmd.level_greater_than
+Whether the player's level is greater than the specified level.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| level | `number` | The level to compare against. |
+
+
+### cmd.level_is
+Whether the player's level equals the specified level.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| level | `number` | The level to compare against. |
+
+
+### cmd.level_less_than
+Whether the player's level is less than the specified level.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| level | `number` | The level to compare against. |
+
+
+### cmd.monster_hp_greater_than
+Whether the specified monster's hp is greater than the specified amount.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| monster | `string` | The name of the monster. |
+| hp | `number` | The health value to compare against. |
+
+
+### cmd.monster_hp_less_than
+Whether the specified monster's hp is less than the specified amount.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| monster | `string` | The name of the monster. |
+| hp | `number` | The health value to compare against. |
+
+
+### cmd.monster_in_room
+Whether the specified monster is in the room (is not dead).
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| monster | `string` | The name of the monster. |
+
+
+### cmd.monster_not_in_room
+Whether the specified monster is not in the room (is dead).
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| monster | `string` | The name of the monster. |
+
+
+### cmd.mp_greater_than
+Whether the player's mp is greater than the specified amount.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| mp | `number` | The mp value to compare against. |
+
+
+### cmd.mp_less_than
+Whether the player's mp is less than the specified amount.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| mp | `number` | The mp value to compare against. |
+
+
+### cmd.not_equipped
+Whether the player does not have the specified item equipped.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| item | `string` | The name of the item. |
+
+
+### cmd.not_in_bank
+Whether a specific item does not exist in the player's bank.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| item | `string` | The name of the item. |
+| quantity | `number?` | The minimum quantity required. If not provided, it will default to 1. |
+
+
+### cmd.not_in_cell
+Whether the player is not in the specified cell.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| cell | `string` | The name of the cell. |
+
+
+### cmd.not_in_combat
+Whether the player is not in combat.
+
+
+### cmd.not_in_house
+Whether the specified item is not in the player's house inventory.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| item | `string` | The name of the item. |
+| quantity | `number?` | The minimum quantity required. If not provided, it will default to 1. |
+
+
+### cmd.not_in_inventory
+Whether a specific item does not exist in the player's inventory.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| item | `string` | The name of the item. |
+| quantity | `number?` | The minimum quantity required. If not provided, it will default to 1. |
+
+
+### cmd.not_in_map
+Whether the player is not in the specified map.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| map | `string` | The name of the map. |
+
+
+### cmd.not_in_tempinventory
+Whether a specific item does not exist in the player's tempinventory.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| item | `string` | The name of the item. |
+| quantity | `number?` | The minimum quantity required. If not provided, it will default to 1. |
+
+
+### cmd.player_aura_greater_than
+Whether a player's aura value is greater than the specified value.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| player | `string` | The name of the player. |
+| aura | `string` | The name of the aura. |
+| value | `number` | The value to compare against. |
+
+
+### cmd.player_aura_less_than
+Whether a player's aura value is less than the specified value.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| player | `string` | The name of the player. |
+| aura | `string` | The name of the aura. |
+| value | `number` | The value to compare against. |
+
+
+### cmd.player_count_greater_than
+Whether the player count in the map is greater than the specified value.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| count | `number` | The number of players to compare against. |
+
+
+### cmd.player_count_less_than
+Whether the player count in the map is less than the specified value.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| count | `number` | The number of players to compare against. |
+
+
+### cmd.player_hp_greater_than
+Whether a specified player's hp is greater than the specified value.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| player | `string` | The name of the player. |
+| hp | `number` | The health value to compare against. |
+
+
+### cmd.player_hp_less_than
+Whether a specified player's hp is less than the specified value.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| player | `string` | The name of the player. |
+| hp | `number` | The health value to compare against. |
+
+
+### cmd.player_hp_percentage_greater_than
+Whether a specified player's hp percentage is greater than the specified value.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| player | `string` | The name of the player. |
+| percentage | `number` | The health percentage to compare against. |
+
+
+### cmd.player_hp_percentage_less_than
+Whether a specified player's hp percentage is less than the specified value.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| player | `string` | The name of the player. |
+| percentage | `number` | The health percentage to compare against. |
+
+
+### cmd.player_in_cell
+Whether a player is in the specified cell.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| player | `string` | The name of the player. |
+| cell | `string` | The name of the cell. |
+
+
+### cmd.player_in_map
+Whether a player is in the map.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| player | `string` | The name of the player. |
+
+
+### cmd.player_name_equals
+Whether the player's name is equal to the specified name.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| player | `string` | The name to compare against. |
+
+
+### cmd.player_not_in_cell
+Whether a player is not in the specified cell.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| player | `string` | The name of the player. |
+| cell | `string` | The name of the cell. |
+
+
+### cmd.player_not_in_map
+Whether a player is not in the map.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| player | `string` | The name of the player. |
+
+
+### cmd.quest_in_progress
+Whether the specified quest is in progress.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| questId | `number` | The ID of the quest to check. |
+
+
+### cmd.quest_is_available
+Whether the specified quest is available.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| questId | `number` | The ID of the quest to check. |
+
+
+### cmd.quest_not_available
+Whether the specified quest is not available.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| questId | `number` | The ID of the quest to check. |
+
+
+### cmd.quest_not_in_progress
+Whether the specified quest is not in progress.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| questId | `number` | The ID of the quest to check. |
+
+
+### cmd.target_hp_between
+Whether the target's hp is between the specified range.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| monster | `string` | The name of the monster. |
+| min | `number` | The minimum hp. |
+| max | `number` | The maximum hp. |
+
+
+### cmd.target_hp_greater_than
+Whether the target's hp is greater than the specified amount.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| hp | `number` | Hp to compare against. |
+
+
+### cmd.target_hp_less_than
+Whether the target's hp is less than the specified amount.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| hp | `number` | Hp to compare against. |
+

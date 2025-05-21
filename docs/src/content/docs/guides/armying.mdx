@@ -1,0 +1,108 @@
+---
+title: Armying
+description: Guide on how to army with vexed
+head:
+  - tag: title
+    content: Armying guide
+---
+
+import { Code, Steps, Aside } from "@astrojs/starlight/components";
+
+export const sampleConfig = String.raw`
+PlayerCount: 4
+RoomNumber: 12345
+Player1: my_player_name1
+Player2: my_player_name2
+Player3: my_player_name3
+Player4: my_player_name4
+`;
+
+export const sampleConfigSets = String.raw`
+UltraNulgath
+   Player1
+      Helm: Drakath's Crown
+      Weapon: Burning Blade of Abezeth
+      Class: Lightcaster
+      Cape: Drakath's Wings
+   Player2
+      Helm: Naval Commander's Hat
+      Weapon: Void Aura Shaper
+      Class: Corrupted Chronomancer
+      Cape: Cape of Awe
+   Player3
+      Helm: Crystal Phoenix Helm
+      Weapon: Necrotic Sword of Doom
+      Class: Eternal Chronomancer
+      Cape: Dragon Wings of Time
+   Player4
+      Helm: Champion Drakath Helm
+      Weapon: Blinding Light of Destiny
+      Class: Legion DoomKnight
+      Cape: Nulgath's Nation Cape
+`;
+
+Armying is for advanced use cases!
+
+## Configuration
+
+A config file is required for armying. A sample config might look like:
+
+<Code code={sampleConfig} lang="txt" title="config.txt" />
+
+There is no imposed value for player count—as long as PlayerCount is set, it will look for that many players.
+The assumption is made that Player1 acts as the leader.
+
+### Specification
+
+<Steps>
+
+1. PlayerCount
+
+   This way, vexed knows how many players to look out for.
+
+2. RoomNumber
+
+   This way, vexed knows which room number to join.
+
+3. Comments
+
+   Use # at beginning of lines to ignore. Blank lines will also be ignored.
+
+</Steps>
+
+### Sets
+
+We will define sets using the boss name.
+
+<Code code={sampleConfigSets} lang="txt" title="config.txt" />
+
+The set name is defined as `UltraNulgath`, and the individual items are associated with their player number. Sets can also include `Pet`.
+
+Use sets with the [cmd.army_equip_set](/api/army#cmdarmy_equip_set) command.
+
+## Writing army scripts
+
+The idea of an army script is one-script that is loaded across all players but will have slight variations in functionality to accomodate the current player.
+
+### Requirements
+
+Army scripts must have the following commands:
+
+<Steps>
+
+1. [cmd.army_set_config()](/api/army#cmdarmy_set_config)
+
+   The name to the config file (under `Documents/vexed/Storage`).
+
+2. [cmd.army_init()](/api/army#cmdarmy_init)
+
+   Begins loading the config and other internal behaviors. Ideally, these commands are called ASAP.
+
+</Steps>
+
+Army scripts should use army-variants of normal commands where possible.
+
+<Aside variant="tip">
+  Use [cmd.execute_with_army](/api/army#cmdexecute_with_army) to write custom
+  actions using internal APIs. You could also use [cmd.register_command]() too.
+</Aside>

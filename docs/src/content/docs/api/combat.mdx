@@ -1,0 +1,81 @@
+---
+title: Combat commands
+head:
+ - tag: title
+   content: Combat commands
+---
+
+import { Badge, Code } from "@astrojs/starlight/components";
+
+### cmd.attack
+Attacks the target.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| target | `string` | The name of the target to attack. |
+
+
+### cmd.cancel_target
+Cancels the target.
+
+
+### cmd.exit_combat
+Exits combat.
+
+
+### cmd.force_use_skill
+Uses a skill, regardless if there's a target or not.
+
+| Parameter | Type | Optional | Default | Description |
+|-----------|------|----------|---------|-------------|
+| skill | `string` \| `number` |  |  | The skill to use. |
+| wait | `boolean` | ✓ | `false` | Whether to wait for the skill to be available or not. |
+
+
+### cmd.kill
+Kills the target.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| target | `string` | The name of the target to kill. |
+| options | `Partial<KillOptions>?` | The options for the kill command. |
+
+
+### cmd.kill_for_item
+Kills the target for an inventory item, until the specified quantity is reached.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| target | `string` | The name of the target to kill. |
+| item | `string` \| `number` | The name or ID of the item. |
+| quantity | `number` | The quantity of the item. |
+| options | `Partial<KillOptions>?` | The options for the kill command. |
+
+
+### cmd.kill_for_tempitem
+Kills the target for a temporary item, until the specified quantity is reached.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| target | `string` | The name of the target to kill. |
+| item | `string` \| `number` | The name or ID of the item. |
+| quantity | `number` | The quantity of the item. |
+| options | `Partial<KillOptions>?` | The options for the kill command. |
+
+
+### cmd.rest
+Rests the player.
+
+| Parameter | Type | Optional | Default | Description |
+|-----------|------|----------|---------|-------------|
+| full | `boolean` | ✓ | `false` | Whether to rest fully or not. |
+
+
+### cmd.use_skill
+Uses a skill.
+
+| Parameter | Type | Optional | Default | Description |
+|-----------|------|----------|---------|-------------|
+| skill | `string` \| `number` |  |  | The skill to use. |
+| wait | `boolean` | ✓ | `false` | Whether to wait for the skill to be available or not. |
+

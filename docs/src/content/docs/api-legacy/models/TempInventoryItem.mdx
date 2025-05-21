@@ -1,0 +1,111 @@
+---
+title: TempInventoryItem
+---
+
+import { Badge, Code } from "@astrojs/starlight/components";
+
+Represents an item in the temp inventory.
+
+
+## Properties
+### data
+Data about this item
+
+Type: `ItemData`
+
+### category <Badge text="Getter" size="small" />	
+The category of the item.
+
+Type: `string`
+
+### description <Badge text="Getter" size="small" />	
+The description of the item.
+
+Type: `string`
+
+### fileLink <Badge text="Getter" size="small" />	
+The link to the source file of the item
+
+Type: `string`
+
+### fileName <Badge text="Getter" size="small" />	
+The name of the source file of the item.
+
+Type: `string`
+
+### id <Badge text="Getter" size="small" />	
+The ID of the item.
+
+Type: `number`
+
+### itemGroup <Badge text="Getter" size="small" />	
+The group of the item.
+
+Type: `string`
+
+### maxStack <Badge text="Getter" size="small" />	
+The maximum stack size this item can exist in.
+
+Type: `number`
+
+### meta <Badge text="Getter" size="small" />	
+The meta value of the item.
+
+Type: `null | Record<string, number>`
+
+### name <Badge text="Getter" size="small" />	
+The name of the item.
+
+Type: `string`
+
+### quantity <Badge text="Getter" size="small" />	
+The quantity of the item in this stack.
+
+Type: `number`
+
+## Methods
+
+### isAC
+Whether the item is AC tagged.
+
+**Returns**: `boolean`
+
+### isArmor
+Whether the item is type Armor.
+
+**Returns**: `boolean`
+
+### isCape
+Whether the item is type Cape.
+
+**Returns**: `boolean`
+
+### isHelm
+Whether the item is type Helm.
+
+**Returns**: `boolean`
+
+### isMaxed
+Whether the item is at its maximum stack size.
+
+**Returns**: `boolean`
+
+### isPet
+Whether the item is type Pet.
+
+**Returns**: `boolean`
+
+### isTemp
+Whether the item belongs to the temp inventory.
+
+**Returns**: `boolean`
+
+### isUpgrade
+Whether the item is member-only.
+
+**Returns**: `boolean`
+
+### isWeapon
+Whether the item is type Weapon.
+
+**Returns**: `boolean`

@@ -1,5 +1,6 @@
-import { interval } from '../../common/interval';
-import { Bot } from './lib/Bot';
+import { interval } from "../../common/interval";
+import { Bot } from "./lib/Bot";
+import { makeAggromonPacket } from "./util/makeAggromonPacket";
 
 let on = false;
 let prevMap: string | null = null;
@@ -58,7 +59,10 @@ export function startAutoAggro() {
 
     if (!monMapIdSet.size) return;
 
-    const packet = `%xt%zm%aggroMon%${bot.world.roomId}%${Array.from(monMapIdSet).join('%')}%`;
+    const packet = makeAggromonPacket(
+      Array.from(monMapIdSet),
+      bot.world.roomId,
+    );
     bot.packets.sendServer(packet);
   }, 500);
 }

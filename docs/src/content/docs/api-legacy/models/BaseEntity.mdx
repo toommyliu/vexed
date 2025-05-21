@@ -1,0 +1,127 @@
+---
+title: BaseEntity
+---
+
+import { Badge, Code } from "@astrojs/starlight/components";
+
+Base class for entities in the game world.
+
+
+## Properties
+### data
+
+Type: `BaseEntityData`
+
+### alive <Badge text="Getter" size="small" />	
+Whether the entity is alive.
+
+Type: `boolean`
+
+### auras <Badge text="Getter" size="small" />	
+The entity's auras.
+
+Type: `Aura[]`
+
+### cell <Badge text="Getter" size="small" />	
+The cell the entity is in.
+
+Type: `string`
+
+### hp <Badge text="Getter" size="small" />	
+The entity's current HP.
+
+Type: `number`
+
+### maxHp <Badge text="Getter" size="small" />	
+The entity's max HP.
+
+Type: `number`
+
+### state <Badge text="Getter" size="small" />	
+The entity's state.
+
+Type: `EntityState`
+
+## Methods
+
+### getAura
+Retrieves an aura active on the entity.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| name | `string` | The aura name. |
+
+**Returns**: `undefined | Aura`
+
+### hasAura
+Whether the entity has the specified aura. If a value is provided,
+it will check if the aura has the specified value.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| name | `string` | The aura name. |
+| value | `number` | The value to check. |
+
+**Returns**: `boolean`
+
+### isDead
+
+**Returns**: `boolean`
+
+### isHpGreaterThan
+Whether the entity's hp is greater than a value.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| value | `number` | The value to compare the entity's hp to. |
+
+**Returns**: `boolean`
+
+### isHpLessThan
+Whether the entity's hp is less than a value.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| value | `number` | The value to compare the entity's hp to. |
+
+**Returns**: `boolean`
+
+### isHpPercentageGreaterThan
+Whether the entity's hp is greater than a percentage value.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| value | `number` | The percentage value to compare the entity's hp to. |
+
+**Returns**: `boolean`
+
+### isHpPercentageLessThan
+Whether the entity's hp is less than a percentage value.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| value | `number` | The percentage value to compare the entity's hp to. |
+
+**Returns**: `boolean`
+
+### isIdle
+Whether the entity is idle.
+
+**Returns**: `boolean`
+
+### isInCell
+Whether the player is in the specified cell.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| cell | `string` | The cell to check. |
+
+**Returns**: `boolean`
+
+### isInCombat
+Whether the entity is in combat.
+
+**Returns**: `boolean`
+
+### isMonster
+Whether the entity is a monster.
+
+**Returns**: `this is Monster`
+
+### isPlayer
+Whether the entity is a player.
+
+**Returns**: `this is Avatar`

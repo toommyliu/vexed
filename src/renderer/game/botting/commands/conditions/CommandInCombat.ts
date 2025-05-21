@@ -1,4 +1,4 @@
-import { Command } from '../../command';
+import { Command } from "../../command";
 
 export class CommandInCombat extends Command {
   public override execute() {
@@ -8,6 +8,6 @@ export class CommandInCombat extends Command {
   }
 
   public override toString() {
-    return 'Is in combat';
+    return "Is in combat";
   }
 }

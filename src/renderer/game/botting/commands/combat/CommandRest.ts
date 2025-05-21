@@ -1,4 +1,4 @@
-import { Command } from '../../command';
+import { Command } from "../../command";
 
 export class CommandRest extends Command {
   public full = false;
@@ -8,6 +8,6 @@ export class CommandRest extends Command {
   }
 
   public override toString() {
-    return `Rest${this.full ? ' fully' : ''}`;
+    return `Rest${this.full ? " fully" : ""}`;
   }
 }

@@ -1,16 +1,16 @@
-import { join, resolve } from 'path';
-import { app, BrowserWindow } from 'electron';
-import { BRAND } from '../common/constants';
-import { ipcMain } from '../common/ipc';
-import { IPC_EVENTS } from '../common/ipc-events';
-import { Logger } from '../common/logger';
-import { recursivelyApplySecurityPolicy } from './util/recursivelyApplySecurityPolicy';
+import { join, resolve } from "path";
+import { app, BrowserWindow } from "electron";
+import { BRAND } from "../common/constants";
+import { ipcMain } from "../common/ipc";
+import { IPC_EVENTS } from "../common/ipc-events";
+import { Logger } from "../common/logger";
+import { recursivelyApplySecurityPolicy } from "./util/recursivelyApplySecurityPolicy";
 
-const PUBLIC = join(__dirname, '../../public/');
-const PUBLIC_GAME = join(PUBLIC, 'game/');
-const PUBLIC_MANAGER = join(PUBLIC, 'manager/');
+const PUBLIC = join(__dirname, "../../public/");
+const PUBLIC_GAME = join(PUBLIC, "game/");
+const PUBLIC_MANAGER = join(PUBLIC, "manager/");
 
-const logger = Logger.get('Windows');
+const logger = Logger.get("Windows");
 
 export const store: WindowStore = new Map();
 
@@ -33,17 +33,17 @@ export async function createAccountManager(): Promise<void> {
     },
     useContentSize: true,
   });
-  window.on('close', (ev) => {
+  window.on("close", (ev) => {
     ev.preventDefault();
     window.hide();
   });
   mgrWindow = window;
 
   recursivelyApplySecurityPolicy(window);
-  void window.loadURL(`file://${resolve(PUBLIC_MANAGER, 'index.html')}`);
+  void window.loadURL(`file://${resolve(PUBLIC_MANAGER, "index.html")}`);
 
   if (!app.isPackaged) {
-    window.webContents.openDevTools({ mode: 'right' });
+    window.webContents.openDevTools({ mode: "right" });
   }
 }
 
@@ -88,18 +88,20 @@ export async function createGame(
     useContentSize: true,
   });
 
-  void window.loadURL(`file://${resolve(PUBLIC_GAME, 'index.html')}`);
+  void window.loadURL(`file://${resolve(PUBLIC_GAME, "index.html")}`);
   recursivelyApplySecurityPolicy(window);
 
   if (!app.isPackaged) {
-    window.webContents.openDevTools({ mode: 'right' });
+    window.webContents.openDevTools({ mode: "right" });
   }
 
-  // track refreshes to sync state across children
-  // e.g main window refreshed and follower is on, it should be off
-  // to prevent desync
-  window.webContents.on('did-finish-load', async () => {
-    logger.info('game window re(loaded)');
+  // Track refreshes to re-sync states across windows
+  window.webContents.on("did-finish-load", async () => {
+    logger.info("game window re(loaded)");
+
+    if (!window || window?.isDestroyed()) {
+      return;
+    }
 
     const windows = store.get(window.id);
 
@@ -120,7 +122,7 @@ export async function createGame(
     }
   });
 
-  window.on('close', () => {
+  window.on("close", () => {
     const windows = store.get(window.id);
     if (windows) {
       for (const child of Object.values(windows.tools)) {

@@ -1,10 +1,13 @@
-import { Mutex } from 'async-mutex';
-import { interval } from '../../../../common/interval';
-import { Logger } from '../../../../common/logger';
-import { Bot } from '../Bot';
+import { Mutex } from "async-mutex";
+import { interval } from "../../../../common/interval";
+import { Logger } from "../../../../common/logger";
+import { Bot } from "../Bot";
 
-const logger = Logger.get('AutoRelogin');
+const logger = Logger.get("AutoRelogin");
 
+/**
+ * As long as credentials are set, an auto relogin will be attempted.
+ */
 export class AutoRelogin {
   private readonly bot = Bot.getInstance();
 
@@ -73,10 +76,10 @@ export class AutoRelogin {
         await this.bot.sleep(this.delay);
 
         // still on server select?
-        if (this.bot.flash.get('mcLogin.currentLabel') === '"Servers"') {
+        if (this.bot.flash.get("mcLogin.currentLabel") === '"Servers"') {
           // reset
-          this.bot.flash.call('removeAllChildren');
-          this.bot.flash.call('gotoAndPlay', 'Login');
+          this.bot.flash.call("removeAllChildren");
+          this.bot.flash.call("gotoAndPlay", "Login");
         }
 
         await this.bot.sleep(1_000);
@@ -86,7 +89,7 @@ export class AutoRelogin {
         // wait for servers to be loaded
         await this.bot.waitUntil(
           () =>
-            this.bot.flash.get('mcLogin.currentLabel', true) === 'Servers' &&
+            this.bot.flash.get("mcLogin.currentLabel", true) === "Servers" &&
             this.bot.auth.servers.length > 0,
         );
 
@@ -99,7 +102,15 @@ export class AutoRelogin {
 
         this.bot.auth.connectTo(server.name);
 
-        await this.bot.waitUntil(() => this.bot.player.isReady());
+        await this.bot.waitUntil(() => this.bot.player.isReady(), null, 25);
+
+        // TODO: needs further testing
+        // e.g. still stuck in blue flame
+        if (!this.bot.player.isReady()) {
+          console.warn("Player not ready after login, retrying...");
+          this.bot.auth.logout();
+          return;
+        }
 
         // restore state
         if (og_lagKiller) {

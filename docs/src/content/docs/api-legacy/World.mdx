@@ -1,0 +1,157 @@
+---
+title: World
+---
+
+import { Badge, Code } from "@astrojs/starlight/components";
+
+## Properties
+### bot
+
+Type: `Bot`
+
+### availableMonsters <Badge text="Getter" size="small" />	
+A list of monsters in the cell.
+
+Type: `Monster[]`
+
+### cellPads <Badge text="Getter" size="small" />	
+A list of valid pads for the current cell.
+
+Type: `string[]`
+
+### cells <Badge text="Getter" size="small" />	
+A list of all cells in the map.
+
+Type: `string[]`
+
+### itemTree <Badge text="Getter" size="small" />	
+The list of all items in the world.
+
+Type: `ItemData[]`
+
+### monsters <Badge text="Getter" size="small" />	
+A list of monsters in the map.
+
+Type: `MonsterData[]`
+
+### name <Badge text="Getter" size="small" />	
+The name of the map.
+
+Type: `string`
+
+### playerNames <Badge text="Getter" size="small" />	
+A list of all player names in the map.
+
+Type: `string[]`
+
+### players <Badge text="Getter" size="small" />	
+A list of all players in the map.
+
+Type: `null | Map<string, Avatar>`
+
+### roomId <Badge text="Getter" size="small" />	
+The current room area id.
+
+Type: `number`
+
+### roomNumber <Badge text="Getter" size="small" />	
+The room number of the map.
+
+Type: `number`
+
+## Methods
+
+### getMapItem
+Gets a item in the world.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| itemId | `number` | The ID of the item. |
+
+**Returns**: `Promise<void>`
+
+### goto
+Goto the specified player.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| playerName | `string` | The name of the player to goto. |
+
+**Returns**: `void`
+
+### isActionAvailable
+Whether the game action has cooled down.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| gameAction | `GameAction` | The game action to check. |
+
+**Returns**: `boolean`
+
+### isLoading
+Whether the map is still being loaded.
+
+**Returns**: `boolean`
+
+### isMonsterAvailable
+Whether a monster is available.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| monsterResolvable | `string` | The name of the monster or in monMapID format. |
+
+**Returns**: `boolean`
+
+### isPlayerInCell
+Whether a player is in a given cell.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| name | `string` | The player name to check. |
+| cell | `string` | The cell to check. |
+
+**Returns**: `boolean`
+
+### isPlayerInMap
+Whether a player is in the map.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| name | `string` | The player name to check. |
+
+**Returns**: `boolean`
+
+### join
+Joins a map.
+| Parameter | Type | Optional | Default | Description |
+|-----------|------|----------|---------|-------------|
+| mapName | `string` |  |  | The name of the map to join. |
+| cell | `string` | ✓ | `"Enter"` | The cell to jump to. |
+| pad | `string` | ✓ | `"Spawn"` | The pad to jump to. |
+
+**Returns**: `Promise<void>`
+
+### jump
+Jump to the specified cell and pad of the current map.
+| Parameter | Type | Optional | Default | Description |
+|-----------|------|----------|---------|-------------|
+| cell | `string` |  |  | The cell to jump to. |
+| pad | `string` | ✓ | `"Spawn"` | The pad to jump to. |
+
+**Returns**: `Promise<void>`
+
+### loadMapSwf
+Loads a particular swf of a map.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| mapSwf | `string` | The swf to load. |
+
+**Returns**: `void`
+
+### reload
+Reloads the map.
+
+**Returns**: `void`
+
+### setSpawnPoint
+Sets the player's spawnpoint.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| cell | `string` |  |
+| pad | `string` |  |
+
+**Returns**: `void`

@@ -1,3 +1,5 @@
+const PREFIXES = ["id'", "id.", "id:", "id-"] as const;
+
 /**
  * Validates if the input string is in monMapId format.
  *
@@ -5,7 +7,12 @@
  * @returns True if the input string is in monMapId format, false otherwise.
  */
 export function isMonsterMapId(input: string): boolean {
-  return ["id'", 'id.', 'id:', 'id-'].some((prefix) =>
-    input.startsWith(prefix),
-  );
+  return PREFIXES.some((prefix) => input.startsWith(prefix));
+}
+
+export function extractMonsterMapId(input: string): string {
+  const prefix = PREFIXES.find((prefix) => input.startsWith(prefix));
+  if (!prefix) return input;
+
+  return input.slice(prefix.length);
 }

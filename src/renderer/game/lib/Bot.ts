@@ -1,22 +1,27 @@
-import { TypedEmitter } from 'tiny-typed-emitter';
-import { Auth } from './Auth';
-import { Bank } from './Bank';
-import { Combat } from './Combat';
-import { Drops } from './Drops';
-import { House } from './House';
-import { Inventory } from './Inventory';
-import { Packets } from './Packets';
-import { Player } from './Player';
-import { Quests } from './Quests';
-import { Settings } from './Settings';
-import { Shops } from './Shop';
-import { TempInventory } from './TempInventory';
-import { World } from './World';
-import type { Monster } from './models/Monster';
-import { AutoRelogin } from './util/AutoRelogin';
-import { Flash } from './util/Flash';
+import { TypedEmitter } from "tiny-typed-emitter";
+import { Army } from "./Army";
+import { Auth } from "./Auth";
+import { Bank } from "./Bank";
+import { Combat } from "./Combat";
+import { Drops } from "./Drops";
+import { House } from "./House";
+import { Inventory } from "./Inventory";
+import { Packets } from "./Packets";
+import { Player } from "./Player";
+import { Quests } from "./Quests";
+import { Settings } from "./Settings";
+import { Shops } from "./Shops";
+import { TempInventory } from "./TempInventory";
+import { World } from "./World";
+import type { Monster } from "./models/Monster";
+import { AutoRelogin } from "./util/AutoRelogin";
+import { Flash } from "./util/Flash";
 
 type Events = {
+  /**
+   * This event is emitted when the player goes AFK.
+   */
+  afk(): void;
   /**
    * This event is emitted when the player logs in.
    */
@@ -59,14 +64,14 @@ type Events = {
 
 export class Bot extends TypedEmitter<Events> {
   /**
-   * The AbortController instance.
-   */
-  public ac: AbortController | null = null;
-
-  /**
    * The singleton instance of the Bot class.
    */
   public static _instance: Bot | null = null;
+
+  /**
+   * The army API class instance.
+   */
+  public army: InstanceType<typeof Army>;
 
   /**
    * The Auth API class instance.
@@ -147,7 +152,7 @@ export class Bot extends TypedEmitter<Events> {
     super();
 
     if (Bot._instance) {
-      throw new Error('Bot is a singleton, use Bot.getInstance()');
+      throw new Error("Bot is a singleton, use Bot.getInstance()");
     }
 
     Bot._instance = this;
@@ -155,6 +160,7 @@ export class Bot extends TypedEmitter<Events> {
     this.flash = new Flash();
     this.autoRelogin = new AutoRelogin();
 
+    this.army = new Army(this);
     this.auth = new Auth(this);
     this.bank = new Bank(this);
     this.combat = new Combat(this);

@@ -1,5 +1,5 @@
-import { interval } from '../../../common/interval';
-import type { Bot } from './Bot';
+import { interval } from "../../../common/interval";
+import type { Bot } from "./Bot";
 
 export class Settings {
   /**
@@ -53,20 +53,20 @@ export class Settings {
 
   public constructor(public bot: Bot) {
     this.#optionInfiniteRange = document.querySelector(
-      '#option-infinite-range',
+      "#option-infinite-range",
     );
-    this.#optionProvokeMap = document.querySelector('#option-provoke-map');
-    this.#optionProvokeCell = document.querySelector('#option-provoke-cell');
-    this.#optionEnemyMagnet = document.querySelector('#option-enemy-magnet');
-    this.#optionLagKiller = document.querySelector('#option-lag-killer');
-    this.#optionHidePlayers = document.querySelector('#option-hide-players');
+    this.#optionProvokeMap = document.querySelector("#option-provoke-map");
+    this.#optionProvokeCell = document.querySelector("#option-provoke-cell");
+    this.#optionEnemyMagnet = document.querySelector("#option-enemy-magnet");
+    this.#optionLagKiller = document.querySelector("#option-lag-killer");
+    this.#optionHidePlayers = document.querySelector("#option-hide-players");
     this.#optionSkipCutscenes = document.querySelector(
-      '#option-skip-cutscenes',
+      "#option-skip-cutscenes",
     );
-    this.#optionWalkSpeed = document.querySelector('#option-walkspeed');
-    this.#optionDisableFX = document.querySelector('#option-disable-fx');
+    this.#optionWalkSpeed = document.querySelector("#option-walkspeed");
+    this.#optionDisableFX = document.querySelector("#option-disable-fx");
     this.#optionDisableCollisions = document.querySelector(
-      '#option-disable-collisions',
+      "#option-disable-collisions",
     );
 
     void interval(async () => {
@@ -245,11 +245,11 @@ export class Settings {
    * @param speed - The walk speed.
    */
   public set walkSpeed(speed: number | number) {
-    if (typeof speed === 'number') {
+    if (typeof speed === "number") {
       const val = Math.max(0, Math.min(99, speed));
       this.#walkSpeed = val;
       this.#updateOption(this.#optionWalkSpeed!, val);
-    } else if (typeof speed === 'string') {
+    } else if (typeof speed === "string") {
       const val = Number.parseInt(speed, 10);
       const tmp = Number.isNaN(val) ? 8 : Math.max(0, Math.min(99, val));
       this.#walkSpeed = tmp;
@@ -271,7 +271,7 @@ export class Settings {
    */
   public set customName(name: string | null) {
     this.#customName = name;
-    this.bot.flash.call(() => swf.settingsSetName(name ?? ''));
+    this.bot.flash.call(() => swf.settingsSetName(name ?? ""));
   }
 
   /**
@@ -288,7 +288,7 @@ export class Settings {
    */
   public set customGuild(guild: string | null) {
     this.#customGuild = guild;
-    this.bot.flash.call(() => swf.settingsSetGuild(guild ?? ''));
+    this.bot.flash.call(() => swf.settingsSetGuild(guild ?? ""));
   }
 
   /**
@@ -297,7 +297,7 @@ export class Settings {
    * @param fps - The target fps.
    */
   public setFps(fps: number | string): void {
-    this.bot.flash.set('stg.frameRate', Number.parseInt(String(fps), 10));
+    this.bot.flash.set("stg.frameRate", Number.parseInt(String(fps), 10));
   }
 
   /**
@@ -306,7 +306,7 @@ export class Settings {
    * @param on - If true, shows death ads. Otherwise, they are hidden.
    */
   public setDeathAds(on: boolean): void {
-    this.bot.flash.set('userPreference.data.bDeathAd', on);
+    this.bot.flash.set("userPreference.data.bDeathAd", on);
   }
 
   /**
@@ -338,14 +338,14 @@ export class Settings {
     this.#updateOption(this.#optionDisableCollisions!, on);
   }
 
-  #updateOption(option: HTMLElement, value: boolean | number | string): void {
-    switch (option.tagName) {
-      case 'INPUT':
-        (option as HTMLInputElement).value = String(value);
+  #updateOption(el: HTMLElement, value: boolean | number | string): void {
+    switch (el.tagName) {
+      case "INPUT":
+        (el as HTMLInputElement).value = String(value);
         break;
-      case 'BUTTON':
-        option.setAttribute('data-state', value ? 'true' : 'false');
-        option.classList.toggle('option-active', Boolean(value));
+      case "BUTTON":
+        el.dataset["state"] = value.toString();
+        el.classList.toggle("option-active", Boolean(value));
         break;
     }
   }

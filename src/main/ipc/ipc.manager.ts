@@ -1,21 +1,19 @@
-import { join } from 'path';
-import { dialog } from 'electron';
-import { ipcMain } from '../../common/ipc';
-import { IPC_EVENTS } from '../../common/ipc-events';
-import { Logger } from '../../common/logger';
-import { FileManager } from '../FileManager';
-import { createGame } from '../windows';
+import { join } from "path";
+import { dialog } from "electron";
+import { FileManager } from "../../common/FileManager";
+import { ipcMain } from "../../common/ipc";
+import { IPC_EVENTS } from "../../common/ipc-events";
+import { Logger } from "../../common/logger";
+import { createGame } from "../windows";
 
-const fileMgr = FileManager.getInstance();
-const logger = Logger.get('IpcManager');
+const logger = Logger.get("IpcManager");
 
 ipcMain.answerRenderer(IPC_EVENTS.GET_ACCOUNTS, async () => {
   try {
-    return (await fileMgr.readJson<Account[]>(
-      fileMgr.accountsPath,
+    return (await FileManager.readJson<Account[]>(
+      FileManager.accountsPath,
     )) as Account[];
-  } catch (error) {
-    logger.error('failed to read accounts.json:', error);
+  } catch {
     return [];
   }
 });
@@ -23,12 +21,12 @@ ipcMain.answerRenderer(IPC_EVENTS.GET_ACCOUNTS, async () => {
 ipcMain.answerRenderer(IPC_EVENTS.ADD_ACCOUNT, async (account) => {
   try {
     const accounts =
-      (await fileMgr.readJson<Account[]>(fileMgr.accountsPath)) ?? [];
+      (await FileManager.readJson<Account[]>(FileManager.accountsPath)) ?? [];
 
     accounts.push(account);
 
-    await fileMgr.writeJson(fileMgr.accountsPath, accounts);
-    return { success: true };
+    await FileManager.writeJson(FileManager.accountsPath, accounts);
+    return { success: true, msg: "" };
   } catch (error) {
     const err = error as Error;
     return { success: false, msg: err.message };
@@ -38,7 +36,7 @@ ipcMain.answerRenderer(IPC_EVENTS.ADD_ACCOUNT, async (account) => {
 ipcMain.answerRenderer(IPC_EVENTS.REMOVE_ACCOUNT, async ({ username }) => {
   try {
     const accounts =
-      (await fileMgr.readJson<Account[]>(fileMgr.accountsPath)) ?? [];
+      (await FileManager.readJson<Account[]>(FileManager.accountsPath)) ?? [];
 
     const idx = accounts.findIndex((acc) => acc.username === username);
     if (idx === -1) {
@@ -47,10 +45,10 @@ ipcMain.answerRenderer(IPC_EVENTS.REMOVE_ACCOUNT, async ({ username }) => {
 
     accounts.splice(idx, 1);
 
-    await fileMgr.writeJson(fileMgr.accountsPath, accounts);
+    await FileManager.writeJson(FileManager.accountsPath, accounts);
     return true;
   } catch (error) {
-    logger.error('failed to remove account:', error);
+    logger.error("failed to remove account:", error);
     return false;
   }
 });
@@ -63,21 +61,21 @@ ipcMain.answerRenderer(IPC_EVENTS.LAUNCH_GAME, async (account) => {
 ipcMain.answerRenderer(IPC_EVENTS.MGR_LOAD_SCRIPT, async (_, browserWindow) => {
   try {
     const res = await dialog.showOpenDialog(browserWindow, {
-      defaultPath: join(fileMgr.basePath, 'Bots'),
-      properties: ['openFile'],
-      filters: [{ name: 'Bots', extensions: ['js'] }],
-      message: 'Select a script to load',
-      title: 'Select a script to load',
+      defaultPath: join(FileManager.basePath, "Bots"),
+      properties: ["openFile"],
+      filters: [{ name: "Bots", extensions: ["js"] }],
+      message: "Select a script to load",
+      title: "Select a script to load",
     });
 
-    if (res?.canceled || !res?.filePaths?.length) return '';
+    if (res?.canceled || !res?.filePaths?.length) return "";
 
     const filePath = res.filePaths[0];
-    if (!filePath) return '';
+    if (!filePath) return "";
 
-    console.log('Selected script:', filePath);
+    console.log("Selected script:", filePath);
     return filePath;
   } catch {
-    return '';
+    return "";
   }
 });

@@ -1,4 +1,4 @@
-import { Command } from '../../command';
+import { Command } from "../../command";
 
 export class CommandIsNotMember extends Command {
   public override execute() {
@@ -8,6 +8,6 @@ export class CommandIsNotMember extends Command {
   }
 
   public override toString() {
-    return 'Is not member';
+    return "Is not member";
   }
 }
