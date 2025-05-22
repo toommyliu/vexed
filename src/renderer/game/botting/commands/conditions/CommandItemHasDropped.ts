@@ -3,6 +3,8 @@ import { Command } from "../../command";
 export class CommandItemHasDropped extends Command {
   public item!: string;
 
+  public override skipDelay = true;
+
   public override execute() {
     if (!this.bot.drops.hasDrop(this.item)) {
       this.ctx.commandIndex++;

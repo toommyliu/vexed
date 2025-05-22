@@ -5,6 +5,8 @@ export class Command {
 
   protected readonly ctx = window.context;
 
+  public skipDelay = false;
+
   public execute(): Promise<void> | void {
     throw new Error("execute() not implemented.");
   }

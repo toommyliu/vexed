@@ -3,6 +3,8 @@ import { Command } from "../../command";
 export class CommandUnregisterQuest extends Command {
   public questIds!: number[];
 
+  public override skipDelay = true;
+
   public override execute() {
     for (const questId of this.questIds) {
       this.ctx.unregisterQuest(questId);

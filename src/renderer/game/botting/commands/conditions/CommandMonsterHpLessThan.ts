@@ -5,6 +5,8 @@ export class CommandMonsterHpLessThan extends Command {
 
   public health!: number;
 
+  public override skipDelay = true;
+
   public override execute() {
     const mon = this.bot.world.availableMonsters.find(
       (mon) => mon.name.toLowerCase() === this.monster.toLowerCase(),

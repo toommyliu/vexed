@@ -3,6 +3,8 @@ import { Command } from "../../command";
 export class CommandIsNotMaxStack extends Command {
   public item!: string;
 
+  public override skipDelay = true;
+
   public override execute() {
     if (this.bot.inventory.get(this.item)?.isMaxed()) {
       this.ctx.commandIndex++;

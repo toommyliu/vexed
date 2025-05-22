@@ -384,44 +384,6 @@ export class Combat {
   }
 }
 
-export type TargetInfo = {
-  /**
-   * The cell the target is in.
-   */
-  cell: string;
-  /**
-   * The current hp of the target.
-   */
-  hp: number;
-  /**
-   * The level of the target.
-   */
-  level: number;
-  /**
-   * The maximum hp of the target.
-   */
-  maxHP: number;
-  /**
-   * The name of the target.
-   */
-  name: string;
-  /**
-   * The state of the target.
-   *
-   * @see {@link EntityState}
-   */
-  state: number;
-} & (
-  | {
-      monId: number;
-      monMapId: number;
-      type: "monster";
-    }
-  | {
-      type: "player";
-    }
-);
-
 export type KillOptions = {
   /**
    * An ascending list of monster names or monMapIDs to kill. This can also be a string of monsterResolvables deliminted by a comma.

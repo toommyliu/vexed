@@ -5,6 +5,8 @@ export class CommandIsNotInTemp extends Command {
 
   public qty = 1;
 
+  public override skipDelay = true;
+
   public override execute() {
     if (this.bot.tempInventory.contains(this.item, this.qty)) {
       this.ctx.commandIndex++;

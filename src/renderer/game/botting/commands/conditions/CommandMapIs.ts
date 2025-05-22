@@ -3,6 +3,8 @@ import { Command } from "../../command";
 export class CommandMapIs extends Command {
   public map!: string;
 
+  public override skipDelay = true;
+
   public override execute() {
     if (this.map.includes("-")) {
       const [map, room] = this.map.split("-");

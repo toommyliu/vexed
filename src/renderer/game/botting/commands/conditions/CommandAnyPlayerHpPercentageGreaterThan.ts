@@ -3,6 +3,8 @@ import { Command } from "../../command";
 export class CommandAnyPlayerHpPercentageGreaterThan extends Command {
   public percentage!: number;
 
+  public override skipDelay = true;
+
   public override execute() {
     const anyGreaterThan = this.bot.world.playerNames.every((playerName) => {
       const player = this.bot.world.players?.get(playerName.toLowerCase());

@@ -1,6 +1,8 @@
 import { Command } from "../../command";
 
 export class CommandPlayerAurasGreaterThan extends Command {
+  public override skipDelay = true;
+
   public player?: string;
 
   public aura!: string;

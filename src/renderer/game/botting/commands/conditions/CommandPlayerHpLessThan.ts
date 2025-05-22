@@ -5,6 +5,8 @@ export class CommandPlayerHpLessThan extends Command {
 
   public hp!: number;
 
+  public override skipDelay = true;
+
   public override execute() {
     const avatar = this.bot.world.players?.get(
       (this.player ?? this.bot.auth.username).toLowerCase(),

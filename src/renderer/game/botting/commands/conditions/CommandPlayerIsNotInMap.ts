@@ -3,6 +3,8 @@ import { Command } from "../../command";
 export class CommandPlayerIsNotInMap extends Command {
   public player!: string;
 
+  public override skipDelay = true;
+
   public override execute() {
     if (this.bot.world.playerNames.includes(this.player.toLowerCase())) {
       this.ctx.commandIndex++;

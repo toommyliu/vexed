@@ -5,6 +5,8 @@ export class CommandInBank extends Command {
 
   public qty?: number;
 
+  public override skipDelay = true;
+
   public override execute() {
     if (!this.bot.bank.contains(this.item, this.qty)) {
       this.ctx.commandIndex++;

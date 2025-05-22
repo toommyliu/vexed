@@ -1,6 +1,8 @@
 import { Command } from "../../command";
 
 export class CommandCellPlayerCountGreaterThan extends Command {
+  public override skipDelay = true;
+
   public cell!: string;
 
   public count!: number;

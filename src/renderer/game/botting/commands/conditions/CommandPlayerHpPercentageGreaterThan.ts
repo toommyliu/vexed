@@ -1,6 +1,8 @@
 import { Command } from "../../command";
 
 export class CommandPlayerHpPercentageGreaterThan extends Command {
+  public override skipDelay = true;
+
   public player?: string;
 
   public percentage!: number;

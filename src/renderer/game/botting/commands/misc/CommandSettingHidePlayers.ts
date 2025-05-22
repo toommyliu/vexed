@@ -3,6 +3,8 @@ import { Command } from "../../command";
 export class CommandSettingHidePlayers extends Command {
   public state!: boolean;
 
+  public override skipDelay = true;
+
   public override execute() {
     this.bot.settings.hidePlayers = this.state;
   }
