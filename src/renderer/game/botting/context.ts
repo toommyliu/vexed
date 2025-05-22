@@ -364,7 +364,17 @@ export class Context extends TypedEmitter<Events> {
           cmd instanceof CommandRegisterQuest ||
           cmd instanceof CommandAcceptQuest,
       )
-      .map((cmd) => cmd.questId);
+      .flatMap((cmd) => {
+        if (cmd instanceof CommandRegisterQuest) {
+          return cmd.questIds.flatMap(String);
+        }
+
+        if (cmd instanceof CommandAcceptQuest) {
+          return [String(cmd.questId)];
+        }
+
+        return [];
+      });
 
     const unbankList = this._commands
       .filter((command) => command instanceof CommandRegisterDrop)
