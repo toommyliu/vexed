@@ -17,8 +17,6 @@ export function startQuestTimer() {
 
     if (!bot.player.isReady()) return;
 
-    console.log(`activeQuestIds`, activeQuestIds);
-
     for (const questId of Array.from(activeQuestIds)) {
       try {
         if (!bot.player.isReady()) {
