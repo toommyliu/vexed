@@ -5,6 +5,8 @@ export class CommandNotInBank extends Command {
 
   public qty = 1;
 
+  public override skipDelay = true;
+
   public override execute() {
     if (this.bot.bank.contains(this.item, this.qty)) {
       this.ctx.commandIndex++;

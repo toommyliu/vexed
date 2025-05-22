@@ -1,6 +1,8 @@
 import { Command } from "../../command";
 
 export class CommandIsNotMember extends Command {
+  public override skipDelay = true;
+
   public override execute() {
     if (this.bot.player.isMember()) {
       this.ctx.commandIndex++;

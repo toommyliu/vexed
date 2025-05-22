@@ -3,6 +3,8 @@ import { Command } from "../../command";
 export class CommandGoldGreaterThan extends Command {
   public gold!: number;
 
+  public override skipDelay = true;
+
   public override execute() {
     if (this.bot.player.gold <= this.gold) {
       this.ctx.commandIndex++;

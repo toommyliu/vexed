@@ -5,6 +5,8 @@ export class CommandPlayerIsInCell extends Command {
 
   public cell!: string;
 
+  public override skipDelay = true;
+
   public override execute() {
     if (
       !this.bot.flash.call(() =>

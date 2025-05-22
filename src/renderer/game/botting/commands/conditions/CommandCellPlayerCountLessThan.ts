@@ -5,6 +5,8 @@ export class CommandCellPlayerCountLessThan extends Command {
 
   public count!: number;
 
+  public override skipDelay = true;
+
   public override execute() {
     const cellToUse = (this.cell ?? this.bot.player.cell).toLowerCase();
     let cellCount = 0;

@@ -5,6 +5,8 @@ export class CommandFactionRankGreaterThan extends Command {
 
   public rank!: number;
 
+  public override skipDelay = true;
+
   public override execute() {
     const faction = this.bot.player.factions.find(
       (faction) => faction.name.toLowerCase() === this.faction.toLowerCase(),

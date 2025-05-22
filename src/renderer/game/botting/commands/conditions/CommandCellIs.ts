@@ -2,6 +2,7 @@ import { Command } from "../../command";
 
 export class CommandCellIs extends Command {
   public cell!: string;
+  public override skipDelay = true;
 
   public override async execute() {
     if (this.bot.player.cell.toLowerCase() !== this.cell.toLowerCase()) {

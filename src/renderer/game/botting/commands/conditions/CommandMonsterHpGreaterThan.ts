@@ -1,6 +1,8 @@
 import { Command } from "../../command";
 
 export class CommandMonsterHpGreaterThan extends Command {
+  public override skipDelay = true;
+
   public monster!: string;
 
   public health!: number;

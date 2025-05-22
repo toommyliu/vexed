@@ -1,6 +1,8 @@
 import { Command } from "../../command";
 
 export class CommandNotHasTarget extends Command {
+  public override skipDelay = true;
+
   public override execute() {
     if (this.bot.combat.hasTarget()) {
       this.ctx.commandIndex++;
