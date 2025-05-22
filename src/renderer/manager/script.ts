@@ -336,7 +336,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   removeSelectedBtn.addEventListener("click", async () => {
     for (const el of document.querySelectorAll<HTMLButtonElement>("#remove")) {
       const input = el
-        .closest(".w3-card")!
+        .closest(".account-card")!
         .querySelector<HTMLInputElement>("input")!;
       if (!input.checked) {
         continue;
