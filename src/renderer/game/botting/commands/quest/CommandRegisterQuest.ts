@@ -10,6 +10,10 @@ export class CommandRegisterQuest extends Command {
   }
 
   public override toString() {
+    if (this.questIds.length === 1) {
+      return `Register quest: ${this.questIds[0]}`;
+    }
+
     return `Register quests: ${this.questIds.join(", ")}`;
   }
 }

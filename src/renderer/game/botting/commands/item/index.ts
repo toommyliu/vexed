@@ -123,35 +123,36 @@ export const itemCommands = {
     cmd.item = item;
     window.context.addCommand(cmd);
   },
-  register_drop(item: string[] | string, rejectElse: boolean = false) {
+  register_drop(items: string[] | string, rejectElse: boolean = false) {
+    const itemArray = Array.isArray(items) ? items : [items];
     if (
-      !item ||
-      (Array.isArray(item) && item.length === 0) ||
-      (!Array.isArray(item) && typeof item !== "string")
+      itemArray.length === 0 ||
+      itemArray.some((item) => typeof item !== "string")
     ) {
-      throw new ArgsError("item is required");
+      throw new ArgsError("items is required");
     }
 
     if (typeof rejectElse !== "boolean") {
-      throw new ArgsError("rejectElse is required");
+      throw new ArgsError("rejectElse must be a boolean");
     }
 
     const cmd = new CommandRegisterDrop();
-    cmd.item = item;
+    cmd.item = itemArray;
     cmd.rejectElse = rejectElse;
     window.context.addCommand(cmd);
   },
-  unregister_drop(item: string[] | string) {
+
+  unregister_drop(items: string[] | string) {
+    const itemArray = Array.isArray(items) ? items : [items];
     if (
-      !item ||
-      (Array.isArray(item) && item.length === 0) ||
-      (!Array.isArray(item) && typeof item !== "string")
+      itemArray.length === 0 ||
+      itemArray.some((item) => typeof item !== "string")
     ) {
-      throw new ArgsError("item is required");
+      throw new ArgsError("items is required");
     }
 
     const cmd = new CommandUnregisterDrop();
-    cmd.item = item;
+    cmd.item = itemArray;
     window.context.addCommand(cmd);
   },
   register_boost(item: string) {

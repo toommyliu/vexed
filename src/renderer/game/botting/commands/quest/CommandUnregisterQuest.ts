@@ -10,6 +10,10 @@ export class CommandUnregisterQuest extends Command {
   }
 
   public override toString() {
+    if (this.questIds.length === 1) {
+      return `Unregister quest: ${this.questIds[0]}`;
+    }
+
     return `Unregister quests: ${this.questIds.join(", ")}`;
   }
 }

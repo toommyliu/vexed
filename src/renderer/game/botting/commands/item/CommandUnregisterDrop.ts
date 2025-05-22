@@ -1,16 +1,19 @@
 import { Command } from "../../command";
 
 export class CommandUnregisterDrop extends Command {
-  public item!: string[] | string;
+  public item!: string[];
 
   public override execute() {
-    const items = Array.isArray(this.item) ? this.item : [this.item];
-    for (const item of items) {
+    for (const item of this.item) {
       this.ctx.unregisterDrop(item);
     }
   }
 
   public override toString() {
-    return `Unregister drop: ${Array.isArray(this.item) ? this.item.join(", ") : this.item}`;
+    if (this.item.length === 1) {
+      return `Unregister drop: ${this.item[0]}`;
+    }
+
+    return `Unregister drops: ${this.item.join(", ")}`;
   }
 }
