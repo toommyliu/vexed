@@ -9,7 +9,7 @@
     "compile:css": "npx tailwindcss -i ./public/input.css -o ./public/output.css",
     "compile:css:prod": "npx tailwindcss -i ./public/input.css -o ./public/output.css --minify",
     "compile": "npm-run-all --sequential compile:js compile:css",
-    "compile:watch": "concurrently \"node esbuild.config.js --watch\" \"npx tailwindcss -i ./public/input.css -o ./public/output.css --watch\"",
+    "compile:watch": "npm-run-all --parallel \"compile:js --watch\" \"compile:css --watch\"",
     "compile:prod": "npm-run-all --sequential compile:js compile:css:prod",
     "electron": "electron .",
     "electronmon": "electronmon .",
