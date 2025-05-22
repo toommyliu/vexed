@@ -3,6 +3,8 @@ import { Command } from "../../command";
 export class CommandWalkSpeed extends Command {
   public speed!: number;
 
+  public override skipDelay = true;
+
   public override execute() {
     this.bot.settings.walkSpeed = this.speed;
   }

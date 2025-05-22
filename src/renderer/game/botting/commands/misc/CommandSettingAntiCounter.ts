@@ -3,6 +3,8 @@ import { Command } from "../../command";
 export class CommandSettingAntiCounter extends Command {
   public state!: boolean;
 
+  public override skipDelay = true;
+
   public override execute() {
     this.bot.settings.counterAttack = this.state;
   }

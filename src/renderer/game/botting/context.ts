@@ -453,9 +453,6 @@ export class Context extends TypedEmitter<Events> {
         }
 
         this.overlay.updateCommands(this._commands, this._commandIndex);
-        // logger.info(
-        //   `${command.toString()} [${this._commandIndex + 1}/${this._commands.length}]`,
-        // );
 
         const result = command.execute();
         if (result instanceof Promise) {
@@ -464,7 +461,9 @@ export class Context extends TypedEmitter<Events> {
 
         if (!this.isRunning()) break;
 
-        await this.bot.sleep(this._commandDelay);
+        if (!command.skipDelay) {
+          await this.bot.sleep(this._commandDelay);
+        }
 
         if (!this.isRunning()) break;
 

@@ -3,6 +3,8 @@ import { Command } from "../../command";
 export class CommandRegisterQuest extends Command {
   public questIds!: number[];
 
+  public override skipDelay = true;
+
   public override execute() {
     for (const questId of this.questIds) {
       this.ctx.registerQuest(questId);
