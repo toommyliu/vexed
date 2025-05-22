@@ -10,13 +10,14 @@ let stopFn: (() => void) | null = null;
 export function startQuestTimer() {
   stopQuestTimer();
 
-  console.log(`activeQuestIds`, activeQuestIds);
   void bot.quests.loadMultiple(Array.from(activeQuestIds));
 
   void interval(async (_, stop) => {
     stopFn ??= stop;
 
     if (!bot.player.isReady()) return;
+
+    console.log(`activeQuestIds`, activeQuestIds);
 
     for (const questId of Array.from(activeQuestIds)) {
       try {
