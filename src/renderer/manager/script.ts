@@ -8,14 +8,17 @@ import { enableElement, disableElement } from "../game/ui-utils";
 const logger = Logger.get("ScriptManager");
 
 // TODO: refactor
-const accounts: Account[] = [];
+const accounts: Map<string, Account> = new Map();
 const servers: ServerData[] = [];
 
 let scriptPath: string | null = null;
 
-// TODO: remove selected doesn't work?
-
 const timeouts = new Map<string, NodeJS.Timeout>();
+
+const sleep = async (ms: number) =>
+  new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 
 ipcRenderer.answerMain(IPC_EVENTS.ENABLE_BUTTON, async ({ username }) => {
   const timeout = timeouts.get(username);
@@ -24,15 +27,13 @@ ipcRenderer.answerMain(IPC_EVENTS.ENABLE_BUTTON, async ({ username }) => {
     timeouts.delete(username);
   }
 
-  await new Promise((resolve) => {
-    setTimeout(resolve, 500);
-  });
+  await sleep(500);
 
   enableAccount(username);
 });
 
 function enableAccount(username: string) {
-  for (const el of document.querySelectorAll<HTMLButtonElement>("#start")) {
+  for (const el of document.querySelectorAll<HTMLButtonElement>(".start-btn")) {
     if (el.dataset["username"] === username) {
       enableElement(el);
     }
@@ -93,7 +94,7 @@ function updateAccounts() {
   timeouts.clear();
 
   const accountsContainer = document.querySelector("#accounts")!;
-  accountsContainer.innerHTML = accounts
+  accountsContainer.innerHTML = Array.from(accounts.values())
     .map(
       (account) => `
       <div class="account-card rounded-md border border-zinc-800 bg-zinc-900 shadow-md">
@@ -110,10 +111,10 @@ function updateAccounts() {
             </h4>
           </div>
           <div class="flex space-x-2">
-            <button id="remove" class="rounded-md border border-zinc-700 bg-zinc-800 p-2 shadow-sm transition-all duration-200 hover:bg-zinc-700 text-white"
+            <button class="remove-btn rounded-md border border-zinc-700 bg-zinc-800 p-2 shadow-sm transition-all duration-200 hover:bg-zinc-700 text-white"
               data-username="${account.username}"
               data-password="${account.password}">Remove</button>
-            <button id="start" class="rounded-md border border-zinc-700 bg-zinc-800 p-2 shadow-sm transition-all duration-200 hover:bg-zinc-700 text-white"
+            <button class="start-btn rounded-md border border-zinc-700 bg-zinc-800 p-2 shadow-sm transition-all duration-200 hover:bg-zinc-700 text-white"
               data-username="${account.username}"
               data-password="${account.password}"
               >Start</button>
@@ -134,21 +135,21 @@ function updateAccounts() {
     checkbox.addEventListener("change", updateSelectedCount);
   }
 
-  const removeBtns = document.querySelectorAll<HTMLButtonElement>("#remove");
+  const removeBtns =
+    document.querySelectorAll<HTMLButtonElement>(".remove-btn");
   for (const el of removeBtns) {
     el.addEventListener("click", async () => {
       const username = el.dataset["username"]!;
 
-      const idx = accounts.findIndex((acc) => acc.username === username);
-      if (idx !== -1) {
-        accounts.splice(idx, 1);
+      if (accounts.has(username)) {
+        accounts.delete(username);
         await removeAccount({ username });
         updateAccounts();
       }
     });
   }
 
-  const startBtns = document.querySelectorAll<HTMLButtonElement>("#start");
+  const startBtns = document.querySelectorAll<HTMLButtonElement>(".start-btn");
   for (const el of startBtns) {
     el.addEventListener("click", async () => {
       disableElement(el);
@@ -215,6 +216,15 @@ window.addEventListener("DOMContentLoaded", async () => {
       const el = document.querySelector("#alert") as HTMLElement;
       const cl = el.classList;
 
+      const currentUsername = (
+        form.querySelector('[name="username"]') as HTMLInputElement
+      )?.value;
+      const currentPassword = (
+        form.querySelector('[name="password"]') as HTMLInputElement
+      )?.value;
+
+      let success = false;
+      let errorMsg = "";
       try {
         el.innerHTML = "";
         cl.remove("text-green-500", "text-red-500", "hidden", "block");
@@ -230,22 +240,30 @@ window.addEventListener("DOMContentLoaded", async () => {
             success: false,
           }));
 
-        if (res?.success) {
-          // eslint-disable-next-line require-atomic-updates
-          el.innerHTML = "Account added successfully";
-          accounts.push(account);
+        success = Boolean(res?.success);
+        if (success) {
+          accounts.set(account.username, account);
           updateAccounts();
-        } else {
-          // eslint-disable-next-line require-atomic-updates
-          el.innerHTML = "An error occurred while trying to add the account";
         }
+      } catch (error) {
+        logger.error("failed to add account:", error);
+        errorMsg = `An error occurred while trying to add the account${error instanceof Error && error.message ? `: ${error.message}` : ""}`;
+      }
 
+      if (
+        el &&
+        (form.querySelector('[name="username"]') as HTMLInputElement)?.value ===
+          currentUsername &&
+        (form.querySelector('[name="password"]') as HTMLInputElement)?.value ===
+          currentPassword
+      ) {
+        el.innerHTML = success
+          ? "Account added successfully"
+          : errorMsg || "An error occurred while trying to add the account";
         el!.style.display = "block";
         cl.remove("hidden");
         cl.add("block");
-
-        cl.add(res?.success ? "text-green-500" : "text-red-500", "opacity-100");
-
+        cl.add(success ? "text-green-500" : "text-red-500", "opacity-100");
         cl.remove("hidden");
         setTimeout(
           () => {
@@ -256,27 +274,11 @@ window.addEventListener("DOMContentLoaded", async () => {
               cl.remove("block", "hidden", "text-green-500", "text-red-500");
             }, 400);
           },
-          1_000 * (res?.success ? 1 : 2),
+          1_000 * (success ? 1 : 2),
         );
-      } catch (error) {
-        logger.error("failed to add account:", error);
-
-        el.innerHTML = `An error occurred while trying to add the account${error instanceof Error && error.message ? `: ${error.message}` : ""}`;
-
-        cl.add("text-red-500", "block");
-        cl.remove("hidden");
-
-        setTimeout(() => {
-          cl.add("hidden");
-          el.style.display = "none";
-          setTimeout(() => {
-            el.innerHTML = "";
-            cl.remove("block", "hidden", "text-green-500", "text-red-500");
-          }, 400);
-        }, 2_000);
-      } finally {
-        enableElement(btn);
       }
+
+      enableElement(btn);
     });
   }
 
@@ -319,7 +321,9 @@ window.addEventListener("DOMContentLoaded", async () => {
   ]);
 
   try {
-    accounts.push(...accountsOut);
+    for (const account of accountsOut) {
+      accounts.set(account.username, account);
+    }
   } catch (error) {
     console.error(error);
     // eslint-disable-next-line no-alert
@@ -334,7 +338,9 @@ window.addEventListener("DOMContentLoaded", async () => {
   const removeSelectedBtn =
     document.querySelector<HTMLButtonElement>("#remove-selected")!;
   removeSelectedBtn.addEventListener("click", async () => {
-    for (const el of document.querySelectorAll<HTMLButtonElement>("#remove")) {
+    for (const el of document.querySelectorAll<HTMLButtonElement>(
+      ".remove-btn",
+    )) {
       const input = el
         .closest(".account-card")!
         .querySelector<HTMLInputElement>("input")!;
@@ -345,9 +351,8 @@ window.addEventListener("DOMContentLoaded", async () => {
       const username = el.dataset["username"]!;
       await removeAccount({ username });
 
-      const idx = accounts.findIndex((acc) => acc.username === username);
-      if (idx !== -1) {
-        accounts.splice(idx, 1);
+      if (accounts.has(username)) {
+        accounts.delete(username);
       }
     }
 
@@ -357,7 +362,9 @@ window.addEventListener("DOMContentLoaded", async () => {
   const startSelectedBtn =
     document.querySelector<HTMLButtonElement>("#start-selected")!;
   startSelectedBtn.addEventListener("click", async () => {
-    for (const el of document.querySelectorAll<HTMLInputElement>("#start")) {
+    for (const el of document.querySelectorAll<HTMLInputElement>(
+      ".start-btn",
+    )) {
       const input = (
         el.closest(".account-card") as HTMLDivElement
       ).querySelector("input") as HTMLInputElement;
@@ -373,9 +380,7 @@ window.addEventListener("DOMContentLoaded", async () => {
         password: el.dataset["password"]!,
       });
 
-      await new Promise((resolve) => {
-        setTimeout(resolve, 1_000);
-      });
+      await sleep(1_000);
     }
   });
 });
