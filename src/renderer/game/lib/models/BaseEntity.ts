@@ -171,10 +171,10 @@ export abstract class BaseEntity {
   }
 
   /**
-   * Whether the player is in the specified cell.
+   * Whether the entity is in the specified cell.
    *
    * @param cell - The cell to check.
-   * @returns True if the player is in the specified cell, false otherwise.
+   * @returns True if the entity is in the specified cell, false otherwise.
    */
   public isInCell(cell: string) {
     return this.cell.toLowerCase() === cell.toLowerCase();
