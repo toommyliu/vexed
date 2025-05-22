@@ -10,7 +10,6 @@ let stopFn: (() => void) | null = null;
 export function startQuestTimer() {
   stopQuestTimer();
 
-  console.log(`activeQuestIds`, activeQuestIds);
   void bot.quests.loadMultiple(Array.from(activeQuestIds));
 
   void interval(async (_, stop) => {
@@ -37,11 +36,11 @@ export function startQuestTimer() {
         }
 
         if (swf.questsCanCompleteQuest(_questId)) {
-          const maxTurnIns = bot.flash.call<number>(
+          const maxTurnIns = bot.flash.call<string>(
             "world.maximumQuestTurnIns",
             _questId,
           );
-          void bot.quests.complete(_questId, maxTurnIns);
+          void bot.quests.complete(_questId, Number.parseInt(maxTurnIns, 10));
           void bot.quests.accept(_questId);
         }
       } catch {}

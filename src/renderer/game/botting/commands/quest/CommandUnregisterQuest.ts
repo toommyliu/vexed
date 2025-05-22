@@ -1,13 +1,19 @@
 import { Command } from "../../command";
 
 export class CommandUnregisterQuest extends Command {
-  public questId!: number;
+  public questIds!: number[];
 
   public override execute() {
-    this.ctx.unregisterQuest(this.questId);
+    for (const questId of this.questIds) {
+      this.ctx.unregisterQuest(questId);
+    }
   }
 
   public override toString() {
-    return `Unregister quest: ${this.questId}`;
+    if (this.questIds.length === 1) {
+      return `Unregister quest: ${this.questIds[0]}`;
+    }
+
+    return `Unregister quests: ${this.questIds.join(", ")}`;
   }
 }

@@ -34,31 +34,33 @@ export const questCommands = {
     window.context.addCommand(cmd);
   },
   /**
-   * Registers a quest, which automatically handles accepting and completing it.
+   * Registers one or more quests, which automatically handles accepting and completing them.
    *
-   * @param questId - The ID of the quest.
+   * @param questIds - The ID or array of IDs of the quests.
    */
-  register_quest(questId: number) {
-    if (!questId || typeof questId !== "number") {
-      throw new ArgsError("questId is required");
+  register_quest(questIds: number[] | number) {
+    const ids = Array.isArray(questIds) ? questIds : [questIds];
+    if (ids.length === 0 || ids.some((id) => typeof id !== "number")) {
+      throw new ArgsError("questIds is required");
     }
 
     const cmd = new CommandRegisterQuest();
-    cmd.questId = questId;
+    cmd.questIds = ids;
     window.context.addCommand(cmd);
   },
   /**
-   * Unregisters a quest.
+   * Unregisters one or more quests.
    *
-   * @param questId - The ID of the quest.
+   * @param questIds - The ID or array of IDs of the quests.
    */
-  unregister_quest(questId: number) {
-    if (!questId || typeof questId !== "number") {
-      throw new ArgsError("questId is required");
+  unregister_quest(questIds: number[] | number) {
+    const ids = Array.isArray(questIds) ? questIds : [questIds];
+    if (ids.length === 0 || ids.some((id) => typeof id !== "number")) {
+      throw new ArgsError("questIds is required");
     }
 
     const cmd = new CommandUnregisterQuest();
-    cmd.questId = questId;
+    cmd.questIds = ids;
     window.context.addCommand(cmd);
   },
 };

@@ -9,7 +9,7 @@ body {
   line-height: 1.5;
 }
 
-input[type='checkbox'] {
+input[type="checkbox"] {
   position: relative;
   width: 14px;
   height: 14px;
@@ -18,20 +18,20 @@ input[type='checkbox'] {
   vertical-align: middle;
 }
 
-input[type='checkbox']:not(:checked) {
+input[type="checkbox"]:not(:checked) {
   appearance: none;
   background-color: rgb(24 24 27); /* bg-zinc-900 */
   border-radius: 2px;
   border: 1px solid #4b5563;
 }
 
-input[type='checkbox']:checked {
+input[type="checkbox"]:checked {
   position: relative;
   width: 14px;
   height: 14px;
 }
 
-input[type='checkbox'] + label {
+input[type="checkbox"] + label {
   margin-left: 5px;
   cursor: pointer;
 }
@@ -80,7 +80,7 @@ textarea::-webkit-scrollbar-thumb:hover {
   pointer-events: none;
 }
 .tooltip .tooltip-text::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 100%;
   left: 15px;
