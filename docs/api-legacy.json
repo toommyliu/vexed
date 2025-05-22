@@ -61,10 +61,6 @@
         "link": "/api-legacy/typedefs/killoptions"
       },
       {
-        "label": "TargetInfo",
-        "link": "/api-legacy/typedefs/targetinfo"
-      },
-      {
         "label": "AvatarData",
         "link": "/api-legacy/typedefs/avatardata"
       },
