@@ -736,7 +736,7 @@ async function initializeDirectory(path: string): Promise<void> {
   if (process.argv.includes("--clean") || process.argv.includes("-c")) {
     if (exists) {
       logger.info("Cleaning up old files...");
-      await fs.rm(path, { force: true });
+      await fs.rm(path, { force: true, recursive: true });
     }
   }
 
