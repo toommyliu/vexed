@@ -3,7 +3,7 @@ title: Supplies to spin The Wheel of Chance
 description: Example script for Supplies to spin The Wheel of Chance
 ---
 
-import { Code, Aside } from "@astrojs/starlight/components";
+import { Code } from "@astrojs/starlight/components";
 
 export const suppliesEscherion = String.raw`
 cmd.register_drop([
@@ -25,11 +25,3 @@ cmd.goto_label("kill")
 `
 
 <Code code={suppliesEscherion} lang="ts" title="script.js" />
-
-<Aside>
-Notice that we create a new block so `whitelist` doesn't pollute the global namespace. If the script was ran multiple times, it would fail because
-`whitelist` has already been declared.
-
-We can use `let` instead, too.
-
-</Aside>
