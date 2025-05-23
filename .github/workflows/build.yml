@@ -3,7 +3,7 @@ name: Build
 on:
   push:
     tags:
-      - '*.*.*'
+      - "*.*.*"
 
 jobs:
   build_electron:
@@ -13,20 +13,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Yarn
-        uses: threeal/setup-yarn-action@v2.0.0
-        with:
-          version: classic
-          cache: false
-
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22.11.0'
-          cache: 'yarn'
+          node-version: "22.11.0"
+          cache: "yarn"
 
       - name: Install dependencies
         run: yarn install
+
+      - name: Compile Typescript
+        run: yarn compile
 
       - name: Build electron app
         run: yarn run build:all
