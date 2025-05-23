@@ -114,10 +114,7 @@
   max-height: 80vh;
   transition: none;
 }
-.search-highlight {
-  background-color: rgba(234, 179, 8, 0.3); /* yellow with opacity */
-  border-radius: 2px;
-}
+
 .line {
   width: 100%;
   max-width: 100%;

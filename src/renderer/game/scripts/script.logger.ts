@@ -5,7 +5,6 @@ const packets: PacketEntry[] = [];
 
 let on = false;
 let currentFilter: PacketFilter = "all";
-let searchQuery = "";
 let showTimestamps = false;
 
 const stats = {
@@ -51,29 +50,8 @@ function formatTimestamp(timestamp: number): string {
   return `${hours}:${minutes}:${seconds}.${milliseconds}`;
 }
 
-function highlightSearchTerm(content: string, searchTerm: string): string {
-  if (!searchTerm) return content;
-
-  try {
-    const regex = new RegExp(searchTerm, "gi");
-    return content.replace(
-      regex,
-      (match) => `<span class="search-highlight">${match}</span>`,
-    );
-  } catch {
-    return content;
-  }
-}
-
 function displayPacket(packet: PacketEntry): void {
   if (currentFilter !== "all" && currentFilter !== packet.type) {
-    return;
-  }
-
-  if (
-    searchQuery &&
-    !packet.content.toLowerCase().includes(searchQuery.toLowerCase())
-  ) {
     return;
   }
 
@@ -99,15 +77,7 @@ function displayPacket(packet: PacketEntry): void {
   const packetContentSpan = document.createElement("span");
   packetContentSpan.className =
     "font-mono text-xs text-white flex-1 whitespace-pre-wrap";
-
-  if (searchQuery) {
-    packetContentSpan.innerHTML = highlightSearchTerm(
-      packet.content,
-      searchQuery,
-    );
-  } else {
-    packetContentSpan.textContent = packet.content;
-  }
+  packetContentSpan.textContent = packet.content;
 
   packetDiv.append(packetTypeSpan);
   packetDiv.append(packetContentSpan);
@@ -159,14 +129,6 @@ function setActiveTab(activeTabId: string): void {
   }
 }
 
-function applySearchFilter(): void {
-  searchQuery =
-    (
-      document.querySelector("#search-input") as HTMLInputElement
-    )?.value.trim() || "";
-  filterPackets();
-}
-
 async function toggleCapture(isActive: boolean) {
   on = isActive;
 
@@ -214,24 +176,6 @@ window.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  // Search functionality
-  {
-    const searchInput = document.querySelector(
-      "#search-input",
-    ) as HTMLInputElement;
-    searchInput.addEventListener("input", () => {
-      applySearchFilter();
-    });
-
-    // Clear search on ESC key
-    searchInput.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") {
-        searchInput.value = "";
-        applySearchFilter();
-      }
-    });
-  }
-
   // Toggle timestamps
   {
     const btn = document.querySelector(
@@ -262,13 +206,7 @@ window.addEventListener("DOMContentLoaded", async () => {
         (packet) => currentFilter === "all" || packet.type === currentFilter,
       );
 
-      const searchFilteredPackets = searchQuery
-        ? filteredPackets.filter((packet) =>
-            packet.content.toLowerCase().includes(searchQuery.toLowerCase()),
-          )
-        : filteredPackets;
-
-      const content = searchFilteredPackets
+      const content = filteredPackets
         .map((packet) => {
           const timestamp = formatTimestamp(packet.timestamp);
           return `[${timestamp}] [${packet.type.toUpperCase()}] ${packet.content}`;
@@ -291,13 +229,7 @@ window.addEventListener("DOMContentLoaded", async () => {
         (packet) => currentFilter === "all" || packet.type === currentFilter,
       );
 
-      const searchFilteredPackets = searchQuery
-        ? filteredPackets.filter((packet) =>
-            packet.content.toLowerCase().includes(searchQuery.toLowerCase()),
-          )
-        : filteredPackets;
-
-      const content = searchFilteredPackets
+      const content = filteredPackets
         .map((packet) => {
           const timestamp = showTimestamps
             ? `[${formatTimestamp(packet.timestamp)}] `
