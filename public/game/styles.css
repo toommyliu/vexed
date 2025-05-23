@@ -4,6 +4,10 @@
   --bg-secondary: #18191b;
 }
 
+* {
+  user-select: none;
+}
+
 :focus {
   outline: none;
 }
@@ -69,7 +73,7 @@ button:hover {
   margin-top: -5px;
 }
 
-[id$='-dropdowncontent'] {
+[id$="-dropdowncontent"] {
   background-color: var(--bg-secondary);
 }
 

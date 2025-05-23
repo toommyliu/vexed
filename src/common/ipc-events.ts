@@ -41,6 +41,9 @@ export const IPC_EVENTS = {
   PACKET_LOGGER_START: "packet-logger:start" as const,
   PACKET_LOGGER_STOP: "packet-logger:stop" as const,
   PACKET_LOGGER_PACKET: "packet-logger:packet" as const,
+  PACKET_LOGGER_PACKET_CLIENT: "packet-logger:packet-client" as const,
+  PACKET_LOGGER_PACKET_SERVER: "packet-logger:packet-server" as const,
+  PACKET_LOGGER_PACKET_PEXT: "packet-logger:packet-pext" as const,
 
   PACKET_SPAMMER_START: "packet-spammer:start" as const,
   PACKET_SPAMMER_STOP: "packet-spammer:stop" as const,
@@ -53,11 +56,11 @@ export const IPC_EVENTS = {
   // #endregion
 
   // #region manager
-  GET_ACCOUNTS: 'manager:get_accounts' as const,
-  ADD_ACCOUNT: 'manager:add_account' as const,
-  REMOVE_ACCOUNT: 'manager:remove_account' as const,
-  LAUNCH_GAME: 'manager:launch_game' as const,
-  ENABLE_BUTTON: 'manager:enable_button' as const,
-  MGR_LOAD_SCRIPT: 'manager:load_script' as const,
+  GET_ACCOUNTS: "manager:get_accounts" as const,
+  ADD_ACCOUNT: "manager:add_account" as const,
+  REMOVE_ACCOUNT: "manager:remove_account" as const,
+  LAUNCH_GAME: "manager:launch_game" as const,
+  ENABLE_BUTTON: "manager:enable_button" as const,
+  MGR_LOAD_SCRIPT: "manager:load_script" as const,
   // #endregion
 } as const;

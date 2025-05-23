@@ -266,6 +266,27 @@ type TypedIpcEvents = {
     };
     response: undefined;
   };
+  [IPC_EVENTS.PACKET_LOGGER_PACKET_CLIENT]: {
+    args: {
+      packet: string;
+      type: "client";
+    };
+    response: undefined;
+  };
+  [IPC_EVENTS.PACKET_LOGGER_PACKET_SERVER]: {
+    args: {
+      packet: string;
+      type: "server";
+    };
+    response: undefined;
+  };
+  [IPC_EVENTS.PACKET_LOGGER_PACKET_PEXT]: {
+    args: {
+      packet: Record<string, unknown>;
+      type: "pext";
+    };
+    response: undefined;
+  };
   [IPC_EVENTS.PACKET_SPAMMER_START]: {
     args: {
       delay: number;
