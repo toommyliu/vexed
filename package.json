@@ -23,7 +23,8 @@
     "format:write": "prettier \"src/**/*\" --write",
     "lint": "eslint \"src/**/*\"",
     "lint:fix": "eslint \"src/**/*\" --fix",
-    "validate": "npm-run-all --parallel typecheck lint format"
+    "validate": "npm-run-all --parallel typecheck lint format",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s"
   },
   "dependencies": {
     "async-mutex": "^0.5.0",
@@ -40,6 +41,7 @@
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
+    "@conventional-changelog/cli": "^4.1.0",
     "@typescript-eslint/eslint-plugin": "^8.4.0",
     "@typescript-eslint/parser": "^8.4.0",
     "del-cli": "^6.0.0",
