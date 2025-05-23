@@ -56,7 +56,7 @@ export class InventoryItem extends Item {
    *
    * 10: Forge (?)
    */
-  public get enchantmentPatternId(): number {
+  public get enhancementPatternId(): number {
     return this.data.EnhPatternID;
   }
 }
