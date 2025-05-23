@@ -1,6 +1,7 @@
 import { ArgsError } from "../../ArgsError";
 import { CommandBuy } from "./CommandBuy";
 import { CommandDeposit } from "./CommandDeposit";
+import { CommandEquipByEnhancement } from "./CommandEquipByEnhancement";
 import { CommandEquipItem } from "./CommandEquipItem";
 import { CommandGetMapItem } from "./CommandGetMapItem";
 import { CommandPickup } from "./CommandPickup";
@@ -181,5 +182,38 @@ export const itemCommands = {
     const cmd = new CommandEquipItem();
     cmd.itemName = item;
     window.context.addCommand(cmd);
+  },
+  /**
+   * Equips an item using its enhancement name. Supports colloquial variants of the enhancement name.
+   *
+   * If results are ambiguous, the first matching item will be used. Use itemType to narrow the result.
+   *
+   * @example
+   * ```js
+   * cmd.equip_item_by_enhancement("Lucky", "weapon")
+   * cmd.equip_item_by_enhancement("Arcanas")
+   * cmd.equip_item_by_enhancement("Peni")
+   * ```
+   * @param enhancementName - The name of the enhancement.
+   * @param itemType - The type of item to equip. Can be "weapon", "helm", or "cape".
+   */
+  equip_item_by_enhancement(enhancementName: string, itemType?: string) {
+    if (typeof enhancementName !== "string") {
+      throw new ArgsError("enhancementName is required");
+    }
+
+    if (
+      typeof itemType === "string" &&
+      !["weapon", "helm", "cape"].includes(itemType.toLowerCase())
+    ) {
+      throw new ArgsError("itemType is required");
+    }
+
+    const cmd = new CommandEquipByEnhancement();
+    cmd.enhancementName = enhancementName;
+    if (itemType) cmd.itemType = itemType;
+
+    void cmd.execute();
+    // window.context.addCommand(cmd);
   },
 };

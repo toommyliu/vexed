@@ -13,7 +13,7 @@ export default defineConfig({
       title: "vexed",
       favicon: "/favicon.ico",
       editLink: {
-        baseUrl: "https://github.com/toommyliu/vexed/docs/edit/main",
+        baseUrl: "https://github.com/toommyliu/vexed/edit/main/docs",
       },
       lastUpdated: true,
       customCss: ["./src/styles/global.css", "./src/styles/theme.css"],

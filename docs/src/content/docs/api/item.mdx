@@ -27,6 +27,21 @@ import { Badge, Code } from "@astrojs/starlight/components";
 | item | `string` |  |
 
 
+### cmd.equip_item_by_enhancement
+Equips an item using its enhancement name. Supports colloquial variants of the enhancement name.
+
+If results are ambiguous, the first matching item will be used. Use itemType to narrow the result.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| enhancementName | `string` | The name of the enhancement. |
+| itemType | `string?` | The type of item to equip. Can be "weapon", "helm", or "cape". |
+
+<Code code={`cmd.equip_item_by_enhancement("Lucky", "weapon")
+cmd.equip_item_by_enhancement("Arcanas")
+cmd.equip_item_by_enhancement("Peni")`} lang="js" />
+
+
 ### cmd.get_map_item
 | Parameter | Type | Description |
 |-----------|------|-------------|

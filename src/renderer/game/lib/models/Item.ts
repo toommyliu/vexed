@@ -180,7 +180,7 @@ export type ItemData = {
   EnhRng: number;
   EnhRty: number;
   ItemID: number;
-  bBank: number;
+  ProcID?: number;
   bCoins: number;
   bEquip: number;
   bStaff: number;
@@ -205,4 +205,5 @@ export type ItemData = {
   sMeta: string;
   sName: string;
   sType: string;
+  bBank: number;
 };

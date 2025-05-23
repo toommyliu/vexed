@@ -61,9 +61,15 @@ Whether the player has a target.
 
 ### kill
 Kills a monster.
+| Parameter | Type | Optional | Default | Description |
+|-----------|------|----------|---------|-------------|
+| monsterResolvable | `string` |  |  | The name or monMapId of the monster. |
+| options | `Partial<KillOptions>` | ✓ | `{}` | The optional configuration to use for the kill. |
 
-<Code code={`
-// Basic usage
+**Returns**: `Promise<void>`
+
+
+<Code code={`// Basic usage
 await combat.kill("Frogzard");
 
 // Advanced usage
@@ -72,15 +78,7 @@ await combat.kill("Ultra Engineer", {
     killPriority: ["Defense Drone", "Attack Drone"],
     skillSet: [5,3,2,1,4],
     skillDelay: 50,
-});
-`} lang="js" title="Combat.ts" />
-| Parameter | Type | Optional | Default | Description |
-|-----------|------|----------|---------|-------------|
-| monsterResolvable | `string` |  |  | The name or monMapId of the monster. |
-| options | `Partial<KillOptions>` | ✓ | `{}` | The optional configuration to use for the kill. |
-
-**Returns**: `Promise<void>`
-
+});`} lang="js"/>
 ### killForItem
 Kills the monster until the quantity of the item is met in the inventory.
 | Parameter | Type | Optional | Default | Description |
