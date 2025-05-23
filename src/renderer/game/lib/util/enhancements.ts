@@ -1,6 +1,4 @@
-import { Bot } from "../Bot";
-
-const enhancements: EnhancementP[] = [
+const ALL_ENHANCEMENTS: EnhancementP[] = [
   {
     ID: 1,
     sName: "Adventurer",
@@ -116,64 +114,26 @@ const enhancements: EnhancementP[] = [
     sDesc: "Grimskull Troll Enhancement",
     DIS: true,
   },
-];
+] as const;
 
-export function getEnhancements(): EnhancementP[] {
-  if (!enhancements.length) {
-    const bot = Bot.getInstance();
-    enhancements.push(...bot.flash.get<EnhancementP[]>("world.enhp", true)!);
+// Enhancement constants for forge items
+const FORGE_HELM_ENHANCEMENTS = [
+  { ID: 10, sName: "Forge", sDesc: "Blacksmith" },
+  { ID: 28, sName: "Anima", sDesc: "SmithP2", DIS: true },
+  { ID: 26, sName: "Examen", sDesc: "SmithP2", DIS: true },
+  { ID: 32, sName: "Hearty", sDesc: "Grimskull Troll Enhancement", DIS: true },
+  { ID: 27, sName: "Pneuma", sDesc: "SmithP2", DIS: true },
+  { ID: 25, sName: "Vim", sDesc: "SmithP2", DIS: true },
+] as const;
 
-    console.log("Enhancements loaded:", enhancements);
-  }
-
-  return enhancements;
-}
-
-/**
- * Get the ID of a proc by its name.
- *
- * @param procName - The name of the proc.
- *  @returns The ID of the proc, or -1 if not found.
- */
-
-export function getProcIdFromName(procName: string): number {
-  switch (procName) {
-    case "Spiral Carve":
-      return 2;
-    case "AweBlast":
-    case "Awe Blast":
-      return 3;
-    case "HealthVamp":
-    case "Health Vamp":
-      return 4;
-    case "Mana Vamp":
-      return 5;
-    case "Powerword DIE":
-      return 6;
-    case "Lacerate":
-      return 7;
-    case "Smite":
-      return 8;
-    case "Valiance":
-      return 9;
-    case "Arcanas":
-    case "ArcanasConcerto":
-    case "Arcana's Concerto":
-      return 10;
-    case "Acheron":
-      return 11;
-    case "Elysium":
-      return 12;
-    case "Praxis":
-      return 13;
-    case "Dauntless":
-      return 14;
-    case "Ravenous":
-      return 15;
-    default:
-      return -1;
-  }
-}
+const FORGE_CAPE_ENHANCEMENTS = [
+  { ID: 10, sName: "Forge", sDesc: "Blacksmith" },
+  { ID: 11, sName: "Absolution", sDesc: "Smith", DIS: true },
+  { ID: 12, sName: "Avarice", sDesc: "Smith", DIS: true },
+  { ID: 30, sName: "Lament", sDesc: "SmithP2", DIS: true },
+  { ID: 29, sName: "Penitence", sDesc: "SmithP2", DIS: true },
+  { ID: 24, sName: "Vainglory", sDesc: "Smith", DIS: true },
+] as const;
 
 /**
  * Get the name of a proc by its ID.
@@ -216,12 +176,60 @@ export function getWeaponProcName(procId: number): string {
   }
 }
 
+export function isBasicEnhancement(enhancementName: string): boolean {
+  const basicEnhancements = ALL_ENHANCEMENTS.filter(
+    (enh) => !enh.DIS && enh.ID <= 10,
+  );
+  return basicEnhancements.some(
+    (enh) => enh.sName.toLowerCase() === enhancementName.toLowerCase(),
+  );
+}
+
+export function findEnhancementByName(
+  enhancementName: string,
+): EnhancementP | undefined {
+  return ALL_ENHANCEMENTS.find(
+    (enh) => enh.sName.toLowerCase() === enhancementName.toLowerCase(),
+  );
+}
+
+export function areNamesEqual(
+  actualName: string,
+  inputName: string,
+  variants: Record<string, string[]>,
+): boolean {
+  if (!actualName || !inputName) return false;
+
+  const normalizedActual = actualName.toLowerCase().trim();
+  const normalizedInput = inputName.toLowerCase().trim();
+
+  if (normalizedActual === normalizedInput) return true;
+
+  const matchedKey = Object.keys(variants).find(
+    (key) => key === normalizedActual,
+  );
+  return matchedKey
+    ? (variants[matchedKey]?.includes(normalizedInput) ?? false)
+    : false;
+}
+
+/**
+ * Get the cape proc name by enhancement pattern ID.
+ */
+export function getCapeProcName(procId: number): string {
+  return FORGE_CAPE_ENHANCEMENTS.find((enh) => enh.ID === procId)?.sName ?? "";
+}
+
+/**
+ * Get the helm proc name by enhancement pattern ID.
+ */
+export function getHelmProcName(procId: number): string {
+  return FORGE_HELM_ENHANCEMENTS.find((enh) => enh.ID === procId)?.sName ?? "";
+}
+
 type EnhancementP = {
   DIS?: boolean;
   ID: number;
   sDesc: string;
   sName: string;
 };
-
-// (window as any).getEnhancements = getEnhancements;
-// (window as any).bot = Bot.getInstance();
