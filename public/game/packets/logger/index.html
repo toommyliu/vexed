@@ -2,49 +2,107 @@
 <html lang="en">
   <head>
     <link href="../../../output.css" rel="stylesheet" />
+    <link href="./style.css" rel="stylesheet" />
   </head>
-  <body class="min-h-screen select-none bg-black">
-    <div class="mx-auto box-border w-full max-w-4xl p-4">
+  <body class="min-h-screen select-none bg-zinc-950 text-gray-200">
+    <div class="mx-auto box-border w-full max-w-5xl p-4">
       <div
-        id="logger"
-        class="mb-4 h-[200px] max-h-[350px] min-h-[200px] w-full resize-y overflow-auto rounded-md border border-zinc-800 bg-zinc-900 p-2 shadow-md"
-      ></div>
+        class="mb-3 flex flex-wrap border-b border-zinc-800 bg-zinc-950 pb-1"
+      >
+        <button
+          id="tab-all"
+          class="tab-button active flex items-center text-sm font-medium text-blue-400 transition-all duration-200 hover:text-blue-300"
+        >
+          <span>All</span>
+          <span
+            id="all-badge"
+            class="ml-1.5 rounded bg-zinc-700 px-1.5 py-0.5 text-xs text-gray-300"
+            >0</span
+          >
+        </button>
+        <button
+          id="tab-client"
+          class="tab-button flex items-center text-sm font-medium text-gray-400 transition-all duration-200 hover:text-gray-300"
+        >
+          <span>packetFromClient</span>
+          <span
+            id="client-badge"
+            class="ml-1.5 rounded bg-zinc-700 px-1.5 py-0.5 text-xs text-gray-300"
+            >0</span
+          >
+        </button>
+        <button
+          id="tab-server"
+          class="tab-button flex items-center text-sm font-medium text-gray-400 transition-all duration-200 hover:text-gray-300"
+        >
+          <span>packetFromServer</span>
+          <span
+            id="server-badge"
+            class="ml-1.5 rounded bg-zinc-700 px-1.5 py-0.5 text-xs text-gray-300"
+            >0</span
+          >
+        </button>
+        <button
+          id="tab-pext"
+          class="tab-button flex items-center text-sm font-medium text-gray-400 transition-all duration-200 hover:text-gray-300"
+        >
+          <span>pext</span>
+          <span
+            id="pext-badge"
+            class="ml-1.5 rounded bg-zinc-700 px-1.5 py-0.5 text-xs text-gray-300"
+            >0</span
+          >
+        </button>
+      </div>
+
+      <div class="mb-4">
+        <div
+          id="logger"
+          class="h-[350px] w-full resize-y rounded-md border border-zinc-800 bg-zinc-900 p-3 shadow-md hover:border-zinc-700"
+        ></div>
+      </div>
 
       <div
-        class="mb-4 flex w-full flex-wrap items-center justify-between space-x-2"
+        class="action-buttons-container flex flex-wrap items-start justify-between"
       >
-        <div class="flex flex-wrap space-x-2">
+        <div class="action-button-group flex flex-1 flex-wrap space-x-2">
           <button
             id="save"
-            class="rounded-md border border-zinc-700 bg-zinc-800 p-2 shadow-sm transition-all duration-200 hover:bg-zinc-700"
+            class="action-button border border-zinc-700 bg-zinc-800 shadow-sm hover:bg-zinc-700 hover:shadow-md"
           >
-            Save To File
+            <span>Save To File</span>
           </button>
           <button
             id="copy-all"
-            class="rounded-md border border-zinc-700 bg-zinc-800 p-2 shadow-sm transition-all duration-200 hover:bg-zinc-700"
+            class="action-button border border-zinc-700 bg-zinc-800 shadow-sm hover:bg-zinc-700 hover:shadow-md"
           >
-            Copy All
+            <span>Copy All</span>
           </button>
           <button
             id="clear"
-            class="rounded-md border border-zinc-700 bg-zinc-800 p-2 shadow-sm transition-all duration-200 hover:bg-zinc-700"
+            class="action-button border border-zinc-700 bg-zinc-800 shadow-sm hover:bg-zinc-700 hover:shadow-md"
           >
-            Clear
+            <span>Clear</span>
+          </button>
+          <button
+            id="toggle-timestamps"
+            class="action-button border border-zinc-700 bg-zinc-800 shadow-sm hover:bg-zinc-700 hover:shadow-md"
+          >
+            <span>Show Timestamps</span>
+          </button>
+          <button
+            id="toggle-autoscroll"
+            class="action-button border-blue-600 bg-blue-700 shadow-sm hover:bg-blue-600 hover:shadow-md"
+          >
+            <span>Auto-Scroll</span>
           </button>
         </div>
-        <div class="flex flex-wrap space-x-2">
+        <div class="toggle-capture-wrapper">
           <button
-            id="stop"
-            class="rounded-md border border-zinc-700 bg-zinc-800 p-2 shadow-sm transition-all duration-200 hover:bg-zinc-700"
+            id="toggle-capture"
+            class="action-button bg-green-700 text-white shadow-sm hover:bg-green-600 hover:shadow-md"
           >
-            Stop
-          </button>
-          <button
-            id="start"
-            class="rounded-md border border-zinc-700 bg-zinc-800 p-2 shadow-sm transition-all duration-200 hover:bg-zinc-700"
-          >
-            Start
+            <span id="toggle-capture-text">Start</span>
           </button>
         </div>
       </div>

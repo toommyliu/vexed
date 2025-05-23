@@ -36,21 +36,6 @@ input[type="checkbox"] + label {
   cursor: pointer;
 }
 
-textarea::-webkit-scrollbar {
-  width: 8px;
-}
-textarea::-webkit-scrollbar-track {
-  background: #0f0f0f;
-  border-radius: 4px;
-}
-textarea::-webkit-scrollbar-thumb {
-  background: #333333;
-  border-radius: 4px;
-}
-textarea::-webkit-scrollbar-thumb:hover {
-  background: #444444;
-}
-
 .tooltip {
   position: relative;
   display: inline-block;
