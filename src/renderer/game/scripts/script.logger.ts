@@ -6,6 +6,7 @@ const packets: PacketEntry[] = [];
 let on = false;
 let currentFilter: PacketFilter = "all";
 let showTimestamps = false;
+let autoScroll = true;
 
 const stats = {
   client: 0,
@@ -87,7 +88,9 @@ function displayPacket(packet: PacketEntry): void {
   });
 
   container.append(packetDiv);
-  container.scrollTo(0, container.scrollHeight);
+  if (autoScroll) {
+    container.scrollTo(0, container.scrollHeight);
+  }
 }
 
 function filterPackets(): void {
@@ -193,6 +196,24 @@ window.addEventListener("DOMContentLoaded", async () => {
       }
 
       filterPackets();
+    });
+  }
+
+  // Toggle auto-scroll
+  {
+    const btn = document.querySelector(
+      "#toggle-autoscroll",
+    ) as HTMLButtonElement;
+    btn.addEventListener("click", () => {
+      autoScroll = !autoScroll;
+
+      if (autoScroll) {
+        btn.classList.add("bg-blue-700", "border-blue-600");
+        btn.classList.remove("bg-zinc-800", "border-zinc-700");
+      } else {
+        btn.classList.remove("bg-blue-700", "border-blue-600");
+        btn.classList.add("bg-zinc-800", "border-zinc-700");
+      }
     });
   }
 
