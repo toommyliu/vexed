@@ -26,3 +26,5 @@ for (const command in cmd) {
 
   commandRegistry.registerCommand(cmdName, cmdFunction);
 }
+
+import "./lib/util/enhancements";

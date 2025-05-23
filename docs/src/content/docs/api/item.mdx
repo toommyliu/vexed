@@ -27,6 +27,17 @@ import { Badge, Code } from "@astrojs/starlight/components";
 | item | `string` |  |
 
 
+### cmd.equip_item_by_enhancement
+Equips an item using its enhancement name. For proc-based enhancements, use the proc name instead.
+
+Provide itemType to specify the item to equip, if results are ambiguous. Otherwise, the first result will be used.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| enhancementName | `string` | The name of the enhancement. |
+| itemType | `string?` | The type of item to equip. Can be "weapon", "helm", or "cape". |
+
+
 ### cmd.get_map_item
 | Parameter | Type | Description |
 |-----------|------|-------------|

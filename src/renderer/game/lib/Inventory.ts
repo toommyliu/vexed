@@ -15,6 +15,16 @@ export class Inventory {
       .map((data) => new InventoryItem(data as unknown as ItemData));
   }
 
+  public getItem(key: number | string): InventoryItem | null {
+    return (
+      this.items.find(
+        (item) =>
+          item.name.toLowerCase() === key.toString().toLowerCase() ||
+          item.id === key,
+      ) ?? null
+    );
+  }
+
   /**
    * Resolves for an Item in the Inventory.
    *
