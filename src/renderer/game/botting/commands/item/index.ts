@@ -184,10 +184,16 @@ export const itemCommands = {
     window.context.addCommand(cmd);
   },
   /**
-   * Equips an item using its enhancement name. For proc-based enhancements, use the proc name instead.
+   * Equips an item using its enhancement name. Supports colloquial variants of the enhancement name.
    *
-   * Provide itemType to specify the item to equip, if results are ambiguous. Otherwise, the first result will be used.
+   * If results are ambiguous, the first matching item will be used. Use itemType to narrow the result.
    *
+   * @example
+   * ```js
+   * cmd.equip_item_by_enhancement("Lucky", "weapon")
+   * cmd.equip_item_by_enhancement("Arcanas")
+   * cmd.equip_item_by_enhancement("Peni")
+   * ```
    * @param enhancementName - The name of the enhancement.
    * @param itemType - The type of item to equip. Can be "weapon", "helm", or "cape".
    */

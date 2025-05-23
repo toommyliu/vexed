@@ -56,6 +56,17 @@ const generateCommandsApiDoc = async () => {
                 makeDescription(
                   child?.signatures?.[0]?.comment?.summary ?? [],
                 ) || "";
+
+              const exampleCode = makeBlockTag(
+                child?.signatures?.[0]?.comment?.blockTags ?? [],
+              );
+
+              // if (exampleCode) {
+              //   logger.info(
+              //     `Found example for ${namespaceName}.${funcName}: ${exampleCode}`,
+              //   );
+              // }
+
               const funcParameters = child?.signatures?.[0]?.parameters
                 ?.map((param) => {
                   const paramName = param.name;
@@ -82,6 +93,7 @@ const generateCommandsApiDoc = async () => {
                 parameters: funcParameters,
                 returnType: "",
                 isStatic: false,
+                example: exampleCode,
               };
               namespaceMethods.push(method);
             }
@@ -164,6 +176,14 @@ const generateCommandsApiDoc = async () => {
                   );
                 }
               }
+              mdxFileContent.push("");
+            }
+
+            if (method.example) {
+              const escapedExample = method.example.replace(/`/g, "\\`");
+              mdxFileContent.push(
+                `<Code code={\`${escapedExample}\`} lang="js" />`,
+              );
               mdxFileContent.push("");
             }
 
@@ -447,9 +467,8 @@ const generateLegacyApiDoc = async () => {
               .filter((param) => Boolean(param)) as Parameter[];
             const returnType = mth.signatures?.[0]?.type?.toString() || "";
             const exampleCode =
-              makeBlockTag(mth?.signatures?.[0]?.comment?.blockTags ?? [])
-                .replace("```ts", "")
-                .replace("```", "") || "";
+              makeBlockTag(mth?.signatures?.[0]?.comment?.blockTags ?? []) ||
+              "";
 
             // console.log(
             //   `Method: ${methodName} [${returnType}] (${isStatic}) ${methodDescription}...`,
@@ -526,13 +545,6 @@ const generateLegacyApiDoc = async () => {
               if (mth.description) {
                 mdxFileContent.push(`${mth.description}`);
               }
-
-              if (mth.example) {
-                mdxFileContent.push(
-                  `\n<Code code={\`${mth.example}\`} lang="js" title="${fileName}" />`,
-                );
-              }
-
               if (mth.parameters && mth.parameters.length > 0) {
                 const hasOptionalOrDefaultParams = mth.parameters.some(
                   (param) => param.defaultValue,
@@ -578,6 +590,12 @@ const generateLegacyApiDoc = async () => {
               mdxFileContent.push("");
               mdxFileContent.push(`**Returns**: \`${mth.returnType}\``);
               mdxFileContent.push("");
+
+              if (mth.example) {
+                mdxFileContent.push(
+                  `\n<Code code={\`${mth.example}\`} lang="js"/>`,
+                );
+              }
             }
           }
 
@@ -655,7 +673,15 @@ function makeDescription(summary: typedoc.CommentDisplayPart[]): string {
 function makeBlockTag(tag: typedoc.CommentTag[]): string {
   return tag.reduce((acc, part) => {
     if (part.tag === "@example") {
-      return acc + part.content.map((p) => p.text).join("");
+      const content = part.content.map((p) => p.text).join("");
+      // Remove markdown code block markers since <Code> component handles syntax highlighting
+      return (
+        acc +
+        content
+          .replace(/```[a-zA-Z]*\n?/g, "")
+          .replace(/```\n?/g, "")
+          .trim()
+      );
     }
     return "";
   }, "");
