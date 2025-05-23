@@ -340,8 +340,8 @@ const generateLegacyApiDoc = async () => {
         for (const typedef of typedefs) {
           const mdxFileContent = ["---", `title: ${typedef.name}`, "---", ""];
 
-          mdxFileContent.push("| Name | Type | Description |");
-          mdxFileContent.push("|------|------|-------------|");
+          mdxFileContent.push("| Name | Type | Optional | Description |");
+          mdxFileContent.push("|------|------|----------|-------------|");
 
           const properties = extractIntersectionProperties(typedef);
           for (const child of properties) {
@@ -349,10 +349,13 @@ const generateLegacyApiDoc = async () => {
               const propName = child.name;
               const propDescription =
                 makeDescription(child.comment?.summary ?? []) || "";
-              const propType = makeSafeType(child.type?.toString() || "");
+              const propType = child.flags?.isOptional
+                ? `${makeSafeType(`${child.type?.toString() || ""}?`)}`
+                : makeSafeType(child.type?.toString() || "");
+              const isOptional = child.flags?.isOptional ? "✓" : "";
 
               mdxFileContent.push(
-                `| ${propName} | ${propType} | ${propDescription} |`,
+                `| ${propName} | ${propType} | ${isOptional} | ${propDescription} |`,
               );
             }
           }
