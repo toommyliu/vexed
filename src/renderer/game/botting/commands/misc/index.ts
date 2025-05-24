@@ -14,6 +14,7 @@ import { CommandLabel } from "./CommandLabel";
 import { CommandLog } from "./CommandLog";
 import { CommandLogout } from "./CommandLogout";
 import { CommandSetDelay } from "./CommandSetDelay";
+import { CommandSetFPS } from "./CommandSetFPS";
 import { CommandSetGuild } from "./CommandSetGuild";
 import { CommandSetName } from "./CommandSetName";
 import { CommandSettingAntiCounter } from "./CommandSettingAntiCounter";
@@ -31,7 +32,6 @@ import { CommandStopAggroMon } from "./CommandStopAggroMon";
 import { CommandStopBot } from "./CommandStopBot";
 import { CommandWaitForPlayerCount } from "./CommandWaitForPlayerCount";
 import { CommandWalkSpeed } from "./CommandWalkSpeed";
-import { CommandSetFPS } from "./CommandSetFPS";
 
 export const miscCommands = {
   /**
