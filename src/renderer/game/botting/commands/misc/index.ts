@@ -14,6 +14,7 @@ import { CommandLabel } from "./CommandLabel";
 import { CommandLog } from "./CommandLog";
 import { CommandLogout } from "./CommandLogout";
 import { CommandSetDelay } from "./CommandSetDelay";
+import { CommandSetFPS } from "./CommandSetFPS";
 import { CommandSetGuild } from "./CommandSetGuild";
 import { CommandSetName } from "./CommandSetName";
 import { CommandSettingAntiCounter } from "./CommandSettingAntiCounter";
@@ -557,6 +558,20 @@ export const miscCommands = {
 
     const cmd = new CommandGotoPlayer();
     cmd.playerName = player;
+    window.context.addCommand(cmd);
+  },
+  /**
+   * Sets the target FPS for the game.
+   *
+   * @param fps - The desired value.
+   */
+  set_fps(fps: number) {
+    if (!fps || typeof fps !== "number" || fps < 0) {
+      throw new ArgsError("fps is required");
+    }
+
+    const cmd = new CommandSetFPS();
+    cmd.fps = Math.trunc(fps);
     window.context.addCommand(cmd);
   },
 };
