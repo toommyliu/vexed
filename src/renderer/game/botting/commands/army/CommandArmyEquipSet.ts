@@ -1,5 +1,7 @@
 import { ArmyCommand } from "./ArmyCommand";
 
+const ALLOWED_KEYS = ["armor", "cape", "class", "helm", "pet", "weapon"];
+
 export class CommandArmyEquipSet extends ArmyCommand {
   public setName!: string;
 
@@ -26,8 +28,12 @@ export class CommandArmyEquipSet extends ArmyCommand {
       return;
     }
 
-    for (const item of Object.values(playerSet)) {
-      await this.bot.inventory.equip(item);
+    for (const [key, item] of Object.entries(playerSet)) {
+      if (!ALLOWED_KEYS.includes(key.toLowerCase())) continue;
+
+      if (item) {
+        await this.bot.inventory.equip(item);
+      }
     }
   }
 
@@ -37,9 +43,10 @@ export class CommandArmyEquipSet extends ArmyCommand {
 }
 
 type Set = {
-  Cape: string;
-  Class: string;
-  Helm: string;
+  Armor?: string;
+  Cape?: string;
+  Class?: string;
+  Helm?: string;
   Pet?: string;
-  Weapon: string;
+  Weapon?: string;
 };
