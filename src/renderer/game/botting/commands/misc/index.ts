@@ -31,6 +31,7 @@ import { CommandStopAggroMon } from "./CommandStopAggroMon";
 import { CommandStopBot } from "./CommandStopBot";
 import { CommandWaitForPlayerCount } from "./CommandWaitForPlayerCount";
 import { CommandWalkSpeed } from "./CommandWalkSpeed";
+import { CommandSetFPS } from "./CommandSetFPS";
 
 export const miscCommands = {
   /**
@@ -557,6 +558,20 @@ export const miscCommands = {
 
     const cmd = new CommandGotoPlayer();
     cmd.playerName = player;
+    window.context.addCommand(cmd);
+  },
+  /**
+   * Sets the target FPS for the game.
+   *
+   * @param fps - The desired value.
+   */
+  set_fps(fps: number) {
+    if (!fps || typeof fps !== "number" || fps < 0) {
+      throw new ArgsError("fps is required");
+    }
+
+    const cmd = new CommandSetFPS();
+    cmd.fps = Math.trunc(fps);
     window.context.addCommand(cmd);
   },
 };
