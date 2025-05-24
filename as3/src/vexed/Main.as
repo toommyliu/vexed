@@ -151,6 +151,10 @@ package vexed {
 			return this.gameDomain;
 		}
 
+		public function getStage():Stage {
+			return this.stg;
+		}
+
 		public static function getGameObject(path:String):String {
 			var obj:* = _getObjectS(_instance.game, path);
 			return JSON.stringify(obj);

@@ -154,6 +154,7 @@ declare global {
     settingsSetDisableCollisions(on: boolean): void;
     settingsSetDisableFX(on: boolean): void;
     settingsSetHidePlayers(on: boolean): void;
+    settingsSetFPS(fps: number): void;
 
     shopGetInfo(): Nullable<ShopInfo>;
     shopGetItems(): ItemData[];
