@@ -213,7 +213,6 @@ export const itemCommands = {
     cmd.enhancementName = enhancementName;
     if (itemType) cmd.itemType = itemType;
 
-    void cmd.execute();
-    // window.context.addCommand(cmd);
+    window.context.addCommand(cmd);
   },
 };
