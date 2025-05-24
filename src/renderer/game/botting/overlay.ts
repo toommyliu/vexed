@@ -25,6 +25,8 @@ export class CommandOverlay extends TypedEmitter<Events> {
 
   private readonly headerControlsElement!: HTMLDivElement;
 
+  private readonly toggleButton!: HTMLElement;
+
   private lastCommands: string[] = [];
 
   private lastIndex: number = -1;
@@ -67,18 +69,18 @@ export class CommandOverlay extends TypedEmitter<Events> {
       this.hide();
     });
 
-    const toggleButton = document.createElement("div");
-    toggleButton.className = "command-overlay-control";
-    toggleButton.textContent = "▼";
-    toggleButton.title = "Toggle overlay";
-    toggleButton.addEventListener("click", (ev) => {
+    this.toggleButton = document.createElement("div");
+    this.toggleButton.className = "command-overlay-control";
+    this.toggleButton.textContent = "▼";
+    this.toggleButton.title = "Toggle overlay";
+    this.toggleButton.addEventListener("click", (ev) => {
       ev.stopPropagation();
       this.toggleListVisibility();
       this.updateHeaderText();
       this.savePosition();
     });
 
-    this.headerControlsElement.append(toggleButton, closeButton);
+    this.headerControlsElement.append(this.toggleButton, closeButton);
     this.headerElement.append(
       this.headerTextElement,
       this.headerControlsElement,
@@ -417,8 +419,7 @@ export class CommandOverlay extends TypedEmitter<Events> {
     const count = this.lastCommands.length;
     this.headerTextElement.textContent = `Commands (${count})`;
 
-    const toggleButton = this.headerControlsElement.children[0] as HTMLElement;
-    toggleButton.textContent = this.listVisible ? "▼" : "▶";
+    this.toggleButton.textContent = this.listVisible ? "▼" : "▶";
   }
 
   /**
