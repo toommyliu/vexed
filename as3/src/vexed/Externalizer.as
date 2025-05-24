@@ -154,6 +154,9 @@ package vexed {
             Modules.disable("HidePlayers");
           }
         });
+      externalize("settingsSetFPS", function(fps:int):void {
+          Main.getInstance().getStage().frameRate = fps;
+        });
 
       // Shops
       externalize("shopGetInfo", Shops.getInfo);

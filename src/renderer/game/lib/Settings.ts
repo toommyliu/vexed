@@ -297,7 +297,8 @@ export class Settings {
    * @param fps - The target fps.
    */
   public setFps(fps: number | string): void {
-    this.bot.flash.set("stg.frameRate", Number.parseInt(String(fps), 10));
+    const val = typeof fps === "number" ? fps : Number.parseInt(fps, 10) || 24;
+    this.bot.flash.call(() => swf.settingsSetFPS(val));
   }
 
   /**
