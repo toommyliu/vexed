@@ -19,6 +19,9 @@ import { CommandIsMember } from "./CommandIsMember";
 import { CommandIsNotInTemp } from "./CommandIsNotInTemp";
 import { CommandIsNotMaxStack } from "./CommandIsNotMaxStack";
 import { CommandIsNotMember } from "./CommandIsNotMember";
+import { CommandIsPlayerArmyLeader } from "./CommandIsPlayerArmyLeader";
+import { CommandIsPlayerArmyMember } from "./CommandIsPlayerArmyMember";
+import { CommandIsPlayerNumber } from "./CommandIsPlayerNumber";
 import { CommandItemHasDropped } from "./CommandItemHasDropped";
 import { CommandItemHasNotDropped } from "./CommandItemHasNotDropped";
 import { CommandLevelGreaterThan } from "./CommandLevelGreaterThan";
@@ -60,9 +63,6 @@ import { CommandQuestNotInProgress } from "./CommandQuestNotInProgress";
 import { CommandTargetHpBetween } from "./CommandTargetHpBetween";
 import { CommandTargetHealthGreaterThan as CommandTargetHpGreaterThan } from "./CommandTargetHpGreaterThan";
 import { CommandTargetHpLessThan } from "./CommandTargetHpLessThan";
-import { CommandIsPlayerArmyMember } from "./CommandIsPlayerArmyMember";
-import { CommandIsPlayerArmyLeader } from "./CommandIsPlayerArmyLeader";
-import { CommandIsPlayerNumber } from "./CommandIsPlayerNumber";
 
 export const conditionsCommands = {
   /**
