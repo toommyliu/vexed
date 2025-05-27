@@ -159,8 +159,10 @@ async function transpile() {
         ),
       ]);
 
-      await Promise.all(
-        contexts.map(async ({ context, rebuildWithNewFiles }, index) => {
+      const svelteCtx = await context(svelteConfig);
+
+      await Promise.all([
+        ...contexts.map(async ({ context, rebuildWithNewFiles }, index) => {
           const dirs = ["./src/main", "./src/common", "./src/renderer"][index];
           await watch([dirs], async () => {
             console.log(`Changes detected in ${dirs}, rebuilding...`);
@@ -168,7 +170,14 @@ async function transpile() {
           });
           return context.watch();
         }),
-      );
+        (async () => {
+          await watch(["./src/renderer/manager"], async () => {
+            console.log("Changes detected in Svelte files, rebuilding...");
+            await svelteCtx.rebuild();
+          });
+          return svelteCtx.watch();
+        })(),
+      ]);
 
       console.log("Watching for changes...");
     } else {
