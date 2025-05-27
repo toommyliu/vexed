@@ -60,6 +60,9 @@ import { CommandQuestNotInProgress } from "./CommandQuestNotInProgress";
 import { CommandTargetHpBetween } from "./CommandTargetHpBetween";
 import { CommandTargetHealthGreaterThan as CommandTargetHpGreaterThan } from "./CommandTargetHpGreaterThan";
 import { CommandTargetHpLessThan } from "./CommandTargetHpLessThan";
+import { CommandIsPlayerArmyMember } from "./CommandIsPlayerArmyMember";
+import { CommandIsPlayerArmyLeader } from "./CommandIsPlayerArmyLeader";
+import { CommandIsPlayerNumber } from "./CommandIsPlayerNumber";
 
 export const conditionsCommands = {
   /**
@@ -1069,6 +1072,34 @@ export const conditionsCommands = {
 
     const cmd = new CommandMonsterNotInRoom();
     cmd.monster = monster;
+    window.context.addCommand(cmd);
+  },
+  /**
+   * Whether this player's role is a member in the army.
+   */
+  is_army_member() {
+    const cmd = new CommandIsPlayerArmyMember();
+    window.context.addCommand(cmd);
+  },
+  /**
+   * Whether this player's role is the leader in the army.
+   */
+  is_army_leader() {
+    const cmd = new CommandIsPlayerArmyLeader();
+    window.context.addCommand(cmd);
+  },
+  /**
+   * Whether this player's role is the specified player number.
+   *
+   * @param playerNumber - The player number to check.
+   */
+  is_player_number(playerNumber: number) {
+    if (!playerNumber || typeof playerNumber !== "number") {
+      throw new ArgsError("playerNumber is required");
+    }
+
+    const cmd = new CommandIsPlayerNumber();
+    cmd.playerNumber = playerNumber;
     window.context.addCommand(cmd);
   },
 };
