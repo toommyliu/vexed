@@ -3,9 +3,9 @@ import { ArmyCommand } from "./ArmyCommand";
 export class CommandArmyJoin extends ArmyCommand {
   public mapName!: string;
 
-  public cellName!: string;
+  public cellName?: string;
 
-  public padName!: string;
+  public padName?: string;
 
   public override async execute(): Promise<void> {
     await this.executeWithArmy(async () => {
@@ -21,6 +21,11 @@ export class CommandArmyJoin extends ArmyCommand {
   }
 
   public override toString(): string {
-    return `Army join: ${this.mapName} [${this.cellName}:${this.padName}]`;
+    const split = this.mapName.split("-");
+    const mapName = split[0];
+    const roomNumber = split[1] ?? this.bot.army.roomNumber;
+    const fullMapName = `${mapName}-${roomNumber}`;
+
+    return `Army join: ${fullMapName} ${this.cellName ? `[${this.cellName}${this.padName ? `:${this.padName}` : ""}]` : ""}`;
   }
 }

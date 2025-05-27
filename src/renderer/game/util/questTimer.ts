@@ -1,5 +1,6 @@
 import { interval } from "../../../common/interval";
 import { Bot } from "../lib/Bot";
+import { GameAction } from "../lib/World";
 
 const bot = Bot.getInstance();
 const activeQuestIds = new Set<string>();
@@ -32,10 +33,21 @@ export function startQuestTimer() {
         }
 
         if (!swf.questsIsInProgress(_questId)) {
+          await bot.waitUntil(
+            () => bot.world.isActionAvailable(GameAction.AcceptQuest),
+            null,
+            5,
+          );
           swf.questsAccept(_questId);
         }
 
         if (swf.questsCanCompleteQuest(_questId)) {
+          await bot.waitUntil(
+            () => bot.world.isActionAvailable(GameAction.TryQuestComplete),
+            null,
+            5,
+          );
+
           const maxTurnIns = bot.flash.call<string>(
             "world.maximumQuestTurnIns",
             _questId,
