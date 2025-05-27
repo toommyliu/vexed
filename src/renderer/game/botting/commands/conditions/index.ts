@@ -19,6 +19,9 @@ import { CommandIsMember } from "./CommandIsMember";
 import { CommandIsNotInTemp } from "./CommandIsNotInTemp";
 import { CommandIsNotMaxStack } from "./CommandIsNotMaxStack";
 import { CommandIsNotMember } from "./CommandIsNotMember";
+import { CommandIsPlayerArmyLeader } from "./CommandIsPlayerArmyLeader";
+import { CommandIsPlayerArmyMember } from "./CommandIsPlayerArmyMember";
+import { CommandIsPlayerNumber } from "./CommandIsPlayerNumber";
 import { CommandItemHasDropped } from "./CommandItemHasDropped";
 import { CommandItemHasNotDropped } from "./CommandItemHasNotDropped";
 import { CommandLevelGreaterThan } from "./CommandLevelGreaterThan";
@@ -1069,6 +1072,34 @@ export const conditionsCommands = {
 
     const cmd = new CommandMonsterNotInRoom();
     cmd.monster = monster;
+    window.context.addCommand(cmd);
+  },
+  /**
+   * Whether this player's role is a member in the army.
+   */
+  is_army_member() {
+    const cmd = new CommandIsPlayerArmyMember();
+    window.context.addCommand(cmd);
+  },
+  /**
+   * Whether this player's role is the leader in the army.
+   */
+  is_army_leader() {
+    const cmd = new CommandIsPlayerArmyLeader();
+    window.context.addCommand(cmd);
+  },
+  /**
+   * Whether this player's role is the specified player number.
+   *
+   * @param playerNumber - The player number to check.
+   */
+  is_player_number(playerNumber: number) {
+    if (!playerNumber || typeof playerNumber !== "number") {
+      throw new ArgsError("playerNumber is required");
+    }
+
+    const cmd = new CommandIsPlayerNumber();
+    cmd.playerNumber = playerNumber;
     window.context.addCommand(cmd);
   },
 };
