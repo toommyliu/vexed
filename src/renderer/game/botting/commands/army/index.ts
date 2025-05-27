@@ -225,6 +225,12 @@ export const armyCommands = {
     cmd.setName = setName;
     window.context.addCommand(cmd);
   },
+  /**
+   * Splits the army into multiple cells, allowing for more efficient farming.
+   *
+   * @param cells - The list of cells to divide the army on.
+   * @param priorityCell - Optional fallback cell for players when there are more army players than available cells, or when the cells array is empty. Acts as an overflow destination.
+   */
   army_divide_on_cells(cells: string[], priorityCell?: string) {
     if (
       !Array.isArray(cells) ||
