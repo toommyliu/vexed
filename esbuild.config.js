@@ -1,9 +1,12 @@
-const { resolve } = require('path');
-const { readdir } = require('fs-extra');
-const { build, context } = require('esbuild');
-const { watch } = require('watchlist');
+const { resolve } = require("path");
+const { readdir } = require("fs-extra");
+const { build, context } = require("esbuild");
+const { watch } = require("watchlist");
+const sveltePlugin = require("esbuild-svelte");
+const sveltePreprocess = require("svelte-preprocess");
 
-const watchFlag = process.argv.includes('--watch');
+const isProduction = process.env.NODE_ENV === "production";
+const isWatch = process.argv.includes("--watch");
 
 /**
  * @param {string} dir
@@ -13,7 +16,7 @@ const readdirp = async (dir) => {
   const dirents = await readdir(dir, { withFileTypes: true });
   const filtered = dirents.filter((dirent) => {
     if (dirent.isFile()) {
-      return !dirent.name.startsWith('.') && dirent.name.endsWith('.ts');
+      return !dirent.name.startsWith(".") && dirent.name.endsWith(".ts");
     }
     return true;
   });
@@ -102,30 +105,63 @@ async function transpile() {
     /**
      * @type {import('esbuild').BuildOptions}
      */
-    const config = {
-      platform: 'node',
-      target: 'chrome76',
-      format: 'cjs',
+    const commonConfig = {
+      platform: "node",
+      target: "chrome76",
+      format: "cjs",
       // minify: true,
       sourcemap: true,
       treeShaking: true,
     };
 
-    if (watchFlag) {
+    /**
+     * @type {import('esbuild').BuildOptions}
+     */
+    const svelteConfig = {
+      entryPoints: ["src/renderer/manager/main.ts"],
+      outfile: "public/manager/build/main.js",
+      bundle: true,
+      format: "iife",
+      platform: "browser",
+      target: "es2019",
+      sourcemap: !isProduction,
+      minify: isProduction,
+      plugins: [
+        sveltePlugin({
+          compilerOptions: {
+            dev: !isProduction,
+            css: "injected",
+          },
+          preprocess: sveltePreprocess({
+            sourceMap: !isProduction,
+            typescript: {
+              tsconfigFile: "./tsconfig.json",
+            },
+          }),
+        }),
+      ],
+    };
+
+    if (isWatch) {
       const contexts = await Promise.all([
-        createBuildContext(config, './src/main/', 'dist/main/', 'Main'),
-        createBuildContext(config, './src/common/', 'dist/common/', 'Common'),
+        createBuildContext(commonConfig, "./src/main/", "dist/main/", "Main"),
         createBuildContext(
-          config,
-          './src/renderer/',
-          'dist/renderer/',
-          'Renderer',
+          commonConfig,
+          "./src/common/",
+          "dist/common/",
+          "Common",
+        ),
+        createBuildContext(
+          commonConfig,
+          "./src/renderer/",
+          "dist/renderer/",
+          "Renderer",
         ),
       ]);
 
       await Promise.all(
         contexts.map(async ({ context, rebuildWithNewFiles }, index) => {
-          const dirs = ['./src/main', './src/common', './src/renderer'][index];
+          const dirs = ["./src/main", "./src/common", "./src/renderer"][index];
           await watch([dirs], async () => {
             console.log(`Changes detected in ${dirs}, rebuilding...`);
             await rebuildWithNewFiles();
@@ -134,24 +170,26 @@ async function transpile() {
         }),
       );
 
-      console.log('Watching for changes...');
+      console.log("Watching for changes...");
     } else {
       // One-time build
-      const builds = ['main', 'common', 'renderer'].map(async (type) => {
+      const builds = ["main", "common", "renderer"].map(async (type) => {
         console.time(`${type} took`);
         await build({
-          ...config,
+          ...commonConfig,
           entryPoints: await readdirp(`./src/${type}/`),
           outdir: `dist/${type}/`,
         });
         console.timeEnd(`${type} took`);
       });
 
+      builds.push(build(svelteConfig));
+
       await Promise.all(builds);
     }
   } catch (error) {
     console.log(`An error occurred while transpiling: ${error}`);
-    if (!watchFlag) {
+    if (!isWatch) {
       process.exit(1);
     }
   }

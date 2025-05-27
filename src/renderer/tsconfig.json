@@ -3,5 +3,5 @@
   "compilerOptions": {
     "lib": ["dom", "dom.iterable", "es2024"]
   },
-  "files": ["./index.d.ts"]
+  "files": ["./index.d.ts", "./svelte.d.ts"]
 }
