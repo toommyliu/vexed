@@ -1,5 +1,6 @@
 import type { KillOptions } from "../../../lib/Combat";
 import { ArgsError } from "../../ArgsError";
+import { CommandArmyDivideOnCells } from "./CommandArmyDivideOnCells";
 import { CommandArmyEquipSet } from "./CommandArmyEquipSet";
 // import { CommandArmyEquipItem } from "./CommandArmyEquipItem";
 import { CommandArmyInit } from "./CommandArmyInit";
@@ -37,23 +38,23 @@ export const armyCommands = {
    * @param cell - The name of the cell to join.
    * @param pad - The name of the pad to join.
    */
-  army_join(map: string, cell: string, pad: string) {
+  army_join(map: string, cell?: string, pad?: string) {
     if (!map || typeof map !== "string") {
       throw new ArgsError("map is required");
     }
 
-    if (!cell || typeof cell !== "string") {
+    if (cell && typeof cell !== "string") {
       throw new ArgsError("cell is required");
     }
 
-    if (!pad || typeof pad !== "string") {
+    if (pad && typeof pad !== "string") {
       throw new ArgsError("pad is required");
     }
 
     const cmd = new CommandArmyJoin();
     cmd.mapName = map;
-    cmd.cellName = cell;
-    cmd.padName = pad;
+    if (cell) cmd.cellName = cell;
+    if (pad) cmd.padName = pad;
     window.context.addCommand(cmd);
   },
   /**
@@ -222,6 +223,30 @@ export const armyCommands = {
 
     const cmd = new CommandArmyEquipSet();
     cmd.setName = setName;
+    window.context.addCommand(cmd);
+  },
+  /**
+   * Splits the army into multiple cells, allowing for more efficient farming.
+   *
+   * @param cells - The list of cells to divide the army on.
+   * @param priorityCell - Optional fallback cell for players when there are more army players than available cells, or when the cells array is empty. Acts as an overflow destination.
+   */
+  army_divide_on_cells(cells: string[], priorityCell?: string) {
+    if (
+      !Array.isArray(cells) ||
+      cells?.length === 0 ||
+      cells.some((cell) => typeof cell !== "string")
+    ) {
+      throw new ArgsError("cells is required");
+    }
+
+    if (priorityCell && typeof priorityCell !== "string") {
+      throw new ArgsError("priorityCell is required");
+    }
+
+    const cmd = new CommandArmyDivideOnCells();
+    cmd.cells = cells;
+    if (priorityCell) cmd.priorityCell = priorityCell;
     window.context.addCommand(cmd);
   },
 };
