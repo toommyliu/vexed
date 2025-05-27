@@ -121,11 +121,19 @@ async function transpile() {
       entryPoints: ["src/renderer/manager/main.ts"],
       outfile: "public/manager/build/main.js",
       bundle: true,
-      format: "iife",
+      format: "cjs",
       platform: "browser",
       target: "es2019",
       sourcemap: !isProduction,
       minify: isProduction,
+      external: ["electron"],
+      banner: {
+        // core-js: polyfill for modern JavaScript features
+        // regenerator-runtime: don't know
+        js: String.raw`
+        require('core-js/stable');
+        require('regenerator-runtime/runtime');`,
+      },
       plugins: [
         sveltePlugin({
           compilerOptions: {
