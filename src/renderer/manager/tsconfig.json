@@ -1,5 +1,11 @@
 {
   "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "verbatimModuleSyntax": true,
+    "types": ["svelte"]
+  },
   "include": ["./**/*.ts", "./**/*.svelte"],
   "exclude": ["../game/**/*"]
 }

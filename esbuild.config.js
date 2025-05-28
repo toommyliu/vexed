@@ -144,7 +144,7 @@ async function transpile() {
           preprocess: sveltePreprocess({
             sourceMap: !isProduction,
             typescript: {
-              tsconfigFile: "./tsconfig.json",
+              tsconfigFile: "./src/renderer/manager/tsconfig.json",
             },
           }),
         }),
