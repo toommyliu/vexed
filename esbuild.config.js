@@ -130,9 +130,8 @@ async function transpile() {
       banner: {
         // core-js: polyfill for modern JavaScript features
         // regenerator-runtime: don't know
-        js: String.raw`
-        require('core-js/stable');
-        require('regenerator-runtime/runtime');`,
+        js: String.raw`require('core-js/stable');
+require('regenerator-runtime/runtime');`,
       },
       plugins: [
         sveltePlugin({
