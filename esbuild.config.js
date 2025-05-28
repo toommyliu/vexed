@@ -168,23 +168,48 @@ async function transpile() {
         ),
       ]);
 
-      const svelteCtx = await context(svelteConfig);
+      let svelteCtx;
+      try {
+        svelteCtx = await context(svelteConfig);
+      } catch (error) {
+        console.error("Failed to create Svelte context:", error);
+        throw error;
+      }
 
       await Promise.all([
         ...contexts.map(async ({ context, rebuildWithNewFiles }, index) => {
           const dirs = ["./src/main", "./src/common", "./src/renderer"][index];
-          await watch([dirs], async () => {
-            console.log(`Changes detected in ${dirs}, rebuilding...`);
-            await rebuildWithNewFiles();
-          });
-          return context.watch();
+          try {
+            await watch([dirs], async () => {
+              console.log(`Changes detected in ${dirs}, rebuilding...`);
+              try {
+                await rebuildWithNewFiles();
+              } catch (error) {
+                console.error(`Failed to rebuild ${dirs}:`, error);
+                // Continue watching even if rebuild fails
+              }
+            });
+            return context.watch();
+          } catch (error) {
+            console.error(`Failed to start file watching for ${dirs}:`, error);
+            throw error;
+          }
         }),
         (async () => {
-          await watch(["./src/renderer/manager"], async () => {
-            console.log("Changes detected in Svelte files, rebuilding...");
-            await svelteCtx.rebuild();
-          });
-          return svelteCtx.watch();
+          try {
+            await watch(["./src/renderer/manager"], async () => {
+              console.log("Changes detected in Svelte files, rebuilding...");
+              try {
+                await svelteCtx.rebuild();
+              } catch (error) {
+                console.error("Svelte rebuild failed:", error);
+              }
+            });
+            return svelteCtx.watch();
+          } catch (error) {
+            console.error("Failed to start Svelte file watching:", error);
+            throw error;
+          }
         })(),
       ]);
 
@@ -193,19 +218,31 @@ async function transpile() {
       // One-time build
       const builds = ["main", "common", "renderer"].map(async (type) => {
         console.time(`${type} took`);
-        await build({
-          ...commonConfig,
-          entryPoints: await readdirp(`./src/${type}/`),
-          outdir: `dist/${type}/`,
-        });
-        console.timeEnd(`${type} took`);
+        try {
+          await build({
+            ...commonConfig,
+            entryPoints: await readdirp(`./src/${type}/`),
+            outdir: `dist/${type}/`,
+          });
+          console.timeEnd(`${type} took`);
+        } catch (error) {
+          console.timeEnd(`${type} took`);
+          console.error(`${type} build failed:`, error);
+          throw error;
+        }
       });
 
       builds.push(
         (async () => {
           console.time("svelte took");
-          await build(svelteConfig);
-          console.timeEnd("svelte took");
+          try {
+            await build(svelteConfig);
+            console.timeEnd("svelte took");
+          } catch (error) {
+            console.timeEnd("svelte took");
+            console.error("Svelte build failed:", error);
+            throw error;
+          }
         })(),
       );
 
