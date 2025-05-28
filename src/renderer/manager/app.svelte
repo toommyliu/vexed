@@ -1,5 +1,7 @@
-<script lang="ts">
-  console.log("App component mounted! - UPDATED asdass");
+<script>
+  import AccountCard from "./components/AccountCard.svelte";
+  import Test from "./components/Test.svelte";
 </script>
 
-<p class="text-red-500">hello world! - UPDATED asda</p>
+<Test />
+<AccountCard />

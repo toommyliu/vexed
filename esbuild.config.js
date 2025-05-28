@@ -6,7 +6,7 @@ const sveltePlugin = require("esbuild-svelte");
 const sveltePreprocess = require("svelte-preprocess");
 
 const isProduction = process.env.NODE_ENV === "production";
-const isWatch = process.argv.includes("--watch");
+const isWatch = process.argv.includes("--watch") || process.argv.includes("-w");
 
 /**
  * @param {string} dir
@@ -118,20 +118,22 @@ async function transpile() {
      * @type {import('esbuild').BuildOptions}
      */
     const svelteConfig = {
-      entryPoints: ["src/renderer/manager/main.ts"],
-      outfile: "public/manager/build/main.js",
+      entryPoints: ["./src/renderer/manager/main.ts"],
+      outfile: "./public/manager/build/main.js",
       bundle: true,
       format: "cjs",
       platform: "browser",
       target: "es2019",
       sourcemap: !isProduction,
       minify: isProduction,
+      loader: {
+        ".ts": "ts",
+        ".js": "js",
+      },
       external: ["electron"],
       banner: {
         // core-js: polyfill for modern JavaScript features
-        // regenerator-runtime: don't know
-        js: String.raw`require('core-js/stable');
-require('regenerator-runtime/runtime');`,
+        js: "require('core-js/stable')",
       },
       plugins: [
         sveltePlugin({
@@ -199,7 +201,13 @@ require('regenerator-runtime/runtime');`,
         console.timeEnd(`${type} took`);
       });
 
-      builds.push(build(svelteConfig));
+      builds.push(
+        (async () => {
+          console.time("svelte took");
+          await build(svelteConfig);
+          console.timeEnd("svelte took");
+        })(),
+      );
 
       await Promise.all(builds);
     }

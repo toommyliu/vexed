@@ -1,5 +1,5 @@
 {
   "extends": "../tsconfig.json",
-  "include": ["./**/*.ts"],
-  "exclude": ["../game/**/*.ts", "../game/**/*.d.ts"]
+  "include": ["./**/*.ts", "./**/*.svelte"],
+  "exclude": ["../game/**/*"]
 }
