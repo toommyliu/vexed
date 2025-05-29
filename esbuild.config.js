@@ -129,8 +129,9 @@ async function transpile() {
       loader: {
         ".ts": "ts",
         ".js": "js",
+        ".svelte": "ts",
       },
-      external: ["electron"],
+      external: ["electron", "winston", "process", "util"],
       banner: {
         // core-js: polyfill for modern JavaScript features
         js: "require('core-js/stable')",
@@ -144,6 +145,8 @@ async function transpile() {
           preprocess: sveltePreprocess({
             sourceMap: !isProduction,
             typescript: {
+              // This config must be used, as Svelte TS seems to fail without it
+              // Anyways, we only use tsc for typechecking
               tsconfigFile: "./src/renderer/manager/tsconfig.json",
             },
           }),
