@@ -131,7 +131,13 @@ async function transpile() {
         ".js": "js",
         ".svelte": "ts",
       },
-      external: ["electron", "winston", "process", "util"],
+      external: [
+        "electron",
+        "winston",
+        "process",
+        "util",
+        "@egoist/tipc/renderer",
+      ],
       banner: {
         // core-js: polyfill for modern JavaScript features
         js: "require('core-js/stable')",

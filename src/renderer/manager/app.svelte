@@ -3,10 +3,10 @@
   import { onMount } from "svelte";
   import { ipcRenderer } from "../../common/ipc";
   import type { Account } from "../../common/types";
-  import type { ServerData } from "../game/lib/models/Server";
   import { IPC_EVENTS } from "../../common/ipc-events";
   import Footer from "./components/footer.svelte";
   import { state } from "./state.svelte";
+  import { client } from "./client";
 
   const { accounts, servers, timeouts } = state;
 
@@ -18,15 +18,14 @@
   });
 
   onMount(async () => {
-    const [accountData, serverData]: [Account[], ServerData[]] =
-      await Promise.all([
-        ipcRenderer.callMain(IPC_EVENTS.GET_ACCOUNTS),
-        fetch("https://game.aq.com/game/api/data/servers").then(async (resp) =>
-          resp.json(),
-        ),
-      ]);
+    const [accountData, serverData] = await Promise.all([
+      client.getAccounts(),
+      fetch("https://game.aq.com/game/api/data/servers").then(async (resp) =>
+        resp.json(),
+      ),
+    ]);
 
-    for (const account of accountData) {
+    for (const account of accountData!) {
       accounts.set(account.username, account);
     }
 

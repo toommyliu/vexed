@@ -26,6 +26,9 @@
     "validate": "npm-run-all --parallel typecheck lint format"
   },
   "dependencies": {
+    "@egoist/tipc": "toommyliu/tipc#built",
+    "@lukeed/uuid": "^2.0.1",
+    "@tybys/electron-ipc-handle-invoke": "^1.0.2",
     "async-mutex": "^0.5.0",
     "atomically": "1.7.0",
     "clsx": "^2.1.1",
@@ -62,8 +65,7 @@
     "tailwindcss": "3.4.17",
     "tsx": "^4.19.4",
     "typedoc": "^0.28.4",
-    "typescript": "^5.5.4",
-    "unocss": "^66.1.2"
+    "typescript": "^5.5.4"
   },
   "electronmon": {
     "patterns": [

@@ -4,12 +4,16 @@ import "./tray";
 
 import { join } from "path";
 import process from "process";
+import { registerIpcMain } from "@egoist/tipc/main";
 import { app } from "electron";
 import { FileManager } from "../common/FileManager";
 import { BRAND } from "../common/constants";
 import type { Settings } from "../common/types";
+import { router } from "./tipc/manager";
 import { showErrorDialog } from "./util/showErrorDialog";
 import { createAccountManager, createGame } from "./windows";
+
+registerIpcMain(router);
 
 function registerFlashPlugin() {
   // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
