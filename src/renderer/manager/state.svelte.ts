@@ -1,7 +1,8 @@
 import { SvelteMap, SvelteSet } from "svelte/reactivity";
+import type { Account } from "../../common/types";
 import type { ServerData } from "../game/lib/models/Server";
 
-function initState() {
+function initManager() {
   const servers = new SvelteMap<string, ServerData>();
   const accounts = new SvelteMap<string, Account>();
   const selectedAccounts = new SvelteSet<string>();
@@ -37,4 +38,4 @@ function initState() {
   };
 }
 
-export const state = initState();
+export const managerState = initManager();

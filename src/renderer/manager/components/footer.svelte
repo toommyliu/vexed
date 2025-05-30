@@ -1,12 +1,42 @@
 <script lang="ts">
-  import { state } from "../state.svelte";
+  import { managerState } from "../state.svelte";
   import { cn } from "../../../shared";
   import { ipcRenderer } from "../../../common/ipc";
   import { IPC_EVENTS } from "../../../common/ipc-events";
+  import { startAccount, removeAccount } from "../util";
+
+  let selectedCount = $derived(managerState.selectedAccounts.size);
+
+  const startSelected = async () => {
+    if (managerState.selectedAccounts.size === 0) return;
+
+    console.log("selected accounts:", managerState.selectedAccounts);
+
+    for (const username of managerState.selectedAccounts) {
+      const account = managerState.accounts.get(username);
+      if (!account) continue;
+
+      if (managerState.timeouts.has(username)) continue;
+
+      await startAccount(account);
+    }
+  };
+  const removeSelected = async () => {
+    if (managerState.selectedAccounts.size === 0) return;
+
+    console.log("remove selected accounts:", managerState.selectedAccounts);
+
+    for (const username of managerState.selectedAccounts) {
+      const account = managerState.accounts.get(username);
+      if (!account) continue;
+
+      await removeAccount(account);
+    }
+  };
 </script>
 
 <footer
-  class="sticky bottom-0 z-10 flex-shrink-0 border-t border-zinc-700/50 bg-gradient-to-r from-zinc-900/90 to-zinc-800/90 p-6 shadow-2xl backdrop-blur-md"
+  class="sticky bottom-0 z-10 flex-shrink-0 border-t border-zinc-700/30 bg-gradient-to-r from-zinc-900/95 via-zinc-800/90 to-zinc-900/95 p-6 shadow-2xl backdrop-blur-md"
 >
   <div
     class="mx-auto flex w-full max-w-4xl flex-col sm:flex-row sm:items-center sm:justify-between sm:space-x-6"
@@ -20,13 +50,13 @@
         >
         <select
           id="servers"
-          class="w-full rounded-lg border border-zinc-600/50 bg-zinc-950/50 p-2.5 text-white shadow-inner transition-all duration-200 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+          class="w-full rounded-lg border border-zinc-600/30 bg-zinc-950/80 p-2.5 text-white shadow-inner transition-all duration-200 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
           onchange={(ev) =>
-            (state.selectedServer = (
+            (managerState.selectedServer = (
               ev.currentTarget as HTMLSelectElement
             ).value)}
         >
-          {#each state.servers.values() as server}
+          {#each managerState.servers.values() as server}
             <option value={server.sName}
               >{server.sName} ({server.iCount})</option
             >
@@ -39,8 +69,8 @@
           <input
             type="checkbox"
             id="start-with-script"
-            class="rounded border-zinc-600 bg-zinc-950 text-emerald-500 transition-colors focus:ring-emerald-500/20"
-            bind:checked={state.startWithScript}
+            class="rounded border-zinc-600/50 bg-zinc-950/80 text-emerald-500 transition-colors focus:ring-emerald-500/20"
+            bind:checked={managerState.startWithScript}
           />
           <label for="start-with-script" class="font-medium"
             >Start with script</label
@@ -48,30 +78,30 @@
           <div class="flex items-center space-x-2">
             <button
               class={cn(
-                "rounded-lg border border-zinc-600/50 bg-zinc-800/50 px-3 py-1 text-xs text-gray-400 transition-all duration-200",
-                !state.startWithScript &&
+                "rounded-lg border border-zinc-600/30 bg-zinc-900/60 px-3 py-1 text-xs text-gray-400 transition-all duration-200",
+                !managerState.startWithScript &&
                   "pointer-events-none cursor-not-allowed opacity-50",
-                state.startWithScript && "hover:bg-zinc-700/50",
+                managerState.startWithScript && "hover:bg-zinc-800/60",
               )}
-              disabled={!state.startWithScript}
+              disabled={!managerState.startWithScript}
               onclick={async () => {
                 const res = await ipcRenderer.callMain(
                   IPC_EVENTS.MGR_LOAD_SCRIPT,
                 );
                 if (!res) return;
 
-                state.scriptPath = res;
+                managerState.scriptPath = res;
               }}
             >
               Select file
             </button>
-            {#if state.startWithScript && state.scriptPath}
+            {#if managerState.startWithScript && managerState.scriptPath}
               <span
                 id="selected-script-name"
                 class="max-w-[200px] cursor-pointer truncate text-xs text-gray-400 hover:underline"
-                title={state.scriptPath}
+                title={managerState.scriptPath}
               >
-                {state.scriptPath.split("/").pop()}
+                {managerState.scriptPath.split("/").pop()}
               </span>
             {/if}
           </div>
@@ -79,20 +109,27 @@
       </div>
     </div>
     <div
-      class="mt-6 flex items-center justify-start space-x-4 sm:mt-0 sm:w-1/2 sm:justify-end"
+      class="mt-6 flex flex-col items-start space-y-3 sm:mt-0 sm:w-1/2 sm:items-end"
     >
-      <button
-        id="remove-selected"
-        class="rounded-lg border border-red-600/50 bg-red-900/30 px-4 py-2.5 text-sm font-medium text-red-200 shadow-lg transition-all duration-200 hover:bg-red-800/40 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-red-500/50"
-      >
-        Remove Selected
-      </button>
-      <button
-        id="start-selected"
-        class="rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-700 px-4 py-2.5 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:from-emerald-500 hover:to-emerald-600 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-      >
-        Start Selected
-      </button>
+      <span class="text-sm text-gray-300">
+        Selected: <span class="font-semibold">{selectedCount}</span>
+      </span>
+      <div class="flex space-x-4">
+        <button
+          class="rounded-md border border-red-600/50 bg-red-900/30 px-4 py-1.5 text-sm font-medium text-red-200 shadow-lg transition-all duration-200 hover:bg-red-800/40 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-red-500/50"
+          onclick={removeSelected}
+          title="Remove selected accounts"
+        >
+          Remove Selected
+        </button>
+        <button
+          class="rounded-md bg-gradient-to-r from-emerald-600 to-emerald-700 px-4 py-1.5 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:from-emerald-500 hover:to-emerald-600 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+          onclick={startSelected}
+          title="Start selected accounts"
+        >
+          Start Selected
+        </button>
+      </div>
     </div>
   </div>
 </footer>

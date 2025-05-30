@@ -109,7 +109,7 @@ async function transpile() {
       platform: "node",
       target: "chrome76",
       format: "cjs",
-      // minify: true,
+      minify: isProduction,
       sourcemap: true,
       treeShaking: true,
     };
@@ -129,15 +129,9 @@ async function transpile() {
       loader: {
         ".ts": "ts",
         ".js": "js",
-        ".svelte": "ts",
       },
-      external: [
-        "electron",
-        "winston",
-        "process",
-        "util",
-        "@egoist/tipc/renderer",
-      ],
+      conditions: ["svelte", "browser", "default"],
+      external: ["electron", "winston", "process", "util"],
       banner: {
         // core-js: polyfill for modern JavaScript features
         js: "require('core-js/stable')",
@@ -151,7 +145,7 @@ async function transpile() {
           preprocess: sveltePreprocess({
             sourceMap: !isProduction,
             typescript: {
-              // This config must be used, as Svelte TS seems to fail without it
+              // This config must be used, as using Svelte with TypeScript seems to fail without it.
               // Anyways, we only use tsc for typechecking
               tsconfigFile: "./src/renderer/manager/tsconfig.json",
             },
@@ -195,7 +189,6 @@ async function transpile() {
                 await rebuildWithNewFiles();
               } catch (error) {
                 console.error(`Failed to rebuild ${dirs}:`, error);
-                // Continue watching even if rebuild fails
               }
             });
             return context.watch();

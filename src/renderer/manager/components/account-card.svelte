@@ -1,11 +1,22 @@
 <script lang="ts">
   import type { Account, AccountWithServer } from "../../../common/types";
   import { cn } from "../../../shared";
-  import { state } from "../state.svelte";
+  import { managerState } from "../state.svelte";
 
   const { account, removeAccount, startAccount }: Props = $props();
 
-  let isDisabled = $derived(state.timeouts.has(account.username));
+  let isDisabled = $derived(managerState.timeouts.has(account.username));
+  let isSelected = $derived(
+    managerState.selectedAccounts.has(account.username),
+  );
+
+  const toggleAccount = () => {
+    if (managerState.selectedAccounts.has(account.username)) {
+      managerState.selectedAccounts.delete(account.username);
+    } else {
+      managerState.selectedAccounts.add(account.username);
+    }
+  };
 
   type Props = {
     account: Account;
@@ -20,13 +31,22 @@
   <div
     class="flex flex-col space-y-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 sm:p-5"
   >
-    <div class="flex flex-1 items-center space-x-3 sm:space-x-4">
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <div
+      class="flex flex-1 items-center space-x-3 sm:space-x-4"
+      onclick={toggleAccount}
+      role="button"
+      tabindex="0"
+    >
       <input
         type="checkbox"
         class="mt-0.5 h-4 w-4 flex-shrink-0 rounded border-zinc-600 bg-zinc-950 text-emerald-500 transition-colors focus:ring-emerald-500/20 md:mt-1"
+        checked={isSelected}
+        onchange={toggleAccount}
+        title="Select this account"
       />
       <span
-        class="cursor-pointer select-none text-ellipsis text-base font-medium text-white transition-colors duration-200 group-hover:text-emerald-100"
+        class="max-w-fit cursor-pointer select-none overflow-hidden text-ellipsis whitespace-nowrap text-base font-medium text-white transition-colors duration-200 group-hover:text-emerald-100"
         title={account.username}
       >
         {account.username}
@@ -35,7 +55,8 @@
     <div class="flex w-full max-w-[200px] space-x-2 sm:w-auto sm:max-w-none">
       <button
         class="flex-1 rounded-md border border-red-600/50 bg-red-900/30 px-2 py-1.5 text-xs font-medium text-red-200 shadow-md transition-all duration-200 hover:bg-red-800/40 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500/50 sm:min-w-[70px] sm:flex-none sm:px-3 sm:text-sm"
-        onclick={() => removeAccount(account)}>Remove</button
+        onclick={() => removeAccount(account)}
+        title="Remove this account">Remove</button
       >
       <button
         class={cn(
@@ -47,9 +68,10 @@
         onclick={async () => {
           await startAccount({
             ...account,
-            server: state.selectedServer || null,
+            server: managerState.selectedServer || null,
           });
-        }}>Start</button
+        }}
+        title="Start this account">Start</button
       >
     </div>
   </div>
