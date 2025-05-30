@@ -3,8 +3,6 @@
   import Header from "./components/header.svelte";
   import AddAccountModal from "./components/add-account-modal.svelte";
   import { onMount } from "svelte";
-  import { ipcRenderer } from "../../common/ipc";
-  import { IPC_EVENTS } from "../../common/ipc-events";
   import Footer from "./components/footer.svelte";
   import { managerState } from "./state.svelte";
   import { client, handlers } from "./tipc";

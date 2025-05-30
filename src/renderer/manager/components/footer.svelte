@@ -1,9 +1,8 @@
 <script lang="ts">
-  import { managerState } from "../state.svelte";
   import { cn } from "../../../shared";
-  import { ipcRenderer } from "../../../common/ipc";
-  import { IPC_EVENTS } from "../../../common/ipc-events";
-  import { startAccount, removeAccount } from "../util";
+  import { managerState } from "../state.svelte";
+  import { client } from "../tipc";
+  import { removeAccount, startAccount } from "../util";
 
   let selectedCount = $derived(managerState.selectedAccounts.size);
 
@@ -81,9 +80,7 @@
               )}
               disabled={!managerState.startWithScript}
               onclick={async () => {
-                const res = await ipcRenderer.callMain(
-                  IPC_EVENTS.MGR_LOAD_SCRIPT,
-                );
+                const res = await client.mgrLoadScript();
                 if (!res) return;
 
                 managerState.scriptPath = res;

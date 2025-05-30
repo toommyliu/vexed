@@ -8,6 +8,7 @@ import { createGame } from "../windows";
 const tipcInstance = tipc.create();
 const logger = Logger.get("IpcManager");
 
+// Main to renderer
 export const router = {
   // #region Manager
   getAccounts: tipcInstance.procedure.action(async () => {
@@ -21,8 +22,6 @@ export const router = {
     .input<Account>()
     .action(async ({ input }) => {
       try {
-        console.log("call to addAccount with input:", input);
-
         const accounts =
           (await FileManager.readJson<Account[]>(FileManager.accountsPath)) ??
           [];
@@ -78,11 +77,7 @@ export const router = {
 
       if (res?.canceled || !res?.filePaths?.length) return "";
 
-      const filePath = res.filePaths[0];
-      if (!filePath) return "";
-
-      console.log("Selected script:", filePath);
-      return filePath;
+      return res?.filePaths[0] ?? "";
     } catch {
       return "";
     }
@@ -98,6 +93,7 @@ export const router = {
 
 export type TipcRouter = typeof router;
 
+// Renderer to main
 export type RendererHandlers = {
   /**
    * Enables the start button for the provided username.
