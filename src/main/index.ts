@@ -12,6 +12,8 @@ import { router } from "./tipc/manager";
 import { showErrorDialog } from "./util/showErrorDialog";
 import { createAccountManager, createGame } from "./windows";
 
+process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
+
 // Renderer to main
 registerIpcMain(router);
 

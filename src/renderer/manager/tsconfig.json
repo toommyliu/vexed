@@ -6,6 +6,6 @@
     "verbatimModuleSyntax": true,
     "types": ["svelte"]
   },
-  "include": ["./**/*.ts", "./**/*.svelte"],
+  "include": ["./**/*.ts", "./**/*.svelte", "./**/*.svelte.ts"],
   "exclude": ["../game/**/*"]
 }

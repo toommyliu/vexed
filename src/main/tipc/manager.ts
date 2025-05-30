@@ -96,4 +96,11 @@ export const router = {
   // #endregion
 };
 
-export type Router = typeof router;
+export type TipcRouter = typeof router;
+
+export type RendererHandlers = {
+  /**
+   * Enables the start button for the provided username.
+   */
+  enableButton(username: string): Promise<void>;
+};

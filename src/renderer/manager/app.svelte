@@ -7,7 +7,7 @@
   import { IPC_EVENTS } from "../../common/ipc-events";
   import Footer from "./components/footer.svelte";
   import { managerState } from "./state.svelte";
-  import { client } from "./client";
+  import { client, handlers } from "./tipc";
   import { startAccount, removeAccount } from "./util";
 
   const { accounts, servers, timeouts } = managerState;
@@ -15,7 +15,7 @@
   let isLoading = $state(true);
   let isModalOpen = $state(false);
 
-  ipcRenderer.answerMain(IPC_EVENTS.ENABLE_BUTTON, async ({ username }) => {
+  handlers.enableButton.listen((username) => {
     if (timeouts.has(username)) {
       clearTimeout(timeouts.get(username)!);
       timeouts.delete(username);
