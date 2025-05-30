@@ -10,8 +10,6 @@
   const startSelected = async () => {
     if (managerState.selectedAccounts.size === 0) return;
 
-    console.log("selected accounts:", managerState.selectedAccounts);
-
     for (const username of managerState.selectedAccounts) {
       const account = managerState.accounts.get(username);
       if (!account) continue;
@@ -23,8 +21,6 @@
   };
   const removeSelected = async () => {
     if (managerState.selectedAccounts.size === 0) return;
-
-    console.log("remove selected accounts:", managerState.selectedAccounts);
 
     for (const username of managerState.selectedAccounts) {
       const account = managerState.accounts.get(username);

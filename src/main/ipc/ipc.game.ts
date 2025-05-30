@@ -74,6 +74,7 @@ ipcMain.answerRenderer(IPC_EVENTS.LOGIN_SUCCESS, async ({ username }) => {
 
   logger.info(`user ${username} successfully logged in`);
 
+  // TODO: use @egoist/tipc
   await ipcMain
     .callRenderer(mgrWindow, IPC_EVENTS.ENABLE_BUTTON, {
       username,

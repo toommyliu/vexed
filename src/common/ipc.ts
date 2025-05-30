@@ -324,32 +324,4 @@ type TypedIpcEvents = {
     args: undefined;
     response: undefined;
   };
-
-  // #region Manager
-  [IPC_EVENTS.GET_ACCOUNTS]: {
-    args: undefined;
-    response: Account[];
-  };
-  [IPC_EVENTS.ADD_ACCOUNT]: {
-    args: Account;
-    response: { msg: string; success: false } | { msg?: string; success: true };
-  };
-  [IPC_EVENTS.REMOVE_ACCOUNT]: {
-    args: { username: string };
-    response: boolean;
-  };
-  [IPC_EVENTS.LAUNCH_GAME]: {
-    args: AccountWithServer;
-    response: undefined;
-  };
-  [IPC_EVENTS.ENABLE_BUTTON]: {
-    args: {
-      username: string;
-    };
-    response: undefined;
-  };
-  [IPC_EVENTS.MGR_LOAD_SCRIPT]: {
-    args: undefined;
-    response: string;
-  };
 };

@@ -1,5 +1,3 @@
-import { ipcRenderer } from "../../common/ipc";
-import { IPC_EVENTS } from "../../common/ipc-events";
 import { client } from "./client";
 import { managerState } from "./state.svelte";
 
@@ -16,8 +14,9 @@ export const startAccount = async (account: Account) => {
   }, 10_000); // 10s should be sufficient
   managerState.timeouts.set(account.username, timeout);
 
-  await ipcRenderer.callMain(IPC_EVENTS.LAUNCH_GAME, {
-    ...account,
+  await client.launchGame({
+    username: account.username,
+    password: account.password,
     server: managerState.selectedServer!,
     ...(managerState.scriptPath && {
       scriptPath: managerState.scriptPath,

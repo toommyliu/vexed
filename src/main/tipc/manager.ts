@@ -1,6 +1,9 @@
+import { join } from "path";
 import { tipc } from "@egoist/tipc";
+import { BrowserWindow, dialog } from "electron";
 import { FileManager } from "../../common/FileManager";
 import { Logger } from "../../common/logger";
+import { createGame } from "../windows";
 
 const tipcInstance = tipc.create();
 const logger = Logger.get("IpcManager");
@@ -59,6 +62,36 @@ export const router = {
         logger.error("Failed to remove account", error);
         return false;
       }
+    }),
+  mgrLoadScript: tipcInstance.procedure.action(async ({ context }) => {
+    try {
+      const res = await dialog.showOpenDialog(
+        BrowserWindow.fromWebContents(context.sender),
+        {
+          defaultPath: join(FileManager.basePath, "Bots"),
+          properties: ["openFile"],
+          filters: [{ name: "Bots", extensions: ["js"] }],
+          message: "Select a script to load",
+          title: "Select a script to load",
+        },
+      );
+
+      if (res?.canceled || !res?.filePaths?.length) return "";
+
+      const filePath = res.filePaths[0];
+      if (!filePath) return "";
+
+      console.log("Selected script:", filePath);
+      return filePath;
+    } catch {
+      return "";
+    }
+  }),
+  launchGame: tipcInstance.procedure
+    .input<AccountWithServer>()
+    .action(async ({ input }) => {
+      logger.info(`Launching game for: ${input.username}`);
+      await createGame(input);
     }),
   // #endregion
 };
