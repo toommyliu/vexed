@@ -4,6 +4,7 @@ const { build, context } = require("esbuild");
 const { watch } = require("watchlist");
 const sveltePlugin = require("esbuild-svelte");
 const sveltePreprocess = require("svelte-preprocess");
+const postCssPlugin = require("esbuild-postcss");
 
 const isProduction = process.env.NODE_ENV === "production";
 const isWatch = process.argv.includes("--watch") || process.argv.includes("-w");
@@ -233,6 +234,21 @@ async function transpile() {
       },
     ];
 
+    // CSS build configurations
+    const cssConfigs = [
+      {
+        name: "tailwind",
+        config: {
+          entryPoints: ["./public/tailwind.css"],
+          outfile: "./public/build/tailwind.css",
+          bundle: true,
+          minify: isProduction,
+          plugins: [postCssPlugin()],
+        },
+        watchPath: "./public/tailwind.css",
+      },
+    ];
+
     if (isWatch) {
       const contexts = await Promise.all([
         createBuildContext(commonConfig, "./src/main/", "dist/main/", "Main"),
@@ -251,14 +267,20 @@ async function transpile() {
       ]);
 
       let svelteContexts = [];
+      let cssContexts = [];
 
       try {
         for (const { name, config } of svelteConfigs) {
           const ctx = await context(config);
           svelteContexts.push({ name, context: ctx, config });
         }
+
+        for (const { name, config } of cssConfigs) {
+          const ctx = await context(config);
+          cssContexts.push({ name, context: ctx, config });
+        }
       } catch (error) {
-        console.error("Failed to create Svelte contexts:", error);
+        console.error("Failed to create build contexts:", error);
         throw error;
       }
 
@@ -306,6 +328,33 @@ async function transpile() {
             }
           })();
         }),
+        ...cssContexts.map(({ name, context: ctx }) => {
+          const cssConfig = cssConfigs.find((config) => config.name === name);
+          return (async () => {
+            try {
+              await watch(
+                [cssConfig.watchPath, "./tailwind.config.js"],
+                async () => {
+                  console.log(
+                    `Changes detected in ${name} CSS files, rebuilding...`,
+                  );
+                  try {
+                    await ctx.rebuild();
+                  } catch (error) {
+                    console.error(`${name} CSS rebuild failed:`, error);
+                  }
+                },
+              );
+              return ctx.watch();
+            } catch (error) {
+              console.error(
+                `Failed to start ${name} CSS file watching:`,
+                error,
+              );
+              throw error;
+            }
+          })();
+        }),
       ]);
 
       console.log("Watching for changes...");
@@ -338,6 +387,23 @@ async function transpile() {
             } catch (error) {
               console.timeEnd(`${name} svelte took`);
               console.error(`${name} Svelte build failed:`, error);
+              throw error;
+            }
+          })(),
+        );
+      });
+
+      // Add all CSS builds
+      cssConfigs.forEach(({ name, config }) => {
+        builds.push(
+          (async () => {
+            console.time(`${name} css took`);
+            try {
+              await build(config);
+              console.timeEnd(`${name} css took`);
+            } catch (error) {
+              console.timeEnd(`${name} css took`);
+              console.error(`${name} CSS build failed:`, error);
               throw error;
             }
           })(),
