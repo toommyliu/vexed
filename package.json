@@ -34,7 +34,6 @@
     "fs-extra": "^11.3.0",
     "lodash.merge": "^4.6.2",
     "nw-flash-trust": "^0.3.0",
-    "source-map-support": "^0.5.21",
     "tailwind-merge": "^3.3.0",
     "tiny-typed-emitter": "^2.1.0",
     "totalist": "^3.0.1",

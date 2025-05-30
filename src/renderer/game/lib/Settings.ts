@@ -1,6 +1,9 @@
 import { interval } from "../../../common/interval";
+import { gameState } from "../state.svelte";
 import type { Bot } from "./Bot";
 
+// TODO: this doesnt work...
+const $derived = <T>(value: T) => value;
 export class Settings {
   /**
    * Whether to automatically stop attacking a Counter Attack is active.
@@ -11,25 +14,25 @@ export class Settings {
 
   #customGuild: string | null = null;
 
-  #infiniteRange = false;
+  #infiniteRange = $derived(gameState.infiniteRange);
 
-  #provokeMap = false;
+  #provokeMap = $derived(gameState.provokeMap);
 
-  #provokeCell = false;
+  #provokeCell = $derived(gameState.provokeCell);
 
-  #enemyMagnet = false;
+  #enemyMagnet = $derived(gameState.enemyMagnet);
 
-  #lagKiller = false;
+  #lagKiller = $derived(gameState.lagKiller);
 
-  #hidePlayers = false;
+  #hidePlayers = $derived(gameState.hidePlayers);
 
-  #skipCutscenes = false;
+  #skipCutscenes = $derived(gameState.skipCutscenes);
 
-  #walkSpeed = 8;
+  #walkSpeed = $derived(gameState.walkSpeed);
 
-  #disableFx = false;
+  #disableFx = $derived(gameState.disableFx);
 
-  #disableCollisions = false;
+  #disableCollisions = $derived(gameState.disableCollisions);
 
   #optionInfiniteRange: HTMLElement | null = null;
 
@@ -340,14 +343,14 @@ export class Settings {
   }
 
   #updateOption(el: HTMLElement, value: boolean | number | string): void {
-    switch (el.tagName) {
-      case "INPUT":
-        (el as HTMLInputElement).value = String(value);
-        break;
-      case "BUTTON":
-        el.dataset["state"] = value.toString();
-        el.classList.toggle("option-active", Boolean(value));
-        break;
-    }
+    // switch (el.tagName) {
+    //   case "INPUT":
+    //     (el as HTMLInputElement).value = String(value);
+    //     break;
+    //   case "BUTTON":
+    //     el.dataset["state"] = value.toString();
+    //     el.classList.toggle("option-active", Boolean(value));
+    //     break;
+    // }
   }
 }

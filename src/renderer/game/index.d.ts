@@ -17,6 +17,10 @@ type Nullable<T> = T | null;
 declare global {
   const swf: GameSWF;
 
+  interface Window {
+    swf: GameSWF;
+  }
+
   type WindowId = (typeof WINDOW_IDS)[keyof typeof WINDOW_IDS];
   type IpcChannelEvent = (typeof IPC_EVENTS)[keyof typeof IPC_EVENTS];
 

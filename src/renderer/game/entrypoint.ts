@@ -1,8 +1,6 @@
-import "source-map-support/register";
-
 import "./lib/Bot";
-import "./ui";
-import "./flash-interop";
+// import "./ui";
+// import "./flash-interop";
 
 import { CommandRegistry } from "./botting/command-registry";
 import { cmd } from "./botting/index";

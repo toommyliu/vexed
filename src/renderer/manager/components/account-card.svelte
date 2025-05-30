@@ -31,7 +31,6 @@
   <div
     class="flex flex-col space-y-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 sm:p-5"
   >
-    <!-- svelte-ignore a11y_click_events_have_key_events -->
     <div
       class="flex flex-1 items-center space-x-3 sm:space-x-4"
       onclick={toggleAccount}
