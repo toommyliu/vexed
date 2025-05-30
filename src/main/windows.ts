@@ -1,9 +1,11 @@
 import { join, resolve } from "path";
+import { getRendererHandlers } from "@egoist/tipc/main";
 import { app, BrowserWindow } from "electron";
 import { BRAND } from "../common/constants";
 import { ipcMain } from "../common/ipc";
 import { IPC_EVENTS } from "../common/ipc-events";
 import { Logger } from "../common/logger";
+import type { RendererHandlers } from "./tipc/renderer-handlers";
 import { recursivelyApplySecurityPolicy } from "./util/recursivelyApplySecurityPolicy";
 
 const PUBLIC = join(__dirname, "../../public/");
@@ -76,12 +78,10 @@ export async function createGame(
       backgroundThrottling: false,
       nodeIntegration: true,
       plugins: true,
-      // pass account data to run "Login With Account"
+      // Pass CLI args for "Login with Account" feature
       additionalArguments: args,
-      // disable unuseful features
       webgl: false,
     },
-    // don't know
     ...(account?.username
       ? { tabbingIdentifier: `game-${account?.username}` }
       : {}),
@@ -94,6 +94,20 @@ export async function createGame(
   if (!app.isPackaged) {
     window.webContents.openDevTools({ mode: "right" });
   }
+
+  // TODO: clean when everything else is migrated
+
+  // Register main to renderer IPC calls
+  const handlers = getRendererHandlers<RendererHandlers>(window.webContents);
+  ipcMain.answerRenderer("root:login-success", async ({ username }) => {
+    console.log("root:login-success", username);
+
+    if (!mgrWindow) return;
+
+    logger.info(`User ${username} logged in successfully.`);
+
+    handlers.enableButton.send(username);
+  });
 
   // Track refreshes to re-sync states across windows
   window.webContents.on("did-finish-load", async () => {

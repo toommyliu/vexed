@@ -10,7 +10,7 @@ import { IPC_EVENTS } from "../../common/ipc-events";
 import { Logger } from "../../common/logger";
 import type { FastTravel } from "../../common/types";
 import { recursivelyApplySecurityPolicy } from "../util/recursivelyApplySecurityPolicy";
-import { mgrWindow, store } from "../windows";
+import { store } from "../windows";
 
 const logger = Logger.get("IpcGame");
 
@@ -67,19 +67,6 @@ ipcMain.answerRenderer(IPC_EVENTS.MSGBROKER, async (data, browserWindow) => {
   // to return a response: the target renderer must .answerMain() and
   // return a value, otherwise, the promise resolves with undefined
   return ipcMain.callRenderer(targetWindow, data.ipcEvent, data.data);
-});
-
-ipcMain.answerRenderer(IPC_EVENTS.LOGIN_SUCCESS, async ({ username }) => {
-  if (!mgrWindow) return;
-
-  logger.info(`user ${username} successfully logged in`);
-
-  // TODO: use @egoist/tipc
-  await ipcMain
-    .callRenderer(mgrWindow, IPC_EVENTS.ENABLE_BUTTON, {
-      username,
-    })
-    .catch(() => {});
 });
 
 ipcMain.answerRenderer(

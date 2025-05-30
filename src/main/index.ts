@@ -1,5 +1,4 @@
 import "./ipc/ipc.game";
-import "./ipc/ipc.manager";
 import "./tray";
 
 import { join } from "path";
@@ -13,6 +12,7 @@ import { router } from "./tipc/manager";
 import { showErrorDialog } from "./util/showErrorDialog";
 import { createAccountManager, createGame } from "./windows";
 
+// Renderer to main
 registerIpcMain(router);
 
 function registerFlashPlugin() {
