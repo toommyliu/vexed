@@ -115,11 +115,15 @@ async function transpile() {
     };
 
     /**
-     * @type {import('esbuild').BuildOptions}
+     *
+     * @param {string} entryPoint - The entry point for the Svelte application
+     * @param {string} outfile - The output file path
+     * @param {string} tsconfigFile - The path to the TypeScript config file
+     * @returns
      */
-    const svelteConfig = {
-      entryPoints: ["./src/renderer/manager/main.ts"],
-      outfile: "./public/manager/build/main.js",
+    const createSvelteConfig = (entryPoint, outfile, tsconfigFile) => ({
+      entryPoints: [entryPoint],
+      outfile,
       bundle: true,
       format: "cjs",
       platform: "browser",
@@ -131,9 +135,20 @@ async function transpile() {
         ".js": "js",
       },
       conditions: ["svelte", "browser", "default"],
-      external: ["electron", "winston", "process", "util"],
+      external: [
+        "electron",
+        "winston",
+        "process",
+        "util",
+        "fs",
+        "path",
+        "os",
+        "assert",
+        "stream",
+        "events",
+        "constants",
+      ],
       banner: {
-        // core-js: polyfill for modern JavaScript features
         js: "require('core-js/stable')",
       },
       plugins: [
@@ -145,14 +160,78 @@ async function transpile() {
           preprocess: sveltePreprocess({
             sourceMap: !isProduction,
             typescript: {
-              // This config must be used, as using Svelte with TypeScript seems to fail without it.
-              // Anyways, we only use tsc for typechecking
-              tsconfigFile: "./src/renderer/manager/tsconfig.json",
+              tsconfigFile,
             },
           }),
         }),
       ],
-    };
+    });
+
+    const svelteConfigs = [
+      {
+        name: "manager",
+        config: createSvelteConfig(
+          "./src/renderer/manager/main.ts",
+          "./public/manager/build/main.js",
+          "./src/renderer/manager/tsconfig.json",
+        ),
+        watchPath: "./src/renderer/manager",
+      },
+      {
+        name: "game",
+        config: createSvelteConfig(
+          "./src/renderer/game/main.ts",
+          "./public/game/build/main.js",
+          "./src/renderer/game/tsconfig.json",
+        ),
+        watchPath: "./src/renderer/game",
+      },
+      {
+        name: "fast-travels",
+        config: createSvelteConfig(
+          "./src/renderer/tools/fast-travels/main.ts",
+          "./public/game/tools/fast-travels/build/main.js",
+          "./src/renderer/tools/fast-travels/tsconfig.json",
+        ),
+        watchPath: "./src/renderer/tools/fast-travels",
+      },
+      {
+        name: "follower",
+        config: createSvelteConfig(
+          "./src/renderer/tools/follower/main.ts",
+          "./public/game/tools/follower/build/main.js",
+          "./src/renderer/tools/follower/tsconfig.json",
+        ),
+        watchPath: "./src/renderer/tools/follower",
+      },
+      {
+        name: "loader-grabber",
+        config: createSvelteConfig(
+          "./src/renderer/tools/loader-grabber/main.ts",
+          "./public/game/tools/loader-grabber/build/main.js",
+          "./src/renderer/tools/loader-grabber/tsconfig.json",
+        ),
+        watchPath: "./src/renderer/tools/loader-grabber",
+      },
+      {
+        name: "logger",
+        config: createSvelteConfig(
+          "./src/renderer/packets/logger/main.ts",
+          "./public/game/packets/logger/build/main.js",
+          "./src/renderer/packets/logger/tsconfig.json",
+        ),
+        watchPath: "./src/renderer/packets/logger",
+      },
+      {
+        name: "spammer",
+        config: createSvelteConfig(
+          "./src/renderer/packets/spammer/main.ts",
+          "./public/game/packets/spammer/build/main.js",
+          "./src/renderer/packets/spammer/tsconfig.json",
+        ),
+        watchPath: "./src/renderer/packets/spammer",
+      },
+    ];
 
     if (isWatch) {
       const contexts = await Promise.all([
@@ -171,11 +250,15 @@ async function transpile() {
         ),
       ]);
 
-      let svelteCtx;
+      let svelteContexts = [];
+
       try {
-        svelteCtx = await context(svelteConfig);
+        for (const { name, config } of svelteConfigs) {
+          const ctx = await context(config);
+          svelteContexts.push({ name, context: ctx, config });
+        }
       } catch (error) {
-        console.error("Failed to create Svelte context:", error);
+        console.error("Failed to create Svelte contexts:", error);
         throw error;
       }
 
@@ -197,22 +280,32 @@ async function transpile() {
             throw error;
           }
         }),
-        (async () => {
-          try {
-            await watch(["./src/renderer/manager"], async () => {
-              console.log("Changes detected in Svelte files, rebuilding...");
-              try {
-                await svelteCtx.rebuild();
-              } catch (error) {
-                console.error("Svelte rebuild failed:", error);
-              }
-            });
-            return svelteCtx.watch();
-          } catch (error) {
-            console.error("Failed to start Svelte file watching:", error);
-            throw error;
-          }
-        })(),
+        ...svelteContexts.map(({ name, context: ctx }) => {
+          const svelteConfig = svelteConfigs.find(
+            (config) => config.name === name,
+          );
+          return (async () => {
+            try {
+              await watch([svelteConfig.watchPath], async () => {
+                console.log(
+                  `Changes detected in ${name} Svelte files, rebuilding...`,
+                );
+                try {
+                  await ctx.rebuild();
+                } catch (error) {
+                  console.error(`${name} Svelte rebuild failed:`, error);
+                }
+              });
+              return ctx.watch();
+            } catch (error) {
+              console.error(
+                `Failed to start ${name} Svelte file watching:`,
+                error,
+              );
+              throw error;
+            }
+          })();
+        }),
       ]);
 
       console.log("Watching for changes...");
@@ -234,19 +327,22 @@ async function transpile() {
         }
       });
 
-      builds.push(
-        (async () => {
-          console.time("svelte took");
-          try {
-            await build(svelteConfig);
-            console.timeEnd("svelte took");
-          } catch (error) {
-            console.timeEnd("svelte took");
-            console.error("Svelte build failed:", error);
-            throw error;
-          }
-        })(),
-      );
+      // Add all Svelte builds
+      svelteConfigs.forEach(({ name, config }) => {
+        builds.push(
+          (async () => {
+            console.time(`${name} svelte took`);
+            try {
+              await build(config);
+              console.timeEnd(`${name} svelte took`);
+            } catch (error) {
+              console.timeEnd(`${name} svelte took`);
+              console.error(`${name} Svelte build failed:`, error);
+              throw error;
+            }
+          })(),
+        );
+      });
 
       await Promise.all(builds);
     }

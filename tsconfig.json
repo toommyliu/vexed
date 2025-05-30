@@ -23,9 +23,9 @@
     // "moduleDetection": "auto",
 
     /* Modules */
-    "module": "CommonJS",
+    "module": "esnext",
     // "rootDir": "./",
-    "moduleResolution": "node10",
+    "moduleResolution": "bundler",
     // "baseUrl": "./",
     "paths": {},
     // "rootDirs": [],

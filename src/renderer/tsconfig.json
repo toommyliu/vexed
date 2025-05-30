@@ -1,7 +1,8 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "lib": ["dom", "dom.iterable", "es2024"]
+    "lib": ["dom", "dom.iterable", "es2024"],
+    "verbatimModuleSyntax": true
   },
   "files": ["./index.d.ts", "app.d.ts"]
 }

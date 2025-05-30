@@ -3,11 +3,11 @@ import { ipcRenderer } from "../../common/ipc";
 import { IPC_EVENTS } from "../../common/ipc-events";
 import { Logger } from "../../common/logger";
 import { Bot } from "./lib/Bot";
-import { addGoldExp } from "./networking/json/add-gold-exp";
-import { ct } from "./networking/json/ct";
-import { dropItem } from "./networking/json/drop-item";
-import { initUserData } from "./networking/json/init-user-data";
-import { moveToArea } from "./networking/json/move-to-area";
+import { addGoldExp } from "./networking.json/add-gold-exp";
+import { ct } from "./networking.json/ct";
+import { dropItem } from "./networking.json/drop-item";
+import { initUserData } from "./networking.json/init-user-data";
+import { moveToArea } from "./networking.json/move-to-area";
 import { disableElement, enableElement } from "./ui-utils";
 
 // import { FileManager } from '../../main/FileManager';

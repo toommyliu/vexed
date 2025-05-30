@@ -1,4 +1,4 @@
-import type { Bot } from "../../lib/Bot";
+import type { Bot } from "../lib/Bot";
 
 function isMonPkt(
   packet: AddGoldExpPkt,

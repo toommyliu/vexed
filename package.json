@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "main": "dist/main/index.js",
   "scripts": {
-    "clean": "del-cli dist build",
+    "clean": "del-cli dist build 'public/**/build'",
     "typecheck": "tsc --noEmit",
     "compile:js": "node esbuild.config.js",
     "compile:css": "npx tailwindcss -i ./public/manager/tailwind.css -o ./public/manager/build/tailwind.css",

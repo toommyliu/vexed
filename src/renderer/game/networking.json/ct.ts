@@ -1,4 +1,4 @@
-import type { Bot } from "../../lib/Bot";
+import type { Bot } from "../lib/Bot";
 
 export function ct(bot: Bot, packet: CtPacket) {
   for (const anim of packet?.anims ?? []) {

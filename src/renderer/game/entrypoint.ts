@@ -1,17 +1,13 @@
 import "source-map-support/register";
 
-import "./ipc/ipc.fast-travels";
-import "./ipc/ipc.follower";
-import "./ipc/ipc.loader-grabber";
-import "./ipc/ipc.logger";
-import "./ipc/ipc.spammer";
-
 import "./lib/Bot";
 import "./ui";
 import "./flash-interop";
 
 import { CommandRegistry } from "./botting/command-registry";
 import { cmd } from "./botting/index";
+
+import "./lib/util/enhancements";
 
 const commandRegistry = CommandRegistry.getInstance();
 
@@ -26,5 +22,3 @@ for (const command in cmd) {
 
   commandRegistry.registerCommand(cmdName, cmdFunction);
 }
-
-import "./lib/util/enhancements";
