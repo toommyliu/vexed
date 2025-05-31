@@ -530,14 +530,21 @@
     id="loader-container"
   >
     <div class="w-full max-w-md px-8">
-      <div
-        class="flex h-2 w-full overflow-hidden rounded-full bg-gray-800/80 shadow-inner"
-      >
+      <div class="space-y-4">
         <div
-          class="h-full w-0 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-300 ease-out"
-          id="progress-bar"
-          style="box-shadow: 0 0 10px rgba(59, 130, 246, 0.4)"
-        ></div>
+          class="flex h-2 w-full overflow-hidden rounded-full bg-gray-800/80 shadow-inner"
+        >
+          <div
+            class="h-full w-0 rounded-full bg-gradient-to-r from-gray-600 to-gray-500 transition-all duration-300 ease-out"
+            id="progress-bar"
+            style="box-shadow: 0 0 4px rgba(59, 130, 246, 0.15)"
+          ></div>
+        </div>
+        <div class="text-center">
+          <span id="progress-text" class="text-sm font-medium text-gray-300">
+            Loading...
+          </span>
+        </div>
       </div>
     </div>
   </div>
