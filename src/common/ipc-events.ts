@@ -54,13 +54,4 @@ export const IPC_EVENTS = {
   ARMY_FINISH_JOB: "army:finish_job" as const, // i am done
   ARMY_READY: "army:ready" as const, // all are done
   // #endregion
-
-  // #region manager
-  GET_ACCOUNTS: "manager:get_accounts" as const,
-  ADD_ACCOUNT: "manager:add_account" as const,
-  REMOVE_ACCOUNT: "manager:remove_account" as const,
-  LAUNCH_GAME: "manager:launch_game" as const,
-  ENABLE_BUTTON: "manager:enable_button" as const,
-  MGR_LOAD_SCRIPT: "manager:load_script" as const,
-  // #endregion
 } as const;

@@ -2,6 +2,11 @@
   --topnav-height: 32px;
   --bg-primary: #111113;
   --bg-secondary: #18191b;
+  --accent-blue: #3b82f6;
+  --accent-green: #10b981;
+  --accent-orange: #f59e0b;
+  --border-color: rgba(107, 114, 128, 0.3);
+  --hover-bg: rgba(107, 114, 128, 0.1);
 }
 
 * {
@@ -23,10 +28,14 @@ button {
   text-align: center;
   cursor: pointer;
   white-space: nowrap;
+  transition: all 0.2s ease;
 }
+
 button:hover {
-  color: #000 !important;
-  background-color: #ccc !important;
+  color: #fff !important;
+  background-color: var(--hover-bg) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 #game-container {
@@ -34,28 +43,40 @@ button:hover {
   position: relative;
 }
 
+.walkspeed-input {
+  width: 60px;
+  height: 24px;
+  background-color: rgba(55, 65, 81, 0.5);
+  color: white;
+  border: 1px solid rgba(107, 114, 128, 0.5);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.walkspeed-input:focus {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.5);
+  background-color: rgba(55, 65, 81, 0.7);
+}
+
 .option-checkmark {
   display: flex;
   align-items: center;
   opacity: 0;
   visibility: hidden;
+  transition: all 0.2s ease;
 }
+
 .option-checkmark svg {
   width: 16px;
   height: 16px;
 }
+
 .option-active .option-checkmark {
   opacity: 1;
   visibility: visible;
-}
-
-.walkspeed-input {
-  width: 50px;
-  height: 20px;
-  background-color: var(--bg-secondary);
-  color: white;
-  border: 1px solid #444;
-  padding: 2px 4px;
 }
 
 .group {
@@ -74,7 +95,22 @@ button:hover {
 }
 
 [id$="-dropdowncontent"] {
-  background-color: var(--bg-secondary);
+  background-color: rgba(31, 41, 55, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(107, 114, 128, 0.5);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  animation: dropdown-fade-in 0.15s ease-out;
+}
+
+@keyframes dropdown-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 #cells-dropdowncontent,
@@ -84,12 +120,35 @@ button:hover {
   margin-top: -6px;
   width: inherit;
   min-width: 160px;
-  /* we don't want the dropdown too tall, especially if they are many options */
   max-height: 50vh !important;
   height: auto !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
   z-index: 1000;
+  scrollbar-width: thin;
+  scrollbar-color: #555 #222;
+}
+
+#cells-dropdowncontent::-webkit-scrollbar,
+#pads-dropdowncontent::-webkit-scrollbar {
+  width: 6px;
+}
+
+#cells-dropdowncontent::-webkit-scrollbar-track,
+#pads-dropdowncontent::-webkit-scrollbar-track {
+  background: rgba(34, 34, 34, 0.5);
+  border-radius: 3px;
+}
+
+#cells-dropdowncontent::-webkit-scrollbar-thumb,
+#pads-dropdowncontent::-webkit-scrollbar-thumb {
+  background: rgba(85, 85, 85, 0.8);
+  border-radius: 3px;
+}
+
+#cells-dropdowncontent::-webkit-scrollbar-thumb:hover,
+#pads-dropdowncontent::-webkit-scrollbar-thumb:hover {
+  background: rgba(119, 119, 119, 0.9);
 }
 
 .command-overlay {
