@@ -1,49 +1,93 @@
 <script lang="ts">
   import "./entrypoint";
   import "./flash-interop";
-  import { gameState } from "./state.svelte";
+  import { gameState, scriptState } from "./state.svelte";
   import process from "process";
+  import { client, handlers } from "../../shared/tipc";
+  import { cn } from "../../shared/";
 
   let openDropdown = $state<string | null>(null);
 
-  // Script state
-  let scriptRunning = $state(false);
-  let overlayVisible = $state(false);
-  let startButtonText = $derived(scriptRunning ? "Stop" : "Start");
+  let scriptBtnText = $derived(scriptState.isRunning ? "Stop" : "Start");
+
   let overlayButtonText = $derived(
-    overlayVisible ? "Hide Overlay" : "Show Overlay",
+    scriptState.showOverlay ? "Hide Overlay" : "Show Overlay",
   );
 
-  // Auto aggro state
   let autoAggroEnabled = $state(false);
 
-  // Game state
-  let gameConnected = $state(false);
-  let currentCell = $state<string>();
-  let currentPad = $state<string>();
+  let gameConnected = $state(true);
 
   // UI state
   let topNavVisible = $state(true);
 
-  function toggleDropdown(dropdownName: string) {
-    console.log(
-      `Toggling dropdown: ${dropdownName}, currently open: ${openDropdown}`,
+  function startScript() {
+    if (!window.context.commands.length || window.context.isRunning()) return;
+
+    window.context.removeAllListeners("end");
+
+    const onEnd = () => {
+      scriptState.isRunning = false;
+      window.context.removeListener("end", onEnd);
+    };
+
+    void window.context.start();
+    scriptState.isRunning = true;
+    window.context.on("end", onEnd);
+  }
+
+  function stopScript() {
+    if (!window.context.isRunning()) return;
+
+    window.context.stop();
+    scriptState.isRunning = false;
+  }
+
+  handlers.scriptLoaded.listen((fromManager) => {
+    scriptState.isLoaded = true;
+
+    window.context.overlay.updateCommands(
+      window.context.commands,
+      window.context.commandIndex,
     );
+    window.context.overlay.show();
+    scriptState.showOverlay = true;
+
+    // Auto start script if loaded from manager
+    if (
+      fromManager &&
+      window.context.commands.length &&
+      !window.context.isRunning()
+    ) {
+      startScript();
+    }
+
+    window.context.overlay.on(
+      "display",
+      (visible) => (scriptState.showOverlay = visible),
+    );
+  });
+
+  function toggleDropdown(dropdownName: string) {
     openDropdown = openDropdown === dropdownName ? null : dropdownName;
-    console.log(`New dropdown state: ${openDropdown}`);
   }
 
   function toggleScript() {
-    scriptRunning = !scriptRunning;
-    console.log(`Script running state changed: ${scriptRunning}`);
+    if (!scriptState.isLoaded) return;
+
+    if (scriptState.isRunning) {
+      stopScript();
+    } else {
+      startScript();
+    }
   }
-  function toggleOverlay() {
-    overlayVisible = !overlayVisible;
-    console.log(`Overlay visibility changed: ${overlayVisible}`);
-  }
-  function toggleDevTools() {
-    console.log("Toggling Dev Tools");
-  }
+
+  $effect(() => {
+    if (!window.context?.overlay) return;
+
+    if (scriptState.showOverlay) window.context.overlay.show();
+    else window.context.overlay.hide();
+  });
 </script>
 
 <svelte:window
@@ -95,15 +139,11 @@
     <div id="topnav" class="flex w-full flex-wrap items-center">
       <div class="flex">
         <!-- Scripts Dropdown -->
-        <div
-          class="group relative inline-block cursor-pointer"
-          id="scripts-dropdown"
-        >
+        <div class="group relative inline-block cursor-pointer">
           <button
             class="mx-1 rounded-md px-4 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50 hover:shadow-lg"
-            id="scripts"
-            onclick={(e) => {
-              e.stopPropagation();
+            onclick={(ev) => {
+              ev.stopPropagation();
               toggleDropdown("scripts");
             }}
           >
@@ -112,43 +152,38 @@
           <div
             class="absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-gray-800/95 text-xs shadow-2xl backdrop-blur-md"
             style:display={openDropdown === "scripts" ? "block" : "none"}
-            id="scripts-dropdowncontent"
           >
             <button
-              class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 first:rounded-t-lg hover:bg-gray-700/50"
-              onclick={() => {
-                console.log("Scripts > Load clicked");
-              }}
+              class="
+                flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 first:rounded-t-lg hover:bg-gray-700/50"
+              onclick={() =>
+                void client.loadScript({
+                  scriptPath: "",
+                })}
             >
               Load
             </button>
             <button
-              class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150"
-              class:cursor-not-allowed={!gameConnected}
-              class:opacity-50={!gameConnected}
-              disabled={!gameConnected}
-              onclick={() => {
-                console.log("Scripts > Start/Stop clicked");
-                toggleScript();
-              }}
+              class={cn(
+                "flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150",
+                !scriptState.isLoaded &&
+                  "pointers-events-none cursor-not-allowed opacity-50",
+              )}
+              onclick={toggleScript}
+              disabled={!scriptState.isLoaded}
             >
-              {startButtonText}
+              {scriptBtnText}
             </button>
             <button
               class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
-              onclick={() => {
-                console.log("Scripts > Show/Hide Overlay clicked");
-                toggleOverlay();
-              }}
+              onclick={() =>
+                (scriptState.showOverlay = !scriptState.showOverlay)}
             >
               {overlayButtonText}
             </button>
             <button
               class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 last:rounded-b-lg hover:bg-gray-700/50"
-              onclick={() => {
-                console.log("Scripts > Toggle Dev Tools clicked");
-                toggleDevTools();
-              }}
+              onclick={() => void client.toggleDevTools()}
             >
               Toggle Dev Tools
             </button>
@@ -398,7 +433,8 @@
             <button
               class="flex w-full items-center justify-between rounded-lg px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
               onclick={() => {
-                console.log("Auto Aggro > Enabled clicked");
+                autoAggroEnabled = !autoAggroEnabled;
+                console.log(`Auto Aggro enabled: ${autoAggroEnabled}`);
               }}
               class:option-active={autoAggroEnabled}
             >
@@ -426,7 +462,6 @@
                 toggleDropdown("pads");
               }}
             >
-              {currentPad}
             </button>
             <div
               class="absolute top-8 text-xs"
@@ -452,7 +487,6 @@
                 toggleDropdown("cells");
               }}
             >
-              {currentCell}
             </button>
             <div
               class="absolute top-8 text-xs"

@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Account } from "../../../common/types";
-  import { client } from "../tipc";
+  import { client } from "../../../shared/tipc";
   import { managerState } from "../state.svelte";
 
   type Props = {

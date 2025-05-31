@@ -1,7 +1,7 @@
 <script lang="ts">
   import { cn } from "../../../shared";
   import { managerState } from "../state.svelte";
-  import { client } from "../tipc";
+  import { client } from "../../../shared/tipc";
   import { removeAccount, startAccount } from "../util";
 
   let selectedCount = $derived(managerState.selectedAccounts.size);

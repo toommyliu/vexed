@@ -67,7 +67,7 @@ export class Settings {
    * @param on - If true, enables Infinite Range. Otherwise, disables it.
    */
   public set infiniteRange(on: boolean) {
-    this.infiniteRange = on;
+    gameState.infiniteRange = on;
   }
 
   /**

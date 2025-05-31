@@ -187,51 +187,51 @@ async function transpile() {
         ),
         watchPath: "./src/renderer/game",
       },
-      {
-        name: "fast-travels",
-        config: createSvelteConfig(
-          "./src/renderer/tools/fast-travels/main.ts",
-          "./public/game/tools/fast-travels/build/main.js",
-          "./src/renderer/tools/fast-travels/tsconfig.json",
-        ),
-        watchPath: "./src/renderer/tools/fast-travels",
-      },
-      {
-        name: "follower",
-        config: createSvelteConfig(
-          "./src/renderer/tools/follower/main.ts",
-          "./public/game/tools/follower/build/main.js",
-          "./src/renderer/tools/follower/tsconfig.json",
-        ),
-        watchPath: "./src/renderer/tools/follower",
-      },
-      {
-        name: "loader-grabber",
-        config: createSvelteConfig(
-          "./src/renderer/tools/loader-grabber/main.ts",
-          "./public/game/tools/loader-grabber/build/main.js",
-          "./src/renderer/tools/loader-grabber/tsconfig.json",
-        ),
-        watchPath: "./src/renderer/tools/loader-grabber",
-      },
-      {
-        name: "logger",
-        config: createSvelteConfig(
-          "./src/renderer/packets/logger/main.ts",
-          "./public/game/packets/logger/build/main.js",
-          "./src/renderer/packets/logger/tsconfig.json",
-        ),
-        watchPath: "./src/renderer/packets/logger",
-      },
-      {
-        name: "spammer",
-        config: createSvelteConfig(
-          "./src/renderer/packets/spammer/main.ts",
-          "./public/game/packets/spammer/build/main.js",
-          "./src/renderer/packets/spammer/tsconfig.json",
-        ),
-        watchPath: "./src/renderer/packets/spammer",
-      },
+      // {
+      //   name: "fast-travels",
+      //   config: createSvelteConfig(
+      //     "./src/renderer/tools/fast-travels/main.ts",
+      //     "./public/game/tools/fast-travels/build/main.js",
+      //     "./src/renderer/tools/fast-travels/tsconfig.json",
+      //   ),
+      //   watchPath: "./src/renderer/tools/fast-travels",
+      // },
+      // {
+      //   name: "follower",
+      //   config: createSvelteConfig(
+      //     "./src/renderer/tools/follower/main.ts",
+      //     "./public/game/tools/follower/build/main.js",
+      //     "./src/renderer/tools/follower/tsconfig.json",
+      //   ),
+      //   watchPath: "./src/renderer/tools/follower",
+      // },
+      // {
+      //   name: "loader-grabber",
+      //   config: createSvelteConfig(
+      //     "./src/renderer/tools/loader-grabber/main.ts",
+      //     "./public/game/tools/loader-grabber/build/main.js",
+      //     "./src/renderer/tools/loader-grabber/tsconfig.json",
+      //   ),
+      //   watchPath: "./src/renderer/tools/loader-grabber",
+      // },
+      // {
+      //   name: "logger",
+      //   config: createSvelteConfig(
+      //     "./src/renderer/packets/logger/main.ts",
+      //     "./public/game/packets/logger/build/main.js",
+      //     "./src/renderer/packets/logger/tsconfig.json",
+      //   ),
+      //   watchPath: "./src/renderer/packets/logger",
+      // },
+      // {
+      //   name: "spammer",
+      //   config: createSvelteConfig(
+      //     "./src/renderer/packets/spammer/main.ts",
+      //     "./public/game/packets/spammer/build/main.js",
+      //     "./src/renderer/packets/spammer/tsconfig.json",
+      //   ),
+      //   watchPath: "./src/renderer/packets/spammer",
+      // },
     ];
 
     // CSS build configurations
@@ -257,6 +257,12 @@ async function transpile() {
           "./src/common/",
           "dist/common/",
           "Common",
+        ),
+        createBuildContext(
+          commonConfig,
+          "./src/shared/",
+          "dist/shared/",
+          "Shared",
         ),
         createBuildContext(
           commonConfig,
@@ -286,7 +292,12 @@ async function transpile() {
 
       await Promise.all([
         ...contexts.map(async ({ context, rebuildWithNewFiles }, index) => {
-          const dirs = ["./src/main", "./src/common", "./src/renderer"][index];
+          const dirs = [
+            "./src/main",
+            "./src/common",
+            "./src/renderer",
+            "./src/shared",
+          ][index];
           try {
             await watch([dirs], async () => {
               console.log(`Changes detected in ${dirs}, rebuilding...`);
@@ -360,21 +371,23 @@ async function transpile() {
       console.log("Watching for changes...");
     } else {
       // One-time build
-      const builds = ["main", "common", "renderer"].map(async (type) => {
-        console.time(`${type} took`);
-        try {
-          await build({
-            ...commonConfig,
-            entryPoints: await readdirp(`./src/${type}/`),
-            outdir: `dist/${type}/`,
-          });
-          console.timeEnd(`${type} took`);
-        } catch (error) {
-          console.timeEnd(`${type} took`);
-          console.error(`${type} build failed:`, error);
-          throw error;
-        }
-      });
+      const builds = ["main", "common", "shared", "renderer"].map(
+        async (type) => {
+          console.time(`${type} took`);
+          try {
+            await build({
+              ...commonConfig,
+              entryPoints: await readdirp(`./src/${type}/`),
+              outdir: `dist/${type}/`,
+            });
+            console.timeEnd(`${type} took`);
+          } catch (error) {
+            console.timeEnd(`${type} took`);
+            console.error(`${type} build failed:`, error);
+            throw error;
+          }
+        },
+      );
 
       // Add all Svelte builds
       svelteConfigs.forEach(({ name, config }) => {

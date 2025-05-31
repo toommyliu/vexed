@@ -5,7 +5,7 @@ import { BRAND } from "../common/constants";
 import { ipcMain } from "../common/ipc";
 import { IPC_EVENTS } from "../common/ipc-events";
 import { Logger } from "../common/logger";
-import type { RendererHandlers } from "./tipc/manager";
+import type { RendererHandlers } from "./ipc";
 import { recursivelyApplySecurityPolicy } from "./util/recursivelyApplySecurityPolicy";
 
 const PUBLIC = join(__dirname, "../../public/");

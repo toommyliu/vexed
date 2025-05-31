@@ -1,4 +1,3 @@
-import "./ipc/ipc.game";
 import "./tray";
 
 import { join } from "path";
@@ -8,13 +7,12 @@ import { app } from "electron";
 import { FileManager } from "../common/FileManager";
 import { BRAND } from "../common/constants";
 import type { Settings } from "../common/types";
-import { router } from "./tipc/manager";
+import { router } from "./ipc";
 import { showErrorDialog } from "./util/showErrorDialog";
 import { createAccountManager, createGame } from "./windows";
 
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 
-// Renderer to main
 registerIpcMain(router);
 
 function registerFlashPlugin() {

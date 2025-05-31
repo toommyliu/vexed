@@ -5,7 +5,7 @@
   import { onMount } from "svelte";
   import Footer from "./components/footer.svelte";
   import { managerState } from "./state.svelte";
-  import { client, handlers } from "./tipc";
+  import { client, handlers } from "../../shared/tipc";
   import { startAccount, removeAccount } from "./util";
 
   const { accounts, servers, timeouts } = managerState;
