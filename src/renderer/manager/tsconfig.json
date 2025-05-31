@@ -3,6 +3,7 @@
   "compilerOptions": {
     "module": "esnext",
     "moduleResolution": "bundler",
+    "lib": ["esnext", "dom"],
     "verbatimModuleSyntax": true,
     "types": ["svelte"]
   },

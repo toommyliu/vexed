@@ -10,7 +10,7 @@
 
     /* Language and Environment */
     "target": "es6",
-    // "lib": [],
+    "lib": ["esnext", "dom", "dom.iterable"],
     // "jsx": "preserve",
     // "experimentalDecorators": true,
     // "emitDecoratorMetadata": true,

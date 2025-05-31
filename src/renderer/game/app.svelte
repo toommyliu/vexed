@@ -1,6 +1,5 @@
 <script lang="ts">
   import "./entrypoint";
-  import "./flash-interop";
   import { gameState, scriptState } from "./state.svelte";
   import process from "process";
   import { client, handlers } from "../../shared/tipc";
@@ -19,7 +18,7 @@
   let gameConnected = $state(true);
 
   // UI state
-  let topNavVisible = $state(true);
+  let topNavVisible = $state(false);
 
   function startScript() {
     if (!window.context.commands.length || window.context.isRunning()) return;
