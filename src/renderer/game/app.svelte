@@ -248,10 +248,7 @@
           <button
             class="mx-1 rounded-md px-4 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50 hover:shadow-lg"
             id="options"
-            onmouseenter={() => {
-              openDropdown = "options";
-              console.log("Options dropdown opened on hover");
-            }}
+            onmouseenter={() => (openDropdown = "options")}
           >
             Options
           </button>
@@ -259,19 +256,15 @@
             class="absolute z-[9999] mt-1 min-w-48 rounded-lg border border-gray-700/50 bg-gray-800/95 text-xs shadow-2xl backdrop-blur-md"
             style:display={openDropdown === "options" ? "block" : "none"}
             id="options-dropdowncontent"
-            onmouseenter={() => {
-              openDropdown = "options";
-              console.log("Keeping options dropdown open");
-            }}
-            onmouseleave={() => {
-              openDropdown = null;
-              console.log("Options dropdown closed on mouse leave");
-            }}
+            onmouseenter={() => (openDropdown = "options")}
+            onmouseleave={() => (openDropdown = null)}
           >
             <button
               class="group flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 first:rounded-t-lg hover:bg-gray-700/50"
               id="option-infinite-range"
               class:option-active={gameState.infiniteRange}
+              onclick={() =>
+                (gameState.infiniteRange = !gameState.infiniteRange)}
             >
               <span>Infinite Range</span>
               {@render OptionCheckmark()}
@@ -280,6 +273,7 @@
               class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
               id="option-provoke-map"
               class:option-active={gameState.provokeMap}
+              onclick={() => (gameState.provokeMap = !gameState.provokeMap)}
             >
               <span>Provoke Map</span>
               {@render OptionCheckmark()}
@@ -288,6 +282,7 @@
               class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
               id="option-provoke-cell"
               class:option-active={gameState.provokeCell}
+              onclick={() => (gameState.provokeCell = !gameState.provokeCell)}
             >
               <span>Provoke Cell</span>
               {@render OptionCheckmark()}
@@ -296,6 +291,7 @@
               class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
               id="option-enemy-magnet"
               class:option-active={gameState.enemyMagnet}
+              onclick={() => (gameState.enemyMagnet = !gameState.enemyMagnet)}
             >
               <span>Enemy Magnet</span>
               {@render OptionCheckmark()}
@@ -304,6 +300,7 @@
               class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
               id="option-lag-killer"
               class:option-active={gameState.lagKiller}
+              onclick={() => (gameState.lagKiller = !gameState.lagKiller)}
             >
               <span>Lag Killer</span>
               {@render OptionCheckmark()}
@@ -312,6 +309,7 @@
               class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
               id="option-hide-players"
               class:option-active={gameState.hidePlayers}
+              onclick={() => (gameState.hidePlayers = !gameState.hidePlayers)}
             >
               <span>Hide Players</span>
               {@render OptionCheckmark()}
@@ -320,6 +318,8 @@
               class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
               id="option-skip-cutscenes"
               class:option-active={gameState.skipCutscenes}
+              onclick={() =>
+                (gameState.skipCutscenes = !gameState.skipCutscenes)}
             >
               <span>Skip Cutscenes</span>
               {@render OptionCheckmark()}
@@ -328,6 +328,7 @@
               class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
               id="option-disable-fx"
               class:option-active={gameState.disableFx}
+              onclick={() => (gameState.disableFx = !gameState.disableFx)}
             >
               <span>Disable FX</span>
               {@render OptionCheckmark()}
@@ -336,6 +337,8 @@
               class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
               id="option-disable-collisions"
               class:option-active={gameState.disableCollisions}
+              onclick={() =>
+                (gameState.disableCollisions = !gameState.disableCollisions)}
             >
               <span>Disable Collisions</span>
               {@render OptionCheckmark()}
