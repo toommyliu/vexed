@@ -8,7 +8,9 @@
   let roomNumber = $state<number>(100_000);
   let disabled = $state(false);
 
-  async function doFastTravel(location: FastTravelRoomNumber) {
+  async function doFastTravel(
+    location: Omit<FastTravelRoomNumber, "roomNumber">,
+  ) {
     disabled = true;
     await client.doFastTravel({ location: { ...location, roomNumber } });
   }
@@ -33,7 +35,6 @@
       <div
         class="rounded-lg border border-gray-800/50 bg-gradient-to-br from-[#111113] to-[#1a1a1c] p-6 backdrop-blur-sm"
       >
-        <!-- Room Number Input -->
         <div class="mb-6 space-y-3">
           <label
             for="room-number"
