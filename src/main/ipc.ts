@@ -1,16 +1,118 @@
 import { join } from "path";
 import { getRendererHandlers, tipc } from "@egoist/tipc";
-import { BrowserWindow, dialog } from "electron";
+import { app, BrowserWindow, dialog } from "electron";
 import { FileManager } from "../common/FileManager";
+import { DEFAULT_FAST_TRAVELS } from "../common/constants";
 import { Logger } from "../common/logger";
-import { createGame } from "./windows";
+import type { FastTravel, FastTravelRoomNumber } from "../shared";
+import { WindowIds } from "../shared/constants";
+import { recursivelyApplySecurityPolicy } from "./util/recursivelyApplySecurityPolicy";
+import { createGame, windowStore } from "./windows";
 
 const tipcInstance = tipc.create();
 const logger = Logger.get("IpcMain");
+const BASE_PATH = join(__dirname, "../../public/game/");
 
 // Renderer calls to main (1.)
 export const router = {
   // #region Game
+  launchWindow: tipcInstance.procedure
+    .input<WindowIds>()
+    .action(async ({ input, context }) => {
+      const browserWindow = BrowserWindow.fromWebContents(context.sender);
+      if (!browserWindow || !windowStore.has(browserWindow?.id)) return;
+
+      const storeRef = windowStore.get(browserWindow.id)!;
+
+      let ref: BrowserWindow | null = null;
+      let path: string | undefined;
+      let width: number;
+      let height: number;
+
+      switch (input) {
+        case WindowIds.FastTravels:
+          ref = storeRef.tools.fastTravels;
+          path = join(BASE_PATH, "tools", "fast-travels", "index.html");
+          break;
+        case WindowIds.LoaderGrabber:
+          ref = storeRef.tools.loaderGrabber;
+          break;
+        case WindowIds.Follower:
+          ref = storeRef.tools.follower;
+          break;
+        case WindowIds.PacketLogger:
+          ref = storeRef.packets.logger;
+          break;
+        case WindowIds.PacketSpammer:
+          ref = storeRef.packets.spammer;
+          break;
+      }
+
+      // Restore the previously created window
+      if (ref && !ref?.isDestroyed()) {
+        ref.show();
+        ref.focus();
+        return;
+      }
+
+      logger.info(`Creating new window for: ${input}`);
+
+      // Create it
+      const window = new BrowserWindow({
+        title: "",
+        webPreferences: {
+          contextIsolation: false,
+          nodeIntegration: true,
+        },
+        useContentSize: true,
+        // Parent is required in order to maintain parent-child relationships and for ipc calls
+        // Moving the parent also moves the child, as well as minimizing it
+        parent: browserWindow,
+        width: width!,
+        minWidth: width!,
+        minHeight: height!,
+        height: height!,
+        // When a child window is minimized, the parent window is also minimized,
+        // which is not desired. See https://github.com/electron/electron/issues/26031
+        minimizable: false,
+        show: false,
+      });
+
+      // Update the store with the new window
+      switch (input) {
+        case WindowIds.FastTravels:
+          storeRef.tools.fastTravels = window;
+          break;
+        case WindowIds.LoaderGrabber:
+          storeRef.tools.loaderGrabber = window;
+          break;
+        case WindowIds.Follower:
+          storeRef.tools.follower = window;
+          break;
+        case WindowIds.PacketLogger:
+          storeRef.packets.logger = window;
+          break;
+        case WindowIds.PacketSpammer:
+          storeRef.packets.spammer = window;
+          break;
+      }
+
+      if (!app.isPackaged) window.webContents.openDevTools({ mode: "right" });
+
+      recursivelyApplySecurityPolicy(window);
+
+      window.on("ready-to-show", () => {
+        window.show();
+      });
+
+      // Hide the window instead of closing it
+      window.on("close", (ev) => {
+        ev.preventDefault();
+        window.hide();
+      });
+
+      await window.loadFile(path!);
+    }),
   // #region Scripts
   loadScript: tipcInstance.procedure
     .input<{ scriptPath: string }>()
@@ -107,6 +209,37 @@ export const router = {
     browserWindow?.webContents?.toggleDevTools();
   }),
   // #endregion
+  // #region Tools
+  getFastTravels: tipcInstance.procedure.action(async () => {
+    try {
+      return await FileManager.readJson<FastTravel[]>(
+        FileManager.fastTravelsPath,
+      )!;
+    } catch (error) {
+      logger.error("Failed to read fast travels", error);
+      return DEFAULT_FAST_TRAVELS;
+    }
+  }),
+  doFastTravel: tipcInstance.procedure
+    .input<{ location: FastTravelRoomNumber }>()
+    .action(async ({ input, context }) => {
+      const browserWindow = BrowserWindow.fromWebContents(context.sender);
+      if (!browserWindow) return;
+
+      const parent = browserWindow.getParentWindow();
+      if (!parent || !windowStore.has(parent.id)) return;
+
+      const parentHandlers = getRendererHandlers<RendererHandlers>(
+        parent.webContents,
+      );
+      const childHandlers = getRendererHandlers<RendererHandlers>(
+        context.sender,
+      );
+
+      await parentHandlers.doFastTravel.invoke({ location: input.location });
+      childHandlers.fastTravelEnable.send();
+    }),
+  // #endregion
   // #endregion
   // #region Manager
   getAccounts: tipcInstance.procedure.action(async () => {
@@ -191,11 +324,18 @@ export const router = {
 
 export type TipcRouter = typeof router;
 
+/* eslint-disable typescript-sort-keys/interface */
+
 // Main calls back to renderer (2.)
 export type RendererHandlers = {
-  /**
-   * Enables the start button for the provided username.
-   */
-  enableButton(username: string): Promise<void>;
+  // Scripts
   scriptLoaded(fromManager: boolean): void;
+
+  // Fast Travels
+  fastTravelEnable(): void;
+  doFastTravel({ location }: { location: FastTravelRoomNumber }): void;
+
+  // Manager
+  enableButton(username: string): Promise<void>;
 };
+/* eslint-enable typescript-sort-keys/interface */

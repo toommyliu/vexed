@@ -187,15 +187,15 @@ async function transpile() {
         ),
         watchPath: "./src/renderer/game",
       },
-      // {
-      //   name: "fast-travels",
-      //   config: createSvelteConfig(
-      //     "./src/renderer/tools/fast-travels/main.ts",
-      //     "./public/game/tools/fast-travels/build/main.js",
-      //     "./src/renderer/tools/fast-travels/tsconfig.json",
-      //   ),
-      //   watchPath: "./src/renderer/tools/fast-travels",
-      // },
+      {
+        name: "fast-travels",
+        config: createSvelteConfig(
+          "./src/renderer/tools/fast-travels/main.ts",
+          "./public/game/tools/fast-travels/build/main.js",
+          "./src/renderer/game/tsconfig.json",
+        ),
+        watchPath: "./src/renderer/tools/fast-travels",
+      },
       // {
       //   name: "follower",
       //   config: createSvelteConfig(

@@ -14,7 +14,7 @@ const PUBLIC_MANAGER = join(PUBLIC, "manager/");
 
 const logger = Logger.get("Windows");
 
-export const store: WindowStore = new Map();
+export const windowStore: WindowStore = new Map();
 
 // eslint-disable-next-line import-x/no-mutable-exports
 export let mgrWindow: BrowserWindow | null;
@@ -117,7 +117,7 @@ export async function createGame(
       return;
     }
 
-    const windows = store.get(window.id);
+    const windows = windowStore.get(window.id);
 
     if (windows) {
       try {
@@ -137,7 +137,7 @@ export async function createGame(
   });
 
   window.on("close", () => {
-    const windows = store.get(window.id);
+    const windows = windowStore.get(window.id);
     if (windows) {
       for (const child of Object.values(windows.tools)) {
         if (child && !child.isDestroyed()) {
@@ -151,11 +151,11 @@ export async function createGame(
         }
       }
 
-      store.delete(window.id);
+      windowStore.delete(window.id);
     }
   });
 
-  store.set(window.id, {
+  windowStore.set(window.id, {
     game: window,
     tools: { fastTravels: null, loaderGrabber: null, follower: null },
     packets: { logger: null, spammer: null },

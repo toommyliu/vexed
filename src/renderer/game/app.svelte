@@ -4,6 +4,8 @@
   import process from "process";
   import { client, handlers } from "../../shared/tipc";
   import { cn } from "../../shared/";
+  import { WindowIds } from "../../shared/constants";
+  import { Bot } from "./lib/Bot";
 
   let openDropdown = $state<string | null>(null);
 
@@ -86,6 +88,17 @@
 
     if (scriptState.showOverlay) window.context.overlay.show();
     else window.context.overlay.hide();
+  });
+
+  handlers.doFastTravel.handle(async ({ location }) => {
+    const bot = Bot.getInstance();
+    if (!bot.player.isReady()) return;
+
+    await bot.world.join(
+      `${location.map}-${location.roomNumber}`,
+      location.cell,
+      location.pad,
+    );
   });
 </script>
 
@@ -211,25 +224,19 @@
           >
             <button
               class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 first:rounded-t-lg hover:bg-gray-700/50"
-              onclick={() => {
-                console.log("Tools > Fast Travels clicked");
-              }}
+              onclick={() => void client.launchWindow(WindowIds.FastTravels)}
             >
               Fast Travels
             </button>
             <button
               class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
-              onclick={() => {
-                console.log("Tools > Loader/Grabber clicked");
-              }}
+              onclick={() => void client.launchWindow(WindowIds.LoaderGrabber)}
             >
               Loader/Grabber
             </button>
             <button
               class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 last:rounded-b-lg hover:bg-gray-700/50"
-              onclick={() => {
-                console.log("Tools > Follower clicked");
-              }}
+              onclick={() => void client.launchWindow(WindowIds.Follower)}
             >
               Follower
             </button>
@@ -258,17 +265,13 @@
           >
             <button
               class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 first:rounded-t-lg hover:bg-gray-700/50"
-              onclick={() => {
-                console.log("Packets > Logger clicked");
-              }}
+              onclick={() => void client.launchWindow(WindowIds.PacketLogger)}
             >
               Logger
             </button>
             <button
               class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 last:rounded-b-lg hover:bg-gray-700/50"
-              onclick={() => {
-                console.log("Packets > Spammer clicked");
-              }}
+              onclick={() => void client.launchWindow(WindowIds.PacketSpammer)}
             >
               Spammer
             </button>
