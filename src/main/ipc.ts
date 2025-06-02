@@ -4,7 +4,12 @@ import { app, BrowserWindow, dialog } from "electron";
 import { FileManager } from "../common/FileManager";
 import { DEFAULT_FAST_TRAVELS } from "../common/constants";
 import { Logger } from "../common/logger";
-import type { FastTravel, FastTravelRoomNumber } from "../shared";
+import {
+  GrabberDataType,
+  LoaderDataType,
+  type FastTravel,
+  type FastTravelRoomNumber,
+} from "../shared/types";
 import { WindowIds } from "../shared/constants";
 import { recursivelyApplySecurityPolicy } from "./util/recursivelyApplySecurityPolicy";
 import { createGame, windowStore } from "./windows";
@@ -36,6 +41,7 @@ export const router = {
           break;
         case WindowIds.LoaderGrabber:
           ref = storeRef.tools.loaderGrabber;
+          path = join(BASE_PATH, "tools", "loader-grabber", "index.html");
           break;
         case WindowIds.Follower:
           ref = storeRef.tools.follower;
@@ -209,7 +215,7 @@ export const router = {
     browserWindow?.webContents?.toggleDevTools();
   }),
   // #endregion
-  // #region Tools
+  // #region Fast Travels
   getFastTravels: tipcInstance.procedure.action(async () => {
     try {
       return await FileManager.readJson<FastTravel[]>(
@@ -240,6 +246,38 @@ export const router = {
       childHandlers.fastTravelEnable.send();
     }),
   // #endregion
+  // #endregion
+  // #region Loader Grabber
+  load: tipcInstance.procedure
+    .input<{ id: number; type: LoaderDataType }>()
+    .action(async ({ input, context }) => {
+      const browserWindow = BrowserWindow.fromWebContents(context.sender);
+      if (!browserWindow) return;
+
+      const parent = browserWindow.getParentWindow();
+      if (!parent || !windowStore.has(parent.id)) return;
+
+      const parentHandlers = getRendererHandlers<RendererHandlers>(
+        parent.webContents,
+      );
+
+      parentHandlers.load.send(input);
+    }),
+  grab: tipcInstance.procedure
+    .input<{ type: GrabberDataType }>()
+    .action(async ({ input, context }) => {
+      const browserWindow = BrowserWindow.fromWebContents(context.sender);
+      if (!browserWindow) return;
+
+      const parent = browserWindow.getParentWindow();
+      if (!parent || !windowStore.has(parent.id)) return;
+
+      const parentHandlers = getRendererHandlers<RendererHandlers>(
+        parent.webContents,
+      );
+
+      return parentHandlers.grab.invoke({ type: input.type });
+    }),
   // #endregion
   // #region Manager
   getAccounts: tipcInstance.procedure.action(async () => {
@@ -334,6 +372,10 @@ export type RendererHandlers = {
   // Fast Travels
   fastTravelEnable(): void;
   doFastTravel({ location }: { location: FastTravelRoomNumber }): void;
+
+  // Loader Grabber
+  load(input: { type: LoaderDataType; id: number }): void;
+  grab(input: { type: GrabberDataType }): Promise<unknown>;
 
   // Manager
   enableButton(username: string): Promise<void>;

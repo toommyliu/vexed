@@ -25,6 +25,8 @@
   "dependencies": {
     "@egoist/tipc": "toommyliu/tipc#built",
     "@lukeed/uuid": "^2.0.1",
+    "@sveltejs/svelte-virtual-list": "^3.0.1",
+    "@tanstack/svelte-virtual": "^3.13.9",
     "@tybys/electron-ipc-handle-invoke": "^1.0.2",
     "async-mutex": "^0.5.0",
     "atomically": "1.7.0",
@@ -61,6 +63,7 @@
     "prettier-plugin-tailwindcss": "^0.6.11",
     "svelte": "^5.33.4",
     "svelte-preprocess": "^6.0.3",
+    "svelte-virtual": "^1.0.0-next.22",
     "tailwindcss": "^3.4.17",
     "tsx": "^4.19.4",
     "typedoc": "^0.28.4",

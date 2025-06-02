@@ -196,6 +196,15 @@ async function transpile() {
         ),
         watchPath: "./src/renderer/tools/fast-travels",
       },
+      {
+        name: "loader-grabber",
+        config: createSvelteConfig(
+          "./src/renderer/tools/loader-grabber/main.ts",
+          "./public/game/tools/loader-grabber/build/main.js",
+          "./src/renderer/game/tsconfig.json",
+        ),
+        watchPath: "./src/renderer/tools/loader-grabber",
+      },
       // {
       //   name: "follower",
       //   config: createSvelteConfig(
@@ -204,15 +213,6 @@ async function transpile() {
       //     "./src/renderer/tools/follower/tsconfig.json",
       //   ),
       //   watchPath: "./src/renderer/tools/follower",
-      // },
-      // {
-      //   name: "loader-grabber",
-      //   config: createSvelteConfig(
-      //     "./src/renderer/tools/loader-grabber/main.ts",
-      //     "./public/game/tools/loader-grabber/build/main.js",
-      //     "./src/renderer/tools/loader-grabber/tsconfig.json",
-      //   ),
-      //   watchPath: "./src/renderer/tools/loader-grabber",
       // },
       // {
       //   name: "logger",

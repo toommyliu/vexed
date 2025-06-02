@@ -4,6 +4,7 @@
   import process from "process";
   import { client, handlers } from "../../shared/tipc";
   import { cn } from "../../shared/";
+  import { GrabberDataType, LoaderDataType } from "../../shared/types";
   import { WindowIds } from "../../shared/constants";
   import { Bot } from "./lib/Bot";
 
@@ -99,6 +100,49 @@
       location.cell,
       location.pad,
     );
+  });
+
+  handlers.load.listen(async ({ type, id }) => {
+    const bot = Bot.getInstance();
+    if (!bot.player.isReady()) return;
+
+    switch (type) {
+      case LoaderDataType.HairShop:
+        bot.shops.loadHairShop(id);
+        break;
+      case LoaderDataType.Shop:
+        await bot.shops.load(id);
+        break;
+      case LoaderDataType.Quest:
+        await bot.quests.load(id);
+        break;
+      case LoaderDataType.ArmorCustomizer:
+        bot.shops.openArmorCustomizer();
+        break;
+    }
+  });
+
+  handlers.grab.handle(async ({ type }) => {
+    const bot = Bot.getInstance();
+    if (!bot.player.isReady()) return;
+
+    switch (type) {
+      case GrabberDataType.Shop:
+        if (!bot.shops.isShopLoaded()) return [];
+        return bot.shops.info;
+      case GrabberDataType.Quest:
+        return bot.quests.tree;
+      case GrabberDataType.Inventory:
+        return bot.flash.call(() => swf.inventoryGetItems());
+      case GrabberDataType.TempInventory:
+        return bot.flash.call(() => swf.tempInventoryGetItems());
+      case GrabberDataType.Bank:
+        return bot.flash.call(() => swf.bankGetItems());
+      case GrabberDataType.CellMonsters:
+        return bot.flash.call(() => swf.worldGetCellMonsters());
+      case GrabberDataType.MapMonsters:
+        return bot.world.monsters;
+    }
   });
 </script>
 

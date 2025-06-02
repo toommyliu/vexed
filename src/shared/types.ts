@@ -20,3 +20,20 @@ export type FastTravel = {
 export type FastTravelRoomNumber = FastTravel & {
   roomNumber: number;
 };
+
+export enum LoaderDataType {
+  HairShop,
+  Shop,
+  Quest,
+  ArmorCustomizer,
+}
+
+export enum GrabberDataType {
+  Shop,
+  Quest,
+  Inventory,
+  TempInventory,
+  Bank,
+  CellMonsters,
+  MapMonsters,
+}
