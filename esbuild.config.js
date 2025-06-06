@@ -205,15 +205,15 @@ async function transpile() {
         ),
         watchPath: "./src/renderer/tools/loader-grabber",
       },
-      // {
-      //   name: "follower",
-      //   config: createSvelteConfig(
-      //     "./src/renderer/tools/follower/main.ts",
-      //     "./public/game/tools/follower/build/main.js",
-      //     "./src/renderer/tools/follower/tsconfig.json",
-      //   ),
-      //   watchPath: "./src/renderer/tools/follower",
-      // },
+      {
+        name: "follower",
+        config: createSvelteConfig(
+          "./src/renderer/tools/follower/main.ts",
+          "./public/game/tools/follower/build/main.js",
+          "./src/renderer/game/tsconfig.json",
+        ),
+        watchPath: "./src/renderer/tools/follower",
+      },
       // {
       //   name: "logger",
       //   config: createSvelteConfig(

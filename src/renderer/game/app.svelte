@@ -144,6 +144,13 @@
         return bot.world.monsters;
     }
   });
+
+  handlers.followerMe.handle(async () => {
+    const bot = Bot.getInstance();
+    if (!bot.player.isReady()) return "";
+
+    return bot.auth.username.toLowerCase();
+  });
 </script>
 
 <svelte:window

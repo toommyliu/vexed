@@ -4,19 +4,21 @@ import { app, BrowserWindow, dialog } from "electron";
 import { FileManager } from "../common/FileManager";
 import { DEFAULT_FAST_TRAVELS } from "../common/constants";
 import { Logger } from "../common/logger";
-import {
+import { WindowIds } from "../shared/constants";
+import type {
   GrabberDataType,
   LoaderDataType,
-  type FastTravel,
-  type FastTravelRoomNumber,
+  FastTravel,
+  FastTravelRoomNumber,
 } from "../shared/types";
-import { WindowIds } from "../shared/constants";
 import { recursivelyApplySecurityPolicy } from "./util/recursivelyApplySecurityPolicy";
 import { createGame, windowStore } from "./windows";
 
 const tipcInstance = tipc.create();
 const logger = Logger.get("IpcMain");
 const BASE_PATH = join(__dirname, "../../public/game/");
+
+// TODO: <WebContents>.reloadIgnoringCache() to send refresh events to all childern
 
 // Renderer calls to main (1.)
 export const router = {
@@ -45,6 +47,7 @@ export const router = {
           break;
         case WindowIds.Follower:
           ref = storeRef.tools.follower;
+          path = join(BASE_PATH, "tools", "follower", "index.html");
           break;
         case WindowIds.PacketLogger:
           ref = storeRef.packets.logger;
@@ -70,7 +73,6 @@ export const router = {
           contextIsolation: false,
           nodeIntegration: true,
         },
-        useContentSize: true,
         // Parent is required in order to maintain parent-child relationships and for ipc calls
         // Moving the parent also moves the child, as well as minimizing it
         parent: browserWindow,
@@ -279,6 +281,63 @@ export const router = {
       return parentHandlers.grab.invoke({ type: input.type });
     }),
   // #endregion
+
+  // #region Follower
+  followerMe: tipcInstance.procedure.action(async ({ context }) => {
+    const browserWindow = BrowserWindow.fromWebContents(context.sender);
+    if (!browserWindow) return;
+
+    const parent = browserWindow.getParentWindow();
+    if (!parent || !windowStore.has(parent.id)) return;
+
+    const parentHandlers = getRendererHandlers<RendererHandlers>(
+      parent.webContents,
+    );
+
+    return await parentHandlers.followerMe.invoke();
+  }),
+  followerStart: tipcInstance.procedure
+    .input<{
+      antiCounter: boolean;
+      attackPriority: string;
+      copyWalk: boolean;
+      drops: string;
+      name: string;
+      quests: string;
+      rejectElse: boolean;
+      safeSkill: string;
+      safeSkillEnabled: boolean;
+      safeSkillHp: string;
+      skillDelay: string;
+      skillList: string;
+      skillWait: boolean;
+    }>()
+    .action(async ({ context, input }) => {
+      const browserWindow = BrowserWindow.fromWebContents(context.sender);
+      if (!browserWindow) return;
+
+      const parent = browserWindow.getParentWindow();
+      if (!parent || !windowStore.has(parent.id)) return;
+
+      const parentHandlers = getRendererHandlers<RendererHandlers>(
+        parent.webContents,
+      );
+      parentHandlers.followerStart.send(input);
+    }),
+  followerStop: tipcInstance.procedure.action(async ({ context }) => {
+    const browserWindow = BrowserWindow.fromWebContents(context.sender);
+    if (!browserWindow) return;
+
+    const parent = browserWindow.getParentWindow();
+    if (!parent || !windowStore.has(parent.id)) return;
+
+    const parentHandlers = getRendererHandlers<RendererHandlers>(
+      parent.webContents,
+    );
+    parentHandlers.followerStop.send();
+  }),
+
+  // #endregion
   // #region Manager
   getAccounts: tipcInstance.procedure.action(async () => {
     try {
@@ -365,6 +424,7 @@ export type TipcRouter = typeof router;
 /* eslint-disable typescript-sort-keys/interface */
 
 // Main calls back to renderer (2.)
+// !! Any renderer define these handlers !!
 export type RendererHandlers = {
   // Scripts
   scriptLoaded(fromManager: boolean): void;
@@ -376,6 +436,25 @@ export type RendererHandlers = {
   // Loader Grabber
   load(input: { type: LoaderDataType; id: number }): void;
   grab(input: { type: GrabberDataType }): Promise<unknown>;
+
+  // Follower
+  followerMe(): Promise<string>;
+  followerStart(input: {
+    antiCounter: boolean;
+    attackPriority: string;
+    copyWalk: boolean;
+    drops: string;
+    name: string;
+    quests: string;
+    rejectElse: boolean;
+    safeSkill: string;
+    safeSkillEnabled: boolean;
+    safeSkillHp: string;
+    skillDelay: string;
+    skillList: string;
+    skillWait: boolean;
+  }): Promise<void>;
+  followerStop(): Promise<void>;
 
   // Manager
   enableButton(username: string): Promise<void>;

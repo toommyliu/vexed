@@ -1,10 +1,10 @@
 import "./lib/Bot";
 import "./flash-interop";
+import "./tipc/tipc-follower";
+import "./lib/util/enhancements";
 
 import { CommandRegistry } from "./botting/command-registry";
 import { cmd } from "./botting/index";
-
-import "./lib/util/enhancements";
 
 const commandRegistry = CommandRegistry.getInstance();
 
