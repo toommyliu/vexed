@@ -31,7 +31,7 @@
 </script>
 
 <footer
-  class="sticky bottom-0 z-10 flex-shrink-0 border-t border-zinc-700/30 bg-gradient-to-r from-zinc-900/95 via-zinc-800/90 to-zinc-900/95 p-6 shadow-2xl backdrop-blur-md"
+  class="sticky bottom-0 z-10 flex-shrink-0 border-t border-zinc-700/30 bg-zinc-950 p-6 shadow-2xl backdrop-blur-md"
 >
   <div
     class="mx-auto flex w-full max-w-4xl flex-col sm:flex-row sm:items-center sm:justify-between sm:space-x-6"

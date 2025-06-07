@@ -26,7 +26,7 @@
 </script>
 
 <div
-  class="group rounded-md border border-zinc-700/50 bg-gradient-to-br from-zinc-900/60 to-zinc-800/60 shadow-lg backdrop-blur-sm transition-all duration-300 hover:border-zinc-600/70 hover:shadow-xl hover:shadow-zinc-900/20"
+  class="group rounded-md border border-zinc-700/50 bg-zinc-900 shadow-lg backdrop-blur-sm transition-all duration-300 hover:border-zinc-600/70 hover:shadow-xl hover:shadow-zinc-900/20"
 >
   <div
     class="flex flex-col space-y-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 sm:p-5"

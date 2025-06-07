@@ -60,11 +60,7 @@
   });
 </script>
 
-<main
-  class="flex min-h-screen select-none flex-col"
-  style="background: radial-gradient(ellipse at top left, #27272a 0%, #18181b 25%, #0f0f0f 50%, #09090b 100%),
-         linear-gradient(135deg, #27272a 0%, #27272a 25%, #18181b 50%, #0f0f0f 75%, #09090b 100%);"
->
+<main class="flex min-h-screen select-none flex-col bg-zinc-950">
   <div class="mx-auto box-border w-full max-w-4xl flex-grow p-6">
     <Header onclick={openModal} />
 
