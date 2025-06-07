@@ -214,15 +214,16 @@ async function transpile() {
         ),
         watchPath: "./src/renderer/tools/follower",
       },
-      // {
-      //   name: "logger",
-      //   config: createSvelteConfig(
-      //     "./src/renderer/packets/logger/main.ts",
-      //     "./public/game/packets/logger/build/main.js",
-      //     "./src/renderer/packets/logger/tsconfig.json",
-      //   ),
-      //   watchPath: "./src/renderer/packets/logger",
-      // },
+      {
+        name: "packet-logger",
+        config: createSvelteConfig(
+          "./src/renderer/packets/logger/main.ts",
+          "./public/game/packets/logger/build/main.js",
+          "./src/renderer/game/tsconfig.json",
+        ),
+        watchPath: "./src/renderer/packets/logger",
+      },
+
       // {
       //   name: "spammer",
       //   config: createSvelteConfig(

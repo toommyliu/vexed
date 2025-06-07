@@ -51,9 +51,11 @@ export const router = {
           break;
         case WindowIds.PacketLogger:
           ref = storeRef.packets.logger;
+          path = join(BASE_PATH, "packets", "logger", "index.html");
           break;
         case WindowIds.PacketSpammer:
           ref = storeRef.packets.spammer;
+          path = join(BASE_PATH, "packets", "spammer", "index.html");
           break;
       }
 
@@ -281,7 +283,6 @@ export const router = {
       return parentHandlers.grab.invoke({ type: input.type });
     }),
   // #endregion
-
   // #region Follower
   followerMe: tipcInstance.procedure.action(async ({ context }) => {
     const browserWindow = BrowserWindow.fromWebContents(context.sender);
@@ -336,8 +337,53 @@ export const router = {
     );
     parentHandlers.followerStop.send();
   }),
-
   // #endregion
+
+  // #region Packet Logger
+  packetLoggerStart: tipcInstance.procedure.action(async ({ context }) => {
+    const browserWindow = BrowserWindow.fromWebContents(context.sender);
+    if (!browserWindow) return;
+
+    const parent = browserWindow.getParentWindow();
+    if (!parent || !windowStore.has(parent.id)) return;
+
+    const parentHandlers = getRendererHandlers<RendererHandlers>(
+      parent.webContents,
+    );
+    parentHandlers.packetLoggerStart.send();
+  }),
+  packetLoggerStop: tipcInstance.procedure.action(async ({ context }) => {
+    const browserWindow = BrowserWindow.fromWebContents(context.sender);
+    if (!browserWindow) return;
+
+    const parent = browserWindow.getParentWindow();
+    if (!parent || !windowStore.has(parent.id)) return;
+
+    const parentHandlers = getRendererHandlers<RendererHandlers>(
+      parent.webContents,
+    );
+    parentHandlers.packetLoggerStop.send();
+  }),
+  packetLoggerPacket: tipcInstance.procedure
+    .input<{ packet: string; type: string }>()
+    .action(async ({ input, context }) => {
+      const browserWindow = BrowserWindow.fromWebContents(context.sender);
+      if (!browserWindow) {
+        console.log("no browser window");
+        return;
+      }
+
+      const packetLoggerWindow = windowStore.get(browserWindow.id)?.packets
+        ?.logger;
+      if (!packetLoggerWindow || packetLoggerWindow.isDestroyed()) return;
+
+      const rendererHandler = getRendererHandlers<RendererHandlers>(
+        packetLoggerWindow.webContents,
+      );
+      rendererHandler.packetLoggerPacket.send(input);
+    }),
+  // #endregion
+
   // #region Manager
   getAccounts: tipcInstance.procedure.action(async () => {
     try {
@@ -477,6 +523,11 @@ export type RendererHandlers = {
     skillWait: boolean;
   }): Promise<void>;
   followerStop(): Promise<void>;
+
+  // Packet Logger
+  packetLoggerStart(): void;
+  packetLoggerStop(): void;
+  packetLoggerPacket(input: { packet: string; type: string }): void;
 
   // Manager
   managerLoginSuccess(username: string): void;
