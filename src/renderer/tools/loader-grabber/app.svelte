@@ -282,7 +282,22 @@
           expandedNodes = new Set(expandedNodes);
         }
       }}
+      onkeydown={(ev) => {
+        if (ev.key === "Enter" || ev.key === " ") {
+          ev.preventDefault();
+          if (hasChildren) {
+            if (isExpanded) {
+              expandedNodes.delete(nodeId);
+            } else {
+              expandedNodes.add(nodeId);
+            }
+            expandedNodes = new Set(expandedNodes);
+          }
+        }
+      }}
       style="margin-left: {level * 20}px"
+      role="button"
+      tabindex="0"
     >
       {#if hasChildren}
         <div class="flex h-5 w-5 items-center justify-center">

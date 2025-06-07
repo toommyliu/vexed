@@ -34,6 +34,12 @@
     <div
       class="flex flex-1 items-center space-x-3 sm:space-x-4"
       onclick={toggleAccount}
+      onkeydown={(ev) => {
+        if (ev.key === "Enter" || ev.key === " ") {
+          ev.preventDefault();
+          toggleAccount();
+        }
+      }}
       role="button"
       tabindex="0"
     >

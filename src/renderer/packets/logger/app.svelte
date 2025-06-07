@@ -233,6 +233,14 @@
           <div
             class="line mb-1 flex cursor-pointer flex-wrap items-start rounded px-2 py-1 font-mono transition-colors duration-150 hover:bg-zinc-800"
             onclick={() => copyPacket(packet.content)}
+            onkeydown={(ev) => {
+              if (ev.key === "Enter") {
+                ev.preventDefault();
+                copyPacket(packet.content);
+              }
+            }}
+            role="button"
+            tabindex="0"
             title="Click to copy packet"
           >
             {#if showTimestamps}
@@ -347,12 +355,6 @@
     border-radius: 1px;
   }
 
-  #logger {
-    scrollbar-gutter: stable;
-    max-width: 100%;
-    word-wrap: normal;
-    overflow-x: hidden;
-  }
   .resize-y {
     resize: vertical;
     overflow: auto;

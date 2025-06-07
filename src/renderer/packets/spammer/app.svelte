@@ -87,6 +87,9 @@
                       : "hover:bg-zinc-800",
                   )}
                   onclick={() => selectPacket(index)}
+                  onkeydown={(ev) => {
+                    if (ev.key === "Enter") selectPacket(index);
+                  }}
                   role="button"
                   tabindex="0"
                 >

@@ -396,6 +396,8 @@
             id="options-dropdowncontent"
             onmouseenter={() => (openDropdown = "options")}
             onmouseleave={() => (openDropdown = null)}
+            role="menu"
+            tabindex="0"
           >
             <button
               class="group flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 first:rounded-t-lg hover:bg-gray-700/50"
@@ -485,6 +487,16 @@
               class="flex w-full cursor-default items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
               id="option-walkspeed"
               onclick={(ev) => ev.stopPropagation()}
+              onkeydown={(ev) => {
+                if (ev.key === "Enter" || ev.key === " ") {
+                  ev.preventDefault();
+                  gameState.walkSpeed = Number.parseInt(
+                    (ev.target as HTMLInputElement).value,
+                  );
+                }
+              }}
+              role="button"
+              tabindex="0"
             >
               <span class="text-white">Walk Speed</span>
               <input
@@ -494,12 +506,30 @@
                 min="0"
                 max="99"
                 onclick={(ev) => ev.stopPropagation()}
+                onkeydown={(ev) => {
+                  if (ev.key === "Enter" || ev.key === " ") {
+                    ev.preventDefault();
+                    gameState.walkSpeed = Number.parseInt(
+                      (ev.target as HTMLInputElement).value,
+                    );
+                  }
+                }}
               />
             </div>
             <div
               class="flex w-full cursor-default items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 last:rounded-b-lg hover:bg-gray-700/50"
               id="option-fps"
               onclick={(ev) => ev.stopPropagation()}
+              onkeydown={(ev) => {
+                if (ev.key === "Enter" || ev.key === " ") {
+                  ev.preventDefault();
+                  gameState.fps = Number.parseInt(
+                    (ev.target as HTMLInputElement).value,
+                  );
+                }
+              }}
+              role="button"
+              tabindex="0"
             >
               <span class="text-white">FPS</span>
               <input
@@ -577,6 +607,8 @@
               id="pads-dropdowncontent"
               onmouseenter={() => (openDropdown = "pads")}
               onmouseleave={() => (openDropdown = null)}
+              role="menu"
+              tabindex="0"
             >
               {#each validPads as pad}
                 <button
@@ -618,6 +650,8 @@
               id="cells-dropdowncontent"
               onmouseenter={() => (openDropdown = "cells")}
               onmouseleave={() => (openDropdown = null)}
+              role="menu"
+              tabindex="0"
             >
               {#each availableCells as cell}
                 <button
