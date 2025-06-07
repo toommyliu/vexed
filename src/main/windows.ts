@@ -1,11 +1,7 @@
 import { join, resolve } from "path";
-import { getRendererHandlers } from "@egoist/tipc/main";
 import { app, BrowserWindow } from "electron";
 import { BRAND } from "../common/constants";
-import { ipcMain } from "../common/ipc";
-import { IPC_EVENTS } from "../common/ipc-events";
 import { Logger } from "../common/logger";
-import type { RendererHandlers } from "./ipc";
 import { recursivelyApplySecurityPolicy } from "./util/recursivelyApplySecurityPolicy";
 
 const PUBLIC = join(__dirname, "../../public/");
@@ -14,10 +10,13 @@ const PUBLIC_MANAGER = join(PUBLIC, "manager/");
 
 const logger = Logger.get("Windows");
 
+let mgrWindow: BrowserWindow | null;
+
 export const windowStore: WindowStore = new Map();
 
-// eslint-disable-next-line import-x/no-mutable-exports
-export let mgrWindow: BrowserWindow | null;
+export function getManagerWindow(): BrowserWindow | null {
+  return mgrWindow;
+}
 
 export async function createAccountManager(): Promise<void> {
   if (mgrWindow) {
@@ -98,16 +97,17 @@ export async function createGame(
   // TODO: clean when everything else is migrated
 
   // Register main to renderer IPC calls
-  const handlers = getRendererHandlers<RendererHandlers>(window.webContents);
-  ipcMain.answerRenderer("root:login-success", async ({ username }) => {
-    console.log("root:login-success", username);
+  // const handlers = getRendererHandlers<RendererHandlers>(window.webContents);
+  // router
+  // ipcMain.answerRenderer("root:login-success", async ({ username }) => {
+  //   console.log("root:login-success", username);
 
-    if (!mgrWindow) return;
+  //   if (!mgrWindow) return;
 
-    logger.info(`User ${username} logged in successfully.`);
+  //   logger.info(`User ${username} logged in successfully.`);
 
-    handlers.enableButton.send(username);
-  });
+  //   handlers.enableButton.send(username);
+  // });
 
   // Track refreshes to re-sync states across windows
   window.webContents.on("did-finish-load", async () => {
@@ -119,21 +119,21 @@ export async function createGame(
 
     const windows = windowStore.get(window.id);
 
-    if (windows) {
-      try {
-        for (const child of Object.values(windows.tools)) {
-          if (child && !child.isDestroyed()) {
-            await ipcMain.callRenderer(child!, IPC_EVENTS.REFRESHED);
-          }
-        }
+    // if (windows) {
+    //   try {
+    //     for (const child of Object.values(windows.tools)) {
+    //       if (child && !child.isDestroyed()) {
+    //         await ipcMain.callRenderer(child!, IPC_EVENTS.REFRESHED);
+    //       }
+    //     }
 
-        for (const child of Object.values(windows.packets)) {
-          if (child && !child.isDestroyed()) {
-            await ipcMain.callRenderer(child!, IPC_EVENTS.REFRESHED);
-          }
-        }
-      } catch {}
-    }
+    //     for (const child of Object.values(windows.packets)) {
+    //       if (child && !child.isDestroyed()) {
+    //         await ipcMain.callRenderer(child!, IPC_EVENTS.REFRESHED);
+    //       }
+    //     }
+    //   } catch {}
+    // }
   });
 
   window.on("close", () => {

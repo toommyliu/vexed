@@ -1,7 +1,6 @@
 import process from "process";
-import { ipcRenderer } from "../../common/ipc";
-import { IPC_EVENTS } from "../../common/ipc-events";
 import { Logger } from "../../common/logger";
+import { client } from "../../shared/tipc";
 import { Bot } from "./lib/Bot";
 import { addGoldExp } from "./networking.json/add-gold-exp";
 import { ct } from "./networking.json/ct";
@@ -10,21 +9,8 @@ import { initUserData } from "./networking.json/init-user-data";
 import { moveToArea } from "./networking.json/move-to-area";
 import { disableElement, enableElement } from "./ui-utils";
 
-// import { FileManager } from '../../main/FileManager';
-// FileManager.getInstance().writeJson(
-//   FileManager.getInstance().basePath + '/packets.json',
-//   [],
-// );
-
 const logger = Logger.get("FlashInterop");
 const bot = Bot.getInstance();
-
-// window.clear = () => {
-//   FileManager.getInstance().writeJson(
-//     FileManager.getInstance().basePath + '/packets.json',
-//     [],
-//   );
-// };
 
 window.packetFromClient = ([packet]: [string]) => {
   bot.emit("packetFromClient", packet);
@@ -44,11 +30,6 @@ window.pext = async ([packet]) => {
   delete pkt.type;
 
   Bot.getInstance().emit("pext", pkt);
-
-  // await FileManager.getInstance().appendJson(
-  //   FileManager.getInstance().basePath + '/packets.json',
-  //   pkt,
-  // );
 
   if (pkt?.params?.type === "str") {
     const dataObj = pkt?.params?.dataObj; // ['exitArea', '-1', 'ENT_ID', 'PLAYER']
@@ -121,8 +102,6 @@ window.connection = async ([state]: [string]) => {
 };
 
 window.loaded = async () => {
-  // await ipcRenderer.callMain(IPC_EVENTS.LOADED);
-
   const usernameArg = process.argv.find((arg) => arg.startsWith("--username="));
   const passwordArg = process.argv.find((arg) => arg.startsWith("--password="));
   const serverArg = process.argv.find((arg) => arg.startsWith("--server="));
@@ -142,17 +121,15 @@ window.loaded = async () => {
     bot.autoRelogin.setCredentials(username!, password!, server!);
     bot.autoRelogin.delay = 0;
 
-    // auto relogin should have triggered
+    // Auto Relogin should have triggered by now, wait for the player to be ready now
     await bot.waitUntil(() => bot.player.isReady(), null, -1);
 
-    // reset
+    // Reset credentials and delay
     bot.autoRelogin.setCredentials("", "", "");
     bot.autoRelogin.delay = ogDelay;
 
-    logger.info("auto relogin success, responding");
-    await ipcRenderer
-      .callMain(IPC_EVENTS.LOGIN_SUCCESS, { username })
-      .catch(() => {});
+    // logger.info("auto relogin success, responding");
+    await client.managerLoginSuccess({ username });
   }
 
   if (scriptPath) {
@@ -166,9 +143,7 @@ window.loaded = async () => {
 
       // console.log("decodedPath", decodedPath);
 
-      await ipcRenderer.callMain(IPC_EVENTS.LOAD_SCRIPT, {
-        scriptPath: decodedPath,
-      });
+      await client.loadScript({ scriptPath: decodedPath });
     } catch {}
   }
 };

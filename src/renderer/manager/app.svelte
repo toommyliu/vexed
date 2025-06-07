@@ -51,6 +51,13 @@
 
   const openModal = () => (isModalOpen = true);
   const closeModal = () => (isModalOpen = false);
+
+  handlers.managerLoginSuccess.listen((username) => {
+    if (timeouts.has(username)) {
+      clearTimeout(timeouts.get(username)!);
+      timeouts.delete(username);
+    }
+  });
 </script>
 
 <main

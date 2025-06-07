@@ -1,5 +1,5 @@
-import { managerState } from "./state.svelte";
 import { client } from "../../shared/tipc";
+import { managerState } from "./state.svelte";
 
 export const startAccount = async (account: Account) => {
   const { timeouts } = managerState;

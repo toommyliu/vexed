@@ -12,7 +12,7 @@ import type {
   FastTravelRoomNumber,
 } from "../shared/types";
 import { recursivelyApplySecurityPolicy } from "./util/recursivelyApplySecurityPolicy";
-import { createGame, windowStore } from "./windows";
+import { createGame, windowStore, getManagerWindow } from "./windows";
 
 const tipcInstance = tipc.create();
 const logger = Logger.get("IpcMain");
@@ -294,7 +294,7 @@ export const router = {
       parent.webContents,
     );
 
-    return await parentHandlers.followerMe.invoke();
+    return parentHandlers.followerMe.invoke();
   }),
   followerStart: tipcInstance.procedure
     .input<{
@@ -416,6 +416,28 @@ export const router = {
       logger.info(`Launching game for: ${input.username}`);
       await createGame(input);
     }),
+  managerLoginSuccess: tipcInstance.procedure
+    .input<{ username: string }>()
+    .action(async ({ input, context }) => {
+      const browserWindow = BrowserWindow.fromWebContents(context.sender);
+      if (!browserWindow) {
+        console.log("no browser window found");
+        return;
+      }
+
+      const window = getManagerWindow();
+      if (!window) {
+        console.log("no manager window found");
+        return;
+      }
+
+      const handlers = getRendererHandlers<RendererHandlers>(
+        window.webContents,
+      );
+      handlers.enableButton.send(input.username);
+
+      logger.info(`User ${input.username} logged in successfully`);
+    }),
   // #endregion
 };
 
@@ -457,6 +479,7 @@ export type RendererHandlers = {
   followerStop(): Promise<void>;
 
   // Manager
+  managerLoginSuccess(username: string): void;
   enableButton(username: string): Promise<void>;
 };
 /* eslint-enable typescript-sort-keys/interface */
