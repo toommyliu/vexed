@@ -1,8 +1,6 @@
 import { join, resolve } from "path";
 import { app, BrowserWindow } from "electron";
 import { BRAND } from "../common/constants";
-import { ipcMain } from "../common/ipc";
-import { IPC_EVENTS } from "../common/ipc-events";
 import { Logger } from "../common/logger";
 import { recursivelyApplySecurityPolicy } from "./util/recursivelyApplySecurityPolicy";
 
@@ -12,10 +10,13 @@ const PUBLIC_MANAGER = join(PUBLIC, "manager/");
 
 const logger = Logger.get("Windows");
 
-export const store: WindowStore = new Map();
+let mgrWindow: BrowserWindow | null;
 
-// eslint-disable-next-line import-x/no-mutable-exports
-export let mgrWindow: BrowserWindow | null;
+export const windowStore: WindowStore = new Map();
+
+export function getManagerWindow(): BrowserWindow | null {
+  return mgrWindow;
+}
 
 export async function createAccountManager(): Promise<void> {
   if (mgrWindow) {
@@ -76,12 +77,10 @@ export async function createGame(
       backgroundThrottling: false,
       nodeIntegration: true,
       plugins: true,
-      // pass account data to run "Login With Account"
+      // Pass CLI args for "Login with Account" feature
       additionalArguments: args,
-      // disable unuseful features
       webgl: false,
     },
-    // don't know
     ...(account?.username
       ? { tabbingIdentifier: `game-${account?.username}` }
       : {}),
@@ -95,35 +94,50 @@ export async function createGame(
     window.webContents.openDevTools({ mode: "right" });
   }
 
+  // TODO: clean when everything else is migrated
+
+  // Register main to renderer IPC calls
+  // const handlers = getRendererHandlers<RendererHandlers>(window.webContents);
+  // router
+  // ipcMain.answerRenderer("root:login-success", async ({ username }) => {
+  //   console.log("root:login-success", username);
+
+  //   if (!mgrWindow) return;
+
+  //   logger.info(`User ${username} logged in successfully.`);
+
+  //   handlers.enableButton.send(username);
+  // });
+
   // Track refreshes to re-sync states across windows
   window.webContents.on("did-finish-load", async () => {
     logger.info("game window re(loaded)");
 
-    if (!window || window?.isDestroyed()) {
-      return;
-    }
+    // if (!window || window?.isDestroyed()) {
+    //   return;
+    // }
 
-    const windows = store.get(window.id);
+    // const windows = windowStore.get(window.id);
 
-    if (windows) {
-      try {
-        for (const child of Object.values(windows.tools)) {
-          if (child && !child.isDestroyed()) {
-            await ipcMain.callRenderer(child!, IPC_EVENTS.REFRESHED);
-          }
-        }
+    // if (windows) {
+    //   try {
+    //     for (const child of Object.values(windows.tools)) {
+    //       if (child && !child.isDestroyed()) {
+    //         await ipcMain.callRenderer(child!, IPC_EVENTS.REFRESHED);
+    //       }
+    //     }
 
-        for (const child of Object.values(windows.packets)) {
-          if (child && !child.isDestroyed()) {
-            await ipcMain.callRenderer(child!, IPC_EVENTS.REFRESHED);
-          }
-        }
-      } catch {}
-    }
+    //     for (const child of Object.values(windows.packets)) {
+    //       if (child && !child.isDestroyed()) {
+    //         await ipcMain.callRenderer(child!, IPC_EVENTS.REFRESHED);
+    //       }
+    //     }
+    //   } catch {}
+    // }
   });
 
   window.on("close", () => {
-    const windows = store.get(window.id);
+    const windows = windowStore.get(window.id);
     if (windows) {
       for (const child of Object.values(windows.tools)) {
         if (child && !child.isDestroyed()) {
@@ -137,11 +151,11 @@ export async function createGame(
         }
       }
 
-      store.delete(window.id);
+      windowStore.delete(window.id);
     }
   });
 
-  store.set(window.id, {
+  windowStore.set(window.id, {
     game: window,
     tools: { fastTravels: null, loaderGrabber: null, follower: null },
     packets: { logger: null, spammer: null },

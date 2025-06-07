@@ -34,6 +34,26 @@ export class Logger {
   private formatArgs(args: unknown[]): string {
     return args
       .map((arg) => {
+        if (arg instanceof Error) {
+          // If this is the only argument, show the full stack trace
+          // logger.error(msg, error)
+          if (args.length === 1 && arg.stack) {
+            return arg.stack;
+          }
+
+          // If it's part of multiple arguments, just show the stack trace without duplicating the message
+          if (arg.stack) {
+            // The stack trace usually starts with the error name and message, followed by the actual trace
+            // Extract just the trace part (lines after the first line)
+            const stackLines = arg.stack.split("\n");
+            return stackLines.slice(1).join("\n");
+          }
+
+          // Fallback if no stack is available
+          // eslint-disable-next-line @typescript-eslint/no-base-to-string
+          return arg.message ?? arg.toString();
+        }
+
         if (Array.isArray(arg)) {
           return arg
             .map((a) =>
