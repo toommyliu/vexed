@@ -12,6 +12,7 @@ import { showErrorDialog } from "./util/showErrorDialog";
 import { createAccountManager, createGame } from "./windows";
 
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
+process.env["ELECTRON_ENABLE_LOGGING"] = "true";
 
 registerIpcMain(router);
 

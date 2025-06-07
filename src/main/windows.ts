@@ -113,11 +113,11 @@ export async function createGame(
   window.webContents.on("did-finish-load", async () => {
     logger.info("game window re(loaded)");
 
-    if (!window || window?.isDestroyed()) {
-      return;
-    }
+    // if (!window || window?.isDestroyed()) {
+    //   return;
+    // }
 
-    const windows = windowStore.get(window.id);
+    // const windows = windowStore.get(window.id);
 
     // if (windows) {
     //   try {

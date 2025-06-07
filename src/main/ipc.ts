@@ -13,10 +13,40 @@ import type {
 } from "../shared/types";
 import { recursivelyApplySecurityPolicy } from "./util/recursivelyApplySecurityPolicy";
 import { createGame, windowStore, getManagerWindow } from "./windows";
+import { sleep } from "../shared/sleep";
 
 const tipcInstance = tipc.create();
 const logger = Logger.get("IpcMain");
 const BASE_PATH = join(__dirname, "../../public/game/");
+
+type PlayerStatus = {
+  done: Set<string>; // set of players done
+  leader: string; // playerName of the leader
+  playerList: Set<string>; // set of playerName, including leader
+  windows: Map<string, BrowserWindow>; // playerName -> browser window
+};
+const map: Map<
+  string, // config fileName
+  PlayerStatus
+> = new Map();
+const windowToPlayerMap: WeakMap<BrowserWindow, string> = new WeakMap();
+
+// Cleanup map to get a clean state (useful for testing when reloading the window)
+const handleCleanup = (
+  browserWindow: BrowserWindow,
+  configFileName?: string,
+) => {
+  // only useful for Leader?
+  const _cleanup = () => {
+    if (configFileName) {
+      map.delete(configFileName);
+      console.log(`Leader disconnected, cleaned up: ${configFileName}`);
+    }
+  };
+
+  browserWindow.webContents.once("did-finish-load", _cleanup);
+  browserWindow.once("close", _cleanup);
+};
 
 // TODO: <WebContents>.reloadIgnoringCache() to send refresh events to all childern
 
@@ -411,6 +441,128 @@ export const router = {
     );
     parentHandlers.packetSpammerStop.send();
   }),
+  // #endregion
+
+  // #region Armying
+  armyInit: tipcInstance.procedure
+    .input<{ fileName: string; playerName: string; players: string[] }>()
+    .action(async ({ input, context }) => {
+      const browserWindow = BrowserWindow.fromWebContents(context.sender);
+      if (!browserWindow) return;
+
+      const { fileName, playerName, players } = input;
+
+      const windows = new Map<string, BrowserWindow>();
+      windows.set(playerName, browserWindow);
+      windowToPlayerMap.set(browserWindow, playerName);
+
+      const playerStatus = {
+        done: new Set<string>(),
+        leader: playerName,
+        playerList: new Set(players),
+        windows,
+      };
+      map.set(fileName, playerStatus);
+
+      handleCleanup(browserWindow, fileName);
+
+      console.log("Army init done");
+    }),
+  armyJoin: tipcInstance.procedure
+    .input<{ fileName: string; playerName: string }>()
+    .action(async ({ input, context }) => {
+      const browserWindow = BrowserWindow.fromWebContents(context.sender);
+      if (!browserWindow) return;
+
+      const { fileName, playerName } = input;
+      let iter = 0;
+
+      while (!map.has(fileName)) {
+        if (iter % 100 === 0) {
+          // console.log(`${playerName} waiting for army init...`);
+        }
+
+        await sleep(100);
+        iter++;
+      }
+
+      await sleep(1_000);
+
+      const { windows } = map.get(fileName)!;
+      windows.set(playerName, browserWindow);
+      windowToPlayerMap.set(browserWindow, playerName);
+
+      handleCleanup(browserWindow);
+
+      console.log("Joined army", input);
+    }),
+  armyFinishJob: tipcInstance.procedure.action(async ({ context }) => {
+    const browserWindow = BrowserWindow.fromWebContents(context.sender);
+    if (!browserWindow) return;
+
+    const playerName = windowToPlayerMap.get(browserWindow);
+    if (!playerName) {
+      console.warn("No player name found for browser window");
+      return;
+    }
+
+    console.log(`Player ${playerName} finished job`);
+
+    // Update the map to mark this player as done
+    const fileName = [...map.keys()].find((fileName) =>
+      map.get(fileName)?.windows.has(playerName),
+    );
+    if (!fileName) {
+      console.warn("No file name found for browser window");
+      return;
+    }
+
+    const { done: doneSet, windows, playerList, leader } = map.get(fileName)!;
+    doneSet.add(playerName);
+    // console.log(`Player ${playerName} is done`);
+
+    if (playerName !== leader) {
+      console.log("Not leader, waiting for leader to finish job");
+      return;
+    }
+
+    let iter = 0;
+
+    while (doneSet.size !== playerList.size && map.has(fileName)) {
+      if (iter % 100 === 0) {
+        console.log(
+          `Leader: Waiting for all players to finish job: ${Array.from(
+            playerList,
+          )
+            .filter((player) => !doneSet.has(player))
+            .join(", ")} (${doneSet.size}/${playerList.size})`,
+        );
+      }
+
+      await sleep(100);
+
+      iter++;
+    }
+
+    if (!map.has(fileName)) {
+      console.log("(2) Map has been cleared, exiting");
+      return;
+    }
+
+    console.log("All players are done and ready");
+
+    // All players are done, send ready to all windows
+    for (const [_, window] of windows) {
+      const rendererHandlers = getRendererHandlers<RendererHandlers>(
+        window.webContents,
+      );
+      await rendererHandlers.armyReady.invoke();
+    }
+
+    // IMPORTANT: Only clear the set after all messages are sent
+    doneSet.clear();
+  }),
+  // #endregion
 
   // #region Manager
   getAccounts: tipcInstance.procedure.action(async () => {
@@ -494,16 +646,10 @@ export const router = {
     .input<{ username: string }>()
     .action(async ({ input, context }) => {
       const browserWindow = BrowserWindow.fromWebContents(context.sender);
-      if (!browserWindow) {
-        console.log("no browser window found");
-        return;
-      }
+      if (!browserWindow) return;
 
       const window = getManagerWindow();
-      if (!window) {
-        console.log("no manager window found");
-        return;
-      }
+      if (!window) return;
 
       const handlers = getRendererHandlers<RendererHandlers>(
         window.webContents,
@@ -560,6 +706,9 @@ export type RendererHandlers = {
   // Packet Spammer
   packetSpammerStart(input: { delay: number; packets: string[] }): void;
   packetSpammerStop(): void;
+
+  // Armying
+  armyReady(): Promise<void>;
 
   // Manager
   managerLoginSuccess(username: string): void;
