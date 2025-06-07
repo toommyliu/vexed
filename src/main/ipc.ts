@@ -466,7 +466,7 @@ export const router = {
 
       handleCleanup(browserWindow, fileName);
 
-      console.log("Army init done");
+      // console.log("Army init done");
     }),
   armyJoin: tipcInstance.procedure
     .input<{ fileName: string; playerName: string }>()
@@ -478,9 +478,9 @@ export const router = {
       let iter = 0;
 
       while (!map.has(fileName)) {
-        if (iter % 100 === 0) {
-          // console.log(`${playerName} waiting for army init...`);
-        }
+        // if (iter % 100 === 0) {
+        //   console.log(`${playerName} waiting for army init...`);
+        // }
 
         await sleep(100);
         iter++;
@@ -494,7 +494,7 @@ export const router = {
 
       handleCleanup(browserWindow);
 
-      console.log("Joined army", input);
+      // console.log("Joined army", input);
     }),
   armyFinishJob: tipcInstance.procedure.action(async ({ context }) => {
     const browserWindow = BrowserWindow.fromWebContents(context.sender);
@@ -502,18 +502,18 @@ export const router = {
 
     const playerName = windowToPlayerMap.get(browserWindow);
     if (!playerName) {
-      console.warn("No player name found for browser window");
+      // console.warn("No player name found for browser window");
       return;
     }
 
-    console.log(`Player ${playerName} finished job`);
+    // console.log(`Player ${playerName} finished job`);
 
     // Update the map to mark this player as done
     const fileName = [...map.keys()].find((fileName) =>
       map.get(fileName)?.windows.has(playerName),
     );
     if (!fileName) {
-      console.warn("No file name found for browser window");
+      // console.warn("No file name found for browser window");
       return;
     }
 
@@ -522,22 +522,22 @@ export const router = {
     // console.log(`Player ${playerName} is done`);
 
     if (playerName !== leader) {
-      console.log("Not leader, waiting for leader to finish job");
+      // console.log("Not leader, waiting for leader to finish job");
       return;
     }
 
     let iter = 0;
 
     while (doneSet.size !== playerList.size && map.has(fileName)) {
-      if (iter % 100 === 0) {
-        console.log(
-          `Leader: Waiting for all players to finish job: ${Array.from(
-            playerList,
-          )
-            .filter((player) => !doneSet.has(player))
-            .join(", ")} (${doneSet.size}/${playerList.size})`,
-        );
-      }
+      // if (iter % 100 === 0) {
+      //   console.log(
+      //     `Leader: Waiting for all players to finish job: ${Array.from(
+      //       playerList,
+      //     )
+      //       .filter((player) => !doneSet.has(player))
+      //       .join(", ")} (${doneSet.size}/${playerList.size})`,
+      //   );
+      // }
 
       await sleep(100);
 
@@ -545,7 +545,7 @@ export const router = {
     }
 
     if (!map.has(fileName)) {
-      console.log("(2) Map has been cleared, exiting");
+      // console.log("(2) Map has been cleared, exiting");
       return;
     }
 

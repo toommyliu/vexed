@@ -79,38 +79,8 @@ button:hover {
   visibility: visible;
 }
 
-.group {
-  background-color: inherit;
-}
-.group div {
-  background-color: var(--bg-primary);
-}
-
-.group:hover .group-hover\:block {
-  display: block;
-}
-
 #topnav > div.ml-auto.mr-2.flex.items-center.gap-4 {
   margin-top: -5px;
-}
-
-[id$="-dropdowncontent"] {
-  background-color: rgba(31, 41, 55, 0.95);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(107, 114, 128, 0.5);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-  animation: dropdown-fade-in 0.15s ease-out;
-}
-
-@keyframes dropdown-fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 #cells-dropdowncontent,
@@ -125,8 +95,6 @@ button:hover {
   overflow-y: auto !important;
   overflow-x: hidden !important;
   z-index: 1000;
-  scrollbar-width: thin;
-  scrollbar-color: #555 #222;
 }
 
 #cells-dropdowncontent::-webkit-scrollbar,

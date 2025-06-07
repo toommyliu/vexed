@@ -7,7 +7,6 @@ import { ct } from "./networking.json/ct";
 import { dropItem } from "./networking.json/drop-item";
 import { initUserData } from "./networking.json/init-user-data";
 import { moveToArea } from "./networking.json/move-to-area";
-import { disableElement, enableElement } from "./ui-utils";
 
 const logger = Logger.get("FlashInterop");
 const bot = Bot.getInstance();
@@ -29,7 +28,7 @@ window.pext = async ([packet]) => {
   delete pkt.cancelable;
   delete pkt.type;
 
-  Bot.getInstance().emit("pext", pkt);
+  bot.emit("pext", pkt);
 
   if (pkt?.params?.type === "str") {
     const dataObj = pkt?.params?.dataObj; // ['exitArea', '-1', 'ENT_ID', 'PLAYER']
@@ -46,7 +45,7 @@ window.pext = async ([packet]) => {
         if (
           Array.isArray(dataObj) &&
           dataObj?.length === 4 &&
-          dataObj[2]?.toLowerCase() === bot.auth.username.toLowerCase() &&
+          dataObj[2]?.toLowerCase() === bot.auth?.username?.toLowerCase() &&
           dataObj[3] === "afk:true"
         ) {
           bot.emit("afk");
@@ -78,27 +77,13 @@ window.pext = async ([packet]) => {
 };
 
 window.connection = async ([state]: [string]) => {
-  const elList = [
-    document.querySelector("#cells")!,
-    document.querySelector("#pads")!,
-    document.querySelector("#x")!,
-    document.querySelector("#bank")!,
-  ];
-
   if (state === "OnConnection") {
     await bot.waitUntil(() => bot.player.isReady(), null, -1);
+    bot.emit("login");
+  } else if (state === "OnConnectionLost") {
+    await bot.waitUntil(() => !bot.player.isReady(), null, -1);
+    bot.emit("logout");
   }
-
-  for (const el of elList) {
-    if (state === "OnConnection") {
-      enableElement(el as HTMLElement);
-    } else if (state === "OnConnectionLost") {
-      disableElement(el as HTMLElement);
-    }
-  }
-
-  if (state === "OnConnection") bot.emit("login");
-  else if (state === "OnConnectionLost") bot.emit("logout");
 };
 
 window.loaded = async () => {

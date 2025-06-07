@@ -8,6 +8,18 @@
   import { WindowIds } from "../../shared/constants";
   import { Bot } from "./lib/Bot";
 
+  const DEFAULT_PADS = [
+    "Center",
+    "Spawn",
+    "Left",
+    "Right",
+    "Top",
+    "Bottom",
+    "Up",
+    "Down",
+  ] as const;
+  const bot = Bot.getInstance();
+
   let openDropdown = $state<string | null>(null);
 
   let scriptBtnText = $derived(scriptState.isRunning ? "Stop" : "Start");
@@ -18,10 +30,54 @@
 
   let autoAggroEnabled = $state(false);
 
-  let gameConnected = $state(true);
+  let gameConnected = $state(false);
+  bot.on("login", () => (gameConnected = true));
+  bot.on("logout", () => (gameConnected = false));
 
-  // UI state
   let topNavVisible = $state(false);
+
+  let availableCells = $state<string[]>([]);
+  let currentSelectedCell = $state<string>("");
+  let prevRoomId = $state<number>(-1);
+  let validPads = $state<
+    {
+      name: string;
+      isValid: boolean;
+    }[]
+  >([]);
+  let currentSelectedPad = $state<string>("");
+
+  function jumpToCell(cell: string) {
+    if (!bot.player.isReady()) return;
+    bot.flash.call(() => swf.playerJump(cell, bot.player.pad ?? "Spawn"));
+
+    currentSelectedCell = cell;
+    updatePads();
+  }
+  function jumpToPad(pad: string) {
+    if (!bot.player.isReady()) return;
+    bot.flash.call(() => swf.playerJump(bot.player.cell ?? "Enter", pad));
+    currentSelectedPad = pad;
+  }
+
+  function updateCells() {
+    if (!bot.player.isReady() || bot.world.roomId === prevRoomId) return;
+
+    availableCells = bot.world.cells || [];
+    currentSelectedCell = bot.player.cell || "";
+    prevRoomId = bot.world.roomId || -1;
+  }
+
+  function updatePads() {
+    if (!bot.player.isReady()) return;
+
+    const cellPads = bot.world.cellPads || [];
+    validPads = DEFAULT_PADS.map((pad) => ({
+      name: pad,
+      isValid: cellPads.includes(pad),
+    }));
+    currentSelectedPad = bot.player.pad ?? "Spawn";
+  }
 
   function startScript() {
     if (!window.context.commands.length || window.context.isRunning()) return;
@@ -92,7 +148,6 @@
   });
 
   handlers.doFastTravel.handle(async ({ location }) => {
-    const bot = Bot.getInstance();
     if (!bot.player.isReady()) return;
 
     await bot.world.join(
@@ -103,7 +158,6 @@
   });
 
   handlers.load.listen(async ({ type, id }) => {
-    const bot = Bot.getInstance();
     if (!bot.player.isReady()) return;
 
     switch (type) {
@@ -123,7 +177,6 @@
   });
 
   handlers.grab.handle(async ({ type }) => {
-    const bot = Bot.getInstance();
     if (!bot.player.isReady()) return;
 
     switch (type) {
@@ -146,7 +199,6 @@
   });
 
   handlers.followerMe.handle(async () => {
-    const bot = Bot.getInstance();
     if (!bot.player.isReady()) return "";
 
     return bot.auth.username.toLowerCase();
@@ -201,7 +253,6 @@
   >
     <div id="topnav" class="flex w-full flex-wrap items-center">
       <div class="flex">
-        <!-- Scripts Dropdown -->
         <div class="group relative inline-block cursor-pointer">
           <button
             class="mx-1 rounded-md px-4 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50 hover:shadow-lg"
@@ -213,7 +264,7 @@
             Scripts
           </button>
           <div
-            class="absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-gray-800/95 text-xs shadow-2xl backdrop-blur-md"
+            class="absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-zinc-900 text-xs shadow-2xl backdrop-blur-md"
             style:display={openDropdown === "scripts" ? "block" : "none"}
           >
             <button
@@ -253,7 +304,6 @@
           </div>
         </div>
 
-        <!-- Tools Dropdown -->
         <div
           class="group relative inline-block cursor-pointer"
           id="tools-dropdown"
@@ -269,7 +319,7 @@
             Tools
           </button>
           <div
-            class="absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-gray-800/95 text-xs shadow-2xl backdrop-blur-md"
+            class="absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-zinc-900 text-xs shadow-2xl backdrop-blur-md"
             style:display={openDropdown === "tools" ? "block" : "none"}
             id="tools-dropdowncontent"
           >
@@ -294,7 +344,6 @@
           </div>
         </div>
 
-        <!-- Packets Dropdown -->
         <div
           class="group relative inline-block cursor-pointer"
           id="packets-dropdown"
@@ -310,7 +359,7 @@
             Packets
           </button>
           <div
-            class="absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-gray-800/95 text-xs shadow-2xl backdrop-blur-md"
+            class="absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-zinc-900 text-xs shadow-2xl backdrop-blur-md"
             style:display={openDropdown === "packets" ? "block" : "none"}
             id="packets-dropdowncontent"
           >
@@ -341,7 +390,7 @@
             Options
           </button>
           <div
-            class="absolute z-[9999] mt-1 min-w-48 rounded-lg border border-gray-700/50 bg-gray-800/95 text-xs shadow-2xl backdrop-blur-md"
+            class="absolute z-[9999] mt-1 min-w-48 rounded-lg border border-gray-700/50 bg-zinc-900 text-xs shadow-2xl backdrop-blur-md"
             style:display={openDropdown === "options" ? "block" : "none"}
             id="options-dropdowncontent"
             onmouseenter={() => (openDropdown = "options")}
@@ -479,7 +528,7 @@
             Auto Aggro
           </button>
           <div
-            class="absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-gray-800/95 text-xs shadow-2xl backdrop-blur-md"
+            class="absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-zinc-900 text-xs shadow-2xl backdrop-blur-md"
             style:display={openDropdown === "autoaggro" ? "block" : "none"}
             id="autoaggro-dropdowncontent"
           >
@@ -504,24 +553,40 @@
             id="pads-dropdown"
           >
             <button
-              class="h-full w-full rounded border border-gray-500/30 bg-gray-800/50 p-0 text-xs transition-all duration-200 hover:border-gray-400/50"
+              class="h-full w-full rounded border border-gray-500/30 bg-zinc-950 p-0 text-xs transition-all duration-200 hover:border-gray-400/50"
               class:cursor-not-allowed={!gameConnected}
               class:opacity-50={!gameConnected}
               id="pads"
               disabled={!gameConnected}
-              onclick={(e) => {
-                e.stopPropagation();
-                console.log("Pads button clicked");
+              onclick={(ev) => {
+                ev.stopPropagation();
+                updatePads();
                 toggleDropdown("pads");
               }}
             >
+              {currentSelectedPad}
             </button>
             <div
-              class="absolute top-8 text-xs"
+              class="absolute top-full z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-zinc-900 text-xs shadow-2xl backdrop-blur-md"
               style:display={openDropdown === "pads" ? "block" : "none"}
               id="pads-dropdowncontent"
+              onmouseenter={() => (openDropdown = "pads")}
+              onmouseleave={() => (openDropdown = null)}
             >
-              <!-- Pads will be populated dynamically -->
+              {#each validPads as pad}
+                <button
+                  class={cn(
+                    "flex w-full items-center bg-zinc-900 px-4 py-2 text-left transition-colors duration-150 hover:bg-gray-700/50",
+                    pad.isValid && "text-green-500",
+                  )}
+                  class:first:rounded-t-lg={validPads.indexOf(pad) === 0}
+                  class:last:rounded-b-lg={validPads.indexOf(pad) ===
+                    validPads.length - 1}
+                  onclick={() => jumpToPad(pad.name)}
+                >
+                  {pad.name}
+                </button>
+              {/each}
             </div>
           </div>
           <div
@@ -529,46 +594,75 @@
             id="cells-dropdown"
           >
             <button
-              class="h-full w-full rounded border border-gray-500/30 bg-gray-800/50 p-0 text-xs transition-all duration-200 hover:border-gray-400/50"
+              class="h-full w-full rounded border border-gray-500/30 bg-zinc-950 p-0 text-xs transition-all duration-200 hover:border-gray-400/50"
               class:cursor-not-allowed={!gameConnected}
               class:opacity-50={!gameConnected}
               id="cells"
               disabled={!gameConnected}
-              onclick={(e) => {
-                e.stopPropagation();
-                console.log("Cells button clicked");
+              onclick={(ev) => {
+                ev.stopPropagation();
+                updateCells();
                 toggleDropdown("cells");
               }}
             >
+              {currentSelectedCell}
             </button>
             <div
-              class="absolute top-8 text-xs"
-              class:display={openDropdown === "cells" ? "block" : "none"}
+              class="absolute top-full z-[9999] mt-1 max-h-[25vh] min-w-40 overflow-y-auto overflow-x-hidden rounded-lg border border-gray-700/50 bg-zinc-950 text-xs shadow-2xl backdrop-blur-md"
+              style:display={openDropdown === "cells" ? "block" : "none"}
               id="cells-dropdowncontent"
-            ></div>
+              onmouseenter={() => (openDropdown = "cells")}
+              onmouseleave={() => (openDropdown = null)}
+            >
+              {#each availableCells as cell}
+                <button
+                  class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700"
+                  class:first:rounded-t-lg={availableCells.indexOf(cell) === 0}
+                  class:last:rounded-b-lg={availableCells.indexOf(cell) ===
+                    availableCells.length - 1}
+                  onclick={() => jumpToCell(cell)}
+                >
+                  {cell}
+                </button>
+              {/each}
+            </div>
           </div>
         </div>
-        <div class="ml-1.5 flex gap-1">
+        <div class="ml-1.5 flex space-x-1">
           <button
-            class="mt-[5px] flex h-[25px] min-w-0 items-center justify-center rounded border border-gray-500/30 bg-gray-800/50 px-[8px] py-0 text-xs text-white transition-all duration-200 hover:border-gray-400/50"
+            class="mt-[5px] flex h-[25px] min-w-0 items-center justify-center rounded border border-gray-500/30 bg-zinc-950 px-[8px] py-0 text-xs text-white transition-all duration-200 hover:border-gray-400/50"
             class:cursor-not-allowed={!gameConnected}
             class:opacity-50={!gameConnected}
-            id="x"
             disabled={!gameConnected}
             onclick={() => {
-              console.log("x button clicked");
+              if (!bot.player.isReady()) return;
+
+              updateCells();
+              updatePads();
+
+              currentSelectedCell = bot.player.cell ?? "Enter";
+              currentSelectedPad = bot.player.pad ?? "Spawn";
+
+              bot.flash.call(() =>
+                swf.playerJump(currentSelectedCell, currentSelectedPad),
+              );
             }}
           >
             x
           </button>
           <button
-            class="mt-[5px] flex h-[25px] min-w-0 items-center justify-center rounded border border-gray-500/30 bg-gray-800/50 px-[8px] py-0 text-xs text-white transition-all duration-200 hover:border-gray-400/50"
+            class="mt-[5px] flex h-[25px] min-w-0 items-center justify-center rounded border border-gray-500/30 bg-zinc-950 px-[8px] py-0 text-xs text-white transition-all duration-200 hover:border-gray-400/50"
             class:cursor-not-allowed={!gameConnected}
             class:opacity-50={!gameConnected}
-            id="bank"
             disabled={!gameConnected}
-            onclick={() => {
-              console.log("Bank button clicked");
+            onclick={async () => {
+              if (!bot.player.isReady()) return;
+
+              if (bot.bank.isOpen()) {
+                bot.flash.call(() => swf.bankOpen());
+              } else {
+                await bot.bank.open();
+              }
             }}
           >
             Bank
@@ -585,7 +679,7 @@
     <div class="w-full max-w-md px-8">
       <div class="space-y-4">
         <div
-          class="flex h-2 w-full overflow-hidden rounded-full bg-gray-800/80 shadow-inner"
+          class="/80 flex h-2 w-full overflow-hidden rounded-full shadow-inner"
         >
           <div
             class="h-full w-0 rounded-full bg-gradient-to-r from-gray-600 to-gray-500 transition-all duration-300 ease-out"
