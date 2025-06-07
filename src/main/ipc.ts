@@ -368,10 +368,7 @@ export const router = {
     .input<{ packet: string; type: string }>()
     .action(async ({ input, context }) => {
       const browserWindow = BrowserWindow.fromWebContents(context.sender);
-      if (!browserWindow) {
-        console.log("no browser window");
-        return;
-      }
+      if (!browserWindow) return;
 
       const packetLoggerWindow = windowStore.get(browserWindow.id)?.packets
         ?.logger;
@@ -383,6 +380,37 @@ export const router = {
       rendererHandler.packetLoggerPacket.send(input);
     }),
   // #endregion
+
+  // #region Packet Spammer
+  packetSpammerStart: tipcInstance.procedure
+    .input<{
+      delay: number;
+      packets: string[];
+    }>()
+    .action(async ({ input, context }) => {
+      const browserWindow = BrowserWindow.fromWebContents(context.sender);
+      if (!browserWindow) return;
+
+      const parent = browserWindow.getParentWindow();
+      if (!parent || !windowStore.has(parent.id)) return;
+
+      const parentHandlers = getRendererHandlers<RendererHandlers>(
+        parent.webContents,
+      );
+      parentHandlers.packetSpammerStart.send(input);
+    }),
+  packetSpammerStop: tipcInstance.procedure.action(async ({ context }) => {
+    const browserWindow = BrowserWindow.fromWebContents(context.sender);
+    if (!browserWindow) return;
+
+    const parent = browserWindow.getParentWindow();
+    if (!parent || !windowStore.has(parent.id)) return;
+
+    const parentHandlers = getRendererHandlers<RendererHandlers>(
+      parent.webContents,
+    );
+    parentHandlers.packetSpammerStop.send();
+  }),
 
   // #region Manager
   getAccounts: tipcInstance.procedure.action(async () => {
@@ -528,6 +556,10 @@ export type RendererHandlers = {
   packetLoggerStart(): void;
   packetLoggerStop(): void;
   packetLoggerPacket(input: { packet: string; type: string }): void;
+
+  // Packet Spammer
+  packetSpammerStart(input: { delay: number; packets: string[] }): void;
+  packetSpammerStop(): void;
 
   // Manager
   managerLoginSuccess(username: string): void;
