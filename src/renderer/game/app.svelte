@@ -7,6 +7,7 @@
   import { GrabberDataType, LoaderDataType } from "../../shared/types";
   import { WindowIds } from "../../shared/constants";
   import { Bot } from "./lib/Bot";
+  import { startAutoAggro, stopAutoAggro } from "./autoaggro";
 
   const DEFAULT_PADS = [
     "Center",
@@ -536,7 +537,11 @@
               class="flex w-full items-center justify-between rounded-lg px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
               onclick={() => {
                 autoAggroEnabled = !autoAggroEnabled;
-                console.log(`Auto Aggro enabled: ${autoAggroEnabled}`);
+                if (autoAggroEnabled) {
+                  startAutoAggro();
+                } else {
+                  stopAutoAggro();
+                }
               }}
               class:option-active={autoAggroEnabled}
             >
