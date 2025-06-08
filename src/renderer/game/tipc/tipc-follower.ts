@@ -230,6 +230,7 @@ async function startFollower() {
             await bot.combat.useSkill(cfg.safeSkill[safeIndex]!, true, false);
             safeIndex = (safeIndex + 1) % cfg.safeSkill.length;
             await bot.sleep(cfg.skillDelay);
+            return;
           }
         }
       }
