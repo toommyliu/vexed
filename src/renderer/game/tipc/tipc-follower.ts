@@ -140,6 +140,8 @@ function packetHandler(packet: UotlPacket) {
 }
 
 async function startFollower() {
+  bot.off("pext", packetHandler);
+
   const cfg = config as FollowerConfig;
   const { name } = cfg;
 
@@ -183,7 +185,9 @@ async function startFollower() {
     }
   }
 
-  bot.on("pext", packetHandler);
+  if (cfg.copyWalk) {
+    bot.on("pext", packetHandler);
+  }
 
   if (cfg.quests.length) {
     for (const quest of cfg.quests) registerQuest(quest);
