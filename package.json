@@ -37,6 +37,7 @@
     "tailwind-merge": "^3.3.0",
     "tiny-typed-emitter": "^2.1.0",
     "totalist": "^3.0.1",
+    "virtua": "^0.41.3",
     "watchlist": "^0.3.1",
     "winston": "^3.17.0"
   },

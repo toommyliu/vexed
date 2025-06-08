@@ -2,6 +2,7 @@
   import { cn } from "../../../shared";
   import { client } from "../../../shared/tipc";
   import { GrabberDataType, LoaderDataType } from "../../../shared/types";
+  import { VList } from "virtua/svelte";
 
   let loaderId = $state<number>();
   let loaderType = $state<string>("");
@@ -10,6 +11,7 @@
   let treeData = $state<any[]>([]);
   let expandedNodes = $state<Set<string>>(new Set());
   let isLoading = $state<boolean>(false);
+  let flattenedItems = $derived(flattenTreeData(treeData, expandedNodes));
 
   async function handleLoad() {
     if (!loaderType || (loaderType !== "3" && !loaderId)) return;
@@ -75,12 +77,11 @@
       }
 
       grabbedData = data;
-      console.log(data);
 
       let out: any[] = [];
 
       switch (grabberType) {
-        case "0":
+        case "0": // Shop Items
           out = (data as any).items.map((item: any) => ({
             name: item.sName,
             children: [
@@ -95,7 +96,7 @@
             ],
           }));
           break;
-        case "1": // quest
+        case "1": // Quests
           out = (data as any[]).map((quest: any) => ({
             name: `${quest.QuestID} - ${quest.sName}`,
             children: [
@@ -142,8 +143,8 @@
             ],
           }));
           break;
-        case "2":
-        case "4":
+        case "2": // Inventory
+        case "4": // Bank
           out = (data as any[]).map((item: any) => ({
             name: item.sName,
             children: [
@@ -175,7 +176,7 @@
             ],
           }));
           break;
-        case "3":
+        case "3": // Temp Inventory
           out = (data as any[]).map((item: any) => ({
             name: item.sName,
             children: [
@@ -190,8 +191,8 @@
             ],
           }));
           break;
-        case "5":
-        case "6":
+        case "5": // Cell Monsters
+        case "6": // Map Monsters
           out = (data as any[]).map((mon: any) => {
             const ret = {
               name: mon.strMonName,
@@ -258,11 +259,45 @@
     value?: string;
     children?: TreeItem[];
   };
+
+  type FlattenedItem = TreeItem & {
+    level: number;
+    nodeId: string;
+    index: number;
+  };
+
+  function flattenTreeData(
+    data: TreeItem[],
+    expandedNodes: Set<string>,
+  ): FlattenedItem[] {
+    const result: FlattenedItem[] = [];
+    let index = 0;
+
+    function traverse(items: TreeItem[], level: number = 0) {
+      for (const item of items) {
+        const nodeId = `${item.name}-${level}`;
+        const flatItem: FlattenedItem = {
+          ...item,
+          level,
+          nodeId,
+          index: index++,
+        };
+
+        result.push(flatItem);
+
+        if (item.children && expandedNodes.has(nodeId)) {
+          traverse(item.children, level + 1);
+        }
+      }
+    }
+
+    traverse(data);
+    return result;
+  }
 </script>
 
-{#snippet TreeNode(item: TreeItem, level: number = 0)}
-  {@const nodeId = `${item.name}-${level}`}
-  {@const isExpanded = expandedNodes.has(nodeId)}
+{#snippet TreeNode(item: FlattenedItem)}
+  {@const isExpanded = expandedNodes.has(item.nodeId)}
   {@const hasChildren = item.children && item.children.length > 0}
   {@const isLeaf = !hasChildren}
 
@@ -275,9 +310,9 @@
       onclick={() => {
         if (hasChildren) {
           if (isExpanded) {
-            expandedNodes.delete(nodeId);
+            expandedNodes.delete(item.nodeId);
           } else {
-            expandedNodes.add(nodeId);
+            expandedNodes.add(item.nodeId);
           }
           expandedNodes = new Set(expandedNodes);
         }
@@ -287,15 +322,15 @@
           ev.preventDefault();
           if (hasChildren) {
             if (isExpanded) {
-              expandedNodes.delete(nodeId);
+              expandedNodes.delete(item.nodeId);
             } else {
-              expandedNodes.add(nodeId);
+              expandedNodes.add(item.nodeId);
             }
             expandedNodes = new Set(expandedNodes);
           }
         }
       }}
-      style="margin-left: {level * 20}px"
+      style="margin-left: {item.level * 16}px"
       role="button"
       tabindex="0"
     >
@@ -392,19 +427,23 @@
           isExpanded ? "expanded" : "collapsed",
         )}
       >
-        {#if level < 3}
+        {#if item.level < 3}
           <div
             class={cn(
               "absolute border-l border-gray-600/40 transition-opacity duration-300",
               isExpanded ? "opacity-100" : "opacity-0",
             )}
-            style="left: {level * 20 + 15}px; top: 0; bottom: 0; width: 1px"
+            style="left: {item.level * 20 +
+              15}px; top: 0; bottom: 0; width: 1px"
           ></div>
         {/if}
         {#if isExpanded}
           <div class="transition-all duration-300 ease-out">
             {#each item.children || [] as child}
-              {@render TreeNode(child as TreeItem, level + 1)}
+              {@render TreeNode({
+                ...child,
+                level: item.level + 1,
+              } as FlattenedItem)}
             {/each}
           </div>
         {/if}
@@ -555,7 +594,7 @@
 
           <div class="flex min-h-0 flex-1 flex-col">
             <div
-              class="flex-1 overflow-hidden rounded-md border border-gray-700/50 bg-gray-900/50 backdrop-blur-sm"
+              class="flex-1 overflow-hidden rounded-md border border-gray-700/50 bg-gray-900/50 p-2 backdrop-blur-sm"
             >
               {#if isLoading}
                 <div class="flex h-full items-center justify-center p-8">
@@ -583,29 +622,12 @@
                     <div class="text-gray-400">Loading data...</div>
                   </div>
                 </div>
-              {:else if treeData.length > 0}
-                <div class="no-scrollbar h-full overflow-y-auto">
-                  <div class="h-full p-3">
-                    <div class="h-full min-h-0 space-y-1">
-                      {#each treeData as item, index}
-                        {@render TreeNode(item)}
-                        {#if index < treeData.length - 1}
-                          <div class="my-2 border-b border-gray-700/30"></div>
-                        {/if}
-                      {/each}
-                    </div>
-                  </div>
-                </div>
-              {:else}
-                <div
-                  class="flex h-32 items-center justify-center p-8 text-center"
-                >
-                  <div class="text-gray-400">
-                    {grabbedData
-                      ? "No data to display"
-                      : "Select a data type and click 'Grab' to view data"}
-                  </div>
-                </div>
+              {:else if flattenedItems.length > 0}
+                <VList data={flattenedItems}>
+                  {#snippet children(item)}
+                    {@render TreeNode(item)}
+                  {/snippet}
+                </VList>
               {/if}
             </div>
           </div>
@@ -616,9 +638,6 @@
 </main>
 
 <style>
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
   .expand-container {
     transition:
       max-height 0.3s ease-out,
