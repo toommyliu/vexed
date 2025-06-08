@@ -452,7 +452,7 @@
           </div>
         </div>
 
-        <div class="flex h-[calc(100vh-12rem)] flex-col gap-6">
+        <div class="flex h-[calc(100vh-12rem)] flex-col space-y-6">
           <div class="flex-shrink-0 space-y-4">
             <div>
               <label
