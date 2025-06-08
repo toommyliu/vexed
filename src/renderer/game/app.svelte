@@ -241,6 +241,9 @@
       }
     }
   }}
+  on:beforeunload={async () => {
+    await client.gameReload();
+  }}
 />
 
 <main

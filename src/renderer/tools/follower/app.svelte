@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { client } from "../../../shared/tipc";
+  import { client, handlers } from "../../../shared/tipc";
 
   let playerName = $state("");
   let skillList = $state("1,2,3,4");
@@ -42,6 +42,8 @@
       void client.followerStop();
     }
   });
+
+  handlers.gameReloaded.listen(() => (isEnabled = false));
 </script>
 
 <main

@@ -94,48 +94,6 @@ export async function createGame(
     window.webContents.openDevTools({ mode: "right" });
   }
 
-  // TODO: clean when everything else is migrated
-
-  // Register main to renderer IPC calls
-  // const handlers = getRendererHandlers<RendererHandlers>(window.webContents);
-  // router
-  // ipcMain.answerRenderer("root:login-success", async ({ username }) => {
-  //   console.log("root:login-success", username);
-
-  //   if (!mgrWindow) return;
-
-  //   logger.info(`User ${username} logged in successfully.`);
-
-  //   handlers.enableButton.send(username);
-  // });
-
-  // Track refreshes to re-sync states across windows
-  window.webContents.on("did-finish-load", async () => {
-    logger.info("game window re(loaded)");
-
-    // if (!window || window?.isDestroyed()) {
-    //   return;
-    // }
-
-    // const windows = windowStore.get(window.id);
-
-    // if (windows) {
-    //   try {
-    //     for (const child of Object.values(windows.tools)) {
-    //       if (child && !child.isDestroyed()) {
-    //         await ipcMain.callRenderer(child!, IPC_EVENTS.REFRESHED);
-    //       }
-    //     }
-
-    //     for (const child of Object.values(windows.packets)) {
-    //       if (child && !child.isDestroyed()) {
-    //         await ipcMain.callRenderer(child!, IPC_EVENTS.REFRESHED);
-    //       }
-    //     }
-    //   } catch {}
-    // }
-  });
-
   window.on("close", () => {
     const windows = windowStore.get(window.id);
     if (windows) {

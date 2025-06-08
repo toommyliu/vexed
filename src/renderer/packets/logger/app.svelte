@@ -161,6 +161,8 @@
     const type = packet.type as PacketType;
     addPacket(packet.packet, type);
   });
+
+  handlers.gameReloaded.listen(() => stop());
 </script>
 
 <div class="min-h-screen select-none bg-zinc-950 text-gray-200">

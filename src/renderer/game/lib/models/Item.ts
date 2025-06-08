@@ -181,6 +181,7 @@ export type ItemData = {
   EnhRty: number;
   ItemID: number;
   ProcID?: number;
+  bBank: number;
   bCoins: number;
   bEquip: number;
   bStaff: number;
@@ -190,7 +191,6 @@ export type ItemData = {
   iCost: number;
   iDPS: number;
   iHrs: number;
-  iLvl: number;
   iQty: number;
   iRng: number;
   iRty: number;
@@ -205,5 +205,5 @@ export type ItemData = {
   sMeta: string;
   sName: string;
   sType: string;
-  bBank: number;
+  iLvl: number;
 };

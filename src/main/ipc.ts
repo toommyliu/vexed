@@ -5,6 +5,7 @@ import { FileManager } from "../common/FileManager";
 import { DEFAULT_FAST_TRAVELS } from "../common/constants";
 import { Logger } from "../common/logger";
 import { WindowIds } from "../shared/constants";
+import { sleep } from "../shared/sleep";
 import type {
   GrabberDataType,
   LoaderDataType,
@@ -13,7 +14,6 @@ import type {
 } from "../shared/types";
 import { recursivelyApplySecurityPolicy } from "./util/recursivelyApplySecurityPolicy";
 import { createGame, windowStore, getManagerWindow } from "./windows";
-import { sleep } from "../shared/sleep";
 
 const tipcInstance = tipc.create();
 const logger = Logger.get("IpcMain");
@@ -248,7 +248,22 @@ export const router = {
     const browserWindow = BrowserWindow.fromWebContents(context.sender);
     browserWindow?.webContents?.toggleDevTools();
   }),
+  gameReload: tipcInstance.procedure.action(async ({ context }) => {
+    const browserWindow = BrowserWindow.fromWebContents(context.sender);
+    if (!browserWindow) return;
+
+    for (const child of browserWindow.getChildWindows()) {
+      if (child && !child.isDestroyed()) {
+        const rendererHandlers = getRendererHandlers<RendererHandlers>(
+          child.webContents,
+        );
+        rendererHandlers.gameReloaded.send();
+      }
+    }
+  }),
+
   // #endregion
+
   // #region Fast Travels
   getFastTravels: tipcInstance.procedure.action(async () => {
     try {
@@ -281,6 +296,7 @@ export const router = {
     }),
   // #endregion
   // #endregion
+
   // #region Loader Grabber
   load: tipcInstance.procedure
     .input<{ id: number; type: LoaderDataType }>()
@@ -668,6 +684,9 @@ export type TipcRouter = typeof router;
 // Main calls back to renderer (2.)
 // !! Any renderer define these handlers !!
 export type RendererHandlers = {
+  // Game
+  gameReloaded: () => void;
+
   // Scripts
   scriptLoaded(fromManager: boolean): void;
 

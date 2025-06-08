@@ -1,6 +1,6 @@
 <script lang="ts">
   import { cn } from "../../../shared";
-  import { client } from "../../../shared/tipc";
+  import { client, handlers } from "../../../shared/tipc";
 
   let packets = $state<string[]>([]);
   let packetInput = $state("");
@@ -58,6 +58,8 @@
       void client.packetSpammerStop();
     }
   });
+
+  handlers.gameReloaded.listen(() => (isRunning = false));
 </script>
 
 <div class="min-h-screen bg-zinc-950 text-white">
