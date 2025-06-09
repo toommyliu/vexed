@@ -49,9 +49,6 @@
     isLoading = false;
   });
 
-  const openModal = () => (isModalOpen = true);
-  const closeModal = () => (isModalOpen = false);
-
   handlers.managerLoginSuccess.listen((username) => {
     if (timeouts.has(username)) {
       clearTimeout(timeouts.get(username)!);
@@ -60,9 +57,9 @@
   });
 </script>
 
-<main class="flex min-h-screen select-none flex-col bg-zinc-950">
+<main class="bg-background-primary flex min-h-screen select-none flex-col">
   <div class="mx-auto box-border w-full max-w-4xl flex-grow p-6">
-    <Header onclick={openModal} />
+    <Header onclick={() => (isModalOpen = true)} />
 
     {#if isLoading}
       <div class="flex h-full flex-col items-center justify-center space-y-4">
@@ -87,5 +84,5 @@
 
   <Footer />
 
-  <AddAccountModal isOpen={isModalOpen} onClose={closeModal} />
+  <AddAccountModal isOpen={isModalOpen} onClose={() => (isModalOpen = false)} />
 </main>
