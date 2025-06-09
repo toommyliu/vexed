@@ -701,7 +701,11 @@ function extractIntersectionProperties(
   if (typedef.type?.type === "intersection") {
     const types = (typedef.type as typedoc.IntersectionType).types;
     for (const type of types) {
-      if (type.type === "reference" && type.reflection?.children) {
+      if (
+        type.type === "reference" &&
+        type.reflection instanceof typedoc.DeclarationReflection &&
+        type.reflection?.children
+      ) {
         properties.push(...type.reflection.children);
       } else if (type.type === "reflection" && type.declaration.children) {
         properties.push(...type.declaration.children);
