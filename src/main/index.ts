@@ -7,7 +7,7 @@ import { app } from "electron";
 import { FileManager } from "../common/FileManager";
 import { BRAND } from "../common/constants";
 import type { Settings } from "../common/types";
-import { router } from "./ipc";
+import { router } from "./tipc";
 import { showErrorDialog } from "./util/showErrorDialog";
 import { createAccountManager, createGame } from "./windows";
 

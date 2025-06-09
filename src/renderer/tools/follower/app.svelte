@@ -275,7 +275,7 @@
         </div>
 
         <div
-          class="rounded-md border border-gray-800/50 bg-gradient-to-br from-[#111113] to-[#1a1a1c] p-6 backdrop-blur-sm"
+          class="rounded-md border border-gray-800/50 bg-background-secondary p-6 backdrop-blur-sm"
         >
           <div class="space-y-4">
             <h2 class="text-lg font-medium text-white">Quest List</h2>
@@ -293,7 +293,7 @@
         </div>
 
         <div
-          class="rounded-md border border-gray-800/50 bg-gradient-to-br from-[#111113] to-[#1a1a1c] p-6 backdrop-blur-sm"
+          class="rounded-md border border-gray-800/50 bg-background-secondary p-6 backdrop-blur-sm"
         >
           <div class="space-y-4">
             <div class="flex items-center justify-between">

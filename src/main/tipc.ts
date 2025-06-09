@@ -70,22 +70,32 @@ export const router = {
         case WindowIds.FastTravels:
           ref = storeRef.tools.fastTravels;
           path = join(BASE_PATH, "tools", "fast-travels", "index.html");
+          width = 670;
+          height = 527;
           break;
         case WindowIds.LoaderGrabber:
           ref = storeRef.tools.loaderGrabber;
           path = join(BASE_PATH, "tools", "loader-grabber", "index.html");
+          width = 800;
+          height = 517;
           break;
         case WindowIds.Follower:
           ref = storeRef.tools.follower;
           path = join(BASE_PATH, "tools", "follower", "index.html");
+          width = 927;
+          height = 646;
           break;
         case WindowIds.PacketLogger:
           ref = storeRef.packets.logger;
           path = join(BASE_PATH, "packets", "logger", "index.html");
+          width = 797;
+          height = 523;
           break;
         case WindowIds.PacketSpammer:
           ref = storeRef.packets.spammer;
           path = join(BASE_PATH, "packets", "spammer", "index.html");
+          width = 608;
+          height = 403;
           break;
       }
 
@@ -122,24 +132,38 @@ export const router = {
       switch (input) {
         case WindowIds.FastTravels:
           storeRef.tools.fastTravels = window;
+          width = 670;
+          height = 527;
           break;
         case WindowIds.LoaderGrabber:
           storeRef.tools.loaderGrabber = window;
+          width = 800;
+          height = 517;
           break;
         case WindowIds.Follower:
           storeRef.tools.follower = window;
+          width = 927;
+          height = 646;
           break;
         case WindowIds.PacketLogger:
           storeRef.packets.logger = window;
+          width = 797;
+          height = 523;
           break;
         case WindowIds.PacketSpammer:
           storeRef.packets.spammer = window;
+          width = 608;
+          height = 403;
           break;
       }
 
       if (!app.isPackaged) window.webContents.openDevTools({ mode: "right" });
 
       recursivelyApplySecurityPolicy(window);
+
+      window.on("resize", () => {
+        console.log(`${input} window resized to: ${window.getSize()}`);
+      });
 
       window.on("ready-to-show", () => {
         window.show();
