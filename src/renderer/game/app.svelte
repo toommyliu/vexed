@@ -219,7 +219,7 @@
             Scripts
           </button>
           <div
-            class="absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-zinc-900 text-xs shadow-2xl backdrop-blur-md"
+            class="absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-background-secondary text-xs shadow-2xl backdrop-blur-md"
             style:display={openDropdown === "scripts" ? "block" : "none"}
           >
             <button
@@ -274,7 +274,7 @@
             Tools
           </button>
           <div
-            class="absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-zinc-900 text-xs shadow-2xl backdrop-blur-md"
+            class="absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-background-secondary text-xs shadow-2xl backdrop-blur-md"
             style:display={openDropdown === "tools" ? "block" : "none"}
             id="tools-dropdowncontent"
           >
@@ -314,7 +314,7 @@
             Packets
           </button>
           <div
-            class="absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-zinc-900 text-xs shadow-2xl backdrop-blur-md"
+            class="absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-background-secondary text-xs shadow-2xl backdrop-blur-md"
             style:display={openDropdown === "packets" ? "block" : "none"}
             id="packets-dropdowncontent"
           >
@@ -348,7 +348,7 @@
             Options
           </button>
           <div
-            class="absolute z-[9999] mt-1 min-w-48 rounded-lg border border-gray-700/50 bg-zinc-900 text-xs shadow-2xl backdrop-blur-md"
+            class="absolute z-[9999] mt-1 min-w-48 rounded-lg border border-gray-700/50 bg-background-secondary text-xs shadow-2xl backdrop-blur-md"
             style:display={openDropdown === "options" ? "block" : "none"}
             id="options-dropdowncontent"
             role="menu"
@@ -514,7 +514,7 @@
             Auto Aggro
           </button>
           <div
-            class="absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-zinc-900 text-xs shadow-2xl backdrop-blur-md"
+            class="absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-background-secondary text-xs shadow-2xl backdrop-blur-md"
             style:display={openDropdown === "autoaggro" ? "block" : "none"}
             id="autoaggro-dropdowncontent"
           >
@@ -543,7 +543,7 @@
             id="pads-dropdown"
           >
             <button
-              class="h-full w-full rounded border border-gray-500/30 bg-zinc-950 p-0 text-xs transition-all duration-200 hover:border-gray-400/50"
+              class="h-full w-full rounded border border-gray-500/30 bg-background-primary p-0 text-xs transition-all duration-200 hover:border-gray-400/50"
               class:cursor-not-allowed={!gameConnected}
               class:opacity-50={!gameConnected}
               id="pads"
@@ -557,7 +557,7 @@
               {currentSelectedPad}
             </button>
             <div
-              class="absolute top-full z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-zinc-900 text-xs shadow-2xl backdrop-blur-md"
+              class="absolute top-full z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-background-secondary text-xs shadow-2xl backdrop-blur-md"
               style:display={openDropdown === "pads" ? "block" : "none"}
               id="pads-dropdowncontent"
               onmouseenter={() => (openDropdown = "pads")}
@@ -568,7 +568,7 @@
               {#each validPads as pad}
                 <button
                   class={cn(
-                    "flex w-full items-center bg-zinc-900 px-4 py-2 text-left transition-colors duration-150 hover:bg-gray-700/50",
+                    "flex w-full items-center bg-background-secondary px-4 py-2 text-left transition-colors duration-150 hover:bg-gray-700/50",
                     pad.isValid && "text-green-500",
                   )}
                   class:first:rounded-t-lg={validPads.indexOf(pad) === 0}
@@ -586,7 +586,7 @@
             id="cells-dropdown"
           >
             <button
-              class="h-full w-full rounded border border-gray-500/30 bg-zinc-950 p-0 text-xs transition-all duration-200 hover:border-gray-400/50"
+              class="h-full w-full rounded border border-gray-500/30 bg-background-primary p-0 text-xs transition-all duration-200 hover:border-gray-400/50"
               class:cursor-not-allowed={!gameConnected}
               class:opacity-50={!gameConnected}
               id="cells"
@@ -600,7 +600,7 @@
               {currentSelectedCell}
             </button>
             <div
-              class="absolute top-full z-[9999] mt-1 max-h-[25vh] min-w-40 overflow-y-auto overflow-x-hidden rounded-lg border border-gray-700/50 bg-zinc-950 text-xs shadow-2xl backdrop-blur-md"
+              class="absolute top-full z-[9999] mt-1 max-h-[25vh] min-w-40 overflow-y-auto overflow-x-hidden rounded-lg border border-gray-700/50 bg-background-primary text-xs shadow-2xl backdrop-blur-md"
               style:display={openDropdown === "cells" ? "block" : "none"}
               id="cells-dropdowncontent"
               onmouseenter={() => (openDropdown = "cells")}
@@ -624,7 +624,7 @@
         </div>
         <div class="ml-1.5 flex space-x-1">
           <button
-            class="mt-[5px] flex h-[25px] min-w-0 items-center justify-center rounded border border-gray-500/30 bg-zinc-950 px-[8px] py-0 text-xs text-white transition-all duration-200 hover:border-gray-400/50"
+            class="mt-[5px] flex h-[25px] min-w-0 items-center justify-center rounded border border-gray-500/30 bg-background-primary px-[8px] py-0 text-xs text-white transition-all duration-200 hover:border-gray-400/50"
             class:cursor-not-allowed={!gameConnected}
             class:opacity-50={!gameConnected}
             disabled={!gameConnected}
@@ -645,7 +645,7 @@
             x
           </button>
           <button
-            class="mt-[5px] flex h-[25px] min-w-0 items-center justify-center rounded border border-gray-500/30 bg-zinc-950 px-[8px] py-0 text-xs text-white transition-all duration-200 hover:border-gray-400/50"
+            class="mt-[5px] flex h-[25px] min-w-0 items-center justify-center rounded border border-gray-500/30 bg-background-primary px-[8px] py-0 text-xs text-white transition-all duration-200 hover:border-gray-400/50"
             class:cursor-not-allowed={!gameConnected}
             class:opacity-50={!gameConnected}
             disabled={!gameConnected}
