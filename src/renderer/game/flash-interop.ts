@@ -139,13 +139,10 @@ window.flashDebug = (...args: string[]) => {
 
 // @ts-expect-error - provided by flash and properly typed
 window.progress = (percent: number) => {
-  const progressBar = document.querySelector("#progress-bar") as HTMLDivElement;
   const progressText = document.querySelector(
     "#progress-text",
   ) as HTMLSpanElement;
   const percentStr = `${percent}%`;
-
-  progressBar.style.width = percentStr;
 
   if (progressText) progressText.textContent = percentStr;
 

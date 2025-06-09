@@ -17,6 +17,8 @@ module.exports = {
       colors: {
         "background-primary": "#111111",
         "background-secondary": "#1a1a1a",
+        "progress-blue": "#3b82f6",
+        "progress-blue-light": "#60a5fa",
       },
     },
   },

@@ -247,11 +247,11 @@
 />
 
 <main
-  class="m-0 flex h-screen flex-col overflow-hidden bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white focus:outline-none"
+  class="m-0 flex h-screen flex-col overflow-hidden bg-background-primary text-white focus:outline-none"
 >
   <div
     id="topnav-container"
-    class="relative z-[10000] min-h-8 border-b border-gray-800/50 bg-gradient-to-r from-[#111113] to-[#1a1a1c] backdrop-blur-sm"
+    class="relative z-[10000] min-h-8 border-b border-gray-800/50 bg-background-secondary backdrop-blur-sm"
     class:invisible={!topNavVisible}
     class:opacity-0={!topNavVisible}
   >
@@ -715,18 +715,14 @@
   </div>
 
   <div
-    class="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-black to-gray-900"
+    class="flex min-h-screen flex-col items-center justify-center bg-background-primary"
     id="loader-container"
   >
     <div class="w-full max-w-md px-8">
-      <div class="space-y-4">
-        <div
-          class="/80 flex h-2 w-full overflow-hidden rounded-full shadow-inner"
-        >
+      <div class="space-y-6">
+        <div class="flex justify-center">
           <div
-            class="h-full w-0 rounded-full bg-gradient-to-r from-gray-600 to-gray-500 transition-all duration-300 ease-out"
-            id="progress-bar"
-            style="box-shadow: 0 0 4px rgba(59, 130, 246, 0.15)"
+            class="border-t-progress-blue h-8 w-8 animate-spin rounded-full border-2 border-gray-600"
           ></div>
         </div>
         <div class="text-center">
