@@ -1,14 +1,11 @@
 import { join, resolve } from "path";
 import { app, BrowserWindow } from "electron";
 import { BRAND } from "../common/constants";
-import { Logger } from "../common/logger";
 import { recursivelyApplySecurityPolicy } from "./util/recursivelyApplySecurityPolicy";
 
 const PUBLIC = join(__dirname, "../../public/");
 const PUBLIC_GAME = join(PUBLIC, "game/");
 const PUBLIC_MANAGER = join(PUBLIC, "manager/");
-
-const logger = Logger.get("Windows");
 
 let mgrWindow: BrowserWindow | null;
 
@@ -95,17 +92,16 @@ export async function createGame(
   }
 
   window.on("close", () => {
-    const windows = windowStore.get(window.id);
+    const windows = windowStore.get(window?.id);
     if (windows) {
-      for (const child of Object.values(windows.tools)) {
-        if (child && !child.isDestroyed()) {
-          child.destroy();
-        }
-      }
+      const toClose = [
+        ...Object.values(windows.tools),
+        ...Object.values(windows.packets),
+      ];
 
-      for (const child of Object.values(windows.packets)) {
-        if (child && !child.isDestroyed()) {
-          child.destroy();
+      for (const window of toClose) {
+        if (window && !window.isDestroyed()) {
+          window.destroy();
         }
       }
 
@@ -119,8 +115,6 @@ export async function createGame(
     packets: { logger: null, spammer: null },
   });
 }
-
-// TODO: refactor
 
 export type WindowStore = Map<
   number,
