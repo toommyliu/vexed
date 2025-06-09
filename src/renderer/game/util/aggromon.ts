@@ -8,17 +8,16 @@ let _stop: (() => void) | null = null;
 export function startAggromon(monstersList: string[]) {
   const bot = Bot.getInstance();
 
-  // incase another aggroMon is started before the previous one is stopped
   if (_stop) {
     _stop();
     _stop = null;
   }
 
-  console.log("monsterList parameter:", monstersList);
+  // console.log("monsterList parameter:", monstersList);
 
   // mons contains a list of monster names and monMapIds
-  // if the name is present, then we add ALL instances for that monster
-  // otherwise we target the provided monMapId
+  // If a monster name is present, we will search for all instances of that monster in the world
+  // If a monMapId is present, we will search for the monster with that monMapId
   const monMapIds = monstersList
     .flatMap((mon) => {
       if (isMonsterMapId(mon)) {
@@ -42,7 +41,6 @@ export function startAggromon(monstersList: string[]) {
     .filter((id): id is number => id !== null);
 
   const pkt = makeAggromonPacket(monMapIds, bot.world.roomId);
-  if (!pkt) return;
 
   void interval(async (_, stop) => {
     _stop ??= stop;

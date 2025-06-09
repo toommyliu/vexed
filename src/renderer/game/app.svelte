@@ -4,10 +4,10 @@
   import process from "process";
   import { client, handlers } from "../../shared/tipc";
   import { cn } from "../../shared/";
-  import { GrabberDataType, LoaderDataType } from "../../shared/types";
   import { WindowIds } from "../../shared/constants";
   import { Bot } from "./lib/Bot";
   import { startAutoAggro, stopAutoAggro } from "./autoaggro";
+  import { onMount } from "svelte";
 
   const DEFAULT_PADS = [
     "Center",
@@ -148,61 +148,11 @@
     else window.context.overlay.hide();
   });
 
-  handlers.doFastTravel.handle(async ({ location }) => {
-    if (!bot.player.isReady()) return;
-
-    await bot.world.join(
-      `${location.map}-${location.roomNumber}`,
-      location.cell,
-      location.pad,
-    );
-  });
-
-  handlers.load.listen(async ({ type, id }) => {
-    if (!bot.player.isReady()) return;
-
-    switch (type) {
-      case LoaderDataType.HairShop:
-        bot.shops.loadHairShop(id);
-        break;
-      case LoaderDataType.Shop:
-        await bot.shops.load(id);
-        break;
-      case LoaderDataType.Quest:
-        await bot.quests.load(id);
-        break;
-      case LoaderDataType.ArmorCustomizer:
-        bot.shops.openArmorCustomizer();
-        break;
-    }
-  });
-
-  handlers.grab.handle(async ({ type }) => {
-    if (!bot.player.isReady()) return;
-
-    switch (type) {
-      case GrabberDataType.Shop:
-        if (!bot.shops.isShopLoaded()) return [];
-        return bot.shops.info;
-      case GrabberDataType.Quest:
-        return bot.quests.tree;
-      case GrabberDataType.Inventory:
-        return bot.flash.call(() => swf.inventoryGetItems());
-      case GrabberDataType.TempInventory:
-        return bot.flash.call(() => swf.tempInventoryGetItems());
-      case GrabberDataType.Bank:
-        return bot.flash.call(() => swf.bankGetItems());
-      case GrabberDataType.CellMonsters:
-        return bot.flash.call(() => swf.worldGetCellMonsters());
-      case GrabberDataType.MapMonsters:
-        return bot.world.monsters;
-    }
-  });
-
-  handlers.followerMe.handle(async () => {
-    if (!bot.player.isReady()) return "";
-
-    return bot.auth.username.toLowerCase();
+  onMount(async () => {
+    await import("./tipc/tipc-fast-travels");
+    await import("./tipc/tipc-follower");
+    await import("./tipc/tipc-packet-logger");
+    await import("./tipc/tipc-packet-spammer");
   });
 </script>
 
@@ -389,7 +339,10 @@
           <button
             class="mx-1 rounded-md px-4 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50 hover:shadow-lg"
             id="options"
-            onmouseenter={() => (openDropdown = "options")}
+            onclick={(e) => {
+              e.stopPropagation();
+              toggleDropdown("options");
+            }}
           >
             Options
           </button>
@@ -397,8 +350,6 @@
             class="absolute z-[9999] mt-1 min-w-48 rounded-lg border border-gray-700/50 bg-zinc-900 text-xs shadow-2xl backdrop-blur-md"
             style:display={openDropdown === "options" ? "block" : "none"}
             id="options-dropdowncontent"
-            onmouseenter={() => (openDropdown = "options")}
-            onmouseleave={() => (openDropdown = null)}
             role="menu"
             tabindex="0"
           >

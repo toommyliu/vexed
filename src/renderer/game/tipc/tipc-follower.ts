@@ -301,6 +301,12 @@ handlers.followerStop.listen(async () => {
   await stopFollower();
 });
 
+handlers.followerMe.handle(async () => {
+  if (!bot.player.isReady()) return "";
+
+  return bot.auth.username.toLowerCase();
+});
+
 type FollowerStartInput = Parameters<
   typeof handlers.followerStart.listen
 >[0] extends (input: infer T) => any

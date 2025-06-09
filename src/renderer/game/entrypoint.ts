@@ -1,8 +1,5 @@
-import "./lib/Bot";
 import "./flash-interop";
-import "./tipc/tipc-follower";
-import "./tipc/tipc-packet-logger";
-import "./tipc/tipc-packet-spammer";
+import "./lib/Bot";
 
 import { CommandRegistry } from "./botting/command-registry";
 import { cmd } from "./botting/index";
