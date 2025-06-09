@@ -44,6 +44,8 @@
     }
   }
 
+  // TODO: typesafety
+
   async function handleGrab() {
     if (!grabberType) return;
 
@@ -76,6 +78,7 @@
           return;
       }
 
+      if (!data) return;
       grabbedData = data;
 
       let out: any[] = [];
@@ -296,10 +299,205 @@
   }
 </script>
 
+<main
+  class="m-0 flex min-h-screen flex-col overflow-hidden bg-background-primary text-white focus:outline-none"
+>
+  <div
+    class="flex w-full flex-col space-y-6 p-4 sm:flex-row sm:space-x-6 sm:space-y-0"
+  >
+    <div class="flex-shrink-0 sm:w-1/3">
+      <div
+        class="h-full rounded-lg border border-gray-800/50 bg-background-secondary p-6 backdrop-blur-sm"
+      >
+        <h3 class="mb-6 text-xl font-semibold text-white">Loader</h3>
+
+        <div class="space-y-4">
+          <div>
+            <label
+              for="loader-id"
+              class="mb-2 block text-sm font-medium text-gray-300"
+            >
+              ID
+            </label>
+            <input
+              type="number"
+              id="loader-id"
+              bind:value={loaderId}
+              class="w-full rounded-md border border-gray-700/50 bg-gray-800/50 px-3 py-1 text-white placeholder-gray-500 transition-all duration-200 focus:border-blue-500/50 focus:bg-gray-800/70 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              placeholder="Enter ID"
+              autocomplete="off"
+            />
+          </div>
+
+          <div>
+            <label
+              for="loader-select"
+              class="mb-2 block text-sm font-medium text-gray-300"
+            >
+              Data Type
+            </label>
+            <select
+              id="loader-select"
+              bind:value={loaderType}
+              class="w-full rounded-md border border-gray-700/50 bg-gray-800/50 px-3 py-1.5 text-white transition-all duration-200 focus:border-blue-500/50 focus:bg-gray-800/70 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            >
+              <option value="" disabled>Select type...</option>
+              <option value="0">Hair shop</option>
+              <option value="1">Shop</option>
+              <option value="2">Quest</option>
+              <option value="3">Armor customizer</option>
+            </select>
+          </div>
+
+          <button
+            onclick={handleLoad}
+            disabled={!loaderType || (loaderType !== "3" && !loaderId)}
+            class="w-full rounded-md border border-gray-700/30 bg-gray-800/30 px-3 py-1.5 font-medium text-white transition-all duration-200 hover:border-gray-600/50 hover:bg-gray-700/40 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Load
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-full flex-grow sm:w-2/3">
+      <div
+        class="h-full rounded-lg border border-gray-800/50 bg-background-secondary p-6 backdrop-blur-sm"
+      >
+        <div
+          class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between"
+        >
+          <h2 class="mb-4 text-xl font-bold text-white sm:mb-0">Grabber</h2>
+          <div
+            class="flex flex-col space-y-2 sm:flex-row sm:space-x-4 sm:space-y-0"
+          >
+            <button
+              onclick={handleGrab}
+              disabled={!grabberType || isLoading}
+              class="rounded-md bg-blue-600 px-4 py-1.5 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-blue-500 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-blue-600"
+            >
+              {#if isLoading}
+                <div class="flex items-center space-x-1.5">
+                  <svg
+                    class="h-3.5 w-3.5 animate-spin text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      class="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      stroke-width="4"
+                    ></circle>
+                    <path
+                      class="opacity-75"
+                      fill="currentColor"
+                      d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  <span>Grabbing...</span>
+                </div>
+              {:else}
+                Grab
+              {/if}
+            </button>
+            <button
+              onclick={handleExport}
+              class="rounded-md bg-green-600 px-4 py-1.5 text-sm font-medium text-white transition-all duration-200 hover:bg-green-500 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-green-600"
+            >
+              Export
+            </button>
+          </div>
+        </div>
+
+        <div class="flex h-[calc(100vh-12rem)] flex-col space-y-6">
+          <div class="flex-shrink-0 space-y-4">
+            <div>
+              <label
+                for="grabber-select"
+                class="mb-3 block text-sm font-medium text-gray-300"
+              >
+                Data Type
+              </label>
+              <select
+                id="grabber-select"
+                bind:value={grabberType}
+                class="w-full rounded-md border border-gray-700/50 bg-gray-800/50 px-4 py-3 text-white transition-all duration-200 focus:border-blue-500/50 focus:bg-gray-800/70 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              >
+                <option value="" disabled>Select type...</option>
+                <option value="0">Shop Items</option>
+                <option value="1">Quests</option>
+                <option value="2">Inventory</option>
+                <option value="3">Temp Inventory</option>
+                <option value="4">Bank</option>
+                <option value="5">Cell Monsters</option>
+                <option value="6">Map Monsters</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="flex min-h-0 flex-1 flex-col">
+            <div
+              class="flex-1 overflow-hidden rounded-md border border-gray-700/50 bg-background-primary p-2 backdrop-blur-sm"
+            >
+              {#if isLoading}
+                <div class="flex h-full items-center justify-center p-8">
+                  <div class="flex flex-col items-center space-y-4">
+                    <svg
+                      class="h-8 w-8 animate-spin text-blue-400"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        class="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        stroke-width="4"
+                      ></circle>
+                      <path
+                        class="opacity-75"
+                        fill="currentColor"
+                        d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    <div class="text-gray-400">Loading data...</div>
+                  </div>
+                </div>
+              {:else if flattenedItems.length > 0}
+                <VList data={flattenedItems}>
+                  {#snippet children(item)}
+                    {@render TreeNode(item)}
+                  {/snippet}
+                </VList>
+              {/if}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
 {#snippet TreeNode(item: FlattenedItem)}
   {@const isExpanded = expandedNodes.has(item.nodeId)}
   {@const hasChildren = item.children && item.children.length > 0}
   {@const isLeaf = !hasChildren}
+  {@const inputHandler = () => {
+    if (hasChildren) {
+      if (isExpanded) {
+        expandedNodes.delete(item.nodeId);
+      } else {
+        expandedNodes.add(item.nodeId);
+      }
+      expandedNodes = new Set(expandedNodes);
+    }
+  }}
 
   <div class="select-none">
     <div
@@ -307,29 +505,8 @@
         "group flex cursor-pointer items-start space-x-2 rounded-md px-2 py-1.5 text-sm transition-all duration-200 hover:bg-gray-700/40 hover:shadow-sm",
         isLeaf && "cursor-default hover:bg-gray-700/20",
       )}
-      onclick={() => {
-        if (hasChildren) {
-          if (isExpanded) {
-            expandedNodes.delete(item.nodeId);
-          } else {
-            expandedNodes.add(item.nodeId);
-          }
-          expandedNodes = new Set(expandedNodes);
-        }
-      }}
-      onkeydown={(ev) => {
-        if (ev.key === "Enter" || ev.key === " ") {
-          ev.preventDefault();
-          if (hasChildren) {
-            if (isExpanded) {
-              expandedNodes.delete(item.nodeId);
-            } else {
-              expandedNodes.add(item.nodeId);
-            }
-            expandedNodes = new Set(expandedNodes);
-          }
-        }
-      }}
+      onclick={inputHandler}
+      onkeydown={inputHandler}
       style="margin-left: {item.level * 16}px"
       role="button"
       tabindex="0"
@@ -451,191 +628,6 @@
     {/if}
   </div>
 {/snippet}
-
-<main
-  class="m-0 flex min-h-screen flex-col overflow-hidden bg-zinc-950 text-white focus:outline-none"
->
-  <div
-    class="flex w-full flex-col space-y-6 p-4 sm:flex-row sm:space-x-6 sm:space-y-0"
-  >
-    <div class="flex-shrink-0 sm:w-1/3">
-      <div
-        class="h-full rounded-lg border border-gray-800/50 bg-gradient-to-br from-[#111113] to-[#1a1a1c] p-6 backdrop-blur-sm"
-      >
-        <h3 class="mb-6 text-xl font-semibold text-white">Loader</h3>
-
-        <div class="space-y-4">
-          <div>
-            <label
-              for="loader-id"
-              class="mb-2 block text-sm font-medium text-gray-300"
-            >
-              ID
-            </label>
-            <input
-              type="number"
-              id="loader-id"
-              bind:value={loaderId}
-              class="w-full rounded-md border border-gray-700/50 bg-gray-800/50 px-3 py-1 text-white placeholder-gray-500 transition-all duration-200 focus:border-blue-500/50 focus:bg-gray-800/70 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-              placeholder="Enter ID"
-              autocomplete="off"
-            />
-          </div>
-
-          <div>
-            <label
-              for="loader-select"
-              class="mb-2 block text-sm font-medium text-gray-300"
-            >
-              Data Type
-            </label>
-            <select
-              id="loader-select"
-              bind:value={loaderType}
-              class="w-full rounded-md border border-gray-700/50 bg-gray-800/50 px-3 py-1.5 text-white transition-all duration-200 focus:border-blue-500/50 focus:bg-gray-800/70 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-            >
-              <option value="" disabled>Select type...</option>
-              <option value="0">Hair shop</option>
-              <option value="1">Shop</option>
-              <option value="2">Quest</option>
-              <option value="3">Armor customizer</option>
-            </select>
-          </div>
-
-          <button
-            onclick={handleLoad}
-            disabled={!loaderType || (loaderType !== "3" && !loaderId)}
-            class="w-full rounded-md border border-gray-700/30 bg-gray-800/30 px-3 py-1.5 font-medium text-white transition-all duration-200 hover:border-gray-600/50 hover:bg-gray-700/40 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Load
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="w-full flex-grow sm:w-2/3">
-      <div
-        class="h-full rounded-lg border border-gray-800/50 bg-gradient-to-br from-[#111113] to-[#1a1a1c] p-6 backdrop-blur-sm"
-      >
-        <div
-          class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between"
-        >
-          <h2 class="mb-4 text-xl font-bold text-white sm:mb-0">Grabber</h2>
-          <div
-            class="flex flex-col space-y-2 sm:flex-row sm:space-x-4 sm:space-y-0"
-          >
-            <button
-              onclick={handleGrab}
-              disabled={!grabberType || isLoading}
-              class="rounded-md bg-blue-600 px-4 py-1.5 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-blue-500 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-blue-600"
-            >
-              {#if isLoading}
-                <div class="flex items-center space-x-1.5">
-                  <svg
-                    class="h-3.5 w-3.5 animate-spin text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      class="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      stroke-width="4"
-                    ></circle>
-                    <path
-                      class="opacity-75"
-                      fill="currentColor"
-                      d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  <span>Grabbing...</span>
-                </div>
-              {:else}
-                Grab
-              {/if}
-            </button>
-            <button
-              onclick={handleExport}
-              class="rounded-md bg-green-600 px-4 py-1.5 text-sm font-medium text-white transition-all duration-200 hover:bg-green-500 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-green-600"
-            >
-              Export
-            </button>
-          </div>
-        </div>
-
-        <div class="flex h-[calc(100vh-12rem)] flex-col space-y-6">
-          <div class="flex-shrink-0 space-y-4">
-            <div>
-              <label
-                for="grabber-select"
-                class="mb-3 block text-sm font-medium text-gray-300"
-              >
-                Data Type
-              </label>
-              <select
-                id="grabber-select"
-                bind:value={grabberType}
-                class="w-full rounded-md border border-gray-700/50 bg-gray-800/50 px-4 py-3 text-white transition-all duration-200 focus:border-blue-500/50 focus:bg-gray-800/70 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-              >
-                <option value="" disabled>Select type...</option>
-                <option value="0">Shop Items</option>
-                <option value="1">Quests</option>
-                <option value="2">Inventory</option>
-                <option value="3">Temp Inventory</option>
-                <option value="4">Bank</option>
-                <option value="5">Cell Monsters</option>
-                <option value="6">Map Monsters</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="flex min-h-0 flex-1 flex-col">
-            <div
-              class="flex-1 overflow-hidden rounded-md border border-gray-700/50 bg-gray-900/50 p-2 backdrop-blur-sm"
-            >
-              {#if isLoading}
-                <div class="flex h-full items-center justify-center p-8">
-                  <div class="flex flex-col items-center space-y-4">
-                    <svg
-                      class="h-8 w-8 animate-spin text-blue-400"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        class="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        stroke-width="4"
-                      ></circle>
-                      <path
-                        class="opacity-75"
-                        fill="currentColor"
-                        d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    <div class="text-gray-400">Loading data...</div>
-                  </div>
-                </div>
-              {:else if flattenedItems.length > 0}
-                <VList data={flattenedItems}>
-                  {#snippet children(item)}
-                    {@render TreeNode(item)}
-                  {/snippet}
-                </VList>
-              {/if}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</main>
 
 <style>
   .expand-container {

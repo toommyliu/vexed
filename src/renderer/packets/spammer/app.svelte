@@ -31,26 +31,6 @@
     selectedPacketIndex = null;
   }
 
-  function selectPacket(index: number) {
-    selectedPacketIndex = selectedPacketIndex === index ? null : index;
-  }
-
-  function handlePacketKeydown(ev: KeyboardEvent) {
-    if (ev.key === "Enter" && canAdd) addPacket();
-  }
-
-  function getButtonClass(enabled: boolean) {
-    const baseClass =
-      "rounded-md border border-zinc-700 bg-zinc-800 px-3 py-1 transition-colors";
-
-    return cn(
-      baseClass,
-      enabled
-        ? "hover:bg-zinc-700 cursor-pointer"
-        : "opacity-50 cursor-not-allowed",
-    );
-  }
-
   $effect(() => {
     if (isRunning) {
       void client.packetSpammerStart({ packets, delay });
@@ -62,15 +42,15 @@
   handlers.gameReloaded.listen(() => (isRunning = false));
 </script>
 
-<div class="min-h-screen bg-zinc-950 text-white">
+<div class="min-h-screen bg-background-primary text-white">
   <div class="mx-auto box-border w-full max-w-4xl p-4">
     <div class="w-full">
       <div class="mb-4">
         <div
-          class="w-full rounded-md border border-zinc-800 bg-zinc-900 p-4 shadow-md"
+          class="w-full rounded-md border border-zinc-800 bg-background-secondary p-4 shadow-md"
         >
           <div
-            class="h-[135px] max-h-[350px] min-h-[135px] w-full resize-y overflow-auto rounded border border-zinc-800 bg-black p-2"
+            class="h-[135px] max-h-[350px] min-h-[135px] w-full resize-y overflow-auto rounded border border-zinc-800 bg-gray-800/50 p-2"
           >
             {#if packets.length === 0}
               <div
@@ -88,9 +68,15 @@
                       ? "bg-zinc-700"
                       : "hover:bg-zinc-800",
                   )}
-                  onclick={() => selectPacket(index)}
+                  onclick={() =>
+                    (selectedPacketIndex =
+                      selectedPacketIndex === index ? null : index)}
                   onkeydown={(ev) => {
-                    if (ev.key === "Enter") selectPacket(index);
+                    if (ev.key === "Enter") {
+                      ev.preventDefault();
+                      selectedPacketIndex =
+                        selectedPacketIndex === index ? null : index;
+                    }
                   }}
                   role="button"
                   tabindex="0"
@@ -104,7 +90,7 @@
       </div>
 
       <div
-        class="w-full rounded-md border border-zinc-800 bg-zinc-900 p-4 shadow-md"
+        class="w-full rounded-md border border-zinc-800 bg-background-secondary p-4 shadow-md"
       >
         <div class="mb-4 space-y-3">
           <div class="flex w-full items-center justify-between">
@@ -113,10 +99,15 @@
               type="text"
               id="packet"
               bind:value={packetInput}
-              onkeydown={handlePacketKeydown}
+              onkeydown={(ev) => {
+                if (ev.key === "Enter" && canAdd) {
+                  ev.preventDefault();
+                  addPacket();
+                }
+              }}
               disabled={isRunning}
               placeholder="Enter packet"
-              class="h-8 w-3/4 rounded-md border border-zinc-800 bg-black p-1 disabled:cursor-not-allowed disabled:opacity-50"
+              class="h-8 w-3/4 rounded-md border border-zinc-800 bg-gray-800/50 p-1 disabled:cursor-not-allowed disabled:opacity-50"
             />
           </div>
 
@@ -129,7 +120,7 @@
               step="100"
               min="10"
               disabled={isRunning}
-              class="h-8 w-3/4 rounded-md border border-zinc-800 bg-black p-1 disabled:cursor-not-allowed disabled:opacity-50"
+              class="h-8 w-3/4 rounded-md border border-zinc-800 bg-gray-800/50 p-1 disabled:cursor-not-allowed disabled:opacity-50"
             />
           </div>
         </div>
@@ -137,21 +128,36 @@
         <div class="mt-4 flex justify-between">
           <div class="space-x-2">
             <button
-              class={getButtonClass(!isRunning)}
+              class={cn(
+                "rounded-md border border-zinc-700 bg-zinc-800 px-3 py-1 transition-colors",
+                !isRunning
+                  ? "cursor-pointer hover:bg-zinc-700"
+                  : "cursor-not-allowed opacity-50",
+              )}
               onclick={clearPackets}
               disabled={isRunning}
             >
               Clear
             </button>
             <button
-              class={getButtonClass(canRemove)}
+              class={cn(
+                "rounded-md border border-zinc-700 bg-zinc-800 px-3 py-1 transition-colors",
+                canRemove
+                  ? "cursor-pointer hover:bg-zinc-700"
+                  : "cursor-not-allowed opacity-50",
+              )}
               onclick={removePacket}
               disabled={!canRemove}
             >
               Remove
             </button>
             <button
-              class={getButtonClass(canAdd)}
+              class={cn(
+                "rounded-md border border-zinc-700 bg-zinc-800 px-3 py-1 transition-colors",
+                canAdd
+                  ? "cursor-pointer hover:bg-zinc-700"
+                  : "cursor-not-allowed opacity-50",
+              )}
               onclick={addPacket}
               disabled={!canAdd}
             >
@@ -160,14 +166,24 @@
           </div>
           <div class="space-x-2">
             <button
-              class={getButtonClass(canStop)}
+              class={cn(
+                "rounded-md border px-3 py-1 font-medium text-white shadow-md transition-all duration-200",
+                canStop
+                  ? "cursor-pointer border-red-600/50 bg-red-900/30 text-red-200 hover:bg-red-800/40 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                  : "cursor-not-allowed border-zinc-700 bg-zinc-800 opacity-50",
+              )}
               onclick={() => (isRunning = false)}
               disabled={!canStop}
             >
               Stop
             </button>
             <button
-              class={getButtonClass(canStart)}
+              class={cn(
+                "rounded-md px-3 py-1 font-medium text-white shadow-md transition-all duration-200",
+                canStart
+                  ? "cursor-pointer bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                  : "cursor-not-allowed border border-zinc-700 bg-zinc-800 opacity-50",
+              )}
               onclick={() => (isRunning = true)}
               disabled={!canStart}
             >

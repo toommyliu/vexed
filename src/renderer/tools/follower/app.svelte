@@ -48,13 +48,13 @@
 </script>
 
 <main
-  class="m-0 flex min-h-screen flex-col overflow-hidden bg-zinc-950 text-white focus:outline-none"
+  class="m-0 flex min-h-screen flex-col overflow-hidden bg-background-primary text-white focus:outline-none"
 >
   <div class="flex flex-1 items-center justify-center p-4">
     <div class="w-full space-y-6 px-2 sm:px-4">
       <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <div
-          class="rounded-md border border-gray-800/50 bg-gradient-to-br from-[#111113] to-[#1a1a1c] p-6 backdrop-blur-sm"
+          class="rounded-md border border-gray-800/50 bg-background-secondary p-6 backdrop-blur-sm"
         >
           <div class="space-y-4">
             <div class="space-y-3">
@@ -168,7 +168,7 @@
         </div>
 
         <div
-          class="rounded-md border border-gray-800/50 bg-gradient-to-br from-[#111113] to-[#1a1a1c] p-6 backdrop-blur-sm"
+          class="rounded-md border border-gray-800/50 bg-background-secondary p-6 backdrop-blur-sm"
         >
           <div class="space-y-4">
             <div class="space-y-3">
@@ -193,7 +193,7 @@
                   min="1"
                   max="4"
                   class={cn(
-                    "w-16 rounded-md border border-gray-700/50 bg-gray-800/50 px-2 py-1 text-center text-white transition-all duration-200 focus:border-blue-500/50 focus:outline-none",
+                    "w-16 rounded-md border border-gray-700/50 bg-background-secondary px-2 py-1 text-center text-white transition-all duration-200 focus:border-blue-500/50 focus:outline-none",
                     isEnabled &&
                       "pointer-events-none cursor-not-allowed opacity-50",
                   )}
@@ -206,7 +206,7 @@
                   min="1"
                   max="100"
                   class={cn(
-                    "w-16 rounded-md border border-gray-700/50 bg-gray-800/50 px-2 py-1 text-center text-white transition-all duration-200 focus:border-blue-500/50 focus:outline-none",
+                    "w-16 rounded-md border border-gray-700/50 bg-background-secondary px-2 py-1 text-center text-white transition-all duration-200 focus:border-blue-500/50 focus:outline-none",
                     isEnabled &&
                       "pointer-events-none cursor-not-allowed opacity-50",
                   )}

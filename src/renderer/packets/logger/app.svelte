@@ -165,9 +165,11 @@
   handlers.gameReloaded.listen(() => stop());
 </script>
 
-<div class="min-h-screen select-none bg-zinc-950 text-gray-200">
+<div class="min-h-screen select-none bg-background-primary text-gray-200">
   <div class="mx-auto box-border w-full max-w-5xl p-4">
-    <div class="mb-3 flex flex-wrap border-b border-zinc-800 bg-zinc-950 pb-1">
+    <div
+      class="mb-3 flex w-max flex-wrap border-b border-zinc-800 bg-background-secondary pb-1"
+    >
       <button
         onclick={() => (currentFilter = "all")}
         class={cn(
@@ -229,7 +231,7 @@
     <div class="mb-4">
       <div
         bind:this={loggerElement}
-        class="h-[350px] w-full resize-y rounded-md border border-zinc-800 bg-zinc-900 p-3 shadow-md hover:border-zinc-700"
+        class="h-[350px] w-full resize-y rounded-md border border-zinc-800 bg-gray-800/50 p-3 shadow-md hover:border-zinc-700"
       >
         {#each filteredPackets as packet (packet.id)}
           <div
