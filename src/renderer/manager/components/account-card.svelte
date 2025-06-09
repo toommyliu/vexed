@@ -32,7 +32,7 @@
     class="flex flex-col space-y-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 sm:p-5"
   >
     <div
-      class="flex flex-1 items-center space-x-3 sm:space-x-4"
+      class="flex min-w-0 flex-1 items-center space-x-3 sm:space-x-4"
       onclick={toggleAccount}
       onkeydown={(ev) => {
         if (ev.key === "Enter" || ev.key === " ") {
@@ -51,21 +51,21 @@
         title="Select this account"
       />
       <span
-        class="max-w-fit cursor-pointer select-none overflow-hidden text-ellipsis whitespace-nowrap text-base font-medium text-white transition-colors duration-200 group-hover:text-emerald-100"
+        class="min-w-0 flex-1 cursor-pointer select-none overflow-hidden text-ellipsis whitespace-nowrap text-base font-medium text-white transition-colors duration-200 group-hover:text-emerald-100"
         title={account.username}
       >
         {account.username}
       </span>
     </div>
-    <div class="flex w-full max-w-[200px] space-x-2 sm:w-auto sm:max-w-none">
+    <div class="flex flex-shrink-0 space-x-2 sm:w-auto">
       <button
-        class="flex-1 rounded-md border border-red-600/50 bg-red-900/30 px-2 py-1.5 text-xs font-medium text-red-200 shadow-md transition-all duration-200 hover:bg-red-800/40 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500/50 sm:min-w-[70px] sm:flex-none sm:px-3 sm:text-sm"
+        class="flex-shrink-0 rounded-md border border-red-600/50 bg-red-900/30 px-2 py-1.5 text-xs font-medium text-red-200 shadow-md transition-all duration-200 hover:bg-red-800/40 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500/50 sm:min-w-[70px] sm:px-3 sm:text-sm"
         onclick={() => removeAccount(account)}
         title="Remove this account">Remove</button
       >
       <button
         class={cn(
-          "flex-1 rounded-md bg-gradient-to-r from-emerald-600 to-emerald-700 px-2 py-1.5 text-xs font-medium text-white shadow-md transition-all duration-200 hover:from-emerald-500 hover:to-emerald-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/50 sm:min-w-[70px] sm:flex-none sm:px-3 sm:text-sm",
+          "flex-shrink-0 rounded-md bg-gradient-to-r from-emerald-600 to-emerald-700 px-2 py-1.5 text-xs font-medium text-white shadow-md transition-all duration-200 hover:from-emerald-500 hover:to-emerald-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/50 sm:min-w-[70px] sm:px-3 sm:text-sm",
           isDisabled && "pointers-events-none cursor-not-allowed opacity-50",
           !isDisabled && "hover:bg-emerald-500/80",
         )}
