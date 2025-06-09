@@ -151,6 +151,7 @@
   onMount(async () => {
     await import("./tipc/tipc-fast-travels");
     await import("./tipc/tipc-follower");
+    await import("./tipc/tipc-loader-grabber");
     await import("./tipc/tipc-packet-logger");
     await import("./tipc/tipc-packet-spammer");
   });
@@ -673,7 +674,7 @@
       <div class="space-y-6">
         <div class="flex justify-center">
           <div
-            class="border-t-progress-blue h-8 w-8 animate-spin rounded-full border-2 border-gray-600"
+            class="h-8 w-8 animate-spin rounded-full border-2 border-gray-600 border-t-progress-blue"
           ></div>
         </div>
         <div class="text-center">

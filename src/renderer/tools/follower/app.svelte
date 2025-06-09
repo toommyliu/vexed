@@ -1,5 +1,6 @@
 <script lang="ts">
   import { client, handlers } from "../../../shared/tipc";
+  import { cn } from "../../../shared/cn";
 
   let playerName = $state("");
   let skillList = $state("1,2,3,4");
@@ -69,11 +70,21 @@
                   id="input-player"
                   bind:value={playerName}
                   placeholder="Enter player name to follow"
-                  class="flex-1 rounded-md border border-gray-700/50 bg-gray-800/50 px-3 py-2 text-white placeholder-gray-500 transition-all duration-200 focus:border-blue-500/50 focus:bg-gray-800/70 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  class={cn(
+                    "flex-1 rounded-md border border-gray-700/50 bg-gray-800/50 px-3 py-2 text-white placeholder-gray-500 transition-all duration-200 focus:border-blue-500/50 focus:bg-gray-800/70 focus:outline-none focus:ring-2 focus:ring-blue-500/20",
+                    isEnabled &&
+                      "pointer-events-none cursor-not-allowed opacity-50",
+                  )}
+                  disabled={isEnabled}
                 />
                 <button
-                  class="rounded-md border border-gray-700/50 bg-gray-800/50 px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:bg-gray-700/50"
+                  class={cn(
+                    "rounded-md border border-gray-700/50 bg-gray-800/50 px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:bg-gray-700/50",
+                    isEnabled &&
+                      "pointer-events-none cursor-not-allowed opacity-50",
+                  )}
                   onclick={fillMe}
+                  disabled={isEnabled}
                 >
                   Me
                 </button>
@@ -92,14 +103,24 @@
                   type="text"
                   id="skill-list"
                   bind:value={skillList}
-                  class="flex-1 rounded-md border border-gray-700/50 bg-gray-800/50 px-3 py-2 text-white transition-all duration-200 focus:border-blue-500/50 focus:bg-gray-800/70 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  class={cn(
+                    "flex-1 rounded-md border border-gray-700/50 bg-gray-800/50 px-3 py-2 text-white transition-all duration-200 focus:border-blue-500/50 focus:bg-gray-800/70 focus:outline-none focus:ring-2 focus:ring-blue-500/20",
+                    isEnabled &&
+                      "pointer-events-none cursor-not-allowed opacity-50",
+                  )}
+                  disabled={isEnabled}
                 />
                 <div class="flex items-center space-x-2">
                   <input
                     type="checkbox"
                     id="skill-wait"
                     bind:checked={skillWait}
-                    class="rounded border-gray-700/50 bg-gray-800/50 text-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    class={cn(
+                      "rounded border-gray-700/50 bg-gray-800/50 text-blue-500 focus:ring-2 focus:ring-blue-500/20",
+                      isEnabled &&
+                        "pointer-events-none cursor-not-allowed opacity-50",
+                    )}
+                    disabled={isEnabled}
                   />
                   <label for="skill-wait" class="text-sm text-gray-300"
                     >Wait</label
@@ -121,7 +142,12 @@
                   id="skill-delay"
                   bind:value={skillDelay}
                   min="0"
-                  class="flex-1 rounded-md border border-gray-700/50 bg-gray-800/50 px-3 py-2 text-white transition-all duration-200 focus:border-blue-500/50 focus:bg-gray-800/70 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  class={cn(
+                    "flex-1 rounded-md border border-gray-700/50 bg-gray-800/50 px-3 py-2 text-white transition-all duration-200 focus:border-blue-500/50 focus:bg-gray-800/70 focus:outline-none focus:ring-2 focus:ring-blue-500/20",
+                    isEnabled &&
+                      "pointer-events-none cursor-not-allowed opacity-50",
+                  )}
+                  disabled={isEnabled}
                 />
                 <span class="text-sm text-gray-400">ms</span>
               </div>
@@ -151,7 +177,12 @@
                   type="checkbox"
                   id="cb-safe-skill"
                   bind:checked={safeSkillEnabled}
-                  class="rounded border-gray-700/50 bg-gray-800/50 text-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  class={cn(
+                    "rounded border-gray-700/50 bg-gray-800/50 text-blue-500 focus:ring-2 focus:ring-blue-500/20",
+                    isEnabled &&
+                      "pointer-events-none cursor-not-allowed opacity-50",
+                  )}
+                  disabled={isEnabled}
                 />
                 <label for="cb-safe-skill" class="text-sm text-gray-300">
                   Use safe skill
@@ -161,7 +192,12 @@
                   bind:value={safeSkill}
                   min="1"
                   max="4"
-                  class="w-16 rounded-md border border-gray-700/50 bg-gray-800/50 px-2 py-1 text-center text-white transition-all duration-200 focus:border-blue-500/50 focus:outline-none"
+                  class={cn(
+                    "w-16 rounded-md border border-gray-700/50 bg-gray-800/50 px-2 py-1 text-center text-white transition-all duration-200 focus:border-blue-500/50 focus:outline-none",
+                    isEnabled &&
+                      "pointer-events-none cursor-not-allowed opacity-50",
+                  )}
+                  disabled={isEnabled}
                 />
                 <span class="text-sm text-gray-400">when HP &lt;</span>
                 <input
@@ -169,7 +205,12 @@
                   bind:value={safeSkillHp}
                   min="1"
                   max="100"
-                  class="w-16 rounded-md border border-gray-700/50 bg-gray-800/50 px-2 py-1 text-center text-white transition-all duration-200 focus:border-blue-500/50 focus:outline-none"
+                  class={cn(
+                    "w-16 rounded-md border border-gray-700/50 bg-gray-800/50 px-2 py-1 text-center text-white transition-all duration-200 focus:border-blue-500/50 focus:outline-none",
+                    isEnabled &&
+                      "pointer-events-none cursor-not-allowed opacity-50",
+                  )}
+                  disabled={isEnabled}
                 />
                 <span class="text-sm text-gray-400">%</span>
               </div>
@@ -187,7 +228,12 @@
                 id="attack-priority"
                 bind:value={attackPriority}
                 placeholder="Defense Drone, Attack Drone"
-                class="w-full rounded-md border border-gray-700/50 bg-gray-800/50 px-3 py-2 text-white placeholder-gray-500 transition-all duration-200 focus:border-blue-500/50 focus:bg-gray-800/70 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                class={cn(
+                  "w-full rounded-md border border-gray-700/50 bg-gray-800/50 px-3 py-2 text-white placeholder-gray-500 transition-all duration-200 focus:border-blue-500/50 focus:bg-gray-800/70 focus:outline-none focus:ring-2 focus:ring-blue-500/20",
+                  isEnabled &&
+                    "pointer-events-none cursor-not-allowed opacity-50",
+                )}
+                disabled={isEnabled}
               />
             </div>
 
@@ -197,7 +243,12 @@
                   type="checkbox"
                   id="copy-walk"
                   bind:checked={copyWalk}
-                  class="rounded border-gray-700/50 bg-gray-800/50 text-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  class={cn(
+                    "rounded border-gray-700/50 bg-gray-800/50 text-blue-500 focus:ring-2 focus:ring-blue-500/20",
+                    isEnabled &&
+                      "pointer-events-none cursor-not-allowed opacity-50",
+                  )}
+                  disabled={isEnabled}
                 />
                 <label for="copy-walk" class="text-sm text-gray-300"
                   >Copy Walk</label
@@ -208,7 +259,12 @@
                   type="checkbox"
                   id="cb-anti-counter"
                   bind:checked={antiCounter}
-                  class="rounded border-gray-700/50 bg-gray-800/50 text-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  class={cn(
+                    "rounded border-gray-700/50 bg-gray-800/50 text-blue-500 focus:ring-2 focus:ring-blue-500/20",
+                    isEnabled &&
+                      "pointer-events-none cursor-not-allowed opacity-50",
+                  )}
+                  disabled={isEnabled}
                 />
                 <label for="cb-anti-counter" class="text-sm text-gray-300"
                   >Anti Counter</label
@@ -226,7 +282,12 @@
             <textarea
               bind:value={questIds}
               placeholder="4432, 4433, 4434"
-              class="min-h-[120px] w-full resize-y rounded-md border border-gray-700/50 bg-gray-800/50 px-3 py-2 text-white placeholder-gray-500 transition-all duration-200 focus:border-blue-500/50 focus:bg-gray-800/70 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              class={cn(
+                "min-h-[120px] w-full resize-y rounded-md border border-gray-700/50 bg-gray-800/50 px-3 py-2 text-white placeholder-gray-500 transition-all duration-200 focus:border-blue-500/50 focus:bg-gray-800/70 focus:outline-none focus:ring-2 focus:ring-blue-500/20",
+                isEnabled &&
+                  "pointer-events-none cursor-not-allowed opacity-50",
+              )}
+              disabled={isEnabled}
             ></textarea>
           </div>
         </div>
@@ -242,7 +303,12 @@
                   type="checkbox"
                   id="reject-else"
                   bind:checked={rejectElse}
-                  class="rounded border-gray-700/50 bg-gray-800/50 text-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  class={cn(
+                    "rounded border-gray-700/50 bg-gray-800/50 text-blue-500 focus:ring-2 focus:ring-blue-500/20",
+                    isEnabled &&
+                      "pointer-events-none cursor-not-allowed opacity-50",
+                  )}
+                  disabled={isEnabled}
                 />
                 <label for="reject-else" class="text-sm text-gray-300"
                   >Reject Else</label
@@ -252,7 +318,12 @@
             <textarea
               bind:value={dropItems}
               placeholder="Item 1, Item 2, Item 3"
-              class="min-h-[120px] w-full resize-y rounded-md border border-gray-700/50 bg-gray-800/50 px-3 py-2 text-white placeholder-gray-500 transition-all duration-200 focus:border-blue-500/50 focus:bg-gray-800/70 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              class={cn(
+                "min-h-[120px] w-full resize-y rounded-md border border-gray-700/50 bg-gray-800/50 px-3 py-2 text-white placeholder-gray-500 transition-all duration-200 focus:border-blue-500/50 focus:bg-gray-800/70 focus:outline-none focus:ring-2 focus:ring-blue-500/20",
+                isEnabled &&
+                  "pointer-events-none cursor-not-allowed opacity-50",
+              )}
+              disabled={isEnabled}
             ></textarea>
           </div>
         </div>
