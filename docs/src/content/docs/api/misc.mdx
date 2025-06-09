@@ -161,7 +161,7 @@ Logs out of the game.
 ### cmd.register_handler
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| type | `"pext"` \| `"packetFromClient"` \| `"packetFromServer"` |  |
+| type | `"packetFromClient"` \| `"packetFromServer"` \| `"pext"` |  |
 | name | `string` |  |
 | handler | `((packet: Record<string, unknown>) => void` \| `Promise<void>)` \| `((packet: string) => void` \| `Promise<void>)` |  |
 
@@ -239,7 +239,7 @@ Stops the bot.
 ### cmd.unregister_handler
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| type | `"pext"` \| `"packetFromClient"` \| `"packetFromServer"` |  |
+| type | `"packetFromClient"` \| `"packetFromServer"` \| `"pext"` |  |
 | name | `string` |  |
 
 
