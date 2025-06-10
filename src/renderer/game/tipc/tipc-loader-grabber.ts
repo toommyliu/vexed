@@ -31,7 +31,7 @@ handlers.grab.handle(async ({ type }) => {
       if (!bot.shops.isShopLoaded()) return [];
       return bot.shops.info;
     case GrabberDataType.Quest:
-      return bot.quests.tree;
+      return bot.flash.call(() => swf.questsGetTree());
     case GrabberDataType.Inventory:
       return bot.flash.call(() => swf.inventoryGetItems());
     case GrabberDataType.TempInventory:
