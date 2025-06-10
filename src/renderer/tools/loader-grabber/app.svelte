@@ -4,6 +4,9 @@
   import { GrabberDataType, LoaderDataType } from "../../../shared/types";
   import { VList } from "virtua/svelte";
   import type { QuestData } from "../../game/lib/models/Quest";
+  import type { ShopInfo } from "../../game/lib/Shops";
+  import type { ItemData } from "../../game/lib/models/Item";
+  import type { MonsterData } from "../../game/lib/models/Monster";
 
   let loaderId = $state<number>();
   let loaderType = $state<string>("");
@@ -87,7 +90,7 @@
 
       switch (grabberType) {
         case "0": // Shop Items
-          out = (data as any).items.map((item: any) => ({
+          out = (data as ShopInfo).items.map((item: any) => ({
             name: item.sName,
             children: [
               { name: "Shop Item ID", value: String(item.ShopItemID) },
@@ -150,7 +153,7 @@
           break;
         case "2": // Inventory
         case "4": // Bank
-          out = (data as any[]).map((item: any) => ({
+          out = (data as ItemData[]).map((item) => ({
             name: item.sName,
             children: [
               {
@@ -182,7 +185,7 @@
           }));
           break;
         case "3": // Temp Inventory
-          out = (data as any[]).map((item: any) => ({
+          out = (data as ItemData[]).map((item) => ({
             name: item.sName,
             children: [
               {
@@ -198,7 +201,7 @@
           break;
         case "5": // Cell Monsters
         case "6": // Map Monsters
-          out = (data as any[]).map((mon: any) => {
+          out = (data as MonsterData[]).map((mon) => {
             const ret = {
               name: mon.strMonName,
               children: [
