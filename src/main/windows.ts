@@ -3,9 +3,9 @@ import { app, BrowserWindow } from "electron";
 import { BRAND } from "../common/constants";
 import { recursivelyApplySecurityPolicy } from "./util/recursivelyApplySecurityPolicy";
 
-const PUBLIC = join(__dirname, "../../public/");
-const PUBLIC_GAME = join(PUBLIC, "game/");
-const PUBLIC_MANAGER = join(PUBLIC, "manager/");
+const DIST = join(__dirname, "../../dist/");
+const DIST_GAME = join(DIST, "game/");
+const DIST_MANAGER = join(DIST, "manager/");
 
 let mgrWindow: BrowserWindow | null;
 
@@ -38,7 +38,7 @@ export async function createAccountManager(): Promise<void> {
   mgrWindow = window;
 
   recursivelyApplySecurityPolicy(window);
-  void window.loadURL(`file://${resolve(PUBLIC_MANAGER, "index.html")}`);
+  void window.loadURL(`file://${resolve(DIST_MANAGER, "index.html")}`);
 
   if (!app.isPackaged) {
     window.webContents.openDevTools({ mode: "right" });
@@ -84,7 +84,7 @@ export async function createGame(
     useContentSize: true,
   });
 
-  void window.loadURL(`file://${resolve(PUBLIC_GAME, "index.html")}`);
+  void window.loadURL(`file://${resolve(DIST_GAME, "index.html")}`);
   recursivelyApplySecurityPolicy(window);
 
   if (!app.isPackaged) {

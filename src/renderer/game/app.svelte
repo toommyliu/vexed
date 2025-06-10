@@ -721,6 +721,275 @@
 {/snippet}
 
 <style>
+  /* Global styles */
+  :global(:root) {
+    --topnav-height: 32px;
+    --bg-primary: #111113;
+    --bg-secondary: #18191b;
+    --accent-blue: #3b82f6;
+    --accent-green: #10b981;
+    --accent-orange: #f59e0b;
+    --border-color: rgba(107, 114, 128, 0.3);
+    --hover-bg: rgba(107, 114, 128, 0.1);
+  }
+
+  :global(*) {
+    user-select: none;
+  }
+
+  :global(:focus) {
+    outline: none;
+  }
+
+  :global(button) {
+    display: inline-block;
+    padding: 8px 16px;
+    vertical-align: middle;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    background-color: inherit;
+    text-align: center;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+  }
+
+  :global(button:hover) {
+    color: #fff !important;
+    background-color: var(--hover-bg) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  :global(#game-container) {
+    height: calc(100vh - var(--topnav-height) - 2px);
+    position: relative;
+  }
+
+  :global(.walkspeed-input) {
+    width: 60px;
+    height: 24px;
+    background-color: rgba(55, 65, 81, 0.5);
+    color: white;
+    border: 1px solid rgba(107, 114, 128, 0.5);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    transition: all 0.2s ease;
+  }
+
+  :global(.walkspeed-input:focus) {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.5);
+    background-color: rgba(55, 65, 81, 0.7);
+  }
+
+  :global(.option-checkmark) {
+    display: flex;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+  }
+
+  :global(.option-checkmark svg) {
+    width: 16px;
+    height: 16px;
+  }
+
+  :global(.option-active .option-checkmark) {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  :global(#topnav > div.ml-auto.mr-2.flex.items-center.gap-4) {
+    margin-top: -5px;
+  }
+
+  :global(#cells-dropdowncontent),
+  :global(#pads-dropdowncontent) {
+    position: absolute;
+    top: var(--topnav-height);
+    margin-top: -6px;
+    width: inherit;
+    min-width: 160px;
+    max-height: 50vh !important;
+    height: auto !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    z-index: 1000;
+  }
+
+  :global(#cells-dropdowncontent::-webkit-scrollbar),
+  :global(#pads-dropdowncontent::-webkit-scrollbar) {
+    width: 6px;
+  }
+
+  :global(#cells-dropdowncontent::-webkit-scrollbar-track),
+  :global(#pads-dropdowncontent::-webkit-scrollbar-track) {
+    background: rgba(34, 34, 34, 0.5);
+    border-radius: 3px;
+  }
+
+  :global(#cells-dropdowncontent::-webkit-scrollbar-thumb),
+  :global(#pads-dropdowncontent::-webkit-scrollbar-thumb) {
+    background: rgba(85, 85, 85, 0.8);
+    border-radius: 3px;
+  }
+
+  :global(#cells-dropdowncontent::-webkit-scrollbar-thumb:hover),
+  :global(#pads-dropdowncontent::-webkit-scrollbar-thumb:hover) {
+    background: rgba(119, 119, 119, 0.9);
+  }
+
+  :global(.command-overlay) {
+    position: fixed;
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 0;
+    min-width: 250px;
+    width: 300px;
+    display: none;
+    opacity: 0.97;
+    z-index: 9999;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    resize: both;
+    overflow: hidden;
+    min-height: 40px;
+    user-select: none;
+    transition:
+      opacity 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+  :global(.command-overlay:hover) {
+    opacity: 0.99;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  }
+  :global(.command-overlay.collapsed) {
+    resize: none;
+    overflow: visible;
+    min-width: auto;
+    width: auto !important;
+    height: auto !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  :global(.command-overlay.dragging) {
+    cursor: grabbing;
+    user-select: none;
+    opacity: 0.8;
+  }
+
+  :global(.command-overlay-header) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(to bottom, #36393f, #2a2a2a);
+    padding: 8px 10px;
+    cursor: grab;
+    color: #eee;
+    border-bottom: 1px solid #444;
+    border-radius: 6px 6px 0 0;
+    user-select: none;
+    white-space: nowrap;
+    font-size: 13px;
+    height: 18px;
+  }
+  :global(.command-overlay-header-text) {
+    flex: 1;
+    margin-right: 8px;
+  }
+
+  :global(.command-overlay-header-controls) {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  :global(.command-overlay-control) {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0.7;
+    font-size: 14px;
+    border-radius: 3px;
+    transition:
+      background-color 0.2s ease,
+      opacity 0.2s ease;
+  }
+
+  :global(.command-overlay-control:hover) {
+    opacity: 1;
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  :global(.command-overlay-close) {
+    color: #f55;
+  }
+
+  :global(.command-overlay-close:hover) {
+    background-color: rgba(255, 85, 85, 0.2);
+  }
+
+  :global(.command-overlay.collapsed .command-overlay-header) {
+    border-radius: 6px;
+    border-bottom: none;
+  }
+
+  :global(.command-list-container) {
+    color: white;
+    padding: 8px;
+    max-height: 400px;
+    overflow-y: auto;
+    height: calc(100% - 35px);
+    user-select: none;
+    scrollbar-width: thin;
+    scrollbar-color: #555 #222;
+  }
+  :global(.command-list-container::-webkit-scrollbar) {
+    width: 8px;
+    height: 8px;
+  }
+  :global(.command-list-container::-webkit-scrollbar-track) {
+    background: #222;
+    border-radius: 4px;
+  }
+  :global(.command-list-container::-webkit-scrollbar-thumb) {
+    background: #555;
+    border-radius: 4px;
+  }
+  :global(.command-list-container::-webkit-scrollbar-thumb:hover) {
+    background: #777;
+  }
+  :global(.command-item) {
+    padding: 6px 10px;
+    font-size: 13px;
+    cursor: default;
+    user-select: none;
+    background-color: #222;
+    margin-bottom: 3px;
+    border-radius: 4px;
+    border-left: 3px solid transparent;
+    transition:
+      background-color 0.15s ease,
+      border-left-color 0.15s ease;
+    display: flex;
+    align-items: center;
+  }
+  :global(.command-item.active) {
+    background-color: #1a3a5a;
+    border-left-color: #3a8ee6;
+    font-weight: 500;
+  }
+  :global(.command-item.hover) {
+    background-color: #333;
+  }
+
   :not(.option-active) .option-checkmark {
     display: none;
   }

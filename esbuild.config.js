@@ -1,5 +1,5 @@
 const { resolve } = require("path");
-const { readdir } = require("fs-extra");
+const { readdir, copy, ensureDir } = require("fs-extra");
 const { build, context } = require("esbuild");
 const { watch } = require("watchlist");
 const sveltePlugin = require("esbuild-svelte");
@@ -29,6 +29,50 @@ const readdirp = async (dir) => {
   );
   return Array.prototype.concat(...files);
 };
+
+/**
+ * Copy HTML files from src/renderer to dist
+ * @returns {Promise<void>}
+ */
+async function copyHtmlFiles() {
+  const htmlFiles = [
+    { src: "./src/renderer/game/index.html", dest: "./dist/game/index.html" },
+    {
+      src: "./src/renderer/manager/index.html",
+      dest: "./dist/manager/index.html",
+    },
+    {
+      src: "./src/renderer/tools/fast-travels/index.html",
+      dest: "./dist/tools/fast-travels/index.html",
+    },
+    {
+      src: "./src/renderer/tools/follower/index.html",
+      dest: "./dist/tools/follower/index.html",
+    },
+    {
+      src: "./src/renderer/tools/loader-grabber/index.html",
+      dest: "./dist/tools/loader-grabber/index.html",
+    },
+    {
+      src: "./src/renderer/packets/logger/index.html",
+      dest: "./dist/packets/logger/index.html",
+    },
+    {
+      src: "./src/renderer/packets/spammer/index.html",
+      dest: "./dist/packets/spammer/index.html",
+    },
+  ];
+
+  for (const { src, dest } of htmlFiles) {
+    try {
+      await ensureDir(resolve(dest, ".."));
+      await copy(src, dest);
+      // console.log(`Copied ${src} -> ${dest}`);
+    } catch (error) {
+      console.error(`Failed to copy ${src} -> ${dest}:`, error);
+    }
+  }
+}
 
 /**
  * @param {import('esbuild').BuildOptions} config
@@ -111,7 +155,7 @@ async function transpile() {
       target: "chrome76",
       format: "cjs",
       minify: isProduction,
-      sourcemap: true,
+      sourcemap: !isProduction,
       treeShaking: true,
     };
 
@@ -173,7 +217,7 @@ async function transpile() {
         name: "manager",
         config: createSvelteConfig(
           "./src/renderer/manager/main.ts",
-          "./public/manager/build/main.js",
+          "./dist/manager/build/main.js",
           "./src/renderer/manager/tsconfig.json",
         ),
         watchPath: "./src/renderer/manager",
@@ -182,7 +226,7 @@ async function transpile() {
         name: "game",
         config: createSvelteConfig(
           "./src/renderer/game/main.ts",
-          "./public/game/build/main.js",
+          "./dist/game/build/main.js",
           "./src/renderer/game/tsconfig.json",
         ),
         watchPath: "./src/renderer/game",
@@ -191,7 +235,7 @@ async function transpile() {
         name: "fast-travels",
         config: createSvelteConfig(
           "./src/renderer/tools/fast-travels/main.ts",
-          "./public/game/tools/fast-travels/build/main.js",
+          "./dist/tools/fast-travels/build/main.js",
           "./src/renderer/game/tsconfig.json",
         ),
         watchPath: "./src/renderer/tools/fast-travels",
@@ -200,7 +244,7 @@ async function transpile() {
         name: "loader-grabber",
         config: createSvelteConfig(
           "./src/renderer/tools/loader-grabber/main.ts",
-          "./public/game/tools/loader-grabber/build/main.js",
+          "./dist/tools/loader-grabber/build/main.js",
           "./src/renderer/game/tsconfig.json",
         ),
         watchPath: "./src/renderer/tools/loader-grabber",
@@ -209,7 +253,7 @@ async function transpile() {
         name: "follower",
         config: createSvelteConfig(
           "./src/renderer/tools/follower/main.ts",
-          "./public/game/tools/follower/build/main.js",
+          "./dist/tools/follower/build/main.js",
           "./src/renderer/game/tsconfig.json",
         ),
         watchPath: "./src/renderer/tools/follower",
@@ -218,7 +262,7 @@ async function transpile() {
         name: "packet-logger",
         config: createSvelteConfig(
           "./src/renderer/packets/logger/main.ts",
-          "./public/game/packets/logger/build/main.js",
+          "./dist/packets/logger/build/main.js",
           "./src/renderer/game/tsconfig.json",
         ),
         watchPath: "./src/renderer/packets/logger",
@@ -227,25 +271,24 @@ async function transpile() {
         name: "packet-spammer",
         config: createSvelteConfig(
           "./src/renderer/packets/spammer/main.ts",
-          "./public/game/packets/spammer/build/main.js",
+          "./dist/packets/spammer/build/main.js",
           "./src/renderer/game/tsconfig.json",
         ),
         watchPath: "./src/renderer/packets/spammer",
       },
     ];
 
-    // CSS build configurations
     const cssConfigs = [
       {
         name: "tailwind",
         config: {
-          entryPoints: ["./public/tailwind.css"],
-          outfile: "./public/build/tailwind.css",
+          entryPoints: ["./src/renderer/tailwind.css"],
+          outfile: "./dist/build/tailwind.css",
           bundle: true,
           minify: isProduction,
           plugins: [postCssPlugin()],
         },
-        watchPath: "./public/tailwind.css",
+        watchPath: "./src/renderer/tailwind.css",
       },
     ];
 
@@ -422,6 +465,21 @@ async function transpile() {
           })(),
         );
       });
+
+      // Copy HTML files
+      builds.push(
+        (async () => {
+          console.time("HTML copy took");
+          try {
+            await copyHtmlFiles();
+            console.timeEnd("HTML copy took");
+          } catch (error) {
+            console.timeEnd("HTML copy took");
+            console.error("HTML copy failed:", error);
+            throw error;
+          }
+        })(),
+      );
 
       await Promise.all(builds);
     }

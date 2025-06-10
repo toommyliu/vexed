@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "main": "dist/main/index.js",
   "scripts": {
-    "clean": "del-cli dist build 'public/**/build'",
+    "clean": "del-cli dist build",
     "typecheck": "tsc --noEmit",
     "compile": "node esbuild.config.js",
     "compile:watch": "node esbuild.config.js --watch",
