@@ -53,7 +53,7 @@ export class Shops {
     if (!this.isShopLoaded()) return;
 
     const item = this.info!.items.find(
-      (shopItem) => shopItem.data.ItemID === itemId,
+      (shopItem) => shopItem.ItemID === itemId,
     );
     if (!item) return;
 
