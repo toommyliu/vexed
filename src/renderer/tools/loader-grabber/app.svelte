@@ -7,12 +7,55 @@
   import type { ShopInfo } from "../../game/lib/Shops";
   import type { ItemData } from "../../game/lib/models/Item";
   import type { MonsterData } from "../../game/lib/models/Monster";
+  import type { ShopItemData } from "../../game/lib/models/ShopItem";
+
+  type GrabbedData = ShopInfo | QuestData[] | ItemData[] | MonsterData[];
+
+  type TreeItem = {
+    name: string;
+    value?: string;
+    children?: TreeItem[];
+  };
+
+  type FlattenedItem = TreeItem & {
+    level: number;
+    nodeId: string;
+    index: number;
+  };
+
+  function isShopInfo(data: GrabbedData): data is ShopInfo {
+    return "items" in data && Array.isArray((data as ShopInfo).items);
+  }
+
+  function isQuestDataArray(data: GrabbedData): data is QuestData[] {
+    return (
+      Array.isArray(data) &&
+      (data.length === 0 ||
+        (data.length > 0 && data[0] != null && "QuestID" in data[0]))
+    );
+  }
+
+  function isItemDataArray(data: GrabbedData): data is ItemData[] {
+    return (
+      Array.isArray(data) &&
+      (data.length === 0 ||
+        (data.length > 0 && data[0] != null && "ItemID" in data[0]))
+    );
+  }
+
+  function isMonsterDataArray(data: GrabbedData): data is MonsterData[] {
+    return (
+      Array.isArray(data) &&
+      (data.length === 0 ||
+        (data.length > 0 && data[0] != null && "MonID" in data[0]))
+    );
+  }
 
   let loaderId = $state<number>();
   let loaderType = $state<string>("");
   let grabberType = $state<string>("");
-  let grabbedData = $state<any>(null);
-  let treeData = $state<any[]>([]);
+  let grabbedData = $state<GrabbedData | null>(null);
+  let treeData = $state<TreeItem[]>([]);
   let expandedNodes = $state<Set<string>>(new Set());
   let isLoading = $state<boolean>(false);
   let flattenedItems = $derived(flattenTreeData(treeData, expandedNodes));
@@ -55,28 +98,42 @@
 
     isLoading = true;
     try {
-      let data: any;
+      let data: GrabbedData;
       switch (grabberType) {
         case "0": // Shop Items
-          data = await client.grab({ type: GrabberDataType.Shop });
+          data = (await client.grab({
+            type: GrabberDataType.Shop,
+          })) as GrabbedData;
           break;
         case "1": // Quests
-          data = await client.grab({ type: GrabberDataType.Quest });
+          data = (await client.grab({
+            type: GrabberDataType.Quest,
+          })) as GrabbedData;
           break;
         case "2": // Inventory
-          data = await client.grab({ type: GrabberDataType.Inventory });
+          data = (await client.grab({
+            type: GrabberDataType.Inventory,
+          })) as GrabbedData;
           break;
         case "3": // Temp Inventory
-          data = await client.grab({ type: GrabberDataType.TempInventory });
+          data = (await client.grab({
+            type: GrabberDataType.TempInventory,
+          })) as GrabbedData;
           break;
         case "4": // Bank
-          data = await client.grab({ type: GrabberDataType.Bank });
+          data = (await client.grab({
+            type: GrabberDataType.Bank,
+          })) as GrabbedData;
           break;
         case "5": // Cell Monsters
-          data = await client.grab({ type: GrabberDataType.CellMonsters });
+          data = (await client.grab({
+            type: GrabberDataType.CellMonsters,
+          })) as GrabbedData;
           break;
         case "6": // Map Monsters
-          data = await client.grab({ type: GrabberDataType.MapMonsters });
+          data = (await client.grab({
+            type: GrabberDataType.MapMonsters,
+          })) as GrabbedData;
           break;
         default:
           return;
@@ -85,161 +142,173 @@
       if (!data) return;
       grabbedData = data;
 
-      let out: any[] = [];
-      console.log("Data received:", data);
+      let out: TreeItem[] = [];
 
       switch (grabberType) {
         case "0": // Shop Items
-          out = (data as ShopInfo).items.map((item: any) => ({
-            name: item.sName,
-            children: [
-              { name: "Shop Item ID", value: String(item.ShopItemID) },
-              { name: "ID", value: String(item.ItemID) },
-              {
-                name: "Cost",
-                value: `${item.iCost} ${item.bCoins === 1 ? "ACs" : "Gold"}`,
-              },
-              { name: "Category", value: item.sType },
-              { name: "Description", value: item.sDesc },
-            ],
-          }));
+          if (isShopInfo(data)) {
+            out = data.items.map((item) => {
+              console.log("item", item);
+              return {
+                name: item.sName,
+                children: [
+                  { name: "Shop Item ID", value: String(item.ShopItemID) },
+                  { name: "ID", value: String(item.ItemID) },
+                  {
+                    name: "Cost",
+                    value: `${item.iCost} ${item.bCoins === 1 ? "ACs" : "Gold"}`,
+                  },
+                  { name: "Category", value: item.sType },
+                  { name: "Description", value: item.sDesc },
+                ],
+              };
+            });
+          }
           break;
         case "1": // Quests
-          out = (data as QuestData[]).map((quest) => ({
-            name: `${quest.QuestID} - ${quest.sName}`,
-            children: [
-              { name: "ID", value: String(quest.QuestID) },
-              { name: "Description", value: quest.sDesc },
-              {
-                name: "Required Items",
-                children: Object.values(quest?.oItems).map((item) => ({
-                  name: item.sName,
-                  children: [
-                    { name: "ID", value: String(item.ItemID) },
-                    { name: "Quantity", value: String(item.iQty) },
-                    {
-                      name: "Temporary",
-                      value: item.bTemp ? "Yes" : "No",
-                    },
-                    {
-                      name: "Description",
-                      value: item.sDesc,
-                    },
-                  ],
-                })),
-              },
-              {
-                name: "Rewards",
-                children: quest.Rewards.map((item) => ({
-                  name: item.sName,
-                  children: [
-                    {
-                      name: "ID",
-                      value: String(item.ItemID),
-                    },
-                    {
-                      name: "Quantity",
-                      value: String(item.iQty),
-                    },
-                    {
-                      name: "Drop chance",
-                      value: String(item.DropChance),
-                    },
-                  ],
-                })),
-              },
-            ],
-          }));
+          if (isQuestDataArray(data)) {
+            out = data.map((quest: QuestData) => ({
+              name: `${quest.QuestID} - ${quest.sName}`,
+              children: [
+                { name: "ID", value: String(quest.QuestID) },
+                { name: "Description", value: quest.sDesc },
+                {
+                  name: "Required Items",
+                  children: Object.values(quest?.oItems || {}).map((item) => ({
+                    name: item.sName,
+                    children: [
+                      { name: "ID", value: String(item.ItemID) },
+                      { name: "Quantity", value: String(item.iQty) },
+                      {
+                        name: "Temporary",
+                        value: item.bTemp ? "Yes" : "No",
+                      },
+                      {
+                        name: "Description",
+                        value: item.sDesc,
+                      },
+                    ],
+                  })),
+                },
+                {
+                  name: "Rewards",
+                  children: (quest?.Rewards || []).map((item) => ({
+                    name: item.sName,
+                    children: [
+                      {
+                        name: "ID",
+                        value: String(item.ItemID),
+                      },
+                      {
+                        name: "Quantity",
+                        value: String(item.iQty),
+                      },
+                      {
+                        name: "Drop chance",
+                        value: String(item.DropChance),
+                      },
+                    ],
+                  })),
+                },
+              ],
+            }));
+          }
           break;
         case "2": // Inventory
         case "4": // Bank
-          out = (data as ItemData[]).map((item) => ({
-            name: item.sName,
-            children: [
-              {
-                name: "ID",
-                value: String(item.ItemID),
-              },
-              {
-                name: "Char Item ID",
-                value: String(item.CharItemID),
-              },
-              {
-                name: "Quantity",
-                value:
-                  item.sType === "Class" ? "1/1" : `${item.iQty}/${item.iStk}`,
-              },
-              {
-                name: "AC Tagged",
-                value: item.bCoins === 1 ? "Yes" : "No",
-              },
-              {
-                name: "Category",
-                value: item.sType,
-              },
-              {
-                name: "Description",
-                value: item.sDesc,
-              },
-            ],
-          }));
-          break;
-        case "3": // Temp Inventory
-          out = (data as ItemData[]).map((item) => ({
-            name: item.sName,
-            children: [
-              {
-                name: "ID",
-                value: String(item.ItemID),
-              },
-              {
-                name: "Quantity",
-                value: `${item.iQty}/${item.iStk}`,
-              },
-            ],
-          }));
-          break;
-        case "5": // Cell Monsters
-        case "6": // Map Monsters
-          out = (data as MonsterData[]).map((mon) => {
-            const ret = {
-              name: mon.strMonName,
+          if (isItemDataArray(data)) {
+            out = data.map((item: ItemData) => ({
+              name: item.sName,
               children: [
                 {
                   name: "ID",
-                  value: String(mon.MonID),
+                  value: String(item.ItemID),
                 },
                 {
-                  name: "MonMapID",
-                  value: String(mon.MonMapID),
+                  name: "Char Item ID",
+                  value: String(item.CharItemID),
+                },
+                {
+                  name: "Quantity",
+                  value:
+                    item.sType === "Class"
+                      ? "1/1"
+                      : `${item.iQty}/${item.iStk}`,
+                },
+                {
+                  name: "AC Tagged",
+                  value: item.bCoins === 1 ? "Yes" : "No",
+                },
+                {
+                  name: "Category",
+                  value: item.sType,
+                },
+                {
+                  name: "Description",
+                  value: item.sDesc,
                 },
               ],
-            };
+            }));
+          }
+          break;
+        case "3": // Temp Inventory
+          if (isItemDataArray(data)) {
+            out = data.map((item) => ({
+              name: item.sName,
+              children: [
+                {
+                  name: "ID",
+                  value: String(item.ItemID),
+                },
+                {
+                  name: "Quantity",
+                  value: `${item.iQty}/${item.iStk}`,
+                },
+              ],
+            }));
+          }
+          break;
+        case "5": // Cell Monsters
+        case "6": // Map Monsters
+          if (isMonsterDataArray(data)) {
+            out = data.map((mon) => {
+              const ret: TreeItem = {
+                name: mon.strMonName,
+                children: [
+                  {
+                    name: "ID",
+                    value: String(mon.MonID),
+                  },
+                  {
+                    name: "MonMapID",
+                    value: String(mon.MonMapID),
+                  },
+                ],
+              };
+              ret.children!.push(
+                { name: "Race", value: mon.sRace },
+                { name: "Level", value: String(mon.iLvl) },
+              );
 
-            ret.children.push(
-              { name: "Race", value: mon.sRace },
-              { name: "Level", value: (mon.iLvl ?? mon.intLevel)! },
-            );
+              if (grabberType === "5") {
+                ret.children!.push({
+                  name: "Health",
+                  value: `${mon.intHP}/${mon.intHPMax}`,
+                });
+              } else {
+                ret.children!.push({
+                  name: "Cell",
+                  value: mon.strFrame!,
+                });
+              }
 
-            if (grabberType === "5") {
-              ret.children.push({
-                name: "Health",
-                value: `${mon.intHP}/${mon.intHPMax}`,
-              });
-            } else {
-              ret.children.push({
-                name: "Cell",
-                value: mon.strFrame!,
-              });
-            }
-
-            return ret;
-          });
+              return ret;
+            });
+          }
           break;
       }
 
       treeData = out;
-      console.log("Grabbed data:", treeData);
     } catch (error) {
       console.error("Error grabbing data:", error);
     } finally {
@@ -263,18 +332,6 @@
     URL.revokeObjectURL(url);
   }
 
-  type TreeItem = {
-    name: string;
-    value?: string;
-    children?: TreeItem[];
-  };
-
-  type FlattenedItem = TreeItem & {
-    level: number;
-    nodeId: string;
-    index: number;
-  };
-
   function flattenTreeData(
     data: TreeItem[],
     expandedNodes: Set<string>,
@@ -289,12 +346,14 @@
     ) {
       for (let idx = 0; idx < items.length; idx++) {
         const item = items[idx];
+        if (!item) continue;
+
         const nodeId = parentPath
-          ? `${parentPath}-${item?.name}-${level}`
-          : `${item?.name}-${level}`;
+          ? `${parentPath}-${item.name}-${level}`
+          : `${item.name}-${level}`;
 
         const flatItem: FlattenedItem = {
-          ...item!,
+          ...item,
           level,
           nodeId,
           index: index++,
@@ -302,8 +361,8 @@
 
         result.push(flatItem);
 
-        if (item?.children && expandedNodes.has(nodeId)) {
-          traverse(item?.children, level + 1, nodeId);
+        if (item.children && expandedNodes.has(nodeId)) {
+          traverse(item.children, level + 1, nodeId);
         }
       }
     }
