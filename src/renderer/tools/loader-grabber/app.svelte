@@ -287,7 +287,14 @@
               };
               ret.children!.push(
                 { name: "Race", value: mon.sRace },
-                { name: "Level", value: String(mon.iLvl) },
+                {
+                  name: "Level",
+                  value: String(
+                    "intLevel" in mon && typeof mon.intLevel === "number"
+                      ? mon.intLevel
+                      : mon.iLvl,
+                  ),
+                },
               );
 
               if (grabberType === "5") {
@@ -349,8 +356,8 @@
         if (!item) continue;
 
         const nodeId = parentPath
-          ? `${parentPath}-${item.name}-${level}`
-          : `${item.name}-${level}`;
+          ? `${parentPath}-${idx}-${item.name}-${level}`
+          : `${idx}-${item.name}-${level}`;
 
         const flatItem: FlattenedItem = {
           ...item,
@@ -687,7 +694,7 @@
               {@render TreeNode({
                 ...child,
                 level: item.level + 1,
-                nodeId: `${item.nodeId}/${child.name}-${item.level + 1}`,
+                nodeId: `${item.nodeId}-${index}-${child.name}-${item.level + 1}`,
                 index: item.index * 1000 + index,
               } as FlattenedItem)}
             {/each}
