@@ -161,10 +161,6 @@ export const router = {
 
       recursivelyApplySecurityPolicy(window);
 
-      window.on("resize", () => {
-        console.log(`${input} window resized to: ${window.getSize()}`);
-      });
-
       window.on("ready-to-show", () => {
         window.show();
       });

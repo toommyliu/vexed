@@ -3,6 +3,7 @@
   import { client } from "../../../shared/tipc";
   import { GrabberDataType, LoaderDataType } from "../../../shared/types";
   import { VList } from "virtua/svelte";
+  import type { QuestData } from "../../game/lib/models/Quest";
 
   let loaderId = $state<number>();
   let loaderType = $state<string>("");
@@ -100,32 +101,32 @@
           }));
           break;
         case "1": // Quests
-          out = (data as any[]).map((quest: any) => ({
+          out = (data as QuestData[]).map((quest) => ({
             name: `${quest.QuestID} - ${quest.sName}`,
             children: [
               { name: "ID", value: String(quest.QuestID) },
               { name: "Description", value: quest.sDesc },
               {
                 name: "Required Items",
-                children: quest.RequiredItems.map((quest: any) => ({
-                  name: quest.sName,
+                children: Object.values(quest?.oItems ?? []).map((item) => ({
+                  name: item.sName,
                   children: [
-                    { name: "ID", value: String(quest.ItemID) },
-                    { name: "Quantity", value: String(quest.iQty) },
+                    { name: "ID", value: String(item.ItemID) },
+                    { name: "Quantity", value: String(item.iQty) },
                     {
                       name: "Temporary",
-                      value: quest.bTemp ? "Yes" : "No",
+                      value: item.bTemp ? "Yes" : "No",
                     },
                     {
                       name: "Description",
-                      value: quest.sDesc,
+                      value: item.sDesc,
                     },
                   ],
                 })),
               },
               {
                 name: "Rewards",
-                children: quest.Rewards.map((item: any) => ({
+                children: Object.values(quest?.oRewards ?? []).map((item) => ({
                   name: item.sName,
                   children: [
                     {
@@ -572,7 +573,7 @@
           >
         {/if}
 
-        {#if item.value !== undefined}
+        {#if item.value !== undefined && item.value !== "undefined" && item.value !== "null" && item.value !== ""}
           <span class="flex-shrink-0 text-gray-500">:</span>
           <span
             class={cn(
