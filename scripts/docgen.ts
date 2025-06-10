@@ -459,12 +459,14 @@ const generateLegacyApiDoc = async () => {
                   makeDescription(param.comment?.summary ?? []) || "";
                 const paramType = param.type?.toString() || "";
                 const paramDefaultValue = param?.defaultValue?.toString() || "";
+                const paramIsOptional = param?.flags?.isOptional;
 
                 return {
                   name: paramName,
                   description: paramDescription,
                   type: paramType,
                   defaultValue: paramDefaultValue,
+                  isOptional: paramIsOptional,
                 };
               })
               .filter((param) => Boolean(param)) as Parameter[];
@@ -556,7 +558,7 @@ const generateLegacyApiDoc = async () => {
               }
               if (mth.parameters && mth.parameters.length > 0) {
                 const hasOptionalOrDefaultParams = mth.parameters.some(
-                  (param) => param.defaultValue,
+                  (param) => param.isOptional || param.defaultValue,
                 );
 
                 if (hasOptionalOrDefaultParams) {
@@ -569,11 +571,14 @@ const generateLegacyApiDoc = async () => {
 
                   for (const param of mth.parameters) {
                     const paramName = param.name;
-                    const paramType = makeSafeType(param.type);
+                    const paramType = param.isOptional
+                      ? `${makeSafeType(`${param.type}?`)}`
+                      : makeSafeType(param.type);
                     const defaultValue = param.defaultValue
                       ? `\`${param.defaultValue}\``
                       : "";
-                    const isOptional = param.defaultValue ? "✓" : "";
+                    const isOptional =
+                      param.isOptional || param.defaultValue ? "✓" : "";
                     const description = param.description || "";
 
                     mdxFileContent.push(
@@ -586,7 +591,9 @@ const generateLegacyApiDoc = async () => {
 
                   for (const param of mth.parameters) {
                     const paramName = param.name;
-                    const paramType = makeSafeType(param.type);
+                    const paramType = param.isOptional
+                      ? `${makeSafeType(`${param.type}?`)}`
+                      : makeSafeType(param.type);
                     const description = param.description || "";
 
                     mdxFileContent.push(

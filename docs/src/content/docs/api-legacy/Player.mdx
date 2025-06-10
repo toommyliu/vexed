@@ -115,10 +115,10 @@ This checks if the player is logged in, the world has loaded, and the player has
 
 ### walkTo
 Walks to a position on the map.
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| x | `string` \| `number` | The x coordinate to walk to. |
-| y | `string` \| `number` | The y coordinate to walk to. |
-| walkSpeed | `string` \| `number` | The speed to walk at. |
+| Parameter | Type | Optional | Default | Description |
+|-----------|------|----------|---------|-------------|
+| x | `string` \| `number` |  |  | The x coordinate to walk to. |
+| y | `string` \| `number` |  |  | The y coordinate to walk to. |
+| walkSpeed | `string` \| `number?` | ✓ |  | The speed to walk at. |
 
 **Returns**: `void`
