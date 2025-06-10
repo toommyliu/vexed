@@ -259,6 +259,8 @@ const generateLegacyApiDoc = async () => {
   try {
     const project = await createTypedocApp([...files], "api-legacy");
 
+    const typeRegistry: TypeRegistry = new Map();
+
     let jsonData: Array<{
       label: string;
       items?: Array<{ label: string; link: string }>;
@@ -273,6 +275,7 @@ const generateLegacyApiDoc = async () => {
 
     const classList: Class[] = [];
 
+    // First pass: collect all types and their links
     for (const child of project.children ?? []) {
       if (child.kind === typedoc.ReflectionKind.Module /* 2 */) {
         const classes =
@@ -280,8 +283,57 @@ const generateLegacyApiDoc = async () => {
             (child) => child.kind === typedoc.ReflectionKind.Class /* 128 */,
           ) ?? [];
 
-        // TODO: we can read child.groups and find by title instead
-        // of filtering by kind
+        const enums =
+          child?.children?.filter(
+            (child) => child.kind === typedoc.ReflectionKind.Enum /* 8 */,
+          ) ?? [];
+
+        const typedefs =
+          child?.children?.filter(
+            (child) => child.kind === typedoc.ReflectionKind.TypeAlias /* 64 */,
+          ) ?? [];
+
+        for (const enum_ of enums) {
+          typeRegistry.set(
+            enum_.name,
+            `/api-legacy/enums/${enum_.name.toLowerCase()}`,
+          );
+        }
+
+        for (const typedef of typedefs) {
+          typeRegistry.set(
+            typedef.name,
+            `/api-legacy/typedefs/${typedef.name.toLowerCase()}`,
+          );
+        }
+
+        for (const cls of classes) {
+          const className = cls.name;
+          const classFileName = cls?.sources?.[0]?.fullFileName?.replace(
+            apiEntryPath,
+            "",
+          );
+          const classMdxFileName = classFileName?.replace(/\.ts$/, ".mdx");
+          const classSidebarDirName = dirname(classMdxFileName ?? "").replace(
+            ".",
+            "",
+          );
+
+          const classLink = classSidebarDirName
+            ? `/api-legacy/${classSidebarDirName}/${className.toLowerCase()}`
+            : `/api-legacy/${className.toLowerCase()}`;
+          typeRegistry.set(className, classLink);
+        }
+      }
+    }
+
+    // Second pass: generate the actual documentation files
+    for (const child of project.children ?? []) {
+      if (child.kind === typedoc.ReflectionKind.Module /* 2 */) {
+        const classes =
+          child.children?.filter(
+            (child) => child.kind === typedoc.ReflectionKind.Class /* 128 */,
+          ) ?? [];
 
         const enums =
           child?.children?.filter(
@@ -350,8 +402,8 @@ const generateLegacyApiDoc = async () => {
               const propDescription =
                 makeDescription(child.comment?.summary ?? []) || "";
               const propType = child.flags?.isOptional
-                ? `${makeSafeType(`${child.type?.toString() || ""}?`)}`
-                : makeSafeType(child.type?.toString() || "");
+                ? `${makeSafeType(`${child.type?.toString() || ""}?`, typeRegistry)}`
+                : makeSafeType(child.type?.toString() || "", typeRegistry);
               const isOptional = child.flags?.isOptional ? "✓" : "";
 
               mdxFileContent.push(
@@ -540,7 +592,9 @@ const generateLegacyApiDoc = async () => {
                 mdxFileContent.push(prop.description.split("\n").join("\n"));
               }
               mdxFileContent.push("");
-              mdxFileContent.push(`Type: \`${prop.type}\``);
+              mdxFileContent.push(
+                `Type: ${makeSafeType(prop.type, typeRegistry)}`,
+              );
               mdxFileContent.push("");
             }
           }
@@ -572,8 +626,8 @@ const generateLegacyApiDoc = async () => {
                   for (const param of mth.parameters) {
                     const paramName = param.name;
                     const paramType = param.isOptional
-                      ? `${makeSafeType(`${param.type}?`)}`
-                      : makeSafeType(param.type);
+                      ? `${makeSafeType(`${param.type}?`, typeRegistry)}`
+                      : makeSafeType(param.type, typeRegistry);
                     const defaultValue = param.defaultValue
                       ? `\`${param.defaultValue}\``
                       : "";
@@ -592,8 +646,8 @@ const generateLegacyApiDoc = async () => {
                   for (const param of mth.parameters) {
                     const paramName = param.name;
                     const paramType = param.isOptional
-                      ? `${makeSafeType(`${param.type}?`)}`
-                      : makeSafeType(param.type);
+                      ? `${makeSafeType(`${param.type}?`, typeRegistry)}`
+                      : makeSafeType(param.type, typeRegistry);
                     const description = param.description || "";
 
                     mdxFileContent.push(
@@ -611,7 +665,9 @@ const generateLegacyApiDoc = async () => {
               }
 
               mdxFileContent.push("");
-              mdxFileContent.push(`**Returns**: \`${mth.returnType}\``);
+              mdxFileContent.push(
+                `**Returns**: ${makeSafeType(mth.returnType, typeRegistry)}`,
+              );
               mdxFileContent.push("");
 
               if (mth.example) {
@@ -772,18 +828,117 @@ function makeTitleCase(str: string): string {
 }
 
 /**
- * Safely converts a string type to a table-safe type.
+ * Registry of all generated types and their documentation links
+ */
+type TypeRegistry = Map<string, string>;
+
+/**
+ * Safely converts a string type to a table-safe type with hyperlinks.
  *
  * @param type - The type to convert.
+ * @param typeRegistry - Registry of type names to their documentation links.
  */
-function makeSafeType(type: string): string {
-  if (type.includes("|")) {
-    return type
-      .split("|")
-      .map((t) => `\`${t.trim()}\``)
-      .join(" \\| ");
+function makeSafeType(type: string, typeRegistry?: TypeRegistry): string {
+  if (!typeRegistry) {
+    if (type.includes("|")) {
+      return type
+        .split("|")
+        .map((t) => `\`${t.trim()}\``)
+        .join(" \\| ");
+    }
+    return `\`${type}\``;
   }
+
+  // Handle array types like "SomeType[]"
+  const arrayMatch = type.match(/^(.+)\[\]$/);
+  if (arrayMatch) {
+    const baseType = arrayMatch[1];
+    const linkedBaseType = makeSafeType(baseType, typeRegistry);
+    return `${linkedBaseType}[]`;
+  }
+
+  // Handle union types like "Type1 | Type2"
+  if (type.includes("|")) {
+    const unionTypes = type.split("|").map((t) => t.trim());
+    const linkedTypes = unionTypes.map((t) => {
+      if (typeRegistry.has(t)) {
+        return `[\`${t}\`](${typeRegistry.get(t)})`;
+      }
+      return `\`${t}\``;
+    });
+    return linkedTypes.join(" \\| ");
+  }
+
+  // Handle optional types like "SomeType?"
+  const optionalMatch = type.match(/^(.+)\?$/);
+  if (optionalMatch) {
+    const baseType = optionalMatch[1];
+    const linkedBaseType = makeSafeType(baseType, typeRegistry);
+    return `${linkedBaseType}?`;
+  }
+
+  // Handle generic types like "Partial<KillOption>", "Record<string, Type>", etc.
+  const genericMatch = type.match(/^([^<]+)<(.+)>$/);
+  if (genericMatch) {
+    const genericType = genericMatch[1]; // e.g., "Partial", "Record"
+    const innerTypes = genericMatch[2]; // e.g., "KillOption", "string, Type"
+
+    // Handle nested generic types and comma-separated type parameters
+    const typeParams = splitTypeParameters(innerTypes);
+    const linkedTypeParams = typeParams.map((param) => {
+      const linkedParam = makeSafeType(param.trim(), typeRegistry);
+      // Remove backticks from linked parameters to avoid nested backticks
+      return linkedParam.replace(/^`|`$/g, "");
+    });
+
+    // Don't wrap in backticks if any parameter contains a hyperlink
+    const hasLinks = linkedTypeParams.some((param) => param.includes("]("));
+    if (hasLinks) {
+      return `${genericType}&lt;${linkedTypeParams.join(", ")}&gt;`;
+    } else {
+      return `\`${genericType}<${linkedTypeParams.join(", ")}>\``;
+    }
+  }
+
+  // Check if this type is in our registry
+  if (typeRegistry.has(type)) {
+    return `[\`${type}\`](${typeRegistry.get(type)})`;
+  }
+
+  // Default case - just wrap in code ticks
   return `\`${type}\``;
+}
+
+/**
+ * Splits type parameters correctly, handling nested generics
+ * Example: "string, Record<string, number>" => ["string", "Record<string, number>"]
+ */
+function splitTypeParameters(typeParams: string): string[] {
+  const result: string[] = [];
+  let current = "";
+  let depth = 0;
+
+  for (let i = 0; i < typeParams.length; i++) {
+    const char = typeParams[i];
+
+    if (char === "<") {
+      depth++;
+    } else if (char === ">") {
+      depth--;
+    } else if (char === "," && depth === 0) {
+      result.push(current.trim());
+      current = "";
+      continue;
+    }
+
+    current += char;
+  }
+
+  if (current.trim()) {
+    result.push(current.trim());
+  }
+
+  return result;
 }
 
 async function initializeDirectory(path: string): Promise<void> {

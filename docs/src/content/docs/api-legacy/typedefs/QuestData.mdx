@@ -13,7 +13,7 @@ title: QuestData
 | iClass | `number` |  |  |
 | iExp | `number` |  | The amount of experience rewarded for completing this quest. |
 | iGold | `number` |  | The amount of gold rewarded for completing this quest. |
-| iIndex | `number?` | ✓ |  |
+| iIndex | `number`? | ✓ |  |
 | iLvl | `number` |  | The required level to accept this quest. |
 | iRep | `number` |  | The amount of reputation rewarded for completing this quest. 0 if not applicable. |
 | iReqCP | `number` |  | The class points required to accept this quest. 0 if not applicable. |
@@ -22,16 +22,16 @@ title: QuestData
 | iValue | `number` |  |  |
 | iWar | `number` |  |  |
 | metaValues | `Record<string, string>` |  |  |
-| oItems | `Record<string, ItemData>` |  |  |
-| oRewards | `Record<string, QuestRewards2Raw>` |  |  |
+| oItems | Record&lt;string, [`ItemData`](/api-legacy/typedefs/itemdata)&gt; |  |  |
+| oRewards | Record&lt;string, [`QuestRewards2Raw`](/api-legacy/typedefs/questrewards2raw)&gt; |  |  |
 | QuestID | `string` |  | The ID of this quest. |
-| RequiredItems | `QuestRequiredItemsRaw[]` |  |  |
-| reward | `QuestRewardRaw[]` |  |  |
-| Rewards | `QuestRewards2Raw[]` |  |  |
+| RequiredItems | [`QuestRequiredItemsRaw`](/api-legacy/typedefs/questrequireditemsraw)[] |  |  |
+| reward | [`QuestRewardRaw`](/api-legacy/typedefs/questrewardraw)[] |  |  |
+| Rewards | [`QuestRewards2Raw`](/api-legacy/typedefs/questrewards2raw)[] |  |  |
 | sDesc | `string` |  | The description of this quest. |
 | sEndText | `string` |  | The text displayed when this quest can be completed. |
 | sFaction | `string` |  | The name of the faction that this quest is for. |
-| sField | `string?` | ✓ |  |
+| sField | `string`? | ✓ |  |
 | sName | `string` |  | The name of this quest. |
 | status | `string` |  | The status of the quest. |
-| turnin | `QuestTurnInRaw[]` |  |  |
+| turnin | [`QuestTurnInRaw`](/api-legacy/typedefs/questturninraw)[] |  |  |

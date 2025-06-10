@@ -7,7 +7,7 @@ import { Badge, Code } from "@astrojs/starlight/components";
 ## Properties
 ### bot
 
-Type: `Bot`
+Type: [`Bot`](/api-legacy/bot)
 
 ### availableSlots <Badge text="Getter" size="small" />	
 The number of available slots in the player's inventory.
@@ -17,7 +17,7 @@ Type: `number`
 ### items <Badge text="Getter" size="small" />	
 Gets items in the Inventory of the current player.
 
-Type: `InventoryItem[]`
+Type: [`InventoryItem`](/api-legacy/models/inventoryitem)[]
 
 ### totalSlots <Badge text="Getter" size="small" />	
 The total slots available in the player's inventory.
@@ -58,4 +58,4 @@ Resolves for an Item in the Inventory.
 |-----------|------|-------------|
 | key | `string` \| `number` | The name or ID of the item. |
 
-**Returns**: `null | InventoryItem`
+**Returns**: `null` \| [`InventoryItem`](/api-legacy/models/inventoryitem)

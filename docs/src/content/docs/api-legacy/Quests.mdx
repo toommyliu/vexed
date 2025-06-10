@@ -7,17 +7,17 @@ import { Badge, Code } from "@astrojs/starlight/components";
 ## Properties
 ### bot
 
-Type: `Bot`
+Type: [`Bot`](/api-legacy/bot)
 
 ### accepted <Badge text="Getter" size="small" />	
 A list of accepted quests.
 
-Type: `Quest[]`
+Type: [`Quest`](/api-legacy/models/quest)[]
 
 ### tree <Badge text="Getter" size="small" />	
 A list of quests loaded in the client.
 
-Type: `Quest[]`
+Type: [`Quest`](/api-legacy/models/quest)[]
 
 ## Methods
 
@@ -33,7 +33,7 @@ Accepts a quest.
 Accepts multiple quests concurrently.
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| questIds | `(string` \| `number)[]` | List of quest ids to accept. |
+| questIds | `(string` \| `number)`[] | List of quest ids to accept. |
 
 **Returns**: `Promise<void>`
 
@@ -54,7 +54,7 @@ Resolves for a Quest instance.
 |-----------|------|-------------|
 | questId | `string` \| `number` | The id of the quest. |
 
-**Returns**: `null | Quest`
+**Returns**: `null` \| [`Quest`](/api-legacy/models/quest)
 
 ### load
 Loads a quest.
@@ -68,6 +68,6 @@ Loads a quest.
 Loads multiple quests at once.
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| questIds | `(string` \| `number)[]` | List of quest ids to load |
+| questIds | `(string` \| `number)`[] | List of quest ids to load |
 
 **Returns**: `Promise<void>`

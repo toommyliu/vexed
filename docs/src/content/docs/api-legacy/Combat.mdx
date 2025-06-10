@@ -10,7 +10,7 @@ A `monsterResolvable` is either a monster name or monMapID prefixed with `id` an
 ## Properties
 ### bot
 
-Type: `Bot`
+Type: [`Bot`](/api-legacy/bot)
 
 ### pauseAttack
 Whether attacks are paused due to an active counter attack.
@@ -20,7 +20,7 @@ Type: `boolean`
 ### target <Badge text="Getter" size="small" />	
 Gets the target of the player.
 
-Type: `null | Monster | Avatar`
+Type: `null` \| [`Monster`](/api-legacy/models/monster) \| [`Avatar`](/api-legacy/models/avatar)
 
 ## Methods
 
@@ -64,7 +64,7 @@ Kills a monster.
 | Parameter | Type | Optional | Default | Description |
 |-----------|------|----------|---------|-------------|
 | monsterResolvable | `string` |  |  | The name or monMapId of the monster. |
-| options | `Partial<KillOptions>` | ✓ | `{}` | The optional configuration to use for the kill. |
+| options | Partial&lt;[`KillOptions`](/api-legacy/typedefs/killoptions)&gt; | ✓ | `{}` | The optional configuration to use for the kill. |
 
 **Returns**: `Promise<void>`
 
@@ -86,7 +86,7 @@ Kills the monster until the quantity of the item is met in the inventory.
 | monsterResolvable | `string` |  |  | The name or monMapID of the monster. |
 | item | `string` \| `number` |  |  | The name or ID of the item. |
 | quantity | `number` |  |  | The quantity of the item. |
-| options | `Partial<KillOptions>` | ✓ | `{}` | The configuration to use for the kill. |
+| options | Partial&lt;[`KillOptions`](/api-legacy/typedefs/killoptions)&gt; | ✓ | `{}` | The configuration to use for the kill. |
 
 **Returns**: `Promise<void>`
 
@@ -97,7 +97,7 @@ Kills the monster until the quantity of the item is met in the temp inventory.
 | monsterResolvable | `string` |  |  | The name or monMapID of the monster. |
 | item | `string` \| `number` |  |  | The name or ID of the item. |
 | quantity | `number` |  |  | The quantity of the item. |
-| options | `Partial<KillOptions>` | ✓ | `{}` | The configuration to use for the kill. |
+| options | Partial&lt;[`KillOptions`](/api-legacy/typedefs/killoptions)&gt; | ✓ | `{}` | The configuration to use for the kill. |
 
 **Returns**: `Promise<void>`
 

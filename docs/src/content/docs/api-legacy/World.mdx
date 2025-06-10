@@ -7,32 +7,32 @@ import { Badge, Code } from "@astrojs/starlight/components";
 ## Properties
 ### bot
 
-Type: `Bot`
+Type: [`Bot`](/api-legacy/bot)
 
 ### availableMonsters <Badge text="Getter" size="small" />	
 A list of monsters in the cell.
 
-Type: `Monster[]`
+Type: [`Monster`](/api-legacy/models/monster)[]
 
 ### cellPads <Badge text="Getter" size="small" />	
 A list of valid pads for the current cell.
 
-Type: `string[]`
+Type: `string`[]
 
 ### cells <Badge text="Getter" size="small" />	
 A list of all cells in the map.
 
-Type: `string[]`
+Type: `string`[]
 
 ### itemTree <Badge text="Getter" size="small" />	
 The list of all items in the world.
 
-Type: `ItemData[]`
+Type: [`ItemData`](/api-legacy/typedefs/itemdata)[]
 
 ### monsters <Badge text="Getter" size="small" />	
 A list of monsters in the map.
 
-Type: `MonsterData[]`
+Type: [`MonsterData`](/api-legacy/typedefs/monsterdata)[]
 
 ### name <Badge text="Getter" size="small" />	
 The name of the map.
@@ -42,12 +42,12 @@ Type: `string`
 ### playerNames <Badge text="Getter" size="small" />	
 A list of all player names in the map.
 
-Type: `string[]`
+Type: `string`[]
 
 ### players <Badge text="Getter" size="small" />	
 A list of all players in the map.
 
-Type: `null | Map<string, Avatar>`
+Type: `null` \| `Map<string, Avatar>`
 
 ### roomId <Badge text="Getter" size="small" />	
 The current room area id.
@@ -81,7 +81,7 @@ Goto the specified player.
 Whether the game action has cooled down.
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| gameAction | `GameAction` | The game action to check. |
+| gameAction | [`GameAction`](/api-legacy/enums/gameaction) | The game action to check. |
 
 **Returns**: `boolean`
 
@@ -151,7 +151,7 @@ Reloads the map.
 Sets the player's spawnpoint.
 | Parameter | Type | Optional | Default | Description |
 |-----------|------|----------|---------|-------------|
-| cell | `string?` | ✓ |  |  |
-| pad | `string?` | ✓ |  |  |
+| cell | `string`? | ✓ |  |  |
+| pad | `string`? | ✓ |  |  |
 
 **Returns**: `void`
