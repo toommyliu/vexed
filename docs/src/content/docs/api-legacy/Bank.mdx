@@ -38,6 +38,10 @@ Whether an item meets the quantity in the bank.
 | key | `string` \| `number` |  |  | The name or ID of the item. |
 | quantity | `number` | ✓ | `1` | The quantity of the item. |
 
+:::note
+If the item is a Class, the quantity is ignored.
+:::
+
 **Returns**: `boolean`
 
 ### deposit
@@ -61,6 +65,10 @@ Gets an item from the Bank.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | key | `string` \| `number` | The name or ID of the item. |
+
+:::note
+Bank items must have been loaded beforehand to retrieve an item.
+:::
 
 **Returns**: `null | BankItem`
 

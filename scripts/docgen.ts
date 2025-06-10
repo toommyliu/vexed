@@ -472,6 +472,11 @@ const generateLegacyApiDoc = async () => {
             const exampleCode =
               makeBlockTag(mth?.signatures?.[0]?.comment?.blockTags ?? []) ||
               "";
+            const remarkContent =
+              makeBlockTag(
+                mth?.signatures?.[0]?.comment?.blockTags ?? [],
+                "@remarks",
+              ) || "";
 
             // console.log(
             //   `Method: ${methodName} [${returnType}] (${isStatic}) ${methodDescription}...`,
@@ -485,6 +490,7 @@ const generateLegacyApiDoc = async () => {
               parameters: methodParameters,
               returnType,
               example: exampleCode,
+              remark: remarkContent,
               isStatic,
             };
             classMethods.push(method);
@@ -590,6 +596,13 @@ const generateLegacyApiDoc = async () => {
                 }
               }
 
+              if (mth.remark) {
+                mdxFileContent.push("");
+                mdxFileContent.push(
+                  `:::note\n${mth.remark}\n:::`, // Using :::note for Aside
+                );
+              }
+
               mdxFileContent.push("");
               mdxFileContent.push(`**Returns**: \`${mth.returnType}\``);
               mdxFileContent.push("");
@@ -673,18 +686,24 @@ function makeDescription(summary: typedoc.CommentDisplayPart[]): string {
 /**
  * Converts a block tag to a string.
  */
-function makeBlockTag(tag: typedoc.CommentTag[]): string {
+function makeBlockTag(
+  tag: typedoc.CommentTag[],
+  targetTag: string = "@example",
+): string {
   return tag.reduce((acc, part) => {
-    if (part.tag === "@example") {
+    if (part.tag === targetTag) {
       const content = part.content.map((p) => p.text).join("");
-      // Remove markdown code block markers since <Code> component handles syntax highlighting
-      return (
-        acc +
-        content
-          .replace(/```[a-zA-Z]*\n?/g, "")
-          .replace(/```\n?/g, "")
-          .trim()
-      );
+      if (targetTag === "@example") {
+        // Remove markdown code block markers since <Code> component handles syntax highlighting
+        return (
+          acc +
+          content
+            .replace(/```[a-zA-Z]*\n?/g, "")
+            .replace(/```\n?/g, "")
+            .trim()
+        );
+      }
+      return acc + content.trim();
     }
     return "";
   }, "");
@@ -887,6 +906,10 @@ type Method = {
    * Example code for the method.
    */
   example?: string;
+  /**
+   * Remarks for the method.
+   */
+  remark?: string;
   /**
    * Whether the method is static.
    */
