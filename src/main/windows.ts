@@ -1,6 +1,6 @@
 import { join, resolve } from "path";
 import { app, BrowserWindow } from "electron";
-import { BRAND } from "../common/constants";
+import { BRAND } from "../shared/constants";
 import { recursivelyApplySecurityPolicy } from "./util/recursivelyApplySecurityPolicy";
 
 const DIST = join(__dirname, "../../dist/");

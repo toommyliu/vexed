@@ -37,3 +37,32 @@ export enum GrabberDataType {
   CellMonsters,
   MapMonsters,
 }
+
+export type Account = {
+  password: string;
+  username: string;
+};
+
+export type AccountWithServer = Account & {
+  server: string | null;
+};
+
+export type Settings = {
+  /**
+   * Whether debug logging is enabled.
+   */
+  debug: boolean;
+  /**
+   * The launch mode of the application.
+   */
+  launchMode: "game" | "manager";
+};
+
+export enum WindowIds {
+  FastTravels = "tools-fast-travels",
+  Follower = "tools-follower",
+  LoaderGrabber = "tools-loader-grabber",
+
+  PacketLogger = "packets-logger",
+  PacketSpammer = "packets-spammer",
+}

@@ -1,11 +1,11 @@
 import { join } from "path";
 import { getRendererHandlers, tipc } from "@egoist/tipc";
 import { app, BrowserWindow, dialog } from "electron";
-import { FileManager } from "../common/FileManager";
-import { DEFAULT_FAST_TRAVELS } from "../common/constants";
-import { Logger } from "../common/logger";
-import { WindowIds } from "../shared/constants";
+import { FileManager } from "../shared/FileManager";
+import { DEFAULT_FAST_TRAVELS } from "../shared/constants";
+import { Logger } from "../shared/logger";
 import { sleep } from "../shared/sleep";
+import { WindowIds } from "../shared/types";
 import type {
   GrabberDataType,
   LoaderDataType,

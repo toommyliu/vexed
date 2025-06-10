@@ -297,12 +297,6 @@ async function transpile() {
         createBuildContext(commonConfig, "./src/main/", "dist/main/", "Main"),
         createBuildContext(
           commonConfig,
-          "./src/common/",
-          "dist/common/",
-          "Common",
-        ),
-        createBuildContext(
-          commonConfig,
           "./src/shared/",
           "dist/shared/",
           "Shared",
@@ -335,12 +329,7 @@ async function transpile() {
 
       await Promise.all([
         ...contexts.map(async ({ context, rebuildWithNewFiles }, index) => {
-          const dirs = [
-            "./src/main",
-            "./src/common",
-            "./src/renderer",
-            "./src/shared",
-          ][index];
+          const dirs = ["./src/main", "./src/renderer", "./src/shared"][index];
           try {
             await watch([dirs], async () => {
               console.log(`Changes detected in ${dirs}, rebuilding...`);
@@ -414,23 +403,21 @@ async function transpile() {
       console.log("Watching for changes...");
     } else {
       // One-time build
-      const builds = ["main", "common", "shared", "renderer"].map(
-        async (type) => {
-          console.time(`${type} took`);
-          try {
-            await build({
-              ...commonConfig,
-              entryPoints: await readdirp(`./src/${type}/`),
-              outdir: `dist/${type}/`,
-            });
-            console.timeEnd(`${type} took`);
-          } catch (error) {
-            console.timeEnd(`${type} took`);
-            console.error(`${type} build failed:`, error);
-            throw error;
-          }
-        },
-      );
+      const builds = ["main", "shared", "renderer"].map(async (type) => {
+        console.time(`${type} took`);
+        try {
+          await build({
+            ...commonConfig,
+            entryPoints: await readdirp(`./src/${type}/`),
+            outdir: `dist/${type}/`,
+          });
+          console.timeEnd(`${type} took`);
+        } catch (error) {
+          console.timeEnd(`${type} took`);
+          console.error(`${type} build failed:`, error);
+          throw error;
+        }
+      });
 
       // Add all Svelte builds
       svelteConfigs.forEach(({ name, config }) => {

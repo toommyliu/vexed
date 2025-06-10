@@ -1,5 +1,5 @@
 import process from "process";
-import { Logger } from "../../common/logger";
+import { Logger } from "../../shared/logger";
 import { client } from "../../shared/tipc";
 import { Bot } from "./lib/Bot";
 import { addGoldExp } from "./networking.json/add-gold-exp";

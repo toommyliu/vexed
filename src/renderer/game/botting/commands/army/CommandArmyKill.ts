@@ -1,4 +1,4 @@
-import { interval } from "../../../../../common/interval";
+import { interval } from "../../../../../shared/interval";
 import type { KillOptions } from "../../../lib/Combat";
 import { ArmyCommand } from "./ArmyCommand";
 

@@ -1,4 +1,4 @@
-import { interval } from "../../../common/interval";
+import { interval } from "../../../shared/interval";
 import { Bot } from "../lib/Bot";
 import { GameAction } from "../lib/World";
 

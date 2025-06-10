@@ -1,5 +1,5 @@
 import merge from "lodash.merge";
-import { interval } from "../../../common/interval";
+import { interval } from "../../../shared/interval";
 import { doPriorityAttack } from "../util/doPriorityAttack";
 import { exitFromCombat } from "../util/exitFromCombat";
 import { extractMonsterMapId, isMonsterMapId } from "../util/isMonMapId";

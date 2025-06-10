@@ -1,6 +1,6 @@
 import { TypedEmitter } from "tiny-typed-emitter";
-import { interval } from "../../../common/interval";
-import { Logger } from "../../../common/logger";
+import { interval } from "../../../shared/interval";
+import { Logger } from "../../../shared/logger";
 import { Bot } from "../lib/Bot";
 import { BoostType } from "../lib/Player";
 import {

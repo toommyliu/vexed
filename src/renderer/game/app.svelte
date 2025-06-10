@@ -4,7 +4,7 @@
   import process from "process";
   import { client, handlers } from "../../shared/tipc";
   import { cn } from "../../shared/";
-  import { WindowIds } from "../../shared/constants";
+  import { WindowIds } from "../../shared/types";
   import { Bot } from "./lib/Bot";
   import { startAutoAggro, stopAutoAggro } from "./autoaggro";
   import { onMount } from "svelte";
