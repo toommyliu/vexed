@@ -83,6 +83,7 @@
       grabbedData = data;
 
       let out: any[] = [];
+      console.log("Data received:", data);
 
       switch (grabberType) {
         case "0": // Shop Items
@@ -108,7 +109,7 @@
               { name: "Description", value: quest.sDesc },
               {
                 name: "Required Items",
-                children: Object.values(quest?.oItems ?? []).map((item) => ({
+                children: Object.values(quest?.oItems).map((item) => ({
                   name: item.sName,
                   children: [
                     { name: "ID", value: String(item.ItemID) },
@@ -126,7 +127,7 @@
               },
               {
                 name: "Rewards",
-                children: Object.values(quest?.oRewards ?? []).map((item) => ({
+                children: quest.Rewards.map((item) => ({
                   name: item.sName,
                   children: [
                     {
@@ -235,6 +236,7 @@
       }
 
       treeData = out;
+      console.log("Grabbed data:", treeData);
     } catch (error) {
       console.error("Error grabbing data:", error);
     } finally {
@@ -277,11 +279,19 @@
     const result: FlattenedItem[] = [];
     let index = 0;
 
-    function traverse(items: TreeItem[], level: number = 0) {
-      for (const item of items) {
-        const nodeId = `${item.name}-${level}`;
+    function traverse(
+      items: TreeItem[],
+      level: number = 0,
+      parentPath: string = "",
+    ) {
+      for (let idx = 0; idx < items.length; idx++) {
+        const item = items[idx];
+        const nodeId = parentPath
+          ? `${parentPath}-${item?.name}-${level}`
+          : `${item?.name}-${level}`;
+
         const flatItem: FlattenedItem = {
-          ...item,
+          ...item!,
           level,
           nodeId,
           index: index++,
@@ -289,8 +299,8 @@
 
         result.push(flatItem);
 
-        if (item.children && expandedNodes.has(nodeId)) {
-          traverse(item.children, level + 1);
+        if (item?.children && expandedNodes.has(nodeId)) {
+          traverse(item?.children, level + 1, nodeId);
         }
       }
     }
@@ -499,6 +509,11 @@
       expandedNodes = new Set(expandedNodes);
     }
   }}
+  {@const hasValue =
+    item.value !== undefined &&
+    item.value !== "undefined" &&
+    item.value !== "null" &&
+    item.value !== ""}
 
   <div class="select-none">
     <div
@@ -536,7 +551,7 @@
         <div
           class="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center"
         >
-          {#if item.value !== undefined}
+          {#if hasValue}
             <svg
               class="h-2.5 w-2.5 text-emerald-400/80"
               fill="currentColor"
@@ -544,17 +559,6 @@
               xmlns="http://www.w3.org/2000/svg"
             >
               <circle cx="10" cy="10" r="4" />
-            </svg>
-          {:else}
-            <svg
-              class="h-2.5 w-2.5 text-blue-400/80"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              viewBox="0 0 20 20"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <rect x="6" y="6" width="8" height="8" rx="1" />
             </svg>
           {/if}
         </div>
@@ -566,14 +570,14 @@
             class="flex-shrink-0 truncate font-semibold text-blue-200 group-hover:text-blue-100"
             >{item.name}</span
           >
-        {:else}
+        {:else if !hasChildren && item.name && hasValue}
           <span
             class="flex-shrink-0 truncate font-medium text-gray-300 group-hover:text-gray-200"
             >{item.name}</span
           >
         {/if}
 
-        {#if item.value !== undefined && item.value !== "undefined" && item.value !== "null" && item.value !== ""}
+        {#if hasValue}
           <span class="flex-shrink-0 text-gray-500">:</span>
           <span
             class={cn(
@@ -617,10 +621,12 @@
         {/if}
         {#if isExpanded}
           <div class="transition-all duration-300 ease-out">
-            {#each item.children || [] as child}
+            {#each item.children || [] as child, index}
               {@render TreeNode({
                 ...child,
                 level: item.level + 1,
+                nodeId: `${item.nodeId}/${child.name}-${item.level + 1}`,
+                index: item.index * 1000 + index,
               } as FlattenedItem)}
             {/each}
           </div>
