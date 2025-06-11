@@ -7,7 +7,7 @@
   import type { ShopInfo } from "../../game/lib/Shops";
   import type { ItemData } from "../../game/lib/models/Item";
   import type { MonsterData } from "../../game/lib/models/Monster";
-  import type { ShopItemData } from "../../game/lib/models/ShopItem";
+  import { SvelteSet } from "svelte/reactivity";
 
   type GrabbedData = ShopInfo | QuestData[] | ItemData[] | MonsterData[];
 
@@ -56,7 +56,7 @@
   let grabberType = $state<string>("");
   let grabbedData = $state<GrabbedData | null>(null);
   let treeData = $state<TreeItem[]>([]);
-  let expandedNodes = $state<Set<string>>(new Set());
+  let expandedNodes = $state<SvelteSet<string>>(new SvelteSet());
   let isLoading = $state<boolean>(false);
   let flattenedItems = $derived(flattenTreeData(treeData, expandedNodes));
 
@@ -574,7 +574,6 @@
       } else {
         expandedNodes.add(item.nodeId);
       }
-      expandedNodes = new Set(expandedNodes);
     }
   }}
   {@const hasValue =
