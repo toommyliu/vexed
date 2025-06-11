@@ -203,7 +203,7 @@ async function transpile() {
             css: "injected",
           },
           preprocess: sveltePreprocess({
-            sourceMap: !isProduction,
+            sourceMap: isProduction ? false : true,
             typescript: {
               tsconfigFile,
             },
@@ -286,6 +286,7 @@ async function transpile() {
           outfile: "./dist/build/tailwind.css",
           bundle: true,
           minify: isProduction,
+          sourcemap: isProduction ? false : true,
           plugins: [postCssPlugin()],
         },
         watchPath: "./src/renderer/tailwind.css",
