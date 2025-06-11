@@ -1,22 +1,36 @@
 <script lang="ts">
   import type { Account } from "../../../shared/types";
-  import { client } from "../../../shared/tipc";
-  import { managerState } from "../state.svelte";
+  import { editAccount } from "../util";
 
   type Props = {
     isOpen: boolean;
     onClose: () => void;
+    account: Account | null;
   };
 
-  const { isOpen, onClose }: Props = $props();
+  const { isOpen, onClose, account }: Props = $props();
 
   let username = $state("");
   let password = $state("");
   let isSubmitting = $state(false);
   let error = $state("");
 
+  $effect(() => {
+    if (isOpen && account) {
+      username = account.username;
+      password = account.password;
+      error = "";
+    } else if (!isOpen) {
+      username = "";
+      password = "";
+      error = "";
+    }
+  });
+
   const handleSubmit = async (ev: SubmitEvent) => {
     ev.preventDefault();
+
+    if (!account) return;
 
     const cleanUsername = username?.trim()?.toLowerCase();
     const cleanPassword = password?.trim()?.toLowerCase();
@@ -26,29 +40,25 @@
       return;
     }
 
-    if (managerState.accounts.has(cleanUsername)) {
-      error = "An account with this username already exists";
-      return;
-    }
-
     isSubmitting = true;
     error = "";
 
     try {
-      const account: Account = {
+      const updatedAccount: Account = {
         username: cleanUsername,
         password: cleanPassword,
       };
 
-      await client.addAccount(account);
-      managerState.accounts.set(cleanUsername, account);
+      const success = await editAccount(account.username, updatedAccount);
 
-      username = "";
-      password = "";
-      onClose();
+      if (success) {
+        onClose();
+      } else {
+        error = "Failed to update account. Username might already exist.";
+      }
     } catch (err) {
-      error = "Failed to add account. Please try again.";
-      console.error("Failed to add account:", err);
+      error = "Failed to update account. Please try again.";
+      console.error("Failed to update account:", err);
     } finally {
       isSubmitting = false;
     }
@@ -75,7 +85,7 @@
 
 <svelte:window on:keydown={handleKeydown} />
 
-{#if isOpen}
+{#if isOpen && account}
   <div
     class="fixed inset-0 z-50 flex h-screen w-screen items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
     onclick={onClose}
@@ -114,7 +124,7 @@
 
       <div class="mb-6">
         <h2 id="modal-title" class="text-xl font-semibold text-white">
-          Add Account
+          Edit Account
         </h2>
       </div>
 
@@ -127,13 +137,13 @@
       <form onsubmit={handleSubmit} class="space-y-4">
         <div>
           <label
-            for="modal-username"
+            for="edit-modal-username"
             class="block text-sm font-medium text-zinc-300"
           >
             Username
           </label>
           <input
-            id="modal-username"
+            id="edit-modal-username"
             type="text"
             bind:value={username}
             required
@@ -145,13 +155,13 @@
 
         <div>
           <label
-            for="modal-password"
+            for="edit-modal-password"
             class="block text-sm font-medium text-zinc-300"
           >
             Password
           </label>
           <input
-            id="modal-password"
+            id="edit-modal-password"
             type="text"
             bind:value={password}
             required
@@ -173,12 +183,12 @@
           <button
             type="submit"
             disabled={isSubmitting || !username.trim() || !password.trim()}
-            class="flex-1 rounded-md bg-gradient-to-r from-emerald-600 to-emerald-700 px-4 py-1.5 text-sm font-medium text-white transition-all duration-200 hover:from-emerald-500 hover:to-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 disabled:opacity-50"
+            class="flex-1 rounded-md bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-1.5 text-sm font-medium text-white transition-all duration-200 hover:from-blue-500 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:opacity-50"
           >
             {#if isSubmitting}
-              Adding...
+              Updating...
             {:else}
-              Add Account
+              Update Account
             {/if}
           </button>
         </div>

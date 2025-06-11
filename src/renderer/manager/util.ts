@@ -35,5 +35,53 @@ export const removeAccount = async (account: Account) => {
 
     await client.removeAccount({ username: account.username });
     accounts.delete(account.username);
-  } catch {}
+  } catch (error) {
+    console.error("Failed to remove account:", error);
+  }
+};
+
+// Update an existing account in the accounts Map, while preserving the order
+export const editAccount = async (
+  originalUsername: string,
+  updatedAccount: Account,
+) => {
+  const { accounts } = managerState;
+
+  try {
+    const success = await client.updateAccount({
+      originalUsername,
+      updatedAccount,
+    });
+
+    if (success) {
+      if (originalUsername === updatedAccount.username) {
+        accounts.set(updatedAccount.username.toLowerCase(), updatedAccount);
+      } else {
+        const newAccounts = new Map();
+
+        for (const [key, value] of accounts) {
+          if (key === originalUsername) {
+            newAccounts.set(
+              updatedAccount.username.toLowerCase(),
+              updatedAccount,
+            );
+          } else {
+            newAccounts.set(key, value);
+          }
+        }
+
+        accounts.clear();
+
+        // Update the accounts map now
+        for (const [key, value] of newAccounts) accounts.set(key, value);
+      }
+
+      return true;
+    }
+
+    return false;
+  } catch (error) {
+    console.error("Failed to edit account:", error);
+    return false;
+  }
 };

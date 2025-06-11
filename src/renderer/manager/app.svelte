@@ -2,6 +2,7 @@
   import AccountCard from "./components/account-card.svelte";
   import Header from "./components/header.svelte";
   import AddAccountModal from "./components/add-account-modal.svelte";
+  import EditAccountModal from "./components/edit-account-modal.svelte";
   import { onMount } from "svelte";
   import Footer from "./components/footer.svelte";
   import { managerState } from "./state.svelte";
@@ -12,6 +13,8 @@
 
   let isLoading = $state(true);
   let isModalOpen = $state(false);
+  let isEditModalOpen = $state(false);
+  let accountToEdit = $state<Account | null>(null);
 
   handlers.enableButton.listen((username) => {
     if (timeouts.has(username)) {
@@ -19,6 +22,16 @@
       timeouts.delete(username);
     }
   });
+
+  const handleEditAccount = (account: Account) => {
+    accountToEdit = account;
+    isEditModalOpen = true;
+  };
+
+  const handleCloseEditModal = () => {
+    isEditModalOpen = false;
+    accountToEdit = null;
+  };
 
   onMount(async () => {
     const [accountData, serverData] = await Promise.all([
@@ -57,7 +70,7 @@
   });
 </script>
 
-<main class="bg-background-primary flex min-h-screen select-none flex-col">
+<main class="flex min-h-screen select-none flex-col bg-background-primary">
   <div class="mx-auto box-border w-full max-w-4xl flex-grow p-6">
     <Header onclick={() => (isModalOpen = true)} />
 
@@ -76,7 +89,12 @@
     {:else}
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {#each Array.from(accounts.values()) as account}
-          <AccountCard {account} {removeAccount} {startAccount} />
+          <AccountCard
+            {account}
+            {removeAccount}
+            {startAccount}
+            editAccount={handleEditAccount}
+          />
         {/each}
       </div>
     {/if}
@@ -85,4 +103,9 @@
   <Footer />
 
   <AddAccountModal isOpen={isModalOpen} onClose={() => (isModalOpen = false)} />
+  <EditAccountModal
+    isOpen={isEditModalOpen}
+    account={accountToEdit}
+    onClose={handleCloseEditModal}
+  />
 </main>
