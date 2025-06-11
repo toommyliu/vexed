@@ -15,14 +15,12 @@
   let isSubmitting = $state(false);
   let error = $state("");
 
-  // Reset form when account changes or modal opens
   $effect(() => {
     if (isOpen && account) {
       username = account.username;
       password = account.password;
       error = "";
     } else if (!isOpen) {
-      // Reset form when modal closes
       username = "";
       password = "";
       error = "";
