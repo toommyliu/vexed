@@ -1,4 +1,5 @@
-import { interval } from "../../../common/interval";
+import { interval } from "../../../shared/interval";
+import { gameState } from "../state.svelte";
 import type { Bot } from "./Bot";
 
 export class Settings {
@@ -11,71 +12,11 @@ export class Settings {
 
   #customGuild: string | null = null;
 
-  #infiniteRange = false;
-
-  #provokeMap = false;
-
-  #provokeCell = false;
-
-  #enemyMagnet = false;
-
-  #lagKiller = false;
-
-  #hidePlayers = false;
-
-  #skipCutscenes = false;
-
-  #walkSpeed = 8;
-
-  #disableFx = false;
-
-  #disableCollisions = false;
-
-  #optionInfiniteRange: HTMLElement | null = null;
-
-  #optionProvokeMap: HTMLElement | null = null;
-
-  #optionProvokeCell: HTMLElement | null = null;
-
-  #optionEnemyMagnet: HTMLElement | null = null;
-
-  #optionLagKiller: HTMLElement | null = null;
-
-  #optionHidePlayers: HTMLElement | null = null;
-
-  #optionSkipCutscenes: HTMLElement | null = null;
-
-  #optionWalkSpeed: HTMLElement | null = null;
-
-  #optionDisableFX: HTMLElement | null = null;
-
-  #optionDisableCollisions: HTMLElement | null = null;
-
   public constructor(public bot: Bot) {
-    this.#optionInfiniteRange = document.querySelector(
-      "#option-infinite-range",
-    );
-    this.#optionProvokeMap = document.querySelector("#option-provoke-map");
-    this.#optionProvokeCell = document.querySelector("#option-provoke-cell");
-    this.#optionEnemyMagnet = document.querySelector("#option-enemy-magnet");
-    this.#optionLagKiller = document.querySelector("#option-lag-killer");
-    this.#optionHidePlayers = document.querySelector("#option-hide-players");
-    this.#optionSkipCutscenes = document.querySelector(
-      "#option-skip-cutscenes",
-    );
-    this.#optionWalkSpeed = document.querySelector("#option-walkspeed");
-    this.#optionDisableFX = document.querySelector("#option-disable-fx");
-    this.#optionDisableCollisions = document.querySelector(
-      "#option-disable-collisions",
-    );
-
     void interval(async () => {
       if (!this.bot.player.isReady()) {
         return;
       }
-
-      // this.bot.flash.call(() => swf.settingsSetName(this.#customName ?? ''));
-      // this.bot.flash.call(() => swf.settingsSetGuild(this.#customGuild ?? ''));
 
       if (this.infiniteRange) {
         this.bot.flash.call(() => swf.settingsInfiniteRange());
@@ -105,10 +46,10 @@ export class Settings {
         this.bot.flash.call(() => swf.settingsSetWalkSpeed(this.walkSpeed));
       }
 
-      this.bot.flash.call(() => swf.settingsSetDisableFX(this.#disableFx));
+      this.bot.flash.call(() => swf.settingsSetDisableFX(this.disableFx));
 
       this.bot.flash.call(() =>
-        swf.settingsSetDisableCollisions(this.#disableCollisions),
+        swf.settingsSetDisableCollisions(this.disableCollisions),
       );
     }, 500);
   }
@@ -117,7 +58,7 @@ export class Settings {
    * Whether Infinite Range is enabled.
    */
   public get infiniteRange(): boolean {
-    return this.#infiniteRange;
+    return gameState.infiniteRange;
   }
 
   /**
@@ -126,15 +67,14 @@ export class Settings {
    * @param on - If true, enables Infinite Range. Otherwise, disables it.
    */
   public set infiniteRange(on: boolean) {
-    this.#infiniteRange = on;
-    this.#updateOption(this.#optionInfiniteRange!, on);
+    gameState.infiniteRange = on;
   }
 
   /**
    * Whether Provoke Map is enabled.
    */
   public get provokeMap(): boolean {
-    return this.#provokeMap;
+    return gameState.provokeMap;
   }
 
   /**
@@ -143,15 +83,14 @@ export class Settings {
    * @param on - If true, enables Provoke Map. Otherwise, disables it.
    */
   public set provokeMap(on: boolean) {
-    this.#provokeMap = on;
-    this.#updateOption(this.#optionProvokeMap!, on);
+    gameState.provokeMap = on;
   }
 
   /**
    * Whether Provoke Cell is enabled.
    */
   public get provokeCell(): boolean {
-    return this.#provokeCell;
+    return gameState.provokeCell;
   }
 
   /**
@@ -160,15 +99,14 @@ export class Settings {
    * @param on - If true, enables Provoke Cell. Otherwise, disables it.
    */
   public set provokeCell(on: boolean) {
-    this.#provokeCell = on;
-    this.#updateOption(this.#optionProvokeCell!, on);
+    gameState.provokeCell = on;
   }
 
   /**
    * Whether Enemy Magnet is enabled.
    */
   public get enemyMagnet(): boolean {
-    return this.#enemyMagnet;
+    return gameState.enemyMagnet;
   }
 
   /**
@@ -177,15 +115,14 @@ export class Settings {
    * @param on - If true, enables Enemy Magnet. Otherwise, disables it.
    */
   public set enemyMagnet(on: boolean) {
-    this.#enemyMagnet = on;
-    this.#updateOption(this.#optionEnemyMagnet!, on);
+    gameState.enemyMagnet = on;
   }
 
   /**
    * Whether Lag Killer is enabled.
    */
   public get lagKiller(): boolean {
-    return this.#lagKiller;
+    return gameState.lagKiller;
   }
 
   /**
@@ -194,15 +131,14 @@ export class Settings {
    * @param on - If true, enables Lag Killer. Otherwise, disables it.
    */
   public set lagKiller(on: boolean) {
-    this.#lagKiller = on;
-    this.#updateOption(this.#optionLagKiller!, on);
+    gameState.lagKiller = on;
   }
 
   /**
    * Whether Hide Players is enabled.
    */
   public get hidePlayers(): boolean {
-    return this.#hidePlayers;
+    return gameState.hidePlayers;
   }
 
   /**
@@ -211,15 +147,14 @@ export class Settings {
    * @param on - If true, enables Hide Players. Otherwise, disables it.
    */
   public set hidePlayers(on: boolean) {
-    this.#hidePlayers = on;
-    this.#updateOption(this.#optionHidePlayers!, on);
+    gameState.hidePlayers = on;
   }
 
   /**
    * Whether Skip Cutscenes is enabled.
    */
   public get skipCutscenes(): boolean {
-    return this.#skipCutscenes;
+    return gameState.skipCutscenes;
   }
 
   /**
@@ -228,15 +163,14 @@ export class Settings {
    * @param on - If true, enables Skip Cutscenes. Otherwise, disables it.
    */
   public set skipCutscenes(on: boolean) {
-    this.#skipCutscenes = on;
-    this.#updateOption(this.#optionSkipCutscenes!, on);
+    gameState.skipCutscenes = on;
   }
 
   /**
    * The player's walk speed.
    */
   public get walkSpeed(): number {
-    return this.#walkSpeed;
+    return gameState.walkSpeed;
   }
 
   /**
@@ -244,16 +178,14 @@ export class Settings {
    *
    * @param speed - The walk speed.
    */
-  public set walkSpeed(speed: number | number) {
+  public set walkSpeed(speed: number | string) {
     if (typeof speed === "number") {
       const val = Math.max(0, Math.min(99, speed));
-      this.#walkSpeed = val;
-      this.#updateOption(this.#optionWalkSpeed!, val);
+      gameState.walkSpeed = val;
     } else if (typeof speed === "string") {
       const val = Number.parseInt(speed, 10);
       const tmp = Number.isNaN(val) ? 8 : Math.max(0, Math.min(99, val));
-      this.#walkSpeed = tmp;
-      this.#updateOption(this.#optionWalkSpeed!, tmp);
+      gameState.walkSpeed = tmp;
     }
   }
 
@@ -314,7 +246,7 @@ export class Settings {
    * Whether "Disable FX" is enabled.
    */
   public get disableFx(): boolean {
-    return this.#disableFx;
+    return gameState.disableFx;
   }
 
   /**
@@ -323,31 +255,17 @@ export class Settings {
    * @param on - If true, disables most visual effects.
    */
   public set disableFx(on: boolean) {
-    this.#disableFx = on;
-    this.#updateOption(this.#optionDisableFX!, on);
+    gameState.disableFx = on;
   }
 
   /**
    * Whether "Disable Collisions" is enabled.
    */
   public get disableCollisions(): boolean {
-    return this.#disableCollisions;
+    return gameState.disableCollisions;
   }
 
   public set disableCollisions(on: boolean) {
-    this.#disableCollisions = on;
-    this.#updateOption(this.#optionDisableCollisions!, on);
-  }
-
-  #updateOption(el: HTMLElement, value: boolean | number | string): void {
-    switch (el.tagName) {
-      case "INPUT":
-        (el as HTMLInputElement).value = String(value);
-        break;
-      case "BUTTON":
-        el.dataset["state"] = value.toString();
-        el.classList.toggle("option-active", Boolean(value));
-        break;
-    }
+    gameState.disableCollisions = on;
   }
 }

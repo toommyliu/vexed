@@ -1,5 +1,17 @@
 {
   "extends": "../tsconfig.json",
-  "include": ["./**/*.ts"],
-  "exclude": ["../game/**/*.ts", "../game/**/*.d.ts"]
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "lib": ["esnext", "dom"],
+    "verbatimModuleSyntax": true,
+    "types": ["svelte"]
+  },
+  "include": [
+    "./**/*.ts",
+    "./**/*.svelte",
+    "./**/*.svelte.ts",
+    "../shared/tipc.ts"
+  ],
+  "exclude": ["../game/**/*"]
 }

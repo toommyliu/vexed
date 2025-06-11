@@ -7,7 +7,7 @@ import { Badge, Code } from "@astrojs/starlight/components";
 ## Properties
 ### bot
 
-Type: `Bot`
+Type: [`Bot`](/api-legacy/bot)
 
 ### dropCounts <Badge text="Getter" size="small" />	
 Retrieves the drop stack as is.
@@ -20,7 +20,7 @@ Type: `Readonly<Map<number, number>>`
 Adds an item to the internal store and the stack as visible to the client.
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| item | `ItemData` | The item that was dropped. |
+| item | [`ItemData`](/api-legacy/typedefs/itemdata) | The item that was dropped. |
 
 **Returns**: `void`
 
@@ -38,7 +38,7 @@ Retrieves item data using its ID.
 |-----------|------|-------------|
 | itemId | `number` | The ID of the item. |
 
-**Returns**: `null | ItemData`
+**Returns**: `null` \| [`ItemData`](/api-legacy/typedefs/itemdata)
 
 ### getItemFromName
 Retrieves item data using its name (case-insensitive).
@@ -46,7 +46,7 @@ Retrieves item data using its name (case-insensitive).
 |-----------|------|-------------|
 | itemName | `string` | The name of the item. |
 
-**Returns**: `null | ItemData`
+**Returns**: `null` \| [`ItemData`](/api-legacy/typedefs/itemdata)
 
 ### getItemId
 Retrieves the ID of an item using its name.
@@ -54,7 +54,7 @@ Retrieves the ID of an item using its name.
 |-----------|------|-------------|
 | itemName | `string` | The name of the item. |
 
-**Returns**: `null | number`
+**Returns**: `null` \| `number`
 
 ### getItemName
 Retrieves the name of an item using its ID.
@@ -62,7 +62,7 @@ Retrieves the name of an item using its ID.
 |-----------|------|-------------|
 | itemId | `number` | The ID of the item. |
 
-**Returns**: `null | string`
+**Returns**: `null` \| `string`
 
 ### hasDrop
 Checks if an item exists in the drop stack.

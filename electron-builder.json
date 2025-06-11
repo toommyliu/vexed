@@ -5,12 +5,7 @@
     "output": "build"
   },
   "mac": {
-    "files": [
-      "dist/**/*",
-      "assets/**/*",
-      "public/**/*",
-      "!assets/pepflashplayer.dll"
-    ],
+    "files": ["dist/**/*", "assets/**/*", "!assets/pepflashplayer.dll"],
     "asar": "false",
     "target": {
       "target": "zip",
@@ -20,12 +15,7 @@
     "artifactName": "${productName}-${os}.${ext}"
   },
   "win": {
-    "files": [
-      "dist/**/*",
-      "assets/**/*",
-      "public/**/*",
-      "!assets/PepperFlashPlayer.plugin"
-    ],
+    "files": ["dist/**/*", "assets/**/*", "!assets/PepperFlashPlayer.plugin"],
     "icon": "assets/icon.ico",
     "asar": "false",
     "target": {

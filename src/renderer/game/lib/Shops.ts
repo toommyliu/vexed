@@ -1,6 +1,6 @@
 import type { Bot } from "./Bot";
 import { GameAction } from "./World";
-import type { ShopItem } from "./models/ShopItem";
+import type { ShopItemData } from "./models/ShopItem";
 
 export class Shops {
   public constructor(public bot: Bot) {}
@@ -53,7 +53,7 @@ export class Shops {
     if (!this.isShopLoaded()) return;
 
     const item = this.info!.items.find(
-      (shopItem) => shopItem.data.ItemID === itemId,
+      (shopItem) => shopItem.ItemID === itemId,
     );
     if (!item) return;
 
@@ -124,7 +124,7 @@ export type ShopInfo = {
   bStaff: string;
   bUpgrd: string;
   iIndex: string;
-  items: ShopItem[];
+  items: ShopItemData[];
   sField: string;
   sName: string;
 };

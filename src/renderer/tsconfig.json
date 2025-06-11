@@ -1,7 +1,11 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "lib": ["dom", "dom.iterable", "es2024"]
+    "module": "esnext",
+    "lib": ["esnext", "dom"],
+    "moduleResolution": "bundler",
+    "verbatimModuleSyntax": true,
+    "types": ["svelte"]
   },
-  "files": ["./index.d.ts"]
+  "files": ["./index.d.ts", "app.d.ts"]
 }

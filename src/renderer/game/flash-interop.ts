@@ -1,30 +1,15 @@
 import process from "process";
-import { ipcRenderer } from "../../common/ipc";
-import { IPC_EVENTS } from "../../common/ipc-events";
-import { Logger } from "../../common/logger";
+import { Logger } from "../../shared/logger";
+import { client } from "../../shared/tipc";
 import { Bot } from "./lib/Bot";
-import { addGoldExp } from "./networking/json/add-gold-exp";
-import { ct } from "./networking/json/ct";
-import { dropItem } from "./networking/json/drop-item";
-import { initUserData } from "./networking/json/init-user-data";
-import { moveToArea } from "./networking/json/move-to-area";
-import { disableElement, enableElement } from "./ui-utils";
-
-// import { FileManager } from '../../main/FileManager';
-// FileManager.getInstance().writeJson(
-//   FileManager.getInstance().basePath + '/packets.json',
-//   [],
-// );
+import { addGoldExp } from "./networking.json/add-gold-exp";
+import { ct } from "./networking.json/ct";
+import { dropItem } from "./networking.json/drop-item";
+import { initUserData } from "./networking.json/init-user-data";
+import { moveToArea } from "./networking.json/move-to-area";
 
 const logger = Logger.get("FlashInterop");
 const bot = Bot.getInstance();
-
-// window.clear = () => {
-//   FileManager.getInstance().writeJson(
-//     FileManager.getInstance().basePath + '/packets.json',
-//     [],
-//   );
-// };
 
 window.packetFromClient = ([packet]: [string]) => {
   bot.emit("packetFromClient", packet);
@@ -43,12 +28,7 @@ window.pext = async ([packet]) => {
   delete pkt.cancelable;
   delete pkt.type;
 
-  Bot.getInstance().emit("pext", pkt);
-
-  // await FileManager.getInstance().appendJson(
-  //   FileManager.getInstance().basePath + '/packets.json',
-  //   pkt,
-  // );
+  bot.emit("pext", pkt);
 
   if (pkt?.params?.type === "str") {
     const dataObj = pkt?.params?.dataObj; // ['exitArea', '-1', 'ENT_ID', 'PLAYER']
@@ -65,7 +45,7 @@ window.pext = async ([packet]) => {
         if (
           Array.isArray(dataObj) &&
           dataObj?.length === 4 &&
-          dataObj[2]?.toLowerCase() === bot.auth.username.toLowerCase() &&
+          dataObj[2]?.toLowerCase() === bot.auth?.username?.toLowerCase() &&
           dataObj[3] === "afk:true"
         ) {
           bot.emit("afk");
@@ -97,32 +77,16 @@ window.pext = async ([packet]) => {
 };
 
 window.connection = async ([state]: [string]) => {
-  const elList = [
-    document.querySelector("#cells")!,
-    document.querySelector("#pads")!,
-    document.querySelector("#x")!,
-    document.querySelector("#bank")!,
-  ];
-
   if (state === "OnConnection") {
     await bot.waitUntil(() => bot.player.isReady(), null, -1);
+    bot.emit("login");
+  } else if (state === "OnConnectionLost") {
+    await bot.waitUntil(() => !bot.player.isReady(), null, -1);
+    bot.emit("logout");
   }
-
-  for (const el of elList) {
-    if (state === "OnConnection") {
-      enableElement(el as HTMLElement);
-    } else if (state === "OnConnectionLost") {
-      disableElement(el as HTMLElement);
-    }
-  }
-
-  if (state === "OnConnection") bot.emit("login");
-  else if (state === "OnConnectionLost") bot.emit("logout");
 };
 
 window.loaded = async () => {
-  // await ipcRenderer.callMain(IPC_EVENTS.LOADED);
-
   const usernameArg = process.argv.find((arg) => arg.startsWith("--username="));
   const passwordArg = process.argv.find((arg) => arg.startsWith("--password="));
   const serverArg = process.argv.find((arg) => arg.startsWith("--server="));
@@ -142,17 +106,15 @@ window.loaded = async () => {
     bot.autoRelogin.setCredentials(username!, password!, server!);
     bot.autoRelogin.delay = 0;
 
-    // auto relogin should have triggered
+    // Auto Relogin should have triggered by now, wait for the player to be ready now
     await bot.waitUntil(() => bot.player.isReady(), null, -1);
 
-    // reset
+    // Reset credentials and delay
     bot.autoRelogin.setCredentials("", "", "");
     bot.autoRelogin.delay = ogDelay;
 
-    logger.info("auto relogin success, responding");
-    await ipcRenderer
-      .callMain(IPC_EVENTS.LOGIN_SUCCESS, { username })
-      .catch(() => {});
+    // logger.info("auto relogin success, responding");
+    await client.managerLoginSuccess({ username });
   }
 
   if (scriptPath) {
@@ -166,9 +128,7 @@ window.loaded = async () => {
 
       // console.log("decodedPath", decodedPath);
 
-      await ipcRenderer.callMain(IPC_EVENTS.LOAD_SCRIPT, {
-        scriptPath: decodedPath,
-      });
+      await client.loadScript({ scriptPath: decodedPath });
     } catch {}
   }
 };
@@ -179,14 +139,15 @@ window.flashDebug = (...args: string[]) => {
 
 // @ts-expect-error - provided by flash and properly typed
 window.progress = (percent: number) => {
-  const progressBar = document.querySelector("#progress-bar") as HTMLDivElement;
+  const progressText = document.querySelector(
+    "#progress-text",
+  ) as HTMLSpanElement;
   const percentStr = `${percent}%`;
 
-  progressBar.style.width = percentStr;
-  progressBar.textContent = percentStr;
+  if (progressText) progressText.textContent = percentStr;
 
   setImmediate(() => {
-    progressBar.textContent = percentStr;
+    if (progressText) progressText.textContent = percentStr;
   });
 
   if (percent >= 100) {

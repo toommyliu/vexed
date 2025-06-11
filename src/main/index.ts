@@ -1,15 +1,19 @@
-import "./ipc/ipc.game";
-import "./ipc/ipc.manager";
 import "./tray";
 
 import { join } from "path";
 import process from "process";
+import { registerIpcMain } from "@egoist/tipc/main";
 import { app } from "electron";
-import { FileManager } from "../common/FileManager";
-import { BRAND } from "../common/constants";
-import type { Settings } from "../common/types";
+import { FileManager } from "../shared/FileManager";
+import { BRAND } from "../shared/constants";
+import type { Settings } from "../shared/types";
+import { router } from "./tipc";
 import { showErrorDialog } from "./util/showErrorDialog";
 import { createAccountManager, createGame } from "./windows";
+
+process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
+
+registerIpcMain(router);
 
 function registerFlashPlugin() {
   // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports

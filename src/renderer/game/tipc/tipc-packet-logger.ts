@@ -1,0 +1,55 @@
+import { client, handlers } from "../../../shared/tipc";
+import { Bot } from "../lib/Bot";
+
+let clientPacketListener: ((packet: string) => Promise<void>) | null = null;
+let serverPacketListener: ((packet: string) => Promise<void>) | null = null;
+let pextPacketListener:
+  | ((packet: Record<string, unknown>) => Promise<void>)
+  | null = null;
+
+function cleanupListeners() {
+  const bot = Bot.getInstance();
+
+  if (clientPacketListener) bot.off("packetFromClient", clientPacketListener);
+  if (serverPacketListener) bot.off("packetFromServer", serverPacketListener);
+  if (pextPacketListener) bot.off("pext", pextPacketListener);
+
+  clientPacketListener = null;
+  serverPacketListener = null;
+  pextPacketListener = null;
+}
+
+handlers.packetLoggerStart.listen(() => {
+  const bot = Bot.getInstance();
+
+  cleanupListeners();
+
+  clientPacketListener = async (packet) => {
+    await client.packetLoggerPacket({
+      type: "client",
+      packet,
+    });
+  };
+
+  serverPacketListener = async (packet) => {
+    await client.packetLoggerPacket({
+      type: "server",
+      packet,
+    });
+  };
+
+  pextPacketListener = async (packet) => {
+    await client.packetLoggerPacket({
+      type: "pext",
+      packet: JSON.stringify(packet),
+    });
+  };
+
+  bot.on("packetFromClient", clientPacketListener);
+  bot.on("packetFromServer", serverPacketListener);
+  bot.on("pext", pextPacketListener);
+});
+
+handlers.packetLoggerStop.listen(() => {
+  cleanupListeners();
+});

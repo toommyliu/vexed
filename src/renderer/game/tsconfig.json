@@ -1,5 +1,9 @@
 {
   "extends": "../tsconfig.json",
-  "include": ["./**/*.ts", "./index.d.ts", "util/questTimer.ts"],
-  "exclude": ["../manager/**/*.ts", "../manager/index.d.ts"]
+  "include": ["./**/*.ts", "./**/*.svelte", "./index.d.ts"],
+  "exclude": [
+    "../manager/**/*.ts",
+    "../manager/index.d.ts",
+    "../manager/**/*.svelte"
+  ]
 }

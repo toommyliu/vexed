@@ -1,5 +1,4 @@
-import { ipcRenderer } from "../../../../../common/ipc";
-import { IPC_EVENTS } from "../../../../../common/ipc-events";
+import { client, handlers } from "../../../../../shared/tipc";
 import { Command } from "../../command";
 
 export abstract class ArmyCommand extends Command {
@@ -26,7 +25,7 @@ export abstract class ArmyCommand extends Command {
     }
 
     this.armyReadyPromise = new Promise<void>((resolve) => {
-      const listener = () => {
+      const listener = async () => {
         // console.log("All players have completed the action");
         // ipcRenderer.removeListener(IPC_EVENTS.ARMY_READY, listener);
         this.isListenerRegistered = false;
@@ -36,7 +35,7 @@ export abstract class ArmyCommand extends Command {
 
       // console.log("Registering listener for army ready");
       // ipcRenderer.on(IPC_EVENTS.ARMY_READY, listener);
-      ipcRenderer.once(IPC_EVENTS.ARMY_READY, listener);
+      handlers.armyReady.handle(listener);
       this.isListenerRegistered = true;
     });
 
@@ -74,11 +73,13 @@ export abstract class ArmyCommand extends Command {
    */
   public async sendDone(): Promise<void> {
     if (this.isDone) return;
+    // We make sure to set this.isDone to true so that
+    // we don't try and call armyFinishJob multiple times
+    this.isDone = true;
 
     // console.log("Sending done notification...");
-    await ipcRenderer.callMain(IPC_EVENTS.ARMY_FINISH_JOB);
+    await client.armyFinishJob();
     // console.log("Done notification sent...");
-    this.isDone = true;
   }
 
   /**

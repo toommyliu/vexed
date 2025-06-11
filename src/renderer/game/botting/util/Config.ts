@@ -1,5 +1,5 @@
 import { basename, join } from "path";
-import { FileManager } from "../../../../common/FileManager";
+import { FileManager } from "../../../../shared/FileManager";
 
 type ConfigValue = boolean | number | string;
 

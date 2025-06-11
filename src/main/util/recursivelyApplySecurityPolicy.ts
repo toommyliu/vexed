@@ -1,6 +1,6 @@
 import { URL } from "url";
 import { BrowserWindow, session } from "electron";
-import { ARTIX_USERAGENT, WHITELISTED_DOMAINS } from "../../common/constants";
+import { ARTIX_USERAGENT, WHITELISTED_DOMAINS } from "../../shared/constants";
 
 export function recursivelyApplySecurityPolicy(window: BrowserWindow): void {
   window.webContents.setUserAgent(ARTIX_USERAGENT);

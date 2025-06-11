@@ -1,7 +1,6 @@
 // https://github.com/BrenoHenrike/Scripts/blob/Skua/Army/CoreArmyLite.cs
 
-import { ipcRenderer } from "../../../common/ipc";
-import { IPC_EVENTS } from "../../../common/ipc-events";
+import { client } from "../../../shared/tipc";
 import { Config } from "../botting/util/Config";
 import type { Bot } from "./Bot";
 
@@ -94,15 +93,15 @@ export class Army {
 
     if (this.isLeader()) {
       // Init army for everyone else
-      // console.log("Army: Leader");
-      await ipcRenderer.callMain(IPC_EVENTS.ARMY_INIT, {
+      console.log("Army: Leader");
+      await client.armyInit({
         ...args,
         players: Array.from(this.players),
       });
     } else {
       // Join the army
-      // console.log("Army: Follower");
-      await ipcRenderer.callMain(IPC_EVENTS.ARMY_JOIN, args);
+      console.log("Army: Follower");
+      await client.armyJoin(args);
     }
 
     this.isInitialized = true;

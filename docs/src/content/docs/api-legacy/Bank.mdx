@@ -7,7 +7,7 @@ import { Badge, Code } from "@astrojs/starlight/components";
 ## Properties
 ### bot
 
-Type: `Bot`
+Type: [`Bot`](/api-legacy/bot)
 
 ### availableSlots <Badge text="Getter" size="small" />	
 The number of bank slots available.
@@ -17,7 +17,7 @@ Type: `number`
 ### items <Badge text="Getter" size="small" />	
 The list of items in the bank.
 
-Type: `BankItem[]`
+Type: [`BankItem`](/api-legacy/models/bankitem)[]
 
 ### totalSlots <Badge text="Getter" size="small" />	
 The number of bank slots.
@@ -38,6 +38,10 @@ Whether an item meets the quantity in the bank.
 | key | `string` \| `number` |  |  | The name or ID of the item. |
 | quantity | `number` | ✓ | `1` | The quantity of the item. |
 
+:::note
+If the item is a Class, the quantity is ignored.
+:::
+
 **Returns**: `boolean`
 
 ### deposit
@@ -52,7 +56,7 @@ Puts an item into the bank.
 Puts multiple items into the bank.
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| items | `(string` \| `number)[]` | The list of items to deposit. |
+| items | `(string` \| `number)`[] | The list of items to deposit. |
 
 **Returns**: `Promise<void>`
 
@@ -62,7 +66,11 @@ Gets an item from the Bank.
 |-----------|------|-------------|
 | key | `string` \| `number` | The name or ID of the item. |
 
-**Returns**: `null | BankItem`
+:::note
+Bank items must have been loaded beforehand to retrieve an item.
+:::
+
+**Returns**: `null` \| [`BankItem`](/api-legacy/models/bankitem)
 
 ### isOpen
 Whether the bank ui is open.
@@ -91,7 +99,7 @@ Swaps an item from the bank with an item from the inventory.
 Swaps multiple items between the bank and inventory.
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| items | `[string` \| `number, string` \| `number][]` | A list of item pairs to swap. |
+| items | `[string` \| `number, string` \| `number]`[] | A list of item pairs to swap. |
 
 **Returns**: `Promise<void>`
 
@@ -106,6 +114,6 @@ Takes an item out of the bank.
 ### withdrawMultiple
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| items | `(string` \| `number)[]` |  |
+| items | `(string` \| `number)`[] |  |
 
 **Returns**: `Promise<void>`

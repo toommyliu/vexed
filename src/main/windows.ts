@@ -1,21 +1,19 @@
 import { join, resolve } from "path";
 import { app, BrowserWindow } from "electron";
-import { BRAND } from "../common/constants";
-import { ipcMain } from "../common/ipc";
-import { IPC_EVENTS } from "../common/ipc-events";
-import { Logger } from "../common/logger";
+import { BRAND } from "../shared/constants";
 import { recursivelyApplySecurityPolicy } from "./util/recursivelyApplySecurityPolicy";
 
-const PUBLIC = join(__dirname, "../../public/");
-const PUBLIC_GAME = join(PUBLIC, "game/");
-const PUBLIC_MANAGER = join(PUBLIC, "manager/");
+const DIST = join(__dirname, "../../dist/");
+const DIST_GAME = join(DIST, "game/");
+const DIST_MANAGER = join(DIST, "manager/");
 
-const logger = Logger.get("Windows");
+let mgrWindow: BrowserWindow | null;
 
-export const store: WindowStore = new Map();
+export const windowStore: WindowStore = new Map();
 
-// eslint-disable-next-line import-x/no-mutable-exports
-export let mgrWindow: BrowserWindow | null;
+export function getManagerWindow(): BrowserWindow | null {
+  return mgrWindow;
+}
 
 export async function createAccountManager(): Promise<void> {
   if (mgrWindow) {
@@ -40,7 +38,7 @@ export async function createAccountManager(): Promise<void> {
   mgrWindow = window;
 
   recursivelyApplySecurityPolicy(window);
-  void window.loadURL(`file://${resolve(PUBLIC_MANAGER, "index.html")}`);
+  void window.loadURL(`file://${resolve(DIST_MANAGER, "index.html")}`);
 
   if (!app.isPackaged) {
     window.webContents.openDevTools({ mode: "right" });
@@ -76,79 +74,47 @@ export async function createGame(
       backgroundThrottling: false,
       nodeIntegration: true,
       plugins: true,
-      // pass account data to run "Login With Account"
+      // Pass CLI args for "Login with Account" feature
       additionalArguments: args,
-      // disable unuseful features
       webgl: false,
     },
-    // don't know
     ...(account?.username
       ? { tabbingIdentifier: `game-${account?.username}` }
       : {}),
     useContentSize: true,
   });
 
-  void window.loadURL(`file://${resolve(PUBLIC_GAME, "index.html")}`);
+  void window.loadURL(`file://${resolve(DIST_GAME, "index.html")}`);
   recursivelyApplySecurityPolicy(window);
 
   if (!app.isPackaged) {
     window.webContents.openDevTools({ mode: "right" });
   }
 
-  // Track refreshes to re-sync states across windows
-  window.webContents.on("did-finish-load", async () => {
-    logger.info("game window re(loaded)");
-
-    if (!window || window?.isDestroyed()) {
-      return;
-    }
-
-    const windows = store.get(window.id);
-
-    if (windows) {
-      try {
-        for (const child of Object.values(windows.tools)) {
-          if (child && !child.isDestroyed()) {
-            await ipcMain.callRenderer(child!, IPC_EVENTS.REFRESHED);
-          }
-        }
-
-        for (const child of Object.values(windows.packets)) {
-          if (child && !child.isDestroyed()) {
-            await ipcMain.callRenderer(child!, IPC_EVENTS.REFRESHED);
-          }
-        }
-      } catch {}
-    }
-  });
-
   window.on("close", () => {
-    const windows = store.get(window.id);
+    const windows = windowStore.get(window?.id);
     if (windows) {
-      for (const child of Object.values(windows.tools)) {
-        if (child && !child.isDestroyed()) {
-          child.destroy();
+      const toClose = [
+        ...Object.values(windows.tools),
+        ...Object.values(windows.packets),
+      ];
+
+      for (const window of toClose) {
+        if (window && !window.isDestroyed()) {
+          window.destroy();
         }
       }
 
-      for (const child of Object.values(windows.packets)) {
-        if (child && !child.isDestroyed()) {
-          child.destroy();
-        }
-      }
-
-      store.delete(window.id);
+      windowStore.delete(window.id);
     }
   });
 
-  store.set(window.id, {
+  windowStore.set(window.id, {
     game: window,
     tools: { fastTravels: null, loaderGrabber: null, follower: null },
     packets: { logger: null, spammer: null },
   });
 }
-
-// TODO: refactor
 
 export type WindowStore = Map<
   number,

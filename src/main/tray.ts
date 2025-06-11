@@ -1,7 +1,7 @@
 import { join } from "path";
 import process from "process";
 import { Menu, Tray, app, nativeImage } from "electron";
-import { BRAND } from "../common/constants";
+import { BRAND } from "../shared/constants";
 import { createAccountManager, createGame } from "./windows";
 
 let tray: Tray | null = null;

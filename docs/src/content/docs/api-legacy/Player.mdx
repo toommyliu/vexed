@@ -7,7 +7,7 @@ import { Badge, Code } from "@astrojs/starlight/components";
 ## Properties
 ### bot
 
-Type: `Bot`
+Type: [`Bot`](/api-legacy/bot)
 
 ### alive <Badge text="Getter" size="small" />	
 Whether the player is alive.
@@ -27,7 +27,7 @@ Type: `string`
 ### factions <Badge text="Getter" size="small" />	
 The player's faction data.
 
-Type: `Faction[]`
+Type: [`Faction`](/api-legacy/models/faction)[]
 
 ### gold <Badge text="Getter" size="small" />	
 The player's gold.
@@ -72,7 +72,7 @@ Type: `[number, number]`
 ### state <Badge text="Getter" size="small" />	
 The state of the player.
 
-Type: `EntityState`
+Type: [`EntityState`](/api-legacy/enums/entitystate)
 
 ## Methods
 
@@ -85,7 +85,7 @@ Whether the player is AFK.
 Checks if the player has an active boost.
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| type | `BoostType` | The type of boost to check. |
+| type | [`BoostType`](/api-legacy/enums/boosttype) | The type of boost to check. |
 
 **Returns**: `boolean`
 
@@ -107,14 +107,18 @@ Whether the player has an active membership.
 ### isReady
 Comprehensive check to determine if the player is ready.
 
+:::note
+This checks if the player is logged in, the world has loaded, and the player has fully loaded in.
+:::
+
 **Returns**: `boolean`
 
 ### walkTo
 Walks to a position on the map.
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| x | `string` \| `number` | The x coordinate to walk to. |
-| y | `string` \| `number` | The y coordinate to walk to. |
-| walkSpeed | `string` \| `number` | The speed to walk at. |
+| Parameter | Type | Optional | Default | Description |
+|-----------|------|----------|---------|-------------|
+| x | `string` \| `number` |  |  | The x coordinate to walk to. |
+| y | `string` \| `number` |  |  | The y coordinate to walk to. |
+| walkSpeed | `string` \| `number?` | ✓ |  | The speed to walk at. |
 
 **Returns**: `void`

@@ -10,7 +10,7 @@ Base class for entities in the game world.
 ## Properties
 ### data
 
-Type: `BaseEntityData`
+Type: [`BaseEntityData`](/api-legacy/typedefs/baseentitydata)
 
 ### alive <Badge text="Getter" size="small" />	
 Whether the entity is alive.
@@ -20,7 +20,7 @@ Type: `boolean`
 ### auras <Badge text="Getter" size="small" />	
 The entity's auras.
 
-Type: `Aura[]`
+Type: [`Aura`](/api-legacy/typedefs/aura)[]
 
 ### cell <Badge text="Getter" size="small" />	
 The cell the entity is in.
@@ -40,7 +40,7 @@ Type: `number`
 ### state <Badge text="Getter" size="small" />	
 The entity's state.
 
-Type: `EntityState`
+Type: [`EntityState`](/api-legacy/enums/entitystate)
 
 ## Methods
 
@@ -50,15 +50,15 @@ Retrieves an aura active on the entity.
 |-----------|------|-------------|
 | name | `string` | The aura name. |
 
-**Returns**: `undefined | Aura`
+**Returns**: `undefined` \| [`Aura`](/api-legacy/typedefs/aura)
 
 ### hasAura
 Whether the entity has the specified aura. If a value is provided,
 it will check if the aura has the specified value.
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| name | `string` | The aura name. |
-| value | `number` | The value to check. |
+| Parameter | Type | Optional | Default | Description |
+|-----------|------|----------|---------|-------------|
+| name | `string` |  |  | The aura name. |
+| value | `number`? | ✓ |  | The value to check. |
 
 **Returns**: `boolean`
 

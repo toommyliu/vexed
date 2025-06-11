@@ -7,12 +7,12 @@ import { Badge, Code } from "@astrojs/starlight/components";
 ## Properties
 ### bot
 
-Type: `Bot`
+Type: [`Bot`](/api-legacy/bot)
 
 ### items <Badge text="Getter" size="small" />	
 A list of items in the temp inventory.
 
-Type: `TempInventoryItem[]`
+Type: [`TempInventoryItem`](/api-legacy/models/tempinventoryitem)[]
 
 ## Methods
 
@@ -31,4 +31,4 @@ Gets an item from the temp inventory.
 |-----------|------|-------------|
 | itemKey | `string` \| `number` | The name or ID of the item. |
 
-**Returns**: `null | TempInventoryItem`
+**Returns**: `null` \| [`TempInventoryItem`](/api-legacy/models/tempinventoryitem)
