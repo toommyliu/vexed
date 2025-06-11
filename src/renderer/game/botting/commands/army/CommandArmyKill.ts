@@ -25,24 +25,26 @@ export class CommandArmyKill extends ArmyCommand {
               return;
             }
 
+            // Not marked as done and item checking is required
+            if (!this.isDone && this.itemName && this.qty) {
+              // Match item quantity
+              const done = this.isTemp
+                ? this.bot.tempInventory.contains(this.itemName, this.qty)
+                : this.bot.inventory.contains(this.itemName, this.qty);
+
+              if (done) {
+                void this.sendDone();
+                // console.log("(2) this player is done");
+                return;
+              }
+            }
+
             await this.bot.combat.kill(this.targetName, this.options);
 
-            if (!this.isDone) {
-              // If no item checking is needed, mark as done
-              if (!this.itemName || !this.qty) {
-                void this.sendDone();
-                // console.log("(1) this player is done");
-              } else {
-                // Kill for (temp) item
-                const done = this.isTemp
-                  ? this.bot.tempInventory.contains(this.itemName, this.qty)
-                  : this.bot.inventory.contains(this.itemName, this.qty);
-
-                if (done) {
-                  void this.sendDone();
-                  // console.log("(2) this player is done");
-                }
-              }
+            // If no item checking is needed, mark as done after killing
+            if (!this.isDone && (!this.itemName || !this.qty)) {
+              void this.sendDone();
+              // console.log("(1) this player is done");
             }
           }, 150);
         }),
