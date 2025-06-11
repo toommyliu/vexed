@@ -73,11 +73,13 @@ export abstract class ArmyCommand extends Command {
    */
   public async sendDone(): Promise<void> {
     if (this.isDone) return;
+    // We make sure to set this.isDone to true so that
+    // we don't try and call armyFinishJob multiple times
+    this.isDone = true;
 
     // console.log("Sending done notification...");
     await client.armyFinishJob();
     // console.log("Done notification sent...");
-    this.isDone = true;
   }
 
   /**

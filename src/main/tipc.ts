@@ -585,7 +585,7 @@ export const router = {
       return;
     }
 
-    console.log("All players are done and ready");
+    // console.log("All players are done and ready");
 
     // All players are done, send ready to all windows
     for (const [_, window] of windows) {
