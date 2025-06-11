@@ -652,6 +652,37 @@ export const router = {
         return false;
       }
     }),
+  updateAccount: tipcInstance.procedure
+    .input<{
+      originalUsername: string;
+      updatedAccount: Account;
+    }>()
+    .action(async ({ input }) => {
+      try {
+        const accounts =
+          (await FileManager.readJson<Account[]>(FileManager.accountsPath)) ??
+          [];
+
+        const idx = accounts.findIndex(
+          (acc) => acc.username === input.originalUsername,
+        );
+        if (idx === -1) return false;
+
+        if (input.updatedAccount.username !== input.originalUsername) {
+          const existingIdx = accounts.findIndex(
+            (acc) => acc.username === input.updatedAccount.username,
+          );
+          if (existingIdx !== -1) return false;
+        }
+
+        accounts[idx] = input.updatedAccount;
+        await FileManager.writeJson(FileManager.accountsPath, accounts);
+        return true;
+      } catch (error) {
+        logger.error("Failed to update account", error);
+        return false;
+      }
+    }),
   mgrLoadScript: tipcInstance.procedure.action(async ({ context }) => {
     try {
       const res = await dialog.showOpenDialog(
