@@ -91,8 +91,6 @@
     }
   }
 
-  // TODO: typesafety
-
   async function handleGrab() {
     if (!grabberType) return;
 
@@ -141,6 +139,7 @@
 
       if (!data) return;
       grabbedData = data;
+      expandedNodes.clear();
 
       let out: TreeItem[] = [];
 
