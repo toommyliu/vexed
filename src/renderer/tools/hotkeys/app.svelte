@@ -2,11 +2,13 @@
   import Mousetrap from "mousetrap";
   import process from "process";
   import { onDestroy, onMount } from "svelte";
+  import { FileManager } from "../../../shared/FileManager";
+  import { Config } from "../../game/botting/util/Config";
 
   const isMac = process.platform === "darwin";
 
-  let scriptLoadKey = $state("");
-  let scriptToggleKey = $state("");
+  let scriptLoadKey = $state("cmd+l");
+  let scriptToggleKey = $state("cmd+l");
   let fastTravelsKey = $state("");
   let loaderGrabberKey = $state("");
   let followerKey = $state("");
@@ -198,6 +200,12 @@
   }
 
   function registerHotkeys() {
+    console.log("Registering hotkeys...");
+    if (conflicts.length > 0) {
+      console.warn("Conflicts detected, not registering hotkeys");
+      return;
+    }
+
     Mousetrap.reset();
 
     try {
@@ -436,9 +444,6 @@
   ]);
 
   let conflicts = $derived(getConflicts());
-  $effect(() => {
-    registerHotkeys();
-  });
 
   $effect(() => {
     console.log("State changed:", {
@@ -493,50 +498,6 @@
 
 <main class="flex min-h-screen select-none flex-col bg-background-primary">
   <div class="mx-auto w-full max-w-6xl flex-grow p-4">
-    <!-- Header -->
-    <header class="mb-6">
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-2xl font-semibold text-white">Hotkeys</h1>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="flex items-center space-x-2">
-          <button
-            onclick={() => {
-              hotkeyConfigs.forEach((section) => {
-                section.items.forEach((item) => {
-                  item.setter("");
-                });
-              });
-              registerHotkeys();
-            }}
-            class="rounded-md border border-red-600/50 bg-red-900/30 px-3 py-1.5 text-sm font-medium text-red-200 transition-all duration-200 hover:bg-red-800/40 focus:outline-none focus:ring-2 focus:ring-red-500/50"
-          >
-            Clear All
-          </button>
-
-          <!-- <button
-            onclick={() => {
-              const hotkeyData: Record<string, string> = hotkeyConfigs.reduce(
-                (acc, section) => {
-                  section.items.forEach((item) => {
-                    if (item.key) acc[item.label] = item.key;
-                  });
-                  return acc;
-                },
-                {} as Record<string, string>,
-              );
-              console.log("Hotkey export:", hotkeyData);
-            }}
-            class="rounded-md border border-zinc-600/50 bg-zinc-800/30 px-3 py-1.5 text-sm font-medium text-zinc-300 transition-all duration-200 hover:bg-zinc-700/40 focus:outline-none focus:ring-2 focus:ring-zinc-500/50"
-          >
-            Export
-          </button> -->
-        </div>
-      </div>
-    </header>
-
     <!-- Conflicts Alert -->
     {#if conflicts.length > 0}
       <div class="mb-4 rounded-md border border-red-600/50 bg-red-900/30 p-3">
@@ -576,10 +537,10 @@
           <div class="border-b border-zinc-700/30 px-4 py-3">
             <div class="flex items-center justify-between">
               <div class="flex items-center space-x-3">
-                <div class="rounded-md bg-emerald-500/20 p-2">
+                <div class="rounded-md bg-blue-500/20 p-2">
                   {#if section.section === "General"}
                     <svg
-                      class="h-5 w-5 text-emerald-400"
+                      class="h-5 w-5 text-blue-400"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -599,7 +560,7 @@
                     </svg>
                   {:else if section.section === "Scripts"}
                     <svg
-                      class="h-5 w-5 text-emerald-400"
+                      class="h-5 w-5 text-blue-400"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -613,7 +574,7 @@
                     </svg>
                   {:else if section.section === "Tools"}
                     <svg
-                      class="h-5 w-5 text-emerald-400"
+                      class="h-5 w-5 text-blue-400"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -627,7 +588,7 @@
                     </svg>
                   {:else}
                     <svg
-                      class="h-5 w-5 text-emerald-400"
+                      class="h-5 w-5 text-blue-400"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -651,6 +612,17 @@
                   </p> -->
                 </div>
               </div>
+              <button
+                onclick={() => {
+                  section.items.forEach((item) => {
+                    item.setter("");
+                  });
+                  registerHotkeys();
+                }}
+                class="rounded-md border border-red-600/50 bg-red-900/30 px-3 py-1.5 text-sm font-medium text-red-200 transition-all duration-200 hover:bg-red-800/40 focus:outline-none focus:ring-2 focus:ring-red-500/50"
+              >
+                Clear All
+              </button>
             </div>
           </div>
 
@@ -669,7 +641,7 @@
                     {#if item.key}
                       <div class="relative flex items-center">
                         <div
-                          class="cursor-pointer rounded-md bg-gray-800/50 px-2 py-1 font-mono text-xs text-white transition-all duration-200 hover:bg-gray-700/60"
+                          class="rounded-md bg-gray-800/50 px-2 py-1 font-mono text-xs text-white"
                           ondblclick={() => startRecording(item.label)}
                           title="Double-click to edit"
                         >
@@ -749,8 +721,8 @@
       <div class="mb-4 text-center">
         <h3 class="text-xl font-semibold text-white">Recording Hotkey</h3>
         <p class="mt-1 text-gray-400">
-          Press any key combination for: <span
-            class="font-medium text-emerald-300">{isRecording}</span
+          Press any key combination for: <span class="font-medium text-blue-300"
+            >{isRecording}</span
           >
         </p>
       </div>
@@ -775,7 +747,7 @@
             {:else}
               <div class="flex items-center space-x-2 text-zinc-500">
                 <div
-                  class="h-2 w-2 animate-pulse rounded-full bg-emerald-400"
+                  class="h-2 w-2 animate-pulse rounded-full bg-blue-400"
                 ></div>
                 <span class="text-sm">Waiting for key input...</span>
               </div>
@@ -825,7 +797,7 @@
         {#if lastPressedKey}
           <button
             onclick={() => confirmRecording(lastPressedKey)}
-            class="flex-1 rounded-md bg-gradient-to-r from-emerald-600 to-emerald-700 px-4 py-2.5 text-sm font-medium text-white shadow-md transition-all duration-200 hover:from-emerald-500 hover:to-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 disabled:from-zinc-600 disabled:to-zinc-500 disabled:opacity-50"
+            class="flex-1 rounded-md bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-2.5 text-sm font-medium text-white shadow-md transition-all duration-200 hover:from-blue-500 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:from-zinc-600 disabled:to-zinc-500 disabled:opacity-50"
             disabled={!!(
               getActionForHotkey(lastPressedKey) &&
               getActionForHotkey(lastPressedKey) !== isRecording
@@ -855,7 +827,7 @@
       <div class="mt-4 rounded-md border border-zinc-600/30 bg-zinc-700/20 p-3">
         <div class="mb-1 flex items-center space-x-2">
           <svg
-            class="h-4 w-4 text-emerald-400"
+            class="h-4 w-4 text-blue-400"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
