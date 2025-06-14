@@ -1,6 +1,6 @@
 import os from "os";
 import { join } from "path";
-import type { Account, FastTravel, Settings } from "./types";
+import type { Account, FastTravel, Settings, HotkeyConfig } from "./types";
 
 export const BRAND = "vexed";
 export const DOCUMENTS_PATH = join(os.homedir(), "Documents", BRAND);
@@ -69,6 +69,16 @@ export const DEFAULT_FAST_TRAVELS: FastTravel[] = [
 ] as const;
 
 export const DEFAULT_ACCOUNTS: Account[] = [] as const;
+
+export const DEFAULT_HOTKEYS: HotkeyConfig = {
+  scriptLoadKey: "",
+  scriptToggleKey: "",
+  fastTravelsKey: "",
+  loaderGrabberKey: "",
+  followerKey: "",
+  packetLoggerKey: "",
+  packetSpammerKey: "",
+} as const;
 
 export const ARTIX_USERAGENT =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16_0) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36" as const;

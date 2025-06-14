@@ -202,7 +202,7 @@
 >
   <div
     id="topnav-container"
-    class="relative z-[10000] min-h-8 border-b border-gray-800/50 bg-background-secondary backdrop-blur-sm"
+    class="bg-primary-secondary relative z-[10000] min-h-8 border-b border-gray-800/50 backdrop-blur-sm"
     class:invisible={!topNavVisible}
     class:opacity-0={!topNavVisible}
   >
@@ -295,6 +295,12 @@
               onclick={() => void client.launchWindow(WindowIds.Follower)}
             >
               Follower
+            </button>
+            <button
+              class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 last:rounded-b-lg hover:bg-gray-700/50"
+              onclick={() => void client.launchWindow(WindowIds.Hotkeys)}
+            >
+              Hotkeys
             </button>
           </div>
         </div>
@@ -674,7 +680,7 @@
       <div class="space-y-6">
         <div class="flex justify-center">
           <div
-            class="h-8 w-8 animate-spin rounded-full border-2 border-gray-600 border-t-progress-blue"
+            class="border-t-progress-blue h-8 w-8 animate-spin rounded-full border-2 border-gray-600"
           ></div>
         </div>
         <div class="text-center">

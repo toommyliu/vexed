@@ -61,6 +61,8 @@ export type Settings = {
 export enum WindowIds {
   FastTravels = "tools-fast-travels",
   Follower = "tools-follower",
+  Hotkeys = "tools-hotkeys",
+
   LoaderGrabber = "tools-loader-grabber",
 
   PacketLogger = "packets-logger",

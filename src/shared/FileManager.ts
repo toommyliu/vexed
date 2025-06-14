@@ -34,6 +34,10 @@ export class FileManager {
     return join(FileManager.basePath, "accounts.json");
   }
 
+  public static get hotkeysPath() {
+    return join(FileManager.basePath, "hotkeys.json");
+  }
+
   public static get storagePath() {
     return join(FileManager.basePath, "storage");
   }
@@ -84,6 +88,10 @@ export class FileManager {
    */
   public static async readFile(path: string): Promise<string | null> {
     try {
+      if (!(await pathExists(path))) {
+        return null;
+      }
+
       return await atomicReadFile(path, "utf8");
     } catch {
       return null;

@@ -7,9 +7,25 @@ type ConfigNode = {
   [key: string]: ConfigNode | ConfigValue;
 };
 
-// Inspired by https://github.com/calamity-inc/Soup/blob/senpai/docs/user/cat.md
+type NestedKeyOf<T> = {
+  [K in keyof T]: K extends string
+    ? T[K] extends ConfigNode
+      ? K | `${K}.${NestedKeyOf<T[K]>}`
+      : K
+    : never;
+}[keyof T];
 
-export class Config {
+type GetNestedType<T, K extends string> = K extends keyof T
+  ? T[K]
+  : K extends `${infer First}.${infer Rest}`
+    ? First extends keyof T
+      ? T[First] extends ConfigNode
+        ? GetNestedType<T[First], Rest>
+        : never
+      : never
+    : never;
+
+export class Config<T extends Record<string, any> = ConfigNode> {
   /**
    * The file path of the config file.
    */
@@ -55,10 +71,12 @@ export class Config {
    * @param key - The key to look up. Supports dot notation.
    * @returns The value at the specified key, or undefined if not found.
    */
-  public get<T extends ConfigValue = ConfigValue>(
-    key: string,
-    defaultValue?: T,
-  ): T | undefined {
+  public get<K extends NestedKeyOf<T>>(key: K): GetNestedType<T, K> | undefined;
+  public get<K extends NestedKeyOf<T>, D>(
+    key: K,
+    defaultValue: D,
+  ): D | GetNestedType<T, K>;
+  public get(key: string, defaultValue?: any): any {
     if (!key) {
       throw new Error("Key cannot be empty");
     }
@@ -78,7 +96,7 @@ export class Config {
       current = (current as ConfigNode)[part]!;
     }
 
-    return (current as T) ?? defaultValue;
+    return current ?? defaultValue;
   }
 
   /**
@@ -86,8 +104,8 @@ export class Config {
    *
    * @returns A deep copy of the config data
    */
-  public getAll(): ConfigNode {
-    return this.#rootNode;
+  public getAll(): T {
+    return this.#rootNode as T;
   }
 
   /**
@@ -96,6 +114,11 @@ export class Config {
    * @param key - The key to set. Supports dot notation.
    * @param value - The value to set (primitive or nested object)
    */
+  public set<K extends NestedKeyOf<T>>(
+    key: K,
+    value: GetNestedType<T, K>,
+  ): void;
+  public set(key: string, value: ConfigNode | ConfigValue): void;
   public set(key: string, value: ConfigNode | ConfigValue): void {
     if (!key) {
       throw new Error("Key cannot be empty");
@@ -129,6 +152,8 @@ export class Config {
    * @param key - The key to delete. Supports dot notation.
    * @returns true if the key was deleted, false if it didn't exist
    */
+  public delete<K extends NestedKeyOf<T>>(key: K): boolean;
+  public delete(key: string): boolean;
   public delete(key: string): boolean {
     if (!key) {
       throw new Error("Key cannot be empty");
@@ -244,7 +269,7 @@ export class Config {
       }
     }
 
-    this.#rootNode = root;
+    this.#rootNode = root as T;
   }
 
   /**
