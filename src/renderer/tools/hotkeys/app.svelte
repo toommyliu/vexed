@@ -126,7 +126,6 @@
       return;
     }
 
-    // Check for conflicts
     const conflictingAction = getActionForHotkey(combination, hotkeysSections);
     if (
       conflictingAction &&
