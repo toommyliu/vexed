@@ -85,6 +85,10 @@ export const router = {
           width = 927;
           height = 646;
           break;
+        case WindowIds.Hotkeys:
+          ref = storeRef.tools.hotkeys;
+          path = join(DIST_PATH, "tools", "hotkeys", "index.html");
+          break;
         case WindowIds.PacketLogger:
           ref = storeRef.packets.logger;
           path = join(DIST_PATH, "packets", "logger", "index.html");
@@ -349,6 +353,7 @@ export const router = {
       return parentHandlers.grab.invoke({ type: input.type });
     }),
   // #endregion
+
   // #region Follower
   followerMe: tipcInstance.procedure.action(async ({ context }) => {
     const browserWindow = BrowserWindow.fromWebContents(context.sender);
@@ -598,6 +603,9 @@ export const router = {
     // IMPORTANT: Only clear the set after all messages are sent
     doneSet.clear();
   }),
+  // #endregion
+
+  // #region Hotkeys
   // #endregion
 
   // #region Manager
