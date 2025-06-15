@@ -31,6 +31,7 @@
     "clsx": "^2.1.1",
     "core-js": "^3.42.0",
     "fs-extra": "^11.3.0",
+    "is-hotkey": "^0.2.0",
     "lodash.merge": "^4.6.2",
     "mousetrap": "^1.6.5",
     "nw-flash-trust": "^0.3.0",
@@ -43,6 +44,7 @@
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
+    "@types/is-hotkey": "^0.1.10",
     "@types/mousetrap": "^1.6.15",
     "@typescript-eslint/eslint-plugin": "^8.4.0",
     "@typescript-eslint/parser": "^8.4.0",

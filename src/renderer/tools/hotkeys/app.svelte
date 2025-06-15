@@ -1,64 +1,87 @@
 <script lang="ts">
   import Mousetrap from "mousetrap";
-  import process from "process";
   import { onDestroy, onMount } from "svelte";
-  import { FileManager } from "../../../shared/FileManager";
   import { Config } from "../../game/botting/util/Config";
+  import type { HotkeyConfig } from "../../../shared";
+  import type { HotkeySection, RecordingState } from "./types";
+  import {
+    isMac,
+    isValidHotkey,
+    formatHotkey,
+    parseKeyboardEvent,
+    createHotkeyConfig,
+    findConflicts,
+    getActionForHotkey,
+  } from "./utils";
 
-  const isMac = process.platform === "darwin";
+  let config = $state<Config<HotkeyConfig> | null>(null);
+  let hotkeysSections = $state<HotkeySection[]>(createHotkeyConfig());
+  let recordingState = $state<RecordingState>({
+    isRecording: false,
+    actionId: null,
+    lastPressedKey: "",
+  });
 
-  let scriptLoadKey = $state("cmd+l");
-  let scriptToggleKey = $state("cmd+l");
-  let fastTravelsKey = $state("");
-  let loaderGrabberKey = $state("");
-  let followerKey = $state("");
-  let packetLoggerKey = $state("");
-  let packetSpammerKey = $state("");
+  let conflicts = $derived(findConflicts(hotkeysSections));
 
-  let isRecording = $state<string | null>(null);
-  let lastPressedKey = $state("");
+  async function saveHotkeyConfig() {
+    if (!config) return;
 
-  // Functions for hotkey actions
-  async function loadScript() {
-    console.log("Loading script...");
+    try {
+      // Update config
+      for (const section of hotkeysSections) {
+        for (const item of section.items) {
+          config.set(item.configKey, item.value);
+        }
+      }
+
+      await config.save();
+      console.log("Hotkey configuration saved successfully");
+    } catch (error) {
+      console.error("Failed to save hotkey configuration:", error);
+    }
   }
 
-  async function toggleScript() {
-    console.log("Toggle script");
+  async function loadHotkeysFromConfig() {
+    if (!config) return;
+
+    try {
+      console.log("Loading hotkeys from config...");
+
+      for (const section of hotkeysSections) {
+        for (const item of section.items) {
+          const hotkeyValue = config.get(item.configKey as any, "")! as string;
+
+          if (hotkeyValue && isValidHotkey(hotkeyValue)) {
+            console.log(`Setting ${item.configKey} from config:`, hotkeyValue);
+            item.value = hotkeyValue;
+          } else {
+            item.value = "";
+          }
+        }
+      }
+
+      console.log("Hotkeys loaded successfully from config");
+    } catch (error) {
+      console.error("Failed to load hotkeys from config:", error);
+    }
   }
 
-  async function openFastTravels() {
-    console.log("Opening Fast Travels");
-  }
+  function startRecording(actionId: string) {
+    if (recordingState.isRecording) {
+      return;
+    }
 
-  async function openLoaderGrabber() {
-    console.log("Opening Loader/Grabber");
-  }
-
-  async function openFollower() {
-    console.log("Opening Follower");
-  }
-
-  async function openPacketLogger() {
-    console.log("Opening Packet Logger");
-  }
-
-  async function openPacketSpammer() {
-    console.log("Opening Packet Spammer");
-  }
-
-  function startRecording(actionName: string) {
-    console.log("Starting recording for:", actionName);
-    if (isRecording) return;
-
-    isRecording = actionName;
-    lastPressedKey = "";
-
-    console.log("Recording state set:", { isRecording });
+    recordingState.isRecording = true;
+    recordingState.actionId = actionId;
+    recordingState.lastPressedKey = "";
 
     Mousetrap.reset();
 
     const recordingHandler = (ev: KeyboardEvent) => {
+      // Check for focus
+      if (!document.hasFocus() || document.hidden) return;
+
       ev.preventDefault();
       ev.stopPropagation();
 
@@ -69,116 +92,98 @@
         meta: ev.metaKey,
       });
 
+      // Stop recording on Escape
       if (ev.key === "Escape") {
         stopRecording();
         return;
       }
 
-      const parts: string[] = [];
-      if (ev.ctrlKey) parts.push("ctrl");
-      if (ev.altKey) parts.push("alt");
-      if (ev.shiftKey) parts.push("shift");
-      if (ev.metaKey) parts.push(isMac ? "cmd" : "meta");
-
-      let keyName = ev.key.toLowerCase();
-      if (keyName === " ") keyName = "space";
-      if (
-        keyName === "control" ||
-        keyName === "alt" ||
-        keyName === "shift" ||
-        keyName === "meta"
-      ) {
+      // Clear the hotkey on Backspace
+      if (ev.key === "Backspace") {
+        clearHotkey();
         return;
       }
 
-      parts.push(keyName);
-      const combination = parts.join("+");
-      lastPressedKey = combination;
-      console.log("Set lastPressedKey to:", combination);
+      const combination = parseKeyboardEvent(ev);
+      if (combination) {
+        recordingState.lastPressedKey = combination;
+        console.log("Set lastPressedKey to:", combination);
+      }
     };
 
     document.addEventListener("keydown", recordingHandler, true);
-
     (window as any).currentRecordingHandler = recordingHandler;
 
     console.log("Recording handler added, waiting for keypress...");
   }
 
-  function confirmRecording(combination: string) {
-    if (!isRecording) return;
+  async function confirmRecording(combination: string) {
+    if (!recordingState.isRecording || !recordingState.actionId) return;
 
-    const actionName = isRecording;
-    console.log(
-      `confirmRecording called with combination: ${combination} for action: ${actionName}`,
-    );
+    // Validate that the combination is not empty or just whitespace
+    if (!combination || combination.trim() === "") {
+      console.log("Empty combination provided, blocking");
+      return;
+    }
 
-    const allHotkeys = [
-      scriptLoadKey,
-      scriptToggleKey,
-      fastTravelsKey,
-      loaderGrabberKey,
-      followerKey,
-      packetLoggerKey,
-      packetSpammerKey,
-    ];
-
-    const filteredHotkeys = allHotkeys.filter(
-      (key) => getActionForHotkey(key) !== actionName,
-    );
-
-    if (filteredHotkeys.includes(combination)) {
+    // Check for conflicts
+    const conflictingAction = getActionForHotkey(combination, hotkeysSections);
+    if (
+      conflictingAction &&
+      conflictingAction !== getActionNameById(recordingState.actionId)
+    ) {
       console.log("Combination already exists, blocking");
       return;
     }
 
-    console.log(`Before assignment - scriptLoadKey: ${scriptLoadKey}`);
+    console.log(
+      `confirmRecording called with combination: ${combination} for action: ${recordingState.actionId}`,
+    );
 
-    switch (actionName) {
-      case "Load Script":
-        scriptLoadKey = combination;
-        console.log(`Assigned scriptLoadKey: ${scriptLoadKey}`);
-        break;
-      case "Toggle Script":
-        scriptToggleKey = combination;
-        console.log(`Assigned scriptToggleKey: ${scriptToggleKey}`);
-        break;
-      case "Open Fast Travels":
-        fastTravelsKey = combination;
-        console.log(`Assigned fastTravelsKey: ${fastTravelsKey}`);
-        break;
-      case "Open Loader/Grabber":
-        loaderGrabberKey = combination;
-        console.log(`Assigned loaderGrabberKey: ${loaderGrabberKey}`);
-        break;
-      case "Open Follower":
-        followerKey = combination;
-        console.log(`Assigned followerKey: ${followerKey}`);
-        break;
-      case "Open Packet Logger":
-        packetLoggerKey = combination;
-        console.log(`Assigned packetLoggerKey: ${packetLoggerKey}`);
-        break;
-      case "Open Packet Spammer":
-        packetSpammerKey = combination;
-        console.log(`Assigned packetSpammerKey: ${packetSpammerKey}`);
-        break;
-      default:
-        console.error(`Unknown action name: ${actionName}`);
-        break;
+    // Find and update the hotkey
+    const item = findHotkeyItemById(recordingState.actionId);
+    if (item) {
+      item.value = combination;
+      console.log(`Assigned ${recordingState.actionId}: ${combination}`);
+    } else {
+      console.error(`Unknown action ID: ${recordingState.actionId}`);
     }
 
     stopRecording();
+    await saveHotkeyConfig();
   }
 
-  function getActionForHotkey(hotkey: string): string | null {
-    if (scriptLoadKey === hotkey) return "Load Script";
-    if (scriptToggleKey === hotkey) return "Toggle Script";
-    if (fastTravelsKey === hotkey) return "Open Fast Travels";
-    if (loaderGrabberKey === hotkey) return "Open Loader/Grabber";
-    if (followerKey === hotkey) return "Open Follower";
-    if (packetLoggerKey === hotkey) return "Open Packet Logger";
-    if (packetSpammerKey === hotkey) return "Open Packet Spammer";
+  async function clearHotkey() {
+    if (!recordingState.isRecording || !recordingState.actionId) return;
+
+    console.log(`Clearing hotkey for action: ${recordingState.actionId}`);
+
+    const item = findHotkeyItemById(recordingState.actionId);
+    if (item) {
+      item.value = "";
+      console.log(`Cleared hotkey for ${recordingState.actionId}`);
+    } else {
+      console.error(`Unknown action ID: ${recordingState.actionId}`);
+    }
+
+    recordingState.lastPressedKey = "";
+    await saveHotkeyConfig();
+  }
+
+  function findHotkeyItemById(actionId: string) {
+    for (const section of hotkeysSections) {
+      for (const item of section.items) {
+        if (item.id === actionId) {
+          return item;
+        }
+      }
+    }
     return null;
+  }
+
+  function getActionNameById(actionId: string): string | null {
+    const item = findHotkeyItemById(actionId);
+    return item ? item.label : null;
   }
 
   function stopRecording() {
@@ -193,308 +198,37 @@
       console.log("Recording handler removed");
     }
 
-    isRecording = null;
-    lastPressedKey = "";
-    registerHotkeys();
-    console.log("Recording stopped, hotkeys re-registered");
+    recordingState.isRecording = false;
+    recordingState.actionId = null;
+    recordingState.lastPressedKey = "";
+
+    console.log("Recording stopped");
   }
 
-  function registerHotkeys() {
-    console.log("Registering hotkeys...");
-    if (conflicts.length > 0) {
-      console.warn("Conflicts detected, not registering hotkeys");
-      return;
-    }
-
-    Mousetrap.reset();
-
-    try {
-      if (scriptLoadKey) {
-        Mousetrap.bind(scriptLoadKey, (ev) => {
-          if (ev) ev.preventDefault();
-          loadScript();
-          return false;
-        });
+  async function clearAllHotkeysInSection(sectionId: string) {
+    const section = hotkeysSections.find((s) => s.id === sectionId);
+    if (section) {
+      for (const item of section.items) {
+        item.value = "";
       }
-      if (scriptToggleKey) {
-        Mousetrap.bind(scriptToggleKey, (ev) => {
-          if (ev) ev.preventDefault();
-          toggleScript();
-          return false;
-        });
-      }
-      if (fastTravelsKey) {
-        Mousetrap.bind(fastTravelsKey, (ev) => {
-          if (ev) ev.preventDefault();
-          openFastTravels();
-          return false;
-        });
-      }
-      if (loaderGrabberKey) {
-        Mousetrap.bind(loaderGrabberKey, (ev) => {
-          if (ev) ev.preventDefault();
-          openLoaderGrabber();
-          return false;
-        });
-      }
-      if (followerKey) {
-        Mousetrap.bind(followerKey, (ev) => {
-          if (ev) ev.preventDefault();
-          openFollower();
-          return false;
-        });
-      }
-      if (packetLoggerKey) {
-        Mousetrap.bind(packetLoggerKey, (ev) => {
-          if (ev) ev.preventDefault();
-          openPacketLogger();
-          return false;
-        });
-      }
-      if (packetSpammerKey) {
-        Mousetrap.bind(packetSpammerKey, (ev) => {
-          if (ev) ev.preventDefault();
-          openPacketSpammer();
-          return false;
-        });
-      }
-    } catch (error) {
-      console.error("Error registering hotkeys:", error);
+      await saveHotkeyConfig();
     }
   }
 
-  function getConflicts(): string[] {
-    const allHotkeys = [
-      scriptLoadKey,
-      scriptToggleKey,
-      fastTravelsKey,
-      loaderGrabberKey,
-      followerKey,
-      packetLoggerKey,
-      packetSpammerKey,
-    ].filter((key) => key !== "");
+  onMount(async () => {
+    config = new Config<HotkeyConfig>("hotkeys");
+    await config.load();
 
-    const conflicts: string[] = [];
-    const seen = new Set<string>();
+    console.log("config loaded:", config.getAll());
 
-    for (const hotkey of allHotkeys) {
-      if (seen.has(hotkey)) {
-        conflicts.push(hotkey);
-      } else {
-        seen.add(hotkey);
-      }
-    }
-
-    return conflicts;
-  }
-
-  function formatHotkey(hotkey: string): string {
-    if (!hotkey) return "None";
-
-    return hotkey
-      .split("+")
-      .map((part) => {
-        // Modifier keys
-        if (part === "ctrl" || part === "control") return "Ctrl";
-        if (part === "alt" || part === "option") return "Alt";
-        if (part === "shift") return "Shift";
-        if (part === "cmd" || part === "command") return "Cmd";
-        if (part === "meta") return isMac ? "Cmd" : "Win";
-
-        // Special keys
-        if (part === "space") return "Space";
-        if (part === "enter" || part === "return") return "Enter";
-        if (part === "tab") return "Tab";
-        if (part === "escape" || part === "esc") return "Esc";
-        if (part === "backspace") return "Backspace";
-        if (part === "delete" || part === "del") return "Delete";
-        if (part === "up") return "Up";
-        if (part === "down") return "Down";
-        if (part === "left") return "Left";
-        if (part === "right") return "Right";
-
-        // Function keys
-        if (part.match(/^f\d+$/i)) return part.toUpperCase();
-
-        return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
-      })
-      .join("+");
-  }
-
-  let hotkeyConfigs = $derived([
-    {
-      section: "General",
-      items: [
-        {
-          label: "Toggle Bank",
-          key: "",
-          action: () => {},
-          setter: (_value: string) => {},
-        },
-        {
-          label: "Toggle AutoAggro",
-          key: "",
-          action: () => {},
-          setter: (_value: string) => {},
-        },
-      ],
-    },
-    {
-      section: "Scripts",
-      items: [
-        {
-          label: "Load Script",
-          key: scriptLoadKey,
-          action: loadScript,
-          setter: (value: string) => {
-            console.log(
-              `Setting scriptLoadKey from ${scriptLoadKey} to ${value}`,
-            );
-            scriptLoadKey = value;
-          },
-        },
-        {
-          label: "Toggle Script",
-          key: scriptToggleKey,
-          action: toggleScript,
-          setter: (value: string) => {
-            console.log(
-              `Setting scriptToggleKey from ${scriptToggleKey} to ${value}`,
-            );
-            scriptToggleKey = value;
-          },
-        },
-        {
-          label: "Toggle Command Overlay",
-          key: "",
-          action: () => {},
-          setter: (_value: string) => {},
-        },
-        {
-          label: "Toggle Dev Tools",
-          key: "",
-          action: () => {},
-          setter: (_value: string) => {},
-        },
-      ],
-    },
-    {
-      section: "Tools",
-      items: [
-        {
-          label: "Open Fast Travels",
-          key: fastTravelsKey,
-          action: openFastTravels,
-          setter: (value: string) => {
-            console.log(
-              `Setting fastTravelsKey from ${fastTravelsKey} to ${value}`,
-            );
-            fastTravelsKey = value;
-          },
-        },
-        {
-          label: "Open Loader/Grabber",
-          key: loaderGrabberKey,
-          action: openLoaderGrabber,
-          setter: (value: string) => {
-            console.log(
-              `Setting loaderGrabberKey from ${loaderGrabberKey} to ${value}`,
-            );
-            loaderGrabberKey = value;
-          },
-        },
-        {
-          label: "Open Follower",
-          key: followerKey,
-          action: openFollower,
-          setter: (value: string) => {
-            console.log(`Setting followerKey from ${followerKey} to ${value}`);
-            followerKey = value;
-          },
-        },
-      ],
-    },
-    {
-      section: "Packets",
-      items: [
-        {
-          label: "Open Packet Logger",
-          key: packetLoggerKey,
-          action: openPacketLogger,
-          setter: (value: string) => {
-            console.log(
-              `Setting packetLoggerKey from ${packetLoggerKey} to ${value}`,
-            );
-            packetLoggerKey = value;
-          },
-        },
-        {
-          label: "Open Packet Spammer",
-          key: packetSpammerKey,
-          action: openPacketSpammer,
-          setter: (value: string) => {
-            console.log(
-              `Setting packetSpammerKey from ${packetSpammerKey} to ${value}`,
-            );
-            packetSpammerKey = value;
-          },
-        },
-      ],
-    },
-  ]);
-
-  let conflicts = $derived(getConflicts());
-
-  $effect(() => {
-    console.log("State changed:", {
-      scriptLoadKey,
-      scriptToggleKey,
-      fastTravelsKey,
-      loaderGrabberKey,
-      followerKey,
-      packetLoggerKey,
-      packetSpammerKey,
-    });
-  });
-
-  onMount(() => {
-    registerHotkeys();
-
-    const handleKeyDown = (_ev: KeyboardEvent) => {
-      if (
-        isRecording ||
-        (document.activeElement as HTMLElement)?.tagName === "INPUT"
-      )
-        return;
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
+    await loadHotkeysFromConfig();
   });
 
   onDestroy(() => {
     Mousetrap.reset();
     stopRecording();
   });
-
-  function handleKeyDown(event: KeyboardEvent) {
-    const key = event.key.toUpperCase();
-    for (const section of hotkeyConfigs) {
-      for (const item of section.items) {
-        if (item.key.toUpperCase() === key) {
-          event.preventDefault();
-          item.action();
-          break;
-        }
-      }
-    }
-  }
 </script>
-
-<svelte:window on:keydown={handleKeyDown} />
 
 <main class="flex min-h-screen select-none flex-col bg-background-primary">
   <div class="mx-auto w-full max-w-6xl flex-grow p-4">
@@ -522,6 +256,9 @@
                 class="font-mono">{conflicts.join(", ")}</span
               >
             </p>
+            <p class="text-xs text-gray-600">
+              Hotkeys have been disabled until the conflict is resolved.
+            </p>
           </div>
         </div>
       </div>
@@ -529,7 +266,7 @@
 
     <!-- Hotkey Sections -->
     <div class="grid auto-cols-auto auto-rows-auto space-y-4">
-      {#each hotkeyConfigs as section}
+      {#each hotkeysSections as section}
         <div
           class="rounded-md border border-zinc-700/50 bg-background-secondary shadow-lg backdrop-blur-sm"
         >
@@ -538,7 +275,7 @@
             <div class="flex items-center justify-between">
               <div class="flex items-center space-x-3">
                 <div class="rounded-md bg-blue-500/20 p-2">
-                  {#if section.section === "General"}
+                  {#if section.name === "General"}
                     <svg
                       class="h-5 w-5 text-blue-400"
                       fill="none"
@@ -558,7 +295,7 @@
                         d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
                       />
                     </svg>
-                  {:else if section.section === "Scripts"}
+                  {:else if section.name === "Scripts"}
                     <svg
                       class="h-5 w-5 text-blue-400"
                       fill="none"
@@ -572,7 +309,7 @@
                         d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
                       />
                     </svg>
-                  {:else if section.section === "Tools"}
+                  {:else if section.name === "Tools"}
                     <svg
                       class="h-5 w-5 text-blue-400"
                       fill="none"
@@ -604,20 +341,13 @@
                 </div>
                 <div>
                   <h2 class="text-lg font-semibold text-white">
-                    {section.section}
+                    {section.name}
                   </h2>
-                  <!-- <p class="text-sm text-gray-400">
-                    {section.items.filter((item) => item.key).length} of {section
-                      .items.length} configured
-                  </p> -->
                 </div>
               </div>
               <button
-                onclick={() => {
-                  section.items.forEach((item) => {
-                    item.setter("");
-                  });
-                  registerHotkeys();
+                onclick={async () => {
+                  await clearAllHotkeysInSection(section.id);
                 }}
                 class="rounded-md border border-red-600/50 bg-red-900/30 px-3 py-1.5 text-sm font-medium text-red-200 transition-all duration-200 hover:bg-red-800/40 focus:outline-none focus:ring-2 focus:ring-red-500/50"
               >
@@ -636,21 +366,21 @@
                   <!-- Action Label -->
                   <div class="text-sm font-medium text-white">{item.label}</div>
 
-                  <!-- Hotkey Display with double-click to edit -->
+                  <!-- Hotkey Display -->
                   <div class="hotkey-container flex items-center">
-                    {#if item.key}
+                    {#if item.value}
                       <div class="relative flex items-center">
                         <div
                           class="rounded-md bg-gray-800/50 px-2 py-1 font-mono text-xs text-white"
-                          ondblclick={() => startRecording(item.label)}
+                          ondblclick={() => startRecording(item.id)}
                           title="Double-click to edit"
                         >
-                          {formatHotkey(item.key)}
+                          {formatHotkey(item.value)}
                         </div>
 
                         <button
                           class="ml-2 rounded-md bg-gray-800/50 p-1 text-white transition-all duration-200 hover:bg-gray-700/60"
-                          onclick={() => startRecording(item.label)}
+                          onclick={() => startRecording(item.id)}
                           title="Edit hotkey"
                         >
                           <svg
@@ -673,7 +403,7 @@
                         <div class="mr-2 text-xs text-zinc-500">Not set</div>
                         <button
                           class="rounded-md bg-gradient-to-r from-emerald-600 to-emerald-700 px-2 py-1 text-xs font-medium text-white shadow-sm transition-all duration-200 hover:from-emerald-500 hover:to-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-                          onclick={() => startRecording(item.label)}
+                          onclick={() => startRecording(item.id)}
                         >
                           Set
                         </button>
@@ -690,7 +420,8 @@
   </div>
 </main>
 
-{#if isRecording}
+{#if recordingState.isRecording}
+  <!-- Modal should be visible now -->
   <div
     class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm"
     style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; transform: none;"
@@ -707,7 +438,6 @@
   >
     <div
       class="relative mx-4 w-full max-w-md rounded-md border border-zinc-700/50 bg-background-secondary p-4 shadow-xl"
-      style="transform: none; margin: 0 auto; max-width: 28rem; position: relative;"
       onclick={(ev) => ev.stopPropagation()}
       onkeydown={(ev) => {
         if (ev.key === "Escape") {
@@ -722,7 +452,7 @@
         <h3 class="text-xl font-semibold text-white">Recording Hotkey</h3>
         <p class="mt-1 text-gray-400">
           Press any key combination for: <span class="font-medium text-blue-300"
-            >{isRecording}</span
+            >{getActionNameById(recordingState.actionId || "")}</span
           >
         </p>
       </div>
@@ -731,9 +461,10 @@
       <div class="mb-4 rounded-md border border-zinc-600/50 bg-zinc-800/30 p-4">
         <div class="text-center">
           <div class="flex min-h-[3rem] items-center justify-center">
-            {#if lastPressedKey}
+            <!-- display the current hotkey -->
+            {#if recordingState.lastPressedKey}
               <div class="flex items-center space-x-2">
-                {#each formatHotkey(lastPressedKey).split("+") as keyPart, index}
+                {#each formatHotkey(recordingState.lastPressedKey).split("+") as keyPart, index}
                   {#if index > 0}
                     <span class="text-zinc-400">+</span>
                   {/if}
@@ -757,7 +488,7 @@
       </div>
 
       <!-- Conflict Warning -->
-      {#if lastPressedKey && getActionForHotkey(lastPressedKey) && getActionForHotkey(lastPressedKey) !== isRecording}
+      {#if recordingState.lastPressedKey && getActionForHotkey(recordingState.lastPressedKey, hotkeysSections) && getActionForHotkey(recordingState.lastPressedKey, hotkeysSections) !== getActionNameById(recordingState.actionId || "")}
         <div class="mb-4 rounded-md border border-red-600/50 bg-red-900/30 p-3">
           <div class="flex items-center space-x-2">
             <svg
@@ -777,7 +508,8 @@
               </div>
               <div class="text-xs text-red-200/80">
                 This hotkey is already assigned to "{getActionForHotkey(
-                  lastPressedKey,
+                  recordingState.lastPressedKey,
+                  hotkeysSections,
                 )}"
               </div>
             </div>
@@ -794,13 +526,19 @@
           Cancel
         </button>
 
-        {#if lastPressedKey}
+        {#if recordingState.lastPressedKey}
           <button
-            onclick={() => confirmRecording(lastPressedKey)}
+            onclick={() => confirmRecording(recordingState.lastPressedKey)}
             class="flex-1 rounded-md bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-2.5 text-sm font-medium text-white shadow-md transition-all duration-200 hover:from-blue-500 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:from-zinc-600 disabled:to-zinc-500 disabled:opacity-50"
             disabled={!!(
-              getActionForHotkey(lastPressedKey) &&
-              getActionForHotkey(lastPressedKey) !== isRecording
+              getActionForHotkey(
+                recordingState.lastPressedKey,
+                hotkeysSections,
+              ) &&
+              getActionForHotkey(
+                recordingState.lastPressedKey,
+                hotkeysSections,
+              ) !== getActionNameById(recordingState.actionId || "")
             )}
           >
             <div class="flex items-center justify-center space-x-2">
@@ -846,6 +584,11 @@
             • Press <kbd class="rounded bg-zinc-600 px-1.5 py-0.5 text-white"
               >Esc</kbd
             > to cancel
+          </p>
+          <p>
+            • Press <kbd class="rounded bg-zinc-600 px-1.5 py-0.5 text-white"
+              >Backspace</kbd
+            > to clear the hotkey
           </p>
           <p>
             • Use modifier keys {isMac ? "(⌘, ⌥, ⇧)" : "(Ctrl, Alt, Shift)"} for

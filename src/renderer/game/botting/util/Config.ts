@@ -9,9 +9,11 @@ type ConfigNode = {
 
 type NestedKeyOf<T> = {
   [K in keyof T]: K extends string
-    ? T[K] extends ConfigNode
-      ? K | `${K}.${NestedKeyOf<T[K]>}`
-      : K
+    ? T[K] extends ConfigValue | undefined
+      ? K
+      : T[K] extends Record<string, any> | undefined
+        ? K | `${K}.${NestedKeyOf<NonNullable<T[K]>>}`
+        : K
     : never;
 }[keyof T];
 
@@ -19,8 +21,8 @@ type GetNestedType<T, K extends string> = K extends keyof T
   ? T[K]
   : K extends `${infer First}.${infer Rest}`
     ? First extends keyof T
-      ? T[First] extends ConfigNode
-        ? GetNestedType<T[First], Rest>
+      ? T[First] extends Record<string, any> | undefined
+        ? GetNestedType<NonNullable<T[First]>, Rest>
         : never
       : never
     : never;
@@ -48,9 +50,6 @@ export class Config<T extends Record<string, any> = ConfigNode> {
 
     this.#filePath = join(FileManager.basePath, `${cleanFileName}.txt`);
     this.fileName = basename(this.#filePath, ".txt");
-
-    console.log(`Config file path: ${this.#filePath}`);
-    console.log(`Clean file name: ${this.fileName}`);
   }
 
   /**
@@ -93,10 +92,18 @@ export class Config<T extends Record<string, any> = ConfigNode> {
         return defaultValue;
       }
 
-      current = (current as ConfigNode)[part]!;
+      const next: ConfigNode | ConfigValue | undefined = (
+        current as ConfigNode
+      )[part];
+
+      if (next === undefined) {
+        return defaultValue;
+      }
+
+      current = next;
     }
 
-    return current ?? defaultValue;
+    return current || defaultValue;
   }
 
   /**
@@ -171,8 +178,7 @@ export class Config<T extends Record<string, any> = ConfigNode> {
       current = current[part] as ConfigNode;
     }
 
-    // eslint-disable-next-line prefer-object-has-own
-    if (Object.prototype.hasOwnProperty.call(current, lastPart)) {
+    if (Object.hasOwn(current, lastPart)) {
       // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
       delete current[lastPart];
       return true;
