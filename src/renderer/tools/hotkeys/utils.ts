@@ -18,8 +18,8 @@ export function formatHotkey(hotkey: string): string {
       if (part === "ctrl" || part === "control") return "Ctrl";
       if (part === "alt" || part === "option") return "Alt";
       if (part === "shift") return "Shift";
-      if (part === "cmd" || part === "command") return "Cmd";
-      if (part === "meta") return isMac ? "Cmd" : "Win";
+      if (part === "cmd" || part === "command") return "Command";
+      if (part === "meta") return isMac ? "Command" : "Win";
 
       // "Special" keys"
       if (part === "space") return "Space";
