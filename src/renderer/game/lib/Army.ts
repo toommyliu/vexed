@@ -119,9 +119,12 @@ export class Army {
    * @returns True if this player is the leader, false otherwise.
    */
   public isLeader(): boolean {
+    const og_player1 = this.config.get<string>("Player1");
+    const player_1 = typeof og_player1 === "string" ? og_player1?.trim() : "";
+
     return (
-      this.bot.auth.username.toLowerCase() ===
-      this.config.get<string>("Player1")?.toLowerCase()
+      Boolean(player_1) &&
+      this.bot.auth.username.toLowerCase() === player_1.toLowerCase()
     );
   }
 
