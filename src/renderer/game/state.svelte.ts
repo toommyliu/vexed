@@ -113,5 +113,20 @@ function initScriptState() {
   };
 }
 
+function initAppState() {
+  // Whether the game has loaded.
+  let gameLoaded = $state(false);
+
+  return {
+    get gameLoaded() {
+      return gameLoaded;
+    },
+    set gameLoaded(value) {
+      gameLoaded = value;
+    },
+  };
+}
+
 export const gameState = initState();
 export const scriptState = initScriptState();
+export const appState = initAppState();

@@ -7,9 +7,27 @@ type ConfigNode = {
   [key: string]: ConfigNode | ConfigValue;
 };
 
-// Inspired by https://github.com/calamity-inc/Soup/blob/senpai/docs/user/cat.md
+type NestedKeyOf<T> = {
+  [K in keyof T]: K extends string
+    ? T[K] extends ConfigValue | undefined
+      ? K
+      : T[K] extends Record<string, any> | undefined
+        ? K | `${K}.${NestedKeyOf<NonNullable<T[K]>>}`
+        : K
+    : never;
+}[keyof T];
 
-export class Config {
+type GetNestedType<T, K extends string> = K extends keyof T
+  ? T[K]
+  : K extends `${infer First}.${infer Rest}`
+    ? First extends keyof T
+      ? T[First] extends Record<string, any> | undefined
+        ? GetNestedType<NonNullable<T[First]>, Rest>
+        : never
+      : never
+    : never;
+
+export class Config<T extends Record<string, any> = ConfigNode> {
   /**
    * The file path of the config file.
    */
@@ -32,9 +50,6 @@ export class Config {
 
     this.#filePath = join(FileManager.basePath, `${cleanFileName}.txt`);
     this.fileName = basename(this.#filePath, ".txt");
-
-    console.log(`Config file path: ${this.#filePath}`);
-    console.log(`Clean file name: ${this.fileName}`);
   }
 
   /**
@@ -55,10 +70,12 @@ export class Config {
    * @param key - The key to look up. Supports dot notation.
    * @returns The value at the specified key, or undefined if not found.
    */
-  public get<T extends ConfigValue = ConfigValue>(
-    key: string,
-    defaultValue?: T,
-  ): T | undefined {
+  public get<K extends NestedKeyOf<T>>(key: K): GetNestedType<T, K> | undefined;
+  public get<K extends NestedKeyOf<T>, D>(
+    key: K,
+    defaultValue: D,
+  ): D | GetNestedType<T, K>;
+  public get(key: string, defaultValue?: any): any {
     if (!key) {
       throw new Error("Key cannot be empty");
     }
@@ -75,10 +92,18 @@ export class Config {
         return defaultValue;
       }
 
-      current = (current as ConfigNode)[part]!;
+      const next: ConfigNode | ConfigValue | undefined = (
+        current as ConfigNode
+      )[part];
+
+      if (next === undefined) {
+        return defaultValue;
+      }
+
+      current = next;
     }
 
-    return (current as T) ?? defaultValue;
+    return current || defaultValue;
   }
 
   /**
@@ -86,8 +111,8 @@ export class Config {
    *
    * @returns A deep copy of the config data
    */
-  public getAll(): ConfigNode {
-    return this.#rootNode;
+  public getAll(): T {
+    return this.#rootNode as T;
   }
 
   /**
@@ -96,6 +121,11 @@ export class Config {
    * @param key - The key to set. Supports dot notation.
    * @param value - The value to set (primitive or nested object)
    */
+  public set<K extends NestedKeyOf<T>>(
+    key: K,
+    value: GetNestedType<T, K>,
+  ): void;
+  public set(key: string, value: ConfigNode | ConfigValue): void;
   public set(key: string, value: ConfigNode | ConfigValue): void {
     if (!key) {
       throw new Error("Key cannot be empty");
@@ -129,6 +159,8 @@ export class Config {
    * @param key - The key to delete. Supports dot notation.
    * @returns true if the key was deleted, false if it didn't exist
    */
+  public delete<K extends NestedKeyOf<T>>(key: K): boolean;
+  public delete(key: string): boolean;
   public delete(key: string): boolean {
     if (!key) {
       throw new Error("Key cannot be empty");
@@ -146,14 +178,28 @@ export class Config {
       current = current[part] as ConfigNode;
     }
 
-    // eslint-disable-next-line prefer-object-has-own
-    if (Object.prototype.hasOwnProperty.call(current, lastPart)) {
+    if (Object.hasOwn(current, lastPart)) {
       // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
       delete current[lastPart];
       return true;
     }
 
     return false;
+  }
+
+  /**
+   * Loads an object into the config, replacing the current config data.
+   *
+   * @param data - The object to load into the config
+   */
+  public loadFromObject(data: T): void {
+    try {
+      this.#rootNode = JSON.parse(JSON.stringify(data)) as ConfigNode;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      }
+    }
   }
 
   /**
@@ -244,7 +290,7 @@ export class Config {
       }
     }
 
-    this.#rootNode = root;
+    this.#rootNode = root as T;
   }
 
   /**
