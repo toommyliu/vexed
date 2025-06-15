@@ -188,6 +188,21 @@ export class Config<T extends Record<string, any> = ConfigNode> {
   }
 
   /**
+   * Loads an object into the config, replacing the current config data.
+   *
+   * @param data - The object to load into the config
+   */
+  public loadFromObject(data: T): void {
+    try {
+      this.#rootNode = JSON.parse(JSON.stringify(data)) as ConfigNode;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      }
+    }
+  }
+
+  /**
    * Saves the config to the file.
    */
   public async save(): Promise<void> {
