@@ -38,7 +38,7 @@ export class FileManager {
   }
 
   public static get hotkeysPath() {
-    return join(FileManager.basePath, "hotkeys.json");
+    return join(FileManager.basePath, "hotkeys.txt");
   }
 
   public static get storagePath() {
@@ -83,7 +83,6 @@ export class FileManager {
     ]);
 
     if (!(await pathExists(FileManager.hotkeysPath))) {
-      console.log("making default hotkeys");
       const config = new Config<HotkeyConfig>("hotkeys");
       config.loadFromObject(DEFAULT_HOTKEYS);
       await config.save();
