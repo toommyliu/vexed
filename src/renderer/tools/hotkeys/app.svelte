@@ -28,7 +28,6 @@
     if (!config) return;
 
     try {
-      // Update config
       for (const section of hotkeysSections) {
         for (const item of section.items) {
           config.set(item.configKey, item.value);
@@ -78,49 +77,12 @@
 
     Mousetrap.reset();
 
-    const recordingHandler = (ev: KeyboardEvent) => {
-      // Check for focus
-      if (!document.hasFocus() || document.hidden) return;
-
-      ev.preventDefault();
-      ev.stopPropagation();
-
-      console.log("Recording key:", ev.key, "with modifiers:", {
-        ctrl: ev.ctrlKey,
-        alt: ev.altKey,
-        shift: ev.shiftKey,
-        meta: ev.metaKey,
-      });
-
-      // Stop recording on Escape
-      if (ev.key === "Escape") {
-        stopRecording();
-        return;
-      }
-
-      // Clear the hotkey on Backspace
-      if (ev.key === "Backspace") {
-        clearHotkey();
-        return;
-      }
-
-      const combination = parseKeyboardEvent(ev);
-      if (combination) {
-        recordingState.lastPressedKey = combination;
-        console.log("Set lastPressedKey to:", combination);
-      }
-    };
-
-    document.addEventListener("keydown", recordingHandler, true);
-    (window as any).currentRecordingHandler = recordingHandler;
-
-    console.log("Recording handler added, waiting for keypress...");
+    console.log("Started recording for action:", actionId);
   }
 
   async function confirmRecording(combination: string) {
     if (!recordingState.isRecording || !recordingState.actionId) return;
 
-    // Validate that the combination is not empty or just whitespace
     if (!combination || combination.trim() === "") {
       console.log("Empty combination provided, blocking");
       return;
@@ -139,7 +101,6 @@
       `confirmRecording called with combination: ${combination} for action: ${recordingState.actionId}`,
     );
 
-    // Find and update the hotkey
     const item = findHotkeyItemById(recordingState.actionId);
     if (item) {
       item.value = combination;
@@ -187,31 +148,12 @@
 
   function stopRecording() {
     console.log("Stopping recording...");
-    if ((window as any).currentRecordingHandler) {
-      document.removeEventListener(
-        "keydown",
-        (window as any).currentRecordingHandler,
-        true,
-      );
-      delete (window as any).currentRecordingHandler;
-      console.log("Recording handler removed");
-    }
 
     recordingState.isRecording = false;
     recordingState.actionId = null;
     recordingState.lastPressedKey = "";
 
     console.log("Recording stopped");
-  }
-
-  async function clearAllHotkeysInSection(sectionId: string) {
-    const section = hotkeysSections.find((s) => s.id === sectionId);
-    if (section) {
-      for (const item of section.items) {
-        item.value = "";
-      }
-      await saveHotkeyConfig();
-    }
   }
 
   onMount(async () => {
@@ -225,13 +167,47 @@
 
   onDestroy(() => {
     Mousetrap.reset();
-    stopRecording();
   });
 </script>
 
+<svelte:window
+  on:keydown={(ev) => {
+    if (!recordingState.isRecording) return;
+
+    if (!document.hasFocus() || document.hidden) return;
+
+    ev.preventDefault();
+    ev.stopPropagation();
+
+    console.log("Recording key:", ev.key, "with modifiers:", {
+      ctrl: ev.ctrlKey,
+      alt: ev.altKey,
+      shift: ev.shiftKey,
+      meta: ev.metaKey,
+    });
+
+    // Stop recording on Escape
+    if (ev.key === "Escape") {
+      stopRecording();
+      return;
+    }
+
+    // Clear hotkey on Backspace
+    if (ev.key === "Backspace") {
+      clearHotkey();
+      return;
+    }
+
+    const combination = parseKeyboardEvent(ev);
+    if (combination) {
+      recordingState.lastPressedKey = combination;
+      console.log("Set lastPressedKey to:", combination);
+    }
+  }}
+/>
+
 <main class="flex min-h-screen select-none flex-col bg-background-primary">
   <div class="mx-auto w-full max-w-6xl flex-grow p-4">
-    <!-- Conflicts Alert -->
     {#if conflicts.length > 0}
       <div class="mb-4 rounded-md border border-red-600/50 bg-red-900/30 p-3">
         <div class="flex items-start space-x-3">
@@ -263,109 +239,94 @@
       </div>
     {/if}
 
-    <!-- Hotkey Sections -->
     <div class="grid auto-cols-auto auto-rows-auto space-y-4">
       {#each hotkeysSections as section}
         <div
           class="rounded-md border border-zinc-700/50 bg-background-secondary shadow-lg backdrop-blur-sm"
         >
-          <!-- Section Header -->
           <div class="border-b border-zinc-700/30 px-4 py-3">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-3">
-                <div class="rounded-md bg-blue-500/20 p-2">
-                  {#if section.name === "General"}
-                    <svg
-                      class="h-5 w-5 text-blue-400"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                      />
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                    </svg>
-                  {:else if section.name === "Scripts"}
-                    <svg
-                      class="h-5 w-5 text-blue-400"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
-                      />
-                    </svg>
-                  {:else if section.name === "Tools"}
-                    <svg
-                      class="h-5 w-5 text-blue-400"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
-                      />
-                    </svg>
-                  {:else}
-                    <svg
-                      class="h-5 w-5 text-blue-400"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-                      />
-                    </svg>
-                  {/if}
-                </div>
-                <div>
-                  <h2 class="text-lg font-semibold text-white">
-                    {section.name}
-                  </h2>
-                </div>
+            <div class="flex items-center space-x-3">
+              <div class="rounded-md bg-blue-500/20 p-2">
+                {#if section.name === "General"}
+                  <svg
+                    class="h-5 w-5 text-blue-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                    />
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                  </svg>
+                {:else if section.name === "Scripts"}
+                  <svg
+                    class="h-5 w-5 text-blue-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+                    />
+                  </svg>
+                {:else if section.name === "Tools"}
+                  <svg
+                    class="h-5 w-5 text-blue-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
+                    />
+                  </svg>
+                {:else}
+                  <svg
+                    class="h-5 w-5 text-blue-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                    />
+                  </svg>
+                {/if}
               </div>
-              <button
-                onclick={async () => {
-                  await clearAllHotkeysInSection(section.id);
-                }}
-                class="rounded-md border border-red-600/50 bg-red-900/30 px-3 py-1.5 text-sm font-medium text-red-200 transition-all duration-200 hover:bg-red-800/40 focus:outline-none focus:ring-2 focus:ring-red-500/50"
-              >
-                Clear All
-              </button>
+              <div>
+                <h2 class="text-lg font-semibold text-white">
+                  {section.name}
+                </h2>
+              </div>
             </div>
           </div>
 
-          <!-- Hotkey Grid -->
           <div class="grid grid-cols-1 gap-3 p-4 md:grid-cols-2 xl:grid-cols-3">
             {#each section.items as item}
               <div
                 class="group relative rounded-md border border-zinc-600/40 bg-zinc-800/30 p-3 transition-all duration-200 hover:border-zinc-500/60 hover:bg-zinc-700/40"
               >
                 <div class="flex items-center justify-between">
-                  <!-- Action Label -->
                   <div class="text-sm font-medium text-white">{item.label}</div>
 
-                  <!-- Hotkey Display -->
                   <div class="hotkey-container flex items-center">
                     {#if item.value}
                       <div class="relative flex items-center">
@@ -420,7 +381,6 @@
 </main>
 
 {#if recordingState.isRecording}
-  <!-- Modal should be visible now -->
   <div
     class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm"
     style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; transform: none;"
@@ -446,7 +406,6 @@
       role="dialog"
       tabindex="-1"
     >
-      <!-- Modal Header -->
       <div class="mb-4 text-center">
         <h3 class="text-xl font-semibold text-white">Recording Hotkey</h3>
         <p class="mt-1 text-gray-400">
@@ -456,11 +415,9 @@
         </p>
       </div>
 
-      <!-- Key Display Area -->
       <div class="mb-4 rounded-md border border-zinc-600/50 bg-zinc-800/30 p-4">
         <div class="text-center">
           <div class="flex min-h-[3rem] items-center justify-center">
-            <!-- display the current hotkey -->
             {#if recordingState.lastPressedKey}
               <div class="flex items-center space-x-2">
                 {#each formatHotkey(recordingState.lastPressedKey).split("+") as keyPart, index}
@@ -486,7 +443,6 @@
         </div>
       </div>
 
-      <!-- Conflict Warning -->
       {#if recordingState.lastPressedKey && getActionForHotkey(recordingState.lastPressedKey, hotkeysSections) && getActionForHotkey(recordingState.lastPressedKey, hotkeysSections) !== getActionNameById(recordingState.actionId || "")}
         <div class="mb-4 rounded-md border border-red-600/50 bg-red-900/30 p-3">
           <div class="flex items-center space-x-2">
@@ -516,7 +472,6 @@
         </div>
       {/if}
 
-      <!-- Action Buttons -->
       <div class="flex space-x-3">
         <button
           onclick={stopRecording}
@@ -560,7 +515,6 @@
         {/if}
       </div>
 
-      <!-- Help Section -->
       <div class="mt-4 rounded-md border border-zinc-600/30 bg-zinc-700/20 p-3">
         <div class="mb-1 flex items-center space-x-2">
           <svg
@@ -580,21 +534,21 @@
         </div>
         <div class="space-y-1 text-xs text-zinc-400">
           <p>
-            • Press <kbd class="rounded bg-zinc-600 px-1.5 py-0.5 text-white"
+            Press <kbd class="rounded bg-zinc-600 px-1.5 py-0.5 text-white"
               >Esc</kbd
             > to cancel
           </p>
           <p>
-            • Press <kbd class="rounded bg-zinc-600 px-1.5 py-0.5 text-white"
+            Press <kbd class="rounded bg-zinc-600 px-1.5 py-0.5 text-white"
               >Backspace</kbd
             > to clear the hotkey
           </p>
           <p>
-            • Use modifier keys {isMac ? "(⌘, ⌥, ⇧)" : "(Ctrl, Alt, Shift)"} for
-            better combinations
+            Use modifier keys {isMac ? "(⌘, ⌥, ⇧)" : "(Ctrl, Alt, Shift)"} for better
+            combinations
           </p>
           <p>
-            • Avoid system shortcuts like {isMac ? "⌘C, ⌘V" : "Ctrl+C, Ctrl+V"}
+            Avoid system shortcuts like {isMac ? "⌘C, ⌘V" : "Ctrl+C, Ctrl+V"}
           </p>
         </div>
       </div>
