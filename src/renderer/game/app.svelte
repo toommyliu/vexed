@@ -1,13 +1,18 @@
 <script lang="ts">
   import "./entrypoint";
-  import { gameState, scriptState } from "./state.svelte";
+  import { gameState, scriptState, appState } from "./state.svelte";
   import process from "process";
   import { client, handlers } from "../../shared/tipc";
   import { cn } from "../../shared/";
   import { WindowIds } from "../../shared/types";
   import { Bot } from "./lib/Bot";
   import { startAutoAggro, stopAutoAggro } from "./autoaggro";
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
+  import { Config } from "./botting/util/Config";
+  import type { HotkeyConfig } from "../../shared/types";
+  import Mousetrap from "mousetrap";
+  import { createHotkeyConfig, isValidHotkey } from "../tools/hotkeys/utils";
+  import type { HotkeySection } from "../tools/hotkeys/types";
 
   const DEFAULT_PADS = [
     "Center",
@@ -21,13 +26,9 @@
   ] as const;
   const bot = Bot.getInstance();
 
+  let config = $state<Config<HotkeyConfig> | null>(null);
   let openDropdown = $state<string | null>(null);
-
-  let scriptBtnText = $derived(scriptState.isRunning ? "Stop" : "Start");
-
-  let overlayButtonText = $derived(
-    scriptState.showOverlay ? "Hide Overlay" : "Show Overlay",
-  );
+  let hotkeysSections = $state<HotkeySection[]>(createHotkeyConfig());
 
   let autoAggroEnabled = $state(false);
 
@@ -35,10 +36,11 @@
   bot.on("login", () => (gameConnected = true));
   bot.on("logout", () => (gameConnected = false));
 
-  let topNavVisible = $state(false);
+  let topNavVisible = $state(true);
 
   let availableCells = $state<string[]>([]);
   let currentSelectedCell = $state<string>("");
+  let currentSelectedPad = $state<string>("");
   let prevRoomId = $state<number>(-1);
   let validPads = $state<
     {
@@ -46,7 +48,6 @@
       isValid: boolean;
     }[]
   >([]);
-  let currentSelectedPad = $state<string>("");
 
   function jumpToCell(cell: string) {
     if (!bot.player.isReady()) return;
@@ -141,6 +142,119 @@
     }
   }
 
+  async function loadHotkeysFromConfig() {
+    if (!config) {
+      console.log("Config is null, cannot load hotkeys");
+      return;
+    }
+
+    // Unbind all
+    Mousetrap.reset();
+
+    try {
+      for (const section of hotkeysSections) {
+        for (const item of section.items) {
+          const hotkeyValue = config.get(item.configKey as any, "")! as string;
+
+          if (hotkeyValue && isValidHotkey(hotkeyValue)) {
+            item.value = hotkeyValue;
+          } else {
+            item.value = "";
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Failed to load hotkeys from config:", error);
+    }
+  }
+
+  function setupHotkeyHandlers() {
+    for (const section of hotkeysSections) {
+      for (const item of section.items) {
+        if (!item.value || !isValidHotkey(item.value)) continue;
+
+        Mousetrap.bind(item.value, (ev) => {
+          ev.preventDefault();
+          handleHotkeyAction(item.id);
+        });
+      }
+    }
+  }
+
+  const toggleBank = () => {
+    if (!bot.player.isReady()) return;
+
+    if (bot.bank.isOpen()) {
+      bot.flash.call(() => swf.bankOpen());
+    } else {
+      bot.bank.open();
+    }
+  };
+
+  const toggleAutoAggro = () => {
+    if (autoAggroEnabled) {
+      stopAutoAggro();
+      autoAggroEnabled = false;
+    } else {
+      startAutoAggro();
+      autoAggroEnabled = true;
+    }
+  };
+
+  function handleHotkeyAction(actionId: string) {
+    switch (actionId) {
+      case "toggle-bank":
+        toggleBank();
+        break;
+
+      case "toggle-auto-aggro":
+        toggleAutoAggro();
+        break;
+
+      case "toggle-top-bar":
+        topNavVisible = !topNavVisible;
+        break;
+
+      case "load-script":
+        void client.loadScript({ scriptPath: "" });
+        break;
+
+      case "toggle-script":
+        toggleScript();
+        break;
+
+      case "toggle-command-overlay":
+        if (window.context?.overlay) {
+          scriptState.showOverlay = !scriptState.showOverlay;
+        }
+        break;
+
+      case "toggle-dev-tools":
+        void client.toggleDevTools();
+        break;
+
+      case "open-fast-travels":
+        void client.launchWindow(WindowIds.FastTravels);
+        break;
+
+      case "open-loader-grabber":
+        void client.launchWindow(WindowIds.LoaderGrabber);
+        break;
+
+      case "open-follower":
+        void client.launchWindow(WindowIds.Follower);
+        break;
+
+      case "open-packet-logger":
+        void client.launchWindow(WindowIds.PacketLogger);
+        break;
+
+      case "open-packet-spammer":
+        void client.launchWindow(WindowIds.PacketSpammer);
+        break;
+    }
+  }
+
   $effect(() => {
     if (!window.context?.overlay) return;
 
@@ -154,6 +268,28 @@
     await import("./tipc/tipc-loader-grabber");
     await import("./tipc/tipc-packet-logger");
     await import("./tipc/tipc-packet-spammer");
+
+    // Wait for the game to load
+    // This prevents hotkeys from being set, before the game is ready and used
+    while (!appState.gameLoaded) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+
+    config = new Config<HotkeyConfig>("hotkeys");
+    await config.load();
+    await loadHotkeysFromConfig();
+    setupHotkeyHandlers();
+  });
+
+  onDestroy(() => {
+    Mousetrap.reset();
+  });
+
+  handlers.hotkeysUpdate.handle(async () => {
+    // Just reload all the hotkeys
+    config?.load();
+    await loadHotkeysFromConfig();
+    setupHotkeyHandlers();
   });
 </script>
 
@@ -200,266 +336,254 @@
 <main
   class="m-0 flex h-screen flex-col overflow-hidden bg-background-primary text-white focus:outline-none"
 >
-  <div
-    id="topnav-container"
-    class="relative z-[10000] min-h-8 border-b border-gray-800/50 bg-background-secondary backdrop-blur-sm"
-    class:invisible={!topNavVisible}
-    class:opacity-0={!topNavVisible}
-  >
-    <div id="topnav" class="flex w-full flex-wrap items-center">
-      <div class="flex">
-        <div class="group relative inline-block cursor-pointer">
-          <button
-            class="mx-1 rounded-md px-4 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50 hover:shadow-lg"
-            onclick={(ev) => {
-              ev.stopPropagation();
-              toggleDropdown("scripts");
-            }}
-          >
-            Scripts
-          </button>
-          <div
-            class="absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-background-secondary text-xs shadow-2xl backdrop-blur-md"
-            style:display={openDropdown === "scripts" ? "block" : "none"}
-          >
+  {#if topNavVisible}
+    <div
+      id="topnav-container"
+      class="relative z-[10000] min-h-8 border-b border-gray-800/50 bg-background-primary backdrop-blur-sm"
+    >
+      <div id="topnav" class="flex w-full flex-wrap items-center">
+        <div class="flex">
+          <div class="group relative inline-block cursor-pointer">
             <button
-              class="
-                flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 first:rounded-t-lg hover:bg-gray-700/50"
-              onclick={() =>
-                void client.loadScript({
-                  scriptPath: "",
-                })}
+              class="mx-1 rounded-md px-4 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50 hover:shadow-lg"
+              onclick={(ev) => {
+                ev.stopPropagation();
+                toggleDropdown("scripts");
+              }}
             >
-              Load
-            </button>
-            <button
-              class={cn(
-                "flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150",
-                !scriptState.isLoaded &&
-                  "pointers-events-none cursor-not-allowed opacity-50",
-              )}
-              onclick={toggleScript}
-              disabled={!scriptState.isLoaded}
-            >
-              {scriptBtnText}
-            </button>
-            <button
-              class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
-              onclick={() =>
-                (scriptState.showOverlay = !scriptState.showOverlay)}
-            >
-              {overlayButtonText}
-            </button>
-            <button
-              class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 last:rounded-b-lg hover:bg-gray-700/50"
-              onclick={() => void client.toggleDevTools()}
-            >
-              Toggle Dev Tools
-            </button>
-          </div>
-        </div>
-
-        <div
-          class="group relative inline-block cursor-pointer"
-          id="tools-dropdown"
-        >
-          <button
-            class="mx-1 rounded-md px-4 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50 hover:shadow-lg"
-            id="tools"
-            onclick={(e) => {
-              e.stopPropagation();
-              toggleDropdown("tools");
-            }}
-          >
-            Tools
-          </button>
-          <div
-            class="absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-background-secondary text-xs shadow-2xl backdrop-blur-md"
-            style:display={openDropdown === "tools" ? "block" : "none"}
-            id="tools-dropdowncontent"
-          >
-            <button
-              class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 first:rounded-t-lg hover:bg-gray-700/50"
-              onclick={() => void client.launchWindow(WindowIds.FastTravels)}
-            >
-              Fast Travels
-            </button>
-            <button
-              class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
-              onclick={() => void client.launchWindow(WindowIds.LoaderGrabber)}
-            >
-              Loader/Grabber
-            </button>
-            <button
-              class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 last:rounded-b-lg hover:bg-gray-700/50"
-              onclick={() => void client.launchWindow(WindowIds.Follower)}
-            >
-              Follower
-            </button>
-          </div>
-        </div>
-
-        <div
-          class="group relative inline-block cursor-pointer"
-          id="packets-dropdown"
-        >
-          <button
-            class="mx-1 rounded-md px-4 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50 hover:shadow-lg"
-            id="packets"
-            onclick={(e) => {
-              e.stopPropagation();
-              toggleDropdown("packets");
-            }}
-          >
-            Packets
-          </button>
-          <div
-            class="absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-background-secondary text-xs shadow-2xl backdrop-blur-md"
-            style:display={openDropdown === "packets" ? "block" : "none"}
-            id="packets-dropdowncontent"
-          >
-            <button
-              class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 first:rounded-t-lg hover:bg-gray-700/50"
-              onclick={() => void client.launchWindow(WindowIds.PacketLogger)}
-            >
-              Logger
-            </button>
-            <button
-              class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 last:rounded-b-lg hover:bg-gray-700/50"
-              onclick={() => void client.launchWindow(WindowIds.PacketSpammer)}
-            >
-              Spammer
-            </button>
-          </div>
-        </div>
-
-        <div
-          class="group relative inline-block cursor-pointer"
-          id="options-dropdown"
-        >
-          <button
-            class="mx-1 rounded-md px-4 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50 hover:shadow-lg"
-            id="options"
-            onclick={(e) => {
-              e.stopPropagation();
-              toggleDropdown("options");
-            }}
-          >
-            Options
-          </button>
-          <div
-            class="absolute z-[9999] mt-1 min-w-48 rounded-lg border border-gray-700/50 bg-background-secondary text-xs shadow-2xl backdrop-blur-md"
-            style:display={openDropdown === "options" ? "block" : "none"}
-            id="options-dropdowncontent"
-            role="menu"
-            tabindex="0"
-          >
-            <button
-              class="group flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 first:rounded-t-lg hover:bg-gray-700/50"
-              id="option-infinite-range"
-              class:option-active={gameState.infiniteRange}
-              onclick={() =>
-                (gameState.infiniteRange = !gameState.infiniteRange)}
-            >
-              <span>Infinite Range</span>
-              {@render OptionCheckmark()}
-            </button>
-            <button
-              class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
-              id="option-provoke-map"
-              class:option-active={gameState.provokeMap}
-              onclick={() => (gameState.provokeMap = !gameState.provokeMap)}
-            >
-              <span>Provoke Map</span>
-              {@render OptionCheckmark()}
-            </button>
-            <button
-              class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
-              id="option-provoke-cell"
-              class:option-active={gameState.provokeCell}
-              onclick={() => (gameState.provokeCell = !gameState.provokeCell)}
-            >
-              <span>Provoke Cell</span>
-              {@render OptionCheckmark()}
-            </button>
-            <button
-              class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
-              id="option-enemy-magnet"
-              class:option-active={gameState.enemyMagnet}
-              onclick={() => (gameState.enemyMagnet = !gameState.enemyMagnet)}
-            >
-              <span>Enemy Magnet</span>
-              {@render OptionCheckmark()}
-            </button>
-            <button
-              class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
-              id="option-lag-killer"
-              class:option-active={gameState.lagKiller}
-              onclick={() => (gameState.lagKiller = !gameState.lagKiller)}
-            >
-              <span>Lag Killer</span>
-              {@render OptionCheckmark()}
-            </button>
-            <button
-              class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
-              id="option-hide-players"
-              class:option-active={gameState.hidePlayers}
-              onclick={() => (gameState.hidePlayers = !gameState.hidePlayers)}
-            >
-              <span>Hide Players</span>
-              {@render OptionCheckmark()}
-            </button>
-            <button
-              class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
-              id="option-skip-cutscenes"
-              class:option-active={gameState.skipCutscenes}
-              onclick={() =>
-                (gameState.skipCutscenes = !gameState.skipCutscenes)}
-            >
-              <span>Skip Cutscenes</span>
-              {@render OptionCheckmark()}
-            </button>
-            <button
-              class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
-              id="option-disable-fx"
-              class:option-active={gameState.disableFx}
-              onclick={() => (gameState.disableFx = !gameState.disableFx)}
-            >
-              <span>Disable FX</span>
-              {@render OptionCheckmark()}
-            </button>
-            <button
-              class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
-              id="option-disable-collisions"
-              class:option-active={gameState.disableCollisions}
-              onclick={() =>
-                (gameState.disableCollisions = !gameState.disableCollisions)}
-            >
-              <span>Disable Collisions</span>
-              {@render OptionCheckmark()}
+              Scripts
             </button>
             <div
-              class="flex w-full cursor-default items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
-              id="option-walkspeed"
-              onclick={(ev) => ev.stopPropagation()}
-              onkeydown={(ev) => {
-                if (ev.key === "Enter" || ev.key === " ") {
-                  ev.preventDefault();
-                  gameState.walkSpeed = Number.parseInt(
-                    (ev.target as HTMLInputElement).value,
-                  );
-                }
+              class="absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-background-secondary text-xs shadow-2xl backdrop-blur-md"
+              style:display={openDropdown === "scripts" ? "block" : "none"}
+            >
+              <button
+                class="
+                flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 first:rounded-t-lg hover:bg-gray-700/50"
+                onclick={() =>
+                  void client.loadScript({
+                    scriptPath: "",
+                  })}
+              >
+                Load
+              </button>
+              <button
+                class={cn(
+                  "flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150",
+                  !scriptState.isLoaded &&
+                    "pointers-events-none cursor-not-allowed opacity-50",
+                )}
+                onclick={toggleScript}
+                disabled={!scriptState.isLoaded}
+              >
+                {scriptState.isRunning ? "Stop" : "Start"}
+              </button>
+              <button
+                class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
+                onclick={() =>
+                  (scriptState.showOverlay = !scriptState.showOverlay)}
+              >
+                {scriptState.showOverlay ? "Hide Overlay" : "Show Overlay"}
+              </button>
+              <button
+                class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 last:rounded-b-lg hover:bg-gray-700/50"
+                onclick={() => void client.toggleDevTools()}
+              >
+                Toggle Dev Tools
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="group relative inline-block cursor-pointer"
+            id="tools-dropdown"
+          >
+            <button
+              class="mx-1 rounded-md px-4 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50 hover:shadow-lg"
+              id="tools"
+              onclick={(e) => {
+                e.stopPropagation();
+                toggleDropdown("tools");
               }}
-              role="button"
+            >
+              Tools
+            </button>
+            <div
+              class="absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-background-secondary text-xs shadow-2xl backdrop-blur-md"
+              style:display={openDropdown === "tools" ? "block" : "none"}
+              id="tools-dropdowncontent"
+            >
+              <button
+                class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 first:rounded-t-lg hover:bg-gray-700/50"
+                onclick={() => void client.launchWindow(WindowIds.FastTravels)}
+              >
+                Fast Travels
+              </button>
+              <button
+                class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
+                onclick={() =>
+                  void client.launchWindow(WindowIds.LoaderGrabber)}
+              >
+                Loader/Grabber
+              </button>
+              <button
+                class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 last:rounded-b-lg hover:bg-gray-700/50"
+                onclick={() => void client.launchWindow(WindowIds.Follower)}
+              >
+                Follower
+              </button>
+              <button
+                class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 last:rounded-b-lg hover:bg-gray-700/50"
+                onclick={() => void client.launchWindow(WindowIds.Hotkeys)}
+              >
+                Hotkeys
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="group relative inline-block cursor-pointer"
+            id="packets-dropdown"
+          >
+            <button
+              class="mx-1 rounded-md px-4 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50 hover:shadow-lg"
+              id="packets"
+              onclick={(e) => {
+                e.stopPropagation();
+                toggleDropdown("packets");
+              }}
+            >
+              Packets
+            </button>
+            <div
+              class="absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-background-secondary text-xs shadow-2xl backdrop-blur-md"
+              style:display={openDropdown === "packets" ? "block" : "none"}
+              id="packets-dropdowncontent"
+            >
+              <button
+                class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 first:rounded-t-lg hover:bg-gray-700/50"
+                onclick={() => void client.launchWindow(WindowIds.PacketLogger)}
+              >
+                Logger
+              </button>
+              <button
+                class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 last:rounded-b-lg hover:bg-gray-700/50"
+                onclick={() =>
+                  void client.launchWindow(WindowIds.PacketSpammer)}
+              >
+                Spammer
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="group relative inline-block cursor-pointer"
+            id="options-dropdown"
+          >
+            <button
+              class="mx-1 rounded-md px-4 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50 hover:shadow-lg"
+              id="options"
+              onclick={(e) => {
+                e.stopPropagation();
+                toggleDropdown("options");
+              }}
+            >
+              Options
+            </button>
+            <div
+              class="absolute z-[9999] mt-1 min-w-48 rounded-lg border border-gray-700/50 bg-background-secondary text-xs shadow-2xl backdrop-blur-md"
+              style:display={openDropdown === "options" ? "block" : "none"}
+              id="options-dropdowncontent"
+              role="menu"
               tabindex="0"
             >
-              <span class="text-white">Walk Speed</span>
-              <input
-                type="number"
-                class="walkspeed-input rounded border border-gray-600/50 bg-gray-700/50 px-2 py-1 text-xs text-white transition-all duration-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400/50"
-                bind:value={gameState.walkSpeed}
-                min="0"
-                max="99"
+              <button
+                class="group flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 first:rounded-t-lg hover:bg-gray-700/50"
+                id="option-infinite-range"
+                class:option-active={gameState.infiniteRange}
+                onclick={() =>
+                  (gameState.infiniteRange = !gameState.infiniteRange)}
+              >
+                <span>Infinite Range</span>
+                {@render OptionCheckmark()}
+              </button>
+              <button
+                class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
+                id="option-provoke-map"
+                class:option-active={gameState.provokeMap}
+                onclick={() => (gameState.provokeMap = !gameState.provokeMap)}
+              >
+                <span>Provoke Map</span>
+                {@render OptionCheckmark()}
+              </button>
+              <button
+                class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
+                id="option-provoke-cell"
+                class:option-active={gameState.provokeCell}
+                onclick={() => (gameState.provokeCell = !gameState.provokeCell)}
+              >
+                <span>Provoke Cell</span>
+                {@render OptionCheckmark()}
+              </button>
+              <button
+                class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
+                id="option-enemy-magnet"
+                class:option-active={gameState.enemyMagnet}
+                onclick={() => (gameState.enemyMagnet = !gameState.enemyMagnet)}
+              >
+                <span>Enemy Magnet</span>
+                {@render OptionCheckmark()}
+              </button>
+              <button
+                class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
+                id="option-lag-killer"
+                class:option-active={gameState.lagKiller}
+                onclick={() => (gameState.lagKiller = !gameState.lagKiller)}
+              >
+                <span>Lag Killer</span>
+                {@render OptionCheckmark()}
+              </button>
+              <button
+                class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
+                id="option-hide-players"
+                class:option-active={gameState.hidePlayers}
+                onclick={() => (gameState.hidePlayers = !gameState.hidePlayers)}
+              >
+                <span>Hide Players</span>
+                {@render OptionCheckmark()}
+              </button>
+              <button
+                class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
+                id="option-skip-cutscenes"
+                class:option-active={gameState.skipCutscenes}
+                onclick={() =>
+                  (gameState.skipCutscenes = !gameState.skipCutscenes)}
+              >
+                <span>Skip Cutscenes</span>
+                {@render OptionCheckmark()}
+              </button>
+              <button
+                class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
+                id="option-disable-fx"
+                class:option-active={gameState.disableFx}
+                onclick={() => (gameState.disableFx = !gameState.disableFx)}
+              >
+                <span>Disable FX</span>
+                {@render OptionCheckmark()}
+              </button>
+              <button
+                class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
+                id="option-disable-collisions"
+                class:option-active={gameState.disableCollisions}
+                onclick={() =>
+                  (gameState.disableCollisions = !gameState.disableCollisions)}
+              >
+                <span>Disable Collisions</span>
+                {@render OptionCheckmark()}
+              </button>
+              <div
+                class="flex w-full cursor-default items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
+                id="option-walkspeed"
                 onclick={(ev) => ev.stopPropagation()}
                 onkeydown={(ev) => {
                   if (ev.key === "Enter" || ev.key === " ") {
@@ -469,202 +593,219 @@
                     );
                   }
                 }}
-              />
-            </div>
-            <div
-              class="flex w-full cursor-default items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 last:rounded-b-lg hover:bg-gray-700/50"
-              id="option-fps"
-              onclick={(ev) => ev.stopPropagation()}
-              onkeydown={(ev) => {
-                if (ev.key === "Enter" || ev.key === " ") {
-                  ev.preventDefault();
-                  gameState.fps = Number.parseInt(
-                    (ev.target as HTMLInputElement).value,
-                  );
-                }
-              }}
-              role="button"
-              tabindex="0"
-            >
-              <span class="text-white">FPS</span>
-              <input
-                type="number"
-                class="walkspeed-input rounded border border-gray-600/50 bg-gray-700/50 px-2 py-1 text-xs text-white transition-all duration-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400/50"
-                bind:value={gameState.fps}
-                min="10"
-                max="120"
+                role="button"
+                tabindex="0"
+              >
+                <span class="text-white">Walk Speed</span>
+                <input
+                  type="number"
+                  class="walkspeed-input rounded border border-gray-600/50 bg-gray-700/50 px-2 py-1 text-xs text-white transition-all duration-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400/50"
+                  bind:value={gameState.walkSpeed}
+                  min="0"
+                  max="99"
+                  onclick={(ev) => ev.stopPropagation()}
+                  onkeydown={(ev) => {
+                    if (ev.key === "Enter" || ev.key === " ") {
+                      ev.preventDefault();
+                      gameState.walkSpeed = Number.parseInt(
+                        (ev.target as HTMLInputElement).value,
+                      );
+                    }
+                  }}
+                />
+              </div>
+              <div
+                class="flex w-full cursor-default items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 last:rounded-b-lg hover:bg-gray-700/50"
+                id="option-fps"
                 onclick={(ev) => ev.stopPropagation()}
-              />
+                onkeydown={(ev) => {
+                  if (ev.key === "Enter" || ev.key === " ") {
+                    ev.preventDefault();
+                    gameState.fps = Number.parseInt(
+                      (ev.target as HTMLInputElement).value,
+                    );
+                  }
+                }}
+                role="button"
+                tabindex="0"
+              >
+                <span class="text-white">FPS</span>
+                <input
+                  type="number"
+                  class="walkspeed-input rounded border border-gray-600/50 bg-gray-700/50 px-2 py-1 text-xs text-white transition-all duration-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400/50"
+                  bind:value={gameState.fps}
+                  min="10"
+                  max="120"
+                  onclick={(ev) => ev.stopPropagation()}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="group relative inline-block cursor-pointer"
+            id="autoaggro-dropdown"
+          >
+            <button
+              class="mx-1 rounded-md px-4 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50 hover:shadow-lg"
+              id="autoaggro"
+              onclick={(e) => {
+                e.stopPropagation();
+                toggleDropdown("autoaggro");
+              }}
+            >
+              Auto Aggro
+            </button>
+            <div
+              class="absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-background-secondary text-xs shadow-2xl backdrop-blur-md"
+              style:display={openDropdown === "autoaggro" ? "block" : "none"}
+              id="autoaggro-dropdowncontent"
+            >
+              <button
+                class="flex w-full items-center justify-between rounded-lg px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
+                onclick={() => {
+                  autoAggroEnabled = !autoAggroEnabled;
+                  toggleAutoAggro();
+                }}
+                class:option-active={autoAggroEnabled}
+              >
+                <span>Enabled</span>
+                {@render OptionCheckmark()}
+              </button>
             </div>
           </div>
         </div>
-
-        <div
-          class="group relative inline-block cursor-pointer"
-          id="autoaggro-dropdown"
-        >
-          <button
-            class="mx-1 rounded-md px-4 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50 hover:shadow-lg"
-            id="autoaggro"
-            onclick={(e) => {
-              e.stopPropagation();
-              toggleDropdown("autoaggro");
-            }}
-          >
-            Auto Aggro
-          </button>
-          <div
-            class="absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-background-secondary text-xs shadow-2xl backdrop-blur-md"
-            style:display={openDropdown === "autoaggro" ? "block" : "none"}
-            id="autoaggro-dropdowncontent"
-          >
+        <div class="ml-auto mr-2 flex items-center gap-4">
+          <div class="ml-1.5 flex gap-1">
+            <div
+              class="relative mt-1.5 inline-block h-[25px] w-[86px] cursor-pointer"
+              id="pads-dropdown"
+            >
+              <button
+                class="h-full w-full rounded border border-gray-500/30 bg-background-primary p-0 text-xs transition-all duration-200 hover:border-gray-400/50"
+                class:cursor-not-allowed={!gameConnected}
+                class:opacity-50={!gameConnected}
+                id="pads"
+                disabled={!gameConnected}
+                onclick={(ev) => {
+                  ev.stopPropagation();
+                  updatePads();
+                  toggleDropdown("pads");
+                }}
+              >
+                {currentSelectedPad}
+              </button>
+              <div
+                class="absolute top-full z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-background-secondary text-xs shadow-2xl backdrop-blur-md"
+                style:display={openDropdown === "pads" ? "block" : "none"}
+                id="pads-dropdowncontent"
+                onmouseenter={() => (openDropdown = "pads")}
+                onmouseleave={() => (openDropdown = null)}
+                role="menu"
+                tabindex="0"
+              >
+                {#each validPads as pad}
+                  <button
+                    class={cn(
+                      "flex w-full items-center bg-background-secondary px-4 py-2 text-left transition-colors duration-150 hover:bg-gray-700/50",
+                      pad.isValid && "text-green-500",
+                    )}
+                    class:first:rounded-t-lg={validPads.indexOf(pad) === 0}
+                    class:last:rounded-b-lg={validPads.indexOf(pad) ===
+                      validPads.length - 1}
+                    onclick={() => jumpToPad(pad.name)}
+                  >
+                    {pad.name}
+                  </button>
+                {/each}
+              </div>
+            </div>
+            <div
+              class="relative ml-0.5 mt-1.5 inline-block h-[25px] w-[86px] cursor-pointer"
+              id="cells-dropdown"
+            >
+              <button
+                class="h-full w-full rounded border border-gray-500/30 bg-background-primary p-0 text-xs transition-all duration-200 hover:border-gray-400/50"
+                class:cursor-not-allowed={!gameConnected}
+                class:opacity-50={!gameConnected}
+                id="cells"
+                disabled={!gameConnected}
+                onclick={(ev) => {
+                  ev.stopPropagation();
+                  updateCells();
+                  toggleDropdown("cells");
+                }}
+              >
+                {currentSelectedCell}
+              </button>
+              <div
+                class="absolute top-full z-[9999] mt-1 max-h-[25vh] min-w-40 overflow-y-auto overflow-x-hidden rounded-lg border border-gray-700/50 bg-background-primary text-xs shadow-2xl backdrop-blur-md"
+                style:display={openDropdown === "cells" ? "block" : "none"}
+                id="cells-dropdowncontent"
+                onmouseenter={() => (openDropdown = "cells")}
+                onmouseleave={() => (openDropdown = null)}
+                role="menu"
+                tabindex="0"
+              >
+                {#each availableCells as cell}
+                  <button
+                    class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700"
+                    class:first:rounded-t-lg={availableCells.indexOf(cell) ===
+                      0}
+                    class:last:rounded-b-lg={availableCells.indexOf(cell) ===
+                      availableCells.length - 1}
+                    onclick={() => jumpToCell(cell)}
+                  >
+                    {cell}
+                  </button>
+                {/each}
+              </div>
+            </div>
+          </div>
+          <div class="ml-1.5 flex space-x-1">
             <button
-              class="flex w-full items-center justify-between rounded-lg px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
+              class="mt-[5px] flex h-[25px] min-w-0 items-center justify-center rounded border border-gray-500/30 bg-background-primary px-[8px] py-0 text-xs text-white transition-all duration-200 hover:border-gray-400/50"
+              class:cursor-not-allowed={!gameConnected}
+              class:opacity-50={!gameConnected}
+              disabled={!gameConnected}
               onclick={() => {
-                autoAggroEnabled = !autoAggroEnabled;
-                if (autoAggroEnabled) {
-                  startAutoAggro();
+                if (!bot.player.isReady()) return;
+
+                updateCells();
+                updatePads();
+
+                currentSelectedCell = bot.player.cell ?? "Enter";
+                currentSelectedPad = bot.player.pad ?? "Spawn";
+
+                bot.flash.call(() =>
+                  swf.playerJump(currentSelectedCell, currentSelectedPad),
+                );
+              }}
+            >
+              x
+            </button>
+            <button
+              class="mt-[5px] flex h-[25px] min-w-0 items-center justify-center rounded border border-gray-500/30 bg-background-primary px-[8px] py-0 text-xs text-white transition-all duration-200 hover:border-gray-400/50"
+              class:cursor-not-allowed={!gameConnected}
+              class:opacity-50={!gameConnected}
+              disabled={!gameConnected}
+              onclick={async () => {
+                if (!bot.player.isReady()) return;
+
+                if (bot.bank.isOpen()) {
+                  bot.flash.call(() => swf.bankOpen());
                 } else {
-                  stopAutoAggro();
+                  await bot.bank.open();
                 }
               }}
-              class:option-active={autoAggroEnabled}
             >
-              <span>Enabled</span>
-              {@render OptionCheckmark()}
+              Bank
             </button>
           </div>
-        </div>
-      </div>
-      <div class="ml-auto mr-2 flex items-center gap-4">
-        <div class="ml-1.5 flex gap-1">
-          <div
-            class="relative mt-1.5 inline-block h-[25px] w-[86px] cursor-pointer"
-            id="pads-dropdown"
-          >
-            <button
-              class="h-full w-full rounded border border-gray-500/30 bg-background-primary p-0 text-xs transition-all duration-200 hover:border-gray-400/50"
-              class:cursor-not-allowed={!gameConnected}
-              class:opacity-50={!gameConnected}
-              id="pads"
-              disabled={!gameConnected}
-              onclick={(ev) => {
-                ev.stopPropagation();
-                updatePads();
-                toggleDropdown("pads");
-              }}
-            >
-              {currentSelectedPad}
-            </button>
-            <div
-              class="absolute top-full z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-background-secondary text-xs shadow-2xl backdrop-blur-md"
-              style:display={openDropdown === "pads" ? "block" : "none"}
-              id="pads-dropdowncontent"
-              onmouseenter={() => (openDropdown = "pads")}
-              onmouseleave={() => (openDropdown = null)}
-              role="menu"
-              tabindex="0"
-            >
-              {#each validPads as pad}
-                <button
-                  class={cn(
-                    "flex w-full items-center bg-background-secondary px-4 py-2 text-left transition-colors duration-150 hover:bg-gray-700/50",
-                    pad.isValid && "text-green-500",
-                  )}
-                  class:first:rounded-t-lg={validPads.indexOf(pad) === 0}
-                  class:last:rounded-b-lg={validPads.indexOf(pad) ===
-                    validPads.length - 1}
-                  onclick={() => jumpToPad(pad.name)}
-                >
-                  {pad.name}
-                </button>
-              {/each}
-            </div>
-          </div>
-          <div
-            class="relative ml-0.5 mt-1.5 inline-block h-[25px] w-[86px] cursor-pointer"
-            id="cells-dropdown"
-          >
-            <button
-              class="h-full w-full rounded border border-gray-500/30 bg-background-primary p-0 text-xs transition-all duration-200 hover:border-gray-400/50"
-              class:cursor-not-allowed={!gameConnected}
-              class:opacity-50={!gameConnected}
-              id="cells"
-              disabled={!gameConnected}
-              onclick={(ev) => {
-                ev.stopPropagation();
-                updateCells();
-                toggleDropdown("cells");
-              }}
-            >
-              {currentSelectedCell}
-            </button>
-            <div
-              class="absolute top-full z-[9999] mt-1 max-h-[25vh] min-w-40 overflow-y-auto overflow-x-hidden rounded-lg border border-gray-700/50 bg-background-primary text-xs shadow-2xl backdrop-blur-md"
-              style:display={openDropdown === "cells" ? "block" : "none"}
-              id="cells-dropdowncontent"
-              onmouseenter={() => (openDropdown = "cells")}
-              onmouseleave={() => (openDropdown = null)}
-              role="menu"
-              tabindex="0"
-            >
-              {#each availableCells as cell}
-                <button
-                  class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700"
-                  class:first:rounded-t-lg={availableCells.indexOf(cell) === 0}
-                  class:last:rounded-b-lg={availableCells.indexOf(cell) ===
-                    availableCells.length - 1}
-                  onclick={() => jumpToCell(cell)}
-                >
-                  {cell}
-                </button>
-              {/each}
-            </div>
-          </div>
-        </div>
-        <div class="ml-1.5 flex space-x-1">
-          <button
-            class="mt-[5px] flex h-[25px] min-w-0 items-center justify-center rounded border border-gray-500/30 bg-background-primary px-[8px] py-0 text-xs text-white transition-all duration-200 hover:border-gray-400/50"
-            class:cursor-not-allowed={!gameConnected}
-            class:opacity-50={!gameConnected}
-            disabled={!gameConnected}
-            onclick={() => {
-              if (!bot.player.isReady()) return;
-
-              updateCells();
-              updatePads();
-
-              currentSelectedCell = bot.player.cell ?? "Enter";
-              currentSelectedPad = bot.player.pad ?? "Spawn";
-
-              bot.flash.call(() =>
-                swf.playerJump(currentSelectedCell, currentSelectedPad),
-              );
-            }}
-          >
-            x
-          </button>
-          <button
-            class="mt-[5px] flex h-[25px] min-w-0 items-center justify-center rounded border border-gray-500/30 bg-background-primary px-[8px] py-0 text-xs text-white transition-all duration-200 hover:border-gray-400/50"
-            class:cursor-not-allowed={!gameConnected}
-            class:opacity-50={!gameConnected}
-            disabled={!gameConnected}
-            onclick={async () => {
-              if (!bot.player.isReady()) return;
-
-              if (bot.bank.isOpen()) {
-                bot.flash.call(() => swf.bankOpen());
-              } else {
-                await bot.bank.open();
-              }
-            }}
-          >
-            Bank
-          </button>
         </div>
       </div>
     </div>
-  </div>
+  {/if}
 
   <div
     class="flex min-h-screen flex-col items-center justify-center bg-background-primary"
@@ -674,7 +815,7 @@
       <div class="space-y-6">
         <div class="flex justify-center">
           <div
-            class="h-8 w-8 animate-spin rounded-full border-2 border-gray-600 border-t-progress-blue"
+            class="border-t-progress-blue h-8 w-8 animate-spin rounded-full border-2 border-gray-600"
           ></div>
         </div>
         <div class="text-center">
@@ -687,8 +828,11 @@
   </div>
 
   <div
-    class="invisible opacity-0 transition-all duration-300"
+    class="invisible opacity-0"
     id="game-container"
+    style="height: {topNavVisible
+      ? 'calc(100vh - var(--topnav-height) - 2px)'
+      : '100vh'}"
   >
     <embed
       id="swf"
@@ -721,7 +865,6 @@
 {/snippet}
 
 <style>
-  /* Global styles */
   :global(:root) {
     --topnav-height: 32px;
     --bg-primary: #111113;
@@ -763,7 +906,6 @@
   }
 
   :global(#game-container) {
-    height: calc(100vh - var(--topnav-height) - 2px);
     position: relative;
   }
 

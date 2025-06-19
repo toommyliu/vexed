@@ -5,15 +5,15 @@ import { FileManager } from "../shared/FileManager";
 import { DEFAULT_FAST_TRAVELS } from "../shared/constants";
 import { Logger } from "../shared/logger";
 import { sleep } from "../shared/sleep";
-import { WindowIds } from "../shared/types";
 import type {
-  GrabberDataType,
-  LoaderDataType,
   FastTravel,
   FastTravelRoomNumber,
+  GrabberDataType,
+  LoaderDataType,
 } from "../shared/types";
+import { WindowIds } from "../shared/types";
 import { recursivelyApplySecurityPolicy } from "./util/recursivelyApplySecurityPolicy";
-import { createGame, windowStore, getManagerWindow } from "./windows";
+import { createGame, getManagerWindow, windowStore } from "./windows";
 
 const tipcInstance = tipc.create();
 const logger = Logger.get("IpcMain");
@@ -85,6 +85,10 @@ export const router = {
           width = 927;
           height = 646;
           break;
+        case WindowIds.Hotkeys:
+          ref = storeRef.tools.hotkeys;
+          path = join(DIST_PATH, "tools", "hotkeys", "index.html");
+          break;
         case WindowIds.PacketLogger:
           ref = storeRef.packets.logger;
           path = join(DIST_PATH, "packets", "logger", "index.html");
@@ -145,6 +149,11 @@ export const router = {
           width = 927;
           height = 646;
           break;
+        case WindowIds.Hotkeys:
+          storeRef.tools.hotkeys = window;
+          width = 600;
+          height = 400;
+          break;
         case WindowIds.PacketLogger:
           storeRef.packets.logger = window;
           width = 797;
@@ -157,7 +166,9 @@ export const router = {
           break;
       }
 
-      if (!app.isPackaged) window.webContents.openDevTools({ mode: "right" });
+      if (!app.isPackaged) {
+        window.webContents.openDevTools({ mode: "right" });
+      }
 
       recursivelyApplySecurityPolicy(window);
 
@@ -349,6 +360,7 @@ export const router = {
       return parentHandlers.grab.invoke({ type: input.type });
     }),
   // #endregion
+
   // #region Follower
   followerMe: tipcInstance.procedure.action(async ({ context }) => {
     const browserWindow = BrowserWindow.fromWebContents(context.sender);
@@ -600,6 +612,32 @@ export const router = {
   }),
   // #endregion
 
+  // #region Hotkeys
+  updateHotkey: tipcInstance.procedure
+    .input<{
+      id: string;
+      value: string;
+    }>()
+    .action(async ({ input, context }) => {
+      const browserWindow = BrowserWindow.fromWebContents(context.sender);
+      if (!browserWindow) {
+        console.log("No browser window found for hotkey update");
+        return;
+      }
+
+      const parent = browserWindow.getParentWindow();
+      if (!parent || !windowStore.has(parent.id)) {
+        console.log("No parent window found for hotkey update");
+        return;
+      }
+
+      const parentHandlers = getRendererHandlers<RendererHandlers>(
+        parent.webContents,
+      );
+      await parentHandlers.hotkeysUpdate.invoke(input);
+    }),
+  // #endregion
+
   // #region Manager
   getAccounts: tipcInstance.procedure.action(async () => {
     try {
@@ -736,7 +774,7 @@ export type TipcRouter = typeof router;
 // !! Any renderer define these handlers !!
 export type RendererHandlers = {
   // Game
-  gameReloaded: () => void;
+  gameReloaded(): void;
 
   // Scripts
   scriptLoaded(fromManager: boolean): void;
@@ -767,6 +805,9 @@ export type RendererHandlers = {
     skillWait: boolean;
   }): Promise<void>;
   followerStop(): Promise<void>;
+
+  // Hotkeys
+  hotkeysUpdate(input: { id: string; value: string }): Promise<void>;
 
   // Packet Logger
   packetLoggerStart(): void;

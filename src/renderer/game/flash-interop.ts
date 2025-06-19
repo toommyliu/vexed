@@ -7,6 +7,7 @@ import { ct } from "./networking.json/ct";
 import { dropItem } from "./networking.json/drop-item";
 import { initUserData } from "./networking.json/init-user-data";
 import { moveToArea } from "./networking.json/move-to-area";
+import { appState } from "./state.svelte";
 
 const logger = Logger.get("FlashInterop");
 const bot = Bot.getInstance();
@@ -87,6 +88,8 @@ window.connection = async ([state]: [string]) => {
 };
 
 window.loaded = async () => {
+  appState.gameLoaded = true;
+
   const usernameArg = process.argv.find((arg) => arg.startsWith("--username="));
   const passwordArg = process.argv.find((arg) => arg.startsWith("--password="));
   const serverArg = process.argv.find((arg) => arg.startsWith("--server="));
