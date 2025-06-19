@@ -14,6 +14,7 @@ export type HotkeySection = {
 
 export type RecordingState = {
   actionId: string | null;
+  isClearing: boolean;
   isRecording: boolean;
   lastPressedKey: string;
 };

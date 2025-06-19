@@ -20,6 +20,7 @@
     isRecording: false,
     actionId: null,
     lastPressedKey: "",
+    isClearing: false,
   });
 
   let conflicts = $derived(findConflicts(hotkeysSections));
@@ -75,6 +76,7 @@
     recordingState.isRecording = true;
     recordingState.actionId = actionId;
     recordingState.lastPressedKey = "";
+    recordingState.isClearing = false;
 
     Mousetrap.reset();
 
@@ -123,6 +125,9 @@
 
     console.log(`Clearing hotkey for action: ${recordingState.actionId}`);
 
+    recordingState.isClearing = true;
+    recordingState.lastPressedKey = "";
+
     const item = findHotkeyItemById(recordingState.actionId);
     if (item) {
       item.value = "";
@@ -131,7 +136,6 @@
       console.error(`Unknown action ID: ${recordingState.actionId}`);
     }
 
-    recordingState.lastPressedKey = "";
     await saveHotkeyConfig();
   }
 
@@ -157,6 +161,7 @@
     recordingState.isRecording = false;
     recordingState.actionId = null;
     recordingState.lastPressedKey = "";
+    recordingState.isClearing = false;
 
     console.log("Recording stopped");
   }
@@ -206,6 +211,7 @@
     const combination = parseKeyboardEvent(ev);
     if (combination) {
       recordingState.lastPressedKey = combination;
+      recordingState.isClearing = false;
       console.log("Set lastPressedKey to:", combination);
     }
   }}
@@ -423,7 +429,26 @@
       <div class="mb-4 rounded-md border border-zinc-600/50 bg-zinc-800/30 p-4">
         <div class="text-center">
           <div class="flex min-h-[3rem] items-center justify-center">
-            {#if recordingState.lastPressedKey}
+            {#if recordingState.isClearing}
+              <div class="flex items-center space-x-2 text-green-400">
+                <svg
+                  class="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                <span class="text-sm font-medium"
+                  >Hotkey cleared successfully</span
+                >
+              </div>
+            {:else if recordingState.lastPressedKey}
               <div class="flex items-center space-x-2">
                 {#each formatHotkey(recordingState.lastPressedKey).split("+") as keyPart, index}
                   {#if index > 0}
