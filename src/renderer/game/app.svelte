@@ -37,8 +37,10 @@
   bot.on("logout", () => (gameConnected = false));
 
   let topNavVisible = $state(true);
+
   let availableCells = $state<string[]>([]);
   let currentSelectedCell = $state<string>("");
+  let currentSelectedPad = $state<string>("");
   let prevRoomId = $state<number>(-1);
   let validPads = $state<
     {
@@ -46,7 +48,6 @@
       isValid: boolean;
     }[]
   >([]);
-  let currentSelectedPad = $state<string>("");
 
   function jumpToCell(cell: string) {
     if (!bot.player.isReady()) return;
@@ -188,23 +189,38 @@
     }
   }
 
+  const toggleBank = () => {
+    if (!bot.player.isReady()) return;
+
+    if (bot.bank.isOpen()) {
+      bot.flash.call(() => swf.bankOpen());
+    } else {
+      bot.bank.open();
+    }
+  };
+
+  const toggleAutoAggro = () => {
+    if (autoAggroEnabled) {
+      stopAutoAggro();
+      autoAggroEnabled = false;
+    } else {
+      startAutoAggro();
+      autoAggroEnabled = true;
+    }
+  };
+
   function handleHotkeyAction(actionId: string) {
     console.log(`🔥 Hotkey triggered: ${actionId}`);
 
     switch (actionId) {
       case "toggle-bank":
         console.log("Toggle Bank hotkey pressed");
+        toggleBank();
         break;
 
       case "toggle-auto-aggro":
         console.log("Toggle AutoAggro hotkey pressed");
-        if (autoAggroEnabled) {
-          stopAutoAggro();
-          autoAggroEnabled = false;
-        } else {
-          startAutoAggro();
-          autoAggroEnabled = true;
-        }
+        toggleAutoAggro();
         break;
 
       case "toggle-top-bar":
@@ -675,11 +691,7 @@
                 class="flex w-full items-center justify-between rounded-lg px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
                 onclick={() => {
                   autoAggroEnabled = !autoAggroEnabled;
-                  if (autoAggroEnabled) {
-                    startAutoAggro();
-                  } else {
-                    stopAutoAggro();
-                  }
+                  toggleAutoAggro();
                 }}
                 class:option-active={autoAggroEnabled}
               >

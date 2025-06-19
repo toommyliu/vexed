@@ -51,7 +51,7 @@ export function parseKeyboardEvent(ev: KeyboardEvent): string | null {
   if (ev.ctrlKey) parts.push("ctrl");
   if (ev.altKey) parts.push("alt");
   if (ev.shiftKey) parts.push("shift");
-  if (ev.metaKey) parts.push(isMac ? "cmd" : "meta");
+  if (ev.metaKey) parts.push(isMac ? "command" : "meta");
 
   let keyName = ev.key.toLowerCase();
   if (keyName === " ") keyName = "space";
