@@ -76,10 +76,8 @@ export class Army {
     //   return;
     // }
 
-    // Validate and add players to the army
-    const playerCountNum = Number.parseInt(String(playerCount), 10);
-    if (Number.isNaN(playerCountNum) || playerCountNum < 1) {
-      console.warn("Army: PlayerCount is not a valid number.");
+    if (playerCount < 1) {
+      console.warn("Army: PlayerCount must be at least 1.");
       return;
     }
 
