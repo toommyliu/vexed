@@ -5,16 +5,15 @@ import { FileManager } from "../shared/FileManager";
 import { DEFAULT_FAST_TRAVELS } from "../shared/constants";
 import { Logger } from "../shared/logger";
 import { sleep } from "../shared/sleep";
-import { HotkeyConfig, WindowIds } from "../shared/types";
 import type {
-  GrabberDataType,
-  LoaderDataType,
   FastTravel,
   FastTravelRoomNumber,
+  GrabberDataType,
+  LoaderDataType,
 } from "../shared/types";
+import { WindowIds } from "../shared/types";
 import { recursivelyApplySecurityPolicy } from "./util/recursivelyApplySecurityPolicy";
-import { createGame, windowStore, getManagerWindow } from "./windows";
-import { Config } from "../renderer/game/botting/util/Config";
+import { createGame, getManagerWindow, windowStore } from "./windows";
 
 const tipcInstance = tipc.create();
 const logger = Logger.get("IpcMain");

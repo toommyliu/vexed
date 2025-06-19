@@ -14,7 +14,7 @@ export class Army {
   /**
    * The config file for this group.
    */
-  public config!: Config;
+  public config!: Config<ArmyConfig>;
 
   /**
    * The players in this group.
@@ -56,30 +56,36 @@ export class Army {
 
     // console.log("Army: Config loaded", this.config.getAll());
 
-    const playerCount = this.config.get<string>("PlayerCount");
+    const playerCount = this.config.get("PlayerCount");
     if (!playerCount) {
       // console.warn("Army: PlayerCount not set in config file.");
       return;
     }
 
-    const roomNumber = this.config.get<string>("RoomNumber");
+    const roomNumber = this.config.get("RoomNumber");
     if (roomNumber) {
-      this.roomNumber = roomNumber;
+      this.roomNumber = String(roomNumber);
     } else {
       // console.warn("Army: RoomNumber not set in config file.");
       return;
     }
 
-    const playerCountNum = Number.parseInt(playerCount, 10);
-    if (Number.isNaN(playerCountNum)) {
-      // console.warn("Army: PlayerCount is not a number.");
+    // const playerCountNum = Number.parseInt(playerCount, 10);
+    // if (Number.isNaN(playerCountNum)) {
+    //   onsole.warn("Army: PlayerCount is not a number.");
+    //   return;
+    // }
+
+    // Validate and add players to the army
+    const playerCountNum = Number.parseInt(String(playerCount), 10);
+    if (Number.isNaN(playerCountNum) || playerCountNum < 1) {
+      console.warn("Army: PlayerCount is not a valid number.");
       return;
     }
 
-    // TODO: validate player count
-    for (let index = 1; index <= playerCountNum; index++) {
-      const player = this.config.get<string>(`Player${index}`);
-      if (player) {
+    for (let index = 1; index <= playerCount; index++) {
+      const player = this.config.get(`Player${index}`);
+      if (player && typeof player === "string") {
         this.players.add(player);
       } else {
         // console.warn(`Army: Player${index} not set in config file.`);
@@ -119,7 +125,7 @@ export class Army {
    * @returns True if this player is the leader, false otherwise.
    */
   public isLeader(): boolean {
-    const og_player1 = this.config.get<string>("Player1");
+    const og_player1 = this.config.get("Player1");
     const player_1 = typeof og_player1 === "string" ? og_player1?.trim() : "";
 
     return (
@@ -161,3 +167,20 @@ export class Army {
     this.bot.packets.sendServer("%xt%zm%afk%1%false%");
   }
 }
+
+type ArmyConfig = {
+  [key: `Player${number}`]: string;
+  PlayerCount: number;
+  RoomNumber: number;
+} & {
+  [setName: string]: {
+    [key: `Player${number}`]: {
+      Armor?: string;
+      Cape?: string;
+      Class?: string;
+      Helm?: string;
+      Pet?: string;
+      Weapon?: string;
+    };
+  };
+};
