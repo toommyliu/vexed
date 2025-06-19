@@ -5,7 +5,7 @@ import type { RendererHandlers, TipcRouter } from "../main/tipc";
 export const client = createClient<TipcRouter>({
   ipcInvoke: async (...args) => {
     try {
-      await ipcRenderer.invoke(...args);
+      return await ipcRenderer.invoke(...args);
     } catch (error) {
       console.error("IPC invoke error:", error);
 

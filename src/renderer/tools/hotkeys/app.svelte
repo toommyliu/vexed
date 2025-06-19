@@ -344,6 +344,7 @@
                           ondblclick={() => startRecording(item.id)}
                           title="Double-click to edit"
                           role="button"
+                          tabindex="0"
                         >
                           {formatHotkey(item.value)}
                         </div>
