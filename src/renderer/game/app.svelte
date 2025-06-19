@@ -152,9 +152,6 @@
     Mousetrap.reset();
 
     try {
-      console.log("Loading hotkeys from config...");
-      console.log("Config contents:", config.getAll());
-
       for (const section of hotkeysSections) {
         for (const item of section.items) {
           const hotkeyValue = config.get(item.configKey as any, "")! as string;
@@ -166,25 +163,20 @@
           }
         }
       }
-
-      console.log("Hotkeys loaded successfully from config");
     } catch (error) {
       console.error("Failed to load hotkeys from config:", error);
     }
   }
 
   function setupHotkeyHandlers() {
-    console.log("setupHotkeyHandlers called");
-
     for (const section of hotkeysSections) {
       for (const item of section.items) {
-        if (item.value && isValidHotkey(item.value)) {
-          console.log(`Binding hotkey: ${item.value} for action: ${item.id}`);
-          Mousetrap.bind(item.value, (ev) => {
-            ev.preventDefault();
-            handleHotkeyAction(item.id);
-          });
-        }
+        if (!item.value || !isValidHotkey(item.value)) continue;
+
+        Mousetrap.bind(item.value, (ev) => {
+          ev.preventDefault();
+          handleHotkeyAction(item.id);
+        });
       }
     }
   }
@@ -210,73 +202,55 @@
   };
 
   function handleHotkeyAction(actionId: string) {
-    console.log(`🔥 Hotkey triggered: ${actionId}`);
-
     switch (actionId) {
       case "toggle-bank":
-        console.log("Toggle Bank hotkey pressed");
         toggleBank();
         break;
 
       case "toggle-auto-aggro":
-        console.log("Toggle AutoAggro hotkey pressed");
         toggleAutoAggro();
         break;
 
       case "toggle-top-bar":
-        console.log("Toggle Top Bar hotkey pressed");
         topNavVisible = !topNavVisible;
         break;
 
       case "load-script":
-        console.log("Load Script hotkey pressed");
         void client.loadScript({ scriptPath: "" });
         break;
 
       case "toggle-script":
-        console.log("Toggle Script hotkey pressed");
         toggleScript();
         break;
 
       case "toggle-command-overlay":
-        console.log("Toggle Command Overlay hotkey pressed");
         if (window.context?.overlay) {
           scriptState.showOverlay = !scriptState.showOverlay;
         }
         break;
 
       case "toggle-dev-tools":
-        console.log("Toggle Dev Tools hotkey pressed");
         void client.toggleDevTools();
         break;
 
       case "open-fast-travels":
-        console.log("Open Fast Travels hotkey pressed");
         void client.launchWindow(WindowIds.FastTravels);
         break;
 
       case "open-loader-grabber":
-        console.log("Open Loader/Grabber hotkey pressed");
         void client.launchWindow(WindowIds.LoaderGrabber);
         break;
 
       case "open-follower":
-        console.log("Open Follower hotkey pressed");
         void client.launchWindow(WindowIds.Follower);
         break;
 
       case "open-packet-logger":
-        console.log("Open Packet Logger hotkey pressed");
         void client.launchWindow(WindowIds.PacketLogger);
         break;
 
       case "open-packet-spammer":
-        console.log("Open Packet Spammer hotkey pressed");
         void client.launchWindow(WindowIds.PacketSpammer);
-        break;
-
-      default:
-        console.log(`Unknown hotkey action: ${actionId}`);
         break;
     }
   }
