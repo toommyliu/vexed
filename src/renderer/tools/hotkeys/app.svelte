@@ -125,9 +125,6 @@
 
     console.log(`Clearing hotkey for action: ${recordingState.actionId}`);
 
-    recordingState.isClearing = true;
-    recordingState.lastPressedKey = "";
-
     const item = findHotkeyItemById(recordingState.actionId);
     if (item) {
       item.value = "";
@@ -137,6 +134,7 @@
     }
 
     await saveHotkeyConfig();
+    stopRecording();
   }
 
   function findHotkeyItemById(actionId: string) {
