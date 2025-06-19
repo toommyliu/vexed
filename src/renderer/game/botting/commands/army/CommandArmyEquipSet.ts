@@ -22,16 +22,24 @@ export class CommandArmyEquipSet extends ArmyCommand {
       return;
     }
 
-    const playerSet = set[`Player${playerNumber}`] as Set;
+    let playerSet = set[`Player${playerNumber}`] as Set;
+
     if (!playerSet || typeof playerSet !== "object") {
-      console.warn(`Player${playerNumber} not found in set.`);
-      return;
+      // Try to fallback to Default set
+      playerSet = set?.["Default"] as Set;
+
+      if (!playerSet || typeof playerSet !== "object") {
+        console.warn(`Player${playerNumber} and Default set not found in set.`);
+        return;
+      }
     }
 
     for (const [key, item] of Object.entries(playerSet)) {
       if (!ALLOWED_KEYS.includes(key.toLowerCase())) continue;
 
-      if (item) await this.bot.inventory.equip(item);
+      if (item) {
+        await this.bot.inventory.equip(item);
+      }
     }
   }
 
