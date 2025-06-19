@@ -2,7 +2,7 @@
   import Mousetrap from "mousetrap";
   import { onDestroy, onMount } from "svelte";
   import { Config } from "../../game/botting/util/Config";
-  import type { HotkeyConfig } from "../../../shared";
+  import { client, type HotkeyConfig } from "../../../shared";
   import type { HotkeySection, RecordingState } from "./types";
   import {
     isMac,
@@ -60,6 +60,7 @@
         }
       }
 
+      console.log(hotkeysSections);
       console.log("Hotkeys loaded successfully from config");
     } catch (error) {
       console.error("Failed to load hotkeys from config:", error);
@@ -111,6 +112,10 @@
 
     stopRecording();
     await saveHotkeyConfig();
+    await client.updateHotkey({
+      id: item!.id,
+      value: combination,
+    });
   }
 
   async function clearHotkey() {

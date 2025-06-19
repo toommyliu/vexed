@@ -147,6 +147,9 @@
       return;
     }
 
+    // Unbind all
+    Mousetrap.reset();
+
     try {
       console.log("Loading hotkeys from config...");
       console.log("Config contents:", config.getAll());
@@ -172,14 +175,12 @@
   function setupHotkeyHandlers() {
     console.log("setupHotkeyHandlers called");
 
-    Mousetrap.reset();
-
     for (const section of hotkeysSections) {
       for (const item of section.items) {
         if (item.value && isValidHotkey(item.value)) {
           console.log(`Binding hotkey: ${item.value} for action: ${item.id}`);
-          Mousetrap.bind(item.value, (e) => {
-            e.preventDefault();
+          Mousetrap.bind(item.value, (ev) => {
+            ev.preventDefault();
             handleHotkeyAction(item.id);
           });
         }
@@ -279,7 +280,7 @@
     await import("./tipc/tipc-packet-spammer");
 
     // Wait for the game to load
-    // This prevents
+    // This prevents hotkeys from being set, before the game is ready and used
     while (!appState.gameLoaded) {
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
@@ -292,6 +293,13 @@
 
   onDestroy(() => {
     Mousetrap.reset();
+  });
+
+  handlers.hotkeysUpdate.handle(async () => {
+    // Just reload all the hotkeys
+    config?.load();
+    await loadHotkeysFromConfig();
+    setupHotkeyHandlers();
   });
 </script>
 
