@@ -23,7 +23,7 @@ export class CommandArmyEquipSet extends ArmyCommand {
     }
 
     const playerSet = set[`Player${playerNumber}`] as Set;
-    if (!playerSet && typeof playerSet !== "object") {
+    if (!playerSet || typeof playerSet !== "object") {
       console.warn(`Player${playerNumber} not found in set.`);
       return;
     }
