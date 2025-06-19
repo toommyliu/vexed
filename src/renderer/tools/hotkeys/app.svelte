@@ -343,6 +343,8 @@
                           class="rounded-md bg-gray-800/50 px-2 py-1 font-mono text-xs text-white"
                           ondblclick={() => startRecording(item.id)}
                           title="Double-click to edit"
+                          role="button"
+                          tabindex="0"
                         >
                           {formatHotkey(item.value)}
                         </div>
@@ -351,6 +353,7 @@
                           class="ml-2 rounded-md bg-gray-800/50 p-1 text-white transition-all duration-200 hover:bg-gray-700/60"
                           onclick={() => startRecording(item.id)}
                           title="Edit hotkey"
+                          aria-label="Edit hotkey"
                         >
                           <svg
                             class="h-4 w-4"
