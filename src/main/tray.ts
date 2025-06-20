@@ -34,7 +34,7 @@ const deleteDirectory = async (dirPath: string) => {
     // Delete directories
     for (const dir of sortedDirs) await fs.rmdir(dir);
 
-    // Finally, deleteh the root directory
+    // Finally, delete the root directory
     await fs.rmdir(dirPath);
   } catch {}
 };
