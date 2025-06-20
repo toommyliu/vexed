@@ -4,6 +4,7 @@ import { CommandRegistry } from "../../command-registry";
 import { Context } from "../../context";
 import { CommandAutoAggro } from "./CommandAutoAggro";
 import { CommandBuff } from "./CommandBuff";
+import { CommandBuyScrollOfEnrage } from "./CommandBuyScrollOfEnrage";
 import { CommandBuyScrollOfLifeSteal } from "./CommandBuyScrollOfLifeSteal";
 import { CommandDelay } from "./CommandDelay";
 // import { CommandEquipLoadout } from "./CommandEquipLoadout";
@@ -572,6 +573,15 @@ export const miscCommands = {
 
     const cmd = new CommandSetFPS();
     cmd.fps = Math.trunc(fps);
+    window.context.addCommand(cmd);
+  },
+  buy_scroll_of_enrage(qty: number) {
+    if (!qty || typeof qty !== "number" || qty < 0) {
+      throw new ArgsError("qty is required");
+    }
+
+    const cmd = new CommandBuyScrollOfEnrage();
+    cmd.qty = Math.min(Math.trunc(qty), 1_000);
     window.context.addCommand(cmd);
   },
 };
