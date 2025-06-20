@@ -1,5 +1,4 @@
 import { join, resolve } from "path";
-import process from "process";
 import { app, BrowserWindow } from "electron";
 import { BRAND } from "../shared/constants";
 import { recursivelyApplySecurityPolicy } from "./util/recursivelyApplySecurityPolicy";
@@ -51,36 +50,20 @@ export async function createGame(
 ): Promise<void> {
   const args: string[] = [];
 
-  const usernameArgv = process.argv
-    .find((arg) => arg.startsWith("--username="))
-    ?.split("=")[1];
-  const username = account?.username ?? usernameArgv;
-  if (username) {
-    args.push(`--username=${username}`);
+  if (account?.username) {
+    args.push(`--username=${account.username}`);
   }
 
-  const passwordArgv = process.argv
-    .find((arg) => arg.startsWith("--password="))
-    ?.split("=")[1];
-  const password = account?.password ?? passwordArgv;
-  if (password) {
-    args.push(`--password=${password}`);
+  if (account?.password) {
+    args.push(`--password=${account.password}`);
   }
 
-  const serverArgv = process.argv
-    .find((arg) => arg.startsWith("--server="))
-    ?.split("=")[1];
-  const server = account?.server ?? serverArgv;
-  if (server) {
-    args.push(`--server=${server}`);
+  if (account?.server) {
+    args.push(`--server=${account.server}`);
   }
 
-  const scriptPathArgv = process.argv
-    .find((arg) => arg.startsWith("--scriptPath="))
-    ?.split("=")[1];
-  const scriptPath = account?.scriptPath ?? scriptPathArgv;
-  if (scriptPath) {
-    const encodedScriptPath = encodeURIComponent(scriptPath);
+  if (account?.scriptPath) {
+    const encodedScriptPath = encodeURIComponent(account.scriptPath);
     args.push(`--scriptPath=${encodedScriptPath}`);
   }
 
@@ -105,9 +88,9 @@ export async function createGame(
   void window.loadURL(`file://${resolve(DIST_GAME, "index.html")}`);
   recursivelyApplySecurityPolicy(window);
 
-  // if (!app.isPackaged) {
-  window.webContents.openDevTools({ mode: "right" });
-  // }
+  if (!app.isPackaged) {
+    window.webContents.openDevTools({ mode: "right" });
+  }
 
   window.on("close", () => {
     const windows = windowStore.get(window?.id);
@@ -118,7 +101,11 @@ export async function createGame(
       ];
 
       for (const window of toClose) {
-        if (window && !window.isDestroyed()) {
+        if (
+          window &&
+          !window?.isDestroyed() &&
+          !window?.webContents?.isDestroyed()
+        ) {
           window.destroy();
         }
       }
