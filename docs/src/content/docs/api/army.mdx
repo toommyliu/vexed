@@ -19,9 +19,10 @@ Splits the army into multiple cells, allowing for more efficient farming.
 ### cmd.army_equip_set
 Equips a set from the army config file.
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| setName | `string` | The name of the set to equip. |
+| Parameter | Type | Optional | Default | Description |
+|-----------|------|----------|---------|-------------|
+| setName | `string` |  |  | The name of the set to equip. |
+| refMode | `boolean` | ✓ | `false` | Whether to resolve item names through a common lookup table. |
 
 
 ### cmd.army_init

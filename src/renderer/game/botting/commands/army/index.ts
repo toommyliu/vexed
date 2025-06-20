@@ -215,14 +215,20 @@ export const armyCommands = {
    * Equips a set from the army config file.
    *
    * @param setName - The name of the set to equip.
+   * @param refMode - Whether to resolve item names through a common lookup table.
    */
-  army_equip_set(setName: string) {
+  army_equip_set(setName: string, refMode: boolean = false) {
     if (!setName || typeof setName !== "string") {
       throw new ArgsError("setName is required");
     }
 
+    if (typeof refMode !== "boolean") {
+      throw new ArgsError("refMode is required");
+    }
+
     const cmd = new CommandArmyEquipSet();
     cmd.setName = setName;
+    cmd.refMode = refMode;
     window.context.addCommand(cmd);
   },
   /**
