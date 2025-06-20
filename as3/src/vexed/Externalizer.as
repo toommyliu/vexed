@@ -2,6 +2,7 @@ package vexed {
   import flash.external.ExternalInterface;
   import vexed.module.Modules;
   import vexed.game.*;
+  import flash.text.TextField;
 
   public class Externalizer {
     public function init(root:Main):void {
@@ -197,13 +198,15 @@ package vexed {
       externalize("worldSetSpawnPoint", World.setSpawnPoint);
       externalize("worldGetPlayerAuras", World.getPlayerAuras);
 
-      externalize("isChatFocused", function():Boolean {
+      // Should cover all cases
+      externalize("isTextFieldFocused", function():Boolean {
           var game:* = Main.getInstance().getGame();
 
-          if (game.ui && game.ui.mcInterface) {
-            var textField:Object = (game.intChatMode == 0) ? game.ui.mcInterface.te : game.ui.mcInterface.ncText;
-            if (textField)
-              return game.stage.focus == textField;
+          try {
+            return game.stage.focus is TextField;
+          }
+          catch (e:Error) {
+            return false;
           }
 
           return false;

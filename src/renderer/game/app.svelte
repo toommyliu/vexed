@@ -174,6 +174,15 @@
         if (!item.value || !isValidHotkey(item.value)) continue;
 
         Mousetrap.bind(item.value, (ev) => {
+          // Prevent hotkeys from triggering if any text field is focused
+          // But we don't call ev.preventDefault() here, so the input can still be typed
+          if (bot.flash.call(() => swf.isTextFieldFocused())) {
+            console.log(
+              "Hotkey triggered while text field is focused, ignoring.",
+            );
+            return;
+          }
+
           ev.preventDefault();
           handleHotkeyAction(item.id);
         });
