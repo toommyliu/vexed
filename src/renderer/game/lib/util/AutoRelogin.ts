@@ -6,7 +6,11 @@ import { Bot } from "../Bot";
 const logger = Logger.get("AutoRelogin");
 
 /**
- * As long as credentials are set, an auto relogin will be attempted.
+ * Auto Relogin attempts a login using the provided username and password.
+ *
+ * If no server is provided, the bot will login and stay at the server select screen.
+ *
+ * If a server is provided, it will attempt to connect to the provided server.
  */
 export class AutoRelogin {
   private readonly bot = Bot.getInstance();
@@ -86,7 +90,7 @@ export class AutoRelogin {
 
         this.bot.auth.login(this.username!, this.password!);
 
-        // wait for servers to be loaded
+        // Wait for servers to be loaded
         await this.bot.waitUntil(
           () =>
             this.bot.flash.get("mcLogin.currentLabel", true) === "Servers" &&
@@ -97,15 +101,14 @@ export class AutoRelogin {
           (srv) => srv.name.toLowerCase() === this.server!.toLowerCase(),
         );
 
-        // unknown server provided
+        // Unknown server provided
         if (!server) return;
 
         this.bot.auth.connectTo(server.name);
 
         await this.bot.waitUntil(() => this.bot.player.isReady(), null, 25);
 
-        // TODO: needs further testing
-        // e.g. still stuck in blue flame
+        // E.g. still stuck in blue flame
         if (!this.bot.player.isReady()) {
           console.warn("Player not ready after login, retrying...");
           this.bot.auth.logout();
@@ -134,10 +137,13 @@ export class AutoRelogin {
   public setCredentials(
     username: string,
     password: string,
-    server: string,
+    server?: string,
   ): void {
     this.username = username;
     this.password = password;
-    this.server = server;
+
+    if (server) {
+      this.server = server;
+    }
   }
 }

@@ -78,6 +78,10 @@ export default defineConfig({
           label: "Reference",
           items: [
             {
+              label: "CLI Args",
+              link: "/reference/cli-args/",
+            },
+            {
               label: "Game",
               link: "/reference/game/",
             },
