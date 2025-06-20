@@ -5,6 +5,9 @@ const ALLOWED_KEYS = ["armor", "cape", "class", "helm", "pet", "weapon"];
 export class CommandArmyEquipSet extends ArmyCommand {
   public setName!: string;
 
+  // When true, resolves item names through a common lookup table.
+  public refMode: boolean = false;
+
   public override async execute(): Promise<void> {
     const set = this.bot.army.config.get(this.setName) as unknown as Record<
       string,
@@ -37,14 +40,24 @@ export class CommandArmyEquipSet extends ArmyCommand {
     for (const [key, item] of Object.entries(playerSet)) {
       if (!ALLOWED_KEYS.includes(key.toLowerCase())) continue;
 
-      if (item) {
-        await this.bot.inventory.equip(item);
+      const resItem = this.#resolveItem(item);
+      if (resItem) {
+        await this.bot.inventory.equip(resItem);
       }
     }
   }
 
   public override toString() {
-    return `Army equip set: ${this.setName}`;
+    return `Army equip set: ${this.setName}${this.refMode ? " [ref mode]" : ""}`;
+  }
+
+  #resolveItem(item: string): string | null {
+    if (this.refMode) {
+      const res = this.bot.army.config.get(item);
+      return typeof res === "string" ? res : null;
+    }
+
+    return item;
   }
 }
 
