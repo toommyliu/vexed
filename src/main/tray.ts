@@ -1,6 +1,6 @@
 import { Menu, Tray, app, dialog, nativeImage, session } from "electron";
 import fs from "fs-extra";
-import { join } from "path";
+import { join, sep } from "path";
 import process from "process";
 import { totalist } from "totalist";
 import { BRAND } from "../shared/constants";
@@ -28,7 +28,7 @@ const deleteDirectory = async (dirPath: string) => {
 
     // Sort the directories by depth (a.k.a deepest path first)
     const sortedDirs = Array.from(dirs).sort(
-      (a, b) => b.split("/").length - a.split("/").length,
+      (a, b) => b.split(sep).length - a.split(sep).length,
     );
 
     // Delete directories
