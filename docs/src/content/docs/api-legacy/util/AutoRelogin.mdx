@@ -4,7 +4,15 @@ title: AutoRelogin
 
 import { Badge, Code } from "@astrojs/starlight/components";
 
-As long as credentials are set, an auto relogin will be attempted.
+Auto Relogin attempts a login using the provided username and password.
+
+
+
+If no server is provided, the bot will login and stay at the server select screen.
+
+
+
+If a server is provided, it will attempt to connect to the provided server.
 
 
 ## Properties
@@ -22,10 +30,10 @@ Type: `null` \| `string`
 
 ### setCredentials
 Sets the credentials for auto-login.
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| username | `string` | The username to login with. |
-| password | `string` | The password to login with. |
-| server | `string` | The server name to connect to. |
+| Parameter | Type | Optional | Default | Description |
+|-----------|------|----------|---------|-------------|
+| username | `string` |  |  | The username to login with. |
+| password | `string` |  |  | The password to login with. |
+| server | `string`? | ✓ |  | The server name to connect to. |
 
 **Returns**: `void`

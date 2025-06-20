@@ -49,6 +49,7 @@ export async function createGame(
   account: AccountWithServer | null = null,
 ): Promise<void> {
   const args: string[] = [];
+
   if (account?.username) {
     args.push(`--username=${account.username}`);
   }
@@ -100,7 +101,11 @@ export async function createGame(
       ];
 
       for (const window of toClose) {
-        if (window && !window.isDestroyed()) {
+        if (
+          window &&
+          !window?.isDestroyed() &&
+          !window?.webContents?.isDestroyed()
+        ) {
           window.destroy();
         }
       }

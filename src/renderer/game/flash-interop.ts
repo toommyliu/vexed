@@ -92,32 +92,57 @@ window.loaded = async () => {
 
   const usernameArg = process.argv.find((arg) => arg.startsWith("--username="));
   const passwordArg = process.argv.find((arg) => arg.startsWith("--password="));
-  const serverArg = process.argv.find((arg) => arg.startsWith("--server="));
   const scriptPath = process.argv.find((arg) =>
     arg.startsWith("--scriptPath="),
   );
 
-  if (usernameArg && passwordArg && serverArg) {
+  if (usernameArg && passwordArg) {
     const [, username] = usernameArg.split("=");
     const [, password] = passwordArg.split("=");
-    const [, server] = serverArg.split("=");
 
-    if (!username || !password || !server) return;
+    const serverArg = process.argv.find((arg) => arg.startsWith("--server="));
+    const server = serverArg?.split("=")?.[1];
 
-    const ogDelay = bot.autoRelogin.delay;
+    if (!username || !password) {
+      return;
+    }
 
-    bot.autoRelogin.setCredentials(username!, password!, server!);
-    bot.autoRelogin.delay = 0;
+    await bot.waitUntil(
+      () =>
+        bot.flash.get("mcLogin.currentLabel", true) === "Init" &&
+        !bot.auth.isTemporarilyKicked(), // Ensure the player wasn't kicked earlier (this'll probably never happen)
+      null,
+      -1,
+    );
 
-    // Auto Relogin should have triggered by now, wait for the player to be ready now
-    await bot.waitUntil(() => bot.player.isReady(), null, -1);
+    if (server) {
+      const ogDelay = bot.autoRelogin.delay;
 
-    // Reset credentials and delay
-    bot.autoRelogin.setCredentials("", "", "");
-    bot.autoRelogin.delay = ogDelay;
+      bot.autoRelogin.setCredentials(username!, password!, server!);
+      bot.autoRelogin.delay = 0;
 
-    // logger.info("auto relogin success, responding");
-    await client.managerLoginSuccess({ username });
+      // Wait for the player to be ready
+      // This should properly handle the instances where the player logs in,
+      // but doesn't get a chance to fully load in for some reason...
+      await bot.waitUntil(() => bot.player.isReady(), null, -1);
+
+      // Reset credentials and delay
+      bot.autoRelogin.setCredentials("", "", "");
+      bot.autoRelogin.delay = ogDelay;
+
+      // logger.info("auto relogin success, responding");
+      await client.managerLoginSuccess({ username });
+    } else {
+      bot.auth.login(username!, password!);
+
+      await bot.waitUntil(
+        () => bot.flash.get("mcLogin.currentLabel", true) === "Servers",
+        null,
+        -1,
+      );
+
+      await client.managerLoginSuccess({ username });
+    }
   }
 
   if (scriptPath) {

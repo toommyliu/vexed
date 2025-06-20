@@ -13,8 +13,6 @@ import { createAccountManager, createGame } from "./windows";
 
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 
-registerIpcMain(router);
-
 function registerFlashPlugin() {
   // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
   const flashTrust = require("nw-flash-trust");
@@ -50,12 +48,7 @@ function registerFlashPlugin() {
   trustManager.add(join(assetsPath, "loader.swf"));
 }
 
-registerFlashPlugin();
-
-// app.commandLine.appendSwitch('disable-renderer-backgrounding');
-// app.commandLine.appendArgument('--disable-renderer-backgrounding');
-
-app.once("ready", async () => {
+async function handleAppLaunch(argv: string[] = process.argv) {
   try {
     await FileManager.initialize();
 
@@ -63,10 +56,31 @@ app.once("ready", async () => {
       FileManager.settingsPath,
     );
 
-    if (settings?.launchMode?.toLowerCase() === "manager") {
+    if (
+      settings?.launchMode?.toLowerCase() === "manager" ||
+      argv.some((arg) => arg === "--manager" || arg === "-m")
+    ) {
       await createAccountManager();
-    } else {
-      await createGame();
+    } else if (
+      settings?.launchMode?.toLowerCase() === "game" ||
+      argv.some((arg) => arg === "--game" || arg === "-g")
+    ) {
+      const account = {
+        username:
+          argv.find((arg) => arg.startsWith("--username="))?.split("=")?.[1] ??
+          "",
+        password:
+          argv.find((arg) => arg.startsWith("--password="))?.split("=")?.[1] ??
+          "",
+        server:
+          argv.find((arg) => arg.startsWith("--server="))?.split("=")[1] ?? "",
+        scriptPath:
+          argv
+            .find((arg) => arg.startsWith("--scriptPath="))
+            ?.split("=")?.[1] ?? "",
+      };
+
+      await createGame(account);
     }
   } catch (error) {
     const err = error as Error;
@@ -75,6 +89,22 @@ app.once("ready", async () => {
       message: "Failed to initialize the application.",
     });
   }
-});
+}
+
+registerFlashPlugin();
+registerIpcMain(router);
+
+const gotTheLock = app.requestSingleInstanceLock();
+if (gotTheLock) {
+  // Main instance: handle second instance attempts
+  app.on("second-instance", async (_ev, argv, _workingDirectory) =>
+    handleAppLaunch(argv),
+  );
+} else {
+  // Another instance: don't do anything and immediately exit
+  app.exit();
+}
+
+app.once("ready", async () => handleAppLaunch());
 
 app.on("window-all-closed", () => app.exit());
