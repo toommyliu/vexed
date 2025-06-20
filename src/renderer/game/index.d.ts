@@ -197,7 +197,7 @@ declare global {
     worldGetMapItem(itemId: number): void;
     worldSetSpawnPoint(cell?: string, pad?: string): void;
 
-    isChatFocused(): boolean;
+    isTextFieldFocused(): boolean;
   };
   /* eslint-enable typescript-sort-keys/interface */
 

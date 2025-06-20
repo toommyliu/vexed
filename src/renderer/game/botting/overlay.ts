@@ -346,7 +346,7 @@ export class CommandOverlay extends TypedEmitter<Events> {
     document.addEventListener("keydown", (ev) => {
       try {
         // If for some reason, the chat is focused, ignore key events
-        if (swf.isChatFocused()) return;
+        if (swf.isTextFieldFocused()) return;
 
         // Toggle overlay visibility
         if (ev.key === "`" || ev.key === "~") {
