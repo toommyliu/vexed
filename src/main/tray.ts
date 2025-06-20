@@ -1,9 +1,10 @@
-import { Menu, Tray, app, dialog, nativeImage, session } from "electron";
-import fs from "fs-extra";
 import { join, sep } from "path";
 import process from "process";
+import { Menu, Tray, app, dialog, nativeImage, session } from "electron";
+import fs from "fs-extra";
 import { totalist } from "totalist";
 import { BRAND } from "../shared/constants";
+import { showErrorDialog } from "./util/showErrorDialog";
 import { createAccountManager, createGame } from "./windows";
 
 let tray: Tray | null = null;
@@ -36,7 +37,11 @@ const deleteDirectory = async (dirPath: string) => {
 
     // Finally, delete the root directory
     await fs.rmdir(dirPath);
-  } catch {}
+  } catch {
+    showErrorDialog({
+      message: "Failed to clear Flash cache",
+    });
+  }
 };
 
 const contextMenu = Menu.buildFromTemplate([
