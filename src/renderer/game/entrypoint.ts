@@ -13,5 +13,3 @@ for (const command in cmd) {
   const cmdFunction = cmd[command]!;
   commandRegistry.registerCommand(cmdName, cmdFunction);
 }
-
-console.log(process.argv);

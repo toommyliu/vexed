@@ -105,9 +105,9 @@ export async function createGame(
   void window.loadURL(`file://${resolve(DIST_GAME, "index.html")}`);
   recursivelyApplySecurityPolicy(window);
 
-  if (!app.isPackaged) {
-    window.webContents.openDevTools({ mode: "right" });
-  }
+  // if (!app.isPackaged) {
+  window.webContents.openDevTools({ mode: "right" });
+  // }
 
   window.on("close", () => {
     const windows = windowStore.get(window?.id);
