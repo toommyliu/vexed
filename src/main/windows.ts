@@ -8,11 +8,23 @@ const DIST_GAME = join(DIST, "game/");
 const DIST_MANAGER = join(DIST, "manager/");
 
 let mgrWindow: BrowserWindow | null;
+let isQuitting = false;
 
 export const windowStore: WindowStore = new Map();
 
 export function getManagerWindow(): BrowserWindow | null {
   return mgrWindow;
+}
+
+export function setQuitting(quitting: boolean): void {
+  isQuitting = quitting;
+}
+
+export function destroyManagerWindow(): void {
+  if (mgrWindow && !mgrWindow.isDestroyed()) {
+    mgrWindow.destroy();
+    mgrWindow = null;
+  }
 }
 
 export async function createAccountManager(): Promise<void> {
@@ -32,6 +44,11 @@ export async function createAccountManager(): Promise<void> {
     useContentSize: true,
   });
   window.on("close", (ev) => {
+    // App is quitting, allow the window to close
+    if (isQuitting) {
+      return;
+    }
+
     ev.preventDefault();
     window.hide();
   });

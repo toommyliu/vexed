@@ -9,7 +9,12 @@ import { BRAND } from "../shared/constants";
 import type { Settings } from "../shared/types";
 import { router } from "./tipc";
 import { showErrorDialog } from "./util/showErrorDialog";
-import { createAccountManager, createGame } from "./windows";
+import {
+  createAccountManager,
+  createGame,
+  setQuitting,
+  destroyManagerWindow,
+} from "./windows";
 
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 
@@ -107,4 +112,9 @@ if (gotTheLock) {
 
 app.once("ready", async () => handleAppLaunch());
 
-app.on("window-all-closed", () => app.exit());
+app.on("before-quit", () => {
+  setQuitting(true);
+  destroyManagerWindow();
+});
+
+app.on("window-all-closed", () => app.quit());
