@@ -1,4 +1,5 @@
 import { join, resolve } from "path";
+import process from "process";
 import { app, BrowserWindow } from "electron";
 import { BRAND } from "../shared/constants";
 import { recursivelyApplySecurityPolicy } from "./util/recursivelyApplySecurityPolicy";
@@ -49,20 +50,37 @@ export async function createGame(
   account: AccountWithServer | null = null,
 ): Promise<void> {
   const args: string[] = [];
-  if (account?.username) {
-    args.push(`--username=${account.username}`);
+
+  const usernameArgv = process.argv
+    .find((arg) => arg.startsWith("--username="))
+    ?.split("=")[1];
+  const username = account?.username ?? usernameArgv;
+  if (username) {
+    args.push(`--username=${username}`);
   }
 
-  if (account?.password) {
-    args.push(`--password=${account.password}`);
+  const passwordArgv = process.argv
+    .find((arg) => arg.startsWith("--password="))
+    ?.split("=")[1];
+  const password = account?.password ?? passwordArgv;
+  if (password) {
+    args.push(`--password=${password}`);
   }
 
-  if (account?.server) {
-    args.push(`--server=${account.server}`);
+  const serverArgv = process.argv
+    .find((arg) => arg.startsWith("--server="))
+    ?.split("=")[1];
+  const server = account?.server ?? serverArgv;
+  if (server) {
+    args.push(`--server=${server}`);
   }
 
-  if (account?.scriptPath) {
-    const encodedScriptPath = encodeURIComponent(account.scriptPath);
+  const scriptPathArgv = process.argv
+    .find((arg) => arg.startsWith("--scriptPath="))
+    ?.split("=")[1];
+  const scriptPath = account?.scriptPath ?? scriptPathArgv;
+  if (scriptPath) {
+    const encodedScriptPath = encodeURIComponent(scriptPath);
     args.push(`--scriptPath=${encodedScriptPath}`);
   }
 

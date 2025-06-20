@@ -97,6 +97,8 @@ window.loaded = async () => {
     arg.startsWith("--scriptPath="),
   );
 
+  // TODO: make serverArg optional
+
   if (usernameArg && passwordArg && serverArg) {
     const [, username] = usernameArg.split("=");
     const [, password] = passwordArg.split("=");

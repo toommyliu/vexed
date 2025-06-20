@@ -63,9 +63,15 @@ app.once("ready", async () => {
       FileManager.settingsPath,
     );
 
-    if (settings?.launchMode?.toLowerCase() === "manager") {
+    if (
+      settings?.launchMode?.toLowerCase() === "manager" ||
+      process.argv.some((arg) => arg === "--manager" || arg === "-m")
+    ) {
       await createAccountManager();
-    } else {
+    } else if (
+      settings?.launchMode?.toLowerCase() === "game" ||
+      process.argv.some((arg) => arg === "--game" || arg === "-g")
+    ) {
       await createGame();
     }
   } catch (error) {
