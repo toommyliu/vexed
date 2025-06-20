@@ -663,10 +663,7 @@
             >
               <button
                 class="flex w-full items-center justify-between rounded-lg px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
-                onclick={() => {
-                  autoAggroEnabled = !autoAggroEnabled;
-                  toggleAutoAggro();
-                }}
+                onclick={() => toggleAutoAggro()}
                 class:option-active={autoAggroEnabled}
               >
                 <span>Enabled</span>
