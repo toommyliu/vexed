@@ -42,6 +42,7 @@ export class CommandArmyEquipSet extends ArmyCommand {
 
       const resItem = this.#resolveItem(item);
       if (resItem) {
+        console.log(`Equip ${resItem}`);
         await this.bot.inventory.equip(resItem);
       }
     }

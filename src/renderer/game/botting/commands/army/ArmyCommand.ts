@@ -26,14 +26,14 @@ export abstract class ArmyCommand extends Command {
 
     this.armyReadyPromise = new Promise<void>((resolve) => {
       const listener = async () => {
-        // console.log("All players have completed the action");
+        console.log("All players have completed the action");
         // ipcRenderer.removeListener(IPC_EVENTS.ARMY_READY, listener);
         this.isListenerRegistered = false;
         this.allDone = true;
         resolve();
       };
 
-      // console.log("Registering listener for army ready");
+      console.log("Registering listener for army ready");
       // ipcRenderer.on(IPC_EVENTS.ARMY_READY, listener);
       handlers.armyReady.handle(listener);
       this.isListenerRegistered = true;
@@ -48,7 +48,7 @@ export abstract class ArmyCommand extends Command {
    * @param action - The action to execute
    */
   protected async executeWithArmy(action: () => Promise<void>): Promise<void> {
-    // console.log("Executing army command");
+    console.log("Executing army command");
 
     const allReadyPromise = this.setupArmyReadyListener();
 
@@ -63,9 +63,9 @@ export abstract class ArmyCommand extends Command {
     await this.sendDone();
 
     // Wait for all players
-    // console.log("Waiting for all players to finish...");
+    console.log("Waiting for all players to finish...");
     await allReadyPromise;
-    // console.log("All players have finished");
+    console.log("All players have finished");
   }
 
   /**
@@ -77,9 +77,9 @@ export abstract class ArmyCommand extends Command {
     // we don't try and call armyFinishJob multiple times
     this.isDone = true;
 
-    // console.log("Sending done notification...");
+    console.log("Sending done notification...");
     await client.armyFinishJob();
-    // console.log("Done notification sent...");
+    console.log("Done notification sent...");
   }
 
   /**
