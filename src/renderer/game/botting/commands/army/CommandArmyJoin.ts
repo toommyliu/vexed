@@ -16,7 +16,13 @@ export class CommandArmyJoin extends ArmyCommand {
       const roomNumber = split[1] ?? this.bot.army.roomNumber;
       const mapNameStr = `${mapName}-${roomNumber}`;
 
-      await this.bot.world.join(mapNameStr, this.cellName, this.padName);
+      // Some instances where join() is executed but the player just died
+      while (
+        this.ctx.isRunning() &&
+        this.bot.world.name.toLowerCase() !== mapName!.toLowerCase()
+      ) {
+        await this.bot.world.join(mapNameStr, this.cellName, this.padName);
+      }
     });
   }
 
