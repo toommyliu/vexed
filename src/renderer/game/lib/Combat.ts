@@ -165,7 +165,14 @@ export class Combat {
     if (!this.bot.player.isReady()) return;
 
     const opts = merge({}, DEFAULT_KILL_OPTIONS, options);
-    const { killPriority, skillSet, skillDelay, skillWait, skillAction } = opts;
+    const {
+      killPriority,
+      skillSet,
+      skillDelay,
+      skillWait,
+      skillAction,
+      signal,
+    } = opts;
 
     const _boundedSkillAction =
       typeof skillAction === "function"
@@ -205,6 +212,14 @@ export class Combat {
         stopCombatInterval ??= stop;
 
         if (isResolved) {
+          stop();
+          return;
+        }
+
+        if (signal?.aborted) {
+          isResolved = true;
+          await cleanup();
+          resolve();
           stop();
           return;
         }
@@ -389,6 +404,11 @@ export type KillOptions = {
    * An ascending list of monster names or monMapIDs to kill. This can also be a string of monsterResolvables deliminted by a comma.
    */
   killPriority: string[] | string;
+  /**
+   * Optional AbortSignal that can be used to abort the kill operation early.
+   * When the signal is aborted, the kill method will immediately stop and resolve.
+   */
+  signal?: AbortSignal;
   /**
    *  Custom skill action function that provides alternative combat logic. It should be implemented as a closure that returns an async function. When provided, this function replaces the default skill rotation logic. The outer and inner functions are bound with `bot` context. Skill logic should be implemented in the inner function.
    */

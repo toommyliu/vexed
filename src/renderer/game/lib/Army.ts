@@ -54,11 +54,11 @@ export class Army {
     // Load the config
     await this.config.load();
 
-    // console.log("Army: Config loaded", this.config.getAll());
+    console.log("Army: Config loaded", this.config.getAll());
 
     const playerCount = this.config.get("PlayerCount");
     if (!playerCount) {
-      // console.warn("Army: PlayerCount not set in config file.");
+      console.warn("Army: PlayerCount not set in config file.");
       return;
     }
 
@@ -66,7 +66,7 @@ export class Army {
     if (roomNumber) {
       this.roomNumber = String(roomNumber);
     } else {
-      // console.warn("Army: RoomNumber not set in config file.");
+      console.warn("Army: RoomNumber not set in config file.");
       return;
     }
 
@@ -86,7 +86,7 @@ export class Army {
       if (player && typeof player === "string") {
         this.players.add(player);
       } else {
-        // console.warn(`Army: Player${index} not set in config file.`);
+        console.warn(`Army: Player${index} not set in config file.`);
       }
     }
 
