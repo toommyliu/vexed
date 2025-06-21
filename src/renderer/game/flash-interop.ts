@@ -7,6 +7,7 @@ import { ct } from "./networking.json/ct";
 import { dropItem } from "./networking.json/drop-item";
 import { initUserData } from "./networking.json/init-user-data";
 import { moveToArea } from "./networking.json/move-to-area";
+import { playerDeath } from "./networking.json/player-death";
 import { appState } from "./state.svelte";
 
 const logger = Logger.get("FlashInterop");
@@ -72,6 +73,9 @@ window.pext = async ([packet]) => {
         break;
       case "moveToArea":
         void moveToArea(bot, dataObj);
+        break;
+      case "playerDeath":
+        playerDeath(bot, dataObj);
         break;
     }
   }
