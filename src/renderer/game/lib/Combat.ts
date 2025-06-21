@@ -277,6 +277,19 @@ export class Combat {
           return;
         }
 
+        const isDead =
+          this.bot.player.state === EntityState.Dead || !this.bot.player.alive;
+        if (isDead) {
+          await this.bot.waitUntil(
+            () =>
+              this.bot.player.state !== EntityState.Dead ||
+              this.bot.player.alive,
+            null,
+            -1,
+          );
+          return;
+        }
+
         const isIdle =
           this.bot.player.state === EntityState.Idle &&
           !this.bot.player.isAFK();
