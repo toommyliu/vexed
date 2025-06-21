@@ -49,6 +49,12 @@ type Events = {
    */
   pext(packet: Record<string, unknown>): void;
   /**
+   * This event is emitted when a player dies.
+   *
+   * @param playerName - The name of the player who died.
+   */
+  playerDeath(playerName: string): void;
+  /**
    * This event is emitted when a player joins the room.
    *
    * @param playerName - The name of the player.
