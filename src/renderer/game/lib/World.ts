@@ -248,6 +248,9 @@ export class World {
     cell = "Enter",
     pad = "Spawn",
   ): Promise<void> {
+    // Make sure the player is alive to be able to do the transfer.
+    await this.bot.waitUntil(() => this.bot.player.alive, null, -1);
+
     await exitFromCombat();
 
     await this.bot.waitUntil(
