@@ -5,8 +5,7 @@ title: KillOptions
 | Name | Type | Optional | Description |
 |------|------|----------|-------------|
 | killPriority | `string[]` \| `string` |  | An ascending list of monster names or monMapIDs to kill. This can also be a string of monsterResolvables deliminted by a comma. |
-| signal | `AbortSignal`? | ✓ | Optional AbortSignal that can be used to abort the kill operation early.
-When the signal is aborted, the kill method will immediately stop and resolve. |
+| signal | `AbortSignal`? | ✓ | Optional AbortSignal that can be used to abort the kill operation early. When the signal is aborted, the kill method will immediately stop and resolve. |
 | skillAction | `(() => () => Promise<void>)` \| `null` |  | Custom skill action function that provides alternative combat logic. It should be implemented as a closure that returns an async function. When provided, this function replaces the default skill rotation logic. The outer and inner functions are bound with `bot` context. Skill logic should be implemented in the inner function. |
 | skillDelay | `number` |  | The delay between each skill cast. |
 | skillSet | `number`[] |  | The order of skills to use. |

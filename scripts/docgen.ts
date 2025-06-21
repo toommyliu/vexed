@@ -71,7 +71,7 @@ const generateCommandsApiDoc = async () => {
                 ?.map((param) => {
                   const paramName = param.name;
                   const paramDescription =
-                    makeDescription(param.comment?.summary ?? []) || "";
+                    makeTableDescription(param.comment?.summary ?? []) || "";
                   const paramType = param.type?.toString() || "";
                   const paramDefaultValue =
                     param?.defaultValue?.toString() || "";
@@ -196,7 +196,7 @@ const generateCommandsApiDoc = async () => {
       }
     }
 
-    // generate the sidebar
+    // Generate the sidebar
     const sidebar = Array.from(namespaces.values()).map((namespace) => {
       return {
         label: makeTitleCase(namespace.name),
@@ -400,7 +400,7 @@ const generateLegacyApiDoc = async () => {
             if (child.kind === typedoc.ReflectionKind.Property /* 1024 */) {
               const propName = child.name;
               const propDescription =
-                makeDescription(child.comment?.summary ?? []) || "";
+                makeTableDescription(child.comment?.summary ?? []) || "";
               const propType = child.flags?.isOptional
                 ? `${makeSafeType(`${child.type?.toString() || ""}?`, typeRegistry)}`
                 : makeSafeType(child.type?.toString() || "", typeRegistry);
@@ -508,7 +508,7 @@ const generateLegacyApiDoc = async () => {
               ?.map((param) => {
                 const paramName = param.name;
                 const paramDescription =
-                  makeDescription(param.comment?.summary ?? []) || "";
+                  makeTableDescription(param.comment?.summary ?? []) || "";
                 const paramType = param.type?.toString() || "";
                 const paramDefaultValue = param?.defaultValue?.toString() || "";
                 const paramIsOptional = param?.flags?.isOptional;
@@ -744,6 +744,14 @@ function makeDescription(summary: typedoc.CommentDisplayPart[]): string {
     }
     return "";
   }, "");
+}
+
+/**
+ * Converts a summary block to a description string suitable for table use.
+ * Replaces newlines with spaces to prevent table formatting issues.
+ */
+function makeTableDescription(summary: typedoc.CommentDisplayPart[]): string {
+  return makeDescription(summary).replace(/\n/g, " ").trim();
 }
 
 /**
