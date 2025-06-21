@@ -48,12 +48,3 @@
 * docs: clarify how commands should block asynchonously ([c9182d4](https://github.com/toommyliu/vexed/commit/c9182d4))
 * docs: document hotkeys and fps items (#176) ([26ee0e4](https://github.com/toommyliu/vexed/commit/26ee0e4)), closes [#176](https://github.com/toommyliu/vexed/issues/176)
 * feat!: use svelte for ui (#160) ([cc32e6d](https://github.com/toommyliu/vexed/commit/cc32e6d)), closes [#160](https://github.com/toommyliu/vexed/issues/160)
-* chore: gitignore yarn.lock ([c9e2788](https://github.com/toommyliu/vexed/commit/c9e2788))
-* chore: improve artifact names for ci outputs ([9645a67](https://github.com/toommyliu/vexed/commit/9645a67))
-* chore: improve cli scripts ([4a6d52b](https://github.com/toommyliu/vexed/commit/4a6d52b))
-* chore: update ci build ([50063c4](https://github.com/toommyliu/vexed/commit/50063c4))
-* chore: update ci to re-use nightly ([dfa1a4a](https://github.com/toommyliu/vexed/commit/dfa1a4a))
-* chore(*): setup nightly ci build ([938eb4a](https://github.com/toommyliu/vexed/commit/938eb4a))
-
-
-
