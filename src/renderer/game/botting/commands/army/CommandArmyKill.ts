@@ -43,8 +43,7 @@ export class CommandArmyKill extends ArmyCommand {
 
             if (done) {
               void this.sendDone();
-              console.log("(2) this player is done - quantity check thread");
-              // Don't stop the interval yet, keep checking if allDone becomes true
+              // console.log("(2) this player is done - quantity check thread");
             }
           }
         }, 100);
@@ -55,13 +54,12 @@ export class CommandArmyKill extends ArmyCommand {
         !this.allDone &&
         !abortController.signal.aborted
       ) {
-        // Double-check allDone status before starting a new kill
         if (this.allDone) {
-          console.log("All players are done, breaking out of kill loop");
+          // console.log("All players are done, breaking out of kill loop");
           break;
         }
 
-        console.log("Looks like we need to help with a kill...");
+        // console.log("Looks like we need to help with a kill...");
         await this.bot.combat.kill(this.targetName, {
           ...this.options,
           signal: abortController.signal,
@@ -70,22 +68,19 @@ export class CommandArmyKill extends ArmyCommand {
         // If no item checking is needed, mark as done after killing
         if (!this.isDone && (!this.itemName || !this.qty)) {
           void this.sendDone();
-          console.log("(1) this player is done");
+          // console.log("(1) this player is done");
         }
 
-        // Check if all players are done after each kill
         if (this.allDone) {
-          console.log("All players are done after kill, breaking");
+          // console.log("All players are done after kill, breaking");
           break;
         }
       }
 
-      console.log(
-        "Looks like we are done with the kill command for this player.",
-      );
-      if (stopFn) {
-        stopFn();
-      }
+      // console.log(
+      //   "Looks like we are done with the kill command for this player.",
+      // );
+      stopFn?.();
     });
   }
 

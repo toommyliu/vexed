@@ -554,7 +554,7 @@ export const router = {
       return;
     }
 
-    console.log(`Player ${playerName} finished job`);
+    // console.log(`Player ${playerName} finished job`);
 
     // Update the map to mark this player as done
     const fileName = [...map.keys()].find((fileName) =>
@@ -570,22 +570,22 @@ export const router = {
     // console.log(`Player ${playerName} is done`);
 
     if (playerName !== leader) {
-      console.log("Not leader, waiting for leader to finish job");
+      // console.log("Not leader, waiting for leader to finish job");
       return;
     }
 
     let iter = 0;
 
     while (doneSet.size !== playerList.size && map.has(fileName)) {
-      if (iter % 100 === 0) {
-        console.log(
-          `Leader: Waiting for all players to finish job: ${Array.from(
-            playerList,
-          )
-            .filter((player) => !doneSet.has(player))
-            .join(", ")} (${doneSet.size}/${playerList.size})`,
-        );
-      }
+      // if (iter % 100 === 0) {
+      //   console.log(
+      //     `Leader: Waiting for all players to finish job: ${Array.from(
+      //       playerList,
+      //     )
+      //       .filter((player) => !doneSet.has(player))
+      //       .join(", ")} (${doneSet.size}/${playerList.size})`,
+      //   );
+      // }
 
       await sleep(100);
 
@@ -593,11 +593,11 @@ export const router = {
     }
 
     if (!map.has(fileName)) {
-      console.log("(2) Map has been cleared, exiting");
+      // console.log("(2) Map has been cleared, exiting");
       return;
     }
 
-    console.log("All players are done and ready");
+    // console.log("All players are done and ready");
 
     // All players are done, send ready to all windows
     for (const [_, window] of windows) {
