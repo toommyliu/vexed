@@ -20,15 +20,8 @@ export function setQuitting(quitting: boolean): void {
   isQuitting = quitting;
 }
 
-export function destroyManagerWindow(): void {
-  if (mgrWindow && !mgrWindow.isDestroyed()) {
-    mgrWindow.destroy();
-    mgrWindow = null;
-  }
-}
-
 export async function createAccountManager(): Promise<void> {
-  if (mgrWindow) {
+  if (mgrWindow && !mgrWindow.isDestroyed()) {
     mgrWindow.show();
     mgrWindow.focus();
     return;
@@ -43,6 +36,7 @@ export async function createAccountManager(): Promise<void> {
     },
     useContentSize: true,
   });
+
   window.on("close", (ev) => {
     // App is quitting, allow the window to close
     if (isQuitting) {
@@ -52,6 +46,11 @@ export async function createAccountManager(): Promise<void> {
     ev.preventDefault();
     window.hide();
   });
+
+  window.on("closed", () => {
+    mgrWindow = null;
+  });
+
   mgrWindow = window;
 
   recursivelyApplySecurityPolicy(window);
