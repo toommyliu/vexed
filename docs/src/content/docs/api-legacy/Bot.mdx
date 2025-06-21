@@ -109,3 +109,66 @@ Waits until the condition is met.
 Gets the singleton instance of the Bot class.
 
 **Returns**: [`Bot`](/api-legacy/bot)
+
+## Events
+
+### afk
+This event is emitted when the player goes AFK.
+
+### login
+This event is emitted when the player logs in.
+
+### logout
+This event is emitted when the player logs out.
+
+### monsterDeath
+This event is emitted when a monster has died.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| monMapId | `number` | The monster map id. |
+
+### monsterRespawn
+This event is emitted when a monster has respawned.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| monster | [`Monster`](/api-legacy/models/monster) | The monster that has respawned. |
+
+### packetFromClient
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| packet | `string` | The packet dispatched from the client. |
+
+### packetFromServer
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| packet | `string` | The packet received from the server. |
+
+### pext
+OnExtensionResponse event.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| packet | `Record<string, unknown>` |  |
+
+### playerDeath
+This event is emitted when a player dies.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| playerName | `string` | The name of the player who died. |
+
+### playerJoin
+This event is emitted when a player joins the room.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| playerName | `string` | The name of the player. |
+
+### playerLeave
+This event is emitted when a player leaves the room.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| playerName | `string` | The name of the player. |

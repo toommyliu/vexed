@@ -438,6 +438,15 @@ const generateLegacyApiDoc = async () => {
 
           const classProperties: Property[] = [];
           const classMethods: Method[] = [];
+          let classEvents: Event[] = [];
+
+          // If this class extends TypedEmitter, we need to extract its events
+          const isTypedEmitter = baseClass.includes("TypedEmitter");
+          if (isTypedEmitter && cls?.sources?.[0]?.fullFileName) {
+            classEvents = await extractEventsFromFile(
+              cls.sources[0].fullFileName,
+            );
+          }
 
           const properties =
             cls.children?.filter(
@@ -555,6 +564,7 @@ const generateLegacyApiDoc = async () => {
             description: classDescription,
             properties: classProperties,
             methods: classMethods,
+            events: classEvents,
             baseClass,
           });
 
@@ -674,6 +684,37 @@ const generateLegacyApiDoc = async () => {
                 mdxFileContent.push(
                   `\n<Code code={\`${mth.example}\`} lang="js"/>`,
                 );
+              }
+            }
+          }
+
+          if (classEvents.length) {
+            mdxFileContent.push("## Events");
+            mdxFileContent.push("");
+            for (const event of classEvents) {
+              mdxFileContent.push(`### ${event.name}`);
+
+              if (event.description) {
+                mdxFileContent.push(event.description);
+                mdxFileContent.push("");
+              }
+
+              if (event.parameters && event.parameters.length > 0) {
+                mdxFileContent.push("| Parameter | Type | Description |");
+                mdxFileContent.push("|-----------|------|-------------|");
+
+                for (const param of event.parameters) {
+                  const paramName = param.name;
+                  const paramType = makeSafeType(param.type, typeRegistry);
+                  const description = param.description || "";
+
+                  mdxFileContent.push(
+                    `| ${paramName} | ${paramType} | ${description} |`,
+                  );
+                }
+                mdxFileContent.push("");
+              } else if (!event.description) {
+                mdxFileContent.push("");
               }
             }
           }
@@ -1029,6 +1070,10 @@ type Class = {
    */
   methods?: Method[];
   /**
+   * The events of the class (for TypedEmitter classes).
+   */
+  events?: Event[];
+  /**
    * The base class of the class.
    */
   baseClass?: string;
@@ -1107,3 +1152,148 @@ type Parameter = {
    */
   isOptional?: boolean;
 };
+type Event = {
+  /**
+   * The name of the event.
+   */
+  name: string;
+  /**
+   * The description of the event.
+   */
+  description?: string;
+  /**
+   * The parameters of the event.
+   */
+  parameters: Parameter[];
+};
+
+/**
+ * Extracts events from a TypedEmitter class by parsing the Events type definition
+ * from the source file.
+ */
+async function extractEventsFromFile(filePath: string): Promise<Event[]> {
+  const events: Event[] = [];
+
+  try {
+    const fileContent = await fs.readFile(filePath, "utf-8");
+
+    // Look for Events type definition
+    const eventsTypeMatch = fileContent.match(/type Events = \{([\s\S]*?)\};/);
+    if (!eventsTypeMatch) {
+      return events;
+    }
+
+    const eventsContent = eventsTypeMatch[1];
+
+    // Split by method definitions, handling both commented and uncommented events
+    const lines = eventsContent.split("\n");
+    let currentComment = "";
+    let currentEvent = "";
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+
+      // Start of a JSDoc comment
+      if (line.startsWith("/**")) {
+        currentComment = "";
+        let j = i;
+        while (j < lines.length) {
+          const commentLine = lines[j].trim();
+          currentComment += commentLine + "\n";
+          if (commentLine.endsWith("*/")) {
+            break;
+          }
+          j++;
+        }
+        i = j;
+        continue;
+      }
+
+      // Event method definition
+      const eventMatch = line.match(/^(\w+)\s*\(([^)]*)\)\s*:\s*(\w+);?$/);
+      if (eventMatch) {
+        const [, eventName, paramsContent, returnType] = eventMatch;
+
+        // Parse JSDoc comment
+        let description = "";
+        const parameters: Parameter[] = [];
+
+        if (currentComment) {
+          const commentLines = currentComment
+            .split("\n")
+            .map((line) => line.replace(/^\s*\*\/?/, "").trim())
+            .filter(
+              (line) => line && line !== "/**" && line !== "*/" && line !== "*",
+            );
+
+          // Extract description (lines that don't start with @)
+          description = commentLines
+            .filter((line) => line && !line.startsWith("@"))
+            .join(" ")
+            .replace(/\s+/g, " ")
+            .trim();
+
+          // Extract @param tags
+          const paramComments = new Map<string, string>();
+          for (const line of commentLines) {
+            const paramMatch = line.match(/@param\s+(\w+)\s+-\s+(.+)/);
+            if (paramMatch) {
+              paramComments.set(paramMatch[1], paramMatch[2].trim());
+            }
+          }
+
+          // Parse parameters
+          if (paramsContent.trim()) {
+            // Split parameters carefully, handling generic types like Record<string, unknown>
+            const params: string[] = [];
+            let current = "";
+            let depth = 0;
+
+            for (let i = 0; i < paramsContent.length; i++) {
+              const char = paramsContent[i];
+              if (char === "<") {
+                depth++;
+              } else if (char === ">") {
+                depth--;
+              } else if (char === "," && depth === 0) {
+                params.push(current.trim());
+                current = "";
+                continue;
+              }
+              current += char;
+            }
+            if (current.trim()) {
+              params.push(current.trim());
+            }
+
+            for (const param of params) {
+              const colonIndex = param.indexOf(":");
+              if (colonIndex > 0) {
+                const name = param.substring(0, colonIndex).trim();
+                const type = param.substring(colonIndex + 1).trim();
+                parameters.push({
+                  name,
+                  type,
+                  description: paramComments.get(name) || "",
+                  isOptional: false,
+                });
+              }
+            }
+          }
+        }
+
+        events.push({
+          name: eventName,
+          description,
+          parameters,
+        });
+
+        currentComment = ""; // Reset comment for next event
+      }
+    }
+  } catch (error) {
+    logger.warn(`Failed to extract events from ${filePath}: ${error}`);
+  }
+
+  return events;
+}
