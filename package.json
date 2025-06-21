@@ -1,6 +1,6 @@
 {
   "name": "@vexed/electron",
-  "version": "0.0.0",
+  "version": "0.2.0",
   "main": "dist/main/index.js",
   "scripts": {
     "clean": "del-cli dist/* build/* --dot",
@@ -50,6 +50,7 @@
     "@typescript-eslint/eslint-plugin": "^8.4.0",
     "@typescript-eslint/parser": "^8.4.0",
     "autoprefixer": "^10.4.21",
+    "conventional-changelog": "^7.1.0",
     "del-cli": "^6.0.0",
     "electron": "^6.1.12",
     "electron-builder": "^24.13.3",
