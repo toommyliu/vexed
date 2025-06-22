@@ -32,6 +32,29 @@ export class Drops {
   }
 
   /**
+   * String representation of the drop stack.
+   */
+  public toString(): string {
+    return Array.from(this.#dropCounts.entries())
+      .map(([itemId, count]) => {
+        const item = this.getItemFromId(itemId);
+        if (item) {
+          return `${item.sName} (${count})`;
+        }
+
+        return "";
+      })
+      .join(", ");
+  }
+
+  /**
+   * Retrieves the item data store.
+   */
+  public get itemData(): ReadonlyMap<number, ItemData> {
+    return Object.freeze(this.#itemData);
+  }
+
+  /**
    * Retrieves item data using its ID.
    *
    * @param itemId - The ID of the item.
