@@ -692,3 +692,23 @@ td {
     padding: 0.75rem;
   }
 }
+
+/* Custom patches [by us] */
+
+starlight-file-tree ul li.file span {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+starlight-file-tree ul li.directory details summary span span {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+}
+
+/* Move the svg icon down a little to accomodate for the flex alignment */
+
+starlight-file-tree ul li.directory details summary span span span svg {
+  transform: translateY(2px);
+}

@@ -52,6 +52,10 @@ export default defineConfig({
               link: "/guides/getting-started/",
             },
             {
+              label: "Editor Integration",
+              link: "/guides/editor-integration/",
+            },
+            {
               label: "Custom Commands",
               link: "/guides/custom-commands/",
             },
