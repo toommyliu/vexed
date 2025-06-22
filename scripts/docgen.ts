@@ -1036,7 +1036,160 @@ async function writeFile(filePath: string, content: string[]) {
   await fs.writeFile(filePath, content.join("\n"), { encoding: "utf-8" });
 }
 
-Promise.all([generateCommandsApiDoc(), generateLegacyApiDoc()]);
+// Generate TypeScript declarations for the commands API
+const generateCommandsTypesFile = async () => {
+  const apiEntryPath = join(
+    process.cwd(),
+    "src/renderer/game/botting/commands/",
+  );
+
+  // Output path for the types file
+  const typesOutputPath = join(process.cwd(), "commands.d.ts");
+
+  const files = new Set<string>();
+  await totalist(apiEntryPath, (_, absPath) => {
+    if (basename(absPath) === "index.ts") {
+      files.add(absPath);
+    }
+  });
+
+  try {
+    const project = await createTypedocApp([...files], "api-types");
+
+    const typeDefinitions = new Set<string>();
+    const commandInterfaces: string[] = [];
+
+    // Don't care, inline the types needed
+    const customTypes = `export interface KillOptions {
+  /** An ascending list of monster names or monMapIDs to kill. This can also be a string of monsterResolvables deliminted by a comma. */
+  killPriority: string[] | string;
+  /** Optional AbortSignal that can be used to abort the kill operation early. When the signal is aborted, the kill method will immediately stop and resolve. */
+  signal?: AbortSignal;
+  /** Custom skill action function that provides alternative combat logic. It should be implemented as a closure that returns an async function. When provided, this function replaces the default skill rotation logic. The outer and inner functions are bound with \`bot\` context. Skill logic should be implemented in the inner function. */
+  skillAction: (() => () => Promise<void>) | null;
+  /** The delay between each skill cast. */
+  skillDelay: number;
+  /** The order of skills to use. */
+  skillSet: number[];
+  /** Whether to wait for the skill to be available before casting. */
+  skillWait: boolean;
+}
+
+/**
+ * Base class for all commands.
+ */
+export class Command {
+  /** Whether to skip the delay for this command */
+  public skipDelay?: boolean;
+
+  /**
+   * The function that is called when the command is executed.
+   *
+   * This function has access to:
+   * - "this.bot" - The bot instance.
+   * - "this.ctx" - The scripting context environment (undocumented).
+   * - "this.args" - The command arguments (only for custom commands).
+   */
+  declare execute: () => Promise<void> | void;
+
+  declare toString: () => string;
+}
+
+export interface CommandConstructor {
+  /**
+   * Base class for all commands.
+   */
+  new (): Command;
+}`;
+
+    typeDefinitions.add(customTypes);
+
+    for (const child of project.children ?? []) {
+      if (child.kind === typedoc.ReflectionKind.Module) {
+        const commands = child.children?.find((child_) => {
+          return (
+            child_?.name === `${child.name}Commands` &&
+            child_.kind === typedoc.ReflectionKind.Variable &&
+            child_?.flags?.isConst
+          );
+        });
+
+        if (!commands) {
+          continue;
+        }
+
+        if (commands?.type instanceof typedoc.ReflectionType) {
+          for (const methodChild of (commands?.type as typedoc.ReflectionType)
+            ?.declaration?.children ?? []) {
+            if (methodChild?.kind === typedoc.ReflectionKind.Method) {
+              const funcName = methodChild.name;
+              const signature = methodChild.signatures?.[0];
+
+              if (signature) {
+                const parameters =
+                  signature.parameters
+                    ?.map((param) => {
+                      const paramName = param.name;
+                      const paramType = param.type?.toString() || "unknown";
+                      const isOptional = param.flags?.isOptional;
+                      const defaultValue = param?.defaultValue?.toString();
+
+                      const cleanType = paramType
+                        .replace(/import\([^)]+\)\./g, "")
+                        .replace(/typeof Command/g, "CommandConstructor")
+                        .replace(/typeof /g, "")
+                        .replace(
+                          /Partial<import[^>]+>/g,
+                          "Partial<KillOptions>",
+                        );
+
+                      const optional = isOptional || defaultValue ? "?" : "";
+                      return `${paramName}${optional}: ${cleanType}`;
+                    })
+                    .join(", ") || "";
+
+                const description = makeDescription(
+                  signature.comment?.summary ?? [],
+                );
+                const methodSignature = description
+                  ? `  /** ${description} */\n  ${funcName}(${parameters}): void;`
+                  : `  ${funcName}(${parameters}): void;`;
+
+                commandInterfaces.push(methodSignature);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    const typesContent = [
+      "",
+      ...Array.from(typeDefinitions),
+      "",
+      "declare const cmd: {",
+      ...commandInterfaces,
+      "};",
+      "",
+      "export = cmd;",
+      "export as namespace cmd;",
+      "",
+    ];
+
+    await fs.writeFile(typesOutputPath, typesContent.join("\n"), {
+      encoding: "utf-8",
+    });
+    logger.info(`Generated commands types file: ${typesOutputPath}`);
+  } catch (error) {
+    logger.error(`Failed to generate commands types: ${error}`);
+  }
+};
+
+Promise.all([
+  generateCommandsApiDoc(),
+  generateLegacyApiDoc(),
+  generateCommandsTypesFile(),
+]);
 
 type Namespace = {
   /**

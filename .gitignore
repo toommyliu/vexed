@@ -11,3 +11,4 @@ public/output.css
 *.lock
 /api-legacy.json
 /api.json
+/api-types.json
