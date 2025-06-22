@@ -32,7 +32,7 @@ export class Combat {
    * Whether the player has a target.
    */
   public hasTarget(): boolean {
-    return Boolean(swf.combatHasTarget());
+    return Boolean(this.bot.flash.call<boolean>(() => swf.combatHasTarget()));
   }
 
   /**
