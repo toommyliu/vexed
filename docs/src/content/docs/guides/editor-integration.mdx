@@ -1,0 +1,47 @@
+---
+title: Editor Integration
+head:
+  - tag: title
+    content: Editor integration
+---
+
+import { Code, FileTree, Aside } from "@astrojs/starlight/components";
+
+export const jsConfig = `
+{
+  "include": ["bots/**/*", "commands.d.ts"]
+}
+`;
+
+Constantly switching between your code editor and documentation to check available commands can disrupt your workflow. You can streamline this by integrating type definitions directly into your editor's language server.
+
+Create a local copy of the [commands.d.ts](https://github.com/toommyliu/vexed/commands.d.ts) file and save it to your documents folder.
+
+Then setup a `jsconfig.json` to include this type definitions file:
+
+<Code code={jsConfig} lang="json" title="jsconfig.json" />
+
+The final result might look something like:
+
+<FileTree>
+
+- documents/vexed/
+
+  - jsconfig.json
+  - commands.d.ts
+  - …
+  - bots/
+
+    - my_bot.js
+
+</FileTree>
+
+<Aside>
+  This was tested against Visual Studio Code, but steps should be similar for
+  other code editors.
+</Aside>
+
+## Caveats
+
+- Typings for [cmd.register_command](/api/misc#cmdregister_command) are awkward, particularly
+  `bot` and `ctx` are not included in the Command interface.
