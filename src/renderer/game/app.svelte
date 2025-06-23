@@ -714,7 +714,7 @@
                   <button
                     class={cn(
                       "flex w-full items-center bg-background-secondary px-4 py-2 text-left transition-colors duration-150 hover:bg-gray-700/50",
-                      pad.isValid && "text-green-500",
+                      pad.isValid && "text-green-500 hover:text-green-500",
                     )}
                     class:first:rounded-t-lg={validPads.indexOf(pad) === 0}
                     class:last:rounded-b-lg={validPads.indexOf(pad) ===
@@ -905,7 +905,6 @@
   }
 
   :global(button:hover) {
-    color: #fff !important;
     background-color: var(--hover-bg) !important;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
