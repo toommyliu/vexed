@@ -187,6 +187,7 @@ export type ItemData = {
   bStaff: number;
   bTemp: number;
   bUpg: number;
+  bWear: number;
   dPurchase: string;
   iCost: number;
   iDPS: number;

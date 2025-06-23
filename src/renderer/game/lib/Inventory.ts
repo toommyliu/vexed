@@ -1,4 +1,5 @@
 import type { Bot } from "./Bot";
+import { ServerPacket } from "./Packets";
 import { GameAction } from "./World";
 import { InventoryItem } from "./models/InventoryItem";
 import type { ItemData } from "./models/Item";
@@ -84,6 +85,12 @@ export class Inventory {
       () => Boolean(this.get(itemKey)?.isEquipped()),
       () => this.bot.player.isReady(),
       10,
+    );
+
+    // Make sure we are wearing the item after equipping
+    this.bot.packets.sendServer(
+      `%xt%zm%wearItem%${this.bot.world.roomId}%${item.data.ItemID}%`,
+      ServerPacket.String,
     );
   }
 }

@@ -19,6 +19,13 @@ export class InventoryItem extends Item {
   }
 
   /**
+   * Whether the item is currently being worn.
+   */
+  public isWearing(): boolean {
+    return this.data.bWear === 1;
+  }
+
+  /**
    * The level of the item.
    */
   public get level(): number {
