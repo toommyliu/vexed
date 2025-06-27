@@ -100,11 +100,12 @@ export class FileManager {
       if (!(await pathExists(path))) {
         return null;
       }
-
-      return await atomicReadFile(path, "utf8");
     } catch {
+      // The file cannot be read
       return null;
     }
+
+    return atomicReadFile(path, "utf8");
   }
 
   /**
