@@ -50,71 +50,77 @@ export class Army {
   /**
    * Initializes everything needed to begin armying.
    */
-  public async init(): Promise<void> {
+  public async init(): Promise<boolean> {
     // Load the config
-    await this.config.load();
+    try {
+      await this.config.load();
 
-    console.log("Army: Config loaded", this.config.getAll());
+      console.log("Army: Config loaded", this.config.getAll());
 
-    const playerCount = this.config.get("PlayerCount");
-    if (!playerCount) {
-      console.warn("Army: PlayerCount not set in config file.");
-      return;
-    }
-
-    const roomNumber = this.config.get("RoomNumber");
-    if (roomNumber) {
-      this.roomNumber = String(roomNumber);
-    } else {
-      console.warn("Army: RoomNumber not set in config file.");
-      return;
-    }
-
-    // const playerCountNum = Number.parseInt(playerCount, 10);
-    // if (Number.isNaN(playerCountNum)) {
-    //   onsole.warn("Army: PlayerCount is not a number.");
-    //   return;
-    // }
-
-    if (playerCount < 1) {
-      console.warn("Army: PlayerCount must be at least 1.");
-      return;
-    }
-
-    for (let index = 1; index <= playerCount; index++) {
-      const player = this.config.get(`Player${index}`);
-      if (player && typeof player === "string") {
-        this.players.add(player);
-      } else {
-        console.warn(`Army: Player${index} not set in config file.`);
+      const playerCount = this.config.get("PlayerCount");
+      if (!playerCount) {
+        console.warn("Army: PlayerCount not set in config file.");
+        return false;
       }
-    }
 
-    const args = {
-      fileName: this.config.fileName,
-      playerName: this.bot.auth.username,
-    };
+      const roomNumber = this.config.get("RoomNumber");
+      if (roomNumber) {
+        this.roomNumber = String(roomNumber);
+      } else {
+        console.warn("Army: RoomNumber not set in config file.");
+        return false;
+      }
 
-    if (this.isLeader()) {
-      // Init army for everyone else
-      console.log("Army: Leader");
-      await client.armyInit({
-        ...args,
-        players: Array.from(this.players),
+      // const playerCountNum = Number.parseInt(playerCount, 10);
+      // if (Number.isNaN(playerCountNum)) {
+      //   onsole.warn("Army: PlayerCount is not a number.");
+      //   return;
+      // }
+
+      if (playerCount < 1) {
+        console.warn("Army: PlayerCount must be at least 1.");
+        return false;
+      }
+
+      for (let index = 1; index <= playerCount; index++) {
+        const player = this.config.get(`Player${index}`);
+        if (player && typeof player === "string") {
+          this.players.add(player);
+        } else {
+          console.warn(`Army: Player${index} not set in config file.`);
+        }
+      }
+
+      const args = {
+        fileName: this.config.fileName,
+        playerName: this.bot.auth.username,
+      };
+
+      if (this.isLeader()) {
+        // Init army for everyone else
+        console.log("Army: Leader");
+        await client.armyInit({
+          ...args,
+          players: Array.from(this.players),
+        });
+      } else {
+        // Join the army
+        console.log("Army: Follower");
+        await client.armyJoin(args);
+      }
+
+      this.isInitialized = true;
+
+      const fn = this.onAfk.bind(this);
+      this.bot.on("afk", fn);
+      window.context.once("end", () => {
+        this.bot.off("afk", fn);
       });
-    } else {
-      // Join the army
-      console.log("Army: Follower");
-      await client.armyJoin(args);
+
+      return true;
+    } catch {
+      return false;
     }
-
-    this.isInitialized = true;
-
-    const fn = this.onAfk.bind(this);
-    this.bot.on("afk", fn);
-    window.context.once("end", () => {
-      this.bot.off("afk", fn);
-    });
   }
 
   /**
