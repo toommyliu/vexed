@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+# [0.2.1](https://github.com/toommyliu/vexed/compare/0.2.0...v0.2.1) - (2025-06-27)
+
+## Bug Fixes
+
+- **army:** Notify when army init fails and stop (#190) ([6e6f06b](https://github.com/toommyliu/vexed/commit/6e6f06b70746313db05dde4537ceef67775038fa))
+- **combat:** Safe call combat#hasTarget ([6acab97](https://github.com/toommyliu/vexed/commit/6acab9712561875dc3f6adf489813ef0f647a901))
+- **combat/kill:** Don't resolve if the player dies during a kill attempt (#184) ([a58c937](https://github.com/toommyliu/vexed/commit/a58c937f1bcb2de967f7856170aa156478d65e55))
+- PlayerDeath not emitting (#183) ([50c0472](https://github.com/toommyliu/vexed/commit/50c0472edcc73d731951f329f4aef61bed4dea12))
+- Ensure player is alive before joining a map (#180) ([6b5fea9](https://github.com/toommyliu/vexed/commit/6b5fea95db922c8b799ad616b3eee3d83de2e075))
+
+## Documentation
+
+- Fix path ([6a416d3](https://github.com/toommyliu/vexed/commit/6a416d3920bbb045736d7a108fcda24ad76fa6a8))
+- Update download link to remove nightly tag ([c8c3a94](https://github.com/toommyliu/vexed/commit/c8c3a9424313bc01dd1e3e9d3ffe03bd155694ca))
+
+## Features
+
+- **inventory:** Add isWearing method and ensure item is worn after equipping ([976569a](https://github.com/toommyliu/vexed/commit/976569aee1a77c8d1a0d21b28b717bec47e9f093))
+- **drops:** Expose itemData as a frozen read-only map ([d20bae1](https://github.com/toommyliu/vexed/commit/d20bae1529554e4b871cdd3f1f8626200e499f59))
+- Docgen .d.ts typings file for scripters (#185) ([cd44e2a](https://github.com/toommyliu/vexed/commit/cd44e2a88b9288c92664a7c988a5892d206ddfc6))
+- **docs:** Docgen events (#182) ([0f0ca73](https://github.com/toommyliu/vexed/commit/0f0ca7342e1e21796efc5564ee3d68d8ad890c9c))
+- PlayerDeath event (#181) ([6cc2c4a](https://github.com/toommyliu/vexed/commit/6cc2c4a4f0cceb0a9e649e56f03ffd1a1b3bdb8c))
+
 # [0.2.0](https://github.com/toommyliu/vexed/compare/0.1.0-9a44568...0.2.0) - (2025-06-21)
 
 ## Bug Fixes
