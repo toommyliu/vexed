@@ -1,4 +1,3 @@
-import merge from "lodash.merge";
 import { interval } from "../../../shared/interval";
 import { doPriorityAttack } from "../util/doPriorityAttack";
 import { exitFromCombat } from "../util/exitFromCombat";
@@ -164,7 +163,14 @@ export class Combat {
   ): Promise<void> {
     if (!this.bot.player.isReady()) return;
 
-    const opts = merge({}, DEFAULT_KILL_OPTIONS, options);
+    const opts: KillOptions = {
+      killPriority: options.killPriority ?? DEFAULT_KILL_OPTIONS.killPriority,
+      skillSet: options.skillSet ?? DEFAULT_KILL_OPTIONS.skillSet,
+      skillDelay: options.skillDelay ?? DEFAULT_KILL_OPTIONS.skillDelay,
+      skillWait: options.skillWait ?? DEFAULT_KILL_OPTIONS.skillWait,
+      skillAction: options.skillAction ?? DEFAULT_KILL_OPTIONS.skillAction,
+      ...(options.signal && { signal: options.signal }),
+    };
     const {
       killPriority,
       skillSet,
@@ -347,7 +353,14 @@ export class Combat {
     isTemp = false,
     options: Partial<KillOptions> = {},
   ): Promise<void> {
-    const opts = merge({}, DEFAULT_KILL_OPTIONS, options);
+    const opts: KillOptions = {
+      killPriority: options.killPriority ?? DEFAULT_KILL_OPTIONS.killPriority,
+      skillSet: options.skillSet ?? DEFAULT_KILL_OPTIONS.skillSet,
+      skillDelay: options.skillDelay ?? DEFAULT_KILL_OPTIONS.skillDelay,
+      skillWait: options.skillWait ?? DEFAULT_KILL_OPTIONS.skillWait,
+      skillAction: options.skillAction ?? DEFAULT_KILL_OPTIONS.skillAction,
+      ...(options.signal && { signal: options.signal }),
+    };
     const store = isTemp ? this.bot.tempInventory : this.bot.inventory;
 
     const hasRequiredItems = () => store.contains(item, quantity);
