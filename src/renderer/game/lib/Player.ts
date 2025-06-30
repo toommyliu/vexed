@@ -125,6 +125,8 @@ export class Player {
     y: number | string,
     walkSpeed?: number | string,
   ): void {
+    if (!this.bot.player.alive) return;
+
     this.bot.flash.call(() =>
       swf.playerWalkTo(Number(x), Number(y), Number(walkSpeed)),
     );
