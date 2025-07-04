@@ -3,6 +3,10 @@ import { Command } from "../../command";
 import { CommandRegistry } from "../../command-registry";
 import { Context } from "../../context";
 import { CommandAutoAggro } from "./CommandAutoAggro";
+import { CommandAutoZoneDarkCarnax } from "./CommandAutoZoneDarkCarnax";
+import { CommandAutoZoneLedgermayne } from "./CommandAutoZoneLedgermayne";
+import { CommandAutoZoneMoreSkulls } from "./CommandAutoZoneMoreSkulls";
+import { CommandAutoZoneUltraDage } from "./CommandAutoZoneUltraDage";
 import { CommandBuff } from "./CommandBuff";
 import { CommandBuyScrollOfEnrage } from "./CommandBuyScrollOfEnrage";
 import { CommandBuyScrollOfLifeSteal } from "./CommandBuyScrollOfLifeSteal";
@@ -582,6 +586,34 @@ export const miscCommands = {
 
     const cmd = new CommandBuyScrollOfEnrage();
     cmd.qty = Math.min(Math.trunc(qty), 1_000);
+    window.context.addCommand(cmd);
+  },
+  /**
+   * Enables auto-zoning for ledgermayne map.
+   */
+  use_autozone_ledgermayne() {
+    const cmd = new CommandAutoZoneLedgermayne();
+    window.context.addCommand(cmd);
+  },
+  /**
+   * Enables auto-zoning for moreskulls map.
+   */
+  use_autozone_moreskulls() {
+    const cmd = new CommandAutoZoneMoreSkulls();
+    window.context.addCommand(cmd);
+  },
+  /**
+   * Enables auto-zoning for darkcarnax map.
+   */
+  use_autozone_darkcarnax() {
+    const cmd = new CommandAutoZoneDarkCarnax();
+    window.context.addCommand(cmd);
+  },
+  /**
+   * Enables auto-zoning for ultradage map.
+   */
+  use_autozone_ultradage() {
+    const cmd = new CommandAutoZoneUltraDage();
     window.context.addCommand(cmd);
   },
 };

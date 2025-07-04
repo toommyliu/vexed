@@ -328,6 +328,14 @@ If results are ambiguous, the first matching item will be used. Use itemType to 
   stop_bot(): void;
   unregister_command(name: string): void;
   unregister_handler(type: "packetFromClient" | "packetFromServer" | "pext", name: string): void;
+  /** Enables auto-zoning for darkcarnax map. */
+  use_autozone_darkcarnax(): void;
+  /** Enables auto-zoning for ledgermayne map. */
+  use_autozone_ledgermayne(): void;
+  /** Enables auto-zoning for moreskulls map. */
+  use_autozone_moreskulls(): void;
+  /** Enables auto-zoning for ultradage map. */
+  use_autozone_ultradage(): void;
   /** Waits for a specified number of players to be in the map. */
   wait_for_player_count(count: number): void;
   /** Accepts a quest. */
