@@ -2,11 +2,12 @@ import process from "process";
 import { Logger } from "../../shared/logger";
 import { client } from "../../shared/tipc";
 import { Bot } from "./lib/Bot";
-import { addGoldExp } from "./networking.json/add-gold-exp";
-import { ct } from "./networking.json/ct";
-import { dropItem } from "./networking.json/drop-item";
-import { initUserData } from "./networking.json/init-user-data";
-import { moveToArea } from "./networking.json/move-to-area";
+import { addGoldExp } from "./packet-handlers/add-gold-exp";
+import { ct } from "./packet-handlers/ct";
+import { dropItem } from "./packet-handlers/drop-item";
+import { event } from "./packet-handlers/event";
+import { initUserData } from "./packet-handlers/init-user-data";
+import { moveToArea } from "./packet-handlers/move-to-area";
 import { appState } from "./state.svelte";
 
 const logger = Logger.get("FlashInterop");
@@ -72,6 +73,9 @@ window.pext = async ([packet]) => {
         break;
       case "moveToArea":
         void moveToArea(bot, dataObj);
+        break;
+      case "event":
+        void event(bot, dataObj);
         break;
     }
   }

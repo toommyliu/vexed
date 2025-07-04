@@ -69,6 +69,13 @@ export class Context extends TypedEmitter<Events> {
 
   public readonly overlay: CommandOverlay;
 
+  public autoZone:
+    | "darkcarnax"
+    | "ledgermayne"
+    | "moreskulls"
+    | "none"
+    | "ultradage" = "none";
+
   public constructor() {
     super();
 
