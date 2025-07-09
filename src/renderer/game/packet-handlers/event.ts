@@ -2,7 +2,6 @@ import type { Bot } from "../lib/Bot";
 import { getRandomInt } from "../util/get-random-int";
 
 export async function event(bot: Bot, pkt: EventPacket) {
-  console.log(`zoneSet: ${pkt.args.zoneSet ?? "none"}`);
   const mapName = bot.world.name;
 
   if (!bot.player.isReady()) return;
@@ -135,6 +134,24 @@ export async function event(bot: Bot, pkt: EventPacket) {
       }
     } catch {}
   } else if (mapName === "astralshrine") {
+    let xPos: number;
+    let yPos: number;
+    switch (pkt.args.zoneSet) {
+      case "A":
+        xPos = getRandomInt(643, 708);
+        yPos = getRandomInt(445, 447);
+        break;
+      case "B":
+        xPos = getRandomInt(199, 287);
+        yPos = getRandomInt(181, 205);
+        break;
+      case "":
+        xPos = getRandomInt(461, 465);
+        yPos = getRandomInt(320, 325);
+        break;
+    }
+
+    bot.player.walkTo(xPos, yPos);
   }
 }
 

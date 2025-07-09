@@ -7,6 +7,8 @@ import { CommandAutoZoneDarkCarnax } from "./CommandAutoZoneDarkCarnax";
 import { CommandAutoZoneLedgermayne } from "./CommandAutoZoneLedgermayne";
 import { CommandAutoZoneMoreSkulls } from "./CommandAutoZoneMoreSkulls";
 import { CommandAutoZoneUltraDage } from "./CommandAutoZoneUltraDage";
+import { CommandAutoZoneAstralShrine } from "./CommandAutoZoneAstralShrine";
+import { CommandAutoZoneQueenIona } from "./CommandAutoZoneQueenIona";
 import { CommandBuff } from "./CommandBuff";
 import { CommandBuyScrollOfEnrage } from "./CommandBuyScrollOfEnrage";
 import { CommandBuyScrollOfLifeSteal } from "./CommandBuyScrollOfLifeSteal";
@@ -614,6 +616,20 @@ export const miscCommands = {
    */
   use_autozone_ultradage() {
     const cmd = new CommandAutoZoneUltraDage();
+    window.context.addCommand(cmd);
+  },
+  /**
+   * Enables auto-zoning for astralshrine map.
+   */
+  use_autozone_astralshrine() {
+    const cmd = new CommandAutoZoneAstralShrine();
+    window.context.addCommand(cmd);
+  },
+  /**
+   * Enables auto-zoning for queeniona map.
+   */
+  use_autozone_queeniona() {
+    const cmd = new CommandAutoZoneQueenIona();
     window.context.addCommand(cmd);
   },
 };
