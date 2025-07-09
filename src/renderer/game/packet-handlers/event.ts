@@ -87,6 +87,54 @@ export async function event(bot: Bot, pkt: EventPacket) {
     }
 
     bot.player.walkTo(xPos, yPos);
+  } else if (mapName === "queeniona") {
+    await bot.sleep(500);
+
+    try {
+      const plyr = bot.world.players?.get(bot.auth.username);
+      const positiveCharge = plyr?.getAura("Positive Charge")?.value ?? -1 > 0;
+      const positiveChargeReverse =
+        plyr?.getAura("Positive Charge?")?.value ?? -1 > 0;
+      const negativeCharge = plyr?.getAura("Negative Charge")?.value ?? -1 > 0;
+      const negativeChargeReverse =
+        plyr?.getAura("Negative Charge?")?.value ?? -1 > 0;
+
+      const hasPositiveCharge = positiveCharge || positiveChargeReverse;
+      const hasNegativeCharge = negativeCharge || negativeChargeReverse;
+
+      const moveLeft = () => {
+        const xPos = getRandomInt(111, 272);
+        const yPos = getRandomInt(369, 379);
+        bot.player.walkTo(xPos, yPos);
+      };
+
+      const moveRight = () => {
+        const xPos = getRandomInt(746, 869);
+        const yPos = getRandomInt(369, 379);
+        bot.player.walkTo(xPos, yPos);
+      };
+
+      const moveCenter = () => {
+        bot.player.walkTo(490, 320);
+      };
+
+      if (pkt.args.zoneSet === "A") {
+        if (hasPositiveCharge) {
+          moveRight();
+        } else if (hasNegativeCharge) {
+          moveLeft();
+        }
+      } else if (pkt.args.zoneSet === "B") {
+        if (hasPositiveCharge) {
+          moveLeft();
+        } else if (hasNegativeCharge) {
+          moveRight();
+        }
+      } else {
+        moveCenter();
+      }
+    } catch {}
+  } else if (mapName === "astralshrine") {
   }
 }
 

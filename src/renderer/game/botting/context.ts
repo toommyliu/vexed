@@ -74,6 +74,7 @@ export class Context extends TypedEmitter<Events> {
     | "ledgermayne"
     | "moreskulls"
     | "none"
+    | "queeniona"
     | "ultradage" = "none";
 
   public constructor() {
