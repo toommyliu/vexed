@@ -1,92 +1,70 @@
 import type { Bot } from "../lib/Bot";
 import { getRandomInt } from "../util/get-random-int";
 
+/* eslint-disable id-length */
+const AUTO_ZONES: Record<
+  string,
+  {
+    // Range of x and y coordinate for that zone
+    zones: Record<"" | "A" | "B", { x: [number, number]; y: [number, number] }>;
+  }
+> = {
+  ledgermayne: {
+    zones: {
+      A: { x: [147, 276], y: [353, 357] },
+      B: { x: [727, 852], y: [353, 356] },
+      "": { x: [431, 547], y: [234, 239] },
+    },
+  },
+  moreskulls: {
+    zones: {
+      A: { x: [696, 802], y: [445, 452] },
+      B: { x: [677, 766], y: [321, 324] },
+      "": { x: [778, 806], y: [358, 361] },
+    },
+  },
+  ultradage: {
+    zones: {
+      A: { x: [49, 164], y: [406, 412] },
+      B: { x: [797, 900], y: [400, 402] },
+      "": { x: [481, 483], y: [296, 300] },
+    },
+  },
+  darkcarnax: {
+    zones: {
+      A: { x: [731, 850], y: [431, 432] },
+      B: { x: [54, 155], y: [431, 432] },
+      "": { x: [480, 530], y: [419, 432] },
+    },
+  },
+  astralshrine: {
+    zones: {
+      A: { x: [643, 708], y: [445, 447] },
+      B: { x: [199, 287], y: [181, 205] },
+      "": { x: [461, 465], y: [320, 325] },
+    },
+  },
+};
+/* eslint-enable id-length */
+
 export async function event(bot: Bot, pkt: EventPacket) {
   const mapName = bot.world.name;
 
   if (!bot.player.isReady()) return;
 
-  if (mapName === "ledgermayne") {
-    let xPos: number;
-    let yPos: number;
-
-    switch (pkt.args.zoneSet) {
-      case "A":
-        xPos = getRandomInt(147, 276);
-        yPos = getRandomInt(353, 357);
-        break;
-      case "B":
-        xPos = getRandomInt(727, 852);
-        yPos = getRandomInt(353, 356);
-        break;
-      case "":
-        xPos = getRandomInt(431, 547);
-        yPos = getRandomInt(234, 239);
-        break;
+  const zone = pkt.args.zoneSet;
+  const config = AUTO_ZONES[mapName];
+  if (config && window.context.autoZone === mapName) {
+    const zonePos = config.zones[zone];
+    if (zonePos) {
+      const xPos = getRandomInt(zonePos.x[0], zonePos.x[1]);
+      const yPos = getRandomInt(zonePos.y[0], zonePos.y[1]);
+      bot.player.walkTo(xPos, yPos);
+      return;
     }
+  }
 
-    bot.player.walkTo(xPos, yPos);
-  } else if (mapName === "moreskulls") {
-    let xPos: number;
-    let yPos: number;
-
-    switch (pkt.args.zoneSet) {
-      case "A": // Move down
-        xPos = getRandomInt(696, 802);
-        yPos = getRandomInt(445, 452);
-        break;
-      case "B": // Move up
-        xPos = getRandomInt(677, 766);
-        yPos = getRandomInt(321, 324);
-        break;
-      case "":
-        xPos = getRandomInt(778, 806);
-        yPos = getRandomInt(358, 361);
-        break;
-    }
-
-    bot.player.walkTo(xPos, yPos);
-  } else if (mapName === "ultradage") {
-    let xPos: number;
-    let yPos: number;
-
-    switch (pkt.args.zoneSet) {
-      case "A":
-        xPos = getRandomInt(49, 164);
-        yPos = getRandomInt(406, 412);
-        break;
-      case "B":
-        xPos = getRandomInt(797, 900);
-        yPos = getRandomInt(400, 402);
-        break;
-      case "":
-        xPos = getRandomInt(481, 483);
-        yPos = getRandomInt(296, 300);
-        break;
-    }
-
-    bot.player.walkTo(xPos, yPos);
-  } else if (mapName === "darkcarnax") {
-    let xPos: number;
-    let yPos: number;
-
-    switch (pkt.args.zoneSet) {
-      case "A": // Move to right
-        xPos = getRandomInt(731, 850);
-        yPos = getRandomInt(431, 432);
-        break;
-      case "B": // Move to left
-        xPos = getRandomInt(54, 155);
-        yPos = getRandomInt(431, 432);
-        break;
-      case "":
-        xPos = getRandomInt(480, 530);
-        yPos = getRandomInt(419, 432);
-        break;
-    }
-
-    bot.player.walkTo(xPos, yPos);
-  } else if (mapName === "queeniona") {
+  if (mapName === "queeniona" && window.context.autoZone === "queeniona") {
     await bot.sleep(500);
 
     try {
@@ -117,13 +95,13 @@ export async function event(bot: Bot, pkt: EventPacket) {
         bot.player.walkTo(490, 320);
       };
 
-      if (pkt.args.zoneSet === "A") {
+      if (zone === "A") {
         if (hasPositiveCharge) {
           moveRight();
         } else if (hasNegativeCharge) {
           moveLeft();
         }
-      } else if (pkt.args.zoneSet === "B") {
+      } else if (zone === "B") {
         if (hasPositiveCharge) {
           moveLeft();
         } else if (hasNegativeCharge) {
@@ -133,25 +111,6 @@ export async function event(bot: Bot, pkt: EventPacket) {
         moveCenter();
       }
     } catch {}
-  } else if (mapName === "astralshrine") {
-    let xPos: number;
-    let yPos: number;
-    switch (pkt.args.zoneSet) {
-      case "A":
-        xPos = getRandomInt(643, 708);
-        yPos = getRandomInt(445, 447);
-        break;
-      case "B":
-        xPos = getRandomInt(199, 287);
-        yPos = getRandomInt(181, 205);
-        break;
-      case "":
-        xPos = getRandomInt(461, 465);
-        yPos = getRandomInt(320, 325);
-        break;
-    }
-
-    bot.player.walkTo(xPos, yPos);
   }
 }
 
