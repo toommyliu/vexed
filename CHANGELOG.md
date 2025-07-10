@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+# [0.2.2](https://github.com/toommyliu/vexed/compare/v0.2.1...v0.2.2) - (2025-07-10)
+
+## Bug Fixes
+
+- **player/walkTo:** Add alive check ([3ac5235](https://github.com/toommyliu/vexed/commit/3ac5235914f2f6907b917c0ef9c4ddce119f1e1f))
+- **combat:** Properly respect killOptions param ([a234d57](https://github.com/toommyliu/vexed/commit/a234d57ddb54bf4a918b59b03e6525606eae1225))
+
+## Features
+
+- Auto Zone commands (#192) ([a45eeef](https://github.com/toommyliu/vexed/commit/a45eeef1ad1346e69705e2e5634ac9fe1eca106c))
+
 # [0.2.1](https://github.com/toommyliu/vexed/compare/0.2.0...v0.2.1) - (2025-06-27)
 
 ## Bug Fixes

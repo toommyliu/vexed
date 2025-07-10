@@ -1,6 +1,6 @@
 {
   "name": "@vexed/electron",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "main": "dist/main/index.js",
   "scripts": {
     "clean": "del-cli dist/* build/* --dot",
