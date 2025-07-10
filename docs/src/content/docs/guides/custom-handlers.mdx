@@ -6,6 +6,8 @@ head:
     content: Custom handlers guide
 ---
 
+import { Aside } from "@astrojs/starlight/components";
+
 ## What are custom handlers
 
 Custom handlers let you create automatic responses to some network message. Unlike regular commands that run one after another, handlers work in the background and can trigger at any time.
@@ -91,3 +93,13 @@ cmd.log("dead");
 
 cmd.unregister_handler("auto zone ledgermayne");
 ```
+
+<Aside type="tip">
+Some Auto Zones are already natively available (by map name):
+- [astralshrine](/api/misc#cmduse_autozone_astralshrine)
+- [darkcarnax](/api/misc#cmduse_autozone_darkcarnax)
+- [ledgermayne](/api/misc#cmduse_autozone_ledgermayne)
+- [moreskulls](/api/misc#cmduse_autozone_moreskulls)
+- [queeniona](/api/misc#cmduse_autozone_queeniona)
+- [ultradage](/api/misc#cmduse_autozone_ultradage)
+</Aside>
