@@ -132,12 +132,6 @@ export function createHotkeyConfig(): HotkeySection[] {
       icon: "tools",
       items: [
         {
-          id: "open-fast-travels",
-          label: "Open Fast Travels",
-          configKey: "Tools.Open Fast Travels",
-          value: "",
-        },
-        {
           id: "open-loader-grabber",
           label: "Open Loader/Grabber",
           configKey: "Tools.Open Loader Grabber",

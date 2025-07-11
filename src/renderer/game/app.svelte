@@ -244,10 +244,6 @@
         void client.toggleDevTools();
         break;
 
-      case "open-fast-travels":
-        void client.launchWindow(WindowIds.FastTravels);
-        break;
-
       case "open-loader-grabber":
         void client.launchWindow(WindowIds.LoaderGrabber);
         break;
@@ -295,7 +291,6 @@
   });
 
   onMount(async () => {
-    await import("./tipc/tipc-fast-travels");
     await import("./tipc/tipc-follower");
     await import("./tipc/tipc-loader-grabber");
     await import("./tipc/tipc-packet-logger");
@@ -450,12 +445,6 @@
             >
               <button
                 class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 first:rounded-t-lg hover:bg-gray-700/50"
-                onclick={() => void client.launchWindow(WindowIds.FastTravels)}
-              >
-                Fast Travels
-              </button>
-              <button
-                class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
                 onclick={() =>
                   void client.launchWindow(WindowIds.LoaderGrabber)}
               >

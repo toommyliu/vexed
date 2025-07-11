@@ -11,7 +11,6 @@ import {
 import { Config } from "../renderer/game/botting/util/Config";
 import {
   DEFAULT_ACCOUNTS,
-  DEFAULT_FAST_TRAVELS,
   DEFAULT_HOTKEYS,
   DEFAULT_SETTINGS,
   DOCUMENTS_PATH,
@@ -27,10 +26,6 @@ export class FileManager {
 
   public static get settingsPath() {
     return join(FileManager.basePath, "settings.json");
-  }
-
-  public static get fastTravelsPath() {
-    return join(FileManager.basePath, "fast-travels.json");
   }
 
   public static get accountsPath() {
@@ -75,10 +70,6 @@ export class FileManager {
 
     await Promise.all([
       FileManager.ensureJsonFile(FileManager.settingsPath, DEFAULT_SETTINGS),
-      FileManager.ensureJsonFile(
-        FileManager.fastTravelsPath,
-        DEFAULT_FAST_TRAVELS,
-      ),
       FileManager.ensureJsonFile(FileManager.accountsPath, DEFAULT_ACCOUNTS),
     ]);
 
