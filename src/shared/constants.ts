@@ -27,7 +27,6 @@ export const DEFAULT_HOTKEYS: HotkeyConfig = {
     "Toggle Script": "",
   },
   Tools: {
-    "Open Follower": "",
     "Open Loader Grabber": "",
   },
   Packets: {

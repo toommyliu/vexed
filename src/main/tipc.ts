@@ -65,12 +65,6 @@ export const router = {
           width = 800;
           height = 517;
           break;
-        case WindowIds.Follower:
-          ref = storeRef.tools.follower;
-          path = join(DIST_PATH, "tools", "follower", "index.html");
-          width = 927;
-          height = 646;
-          break;
         case WindowIds.Hotkeys:
           ref = storeRef.tools.hotkeys;
           path = join(DIST_PATH, "tools", "hotkeys", "index.html");
@@ -124,11 +118,6 @@ export const router = {
           storeRef.tools.loaderGrabber = window;
           width = 800;
           height = 517;
-          break;
-        case WindowIds.Follower:
-          storeRef.tools.follower = window;
-          width = 927;
-          height = 646;
           break;
         case WindowIds.Hotkeys:
           storeRef.tools.hotkeys = window;
@@ -307,62 +296,6 @@ export const router = {
 
       return parentHandlers.grab.invoke({ type: input.type });
     }),
-  // #endregion
-
-  // #region Follower
-  followerMe: tipcInstance.procedure.action(async ({ context }) => {
-    const browserWindow = BrowserWindow.fromWebContents(context.sender);
-    if (!browserWindow) return;
-
-    const parent = browserWindow.getParentWindow();
-    if (!parent || !windowStore.has(parent.id)) return;
-
-    const parentHandlers = getRendererHandlers<RendererHandlers>(
-      parent.webContents,
-    );
-
-    return parentHandlers.followerMe.invoke();
-  }),
-  followerStart: tipcInstance.procedure
-    .input<{
-      antiCounter: boolean;
-      attackPriority: string;
-      copyWalk: boolean;
-      drops: string;
-      name: string;
-      quests: string;
-      rejectElse: boolean;
-      safeSkill: string;
-      safeSkillEnabled: boolean;
-      safeSkillHp: string;
-      skillDelay: string;
-      skillList: string;
-      skillWait: boolean;
-    }>()
-    .action(async ({ context, input }) => {
-      const browserWindow = BrowserWindow.fromWebContents(context.sender);
-      if (!browserWindow) return;
-
-      const parent = browserWindow.getParentWindow();
-      if (!parent || !windowStore.has(parent.id)) return;
-
-      const parentHandlers = getRendererHandlers<RendererHandlers>(
-        parent.webContents,
-      );
-      parentHandlers.followerStart.send(input);
-    }),
-  followerStop: tipcInstance.procedure.action(async ({ context }) => {
-    const browserWindow = BrowserWindow.fromWebContents(context.sender);
-    if (!browserWindow) return;
-
-    const parent = browserWindow.getParentWindow();
-    if (!parent || !windowStore.has(parent.id)) return;
-
-    const parentHandlers = getRendererHandlers<RendererHandlers>(
-      parent.webContents,
-    );
-    parentHandlers.followerStop.send();
-  }),
   // #endregion
 
   // #region Packet Logger
@@ -723,50 +656,23 @@ export type TipcRouter = typeof router;
 export type RendererHandlers = {
   // Game
   gameReloaded(): void;
-
   // Scripts
   scriptLoaded(fromManager: boolean): void;
-
   // Loader Grabber
   load(input: { type: LoaderDataType; id: number }): void;
   grab(input: { type: GrabberDataType }): Promise<unknown>;
-
-  // Follower
-  followerMe(): Promise<string>;
-  followerStart(input: {
-    antiCounter: boolean;
-    attackPriority: string;
-    copyWalk: boolean;
-    drops: string;
-    name: string;
-    quests: string;
-    rejectElse: boolean;
-    safeSkill: string;
-    safeSkillEnabled: boolean;
-    safeSkillHp: string;
-    skillDelay: string;
-    skillList: string;
-    skillWait: boolean;
-  }): Promise<void>;
-  followerStop(): Promise<void>;
-
   // Hotkeys
   hotkeysUpdate(input: { id: string; value: string }): Promise<void>;
-
   // Packet Logger
   packetLoggerStart(): void;
   packetLoggerStop(): void;
   packetLoggerPacket(input: { packet: string; type: string }): void;
-
   // Packet Spammer
   packetSpammerStart(input: { delay: number; packets: string[] }): void;
   packetSpammerStop(): void;
-
   // Armying
   armyReady(): Promise<void>;
-
   // Manager
   managerLoginSuccess(username: string): void;
   enableButton(username: string): Promise<void>;
 };
-/* eslint-enable typescript-sort-keys/interface */
