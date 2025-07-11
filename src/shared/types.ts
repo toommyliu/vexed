@@ -1,26 +1,3 @@
-export type FastTravel = {
-  /**
-   * The cell to jump to. Defaults to "Enter".
-   */
-  cell?: string;
-  /**
-   * The map name to join.
-   */
-  map: string;
-  /**
-   * The display name of the location.
-   */
-  name: string;
-  /**
-   * The pad to jump to. Defaults to "Spawn".
-   */
-  pad?: string;
-};
-
-export type FastTravelRoomNumber = FastTravel & {
-  roomNumber: number;
-};
-
 export enum LoaderDataType {
   HairShop,
   Shop,
@@ -59,7 +36,6 @@ export type Settings = {
 };
 
 export enum WindowIds {
-  FastTravels = "tools-fast-travels",
   Follower = "tools-follower",
   Hotkeys = "tools-hotkeys",
 
@@ -86,7 +62,6 @@ export type HotkeyConfig = {
     "Toggle Script"?: string;
   };
   Tools?: {
-    "Open Fast Travels"?: string;
     "Open Follower"?: string;
     "Open Loader Grabber"?: string;
   };

@@ -42,10 +42,6 @@ async function copyHtmlFiles() {
       dest: "./dist/manager/index.html",
     },
     {
-      src: "./src/renderer/tools/fast-travels/index.html",
-      dest: "./dist/tools/fast-travels/index.html",
-    },
-    {
       src: "./src/renderer/tools/follower/index.html",
       dest: "./dist/tools/follower/index.html",
     },
@@ -234,15 +230,6 @@ async function transpile() {
           "./src/renderer/game/tsconfig.json",
         ),
         watchPath: "./src/renderer/game",
-      },
-      {
-        name: "fast-travels",
-        config: createSvelteConfig(
-          "./src/renderer/tools/fast-travels/main.ts",
-          "./dist/tools/fast-travels/build/main.js",
-          "./src/renderer/game/tsconfig.json",
-        ),
-        watchPath: "./src/renderer/tools/fast-travels",
       },
       {
         name: "loader-grabber",
