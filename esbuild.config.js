@@ -42,10 +42,6 @@ async function copyHtmlFiles() {
       dest: "./dist/manager/index.html",
     },
     {
-      src: "./src/renderer/tools/follower/index.html",
-      dest: "./dist/tools/follower/index.html",
-    },
-    {
       src: "./src/renderer/tools/loader-grabber/index.html",
       dest: "./dist/tools/loader-grabber/index.html",
     },
@@ -239,15 +235,6 @@ async function transpile() {
           "./src/renderer/game/tsconfig.json",
         ),
         watchPath: "./src/renderer/tools/loader-grabber",
-      },
-      {
-        name: "follower",
-        config: createSvelteConfig(
-          "./src/renderer/tools/follower/main.ts",
-          "./dist/tools/follower/build/main.js",
-          "./src/renderer/game/tsconfig.json",
-        ),
-        watchPath: "./src/renderer/tools/follower",
       },
       {
         name: "hotkeys",

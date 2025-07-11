@@ -248,10 +248,6 @@
         void client.launchWindow(WindowIds.LoaderGrabber);
         break;
 
-      case "open-follower":
-        void client.launchWindow(WindowIds.Follower);
-        break;
-
       case "open-packet-logger":
         void client.launchWindow(WindowIds.PacketLogger);
         break;
@@ -291,7 +287,6 @@
   });
 
   onMount(async () => {
-    await import("./tipc/tipc-follower");
     await import("./tipc/tipc-loader-grabber");
     await import("./tipc/tipc-packet-logger");
     await import("./tipc/tipc-packet-spammer");
@@ -449,12 +444,6 @@
                   void client.launchWindow(WindowIds.LoaderGrabber)}
               >
                 Loader/Grabber
-              </button>
-              <button
-                class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 last:rounded-b-lg hover:bg-gray-700/50"
-                onclick={() => void client.launchWindow(WindowIds.Follower)}
-              >
-                Follower
               </button>
               <button
                 class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 last:rounded-b-lg hover:bg-gray-700/50"

@@ -137,12 +137,6 @@ export function createHotkeyConfig(): HotkeySection[] {
           configKey: "Tools.Open Loader Grabber",
           value: "",
         },
-        {
-          id: "open-follower",
-          label: "Open Follower",
-          configKey: "Tools.Open Follower",
-          value: "",
-        },
       ],
     },
     {

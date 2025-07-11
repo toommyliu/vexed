@@ -134,7 +134,6 @@ export async function createGame(
     game: window,
     tools: {
       loaderGrabber: null,
-      follower: null,
       hotkeys: null,
     },
     packets: { logger: null, spammer: null },
@@ -150,7 +149,6 @@ export type WindowStore = Map<
       spammer: BrowserWindow | null;
     };
     tools: {
-      follower: BrowserWindow | null;
       hotkeys: BrowserWindow | null;
       loaderGrabber: BrowserWindow | null;
     };
