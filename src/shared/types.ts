@@ -36,7 +36,6 @@ export type Settings = {
 };
 
 export enum WindowIds {
-  Follower = "tools-follower",
   Hotkeys = "tools-hotkeys",
 
   LoaderGrabber = "tools-loader-grabber",
@@ -62,7 +61,6 @@ export type HotkeyConfig = {
     "Toggle Script"?: string;
   };
   Tools?: {
-    "Open Follower"?: string;
     "Open Loader Grabber"?: string;
   };
 };

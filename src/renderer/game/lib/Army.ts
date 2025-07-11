@@ -8,7 +8,6 @@ import type { Bot } from "./Bot";
  * Terminology:
  * Army/group: a group of players working together
  * Leader: player who "dictates" the actions of the group
- * Follower: player who follows the leader's actions
  */
 export class Army {
   /**
@@ -105,7 +104,6 @@ export class Army {
         });
       } else {
         // Join the army
-        console.log("Army: Follower");
         await client.armyJoin(args);
       }
 
