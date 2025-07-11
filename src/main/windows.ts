@@ -133,7 +133,6 @@ export async function createGame(
   windowStore.set(window.id, {
     game: window,
     tools: {
-      fastTravels: null,
       loaderGrabber: null,
       follower: null,
       hotkeys: null,
@@ -151,7 +150,6 @@ export type WindowStore = Map<
       spammer: BrowserWindow | null;
     };
     tools: {
-      fastTravels: BrowserWindow | null;
       follower: BrowserWindow | null;
       hotkeys: BrowserWindow | null;
       loaderGrabber: BrowserWindow | null;

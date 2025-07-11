@@ -2,15 +2,9 @@ import { join } from "path";
 import { getRendererHandlers, tipc } from "@egoist/tipc";
 import { app, BrowserWindow, dialog } from "electron";
 import { FileManager } from "../shared/FileManager";
-import { DEFAULT_FAST_TRAVELS } from "../shared/constants";
 import { Logger } from "../shared/logger";
 import { sleep } from "../shared/sleep";
-import type {
-  FastTravel,
-  FastTravelRoomNumber,
-  GrabberDataType,
-  LoaderDataType,
-} from "../shared/types";
+import type { GrabberDataType, LoaderDataType } from "../shared/types";
 import { WindowIds } from "../shared/types";
 import { recursivelyApplySecurityPolicy } from "./util/recursivelyApplySecurityPolicy";
 import { createGame, getManagerWindow, windowStore } from "./windows";
@@ -48,8 +42,6 @@ const handleCleanup = (
   browserWindow.once("close", _cleanup);
 };
 
-// TODO: <WebContents>.reloadIgnoringCache() to send refresh events to all childern
-
 // Renderer calls to main (1.)
 export const router = {
   // #region Game
@@ -67,12 +59,6 @@ export const router = {
       let height: number;
 
       switch (input) {
-        case WindowIds.FastTravels:
-          ref = storeRef.tools.fastTravels;
-          path = join(DIST_PATH, "tools", "fast-travels", "index.html");
-          width = 670;
-          height = 527;
-          break;
         case WindowIds.LoaderGrabber:
           ref = storeRef.tools.loaderGrabber;
           path = join(DIST_PATH, "tools", "loader-grabber", "index.html");
@@ -134,11 +120,6 @@ export const router = {
 
       // Update the store with the new window
       switch (input) {
-        case WindowIds.FastTravels:
-          storeRef.tools.fastTravels = window;
-          width = 670;
-          height = 527;
-          break;
         case WindowIds.LoaderGrabber:
           storeRef.tools.loaderGrabber = window;
           width = 800;
@@ -293,39 +274,6 @@ export const router = {
     }
   }),
 
-  // #endregion
-
-  // #region Fast Travels
-  getFastTravels: tipcInstance.procedure.action(async () => {
-    try {
-      return await FileManager.readJson<FastTravel[]>(
-        FileManager.fastTravelsPath,
-      )!;
-    } catch (error) {
-      logger.error("Failed to read fast travels", error);
-      return DEFAULT_FAST_TRAVELS;
-    }
-  }),
-  doFastTravel: tipcInstance.procedure
-    .input<{ location: FastTravelRoomNumber }>()
-    .action(async ({ input, context }) => {
-      const browserWindow = BrowserWindow.fromWebContents(context.sender);
-      if (!browserWindow) return;
-
-      const parent = browserWindow.getParentWindow();
-      if (!parent || !windowStore.has(parent.id)) return;
-
-      const parentHandlers = getRendererHandlers<RendererHandlers>(
-        parent.webContents,
-      );
-      const childHandlers = getRendererHandlers<RendererHandlers>(
-        context.sender,
-      );
-
-      await parentHandlers.doFastTravel.invoke({ location: input.location });
-      childHandlers.fastTravelEnable.send();
-    }),
-  // #endregion
   // #endregion
 
   // #region Loader Grabber
@@ -778,10 +726,6 @@ export type RendererHandlers = {
 
   // Scripts
   scriptLoaded(fromManager: boolean): void;
-
-  // Fast Travels
-  fastTravelEnable(): void;
-  doFastTravel({ location }: { location: FastTravelRoomNumber }): void;
 
   // Loader Grabber
   load(input: { type: LoaderDataType; id: number }): void;
