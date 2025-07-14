@@ -14,10 +14,7 @@ export function startDropsTimer() {
 
   const runLoop = async () => {
     while (!abortController?.signal?.aborted) {
-      if (!bot.player.isReady()) {
-        await bot.sleep(1_000);
-        continue;
-      }
+      if (!bot.player.isReady()) continue;
 
       const signal = abortController?.signal;
       if (signal?.aborted) return;
