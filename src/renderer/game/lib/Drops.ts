@@ -21,14 +21,6 @@ export class Drops {
    * Retrieves the drop stack as is.
    */
   public get dropCounts(): Readonly<Map<number, number>> {
-    // const result: Record<number, number> = {};
-    // for (const [key, value] of this.#dropCounts.entries()) {
-    //   // const item = this.getItemFromId(key);
-    //   // console.log(`${item?.sName} - ${value}`);
-    //   result[key] = value;
-    // }
-
-    return Object.freeze(this.#dropCounts);
   }
 
   /**
