@@ -78,72 +78,79 @@ package vexed.game {
       return game.litePreference.data.bCustomDrops;
     }
 
-    public static function setCustomDropsUi(on:Boolean, draggable:Boolean):void {
-      game.litePreference.data.bCustomDrops = on;
-      game.litePreference.data.dOptions["dragMode"] = draggable;
-      game.litePreference.flush();
+    // public static function setCustomDropsUi(on:Boolean, draggable:Boolean):void {
+    // game.litePreference.data.bCustomDrops = on;
+    // game.litePreference.data.dOptions["dragMode"] = draggable;
+    // game.litePreference.flush();
 
-      // Main.getInstance().getExternal().debug("setCustomDropsUi: " + on);
-      if (on) {
-        // Main.getInstance().getExternal().debug("creating custom drops ui");
-        if (game.cDropsUI) {
-          // Main.getInstance().getExternal().debug("cleaning up old custom drops ui");
-          game.cDropsUI.cleanup();
-        }
-        // Main.getInstance().getExternal().debug("creating new custom drops ui");
+    // // Main.getInstance().getExternal().debug("setCustomDropsUi: " + on);
+    // if (on) {
+    // // Main.getInstance().getExternal().debug("creating custom drops ui");
+    // if (game.cDropsUI) {
+    // // Main.getInstance().getExternal().debug("cleaning up old custom drops ui");
+    // game.cDropsUI.cleanup();
+    // }
+    // // Main.getInstance().getExternal().debug("creating new custom drops ui");
 
-        // Create the custom drops ui
-        game.cDropsUI = new cls(game);
+    // // Create the custom drops ui
+    // game.cDropsUI = new cls(game);
 
-        // Set up draggable state or not
-        game.cDropsUI.onChange(draggable);
+    // // Set up draggable state or not
+    // game.cDropsUI.onChange(draggable);
 
-      }
-      else if (game.cDropsUI != null) {
-        Main.getInstance().getExternal().debug("cleaning up custom drops ui");
-        game.cDropsUI.cleanup();
-      }
-    }
+    // }
+    // else if (game.cDropsUI != null) {
+    // Main.getInstance().getExternal().debug("cleaning up custom drops ui");
+    // game.cDropsUI.cleanup();
+    // }
+    // }
 
     public static function setCustomDropsUiOpen(on:Boolean):void {
-      game.litePreference.data.dOptions["openMenu"] = on;
-      game.litePreference.flush();
+      // game.litePreference.data.dOptions["openMenu"] = on;
+      // game.litePreference.flush();
 
-      if (Boolean(game.cDropsUI)) {
-        if (Boolean(game.cDropsUI.mcDraggable)) {
-          game.cDropsUI.mcDraggable.menu.visible = on;
-          if (on) {
-            game.cDropsUI.reDraw();
-          }
+      if (!game.cDropsUI) {
+        Main.getInstance().getExternal().debug("cDropsUI is null; cannot toggle custom drops UI");
+        return;
+      }
+
+      var isDraggable:Boolean = false;
+      try {
+        isDraggable = ("mcDraggable" in game.cDropsUI) && Boolean(game.cDropsUI.mcDraggable);
+      }
+      catch (e:Error) {
+        isDraggable = false;
+      }
+
+      try {
+        // debug print typeof game.cDropsUI.onToggleMenu
+        // Main.getInstance().getExternal().debug("Toggling custom drops UI function: " + (isDraggable ? "onToggleMenu" : "onToggleAttach"));
+        // typeof(game.cDropsUI.onToggleMenu) === "function" or typeof(game.cDropsUI.onToggleAttach) === "function"
+        // Main.getInstance().getExternal().debug("typeof game.cDropsUI.onToggleMenu: " + typeof (game.cDropsUI.onToggleMenu));
+        // Main.getInstance().getExternal().debug("typeof game.cDropsUI.onToggleAttach: " + typeof (game.cDropsUI.onToggleAttach));
+        if (isDraggable && ("onToggleMenu" in game.cDropsUI)) {
+          Main.getInstance().getExternal().debug("Calling onToggleMenu");
+          game.cDropsUI.onToggleMenu(new MouseEvent(MouseEvent.CLICK));
+        }
+        else if ("onToggleAttach" in game.cDropsUI) {
+          Main.getInstance().getExternal().debug("Calling onToggleAttach");
+          game.cDropsUI.onToggleAttach(new MouseEvent(MouseEvent.CLICK));
         }
         else {
-          game.cDropsUI.inner_menu.visible = on;
-          if (on) {
-            // Main.getInstance().getExternal().debug("redrawing custom drops ui");
-            game.cDropsUI.reDraw();
-            game.cDropsUI.inner_menu.filters = [];
-          }
-          else {
-            // Main.getInstance().getExternal().debug("hiding custom drops ui");
-            game.cDropsUI.inner_menu.filters = [inactive];
-          }
+          Main.getInstance().getExternal().debug("Neither onToggleMenu nor onToggleAttach found on cDropsUI");
         }
+      }
+      catch (e:Error) {
+        Main.getInstance().getExternal().debug("Error toggling custom drops UI: " + e.message);
       }
     }
 
-    // TODO: we'll probably remove these apis in the future
     public static function isCustomDropsUiOpen():Boolean {
       if (game.cDropsUI) {
-        if (game.cDropsUI.mcDraggable) {
-          return game.cDropsUI.mcDraggable.menu.visible;
-        }
-        else {
-          return game.cDropsUI.inner_menu.visible;
-        }
+        return game.cDropsUI.isMenuOpen();
       }
-      else {
-        return false;
-      }
+
+      return false;
     }
   }
 }

@@ -14,6 +14,7 @@ package vexed {
 	import vexed.module.Modules;
 	import vexed.util.SFSEvent;
 	import flash.events.ProgressEvent;
+	import vexed.module.Drops;
 
 	public class Main extends MovieClip {
 		private static var _instance:Main;
@@ -113,7 +114,20 @@ package vexed {
 				this.external.call("packetFromClient", packet.params.message.replace(/^\s+|\s+$/g, ''));
 			}
 			else {
-				this.external.call("packetFromServer", processPacket(packet.params.message));
+				var pkt:String = processPacket(packet.params.message);
+				this.external.call("packetFromServer", pkt);
+
+				if (pkt && pkt.indexOf('dropItem') > -1) {
+					var pktObj:Object = JSON.parse(pkt);
+					if (pktObj && pktObj.b && pktObj.b.o && pktObj.b.o.items) {
+						var itemsObj:Object = pktObj.b.o.items;
+						for (var itemId:* in itemsObj) {
+							var itemData:Object = itemsObj[itemId];
+							Drops.saveItemData(itemData);
+							Drops.updateDropQty(itemId, itemData.iQty);
+						}
+					}
+				}
 			}
 		}
 

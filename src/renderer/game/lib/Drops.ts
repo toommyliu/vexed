@@ -1,10 +1,7 @@
-import { Mutex } from "async-mutex";
 import type { Bot } from "./Bot";
 import type { ItemData } from "./models/Item";
 
 export class Drops {
-  readonly #mutex = new Mutex();
-
   /**
    * A map of item IDs to their associated item data.
    */
@@ -21,6 +18,7 @@ export class Drops {
    * Retrieves the drop stack as is.
    */
   public get dropCounts(): Readonly<Map<number, number>> {
+    return this.#dropCounts;
   }
 
   /**
@@ -43,7 +41,7 @@ export class Drops {
    * Retrieves the item data store.
    */
   public get itemData(): ReadonlyMap<number, ItemData> {
-    return Object.freeze(this.#itemData);
+    return this.#itemData;
   }
 
   /**
@@ -110,11 +108,21 @@ export class Drops {
    * @param item - The item that was dropped.
    */
   public addDrop(item: ItemData): void {
-    // console.log(
-    // `Adding drop: ${item.sName} (${item.ItemID}) [${typeof item.sName} : ${typeof item.ItemID}]`,
-    // );
+    if (
+      !item ||
+      typeof item.ItemID !== "number" ||
+      typeof item.sName !== "string" ||
+      typeof item.iQty !== "number"
+    ) {
+      console.error("Invalid ItemData", item);
+      throw new Error("Invalid ItemData");
+    }
+
     if (!this.#itemData.has(item.ItemID)) {
-      this.#itemData.set(item.ItemID, Object.freeze({ ...item }));
+      this.#itemData.set(item.ItemID, { ...item });
+      console.log(
+        `addDrop: Added new item to itemData: ${item.sName} (${item.ItemID})`,
+      );
     }
 
     const count = this.getDropCount(item.ItemID);
@@ -122,44 +130,68 @@ export class Drops {
       item.ItemID,
       count === -1 ? item.iQty : count + item.iQty,
     );
-    // console.log(
-    // `${item.sName} (${item.ItemID}) added to drop stack, now at ${this.#dropCounts.get(item.ItemID)}`,
-    // );
+    console.log(
+      `addDrop: Updated drop count for ${item.sName} (${item.ItemID}): ${this.#dropCounts.get(
+        item.ItemID,
+      )}`,
+    );
+  }
+
+  /**
+   * Adds multiple items to the drop stack at once.
+   *
+   * @param items - Array of ItemData to add.
+   */
+  public addDrops(items: ItemData[]): void {
+    if (!Array.isArray(items)) {
+      console.error("items must be an array", items);
+      throw new Error("items must be an array");
+    }
+
+    for (const item of items) {
+      this.addDrop(item);
+    }
+
+    console.log(`addDrops: Added ${items.length} items.`);
   }
 
   /**
    * Accepts the drop for an item in the stack.
    *
    * @param item - The name or ID of the item.
+   * @returns Whether the pickup was successful.
    */
-  public async pickup(item: number | string): Promise<void> {
-    const itemData = this.#resolveItem(item);
-    if (!itemData || this.getDropCount(itemData.ItemID) <= 0) {
-      // console.log("Item not found in drop stack (1)", item);
-      return;
+  public async pickup(item: number | string): Promise<boolean> {
+    if (typeof item !== "string" && typeof item !== "number") {
+      console.error("pickup: invalid item type", item);
+      return false;
     }
 
-    // console.log(`Pickup item: ${itemData.sName} (${itemData.ItemID})`);
-
-    // if (this.isUsingCustomUi() && !this.isCustomUiOpen()) {
-    //   console.log("Set custom drops ui open (1)");
-    //   this.setCustomDropsUiOpen(true);
-    // }
+    const itemData = this.#resolveItem(item);
+    if (!itemData || this.getDropCount(itemData.ItemID) <= 0) {
+      console.warn("pickup: item not found or count <= 0", item);
+      return false;
+    }
 
     const { ItemID: itemId } = itemData;
-    return this.#mutex.runExclusive(async () => {
-      if (!this.bot.player.isReady()) return;
+    if (!this.bot.player.isReady()) {
+      console.warn("pickup: player not ready");
+      return false;
+    }
 
-      this.bot.packets.sendServer(
-        `%xt%zm%getDrop%${this.bot.world.roomId}%${itemId}%`,
-      );
-      await this.bot.waitUntil(
-        () => this.bot.inventory.get(item) !== null,
-        () => this.bot.player.isReady(),
-        -1,
-      );
-      this.#removeDrop(itemId);
-    });
+    this.bot.packets.sendServer(
+      `%xt%zm%getDrop%${this.bot.world.roomId}%${itemId}%`,
+    );
+    await this.bot.waitUntil(
+      () => this.bot.inventory.get(item) !== null,
+      () => this.bot.player.isReady(),
+      -1,
+    );
+    this.#removeDrop(itemId);
+    console.log(
+      `pickup: Successfully picked up item ${itemData.sName} (${itemId})`,
+    );
+    return true;
   }
 
   /**
@@ -167,30 +199,36 @@ export class Drops {
    *
    * @param itemKey - The name or ID of the item.
    * @param removeFromStore - Whether to delete the item entry from the store.
+   * @returns Whether the rejection was successful.
    */
   public async reject(
     itemKey: number | string,
     removeFromStore: boolean = false,
-  ) {
-    const item = this.#resolveItem(itemKey);
-    if (!item) {
-      return;
+  ): Promise<boolean> {
+    if (typeof itemKey !== "string" && typeof itemKey !== "number") {
+      console.error("reject: invalid itemKey type", itemKey);
+      return false;
     }
 
-    // if (this.isUsingCustomUi() && !this.isCustomUiOpen()) {
-    //   console.log("Set custom drops ui open (2)");
-    //   this.setCustomDropsUiOpen(true);
-    // }
-
-    // console.log("Rejecting drop", item.sName, item.ItemID);
+    const item = this.#resolveItem(itemKey);
+    if (!item) {
+      console.warn("reject: item not found", itemKey);
+      return false;
+    }
 
     this.bot.flash.call(() =>
       swf.dropStackRejectDrop(item.sName, item.ItemID.toString()),
     );
+    console.log(`reject: Rejected drop for ${item.sName} (${item.ItemID})`);
 
     if (removeFromStore) {
       this.#removeDrop(item.ItemID);
+      console.log(
+        `reject: Removed item from drop stack: ${item.sName} (${item.ItemID})`,
+      );
     }
+
+    return true;
   }
 
   /**
