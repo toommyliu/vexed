@@ -13,6 +13,7 @@
   import Mousetrap from "mousetrap";
   import { createHotkeyConfig, isValidHotkey } from "../tools/hotkeys/utils";
   import type { HotkeySection } from "../tools/hotkeys/types";
+  import { interval } from "../../shared/interval";
 
   const DEFAULT_PADS = [
     "Center",
@@ -31,6 +32,7 @@
   let hotkeysSections = $state<HotkeySection[]>(createHotkeyConfig());
 
   let autoAggroEnabled = $state(false);
+  let autoEnabled = $state(false);
 
   let gameConnected = $state(false);
   bot.on("login", () => (gameConnected = true));
@@ -271,6 +273,27 @@
     else window.context.overlay.hide();
   });
 
+  $effect(() => {
+    if (autoEnabled) {
+      let idx = 0;
+      void interval(async (_, stop) => {
+        if (!autoEnabled) {
+          stop();
+          return;
+        }
+
+        if (!bot.player.isReady()) return;
+        if (bot.world.availableMonsters.length) {
+          if (!bot.combat.hasTarget()) {
+            bot.combat.attack("*");
+          }
+          bot.combat.useSkill(idx++, true, false);
+          if (idx > 4) idx = 0;
+        }
+      }, 150);
+    }
+  });
+
   onMount(async () => {
     await import("./tipc/tipc-fast-travels");
     await import("./tipc/tipc-follower");
@@ -350,11 +373,14 @@
       id="topnav-container"
       class="relative z-[10000] min-h-8 border-b border-gray-800/50 bg-background-primary backdrop-blur-sm"
     >
-      <div id="topnav" class="flex w-full flex-wrap items-center">
-        <div class="flex">
+      <div
+        id="topnav"
+        class="flex w-full flex-row items-center justify-between"
+      >
+        <div class="flex flex-row items-center">
           <div class="group relative inline-block cursor-pointer">
             <button
-              class="mx-1 rounded-md px-4 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50 hover:shadow-lg"
+              class="rounded-md px-2 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50 hover:shadow-lg"
               onclick={(ev) => {
                 ev.stopPropagation();
                 toggleDropdown("scripts");
@@ -408,7 +434,7 @@
             id="tools-dropdown"
           >
             <button
-              class="mx-1 rounded-md px-4 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50 hover:shadow-lg"
+              class="rounded-md px-2 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50 hover:shadow-lg"
               id="tools"
               onclick={(e) => {
                 e.stopPropagation();
@@ -455,7 +481,7 @@
             id="packets-dropdown"
           >
             <button
-              class="mx-1 rounded-md px-4 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50 hover:shadow-lg"
+              class="rounded-md px-2 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50 hover:shadow-lg"
               id="packets"
               onclick={(e) => {
                 e.stopPropagation();
@@ -490,7 +516,7 @@
             id="options-dropdown"
           >
             <button
-              class="mx-1 rounded-md px-4 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50 hover:shadow-lg"
+              class="rounded-md px-2 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50 hover:shadow-lg"
               id="options"
               onclick={(e) => {
                 e.stopPropagation();
@@ -656,7 +682,7 @@
             id="autoaggro-dropdown"
           >
             <button
-              class="mx-1 rounded-md px-4 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50 hover:shadow-lg"
+              class="rounded-md px-2 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50 hover:shadow-lg"
               id="autoaggro"
               onclick={(e) => {
                 e.stopPropagation();
@@ -681,10 +707,20 @@
             </div>
           </div>
         </div>
-        <div class="ml-auto mr-2 flex items-center gap-4">
-          <div class="ml-1.5 flex gap-1">
+        <div class="ml-auto mr-2 flex flex-row items-center">
+          <div class="ml-1.5 flex space-x-2">
+            <label
+              class="mr-1 flex cursor-pointer select-none items-center text-xs text-white"
+            >
+              <input
+                type="checkbox"
+                bind:checked={autoEnabled}
+                class="h-4 w-4 rounded border-gray-500/30 bg-background-primary focus:outline-none focus:ring-0"
+              />
+              <span class="ml-1.5">Auto</span>
+            </label>
             <div
-              class="relative mt-1.5 inline-block h-[25px] w-[86px] cursor-pointer"
+              class="relative inline-block h-[25px] w-[86px] cursor-pointer"
               id="pads-dropdown"
             >
               <button
@@ -727,7 +763,7 @@
               </div>
             </div>
             <div
-              class="relative ml-0.5 mt-1.5 inline-block h-[25px] w-[86px] cursor-pointer"
+              class="relative inline-block h-[25px] w-[86px] cursor-pointer"
               id="cells-dropdown"
             >
               <button
@@ -770,7 +806,7 @@
           </div>
           <div class="ml-1.5 flex space-x-1">
             <button
-              class="mt-[5px] flex h-[25px] min-w-0 items-center justify-center rounded border border-gray-500/30 bg-background-primary px-[8px] py-0 text-xs text-white transition-all duration-200 hover:border-gray-400/50"
+              class="mt-[3px] flex h-[25px] min-w-0 items-center justify-center rounded border border-gray-500/30 bg-background-primary px-[8px] py-0 text-xs text-white transition-all duration-200 hover:border-gray-400/50"
               class:cursor-not-allowed={!gameConnected}
               class:opacity-50={!gameConnected}
               disabled={!gameConnected}
@@ -791,7 +827,7 @@
               x
             </button>
             <button
-              class="mt-[5px] flex h-[25px] min-w-0 items-center justify-center rounded border border-gray-500/30 bg-background-primary px-[8px] py-0 text-xs text-white transition-all duration-200 hover:border-gray-400/50"
+              class="mt-[3px] flex h-[25px] min-w-0 items-center justify-center rounded border border-gray-500/30 bg-background-primary px-[8px] py-0 text-xs text-white transition-all duration-200 hover:border-gray-400/50"
               class:cursor-not-allowed={!gameConnected}
               class:opacity-50={!gameConnected}
               disabled={!gameConnected}
@@ -872,7 +908,7 @@
 
 <style>
   :global(:root) {
-    --topnav-height: 32px;
+    --topnav-height: 36px;
     --bg-primary: #111113;
     --bg-secondary: #18191b;
     --accent-blue: #3b82f6;
