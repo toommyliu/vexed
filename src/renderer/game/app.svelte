@@ -273,15 +273,8 @@
     else window.context.overlay.hide();
   });
 
-  let autoAttackStop: (() => void) | null = null;
-
   $effect(() => {
-    if (autoAttackStop) {
-      autoAttackStop();
-      autoAttackStop = null;
-    }
-
-    if (bot.player.isReady() && autoEnabled) {
+    if (autoEnabled) {
       let idx = 0;
       void interval(async (_, stop) => {
         if (!autoEnabled) {
@@ -321,10 +314,6 @@
   });
 
   onDestroy(() => {
-    if (autoAttackStop) {
-      autoAttackStop();
-      autoAttackStop = null;
-    }
     Mousetrap.reset();
   });
 
