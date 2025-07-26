@@ -102,6 +102,7 @@ export async function createGame(
   });
 
   void window.loadURL(`file://${resolve(DIST_GAME, "index.html")}`);
+  window.webContents.setAudioMuted(true);
   recursivelyApplySecurityPolicy(window);
 
   if (!app.isPackaged) {

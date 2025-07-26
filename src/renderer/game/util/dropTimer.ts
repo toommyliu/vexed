@@ -1,7 +1,7 @@
 import { Bot } from "../lib/Bot";
 
 const bot = Bot.getInstance();
-const activeDrops = new Set<string>();
+const activeDrops = new Set<string>(); // Set of item names
 
 let rejectElseEnabled = false;
 let stopFn: (() => void) | null = null;
@@ -14,21 +14,23 @@ export function startDropsTimer() {
 
   const runLoop = async () => {
     while (!abortController?.signal?.aborted) {
-      if (!bot.player.isReady()) {
-        await bot.sleep(1_000);
-        continue;
-      }
+      if (!bot.player.isReady()) continue;
 
       const signal = abortController?.signal;
       if (signal?.aborted) return;
 
-      for (const drop of bot.drops.dropCounts.keys()) {
+      for (const itemId /* itemID */ of bot.drops.dropCounts.keys()) {
         if (signal?.aborted) break;
 
-        if (activeDrops.has(drop.toString())) {
+        const item = bot.drops.getItemFromId(itemId);
+        if (!item) {
+          continue;
+        }
+
+        if (activeDrops.has(item.sName)) {
           try {
             await Promise.race([
-              bot.drops.pickup(drop),
+              bot.drops.pickup(itemId),
               new Promise((_resolve, reject) => {
                 signal?.addEventListener("abort", () =>
                   reject(new Error("Operation aborted")),
@@ -39,7 +41,7 @@ export function startDropsTimer() {
         } else if (rejectElseEnabled) {
           try {
             await Promise.race([
-              bot.drops.reject(drop).catch(() => {}),
+              bot.drops.reject(itemId).catch(() => {}),
               new Promise((_resolve, reject) => {
                 signal?.addEventListener("abort", () =>
                   reject(new Error("Operation aborted")),
@@ -71,18 +73,19 @@ export function stopDropsTimer() {
     stopFn = null;
   }
 
-  activeDrops.clear();
+  // activeDrops.clear();
 }
 
 /**
  * Registers a drop to begin tracking.
  *
- * @param drop - The drop id to register.
+ * @param drop - The drop name to register.
  * @param rejectElse - Whether to reject other drops.
  */
 export function registerDrop(drop: string, rejectElse: boolean = false) {
   if (activeDrops.has(drop)) return;
 
+  // console.log(`Registering drop: ${drop}`);
   activeDrops.add(drop);
   rejectElseEnabled = rejectElse;
 }
@@ -90,10 +93,11 @@ export function registerDrop(drop: string, rejectElse: boolean = false) {
 /**
  * Unregisters a drop.
  *
- * @param drop - The drop id to unregister.
+ * @param drop - The drop name to unregister.
  */
 export function unregisterDrop(drop: string) {
   if (!activeDrops.has(drop)) return;
 
+  // console.log(`Unregistering drop: ${drop}`);
   activeDrops.delete(drop);
 }

@@ -48,6 +48,7 @@ package vexed.module {
 			registerModule(new HidePlayers());
 			registerModule(new DisableCollisions());
 			registerModule(new DisableFX());
+			registerModule(new Drops());
 
 			var customName:CustomName = CustomName.instance;
 			customName.enabled = true;
