@@ -108,32 +108,14 @@ export class Drops {
    * @param item - The item that was dropped.
    */
   public addDrop(item: ItemData): void {
-    if (
-      !item ||
-      typeof item.ItemID !== "number" ||
-      typeof item.sName !== "string" ||
-      typeof item.iQty !== "number"
-    ) {
-      console.error("Invalid ItemData", item);
-      throw new Error("Invalid ItemData");
-    }
-
     if (!this.#itemData.has(item.ItemID)) {
       this.#itemData.set(item.ItemID, { ...item });
-      console.log(
-        `addDrop: Added new item to itemData: ${item.sName} (${item.ItemID})`,
-      );
     }
 
     const count = this.getDropCount(item.ItemID);
     this.#dropCounts.set(
       item.ItemID,
       count === -1 ? item.iQty : count + item.iQty,
-    );
-    console.log(
-      `addDrop: Updated drop count for ${item.sName} (${item.ItemID}): ${this.#dropCounts.get(
-        item.ItemID,
-      )}`,
     );
   }
 
@@ -143,16 +125,7 @@ export class Drops {
    * @param items - Array of ItemData to add.
    */
   public addDrops(items: ItemData[]): void {
-    if (!Array.isArray(items)) {
-      console.error("items must be an array", items);
-      throw new Error("items must be an array");
-    }
-
-    for (const item of items) {
-      this.addDrop(item);
-    }
-
-    console.log(`addDrops: Added ${items.length} items.`);
+    for (const item of items) this.addDrop(item);
   }
 
   /**
@@ -163,19 +136,16 @@ export class Drops {
    */
   public async pickup(item: number | string): Promise<boolean> {
     if (typeof item !== "string" && typeof item !== "number") {
-      console.error("pickup: invalid item type", item);
       return false;
     }
 
     const itemData = this.#resolveItem(item);
     if (!itemData || this.getDropCount(itemData.ItemID) <= 0) {
-      console.warn("pickup: item not found or count <= 0", item);
       return false;
     }
 
     const { ItemID: itemId } = itemData;
     if (!this.bot.player.isReady()) {
-      console.warn("pickup: player not ready");
       return false;
     }
 
@@ -188,9 +158,6 @@ export class Drops {
       -1,
     );
     this.#removeDrop(itemId);
-    console.log(
-      `pickup: Successfully picked up item ${itemData.sName} (${itemId})`,
-    );
     return true;
   }
 
@@ -206,26 +173,18 @@ export class Drops {
     removeFromStore: boolean = false,
   ): Promise<boolean> {
     if (typeof itemKey !== "string" && typeof itemKey !== "number") {
-      console.error("reject: invalid itemKey type", itemKey);
       return false;
     }
 
     const item = this.#resolveItem(itemKey);
-    if (!item) {
-      console.warn("reject: item not found", itemKey);
-      return false;
-    }
+    if (!item) return false;
 
     this.bot.flash.call(() =>
       swf.dropStackRejectDrop(item.sName, item.ItemID.toString()),
     );
-    console.log(`reject: Rejected drop for ${item.sName} (${item.ItemID})`);
 
     if (removeFromStore) {
       this.#removeDrop(item.ItemID);
-      console.log(
-        `reject: Removed item from drop stack: ${item.sName} (${item.ItemID})`,
-      );
     }
 
     return true;
