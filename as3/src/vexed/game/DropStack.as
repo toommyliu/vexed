@@ -123,11 +123,6 @@ package vexed.game {
       }
 
       try {
-        // debug print typeof game.cDropsUI.onToggleMenu
-        // Main.getInstance().getExternal().debug("Toggling custom drops UI function: " + (isDraggable ? "onToggleMenu" : "onToggleAttach"));
-        // typeof(game.cDropsUI.onToggleMenu) === "function" or typeof(game.cDropsUI.onToggleAttach) === "function"
-        // Main.getInstance().getExternal().debug("typeof game.cDropsUI.onToggleMenu: " + typeof (game.cDropsUI.onToggleMenu));
-        // Main.getInstance().getExternal().debug("typeof game.cDropsUI.onToggleAttach: " + typeof (game.cDropsUI.onToggleAttach));
         if (isDraggable && ("onToggleMenu" in game.cDropsUI)) {
           Main.getInstance().getExternal().debug("Calling onToggleMenu");
           game.cDropsUI.onToggleMenu(new MouseEvent(MouseEvent.CLICK));

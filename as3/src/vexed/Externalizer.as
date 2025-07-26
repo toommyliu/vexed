@@ -3,8 +3,8 @@ package vexed {
   import vexed.module.Modules;
   import vexed.game.*;
   import flash.text.TextField;
-  import flash.utils.Dictionary;
-  import vexed.module.Drops;
+  // import flash.utils.Dictionary;
+  // import vexed.module.Drops;
 
   public class Externalizer {
     public function init(root:Main):void {
@@ -62,8 +62,8 @@ package vexed {
       externalize("dropStackRejectDrop", DropStack.rejectDrop);
       externalize("dropStackIsUsingCustomDrops", DropStack.isUsingCustomDrops);
       // externalize("dropStackSetCustomDropsUI", DropStack.);
-      externalize("dropStackIsCustomDropsUiOpen", DropStack.isCustomDropsUiOpen);
-      externalize("dropStackSetCustomDropsUiOpen", DropStack.setCustomDropsUiOpen);
+      // externalize("dropStackIsCustomDropsUiOpen", DropStack.isCustomDropsUiOpen);
+      // externalize("dropStackSetCustomDropsUiOpen", DropStack.setCustomDropsUiOpen);
       // House
       externalize("houseGetItems", House.getItems);
       externalize("houseGetItem", House.getItem);
@@ -200,7 +200,6 @@ package vexed {
       externalize("worldSetSpawnPoint", World.setSpawnPoint);
       externalize("worldGetPlayerAuras", World.getPlayerAuras);
 
-      // Should cover all cases
       externalize("isTextFieldFocused", function():Boolean {
           var game:* = Main.getInstance().getGame();
 
@@ -213,15 +212,15 @@ package vexed {
 
           return false;
         });
-      externalize("startDrops", function():void {
-          Modules.enable("Drops");
-        });
-      externalize("getDrops", function():Dictionary {
-          return Drops.getDrops();
-        });
-      externalize("getDropsHumanized", function():Object {
-          return Drops.getDropsHumanized();
-        });
+      // externalize("startDrops", function():void {
+      // Modules.enable("Drops");
+      // });
+      // externalize("getDrops", function():Dictionary {
+      // return Drops.getDrops();
+      // });
+      // externalize("getDropsHumanized", function():Object {
+      // return Drops.getDropsHumanized();
+      // });
 
       debug("Externalizer::init done.");
     }
