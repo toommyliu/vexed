@@ -52,7 +52,7 @@
     "@typescript-eslint/parser": "^8.4.0",
     "autoprefixer": "^10.4.21",
     "del-cli": "^6.0.0",
-    "electron": "^6.1.12",
+    "electron": "^4.2.12",
     "electron-builder": "^24.13.3",
     "electronmon": "^2.0.3",
     "esbuild": "^0.25.5",

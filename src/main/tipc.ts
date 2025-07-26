@@ -152,7 +152,7 @@ export const router = {
         window.hide();
       });
 
-      await window.loadFile(path!);
+      window.loadFile(path!);
     }),
   // #region Scripts
   loadScript: tipcInstance.procedure
@@ -170,17 +170,17 @@ export const router = {
           file = scriptPath;
           fromManager = true;
         } else {
-          const res = await dialog
-            .showOpenDialog(browserWindow, {
-              defaultPath: join(FileManager.basePath, "Bots"),
-              properties: ["openFile"],
-              filters: [{ name: "Bots", extensions: ["js"] }],
-              message: "Select a script to load",
-              title: "Select a script to load",
-            })
-            .catch(() => ({ canceled: true, filePaths: [] }));
-          if (res?.canceled || !res?.filePaths?.[0]) return;
-          file = res.filePaths[0];
+          const res = dialog.showOpenDialog(browserWindow, {
+            defaultPath: join(FileManager.basePath, "Bots"),
+            properties: ["openFile"],
+            filters: [{ name: "Bots", extensions: ["js"] }],
+            message: "Select a script to load",
+            title: "Select a script to load",
+          });
+
+          if (!res || !Array.isArray(res) || !res?.length) return;
+
+          file = res[0]!;
         }
 
         const content = await FileManager.readFile(file);
@@ -217,14 +217,14 @@ export const router = {
 
                 // Ideally, this traces to the line of the (user) script back to
                 // where the error occurred, not where the error is thrown internally
-                await dialog.showMessageBox(browserWindow, {
+                dialog.showMessageBox(browserWindow, {
                   message: `"cmd.${cmd}()" threw an error: ${cmd_msg}`,
                   type: "error",
                 });
               } catch {}
             } else {
               // Some generic error (SyntaxError, ReferenceError, etc.)
-              await dialog.showMessageBox(browserWindow, {
+              dialog.showMessageBox(browserWindow, {
                 message: err,
                 detail: `${_msg} (line ${line})`,
                 type: "error",
@@ -604,7 +604,7 @@ export const router = {
     }),
   mgrLoadScript: tipcInstance.procedure.action(async ({ context }) => {
     try {
-      const res = await dialog.showOpenDialog(
+      const res = dialog.showOpenDialog(
         BrowserWindow.fromWebContents(context.sender),
         {
           defaultPath: join(FileManager.basePath, "Bots"),
@@ -615,9 +615,8 @@ export const router = {
         },
       );
 
-      if (res?.canceled || !res?.filePaths?.length) return "";
-
-      return res?.filePaths[0] ?? "";
+      if (!res || !Array.isArray(res) || !res?.length) return "";
+      return res[0]!;
     } catch {
       return "";
     }

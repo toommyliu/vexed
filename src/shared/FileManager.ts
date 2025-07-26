@@ -62,11 +62,17 @@ export class FileManager {
 
     FileManager.initialized = true;
 
-    await Promise.all([
-      ensureDir(FileManager.basePath),
-      ensureDir(FileManager.scriptsDir),
-      ensureDir(FileManager.storagePath),
-    ]);
+    if (!(await pathExists(FileManager.basePath))) {
+      await ensureDir(FileManager.basePath);
+    }
+
+    if (!(await pathExists(FileManager.scriptsDir))) {
+      await ensureDir(FileManager.scriptsDir);
+    }
+
+    if (!(await pathExists(FileManager.storagePath))) {
+      await ensureDir(FileManager.storagePath);
+    }
 
     await Promise.all([
       FileManager.ensureJsonFile(FileManager.settingsPath, DEFAULT_SETTINGS),

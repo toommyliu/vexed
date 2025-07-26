@@ -5,7 +5,11 @@ export function showErrorDialog(error: ErrorDialogOptions, quit = true) {
     "An error occured",
     `${error.message}${error.error ? `\n${error.error?.stack}` : ""}`,
   );
+
+  console.log("error instanceof Error:", error.error instanceof Error);
+
   if (error?.error instanceof Error) {
+    console.error("error dialog:");
     console.log(error.error);
   }
 

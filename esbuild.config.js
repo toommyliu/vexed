@@ -148,7 +148,7 @@ async function transpile() {
      */
     const commonConfig = {
       platform: "node",
-      target: "chrome76",
+      target: "chrome69",
       format: "cjs",
       minify: isProduction,
       sourcemap: !isProduction,
@@ -168,7 +168,7 @@ async function transpile() {
       bundle: true,
       format: "cjs",
       platform: "browser",
-      target: "es2019",
+      target: "chrome69",
       sourcemap: !isProduction,
       minify: isProduction,
       loader: {
