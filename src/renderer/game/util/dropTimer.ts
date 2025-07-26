@@ -19,19 +19,15 @@ export function startDropsTimer() {
       const signal = abortController?.signal;
       if (signal?.aborted) return;
 
-      // console.log(`active drops`, activeDrops);
-
       for (const itemId /* itemID */ of bot.drops.dropCounts.keys()) {
         if (signal?.aborted) break;
 
         const item = bot.drops.getItemFromId(itemId);
         if (!item) {
-          console.warn(`Drop not found for ${itemId}`);
           continue;
         }
 
         if (activeDrops.has(item.sName)) {
-          console.log(`pickup drop`, item.sName);
           try {
             await Promise.race([
               bot.drops.pickup(itemId),
@@ -43,7 +39,6 @@ export function startDropsTimer() {
             ]);
           } catch {}
         } else if (rejectElseEnabled) {
-          // console.log(`reject drop`, item.sName);
           try {
             await Promise.race([
               bot.drops.reject(itemId).catch(() => {}),
@@ -90,7 +85,7 @@ export function stopDropsTimer() {
 export function registerDrop(drop: string, rejectElse: boolean = false) {
   if (activeDrops.has(drop)) return;
 
-  console.log(`Registering drop: ${drop}`);
+  // console.log(`Registering drop: ${drop}`);
   activeDrops.add(drop);
   rejectElseEnabled = rejectElse;
 }
@@ -103,6 +98,6 @@ export function registerDrop(drop: string, rejectElse: boolean = false) {
 export function unregisterDrop(drop: string) {
   if (!activeDrops.has(drop)) return;
 
-  console.log(`Unregistering drop: ${drop}`);
+  // console.log(`Unregistering drop: ${drop}`);
   activeDrops.delete(drop);
 }
