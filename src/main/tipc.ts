@@ -12,7 +12,7 @@ import type {
   LoaderDataType,
 } from "../shared/types";
 import { WindowIds } from "../shared/types";
-import { recursivelyApplySecurityPolicy } from "./util/recursivelyApplySecurityPolicy";
+import { applySecurityPolicy } from "./util/applySecurityPolicy";
 import { createGame, getManagerWindow, windowStore } from "./windows";
 
 const tipcInstance = tipc.create();
@@ -161,7 +161,7 @@ export const router = {
         window.webContents.openDevTools({ mode: "right" });
       }
 
-      recursivelyApplySecurityPolicy(window);
+      applySecurityPolicy(window);
 
       window.on("ready-to-show", () => {
         window.show();
