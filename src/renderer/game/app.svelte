@@ -469,9 +469,10 @@
                 <span>Disable Collisions</span>
                 {@render OptionCheckmark()}
               </button>
-              <div
-                class="flex w-full cursor-default items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
+              <button
+                class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
                 id="option-walkspeed"
+                class:option-active={gameState.walkSpeed}
                 onclick={(ev) => ev.stopPropagation()}
                 onkeydown={(ev) => {
                   if (ev.key === "Enter" || ev.key === " ") {
@@ -501,9 +502,9 @@
                     }
                   }}
                 />
-              </div>
-              <div
-                class="flex w-full cursor-default items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 last:rounded-b-lg hover:bg-gray-700/50"
+              </button>
+              <button
+                class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 last:rounded-b-lg hover:bg-gray-700/50"
                 id="option-fps"
                 onclick={(ev) => ev.stopPropagation()}
                 onkeydown={(ev) => {
@@ -526,7 +527,7 @@
                   max="120"
                   onclick={(ev) => ev.stopPropagation()}
                 />
-              </div>
+              </button>
             </div>
           </div>
 
