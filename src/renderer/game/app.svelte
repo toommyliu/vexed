@@ -1,18 +1,13 @@
 <script lang="ts">
   import "./entrypoint";
-  import { gameState, scriptState, appState } from "./state.svelte";
+  import { gameState, scriptState } from "./state.svelte";
   import process from "process";
   import { client, handlers } from "../../shared/tipc";
   import { cn } from "../../shared/";
   import { WindowIds } from "../../shared/types";
   import { Bot } from "./lib/Bot";
   import { startAutoAggro, stopAutoAggro } from "./autoaggro";
-  import { onMount, onDestroy } from "svelte";
-  import { Config } from "./botting/util/Config";
-  import type { HotkeyConfig } from "../../shared/types";
-  import Mousetrap from "mousetrap";
-  import { createHotkeyConfig, isValidHotkey } from "../tools/hotkeys/utils";
-  import type { HotkeySection } from "../tools/hotkeys/types";
+  import { onMount } from "svelte";
   import { interval } from "../../shared/interval";
 
   const DEFAULT_PADS = [
@@ -27,9 +22,7 @@
   ] as const;
   const bot = Bot.getInstance();
 
-  let config = $state<Config<HotkeyConfig> | null>(null);
   let openDropdown = $state<string | null>(null);
-  let hotkeysSections = $state<HotkeySection[]>(createHotkeyConfig());
 
   let autoAggroEnabled = $state(false);
   let autoEnabled = $state(false);
@@ -144,125 +137,13 @@
     }
   }
 
-  async function loadHotkeysFromConfig() {
-    if (!config) {
-      console.log("Config is null, cannot load hotkeys");
-      return;
-    }
-
-    // Unbind all
-    Mousetrap.reset();
-
-    try {
-      for (const section of hotkeysSections) {
-        for (const item of section.items) {
-          const hotkeyValue = config.get(item.configKey as any, "")! as string;
-
-          if (hotkeyValue && isValidHotkey(hotkeyValue)) {
-            item.value = hotkeyValue;
-          } else {
-            item.value = "";
-          }
-        }
-      }
-    } catch (error) {
-      console.error("Failed to load hotkeys from config:", error);
-    }
-  }
-
-  function setupHotkeyHandlers() {
-    for (const section of hotkeysSections) {
-      for (const item of section.items) {
-        if (!item.value || !isValidHotkey(item.value)) continue;
-
-        Mousetrap.bind(item.value, (ev) => {
-          // Prevent hotkeys from triggering if any text field is focused
-          // But we don't call ev.preventDefault() here, so the input can still be typed
-          if (bot.flash.call(() => swf.isTextFieldFocused())) {
-            console.log(
-              "Hotkey triggered while text field is focused, ignoring.",
-            );
-            return;
-          }
-
-          ev.preventDefault();
-          handleHotkeyAction(item.id);
-        });
-      }
-    }
-  }
-
-  const toggleBank = () => {
-    if (!bot.player.isReady()) return;
-
-    if (bot.bank.isOpen()) {
-      bot.flash.call(() => swf.bankOpen());
-    } else {
-      bot.bank.open();
-    }
-  };
-
-  const toggleAutoAggro = () => {
+  function toggleAutoAggro() {
     if (autoAggroEnabled) {
       stopAutoAggro();
       autoAggroEnabled = false;
     } else {
       startAutoAggro();
       autoAggroEnabled = true;
-    }
-  };
-
-  function handleHotkeyAction(actionId: string) {
-    switch (actionId) {
-      case "toggle-bank":
-        toggleBank();
-        break;
-
-      case "toggle-auto-aggro":
-        toggleAutoAggro();
-        break;
-
-      case "toggle-top-bar":
-        topNavVisible = !topNavVisible;
-        break;
-
-      case "load-script":
-        void client.loadScript({ scriptPath: "" });
-        break;
-
-      case "toggle-script":
-        toggleScript();
-        break;
-
-      case "toggle-command-overlay":
-        if (window.context?.overlay) {
-          scriptState.showOverlay = !scriptState.showOverlay;
-        }
-        break;
-
-      case "toggle-dev-tools":
-        void client.toggleDevTools();
-        break;
-
-      case "open-fast-travels":
-        void client.launchWindow(WindowIds.FastTravels);
-        break;
-
-      case "open-loader-grabber":
-        void client.launchWindow(WindowIds.LoaderGrabber);
-        break;
-
-      case "open-follower":
-        void client.launchWindow(WindowIds.Follower);
-        break;
-
-      case "open-packet-logger":
-        void client.launchWindow(WindowIds.PacketLogger);
-        break;
-
-      case "open-packet-spammer":
-        void client.launchWindow(WindowIds.PacketSpammer);
-        break;
     }
   }
 
@@ -300,28 +181,6 @@
     await import("./tipc/tipc-loader-grabber");
     await import("./tipc/tipc-packet-logger");
     await import("./tipc/tipc-packet-spammer");
-
-    // Wait for the game to load
-    // This prevents hotkeys from being set, before the game is ready and used
-    while (!appState.gameLoaded) {
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    }
-
-    config = new Config<HotkeyConfig>("hotkeys");
-    await config.load();
-    await loadHotkeysFromConfig();
-    setupHotkeyHandlers();
-  });
-
-  onDestroy(() => {
-    Mousetrap.reset();
-  });
-
-  handlers.hotkeysUpdate.handle(async () => {
-    // Just reload all the hotkeys
-    config?.load();
-    await loadHotkeysFromConfig();
-    setupHotkeyHandlers();
   });
 </script>
 
@@ -466,12 +325,6 @@
                 onclick={() => void client.launchWindow(WindowIds.Follower)}
               >
                 Follower
-              </button>
-              <button
-                class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 last:rounded-b-lg hover:bg-gray-700/50"
-                onclick={() => void client.launchWindow(WindowIds.Hotkeys)}
-              >
-                Hotkeys
               </button>
             </div>
           </div>

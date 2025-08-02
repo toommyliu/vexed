@@ -61,33 +61,9 @@ export type Settings = {
 export enum WindowIds {
   FastTravels = "tools-fast-travels",
   Follower = "tools-follower",
-  Hotkeys = "tools-hotkeys",
 
   LoaderGrabber = "tools-loader-grabber",
 
   PacketLogger = "packets-logger",
   PacketSpammer = "packets-spammer",
 }
-
-export type HotkeyConfig = {
-  General?: {
-    "Toggle Auto Aggro"?: string;
-    "Toggle Bank"?: string;
-    "Toggle Top Bar"?: string;
-  };
-  Packets?: {
-    "Open Packet Logger"?: string;
-    "Open Packet Spammer"?: string;
-  };
-  Scripts?: {
-    "Load Script"?: string;
-    "Toggle Command Overlay"?: string;
-    "Toggle Dev Tools"?: string;
-    "Toggle Script"?: string;
-  };
-  Tools?: {
-    "Open Fast Travels"?: string;
-    "Open Follower"?: string;
-    "Open Loader Grabber"?: string;
-  };
-};

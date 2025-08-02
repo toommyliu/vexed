@@ -1,6 +1,6 @@
 import os from "os";
 import { join } from "path";
-import type { Account, FastTravel, Settings, HotkeyConfig } from "./types";
+import type { Account, FastTravel, Settings } from "./types";
 
 const isMac = process.platform === "darwin";
 
@@ -71,29 +71,6 @@ export const DEFAULT_FAST_TRAVELS: FastTravel[] = [
 ] as const;
 
 export const DEFAULT_ACCOUNTS: Account[] = [] as const;
-
-export const DEFAULT_HOTKEYS: HotkeyConfig = {
-  General: {
-    "Toggle Bank": isMac ? "command+b" : "ctrl+b",
-    "Toggle Auto Aggro": "",
-    "Toggle Top Bar": isMac ? "command+shift+t" : "ctrl+shift+t",
-  },
-  Scripts: {
-    "Load Script": "",
-    "Toggle Command Overlay": "`",
-    "Toggle Dev Tools": isMac ? "command+shift+i" : "ctrl+shift+i",
-    "Toggle Script": "",
-  },
-  Tools: {
-    "Open Fast Travels": "",
-    "Open Follower": "",
-    "Open Loader Grabber": "",
-  },
-  Packets: {
-    "Open Packet Logger": "",
-    "Open Packet Spammer": "",
-  },
-} as const;
 
 export const ARTIX_USERAGENT =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16_0) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36" as const;

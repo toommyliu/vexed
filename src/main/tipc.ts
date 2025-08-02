@@ -85,10 +85,6 @@ export const router = {
           width = 927;
           height = 646;
           break;
-        case WindowIds.Hotkeys:
-          ref = storeRef.tools.hotkeys;
-          path = join(DIST_PATH, "tools", "hotkeys", "index.html");
-          break;
         case WindowIds.PacketLogger:
           ref = storeRef.packets.logger;
           path = join(DIST_PATH, "packets", "logger", "index.html");
@@ -148,11 +144,6 @@ export const router = {
           storeRef.tools.follower = window;
           width = 927;
           height = 646;
-          break;
-        case WindowIds.Hotkeys:
-          storeRef.tools.hotkeys = window;
-          width = 600;
-          height = 400;
           break;
         case WindowIds.PacketLogger:
           storeRef.packets.logger = window;
@@ -612,32 +603,6 @@ export const router = {
   }),
   // #endregion
 
-  // #region Hotkeys
-  updateHotkey: tipcInstance.procedure
-    .input<{
-      id: string;
-      value: string;
-    }>()
-    .action(async ({ input, context }) => {
-      const browserWindow = BrowserWindow.fromWebContents(context.sender);
-      if (!browserWindow) {
-        console.log("No browser window found for hotkey update");
-        return;
-      }
-
-      const parent = browserWindow.getParentWindow();
-      if (!parent || !windowStore.has(parent.id)) {
-        console.log("No parent window found for hotkey update");
-        return;
-      }
-
-      const parentHandlers = getRendererHandlers<RendererHandlers>(
-        parent.webContents,
-      );
-      await parentHandlers.hotkeysUpdate.invoke(input);
-    }),
-  // #endregion
-
   // #region Manager
   getAccounts: tipcInstance.procedure.action(async () => {
     try {
@@ -805,9 +770,6 @@ export type RendererHandlers = {
     skillWait: boolean;
   }): Promise<void>;
   followerStop(): Promise<void>;
-
-  // Hotkeys
-  hotkeysUpdate(input: { id: string; value: string }): Promise<void>;
 
   // Packet Logger
   packetLoggerStart(): void;
