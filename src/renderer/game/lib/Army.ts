@@ -41,8 +41,8 @@ export class Army {
    * @param fileName - The name of the config file.
    */
   public setConfigName(fileName: string) {
-    const cleanFileName = fileName.endsWith(".txt")
-      ? fileName.slice(0, -4)
+    const cleanFileName = fileName.endsWith(".json")
+      ? fileName.slice(0, -5)
       : fileName;
     this.config = new Config(cleanFileName);
   }
