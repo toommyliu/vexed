@@ -8,15 +8,12 @@ import {
   pathExists,
   appendFile as fsExtraAppendFile,
 } from "fs-extra";
-import { Config } from "../renderer/game/botting/util/Config";
 import {
   DEFAULT_ACCOUNTS,
   DEFAULT_FAST_TRAVELS,
-  DEFAULT_HOTKEYS,
   DEFAULT_SETTINGS,
   DOCUMENTS_PATH,
 } from "./constants";
-import type { HotkeyConfig } from "./types";
 
 export class FileManager {
   private static initialized = false;
@@ -35,10 +32,6 @@ export class FileManager {
 
   public static get accountsPath() {
     return join(FileManager.basePath, "accounts.json");
-  }
-
-  public static get hotkeysPath() {
-    return join(FileManager.basePath, "hotkeys.txt");
   }
 
   public static get storagePath() {
@@ -81,12 +74,6 @@ export class FileManager {
       ),
       FileManager.ensureJsonFile(FileManager.accountsPath, DEFAULT_ACCOUNTS),
     ]);
-
-    if (!(await pathExists(FileManager.hotkeysPath))) {
-      const config = new Config<HotkeyConfig>("hotkeys");
-      config.loadFromObject(DEFAULT_HOTKEYS);
-      await config.save();
-    }
   }
 
   /**

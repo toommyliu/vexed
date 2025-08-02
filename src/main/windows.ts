@@ -1,7 +1,7 @@
 import { join, resolve } from "path";
 import { app, BrowserWindow } from "electron";
 import { BRAND } from "../shared/constants";
-import { recursivelyApplySecurityPolicy } from "./util/recursivelyApplySecurityPolicy";
+import { applySecurityPolicy } from "./util/applySecurityPolicy";
 
 const DIST = join(__dirname, "../../dist/");
 const DIST_GAME = join(DIST, "game/");
@@ -53,7 +53,7 @@ export async function createAccountManager(): Promise<void> {
 
   mgrWindow = window;
 
-  recursivelyApplySecurityPolicy(window);
+  applySecurityPolicy(window);
   void window.loadURL(`file://${resolve(DIST_MANAGER, "index.html")}`);
 
   if (!app.isPackaged) {
@@ -103,7 +103,7 @@ export async function createGame(
 
   void window.loadURL(`file://${resolve(DIST_GAME, "index.html")}`);
   window.webContents.setAudioMuted(true);
-  recursivelyApplySecurityPolicy(window);
+  applySecurityPolicy(window);
 
   if (!app.isPackaged) {
     window.webContents.openDevTools({ mode: "right" });
@@ -137,7 +137,6 @@ export async function createGame(
       fastTravels: null,
       loaderGrabber: null,
       follower: null,
-      hotkeys: null,
     },
     packets: { logger: null, spammer: null },
   });
@@ -154,7 +153,6 @@ export type WindowStore = Map<
     tools: {
       fastTravels: BrowserWindow | null;
       follower: BrowserWindow | null;
-      hotkeys: BrowserWindow | null;
       loaderGrabber: BrowserWindow | null;
     };
   }

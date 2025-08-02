@@ -2,7 +2,12 @@ import { URL } from "url";
 import { BrowserWindow, session } from "electron";
 import { ARTIX_USERAGENT, WHITELISTED_DOMAINS } from "../../shared/constants";
 
-export function recursivelyApplySecurityPolicy(window: BrowserWindow): void {
+const isWhitelistedDomain = (hostname: string) =>
+  WHITELISTED_DOMAINS.some(
+    (domain) => hostname === domain || hostname.endsWith(`.${domain}`),
+  );
+
+export function applySecurityPolicy(window: BrowserWindow): void {
   window.webContents.setUserAgent(ARTIX_USERAGENT);
   session.defaultSession?.webRequest.onBeforeSendHeaders((details, fn) => {
     const requestHeaders = details.requestHeaders;
@@ -22,7 +27,9 @@ export function recursivelyApplySecurityPolicy(window: BrowserWindow): void {
 
   window.webContents.on("will-navigate", (ev, url) => {
     const parsedUrl = new URL(url);
-    if (!WHITELISTED_DOMAINS.includes(parsedUrl.hostname)) {
+    if (parsedUrl.protocol === "file:") return;
+
+    if (!isWhitelistedDomain(parsedUrl.hostname)) {
       console.log(`[will-navigate] blocking url: ${url}`);
       ev.preventDefault();
     }
@@ -30,7 +37,9 @@ export function recursivelyApplySecurityPolicy(window: BrowserWindow): void {
 
   window.webContents.on("will-redirect", (ev, url) => {
     const parsedUrl = new URL(url);
-    if (!WHITELISTED_DOMAINS.includes(parsedUrl.hostname)) {
+    if (parsedUrl.protocol === "file:") return;
+
+    if (!isWhitelistedDomain(parsedUrl.hostname)) {
       console.log(`[will-redirect] blocking url: ${url}`);
       ev.preventDefault();
     }
@@ -48,6 +57,7 @@ export function recursivelyApplySecurityPolicy(window: BrowserWindow): void {
       _referrer,
     ) => {
       const parsedUrl = new URL(url);
+      if (parsedUrl.protocol === "file:") return;
 
       if (
         parsedUrl.hostname === "www.facebook.com" &&
@@ -57,28 +67,23 @@ export function recursivelyApplySecurityPolicy(window: BrowserWindow): void {
         return;
       }
 
-      if (!WHITELISTED_DOMAINS.includes(parsedUrl.hostname)) {
+      if (!isWhitelistedDomain(parsedUrl.hostname)) {
         console.log(`[new-window] blocking url: ${url}`);
         ev.preventDefault();
         return null;
       }
 
       ev.preventDefault();
-
       const childWindow = new BrowserWindow({
         title: "",
         parent: window,
         webPreferences: {
-          nodeIntegration: false, // some sites might use jquery (e.g wiki), which conflict with nodeIntegration
+          nodeIntegration: false,
           plugins: true,
         },
         useContentSize: true,
       });
-
-      recursivelyApplySecurityPolicy(childWindow);
-
-      // unused: the return value for window.open?
-      // ev.newGuest = childWindow;
+      applySecurityPolicy(childWindow);
       void childWindow.loadURL(url);
       return childWindow;
     },

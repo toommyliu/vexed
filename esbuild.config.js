@@ -54,10 +54,6 @@ async function copyHtmlFiles() {
       dest: "./dist/tools/loader-grabber/index.html",
     },
     {
-      src: "./src/renderer/tools/hotkeys/index.html",
-      dest: "./dist/tools/hotkeys/index.html",
-    },
-    {
       src: "./src/renderer/packets/logger/index.html",
       dest: "./dist/packets/logger/index.html",
     },
@@ -261,15 +257,6 @@ async function transpile() {
           "./src/renderer/game/tsconfig.json",
         ),
         watchPath: "./src/renderer/tools/follower",
-      },
-      {
-        name: "hotkeys",
-        config: createSvelteConfig(
-          "./src/renderer/tools/hotkeys/main.ts",
-          "./dist/tools/hotkeys/build/main.js",
-          "./src/renderer/game/tsconfig.json",
-        ),
-        watchPath: "./src/renderer/tools/hotkeys",
       },
       {
         name: "packet-logger",
