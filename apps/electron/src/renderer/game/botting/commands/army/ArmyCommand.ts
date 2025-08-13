@@ -1,4 +1,4 @@
-import { client, handlers } from "../../../../../shared/tipc";
+import { client, handlers } from "@shared/tipc";
 import { Command } from "../../command";
 
 export abstract class ArmyCommand extends Command {

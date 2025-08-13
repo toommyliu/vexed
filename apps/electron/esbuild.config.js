@@ -1,13 +1,53 @@
 const { resolve } = require("path");
-const { readdir, copy, ensureDir } = require("fs-extra");
+const { readdir, copy, ensureDir, readFileSync } = require("fs-extra");
 const { build, context } = require("esbuild");
 const { watch } = require("watchlist");
 const sveltePlugin = require("esbuild-svelte");
 const sveltePreprocess = require("svelte-preprocess");
 const postCssPlugin = require("esbuild-postcss");
+const alias = require("esbuild-plugin-alias");
+const { parse } = require("jsonc-parser");
 
 const isProduction = process.env.NODE_ENV === "production";
 const isWatch = process.argv.includes("--watch") || process.argv.includes("-w");
+
+function getPathAliases() {
+  try {
+    const tsconfigPath = resolve(__dirname, "tsconfig.json");
+    const tsconfigContent = readFileSync(tsconfigPath, "utf8");
+    const tsconfig = parse(tsconfigContent);
+
+    const paths = tsconfig.compilerOptions?.paths || {};
+    const baseUrl = tsconfig.compilerOptions?.baseUrl || "./";
+
+    const aliases = {};
+
+    for (const [aliasKey, aliasPaths] of Object.entries(paths)) {
+      const cleanKey = aliasKey.replace("/*", "");
+      const firstPath = aliasPaths[0];
+      const cleanPath = firstPath.replace("/*", "");
+      aliases[cleanKey] = resolve(__dirname, baseUrl, cleanPath);
+    }
+
+    console.log(
+      "✓ Loaded path aliases from tsconfig.json:",
+      Object.keys(aliases).join(", "),
+    );
+
+    console.log(aliases);
+
+    return aliases;
+  } catch (error) {
+    console.warn(
+      "⚠ Failed to read tsconfig.json paths, using empty aliases:",
+      error.message,
+    );
+    return {};
+  }
+}
+
+// Dynamically load path aliases from tsconfig.json
+const pathAliases = getPathAliases();
 
 /**
  * @param {string} dir
@@ -120,7 +160,7 @@ async function createBuildContext(config, srcDir, outDir, contextName) {
       ...config,
       entryPoints,
       outdir: outDir,
-      plugins: [createRebuildPlugin(contextName)],
+      plugins: [...(config.plugins || []), createRebuildPlugin(contextName)],
     });
 
     return buildCtx;
@@ -161,6 +201,7 @@ async function transpile() {
       minify: isProduction,
       sourcemap: !isProduction,
       treeShaking: true,
+      plugins: [alias(pathAliases)],
     };
 
     /**
@@ -201,6 +242,7 @@ async function transpile() {
         js: "require('core-js/stable')",
       },
       plugins: [
+        alias(pathAliases),
         sveltePlugin({
           compilerOptions: {
             dev: !isProduction,
@@ -300,7 +342,7 @@ async function transpile() {
           bundle: true,
           minify: isProduction,
           sourcemap: isProduction ? false : true,
-          plugins: [postCssPlugin()],
+          plugins: [alias(pathAliases), postCssPlugin()],
         },
         watchPath: "./src/renderer/tailwind.css",
       },
