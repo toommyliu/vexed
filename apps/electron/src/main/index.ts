@@ -17,7 +17,7 @@ function registerFlashPlugin() {
   // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
   const flashTrust = require("nw-flash-trust");
   // TODO: add checks for app.isPackaged
-  const assetsPath = join(__dirname, "../../assets");
+  const assetsPath = join(__dirname, "../../../../assets");
   let pluginName;
 
   if (process.platform === "win32") {
@@ -45,6 +45,10 @@ function registerFlashPlugin() {
 
   const trustManager = flashTrust.initSync(BRAND, flashPath);
   trustManager.empty();
+
+  //
+  console.log(assetsPath);
+
   trustManager.add(join(assetsPath, "loader.swf"));
 }
 

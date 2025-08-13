@@ -11,7 +11,7 @@ const generateCommandsApiDoc = async () => {
     process.cwd(),
     "src/renderer/game/botting/commands/",
   );
-  const docsEntryPath = join(process.cwd(), "docs/src/content/docs/api/");
+  const docsEntryPath = join(process.cwd(), "../docs/src/content/docs/api/");
 
   await initializeDirectory(docsEntryPath);
 
@@ -206,7 +206,7 @@ const generateCommandsApiDoc = async () => {
 
     const sorted = sidebar.sort((a, b) => a.label.localeCompare(b.label));
 
-    const sidebarFilePath = join(process.cwd(), "docs/api.json");
+    const sidebarFilePath = join(process.cwd(), "../docs/api.json");
     await fs.writeFile(sidebarFilePath, JSON.stringify(sorted, null, 2), {
       encoding: "utf-8",
     });
@@ -224,7 +224,7 @@ const generateLegacyApiDoc = async () => {
   const apiEntryPath = join(process.cwd(), "src/renderer/game/lib/");
   const docsEntryPath = join(
     process.cwd(),
-    "docs/src/content/docs/api-legacy/",
+    "../docs/src/content/docs/api-legacy/",
   );
 
   await initializeDirectory(docsEntryPath);
@@ -762,7 +762,7 @@ const generateLegacyApiDoc = async () => {
     }
 
     await fs.writeFile(
-      join(process.cwd(), "docs/api-legacy.json"),
+      join(process.cwd(), "../docs/api-legacy.json"),
       JSON.stringify(jsonData, null, 2),
       { encoding: "utf-8" },
     );
