@@ -29,24 +29,15 @@ function getPathAliases() {
       aliases[cleanKey] = resolve(__dirname, baseUrl, cleanPath);
     }
 
-    console.log(
-      "✓ Loaded path aliases from tsconfig.json:",
-      Object.keys(aliases).join(", "),
-    );
-
     console.log(aliases);
 
     return aliases;
   } catch (error) {
-    console.warn(
-      "⚠ Failed to read tsconfig.json paths, using empty aliases:",
-      error.message,
-    );
+    console.warn("Failed to read tsconfig.json paths:", error.message);
     return {};
   }
 }
 
-// Dynamically load path aliases from tsconfig.json
 const pathAliases = getPathAliases();
 
 /**

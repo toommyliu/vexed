@@ -1,7 +1,7 @@
 import { Mutex } from "async-mutex";
-import { interval } from "../../../../shared/interval";
-import { Logger } from "../../../../shared/logger";
-import { Bot } from "../Bot";
+import { Bot } from "@lib/Bot";
+import { interval } from "@shared/interval";
+import { Logger } from "@shared/logger";
 
 const logger = Logger.get("AutoRelogin");
 

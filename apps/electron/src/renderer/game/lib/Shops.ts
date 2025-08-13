@@ -118,7 +118,8 @@ export class Shops {
 
   /**
    * Whether an item can be purchased from the shop.
-  //  */
+   * //
+   */
   // public canBuy(itemName: string): boolean {
   //   if (!this.isShopLoaded()) return false;
 

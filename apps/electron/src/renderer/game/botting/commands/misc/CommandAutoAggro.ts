@@ -1,5 +1,5 @@
-import { startAutoAggro, stopAutoAggro } from "../../../autoaggro";
-import { Command } from "../../command";
+import { Command } from "@botting/command";
+import { startAutoAggro, stopAutoAggro } from "@game/autoaggro";
 
 export class CommandAutoAggro extends Command {
   private static btn: HTMLButtonElement;

@@ -1,7 +1,7 @@
-import { ArgsError } from "../../ArgsError";
-import { Command } from "../../command";
-import { CommandRegistry } from "../../command-registry";
-import { Context } from "../../context";
+import { ArgsError } from "@botting/ArgsError";
+import { Command } from "@botting/command";
+import { CommandRegistry } from "@botting/command-registry";
+import { Context } from "@botting/context";
 import { CommandAutoAggro } from "./CommandAutoAggro";
 import { CommandAutoZoneAstralShrine } from "./CommandAutoZoneAstralShrine";
 import { CommandAutoZoneDarkCarnax } from "./CommandAutoZoneDarkCarnax";

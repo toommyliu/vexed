@@ -1,4 +1,4 @@
-import { Command } from "../../command";
+import { Command } from "@botting/command";
 
 export class CommandPlayerHpPercentageGreaterThan extends Command {
   public override skipDelay = true;

@@ -1,7 +1,7 @@
-import { interval } from "../../../shared/interval";
-import { doPriorityAttack } from "../util/doPriorityAttack";
-import { exitFromCombat } from "../util/exitFromCombat";
-import { extractMonsterMapId, isMonsterMapId } from "../util/isMonMapId";
+import { interval } from "@shared/interval";
+import { doPriorityAttack } from "@utils/doPriorityAttack";
+import { exitFromCombat } from "@utils/exitFromCombat";
+import { extractMonsterMapId, isMonsterMapId } from "@utils/isMonMapId";
 import type { Bot } from "./Bot";
 import { GameAction } from "./World";
 import { type AvatarData, Avatar } from "./models/Avatar";

@@ -1,4 +1,4 @@
-import { Command } from "../../command";
+import { Command } from "@botting/command";
 import { CommandLabel } from "./CommandLabel";
 
 export class CommandGotoLabel extends Command {

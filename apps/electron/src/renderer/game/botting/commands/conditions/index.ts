@@ -1,4 +1,4 @@
-import { ArgsError } from "../../ArgsError";
+import { ArgsError } from "@botting/ArgsError";
 import { CommandCellIs } from "./CommandCellIs";
 import { CommandCellIsNot } from "./CommandCellIsNot";
 import { CommandCellPlayerCountGreaterThan } from "./CommandCellPlayerCountGreaterThan";

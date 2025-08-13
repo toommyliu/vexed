@@ -1,4 +1,4 @@
-import { Command } from "../../command";
+import { Command } from "@botting/command";
 
 export class CommandPlayerIsNotInCell extends Command {
   public player!: string;

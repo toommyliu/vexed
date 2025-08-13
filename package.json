@@ -16,5 +16,6 @@
     "lint": "yarn workspaces run lint",
     "lint:fix": "yarn workspaces run lint:fix",
     "validate": "yarn workspaces run validate"
-  }
+  },
+  "packageManager": "yarn@1.22.22"
 }

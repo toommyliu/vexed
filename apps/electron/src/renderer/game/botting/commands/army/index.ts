@@ -1,5 +1,5 @@
-import type { KillOptions } from "../../../lib/Combat";
-import { ArgsError } from "../../ArgsError";
+import { ArgsError } from "@botting/ArgsError";
+import type { KillOptions } from "@lib/Combat";
 import { CommandArmyDivideOnCells } from "./CommandArmyDivideOnCells";
 import { CommandArmyEquipSet } from "./CommandArmyEquipSet";
 // import { CommandArmyEquipItem } from "./CommandArmyEquipItem";

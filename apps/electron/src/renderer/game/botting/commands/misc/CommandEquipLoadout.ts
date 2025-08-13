@@ -1,4 +1,4 @@
-// import { Command } from "../../command";
+// import { Command } from "@botting/command";
 // import { LoadoutConfig } from "../../util/LoadoutConfig";
 
 // export class CommandEquipLoadout extends Command {

@@ -1,5 +1,5 @@
+import { Command } from "@botting/command";
 import { client, handlers } from "@shared/tipc";
-import { Command } from "../../command";
 
 export abstract class ArmyCommand extends Command {
   private isListenerRegistered = false;

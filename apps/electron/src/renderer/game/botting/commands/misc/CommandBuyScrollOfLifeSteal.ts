@@ -1,4 +1,4 @@
-import { Command } from "../../command";
+import { Command } from "@botting/command";
 
 const ITEM = "Scroll of Life Steal";
 const MAX_QTY = 99;

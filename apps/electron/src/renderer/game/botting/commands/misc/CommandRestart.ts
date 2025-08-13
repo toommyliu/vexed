@@ -1,4 +1,4 @@
-import { Command } from "../../command";
+import { Command } from "@botting/command";
 
 export class CommandRestart extends Command {
   public override async execute(): Promise<void> {

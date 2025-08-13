@@ -1,7 +1,7 @@
 // https://github.com/BrenoHenrike/Scripts/blob/Skua/Army/CoreArmyLite.cs
 
-import { client } from "../../../shared/tipc";
-import { Config } from "../botting/util/Config";
+import { Config } from "@botting/util/Config";
+import { client } from "@shared/tipc";
 import type { Bot } from "./Bot";
 
 /**

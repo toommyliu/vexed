@@ -1,4 +1,4 @@
-import { Command } from "../../command";
+import { Command } from "@botting/command";
 
 export class CommandWaitForPlayerCount extends Command {
   public count!: number;

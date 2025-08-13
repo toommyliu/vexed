@@ -1,4 +1,4 @@
-import { Command } from "../../command";
+import { Command } from "@botting/command";
 
 export class CommandRegisterQuest extends Command {
   public questIds!: number[];

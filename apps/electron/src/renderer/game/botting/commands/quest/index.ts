@@ -1,4 +1,4 @@
-import { ArgsError } from "../../ArgsError";
+import { ArgsError } from "@botting/ArgsError";
 import { CommandAcceptQuest } from "./CommandAcceptQuest";
 import { CommandCompleteQuest } from "./CommandCompleteQuest";
 import { CommandRegisterQuest } from "./CommandRegisterQuest";

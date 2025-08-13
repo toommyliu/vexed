@@ -1,5 +1,5 @@
-import { startAggromon } from "../../../util/aggromon";
-import { Command } from "../../command";
+import { Command } from "@botting/command";
+import { startAggromon } from "@utils/aggromon";
 
 export class CommandStartAggroMon extends Command {
   public monstersList!: string[];

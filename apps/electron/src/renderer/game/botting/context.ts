@@ -1,20 +1,20 @@
 import { TypedEmitter } from "tiny-typed-emitter";
-import { interval } from "../../../shared/interval";
-import { Logger } from "../../../shared/logger";
-import { Bot } from "../lib/Bot";
-import { BoostType } from "../lib/Player";
+import { Bot } from "@lib/Bot";
+import { BoostType } from "@lib/Player";
+import { interval } from "@shared/interval";
+import { Logger } from "@shared/logger";
 import {
   registerDrop,
   startDropsTimer,
   stopDropsTimer,
   unregisterDrop,
-} from "../util/dropTimer";
+} from "@utils/dropTimer";
 import {
   startQuestTimer,
   stopQuestTimer,
   registerQuest,
   unregisterQuest,
-} from "../util/questTimer";
+} from "@utils/questTimer";
 import type { Command } from "./command";
 import { CommandRegisterDrop } from "./commands/item/CommandRegisterDrop";
 import { CommandAcceptQuest } from "./commands/quest/CommandAcceptQuest";
