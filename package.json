@@ -1,7 +1,6 @@
 {
   "name": "vexed",
   "private": true,
-  "version": "0.2.2",
   "workspaces": [
     "apps/*",
     "packages/*"
