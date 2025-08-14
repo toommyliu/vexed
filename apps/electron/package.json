@@ -25,12 +25,12 @@
     "changelog": "git-cliff --output CHANGELOG.md"
   },
   "dependencies": {
-    "@egoist/tipc": "toommyliu/tipc#built",
     "@lukeed/uuid": "^2.0.1",
     "@tybys/electron-ipc-handle-invoke": "^1.0.2",
     "@vexed/config": "*",
     "@vexed/fs-utils": "*",
     "@vexed/logger": "*",
+    "@vexed/tipc": "*",
     "@vexed/ui": "*",
     "@vexed/utils": "*",
     "async-mutex": "^0.5.0",

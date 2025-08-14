@@ -29,8 +29,6 @@ function getPathAliases() {
       aliases[cleanKey] = resolve(__dirname, baseUrl, cleanPath);
     }
 
-    console.log(aliases);
-
     return aliases;
   } catch (error) {
     console.warn("Failed to read tsconfig.json paths:", error.message);
