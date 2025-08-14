@@ -1,4 +1,4 @@
-const { resolve, split } = require("path");
+const { resolve } = require("path");
 const { readJson, writeJson, pathExists } = require("@vexed/fs-utils");
 
 class Config {
@@ -11,51 +11,54 @@ class Config {
     this._cache = null;
   }
 
-  async _load() {
-    if (this._cache !== null) {
-      return this._cache;
-    }
+  async init() {
+    if (this._cache !== null) return this._cache;
 
     try {
       if (await pathExists(this.path)) {
         this._cache = await readJson(this.path);
       } else {
         this._cache = { ...this.defaults };
-        await this._save();
+        await writeJson(this.path, this._cache);
       }
-    } catch (error) {
+    } catch (err) {
       this._cache = { ...this.defaults };
     }
 
     return this._cache;
   }
 
-  async _save() {
-    if (this._cache !== null) {
-      await writeJson(this.path, this._cache);
+  async save() {
+    if (this._cache === null) {
+      this._cache = { ...this.defaults };
     }
+
+    await writeJson(this.path, this._cache);
   }
 
-  async get(key, defaultValue) {
-    const store = await this._load();
+  get(key, defaultValue) {
+    const store =
+      this._cache !== null ? this._cache : (this._cache = { ...this.defaults });
 
     if (key === undefined) {
       return store;
     }
 
-    if (key.includes(".")) {
+    if (typeof key === "string" && key.includes(".")) {
       return this._getNestedValue(store, key, defaultValue);
     }
 
     return key in store ? store[key] : defaultValue;
   }
 
-  async set(key, value) {
+  set(key, value) {
     if (typeof key === "object" && key !== null) {
-      const store = await this._load();
+      const store =
+        this._cache !== null
+          ? this._cache
+          : (this._cache = { ...this.defaults });
       Object.assign(store, key);
       this._cache = store;
-      await this._save();
       return;
     }
 
@@ -63,7 +66,8 @@ class Config {
       throw new TypeError("Key must be a string");
     }
 
-    const store = await this._load();
+    const store =
+      this._cache !== null ? this._cache : (this._cache = { ...this.defaults });
 
     if (key.includes(".")) {
       this._setNestedValue(store, key, value);
@@ -72,44 +76,42 @@ class Config {
     }
 
     this._cache = store;
-    await this._save();
   }
 
-  async has(key) {
-    const store = await this._load();
+  has(key) {
+    if (this._cache === null) return false;
 
-    if (key.includes(".")) {
-      return this._hasNestedValue(store, key);
+    if (typeof key === "string" && key.includes(".")) {
+      return this._hasNestedValue(this._cache, key);
     }
 
-    return key in store;
+    return key in this._cache;
   }
 
-  async delete(key) {
-    const store = await this._load();
+  delete(key) {
+    const store =
+      this._cache !== null ? this._cache : (this._cache = { ...this.defaults });
 
-    if (key.includes(".")) {
+    if (typeof key === "string" && key.includes(".")) {
       this._deleteNestedValue(store, key);
     } else {
       delete store[key];
     }
 
     this._cache = store;
-    await this._save();
   }
 
-  async clear() {
+  clear() {
     this._cache = { ...this.defaults };
-    await this._save();
   }
 
-  async reset() {
+  reset() {
     this._cache = null;
-    return this._load();
+    return this._cache;
   }
 
   _getNestedValue(obj, path, defaultValue) {
-    const keys = split(".");
+    const keys = String(path).split(".");
     let current = obj;
 
     for (const key of keys) {
@@ -123,7 +125,7 @@ class Config {
   }
 
   _setNestedValue(obj, path, value) {
-    const keys = split(".");
+    const keys = String(path).split(".");
     const lastKey = keys.pop();
     let current = obj;
 
@@ -142,7 +144,7 @@ class Config {
   }
 
   _hasNestedValue(obj, path) {
-    const keys = split(".");
+    const keys = String(path).split(".");
     let current = obj;
 
     for (const key of keys) {
@@ -156,7 +158,7 @@ class Config {
   }
 
   _deleteNestedValue(obj, path) {
-    const keys = split(".");
+    const keys = String(path).split(".");
     const lastKey = keys.pop();
     let current = obj;
 

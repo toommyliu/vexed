@@ -1,4 +1,4 @@
-export interface ConfigOptions {
+export interface ConfigOptions<S = Record<string, any>> {
   /**
    * Name of the config file (without extension).
    * @default 'config'
@@ -14,14 +14,18 @@ export interface ConfigOptions {
   /**
    * Default values for the config.
    */
-  defaults?: Record<string, any>;
+  defaults?: Partial<S>;
 }
 
-/**
- * Simple configuration manager that stores data in JSON files.
- * Supports dot notation for nested properties.
- */
-export default class Config {
+type DeepValue<T, P extends string> = P extends `${infer K}.${infer Rest}`
+  ? K extends keyof T
+    ? DeepValue<T[K], Rest>
+    : any
+  : P extends keyof T
+    ? T[P]
+    : any;
+
+export default class Config<S = Record<string, any>> {
   /**
    * Path to the config file.
    */
@@ -40,9 +44,9 @@ export default class Config {
   /**
    * Default values for the config.
    */
-  readonly defaults: Record<string, any>;
+  readonly defaults: Partial<S>;
 
-  constructor(options?: ConfigOptions);
+  constructor(options?: ConfigOptions<S>);
 
   /**
    * Get a value from the config.
@@ -50,14 +54,19 @@ export default class Config {
    * @param defaultValue - Default value to return if key doesn't exist.
    * @returns The value or default value.
    */
-  get<T = any>(key?: string, defaultValue?: T): Promise<T>;
+  get(): Promise<S>;
+  get<K extends string>(
+    key: K,
+    defaultValue?: DeepValue<S, K>,
+  ): Promise<DeepValue<S, K>>;
 
   /**
    * Set a value in the config.
    * @param key - The key to set or an object with multiple key-value pairs.
    * @param value - The value to set (ignored when key is an object).
    */
-  set(key: string | Record<string, any>, value?: any): Promise<void>;
+  set(key: Partial<S>): Promise<void>;
+  set<K extends string>(key: K, value: DeepValue<S, K>): Promise<void>;
 
   /**
    * Check if a key exists in the config.
@@ -80,5 +89,5 @@ export default class Config {
   /**
    * Reset the config by clearing the cache and reloading from disk.
    */
-  reset(): Promise<Record<string, any>>;
+  reset(): Promise<S>;
 }
