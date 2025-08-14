@@ -27,7 +27,7 @@
 </script>
 
 <div
-  class="group rounded-md border border-zinc-700/50 bg-background-secondary shadow-lg backdrop-blur-sm transition-all duration-300 hover:border-zinc-600/70 hover:shadow-xl hover:shadow-zinc-900/20"
+  class="bg-background-secondary group rounded-md border border-zinc-700/50 shadow-lg backdrop-blur-sm transition-all duration-300 hover:border-zinc-600/70 hover:shadow-xl hover:shadow-zinc-900/20"
 >
   <div
     class="flex flex-col space-y-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 sm:p-5"
