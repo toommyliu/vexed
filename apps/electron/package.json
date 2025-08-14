@@ -28,6 +28,7 @@
     "@egoist/tipc": "toommyliu/tipc#built",
     "@lukeed/uuid": "^2.0.1",
     "@tybys/electron-ipc-handle-invoke": "^1.0.2",
+    "@vexed/fs-utils": "*",
     "@vexed/logger": "*",
     "@vexed/ui": "*",
     "@vexed/utils": "*",
