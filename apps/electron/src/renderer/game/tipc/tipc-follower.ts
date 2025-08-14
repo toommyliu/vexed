@@ -1,20 +1,19 @@
 import { interval } from "async-interval";
 import { Mutex } from "async-mutex";
-// import { Logger } from "../../../common/logger";
-import { handlers } from "../../../shared/tipc";
-import { Bot } from "../lib/Bot";
-import { doPriorityAttack } from "../util/doPriorityAttack";
+import { Bot } from "@lib/Bot";
+import { handlers } from "@shared/tipc";
+import { doPriorityAttack } from "@utils/doPriorityAttack";
 import {
   registerDrop,
   startDropsTimer,
   stopDropsTimer,
-} from "../util/dropTimer";
-import { exitFromCombat } from "../util/exitFromCombat";
+} from "@utils/dropTimer";
+import { exitFromCombat } from "@utils/exitFromCombat";
 import {
   registerQuest,
   startQuestTimer,
   stopQuestTimer,
-} from "../util/questTimer";
+} from "@utils/questTimer";
 
 let on = false;
 

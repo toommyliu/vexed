@@ -2,14 +2,14 @@
   import "./entrypoint";
   import { gameState, scriptState, appState } from "./state.svelte";
   import process from "process";
-  import { client, handlers } from "../../shared/tipc";
-  import { cn } from "../../shared/";
-  import { WindowIds } from "../../shared/types";
+  import { client, handlers } from "@shared/tipc";
+  import { cn } from "@shared/cn";
+  import { WindowIds } from "@shared/types";
   import { Bot } from "./lib/Bot";
   import { startAutoAggro, stopAutoAggro } from "./autoaggro";
   import { onMount, onDestroy } from "svelte";
   import { Config } from "./botting/util/Config";
-  import type { HotkeyConfig } from "../../shared/types";
+  import type { HotkeyConfig } from "@shared/types";
   import Mousetrap from "mousetrap";
   import { createHotkeyConfig, isValidHotkey } from "../tools/hotkeys/utils";
   import type { HotkeySection } from "../tools/hotkeys/types";

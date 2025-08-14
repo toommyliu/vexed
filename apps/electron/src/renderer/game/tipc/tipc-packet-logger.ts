@@ -1,5 +1,5 @@
-import { client, handlers } from "../../../shared/tipc";
-import { Bot } from "../lib/Bot";
+import { Bot } from "@lib/Bot";
+import { client, handlers } from "@shared/tipc";
 
 let clientPacketListener: ((packet: string) => Promise<void>) | null = null;
 let serverPacketListener: ((packet: string) => Promise<void>) | null = null;

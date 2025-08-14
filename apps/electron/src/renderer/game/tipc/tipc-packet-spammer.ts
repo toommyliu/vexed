@@ -1,7 +1,6 @@
 import { interval } from "async-interval";
 import { Mutex } from "async-mutex";
-// import { Logger } from "../../../common/logger";
-import { handlers } from "../../../shared/tipc";
+import { handlers } from "@shared/tipc";
 import { Bot } from "../lib/Bot";
 
 const mutex = new Mutex();

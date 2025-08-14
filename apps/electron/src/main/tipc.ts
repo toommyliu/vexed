@@ -1,10 +1,10 @@
 import { join } from "path";
 import { getRendererHandlers, tipc } from "@egoist/tipc";
+import { Logger } from "@vexed/logger";
 import { app, BrowserWindow, dialog } from "electron";
 import { sleep } from "sleep";
 import { FileManager } from "../shared/FileManager";
 import { DEFAULT_FAST_TRAVELS } from "../shared/constants";
-import { Logger } from "../shared/logger";
 import type {
   FastTravel,
   FastTravelRoomNumber,
@@ -12,7 +12,7 @@ import type {
   LoaderDataType,
 } from "../shared/types";
 import { WindowIds } from "../shared/types";
-import { recursivelyApplySecurityPolicy } from "./util/recursivelyApplySecurityPolicy";
+import { applySecurityPolicy } from "./util/applySecurityPolicy";
 import { createGame, getManagerWindow, windowStore } from "./windows";
 
 const tipcInstance = tipc.create();
@@ -170,7 +170,7 @@ export const router = {
         window.webContents.openDevTools({ mode: "right" });
       }
 
-      recursivelyApplySecurityPolicy(window);
+      applySecurityPolicy(window);
 
       window.on("ready-to-show", () => {
         window.show();

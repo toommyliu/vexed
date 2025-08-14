@@ -1,7 +1,7 @@
+import { Logger } from "@vexed/logger";
 import { interval } from "async-interval";
 import { Mutex } from "async-mutex";
 import { Bot } from "@lib/Bot";
-import { Logger } from "@shared/logger";
 
 const logger = Logger.get("AutoRelogin");
 

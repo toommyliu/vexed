@@ -1,8 +1,8 @@
+import { Logger } from "@vexed/logger";
 import { interval } from "async-interval";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { Bot } from "@lib/Bot";
 import { BoostType } from "@lib/Player";
-import { Logger } from "@shared/logger";
 import {
   registerDrop,
   startDropsTimer,

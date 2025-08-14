@@ -2,7 +2,7 @@ import { URL } from "url";
 import { BrowserWindow, session } from "electron";
 import { ARTIX_USERAGENT, WHITELISTED_DOMAINS } from "../../shared/constants";
 
-export function recursivelyApplySecurityPolicy(window: BrowserWindow): void {
+export function applySecurityPolicy(window: BrowserWindow): void {
   window.webContents.setUserAgent(ARTIX_USERAGENT);
   session.defaultSession?.webRequest.onBeforeSendHeaders((details, fn) => {
     const requestHeaders = details.requestHeaders;
@@ -75,7 +75,7 @@ export function recursivelyApplySecurityPolicy(window: BrowserWindow): void {
         useContentSize: true,
       });
 
-      recursivelyApplySecurityPolicy(childWindow);
+      applySecurityPolicy(childWindow);
 
       // unused: the return value for window.open?
       // ev.newGuest = childWindow;

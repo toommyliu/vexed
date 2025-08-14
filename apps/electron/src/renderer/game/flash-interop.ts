@@ -1,6 +1,6 @@
 import process from "process";
-import { Logger } from "../../shared/logger";
-import { client } from "../../shared/tipc";
+import { Logger } from "@vexed/logger";
+import { client } from "@shared/tipc";
 import { Bot } from "./lib/Bot";
 import { addGoldExp } from "./packet-handlers/add-gold-exp";
 import { ct } from "./packet-handlers/ct";
