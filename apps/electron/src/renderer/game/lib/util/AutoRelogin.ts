@@ -1,5 +1,5 @@
 import { Logger } from "@vexed/logger";
-import { interval } from "async-interval";
+import { interval } from "@vexed/utils";
 import { Mutex } from "async-mutex";
 import { Bot } from "@lib/Bot";
 

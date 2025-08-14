@@ -1,4 +1,4 @@
-import { interval } from "async-interval";
+import { interval } from "@vexed/utils";
 import type { KillOptions } from "@lib/Combat";
 import { ArmyCommand } from "./ArmyCommand";
 

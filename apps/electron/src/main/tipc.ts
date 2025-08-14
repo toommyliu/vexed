@@ -2,7 +2,7 @@ import { join } from "path";
 import { getRendererHandlers, tipc } from "@egoist/tipc";
 import { Logger } from "@vexed/logger";
 import { app, BrowserWindow, dialog } from "electron";
-import { sleep } from "sleep";
+import { sleep } from "@vexed/utils";
 import { FileManager } from "../shared/FileManager";
 import { DEFAULT_FAST_TRAVELS } from "../shared/constants";
 import type {

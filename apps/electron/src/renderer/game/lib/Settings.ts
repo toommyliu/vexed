@@ -1,4 +1,4 @@
-import { interval } from "async-interval";
+import { interval } from "@vexed/utils";
 import { gameState } from "../state.svelte";
 import type { Bot } from "./Bot";
 

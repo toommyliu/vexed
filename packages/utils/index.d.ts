@@ -45,26 +45,15 @@ export type intervalLength = intervalLengthFn | number;
  * @param intervalLength - The interval length in milliseconds or a function that returns it
  * @param options - Configuration options
  * @returns A promise that resolves when all intervals are complete
- *
- * @example
- * ```typescript
- * import { interval } from 'async-interval';
- *
- * // Run every 1000ms, 5 times
- * await interval(
- *   async (iteration, stop) => {
- *     console.log(`Iteration ${iteration}`);
- *     if (iteration === 3) {
- *       stop(); // Stop early
- *     }
- *   },
- *   1000,
- *   { iterations: 5 }
- * );
- * ```
  */
 export function interval(
   func: func,
   intervalLength: intervalLength,
   options?: IIntervalPromiseOptions,
 ): Promise<void>;
+
+/**
+ * Pause for a number of milliseconds.
+ * @param ms - milliseconds to sleep
+ */
+export function sleep(ms: number): Promise<void>;

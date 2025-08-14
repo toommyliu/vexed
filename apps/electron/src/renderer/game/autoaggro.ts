@@ -1,4 +1,4 @@
-import { interval } from "async-interval";
+import { interval } from "@vexed/utils";
 import { Bot } from "./lib/Bot";
 import { makeAggromonPacket } from "./util/makeAggromonPacket";
 

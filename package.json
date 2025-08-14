@@ -17,9 +17,5 @@
     "lint:fix": "yarn workspaces run lint:fix",
     "validate": "yarn workspaces run validate"
   },
-  "packageManager": "yarn@1.22.22",
-  "resolutions": {
-    "async-interval": "1.0.0",
-    "sleep": "1.0.0"
-  }
+  "packageManager": "yarn@1.22.22"
 }

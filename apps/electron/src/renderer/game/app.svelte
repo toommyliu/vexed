@@ -13,8 +13,8 @@
   import Mousetrap from "mousetrap";
   import { createHotkeyConfig, isValidHotkey } from "../tools/hotkeys/utils";
   import type { HotkeySection } from "../tools/hotkeys/types";
-  import { interval } from "async-interval";
-  import { sleep } from "sleep";
+  import { interval } from "@vexed/utils";
+  import { sleep } from "@vexed/utils";
   import { Button } from "@vexed/ui";
 
   const DEFAULT_PADS = [
@@ -366,7 +366,7 @@
     await client.gameReload();
   }}
 />
-<!--
+
 <main
   class="bg-background-primary m-0 flex h-screen flex-col overflow-hidden text-white focus:outline-none"
 >
@@ -1182,12 +1182,4 @@
   .option-active:hover .option-checkmark {
     display: block;
   }
-</style> -->
-
-<Button
-  variant="primary"
-  size="medium"
-  onclick={() => console.log("Button clicked!")}
->
-  Click Me
-</Button>
+</style>

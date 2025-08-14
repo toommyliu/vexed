@@ -1,4 +1,4 @@
-import { sleep } from "sleep";
+import { sleep } from "@vexed/utils";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { Army } from "./Army";
 import { Auth } from "./Auth";

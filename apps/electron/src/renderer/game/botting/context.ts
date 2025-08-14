@@ -1,5 +1,5 @@
 import { Logger } from "@vexed/logger";
-import { interval } from "async-interval";
+import { interval } from "@vexed/utils";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { Bot } from "@lib/Bot";
 import { BoostType } from "@lib/Player";
