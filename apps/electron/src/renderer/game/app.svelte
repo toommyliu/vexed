@@ -8,14 +8,13 @@
   import { Bot } from "./lib/Bot";
   import { startAutoAggro, stopAutoAggro } from "./autoaggro";
   import { onMount, onDestroy } from "svelte";
-  import { Config } from "./botting/util/Config";
   import type { HotkeyConfig } from "@shared/types";
   import Mousetrap from "mousetrap";
   import { createHotkeyConfig, isValidHotkey } from "../tools/hotkeys/utils";
   import type { HotkeySection } from "../tools/hotkeys/types";
-  import { interval } from "@vexed/utils";
-  import { sleep } from "@vexed/utils";
-  import { Button } from "@vexed/ui";
+  import { interval, sleep } from "@vexed/utils";
+  import Config from "@vexed/config";
+  import { DEFAULT_HOTKEYS, DOCUMENTS_PATH } from "@shared/constants";
 
   const DEFAULT_PADS = [
     "Center",
@@ -309,7 +308,11 @@
       await sleep(100);
     }
 
-    config = new Config<HotkeyConfig>("hotkeys");
+    config = new Config<HotkeyConfig>({
+      configName: "hotkeys",
+      cwd: DOCUMENTS_PATH,
+      defaults: DEFAULT_HOTKEYS,
+    });
     await config.load();
     await loadHotkeysFromConfig();
     setupHotkeyHandlers();
@@ -320,8 +323,7 @@
   });
 
   handlers.hotkeysUpdate.handle(async () => {
-    // Just reload all the hotkeys
-    config?.load();
+    await config?.load();
     await loadHotkeysFromConfig();
     setupHotkeyHandlers();
   });

@@ -1,8 +1,9 @@
 <script lang="ts">
   import Mousetrap from "mousetrap";
   import { onDestroy, onMount } from "svelte";
-  import { Config } from "../../game/botting/util/Config";
-  import { client, type HotkeyConfig } from "../../../shared";
+  import Config from "@vexed/config";
+  import { client } from "@shared/tipc";
+  import type { HotkeyConfig } from "@shared/types";
   import type { HotkeySection, RecordingState } from "./types";
   import {
     isMac,
@@ -215,7 +216,7 @@
   }}
 />
 
-<main class="flex min-h-screen select-none flex-col bg-background-primary">
+<main class="bg-background-primary flex min-h-screen select-none flex-col">
   <div class="mx-auto w-full max-w-6xl flex-grow p-4">
     {#if conflicts.length > 0}
       <div class="mb-4 rounded-md border border-red-600/50 bg-red-900/30 p-3">
@@ -251,7 +252,7 @@
     <div class="grid auto-cols-auto auto-rows-auto space-y-4">
       {#each hotkeysSections as section}
         <div
-          class="rounded-md border border-zinc-700/50 bg-background-secondary shadow-lg backdrop-blur-sm"
+          class="bg-background-secondary rounded-md border border-zinc-700/50 shadow-lg backdrop-blur-sm"
         >
           <div class="border-b border-zinc-700/30 px-4 py-3">
             <div class="flex items-center space-x-3">
@@ -408,7 +409,7 @@
     tabindex="-1"
   >
     <div
-      class="relative mx-4 w-full max-w-md rounded-md border border-zinc-700/50 bg-background-secondary p-4 shadow-xl"
+      class="bg-background-secondary relative mx-4 w-full max-w-md rounded-md border border-zinc-700/50 p-4 shadow-xl"
       onclick={(ev) => ev.stopPropagation()}
       onkeydown={(ev) => {
         if (ev.key === "Escape") {

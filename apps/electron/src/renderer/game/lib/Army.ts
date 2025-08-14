@@ -1,6 +1,7 @@
 // https://github.com/BrenoHenrike/Scripts/blob/Skua/Army/CoreArmyLite.cs
 
-import { Config } from "@botting/util/Config";
+import Config from "@vexed/config";
+import { STORAGE_PATH } from "@shared/constants";
 import { client } from "@shared/tipc";
 import type { Bot } from "./Bot";
 
@@ -41,10 +42,14 @@ export class Army {
    * @param fileName - The name of the config file.
    */
   public setConfigName(fileName: string) {
-    const cleanFileName = fileName.endsWith(".txt")
-      ? fileName.slice(0, -4)
+    const cleanFileName = fileName.endsWith(".json")
+      ? fileName.slice(0, -5)
       : fileName;
-    this.config = new Config(cleanFileName);
+
+    this.config = new Config({
+      configName: cleanFileName,
+      cwd: STORAGE_PATH,
+    });
   }
 
   /**
@@ -53,9 +58,10 @@ export class Army {
   public async init(): Promise<boolean> {
     // Load the config
     try {
-      await this.config.load();
+      await this.config.init();
+      // await this.config.load();
 
-      console.log("Army: Config loaded", this.config.getAll());
+      console.log("Army: Config loaded", this.config.get());
 
       const playerCount = this.config.get("PlayerCount");
       if (!playerCount) {
@@ -92,7 +98,7 @@ export class Army {
       }
 
       const args = {
-        fileName: this.config.fileName,
+        fileName: this.config.configName,
         playerName: this.bot.auth.username,
       };
 

@@ -46,9 +46,6 @@ function registerFlashPlugin() {
   const trustManager = flashTrust.initSync(BRAND, flashPath);
   trustManager.empty();
 
-  //
-  console.log(assetsPath);
-
   trustManager.add(join(assetsPath, "loader.swf"));
 }
 

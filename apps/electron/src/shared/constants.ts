@@ -7,6 +7,13 @@ const isMac = process.platform === "darwin";
 export const BRAND = "vexed";
 export const DOCUMENTS_PATH = join(os.homedir(), "Documents", BRAND);
 
+export const SCRIPTS_DIR = join(DOCUMENTS_PATH, "scripts");
+export const SETTINGS_PATH = join(DOCUMENTS_PATH, "settings.json");
+export const FAST_TRAVELS_PATH = join(DOCUMENTS_PATH, "fast-travels.json");
+export const ACCOUNTS_PATH = join(DOCUMENTS_PATH, "accounts.json");
+export const HOTKEYS_PATH = join(DOCUMENTS_PATH, "hotkeys.txt");
+export const STORAGE_PATH = join(DOCUMENTS_PATH, "storage");
+
 export const DEFAULT_SETTINGS: Settings = {
   launchMode: "game",
   debug: false,
