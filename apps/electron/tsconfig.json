@@ -36,8 +36,7 @@
       "@manager/*": ["src/renderer/manager/*"],
       "@lib/*": ["src/renderer/game/lib/*"],
       "@botting/*": ["src/renderer/game/botting/*"],
-      "@utils/*": ["src/renderer/game/util/*"],
-      "@tipc/*": ["src/renderer/game/tipc/*"]
+      "@utils/*": ["src/renderer/game/util/*"]
     },
     // "rootDirs": [],
     // "typeRoots": [],

@@ -3,9 +3,9 @@ import "./tray";
 import { join } from "path";
 import process from "process";
 import { registerIpcMain } from "@egoist/tipc/main";
+import Config from "@vexed/config";
 import { app } from "electron";
-import { FileManager } from "../shared/FileManager";
-import { BRAND } from "../shared/constants";
+import { BRAND, DOCUMENTS_PATH } from "../shared/constants";
 import type { Settings } from "../shared/types";
 import { router } from "./tipc";
 import { showErrorDialog } from "./util/showErrorDialog";
@@ -50,22 +50,26 @@ function registerFlashPlugin() {
 }
 
 async function handleAppLaunch(argv: string[] = process.argv) {
+  console.log("handle App launch");
   try {
-    await FileManager.initialize();
+    const settings = new Config<Settings>({
+      configName: "settings",
+      cwd: DOCUMENTS_PATH,
+    });
+    await settings.load();
 
-    const settings = await FileManager.readJson<Settings>(
-      FileManager.settingsPath,
-    );
+    console.log("settings", settings.get());
 
     if (
-      settings?.launchMode?.toLowerCase() === "manager" ||
+      settings.get("launchMode")?.toLowerCase() === "manager" ||
       argv.some((arg) => arg === "--manager" || arg === "-m")
     ) {
       await createAccountManager();
     } else if (
-      settings?.launchMode?.toLowerCase() === "game" ||
+      settings.get("launchMode")?.toLowerCase() === "game" ||
       argv.some((arg) => arg === "--game" || arg === "-g")
     ) {
+      console.log("create game");
       const account = {
         username:
           argv.find((arg) => arg.startsWith("--username="))?.split("=")?.[1] ??

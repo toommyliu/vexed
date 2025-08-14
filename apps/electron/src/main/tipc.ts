@@ -1,10 +1,16 @@
 import { join } from "path";
 import { getRendererHandlers, tipc } from "@egoist/tipc";
+import Config from "@vexed/config";
+import { readFile, readJson, writeJson } from "@vexed/fs-utils";
 import { Logger } from "@vexed/logger";
-import { app, BrowserWindow, dialog } from "electron";
 import { sleep } from "@vexed/utils";
-import { FileManager } from "../shared/FileManager";
-import { DEFAULT_FAST_TRAVELS } from "../shared/constants";
+import { app, BrowserWindow, dialog } from "electron";
+import {
+  ACCOUNTS_PATH,
+  DEFAULT_FAST_TRAVELS,
+  DOCUMENTS_PATH,
+  FAST_TRAVELS_PATH,
+} from "../shared/constants";
 import type {
   FastTravel,
   FastTravelRoomNumber,
@@ -202,7 +208,7 @@ export const router = {
         } else {
           const res = await dialog
             .showOpenDialog(browserWindow, {
-              defaultPath: join(FileManager.basePath, "Bots"),
+              defaultPath: join(DOCUMENTS_PATH, "Bots"),
               properties: ["openFile"],
               filters: [{ name: "Bots", extensions: ["js"] }],
               message: "Select a script to load",
@@ -213,7 +219,7 @@ export const router = {
           file = res.filePaths[0];
         }
 
-        const content = await FileManager.readFile(file);
+        const content = await readFile(file);
         if (!content) return;
 
         // The error is thrown in the renderer
@@ -298,9 +304,7 @@ export const router = {
   // #region Fast Travels
   getFastTravels: tipcInstance.procedure.action(async () => {
     try {
-      return await FileManager.readJson<FastTravel[]>(
-        FileManager.fastTravelsPath,
-      )!;
+      return await readJson<FastTravel[]>(FAST_TRAVELS_PATH);
     } catch (error) {
       logger.error("Failed to read fast travels", error);
       return DEFAULT_FAST_TRAVELS;
@@ -641,7 +645,13 @@ export const router = {
   // #region Manager
   getAccounts: tipcInstance.procedure.action(async () => {
     try {
-      return await FileManager.readJson<Account[]>(FileManager.accountsPath);
+      const config = new Config({
+        configName: "accounts",
+        cwd: DOCUMENTS_PATH,
+      });
+      await config.load();
+      console.log("config", config.get());
+      return [];
     } catch {
       return [];
     }
@@ -650,9 +660,7 @@ export const router = {
     .input<Account>()
     .action(async ({ input }) => {
       try {
-        const accounts =
-          (await FileManager.readJson<Account[]>(FileManager.accountsPath)) ??
-          [];
+        const accounts = (await readJson<Account[]>(ACCOUNTS_PATH)) ?? [];
 
         const idx = accounts.findIndex(
           (acc) => acc.username === input.username,
@@ -660,7 +668,7 @@ export const router = {
         if (idx !== -1) return false;
 
         accounts.push(input);
-        await FileManager.writeJson(FileManager.accountsPath, accounts);
+        await writeJson(ACCOUNTS_PATH, accounts);
         return true;
       } catch (error) {
         logger.error("Failed to add account", error);
@@ -673,9 +681,7 @@ export const router = {
     }>()
     .action(async ({ input }) => {
       try {
-        const accounts =
-          (await FileManager.readJson<Account[]>(FileManager.accountsPath)) ??
-          [];
+        const accounts = (await readJson<Account[]>(ACCOUNTS_PATH)) ?? [];
 
         const idx = accounts.findIndex(
           (acc) => acc.username === input.username,
@@ -683,7 +689,7 @@ export const router = {
         if (idx === -1) return false;
 
         accounts.splice(idx, 1);
-        await FileManager.writeJson(FileManager.accountsPath, accounts);
+        await writeJson(ACCOUNTS_PATH, accounts);
         return true;
       } catch (error) {
         logger.error("Failed to remove account", error);
@@ -697,9 +703,7 @@ export const router = {
     }>()
     .action(async ({ input }) => {
       try {
-        const accounts =
-          (await FileManager.readJson<Account[]>(FileManager.accountsPath)) ??
-          [];
+        const accounts = (await readJson<Account[]>(ACCOUNTS_PATH)) ?? [];
 
         const idx = accounts.findIndex(
           (acc) => acc.username === input.originalUsername,
@@ -714,7 +718,7 @@ export const router = {
         }
 
         accounts[idx] = input.updatedAccount;
-        await FileManager.writeJson(FileManager.accountsPath, accounts);
+        await writeJson(ACCOUNTS_PATH, accounts);
         return true;
       } catch (error) {
         logger.error("Failed to update account", error);
@@ -726,7 +730,7 @@ export const router = {
       const res = await dialog.showOpenDialog(
         BrowserWindow.fromWebContents(context.sender),
         {
-          defaultPath: join(FileManager.basePath, "Bots"),
+          defaultPath: join(DOCUMENTS_PATH, "Bots"),
           properties: ["openFile"],
           filters: [{ name: "Bots", extensions: ["js"] }],
           message: "Select a script to load",
