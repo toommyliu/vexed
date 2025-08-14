@@ -49,45 +49,52 @@ export default class Config<S = Record<string, any>> {
   constructor(options?: ConfigOptions<S>);
 
   /**
+   * Initialize and load configuration from disk. Returns the in-memory store.
+   */
+  init(): Promise<S>;
+
+  /**
+   * Persist the in-memory store to disk.
+   */
+  save(): Promise<void>;
+
+  /**
    * Get a value from the config.
    * @param key - The key to get the value for. Supports dot notation.
    * @param defaultValue - Default value to return if key doesn't exist.
-   * @returns The value or default value.
+   * @returns The value or default value. If no key is supplied the full store is returned.
    */
-  get(): Promise<S>;
+  get(): S;
   get<K extends string>(
     key: K,
     defaultValue?: DeepValue<S, K>,
-  ): Promise<DeepValue<S, K>>;
+  ): DeepValue<S, K> | undefined;
 
   /**
    * Set a value in the config.
    * @param key - The key to set or an object with multiple key-value pairs.
    * @param value - The value to set (ignored when key is an object).
    */
-  set(key: Partial<S>): Promise<void>;
-  set<K extends string>(key: K, value: DeepValue<S, K>): Promise<void>;
+  set(key: Partial<S>): void;
+  set<K extends string>(key: K, value: DeepValue<S, K>): void;
 
   /**
    * Check if a key exists in the config.
-   * @param key - The key to check. Supports dot notation.
-   * @returns True if the key exists.
    */
-  has(key: string): Promise<boolean>;
+  has(key: string): boolean;
 
   /**
    * Delete a key from the config.
-   * @param key - The key to delete. Supports dot notation.
    */
-  delete(key: string): Promise<void>;
+  delete(key: string): void;
 
   /**
    * Clear the config, keeping only default values.
    */
-  clear(): Promise<void>;
+  clear(): void;
 
   /**
-   * Reset the config by clearing the cache and reloading from disk.
+   * Reset the config by clearing the cache. Returns null.
    */
-  reset(): Promise<S>;
+  reset(): null;
 }
