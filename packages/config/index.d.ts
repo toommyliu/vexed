@@ -20,10 +20,23 @@ export interface ConfigOptions<S = Record<string, any>> {
 type DeepValue<T, P extends string> = P extends `${infer K}.${infer Rest}`
   ? K extends keyof T
     ? DeepValue<T[K], Rest>
-    : any
+    : never
   : P extends keyof T
     ? T[P]
-    : any;
+    : never;
+
+type DotPrefix<K extends string, P extends string> = P extends ""
+  ? K
+  : `${K}.${P}`;
+type DeepKeyOf<T> = T extends object
+  ? {
+      [K in Extract<keyof T, string>]: T[K] extends any[]
+        ? K
+        : T[K] extends object
+          ? DotPrefix<K, Extract<keyof T[K], string>> | K
+          : K;
+    }[Extract<keyof T, string>]
+  : never;
 
 export default class Config<S = Record<string, any>> {
   /**
@@ -65,7 +78,7 @@ export default class Config<S = Record<string, any>> {
    * @returns The value or default value. If no key is supplied the full store is returned.
    */
   get(): S;
-  get<K extends string>(
+  get<K extends DeepKeyOf<S>>(
     key: K,
     defaultValue?: DeepValue<S, K>,
   ): DeepValue<S, K> | undefined;
@@ -76,17 +89,17 @@ export default class Config<S = Record<string, any>> {
    * @param value - The value to set (ignored when key is an object).
    */
   set(key: Partial<S>): void;
-  set<K extends string>(key: K, value: DeepValue<S, K>): void;
+  set<K extends DeepKeyOf<S>>(key: K, value: DeepValue<S, K>): void;
 
   /**
    * Check if a key exists in the config.
    */
-  has(key: string): boolean;
+  has(key: DeepKeyOf<S> | string): boolean;
 
   /**
    * Delete a key from the config.
    */
-  delete(key: string): void;
+  delete(key: DeepKeyOf<S> | string): void;
 
   /**
    * Clear the config, keeping only default values.
