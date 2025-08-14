@@ -11,7 +11,7 @@ class Config {
     this._cache = null;
   }
 
-  async init() {
+  async load() {
     if (this._cache !== null) return this._cache;
 
     try {
@@ -34,6 +34,15 @@ class Config {
     }
 
     await writeJson(this.path, this._cache);
+  }
+
+  /**
+   * Reload configuration from disk, discarding any in-memory cache.
+   * Returns the freshly loaded store.
+   */
+  async reload() {
+    this._cache = null;
+    return this.load();
   }
 
   get(key, defaultValue) {

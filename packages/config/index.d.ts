@@ -49,9 +49,9 @@ export default class Config<S = Record<string, any>> {
   constructor(options?: ConfigOptions<S>);
 
   /**
-   * Initialize and load configuration from disk. Returns the in-memory store.
+   * Load configuration from disk.
    */
-  init(): Promise<S>;
+  load(): Promise<S>;
 
   /**
    * Persist the in-memory store to disk.
