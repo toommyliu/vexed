@@ -9,7 +9,8 @@ const {
   appendFile: fsExtraAppendFile,
   ensureFile: fsExtraEnsureFile,
 } = require("fs-extra");
-const fs = require("fs").promises;
+const { totalist } = require("totalist");
+const { unlink, stat } = require("fs/promises");
 
 /**
  * Ensures a directory exists, creating it if necessary.
@@ -21,6 +22,7 @@ async function ensureDir(path) {
   if (!path || typeof path !== "string") {
     throw new Error("Path must be a non-empty string");
   }
+
   await fsExtraEnsureDir(path);
 }
 
@@ -34,6 +36,7 @@ async function pathExists(path) {
   if (!path || typeof path !== "string") {
     throw new Error("Path must be a non-empty string");
   }
+
   return fsExtraPathExists(path);
 }
 
@@ -48,6 +51,7 @@ async function readFile(path, encoding = "utf8") {
   if (!path || typeof path !== "string") {
     throw new Error("Path must be a non-empty string");
   }
+
   return atomicReadFile(path, encoding);
 }
 
@@ -63,6 +67,7 @@ async function writeFile(path, data, encoding = "utf8") {
   if (!path || typeof path !== "string") {
     throw new Error("Path must be a non-empty string");
   }
+
   if (data === null || data === undefined) {
     throw new Error("Data cannot be null or undefined");
   }
@@ -83,6 +88,7 @@ async function appendFile(path, data, encoding = "utf8") {
   if (!path || typeof path !== "string") {
     throw new Error("Path must be a non-empty string");
   }
+
   if (data === null || data === undefined) {
     throw new Error("Data cannot be null or undefined");
   }
@@ -105,16 +111,16 @@ async function readJson(path) {
   try {
     const data = await atomicReadFile(path, "utf8");
     return JSON.parse(data);
-  } catch (error) {
-    if (error.code === "ENOENT") {
+  } catch (err) {
+    if (err.code === "ENOENT") {
       throw new Error(`JSON file not found: ${path}`);
     }
 
-    if (error instanceof SyntaxError) {
-      throw new Error(`Invalid JSON in file: ${path} - ${error.message}`);
+    if (err instanceof SyntaxError) {
+      throw new Error(`Invalid JSON in file: ${path} - ${err.message}`);
     }
 
-    throw error;
+    throw err;
   }
 }
 
@@ -135,12 +141,12 @@ async function writeJson(path, data, indent = 2) {
     const jsonString = JSON.stringify(data, null, indent);
     await fsExtraEnsureDir(dirname(path));
     await atomicWriteFile(path, jsonString, "utf8");
-  } catch (error) {
-    if (error instanceof TypeError && error.message.includes("circular")) {
+  } catch (err) {
+    if (err instanceof TypeError && err.message.includes("circular")) {
       throw new Error(`Cannot serialize circular structure to JSON: ${path}`);
     }
 
-    throw error;
+    throw err;
   }
 }
 
@@ -163,7 +169,7 @@ async function ensureFile(path, defaultContent = "") {
   await fsExtraEnsureFile(path);
 
   if (defaultContent) {
-    const stats = await fs.stat(path);
+    const stats = await stat(path);
     if (stats.size === 0) await atomicWriteFile(path, defaultContent, "utf8");
   }
 }
@@ -184,8 +190,60 @@ async function ensureJsonFile(path, defaultContent, indent = 2) {
   try {
     const exists = await fsExtraPathExists(path);
     if (!exists) await writeJson(path, defaultContent, indent);
-  } catch (error) {
+  } catch (err) {
     await writeJson(path, defaultContent, indent);
+  }
+}
+
+/**
+ * Recursively reads all files in a directory and its subdirectories.
+ * @param {string} dirPath - The directory path to read recursively.
+ * @param {Object} [options] - Options for filtering and processing.
+ * @param {Function} [options.filter] - Filter function to determine which files to include.
+ * @param {boolean} [options.filesOnly=true] - Whether to include only files (not directories).
+ * @returns {Promise<string[]>} Array of absolute file paths.
+ * @throws {Error} When path is invalid or directory doesn't exist
+ */
+async function readDirRecursive(dirPath, options = {}) {
+  if (!dirPath || typeof dirPath !== "string") {
+    throw new Error("Directory path must be a non-empty string");
+  }
+
+  const { filter, filesOnly = true } = options;
+  const results = [];
+
+  try {
+    await totalist(dirPath, (name, absPath, stats) => {
+      if (filesOnly && !stats.isFile()) return;
+      if (filter && !filter(name, absPath, stats)) return;
+      results.push(absPath);
+    });
+
+    return results;
+  } catch (err) {
+    if (err.code === "ENOENT") {
+      throw new Error(`Directory not found: ${dirPath}`);
+    }
+
+    throw err;
+  }
+}
+
+/**
+ * Deletes a file if it exists.
+ * @param {string} path - The path to the file to delete.
+ * @returns {Promise<void>}
+ * @throws {Error} When path is invalid or deletion fails
+ */
+async function deleteFile(path) {
+  if (!path || typeof path !== "string") {
+    throw new Error("Path must be a non-empty string");
+  }
+
+  try {
+    await unlink(path);
+  } catch (err) {
+    if (err.code !== "ENOENT") throw err;
   }
 }
 
@@ -200,4 +258,5 @@ module.exports = {
   ensureFile,
   ensureJsonFile,
   deleteFile,
+  readDirRecursive,
 };

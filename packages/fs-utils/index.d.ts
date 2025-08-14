@@ -69,6 +69,39 @@ export function ensureJsonFile<T = any>(
 /**
  * Deletes a file if it exists.
  * @param path - The path to the file to delete.
- * @returns True if file was deleted, false if it didn't exist.
  */
-export function deleteFile(path: string): Promise<boolean>;
+export function deleteFile(path: string): Promise<void>;
+
+/**
+ * Options for recursive directory reading operations.
+ */
+export interface ReadDirOptions {
+  /**
+   * Filter function to determine which files to include.
+   * @param name - The file/directory name.
+   * @param absPath - The absolute path to the file/directory.
+   * @param stats - The fs.Stats object for the file/directory.
+   * @returns True to include the file, false to exclude it.
+   */
+  filter?: (
+    name: string,
+    absPath: string,
+    stats: import("fs").Stats,
+  ) => boolean;
+  /**
+   * Whether to include only files (not directories).
+   * @default true
+   */
+  filesOnly?: boolean;
+}
+
+/**
+ * Recursively reads all files in a directory and its subdirectories.
+ * @param dirPath - The directory path to read recursively.
+ * @param options - Options for filtering and processing.
+ * @returns Array of absolute file paths.
+ */
+export function readDirRecursive(
+  dirPath: string,
+  options?: ReadDirOptions,
+): Promise<string[]>;
