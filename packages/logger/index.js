@@ -15,13 +15,12 @@ class Logger {
   constructor(scope, options = {}) {
     this.scope = scope;
     this.handlers = options.handlers || [];
-    this.isRenderer = process?.type === "renderer";
-
+    this.isRenderer = process !== undefined && process.type === "renderer";
 
     this.logger = createLogger({
-      level: options.level ?? "debug",
+      level: options.level || "debug",
       levels: winston.config.cli.levels,
-      transports: [new transports.Console({ level: options.level ?? "debug" })],
+      transports: [new transports.Console({ level: options.level || "debug" })],
       format: format.combine(
         format.timestamp({ format: "HH:mm:ss" }),
         format.printf(
@@ -56,7 +55,7 @@ class Logger {
           }
 
           // Fallback if no stack is available
-          return arg.message ?? arg.toString();
+          return arg.message || arg.toString();
         }
 
         if (Array.isArray(arg)) {
@@ -155,4 +154,4 @@ class Logger {
   }
 }
 
-export { Logger };
+module.exports = { Logger };
