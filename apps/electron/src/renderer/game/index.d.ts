@@ -1,4 +1,3 @@
-import type { WINDOW_IDS } from "../../common/constants";
 import type { Context } from "./botting/context";
 import type { cmd } from "./botting/index";
 import type { Bot } from "./lib/Bot";
@@ -20,9 +19,6 @@ declare global {
   interface Window {
     swf: GameSWF;
   }
-
-  type WindowId = (typeof WINDOW_IDS)[keyof typeof WINDOW_IDS];
-  type IpcChannelEvent = (typeof IPC_EVENTS)[keyof typeof IPC_EVENTS];
 
   /* eslint-disable typescript-sort-keys/interface */
   type GameSWF = {
