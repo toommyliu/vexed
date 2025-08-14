@@ -1,4 +1,3 @@
-const process = require("process");
 const util = require("util");
 const winston = require("winston");
 
@@ -15,7 +14,6 @@ class Logger {
   constructor(scope, options = {}) {
     this.scope = scope;
     this.handlers = options.handlers || [];
-    this.isRenderer = process !== undefined && process.type === "renderer";
 
     this.logger = createLogger({
       level: options.level || "debug",
@@ -23,10 +21,22 @@ class Logger {
       transports: [new transports.Console({ level: options.level || "debug" })],
       format: format.combine(
         format.timestamp({ format: "HH:mm:ss" }),
-        format.printf(
-          ({ level, message, timestamp }) =>
-            `[${timestamp}] [${level}]${this.scope ? ` (${this.scope})` : ""} ${message}`,
-        ),
+        format.printf(({ level, message, timestamp, _rawArgs }) => {
+          // If the original call was a single plain string, prefer that raw string
+          // for display. This avoids util.inspect (used elsewhere) adding
+          // surrounding quotes while still preserving quotes when the user
+          // intentionally included them in the message.
+          let displayMessage = message;
+          if (
+            Array.isArray(_rawArgs) &&
+            _rawArgs.length === 1 &&
+            typeof _rawArgs[0] === "string"
+          ) {
+            displayMessage = _rawArgs[0];
+          }
+
+          return `[${timestamp}] [${level}]${this.scope ? ` (${this.scope})` : ""} ${displayMessage}`;
+        }),
       ),
     });
   }
@@ -59,16 +69,12 @@ class Logger {
         }
 
         if (Array.isArray(arg)) {
-          return arg
-            .map((a) =>
-              util.inspect(a, { depth: null, colors: !this.isRenderer }),
-            )
-            .join(" ");
+          return arg.map((a) => util.inspect(a, { depth: null })).join(" ");
         }
 
         if (typeof arg === "object" && arg !== null) {
           try {
-            return util.inspect(arg, { depth: null, colors: !this.isRenderer });
+            return util.inspect(arg, { depth: null });
           } catch {
             return String(arg);
           }
@@ -86,7 +92,9 @@ class Logger {
   info(...args) {
     const formattedMessage = this.formatArgs(args);
     this.callHandlers("info", formattedMessage, ...args);
-    this.logger.info(formattedMessage);
+    // Pass the original args through as metadata so the formatter can
+    // decide whether to use the raw string (to avoid extra quoting).
+    this.logger.info(formattedMessage, { _rawArgs: args });
   }
 
   /**
@@ -96,7 +104,7 @@ class Logger {
   warn(...args) {
     const formattedMessage = this.formatArgs(args);
     this.callHandlers("warn", formattedMessage, ...args);
-    this.logger.warn(formattedMessage);
+    this.logger.warn(formattedMessage, { _rawArgs: args });
   }
 
   /**
@@ -106,7 +114,7 @@ class Logger {
   error(...args) {
     const formattedMessage = this.formatArgs(args);
     this.callHandlers("error", formattedMessage, ...args);
-    this.logger.error(formattedMessage);
+    this.logger.error(formattedMessage, { _rawArgs: args });
   }
 
   /**
@@ -116,7 +124,7 @@ class Logger {
   debug(...args) {
     const formattedMessage = this.formatArgs(args);
     this.callHandlers("debug", formattedMessage, ...args);
-    this.logger.debug(formattedMessage);
+    this.logger.debug(formattedMessage, { _rawArgs: args });
   }
 
   /**
@@ -146,10 +154,7 @@ class Logger {
           args: originalArgs,
           timestamp: new Date(),
         });
-      } catch (error) {
-        // Silently ignore handler errors to prevent logging failures
-        console.error("Logger handler error:", error);
-      }
+      } catch (error) {}
     }
   }
 }
