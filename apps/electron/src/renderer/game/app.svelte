@@ -14,6 +14,7 @@
   import { createHotkeyConfig, isValidHotkey } from "../tools/hotkeys/utils";
   import type { HotkeySection } from "../tools/hotkeys/types";
   import { interval } from "async-interval";
+  import { sleep } from "sleep";
 
   const DEFAULT_PADS = [
     "Center",
@@ -304,7 +305,7 @@
     // Wait for the game to load
     // This prevents hotkeys from being set, before the game is ready and used
     while (!appState.gameLoaded) {
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await sleep(100);
     }
 
     config = new Config<HotkeyConfig>("hotkeys");

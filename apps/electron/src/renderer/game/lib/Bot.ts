@@ -1,3 +1,4 @@
+import { sleep } from "sleep";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { Army } from "./Army";
 import { Auth } from "./Auth";
@@ -194,12 +195,7 @@ export class Bot extends TypedEmitter<Events> {
    * @param ms - The number of milliseconds to wait.
    */
   public async sleep(ms: number): Promise<void> {
-    return new Promise<void>((resolve) => {
-      const id = window.setTimeout(() => {
-        window.clearTimeout(id);
-        resolve();
-      }, ms);
-    });
+    await sleep(ms);
   }
 
   /**

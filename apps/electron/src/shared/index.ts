@@ -1,4 +1,3 @@
-export * from "./sleep";
 export * from "./cn";
 export type * from "./types";
 export * from "./FileManager";

@@ -1,10 +1,10 @@
 import { join } from "path";
 import { getRendererHandlers, tipc } from "@egoist/tipc";
 import { app, BrowserWindow, dialog } from "electron";
+import { sleep } from "sleep";
 import { FileManager } from "../shared/FileManager";
 import { DEFAULT_FAST_TRAVELS } from "../shared/constants";
 import { Logger } from "../shared/logger";
-import { sleep } from "../shared/sleep";
 import type {
   FastTravel,
   FastTravelRoomNumber,

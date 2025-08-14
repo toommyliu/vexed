@@ -20,6 +20,7 @@
   },
   "packageManager": "yarn@1.22.22",
   "resolutions": {
-    "async-interval": "1.0.0"
+    "async-interval": "1.0.0",
+    "sleep": "1.0.0"
   }
 }
