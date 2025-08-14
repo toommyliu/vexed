@@ -1,8 +1,6 @@
 import { mount } from "svelte";
 import App from "./app.svelte";
 
-const app = mount(App, {
+export default mount(App, {
   target: document.body,
 });
-
-export default app;
