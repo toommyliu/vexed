@@ -1,5 +1,5 @@
+import { interval } from "async-interval";
 import type { KillOptions } from "@lib/Combat";
-import { interval } from "@shared/interval";
 import { ArmyCommand } from "./ArmyCommand";
 
 export class CommandArmyKill extends ArmyCommand {

@@ -13,7 +13,7 @@
   import Mousetrap from "mousetrap";
   import { createHotkeyConfig, isValidHotkey } from "../tools/hotkeys/utils";
   import type { HotkeySection } from "../tools/hotkeys/types";
-  import { interval } from "../../shared/interval";
+  import { interval } from "async-interval";
 
   const DEFAULT_PADS = [
     "Center",

@@ -1,4 +1,4 @@
-import { interval } from "@shared/interval";
+import { interval } from "async-interval";
 import { doPriorityAttack } from "@utils/doPriorityAttack";
 import { exitFromCombat } from "@utils/exitFromCombat";
 import { extractMonsterMapId, isMonsterMapId } from "@utils/isMonMapId";

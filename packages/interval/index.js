@@ -1,34 +1,36 @@
 // https://www.npmjs.com/package/interval-promise
 
 /**
- * @param val - value to check
- * @returns true if the value is then-able
+ * @param {any} val - value to check
+ * @returns {boolean} true if the value is then-able
  */
-function isPromise(val: any): boolean {
+function isPromise(val) {
   return val !== null && typeof val.then === "function";
 }
 
-export async function interval(
-  func: func,
-  intervalLength: intervalLength,
-  options: IIntervalPromiseOptions = {},
-): Promise<void> {
+/**
+ * Executes a function at specified intervals with promise support and advanced control
+ * @param {Function} func - The function to execute at each interval
+ * @param {number|Function} intervalLength - The interval length in milliseconds or a function that returns it
+ * @param {Object} options - Configuration options
+ * @param {number} [options.iterations=Infinity] - Number of iterations to run
+ * @param {boolean} [options.stopOnError=true] - Whether to stop on error
+ * @returns {Promise<void>} A promise that resolves when all intervals are complete
+ */
+async function interval(func, intervalLength, options = {}) {
   validateArgs(func, intervalLength, options);
 
-  const defaults: Required<IIntervalPromiseOptions> = {
+  const defaults = {
     iterations: Infinity,
     stopOnError: true,
   };
-  const settings: Required<IIntervalPromiseOptions> = {
-    ...defaults,
-    ...options,
-  };
+  const settings = { ...defaults, ...options };
 
   // Track all active timeouts in an array
-  const activeTimeouts: ReturnType<typeof setTimeout>[] = [];
+  const activeTimeouts = [];
 
   // Helper function to clear all pending timeouts
-  const clearAllTimeouts = (): void => {
+  const clearAllTimeouts = () => {
     while (activeTimeouts.length > 0) {
       const timeoutId = activeTimeouts.pop();
       if (timeoutId !== undefined) {
@@ -37,18 +39,18 @@ export async function interval(
     }
   };
 
-  return new Promise<void>((resolve, reject) => {
-    const callFunction = (currentIteration: number): void => {
+  return new Promise((resolve, reject) => {
+    const callFunction = (currentIteration) => {
       // Set up a way to track if a "stop" was requested by the user function
       let stopRequested = false;
-      const stop: stop = () => {
+      const stop = () => {
         stopRequested = true;
         // Clear all pending timeouts when stop is called
         clearAllTimeouts();
       };
 
       // Set up a function to call the next iteration. This is abstracted so it can be called by .then(), or in .catch(), if options allow.
-      const callNext = (): void => {
+      const callNext = () => {
         // If we've hit the desired number of iterations, or stop was called, resolve the root promise and return
         if (currentIteration === settings.iterations || stopRequested) {
           resolve();
@@ -60,7 +62,7 @@ export async function interval(
       };
 
       // Calculate our interval length
-      const calculatedIntervalLength: number =
+      const calculatedIntervalLength =
         typeof intervalLength === "function"
           ? intervalLength(currentIteration)
           : intervalLength;
@@ -97,8 +99,7 @@ export async function interval(
           return;
         }
 
-        // eslint-disable-next-line promise/prefer-await-to-callbacks, promise/prefer-await-to-then
-        returnVal.then(callNext).catch((error: Error) => {
+        returnVal.then(callNext).catch((error) => {
           if (!settings.stopOnError) {
             callNext();
             return;
@@ -119,8 +120,11 @@ export async function interval(
 
 /**
  * A helper function to validate the arguments passed to interval(...)
+ * @param {any} func
+ * @param {any} intervalLength
+ * @param {any} options
  */
-function validateArgs(func: any, intervalLength: any, options: any): void {
+function validateArgs(func, intervalLength, options) {
   // Validate "func"
   if (typeof func !== "function") {
     throw new TypeError('Argument 1, "func", must be a function.');
@@ -173,12 +177,4 @@ function validateArgs(func: any, intervalLength: any, options: any): void {
   }
 }
 
-type IIntervalPromiseOptions = {
-  iterations?: number;
-  stopOnError?: boolean;
-};
-
-type stop = () => void;
-type func = (iterationNumber: number, stop: stop) => Promise<void>;
-type intervalLengthFn = (iterationNumber: number) => number;
-type intervalLength = intervalLengthFn | number;
+module.exports = { interval };

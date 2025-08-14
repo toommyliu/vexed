@@ -1,4 +1,4 @@
-import { interval } from "../../shared/interval";
+import { interval } from "async-interval";
 import { Bot } from "./lib/Bot";
 import { makeAggromonPacket } from "./util/makeAggromonPacket";
 

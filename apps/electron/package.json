@@ -29,6 +29,7 @@
     "@lukeed/uuid": "^2.0.1",
     "@tybys/electron-ipc-handle-invoke": "^1.0.2",
     "async-mutex": "^0.5.0",
+    "async-interval": "workspace:1.0.0",
     "atomically": "1.7.0",
     "clsx": "^2.1.1",
     "core-js": "^3.42.0",

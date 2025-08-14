@@ -1,5 +1,5 @@
+import { interval } from "async-interval";
 import { Mutex } from "async-mutex";
-import { interval } from "../../../shared/interval";
 // import { Logger } from "../../../common/logger";
 import { handlers } from "../../../shared/tipc";
 import { Bot } from "../lib/Bot";

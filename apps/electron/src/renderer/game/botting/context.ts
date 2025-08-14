@@ -1,7 +1,7 @@
+import { interval } from "async-interval";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { Bot } from "@lib/Bot";
 import { BoostType } from "@lib/Player";
-import { interval } from "@shared/interval";
 import { Logger } from "@shared/logger";
 import {
   registerDrop,

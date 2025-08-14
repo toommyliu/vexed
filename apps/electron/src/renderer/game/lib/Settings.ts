@@ -1,4 +1,4 @@
-import { interval } from "@shared/interval";
+import { interval } from "async-interval";
 import { gameState } from "../state.svelte";
 import type { Bot } from "./Bot";
 
