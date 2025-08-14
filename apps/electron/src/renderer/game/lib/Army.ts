@@ -58,7 +58,7 @@ export class Army {
   public async init(): Promise<boolean> {
     // Load the config
     try {
-      await this.config.init();
+      await this.config.load();
       // await this.config.load();
 
       console.log("Army: Config loaded", this.config.get());
