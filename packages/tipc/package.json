@@ -1,24 +1,24 @@
 {
   "name": "@vexed/tipc",
   "version": "0.4.0",
-  "type": "module",
   "scripts": {
     "postinstall": "tsc && tsup tipc/src/main.ts tipc/src/renderer.ts --format esm,cjs"
   },
   "exports": {
     "./main": {
       "types": "./tipc/main/index.d.ts",
-      "require": "./main/index.js",
-      "import": "./dist/main.js"
+      "import": "./dist/main.js",
+      "require": "./main/index.js"
     },
     "./renderer": {
       "types": "./tipc/renderer/index.d.ts",
-      "require": "./renderer/index.js",
-      "import": "./dist/renderer.js"
+      "import": "./renderer/index.js",
+      "require": "./renderer/index.js"
     },
     ".": {
-      "require": "./dist/main.cjs",
-      "import": "./dist/main.js"
+      "types": "./tipc/main/index.d.ts",
+      "import": "./dist/main.js",
+      "require": "./dist/main.cjs"
     },
     "./package.json": "./package.json"
   },
