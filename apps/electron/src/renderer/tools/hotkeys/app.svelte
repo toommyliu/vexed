@@ -14,6 +14,7 @@
     findConflicts,
     getActionForHotkey,
   } from "./utils";
+  import { DEFAULT_HOTKEYS, HOTKEYS_PATH } from "@/shared";
 
   let config = $state<Config<HotkeyConfig> | null>(null);
   let hotkeysSections = $state<HotkeySection[]>(createHotkeyConfig());
@@ -166,7 +167,11 @@
   }
 
   onMount(async () => {
-    config = new Config<HotkeyConfig>("hotkeys");
+    config = new Config<HotkeyConfig>({
+      configName: "hotkeys",
+      cwd: HOTKEYS_PATH,
+      defaults: DEFAULT_HOTKEYS,
+    });
     await config.load();
 
     // console.log("config loaded:", config.getAll());
