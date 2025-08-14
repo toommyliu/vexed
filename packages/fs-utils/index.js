@@ -10,7 +10,9 @@ const {
   ensureFile: fsExtraEnsureFile,
 } = require("fs-extra");
 const { totalist } = require("totalist");
-const { unlink, stat } = require("fs/promises");
+const fs = require("fs").promises;
+
+const { unlink, stat } = fs;
 
 /**
  * Ensures a directory exists, creating it if necessary.
