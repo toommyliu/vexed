@@ -25,21 +25,21 @@ handlers.packetLoggerStart.listen(() => {
   cleanupListeners();
 
   clientPacketListener = async (packet) => {
-    await client.packetLoggerPacket({
+    await client.packetLogger.packetLoggerPacket({
       type: "client",
       packet,
     });
   };
 
   serverPacketListener = async (packet) => {
-    await client.packetLoggerPacket({
+    await client.packetLogger.packetLoggerPacket({
       type: "server",
       packet,
     });
   };
 
   pextPacketListener = async (packet) => {
-    await client.packetLoggerPacket({
+    await client.packetLogger.packetLoggerPacket({
       type: "pext",
       packet: JSON.stringify(packet),
     });

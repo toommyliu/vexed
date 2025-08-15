@@ -105,14 +105,14 @@ export class Army {
       if (this.isLeader()) {
         // Init army for everyone else
         console.log("Army: Leader");
-        await client.armyInit({
+        await client.army.init({
           ...args,
           players: Array.from(this.players),
         });
       } else {
         // Join the army
         console.log("Army: Follower");
-        await client.armyJoin(args);
+        await client.army.join(args);
       }
 
       this.isInitialized = true;

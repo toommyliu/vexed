@@ -14,7 +14,7 @@ export const startAccount = async (account: Account) => {
   }, 10_000); // 10s should be sufficient
   managerState.timeouts.set(account.username, timeout);
 
-  await client.launchGame({
+  await client.manager.launchGame({
     username: account.username,
     password: account.password,
     server: managerState.selectedServer!,
@@ -33,7 +33,7 @@ export const removeAccount = async (account: Account) => {
       timeouts.delete(account.username);
     }
 
-    await client.removeAccount({ username: account.username });
+    await client.manager.removeAccount({ username: account.username });
     accounts.delete(account.username);
   } catch (error) {
     console.error("Failed to remove account:", error);
@@ -48,7 +48,7 @@ export const editAccount = async (
   const { accounts } = managerState;
 
   try {
-    const success = await client.updateAccount({
+    const success = await client.manager.updateAccount({
       originalUsername,
       updatedAccount,
     });

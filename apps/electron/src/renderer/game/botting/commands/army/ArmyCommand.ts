@@ -78,7 +78,7 @@ export abstract class ArmyCommand extends Command {
     this.isDone = true;
 
     // console.log("Sending done notification...");
-    await client.armyFinishJob();
+    await client.army.finishJob();
     // console.log("Done notification sent...");
   }
 

@@ -135,7 +135,7 @@ window.loaded = async () => {
       bot.autoRelogin.delay = ogDelay;
 
       // logger.info("auto relogin success, responding");
-      await client.managerLoginSuccess({ username });
+      await client.manager.managerLoginSuccess({ username });
     } else {
       bot.auth.login(username!, password!);
 
@@ -145,7 +145,7 @@ window.loaded = async () => {
         -1,
       );
 
-      await client.managerLoginSuccess({ username });
+      await client.manager.managerLoginSuccess({ username });
     }
   }
 
@@ -160,7 +160,7 @@ window.loaded = async () => {
 
       // console.log("decodedPath", decodedPath);
 
-      await client.loadScript({ scriptPath: decodedPath });
+      await client.scripts.loadScript({ scriptPath: decodedPath });
     } catch {}
   }
 };
