@@ -322,11 +322,11 @@
     Mousetrap.reset();
   });
 
-  handlers.hotkeysUpdate.handle(async () => {
-    await config?.load();
-    await loadHotkeysFromConfig();
-    setupHotkeyHandlers();
-  });
+  // handlers.hotkeys.updateHotkey.handle(async () => {
+  //   await config?.load();
+  //   await loadHotkeysFromConfig();
+  //   setupHotkeyHandlers();
+  // });
 </script>
 
 <svelte:window

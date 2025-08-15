@@ -12,13 +12,15 @@
     location: Omit<FastTravelRoomNumber, "roomNumber">,
   ) {
     disabled = true;
-    await client.doFastTravel({ location: { ...location, roomNumber } });
+    await client.fastTravels.doFastTravel({
+      location: { ...location, roomNumber },
+    });
   }
 
-  handlers.fastTravelEnable.listen(() => (disabled = false));
+  handlers.fastTravels.fastTravelEnable.listen(() => (disabled = false));
 
   onMount(async () => {
-    const fastTravels = await client.getFastTravels();
+    const fastTravels = await client.fastTravels.getFastTravels();
     locations = fastTravels!;
   });
 
