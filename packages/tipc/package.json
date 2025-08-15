@@ -2,7 +2,7 @@
   "name": "@vexed/tipc",
   "version": "0.4.0",
   "scripts": {
-    "postinstall": "tsc && tsup tipc/src/main.ts tipc/src/renderer.ts --format esm,cjs"
+    "postinstall": "tsc && tsup tipc/src/main.ts tipc/src/renderer.ts --format cjs"
   },
   "exports": {
     "./main": {
@@ -18,7 +18,7 @@
     ".": {
       "types": "./tipc/main/index.d.ts",
       "import": "./dist/main.js",
-      "require": "./dist/main.cjs"
+      "require": "./dist/main.js"
     },
     "./package.json": "./package.json"
   },
@@ -32,7 +32,7 @@
       ]
     }
   },
-  "main": "./dist/main.cjs",
+  "main": "./dist/main.js",
   "module": "./dist/main.js",
   "types": "./tipc/main/index.d.ts",
   "devDependencies": {
