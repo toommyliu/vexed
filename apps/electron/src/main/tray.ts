@@ -95,7 +95,7 @@ const contextMenu = Menu.buildFromTemplate([
 
 app.on("ready", () => {
   // menu bar on mac, tray icon on windows
-  const path = join(__dirname, "../../assets/tray.png");
+  const path = join(__dirname, "../../../../assets/tray.png");
   const icon = nativeImage.createFromPath(path);
 
   tray = new Tray(icon);
