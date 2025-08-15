@@ -1,16 +1,20 @@
 import { join, sep } from "path";
 import process from "process";
+import {
+  deleteFile,
+  pathExists,
+  readDirRecursive,
+  deleteDirectory,
+} from "@vexed/fs-utils";
 import { Menu, Tray, app, dialog, nativeImage, session } from "electron";
-import fs from "fs-extra";
-import { totalist } from "totalist";
 import { BRAND } from "../shared/constants";
 import { showErrorDialog } from "./util/showErrorDialog";
 import { createAccountManager, createGame } from "./windows";
 
 let tray: Tray | null = null;
 
-const deleteDirectory = async (dirPath: string) => {
-  if (!(await fs.pathExists(dirPath))) {
+const _deleteDirectory = async (dirPath: string) => {
+  if (!(await pathExists(dirPath))) {
     console.log(`Directory does not exist: ${dirPath}`);
     return;
   }
@@ -19,24 +23,24 @@ const deleteDirectory = async (dirPath: string) => {
     const dirs = new Set<string>();
     const files = new Set<string>();
 
-    await totalist(dirPath, (_name, absPath, stats) => {
-      if (stats.isFile()) files.add(absPath);
-      else if (stats.isDirectory()) dirs.add(absPath);
+    await readDirRecursive(dirPath, {
+      filter: (_, absPath, stats) => {
+        if (stats.isFile()) files.add(absPath);
+        else if (stats.isDirectory()) dirs.add(absPath);
+        return true;
+      },
     });
 
     // Delete files first
-    for (const filePath of files) await fs.unlink(filePath);
+    for (const filePath of files) await deleteFile(filePath);
 
     // Sort the directories by depth (a.k.a deepest path first)
     const sortedDirs = Array.from(dirs).sort(
       (a, b) => b.split(sep).length - a.split(sep).length,
     );
+    for (const dir of sortedDirs) await deleteDirectory(dir);
 
-    // Delete directories
-    for (const dir of sortedDirs) await fs.rmdir(dir);
-
-    // Finally, delete the root directory
-    await fs.rmdir(dirPath);
+    await deleteDirectory(dirPath);
   } catch {
     showErrorDialog({
       message: "Failed to clear Flash cache",
@@ -72,7 +76,7 @@ const contextMenu = Menu.buildFromTemplate([
         "WritableRoot",
       );
 
-      await deleteDirectory(flashPath);
+      await _deleteDirectory(flashPath);
 
       // A restart is required because we'd have to re-register the flash plugin
       // So having the user restart the app is the easiest way to handle this.
