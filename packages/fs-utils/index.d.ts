@@ -105,3 +105,9 @@ export function readDirRecursive(
   dirPath: string,
   options?: ReadDirOptions,
 ): Promise<string[]>;
+
+/**
+ * Deletes a directory and all of its contents if it exists.
+ * @param path - The path to the directory to delete.
+ */
+export function deleteDirectory(path: string): Promise<void>;

@@ -12,7 +12,7 @@ const {
 const { totalist } = require("totalist");
 const fs = require("fs").promises;
 
-const { unlink, stat } = fs;
+const { unlink, stat, rm } = fs;
 
 /**
  * Ensures a directory exists, creating it if necessary.
@@ -246,6 +246,24 @@ async function deleteFile(path) {
     await unlink(path);
   } catch (err) {
     if (err.code !== "ENOENT") throw err;
+  }
+}
+
+/**
+ * Deletes a directory and all of its contents if it exists.
+ * @param {string} path - The path to the directory to delete.
+ * @returns {Promise<void>}
+ * @throws {Error} When path is invalid or deletion fails
+ */
+async function deleteDirectory(path) {
+  if (!path || typeof path !== "string") {
+    throw new Error("Path must be a non-empty string");
+  }
+
+  try {
+    await rm(path, { recursive: true, force: true });
+  } catch (err) {
+    if (err && err.code !== "ENOENT") throw err;
   }
 }
 
