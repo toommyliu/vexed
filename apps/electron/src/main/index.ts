@@ -2,8 +2,8 @@ import "./tray";
 
 import { join } from "path";
 import process from "process";
-import { registerIpcMain } from "@egoist/tipc/main";
 import Config from "@vexed/config";
+import { registerIpcMain } from "@vexed/tipc/main";
 import { app } from "electron";
 import { BRAND, DOCUMENTS_PATH } from "../shared/constants";
 import type { Settings } from "../shared/types";

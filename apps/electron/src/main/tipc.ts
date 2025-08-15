@@ -1,8 +1,8 @@
 import { join } from "path";
-import { getRendererHandlers, tipc } from "@egoist/tipc";
 import Config from "@vexed/config";
 import { readFile, readJson, writeJson } from "@vexed/fs-utils";
 import { Logger } from "@vexed/logger";
+import { getRendererHandlers, tipc } from "@vexed/tipc";
 import { sleep } from "@vexed/utils";
 import { app, BrowserWindow, dialog } from "electron";
 import {
