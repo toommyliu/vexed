@@ -21,7 +21,8 @@
     "format:write": "prettier \"src/**/*\" --write",
     "lint": "eslint \"src/**/*\"",
     "lint:fix": "eslint \"src/**/*\" --fix",
-    "validate": "npm-run-all --parallel typecheck lint format",
+    "svelte-check": "svelte-check",
+    "validate": "npm-run-all --parallel typecheck lint format svelte-check",
     "changelog": "git-cliff --output CHANGELOG.md"
   },
   "dependencies": {
@@ -70,6 +71,7 @@
     "prettier-plugin-svelte": "^3.4.0",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "svelte": "^5.33.4",
+    "svelte-check": "^4.3.1",
     "svelte-preprocess": "^6.0.3",
     "tailwindcss": "^3.4.17",
     "tsx": "^4.19.4",
