@@ -275,12 +275,12 @@ async function stopFollower() {
   bot.off("pext", packetHandler);
 }
 
-handlers.followerMe.handle(async () => {
+handlers.follower.followerMe.handle(async () => {
   if (!bot.player.isReady()) return "";
   return bot.auth?.username ?? "";
 });
 
-handlers.followerStart.listen(async (input) => {
+handlers.follower.followerStart.listen(async (input) => {
   config = parseConfig(input);
 
   if (config?.drops?.length) {
@@ -295,19 +295,19 @@ handlers.followerStart.listen(async (input) => {
   await startFollower();
 });
 
-handlers.followerStop.listen(async () => {
+handlers.follower.followerStop.listen(async () => {
   on = false;
   await stopFollower();
 });
 
-handlers.followerMe.handle(async () => {
+handlers.follower.followerMe.handle(async () => {
   if (!bot.player.isReady()) return "";
 
   return bot.auth.username.toLowerCase();
 });
 
 type FollowerStartInput = Parameters<
-  typeof handlers.followerStart.listen
+  typeof handlers.follower.followerStart.listen
 >[0] extends (input: infer T) => any
   ? T
   : never;

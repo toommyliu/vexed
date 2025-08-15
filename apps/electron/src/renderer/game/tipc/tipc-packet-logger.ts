@@ -19,7 +19,7 @@ function cleanupListeners() {
   pextPacketListener = null;
 }
 
-handlers.packetLoggerStart.listen(() => {
+handlers.packetLogger.packetLoggerStart.listen(() => {
   const bot = Bot.getInstance();
 
   cleanupListeners();
@@ -50,6 +50,6 @@ handlers.packetLoggerStart.listen(() => {
   bot.on("pext", pextPacketListener);
 });
 
-handlers.packetLoggerStop.listen(() => {
+handlers.packetLogger.packetLoggerStop.listen(() => {
   cleanupListeners();
 });

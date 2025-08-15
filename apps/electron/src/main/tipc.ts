@@ -281,7 +281,7 @@ export const router = {
 
           // Load the script
           await context.sender.executeJavaScript(content!);
-          handlers.scriptLoaded.send(fromManager);
+          handlers.scripts.scriptLoaded.send(fromManager);
 
           browserWindow.webContents.removeAllListeners("console-message");
         } catch {}
@@ -299,7 +299,7 @@ export const router = {
           const rendererHandlers = getRendererHandlers<RendererHandlers>(
             child.webContents,
           );
-          rendererHandlers.gameReloaded.send();
+          rendererHandlers.game.gameReloaded.send();
         }
       }
     }),
@@ -333,8 +333,10 @@ export const router = {
           context.sender,
         );
 
-        await parentHandlers.doFastTravel.invoke({ location: input.location });
-        childHandlers.fastTravelEnable.send();
+        await parentHandlers.fastTravels.doFastTravel.invoke({
+          location: input.location,
+        });
+        childHandlers.fastTravels.fastTravelEnable.send();
       }),
   },
   // #endregion
@@ -355,7 +357,7 @@ export const router = {
           parent.webContents,
         );
 
-        parentHandlers.load.send(input);
+        parentHandlers.loaderGrabber.load.send(input);
       }),
     grab: tipcInstance.procedure
       .input<{ type: GrabberDataType }>()
@@ -370,7 +372,7 @@ export const router = {
           parent.webContents,
         );
 
-        return parentHandlers.grab.invoke({ type: input.type });
+        return parentHandlers.loaderGrabber.grab.invoke({ type: input.type });
       }),
   },
   // #endregion
@@ -388,7 +390,7 @@ export const router = {
         parent.webContents,
       );
 
-      return parentHandlers.followerMe.invoke();
+      return parentHandlers.follower.followerMe.invoke();
     }),
     followerStart: tipcInstance.procedure
       .input<{
@@ -416,7 +418,7 @@ export const router = {
         const parentHandlers = getRendererHandlers<RendererHandlers>(
           parent.webContents,
         );
-        parentHandlers.followerStart.send(input);
+        parentHandlers.follower.followerStart.send(input);
       }),
     followerStop: tipcInstance.procedure.action(async ({ context }) => {
       const browserWindow = BrowserWindow.fromWebContents(context.sender);
@@ -428,7 +430,7 @@ export const router = {
       const parentHandlers = getRendererHandlers<RendererHandlers>(
         parent.webContents,
       );
-      parentHandlers.followerStop.send();
+      parentHandlers.follower.followerStop.send();
     }),
   },
   // #endregion
@@ -445,7 +447,7 @@ export const router = {
       const parentHandlers = getRendererHandlers<RendererHandlers>(
         parent.webContents,
       );
-      parentHandlers.packetLoggerStart.send();
+      parentHandlers.packetLogger.packetLoggerStart.send();
     }),
     packetLoggerStop: tipcInstance.procedure.action(async ({ context }) => {
       const browserWindow = BrowserWindow.fromWebContents(context.sender);
@@ -457,7 +459,7 @@ export const router = {
       const parentHandlers = getRendererHandlers<RendererHandlers>(
         parent.webContents,
       );
-      parentHandlers.packetLoggerStop.send();
+      parentHandlers.packetLogger.packetLoggerStop.send();
     }),
     packetLoggerPacket: tipcInstance.procedure
       .input<{ packet: string; type: string }>()
@@ -472,7 +474,7 @@ export const router = {
         const rendererHandler = getRendererHandlers<RendererHandlers>(
           packetLoggerWindow.webContents,
         );
-        rendererHandler.packetLoggerPacket.send(input);
+        rendererHandler.packetLogger.packetLoggerPacket.send(input);
       }),
   },
   // #endregion
@@ -494,7 +496,7 @@ export const router = {
         const parentHandlers = getRendererHandlers<RendererHandlers>(
           parent.webContents,
         );
-        parentHandlers.packetSpammerStart.send(input);
+        parentHandlers.packetSpammer.packetSpammerStart.send(input);
       }),
     packetSpammerStop: tipcInstance.procedure.action(async ({ context }) => {
       const browserWindow = BrowserWindow.fromWebContents(context.sender);
@@ -506,7 +508,7 @@ export const router = {
       const parentHandlers = getRendererHandlers<RendererHandlers>(
         parent.webContents,
       );
-      parentHandlers.packetSpammerStop.send();
+      parentHandlers.packetSpammer.packetSpammerStop.send();
     }),
   },
   // #endregion
@@ -627,7 +629,7 @@ export const router = {
         const rendererHandlers = getRendererHandlers<RendererHandlers>(
           window.webContents,
         );
-        await rendererHandlers.armyReady.invoke();
+        await rendererHandlers.army.armyReady.invoke();
       }
 
       // IMPORTANT: Only clear the set after all messages are sent
@@ -659,7 +661,7 @@ export const router = {
         const parentHandlers = getRendererHandlers<RendererHandlers>(
           parent.webContents,
         );
-        await parentHandlers.hotkeysUpdate.invoke(input);
+        await parentHandlers.hotkeys.updateHotkey.invoke(input);
       }),
   },
   // #endregion
@@ -786,7 +788,7 @@ export const router = {
         const handlers = getRendererHandlers<RendererHandlers>(
           window.webContents,
         );
-        handlers.enableButton.send(input.username);
+        handlers.manager.enableButton.send(input.username);
 
         logger.info(`User ${input.username} logged in successfully`);
       }),
@@ -801,56 +803,78 @@ export type TipcRouter = typeof router;
 // Main calls back to renderer (2.)
 // !! Any renderer define these handlers !!
 export type RendererHandlers = {
-  // Game
-  gameReloaded(): void;
+  game: {
+    gameReloaded(): void;
+  };
 
-  // Scripts
-  scriptLoaded(fromManager: boolean): void;
+  scripts: {
+    scriptLoaded(fromManager: boolean): void;
+    toggleDevTools(): void;
+    gameReload(): void;
+  };
 
-  // Fast Travels
-  fastTravelEnable(): void;
-  doFastTravel({ location }: { location: FastTravelRoomNumber }): void;
+  fastTravels: {
+    fastTravelEnable(): void;
+    doFastTravel({ location }: { location: FastTravelRoomNumber }): void;
+    getFastTravels(): Promise<FastTravel[]>;
+  };
 
-  // Loader Grabber
-  load(input: { type: LoaderDataType; id: number }): void;
-  grab(input: { type: GrabberDataType }): Promise<unknown>;
+  loaderGrabber: {
+    load(input: { type: LoaderDataType; id: number }): void;
+    grab(input: { type: GrabberDataType }): Promise<unknown>;
+  };
 
-  // Follower
-  followerMe(): Promise<string>;
-  followerStart(input: {
-    antiCounter: boolean;
-    attackPriority: string;
-    copyWalk: boolean;
-    drops: string;
-    name: string;
-    quests: string;
-    rejectElse: boolean;
-    safeSkill: string;
-    safeSkillEnabled: boolean;
-    safeSkillHp: string;
-    skillDelay: string;
-    skillList: string;
-    skillWait: boolean;
-  }): Promise<void>;
-  followerStop(): Promise<void>;
+  follower: {
+    followerMe(): Promise<string>;
+    followerStart(input: {
+      antiCounter: boolean;
+      attackPriority: string;
+      copyWalk: boolean;
+      drops: string;
+      name: string;
+      quests: string;
+      rejectElse: boolean;
+      safeSkill: string;
+      safeSkillEnabled: boolean;
+      safeSkillHp: string;
+      skillDelay: string;
+      skillList: string;
+      skillWait: boolean;
+    }): Promise<void>;
+    followerStop(): Promise<void>;
+  };
 
-  // Hotkeys
-  hotkeysUpdate(input: { id: string; value: string }): Promise<void>;
+  hotkeys: {
+    updateHotkey(input: { id: string; value: string }): Promise<void>;
+  };
 
-  // Packet Logger
-  packetLoggerStart(): void;
-  packetLoggerStop(): void;
-  packetLoggerPacket(input: { packet: string; type: string }): void;
+  packetLogger: {
+    packetLoggerStart(): void;
+    packetLoggerStop(): void;
+    packetLoggerPacket(input: { packet: string; type: string }): void;
+  };
 
-  // Packet Spammer
-  packetSpammerStart(input: { delay: number; packets: string[] }): void;
-  packetSpammerStop(): void;
+  packetSpammer: {
+    packetSpammerStart(input: { delay: number; packets: string[] }): void;
+    packetSpammerStop(): void;
+  };
 
-  // Armying
-  armyReady(): Promise<void>;
+  army: {
+    armyReady(): Promise<void>;
+  };
 
-  // Manager
-  managerLoginSuccess(username: string): void;
-  enableButton(username: string): Promise<void>;
+  manager: {
+    managerLoginSuccess(username: string): void;
+    enableButton(username: string): Promise<void>;
+    getAccounts(): Promise<unknown[]>;
+    addAccount(account: Account): Promise<boolean>;
+    removeAccount(payload: { username: string }): Promise<boolean>;
+    updateAccount(payload: {
+      originalUsername: string;
+      updatedAccount: Account;
+    }): Promise<boolean>;
+    mgrLoadScript(): Promise<string>;
+    launchGame(input: AccountWithServer): Promise<void>;
+  };
 };
 /* eslint-enable typescript-sort-keys/interface */

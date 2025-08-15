@@ -3,7 +3,7 @@ import { handlers } from "@shared/tipc";
 
 const bot = Bot.getInstance();
 
-handlers.doFastTravel.handle(async ({ location }) => {
+handlers.fastTravels.doFastTravel.handle(async ({ location }) => {
   if (!bot.player.isReady()) return;
 
   await bot.world.join(

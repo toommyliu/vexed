@@ -35,7 +35,7 @@ export abstract class ArmyCommand extends Command {
 
       // console.log("Registering listener for army ready");
       // ipcRenderer.on(IPC_EVENTS.ARMY_READY, listener);
-      handlers.armyReady.handle(listener);
+      handlers.army.armyReady.handle(listener);
       this.isListenerRegistered = true;
     });
 

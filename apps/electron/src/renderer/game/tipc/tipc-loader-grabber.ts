@@ -4,7 +4,7 @@ import { GrabberDataType, LoaderDataType } from "@shared/types";
 
 const bot = Bot.getInstance();
 
-handlers.load.listen(async ({ type, id }) => {
+handlers.loaderGrabber.load.listen(async ({ type, id }) => {
   if (!bot.player.isReady()) return;
 
   switch (type) {
@@ -23,7 +23,7 @@ handlers.load.listen(async ({ type, id }) => {
   }
 });
 
-handlers.grab.handle(async ({ type }) => {
+handlers.loaderGrabber.grab.handle(async ({ type }) => {
   if (!bot.player.isReady()) return;
 
   switch (type) {
