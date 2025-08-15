@@ -50,15 +50,12 @@ function registerFlashPlugin() {
 }
 
 async function handleAppLaunch(argv: string[] = process.argv) {
-  console.log("handle App launch");
   try {
     const settings = new Config<Settings>({
       configName: "settings",
       cwd: DOCUMENTS_PATH,
     });
     await settings.load();
-
-    console.log("settings", settings.get());
 
     if (
       settings.get("launchMode")?.toLowerCase() === "manager" ||
@@ -69,7 +66,6 @@ async function handleAppLaunch(argv: string[] = process.argv) {
       settings.get("launchMode")?.toLowerCase() === "game" ||
       argv.some((arg) => arg === "--game" || arg === "-g")
     ) {
-      console.log("create game");
       const account = {
         username:
           argv.find((arg) => arg.startsWith("--username="))?.split("=")?.[1] ??
