@@ -23,9 +23,7 @@ export function createManagerTipcRouter(tipcInstance: TipcInstance) {
           cwd: DOCUMENTS_PATH,
         });
         await config.load();
-        console.log("config", config.get());
-        // TODO:
-        return [];
+        return config.get() as Account[];
       } catch {
         return [];
       }
