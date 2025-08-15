@@ -100,6 +100,7 @@ export type RendererHandlers = {
     }): Promise<void>;
     join(input: { fileName: string; playerName: string }): Promise<void>;
     finishJob(): Promise<void>;
+    armyReady(): Promise<void>;
   };
 
   manager: {
