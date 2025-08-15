@@ -74,10 +74,10 @@
     on = !on;
 
     if (on) {
-      await client.packetLoggerStart();
+      await client.packetLogger.packetLoggerStart();
       // simulatePackets();
     } else {
-      await client.packetLoggerStop();
+      await client.packetLogger.packetLoggerStop();
     }
   }
 

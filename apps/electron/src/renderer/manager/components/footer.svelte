@@ -80,7 +80,7 @@
               )}
               disabled={!managerState.startWithScript}
               onclick={async () => {
-                const res = await client.mgrLoadScript();
+                const res = await client.manager.mgrLoadScript();
                 if (!res) return;
 
                 managerState.scriptPath = res;

@@ -228,7 +228,7 @@
         break;
 
       case "load-script":
-        void client.loadScript({ scriptPath: "" });
+        void client.scripts.loadScript({ scriptPath: "" });
         break;
 
       case "toggle-script":
@@ -242,27 +242,27 @@
         break;
 
       case "toggle-dev-tools":
-        void client.toggleDevTools();
+        void client.scripts.toggleDevTools();
         break;
 
       case "open-fast-travels":
-        void client.launchWindow(WindowIds.FastTravels);
+        void client.game.launchWindow(WindowIds.FastTravels);
         break;
 
       case "open-loader-grabber":
-        void client.launchWindow(WindowIds.LoaderGrabber);
+        void client.game.launchWindow(WindowIds.LoaderGrabber);
         break;
 
       case "open-follower":
-        void client.launchWindow(WindowIds.Follower);
+        void client.game.launchWindow(WindowIds.Follower);
         break;
 
       case "open-packet-logger":
-        void client.launchWindow(WindowIds.PacketLogger);
+        void client.game.launchWindow(WindowIds.PacketLogger);
         break;
 
       case "open-packet-spammer":
-        void client.launchWindow(WindowIds.PacketSpammer);
+        void client.game.launchWindow(WindowIds.PacketSpammer);
         break;
     }
   }
@@ -365,7 +365,7 @@
     }
   }}
   on:beforeunload={async () => {
-    await client.gameReload();
+    await client.scripts.gameReload();
   }}
 />
 
@@ -426,7 +426,7 @@
               </button>
               <button
                 class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 last:rounded-b-lg hover:bg-gray-700/50"
-                onclick={() => void client.toggleDevTools()}
+                onclick={() => void client.scripts.toggleDevTools()}
               >
                 Toggle Dev Tools
               </button>
@@ -454,26 +454,26 @@
             >
               <button
                 class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 first:rounded-t-lg hover:bg-gray-700/50"
-                onclick={() => void client.launchWindow(WindowIds.FastTravels)}
+                onclick={() => void client.game.launchWindow(WindowIds.FastTravels)}
               >
                 Fast Travels
               </button>
               <button
                 class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
                 onclick={() =>
-                  void client.launchWindow(WindowIds.LoaderGrabber)}
+                  void client.game.launchWindow(WindowIds.LoaderGrabber)}
               >
                 Loader/Grabber
               </button>
               <button
                 class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 last:rounded-b-lg hover:bg-gray-700/50"
-                onclick={() => void client.launchWindow(WindowIds.Follower)}
+                onclick={() => void client.game.launchWindow(WindowIds.Follower)}
               >
                 Follower
               </button>
               <button
                 class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 last:rounded-b-lg hover:bg-gray-700/50"
-                onclick={() => void client.launchWindow(WindowIds.Hotkeys)}
+                onclick={() => void client.game.launchWindow(WindowIds.Hotkeys)}
               >
                 Hotkeys
               </button>
@@ -501,14 +501,14 @@
             >
               <button
                 class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 first:rounded-t-lg hover:bg-gray-700/50"
-                onclick={() => void client.launchWindow(WindowIds.PacketLogger)}
+                onclick={() => void client.game.launchWindow(WindowIds.PacketLogger)}
               >
                 Logger
               </button>
               <button
                 class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 last:rounded-b-lg hover:bg-gray-700/50"
                 onclick={() =>
-                  void client.launchWindow(WindowIds.PacketSpammer)}
+                  void client.game.launchWindow(WindowIds.PacketSpammer)}
               >
                 Spammer
               </button>

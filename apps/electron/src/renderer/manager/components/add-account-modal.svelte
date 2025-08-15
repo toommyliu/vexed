@@ -40,7 +40,7 @@
         password: cleanPassword,
       };
 
-      await client.addAccount(account);
+      await client.manager.addAccount(account);
       managerState.accounts.set(cleanUsername, account);
 
       username = "";

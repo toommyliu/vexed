@@ -33,13 +33,13 @@
 
   $effect(() => {
     if (isRunning) {
-      void client.packetSpammerStart({ packets, delay });
+      void client.packetSpammer.packetSpammerStart({ packets, delay });
     } else {
-      void client.packetSpammerStop();
+      void client.packetSpammer.packetSpammerStop();
     }
   });
 
-  handlers.gameReloaded.listen(() => (isRunning = false));
+  handlers.game.gameReloaded.listen(() => (isRunning = false));
 </script>
 
 <div class="bg-background-primary min-h-screen text-white">

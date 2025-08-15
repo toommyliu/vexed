@@ -65,25 +65,25 @@
 
     switch (loaderType) {
       case "0": // Hair shop
-        await client.load({
+        await client.loaderGrabber.load({
           type: LoaderDataType.HairShop,
           id: loaderId!,
         });
         break;
       case "1": // Shop
-        await client.load({
+        await client.loaderGrabber.load({
           type: LoaderDataType.Shop,
           id: loaderId!,
         });
         break;
       case "2": // Quest
-        await client.load({
+        await client.loaderGrabber.load({
           type: LoaderDataType.Quest,
           id: loaderId!,
         });
         break;
       case "3": // Armor customizer
-        await client.load({
+        await client.loaderGrabber.load({
           type: LoaderDataType.ArmorCustomizer,
           id: loaderId!,
         });
@@ -99,37 +99,37 @@
       let data: GrabbedData;
       switch (grabberType) {
         case "0": // Shop Items
-          data = (await client.grab({
+          data = (await client.loaderGrabber.grab({
             type: GrabberDataType.Shop,
           })) as GrabbedData;
           break;
         case "1": // Quests
-          data = (await client.grab({
+          data = (await client.loaderGrabber.grab({
             type: GrabberDataType.Quest,
           })) as GrabbedData;
           break;
         case "2": // Inventory
-          data = (await client.grab({
+          data = (await client.loaderGrabber.grab({
             type: GrabberDataType.Inventory,
           })) as GrabbedData;
           break;
         case "3": // Temp Inventory
-          data = (await client.grab({
+          data = (await client.loaderGrabber.grab({
             type: GrabberDataType.TempInventory,
           })) as GrabbedData;
           break;
         case "4": // Bank
-          data = (await client.grab({
+          data = (await client.loaderGrabber.grab({
             type: GrabberDataType.Bank,
           })) as GrabbedData;
           break;
         case "5": // Cell Monsters
-          data = (await client.grab({
+          data = (await client.loaderGrabber.grab({
             type: GrabberDataType.CellMonsters,
           })) as GrabbedData;
           break;
         case "6": // Map Monsters
-          data = (await client.grab({
+          data = (await client.loaderGrabber.grab({
             type: GrabberDataType.MapMonsters,
           })) as GrabbedData;
           break;

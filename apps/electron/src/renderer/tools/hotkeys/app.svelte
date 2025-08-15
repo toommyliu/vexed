@@ -116,7 +116,7 @@
 
     stopRecording();
     await saveHotkeyConfig();
-    await client.updateHotkey({
+    await client.hotkeys.updateHotkey({
       id: item!.id,
       value: combination,
     });

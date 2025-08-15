@@ -35,7 +35,7 @@
 
   onMount(async () => {
     const [accountData, serverData] = await Promise.all([
-      client.getAccounts(),
+      client.manager.getAccounts(),
       fetch("https://game.aq.com/game/api/data/servers").then((resp) =>
         resp.json(),
       ),

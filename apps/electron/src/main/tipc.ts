@@ -676,6 +676,7 @@ export const router = {
         });
         await config.load();
         console.log("config", config.get());
+        // TODO:
         return [];
       } catch {
         return [];
