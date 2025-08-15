@@ -96,15 +96,17 @@ async function copyHtmlFiles() {
     },
   ];
 
-  for (const { src, dest } of htmlFiles) {
-    try {
-      await ensureDir(resolve(dest, ".."));
-      await copy(src, dest);
-      // console.log(`Copied ${src} -> ${dest}`);
-    } catch (error) {
-      console.error(`Failed to copy ${src} -> ${dest}:`, error);
-    }
-  }
+  await Promise.all(
+    htmlFiles.map(async ({ src, dest }) => {
+      try {
+        await ensureDir(resolve(dest, ".."));
+        await copy(src, dest);
+        // console.log(`Copied ${src} -> ${dest}`);
+      } catch (error) {
+        console.error(`Failed to copy ${src} -> ${dest}:`, error);
+      }
+    }),
+  );
 }
 
 /**
@@ -354,23 +356,19 @@ async function transpile() {
         ),
       ]);
 
-      let svelteContexts = [];
-      let cssContexts = [];
-
-      try {
-        for (const { name, config } of svelteConfigs) {
+      let svelteContexts = await Promise.all(
+        svelteConfigs.map(async ({ name, config }) => {
           const ctx = await context(config);
-          svelteContexts.push({ name, context: ctx, config });
-        }
+          return { name, context: ctx, config };
+        }),
+      );
 
-        for (const { name, config } of cssConfigs) {
+      let cssContexts = await Promise.all(
+        cssConfigs.map(async ({ name, config }) => {
           const ctx = await context(config);
-          cssContexts.push({ name, context: ctx, config });
-        }
-      } catch (error) {
-        console.error("Failed to create build contexts:", error);
-        throw error;
-      }
+          return { name, context: ctx, config };
+        }),
+      );
 
       await Promise.all([
         ...contexts.map(async ({ context, rebuildWithNewFiles }, index) => {
