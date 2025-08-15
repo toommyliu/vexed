@@ -384,7 +384,7 @@
         <div class="flex flex-row items-center">
           <div class="group relative inline-block cursor-pointer">
             <button
-              class="rounded-md px-2 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50 hover:shadow-lg"
+              class="rounded-md px-2 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50"
               onclick={(ev) => {
                 ev.stopPropagation();
                 toggleDropdown("scripts");
@@ -400,7 +400,7 @@
                 class="
                 flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 first:rounded-t-lg hover:bg-gray-700/50"
                 onclick={() =>
-                  void client.loadScript({
+                  void client.scripts.loadScript({
                     scriptPath: "",
                   })}
               >
@@ -438,10 +438,10 @@
             id="tools-dropdown"
           >
             <button
-              class="rounded-md px-2 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50 hover:shadow-lg"
+              class="rounded-md px-2 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50"
               id="tools"
-              onclick={(e) => {
-                e.stopPropagation();
+              onclick={(ev) => {
+                ev.stopPropagation();
                 toggleDropdown("tools");
               }}
             >
@@ -454,7 +454,8 @@
             >
               <button
                 class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 first:rounded-t-lg hover:bg-gray-700/50"
-                onclick={() => void client.game.launchWindow(WindowIds.FastTravels)}
+                onclick={() =>
+                  void client.game.launchWindow(WindowIds.FastTravels)}
               >
                 Fast Travels
               </button>
@@ -467,7 +468,8 @@
               </button>
               <button
                 class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 last:rounded-b-lg hover:bg-gray-700/50"
-                onclick={() => void client.game.launchWindow(WindowIds.Follower)}
+                onclick={() =>
+                  void client.game.launchWindow(WindowIds.Follower)}
               >
                 Follower
               </button>
@@ -485,10 +487,10 @@
             id="packets-dropdown"
           >
             <button
-              class="rounded-md px-2 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50 hover:shadow-lg"
+              class="rounded-md px-2 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50"
               id="packets"
-              onclick={(e) => {
-                e.stopPropagation();
+              onclick={(ev) => {
+                ev.stopPropagation();
                 toggleDropdown("packets");
               }}
             >
@@ -501,7 +503,8 @@
             >
               <button
                 class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 first:rounded-t-lg hover:bg-gray-700/50"
-                onclick={() => void client.game.launchWindow(WindowIds.PacketLogger)}
+                onclick={() =>
+                  void client.game.launchWindow(WindowIds.PacketLogger)}
               >
                 Logger
               </button>
@@ -520,10 +523,10 @@
             id="options-dropdown"
           >
             <button
-              class="rounded-md px-2 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50 hover:shadow-lg"
+              class="rounded-md px-2 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50"
               id="options"
-              onclick={(e) => {
-                e.stopPropagation();
+              onclick={(ev) => {
+                ev.stopPropagation();
                 toggleDropdown("options");
               }}
             >
@@ -686,10 +689,10 @@
             id="autoaggro-dropdown"
           >
             <button
-              class="rounded-md px-2 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50 hover:shadow-lg"
+              class="rounded-md px-2 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50"
               id="autoaggro"
-              onclick={(e) => {
-                e.stopPropagation();
+              onclick={(ev) => {
+                ev.stopPropagation();
                 toggleDropdown("autoaggro");
               }}
             >
