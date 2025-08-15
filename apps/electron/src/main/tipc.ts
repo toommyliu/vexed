@@ -93,7 +93,13 @@ export type RendererHandlers = {
   };
 
   army: {
-    armyReady(): Promise<void>;
+    init(input: {
+      fileName: string;
+      playerName: string;
+      players: string[];
+    }): Promise<void>;
+    join(input: { fileName: string; playerName: string }): Promise<void>;
+    finishJob(): Promise<void>;
   };
 
   manager: {

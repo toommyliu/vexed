@@ -1,4 +1,4 @@
-import { getRendererHandlers } from "@vexed/tipc";
+import { getRendererHandlers, type tipc } from "@vexed/tipc";
 import { sleep } from "@vexed/utils";
 import { BrowserWindow } from "electron";
 
@@ -27,50 +27,63 @@ const handleCleanup = (
   browserWindow.once("close", _cleanup);
 };
 
-export const createArmyTipcRouter = (root: any) => ({
-  init: root.procedure.input().action(async ({ input, context }: any) => {
-    const browserWindow = BrowserWindow.fromWebContents(context.sender as any);
-    if (!browserWindow) return;
+type TipcInstance = ReturnType<typeof tipc.create>;
 
-    const { fileName, playerName, players } = input;
+export const createArmyTipcRouter = (tipcInstance: TipcInstance) => ({
+  init: tipcInstance.procedure
+    .input<{
+      fileName: string;
+      playerName: string;
+      players: string[];
+    }>()
+    .action(async ({ input, context }) => {
+      const browserWindow = BrowserWindow.fromWebContents(context.sender);
+      if (!browserWindow) return;
 
-    const windows = new Map<string, BrowserWindow>();
-    windows.set(playerName, browserWindow);
-    windowToPlayerMap.set(browserWindow, playerName);
+      const { fileName, playerName, players } = input;
 
-    const playerStatus: PlayerStatus = {
-      done: new Set<string>(),
-      leader: playerName,
-      playerList: new Set(players),
-      windows,
-    };
-    map.set(fileName, playerStatus);
+      const windows = new Map<string, BrowserWindow>();
+      windows.set(playerName, browserWindow);
+      windowToPlayerMap.set(browserWindow, playerName);
 
-    handleCleanup(browserWindow, fileName);
-  }),
+      const playerStatus: PlayerStatus = {
+        done: new Set<string>(),
+        leader: playerName,
+        playerList: new Set(players),
+        windows,
+      };
+      map.set(fileName, playerStatus);
 
-  join: root.procedure.input().action(async ({ input, context }: any) => {
-    const browserWindow = BrowserWindow.fromWebContents(context.sender as any);
-    if (!browserWindow) return;
+      handleCleanup(browserWindow, fileName);
+    }),
 
-    const { fileName, playerName } = input;
-    let iter = 0;
+  join: tipcInstance.procedure
+    .input<{
+      fileName: string;
+      playerName: string;
+    }>()
+    .action(async ({ input, context }) => {
+      const browserWindow = BrowserWindow.fromWebContents(context.sender);
+      if (!browserWindow) return;
 
-    while (!map.has(fileName)) {
-      await sleep(100);
-      iter++;
-    }
+      const { fileName, playerName } = input;
+      let iter = 0;
 
-    await sleep(1_000);
+      while (!map.has(fileName)) {
+        await sleep(100);
+        iter++;
+      }
 
-    const { windows } = map.get(fileName)!;
-    windows.set(playerName, browserWindow);
-    windowToPlayerMap.set(browserWindow, playerName);
+      await sleep(1_000);
 
-    handleCleanup(browserWindow);
-  }),
+      const { windows } = map.get(fileName)!;
+      windows.set(playerName, browserWindow);
+      windowToPlayerMap.set(browserWindow, playerName);
 
-  finishJob: root.procedure.action(async ({ context }: any) => {
+      handleCleanup(browserWindow);
+    }),
+
+  finishJob: tipcInstance.procedure.action(async ({ context }) => {
     const browserWindow = BrowserWindow.fromWebContents(context.sender as any);
     if (!browserWindow) return;
 
@@ -104,5 +117,3 @@ export const createArmyTipcRouter = (root: any) => ({
     doneSet.clear();
   }),
 });
-
-export type ArmyTipcRouter = ReturnType<typeof createArmyTipcRouter>;

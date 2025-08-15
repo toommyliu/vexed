@@ -11,6 +11,7 @@ import { router } from "./tipc";
 import { showErrorDialog } from "./util/showErrorDialog";
 import { createAccountManager, createGame, setQuitting } from "./windows";
 
+// eslint-disable-next-line @typescript-eslint/dot-notation
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 
 function registerFlashPlugin() {
