@@ -106,7 +106,7 @@
     scriptState.isRunning = false;
   }
 
-  handlers.scriptLoaded.listen((fromManager) => {
+  handlers.scripts.scriptLoaded.listen((fromManager) => {
     scriptState.isLoaded = true;
 
     window.context.overlay.updateCommands(

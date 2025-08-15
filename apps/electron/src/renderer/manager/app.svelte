@@ -16,7 +16,7 @@
   let isEditModalOpen = $state(false);
   let accountToEdit = $state<Account | null>(null);
 
-  handlers.enableButton.listen((username) => {
+  handlers.manager.enableButton.listen((username) => {
     if (timeouts.has(username)) {
       clearTimeout(timeouts.get(username)!);
       timeouts.delete(username);
@@ -62,7 +62,7 @@
     isLoading = false;
   });
 
-  handlers.managerLoginSuccess.listen((username) => {
+  handlers.manager.managerLoginSuccess.listen((username) => {
     if (timeouts.has(username)) {
       clearTimeout(timeouts.get(username)!);
       timeouts.delete(username);

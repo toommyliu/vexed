@@ -152,7 +152,7 @@
     stats.pext = 0;
   }
 
-  handlers.packetLoggerPacket.listen((packet) => {
+  handlers.packetLogger.packetLoggerPacket.listen((packet) => {
     if (!on) {
       console.log("not on");
       return;
@@ -162,7 +162,7 @@
     addPacket(packet.packet, type);
   });
 
-  handlers.gameReloaded.listen(() => stop());
+  handlers.game.gameReloaded.listen(() => stop());
 </script>
 
 <div class="bg-background-primary min-h-screen select-none text-gray-200">

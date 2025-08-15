@@ -18,13 +18,13 @@
   let rejectElse = $state(false);
 
   async function fillMe() {
-    const me = await client.followerMe();
+    const me = await client.follower.followerMe();
     if (me) playerName = me;
   }
 
   $effect(() => {
     if (isEnabled) {
-      void client.followerStart({
+      void client.follower.followerStart({
         name: playerName,
         safeSkill: String(safeSkill),
         skillList: skillList,
@@ -40,11 +40,11 @@
         rejectElse,
       });
     } else {
-      void client.followerStop();
+      void client.follower.followerStop();
     }
   });
 
-  handlers.gameReloaded.listen(() => (isEnabled = false));
+  handlers.game.gameReloaded.listen(() => (isEnabled = false));
 </script>
 
 <main
