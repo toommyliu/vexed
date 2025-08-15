@@ -1,4 +1,4 @@
-import { createClient, createEventHandlers } from "@egoist/tipc/renderer";
+import { createClient, createEventHandlers } from "@vexed/tipc/renderer";
 import { ipcRenderer } from "electron";
 import type { RendererHandlers, TipcRouter } from "../main/tipc";
 
