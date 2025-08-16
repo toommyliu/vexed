@@ -8,7 +8,7 @@ type TipcInstance = ReturnType<typeof tipc.create>;
 
 export function createFollowerTipcRouter(tipcInstance: TipcInstance) {
   return {
-    followerMe: tipcInstance.procedure.action(async ({ context }) => {
+    me: tipcInstance.procedure.action(async ({ context }) => {
       const browserWindow = BrowserWindow.fromWebContents(context.sender);
       if (!browserWindow) return;
 
@@ -21,7 +21,7 @@ export function createFollowerTipcRouter(tipcInstance: TipcInstance) {
 
       return parentHandlers.follower.me.invoke();
     }),
-    followerStart: tipcInstance.procedure
+    start: tipcInstance.procedure
       .input<{
         antiCounter: boolean;
         attackPriority: string;
@@ -49,7 +49,7 @@ export function createFollowerTipcRouter(tipcInstance: TipcInstance) {
         );
         parentHandlers.follower.start.send(input);
       }),
-    followerStop: tipcInstance.procedure.action(async ({ context }) => {
+    stop: tipcInstance.procedure.action(async ({ context }) => {
       const browserWindow = BrowserWindow.fromWebContents(context.sender);
       if (!browserWindow) return;
 

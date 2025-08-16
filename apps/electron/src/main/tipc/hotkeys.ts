@@ -15,16 +15,10 @@ export function createHotkeysTipcRouter(tipcInstance: TipcInstance) {
       }>()
       .action(async ({ input, context }) => {
         const browserWindow = BrowserWindow.fromWebContents(context.sender);
-        if (!browserWindow) {
-          console.log("No browser window found for hotkey update");
-          return;
-        }
+        if (!browserWindow) return;
 
         const parent = browserWindow.getParentWindow();
-        if (!parent || !windowStore.has(parent.id)) {
-          console.log("No parent window found for hotkey update");
-          return;
-        }
+        if (!parent || !windowStore.has(parent?.id)) return;
 
         const parentHandlers = getRendererHandlers<RendererHandlers>(
           parent.webContents,

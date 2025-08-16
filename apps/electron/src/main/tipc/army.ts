@@ -1,6 +1,7 @@
 import { getRendererHandlers, type tipc } from "@vexed/tipc";
 import { sleep } from "@vexed/utils";
 import { BrowserWindow } from "electron";
+import type { RendererHandlers } from "../tipc";
 
 type PlayerStatus = {
   done: Set<string>;
@@ -110,8 +111,10 @@ export const createArmyTipcRouter = (tipcInstance: TipcInstance) => ({
     if (!map.has(fileName)) return;
 
     for (const [_, window] of windows) {
-      const rendererHandlers = getRendererHandlers<any>(window.webContents);
-      await (rendererHandlers as any)?.army?.armyReady?.invoke();
+      const rendererHandlers = getRendererHandlers<RendererHandlers>(
+        window.webContents,
+      );
+      await rendererHandlers.army.armyReady.invoke();
     }
 
     doneSet.clear();

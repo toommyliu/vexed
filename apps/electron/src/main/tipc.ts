@@ -106,7 +106,7 @@ export type RendererHandlers = {
   manager: {
     managerLoginSuccess(username: string): void;
     enableButton(username: string): Promise<void>;
-    getAccounts(): Promise<unknown[]>;
+    getAccounts(): Promise<Account[]>;
     addAccount(account: Account): Promise<boolean>;
     removeAccount(payload: { username: string }): Promise<boolean>;
     updateAccount(payload: {

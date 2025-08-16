@@ -17,7 +17,7 @@ type TipcInstance = ReturnType<typeof tipc.create>;
 
 export function createFastTravelsTipcRouter(tipcInstance: TipcInstance) {
   return {
-    getFastTravels: tipcInstance.procedure.action(async () => {
+    getAll: tipcInstance.procedure.action(async () => {
       try {
         return await readJson<FastTravel[]>(FAST_TRAVELS_PATH);
       } catch (error) {
