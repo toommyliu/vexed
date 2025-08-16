@@ -152,7 +152,7 @@
     stats.pext = 0;
   }
 
-  handlers.packetLogger.packetLoggerPacket.listen((packet) => {
+  handlers.packetLogger.packet.listen((packet) => {
     if (!on) {
       console.log("not on");
       return;

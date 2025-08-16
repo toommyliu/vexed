@@ -60,39 +60,27 @@ export function createGameTipcRouter(tipcInstance: TipcInstance) {
             break;
         }
 
-        console.log("path", path);
-
-        // Restore the previously created window
         if (ref && !ref?.isDestroyed()) {
           ref.show();
           ref.focus();
           return;
         }
 
-        console.log(`Creating new window for: ${input}`);
-        // logger.info(`Creating new window for: ${input}`);
-
-        // Create it
         const window = new BrowserWindow({
           title: "",
           webPreferences: {
             contextIsolation: false,
             nodeIntegration: true,
           },
-          // Parent is required in order to maintain parent-child relationships and for ipc calls
-          // Moving the parent also moves the child, as well as minimizing it
           parent: browserWindow,
           width: width!,
           minWidth: width!,
           minHeight: height!,
           height: height!,
-          // When a child window is minimized, the parent window is also minimized,
-          // which is not desired. See https://github.com/electron/electron/issues/26031
-          minimizable: false,
+          minimizable: false, // https://github.com/electron/electron/issues/26031
           show: false,
         });
 
-        // Update the store with the new window
         switch (input) {
           case WindowIds.FastTravels:
             storeRef.tools.fastTravels = window;

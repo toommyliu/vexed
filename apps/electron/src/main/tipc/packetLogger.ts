@@ -18,7 +18,7 @@ export function createPacketLoggerTipcRouter(tipcInstance: TipcInstance) {
       const parentHandlers = getRendererHandlers<RendererHandlers>(
         parent.webContents,
       );
-      parentHandlers.packetLogger.packetLoggerStart.send();
+      parentHandlers.packetLogger.start.send();
     }),
     packetLoggerStop: tipcInstance.procedure.action(async ({ context }) => {
       const browserWindow = BrowserWindow.fromWebContents(context.sender);
@@ -30,7 +30,7 @@ export function createPacketLoggerTipcRouter(tipcInstance: TipcInstance) {
       const parentHandlers = getRendererHandlers<RendererHandlers>(
         parent.webContents,
       );
-      parentHandlers.packetLogger.packetLoggerStop.send();
+      parentHandlers.packetLogger.stop.send();
     }),
     packetLoggerPacket: tipcInstance.procedure
       .input<{ packet: string; type: string }>()
@@ -45,7 +45,7 @@ export function createPacketLoggerTipcRouter(tipcInstance: TipcInstance) {
         const rendererHandler = getRendererHandlers<RendererHandlers>(
           packetLoggerWindow.webContents,
         );
-        rendererHandler.packetLogger.packetLoggerPacket.send(input);
+        rendererHandler.packetLogger.packet.send(input);
       }),
   };
 }

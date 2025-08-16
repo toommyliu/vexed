@@ -11,7 +11,7 @@ let index = 0;
 const bot = Bot.getInstance();
 // const logger = Logger.get("IpcSpammer");
 
-handlers.packetSpammer.packetSpammerStart.listen(({ packets, delay }) => {
+handlers.packetSpammer.start.listen(({ packets, delay }) => {
   // logger.info("start packet spammer", { packets, delay });
 
   if (!packets?.length) return;
@@ -41,7 +41,7 @@ handlers.packetSpammer.packetSpammerStart.listen(({ packets, delay }) => {
   );
 });
 
-handlers.packetSpammer.packetSpammerStop.listen(() => {
+handlers.packetSpammer.stop.listen(() => {
   // logger.info("stop packet spammer");
   on = false;
   index = 0;

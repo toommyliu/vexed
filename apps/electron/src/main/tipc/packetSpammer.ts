@@ -23,7 +23,7 @@ export function createPacketSpammerTipcRouter(tipcInstance: TipcInstance) {
         const parentHandlers = getRendererHandlers<RendererHandlers>(
           parent.webContents,
         );
-        parentHandlers.packetSpammer.packetSpammerStart.send(input);
+        parentHandlers.packetSpammer.start.send(input);
       }),
     packetSpammerStop: tipcInstance.procedure.action(async ({ context }) => {
       const browserWindow = BrowserWindow.fromWebContents(context.sender);
@@ -35,7 +35,7 @@ export function createPacketSpammerTipcRouter(tipcInstance: TipcInstance) {
       const parentHandlers = getRendererHandlers<RendererHandlers>(
         parent.webContents,
       );
-      parentHandlers.packetSpammer.packetSpammerStop.send();
+      parentHandlers.packetSpammer.stop.send();
     }),
   };
 }

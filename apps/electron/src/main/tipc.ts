@@ -49,7 +49,7 @@ export type RendererHandlers = {
   fastTravels: {
     fastTravelEnable(): void;
     doFastTravel({ location }: { location: FastTravelRoomNumber }): void;
-    getFastTravels(): Promise<FastTravel[]>;
+    getAll(): Promise<FastTravel[]>;
   };
 
   loaderGrabber: {
@@ -58,8 +58,8 @@ export type RendererHandlers = {
   };
 
   follower: {
-    followerMe(): Promise<string>;
-    followerStart(input: {
+    me(): Promise<string>;
+    start(input: {
       antiCounter: boolean;
       attackPriority: string;
       copyWalk: boolean;
@@ -74,7 +74,7 @@ export type RendererHandlers = {
       skillList: string;
       skillWait: boolean;
     }): Promise<void>;
-    followerStop(): Promise<void>;
+    stop(): Promise<void>;
   };
 
   hotkeys: {
@@ -82,14 +82,14 @@ export type RendererHandlers = {
   };
 
   packetLogger: {
-    packetLoggerStart(): void;
-    packetLoggerStop(): void;
-    packetLoggerPacket(input: { packet: string; type: string }): void;
+    start(): void;
+    stop(): void;
+    packet(input: { packet: string; type: string }): void;
   };
 
   packetSpammer: {
-    packetSpammerStart(input: { delay: number; packets: string[] }): void;
-    packetSpammerStop(): void;
+    start(input: { delay: number; packets: string[] }): void;
+    stop(): void;
   };
 
   army: {

@@ -19,7 +19,7 @@ export function createFollowerTipcRouter(tipcInstance: TipcInstance) {
         parent.webContents,
       );
 
-      return parentHandlers.follower.followerMe.invoke();
+      return parentHandlers.follower.me.invoke();
     }),
     followerStart: tipcInstance.procedure
       .input<{
@@ -47,7 +47,7 @@ export function createFollowerTipcRouter(tipcInstance: TipcInstance) {
         const parentHandlers = getRendererHandlers<RendererHandlers>(
           parent.webContents,
         );
-        parentHandlers.follower.followerStart.send(input);
+        parentHandlers.follower.start.send(input);
       }),
     followerStop: tipcInstance.procedure.action(async ({ context }) => {
       const browserWindow = BrowserWindow.fromWebContents(context.sender);
@@ -59,7 +59,7 @@ export function createFollowerTipcRouter(tipcInstance: TipcInstance) {
       const parentHandlers = getRendererHandlers<RendererHandlers>(
         parent.webContents,
       );
-      parentHandlers.follower.followerStop.send();
+      parentHandlers.follower.stop.send();
     }),
   };
 }
