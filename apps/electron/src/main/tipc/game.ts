@@ -4,7 +4,7 @@ import { BrowserWindow } from "electron";
 import { WindowIds } from "../../shared/types";
 import { windowStore } from "../windows";
 
-const DIST_PATH = join(__dirname, "../../dist/");
+const DIST_PATH = join(__dirname, "../../");
 
 type TipcInstance = ReturnType<typeof tipc.create>;
 
@@ -59,6 +59,8 @@ export function createGameTipcRouter(tipcInstance: TipcInstance) {
             height = 403;
             break;
         }
+
+        console.log("path", path);
 
         // Restore the previously created window
         if (ref && !ref?.isDestroyed()) {
