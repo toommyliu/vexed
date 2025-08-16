@@ -20,7 +20,7 @@
   handlers.fastTravels.fastTravelEnable.listen(() => (disabled = false));
 
   onMount(async () => {
-    const fastTravels = await client.fastTravels.getFastTravels();
+    const fastTravels = await client.fastTravels.getAll();
     locations = fastTravels!;
   });
 
