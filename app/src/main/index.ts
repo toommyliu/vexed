@@ -22,8 +22,6 @@ function registerFlashPlugin() {
   const assetsPath = join(__dirname, "../../../assets");
   let pluginName;
 
-  console.log(assetsPath);
-
   if (process.platform === "win32") {
     pluginName = "pepflashplayer.dll";
   } else if (process.platform === "darwin") {
