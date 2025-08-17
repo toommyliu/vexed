@@ -2,20 +2,8 @@
   "name": "vexed",
   "private": true,
   "workspaces": [
-    "apps/*",
-    "packages/*"
+    "packages/*",
+    "app"
   ],
-  "scripts": {
-    "clean": "yarn workspaces run clean",
-    "typecheck": "yarn workspaces run typecheck",
-    "build": "yarn workspaces run build",
-    "dev": "yarn workspace @vexed/electron run dev",
-    "dev:docs": "yarn workspace @vexed/docs run dev",
-    "format": "yarn workspaces run format",
-    "format:write": "yarn workspaces run format:write",
-    "lint": "yarn workspaces run lint",
-    "lint:fix": "yarn workspaces run lint:fix",
-    "validate": "yarn workspaces run validate"
-  },
   "packageManager": "yarn@1.22.22"
 }

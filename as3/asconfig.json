@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "source-path": ["src/"],
-    "output": "../../assets/loader.swf",
+    "output": "../assets/loader.swf",
     "default-frame-rate": 24,
     "default-background-color": "#000000",
     "default-size": {

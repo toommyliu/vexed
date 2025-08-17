@@ -327,6 +327,7 @@
   //   await loadHotkeysFromConfig();
   //   setupHotkeyHandlers();
   // });
+  console.log(require("path").join(__dirname, "../../../assets/loader.swf"));
 </script>
 
 <svelte:window
@@ -885,7 +886,7 @@
   >
     <embed
       id="swf"
-      src="../../../../assets/loader.swf"
+      src="../../../assets/loader.swf"
       class="absolute left-0 top-0 h-full w-full rounded-lg shadow-2xl"
     />
   </div>
