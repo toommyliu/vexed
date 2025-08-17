@@ -226,11 +226,16 @@ export class World {
    *
    * @param cell - The cell to jump to.
    * @param pad - The pad to jump to.
+   * @param ignoreCheck - Whether to ignore the current cell check.
    */
-  public async jump(cell: string, pad = "Spawn"): Promise<void> {
+  public async jump(
+    cell: string,
+    pad = "Spawn",
+    ignoreCheck = false,
+  ): Promise<void> {
     const isSameCell = () =>
       this.bot.player.cell.toLowerCase() === cell.toLowerCase();
-    if (isSameCell()) return;
+    if (isSameCell() && !ignoreCheck) return;
 
     this.bot.flash.call(() => swf.playerJump(cell, pad));
     await this.bot.waitUntil(isSameCell, null, 5);
