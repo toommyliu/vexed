@@ -2,6 +2,15 @@ import { URL } from "url";
 import { BrowserWindow, session } from "electron";
 import { ARTIX_USERAGENT, WHITELISTED_DOMAINS } from "../../shared/constants";
 
+function isDomainWhitelisted(hostname: string): boolean {
+  let normalized = hostname;
+  if (hostname.startsWith("www.")) {
+    normalized = hostname.slice(4);
+  }
+
+  return WHITELISTED_DOMAINS.includes(normalized);
+}
+
 export function applySecurityPolicy(window: BrowserWindow): void {
   window.webContents.setUserAgent(ARTIX_USERAGENT);
   session.defaultSession?.webRequest.onBeforeSendHeaders((details, fn) => {
@@ -22,7 +31,7 @@ export function applySecurityPolicy(window: BrowserWindow): void {
 
   window.webContents.on("will-navigate", (ev, url) => {
     const parsedUrl = new URL(url);
-    if (!WHITELISTED_DOMAINS.includes(parsedUrl.hostname)) {
+    if (!isDomainWhitelisted(parsedUrl.hostname)) {
       console.log(`[will-navigate] blocking url: ${url}`);
       ev.preventDefault();
     }
@@ -30,7 +39,7 @@ export function applySecurityPolicy(window: BrowserWindow): void {
 
   window.webContents.on("will-redirect", (ev, url) => {
     const parsedUrl = new URL(url);
-    if (!WHITELISTED_DOMAINS.includes(parsedUrl.hostname)) {
+    if (!isDomainWhitelisted(parsedUrl.hostname)) {
       console.log(`[will-redirect] blocking url: ${url}`);
       ev.preventDefault();
     }
@@ -57,7 +66,7 @@ export function applySecurityPolicy(window: BrowserWindow): void {
         return;
       }
 
-      if (!WHITELISTED_DOMAINS.includes(parsedUrl.hostname)) {
+      if (!isDomainWhitelisted(parsedUrl.hostname)) {
         console.log(`[new-window] blocking url: ${url}`);
         ev.preventDefault();
         return null;
@@ -69,7 +78,7 @@ export function applySecurityPolicy(window: BrowserWindow): void {
         title: "",
         parent: window,
         webPreferences: {
-          nodeIntegration: false, // some sites might use jquery (e.g wiki), which conflict with nodeIntegration
+          nodeIntegration: false,
           plugins: true,
         },
         useContentSize: true,
@@ -77,8 +86,6 @@ export function applySecurityPolicy(window: BrowserWindow): void {
 
       applySecurityPolicy(childWindow);
 
-      // unused: the return value for window.open?
-      // ev.newGuest = childWindow;
       void childWindow.loadURL(url);
       return childWindow;
     },

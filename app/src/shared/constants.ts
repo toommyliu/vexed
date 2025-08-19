@@ -106,14 +106,9 @@ export const ARTIX_USERAGENT =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16_0) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36" as const;
 
 export const WHITELISTED_DOMAINS = [
-  "www.aq.com",
   "aq.com",
-  "www.artix.com",
   "artix.com",
-  "www.account.aq.com",
   "account.aq.com",
-  "www.aqwwiki.wikidot.com",
   "aqwwiki.wikidot.com",
   "heromart.com",
-  "www.heromart.com",
 ];
