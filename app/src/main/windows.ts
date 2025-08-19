@@ -1,11 +1,11 @@
 import { join, resolve } from "path";
 import { app, BrowserWindow } from "electron";
 import { BRAND } from "../shared/constants";
+import { DIST_PATH } from "./constants";
 import { applySecurityPolicy } from "./util/applySecurityPolicy";
 
-const DIST = join(__dirname, "../../dist/");
-const DIST_GAME = join(DIST, "game/");
-const DIST_MANAGER = join(DIST, "manager/");
+const DIST_GAME = join(DIST_PATH, "game/");
+const DIST_MANAGER = join(DIST_PATH, "manager/");
 
 let mgrWindow: BrowserWindow | null;
 let isQuitting = false;

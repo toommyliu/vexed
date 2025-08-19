@@ -7,6 +7,7 @@ import { registerIpcMain } from "@vexed/tipc/main";
 import { app } from "electron";
 import { BRAND, DOCUMENTS_PATH } from "../shared/constants";
 import type { Settings } from "../shared/types";
+import { ASSET_PATH } from "./constants";
 import { router } from "./tipc";
 import { showErrorDialog } from "./util/showErrorDialog";
 import { createAccountManager, createGame, setQuitting } from "./windows";
@@ -18,9 +19,6 @@ function registerFlashPlugin() {
   const flashTrust = require("nw-flash-trust");
   // TODO: add checks for app.isPackaged
 
-  const assetsPath = app.isPackaged
-    ? join(app.getAppPath(), "assets")
-    : join(__dirname, "../../../assets");
   let pluginName;
 
   if (process.platform === "win32") {
@@ -34,11 +32,11 @@ function registerFlashPlugin() {
     return;
   }
 
-  console.log(`flash plugin path: ${join(assetsPath, pluginName)}`);
+  console.log(`flash plugin path: ${join(ASSET_PATH, pluginName)}`);
 
   app.commandLine.appendSwitch(
     "ppapi-flash-path",
-    join(assetsPath, pluginName),
+    join(ASSET_PATH, pluginName),
   );
 
   const flashPath = join(
@@ -53,9 +51,9 @@ function registerFlashPlugin() {
   const trustManager = flashTrust.initSync(BRAND, flashPath);
   trustManager.empty();
 
-  console.log(`trusted path: ${join(assetsPath, pluginName)}`);
+  console.log(`trusted path: ${join(ASSET_PATH, pluginName)}`);
 
-  trustManager.add(join(assetsPath, "loader.swf"));
+  trustManager.add(join(ASSET_PATH, "loader.swf"));
 }
 
 async function handleAppLaunch(argv: string[] = process.argv) {

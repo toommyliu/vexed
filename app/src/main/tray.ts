@@ -8,6 +8,7 @@ import {
 } from "@vexed/fs-utils";
 import { Menu, Tray, app, dialog, nativeImage, session } from "electron";
 import { BRAND } from "../shared/constants";
+import { ASSET_PATH } from "./constants";
 import { showErrorDialog } from "./util/showErrorDialog";
 import { createAccountManager, createGame } from "./windows";
 
@@ -99,7 +100,7 @@ const contextMenu = Menu.buildFromTemplate([
 
 app.on("ready", () => {
   // menu bar on mac, tray icon on windows
-  const path = join(__dirname, "../../../../assets/tray.png");
+  const path = join(ASSET_PATH, "tray.png");
   const icon = nativeImage.createFromPath(path);
 
   tray = new Tray(icon);
@@ -107,9 +108,7 @@ app.on("ready", () => {
   tray.setContextMenu(contextMenu);
 
   if (process.platform === "darwin") {
-    app.dock.setIcon(
-      nativeImage.createFromPath(join(__dirname, "../../assets/icon.png")),
-    );
+    app.dock.setIcon(nativeImage.createFromPath(join(ASSET_PATH, "icon.png")));
   }
 });
 
