@@ -1,8 +1,9 @@
 import { join, resolve } from "path";
-import { app, BrowserWindow } from "electron";
+import { BrowserWindow } from "electron";
 import { BRAND } from "../shared/constants";
 import { DIST_PATH, IS_PACKAGED } from "./constants";
 import { applySecurityPolicy } from "./util/applySecurityPolicy";
+
 const DIST_GAME = join(DIST_PATH, "game/");
 const DIST_MANAGER = join(DIST_PATH, "manager/");
 
