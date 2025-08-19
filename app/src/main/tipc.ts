@@ -37,6 +37,7 @@ export type TipcRouter = typeof router;
 
 export type RendererHandlers = {
   game: {
+    getAssetPath(): Promise<string>;
     gameReloaded(): void;
   };
 

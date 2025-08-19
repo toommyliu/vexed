@@ -28,6 +28,8 @@
   ] as const;
   const bot = Bot.getInstance();
 
+  let swfPath = $state<string>();
+
   let config = $state<Config<HotkeyConfig> | null>(null);
   let openDropdown = $state<string | null>(null);
   let hotkeysSections = $state<HotkeySection[]>(createHotkeyConfig());
@@ -296,6 +298,10 @@
   });
 
   onMount(async () => {
+    const p = await client.game.getAssetPath();
+    swfPath = p;
+    console.log("p", p);
+
     await import("./tipc/tipc-fast-travels");
     await import("./tipc/tipc-follower");
     await import("./tipc/tipc-loader-grabber");
@@ -884,11 +890,13 @@
       ? 'calc(100vh - var(--topnav-height) - 2px)'
       : '100vh'}"
   >
-    <embed
-      id="swf"
-      src="../../../assets/loader.swf"
-      class="absolute left-0 top-0 h-full w-full rounded-lg shadow-2xl"
-    />
+    {#if swfPath}
+      <embed
+        id="swf"
+        src={`${swfPath}/loader.swf`}
+        class="absolute left-0 top-0 h-full w-full rounded-lg shadow-2xl"
+      />
+    {/if}
   </div>
 </main>
 

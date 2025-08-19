@@ -1,6 +1,6 @@
 import { join } from "path";
 import type { tipc } from "@vexed/tipc";
-import { BrowserWindow } from "electron";
+import { BrowserWindow, app } from "electron";
 import { WindowIds } from "../../shared/types";
 import { windowStore } from "../windows";
 
@@ -126,5 +126,13 @@ export function createGameTipcRouter(tipcInstance: TipcInstance) {
 
         await window.loadFile(path!);
       }),
+    getAssetPath: tipcInstance.procedure.action(async () => {
+      if (app.isPackaged) {
+        console.log(`returning ${join(app.getAppPath())}`);
+        return join(app.getAppPath(), "assets");
+      } else {
+        return join(DIST_PATH, "../../assets");
+      }
+    }),
   };
 }

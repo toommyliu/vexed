@@ -11,7 +11,6 @@ import { router } from "./tipc";
 import { showErrorDialog } from "./util/showErrorDialog";
 import { createAccountManager, createGame, setQuitting } from "./windows";
 
-// eslint-disable-next-line @typescript-eslint/dot-notation
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 
 function registerFlashPlugin() {
@@ -19,7 +18,9 @@ function registerFlashPlugin() {
   const flashTrust = require("nw-flash-trust");
   // TODO: add checks for app.isPackaged
 
-  const assetsPath = join(__dirname, "../../../assets");
+  const assetsPath = app.isPackaged
+    ? join(app.getAppPath(), "assets")
+    : join(__dirname, "../../../assets");
   let pluginName;
 
   if (process.platform === "win32") {
@@ -33,6 +34,8 @@ function registerFlashPlugin() {
     return;
   }
 
+  console.log(`flash plugin path: ${join(assetsPath, pluginName)}`);
+
   app.commandLine.appendSwitch(
     "ppapi-flash-path",
     join(assetsPath, pluginName),
@@ -45,8 +48,12 @@ function registerFlashPlugin() {
     "WritableRoot",
   );
 
+  console.log(`flash path: ${flashPath}`);
+
   const trustManager = flashTrust.initSync(BRAND, flashPath);
   trustManager.empty();
+
+  console.log(`trusted path: ${join(assetsPath, pluginName)}`);
 
   trustManager.add(join(assetsPath, "loader.swf"));
 }

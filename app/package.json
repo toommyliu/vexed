@@ -13,6 +13,7 @@
     "dev": "npm-run-all --sequential compile --parallel electron",
     "dev:watch": "npm-run-all --sequential compile --parallel compile:watch electronmon",
     "build": "npm-run-all --sequential clean typecheck compile:prod electron-builder",
+    "build:fast": "npm-run-all --sequential compile:prod electron-builder",
     "build:all": "npm-run-all --sequential clean typecheck compile:prod \"electron-builder -mw\"",
     "electron-builder": "electron-builder build",
     "docgen": "tsx scripts/docgen.ts",
