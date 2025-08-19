@@ -1,9 +1,8 @@
 import { join, resolve } from "path";
 import { app, BrowserWindow } from "electron";
 import { BRAND } from "../shared/constants";
-import { DIST_PATH } from "./constants";
+import { DIST_PATH, IS_PACKAGED } from "./constants";
 import { applySecurityPolicy } from "./util/applySecurityPolicy";
-
 const DIST_GAME = join(DIST_PATH, "game/");
 const DIST_MANAGER = join(DIST_PATH, "manager/");
 
@@ -56,9 +55,7 @@ export async function createAccountManager(): Promise<void> {
   applySecurityPolicy(window);
   void window.loadURL(`file://${resolve(DIST_MANAGER, "index.html")}`);
 
-  if (!app.isPackaged) {
-    window.webContents.openDevTools({ mode: "right" });
-  }
+  if (!IS_PACKAGED) window.webContents.openDevTools({ mode: "right" });
 }
 
 export async function createGame(
@@ -105,9 +102,7 @@ export async function createGame(
   window.webContents.setAudioMuted(true);
   applySecurityPolicy(window);
 
-  if (!app.isPackaged) {
-    window.webContents.openDevTools({ mode: "right" });
-  }
+  if (!IS_PACKAGED) window.webContents.openDevTools({ mode: "right" });
 
   window.on("close", () => {
     const windows = windowStore.get(window?.id);

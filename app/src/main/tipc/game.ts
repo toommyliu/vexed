@@ -1,10 +1,9 @@
 import { join } from "path";
 import type { tipc } from "@vexed/tipc";
-import { BrowserWindow, app } from "electron";
+import { BrowserWindow } from "electron";
 import { WindowIds } from "../../shared/types";
+import { ASSET_PATH, DIST_PATH } from "../constants";
 import { windowStore } from "../windows";
-
-const DIST_PATH = join(__dirname, "../../");
 
 type TipcInstance = ReturnType<typeof tipc.create>;
 
@@ -126,13 +125,6 @@ export function createGameTipcRouter(tipcInstance: TipcInstance) {
 
         await window.loadFile(path!);
       }),
-    getAssetPath: tipcInstance.procedure.action(async () => {
-      if (app.isPackaged) {
-        console.log(`returning ${join(app.getAppPath())}`);
-        return join(app.getAppPath(), "assets");
-      } else {
-        return join(DIST_PATH, "../../assets");
-      }
-    }),
+    getAssetPath: tipcInstance.procedure.action(async () => ASSET_PATH),
   };
 }

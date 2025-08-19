@@ -17,7 +17,6 @@ process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 function registerFlashPlugin() {
   // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
   const flashTrust = require("nw-flash-trust");
-  // TODO: add checks for app.isPackaged
 
   let pluginName;
 
@@ -32,8 +31,6 @@ function registerFlashPlugin() {
     return;
   }
 
-  console.log(`flash plugin path: ${join(ASSET_PATH, pluginName)}`);
-
   app.commandLine.appendSwitch(
     "ppapi-flash-path",
     join(ASSET_PATH, pluginName),
@@ -46,12 +43,8 @@ function registerFlashPlugin() {
     "WritableRoot",
   );
 
-  console.log(`flash path: ${flashPath}`);
-
   const trustManager = flashTrust.initSync(BRAND, flashPath);
   trustManager.empty();
-
-  console.log(`trusted path: ${join(ASSET_PATH, pluginName)}`);
 
   trustManager.add(join(ASSET_PATH, "loader.swf"));
 }
