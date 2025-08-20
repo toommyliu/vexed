@@ -5,11 +5,13 @@ import { Auth } from "./Auth";
 import { Bank } from "./Bank";
 import { Combat } from "./Combat";
 import { Drops } from "./Drops";
+import { Environment } from "./Environment";
 import { House } from "./House";
 import { Inventory } from "./Inventory";
 import { Packets } from "./Packets";
 import { Player } from "./Player";
 import { Quests } from "./Quests";
+import { Scheduler } from "./Scheduler";
 import { Settings } from "./Settings";
 import { Shops } from "./Shops";
 import { TempInventory } from "./TempInventory";
@@ -107,6 +109,11 @@ export class Bot extends TypedEmitter<Events> {
   public drops: InstanceType<typeof Drops>;
 
   /**
+   * The Environment API class instance.
+   */
+  public environment: InstanceType<typeof Environment>;
+
+  /**
    * The House API class instance.
    */
   public house: InstanceType<typeof House>;
@@ -130,6 +137,11 @@ export class Bot extends TypedEmitter<Events> {
    * The Quests API class instance.
    */
   public quests: InstanceType<typeof Quests>;
+
+  /**
+   * The Scheduler API class instance.
+   */
+  public scheduler: InstanceType<typeof Scheduler>;
 
   /**
    * The Settings API class instance.
@@ -183,8 +195,10 @@ export class Bot extends TypedEmitter<Events> {
     this.player = new Player(this);
     this.packets = new Packets(this);
     this.quests = new Quests(this);
+    this.scheduler = new Scheduler(this);
     this.settings = new Settings(this);
     this.shops = new Shops(this);
+    this.environment = new Environment(this);
     this.tempInventory = new TempInventory(this);
     this.world = new World(this);
   }

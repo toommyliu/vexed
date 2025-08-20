@@ -1,14 +1,13 @@
 import { Command } from "@botting/command";
 
 export class CommandRegisterQuest extends Command {
-  public questIds!: number[];
+  public questIds!: (number | string)[];
 
   public override skipDelay = true;
 
   public override execute() {
-    for (const questId of this.questIds) {
-      this.ctx.registerQuest(questId);
-    }
+    for (const questId of this.questIds)
+      this.bot.environment.addQuestId(questId);
   }
 
   public override toString() {

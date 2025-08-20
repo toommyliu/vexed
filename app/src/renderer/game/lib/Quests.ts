@@ -1,3 +1,4 @@
+import { normalizeId } from "@utils/normalizeId";
 import type { Bot } from "./Bot";
 import { GameAction } from "./World";
 import { Quest, type QuestData } from "./models/Quest";
@@ -27,8 +28,8 @@ export class Quests {
    * @param questId - The id of the quest.
    */
   public get(questId: number | string): Quest | null {
-    const id = String(questId);
-    return this.tree?.find((quest) => String(quest.id) === id) ?? null;
+    const id = normalizeId(questId);
+    return this.tree.find((quest) => normalizeId(quest.id) === id) ?? null;
   }
 
   /**
@@ -37,7 +38,7 @@ export class Quests {
    * @param questId - The quest id to load.
    */
   public async load(questId: number | string): Promise<void> {
-    const id = Number.parseInt(String(questId), 10);
+    const id = normalizeId(questId);
     if (this.get(id)) return;
 
     this.bot.flash.call(() => swf.questsGet(id));
@@ -54,8 +55,9 @@ export class Quests {
   public async loadMultiple(questIds: (number | string)[]): Promise<void> {
     if (!Array.isArray(questIds) || !questIds.length) return;
 
-    this.bot.flash.call(() => swf.questsGetMultiple(questIds.join(",")));
-    // await Promise.all(questIds.map(async (id) => this.load(id)));
+    const ids = questIds.map(normalizeId);
+    this.bot.flash.call(() => swf.questsGetMultiple(ids.join(",")));
+    // await Promise.all(ids.map(async (id) => this.load(id)));
   }
 
   /**
@@ -65,7 +67,7 @@ export class Quests {
    * @returns Promise<void>
    */
   public async accept(questId: number | string): Promise<void> {
-    const id = Number.parseInt(String(questId), 10);
+    const id = normalizeId(questId);
 
     if (!this.get(id)) await this.load(id);
 
@@ -113,7 +115,7 @@ export class Quests {
       this.bot.world.isActionAvailable(GameAction.TryQuestComplete),
     );
 
-    const id = Number.parseInt(String(questId), 10);
+    const id = normalizeId(questId);
 
     if (!this.get(id)?.canComplete()) return;
 

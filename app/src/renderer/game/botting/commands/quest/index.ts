@@ -38,9 +38,12 @@ export const questCommands = {
    *
    * @param questIds - The ID or array of IDs of the quests.
    */
-  register_quest(questIds: number[] | number) {
+  register_quest(questIds: number[] | string[] | number | string) {
     const ids = Array.isArray(questIds) ? questIds : [questIds];
-    if (ids.length === 0 || ids.some((id) => typeof id !== "number")) {
+    if (
+      ids.length === 0 ||
+      ids.some((id) => typeof id !== "number" && typeof id !== "string")
+    ) {
       throw new ArgsError("questIds is required");
     }
 
@@ -53,9 +56,12 @@ export const questCommands = {
    *
    * @param questIds - The ID or array of IDs of the quests.
    */
-  unregister_quest(questIds: number[] | number) {
+  unregister_quest(questIds: number[] | string[] | number | string) {
     const ids = Array.isArray(questIds) ? questIds : [questIds];
-    if (ids.length === 0 || ids.some((id) => typeof id !== "number")) {
+    if (
+      ids.length === 0 ||
+      ids.some((id) => typeof id !== "number" && typeof id !== "string")
+    ) {
       throw new ArgsError("questIds is required");
     }
 

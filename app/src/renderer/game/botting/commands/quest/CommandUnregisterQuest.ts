@@ -1,14 +1,13 @@
 import { Command } from "@botting/command";
 
 export class CommandUnregisterQuest extends Command {
-  public questIds!: number[];
+  public questIds!: (number | string)[];
 
   public override skipDelay = true;
 
   public override execute() {
-    for (const questId of this.questIds) {
-      this.ctx.unregisterQuest(questId);
-    }
+    for (const questId of this.questIds)
+      this.bot.environment.removeQuestId(questId);
   }
 
   public override toString() {

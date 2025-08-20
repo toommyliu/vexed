@@ -9,12 +9,6 @@ import {
   stopDropsTimer,
   unregisterDrop,
 } from "@utils/dropTimer";
-import {
-  startQuestTimer,
-  stopQuestTimer,
-  registerQuest,
-  unregisterQuest,
-} from "@utils/questTimer";
 import type { Command } from "./command";
 import { CommandRegisterDrop } from "./commands/item/CommandRegisterDrop";
 import { CommandAcceptQuest } from "./commands/quest/CommandAcceptQuest";
@@ -287,24 +281,6 @@ export class Context extends TypedEmitter<Events> {
   }
 
   /**
-   * Starts automated quest management for the given quest id.
-   *
-   * @param questId - The quest id
-   */
-  public registerQuest(questId: number) {
-    registerQuest(questId?.toString());
-  }
-
-  /**
-   * Stops automated quest management for the given quest id.
-   *
-   * @param questId - The quest id
-   */
-  public unregisterQuest(questId: number) {
-    unregisterQuest(questId?.toString());
-  }
-
-  /**
    * Starts automated pickup for an item.
    *
    * @param item - The item name
@@ -400,8 +376,9 @@ export class Context extends TypedEmitter<Events> {
   }
 
   private async runTimers() {
+    await this.bot.scheduler.start();
+
     startDropsTimer();
-    startQuestTimer();
 
     void interval(async (_, stop) => {
       if (!this.isRunning()) {
@@ -490,7 +467,6 @@ export class Context extends TypedEmitter<Events> {
 
   private _stop() {
     stopDropsTimer();
-    stopQuestTimer();
 
     this.overlay.hide();
     this.emit("end");
