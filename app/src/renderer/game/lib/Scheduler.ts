@@ -1,7 +1,7 @@
 import type { Bot } from "./Bot";
 
 export class Scheduler {
-  private tasks: Map<string, Task> = new Map();
+  private jobs: Map<string, Job> = new Map();
 
   private _isRunning = false;
 
@@ -19,26 +19,30 @@ export class Scheduler {
   }
 
   /**
-   * Adds a task to the scheduler.
+   * Adds a job to the scheduler.
    *
-   * @param task - The task to add.
+   * @param job - The job to add.
    */
-  public addTask(task: Task) {
-    this.tasks.set(task.id, task);
+  public addJob(job: Job) {
+    this.jobs.set(job.id, job);
   }
 
   /**
-   * Removes a task from the scheduler.
+   * Removes a job from the scheduler.
    *
-   * @param task - The task to remove.
+   * @param job - The job to remove.
    */
-  public removeTask(task: Task) {
-    this.tasks.delete(task.id);
+  public removeJob(job: Job) {
+    this.jobs.delete(job.id);
+  }
+
+  public hasJob(jobId: string): boolean {
+    return this.jobs.has(jobId);
   }
 
   /**
-   * Starts the scheduler, executing tasks in order of priority.
-   * Tasks with higher priority (larger number) are executed first.
+   * Starts the scheduler, executing jobs in order of priority.
+   * Jobs with higher priority (larger number) are executed first.
    */
   public async start() {
     if (this._isRunning) return;
@@ -52,23 +56,23 @@ export class Scheduler {
         continue;
       }
 
-      const sortedTasks = Array.from(this.tasks.values()).sort(
-        (currTask, nextTask) => nextTask.priority - currTask.priority,
+      const sortedJobs = Array.from(this.jobs.values()).sort(
+        (currJob, nextJob) => nextJob.priority - currJob.priority,
       );
 
-      for (const task of sortedTasks) {
+      for (const job of sortedJobs) {
         if (this.ac?.signal.aborted) break;
 
         try {
-          await task.execute();
+          await job.execute();
         } catch (error) {
-          console.error(`Error executing task ${task.id}:`, error);
+          console.error(`Error executing job ${job.id}:`, error);
         }
 
-        await this.bot.sleep(50);
+        await this.bot.sleep(250);
       }
 
-      await this.bot.sleep(100);
+      await this.bot.sleep(250);
     }
 
     this.stop();
@@ -83,16 +87,16 @@ export class Scheduler {
   }
 
   /**
-   * Gets the number of tasks in the scheduler.
+   * Gets the number of jobs in the scheduler.
    *
-   * @returns The number of tasks.
+   * @returns The number of jobs.
    */
   public get size() {
-    return this.tasks.size;
+    return this.jobs.size;
   }
 }
 
-type Task = {
+type Job = {
   execute(): Promise<void>;
   id: string;
   priority: number;

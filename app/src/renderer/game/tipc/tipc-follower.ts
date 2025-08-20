@@ -9,11 +9,6 @@ import {
   stopDropsTimer,
 } from "@utils/dropTimer";
 import { exitFromCombat } from "@utils/exitFromCombat";
-import {
-  registerQuest,
-  startQuestTimer,
-  stopQuestTimer,
-} from "@utils/questTimer";
 
 let on = false;
 
@@ -189,8 +184,7 @@ async function startFollower() {
   }
 
   if (cfg.quests.length) {
-    for (const quest of cfg.quests) registerQuest(quest);
-    startQuestTimer();
+    for (const quest of cfg.quests) bot.environment.addQuestId(quest);
   }
 
   if (cfg.drops.length) {
@@ -269,7 +263,6 @@ async function stopFollower() {
   safeIndex = 0;
   attempts = 3;
 
-  stopQuestTimer();
   stopDropsTimer();
 
   bot.off("pext", packetHandler);

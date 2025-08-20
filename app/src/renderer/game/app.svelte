@@ -298,9 +298,8 @@
   });
 
   onMount(async () => {
-    const p = await client.game.getAssetPath();
-    swfPath = p;
-    console.log("p", p);
+    const ret = await client.game.getAssetPath();
+    swfPath = ret;
 
     await import("./tipc/tipc-fast-travels");
     await import("./tipc/tipc-follower");
