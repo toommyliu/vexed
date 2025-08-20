@@ -23,10 +23,9 @@ class Logger {
         format.timestamp({ format: "HH:mm:ss" }),
         format.printf(({ level, message, timestamp, _rawArgs }) => {
           // If the original call was a single plain string, prefer that raw string
-          // for display. This avoids util.inspect (used elsewhere) adding
-          // surrounding quotes while still preserving quotes when the user
-          // intentionally included them in the message.
+          // for display.
           let displayMessage = message;
+
           if (
             Array.isArray(_rawArgs) &&
             _rawArgs.length === 1 &&
