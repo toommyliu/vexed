@@ -14,13 +14,30 @@ class Logger {
   constructor(scope, options = {}) {
     this.scope = scope;
     this.handlers = options.handlers || [];
+    this.precision =
+      typeof options.precision === "number" ? options.precision : 0;
+
+    const timestampFormat = () => {
+      const now = new Date();
+      const pad = (n) => n.toString().padStart(2, "0");
+
+      let base = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+      if (this.precision > 0) {
+        let ms = now.getMilliseconds() / 1000;
+        ms = ms.toFixed(this.precision).slice(1); // e.g. .123
+        base += ms;
+      }
+
+      return base;
+    };
 
     this.logger = createLogger({
       level: options.level || "debug",
       levels: winston.config.cli.levels,
       transports: [new transports.Console({ level: options.level || "debug" })],
       format: format.combine(
-        format.timestamp({ format: "HH:mm:ss" }),
+        format.timestamp({ format: timestampFormat }),
         format.printf(({ level, message, timestamp, _rawArgs }) => {
           // If the original call was a single plain string, prefer that raw string
           // for display.

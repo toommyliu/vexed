@@ -23,6 +23,11 @@ export interface LoggerOptions {
    * Whether to enable colors in output (auto-detected by default)
    */
   colorize?: boolean;
+
+  /**
+   * Precision for timestamp in log output (number of decimal places for milliseconds, default: 0)
+   */
+  precision?: number;
 }
 
 export declare class Logger {
