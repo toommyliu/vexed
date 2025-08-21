@@ -1,4 +1,8 @@
-type ConditionalReturn<T> = T extends any ? T : T | null;
+type ConditionalReturn<T> = T | null;
+
+type InferredCallReturn<Fn, T> = Fn extends (...args: any[]) => infer R
+  ? ConditionalReturn<R>
+  : ConditionalReturn<T>;
 
 /**
  * Utilities to make interacting with the Flash api easier.
@@ -19,10 +23,8 @@ export class Flash {
   public call<Fn extends (...args: any[]) => any, T = any>(
     fn: Fn | string,
     ...args: any[]
-  ): Fn extends (...args: any[]) => any
-    ? ConditionalReturn<ReturnType<Fn>>
-    : ConditionalReturn<T> {
-    let _fn: Function;
+  ): InferredCallReturn<Fn, T> {
+    let _fn: ((...args: any[]) => any) | undefined;
     let _args = args;
     let out: any;
 
@@ -45,38 +47,27 @@ export class Flash {
     try {
       out = _fn!(..._args);
     } catch {
-      // @ts-expect-error: TypeScript can't infer the correct return type here
-      return null;
+      return null as InferredCallReturn<Fn, T>;
     }
 
     if (typeof out === "string") {
       // boolean
       if (['"True"', '"False"'].includes(out)) {
-        return (out === '"True"') as Fn extends (...args: any[]) => any
-          ? ConditionalReturn<ReturnType<Fn>>
-          : ConditionalReturn<T>;
+        return (out === '"True"') as InferredCallReturn<Fn, T>;
       }
 
       // void
       if (out === "undefined") {
-        return undefined as Fn extends (...args: any[]) => any
-          ? ConditionalReturn<ReturnType<Fn>>
-          : ConditionalReturn<T>;
+        return undefined as InferredCallReturn<Fn, T>;
       }
 
       if (out.startsWith("{") || out.startsWith("["))
-        return JSON.parse(out) as Fn extends (...args: any[]) => any
-          ? ConditionalReturn<ReturnType<Fn>>
-          : ConditionalReturn<T>;
+        return JSON.parse(out) as InferredCallReturn<Fn, T>;
 
-      return out as Fn extends (...args: any[]) => any
-        ? ConditionalReturn<ReturnType<Fn>>
-        : ConditionalReturn<T>;
+      return out as InferredCallReturn<Fn, T>;
     }
 
-    return out as Fn extends (...args: any[]) => any
-      ? ConditionalReturn<ReturnType<Fn>>
-      : ConditionalReturn<T>;
+    return out as InferredCallReturn<Fn, T>;
   }
 
   /**
@@ -138,7 +129,7 @@ export class Flash {
    *
    * @param path - The path of the game object.
    */
-  public isNull(path: string): boolean {
+  public isNull(path: string): boolean | null {
     return this.call(() => swf.isNull(path));
   }
 }
