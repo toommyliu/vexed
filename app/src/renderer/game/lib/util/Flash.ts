@@ -93,7 +93,7 @@ export class Flash {
    * Gets an actionscript object at the given location.
    *
    * @param path - The path of the object, relative to Game.
-   * @param parse -  Whether to call JSON.parse on the return value.
+   * @param parse - Whether to call JSON.parse on the return value.
    */
   public getStatic<T = any>(
     path: string,
