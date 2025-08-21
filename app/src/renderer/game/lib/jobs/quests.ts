@@ -40,30 +40,28 @@ export class QuestsJob extends Job {
 
     this.logger.info(`quest id this tick: ${questId} (${this.index})`);
 
-    try {
-      if (!this.bot.quests.get(questId)) {
-        this.logger.info(`load quest id ${questId}`);
-        void this.bot.quests.load(questId);
-      }
+    if (!this.bot.quests.get(questId)) {
+      this.logger.info(`load quest id ${questId}`);
+      void this.bot.quests.load(questId);
+    }
 
-      if (
-        swf.questsIsInProgress(questId) &&
-        swf.questsCanCompleteQuest(questId)
-      ) {
-        const maxTurnIns = this.bot.flash.call<string>(
-          "world.maximumQuestTurnIns",
-          questId,
-        );
-        const numMaxTurnIns = Number(maxTurnIns);
-        this.logger.info(`complete quest id ${questId} with ${maxTurnIns}`);
-        await this.bot.quests.complete(questId, numMaxTurnIns);
-      }
+    if (
+      this.bot.flash.call(() => swf.questsIsInProgress(questId)) &&
+      this.bot.flash.call(() => swf.questsCanCompleteQuest(questId))
+    ) {
+      const maxTurnIns = this.bot.flash.call<string>(
+        "world.maximumQuestTurnIns",
+        questId,
+      );
+      const numMaxTurnIns = Number(maxTurnIns);
+      this.logger.info(`complete quest id ${questId} with ${maxTurnIns}`);
+      await this.bot.quests.complete(questId, numMaxTurnIns);
+    }
 
-      if (!swf.questsIsInProgress(questId)) {
-        this.logger.info(`accept quest id ${questId}`);
-        await this.bot.quests.accept(questId);
-      }
-    } catch {}
+    if (!this.bot.flash.call(() => swf.questsIsInProgress(questId))) {
+      this.logger.info(`accept quest id ${questId}`);
+      await this.bot.quests.accept(questId);
+    }
 
     this.index = (this.index + 1) % this.snapshot.length;
     await this.bot.sleep(250);
