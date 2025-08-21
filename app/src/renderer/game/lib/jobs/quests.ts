@@ -52,25 +52,23 @@ export async function questJob() {
       void bot.quests.load(questId);
     }
 
-    if (!swf.questsIsInProgress(questId)) {
-      logger.info(`accept quest id ${questId}`);
-      await bot.quests.accept(questId);
-      swf.questsAccept(questId);
-    }
+    const inProgress = swf.questsIsInProgress(questId);
 
-    if (
-      swf.questsIsInProgress(questId) &&
-      swf.questsCanCompleteQuest(questId)
-    ) {
+    if (inProgress && swf.questsCanCompleteQuest(questId)) {
       const maxTurnIns = bot.flash.call<string>(
         "world.maximumQuestTurnIns",
         questId,
       );
+
       const numMaxTurnIns = Number(maxTurnIns);
 
       logger.info(`complete quest id ${questId} with ${maxTurnIns}`);
 
       await bot.quests.complete(questId, numMaxTurnIns);
+    }
+
+    if (!inProgress) {
+      logger.info(`accept quest id ${questId}`);
       await bot.quests.accept(questId);
     }
   } catch {}
