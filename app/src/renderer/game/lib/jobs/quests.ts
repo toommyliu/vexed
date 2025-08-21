@@ -10,9 +10,7 @@ let isInitialized = false;
 const logger = Logger.get("questJob", { precision: 3 });
 
 function initializeJob() {
-  if (isInitialized) {
-    return;
-  }
+  if (isInitialized) return;
 
   isInitialized = true;
 
@@ -22,6 +20,7 @@ function initializeJob() {
   console.log("quest job initialized", snapshot);
 
   bot.environment.on("questIdsChanged", () => {
+    console.log("questIds changed resetting");
     snapshot = Array.from(bot.environment.questIds);
     index = 0;
     isRestarting = true;
@@ -54,12 +53,8 @@ export async function questJob() {
     }
 
     if (!swf.questsIsInProgress(questId)) {
-      // await bot.waitUntil(
-      //   () => bot.world.isActionAvailable(GameAction.AcceptQuest),
-      //   null,
-      //   5,
-      // );
       logger.info(`accept quest id ${questId}`);
+      await bot.quests.accept(questId);
       swf.questsAccept(questId);
     }
 
