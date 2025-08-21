@@ -11,12 +11,17 @@ export class Flash {
    * @param args - The arguments to pass to the function.
    * @returns If the provided function returned a value, it will be conditionally parsed to a primitive based on its result. Otherwise, null is returned.
    */
-  public call<T>(fn: Function | string, ...args: any[]): T;
-  public call(fn: Function | string, ...args: any[]): any | null;
-  public call<T = any>(
-    fn: Function | string,
+  public call<Fn extends (...args: any[]) => any>(
+    fn: Fn,
+    ...args: Parameters<Fn>
+  ): ConditionalReturn<ReturnType<Fn>>;
+  public call<T = any>(fn: string, ...args: any[]): ConditionalReturn<T>;
+  public call<Fn extends (...args: any[]) => any, T = any>(
+    fn: Fn | string,
     ...args: any[]
-  ): ConditionalReturn<T> {
+  ): Fn extends (...args: any[]) => any
+    ? ConditionalReturn<ReturnType<Fn>>
+    : ConditionalReturn<T> {
     let _fn: Function;
     let _args = args;
     let out: any;
@@ -40,27 +45,38 @@ export class Flash {
     try {
       out = _fn!(..._args);
     } catch {
-      return null as ConditionalReturn<T>;
+      // @ts-expect-error: TypeScript can't infer the correct return type here
+      return null;
     }
 
     if (typeof out === "string") {
       // boolean
       if (['"True"', '"False"'].includes(out)) {
-        return (out === '"True"') as ConditionalReturn<T>;
+        return (out === '"True"') as Fn extends (...args: any[]) => any
+          ? ConditionalReturn<ReturnType<Fn>>
+          : ConditionalReturn<T>;
       }
 
       // void
       if (out === "undefined") {
-        return undefined as ConditionalReturn<T>;
+        return undefined as Fn extends (...args: any[]) => any
+          ? ConditionalReturn<ReturnType<Fn>>
+          : ConditionalReturn<T>;
       }
 
       if (out.startsWith("{") || out.startsWith("["))
-        return JSON.parse(out) as ConditionalReturn<T>;
+        return JSON.parse(out) as Fn extends (...args: any[]) => any
+          ? ConditionalReturn<ReturnType<Fn>>
+          : ConditionalReturn<T>;
 
-      return out as ConditionalReturn<T>;
+      return out as Fn extends (...args: any[]) => any
+        ? ConditionalReturn<ReturnType<Fn>>
+        : ConditionalReturn<T>;
     }
 
-    return out as ConditionalReturn<T>;
+    return out as Fn extends (...args: any[]) => any
+      ? ConditionalReturn<ReturnType<Fn>>
+      : ConditionalReturn<T>;
   }
 
   /**
