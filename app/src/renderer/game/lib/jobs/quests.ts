@@ -46,8 +46,10 @@ export class QuestsJob extends Job {
         void this.bot.quests.load(questId);
       }
 
-      const inProgress = swf.questsIsInProgress(questId);
-      if (inProgress && swf.questsCanCompleteQuest(questId)) {
+      if (
+        swf.questsIsInProgress(questId) &&
+        swf.questsCanCompleteQuest(questId)
+      ) {
         const maxTurnIns = this.bot.flash.call<string>(
           "world.maximumQuestTurnIns",
           questId,
@@ -57,7 +59,7 @@ export class QuestsJob extends Job {
         await this.bot.quests.complete(questId, numMaxTurnIns);
       }
 
-      if (!inProgress) {
+      if (!swf.questsIsInProgress(questId)) {
         this.logger.info(`accept quest id ${questId}`);
         await this.bot.quests.accept(questId);
       }
