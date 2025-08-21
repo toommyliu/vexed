@@ -1,4 +1,5 @@
 import type { Bot } from "./Bot";
+import type { Job } from "./jobs/Job";
 
 export class Scheduler {
   private jobs: Map<string, Job> = new Map();
@@ -95,9 +96,3 @@ export class Scheduler {
     return this.jobs.size;
   }
 }
-
-type Job = {
-  execute(): Promise<void>;
-  id: string;
-  priority: number;
-};

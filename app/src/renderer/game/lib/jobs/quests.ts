@@ -1,78 +1,69 @@
 import { Logger } from "@vexed/logger";
 import { Bot } from "../Bot";
+import { Job } from "./Job";
 
-let bot: Bot;
-let index = 0;
-let snapshot: number[] = [];
-let isRestarting = false;
-let isInitialized = false;
+export class QuestsJob extends Job {
+  private readonly bot: Bot;
 
-const logger = Logger.get("questJob", { precision: 3 });
+  private index = 0;
 
-function initializeJob() {
-  if (isInitialized) return;
+  private snapshot: number[] = [];
 
-  isInitialized = true;
+  private isRestarting = false;
 
-  bot = Bot.getInstance();
-  snapshot = Array.from(bot.environment.questIds);
+  private logger = Logger.get("questJob", { precision: 3 });
 
-  console.log("quest job initialized", snapshot);
+  public constructor() {
+    super("quests", 1);
 
-  bot.environment.on("questIdsChanged", () => {
-    console.log("questIds changed resetting");
-    snapshot = Array.from(bot.environment.questIds);
-    index = 0;
-    isRestarting = true;
-  });
-}
+    this.bot = Bot.getInstance();
 
-export async function questJob() {
-  initializeJob();
+    this.snapshot = Array.from(this.bot.environment.questIds);
 
-  if (snapshot.length === 0) return;
-
-  // If restart requested, reset and return early to let scheduler re-invoke,
-  // and start a new cycle from the beginning
-  if (isRestarting) {
-    isRestarting = false;
-    return;
+    this.bot.environment.on("questIdsChanged", () => {
+      this.snapshot = Array.from(this.bot.environment.questIds);
+      this.index = 0;
+      this.isRestarting = true;
+    });
   }
 
-  const questId = snapshot[index];
-  if (typeof questId !== "number") return;
-
-  if (index === 0) await bot.sleep(1_000);
-
-  logger.info(`quest id this tick: ${questId} (${index})`);
-
-  try {
-    if (!bot.quests.get(questId)) {
-      logger.info(`load quest id ${questId}`);
-      void bot.quests.load(questId);
+  public async execute(): Promise<void> {
+    if (this.snapshot.length === 0) return;
+    if (this.isRestarting) {
+      this.isRestarting = false;
+      return;
     }
 
-    const inProgress = swf.questsIsInProgress(questId);
+    const questId = this.snapshot[this.index] as number;
 
-    if (inProgress && swf.questsCanCompleteQuest(questId)) {
-      const maxTurnIns = bot.flash.call<string>(
-        "world.maximumQuestTurnIns",
-        questId,
-      );
+    if (this.index === 0) await this.bot.sleep(1_000);
 
-      const numMaxTurnIns = Number(maxTurnIns);
+    this.logger.info(`quest id this tick: ${questId} (${this.index})`);
 
-      logger.info(`complete quest id ${questId} with ${maxTurnIns}`);
+    try {
+      if (!this.bot.quests.get(questId)) {
+        this.logger.info(`load quest id ${questId}`);
+        void this.bot.quests.load(questId);
+      }
 
-      await bot.quests.complete(questId, numMaxTurnIns);
-    }
+      const inProgress = swf.questsIsInProgress(questId);
+      if (inProgress && swf.questsCanCompleteQuest(questId)) {
+        const maxTurnIns = this.bot.flash.call<string>(
+          "world.maximumQuestTurnIns",
+          questId,
+        );
+        const numMaxTurnIns = Number(maxTurnIns);
+        this.logger.info(`complete quest id ${questId} with ${maxTurnIns}`);
+        await this.bot.quests.complete(questId, numMaxTurnIns);
+      }
 
-    if (!inProgress) {
-      logger.info(`accept quest id ${questId}`);
-      await bot.quests.accept(questId);
-    }
-  } catch {}
+      if (!inProgress) {
+        this.logger.info(`accept quest id ${questId}`);
+        await this.bot.quests.accept(questId);
+      }
+    } catch {}
 
-  index = (index + 1) % snapshot.length;
-  await bot.sleep(250);
+    this.index = (this.index + 1) % this.snapshot.length;
+    await this.bot.sleep(250);
+  }
 }

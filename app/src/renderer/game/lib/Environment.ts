@@ -1,7 +1,8 @@
 import { TypedEmitter } from "tiny-typed-emitter";
 import { normalizeId } from "../util/normalizeId";
 import type { Bot } from "./Bot";
-import { questJob } from "./jobs/quests";
+import { DropsJob } from "./jobs/drops";
+import { QuestsJob } from "./jobs/quests";
 
 type Events = {
   itemNamesChanged(): void;
@@ -18,11 +19,8 @@ export class Environment extends TypedEmitter<Events> {
   public constructor(public bot: Bot) {
     super();
 
-    this.bot.scheduler.addJob({
-      id: "quests",
-      priority: 1,
-      execute: questJob,
-    });
+    this.bot.scheduler.addJob(new QuestsJob());
+    this.bot.scheduler.addJob(new DropsJob());
   }
 
   public get questIds() {
