@@ -21,10 +21,14 @@ export class QuestsJob extends Job {
     this.snapshot = Array.from(this.bot.environment.questIds);
 
     this.bot.environment.on("questIdsChanged", () => {
-      this.snapshot = Array.from(this.bot.environment.questIds);
-      this.index = 0;
-      this.isRestarting = true;
+      this.restart();
     });
+  }
+
+  public restart(): void {
+    this.snapshot = Array.from(this.bot.environment.questIds);
+    this.index = 0;
+    this.isRestarting = true;
   }
 
   public async execute(): Promise<void> {

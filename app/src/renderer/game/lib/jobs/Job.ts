@@ -5,4 +5,5 @@ export abstract class Job {
   ) {}
 
   public abstract execute(): Promise<void>;
+  public abstract restart(): void;
 }
