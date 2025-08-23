@@ -1,10 +1,9 @@
 import { TypedEmitter } from "tiny-typed-emitter";
 import { normalizeId } from "../util/normalizeId";
 import type { Bot } from "./Bot";
-import { DropsJob } from "./jobs/drops";
-import { QuestsJob } from "./jobs/quests";
 
 type Events = {
+  boostsChanged(): void;
   itemNamesChanged(): void;
   questIdsChanged(): void;
 };
@@ -13,6 +12,8 @@ export class Environment extends TypedEmitter<Events> {
   private _questIds = new Set<number>();
 
   private _itemNames = new Set<string>();
+
+  private _boosts = new Set<string>();
 
   private _rejectElse = false;
 
@@ -68,6 +69,13 @@ export class Environment extends TypedEmitter<Events> {
   }
 
   /**
+   * Getter for the current boosts to watch/use.
+   */
+  public get boosts() {
+    return this._boosts;
+  }
+
+  /**
    * Adds an item name to the environment.
    *
    * @param itemName - The item name to add.
@@ -90,6 +98,33 @@ export class Environment extends TypedEmitter<Events> {
     if (this._itemNames.delete(itemName)) {
       this.emit("itemNamesChanged");
     }
+  }
+
+  /**
+   * Adds a boost item name to the environment.
+   * Emits `boostsChanged` when the set is modified.
+   */
+  public addBoost(boostName: string): void {
+    if (!this._boosts.has(boostName)) {
+      this._boosts.add(boostName);
+      this.emit("boostsChanged");
+    }
+  }
+
+  /**
+   * Removes a boost item name from the environment.
+   */
+  public removeBoost(boostName: string): void {
+    if (this._boosts.delete(boostName)) {
+      this.emit("boostsChanged");
+    }
+  }
+
+  /**
+   * Checks if a boost item name is in the environment.
+   */
+  public hasBoost(boostName: string): boolean {
+    return this._boosts.has(boostName);
   }
 
   /**

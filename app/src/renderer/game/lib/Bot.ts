@@ -16,6 +16,7 @@ import { Settings } from "./Settings";
 import { Shops } from "./Shops";
 import { TempInventory } from "./TempInventory";
 import { World } from "./World";
+import { BoostsJob } from "./jobs/boosts";
 import { DropsJob } from "./jobs/drops";
 import { QuestsJob } from "./jobs/quests";
 import type { Monster } from "./models/Monster";
@@ -207,6 +208,7 @@ export class Bot extends TypedEmitter<Events> {
 
     this.scheduler.addJob(new QuestsJob(this));
     this.scheduler.addJob(new DropsJob(this));
+    this.scheduler.addJob(new BoostsJob(this));
   }
 
   /**
