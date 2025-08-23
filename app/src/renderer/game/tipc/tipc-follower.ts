@@ -3,11 +3,6 @@ import { Mutex } from "async-mutex";
 import { Bot } from "@lib/Bot";
 import { handlers } from "@shared/tipc";
 import { doPriorityAttack } from "@utils/doPriorityAttack";
-import {
-  registerDrop,
-  startDropsTimer,
-  stopDropsTimer,
-} from "@utils/dropTimer";
 import { exitFromCombat } from "@utils/exitFromCombat";
 
 let on = false;
@@ -188,8 +183,8 @@ async function startFollower() {
   }
 
   if (cfg.drops.length) {
-    for (const drop of cfg.drops) registerDrop(drop, cfg.rejectElse);
-    startDropsTimer();
+    for (const drop of cfg.drops)
+      bot.environment.addItemName(drop, cfg.rejectElse);
   }
 
   void interval(async (_, stop) => {
@@ -262,8 +257,6 @@ async function stopFollower() {
   index = 0;
   safeIndex = 0;
   attempts = 3;
-
-  stopDropsTimer();
 
   bot.off("pext", packetHandler);
 }
