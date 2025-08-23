@@ -3,12 +3,7 @@ import { interval } from "@vexed/utils";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { Bot } from "@lib/Bot";
 import { BoostType } from "@lib/Player";
-import {
-  registerDrop,
-  startDropsTimer,
-  stopDropsTimer,
-  unregisterDrop,
-} from "@utils/dropTimer";
+import { Environment } from "@lib/Environment";
 import type { Command } from "./command";
 import { CommandRegisterDrop } from "./commands/item/CommandRegisterDrop";
 import { CommandAcceptQuest } from "./commands/quest/CommandAcceptQuest";
@@ -287,7 +282,7 @@ export class Context extends TypedEmitter<Events> {
    * @param rejectElse - Whether to reject all other items
    */
   public registerDrop(item: string, rejectElse?: boolean) {
-    registerDrop(item, rejectElse);
+    this.bot.environment.addItemName(item, rejectElse);
   }
 
   /**
@@ -296,7 +291,7 @@ export class Context extends TypedEmitter<Events> {
    * @param item - The item name
    */
   public unregisterDrop(item: string) {
-    unregisterDrop(item);
+    this.bot.environment.removeItemName(item);
   }
 
   /**
@@ -377,8 +372,6 @@ export class Context extends TypedEmitter<Events> {
 
   private async runTimers() {
     await this.bot.scheduler.start();
-
-    startDropsTimer();
 
     void interval(async (_, stop) => {
       if (!this.isRunning()) {
@@ -466,8 +459,6 @@ export class Context extends TypedEmitter<Events> {
   // TODO: add an option to restart if end is reached
 
   private _stop() {
-    stopDropsTimer();
-
     this.overlay.hide();
     this.emit("end");
     this._on = false;
