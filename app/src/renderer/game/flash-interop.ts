@@ -9,6 +9,7 @@ import { event } from "./packet-handlers/event";
 import { initUserData } from "./packet-handlers/init-user-data";
 import { moveToArea } from "./packet-handlers/move-to-area";
 import { appState } from "./state.svelte";
+import { AutoReloginJob } from "./lib/jobs/autorelogin";
 
 const logger = Logger.get("FlashInterop");
 const bot = Bot.getInstance();
@@ -120,19 +121,18 @@ window.loaded = async () => {
     );
 
     if (server) {
-      const ogDelay = bot.autoRelogin.delay;
+      const ogDelay = AutoReloginJob.delay;
 
-      bot.autoRelogin.setCredentials(username!, password!, server!);
-      bot.autoRelogin.delay = 0;
+      AutoReloginJob.setCredentials(username!, password!, server!);
+      AutoReloginJob.delay = 0;
 
-      // Wait for the player to be ready
       // This should properly handle the instances where the player logs in,
       // but doesn't get a chance to fully load in for some reason...
       await bot.waitUntil(() => bot.player.isReady(), null, -1);
 
       // Reset credentials and delay
-      bot.autoRelogin.setCredentials("", "", "");
-      bot.autoRelogin.delay = ogDelay;
+      AutoReloginJob.setCredentials("", "", "");
+      AutoReloginJob.delay = ogDelay;
 
       // logger.info("auto relogin success, responding");
       await client.manager.managerLoginSuccess({ username });

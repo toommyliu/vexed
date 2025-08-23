@@ -53,17 +53,17 @@ export class Scheduler {
     this.ac = new AbortController();
 
     while (!this.ac.signal.aborted) {
-      if (!this.bot.player.isReady()) {
-        await this.bot.sleep(100);
-        continue;
-      }
-
       const sortedJobs = Array.from(this.jobs.values()).sort(
         (currJob, nextJob) => nextJob.priority - currJob.priority,
       );
 
       for (const job of sortedJobs) {
         if (this.ac?.signal.aborted) break;
+
+        // If the player isn't ready, only run jobs that explicitly allow it.
+        if (!this.bot.player.isReady() && !job.skipReadyCheck) {
+          continue;
+        }
 
         try {
           Logger.get("", { precision: 5 }).info(`executing job: ${job.id}`);

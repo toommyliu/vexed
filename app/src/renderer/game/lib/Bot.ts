@@ -16,11 +16,11 @@ import { Settings } from "./Settings";
 import { Shops } from "./Shops";
 import { TempInventory } from "./TempInventory";
 import { World } from "./World";
+import { AutoReloginJob } from "./jobs/autorelogin";
 import { BoostsJob } from "./jobs/boosts";
 import { DropsJob } from "./jobs/drops";
 import { QuestsJob } from "./jobs/quests";
 import type { Monster } from "./models/Monster";
-import { AutoRelogin } from "./util/AutoRelogin";
 import { Flash } from "./util/Flash";
 
 type Events = {
@@ -167,11 +167,6 @@ export class Bot extends TypedEmitter<Events> {
   public world: InstanceType<typeof World>;
 
   /**
-   * The AutoRelogin API class instance.
-   */
-  public autoRelogin: InstanceType<typeof AutoRelogin>;
-
-  /**
    * The Flash API class instance.
    */
   public flash: InstanceType<typeof Flash>;
@@ -186,7 +181,6 @@ export class Bot extends TypedEmitter<Events> {
     Bot._instance = this;
 
     this.flash = new Flash();
-    this.autoRelogin = new AutoRelogin();
 
     this.army = new Army(this);
     this.auth = new Auth(this);
@@ -209,6 +203,7 @@ export class Bot extends TypedEmitter<Events> {
     this.scheduler.addJob(new QuestsJob(this));
     this.scheduler.addJob(new DropsJob(this));
     this.scheduler.addJob(new BoostsJob(this));
+    this.scheduler.addJob(new AutoReloginJob(this));
   }
 
   /**
