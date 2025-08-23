@@ -1,4 +1,3 @@
-import { Logger } from "@vexed/logger";
 import type { Bot } from "./Bot";
 import type { Job } from "./jobs/Job";
 
@@ -66,7 +65,6 @@ export class Scheduler {
         }
 
         try {
-          Logger.get("", { precision: 5 }).info(`executing job: ${job.id}`);
           await job.execute();
         } catch (error) {
           console.error(`Error executing job ${job.id}:`, error);

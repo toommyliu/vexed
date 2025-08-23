@@ -1,3 +1,5 @@
+import type { Command } from "./botting/command";
+
 function initState() {
   let infiniteRange = $state(false);
   let provokeMap = $state(false);
@@ -127,6 +129,166 @@ function initAppState() {
   };
 }
 
+type Position = {
+  height?: string;
+  left: string;
+  top: string;
+  visible: boolean;
+  width?: string;
+};
+
+export function initCommandOverlayState() {
+  const storageKey = "command-overlay-position";
+
+  let lastCommands = $state<string[]>([]);
+  let lastIndex = $state(-1);
+  let listVisible = $state(true);
+  let isDragging = $state(false);
+  let isVisible = $state(false);
+
+  let dragOffset = { x: 0, y: 0 };
+  let updateThrottleId: number | null = null;
+
+  const commandStrings = $derived(lastCommands);
+  const commandCount = $derived(lastCommands.length);
+  const headerText = $derived(`Commands (${commandCount})`);
+  const toggleButtonText = $derived(listVisible ? "▼" : "▶");
+
+  function updateCommands(commands: Command[], currentIndex: number): boolean {
+    const commandStrings = commands.map(
+      (cmd, index) => `[${index + 1}] ${cmd.toString()}`,
+    );
+
+    // Check if there's actually a change
+    if (
+      lastIndex === currentIndex &&
+      lastCommands.length === commandStrings.length &&
+      lastCommands.every((cmd, index) => cmd === commandStrings[index])
+    ) {
+      return false;
+    }
+
+    lastCommands = commandStrings;
+    lastIndex = currentIndex;
+    return true;
+  }
+
+  function toggleListVisibility(): void {
+    listVisible = !listVisible;
+  }
+
+  function show(): void {
+    isVisible = true;
+  }
+
+  function hide(): void {
+    isVisible = false;
+  }
+
+  function toggle(): void {
+    isVisible = !isVisible;
+  }
+
+  function setDragging(dragging: boolean): void {
+    isDragging = dragging;
+  }
+
+  function savePosition(overlay: HTMLDivElement): void {
+    const position: Position = {
+      left: overlay.style.left,
+      top: overlay.style.top,
+      visible: listVisible,
+    };
+
+    if (listVisible) {
+      position.width = overlay.style.width;
+      position.height = overlay.style.height;
+    }
+
+    localStorage.setItem(storageKey, JSON.stringify(position));
+  }
+
+  function loadPosition(overlay: HTMLDivElement): void {
+    const savedPosition = localStorage.getItem(storageKey);
+
+    if (!savedPosition) {
+      overlay.style.left = "20px";
+      overlay.style.top = "20px";
+      return;
+    }
+
+    const position = JSON.parse(savedPosition) as Position;
+
+    if (position.left && position.top) {
+      overlay.style.left = position.left;
+      overlay.style.top = position.top;
+    } else {
+      overlay.style.left = "20px";
+      overlay.style.top = "20px";
+    }
+
+    if (position.visible !== undefined) {
+      listVisible = position.visible;
+
+      if (position.width && position.height && listVisible) {
+        overlay.style.width = position.width;
+        overlay.style.height = position.height;
+      }
+    }
+  }
+
+  return {
+    get lastCommands() {
+      return lastCommands;
+    },
+    get lastIndex() {
+      return lastIndex;
+    },
+    get listVisible() {
+      return listVisible;
+    },
+    get isDragging() {
+      return isDragging;
+    },
+    get isVisible() {
+      return isVisible;
+    },
+    get commandStrings() {
+      return commandStrings;
+    },
+    get commandCount() {
+      return commandCount;
+    },
+    get headerText() {
+      return headerText;
+    },
+    get toggleButtonText() {
+      return toggleButtonText;
+    },
+    get dragOffset() {
+      return dragOffset;
+    },
+    set dragOffset(value) {
+      dragOffset = value;
+    },
+    get updateThrottleId() {
+      return updateThrottleId;
+    },
+    set updateThrottleId(value) {
+      updateThrottleId = value;
+    },
+    updateCommands,
+    toggleListVisibility,
+    show,
+    hide,
+    toggle,
+    setDragging,
+    savePosition,
+    loadPosition,
+  };
+}
+
 export const gameState = initState();
 export const scriptState = initScriptState();
 export const appState = initAppState();
+export const commandOverlayState = initCommandOverlayState();

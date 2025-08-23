@@ -1,6 +1,11 @@
 <script lang="ts">
   import "./entrypoint";
-  import { gameState, scriptState, appState } from "./state.svelte";
+  import {
+    gameState,
+    scriptState,
+    appState,
+    commandOverlayState,
+  } from "./state.svelte";
   import process from "process";
   import { client, handlers } from "@shared/tipc";
   import { cn } from "@shared/cn";
@@ -15,6 +20,8 @@
   import { interval, sleep } from "@vexed/utils";
   import Config from "@vexed/config";
   import { DEFAULT_HOTKEYS, DOCUMENTS_PATH } from "@shared/constants";
+
+  import CommandOverlay from "./components/CommandOverlay.svelte";
 
   const DEFAULT_PADS = [
     "Center",
@@ -111,11 +118,12 @@
   handlers.scripts.scriptLoaded.listen((fromManager) => {
     scriptState.isLoaded = true;
 
-    window.context.overlay.updateCommands(
+    commandOverlayState.updateCommands(
       window.context.commands,
       window.context.commandIndex,
     );
-    window.context.overlay.show();
+    commandOverlayState.show();
+
     scriptState.showOverlay = true;
 
     // Auto start script if loaded from manager
@@ -126,11 +134,6 @@
     ) {
       startScript();
     }
-
-    window.context.overlay.on(
-      "display",
-      (visible) => (scriptState.showOverlay = visible),
-    );
   });
 
   function toggleDropdown(dropdownName: string) {
@@ -238,9 +241,7 @@
         break;
 
       case "toggle-command-overlay":
-        if (window.context?.overlay) {
-          scriptState.showOverlay = !scriptState.showOverlay;
-        }
+        scriptState.showOverlay = !scriptState.showOverlay;
         break;
 
       case "toggle-dev-tools":
@@ -268,13 +269,6 @@
         break;
     }
   }
-
-  $effect(() => {
-    if (!window.context?.overlay) return;
-
-    if (scriptState.showOverlay) window.context.overlay.show();
-    else window.context.overlay.hide();
-  });
 
   $effect(() => {
     if (autoEnabled) {
@@ -898,6 +892,8 @@
   </div>
 </main>
 
+<CommandOverlay on:display={(ev) => (scriptState.showOverlay = ev.detail)} />
+
 {#snippet OptionCheckmark()}
   <div
     class="option-checkmark"
@@ -1038,153 +1034,6 @@
   :global(#cells-dropdowncontent::-webkit-scrollbar-thumb:hover),
   :global(#pads-dropdowncontent::-webkit-scrollbar-thumb:hover) {
     background: rgba(119, 119, 119, 0.9);
-  }
-
-  :global(.command-overlay) {
-    position: fixed;
-    background-color: #1a1a1a;
-    border: 1px solid #333;
-    border-radius: 6px;
-    padding: 0;
-    min-width: 250px;
-    width: 300px;
-    display: none;
-    opacity: 0.97;
-    z-index: 9999;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
-    resize: both;
-    overflow: hidden;
-    min-height: 40px;
-    user-select: none;
-    transition:
-      opacity 0.2s ease,
-      box-shadow 0.2s ease;
-  }
-  :global(.command-overlay:hover) {
-    opacity: 0.99;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-  }
-  :global(.command-overlay.collapsed) {
-    resize: none;
-    overflow: visible;
-    min-width: auto;
-    width: auto !important;
-    height: auto !important;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  }
-
-  :global(.command-overlay.dragging) {
-    cursor: grabbing;
-    user-select: none;
-    opacity: 0.8;
-  }
-
-  :global(.command-overlay-header) {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: linear-gradient(to bottom, #36393f, #2a2a2a);
-    padding: 8px 10px;
-    cursor: grab;
-    color: #eee;
-    border-bottom: 1px solid #444;
-    border-radius: 6px 6px 0 0;
-    user-select: none;
-    white-space: nowrap;
-    font-size: 13px;
-    height: 18px;
-  }
-  :global(.command-overlay-header-text) {
-    flex: 1;
-    margin-right: 8px;
-  }
-
-  :global(.command-overlay-header-controls) {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-  }
-
-  :global(.command-overlay-control) {
-    width: 16px;
-    height: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    opacity: 0.7;
-    font-size: 14px;
-    border-radius: 3px;
-    transition:
-      background-color 0.2s ease,
-      opacity 0.2s ease;
-  }
-
-  :global(.command-overlay-control:hover) {
-    opacity: 1;
-    background-color: rgba(255, 255, 255, 0.1);
-  }
-
-  :global(.command-overlay-close) {
-    color: #f55;
-  }
-
-  :global(.command-overlay-close:hover) {
-    background-color: rgba(255, 85, 85, 0.2);
-  }
-
-  :global(.command-overlay.collapsed .command-overlay-header) {
-    border-radius: 6px;
-    border-bottom: none;
-  }
-
-  :global(.command-list-container) {
-    color: white;
-    padding: 8px;
-    max-height: 400px;
-    overflow-y: auto;
-    height: calc(100% - 35px);
-    user-select: none;
-    scrollbar-width: thin;
-    scrollbar-color: #555 #222;
-  }
-  :global(.command-list-container::-webkit-scrollbar) {
-    width: 8px;
-    height: 8px;
-  }
-  :global(.command-list-container::-webkit-scrollbar-track) {
-    background: #222;
-    border-radius: 4px;
-  }
-  :global(.command-list-container::-webkit-scrollbar-thumb) {
-    background: #555;
-    border-radius: 4px;
-  }
-  :global(.command-list-container::-webkit-scrollbar-thumb:hover) {
-    background: #777;
-  }
-  :global(.command-item) {
-    padding: 6px 10px;
-    font-size: 13px;
-    cursor: default;
-    user-select: none;
-    background-color: #222;
-    margin-bottom: 3px;
-    border-radius: 4px;
-    border-left: 3px solid transparent;
-    transition:
-      background-color 0.15s ease,
-      border-left-color 0.15s ease;
-    display: flex;
-    align-items: center;
-  }
-  :global(.command-item.active) {
-    background-color: #1a3a5a;
-    border-left-color: #3a8ee6;
-    font-weight: 500;
-  }
-  :global(.command-item.hover) {
-    background-color: #333;
   }
 
   :not(.option-active) .option-checkmark {

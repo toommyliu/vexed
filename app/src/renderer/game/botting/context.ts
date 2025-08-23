@@ -1,11 +1,11 @@
 import { Logger } from "@vexed/logger";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { Bot } from "@lib/Bot";
+import { commandOverlayState } from "../state.svelte";
 import type { Command } from "./command";
 import { CommandRegisterDrop } from "./commands/item/CommandRegisterDrop";
 import { CommandAcceptQuest } from "./commands/quest/CommandAcceptQuest";
 import { CommandRegisterQuest } from "./commands/quest/CommandRegisterQuest";
-import { CommandOverlay } from "./overlay";
 
 const logger = Logger.get("Context");
 
@@ -53,8 +53,6 @@ export class Context extends TypedEmitter<Events> {
 
   private _on: boolean;
 
-  public readonly overlay: CommandOverlay;
-
   public autoZone:
     | "astralshrine"
     | "darkcarnax"
@@ -77,8 +75,6 @@ export class Context extends TypedEmitter<Events> {
     this._commandIndex = 0;
 
     this._on = false;
-
-    this.overlay = new CommandOverlay();
   }
 
   /**
@@ -310,7 +306,7 @@ export class Context extends TypedEmitter<Events> {
 
   public async start() {
     this._on = true;
-    this.overlay.show();
+    commandOverlayState.show();
 
     await this.doPreInit();
     await Promise.all([this.runTimers(), this.runCommands()]);
@@ -394,7 +390,7 @@ export class Context extends TypedEmitter<Events> {
           break;
         }
 
-        this.overlay.updateCommands(this._commands, this._commandIndex);
+        commandOverlayState.updateCommands(this._commands, this._commandIndex);
 
         const result = command.execute();
         if (result instanceof Promise) {
@@ -420,7 +416,7 @@ export class Context extends TypedEmitter<Events> {
   }
 
   private _stop() {
-    this.overlay.hide();
+    commandOverlayState.hide();
     this.emit("end");
     this._on = false;
   }
