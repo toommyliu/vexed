@@ -1,5 +1,7 @@
 import type { Bot } from "../lib/Bot";
-import { getRandomInt } from "../util/get-random-int";
+
+const getRandomIntInRange = (min: number, max: number) =>
+  Math.floor(Math.random() * (max - min + 1)) + min;
 
 /* eslint-disable id-length */
 const AUTO_ZONES: Record<
@@ -57,8 +59,8 @@ export async function event(bot: Bot, pkt: EventPacket) {
   if (config && window.context.autoZone === mapName) {
     const zonePos = config.zones[zone];
     if (zonePos) {
-      const xPos = getRandomInt(zonePos.x[0], zonePos.x[1]);
-      const yPos = getRandomInt(zonePos.y[0], zonePos.y[1]);
+      const xPos = getRandomIntInRange(zonePos.x[0], zonePos.x[1]);
+      const yPos = getRandomIntInRange(zonePos.y[0], zonePos.y[1]);
       bot.player.walkTo(xPos, yPos);
       return;
     }
@@ -80,14 +82,14 @@ export async function event(bot: Bot, pkt: EventPacket) {
       const hasNegativeCharge = negativeCharge || negativeChargeReverse;
 
       const moveLeft = () => {
-        const xPos = getRandomInt(111, 272);
-        const yPos = getRandomInt(369, 379);
+        const xPos = getRandomIntInRange(111, 272);
+        const yPos = getRandomIntInRange(369, 379);
         bot.player.walkTo(xPos, yPos);
       };
 
       const moveRight = () => {
-        const xPos = getRandomInt(746, 869);
-        const yPos = getRandomInt(369, 379);
+        const xPos = getRandomIntInRange(746, 869);
+        const yPos = getRandomIntInRange(369, 379);
         bot.player.walkTo(xPos, yPos);
       };
 
