@@ -16,6 +16,8 @@ import { Settings } from "./Settings";
 import { Shops } from "./Shops";
 import { TempInventory } from "./TempInventory";
 import { World } from "./World";
+import { DropsJob } from "./jobs/drops";
+import { QuestsJob } from "./jobs/quests";
 import type { Monster } from "./models/Monster";
 import { AutoRelogin } from "./util/AutoRelogin";
 import { Flash } from "./util/Flash";
@@ -195,12 +197,16 @@ export class Bot extends TypedEmitter<Events> {
     this.player = new Player(this);
     this.packets = new Packets(this);
     this.quests = new Quests(this);
-    this.scheduler = new Scheduler(this);
     this.settings = new Settings(this);
     this.shops = new Shops(this);
-    this.environment = new Environment(this);
     this.tempInventory = new TempInventory(this);
     this.world = new World(this);
+
+    this.environment = new Environment(this);
+    this.scheduler = new Scheduler(this);
+
+    this.scheduler.addJob(new QuestsJob(this));
+    this.scheduler.addJob(new DropsJob(this));
   }
 
   /**

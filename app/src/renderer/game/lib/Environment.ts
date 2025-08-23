@@ -18,9 +18,6 @@ export class Environment extends TypedEmitter<Events> {
 
   public constructor(public bot: Bot) {
     super();
-
-    this.bot.scheduler.addJob(new QuestsJob());
-    this.bot.scheduler.addJob(new DropsJob());
   }
 
   public get questIds() {

@@ -1,10 +1,8 @@
 import { Logger } from "@vexed/logger";
-import { Bot } from "../Bot";
+import type { Bot } from "../Bot";
 import { Job } from "./Job";
 
 export class QuestsJob extends Job {
-  private readonly bot: Bot;
-
   private index = 0;
 
   private snapshot: number[] = [];
@@ -13,10 +11,8 @@ export class QuestsJob extends Job {
 
   private logger = Logger.get("questJob", { precision: 3 });
 
-  public constructor() {
+  public constructor(private readonly bot: Bot) {
     super("quests", 1);
-
-    this.bot = Bot.getInstance();
 
     this.snapshot = Array.from(this.bot.environment.questIds);
 

@@ -65,6 +65,7 @@ export class Scheduler {
         if (this.ac?.signal.aborted) break;
 
         try {
+          console.log(`executing job: ${job.id}`);
           await job.execute();
         } catch (error) {
           console.error(`Error executing job ${job.id}:`, error);

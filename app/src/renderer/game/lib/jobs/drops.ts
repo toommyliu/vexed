@@ -1,4 +1,4 @@
-import { Bot } from "../Bot";
+import type { Bot } from "../Bot";
 import { Job } from "./Job";
 
 export class DropsJob extends Job {
@@ -6,12 +6,10 @@ export class DropsJob extends Job {
 
   private isRestarting = false;
 
-  private readonly bot: Bot;
-
-  public constructor() {
+  public constructor(private readonly bot: Bot) {
     super("drops", 1);
 
-    this.bot = Bot.getInstance();
+    this.bot = bot;
 
     this.bot.environment.on("itemNamesChanged", () => {
       this.restart();
