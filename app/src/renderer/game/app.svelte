@@ -332,7 +332,6 @@
   //   await loadHotkeysFromConfig();
   //   setupHotkeyHandlers();
   // });
-  console.log(require("path").join(__dirname, "../../../assets/loader.swf"));
 </script>
 
 <svelte:window
