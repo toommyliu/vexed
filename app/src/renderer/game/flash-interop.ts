@@ -1,7 +1,8 @@
 import process from "process";
 import { Logger } from "@vexed/logger";
+import { Bot } from "@lib/Bot";
+import { AutoReloginJob } from "@lib/jobs/autorelogin";
 import { client } from "@shared/tipc";
-import { Bot } from "./lib/Bot";
 import { addGoldExp } from "./packet-handlers/add-gold-exp";
 import { ct } from "./packet-handlers/ct";
 import { dropItem } from "./packet-handlers/drop-item";
@@ -9,7 +10,6 @@ import { event } from "./packet-handlers/event";
 import { initUserData } from "./packet-handlers/init-user-data";
 import { moveToArea } from "./packet-handlers/move-to-area";
 import { appState } from "./state.svelte";
-import { AutoReloginJob } from "./lib/jobs/autorelogin";
 
 const logger = Logger.get("FlashInterop");
 const bot = Bot.getInstance();
