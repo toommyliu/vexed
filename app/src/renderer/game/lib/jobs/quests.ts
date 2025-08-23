@@ -12,7 +12,7 @@ export class QuestsJob extends Job {
   private logger = Logger.get("questJob", { precision: 3 });
 
   public constructor(private readonly bot: Bot) {
-    super("quests", 1);
+    super("quests", 2);
 
     this.snapshot = Array.from(this.bot.environment.questIds);
 

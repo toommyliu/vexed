@@ -1,9 +1,6 @@
 import { Logger } from "@vexed/logger";
-import { interval } from "@vexed/utils";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { Bot } from "@lib/Bot";
-import { BoostType } from "@lib/Player";
-import { Environment } from "@lib/Environment";
 import type { Command } from "./command";
 import { CommandRegisterDrop } from "./commands/item/CommandRegisterDrop";
 import { CommandAcceptQuest } from "./commands/quest/CommandAcceptQuest";
@@ -20,7 +17,7 @@ export class Context extends TypedEmitter<Events> {
   /**
    * List of boost to watch and use.
    */
-  private readonly boosts: Set<string>;
+  // boosts are now stored in bot.environment
 
   /**
    * "pext" handlers.
@@ -69,8 +66,6 @@ export class Context extends TypedEmitter<Events> {
 
   public constructor() {
     super();
-
-    this.boosts = new Set();
 
     this._pextHandlers = new Map();
     this._packetFromServerHandlers = new Map();
@@ -299,14 +294,14 @@ export class Context extends TypedEmitter<Events> {
    * @remarks
    */
   public registerBoost(name: string) {
-    this.boosts.add(name);
+    this.bot.environment.addBoost(name);
   }
 
   /**
    * @param name - The item name of the boost.
    */
   public unregisterBoost(name: string) {
-    this.boosts.delete(name);
+    this.bot.environment.removeBoost(name);
   }
 
   public isRunning() {
@@ -365,47 +360,15 @@ export class Context extends TypedEmitter<Events> {
 
     await this.bot.quests.loadMultiple(questList);
     await this.bot.bank.withdrawMultiple(unbankList);
-    await this.bot.bank.withdrawMultiple(Array.from(this.boosts));
+    await this.bot.bank.withdrawMultiple(
+      Array.from(this.bot.environment.boosts),
+    );
 
     this.emit("start");
   }
 
   private async runTimers() {
     await this.bot.scheduler.start();
-
-    void interval(async (_, stop) => {
-      if (!this.isRunning()) {
-        stop();
-        return;
-      }
-
-      for (const boost of Array.from(this.boosts)) {
-        try {
-          if (this.bot.inventory.contains(boost)) {
-            const _boost = boost.toLowerCase();
-            const variant = _boost.includes("gold")
-              ? BoostType.Gold
-              : _boost.includes("xp")
-                ? BoostType.Exp
-                : _boost.includes("rep")
-                  ? BoostType.Rep
-                  : _boost.includes("class")
-                    ? BoostType.ClassPoints
-                    : null;
-
-            if (!variant) continue;
-
-            // we don't have this boost type active, use it
-            if (!this.bot.player.isBoostActive(variant)) {
-              const item = this.bot.inventory.get(boost);
-              if (!item) continue;
-
-              this.bot.flash.call(() => swf.playerUseBoost(item.id));
-            }
-          }
-        } catch {}
-      }
-    }, 1_000);
   }
 
   private async runCommands() {
@@ -455,8 +418,6 @@ export class Context extends TypedEmitter<Events> {
     this._stop();
     // logger.info('command execution finished');
   }
-
-  // TODO: add an option to restart if end is reached
 
   private _stop() {
     this.overlay.hide();
