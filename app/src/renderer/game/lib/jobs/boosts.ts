@@ -1,11 +1,8 @@
-import { Logger } from "@vexed/logger";
 import type { Bot } from "@lib/Bot";
 import { BoostType } from "../Player";
 import { Job } from "./Job";
 
 export class BoostsJob extends Job {
-  private logger = Logger.get("boostsJob", { precision: 3 });
-
   private index = 0;
 
   public constructor(private readonly bot: Bot) {
