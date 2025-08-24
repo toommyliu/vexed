@@ -93,6 +93,7 @@ window.connection = async ([state]: [string]) => {
 };
 
 window.loaded = async () => {
+  window.dispatchEvent(new Event("gameLoaded"));
   appState.gameLoaded = true;
 
   const usernameArg = process.argv.find((arg) => arg.startsWith("--username="));

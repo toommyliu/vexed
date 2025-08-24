@@ -1,11 +1,6 @@
 <script lang="ts">
   import "./entrypoint";
-  import {
-    gameState,
-    scriptState,
-    appState,
-    commandOverlayState,
-  } from "./state.svelte";
+  import { gameState, scriptState, commandOverlayState } from "./state.svelte";
   import process from "process";
   import { client, handlers } from "@shared/tipc";
   import { cn } from "@shared/cn";
@@ -17,7 +12,7 @@
   import Mousetrap from "mousetrap";
   import { createHotkeyConfig, isValidHotkey } from "../tools/hotkeys/utils";
   import type { HotkeySection } from "../tools/hotkeys/types";
-  import { interval, sleep } from "@vexed/utils";
+  import { interval } from "@vexed/utils";
   import Config from "@vexed/config";
   import { DEFAULT_HOTKEYS, DOCUMENTS_PATH } from "@shared/constants";
 
@@ -296,20 +291,16 @@
     await import("./tipc/tipc-packet-logger");
     await import("./tipc/tipc-packet-spammer");
 
-    // Wait for the game to load
-    // This prevents hotkeys from being set, before the game is ready and used
-    while (!appState.gameLoaded) {
-      await sleep(100);
-    }
-
-    config = new Config<HotkeyConfig>({
-      configName: "hotkeys",
-      cwd: DOCUMENTS_PATH,
-      defaults: DEFAULT_HOTKEYS,
+    window.addEventListener("gameLoaded", async () => {
+      config = new Config<HotkeyConfig>({
+        configName: "hotkeys",
+        cwd: DOCUMENTS_PATH,
+        defaults: DEFAULT_HOTKEYS,
+      });
+      await config.load();
+      await loadHotkeysFromConfig();
+      setupHotkeyHandlers();
     });
-    await config.load();
-    await loadHotkeysFromConfig();
-    setupHotkeyHandlers();
   });
 
   onDestroy(() => {
