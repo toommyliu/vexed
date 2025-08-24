@@ -3,7 +3,6 @@
   import type { Command } from "@botting/command";
   import { commandOverlayState } from "@game/state.svelte";
 
-  // Props
   interface Props {
     commands?: Command[];
     currentIndex?: number;
@@ -297,25 +296,7 @@
     onwheel={handleWheel}
   >
     {#each commandOverlayState.commandStrings as command, index}
-      <div
-        class="command-item"
-        class:active={index === currentIndex}
-        onmouseover={(ev) => {
-          if (!ev.currentTarget.classList.contains("active"))
-            ev.currentTarget.classList.add("hover");
-        }}
-        onfocus={(ev) => {
-          ev.currentTarget.classList.add("hover");
-        }}
-        onmouseout={(ev) => {
-          ev.currentTarget.classList.remove("hover");
-        }}
-        onblur={(ev) => {
-          ev.currentTarget.classList.remove("hover");
-        }}
-        role="listitem"
-        tabindex="-1"
-      >
+      <div class="command-item" class:active={index === currentIndex}>
         {command}
       </div>
     {/each}
@@ -468,5 +449,8 @@
     background-color: #1a3a5a;
     border-left-color: #3a8ee6;
     font-weight: 500;
+  }
+  .command-item:hover {
+    background-color: #333;
   }
 </style>
