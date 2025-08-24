@@ -154,12 +154,18 @@ export function initCommandOverlayState() {
   const headerText = $derived(`Commands (${commandCount})`);
   const toggleButtonText = $derived(listVisible ? "▼" : "▶");
 
+  /**
+   * Updates the command list and current index.
+   *
+   * @param commands - The new list of commands.
+   * @param currentIndex - The index of the currently selected command.
+   * @returns True if the command list was updated, false otherwise.
+   */
   function updateCommands(commands: Command[], currentIndex: number): boolean {
     const commandStrings = commands.map(
       (cmd, index) => `[${index + 1}] ${cmd.toString()}`,
     );
 
-    // Check if there's actually a change
     if (
       lastIndex === currentIndex &&
       lastCommands.length === commandStrings.length &&

@@ -1,14 +1,6 @@
 <script lang="ts">
   import { onMount, createEventDispatcher } from "svelte";
-  import type { Command } from "@botting/command";
   import { commandOverlayState } from "@game/state.svelte";
-
-  interface Props {
-    commands?: Command[];
-    currentIndex?: number;
-  }
-
-  let { commands = [], currentIndex = -1 }: Props = $props();
 
   const dispatch = createEventDispatcher<{
     display: boolean;
@@ -22,35 +14,6 @@
   let resizeObserver: ResizeObserver | null = null;
 
   $effect(() => {
-    if (commandOverlayState.updateThrottleId !== null)
-      window.cancelAnimationFrame(commandOverlayState.updateThrottleId);
-
-    commandOverlayState.updateThrottleId = window.requestAnimationFrame(() => {
-      commandOverlayState.updateThrottleId = null;
-
-      if (commandOverlayState.updateCommands(commands, currentIndex)) {
-        if (
-          commandOverlayState.lastIndex >= 0 &&
-          listContainer &&
-          window.context?.isRunning()
-        ) {
-          const activeElement = listContainer.children[
-            commandOverlayState.lastIndex
-          ] as HTMLElement;
-          if (activeElement) {
-            setTimeout(() => {
-              activeElement.scrollIntoView({
-                block: "nearest",
-                behavior: "smooth",
-              });
-            }, 10);
-          }
-        }
-      }
-    });
-  });
-
-  $effect(() => {
     if (commandOverlayState.isVisible) {
       dispatch("display", true);
       dispatch("show");
@@ -61,7 +24,10 @@
   });
 
   function handleDragStart(ev: MouseEvent) {
+    // If not left mouse button
     if (ev.button !== 0) return;
+
+    // If the target is a control element, ignore
     if (
       (ev.target as HTMLElement).classList.contains("command-overlay-control")
     )
@@ -122,16 +88,12 @@
 
   function handleKeyDown(ev: KeyboardEvent) {
     try {
-      // If for some reason, the chat is focused, ignore key events
       if (window.swf?.isTextFieldFocused?.()) return;
+    } catch {}
 
-      // Toggle overlay visibility
-      if (ev.key === "`" || ev.key === "~") {
-        ev.preventDefault();
-        commandOverlayState.toggle();
-      }
-    } catch {
-      // Ignore errors
+    if (ev.key === "`" || ev.key === "~") {
+      ev.preventDefault();
+      commandOverlayState.toggle();
     }
   }
 
