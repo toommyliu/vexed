@@ -184,12 +184,7 @@
         Mousetrap.bind(item.value, (ev) => {
           // Prevent hotkeys from triggering if any text field is focused
           // But we don't call ev.preventDefault() here, so the input can still be typed
-          if (bot.flash.call(() => swf.isTextFieldFocused())) {
-            console.log(
-              "Hotkey triggered while text field is focused, ignoring.",
-            );
-            return;
-          }
+          if (bot.flash.call(() => swf.isTextFieldFocused())) return;
 
           ev.preventDefault();
           handleHotkeyAction(item.id);
@@ -241,7 +236,7 @@
         break;
 
       case "toggle-command-overlay":
-        scriptState.showOverlay = !scriptState.showOverlay;
+        commandOverlayState.toggle();
         break;
 
       case "toggle-dev-tools":

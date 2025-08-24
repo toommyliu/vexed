@@ -86,17 +86,6 @@
     commandOverlayState.savePosition(overlay);
   }
 
-  function handleKeyDown(ev: KeyboardEvent) {
-    try {
-      if (window.swf?.isTextFieldFocused?.()) return;
-    } catch {}
-
-    if (ev.key === "`" || ev.key === "~") {
-      ev.preventDefault();
-      commandOverlayState.toggle();
-    }
-  }
-
   function handleWheel(ev: WheelEvent) {
     const container = listContainer;
     const { scrollTop, scrollHeight, clientHeight } = container;
@@ -162,13 +151,11 @@
 
     document.addEventListener("mousemove", handleDragMove);
     document.addEventListener("mouseup", handleDragEnd);
-    document.addEventListener("keydown", handleKeyDown);
 
     return () => {
       resizeObserver?.disconnect();
 
       document.removeEventListener("mouseup", handleDragEnd);
-      document.removeEventListener("keydown", handleKeyDown);
     };
   });
 </script>
