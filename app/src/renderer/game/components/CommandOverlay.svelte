@@ -29,9 +29,13 @@
       commandOverlayState.updateThrottleId = null;
 
       if (commandOverlayState.updateCommands(commands, currentIndex)) {
-        if (currentIndex >= 0 && listContainer && window.context?.isRunning()) {
+        if (
+          commandOverlayState.lastIndex >= 0 &&
+          listContainer &&
+          window.context?.isRunning()
+        ) {
           const activeElement = listContainer.children[
-            currentIndex
+            commandOverlayState.lastIndex
           ] as HTMLElement;
           if (activeElement) {
             setTimeout(() => {
@@ -55,30 +59,6 @@
       dispatch("hide");
     }
   });
-
-  export function show() {
-    commandOverlayState.show();
-  }
-
-  export function hide() {
-    commandOverlayState.hide();
-  }
-
-  export function toggle() {
-    commandOverlayState.toggle();
-  }
-
-  export function isVisible() {
-    return commandOverlayState.isVisible;
-  }
-
-  export function updateCommands(
-    newCommands: Command[],
-    newCurrentIndex: number,
-  ) {
-    commands = newCommands;
-    currentIndex = newCurrentIndex;
-  }
 
   function handleDragStart(ev: MouseEvent) {
     if (ev.button !== 0) return;
@@ -296,7 +276,10 @@
     onwheel={handleWheel}
   >
     {#each commandOverlayState.commandStrings as command, index}
-      <div class="command-item" class:active={index === currentIndex}>
+      <div
+        class="command-item"
+        class:active={index === commandOverlayState.lastIndex}
+      >
         {command}
       </div>
     {/each}
