@@ -887,7 +887,7 @@
   </div>
 </main>
 
-<CommandOverlay on:display={(ev) => (scriptState.showOverlay = ev.detail)} />
+<CommandOverlay />
 
 {#snippet OptionCheckmark()}
   <div

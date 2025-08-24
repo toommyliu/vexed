@@ -1,12 +1,6 @@
 <script lang="ts">
-  import { onMount, createEventDispatcher } from "svelte";
-  import { commandOverlayState } from "@game/state.svelte";
-
-  const dispatch = createEventDispatcher<{
-    display: boolean;
-    hide: void;
-    show: void;
-  }>();
+  import { onMount } from "svelte";
+  import { commandOverlayState, scriptState } from "@game/state.svelte";
 
   let overlay: HTMLDivElement;
   let listContainer: HTMLDivElement;
@@ -14,13 +8,7 @@
   let resizeObserver: ResizeObserver | null = null;
 
   $effect(() => {
-    if (commandOverlayState.isVisible) {
-      dispatch("display", true);
-      dispatch("show");
-    } else {
-      dispatch("display", false);
-      dispatch("hide");
-    }
+    scriptState.showOverlay = commandOverlayState.isVisible;
   });
 
   function handleDragStart(ev: MouseEvent) {
