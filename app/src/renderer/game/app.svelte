@@ -17,6 +17,7 @@
   import { DEFAULT_HOTKEYS, DOCUMENTS_PATH } from "@shared/constants";
 
   import CommandOverlay from "./components/CommandOverlay.svelte";
+  import IconCheckmark from "./components/IconCheckmark.svelte";
 
   const DEFAULT_PADS = [
     "Center",
@@ -532,7 +533,7 @@
                   (gameState.infiniteRange = !gameState.infiniteRange)}
               >
                 <span>Infinite Range</span>
-                {@render OptionCheckmark()}
+                <IconCheckmark />
               </button>
               <button
                 class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
@@ -541,7 +542,7 @@
                 onclick={() => (gameState.provokeMap = !gameState.provokeMap)}
               >
                 <span>Provoke Map</span>
-                {@render OptionCheckmark()}
+                <IconCheckmark />
               </button>
               <button
                 class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
@@ -550,7 +551,7 @@
                 onclick={() => (gameState.provokeCell = !gameState.provokeCell)}
               >
                 <span>Provoke Cell</span>
-                {@render OptionCheckmark()}
+                <IconCheckmark />
               </button>
               <button
                 class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
@@ -559,7 +560,7 @@
                 onclick={() => (gameState.enemyMagnet = !gameState.enemyMagnet)}
               >
                 <span>Enemy Magnet</span>
-                {@render OptionCheckmark()}
+                <IconCheckmark />
               </button>
               <button
                 class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
@@ -568,7 +569,7 @@
                 onclick={() => (gameState.lagKiller = !gameState.lagKiller)}
               >
                 <span>Lag Killer</span>
-                {@render OptionCheckmark()}
+                <IconCheckmark />
               </button>
               <button
                 class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
@@ -577,7 +578,7 @@
                 onclick={() => (gameState.hidePlayers = !gameState.hidePlayers)}
               >
                 <span>Hide Players</span>
-                {@render OptionCheckmark()}
+                <IconCheckmark />
               </button>
               <button
                 class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
@@ -587,7 +588,7 @@
                   (gameState.skipCutscenes = !gameState.skipCutscenes)}
               >
                 <span>Skip Cutscenes</span>
-                {@render OptionCheckmark()}
+                <IconCheckmark />
               </button>
               <button
                 class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
@@ -596,7 +597,7 @@
                 onclick={() => (gameState.disableFx = !gameState.disableFx)}
               >
                 <span>Disable FX</span>
-                {@render OptionCheckmark()}
+                <IconCheckmark />
               </button>
               <button
                 class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
@@ -606,7 +607,7 @@
                   (gameState.disableCollisions = !gameState.disableCollisions)}
               >
                 <span>Disable Collisions</span>
-                {@render OptionCheckmark()}
+                <IconCheckmark />
               </button>
               <div
                 class="flex w-full cursor-default items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
@@ -694,7 +695,7 @@
                 class:option-active={autoAggroEnabled}
               >
                 <span>Enabled</span>
-                {@render OptionCheckmark()}
+                <IconCheckmark />
               </button>
             </div>
           </div>
@@ -880,28 +881,6 @@
 
 <CommandOverlay />
 
-{#snippet OptionCheckmark()}
-  <div
-    class="option-checkmark"
-    style="background-color: transparent !important; isolation: isolate; position: relative; z-index: 1;"
-  >
-    <svg
-      viewBox="0 0 20 20"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      class="h-4 w-4 text-green-400"
-    >
-      <path
-        d="M5 10.5l4 4 6-8"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      />
-    </svg>
-  </div>
-{/snippet}
-
 <style>
   :global(:root) {
     --topnav-height: 36px;
@@ -962,24 +941,6 @@
     border-color: var(--accent-blue);
     box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.5);
     background-color: rgba(55, 65, 81, 0.7);
-  }
-
-  :global(.option-checkmark) {
-    display: flex;
-    align-items: center;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.2s ease;
-  }
-
-  :global(.option-checkmark svg) {
-    width: 16px;
-    height: 16px;
-  }
-
-  :global(.option-active .option-checkmark) {
-    opacity: 1;
-    visibility: visible;
   }
 
   :global(#topnav > div.ml-auto.mr-2.flex.items-center.gap-4) {
