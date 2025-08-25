@@ -72,6 +72,12 @@ export default class Config<S = Record<string, any>> {
   save(): Promise<void>;
 
   /**
+   * Reload configuration from disk, discarding any in-memory cache.
+   * Returns the freshly loaded store.
+   */
+  reload(): Promise<S>;
+
+  /**
    * Get a value from the config.
    * @param key - The key to get the value for. Supports dot notation.
    * @param defaultValue - Default value to return if key doesn't exist.
