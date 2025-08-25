@@ -8,12 +8,12 @@
     "./main": {
       "types": "./tipc/main/index.d.ts",
       "import": "./dist/main.js",
-      "require": "./main/index.js"
+      "require": "./dist/main.js"
     },
     "./renderer": {
       "types": "./tipc/renderer/index.d.ts",
       "import": "./renderer/index.js",
-      "require": "./renderer/index.js"
+      "require": "./dist/renderer.js"
     },
     ".": {
       "types": "./tipc/main/index.d.ts",
