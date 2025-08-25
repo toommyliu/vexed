@@ -291,8 +291,11 @@
     await import("./tipc/tipc-loader-grabber");
     await import("./tipc/tipc-packet-logger");
     await import("./tipc/tipc-packet-spammer");
+  });
 
-    window.addEventListener("gameLoaded", async () => {
+  window.addEventListener(
+    "gameLoaded",
+    async () => {
       config = new Config<HotkeyConfig>({
         configName: "hotkeys",
         cwd: DOCUMENTS_PATH,
@@ -301,8 +304,9 @@
       await config.load();
       await loadHotkeysFromConfig();
       setupHotkeyHandlers();
-    });
-  });
+    },
+    { once: true },
+  );
 
   onDestroy(() => {
     Mousetrap.reset();
