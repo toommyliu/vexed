@@ -987,7 +987,7 @@
     display: none;
   }
 
-  .option-active:hover .option-checkmark {
+  :global(.option-active:hover .option-checkmark) {
     display: block;
   }
 </style>
