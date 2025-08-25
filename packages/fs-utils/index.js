@@ -141,7 +141,11 @@ async function writeJson(path, data, indent = 2) {
 
   try {
     const jsonString = JSON.stringify(data, null, indent);
-    await fsExtraEnsureDir(dirname(path));
+
+    if (!(await pathExists(dirname(path)))) {
+      await fsExtraEnsureDir(dirname(path));
+    }
+
     await atomicWriteFile(path, jsonString, "utf8");
   } catch (err) {
     if (err instanceof TypeError && err.message.includes("circular")) {
