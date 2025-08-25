@@ -2,7 +2,7 @@ import { join } from "path";
 import type { tipc } from "@vexed/tipc";
 import { BrowserWindow } from "electron";
 import { WindowIds } from "../../shared/types";
-import { ASSET_PATH, DIST_PATH } from "../constants";
+import { ASSET_PATH, DIST_PATH, IS_PACKAGED } from "../constants";
 import { windowStore } from "../windows";
 
 type TipcInstance = ReturnType<typeof tipc.create>;
@@ -124,6 +124,8 @@ export function createGameTipcRouter(tipcInstance: TipcInstance) {
         });
 
         await window.loadFile(path!);
+
+        if (!IS_PACKAGED) window.webContents.openDevTools({ mode: "right" });
       }),
     getAssetPath: tipcInstance.procedure.action(async () => ASSET_PATH),
   };

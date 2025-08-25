@@ -14,7 +14,7 @@
     findConflicts,
     getActionForHotkey,
   } from "./utils";
-  import { DEFAULT_HOTKEYS, HOTKEYS_PATH } from "@/shared";
+  import { DEFAULT_HOTKEYS, DOCUMENTS_PATH } from "@/shared";
 
   let config = $state<Config<HotkeyConfig> | null>(null);
   let hotkeysSections = $state<HotkeySection[]>(createHotkeyConfig());
@@ -33,12 +33,13 @@
     try {
       for (const section of hotkeysSections) {
         for (const item of section.items) {
+          // @ts-expect-error
           config.set(item.configKey, item.value);
         }
       }
 
       await config.save();
-      // console.log("Hotkey configuration saved successfully");
+      // console.log("Hotkey configuration saved successfully", Date.now());
     } catch (error) {
       // console.error("Failed to save hotkey configuration:", error);
     }
@@ -169,7 +170,7 @@
   onMount(async () => {
     config = new Config<HotkeyConfig>({
       configName: "hotkeys",
-      cwd: HOTKEYS_PATH,
+      cwd: DOCUMENTS_PATH,
       defaults: DEFAULT_HOTKEYS,
     });
     await config.load();
