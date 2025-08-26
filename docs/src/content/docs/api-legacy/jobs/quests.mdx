@@ -1,0 +1,29 @@
+---
+title: QuestsJob
+---
+
+import { Badge, Code } from "@astrojs/starlight/components";
+
+## Properties
+### id
+
+Type: `string`
+
+### priority
+
+Type: `number`
+
+### skipReadyCheck
+Whether this job should be allowed to run while the player is not ready.
+
+Type: `boolean`
+
+## Methods
+
+### execute
+
+**Returns**: `Promise<void>`
+
+### restart
+
+**Returns**: `void`

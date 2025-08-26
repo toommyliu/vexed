@@ -1,0 +1,112 @@
+---
+title: Environment
+---
+
+import { Badge, Code } from "@astrojs/starlight/components";
+
+## Properties
+### bot
+
+Type: [`Bot`](/api-legacy/bot)
+
+### boosts <Badge text="Getter" size="small" />	
+Getter for the current boosts to watch/use.
+
+Type: `Set<string>`
+
+### itemNames <Badge text="Getter" size="small" />	
+Getter for the current item names to pickup.
+
+Type: `Set<string>`
+
+### questIds <Badge text="Getter" size="small" />	
+
+Type: `Set<number>`
+
+### rejectElse <Badge text="Getter" size="small" />	
+
+Type: `boolean`
+
+## Methods
+
+### addBoost
+Adds a boost item name to the environment.
+Emits `boostsChanged` when the set is modified.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| boostName | `string` |  |
+
+**Returns**: `void`
+
+### addItemName
+Adds an item name to the environment.
+| Parameter | Type | Optional | Default | Description |
+|-----------|------|----------|---------|-------------|
+| itemName | `string` |  |  | The item name to add. |
+| rejectElse | `boolean` | ✓ | `false` | Whether to reject other items. |
+
+**Returns**: `void`
+
+### addQuestId
+Adds a quest ID to the environment.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| questId | `string` \| `number` | The quest ID to add. |
+
+**Returns**: `void`
+
+### hasBoost
+Checks if a boost item name is in the environment.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| boostName | `string` |  |
+
+**Returns**: `boolean`
+
+### hasItemName
+Checks if an item name is in the environment.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| itemName | `string` | The item name to check. |
+
+**Returns**: `boolean`
+
+### hasQuestId
+Checks if a quest ID is in the environment.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| questId | `string` \| `number` | The quest ID to check. |
+
+**Returns**: `boolean`
+
+### removeBoost
+Removes a boost item name from the environment.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| boostName | `string` |  |
+
+**Returns**: `void`
+
+### removeItemName
+Removes an item name from the environment.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| itemName | `string` | The item name to remove. |
+
+**Returns**: `void`
+
+### removeQuestId
+Removes a quest ID from the environment.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| questId | `string` \| `number` | The quest ID to remove. |
+
+**Returns**: `void`
+
+## Events
+
+### boostsChanged
+
+### itemNamesChanged
+
+### questIdsChanged
