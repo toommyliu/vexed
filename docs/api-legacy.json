@@ -1,0 +1,260 @@
+[
+  {
+    "label": "Jobs",
+    "items": [
+      {
+        "label": "AutoReloginJob",
+        "link": "/api-legacy/jobs/autoreloginjob"
+      },
+      {
+        "label": "BoostsJob",
+        "link": "/api-legacy/jobs/boostsjob"
+      },
+      {
+        "label": "DropsJob",
+        "link": "/api-legacy/jobs/dropsjob"
+      },
+      {
+        "label": "Job",
+        "link": "/api-legacy/jobs/job"
+      },
+      {
+        "label": "QuestsJob",
+        "link": "/api-legacy/jobs/questsjob"
+      }
+    ],
+    "collapsed": true
+  },
+  {
+    "label": "Models",
+    "items": [
+      {
+        "label": "Avatar",
+        "link": "/api-legacy/models/avatar"
+      },
+      {
+        "label": "BankItem",
+        "link": "/api-legacy/models/bankitem"
+      },
+      {
+        "label": "BaseEntity",
+        "link": "/api-legacy/models/baseentity"
+      },
+      {
+        "label": "Faction",
+        "link": "/api-legacy/models/faction"
+      },
+      {
+        "label": "HouseItem",
+        "link": "/api-legacy/models/houseitem"
+      },
+      {
+        "label": "InventoryItem",
+        "link": "/api-legacy/models/inventoryitem"
+      },
+      {
+        "label": "Item",
+        "link": "/api-legacy/models/item"
+      },
+      {
+        "label": "Monster",
+        "link": "/api-legacy/models/monster"
+      },
+      {
+        "label": "Quest",
+        "link": "/api-legacy/models/quest"
+      },
+      {
+        "label": "Server",
+        "link": "/api-legacy/models/server"
+      },
+      {
+        "label": "ShopItem",
+        "link": "/api-legacy/models/shopitem"
+      },
+      {
+        "label": "TempInventoryItem",
+        "link": "/api-legacy/models/tempinventoryitem"
+      }
+    ],
+    "collapsed": true
+  },
+  {
+    "label": "Typedefs",
+    "items": [
+      {
+        "label": "KillOptions",
+        "link": "/api-legacy/typedefs/killoptions"
+      },
+      {
+        "label": "AvatarData",
+        "link": "/api-legacy/typedefs/avatardata"
+      },
+      {
+        "label": "Aura",
+        "link": "/api-legacy/typedefs/aura"
+      },
+      {
+        "label": "BaseEntityData",
+        "link": "/api-legacy/typedefs/baseentitydata"
+      },
+      {
+        "label": "FactionData",
+        "link": "/api-legacy/typedefs/factiondata"
+      },
+      {
+        "label": "ItemData",
+        "link": "/api-legacy/typedefs/itemdata"
+      },
+      {
+        "label": "MonsterData",
+        "link": "/api-legacy/typedefs/monsterdata"
+      },
+      {
+        "label": "QuestData",
+        "link": "/api-legacy/typedefs/questdata"
+      },
+      {
+        "label": "QuestRequiredItem",
+        "link": "/api-legacy/typedefs/questrequireditem"
+      },
+      {
+        "label": "QuestRequiredItemsRaw",
+        "link": "/api-legacy/typedefs/questrequireditemsraw"
+      },
+      {
+        "label": "QuestReward",
+        "link": "/api-legacy/typedefs/questreward"
+      },
+      {
+        "label": "QuestRewardRaw",
+        "link": "/api-legacy/typedefs/questrewardraw"
+      },
+      {
+        "label": "QuestRewards2Raw",
+        "link": "/api-legacy/typedefs/questrewards2raw"
+      },
+      {
+        "label": "QuestTurnInRaw",
+        "link": "/api-legacy/typedefs/questturninraw"
+      },
+      {
+        "label": "ServerData",
+        "link": "/api-legacy/typedefs/serverdata"
+      },
+      {
+        "label": "ShopItemData",
+        "link": "/api-legacy/typedefs/shopitemdata"
+      },
+      {
+        "label": "ShopInfo",
+        "link": "/api-legacy/typedefs/shopinfo"
+      }
+    ],
+    "collapsed": true
+  },
+  {
+    "label": "Enums",
+    "items": [
+      {
+        "label": "EntityState",
+        "link": "/api-legacy/enums/entitystate"
+      },
+      {
+        "label": "ClientPacket",
+        "link": "/api-legacy/enums/clientpacket"
+      },
+      {
+        "label": "ServerPacket",
+        "link": "/api-legacy/enums/serverpacket"
+      },
+      {
+        "label": "BoostType",
+        "link": "/api-legacy/enums/boosttype"
+      },
+      {
+        "label": "GameAction",
+        "link": "/api-legacy/enums/gameaction"
+      }
+    ],
+    "collapsed": true
+  },
+  {
+    "label": "Util",
+    "items": [
+      {
+        "label": "Flash",
+        "link": "/api-legacy/util/flash"
+      }
+    ],
+    "collapsed": true
+  },
+  {
+    "label": "Army",
+    "link": "/api-legacy/army"
+  },
+  {
+    "label": "Auth",
+    "link": "/api-legacy/auth"
+  },
+  {
+    "label": "Bank",
+    "link": "/api-legacy/bank"
+  },
+  {
+    "label": "Bot",
+    "link": "/api-legacy/bot"
+  },
+  {
+    "label": "Combat",
+    "link": "/api-legacy/combat"
+  },
+  {
+    "label": "Drops",
+    "link": "/api-legacy/drops"
+  },
+  {
+    "label": "Environment",
+    "link": "/api-legacy/environment"
+  },
+  {
+    "label": "House",
+    "link": "/api-legacy/house"
+  },
+  {
+    "label": "Inventory",
+    "link": "/api-legacy/inventory"
+  },
+  {
+    "label": "Packets",
+    "link": "/api-legacy/packets"
+  },
+  {
+    "label": "Player",
+    "link": "/api-legacy/player"
+  },
+  {
+    "label": "Quests",
+    "link": "/api-legacy/quests"
+  },
+  {
+    "label": "Scheduler",
+    "link": "/api-legacy/scheduler"
+  },
+  {
+    "label": "Settings",
+    "link": "/api-legacy/settings"
+  },
+  {
+    "label": "Shops",
+    "link": "/api-legacy/shops"
+  },
+  {
+    "label": "TempInventory",
+    "link": "/api-legacy/tempinventory"
+  },
+  {
+    "label": "World",
+    "link": "/api-legacy/world"
+  }
+]
