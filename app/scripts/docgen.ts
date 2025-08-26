@@ -1044,7 +1044,7 @@ const generateCommandsTypesFile = async () => {
   );
 
   // Output path for the types file
-  const typesOutputPath = join(process.cwd(), "commands.d.ts");
+  const typesOutputPath = join(process.cwd(), "../commands.d.ts");
 
   const files = new Set<string>();
   await totalist(apiEntryPath, (_, absPath) => {
