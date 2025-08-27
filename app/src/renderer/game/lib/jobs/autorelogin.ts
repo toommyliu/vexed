@@ -119,8 +119,4 @@ export class AutoReloginJob extends Job {
 
     if (server) AutoReloginJob.server = server;
   }
-
-  public restart() {
-    /* noop */
-  }
 }
