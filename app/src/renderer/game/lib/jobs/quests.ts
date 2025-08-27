@@ -38,7 +38,7 @@ export class QuestsJob extends Job {
 
     if (this.index === 0) await this.bot.sleep(1_000);
 
-    this.logger.info(`quest id this tick: ${questId} (${this.index})`);
+    // this.logger.info(`quest id this tick: ${questId} (${this.index})`);
 
     if (!this.bot.quests.get(questId)) {
       this.logger.info(`load quest id ${questId}`);
@@ -54,12 +54,12 @@ export class QuestsJob extends Job {
         questId,
       );
       const numMaxTurnIns = Number(maxTurnIns);
-      this.logger.info(`complete quest id ${questId} with ${maxTurnIns}`);
+      // this.logger.info(`complete quest id ${questId} with ${maxTurnIns}`);
       await this.bot.quests.complete(questId, numMaxTurnIns);
     }
 
     if (!this.bot.flash.call(() => swf.questsIsInProgress(questId))) {
-      this.logger.info(`accept quest id ${questId}`);
+      // this.logger.info(`accept quest id ${questId}`);
       await this.bot.quests.accept(questId);
     }
 
