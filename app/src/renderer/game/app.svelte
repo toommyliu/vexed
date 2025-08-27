@@ -930,6 +930,10 @@
     box-shadow: none;
   }
 
+  :global(#option-walkspeed:hover, #option-fps:hover) {
+    background-color: var(--hover-bg);
+  }
+
   :global(.walkspeed-input) {
     width: 60px;
     height: 24px;
