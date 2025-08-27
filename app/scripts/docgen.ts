@@ -243,7 +243,6 @@ const generateLegacyApiDoc = async () => {
       absPath.endsWith(".ts") &&
       !EXCLUDED_PARTIAL_PATHS.some((excluded) => absPath.includes(excluded))
     ) {
-      console.log(absPath);
       files.add(absPath);
     }
   });
