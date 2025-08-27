@@ -96,6 +96,8 @@ window.loaded = async () => {
   window.dispatchEvent(new Event("gameLoaded"));
   appState.gameLoaded = true;
 
+  void bot.scheduler.start();
+
   const usernameArg = process.argv.find((arg) => arg.startsWith("--username="));
   const passwordArg = process.argv.find((arg) => arg.startsWith("--password="));
   const scriptPath = process.argv.find((arg) =>
