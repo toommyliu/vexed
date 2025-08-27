@@ -6,11 +6,7 @@ export class CommandArmySetConfigCommand extends Command {
   public override skipDelay = true;
 
   public override execute() {
-    const cleanName = this.fileName.startsWith("storage/")
-      ? this.fileName
-      : `storage/${this.fileName}`;
-
-    this.bot.army.setConfigName(cleanName);
+    this.bot.army.setConfigName(this.fileName.toLowerCase());
   }
 
   public override toString() {

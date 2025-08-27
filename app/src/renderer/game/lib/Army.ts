@@ -56,7 +56,6 @@ export class Army {
    * Initializes everything needed to begin armying.
    */
   public async init(): Promise<boolean> {
-    // Load the config
     try {
       await this.config.load();
       // await this.config.load();
