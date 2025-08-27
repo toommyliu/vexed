@@ -229,9 +229,21 @@ const generateLegacyApiDoc = async () => {
 
   await initializeDirectory(docsEntryPath);
 
+  const EXCLUDED_PARTIAL_PATHS = [
+    "lib/jobs/boosts.ts",
+    "lib/jobs/drops.ts",
+    "lib/jobs/quests.ts",
+    "lib/jobs/autorelogin.ts",
+  ];
+
   const files = new Set<string>();
   await totalist(apiEntryPath, (_, absPath) => {
-    if (!absPath.endsWith(".d.ts") && absPath.endsWith(".ts")) {
+    if (
+      !absPath.endsWith(".d.ts") &&
+      absPath.endsWith(".ts") &&
+      !EXCLUDED_PARTIAL_PATHS.some((excluded) => absPath.includes(excluded))
+    ) {
+      console.log(absPath);
       files.add(absPath);
     }
   });

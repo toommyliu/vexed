@@ -3,24 +3,8 @@
     "label": "Jobs",
     "items": [
       {
-        "label": "AutoReloginJob",
-        "link": "/api-legacy/jobs/autoreloginjob"
-      },
-      {
-        "label": "BoostsJob",
-        "link": "/api-legacy/jobs/boostsjob"
-      },
-      {
-        "label": "DropsJob",
-        "link": "/api-legacy/jobs/dropsjob"
-      },
-      {
         "label": "Job",
         "link": "/api-legacy/jobs/job"
-      },
-      {
-        "label": "QuestsJob",
-        "link": "/api-legacy/jobs/questsjob"
       }
     ],
     "collapsed": true
