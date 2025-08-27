@@ -867,7 +867,7 @@
   </div>
 
   <div
-    class="invisible opacity-0"
+    class="invisible relative opacity-0"
     id="game-container"
     style="height: {topNavVisible
       ? 'calc(100vh - var(--topnav-height) - 2px)'
@@ -925,8 +925,9 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   }
 
-  :global(#game-container) {
-    position: relative;
+  :global([id$="-dropdowncontent"] > button:hover) {
+    transform: none;
+    box-shadow: none;
   }
 
   :global(.walkspeed-input) {
