@@ -309,7 +309,7 @@ export class Context extends TypedEmitter<Events> {
     commandOverlayState.show();
 
     await this.doPreInit();
-    await Promise.all([this.runTimers(), this.runCommands()]);
+    await this.runCommands();
   }
 
   public async stop() {
@@ -361,10 +361,6 @@ export class Context extends TypedEmitter<Events> {
     );
 
     this.emit("start");
-  }
-
-  private async runTimers() {
-    await this.bot.scheduler.start();
   }
 
   private async runCommands() {
