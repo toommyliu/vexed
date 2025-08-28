@@ -382,37 +382,39 @@ export class Context extends TypedEmitter<Events> {
     }
 
     while (this._commandIndex < this._commands.length && this.isRunning()) {
-      if (!this.isRunning()) break;
-
       try {
-        const command = this.getCommand(this.commandIndex);
-        if (!command) {
-          break;
-        }
+        const command = this.getCommand(this._commandIndex);
+        if (!command) break;
 
         commandOverlayState.updateCommands(this._commands, this._commandIndex);
 
-        const result = command.execute();
-        if (result instanceof Promise) {
-          await result;
-        }
+        await command.execute();
 
         if (!this.isRunning()) break;
 
-        if (!command.skipDelay) {
+        if (command.skipDelay) {
+          await new Promise((resolve) => {
+            setImmediate(resolve);
+          });
+        } else {
           await this.bot.sleep(this._commandDelay);
         }
 
         if (!this.isRunning()) break;
 
-        if (this.isRunning()) this._commandIndex++;
+        this._commandIndex++;
       } catch (error) {
-        logger.error("Error executing a command", error);
+        logger.error(
+          `Error executing command at index ${this._commandIndex}:`,
+          error,
+        );
+
+        if (!this.isRunning()) break;
+        this._commandIndex++;
       }
     }
 
     this._stop();
-    // logger.info('command execution finished');
   }
 
   private _stop() {
