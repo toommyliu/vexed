@@ -360,10 +360,17 @@ export const miscCommands = {
     window.context.addCommand(cmd);
   },
   /**
-   * Buffs by casting the first 3 skills.
+   * Buffs by casting the first 3 skills, or the provided skill set.
+   *
+   * @param skillList - The optional skill set to use for buffing.
    */
-  buff() {
+  buff(skillList?: number[]) {
+    if (skillList && !Array.isArray(skillList)) {
+      throw new ArgsError("skillList is required");
+    }
+
     const cmd = new CommandBuff();
+    cmd.skills = skillList ?? [];
     window.context.addCommand(cmd);
   },
   /**

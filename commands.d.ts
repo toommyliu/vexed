@@ -245,8 +245,8 @@ If results are ambiguous, the first matching item will be used. Use itemType to 
   set_spawn(cell?: string, pad?: string): void;
   /** Walks to a point on the map. */
   walk_to(x: number, y: number): void;
-  /** Buffs by casting the first 3 skills. */
-  buff(): void;
+  /** Buffs by casting the first 3 skills, or the provided skill set. */
+  buff(skillList?: number[]): void;
   /** Buys the specified quantity of Scroll of Life Steal. */
   buy_lifesteal(qty: number): void;
   buy_scroll_of_enrage(qty: number): void;
