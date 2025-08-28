@@ -11,7 +11,6 @@ export class CommandBuff extends Command {
     if (!this.skills?.length) this.skills = SKILL_IDS;
 
     for (const skillIdx of this.skills) {
-      console.log(`use skill: ${skillIdx} (wait = ${this.wait})`);
       await this.bot.combat.useSkill(skillIdx, true, this.wait);
       await this.bot.sleep(1_000);
     }
