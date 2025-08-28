@@ -10,9 +10,10 @@ import { Badge, Code } from "@astrojs/starlight/components";
 ### cmd.buff
 Buffs by casting the first 3 skills, or the provided skill set.
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| skillList | `number[]?` | The optional skill set to use for buffing. |
+| Parameter | Type | Optional | Default | Description |
+|-----------|------|----------|---------|-------------|
+| skillList | `number[]` | ✓ | `...` | The optional skill set to use for buffing. Set to null to use the default skill set (1, 2, 3). |
+| wait | `boolean` | ✓ | `false` | Whether to wait for a skill to be ready before going to the next one. |
 
 
 ### cmd.buy_lifesteal

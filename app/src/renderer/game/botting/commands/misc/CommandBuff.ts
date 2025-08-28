@@ -5,12 +5,14 @@ const SKILL_IDS = [1, 2, 3];
 export class CommandBuff extends Command {
   public skills!: number[];
 
+  public wait!: boolean;
+
   public override async execute() {
     if (!this.skills?.length) this.skills = SKILL_IDS;
 
     for (const skillIdx of this.skills) {
-      console.log(`use skill: ${skillIdx}`);
-      await this.bot.combat.useSkill(skillIdx, true);
+      console.log(`use skill: ${skillIdx} (wait = ${this.wait})`);
+      await this.bot.combat.useSkill(skillIdx, true, this.wait);
       await this.bot.sleep(1_000);
     }
   }
