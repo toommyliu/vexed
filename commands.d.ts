@@ -250,6 +250,8 @@ If results are ambiguous, the first matching item will be used. Use itemType to 
   /** Buys the specified quantity of Scroll of Life Steal. */
   buy_lifesteal(qty: number): void;
   buy_scroll_of_enrage(qty: number): void;
+  /** Closes the window. */
+  close_window(): void;
   /** Delays command execution for a specified amount of time. */
   delay(ms: number): void;
   /** Disables the anti-counter attack setting. */
