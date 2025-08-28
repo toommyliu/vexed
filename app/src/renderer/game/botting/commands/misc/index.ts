@@ -1,3 +1,4 @@
+import { Context } from "@/renderer/game/botting/context";
 import { ArgsError } from "@botting/ArgsError";
 import { Command } from "@botting/command";
 import { CommandRegistry } from "@botting/command-registry";

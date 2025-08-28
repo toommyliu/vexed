@@ -1,4 +1,3 @@
-import { Context } from "./Context";
 import { armyCommands } from "./commands/army";
 import { combatCommands } from "./commands/combat";
 import { conditionsCommands } from "./commands/conditions";
@@ -6,6 +5,7 @@ import { itemCommands } from "./commands/item";
 import { mapCommands } from "./commands/map";
 import { miscCommands } from "./commands/misc";
 import { questCommands } from "./commands/quest";
+import { Context } from "./context";
 
 const context = Context.getInstance();
 
