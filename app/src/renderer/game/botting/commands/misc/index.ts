@@ -1,7 +1,7 @@
+import { Context } from "@/renderer/game/botting/context";
 import { ArgsError } from "@botting/ArgsError";
 import { Command } from "@botting/command";
 import { CommandRegistry } from "@botting/command-registry";
-import { Context } from "@/renderer/game/botting/Context";
 import { CommandAutoAggro } from "./CommandAutoAggro";
 import { CommandAutoZoneAstralShrine } from "./CommandAutoZoneAstralShrine";
 import { CommandAutoZoneDarkCarnax } from "./CommandAutoZoneDarkCarnax";
@@ -12,6 +12,7 @@ import { CommandAutoZoneUltraDage } from "./CommandAutoZoneUltraDage";
 import { CommandBuff } from "./CommandBuff";
 import { CommandBuyScrollOfEnrage } from "./CommandBuyScrollOfEnrage";
 import { CommandBuyScrollOfLifeSteal } from "./CommandBuyScrollOfLifeSteal";
+import { CommandCloseWindow } from "./CommandCloseWindow";
 import { CommandDelay } from "./CommandDelay";
 // import { CommandEquipLoadout } from "./CommandEquipLoadout";
 import { CommandGotoLabel } from "./CommandGotoLabel";
@@ -630,6 +631,13 @@ export const miscCommands = {
    */
   use_autozone_queeniona() {
     const cmd = new CommandAutoZoneQueenIona();
+    window.context.addCommand(cmd);
+  },
+  /**
+   * Closes the window.
+   */
+  close_window() {
+    const cmd = new CommandCloseWindow();
     window.context.addCommand(cmd);
   },
 };

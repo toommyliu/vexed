@@ -1,4 +1,4 @@
-import type { Context } from "./botting/Context";
+import type { Context } from "./botting/context";
 import type { cmd } from "./botting/index";
 import type { Bot } from "./lib/Bot";
 import type { ClientPacket } from "./lib/Packets";
