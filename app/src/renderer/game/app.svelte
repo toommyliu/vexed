@@ -409,8 +409,7 @@
               </button>
               <button
                 class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
-                onclick={() =>
-                  (scriptState.showOverlay = !scriptState.showOverlay)}
+                onclick={() => commandOverlayState.toggle()}
               >
                 {scriptState.showOverlay ? "Hide Overlay" : "Show Overlay"}
               </button>
