@@ -3,14 +3,24 @@ import { Command } from "@botting/command";
 const SKILL_IDS = [1, 2, 3];
 
 export class CommandBuff extends Command {
+  public skills!: number[];
+
+  public wait!: boolean;
+
   public override async execute() {
-    for (const skillId of SKILL_IDS) {
-      await this.bot.combat.useSkill(skillId, true);
+    if (!this.skills?.length) this.skills = SKILL_IDS;
+
+    for (const skillIdx of this.skills) {
+      await this.bot.combat.useSkill(skillIdx, true, this.wait);
       await this.bot.sleep(1_000);
     }
   }
 
   public override toString(): string {
+    if (this.skills?.length) {
+      return `Buff: ${this.skills.join(", ")}`;
+    }
+
     return "Buff";
   }
 }

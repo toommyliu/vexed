@@ -360,10 +360,23 @@ export const miscCommands = {
     window.context.addCommand(cmd);
   },
   /**
-   * Buffs by casting the first 3 skills.
+   * Buffs by casting the first 3 skills, or the provided skill set.
+   *
+   * @param skillList - The optional skill set to use for buffing. Set to null to use the default skill set (1, 2, 3).
+   * @param wait - Whether to wait for a skill to be ready before going to the next one.
    */
-  buff() {
+  buff(skillList: number[] = [1, 2, 3], wait = false) {
+    if (skillList && !Array.isArray(skillList)) {
+      throw new ArgsError("skillList is required");
+    }
+
+    if (typeof wait !== "boolean") {
+      throw new ArgsError("wait is required");
+    }
+
     const cmd = new CommandBuff();
+    cmd.skills = skillList ?? [];
+    cmd.wait = wait;
     window.context.addCommand(cmd);
   },
   /**
