@@ -13,7 +13,7 @@ export const client = createClient<TipcRouter>({
         if (error?.message === "IPC connection fatally interrupted.") {
           // eslint-disable-next-line no-alert
           alert(
-            "A critical error occurred while communicating with the main process. The application will now close.",
+            "A critical app resource has failed. The application will now close.",
           );
           window.close();
         }
