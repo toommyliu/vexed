@@ -1,0 +1,58 @@
+---
+title: AutoReloginJob
+---
+
+import { Badge, Code } from "@astrojs/starlight/components";
+
+Auto Relogin attempts a login using the provided username and password, selecting the specified server.
+
+
+## Properties
+### id
+
+Type: `string`
+
+### priority
+
+Type: `number`
+
+### skipReadyCheck
+Whether this job should be allowed to run while the player is not ready.
+
+Type: `boolean`
+
+### delay
+The delay after which a login attempt is made.
+
+Type: `number`
+
+### password
+The password to login with.
+
+Type: `null` \| `string`
+
+### server
+The server name to connect to.
+
+Type: `null` \| `string`
+
+### username
+The username to login with.
+
+Type: `null` \| `string`
+
+## Methods
+
+### execute
+
+**Returns**: `Promise<void>`
+
+### setCredentials <Badge text="static" />
+Sets the credentials for auto-login.
+| Parameter | Type | Optional | Default | Description |
+|-----------|------|----------|---------|-------------|
+| username | `string` |  |  | The username to login with. |
+| password | `string` |  |  | The password to login with. |
+| server | `string`? | ✓ |  | The server name to connect to. |
+
+**Returns**: `void`

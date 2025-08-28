@@ -1,0 +1,56 @@
+---
+title: Scheduler
+---
+
+import { Badge, Code } from "@astrojs/starlight/components";
+
+## Properties
+### bot
+
+Type: [`Bot`](/api-legacy/bot)
+
+### size <Badge text="Getter" size="small" />	
+Gets the number of jobs in the scheduler.
+
+Type: `number`
+
+## Methods
+
+### addJob
+Adds a job to the scheduler.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| job | [`Job`](/api-legacy/jobs/job) | The job to add. |
+
+**Returns**: `void`
+
+### hasJob
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| jobId | `string` |  |
+
+**Returns**: `boolean`
+
+### isRunning
+Whether the scheduler is currently running.
+
+**Returns**: `boolean`
+
+### removeJob
+Removes a job from the scheduler.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| job | [`Job`](/api-legacy/jobs/job) | The job to remove. |
+
+**Returns**: `void`
+
+### start
+Starts the scheduler, executing jobs in order of priority.
+Jobs with higher priority (larger number) are executed first.
+
+**Returns**: `Promise<void>`
+
+### stop
+Stops the scheduler.
+
+**Returns**: `void`

@@ -1,0 +1,45 @@
+{
+  "productName": "vexed",
+  "electronVersion": "6.1.12",
+  "directories": {
+    "output": "build"
+  },
+  "mac": {
+    "files": ["dist/**/*"],
+    "extraFiles": [
+      {
+        "from": "../assets",
+        "to": "Resources/app/assets",
+        "filter": ["**/*", "!pepflashplayer.dll"]
+      }
+    ],
+    "asar": "false",
+    "target": {
+      "target": "zip",
+      "arch": ["x64"]
+    },
+    "icon": "../assets/icon.png",
+    "artifactName": "${productName}-${os}.${ext}"
+  },
+  "win": {
+    "files": ["dist/**/*"],
+    "extraFiles": [
+      {
+        "from": "../assets",
+        "to": "assets",
+        "filter": ["**/*", "!PepperFlashPlayer.plugin"]
+      }
+    ],
+    "icon": "../assets/icon.ico",
+    "asar": "false",
+    "target": {
+      "target": "zip",
+      "arch": ["x64"]
+    },
+    "artifactName": "${productName}-${os}.${ext}"
+  },
+  "extraMetadata": {
+    "name": "vexed",
+    "main": "./dist/main/index.js"
+  }
+}

@@ -1,6 +1,0 @@
-- make enemy magnet only affect monsters
-- remove some redundant type validations
-- add progress bar to prevent flickering on app start
-- avoid premature optimization
-- fix reading of drops#stack
-- improve equipConsumable (?)

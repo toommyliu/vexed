@@ -1,0 +1,16 @@
+{
+  "name": "@vexed/logger",
+  "version": "1.0.0",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "require": "./index.js",
+      "default": "./index.js"
+    }
+  },
+  "dependencies": {
+    "winston": "^3.14.2"
+  }
+}

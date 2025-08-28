@@ -1,0 +1,11 @@
+{
+  "name": "@vexed/fs-utils",
+  "version": "1.0.0",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "dependencies": {
+    "atomically": "1.7.0",
+    "fs-extra": "^11.3.1",
+    "totalist": "^3.0.1"
+  }
+}

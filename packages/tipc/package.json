@@ -1,0 +1,51 @@
+{
+  "name": "@vexed/tipc",
+  "version": "0.4.0",
+  "scripts": {
+    "postinstall": "tsc && tsup tipc/src/main.ts tipc/src/renderer.ts --format cjs"
+  },
+  "exports": {
+    "./main": {
+      "types": "./tipc/main/index.d.ts",
+      "import": "./dist/main.js",
+      "require": "./main/index.js"
+    },
+    "./renderer": {
+      "types": "./tipc/renderer/index.d.ts",
+      "import": "./renderer/index.js",
+      "require": "./renderer/index.js"
+    },
+    ".": {
+      "types": "./tipc/main/index.d.ts",
+      "import": "./dist/main.js",
+      "require": "./dist/main.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "main": [
+        "./tipc/main/index.d.ts"
+      ],
+      "renderer": [
+        "./tipc/renderer/index.d.ts"
+      ]
+    }
+  },
+  "main": "./dist/main.js",
+  "module": "./dist/main.js",
+  "types": "./tipc/main/index.d.ts",
+  "devDependencies": {
+    "@lukeed/uuid": "^2.0.1",
+    "@tybys/electron-ipc-handle-invoke": "^1.0.2",
+    "electron": "^6.1.12",
+    "npm-run-all": "^4.1.5",
+    "tsup": "^8.0.2",
+    "typescript": "^5.4.5"
+  },
+  "peerDependencies": {
+    "@lukeed/uuid": "^2.0.1",
+    "@tybys/electron-ipc-handle-invoke": "^1.0.2",
+    "electron": "^6.1.12"
+  }
+}

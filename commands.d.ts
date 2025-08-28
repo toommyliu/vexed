@@ -347,9 +347,9 @@ If results are ambiguous, the first matching item will be used. Use itemType to 
   /** Completes a quest. */
   complete_quest(questId: number): void;
   /** Registers one or more quests, which automatically handles accepting and completing them. */
-  register_quest(questIds: number | number[]): void;
+  register_quest(questIds: string | number | string[] | number[]): void;
   /** Unregisters one or more quests. */
-  unregister_quest(questIds: number | number[]): void;
+  unregister_quest(questIds: string | number | string[] | number[]): void;
 };
 
 export = cmd;

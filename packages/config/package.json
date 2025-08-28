@@ -1,0 +1,9 @@
+{
+  "name": "@vexed/config",
+  "version": "1.0.0",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "dependencies": {
+    "@vexed/fs-utils": "^1.0.0"
+  }
+}

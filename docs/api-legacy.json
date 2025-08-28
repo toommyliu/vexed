@@ -1,5 +1,15 @@
 [
   {
+    "label": "Jobs",
+    "items": [
+      {
+        "label": "Job",
+        "link": "/api-legacy/jobs/job"
+      }
+    ],
+    "collapsed": true
+  },
+  {
     "label": "Models",
     "items": [
       {
@@ -157,10 +167,6 @@
     "label": "Util",
     "items": [
       {
-        "label": "AutoRelogin",
-        "link": "/api-legacy/util/autorelogin"
-      },
-      {
         "label": "Flash",
         "link": "/api-legacy/util/flash"
       }
@@ -192,6 +198,10 @@
     "link": "/api-legacy/drops"
   },
   {
+    "label": "Environment",
+    "link": "/api-legacy/environment"
+  },
+  {
     "label": "House",
     "link": "/api-legacy/house"
   },
@@ -210,6 +220,10 @@
   {
     "label": "Quests",
     "link": "/api-legacy/quests"
+  },
+  {
+    "label": "Scheduler",
+    "link": "/api-legacy/scheduler"
   },
   {
     "label": "Settings",

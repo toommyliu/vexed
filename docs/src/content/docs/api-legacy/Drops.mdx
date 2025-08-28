@@ -29,6 +29,14 @@ Adds an item to the internal store and the stack as visible to the client.
 
 **Returns**: `void`
 
+### addDrops
+Adds multiple items to the drop stack at once.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| items | [`ItemData`](/api-legacy/typedefs/itemdata)[] | Array of ItemData to add. |
+
+**Returns**: `void`
+
 ### getDropCount
 Retrieves the count of an item in the drop stack.
 | Parameter | Type | Description |
@@ -83,7 +91,7 @@ Accepts the drop for an item in the stack.
 |-----------|------|-------------|
 | item | `string` \| `number` | The name or ID of the item. |
 
-**Returns**: `Promise<void>`
+**Returns**: `Promise<boolean>`
 
 ### reject
 Rejects a drop from the stack.
@@ -92,7 +100,7 @@ Rejects a drop from the stack.
 | itemKey | `string` \| `number` |  |  | The name or ID of the item. |
 | removeFromStore | `boolean` | ✓ | `false` | Whether to delete the item entry from the store. |
 
-**Returns**: `Promise<void>`
+**Returns**: `Promise<boolean>`
 
 ### toString
 String representation of the drop stack.
