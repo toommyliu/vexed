@@ -60,8 +60,8 @@
       {#if editAccount}
         <button
           class="ml-2 flex h-7 w-7 items-center justify-center rounded bg-transparent text-zinc-400 transition-all duration-200 hover:bg-zinc-800/60 hover:text-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-500/50 group-hover:text-zinc-300"
-          onclick={(e) => {
-            e.stopPropagation();
+          onclick={(ev) => {
+            ev.stopPropagation();
             editAccount(account);
           }}
           onkeydown={(ev) => {

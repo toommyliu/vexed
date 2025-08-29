@@ -1,6 +1,7 @@
 import { join, resolve } from "path";
 import { BrowserWindow } from "electron";
 import { BRAND } from "../shared/constants";
+import type { AccountWithScript } from "../shared/types";
 import { DIST_PATH, IS_PACKAGED } from "./constants";
 import { applySecurityPolicy } from "./util/applySecurityPolicy";
 
@@ -60,7 +61,7 @@ export async function createAccountManager(): Promise<void> {
 }
 
 export async function createGame(
-  account: AccountWithServer | null = null,
+  account: AccountWithScript | null = null,
 ): Promise<void> {
   const args: string[] = [];
 
