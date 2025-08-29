@@ -18,9 +18,10 @@ export const startAccount = async (account: Account) => {
     username: account.username,
     password: account.password,
     server: managerState.selectedServer!,
-    ...(managerState.scriptPath && {
-      scriptPath: managerState.scriptPath,
-    }),
+    scriptPath:
+      managerState.startWithScript && managerState.scriptPath
+        ? managerState.scriptPath
+        : null,
   });
 };
 

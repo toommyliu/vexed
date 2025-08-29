@@ -6,7 +6,7 @@ import type { tipc } from "@vexed/tipc";
 import { getRendererHandlers } from "@vexed/tipc";
 import { dialog, BrowserWindow } from "electron";
 import { ACCOUNTS_PATH, DOCUMENTS_PATH } from "../../shared/constants";
-import type { Account, AccountWithServer } from "../../shared/types";
+import type { Account, AccountWithScript } from "../../shared/types";
 import type { RendererHandlers } from "../tipc";
 import { createGame, getManagerWindow } from "../windows";
 
@@ -118,7 +118,7 @@ export function createManagerTipcRouter(tipcInstance: TipcInstance) {
       }
     }),
     launchGame: tipcInstance.procedure
-      .input<AccountWithServer>()
+      .input<AccountWithScript>()
       .action(async ({ input }) => {
         logger.info(`Launching game for: ${input.username}`);
         await createGame(input);

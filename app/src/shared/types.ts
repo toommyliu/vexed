@@ -47,6 +47,10 @@ export type AccountWithServer = Account & {
   server: string | null;
 };
 
+export type AccountWithScript = AccountWithServer & {
+  scriptPath: string | null;
+};
+
 export type Settings = {
   /**
    * Whether debug logging is enabled.
