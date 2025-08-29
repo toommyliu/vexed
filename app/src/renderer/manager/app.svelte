@@ -70,7 +70,7 @@
   });
 </script>
 
-<main class="bg-background-primary flex min-h-screen select-none flex-col">
+<main class="flex min-h-screen select-none flex-col bg-background-primary">
   <div class="mx-auto box-border w-full max-w-4xl flex-grow p-6">
     <Header onclick={() => (isModalOpen = true)} />
 

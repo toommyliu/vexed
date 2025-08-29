@@ -42,12 +42,12 @@
   handlers.game.gameReloaded.listen(() => (isRunning = false));
 </script>
 
-<div class="bg-background-primary min-h-screen text-white">
+<div class="min-h-screen bg-background-primary text-white">
   <div class="mx-auto box-border w-full max-w-4xl p-4">
     <div class="w-full">
       <div class="mb-4">
         <div
-          class="bg-background-secondary w-full rounded-md border border-zinc-800 p-4 shadow-md"
+          class="w-full rounded-md border border-zinc-800 bg-background-secondary p-4 shadow-md"
         >
           <div
             class="h-[135px] max-h-[350px] min-h-[135px] w-full resize-y overflow-auto rounded border border-zinc-800 bg-gray-800/50 p-2"
@@ -90,7 +90,7 @@
       </div>
 
       <div
-        class="bg-background-secondary w-full rounded-md border border-zinc-800 p-4 shadow-md"
+        class="w-full rounded-md border border-zinc-800 bg-background-secondary p-4 shadow-md"
       >
         <div class="mb-4 space-y-3">
           <div class="flex w-full items-center justify-between">

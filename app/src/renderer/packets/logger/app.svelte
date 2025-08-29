@@ -165,10 +165,10 @@
   handlers.game.gameReloaded.listen(() => stop());
 </script>
 
-<div class="bg-background-primary min-h-screen select-none text-gray-200">
+<div class="min-h-screen select-none bg-background-primary text-gray-200">
   <div class="mx-auto box-border w-full max-w-5xl p-4">
     <div
-      class="bg-background-secondary mb-3 flex w-max flex-wrap border-b border-zinc-800 pb-1"
+      class="mb-3 flex w-max flex-wrap border-b border-zinc-800 bg-background-secondary pb-1"
     >
       <button
         onclick={() => (currentFilter = "all")}

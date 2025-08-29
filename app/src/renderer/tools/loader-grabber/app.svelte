@@ -379,14 +379,14 @@
 </script>
 
 <main
-  class="bg-background-primary m-0 flex min-h-screen flex-col overflow-hidden text-white focus:outline-none"
+  class="m-0 flex min-h-screen flex-col overflow-hidden bg-background-primary text-white focus:outline-none"
 >
   <div
     class="flex w-full flex-col space-y-6 p-4 sm:flex-row sm:space-x-6 sm:space-y-0"
   >
     <div class="flex-shrink-0 sm:w-1/3">
       <div
-        class="bg-background-secondary h-full rounded-lg border border-gray-800/50 p-6 backdrop-blur-sm"
+        class="h-full rounded-lg border border-gray-800/50 bg-background-secondary p-6 backdrop-blur-sm"
       >
         <h3 class="mb-6 text-xl font-semibold text-white">Loader</h3>
 
@@ -441,7 +441,7 @@
 
     <div class="w-full flex-grow sm:w-2/3">
       <div
-        class="bg-background-secondary h-full rounded-lg border border-gray-800/50 p-6 backdrop-blur-sm"
+        class="h-full rounded-lg border border-gray-800/50 bg-background-secondary p-6 backdrop-blur-sm"
       >
         <div
           class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between"
@@ -520,7 +520,7 @@
 
           <div class="flex min-h-0 flex-1 flex-col">
             <div
-              class="bg-background-primary flex-1 overflow-hidden rounded-md border border-gray-700/50 p-2 backdrop-blur-sm"
+              class="flex-1 overflow-hidden rounded-md border border-gray-700/50 bg-background-primary p-2 backdrop-blur-sm"
             >
               {#if isLoading}
                 <div class="flex h-full items-center justify-center p-8">

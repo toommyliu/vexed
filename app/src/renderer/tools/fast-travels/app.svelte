@@ -30,12 +30,12 @@
 </script>
 
 <main
-  class="bg-background-primary m-0 flex min-h-screen flex-col overflow-hidden text-white focus:outline-none"
+  class="m-0 flex min-h-screen flex-col overflow-hidden bg-background-primary text-white focus:outline-none"
 >
   <div class="flex flex-1 items-center justify-center p-4">
     <div class="w-full px-2 sm:px-4">
       <div
-        class="bg-background-secondary rounded-lg border border-gray-800/50 p-6 backdrop-blur-sm"
+        class="rounded-lg border border-gray-800/50 bg-background-secondary p-6 backdrop-blur-sm"
       >
         <div class="mb-6 space-y-3">
           <label
