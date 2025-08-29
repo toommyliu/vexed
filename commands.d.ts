@@ -239,10 +239,16 @@ If results are ambiguous, the first matching item will be used. Use itemType to 
   withdraw(item: string | number | (string | number)[]): void;
   /** Joins a map. */
   join(map: string, cell?: string, pad?: string): void;
+  /** Alias for cmd.join. */
+  join_map(map: string, cell?: string, pad?: string): void;
+  /** Alias for cmd.move_to_cell. */
+  jump_to_cell(cell: string, pad?: string): void;
   /** Moves to a cell. */
   move_to_cell(cell: string, pad?: string): void;
   /** Sets the spawnpoint. */
   set_spawn(cell?: string, pad?: string): void;
+  /** Alias for cmd.set_spawn. */
+  set_spawnpoint(cell?: string, pad?: string): void;
   /** Walks to a point on the map. */
   walk_to(x: number, y: number): void;
   /** Buffs by casting the first 3 skills, or the provided skill set. */
