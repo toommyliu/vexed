@@ -24,6 +24,16 @@ export const mapCommands = {
     window.context.addCommand(cmd);
   },
   /**
+   * Alias for cmd.join.
+   *
+   * @param map - The map to join.
+   * @param cell - The cell to join.
+   * @param pad - The pad to join.
+   */
+  join_map(map: string, cell: string = "Enter", pad: string = "Spawn") {
+    this.join(map, cell, pad);
+  },
+  /**
    * Moves to a cell.
    *
    * @param cell - The cell to move to.
@@ -38,6 +48,15 @@ export const mapCommands = {
     cmd.cell = cell;
     cmd.pad = pad;
     window.context.addCommand(cmd);
+  },
+  /**
+   * Alias for cmd.move_to_cell.
+   *
+   * @param cell - The cell to move to.
+   * @param pad - The pad to move to.
+   */
+  jump_to_cell(cell: string, pad: string = "Spawn") {
+    this.move_to_cell(cell, pad);
   },
   /**
    * Sets the spawnpoint.
@@ -56,6 +75,15 @@ export const mapCommands = {
     }
 
     window.context.addCommand(cmd);
+  },
+  /**
+   * Alias for cmd.set_spawn.
+   *
+   * @param cell - The cell to spawn in.
+   * @param pad - The pad to spawn in.
+   */
+  set_spawnpoint(cell?: string, pad?: string) {
+    this.set_spawn(cell, pad);
   },
   /**
    * Walks to a point on the map.

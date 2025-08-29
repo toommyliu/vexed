@@ -17,6 +17,25 @@ Joins a map.
 | pad | `string` | ✓ | `"Spawn"` | The pad to join. |
 
 
+### cmd.join_map
+Alias for cmd.join.
+
+| Parameter | Type | Optional | Default | Description |
+|-----------|------|----------|---------|-------------|
+| map | `string` |  |  | The map to join. |
+| cell | `string` | ✓ | `"Enter"` | The cell to join. |
+| pad | `string` | ✓ | `"Spawn"` | The pad to join. |
+
+
+### cmd.jump_to_cell
+Alias for cmd.move_to_cell.
+
+| Parameter | Type | Optional | Default | Description |
+|-----------|------|----------|---------|-------------|
+| cell | `string` |  |  | The cell to move to. |
+| pad | `string` | ✓ | `"Spawn"` | The pad to move to. |
+
+
 ### cmd.move_to_cell
 Moves to a cell.
 
@@ -28,6 +47,15 @@ Moves to a cell.
 
 ### cmd.set_spawn
 Sets the spawnpoint.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| cell | `string?` | The cell to spawn in. |
+| pad | `string?` | The pad to spawn in. |
+
+
+### cmd.set_spawnpoint
+Alias for cmd.set_spawn.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|

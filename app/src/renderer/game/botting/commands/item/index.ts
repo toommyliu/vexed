@@ -15,6 +15,13 @@ import { CommandUnregisterDrop } from "./CommandUnregisterDrop";
 import { CommandWithdraw } from "./CommandWithdraw";
 
 export const itemCommands = {
+  /**
+   * Buys an item from the shop.
+   *
+   * @param shopId - The shop id.
+   * @param item - The name or item id of the item to buy.
+   * @param quantity - The quantity of the item to buy.
+   */
   buy_item(shopId: number, item: number | string, quantity: number) {
     if (!shopId || typeof shopId !== "number") {
       throw new ArgsError("shopId is required");
@@ -34,6 +41,11 @@ export const itemCommands = {
     cmd.quantity = quantity;
     window.context.addCommand(cmd);
   },
+  /**
+   * Puts an item into the bank.
+   *
+   * @param item - The item to deposit. If provided an array, each item will be deposited.
+   */
   deposit(item: (number | string)[] | number | string) {
     if (
       !item ||
@@ -62,6 +74,11 @@ export const itemCommands = {
     cmd.itemId = typeof item === "string" ? Number.parseInt(item, 10) : item;
     window.context.addCommand(cmd);
   },
+  /**
+   * Picks up an item from the drop list.
+   *
+   * @param item - The name or item id of the item to pick up.
+   */
   pickup(item: number | string) {
     if (!item || (typeof item !== "number" && typeof item !== "string")) {
       throw new ArgsError("item is required");
@@ -71,6 +88,11 @@ export const itemCommands = {
     cmd.item = item;
     window.context.addCommand(cmd);
   },
+  /**
+   * Rejects an item from the drop list.
+   *
+   * @param item - The name or item id of the item to reject.
+   */
   reject(item: number | string) {
     if (!item || (typeof item !== "number" && typeof item !== "string")) {
       throw new ArgsError("item is required");
@@ -80,6 +102,12 @@ export const itemCommands = {
     cmd.item = item;
     window.context.addCommand(cmd);
   },
+  /**
+   * Sells an item.
+   *
+   * @param item - The name of the item to sell.
+   */
+  // TODO: support sell by itemID and add qty parameter
   sell_item(item: string) {
     if (!item || typeof item !== "string") {
       throw new ArgsError("item is required");
@@ -89,6 +117,12 @@ export const itemCommands = {
     cmd.item = item;
     window.context.addCommand(cmd);
   },
+  /**
+   * Swaps an item from the bank with an item from the inventory.
+   *
+   * @param bankItem - The name or item id of the item to swap from the bank.
+   * @param invItem - The name or item id of the item to swap from the inventory.
+   */
   swap(bankItem: number | string, invItem: number | string) {
     if (
       !bankItem ||
@@ -109,6 +143,11 @@ export const itemCommands = {
     cmd.invItem = invItem;
     window.context.addCommand(cmd);
   },
+  /**
+   * Takes out an item from the bank.
+   *
+   * @param item - The item to withdraw. If provided an array, each item will be withdrawn.
+   */
   withdraw(item: (number | string)[] | number | string) {
     if (
       !item ||
@@ -124,6 +163,12 @@ export const itemCommands = {
     cmd.item = item;
     window.context.addCommand(cmd);
   },
+  /**
+   * Registers an item to be automatically picked up when possible.
+   *
+   * @param items - The name or item id of the item(s) to pick up.
+   * @param rejectElse - Whether to reject items not in the pick up list.
+   */
   register_drop(items: string[] | string, rejectElse: boolean = false) {
     const itemArray = Array.isArray(items) ? items : [items];
     if (
@@ -142,7 +187,11 @@ export const itemCommands = {
     cmd.rejectElse = rejectElse;
     window.context.addCommand(cmd);
   },
-
+  /**
+   * Unregisters an item from the drop list.
+   *
+   * @param items - The name or item id of the item(s) to unregister.
+   */
   unregister_drop(items: string[] | string) {
     const itemArray = Array.isArray(items) ? items : [items];
     if (
@@ -156,6 +205,11 @@ export const itemCommands = {
     cmd.item = itemArray;
     window.context.addCommand(cmd);
   },
+  /**
+   * Registers a consumable boost to use when available.
+   *
+   * @param item - The name of the item boost to use.
+   */
   register_boost(item: string) {
     if (!item || typeof item !== "string") {
       throw new ArgsError("item is required");
@@ -165,6 +219,11 @@ export const itemCommands = {
     cmd.item = item;
     window.context.addCommand(cmd);
   },
+  /**
+   * Unregisters a consumable boost.
+   *
+   * @param item - The name of the item boost to unregister.
+   */
   unregister_boost(item: string) {
     if (!item || typeof item !== "string") {
       throw new ArgsError("item is required");
