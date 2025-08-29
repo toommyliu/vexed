@@ -1,3 +1,4 @@
+import { SvelteMap } from "svelte/reactivity";
 import type { Command } from "./botting/command";
 
 function initState() {
@@ -118,6 +119,7 @@ function initScriptState() {
 function initAppState() {
   // Whether the game has loaded.
   let gameLoaded = $state(false);
+  let skillSets = $state(new SvelteMap<string, number[]>());
 
   return {
     get gameLoaded() {
@@ -125,6 +127,12 @@ function initAppState() {
     },
     set gameLoaded(value) {
       gameLoaded = value;
+    },
+    get skillSets() {
+      return skillSets;
+    },
+    set skillSets(value) {
+      skillSets = value;
     },
   };
 }

@@ -7,17 +7,18 @@ const isMac = process.platform === "darwin";
 export const BRAND = "vexed";
 export const DOCUMENTS_PATH = join(os.homedir(), "Documents", BRAND);
 
-export const SCRIPTS_DIR = join(DOCUMENTS_PATH, "scripts");
-export const SETTINGS_PATH = join(DOCUMENTS_PATH, "settings.json");
 export const FAST_TRAVELS_PATH = join(DOCUMENTS_PATH, "fast-travels.json");
 export const ACCOUNTS_PATH = join(DOCUMENTS_PATH, "accounts.json");
-export const HOTKEYS_PATH = join(DOCUMENTS_PATH, "hotkeys.json");
 export const STORAGE_PATH = join(DOCUMENTS_PATH, "storage");
 
 export const DEFAULT_SETTINGS: Settings = {
   launchMode: "game",
   debug: false,
 } as const;
+
+export const DEFAULT_SKILLSETS = {
+  "Legion Revenant": [3, 4, 1, 2],
+};
 
 export const DEFAULT_FAST_TRAVELS: FastTravel[] = [
   { name: "Oblivion", map: "tercessuinotlim" },
