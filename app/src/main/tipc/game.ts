@@ -1,6 +1,8 @@
 import { join } from "path";
+import Config from "@vexed/config";
 import type { tipc } from "@vexed/tipc";
 import { BrowserWindow } from "electron";
+import { DEFAULT_SKILLSETS, DOCUMENTS_PATH } from "../../shared/constants";
 import { WindowIds } from "../../shared/types";
 import { ASSET_PATH, DIST_PATH, IS_PACKAGED } from "../constants";
 import { windowStore } from "../windows";
@@ -128,5 +130,14 @@ export function createGameTipcRouter(tipcInstance: TipcInstance) {
         if (!IS_PACKAGED) window.webContents.openDevTools({ mode: "right" });
       }),
     getAssetPath: tipcInstance.procedure.action(async () => ASSET_PATH),
+    getSkillSets: tipcInstance.procedure.action(async () => {
+      const config = new Config<Record<string, number[]>>({
+        configName: "skill-sets",
+        cwd: DOCUMENTS_PATH,
+        defaults: DEFAULT_SKILLSETS,
+      });
+      await config.load();
+      return config.get();
+    }),
   };
 }
