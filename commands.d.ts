@@ -220,7 +220,9 @@ declare const cmd: {
   target_hp_greater_than(hp: number): void;
   /** Whether the target's hp is less than the specified amount. */
   target_hp_less_than(hp: number): void;
+  /** Buys an item from the shop. */
   buy_item(shopId: number, item: string | number, quantity: number): void;
+  /** Puts an item into the bank. */
   deposit(item: string | number | (string | number)[]): void;
   equip_item(item: string): void;
   /** Equips an item using its enhancement name. Supports colloquial variants of the enhancement name.
@@ -228,14 +230,23 @@ declare const cmd: {
 If results are ambiguous, the first matching item will be used. Use itemType to narrow the result. */
   equip_item_by_enhancement(enhancementName: string, itemType?: string): void;
   get_map_item(item: string | number): void;
+  /** Picks up an item from the drop list. */
   pickup(item: string | number): void;
+  /** Registers a consumable boost to use when available. */
   register_boost(item: string): void;
+  /** Registers an item to be automatically picked up when possible. */
   register_drop(items: string | string[], rejectElse?: boolean): void;
+  /** Rejects an item from the drop list. */
   reject(item: string | number): void;
+  /** Sells an item. */
   sell_item(item: string): void;
+  /** Swaps an item from the bank with an item from the inventory. */
   swap(bankItem: string | number, invItem: string | number): void;
+  /** Unregisters a consumable boost. */
   unregister_boost(item: string): void;
+  /** Unregisters an item from the drop list. */
   unregister_drop(items: string | string[]): void;
+  /** Takes out an item from the bank. */
   withdraw(item: string | number | (string | number)[]): void;
   /** Joins a map. */
   join(map: string, cell?: string, pad?: string): void;

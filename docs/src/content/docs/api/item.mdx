@@ -8,17 +8,21 @@ head:
 import { Badge, Code } from "@astrojs/starlight/components";
 
 ### cmd.buy_item
+Buys an item from the shop.
+
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| shopId | `number` |  |
-| item | `string` \| `number` |  |
-| quantity | `number` |  |
+| shopId | `number` | The shop id. |
+| item | `string` \| `number` | The name or item id of the item to buy. |
+| quantity | `number` | The quantity of the item to buy. |
 
 
 ### cmd.deposit
+Puts an item into the bank.
+
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| item | `string` \| `number` \| `(string` \| `number)[]` |  |
+| item | `string` \| `number` \| `(string` \| `number)[]` | The item to deposit. If provided an array, each item will be deposited. |
 
 
 ### cmd.equip_item
@@ -49,57 +53,75 @@ cmd.equip_item_by_enhancement("Peni")`} lang="js" />
 
 
 ### cmd.pickup
+Picks up an item from the drop list.
+
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| item | `string` \| `number` |  |
+| item | `string` \| `number` | The name or item id of the item to pick up. |
 
 
 ### cmd.register_boost
+Registers a consumable boost to use when available.
+
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| item | `string` |  |
+| item | `string` | The name of the item boost to use. |
 
 
 ### cmd.register_drop
+Registers an item to be automatically picked up when possible.
+
 | Parameter | Type | Optional | Default | Description |
 |-----------|------|----------|---------|-------------|
-| items | `string` \| `string[]` |  |  |  |
-| rejectElse | `boolean` | ✓ | `false` |  |
+| items | `string` \| `string[]` |  |  | The name or item id of the item(s) to pick up. |
+| rejectElse | `boolean` | ✓ | `false` | Whether to reject items not in the pick up list. |
 
 
 ### cmd.reject
+Rejects an item from the drop list.
+
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| item | `string` \| `number` |  |
+| item | `string` \| `number` | The name or item id of the item to reject. |
 
 
 ### cmd.sell_item
+Sells an item.
+
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| item | `string` |  |
+| item | `string` | The name of the item to sell. |
 
 
 ### cmd.swap
+Swaps an item from the bank with an item from the inventory.
+
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| bankItem | `string` \| `number` |  |
-| invItem | `string` \| `number` |  |
+| bankItem | `string` \| `number` | The name or item id of the item to swap from the bank. |
+| invItem | `string` \| `number` | The name or item id of the item to swap from the inventory. |
 
 
 ### cmd.unregister_boost
+Unregisters a consumable boost.
+
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| item | `string` |  |
+| item | `string` | The name of the item boost to unregister. |
 
 
 ### cmd.unregister_drop
+Unregisters an item from the drop list.
+
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| items | `string` \| `string[]` |  |
+| items | `string` \| `string[]` | The name or item id of the item(s) to unregister. |
 
 
 ### cmd.withdraw
+Takes out an item from the bank.
+
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| item | `string` \| `number` \| `(string` \| `number)[]` |  |
+| item | `string` \| `number` \| `(string` \| `number)[]` | The item to withdraw. If provided an array, each item will be withdrawn. |
 
