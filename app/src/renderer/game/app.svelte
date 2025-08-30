@@ -23,7 +23,6 @@
 
   import CommandOverlay from "./components/CommandOverlay.svelte";
   import IconCheckmark from "./components/IconCheckmark.svelte";
-  import { app } from "electron";
 
   const DEFAULT_PADS = [
     "Center",
@@ -373,12 +372,12 @@
 />
 
 <main
-  class="bg-background-primary m-0 flex h-screen flex-col overflow-hidden text-white focus:outline-none"
+  class="m-0 flex h-screen flex-col overflow-hidden bg-background-primary text-white focus:outline-none"
 >
   {#if topNavVisible}
     <div
       id="topnav-container"
-      class="bg-background-primary relative z-[10000] min-h-8 border-b border-gray-800/50 backdrop-blur-sm"
+      class="relative z-[10000] min-h-8 border-b border-gray-800/50 bg-background-primary backdrop-blur-sm"
     >
       <div
         id="topnav"
@@ -396,7 +395,7 @@
               Scripts
             </button>
             <div
-              class="bg-background-secondary absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 text-xs shadow-2xl backdrop-blur-md"
+              class="absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-background-secondary text-xs shadow-2xl backdrop-blur-md"
               style:display={openDropdown === "scripts" ? "block" : "none"}
             >
               <button
@@ -450,7 +449,7 @@
               Tools
             </button>
             <div
-              class="bg-background-secondary absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 text-xs shadow-2xl backdrop-blur-md"
+              class="absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-background-secondary text-xs shadow-2xl backdrop-blur-md"
               style:display={openDropdown === "tools" ? "block" : "none"}
               id="tools-dropdowncontent"
             >
@@ -499,7 +498,7 @@
               Packets
             </button>
             <div
-              class="bg-background-secondary absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 text-xs shadow-2xl backdrop-blur-md"
+              class="absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-background-secondary text-xs shadow-2xl backdrop-blur-md"
               style:display={openDropdown === "packets" ? "block" : "none"}
               id="packets-dropdowncontent"
             >
@@ -535,7 +534,7 @@
               Options
             </button>
             <div
-              class="bg-background-secondary absolute z-[9999] mt-1 min-w-48 rounded-lg border border-gray-700/50 text-xs shadow-2xl backdrop-blur-md"
+              class="absolute z-[9999] mt-1 min-w-48 rounded-lg border border-gray-700/50 bg-background-secondary text-xs shadow-2xl backdrop-blur-md"
               style:display={openDropdown === "options" ? "block" : "none"}
               id="options-dropdowncontent"
               role="menu"
@@ -701,7 +700,7 @@
               Auto Aggro
             </button>
             <div
-              class="bg-background-secondary absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 text-xs shadow-2xl backdrop-blur-md"
+              class="absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-background-secondary text-xs shadow-2xl backdrop-blur-md"
               style:display={openDropdown === "autoaggro" ? "block" : "none"}
               id="autoaggro-dropdowncontent"
             >
@@ -724,7 +723,7 @@
               <input
                 type="checkbox"
                 bind:checked={autoEnabled}
-                class="bg-background-primary h-4 w-4 rounded border-gray-500/30 focus:outline-none focus:ring-0"
+                class="h-4 w-4 rounded border-gray-500/30 bg-background-primary focus:outline-none focus:ring-0"
               />
               <span class="ml-1.5">Auto</span>
             </label>
@@ -733,7 +732,7 @@
               id="pads-dropdown"
             >
               <button
-                class="bg-background-primary h-full w-full rounded border border-gray-500/30 p-0 text-xs transition-all duration-200 hover:border-gray-400/50"
+                class="h-full w-full rounded border border-gray-500/30 bg-background-primary p-0 text-xs transition-all duration-200 hover:border-gray-400/50"
                 class:cursor-not-allowed={!gameConnected}
                 class:opacity-50={!gameConnected}
                 id="pads"
@@ -747,7 +746,7 @@
                 {currentSelectedPad}
               </button>
               <div
-                class="bg-background-secondary absolute top-full z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 text-xs shadow-2xl backdrop-blur-md"
+                class="absolute top-full z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-background-secondary text-xs shadow-2xl backdrop-blur-md"
                 style:display={openDropdown === "pads" ? "block" : "none"}
                 id="pads-dropdowncontent"
                 onmouseenter={() => (openDropdown = "pads")}
@@ -758,7 +757,7 @@
                 {#each validPads as pad}
                   <button
                     class={cn(
-                      "bg-background-secondary flex w-full items-center px-4 py-2 text-left transition-colors duration-150 hover:bg-gray-700/50",
+                      "flex w-full items-center bg-background-secondary px-4 py-2 text-left transition-colors duration-150 hover:bg-gray-700/50",
                       pad.isValid && "text-green-500 hover:text-green-500",
                     )}
                     class:first:rounded-t-lg={validPads.indexOf(pad) === 0}
@@ -776,7 +775,7 @@
               id="cells-dropdown"
             >
               <button
-                class="bg-background-primary h-full w-full rounded border border-gray-500/30 p-0 text-xs transition-all duration-200 hover:border-gray-400/50"
+                class="h-full w-full rounded border border-gray-500/30 bg-background-primary p-0 text-xs transition-all duration-200 hover:border-gray-400/50"
                 class:cursor-not-allowed={!gameConnected}
                 class:opacity-50={!gameConnected}
                 id="cells"
@@ -790,7 +789,7 @@
                 {currentSelectedCell}
               </button>
               <div
-                class="bg-background-primary absolute top-full z-[9999] mt-1 max-h-[25vh] min-w-40 overflow-y-auto overflow-x-hidden rounded-lg border border-gray-700/50 text-xs shadow-2xl backdrop-blur-md"
+                class="absolute top-full z-[9999] mt-1 max-h-[25vh] min-w-40 overflow-y-auto overflow-x-hidden rounded-lg border border-gray-700/50 bg-background-primary text-xs shadow-2xl backdrop-blur-md"
                 style:display={openDropdown === "cells" ? "block" : "none"}
                 id="cells-dropdowncontent"
                 onmouseenter={() => (openDropdown = "cells")}
@@ -815,7 +814,7 @@
           </div>
           <div class="ml-1.5 flex space-x-1">
             <button
-              class="bg-background-primary mt-[3px] flex h-[25px] min-w-0 items-center justify-center rounded border border-gray-500/30 px-[8px] py-0 text-xs text-white transition-all duration-200 hover:border-gray-400/50"
+              class="mt-[3px] flex h-[25px] min-w-0 items-center justify-center rounded border border-gray-500/30 bg-background-primary px-[8px] py-0 text-xs text-white transition-all duration-200 hover:border-gray-400/50"
               class:cursor-not-allowed={!gameConnected}
               class:opacity-50={!gameConnected}
               disabled={!gameConnected}
@@ -836,7 +835,7 @@
               x
             </button>
             <button
-              class="bg-background-primary mt-[3px] flex h-[25px] min-w-0 items-center justify-center rounded border border-gray-500/30 px-[8px] py-0 text-xs text-white transition-all duration-200 hover:border-gray-400/50"
+              class="mt-[3px] flex h-[25px] min-w-0 items-center justify-center rounded border border-gray-500/30 bg-background-primary px-[8px] py-0 text-xs text-white transition-all duration-200 hover:border-gray-400/50"
               class:cursor-not-allowed={!gameConnected}
               class:opacity-50={!gameConnected}
               disabled={!gameConnected}
@@ -859,7 +858,7 @@
   {/if}
 
   <div
-    class="bg-background-primary flex min-h-screen flex-col items-center justify-center"
+    class="flex min-h-screen flex-col items-center justify-center bg-background-primary"
     id="loader-container"
   >
     <div class="w-full max-w-md px-8">
