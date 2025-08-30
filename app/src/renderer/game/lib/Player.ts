@@ -58,6 +58,13 @@ export class Player {
   }
 
   /**
+   * The health percentage of the player.
+   */
+  public get hpPercentage(): number {
+    return (this.hp / this.maxHp) * 100;
+  }
+
+  /**
    * Whether the player is alive.
    */
   public get alive(): boolean {
@@ -76,6 +83,13 @@ export class Player {
    */
   public get maxMp(): number {
     return this.bot.flash.call(() => swf.playerGetMaxMp());
+  }
+
+  /**
+   * The percentage of mana the player has.
+   */
+  public get mpPercentage(): number {
+    return (this.mp / this.maxMp) * 100;
   }
 
   /**
