@@ -12,6 +12,26 @@ const VALID_OPERATORS = [">=", "<=", ">", "<"];
 const SAFE_HP = "SH";
 const SAFE_MP = "SM";
 
+export class SkillSet {
+  #skills: Skill[] = [];
+
+  public addSkill(skill: Skill) {
+    this.#skills.push(skill);
+  }
+
+  public addSkills(skills: Skill[]) {
+    this.#skills.push(...skills);
+  }
+
+  public get skills() {
+    return this.#skills;
+  }
+
+  public toString() {
+    return this.#skills.map((skill) => skill.toString()).join(SEP);
+  }
+}
+
 class Skill {
   /**
    * The index of the skill.
@@ -69,6 +89,10 @@ class Skill {
   public setMp(isMp: boolean) {
     this.isMp = isMp;
   }
+
+  public toString() {
+    return `${this.index}${this.isHp ? SAFE_HP : this.isMp ? SAFE_MP : ""}${this.operator ? this.operator + (this.value ?? "") : ""}`;
+  }
 }
 
 export function parseSkillString(skillString: string) {
@@ -76,14 +100,15 @@ export function parseSkillString(skillString: string) {
     .split(SEP)
     .map((partStr) => partStr.trim())
     .filter(Boolean);
-  const skills: Skill[] = [];
+
+  const skillSet = new SkillSet();
 
   for (const part of parts) {
     const skill = parseSkillPart(part);
-    if (skill) skills.push(skill);
+    if (skill) skillSet.addSkill(skill);
   }
 
-  return skills;
+  return skillSet;
 }
 
 function parseSkillPart(part: string) {
@@ -97,7 +122,7 @@ function parseSkillPart(part: string) {
     return skill;
   }
 
-  const [index, ...conditions] = part.split(":");
+  const [index, ...conditions] = part.split(SAFE_SEP);
   if (!index) return null;
 
   const skill = new Skill(index);
@@ -105,7 +130,9 @@ function parseSkillPart(part: string) {
     return null;
 
   // Ensure longer operators are matched first
-  const operators = [...VALID_OPERATORS].sort((a, b) => b.length - a.length);
+  const operators = [...VALID_OPERATORS].sort(
+    (currOp, nextOp) => nextOp.length - currOp.length,
+  );
   let safeAssigned = false;
 
   for (const condition of conditions) {
