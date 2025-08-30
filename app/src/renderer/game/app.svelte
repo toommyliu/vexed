@@ -314,6 +314,7 @@
       setupHotkeyHandlers();
 
       const skillSets = await client.game.getSkillSets();
+
       for (const [className, skillList] of Object.entries(skillSets))
         appState.skillSets.set(className.toUpperCase(), skillList);
     },

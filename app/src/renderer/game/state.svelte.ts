@@ -119,7 +119,7 @@ function initScriptState() {
 function initAppState() {
   // Whether the game has loaded.
   let gameLoaded = $state(false);
-  let skillSets = $state(new SvelteMap<string, number[]>());
+  let skillSets = $state(new SvelteMap<string, string>());
 
   return {
     get gameLoaded() {

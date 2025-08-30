@@ -131,7 +131,7 @@ export function createGameTipcRouter(tipcInstance: TipcInstance) {
       }),
     getAssetPath: tipcInstance.procedure.action(async () => ASSET_PATH),
     getSkillSets: tipcInstance.procedure.action(async () => {
-      const config = new Config<Record<string, number[]>>({
+      const config = new Config<Record<string, string>>({
         configName: "skill-sets",
         cwd: DOCUMENTS_PATH,
         defaults: DEFAULT_SKILLSETS,
