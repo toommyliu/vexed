@@ -5,7 +5,7 @@
 // Use skill 2
 // Use skill 3
 // Use skill 4 if hp is greater than 60%
-// Delay of 500ms after completing the skill set
+// Delay of 500ms between skills
 
 const SEP_TOKEN = ";"; // separator between skill indices
 const SAFE_SEP_TOKEN = ":"; // separator between skill index and condition
