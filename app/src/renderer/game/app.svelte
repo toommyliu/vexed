@@ -306,7 +306,8 @@
                 }[skill.operator!] ?? true;
             }
 
-            if (shouldCast) await bot.combat.useSkill(skillIndex, true, false);
+            if (shouldCast)
+              await bot.combat.useSkill(skillIndex, true, skill.isWait);
             idx = (idx + 1) % skillList.length;
           }
         }

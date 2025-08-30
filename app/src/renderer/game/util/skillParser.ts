@@ -6,11 +6,12 @@
 // Use skill 3
 // Use skill 4 if hp is greater than 60%
 
-const SEP = ";"; // separator between skill indices
-const SAFE_SEP = ":"; // separator between skill index and condition
+const SEP_TOKEN = ";"; // separator between skill indices
+const SAFE_SEP_TOKEN = ":"; // separator between skill index and condition
 const VALID_OPERATORS = [">=", "<=", ">", "<"] as const;
-const SAFE_HP = "SH";
-const SAFE_MP = "SM";
+const SAFE_HP_TOKEN = "SH";
+const SAFE_MP_TOKEN = "SM";
+const WAIT_TOKEN = "W";
 
 type Operator = (typeof VALID_OPERATORS)[number];
 
@@ -30,7 +31,7 @@ export class SkillSet {
   }
 
   public toString() {
-    return this.#skills.map((skill) => skill.toString()).join(SEP);
+    return this.#skills.map((skill) => skill.toString()).join(SEP_TOKEN);
   }
 }
 
@@ -63,6 +64,11 @@ class Skill {
    */
   public isMp = false;
 
+  /**
+   * True when this skill has a wait condition (W).
+   */
+  public isWait = false;
+
   public constructor(index: number | string) {
     if (typeof index === "number") {
       this.index = index;
@@ -74,6 +80,10 @@ class Skill {
 
   public isSafe() {
     return this.isHp || this.isMp;
+  }
+
+  public isWaitSkill() {
+    return this.isWait;
   }
 
   public setValue(value: number) {
@@ -92,14 +102,26 @@ class Skill {
     this.isMp = isMp;
   }
 
+  public setWait(isWait: boolean) {
+    this.isWait = isWait;
+  }
+
   public toString() {
-    return `${this.index}${this.isHp ? SAFE_HP : this.isMp ? SAFE_MP : ""}${this.operator ? this.operator + (this.value ?? "") : ""}`;
+    const waitFlag = this.isWait ? WAIT_TOKEN : "";
+    const safeCondition = this.isHp
+      ? SAFE_HP_TOKEN
+      : this.isMp
+        ? SAFE_MP_TOKEN
+        : "";
+    const opCondition = this.operator ? this.operator + (this.value ?? "") : "";
+
+    return `${this.index}${waitFlag}${safeCondition}${opCondition}`;
   }
 }
 
 export function parseSkillString(skillString: string) {
   const parts = skillString
-    .split(SEP)
+    .split(SEP_TOKEN)
     .map((partStr) => partStr.trim())
     .filter(Boolean);
 
@@ -117,14 +139,14 @@ function parseSkillPart(part: string) {
   if (typeof part !== "string") return null;
 
   // Ordinary skill: no ':' present
-  if (!part.includes(SAFE_SEP)) {
+  if (!part.includes(SAFE_SEP_TOKEN)) {
     const skill = new Skill(part.trim());
     if (typeof skill.index !== "number" || skill.index < 0 || skill.index > 5)
       return null;
     return skill;
   }
 
-  const [index, ...conditions] = part.split(SAFE_SEP);
+  const [index, ...conditions] = part.split(SAFE_SEP_TOKEN);
   if (!index) return null;
 
   const skill = new Skill(index);
@@ -139,6 +161,12 @@ function parseSkillPart(part: string) {
 
   for (const condition of conditions) {
     if (!condition) continue;
+
+    // Check for wait condition first
+    if (condition.trim() === WAIT_TOKEN) {
+      skill.setWait(true);
+      continue;
+    }
 
     let foundOp: Operator | null = null;
     let opIdx = -1;
@@ -160,10 +188,10 @@ function parseSkillPart(part: string) {
     if (Number.isNaN(parsed)) continue;
 
     if (!safeAssigned) {
-      if (left === SAFE_HP) {
+      if (left === SAFE_HP_TOKEN) {
         skill.setHp(true);
         safeAssigned = true;
-      } else if (left === SAFE_MP) {
+      } else if (left === SAFE_MP_TOKEN) {
         skill.setMp(true);
         safeAssigned = true;
       }
