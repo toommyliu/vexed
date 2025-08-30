@@ -1,10 +1,11 @@
 // https://github.com/Froztt13/Grimlite-Li/blob/master/bin/Debug/ClientConfig.cfg
 
-// SCARLET SORCERESS=1:SH>60;2;3;4:SH>60
+// SCARLET SORCERESS=1:SH>60;2;3;4:SH>60|500
 // Use skill 1 if hp is greater than 60%
 // Use skill 2
 // Use skill 3
 // Use skill 4 if hp is greater than 60%
+// Delay of 500ms after completing the skill set
 
 const SEP_TOKEN = ";"; // separator between skill indices
 const SAFE_SEP_TOKEN = ":"; // separator between skill index and condition
@@ -12,11 +13,14 @@ const VALID_OPERATORS = [">=", "<=", ">", "<"] as const;
 const SAFE_HP_TOKEN = "SH";
 const SAFE_MP_TOKEN = "SM";
 const WAIT_TOKEN = "W";
+const DELAY_TOKEN = "|"; // separator for delay at the end of skill list
 
 type Operator = (typeof VALID_OPERATORS)[number];
 
 export class SkillSet {
   #skills: Skill[] = [];
+
+  #delay?: number;
 
   public addSkill(skill: Skill) {
     this.#skills.push(skill);
@@ -30,8 +34,21 @@ export class SkillSet {
     return this.#skills;
   }
 
+  public setDelay(delay: number) {
+    this.#delay = delay;
+  }
+
+  public get delay() {
+    return this.#delay;
+  }
+
   public toString() {
-    return this.#skills.map((skill) => skill.toString()).join(SEP_TOKEN);
+    const skillString = this.#skills
+      .map((skill) => skill.toString())
+      .join(SEP_TOKEN);
+    return this.#delay
+      ? `${skillString}${DELAY_TOKEN}${this.#delay}`
+      : skillString;
   }
 }
 
@@ -120,7 +137,21 @@ class Skill {
 }
 
 export function parseSkillString(skillString: string) {
-  const parts = skillString
+  const delayTokenIndex = skillString.lastIndexOf(DELAY_TOKEN);
+  let delay: number | undefined;
+  let skillsString = skillString;
+
+  // Parse the delay if present
+  if (delayTokenIndex !== -1) {
+    const delayPart = skillString.slice(delayTokenIndex + 1).trim();
+    const parsedDelay = Number.parseInt(delayPart, 10);
+    if (!Number.isNaN(parsedDelay)) {
+      delay = parsedDelay;
+      skillsString = skillString.slice(0, delayTokenIndex);
+    }
+  }
+
+  const parts = skillsString
     .split(SEP_TOKEN)
     .map((partStr) => partStr.trim())
     .filter(Boolean);
@@ -132,17 +163,22 @@ export function parseSkillString(skillString: string) {
     if (skill) skillSet.addSkill(skill);
   }
 
+  if (delay !== undefined) {
+    skillSet.setDelay(delay);
+  }
+
   return skillSet;
 }
 
 function parseSkillPart(part: string) {
   if (typeof part !== "string") return null;
 
-  // Ordinary skill: no ':' present
+  // Ordinary skill: no safe condition present
   if (!part.includes(SAFE_SEP_TOKEN)) {
     const skill = new Skill(part.trim());
     if (typeof skill.index !== "number" || skill.index < 0 || skill.index > 5)
       return null;
+
     return skill;
   }
 

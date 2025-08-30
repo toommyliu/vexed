@@ -311,7 +311,7 @@
             idx = (idx + 1) % skillList.length;
           }
         }
-      }, 150);
+      }, skillSet.delay ?? 150);
     }
   });
 
