@@ -20,6 +20,7 @@
   import { interval } from "@vexed/utils";
   import Config from "@vexed/config";
   import { DEFAULT_HOTKEYS, DOCUMENTS_PATH } from "@shared/constants";
+  import { parseSkillString } from "./util/skillParser";
 
   import CommandOverlay from "./components/CommandOverlay.svelte";
   import IconCheckmark from "./components/IconCheckmark.svelte";
@@ -270,7 +271,9 @@
     if (autoEnabled) {
       const currentCls = bot.player.className;
 
-      const skillList = appState.skillSets?.get(currentCls) ?? [1, 2, 3, 4];
+      const skillSet =
+        appState.skillSets?.get(currentCls) ?? parseSkillString("1;2;3;4");
+      const skillList = skillSet.skills;
       let idx = 0;
 
       void interval(async (_, stop) => {
@@ -283,8 +286,29 @@
         if (bot.world.availableMonsters.length) {
           if (!bot.combat.hasTarget()) bot.combat.attack("*");
 
-          bot.combat.useSkill(skillList[idx]!, true, true);
-          idx = (idx + 1) % skillList.length;
+          const skill = skillList[idx];
+          if (skill) {
+            const skillIndex = skill.index;
+            let shouldCast = true;
+
+            if (skill.isHp || skill.isMp) {
+              const currPercentage = skill.isHp
+                ? bot.player.hpPercentage
+                : bot.player.mpPercentage;
+              const value = skill.value!;
+
+              shouldCast =
+                {
+                  ">": currPercentage > value,
+                  ">=": currPercentage >= value,
+                  "<": currPercentage < value,
+                  "<=": currPercentage <= value,
+                }[skill.operator!] ?? true;
+            }
+
+            if (shouldCast) await bot.combat.useSkill(skillIndex, true, false);
+            idx = (idx + 1) % skillList.length;
+          }
         }
       }, 150);
     }
@@ -315,8 +339,10 @@
 
       const skillSets = await client.game.getSkillSets();
 
-      for (const [className, skillList] of Object.entries(skillSets))
-        appState.skillSets.set(className.toUpperCase(), skillList);
+      for (const [className, skillList] of Object.entries(skillSets)) {
+        const res = parseSkillString(skillList);
+        if (res) appState.skillSets.set(className.toUpperCase(), res);
+      }
     },
     { once: true },
   );

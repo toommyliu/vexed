@@ -8,9 +8,11 @@
 
 const SEP = ";"; // separator between skill indices
 const SAFE_SEP = ":"; // separator between skill index and condition
-const VALID_OPERATORS = [">=", "<=", ">", "<"];
+const VALID_OPERATORS = [">=", "<=", ">", "<"] as const;
 const SAFE_HP = "SH";
 const SAFE_MP = "SM";
+
+type Operator = (typeof VALID_OPERATORS)[number];
 
 export class SkillSet {
   #skills: Skill[] = [];
@@ -49,7 +51,7 @@ class Skill {
   /**
    * The comparison operator for the condition.
    */
-  public operator?: string;
+  public operator?: Operator;
 
   /**
    * True when this skill has an HP-based condition (SH).
@@ -78,7 +80,7 @@ class Skill {
     this.value = value;
   }
 
-  public setOperator(operator: string) {
+  public setOperator(operator: Operator) {
     if (VALID_OPERATORS.includes(operator)) this.operator = operator;
   }
 
@@ -132,13 +134,13 @@ function parseSkillPart(part: string) {
   // Ensure longer operators are matched first
   const operators = [...VALID_OPERATORS].sort(
     (currOp, nextOp) => nextOp.length - currOp.length,
-  );
+  ) as Operator[];
   let safeAssigned = false;
 
   for (const condition of conditions) {
     if (!condition) continue;
 
-    let foundOp: string | null = null;
+    let foundOp: Operator | null = null;
     let opIdx = -1;
 
     for (const op of operators) {

@@ -1,5 +1,6 @@
 import { SvelteMap } from "svelte/reactivity";
 import type { Command } from "./botting/command";
+import type { SkillSet } from "./util/skillParser";
 
 function initState() {
   let infiniteRange = $state(false);
@@ -119,7 +120,7 @@ function initScriptState() {
 function initAppState() {
   // Whether the game has loaded.
   let gameLoaded = $state(false);
-  let skillSets = $state(new SvelteMap<string, string>());
+  let skillSets = $state(new SvelteMap<string, SkillSet>());
 
   return {
     get gameLoaded() {
