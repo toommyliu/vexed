@@ -132,7 +132,10 @@ class Skill {
         : "";
     const opCondition = this.operator ? this.operator + (this.value ?? "") : "";
 
-    return `${this.index}${waitFlag}${safeCondition}${opCondition}`;
+    const separator =
+      waitFlag && (safeCondition || opCondition) ? SAFE_SEP_TOKEN : "";
+
+    return `${this.index}${waitFlag}${separator}${safeCondition}${opCondition}`;
   }
 }
 
