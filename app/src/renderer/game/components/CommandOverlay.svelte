@@ -39,8 +39,16 @@
     const { width, height } = overlay.getBoundingClientRect();
     const { innerWidth, innerHeight } = window;
 
+    // Prevent overlay from being dragged off-screen horizontally
     x = Math.max(0, Math.min(x, innerWidth - width));
-    y = Math.max(0, Math.min(y, innerHeight - height));
+
+    const topNav = document.getElementById("topnav-container");
+    const topNavBottom = topNav?.getBoundingClientRect().bottom ?? 0;
+
+    // Ensure the overlay's top is at or below the top nav bottom, and does not
+    // overflow the viewport at the bottom.
+    const minY = Math.max(0, Math.round(topNavBottom));
+    y = Math.max(minY, Math.min(y, innerHeight - height));
 
     overlay.style.left = `${x}px`;
     overlay.style.top = `${y}px`;
@@ -50,10 +58,12 @@
     if (!commandOverlayState.isDragging) return;
 
     commandOverlayState.setDragging(false);
+
+    ensureWithinViewport();
     commandOverlayState.savePosition(overlay);
   }
 
-  function handleToggleVisibility(ev: Event) {
+  function handleToggleVisibility(ev: MouseEvent) {
     ev.stopPropagation();
     commandOverlayState.toggleListVisibility();
     commandOverlayState.savePosition(overlay);
@@ -70,6 +80,7 @@
       (ev.target as HTMLElement).classList.contains("command-overlay-control")
     )
       return;
+
     commandOverlayState.toggleListVisibility();
     commandOverlayState.savePosition(overlay);
   }
@@ -82,9 +93,7 @@
     const atBottom = scrollTop + clientHeight >= scrollHeight - 1;
     const atTop = scrollTop <= 0;
 
-    if (!(delta > 0 && atBottom) && !(delta < 0 && atTop)) {
-      ev.stopPropagation();
-    }
+    if (!(delta > 0 && atBottom) && !(delta < 0 && atTop)) ev.stopPropagation();
 
     setTimeout(() => {
       const activeElement = listContainer.querySelector(
@@ -120,17 +129,28 @@
       overlay.style.left = `${newLeft}px`;
     }
 
+    // Determine topnav bottom to prevent overlapping
+    const topNav = document.getElementById("topnav-container");
+    const topNavBottom = topNav?.getBoundingClientRect().bottom ?? 0;
+    const minTop = Math.max(0, Math.round(topNavBottom));
+
     // If overlay is outside viewport vertically
     if (rect.bottom > innerHeight) {
-      const newTop = Math.max(0, innerHeight - rect.height);
+      const newTop = Math.max(minTop, innerHeight - rect.height);
       overlay.style.top = `${newTop}px`;
     }
+
+    // Also ensure overlay is not above the top nav
+    if (rect.top < minTop) overlay.style.top = `${minTop}px`;
 
     commandOverlayState.savePosition(overlay);
   }
 
   onMount(() => {
     commandOverlayState.loadPosition(overlay);
+    // Ensure loaded position doesn't overlap the top nav or fall outside
+    // the viewport.
+    ensureWithinViewport();
 
     resizeObserver = new ResizeObserver(() => {
       ensureWithinViewport();
