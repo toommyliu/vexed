@@ -1,0 +1,81 @@
+---
+title: Auto skillsets
+description: Guide on creating Auto Skillsets
+head:
+  - tag: title
+    content: Auto skillsets guide
+---
+
+## What is a Skillset?
+
+A skillset is a sequence of skills to use for some class, specifically for the Auto attack feature.
+
+```json
+{
+  "Legion Revenant": "3;1;2;4|150"
+}
+```
+
+This describes a skillset for Legion Revenant class. The casing of the class name does not matter.
+
+## Basic Structure
+
+Skillsets are encoded as a string as follows:
+
+- Semicolon (`;`) separates different skills
+- Pipe (`|`) terminates the skillset and specifies the delay between skill casts (optional)
+- Skills are numbered 0-5
+  - 0 = Auto attack (basic attack)
+  - 1-4 = Skills 1 through 4
+  - 5 = potion / consumable
+
+  Indicies out of the range are ignored.
+
+## Wait for skill
+
+To wait for a skill to be available, use the `W` flag after a skill index. For example:
+
+```
+
+1;2W;3;4
+
+```
+
+This means: use skill 1, wait for skill 2 to be available, then use skills 3 and 4. When waiting for a skill, no other skills get casted.
+
+## Conditions
+
+You can add conditions to skills using a colon (`:`) after the skill number.
+
+### HP Conditions
+
+Use `SH` (Safe HP) followed by a comparison:
+
+```json
+1:SH>60;2;3;4:SH>30
+```
+
+Use skill 1 if hp is greater than 60%, use skill 2, use skill 3, use skill 4 if hp is greater than 30%.
+
+### MP conditions
+
+Use `SM` (Safe MP) followed by a comparison:
+
+```json
+1:SM>60;2;3;4:SM>30
+```
+
+### Comparison Operators
+
+- `>` = greater than
+- `<` = less than
+- `>=` = greater than or equal to
+- `<=` = less than or equal to
+
+### Chaining with Wait
+
+```
+1W:SH<40;2;3;4
+```
+
+Wait for skill 1 to be available to use but only if HP is below 40%, then use skills 2, 3, and 4.
