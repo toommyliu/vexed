@@ -17,7 +17,7 @@ export const DEFAULT_SETTINGS: Settings = {
 } as const;
 
 export const DEFAULT_SKILLSETS = {
-  "Legion Revenant": [3, 4, 1, 2],
+  "Legion Revenant": "3;4;1;2",
 };
 
 export const DEFAULT_FAST_TRAVELS: FastTravel[] = [

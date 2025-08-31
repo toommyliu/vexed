@@ -389,9 +389,7 @@ export class Context extends TypedEmitter<Events> {
         if (!this.isRunning()) break;
 
         if (command.skipDelay) {
-          await new Promise((resolve) => {
-            setImmediate(resolve);
-          });
+          await this.bot.sleep(1);
         } else {
           await this.bot.sleep(this._commandDelay);
         }
