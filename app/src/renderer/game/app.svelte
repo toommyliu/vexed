@@ -272,7 +272,7 @@
       const currentCls = bot.player.className;
 
       const skillSet =
-        appState.skillSets?.get(currentCls) ?? parseSkillString("1;2;3;4");
+        appState.skillSets?.get(currentCls) ?? parseSkillString("1;2;3;4|150");
       const skillList = skillSet.skills;
       let idx = 0;
 
