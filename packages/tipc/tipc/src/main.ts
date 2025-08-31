@@ -39,7 +39,10 @@ export const getRendererHandlers = <T extends RendererHandlers>(
         const nested = makeProxy(channel);
 
         const leaf = {
-          send: (...args: any[]) => contents.send(channel, ...args),
+          send: (...args: any[]) => {
+            if (contents && !contents.isDestroyed())
+              contents.send(channel, ...args);
+          },
           invoke: async (...args: any[]) => {
             const id = uuid();
             return new Promise((resolve, reject) => {
