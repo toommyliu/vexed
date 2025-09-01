@@ -53,6 +53,17 @@ export class Context extends TypedEmitter<Events> {
 
   private _on: boolean;
 
+  /**
+   * Captured commands when in capture mode.
+   */
+  private _capturedCommands: Command[] = [];
+
+  /**
+   * Whether the context is in capture mode. When in capture mode, commands don't get
+   * added to the command queue, rather they are captured for later execution (for conditions).
+   */
+  private _captureMode = false;
+
   public autoZone:
     | "astralshrine"
     | "darkcarnax"
@@ -73,6 +84,8 @@ export class Context extends TypedEmitter<Events> {
     this._commands = [];
     this._commandDelay = 1_000;
     this._commandIndex = 0;
+    this._capturedCommands = [];
+    this._captureMode = false;
 
     this._on = false;
   }
@@ -238,7 +251,33 @@ export class Context extends TypedEmitter<Events> {
    * @param command - The command to add.
    */
   public addCommand(command: Command) {
-    this._commands.push(command);
+    if (this._captureMode) {
+      this._capturedCommands.push(command);
+    } else {
+      this._commands.push(command);
+    }
+  }
+
+  /**
+   * Starts command capture mode and returns captured commands when exited.
+   *
+   * @param cmdfactory - Function that will add commands to be captured
+   * @returns Array of commands that were captured
+   */
+  public captureCommands(cmdfactory: () => void): Command[] {
+    const wasCaptureMode = this._captureMode;
+    const previousCaptured = this._capturedCommands;
+
+    this._captureMode = true;
+    this._capturedCommands = [];
+
+    try {
+      cmdfactory();
+      return [...this._capturedCommands];
+    } finally {
+      this._captureMode = wasCaptureMode;
+      this._capturedCommands = previousCaptured;
+    }
   }
 
   /**
