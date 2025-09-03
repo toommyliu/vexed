@@ -75,7 +75,6 @@ export enum WindowIds {
 
 export type HotkeyConfig = {
   General?: {
-    "Toggle Auto Aggro"?: string;
     "Toggle Bank"?: string;
     "Toggle Top Bar"?: string;
   };

@@ -22,10 +22,6 @@ export class Settings {
         this.bot.flash.call(() => swf.settingsInfiniteRange());
       }
 
-      if (this.provokeMap) {
-        this.bot.flash.call(() => swf.settingsProvokeMap());
-      }
-
       if (this.provokeCell) {
         this.bot.flash.call(() => swf.settingsProvokeCell());
       }
@@ -68,22 +64,6 @@ export class Settings {
    */
   public set infiniteRange(on: boolean) {
     gameState.infiniteRange = on;
-  }
-
-  /**
-   * Whether Provoke Map is enabled.
-   */
-  public get provokeMap(): boolean {
-    return gameState.provokeMap;
-  }
-
-  /**
-   * Sets the state of Provoke Map.
-   *
-   * @param on - If true, enables Provoke Map. Otherwise, disables it.
-   */
-  public set provokeMap(on: boolean) {
-    gameState.provokeMap = on;
   }
 
   /**

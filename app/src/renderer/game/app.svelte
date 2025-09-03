@@ -11,7 +11,6 @@
   import { cn } from "@shared/cn";
   import { WindowIds } from "@shared/types";
   import { Bot } from "./lib/Bot";
-  import { startAutoAggro, stopAutoAggro } from "./autoaggro";
   import { onMount, onDestroy } from "svelte";
   import type { HotkeyConfig } from "@shared/types";
   import Mousetrap from "mousetrap";
@@ -43,7 +42,6 @@
   let openDropdown = $state<string | null>(null);
   let hotkeysSections = $state<HotkeySection[]>(createHotkeyConfig());
 
-  let autoAggroEnabled = $state(false);
   let autoEnabled = $state(false);
 
   let gameConnected = $state(false);
@@ -205,24 +203,10 @@
     }
   };
 
-  const toggleAutoAggro = () => {
-    if (autoAggroEnabled) {
-      stopAutoAggro();
-      autoAggroEnabled = false;
-    } else {
-      startAutoAggro();
-      autoAggroEnabled = true;
-    }
-  };
-
   function handleHotkeyAction(actionId: string) {
     switch (actionId) {
       case "toggle-bank":
         toggleBank();
-        break;
-
-      case "toggle-auto-aggro":
-        toggleAutoAggro();
         break;
 
       case "toggle-top-bar":
@@ -580,15 +564,6 @@
               </button>
               <button
                 class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
-                id="option-provoke-map"
-                class:option-active={gameState.provokeMap}
-                onclick={() => (gameState.provokeMap = !gameState.provokeMap)}
-              >
-                <span>Provoke Map</span>
-                <IconCheckmark />
-              </button>
-              <button
-                class="flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
                 id="option-provoke-cell"
                 class:option-active={gameState.provokeCell}
                 onclick={() => (gameState.provokeCell = !gameState.provokeCell)}
@@ -710,36 +685,6 @@
                   onclick={(ev) => ev.stopPropagation()}
                 />
               </div>
-            </div>
-          </div>
-
-          <div
-            class="group relative inline-block cursor-pointer"
-            id="autoaggro-dropdown"
-          >
-            <button
-              class="rounded-md px-2 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50"
-              id="autoaggro"
-              onclick={(ev) => {
-                ev.stopPropagation();
-                toggleDropdown("autoaggro");
-              }}
-            >
-              Auto Aggro
-            </button>
-            <div
-              class="absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-background-secondary text-xs shadow-2xl backdrop-blur-md"
-              style:display={openDropdown === "autoaggro" ? "block" : "none"}
-              id="autoaggro-dropdowncontent"
-            >
-              <button
-                class="flex w-full items-center justify-between rounded-lg px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700/50"
-                onclick={() => toggleAutoAggro()}
-                class:option-active={autoAggroEnabled}
-              >
-                <span>Enabled</span>
-                <IconCheckmark />
-              </button>
             </div>
           </div>
         </div>

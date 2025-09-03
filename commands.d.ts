@@ -287,8 +287,6 @@ If results are ambiguous, the first matching item will be used. Use itemType to 
   disable_lagkiller(): void;
   /** Disables the "Provoke cell" setting. */
   disable_provokecell(): void;
-  /** Disables the "Provoke map" setting. */
-  disable_provokemap(): void;
   /** Disables the "Skip cutscenes" setting. */
   disable_skipcutscenes(): void;
   /** Enables the anti-counter attack setting. */
@@ -307,8 +305,6 @@ If results are ambiguous, the first matching item will be used. Use itemType to 
   enable_lagkiller(): void;
   /** Enables the "Provoke cell" setting. */
   enable_provokecell(): void;
-  /** Enables the "Provoke map" setting. */
-  enable_provokemap(): void;
   /** Enables the "Skip cutscenes" setting. */
   enable_skipcutscenes(): void;
   /** Goes to a player's house. */
@@ -335,14 +331,6 @@ If results are ambiguous, the first matching item will be used. Use itemType to 
   set_name(name: string): void;
   /** Sets the walk speed of the player. */
   set_walk_speed(speed: number): void;
-  /** Starts aggromon for the specified monsters. This is independent of Provoke setting and Auto Aggro. */
-  start_aggromon(args: string[]): void;
-  /** Enables the "Auto Aggro" feature. */
-  start_autoaggro(): void;
-  /** Stops aggromon. */
-  stop_aggromon(): void;
-  /** Disables the "Auto Aggro" feature. */
-  stop_autoaggro(): void;
   /** Stops the bot. */
   stop_bot(): void;
   unregister_command(name: string): void;

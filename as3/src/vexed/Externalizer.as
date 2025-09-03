@@ -123,7 +123,6 @@ package vexed {
 
       // Settings
       externalize("settingsInfiniteRange", Settings.infiniteRange);
-      externalize("settingsProvokeMap", Settings.provokeMap);
       externalize("settingsProvokeCell", Settings.provokeCell);
       externalize("settingsEnemyMagnet", Settings.enemyMagnet);
       externalize("settingsLagKiller", Settings.lagKiller);

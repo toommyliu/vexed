@@ -81,12 +81,7 @@ export function createHotkeyConfig(): HotkeySection[] {
           configKey: "General.Toggle Bank",
           value: "",
         },
-        {
-          id: "toggle-auto-aggro",
-          label: "Toggle AutoAggro",
-          configKey: "General.Toggle Auto Aggro",
-          value: "",
-        },
+
         {
           id: "toggle-top-bar",
           label: "Toggle Top Bar",
