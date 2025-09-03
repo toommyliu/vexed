@@ -83,7 +83,6 @@ export const DEFAULT_ACCOUNTS: Account[] = [] as const;
 export const DEFAULT_HOTKEYS: HotkeyConfig = {
   General: {
     "Toggle Bank": isMac ? "command+b" : "ctrl+b",
-    "Toggle Auto Aggro": "",
     "Toggle Top Bar": isMac ? "command+shift+t" : "ctrl+shift+t",
   },
   Scripts: {

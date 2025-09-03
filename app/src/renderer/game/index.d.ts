@@ -132,7 +132,6 @@ declare global {
     questsIsOneTimeQuestDone(questId: number): boolean;
 
     settingsInfiniteRange(): void;
-    settingsProvokeMap(): void;
     settingsProvokeCell(): void;
     settingsEnemyMagnet(): void;
     settingsLagKiller(on: boolean): void;

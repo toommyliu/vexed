@@ -12,16 +12,6 @@ package vexed.game {
       }
     }
 
-    public static function provokeMap():void {
-      var monMapIds:Array = [];
-      for (var idx:* in game.world.monTree) {
-        var mon:Object = game.world.monTree[idx];
-        monMapIds.push(mon.MonMapID);
-      }
-
-      game.world.aggroMons(monMapIds);
-    }
-
     public static function provokeCell():void {
       game.world.aggroAllMon();
     }
