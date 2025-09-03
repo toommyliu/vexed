@@ -1,14 +1,10 @@
-import { Command } from "@botting/command";
+import { ConditionCommand } from "./ConditionCommand";
 
-export class CommandCellIs extends Command {
+export class CommandCellIs extends ConditionCommand {
   public cell!: string;
 
-  public override skipDelay = true;
-
-  public override async execute() {
-    if (this.bot.player.cell.toLowerCase() !== this.cell.toLowerCase()) {
-      this.ctx.commandIndex++;
-    }
+  public override async getCondition() {
+    return this.bot.player.cell.toLowerCase() === this.cell.toLowerCase();
   }
 
   public override toString() {

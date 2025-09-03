@@ -1,13 +1,11 @@
-import { Command } from "@botting/command";
+import { ConditionCommand } from "./ConditionCommand";
 
-export class CommandCellPlayerCountLessThan extends Command {
+export class CommandCellPlayerCountLessThan extends ConditionCommand {
   public cell!: string;
 
   public count!: number;
 
-  public override skipDelay = true;
-
-  public override execute() {
+  public override async getCondition(): Promise<boolean> {
     const cellToUse = (this.cell ?? this.bot.player.cell).toLowerCase();
     let cellCount = 0;
 
@@ -19,9 +17,7 @@ export class CommandCellPlayerCountLessThan extends Command {
       if (isSameCell) cellCount++;
     }
 
-    if (cellCount >= this.count) {
-      this.ctx.commandIndex++;
-    }
+    return cellCount < this.count;
   }
 
   public override toString() {
