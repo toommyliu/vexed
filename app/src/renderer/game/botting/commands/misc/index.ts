@@ -2,7 +2,6 @@ import { Context } from "@/renderer/game/botting/context";
 import { ArgsError } from "@botting/ArgsError";
 import { Command } from "@botting/command";
 import { CommandRegistry } from "@botting/command-registry";
-import { CommandAutoAggro } from "./CommandAutoAggro";
 import { CommandAutoZoneAstralShrine } from "./CommandAutoZoneAstralShrine";
 import { CommandAutoZoneDarkCarnax } from "./CommandAutoZoneDarkCarnax";
 import { CommandAutoZoneLedgermayne } from "./CommandAutoZoneLedgermayne";
@@ -33,10 +32,7 @@ import { CommandSettingHidePlayers } from "./CommandSettingHidePlayers";
 import { CommandSettingInfiniteRange } from "./CommandSettingInfiniteRange";
 import { CommandSettingLagKiller } from "./CommandSettingLagKiller";
 import { CommandSettingProvokeCell } from "./CommandSettingProvokeCell";
-import { CommandSettingProvokeMap } from "./CommandSettingProvokeMap";
 import { CommandSettingSkipCutscenes } from "./CommandSettingSkipCutscenes";
-import { CommandStartAggroMon } from "./CommandStartAggroMon";
-import { CommandStopAggroMon } from "./CommandStopAggroMon";
 import { CommandStopBot } from "./CommandStopBot";
 import { CommandWaitForPlayerCount } from "./CommandWaitForPlayerCount";
 import { CommandWalkSpeed } from "./CommandWalkSpeed";
@@ -216,22 +212,6 @@ export const miscCommands = {
     window.context.addCommand(cmd);
   },
   /**
-   * Enables the "Provoke map" setting.
-   */
-  enable_provokemap() {
-    const cmd = new CommandSettingProvokeMap();
-    cmd.state = true;
-    window.context.addCommand(cmd);
-  },
-  /**
-   * Disables the "Provoke map" setting.
-   */
-  disable_provokemap() {
-    const cmd = new CommandSettingProvokeMap();
-    cmd.state = false;
-    window.context.addCommand(cmd);
-  },
-  /**
    * Enables the "Skip cutscenes" setting.
    */
   enable_skipcutscenes() {
@@ -402,49 +382,6 @@ export const miscCommands = {
   //   cmd.loadoutName = loadoutName;
   //   window.context.addCommand(cmd);
   // },
-  /**
-   * Enables the "Auto Aggro" feature.
-   */
-  start_autoaggro() {
-    const cmd = new CommandAutoAggro();
-    cmd.state = true;
-    window.context.addCommand(cmd);
-  },
-  /**
-   * Disables the "Auto Aggro" feature.
-   */
-  stop_autoaggro() {
-    const cmd = new CommandAutoAggro();
-    cmd.state = false;
-    window.context.addCommand(cmd);
-  },
-  /**
-   * Starts aggromon for the specified monsters. This is independent of Provoke setting and Auto Aggro.
-   *
-   * @param args - The list of monsters.
-   */
-  start_aggromon(...args: string[]) {
-    const monstersList = Array.isArray(args[0]) ? args[0] : args;
-
-    if (
-      !monstersList ||
-      !Array.isArray(monstersList) ||
-      !monstersList?.length
-    ) {
-      throw new ArgsError("monstersList is required");
-    }
-
-    const cmd = new CommandStartAggroMon();
-    cmd.monstersList = monstersList;
-    window.context.addCommand(cmd);
-  },
-  /**
-   * Stops aggromon.
-   */
-  stop_aggromon() {
-    const cmd = new CommandStopAggroMon();
-    window.context.addCommand(cmd);
-  },
   register_command(
     name: string,
     cmdFactory: (CommandClass: typeof Command) => Command,

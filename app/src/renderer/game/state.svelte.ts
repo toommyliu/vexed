@@ -4,7 +4,6 @@ import type { SkillSet } from "./util/skillParser";
 
 function initState() {
   let infiniteRange = $state(false);
-  let provokeMap = $state(false);
   let provokeCell = $state(false);
   let enemyMagnet = $state(false);
   let lagKiller = $state(false);
@@ -21,12 +20,6 @@ function initState() {
     },
     set infiniteRange(value) {
       infiniteRange = value;
-    },
-    get provokeMap() {
-      return provokeMap;
-    },
-    set provokeMap(value) {
-      provokeMap = value;
     },
     get provokeCell() {
       return provokeCell;

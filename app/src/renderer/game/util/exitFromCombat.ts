@@ -2,10 +2,8 @@ import { Bot } from "../lib/Bot";
 
 export async function exitFromCombat() {
   const bot = Bot.getInstance();
-  const ogProvokeMap = bot.settings.provokeMap;
   const ogProvokeCell = bot.settings.provokeCell;
 
-  bot.settings.provokeMap = false;
   bot.settings.provokeCell = false;
 
   let success = false;
@@ -41,8 +39,6 @@ export async function exitFromCombat() {
 
   await bot.sleep(1_000);
 
-  // eslint-disable-next-line require-atomic-updates
-  bot.settings.provokeMap = ogProvokeMap;
   // eslint-disable-next-line require-atomic-updates
   bot.settings.provokeCell = ogProvokeCell;
 
