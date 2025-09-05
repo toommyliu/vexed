@@ -11,6 +11,6 @@ export class CommandAnd extends ConditionCommand {
   }
 
   public override toString(): string {
-    return `AND(${this.conditions.map((cmd) => cmd.toString()).join(" && ")})`;
+    return `AND(${this.conditions.map((cmd) => cmd.toString()).join(", ")})`;
   }
 }
