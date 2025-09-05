@@ -1,16 +1,12 @@
-import { Command } from "@botting/command";
+import { ConditionCommand } from "./ConditionCommand";
 
-export class CommandInTemp extends Command {
+export class CommandInTemp extends ConditionCommand {
   public item!: string;
 
   public qty = 1;
 
-  public override skipDelay = true;
-
-  public override execute() {
-    if ((this.bot.tempInventory.get(this.item)?.quantity ?? 0) <= this.qty) {
-      this.ctx.commandIndex++;
-    }
+  public override async getCondition(): Promise<boolean> {
+    return (this.bot.tempInventory.get(this.item)?.quantity ?? 0) >= this.qty;
   }
 
   public override toString() {
