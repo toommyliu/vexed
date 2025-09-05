@@ -19,7 +19,6 @@ import { CommandInTemp } from "./CommandInTemp";
 import { CommandIsEquipped } from "./CommandIsEquipped";
 import { CommandIsMaxStack } from "./CommandIsMaxStack";
 import { CommandIsMember } from "./CommandIsMember";
-import { CommandIsNotInTemp } from "./CommandIsNotInTemp";
 import { CommandIsNotMaxStack } from "./CommandIsNotMaxStack";
 import { CommandIsNotMember } from "./CommandIsNotMember";
 import { CommandIsPlayerArmyLeader } from "./CommandIsPlayerArmyLeader";
@@ -44,6 +43,7 @@ import { CommandNotInBank } from "./CommandNotInBank";
 import { CommandNotInCombat } from "./CommandNotInCombat";
 import { CommandNotInHouse } from "./CommandNotInHouse";
 import { CommandNotInInventory } from "./CommandNotInInventory";
+import { CommandNotInTemp } from "./CommandNotInTemp";
 import { CommandOr } from "./CommandOr";
 import { CommandPlayerAurasGreaterThan } from "./CommandPlayerAurasGreaterThan";
 import { CommandPlayerAurasLessThan } from "./CommandPlayerAurasLessThan";
@@ -383,7 +383,7 @@ export const conditionsCommands = {
       throw new ArgsError("item name is required");
     }
 
-    const cmd = new CommandIsNotInTemp();
+    const cmd = new CommandNotInTemp();
     cmd.item = item;
     if (quantity) cmd.qty = quantity;
     window.context.addCommand(cmd);
