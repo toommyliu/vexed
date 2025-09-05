@@ -261,22 +261,22 @@ export class Context extends TypedEmitter<Events> {
   /**
    * Starts command capture mode and returns captured commands when exited.
    *
-   * @param cmdfactory - Function that will add commands to be captured
+   * @param cmdFactory - Function that will add commands to be captured
    * @returns Array of commands that were captured
    */
-  public captureCommands(cmdfactory: () => void): Command[] {
-    const wasCaptureMode = this._captureMode;
-    const previousCaptured = this._capturedCommands;
+  public captureCommands(cmdFactory: () => void): Command[] {
+    const ogCaptureMode = this._captureMode;
+    const ogCapturedCommands = this._capturedCommands;
 
     this._captureMode = true;
     this._capturedCommands = [];
 
     try {
-      cmdfactory();
-      return [...this._capturedCommands];
+      cmdFactory(); // invoke the factory fn, which should add've capture the command
+      return [...this._capturedCommands]; // the captured command
     } finally {
-      this._captureMode = wasCaptureMode;
-      this._capturedCommands = previousCaptured;
+      this._captureMode = ogCaptureMode;
+      this._capturedCommands = ogCapturedCommands;
     }
   }
 
@@ -394,10 +394,16 @@ export class Context extends TypedEmitter<Events> {
     console.log("Unbank list", unbankList);
 
     await this.bot.quests.loadMultiple(questList);
-    await this.bot.bank.withdrawMultiple(unbankList);
-    await this.bot.bank.withdrawMultiple(
-      Array.from(this.bot.environment.boosts),
-    );
+
+    const toWithdraw = [
+      ...unbankList,
+      ...Array.from(this.bot.environment.boosts),
+    ];
+
+    if (toWithdraw.length > 0) {
+      await this.bot.bank.open(true, true);
+      await this.bot.bank.withdrawMultiple(toWithdraw);
+    }
 
     this.emit("start");
   }
