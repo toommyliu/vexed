@@ -433,6 +433,7 @@ export class Context extends TypedEmitter<Events> {
 
         if (!this.isRunning()) break;
 
+        // TODO: make configurable
         if (command.skipDelay) {
           await this.bot.sleep(1);
         } else {
