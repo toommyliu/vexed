@@ -1,14 +1,10 @@
-import { Command } from "@botting/command";
+import { ConditionCommand } from "./ConditionCommand";
 
-export class CommandGoldGreaterThan extends Command {
+export class CommandGoldGreaterThan extends ConditionCommand {
   public gold!: number;
 
-  public override skipDelay = true;
-
-  public override execute() {
-    if (this.bot.player.gold <= this.gold) {
-      this.ctx.commandIndex++;
-    }
+  public override async getCondition(): Promise<boolean> {
+    return this.bot.player.gold > this.gold;
   }
 
   public override toString() {

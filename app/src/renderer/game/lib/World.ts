@@ -109,7 +109,14 @@ export class World {
 
     const map = new Map<string, Avatar>();
     for (const [name, data] of Object.entries(parsedOut)) {
-      map.set(name, new Avatar(JSON.parse(data as unknown as string)));
+      try {
+        map.set(
+          name?.toLowerCase(),
+          new Avatar(JSON.parse(data as unknown as string)),
+        );
+      } catch {
+        console.warn(`failed to parse avatar for: ${name}`);
+      }
     }
 
     return map;

@@ -1,4 +1,7 @@
 import { ArgsError } from "@botting/ArgsError";
+import { CommandAnd } from "./CommandAnd";
+import { CommandAnyPlayerHpPercentageGreaterThan } from "./CommandAnyPlayerHpPercentageGreaterThan";
+import { CommandAnyPlayerHpPercentageLessThan } from "./CommandAnyPlayerHpPercentageLessThan";
 import { CommandCellIs } from "./CommandCellIs";
 import { CommandCellIsNot } from "./CommandCellIsNot";
 import { CommandCellPlayerCountGreaterThan } from "./CommandCellPlayerCountGreaterThan";
@@ -12,11 +15,10 @@ import { CommandInBank } from "./CommandInBank";
 import { CommandInCombat } from "./CommandInCombat";
 import { CommandInHouse } from "./CommandInHouse";
 import { CommandInInventory } from "./CommandInInventory";
+import { CommandInTemp } from "./CommandInTemp";
 import { CommandIsEquipped } from "./CommandIsEquipped";
-import { CommandIsInTemp } from "./CommandIsInTemp";
 import { CommandIsMaxStack } from "./CommandIsMaxStack";
 import { CommandIsMember } from "./CommandIsMember";
-import { CommandIsNotInTemp } from "./CommandIsNotInTemp";
 import { CommandIsNotMaxStack } from "./CommandIsNotMaxStack";
 import { CommandIsNotMember } from "./CommandIsNotMember";
 import { CommandIsPlayerArmyLeader } from "./CommandIsPlayerArmyLeader";
@@ -41,6 +43,8 @@ import { CommandNotInBank } from "./CommandNotInBank";
 import { CommandNotInCombat } from "./CommandNotInCombat";
 import { CommandNotInHouse } from "./CommandNotInHouse";
 import { CommandNotInInventory } from "./CommandNotInInventory";
+import { CommandNotInTemp } from "./CommandNotInTemp";
+import { CommandOr } from "./CommandOr";
 import { CommandPlayerAurasGreaterThan } from "./CommandPlayerAurasGreaterThan";
 import { CommandPlayerAurasLessThan } from "./CommandPlayerAurasLessThan";
 import { CommandPlayerCountGreaterThan } from "./CommandPlayerCountGreaterThan";
@@ -63,8 +67,69 @@ import { CommandQuestNotInProgress } from "./CommandQuestNotInProgress";
 import { CommandTargetHpBetween } from "./CommandTargetHpBetween";
 import { CommandTargetHealthGreaterThan as CommandTargetHpGreaterThan } from "./CommandTargetHpGreaterThan";
 import { CommandTargetHpLessThan } from "./CommandTargetHpLessThan";
+import { ConditionCommand } from "./ConditionCommand";
 
 export const conditionsCommands = {
+  /**
+   * Applies Logical AND together on the condition commands. All conditions must be true
+   * to be satisfied.
+   *
+   * @example
+   * cmd.and(() =\> cmd.in_cell("Enter"), () =\> cmd.equipped("Staff"));
+   */
+  and(...factories: (() => void)[]) {
+    const cmd = new CommandAnd();
+
+    for (const factoryFn of factories) {
+      const captured = window.context.captureCommands(factoryFn);
+      if (captured.length !== 1) {
+        throw new ArgsError(
+          `Each AND factory must add exactly one condition command, got ${captured.length}`,
+        );
+      }
+
+      const command = captured[0]!;
+      if (!(command instanceof ConditionCommand)) {
+        throw new ArgsError(
+          `AND factory must produce a condition command, got ${command.constructor.name}`,
+        );
+      }
+
+      cmd.conditions.push(command);
+    }
+
+    window.context.addCommand(cmd);
+  },
+  /**
+   * Applies Logical OR together on the condition commands. At least one condition must be true
+   * to be satisfied.
+   *
+   * @example
+   * cmd.or(() =\> cmd.in_cell("Enter"), () =\> cmd.equipped("Staff"));
+   */
+  or(...factories: (() => void)[]) {
+    const cmd = new CommandOr();
+
+    for (const factoryFn of factories) {
+      const captured = window.context.captureCommands(factoryFn);
+      if (captured.length !== 1) {
+        throw new ArgsError(
+          `Each OR factory must add exactly one condition command, got ${captured.length}`,
+        );
+      }
+
+      const command = captured[0]!;
+      if (!(command instanceof ConditionCommand)) {
+        throw new ArgsError(
+          `OR factory must produce a condition command, got ${command.constructor.name}`,
+        );
+      }
+
+      cmd.conditions.push(command);
+    }
+
+    window.context.addCommand(cmd);
+  },
   /**
    * Whether the player is in the specified cell.
    *
@@ -302,7 +367,7 @@ export const conditionsCommands = {
       throw new ArgsError("item name is required");
     }
 
-    const cmd = new CommandIsInTemp();
+    const cmd = new CommandInTemp();
     cmd.item = item;
     if (quantity) cmd.qty = quantity;
     window.context.addCommand(cmd);
@@ -318,7 +383,7 @@ export const conditionsCommands = {
       throw new ArgsError("item name is required");
     }
 
-    const cmd = new CommandIsNotInTemp();
+    const cmd = new CommandNotInTemp();
     cmd.item = item;
     if (quantity) cmd.qty = quantity;
     window.context.addCommand(cmd);
@@ -555,7 +620,7 @@ export const conditionsCommands = {
       throw new ArgsError("percentage is required");
     }
 
-    const cmd = new CommandPlayerHpPercentageGreaterThan();
+    const cmd = new CommandAnyPlayerHpPercentageGreaterThan();
     cmd.percentage = percentage;
     window.context.addCommand(cmd);
   },
@@ -569,7 +634,7 @@ export const conditionsCommands = {
       throw new ArgsError("percentage is required");
     }
 
-    const cmd = new CommandPlayerHpPercentageLessThan();
+    const cmd = new CommandAnyPlayerHpPercentageLessThan();
     cmd.percentage = percentage;
     window.context.addCommand(cmd);
   },

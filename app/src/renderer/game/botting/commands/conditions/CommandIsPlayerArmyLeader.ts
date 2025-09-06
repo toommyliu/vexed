@@ -1,14 +1,8 @@
-import { Command } from "@botting/command";
+import { ConditionCommand } from "./ConditionCommand";
 
-export class CommandIsPlayerArmyLeader extends Command {
-  public override async execute() {
-    if (!this.bot.army.isInitialized) {
-      return;
-    }
-
-    if (!this.bot.army.isLeader()) {
-      this.ctx.commandIndex++;
-    }
+export class CommandIsPlayerArmyLeader extends ConditionCommand {
+  public override async getCondition(): Promise<boolean> {
+    return this.bot.army.isInitialized && this.bot.army.isLeader();
   }
 
   public override toString() {

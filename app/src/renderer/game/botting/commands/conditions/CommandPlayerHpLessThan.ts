@@ -1,20 +1,16 @@
-import { Command } from "@botting/command";
+import { ConditionCommand } from "./ConditionCommand";
 
-export class CommandPlayerHpLessThan extends Command {
+export class CommandPlayerHpLessThan extends ConditionCommand {
   public player?: string;
 
   public hp!: number;
 
-  public override skipDelay = true;
-
-  public override execute() {
+  public override async getCondition(): Promise<boolean> {
     const avatar = this.bot.world.players?.get(
       (this.player ?? this.bot.auth.username).toLowerCase(),
     );
 
-    if (avatar?.isHpGreaterThan(this.hp)) {
-      this.ctx.commandIndex++;
-    }
+    return !avatar?.isHpGreaterThan(this.hp);
   }
 
   public override toString() {

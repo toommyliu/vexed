@@ -1,14 +1,10 @@
-import { Command } from "@botting/command";
+import { ConditionCommand } from "./ConditionCommand";
 
-export class CommandIsMaxStack extends Command {
+export class CommandIsMaxStack extends ConditionCommand {
   public item!: string;
 
-  public override skipDelay = true;
-
-  public override execute() {
-    if (!this.bot.inventory.get(this.item)?.isMaxed()) {
-      this.ctx.commandIndex++;
-    }
+  public override async getCondition() {
+    return this.bot.inventory.get(this.item)?.isMaxed() ?? false;
   }
 
   public override toString() {

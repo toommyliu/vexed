@@ -80,6 +80,9 @@ declare const cmd: {
   rest(full?: boolean): void;
   /** Uses a skill. */
   use_skill(skill: string | number, wait?: boolean): void;
+  /** Applies Logical AND together on the condition commands. All conditions must be true
+to be satisfied. */
+  and(factories: (() => void)[]): void;
   /** Whether any player's hp percentage is greater than the specified value. */
   any_player_hp_percentage_greater_than(percentage: number): void;
   /** Whether any player's hp percentage is less than the specified value. */
@@ -180,6 +183,9 @@ declare const cmd: {
   not_in_map(map: string): void;
   /** Whether a specific item does not exist in the player's tempinventory. */
   not_in_tempinventory(item: string, quantity?: number): void;
+  /** Applies Logical OR together on the condition commands. At least one condition must be true
+to be satisfied. */
+  or(factories: (() => void)[]): void;
   /** Whether a player's aura value is greater than the specified value. */
   player_aura_greater_than(player: string, aura: string, value: number): void;
   /** Whether a player's aura value is less than the specified value. */

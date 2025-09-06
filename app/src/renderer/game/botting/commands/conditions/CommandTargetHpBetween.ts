@@ -1,20 +1,17 @@
-import { Command } from "@botting/command";
+import { ConditionCommand } from "./ConditionCommand";
 
-export class CommandTargetHpBetween extends Command {
+export class CommandTargetHpBetween extends ConditionCommand {
   public lower!: number;
 
   public upper!: number;
 
-  public override skipDelay = true;
-
-  public override execute() {
-    if (
-      (this.bot.combat.hasTarget() &&
-        (this.bot.combat.target?.hp as number) <= this.lower) ||
-      (this.bot.combat.target?.hp as number) >= this.upper
-    ) {
-      this.ctx.commandIndex++;
+  public override async getCondition(): Promise<boolean> {
+    if (!this.bot.combat.hasTarget()) {
+      return false;
     }
+
+    const targetHp = this.bot.combat.target?.hp as number;
+    return targetHp > this.lower && targetHp < this.upper;
   }
 
   public override toString() {

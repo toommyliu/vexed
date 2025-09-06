@@ -1,14 +1,10 @@
-import { Command } from "@botting/command";
+import { ConditionCommand } from "./ConditionCommand";
 
-export class CommandMpGreaterThan extends Command {
+export class CommandMpGreaterThan extends ConditionCommand {
   public mana!: number;
 
-  public override skipDelay = true;
-
-  public override execute() {
-    if (this.bot.player.mp <= this.mana) {
-      this.ctx.commandIndex++;
-    }
+  public override async getCondition(): Promise<boolean> {
+    return this.bot.player.mp > this.mana;
   }
 
   public override toString() {

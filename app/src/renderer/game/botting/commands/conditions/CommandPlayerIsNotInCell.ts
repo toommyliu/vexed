@@ -1,18 +1,14 @@
-import { Command } from "@botting/command";
+import { ConditionCommand } from "./ConditionCommand";
 
-export class CommandPlayerIsNotInCell extends Command {
+export class CommandPlayerIsNotInCell extends ConditionCommand {
   public player!: string;
 
   public cell!: string;
 
-  public override skipDelay = true;
-
-  public override execute() {
-    if (
-      this.bot.flash.call(() => swf.worldIsPlayerInCell(this.player, this.cell))
-    ) {
-      this.ctx.commandIndex++;
-    }
+  public override async getCondition(): Promise<boolean> {
+    return !this.bot.flash.call(() =>
+      swf.worldIsPlayerInCell(this.player, this.cell),
+    );
   }
 
   public override toString() {

@@ -1,12 +1,10 @@
-import { Command } from "@botting/command";
+import { ConditionCommand } from "./ConditionCommand";
 
-export class CommandIsNotMember extends Command {
+export class CommandIsNotMember extends ConditionCommand {
   public override skipDelay = true;
 
-  public override execute() {
-    if (this.bot.player.isMember()) {
-      this.ctx.commandIndex++;
-    }
+  public override async getCondition(): Promise<boolean> {
+    return !this.bot.player.isMember();
   }
 
   public override toString() {

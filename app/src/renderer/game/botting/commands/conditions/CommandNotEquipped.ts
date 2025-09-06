@@ -1,14 +1,10 @@
-import { Command } from "@botting/command";
+import { ConditionCommand } from "./ConditionCommand";
 
-export class CommandNotEquipped extends Command {
+export class CommandNotEquipped extends ConditionCommand {
   public item!: string;
 
-  public override skipDelay = true;
-
-  public override execute() {
-    if (this.bot.inventory.get(this.item)?.isEquipped()) {
-      this.ctx.commandIndex++;
-    }
+  public override async getCondition(): Promise<boolean> {
+    return !this.bot.inventory.get(this.item)?.isEquipped();
   }
 
   public override toString() {

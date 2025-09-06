@@ -1,14 +1,10 @@
-import { Command } from "@botting/command";
+import { ConditionCommand } from "./ConditionCommand";
 
-export class CommandTargetHealthGreaterThan extends Command {
+export class CommandTargetHealthGreaterThan extends ConditionCommand {
   public hp!: number;
 
-  public override skipDelay = true;
-
-  public override execute() {
-    if (((this.bot.combat?.target?.hp as number) ?? 0) < this.hp) {
-      this.ctx.commandIndex++;
-    }
+  public override async getCondition(): Promise<boolean> {
+    return ((this.bot.combat?.target?.hp as number) ?? 0) > this.hp;
   }
 
   public override toString() {

@@ -1,23 +1,19 @@
-import { Command } from "@botting/command";
+import { ConditionCommand } from "./ConditionCommand";
 
-export class CommandFactionRankLessThan extends Command {
+export class CommandFactionRankLessThan extends ConditionCommand {
   public faction!: string;
 
   public rank!: number;
 
-  public override skipDelay = true;
-
-  public override execute() {
+  public override async getCondition(): Promise<boolean> {
     const faction = this.bot.player.factions.find(
       (faction) => faction.name.toLowerCase() === this.faction.toLowerCase(),
     );
 
-    if ((faction?.rank ?? 0) > this.rank) {
-      this.ctx.commandIndex++;
-    }
+    return (faction?.rank ?? 0) <= this.rank;
   }
 
   public override toString() {
-    return `${this.faction} rank is less than: ${this.rank}`;
+    return `${this.faction} rank less than: ${this.rank}`;
   }
 }

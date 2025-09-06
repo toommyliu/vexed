@@ -1,16 +1,12 @@
-import { Command } from "@botting/command";
+import { ConditionCommand } from "./ConditionCommand";
 
-export class CommandNotInBank extends Command {
+export class CommandNotInBank extends ConditionCommand {
   public item!: string;
 
   public qty = 1;
 
-  public override skipDelay = true;
-
-  public override execute() {
-    if (this.bot.bank.contains(this.item, this.qty)) {
-      this.ctx.commandIndex++;
-    }
+  public override async getCondition(): Promise<boolean> {
+    return !this.bot.bank.contains(this.item, this.qty);
   }
 
   public override toString() {

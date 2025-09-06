@@ -53,6 +53,17 @@ export class Context extends TypedEmitter<Events> {
 
   private _on: boolean;
 
+  /**
+   * Captured commands when in capture mode.
+   */
+  private _capturedCommands: Command[] = [];
+
+  /**
+   * Whether the context is in capture mode. When in capture mode, commands don't get
+   * added to the command queue, rather they are captured for later execution (for conditions).
+   */
+  private _captureMode = false;
+
   public autoZone:
     | "astralshrine"
     | "darkcarnax"
@@ -73,6 +84,8 @@ export class Context extends TypedEmitter<Events> {
     this._commands = [];
     this._commandDelay = 1_000;
     this._commandIndex = 0;
+    this._capturedCommands = [];
+    this._captureMode = false;
 
     this._on = false;
   }
@@ -238,7 +251,33 @@ export class Context extends TypedEmitter<Events> {
    * @param command - The command to add.
    */
   public addCommand(command: Command) {
-    this._commands.push(command);
+    if (this._captureMode) {
+      this._capturedCommands.push(command);
+    } else {
+      this._commands.push(command);
+    }
+  }
+
+  /**
+   * Starts command capture mode and returns captured commands when exited.
+   *
+   * @param cmdFactory - Function that will add commands to be captured
+   * @returns Array of commands that were captured
+   */
+  public captureCommands(cmdFactory: () => void): Command[] {
+    const ogCaptureMode = this._captureMode;
+    const ogCapturedCommands = this._capturedCommands;
+
+    this._captureMode = true;
+    this._capturedCommands = [];
+
+    try {
+      cmdFactory(); // invoke the factory fn, which should add've capture the command
+      return [...this._capturedCommands]; // the captured command
+    } finally {
+      this._captureMode = ogCaptureMode;
+      this._capturedCommands = ogCapturedCommands;
+    }
   }
 
   /**
@@ -355,10 +394,16 @@ export class Context extends TypedEmitter<Events> {
     console.log("Unbank list", unbankList);
 
     await this.bot.quests.loadMultiple(questList);
-    await this.bot.bank.withdrawMultiple(unbankList);
-    await this.bot.bank.withdrawMultiple(
-      Array.from(this.bot.environment.boosts),
-    );
+
+    const toWithdraw = [
+      ...unbankList,
+      ...Array.from(this.bot.environment.boosts),
+    ];
+
+    if (toWithdraw.length > 0) {
+      await this.bot.bank.open(true, true);
+      await this.bot.bank.withdrawMultiple(toWithdraw);
+    }
 
     this.emit("start");
   }
@@ -388,6 +433,7 @@ export class Context extends TypedEmitter<Events> {
 
         if (!this.isRunning()) break;
 
+        // TODO: make configurable
         if (command.skipDelay) {
           await this.bot.sleep(1);
         } else {
