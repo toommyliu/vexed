@@ -7,6 +7,17 @@ head:
 
 import { Badge, Code } from "@astrojs/starlight/components";
 
+### cmd.and
+Applies Logical AND together on the condition commands. All conditions must be true
+to be satisfied.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| factories | `(() => void)[]` |  |
+
+<Code code={`cmd.and(() =\> cmd.in_cell("Enter"), () =\> cmd.equipped("Staff"));`} lang="js" />
+
+
 ### cmd.any_player_hp_percentage_greater_than
 Whether any player's hp percentage is greater than the specified value.
 
@@ -387,6 +398,17 @@ Whether a specific item does not exist in the player's tempinventory.
 |-----------|------|-------------|
 | item | `string` | The name of the item. |
 | quantity | `number?` | The minimum quantity required. If not provided, it will default to 1. |
+
+
+### cmd.or
+Applies Logical OR together on the condition commands. At least one condition must be true
+to be satisfied.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| factories | `(() => void)[]` |  |
+
+<Code code={`cmd.or(() =\> cmd.in_cell("Enter"), () =\> cmd.equipped("Staff"));`} lang="js" />
 
 
 ### cmd.player_aura_greater_than
