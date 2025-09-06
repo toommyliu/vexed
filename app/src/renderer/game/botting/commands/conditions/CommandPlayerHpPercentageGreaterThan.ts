@@ -1,20 +1,16 @@
-import { Command } from "@botting/command";
+import { ConditionCommand } from "./ConditionCommand";
 
-export class CommandPlayerHpPercentageGreaterThan extends Command {
-  public override skipDelay = true;
-
+export class CommandPlayerHpPercentageGreaterThan extends ConditionCommand {
   public player?: string;
 
   public percentage!: number;
 
-  public override execute() {
+  public override async getCondition(): Promise<boolean> {
     const avatar = this.bot.world.players?.get(
       (this.player ?? this.bot.auth.username).toLowerCase(),
     );
 
-    if (avatar?.isHpPercentageLessThan(this.percentage)) {
-      this.ctx.commandIndex++;
-    }
+    return !avatar?.isHpPercentageLessThan(this.percentage);
   }
 
   public override toString() {

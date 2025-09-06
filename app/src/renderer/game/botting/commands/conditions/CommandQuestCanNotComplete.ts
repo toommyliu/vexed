@@ -1,14 +1,10 @@
-import { Command } from "@botting/command";
+import { ConditionCommand } from "./ConditionCommand";
 
-export class CommandQuestCanNotComplete extends Command {
+export class CommandQuestCanNotComplete extends ConditionCommand {
   public questId!: number;
 
-  public override skipDelay = true;
-
-  public override execute() {
-    if (this.bot.flash.call(() => swf.questsCanCompleteQuest(this.questId))) {
-      this.ctx.commandIndex++;
-    }
+  public override async getCondition(): Promise<boolean> {
+    return !this.bot.flash.call(() => swf.questsCanCompleteQuest(this.questId));
   }
 
   public override toString() {

@@ -1,14 +1,10 @@
-import { Command } from "@botting/command";
+import { ConditionCommand } from "./ConditionCommand";
 
-export class CommandPlayerIsNotInMap extends Command {
+export class CommandPlayerIsNotInMap extends ConditionCommand {
   public player!: string;
 
-  public override skipDelay = true;
-
-  public override execute() {
-    if (this.bot.world.playerNames.includes(this.player.toLowerCase())) {
-      this.ctx.commandIndex++;
-    }
+  public override async getCondition(): Promise<boolean> {
+    return !this.bot.world.playerNames.includes(this.player.toLowerCase());
   }
 
   public override toString() {

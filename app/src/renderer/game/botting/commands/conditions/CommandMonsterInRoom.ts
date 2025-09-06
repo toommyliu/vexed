@@ -1,14 +1,10 @@
-import { Command } from "@botting/command";
+import { ConditionCommand } from "./ConditionCommand";
 
-export class CommandMonsterInRoom extends Command {
+export class CommandMonsterInRoom extends ConditionCommand {
   public monster!: string;
 
-  public override skipDelay = true;
-
-  public override execute() {
-    if (!this.bot.world.isMonsterAvailable(this.monster)) {
-      this.ctx.commandIndex++;
-    }
+  public override async getCondition(): Promise<boolean> {
+    return this.bot.world.isMonsterAvailable(this.monster);
   }
 
   public override toString() {

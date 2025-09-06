@@ -1,14 +1,10 @@
-import { Command } from "@botting/command";
+import { ConditionCommand } from "./ConditionCommand";
 
-export class CommandLevelIs extends Command {
+export class CommandLevelIs extends ConditionCommand {
   public level!: number;
 
-  public override skipDelay = true;
-
-  public override execute() {
-    if (this.bot.player.level !== this.level) {
-      this.ctx.commandIndex++;
-    }
+  public override async getCondition(): Promise<boolean> {
+    return this.bot.player.level === this.level;
   }
 
   public override toString() {

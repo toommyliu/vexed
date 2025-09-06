@@ -1,14 +1,10 @@
-import { Command } from "@botting/command";
+import { ConditionCommand } from "./ConditionCommand";
 
-export class CommandPlayerCountGreaterThan extends Command {
+export class CommandPlayerCountGreaterThan extends ConditionCommand {
   public count!: number;
 
-  public override skipDelay = true;
-
-  public override execute() {
-    if (this.bot.world.playerNames.length <= this.count) {
-      this.ctx.commandIndex++;
-    }
+  public override async getCondition(): Promise<boolean> {
+    return this.bot.world.playerNames.length > this.count;
   }
 
   public override toString() {

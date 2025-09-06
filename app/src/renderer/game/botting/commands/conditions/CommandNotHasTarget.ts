@@ -1,12 +1,8 @@
-import { Command } from "@botting/command";
+import { ConditionCommand } from "./ConditionCommand";
 
-export class CommandNotHasTarget extends Command {
-  public override skipDelay = true;
-
-  public override execute() {
-    if (this.bot.combat.hasTarget()) {
-      this.ctx.commandIndex++;
-    }
+export class CommandNotHasTarget extends ConditionCommand {
+  public override async getCondition(): Promise<boolean> {
+    return !this.bot.combat.hasTarget();
   }
 
   public override toString() {

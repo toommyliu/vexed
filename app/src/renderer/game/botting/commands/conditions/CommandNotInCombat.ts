@@ -1,12 +1,8 @@
-import { Command } from "@botting/command";
+import { ConditionCommand } from "./ConditionCommand";
 
-export class CommandNotInCombat extends Command {
-  public override skipDelay = true;
-
-  public override execute() {
-    if (this.bot.player.isInCombat()) {
-      this.ctx.commandIndex++;
-    }
+export class CommandNotInCombat extends ConditionCommand {
+  public override async getCondition(): Promise<boolean> {
+    return !this.bot.player.isInCombat();
   }
 
   public override toString() {
