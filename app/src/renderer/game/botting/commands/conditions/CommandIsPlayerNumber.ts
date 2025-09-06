@@ -1,16 +1,13 @@
-import { Command } from "@botting/command";
+import { ConditionCommand } from "./ConditionCommand";
 
-export class CommandIsPlayerNumber extends Command {
+export class CommandIsPlayerNumber extends ConditionCommand {
   public playerNumber!: number;
 
-  public override async execute() {
-    if (!this.bot.army.isInitialized) {
-      return;
-    }
-
-    if (this.bot.army.getPlayerNumber() !== this.playerNumber) {
-      this.ctx.commandIndex++;
-    }
+  public override async getCondition(): Promise<boolean> {
+    return (
+      this.bot.army.isInitialized &&
+      this.bot.army.getPlayerNumber() === this.playerNumber
+    );
   }
 
   public override toString() {
