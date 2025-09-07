@@ -435,7 +435,7 @@ export class Context extends TypedEmitter<Events> {
 
         // TODO: make configurable
         if (command.skipDelay) {
-          await this.bot.sleep(1);
+          await this.bot.sleep(10);
         } else {
           await this.bot.sleep(this._commandDelay);
         }
