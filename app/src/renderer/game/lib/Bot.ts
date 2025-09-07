@@ -18,7 +18,6 @@ import { TempInventory } from "./TempInventory";
 import { World } from "./World";
 import { AutoReloginJob } from "./jobs/autorelogin";
 import { BoostsJob } from "./jobs/boosts";
-import { DropsJob } from "./jobs/drops";
 import { QuestsJob } from "./jobs/quests";
 import type { Monster } from "./models/Monster";
 import { Flash } from "./util/Flash";
@@ -201,7 +200,6 @@ export class Bot extends TypedEmitter<Events> {
     this.scheduler = new Scheduler(this);
 
     this.scheduler.addJob(new QuestsJob(this));
-    this.scheduler.addJob(new DropsJob(this));
     this.scheduler.addJob(new BoostsJob(this));
     this.scheduler.addJob(new AutoReloginJob(this));
   }

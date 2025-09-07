@@ -67,7 +67,7 @@ window.pext = async ([packet]) => {
         ct(bot, dataObj);
         break;
       case "dropItem":
-        dropItem(bot, dataObj);
+        void dropItem(bot, dataObj);
         break;
       case "initUserData":
         initUserData(bot, dataObj);
@@ -77,6 +77,8 @@ window.pext = async ([packet]) => {
         break;
       case "event":
         void event(bot, dataObj);
+        break;
+      case "addItems": // Temp inventory?
         break;
     }
   }
