@@ -8,7 +8,13 @@ export class Scheduler {
 
   private ac: AbortController | null = null;
 
+  private _activeJob: Job | null = null;
+
   public constructor(public bot: Bot) {}
+
+  public get activeJob() {
+    return this._activeJob;
+  }
 
   /**
    * Whether the scheduler is currently running.
@@ -58,6 +64,8 @@ export class Scheduler {
 
       for (const job of sortedJobs) {
         if (this.ac?.signal.aborted) break;
+
+        this._activeJob = job;
 
         // If the player isn't ready, only run jobs that explicitly allow it.
         if (!this.bot.player.isReady() && !job.skipReadyCheck) {

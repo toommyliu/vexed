@@ -119,4 +119,11 @@ export class AutoReloginJob extends Job {
 
     if (server) AutoReloginJob.server = server;
   }
+
+  public static reset() {
+    AutoReloginJob.username = "";
+    AutoReloginJob.password = "";
+    AutoReloginJob.server = "";
+    AutoReloginJob.delay = 5_000;
+  }
 }
