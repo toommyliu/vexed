@@ -418,7 +418,7 @@ export class Context extends TypedEmitter<Events> {
 
     if (!this.bot.player.isReady()) {
       logger.info("waiting for load");
-      await this.bot.waitUntil(() => this.bot.player.isLoaded(), null, -1);
+      await this.bot.waitUntil(() => this.bot.player.isReady(), null, -1);
       logger.info("player loaded");
     }
 
@@ -434,9 +434,13 @@ export class Context extends TypedEmitter<Events> {
         if (!this.isRunning()) break;
 
         // TODO: make configurable
-        if (command.skipDelay) {
-          await this.bot.sleep(10);
-        } else {
+        // if (command.skipDelay) {
+        //   await this.bot.sleep(10);
+        // } else {
+        //   await this.bot.sleep(this._commandDelay);
+        // }
+
+        if (!command.skipDelay) {
           await this.bot.sleep(this._commandDelay);
         }
 
