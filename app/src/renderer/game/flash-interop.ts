@@ -129,16 +129,12 @@ window.loaded = async () => {
       AutoReloginJob.setCredentials(username!, password!, server!);
       AutoReloginJob.delay = 0;
 
-      // This should properly handle the instances where the player logs in,
-      // but doesn't get a chance to fully load in for some reason...
-      await bot.waitUntil(() => bot.player.isReady(), null, -1);
+      bot.once("login", async () => {
+        AutoReloginJob.reset();
+        AutoReloginJob.delay = ogDelay;
 
-      // Reset credentials and delay
-      AutoReloginJob.setCredentials("", "", "");
-      AutoReloginJob.delay = ogDelay;
-
-      // logger.info("auto relogin success, responding");
-      await client.manager.managerLoginSuccess({ username });
+        await client.manager.managerLoginSuccess({ username });
+      });
     } else {
       bot.auth.login(username!, password!);
 
