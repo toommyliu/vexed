@@ -364,7 +364,7 @@ export class Context extends TypedEmitter<Events> {
   private async doPreInit() {
     if (!this.bot.player.isReady()) {
       logger.info("waiting for load (1)");
-      await this.bot.waitUntil(() => this.bot.player.isLoaded(), null, -1);
+      await this.bot.waitUntil(() => this.bot.player.isReady(), null, -1);
       logger.info("player loaded (2)");
     }
 
