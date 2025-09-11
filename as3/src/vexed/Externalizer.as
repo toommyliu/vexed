@@ -57,10 +57,13 @@ package vexed {
       externalize("combatAttackMonster", Combat.attackMonster);
       externalize("combatAttackMonsterById", Combat.attackMonsterById);
 
-      // DropStack
-      externalize("dropStackAcceptDrop", DropStack.acceptDrop);
-      externalize("dropStackRejectDrop", DropStack.rejectDrop);
-      externalize("dropStackIsUsingCustomDrops", DropStack.isUsingCustomDrops);
+      // DropList
+      externalize("dropStackAcceptDrop", DropList.acceptDrop);
+      externalize("dropStackAcceptList", DropList.acceptList);
+      externalize("dropStackRejectDrop", DropList.rejectDrop);
+      externalize("dropStackIsUsingCustomDrops", DropList.isUsingCustomDrops);
+      externalize("getDrops", DropList.getDrops);
+      externalize("toggleUi", DropList.toggleUi);
       // externalize("dropStackSetCustomDropsUI", DropStack.);
       // externalize("dropStackIsCustomDropsUiOpen", DropStack.isCustomDropsUiOpen);
       // externalize("dropStackSetCustomDropsUiOpen", DropStack.setCustomDropsUiOpen);

@@ -2,11 +2,15 @@ package vexed.game {
   import vexed.Main;
   import flash.events.MouseEvent;
   import flash.filters.ColorMatrixFilter;
+  import flash.utils.getQualifiedClassName;
+  import flash.utils.Dictionary;
 
-  public class DropStack {
+  public class DropList {
     private static var game:* = Main.getInstance().getGame();
 
     private static var cls:Class = Main.getInstance().getGameDomain().getDefinition("liteAssets.draw.customDrops") as Class;
+
+    public static var drops:Dictionary = new Dictionary();
 
     // private static var inactive:ColorMatrixFilter =          new
 
@@ -22,41 +26,87 @@ package vexed.game {
           0.3, 0.3, 0.3, 0, 0,
           0, 0, 0, 1, 0]);
 
-    public static function acceptDrop(itemId:int):void {
-      if (!itemId) {
-        return;
-      }
+    private static const DROP_REGEX:RegExp = /(.*)\s+x\s*(\d*)/;
 
-      game.sfc.sendXtMessage("zm", "getDrop", [itemId], "str", game.world.curRoom);
+    public static function updateCount(itemName:String, qty:int):void {
+      if (!drops[itemName]) {
+        drops[itemName] = 0;
+      }
+      drops[itemName] += qty;
+    }
+
+    public static function getDrops():Object {
+      var json:Object = {};
+      for (var itemName:String in drops) {
+        json[itemName] = drops[itemName];
+      }
+      return JSON.stringify(json);
+    }
+
+    // Parse the item name and count from the drop string
+    public static function parseDrop(name:*):* {
+      var ret:* = new Object();
+      var lowerName:String = name.toLowerCase().trim();
+      ret.name = lowerName;
+      ret.count = 1;
+      var res:Object = DROP_REGEX.exec(lowerName);
+      if (res != null) {
+        ret.name = res[1].replace(/\s+$/, "");
+        var countStr:String = res[2];
+        if (countStr != "") {
+          ret.count = int(countStr);
+        }
+      }
+      return ret;
+    }
+
+    public static function acceptDrop(itemId:int):void {
+      if (isUsingCustomDrops()) {
+        var source:* = game.cDropsUI.mcDraggable ? game.cDropsUI.mcDraggable.menu : game.cDropsUI;
+        for (var i:int = 0; i < source.numChildren; i++) {
+          var child:* = source.getChildAt(i);
+          if (child.itemObj) {
+            var itemName:String = child.itemObj.sName.toLowerCase();
+            child.btYes.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+          }
+        }
+      }
+      else {
+        var children:int = game.ui.dropStack.numChildren;
+        for (i = 0; i < children; i++) {
+          var type:String = getQualifiedClassName(child);
+          if (type.indexOf("DFrame2MC") != -1) {
+            var drop:* = parseDrop(child.cnt.strName.text);
+            var name:* = drop.name;
+            child.cnt.ybtn.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+          }
+        }
+      }
+      // game.sfc.sendXtMessage("zm", "getDrop", [itemId], "str", game.world.curRoom);
+    }
+
+    // Toggle open/closed of custom ui
+    public static function toggleUi():void {
+      if (isDraggable()) {
+        game.cDropsUI.mcDraggable.menuBar.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+      }
+      else if (isUsingCustomDrops()) {
+        game.cDropsUI.onShow();
+      }
+    }
+
+    public static function acceptList(itemIds:Array):void {
+      if (isUsingCustomDrops()) {
+
+      }
+      else {
+
+      }
     }
 
     public static function rejectDrop(itemName:String, itemId:String):void {
       try {
-        if (game.litePreference.data.bCustomDrops) {
-          // Main.getInstance().getExternal().debug("is using custom drops");
-          // if (!game.cDropsUI) {
-          // Main.getInstance().getExternal().debug("cDropsUI is null!");
-          // return;
-          // }
-          // if (!game.cDropsUI.isMenuOpen()) {
-          // Main.getInstance().getExternal().debug("is not open");
-          // game.cDropsUI.onToggleMenu(new MouseEvent(MouseEvent.CLICK));
-          // // game.cDropsUI.inner_menu.visible = true;
-          // }
-          // else {
-          // Main.getInstance().getExternal().debug("is open");
-          // }
-          // Main.getInstance().getExternal().debug("checking if menu is open");
-          // if (!game.cDropsUI.isMenuOpen()) {
-          // Main.getInstance().getExternal().debug("menu not open still");
-          // }
-          // else {
-          // Main.getInstance().getExternal().debug("thinks its open");
-          // }
-          // Main.getInstance().getExternal().debug("rejecting drop");
-          // if (game.world.invTree[itemId] == null) {
-          // Main.getInstance().getExternal().debug("item not found");
-          // }
+        if (isUsingCustomDrops()) {
           game.cDropsUI.onBtNo(game.world.invTree[itemId]);
         }
         else {
@@ -74,8 +124,14 @@ package vexed.game {
       }
     }
 
+    // Whether using custom drops ui
     public static function isUsingCustomDrops():Boolean {
       return game.litePreference.data.bCustomDrops;
+    }
+
+    // Whether using custom drops ui with draggable mode
+    public static function isDraggable():Boolean {
+      return isUsingCustomDrops() && Boolean(game.cDropsUI.mcDraggable);
     }
 
     // public static function setCustomDropsUi(on:Boolean, draggable:Boolean):void {
