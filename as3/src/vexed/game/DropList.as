@@ -12,6 +12,8 @@ package vexed.game {
 
     public static var drops:Dictionary = new Dictionary();
 
+    private static var items:Object = {};
+
     // private static var inactive:ColorMatrixFilter =          new
 
     // var _loc2_:AdjustColor = new AdjustColor();
@@ -28,10 +30,20 @@ package vexed.game {
 
     private static const DROP_REGEX:RegExp = /(.*)\s+x\s*(\d*)/;
 
+    private static const DROP_MC:String = "DFrame2MC";
+
+    public static function saveItem(itemId:int, itemData:Object):void {
+      if (!items[itemId])
+        items[itemId] = itemData;
+    }
+
+    public static function getItems():Object {
+      return items;
+    }
+
     public static function updateCount(itemName:String, qty:int):void {
-      if (!drops[itemName]) {
+      if (!drops[itemName])
         drops[itemName] = 0;
-      }
       drops[itemName] += qty;
     }
 
@@ -62,27 +74,24 @@ package vexed.game {
 
     public static function acceptDrop(itemId:int):void {
       if (isUsingCustomDrops()) {
-        var source:* = game.cDropsUI.mcDraggable ? game.cDropsUI.mcDraggable.menu : game.cDropsUI;
-        for (var i:int = 0; i < source.numChildren; i++) {
-          var child:* = source.getChildAt(i);
-          if (child.itemObj) {
-            var itemName:String = child.itemObj.sName.toLowerCase();
-            child.btYes.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
-          }
+        if (!isCustomDropsUiOpen())
+          toggleUi();
+
+        var ref:* = items[itemId];
+        if (ref) {
+          game.cDropsUI.acceptDrop(ref); // Updates the ui, removing the item
+          game.sfc.sendXtMessage("zm", "getDrop", [itemId], "str", game.world.curRoom); // Adds the item to the inventory
         }
       }
       else {
         var children:int = game.ui.dropStack.numChildren;
-        for (i = 0; i < children; i++) {
-          var type:String = getQualifiedClassName(child);
-          if (type.indexOf("DFrame2MC") != -1) {
-            var drop:* = parseDrop(child.cnt.strName.text);
-            var name:* = drop.name;
+        for (var i:int = 0; i < children; i++) {
+          var child:* = game.ui.dropStack.getChildAt(i);
+          var typeName:String = getQualifiedClassName(child);
+          if (typeName == DROP_MC)
             child.cnt.ybtn.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
-          }
         }
       }
-      // game.sfc.sendXtMessage("zm", "getDrop", [itemId], "str", game.world.curRoom);
     }
 
     // Toggle open/closed of custom ui
@@ -92,15 +101,6 @@ package vexed.game {
       }
       else if (isUsingCustomDrops()) {
         game.cDropsUI.onShow();
-      }
-    }
-
-    public static function acceptList(itemIds:Array):void {
-      if (isUsingCustomDrops()) {
-
-      }
-      else {
-
       }
     }
 
@@ -126,7 +126,7 @@ package vexed.game {
 
     // Whether using custom drops ui
     public static function isUsingCustomDrops():Boolean {
-      return game.litePreference.data.bCustomDrops;
+      return Boolean(game.cDropsUI) && game.litePreference.data.bCustomDrops;
     }
 
     // Whether using custom drops ui with draggable mode

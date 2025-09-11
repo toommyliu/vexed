@@ -9,11 +9,13 @@ package vexed {
 	import flash.system.ApplicationDomain;
 	import flash.system.Security;
 	import flash.utils.getQualifiedClassName;
+	import flash.events.ProgressEvent;
 
 	import vexed.Externalizer;
 	import vexed.module.Modules;
 	import vexed.util.SFSEvent;
 	import flash.events.ProgressEvent;
+	import vexed.game.DropList;
 
 	public class Main extends MovieClip {
 		private static var _instance:Main;
@@ -115,6 +117,18 @@ package vexed {
 			else {
 				var pkt:String = processPacket(packet.params.message);
 				this.external.call("packetFromServer", pkt);
+
+				if (pkt && pkt.indexOf('dropItem') > -1) {
+					var pktObj:Object = JSON.parse(pkt);
+					if (pktObj && pktObj.b && pktObj.b.o && pktObj.b.o.items) {
+						var itemsObj:Object = pktObj.b.o.items;
+						for (var itemId:* in itemsObj) {
+							var itemData:Object = itemsObj[itemId];
+							DropList.saveItem(itemId, itemData);
+							DropList.updateCount(itemData.sName, itemData.iQty);
+						}
+					}
+				}
 			}
 		}
 
