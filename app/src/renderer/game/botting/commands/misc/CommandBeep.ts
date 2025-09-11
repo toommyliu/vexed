@@ -1,8 +1,11 @@
 import { Command } from "@botting/command";
 
-async function beep(frequency = 800, duration = 200): Promise<void> {
-  return new Promise((resolve) => {
-    const audioContext = new window.AudioContext();
+async function beep(
+  audioContext: AudioContext,
+  frequency = 800,
+  duration = 200,
+): Promise<void> {
+  return new Promise((resolve, reject) => {
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
 
@@ -20,7 +23,15 @@ async function beep(frequency = 800, duration = 200): Promise<void> {
 
     oscillator.start();
     oscillator.stop(audioContext.currentTime + duration / 1_000);
-    oscillator.onended = () => resolve();
+    oscillator.onended = () => {
+      try {
+        oscillator.disconnect();
+        gainNode.disconnect();
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
+    };
   });
 }
 
@@ -28,9 +39,15 @@ export class CommandBeep extends Command {
   public times!: number;
 
   public override async execute() {
-    for (let idx = 0; idx < this.times; idx++) {
-      await beep();
-      await this.bot.sleep(50);
+    const audioContext = new AudioContext();
+
+    try {
+      for (let idx = 0; idx < this.times; idx++) {
+        await beep(audioContext, 800, 200);
+        await this.bot.sleep(50);
+      }
+    } finally {
+      await audioContext.close();
     }
   }
 
