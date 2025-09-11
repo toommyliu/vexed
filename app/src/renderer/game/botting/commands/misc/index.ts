@@ -591,8 +591,14 @@ export const miscCommands = {
     const cmd = new CommandCloseWindow();
     window.context.addCommand(cmd);
   },
+  /**
+   * Beeps the specified number of times.
+   *
+   * @param times - How many times to beep.
+   */
   beep(times?: number) {
     const cmd = new CommandBeep();
+    cmd.times = 1;
     if (times) {
       if (typeof times !== "number") throw new ArgsError("times is required");
 
