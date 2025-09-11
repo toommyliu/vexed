@@ -4,7 +4,6 @@ import type { Bot } from "./Bot";
 
 type Events = {
   boostsChanged(): void;
-  itemNamesChanged(): void;
   questIdsChanged(): void;
 };
 
@@ -85,7 +84,6 @@ export class Environment extends TypedEmitter<Events> {
     if (!this._itemNames.has(itemName) || this._rejectElse !== rejectElse) {
       this._itemNames.add(itemName);
       this._rejectElse = rejectElse;
-      this.emit("itemNamesChanged");
     }
   }
 
@@ -95,9 +93,7 @@ export class Environment extends TypedEmitter<Events> {
    * @param itemName - The item name to remove.
    */
   public removeItemName(itemName: string): void {
-    if (this._itemNames.delete(itemName)) {
-      this.emit("itemNamesChanged");
-    }
+    this._itemNames.delete(itemName);
   }
 
   /**

@@ -102,26 +102,44 @@ package vexed.game {
       }
     }
 
-    public static function rejectDrop(itemId:int):void {
+    // 0 : not found
+    // 1 : rejected drop
+    // -1 : not found
+    public static function rejectDrop(itemId:int):String {
       var itemObj:Object = items[itemId];
       if (!itemObj)
-        return;
+        return '0';
 
       if (isUsingCustomDrops()) {
         if (!isCustomDropsUiOpen())
           toggleUi();
 
-        game.cDropsUI.onBtNo(itemObj);
-      }
-      else {
-        var itemName:String = StringUtil.trim(itemObj.sName.toLowerCase());
-        for (var idx:int = game.ui.dropStack.numChildren - 1; idx >= 0; idx--) {
-          var child:* = game.ui.dropStack.getChildAt(idx);
-          var data:* = parseDrop(child.cnt.strName.text);
-          if (data.name == itemName)
-            game.ui.dropStack.removeChildAt(idx);
+        // Check the ui has the item before bothering to reject
+        // Avoids "ghost drops"
+        var source:* = isDraggable() ? game.cDropsUI.mcDraggable.menu : game.cDropsUI;
+        for (var i:int = 0; i < source.numChildren; i++) {
+          var child:* = source.getChildAt(i);
+          if (child.itemObj) {
+            var itemName:String = child.itemObj.sName.toLowerCase();
+            if (itemName == StringUtil.trim(itemObj.sName.toLowerCase())) {
+              child.btNo.dispatchEvent(new MouseEvent(MouseEvent.CLICK)); // Removes item and updates the UI
+              return '1';
+            }
+          }
         }
       }
+      else {
+        itemName = StringUtil.trim(itemObj.sName.toLowerCase());
+        for (var idx:int = game.ui.dropStack.numChildren - 1; idx >= 0; idx--) {
+          child = game.ui.dropStack.getChildAt(idx);
+          var data:* = parseDrop(child.cnt.strName.text);
+          if (data.name == itemName) {
+            game.ui.dropStack.removeChildAt(idx);
+          }
+        }
+      }
+
+      return '-1';
     }
 
     // Whether using custom drops ui
