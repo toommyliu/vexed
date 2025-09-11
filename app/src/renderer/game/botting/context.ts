@@ -272,7 +272,7 @@ export class Context extends TypedEmitter<Events> {
     this._capturedCommands = [];
 
     try {
-      cmdFactory(); // invoke the factory fn, which should add've capture the command
+      cmdFactory(); // invoke the factory fn, which should add the captured command
       return [...this._capturedCommands]; // the captured command
     } finally {
       this._captureMode = ogCaptureMode;
