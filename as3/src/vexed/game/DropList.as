@@ -1,9 +1,9 @@
 package vexed.game {
   import vexed.Main;
   import flash.events.MouseEvent;
-  import flash.filters.ColorMatrixFilter;
   import flash.utils.getQualifiedClassName;
   import flash.utils.Dictionary;
+  import mx.utils.StringUtil;
 
   public class DropList {
     private static var game:* = Main.getInstance().getGame();
@@ -14,7 +14,7 @@ package vexed.game {
 
     private static var items:Object = {};
 
-    private static const DROP_REGEX:RegExp = /(.*)\s+x\s*(\d*)/;
+    private static const DROP_REGEX:RegExp = /(.*)\s+x\s*(\d*)/i;
 
     private static const DROP_MC:String = "DFrame2MC";
 
@@ -46,30 +46,35 @@ package vexed.game {
     }
 
     // Parse the item name and count from the drop string
-    public static function parseDrop(name:*):* {
-      var ret:* = new Object();
-      var lowerName:String = name.toLowerCase().trim();
+    public static function parseDrop(name:String):Object {
+      var ret:Object = new Object();
+      var lowerName:String = StringUtil.trim(name.toLowerCase());
       ret.name = lowerName;
       ret.count = 1;
-      var res:Object = DROP_REGEX.exec(lowerName);
-      if (res != null) {
-        ret.name = res[1].replace(/\s+$/, "");
-        var countStr:String = res[2];
-        if (countStr != "") {
-          ret.count = int(countStr);
+
+      var res:Array = DROP_REGEX.exec(lowerName);
+      if (res != null && res.length > 2) {
+        ret.name = String(res[1]).replace(/\s+$/, "");
+        var countStr:String = String(res[2]);
+        if (countStr != null && countStr != "") {
+          var parsedCount:int = parseInt(countStr);
+          if (!isNaN(parsedCount) && parsedCount > 0) {
+            ret.count = parsedCount;
+          }
         }
       }
+
       return ret;
     }
 
     public static function acceptDrop(itemId:int):void {
+      var itemObj:* = items[itemId];
       if (isUsingCustomDrops()) {
         if (!isCustomDropsUiOpen())
           toggleUi();
 
-        var ref:* = items[itemId];
-        if (ref) {
-          game.cDropsUI.acceptDrop(ref); // Updates the ui, removing the item
+        if (itemObj) {
+          game.cDropsUI.acceptDrop(itemObj); // Updates the ui, removing the item
           game.sfc.sendXtMessage("zm", "getDrop", [itemId], "str", game.world.curRoom); // Adds the item to the inventory
         }
       }
@@ -77,8 +82,11 @@ package vexed.game {
         var children:int = game.ui.dropStack.numChildren;
         for (var i:int = 0; i < children; i++) {
           var child:* = game.ui.dropStack.getChildAt(i);
-          var typeName:String = getQualifiedClassName(child);
-          if (typeName == DROP_MC)
+          var mcName:String = getQualifiedClassName(child);
+          var dropItemName:String = child.cnt.strName.text; // Defeated Makai x1
+          var data:* = parseDrop(dropItemName); // {name: "defeated makai", count: 1}
+
+          if (mcName == DROP_MC && data.name == StringUtil.trim(itemObj.sName.toLowerCase()))
             child.cnt.ybtn.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
         }
       }
@@ -125,12 +133,10 @@ package vexed.game {
     }
 
     public static function isCustomDropsUiOpen():Boolean {
-      if (game.cDropsUI) {
+      if (game.cDropsUI)
         return game.cDropsUI.isMenuOpen();
-      }
 
       return false;
-
     }
   }
 }
