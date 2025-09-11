@@ -36,6 +36,7 @@ import { CommandSettingSkipCutscenes } from "./CommandSettingSkipCutscenes";
 import { CommandStopBot } from "./CommandStopBot";
 import { CommandWaitForPlayerCount } from "./CommandWaitForPlayerCount";
 import { CommandWalkSpeed } from "./CommandWalkSpeed";
+import { CommandBeep } from "./CommandBeep";
 
 export const miscCommands = {
   /**
@@ -588,6 +589,17 @@ export const miscCommands = {
    */
   close_window() {
     const cmd = new CommandCloseWindow();
+    window.context.addCommand(cmd);
+  },
+  beep(times?: number) {
+    const cmd = new CommandBeep();
+    if (times) {
+      if (typeof times !== "number") throw new ArgsError("times is required");
+
+      cmd.times = Math.trunc(times);
+      if (cmd.times < 1) cmd.times = 1;
+    }
+
     window.context.addCommand(cmd);
   },
 };
