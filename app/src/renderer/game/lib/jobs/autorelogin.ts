@@ -88,7 +88,7 @@ export class AutoReloginJob extends Job {
 
       this.bot.auth.connectTo(AutoReloginJob.server!);
 
-      await this.bot.waitUntil(() => this.bot.player.isReady(), null, 6);
+      await this.bot.waitUntil(() => this.bot.player.isReady(), null, 25);
 
       // Still stuck in blue flame?
       if (!this.bot.player.isReady()) {
