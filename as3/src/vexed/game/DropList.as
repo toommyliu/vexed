@@ -102,23 +102,25 @@ package vexed.game {
       }
     }
 
-    public static function rejectDrop(itemName:String, itemId:String):void {
-      try {
-        if (isUsingCustomDrops()) {
-          game.cDropsUI.onBtNo(game.world.invTree[itemId]);
-        }
-        else {
-          itemName = itemName.toLowerCase();
+    public static function rejectDrop(itemId:int):void {
+      var itemObj:Object = items[itemId];
+      if (!itemObj)
+        return;
 
-          for (var i:int = game.ui.dropStack.numChildren - 1; i >= 0; i--) {
-            var child:* = game.ui.dropStack.getChildAt(i);
-            if (child.cnt.strName.text.toLowerCase().indexOf(itemName) == 0)
-              game.ui.dropStack.removeChildAt(i);
-          }
-        }
+      if (isUsingCustomDrops()) {
+        if (!isCustomDropsUiOpen())
+          toggleUi();
+
+        game.cDropsUI.onBtNo(itemObj);
       }
-      catch (e:Error) {
-        Main.getInstance().getExternal().debug("Error rejecting drop: " + e.message);
+      else {
+        var itemName:String = StringUtil.trim(itemObj.sName.toLowerCase());
+        for (var idx:int = game.ui.dropStack.numChildren - 1; idx >= 0; idx--) {
+          var child:* = game.ui.dropStack.getChildAt(idx);
+          var data:* = parseDrop(child.cnt.strName.text);
+          if (data.name == itemName)
+            game.ui.dropStack.removeChildAt(idx);
+        }
       }
     }
 
