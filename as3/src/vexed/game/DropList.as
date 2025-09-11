@@ -116,7 +116,7 @@ package vexed.game {
 
         // Check the ui has the item before bothering to reject
         // Avoids "ghost drops"
-        var source:* = isDraggable() ? game.cDropsUI.mcDraggable.menu : game.cDropsUI;
+        var source:* = getCustomDropSource();
         for (var i:int = 0; i < source.numChildren; i++) {
           var child:* = source.getChildAt(i);
           if (child.itemObj) {
@@ -150,6 +150,15 @@ package vexed.game {
     // Whether using custom drops ui with draggable mode
     public static function isDraggable():Boolean {
       return isUsingCustomDrops() && Boolean(game.cDropsUI.mcDraggable);
+    }
+
+    private static function getCustomDropSource():* {
+      if (isDraggable())
+        return game.cDropsUI.mcDraggable.menu;
+      else if (isUsingCustomDrops())
+        return game.cDropsUI;
+
+      return null;
     }
 
     public static function isCustomDropsUiOpen():Boolean {
