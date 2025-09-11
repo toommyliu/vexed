@@ -1,10 +1,9 @@
-import type { Bot } from "../lib/Bot";
-import type { ItemData } from "../lib/models/Item";
+import type { Bot } from "@lib/Bot";
+import type { ItemData } from "@lib/models/Item";
 
-export function dropItem(bot: Bot, packet: DropItemPacket) {
-  for (const itemData of Object.values(packet.items)) {
+export async function dropItem(bot: Bot, packet: DropItemPacket) {
+  for (const itemData of Object.values(packet.items))
     bot.drops.addDrop(itemData);
-  }
 }
 
 export type DropItemPacket = {

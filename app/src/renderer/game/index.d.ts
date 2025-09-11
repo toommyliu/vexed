@@ -64,11 +64,11 @@ declare global {
     combatAttackMonsterById(monMapId: number): void;
 
     dropStackAcceptDrop(itemId: number): void;
-    dropStackRejectDrop(itemName: string, itemId: string): void;
+    dropStackRejectDrop(itemId: number): void;
     dropStackIsUsingCustomDrops(): boolean;
-    dropStackSetCustomDropsUiState(on: boolean, draggable: boolean): void;
-    dropStackIsCustomDropsUiOpen(): boolean;
-    dropStackSetCustomDropsUiOpen(on: boolean): void;
+    dropStackGetDrops(): { [key: string]: number };
+    dropStackGetItems(): { [key: number]: ItemData };
+    dropStackToggleUi(): boolean;
 
     houseGetItems(): ItemData[];
     houseGetItem(key: number | string): Nullable<ItemData>;

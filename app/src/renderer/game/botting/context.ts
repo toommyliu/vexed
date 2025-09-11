@@ -272,7 +272,7 @@ export class Context extends TypedEmitter<Events> {
     this._capturedCommands = [];
 
     try {
-      cmdFactory(); // invoke the factory fn, which should add've capture the command
+      cmdFactory(); // invoke the factory fn, which should add the captured command
       return [...this._capturedCommands]; // the captured command
     } finally {
       this._captureMode = ogCaptureMode;
@@ -326,7 +326,6 @@ export class Context extends TypedEmitter<Events> {
 
   /**
    * @param name - The item name of the boost.
-   * @remarks
    */
   public registerBoost(name: string) {
     this.bot.environment.addBoost(name);
@@ -364,7 +363,7 @@ export class Context extends TypedEmitter<Events> {
   private async doPreInit() {
     if (!this.bot.player.isReady()) {
       logger.info("waiting for load (1)");
-      await this.bot.waitUntil(() => this.bot.player.isLoaded(), null, -1);
+      await this.bot.waitUntil(() => this.bot.player.isReady(), null, -1);
       logger.info("player loaded (2)");
     }
 
@@ -418,7 +417,7 @@ export class Context extends TypedEmitter<Events> {
 
     if (!this.bot.player.isReady()) {
       logger.info("waiting for load");
-      await this.bot.waitUntil(() => this.bot.player.isLoaded(), null, -1);
+      await this.bot.waitUntil(() => this.bot.player.isReady(), null, -1);
       logger.info("player loaded");
     }
 
@@ -434,9 +433,13 @@ export class Context extends TypedEmitter<Events> {
         if (!this.isRunning()) break;
 
         // TODO: make configurable
-        if (command.skipDelay) {
-          await this.bot.sleep(10);
-        } else {
+        // if (command.skipDelay) {
+        //   await this.bot.sleep(10);
+        // } else {
+        //   await this.bot.sleep(this._commandDelay);
+        // }
+
+        if (!command.skipDelay) {
           await this.bot.sleep(this._commandDelay);
         }
 

@@ -9,12 +9,13 @@ package vexed {
 	import flash.system.ApplicationDomain;
 	import flash.system.Security;
 	import flash.utils.getQualifiedClassName;
+	import flash.events.ProgressEvent;
 
 	import vexed.Externalizer;
 	import vexed.module.Modules;
 	import vexed.util.SFSEvent;
 	import flash.events.ProgressEvent;
-	import vexed.module.Drops;
+	import vexed.game.DropList;
 
 	public class Main extends MovieClip {
 		private static var _instance:Main;
@@ -123,8 +124,8 @@ package vexed {
 						var itemsObj:Object = pktObj.b.o.items;
 						for (var itemId:* in itemsObj) {
 							var itemData:Object = itemsObj[itemId];
-							Drops.saveItemData(itemData);
-							Drops.updateDropQty(itemId, itemData.iQty);
+							DropList.saveItem(itemId, itemData);
+							DropList.updateCount(itemData.sName, itemData.iQty);
 						}
 					}
 				}

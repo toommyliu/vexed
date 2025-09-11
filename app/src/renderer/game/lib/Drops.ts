@@ -135,30 +135,28 @@ export class Drops {
    * @returns Whether the pickup was successful.
    */
   public async pickup(item: number | string): Promise<boolean> {
-    if (typeof item !== "string" && typeof item !== "number") {
-      return false;
-    }
-
     const itemData = this.#resolveItem(item);
-    if (!itemData || this.getDropCount(itemData.ItemID) <= 0) {
-      return false;
-    }
+    if (!itemData || this.getDropCount(itemData.ItemID) <= 0) return false;
 
     const { ItemID: itemId } = itemData;
-    if (!this.bot.player.isReady()) {
-      return false;
+
+    if (this.bot.player.isReady() && itemData) {
+      this.bot.flash.call(() => swf.dropStackAcceptDrop(itemId));
+
+      // this.bot.packets.sendServer(
+      //   `%xt%zm%getDrop%${this.bot.world.roomId}%${itemId}%`,
+      // );
+
+      await this.bot.waitUntil(
+        () => this.bot.inventory.get(item) !== null,
+        null,
+        -1,
+      );
+      this.#removeDrop(itemId);
+      return true;
     }
 
-    this.bot.packets.sendServer(
-      `%xt%zm%getDrop%${this.bot.world.roomId}%${itemId}%`,
-    );
-    await this.bot.waitUntil(
-      () => this.bot.inventory.get(item) !== null,
-      () => this.bot.player.isReady(),
-      -1,
-    );
-    this.#removeDrop(itemId);
-    return true;
+    return false;
   }
 
   /**
@@ -172,16 +170,15 @@ export class Drops {
     itemKey: number | string,
     removeFromStore: boolean = false,
   ): Promise<boolean> {
-    if (typeof itemKey !== "string" && typeof itemKey !== "number") {
+    if (typeof itemKey !== "string" && typeof itemKey !== "number")
+      return false;
+
+    const item = this.#resolveItem(itemKey);
+    if (!item) {
       return false;
     }
 
-    const item = this.#resolveItem(itemKey);
-    if (!item) return false;
-
-    this.bot.flash.call(() =>
-      swf.dropStackRejectDrop(item.sName, item.ItemID.toString()),
-    );
+    this.bot.flash.call(() => swf.dropStackRejectDrop(item.ItemID));
 
     if (removeFromStore) {
       this.#removeDrop(item.ItemID);
@@ -199,45 +196,6 @@ export class Drops {
     const item = this.#resolveItem(itemKey);
     return item !== null && this.getDropCount(item.ItemID) > 0;
   }
-
-  // /**
-  //  * Whether the player is using the custom drops ui.
-  //  */
-  // public isUsingCustomUi(): boolean {
-  //   return this.bot.flash.call<boolean>(() =>
-  //     swf.dropStackIsUsingCustomDrops(),
-  //   );
-  // }
-
-  // /**
-  //  * Whether the custom drops ui is open.
-  //  */
-  // public isCustomUiOpen(): boolean {
-  //   return this.bot.flash.call<boolean>(() =>
-  //     swf.dropStackIsCustomDropsUiOpen(),
-  //   );
-  // }
-
-  // /**
-  //  * Sets the custom drops ui state.
-  //  *
-  //  * @param on - Whether to use the custom drops ui.
-  //  * @param draggable - Whether to use the draggable custom drops ui.
-  //  */
-  // public setCustomDropsUi(on: boolean, draggable: boolean): void {
-  //   this.bot.flash.call(() =>
-  //     swf.dropStackSetCustomDropsUiState(on, draggable),
-  //   );
-  // }
-
-  // /**
-  //  * Sets the custom drops ui open state.
-  //  *
-  //  * @param on - Whether to open the custom drops ui.
-  //  */
-  // public setCustomDropsUiOpen(on: boolean): void {
-  //   this.bot.flash.call(() => swf.dropStackSetCustomDropsUiOpen(on));
-  // }
 
   #removeDrop(itemId: number): void {
     this.#dropCounts.delete(itemId);
