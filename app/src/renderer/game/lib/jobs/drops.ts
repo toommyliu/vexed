@@ -11,11 +11,10 @@ export class DropsJob extends Job {
       const itemData = this.bot.drops.getItemFromId(itemId);
       if (!itemData) continue;
 
-      if (this.bot.environment.hasItemName(itemData.sName)) {
+      if (this.bot.environment.hasItemName(itemData.sName))
         await this.bot.drops.pickup(itemId);
-      } else if (this.bot.environment.rejectElse) {
+      else if (this.bot.environment.rejectElse)
         await this.bot.drops.reject(itemId);
-      }
 
       await this.bot.sleep(100);
     }
