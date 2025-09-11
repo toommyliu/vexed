@@ -39,9 +39,8 @@ package vexed.game {
     // Get qty of drops
     public static function getDrops():Object {
       var json:Object = {};
-      for (var itemName:String in drops) {
+      for (var itemName:String in drops)
         json[itemName] = drops[itemName];
-      }
       return JSON.stringify(json);
     }
 
@@ -58,9 +57,8 @@ package vexed.game {
         var countStr:String = String(res[2]);
         if (countStr != null && countStr != "") {
           var parsedCount:int = parseInt(countStr);
-          if (!isNaN(parsedCount) && parsedCount > 0) {
+          if (!isNaN(parsedCount) && parsedCount > 0)
             ret.count = parsedCount;
-          }
         }
       }
 
