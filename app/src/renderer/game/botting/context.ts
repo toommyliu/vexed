@@ -326,7 +326,6 @@ export class Context extends TypedEmitter<Events> {
 
   /**
    * @param name - The item name of the boost.
-   * @remarks
    */
   public registerBoost(name: string) {
     this.bot.environment.addBoost(name);
