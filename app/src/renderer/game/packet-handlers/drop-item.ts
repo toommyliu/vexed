@@ -13,7 +13,7 @@ const REJECT_COOLDOWN_MS = 5_000;
 export async function dropItem(bot: Bot, packet: DropItemPacket) {
   for (const itemData of Object.values(packet.items)) {
     bot.drops.addDrop(itemData);
-
+    continue;
     const releaseFn = await mutex.acquire();
 
     try {

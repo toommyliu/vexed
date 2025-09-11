@@ -61,8 +61,9 @@ package vexed {
       externalize("dropStackAcceptDrop", DropList.acceptDrop);
       externalize("dropStackRejectDrop", DropList.rejectDrop);
       externalize("dropStackIsUsingCustomDrops", DropList.isUsingCustomDrops);
-      externalize("getDrops", DropList.getDrops);
-      externalize("toggleUi", DropList.toggleUi);
+      externalize("dropStackGetDrops", DropList.getDrops);
+      externalize("dropStackGetItems", DropList.getItems);
+      externalize("dropStackToggleUi", DropList.toggleUi);
 
       // House
       externalize("houseGetItems", House.getItems);
