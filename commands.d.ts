@@ -268,6 +268,7 @@ If results are ambiguous, the first matching item will be used. Use itemType to 
   set_spawnpoint(cell?: string, pad?: string): void;
   /** Walks to a point on the map. */
   walk_to(x: number, y: number): void;
+  /** Beeps the specified number of times. */
   beep(times?: number): void;
   /** Buffs by casting the first 3 skills, or the provided skill set. */
   buff(skillList?: number[], wait?: boolean): void;
