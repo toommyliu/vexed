@@ -8,6 +8,7 @@ import { CommandAutoZoneLedgermayne } from "./CommandAutoZoneLedgermayne";
 import { CommandAutoZoneMoreSkulls } from "./CommandAutoZoneMoreSkulls";
 import { CommandAutoZoneQueenIona } from "./CommandAutoZoneQueenIona";
 import { CommandAutoZoneUltraDage } from "./CommandAutoZoneUltraDage";
+import { CommandBeep } from "./CommandBeep";
 import { CommandBuff } from "./CommandBuff";
 import { CommandBuyScrollOfEnrage } from "./CommandBuyScrollOfEnrage";
 import { CommandBuyScrollOfLifeSteal } from "./CommandBuyScrollOfLifeSteal";
@@ -36,7 +37,6 @@ import { CommandSettingSkipCutscenes } from "./CommandSettingSkipCutscenes";
 import { CommandStopBot } from "./CommandStopBot";
 import { CommandWaitForPlayerCount } from "./CommandWaitForPlayerCount";
 import { CommandWalkSpeed } from "./CommandWalkSpeed";
-import { CommandBeep } from "./CommandBeep";
 
 export const miscCommands = {
   /**
