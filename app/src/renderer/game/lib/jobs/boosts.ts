@@ -3,45 +3,27 @@ import { BoostType } from "../Player";
 import { Job } from "./Job";
 
 export class BoostsJob extends Job {
-  private index = 0;
-
   public constructor(private readonly bot: Bot) {
     super("boosts", 0);
-
-    this.bot.environment.on("boostsChanged", () => {
-      this.restart();
-    });
-  }
-
-  public restart(): void {
-    this.index = 0;
   }
 
   public async execute(): Promise<void> {
     const boosts = Array.from(this.bot.environment.boosts);
     if (boosts.length === 0) return;
 
-    if (this.index >= boosts.length) this.index = 0;
+    for (const boost of boosts) {
+      const variant = this.resolveBoostType(boost);
+      if (!variant) continue;
 
-    const boost = boosts[this.index];
-    if (!boost) return;
+      const item = this.bot.inventory.get(boost);
+      if (!item || item.data.sType !== "ServerUse") continue;
 
-    if (this.bot.inventory.contains(boost)) {
-      const variant = this.getVariantFromName(boost);
-
-      if (!variant) return;
-
-      if (!this.bot.player.isBoostActive(variant)) {
-        const item = this.bot.inventory.get(boost);
-        if (!item) return;
+      if (!this.bot.player.isBoostActive(variant))
         this.bot.flash.call(() => swf.playerUseBoost(item.id));
-      }
     }
-
-    this.index = (this.index + 1) % boosts.length;
   }
 
-  private getVariantFromName(name: string): BoostType | null {
+  private resolveBoostType(name: string): BoostType | null {
     const lower = name.toLowerCase();
     if (lower.includes("gold")) return BoostType.Gold;
     if (lower.includes("xp")) return BoostType.Exp;

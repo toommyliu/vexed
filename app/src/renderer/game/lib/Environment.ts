@@ -3,7 +3,6 @@ import { normalizeId } from "../util/normalizeId";
 import type { Bot } from "./Bot";
 
 type Events = {
-  boostsChanged(): void;
   questIdsChanged(): void;
 };
 
@@ -101,19 +100,14 @@ export class Environment extends TypedEmitter<Events> {
    * Emits `boostsChanged` when the set is modified.
    */
   public addBoost(boostName: string): void {
-    if (!this._boosts.has(boostName)) {
-      this._boosts.add(boostName);
-      this.emit("boostsChanged");
-    }
+    this._boosts.add(boostName);
   }
 
   /**
    * Removes a boost item name from the environment.
    */
   public removeBoost(boostName: string): void {
-    if (this._boosts.delete(boostName)) {
-      this.emit("boostsChanged");
-    }
+    this._boosts.delete(boostName);
   }
 
   /**
