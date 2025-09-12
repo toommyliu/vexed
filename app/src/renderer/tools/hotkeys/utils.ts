@@ -76,12 +76,17 @@ export function createHotkeyConfig(): HotkeySection[] {
       icon: "general",
       items: [
         {
+          id: "toggle-autoattack",
+          label: "Toggle Autoattack",
+          configKey: "General.Toggle Autoattack",
+          value: "",
+        },
+        {
           id: "toggle-bank",
           label: "Toggle Bank",
           configKey: "General.Toggle Bank",
           value: "",
         },
-
         {
           id: "toggle-top-bar",
           label: "Toggle Top Bar",

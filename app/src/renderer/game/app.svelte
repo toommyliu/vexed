@@ -205,6 +205,10 @@
 
   function handleHotkeyAction(actionId: string) {
     switch (actionId) {
+      case "toggle-autoattack":
+        autoEnabled = !autoEnabled;
+        break;
+
       case "toggle-bank":
         toggleBank();
         break;
