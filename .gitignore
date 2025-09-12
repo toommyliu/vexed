@@ -12,3 +12,6 @@ public/output.css
 api-legacy.json
 api.json
 api-types.json
+
+.yarnrc
+.yarn/
