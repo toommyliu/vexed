@@ -2,9 +2,7 @@ import { TypedEmitter } from "tiny-typed-emitter";
 import { normalizeId } from "../util/normalizeId";
 import type { Bot } from "./Bot";
 
-type Events = {
-  questIdsChanged(): void;
-};
+type Events = object;
 
 export class Environment extends TypedEmitter<Events> {
   private _questIds = new Set<number>();
@@ -32,7 +30,6 @@ export class Environment extends TypedEmitter<Events> {
     const parsedQuestId = normalizeId(questId);
     if (parsedQuestId !== null && !this._questIds.has(parsedQuestId)) {
       this._questIds.add(parsedQuestId);
-      this.emit("questIdsChanged");
     }
   }
 
@@ -43,8 +40,8 @@ export class Environment extends TypedEmitter<Events> {
    */
   public removeQuestId(questId: number | string): void {
     const parsedQuestId = normalizeId(questId);
-    if (parsedQuestId !== null && this._questIds.delete(parsedQuestId)) {
-      this.emit("questIdsChanged");
+    if (parsedQuestId !== null) {
+      this._questIds.delete(parsedQuestId);
     }
   }
 
