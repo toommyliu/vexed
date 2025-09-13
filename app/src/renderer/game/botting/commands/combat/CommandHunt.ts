@@ -90,6 +90,6 @@ export class CommandHunt extends Command {
   }
 
   public override toString() {
-    return `Jump to monster: ${this.target}${this.most ? " [most]" : ""}`;
+    return `Hunt: ${this.target}${this.most ? " [most]" : ""}`;
   }
 }
