@@ -1,4 +1,4 @@
-.button[data-variant="ghost"] {
+.button[data-variant='ghost'] {
   align-items: center;
   background-color: transparent;
   border: none;
@@ -23,7 +23,41 @@
   cursor: pointer;
 }
 
-.button[data-variant="ghost"]:hover {
+.button[data-variant='ghost']:hover {
   color: var(--accent-foreground);
   background-color: var(--accent);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+@media (max-width: 768px) {
+  .sl-markdown-content {
+    overflow-x: auto;
+  }
+
+  .sl-markdown-content pre {
+    max-width: calc(100vw - 2rem);
+    overflow-x: auto;
+  }
 }
