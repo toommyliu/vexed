@@ -611,7 +611,7 @@ export const miscCommands = {
   },
   /**
    * Sets the credentials to use for Auto Relogin.
-   * After a login attempt, the client stores the username, password, and server used to log in. These fields are re-used
+   * After a login attempt, the client stores the username and password used to log in, regardless if successful. These fields are re-used
    * when null(s) are passed.
    *
    * @example
