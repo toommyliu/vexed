@@ -611,10 +611,12 @@ export const miscCommands = {
   },
   /**
    * Sets the credentials to use for Auto Relogin.
-   *
-   * After a login, the client will store the username, password, and server used to log in. These fields are used
+   * After a login attempt, the client stores the username, password, and server used to log in. These fields are re-used
    * when null(s) are passed.
    *
+   * @example
+   * cmd.use_autorelogin(null, null, 'Twig') // uses the current username and password, but sets the server to Twig
+   * cmd.use_autorelogin('myusername', 'mypassword', null) // uses the current server, but sets the username and password
    * @param username - The username of the account. If set to null, the current username (as shown to the bot) will be used.
    * @param password - The password of the account. If set to null, the current password (as shown to the bot) will be used.
    * @param server - The server to log into. If set to null, the current server will be used.

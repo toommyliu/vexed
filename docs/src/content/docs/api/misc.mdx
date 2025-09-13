@@ -240,12 +240,17 @@ Stops the bot.
 
 ### cmd.use_autorelogin
 Sets the credentials to use for Auto Relogin.
+After a login attempt, the client stores the username, password, and server used to log in. These fields are re-used
+when null(s) are passed.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| username | `string?` | The username of the account. If not provided, the username (as shown to the bot) will be used. |
-| password | `string?` | The password of the account. If not provided, the password (as shown to the bot) will be used. |
-| server | `string?` | The server to log into. If not provided, the current server will be used. |
+| username | `null` \| `string` | The username of the account. If set to null, the current username (as shown to the bot) will be used. |
+| password | `null` \| `string` | The password of the account. If set to null, the current password (as shown to the bot) will be used. |
+| server | `null` \| `string` | The server to log into. If set to null, the current server will be used. |
+
+<Code code={`cmd.use_autorelogin(null, null, 'Twig') // uses the current username and password, but sets the server to Twig
+cmd.use_autorelogin('myusername', 'mypassword', null) // uses the current server, but sets the username and password`} lang="js" />
 
 
 ### cmd.use_autozone_astralshrine
