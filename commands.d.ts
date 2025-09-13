@@ -344,7 +344,7 @@ If results are ambiguous, the first matching item will be used. Use itemType to 
   unregister_command(name: string): void;
   unregister_handler(type: "packetFromClient" | "packetFromServer" | "pext", name: string): void;
   /** Sets the credentials to use for Auto Relogin.
-After a login attempt, the client stores the username, password, and server used to log in. These fields are re-used
+After a login attempt, the client stores the username and password used to log in, regardless if successful. These fields are re-used
 when null(s) are passed. */
   use_autorelogin(username: null | string, password: null | string, server: null | string): void;
   /** Enables auto-zoning for astralshrine map. */
