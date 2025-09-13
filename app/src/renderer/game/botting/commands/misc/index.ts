@@ -37,6 +37,7 @@ import { CommandSettingSkipCutscenes } from "./CommandSettingSkipCutscenes";
 import { CommandStopBot } from "./CommandStopBot";
 import { CommandWaitForPlayerCount } from "./CommandWaitForPlayerCount";
 import { CommandWalkSpeed } from "./CommandWalkSpeed";
+import { CommandAutoRelogin } from "./CommandAutoRelogin";
 
 export const miscCommands = {
   /**
@@ -605,6 +606,30 @@ export const miscCommands = {
       cmd.times = Math.trunc(times);
       if (cmd.times < 1) cmd.times = 1;
     }
+
+    window.context.addCommand(cmd);
+  },
+  /**
+   * Sets the credentials to use for Auto Relogin.
+   * After a login attempt, the client stores the username and password used to log in, regardless if successful. These fields are re-used
+   * when null(s) are passed.
+   *
+   * @example
+   * cmd.use_autorelogin(null, null, 'Twig') // uses the current username and password, but sets the server to Twig
+   * cmd.use_autorelogin('myusername', 'mypassword', null) // uses the current server, but sets the username and password
+   * @param username - The username of the account. If set to null, the current username (as shown to the bot) will be used.
+   * @param password - The password of the account. If set to null, the current password (as shown to the bot) will be used.
+   * @param server - The server to log into. If set to null, the current server will be used.
+   */
+  use_autorelogin(
+    username: string | null,
+    password: string | null,
+    server: string | null,
+  ) {
+    const cmd = new CommandAutoRelogin();
+    if (username) cmd.username = username;
+    if (password) cmd.password = password;
+    if (server) cmd.server = server;
 
     window.context.addCommand(cmd);
   },
