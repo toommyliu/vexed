@@ -70,6 +70,8 @@ declare const cmd: {
   exit_combat(): void;
   /** Uses a skill, regardless if there's a target or not. */
   force_use_skill(skill: string | number, wait?: boolean): void;
+  /** Jumps to a monster's cell. */
+  hunt(target: string, most?: boolean): void;
   /** Kills the target. */
   kill(target: string, options?: Partial<KillOptions>): void;
   /** Kills the target for an inventory item, until the specified quantity is reached. */

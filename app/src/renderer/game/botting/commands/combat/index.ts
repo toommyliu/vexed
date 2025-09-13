@@ -3,6 +3,7 @@ import type { KillOptions } from "@lib/Combat";
 import { CommandAttack } from "./CommandAttack";
 import { CommandCancelTarget } from "./CommandCancelTarget";
 import { CommandExitCombat } from "./CommandExitCombat";
+import { CommandHunt } from "./CommandHunt";
 import { CommandKill } from "./CommandKill";
 import { CommandKillFor } from "./CommandKillFor";
 import { CommandRest } from "./CommandRest";
@@ -160,6 +161,26 @@ export const combatCommands = {
     cmd.skill = skill;
     if (typeof wait === "boolean") cmd.wait = wait;
     cmd.force = true;
+    window.context.addCommand(cmd);
+  },
+  /**
+   * Jumps to a monster's cell.
+   *
+   * @param target - The name or monMapId of the monster.
+   * @param most - Whether to jump to the cell where the target is most present.
+   */
+  hunt(target: string, most: boolean = false) {
+    if (!target || typeof target !== "string") {
+      throw new ArgsError("target is required");
+    }
+
+    if (typeof most !== "boolean") {
+      throw new ArgsError("most is required");
+    }
+
+    const cmd = new CommandHunt();
+    cmd.target = target;
+    cmd.most = most;
     window.context.addCommand(cmd);
   },
 };
