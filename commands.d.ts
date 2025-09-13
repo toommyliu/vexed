@@ -343,6 +343,8 @@ If results are ambiguous, the first matching item will be used. Use itemType to 
   stop_bot(): void;
   unregister_command(name: string): void;
   unregister_handler(type: "packetFromClient" | "packetFromServer" | "pext", name: string): void;
+  /** Sets the credentials to use for Auto Relogin. */
+  use_autorelogin(username?: string, password?: string, server?: string): void;
   /** Enables auto-zoning for astralshrine map. */
   use_autozone_astralshrine(): void;
   /** Enables auto-zoning for darkcarnax map. */

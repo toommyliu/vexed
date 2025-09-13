@@ -114,9 +114,8 @@ export class AutoReloginJob extends Job {
     password: string,
     server?: string,
   ): void {
-    AutoReloginJob.username = username;
-    AutoReloginJob.password = password;
-
+    if (username) AutoReloginJob.username = username;
+    if (password) AutoReloginJob.password = password;
     if (server) AutoReloginJob.server = server;
   }
 
