@@ -21,6 +21,12 @@ export class CommandHunt extends Command {
     if (!targetCell) return;
 
     await this.bot.world.jump(targetCell);
+
+    const cellPad =
+      this.bot.world.cellPads[
+        Math.floor(Math.random() * this.bot.world.cellPads.length)
+      ];
+    await this.bot.world.jump(targetCell, cellPad, true);
   }
 
   // Get all monsters that match the target
