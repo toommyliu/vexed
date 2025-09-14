@@ -34,7 +34,7 @@ export function ct(bot: Bot, packet: CtPacket) {
         if (!tgtId) continue;
 
         if (aura?.tInf?.startsWith("m")) {
-          console.log("aura+ cmd on monster:", aura);
+          // console.log("aura+ cmd on monster:", aura);
 
           for (const a of aura?.auras ?? []) {
             const data: Aura = {
@@ -42,7 +42,7 @@ export function ct(bot: Bot, packet: CtPacket) {
             };
 
             if ("val" in a && typeof a.val === "number") data.value = a.val;
-            console.log(`Monster ${tgtId} gained aura:`, data);
+            // console.log(`Monster ${tgtId} gained aura:`, data);
             AuraStore.addMonsterAura(tgtId, data);
           }
         } else if (aura?.tInf?.startsWith("p")) {
@@ -57,7 +57,7 @@ export function ct(bot: Bot, packet: CtPacket) {
               name: a.nam,
             };
             if ("val" in a && typeof a.val === "number") data.value = a.val;
-            console.log(`${username} gained aura:`, data);
+            // console.log(`${username} gained aura:`, data);
             AuraStore.addPlayerAura(username, data);
           }
         }
@@ -67,10 +67,10 @@ export function ct(bot: Bot, packet: CtPacket) {
         if (!tgtId) continue;
 
         if (aura?.tInf?.startsWith("m")) {
-          console.log("aura- cmd on monster:", aura);
+          // console.log("aura- cmd on monster:", aura);
 
           if (aura?.aura?.nam) {
-            console.log(`Monster ${tgtId} lost aura:`, aura?.aura?.nam);
+            // console.log(`Monster ${tgtId} lost aura:`, aura?.aura?.nam);
             AuraStore.removeMonsterAura(tgtId, aura?.aura?.nam);
           }
         } else if (aura?.tInf?.startsWith("p")) {
@@ -82,7 +82,7 @@ export function ct(bot: Bot, packet: CtPacket) {
 
           // console.log("aura- cmd: subauras", aura?.aura);
           if (aura?.aura?.nam) {
-            console.log(`${username} lost aura:`, aura?.aura?.nam);
+            // console.log(`${username} lost aura:`, aura?.aura?.nam);
             AuraStore.removePlayerAura(username, aura?.aura?.nam);
           }
         }
