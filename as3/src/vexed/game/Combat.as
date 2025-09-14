@@ -25,14 +25,12 @@ package vexed.game {
         }
 
         if (target.npcType === "monster" || target.npcType == "player") {
-          var auras:Array = Util.serializeAuras(dataLeaf.auras);
           var ret:* = {};
 
           ret.type = target.npcType;
           ret.intHP = dataLeaf.intHP;
           ret.intHPMax = dataLeaf.intHPMax;
           ret.intState = dataLeaf.intState;
-          ret.auras = auras;
           ret.strFrame = dataLeaf.strFrame;
 
           if (target.npcType === "monster") {
