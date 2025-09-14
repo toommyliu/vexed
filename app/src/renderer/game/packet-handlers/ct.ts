@@ -1,7 +1,8 @@
 import type { Bot } from "@lib/Bot";
 import { AuraStore } from "@lib/util/AuraStore";
+import type { Aura } from "../lib/models/BaseEntity";
 
-export function ct(bot: Bot, packet: CtPacket, fullPacket: any) {
+export function ct(bot: Bot, packet: CtPacket) {
   // console.log("ct packet", packet);
   // console.log("full packet", fullPacket);
 
@@ -30,21 +31,64 @@ export function ct(bot: Bot, packet: CtPacket, fullPacket: any) {
   // auras
   if (Array.isArray(packet?.a)) {
     for (const aura of packet?.a ?? []) {
-      console.log("aura", aura);
+      // console.log("aura", aura);
       if (aura?.cmd === "aura+") {
-        const tgt = aura?.tInf?.split(":")[1]; // uid
-        if (tgt) {
+        const tgtId = aura?.tInf?.split(":")[1]; // uid / monMapId
+        if (!tgtId) continue;
+
+        if (aura?.tInf?.startsWith("m")) {
+          console.log("aura+ cmd on monster:", aura);
+
+          for (const a of aura?.auras ?? []) {
+            const data: Aura = {
+              name: a.nam,
+            };
+
+            if ("val" in a && typeof a.val === "number") data.value = a.val;
+            console.log(`Monster ${tgtId} gained aura:`, data);
+            AuraStore.addMonsterAura(tgtId, data);
+          }
+        } else if (aura?.tInf?.startsWith("p")) {
           // get the username (key) from the uid (value)
           const username = [...bot.world.playerUids].find(
-            ([, uid]) => uid === Number(tgt),
+            ([, uid]) => uid === Number(tgtId),
           )?.[0];
-          if (username) {
-            for (const a of aura?.auras ?? []) {
-              console.log(`adding aura ${a.nam} to ${username}`);
-            }
+          if (!username) continue;
+
+          for (const a of aura?.auras ?? []) {
+            const data: Aura = {
+              name: a.nam,
+            };
+            if ("val" in a && typeof a.val === "number") data.value = a.val;
+            console.log(`${username} gained aura:`, data);
+            AuraStore.addPlayerAura(username, data);
           }
         }
       } else if (aura?.cmd === "aura-") {
+        // console.log("aura- cmd");
+        const tgtId = aura?.tInf?.split(":")[1]; // uid
+        if (!tgtId) continue;
+
+        if (aura?.tInf?.startsWith("m")) {
+          console.log("aura- cmd on monster:", aura);
+
+          if (aura?.aura?.nam) {
+            console.log(`Monster ${tgtId} lost aura:`, aura?.aura?.nam);
+            AuraStore.removeMonsterAura(tgtId, aura?.aura?.nam);
+          }
+        } else if (aura?.tInf?.startsWith("p")) {
+          // get the username (key) from the uid (value)
+          const username = [...bot.world.playerUids].find(
+            ([, uid]) => uid === Number(tgtId),
+          )?.[0];
+          if (!username) continue;
+
+          // console.log("aura- cmd: subauras", aura?.aura);
+          if (aura?.aura?.nam) {
+            console.log(`${username} lost aura:`, aura?.aura?.nam);
+            AuraStore.removePlayerAura(username, aura?.aura?.nam);
+          }
+        }
       }
 
       if (
@@ -73,7 +117,7 @@ type CtPacket = {
       nam: string;
       t: string; // ? "s" -> self
     }[];
-    cInf?: string; // p:uid
+    cInf?: string; // p:uid ? the uid of the player that the applied the aura
     cmd?: string; // aura+ or aura-
     tInf?: string; // ? the target the aura is applied to
   }[];
