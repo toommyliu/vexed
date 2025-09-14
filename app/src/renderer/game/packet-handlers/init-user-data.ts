@@ -1,8 +1,18 @@
 import type { Bot } from "../lib/Bot";
 
 export function initUserData(bot: Bot, packet: Packet) {
-  bot.emit("playerJoin", packet.data.strUsername);
-  bot.world.playerUids.set(packet.data.strUsername, packet.uid);
+  const username = packet.data.strUsername;
+
+  if (username.toLowerCase() === bot.auth.username.toLowerCase()) return;
+
+  bot.emit("playerJoin", username);
+  if (bot.world.playerUids.has(username)) {
+    console.warn(`(2) duplicated uid for ${username}`);
+    return;
+  }
+
+  console.log(`initUserData: ${username} -> ${packet.uid}`);
+  bot.world.playerUids.set(username, packet.uid);
 }
 
 type Packet = {
