@@ -3,8 +3,8 @@ import { Logger } from "@vexed/logger";
 import { XMLParser } from "fast-xml-parser";
 import { Bot } from "@lib/Bot";
 import { AutoReloginJob } from "@lib/jobs/autorelogin";
-// import { AuraStore } from "@lib/util/AuraStore";
 import { client } from "@shared/tipc";
+import { AuraStore } from "./lib/util/AuraStore";
 import { addGoldExp } from "./packet-handlers/add-gold-exp";
 import { ct } from "./packet-handlers/ct";
 import { dropItem } from "./packet-handlers/drop-item";
@@ -36,8 +36,6 @@ window.packetFromServer = ([packet]: [string]) => {
       ct(bot, pkt?.b?.o);
     }
   } else if (packet.startsWith("<") && packet.includes("action='joinOK'")) {
-    // grab the uids of players already in the room when we join
-
     const parser = new XMLParser({
       ignoreAttributes: false, // preserve attributes
       attributeNamePrefix: "", // don't prefix attribute names
@@ -49,6 +47,17 @@ window.packetFromServer = ([packet]: [string]) => {
       for (const [name] of bot.world.playerUids) {
         if (name.toLowerCase() !== bot.auth.username.toLowerCase())
           bot.world.playerUids.delete(name);
+      }
+
+      // clear existing auras except for our own
+      for (const [username] of AuraStore.playerAuras) {
+        if (username.toLowerCase() !== bot.auth.username.toLowerCase())
+          AuraStore.clearPlayerAuras(username);
+      }
+
+      // clear existing monster auras
+      for (const [monMapId] of AuraStore.monsterAuras) {
+        AuraStore.monsterAuras.delete(monMapId);
       }
 
       for (const user of pkt?.msg?.body?.uLs?.u ?? []) {

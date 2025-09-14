@@ -3,9 +3,6 @@ import { AuraStore } from "@lib/util/AuraStore";
 import type { Aura } from "../lib/models/BaseEntity";
 
 export function ct(bot: Bot, packet: CtPacket) {
-  // console.log("ct packet", packet);
-  // console.log("full packet", fullPacket);
-
   if (Array.isArray(packet?.anims)) {
     for (const anim of packet?.anims ?? []) {
       if (

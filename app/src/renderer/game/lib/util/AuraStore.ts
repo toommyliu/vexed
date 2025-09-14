@@ -1,4 +1,3 @@
-import type { Bot } from "../Bot";
 import type { Aura } from "../models/BaseEntity";
 
 // some notes on Auras I noticed:
@@ -11,18 +10,16 @@ import type { Aura } from "../models/BaseEntity";
 // - keeps track of auras of players in the current map
 
 export class AuraStore {
-  static #mapName: string;
-
   static #monAuras: Map<string, Aura[]> = new Map(); // monMapId -> auras
 
   static #playerAuras: Map<string, Aura[]> = new Map(); // playerName -> auras
 
-  public static get mapName() {
-    return this.#mapName;
+  public static get monsterAuras() {
+    return this.#monAuras;
   }
 
-  public static set mapName(value: string) {
-    this.#mapName = value;
+  public static get playerAuras() {
+    return this.#playerAuras;
   }
 
   public static getMonsterAuras(monMapId: string): Aura[] {
@@ -79,9 +76,5 @@ export class AuraStore {
   public static clear() {
     this.#monAuras.clear();
     this.#playerAuras.clear();
-  }
-
-  public static handlePacket(bot: Bot, dataObj: object) {
-    console.log("dataObj", dataObj);
   }
 }
