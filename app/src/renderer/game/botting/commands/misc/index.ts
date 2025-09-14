@@ -41,6 +41,7 @@ import { CommandStopBot } from "./CommandStopBot";
 import { CommandUnregisterTask } from "./CommandUnregisterTask";
 import { CommandWaitForPlayerCount } from "./CommandWaitForPlayerCount";
 import { CommandWalkSpeed } from "./CommandWalkSpeed";
+import { CommandLoopTaunt } from "./CommandLoopTaunt";
 
 export const miscCommands = {
   /**
@@ -690,6 +691,30 @@ export const miscCommands = {
 
     const cmd = new CommandUnregisterTask();
     cmd.name = name;
+    window.context.addCommand(cmd);
+  },
+  do_simple_looptaunt(
+    target: string,
+    participantIndex: number,
+    maxParticipants: number,
+  ) {
+    if (!target || typeof target !== "string") {
+      throw new ArgsError("target is required");
+    }
+
+    if (typeof participantIndex !== "number" || participantIndex < 0) {
+      throw new ArgsError("participantIndex is required");
+    }
+
+    if (typeof maxParticipants !== "number" || maxParticipants <= 0) {
+      throw new ArgsError("maxParticipants is required");
+    }
+
+    const cmd = new CommandLoopTaunt();
+    cmd.mode = "simple";
+    cmd.target = target;
+    cmd.participantIndex = Math.trunc(participantIndex);
+    cmd.maxParticipants = Math.trunc(maxParticipants);
     window.context.addCommand(cmd);
   },
 };
