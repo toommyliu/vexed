@@ -2,12 +2,14 @@ import process from "process";
 import { Logger } from "@vexed/logger";
 import { Bot } from "@lib/Bot";
 import { AutoReloginJob } from "@lib/jobs/autorelogin";
+// import { AuraStore } from "@lib/util/AuraStore";
 import { client } from "@shared/tipc";
 import { addGoldExp } from "./packet-handlers/add-gold-exp";
 import { ct } from "./packet-handlers/ct";
 import { dropItem } from "./packet-handlers/drop-item";
 import { event } from "./packet-handlers/event";
 import { initUserData } from "./packet-handlers/init-user-data";
+import { initUserDatas } from "./packet-handlers/initUserDatas";
 import { moveToArea } from "./packet-handlers/move-to-area";
 import { appState } from "./state.svelte";
 
@@ -71,6 +73,9 @@ window.pext = async ([packet]) => {
         break;
       case "initUserData":
         initUserData(bot, dataObj);
+        break;
+      case "initUserDatas":
+        void initUserDatas(bot, dataObj);
         break;
       case "moveToArea":
         void moveToArea(bot, dataObj);

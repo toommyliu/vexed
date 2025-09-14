@@ -1,4 +1,5 @@
-import type { Bot } from "../lib/Bot";
+import type { Bot } from "@lib/Bot";
+import { AuraStore } from "@lib/util/AuraStore";
 
 export function ct(bot: Bot, packet: CtPacket) {
   if (Array.isArray(packet?.anims)) {
@@ -15,16 +16,19 @@ export function ct(bot: Bot, packet: CtPacket) {
     }
   }
 
+  // player
   if (typeof packet?.p === "object") {
     for (const [playerName, data] of Object.entries(packet?.p ?? {})) {
-      if (data?.intState === 0 && data?.intHP === 0) {
+      if (data?.intState === 0 && data?.intHP === 0)
         bot.emit("playerDeath", playerName);
-      }
     }
   }
 
+  // auras
   if (Array.isArray(packet?.a)) {
     for (const aura of packet?.a ?? []) {
+      console.log("aura", aura);
+
       if (
         aura?.cmd === "aura--" &&
         aura?.aura?.nam === "Counter Attack" &&
