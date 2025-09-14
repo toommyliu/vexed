@@ -1,7 +1,6 @@
 package vexed.game {
   import vexed.Main;
   import flash.display.DisplayObject;
-  import vexed.util.Util;
 
   public class World {
     private static var game:Object = Main.getInstance().getGame();
@@ -55,16 +54,10 @@ package vexed.game {
 
       for (var key:String in playerObj) {
         try {
-          if (key === 'auras') {
-            var auras:* = playerObj['auras'];
-            if (auras is Object) {
-              var aurasArr:Array = Util.serializeAuras(auras);
-              ret[key] = aurasArr;
-            }
-          }
-          else {
+          if (key === 'auras')
+            continue;
+          else
             ret[key] = playerObj[key];
-          }
         }
         catch (e:Error) {
         }
@@ -228,15 +221,6 @@ package vexed.game {
       }
 
       game.world.setSpawnPoint(cell, pad);
-    }
-
-    public static function getPlayerAuras(name:String):Array {
-      var player:Object = game.world.uoTree[name.toLowerCase()];
-      if (!player) {
-        return [];
-      }
-
-      return Util.serializeAuras(player.auras);
     }
   }
 }
