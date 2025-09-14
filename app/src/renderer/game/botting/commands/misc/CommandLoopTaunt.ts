@@ -49,6 +49,7 @@ export class CommandLoopTaunt extends Command {
   private async doSimpleLoopTaunt() {
     let tauntIndex = 1;
     let lastTauntTime = 0;
+    let lastFocusState = false; // Track previous Focus state to detect changes
 
     let warmupStartTime = Date.now();
     let isWarmedUp = false;
@@ -60,6 +61,7 @@ export class CommandLoopTaunt extends Command {
 
     void interval(async (_iteration, stop) => {
       if (!this.bot.player.isReady() || !this.ctx.isRunning()) {
+        console.log("LOOP TAUNT: stop");
         stop();
         return;
       }
@@ -75,6 +77,7 @@ export class CommandLoopTaunt extends Command {
         // reset warmup if target changes
         isWarmedUp = false;
         warmupStartTime = Date.now();
+        lastFocusState = false;
         return;
       }
 
@@ -89,20 +92,31 @@ export class CommandLoopTaunt extends Command {
         }
       }
 
+      const hasFocus = this.bot.combat.target?.hasAura("Focus") ?? false;
+
+      // Detect Focus aura changes to synchronize turn advancement across all players
+      if (hasFocus && !lastFocusState) {
+        // Focus just appeared - someone taunted, advance the rotation
+        tauntIndex++;
+        console.log(
+          `Focus aura detected! Advancing rotation to player ${((tauntIndex - 1) % this.maxParticipants) + 1} (taunt index: ${tauntIndex})`,
+        );
+      }
+
+      lastFocusState = hasFocus;
+
       // Calculate whose turn it is based on the taunt index
       // tauntIndex cycles through 1, 2, 3, ..., maxParticipants, 1, 2, 3, ...
       const currentTurnParticipant =
         ((tauntIndex - 1) % this.maxParticipants) + 1;
       const isMyTurn = currentTurnParticipant === this.participantIndex;
 
-      // TODO: as t1 this works fine, but as t2 it fails to detect focus
-      // const hasFocus = this.bot.combat.target?.hasAura("Focus") ?? false;
-
       console.log(
-        `turn check - player ${this.participantIndex}, current turn: ${currentTurnParticipant}, my turn: ${isMyTurn}, has Focus: ${this.bot.combat.target?.hasAura("Focus") ?? false}, taunt index: ${tauntIndex}`,
+        `turn check - player ${this.participantIndex}, current turn: ${currentTurnParticipant}, my turn: ${isMyTurn}, has Focus: ${hasFocus}, taunt index: ${tauntIndex}`,
       );
 
-      if (isMyTurn && !this.bot.combat.target?.hasAura("Focus")) {
+      // Only taunt if it's our turn and no Focus aura is present
+      if (isMyTurn && !hasFocus) {
         const currentTime = Date.now();
         const timeSinceLastTaunt = currentTime - lastTauntTime;
 
@@ -112,31 +126,24 @@ export class CommandLoopTaunt extends Command {
           );
           lastTauntTime = currentTime;
           await this.doTaunt();
-          tauntIndex++;
           console.log(
-            `Taunt completed, next turn: player ${((tauntIndex - 1) % this.maxParticipants) + 1}`,
+            `Taunt attempt completed by player ${this.participantIndex}`,
           );
         }
-      } else if (this.bot.combat.target?.hasAura("Focus") && isMyTurn) {
-        // Someone else taunted while it was supposed to be our turn, advance the index
-        tauntIndex++;
-        console.log(
-          `Focus detected, advancing to next turn: player ${((tauntIndex - 1) % this.maxParticipants) + 1}`,
-        );
       }
 
-      // // Fallback timeout mechanism - if it's been too long since last taunt, advance rotation
-      // // This helps if aura detection fails or gets out of sync
-      // const currentTime = Date.now();
-      // const timeSinceLastTaunt = currentTime - lastTauntTime;
+      // Fallback timeout mechanism - if it's been too long since last taunt, advance rotation
+      // This helps if aura detection fails or gets out of sync
+      const currentTime = Date.now();
+      const timeSinceLastTaunt = currentTime - lastTauntTime;
 
-      // if (timeSinceLastTaunt > 15_000 && lastTauntTime > 0) {
-      //   console.log(
-      //     `Taunt timeout detected (${Math.round(timeSinceLastTaunt / 1_000)}s), advancing rotation`,
-      //   );
-      //   tauntIndex++;
-      //   lastTauntTime = currentTime;
-      // }
+      if (timeSinceLastTaunt > 15_000 && lastTauntTime > 0 && !hasFocus) {
+        console.log(
+          `Taunt timeout detected (${Math.round(timeSinceLastTaunt / 1_000)}s), advancing rotation`,
+        );
+        tauntIndex++;
+        lastTauntTime = currentTime;
+      }
     }, 250);
   }
 
