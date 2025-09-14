@@ -1,3 +1,4 @@
+import { AuraStore } from "../util/AuraStore";
 import type { Avatar } from "./Avatar";
 import type { Monster } from "./Monster";
 
@@ -47,7 +48,13 @@ export abstract class BaseEntity {
    * The entity's auras.
    */
   public get auras(): Aura[] {
-    return this.data.auras ?? [];
+    if (this.isMonster()) {
+      return AuraStore.getMonsterAuras(this.monMapId.toString());
+    } else if (this.isPlayer()) {
+      return AuraStore.getPlayerAuras(this.data.strUsername);
+    }
+
+    return [];
   }
 
   /**
@@ -104,9 +111,17 @@ export abstract class BaseEntity {
    * @returns The aura with the specified name, or undefined if the entity does not have the aura.
    */
   public getAura(name: string) {
-    return this.auras?.find(
-      (aura) => aura.name.toLowerCase() === name.toLowerCase(),
-    );
+    if (this.isMonster()) {
+      return AuraStore.getMonsterAuras(this.monMapId.toString()).find(
+        (aura) => aura.name.toLowerCase() === name.toLowerCase(),
+      );
+    } else if (this.isPlayer()) {
+      return AuraStore.getPlayerAuras(this.data.strUsername).find(
+        (aura) => aura.name.toLowerCase() === name.toLowerCase(),
+      );
+    }
+
+    return null;
   }
 
   /**
@@ -119,10 +134,21 @@ export abstract class BaseEntity {
    * it will check if the aura has the specified value.
    */
   public hasAura(name: string, value?: number) {
-    const aura = this.getAura(name);
-    if (!aura) return false;
-    if (typeof value === "number") return aura.value === value;
-    return true;
+    if (this.isMonster()) {
+      return AuraStore.getMonsterAuras(this.monMapId.toString()).some(
+        (aura) =>
+          aura.name.toLowerCase() === name.toLowerCase() &&
+          (value ? aura.value === value : true),
+      );
+    } else if (this.isPlayer()) {
+      return AuraStore.getPlayerAuras(this.data.strUsername).some(
+        (aura) =>
+          aura.name.toLowerCase() === name.toLowerCase() &&
+          (value ? aura.value === value : true),
+      );
+    }
+
+    return false;
   }
 
   /**
