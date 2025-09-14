@@ -20,7 +20,7 @@ export class CommandLoopTaunt extends Command {
   // how many players are expected to do loop taunt
   public maxParticipants!: number;
 
-  // the target(s) to loop taunt on
+  // the target(s) to loop taunt on. use monMapId to be more reliable, especially if multiple instances of monster with the same name exists
   // if target dies or becomes unavailable, loop taunt switches to the next target if available
   public target?: string;
 
@@ -206,16 +206,4 @@ export class CommandLoopTaunt extends Command {
       }
     }
   }
-
-  // handle auras through packets since aura checks are not consistent
-  // plus, existing aura serialization is not applicable to Focus aura
-  // private packetfromserver(packet: string) {
-  //   const pkt = JSON.parse(packet);
-
-  // }
-
-  // private isValidPacket(packet: object) {
-  //   return 't' in packet && packet.t === 'xt' &&
-  //     'cmd' in packet?.b?.o
-  // }
 }

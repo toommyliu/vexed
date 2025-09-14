@@ -191,5 +191,5 @@ export type BaseEntityData = {
 
 export type Aura = {
   name: string;
-  value: number;
+  value?: number; // aura might exist but not have a value
 };

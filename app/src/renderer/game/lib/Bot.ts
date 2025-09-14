@@ -37,6 +37,12 @@ type Events = {
    */
   logout(): void;
   /**
+   * This event is emitted when the map has changed.
+   *
+   * @param mapName - The name of the new map.
+   */
+  mapChanged(mapName: string): void;
+  /**
    * This event is emitted when a monster has died.
    *
    * @param monMapId - The monster map id.
@@ -204,6 +210,11 @@ export class Bot extends TypedEmitter<Events> {
     this.scheduler.addJob(new DropsJob(this));
     this.scheduler.addJob(new BoostsJob(this));
     this.scheduler.addJob(new AutoReloginJob(this));
+
+    this.on("logout", () => {
+      console.log("clearing player UIDs on logout");
+      this.world.playerUids.clear();
+    });
   }
 
   /**
