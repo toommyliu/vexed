@@ -11,7 +11,7 @@ export function initUserData(bot: Bot, packet: Packet) {
     return;
   }
 
-  console.log(`initUserData: ${username} -> ${packet.uid}`);
+  // console.log(`initUserData: ${username} -> ${packet.uid}`);
   bot.world.playerUids.set(username, packet.uid);
 }
 

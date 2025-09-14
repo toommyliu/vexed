@@ -25,26 +25,55 @@ export class AuraStore {
     this.#mapName = value;
   }
 
-  public static getMonsterAuras(monMapid: string): Aura[] {
-    return this.#monAuras.get(monMapid) ?? [];
+  public static getMonsterAuras(monMapId: string): Aura[] {
+    return this.#monAuras.get(monMapId) ?? [];
   }
 
-  public static addMonsterAura(monMapid: string, aura: Aura) {
-    if (!this.#monAuras.has(monMapid)) {
-      this.#monAuras.set(monMapid, []);
+  public static addMonsterAura(monMapId: string, aura: Aura) {
+    if (!this.#monAuras.has(monMapId)) {
+      this.#monAuras.set(monMapId, []);
     }
 
-    this.#monAuras.get(monMapid)!.push(aura);
+    this.#monAuras.get(monMapId)!.push(aura);
   }
 
-  public static removeMonsterAura(monMapid: string, auraName: string) {
-    if (!this.#monAuras.has(monMapid)) return;
+  public static removeMonsterAura(monMapId: string, auraName: string) {
+    if (!this.#monAuras.has(monMapId)) return;
 
     const updatedAuras = this.#monAuras
-      .get(monMapid)!
+      .get(monMapId)!
       .filter((a) => a.name !== auraName);
 
-    this.#monAuras.set(monMapid, updatedAuras);
+    this.#monAuras.set(monMapId, updatedAuras);
+  }
+
+  public static getPlayerAuras(playerName: string): Aura[] {
+    return this.#playerAuras.get(playerName) ?? [];
+  }
+
+  public static addPlayerAura(playerName: string, aura: Aura) {
+    if (!this.#playerAuras.has(playerName)) {
+      this.#playerAuras.set(playerName, []);
+    }
+
+    this.#playerAuras.get(playerName)!.push(aura);
+  }
+
+  public static removePlayerAura(playerName: string, auraName: string) {
+    if (!this.#playerAuras.has(playerName)) return;
+
+    const updatedAuras = this.#playerAuras
+      .get(playerName)!
+      .filter((a) => a.name !== auraName);
+    this.#playerAuras.set(playerName, updatedAuras);
+  }
+
+  public static clearPlayerAuras(playerName: string) {
+    this.#playerAuras.delete(playerName);
+  }
+
+  public static clearMonsterAuras(monMapId: string) {
+    this.#monAuras.delete(monMapId);
   }
 
   public static clear() {

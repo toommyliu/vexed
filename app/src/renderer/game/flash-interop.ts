@@ -27,41 +27,33 @@ window.packetFromServer = ([packet]: [string]) => {
   if (packet.startsWith("{")) {
     const pkt = JSON.parse(packet);
 
-    if (pkt?.t === "xt" && (pkt?.b?.o === "ct" || pkt?.b?.o?.cmd === "ct")) {
-      ct(bot, pkt?.b?.o, pkt);
+    if (
+      typeof pkt?.t === "string" &&
+      pkt?.t === "xt" &&
+      typeof pkt?.b?.o?.cmd === "string" &&
+      pkt?.b?.o?.cmd === "ct"
+    ) {
+      ct(bot, pkt?.b?.o);
     }
   } else if (packet.startsWith("<") && packet.includes("action='joinOK'")) {
     // grab the uids of players already in the room when we join
+
     const parser = new XMLParser({
       ignoreAttributes: false, // preserve attributes
       attributeNamePrefix: "", // don't prefix attribute names
     });
     const pkt = parser.parse(packet);
-    console.log("pkt", pkt);
 
     if (Array.isArray(pkt?.msg?.body?.uLs?.u)) {
-      // delete all uids first except our own
+      // clear existing uids except for our own
       for (const [name] of bot.world.playerUids) {
-        if (name.toLowerCase() !== bot.auth.username.toLowerCase()) {
-          console.log(`joinOK: removing uid for ${name}`);
+        if (name.toLowerCase() !== bot.auth.username.toLowerCase())
           bot.world.playerUids.delete(name);
-        }
       }
 
       for (const user of pkt?.msg?.body?.uLs?.u ?? []) {
         const username = user?.n;
         const uid = Number.parseInt(user?.i, 10);
-
-        // const isCurrentUser =
-        // username.toLowerCase() === bot.auth.username.toLowerCase();
-        // const isDuplicate = bot.world.playerUids.has(username);
-
-        // if (isDuplicate) {
-        //   const warningCode = isCurrentUser ? "(0)" : "(1)";
-        //   const target = isCurrentUser ? "self" : username;
-        //   console.warn(`${warningCode} duplicated uid for ${target}`);
-        // }
-        console.log(`joinOK: ${username} -> ${uid}`);
         bot.world.playerUids.set(username, uid);
       }
     }
