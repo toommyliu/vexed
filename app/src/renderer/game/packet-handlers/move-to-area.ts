@@ -1,11 +1,6 @@
 import type { Bot } from "../lib/Bot";
 
 export async function moveToArea(bot: Bot, packet: Packet) {
-  for (const [name] of bot.world.playerUids) {
-    if (name.toLowerCase() !== bot.auth.username.toLowerCase())
-      bot.world.playerUids.delete(name);
-  }
-
   bot.emit("mapChanged", packet.areaName);
 }
 
