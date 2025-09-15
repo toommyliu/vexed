@@ -44,7 +44,11 @@ export function ct(bot: Bot, packet: CtPacket) {
             };
 
             if ("val" in a && typeof a.val === "number") data.value = a.val;
-            // console.log(`Monster ${tgtId} gained aura:`, data);
+            if (data?.name === "Focus") {
+              console.log(`Monster ${tgtId} gained aura:`, data);
+            }
+
+            AuraStore.removeMonsterAura(tgtId, data.name); // remove old instance if exists
             AuraStore.addMonsterAura(tgtId, data);
           }
         } else if (aura?.tInf?.startsWith("p")) {
@@ -60,6 +64,7 @@ export function ct(bot: Bot, packet: CtPacket) {
             };
             if ("val" in a && typeof a.val === "number") data.value = a.val;
             // console.log(`${username} gained aura:`, data);
+            AuraStore.removePlayerAura(username, data.name); // remove old instance if exists
             AuraStore.addPlayerAura(username, data);
           }
         }
@@ -72,7 +77,9 @@ export function ct(bot: Bot, packet: CtPacket) {
           // console.log("aura- cmd on monster:", aura);
 
           if (aura?.aura?.nam) {
-            // console.log(`Monster ${tgtId} lost aura:`, aura?.aura?.nam);
+            if (aura?.aura?.nam === "Focus") {
+              console.log(`Monster ${tgtId} lost aura:`, aura?.aura?.nam);
+            }
             AuraStore.removeMonsterAura(tgtId, aura?.aura?.nam);
           }
         } else if (aura?.tInf?.startsWith("p")) {
