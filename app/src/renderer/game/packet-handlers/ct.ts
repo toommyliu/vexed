@@ -20,8 +20,10 @@ export function ct(bot: Bot, packet: CtPacket) {
   // player
   if (typeof packet?.p === "object") {
     for (const [playerName, data] of Object.entries(packet?.p ?? {})) {
-      if (data?.intState === 0 && data?.intHP === 0)
+      if (data?.intState === 0 && data?.intHP === 0) {
         bot.emit("playerDeath", playerName);
+        AuraStore.playerAuras.delete(playerName);
+      }
     }
   }
 
