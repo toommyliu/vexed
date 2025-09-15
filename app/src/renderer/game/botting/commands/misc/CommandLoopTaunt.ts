@@ -1,4 +1,5 @@
 import { interval } from "@vexed/utils";
+import { Mutex } from "async-mutex";
 import { Command } from "@botting/command";
 
 const id = 517;
@@ -7,6 +8,8 @@ const sArg2 =
   "This spell forces your target to focus their attacks on you and causes them to attack recklessly lowering their damage for 10 seconds. (Taunt effects do not work on players.)"; // sArg2
 
 export class CommandLoopTaunt extends Command {
+  #mutex = new Mutex();
+
   // simple: taunt when available
   // message: taunt on server message
   public mode: "message" | "simple" = "simple";
@@ -47,103 +50,62 @@ export class CommandLoopTaunt extends Command {
   }
 
   private async doSimpleLoopTaunt() {
-    let tauntIndex = 1;
-    let lastTauntTime = 0;
-    let lastFocusState = false; // Track previous Focus state to detect changes
+    let lastFocusEndTime = 0;
+    let waitingForMyTurn = false;
 
-    let warmupStartTime = Date.now();
-    let isWarmedUp = false;
-    const warmupDuration = 3_000; // 3 seconds warmup grace period
+    // First participant starts immediately
+    let shouldTaunt = this.participantIndex === 1;
 
-    console.log(
-      `starting loop taunt as participant ${this.participantIndex}/${this.maxParticipants}`,
-    );
-
-    void interval(async (_iteration, stop) => {
-      if (!this.bot.player.isReady() || !this.ctx.isRunning()) {
-        console.log("LOOP TAUNT: stop");
-        stop();
-        return;
-      }
-
-      // make sure we're attacking the target so auras are tracked ASAP
-      if (this.target) this.bot.combat.attack(this.target);
-
-      // don't use reference to target, as auras don't get synced
-      if (
-        !this.bot.combat.target?.isMonster() ||
-        this.bot.combat.target?.isDead()
-      ) {
-        // reset warmup if target changes
-        isWarmedUp = false;
-        warmupStartTime = Date.now();
-        lastFocusState = false;
-        return;
-      }
-
-      // solution: warmup period to ensure all players have attacked atleast once
-      if (!isWarmedUp) {
-        const elapsedWarmup = Date.now() - warmupStartTime;
-        if (elapsedWarmup >= warmupDuration) {
-          isWarmedUp = true;
-          console.log("warmup complete!");
-        } else {
-          return; // do nothing until warmup completes
-        }
-      }
-
-      const hasFocus = this.bot.combat.target?.hasAura("Focus") ?? false;
-
-      // Detect Focus aura changes to synchronize turn advancement across all players
-      if (hasFocus && !lastFocusState) {
-        // Focus just appeared - someone taunted, advance the rotation
-        tauntIndex++;
-        console.log(
-          `Focus aura detected! Advancing rotation to player ${((tauntIndex - 1) % this.maxParticipants) + 1} (taunt index: ${tauntIndex})`,
-        );
-      }
-
-      lastFocusState = hasFocus;
-
-      // Calculate whose turn it is based on the taunt index
-      // tauntIndex cycles through 1, 2, 3, ..., maxParticipants, 1, 2, 3, ...
-      const currentTurnParticipant =
-        ((tauntIndex - 1) % this.maxParticipants) + 1;
-      const isMyTurn = currentTurnParticipant === this.participantIndex;
-
-      console.log(
-        `turn check - player ${this.participantIndex}, current turn: ${currentTurnParticipant}, my turn: ${isMyTurn}, has Focus: ${hasFocus}, taunt index: ${tauntIndex}`,
-      );
-
-      // Only taunt if it's our turn and no Focus aura is present
-      if (isMyTurn && !hasFocus) {
+    void setInterval(async () => {
+      await this.#mutex.runExclusive(async () => {
         const currentTime = Date.now();
-        const timeSinceLastTaunt = currentTime - lastTauntTime;
 
-        if (timeSinceLastTaunt > 1_000) {
+        if (!this.bot.combat?.target) return;
+
+        const hasFocus = this.bot.combat.target.hasAura("Focus");
+
+        // If focus just ended, start the rotation timer
+        if (!hasFocus && lastFocusEndTime > 0 && waitingForMyTurn) {
+          const timeSinceFocusEnd = currentTime - lastFocusEndTime;
+
+          // After focus ends, wait for the participant's turn based on their index
+          // Each participant waits (participantIndex - 1) * delay seconds
+          const myTurnDelay = (this.participantIndex - 1) * 1_000; // 1 second stagger
+
+          if (timeSinceFocusEnd >= myTurnDelay) {
+            shouldTaunt = true;
+            waitingForMyTurn = false;
+            console.log(
+              `My turn delay (${myTurnDelay}ms) has passed, setting shouldTaunt = true`,
+            );
+          }
+        }
+
+        // Taunt if it's my turn and no focus is active
+        if (shouldTaunt && !hasFocus) {
           console.log(
-            `Player ${this.participantIndex} taunting (taunt #${tauntIndex})`,
+            `It's my turn to taunt (t${this.participantIndex}/t${this.maxParticipants})`,
           );
-          lastTauntTime = currentTime;
           await this.doTaunt();
+          shouldTaunt = false;
+          lastFocusEndTime = 0; // reset the timer
+        }
+
+        // If focus appears, wait for it to end
+        if (hasFocus) {
+          await this.bot.waitUntil(
+            () => !this.bot.combat?.target?.hasAura("Focus"),
+            null,
+            -1,
+          );
+
+          lastFocusEndTime = Date.now();
+          waitingForMyTurn = true;
           console.log(
-            `Taunt attempt completed by player ${this.participantIndex}`,
+            `Focus ended, waiting for turn. My delay: ${this.participantIndex - 1}000ms`,
           );
         }
-      }
-
-      // Fallback timeout mechanism - if it's been too long since last taunt, advance rotation
-      // This helps if aura detection fails or gets out of sync
-      const currentTime = Date.now();
-      const timeSinceLastTaunt = currentTime - lastTauntTime;
-
-      if (timeSinceLastTaunt > 15_000 && lastTauntTime > 0 && !hasFocus) {
-        console.log(
-          `Taunt timeout detected (${Math.round(timeSinceLastTaunt / 1_000)}s), advancing rotation`,
-        );
-        tauntIndex++;
-        lastTauntTime = currentTime;
-      }
+      });
     }, 250);
   }
 
@@ -170,47 +132,16 @@ export class CommandLoopTaunt extends Command {
   }
 
   private async doTaunt() {
-    if (!this.isScrollEquipped()) {
-      console.log("Not using Scroll of Enrage, cannot taunt");
-      return;
-    }
+    await interval(async (iterations, stop) => {
+      if (!this.isScrollEquipped()) return;
+      if (!this.bot.combat.hasTarget()) return;
 
-    if (!this.bot.combat.target) {
-      console.log("No target available for taunting");
-      return;
-    }
-
-    // Check if target already has Focus aura
-    const hadFocusBefore = this.bot.combat.target?.hasAura("Focus") ?? false;
-    console.log(`Target has Focus before taunt: ${hadFocusBefore}`);
-
-    // Attempt to taunt
-    console.log("Attempting to use taunt skill...");
-    void this.bot.combat.useSkill(5, true, false);
-
-    // Wait a moment for the skill to apply
-    await this.bot.sleep(100);
-
-    // Check if Focus aura was applied
-    let hasFocusAfter = this.bot.combat.target?.hasAura("Focus") ?? false;
-    console.log(`Target has Focus after taunt: ${hasFocusAfter}`);
-
-    // If taunt didn't apply and we didn't have it before, try a few more times
-    let attempts = 0;
-
-    while (!hasFocusAfter && this.isScrollEquipped()) {
-      attempts++;
-      console.log(
-        `Taunt attempt ${attempts} - Focus not detected, retrying...`,
-      );
-      void this.bot.combat.useSkill(5, true, false);
+      await this.bot.combat.useSkill(5, true, true);
       await this.bot.sleep(100);
-
-      hasFocusAfter = this.bot.combat.target?.hasAura("Focus") ?? false;
-      if (hasFocusAfter) {
-        console.log(`Focus aura applied on attempt ${attempts}`);
-        break;
+      if (this.bot.combat?.target?.hasAura("Focus")) {
+        console.log(`doTaunt - success, took ${iterations} iterations`);
+        stop();
       }
-    }
+    }, 100);
   }
 }
