@@ -1,4 +1,4 @@
-import { AuraStore } from "../util/AuraStore";
+import { AuraStore } from "@lib/util/AuraStore";
 import type { Avatar } from "./Avatar";
 import type { Monster } from "./Monster";
 
@@ -42,19 +42,6 @@ export abstract class BaseEntity {
    */
   public get state(): (typeof EntityState)[keyof typeof EntityState] {
     return this.data.intState as (typeof EntityState)[keyof typeof EntityState];
-  }
-
-  /**
-   * The entity's auras.
-   */
-  public get auras(): Aura[] {
-    if (this.isMonster()) {
-      return AuraStore.getMonsterAuras(this.monMapId.toString());
-    } else if (this.isPlayer()) {
-      return AuraStore.getPlayerAuras(this.data.strUsername);
-    }
-
-    return [];
   }
 
   /**
@@ -105,23 +92,37 @@ export abstract class BaseEntity {
   }
 
   /**
+   * The entity's auras.
+   */
+  public get auras(): Aura[] {
+    if (this.isPlayer()) {
+      return AuraStore.getPlayerAuras((this as Avatar).data.strUsername);
+    } else if (this.isMonster()) {
+      return AuraStore.getMonsterAuras(
+        (this as Monster).data.MonMapID.toString(),
+      );
+    }
+
+    return [];
+  }
+
+  /**
    * Retrieves an aura active on the entity.
    *
    * @param name - The aura name.
    * @returns The aura with the specified name, or undefined if the entity does not have the aura.
    */
-  public getAura(name: string) {
-    if (this.isMonster()) {
-      return AuraStore.getMonsterAuras(this.monMapId.toString()).find(
-        (aura) => aura.name.toLowerCase() === name.toLowerCase(),
-      );
-    } else if (this.isPlayer()) {
-      return AuraStore.getPlayerAuras(this.data.strUsername).find(
-        (aura) => aura.name.toLowerCase() === name.toLowerCase(),
+  public getAura(name: string): Aura | undefined {
+    if (this.isPlayer()) {
+      return AuraStore.getPlayerAura((this as Avatar).data.strUsername, name);
+    } else if (this.isMonster()) {
+      return AuraStore.getMonsterAura(
+        (this as Monster).data.MonMapID.toString(),
+        name,
       );
     }
 
-    return null;
+    return undefined;
   }
 
   /**
@@ -133,22 +134,15 @@ export abstract class BaseEntity {
    * @returns True if the entity has the specified aura, false otherwise. If a value is provided,
    * it will check if the aura has the specified value.
    */
-  public hasAura(name: string, value?: number) {
-    if (this.isMonster()) {
-      return AuraStore.getMonsterAuras(this.monMapId.toString()).some(
-        (aura) =>
-          aura.name.toLowerCase() === name.toLowerCase() &&
-          (value ? aura.value === value : true),
-      );
-    } else if (this.isPlayer()) {
-      return AuraStore.getPlayerAuras(this.data.strUsername).some(
-        (aura) =>
-          aura.name.toLowerCase() === name.toLowerCase() &&
-          (value ? aura.value === value : true),
-      );
+  public hasAura(name: string, value?: number): boolean {
+    const aura = this.getAura(name);
+    if (!aura) return false;
+
+    if (value !== undefined) {
+      return aura?.value === value;
     }
 
-    return false;
+    return true;
   }
 
   /**
@@ -208,7 +202,6 @@ export abstract class BaseEntity {
 }
 
 export type BaseEntityData = {
-  auras: Aura[];
   intHP: number;
   intHPMax: number;
   intState: number;
@@ -216,6 +209,8 @@ export type BaseEntityData = {
 };
 
 export type Aura = {
+  duration?: number;
+  isNew?: boolean;
   name: string;
   value?: number; // aura might exist but not have a value
 };
