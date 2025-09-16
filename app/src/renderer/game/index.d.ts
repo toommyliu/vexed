@@ -56,7 +56,6 @@ declare global {
     combatGetTarget(): Record<string, unknown> | null;
     combatUseSkill(index: number): void;
     combatForceUseSkill(index: number): void;
-    combatCanUseSkill(index: number): boolean;
     combatGetSkillCooldownRemaining(index: number): number;
     combatCancelAutoAttack(): void;
     combatCancelTarget(): void;
