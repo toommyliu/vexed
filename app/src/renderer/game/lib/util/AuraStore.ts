@@ -9,10 +9,14 @@ import type { Aura } from "../models/BaseEntity";
 // - keeps track of auras of monsters in the current map
 // - keeps track of auras of players in the current map
 
-export class AuraStore {
-  static #monAuras: Map<string, Aura[]> = new Map(); // monMapId -> auras
+type StoredAura = Aura & {
+  stack?: number;
+};
 
-  static #playerAuras: Map<string, Aura[]> = new Map(); // playerName -> auras
+export class AuraStore {
+  static #monAuras: Map<string, StoredAura[]> = new Map(); // monMapId -> auras
+
+  static #playerAuras: Map<string, StoredAura[]> = new Map(); // playerName -> auras
 
   public static get monsterAuras() {
     return this.#monAuras;
@@ -22,7 +26,7 @@ export class AuraStore {
     return this.#playerAuras;
   }
 
-  public static getMonsterAuras(monMapId: string): Aura[] {
+  public static getMonsterAuras(monMapId: string): StoredAura[] {
     return this.#monAuras.get(monMapId) ?? [];
   }
 
@@ -31,7 +35,38 @@ export class AuraStore {
       this.#monAuras.set(monMapId, []);
     }
 
-    this.#monAuras.get(monMapId)!.push(aura);
+    const auras = this.#monAuras.get(monMapId)!;
+    const existingAura = auras.find((a) => a.name === aura.name);
+
+    if (existingAura) {
+      // If aura already exists, increment stack and update properties
+      existingAura.stack = (existingAura.stack ?? 1) + 1;
+      if (aura.duration !== undefined) existingAura.duration = aura.duration;
+      if (aura.value !== undefined) existingAura.value = aura.value;
+    } else {
+      // New aura
+      const newAura: StoredAura = { ...aura, stack: 1 };
+      auras.push(newAura);
+    }
+  }
+
+  public static refreshMonsterAura(monMapId: string, aura: Aura) {
+    if (!this.#monAuras.has(monMapId)) {
+      this.#monAuras.set(monMapId, []);
+    }
+
+    const auras = this.#monAuras.get(monMapId)!;
+    const existingAura = auras.find((a) => a.name === aura.name);
+
+    if (existingAura) {
+      // Refresh existing aura duration and value
+      if (aura.duration !== undefined) existingAura.duration = aura.duration;
+      if (aura.value !== undefined) existingAura.value = aura.value;
+    } else {
+      // Add as new aura if it doesn't exist
+      const newAura: StoredAura = { ...aura, stack: 1 };
+      auras.push(newAura);
+    }
   }
 
   public static removeMonsterAura(monMapId: string, auraName: string) {
@@ -44,7 +79,7 @@ export class AuraStore {
     this.#monAuras.set(monMapId, updatedAuras);
   }
 
-  public static getPlayerAuras(playerName: string): Aura[] {
+  public static getPlayerAuras(playerName: string): StoredAura[] {
     return this.#playerAuras.get(playerName) ?? [];
   }
 
@@ -53,7 +88,38 @@ export class AuraStore {
       this.#playerAuras.set(playerName, []);
     }
 
-    this.#playerAuras.get(playerName)!.push(aura);
+    const auras = this.#playerAuras.get(playerName)!;
+    const existingAura = auras.find((a) => a.name === aura.name);
+
+    if (existingAura) {
+      // If aura already exists, increment stack and update properties
+      existingAura.stack = (existingAura.stack ?? 1) + 1;
+      if (aura.duration !== undefined) existingAura.duration = aura.duration;
+      if (aura.value !== undefined) existingAura.value = aura.value;
+    } else {
+      // New aura
+      const newAura: StoredAura = { ...aura, stack: 1 };
+      auras.push(newAura);
+    }
+  }
+
+  public static refreshPlayerAura(playerName: string, aura: Aura) {
+    if (!this.#playerAuras.has(playerName)) {
+      this.#playerAuras.set(playerName, []);
+    }
+
+    const auras = this.#playerAuras.get(playerName)!;
+    const existingAura = auras.find((a) => a.name === aura.name);
+
+    if (existingAura) {
+      // Refresh existing aura duration and value
+      if (aura.duration !== undefined) existingAura.duration = aura.duration;
+      if (aura.value !== undefined) existingAura.value = aura.value;
+    } else {
+      // Add as new aura if it doesn't exist
+      const newAura: StoredAura = { ...aura, stack: 1 };
+      auras.push(newAura);
+    }
   }
 
   public static removePlayerAura(playerName: string, auraName: string) {
@@ -76,5 +142,27 @@ export class AuraStore {
   public static clear() {
     this.#monAuras.clear();
     this.#playerAuras.clear();
+  }
+
+  public static hasPlayerAura(playerName: string, auraName: string): boolean {
+    return this.getPlayerAuras(playerName).some((a) => a.name === auraName);
+  }
+
+  public static hasMonsterAura(monMapId: string, auraName: string): boolean {
+    return this.getMonsterAuras(monMapId).some((a) => a.name === auraName);
+  }
+
+  public static getPlayerAura(
+    playerName: string,
+    auraName: string,
+  ): StoredAura | undefined {
+    return this.getPlayerAuras(playerName).find((a) => a.name === auraName);
+  }
+
+  public static getMonsterAura(
+    monMapId: string,
+    auraName: string,
+  ): StoredAura | undefined {
+    return this.getMonsterAuras(monMapId).find((a) => a.name === auraName);
   }
 }
