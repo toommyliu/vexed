@@ -212,5 +212,9 @@ export type Aura = {
   duration?: number;
   isNew?: boolean;
   name: string;
-  value?: number; // aura might exist but not have a value
+  /*
+    aura might exist but not have a value.
+    some auras might have string value (ultraezrajal Counter Attack)
+  */
+  value?: number;
 };
