@@ -156,7 +156,9 @@ export class Combat {
       return false;
     }
 
-    return this.bot.flash.call<boolean>(() => swf.combatCanUseSkill(idx));
+    return this.bot.flash.call<boolean>(
+      () => swf.combatGetSkillCooldownRemaining(idx) === 0,
+    );
   }
 
   /**
