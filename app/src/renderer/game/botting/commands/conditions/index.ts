@@ -69,7 +69,6 @@ import { CommandTargetHpBetween } from "./CommandTargetHpBetween";
 import { CommandTargetHealthGreaterThan as CommandTargetHpGreaterThan } from "./CommandTargetHpGreaterThan";
 import { CommandTargetHpLessThan } from "./CommandTargetHpLessThan";
 import { ConditionCommand } from "./ConditionCommand";
-import { CommandCanBuyItem } from "./CommandCanBuyItem";
 
 export const conditionsCommands = {
   /**
