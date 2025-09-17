@@ -32,15 +32,15 @@ export type ShopItemData = ItemData & {
   iReqCP: string;
   iReqRep: string;
   /**
+   * Faction associated with the item.
+   */
+  sFaction: string;
+  /**
    * Items required to merge this item.
    */
-  items?: {
+  turnin?: {
     ItemID: string;
     iQty: string;
     sName: string;
   }[];
-  /**
-   * Faction associated with the item.
-   */
-  sFaction: string;
 };
