@@ -1,6 +1,6 @@
 {
   "name": "@vexed/electron",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "main": "dist/main/index.js",
   "scripts": {
     "clean": "del-cli dist build --dot",
@@ -23,7 +23,7 @@
     "lint:fix": "eslint \"src/**/*\" --fix",
     "svelte-check": "svelte-check",
     "validate": "npm-run-all --parallel typecheck lint format svelte-check",
-    "changelog": "git-cliff --output CHANGELOG.md"
+    "changelog": "cd .. && git-cliff --config cliff.toml --output CHANGELOG.md"
   },
   "dependencies": {
     "@lukeed/uuid": "^2.0.1",

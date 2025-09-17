@@ -2,7 +2,57 @@
 
 All notable changes to this project will be documented in this file.
 
-# [0.2.2](https://github.com/toommyliu/vexed/compare/v0.2.1...v0.2.2) - (2025-07-10)
+# [0.3.0](https://github.com/toommyliu/vexed/compare/0.2.2...0.3.0) - (2025-09-17)
+
+## Bug Fixes
+
+- Increase wait time for player readiness in AutoReloginJob (#220) ([8432f93](https://github.com/toommyliu/vexed/commit/8432f937cdc133f11acdc0c8dce17e0d2f2e9ca9))
+- **app/AutoRelogin:** Correctly handle ipc events emitted before conditions are met (#217) ([8335f50](https://github.com/toommyliu/vexed/commit/8335f5048d62b53b9fc4b0e9358a50035da2ddfc))
+- **app/context:** Slightly increase skipDelay sleep time to potentially avoid race condition ([c0598a1](https://github.com/toommyliu/vexed/commit/c0598a1af1ae321374452b35bce38dfb00d29f72))
+- Remove mute audio for game window on creation (#215) ([9bfeaa3](https://github.com/toommyliu/vexed/commit/9bfeaa3a5d75aeeaea06db22a0df43dd223e4d7b))
+- **game/CommandOverlay:** Ensure it doesn't overlap with the topnav bar ([d65704a](https://github.com/toommyliu/vexed/commit/d65704a6a37487fda9b5ea19743eb2117a10e8dc))
+- **tipc:** Add guard before sending messages ([fb481eb](https://github.com/toommyliu/vexed/commit/fb481ebe49d7d3bc63e2a9ae02c19240f5324519))
+- Respect "start with script" toggle when script is already loaded (#208) ([721c764](https://github.com/toommyliu/vexed/commit/721c764c1df9c28ccc69f67a3452c881f2135691))
+- **app:** Fix overlay toggle click handler (#206) ([3957a97](https://github.com/toommyliu/vexed/commit/3957a97d847b57a9452b2ec0df926728eb811b67))
+- **dropTimer:** Use correct item key (#193) ([9af3cad](https://github.com/toommyliu/vexed/commit/9af3cad65b5fc002e7770c5da72395093e408c23))
+- **app:** Enhance button hover styles for better visibility ([fdcd11a](https://github.com/toommyliu/vexed/commit/fdcd11a0f3c4f8f012a501603e3527dfb41a6086))
+
+## Documentation
+
+- Auto-update API documentation ([7d1b543](https://github.com/toommyliu/vexed/commit/7d1b543470dde88b89185673f67479f1f099d110))
+- Clarify that AC items have a confirm dialog now ([c2a281d](https://github.com/toommyliu/vexed/commit/c2a281d7e4781ba8a96b3e703f48a488b8ac3a6b))
+- Support docgen cmd remark tag (#235) ([9d7dcc4](https://github.com/toommyliu/vexed/commit/9d7dcc42f6cb055750c4dab859801b9a34ac8d3e))
+- Improve theme (#229) ([06245cc](https://github.com/toommyliu/vexed/commit/06245cc4fa9a6a19020b5f329ee5fe30325487a8))
+- Auto-update API documentation ([afa1f19](https://github.com/toommyliu/vexed/commit/afa1f19569d1b249ab3a13264511dda90839a749))
+- Update download url (#195) ([06bd6d7](https://github.com/toommyliu/vexed/commit/06bd6d7a13ec1ecde31d554107f314fc3486b3ed))
+
+## Features
+
+- CommandBuyItem auto option (#234) ([42b7814](https://github.com/toommyliu/vexed/commit/42b78148b238e3c8d76a75f6515cc6860114a922))
+- CommandCanBuy (#232) ([0b5e8d3](https://github.com/toommyliu/vexed/commit/0b5e8d3e53c2d1947465af9171fd770bd22b1153))
+- CommandLoadShop (#233) ([ec2ed74](https://github.com/toommyliu/vexed/commit/ec2ed74aecf71852776a278ce2587c12da6e32ff))
+- CommandHunt (#230) ([a72aa47](https://github.com/toommyliu/vexed/commit/a72aa475364a64573a5ba0eeb718e8dc0acb8b4f))
+- Auto relogin command (#228) ([2c08ec0](https://github.com/toommyliu/vexed/commit/2c08ec04481395f82b7037d096955049cda64afa))
+- Toggle Autoattack hotkey (#225) ([814d733](https://github.com/toommyliu/vexed/commit/814d733327ac0df5577983618272179701b2f2c7))
+- CommandBeep (#219) ([63c420e](https://github.com/toommyliu/vexed/commit/63c420e1adfaef979ceebea3b54d22175ff9808a))
+- Cmd logical operators (#213) ([3045a2f](https://github.com/toommyliu/vexed/commit/3045a2fbf9da17f4216f48ab8f6b742e96cf26ec))
+- Remove aggro map (patched) (#214) ([f60f12e](https://github.com/toommyliu/vexed/commit/f60f12e487472e11a14f1103f8c074e9db0f327e))
+- Skill set encoding (grimoire-like) (#212) ([bfea7c2](https://github.com/toommyliu/vexed/commit/bfea7c28ed5b721e3f30f0dc4ae00f7595232a48))
+- **cmd:** Add aliases for cmd.join, cmd.move_to_cell, cmd.set_spawn (#211) ([07ab550](https://github.com/toommyliu/vexed/commit/07ab5500df10acd82729a12e4429d73296b88e3e))
+- Configurable auto skill sets (#210) ([9c76c46](https://github.com/toommyliu/vexed/commit/9c76c46ea2cffa12312baeec9a2530f370dab51d))
+- **cmd/buff:** Optional skill list param (#205) ([dd09018](https://github.com/toommyliu/vexed/commit/dd09018a9ad2197257f503ae8c48fc6af12313c2))
+- Close window cmd (#203) ([8bedab0](https://github.com/toommyliu/vexed/commit/8bedab039cef0c2a13fa45062e11031f3333f32c))
+- Rewrite (#200) ([3aeda94](https://github.com/toommyliu/vexed/commit/3aeda946b1fdc0ad740d7ac4dd5071f043563477))
+- Auto attack btn (#194) ([8eef00c](https://github.com/toommyliu/vexed/commit/8eef00cd3bcbbdce5cbbe400c5b24c93ecd66373))
+
+## Refactor
+
+- Remove index tracking in QuestsJob (#224) ([953445f](https://github.com/toommyliu/vexed/commit/953445fd8a9b4ec8dca4a64e5854e1e3c1b95d53))
+- Cleanup BoostsJob (#223) ([c2206f1](https://github.com/toommyliu/vexed/commit/c2206f10530f962243af46e4827d4c3f641ad320))
+- Cleanup BoostsJob (#222) ([3e5654e](https://github.com/toommyliu/vexed/commit/3e5654ec998a9ea9d838a31430694b19802190b1))
+- Improve how drops get processed (#216) ([a056a42](https://github.com/toommyliu/vexed/commit/a056a42ad9402ac5ff795bb236342c8ae394529f))
+
+# [0.2.2](https://github.com/toommyliu/vexed/compare/0.2.1...0.2.2) - (2025-07-10)
 
 ## Bug Fixes
 
@@ -13,7 +63,7 @@ All notable changes to this project will be documented in this file.
 
 - Auto Zone commands (#192) ([a45eeef](https://github.com/toommyliu/vexed/commit/a45eeef1ad1346e69705e2e5634ac9fe1eca106c))
 
-# [0.2.1](https://github.com/toommyliu/vexed/compare/0.2.0...v0.2.1) - (2025-06-27)
+# [0.2.1](https://github.com/toommyliu/vexed/compare/0.2.0...0.2.1) - (2025-06-27)
 
 ## Bug Fixes
 
