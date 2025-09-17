@@ -231,7 +231,7 @@ to be satisfied. */
   /** Whether the target's hp is less than the specified amount. */
   target_hp_less_than(hp: number): void;
   /** Buys an item from the shop. */
-  buy_item(shopId: number, item: string | number, quantity: number): void;
+  buy_item(shopId: number, item: string | number, quantity: number, auto?: boolean): void;
   /** Puts an item into the bank. */
   deposit(item: string | number | (string | number)[]): void;
   equip_item(item: string): void;
