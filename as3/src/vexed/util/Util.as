@@ -104,6 +104,7 @@ package vexed.util {
         return false;
       }
       else if (game.world.shopinfo.sField != "" && game.world.getAchievement(game.world.shopinfo.sField, game.world.shopinfo.iIndex) != 1) {
+        // e.g. NostalgiaQuest
         return false;
       }
       else if (param1.bUpg == 1 && !game.world.myAvatar.isUpgraded()) {

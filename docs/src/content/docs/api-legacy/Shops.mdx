@@ -34,6 +34,25 @@ Buy an item from the shop.
 
 **Returns**: `Promise<void>`
 
+### canBuyItem
+Whether an item can be bought from the shop.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| itemName | `string` | The name of the item. |
+
+:::note
+This operation performs client-side checks only and does not guarantee that the item can actually be purchased.
+- Upgrade status
+- Faction reputation
+- Class points
+- Quest status
+- Sufficient gold
+- Sufficient ACs
+- Sufficient inventory / house space
+:::
+
+**Returns**: `boolean`
+
 ### isShopLoaded
 Whether any shop is loaded.
 

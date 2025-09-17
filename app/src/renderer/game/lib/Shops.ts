@@ -117,94 +117,21 @@ export class Shops {
   }
 
   /**
-   * Whether an item can be purchased from the shop.
-   * //
+   * Whether an item can be bought from the shop.
+   *
+   * @remarks This operation performs client-side checks only and does not guarantee that the item can actually be purchased.
+   * - Upgrade status
+   * - Faction reputation
+   * - Class points
+   * - Quest status
+   * - Sufficient gold
+   * - Sufficient ACs
+   * - Sufficient inventory / house space
+   * @param itemName - The name of the item.
    */
-  // public canBuy(itemName: string): boolean {
-  //   if (!this.isShopLoaded()) return false;
-
-  //   const shopItem = this.info!.items.find(
-  //     (item) => item.sName.toLowerCase() === itemName.toLowerCase(),
-  //   );
-  //   if (!shopItem) return false;
-
-  // const shopInfo = this.info!;
-
-  // TODO: implement in as3
-  // if (
-  //   shopItem.bStaff === "1" &&
-  //   this.bot.flash.get("world.myAvatar.objData.intAccessLevel", true) < 40
-  // ) {
-  //   // Don't know
-  //   return false;
-  // } else if (
-  //   shopInfo.sField !== "" &&
-  //   this.bot.flash.call(
-  //     "world.getAchievement",
-  //     shopInfo.sField,
-  //     shopInfo.iIndex,
-  //   ) !== 1
-  // ) {
-  //   // NostalgiaQuest
-  //   return false;
-  // } else if (shopItem.bUpg === "1" && !this.bot.player.isMember()) {
-  //   return false;
-  // } else if (
-  //   typeof shopItem.FactionID === "string" &&
-  //   Number(shopItem.FactionID) > 1 &&
-  //   this.bot.player.factions.find(
-  //     (fct) => fct.data.FactionID === shopItem.FactionID,
-  //   )?.data?.iRep < Number(shopItem.iReqRep)
-  // ) {
-  //   return false;
-  // } else if (
-
-  // )
-
-  // if (param1.bStaff == 1 && myAvatar.objData.intAccessLevel < 40) {
-  //   rootClass.MsgBox.notify("Test Item: Cannot be purchased yet!");
-  // } else if (
-  //   shopinfo.sField != "" &&
-  //   getAchievement(shopinfo.sField, shopinfo.iIndex) != 1
-  // ) {
-  //   rootClass.MsgBox.notify("Item Locked: Special requirement not met.");
-  // } else if (param1.bUpg == 1 && !myAvatar.isUpgraded()) {
-  //   rootClass.showUpgradeWindow();
-  // } else if (
-  //   param1.FactionID > 1 &&
-  //   myAvatar.getRep(param1.FactionID) < param1.iReqRep
-  // ) {
-  //   rootClass.MsgBox.notify("Item Locked: Reputation Requirement not met.");
-  // } else if (!rootClass.validateArmor(param1)) {
-  //   rootClass.MsgBox.notify("Item Locked: Class Requirement not met.");
-  // } else if (
-  //   param1.iQSindex >= 0 &&
-  //   getQuestValue(param1.iQSindex) < int(param1.iQSvalue)
-  // ) {
-  //   rootClass.MsgBox.notify("Item Locked: Quest Requirement not met.");
-  // } else if (
-  //   (myAvatar.isItemInInventory(param1.ItemID) ||
-  //     myAvatar.isItemInBank(param1.ItemID)) &&
-  //   myAvatar.isItemStackMaxed(param1.ItemID)
-  // ) {
-  //   rootClass.MsgBox.notify(
-  //     "You cannot have more than " + param1.iStk + " of that item!",
-  //   );
-  // } else if (param1.bCoins == 0 && param1.iCost > myAvatar.objData.intGold) {
-  //   rootClass.MsgBox.notify("Insufficient Funds!");
-  // } else if (param1.bCoins == 1 && param1.iCost > myAvatar.objData.intCoins) {
-  //   rootClass.MsgBox.notify("Insufficient Funds!");
-  // } else if (
-  //   (!rootClass.isHouseItem(param1) &&
-  //     myAvatar.items.length >= myAvatar.objData.iBagSlots) ||
-  //   (rootClass.isHouseItem(param1) &&
-  //     myAvatar.houseitems.length >= myAvatar.objData.iHouseSlots)
-  // ) {
-  //   rootClass.MsgBox.notify("Inventory Full!");
-  // }
-
-  // return true;
-  // }
+  public canBuyItem(itemName: string): boolean {
+    return this.bot.flash.call<boolean>(() => swf.shopCanBuyItem(itemName));
+  }
 }
 
 export type ShopInfo = {
