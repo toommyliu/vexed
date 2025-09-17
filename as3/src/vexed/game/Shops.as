@@ -126,12 +126,7 @@ package vexed.game {
       if (!game.world.shopinfo)
         return false;
 
-      if (game.world.shopinfo.items.length > 0) {
-        var firstItem:Object = game.world.shopinfo.items[0];
-        return firstItem.hasOwnProperty("turnin");
-      }
-
-      return false;
+      return game.isMergeShop(game.world.shopinfo);
     }
 
     public static function canBuyItem(itemName:String):Boolean {
