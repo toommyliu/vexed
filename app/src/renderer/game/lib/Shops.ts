@@ -20,6 +20,13 @@ export class Shops {
   }
 
   /**
+   * Whether the shop is a merge shop.
+   */
+  public get isMergeShop(): boolean {
+    return this.bot.flash.call(() => swf.shopIsMergeShop());
+  }
+
+  /**
    * Get a shop item by its name.
    *
    * @param itemName - The name of the item.

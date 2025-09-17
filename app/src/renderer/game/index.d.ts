@@ -166,6 +166,7 @@ declare global {
     shopLoadHairShop(shopId: number): void;
     shopLoadArmorCustomize(): void;
     shopCanBuyItem(itemName: string): boolean;
+    shopIsMergeShop(): boolean;
 
     tempInventoryGetItems(): ItemData[];
     tempInventoryGetItem(key: number | string): Nullable<ItemData>;
