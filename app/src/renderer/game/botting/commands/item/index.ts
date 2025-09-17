@@ -19,6 +19,7 @@ export const itemCommands = {
   /**
    * Buys an item from the shop.
    *
+   * @remarks Auto mode may not be flawless and have edge cases. Report any issues!
    * @param shopId - The shop id.
    * @param item - The name or item id of the item to buy.
    * @param quantity - The quantity of the item to buy.
