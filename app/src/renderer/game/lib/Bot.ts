@@ -20,6 +20,7 @@ import { AutoReloginJob } from "./jobs/autorelogin";
 import { BoostsJob } from "./jobs/boosts";
 import { DropsJob } from "./jobs/drops";
 import { QuestsJob } from "./jobs/quests";
+import type { Aura } from "./models/BaseEntity";
 import type { Monster } from "./models/Monster";
 import { Flash } from "./util/Flash";
 
@@ -28,6 +29,8 @@ type Events = {
    * This event is emitted when the player goes AFK.
    */
   afk(): void;
+  auraAdd(monster: Monster, aura: Aura): void;
+  auraRemove(monster: Monster, auraName: string): void;
   /**
    * This event is emitted when the player logs in.
    */

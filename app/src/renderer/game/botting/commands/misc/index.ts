@@ -24,6 +24,7 @@ import { CommandLabel } from "./CommandLabel";
 import { CommandLog } from "./CommandLog";
 import { CommandLogout } from "./CommandLogout";
 import { CommandRegisterTask } from "./CommandRegisterTask";
+import { CommandLoopTaunt } from "./CommandLoopTaunt";
 import { CommandSetDelay } from "./CommandSetDelay";
 import { CommandSetFPS } from "./CommandSetFPS";
 import { CommandSetGuild } from "./CommandSetGuild";
@@ -41,7 +42,6 @@ import { CommandStopBot } from "./CommandStopBot";
 import { CommandUnregisterTask } from "./CommandUnregisterTask";
 import { CommandWaitForPlayerCount } from "./CommandWaitForPlayerCount";
 import { CommandWalkSpeed } from "./CommandWalkSpeed";
-import { CommandLoopTaunt } from "./CommandLoopTaunt";
 
 export const miscCommands = {
   /**
@@ -711,7 +711,6 @@ export const miscCommands = {
     }
 
     const cmd = new CommandLoopTaunt();
-    cmd.mode = "simple";
     cmd.target = target;
     cmd.participantIndex = Math.trunc(participantIndex);
     cmd.maxParticipants = Math.trunc(maxParticipants);
