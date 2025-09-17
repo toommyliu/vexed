@@ -10,11 +10,16 @@ import { Badge, Code } from "@astrojs/starlight/components";
 ### cmd.buy_item
 Buys an item from the shop.
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| shopId | `number` | The shop id. |
-| item | `string` \| `number` | The name or item id of the item to buy. |
-| quantity | `number` | The quantity of the item to buy. |
+:::note[Remarks]
+Auto mode may not be flawless and have edge cases. Report any issues!
+:::
+
+| Parameter | Type | Optional | Default | Description |
+|-----------|------|----------|---------|-------------|
+| shopId | `number` |  |  | The shop id. |
+| item | `string` \| `number` |  |  | The name or item id of the item to buy. |
+| quantity | `number` |  |  | The quantity of the item to buy. |
+| auto | `boolean` | ✓ | `false` | If true, will try to buy any required items first (if available in the merge shop). |
 
 
 ### cmd.deposit

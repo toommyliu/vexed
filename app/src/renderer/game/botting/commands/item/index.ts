@@ -19,11 +19,18 @@ export const itemCommands = {
   /**
    * Buys an item from the shop.
    *
+   * @remarks Auto mode may not be flawless and have edge cases. Report any issues!
    * @param shopId - The shop id.
    * @param item - The name or item id of the item to buy.
    * @param quantity - The quantity of the item to buy.
+   * @param auto - If true, will try to buy any required items first (if available in the merge shop).
    */
-  buy_item(shopId: number, item: number | string, quantity: number) {
+  buy_item(
+    shopId: number,
+    item: number | string,
+    quantity: number,
+    auto: boolean = false,
+  ) {
     if (!shopId || typeof shopId !== "number") {
       throw new ArgsError("shopId is required");
     }
@@ -36,10 +43,15 @@ export const itemCommands = {
       throw new ArgsError("quantity is required");
     }
 
+    if (auto && typeof auto !== "boolean") {
+      throw new ArgsError("auto is required");
+    }
+
     const cmd = new CommandBuy();
     cmd.shopId = shopId;
     cmd.item = item;
     cmd.quantity = quantity;
+    cmd.auto = auto;
     window.context.addCommand(cmd);
   },
   /**

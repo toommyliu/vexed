@@ -55,7 +55,13 @@ export class Item {
    * Whether the item is AC tagged.
    */
   public isAC(): boolean {
-    return this.data.bCoins === 1;
+    if (typeof this.data.bCoins === "number") {
+      return this.data.bCoins === 1;
+    } else if (typeof this.data.bCoins === "string") {
+      return this.data.bCoins === "1";
+    }
+
+    return false;
   }
 
   /**
