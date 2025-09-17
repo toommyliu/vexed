@@ -123,11 +123,29 @@ package vexed.game {
     }
 
     public static function canBuyItem(itemName:String):Boolean {
+      if (!game.world.shopinfo)
+        return false;
+
+      var isMergeShop:Boolean = false;
+      if (game.world.shopinfo.items.length > 0) {
+        var firstItem:Object = game.world.shopinfo.items[0];
+        isMergeShop = firstItem.hasOwnProperty("turnin");
+      }
+
       var item:Object = getItem(itemName);
       if (!item)
         return false;
 
-      return Util.canBuyItem(item);
+      if (isMergeShop) {
+        for each (var req:Object in item.turnin) {
+          if (!Inventory.contains(req.sName))
+            return false;
+        }
+
+        return true;
+      }
+      else
+        return Util.canBuyItem(item);
     }
   }
 }
