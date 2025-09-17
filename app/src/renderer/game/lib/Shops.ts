@@ -74,10 +74,19 @@ export class Shops {
       this.bot.world.isActionAvailable(GameAction.BuyItem),
     );
 
-    const qty = quantity ?? 1;
-    this.bot.flash.call(() => swf.shopBuyByName(itemName, qty));
+    if (!this.isShopLoaded()) return;
 
-    await this.bot.waitUntil(() => this.bot.inventory.contains(itemName, qty));
+    const item = this.info!.items.find(
+      (shopItem) => shopItem.sName.toLowerCase() === itemName.toLowerCase(),
+    );
+    if (!item || !this.bot.shops.canBuyItem(item?.sName)) {
+      return;
+    }
+
+    const qty = quantity ?? 1;
+
+    this.bot.flash.call(() => swf.shopBuyByName(itemName, qty));
+    await this.bot.waitUntil(() => this.bot.inventory.contains(itemName));
   }
 
   /**
@@ -96,12 +105,21 @@ export class Shops {
     const item = this.info!.items.find(
       (shopItem) => shopItem.ItemID === itemId,
     );
-    if (!item) return;
+    if (!item || !this.bot.shops.canBuyItem(item?.sName)) return;
 
-    this.bot.flash.call(() => swf.shopBuyById(itemId, quantity));
+    let qty = quantity;
 
+    // Adjust quantity if the item has multiple units per purchase
+    if (item.iQty > 1) {
+      qty = Math.ceil(qty / item.iQty);
+    }
+
+    this.bot.flash.call(() => swf.shopBuyById(itemId, qty));
+
+    // Wait for the actual quantity we expect to receive (qty * item.iQty)
+    const expectedQuantity = qty * item.iQty;
     await this.bot.waitUntil(() =>
-      this.bot.inventory.contains(itemId, quantity),
+      this.bot.inventory.contains(itemId, expectedQuantity),
     );
   }
 
