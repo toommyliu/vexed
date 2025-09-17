@@ -1,6 +1,6 @@
 import type { Bot } from "./Bot";
 import { GameAction } from "./World";
-import type { ShopItemData } from "./models/ShopItem";
+import { ShopItem, type ShopItemData } from "./models/ShopItem";
 
 export class Shops {
   public constructor(public bot: Bot) {}
@@ -17,6 +17,40 @@ export class Shops {
    */
   public get info(): ShopInfo | null {
     return this.bot.flash.get("world.shopinfo", true);
+  }
+
+  /**
+   * Get a shop item by its name.
+   *
+   * @param itemName - The name of the item.
+   * @returns
+   */
+  public getByName(itemName: string): ShopItem | null {
+    if (!this.isShopLoaded()) return null;
+
+    const item = this.info!.items.find(
+      (shopItem) => shopItem.sName.toLowerCase() === itemName.toLowerCase(),
+    );
+
+    if (item) return new ShopItem(item);
+    return null;
+  }
+
+  /**
+   * Get a shop item by its ID.
+   *
+   * @param itemId - The ID of the item.
+   * @returns The shop item data or null if not found.
+   */
+  public getById(itemId: number): ShopItem | null {
+    if (!this.isShopLoaded()) return null;
+
+    const item = this.info!.items.find(
+      (shopItem) => shopItem.ItemID === itemId,
+    );
+
+    if (item) return new ShopItem(item);
+    return null;
   }
 
   /**

@@ -35,13 +35,13 @@ Buy an item from the shop.
 **Returns**: `Promise<void>`
 
 ### canBuyItem
-Whether an item can be bought from the shop.
+Whether an item can be bought from the shop, works for both normal and merge shops.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | itemName | `string` | The name of the item. |
 
 :::note
-This operation performs client-side checks only and does not guarantee that the item can actually be purchased.
+This operation performs client-side checks only. The final validation is done server-side.
 - Upgrade status
 - Faction reputation
 - Class points
@@ -52,6 +52,22 @@ This operation performs client-side checks only and does not guarantee that the 
 :::
 
 **Returns**: `boolean`
+
+### getById
+Get a shop item by its ID.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| itemId | `number` | The ID of the item. |
+
+**Returns**: `null` \| [`ShopItem`](/api-legacy/models/shopitem)
+
+### getByName
+Get a shop item by its name.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| itemName | `string` | The name of the item. |
+
+**Returns**: `null` \| [`ShopItem`](/api-legacy/models/shopitem)
 
 ### isShopLoaded
 Whether any shop is loaded.

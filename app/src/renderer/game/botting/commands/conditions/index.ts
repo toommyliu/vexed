@@ -68,6 +68,7 @@ import { CommandTargetHpBetween } from "./CommandTargetHpBetween";
 import { CommandTargetHealthGreaterThan as CommandTargetHpGreaterThan } from "./CommandTargetHpGreaterThan";
 import { CommandTargetHpLessThan } from "./CommandTargetHpLessThan";
 import { ConditionCommand } from "./ConditionCommand";
+import { CommandCanBuyItem } from "./CommandCanBuyItem";
 
 export const conditionsCommands = {
   /**
@@ -1165,6 +1166,20 @@ export const conditionsCommands = {
 
     const cmd = new CommandIsPlayerNumber();
     cmd.playerNumber = playerNumber;
+    window.context.addCommand(cmd);
+  },
+  /**
+   * Whether an item can be bought from the current shop (client-side check).
+   *
+   * @param item - The name of the item.
+   */
+  can_buy_item(item: string) {
+    if (!item || typeof item !== "string") {
+      throw new ArgsError("item is required");
+    }
+
+    const cmd = new CommandCanBuyItem();
+    cmd.item = item;
     window.context.addCommand(cmd);
   },
 };
