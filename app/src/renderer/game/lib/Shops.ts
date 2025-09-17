@@ -117,9 +117,9 @@ export class Shops {
   }
 
   /**
-   * Whether an item can be bought from the shop.
+   * Whether an item can be bought from the shop, works for both normal and merge shops.
    *
-   * @remarks This operation performs client-side checks only and does not guarantee that the item can actually be purchased.
+   * @remarks This operation performs client-side checks only. The final validation is done server-side.
    * - Upgrade status
    * - Faction reputation
    * - Class points
