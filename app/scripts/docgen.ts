@@ -61,6 +61,11 @@ const generateCommandsApiDoc = async () => {
                 child?.signatures?.[0]?.comment?.blockTags ?? [],
               );
 
+              const remarkCode = makeBlockTag(
+                child?.signatures?.[0]?.comment?.blockTags ?? [],
+                "@remarks",
+              );
+
               // if (exampleCode) {
               //   logger.info(
               //     `Found example for ${namespaceName}.${funcName}: ${exampleCode}`,
@@ -94,6 +99,7 @@ const generateCommandsApiDoc = async () => {
                 returnType: "",
                 isStatic: false,
                 example: exampleCode,
+                remark: remarkCode,
               };
               namespaceMethods.push(method);
             }
@@ -129,6 +135,13 @@ const generateCommandsApiDoc = async () => {
 
             if (method.description) {
               mdxFileContent.push(method.description);
+              mdxFileContent.push("");
+            }
+
+            if (method.remark) {
+              mdxFileContent.push(`:::note[Remarks]`);
+              mdxFileContent.push(method.remark);
+              mdxFileContent.push(`:::`);
               mdxFileContent.push("");
             }
 
