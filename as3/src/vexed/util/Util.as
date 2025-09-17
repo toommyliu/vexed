@@ -97,5 +97,115 @@ package vexed.util {
 
       return ret;
     }
+
+    public static function canBuyItem(param1:Object):Boolean {
+      const game:* = Main.getInstance().getGame();
+      if (param1.bStaff == 1 && game.world.myAvatar.objData.intAccessLevel < 40) {
+        return false;
+      }
+      else if (game.world.shopinfo.sField != "" && game.world.getAchievement(game.world.shopinfo.sField, game.world.shopinfo.iIndex) != 1) {
+        // e.g. NostalgiaQuest
+        return false;
+      }
+      else if (param1.bUpg == 1 && !game.world.myAvatar.isUpgraded()) {
+        return false;
+      }
+      else if (param1.FactionID > 1 && game.world.myAvatar.getRep(param1.FactionID) < param1.iReqRep) {
+        return false;
+      }
+      else if (!validateArmor(param1)) {
+        return false;
+      }
+      else if (param1.iQSindex >= 0 && game.world.getQuestValue(param1.iQSindex) < int(param1.iQSvalue)) {
+        return false;
+      }
+      else if (
+          (game.world.myAvatar.isItemInInventory(param1.ItemID) || game.world.myAvatar.isItemInBank(param1.ItemID)) &&
+          game.world.myAvatar.isItemStackMaxed(param1.ItemID)
+        ) {
+        return false;
+      }
+      else if (param1.bCoins == 0 && param1.iCost > game.world.myAvatar.objData.intGold) {
+        return false;
+      }
+      else if (param1.bCoins == 1 && param1.iCost > game.world.myAvatar.objData.intCoins) {
+        return false;
+      }
+      else if (
+          !game.isHouseItem(param1) && game.world.myAvatar.items.length >= game.world.myAvatar.objData.iBagSlots ||
+          game.isHouseItem(param1) && game.world.myAvatar.houseitems.length >= game.world.myAvatar.objData.iHouseSlots
+        ) {
+        return false;
+      }
+
+      return true;
+    }
+
+    private static function validateArmor(param1:Object):Boolean {
+      const game:* = Main.getInstance().getGame();
+
+      var _loc10_:uint = 0;
+      var _loc11_:uint = 0;
+      var _loc2_:Array = [];
+      var _loc3_:Object = {};
+      var _loc4_:int = 0;
+      var _loc5_:int = 10;
+      var _loc6_:Boolean = true;
+      var _loc7_:Boolean = false;
+      var _loc8_:Boolean = false;
+      var _loc9_:int = int(param1.ItemID);
+      switch (_loc9_) {
+        case 319:
+        case 2083:
+          _loc7_ = true;
+          _loc2_ = [16, 15654, 407, 20, 15651, 409];
+          break;
+        case 409:
+          _loc8_ = true;
+          _loc2_ = [20, 15651];
+          break;
+        case 408:
+          _loc8_ = true;
+          _loc2_ = [17, 15653];
+          break;
+        case 410:
+          _loc8_ = true;
+          _loc2_ = [18, 15652];
+          break;
+        case 407:
+          _loc8_ = true;
+          _loc2_ = [16, 15654];
+      }
+      if (_loc7_) {
+        _loc10_ = 0;
+        while (_loc10_ < _loc2_.length) {
+          if (game.world.myAvatar.getCPByID(_loc2_[_loc10_]) < 302500) {
+            _loc6_ = false;
+          }
+          else {
+            _loc6_ = true;
+            if (_loc10_ < 2) {
+              _loc10_ = 2;
+            }
+            if (_loc10_ < 5 && _loc10_ > 2) {
+              break;
+            }
+          }
+          _loc10_++;
+        }
+        return _loc6_;
+      }
+      if (_loc8_) {
+        _loc11_ = 0;
+        while (_loc11_ < _loc2_.length) {
+          if (game.world.myAvatar.getCPByID(_loc2_[_loc11_]) >= param1.iReqCP) {
+            return true;
+          }
+          _loc11_++;
+        }
+        return false;
+      }
+      return !(Number(param1.iClass) > 0 && game.world.myAvatar.getCPByID(param1.iClass) < param1.iReqCP);
+    }
   }
 }

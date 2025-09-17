@@ -2,6 +2,7 @@ import { ArgsError } from "@botting/ArgsError";
 import { CommandAnd } from "./CommandAnd";
 import { CommandAnyPlayerHpPercentageGreaterThan } from "./CommandAnyPlayerHpPercentageGreaterThan";
 import { CommandAnyPlayerHpPercentageLessThan } from "./CommandAnyPlayerHpPercentageLessThan";
+import { CommandCanBuyItem } from "./CommandCanBuyItem";
 import { CommandCellIs } from "./CommandCellIs";
 import { CommandCellIsNot } from "./CommandCellIsNot";
 import { CommandCellPlayerCountGreaterThan } from "./CommandCellPlayerCountGreaterThan";
@@ -1165,6 +1166,20 @@ export const conditionsCommands = {
 
     const cmd = new CommandIsPlayerNumber();
     cmd.playerNumber = playerNumber;
+    window.context.addCommand(cmd);
+  },
+  /**
+   * Whether an item can be bought from the current shop (client-side check).
+   *
+   * @param item - The name of the item.
+   */
+  can_buy_item(item: string) {
+    if (!item || typeof item !== "string") {
+      throw new ArgsError("item is required");
+    }
+
+    const cmd = new CommandCanBuyItem();
+    cmd.item = item;
     window.context.addCommand(cmd);
   },
 };

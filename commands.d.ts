@@ -89,6 +89,8 @@ to be satisfied. */
   any_player_hp_percentage_greater_than(percentage: number): void;
   /** Whether any player's hp percentage is less than the specified value. */
   any_player_hp_percentage_less_than(percentage: number): void;
+  /** Whether an item can be bought from the current shop (client-side check). */
+  can_buy_item(item: string): void;
   /** Whether the specified quest can be completed. */
   can_complete_quest(questId: number): void;
   /** Whether the specified quest cannot be completed. */
