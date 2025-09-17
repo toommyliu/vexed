@@ -123,19 +123,11 @@ package vexed.game {
     }
 
     public static function canBuyItem(itemName:String):Boolean {
-      try {
-        var item:Object = getItem(itemName);
-        Main.getInstance().getExternal().debug("Shops.canBuyItem: got item");
-        if (!item)
-          return false;
-
-        return Util.canBuyItem(item);
-      }
-      catch (e:Error) {
-        Main.getInstance().getExternal().debug("Error in Shops.canBuyItem: " + e);
+      var item:Object = getItem(itemName);
+      if (!item)
         return false;
-      }
-      return false;
+
+      return Util.canBuyItem(item);
     }
   }
 }
