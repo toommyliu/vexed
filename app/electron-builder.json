@@ -13,7 +13,7 @@
         "filter": ["**/*", "!pepflashplayer.dll"]
       }
     ],
-    "asar": "false",
+    "asar": false,
     "target": {
       "target": "zip",
       "arch": ["x64"]
@@ -31,7 +31,7 @@
       }
     ],
     "icon": "../assets/icon.ico",
-    "asar": "false",
+    "asar": false,
     "target": {
       "target": "zip",
       "arch": ["x64"]

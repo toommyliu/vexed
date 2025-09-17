@@ -2,6 +2,10 @@
   "name": "@vexed/electron",
   "version": "0.3.0",
   "main": "dist/main/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/toommyliu/vexed.git"
+  },
   "scripts": {
     "clean": "del-cli dist build --dot",
     "typecheck": "tsc --noEmit",
@@ -12,10 +16,10 @@
     "electronmon": "electrnonmon .",
     "dev": "npm-run-all --sequential compile --parallel electron",
     "dev:watch": "npm-run-all --sequential compile --parallel compile:watch electronmon",
-    "build": "npm-run-all --sequential clean typecheck compile:prod electron-builder",
-    "build:fast": "npm-run-all --sequential compile:prod electron-builder",
-    "build:all": "npm-run-all --sequential clean typecheck compile:prod \"electron-builder -mw\"",
-    "electron-builder": "electron-builder build",
+    "build": "npm-run-all --sequential clean typecheck compile:prod \"electron-builder build --publish=never\"",
+    "build:fast": "npm-run-all --sequential compile:prod \"electron-builder build --publish=never\"",
+    "build:all": "npm-run-all --sequential clean typecheck compile:prod \"electron-builder -mw --publish=never\"",
+    "electron-builder": "electron-builder build --publish=never",
     "docgen": "tsx scripts/docgen.ts",
     "format": "prettier \"src/**/*\"",
     "format:write": "prettier \"src/**/*\" --write",

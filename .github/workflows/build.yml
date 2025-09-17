@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - '*.*.*'
+  workflow_dispatch:
 
 jobs:
   build_electron:
@@ -29,7 +30,7 @@ jobs:
         run: yarn install
 
       - name: Build electron app
-        run: yarn run build:all
+        run: cd app && yarn run build:all
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -37,7 +38,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            ./build/vexed-mac.zip
-            ./build/vexed-win.zip
+            ./app/build/vexed-mac.zip
+            ./app/build/vexed-win.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
