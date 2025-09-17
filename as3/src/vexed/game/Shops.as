@@ -1,5 +1,6 @@
 package vexed.game {
   import vexed.Main;
+  import vexed.util.Util;
 
   public class Shops {
     private static var game:Object = Main.getInstance().getGame();
@@ -119,6 +120,22 @@ package vexed.game {
 
     public static function loadArmorCustomize():void {
       game.openArmorCustomize();
+    }
+
+    public static function canBuyItem(itemName:String):Boolean {
+      try {
+        var item:Object = getItem(itemName);
+        Main.getInstance().getExternal().debug("Shops.canBuyItem: got item");
+        if (!item)
+          return false;
+
+        return Util.canBuyItem(item);
+      }
+      catch (e:Error) {
+        Main.getInstance().getExternal().debug("Error in Shops.canBuyItem: " + e);
+        return false;
+      }
+      return false;
     }
   }
 }

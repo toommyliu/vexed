@@ -172,6 +172,7 @@ package vexed {
       externalize("shopLoad", Shops.load);
       externalize("shopLoadHairShop", Shops.loadHairShop);
       externalize("shopLoadArmorCustomize", Shops.loadArmorCustomize);
+      externalize("shopCanBuyItem", Shops.canBuyItem);
 
       // TempInventory
       externalize("tempInventoryGetItems", TempInventory.getItems);
