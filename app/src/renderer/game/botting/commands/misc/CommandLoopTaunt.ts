@@ -1,5 +1,3 @@
-import { interval } from "@vexed/utils";
-import { Mutex } from "async-mutex";
 import { Command } from "@botting/command";
 
 const id = 517;
@@ -7,17 +5,15 @@ const sArg1 = "12917"; // sArg1
 const sArg2 =
   "This spell forces your target to focus their attacks on you and causes them to attack recklessly lowering their damage for 10 seconds. (Taunt effects do not work on players.)"; // sArg2
 
+const FOCUS = "Focus";
+
+const logWithTimestamp = (...args: any[]) => {
+  console.log(`[${new Date().toLocaleTimeString()}]`, ...args);
+};
+
 export class CommandLoopTaunt extends Command {
-  #mutex = new Mutex();
-
-  // simple: taunt when available
-  // message: taunt on server message
-  public mode: "message" | "simple" = "simple";
-
-  // the message to taunt on
-  public message?: string;
-
   // the taunt index t1..tN
+  // starts from 1 to N
   public participantIndex!: number;
 
   // how many players are expected to do loop taunt
@@ -25,123 +21,92 @@ export class CommandLoopTaunt extends Command {
 
   // the target(s) to loop taunt on. use monMapId to be more reliable, especially if multiple instances of monster with the same name exists
   // if target dies or becomes unavailable, loop taunt switches to the next target if available
-  public target?: string;
+  public target!: string;
 
-  // the map name, acts as a validation check for the server message
-  public mapName?: string;
+  private tauntCount = 0;
+
+  private gotAura = false;
+
+  private auraTime = 0;
+
+  private auraResetTimer?: NodeJS.Timeout;
 
   public override async execute() {
-    switch (this.mode) {
-      case "simple":
-        await this.doSimpleLoopTaunt();
-        break;
-      case "message":
-        await this.doMessageLoopTaunt();
-        break;
+    if (this.participantIndex === 1) {
+      this.bot.settings.customName = "TAUNTER 1";
+    } else if (this.participantIndex === 2) {
+      this.bot.settings.customName = "TAUNTER 2";
     }
+
+    this.bot.on("auraAdd", async (mon, aura) => {
+      if (
+        mon.name.toLowerCase() === this.target.toLowerCase() &&
+        aura.name === FOCUS
+      ) {
+        const timeSinceLastAura = Date.now() - this.auraTime;
+        if (!this.gotAura || timeSinceLastAura > 5_000) {
+          this.gotAura = true;
+          this.auraTime = Date.now();
+          logWithTimestamp("got FOCUS at", this.auraTime);
+          logWithTimestamp(`focus count: ${++this.tauntCount}`);
+
+          if (this.auraResetTimer) {
+            clearTimeout(this.auraResetTimer);
+          }
+
+          this.auraResetTimer = setTimeout(() => {
+            this.gotAura = false;
+            logWithTimestamp("FOCUS expired after timer");
+          }, 7_000);
+
+          const shouldWeTaunt =
+            (this.participantIndex === 2 && this.tauntCount % 2 === 1) ||
+            (this.participantIndex === 1 && this.tauntCount % 2 === 0);
+
+          if (shouldWeTaunt) {
+            await this.bot.sleep(10_000); // 6s base active time + 4s buffer
+            console.log("TAUNT");
+            await this.doTaunt();
+          }
+        } else {
+          logWithTimestamp(
+            `Ignoring duplicate FOCUS (${timeSinceLastAura}ms since last), badly timed`,
+          );
+        }
+      }
+    });
+    this.ctx.on("end", () => {
+      this.bot.removeAllListeners("auraAdd");
+    });
   }
 
   public override toString() {
-    if (this.mode === "simple") {
-      return `Loop Taunt [t${this.participantIndex}/t${this.maxParticipants}]`;
-    }
-
-    return `Loop Taunt "${this.message}" [t${this.participantIndex}/t${this.maxParticipants}]`;
+    return `Loop Taunt [t${this.participantIndex}/t${this.maxParticipants}]`;
   }
 
-  private async doSimpleLoopTaunt() {
-    let lastFocusEndTime = 0;
-    let waitingForMyTurn = false;
+  // private isScrollEquipped() {
+  //   const skills = this.bot.flash.get<
+  //     {
+  //       id: number;
+  //       sArg1: string;
+  //       sArg2: string;
+  //     }[]
+  //   >("world.actions.active", true);
+  //   if (Array.isArray(skills) && skills.length === 6) {
+  //     const potion = skills[skills.length - 1];
+  //     // id and sArg1 are probably sufficient matches
+  //     return (
+  //       potion?.id === id && potion?.sArg1 === sArg1 && potion?.sArg2 === sArg2
+  //     );
+  //   }
 
-    // First participant starts immediately
-    let shouldTaunt = this.participantIndex === 1;
-
-    void setInterval(async () => {
-      await this.#mutex.runExclusive(async () => {
-        const currentTime = Date.now();
-
-        if (!this.bot.combat?.target) return;
-
-        const hasFocus = this.bot.combat.target.hasAura("Focus");
-
-        // If focus just ended, start the rotation timer
-        if (!hasFocus && lastFocusEndTime > 0 && waitingForMyTurn) {
-          const timeSinceFocusEnd = currentTime - lastFocusEndTime;
-
-          // After focus ends, wait for the participant's turn based on their index
-          // Each participant waits (participantIndex - 1) * delay seconds
-          const myTurnDelay = (this.participantIndex - 1) * 1_000; // 1 second stagger
-
-          if (timeSinceFocusEnd >= myTurnDelay) {
-            shouldTaunt = true;
-            waitingForMyTurn = false;
-            console.log(
-              `My turn delay (${myTurnDelay}ms) has passed, setting shouldTaunt = true`,
-            );
-          }
-        }
-
-        // Taunt if it's my turn and no focus is active
-        if (shouldTaunt && !hasFocus) {
-          console.log(
-            `It's my turn to taunt (t${this.participantIndex}/t${this.maxParticipants})`,
-          );
-          await this.doTaunt();
-          shouldTaunt = false;
-          lastFocusEndTime = 0; // reset the timer
-        }
-
-        // If focus appears, wait for it to end
-        if (hasFocus) {
-          await this.bot.waitUntil(
-            () => !this.bot.combat?.target?.hasAura("Focus"),
-            null,
-            -1,
-          );
-
-          lastFocusEndTime = Date.now();
-          waitingForMyTurn = true;
-          console.log(
-            `Focus ended, waiting for turn. My delay: ${this.participantIndex - 1}000ms`,
-          );
-        }
-      });
-    }, 250);
-  }
-
-  private async doMessageLoopTaunt() {}
-
-  // whether Scroll of Enrage is equipped
-  private isScrollEquipped() {
-    const skills = this.bot.flash.get<
-      {
-        id: number;
-        sArg1: string;
-        sArg2: string;
-      }[]
-    >("world.actions.active", true);
-    if (Array.isArray(skills) && skills.length === 6) {
-      const potion = skills[skills.length - 1];
-      // id and sArg1 are probably sufficient matches
-      return (
-        potion?.id === id && potion?.sArg1 === sArg1 && potion?.sArg2 === sArg2
-      );
-    }
-
-    return false;
-  }
+  //   return false;
+  // }
 
   private async doTaunt() {
-    await interval(async (iterations, stop) => {
-      if (!this.isScrollEquipped()) return;
-      if (!this.bot.combat.hasTarget()) return;
-
+    while (!this.gotAura) {
       await this.bot.combat.useSkill(5, true, true);
       await this.bot.sleep(100);
-      if (this.bot.combat?.target?.hasAura("Focus")) {
-        console.log(`doTaunt - success, took ${iterations} iterations`);
-        stop();
-      }
-    }, 100);
+    }
   }
 }

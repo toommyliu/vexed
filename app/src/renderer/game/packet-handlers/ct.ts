@@ -1,6 +1,11 @@
 import type { Bot } from "@lib/Bot";
 import { AuraStore } from "@lib/util/AuraStore";
 import type { Aura } from "../lib/models/BaseEntity";
+import { Monster } from "../lib/models/Monster";
+
+const log = (msg: string) => {
+  console.log(`[${new Date().toLocaleTimeString()}] ${msg}`);
+};
 
 export function ct(bot: Bot, packet: CtPacket) {
   if (Array.isArray(packet?.anims)) {
@@ -31,7 +36,7 @@ export function ct(bot: Bot, packet: CtPacket) {
   if (Array.isArray(packet?.a)) {
     for (const aura of packet?.a ?? []) {
       // console.log("aura", aura);
-      if (aura?.cmd === "aura+") {
+      if (aura?.cmd === "aura+" || aura?.cmd === "aura++") {
         const tgtId = aura?.tInf?.split(":")[1]; // uid / monMapId
         if (!tgtId) continue;
 
@@ -41,15 +46,27 @@ export function ct(bot: Bot, packet: CtPacket) {
           for (const a of aura?.auras ?? []) {
             const data: Aura = {
               name: a.nam,
+              duration: a.dur ?? 0,
+              isNew: a?.isNew || false,
             };
 
             if ("val" in a && typeof a.val === "number") data.value = a.val;
-            if (data?.name === "Focus") {
-              console.log(`Monster ${tgtId} gained aura:`, data);
-            }
+            // if (data?.name === "Focus") {
+            //   log(`Initial Focus timestamp ${Date.now()}`);
+            //   log(
+            //     `Monster ${tgtId} gained aura: ${JSON.stringify(data)}, cmd: ${aura?.cmd}, isNew: ${data.isNew}, raw duration: ${a.dur}`,
+            //   );
+            // }
 
-            AuraStore.removeMonsterAura(tgtId, data.name); // remove old instance if exists
-            AuraStore.addMonsterAura(tgtId, data);
+            if (data.isNew) {
+              const monData = bot.world.monsters.find(
+                (mon) => String(mon.MonMapID) === tgtId,
+              )!;
+              bot.emit("auraAdd", new Monster(monData), data);
+              AuraStore.addMonsterAura(tgtId, data);
+            } else {
+              AuraStore.refreshMonsterAura(tgtId, data);
+            }
           }
         } else if (aura?.tInf?.startsWith("p")) {
           // get the username (key) from the uid (value)
@@ -61,14 +78,20 @@ export function ct(bot: Bot, packet: CtPacket) {
           for (const a of aura?.auras ?? []) {
             const data: Aura = {
               name: a.nam,
+              duration: a.dur ?? 0,
+              isNew: a?.isNew || false,
             };
+
             if ("val" in a && typeof a.val === "number") data.value = a.val;
-            // console.log(`${username} gained aura:`, data);
-            AuraStore.removePlayerAura(username, data.name); // remove old instance if exists
-            AuraStore.addPlayerAura(username, data);
+
+            if (data.isNew) {
+              AuraStore.addPlayerAura(username, data);
+            } else {
+              AuraStore.refreshPlayerAura(username, data);
+            }
           }
         }
-      } else if (aura?.cmd === "aura-") {
+      } else if (aura?.cmd === "aura-" || aura?.cmd === "aura--") {
         // console.log("aura- cmd");
         const tgtId = aura?.tInf?.split(":")[1]; // uid
         if (!tgtId) continue;
@@ -77,9 +100,16 @@ export function ct(bot: Bot, packet: CtPacket) {
           // console.log("aura- cmd on monster:", aura);
 
           if (aura?.aura?.nam) {
-            if (aura?.aura?.nam === "Focus") {
-              console.log(`Monster ${tgtId} lost aura:`, aura?.aura?.nam);
-            }
+            // if (aura?.aura?.nam === "Focus") {
+            //   log(
+            //     `Monster ${tgtId} lost aura: ${aura?.aura?.nam}, cmd: ${aura?.cmd}, full aura data: ${JSON.stringify(aura)}`,
+            //   );
+            // }
+
+            const monData = bot.world.monsters.find(
+              (mon) => String(mon.MonMapID) === tgtId,
+            )!;
+            bot.emit("auraRemove", new Monster(monData), aura?.aura?.nam);
             AuraStore.removeMonsterAura(tgtId, aura?.aura?.nam);
           }
         } else if (aura?.tInf?.startsWith("p")) {
@@ -92,7 +122,7 @@ export function ct(bot: Bot, packet: CtPacket) {
           // console.log("aura- cmd: subauras", aura?.aura);
           if (aura?.aura?.nam) {
             // console.log(`${username} lost aura:`, aura?.aura?.nam);
-            AuraStore.removePlayerAura(username, aura?.aura?.nam);
+            AuraStore.removePlayerAura(username, normalize(aura?.aura?.nam));
           }
         }
       }
@@ -124,7 +154,7 @@ type CtPacket = {
       t: string; // ? "s" -> self
     }[];
     cInf?: string; // p:uid ? the uid of the player that the applied the aura
-    cmd?: string; // aura+ or aura-
+    cmd?: string; // aura+ or aura-, aura++/aura-- for server messages?
     tInf?: string; // ? the target the aura is applied to
   }[];
   anims?: {
