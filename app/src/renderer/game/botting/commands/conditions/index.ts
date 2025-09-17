@@ -2,6 +2,7 @@ import { ArgsError } from "@botting/ArgsError";
 import { CommandAnd } from "./CommandAnd";
 import { CommandAnyPlayerHpPercentageGreaterThan } from "./CommandAnyPlayerHpPercentageGreaterThan";
 import { CommandAnyPlayerHpPercentageLessThan } from "./CommandAnyPlayerHpPercentageLessThan";
+import { CommandCanBuyItem } from "./CommandCanBuyItem";
 import { CommandCellIs } from "./CommandCellIs";
 import { CommandCellIsNot } from "./CommandCellIsNot";
 import { CommandCellPlayerCountGreaterThan } from "./CommandCellPlayerCountGreaterThan";
@@ -68,7 +69,6 @@ import { CommandTargetHpBetween } from "./CommandTargetHpBetween";
 import { CommandTargetHealthGreaterThan as CommandTargetHpGreaterThan } from "./CommandTargetHpGreaterThan";
 import { CommandTargetHpLessThan } from "./CommandTargetHpLessThan";
 import { ConditionCommand } from "./ConditionCommand";
-import { CommandCanBuyItem } from "./CommandCanBuyItem";
 
 export const conditionsCommands = {
   /**
