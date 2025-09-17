@@ -238,6 +238,8 @@ to be satisfied. */
 If results are ambiguous, the first matching item will be used. Use itemType to narrow the result. */
   equip_item_by_enhancement(enhancementName: string, itemType?: string): void;
   get_map_item(item: string | number): void;
+  /** Loads a shop. */
+  load_shop(shopId: number): void;
   /** Picks up an item from the drop list. */
   pickup(item: string | number): void;
   /** Registers a consumable boost to use when available. */

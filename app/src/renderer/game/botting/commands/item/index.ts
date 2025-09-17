@@ -4,6 +4,7 @@ import { CommandDeposit } from "./CommandDeposit";
 import { CommandEquipByEnhancement } from "./CommandEquipByEnhancement";
 import { CommandEquipItem } from "./CommandEquipItem";
 import { CommandGetMapItem } from "./CommandGetMapItem";
+import { CommandLoadShop } from "./CommandLoadShop";
 import { CommandPickup } from "./CommandPickup";
 import { CommandRegisterBoost } from "./CommandRegisterBoost";
 import { CommandRegisterDrop } from "./CommandRegisterDrop";
@@ -272,6 +273,20 @@ export const itemCommands = {
     cmd.enhancementName = enhancementName;
     if (itemType) cmd.itemType = itemType;
 
+    window.context.addCommand(cmd);
+  },
+  /**
+   * Loads a shop.
+   *
+   * @param shopId - The shop id to load.
+   */
+  load_shop(shopId: number) {
+    if (!shopId || typeof shopId !== "number") {
+      throw new ArgsError("shopId is required");
+    }
+
+    const cmd = new CommandLoadShop();
+    cmd.shopId = shopId;
     window.context.addCommand(cmd);
   },
 };
