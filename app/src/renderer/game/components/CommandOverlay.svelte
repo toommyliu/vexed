@@ -58,6 +58,8 @@
 
     overlay.style.left = `${x}px`;
     overlay.style.top = `${y}px`;
+
+    updateMaxHeightConstraint(y);
   }
 
   function handleDragEnd() {
@@ -73,12 +75,14 @@
     ev.stopPropagation();
     commandOverlayState.toggleListVisibility();
     commandOverlayState.savePosition(overlay);
+    ensureWithinViewport();
   }
 
   function handleContextMenu(ev: MouseEvent) {
     ev.preventDefault();
     commandOverlayState.toggleListVisibility();
     commandOverlayState.savePosition(overlay);
+    ensureWithinViewport();
   }
 
   function handleDoubleClick(ev: MouseEvent) {
@@ -89,6 +93,7 @@
 
     commandOverlayState.toggleListVisibility();
     commandOverlayState.savePosition(overlay);
+    ensureWithinViewport();
   }
 
   function scrollActiveItemIntoView() {
@@ -150,35 +155,65 @@
     const minTop = Math.max(0, Math.round(topNavBottom));
 
     // If overlay is outside viewport vertically
+    let newTop = rect.top;
     if (rect.bottom > innerHeight) {
-      const newTop = Math.max(minTop, innerHeight - rect.height);
+      newTop = Math.max(minTop, innerHeight - rect.height);
       overlay.style.top = `${newTop}px`;
     }
 
     // Also ensure overlay is not above the top nav
-    if (rect.top < minTop) overlay.style.top = `${minTop}px`;
+    if (newTop < minTop) {
+      newTop = minTop;
+      overlay.style.top = `${newTop}px`;
+    }
+
+    // Constrain the max-height so the bottom (and resize handle) stays reachable
+    const available = Math.max(80, innerHeight - Math.max(minTop, newTop) - 8);
+    overlay.style.maxHeight = `${available}px`;
+
+    // If we currently exceed available space, clamp height to available
+    const currentHeight = rect.height;
+    if (currentHeight > available) {
+      overlay.style.height = `${available}px`;
+    }
 
     commandOverlayState.savePosition(overlay);
   }
 
+  function updateMaxHeightConstraint(topOverride?: number) {
+    if (!overlay) return;
+    const { innerHeight } = window;
+    const rect = overlay.getBoundingClientRect();
+    const topNav = document.getElementById("topnav-container");
+    const topNavBottom = topNav?.getBoundingClientRect().bottom ?? 0;
+    const minTop = Math.max(0, Math.round(topNavBottom));
+    const top = topOverride ?? rect.top;
+    const available = Math.max(80, innerHeight - Math.max(minTop, top) - 8);
+    overlay.style.maxHeight = `${available}px`;
+    if (rect.height > available) {
+      overlay.style.height = `${available}px`;
+    }
+  }
+
   onMount(() => {
     commandOverlayState.loadPosition(overlay);
-    // Ensure loaded position doesn't overlap the top nav or fall outside
-    // the viewport.
-    ensureWithinViewport();
 
+    ensureWithinViewport();
     resizeObserver = new ResizeObserver(() => {
       ensureWithinViewport();
     });
-    resizeObserver.observe(document.body);
+    resizeObserver.observe(overlay);
 
     document.addEventListener("mousemove", handleDragMove);
     document.addEventListener("mouseup", handleDragEnd);
+    window.addEventListener("resize", ensureWithinViewport);
 
     return () => {
       resizeObserver?.disconnect();
 
+      document.removeEventListener("mousemove", handleDragMove);
       document.removeEventListener("mouseup", handleDragEnd);
+      window.removeEventListener("resize", ensureWithinViewport);
     };
   });
 </script>
@@ -274,6 +309,8 @@
     resize: both;
     overflow: hidden;
     min-height: 40px;
+    max-height: calc(100vh - 16px);
+    box-sizing: border-box;
     user-select: none;
     transition:
       opacity 0.2s ease,
@@ -362,11 +399,11 @@
 
   .command-list-container {
     color: white;
-    padding: 6px 6px 6px 8px;
-    max-height: calc(100% - 35px - 8px);
+    padding: 6px 6px 4px 8px;
+    max-height: calc(100% - 35px - 4px);
     overflow-y: auto;
     width: calc(100% - 8px);
-    height: calc(100% - 35px - 8px);
+    height: calc(100% - 35px - 4px);
     user-select: none;
     scrollbar-width: none;
   }
