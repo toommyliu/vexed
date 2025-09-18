@@ -11,6 +11,12 @@
     scriptState.showOverlay = commandOverlayState.isVisible;
   });
 
+  $effect(() => {
+    if (commandOverlayState.lastIndex >= 0 && listContainer) {
+      scrollActiveItemIntoView();
+    }
+  });
+
   function handleDragStart(ev: MouseEvent) {
     // If not left mouse button
     if (ev.button !== 0) return;
@@ -85,6 +91,32 @@
     commandOverlayState.savePosition(overlay);
   }
 
+  function scrollActiveItemIntoView() {
+    if (!listContainer) return;
+
+    requestAnimationFrame(() => {
+      const activeElement = listContainer.querySelector(
+        ".command-item.active",
+      ) as HTMLElement;
+
+      if (activeElement) {
+        const containerRect = listContainer.getBoundingClientRect();
+        const elementRect = activeElement.getBoundingClientRect();
+
+        const isVisible =
+          elementRect.top >= containerRect.top &&
+          elementRect.bottom <= containerRect.bottom;
+
+        if (!isVisible) {
+          activeElement.scrollIntoView({
+            block: "nearest",
+            behavior: "smooth",
+          });
+        }
+      }
+    });
+  }
+
   function handleWheel(ev: WheelEvent) {
     const container = listContainer;
     const { scrollTop, scrollHeight, clientHeight } = container;
@@ -96,25 +128,8 @@
     if (!(delta > 0 && atBottom) && !(delta < 0 && atTop)) ev.stopPropagation();
 
     setTimeout(() => {
-      const activeElement = listContainer.querySelector(
-        ".command-item.active",
-      ) as HTMLElement;
-      if (activeElement) {
-        const containerRect = listContainer.getBoundingClientRect();
-        const elementRect = activeElement.getBoundingClientRect();
-
-        const isVisible =
-          elementRect.top >= containerRect.top &&
-          elementRect.bottom <= containerRect.bottom;
-
-        if (!isVisible && window.context?.isRunning?.()) {
-          activeElement.scrollIntoView({
-            block: "nearest",
-            behavior: "smooth",
-          });
-        }
-      }
-    }, 50);
+      scrollActiveItemIntoView();
+    }, 10);
   }
 
   function ensureWithinViewport() {
@@ -347,31 +362,27 @@
 
   .command-list-container {
     color: white;
-    padding: 8px;
-    max-height: 400px;
+    padding: 6px 6px 6px 8px;
+    max-height: calc(100% - 35px - 8px);
     overflow-y: auto;
-    height: calc(100% - 35px);
+    width: calc(100% - 8px);
+    height: calc(100% - 35px - 8px);
     user-select: none;
-    scrollbar-width: thin;
-    scrollbar-color: #555 #222;
+    scrollbar-width: none;
   }
   .command-list-container::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 0;
+    height: 0;
+    background: transparent;
   }
   .command-list-container::-webkit-scrollbar-track {
-    background: #222;
-    border-radius: 4px;
+    background: transparent;
   }
   .command-list-container::-webkit-scrollbar-thumb {
-    background: #555;
-    border-radius: 4px;
-  }
-  .command-list-container::-webkit-scrollbar-thumb:hover {
-    background: #777;
+    background: transparent;
   }
   .command-item {
-    padding: 6px 10px;
+    padding: 6px 10px 6px 10px;
     font-size: 13px;
     cursor: default;
     user-select: none;
