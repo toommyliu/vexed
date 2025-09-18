@@ -1,9 +1,12 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { commandOverlayState, scriptState } from "@game/state.svelte";
+  import { VList } from "virtua/svelte";
 
   let overlay: HTMLDivElement;
   let listContainer: HTMLDivElement;
+  // svelte-ignore non_reactive_update
+  let virtualList: VList<string>;
 
   let resizeObserver: ResizeObserver | null = null;
 
@@ -97,44 +100,27 @@
   }
 
   function scrollActiveItemIntoView() {
-    if (!listContainer) return;
+    if (!virtualList || commandOverlayState.lastIndex < 0) return;
 
     requestAnimationFrame(() => {
-      const activeElement = listContainer.querySelector(
-        ".command-item.active",
-      ) as HTMLElement;
-
-      if (activeElement) {
-        const containerRect = listContainer.getBoundingClientRect();
-        const elementRect = activeElement.getBoundingClientRect();
-
-        const isVisible =
-          elementRect.top >= containerRect.top &&
-          elementRect.bottom <= containerRect.bottom;
-
-        if (!isVisible) {
-          activeElement.scrollIntoView({
-            block: "nearest",
-            behavior: "smooth",
-          });
-        }
-      }
+      virtualList!["scrollToIndex"](commandOverlayState.lastIndex, {
+        align: "nearest",
+        smooth: true,
+      });
     });
   }
 
   function handleWheel(ev: WheelEvent) {
-    const container = listContainer;
-    const { scrollTop, scrollHeight, clientHeight } = container;
+    const target = ev.currentTarget as HTMLElement;
+    const { scrollTop, scrollHeight, clientHeight } = target;
     const delta = ev.deltaY;
 
     const atBottom = scrollTop + clientHeight >= scrollHeight - 1;
     const atTop = scrollTop <= 0;
 
-    if (!(delta > 0 && atBottom) && !(delta < 0 && atTop)) ev.stopPropagation();
-
-    setTimeout(() => {
-      scrollActiveItemIntoView();
-    }, 10);
+    if (!(delta > 0 && atBottom) && !(delta < 0 && atTop)) {
+      ev.stopPropagation();
+    }
   }
 
   function ensureWithinViewport() {
@@ -241,7 +227,6 @@
     <div class="command-overlay-header-controls">
       <div
         class="command-overlay-control"
-        title="Toggle overlay"
         onclick={handleToggleVisibility}
         onkeydown={(ev) => {
           if (ev.key === "Enter") {
@@ -257,7 +242,6 @@
 
       <div
         class="command-overlay-control command-overlay-close"
-        title="Hide overlay"
         onclick={(ev) => {
           ev.stopPropagation();
           commandOverlayState.hide();
@@ -282,14 +266,23 @@
     style:display={commandOverlayState.listVisible ? "block" : "none"}
     onwheel={handleWheel}
   >
-    {#each commandOverlayState.commandStrings as command, index}
-      <div
-        class="command-item"
-        class:active={index === commandOverlayState.lastIndex}
+    {#if commandOverlayState.commandStrings.length > 0}
+      <VList
+        bind:this={virtualList}
+        data={commandOverlayState.commandStrings}
+        getKey={(_, index) => `command-${index}`}
+        style="height: 100%; width: 100%;"
       >
-        {command}
-      </div>
-    {/each}
+        {#snippet children(command, index)}
+          <div
+            class="command-item"
+            class:active={index === commandOverlayState.lastIndex}
+          >
+            {command}
+          </div>
+        {/snippet}
+      </VList>
+    {/if}
   </div>
 </div>
 
@@ -401,23 +394,26 @@
     color: white;
     padding: 6px 6px 4px 8px;
     max-height: calc(100% - 35px - 4px);
-    overflow-y: auto;
     width: calc(100% - 8px);
     height: calc(100% - 35px - 4px);
     user-select: none;
     scrollbar-width: none;
   }
-  .command-list-container::-webkit-scrollbar {
+  .command-list-container :global(*) {
+    scrollbar-width: none;
+  }
+  .command-list-container :global(*::-webkit-scrollbar) {
     width: 0;
     height: 0;
     background: transparent;
   }
-  .command-list-container::-webkit-scrollbar-track {
+  .command-list-container :global(*::-webkit-scrollbar-track) {
     background: transparent;
   }
-  .command-list-container::-webkit-scrollbar-thumb {
+  .command-list-container :global(*::-webkit-scrollbar-thumb) {
     background: transparent;
   }
+
   .command-item {
     padding: 6px 10px 6px 10px;
     font-size: 13px;
