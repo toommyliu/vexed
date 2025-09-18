@@ -11,6 +11,12 @@
     scriptState.showOverlay = commandOverlayState.isVisible;
   });
 
+  $effect(() => {
+    if (commandOverlayState.lastIndex >= 0 && listContainer) {
+      scrollActiveItemIntoView();
+    }
+  });
+
   function handleDragStart(ev: MouseEvent) {
     // If not left mouse button
     if (ev.button !== 0) return;
@@ -85,6 +91,32 @@
     commandOverlayState.savePosition(overlay);
   }
 
+  function scrollActiveItemIntoView() {
+    if (!listContainer) return;
+
+    requestAnimationFrame(() => {
+      const activeElement = listContainer.querySelector(
+        ".command-item.active",
+      ) as HTMLElement;
+
+      if (activeElement) {
+        const containerRect = listContainer.getBoundingClientRect();
+        const elementRect = activeElement.getBoundingClientRect();
+
+        const isVisible =
+          elementRect.top >= containerRect.top &&
+          elementRect.bottom <= containerRect.bottom;
+
+        if (!isVisible) {
+          activeElement.scrollIntoView({
+            block: "nearest",
+            behavior: "smooth",
+          });
+        }
+      }
+    });
+  }
+
   function handleWheel(ev: WheelEvent) {
     const container = listContainer;
     const { scrollTop, scrollHeight, clientHeight } = container;
@@ -96,25 +128,8 @@
     if (!(delta > 0 && atBottom) && !(delta < 0 && atTop)) ev.stopPropagation();
 
     setTimeout(() => {
-      const activeElement = listContainer.querySelector(
-        ".command-item.active",
-      ) as HTMLElement;
-      if (activeElement) {
-        const containerRect = listContainer.getBoundingClientRect();
-        const elementRect = activeElement.getBoundingClientRect();
-
-        const isVisible =
-          elementRect.top >= containerRect.top &&
-          elementRect.bottom <= containerRect.bottom;
-
-        if (!isVisible && window.context?.isRunning?.()) {
-          activeElement.scrollIntoView({
-            block: "nearest",
-            behavior: "smooth",
-          });
-        }
-      }
-    }, 50);
+      scrollActiveItemIntoView();
+    }, 10);
   }
 
   function ensureWithinViewport() {
