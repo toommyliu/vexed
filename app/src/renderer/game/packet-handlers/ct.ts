@@ -1,7 +1,7 @@
 import type { Bot } from "@lib/Bot";
+import type { Aura } from "@lib/models/BaseEntity";
+import { Monster } from "@lib/models/Monster";
 import { AuraStore } from "@lib/util/AuraStore";
-import type { Aura } from "../lib/models/BaseEntity";
-import { Monster } from "../lib/models/Monster";
 
 const log = (msg: string) => {
   console.log(`[${new Date().toLocaleTimeString()}] ${msg}`);
