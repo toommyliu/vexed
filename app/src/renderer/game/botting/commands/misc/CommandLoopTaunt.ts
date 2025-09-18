@@ -13,10 +13,13 @@ const logWithTimestamp = (...args: any[]) => {
 };
 
 export class CommandLoopTaunt extends Command {
+  // index of this participant, 1-based
   public participantIndex!: number;
 
+  // total number of participants
   public maxParticipants!: number;
 
+  // name of the target monster to taunt
   public target!: string;
 
   private startListening = false;
@@ -25,15 +28,9 @@ export class CommandLoopTaunt extends Command {
 
   private focusCountThisTick = 0;
 
-  private mainIntervalStop: (() => void) | undefined;
+  private stopFn: (() => void) | undefined;
 
   public override async execute() {
-    if (this.participantIndex === 1) {
-      this.bot.settings.customName = "TAUNTER 1";
-    } else if (this.participantIndex === 2) {
-      this.bot.settings.customName = "TAUNTER 2";
-    }
-
     const ref = this.onPacketFromServer.bind(this);
 
     void interval(async (_, stop) => {
@@ -45,25 +42,26 @@ export class CommandLoopTaunt extends Command {
       let combatCount = 0;
       for (const plyrName of this.bot.world.playerNames) {
         const plyr = this.bot.world.players?.get(plyrName);
-        if (plyr?.isInCombat()) {
-          combatCount++;
-        }
+        if (plyr?.isInCombat()) combatCount++;
       }
 
+      // Since loop taunting is only used in armying scenarios, we can
+      // simply wait for all to be in combat for reliability.
       if (combatCount >= this.maxParticipants) {
-        console.log("start listening");
+        // console.log("start listening");
         this.startListening = true;
 
         void interval(async (_, stop) => {
-          this.mainIntervalStop = stop;
+          this.stopFn ??= stop;
           if (!this.startListening || !this.bot.player.isReady()) return;
+
           if (
-            this.focusCountThisTick === 0 &&
+            this.focusCountThisTick === 0 /* no one has taunted recently */ &&
             this.tauntCount % this.maxParticipants ===
-              this.participantIndex - 1 &&
+              this.participantIndex - 1 /* our turn to taunt */ &&
             this.bot.combat?.target?.isMonster() &&
             this.bot.combat?.target?.data?.strMonName.toLowerCase() ===
-              this.target.toLowerCase()
+              this.target.toLowerCase() /* target matches */
           ) {
             await this.doTaunt();
           }
@@ -76,7 +74,7 @@ export class CommandLoopTaunt extends Command {
     this.bot.on("packetFromServer", ref);
     this.ctx.on("end", () => {
       this.bot.off("packetFromServer", ref);
-      if (this.mainIntervalStop) this.mainIntervalStop();
+      if (this.stopFn) this.stopFn();
     });
   }
 
@@ -116,11 +114,11 @@ export class CommandLoopTaunt extends Command {
 
         this.focusCountThisTick = 1;
         setTimeout(() => {
-          console.log("reset focus count");
+          // console.log("reset focus count");
           this.focusCountThisTick = 0;
         }, 10_000);
-        console.log("FOCUS", aura);
 
+        // console.log("FOCUS", aura);
         this.tauntCount++;
       }
     }
