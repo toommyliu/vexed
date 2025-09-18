@@ -362,31 +362,27 @@
 
   .command-list-container {
     color: white;
-    padding: 8px;
-    max-height: 400px;
+    padding: 6px 6px 6px 8px;
+    max-height: calc(100% - 35px - 8px);
     overflow-y: auto;
-    height: calc(100% - 35px);
+    width: calc(100% - 8px);
+    height: calc(100% - 35px - 8px);
     user-select: none;
-    scrollbar-width: thin;
-    scrollbar-color: #555 #222;
+    scrollbar-width: none;
   }
   .command-list-container::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 0;
+    height: 0;
+    background: transparent;
   }
   .command-list-container::-webkit-scrollbar-track {
-    background: #222;
-    border-radius: 4px;
+    background: transparent;
   }
   .command-list-container::-webkit-scrollbar-thumb {
-    background: #555;
-    border-radius: 4px;
-  }
-  .command-list-container::-webkit-scrollbar-thumb:hover {
-    background: #777;
+    background: transparent;
   }
   .command-item {
-    padding: 6px 10px;
+    padding: 6px 10px 6px 10px;
     font-size: 13px;
     cursor: default;
     user-select: none;
