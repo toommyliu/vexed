@@ -1,3 +1,4 @@
+import { interval } from "@vexed/utils";
 import { Command } from "@botting/command";
 
 const id = 517;
@@ -12,24 +13,19 @@ const logWithTimestamp = (...args: any[]) => {
 };
 
 export class CommandLoopTaunt extends Command {
-  // the taunt index t1..tN
-  // starts from 1 to N
   public participantIndex!: number;
 
-  // how many players are expected to do loop taunt
   public maxParticipants!: number;
 
-  // the target(s) to loop taunt on. use monMapId to be more reliable, especially if multiple instances of monster with the same name exists
-  // if target dies or becomes unavailable, loop taunt switches to the next target if available
   public target!: string;
+
+  private startListening = false;
 
   private tauntCount = 0;
 
-  private gotAura = false;
+  private focusCountThisTick = 0;
 
-  private auraTime = 0;
-
-  private auraResetTimer?: NodeJS.Timeout;
+  private mainIntervalStop: (() => void) | undefined;
 
   public override async execute() {
     if (this.participantIndex === 1) {
@@ -38,50 +34,87 @@ export class CommandLoopTaunt extends Command {
       this.bot.settings.customName = "TAUNTER 2";
     }
 
-    this.bot.on("auraAdd", async (mon, aura) => {
-      if (
-        mon.name.toLowerCase() === this.target.toLowerCase() &&
-        aura.name === FOCUS
-      ) {
-        const timeSinceLastAura = Date.now() - this.auraTime;
-        if (!this.gotAura || timeSinceLastAura > 5_000) {
-          this.gotAura = true;
-          this.auraTime = Date.now();
-          logWithTimestamp("got FOCUS at", this.auraTime);
-          logWithTimestamp(`focus count: ${++this.tauntCount}`);
+    const ref = this.onPacketFromServer.bind(this);
 
-          if (this.auraResetTimer) {
-            clearTimeout(this.auraResetTimer);
-          }
+    void interval(async (_, stop) => {
+      if (this.startListening || !this.bot.player.isReady()) {
+        stop();
+        return;
+      }
 
-          this.auraResetTimer = setTimeout(() => {
-            this.gotAura = false;
-            logWithTimestamp("FOCUS expired after timer");
-          }, 7_000);
-
-          const shouldWeTaunt =
-            (this.participantIndex === 2 && this.tauntCount % 2 === 1) ||
-            (this.participantIndex === 1 && this.tauntCount % 2 === 0);
-
-          if (shouldWeTaunt) {
-            await this.bot.sleep(10_000); // 6s base active time + 4s buffer
-            console.log("TAUNT");
-            await this.doTaunt();
-          }
-        } else {
-          logWithTimestamp(
-            `Ignoring duplicate FOCUS (${timeSinceLastAura}ms since last), badly timed`,
-          );
+      let combatCount = 0;
+      for (const plyrName of this.bot.world.playerNames) {
+        const plyr = this.bot.world.players?.get(plyrName);
+        if (plyr?.isInCombat()) {
+          combatCount++;
         }
       }
-    });
+
+      if (combatCount >= this.maxParticipants) {
+        console.log("start listening");
+        this.startListening = true;
+
+        void interval(async (_, stop) => {
+          this.mainIntervalStop = stop;
+          if (!this.startListening || !this.bot.player.isReady()) return;
+          if (
+            this.focusCountThisTick === 0 &&
+            this.tauntCount % this.maxParticipants === this.participantIndex - 1
+          ) {
+            await this.doTaunt();
+          }
+        }, 1_000);
+
+        stop();
+      }
+    }, 250);
+
+    this.bot.on("packetFromServer", ref);
     this.ctx.on("end", () => {
-      this.bot.removeAllListeners("auraAdd");
+      this.bot.off("packetFromServer", ref);
+      if (this.mainIntervalStop) this.mainIntervalStop();
     });
   }
 
   public override toString() {
     return `Loop Taunt [t${this.participantIndex}/t${this.maxParticipants}]`;
+  }
+
+  private onPacketFromServer(packet: string) {
+    if (!this.startListening) return;
+    if (!packet.startsWith("{")) return;
+
+    const msg = JSON.parse(packet);
+    const data = msg?.b?.o;
+    const cmd = data?.cmd;
+
+    if (cmd !== "ct") return;
+
+    const auras = data?.a as any[] | undefined;
+    if (!Array.isArray(auras) || !auras.length) return;
+
+    for (const aItem of auras) {
+      const auraList = aItem?.auras as any[] | undefined;
+
+      for (const aura of auraList ?? []) {
+        const name = aura?.nam;
+        if (name !== FOCUS) continue;
+
+        this.focusCountThisTick = 1;
+        setTimeout(() => {
+          console.log("reset focus count");
+          this.focusCountThisTick = 0;
+        }, 10_000);
+        console.log("FOCUS");
+
+        this.tauntCount++;
+      }
+    }
+  }
+
+  private async doTaunt() {
+    await this.bot.combat.useSkill(5, true, true);
+    logWithTimestamp("taunt cast");
   }
 
   // private isScrollEquipped() {
@@ -102,11 +135,4 @@ export class CommandLoopTaunt extends Command {
 
   //   return false;
   // }
-
-  private async doTaunt() {
-    while (!this.gotAura) {
-      await this.bot.combat.useSkill(5, true, true);
-      await this.bot.sleep(100);
-    }
-  }
 }
