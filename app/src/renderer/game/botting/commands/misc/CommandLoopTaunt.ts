@@ -59,7 +59,11 @@ export class CommandLoopTaunt extends Command {
           if (!this.startListening || !this.bot.player.isReady()) return;
           if (
             this.focusCountThisTick === 0 &&
-            this.tauntCount % this.maxParticipants === this.participantIndex - 1
+            this.tauntCount % this.maxParticipants ===
+              this.participantIndex - 1 &&
+            this.bot.combat?.target?.isMonster() &&
+            this.bot.combat?.target?.data?.strMonName.toLowerCase() ===
+              this.target.toLowerCase()
           ) {
             await this.doTaunt();
           }
@@ -94,6 +98,16 @@ export class CommandLoopTaunt extends Command {
     if (!Array.isArray(auras) || !auras.length) return;
 
     for (const aItem of auras) {
+      if (typeof aItem?.tInf === "string" && !aItem?.tInf?.startsWith("m:"))
+        continue;
+
+      const monMapId = Number.parseInt(aItem?.tInf?.split(":")[1], 10);
+      if (
+        this.bot.combat?.target?.isMonster() &&
+        this.bot.combat?.target?.monMapId !== monMapId
+      )
+        continue;
+
       const auraList = aItem?.auras as any[] | undefined;
 
       for (const aura of auraList ?? []) {
@@ -105,7 +119,7 @@ export class CommandLoopTaunt extends Command {
           console.log("reset focus count");
           this.focusCountThisTick = 0;
         }, 10_000);
-        console.log("FOCUS");
+        console.log("FOCUS", aura);
 
         this.tauntCount++;
       }
