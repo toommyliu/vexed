@@ -74,7 +74,7 @@ export class CommandLoopTaunt extends Command {
     this.bot.on("packetFromServer", ref);
     this.ctx.on("end", () => {
       this.bot.off("packetFromServer", ref);
-      if (this.stopFn) this.stopFn();
+      this.stopFn?.();
     });
   }
 
@@ -112,21 +112,36 @@ export class CommandLoopTaunt extends Command {
         const name = aura?.nam;
         if (name !== FOCUS) continue;
 
+        // if someone else taunted but we've already
+        // processed a taunt this tick, skip
+        if (this.focusCountThisTick > 0) {
+          logWithTimestamp("SKIP");
+          return;
+        }
+
         this.focusCountThisTick = 1;
         setTimeout(() => {
-          // console.log("reset focus count");
+          logWithTimestamp("RESET");
           this.focusCountThisTick = 0;
         }, 10_000);
 
-        // console.log("FOCUS", aura);
+        logWithTimestamp("FOCUS");
         this.tauntCount++;
       }
     }
   }
 
   private async doTaunt() {
-    await this.bot.combat.useSkill(5, true, true);
-    logWithTimestamp("taunt cast");
+    while (
+      this.ctx.isRunning() &&
+      this.bot.player.alive &&
+      this.focusCountThisTick === 0
+    ) {
+      await this.bot.combat.useSkill(5, true, true);
+      await this.bot.sleep(50);
+    }
+
+    logWithTimestamp("TAUNT");
   }
 
   // private isScrollEquipped() {
