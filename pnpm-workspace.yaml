@@ -1,6 +1,7 @@
 packages:
   - packages/*
   - app
+  - docs
 
 ignoredBuiltDependencies:
   - core-js
