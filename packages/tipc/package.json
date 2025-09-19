@@ -2,7 +2,8 @@
   "name": "@vexed/tipc",
   "version": "0.4.0",
   "scripts": {
-    "build": "npx tsc && npx tsup tipc/src/main.ts tipc/src/renderer.ts --format cjs"
+    "build": "npx --package=typescript --package=tsup tsc && npx --package=tsup tsup tipc/src/main.ts tipc/src/renderer.ts --format cjs",
+    "prepare": "yarn build"
   },
   "exports": {
     "./main": {
