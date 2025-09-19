@@ -13,19 +13,26 @@ export class CommandKillFor extends Command {
   public options!: Partial<KillOptions>;
 
   public override async execute() {
+    const ac = new AbortController();
+    const signal = ac.signal;
+
+    const finalOpts = { ...this.options, signal };
+
+    this.ctx.once("end", () => ac.abort());
+
     if (this.isTemp) {
       await this.bot.combat.killForTempItem(
         this.target,
         this.item,
         this.quantity,
-        this.options,
+        finalOpts,
       );
     } else {
       await this.bot.combat.killForItem(
         this.target,
         this.item,
         this.quantity,
-        this.options,
+        finalOpts,
       );
     }
   }

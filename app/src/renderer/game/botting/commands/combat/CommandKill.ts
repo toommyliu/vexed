@@ -7,7 +7,12 @@ export class CommandKill extends Command {
   public options!: Partial<KillOptions>;
 
   public override async execute(): Promise<void> {
-    await this.bot.combat.kill(this.target, this.options);
+    const ac = new AbortController();
+    const signal = ac.signal;
+
+    this.ctx.once("end", () => ac.abort());
+
+    await this.bot.combat.kill(this.target, { ...this.options, signal });
   }
 
   public override toString() {
