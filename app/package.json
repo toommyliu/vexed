@@ -61,6 +61,7 @@
     "@typescript-eslint/eslint-plugin": "^8.4.0",
     "@typescript-eslint/parser": "^8.4.0",
     "autoprefixer": "^10.4.21",
+    "cross-env": "^10.0.0",
     "del-cli": "^6.0.0",
     "electron": "^6.1.12",
     "electron-builder": "^24.13.3",
