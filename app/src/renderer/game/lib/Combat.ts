@@ -16,6 +16,63 @@ const DEFAULT_KILL_OPTIONS: KillOptions = {
   skillAction: null,
 };
 
+function validateKillOptions(options: Partial<KillOptions> = {}): KillOptions {
+  const out: KillOptions = {
+    killPriority: DEFAULT_KILL_OPTIONS.killPriority,
+    skillDelay: DEFAULT_KILL_OPTIONS.skillDelay,
+    skillSet: DEFAULT_KILL_OPTIONS.skillSet,
+    skillWait: DEFAULT_KILL_OPTIONS.skillWait,
+    skillAction: DEFAULT_KILL_OPTIONS.skillAction,
+  };
+
+  // killPriority: allow string or string[]
+  if (typeof options.killPriority === "string") {
+    out.killPriority = options.killPriority;
+  } else if (Array.isArray(options.killPriority)) {
+    const ok = options.killPriority.every((value) => typeof value === "string");
+    if (ok) out.killPriority = options.killPriority as string[];
+  }
+
+  // skillSet: must be non-empty array of integers between 0 and 5 (inclusive)
+  if (Array.isArray(options.skillSet)) {
+    const coerced = options.skillSet
+      .map((num) => Number.parseInt(String(num), 10))
+      .filter((num) => Number.isFinite(num) && num >= 0 && num <= 5);
+    if (coerced.length > 0) out.skillSet = coerced;
+  }
+
+  // skillDelay: number >= 0
+  if (
+    typeof options.skillDelay === "number" &&
+    Number.isFinite(options.skillDelay) &&
+    options.skillDelay >= 0
+  ) {
+    out.skillDelay = options.skillDelay;
+  }
+
+  // skillWait: boolean
+  if (typeof options.skillWait === "boolean") {
+    out.skillWait = options.skillWait;
+  }
+
+  // skillAction: must be function or null
+  if (options.skillAction === null) {
+    out.skillAction = null;
+  } else if (typeof options.skillAction === "function") {
+    out.skillAction = options.skillAction as () => () => Promise<void>;
+  }
+
+  // signal: pass through only if it resembles an AbortSignal
+  if (
+    options.signal &&
+    typeof (options.signal as AbortSignal).aborted === "boolean"
+  ) {
+    out.signal = options.signal;
+  }
+
+  return out;
+}
+
 /**
  * A `monsterResolvable` is either a monster name or monMapID prefixed with `id` and delimited by a `'`, `.`, `:`, `-` character.
  */
@@ -163,14 +220,7 @@ export class Combat {
   ): Promise<void> {
     if (!this.bot.player.isReady()) return;
 
-    const opts: KillOptions = {
-      killPriority: options.killPriority ?? DEFAULT_KILL_OPTIONS.killPriority,
-      skillSet: options.skillSet ?? DEFAULT_KILL_OPTIONS.skillSet,
-      skillDelay: options.skillDelay ?? DEFAULT_KILL_OPTIONS.skillDelay,
-      skillWait: options.skillWait ?? DEFAULT_KILL_OPTIONS.skillWait,
-      skillAction: options.skillAction ?? DEFAULT_KILL_OPTIONS.skillAction,
-      ...(options.signal && { signal: options.signal }),
-    };
+    const opts: KillOptions = validateKillOptions(options);
     const {
       killPriority,
       skillSet,
@@ -353,21 +403,14 @@ export class Combat {
     isTemp = false,
     options: Partial<KillOptions> = {},
   ): Promise<void> {
-    const opts: KillOptions = {
-      killPriority: options.killPriority ?? DEFAULT_KILL_OPTIONS.killPriority,
-      skillSet: options.skillSet ?? DEFAULT_KILL_OPTIONS.skillSet,
-      skillDelay: options.skillDelay ?? DEFAULT_KILL_OPTIONS.skillDelay,
-      skillWait: options.skillWait ?? DEFAULT_KILL_OPTIONS.skillWait,
-      skillAction: options.skillAction ?? DEFAULT_KILL_OPTIONS.skillAction,
-      ...(options.signal && { signal: options.signal }),
-    };
+    const opts: KillOptions = validateKillOptions(options);
     const store = isTemp ? this.bot.tempInventory : this.bot.inventory;
 
     const hasRequiredItems = () => store.contains(item, quantity);
 
     if (hasRequiredItems()) return;
 
-    while (!hasRequiredItems() && window.context.isRunning()) {
+    while (!hasRequiredItems()) {
       await this.kill(monsterResolvable, opts);
 
       if (!isTemp) {
