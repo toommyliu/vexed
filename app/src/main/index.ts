@@ -1,18 +1,18 @@
 import "./tray";
-import "./updater";
 
 import { join } from "path";
 import process from "process";
 import Config from "@vexed/config";
 import { registerIpcMain } from "@vexed/tipc/main";
-import { app } from "electron";
+import { app, shell } from "electron";
 import { BRAND, DOCUMENTS_PATH } from "../shared/constants";
 import type { Settings } from "../shared/types";
 import { ASSET_PATH } from "./constants";
 import { router } from "./tipc";
+import { checkForUpdates } from "./updater";
+import { createNotification } from "./util/notification";
 import { showErrorDialog } from "./util/showErrorDialog";
 import { createAccountManager, createGame, setQuitting } from "./windows";
-import { checkForUpdates } from "./updater";
 
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 
@@ -62,8 +62,12 @@ async function handleAppLaunch(argv: string[] = process.argv) {
     if (settings?.get("checkForUpdates") === true) {
       const hasUpdate = await checkForUpdates(true);
       if (hasUpdate) {
-        showErrorDialog({
-          message: "new version available",
+        const notif = createNotification(
+          "Update available",
+          `Version ${hasUpdate.newVersion} is available. Click to view.`,
+        );
+        notif.once("click", async () => {
+          await shell.openExternal(hasUpdate.releaseUrl);
         });
       }
     }

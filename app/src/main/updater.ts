@@ -11,6 +11,7 @@ const lastUpdateCheckFile = join(
 );
 const eTagFile = join(app.getPath("userData"), "etag.txt");
 
+const CHECK_INTERVAL = 24 * 60 * 60 * 1_000; // 24 hours
 const API_URL = "https://api.github.com/repos/toommyliu/vexed/releases/latest";
 const currentVersion = app.getVersion();
 
@@ -47,35 +48,19 @@ async function writeETag(eTag: string): Promise<void> {
   } catch {}
 }
 
-/**
- * @param force - Whether to force the update check, bypassing the 24-hour cooldown.
- * @returns True if a newer version is available, false otherwise.
- */
 export async function checkForUpdates(
   force: boolean = false,
-): Promise<boolean> {
-  // if (!app.isPackaged || process.env["NODE_ENV"] === "development") {
-  //   console.warn("Skipping update check (not packaged or in development)...");
-  //   return false;
-  // }
+): Promise<UpdateResult | null> {
+  if (!app.isPackaged || process.env["NODE_ENV"] === "development") return null;
 
   const lastCheck = (await readLastUpdateCheck()) ?? 0;
   const now = Date.now();
-  const oneDay = 24 * 60 * 60 * 1_000;
 
-  if (!force && now - lastCheck < oneDay) {
-    console.log("Skipping update check (checked within the last 24 hours)");
-    return false;
-  }
-
-  if (force) {
-    console.log("Force update check requested - bypassing cooldown");
-  }
+  if (!force && now - lastCheck < CHECK_INTERVAL) return null;
 
   await writeLastUpdateCheck(now);
 
   const prevETag = await readETag();
-  console.log(`prevETag = ${prevETag}`);
 
   const resp = await fetch(API_URL)
     .then(async (res) => {
@@ -94,12 +79,27 @@ export async function checkForUpdates(
     .catch(() => null);
 
   if (!resp) {
-    return false;
+    return null;
   }
 
-  return semver.gt(resp.tag_name, currentVersion);
+  if (semver.gt(resp.tag_name, currentVersion)) {
+    return {
+      newVersion: resp.tag_name,
+      currentVersion,
+      releaseUrl: resp.html_url,
+    };
+  }
+
+  return null;
 }
 
 type GithubRelease = {
-  tag_name: string;
+  html_url: string;
+  tag_name: string; // url to view the corresponding release page
+};
+
+type UpdateResult = {
+  currentVersion: string;
+  newVersion: string;
+  releaseUrl: string;
 };
