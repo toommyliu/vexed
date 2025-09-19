@@ -5,7 +5,7 @@ import process from "process";
 import Config from "@vexed/config";
 import { registerIpcMain } from "@vexed/tipc/main";
 import { app, shell } from "electron";
-import { BRAND, DOCUMENTS_PATH } from "../shared/constants";
+import { BRAND, DEFAULT_SETTINGS, DOCUMENTS_PATH } from "../shared/constants";
 import type { Settings } from "../shared/types";
 import { ASSET_PATH } from "./constants";
 import { router } from "./tipc";
@@ -56,6 +56,7 @@ async function handleAppLaunch(argv: string[] = process.argv) {
     const settings = new Config<Settings>({
       configName: "settings",
       cwd: DOCUMENTS_PATH,
+      defaults: DEFAULT_SETTINGS,
     });
     await settings.load();
 
