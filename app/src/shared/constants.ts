@@ -14,6 +14,7 @@ export const STORAGE_PATH = join(DOCUMENTS_PATH, "storage");
 export const DEFAULT_SETTINGS: Settings = {
   launchMode: "game",
   debug: false,
+  checkForUpdates: false,
 } as const;
 
 export const DEFAULT_SKILLSETS = {
