@@ -73,7 +73,11 @@ async function handleAppLaunch(argv: string[] = process.argv) {
       }
     }
 
-    const launchMode = settings.get("launchMode", "game")?.toLowerCase();
+    let launchMode = settings.get("launchMode", "game")?.toLowerCase();
+    if (launchMode !== "manager" && launchMode !== "game") {
+      launchMode = "game";
+    }
+
     if (
       launchMode === "manager" ||
       argv.some((arg) => arg === "--manager" || arg === "-m")
