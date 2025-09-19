@@ -16,7 +16,7 @@ export class CommandKillFor extends Command {
     const ac = new AbortController();
     const signal = ac.signal;
 
-    const finalOpts = { ...this.options, signal };
+    const finalOpts = { signal, ...this.options };
 
     this.ctx.once("end", () => ac.abort());
 

@@ -12,7 +12,7 @@ export class CommandKill extends Command {
 
     this.ctx.once("end", () => ac.abort());
 
-    await this.bot.combat.kill(this.target, { ...this.options, signal });
+    await this.bot.combat.kill(this.target, { signal, ...this.options });
   }
 
   public override toString() {
