@@ -1,4 +1,5 @@
 import "./tray";
+import "./updater";
 
 import { join } from "path";
 import process from "process";
@@ -11,6 +12,7 @@ import { ASSET_PATH } from "./constants";
 import { router } from "./tipc";
 import { showErrorDialog } from "./util/showErrorDialog";
 import { createAccountManager, createGame, setQuitting } from "./windows";
+import { checkForUpdates } from "./updater";
 
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 
@@ -56,6 +58,15 @@ async function handleAppLaunch(argv: string[] = process.argv) {
       cwd: DOCUMENTS_PATH,
     });
     await settings.load();
+
+    if (settings?.get("checkForUpdates") === true) {
+      const hasUpdate = await checkForUpdates(true);
+      if (hasUpdate) {
+        showErrorDialog({
+          message: "new version available",
+        });
+      }
+    }
 
     if (
       settings.get("launchMode")?.toLowerCase() === "manager" ||

@@ -52,8 +52,9 @@ export type AccountWithScript = AccountWithServer & {
 };
 
 export type Settings = {
+  checkForUpdates: boolean;
   /**
-   * Whether debug logging is enabled.
+   * Whether debug logging is enabled (currently unused).
    */
   debug: boolean;
   /**

@@ -11,7 +11,6 @@ import { BRAND } from "../shared/constants";
 import { ASSET_PATH } from "./constants";
 import { showErrorDialog } from "./util/showErrorDialog";
 import { createAccountManager, createGame } from "./windows";
-
 // https://www.electronjs.org/docs/latest/faq#my-apps-tray-disappeared-after-a-few-minutes
 let tray: Tray | null = null;
 
