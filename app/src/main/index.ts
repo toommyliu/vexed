@@ -73,13 +73,14 @@ async function handleAppLaunch(argv: string[] = process.argv) {
       }
     }
 
+    const launchMode = settings.get("launchMode", "game")?.toLowerCase();
     if (
-      settings.get("launchMode")?.toLowerCase() === "manager" ||
+      launchMode === "manager" ||
       argv.some((arg) => arg === "--manager" || arg === "-m")
     ) {
       await createAccountManager();
     } else if (
-      settings.get("launchMode")?.toLowerCase() === "game" ||
+      launchMode === "game" ||
       argv.some((arg) => arg === "--game" || arg === "-g")
     ) {
       const account = {
