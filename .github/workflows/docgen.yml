@@ -20,23 +20,23 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Yarn
-        uses: threeal/setup-yarn-action@v2.0.0
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
         with:
-          version: classic
-          cache: false
+          version: latest
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '24.4.1'
+          cache: 'pnpm'
 
       - name: Install dependencies
-        run: yarn install
+        run: pnpm install
 
       - name: Generate documentation
         working-directory: ./app
-        run: yarn run docgen
+        run: pnpm run docgen
 
       - name: Commit and push documentation updates
         run: |
