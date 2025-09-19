@@ -32,12 +32,12 @@
   "dependencies": {
     "@lukeed/uuid": "^2.0.1",
     "@tybys/electron-ipc-handle-invoke": "^1.0.2",
-    "@vexed/config": "1.0.0",
-    "@vexed/fs-utils": "1.0.1",
-    "@vexed/logger": "1.0.0",
-    "@vexed/tipc": "0.4.0",
-    "@vexed/ui": "0.0.1",
-    "@vexed/utils": "1.0.0",
+    "@vexed/config": "workspace:*",
+    "@vexed/fs-utils": "workspace:*",
+    "@vexed/logger": "workspace:*",
+    "@vexed/tipc": "workspace:*",
+    "@vexed/ui": "workspace:*",
+    "@vexed/utils": "workspace:*",
     "async-mutex": "^0.5.0",
     "clsx": "^2.1.1",
     "core-js": "^3.42.0",
@@ -92,7 +92,7 @@
       "!scripts/**/*"
     ]
   },
-  "resolutions": {
+  "overrides": {
     "eslint-config-neon/@angular-eslint/eslint-plugin": "npm:@favware/skip-dependency@latest",
     "eslint-config-neon/@angular-eslint/eslint-plugin-template": "npm:@favware/skip-dependency@latest",
     "eslint-config-neon/@angular-eslint/template-parser": "npm:@favware/skip-dependency@latest",

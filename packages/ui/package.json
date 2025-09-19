@@ -3,9 +3,9 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "vite dev",
-    "build": "npx --package=vite vite build && npm run prepack",
+    "build": "vite build && npm run prepack",
     "preview": "vite preview",
-    "prepare": "svelte-kit sync && npx --package=vite vite build && npm run prepack",
+    "prepare": "svelte-kit sync && vite build && npm run prepack",
     "prepack": "svelte-kit sync && svelte-package",
     "check": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json --watch"

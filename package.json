@@ -1,9 +1,5 @@
 {
   "name": "vexed",
   "private": true,
-  "workspaces": [
-    "packages/*",
-    "app"
-  ],
-  "packageManager": "yarn@1.22.22"
+  "packageManager": "pnpm@10.17.0"
 }
