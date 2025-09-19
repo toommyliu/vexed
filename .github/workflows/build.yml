@@ -14,23 +14,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Yarn
-        uses: threeal/setup-yarn-action@v2.0.0
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
         with:
-          version: classic
-          cache: false
+          version: latest
 
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '24.4.1'
-          cache: 'yarn'
+          cache: 'pnpm'
 
       - name: Install dependencies
-        run: yarn install
+        run: pnpm install
 
       - name: Build electron app
-        run: cd app && yarn run build:all
+        run: cd app && pnpm run build:all
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
