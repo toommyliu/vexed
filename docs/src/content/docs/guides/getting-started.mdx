@@ -5,7 +5,7 @@ head:
     content: Getting started guide
 ---
 
-import { Aside } from "@astrojs/starlight/components";
+import { Aside } from '@astrojs/starlight/components';
 
 ## Downloading
 
@@ -41,6 +41,7 @@ Microsoft Defender SmartScreen will stop the app from running when you first try
 
 ## Updates
 
-All future updates must be downloaded manually.
+All future updates must be downloaded and installed manually.
 
-We may serve notifications for available updates in the future. See [#47](https://github.com/toommyliu/vexed/issues/47).
+Updates are performed daily if `checkForUpdates` is set to `true` in `settings.json`. If an update is found,
+a notification will be shown. Click the notification to view the release page.
