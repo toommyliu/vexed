@@ -470,6 +470,8 @@ export class Context extends TypedEmitter<Events> {
         //   await this.bot.sleep(this._commandDelay);
         // }
 
+        // TODO: this will sometimes seem to "skip" commands when delay is 0
+        // and skipDelay is true
         if (!command.skipDelay) {
           await this.bot.sleep(this._commandDelay);
         }

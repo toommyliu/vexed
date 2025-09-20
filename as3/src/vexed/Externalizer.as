@@ -200,7 +200,6 @@ package vexed {
       externalize("worldLoadSwf", World.loadSwf);
       externalize("worldGetMapItem", World.getMapItem);
       externalize("worldSetSpawnPoint", World.setSpawnPoint);
-      externalize("worldGetPlayerAuras", World.getPlayerAuras);
 
       externalize("isTextFieldFocused", function():Boolean {
           var game:* = Main.getInstance().getGame();

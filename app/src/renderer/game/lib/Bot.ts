@@ -20,6 +20,7 @@ import { AutoReloginJob } from "./jobs/autorelogin";
 import { BoostsJob } from "./jobs/boosts";
 import { DropsJob } from "./jobs/drops";
 import { QuestsJob } from "./jobs/quests";
+import type { Aura } from "./models/BaseEntity";
 import type { Monster } from "./models/Monster";
 import { Flash } from "./util/Flash";
 
@@ -28,6 +29,8 @@ type Events = {
    * This event is emitted when the player goes AFK.
    */
   afk(): void;
+  auraAdd(monster: Monster, aura: Aura): void;
+  auraRemove(monster: Monster, auraName: string): void;
   /**
    * This event is emitted when the player logs in.
    */
@@ -36,6 +39,12 @@ type Events = {
    * This event is emitted when the player logs out.
    */
   logout(): void;
+  /**
+   * This event is emitted when the map has changed.
+   *
+   * @param mapName - The name of the new map.
+   */
+  mapChanged(mapName: string): void;
   /**
    * This event is emitted when a monster has died.
    *
@@ -204,6 +213,11 @@ export class Bot extends TypedEmitter<Events> {
     this.scheduler.addJob(new DropsJob(this));
     this.scheduler.addJob(new BoostsJob(this));
     this.scheduler.addJob(new AutoReloginJob(this));
+
+    this.on("logout", () => {
+      console.log("clearing player UIDs on logout");
+      this.world.playerUids.clear();
+    });
   }
 
   /**

@@ -1,0 +1,128 @@
+---
+title: AuraStore
+---
+
+import { Badge, Code } from "@astrojs/starlight/components";
+
+## Properties
+### monsterAuras <Badge text="Getter" size="small" />	
+
+Type: `Map<string, StoredAura`[]>`
+
+### playerAuras <Badge text="Getter" size="small" />	
+
+Type: `Map<string, StoredAura`[]>`
+
+## Methods
+
+### addMonsterAura <Badge text="static" />
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| monMapId | `string` |  |
+| aura | [`Aura`](/api-legacy/typedefs/aura) |  |
+
+**Returns**: `void`
+
+### addPlayerAura <Badge text="static" />
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| playerName | `string` |  |
+| aura | [`Aura`](/api-legacy/typedefs/aura) |  |
+
+**Returns**: `void`
+
+### clear <Badge text="static" />
+
+**Returns**: `void`
+
+### clearMonsterAuras <Badge text="static" />
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| monMapId | `string` |  |
+
+**Returns**: `void`
+
+### clearPlayerAuras <Badge text="static" />
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| playerName | `string` |  |
+
+**Returns**: `void`
+
+### getMonsterAura <Badge text="static" />
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| monMapId | `string` |  |
+| auraName | `string` |  |
+
+**Returns**: `undefined` \| `StoredAura`
+
+### getMonsterAuras <Badge text="static" />
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| monMapId | `string` |  |
+
+**Returns**: `StoredAura`[]
+
+### getPlayerAura <Badge text="static" />
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| playerName | `string` |  |
+| auraName | `string` |  |
+
+**Returns**: `undefined` \| `StoredAura`
+
+### getPlayerAuras <Badge text="static" />
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| playerName | `string` |  |
+
+**Returns**: `StoredAura`[]
+
+### hasMonsterAura <Badge text="static" />
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| monMapId | `string` |  |
+| auraName | `string` |  |
+
+**Returns**: `boolean`
+
+### hasPlayerAura <Badge text="static" />
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| playerName | `string` |  |
+| auraName | `string` |  |
+
+**Returns**: `boolean`
+
+### refreshMonsterAura <Badge text="static" />
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| monMapId | `string` |  |
+| aura | [`Aura`](/api-legacy/typedefs/aura) |  |
+
+**Returns**: `void`
+
+### refreshPlayerAura <Badge text="static" />
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| playerName | `string` |  |
+| aura | [`Aura`](/api-legacy/typedefs/aura) |  |
+
+**Returns**: `void`
+
+### removeMonsterAura <Badge text="static" />
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| monMapId | `string` |  |
+| auraName | `string` |  |
+
+**Returns**: `void`
+
+### removePlayerAura <Badge text="static" />
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| playerName | `string` |  |
+| auraName | `string` |  |
+
+**Returns**: `void`

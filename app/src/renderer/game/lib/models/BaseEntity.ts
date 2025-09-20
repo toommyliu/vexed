@@ -1,3 +1,4 @@
+import { AuraStore } from "@lib/util/AuraStore";
 import type { Avatar } from "./Avatar";
 import type { Monster } from "./Monster";
 
@@ -41,13 +42,6 @@ export abstract class BaseEntity {
    */
   public get state(): (typeof EntityState)[keyof typeof EntityState] {
     return this.data.intState as (typeof EntityState)[keyof typeof EntityState];
-  }
-
-  /**
-   * The entity's auras.
-   */
-  public get auras(): Aura[] {
-    return this.data.auras ?? [];
   }
 
   /**
@@ -98,15 +92,37 @@ export abstract class BaseEntity {
   }
 
   /**
+   * The entity's auras.
+   */
+  public get auras(): Aura[] {
+    if (this.isPlayer()) {
+      return AuraStore.getPlayerAuras((this as Avatar).data.strUsername);
+    } else if (this.isMonster()) {
+      return AuraStore.getMonsterAuras(
+        (this as Monster).data.MonMapID.toString(),
+      );
+    }
+
+    return [];
+  }
+
+  /**
    * Retrieves an aura active on the entity.
    *
    * @param name - The aura name.
    * @returns The aura with the specified name, or undefined if the entity does not have the aura.
    */
-  public getAura(name: string) {
-    return this.auras?.find(
-      (aura) => aura.name.toLowerCase() === name.toLowerCase(),
-    );
+  public getAura(name: string): Aura | undefined {
+    if (this.isPlayer()) {
+      return AuraStore.getPlayerAura((this as Avatar).data.strUsername, name);
+    } else if (this.isMonster()) {
+      return AuraStore.getMonsterAura(
+        (this as Monster).data.MonMapID.toString(),
+        name,
+      );
+    }
+
+    return undefined;
   }
 
   /**
@@ -118,10 +134,14 @@ export abstract class BaseEntity {
    * @returns True if the entity has the specified aura, false otherwise. If a value is provided,
    * it will check if the aura has the specified value.
    */
-  public hasAura(name: string, value?: number) {
+  public hasAura(name: string, value?: number): boolean {
     const aura = this.getAura(name);
     if (!aura) return false;
-    if (typeof value === "number") return aura.value === value;
+
+    if (value !== undefined) {
+      return aura?.value === value;
+    }
+
     return true;
   }
 
@@ -182,7 +202,6 @@ export abstract class BaseEntity {
 }
 
 export type BaseEntityData = {
-  auras: Aura[];
   intHP: number;
   intHPMax: number;
   intState: number;
@@ -190,6 +209,12 @@ export type BaseEntityData = {
 };
 
 export type Aura = {
+  duration?: number;
+  isNew?: boolean;
   name: string;
-  value: number;
+  /*
+    aura might exist but not have a value.
+    some auras might have string value (ultraezrajal Counter Attack)
+  */
+  value?: number;
 };
