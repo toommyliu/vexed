@@ -706,8 +706,8 @@ export const miscCommands = {
    * cmd.is_player_number(1)
    * cmd.do_simple_looptaunt("Lava Golem", 1, 2)
    * cmd.is_player_number(2)
-   * cmd.do_simple_looptaunt("Lava Golem", 2, 2)
-   * cmd.kill("Lava Golem")
+   * cmd.do_simple_looptaunt("Darkon the Conductor", 2, 2)
+   * cmd.kill("Darkon the Conductor")
    * ```
    * @param target - The name or monMapId of the target(s). If multiple, separate by comma.
    * @param playerIndex - The index at which the player will taunt, 1-based.
