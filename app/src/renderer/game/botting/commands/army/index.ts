@@ -234,6 +234,7 @@ export const armyCommands = {
   /**
    * Splits the army into multiple cells, allowing for more efficient farming.
    *
+   * @deprecated This command is deprecated and will be removed in a future release.
    * @param cells - The list of cells to divide the army on.
    * @param priorityCell - Optional fallback cell for players when there are more army players than available cells, or when the cells array is empty. Acts as an overflow destination.
    */
