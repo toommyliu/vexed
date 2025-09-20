@@ -66,6 +66,11 @@ const generateCommandsApiDoc = async () => {
                 "@remarks",
               );
 
+              const deprecatedCode = makeBlockTag(
+                child?.signatures?.[0]?.comment?.blockTags ?? [],
+                "@deprecated",
+              );
+
               // if (exampleCode) {
               //   logger.info(
               //     `Found example for ${namespaceName}.${funcName}: ${exampleCode}`,
@@ -100,6 +105,7 @@ const generateCommandsApiDoc = async () => {
                 isStatic: false,
                 example: exampleCode,
                 remark: remarkCode,
+                deprecated: deprecatedCode || undefined,
               };
               namespaceMethods.push(method);
             }
@@ -132,6 +138,13 @@ const generateCommandsApiDoc = async () => {
 
           for (const method of namespaceMethods) {
             mdxFileContent.push(`### cmd.${method.name}`);
+
+            if (method.deprecated) {
+              mdxFileContent.push(`:::caution[Deprecated]`);
+              mdxFileContent.push(method.deprecated);
+              mdxFileContent.push(`:::`);
+              mdxFileContent.push("");
+            }
 
             if (method.description) {
               mdxFileContent.push(method.description);
@@ -1302,6 +1315,10 @@ type Method = {
    * Remarks for the method.
    */
   remark?: string;
+  /**
+   * Deprecation message for the method.
+   */
+  deprecated?: string;
   /**
    * Whether the method is static.
    */
