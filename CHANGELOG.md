@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+# [0.3.1](https://github.com/toommyliu/vexed/compare/0.3.0...0.3.1) - (2025-09-20)
+
+## Bug Fixes
+
+- Update asset path base (#249) ([4e28564](https://github.com/toommyliu/vexed/commit/4e28564d1a3ea4da4f89fc40bfc89694946f570f))
+- Make dev environment work on Windows (#244) ([3424e4b](https://github.com/toommyliu/vexed/commit/3424e4b54041f7f8cee6b6acfe8d487e8e711886))
+- **app:** Target fs-utils@1.0.1 ([0c03101](https://github.com/toommyliu/vexed/commit/0c0310157e947c835941e63bcfe9b73d802007a3))
+- **package/fs-util:** Target fs-extra to 11.3.1 ([364805c](https://github.com/toommyliu/vexed/commit/364805c0f28d8abcdecca987109d6c69e03005b0))
+- Include DEFAULT_SETTINGS in Config (#243) ([129f3c1](https://github.com/toommyliu/vexed/commit/129f3c1e3c073cb4ab5d9ec1d6c04b25c205ce9c))
+- Stop kill-cmd operations when commands stop (#240) ([8aabbf6](https://github.com/toommyliu/vexed/commit/8aabbf6b7180b288d6097019ab2cf0f065a588e4))
+- Apply virtualization to CommandOverlay (#238) ([97f7cc7](https://github.com/toommyliu/vexed/commit/97f7cc73ee755f9fbb7bcca451980b594e11f97e))
+- Ensure command overlay stays within viewport and update max height constraint (#237) ([0039d8f](https://github.com/toommyliu/vexed/commit/0039d8f52fbd25b50c15c3aba4b00b5b251928d7))
+- Auto-scroll to current command (#236) ([cd9707e](https://github.com/toommyliu/vexed/commit/cd9707e2392e75907ffbe358d8ebad412aaeb38e))
+
+## Features
+
+- Update checker (#239) ([f43827c](https://github.com/toommyliu/vexed/commit/f43827c506eaee40ed472f08361f758a1c42612e))
+
+## Refactor
+
+- Deprecate cmd.army_divide_on_cells (#246) ([f4d03a2](https://github.com/toommyliu/vexed/commit/f4d03a29b985f71a6e1b941977120a135adc96a0))
+
 # [0.3.0](https://github.com/toommyliu/vexed/compare/0.2.2...0.3.0) - (2025-09-17)
 
 ## Bug Fixes
