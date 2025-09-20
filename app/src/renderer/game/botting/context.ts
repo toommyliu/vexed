@@ -45,6 +45,8 @@ export class Context extends TypedEmitter<Events> {
     (packet: string) => Promise<void> | void
   > = new Map();
 
+  private readonly _tasks = new Map<string, () => Promise<void>>();
+
   private _commands: Command[];
 
   private _commandDelay: number;
@@ -212,6 +214,35 @@ export class Context extends TypedEmitter<Events> {
         }
       } catch {}
     });
+  }
+
+  /**
+   * Registers a task to be run.
+   *
+   * @param name - The name of the task
+   * @param task - The task function
+   */
+  public registerTask(name: string, task: () => Promise<void>) {
+    this._tasks.set(name, task);
+  }
+
+  /**
+   * Unregisters a task.
+   *
+   * @param name - The name of the task
+   */
+  public unregisterTask(name: string) {
+    this._tasks.delete(name);
+  }
+
+  /**
+   * Checks if a task is registered.
+   *
+   * @param name - The name of the task
+   * @returns True if the task is registered, false otherwise
+   */
+  public hasTask(name: string) {
+    return this._tasks.has(name);
   }
 
   /**

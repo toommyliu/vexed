@@ -849,7 +849,7 @@ function makeBlockTag(
           content
             .replace(/```[a-zA-Z]*\n?/g, "")
             .replace(/```\n?/g, "")
-            .trim()
+            .replace(/^\n+|\n+$/g, "")
         );
       }
       return acc + content.trim();
