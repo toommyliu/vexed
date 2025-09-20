@@ -1,5 +1,9 @@
-import { join } from "path";
+import { join, dirname } from "path";
+import process from "process";
 import { app } from "electron";
+
+export const IS_WINDOWS = process.platform === "win32";
+export const IS_MAC = process.platform === "darwin";
 
 export const IS_PACKAGED = app.isPackaged;
 
