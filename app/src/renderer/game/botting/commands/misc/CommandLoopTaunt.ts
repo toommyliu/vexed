@@ -14,10 +14,10 @@ const logWithTimestamp = (...args: any[]) => {
 
 export class CommandLoopTaunt extends Command {
   // index of this participant, 1-based
-  public participantIndex!: number;
+  public playerIndex!: number;
 
   // total number of participants
-  public maxParticipants!: number;
+  public maxPlayers!: number;
 
   // name of the target monster to taunt
   public target!: string;
@@ -31,6 +31,10 @@ export class CommandLoopTaunt extends Command {
   private stopFn: (() => void) | undefined;
 
   public override async execute() {
+    if (!this.isScrollEquipped()) {
+      await this.bot.inventory.equip("Scroll of Enrage");
+    }
+
     const ref = this.onPacketFromServer.bind(this);
 
     void interval(async (_, stop) => {
@@ -47,7 +51,7 @@ export class CommandLoopTaunt extends Command {
 
       // Since loop taunting is only used in armying scenarios, we can
       // simply wait for all to be in combat for reliability.
-      if (combatCount >= this.maxParticipants) {
+      if (combatCount >= this.maxPlayers) {
         // console.log("start listening");
         this.startListening = true;
 
@@ -57,8 +61,8 @@ export class CommandLoopTaunt extends Command {
 
           if (
             this.focusCountThisTick === 0 /* no one has taunted recently */ &&
-            this.tauntCount % this.maxParticipants ===
-              this.participantIndex - 1 /* our turn to taunt */ &&
+            this.tauntCount % this.maxPlayers ===
+              this.playerIndex - 1 /* our turn to taunt */ &&
             this.bot.combat?.target?.isMonster() &&
             this.bot.combat?.target?.data?.strMonName.toLowerCase() ===
               this.target.toLowerCase() /* target matches */
@@ -79,7 +83,7 @@ export class CommandLoopTaunt extends Command {
   }
 
   public override toString() {
-    return `Loop Taunt [t${this.participantIndex}/t${this.maxParticipants}]`;
+    return `Loop Taunt [t${this.playerIndex}/t${this.maxPlayers}]`;
   }
 
   private onPacketFromServer(packet: string) {
@@ -144,22 +148,22 @@ export class CommandLoopTaunt extends Command {
     logWithTimestamp("TAUNT");
   }
 
-  // private isScrollEquipped() {
-  //   const skills = this.bot.flash.get<
-  //     {
-  //       id: number;
-  //       sArg1: string;
-  //       sArg2: string;
-  //     }[]
-  //   >("world.actions.active", true);
-  //   if (Array.isArray(skills) && skills.length === 6) {
-  //     const potion = skills[skills.length - 1];
-  //     // id and sArg1 are probably sufficient matches
-  //     return (
-  //       potion?.id === id && potion?.sArg1 === sArg1 && potion?.sArg2 === sArg2
-  //     );
-  //   }
+  private isScrollEquipped() {
+    const skills = this.bot.flash.get<
+      {
+        id: number;
+        sArg1: string;
+        sArg2: string;
+      }[]
+    >("world.actions.active", true);
+    if (Array.isArray(skills) && skills.length === 6) {
+      const potion = skills[skills.length - 1];
+      // id and sArg1 are probably sufficient matches
+      return (
+        potion?.id === id && potion?.sArg1 === sArg1 && potion?.sArg2 === sArg2
+      );
+    }
 
-  //   return false;
-  // }
+    return false;
+  }
 }

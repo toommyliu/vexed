@@ -693,6 +693,26 @@ export const miscCommands = {
     cmd.name = name;
     window.context.addCommand(cmd);
   },
+  /**
+   * Performs loop taunt pattern on the specified target(s).
+   *
+   * @remarks Player 1 is t1, Player 2 is t2, etc. The taunt order will be t1 -> t2 -> t3... -> tN -> t1 -> t2...
+   *
+   * Note that Focus may sometimes get desynced between players.
+   *
+   * Loop taunting will begin once all players in the room are in combat.
+   * @example
+   * ```js
+   * cmd.is_player_number(1)
+   * cmd.do_simple_looptaunt("Lava Golem", 1, 2)
+   * cmd.is_player_number(2)
+   * cmd.do_simple_looptaunt("Lava Golem", 2, 2)
+   * cmd.kill("Lava Golem")
+   * ```
+   * @param target - The name or monMapId of the target(s). If multiple, separate by comma.
+   * @param playerIndex - The index at which the player will taunt, 1-based.
+   * @param maxPlayers - The total number of players that will be taunting.
+   */
   do_simple_looptaunt(
     target: string,
     participantIndex: number,
@@ -702,18 +722,18 @@ export const miscCommands = {
       throw new ArgsError("target is required");
     }
 
-    if (typeof participantIndex !== "number" || participantIndex < 0) {
-      throw new ArgsError("participantIndex is required");
+    if (typeof playerIndex !== "number" || playerIndex < 0) {
+      throw new ArgsError("playerIndex is required");
     }
 
-    if (typeof maxParticipants !== "number" || maxParticipants <= 0) {
-      throw new ArgsError("maxParticipants is required");
+    if (typeof maxPlayers !== "number" || maxPlayers <= 0) {
+      throw new ArgsError("maxPlayers is required");
     }
 
     const cmd = new CommandLoopTaunt();
     cmd.target = target;
-    cmd.participantIndex = Math.trunc(participantIndex);
-    cmd.maxParticipants = Math.trunc(maxParticipants);
+    cmd.playerIndex = Math.trunc(playerIndex);
+    cmd.maxPlayers = Math.trunc(maxPlayers);
     window.context.addCommand(cmd);
   },
 };

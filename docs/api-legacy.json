@@ -167,6 +167,10 @@
     "label": "Util",
     "items": [
       {
+        "label": "AuraStore",
+        "link": "/api-legacy/util/aurastore"
+      },
+      {
         "label": "Flash",
         "link": "/api-legacy/util/flash"
       }
