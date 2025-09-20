@@ -87,11 +87,27 @@ Disables the "Skip cutscenes" setting.
 
 
 ### cmd.do_simple_looptaunt
+Performs loop taunt pattern on the specified target(s).
+
+:::note[Remarks]
+Player 1 is t1, Player 2 is t2, etc. The taunt order will be t1 -> t2 -> t3... -> tN -> t1 -> t2...
+
+Note that Focus may sometimes get desynced between players.
+
+Loop taunting will begin once all players in the room are in combat.
+:::
+
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| target | `string` |  |
-| participantIndex | `number` |  |
-| maxParticipants | `number` |  |
+| target | `string` | The name or monMapId of the target(s). If multiple, separate by comma. |
+| playerIndex | `number` | The index at which the player will taunt, 1-based. |
+| maxPlayers | `number` | The total number of players that will be taunting. |
+
+<Code code={`cmd.is_player_number(1)
+cmd.do_simple_looptaunt("Lava Golem", 1, 2)
+cmd.is_player_number(2)
+cmd.do_simple_looptaunt("Lava Golem", 2, 2)
+cmd.kill("Lava Golem")`} lang="js" />
 
 
 ### cmd.enable_anticounter

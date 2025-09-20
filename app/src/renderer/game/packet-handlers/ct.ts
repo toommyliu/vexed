@@ -3,9 +3,9 @@ import type { Aura } from "@lib/models/BaseEntity";
 import { Monster } from "@lib/models/Monster";
 import { AuraStore } from "@lib/util/AuraStore";
 
-const log = (msg: string) => {
-  console.log(`[${new Date().toLocaleTimeString()}] ${msg}`);
-};
+// const log = (msg: string) => {
+//   console.log(`[${new Date().toLocaleTimeString()}] ${msg}`);
+// };
 
 export function ct(bot: Bot, packet: CtPacket) {
   if (Array.isArray(packet?.anims)) {
@@ -122,7 +122,7 @@ export function ct(bot: Bot, packet: CtPacket) {
           // console.log("aura- cmd: subauras", aura?.aura);
           if (aura?.aura?.nam) {
             // console.log(`${username} lost aura:`, aura?.aura?.nam);
-            AuraStore.removePlayerAura(username, normalize(aura?.aura?.nam));
+            AuraStore.removePlayerAura(username, aura?.aura?.nam);
           }
         }
       }

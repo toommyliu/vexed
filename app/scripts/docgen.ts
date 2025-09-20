@@ -852,9 +852,11 @@ function makeBlockTag(
             .replace(/^\n+|\n+$/g, "")
         );
       }
-      return acc + content.trim();
+
+      // For remarks and other tags, preserve internal newlines but trim leading/trailing whitespace
+      return acc + content.replace(/^\s+|\s+$/g, "");
     }
-    return "";
+    return acc;
   }, "");
 }
 
