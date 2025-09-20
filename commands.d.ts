@@ -335,6 +335,8 @@ If results are ambiguous, the first matching item will be used. Use itemType to 
   logout(): void;
   register_command(name: string, cmdFactory: (CommandClass: CommandConstructor) => Command): void;
   register_handler(type: "packetFromClient" | "packetFromServer" | "pext", name: string, handler: ((packet: Record<string, unknown>) => void | Promise<void>) | ((packet: string) => void | Promise<void>)): void;
+  /** Registers a task (a.k.a background job) to be executed alongside commands. */
+  register_task(name: string, taskFn: () => Promise<void>): void;
   /** Sets the delay between commands. */
   set_delay(delay: number): void;
   /** Sets the target FPS for the game. */
@@ -349,6 +351,8 @@ If results are ambiguous, the first matching item will be used. Use itemType to 
   stop_bot(): void;
   unregister_command(name: string): void;
   unregister_handler(type: "packetFromClient" | "packetFromServer" | "pext", name: string): void;
+  /** Unregisters a previously registered task. */
+  unregister_task(name: string): void;
   /** Sets the credentials to use for Auto Relogin.
 After a login attempt, the client stores the username and password used to log in, regardless if successful. These fields are re-used
 when null(s) are passed. */

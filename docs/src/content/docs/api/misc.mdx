@@ -181,6 +181,26 @@ Logs out of the game.
 | handler | `((packet: Record<string, unknown>) => void` \| `Promise<void>)` \| `((packet: string) => void` \| `Promise<void>)` |  |
 
 
+### cmd.register_task
+Registers a task (a.k.a background job) to be executed alongside commands.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| name | `string` | The name of the task. |
+| taskFn | `() => Promise<void>` | The async function to run as the task. |
+
+<Code code={`cmd.register_task('walkToPoint', function () {
+  let intervalId = setInterval(() => {
+    if (!this.ctx.isRunning()) {
+      clearInterval(intervalId)
+      return
+    }
+    if (this.bot.world.name !== 'ultraspeaker') return
+    this.bot.player.walkTo(28, 235) // top left
+  }, 100)
+})`} lang="js" />
+
+
 ### cmd.set_delay
 Sets the delay between commands.
 
@@ -236,6 +256,14 @@ Stops the bot.
 |-----------|------|-------------|
 | type | `"packetFromClient"` \| `"packetFromServer"` \| `"pext"` |  |
 | name | `string` |  |
+
+
+### cmd.unregister_task
+Unregisters a previously registered task.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| name | `string` | The name of the task to unregister. |
 
 
 ### cmd.use_autorelogin

@@ -1,7 +1,9 @@
 import { Context } from "@/renderer/game/botting/context";
+import { Bot } from "@/renderer/game/lib/Bot";
 import { ArgsError } from "@botting/ArgsError";
 import { Command } from "@botting/command";
 import { CommandRegistry } from "@botting/command-registry";
+import { CommandAutoRelogin } from "./CommandAutoRelogin";
 import { CommandAutoZoneAstralShrine } from "./CommandAutoZoneAstralShrine";
 import { CommandAutoZoneDarkCarnax } from "./CommandAutoZoneDarkCarnax";
 import { CommandAutoZoneLedgermayne } from "./CommandAutoZoneLedgermayne";
@@ -21,6 +23,7 @@ import { CommandHouse } from "./CommandHouse";
 import { CommandLabel } from "./CommandLabel";
 import { CommandLog } from "./CommandLog";
 import { CommandLogout } from "./CommandLogout";
+import { CommandRegisterTask } from "./CommandRegisterTask";
 import { CommandSetDelay } from "./CommandSetDelay";
 import { CommandSetFPS } from "./CommandSetFPS";
 import { CommandSetGuild } from "./CommandSetGuild";
@@ -35,9 +38,9 @@ import { CommandSettingLagKiller } from "./CommandSettingLagKiller";
 import { CommandSettingProvokeCell } from "./CommandSettingProvokeCell";
 import { CommandSettingSkipCutscenes } from "./CommandSettingSkipCutscenes";
 import { CommandStopBot } from "./CommandStopBot";
+import { CommandUnregisterTask } from "./CommandUnregisterTask";
 import { CommandWaitForPlayerCount } from "./CommandWaitForPlayerCount";
 import { CommandWalkSpeed } from "./CommandWalkSpeed";
-import { CommandAutoRelogin } from "./CommandAutoRelogin";
 
 export const miscCommands = {
   /**
@@ -631,6 +634,62 @@ export const miscCommands = {
     if (password) cmd.password = password;
     if (server) cmd.server = server;
 
+    window.context.addCommand(cmd);
+  },
+  /**
+   * Registers a task (a.k.a background job) to be executed alongside commands.
+   *
+   * @example
+   * ```js
+   * cmd.register_task('walkToPoint', function () {
+   *   let intervalId = setInterval(() => {
+   *     if (!this.ctx.isRunning()) {
+   *       clearInterval(intervalId)
+   *       return
+   *     }
+   *     if (this.bot.world.name !== 'ultraspeaker') return
+   *     this.bot.player.walkTo(28, 235) // top left
+   *   }, 100)
+   * })
+   * ```
+   * @param name - The name of the task.
+   * @param taskFn - The async function to run as the task.
+   */
+  register_task(name: string, taskFn: () => Promise<void>) {
+    if (!name || typeof name !== "string") {
+      throw new ArgsError("name is required");
+    }
+
+    if (!taskFn || typeof taskFn !== "function") {
+      throw new ArgsError("taskFn is required");
+    }
+
+    if (window.context.hasTask(name)) {
+      throw new ArgsError(
+        `a task with the name '${name}' is already registered`,
+      );
+    }
+
+    const cmd = new CommandRegisterTask();
+    cmd.name = name;
+    cmd.taskFn = taskFn.bind({
+      bot: Bot.getInstance(),
+      ctx: window.context,
+    });
+    window.context.addCommand(cmd);
+  },
+  /**
+   * Unregisters a previously registered task.
+   *
+   * @param name - The name of the task to unregister.
+   */
+  unregister_task(name: string) {
+    if (!name || typeof name !== "string") {
+      throw new ArgsError("name is required");
+    }
+
+    const cmd = new CommandUnregisterTask();
+    cmd.name = name;
     window.context.addCommand(cmd);
   },
 };
