@@ -336,8 +336,10 @@ If results are ambiguous, the first matching item will be used. Use itemType to 
   /** Logs out of the game. */
   logout(): void;
   register_command(name: string, cmdFactory: (CommandClass: CommandConstructor) => Command): void;
+  /** Registers a packet handler. */
   register_handler(type: "packetFromClient" | "packetFromServer" | "pext", name: string, handler: ((packet: Record<string, unknown>) => void | Promise<void>) | ((packet: string) => void | Promise<void>)): void;
-  /** Registers a task (a.k.a background job) to be executed alongside commands. */
+  /** Registers a task (a.k.a background job) to be executed alongside commands.
+The task function is bound to an object containing the bot instance and the context instance. */
   register_task(name: string, taskFn: () => Promise<void>): void;
   /** Sets the delay between commands. */
   set_delay(delay: number): void;

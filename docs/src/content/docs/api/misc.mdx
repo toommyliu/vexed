@@ -106,8 +106,8 @@ Loop taunting will begin once all players in the room are in combat.
 <Code code={`cmd.is_player_number(1)
 cmd.do_simple_looptaunt("Lava Golem", 1, 2)
 cmd.is_player_number(2)
-cmd.do_simple_looptaunt("Lava Golem", 2, 2)
-cmd.kill("Lava Golem")`} lang="js" />
+cmd.do_simple_looptaunt("Darkon the Conductor", 2, 2)
+cmd.kill("Darkon the Conductor")`} lang="js" />
 
 
 ### cmd.enable_anticounter
@@ -198,15 +198,18 @@ Logs out of the game.
 
 
 ### cmd.register_handler
+Registers a packet handler.
+
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| type | `"packetFromClient"` \| `"packetFromServer"` \| `"pext"` |  |
-| name | `string` |  |
-| handler | `((packet: Record<string, unknown>) => void` \| `Promise<void>)` \| `((packet: string) => void` \| `Promise<void>)` |  |
+| type | `"packetFromClient"` \| `"packetFromServer"` \| `"pext"` | "packetFromClient" | "packetFromServer" | "pext" |
+| name | `string` | The name of the handler. |
+| handler | `((packet: Record<string, unknown>) => void` \| `Promise<void>)` \| `((packet: string) => void` \| `Promise<void>)` | The handler function. For "pext", the function receives a parsed object. For "packetFromClient" and "packetFromServer", the function receives a raw string. |
 
 
 ### cmd.register_task
 Registers a task (a.k.a background job) to be executed alongside commands.
+The task function is bound to an object containing the bot instance and the context instance.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
