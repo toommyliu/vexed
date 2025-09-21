@@ -713,11 +713,7 @@ export const miscCommands = {
    * @param playerIndex - The index at which the player will taunt, 1-based.
    * @param maxPlayers - The total number of players that will be taunting.
    */
-  do_simple_looptaunt(
-    target: string,
-    participantIndex: number,
-    maxParticipants: number,
-  ) {
+  do_simple_looptaunt(target: string, playerIndex: number, maxPlayers: number) {
     if (!target || typeof target !== "string") {
       throw new ArgsError("target is required");
     }
