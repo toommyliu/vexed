@@ -439,6 +439,13 @@ export const miscCommands = {
       delete window.cmd[_name];
     }
   },
+  /**
+   * Registers a packet handler.
+   *
+   * @param type - "packetFromClient" | "packetFromServer" | "pext"
+   * @param name - The name of the handler.
+   * @param handler - The handler function. For "pext", the function receives a parsed object. For "packetFromClient" and "packetFromServer", the function receives a raw string.
+   */
   register_handler(
     type: "packetFromClient" | "packetFromServer" | "pext",
     name: string,
@@ -639,6 +646,7 @@ export const miscCommands = {
   },
   /**
    * Registers a task (a.k.a background job) to be executed alongside commands.
+   * The task function is bound to an object containing the bot instance and the context instance.
    *
    * @example
    * ```js
