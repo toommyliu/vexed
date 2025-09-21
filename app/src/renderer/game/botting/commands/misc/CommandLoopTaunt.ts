@@ -54,26 +54,25 @@ export class CommandLoopTaunt extends Command {
       if (combatCount >= this.maxPlayers) {
         // console.log("start listening");
         this.startListening = true;
-
-        void interval(async (_, stop) => {
-          this.stopFn ??= stop;
-          if (!this.startListening || !this.bot.player.isReady()) return;
-
-          if (
-            this.focusCountThisTick === 0 /* no one has taunted recently */ &&
-            this.tauntCount % this.maxPlayers ===
-              this.playerIndex - 1 /* our turn to taunt */ &&
-            this.bot.combat?.target?.isMonster() &&
-            this.bot.combat?.target?.data?.strMonName.toLowerCase() ===
-              this.target.toLowerCase() /* target matches */
-          ) {
-            await this.doTaunt();
-          }
-        }, 1_000);
-
         stop();
       }
     }, 250);
+
+    void interval(async (_, stop) => {
+      this.stopFn ??= stop;
+      if (!this.startListening || !this.bot.player.isReady()) return;
+
+      if (
+        this.focusCountThisTick === 0 /* no one has taunted recently */ &&
+        this.tauntCount % this.maxPlayers ===
+          this.playerIndex - 1 /* our turn to taunt */ &&
+        this.bot.combat?.target?.isMonster() &&
+        this.bot.combat?.target?.data?.strMonName.toLowerCase() ===
+          this.target.toLowerCase() /* target matches */
+      ) {
+        await this.doTaunt();
+      }
+    }, 1_000);
 
     this.bot.on("packetFromServer", ref);
     this.ctx.on("end", () => {
