@@ -1,5 +1,6 @@
 import { interval } from "@vexed/utils";
 import { Command } from "@botting/command";
+import { isMonsterMapId, extractMonsterMapId } from "@utils/isMonMapId";
 
 const id = 517;
 const sArg1 = "12917"; // sArg1
@@ -7,20 +8,20 @@ const sArg2 =
   "This spell forces your target to focus their attacks on you and causes them to attack recklessly lowering their damage for 10 seconds. (Taunt effects do not work on players.)"; // sArg2
 
 const FOCUS = "Focus";
+const DELIM = ",";
 
 const logWithTimestamp = (...args: any[]) => {
   console.log(`[${new Date().toLocaleTimeString()}]`, ...args);
 };
 
 export class CommandLoopTaunt extends Command {
-  // index of this participant, 1-based
-  public playerIndex!: number;
+  public playerIndex!: number; // 1-based index
 
-  // total number of participants
-  public maxPlayers!: number;
+  public maxPlayers!: number; // total participants
 
-  // name of the target monster to taunt
   public target!: string;
+
+  private targetMonMapId!: number; // monMapId of the target monster
 
   private startListening = false;
 
@@ -35,7 +36,8 @@ export class CommandLoopTaunt extends Command {
       await this.bot.inventory.equip("Scroll of Enrage");
     }
 
-    const ref = this.onPacketFromServer.bind(this);
+    const ref_1 = this.onPacketFromServer.bind(this);
+    const ref_2 = this.onMonsterDeath.bind(this);
 
     void interval(async (_, stop) => {
       if (this.startListening || !this.bot.player.isReady()) {
@@ -60,29 +62,63 @@ export class CommandLoopTaunt extends Command {
 
     void interval(async (_, stop) => {
       this.stopFn ??= stop;
-      if (!this.startListening || !this.bot.player.isReady()) return;
+
+      if (!this.startListening) return;
+      if (!this.bot.player.isReady()) {
+        stop();
+        return;
+      }
+
+      if (!this.hasTargetLock) {
+        const tgt = this.getTauntTarget();
+        if (!tgt) {
+          logWithTimestamp("NO VALID TARGET, STOP");
+          stop();
+          return;
+        }
+
+        this.bot.combat.attack(tgt);
+      }
 
       if (
         this.focusCountThisTick === 0 /* no one has taunted recently */ &&
         this.tauntCount % this.maxPlayers ===
-          this.playerIndex - 1 /* our turn to taunt */ &&
-        this.bot.combat?.target?.isMonster() &&
-        this.bot.combat?.target?.data?.strMonName.toLowerCase() ===
-          this.target.toLowerCase() /* target matches */
+          this.playerIndex - 1 /* our turn to taunt */
       ) {
         await this.doTaunt();
       }
     }, 1_000);
 
-    this.bot.on("packetFromServer", ref);
+    this.bot.on("packetFromServer", ref_1);
+    this.bot.on("monsterDeath", ref_2);
     this.ctx.on("end", () => {
-      this.bot.off("packetFromServer", ref);
+      this.bot.off("packetFromServer", ref_1);
+      this.bot.off("monsterDeath", ref_2);
       this.stopFn?.();
     });
   }
 
   public override toString() {
     return `Loop Taunt [t${this.playerIndex}/t${this.maxPlayers}]`;
+  }
+
+  private onMonsterDeath(monMapId: number) {
+    if (!this.startListening) return;
+
+    if (this.targetMonMapId === monMapId) {
+      logWithTimestamp("TARGET DIED");
+
+      const newTgt = this.getTauntTarget();
+      if (newTgt) {
+        const newMonMapId = extractMonsterMapId(newTgt);
+        this.targetMonMapId = Number.parseInt(newMonMapId, 10);
+        this.bot.combat.attack(newTgt);
+        logWithTimestamp(`NEW TARGET: ${newTgt}`);
+      } else {
+        this.targetMonMapId = 0;
+        logWithTimestamp("NO NEW TARGET?");
+      }
+    }
   }
 
   private onPacketFromServer(packet: string) {
@@ -102,12 +138,8 @@ export class CommandLoopTaunt extends Command {
       if (typeof aItem?.tInf === "string" && !aItem?.tInf?.startsWith("m:"))
         continue;
 
-      const monMapId = Number.parseInt(aItem?.tInf?.split(":")[1], 10);
-      if (
-        this.bot.combat?.target?.isMonster() &&
-        this.bot.combat?.target?.monMapId !== monMapId
-      )
-        continue;
+      const monMapId = Number.parseInt(aItem?.tInf?.split(":")[1], 10); // the monMapId that the aura is applied to
+      if (monMapId !== this.targetMonMapId) continue;
 
       const auraList = aItem?.auras as any[] | undefined;
 
@@ -126,7 +158,7 @@ export class CommandLoopTaunt extends Command {
         setTimeout(() => {
           logWithTimestamp("RESET");
           this.focusCountThisTick = 0;
-        }, 10_000);
+        }, 10_000); // 6s duration + 4s buffer
 
         logWithTimestamp("FOCUS");
         this.tauntCount++;
@@ -145,6 +177,48 @@ export class CommandLoopTaunt extends Command {
     }
 
     logWithTimestamp("TAUNT");
+  }
+
+  /**
+   * Whether we have a target locked.
+   */
+  private get hasTargetLock() {
+    return Boolean(this.targetMonMapId);
+  }
+
+  /**
+   * Get the target to taunt.
+   */
+  private getTauntTarget() {
+    const parts = this.target!.split(DELIM).map((part) => part.trim());
+
+    for (const tgt of parts) {
+      if (isMonsterMapId(tgt)) {
+        const monMapIdStr = extractMonsterMapId(tgt);
+        const monMapId = Number.parseInt(monMapIdStr, 10);
+        if (Number.isNaN(monMapId)) continue;
+
+        const mon = this.bot.world.availableMonsters.find(
+          (mon) => mon.monMapId === monMapId,
+        );
+        if (mon) {
+          this.targetMonMapId = mon.monMapId;
+          return tgt; // return the original monMapId string
+        }
+      } else {
+        // find() will match first found and if multiple monsters have the same name,
+        // they should've specified monMapId format instead
+        const mon = this.bot.world.availableMonsters.find(
+          (mon) => mon.data?.strMonName.toLowerCase() === tgt.toLowerCase(),
+        );
+        if (mon) {
+          this.targetMonMapId = mon.monMapId;
+          return `id:${mon.monMapId}`;
+        }
+      }
+    }
+
+    return null;
   }
 
   private isScrollEquipped() {
