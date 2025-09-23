@@ -63,6 +63,7 @@ window.packetFromServer = ([packet]: [string]) => {
       for (const user of pkt?.msg?.body?.uLs?.u ?? []) {
         const username = user?.n;
         const uid = Number.parseInt(user?.i, 10);
+        console.log(`initUserData (joinOK): ${username}`);
         bot.world.playerUids.set(username, uid);
       }
     }
