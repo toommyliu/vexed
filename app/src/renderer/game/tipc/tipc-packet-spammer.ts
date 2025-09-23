@@ -32,7 +32,7 @@ handlers.packetSpammer.start.listen(({ packets, delay }) => {
 
       await mutex.runExclusive(() => {
         // logger.info(`sending packet: ${packets[index]}`);
-        // bot.packets.sendServer(packets[index]!);
+        bot.packets.sendServer(packets[index]!);
         index = (index + 1) % packets.length;
       });
     },
