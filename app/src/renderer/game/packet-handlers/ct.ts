@@ -8,8 +8,25 @@ import { AuraStore } from "@lib/util/AuraStore";
 // };
 
 export function ct(bot: Bot, packet: CtPacket) {
-  if (Array.isArray(packet?.anims)) {
+  if (Array.isArray(packet?.anims) && packet?.anims?.length) {
     for (const anim of packet?.anims ?? []) {
+      if (!anim?.msg) continue;
+
+      console.log("ANIM", anim);
+
+      if (anim?.msg) {
+        //         {
+        //   "strFrame": "r2",
+        //   "cInf": "m:3",
+        //   "fx": "m",
+        //   "animStr": "Charge",
+        //   "tInf": "m:3",
+        //   "msg": "The Grace Crystal prepares a defense shattering attack!"
+        // }
+        // @ts-expect-error don't care
+        bot.emit("ctMessage", anim?.msg, anim);
+      }
+
       if (
         anim?.msg?.toLowerCase()?.includes("prepares a counter attack") &&
         bot.settings.counterAttack

@@ -23,7 +23,7 @@ import { CommandHouse } from "./CommandHouse";
 import { CommandLabel } from "./CommandLabel";
 import { CommandLog } from "./CommandLog";
 import { CommandLogout } from "./CommandLogout";
-import { CommandLoopTaunt } from "./CommandLoopTaunt";
+import { CommandLoopTaunt, CommandMsgLoopTaunt } from "./CommandLoopTaunt";
 import { CommandRegisterTask } from "./CommandRegisterTask";
 import { CommandSetDelay } from "./CommandSetDelay";
 import { CommandSetFPS } from "./CommandSetFPS";
@@ -736,6 +736,35 @@ export const miscCommands = {
 
     const cmd = new CommandLoopTaunt();
     cmd.target = target;
+    cmd.playerIndex = Math.trunc(playerIndex);
+    cmd.maxPlayers = Math.trunc(maxPlayers);
+    window.context.addCommand(cmd);
+  },
+  do_msg_looptaunt(
+    target: string,
+    msg: string,
+    playerIndex: number,
+    maxPlayers: number,
+  ) {
+    if (!target || typeof target !== "string") {
+      throw new ArgsError("target is required");
+    }
+
+    if (!msg || typeof msg !== "string") {
+      throw new ArgsError("msg is required");
+    }
+
+    if (typeof playerIndex !== "number" || playerIndex < 0) {
+      throw new ArgsError("playerIndex is required");
+    }
+
+    if (typeof maxPlayers !== "number" || maxPlayers <= 0) {
+      throw new ArgsError("maxPlayers is required");
+    }
+
+    const cmd = new CommandMsgLoopTaunt();
+    cmd.target = target;
+    cmd.msg = msg;
     cmd.playerIndex = Math.trunc(playerIndex);
     cmd.maxPlayers = Math.trunc(maxPlayers);
     window.context.addCommand(cmd);

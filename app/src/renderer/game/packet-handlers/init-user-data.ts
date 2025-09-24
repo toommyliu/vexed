@@ -5,18 +5,18 @@ export function initUserData(bot: Bot, packet: Packet) {
 
   if (username.toLowerCase() === bot.auth.username.toLowerCase()) return;
 
-  console.log(`initUserData: ${username}`);
+  // console.log(`initUserData: ${username}`);
 
   bot.emit("playerJoin", username);
   if (bot.world.playerUids.has(username)) {
-    console.warn(`(2) duplicated uid for ${username}`);
+    // console.warn(`(2) duplicated uid for ${username}`);
     return;
   } else if (bot.world.playerUids.has(username.toLowerCase())) {
-    console.warn(`(2.1) duplicated uid for ${username}`);
+    // console.warn(`(2.1) duplicated uid for ${username}`);
     return;
   }
 
-  console.log(`initUserData: ${username} -> ${packet.uid}`);
+  // console.log(`initUserData: ${username} -> ${packet.uid}`);
   bot.world.playerUids.set(username, packet.uid);
 }
 

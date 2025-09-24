@@ -31,6 +31,17 @@ type Events = {
   afk(): void;
   auraAdd(monster: Monster, aura: Aura): void;
   auraRemove(monster: Monster, auraName: string): void;
+  ctMessage(
+    message: string,
+    packet: {
+      animStr: string;
+      cInf: string;
+      fx: string;
+      msg: string;
+      strFrame: string;
+      tInf: string;
+    },
+  ): void;
   /**
    * This event is emitted when the player logs in.
    */
