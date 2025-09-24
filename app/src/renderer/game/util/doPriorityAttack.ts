@@ -6,6 +6,13 @@ import { Bot } from "../lib/Bot";
  * @param mons - The monster name or names to attack.
  */
 export function doPriorityAttack(mons: string[] | string) {
+  if ("disable_priority_attack" in window) {
+    console.log(
+      "blocked doPriorityAttack due to disable_priority_attack being set",
+    );
+    return;
+  }
+
   const bot = Bot.getInstance();
   const arr = Array.isArray(mons)
     ? mons

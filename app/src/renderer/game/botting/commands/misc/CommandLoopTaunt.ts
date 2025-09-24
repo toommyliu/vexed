@@ -262,8 +262,6 @@ export class CommandMsgLoopTaunt extends Command {
       await this.bot.inventory.equip("Scroll of Enrage");
     }
 
-    logWithTimestamp(`INITIAL TARGET: ${this.target}`);
-
     const tgt = this.getTauntTarget();
     if (tgt) {
       logWithTimestamp(`INITIAL TARGET: ${tgt}`);
@@ -323,7 +321,7 @@ export class CommandMsgLoopTaunt extends Command {
     // logWithTimestamp(`MSG DETECTED ON OUR TARGET: ${this.targetMonMapId}`);
 
     if (this.tauntCount % this.maxPlayers === this.playerIndex - 1) {
-      logWithTimestamp("TAUNT");
+      logWithTimestamp("TAUNT", obj);
       await this.doTaunt();
     }
 
@@ -336,11 +334,16 @@ export class CommandMsgLoopTaunt extends Command {
       this.bot.player.alive &&
       !this.isOnCooldown()
     ) {
+      // we might've switched targets, so don't bother taunting
+      if (
+        this.bot.combat?.target?.isMonster() &&
+        this.bot.combat?.target.monMapId !== this.targetMonMapId
+      )
+        return;
+
       await this.bot.combat.useSkill(5, true, true);
       await this.bot.sleep(50);
     }
-
-    logWithTimestamp("TAUNT");
   }
 
   /**

@@ -12,7 +12,9 @@ export function ct(bot: Bot, packet: CtPacket) {
     for (const anim of packet?.anims ?? []) {
       if (!anim?.msg) continue;
 
-      console.log("ANIM", anim);
+      // console.log("ANIM", anim);
+
+      // ["The remaining Grace Crystal is unstable", " destroy it quickly!"]
 
       if (anim?.msg) {
         //         {
