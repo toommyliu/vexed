@@ -16,6 +16,11 @@ export function ct(bot: Bot, packet: CtPacket) {
 
       // ["The remaining Grace Crystal is unstable", " destroy it quickly!"]
 
+      if (Array.isArray(anim?.msg)) {
+        console.warn(`ct anim msg is array? ${anim?.msg}`);
+        return;
+      }
+
       if (anim?.msg) {
         //         {
         //   "strFrame": "r2",
