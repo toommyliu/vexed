@@ -92,8 +92,4 @@ export abstract class ArmyCommand extends Command {
 
     await this.armyReadyPromise;
   }
-
-  private checkForAbort() {
-    return this.ctx.isRunning();
-  }
 }
