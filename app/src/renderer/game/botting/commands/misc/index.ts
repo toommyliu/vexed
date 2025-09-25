@@ -23,7 +23,7 @@ import { CommandHouse } from "./CommandHouse";
 import { CommandLabel } from "./CommandLabel";
 import { CommandLog } from "./CommandLog";
 import { CommandLogout } from "./CommandLogout";
-import { CommandLoopTaunt, CommandMsgLoopTaunt } from "./CommandLoopTaunt";
+import { CommandSimpleLoopTaunt } from "./CommandLoopTaunt";
 import { CommandRegisterTask } from "./CommandRegisterTask";
 import { CommandSetDelay } from "./CommandSetDelay";
 import { CommandSetFPS } from "./CommandSetFPS";
@@ -701,27 +701,7 @@ export const miscCommands = {
     cmd.name = name;
     window.context.addCommand(cmd);
   },
-  /**
-   * Performs loop taunt pattern on the specified target(s).
-   *
-   * @remarks Player 1 is t1, Player 2 is t2, etc. The taunt order will be t1 -> t2 -> t3... -> tN -> t1 -> t2...
-   *
-   * Note that Focus may sometimes get desynced between players.
-   *
-   * Loop taunting will begin once all players in the room are in combat.
-   * @example
-   * ```js
-   * cmd.is_player_number(1)
-   * cmd.do_simple_looptaunt("Lava Golem", 1, 2)
-   * cmd.is_player_number(2)
-   * cmd.do_simple_looptaunt("Darkon the Conductor", 2, 2)
-   * cmd.kill("Darkon the Conductor")
-   * ```
-   * @param target - The name or monMapId of the target(s). If multiple, separate by comma.
-   * @param playerIndex - The index at which the player will taunt, 1-based.
-   * @param maxPlayers - The total number of players that will be taunting.
-   */
-  do_simple_looptaunt(target: string, playerIndex: number, maxPlayers: number) {
+  do_looptaunt(target: string, playerIndex: number, maxPlayers: number) {
     if (!target || typeof target !== "string") {
       throw new ArgsError("target is required");
     }
@@ -734,37 +714,8 @@ export const miscCommands = {
       throw new ArgsError("maxPlayers is required");
     }
 
-    const cmd = new CommandLoopTaunt();
+    const cmd = new CommandSimpleLoopTaunt();
     cmd.target = target;
-    cmd.playerIndex = Math.trunc(playerIndex);
-    cmd.maxPlayers = Math.trunc(maxPlayers);
-    window.context.addCommand(cmd);
-  },
-  do_msg_looptaunt(
-    target: string,
-    msg: string,
-    playerIndex: number,
-    maxPlayers: number,
-  ) {
-    if (!target || typeof target !== "string") {
-      throw new ArgsError("target is required");
-    }
-
-    if (!msg || typeof msg !== "string") {
-      throw new ArgsError("msg is required");
-    }
-
-    if (typeof playerIndex !== "number" || playerIndex < 0) {
-      throw new ArgsError("playerIndex is required");
-    }
-
-    if (typeof maxPlayers !== "number" || maxPlayers <= 0) {
-      throw new ArgsError("maxPlayers is required");
-    }
-
-    const cmd = new CommandMsgLoopTaunt();
-    cmd.target = target;
-    cmd.msg = msg;
     cmd.playerIndex = Math.trunc(playerIndex);
     cmd.maxPlayers = Math.trunc(maxPlayers);
     window.context.addCommand(cmd);
