@@ -471,19 +471,12 @@ export class Context extends TypedEmitter<Events> {
 
         if (!this.isRunning()) break;
 
-        // TODO: make configurable
-        // if (command.skipDelay) {
-        //   await this.bot.sleep(10);
-        // } else {
-        //   await this.bot.sleep(this._commandDelay);
-        // }
-
-        // TODO: this will sometimes seem to "skip" commands when delay is 0
-        // and skipDelay is true
-        if (!command.skipDelay) {
-          await this.bot.sleep(this._commandDelay);
-        }
-
+        await this.bot.sleep(
+          /* need slight delay otherwise some commands get 'executed too fast' */
+          this._commandDelay === 0 || command?.skipDelay
+            ? 50
+            : this._commandDelay,
+        );
         if (!this.isRunning()) break;
 
         this._commandIndex++;
