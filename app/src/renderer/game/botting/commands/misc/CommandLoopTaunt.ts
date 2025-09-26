@@ -15,28 +15,28 @@ const DELIM = ",";
 const log = (...args: any[]) =>
   console.log(`[${new Date().toLocaleTimeString()}]`, ...args);
 
-// function getPotionSlot() {
-//   return JSON.parse(
-//     swf.getArrayObject("world.actions.active", 5),
-//   ) as unknown as {
-//     cd: number;
-//     id: number;
-//     sArg1: string;
-//     sArg2: string;
-//     ts: number;
-//   };
-// }
+function getPotionSlot() {
+  return JSON.parse(
+    swf.getArrayObject("world.actions.active", 5),
+  ) as unknown as {
+    cd: number;
+    id: number;
+    sArg1: string;
+    sArg2: string;
+    ts: number;
+  };
+}
 
 // function isEquipped() {
 //   const pot = getPotionSlot();
 //   return pot?.id === id && pot?.sArg1 === sArg1 && pot?.sArg2 === sArg2;
 // }
 
-// function isOnCooldown() {
-//   const pot = getPotionSlot();
-//   const now = Date.now();
-//   return now < pot?.ts + pot?.cd;
-// }
+function isOnCooldown() {
+  const pot = getPotionSlot();
+  const now = Date.now();
+  return now < pot?.ts + pot?.cd;
+}
 
 export type StrategyInput = [
   playerIndex: number,
@@ -151,18 +151,21 @@ abstract class BaseTauntStrategy implements ITauntStrategy {
   }
 
   public async doTaunt(): Promise<void> {
-    if (
+    while (
       this.ctx.isRunning() &&
       this.bot.player.isReady() &&
       this.bot.player.alive &&
-      !this.stopped
+      !this.stopped &&
+      !isOnCooldown()
     ) {
       this.bot.combat.attack(`id:${this.targetMonMapId}`);
       await this.bot.combat.useSkill(5, true, true);
-      log(
-        `[${this.getName()}] TAUNT - Player ${this.playerIndex}/${this.maxPlayers} on ${this.target}`,
-      );
+      await this.bot.sleep(50);
     }
+
+    log(
+      `[${this.getName()}] TAUNT - Player ${this.playerIndex}/${this.maxPlayers} on ${this.target}`,
+    );
   }
 
   public cleanup(): void {
