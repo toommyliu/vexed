@@ -3,33 +3,19 @@ import type { Aura } from "@lib/models/BaseEntity";
 import { Monster } from "@lib/models/Monster";
 import { AuraStore } from "@lib/util/AuraStore";
 
-// const log = (msg: string) => {
-//   console.log(`[${new Date().toLocaleTimeString()}] ${msg}`);
-// };
-
+// "Combat Tick"
 export function ct(bot: Bot, packet: CtPacket) {
   if (Array.isArray(packet?.anims) && packet?.anims?.length) {
     for (const anim of packet?.anims ?? []) {
       if (!anim?.msg) continue;
 
-      // console.log("ANIM", anim);
-
       // ["The remaining Grace Crystal is unstable", " destroy it quickly!"]
-
       if (Array.isArray(anim?.msg)) {
-        console.warn(`ct anim msg is array? ${anim?.msg}`);
+        anim.msg = anim?.msg.join("... ");
         return;
       }
 
       if (anim?.msg) {
-        //         {
-        //   "strFrame": "r2",
-        //   "cInf": "m:3",
-        //   "fx": "m",
-        //   "animStr": "Charge",
-        //   "tInf": "m:3",
-        //   "msg": "The Grace Crystal prepares a defense shattering attack!"
-        // }
         // @ts-expect-error don't care
         bot.emit("ctMessage", anim?.msg, anim);
       }

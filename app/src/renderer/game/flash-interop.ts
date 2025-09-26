@@ -90,7 +90,12 @@ window.pext = async ([packet]) => {
       case "respawnMon":
         break;
       case "exitArea":
-        bot.emit("playerLeave", dataObj[dataObj.length - 1]);
+        {
+          const playerName = dataObj[dataObj.length - 1];
+          AuraStore.clearPlayerAuras(playerName);
+          bot.emit("playerLeave", playerName);
+        }
+
         break;
       case "uotls":
         if (
@@ -125,8 +130,6 @@ window.pext = async ([packet]) => {
         break;
       case "event":
         void event(bot, dataObj);
-        break;
-      case "addItems": // Temp inventory?
         break;
     }
   }
