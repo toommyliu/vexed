@@ -81,23 +81,6 @@ package vexed.util {
       }
     }
 
-    public static function serializeAuras(auras:*):Array {
-      var ret:Array = [];
-
-      for each (var aura:* in auras) {
-        if (!aura.nam) {
-          continue;
-        }
-
-        ret.push({
-              name: aura.nam,
-              value: aura.val ? aura.val : 1
-            });
-      }
-
-      return ret;
-    }
-
     public static function canBuyItem(param1:Object):Boolean {
       const game:* = Main.getInstance().getGame();
       if (param1.bStaff == 1 && game.world.myAvatar.objData.intAccessLevel < 40) {
