@@ -1,7 +1,9 @@
 import type { Bot } from "@lib/Bot";
 import type { Aura } from "@lib/models/BaseEntity";
-import { Monster } from "@lib/models/Monster";
 import { AuraStore } from "@lib/util/AuraStore";
+
+const ADD_AURAS = new Set(["aura+", "aura++"]);
+const REMOVE_AURAS = new Set(["aura-", "aura--"]);
 
 // "Combat Tick"
 export function ct(bot: Bot, packet: CtPacket) {
@@ -11,8 +13,7 @@ export function ct(bot: Bot, packet: CtPacket) {
 
       // ["The remaining Grace Crystal is unstable", " destroy it quickly!"]
       if (Array.isArray(anim?.msg)) {
-        anim.msg = anim?.msg.join("... ");
-        return;
+        anim.msg = anim?.msg.join("...  ");
       }
 
       if (anim?.msg) {
@@ -30,122 +31,101 @@ export function ct(bot: Bot, packet: CtPacket) {
         break;
       }
     }
-  }
 
-  // player
-  if (typeof packet?.p === "object") {
-    for (const [playerName, data] of Object.entries(packet?.p ?? {})) {
-      if (data?.intState === 0 && data?.intHP === 0) {
-        bot.emit("playerDeath", playerName);
-        AuraStore.playerAuras.delete(playerName);
+    // player
+    if (typeof packet?.p === "object") {
+      for (const playerName in packet.p) {
+        if (!Object.hasOwn(packet.p, playerName)) continue;
+        const data = packet.p[playerName];
+        if (data?.intState === 0 && data?.intHP === 0) {
+          bot.emit("playerDeath", playerName);
+          AuraStore.playerAuras.delete(playerName);
+        }
       }
     }
-  }
 
-  // auras
-  if (Array.isArray(packet?.a)) {
-    for (const aura of packet?.a ?? []) {
-      // console.log("aura", aura);
-      if (aura?.cmd === "aura+" || aura?.cmd === "aura++") {
-        const tgtId = aura?.tInf?.split(":")[1]; // uid / monMapId
-        if (!tgtId) continue;
+    // auras
+    if (Array.isArray(packet?.a)) {
+      for (const aura of packet?.a ?? []) {
+        if (!aura?.cmd) continue;
 
-        if (aura?.tInf?.startsWith("m")) {
-          // console.log("aura+ cmd on monster:", aura);
+        const parts = aura?.tInf?.split(":");
+        const type = parts?.[0] as "m" | "p" | undefined;
+        const tgtId = parts?.[1] as string | undefined;
 
-          for (const a of aura?.auras ?? []) {
-            const data: Aura = {
-              name: a.nam,
-              duration: a.dur ?? 0,
-              isNew: a?.isNew || false,
-            };
+        if (!type || !tgtId) continue;
 
-            if ("val" in a && typeof a.val === "number") data.value = a.val;
-            // if (data?.name === "Focus") {
-            //   log(`Initial Focus timestamp ${Date.now()}`);
-            //   log(
-            //     `Monster ${tgtId} gained aura: ${JSON.stringify(data)}, cmd: ${aura?.cmd}, isNew: ${data.isNew}, raw duration: ${a.dur}`,
-            //   );
-            // }
+        if (ADD_AURAS.has(aura.cmd)) {
+          if (type === "m") {
+            for (const aura_ of aura?.auras ?? []) {
+              const data: Aura = {
+                name: aura_.nam,
+                duration: aura_.dur ?? 0,
+                isNew: aura_?.isNew || false,
+              };
 
-            if (data.isNew) {
-              const monData = bot.world.monsters.find(
-                (mon) => String(mon.MonMapID) === tgtId,
-              )!;
-              bot.emit("auraAdd", new Monster(monData), data);
-              AuraStore.addMonsterAura(tgtId, data);
-            } else {
-              AuraStore.refreshMonsterAura(tgtId, data);
+              if ("val" in aura_) {
+                if (typeof aura_.val === "number") data.value = aura_.val;
+                else {
+                  console.log(
+                    "(1) unexpected aura val type:",
+                    typeof aura_.val,
+                    aura_.val,
+                  );
+                }
+
+                if (data.isNew) AuraStore.addMonsterAura(tgtId, data);
+                else AuraStore.refreshMonsterAura(tgtId, data);
+              }
+            }
+          } else if (type === "p") {
+            const username = [...bot.world.playerUids].find(
+              ([, uid]) => uid === Number(tgtId),
+            )?.[0];
+            if (!username) continue;
+
+            for (const aura_ of aura?.auras ?? []) {
+              const data: Aura = {
+                name: aura_.nam,
+                duration: aura_.dur ?? 0,
+                isNew: aura_?.isNew || false,
+              };
+
+              if ("val" in aura_) {
+                if (typeof aura_.val === "number") data.value = aura_.val;
+                else {
+                  console.log(
+                    "(2) unexpected aura val type:",
+                    typeof aura_.val,
+                    aura_.val,
+                  );
+                }
+
+                if (data.isNew) AuraStore.addPlayerAura(username, data);
+                else AuraStore.refreshPlayerAura(username, data);
+              }
             }
           }
-        } else if (aura?.tInf?.startsWith("p")) {
-          // get the username (key) from the uid (value)
-          const username = [...bot.world.playerUids].find(
-            ([, uid]) => uid === Number(tgtId),
-          )?.[0];
-          if (!username) continue;
+        } else if (REMOVE_AURAS.has(aura.cmd)) {
+          const auraName = aura?.aura?.nam;
+          if (!auraName) continue;
+          if (type === "m") {
+            AuraStore.removeMonsterAura(tgtId, auraName);
 
-          for (const a of aura?.auras ?? []) {
-            const data: Aura = {
-              name: a.nam,
-              duration: a.dur ?? 0,
-              isNew: a?.isNew || false,
-            };
-
-            if ("val" in a && typeof a.val === "number") data.value = a.val;
-
-            if (data.isNew) {
-              AuraStore.addPlayerAura(username, data);
-            } else {
-              AuraStore.refreshPlayerAura(username, data);
+            if (auraName === "Counter Attack" && bot.settings.counterAttack) {
+              const monMapID = aura!.tInf!.split(":")[1];
+              bot.combat.attack(`id:${monMapID}`);
+              bot.combat.pauseAttack = false;
             }
+          } else if (type === "p") {
+            const username = [...bot.world.playerUids].find(
+              ([, uid]) => uid === Number(tgtId),
+            )?.[0];
+            if (!username) continue;
+
+            AuraStore.removePlayerAura(username, auraName);
           }
         }
-      } else if (aura?.cmd === "aura-" || aura?.cmd === "aura--") {
-        // console.log("aura- cmd");
-        const tgtId = aura?.tInf?.split(":")[1]; // uid
-        if (!tgtId) continue;
-
-        if (aura?.tInf?.startsWith("m")) {
-          // console.log("aura- cmd on monster:", aura);
-
-          if (aura?.aura?.nam) {
-            // if (aura?.aura?.nam === "Focus") {
-            //   log(
-            //     `Monster ${tgtId} lost aura: ${aura?.aura?.nam}, cmd: ${aura?.cmd}, full aura data: ${JSON.stringify(aura)}`,
-            //   );
-            // }
-
-            const monData = bot.world.monsters.find(
-              (mon) => String(mon.MonMapID) === tgtId,
-            )!;
-            bot.emit("auraRemove", new Monster(monData), aura?.aura?.nam);
-            AuraStore.removeMonsterAura(tgtId, aura?.aura?.nam);
-          }
-        } else if (aura?.tInf?.startsWith("p")) {
-          // get the username (key) from the uid (value)
-          const username = [...bot.world.playerUids].find(
-            ([, uid]) => uid === Number(tgtId),
-          )?.[0];
-          if (!username) continue;
-
-          // console.log("aura- cmd: subauras", aura?.aura);
-          if (aura?.aura?.nam) {
-            // console.log(`${username} lost aura:`, aura?.aura?.nam);
-            AuraStore.removePlayerAura(username, aura?.aura?.nam);
-          }
-        }
-      }
-
-      if (
-        aura?.cmd === "aura--" &&
-        aura?.aura?.nam === "Counter Attack" &&
-        bot.settings.counterAttack
-      ) {
-        const monMapID = aura!.tInf!.split(":")[1];
-        bot.combat.attack(`id:${monMapID}`);
-        bot.combat.pauseAttack = false;
-        break;
       }
     }
   }
