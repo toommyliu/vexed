@@ -326,7 +326,6 @@ export class CommandLoopTaunt extends Command {
   public override async execute(): Promise<void> {
     void this.startBackgroundExecution();
 
-    // Return immediately to not block the command queue
     log("CommandLoopTaunt started in background");
   }
 
@@ -350,7 +349,6 @@ export class CommandLoopTaunt extends Command {
       return;
     }
 
-    // Clean up previous strategy if exists
     this.currentStrategy?.cleanup();
 
     const currentStrategy = this.strategyInstances[this.currentStrategyIndex];
