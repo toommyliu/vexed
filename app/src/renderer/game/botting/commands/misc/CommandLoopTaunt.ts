@@ -15,30 +15,29 @@ const DELIM = ",";
 const log = (...args: any[]) =>
   console.log(`[${new Date().toLocaleTimeString()}]`, ...args);
 
-function getPotionSlot() {
-  return JSON.parse(
-    swf.getArrayObject("world.actions.active", 5),
-  ) as unknown as {
-    cd: number;
-    id: number;
-    sArg1: string;
-    sArg2: string;
-    ts: number;
-  };
-}
+// function getPotionSlot() {
+//   return JSON.parse(
+//     swf.getArrayObject("world.actions.active", 5),
+//   ) as unknown as {
+//     cd: number;
+//     id: number;
+//     sArg1: string;
+//     sArg2: string;
+//     ts: number;
+//   };
+// }
 
-function isEquipped() {
-  const pot = getPotionSlot();
-  return pot?.id === id && pot?.sArg1 === sArg1 && pot?.sArg2 === sArg2;
-}
+// function isEquipped() {
+//   const pot = getPotionSlot();
+//   return pot?.id === id && pot?.sArg1 === sArg1 && pot?.sArg2 === sArg2;
+// }
 
-function isOnCooldown() {
-  const pot = getPotionSlot();
-  const now = Date.now();
-  return now < pot?.ts + pot?.cd;
-}
+// function isOnCooldown() {
+//   const pot = getPotionSlot();
+//   const now = Date.now();
+//   return now < pot?.ts + pot?.cd;
+// }
 
-// Strategy Configuration Input
 type StrategyInput = [
   playerIndex: number,
   maxPlayers: number,
@@ -46,37 +45,48 @@ type StrategyInput = [
   msg?: string,
 ];
 
-// Base Strategy Interface
-interface ITauntStrategy {
-  playerIndex: number;
-  maxPlayers: number;
-  target: string;
-  targetMonMapId: number;
-  isActive: boolean;
-
-  initialize(bot: Bot, ctx: Context): Promise<boolean>;
-  start(): void;
+type ITauntStrategy = {
   cleanup(): void;
   doTaunt(): Promise<void>;
-  shouldTaunt(count: number): boolean;
   getName(): string;
-}
+  initialize(bot: Bot, ctx: Context): Promise<boolean>;
+  isActive: boolean;
+
+  maxPlayers: number;
+  playerIndex: number;
+  shouldTaunt(count: number): boolean;
+  start(): void;
+  target: string;
+  targetMonMapId: number;
+};
 
 // Abstract Base Strategy
 abstract class BaseTauntStrategy implements ITauntStrategy {
   public playerIndex: number;
+
   public maxPlayers: number;
+
   public target: string;
+
   public targetMonMapId: number = -1;
+
   public isActive: boolean = false;
 
-  protected bot: Bot;
-  protected ctx: Context;
-  protected focusCount: number = 0;
-  protected stopped: boolean = false;
-  protected listeners: Array<{ event: string; handler: Function }> = [];
+  protected bot!: Bot;
 
-  constructor(playerIndex: number, maxPlayers: number, target: string) {
+  protected ctx!: Context;
+
+  protected focusCount: number = 0;
+
+  protected stopped: boolean = false;
+
+  protected listeners: {
+    event: string;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+    handler: Function;
+  }[] = [];
+
+  public constructor(playerIndex: number, maxPlayers: number, target: string) {
     this.playerIndex = playerIndex;
     this.maxPlayers = maxPlayers;
     this.target = target;
@@ -95,12 +105,10 @@ abstract class BaseTauntStrategy implements ITauntStrategy {
     this.isActive = true;
     this.stopped = false;
 
-    // Set up monster death listener
     const deathHandler = this.onMonsterDeath.bind(this);
     this.bot.on("monsterDeath", deathHandler);
     this.listeners.push({ event: "monsterDeath", handler: deathHandler });
 
-    // Set up context end listener
     this.ctx.once("end", () => {
       this.stopped = true;
       this.cleanup();
@@ -126,6 +134,7 @@ abstract class BaseTauntStrategy implements ITauntStrategy {
         return true;
       }
     }
+
     return false;
   }
 
@@ -160,14 +169,14 @@ abstract class BaseTauntStrategy implements ITauntStrategy {
 
   public cleanup(): void {
     this.isActive = false;
-    for (const { event, handler } of this.listeners) {
-      this.bot.off(event, handler);
-    }
+
+    for (const { event, handler } of this.listeners)
+      this.bot.off(event as any, handler);
+
     this.listeners = [];
   }
 }
 
-// Strategy 1: Simple (Focus Detection)
 class SimpleStrategy extends BaseTauntStrategy {
   private focusLock: boolean = false;
 
@@ -236,14 +245,12 @@ class SimpleStrategy extends BaseTauntStrategy {
               );
               await this.doTaunt();
             }
-          }, 10_000);
+          }, 10_000); // 6s + 4s buffer
 
           this.focusCount += 1;
         }
       }
-    } catch (e) {
-      // Invalid JSON, ignore
-    }
+    } catch {}
   }
 
   public getName(): string {
@@ -251,11 +258,10 @@ class SimpleStrategy extends BaseTauntStrategy {
   }
 }
 
-// Strategy 2: Message Detection
 class MessageStrategy extends BaseTauntStrategy {
-  private msg: string;
+  private readonly msg: string;
 
-  constructor(
+  public constructor(
     playerIndex: number,
     maxPlayers: number,
     target: string,
@@ -279,9 +285,7 @@ class MessageStrategy extends BaseTauntStrategy {
     packet: string,
     obj: Record<string, string>,
   ): Promise<void> {
-    if (typeof packet !== "string") {
-      return;
-    }
+    if (typeof packet !== "string") return;
 
     if (!packet.toLowerCase().includes(this.msg.toLowerCase())) return;
 
@@ -310,24 +314,24 @@ class MessageStrategy extends BaseTauntStrategy {
   }
 }
 
-// Main Command Class - Non-blocking background execution
 export class CommandLoopTaunt extends Command {
   public strategies!: StrategyInput[];
 
   private strategyInstances: ITauntStrategy[] = [];
+
   private currentStrategy: ITauntStrategy | null = null;
+
   private currentStrategyIndex: number = 0;
+
   private isRunning: boolean = false;
 
   public override async execute(): Promise<void> {
-    // Create strategy instances from input
     if (!this.createStrategies()) {
       log("Failed to create strategies");
       return;
     }
 
-    // Start background execution without blocking
-    this.startBackgroundExecution();
+    void this.startBackgroundExecution();
 
     // Return immediately to not block the command queue
     log("CommandLoopTaunt started in background");
@@ -363,7 +367,6 @@ export class CommandLoopTaunt extends Command {
         continue;
       }
 
-      // Create appropriate strategy based on whether msg is provided
       let strategy: ITauntStrategy;
 
       if (msg && typeof msg === "string") {
@@ -383,16 +386,12 @@ export class CommandLoopTaunt extends Command {
   private async startBackgroundExecution(): Promise<void> {
     this.isRunning = true;
 
-    // Set up context end listener
     this.ctx.once("end", () => {
       this.isRunning = false;
-      if (this.currentStrategy) {
-        this.currentStrategy.cleanup();
-      }
+      this.currentStrategy?.cleanup();
     });
 
-    // Execute first strategy
-    this.executeNextStrategy();
+    void this.executeNextStrategy();
   }
 
   private async executeNextStrategy(): Promise<void> {
@@ -405,20 +404,26 @@ export class CommandLoopTaunt extends Command {
     }
 
     // Clean up previous strategy if exists
-    if (this.currentStrategy) {
-      this.currentStrategy.cleanup();
+    this.currentStrategy?.cleanup();
+
+    const currentStrategy = this.strategyInstances[this.currentStrategyIndex];
+    if (!currentStrategy) {
+      log(`No strategy found at index ${this.currentStrategyIndex}, skipping`);
+      this.currentStrategyIndex++;
+      void this.executeNextStrategy();
+      return;
     }
 
-    this.currentStrategy = this.strategyInstances[this.currentStrategyIndex];
-
-    const initialized = await this.currentStrategy?.initialize(
+    this.currentStrategy = this.strategyInstances[this.currentStrategyIndex]!;
+    const isInitialized = await this.currentStrategy?.initialize(
       this.bot,
       this.ctx,
     );
-    if (!initialized) {
+
+    if (!isInitialized) {
       log(`Failed to initialize strategy ${this.currentStrategyIndex + 1}`);
       this.currentStrategyIndex++;
-      this.executeNextStrategy();
+      void this.executeNextStrategy();
       return;
     }
 
@@ -427,7 +432,6 @@ export class CommandLoopTaunt extends Command {
     );
     this.currentStrategy.start();
 
-    // Monitor strategy completion in background
     void interval(async (_, stop) => {
       if (!this.isRunning) {
         stop();
@@ -437,21 +441,25 @@ export class CommandLoopTaunt extends Command {
       if (!this.currentStrategy?.isActive) {
         stop();
         this.currentStrategyIndex++;
-        // Continue to next strategy
-        this.executeNextStrategy();
+        void this.executeNextStrategy();
       }
     }, 1_000);
   }
 
   public override toString(): string {
-    const strategyDescriptions = this.strategies
-      .map((s) => {
-        const [playerIndex, maxPlayers, target, msg] = s;
-        return msg
-          ? `MSG(p${playerIndex}/${maxPlayers}, ${target}, "${msg}")`
-          : `SIMPLE(p${playerIndex}/${maxPlayers}, ${target})`;
-      })
-      .join(", ");
-    return `Loop taunt - Strategies: [${strategyDescriptions}]`;
+    let base = "Loop taunt";
+
+    if (this.strategies.length > 0) {
+      base += ` ${this.currentStrategyIndex + 1}/${
+        this.strategyInstances.length
+      }: `;
+
+      const strat = this.strategies[0]!;
+      const [, maxPlayers, target, msg] = strat;
+      if (msg) base += ` (msg:${msg}) `;
+      base += ` [t${target}/t${maxPlayers}]`;
+    }
+
+    return base;
   }
 }
