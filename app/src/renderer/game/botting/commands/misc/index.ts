@@ -23,7 +23,7 @@ import { CommandHouse } from "./CommandHouse";
 import { CommandLabel } from "./CommandLabel";
 import { CommandLog } from "./CommandLog";
 import { CommandLogout } from "./CommandLogout";
-import { CommandSimpleLoopTaunt } from "./CommandLoopTaunt";
+import { CommandLoopTaunt } from "./CommandLoopTaunt";
 import { CommandRegisterTask } from "./CommandRegisterTask";
 import { CommandSetDelay } from "./CommandSetDelay";
 import { CommandSetFPS } from "./CommandSetFPS";
@@ -701,23 +701,29 @@ export const miscCommands = {
     cmd.name = name;
     window.context.addCommand(cmd);
   },
-  do_looptaunt(target: string, playerIndex: number, maxPlayers: number) {
-    if (!target || typeof target !== "string") {
-      throw new ArgsError("target is required");
+  /**
+   * Starts loop taunt strategies. Accepts either a single nested array (legacy):
+   *   cmd.do_looptaunt([['id:1',1,2,'hi'], ['id:2',2,4,'hey']])
+   * or spread arguments (preferred):
+   *   cmd.do_looptaunt(['id:1',1,2,'hi'], ['id:2',2,4,'hey'])
+   */
+  do_looptaunt(...strategies: unknown[]) {
+    const cmd = new CommandLoopTaunt();
+
+    // Normalize input: if a single nested array is provided, unwrap it for
+    // backward compatibility.
+    let strategyArr: unknown[][] = [];
+    if (
+      strategies.length === 1 &&
+      Array.isArray(strategies[0]) &&
+      (strategies[0] as unknown[]).every((item) => Array.isArray(item))
+    ) {
+      strategyArr = strategies[0] as unknown[][];
+    } else {
+      strategyArr = strategies as unknown[][];
     }
 
-    if (typeof playerIndex !== "number" || playerIndex < 0) {
-      throw new ArgsError("playerIndex is required");
-    }
-
-    if (typeof maxPlayers !== "number" || maxPlayers <= 0) {
-      throw new ArgsError("maxPlayers is required");
-    }
-
-    const cmd = new CommandSimpleLoopTaunt();
-    cmd.target = target;
-    cmd.playerIndex = Math.trunc(playerIndex);
-    cmd.maxPlayers = Math.trunc(maxPlayers);
+    cmd.strategies = strategyArr as any;
     window.context.addCommand(cmd);
   },
 };
