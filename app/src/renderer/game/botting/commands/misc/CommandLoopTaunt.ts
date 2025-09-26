@@ -38,14 +38,14 @@ const log = (...args: any[]) =>
 //   return now < pot?.ts + pot?.cd;
 // }
 
-type StrategyInput = [
+export type StrategyInput = [
   playerIndex: number,
   maxPlayers: number,
   target: string,
   msg?: string,
 ];
 
-type ITauntStrategy = {
+export type ITauntStrategy = {
   cleanup(): void;
   doTaunt(): Promise<void>;
   getName(): string;
@@ -60,7 +60,6 @@ type ITauntStrategy = {
   targetMonMapId: number;
 };
 
-// Abstract Base Strategy
 abstract class BaseTauntStrategy implements ITauntStrategy {
   public playerIndex: number;
 
@@ -96,7 +95,6 @@ abstract class BaseTauntStrategy implements ITauntStrategy {
     this.bot = bot;
     this.ctx = ctx;
 
-    // Parse target
     if (!this.parseTarget()) {
       log(`[${this.getName()}] Failed to parse target: ${this.target}`);
       return false;
@@ -177,7 +175,7 @@ abstract class BaseTauntStrategy implements ITauntStrategy {
   }
 }
 
-class SimpleStrategy extends BaseTauntStrategy {
+export class SimpleStrategy extends BaseTauntStrategy {
   private focusLock: boolean = false;
 
   public start(): void {
@@ -258,7 +256,7 @@ class SimpleStrategy extends BaseTauntStrategy {
   }
 }
 
-class MessageStrategy extends BaseTauntStrategy {
+export class MessageStrategy extends BaseTauntStrategy {
   private readonly msg: string;
 
   public constructor(
@@ -315,9 +313,9 @@ class MessageStrategy extends BaseTauntStrategy {
 }
 
 export class CommandLoopTaunt extends Command {
-  public strategies!: StrategyInput[];
+  public originalStrategies: StrategyInput[] = [];
 
-  private strategyInstances: ITauntStrategy[] = [];
+  public strategyInstances: ITauntStrategy[] = [];
 
   private currentStrategy: ITauntStrategy | null = null;
 
@@ -326,61 +324,10 @@ export class CommandLoopTaunt extends Command {
   private isRunning: boolean = false;
 
   public override async execute(): Promise<void> {
-    if (!this.createStrategies()) {
-      log("Failed to create strategies");
-      return;
-    }
-
     void this.startBackgroundExecution();
 
     // Return immediately to not block the command queue
     log("CommandLoopTaunt started in background");
-  }
-
-  private createStrategies(): boolean {
-    if (!Array.isArray(this.strategies) || this.strategies.length === 0) {
-      log("No strategies provided");
-      return false;
-    }
-
-    for (const strategyInput of this.strategies) {
-      if (!Array.isArray(strategyInput) || strategyInput.length < 3) {
-        log("Invalid strategy input format");
-        continue;
-      }
-
-      const [target, playerIndex, maxPlayers, msg] = strategyInput;
-
-      // Validate inputs
-      if (typeof playerIndex !== "number" || playerIndex <= 0) {
-        log(`Invalid playerIndex: ${playerIndex}`);
-        continue;
-      }
-
-      if (typeof maxPlayers !== "number" || maxPlayers <= 0) {
-        log(`Invalid maxPlayers: ${maxPlayers}`);
-        continue;
-      }
-
-      if (!target || typeof target !== "string") {
-        log(`Invalid target: ${target}`);
-        continue;
-      }
-
-      let strategy: ITauntStrategy;
-
-      if (msg && typeof msg === "string") {
-        // Message strategy
-        strategy = new MessageStrategy(playerIndex, maxPlayers, target, msg);
-      } else {
-        // Simple strategy
-        strategy = new SimpleStrategy(playerIndex, maxPlayers, target);
-      }
-
-      this.strategyInstances.push(strategy);
-    }
-
-    return this.strategyInstances.length > 0;
   }
 
   private async startBackgroundExecution(): Promise<void> {
@@ -449,12 +396,12 @@ export class CommandLoopTaunt extends Command {
   public override toString(): string {
     let base = "Loop taunt";
 
-    if (this.strategies.length > 0) {
+    if (this.originalStrategies.length > 0) {
       base += ` ${this.currentStrategyIndex + 1}/${
         this.strategyInstances.length
       }: `;
 
-      const strat = this.strategies[0]!;
+      const strat = this.originalStrategies[0]!;
       const [, maxPlayers, target, msg] = strat;
       if (msg) base += ` (msg:${msg}) `;
       base += ` [t${target}/t${maxPlayers}]`;

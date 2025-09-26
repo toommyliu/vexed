@@ -23,7 +23,13 @@ import { CommandHouse } from "./CommandHouse";
 import { CommandLabel } from "./CommandLabel";
 import { CommandLog } from "./CommandLog";
 import { CommandLogout } from "./CommandLogout";
-import { CommandLoopTaunt } from "./CommandLoopTaunt";
+import {
+  CommandLoopTaunt,
+  SimpleStrategy,
+  MessageStrategy,
+  type StrategyInput,
+  type ITauntStrategy,
+} from "./CommandLoopTaunt";
 import { CommandRegisterTask } from "./CommandRegisterTask";
 import { CommandSetDelay } from "./CommandSetDelay";
 import { CommandSetFPS } from "./CommandSetFPS";
@@ -701,29 +707,45 @@ export const miscCommands = {
     cmd.name = name;
     window.context.addCommand(cmd);
   },
-  /**
-   * Starts loop taunt strategies. Accepts either a single nested array (legacy):
-   *   cmd.do_looptaunt([['id:1',1,2,'hi'], ['id:2',2,4,'hey']])
-   * or spread arguments (preferred):
-   *   cmd.do_looptaunt(['id:1',1,2,'hi'], ['id:2',2,4,'hey'])
-   */
-  do_looptaunt(...strategies: unknown[]) {
+  do_looptaunt(
+    ...strategies: [string, number, number, string?][] /* expanded for docgen */
+  ) {
     const cmd = new CommandLoopTaunt();
+    const strategyArr: StrategyInput[] =
+      strategies as unknown as StrategyInput[];
+    const strategyInstances: ITauntStrategy[] = [];
 
-    // Normalize input: if a single nested array is provided, unwrap it for
-    // backward compatibility.
-    let strategyArr: unknown[][] = [];
-    if (
-      strategies.length === 1 &&
-      Array.isArray(strategies[0]) &&
-      (strategies[0] as unknown[]).every((item) => Array.isArray(item))
-    ) {
-      strategyArr = strategies[0] as unknown[][];
-    } else {
-      strategyArr = strategies as unknown[][];
+    for (const strategyInput of strategyArr) {
+      if (!Array.isArray(strategyInput) || strategyInput.length < 3)
+        throw new ArgsError(
+          'expected ["target", playerIndex, maxPlayers, (msg)]',
+        );
+
+      const [target, playerIndex, maxPlayers, msg] = strategyInput;
+
+      if (typeof playerIndex !== "number" || playerIndex <= 0)
+        throw new ArgsError(`playerIndex is required`);
+
+      if (typeof maxPlayers !== "number" || maxPlayers <= 0)
+        throw new ArgsError(`maxPlayers is required`);
+
+      if (!target || typeof target !== "string")
+        throw new ArgsError(`target is required`);
+
+      let strategy: ITauntStrategy;
+
+      if (msg && typeof msg === "string")
+        strategy = new MessageStrategy(playerIndex, maxPlayers, target, msg);
+      else strategy = new SimpleStrategy(playerIndex, maxPlayers, target);
+
+      strategyInstances.push(strategy);
     }
 
-    cmd.strategies = strategyArr as any;
+    if (strategyInstances.length === 0)
+      throw new ArgsError("at least one strategy is required");
+
+    cmd.originalStrategies = strategyArr;
+    cmd.strategyInstances = strategyInstances;
     window.context.addCommand(cmd);
   },
 };
