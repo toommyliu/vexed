@@ -28,7 +28,6 @@ export function ct(bot: Bot, packet: CtPacket) {
         bot.combat.cancelTarget();
         bot.combat.cancelAutoAttack();
         bot.combat.pauseAttack = true;
-        break;
       }
     }
   }
