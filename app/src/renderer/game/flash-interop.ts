@@ -43,27 +43,22 @@ window.packetFromServer = ([packet]: [string]) => {
     const pkt = parser.parse(packet);
 
     if (Array.isArray(pkt?.msg?.body?.uLs?.u)) {
-      // clear existing uids except for our own
       for (const [name] of bot.world.playerUids) {
         if (name.toLowerCase() !== bot.auth.username.toLowerCase())
           bot.world.playerUids.delete(name);
       }
 
-      // clear existing auras except for our own
       for (const [username] of AuraStore.playerAuras) {
         if (username.toLowerCase() !== bot.auth.username.toLowerCase())
           AuraStore.clearPlayerAuras(username);
       }
 
-      // clear existing monster auras
-      for (const [monMapId] of AuraStore.monsterAuras) {
+      for (const [monMapId] of AuraStore.monsterAuras)
         AuraStore.monsterAuras.delete(monMapId);
-      }
 
       for (const user of pkt?.msg?.body?.uLs?.u ?? []) {
         const username = user?.n;
         const uid = Number.parseInt(user?.i, 10);
-        // console.log(`initUserData (joinOK): ${username}`);
         bot.world.playerUids.set(username, uid);
       }
     }
@@ -131,6 +126,8 @@ window.pext = async ([packet]) => {
       case "event":
         void event(bot, dataObj);
         break;
+      case "clearAuras":
+        AuraStore.clearPlayerAuras(bot.auth.username.toLowerCase()); // only ever called on ourselves
     }
   }
 };

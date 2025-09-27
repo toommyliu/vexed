@@ -109,12 +109,12 @@ export function ct(bot: Bot, packet: CtPacket) {
         } else if (REMOVE_AURAS.has(aura.cmd)) {
           const auraName = aura?.aura?.nam;
           if (!auraName) continue;
+
           if (type === "m") {
             AuraStore.removeMonsterAura(tgtId, auraName);
 
             if (auraName === "Counter Attack" && bot.settings.counterAttack) {
-              const monMapID = aura!.tInf!.split(":")[1];
-              bot.combat.attack(`id:${monMapID}`);
+              bot.combat.attack(`id:${tgtId}`);
               bot.combat.pauseAttack = false;
             }
           } else if (type === "p") {

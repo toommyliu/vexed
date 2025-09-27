@@ -16,7 +16,6 @@ export async function initUserDatas(bot: Bot, packet: Packet) {
       return;
     }
 
-    // console.log(`initUserDatas: ${username} -> ${user.uid}`);
     bot.world.playerUids.set(username, user.uid);
     bot.emit("playerJoin", username);
   }
