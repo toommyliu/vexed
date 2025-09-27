@@ -707,6 +707,11 @@ export const miscCommands = {
     cmd.name = name;
     window.context.addCommand(cmd);
   },
+  /**
+   * Performs loop taunt based on one or more strategies. See [looptaunt guide](/guides/looptaunt) for more details.
+   *
+   * @param strategies - An array of strategies. Each strategy is an array of [target, playerIndex, maxPlayers, (msg)]. msg is optional if using Simple mode.
+   */
   do_looptaunt(
     ...strategies: [string, number, number, string?][] /* expanded for docgen */
   ) {

@@ -68,6 +68,10 @@ export default defineConfig({
               link: '/guides/auto-skillsets/',
             },
             {
+              label: 'Loop Taunt',
+              link: '/guides/looptaunt/',
+            },
+            {
               label: 'Advanced',
               items: [
                 {

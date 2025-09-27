@@ -1,0 +1,83 @@
+---
+title: Loop Taunt
+description: Guide on using loop taunt command
+head:
+  - tag: title
+    content: Loop Taunt guide
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+[cmd.do_looptaunt](/api/misc#cmddo_looptaunt) is an experimental command to semi-automate taunting with Scroll of Enrage.
+
+# Usage
+
+There are two "strategies" to loop taunt:
+
+1. Simple mode
+
+This taunts by tracking the presence of the Focus aura on the target. When the aura fades, the next player in the cycle taunts.
+
+2. Msg mode
+
+This taunts by tracking the yellow message. When the message is received, the next player in the cycle taunts.
+
+Both modes taunt in round-robin fashion.
+
+## Simple mode
+
+```js
+cmd.is_player_number(1);
+cmd.do_looptaunt([
+  'target1',
+  1,
+  2,
+]); /* taunt as first player, out of 2 players */
+cmd.is_player_number(2);
+cmd.do_looptaunt(['target1', 2, 2]);
+cmd.kill('target1');
+```
+
+`player1` will **manually taunt** `target1` to start the loop cycle. When the Focus aura fades, `player2` will automatically taunt `target1`.
+
+The cycle repeats until the target is dead.
+
+<Aside type="note">
+Why does simple mode require manual taunting to start?
+
+This is to ensure reliability that the Focus aura is detected across all clients. There are some scenarios where one client might not get the aura packet.
+
+</Aside>
+
+## Msg mode
+
+```
+cmd.is_player_number(1)
+cmd.goto_label('t1')
+cmd.is_player_number(2)
+cmd.goto_label('t2')
+
+cmd.label('t1')
+cmd.do_looptaunt(['target1', 1, 2, 'behold our starfire']) /* taunt as first player, out of 2 players, when the message "behold our starfire" is received */
+cmd.kill('target1')
+cmd.goto_label('dead')
+
+cmd.label('t2')
+cmd.do_looptaunt(['target1', 2, 2, 'behold our starfire'])
+cmd.kill('target1')
+cmd.goto_label('dead')
+
+cmd.label('dead')
+cmd.log('dead')
+```
+
+`player1` will **automatically taunt** `target1` to start the loop cycle when the message "behold our starfire" is received. `player2` will taunt on the next occurrence of the message.
+
+The cycle repeats until the target is dead.
+
+### Remarks
+
+- Indicies are 1-based, so the first player is `1`, the second player is `2`, etc.
+- The target can be specified by name or monMapId format.
+- Multiple strategies can be ran sequentially. When the first strategy ends, the next strategy will start **when its target is attacked**.
+- You are expected to call `cmd.kill` (or whatever) after `cmd.do_looptaunt` since it is merely a background task over auras.
