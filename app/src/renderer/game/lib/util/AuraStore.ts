@@ -1,14 +1,5 @@
 import type { Aura } from "../models/BaseEntity";
 
-// some notes on Auras I noticed:
-// - a client may see auras visually (Class Actives/Auras UI) but may not get serialized properly (this seems like an unfixable issue for us)
-// - a client might not see some auras, especially if they were applied BEFORE the client began attacking the monster
-// - a client can even not be in the same room as the monster, for the aura+/- packet to be received
-
-// so, what does AuraStore do?
-// - keeps track of auras of monsters in the current map
-// - keeps track of auras of players in the current map
-
 type StoredAura = Aura & {
   stack?: number;
 };
