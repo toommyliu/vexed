@@ -273,9 +273,9 @@ export class MessageStrategy extends BaseTauntStrategy {
     this.bot.on("ctMessage", handler);
     this.listeners.push({ event: "ctMessage", handler });
 
-    log(
-      `[${this.getName()}] Started for ${this.target} - Player ${this.playerIndex}/${this.maxPlayers}, msg: "${this.msg}"`,
-    );
+    // log(
+    // `[${this.getName()}] Started for ${this.target} - Player ${this.playerIndex}/${this.maxPlayers}, msg: "${this.msg}"`,
+    // );
   }
 
   private async onCtMessage(
@@ -293,12 +293,12 @@ export class MessageStrategy extends BaseTauntStrategy {
       return;
     }
 
-    log(`[${this.getName()}] Message detected - Count: ${this.focusCount + 1}`);
+    // log(`[${this.getName()}] Message detected - Count: ${this.focusCount + 1}`);
 
     if (this.shouldTaunt(this.focusCount)) {
-      log(
-        `[${this.getName()}] It's player ${this.playerIndex}'s turn to taunt ${this.target}`,
-      );
+      // log(
+      // `[${this.getName()}] It's player ${this.playerIndex}'s turn to taunt ${this.target}`,
+      // );
       await this.doTaunt();
     }
 
