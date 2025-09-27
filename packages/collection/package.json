@@ -1,0 +1,16 @@
+{
+  "name": "@vexed/collection",
+  "version": "1.0.0",
+  "description": "Utility data structure based on Map. Repackage from @discordjs/collection.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "postinstall": "tsup src/index.ts --format cjs --outDir dist --dts",
+    "build": "tsup src/index.ts --format cjs --outDir dist --dts"
+  },
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.2"
+  }
+}
