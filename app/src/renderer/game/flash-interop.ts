@@ -42,6 +42,8 @@ window.packetFromServer = ([packet]: [string]) => {
     });
     const pkt = parser.parse(packet);
 
+    // TODO: this id is the same as entID
+
     if (Array.isArray(pkt?.msg?.body?.uLs?.u)) {
       for (const [name] of bot.world.playerUids) {
         if (name.toLowerCase() !== bot.auth.username.toLowerCase())
