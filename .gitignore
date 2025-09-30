@@ -15,3 +15,4 @@ api-types.json
 
 .yarnrc
 .yarn/
+pnpm-lock.yaml
