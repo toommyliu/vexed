@@ -1,28 +1,5 @@
 {
   "name": "vexed",
   "private": true,
-  "packageManager": "pnpm@10.17.0",
-  "pnpm": {
-    "overrides": {
-      "eslint-config-neon>@angular-eslint/eslint-plugin": "npm:@favware/skip-dependency@latest",
-      "eslint-config-neon>@angular-eslint/eslint-plugin-template": "npm:@favware/skip-dependency@latest",
-      "eslint-config-neon>@angular-eslint/template-parser": "npm:@favware/skip-dependency@latest",
-      "eslint-config-neon>@next/eslint-plugin-next": "npm:@favware/skip-dependency@latest",
-      "eslint-config-neon>@stylistic/eslint-plugin-jsx": "npm:@favware/skip-dependency@latest",
-      "eslint-config-neon>astro-eslint-parser": "npm:@favware/skip-dependency@latest",
-      "eslint-config-neon>eslint-mdx": "npm:@favware/skip-dependency@latest",
-      "eslint-config-neon>eslint-plugin-astro": "npm:@favware/skip-dependency@latest",
-      "eslint-config-neon>eslint-plugin-cypress": "npm:@favware/skip-dependency@latest",
-      "eslint-config-neon>eslint-plugin-jsx-a11y": "npm:@favware/skip-dependency@latest",
-      "eslint-config-neon>eslint-plugin-mdx": "npm:@favware/skip-dependency@latest",
-      "eslint-config-neon>eslint-plugin-react": "npm:@favware/skip-dependency@latest",
-      "eslint-config-neon>eslint-plugin-react-hooks": "npm:@favware/skip-dependency@latest",
-      "eslint-config-neon>eslint-plugin-react-refresh": "npm:@favware/skip-dependency@latest",
-      "eslint-config-neon>eslint-plugin-rxjs": "npm:@favware/skip-dependency@latest",
-      "eslint-config-neon>eslint-plugin-rxjs-angular": "npm:@favware/skip-dependency@latest",
-      "eslint-config-neon>eslint-plugin-svelte3": "npm:@favware/skip-dependency@latest",
-      "eslint-config-neon>eslint-plugin-vue": "npm:@favware/skip-dependency@latest",
-      "eslint-config-neon>vue-eslint-parser": "npm:@favware/skip-dependency@latest"
-    }
-  }
+  "packageManager": "pnpm@10.17.0"
 }

@@ -1276,23 +1276,13 @@ export class Collection<Key, Value> extends Map<Key, Value> {
    * Identical to {@link https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Map/groupBy | Map.groupBy()}
    * but returns a Collection instead of a Map.
    */
-  public static groupBy<Key, Item>(
+  public static override groupBy<Key, Item>(
     items: Iterable<Item>,
     keySelector: (item: Item, index: number) => Key
   ): Collection<Key, Item[]> {
-    const coll = new this[Symbol.species]<Key, Item[]>();
-    let index = 0;
-    for (const item of items) {
-      const key = keySelector(item, index++);
-      const bucket = coll.get(key);
-      if (bucket) {
-        bucket.push(item);
-      } else {
-        coll.set(key, [item]);
-      }
-    }
-
-    return coll;
+    return new this[Symbol.species]<Key, Item[]>(
+      Map.groupBy(items, keySelector)
+    );
   }
 
   /**
