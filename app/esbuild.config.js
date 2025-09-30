@@ -218,7 +218,6 @@ async function transpile() {
       conditions: ["svelte", "browser", "default"],
       external: [
         "electron",
-        "winston",
         "process",
         "util",
         "fs",
@@ -228,6 +227,8 @@ async function transpile() {
         "stream",
         "events",
         "constants",
+        "net",
+        "url",
       ],
       banner: {
         js: "require('core-js/stable')",

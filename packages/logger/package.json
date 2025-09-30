@@ -11,6 +11,6 @@
     }
   },
   "dependencies": {
-    "winston": "^3.14.2"
+    "log4js": "^6.9.1"
   }
 }
