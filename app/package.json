@@ -32,13 +32,13 @@
   "dependencies": {
     "@lukeed/uuid": "^2.0.1",
     "@tybys/electron-ipc-handle-invoke": "^1.0.2",
+    "@vexed/collection": "workspace:*",
     "@vexed/config": "workspace:*",
     "@vexed/fs-utils": "workspace:*",
     "@vexed/logger": "workspace:*",
     "@vexed/tipc": "workspace:*",
     "@vexed/ui": "workspace:*",
     "@vexed/utils": "workspace:*",
-    "@vexed/collection": "workspace:*",
     "async-mutex": "^0.5.0",
     "clsx": "^2.1.1",
     "core-js": "^3.42.0",
@@ -52,8 +52,7 @@
     "tailwind-merge": "^3.3.0",
     "tiny-typed-emitter": "^2.1.0",
     "virtua": "^0.41.3",
-    "watchlist": "^0.3.1",
-    "winston": "^3.17.0"
+    "watchlist": "^0.3.1"
   },
   "devDependencies": {
     "@types/is-hotkey": "^0.1.10",
