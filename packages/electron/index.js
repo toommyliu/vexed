@@ -2,7 +2,6 @@ var fs = require('fs');
 var path = require('path');
 
 var pathFile = path.join(__dirname, 'path.txt');
-console.log('expected pathFile at', pathFile);
 function getElectronPath() {
   if (fs.existsSync(pathFile)) {
     var executablePath = fs.readFileSync(pathFile, 'utf-8');
