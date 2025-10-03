@@ -92,7 +92,12 @@ export class AutoReloginJob extends Job {
 
       // Still stuck in blue flame?
       if (!this.bot.player.isReady()) {
-        console.warn("Player not ready after login, retrying...");
+        console.warn(
+          "Player not ready after login, retrying...",
+          this.bot.auth.isLoggedIn(),
+          !this.bot.world.isLoading(),
+          this.bot.player.isLoaded(),
+        );
         this.bot.auth.logout();
         return;
       }

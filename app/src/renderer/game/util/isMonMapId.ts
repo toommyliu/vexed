@@ -23,3 +23,42 @@ export function extractMonsterMapId(input: string): string {
 
   return input.slice(prefix.length);
 }
+
+/**
+ * Checks if the input string contains multiple valid monMapIds.
+ *
+ * @param input - comma separated string of monMapIds
+ * @returns True if multiple valid monMapIds are found, false otherwise.
+ */
+export function hasMultipleMonMapIds(input: string) {
+  const parts = input.split(",").map((part) => part.trim());
+  let count = 0;
+
+  for (const part of parts) {
+    if (isMonsterMapId(part)) {
+      count++;
+      if (count > 1) return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Extracts all valid monMapIds from a comma-separated string.
+ *
+ * @param input - comma separated string of monMapIds
+ * @returns An array of valid monMapIds found in the input string.
+ */
+export function extractAllMonMapIds(input: string) {
+  const parts = input.split(",").map((part) => part.trim());
+  const monMapIds: string[] = [];
+
+  for (const part of parts) {
+    if (isMonsterMapId(part)) {
+      monMapIds.push(extractMonsterMapId(part));
+    }
+  }
+
+  return monMapIds;
+}

@@ -23,6 +23,13 @@ import { CommandHouse } from "./CommandHouse";
 import { CommandLabel } from "./CommandLabel";
 import { CommandLog } from "./CommandLog";
 import { CommandLogout } from "./CommandLogout";
+import {
+  CommandLoopTaunt,
+  SimpleStrategy,
+  MessageStrategy,
+  type StrategyInput,
+  type ITauntStrategy,
+} from "./CommandLoopTaunt";
 import { CommandRegisterTask } from "./CommandRegisterTask";
 import { CommandSetDelay } from "./CommandSetDelay";
 import { CommandSetFPS } from "./CommandSetFPS";
@@ -438,6 +445,13 @@ export const miscCommands = {
       delete window.cmd[_name];
     }
   },
+  /**
+   * Registers a packet handler.
+   *
+   * @param type - "packetFromClient" | "packetFromServer" | "pext"
+   * @param name - The name of the handler.
+   * @param handler - The handler function. For "pext", the function receives a parsed object. For "packetFromClient" and "packetFromServer", the function receives a raw string.
+   */
   register_handler(
     type: "packetFromClient" | "packetFromServer" | "pext",
     name: string,
@@ -638,6 +652,7 @@ export const miscCommands = {
   },
   /**
    * Registers a task (a.k.a background job) to be executed alongside commands.
+   * The task function is bound to an object containing the bot instance and the context instance.
    *
    * @example
    * ```js
@@ -690,6 +705,52 @@ export const miscCommands = {
 
     const cmd = new CommandUnregisterTask();
     cmd.name = name;
+    window.context.addCommand(cmd);
+  },
+  /**
+   * Performs loop taunt based on one or more strategies. See [looptaunt guide](/guides/looptaunt) for more details.
+   *
+   * @param strategies - An array of strategies. Each strategy is an array of [target, playerIndex, maxPlayers, (msg)]. msg is optional if using Simple mode.
+   */
+  do_looptaunt(
+    ...strategies: [string, number, number, string?][] /* expanded for docgen */
+  ) {
+    const cmd = new CommandLoopTaunt();
+    const strategyArr: StrategyInput[] =
+      strategies as unknown as StrategyInput[];
+    const strategyInstances: ITauntStrategy[] = [];
+
+    for (const strategyInput of strategyArr) {
+      if (!Array.isArray(strategyInput) || strategyInput.length < 3)
+        throw new ArgsError(
+          'expected ["target", playerIndex, maxPlayers, (msg)]',
+        );
+
+      const [target, playerIndex, maxPlayers, msg] = strategyInput;
+
+      if (typeof playerIndex !== "number" || playerIndex <= 0)
+        throw new ArgsError(`playerIndex is required`);
+
+      if (typeof maxPlayers !== "number" || maxPlayers <= 0)
+        throw new ArgsError(`maxPlayers is required`);
+
+      if (!target || typeof target !== "string")
+        throw new ArgsError(`target is required`);
+
+      let strategy: ITauntStrategy;
+
+      if (msg && typeof msg === "string")
+        strategy = new MessageStrategy(playerIndex, maxPlayers, target, msg);
+      else strategy = new SimpleStrategy(playerIndex, maxPlayers, target);
+
+      strategyInstances.push(strategy);
+    }
+
+    if (strategyInstances.length === 0)
+      throw new ArgsError("at least one strategy is required");
+
+    cmd.originalStrategies = strategyArr;
+    cmd.strategyInstances = strategyInstances;
     window.context.addCommand(cmd);
   },
 };

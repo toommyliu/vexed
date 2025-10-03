@@ -1,4 +1,4 @@
-const { resolve } = require("path");
+const { resolve, dirname } = require("path");
 const { readdir, copy, ensureDir, readFileSync } = require("fs-extra");
 const { build, context } = require("esbuild");
 const { watch } = require("watchlist");
@@ -38,6 +38,210 @@ function getPathAliases() {
 
 const pathAliases = getPathAliases();
 
+const SCRIPT_TARGETS = [
+  {
+    name: "Main",
+    logLabel: "main took",
+    srcDir: "./src/main/",
+    outDir: "dist/main/",
+    watchPaths: ["./src/main"],
+  },
+  {
+    name: "Shared",
+    logLabel: "shared took",
+    srcDir: "./src/shared/",
+    outDir: "dist/shared/",
+    watchPaths: ["./src/shared"],
+  },
+  {
+    name: "Renderer",
+    logLabel: "renderer took",
+    srcDir: "./src/renderer/",
+    outDir: "dist/renderer/",
+    watchPaths: ["./src/renderer"],
+  },
+];
+
+const SVELTE_TARGETS = [
+  {
+    name: "manager",
+    logLabel: "manager svelte took",
+    entryPoint: "./src/renderer/manager/main.ts",
+    outfile: "./dist/manager/build/main.js",
+    tsconfigFile: "./src/renderer/manager/tsconfig.json",
+    watchPaths: ["./src/renderer/manager"],
+  },
+  {
+    name: "game",
+    logLabel: "game svelte took",
+    entryPoint: "./src/renderer/game/main.ts",
+    outfile: "./dist/game/build/main.js",
+    tsconfigFile: "./src/renderer/game/tsconfig.json",
+    watchPaths: ["./src/renderer/game"],
+  },
+  {
+    name: "fast-travels",
+    logLabel: "fast-travels svelte took",
+    entryPoint: "./src/renderer/tools/fast-travels/main.ts",
+    outfile: "./dist/tools/fast-travels/build/main.js",
+    tsconfigFile: "./src/renderer/game/tsconfig.json",
+    watchPaths: ["./src/renderer/tools/fast-travels"],
+  },
+  {
+    name: "loader-grabber",
+    logLabel: "loader-grabber svelte took",
+    entryPoint: "./src/renderer/tools/loader-grabber/main.ts",
+    outfile: "./dist/tools/loader-grabber/build/main.js",
+    tsconfigFile: "./src/renderer/game/tsconfig.json",
+    watchPaths: ["./src/renderer/tools/loader-grabber"],
+  },
+  {
+    name: "follower",
+    logLabel: "follower svelte took",
+    entryPoint: "./src/renderer/tools/follower/main.ts",
+    outfile: "./dist/tools/follower/build/main.js",
+    tsconfigFile: "./src/renderer/game/tsconfig.json",
+    watchPaths: ["./src/renderer/tools/follower"],
+  },
+  {
+    name: "hotkeys",
+    logLabel: "hotkeys svelte took",
+    entryPoint: "./src/renderer/tools/hotkeys/main.ts",
+    outfile: "./dist/tools/hotkeys/build/main.js",
+    tsconfigFile: "./src/renderer/game/tsconfig.json",
+    watchPaths: ["./src/renderer/tools/hotkeys"],
+  },
+  {
+    name: "packet-logger",
+    logLabel: "packet-logger svelte took",
+    entryPoint: "./src/renderer/packets/logger/main.ts",
+    outfile: "./dist/packets/logger/build/main.js",
+    tsconfigFile: "./src/renderer/game/tsconfig.json",
+    watchPaths: ["./src/renderer/packets/logger"],
+  },
+  {
+    name: "packet-spammer",
+    logLabel: "packet-spammer svelte took",
+    entryPoint: "./src/renderer/packets/spammer/main.ts",
+    outfile: "./dist/packets/spammer/build/main.js",
+    tsconfigFile: "./src/renderer/game/tsconfig.json",
+    watchPaths: ["./src/renderer/packets/spammer"],
+  },
+];
+
+const CSS_TARGETS = [
+  {
+    name: "tailwind",
+    logLabel: "tailwind css took",
+    entryPoint: "./src/renderer/tailwind.css",
+    outfile: "./dist/build/tailwind.css",
+    watchPaths: ["./src/renderer/tailwind.css", "./tailwind.config.js"],
+  },
+];
+
+const HTML_COPY_TARGETS = [
+  { src: "./src/renderer/game/index.html", dest: "./dist/game/index.html" },
+  {
+    src: "./src/renderer/manager/index.html",
+    dest: "./dist/manager/index.html",
+  },
+  {
+    src: "./src/renderer/tools/fast-travels/index.html",
+    dest: "./dist/tools/fast-travels/index.html",
+  },
+  {
+    src: "./src/renderer/tools/follower/index.html",
+    dest: "./dist/tools/follower/index.html",
+  },
+  {
+    src: "./src/renderer/tools/loader-grabber/index.html",
+    dest: "./dist/tools/loader-grabber/index.html",
+  },
+  {
+    src: "./src/renderer/tools/hotkeys/index.html",
+    dest: "./dist/tools/hotkeys/index.html",
+  },
+  {
+    src: "./src/renderer/packets/logger/index.html",
+    dest: "./dist/packets/logger/index.html",
+  },
+  {
+    src: "./src/renderer/packets/spammer/index.html",
+    dest: "./dist/packets/spammer/index.html",
+  },
+];
+
+const toArray = (value) => (Array.isArray(value) ? value : [value]);
+
+const timed = async (label, fn) => {
+  console.time(label);
+  try {
+    const result = await fn();
+    console.timeEnd(label);
+    return result;
+  } catch (error) {
+    console.timeEnd(label);
+    throw error;
+  }
+};
+
+const createSvelteConfig = ({ entryPoint, outfile, tsconfigFile }) => ({
+  entryPoints: [entryPoint],
+  outfile,
+  bundle: true,
+  format: "cjs",
+  platform: "browser",
+  target: "es2019",
+  sourcemap: !isProduction,
+  minify: isProduction,
+  loader: {
+    ".ts": "ts",
+    ".js": "js",
+  },
+  conditions: ["svelte", "browser", "default"],
+  external: [
+    "electron",
+    "process",
+    "util",
+    "fs",
+    "path",
+    "os",
+    "assert",
+    "stream",
+    "events",
+    "constants",
+    "net",
+    "url",
+  ],
+  banner: {
+    js: "require('core-js/stable')",
+  },
+  plugins: [
+    alias(pathAliases),
+    sveltePlugin({
+      compilerOptions: {
+        dev: !isProduction,
+        css: "injected",
+      },
+      preprocess: sveltePreprocess({
+        sourceMap: !isProduction,
+        typescript: {
+          tsconfigFile,
+        },
+      }),
+    }),
+  ],
+});
+
+const createCssConfig = ({ entryPoint, outfile }) => ({
+  entryPoints: [entryPoint],
+  outfile,
+  bundle: true,
+  minify: isProduction,
+  sourcemap: !isProduction,
+  plugins: [alias(pathAliases), postCssPlugin()],
+});
+
 /**
  * @param {string} dir
  * @returns {Promise<string[]>}
@@ -45,9 +249,8 @@ const pathAliases = getPathAliases();
 const readdirp = async (dir) => {
   const dirents = await readdir(dir, { withFileTypes: true });
   const filtered = dirents.filter((dirent) => {
-    if (dirent.isFile()) {
+    if (dirent.isFile())
       return !dirent.name.startsWith(".") && dirent.name.endsWith(".ts");
-    }
     return true;
   });
   const files = await Promise.all(
@@ -64,44 +267,13 @@ const readdirp = async (dir) => {
  * @returns {Promise<void>}
  */
 async function copyHtmlFiles() {
-  const htmlFiles = [
-    { src: "./src/renderer/game/index.html", dest: "./dist/game/index.html" },
-    {
-      src: "./src/renderer/manager/index.html",
-      dest: "./dist/manager/index.html",
-    },
-    {
-      src: "./src/renderer/tools/fast-travels/index.html",
-      dest: "./dist/tools/fast-travels/index.html",
-    },
-    {
-      src: "./src/renderer/tools/follower/index.html",
-      dest: "./dist/tools/follower/index.html",
-    },
-    {
-      src: "./src/renderer/tools/loader-grabber/index.html",
-      dest: "./dist/tools/loader-grabber/index.html",
-    },
-    {
-      src: "./src/renderer/tools/hotkeys/index.html",
-      dest: "./dist/tools/hotkeys/index.html",
-    },
-    {
-      src: "./src/renderer/packets/logger/index.html",
-      dest: "./dist/packets/logger/index.html",
-    },
-    {
-      src: "./src/renderer/packets/spammer/index.html",
-      dest: "./dist/packets/spammer/index.html",
-    },
-  ];
-
   await Promise.all(
-    htmlFiles.map(async ({ src, dest }) => {
+    HTML_COPY_TARGETS.map(async ({ src, dest }) => {
       try {
-        await ensureDir(resolve(dest, ".."));
-        await copy(src, dest);
-        // console.log(`Copied ${src} -> ${dest}`);
+        const sourcePath = resolve(__dirname, src);
+        const destinationPath = resolve(__dirname, dest);
+        await ensureDir(dirname(destinationPath));
+        await copy(sourcePath, destinationPath);
       } catch (error) {
         console.error(`Failed to copy ${src} -> ${dest}:`, error);
       }
@@ -117,22 +289,22 @@ async function copyHtmlFiles() {
  * @returns {Promise<{ context: import('esbuild').Context, rebuildWithNewFiles: () => Promise<void> }>}
  */
 async function createBuildContext(config, srcDir, outDir, contextName) {
-  const createRebuildPlugin = (context) => ({
-    name: `rebuild-logger-${context}`,
+  const createRebuildPlugin = (contextLabel) => ({
+    name: `rebuild-logger-${contextLabel}`,
     setup(build) {
       build.onStart(() => {
-        console.time(`${context} rebuild`);
+        console.time(`${contextLabel} rebuild`);
       });
       build.onEnd((result) => {
         const timestamp = new Date().toLocaleTimeString();
         if (result.errors.length > 0) {
           console.error(
-            `[${timestamp}] ${context} rebuild failed:`,
+            `[${timestamp}] ${contextLabel} rebuild failed:`,
             result.errors,
           );
         } else {
-          console.timeEnd(`${context} rebuild`);
-          console.log(`[${timestamp}] ${context} rebuilt successfully`);
+          console.timeEnd(`${contextLabel} rebuild`);
+          console.log(`[${timestamp}] ${contextLabel} rebuilt successfully`);
         }
       });
     },
@@ -177,6 +349,111 @@ async function createBuildContext(config, srcDir, outDir, contextName) {
   return { context: buildCtx, rebuildWithNewFiles };
 }
 
+async function watchAndRebuild({ name, paths, onChange, start }) {
+  const watchTargets = toArray(paths).map((targetPath) =>
+    resolve(__dirname, targetPath),
+  );
+
+  try {
+    await watch(watchTargets, async () => {
+      console.log(`Changes detected in ${name}, rebuilding...`);
+      try {
+        await onChange();
+      } catch (error) {
+        console.error(`${name} rebuild failed:`, error);
+      }
+    });
+
+    return start();
+  } catch (error) {
+    console.error(`Failed to start watching ${name}:`, error);
+    throw error;
+  }
+}
+
+async function runWatchMode(commonConfig, svelteConfigs, cssConfigs) {
+  const scriptContexts = await Promise.all(
+    SCRIPT_TARGETS.map(async (target) => {
+      const { context: ctx, rebuildWithNewFiles } = await createBuildContext(
+        commonConfig,
+        target.srcDir,
+        target.outDir,
+        target.name,
+      );
+
+      return { target, context: ctx, rebuildWithNewFiles };
+    }),
+  );
+
+  const svelteContexts = await Promise.all(
+    svelteConfigs.map(async (target) => {
+      const ctx = await context(target.config);
+      return { target, context: ctx };
+    }),
+  );
+
+  const cssContexts = await Promise.all(
+    cssConfigs.map(async (target) => {
+      const ctx = await context(target.config);
+      return { target, context: ctx };
+    }),
+  );
+
+  await Promise.all([
+    ...scriptContexts.map(({ target, context: ctx, rebuildWithNewFiles }) =>
+      watchAndRebuild({
+        name: `${target.name} scripts`,
+        paths: target.watchPaths,
+        onChange: rebuildWithNewFiles,
+        start: () => ctx.watch(),
+      }),
+    ),
+    ...svelteContexts.map(({ target, context: ctx }) =>
+      watchAndRebuild({
+        name: `${target.name} Svelte`,
+        paths: target.watchPaths,
+        onChange: () => ctx.rebuild(),
+        start: () => ctx.watch(),
+      }),
+    ),
+    ...cssContexts.map(({ target, context: ctx }) =>
+      watchAndRebuild({
+        name: `${target.name} CSS`,
+        paths: target.watchPaths,
+        onChange: () => ctx.rebuild(),
+        start: () => ctx.watch(),
+      }),
+    ),
+  ]);
+
+  console.log("Watching for changes...");
+}
+
+async function runBuildMode(commonConfig, svelteConfigs, cssConfigs) {
+  await Promise.all([
+    ...SCRIPT_TARGETS.map((target) =>
+      timed(target.logLabel, async () => {
+        await build({
+          ...commonConfig,
+          entryPoints: await readdirp(target.srcDir),
+          outdir: target.outDir,
+        });
+      }),
+    ),
+    ...svelteConfigs.map((target) =>
+      timed(target.logLabel, async () => {
+        await build(target.config);
+      }),
+    ),
+    ...cssConfigs.map((target) =>
+      timed(target.logLabel, async () => {
+        await build(target.config);
+      }),
+    ),
+    timed("HTML copy took", copyHtmlFiles),
+  ]);
+}
+
 /**
  * @returns {Promise<void>}
  */
@@ -195,323 +472,20 @@ async function transpile() {
       plugins: [alias(pathAliases)],
     };
 
-    /**
-     *
-     * @param {string} entryPoint - The entry point for the Svelte application
-     * @param {string} outfile - The output file path
-     * @param {string} tsconfigFile - The path to the TypeScript config file
-     * @returns
-     */
-    const createSvelteConfig = (entryPoint, outfile, tsconfigFile) => ({
-      entryPoints: [entryPoint],
-      outfile,
-      bundle: true,
-      format: "cjs",
-      platform: "browser",
-      target: "es2019",
-      sourcemap: !isProduction,
-      minify: isProduction,
-      loader: {
-        ".ts": "ts",
-        ".js": "js",
-      },
-      conditions: ["svelte", "browser", "default"],
-      external: [
-        "electron",
-        "winston",
-        "process",
-        "util",
-        "fs",
-        "path",
-        "os",
-        "assert",
-        "stream",
-        "events",
-        "constants",
-      ],
-      banner: {
-        js: "require('core-js/stable')",
-      },
-      plugins: [
-        alias(pathAliases),
-        sveltePlugin({
-          compilerOptions: {
-            dev: !isProduction,
-            css: "injected",
-          },
-          preprocess: sveltePreprocess({
-            sourceMap: isProduction ? false : true,
-            typescript: {
-              tsconfigFile,
-            },
-          }),
-        }),
-      ],
-    });
+    const svelteConfigs = SVELTE_TARGETS.map((target) => ({
+      ...target,
+      config: createSvelteConfig(target),
+    }));
 
-    const svelteConfigs = [
-      {
-        name: "manager",
-        config: createSvelteConfig(
-          "./src/renderer/manager/main.ts",
-          "./dist/manager/build/main.js",
-          "./src/renderer/manager/tsconfig.json",
-        ),
-        watchPath: "./src/renderer/manager",
-      },
-      {
-        name: "game",
-        config: createSvelteConfig(
-          "./src/renderer/game/main.ts",
-          "./dist/game/build/main.js",
-          "./src/renderer/game/tsconfig.json",
-        ),
-        watchPath: "./src/renderer/game",
-      },
-      {
-        name: "fast-travels",
-        config: createSvelteConfig(
-          "./src/renderer/tools/fast-travels/main.ts",
-          "./dist/tools/fast-travels/build/main.js",
-          "./src/renderer/game/tsconfig.json",
-        ),
-        watchPath: "./src/renderer/tools/fast-travels",
-      },
-      {
-        name: "loader-grabber",
-        config: createSvelteConfig(
-          "./src/renderer/tools/loader-grabber/main.ts",
-          "./dist/tools/loader-grabber/build/main.js",
-          "./src/renderer/game/tsconfig.json",
-        ),
-        watchPath: "./src/renderer/tools/loader-grabber",
-      },
-      {
-        name: "follower",
-        config: createSvelteConfig(
-          "./src/renderer/tools/follower/main.ts",
-          "./dist/tools/follower/build/main.js",
-          "./src/renderer/game/tsconfig.json",
-        ),
-        watchPath: "./src/renderer/tools/follower",
-      },
-      {
-        name: "hotkeys",
-        config: createSvelteConfig(
-          "./src/renderer/tools/hotkeys/main.ts",
-          "./dist/tools/hotkeys/build/main.js",
-          "./src/renderer/game/tsconfig.json",
-        ),
-        watchPath: "./src/renderer/tools/hotkeys",
-      },
-      {
-        name: "packet-logger",
-        config: createSvelteConfig(
-          "./src/renderer/packets/logger/main.ts",
-          "./dist/packets/logger/build/main.js",
-          "./src/renderer/game/tsconfig.json",
-        ),
-        watchPath: "./src/renderer/packets/logger",
-      },
-      {
-        name: "packet-spammer",
-        config: createSvelteConfig(
-          "./src/renderer/packets/spammer/main.ts",
-          "./dist/packets/spammer/build/main.js",
-          "./src/renderer/game/tsconfig.json",
-        ),
-        watchPath: "./src/renderer/packets/spammer",
-      },
-    ];
-
-    const cssConfigs = [
-      {
-        name: "tailwind",
-        config: {
-          entryPoints: ["./src/renderer/tailwind.css"],
-          outfile: "./dist/build/tailwind.css",
-          bundle: true,
-          minify: isProduction,
-          sourcemap: isProduction ? false : true,
-          plugins: [alias(pathAliases), postCssPlugin()],
-        },
-        watchPath: "./src/renderer/tailwind.css",
-      },
-    ];
+    const cssConfigs = CSS_TARGETS.map((target) => ({
+      ...target,
+      config: createCssConfig(target),
+    }));
 
     if (isWatch) {
-      const contexts = await Promise.all([
-        createBuildContext(commonConfig, "./src/main/", "dist/main/", "Main"),
-        createBuildContext(
-          commonConfig,
-          "./src/shared/",
-          "dist/shared/",
-          "Shared",
-        ),
-        createBuildContext(
-          commonConfig,
-          "./src/renderer/",
-          "dist/renderer/",
-          "Renderer",
-        ),
-      ]);
-
-      let svelteContexts = await Promise.all(
-        svelteConfigs.map(async ({ name, config }) => {
-          const ctx = await context(config);
-          return { name, context: ctx, config };
-        }),
-      );
-
-      let cssContexts = await Promise.all(
-        cssConfigs.map(async ({ name, config }) => {
-          const ctx = await context(config);
-          return { name, context: ctx, config };
-        }),
-      );
-
-      await Promise.all([
-        ...contexts.map(async ({ context, rebuildWithNewFiles }, index) => {
-          const dirs = ["./src/main", "./src/renderer", "./src/shared"][index];
-          try {
-            await watch([dirs], async () => {
-              console.log(`Changes detected in ${dirs}, rebuilding...`);
-              try {
-                await rebuildWithNewFiles();
-              } catch (error) {
-                console.error(`Failed to rebuild ${dirs}:`, error);
-              }
-            });
-            return context.watch();
-          } catch (error) {
-            console.error(`Failed to start file watching for ${dirs}:`, error);
-            throw error;
-          }
-        }),
-        ...svelteContexts.map(({ name, context: ctx }) => {
-          const svelteConfig = svelteConfigs.find(
-            (config) => config.name === name,
-          );
-          return (async () => {
-            try {
-              await watch([svelteConfig.watchPath], async () => {
-                console.log(
-                  `Changes detected in ${name} Svelte files, rebuilding...`,
-                );
-                try {
-                  await ctx.rebuild();
-                } catch (error) {
-                  console.error(`${name} Svelte rebuild failed:`, error);
-                }
-              });
-              return ctx.watch();
-            } catch (error) {
-              console.error(
-                `Failed to start ${name} Svelte file watching:`,
-                error,
-              );
-              throw error;
-            }
-          })();
-        }),
-        ...cssContexts.map(({ name, context: ctx }) => {
-          const cssConfig = cssConfigs.find((config) => config.name === name);
-          return (async () => {
-            try {
-              await watch(
-                [cssConfig.watchPath, "./tailwind.config.js"],
-                async () => {
-                  console.log(
-                    `Changes detected in ${name} CSS files, rebuilding...`,
-                  );
-                  try {
-                    await ctx.rebuild();
-                  } catch (error) {
-                    console.error(`${name} CSS rebuild failed:`, error);
-                  }
-                },
-              );
-              return ctx.watch();
-            } catch (error) {
-              console.error(
-                `Failed to start ${name} CSS file watching:`,
-                error,
-              );
-              throw error;
-            }
-          })();
-        }),
-      ]);
-
-      console.log("Watching for changes...");
+      await runWatchMode(commonConfig, svelteConfigs, cssConfigs);
     } else {
-      // One-time build
-      const builds = ["main", "shared", "renderer"].map(async (type) => {
-        console.time(`${type} took`);
-        try {
-          await build({
-            ...commonConfig,
-            entryPoints: await readdirp(`./src/${type}/`),
-            outdir: `dist/${type}/`,
-          });
-          console.timeEnd(`${type} took`);
-        } catch (error) {
-          console.timeEnd(`${type} took`);
-          console.error(`${type} build failed:`, error);
-          throw error;
-        }
-      });
-
-      // Add all Svelte builds
-      svelteConfigs.forEach(({ name, config }) => {
-        builds.push(
-          (async () => {
-            console.time(`${name} svelte took`);
-            try {
-              await build(config);
-              console.timeEnd(`${name} svelte took`);
-            } catch (error) {
-              console.timeEnd(`${name} svelte took`);
-              console.error(`${name} Svelte build failed:`, error);
-              throw error;
-            }
-          })(),
-        );
-      });
-
-      // Add all CSS builds
-      cssConfigs.forEach(({ name, config }) => {
-        builds.push(
-          (async () => {
-            console.time(`${name} css took`);
-            try {
-              await build(config);
-              console.timeEnd(`${name} css took`);
-            } catch (error) {
-              console.timeEnd(`${name} css took`);
-              console.error(`${name} CSS build failed:`, error);
-              throw error;
-            }
-          })(),
-        );
-      });
-
-      // Copy HTML files
-      builds.push(
-        (async () => {
-          console.time("HTML copy took");
-          try {
-            await copyHtmlFiles();
-            console.timeEnd("HTML copy took");
-          } catch (error) {
-            console.timeEnd("HTML copy took");
-            console.error("HTML copy failed:", error);
-            throw error;
-          }
-        })(),
-      );
-
-      await Promise.all(builds);
+      await runBuildMode(commonConfig, svelteConfigs, cssConfigs);
     }
   } catch (error) {
     console.log(`An error occurred while transpiling: ${error}`);

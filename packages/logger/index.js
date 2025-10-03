@@ -1,7 +1,5 @@
-const util = require("util");
-const winston = require("winston");
-
-const { createLogger, format, transports } = winston;
+const util = require('util');
+const log4js = require('log4js');
 
 /**
  * Logger class for structured logging with customizable handlers
@@ -15,11 +13,11 @@ class Logger {
     this.scope = scope;
     this.handlers = options.handlers || [];
     this.precision =
-      typeof options.precision === "number" ? options.precision : 0;
+      typeof options.precision === 'number' ? options.precision : 0;
 
     const timestampFormat = () => {
       const now = new Date();
-      const pad = (n) => n.toString().padStart(2, "0");
+      const pad = (n) => n.toString().padStart(2, '0');
 
       let base = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
 
@@ -32,29 +30,26 @@ class Logger {
       return base;
     };
 
-    this.logger = createLogger({
-      level: options.level || "debug",
-      levels: winston.config.cli.levels,
-      transports: [new transports.Console({ level: options.level || "debug" })],
-      format: format.combine(
-        format.timestamp({ format: timestampFormat }),
-        format.printf(({ level, message, timestamp, _rawArgs }) => {
-          // If the original call was a single plain string, prefer that raw string
-          // for display.
-          let displayMessage = message;
-
-          if (
-            Array.isArray(_rawArgs) &&
-            _rawArgs.length === 1 &&
-            typeof _rawArgs[0] === "string"
-          ) {
-            displayMessage = _rawArgs[0];
-          }
-
-          return `[${timestamp}] [${level}]${this.scope ? ` (${this.scope})` : ""} ${displayMessage}`;
-        }),
-      ),
+    // Configure log4js
+    log4js.configure({
+      appenders: {
+        console: {
+          type: 'console',
+          layout: {
+            type: 'pattern',
+            pattern: `[%d{${this.precision > 0 ? 'hh:mm:ss.SSS' : 'hh:mm:ss'}}] [%p]${this.scope ? ` (${this.scope})` : ''} %m`,
+          },
+        },
+      },
+      categories: {
+        default: {
+          appenders: ['console'],
+          level: options.level || 'debug',
+        },
+      },
     });
+
+    this.logger = log4js.getLogger();
   }
 
   /**
@@ -76,8 +71,8 @@ class Logger {
           if (arg.stack) {
             // The stack trace usually starts with the error name and message, followed by the actual trace
             // Extract just the trace part (lines after the first line)
-            const stackLines = arg.stack.split("\n");
-            return stackLines.slice(1).join("\n");
+            const stackLines = arg.stack.split('\n');
+            return stackLines.slice(1).join('\n');
           }
 
           // Fallback if no stack is available
@@ -85,10 +80,10 @@ class Logger {
         }
 
         if (Array.isArray(arg)) {
-          return arg.map((a) => util.inspect(a, { depth: null })).join(" ");
+          return arg.map((a) => util.inspect(a, { depth: null })).join(' ');
         }
 
-        if (typeof arg === "object" && arg !== null) {
+        if (typeof arg === 'object' && arg !== null) {
           try {
             return util.inspect(arg, { depth: null });
           } catch {
@@ -98,7 +93,7 @@ class Logger {
 
         return String(arg);
       })
-      .join(" ");
+      .join(' ');
   }
 
   /**
@@ -107,10 +102,8 @@ class Logger {
    */
   info(...args) {
     const formattedMessage = this.formatArgs(args);
-    this.callHandlers("info", formattedMessage, ...args);
-    // Pass the original args through as metadata so the formatter can
-    // decide whether to use the raw string (to avoid extra quoting).
-    this.logger.info(formattedMessage, { _rawArgs: args });
+    this.callHandlers('info', formattedMessage, ...args);
+    this.logger.info(formattedMessage);
   }
 
   /**
@@ -119,8 +112,8 @@ class Logger {
    */
   warn(...args) {
     const formattedMessage = this.formatArgs(args);
-    this.callHandlers("warn", formattedMessage, ...args);
-    this.logger.warn(formattedMessage, { _rawArgs: args });
+    this.callHandlers('warn', formattedMessage, ...args);
+    this.logger.warn(formattedMessage);
   }
 
   /**
@@ -129,8 +122,8 @@ class Logger {
    */
   error(...args) {
     const formattedMessage = this.formatArgs(args);
-    this.callHandlers("error", formattedMessage, ...args);
-    this.logger.error(formattedMessage, { _rawArgs: args });
+    this.callHandlers('error', formattedMessage, ...args);
+    this.logger.error(formattedMessage);
   }
 
   /**
@@ -139,8 +132,8 @@ class Logger {
    */
   debug(...args) {
     const formattedMessage = this.formatArgs(args);
-    this.callHandlers("debug", formattedMessage, ...args);
-    this.logger.debug(formattedMessage, { _rawArgs: args });
+    this.callHandlers('debug', formattedMessage, ...args);
+    this.logger.debug(formattedMessage);
   }
 
   /**

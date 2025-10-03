@@ -32,6 +32,7 @@
   "dependencies": {
     "@lukeed/uuid": "^2.0.1",
     "@tybys/electron-ipc-handle-invoke": "^1.0.2",
+    "@vexed/collection": "workspace:*",
     "@vexed/config": "workspace:*",
     "@vexed/fs-utils": "workspace:*",
     "@vexed/logger": "workspace:*",
@@ -41,7 +42,7 @@
     "async-mutex": "^0.5.0",
     "clsx": "^2.1.1",
     "core-js": "^3.42.0",
-    "cross-env": "^10.0.0",
+    "fast-xml-parser": "^5.2.5",
     "is-hotkey": "^0.2.0",
     "lodash.merge": "^4.6.2",
     "mousetrap": "^1.6.5",
@@ -51,8 +52,7 @@
     "tailwind-merge": "^3.3.0",
     "tiny-typed-emitter": "^2.1.0",
     "virtua": "^0.41.3",
-    "watchlist": "^0.3.1",
-    "winston": "^3.17.0"
+    "watchlist": "^0.3.1"
   },
   "devDependencies": {
     "@types/is-hotkey": "^0.1.10",
@@ -61,8 +61,9 @@
     "@typescript-eslint/eslint-plugin": "^8.4.0",
     "@typescript-eslint/parser": "^8.4.0",
     "autoprefixer": "^10.4.21",
+    "cross-env": "^10.0.0",
     "del-cli": "^6.0.0",
-    "electron": "^6.1.12",
+    "electron": "workspace:*",
     "electron-builder": "^24.13.3",
     "electronmon": "^2.0.3",
     "esbuild": "^0.25.5",

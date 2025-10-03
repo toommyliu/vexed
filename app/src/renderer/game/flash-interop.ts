@@ -1,13 +1,16 @@
 import process from "process";
 import { Logger } from "@vexed/logger";
+import { XMLParser } from "fast-xml-parser";
 import { Bot } from "@lib/Bot";
 import { AutoReloginJob } from "@lib/jobs/autorelogin";
 import { client } from "@shared/tipc";
+import { AuraStore } from "./lib/util/AuraStore";
 import { addGoldExp } from "./packet-handlers/add-gold-exp";
 import { ct } from "./packet-handlers/ct";
 import { dropItem } from "./packet-handlers/drop-item";
 import { event } from "./packet-handlers/event";
 import { initUserData } from "./packet-handlers/init-user-data";
+import { initUserDatas } from "./packet-handlers/initUserDatas";
 import { moveToArea } from "./packet-handlers/move-to-area";
 import { appState } from "./state.svelte";
 
@@ -20,6 +23,48 @@ window.packetFromClient = ([packet]: [string]) => {
 
 window.packetFromServer = ([packet]: [string]) => {
   bot.emit("packetFromServer", packet);
+
+  if (packet.startsWith("{")) {
+    const pkt = JSON.parse(packet);
+
+    if (
+      typeof pkt?.t === "string" &&
+      pkt?.t === "xt" &&
+      typeof pkt?.b?.o?.cmd === "string" &&
+      pkt?.b?.o?.cmd === "ct"
+    ) {
+      ct(bot, pkt?.b?.o);
+    }
+  } else if (packet.startsWith("<") && packet.includes("action='joinOK'")) {
+    const parser = new XMLParser({
+      ignoreAttributes: false, // preserve attributes
+      attributeNamePrefix: "", // don't prefix attribute names
+    });
+    const pkt = parser.parse(packet);
+
+    // TODO: this id is the same as entID
+
+    if (Array.isArray(pkt?.msg?.body?.uLs?.u)) {
+      for (const [name] of bot.world.playerUids) {
+        if (name.toLowerCase() !== bot.auth.username.toLowerCase())
+          bot.world.playerUids.delete(name);
+      }
+
+      for (const [username] of AuraStore.playerAuras) {
+        if (username.toLowerCase() !== bot.auth.username.toLowerCase())
+          AuraStore.clearPlayerAuras(username);
+      }
+
+      for (const [monMapId] of AuraStore.monsterAuras)
+        AuraStore.monsterAuras.delete(monMapId);
+
+      for (const user of pkt?.msg?.body?.uLs?.u ?? []) {
+        const username = user?.n;
+        const uid = Number.parseInt(user?.i, 10);
+        bot.world.playerUids.set(username, uid);
+      }
+    }
+  }
 };
 
 window.pext = async ([packet]) => {
@@ -42,7 +87,12 @@ window.pext = async ([packet]) => {
       case "respawnMon":
         break;
       case "exitArea":
-        bot.emit("playerLeave", dataObj[dataObj.length - 1]);
+        {
+          const playerName = dataObj[dataObj.length - 1];
+          AuraStore.clearPlayerAuras(playerName);
+          bot.emit("playerLeave", playerName);
+        }
+
         break;
       case "uotls":
         if (
@@ -63,14 +113,14 @@ window.pext = async ([packet]) => {
       case "addGoldExp":
         void addGoldExp(bot, dataObj);
         break;
-      case "ct":
-        ct(bot, dataObj);
-        break;
       case "dropItem":
         void dropItem(bot, dataObj);
         break;
       case "initUserData":
         initUserData(bot, dataObj);
+        break;
+      case "initUserDatas":
+        void initUserDatas(bot, dataObj);
         break;
       case "moveToArea":
         void moveToArea(bot, dataObj);
@@ -78,8 +128,8 @@ window.pext = async ([packet]) => {
       case "event":
         void event(bot, dataObj);
         break;
-      case "addItems": // Temp inventory?
-        break;
+      case "clearAuras":
+        AuraStore.clearPlayerAuras(bot.auth.username.toLowerCase()); // only ever called on ourselves
     }
   }
 };

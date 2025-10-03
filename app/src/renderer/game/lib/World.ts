@@ -65,6 +65,8 @@ export enum GameAction {
 }
 
 export class World {
+  #uids = new Map<string, number>(); // playerName -> uid
+
   public constructor(public readonly bot: Bot) {}
 
   /**
@@ -95,6 +97,13 @@ export class World {
     return this.bot.flash.call<boolean>(() =>
       swf.worldIsPlayerInCell(name, cell),
     );
+  }
+
+  /**
+   * Map of player names to their uid.
+   */
+  public get playerUids(): Map<string, number> {
+    return this.#uids;
   }
 
   /**

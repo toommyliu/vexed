@@ -1,4 +1,4 @@
-import { Logger } from "@vexed/logger";
+// import { Logger } from "@vexed/logger";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { Bot } from "@lib/Bot";
 import { commandOverlayState } from "../state.svelte";
@@ -7,7 +7,7 @@ import { CommandRegisterDrop } from "./commands/item/CommandRegisterDrop";
 import { CommandAcceptQuest } from "./commands/quest/CommandAcceptQuest";
 import { CommandRegisterQuest } from "./commands/quest/CommandRegisterQuest";
 
-const logger = Logger.get("Context");
+// const logger = Logger.get("Context");
 
 export class Context extends TypedEmitter<Events> {
   private readonly bot = Bot.getInstance();
@@ -384,6 +384,14 @@ export class Context extends TypedEmitter<Events> {
   public async stop() {
     // logger.info('context stopping');
     this._stop();
+
+    await this.bot.waitUntil(() => this.bot.player.alive, null, -1);
+    while (this.bot.player.isInCombat()) {
+      await this.bot.world.jump("Enter", "Spawn");
+      await this.bot.sleep(1_000);
+    }
+
+    this.bot.settings.lagKiller = false;
   }
 
   public static getInstance() {
@@ -393,9 +401,9 @@ export class Context extends TypedEmitter<Events> {
 
   private async doPreInit() {
     if (!this.bot.player.isReady()) {
-      logger.info("waiting for load (1)");
+      // logger.info("waiting for load (1)");
       await this.bot.waitUntil(() => this.bot.player.isReady(), null, -1);
-      logger.info("player loaded (2)");
+      // logger.info("player loaded (2)");
     }
 
     const questList = this._commands
@@ -420,8 +428,8 @@ export class Context extends TypedEmitter<Events> {
       .filter((command) => command instanceof CommandRegisterDrop)
       .flatMap((cmd) => cmd.item);
 
-    console.log("Quest list", questList);
-    console.log("Unbank list", unbankList);
+    // console.log("Quest list", questList);
+    // console.log("Unbank list", unbankList);
 
     await this.bot.quests.loadMultiple(questList);
 
@@ -447,9 +455,9 @@ export class Context extends TypedEmitter<Events> {
     this._commandIndex = 0;
 
     if (!this.bot.player.isReady()) {
-      logger.info("waiting for load");
+      // logger.info("waiting for load");
       await this.bot.waitUntil(() => this.bot.player.isReady(), null, -1);
-      logger.info("player loaded");
+      // logger.info("player loaded");
     }
 
     while (this._commandIndex < this._commands.length && this.isRunning()) {
@@ -463,25 +471,23 @@ export class Context extends TypedEmitter<Events> {
 
         if (!this.isRunning()) break;
 
-        // TODO: make configurable
-        // if (command.skipDelay) {
-        //   await this.bot.sleep(10);
-        // } else {
-        //   await this.bot.sleep(this._commandDelay);
-        // }
-
-        if (!command.skipDelay) {
-          await this.bot.sleep(this._commandDelay);
-        }
-
+        await this.bot.sleep(
+          /* need slight delay otherwise some commands get 'executed too fast' */
+          this._commandDelay === 0 || command?.skipDelay
+            ? 50
+            : this._commandDelay,
+        );
         if (!this.isRunning()) break;
 
         this._commandIndex++;
       } catch (error) {
-        logger.error(
-          `Error executing command at index ${this._commandIndex}:`,
-          error,
-        );
+        console.error(`error executing command at index ${this._commandIndex}`);
+        console.error(error);
+
+        // logger.error(
+        //   `Error executing command at index ${this._commandIndex}:`,
+        //   error,
+        // );
 
         if (!this.isRunning()) break;
         this._commandIndex++;

@@ -86,6 +86,14 @@ Disables the "Provoke cell" setting.
 Disables the "Skip cutscenes" setting.
 
 
+### cmd.do_looptaunt
+Performs loop taunt based on one or more strategies. See [looptaunt guide](/guides/looptaunt) for more details.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| strategies | `[string, number, number, string?][]` | An array of strategies. Each strategy is an array of [target, playerIndex, maxPlayers, (msg)]. msg is optional if using Simple mode. |
+
+
 ### cmd.enable_anticounter
 Enables the anti-counter attack setting.
 
@@ -174,15 +182,18 @@ Logs out of the game.
 
 
 ### cmd.register_handler
+Registers a packet handler.
+
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| type | `"packetFromClient"` \| `"packetFromServer"` \| `"pext"` |  |
-| name | `string` |  |
-| handler | `((packet: Record<string, unknown>) => void` \| `Promise<void>)` \| `((packet: string) => void` \| `Promise<void>)` |  |
+| type | `"packetFromClient"` \| `"packetFromServer"` \| `"pext"` | "packetFromClient" | "packetFromServer" | "pext" |
+| name | `string` | The name of the handler. |
+| handler | `((packet: Record<string, unknown>) => void` \| `Promise<void>)` \| `((packet: string) => void` \| `Promise<void>)` | The handler function. For "pext", the function receives a parsed object. For "packetFromClient" and "packetFromServer", the function receives a raw string. |
 
 
 ### cmd.register_task
 Registers a task (a.k.a background job) to be executed alongside commands.
+The task function is bound to an object containing the bot instance and the context instance.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|

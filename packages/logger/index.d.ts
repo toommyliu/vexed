@@ -1,5 +1,5 @@
 export interface LogEvent {
-  level: "debug" | "error" | "info" | "warn";
+  level: 'debug' | 'error' | 'info' | 'warn';
   scope: string;
   message: string;
   args: unknown[];
@@ -15,7 +15,7 @@ export interface LoggerOptions {
   handlers?: LogHandler[];
 
   /**
-   * Winston logger level (default: "debug")
+   * Logger level (default: "debug")
    */
   level?: string;
 
@@ -66,7 +66,7 @@ export declare class Logger {
   private formatArgs(args: unknown[]): string;
 
   private callHandlers(
-    level: "debug" | "error" | "info" | "warn",
+    level: 'debug' | 'error' | 'info' | 'warn',
     formattedMessage: string,
     ...originalArgs: unknown[]
   ): void;

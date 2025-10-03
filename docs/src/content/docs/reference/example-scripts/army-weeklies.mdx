@@ -1,0 +1,713 @@
+---
+title: Army Weekly Ultras
+description: Example script for armying weekly ultras
+sidebar:
+  label: Army Weekly Ultras
+---
+
+import { Code } from '@astrojs/starlight/components';
+
+Note that these scripts can obviously scripts can be improved and optimized.
+
+Adjust comps and skill orders per your setups.
+
+You can also combine them into one script too.
+
+export const drakathScript = String.raw`
+cmd.set_delay(0)
+cmd.goto_house()
+cmd.set_fps(10)
+cmd.enable_lagkiller()
+cmd.enable_hideplayers()
+cmd.enable_infiniterange()
+cmd.enable_anticounter()
+cmd.army_set_config('army_config')
+cmd.army_init()
+cmd.set_delay(1000)
+
+let opts = {
+  skillAction() {
+    let a = []
+    let i = 0
+    let h
+
+    switch (this.bot.player.className) {
+      case 'LEGION REVENANT':
+        a = [3, 1, 2, 4]
+        break
+      case 'STONECRUSHER':
+        a = [3, 1, 2, 4, 5]
+        break
+      case 'LORD OF ORDER':
+        a = [1, 2, 3, 4, 5]
+        h = 2
+        break
+      case 'ARCHPALADIN':
+        a = [1, 3, 4, 5]
+        h = 2
+    }
+
+    return async function () {
+      if (!this._tauntBoundaries) {
+        this._tauntBoundaries = new Set()
+      }
+      if (!this._readyToTaunt) {
+        this._readyToTaunt = false
+      }
+
+      const plyrNumber = this.bot.army.getPlayerNumber()
+
+      if (this.bot.combat.hasTarget()) {
+        const target = this.bot.combat.target
+        const hp = target.hp
+
+        const boundaries = [
+          {
+            min: 18020000,
+            max: 18250000,
+            key: '18.02-18.25',
+            msg: 'taunt at 18.02mil - 18.25mil',
+          },
+          {
+            min: 16020000,
+            max: 16250000,
+            key: '16.02-16.25',
+            msg: 'taunt at 16.02mil - 16.25mil',
+          },
+          {
+            min: 14020000,
+            max: 14250000,
+            key: '14.02-14.25',
+            msg: 'taunt at 14.02mil - 14.25mil',
+          },
+          {
+            min: 12020000,
+            max: 12250000,
+            key: '12.02-12.25',
+            msg: 'taunt at 12.02mil - 12.25mil',
+          },
+          {
+            min: 10020000,
+            max: 10150000,
+            key: '10.02-10.15',
+            msg: 'taunt at 10.02mil - 10.15mil',
+          },
+          {
+            min: 8020000,
+            max: 8200000,
+            key: '8.02-8.2',
+            msg: 'taunt at 8.02mil - 8.2mil',
+          },
+          {
+            min: 6020000,
+            max: 6200000,
+            key: '6.02-6.2',
+            msg: 'taunt at 6.02mil - 6.2mil',
+          },
+          {
+            min: 4020000,
+            max: 4200000,
+            key: '4.02-4.2',
+            msg: 'taunt at 4.02mil - 4.2mil',
+          },
+          {
+            min: 2020000,
+            max: 2200000,
+            key: '2.02-2.2',
+            msg: 'taunt at 2.02mil - 2.2mil',
+          },
+        ]
+
+        for (const b of boundaries) {
+          if (hp >= b.min && hp <= b.max && !this._tauntBoundaries.has(b.key)) {
+            if (plyrNumber === 1) {
+              console.log(b.msg)
+              await this.bot.combat.useSkill(5, true, true)
+              this._tauntBoundaries.add(b.key)
+              break
+            }
+          }
+        }
+      }
+
+      if (plyrNumber === 3 || plyrNumber === 4) {
+        for (const plyr of this.bot.army.players) {
+          const p = this.bot.world.players.get(plyr)
+          if (p.isHpPercentageLessThan(60) && h) {
+            await this.bot.combat.useSkill(h)
+            return
+          }
+        }
+      }
+
+      await this.bot.combat.useSkill(a[i])
+      i = (i + 1) % a.length
+    }
+
+},
+skillDelay: 0,
+}
+
+cmd.army_join('championdrakath')
+cmd.equip_item('Void Highlord')
+cmd.equip_item("Elders' Blood")
+cmd.army_equip_set('ChampionDrakath', true)
+
+cmd.is_army_leader()
+cmd.goto_label('leader')
+cmd.is_army_member()
+cmd.goto_label('member')
+
+cmd.label('leader')
+cmd.equip_item('Scroll of Enrage')
+cmd.move_to_cell('r2')
+cmd.set_spawnpoint()
+cmd.goto_label('kill')
+
+cmd.label('member')
+cmd.equip_item('Scroll of Life Steal')
+cmd.move_to_cell('r2')
+cmd.set_spawnpoint()
+cmd.goto_label('kill')
+
+cmd.label('kill')
+cmd.army_kill('Champion Drakath', opts)
+
+cmd.label('dead')
+cmd.log('dead')
+`
+
+## ultradrakath
+
+<Code code={drakathScript} lang="js" title="ultradrakath.js" />
+
+LR, VALIANCE, WIZ, VAINGLORY
+
+SC, LACERATE, WIZ, ABSOLUTION
+
+LOO, AWEBLAST, LUCK, ABSOLUTION
+
+AP, ARCANA, LUCK, PENITENCE
+
+export const dageScript = String.raw`
+cmd.set_delay(0)
+cmd.goto_house()
+cmd.set_fps(10)
+cmd.enable_lagkiller()
+cmd.enable_hideplayers()
+cmd.enable_infiniterange()
+cmd.enable_anticounter()
+cmd.army_set_config('army_config')
+cmd.army_init()
+cmd.set_delay(1000)
+let opts = {
+  skillAction() {
+    let a = []
+    let i = 0
+
+    switch (this.bot.player.className) {
+      case 'LEGION REVENANT':
+        a = [1, 2, 4]
+        break
+      case 'QUANTUM CHRONOMANCER':
+        a = [1, 2, 3, 4, 5]
+        break
+      case 'CHAOS AVENGER':
+        a = [1, 2, 3, 4, 5]
+        break
+      case 'VERUS DOOMKNIGHT':
+        a = [1, 2, 3, 4, 5]
+    }
+
+    return async function () {
+      const plyrNumber = this.bot.army.getPlayerNumber()
+
+      if (plyrNumber === 1 || plyrNumber === 3) {
+        try {
+          if (
+            this.bot.combat.hasTarget() &&
+            this.bot.combat.target.isMonster() &&
+            !this.bot.combat.target.hasAura('Focus')
+          ) {
+            void this.bot.combat.useSkill(5, true, false)
+          }
+        } catch (error) {
+          console.warn('failed aura check', error)
+        }
+      }
+
+      await this.bot.combat.useSkill(a[i])
+      i = (i + 1) % a.length
+    }
+  },
+  skillDelay: 0,
+}
+
+cmd.army_join('ultradage', 'Boss', 'Right')
+cmd.set_spawnpoint()
+cmd.equip_item('Void Highlord')
+cmd.equip_item("Elders' Blood")
+cmd.army_equip_set('UltraDage', true)
+cmd.use_autozone_ultradage()
+
+cmd.is_player_number(1)
+cmd.equip_item('Scroll of Enrage')
+cmd.is_player_number(2)
+cmd.equip_item('Scroll of Life Steal')
+cmd.is_player_number(3)
+cmd.equip_item('Scroll of Enrage')
+cmd.is_player_number(4)
+cmd.equip_item('Scroll of Life Steal')
+
+cmd.army_kill('*', opts)
+cmd.log('dage dead')
+`
+
+## ultradage
+
+<Code code={dageScript} lang="js" title="ultradage.js" />
+
+LR, DAUNTLESS, WIZ, PENITENCE / LDK, DAUNTLESS, FORGE, LAMENT
+
+QCM, DAUNTLESS, WIZ, LAMENT
+
+CAV, DAUNTLESS, FORGE, LAMENT
+
+VDK, DAUNTLESS, FORGE, LAMENT
+
+## ultranulgath
+
+export const nulgathScript = String.raw`
+cmd.set_delay(0)
+cmd.goto_house()
+cmd.set_fps(10)
+cmd.enable_lagkiller()
+cmd.enable_hideplayers()
+cmd.enable_infiniterange()
+cmd.enable_anticounter()
+cmd.army_set_config('army_config')
+cmd.army_init()
+cmd.set_delay(1000)
+let opts = {
+  skillAction() {
+    let a = []
+    let i = 0
+    let h
+
+    switch (this.bot.player.className) {
+      case 'LEGION REVENANT':
+        a = [3, 1, 2, 4]
+        break
+      case 'CHAOS AVENGER':
+        a = [4, 3, 1, 2, 5]
+        break
+      case 'LORD OF ORDER':
+        a = [1, 2, 3, 4]
+        h = 2
+        break
+      case 'ARCHPALADIN':
+        a = [1, 2, 3, 4]
+        h = 2
+    }
+
+    return async function () {
+      const plyrNumber = this.bot.army.getPlayerNumber()
+      if (
+        this.bot.player.className === 'CHAOS AVENGER' &&
+        this.bot.combat.hasTarget() &&
+        this.bot.combat.target.name === 'Nulgath the Archfiend'
+      ) {
+        if (a[i] === 5) {
+          i = (i + 1) % a.length
+          return
+        }
+      }
+
+      if (plyrNumber === 3 || plyrNumber === 4) {
+        for (const plyr /* string */ of this.bot.army.players) {
+          const p = this.bot.world.players.get(plyr)
+          if (p.isHpPercentageLessThan(60) && h) {
+            await this.bot.combat.useSkill(h)
+            return
+          }
+        }
+      }
+      await this.bot.combat.useSkill(a[i])
+      i = (i + 1) % a.length
+    }
+  },
+  skillDelay: 0,
+}
+
+cmd.army_join('ultranulgath', 'Boss', 'Right')
+cmd.set_spawnpoint()
+cmd.equip_item('Void Highlord')
+cmd.equip_item("Elders' Blood")
+cmd.army_equip_set('UltraNulgath', true)
+cmd.equip_item('Scroll of Enrage')
+cmd.equip_item("Elders' Blood")
+cmd.equip_item('Scroll of Enrage')
+
+cmd.or(
+  () => cmd.is_player_number(1),
+  () => cmd.is_player_number(4),
+)
+cmd.goto_label('kill_nul')
+cmd.or(
+  () => cmd.is_player_number(2),
+  () => cmd.is_player_number(3),
+)
+cmd.goto_label('kill_blade')
+
+cmd.label('kill_blade')
+cmd.army_kill_for_tempitem(
+  'Nulgath the Archfiend',
+  'Nulgath the Archfiend Defeated?',
+  1,
+  {
+    ...opts,
+    killPriority: ['Overfiend Blade'],
+  },
+)
+cmd.goto_label('dead')
+
+cmd.label('kill_nul')
+cmd.is_player_number(1)
+cmd.do_looptaunt(['Nulgath the Archfiend', 1, 2])
+cmd.is_player_number(4)
+cmd.do_looptaunt(['Nulgath the Archfiend', 2, 2])
+cmd.army_kill_for_tempitem(
+  'Nulgath the Archfiend',
+  'Nulgath the Archfiend Defeated?',
+  1,
+  opts,
+)
+cmd.goto_label('dead')
+
+cmd.label('dead')
+cmd.log('dead')
+cmd.jump_to_cell('Enter')
+`
+
+<Code code={nulgathScript} lang="js" title="ultranulgath.js" />
+
+LR, ARCANA, FORGE, VAINGLORY
+
+CAV, DAUNTLESS, FORGE, LAMENT
+
+LOO, AWEBLAST, LUCK, PENITENCE
+
+AP, VALIANCE, LUCK, PENITENCE
+
+## ultradarkon
+
+export const darkonScript = String.raw`
+cmd.set_delay(0)
+cmd.goto_house()
+cmd.set_fps(10)
+cmd.enable_lagkiller()
+cmd.enable_hideplayers()
+cmd.enable_infiniterange()
+cmd.enable_anticounter()
+cmd.army_set_config('army_config')
+cmd.army_init()
+cmd.set_delay(1000)
+let opts = {
+  skillAction() {
+    let a = []
+    let i = 0
+    let h
+
+    switch (this.bot.player.className) {
+      case 'LEGION REVENANT':
+        a = [3, 2, 1, 4]
+        break
+      case 'STONECRUSHER':
+        a = [3, 2, 1, 4]
+        break
+      case 'LORD OF ORDER':
+        a = [4, 2, 1, 3, 5]
+        h = 2
+        break
+      case 'LIGHTCASTER':
+        a = [3, 1, 2, 4, 5]
+        h = 2
+    }
+
+    return async function () {
+      const plyrNumber = this.bot.army.getPlayerNumber()
+
+      if (plyrNumber === 3 && this.bot.combat.target.hp < 9200000) {
+        if (a[i] == 4) {
+          //Allow skill 4 only in the 4.7-4.5 mil HP range
+          if (
+            !(
+              this.bot.combat.target.hp <= 4720000 &&
+              this.bot.combat.target.hp >= 4520000
+            )
+          ) {
+            i = (i + 1) % a.length
+            return
+          }
+        }
+      }
+
+      await this.bot.combat.useSkill(a[i])
+      i = (i + 1) % a.length
+    }
+  },
+  skillDelay: 0,
+}
+
+cmd.register_command('drink_potions', (Command) => {
+  const cmd = new Command()
+  cmd.execute = async function () {
+    const args = Array.isArray(this.args) ? this.args : []
+    for (const pot of args) {
+      await this.bot.sleep(1000)
+      await this.bot.inventory.equip(pot)
+      await this.bot.waitUntil(
+        () => this.bot.flash.get('world.lockdownPots', true) === false,
+        null,
+        -1,
+      )
+      await this.bot.combat.useSkill(5, true, false)
+      await this.bot.sleep(1000)
+    }
+    await this.bot.inventory.equip("Elders' Blood")
+
+    const plyrNumber = this.bot.army.getPlayerNumber()
+    if (plyrNumber === 1 || plyrNumber === 2) {
+      await this.bot.inventory.equip('Scroll of Enrage')
+    } else {
+      await this.bot.inventory.equip('Potent Honor Potion')
+    }
+  }
+  cmd.toString = function () {
+    const args = Array.isArray(this.args) ? this.args : []
+    return args.length
+      ? 'Equip and drink: ' + args.join(', ')
+      : 'Equip and drink potions'
+  }
+
+  return cmd
+})
+
+cmd.army_join('ultradarkon')
+cmd.accept_quest(8746)
+cmd.equip_item('Void Highlord')
+cmd.equip_item("Elders' Blood")
+cmd.army_equip_set('UltraDarkon', true)
+cmd.or(() => cmd.is_player_number(1))
+cmd.drink_potions('Sage Tonic', 'Potent Revitalize Elixir')
+cmd.or(() => cmd.is_player_number(2))
+cmd.drink_potions('Sage Tonic', 'Potent Malevolence Elixir')
+cmd.is_player_number(3)
+cmd.drink_potions('Sage Tonic', 'Potent Revitalize Elixir')
+cmd.is_player_number(4)
+cmd.drink_potions('Fate Tonic', 'Potent Revitalize Elixir')
+
+cmd.buff()
+
+cmd.hunt('Darkon the Conductor')
+cmd.set_spawnpoint()
+
+cmd.is_player_number(1)
+cmd.do_looptaunt(['Darkon the Conductor', 1, 2])
+cmd.is_player_number(2)
+cmd.do_looptaunt(['Darkon the Conductor', 2, 2])
+
+cmd.army_kill_for_tempitem(
+  'Darkon the Conductor',
+  'Darkon the Conductor Defeated',
+  1,
+  opts,
+)
+cmd.goto_label('dead')
+
+cmd.label('dead')
+cmd.log('dead')
+cmd.jump_to_cell('Enter')
+cmd.complete_quest(8746)
+`
+
+<Code code={darkonScript} lang="js" title="ultradarkon.js" />
+
+LR, ARCANA, WIZ, VAINGLORY
+
+SC, VALIANCE, WIZ, ABSOLUTION
+
+LOO, AWEBLAST, LUCK, ABSOLUTION
+
+LC, VALIANCE, WIZ, LAMENT
+
+
+## ultradrago
+
+export const dragoScript = String.raw`
+cmd.set_delay(0)
+cmd.goto_house()
+cmd.set_fps(10)
+cmd.enable_lagkiller()
+cmd.enable_hideplayers()
+cmd.enable_infiniterange()
+cmd.enable_anticounter()
+cmd.army_set_config('army_config')
+cmd.army_init()
+cmd.set_delay(1000)
+cmd.army_join('ultradrago')
+cmd.accept_quest(8397)
+cmd.equip_item('Void Highlord')
+cmd.equip_item("Elders' Blood")
+cmd.army_equip_set('UltraDrago', true)
+cmd.equip_item('Scroll of Enrage')
+cmd.equip_item('Scroll of Life Steal')
+cmd.equip_item('Scroll of Enrage')
+
+cmd.or(
+  () => cmd.is_player_number(1),
+  () => cmd.is_player_number(3),
+)
+cmd.goto_label('left')
+cmd.or(
+  () => cmd.is_player_number(2),
+  () => cmd.is_player_number(4),
+)
+cmd.goto_label('right')
+
+cmd.label('left')
+cmd.hunt('King Drago')
+cmd.set_spawnpoint()
+cmd.is_player_number(1)
+cmd.do_looptaunt(['Executioner Dene', 1, 2])
+cmd.is_player_number(3)
+cmd.do_looptaunt(['Executioner Dene', 2, 2])
+cmd.army_kill_for_tempitem('King Drago', 'Drago Dethroned', 1, {
+  killPriority: ['Executioner Dene', 'Bowmaster Algie'],
+})
+
+cmd.label('right')
+cmd.hunt('King Drago')
+cmd.set_spawnpoint()
+cmd.is_player_number(2)
+cmd.do_looptaunt(['Bowmaster Algie', 1, 2])
+cmd.is_player_number(4)
+cmd.do_looptaunt(['Bowmaster Algie', 2, 2])
+cmd.army_kill_for_tempitem('King Drago', 'Drago Dethroned', 1, {
+  killPriority: ['Bowmaster Algie', 'Executioner Dene'],
+})
+
+cmd.label('dead')
+cmd.log('dead')
+`
+
+<Code code={dragoScript} lang="js" title="ultradrago.js" />
+
+LR, ARCANA, FORGE, VAINGLORY
+
+CAV, DAUNTLESS, FORGE, LAMENT
+
+LOO, AWEBLAST, LUCK, PENITENCE
+
+AP, VALIANCE, LUCK, PENITENCE
+
+export const speakerScript = String.raw`
+cmd.set_delay(0)
+cmd.goto_house()
+cmd.set_fps(10)
+cmd.enable_lagkiller()
+cmd.enable_hideplayers()
+cmd.enable_infiniterange()
+cmd.enable_anticounter()
+cmd.army_set_config('army_config')
+cmd.army_init()
+cmd.set_delay(1000)
+let opts = {
+  skillAction() {
+    let a = []
+    let i = 0
+    let h
+    let hV
+
+    switch (this.bot.player.className) {
+      case 'LEGION REVENANT':
+        a = [3, 2, 1, 4, 5]
+        break
+      case 'ARCHPALADIN':
+        a = [1, 3, 4, 5, 2]
+        h = 2
+        hV = 40
+        break
+      case 'LORD OF ORDER':
+        a = [1, 3, 4, 5, 2]
+        h = 2
+        hV = 80
+        break
+      case 'VERUS DOOMKNIGHT':
+        a = [1, 2, 3, 4, 5]
+    }
+
+    return async function () {
+      const plyrNumber = this.bot.army.getPlayerNumber()
+
+      if (plyrNumber === 3 || plyrNumber === 4) {
+        for (const plyr /* string */ of this.bot.army.players) {
+          const p = this.bot.world.players.get(plyr)
+          if (h && hV && p.isHpPercentageLessThan(hV)) {
+            await this.bot.combat.useSkill(h)
+            return
+          }
+        }
+      }
+
+      await this.bot.combat.useSkill(a[i])
+      i = (i + 1) % a.length
+    }
+  },
+  skillDelay: 0,
+}
+cmd.army_join('ultraspeaker')
+cmd.accept_quest(9173)
+cmd.equip_item('Void Highlord')
+cmd.equip_item("Elders' Blood")
+cmd.army_equip_set('UltraSpeaker', true)
+cmd.equip_item('Scroll of Enrage')
+cmd.equip_item('Scroll of Life Steal')
+cmd.equip_item('Scroll of Enrage')
+
+cmd.hunt('The First Speaker')
+cmd.set_spawnpoint()
+cmd.register_task('walkToPoint', function () {
+  const bot = this.bot
+  const ctx = this.ctx
+
+  let intervalId = setInterval(() => {
+    if (!ctx.isRunning()) {
+      console.log('cleared interval')
+      clearInterval(intervalId)
+      return
+    }
+    if (bot.world.name !== 'ultraspeaker') return
+    bot.player.walkTo(28, 235) // top left
+  }, 100)
+})
+
+cmd.army_kill_for_item('The First Speaker', 'The First Speaker Silenced', 1, {
+  ...opts,
+})
+
+cmd.label('dead')
+cmd.log('dead')
+`
+
+## ultraspeaker
+
+<Code code={speakerScript} lang="js" title="ultraspeaker.js" />
+
+LR, ARCANA, WIZ, PENITENCE
+
+VDK, VALIANCE, LUCK, PENITENCE
+
+LOO, AWEBLAST, LUCK, PENITENCE
+
+AP, VALIANCE, LUCK, PENITENCE
