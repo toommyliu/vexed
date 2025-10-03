@@ -1,6 +1,7 @@
 import { URL } from "url";
 import { BrowserWindow, session } from "electron";
 import { ARTIX_USERAGENT, WHITELISTED_DOMAINS } from "../../shared/constants";
+import { IS_WINDOWS } from "../constants";
 
 function isDomainWhitelisted(hostname: string): boolean {
   let normalized = hostname;
@@ -12,6 +13,9 @@ function isDomainWhitelisted(hostname: string): boolean {
 }
 
 export function applySecurityPolicy(window: BrowserWindow): void {
+  if (IS_WINDOWS)
+    window.setMenuBarVisibility(false);
+  
   window.webContents.setUserAgent(ARTIX_USERAGENT);
   session.defaultSession?.webRequest.onBeforeSendHeaders((details, fn) => {
     const requestHeaders = details.requestHeaders;
