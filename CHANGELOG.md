@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+# [0.4.0](https://github.com/toommyliu/vexed/compare/0.3.1...0.4.0) - (2025-10-03)
+
+## Bug Fixes
+
+- Packet spammer not sending packet (#251) ([663dd78](https://github.com/toommyliu/vexed/commit/663dd7861503b543d872cca367edce989f001a30))
+
+## Features
+
+- Hide menubar on Windows (#253) ([aceb39a](https://github.com/toommyliu/vexed/commit/aceb39ac29e8b348ca3a47a27bbae4bce46bd08f))
+- Loop Taunt command [experimental] (#231) ([530be1a](https://github.com/toommyliu/vexed/commit/530be1a8f21ae43131c772217c90da14b5b0649c))
+- CommandRegisterTask (#250) ([ce242f8](https://github.com/toommyliu/vexed/commit/ce242f818503c46f836b09906bc6e678680e3b11))
+
 # [0.3.1](https://github.com/toommyliu/vexed/compare/0.3.0...0.3.1) - (2025-09-20)
 
 ## Bug Fixes
