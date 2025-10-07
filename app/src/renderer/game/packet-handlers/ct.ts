@@ -66,13 +66,13 @@ export function ct(bot: Bot, packet: CtPacket) {
 
             if ("val" in aura_) {
               if (typeof aura_.val === "number") data.value = aura_.val;
-              else {
-                console.log(
-                  "(1) unexpected aura val type:",
-                  typeof aura_.val,
-                  aura_.val,
-                );
-              }
+              // else {
+              //   console.log(
+              //     "(1) unexpected aura val type:",
+              //     typeof aura_.val,
+              //     aura_.val,
+              //   );
+              // }
 
               if (data.isNew) AuraStore.addMonsterAura(tgtId, data);
               else AuraStore.refreshMonsterAura(tgtId, data);
@@ -93,15 +93,15 @@ export function ct(bot: Bot, packet: CtPacket) {
 
             if ("val" in aura_) {
               if (typeof aura_.val === "number") data.value = aura_.val;
-              else {
-                console.log(
-                  "(2) unexpected aura val type:",
-                  typeof aura_.val,
-                  aura_.val,
-                  "aura obj:",
-                  aura_,
-                );
-              }
+              // else {
+              //   console.log(
+              //     "(2) unexpected aura val type:",
+              //     typeof aura_.val,
+              //     aura_.val,
+              //     "aura obj:",
+              //     aura_,
+              //   );
+              // }
 
               if (data.isNew) AuraStore.addPlayerAura(username, data);
               else AuraStore.refreshPlayerAura(username, data);
