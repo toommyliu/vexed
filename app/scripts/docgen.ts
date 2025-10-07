@@ -650,6 +650,8 @@ const generateLegacyApiDoc = async () => {
             mdxFileContent.push("## Methods");
             mdxFileContent.push("");
             for (const mth of classMethods) {
+              if (mth.name.startsWith("_")) continue;
+
               mdxFileContent.push(
                 `### ${mth.name}${mth.isStatic ? ' <Badge text="static" />' : ""}`,
               );
