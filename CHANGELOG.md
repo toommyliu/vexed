@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+# [0.4.1](https://github.com/toommyliu/vexed/compare/0.4.0...0.4.1) - (2025-10-07)
+
+## Bug Fixes
+
+- Remove debug aura value logging ([8d7dfa9](https://github.com/toommyliu/vexed/commit/8d7dfa92d8f31e36691a9439c1a2bdf1dc8b813b))
+
 # [0.4.0](https://github.com/toommyliu/vexed/compare/0.3.1...0.4.0) - (2025-10-03)
 
 ## Bug Fixes
