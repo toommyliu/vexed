@@ -1,6 +1,10 @@
 import { sleep } from "@vexed/utils";
 import { errAsync, okAsync } from "neverthrow";
 import { TypedEmitter } from "tiny-typed-emitter";
+import type { CtPacket } from "../packet-handlers/ct";
+import type { AcceptQuestPacket } from "../packet-handlers/json/acceptQuest";
+import type { GetQuestsPacket } from "../packet-handlers/json/getQuests";
+import type { MoveToAreaPacket } from "../packet-handlers/move-to-area";
 import { Army } from "./Army";
 import { Auth } from "./Auth";
 import { Bank } from "./Bank";
@@ -26,12 +30,16 @@ import type { Monster } from "./models/Monster";
 import { Flash } from "./util/Flash";
 
 type Events = {
+  acceptQuest(packet: AcceptQuestPacket): void;
   /**
-   * This event is emitted when the player goes AFK.
+   * This event is emitted when a player goes AFK.
+   *
+   * @param playerName - The name of the player who went AFK. If undefined, the current player went AFK.
    */
-  afk(): void;
+  afk(playerName?: string): void;
   auraAdd(monster: Monster, aura: Aura): void;
   auraRemove(monster: Monster, auraName: string): void;
+  ct(packet: CtPacket): void;
   ctMessage(
     message: string,
     packet: {
@@ -43,6 +51,8 @@ type Events = {
       tInf: string;
     },
   ): void;
+  getQuests(packet: GetQuestsPacket): void;
+  jsonPacket(cmd: string, dataObj: Record<string, unknown>): void;
   /**
    * This event is emitted when the player logs in.
    */
@@ -69,6 +79,7 @@ type Events = {
    * @param monster - The monster that has respawned.
    */
   monsterRespawn(monster: Monster): void;
+  moveToArea(packet: MoveToAreaPacket): void;
   /**
    * @param packet - The packet dispatched from the client.
    */

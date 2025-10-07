@@ -41,6 +41,6 @@ handlers.loaderGrabber.grab.handle(async ({ type }) => {
     case GrabberDataType.CellMonsters:
       return bot.flash.call(() => swf.worldGetCellMonsters());
     case GrabberDataType.MapMonsters:
-      return bot.world.monsters;
+      return Array.from(bot.world.monsters.values()).map((mon) => mon.data);
   }
 });

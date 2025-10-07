@@ -188,9 +188,9 @@ declare global {
     worldIsMonsterAvailable(key: number | string | "*"): boolean;
     worldGetCells(): string[];
     worldGetCellPads(): string[];
-    worldGetItemTree(): ItemData[];
-    worldGetRoomId(): number;
-    worldGetRoomNumber(): number;
+    // worldGetItemTree(): ItemData[];
+    // worldGetRoomId(): number;
+    // worldGetRoomNumber(): number;
     worldReload(): void;
     worldLoadSwf(swf: string): void;
     worldGetMapItem(itemId: number): void;

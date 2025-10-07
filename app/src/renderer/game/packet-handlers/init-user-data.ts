@@ -1,28 +1,32 @@
 import type { Bot } from "../lib/Bot";
 
-export function initUserData(bot: Bot, packet: Packet) {
+export function initUserData(bot: Bot, packet: InitUserDataPacket) {
   const username = packet.data.strUsername;
 
-  if (username.toLowerCase() === bot.auth.username.toLowerCase()) return;
+  // console.log(`initUserData ${username}`, packet);
+
+  if (username.toLowerCase() === bot.auth.username.toLowerCase()) {
+    bot.player.hp = Number(packet.data.intHP);
+    bot.player.mp = Number(packet.data.intMP);
+    bot.player.gold = Number(packet.data.intGold);
+    bot.player.level = packet.data.intLevel;
+  }
 
   // console.log(`initUserData: ${username}`);
 
   bot.emit("playerJoin", username);
-  if (bot.world.playerUids.has(username)) {
-    // console.warn(`(2) duplicated uid for ${username}`);
-    return;
-  } else if (bot.world.playerUids.has(username.toLowerCase())) {
-    // console.warn(`(2.1) duplicated uid for ${username}`);
-    return;
-  }
 
   // console.log(`initUserData: ${username} -> ${packet.uid}`);
   bot.world.playerUids.set(username, packet.uid);
 }
 
-type Packet = {
+export type InitUserDataPacket = {
   cmd: "initUserData";
   data: {
+    intGold: number;
+    intHP: string;
+    intLevel: number;
+    intMP: string;
     strUsername: string;
   };
   uid: number;

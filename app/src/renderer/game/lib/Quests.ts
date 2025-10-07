@@ -1,25 +1,34 @@
+import { Collection } from "@vexed/collection";
 import { normalizeId } from "@utils/normalizeId";
 import type { Bot } from "./Bot";
 import { GameAction } from "./World";
 import { Quest, type QuestData } from "./models/Quest";
+import type { AcceptQuestPacket } from "../packet-handlers/json/acceptQuest";
+import type { GetQuestsPacket } from "../packet-handlers/json/getQuests";
 
 export class Quests {
-  public constructor(public bot: Bot) { }
+  #quests = new Collection<number, Quest>();
+
+  public constructor(public readonly bot: Bot) {
+    const fn_1 = this.#acceptQuest.bind(this);
+    const fn_2 = this.#getQuests.bind(this);
+
+    this.bot.on("acceptQuest", fn_1);
+    this.bot.on("getQuests", fn_2);
+  }
 
   /**
    * A list of quests loaded in the client.
    */
-  public get tree(): Quest[] {
-    return this.bot.flash.call(() =>
-      swf.questsGetTree().map((data: QuestData) => new Quest(data)),
-    );
+  public get tree() {
+    return this.#quests.clone();
   }
 
   /**
    * A list of accepted quests.
    */
-  public get accepted(): Quest[] {
-    return this.tree.filter((quest) => quest.inProgress);
+  public get accepted() {
+    return this.#quests.filter((quest) => quest.inProgress);
   }
 
   /**
@@ -27,9 +36,9 @@ export class Quests {
    *
    * @param questId - The id of the quest.
    */
-  public get(questId: number | string): Quest | null {
+  public get(questId: number | string) {
     const id = normalizeId(questId);
-    return this.tree.find((quest) => normalizeId(quest.id) === id) ?? null;
+    return this.#quests.find((quest) => normalizeId(quest.id) === id);
   }
 
   /**
@@ -42,7 +51,7 @@ export class Quests {
     if (this.get(id)) return;
 
     this.bot.flash.call(() => swf.questsLoad(id));
-    await this.bot.waitUntil(() => this.get(id) !== null);
+    await this.bot.waitUntil(() => Boolean(this.get(id));
   }
 
   /**
@@ -120,6 +129,28 @@ export class Quests {
     this.bot.flash.call(() => {
       swf.questsComplete(id, turnIns, itemId, special);
     });
+  }
+
+  #acceptQuest(packet: AcceptQuestPacket) {
+    if (packet.bSuccess !== 1 || packet.msg !== "success") {
+      console.warn(`failed to accept quest ${packet.QuestID}: ${packet.msg}`);
+      return;
+    }
+
+    if (!this.#quests.has(packet.QuestID)) {
+      console.warn(`unknown quest accepted: ${packet.QuestID}`);
+      return;
+    }
+
+    this.#quests.get(packet.QuestID)!.data.status = "p";
+    console.log(`accepted quest: ${packet.QuestID}`);
+  }
+
+  #getQuests(packet: GetQuestsPacket) {
+    for (const [questId, questData] of Object.entries(packet.quests)) {
+      this.#quests.set(Number(questId), new Quest(questData));
+      console.log(`get quest - ${questData.sName} - ${questData.QuestID}`);
+    }
   }
 
   /**

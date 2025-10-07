@@ -11,6 +11,41 @@ export enum BoostType {
 }
 
 export class Player {
+  /**
+   * The state of the player.
+   */
+  public state!: (typeof EntityState)[keyof typeof EntityState];
+
+  /**
+   * The hp of the player.
+   */
+  public hp!: number;
+
+  /**
+   * The max hp of the player.
+   */
+  public maxHp!: number;
+
+  /**
+   * The mp of the player.
+   */
+  public mp!: number;
+
+  /**
+   * The max mp of the player.
+   */
+  public maxMp!: number;
+
+  /**
+   * The player's current gold amount.
+   */
+  public gold!: number;
+
+  /**
+   * The level of the player.
+   */
+  public level!: number;
+
   public constructor(public readonly bot: Bot) {}
 
   /**
@@ -30,31 +65,10 @@ export class Player {
   }
 
   /**
-   * The state of the player.
-   */
-  public get state(): (typeof EntityState)[keyof typeof EntityState] {
-    return this.bot.flash.call(() => swf.playerGetState());
-  }
-
-  /**
    * Whether the player is in combat.
    */
   public isInCombat() {
     return this.state === EntityState.InCombat;
-  }
-
-  /**
-   * The health of the player.
-   */
-  public get hp(): number {
-    return this.bot.flash.call(() => swf.playerGetHp());
-  }
-
-  /**
-   * The maximum health of the player.
-   */
-  public get maxHp(): number {
-    return this.bot.flash.call(() => swf.playerGetMaxHp());
   }
 
   /**
@@ -72,38 +86,10 @@ export class Player {
   }
 
   /**
-   * The mana of the player.
-   */
-  public get mp(): number {
-    return this.bot.flash.call(() => swf.playerGetMp());
-  }
-
-  /**
-   * The maximum mana of the player.
-   */
-  public get maxMp(): number {
-    return this.bot.flash.call(() => swf.playerGetMaxMp());
-  }
-
-  /**
    * The percentage of mana the player has.
    */
   public get mpPercentage(): number {
     return (this.mp / this.maxMp) * 100;
-  }
-
-  /**
-   * The level of the player.
-   */
-  public get level(): number {
-    return this.bot.flash.call(() => swf.playerGetLevel());
-  }
-
-  /**
-   * The player's gold.
-   */
-  public get gold(): number {
-    return this.bot.flash.call(() => swf.playerGetGold());
   }
 
   /**
@@ -203,35 +189,4 @@ export class Player {
         return false;
     }
   }
-
-  // /**
-  //  * Equips a loadout for the player.
-  //  *
-  //  * @remarks
-  //  * A loadout is to be read from file, not the player's outfits.
-  //  * @param loadout - The loadout to equip.
-  //  */
-  // public async equipLoadout(loadout: Loadout) {
-  //   const { Cape, Class, Helm, Pet, Weapon } = loadout;
-
-  //   if (Cape) {
-  //     await this.bot.inventory.equip(Cape);
-  //   }
-
-  //   if (Class) {
-  //     await this.bot.inventory.equip(Class);
-  //   }
-
-  //   if (Helm) {
-  //     await this.bot.inventory.equip(Helm);
-  //   }
-
-  //   if (Pet) {
-  //     await this.bot.inventory.equip(Pet);
-  //   }
-
-  //   if (Weapon) {
-  //     await this.bot.inventory.equip(Weapon);
-  //   }
-  // }
 }

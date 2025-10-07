@@ -1,5 +1,6 @@
 import { Command } from "@botting/command";
-import type { MonsterData } from "@lib/models/Monster";
+import type { MonsterCollection } from "@lib/collections/monsters";
+import type { Monster } from "@lib/models/Monster";
 import { extractMonsterMapId, isMonsterMapId } from "@utils/isMonMapId";
 
 export class CommandHunt extends Command {
@@ -13,7 +14,7 @@ export class CommandHunt extends Command {
       this.target,
     );
 
-    if (matchingMonsters.length === 0) return;
+    if (matchingMonsters.size === 0) return;
 
     const monstersByCell = this.groupMonstersByCell(matchingMonsters);
     const targetCell = this.findBestCell(monstersByCell);
@@ -37,31 +38,28 @@ export class CommandHunt extends Command {
   }
 
   // Get all monsters that match the target
-  private filterMonstersByTarget(
-    monsters: MonsterData[],
-    target: string,
-  ): MonsterData[] {
+  private filterMonstersByTarget(monsters: MonsterCollection, target: string) {
     if (isMonsterMapId(target)) {
       const monMapIdStr = extractMonsterMapId(target);
       const monMapId = Number.parseInt(monMapIdStr, 10);
-      return monsters.filter((monster) => monster.MonMapID === monMapId);
+      return monsters.filter((monster) => monster.monMapId === monMapId);
     }
 
     if (target === "*") return monsters;
 
     return monsters.filter((monster) =>
-      monster.strMonName.toLowerCase().includes(target.toLowerCase()),
+      monster.name.toLowerCase().includes(target.toLowerCase()),
     );
   }
 
   // Group monsters by their cell
   private groupMonstersByCell(
-    monsters: MonsterData[],
-  ): Map<string, MonsterData[]> {
-    const groups = new Map<string, MonsterData[]>();
+    monsters: MonsterCollection,
+  ): Map<string, Monster[]> {
+    const groups = new Map<string, Monster[]>();
 
-    for (const monster of monsters) {
-      const cell = monster.strFrame;
+    for (const monster of monsters.values()) {
+      const cell = monster.cell;
       if (!groups.has(cell)) groups.set(cell, []);
 
       groups.get(cell)!.push(monster);
@@ -71,9 +69,7 @@ export class CommandHunt extends Command {
   }
 
   // Find the best cell to jump to based on the 'most' option
-  private findBestCell(
-    monstersByCell: Map<string, MonsterData[]>,
-  ): string | null {
+  private findBestCell(monstersByCell: Map<string, Monster[]>): string | null {
     const cells = Array.from(monstersByCell.keys());
 
     if (cells.length === 0) return null;

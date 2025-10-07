@@ -1,9 +1,12 @@
 import { exitFromCombat } from "@utils/exitFromCombat";
 import { extractMonsterMapId, isMonsterMapId } from "@utils/isMonMapId";
+import type { CtPacket } from "../packet-handlers/ct";
+import type { MoveToAreaPacket } from "../packet-handlers/move-to-area";
 import type { Bot } from "./Bot";
-import { Avatar, type AvatarData } from "./models/Avatar";
-import type { ItemData } from "./models/Item";
-import { Monster, type MonsterData } from "./models/Monster";
+import { MonsterCollection } from "./collections/monsters";
+import { PlayerCollection } from "./collections/players";
+import { Avatar } from "./models/Avatar";
+import { Monster } from "./models/Monster";
 
 export enum GameAction {
   /**
@@ -67,13 +70,26 @@ export enum GameAction {
 export class World {
   #uids = new Map<string, number>(); // playerName -> uid
 
-  public constructor(public readonly bot: Bot) {}
+  #areaId: number | null = null;
+
+  #mapName: string | null = null;
+
+  #mapNumber: number | null = null;
+
+  #players = new PlayerCollection();
+
+  #monsters = new MonsterCollection();
+
+  public constructor(public readonly bot: Bot) {
+    this.bot.on("moveToArea", this.#moveToArea.bind(this));
+    this.bot.on("ct", this.#ct.bind(this));
+  }
 
   /**
    * A list of all player names in the map.
    */
   public get playerNames(): string[] {
-    return this.bot.flash.call(() => swf.worldGetPlayerNames()) ?? [];
+    return this.#players.map((plyr) => plyr.username.toLowerCase());
   }
 
   /**
@@ -82,9 +98,7 @@ export class World {
    * @param name - The player name to check.
    */
   public isPlayerInMap(name: string) {
-    return this.playerNames.some((playerName) =>
-      playerName.toLowerCase().includes(name.toLowerCase()),
-    );
+    return this.playerNames.includes(name.toLowerCase());
   }
 
   /**
@@ -94,8 +108,9 @@ export class World {
    * @param cell - The cell to check.
    */
   public isPlayerInCell(name: string, cell: string) {
-    return this.bot.flash.call<boolean>(() =>
-      swf.worldIsPlayerInCell(name, cell),
+    return (
+      this.#players.get(name.toLowerCase())?.cell?.toLowerCase() ===
+      cell.toLowerCase()
     );
   }
 
@@ -109,47 +124,22 @@ export class World {
   /**
    * A list of all players in the map.
    */
-  public get players(): Map<string, Avatar> | null {
-    const out = this.bot.flash.call<string>(() => swf.worldGetPlayers());
-
-    if (!out) return null;
-
-    const parsedOut = out as unknown as Record<string, AvatarData>;
-
-    const map = new Map<string, Avatar>();
-    for (const [name, data] of Object.entries(parsedOut)) {
-      try {
-        map.set(
-          name?.toLowerCase(),
-          new Avatar(JSON.parse(data as unknown as string)),
-        );
-      } catch {
-        console.warn(`failed to parse avatar for: ${name}`);
-      }
-    }
-
-    return map;
+  public get players() {
+    return this.#players;
   }
 
   /**
    *  A list of monsters in the map.
    */
-  public get monsters(): MonsterData[] {
-    try {
-      return JSON.parse(
-        swf.selectArrayObjects("world.monsters", "objData"),
-      ) as MonsterData[];
-    } catch {
-      return [];
-    }
+  public get monsters() {
+    return this.#monsters;
   }
 
   /**
    * A list of monsters in the cell.
    */
   public get availableMonsters() {
-    const ret = this.bot.flash.call(() => swf.worldGetCellMonsters());
-    return Array.isArray(ret) ? ret.map((data) => new Monster(data)) : [];
+    return this.#monsters.filter((mon) => mon.cell === this.bot.player.cell);
   }
 
   /**
@@ -165,9 +155,7 @@ export class World {
       return this.availableMonsters.some((mon) => mon.monMapId === monMapId);
     }
 
-    if (monsterResolvable === "*") {
-      return this.availableMonsters.length > 0;
-    }
+    if (monsterResolvable === "*") return this.availableMonsters.size > 0;
 
     return this.availableMonsters.some((mon) =>
       mon.name.toLowerCase().includes(monsterResolvable.toLowerCase()),
@@ -206,7 +194,7 @@ export class World {
    * Sets the player's spawnpoint.
    */
   public setSpawnPoint(cell?: string, pad?: string): void {
-    if (cell && pad) {
+    if (typeof cell === "string" && typeof pad === "string") {
       this.bot.flash.call("world.setSpawnPoint", cell, pad);
       return;
     }
@@ -220,21 +208,21 @@ export class World {
    * The current room area id.
    */
   public get roomId(): number {
-    return this.bot.flash.call(() => swf.worldGetRoomId());
+    return this.#areaId!;
   }
 
   /**
    * The room number of the map.
    */
   public get roomNumber(): number {
-    return this.bot.flash.call(() => swf.worldGetRoomNumber());
+    return this.#mapNumber!;
   }
 
   /**
    * The name of the map.
    */
   public get name(): string {
-    return this.bot.flash.call(() => swf.playerGetMap());
+    return this.#mapName!;
   }
 
   /**
@@ -330,14 +318,6 @@ export class World {
   }
 
   /**
-   * The list of all items in the world.
-   *
-   */
-  public get itemTree(): ItemData[] {
-    return this.bot.flash.call(() => swf.worldGetItemTree());
-  }
-
-  /**
    * Whether the game action has cooled down.
    *
    * @param gameAction - The game action to check.
@@ -368,5 +348,64 @@ export class World {
     this.bot.flash.call(() =>
       swf.worldLoadSwf(`${mapSwf}${mapSwf.endsWith(".swf") ? "" : ".swf"}`),
     );
+  }
+
+  #moveToArea(packet: MoveToAreaPacket) {
+    const parts = packet.areaName.split("-");
+    this.#mapName = parts[0]!;
+    this.#mapNumber = Number(parts[1]) || 1;
+    this.#areaId = packet.areaId;
+
+    if (packet?.uoBranch?.length) {
+      this.#players.clear();
+
+      for (const avatar of packet.uoBranch)
+        this.#players.set(avatar.strUsername, new Avatar(avatar));
+    }
+
+    if (
+      packet?.monBranch?.length &&
+      packet?.mondef?.length &&
+      packet?.monmap?.length
+    ) {
+      this.#monsters.clear();
+
+      for (const monData of packet.monBranch) {
+        const monID = Number(monData.MonID);
+        const monMapID = Number(monData.MonMapID);
+
+        const monDef = packet.mondef.find((mon) => Number(mon.MonID) === monID);
+        const monMap = packet.monmap.find(
+          (mon) => Number(mon.MonMapID) === monMapID,
+        );
+
+        this.#monsters.set(
+          monMapID,
+          new Monster({
+            iLvl: monData.iLvl ?? monDef?.intLevel ?? 0,
+            intHP: monData.intHP,
+            intHPMax: monData.intHPMax,
+            intState: monData.intState,
+            MonID: monID,
+            MonMapID: monMapID,
+            strFrame: monMap?.strFrame ?? "",
+            sRace: monDef?.sRace ?? "",
+            strMonName: monDef?.strMonName ?? "",
+          }),
+        );
+      }
+    }
+  }
+
+  #ct(packet: CtPacket) {
+    if (!("m" in packet) || typeof packet.m !== "object") return;
+
+    for (const [monMapId, data] of Object.entries(packet.m)) {
+      const mon = this.#monsters.get(Number(monMapId));
+      if (!mon) continue;
+
+      if (data?.intState) mon.data.intState = data.intState;
+      if (data?.intHP) mon.data.intHP = data.intHP;
+    }
   }
 }

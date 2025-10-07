@@ -179,10 +179,9 @@ async function startFollower() {
 
       bot.world.setSpawnPoint();
 
-      if (!bot.world.availableMonsters.length) {
+      if (!bot.world.availableMonsters.size) 
         return;
-      }
-
+      
       if (cfg.safeSkillEnabled && cfg.safeSkill.length) {
         for (const playerName of bot.world.playerNames) {
           const player = bot.world.players?.get(playerName);

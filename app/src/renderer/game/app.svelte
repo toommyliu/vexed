@@ -352,7 +352,7 @@
         }
 
         if (!bot.player.isReady()) return;
-        if (bot.world.availableMonsters.length) {
+        if (bot.world.availableMonsters.size) {
           if (!bot.combat.hasTarget()) bot.combat.attack("*");
 
           const skill = skillList[idx];

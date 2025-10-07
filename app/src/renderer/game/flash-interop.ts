@@ -11,8 +11,13 @@ import { dropItem } from "./packet-handlers/drop-item";
 import { event } from "./packet-handlers/event";
 import { initUserData } from "./packet-handlers/init-user-data";
 import { initUserDatas } from "./packet-handlers/initUserDatas";
+import { jsonUotls } from "./packet-handlers/json/uotls";
 import { moveToArea } from "./packet-handlers/move-to-area";
+import { respawnMon } from "./packet-handlers/str/respawnMon";
+import { strUotls } from "./packet-handlers/str/uotls";
 import { appState } from "./state.svelte";
+import { acceptQuest } from "./packet-handlers/json/acceptQuest";
+import { getQuests } from "./packet-handlers/json/getQuests";
 
 const logger = log.scope("game/flash-interop");
 
@@ -86,6 +91,7 @@ window.pext = async ([packet]) => {
 
     switch (dataObj[0]) {
       case "respawnMon":
+        respawnMon(bot, dataObj);
         break;
       case "exitArea":
         {
@@ -96,15 +102,7 @@ window.pext = async ([packet]) => {
 
         break;
       case "uotls":
-        if (
-          Array.isArray(dataObj) &&
-          dataObj?.length === 4 &&
-          dataObj[2]?.toLowerCase() === bot.auth?.username?.toLowerCase() &&
-          dataObj[3] === "afk:true"
-        ) {
-          bot.emit("afk");
-        }
-
+        strUotls(bot, dataObj);
         break;
     }
   } else if (pkt?.params?.type === "json") {
@@ -131,6 +129,16 @@ window.pext = async ([packet]) => {
         break;
       case "clearAuras":
         AuraStore.clearPlayerAuras(bot.auth.username.toLowerCase()); // only ever called on ourselves
+        break;
+      case "uotls":
+        jsonUotls(bot, dataObj);
+        break;
+      case "getQuests":
+        getQuests(bot, dataObj);
+        break;
+      case "acceptQuest":
+        acceptQuest(bot, dataObj);
+        break;
     }
   }
 };

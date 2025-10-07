@@ -195,8 +195,8 @@ package vexed {
       externalize("worldGetCells", World.getCells);
       externalize("worldGetCellPads", World.getCellPads);
       // externalize("worldGetItemTree", World.getItemTree);
-      externalize("worldGetRoomId", World.getRoomId);
-      externalize("worldGetRoomNumber", World.getRoomNumber);
+      // externalize("worldGetRoomId", World.getRoomId);
+      // externalize("worldGetRoomNumber", World.getRoomNumber);
       externalize("worldReload", World.reload);
       externalize("worldLoadSwf", World.loadSwf);
       externalize("worldGetMapItem", World.getMapItem);
