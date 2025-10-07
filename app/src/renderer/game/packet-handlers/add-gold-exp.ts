@@ -1,23 +1,22 @@
-import type { Bot } from "../lib/Bot";
-import { AuraStore } from "../lib/util/AuraStore";
+import type { Bot } from "@lib/Bot";
+import { AuraStore } from "@lib/util/AuraStore";
 
-function isMonPkt(
+const isMonPkt = (
   packet: AddGoldExpPkt,
-): packet is AddGoldExpPkt & AddGoldExpPktMon {
-  return packet.typ === "m";
-}
+): packet is AddGoldExpPkt & AddGoldExpPktMon => packet.typ === "m";
 
 export async function addGoldExp(bot: Bot, packet: AddGoldExpPkt) {
-  if (isMonPkt(packet)) {
-    const getMonster = () =>
-      bot.world.availableMonsters.find((mon) => mon.monMapId === packet.id)!;
+  if (!isMonPkt(packet)) return;
 
-    bot.emit("monsterDeath", packet.id);
-    await bot.waitUntil(() => Boolean(getMonster()?.alive));
-    bot.emit("monsterRespawn", getMonster());
+  bot.emit("monsterDeath", packet.id);
 
-    AuraStore.monsterAuras.delete(String(packet.id));
-  }
+  AuraStore.clearMonsterAuras(String(packet.id));
+
+  const mon = bot.world.availableMonsters.get(packet.id);
+  if (!mon) return;
+
+  mon.data.intHP = 0;
+  mon.data.intState = 0;
 }
 
 type AddGoldExpPktMon = {

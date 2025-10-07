@@ -1,37 +1,45 @@
 import type { Bot } from "../lib/Bot";
+import type { AvatarData } from "../lib/models/Avatar";
 
-export async function moveToArea(bot: Bot, packet: Packet) {
+export async function moveToArea(bot: Bot, packet: MoveToAreaPacket) {
   bot.emit("mapChanged", packet.areaName);
+  bot.emit("moveToArea", packet);
 }
 
-type Packet = {
+export type MoveToAreaPacket = {
   areaId: number;
   areaName: string; // buyhouse-12345
   cmd: string; // moveToArea
   intType: string;
-  monBranch: any[];
+  monBranch: {
+    MonID: string;
+    MonMapID: number;
+    bRed: string;
+    iLvl: number;
+    intHP: number;
+    intHPMax: number;
+    intMP: number;
+    intMPMax: number;
+    intState: number;
+  }[];
+  mondef: {
+    MonID: string;
+    intLevel: number;
+    sRace: string;
+    strBehave: string;
+    strLinkage: string;
+    strMonFileName: string;
+    strMonName: string;
+  }[];
+  monmap: {
+    MonID: string;
+    MonMapID: string;
+    bRed: string;
+    intRSS: string;
+    strFrame: string;
+  }[];
   sExtra: string;
   strMapFileName: string;
   strMapName: string; // buyhouse
-  uoBranch: UoBranch[];
-};
-
-type UoBranch = {
-  afk: boolean;
-  entID: number;
-  entType: string;
-  intHP: number;
-  intHPMax: number;
-  intLevel: number;
-  intMP: number;
-  intMPMax: number;
-  intState: number;
-  showCloak: boolean;
-  showHelm: boolean;
-  strFrame: string;
-  strPad: string;
-  strUsername: string;
-  tx: number;
-  ty: number;
-  uoName: string;
+  uoBranch: AvatarData[];
 };

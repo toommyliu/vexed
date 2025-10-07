@@ -4,6 +4,16 @@ import { BaseEntity, type BaseEntityData } from "./BaseEntity";
  * Represents a player in the world.
  */
 export class Avatar extends BaseEntity {
+  /**
+   * The player's x position.
+   */
+  public xPos!: number;
+
+  /**
+   * The player's y position.
+   */
+  public yPos!: number;
+
   public constructor(
     /**
      * Data about this player.

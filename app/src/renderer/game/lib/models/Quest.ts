@@ -20,14 +20,14 @@ export class Quest {
    * The ID of this quest.
    */
   public get id(): number {
-    return Number.parseInt(this.data.QuestID, 10);
+    return Number(this.data.QuestID);
   }
 
   /**
    * Whether this quest is in progress.
    */
   public get inProgress(): boolean {
-    return this.#bot.flash.call(() => swf.questsIsInProgress(this.id));
+    return this.data.status === "p";
   }
 
   /**
@@ -66,11 +66,6 @@ export class Quest {
    * Whether this quest has been completed before.
    */
   public hasCompletedBefore(): boolean {
-    const quest = this.#bot.quests.get(this.id);
-    if (!quest) {
-      return false;
-    }
-
     const slot = this.data.iSlot;
     const value = this.data.iValue;
 
@@ -202,6 +197,10 @@ export type QuestData = {
   sName: string;
   /**
    * The status of the quest.
+   *
+   * p = in progress
+   *
+   * c = complete / ready to turn in
    */
   status: string;
   turnin: QuestTurnInRaw[];

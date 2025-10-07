@@ -7,6 +7,8 @@ const REMOVE_AURAS = new Set(["aura-", "aura--"]);
 
 // "Combat Tick"
 export function ct(bot: Bot, packet: CtPacket) {
+  bot.emit("ct", packet);
+
   if (Array.isArray(packet?.anims) && packet?.anims?.length) {
     for (const anim of packet?.anims ?? []) {
       if (!anim?.msg) continue;
@@ -36,8 +38,21 @@ export function ct(bot: Bot, packet: CtPacket) {
   if (typeof packet?.p === "object") {
     for (const playerName in packet.p) {
       if (!Object.hasOwn(packet.p, playerName)) continue;
+
       const data = packet.p[playerName];
-      if (data?.intState === 0 && data?.intHP === 0) {
+      if (!data) continue;
+
+      const hp = data.intHP!;
+      const mp = data.intMP!;
+      const state = data.intState!;
+
+      if (bot.auth?.username?.toLowerCase() === playerName.toLowerCase()) {
+        bot.player.hp = hp ?? bot.player.hp;
+        bot.player.mp = mp ?? bot.player.mp;
+        bot.player.state = state;
+      }
+
+      if (hp === 0 && state === 0) {
         bot.emit("playerDeath", playerName);
         AuraStore.playerAuras.delete(playerName);
       }
@@ -132,7 +147,7 @@ export function ct(bot: Bot, packet: CtPacket) {
   }
 }
 
-type CtPacket = {
+export type CtPacket = {
   a?: {
     aura?: {
       nam?: string;
@@ -151,9 +166,14 @@ type CtPacket = {
   anims?: {
     msg?: string;
   }[];
+  m?: {
+    [monMapId: number]: {
+      intHP?: number;
+      intState?: number;
+    };
+  };
   p?: {
-    // player name
-    [key: string]: {
+    [playerName: string]: {
       intHP?: number;
       intMP?: number;
       intState?: number;
