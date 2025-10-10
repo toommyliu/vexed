@@ -5,9 +5,11 @@ import process from "process";
 import Config from "@vexed/config";
 import { registerIpcMain } from "@vexed/tipc/main";
 import { app, shell } from "electron";
+import log from "electron-log";
+import { version } from "../../package.json";
 import { BRAND, DEFAULT_SETTINGS, DOCUMENTS_PATH } from "../shared/constants";
 import type { Settings } from "../shared/types";
-import { ASSET_PATH } from "./constants";
+import { ASSET_PATH, logger } from "./constants";
 import { router } from "./tipc";
 import { checkForUpdates } from "./updater";
 import { createNotification } from "./util/notification";
@@ -60,16 +62,28 @@ async function handleAppLaunch(argv: string[] = process.argv) {
     });
     await settings.load();
 
-    if (settings?.get("checkForUpdates") === true) {
-      const hasUpdate = await checkForUpdates(true);
-      if (hasUpdate) {
+    const level = settings.get("debug", false) ? "debug" : "info";
+
+    log.transports.file.resolvePath = () => join(DOCUMENTS_PATH, "log.txt");
+    log.transports.file.level = level;
+    log.transports.console.level = level;
+
+    logger.info(`hello - ${BRAND} v${version}`); // indicate app start
+
+    if (settings?.get("checkForUpdates", false) === true) {
+      const updateResult = await checkForUpdates(true);
+      if (updateResult !== null) {
+        logger.info(
+          `update available - ${updateResult.newVersion} (current: ${version})`,
+        );
+
         const notif = createNotification(
           "Update available",
-          `Version ${hasUpdate.newVersion} is available. Click to view.`,
+          `Version ${updateResult.newVersion} is available. Click to view.`,
         );
-        notif.once("click", async () => {
-          await shell.openExternal(hasUpdate.releaseUrl);
-        });
+        notif.once("click", async () =>
+          shell.openExternal(updateResult.releaseUrl),
+        );
       }
     }
 
@@ -106,6 +120,9 @@ async function handleAppLaunch(argv: string[] = process.argv) {
     }
   } catch (error) {
     const err = error as Error;
+    logger.error("failed to initialize the application");
+    logger.error(err);
+
     showErrorDialog({
       error: err,
       message: "Failed to initialize the application.",

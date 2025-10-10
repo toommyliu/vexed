@@ -1,5 +1,4 @@
 import { join, sep } from "path";
-import process from "process";
 import {
   deleteFile,
   pathExists,
@@ -8,9 +7,10 @@ import {
 } from "@vexed/fs-utils";
 import { Menu, Tray, app, dialog, nativeImage, session } from "electron";
 import { BRAND } from "../shared/constants";
-import { ASSET_PATH } from "./constants";
+import { ASSET_PATH, IS_MAC } from "./constants";
 import { showErrorDialog } from "./util/showErrorDialog";
 import { createAccountManager, createGame } from "./windows";
+
 // https://www.electronjs.org/docs/latest/faq#my-apps-tray-disappeared-after-a-few-minutes
 let tray: Tray | null = null;
 
@@ -107,9 +107,8 @@ app.on("ready", () => {
   tray.setToolTip(BRAND);
   tray.setContextMenu(contextMenu);
 
-  if (process.platform === "darwin") {
+  if (IS_MAC)
     app.dock.setIcon(nativeImage.createFromPath(join(ASSET_PATH, "icon.png")));
-  }
 });
 
 app.on("before-quit", () => {

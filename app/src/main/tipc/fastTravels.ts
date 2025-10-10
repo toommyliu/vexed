@@ -1,5 +1,4 @@
 import { readJson } from "@vexed/fs-utils";
-import { Logger } from "@vexed/logger";
 import type { tipc } from "@vexed/tipc";
 import { getRendererHandlers } from "@vexed/tipc";
 import { BrowserWindow } from "electron";
@@ -8,10 +7,9 @@ import {
   DEFAULT_FAST_TRAVELS,
 } from "../../shared/constants";
 import type { FastTravel, FastTravelRoomNumber } from "../../shared/types";
+import { logger } from "../constants";
 import type { RendererHandlers } from "../tipc";
 import { windowStore } from "../windows";
-
-const logger = Logger.get("IpcMain");
 
 type TipcInstance = ReturnType<typeof tipc.create>;
 
@@ -21,7 +19,7 @@ export function createFastTravelsTipcRouter(tipcInstance: TipcInstance) {
       try {
         return await readJson<FastTravel[]>(FAST_TRAVELS_PATH);
       } catch (error) {
-        logger.error("Failed to read fast travels", error);
+        logger.error(`failed to read fast travels: ${error}`);
         return DEFAULT_FAST_TRAVELS;
       }
     }),
