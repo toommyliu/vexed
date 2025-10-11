@@ -1,9 +1,8 @@
 import { join, dirname } from "path";
 import process from "process";
 import { app } from "electron";
-
-export const IS_WINDOWS = process.platform === "win32";
-export const IS_MAC = process.platform === "darwin";
+import log from "electron-log";
+import { IS_WINDOWS } from "../shared/constants";
 
 export const IS_PACKAGED = app.isPackaged;
 
@@ -16,3 +15,5 @@ export const ASSET_PATH = IS_PACKAGED
 export const DIST_PATH = IS_PACKAGED
   ? join(app.getAppPath(), "dist")
   : join(process.cwd(), "dist");
+
+export const logger = log.scope("main");

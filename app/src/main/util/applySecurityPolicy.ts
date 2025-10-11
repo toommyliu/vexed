@@ -1,7 +1,7 @@
 import { URL } from "url";
 import { BrowserWindow, session } from "electron";
 import { ARTIX_USERAGENT, WHITELISTED_DOMAINS } from "../../shared/constants";
-import { IS_WINDOWS } from "../constants";
+import { IS_WINDOWS, logger } from "../constants";
 
 function isDomainWhitelisted(hostname: string): boolean {
   let normalized = hostname;
@@ -13,9 +13,8 @@ function isDomainWhitelisted(hostname: string): boolean {
 }
 
 export function applySecurityPolicy(window: BrowserWindow): void {
-  if (IS_WINDOWS)
-    window.setMenuBarVisibility(false);
-  
+  if (IS_WINDOWS) window.setMenuBarVisibility(false);
+
   window.webContents.setUserAgent(ARTIX_USERAGENT);
   session.defaultSession?.webRequest.onBeforeSendHeaders((details, fn) => {
     const requestHeaders = details.requestHeaders;
@@ -36,7 +35,7 @@ export function applySecurityPolicy(window: BrowserWindow): void {
   window.webContents.on("will-navigate", (ev, url) => {
     const parsedUrl = new URL(url);
     if (!isDomainWhitelisted(parsedUrl.hostname)) {
-      console.log(`[will-navigate] blocking url: ${url}`);
+      logger.debug(`blocked navigation to: ${url}`);
       ev.preventDefault();
     }
   });
@@ -44,7 +43,7 @@ export function applySecurityPolicy(window: BrowserWindow): void {
   window.webContents.on("will-redirect", (ev, url) => {
     const parsedUrl = new URL(url);
     if (!isDomainWhitelisted(parsedUrl.hostname)) {
-      console.log(`[will-redirect] blocking url: ${url}`);
+      logger.debug(`blocked redirect to: ${url}`);
       ev.preventDefault();
     }
   });
