@@ -98,8 +98,6 @@ export function createScriptsTipcRouter(tipcInstance: TipcInstance) {
           // Load the script
           await context.sender.executeJavaScript(content!);
           handlers.scripts.scriptLoaded.send(fromManager);
-
-          browserWindow.webContents.removeAllListeners("console-message");
         } catch {}
       }),
     toggleDevTools: tipcInstance.procedure.action(async ({ context }) => {
