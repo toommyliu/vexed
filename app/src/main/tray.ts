@@ -6,8 +6,8 @@ import {
   deleteDirectory,
 } from "@vexed/fs-utils";
 import { Menu, Tray, app, dialog, nativeImage, session } from "electron";
-import { BRAND } from "../shared/constants";
-import { ASSET_PATH, IS_MAC } from "./constants";
+import { BRAND, IS_MAC } from "../shared/constants";
+import { ASSET_PATH } from "./constants";
 import { showErrorDialog } from "./util/showErrorDialog";
 import { createAccountManager, createGame } from "./windows";
 

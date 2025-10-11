@@ -7,7 +7,13 @@ import { registerIpcMain } from "@vexed/tipc/main";
 import { app, shell } from "electron";
 import log from "electron-log";
 import { version } from "../../package.json";
-import { BRAND, DEFAULT_SETTINGS, DOCUMENTS_PATH } from "../shared/constants";
+import {
+  BRAND,
+  DEFAULT_SETTINGS,
+  DOCUMENTS_PATH,
+  IS_MAC,
+  IS_WINDOWS,
+} from "../shared/constants";
 import type { Settings } from "../shared/types";
 import { ASSET_PATH, logger } from "./constants";
 import { router } from "./tipc";
@@ -24,9 +30,9 @@ function registerFlashPlugin() {
 
   let pluginName;
 
-  if (process.platform === "win32") {
+  if (IS_WINDOWS) {
     pluginName = "pepflashplayer.dll";
-  } else if (process.platform === "darwin") {
+  } else if (IS_MAC) {
     pluginName = "PepperFlashPlayer.plugin";
   }
 
