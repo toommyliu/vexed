@@ -128,6 +128,9 @@ export async function createGame(
   });
 
   windowStore.set(window.id, {
+    app: {
+      logs: null,
+    },
     game: window,
     tools: {
       fastTravels: null,
@@ -142,6 +145,9 @@ export async function createGame(
 export type WindowStore = Map<
   number,
   {
+    app: {
+      logs: BrowserWindow | null;
+    };
     game: BrowserWindow;
     packets: {
       logger: BrowserWindow | null;

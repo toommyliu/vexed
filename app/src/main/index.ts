@@ -24,6 +24,8 @@ import { createAccountManager, createGame, setQuitting } from "./windows";
 
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 
+log.initialize();
+
 function registerFlashPlugin() {
   // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
   const flashTrust = require("nw-flash-trust");
@@ -70,7 +72,10 @@ async function handleAppLaunch(argv: string[] = process.argv) {
 
     const level = settings.get("debug", false) ? "debug" : "info";
 
-    log.transports.file.resolvePath = () => join(DOCUMENTS_PATH, "log.txt");
+    log.trans
+    log.transports.file.resolvePathFn = () => join(DOCUMENTS_PATH, "log.txt");
+    log.transports.file.format = '[{datetime}]{scope} {text}';
+    log.transports.console.format = '[{datetime}]{scope} {text}';
     log.transports.file.level = level;
     log.transports.console.level = level;
 

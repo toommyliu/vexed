@@ -6,6 +6,7 @@ export class CommandDeposit extends Command {
   public override async execute() {
     const items = Array.isArray(this.item) ? this.item : [this.item];
     for (const item of items) {
+      this.logger.debug(`depositing ${item}`);
       await this.bot.bank.deposit(item);
     }
   }

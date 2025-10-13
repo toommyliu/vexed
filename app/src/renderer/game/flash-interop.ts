@@ -1,5 +1,5 @@
 import process from "process";
-import { Logger } from "@vexed/logger";
+import log from "electron-log/renderer";
 import { XMLParser } from "fast-xml-parser";
 import { Bot } from "@lib/Bot";
 import { AutoReloginJob } from "@lib/jobs/autorelogin";
@@ -14,7 +14,8 @@ import { initUserDatas } from "./packet-handlers/initUserDatas";
 import { moveToArea } from "./packet-handlers/move-to-area";
 import { appState } from "./state.svelte";
 
-const logger = Logger.get("FlashInterop");
+const logger = log.scope("game/flash-interop");
+
 const bot = Bot.getInstance();
 
 window.packetFromClient = ([packet]: [string]) => {
@@ -209,14 +210,17 @@ window.loaded = async () => {
       const [, path] = scriptPath.split("=");
       const decodedPath = decodeURIComponent(path!);
 
-      // console.log("decodedPath", decodedPath);
-
       await client.scripts.loadScript({ scriptPath: decodedPath });
     } catch {}
   }
 };
 
 window.flashDebug = (...args: string[]) => {
+  if (args.length === 1) {
+    logger.info(args[0]);
+    return;
+  }
+  
   logger.info(...args);
 };
 

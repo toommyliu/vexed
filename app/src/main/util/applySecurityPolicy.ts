@@ -1,7 +1,7 @@
 import { URL } from "url";
 import { BrowserWindow, session } from "electron";
-import { ARTIX_USERAGENT, WHITELISTED_DOMAINS } from "../../shared/constants";
-import { IS_WINDOWS, logger } from "../constants";
+import { ARTIX_USERAGENT, WHITELISTED_DOMAINS, IS_WINDOWS } from "../../shared/constants";
+import { logger } from "../constants";
 
 function isDomainWhitelisted(hostname: string): boolean {
   let normalized = hostname;
@@ -15,7 +15,7 @@ function isDomainWhitelisted(hostname: string): boolean {
 export function applySecurityPolicy(window: BrowserWindow): void {
   if (IS_WINDOWS) window.setMenuBarVisibility(false);
 
-  window.webContents.setUserAgent(ARTIX_USERAGENT);
+  window.webContents.userAgent = ARTIX_USERAGENT;
   session.defaultSession?.webRequest.onBeforeSendHeaders((details, fn) => {
     const requestHeaders = details.requestHeaders;
 
@@ -70,7 +70,7 @@ export function applySecurityPolicy(window: BrowserWindow): void {
       }
 
       if (!isDomainWhitelisted(parsedUrl.hostname)) {
-        console.log(`[new-window] blocking url: ${url}`);
+        logger.debug(`blocked new-window to: ${url}`)
         ev.preventDefault();
         return null;
       }
