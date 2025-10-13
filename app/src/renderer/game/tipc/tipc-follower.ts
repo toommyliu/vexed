@@ -1,5 +1,6 @@
 import { interval } from "@vexed/utils";
 import { Mutex } from "async-mutex";
+import log from 'electron-log';
 import { Bot } from "@lib/Bot";
 import { handlers } from "@shared/tipc";
 import { doPriorityAttack } from "@utils/doPriorityAttack";
@@ -15,8 +16,7 @@ let config: FollowerConfig | null = null;
 
 const mutex = new Mutex();
 const bot = Bot.getInstance();
-
-// const logger = Logger.get("IpcFollower");
+const logger = log.scope('game/follower');
 
 function parseConfig(rawConfig: FollowerStartInput) {
   const {
@@ -133,6 +133,8 @@ async function startFollower() {
 
   const cfg = config as FollowerConfig;
   const { name } = cfg;
+
+  logger.info(`start follower: ${name}`);
 
   const foundPlayer = () => {
     if (!name || name.toLowerCase() === bot.auth?.username?.toLowerCase())
@@ -251,6 +253,8 @@ async function stopFollower() {
   if (mutex.isLocked()) {
     mutex.release();
   }
+
+  logger.info("stopping follower");
 
   on = false;
 

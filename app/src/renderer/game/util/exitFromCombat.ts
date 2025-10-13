@@ -9,8 +9,6 @@ export async function exitFromCombat() {
   let success = false;
 
   if (bot.player.isInCombat()) {
-    // logger.info('in combat, trying to exit');
-
     // immediately try to escape with current cell
     await bot.world.jump(bot.player.cell, bot.player.pad);
     await bot.sleep(1_000);
@@ -23,7 +21,6 @@ export async function exitFromCombat() {
         if (cell === ogCell) continue;
 
         await bot.world.jump(cell);
-
         await bot.waitUntil(() => !bot.player.isInCombat(), null, 3);
 
         if (!bot.player.isInCombat()) {

@@ -1,4 +1,4 @@
-// import { Logger } from "@vexed/logger";
+import log from "electron-log";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { Bot } from "@lib/Bot";
 import { commandOverlayState } from "../state.svelte";
@@ -7,7 +7,7 @@ import { CommandRegisterDrop } from "./commands/item/CommandRegisterDrop";
 import { CommandAcceptQuest } from "./commands/quest/CommandAcceptQuest";
 import { CommandRegisterQuest } from "./commands/quest/CommandRegisterQuest";
 
-// const logger = Logger.get("Context");
+const logger = log.scope("game/context");
 
 export class Context extends TypedEmitter<Events> {
   private readonly bot = Bot.getInstance();
@@ -382,7 +382,6 @@ export class Context extends TypedEmitter<Events> {
   }
 
   public async stop() {
-    // logger.info('context stopping');
     this._stop();
 
     await this.bot.waitUntil(() => this.bot.player.alive, null, -1);
@@ -400,11 +399,8 @@ export class Context extends TypedEmitter<Events> {
   }
 
   private async doPreInit() {
-    if (!this.bot.player.isReady()) {
-      // logger.info("waiting for load (1)");
+    if (!this.bot.player.isReady())
       await this.bot.waitUntil(() => this.bot.player.isReady(), null, -1);
-      // logger.info("player loaded (2)");
-    }
 
     const questList = this._commands
       .filter(
@@ -427,9 +423,6 @@ export class Context extends TypedEmitter<Events> {
     const unbankList = this._commands
       .filter((command) => command instanceof CommandRegisterDrop)
       .flatMap((cmd) => cmd.item);
-
-    // console.log("Quest list", questList);
-    // console.log("Unbank list", unbankList);
 
     await this.bot.quests.loadMultiple(questList);
 
@@ -454,11 +447,8 @@ export class Context extends TypedEmitter<Events> {
 
     this._commandIndex = 0;
 
-    if (!this.bot.player.isReady()) {
-      // logger.info("waiting for load");
+    if (!this.bot.player.isReady())
       await this.bot.waitUntil(() => this.bot.player.isReady(), null, -1);
-      // logger.info("player loaded");
-    }
 
     while (this._commandIndex < this._commands.length && this.isRunning()) {
       try {
@@ -481,13 +471,8 @@ export class Context extends TypedEmitter<Events> {
 
         this._commandIndex++;
       } catch (error) {
-        console.error(`error executing command at index ${this._commandIndex}`);
-        console.error(error);
-
-        // logger.error(
-        //   `Error executing command at index ${this._commandIndex}:`,
-        //   error,
-        // );
+        logger.error(`error executing command at index ${this._commandIndex}:`);
+        logger.error(error);
 
         if (!this.isRunning()) break;
         this._commandIndex++;

@@ -1,4 +1,3 @@
-import "@tybys/electron-ipc-handle-invoke/main";
 import { v4 as uuid } from "@lukeed/uuid";
 import { WebContents, ipcMain } from "electron";
 import { RendererHandlers, RouterType } from "./types";

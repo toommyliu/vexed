@@ -43,9 +43,6 @@ export class CommandBuy extends Command {
     if (item && item.data.iQty > 1) {
       // If we want less than a full pack, we still need to buy at least the pack size
       adjustedQuantity = Math.max(this.quantity, item.data.iQty);
-      console.log(
-        `Adjusting quantity: ${this.quantity} → ${adjustedQuantity} (item comes in packs of ${item.data.iQty})`,
-      );
     }
 
     if (typeof this.item === "number") {
