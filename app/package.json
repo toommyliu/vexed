@@ -31,7 +31,6 @@
   },
   "dependencies": {
     "@lukeed/uuid": "^2.0.1",
-    "@tybys/electron-ipc-handle-invoke": "^1.0.2",
     "@vexed/collection": "workspace:*",
     "@vexed/config": "workspace:*",
     "@vexed/fs-utils": "workspace:*",
