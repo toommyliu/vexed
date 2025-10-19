@@ -220,7 +220,7 @@ window.flashDebug = (...args: string[]) => {
     logger.info(args[0]);
     return;
   }
-  
+
   logger.info(...args);
 };
 

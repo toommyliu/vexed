@@ -75,6 +75,13 @@ const SVELTE_TARGETS = [
     watchPaths: ["./src/renderer/game"],
   },
   {
+    name: "game-logs",
+    entryPoint: "./src/renderer/game/logs/main.ts",
+    outfile: "./dist/game/logs/build/main.js",
+    tsconfigFile: "./src/renderer/game/tsconfig.json",
+    watchPaths: ["./src/renderer/game/logs"],
+  },
+  {
     name: "fast-travels",
     entryPoint: "./src/renderer/tools/fast-travels/main.ts",
     outfile: "./dist/tools/fast-travels/build/main.js",
@@ -130,6 +137,10 @@ const CSS_TARGETS = [
 
 const HTML_COPY_TARGETS = [
   { src: "./src/renderer/game/index.html", dest: "./dist/game/index.html" },
+  {
+    src: "./src/renderer/game/logs/index.html",
+    dest: "./dist/game/logs/index.html",
+  },
   {
     src: "./src/renderer/manager/index.html",
     dest: "./dist/manager/index.html",

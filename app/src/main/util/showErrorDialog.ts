@@ -6,7 +6,7 @@ export function showErrorDialog(error: ErrorDialogOptions, quit = true) {
     "An error occured",
     `${error.message}${error.error ? `\n${error.error?.stack}` : ""}`,
   );
- 
+
   if (error?.error instanceof Error) {
     logger.error(error);
   }

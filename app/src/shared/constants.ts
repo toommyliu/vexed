@@ -88,6 +88,9 @@ export const DEFAULT_HOTKEYS: HotkeyConfig = {
     "Toggle Bank": IS_MAC ? "command+b" : "ctrl+b",
     "Toggle Top Bar": IS_MAC ? "command+shift+t" : "ctrl+shift+t",
   },
+  Application: {
+    "Open App Logs": IS_MAC ? "command+shift+l" : "ctrl+shift+l",
+  },
   Scripts: {
     "Load Script": "",
     "Toggle Command Overlay": "`",

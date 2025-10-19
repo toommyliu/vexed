@@ -7,7 +7,7 @@ export class CommandArmyInit extends Command {
     await this.bot.army.init();
 
     if (!this.bot.army.isInitialized) {
-      this.logger.debug('army init failed');
+      this.logger.debug("army init failed");
       await this.ctx.stop();
     }
   }

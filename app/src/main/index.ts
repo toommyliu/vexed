@@ -1,3 +1,4 @@
+import "core-js/stable";
 import "./tray";
 
 import { join } from "path";
@@ -72,10 +73,9 @@ async function handleAppLaunch(argv: string[] = process.argv) {
 
     const level = settings.get("debug", false) ? "debug" : "info";
 
-    log.trans
     log.transports.file.resolvePathFn = () => join(DOCUMENTS_PATH, "log.txt");
-    log.transports.file.format = '[{datetime}]{scope} {text}';
-    log.transports.console.format = '[{datetime}]{scope} {text}';
+    log.transports.file.format = "[{datetime}]{scope} {text}";
+    log.transports.console.format = "[{datetime}]{scope} {text}";
     log.transports.file.level = level;
     log.transports.console.level = level;
 

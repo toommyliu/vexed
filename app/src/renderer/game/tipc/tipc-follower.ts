@@ -1,6 +1,6 @@
 import { interval } from "@vexed/utils";
 import { Mutex } from "async-mutex";
-import log from 'electron-log';
+import log from "electron-log";
 import { Bot } from "@lib/Bot";
 import { handlers } from "@shared/tipc";
 import { doPriorityAttack } from "@utils/doPriorityAttack";
@@ -16,7 +16,7 @@ let config: FollowerConfig | null = null;
 
 const mutex = new Mutex();
 const bot = Bot.getInstance();
-const logger = log.scope('game/follower');
+const logger = log.scope("game/follower");
 
 function parseConfig(rawConfig: FollowerStartInput) {
   const {

@@ -8,7 +8,7 @@
   import { managerState } from "./state.svelte";
   import { client, handlers } from "../../shared/tipc";
   import { startAccount, removeAccount } from "./util";
-  
+
   const { accounts, servers, timeouts } = managerState;
 
   let isLoading = $state(true);

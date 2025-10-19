@@ -1,6 +1,10 @@
 import { URL } from "url";
 import { BrowserWindow, session } from "electron";
-import { ARTIX_USERAGENT, WHITELISTED_DOMAINS, IS_WINDOWS } from "../../shared/constants";
+import {
+  ARTIX_USERAGENT,
+  WHITELISTED_DOMAINS,
+  IS_WINDOWS,
+} from "../../shared/constants";
 import { logger } from "../constants";
 
 function isDomainWhitelisted(hostname: string): boolean {
@@ -70,7 +74,7 @@ export function applySecurityPolicy(window: BrowserWindow): void {
       }
 
       if (!isDomainWhitelisted(parsedUrl.hostname)) {
-        logger.debug(`blocked new-window to: ${url}`)
+        logger.debug(`blocked new-window to: ${url}`);
         ev.preventDefault();
         return null;
       }

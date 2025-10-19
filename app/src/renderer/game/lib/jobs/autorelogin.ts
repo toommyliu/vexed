@@ -1,9 +1,9 @@
 import { Mutex } from "async-mutex";
-import log from 'electron-log';
+import log from "electron-log";
 import type { Bot } from "@lib/Bot";
 import { Job } from "./Job";
 
-const logger = log.scope('game/AutoRelogin');
+const logger = log.scope("game/AutoRelogin");
 
 /**
  * Auto Relogin attempts a login using the provided username and password, selecting the specified server.
@@ -92,7 +92,7 @@ export class AutoReloginJob extends Job {
 
       // Still stuck in blue flame?
       if (!this.bot.player.isReady()) {
-        logger.info('still not ready, logging out.'); 
+        logger.info("still not ready, logging out.");
         this.bot.auth.logout();
         return;
       }

@@ -60,7 +60,7 @@ export abstract class ArmyCommand extends Command {
    */
   public async sendDone(): Promise<void> {
     if (this.isDone) return;
-   
+
     this.isDone = true;
     await client.army.finishJob();
   }

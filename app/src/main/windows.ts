@@ -1,8 +1,10 @@
 import { join, resolve } from "path";
+import { getRendererHandlers } from "@vexed/tipc";
 import { BrowserWindow } from "electron";
 import { BRAND } from "../shared/constants";
-import type { AccountWithScript } from "../shared/types";
+import type { AccountWithScript, AppLogEntry } from "../shared/types";
 import { DIST_PATH, IS_PACKAGED } from "./constants";
+import type { RendererHandlers } from "./tipc";
 import { applySecurityPolicy } from "./util/applySecurityPolicy";
 
 const DIST_GAME = join(DIST_PATH, "game/");
@@ -100,6 +102,76 @@ export async function createGame(
     useContentSize: true,
   });
 
+  const logHistory: AppLogEntry[] = [];
+
+  windowStore.set(window.id, {
+    app: {
+      logHistory,
+      logs: null,
+    },
+    game: window,
+    tools: {
+      fastTravels: null,
+      loaderGrabber: null,
+      follower: null,
+      hotkeys: null,
+    },
+    packets: { logger: null, spammer: null },
+  });
+
+  window.webContents.on(
+    "did-finish-load",
+    () => {
+      const storeRef = windowStore.get(window.id);
+      if (!storeRef) return;
+
+      if (storeRef.app.logHistory.length)
+        storeRef.app.logHistory.length = 0;
+
+      const logsWindow = storeRef.app.logs;
+      if (
+        logsWindow &&
+        !logsWindow.isDestroyed() &&
+        !logsWindow.webContents.isDestroyed()
+      ) {
+        const rendererHandlers = getRendererHandlers<RendererHandlers>(
+          logsWindow.webContents,
+        );
+        rendererHandlers.appLogs.reset.send();
+      }
+    },
+  );
+
+  window.webContents.on(
+    "console-message",
+    (_ev, level, message, lineNumber, sourceId) => {
+      const storeRef = windowStore.get(window.id);
+      if (!storeRef) return;
+
+      const entry: AppLogEntry = {
+        level,
+        lineNumber,
+        message,
+        sourceId,
+        timestamp: Date.now(),
+      };
+
+      storeRef.app.logHistory.push(entry);
+
+      const logsWindow = storeRef.app.logs;
+      if (
+        logsWindow &&
+        !logsWindow.isDestroyed() &&
+        !logsWindow.webContents.isDestroyed()
+      ) {
+        const rendererHandlers = getRendererHandlers<RendererHandlers>(
+          logsWindow.webContents,
+        );
+        rendererHandlers.appLogs.append.send(entry);
+      }
+    },
+  );
+
   void window.loadURL(`file://${resolve(DIST_GAME, "index.html")}`);
   applySecurityPolicy(window);
 
@@ -109,6 +181,7 @@ export async function createGame(
     const windows = windowStore.get(window?.id);
     if (windows) {
       const toClose = [
+        windows.app.logs,
         ...Object.values(windows.tools),
         ...Object.values(windows.packets),
       ];
@@ -126,26 +199,13 @@ export async function createGame(
       windowStore.delete(window.id);
     }
   });
-
-  windowStore.set(window.id, {
-    app: {
-      logs: null,
-    },
-    game: window,
-    tools: {
-      fastTravels: null,
-      loaderGrabber: null,
-      follower: null,
-      hotkeys: null,
-    },
-    packets: { logger: null, spammer: null },
-  });
 }
 
 export type WindowStore = Map<
   number,
   {
     app: {
+      logHistory: AppLogEntry[];
       logs: BrowserWindow | null;
     };
     game: BrowserWindow;

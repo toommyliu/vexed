@@ -263,7 +263,7 @@
           <div class="border-b border-zinc-700/30 px-4 py-3">
             <div class="flex items-center space-x-3">
               <div class="rounded-md bg-blue-500/20 p-2">
-                {#if section.name === "General"}
+                {#if section.icon === "general"}
                   <svg
                     class="h-5 w-5 text-blue-400"
                     fill="none"
@@ -283,7 +283,36 @@
                       d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
                     />
                   </svg>
-                {:else if section.name === "Scripts"}
+                {:else if section.icon === "application"}
+                  <svg
+                    class="h-5 w-5 text-blue-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <rect
+                      x="3"
+                      y="5"
+                      width="18"
+                      height="14"
+                      rx="2"
+                      ry="2"
+                      stroke-width="2"
+                    />
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M3 9h18"
+                    />
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 13h6M8 17h8"
+                    />
+                  </svg>
+                {:else if section.icon === "scripts"}
                   <svg
                     class="h-5 w-5 text-blue-400"
                     fill="none"
@@ -297,7 +326,7 @@
                       d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
                     />
                   </svg>
-                {:else if section.name === "Tools"}
+                {:else if section.icon === "tools"}
                   <svg
                     class="h-5 w-5 text-blue-400"
                     fill="none"
@@ -309,6 +338,56 @@
                       stroke-linejoin="round"
                       stroke-width="2"
                       d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
+                    />
+                  </svg>
+                {:else if section.icon === "packets"}
+                  <svg
+                    class="h-5 w-5 text-blue-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 7h6"
+                    />
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M11 7l3 -3"
+                    />
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M11 7l3 3"
+                    />
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 17h-6"
+                    />
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M13 17l-3 3"
+                    />
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M13 17l-3 -3"
+                    />
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M8 12h8"
                     />
                   </svg>
                 {:else}

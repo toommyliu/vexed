@@ -42,7 +42,7 @@ export class CommandArmyEquipSet extends ArmyCommand {
 
       const resItem = this.#resolveItem(item);
       if (resItem) {
-        this.logger.debug(`equipping ${key} -> ${resItem}`)
+        this.logger.debug(`equipping ${key} -> ${resItem}`);
         await this.bot.inventory.equip(resItem);
       }
     }

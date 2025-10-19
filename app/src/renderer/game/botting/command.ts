@@ -1,6 +1,5 @@
-import log from 'electron-log';
+import log from "electron-log";
 import { Bot } from "@lib/Bot";
-
 
 export class Command {
   protected readonly bot = Bot.getInstance();
