@@ -1,4 +1,4 @@
-import { getRendererHandlers, type tipc } from "@vexed/tipc";
+import { getRendererHandlers, type TipcInstance } from "@vexed/tipc";
 import { sleep } from "@vexed/utils";
 import { BrowserWindow } from "electron";
 import type { RendererHandlers } from "../tipc";
@@ -24,8 +24,6 @@ const handleCleanup = (
   browserWindow.webContents.once("did-finish-load", _cleanup);
   browserWindow.once("close", _cleanup);
 };
-
-type TipcInstance = ReturnType<typeof tipc.create>;
 
 export const createArmyTipcRouter = (tipcInstance: TipcInstance) => ({
   init: tipcInstance.procedure

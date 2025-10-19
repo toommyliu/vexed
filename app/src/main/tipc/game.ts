@@ -1,13 +1,13 @@
 import { join } from "path";
 import Config from "@vexed/config";
-import type { tipc } from "@vexed/tipc";
+import type { TipcInstance } from "@vexed/tipc";
+import { getRendererHandlers } from "@vexed/tipc";
 import { BrowserWindow } from "electron";
 import { DEFAULT_SKILLSETS, DOCUMENTS_PATH } from "../../shared/constants";
 import { WindowIds } from "../../shared/types";
 import { ASSET_PATH, DIST_PATH, IS_PACKAGED } from "../constants";
+import type { RendererHandlers } from "../tipc";
 import { windowStore } from "../windows";
-
-type TipcInstance = ReturnType<typeof tipc.create>;
 
 export function createGameTipcRouter(tipcInstance: TipcInstance) {
   return {
@@ -25,6 +25,12 @@ export function createGameTipcRouter(tipcInstance: TipcInstance) {
         let height: number;
 
         switch (input) {
+          case WindowIds.AppLogs:
+            ref = storeRef.app.logs;
+            path = join(DIST_PATH, "game", "logs", "index.html");
+            width = 860;
+            height = 560;
+            break;
           case WindowIds.FastTravels:
             ref = storeRef.tools.fastTravels;
             path = join(DIST_PATH, "tools", "fast-travels", "index.html");
@@ -88,6 +94,11 @@ export function createGameTipcRouter(tipcInstance: TipcInstance) {
             width = 670;
             height = 527;
             break;
+          case WindowIds.AppLogs:
+            storeRef.app.logs = window;
+            width = 860;
+            height = 560;
+            break;
           case WindowIds.LoaderGrabber:
             storeRef.tools.loaderGrabber = window;
             width = 800;
@@ -124,6 +135,23 @@ export function createGameTipcRouter(tipcInstance: TipcInstance) {
           ev.preventDefault();
           window.hide();
         });
+
+        window.on("closed", () => {
+          if (storeRef.app.logs === window) {
+            storeRef.app.logs = null;
+          }
+        });
+
+        if (input === WindowIds.AppLogs) {
+          window.webContents.once("did-finish-load", () => {
+            const rendererHandlers = getRendererHandlers<RendererHandlers>(
+              window.webContents,
+            );
+            rendererHandlers.appLogs.init.send({
+              entries: storeRef.app.logHistory.slice(),
+            });
+          });
+        }
 
         await window.loadFile(path!);
 

@@ -1,17 +1,15 @@
 import { readJson } from "@vexed/fs-utils";
-import type { tipc } from "@vexed/tipc";
+import type { TipcInstance } from "@vexed/tipc";
 import { getRendererHandlers } from "@vexed/tipc";
 import { BrowserWindow } from "electron";
 import {
-  FAST_TRAVELS_PATH,
   DEFAULT_FAST_TRAVELS,
+  FAST_TRAVELS_PATH,
 } from "../../shared/constants";
 import type { FastTravel, FastTravelRoomNumber } from "../../shared/types";
 import { logger } from "../constants";
 import type { RendererHandlers } from "../tipc";
 import { windowStore } from "../windows";
-
-type TipcInstance = ReturnType<typeof tipc.create>;
 
 export function createFastTravelsTipcRouter(tipcInstance: TipcInstance) {
   return {

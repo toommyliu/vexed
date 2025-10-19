@@ -1,7 +1,7 @@
 import { join } from "path";
 import Config from "@vexed/config";
 import { readJson, writeJson } from "@vexed/fs-utils";
-import type { tipc } from "@vexed/tipc";
+import type { TipcInstance } from "@vexed/tipc";
 import { getRendererHandlers } from "@vexed/tipc";
 import { dialog, BrowserWindow } from "electron";
 import { ACCOUNTS_PATH, DOCUMENTS_PATH } from "../../shared/constants";
@@ -9,8 +9,6 @@ import type { Account, AccountWithScript } from "../../shared/types";
 import { logger } from "../constants";
 import type { RendererHandlers } from "../tipc";
 import { createGame, getManagerWindow } from "../windows";
-
-type TipcInstance = ReturnType<typeof tipc.create>;
 
 export function createManagerTipcRouter(tipcInstance: TipcInstance) {
   return {

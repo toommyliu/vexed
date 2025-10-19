@@ -1,12 +1,10 @@
 import { join } from "path";
 import { readFile } from "@vexed/fs-utils";
-import type { tipc } from "@vexed/tipc";
+import type { TipcInstance } from "@vexed/tipc";
 import { getRendererHandlers } from "@vexed/tipc";
 import { BrowserWindow, dialog } from "electron";
 import { DOCUMENTS_PATH } from "../../shared/constants";
 import type { RendererHandlers } from "../tipc";
-
-type TipcInstance = ReturnType<typeof tipc.create>;
 
 export function createScriptsTipcRouter(tipcInstance: TipcInstance) {
   return {
