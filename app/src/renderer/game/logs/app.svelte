@@ -3,20 +3,13 @@
   import { fade } from "svelte/transition";
   import { client, handlers } from "@shared/tipc";
   import type { AppLogEntry } from "@shared/types";
+  import { LEVEL_LABELS } from "@/shared/constants";
 
-  const LEVEL_LABELS: Record<number, string> = {
-    0: "log",
-    1: "warn",
-    2: "error",
-    3: "info",
-    4: "debug",
-  };
   const LEVEL_CLASSES: Record<number, string> = {
-    0: "text-gray-200",
-    1: "text-amber-300",
-    2: "text-red-300",
-    3: "text-sky-300",
-    4: "text-purple-300",
+    0: "text-gray-400",
+    1: "text-gray-300",
+    2: "text-yellow-400",
+    3: "text-red-400",
   };
 
   let entries: AppLogEntry[] = [];
@@ -51,8 +44,10 @@
     void scrollToBottom(true);
   });
 
-  const getLevelLabel = (level: number): string => LEVEL_LABELS[level] ?? `level-${level}`;
-  const getLevelClass = (level: number): string => LEVEL_CLASSES[level] ?? "text-gray-300";
+  const getLevelLabel = (level: number): string =>
+    LEVEL_LABELS[level] ?? `level-${level}`;
+  const getLevelClass = (level: number): string =>
+    LEVEL_CLASSES[level] ?? "text-gray-300";
   const formatTimestamp = (timestamp: number): string =>
     new Date(timestamp).toLocaleTimeString();
 

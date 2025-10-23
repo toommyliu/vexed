@@ -3,17 +3,10 @@ import { getRendererHandlers } from "@vexed/tipc";
 import type { TipcInstance } from "@vexed/tipc";
 import type { WebContents } from "electron";
 import { BrowserWindow, dialog } from "electron";
+import { LEVEL_LABELS } from '../../shared/constants';
 import type { AppLogEntry } from "../../shared/types";
 import type { RendererHandlers } from "../tipc";
 import { windowStore } from "../windows";
-
-const LEVEL_LABELS: Record<number, string> = {
-  0: "log",
-  1: "warn",
-  2: "error",
-  3: "info",
-  4: "debug",
-};
 
 function getStoreRefFromSender(webContents: WebContents) {
   const logsWindow = BrowserWindow.fromWebContents(webContents);

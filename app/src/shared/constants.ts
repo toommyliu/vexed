@@ -118,3 +118,10 @@ export const WHITELISTED_DOMAINS = [
   "aqwwiki.wikidot.com",
   "heromart.com",
 ];
+
+export const LEVEL_LABELS: Record<number, string> = {
+  0: "debug",
+  1: "log", // info
+  2: "warn",
+  3: "error",
+} as const;

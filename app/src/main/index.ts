@@ -101,6 +101,9 @@ async function handleAppLaunch(argv: string[] = process.argv) {
     let launchMode = settings.get("launchMode", "game")?.toLowerCase();
     if (launchMode !== "manager" && launchMode !== "game") {
       launchMode = "game";
+      logger.info(`unknown launch mode. got ${launchMode}, expected "game" or "manager".`);
+    } else {
+      logger.info(`launch mode: ${launchMode}`);
     }
 
     if (
@@ -161,4 +164,7 @@ app.on("before-quit", () => {
   setQuitting(true);
 });
 
-app.on("window-all-closed", () => app.quit());
+app.on("window-all-closed", () => {
+  logger.info('bye!');
+  app.quit();
+});

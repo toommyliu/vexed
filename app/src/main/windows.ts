@@ -119,28 +119,24 @@ export async function createGame(
     packets: { logger: null, spammer: null },
   });
 
-  window.webContents.on(
-    "did-finish-load",
-    () => {
-      const storeRef = windowStore.get(window.id);
-      if (!storeRef) return;
+  window.webContents.on("did-finish-load", () => {
+    const storeRef = windowStore.get(window.id);
+    if (!storeRef) return;
 
-      if (storeRef.app.logHistory.length)
-        storeRef.app.logHistory.length = 0;
+    if (storeRef.app.logHistory.length) storeRef.app.logHistory.length = 0;
 
-      const logsWindow = storeRef.app.logs;
-      if (
-        logsWindow &&
-        !logsWindow.isDestroyed() &&
-        !logsWindow.webContents.isDestroyed()
-      ) {
-        const rendererHandlers = getRendererHandlers<RendererHandlers>(
-          logsWindow.webContents,
-        );
-        rendererHandlers.appLogs.reset.send();
-      }
-    },
-  );
+    const logsWindow = storeRef.app.logs;
+    if (
+      logsWindow &&
+      !logsWindow.isDestroyed() &&
+      !logsWindow.webContents.isDestroyed()
+    ) {
+      const rendererHandlers = getRendererHandlers<RendererHandlers>(
+        logsWindow.webContents,
+      );
+      rendererHandlers.appLogs.reset.send();
+    }
+  });
 
   window.webContents.on(
     "console-message",
