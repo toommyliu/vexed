@@ -25,7 +25,9 @@ import { createAccountManager, createGame, setQuitting } from "./windows";
 
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 
-log.initialize();
+log.initialize({
+  rendererTransports: ['console']
+});
 
 function registerFlashPlugin() {
   // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
