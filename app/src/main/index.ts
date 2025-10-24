@@ -25,10 +25,6 @@ import { createAccountManager, createGame, setQuitting } from "./windows";
 
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 
-log.initialize({
-  rendererTransports: ['console']
-});
-
 function registerFlashPlugin() {
   // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
   const flashTrust = require("nw-flash-trust");
@@ -75,6 +71,9 @@ async function handleAppLaunch(argv: string[] = process.argv) {
 
     const level = settings.get("debug", false) ? "debug" : "info";
 
+    log.initialize({
+      rendererTransports: ["console", level === "debug" && "file"],
+    });
     log.transports.file.resolvePathFn = () => join(DOCUMENTS_PATH, "log.txt");
     log.transports.file.format = "[{datetime}]{scope} {text}";
     log.transports.console.format = "[{datetime}]{scope} {text}";
@@ -103,7 +102,9 @@ async function handleAppLaunch(argv: string[] = process.argv) {
     let launchMode = settings.get("launchMode", "game")?.toLowerCase();
     if (launchMode !== "manager" && launchMode !== "game") {
       launchMode = "game";
-      logger.info(`unknown launch mode. got ${launchMode}, expected "game" or "manager".`);
+      logger.info(
+        `unknown launch mode. got ${launchMode}, expected "game" or "manager".`,
+      );
     } else {
       logger.info(`launch mode: ${launchMode}`);
     }
@@ -167,6 +168,6 @@ app.on("before-quit", () => {
 });
 
 app.on("window-all-closed", () => {
-  logger.info('bye!');
+  logger.info("bye!");
   app.quit();
 });
