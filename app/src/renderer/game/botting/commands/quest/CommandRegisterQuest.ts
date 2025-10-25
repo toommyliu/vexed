@@ -6,8 +6,10 @@ export class CommandRegisterQuest extends Command {
   public override skipDelay = true;
 
   public override execute() {
-    for (const questId of this.questIds)
+    for (const questId of this.questIds) {
       this.bot.environment.addQuestId(questId);
+      this.logger.debug(`Register quest: ${questId}`);
+    }
   }
 
   public override toString() {

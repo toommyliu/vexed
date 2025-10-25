@@ -8,6 +8,7 @@ export class CommandRegisterDrop extends Command {
   public override execute() {
     for (const item of this.item) {
       this.ctx.registerDrop(item, this.rejectElse);
+      this.logger.debug(`Register drop: ${item}`);
     }
   }
 

@@ -96,6 +96,19 @@ export function createHotkeyConfig(): HotkeySection[] {
       ],
     },
     {
+      id: "application",
+      name: "Application",
+      icon: "application",
+      items: [
+        {
+          id: "open-app-logs",
+          label: "Open App Logs",
+          configKey: "Application.Open App Logs",
+          value: "",
+        },
+      ],
+    },
+    {
       id: "scripts",
       name: "Scripts",
       icon: "scripts",

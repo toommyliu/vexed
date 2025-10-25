@@ -42,20 +42,15 @@ export class CommandEquipByEnhancement extends Command {
   public itemType?: string;
 
   public override async execute() {
-    console.log(`Enhancement name: ${this.enhancementName}`);
-    if (this.itemType) {
-      console.log(`Item type: ${this.itemType}`);
-    }
-
     const targetItem = this.findMatchingItem();
 
+    this.logger.debug(`Looking for ${this.enhancementName}${this.itemType ? ` [${this.itemType}]` : ""}`);
+
     if (targetItem && !targetItem.isEquipped()) {
+      this.logger.debug(`Equipping item: ${targetItem.name}`);
       await this.bot.inventory.equip(targetItem.name);
-      console.log(`Equipped item: ${targetItem.name}`);
     } else if (!targetItem) {
-      console.log(
-        `No matching item found for enhancement: ${this.enhancementName}`,
-      );
+      this.logger.debug('No matching item found');
     }
   }
 

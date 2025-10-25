@@ -11,6 +11,7 @@ export class CommandBuy extends Command {
 
   public override async execute() {
     if (!this.getItem()) {
+      this.logger.debug(`Load shop: ${this.shopId}`);
       // The item is not found in the current shop, assume it might be a different shop
       await this.bot.shops.load(this.shopId);
     }
@@ -43,9 +44,6 @@ export class CommandBuy extends Command {
     if (item && item.data.iQty > 1) {
       // If we want less than a full pack, we still need to buy at least the pack size
       adjustedQuantity = Math.max(this.quantity, item.data.iQty);
-      console.log(
-        `Adjusting quantity: ${this.quantity} → ${adjustedQuantity} (item comes in packs of ${item.data.iQty})`,
-      );
     }
 
     if (typeof this.item === "number") {

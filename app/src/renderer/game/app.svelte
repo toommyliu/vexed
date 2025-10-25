@@ -20,9 +20,12 @@
   import Config from "@vexed/config";
   import { DEFAULT_HOTKEYS, DOCUMENTS_PATH } from "@shared/constants";
   import { parseSkillString } from "./util/skillParser";
+  import log from "electron-log";
 
   import CommandOverlay from "./components/CommandOverlay.svelte";
   import IconCheckmark from "./components/IconCheckmark.svelte";
+
+  const logger = log.scope("game/app");
 
   const DEFAULT_PADS = [
     "Center",
@@ -151,10 +154,7 @@
   }
 
   async function loadHotkeysFromConfig() {
-    if (!config) {
-      console.log("Config is null, cannot load hotkeys");
-      return;
-    }
+    if (!config) return;
 
     // Unbind all
     Mousetrap.reset();
@@ -163,16 +163,15 @@
       for (const section of hotkeysSections) {
         for (const item of section.items) {
           const hotkeyValue = config.get(item.configKey as any, "")! as string;
+          item.value = "";
 
-          if (hotkeyValue && isValidHotkey(hotkeyValue)) {
+          if (hotkeyValue && isValidHotkey(hotkeyValue))
             item.value = hotkeyValue;
-          } else {
-            item.value = "";
-          }
         }
       }
     } catch (error) {
-      console.error("Failed to load hotkeys from config:", error);
+      logger.error("failed to load hotkeys from config");
+      logger.error(error);
     }
   }
 
@@ -235,6 +234,10 @@
 
       case "open-fast-travels":
         void client.game.launchWindow(WindowIds.FastTravels);
+        break;
+
+      case "open-app-logs":
+        void client.game.launchWindow(WindowIds.AppLogs);
         break;
 
       case "open-loader-grabber":
@@ -399,6 +402,42 @@
         id="topnav"
         class="flex w-full flex-row items-center justify-between"
       >
+        <div
+          class="group relative inline-block cursor-pointer"
+          id="app-dropdown"
+        >
+          <button
+            class="rounded-md px-2 py-2 text-xs font-medium transition-all duration-200 hover:bg-gray-700/50"
+            id="app"
+            onclick={(ev) => {
+              ev.stopPropagation();
+              toggleDropdown("app");
+            }}
+          >
+            Application
+          </button>
+          <div
+            class="absolute z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-background-secondary text-xs shadow-2xl backdrop-blur-md"
+            style:display={openDropdown === "app" ? "block" : "none"}
+            id="app-dropdowncontent"
+          >
+            <button
+              class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 first:rounded-t-lg hover:bg-gray-700/50"
+            >
+              Environment
+            </button>
+            <button
+              class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 first:rounded-t-lg last:rounded-b-lg hover:bg-gray-700/50"
+              onclick={(ev) => {
+                ev.stopPropagation();
+                openDropdown = null;
+                void client.game.launchWindow(WindowIds.AppLogs);
+              }}
+            >
+              Logs
+            </button>
+          </div>
+        </div>
         <div class="flex flex-row items-center">
           <div class="group relative inline-block cursor-pointer">
             <button

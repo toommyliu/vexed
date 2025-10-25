@@ -20,6 +20,7 @@ export class CommandKillFor extends Command {
 
     this.ctx.once("end", () => ac.abort());
 
+    this.logger.debug(this.toString());
     if (this.isTemp) {
       await this.bot.combat.killForTempItem(
         this.target,

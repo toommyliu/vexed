@@ -1,10 +1,8 @@
-import type { tipc } from "@vexed/tipc";
+import type { TipcInstance } from "@vexed/tipc";
 import { getRendererHandlers } from "@vexed/tipc";
 import { BrowserWindow } from "electron";
 import type { RendererHandlers } from "../tipc";
 import { windowStore } from "../windows";
-
-type TipcInstance = ReturnType<typeof tipc.create>;
 
 export function createPacketLoggerTipcRouter(tipcInstance: TipcInstance) {
   return {

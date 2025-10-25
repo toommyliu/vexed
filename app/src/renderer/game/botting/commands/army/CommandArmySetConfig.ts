@@ -7,6 +7,7 @@ export class CommandArmySetConfigCommand extends Command {
 
   public override execute() {
     this.bot.army.setConfigName(this.fileName.toLowerCase());
+    this.logger.debug(`Using config: ${this.fileName}`);
   }
 
   public override toString() {

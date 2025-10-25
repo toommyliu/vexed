@@ -8,8 +8,6 @@ export class CommandArmyInit extends Command {
 
     if (!this.bot.army.isInitialized) {
       await this.ctx.stop();
-      // eslint-disable-next-line no-alert
-      alert("Army init failed.");
     }
   }
 

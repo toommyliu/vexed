@@ -64,6 +64,7 @@ export type Settings = {
 };
 
 export enum WindowIds {
+  AppLogs = "app-logs",
   FastTravels = "tools-fast-travels",
   Follower = "tools-follower",
   Hotkeys = "tools-hotkeys",
@@ -74,7 +75,18 @@ export enum WindowIds {
   PacketSpammer = "packets-spammer",
 }
 
+export type AppLogEntry = {
+  level: number;
+  lineNumber: number;
+  message: string;
+  sourceId: string;
+  timestamp: number;
+};
+
 export type HotkeyConfig = {
+  Application?: {
+    "Open App Logs"?: string;
+  };
   General?: {
     "Toggle Bank"?: string;
     "Toggle Top Bar"?: string;
@@ -90,6 +102,7 @@ export type HotkeyConfig = {
     "Toggle Script"?: string;
   };
   Tools?: {
+    "Open App Logs"?: string;
     "Open Fast Travels"?: string;
     "Open Follower"?: string;
     "Open Loader Grabber"?: string;
