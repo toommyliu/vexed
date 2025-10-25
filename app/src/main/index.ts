@@ -74,6 +74,7 @@ async function handleAppLaunch(argv: string[] = process.argv) {
     log.initialize({
       rendererTransports: ["console", level === "debug" && "file"],
     });
+    log.scope.labelPadding = false;
     log.transports.file.resolvePathFn = () => join(DOCUMENTS_PATH, "log.txt");
     log.transports.file.format = "[{datetime}]{scope} {text}";
     log.transports.console.format = "[{datetime}]{scope} {text}";

@@ -21,7 +21,7 @@ export class CommandArmyEquipSet extends ArmyCommand {
 
     const playerNumber = this.bot.army.getPlayerNumber();
     if (playerNumber === -1) {
-      this.logger.warn("could not determine player number");
+      this.logger.warn("Could not determine player number");
       return;
     }
 
@@ -32,7 +32,7 @@ export class CommandArmyEquipSet extends ArmyCommand {
       playerSet = set?.["Default"] as Set;
 
       if (!playerSet || typeof playerSet !== "object") {
-        this.logger.warn("no default or player set found");
+        this.logger.warn("No set found");
         return;
       }
     }

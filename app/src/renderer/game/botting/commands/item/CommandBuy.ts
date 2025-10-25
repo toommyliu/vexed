@@ -11,6 +11,7 @@ export class CommandBuy extends Command {
 
   public override async execute() {
     if (!this.getItem()) {
+      this.logger.debug(`Load shop: ${this.shopId}`);
       // The item is not found in the current shop, assume it might be a different shop
       await this.bot.shops.load(this.shopId);
     }

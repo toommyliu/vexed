@@ -420,9 +420,13 @@ export class Context extends TypedEmitter<Events> {
         return [];
       });
 
+    logger.debug("Quest list", questList);
+
     const unbankList = this._commands
       .filter((command) => command instanceof CommandRegisterDrop)
       .flatMap((cmd) => cmd.item);
+
+    logger.debug("Unbank list", unbankList);
 
     await this.bot.quests.loadMultiple(questList);
 

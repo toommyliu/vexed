@@ -54,7 +54,7 @@ export class Army {
       cwd: STORAGE_PATH,
     });
 
-    logger.debug(`using config: ${this.config.configName}`);
+    logger.debug(`Using config: ${this.config.configName}`);
   }
 
   /**
@@ -64,7 +64,7 @@ export class Army {
     try {
       await this.config.load();
 
-      logger.debug("config loaded", this.config.get());
+      logger.debug("Config loaded", this.config.get());
 
       const playerCount = this.config.get("PlayerCount");
       if (!playerCount) {
@@ -85,12 +85,12 @@ export class Army {
         return false;
       }
 
-      for (let index = 1; index <= playerCount; index++) {
-        const player = this.config.get(`Player${index}`);
+      for (let idx = 1; idx <= playerCount; idx++) {
+        const player = this.config.get(`Player${idx}`);
         if (player && typeof player === "string") {
           this.players.add(player);
         } else {
-          logger.warn(`Player${index} not set in config file.`);
+          logger.warn(`Player${idx} not set in config file.`);
         }
       }
 
@@ -117,7 +117,9 @@ export class Army {
       });
 
       return true;
-    } catch {
+    } catch (error) {
+      logger.error("Army init failed:");
+      logger.error(error);
       return false;
     }
   }

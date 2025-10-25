@@ -3,7 +3,7 @@ import { getRendererHandlers } from "@vexed/tipc";
 import type { TipcInstance } from "@vexed/tipc";
 import type { WebContents } from "electron";
 import { BrowserWindow, dialog } from "electron";
-import { LEVEL_LABELS } from '../../shared/constants';
+import { LEVEL_LABELS } from "../../shared/constants";
 import type { AppLogEntry } from "../../shared/types";
 import type { RendererHandlers } from "../tipc";
 import { windowStore } from "../windows";

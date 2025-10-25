@@ -5,6 +5,7 @@ export class CommandRegisterBoost extends Command {
 
   public override execute() {
     this.ctx.registerBoost(this.item);
+    this.logger.debug(this.toString());
   }
 
   public override toString() {
