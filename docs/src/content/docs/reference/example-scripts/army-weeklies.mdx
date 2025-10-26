@@ -128,7 +128,6 @@ let opts = {
         for (const b of boundaries) {
           if (hp >= b.min && hp <= b.max && !this._tauntBoundaries.has(b.key)) {
             if (plyrNumber === 1) {
-              console.log(b.msg)
               await this.bot.combat.useSkill(5, true, true)
               this._tauntBoundaries.add(b.key)
               break
@@ -219,9 +218,7 @@ let opts = {
           ) {
             void this.bot.combat.useSkill(5, true, false)
           }
-        } catch (error) {
-          console.warn('failed aura check', error)
-        }
+        } catch (error) { /* no target */ }
       }
 
       await this.bot.combat.useSkill(a[i])
@@ -598,7 +595,6 @@ cmd.register_task('walkToPoint', function () {
 
   let intervalId = setInterval(() => {
     if (!ctx.isRunning()) {
-      console.log('cleared interval')
       clearInterval(intervalId)
       return
     }
