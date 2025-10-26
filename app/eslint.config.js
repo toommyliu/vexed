@@ -3,6 +3,7 @@ const node = require("eslint-config-neon/node");
 const prettier = require("eslint-config-neon/prettier");
 const typescript = require("eslint-config-neon/typescript");
 const browser = require("eslint-config-neon/browser");
+const svelte = require("eslint-plugin-svelte");
 
 const merge = require("lodash.merge");
 
@@ -46,6 +47,7 @@ const rules = [
       "./build/",
       "./scripts/",
       "./src/**/index.d.ts",
+      "../packages/**",
     ],
   },
   commonRuleset,
@@ -54,6 +56,10 @@ const rules = [
   typeScriptRuleset,
   {
     files: ["./**/*.ts"],
+  },
+  {
+    files: ["./**/*.svelte"],
+    ...svelte,
   },
   prettierRuleset,
 ];
