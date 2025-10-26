@@ -76,10 +76,10 @@ const SVELTE_TARGETS = [
   },
   {
     name: "game-logs",
-    entryPoint: "./src/renderer/game/logs/main.ts",
-    outfile: "./dist/game/logs/build/main.js",
+    entryPoint: "./src/renderer/application/logs/main.ts",
+    outfile: "./dist/application/logs/build/main.js",
     tsconfigFile: "./src/renderer/game/tsconfig.json",
-    watchPaths: ["./src/renderer/game/logs"],
+    watchPaths: ["./src/renderer/application/logs"],
   },
   {
     name: "fast-travels",
@@ -104,10 +104,10 @@ const SVELTE_TARGETS = [
   },
   {
     name: "hotkeys",
-    entryPoint: "./src/renderer/tools/hotkeys/main.ts",
-    outfile: "./dist/tools/hotkeys/build/main.js",
+    entryPoint: "./src/renderer/application/hotkeys/main.ts",
+    outfile: "./dist/application/hotkeys/build/main.js",
     tsconfigFile: "./src/renderer/game/tsconfig.json",
-    watchPaths: ["./src/renderer/tools/hotkeys"],
+    watchPaths: ["./src/renderer/application/hotkeys"],
   },
   {
     name: "packet-logger",
@@ -138,8 +138,8 @@ const CSS_TARGETS = [
 const HTML_COPY_TARGETS = [
   { src: "./src/renderer/game/index.html", dest: "./dist/game/index.html" },
   {
-    src: "./src/renderer/game/logs/index.html",
-    dest: "./dist/game/logs/index.html",
+    src: "./src/renderer/application/logs/index.html",
+    dest: "./dist/application/logs/index.html",
   },
   {
     src: "./src/renderer/manager/index.html",
@@ -158,8 +158,8 @@ const HTML_COPY_TARGETS = [
     dest: "./dist/tools/loader-grabber/index.html",
   },
   {
-    src: "./src/renderer/tools/hotkeys/index.html",
-    dest: "./dist/tools/hotkeys/index.html",
+    src: "./src/renderer/application/hotkeys/index.html",
+    dest: "./dist/application/hotkeys/index.html",
   },
   {
     src: "./src/renderer/packets/logger/index.html",

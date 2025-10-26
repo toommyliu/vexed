@@ -108,13 +108,13 @@ export async function createGame(
     app: {
       logHistory,
       logs: null,
+      hotkeys: null,
     },
     game: window,
     tools: {
       fastTravels: null,
       loaderGrabber: null,
       follower: null,
-      hotkeys: null,
     },
     packets: { logger: null, spammer: null },
   });
@@ -201,6 +201,7 @@ export type WindowStore = Map<
   number,
   {
     app: {
+      hotkeys: BrowserWindow | null;
       logHistory: AppLogEntry[];
       logs: BrowserWindow | null;
     };
@@ -212,7 +213,6 @@ export type WindowStore = Map<
     tools: {
       fastTravels: BrowserWindow | null;
       follower: BrowserWindow | null;
-      hotkeys: BrowserWindow | null;
       loaderGrabber: BrowserWindow | null;
     };
   }

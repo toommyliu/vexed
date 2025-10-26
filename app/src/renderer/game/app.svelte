@@ -13,8 +13,8 @@
   import { onMount, onDestroy } from "svelte";
   import type { HotkeyConfig } from "@shared/types";
   import Mousetrap from "mousetrap";
-  import { createHotkeyConfig, isValidHotkey } from "../tools/hotkeys/utils";
-  import type { HotkeySection } from "../tools/hotkeys/types";
+  import { createHotkeyConfig, isValidHotkey } from "../application/hotkeys/utils";
+  import type { HotkeySection } from "../application/hotkeys/types";
   import { interval } from "@vexed/utils";
   import Config from "@vexed/config";
   import { DEFAULT_HOTKEYS, DOCUMENTS_PATH, IS_WINDOWS, IS_MAC } from "@shared/constants";
@@ -434,6 +434,16 @@
             >
               Logs
             </button>
+            <button
+              class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 last:rounded-b-lg hover:bg-gray-700/50"
+              onclick={(ev) => {
+                ev.stopPropagation();
+                openDropdown = null;
+                void client.game.launchWindow(WindowIds.Hotkeys);
+              }}
+            >
+              Hotkeys
+            </button>
           </div>
         </div>
         <div class="flex flex-row items-center">
@@ -527,12 +537,7 @@
               >
                 Follower
               </button>
-              <button
-                class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 last:rounded-b-lg hover:bg-gray-700/50"
-                onclick={() => void client.game.launchWindow(WindowIds.Hotkeys)}
-              >
-                Hotkeys
-              </button>
+            
             </div>
           </div>
 

@@ -27,9 +27,13 @@ export function createGameTipcRouter(tipcInstance: TipcInstance) {
         switch (input) {
           case WindowIds.AppLogs:
             ref = storeRef.app.logs;
-            path = join(DIST_PATH, "game", "logs", "index.html");
+            path = join(DIST_PATH, "application", "logs", "index.html");
             width = 860;
             height = 560;
+            break;
+          case WindowIds.Hotkeys:
+            ref = storeRef.app.hotkeys;
+            path = join(DIST_PATH, "application", "hotkeys", "index.html");
             break;
           case WindowIds.FastTravels:
             ref = storeRef.tools.fastTravels;
@@ -48,10 +52,6 @@ export function createGameTipcRouter(tipcInstance: TipcInstance) {
             path = join(DIST_PATH, "tools", "follower", "index.html");
             width = 927;
             height = 646;
-            break;
-          case WindowIds.Hotkeys:
-            ref = storeRef.tools.hotkeys;
-            path = join(DIST_PATH, "tools", "hotkeys", "index.html");
             break;
           case WindowIds.PacketLogger:
             ref = storeRef.packets.logger;
