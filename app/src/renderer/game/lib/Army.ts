@@ -68,7 +68,7 @@ export class Army {
 
       const playerCount = this.config.get("PlayerCount");
       if (!playerCount) {
-        logger.warn("PlayerCount is not set in config file");
+        logger.warn("PlayerCount is not set in config file.");
         return false;
       }
 
@@ -76,7 +76,7 @@ export class Army {
       if (roomNumber) {
         this.roomNumber = String(roomNumber);
       } else {
-        logger.warn("RoomNumber is not set in config file");
+        logger.warn("RoomNumber is not set in config file.");
         return false;
       }
 
@@ -118,8 +118,7 @@ export class Army {
 
       return true;
     } catch (error) {
-      logger.error("Army init failed:");
-      logger.error(error);
+      logger.error("Army init failed.", error);
       return false;
     }
   }

@@ -68,7 +68,7 @@ export class AutoReloginJob extends Job {
         );
       }
 
-      logger.info(`triggered, waiting ${AutoReloginJob.delay}ms`);
+      logger.info(`Triggered, waiting ${AutoReloginJob.delay}ms...`);
       await this.bot.sleep(AutoReloginJob.delay);
 
       // Still on server select?
@@ -92,7 +92,7 @@ export class AutoReloginJob extends Job {
 
       // Still stuck in blue flame?
       if (!this.bot.player.isReady()) {
-        logger.info("still not ready, logging out.");
+        logger.info("Still not ready? Logging out...");
         this.bot.auth.logout();
         return;
       }

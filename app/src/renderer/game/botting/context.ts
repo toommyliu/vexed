@@ -420,13 +420,17 @@ export class Context extends TypedEmitter<Events> {
         return [];
       });
 
-    logger.debug("Quest list", questList);
+    if (questList.length) {
+      logger.debug("Quest list", questList);
+    }
 
     const unbankList = this._commands
       .filter((command) => command instanceof CommandRegisterDrop)
       .flatMap((cmd) => cmd.item);
 
-    logger.debug("Unbank list", unbankList);
+    if (unbankList.length) {
+      logger.debug("Unbank list", unbankList);
+    }
 
     await this.bot.quests.loadMultiple(questList);
 
@@ -475,8 +479,7 @@ export class Context extends TypedEmitter<Events> {
 
         this._commandIndex++;
       } catch (error) {
-        logger.error(`error executing command at index ${this._commandIndex}:`);
-        logger.error(error);
+        logger.error(`Error executing command at index ${this._commandIndex}. ${error}`);
 
         if (!this.isRunning()) break;
         this._commandIndex++;

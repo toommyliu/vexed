@@ -98,7 +98,7 @@ abstract class BaseTauntStrategy implements ITauntStrategy {
     this.logger = logger;
 
     if (!this.parseTarget()) {
-      this.logger.debug(`[${this.getName()}] Failed to parse target: ${this.target}`);
+      this.logger.debug(`[${this.getName()}] Failed to parse target: ${this.target}.`);
       return false;
     }
 
@@ -295,7 +295,7 @@ export class MessageStrategy extends BaseTauntStrategy {
       return;
     }
 
-    this.logger.debug(`[${this.getName()}] Message detected - Count: ${this.focusCount + 1}`);
+    this.logger.debug(`[${this.getName()}] Message detected - count: ${this.focusCount + 1}.`);
 
     if (this.shouldTaunt(this.focusCount)) {
       this.logger.debug(

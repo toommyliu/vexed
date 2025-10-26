@@ -17,7 +17,7 @@ export function createFastTravelsTipcRouter(tipcInstance: TipcInstance) {
       try {
         return await readJson<FastTravel[]>(FAST_TRAVELS_PATH);
       } catch (error) {
-        logger.error(`failed to read fast travels: ${error}`);
+        logger.error("Failed to read fast travels.", error);
         return DEFAULT_FAST_TRAVELS;
       }
     }),

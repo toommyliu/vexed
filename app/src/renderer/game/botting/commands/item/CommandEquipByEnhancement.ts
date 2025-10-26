@@ -44,19 +44,20 @@ export class CommandEquipByEnhancement extends Command {
   public override async execute() {
     const targetItem = this.findMatchingItem();
 
-    this.logger.debug(`Looking for ${this.enhancementName}${this.itemType ? ` [${this.itemType}]` : ""}`);
+    this.logger.debug(
+      `Looking for ${this.enhancementName}${this.itemType ? ` [${this.itemType}]` : ""}.`,
+    );
 
     if (targetItem && !targetItem.isEquipped()) {
       this.logger.debug(`Equipping item: ${targetItem.name}`);
       await this.bot.inventory.equip(targetItem.name);
     } else if (!targetItem) {
-      this.logger.debug('No matching item found');
+      this.logger.debug("No matching item found.");
     }
   }
 
   private findMatchingItem(): InventoryItem | undefined {
     return this.bot.inventory.items.find((item: InventoryItem) => {
-      // Check if item type matches filter
       if (this.itemType) {
         const itemTypeLower = this.itemType.toLowerCase() as ItemType;
         if (itemTypeLower === "weapon" && !item.isWeapon()) return false;
@@ -64,7 +65,6 @@ export class CommandEquipByEnhancement extends Command {
         if (itemTypeLower === "helm" && !item.isHelm()) return false;
       }
 
-      // Check if item has valid type for enhancement matching
       if (!item.isWeapon() && !item.isCape() && !item.isHelm()) return false;
 
       return this.matchesEnhancement(item);
@@ -74,21 +74,10 @@ export class CommandEquipByEnhancement extends Command {
   private matchesEnhancement(item: InventoryItem): boolean {
     const isBasic = isBasicEnhancement(this.enhancementName);
 
-    if (isBasic) {
-      return this.matchesBasicEnhancement(item);
-    }
-
-    if (item.isWeapon()) {
-      return this.matchesWeaponProc(item);
-    }
-
-    if (item.isCape()) {
-      return this.matchesCapeProc(item);
-    }
-
-    if (item.isHelm()) {
-      return this.matchesHelmProc(item);
-    }
+    if (isBasic) return this.matchesBasicEnhancement(item);
+    if (item.isWeapon()) return this.matchesWeaponProc(item);
+    if (item.isCape()) return this.matchesCapeProc(item);
+    if (item.isHelm()) return this.matchesHelmProc(item);
 
     return false;
   }

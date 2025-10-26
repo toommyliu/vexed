@@ -11,6 +11,8 @@
     2: "text-yellow-400",
     3: "text-red-400",
   };
+  const TIMESTAMP_REGEX =
+    /^\s*\[?\s*([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:.]+Z|[0-9]{4}-[0-9]{2}-[0-9]{2}[ T][0-9:.]+|T?[0-9]{1,2}:[0-9]{2}(?::[0-9]{2}(?:\.[0-9]+)?)?)\s*\]?\s*(?:[:\-–—]{1,2}|::|\||\/)??\s*/i;
 
   let entries: AppLogEntry[] = [];
   let autoScroll = true;
@@ -33,23 +35,27 @@
 
   handlers.appLogs.reset.listen(() => {
     entries = [];
-    showStatus("Logs cleared.");
-  });
-
-  onDestroy(() => {
-    if (timeoutId) clearTimeout(timeoutId);
+    updateStatus("Logs cleared.");
   });
 
   onMount(() => {
     void scrollToBottom(true);
+  });
+  onDestroy(() => {
+    if (timeoutId) clearTimeout(timeoutId);
   });
 
   const getLevelLabel = (level: number): string =>
     LEVEL_LABELS[level] ?? `level-${level}`;
   const getLevelClass = (level: number): string =>
     LEVEL_CLASSES[level] ?? "text-gray-300";
-  const formatTimestamp = (timestamp: number): string =>
-    new Date(timestamp).toLocaleTimeString();
+  const formatTimestamp = (timestamp: number): string => {
+    const d = new Date(timestamp);
+    const isToday = d.toDateString() === new Date().toDateString();
+    return isToday
+      ? d.toLocaleTimeString()
+      : `${d.toLocaleDateString()} ${d.toLocaleTimeString()}`;
+  };
 
   function formatSource(sourceId: string, lineNumber: number): string {
     if (!sourceId) return "renderer";
@@ -66,49 +72,45 @@
     const msg = (entry.message || "").trimStart();
     if (!msg) return msg;
 
-    const regexp =
-      /^\s*\[?\s*([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:.]+Z|[0-9]{4}-[0-9]{2}-[0-9]{2}[ T][0-9:.]+|T?[0-9]{1,2}:[0-9]{2}(?::[0-9]{2}(?:\.[0-9]+)?)?)\s*\]?\s*(?:[:\-–—]{1,2}|::|\||\/)??\s*/i;
-
-    return msg.replace(regexp, "").trimStart();
+    return msg.replace(TIMESTAMP_REGEX, "").trimStart();
   }
 
   function formatEntryForCopy(entry: AppLogEntry): string {
-    const timestamp = new Date(entry.timestamp).toISOString();
+    const timestamp = formatTimestamp(entry.timestamp);
     const level = getLevelLabel(entry.level).toUpperCase();
-    const source = formatSource(entry.sourceId, entry.lineNumber);
     const message = stripLeadingTimestamp(entry);
-    const prefix = `[${timestamp}] [${level}] ${source} :: `;
-    return `${prefix}${message}`;
+    return `[${timestamp}] [${level}] ${message}`;
   }
 
-  function showStatus(message: string, duration = 1500) {
+  function updateStatus(message: string) {
     statusMessage = message;
     if (timeoutId) clearTimeout(timeoutId);
     timeoutId = setTimeout(() => {
       statusMessage = "";
-    }, duration);
+    }, 1_500);
   }
 
   async function copyEntry(entry: AppLogEntry) {
     try {
       await navigator.clipboard.writeText(formatEntryForCopy(entry));
-      showStatus("Log copied to clipboard.");
+      updateStatus("Log copied to clipboard.");
     } catch (error) {
       console.error("Failed to copy log entry", error);
-      showStatus("Copy failed.");
+      updateStatus("Copy failed.");
     }
   }
 
   async function copyAll() {
     if (!entries.length) return;
+
     isCopyingAll = true;
     try {
       const content = entries.map(formatEntryForCopy).join("\n");
       await navigator.clipboard.writeText(content);
-      showStatus("Logs copied to clipboard.");
+      updateStatus("Logs copied to clipboard.");
     } catch (error) {
       console.error("Failed to copy logs", error);
-      showStatus("Copy failed.");
+      updateStatus("Copy failed.");
     } finally {
       isCopyingAll = false;
     }
@@ -116,19 +118,20 @@
 
   async function clearLogs() {
     if (!entries.length || isClearing) return;
+
     isClearing = true;
     try {
       const result = await client.appLogs.clear();
       if (result?.success !== true) {
         if (result?.error === "EMPTY") {
-          showStatus("No logs to clear.");
+          updateStatus("No logs to clear.");
         } else {
-          showStatus("Clear failed.");
+          updateStatus("Clear failed.");
         }
       }
     } catch (error) {
       console.error("Failed to clear logs", error);
-      showStatus("Clear failed.");
+      updateStatus("Clear failed.");
     } finally {
       isClearing = false;
     }
@@ -136,23 +139,24 @@
 
   async function saveLogs() {
     if (!entries.length || isSaving) return;
+
     isSaving = true;
     try {
       const result = await client.appLogs.saveToFile();
       if (result?.success) {
-        showStatus("Logs saved.");
+        updateStatus("Logs saved.");
       } else if (result?.canceled) {
-        showStatus("Save canceled.");
+        updateStatus("Save canceled.");
       } else if (result?.error === "EMPTY") {
-        showStatus("No logs to save.");
+        updateStatus("No logs to save.");
       } else if (result?.error) {
-        showStatus("Save failed.");
+        updateStatus("Save failed.");
       } else {
-        showStatus("Save complete.");
+        updateStatus("Save complete.");
       }
     } catch (error) {
       console.error("Failed to save logs", error);
-      showStatus("Save failed.");
+      updateStatus("Save failed.");
     } finally {
       isSaving = false;
     }
@@ -160,9 +164,12 @@
 
   async function scrollToBottom(force = false) {
     if (!force && !autoScroll) return;
-    await tick(); // wait for DOM updates so the container height is accurate
+
+    await tick();
+
     const container = logsContainer;
     if (!container) return;
+
     container.scrollTop = container.scrollHeight;
   }
 </script>

@@ -19,7 +19,7 @@ export class CommandAutoRelogin extends Command {
       undefined;
 
     AutoReloginJob.setCredentials(username, password, server);
-    this.logger.debug(`Set AutoRelogin for ${username}${server ? ` [${server}]` : ""}`);
+    this.logger.debug(`Set AutoRelogin for ${username}${server ? ` [${server}]` : ""}.`);
   }
 
   public override toString() {

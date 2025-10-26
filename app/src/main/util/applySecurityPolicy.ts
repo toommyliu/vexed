@@ -39,7 +39,7 @@ export function applySecurityPolicy(window: BrowserWindow): void {
   window.webContents.on("will-navigate", (ev, url) => {
     const parsedUrl = new URL(url);
     if (!isDomainWhitelisted(parsedUrl.hostname)) {
-      logger.debug(`blocked navigation to: ${url}`);
+      logger.debug(`Blocked navigation to: ${url}`);
       ev.preventDefault();
     }
   });
@@ -47,7 +47,7 @@ export function applySecurityPolicy(window: BrowserWindow): void {
   window.webContents.on("will-redirect", (ev, url) => {
     const parsedUrl = new URL(url);
     if (!isDomainWhitelisted(parsedUrl.hostname)) {
-      logger.debug(`blocked redirect to: ${url}`);
+      logger.debug(`Blocked redirect to: ${url}`);
       ev.preventDefault();
     }
   });
@@ -74,7 +74,7 @@ export function applySecurityPolicy(window: BrowserWindow): void {
       }
 
       if (!isDomainWhitelisted(parsedUrl.hostname)) {
-        logger.debug(`blocked new-window to: ${url}`);
+        logger.debug(`Blocked new-window to: ${url}`);
         ev.preventDefault();
         return null;
       }

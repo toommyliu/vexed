@@ -19,8 +19,8 @@ import type { Settings } from "../shared/types";
 import { ASSET_PATH, logger } from "./constants";
 import { router } from "./tipc";
 import { checkForUpdates } from "./updater";
+import { showErrorDialog } from "./util/dialog";
 import { createNotification } from "./util/notification";
-import { showErrorDialog } from "./util/showErrorDialog";
 import { createAccountManager, createGame, setQuitting } from "./windows";
 
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
@@ -38,7 +38,12 @@ function registerFlashPlugin() {
   }
 
   if (!pluginName) {
-    showErrorDialog({ message: "Unsupported platform." });
+    showErrorDialog(
+      {
+        message: "Unsupported platform.",
+      },
+      true,
+    );
     return;
   }
 
@@ -76,18 +81,18 @@ async function handleAppLaunch(argv: string[] = process.argv) {
     });
     log.scope.labelPadding = false;
     log.transports.file.resolvePathFn = () => join(DOCUMENTS_PATH, "log.txt");
-    log.transports.file.format = "[{datetime}]{scope} {text}";
-    log.transports.console.format = "[{datetime}]{scope} {text}";
+    log.transports.file.format = "[{datetime}] ({level}){scope} {text}";
+    log.transports.console.format = "[{datetime}] ({level}){scope} {text}";
     log.transports.file.level = level;
     log.transports.console.level = level;
 
-    logger.info(`hello - ${BRAND} v${version}`); // indicate app start
+    logger.info(`Hello - ${BRAND} v${version}`); // indicate app start
 
     if (settings?.get("checkForUpdates", false) === true) {
       const updateResult = await checkForUpdates(true);
       if (updateResult !== null) {
         logger.info(
-          `update available - ${updateResult.newVersion} (current: ${version})`,
+          `Update available - ${updateResult.newVersion} (current: ${version})`,
         );
 
         const notif = createNotification(
@@ -104,10 +109,10 @@ async function handleAppLaunch(argv: string[] = process.argv) {
     if (launchMode !== "manager" && launchMode !== "game") {
       launchMode = "game";
       logger.info(
-        `unknown launch mode. got ${launchMode}, expected "game" or "manager".`,
+        `Unknown launch mode, got "${launchMode}", defaulting to "game"...`,
       );
     } else {
-      logger.info(`launch mode: ${launchMode}`);
+      logger.info(`Using launch mode: ${launchMode}`);
     }
 
     if (
@@ -137,12 +142,8 @@ async function handleAppLaunch(argv: string[] = process.argv) {
       await createGame(account);
     }
   } catch (error) {
-    const err = error as Error;
-    logger.error("failed to initialize the application");
-    logger.error(err);
-
     showErrorDialog({
-      error: err,
+      error: error as Error,
       message: "Failed to initialize the application.",
     });
   }
@@ -169,6 +170,6 @@ app.on("before-quit", () => {
 });
 
 app.on("window-all-closed", () => {
-  logger.info("bye!");
+  logger.info("Bye!");
   app.quit();
 });

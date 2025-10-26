@@ -9,17 +9,17 @@ const merge = require("lodash.merge");
 
 const commonFiles = ".ts";
 
-const commonRuleset = merge(...common, { files: [`./src/**/*${commonFiles}`] });
+const commonRuleset = merge({}, ...common, { files: [`./src/**/*${commonFiles}`] });
 
-const nodeRuleset = merge(...node, {
+const nodeRuleset = merge({}, ...node, {
   files: [`./src/main/**/*${commonFiles}`],
 });
 
-const browserRuleset = merge(...browser, {
+const browserRuleset = merge({}, ...browser, {
   files: [`./src/renderer/**/*${commonFiles}`],
 });
 
-const typeScriptRuleset = merge(...typescript, {
+const typeScriptRuleset = merge({}, ...typescript, {
   files: [`./src/**/*${commonFiles}`],
   languageOptions: {
     parserOptions: {
@@ -33,7 +33,7 @@ const typeScriptRuleset = merge(...typescript, {
   },
 });
 
-const prettierRuleset = merge(...prettier, {
+const prettierRuleset = merge({}, ...prettier, {
   files: [`./src/**/*${commonFiles}`],
 });
 
@@ -57,10 +57,7 @@ const rules = [
   {
     files: ["./**/*.ts"],
   },
-  {
-    files: ["./**/*.svelte"],
-    ...svelte,
-  },
+  ...svelte.configs["flat/prettier"],
   prettierRuleset,
 ];
 

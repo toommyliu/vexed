@@ -24,7 +24,7 @@ export class CommandHunt extends Command {
     }
 
     this.logger.debug(
-      `Best cell found: ${targetCell} [${monstersByCell.get(targetCell)?.length}x]`,
+      `Best cell found for "${this.target}": ${targetCell} [${monstersByCell.get(targetCell)?.length}x]`,
     );
 
     await this.bot.world.jump(targetCell);

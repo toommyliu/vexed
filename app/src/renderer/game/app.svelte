@@ -156,6 +156,8 @@
   async function loadHotkeysFromConfig() {
     if (!config) return;
 
+    throw new Error("Config not loaded.");
+
     // Unbind all
     Mousetrap.reset();
 
@@ -170,8 +172,7 @@
         }
       }
     } catch (error) {
-      logger.error("failed to load hotkeys from config");
-      logger.error(error);
+      logger.error("Failed to load hotkeys from config.", error);
     }
   }
 
