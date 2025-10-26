@@ -6,7 +6,6 @@
     commandOverlayState,
     appState,
   } from "./state.svelte";
-  import process from "process";
   import { client, handlers } from "@shared/tipc";
   import { cn } from "@shared/cn";
   import { WindowIds } from "@shared/types";
@@ -18,7 +17,7 @@
   import type { HotkeySection } from "../tools/hotkeys/types";
   import { interval } from "@vexed/utils";
   import Config from "@vexed/config";
-  import { DEFAULT_HOTKEYS, DOCUMENTS_PATH } from "@shared/constants";
+  import { DEFAULT_HOTKEYS, DOCUMENTS_PATH, IS_WINDOWS, IS_MAC } from "@shared/constants";
   import { parseSkillString } from "./util/skillParser";
   import log from "electron-log";
 
@@ -155,8 +154,6 @@
 
   async function loadHotkeysFromConfig() {
     if (!config) return;
-
-    throw new Error("Config not loaded.");
 
     // Unbind all
     Mousetrap.reset();
@@ -360,16 +357,16 @@
 
     openDropdown = null;
   }}
+  on:blur={() => {
+    openDropdown = null;
+  }}
   on:mousedown={(ev) => {
     if ((ev.target as HTMLElement).id === "swf") openDropdown = null;
   }}
   on:keydown={(ev) => {
-    const isMac = process.platform === "darwin";
-    const isWindows = process.platform === "win32";
-
     if (
-      ((isMac && ev.metaKey) /* cmd */ ||
-        (isWindows && ev.ctrlKey)) /* ctrl */ &&
+      ((IS_MAC && ev.metaKey) /* cmd */ ||
+        (IS_WINDOWS && ev.ctrlKey)) /* ctrl */ &&
       (ev.target as HTMLElement).id === "swf"
     ) {
       switch (ev.key.toLowerCase()) {

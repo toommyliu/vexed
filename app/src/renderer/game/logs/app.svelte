@@ -4,6 +4,9 @@
   import { client, handlers } from "@shared/tipc";
   import type { AppLogEntry } from "@shared/types";
   import { LEVEL_LABELS } from "@/shared/constants";
+  import log from "electron-log";
+
+  const logger = log.scope("app/logs");
 
   const LEVEL_CLASSES: Record<number, string> = {
     0: "text-gray-400",
@@ -95,7 +98,7 @@
       await navigator.clipboard.writeText(formatEntryForCopy(entry));
       updateStatus("Log copied to clipboard.");
     } catch (error) {
-      console.error("Failed to copy log entry", error);
+      logger.error("Failed to copy log.", error);
       updateStatus("Copy failed.");
     }
   }
@@ -109,7 +112,7 @@
       await navigator.clipboard.writeText(content);
       updateStatus("Logs copied to clipboard.");
     } catch (error) {
-      console.error("Failed to copy logs", error);
+      logger.error("Failed to copy logs.", error);
       updateStatus("Copy failed.");
     } finally {
       isCopyingAll = false;
@@ -130,7 +133,7 @@
         }
       }
     } catch (error) {
-      console.error("Failed to clear logs", error);
+      logger.error("Failed to clear logs.", error);
       updateStatus("Clear failed.");
     } finally {
       isClearing = false;
@@ -155,7 +158,7 @@
         updateStatus("Save complete.");
       }
     } catch (error) {
-      console.error("Failed to save logs", error);
+      logger.error("Failed to save logs.", error);
       updateStatus("Save failed.");
     } finally {
       isSaving = false;

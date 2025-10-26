@@ -144,13 +144,6 @@ export async function createGame(
       const storeRef = windowStore.get(window.id);
       if (!storeRef) return;
 
-      console.log({
-        level,
-        message,
-        lineNumber,
-        sourceId,
-      });
-
       const entry: AppLogEntry = {
         level,
         lineNumber,

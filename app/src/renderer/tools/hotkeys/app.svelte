@@ -15,6 +15,9 @@
     getActionForHotkey,
   } from "./utils";
   import { DEFAULT_HOTKEYS, DOCUMENTS_PATH } from "@/shared";
+  import log from "electron-log";
+
+  const logger = log.scope("tools/hotkeys");
 
   let config = $state<Config<HotkeyConfig> | null>(null);
   let hotkeysSections = $state<HotkeySection[]>(createHotkeyConfig());
@@ -39,9 +42,9 @@
       }
 
       await config.save();
-      // console.log("Hotkey configuration saved successfully", Date.now());
+      logger.info("Hotkey configuration saved successfully.");
     } catch (error) {
-      // console.error("Failed to save hotkey configuration:", error);
+      logger.error("Failed to save hotkey configuration.", error);
     }
   }
 
@@ -49,25 +52,19 @@
     if (!config) return;
 
     try {
-      // console.log("Loading hotkeys from config...");
-
       for (const section of hotkeysSections) {
         for (const item of section.items) {
           const hotkeyValue = config.get(item.configKey as any, "")! as string;
 
           if (hotkeyValue && isValidHotkey(hotkeyValue)) {
-            // console.log(`Setting ${item.configKey} from config:`, hotkeyValue);
             item.value = hotkeyValue;
           } else {
             item.value = "";
           }
         }
       }
-
-      // console.log(hotkeysSections);
-      // console.log("Hotkeys loaded successfully from config");
     } catch (error) {
-      console.error("Failed to load hotkeys from config:", error);
+      logger.error("Failed to load hotkeys from config.", error);
     }
   }
 
@@ -82,37 +79,23 @@
     recordingState.isClearing = false;
 
     Mousetrap.reset();
-
-    // console.log("Started recording for action:", actionId);
   }
 
   async function confirmRecording(combination: string) {
     if (!recordingState.isRecording || !recordingState.actionId) return;
-
-    if (!combination || combination.trim() === "") {
-      // console.log("Empty combination provided, blocking");
-      return;
-    }
+    if (!combination || combination.trim() === "") return;
 
     const conflictingAction = getActionForHotkey(combination, hotkeysSections);
     if (
       conflictingAction &&
       conflictingAction !== getActionNameById(recordingState.actionId)
     ) {
-      // console.log("Combination already exists, blocking");
       return;
     }
-
-    // console.log(
-    //   `confirmRecording called with combination: ${combination} for action: ${recordingState.actionId}`,
-    // );
 
     const item = findHotkeyItemById(recordingState.actionId);
     if (item) {
       item.value = combination;
-      // console.log(`Assigned ${recordingState.actionId}: ${combination}`);
-    } else {
-      // console.error(`Unknown action ID: ${recordingState.actionId}`);
     }
 
     stopRecording();
@@ -126,14 +109,9 @@
   async function clearHotkey() {
     if (!recordingState.isRecording || !recordingState.actionId) return;
 
-    // console.log(`Clearing hotkey for action: ${recordingState.actionId}`);
-
     const item = findHotkeyItemById(recordingState.actionId);
     if (item) {
       item.value = "";
-      // console.log(`Cleared hotkey for ${recordingState.actionId}`);
-    } else {
-      // console.error(`Unknown action ID: ${recordingState.actionId}`);
     }
 
     await saveHotkeyConfig();
@@ -143,11 +121,10 @@
   function findHotkeyItemById(actionId: string) {
     for (const section of hotkeysSections) {
       for (const item of section.items) {
-        if (item.id === actionId) {
-          return item;
-        }
+        if (item.id === actionId) return item;
       }
     }
+
     return null;
   }
 
@@ -157,14 +134,10 @@
   }
 
   function stopRecording() {
-    // console.log("Stopping recording...");
-
     recordingState.isRecording = false;
     recordingState.actionId = null;
     recordingState.lastPressedKey = "";
     recordingState.isClearing = false;
-
-    // console.log("Recording stopped");
   }
 
   onMount(async () => {
@@ -174,9 +147,6 @@
       defaults: DEFAULT_HOTKEYS,
     });
     await config.load();
-
-    // console.log("config loaded:", config.getAll());
-
     await loadHotkeysFromConfig();
   });
 
@@ -194,13 +164,6 @@
     ev.preventDefault();
     ev.stopPropagation();
 
-    // console.log("Recording key:", ev.key, "with modifiers:", {
-    //   ctrl: ev.ctrlKey,
-    //   alt: ev.altKey,
-    //   shift: ev.shiftKey,
-    //   meta: ev.metaKey,
-    // });
-
     // Stop recording on Escape
     if (ev.key === "Escape") {
       stopRecording();
@@ -217,7 +180,6 @@
     if (combination) {
       recordingState.lastPressedKey = combination;
       recordingState.isClearing = false;
-      // console.log("Set lastPressedKey to:", combination);
     }
   }}
 />
