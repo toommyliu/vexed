@@ -70,7 +70,7 @@ abstract class BaseTauntStrategy implements ITauntStrategy {
 
   protected ctx!: Context;
 
-  protected logger: LogFunctions;
+  protected logger!: LogFunctions;
 
   protected focusCount: number = 0;
 

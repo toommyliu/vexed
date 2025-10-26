@@ -89,15 +89,20 @@ export function createGameTipcRouter(tipcInstance: TipcInstance) {
         });
 
         switch (input) {
-          case WindowIds.FastTravels:
-            storeRef.tools.fastTravels = window;
-            width = 670;
-            height = 527;
-            break;
           case WindowIds.AppLogs:
             storeRef.app.logs = window;
             width = 860;
             height = 560;
+            break;
+          case WindowIds.Hotkeys:
+            storeRef.app.hotkeys = window;
+            width = 600;
+            height = 400;
+            break;
+          case WindowIds.FastTravels:
+            storeRef.tools.fastTravels = window;
+            width = 670;
+            height = 527;
             break;
           case WindowIds.LoaderGrabber:
             storeRef.tools.loaderGrabber = window;
@@ -108,11 +113,6 @@ export function createGameTipcRouter(tipcInstance: TipcInstance) {
             storeRef.tools.follower = window;
             width = 927;
             height = 646;
-            break;
-          case WindowIds.Hotkeys:
-            storeRef.tools.hotkeys = window;
-            width = 600;
-            height = 400;
             break;
           case WindowIds.PacketLogger:
             storeRef.packets.logger = window;
