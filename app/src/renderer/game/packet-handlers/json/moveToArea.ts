@@ -1,5 +1,5 @@
-import type { Bot } from "../lib/Bot";
-import type { AvatarData } from "../lib/models/Avatar";
+import type { Bot } from "../../lib/Bot";
+import type { AvatarData } from "../../lib/models/Avatar";
 
 export async function moveToArea(bot: Bot, packet: MoveToAreaPacket) {
   bot.emit("mapChanged", packet.areaName);

@@ -1,7 +1,7 @@
 import { exitFromCombat } from "@utils/exitFromCombat";
 import { extractMonsterMapId, isMonsterMapId } from "@utils/isMonMapId";
 import type { CtPacket } from "../packet-handlers/ct";
-import type { MoveToAreaPacket } from "../packet-handlers/move-to-area";
+import type { MoveToAreaPacket } from "../packet-handlers/json/moveToArea";
 import type { Bot } from "./Bot";
 import { MonsterCollection } from "./collections/monsters";
 import { PlayerCollection } from "./collections/players";

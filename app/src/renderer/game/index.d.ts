@@ -218,6 +218,7 @@ declare global {
     // botting commands
     cmd: typeof cmd;
     context: Context;
+    logger: import('electron-log').LogFunctions;
     /* eslint-enable typescript-sort-keys/interface */
   }
 }
