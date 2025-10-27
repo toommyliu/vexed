@@ -1,9 +1,12 @@
 // https://github.com/BrenoHenrike/Scripts/blob/Skua/Army/CoreArmyLite.cs
 
 import Config from "@vexed/config";
+import log from "electron-log";
 import { STORAGE_PATH } from "@shared/constants";
 import { client } from "@shared/tipc";
 import type { Bot } from "./Bot";
+
+const logger = log.scope("game/army");
 
 /**
  * Terminology:
@@ -50,6 +53,8 @@ export class Army {
       configName: cleanFileName,
       cwd: STORAGE_PATH,
     });
+
+    logger.debug(`Using config: ${this.config.configName}`);
   }
 
   /**
@@ -58,13 +63,12 @@ export class Army {
   public async init(): Promise<boolean> {
     try {
       await this.config.load();
-      // await this.config.load();
 
-      console.log("Army: Config loaded", this.config.get());
+      logger.debug("Config loaded", this.config.get());
 
       const playerCount = this.config.get("PlayerCount");
       if (!playerCount) {
-        console.warn("Army: PlayerCount not set in config file.");
+        logger.warn("PlayerCount is not set in config file.");
         return false;
       }
 
@@ -72,27 +76,21 @@ export class Army {
       if (roomNumber) {
         this.roomNumber = String(roomNumber);
       } else {
-        console.warn("Army: RoomNumber not set in config file.");
+        logger.warn("RoomNumber is not set in config file.");
         return false;
       }
-
-      // const playerCountNum = Number.parseInt(playerCount, 10);
-      // if (Number.isNaN(playerCountNum)) {
-      //   onsole.warn("Army: PlayerCount is not a number.");
-      //   return;
-      // }
 
       if (playerCount < 1) {
-        console.warn("Army: PlayerCount must be at least 1.");
+        logger.warn("PlayerCount must be at least 1.");
         return false;
       }
 
-      for (let index = 1; index <= playerCount; index++) {
-        const player = this.config.get(`Player${index}`);
+      for (let idx = 1; idx <= playerCount; idx++) {
+        const player = this.config.get(`Player${idx}`);
         if (player && typeof player === "string") {
           this.players.add(player);
         } else {
-          console.warn(`Army: Player${index} not set in config file.`);
+          logger.warn(`Player${idx} not set in config file.`);
         }
       }
 
@@ -102,15 +100,11 @@ export class Army {
       };
 
       if (this.isLeader()) {
-        // Init army for everyone else
-        console.log("Army: Leader");
         await client.army.init({
           ...args,
           players: Array.from(this.players),
         });
       } else {
-        // Join the army
-        console.log("Army: Follower");
         await client.army.join(args);
       }
 
@@ -123,7 +117,8 @@ export class Army {
       });
 
       return true;
-    } catch {
+    } catch (error) {
+      logger.error("Army init failed.", error);
       return false;
     }
   }
@@ -171,7 +166,6 @@ export class Army {
   }
 
   private async onAfk() {
-    // console.log("Army: Anti-AFK triggered");
     await this.bot.sleep(1_500);
     this.bot.packets.sendServer("%xt%zm%afk%1%false%");
   }

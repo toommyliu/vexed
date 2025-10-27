@@ -1,4 +1,4 @@
-import { getRendererHandlers, type tipc } from "@vexed/tipc";
+import { getRendererHandlers, type TipcInstance } from "@vexed/tipc";
 import { sleep } from "@vexed/utils";
 import { BrowserWindow } from "electron";
 import type { RendererHandlers } from "../tipc";
@@ -18,17 +18,12 @@ const handleCleanup = (
   configFileName?: string,
 ) => {
   const _cleanup = () => {
-    if (configFileName) {
-      map.delete(configFileName);
-      console.log(`Leader disconnected, cleaned up: ${configFileName}`);
-    }
+    if (configFileName) map.delete(configFileName);
   };
 
   browserWindow.webContents.once("did-finish-load", _cleanup);
   browserWindow.once("close", _cleanup);
 };
-
-type TipcInstance = ReturnType<typeof tipc.create>;
 
 export const createArmyTipcRouter = (tipcInstance: TipcInstance) => ({
   init: tipcInstance.procedure
@@ -85,7 +80,7 @@ export const createArmyTipcRouter = (tipcInstance: TipcInstance) => ({
     }),
 
   finishJob: tipcInstance.procedure.action(async ({ context }) => {
-    const browserWindow = BrowserWindow.fromWebContents(context.sender as any);
+    const browserWindow = BrowserWindow.fromWebContents(context.sender);
     if (!browserWindow) return;
 
     const playerName = windowToPlayerMap.get(browserWindow);

@@ -1,9 +1,9 @@
-import { Logger } from "@vexed/logger";
 import { Mutex } from "async-mutex";
+import log from "electron-log";
 import type { Bot } from "@lib/Bot";
 import { Job } from "./Job";
 
-const logger = Logger.get("AutoRelogin");
+const logger = log.scope("game/AutoRelogin");
 
 /**
  * Auto Relogin attempts a login using the provided username and password, selecting the specified server.
@@ -68,7 +68,7 @@ export class AutoReloginJob extends Job {
         );
       }
 
-      logger.info(`triggered, waiting ${AutoReloginJob.delay}ms`);
+      logger.info(`Triggered, waiting ${AutoReloginJob.delay}ms...`);
       await this.bot.sleep(AutoReloginJob.delay);
 
       // Still on server select?
@@ -92,12 +92,7 @@ export class AutoReloginJob extends Job {
 
       // Still stuck in blue flame?
       if (!this.bot.player.isReady()) {
-        console.warn(
-          "Player not ready after login, retrying...",
-          this.bot.auth.isLoggedIn(),
-          !this.bot.world.isLoading(),
-          this.bot.player.isLoaded(),
-        );
+        logger.info("Still not ready? Logging out...");
         this.bot.auth.logout();
         return;
       }

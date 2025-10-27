@@ -8,6 +8,9 @@
   import type { ItemData } from "../../game/lib/models/Item";
   import type { MonsterData } from "../../game/lib/models/Monster";
   import { SvelteSet } from "svelte/reactivity";
+  import log from "electron-log";
+
+  const logger = log.scope("app/loader-grabber");
 
   type GrabbedData = ShopInfo | QuestData[] | ItemData[] | MonsterData[];
 
@@ -147,7 +150,6 @@
         case "0": // Shop Items
           if (isShopInfo(data)) {
             out = data.items.map((item) => {
-              console.log("item", item);
               return {
                 name: item.sName,
                 children: [
@@ -315,8 +317,9 @@
       }
 
       treeData = out;
+      logger.debug("Grabbed data:", data);
     } catch (error) {
-      console.error("Error grabbing data:", error);
+      logger.error("Error grabbing data.", error);
     } finally {
       isLoading = false;
     }

@@ -18,7 +18,14 @@ export class CommandHunt extends Command {
     const monstersByCell = this.groupMonstersByCell(matchingMonsters);
     const targetCell = this.findBestCell(monstersByCell);
 
-    if (!targetCell) return;
+    if (!targetCell) {
+      this.logger.debug(`No target cell found for: ${this.target}`);
+      return;
+    }
+
+    this.logger.debug(
+      `Best cell found for "${this.target}": ${targetCell} [${monstersByCell.get(targetCell)?.length}x]`,
+    );
 
     await this.bot.world.jump(targetCell);
 

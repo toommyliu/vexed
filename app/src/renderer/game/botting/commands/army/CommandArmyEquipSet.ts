@@ -15,24 +15,23 @@ export class CommandArmyEquipSet extends ArmyCommand {
     >;
 
     if (!set) {
-      // console.warn(`${this.setName} not found in config file.`);
+      this.logger.warn(`Set "${this.setName}" not found in config.`);
       return;
     }
 
     const playerNumber = this.bot.army.getPlayerNumber();
     if (playerNumber === -1) {
-      // console.warn("Player number not found.");
+      this.logger.warn("Could not determine player number.");
       return;
     }
 
     let playerSet = set[`Player${playerNumber}`] as Set;
 
     if (!playerSet || typeof playerSet !== "object") {
-      // Try to fallback to Default set
       playerSet = set?.["Default"] as Set;
 
       if (!playerSet || typeof playerSet !== "object") {
-        // console.warn(`Player${playerNumber} and Default set not found in set.`);
+        this.logger.warn("No set found.");
         return;
       }
     }
@@ -42,7 +41,7 @@ export class CommandArmyEquipSet extends ArmyCommand {
 
       const resItem = this.#resolveItem(item);
       if (resItem) {
-        // console.log(`Equip ${resItem}`);
+        this.logger.debug(`Equipping ${resItem} (${key}).`);
         await this.bot.inventory.equip(resItem);
       }
     }

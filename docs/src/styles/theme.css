@@ -706,10 +706,11 @@ starlight-tabs
 .right-sidebar a[aria-current='true']::before {
   content: '';
   position: absolute;
+  /* position the indicator just outside the link so per-level padding is preserved */
   left: -0.125rem;
   top: 50%;
   transform: translateY(-50%);
-  width: 3px;
+  width: 2px;
   height: 60%;
   background-color: var(--sl-color-accent);
   border-radius: 0 2px 2px 0;
@@ -718,6 +719,43 @@ starlight-tabs
 .right-sidebar a:hover:not([aria-current='true']) {
   color: var(--sl-color-white);
   background-color: var(--sl-color-gray-6);
+}
+
+.right-sidebar nav,
+.right-sidebar nav ul,
+.right-sidebar nav ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* level 0 */
+.right-sidebar nav a {
+  display: block;
+  padding-left: 0.5rem;
+  transition: padding-left 0.15s ease, color 0.15s ease;
+}
+
+/* level 1 */
+.right-sidebar nav > ol > li > a,
+.right-sidebar nav > ul > li > a {
+  padding-left: 0.75rem;
+}
+
+/* level 2 */
+.right-sidebar nav li li > a {
+  padding-left: 1.5rem;
+}
+
+/* level three */
+.right-sidebar nav li li li > a {
+  padding-left: 2rem;
+}
+
+.right-sidebar a[aria-current='true'] {
+  color: var(--sl-color-accent-high);
+  background-color: var(--sl-color-accent-low);
+  border: 1px solid var(--sl-color-accent);
 }
 
 .right-sidebar mobile-starlight-toc > nav {

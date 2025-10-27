@@ -6,8 +6,10 @@ export class CommandUnregisterQuest extends Command {
   public override skipDelay = true;
 
   public override execute() {
-    for (const questId of this.questIds)
+    for (const questId of this.questIds) {
       this.bot.environment.removeQuestId(questId);
+      this.logger.debug(`Unregister quest: ${questId}`);
+    }
   }
 
   public override toString() {

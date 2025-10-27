@@ -7,13 +7,13 @@ sidebar:
 
 import { Code } from '@astrojs/starlight/components';
 
-Note that these scripts can obviously scripts can be improved and optimized.
+Note that these scripts can obviously scripts can be improved and optimized; you may run into inconsistent runs which appear unavoidable.
 
-Adjust comps and skill orders per your setups.
+Adjust comps and skill orders per your setups. These snippets can be combined into one script if preferred.
 
-You can also combine them into one script too.
+## Base snippet used in all scripts
 
-export const drakathScript = String.raw`
+export const baseSnippet = String.raw`
 cmd.set_delay(0)
 cmd.goto_house()
 cmd.set_fps(10)
@@ -24,7 +24,13 @@ cmd.enable_anticounter()
 cmd.army_set_config('army_config')
 cmd.army_init()
 cmd.set_delay(1000)
+`
 
+<Code code={baseSnippet} lang="js" />
+
+We will use this base snippet at the beginning of all scripts.
+
+export const drakathScript = String.raw`
 let opts = {
   skillAction() {
     let a = []
@@ -47,6 +53,7 @@ let opts = {
         h = 2
     }
 
+    // can also use hp check conditions instead
     return async function () {
       if (!this._tauntBoundaries) {
         this._tauntBoundaries = new Set()
@@ -121,7 +128,6 @@ let opts = {
         for (const b of boundaries) {
           if (hp >= b.min && hp <= b.max && !this._tauntBoundaries.has(b.key)) {
             if (plyrNumber === 1) {
-              console.log(b.msg)
               await this.bot.combat.useSkill(5, true, true)
               this._tauntBoundaries.add(b.key)
               break
@@ -143,9 +149,8 @@ let opts = {
       await this.bot.combat.useSkill(a[i])
       i = (i + 1) % a.length
     }
-
-},
-skillDelay: 0,
+  },
+  skillDelay: 0,
 }
 
 cmd.army_join('championdrakath')
@@ -177,29 +182,11 @@ cmd.label('dead')
 cmd.log('dead')
 `
 
-## ultradrakath
+### ultradrakath
 
 <Code code={drakathScript} lang="js" title="ultradrakath.js" />
 
-LR, VALIANCE, WIZ, VAINGLORY
-
-SC, LACERATE, WIZ, ABSOLUTION
-
-LOO, AWEBLAST, LUCK, ABSOLUTION
-
-AP, ARCANA, LUCK, PENITENCE
-
 export const dageScript = String.raw`
-cmd.set_delay(0)
-cmd.goto_house()
-cmd.set_fps(10)
-cmd.enable_lagkiller()
-cmd.enable_hideplayers()
-cmd.enable_infiniterange()
-cmd.enable_anticounter()
-cmd.army_set_config('army_config')
-cmd.army_init()
-cmd.set_delay(1000)
 let opts = {
   skillAction() {
     let a = []
@@ -231,9 +218,7 @@ let opts = {
           ) {
             void this.bot.combat.useSkill(5, true, false)
           }
-        } catch (error) {
-          console.warn('failed aura check', error)
-        }
+        } catch (error) { /* no target */ }
       }
 
       await this.bot.combat.useSkill(a[i])
@@ -263,31 +248,13 @@ cmd.army_kill('*', opts)
 cmd.log('dage dead')
 `
 
-## ultradage
+### ultradage
 
 <Code code={dageScript} lang="js" title="ultradage.js" />
 
-LR, DAUNTLESS, WIZ, PENITENCE / LDK, DAUNTLESS, FORGE, LAMENT
-
-QCM, DAUNTLESS, WIZ, LAMENT
-
-CAV, DAUNTLESS, FORGE, LAMENT
-
-VDK, DAUNTLESS, FORGE, LAMENT
-
-## ultranulgath
+### ultranulgath
 
 export const nulgathScript = String.raw`
-cmd.set_delay(0)
-cmd.goto_house()
-cmd.set_fps(10)
-cmd.enable_lagkiller()
-cmd.enable_hideplayers()
-cmd.enable_infiniterange()
-cmd.enable_anticounter()
-cmd.army_set_config('army_config')
-cmd.army_init()
-cmd.set_delay(1000)
 let opts = {
   skillAction() {
     let a = []
@@ -391,27 +358,9 @@ cmd.jump_to_cell('Enter')
 
 <Code code={nulgathScript} lang="js" title="ultranulgath.js" />
 
-LR, ARCANA, FORGE, VAINGLORY
-
-CAV, DAUNTLESS, FORGE, LAMENT
-
-LOO, AWEBLAST, LUCK, PENITENCE
-
-AP, VALIANCE, LUCK, PENITENCE
-
-## ultradarkon
+### ultradarkon
 
 export const darkonScript = String.raw`
-cmd.set_delay(0)
-cmd.goto_house()
-cmd.set_fps(10)
-cmd.enable_lagkiller()
-cmd.enable_hideplayers()
-cmd.enable_infiniterange()
-cmd.enable_anticounter()
-cmd.army_set_config('army_config')
-cmd.army_init()
-cmd.set_delay(1000)
 let opts = {
   skillAction() {
     let a = []
@@ -439,7 +388,7 @@ let opts = {
 
       if (plyrNumber === 3 && this.bot.combat.target.hp < 9200000) {
         if (a[i] == 4) {
-          //Allow skill 4 only in the 4.7-4.5 mil HP range
+          // Allow skill 4 only in the 4.7-4.5 mil HP range
           if (
             !(
               this.bot.combat.target.hp <= 4720000 &&
@@ -533,28 +482,9 @@ cmd.complete_quest(8746)
 
 <Code code={darkonScript} lang="js" title="ultradarkon.js" />
 
-LR, ARCANA, WIZ, VAINGLORY
-
-SC, VALIANCE, WIZ, ABSOLUTION
-
-LOO, AWEBLAST, LUCK, ABSOLUTION
-
-LC, VALIANCE, WIZ, LAMENT
-
-
-## ultradrago
+### ultradrago
 
 export const dragoScript = String.raw`
-cmd.set_delay(0)
-cmd.goto_house()
-cmd.set_fps(10)
-cmd.enable_lagkiller()
-cmd.enable_hideplayers()
-cmd.enable_infiniterange()
-cmd.enable_anticounter()
-cmd.army_set_config('army_config')
-cmd.army_init()
-cmd.set_delay(1000)
 cmd.army_join('ultradrago')
 cmd.accept_quest(8397)
 cmd.equip_item('Void Highlord')
@@ -603,25 +533,7 @@ cmd.log('dead')
 
 <Code code={dragoScript} lang="js" title="ultradrago.js" />
 
-LR, ARCANA, FORGE, VAINGLORY
-
-CAV, DAUNTLESS, FORGE, LAMENT
-
-LOO, AWEBLAST, LUCK, PENITENCE
-
-AP, VALIANCE, LUCK, PENITENCE
-
 export const speakerScript = String.raw`
-cmd.set_delay(0)
-cmd.goto_house()
-cmd.set_fps(10)
-cmd.enable_lagkiller()
-cmd.enable_hideplayers()
-cmd.enable_infiniterange()
-cmd.enable_anticounter()
-cmd.army_set_config('army_config')
-cmd.army_init()
-cmd.set_delay(1000)
 let opts = {
   skillAction() {
     let a = []
@@ -683,7 +595,6 @@ cmd.register_task('walkToPoint', function () {
 
   let intervalId = setInterval(() => {
     if (!ctx.isRunning()) {
-      console.log('cleared interval')
       clearInterval(intervalId)
       return
     }
@@ -700,14 +611,6 @@ cmd.label('dead')
 cmd.log('dead')
 `
 
-## ultraspeaker
+### ultraspeaker
 
 <Code code={speakerScript} lang="js" title="ultraspeaker.js" />
-
-LR, ARCANA, WIZ, PENITENCE
-
-VDK, VALIANCE, LUCK, PENITENCE
-
-LOO, AWEBLAST, LUCK, PENITENCE
-
-AP, VALIANCE, LUCK, PENITENCE

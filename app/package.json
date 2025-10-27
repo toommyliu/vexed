@@ -31,7 +31,6 @@
   },
   "dependencies": {
     "@lukeed/uuid": "^2.0.1",
-    "@tybys/electron-ipc-handle-invoke": "^1.0.2",
     "@vexed/collection": "workspace:*",
     "@vexed/config": "workspace:*",
     "@vexed/fs-utils": "workspace:*",
@@ -42,6 +41,7 @@
     "async-mutex": "^0.5.0",
     "clsx": "^2.1.1",
     "core-js": "^3.42.0",
+    "electron-log": "github:toommyliu/electron-log",
     "fast-xml-parser": "^5.2.5",
     "is-hotkey": "^0.2.0",
     "lodash.merge": "^4.6.2",
@@ -72,6 +72,7 @@
     "esbuild-svelte": "^0.9.3",
     "eslint": "^9.10.0",
     "eslint-config-neon": "0.2.4",
+    "eslint-plugin-svelte": "^3.12.5",
     "git-cliff": "^2.9.1",
     "jsonc-parser": "^3.3.1",
     "npm-run-all": "^4.1.5",

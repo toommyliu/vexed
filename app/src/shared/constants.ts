@@ -1,8 +1,10 @@
 import os from "os";
 import { join } from "path";
+import process from "process";
 import type { Account, FastTravel, Settings, HotkeyConfig } from "./types";
 
-const isMac = process.platform === "darwin";
+export const IS_WINDOWS = process.platform === "win32";
+export const IS_MAC = process.platform === "darwin";
 
 export const BRAND = "vexed";
 export const DOCUMENTS_PATH = join(os.homedir(), "Documents", BRAND);
@@ -83,13 +85,16 @@ export const DEFAULT_ACCOUNTS: Account[] = [] as const;
 
 export const DEFAULT_HOTKEYS: HotkeyConfig = {
   General: {
-    "Toggle Bank": isMac ? "command+b" : "ctrl+b",
-    "Toggle Top Bar": isMac ? "command+shift+t" : "ctrl+shift+t",
+    "Toggle Bank": IS_MAC ? "command+b" : "ctrl+b",
+    "Toggle Top Bar": IS_MAC ? "command+shift+t" : "ctrl+shift+t",
+  },
+  Application: {
+    "Open App Logs": IS_MAC ? "command+shift+l" : "ctrl+shift+l",
   },
   Scripts: {
     "Load Script": "",
     "Toggle Command Overlay": "`",
-    "Toggle Dev Tools": isMac ? "command+shift+i" : "ctrl+shift+i",
+    "Toggle Dev Tools": IS_MAC ? "command+shift+i" : "ctrl+shift+i",
     "Toggle Script": "",
   },
   Tools: {
@@ -113,3 +118,10 @@ export const WHITELISTED_DOMAINS = [
   "aqwwiki.wikidot.com",
   "heromart.com",
 ];
+
+export const LEVEL_LABELS: Record<number, string> = {
+  0: "debug",
+  1: "log", // info
+  2: "warn",
+  3: "error",
+} as const;

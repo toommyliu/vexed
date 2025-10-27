@@ -1,18 +1,14 @@
 import { join } from "path";
 import Config from "@vexed/config";
 import { readJson, writeJson } from "@vexed/fs-utils";
-import { Logger } from "@vexed/logger";
-import type { tipc } from "@vexed/tipc";
+import type { TipcInstance } from "@vexed/tipc";
 import { getRendererHandlers } from "@vexed/tipc";
 import { dialog, BrowserWindow } from "electron";
 import { ACCOUNTS_PATH, DOCUMENTS_PATH } from "../../shared/constants";
 import type { Account, AccountWithScript } from "../../shared/types";
+import { logger } from "../constants";
 import type { RendererHandlers } from "../tipc";
 import { createGame, getManagerWindow } from "../windows";
-
-const logger = Logger.get("IpcMain");
-
-type TipcInstance = ReturnType<typeof tipc.create>;
 
 export function createManagerTipcRouter(tipcInstance: TipcInstance) {
   return {
@@ -43,7 +39,7 @@ export function createManagerTipcRouter(tipcInstance: TipcInstance) {
           await writeJson(ACCOUNTS_PATH, accounts);
           return true;
         } catch (error) {
-          logger.error("Failed to add account", error);
+          logger.error("Failed to add account\n", error);
           return false;
         }
       }),
@@ -64,7 +60,7 @@ export function createManagerTipcRouter(tipcInstance: TipcInstance) {
           await writeJson(ACCOUNTS_PATH, accounts);
           return true;
         } catch (error) {
-          logger.error("Failed to remove account", error);
+          logger.error("Failed to remove account.", error);
           return false;
         }
       }),
@@ -93,7 +89,7 @@ export function createManagerTipcRouter(tipcInstance: TipcInstance) {
           await writeJson(ACCOUNTS_PATH, accounts);
           return true;
         } catch (error) {
-          logger.error("Failed to update account", error);
+          logger.error("Failed to update account.", error);
           return false;
         }
       }),
@@ -113,14 +109,14 @@ export function createManagerTipcRouter(tipcInstance: TipcInstance) {
         if (res?.canceled || !res?.filePaths?.length) return "";
 
         return res?.filePaths[0] ?? "";
-      } catch {
+      } catch (error) {
+        logger.error("Manager: failed to load script.", error);
         return "";
       }
     }),
     launchGame: tipcInstance.procedure
       .input<AccountWithScript>()
       .action(async ({ input }) => {
-        logger.info(`Launching game for: ${input.username}`);
         await createGame(input);
       }),
     managerLoginSuccess: tipcInstance.procedure
@@ -136,8 +132,6 @@ export function createManagerTipcRouter(tipcInstance: TipcInstance) {
           window.webContents,
         );
         handlers.manager.enableButton.send(input.username);
-
-        logger.info(`User ${input.username} logged in successfully`);
       }),
   };
 }

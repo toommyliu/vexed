@@ -40,22 +40,19 @@ const pathAliases = getPathAliases();
 
 const SCRIPT_TARGETS = [
   {
-    name: "Main",
-    logLabel: "main took",
+    name: "main",
     srcDir: "./src/main/",
     outDir: "dist/main/",
     watchPaths: ["./src/main"],
   },
   {
-    name: "Shared",
-    logLabel: "shared took",
+    name: "shared",
     srcDir: "./src/shared/",
     outDir: "dist/shared/",
     watchPaths: ["./src/shared"],
   },
   {
-    name: "Renderer",
-    logLabel: "renderer took",
+    name: "renderer",
     srcDir: "./src/renderer/",
     outDir: "dist/renderer/",
     watchPaths: ["./src/renderer"],
@@ -65,7 +62,6 @@ const SCRIPT_TARGETS = [
 const SVELTE_TARGETS = [
   {
     name: "manager",
-    logLabel: "manager svelte took",
     entryPoint: "./src/renderer/manager/main.ts",
     outfile: "./dist/manager/build/main.js",
     tsconfigFile: "./src/renderer/manager/tsconfig.json",
@@ -73,15 +69,20 @@ const SVELTE_TARGETS = [
   },
   {
     name: "game",
-    logLabel: "game svelte took",
     entryPoint: "./src/renderer/game/main.ts",
     outfile: "./dist/game/build/main.js",
     tsconfigFile: "./src/renderer/game/tsconfig.json",
     watchPaths: ["./src/renderer/game"],
   },
   {
+    name: "game-logs",
+    entryPoint: "./src/renderer/application/logs/main.ts",
+    outfile: "./dist/application/logs/build/main.js",
+    tsconfigFile: "./src/renderer/game/tsconfig.json",
+    watchPaths: ["./src/renderer/application/logs"],
+  },
+  {
     name: "fast-travels",
-    logLabel: "fast-travels svelte took",
     entryPoint: "./src/renderer/tools/fast-travels/main.ts",
     outfile: "./dist/tools/fast-travels/build/main.js",
     tsconfigFile: "./src/renderer/game/tsconfig.json",
@@ -89,7 +90,6 @@ const SVELTE_TARGETS = [
   },
   {
     name: "loader-grabber",
-    logLabel: "loader-grabber svelte took",
     entryPoint: "./src/renderer/tools/loader-grabber/main.ts",
     outfile: "./dist/tools/loader-grabber/build/main.js",
     tsconfigFile: "./src/renderer/game/tsconfig.json",
@@ -97,7 +97,6 @@ const SVELTE_TARGETS = [
   },
   {
     name: "follower",
-    logLabel: "follower svelte took",
     entryPoint: "./src/renderer/tools/follower/main.ts",
     outfile: "./dist/tools/follower/build/main.js",
     tsconfigFile: "./src/renderer/game/tsconfig.json",
@@ -105,15 +104,13 @@ const SVELTE_TARGETS = [
   },
   {
     name: "hotkeys",
-    logLabel: "hotkeys svelte took",
-    entryPoint: "./src/renderer/tools/hotkeys/main.ts",
-    outfile: "./dist/tools/hotkeys/build/main.js",
+    entryPoint: "./src/renderer/application/hotkeys/main.ts",
+    outfile: "./dist/application/hotkeys/build/main.js",
     tsconfigFile: "./src/renderer/game/tsconfig.json",
-    watchPaths: ["./src/renderer/tools/hotkeys"],
+    watchPaths: ["./src/renderer/application/hotkeys"],
   },
   {
     name: "packet-logger",
-    logLabel: "packet-logger svelte took",
     entryPoint: "./src/renderer/packets/logger/main.ts",
     outfile: "./dist/packets/logger/build/main.js",
     tsconfigFile: "./src/renderer/game/tsconfig.json",
@@ -132,7 +129,6 @@ const SVELTE_TARGETS = [
 const CSS_TARGETS = [
   {
     name: "tailwind",
-    logLabel: "tailwind css took",
     entryPoint: "./src/renderer/tailwind.css",
     outfile: "./dist/build/tailwind.css",
     watchPaths: ["./src/renderer/tailwind.css", "./tailwind.config.js"],
@@ -141,6 +137,10 @@ const CSS_TARGETS = [
 
 const HTML_COPY_TARGETS = [
   { src: "./src/renderer/game/index.html", dest: "./dist/game/index.html" },
+  {
+    src: "./src/renderer/application/logs/index.html",
+    dest: "./dist/application/logs/index.html",
+  },
   {
     src: "./src/renderer/manager/index.html",
     dest: "./dist/manager/index.html",
@@ -158,8 +158,8 @@ const HTML_COPY_TARGETS = [
     dest: "./dist/tools/loader-grabber/index.html",
   },
   {
-    src: "./src/renderer/tools/hotkeys/index.html",
-    dest: "./dist/tools/hotkeys/index.html",
+    src: "./src/renderer/application/hotkeys/index.html",
+    dest: "./dist/application/hotkeys/index.html",
   },
   {
     src: "./src/renderer/packets/logger/index.html",
@@ -212,6 +212,9 @@ const createSvelteConfig = ({ entryPoint, outfile, tsconfigFile }) => ({
     "constants",
     "net",
     "url",
+    "querystring",
+    "http",
+    "https",
   ],
   banner: {
     js: "require('core-js/stable')",
@@ -432,7 +435,7 @@ async function runWatchMode(commonConfig, svelteConfigs, cssConfigs) {
 async function runBuildMode(commonConfig, svelteConfigs, cssConfigs) {
   await Promise.all([
     ...SCRIPT_TARGETS.map((target) =>
-      timed(target.logLabel, async () => {
+      timed(`${target.name} took`, async () => {
         await build({
           ...commonConfig,
           entryPoints: await readdirp(target.srcDir),
@@ -441,12 +444,12 @@ async function runBuildMode(commonConfig, svelteConfigs, cssConfigs) {
       }),
     ),
     ...svelteConfigs.map((target) =>
-      timed(target.logLabel, async () => {
+      timed(`${target.name} svelte took`, async () => {
         await build(target.config);
       }),
     ),
     ...cssConfigs.map((target) =>
-      timed(target.logLabel, async () => {
+      timed(`${target.name} css took`, async () => {
         await build(target.config);
       }),
     ),

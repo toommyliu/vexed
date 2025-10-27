@@ -3,22 +3,23 @@ const node = require("eslint-config-neon/node");
 const prettier = require("eslint-config-neon/prettier");
 const typescript = require("eslint-config-neon/typescript");
 const browser = require("eslint-config-neon/browser");
+const svelte = require("eslint-plugin-svelte");
 
 const merge = require("lodash.merge");
 
 const commonFiles = ".ts";
 
-const commonRuleset = merge(...common, { files: [`./src/**/*${commonFiles}`] });
+const commonRuleset = merge({}, ...common, { files: [`./src/**/*${commonFiles}`] });
 
-const nodeRuleset = merge(...node, {
+const nodeRuleset = merge({}, ...node, {
   files: [`./src/main/**/*${commonFiles}`],
 });
 
-const browserRuleset = merge(...browser, {
+const browserRuleset = merge({}, ...browser, {
   files: [`./src/renderer/**/*${commonFiles}`],
 });
 
-const typeScriptRuleset = merge(...typescript, {
+const typeScriptRuleset = merge({}, ...typescript, {
   files: [`./src/**/*${commonFiles}`],
   languageOptions: {
     parserOptions: {
@@ -32,7 +33,7 @@ const typeScriptRuleset = merge(...typescript, {
   },
 });
 
-const prettierRuleset = merge(...prettier, {
+const prettierRuleset = merge({}, ...prettier, {
   files: [`./src/**/*${commonFiles}`],
 });
 
@@ -46,6 +47,7 @@ const rules = [
       "./build/",
       "./scripts/",
       "./src/**/index.d.ts",
+      "../packages/**",
     ],
   },
   commonRuleset,
@@ -55,6 +57,7 @@ const rules = [
   {
     files: ["./**/*.ts"],
   },
+  ...svelte.configs["flat/prettier"],
   prettierRuleset,
 ];
 

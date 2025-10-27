@@ -7,7 +7,7 @@ export class CommandRegistry {
   private _commands: Map<string, (...args: unknown[]) => void> = new Map();
 
   /**
-   * Custom commands that shouldn't be registere
+   * Custom commands that shouldn't be registered.
    */
   private _customCommands: Map<string, (...args: unknown[]) => void> =
     new Map();

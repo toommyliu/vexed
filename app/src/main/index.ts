@@ -1,3 +1,4 @@
+import "core-js/stable";
 import "./tray";
 
 import { join } from "path";
@@ -5,13 +6,21 @@ import process from "process";
 import Config from "@vexed/config";
 import { registerIpcMain } from "@vexed/tipc/main";
 import { app, shell } from "electron";
-import { BRAND, DEFAULT_SETTINGS, DOCUMENTS_PATH } from "../shared/constants";
+import log from "electron-log";
+import { version } from "../../package.json";
+import {
+  BRAND,
+  DEFAULT_SETTINGS,
+  DOCUMENTS_PATH,
+  IS_MAC,
+  IS_WINDOWS,
+} from "../shared/constants";
 import type { Settings } from "../shared/types";
-import { ASSET_PATH } from "./constants";
+import { ASSET_PATH, logger } from "./constants";
 import { router } from "./tipc";
 import { checkForUpdates } from "./updater";
+import { showErrorDialog } from "./util/dialog";
 import { createNotification } from "./util/notification";
-import { showErrorDialog } from "./util/showErrorDialog";
 import { createAccountManager, createGame, setQuitting } from "./windows";
 
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
@@ -22,14 +31,19 @@ function registerFlashPlugin() {
 
   let pluginName;
 
-  if (process.platform === "win32") {
+  if (IS_WINDOWS) {
     pluginName = "pepflashplayer.dll";
-  } else if (process.platform === "darwin") {
+  } else if (IS_MAC) {
     pluginName = "PepperFlashPlayer.plugin";
   }
 
   if (!pluginName) {
-    showErrorDialog({ message: "Unsupported platform." });
+    showErrorDialog(
+      {
+        message: "Unsupported platform.",
+      },
+      true,
+    );
     return;
   }
 
@@ -60,22 +74,45 @@ async function handleAppLaunch(argv: string[] = process.argv) {
     });
     await settings.load();
 
-    if (settings?.get("checkForUpdates") === true) {
-      const hasUpdate = await checkForUpdates(true);
-      if (hasUpdate) {
+    const level = settings.get("debug", false) ? "debug" : "info";
+
+    log.initialize({
+      rendererTransports: ["console", level === "debug" && "file"],
+    });
+    log.scope.labelPadding = false;
+    log.transports.file.resolvePathFn = () => join(DOCUMENTS_PATH, "log.txt");
+    log.transports.file.format = "[{datetime}] ({level}){scope} {text}";
+    log.transports.console.format = "[{datetime}] ({level}){scope} {text}";
+    log.transports.file.level = level;
+    log.transports.console.level = level;
+
+    logger.info(`Hello - ${BRAND} v${version}`); // indicate app start
+
+    if (settings?.get("checkForUpdates", false) === true) {
+      const updateResult = await checkForUpdates(true);
+      if (updateResult !== null) {
+        logger.info(
+          `Update available - ${updateResult.newVersion} (current: ${version})`,
+        );
+
         const notif = createNotification(
           "Update available",
-          `Version ${hasUpdate.newVersion} is available. Click to view.`,
+          `Version ${updateResult.newVersion} is available. Click to view.`,
         );
-        notif.once("click", async () => {
-          await shell.openExternal(hasUpdate.releaseUrl);
-        });
+        notif.once("click", async () =>
+          shell.openExternal(updateResult.releaseUrl),
+        );
       }
     }
 
     let launchMode = settings.get("launchMode", "game")?.toLowerCase();
     if (launchMode !== "manager" && launchMode !== "game") {
       launchMode = "game";
+      logger.info(
+        `Unknown launch mode, got "${launchMode}", defaulting to "game"...`,
+      );
+    } else {
+      logger.info(`Using launch mode: ${launchMode}`);
     }
 
     if (
@@ -105,9 +142,8 @@ async function handleAppLaunch(argv: string[] = process.argv) {
       await createGame(account);
     }
   } catch (error) {
-    const err = error as Error;
     showErrorDialog({
-      error: err,
+      error: error as Error,
       message: "Failed to initialize the application.",
     });
   }
@@ -133,4 +169,7 @@ app.on("before-quit", () => {
   setQuitting(true);
 });
 
-app.on("window-all-closed", () => app.quit());
+app.on("window-all-closed", () => {
+  logger.info("Bye!");
+  app.quit();
+});

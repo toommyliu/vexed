@@ -1,5 +1,6 @@
 import { interval } from "@vexed/utils";
 import { Mutex } from "async-mutex";
+// import log from "electron-log";
 import { Bot } from "@lib/Bot";
 import { handlers } from "@shared/tipc";
 import { doPriorityAttack } from "@utils/doPriorityAttack";
@@ -15,8 +16,7 @@ let config: FollowerConfig | null = null;
 
 const mutex = new Mutex();
 const bot = Bot.getInstance();
-
-// const logger = Logger.get("IpcFollower");
+// const logger = log.scope("game/follower");
 
 function parseConfig(rawConfig: FollowerStartInput) {
   const {
@@ -150,25 +150,18 @@ async function startFollower() {
       return;
     }
 
-    // logger.info(`not found: ${name}`);
-
     await exitFromCombat();
 
-    // logger.info(`goto ${name}`);
     bot.world.goto(name);
 
     await bot.waitUntil(() => bot.player.isReady() && foundPlayer(), null, 3);
 
     if (foundPlayer()) {
       attempts = 3;
-      // logger.info(`found: ${name}`);
     } else {
       attempts--;
 
-      // logger.info(`player ${name} not found: ${attempts}/3`);
-
       if (attempts <= 0) {
-        // logger.info(`failed to find: ${name} after 3 attempts, stopping`);
         await stopFollower();
       }
     }
@@ -204,7 +197,6 @@ async function startFollower() {
         !bot.world.isPlayerInMap(name_) ||
         !bot.world.isPlayerInCell(name_, bot.player.cell)
       ) {
-        // logger.info("player not in map or cell");
         await goToPlayer();
         return;
       }
