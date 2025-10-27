@@ -1,5 +1,5 @@
+import type { Bot } from "../../lib/Bot";
 import { AutoZone } from "../botting/autozone";
-import type { Bot } from "../lib/Bot";
 
 const getRandomIntInRange = (min: number, max: number) =>
   Math.floor(Math.random() * (max - min + 1)) + min;

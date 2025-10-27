@@ -4,7 +4,7 @@ import { TypedEmitter } from "tiny-typed-emitter";
 import type { CtPacket } from "../packet-handlers/ct";
 import type { AcceptQuestPacket } from "../packet-handlers/json/acceptQuest";
 import type { GetQuestsPacket } from "../packet-handlers/json/getQuests";
-import type { MoveToAreaPacket } from "../packet-handlers/move-to-area";
+import type { MoveToAreaPacket } from "../packet-handlers/json/moveToArea";
 import { Army } from "./Army";
 import { Auth } from "./Auth";
 import { Bank } from "./Bank";
@@ -28,9 +28,11 @@ import { QuestsJob } from "./jobs/quests";
 import type { Aura } from "./models/BaseEntity";
 import type { Monster } from "./models/Monster";
 import { Flash } from "./util/Flash";
+import type { BankFromInvPacket } from "../packet-handlers/json/bankFromInv";
 
 type Events = {
   acceptQuest(packet: AcceptQuestPacket): void;
+  bankFromInv(packet: BankFromInvPacket): void;
   /**
    * This event is emitted when a player goes AFK.
    *
@@ -238,7 +240,6 @@ export class Bot extends TypedEmitter<Events> {
     this.scheduler.addJob(new AutoReloginJob(this));
 
     this.on("logout", () => {
-      console.log("clearing player UIDs on logout");
       this.world.playerUids.clear();
     });
   }

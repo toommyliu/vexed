@@ -5,16 +5,17 @@ import { Bot } from "@lib/Bot";
 import { AutoReloginJob } from "@lib/jobs/autorelogin";
 import { client } from "@shared/tipc";
 import { AuraStore } from "./lib/util/AuraStore";
-import { addGoldExp } from "./packet-handlers/json/addGoldExp";
 import { ct } from "./packet-handlers/ct";
+import { acceptQuest } from "./packet-handlers/json/acceptQuest";
+import { addGoldExp } from "./packet-handlers/json/addGoldExp";
+import { clearAuras } from "./packet-handlers/json/clearAuras";
 import { dropItem } from "./packet-handlers/json/dropItem";
-import { event } from "./packet-handlers/event";
+import { event } from "./packet-handlers/json/event";
+import { getQuests } from "./packet-handlers/json/getQuests";
 import { initUserData } from "./packet-handlers/json/initUserData";
 import { initUserDatas } from "./packet-handlers/json/initUserDatas";
-import { acceptQuest } from "./packet-handlers/json/acceptQuest";
-import { getQuests } from "./packet-handlers/json/getQuests";
+import { moveToArea } from "./packet-handlers/json/moveToArea";
 import { jsonUotls } from "./packet-handlers/json/uotls";
-import { moveToArea } from "./packet-handlers/move-to-area";
 import { respawnMon } from "./packet-handlers/str/respawnMon";
 import { strUotls } from "./packet-handlers/str/uotls";
 import { appState } from "./state.svelte";
@@ -22,17 +23,17 @@ import { appState } from "./state.svelte";
 const logger = log.scope("game/flash-interop");
 const bot = Bot.getInstance();
 
-const JSON_HANDLERS: Record<string, (bot: Bot, dataObj: any) => void> = {
-  addGoldExp: (bot, dataObj) => void addGoldExp(bot, dataObj),
-  dropItem: (bot, dataObj) => void dropItem(bot, dataObj),
-  initUserData: (bot, dataObj) => initUserData(bot, dataObj),
-  initUserDatas: (bot, dataObj) => void initUserDatas(bot, dataObj),
-  moveToArea: (bot, dataObj) => void moveToArea(bot, dataObj),
-  event: (bot, dataObj) => void event(bot, dataObj),
-  clearAuras: (bot) => AuraStore.clearPlayerAuras(bot.auth.username.toLowerCase()),
-  uotls: (bot, dataObj) => jsonUotls(bot, dataObj),
-  getQuests: (bot, dataObj) => getQuests(bot, dataObj),
-  acceptQuest: (bot, dataObj) => acceptQuest(bot, dataObj),
+const JSON_HANDLERS = {
+  acceptQuest,
+  addGoldExp,
+  clearAuras,
+  dropItem,
+  event,
+  getQuests,
+  initUserData,
+  initUserDatas,
+  moveToArea,
+  uotls: jsonUotls,
 };
 
 window.packetFromClient = ([packet]: [string]) => {
@@ -119,7 +120,13 @@ window.pext = async ([packet]) => {
     }
   } else if (pkt?.params?.type === "json") {
     const dataObj = pkt?.params?.dataObj; // { intGold: 8, cmd: '', intExp: 0, bonusGold: 2, typ: 'm' }
-    JSON_HANDLERS[pkt?.params?.dataObj?.cmd]?.(bot, dataObj);
+    const fn = JSON_HANDLERS[pkt?.params?.dataObj?.cmd as keyof typeof JSON_HANDLERS];
+    
+    if (typeof fn === "function") {
+      const res = fn(bot, dataObj);
+      if (res instanceof Promise)
+        void res;
+    }
   }
 };
 

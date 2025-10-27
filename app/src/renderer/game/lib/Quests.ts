@@ -1,13 +1,16 @@
 import { Collection } from "@vexed/collection";
+import log from 'electron-log';
 import { normalizeId } from "@utils/normalizeId";
-import type { Bot } from "./Bot";
-import { GameAction } from "./World";
-import { Quest, type QuestData } from "./models/Quest";
 import type { AcceptQuestPacket } from "../packet-handlers/json/acceptQuest";
 import type { GetQuestsPacket } from "../packet-handlers/json/getQuests";
+import type { Bot } from "./Bot";
+import { GameAction } from "./World";
+import { Quest } from "./models/Quest";
 
 export class Quests {
   #quests = new Collection<number, Quest>();
+
+  #logger = log.scope("game/lib/Quests");
 
   public constructor(public readonly bot: Bot) {
     const fn_1 = this.#acceptQuest.bind(this);
@@ -133,23 +136,18 @@ export class Quests {
 
   #acceptQuest(packet: AcceptQuestPacket) {
     if (packet.bSuccess !== 1 || packet.msg !== "success") {
-      console.warn(`failed to accept quest ${packet.QuestID}: ${packet.msg}`);
+      this.#logger.debug(`Failed to accept quest: ${packet.QuestID}`);
       return;
     }
 
-    if (!this.#quests.has(packet.QuestID)) {
-      console.warn(`unknown quest accepted: ${packet.QuestID}`);
-      return;
-    }
-
+    if (!this.#quests.has(packet.QuestID)) return;
     this.#quests.get(packet.QuestID)!.data.status = "p";
-    console.log(`accepted quest: ${packet.QuestID}`);
   }
 
   #getQuests(packet: GetQuestsPacket) {
     for (const [questId, questData] of Object.entries(packet.quests)) {
       this.#quests.set(Number(questId), new Quest(questData));
-      console.log(`get quest - ${questData.sName} - ${questData.QuestID}`);
+      this.#logger.debug(`Get quest - ${questData.sName} - ${questData.QuestID}`);
     }
   }
 

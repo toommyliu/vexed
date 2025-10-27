@@ -1,10 +1,14 @@
+import type { BankFromInvPacket } from "../packet-handlers/json/bankFromInv";
 import type { Bot } from "./Bot";
 import { BankItem } from "./models/BankItem";
 import type { ItemData } from "./models/Item";
+import log from 'electron-log';
 
 export class Bank {
   // Whether bank items have been loaded.
   private isLoaded = false;
+
+  #logger = log.scope("game/lib/Bank");
 
   public constructor(public bot: Bot) {}
 
@@ -208,5 +212,9 @@ export class Bank {
    */
   public isOpen(): boolean {
     return this.bot.flash.call(() => swf.bankIsOpen());
+  }
+
+  #bankFromInv(packet: BankFromInvPacket) {
+    
   }
 }
