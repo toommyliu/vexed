@@ -13,3 +13,6 @@ for (const command in cmd) {
   const cmdFunction = cmd[command]!;
   commandRegistry.registerCommand(cmdName, cmdFunction);
 }
+
+// @ts-expect-error don't care
+window.logger = require('electron-log');

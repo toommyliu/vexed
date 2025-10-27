@@ -4,20 +4,16 @@ const parseValue = (parts: string[], prefix: string) =>
   parts.find((part) => part.startsWith(prefix))?.split(":")[1];
 
 export function strUotls(bot: Bot, args: string[]) {
-  // console.log("uotls packet", args);
-
-  const plyrName = args[2];
-  const player = bot.world.players.get(plyrName!);
+  const playerName = args[2];
+  const player = bot.world.players.get(playerName!);
 
   if (!player) {
-    // console.log("uotls: player not found", plyrName);
     return;
   }
 
   const parts = args[args.length - 1]?.split(",");
-  // console.log("uotls parts", parts);
 
-  // player move
+  // Player move
   if (parts?.[0]?.startsWith("sp:")) {
     const tx = Number(parseValue(parts!, "tx:"));
     const ty = Number(parseValue(parts!, "ty:"));
@@ -27,10 +23,10 @@ export function strUotls(bot: Bot, args: string[]) {
     player.data.strFrame = parseValue(parts!, "strFrame:") ?? "Enter";
   }
 
-  // player afk
+  // Player afk
   if (parts?.[0] === "afk:true") {
-    if (bot.auth.username.toLowerCase() === plyrName!.toLowerCase())
+    if (bot.auth.username.toLowerCase() === playerName!.toLowerCase())
       bot.emit("afk");
-    else bot.emit("afk", plyrName!);
+    else bot.emit("afk", playerName!);
   }
 }
