@@ -105,7 +105,7 @@ Waits until the condition is met.
 | Parameter | Type | Optional | Default | Description |
 |-----------|------|----------|---------|-------------|
 | condition | `() => boolean` |  |  | The condition to wait for until it returns true. |
-| prerequisite | `null` \| `(() => boolean)` | ✓ | `null` | The prerequisite to be checked before waiting for the condition. |
+| prerequisite | `(() => boolean)` \| `null` | ✓ | `null` | The prerequisite to be checked before waiting for the condition. |
 | maxIterations | `number` | ✓ | `15` | The maximum number of iterations to wait. -1 to wait indefinitely. |
 
 **Returns**: `Promise<void>`

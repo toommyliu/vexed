@@ -360,7 +360,7 @@ The task function is bound to an object containing the bot instance and the cont
   /** Sets the credentials to use for Auto Relogin.
 After a login attempt, the client stores the username and password used to log in, regardless if successful. These fields are re-used
 when null(s) are passed. */
-  use_autorelogin(username: null | string, password: null | string, server: null | string): void;
+  use_autorelogin(username: string | null, password: string | null, server: string | null): void;
   /** Enables auto-zoning for astralshrine map. */
   use_autozone_astralshrine(): void;
   /** Enables auto-zoning for darkcarnax map. */

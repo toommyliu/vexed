@@ -51,7 +51,7 @@ Retrieves item data using its ID.
 |-----------|------|-------------|
 | itemId | `number` | The ID of the item. |
 
-**Returns**: `null` \| [`ItemData`](/api-legacy/typedefs/itemdata)
+**Returns**: [`ItemData`](/api-legacy/typedefs/itemdata) \| `null`
 
 ### getItemFromName
 Retrieves item data using its name (case-insensitive).
@@ -59,7 +59,7 @@ Retrieves item data using its name (case-insensitive).
 |-----------|------|-------------|
 | itemName | `string` | The name of the item. |
 
-**Returns**: `null` \| [`ItemData`](/api-legacy/typedefs/itemdata)
+**Returns**: [`ItemData`](/api-legacy/typedefs/itemdata) \| `null`
 
 ### getItemId
 Retrieves the ID of an item using its name.
@@ -67,7 +67,7 @@ Retrieves the ID of an item using its name.
 |-----------|------|-------------|
 | itemName | `string` | The name of the item. |
 
-**Returns**: `null` \| `number`
+**Returns**: `number` \| `null`
 
 ### getItemName
 Retrieves the name of an item using its ID.
@@ -75,7 +75,7 @@ Retrieves the name of an item using its ID.
 |-----------|------|-------------|
 | itemId | `number` | The ID of the item. |
 
-**Returns**: `null` \| `string`
+**Returns**: `string` \| `null`
 
 ### hasDrop
 Checks if an item exists in the drop stack.

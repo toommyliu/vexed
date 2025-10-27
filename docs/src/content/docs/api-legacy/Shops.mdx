@@ -12,7 +12,7 @@ Type: [`Bot`](/api-legacy/bot)
 ### info <Badge text="Getter" size="small" />	
 The info about the current loaded shop.
 
-Type: `null` \| [`ShopInfo`](/api-legacy/typedefs/shopinfo)
+Type: [`ShopInfo`](/api-legacy/typedefs/shopinfo) \| `null`
 
 ### isMergeShop <Badge text="Getter" size="small" />	
 Whether the shop is a merge shop.
@@ -35,7 +35,7 @@ Buy an item from the shop.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | itemName | `string` | The name of the item. |
-| quantity | `null` \| `number` | The quantity of the item. If not provided, it will default to 1. |
+| quantity | `number` \| `null` | The quantity of the item. If not provided, it will default to 1. |
 
 **Returns**: `Promise<void>`
 
@@ -64,7 +64,7 @@ Get a shop item by its ID.
 |-----------|------|-------------|
 | itemId | `number` | The ID of the item. |
 
-**Returns**: `null` \| [`ShopItem`](/api-legacy/models/shopitem)
+**Returns**: [`ShopItem`](/api-legacy/models/shopitem) \| `null`
 
 ### getByName
 Get a shop item by its name.
@@ -72,7 +72,7 @@ Get a shop item by its name.
 |-----------|------|-------------|
 | itemName | `string` | The name of the item. |
 
-**Returns**: `null` \| [`ShopItem`](/api-legacy/models/shopitem)
+**Returns**: [`ShopItem`](/api-legacy/models/shopitem) \| `null`
 
 ### isShopLoaded
 Whether any shop is loaded.
