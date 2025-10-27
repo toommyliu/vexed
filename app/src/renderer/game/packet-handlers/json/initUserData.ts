@@ -1,9 +1,7 @@
-import type { Bot } from "../lib/Bot";
+import type { Bot } from "../../lib/Bot";
 
 export function initUserData(bot: Bot, packet: InitUserDataPacket) {
   const username = packet.data.strUsername;
-
-  // console.log(`initUserData ${username}`, packet);
 
   if (username.toLowerCase() === bot.auth.username.toLowerCase()) {
     bot.player.hp = Number(packet.data.intHP);
@@ -12,11 +10,7 @@ export function initUserData(bot: Bot, packet: InitUserDataPacket) {
     bot.player.level = packet.data.intLevel;
   }
 
-  // console.log(`initUserData: ${username}`);
-
   bot.emit("playerJoin", username);
-
-  // console.log(`initUserData: ${username} -> ${packet.uid}`);
   bot.world.playerUids.set(username, packet.uid);
 }
 
