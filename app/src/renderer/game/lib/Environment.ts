@@ -15,11 +15,6 @@ export class Environment {
 
   private _autoRegisterRewards = false;
 
-  /**
-   * Creates an instance of Environment.
-   *
-   * @param bot - The bot instance associated with this environment.
-   */
   public constructor(public readonly bot: Bot) {}
 
   /**
