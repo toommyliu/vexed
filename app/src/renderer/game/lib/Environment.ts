@@ -1,4 +1,4 @@
-import type { EnvironmentState, EnvironmentUpdatePayload } from "@shared/types";
+import type { EnvironmentUpdatePayload } from "@shared/types";
 import { normalizeId } from "../util/normalizeId";
 import type { Bot } from "./Bot";
 

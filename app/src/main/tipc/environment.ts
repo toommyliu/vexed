@@ -39,8 +39,10 @@ function applyUpdate(payload: EnvironmentUpdatePayload): void {
     itemNames: normalizedItemNames,
     boosts: normalizedBoosts,
     rejectElse: payload.rejectElse ?? state.rejectElse,
-    autoRegisterRequirements: payload.autoRegisterRequirements ?? state.autoRegisterRequirements,
-    autoRegisterRewards: payload.autoRegisterRewards ?? state.autoRegisterRewards,
+    autoRegisterRequirements:
+      payload.autoRegisterRequirements ?? state.autoRegisterRequirements,
+    autoRegisterRewards:
+      payload.autoRegisterRewards ?? state.autoRegisterRewards,
   };
 }
 
