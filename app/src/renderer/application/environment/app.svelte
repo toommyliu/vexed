@@ -364,6 +364,14 @@
 
   onMount(() => {
     void initializeState();
+
+    // for (let i = 0; i < 1000; i++) {
+    //   const randomId = Math.floor(Math.random() * 10000) + 1;
+    //   if (!questIds.includes(randomId))
+    //   questIds = [...questIds, randomId].sort((a, b) => a - b);
+    // }
+
+    void syncEnvironment();
   });
 
   handlers.environment.stateChanged.listen((state) => {
@@ -380,7 +388,7 @@
         class="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8 lg:grid-cols-3 lg:gap-8"
       >
         <section
-          class="flex flex-col rounded-md border border-gray-800/50 bg-background-secondary p-4 backdrop-blur-sm"
+          class="flex max-h-96 flex-col rounded-md border border-gray-800/50 bg-background-secondary p-4 backdrop-blur-sm"
         >
           <div class="flex items-center justify-between">
             <div>
@@ -399,7 +407,7 @@
           </div>
 
           <form
-            class="mt-6 flex items-center space-x-2"
+            class="mt-6 flex flex-shrink-0 items-center space-x-2"
             onsubmit={handleQuestSubmit}
           >
             <input
@@ -420,8 +428,8 @@
             </button>
           </form>
 
-          <div class="no-scrollbar flex-1 overflow-auto">
-            <div class="mt-4 flex flex-wrap">
+          <div class="no-scrollbar mt-4 min-h-0 flex-1 overflow-y-auto">
+            <div class="flex flex-wrap">
               {#if questIds.length}
                 {#each questIds as questId (questId)}
                   <span
@@ -443,7 +451,7 @@
           </div>
 
           <div
-            class="mt-6 flex flex-col space-y-3 border-t border-gray-800/40 pt-4"
+            class="mt-6 flex flex-shrink-0 space-x-3 border-t border-gray-800/40 pt-4"
           >
             <label class="flex items-center space-x-2 text-xs text-gray-300">
               <input
@@ -477,9 +485,9 @@
         </section>
 
         <section
-          class="flex flex-col rounded-md border border-gray-800/50 bg-background-secondary p-4 backdrop-blur-sm"
+          class="flex max-h-96 flex-col rounded-md border border-gray-800/50 bg-background-secondary p-4 backdrop-blur-sm"
         >
-          <div class="flex items-center justify-between">
+          <div class="flex flex-shrink-0 items-center justify-between">
             <div>
               <h2 class="text-lg font-medium text-white">Drops</h2>
             </div>
@@ -496,7 +504,7 @@
           </div>
 
           <form
-            class="mt-6 flex items-center space-x-2"
+            class="mt-6 flex flex-shrink-0 items-center space-x-2"
             onsubmit={handleDropSubmit}
           >
             <input
@@ -519,8 +527,8 @@
             </button>
           </form>
 
-          <div class="no-scrollbar flex-1 overflow-auto">
-            <div class="mt-4 flex flex-wrap">
+          <div class="no-scrollbar mt-4 min-h-0 flex-1 overflow-y-auto">
+            <div class="flex flex-wrap">
               {#if dropItems.length}
                 {#each dropItems as drop (drop)}
                   <span
@@ -542,7 +550,7 @@
           </div>
 
           <div
-            class="mt-6 flex flex-wrap items-center justify-between space-x-3 space-y-3 border-t border-gray-800/40 pt-4"
+            class="mt-6 flex flex-shrink-0 flex-wrap items-center justify-between space-x-3 space-y-3 border-t border-gray-800/40 pt-4"
           >
             <label class="flex items-center space-x-2 text-xs text-gray-300">
               <input
@@ -559,7 +567,7 @@
         </section>
 
         <section
-          class="flex flex-col rounded-md border border-gray-800/50 bg-background-secondary p-4 backdrop-blur-sm"
+          class="flex max-h-96 flex-col rounded-md border border-gray-800/50 bg-background-secondary p-4 backdrop-blur-sm"
         >
           <div class="flex items-center justify-between">
             <div>
@@ -592,7 +600,7 @@
           </div>
 
           <form
-            class="mt-6 flex items-center space-x-2"
+            class="mt-6 flex flex-shrink-0 items-center space-x-2"
             onsubmit={handleBoostSubmit}
           >
             <input
@@ -615,8 +623,8 @@
             </button>
           </form>
 
-          <div class="no-scrollbar flex-1 overflow-auto">
-            <div class="mt-4 flex flex-wrap">
+          <div class="no-scrollbar mt-4 min-h-0 flex-1 overflow-y-auto">
+            <div class="flex flex-wrap">
               {#if boostItems.length}
                 {#each boostItems as boost (boost)}
                   <span
@@ -637,7 +645,7 @@
             </div>
           </div>
 
-          <div class="mt-6"></div>
+          <div class="mt-6 flex-shrink-0"></div>
         </section>
       </div>
     </div>
