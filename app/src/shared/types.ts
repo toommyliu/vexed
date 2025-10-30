@@ -63,11 +63,29 @@ export type Settings = {
   launchMode: "game" | "manager";
 };
 
+export type EnvironmentState = {
+  autoRegisterDrops: boolean;
+  boosts: string[];
+  itemNames: string[];
+  questIds: number[];
+  rejectElse: boolean;
+};
+
+export type EnvironmentUpdatePayload = {
+  autoRegisterDrops?: boolean;
+  boosts?: string[];
+  itemNames: string[];
+  questIds: (number | string)[];
+  rejectElse: boolean;
+};
+
 export enum WindowIds {
   AppLogs = "app-logs",
+  Environment = "app-environment",
   FastTravels = "tools-fast-travels",
+
   Follower = "tools-follower",
-  Hotkeys = "tools-hotkeys",
+  Hotkeys = "app-hotkeys",
 
   LoaderGrabber = "tools-loader-grabber",
 
@@ -86,6 +104,7 @@ export type AppLogEntry = {
 export type HotkeyConfig = {
   Application?: {
     "Open App Logs"?: string;
+    "Open Environment"?: string;
   };
   General?: {
     "Toggle Bank"?: string;

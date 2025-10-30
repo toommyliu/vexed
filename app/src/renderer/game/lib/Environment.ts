@@ -1,10 +1,8 @@
-import { TypedEmitter } from "tiny-typed-emitter";
+import type { EnvironmentState, EnvironmentUpdatePayload } from "@shared/types";
 import { normalizeId } from "../util/normalizeId";
 import type { Bot } from "./Bot";
 
-type Events = object;
-
-export class Environment extends TypedEmitter<Events> {
+export class Environment {
   private _questIds = new Set<number>();
 
   private _itemNames = new Set<string>();
@@ -13,12 +11,102 @@ export class Environment extends TypedEmitter<Events> {
 
   private _rejectElse = false;
 
-  public constructor(public bot: Bot) {
-    super();
+  private _autoRegisterDrops = false;
+
+  /**
+   * Creates an instance of Environment.
+   *
+   * @param bot - The bot instance associated with this environment.
+   */
+  public constructor(public readonly bot: Bot) {}
+
+  /**
+   * Gets the set of quest IDs.
+   *
+   * @returns The readonly set of quest IDs.
+   */
+  public get questIds(): ReadonlySet<number> {
+    return this._questIds;
   }
 
-  public get questIds() {
-    return this._questIds;
+  /**
+   * Gets the set of item names.
+   *
+   * @returns The readonly set of item names.
+   */
+  public get itemNames(): ReadonlySet<string> {
+    return this._itemNames;
+  }
+
+  /**
+   * Gets the set of boosts.
+   *
+   * @returns The readonly set of boosts.
+   */
+  public get boosts(): ReadonlySet<string> {
+    return this._boosts;
+  }
+
+  /**
+   * Gets the reject else flag.
+   *
+   * @returns The reject else boolean value.
+   */
+  public get rejectElse(): boolean {
+    return this._rejectElse;
+  }
+
+  /**
+   * Sets the reject else flag.
+   *
+   * @param rejectElse - The reject else value to set.
+   */
+  public set rejectElse(rejectElse: boolean) {
+    this._rejectElse = rejectElse;
+  }
+
+  /**
+   * Gets the auto register drops flag.
+   *
+   * @returns The auto register drops boolean value.
+   */
+  public get autoRegisterDrops(): boolean {
+    return this._autoRegisterDrops;
+  }
+
+  /**
+   * Updates the environment state with the given update payload.
+   *
+   * @param update - the update payload
+   */
+  public applyUpdate(update: EnvironmentUpdatePayload): void {
+    this.setQuestIds(update.questIds);
+    this.setItemNames(update.itemNames);
+
+    if (update.rejectElse !== undefined) this.rejectElse = update.rejectElse;
+    if (update.boosts !== undefined) this.setBoosts(update.boosts);
+    if (update.autoRegisterDrops !== undefined)
+      this._autoRegisterDrops = update.autoRegisterDrops;
+  }
+
+  /**
+   * Sets the quest IDs.
+   *
+   * @param questIds - the quest IDs to set
+   */
+  private setQuestIds(questIds: (number | string)[]): void {
+    const normalized = new Set<number>();
+    for (const questId of questIds) {
+      const parsedQuestId = normalizeId(questId);
+      if (parsedQuestId === -1) continue;
+
+      normalized.add(parsedQuestId);
+    }
+
+    this._questIds.clear();
+    for (const questId of normalized) {
+      this._questIds.add(questId);
+    }
   }
 
   /**
@@ -28,9 +116,9 @@ export class Environment extends TypedEmitter<Events> {
    */
   public addQuestId(questId: number | string): void {
     const parsedQuestId = normalizeId(questId);
-    if (parsedQuestId !== null && !this._questIds.has(parsedQuestId)) {
-      this._questIds.add(parsedQuestId);
-    }
+    if (parsedQuestId === -1 || this._questIds.has(parsedQuestId)) return;
+
+    this._questIds.add(parsedQuestId);
   }
 
   /**
@@ -40,47 +128,41 @@ export class Environment extends TypedEmitter<Events> {
    */
   public removeQuestId(questId: number | string): void {
     const parsedQuestId = normalizeId(questId);
-    if (parsedQuestId !== null) {
-      this._questIds.delete(parsedQuestId);
-    }
+    if (parsedQuestId === -1) return;
+
+    this._questIds.delete(parsedQuestId);
   }
 
   /**
-   * Checks if a quest ID is in the environment.
+   * Sets the item names.
    *
-   * @param questId - The quest ID to check.
-   * @returns True if the quest ID is in the environment, false otherwise.
+   * @param itemNames - The item names to set.
    */
-  public hasQuestId(questId: number | string): boolean {
-    const parsedQuestId = normalizeId(questId);
-    return parsedQuestId !== null && this._questIds.has(parsedQuestId);
-  }
+  private setItemNames(itemNames: Iterable<string>): void {
+    const sanitized = new Set<string>();
+    for (const item of itemNames) {
+      const trimmed = item.trim();
+      if (trimmed) sanitized.add(trimmed);
+    }
 
-  /**
-   * Getter for the current item names to pickup.
-   */
-  public get itemNames() {
-    return this._itemNames;
-  }
-
-  /**
-   * Getter for the current boosts to watch/use.
-   */
-  public get boosts() {
-    return this._boosts;
+    this._itemNames.clear();
+    for (const item of sanitized) {
+      this._itemNames.add(item);
+    }
   }
 
   /**
    * Adds an item name to the environment.
    *
    * @param itemName - The item name to add.
-   * @param rejectElse - Whether to reject other items.
+   * @param rejectElse - Whether to reject else.
    */
-  public addItemName(itemName: string, rejectElse = false): void {
-    if (!this._itemNames.has(itemName) || this._rejectElse !== rejectElse) {
-      this._itemNames.add(itemName);
-      this._rejectElse = rejectElse;
-    }
+  public addItemName(itemName: string, rejectElse = this._rejectElse): void {
+    const trimmed = itemName.trim();
+    if (!trimmed) return;
+
+    this._itemNames.add(trimmed);
+    this._rejectElse = rejectElse;
   }
 
   /**
@@ -89,42 +171,71 @@ export class Environment extends TypedEmitter<Events> {
    * @param itemName - The item name to remove.
    */
   public removeItemName(itemName: string): void {
-    this._itemNames.delete(itemName);
+    const trimmed = itemName.trim();
+    if (!trimmed) return;
+
+    this._itemNames.delete(trimmed);
   }
 
   /**
-   * Adds a boost item name to the environment.
-   * Emits `boostsChanged` when the set is modified.
-   */
-  public addBoost(boostName: string): void {
-    this._boosts.add(boostName);
-  }
-
-  /**
-   * Removes a boost item name from the environment.
-   */
-  public removeBoost(boostName: string): void {
-    this._boosts.delete(boostName);
-  }
-
-  /**
-   * Checks if a boost item name is in the environment.
-   */
-  public hasBoost(boostName: string): boolean {
-    return this._boosts.has(boostName);
-  }
-
-  /**
-   * Checks if an item name is in the environment.
+   * Checks if the environment has the specified item name.
    *
    * @param itemName - The item name to check.
-   * @returns True if the item name is in the environment, false otherwise.
+   * @returns True if the item name exists, false otherwise.
    */
   public hasItemName(itemName: string): boolean {
     return this._itemNames.has(itemName);
   }
 
-  public get rejectElse(): boolean {
-    return this._rejectElse;
+  /**
+   * Sets the boosts.
+   *
+   * @param boosts - The boosts to set.
+   */
+  private setBoosts(boosts: Iterable<string>): void {
+    const sanitized = new Set<string>();
+    for (const boost of boosts) {
+      const trimmed = boost.trim();
+      if (trimmed) sanitized.add(trimmed);
+    }
+
+    this._boosts.clear();
+    for (const boost of sanitized) {
+      this._boosts.add(boost);
+    }
+  }
+
+  /**
+   * Adds a boost to the environment.
+   *
+   * @param boostName - The boost name to add.
+   */
+  public addBoost(boostName: string): void {
+    const trimmed = boostName.trim();
+    if (!trimmed || this._boosts.has(trimmed)) return;
+
+    this._boosts.add(trimmed);
+  }
+
+  /**
+   * Removes a boost from the environment.
+   *
+   * @param boostName - The boost name to remove.
+   */
+  public removeBoost(boostName: string): void {
+    const trimmed = boostName.trim();
+    if (!trimmed) return;
+
+    this._boosts.delete(trimmed);
+  }
+
+  /**
+   * Checks if the environment has the specified boost.
+   *
+   * @param boostName - The boost name to check.
+   * @returns True if the boost exists, false otherwise.
+   */
+  public hasBoost(boostName: string): boolean {
+    return this._boosts.has(boostName);
   }
 }

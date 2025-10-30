@@ -25,6 +25,12 @@ export function createGameTipcRouter(tipcInstance: TipcInstance) {
         let height: number;
 
         switch (input) {
+          case WindowIds.Environment:
+            ref = storeRef.app.environment;
+            path = join(DIST_PATH, "application", "environment", "index.html");
+            width = 783;
+            height = 520;
+            break;
           case WindowIds.AppLogs:
             ref = storeRef.app.logs;
             path = join(DIST_PATH, "application", "logs", "index.html");
@@ -79,6 +85,7 @@ export function createGameTipcRouter(tipcInstance: TipcInstance) {
             contextIsolation: false,
             nodeIntegration: true,
           },
+          useContentSize: true,
           parent: browserWindow,
           width: width!,
           minWidth: width!,
@@ -89,40 +96,29 @@ export function createGameTipcRouter(tipcInstance: TipcInstance) {
         });
 
         switch (input) {
+          case WindowIds.Environment:
+            storeRef.app.environment = window;
+            break;
           case WindowIds.AppLogs:
             storeRef.app.logs = window;
-            width = 860;
-            height = 560;
             break;
           case WindowIds.Hotkeys:
             storeRef.app.hotkeys = window;
-            width = 600;
-            height = 400;
             break;
           case WindowIds.FastTravels:
             storeRef.tools.fastTravels = window;
-            width = 670;
-            height = 527;
             break;
           case WindowIds.LoaderGrabber:
             storeRef.tools.loaderGrabber = window;
-            width = 800;
-            height = 517;
             break;
           case WindowIds.Follower:
             storeRef.tools.follower = window;
-            width = 927;
-            height = 646;
             break;
           case WindowIds.PacketLogger:
             storeRef.packets.logger = window;
-            width = 797;
-            height = 523;
             break;
           case WindowIds.PacketSpammer:
             storeRef.packets.spammer = window;
-            width = 608;
-            height = 403;
             break;
         }
 
@@ -134,12 +130,6 @@ export function createGameTipcRouter(tipcInstance: TipcInstance) {
         window.on("close", (ev) => {
           ev.preventDefault();
           window.hide();
-        });
-
-        window.on("closed", () => {
-          if (storeRef.app.logs === window) {
-            storeRef.app.logs = null;
-          }
         });
 
         if (input === WindowIds.AppLogs) {

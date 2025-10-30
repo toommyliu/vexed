@@ -8,18 +8,22 @@ export class BoostsJob extends Job {
   }
 
   public async execute(): Promise<void> {
-    const boosts = Array.from(this.bot.environment.boosts);
-    if (boosts.length === 0) return;
+    if (this.bot.environment.boosts.size === 0) return;
 
-    for (const boost of boosts) {
+    for (const boost of this.bot.environment.boosts) {
       const variant = this.resolveBoostType(boost);
       if (!variant) continue;
 
       const item = this.bot.inventory.get(boost);
-      if (!item || item.data.sType !== "ServerUse") continue;
+      if (item?.data.sType !== "ServerUse") continue;
 
-      if (!this.bot.player.isBoostActive(variant))
-        this.bot.flash.call(() => swf.playerUseBoost(item.id));
+      if (this.bot.player.isBoostActive(variant)) {
+        console.log(`boost already active: ${variant}`);
+        continue;
+      }
+
+      // this.bot.flash.call(() => swf.playerUseBoost(item.id));
+      console.log(`using boost: ${item.name}`);
     }
   }
 

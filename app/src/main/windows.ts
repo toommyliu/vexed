@@ -106,6 +106,7 @@ export async function createGame(
 
   windowStore.set(window.id, {
     app: {
+      environment: null,
       logHistory,
       logs: null,
       hotkeys: null,
@@ -177,6 +178,7 @@ export async function createGame(
     const windows = windowStore.get(window?.id);
     if (windows) {
       const toClose = [
+        windows.app.environment,
         windows.app.logs,
         ...Object.values(windows.tools),
         ...Object.values(windows.packets),
@@ -201,6 +203,7 @@ export type WindowStore = Map<
   number,
   {
     app: {
+      environment: BrowserWindow | null;
       hotkeys: BrowserWindow | null;
       logHistory: AppLogEntry[];
       logs: BrowserWindow | null;

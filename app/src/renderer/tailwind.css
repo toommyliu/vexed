@@ -9,6 +9,12 @@
   }
 }
 
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 body {
   color: white !important;
   font-family:

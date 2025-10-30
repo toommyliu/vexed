@@ -1,5 +1,8 @@
+import log from "electron-log";
 import type { Bot } from "./Bot";
 import type { Job } from "./jobs/Job";
+
+const logger = log.scope("game/Scheduler");
 
 export class Scheduler {
   private jobs: Map<string, Job> = new Map();
@@ -75,7 +78,7 @@ export class Scheduler {
         try {
           await job.execute();
         } catch (error) {
-          console.error(`Error executing job ${job.id}:`, error);
+          logger.error(`Error executing job ${job.id}:`, error);
         }
 
         await this.bot.sleep(250);

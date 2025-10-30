@@ -90,6 +90,7 @@ export const DEFAULT_HOTKEYS: HotkeyConfig = {
   },
   Application: {
     "Open App Logs": IS_MAC ? "command+shift+l" : "ctrl+shift+l",
+    "Open Environment": IS_MAC ? "command+e" : "ctrl+e",
   },
   Scripts: {
     "Load Script": "",

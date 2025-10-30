@@ -13,11 +13,19 @@
   import { onMount, onDestroy } from "svelte";
   import type { HotkeyConfig } from "@shared/types";
   import Mousetrap from "mousetrap";
-  import { createHotkeyConfig, isValidHotkey } from "../application/hotkeys/utils";
+  import {
+    createHotkeyConfig,
+    isValidHotkey,
+  } from "../application/hotkeys/utils";
   import type { HotkeySection } from "../application/hotkeys/types";
   import { interval } from "@vexed/utils";
   import Config from "@vexed/config";
-  import { DEFAULT_HOTKEYS, DOCUMENTS_PATH, IS_WINDOWS, IS_MAC } from "@shared/constants";
+  import {
+    DEFAULT_HOTKEYS,
+    DOCUMENTS_PATH,
+    IS_WINDOWS,
+    IS_MAC,
+  } from "@shared/constants";
   import { parseSkillString } from "./util/skillParser";
   import log from "electron-log";
 
@@ -238,6 +246,10 @@
         void client.game.launchWindow(WindowIds.AppLogs);
         break;
 
+      case "open-environment":
+        void client.game.launchWindow(WindowIds.Environment);
+        break;
+
       case "open-loader-grabber":
         void client.game.launchWindow(WindowIds.LoaderGrabber);
         break;
@@ -309,6 +321,7 @@
     swfPath = ret;
 
     await import("./tipc/tipc-fast-travels");
+    await import("./tipc/tipc-environment");
     await import("./tipc/tipc-follower");
     await import("./tipc/tipc-loader-grabber");
     await import("./tipc/tipc-packet-logger");
@@ -332,6 +345,21 @@
       for (const [className, skillList] of Object.entries(skillSets)) {
         const res = parseSkillString(skillList);
         if (res) appState.skillSets.set(className.toUpperCase(), res);
+      }
+
+      try {
+        const state = await client.environment.getState();
+        bot.environment.applyUpdate({
+          questIds: state.questIds,
+          itemNames: state.itemNames,
+          boosts: state.boosts,
+          rejectElse: state.rejectElse,
+          autoRegisterDrops: state.autoRegisterDrops,
+        });
+
+        logger.info("synced state", state);
+      } catch (error) {
+        logger.error("Failed to sync environment.", error);
       }
     },
     { once: true },
@@ -421,6 +449,11 @@
           >
             <button
               class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 first:rounded-t-lg hover:bg-gray-700/50"
+              onclick={(ev) => {
+                ev.stopPropagation();
+                openDropdown = null;
+                void client.game.launchWindow(WindowIds.Environment);
+              }}
             >
               Environment
             </button>
@@ -537,7 +570,6 @@
               >
                 Follower
               </button>
-            
             </div>
           </div>
 
