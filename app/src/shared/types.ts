@@ -64,7 +64,8 @@ export type Settings = {
 };
 
 export type EnvironmentState = {
-  autoRegisterDrops: boolean;
+  autoRegisterRequirements: boolean;
+  autoRegisterRewards: boolean;
   boosts: string[];
   itemNames: string[];
   questIds: number[];
@@ -72,7 +73,8 @@ export type EnvironmentState = {
 };
 
 export type EnvironmentUpdatePayload = {
-  autoRegisterDrops?: boolean;
+  autoRegisterRequirements?: boolean;
+  autoRegisterRewards?: boolean;
   boosts?: string[];
   itemNames: string[];
   questIds: (number | string)[];

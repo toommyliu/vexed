@@ -8,7 +8,8 @@ import type { RendererHandlers } from "../tipc";
 import { windowStore } from "../windows";
 
 const EMPTY_STATE: EnvironmentState = {
-  autoRegisterDrops: false,
+  autoRegisterRequirements: false,
+  autoRegisterRewards: false,
   boosts: [],
   itemNames: [],
   questIds: [],
@@ -38,7 +39,8 @@ function applyUpdate(payload: EnvironmentUpdatePayload): void {
     itemNames: normalizedItemNames,
     boosts: normalizedBoosts,
     rejectElse: payload.rejectElse ?? state.rejectElse,
-    autoRegisterDrops: payload.autoRegisterDrops ?? state.autoRegisterDrops,
+    autoRegisterRequirements: payload.autoRegisterRequirements ?? state.autoRegisterRequirements,
+    autoRegisterRewards: payload.autoRegisterRewards ?? state.autoRegisterRewards,
   };
 }
 

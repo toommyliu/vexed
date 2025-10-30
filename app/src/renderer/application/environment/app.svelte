@@ -15,7 +15,8 @@
   let dropItems = $state<string[]>([]);
   let boostItems = $state<string[]>([]);
   let rejectElse = $state(false);
-  let autoRegisterDrops = $state(false);
+  let autoRegisterRequirements = $state(false);
+  let autoRegisterRewards = $state(false);
   let isSyncing = $state(false);
   let pendingSync = false;
 
@@ -60,7 +61,8 @@
       areArraysEqual(dropItems, normalizedDrops) &&
       areArraysEqual(boostItems, normalizedBoosts) &&
       rejectElse === normalizedRejectElse &&
-      autoRegisterDrops === state.autoRegisterDrops;
+      autoRegisterRequirements === state.autoRegisterRequirements &&
+      autoRegisterRewards === state.autoRegisterRewards;
 
     if (isSame) return false;
 
@@ -68,7 +70,8 @@
     dropItems = normalizedDrops;
     boostItems = normalizedBoosts;
     rejectElse = normalizedRejectElse;
-    autoRegisterDrops = state.autoRegisterDrops;
+    autoRegisterRequirements = state.autoRegisterRequirements;
+    autoRegisterRewards = state.autoRegisterRewards;
 
     return true;
   }
@@ -78,7 +81,8 @@
     dropItems: string[],
     boostItems: string[],
     rejectElse: boolean,
-    autoRegisterDrops: boolean,
+    autoRegisterRequirements: boolean,
+    autoRegisterRewards: boolean,
   ) {
     const normalizedQuestIds = [...questIds].sort((a, b) => a - b);
 
@@ -112,7 +116,8 @@
       itemNames: normalizedDrops,
       boosts: normalizedBoosts,
       rejectElse: Boolean(rejectElse),
-      autoRegisterDrops,
+      autoRegisterRequirements,
+      autoRegisterRewards,
     };
   }
 
@@ -137,7 +142,8 @@
       dropItems,
       boostItems,
       rejectElse,
-      autoRegisterDrops,
+      autoRegisterRequirements,
+      autoRegisterRewards,
     );
 
     isSyncing = true;
@@ -342,10 +348,17 @@
     }
   }
 
-  function updateAutoRegisterDrops(checked: boolean) {
-    if (autoRegisterDrops === checked) return;
+  function updateAutoRegisterRequirements(checked: boolean) {
+    if (autoRegisterRequirements === checked) return;
 
-    autoRegisterDrops = checked;
+    autoRegisterRequirements = checked;
+    void syncEnvironment();
+  }
+
+  function updateAutoRegisterRewards(checked: boolean) {
+    if (autoRegisterRewards === checked) return;
+
+    autoRegisterRewards = checked;
     void syncEnvironment();
   }
 
@@ -430,21 +443,35 @@
           </div>
 
           <div
-            class="mt-6 flex flex-wrap items-center justify-between space-x-3 space-y-3 border-t border-gray-800/40 pt-4"
+            class="mt-6 flex flex-col space-y-3 border-t border-gray-800/40 pt-4"
           >
             <label class="flex items-center space-x-2 text-xs text-gray-300">
               <input
                 type="checkbox"
                 class="h-4 w-4 rounded border-gray-700/50 bg-gray-800/50 text-blue-500 shadow-inner focus:ring-2 focus:ring-blue-500/20"
-                checked={autoRegisterDrops}
+                checked={autoRegisterRequirements}
                 disabled={isSyncing}
                 onchange={(ev) =>
-                  updateAutoRegisterDrops(
+                  updateAutoRegisterRequirements(
                     (ev.target as HTMLInputElement).checked,
                   )}
                 title="Automatically adds all quest-required items to the drop list when a quest is added."
               />
-              <span>Auto register drops</span>
+              <span>Auto register requirements</span>
+            </label>
+            <label class="flex items-center space-x-2 text-xs text-gray-300">
+              <input
+                type="checkbox"
+                class="h-4 w-4 rounded border-gray-700/50 bg-gray-800/50 text-blue-500 shadow-inner focus:ring-2 focus:ring-blue-500/20"
+                checked={autoRegisterRewards}
+                disabled={isSyncing}
+                onchange={(ev) =>
+                  updateAutoRegisterRewards(
+                    (ev.target as HTMLInputElement).checked,
+                  )}
+                title="Automatically adds all quest reward items to the drop list when a quest is added."
+              />
+              <span>Auto register rewards</span>
             </label>
           </div>
         </section>

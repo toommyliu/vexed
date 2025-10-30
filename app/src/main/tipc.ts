@@ -55,6 +55,7 @@ export type RendererHandlers = {
     stateChanged(input: EnvironmentState): void;
     grabBoosts(): Promise<string[]>;
     grabBoostsResponse(input: { boosts: string[] }): void;
+    grabBoostsResponse(input: { boosts: string[] }): void;
   };
 
   game: {

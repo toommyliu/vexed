@@ -10,7 +10,8 @@ handlers.environment.stateChanged.listen((state: EnvironmentState) => {
     itemNames: state.itemNames,
     boosts: state.boosts,
     rejectElse: state.rejectElse,
-    autoRegisterDrops: state.autoRegisterDrops,
+    autoRegisterRequirements: state.autoRegisterRequirements,
+    autoRegisterRewards: state.autoRegisterRewards,
   });
 });
 

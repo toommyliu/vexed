@@ -16,13 +16,12 @@ export class QuestsJob extends Job {
         void this.bot.quests.load(questId);
       }
 
-      if (this.bot.environment.autoRegisterDrops) {
+      if (this.bot.environment.autoRegisterRequirements) {
         const quest = this.bot.quests.get(questId);
         if (quest) {
-          const items = Object.values(quest.data.oItems).reduce<string[]>(
-            (acc, item) => {
-              if (item.bTemp === 1) return acc;
-              acc.push(item.sName);
+          const items = quest.requirements.reduce<string[]>(
+            (acc, req) => {
+              acc.push(req.itemName);
               return acc;
             },
             [],
@@ -35,7 +34,33 @@ export class QuestsJob extends Job {
               itemNames: Array.from(this.bot.environment.itemNames),
               boosts: Array.from(this.bot.environment.boosts),
               rejectElse: this.bot.environment.rejectElse,
-              autoRegisterDrops: this.bot.environment.autoRegisterDrops,
+              autoRegisterRequirements: this.bot.environment.autoRegisterRequirements,
+              autoRegisterRewards: this.bot.environment.autoRegisterRewards,
+            });
+          }
+        }
+      }
+
+      if (this.bot.environment.autoRegisterRewards) {
+        const quest = this.bot.quests.get(questId);
+        if (quest) {
+          const items = quest.rewards.reduce<string[]>(
+            (acc, reward) => {
+              acc.push(reward.itemName);
+              return acc;
+            },
+            [],
+          );
+
+          for (const itemName of items) {
+            this.bot.environment.addItemName(itemName);
+            void client.environment.updateState({
+              questIds: Array.from(this.bot.environment.questIds),
+              itemNames: Array.from(this.bot.environment.itemNames),
+              boosts: Array.from(this.bot.environment.boosts),
+              rejectElse: this.bot.environment.rejectElse,
+              autoRegisterRequirements: this.bot.environment.autoRegisterRequirements,
+              autoRegisterRewards: this.bot.environment.autoRegisterRewards,
             });
           }
         }

@@ -11,7 +11,9 @@ export class Environment {
 
   private _rejectElse = false;
 
-  private _autoRegisterDrops = false;
+  private _autoRegisterRequirements = false;
+
+  private _autoRegisterRewards = false;
 
   /**
    * Creates an instance of Environment.
@@ -66,12 +68,21 @@ export class Environment {
   }
 
   /**
-   * Gets the auto register drops flag.
+   * Gets the auto register requirements flag.
    *
-   * @returns The auto register drops boolean value.
+   * @returns The auto register requirements boolean value.
    */
-  public get autoRegisterDrops(): boolean {
-    return this._autoRegisterDrops;
+  public get autoRegisterRequirements(): boolean {
+    return this._autoRegisterRequirements;
+  }
+
+  /**
+   * Gets the auto register rewards flag.
+   *
+   * @returns The auto register rewards boolean value.
+   */
+  public get autoRegisterRewards(): boolean {
+    return this._autoRegisterRewards;
   }
 
   /**
@@ -85,8 +96,10 @@ export class Environment {
 
     if (update.rejectElse !== undefined) this.rejectElse = update.rejectElse;
     if (update.boosts !== undefined) this.setBoosts(update.boosts);
-    if (update.autoRegisterDrops !== undefined)
-      this._autoRegisterDrops = update.autoRegisterDrops;
+    if (update.autoRegisterRequirements !== undefined)
+      this._autoRegisterRequirements = update.autoRegisterRequirements;
+    if (update.autoRegisterRewards !== undefined)
+      this._autoRegisterRewards = update.autoRegisterRewards;
   }
 
   /**
