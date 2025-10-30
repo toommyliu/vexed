@@ -159,7 +159,7 @@ export class Environment {
    */
   public addItemName(itemName: string, rejectElse = this._rejectElse): void {
     const trimmed = itemName.trim();
-    if (!trimmed) return;
+    if (!trimmed || this._itemNames.has(trimmed)) return;
 
     this._itemNames.add(trimmed);
     this._rejectElse = rejectElse;
