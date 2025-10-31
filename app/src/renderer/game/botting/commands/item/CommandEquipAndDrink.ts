@@ -1,6 +1,6 @@
 import { Command } from "@botting/command";
 
-export class CommandEquipAndDrink extends Command {
+export class CommandDrinkConsumables extends Command {
   public items!: string[];
 
   public override async execute() {
@@ -17,6 +17,10 @@ export class CommandEquipAndDrink extends Command {
   }
 
   public override toString() {
-    return `Equip and drink: ${this.items.join(", ")}`;
+    if (this.items.length === 1) {
+        return `Drink consumable: ${this.items[0]}`;
+    }
+
+    return `Drink consumables: ${this.items.join(", ")}`;
   }
 }
