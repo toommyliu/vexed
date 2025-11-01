@@ -462,7 +462,7 @@
                   updateAutoRegisterRequirements(
                     (ev.target as HTMLInputElement).checked,
                   )}
-                title="Automatically adds all quest-required items to the drop list when a quest is added."
+                title="Automatically adds all quest-required items to the drop list."
               />
               <span class="whitespace-nowrap">Auto register requirements</span>
             </label>
@@ -476,7 +476,7 @@
                   updateAutoRegisterRewards(
                     (ev.target as HTMLInputElement).checked,
                   )}
-                title="Automatically adds all quest reward items to the drop list when a quest is added."
+                title="Automatically adds all quest reward items to the drop list."
               />
               <span class="whitespace-nowrap">Auto register rewards</span>
             </label>
