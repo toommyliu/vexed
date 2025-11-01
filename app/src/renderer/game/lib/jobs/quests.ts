@@ -6,6 +6,8 @@ import { Job } from "./Job";
 export class QuestsJob extends Job {
   #mutex = new Mutex();
 
+  #registeredQuestIds = new Set<number>();
+
   public constructor(private readonly bot: Bot) {
     super("quests", 2);
   }
@@ -20,69 +22,58 @@ export class QuestsJob extends Job {
           await this.bot.quests.load(questId);
         }
 
-        if (this.bot.environment.autoRegisterRequirements) {
-          const quest = this.bot.quests.get(questId);
-          if (quest) {
-            const items = quest.requirements.reduce<string[]>((acc, req) => {
-              acc.push(req.itemName);
-              return acc;
-            }, []);
+        const quest = this.bot.quests.get(questId);
+        if (quest && !this.#registeredQuestIds.has(questId)) {
+          const toRegister = new Set<string>();
 
-            for (const itemName of items) {
+          if (this.bot.environment.autoRegisterRequirements) {
+            for (const req of quest.requirements) toRegister.add(req.itemName);
+          }
+
+          if (this.bot.environment.autoRegisterRewards) {
+            for (const reward of quest.rewards) toRegister.add(reward.itemName);
+          }
+
+          if (toRegister.size > 0) {
+            for (const itemName of toRegister) {
               this.bot.environment.addItemName(itemName);
-              void client.environment.updateState({
-                questIds: Array.from(this.bot.environment.questIds),
-                itemNames: Array.from(this.bot.environment.itemNames),
-                boosts: Array.from(this.bot.environment.boosts),
-                rejectElse: this.bot.environment.rejectElse,
-                autoRegisterRequirements:
-                  this.bot.environment.autoRegisterRequirements,
-                autoRegisterRewards: this.bot.environment.autoRegisterRewards,
-              });
             }
+
+            this.#registeredQuestIds.add(questId);
+
+            await client.environment.updateState({
+              questIds: Array.from(this.bot.environment.questIds),
+              itemNames: Array.from(this.bot.environment.itemNames),
+              boosts: Array.from(this.bot.environment.boosts),
+              rejectElse: this.bot.environment.rejectElse,
+              autoRegisterRequirements:
+                this.bot.environment.autoRegisterRequirements,
+              autoRegisterRewards: this.bot.environment.autoRegisterRewards,
+            });
           }
         }
 
-        if (this.bot.environment.autoRegisterRewards) {
-          const quest = this.bot.quests.get(questId);
-          if (quest) {
-            const items = quest.rewards.reduce<string[]>((acc, reward) => {
-              acc.push(reward.itemName);
-              return acc;
-            }, []);
-
-            for (const itemName of items) {
-              this.bot.environment.addItemName(itemName);
-              void client.environment.updateState({
-                questIds: Array.from(this.bot.environment.questIds),
-                itemNames: Array.from(this.bot.environment.itemNames),
-                boosts: Array.from(this.bot.environment.boosts),
-                rejectElse: this.bot.environment.rejectElse,
-                autoRegisterRequirements:
-                  this.bot.environment.autoRegisterRequirements,
-                autoRegisterRewards: this.bot.environment.autoRegisterRewards,
-              });
-            }
-          }
-        }
-
-        if (
-          this.bot.flash.call(() => swf.questsIsInProgress(questId)) &&
-          this.bot.flash.call(() => swf.questsCanCompleteQuest(questId))
-        ) {
-          const maxTurnIns = this.bot.flash.call<string>(
-            "world.maximumQuestTurnIns",
-            questId,
+        if (this.isInProgress(questId) && this.canComplete(questId)) {
+          const maxTurnIns = Number(
+            this.bot.flash.call<string>("world.maximumQuestTurnIns", questId),
           );
-          const numMaxTurnIns = Number(maxTurnIns);
-          await this.bot.quests.complete(questId, numMaxTurnIns);
+          await this.bot.quests.complete(questId, maxTurnIns);
         }
 
-        if (!this.bot.flash.call(() => swf.questsIsInProgress(questId)))
+        if (!this.isInProgress(questId)) {
           await this.bot.quests.accept(questId);
+        }
 
         await this.bot.sleep(100);
       }
     });
+  }
+
+  private isInProgress(questId: number): boolean {
+    return this.bot.flash.call(() => swf.questsIsInProgress(questId));
+  }
+
+  private canComplete(questId: number): boolean {
+    return this.bot.flash.call(() => swf.questsCanCompleteQuest(questId));
   }
 }
