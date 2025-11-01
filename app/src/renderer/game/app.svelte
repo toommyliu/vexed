@@ -320,12 +320,14 @@
     const ret = await client.game.getAssetPath();
     swfPath = ret;
 
-    await import("./tipc/tipc-fast-travels");
-    await import("./tipc/tipc-environment");
-    await import("./tipc/tipc-follower");
-    await import("./tipc/tipc-loader-grabber");
-    await import("./tipc/tipc-packet-logger");
-    await import("./tipc/tipc-packet-spammer");
+    await Promise.all([
+      import("./tipc/tipc-fast-travels"),
+      import("./tipc/tipc-environment"),
+      import("./tipc/tipc-follower"),
+      import("./tipc/tipc-loader-grabber"),
+      import("./tipc/tipc-packet-logger"),
+      import("./tipc/tipc-packet-spammer"),
+    ]);
   });
 
   window.addEventListener(
