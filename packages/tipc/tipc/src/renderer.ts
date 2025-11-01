@@ -1,18 +1,22 @@
 import { IpcRenderer, IpcRendererEvent } from "electron";
 import type {
+  ClientFromRouter,
   RouterType,
   RendererHandlers,
   RendererHandlersListener,
 } from "./types";
 
+type InvokeFn = (input: unknown) => Promise<unknown>;
+type ProxyFn = InvokeFn & Record<string, unknown>;
+
 export const createClient = <Router extends RouterType>({
   ipcInvoke,
 }: {
   ipcInvoke: IpcRenderer["invoke"];
-}) => {
-  const makeProxy = (prefix = ""): any => {
+}): ClientFromRouter<Router> => {
+  const makeProxy = (prefix = ""): ProxyFn => {
     // function target so the proxy is callable at every level
-    const fn = (input: any) => ipcInvoke(prefix, input);
+    const fn: InvokeFn = (input: unknown) => ipcInvoke(prefix, input);
 
     return new Proxy(fn, {
       get: (_t, prop) => {
@@ -20,29 +24,35 @@ export const createClient = <Router extends RouterType>({
         const channel = prefix ? `${prefix}.${name}` : name;
         return makeProxy(channel);
       },
-    });
+    }) as ProxyFn;
   };
 
   return new Proxy(() => {}, {
     get: (_, prop) => makeProxy(prop.toString()),
-  });
+  }) as unknown as ClientFromRouter<Router>;
 };
+
+type EventListener = {
+  listen: (handler: (...args: unknown[]) => void) => () => void;
+  handle: (handler: (...args: unknown[]) => unknown) => () => void;
+};
+
+type EventHandler = EventListener & Record<string, unknown>;
 
 export const createEventHandlers = <T extends RendererHandlers>({
   on,
-
   send,
 }: {
   on: (
     channel: string,
-    handler: (event: IpcRendererEvent, ...args: any[]) => void,
+    handler: (event: IpcRendererEvent, ...args: unknown[]) => void
   ) => () => void;
 
   send: IpcRenderer["send"];
 }) => {
-  const makeProxy = (prefix = "") =>
-    new Proxy<any>({} as any, {
-      get: (_target: any, prop: any) => {
+  const makeProxy = (prefix = ""): EventHandler => {
+    return new Proxy<EventHandler>({} as EventHandler, {
+      get: (_target, prop) => {
         const name = prop.toString();
         const channel = prefix ? `${prefix}.${name}` : name;
 
@@ -50,17 +60,18 @@ export const createEventHandlers = <T extends RendererHandlers>({
         const nested = makeProxy(channel);
 
         // Return the listener/handler object for leaf functions
-        const leaf = {
-          listen: (handler: any) =>
+        const leaf: EventListener = {
+          listen: (handler: (...args: unknown[]) => void) =>
             on(channel, (event, ...args) => handler(...args)),
 
-          handle: (handler: any) =>
-            on(channel, async (event, id: string, ...args) => {
+          handle: (handler: (...args: unknown[]) => unknown) =>
+            on(channel, async (event, ...allArgs) => {
+              const [id, ...args] = allArgs;
               try {
                 const result = await handler(...args);
-                send(id, { result });
+                send(id as string, { result });
               } catch (error) {
-                send(id, { error });
+                send(id as string, { error });
               }
             }),
         };
@@ -69,13 +80,15 @@ export const createEventHandlers = <T extends RendererHandlers>({
         return new Proxy(leaf, {
           get(_, key) {
             // Accessing listen/handle
-            if (key in leaf) return (leaf as any)[key];
+            if (key in leaf) return leaf[key as keyof EventListener];
+
             // Otherwise return nested namespace
-            return (nested as any)[key];
+            return nested[key as keyof EventHandler];
           },
         });
       },
     });
+  };
 
   return makeProxy() as RendererHandlersListener<T>;
 };

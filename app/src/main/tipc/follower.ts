@@ -1,22 +1,15 @@
 import type { TipcInstance } from "@vexed/tipc";
-import { getRendererHandlers } from "@vexed/tipc";
-import { BrowserWindow } from "electron";
 import type { RendererHandlers } from "../tipc";
 import { windowStore } from "../windows";
 
 export function createFollowerTipcRouter(tipcInstance: TipcInstance) {
   return {
     me: tipcInstance.procedure.action(async ({ context }) => {
-      const browserWindow = BrowserWindow.fromWebContents(context.sender);
-      if (!browserWindow) return;
-
-      const parent = browserWindow.getParentWindow();
+      const parent = context.senderParentWindow;
       if (!parent || !windowStore.has(parent.id)) return;
 
-      const parentHandlers = getRendererHandlers<RendererHandlers>(
-        parent.webContents,
-      );
-
+      const parentHandlers =
+        context.getRendererHandlers<RendererHandlers>(parent);
       return parentHandlers.follower.me.invoke();
     }),
     start: tipcInstance.procedure
@@ -36,27 +29,19 @@ export function createFollowerTipcRouter(tipcInstance: TipcInstance) {
         skillWait: boolean;
       }>()
       .action(async ({ context, input }) => {
-        const browserWindow = BrowserWindow.fromWebContents(context.sender);
-        if (!browserWindow) return;
-
-        const parent = browserWindow.getParentWindow();
+        const parent = context.senderParentWindow;
         if (!parent || !windowStore.has(parent.id)) return;
 
-        const parentHandlers = getRendererHandlers<RendererHandlers>(
-          parent.webContents,
-        );
+        const parentHandlers =
+          context.getRendererHandlers<RendererHandlers>(parent);
         parentHandlers.follower.start.send(input);
       }),
     stop: tipcInstance.procedure.action(async ({ context }) => {
-      const browserWindow = BrowserWindow.fromWebContents(context.sender);
-      if (!browserWindow) return;
-
-      const parent = browserWindow.getParentWindow();
+      const parent = context.senderParentWindow;
       if (!parent || !windowStore.has(parent.id)) return;
 
-      const parentHandlers = getRendererHandlers<RendererHandlers>(
-        parent.webContents,
-      );
+      const parentHandlers =
+        context.getRendererHandlers<RendererHandlers>(parent);
       parentHandlers.follower.stop.send();
     }),
   };

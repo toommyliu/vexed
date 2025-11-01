@@ -1,48 +1,37 @@
 import type { TipcInstance } from "@vexed/tipc";
-import { getRendererHandlers } from "@vexed/tipc";
-import { BrowserWindow } from "electron";
 import type { RendererHandlers } from "../tipc";
 import { windowStore } from "../windows";
 
 export function createPacketLoggerTipcRouter(tipcInstance: TipcInstance) {
   return {
     packetLoggerStart: tipcInstance.procedure.action(async ({ context }) => {
-      const browserWindow = BrowserWindow.fromWebContents(context.sender);
-      if (!browserWindow) return;
-
-      const parent = browserWindow.getParentWindow();
+      const parent = context.senderParentWindow;
       if (!parent || !windowStore.has(parent.id)) return;
 
-      const parentHandlers = getRendererHandlers<RendererHandlers>(
-        parent.webContents,
-      );
+      const parentHandlers =
+        context.getRendererHandlers<RendererHandlers>(parent);
       parentHandlers.packetLogger.start.send();
     }),
     packetLoggerStop: tipcInstance.procedure.action(async ({ context }) => {
-      const browserWindow = BrowserWindow.fromWebContents(context.sender);
-      if (!browserWindow) return;
-
-      const parent = browserWindow.getParentWindow();
+      const parent = context.senderParentWindow;
       if (!parent || !windowStore.has(parent.id)) return;
 
-      const parentHandlers = getRendererHandlers<RendererHandlers>(
-        parent.webContents,
-      );
+      const parentHandlers =
+        context.getRendererHandlers<RendererHandlers>(parent);
       parentHandlers.packetLogger.stop.send();
     }),
     packetLoggerPacket: tipcInstance.procedure
       .input<{ packet: string; type: string }>()
       .action(async ({ input, context }) => {
-        const browserWindow = BrowserWindow.fromWebContents(context.sender);
+        const browserWindow = context.senderWindow;
         if (!browserWindow) return;
 
         const packetLoggerWindow = windowStore.get(browserWindow.id)?.packets
           ?.logger;
         if (!packetLoggerWindow || packetLoggerWindow.isDestroyed()) return;
 
-        const rendererHandler = getRendererHandlers<RendererHandlers>(
-          packetLoggerWindow.webContents,
-        );
+        const rendererHandler =
+          context.getRendererHandlers<RendererHandlers>(packetLoggerWindow);
         rendererHandler.packetLogger.packet.send(input);
       }),
   };

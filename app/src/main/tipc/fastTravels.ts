@@ -1,7 +1,5 @@
 import { readJson } from "@vexed/fs-utils";
 import type { TipcInstance } from "@vexed/tipc";
-import { getRendererHandlers } from "@vexed/tipc";
-import { BrowserWindow } from "electron";
 import {
   DEFAULT_FAST_TRAVELS,
   FAST_TRAVELS_PATH,
@@ -24,18 +22,12 @@ export function createFastTravelsTipcRouter(tipcInstance: TipcInstance) {
     doFastTravel: tipcInstance.procedure
       .input<{ location: FastTravelRoomNumber }>()
       .action(async ({ input, context }) => {
-        const browserWindow = BrowserWindow.fromWebContents(context.sender);
-        if (!browserWindow) return;
-
-        const parent = browserWindow.getParentWindow();
+        const parent = context.senderParentWindow;
         if (!parent || !windowStore.has(parent.id)) return;
 
-        const parentHandlers = getRendererHandlers<RendererHandlers>(
-          parent.webContents,
-        );
-        const childHandlers = getRendererHandlers<RendererHandlers>(
-          context.sender,
-        );
+        const parentHandlers =
+          context.getRendererHandlers<RendererHandlers>(parent);
+        const childHandlers = context.getRendererHandlers<RendererHandlers>();
 
         await parentHandlers.fastTravels.doFastTravel.invoke({
           location: input.location,
