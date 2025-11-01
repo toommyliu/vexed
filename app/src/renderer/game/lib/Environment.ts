@@ -1,6 +1,7 @@
 import type { EnvironmentUpdatePayload } from "@shared/types";
 import { normalizeId } from "../util/normalizeId";
 import type { Bot } from "./Bot";
+import type { QuestsJob } from "./jobs/quests";
 
 export class Environment {
   private _questIds = new Set<number>();
@@ -111,7 +112,17 @@ export class Environment {
       normalized.add(parsedQuestId);
     }
 
-    this._questIds.clear();
+    for (const questId of this._questIds) {
+      if (!normalized.has(questId)) {
+        // questId is being removed
+        this.bot.scheduler
+          .getJob<QuestsJob>("quests")
+          ?.clearQuestRegistration(questId);
+      }
+    }
+
+    this._questIds.clear(); // clear any remaining IDs
+
     for (const questId of normalized) {
       this._questIds.add(questId);
     }

@@ -99,6 +99,15 @@ export class Scheduler {
   }
 
   /**
+   * Get a job.
+   * @param jobId - The ID of the job.
+   * @returns The job, or null if not found.
+   */
+  public getJob<T extends Job>(jobId: string): T | null {
+    return (this.jobs.get(jobId) as T) ?? null;
+  }
+
+  /**
    * Gets the number of jobs in the scheduler.
    *
    * @returns The number of jobs.

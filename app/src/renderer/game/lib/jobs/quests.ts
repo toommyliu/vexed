@@ -69,6 +69,15 @@ export class QuestsJob extends Job {
     });
   }
 
+  /**
+   * Clears the quest registration for a given quest ID.
+   *
+   * @param questId - The quest ID
+   */
+  public clearQuestRegistration(questId: number): void {
+    this.#registeredQuestIds.delete(questId);
+  }
+
   private isInProgress(questId: number): boolean {
     return this.bot.flash.call(() => swf.questsIsInProgress(questId));
   }
