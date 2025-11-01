@@ -305,6 +305,8 @@ If results are ambiguous, the first matching item will be used. Use itemType to 
   disable_skipcutscenes(): void;
   /** Performs loop taunt based on one or more strategies. See [looptaunt guide](/guides/looptaunt) for more details. */
   do_looptaunt(strategies: [string, number, number, string?][]): void;
+  /** Drinks consumable items. */
+  drink_consumables(items: string | string[]): void;
   /** Enables the anti-counter attack setting. */
   enable_anticounter(): void;
   /** Enables the "Disable collisions" setting. */
