@@ -758,15 +758,21 @@ export const miscCommands = {
    * Drinks consumable items.
    *
    * @param items - The name(s) of the items.
+   * @param equipAfter - The name of the item to equip after drinking consumables.
    */
-  drink_consumables(items: string[] | string) {
+  drink_consumables(items: string[] | string, equipAfter?: string) {
     const arr = Array.isArray(items) ? items : [items];
     if (arr.length === 0 || arr.some((item) => typeof item !== "string")) {
       throw new ArgsError("items is required");
     }
 
+    if (equipAfter && typeof equipAfter !== "string") {
+      throw new ArgsError("equipAfter is required");
+    }
+
     const cmd = new CommandDrinkConsumables();
     cmd.items = arr;
+    if (equipAfter) cmd.equipAfter = equipAfter;
     window.context.addCommand(cmd);
   },
 };
