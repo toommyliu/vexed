@@ -373,6 +373,21 @@
     void syncEnvironment();
   });
 
+  handlers.game.gameReloaded.listen(() => {
+    questInput = "";
+    dropInput = "";
+    boostInput = "";
+    questIds = [];
+    dropItems = [];
+    boostItems = [];
+    rejectElse = false;
+    autoRegisterRequirements = false;
+    autoRegisterRewards = false;
+    isSyncing = false;
+    pendingSync = false;
+    void syncEnvironment();
+  });
+
   handlers.environment.stateChanged.listen((state) => {
     void shouldUpdateState(state);
   });
@@ -450,7 +465,7 @@
           </div>
 
           <div
-            class="mt-6 flex flex-shrink-0 flex-col space-y-3 border-t border-gray-800/40 pt-4 md:flex-row md:space-x-3 md:space-y-0"
+            class="mt-6 flex flex-shrink-0 flex-col space-y-3 md:flex-row md:space-x-3 md:space-y-0 border-t border-gray-800/40 pt-4"
           >
             <label class="flex items-center space-x-2 text-xs text-gray-300">
               <input
