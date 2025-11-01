@@ -357,8 +357,6 @@
           autoRegisterRequirements: state.autoRegisterRequirements,
           autoRegisterRewards: state.autoRegisterRewards,
         });
-
-        logger.info("synced state", state);
       } catch (error) {
         logger.error("Failed to sync environment.", error);
       }

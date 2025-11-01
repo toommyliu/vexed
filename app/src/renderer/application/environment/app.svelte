@@ -124,7 +124,6 @@
   async function initializeState() {
     try {
       const state = await client.environment.getState();
-      logger.info("initial state", state);
       void shouldUpdateState(state);
     } catch (error) {
       logger.error("Failed to load environment state.", error);
@@ -451,7 +450,7 @@
           </div>
 
           <div
-            class="mt-6 flex flex-shrink-0 space-x-3 border-t border-gray-800/40 pt-4"
+            class="mt-6 flex flex-shrink-0 flex-col space-y-3 md:flex-row md:space-x-3 md:space-y-0 border-t border-gray-800/40 pt-4"
           >
             <label class="flex items-center space-x-2 text-xs text-gray-300">
               <input
@@ -465,7 +464,7 @@
                   )}
                 title="Automatically adds all quest-required items to the drop list when a quest is added."
               />
-              <span>Auto register requirements</span>
+              <span class="whitespace-nowrap">Auto register requirements</span>
             </label>
             <label class="flex items-center space-x-2 text-xs text-gray-300">
               <input
@@ -479,7 +478,7 @@
                   )}
                 title="Automatically adds all quest reward items to the drop list when a quest is added."
               />
-              <span>Auto register rewards</span>
+              <span class="whitespace-nowrap">Auto register rewards</span>
             </label>
           </div>
         </section>
