@@ -1,7 +1,6 @@
 import { ArgsError } from "@botting/ArgsError";
 import { CommandBuy } from "./CommandBuy";
 import { CommandDeposit } from "./CommandDeposit";
-import { CommandDrinkConsumables } from "./CommandEquipAndDrink";
 import { CommandEquipByEnhancement } from "./CommandEquipByEnhancement";
 import { CommandEquipItem } from "./CommandEquipItem";
 import { CommandGetMapItem } from "./CommandGetMapItem";
@@ -302,21 +301,6 @@ export const itemCommands = {
 
     const cmd = new CommandLoadShop();
     cmd.shopId = shopId;
-    window.context.addCommand(cmd);
-  },
-  /**
-   * Drinks consumable item(s) to gain their effects.
-   *
-   * @param items - The name(s) of the items to consume.
-   */
-  drink_consumables(items: string[] | string) {
-    const arr = Array.isArray(items) ? items : [items];
-    if (arr.length === 0 || arr.some((item) => typeof item !== "string")) {
-      throw new ArgsError("items is required");
-    }
-
-    const cmd = new CommandDrinkConsumables();
-    cmd.items = arr;
     window.context.addCommand(cmd);
   },
 };
