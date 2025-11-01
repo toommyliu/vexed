@@ -82,8 +82,11 @@ export class AutoReloginJob extends Job {
       this.bot.auth.login(AutoReloginJob.username!, AutoReloginJob.password!);
 
       // Wait for servers to be loaded
+      await this.bot.waitUntil(() => this.isInServerSelect(), null, -1);
       await this.bot.waitUntil(
-        () => this.isInServerSelect() && this.bot.auth.servers.length > 0,
+        () => this.bot.auth.servers.length > 0,
+        null,
+        -1,
       );
 
       this.bot.auth.connectTo(AutoReloginJob.server!);
