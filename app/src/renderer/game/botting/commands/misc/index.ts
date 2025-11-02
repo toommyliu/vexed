@@ -32,10 +32,13 @@ import {
   type ITauntStrategy,
 } from "./CommandLoopTaunt";
 import { CommandRegisterTask } from "./CommandRegisterTask";
+import { CommandSetAutoRegisterRequirements } from "./CommandSetAutoRegisterRequirements";
+import { CommandSetAutoRegisterRewards } from "./CommandSetAutoRegisterRewards";
 import { CommandSetDelay } from "./CommandSetDelay";
 import { CommandSetFPS } from "./CommandSetFPS";
 import { CommandSetGuild } from "./CommandSetGuild";
 import { CommandSetName } from "./CommandSetName";
+import { CommandSetRejectElse } from "./CommandSetRejectElse";
 import { CommandSettingAntiCounter } from "./CommandSettingAntiCounter";
 import { CommandSettingDisableCollisions } from "./CommandSettingDisableCollisions";
 import { CommandSettingDisableFx } from "./CommandSettingDisableFx";
@@ -423,12 +426,13 @@ export const miscCommands = {
       throw new ArgsError("cmdFactory must return a valid Command");
     }
 
-    // eslint-disable-next-line func-names
-    window.cmd[_name] = function (...args: unknown[]) {
-      const newCmd = Object.create(command);
-      newCmd.args = args;
-      window.context.addCommand(newCmd);
-    };
+    Object.defineProperty(window.cmd, _name, {
+      value(...args: unknown[]) {
+        const newCmd = Object.create(command);
+        newCmd.args = args;
+        window.context.addCommand(newCmd);
+      },
+    });
   },
   unregister_command(name: string) {
     if (!name || typeof name !== "string") {
@@ -773,6 +777,48 @@ export const miscCommands = {
     const cmd = new CommandDrinkConsumables();
     cmd.items = arr;
     if (equipAfter) cmd.equipAfter = equipAfter;
+    window.context.addCommand(cmd);
+  },
+  /**
+   * Sets the rejectElse flag for the Environment.
+   *
+   * @param val - The value to set.
+   */
+  set_reject_else(val: boolean) {
+    if (typeof val !== "boolean") {
+      throw new ArgsError("rejectElse is required");
+    }
+
+    const cmd = new CommandSetRejectElse();
+    cmd.val = val;
+    window.context.addCommand(cmd);
+  },
+  /**
+   * Sets the auto register requirements flag for the Environment.
+   *
+   * @param val - The value to set.
+   */
+  set_auto_register_requirements(val: boolean) {
+    if (typeof val !== "boolean") {
+      throw new ArgsError("autoRegisterRequirements is required");
+    }
+
+    const cmd = new CommandSetAutoRegisterRequirements();
+    cmd.val = val;
+    window.context.addCommand(cmd);
+  },
+  /**
+   * Sets the auto register rewards flag for the Environment.
+   *
+   * @param val - The value to set.
+   */
+  set_auto_register_rewards(val: boolean) {
+    if (typeof val !== "boolean") {
+      throw new ArgsError("autoRegisterRewards is required");
+    }
+
+    const cmd = new CommandSetAutoRegisterRewards();
+    cmd.val = val;
     window.context.addCommand(cmd);
   },
 };

@@ -129,7 +129,8 @@ export function createManagerTipcRouter(tipcInstance: TipcInstance) {
         const mgrWindow = getManagerWindow();
         if (!mgrWindow) return;
 
-        const handlers = context.getRendererHandlers<RendererHandlers>(mgrWindow);
+        const handlers =
+          context.getRendererHandlers<RendererHandlers>(mgrWindow);
         handlers.manager.enableButton.send(input.username);
       }),
   };

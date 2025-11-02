@@ -1,3 +1,4 @@
+import { client } from "@shared/tipc";
 import type { EnvironmentUpdatePayload } from "@shared/types";
 import { normalizeId } from "../util/normalizeId";
 import type { Bot } from "./Bot";
@@ -15,6 +16,8 @@ export class Environment {
   private _autoRegisterRequirements = false;
 
   private _autoRegisterRewards = false;
+
+  private _isApplyingUpdate = false;
 
   public constructor(public readonly bot: Bot) {}
 
@@ -61,6 +64,7 @@ export class Environment {
    */
   public set rejectElse(rejectElse: boolean) {
     this._rejectElse = rejectElse;
+    this.syncToMain();
   }
 
   /**
@@ -73,6 +77,16 @@ export class Environment {
   }
 
   /**
+   * Sets the auto register requirements flag.
+   *
+   * @param val - The auto register requirements value to set.
+   */
+  public set autoRegisterRequirements(val: boolean) {
+    this._autoRegisterRequirements = val;
+    this.syncToMain();
+  }
+
+  /**
    * Gets the auto register rewards flag.
    *
    * @returns The auto register rewards boolean value.
@@ -82,20 +96,54 @@ export class Environment {
   }
 
   /**
+   * Sets the auto register rewards flag.
+   *
+   * @param val - The auto register rewards value to set.
+   */
+  public set autoRegisterRewards(val: boolean) {
+    this._autoRegisterRewards = val;
+    this.syncToMain();
+  }
+
+  /**
    * Updates the environment state with the given update payload.
    *
    * @param update - the update payload
    */
   public applyUpdate(update: EnvironmentUpdatePayload): void {
-    this.setQuestIds(update.questIds);
-    this.setItemNames(update.itemNames);
+    this._isApplyingUpdate = true;
 
-    if (update.rejectElse !== undefined) this.rejectElse = update.rejectElse;
-    if (update.boosts !== undefined) this.setBoosts(update.boosts);
-    if (update.autoRegisterRequirements !== undefined)
-      this._autoRegisterRequirements = update.autoRegisterRequirements;
-    if (update.autoRegisterRewards !== undefined)
-      this._autoRegisterRewards = update.autoRegisterRewards;
+    try {
+      this.setQuestIds(update.questIds);
+      this.setItemNames(update.itemNames);
+
+      if (update.rejectElse !== undefined) this._rejectElse = update.rejectElse;
+      if (update.boosts !== undefined) this.setBoosts(update.boosts);
+      if (update.autoRegisterRequirements !== undefined)
+        this._autoRegisterRequirements = update.autoRegisterRequirements;
+      if (update.autoRegisterRewards !== undefined)
+        this._autoRegisterRewards = update.autoRegisterRewards;
+    } finally {
+      this._isApplyingUpdate = false;
+    }
+  }
+
+  /**
+   * Syncs the current environment state to the main process.
+   */
+  private syncToMain(): void {
+    if (this._isApplyingUpdate) return;
+
+    const payload: EnvironmentUpdatePayload = {
+      questIds: Array.from(this._questIds),
+      itemNames: Array.from(this._itemNames),
+      boosts: Array.from(this._boosts),
+      rejectElse: this._rejectElse,
+      autoRegisterRequirements: this._autoRegisterRequirements,
+      autoRegisterRewards: this._autoRegisterRewards,
+    };
+
+    void client.environment.updateState(payload);
   }
 
   /**
@@ -138,6 +186,7 @@ export class Environment {
     if (parsedQuestId === -1 || this._questIds.has(parsedQuestId)) return;
 
     this._questIds.add(parsedQuestId);
+    this.syncToMain();
   }
 
   /**
@@ -150,6 +199,7 @@ export class Environment {
     if (parsedQuestId === -1) return;
 
     this._questIds.delete(parsedQuestId);
+    this.syncToMain();
   }
 
   /**
@@ -182,6 +232,7 @@ export class Environment {
 
     this._itemNames.add(trimmed);
     this._rejectElse = rejectElse;
+    this.syncToMain();
   }
 
   /**
@@ -194,6 +245,7 @@ export class Environment {
     if (!trimmed) return;
 
     this._itemNames.delete(trimmed);
+    this.syncToMain();
   }
 
   /**
@@ -234,6 +286,7 @@ export class Environment {
     if (!trimmed || this._boosts.has(trimmed)) return;
 
     this._boosts.add(trimmed);
+    this.syncToMain();
   }
 
   /**
@@ -246,6 +299,7 @@ export class Environment {
     if (!trimmed) return;
 
     this._boosts.delete(trimmed);
+    this.syncToMain();
   }
 
   /**

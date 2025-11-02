@@ -363,14 +363,6 @@
 
   onMount(() => {
     void initializeState();
-
-    // for (let i = 0; i < 1000; i++) {
-    //   const randomId = Math.floor(Math.random() * 10000) + 1;
-    //   if (!questIds.includes(randomId))
-    //   questIds = [...questIds, randomId].sort((a, b) => a - b);
-    // }
-
-    void syncEnvironment();
   });
 
   handlers.game.gameReloaded.listen(() => {
@@ -443,7 +435,7 @@
           </form>
 
           <div class="no-scrollbar mt-4 min-h-0 flex-1 overflow-y-auto">
-            <div class="flex flex-wrap">
+            <div class="no-scrollbar flex max-h-24 flex-wrap overflow-y-auto">
               {#if questIds.length}
                 {#each questIds as questId (questId)}
                   <span
@@ -465,7 +457,7 @@
           </div>
 
           <div
-            class="mt-6 flex flex-shrink-0 flex-col space-y-3 md:flex-row md:space-x-3 md:space-y-0 border-t border-gray-800/40 pt-4"
+            class="mt-6 flex flex-shrink-0 flex-col space-y-3 border-t border-gray-800/40 pt-4 md:flex-row md:space-x-3 md:space-y-0"
           >
             <label class="flex items-center space-x-2 text-xs text-gray-300">
               <input
@@ -542,7 +534,7 @@
           </form>
 
           <div class="no-scrollbar mt-4 min-h-0 flex-1 overflow-y-auto">
-            <div class="flex flex-wrap">
+            <div class="no-scrollbar flex max-h-24 flex-wrap overflow-y-auto">
               {#if dropItems.length}
                 {#each dropItems as drop (drop)}
                   <span
@@ -638,7 +630,7 @@
           </form>
 
           <div class="no-scrollbar mt-4 min-h-0 flex-1 overflow-y-auto">
-            <div class="flex flex-wrap">
+            <div class="no-scrollbar flex max-h-24 flex-wrap overflow-y-auto">
               {#if boostItems.length}
                 {#each boostItems as boost (boost)}
                   <span
