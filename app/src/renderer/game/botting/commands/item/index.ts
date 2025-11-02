@@ -182,7 +182,7 @@ export const itemCommands = {
    * Registers an item to be automatically picked up when possible.
    *
    * @param items - The name or item id of the item(s) to pick up.
-   * @param rejectElse - Whether to reject items not in the pick up list.
+   * @param rejectElse - @deprecated Whether to reject items not in the pick up list. Use set_reject_else() instead.
    */
   register_drop(items: string[] | string, rejectElse: boolean = false) {
     const itemArray = Array.isArray(items) ? items : [items];
