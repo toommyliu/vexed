@@ -73,12 +73,30 @@ export class Environment {
   }
 
   /**
+   * Sets the auto register requirements flag.
+   *
+   * @param val - The auto register requirements value to set.
+   */
+  public set autoRegisterRequirements(val: boolean) {
+    this._autoRegisterRequirements = val;
+  }
+
+  /**
    * Gets the auto register rewards flag.
    *
    * @returns The auto register rewards boolean value.
    */
   public get autoRegisterRewards(): boolean {
     return this._autoRegisterRewards;
+  }
+
+  /**
+   * Sets the auto register rewards flag.
+   *
+   * @param val - The auto register rewards value to set.
+   */
+  public set autoRegisterRewards(val: boolean) {
+    this._autoRegisterRewards = val;
   }
 
   /**

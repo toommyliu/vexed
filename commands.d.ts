@@ -343,6 +343,10 @@ If results are ambiguous, the first matching item will be used. Use itemType to 
   /** Registers a task (a.k.a background job) to be executed alongside commands.
 The task function is bound to an object containing the bot instance and the context instance. */
   register_task(name: string, taskFn: () => Promise<void>): void;
+  /** Sets the auto register requirements flag for the Environment. */
+  set_auto_register_requirements(val: boolean): void;
+  /** Sets the auto register rewards flag for the Environment. */
+  set_auto_register_rewards(val: boolean): void;
   /** Sets the delay between commands. */
   set_delay(delay: number): void;
   /** Sets the target FPS for the game. */
@@ -351,6 +355,8 @@ The task function is bound to an object containing the bot instance and the cont
   set_guild(guild: string): void;
   /** Sets the client's locally visible name. */
   set_name(name: string): void;
+  /** Sets the rejectElse flag for the Environment. */
+  set_reject_else(val: boolean): void;
   /** Sets the walk speed of the player. */
   set_walk_speed(speed: number): void;
   /** Stops the bot. */
