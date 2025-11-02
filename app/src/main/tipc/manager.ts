@@ -2,8 +2,8 @@ import { join } from "path";
 import Config from "@vexed/config";
 import { readJson, writeJson } from "@vexed/fs-utils";
 import type { TipcInstance } from "@vexed/tipc";
-import { getRendererHandlers } from "@vexed/tipc";
-import { dialog, BrowserWindow } from "electron";
+import { dialog } from "electron";
+import type { BrowserWindow, OpenDialogOptions } from "electron";
 import { ACCOUNTS_PATH, DOCUMENTS_PATH } from "../../shared/constants";
 import type { Account, AccountWithScript } from "../../shared/types";
 import { logger } from "../constants";
@@ -20,7 +20,8 @@ export function createManagerTipcRouter(tipcInstance: TipcInstance) {
         });
         await config.load();
         return config.get() as Account[];
-      } catch {
+      } catch (error) {
+        logger.error("Failed to get accounts.", error);
         return [];
       }
     }),
@@ -39,7 +40,7 @@ export function createManagerTipcRouter(tipcInstance: TipcInstance) {
           await writeJson(ACCOUNTS_PATH, accounts);
           return true;
         } catch (error) {
-          logger.error("Failed to add account\n", error);
+          logger.error("Failed to add account.", error);
           return false;
         }
       }),
@@ -95,16 +96,19 @@ export function createManagerTipcRouter(tipcInstance: TipcInstance) {
       }),
     mgrLoadScript: tipcInstance.procedure.action(async ({ context }) => {
       try {
-        const res = await dialog.showOpenDialog(
-          BrowserWindow.fromWebContents(context.sender),
-          {
-            defaultPath: join(DOCUMENTS_PATH, "Bots"),
-            properties: ["openFile"],
-            filters: [{ name: "Bots", extensions: ["js"] }],
-            message: "Select a script to load",
-            title: "Select a script to load",
-          },
-        );
+        const browserWindow: BrowserWindow | undefined =
+          context.senderWindow ?? undefined;
+        const dialogOptions: OpenDialogOptions = {
+          defaultPath: join(DOCUMENTS_PATH, "Bots"),
+          properties: ["openFile"],
+          filters: [{ name: "Bots", extensions: ["js"] }],
+          message: "Select a script to load",
+          title: "Select a script to load",
+        };
+
+        const res = browserWindow
+          ? await dialog.showOpenDialog(browserWindow, dialogOptions)
+          : await dialog.showOpenDialog(dialogOptions);
 
         if (res?.canceled || !res?.filePaths?.length) return "";
 
@@ -122,15 +126,10 @@ export function createManagerTipcRouter(tipcInstance: TipcInstance) {
     managerLoginSuccess: tipcInstance.procedure
       .input<{ username: string }>()
       .action(async ({ input, context }) => {
-        const browserWindow = BrowserWindow.fromWebContents(context.sender);
-        if (!browserWindow) return;
+        const mgrWindow = getManagerWindow();
+        if (!mgrWindow) return;
 
-        const window = getManagerWindow();
-        if (!window) return;
-
-        const handlers = getRendererHandlers<RendererHandlers>(
-          window.webContents,
-        );
+        const handlers = context.getRendererHandlers<RendererHandlers>(mgrWindow);
         handlers.manager.enableButton.send(input.username);
       }),
   };

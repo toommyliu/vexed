@@ -28,7 +28,7 @@ export abstract class ArmyCommand extends Command {
       const listener = async () => {
         this.isListenerRegistered = false;
         this.allDone = true;
-        this.logger.debug("All players done");
+        this.logger.debug("All players done.");
         resolve();
       };
 
@@ -54,6 +54,7 @@ export abstract class ArmyCommand extends Command {
     await action();
     await this.sendDone();
     await allReadyPromise;
+    this.logger.debug("All players done.");
   }
 
   /**
@@ -63,8 +64,8 @@ export abstract class ArmyCommand extends Command {
     if (this.isDone) return;
 
     this.isDone = true;
+    this.logger.debug("Player done.");
     await client.army.finishJob();
-    this.logger.debug("Player done");
   }
 
   /**

@@ -1,8 +1,7 @@
 import { join } from "path";
 import { readFile } from "@vexed/fs-utils";
 import type { TipcInstance } from "@vexed/tipc";
-import { getRendererHandlers } from "@vexed/tipc";
-import { BrowserWindow, dialog } from "electron";
+import { dialog } from "electron";
 import { DOCUMENTS_PATH } from "../../shared/constants";
 import type { RendererHandlers } from "../tipc";
 
@@ -13,10 +12,10 @@ export function createScriptsTipcRouter(tipcInstance: TipcInstance) {
       .action(async ({ input, context }) => {
         try {
           const scriptPath = input?.scriptPath;
-          const browserWindow = BrowserWindow.fromWebContents(context.sender);
-          const handlers = getRendererHandlers<RendererHandlers>(
-            context.sender,
-          );
+          const browserWindow = context.senderWindow;
+          if (!browserWindow) return;
+
+          const handlers = context.getRendererHandlers<RendererHandlers>();
 
           let file: string;
           let fromManager = false;
@@ -99,18 +98,16 @@ export function createScriptsTipcRouter(tipcInstance: TipcInstance) {
         } catch {}
       }),
     toggleDevTools: tipcInstance.procedure.action(async ({ context }) => {
-      const browserWindow = BrowserWindow.fromWebContents(context.sender);
-      browserWindow?.webContents?.toggleDevTools();
+      context.senderWindow?.webContents?.toggleDevTools();
     }),
     gameReload: tipcInstance.procedure.action(async ({ context }) => {
-      const browserWindow = BrowserWindow.fromWebContents(context.sender);
+      const browserWindow = context.senderWindow;
       if (!browserWindow) return;
 
       for (const child of browserWindow.getChildWindows()) {
         if (child && !child.isDestroyed()) {
-          const rendererHandlers = getRendererHandlers<RendererHandlers>(
-            child.webContents,
-          );
+          const rendererHandlers =
+            context.getRendererHandlers<RendererHandlers>(child);
           rendererHandlers.game.gameReloaded.send();
         }
       }

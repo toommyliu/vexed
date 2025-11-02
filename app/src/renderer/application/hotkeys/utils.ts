@@ -106,6 +106,12 @@ export function createHotkeyConfig(): HotkeySection[] {
           configKey: "Application.Open App Logs",
           value: "",
         },
+        {
+          id: "open-environment",
+          label: "Open Environment",
+          configKey: "Application.Open Environment",
+          value: "",
+        },
       ],
     },
     {

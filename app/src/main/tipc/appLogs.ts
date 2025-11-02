@@ -1,5 +1,4 @@
 import { writeFile } from "@vexed/fs-utils";
-import { getRendererHandlers } from "@vexed/tipc";
 import type { TipcInstance } from "@vexed/tipc";
 import type { WebContents } from "electron";
 import { BrowserWindow, dialog } from "electron";
@@ -49,8 +48,8 @@ export function createAppLogsTipcRouter(tipcInstance: TipcInstance) {
 
       ref.storeRef.app.logHistory.length = 0;
 
-      const rendererHandlers = getRendererHandlers<RendererHandlers>(
-        ref.logsWindow.webContents,
+      const rendererHandlers = context.getRendererHandlers<RendererHandlers>(
+        ref.logsWindow,
       );
       rendererHandlers.appLogs.reset.send();
 

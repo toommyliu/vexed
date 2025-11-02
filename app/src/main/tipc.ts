@@ -5,9 +5,12 @@ import type {
   LoaderDataType,
   FastTravel,
   FastTravelRoomNumber,
+  EnvironmentState,
+  EnvironmentUpdatePayload,
 } from "../shared/types";
 import { createAppLogsTipcRouter } from "./tipc/appLogs";
 import { createArmyTipcRouter } from "./tipc/army";
+import { createEnvironmentTipcRouter } from "./tipc/environment";
 import { createFastTravelsTipcRouter } from "./tipc/fastTravels";
 import { createFollowerTipcRouter } from "./tipc/follower";
 import { createGameTipcRouter } from "./tipc/game";
@@ -32,6 +35,7 @@ export const router = {
   hotkeys: createHotkeysTipcRouter(tipcInstance),
   manager: createManagerTipcRouter(tipcInstance),
   army: createArmyTipcRouter(tipcInstance),
+  environment: createEnvironmentTipcRouter(tipcInstance),
 };
 
 export type TipcRouter = typeof router;
@@ -43,6 +47,13 @@ export type RendererHandlers = {
     append(input: AppLogEntry): void;
     init(input: { entries: AppLogEntry[] }): void;
     reset(): void;
+  };
+
+  environment: {
+    getState(): Promise<EnvironmentState>;
+    updateState(input: EnvironmentUpdatePayload): void;
+    stateChanged(input: EnvironmentState): void;
+    grabBoosts(): Promise<string[]>;
   };
 
   game: {

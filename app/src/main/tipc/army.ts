@@ -1,6 +1,6 @@
-import { getRendererHandlers, type TipcInstance } from "@vexed/tipc";
+import type { TipcInstance } from "@vexed/tipc";
 import { sleep } from "@vexed/utils";
-import { BrowserWindow } from "electron";
+import type { BrowserWindow } from "electron";
 import type { RendererHandlers } from "../tipc";
 
 type PlayerStatus = {
@@ -33,7 +33,7 @@ export const createArmyTipcRouter = (tipcInstance: TipcInstance) => ({
       players: string[];
     }>()
     .action(async ({ input, context }) => {
-      const browserWindow = BrowserWindow.fromWebContents(context.sender);
+      const browserWindow = context.senderWindow;
       if (!browserWindow) return;
 
       const { fileName, playerName, players } = input;
@@ -59,7 +59,7 @@ export const createArmyTipcRouter = (tipcInstance: TipcInstance) => ({
       playerName: string;
     }>()
     .action(async ({ input, context }) => {
-      const browserWindow = BrowserWindow.fromWebContents(context.sender);
+      const browserWindow = context.senderWindow;
       if (!browserWindow) return;
 
       const { fileName, playerName } = input;
@@ -80,7 +80,7 @@ export const createArmyTipcRouter = (tipcInstance: TipcInstance) => ({
     }),
 
   finishJob: tipcInstance.procedure.action(async ({ context }) => {
-    const browserWindow = BrowserWindow.fromWebContents(context.sender);
+    const browserWindow = context.senderWindow;
     if (!browserWindow) return;
 
     const playerName = windowToPlayerMap.get(browserWindow);
@@ -106,9 +106,8 @@ export const createArmyTipcRouter = (tipcInstance: TipcInstance) => ({
     if (!map.has(fileName)) return;
 
     for (const [_, window] of windows) {
-      const rendererHandlers = getRendererHandlers<RendererHandlers>(
-        window.webContents,
-      );
+      const rendererHandlers =
+        context.getRendererHandlers<RendererHandlers>(window);
       await rendererHandlers.army.armyReady.invoke();
     }
 

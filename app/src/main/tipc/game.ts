@@ -1,11 +1,10 @@
 import { join } from "path";
 import Config from "@vexed/config";
 import type { TipcInstance } from "@vexed/tipc";
-import { getRendererHandlers } from "@vexed/tipc";
 import { BrowserWindow } from "electron";
 import { DEFAULT_SKILLSETS, DOCUMENTS_PATH } from "../../shared/constants";
 import { WindowIds } from "../../shared/types";
-import { ASSET_PATH, DIST_PATH, IS_PACKAGED } from "../constants";
+import { ASSET_PATH, DIST_PATH, IS_PACKAGED, logger } from "../constants";
 import type { RendererHandlers } from "../tipc";
 import { windowStore } from "../windows";
 
@@ -14,7 +13,7 @@ export function createGameTipcRouter(tipcInstance: TipcInstance) {
     launchWindow: tipcInstance.procedure
       .input<WindowIds>()
       .action(async ({ input, context }) => {
-        const browserWindow = BrowserWindow.fromWebContents(context.sender);
+        const browserWindow = context.senderWindow;
         if (!browserWindow || !windowStore.has(browserWindow?.id)) return;
 
         const storeRef = windowStore.get(browserWindow.id)!;
@@ -25,6 +24,12 @@ export function createGameTipcRouter(tipcInstance: TipcInstance) {
         let height: number;
 
         switch (input) {
+          case WindowIds.Environment:
+            ref = storeRef.app.environment;
+            path = join(DIST_PATH, "application", "environment", "index.html");
+            width = 783;
+            height = 520;
+            break;
           case WindowIds.AppLogs:
             ref = storeRef.app.logs;
             path = join(DIST_PATH, "application", "logs", "index.html");
@@ -79,6 +84,7 @@ export function createGameTipcRouter(tipcInstance: TipcInstance) {
             contextIsolation: false,
             nodeIntegration: true,
           },
+          useContentSize: true,
           parent: browserWindow,
           width: width!,
           minWidth: width!,
@@ -89,40 +95,29 @@ export function createGameTipcRouter(tipcInstance: TipcInstance) {
         });
 
         switch (input) {
+          case WindowIds.Environment:
+            storeRef.app.environment = window;
+            break;
           case WindowIds.AppLogs:
             storeRef.app.logs = window;
-            width = 860;
-            height = 560;
             break;
           case WindowIds.Hotkeys:
             storeRef.app.hotkeys = window;
-            width = 600;
-            height = 400;
             break;
           case WindowIds.FastTravels:
             storeRef.tools.fastTravels = window;
-            width = 670;
-            height = 527;
             break;
           case WindowIds.LoaderGrabber:
             storeRef.tools.loaderGrabber = window;
-            width = 800;
-            height = 517;
             break;
           case WindowIds.Follower:
             storeRef.tools.follower = window;
-            width = 927;
-            height = 646;
             break;
           case WindowIds.PacketLogger:
             storeRef.packets.logger = window;
-            width = 797;
-            height = 523;
             break;
           case WindowIds.PacketSpammer:
             storeRef.packets.spammer = window;
-            width = 608;
-            height = 403;
             break;
         }
 
@@ -136,17 +131,10 @@ export function createGameTipcRouter(tipcInstance: TipcInstance) {
           window.hide();
         });
 
-        window.on("closed", () => {
-          if (storeRef.app.logs === window) {
-            storeRef.app.logs = null;
-          }
-        });
-
         if (input === WindowIds.AppLogs) {
           window.webContents.once("did-finish-load", () => {
-            const rendererHandlers = getRendererHandlers<RendererHandlers>(
-              window.webContents,
-            );
+            const rendererHandlers =
+              context.getRendererHandlers<RendererHandlers>(window);
             rendererHandlers.appLogs.init.send({
               entries: storeRef.app.logHistory.slice(),
             });
@@ -159,13 +147,18 @@ export function createGameTipcRouter(tipcInstance: TipcInstance) {
       }),
     getAssetPath: tipcInstance.procedure.action(async () => ASSET_PATH),
     getSkillSets: tipcInstance.procedure.action(async () => {
-      const config = new Config<Record<string, string>>({
-        configName: "skill-sets",
-        cwd: DOCUMENTS_PATH,
-        defaults: DEFAULT_SKILLSETS,
-      });
-      await config.load();
-      return config.get();
+      try {
+        const config = new Config<Record<string, string>>({
+          configName: "skill-sets",
+          cwd: DOCUMENTS_PATH,
+          defaults: DEFAULT_SKILLSETS,
+        });
+        await config.load();
+        return config.get();
+      } catch (error) {
+        logger.error("Failed to get skill sets.", error);
+        return DEFAULT_SKILLSETS;
+      }
     }),
   };
 }

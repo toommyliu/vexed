@@ -479,7 +479,9 @@ export class Context extends TypedEmitter<Events> {
 
         this._commandIndex++;
       } catch (error) {
-        logger.error(`Error executing command at index ${this._commandIndex}. ${error}`);
+        logger.error(
+          `Error executing command at index ${this._commandIndex}. ${error}`,
+        );
 
         if (!this.isRunning()) break;
         this._commandIndex++;

@@ -1,7 +1,15 @@
 import type { ActionFunction } from "./types";
 
-const createChainFns = <TInput>() => {
-  const node: any = {
+type ChainNode<TInput> = {
+  input<NewInput>(): ChainNode<NewInput>;
+  action<TResult>(
+    action: ActionFunction<TInput, TResult>,
+  ): { action: ActionFunction<TInput, TResult> };
+  [key: string]: unknown;
+};
+
+const createChainFns = <TInput>(): ChainNode<TInput> => {
+  const node: ChainNode<TInput> = {
     input<NewInput>() {
       return createChainFns<NewInput>();
     },
@@ -24,7 +32,7 @@ const createChainFns = <TInput>() => {
       // Lazily create and cache a nested chain for namespacing
       const key = String(prop);
       if (!(key in target)) {
-        target[key] = createChainFns<any>();
+        target[key] = createChainFns<unknown>();
       }
       return target[key];
     },

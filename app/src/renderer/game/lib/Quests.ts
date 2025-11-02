@@ -41,7 +41,6 @@ export class Quests {
     const id = normalizeId(questId);
     if (this.get(id)) return;
 
-    this.bot.flash.call(() => swf.questsGet(id));
     this.bot.flash.call(() => swf.questsLoad(id));
     await this.bot.waitUntil(() => this.get(id) !== null, null, 5);
   }
