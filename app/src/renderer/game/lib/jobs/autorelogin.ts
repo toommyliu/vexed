@@ -64,7 +64,7 @@ export class AutoReloginJob extends Job {
         await this.bot.waitUntil(
           () => !this.bot.auth.isTemporarilyKicked(),
           null,
-          -1,
+          60,
         );
       }
 
@@ -81,13 +81,17 @@ export class AutoReloginJob extends Job {
 
       this.bot.auth.login(AutoReloginJob.username!, AutoReloginJob.password!);
 
-      // Wait for servers to be loaded
-      await this.bot.waitUntil(() => this.isInServerSelect(), null, -1);
-      await this.bot.waitUntil(
-        () => this.bot.auth.servers.length > 0,
-        null,
-        -1,
-      );
+      await this.bot.waitUntil(() => this.isInServerSelect(), null, 5);
+      if (!this.isInServerSelect()) {
+        logger.info("Still not in server select? Aborting...");
+        return;
+      }
+
+      await this.bot.waitUntil(() => this.bot.auth.servers.length > 0, null, 5);
+      if (this.bot.auth.servers.length === 0) {
+        logger.info("No servers loaded? Aborting...");
+        return;
+      }
 
       this.bot.auth.connectTo(AutoReloginJob.server!);
 
