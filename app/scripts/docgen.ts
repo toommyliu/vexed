@@ -66,7 +66,7 @@ const generateCommandsApiDoc = async () => {
                 "@remarks",
               );
 
-              const deprecatedCode = makeBlockTag(
+              let deprecatedCode = makeBlockTag(
                 child?.signatures?.[0]?.comment?.blockTags ?? [],
                 "@deprecated",
               );
@@ -80,12 +80,17 @@ const generateCommandsApiDoc = async () => {
               const funcParameters = child?.signatures?.[0]?.parameters
                 ?.map((param) => {
                   const paramName = param.name;
-                  const paramDescription =
+                  let paramDescription =
                     makeTableDescription(param.comment?.summary ?? []) || "";
                   const paramType = param.type?.toString() || "";
                   const paramDefaultValue =
                     param?.defaultValue?.toString() || "";
                   const paramIsOptional = param?.flags?.isOptional;
+
+                  if (!paramDescription && deprecatedCode) {
+                    paramDescription = `Deprecated: ${deprecatedCode}`;
+                    deprecatedCode = "";
+                  }
 
                   return {
                     name: paramName,
