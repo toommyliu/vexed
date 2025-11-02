@@ -9,32 +9,43 @@ import { Badge, Code } from "@astrojs/starlight/components";
 
 Type: [`Bot`](/api-legacy/bot)
 
-### boosts <Badge text="Getter" size="small" />	
-Getter for the current boosts to watch/use.
+### autoRegisterRequirements <Badge text="Getter" size="small" />	
+Gets the auto register requirements flag.
 
-Type: `Set<string>`
+Type: `boolean`
+
+### autoRegisterRewards <Badge text="Getter" size="small" />	
+Gets the auto register rewards flag.
+
+Type: `boolean`
+
+### boosts <Badge text="Getter" size="small" />	
+Gets the set of boosts.
+
+Type: `ReadonlySet<string>`
 
 ### itemNames <Badge text="Getter" size="small" />	
-Getter for the current item names to pickup.
+Gets the set of item names.
 
-Type: `Set<string>`
+Type: `ReadonlySet<string>`
 
 ### questIds <Badge text="Getter" size="small" />	
+Gets the set of quest IDs.
 
-Type: `Set<number>`
+Type: `ReadonlySet<number>`
 
-### rejectElse <Badge text="Getter" size="small" />	
+### rejectElse <Badge text="Getter" size="small" />	 <Badge text="Setter" size="small" />
+Gets the reject else flag.
 
 Type: `boolean`
 
 ## Methods
 
 ### addBoost
-Adds a boost item name to the environment.
-Emits `boostsChanged` when the set is modified.
+Adds a boost to the environment.
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| boostName | `string` |  |
+| boostName | `string` | The boost name to add. |
 
 **Returns**: `void`
 
@@ -43,7 +54,7 @@ Adds an item name to the environment.
 | Parameter | Type | Optional | Default | Description |
 |-----------|------|----------|---------|-------------|
 | itemName | `string` |  |  | The item name to add. |
-| rejectElse | `boolean` | ✓ | `false` | Whether to reject other items. |
+| rejectElse | `boolean` | ✓ | `...` | Whether to reject else. |
 
 **Returns**: `void`
 
@@ -55,35 +66,35 @@ Adds a quest ID to the environment.
 
 **Returns**: `void`
 
-### hasBoost
-Checks if a boost item name is in the environment.
+### applyUpdate
+Updates the environment state with the given update payload.
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| boostName | `string` |  |
+| update | `EnvironmentUpdatePayload` | the update payload |
+
+**Returns**: `void`
+
+### hasBoost
+Checks if the environment has the specified boost.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| boostName | `string` | The boost name to check. |
 
 **Returns**: `boolean`
 
 ### hasItemName
-Checks if an item name is in the environment.
+Checks if the environment has the specified item name.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | itemName | `string` | The item name to check. |
 
 **Returns**: `boolean`
 
-### hasQuestId
-Checks if a quest ID is in the environment.
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| questId | `string` \| `number` | The quest ID to check. |
-
-**Returns**: `boolean`
-
 ### removeBoost
-Removes a boost item name from the environment.
+Removes a boost from the environment.
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| boostName | `string` |  |
+| boostName | `string` | The boost name to remove. |
 
 **Returns**: `void`
 
