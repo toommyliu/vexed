@@ -1,5 +1,6 @@
 import { Mutex } from "async-mutex";
 import log from "electron-log";
+import { Context } from "@botting/context";
 import type { Bot } from "@lib/Bot";
 import { Job } from "./Job";
 
@@ -42,7 +43,10 @@ export class AutoReloginJob extends Job {
   }
 
   public override async execute() {
-    if (this.bot.auth.isLoggedIn()) return;
+    if (this.bot.player.isReady()) return;
+
+    const context = Context.getInstance();
+    if (context.isRunning()) return;
 
     if (
       !AutoReloginJob.username ||
@@ -54,6 +58,11 @@ export class AutoReloginJob extends Job {
     if (this.mutex.isLocked()) return;
 
     await this.mutex.runExclusive(async () => {
+      if (context.isRunning()) {
+        logger.debug("Commands started running, aborting autorelogin");
+        return;
+      }
+
       const og_lagKiller = this.bot.settings.lagKiller;
       const og_skipCutscenes = this.bot.settings.skipCutscenes;
 
@@ -64,14 +73,25 @@ export class AutoReloginJob extends Job {
         await this.bot.waitUntil(
           () => !this.bot.auth.isTemporarilyKicked(),
           null,
-          -1,
+          60,
         );
+      }
+
+      if (context.isRunning()) {
+        logger.debug(
+          "Commands started running during temp kick wait, aborting...",
+        );
+        return;
       }
 
       logger.info(`Triggered, waiting ${AutoReloginJob.delay}ms...`);
       await this.bot.sleep(AutoReloginJob.delay);
 
-      // Still on server select?
+      if (context.isRunning()) {
+        logger.debug("Commands started running during delay, aborting...");
+        return;
+      }
+
       if (this.isInServerSelect()) {
         this.bot.flash.call("removeAllChildren");
         this.bot.flash.call("gotoAndPlay", "Login");
@@ -81,21 +101,23 @@ export class AutoReloginJob extends Job {
 
       this.bot.auth.login(AutoReloginJob.username!, AutoReloginJob.password!);
 
-      // Wait for servers to be loaded
-      await this.bot.waitUntil(() => this.isInServerSelect(), null, -1);
-      await this.bot.waitUntil(
-        () => this.bot.auth.servers.length > 0,
-        null,
-        -1,
-      );
+      await this.bot.waitUntil(() => this.isInServerSelect(), null, 5);
+      if (!this.isInServerSelect()) {
+        logger.debug("Still not in server select, aborting...");
+        return;
+      }
+
+      await this.bot.waitUntil(() => this.bot.auth.servers.length > 0, null, 5);
+      if (this.bot.auth.servers.length === 0) {
+        logger.debug("No servers loaded, aborting...");
+        return;
+      }
 
       this.bot.auth.connectTo(AutoReloginJob.server!);
-
       await this.bot.waitUntil(() => this.bot.player.isReady(), null, 25);
 
-      // Still stuck in blue flame?
       if (!this.bot.player.isReady()) {
-        logger.info("Still not ready? Logging out...");
+        logger.debug("Still not ready after relogin, logging out...");
         this.bot.auth.logout();
         return;
       }

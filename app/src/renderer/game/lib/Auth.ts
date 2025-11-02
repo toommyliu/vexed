@@ -38,15 +38,7 @@ export class Auth {
    * @param password - The password to login with.
    */
   public login(username: string, password: string): void {
-    if (!username) {
-      throw new Error("Username is required");
-    }
-
-    if (!password) {
-      throw new Error("Password is required");
-    }
-
-    this.bot.flash.call(() => swf.authLogin(username, password));
+    this.bot.flash.call("login", username, password);
   }
 
   /**
@@ -72,20 +64,8 @@ export class Auth {
    * @param name - The name of the server.
    */
   public connectTo(name: string): void {
-    if (!name) {
-      throw new Error("Server name is required");
-    }
-
     if (!this.servers.length) {
       throw new Error("No servers available");
-    }
-
-    if (
-      !this.servers.some(
-        (server) => server.name.toLowerCase() === name.toLowerCase(),
-      )
-    ) {
-      throw new Error(`Server "${name}" does not exist`);
     }
 
     this.bot.flash.call(() => swf.authConnectTo(name));
