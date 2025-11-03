@@ -343,6 +343,7 @@
     width: auto !important;
     height: auto !important;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    min-height: 0;
   }
 
   .command-overlay.dragging {
