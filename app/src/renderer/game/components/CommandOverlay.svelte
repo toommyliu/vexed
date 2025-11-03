@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { commandOverlayState, scriptState } from "@game/state.svelte";
-  import VirtualList from "@vexed/virtual-list";
+  import { VirtualList} from "@vexed/ui";
 
   let overlay: HTMLDivElement;
   let listContainer: HTMLDivElement;
