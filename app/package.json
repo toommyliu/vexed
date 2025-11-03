@@ -51,7 +51,6 @@
     "semver": "^7.7.2",
     "tailwind-merge": "^3.3.0",
     "tiny-typed-emitter": "^2.1.0",
-    "virtua": "^0.41.3",
     "watchlist": "^0.3.1"
   },
   "devDependencies": {
