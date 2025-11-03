@@ -220,8 +220,11 @@ export function initCommandOverlayState() {
     const savedPosition = localStorage.getItem(storageKey);
 
     if (!savedPosition) {
+      const topNav = document.getElementById("topnav-container");
+      const topNavBottom = topNav?.getBoundingClientRect().bottom ?? 0;
+      const minTop = Math.max(0, Math.round(topNavBottom));
       overlay.style.left = "20px";
-      overlay.style.top = "20px";
+      overlay.style.top = `${minTop}px`;
       return;
     }
 
@@ -231,8 +234,11 @@ export function initCommandOverlayState() {
       overlay.style.left = position.left;
       overlay.style.top = position.top;
     } else {
+      const topNav = document.getElementById("topnav-container");
+      const topNavBottom = topNav?.getBoundingClientRect().bottom ?? 0;
+      const minTop = Math.max(0, Math.round(topNavBottom));
       overlay.style.left = "20px";
-      overlay.style.top = "20px";
+      overlay.style.top = `${minTop}px`;
     }
 
     if (position.visible !== undefined) {

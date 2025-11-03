@@ -15,6 +15,17 @@
   });
 
   $effect(() => {
+    if (overlay) {
+      if (commandOverlayState.isVisible) {
+        commandOverlayState.loadPosition(overlay);
+        ensureWithinViewport();
+      } else {
+        commandOverlayState.savePosition(overlay);
+      }
+    }
+  });
+
+  $effect(() => {
     if (commandOverlayState.lastIndex >= 0 && listContainer) {
       scrollActiveItemIntoView();
     }
@@ -157,12 +168,6 @@
       overlay.style.top = `${newTop}px`;
     }
 
-    // Also ensure overlay is not above the top nav
-    if (newTop < minTop) {
-      newTop = minTop;
-      overlay.style.top = `${newTop}px`;
-    }
-
     // Constrain the max-height so the bottom (and resize handle) stays reachable
     const available = Math.max(80, innerHeight - Math.max(minTop, newTop) - 8);
     const contentMaxHeight = getContentMaxHeight();
@@ -196,9 +201,6 @@
   }
 
   onMount(() => {
-    commandOverlayState.loadPosition(overlay);
-
-    ensureWithinViewport();
     resizeObserver = new ResizeObserver(() => {
       ensureWithinViewport();
     });
@@ -258,11 +260,13 @@
         class="command-overlay-control command-overlay-close"
         onclick={(ev) => {
           ev.stopPropagation();
+          commandOverlayState.savePosition(overlay);
           commandOverlayState.hide();
         }}
         onkeydown={(ev) => {
           if (ev.key === "Enter") {
             ev.preventDefault();
+            commandOverlayState.savePosition(overlay);
             commandOverlayState.hide();
           }
         }}
