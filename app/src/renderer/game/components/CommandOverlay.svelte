@@ -122,6 +122,17 @@
     }
   }
 
+  function getContentMaxHeight() {
+    const itemHeight = 31; // 28px command-item height + 3px margin
+    const headerHeight = 35;
+    const listVpadding = 10; // 6px top + 4px bottom
+    const calculatedHeight =
+      commandOverlayState.commandStrings.length * itemHeight +
+      headerHeight +
+      listVpadding;
+    return calculatedHeight + 10;
+  }
+
   function ensureWithinViewport() {
     if (!overlay) return;
 
@@ -154,12 +165,14 @@
 
     // Constrain the max-height so the bottom (and resize handle) stays reachable
     const available = Math.max(80, innerHeight - Math.max(minTop, newTop) - 8);
-    overlay.style.maxHeight = `${available}px`;
+    const contentMaxHeight = getContentMaxHeight();
+    const finalMaxHeight = Math.min(available, contentMaxHeight);
+    overlay.style.maxHeight = `${finalMaxHeight}px`;
 
     // If we currently exceed available space, clamp height to available
     const currentHeight = rect.height;
-    if (currentHeight > available) {
-      overlay.style.height = `${available}px`;
+    if (currentHeight > finalMaxHeight) {
+      overlay.style.height = `${finalMaxHeight}px`;
     }
 
     commandOverlayState.savePosition(overlay);
@@ -174,9 +187,11 @@
     const minTop = Math.max(0, Math.round(topNavBottom));
     const top = topOverride ?? rect.top;
     const available = Math.max(80, innerHeight - Math.max(minTop, top) - 8);
-    overlay.style.maxHeight = `${available}px`;
-    if (rect.height > available) {
-      overlay.style.height = `${available}px`;
+    const contentMaxHeight = getContentMaxHeight();
+    const finalMaxHeight = Math.min(available, contentMaxHeight);
+    overlay.style.maxHeight = `${finalMaxHeight}px`;
+    if (rect.height > finalMaxHeight) {
+      overlay.style.height = `${finalMaxHeight}px`;
     }
   }
 
@@ -398,12 +413,13 @@
 
   .command-list-container {
     color: white;
-    padding: 6px 6px 4px 8px;
-    max-height: calc(100% - 35px - 4px);
-    width: calc(100% - 8px);
-    height: calc(100% - 35px - 4px);
+    height: calc(100% - 35px);
     user-select: none;
     scrollbar-width: none;
+  }
+  .command-list-container :global(.virtual-scroll-root) {
+    box-sizing: border-box;
+    padding: 6px 6px 4px 8px;
   }
   .command-list-container :global(*) {
     scrollbar-width: none;
@@ -442,5 +458,9 @@
   }
   .command-item:hover {
     background-color: #333;
+  }
+
+  :global(.virtual-scroll-root) {
+    height: 100% !important;
   }
 </style>
