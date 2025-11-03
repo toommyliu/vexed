@@ -1,12 +1,12 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { commandOverlayState, scriptState } from "@game/state.svelte";
-  import { VList } from "virtua/svelte";
+  import VirtualList from "@vexed/virtual-list";
 
   let overlay: HTMLDivElement;
   let listContainer: HTMLDivElement;
   // svelte-ignore non_reactive_update
-  let virtualList: VList<string>;
+  let virtualList: VirtualList<string>;
 
   let resizeObserver: ResizeObserver | null = null;
 
@@ -103,9 +103,8 @@
     if (!virtualList || commandOverlayState.lastIndex < 0) return;
 
     requestAnimationFrame(() => {
-      virtualList!["scrollToIndex"](commandOverlayState.lastIndex, {
-        align: "nearest",
-        smooth: true,
+      requestAnimationFrame(() => {
+        virtualList!.scrollToIndex(commandOverlayState.lastIndex);
       });
     });
   }
@@ -267,13 +266,20 @@
     onwheel={handleWheel}
   >
     {#if commandOverlayState.commandStrings.length > 0}
-      <VList
+      <VirtualList
         bind:this={virtualList}
         data={commandOverlayState.commandStrings}
-        getKey={(_, index) => `command-${index}`}
-        style="height: 100%; width: 100%;"
+        key={(_item: string, index: number) => `command-${index}`}
+        smoothScroll={true}
+        overflow={0}
       >
-        {#snippet children(command, index)}
+        {#snippet children({
+          data: command,
+          index,
+        }: {
+          data: string;
+          index: number;
+        })}
           <div
             class="command-item"
             class:active={index === commandOverlayState.lastIndex}
@@ -281,7 +287,7 @@
             {command}
           </div>
         {/snippet}
-      </VList>
+      </VirtualList>
     {/if}
   </div>
 </div>
