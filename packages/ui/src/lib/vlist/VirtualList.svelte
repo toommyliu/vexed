@@ -15,6 +15,8 @@
         topThreshold?: number,
         bottomThreshold?: number,
         smoothScroll?: boolean,
+        class?: string,
+        style?: string,
         onScroll?: (event: Event, range: {start: number, end: number, padFront: number, padBehind: number}) => void,
         onTop?: () => void,
         onBottom?: () => void,
@@ -77,6 +79,16 @@
          * @type {boolean}
          */
         smoothScroll = false,
+        /**
+         * Additional CSS classes to apply to the root element
+         * @type {string}
+         */
+        class: className = "",
+        /**
+         * Additional inline styles to apply to the root element
+         * @type {string}
+         */
+        style: inlineStyle = "",
         onScroll = () => {},
         onTop = () => {},
         onBottom = () => {},
@@ -312,7 +324,7 @@
     }
 </script>
 
-<div bind:this={root} onscroll={onDivScroll} style="overflow-y: auto; height: inherit" class="virtual-scroll-root">
+<div bind:this={root} onscroll={onDivScroll} style="overflow-y: auto; height: 100%; {inlineStyle}" class="virtual-scroll-root {className}">
     {#if header}
         <Item onResize={onItemResized} type="slot" uniqueKey="header">
             {@render header?.()}
