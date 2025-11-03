@@ -2,7 +2,7 @@
   import { cn } from "../../../shared";
   import { client } from "../../../shared/tipc";
   import { GrabberDataType, LoaderDataType } from "../../../shared/types";
-  import { VList } from "virtua/svelte";
+  import { VirtualList } from "@vexed/ui";
   import type { QuestData } from "../../game/lib/models/Quest";
   import type { ShopInfo } from "../../game/lib/Shops";
   import type { ItemData } from "../../game/lib/models/Item";
@@ -521,9 +521,11 @@
             </div>
           </div>
 
-          <div class="flex min-h-0 flex-1 flex-col">
+          <div
+            class="flex min-h-0 flex-1 flex-col overflow-hidden"
+          >
             <div
-              class="flex-1 overflow-hidden rounded-md border border-gray-700/50 bg-background-primary p-2 backdrop-blur-sm"
+              class="h-full overflow-hidden rounded-md border border-gray-700/50 bg-background-primary backdrop-blur-sm"
             >
               {#if isLoading}
                 <div class="flex h-full items-center justify-center p-8">
@@ -552,11 +554,13 @@
                   </div>
                 </div>
               {:else if flattenedItems.length > 0}
-                <VList data={flattenedItems}>
-                  {#snippet children(item)}
-                    {@render TreeNode(item)}
-                  {/snippet}
-                </VList>
+                <div class="h-full p-2">
+                  <VirtualList data={flattenedItems} key="nodeId" class="no-scrollbar">
+                    {#snippet children({ data: item })}
+                      {@render TreeNode(item)}
+                    {/snippet}
+                  </VirtualList>
+                </div>
               {/if}
             </div>
           </div>

@@ -1,17 +1,28 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { commandOverlayState, scriptState } from "@game/state.svelte";
-  import { VList } from "virtua/svelte";
+  import { VirtualList} from "@vexed/ui";
 
   let overlay: HTMLDivElement;
   let listContainer: HTMLDivElement;
   // svelte-ignore non_reactive_update
-  let virtualList: VList<string>;
+  let virtualList: VirtualList<string>;
 
   let resizeObserver: ResizeObserver | null = null;
 
   $effect(() => {
     scriptState.showOverlay = commandOverlayState.isVisible;
+  });
+
+  $effect(() => {
+    if (overlay) {
+      if (commandOverlayState.isVisible) {
+        commandOverlayState.loadPosition(overlay);
+        ensureWithinViewport();
+      } else {
+        commandOverlayState.savePosition(overlay);
+      }
+    }
   });
 
   $effect(() => {
@@ -103,9 +114,8 @@
     if (!virtualList || commandOverlayState.lastIndex < 0) return;
 
     requestAnimationFrame(() => {
-      virtualList!["scrollToIndex"](commandOverlayState.lastIndex, {
-        align: "nearest",
-        smooth: true,
+      requestAnimationFrame(() => {
+        virtualList!.scrollToIndex(commandOverlayState.lastIndex);
       });
     });
   }
@@ -121,6 +131,17 @@
     if (!(delta > 0 && atBottom) && !(delta < 0 && atTop)) {
       ev.stopPropagation();
     }
+  }
+
+  function getContentMaxHeight() {
+    const itemHeight = 31; // 28px command-item height + 3px margin
+    const headerHeight = 35;
+    const listVpadding = 10; // 6px top + 4px bottom
+    const calculatedHeight =
+      commandOverlayState.commandStrings.length * itemHeight +
+      headerHeight +
+      listVpadding;
+    return calculatedHeight + 10;
   }
 
   function ensureWithinViewport() {
@@ -147,20 +168,16 @@
       overlay.style.top = `${newTop}px`;
     }
 
-    // Also ensure overlay is not above the top nav
-    if (newTop < minTop) {
-      newTop = minTop;
-      overlay.style.top = `${newTop}px`;
-    }
-
     // Constrain the max-height so the bottom (and resize handle) stays reachable
     const available = Math.max(80, innerHeight - Math.max(minTop, newTop) - 8);
-    overlay.style.maxHeight = `${available}px`;
+    const contentMaxHeight = getContentMaxHeight();
+    const finalMaxHeight = Math.min(available, contentMaxHeight);
+    overlay.style.maxHeight = `${finalMaxHeight}px`;
 
     // If we currently exceed available space, clamp height to available
     const currentHeight = rect.height;
-    if (currentHeight > available) {
-      overlay.style.height = `${available}px`;
+    if (currentHeight > finalMaxHeight) {
+      overlay.style.height = `${finalMaxHeight}px`;
     }
 
     commandOverlayState.savePosition(overlay);
@@ -175,16 +192,15 @@
     const minTop = Math.max(0, Math.round(topNavBottom));
     const top = topOverride ?? rect.top;
     const available = Math.max(80, innerHeight - Math.max(minTop, top) - 8);
-    overlay.style.maxHeight = `${available}px`;
-    if (rect.height > available) {
-      overlay.style.height = `${available}px`;
+    const contentMaxHeight = getContentMaxHeight();
+    const finalMaxHeight = Math.min(available, contentMaxHeight);
+    overlay.style.maxHeight = `${finalMaxHeight}px`;
+    if (rect.height > finalMaxHeight) {
+      overlay.style.height = `${finalMaxHeight}px`;
     }
   }
 
   onMount(() => {
-    commandOverlayState.loadPosition(overlay);
-
-    ensureWithinViewport();
     resizeObserver = new ResizeObserver(() => {
       ensureWithinViewport();
     });
@@ -244,11 +260,13 @@
         class="command-overlay-control command-overlay-close"
         onclick={(ev) => {
           ev.stopPropagation();
+          commandOverlayState.savePosition(overlay);
           commandOverlayState.hide();
         }}
         onkeydown={(ev) => {
           if (ev.key === "Enter") {
             ev.preventDefault();
+            commandOverlayState.savePosition(overlay);
             commandOverlayState.hide();
           }
         }}
@@ -267,13 +285,20 @@
     onwheel={handleWheel}
   >
     {#if commandOverlayState.commandStrings.length > 0}
-      <VList
+      <VirtualList
         bind:this={virtualList}
         data={commandOverlayState.commandStrings}
-        getKey={(_, index) => `command-${index}`}
-        style="height: 100%; width: 100%;"
+        key={(_item: string, index: number) => `command-${index}`}
+        smoothScroll={true}
+        overflow={0}
       >
-        {#snippet children(command, index)}
+        {#snippet children({
+          data: command,
+          index,
+        }: {
+          data: string;
+          index: number;
+        })}
           <div
             class="command-item"
             class:active={index === commandOverlayState.lastIndex}
@@ -281,7 +306,7 @@
             {command}
           </div>
         {/snippet}
-      </VList>
+      </VirtualList>
     {/if}
   </div>
 </div>
@@ -322,6 +347,7 @@
     width: auto !important;
     height: auto !important;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    min-height: 0;
   }
 
   .command-overlay.dragging {
@@ -392,12 +418,13 @@
 
   .command-list-container {
     color: white;
-    padding: 6px 6px 4px 8px;
-    max-height: calc(100% - 35px - 4px);
-    width: calc(100% - 8px);
-    height: calc(100% - 35px - 4px);
+    height: calc(100% - 35px);
     user-select: none;
     scrollbar-width: none;
+  }
+  .command-list-container :global(.virtual-scroll-root) {
+    box-sizing: border-box;
+    padding: 6px 6px 4px 8px;
   }
   .command-list-container :global(*) {
     scrollbar-width: none;
@@ -436,5 +463,9 @@
   }
   .command-item:hover {
     background-color: #333;
+  }
+
+  :global(.virtual-scroll-root) {
+    height: 100% !important;
   }
 </style>
