@@ -26,18 +26,18 @@ export const startAccount = async (account: Account) => {
 };
 
 export const removeAccount = async (account: Account) => {
-  const { timeouts, accounts } = managerState;
+  const { timeouts } = managerState;
+
+  if (timeouts.has(account.username)) {
+    clearTimeout(timeouts.get(account.username)!);
+    timeouts.delete(account.username);
+  }
 
   try {
-    if (timeouts.has(account.username)) {
-      clearTimeout(timeouts.get(account.username)!);
-      timeouts.delete(account.username);
-    }
-
-    await client.manager.removeAccount({ username: account.username });
-    accounts.delete(account.username);
+    return await client.manager.removeAccount({ username: account.username });
   } catch (error) {
     console.error("Failed to remove account:", error);
+    return false;
   }
 };
 
