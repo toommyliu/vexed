@@ -77,21 +77,21 @@ export function createManagerTipcRouter(tipcInstance: TipcInstance) {
           const idx = accounts.findIndex(
             (acc) => acc.username === input.originalUsername,
           );
-          if (idx === -1) return false;
+          if (idx === -1) return { msg: "ACCOUNT_NOT_FOUND" } as const;
 
           if (input.updatedAccount.username !== input.originalUsername) {
             const existingIdx = accounts.findIndex(
               (acc) => acc.username === input.updatedAccount.username,
             );
-            if (existingIdx !== -1) return false;
+            if (existingIdx !== -1) return { msg: "USERNAME_ALREADY_EXISTS" } as const;
           }
 
           accounts[idx] = input.updatedAccount;
           await writeJson(ACCOUNTS_PATH, accounts);
-          return true;
+          return { msg: "SUCCESS" } as const;
         } catch (error) {
           logger.error("Failed to update account.", error);
-          return false;
+          return { msg: "FAILED" } as const;
         }
       }),
     mgrLoadScript: tipcInstance.procedure.action(async ({ context }) => {
