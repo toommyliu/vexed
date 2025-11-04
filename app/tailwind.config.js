@@ -11,6 +11,8 @@ module.exports = {
     "./src/renderer/manager/**/*.ts",
 
     "./src/**/*.{html,js,svelte,ts}",
+    
+    "../packages/ui/src/**/*.{html,js,svelte,ts}",
   ],
   theme: {
     extend: {
