@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+# [0.5.0](https://github.com/toommyliu/vexed/compare/0.4.1...0.5.0) - (2025-11-04)
+
+## Bug Fixes
+
+- **manager:** Checkbox click not toggling account selection (#265) ([6758505](https://github.com/toommyliu/vexed/commit/67585056428e82404fd0e7dba3ed9c8ef0cc451e))
+- **manager:** Enhance add account feedback and error handling (#264) ([3101258](https://github.com/toommyliu/vexed/commit/3101258aa199d209ef85a2ff2d454ad4d8e843b5))
+- **manager:** Improve feedback on editing account (#263) ([67c4959](https://github.com/toommyliu/vexed/commit/67c49597f65ab14a19a03f5b058371bb14aeb5b0))
+- **manager:** Add error handling to account removal (#262) ([29e4ec3](https://github.com/toommyliu/vexed/commit/29e4ec370ac185c1178a85975ae8c781f73c85a2))
+- **autorelogin:** Try and improve stability (#260) ([2c51e7f](https://github.com/toommyliu/vexed/commit/2c51e7f21da71b7aa2c9152da31f33d5508ae634))
+- **autorelogin:** Split wait conditions for server selection and loading (#257) ([6612bd1](https://github.com/toommyliu/vexed/commit/6612bd1df30838203de32c8cf3f0b86885b80805))
+
+## Documentation
+
+- Auto-update API documentation ([dfb5638](https://github.com/toommyliu/vexed/commit/dfb56385fd49c9507792d175a6c812c0ca1c5d67))
+- Auto-update API documentation ([87fd7f8](https://github.com/toommyliu/vexed/commit/87fd7f82a6754e7efe13eba4c8eb1cd708b7614d))
+
+## Features
+
+- Overlay improvements (#261) ([4ce6f65](https://github.com/toommyliu/vexed/commit/4ce6f65868ac9243a33d8e8c273cee3f9e6e2a27))
+- **commands:** Add commands to manage environment state (#258) ([f4b1982](https://github.com/toommyliu/vexed/commit/f4b19821c471358a8181d3eabf6d2d07096e311f))
+- Environment window (#255) ([9ac99fe](https://github.com/toommyliu/vexed/commit/9ac99fe666fc95174aef97d45bcab96f7ec2c95f))
+- **cmd:** Drink_consumables (#256) ([f6789b2](https://github.com/toommyliu/vexed/commit/f6789b2eb7290acc3d1b89b857e615134d045b46))
+- Runtime logging (#254) ([f2260a8](https://github.com/toommyliu/vexed/commit/f2260a8f07478795dcae1a40791ceda1d2abacc8))
+
+## Refactor
+
+- **cmd/CmdRegisterDrop:** Deprecate rejectElse parameter (#259) ([0c1bab3](https://github.com/toommyliu/vexed/commit/0c1bab3499f2bb4bbb53219d0a0bb697bb84a518))
+
 # [0.4.1](https://github.com/toommyliu/vexed/compare/0.4.0...0.4.1) - (2025-10-07)
 
 ## Bug Fixes
