@@ -49,16 +49,25 @@
         password: cleanPassword,
       };
 
-      const success = await editAccount(account.username, updatedAccount);
+      const res = await editAccount(account.username, updatedAccount);
 
-      if (success) {
-        onClose();
-      } else {
-        error = "Failed to update account. Username might already exist.";
+      switch (res?.msg) {
+        case "SUCCESS":
+          onClose();
+          break;
+        case "USERNAME_ALREADY_EXISTS":
+          error = "Failed to update account. Username might already exist.";
+          break;
+        case "ACCOUNT_NOT_FOUND":
+          error = "Failed to update account. Original account not found.";
+          break;
+        case "FAILED":
+        default:
+          error = "Failed to update account. Please try again.";
       }
     } catch (err) {
       error = "Failed to update account. Please try again.";
-      console.error("Failed to update account:", err);
+      console.error("Failed to update account.", err);
     } finally {
       isSubmitting = false;
     }
@@ -188,7 +197,7 @@
             {#if isSubmitting}
               Updating...
             {:else}
-              Update Account
+              Update
             {/if}
           </button>
         </div>

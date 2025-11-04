@@ -41,7 +41,6 @@ export const removeAccount = async (account: Account) => {
   }
 };
 
-// Update an existing account in the accounts Map, while preserving the order
 export const editAccount = async (
   originalUsername: string,
   updatedAccount: Account,
@@ -49,12 +48,12 @@ export const editAccount = async (
   const { accounts } = managerState;
 
   try {
-    const success = await client.manager.updateAccount({
+    const res = await client.manager.updateAccount({
       originalUsername,
       updatedAccount,
     });
 
-    if (success) {
+    if (res?.msg === "SUCCESS") {
       if (originalUsername === updatedAccount.username) {
         accounts.set(updatedAccount.username.toLowerCase(), updatedAccount);
       } else {
@@ -72,17 +71,13 @@ export const editAccount = async (
         }
 
         accounts.clear();
-
-        // Update the accounts map now
         for (const [key, value] of newAccounts) accounts.set(key, value);
       }
-
-      return true;
     }
 
-    return false;
+    return res;
   } catch (error) {
     console.error("Failed to edit account:", error);
-    return false;
+    return null;
   }
 };
