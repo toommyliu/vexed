@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, tick } from "svelte";
   import { commandOverlayState, scriptState } from "@game/state.svelte";
-  import { VirtualList} from "@vexed/ui";
+  import { VirtualList } from "@vexed/ui";
 
   let overlay: HTMLDivElement;
   let listContainer: HTMLDivElement;
@@ -26,7 +26,12 @@
   });
 
   $effect(() => {
-    if (commandOverlayState.lastIndex >= 0 && listContainer) {
+    if (
+      commandOverlayState.lastIndex >= 0 &&
+      listContainer &&
+      commandOverlayState.listVisible &&
+      virtualList
+    ) {
       scrollActiveItemIntoView();
     }
   });
@@ -113,10 +118,8 @@
   function scrollActiveItemIntoView() {
     if (!virtualList || commandOverlayState.lastIndex < 0) return;
 
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        virtualList!.scrollToIndex(commandOverlayState.lastIndex);
-      });
+    tick().then(() => {
+      virtualList!.scrollToIndex(commandOverlayState.lastIndex);
     });
   }
 
@@ -201,9 +204,10 @@
   }
 
   onMount(() => {
-    resizeObserver = new ResizeObserver(() => {
-      ensureWithinViewport();
-    });
+    if (listContainer)
+      listContainer.addEventListener("wheel", handleWheel, { passive: true });
+
+    resizeObserver = new ResizeObserver(() => ensureWithinViewport());
     resizeObserver.observe(overlay);
 
     document.addEventListener("mousemove", handleDragMove);
@@ -212,6 +216,9 @@
 
     return () => {
       resizeObserver?.disconnect();
+
+      if (listContainer)
+        listContainer.removeEventListener("wheel", handleWheel);
 
       document.removeEventListener("mousemove", handleDragMove);
       document.removeEventListener("mouseup", handleDragEnd);
@@ -282,7 +289,6 @@
     bind:this={listContainer}
     class="command-list-container"
     style:display={commandOverlayState.listVisible ? "block" : "none"}
-    onwheel={handleWheel}
   >
     {#if commandOverlayState.commandStrings.length > 0}
       <VirtualList
