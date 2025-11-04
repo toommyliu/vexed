@@ -34,14 +34,14 @@ export function createManagerTipcRouter(tipcInstance: TipcInstance) {
           const idx = accounts.findIndex(
             (acc) => acc.username === input.username,
           );
-          if (idx !== -1) return false;
+          if (idx !== -1) return { msg: "USERNAME_ALREADY_EXISTS" } as const;
 
           accounts.push(input);
           await writeJson(ACCOUNTS_PATH, accounts);
-          return true;
+          return { msg: "SUCCESS" } as const;
         } catch (error) {
           logger.error("Failed to add account.", error);
-          return false;
+          return { msg: "FAILED" } as const;
         }
       }),
     removeAccount: tipcInstance.procedure

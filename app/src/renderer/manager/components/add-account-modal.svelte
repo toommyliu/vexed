@@ -27,7 +27,7 @@
     }
 
     if (managerState.accounts.has(cleanUsername)) {
-      error = "An account with this username already exists";
+      error = "An account with this username already exists.";
       return;
     }
 
@@ -40,8 +40,15 @@
         password: cleanPassword,
       };
 
-      await client.manager.addAccount(account);
-      managerState.accounts.set(cleanUsername, account);
+      const res = await client.manager.addAccount(account);
+      if (res?.msg === "SUCCESS") {
+        managerState.accounts.set(cleanUsername, account);
+      } else if (res?.msg === "USERNAME_ALREADY_EXISTS") {
+        error = "An account with this username already exists.";
+      } else if (res?.msg === 'FAILED') {
+        error = "Failed to add account. Please try again.";
+        return;
+      }
 
       username = "";
       password = "";
