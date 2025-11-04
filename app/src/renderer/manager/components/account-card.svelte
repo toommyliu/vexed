@@ -20,7 +20,7 @@
 
   type Props = {
     account: Account;
-    removeAccount: (account: Account) => void | Promise<void>;
+    removeAccount: (account: Account) => Promise<boolean>;
     startAccount: (account: AccountWithServer) => void | Promise<void>;
     editAccount?: (account: Account) => void;
   };
@@ -93,7 +93,14 @@
     <div class="flex flex-shrink-0 items-center space-x-2 sm:w-auto">
       <button
         class="flex-shrink-0 rounded-md border border-red-600/50 bg-red-900/30 px-2 py-1.5 text-xs font-medium text-red-200 shadow-md transition-all duration-200 hover:bg-red-800/40 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500/50 sm:min-w-[70px] sm:px-3 sm:text-sm"
-        onclick={() => removeAccount(account)}
+        onclick={async () => {
+          const success = await removeAccount(account);
+          if (success) {
+            managerState.accounts.delete(account.username.toLowerCase());
+          } else {
+            window.alert("Failed to remove account.");
+          }
+        }}
         title="Remove this account">Remove</button
       >
       <button
