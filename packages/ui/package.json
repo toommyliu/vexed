@@ -4,6 +4,7 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build && npm run prepack",
+    "build:watch": "svelte-kit sync && svelte-package --watch",
     "preview": "vite preview",
     "prepare": "svelte-kit sync && vite build && npm run prepack",
     "prepack": "svelte-kit sync && svelte-package",
