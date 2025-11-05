@@ -10,8 +10,6 @@ export class CommandDrinkConsumables extends Command {
       await this.bot.inventory.equip(item);
       await this.bot.waitUntil(
         () => this.bot.flash.get("world.lockdownPots", true) === false,
-        null,
-        -1,
       );
       await this.bot.combat.useSkill(5, true, true);
       await this.bot.sleep(1_000);

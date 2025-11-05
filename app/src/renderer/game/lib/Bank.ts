@@ -80,9 +80,10 @@ export class Bank {
 
     this.bot.flash.call<boolean>(() => swf.bankDeposit(key));
     await this.bot.waitUntil(
-      () => this.get(key) !== null && this.bot.inventory.get(key) === null,
-      () => this.bot.auth.isLoggedIn(),
-      3,
+      () =>
+        this.bot.auth.isLoggedIn() &&
+        this.get(key) !== null &&
+        this.bot.inventory.get(key) === null,
     );
   }
 
@@ -118,9 +119,10 @@ export class Bank {
     this.bot.flash.call<boolean>(() => swf.bankWithdraw(key));
 
     await this.bot.waitUntil(
-      () => this.get(key) === null && this.bot.inventory.get(key) !== null,
-      () => this.bot.player.isReady(),
-      3,
+      () =>
+        this.bot.auth.isLoggedIn() &&
+        this.get(key) === null &&
+        this.bot.inventory.get(key) !== null,
     );
   }
 
@@ -153,9 +155,7 @@ export class Bank {
 
     this.bot.flash.call(() => swf.bankSwap(inventoryItem, bankItem));
     await this.bot.waitUntil(
-      () => !isInBank() && !isInInventory(),
-      () => this.bot.player.isReady(),
-      3,
+      () => this.bot.auth.isLoggedIn() && !isInBank() && !isInInventory(),
     );
   }
 
@@ -208,9 +208,10 @@ export class Bank {
     }
 
     await this.bot.waitUntil(
-      () => this.items.length > 0 /* wait until something is loaded */,
-      () => this.bot.player.isReady() && this.isOpen(),
-      10,
+      () =>
+        this.bot.player.isReady() &&
+        this.isOpen() &&
+        this.items.length > 0 /* wait until something is loaded */,
     );
   }
 

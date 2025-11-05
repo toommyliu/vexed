@@ -236,9 +236,10 @@ export class Bot extends TypedEmitter<Events> {
    * Pauses execution for a specified amount of time.
    *
    * @param ms - The number of milliseconds to wait.
+   * @param signal - An optional AbortSignal to abort the sleep.
    */
-  public async sleep(ms: number): Promise<void> {
-    await sleep(ms);
+  public async sleep(ms: number, signal?: AbortSignal): Promise<void> {
+    await sleep(ms, signal);
   }
 
   /**
@@ -256,44 +257,62 @@ export class Bot extends TypedEmitter<Events> {
       abort(): void;
       signal: AbortSignal;
     }) => boolean,
-    options: WaitUntilOptions = {},
+    options: WaitUntilOptions | null = {},
   ) {
-    const { interval = 1_000, timeout = 5_000 } = options;
+    const opts = options ?? {};
+    opts.interval ??= 1_000;
+    opts.timeout ??= 3_000;
+    
+    const interval = opts.interval;
+    const timeout = opts.timeout;
+
     let ac = null;
 
-    if (!options.signal) {
+    if (!opts.signal) {
       ac = new AbortController();
-      options.signal = ac.signal;
+      opts.signal = ac.signal;
     }
 
     const abort = () => ac?.abort();
-    const args = { signal: options.signal, abort };
+    const args = { signal: opts.signal, abort };
 
     let iterations = 0;
     let aborted = false;
-    const abortListener = () => (aborted = true);
 
-    options.signal?.addEventListener("abort", abortListener);
+    const abortListener = () => (aborted = true);
+    opts.signal?.addEventListener("abort", abortListener, { once: true });
 
     try {
       while (true) {
-        if (options.signal.aborted) return err("aborted");
+        if (aborted) return err("aborted");
 
-        if (condition(args)) {
-          if (typeof options.postDelay === "number" && options.postDelay > 0)
-            await this.sleep(options.postDelay);
+        if (
+          timeout > 0 &&
+          Number.isFinite(timeout) &&
+          iterations * interval >= timeout
+        )
+          return err("timeout");
+
+        const res = condition(args);
+
+        if (typeof res === "boolean" && res) {
+          if (aborted) return err("aborted");
+
+          if (
+            typeof opts.postDelay === "number" &&
+            opts.postDelay > 0 &&
+            Number.isFinite(opts.postDelay)
+          )
+            await this.sleep(opts.postDelay);
 
           return ok(void 0);
         }
 
-        if (timeout > 0 && iterations * interval >= timeout)
-          return err("timeout");
-
-        await this.sleep(interval);
+        await this.sleep(interval, opts.signal);
         iterations++;
       }
     } finally {
-      options.signal.removeEventListener("abort", abortListener);
+      opts.signal?.removeEventListener("abort", abortListener);
     }
   }
 

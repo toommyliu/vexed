@@ -254,7 +254,7 @@ export class World {
     if (isSameCell() && !ignoreCheck) return;
 
     this.bot.flash.call(() => swf.playerJump(cell, pad));
-    await this.bot.waitUntil(isSameCell, null, 5);
+    await this.bot.waitUntil(isSameCell);
   }
 
   /**
@@ -270,27 +270,25 @@ export class World {
     pad = "Spawn",
   ): Promise<void> {
     // Make sure the player is alive to be able to do the transfer.
-    await this.bot.waitUntil(() => this.bot.player.alive, null, -1);
+    await this.bot.waitUntil(() => this.bot.player.alive);
 
     await exitFromCombat();
 
     await this.bot.waitUntil(
       () => this.isActionAvailable(GameAction.Transfer),
-      null,
-      15,
+      { timeout: 5_000 },
     );
 
     let mapStr = mapName;
     // eslint-disable-next-line prefer-const
     let [map_name, map_number] = mapStr.split("-");
 
-    // Already in the map, jump to the cell and pad
     if (this.name.toLowerCase() === map_name!.toLowerCase()) {
       await this.jump(cell, pad);
       return;
     }
 
-    // Game doesn't like 1e9 or 1e99 anymore...
+    // If for some reason, the provided map number is invalid, assume a random large number
     if (
       map_number === "1e9" ||
       map_number === "1e99" ||
@@ -305,13 +303,13 @@ export class World {
 
     this.bot.flash.call(() => swf.playerJoinMap(mapStr, cell, pad));
     await this.bot.waitUntil(
-      () => this.name.toLowerCase() === map_name!.toLowerCase(),
-      null,
-      10,
+      () =>
+        !this.isLoading() &&
+        this.name.toLowerCase() === map_name!.toLowerCase(),
+      { timeout: 10_000 },
     );
-    await this.bot.waitUntil(() => !this.isLoading(), null, 40);
 
-    // Still not in the correct cell/pad, jump
+    // Sometimes, the player might not end up in the correct cell/pad, even if specified
     if (
       this.bot.player.cell.toLowerCase() !== cell.toLowerCase() ||
       this.bot.player.pad.toLowerCase() !== pad.toLowerCase()
