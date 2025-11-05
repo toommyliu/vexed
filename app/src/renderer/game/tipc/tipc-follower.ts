@@ -30,7 +30,6 @@ function parseConfig(rawConfig: FollowerStartInput) {
     safeSkillEnabled: rawSafeSkillEnabled,
     safeSkill: rawSafeSkill,
     safeSkillHp: rawSafeSkillHp,
-    rejectElse: rawRejectElse,
   } = rawConfig;
 
   const name = (
@@ -60,21 +59,6 @@ function parseConfig(rawConfig: FollowerStartInput) {
       ? rawSafeSkill.split(",").map((x) => x.trim())
       : [];
 
-  const quests =
-    typeof rawConfig.quests === "string" && rawConfig.quests.trim() !== ""
-      ? rawConfig.quests
-          .split(/[\n,]/)
-          .map((quest) => quest.trim())
-          .filter(Boolean)
-      : [];
-  const drops =
-    typeof rawConfig.drops === "string" && rawConfig.drops.trim() !== ""
-      ? rawConfig.drops
-          .split(/[\n,]/)
-          .map((drop) => drop.trim())
-          .filter(Boolean)
-      : [];
-
   return {
     name,
     skillList,
@@ -86,9 +70,6 @@ function parseConfig(rawConfig: FollowerStartInput) {
     safeSkillEnabled,
     safeSkill,
     safeSkillHp,
-    quests,
-    drops,
-    rejectElse: Boolean(rawRejectElse),
   };
 }
 
@@ -169,15 +150,6 @@ async function startFollower() {
 
   if (cfg.copyWalk) {
     bot.on("pext", packetHandler);
-  }
-
-  if (cfg.quests.length) {
-    for (const quest of cfg.quests) bot.environment.addQuestId(quest);
-  }
-
-  if (cfg.drops.length) {
-    for (const drop of cfg.drops)
-      bot.environment.addItemName(drop, cfg.rejectElse);
   }
 
   void interval(async (_, stop) => {
@@ -261,11 +233,6 @@ handlers.follower.me.handle(async () => {
 handlers.follower.start.listen(async (input) => {
   config = parseConfig(input);
 
-  if (config?.drops?.length) {
-    await bot.bank.withdrawMultiple(config.drops);
-  }
-
-  // eslint-disable-next-line require-atomic-updates
   bot.settings.counterAttack = config?.antiCounter;
   await bot.waitUntil(() => bot.player.isReady(), null, -1);
 
@@ -294,10 +261,7 @@ type FollowerConfig = {
   antiCounter: boolean;
   attackPriority: string[];
   copyWalk: boolean;
-  drops: string[];
   name: string;
-  quests: string[];
-  rejectElse: boolean;
   safeSkill: string[];
   safeSkillEnabled: boolean;
   safeSkillHp: number;

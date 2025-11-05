@@ -17,10 +17,7 @@ export function createFollowerTipcRouter(tipcInstance: TipcInstance) {
         antiCounter: boolean;
         attackPriority: string;
         copyWalk: boolean;
-        drops: string;
         name: string;
-        quests: string;
-        rejectElse: boolean;
         safeSkill: string;
         safeSkillEnabled: boolean;
         safeSkillHp: string;

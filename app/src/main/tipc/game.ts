@@ -55,8 +55,8 @@ export function createGameTipcRouter(tipcInstance: TipcInstance) {
           case WindowIds.Follower:
             ref = storeRef.tools.follower;
             path = join(DIST_PATH, "tools", "follower", "index.html");
-            width = 927;
-            height = 646;
+            width = 943;
+            height = 415;
             break;
           case WindowIds.PacketLogger:
             ref = storeRef.packets.logger;
