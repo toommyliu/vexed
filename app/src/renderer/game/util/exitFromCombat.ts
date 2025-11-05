@@ -28,6 +28,8 @@ export async function exitFromCombat() {
           break;
         }
       }
+      
+      // TODO: this is incorrect
 
       // TODO: this is incorrect
 
