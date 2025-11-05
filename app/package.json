@@ -46,6 +46,7 @@
     "is-hotkey": "^0.2.0",
     "lodash.merge": "^4.6.2",
     "mousetrap": "^1.6.5",
+    "neverthrow": "^8.2.0",
     "node-fetch": "^2.7.0",
     "nw-flash-trust": "^0.3.0",
     "semver": "^7.7.2",

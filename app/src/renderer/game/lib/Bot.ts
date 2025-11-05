@@ -1,4 +1,5 @@
 import { sleep } from "@vexed/utils";
+import { err, ok } from "neverthrow";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { Army } from "./Army";
 import { Auth } from "./Auth";
@@ -241,33 +242,59 @@ export class Bot extends TypedEmitter<Events> {
   }
 
   /**
-   * Waits until the condition is met.
+   * Pauses execution until a specified condition is met or a maximum number of iterations is reached.
    *
-   * @param condition - The condition to wait for until it returns true.
-   * @param prerequisite - The prerequisite to be checked before waiting for the condition.
-   * @param maxIterations - The maximum number of iterations to wait. -1 to wait indefinitely.
+   * @param condition - A function that returns a boolean indicating whether the condition is met.
+   * It receives an object with an AbortSignal and an abort function.
+   * @param options - Optional settings for the waitUntil function.
    */
   public async waitUntil(
-    condition: () => boolean,
-    prerequisite: (() => boolean) | null = null,
-    maxIterations: number = 15,
-  ): Promise<void> {
-    let iterations = 0;
+    condition: ({
+      signal,
+      abort,
+    }: {
+      abort(): void;
+      signal: AbortSignal;
+    }) => boolean,
+    options: WaitUntilOptions = {},
+  ) {
+    const { interval = 1_000, timeout = 5_000 } = options;
+    let ac = null;
 
-    let prerequisiteResult = prerequisite ? prerequisite() : true;
-    let conditionResult = condition();
-    let timeoutResult = iterations < maxIterations || maxIterations === -1;
-
-    while (prerequisiteResult && !conditionResult && timeoutResult) {
-      await this.sleep(1_000);
-      iterations++;
-
-      prerequisiteResult = prerequisite ? prerequisite() : true;
-      conditionResult = condition();
-      timeoutResult = iterations < maxIterations || maxIterations === -1;
+    if (!options.signal) {
+      ac = new AbortController();
+      options.signal = ac.signal;
     }
 
-    await this.sleep(250);
+    const abort = () => ac?.abort();
+    const args = { signal: options.signal, abort };
+
+    let iterations = 0;
+    let aborted = false;
+    const abortListener = () => (aborted = true);
+
+    options.signal?.addEventListener("abort", abortListener);
+
+    try {
+      while (true) {
+        if (options.signal.aborted) return err("aborted");
+
+        if (condition(args)) {
+          if (typeof options.postDelay === "number" && options.postDelay > 0)
+            await this.sleep(options.postDelay);
+
+          return ok(void 0);
+        }
+
+        if (timeout > 0 && iterations * interval >= timeout)
+          return err("timeout");
+
+        await this.sleep(interval);
+        iterations++;
+      }
+    } finally {
+      options.signal.removeEventListener("abort", abortListener);
+    }
   }
 
   /**
@@ -281,3 +308,10 @@ export class Bot extends TypedEmitter<Events> {
 
 // @ts-expect-error debugging
 window.Bot = Bot;
+
+type WaitUntilOptions = {
+  interval?: number;
+  postDelay?: number;
+  signal?: AbortSignal;
+  timeout?: number;
+};
