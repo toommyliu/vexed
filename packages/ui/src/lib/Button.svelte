@@ -23,7 +23,7 @@
 
   function getVariantClass(v: Variant): string {
     const variants: Record<Variant, string> = {
-      default: "btn",
+      default: "",
       primary: "btn--primary",
       secondary: "btn--secondary",
       destructive: "btn--destructive",
