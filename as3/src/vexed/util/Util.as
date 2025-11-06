@@ -65,22 +65,6 @@ package vexed.util {
       return Math.max(_loc_5, _loc_6);
     }
 
-    // ServerList
-    public static function killModals():void {
-      const game:* = Main.getInstance().getGame();
-
-      const loc1_:MovieClip = game.mcLogin.ModalStack;
-      var loc2_:MovieClip = null;
-      var loc3_:int = 0;
-      while (loc3_ < loc1_.numChildren) {
-        loc2_ = loc1_.getChildAt(loc3_) as MovieClip;
-        if ("fClose" in loc2_) {
-          loc2_.fClose();
-        }
-        loc3_++;
-      }
-    }
-
     public static function canBuyItem(param1:Object):Boolean {
       const game:* = Main.getInstance().getGame();
       if (param1.bStaff == 1 && game.world.myAvatar.objData.intAccessLevel < 40) {
