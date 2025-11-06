@@ -28,7 +28,7 @@ export async function exitFromCombat() {
           break;
         }
       }
-      
+
       // TODO: this is incorrect
 
       // we didn't escape

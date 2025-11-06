@@ -287,6 +287,7 @@ export class Bot extends TypedEmitter<Events> {
         if (aborted) return err("aborted");
 
         if (
+          !options?.indefinite &&
           timeout > 0 &&
           Number.isFinite(timeout) &&
           iterations * interval >= timeout
@@ -329,6 +330,7 @@ export class Bot extends TypedEmitter<Events> {
 window.Bot = Bot;
 
 type WaitUntilOptions = {
+  indefinite?: boolean;
   interval?: number;
   postDelay?: number;
   signal?: AbortSignal;
