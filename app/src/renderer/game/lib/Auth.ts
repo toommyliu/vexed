@@ -38,6 +38,8 @@ export class Auth {
    * @param password - The password to login with.
    */
   public login(username: string, password: string): void {
+    this.bot.flash.call("removeAllChildren");
+    this.bot.flash.call("gotoAndPlay", "Login");
     this.bot.flash.call("login", username, password);
   }
 
@@ -63,12 +65,12 @@ export class Auth {
    *
    * @param name - The name of the server.
    */
-  public connectTo(name: string): void {
+  public connectTo(name: string): boolean {
     if (!this.servers.length) {
       throw new Error("No servers available");
     }
 
-    this.bot.flash.call(() => swf.authConnectTo(name));
+    return this.bot.flash.call<boolean>(() => swf.authConnectTo(name));
   }
 
   /**

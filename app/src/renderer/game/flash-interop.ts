@@ -168,13 +168,6 @@ window.loaded = async () => {
       return;
     }
 
-    await bot.waitUntil(
-      () =>
-        bot.flash.get("mcLogin.currentLabel", true) === "Init" &&
-        !bot.auth.isTemporarilyKicked(), // Ensure the player wasn't kicked earlier (this'll probably never happen)
-      { timeout: -1 },
-    );
-
     if (server) {
       const ogDelay = AutoReloginJob.delay;
 
@@ -192,7 +185,7 @@ window.loaded = async () => {
 
       await bot.waitUntil(
         () => bot.flash.get("mcLogin.currentLabel", true) === "Servers",
-        { timeout: -1 },
+        { indefinite: true },
       );
 
       await client.manager.managerLoginSuccess({ username });
@@ -201,7 +194,7 @@ window.loaded = async () => {
 
   if (scriptPath) {
     try {
-      await bot.waitUntil(() => bot.player.isReady(), { timeout: -1 });
+      await bot.waitUntil(() => bot.player.isReady(), { indefinite: true });
 
       if (window.context.isRunning()) return;
 

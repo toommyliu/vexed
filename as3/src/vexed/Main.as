@@ -93,9 +93,11 @@ package vexed {
 			this.game.sfc.addEventListener(SFSEvent.onDebugMessage, this.onDebugMessage);
 			this.game.sfc.addEventListener(SFSEvent.onConnection, function():void {
 					Main.getInstance().external.call('connection', 'OnConnection');
+					Main.getInstance().external.call('debug', 'Connected to SmartFoxServer.');
 				});
 			this.game.sfc.addEventListener(SFSEvent.onConnectionLost, function():void {
 					Main.getInstance().external.call('connection', 'OnConnectionLost');
+					Main.getInstance().external.debug('Connection to SmartFoxServer lost.');
 				});
 			this.game.sfc.addEventListener(SFSEvent.onExtensionResponse, function(packet:*):void {
 					Main.getInstance().external.call('pext', JSON.stringify(packet));
