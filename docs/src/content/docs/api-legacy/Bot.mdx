@@ -94,21 +94,21 @@ Type: [`World`](/api-legacy/world)
 
 ### sleep
 Pauses execution for a specified amount of time.
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| ms | `number` | The number of milliseconds to wait. |
+| Parameter | Type | Optional | Default | Description |
+|-----------|------|----------|---------|-------------|
+| ms | `number` |  |  | The number of milliseconds to wait. |
+| signal | `AbortSignal`? | ✓ |  | An optional AbortSignal to abort the sleep. |
 
 **Returns**: `Promise<void>`
 
 ### waitUntil
-Waits until the condition is met.
+Pauses execution until a specified condition is met or a maximum number of iterations is reached.
 | Parameter | Type | Optional | Default | Description |
 |-----------|------|----------|---------|-------------|
-| condition | `() => boolean` |  |  | The condition to wait for until it returns true. |
-| prerequisite | `(() => boolean)` \| `null` | ✓ | `null` | The prerequisite to be checked before waiting for the condition. |
-| maxIterations | `number` | ✓ | `15` | The maximum number of iterations to wait. -1 to wait indefinitely. |
+| condition | `(__namedParameters: { signal: AbortSignal; abort: any }) => boolean` |  |  | A function that returns a boolean indicating whether the condition is met. It receives an object with an AbortSignal and an abort function. |
+| options | `WaitUntilOptions` \| `null` | ✓ | `{}` | Optional settings for the waitUntil function. |
 
-**Returns**: `Promise<void>`
+**Returns**: `Promise<Err<never, "aborted">` \| `Err<never, "timeout">` \| `Ok<undefined, never>>`
 
 ### getInstance <Badge text="static" />
 Gets the singleton instance of the Bot class.
