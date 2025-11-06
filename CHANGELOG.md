@@ -2,10 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+# [0.5.1](https://github.com/toommyliu/vexed/compare/0.5.0...0.5.1) - (2025-11-06)
+
+## Bug Fixes
+
+- Resolve minor memory leak (#271) ([19f7d73](https://github.com/toommyliu/vexed/commit/19f7d73ca23b48d3abd40f4698302cd75355f912))
+
+## Refactor
+
+- **follower:** Remove unused quest and drop features (#268) ([b5484b9](https://github.com/toommyliu/vexed/commit/b5484b9b2c651ad1d1a229bbbe12b0bbb3a5b07f))
+
 # [0.5.0](https://github.com/toommyliu/vexed/compare/0.4.1...0.5.0) - (2025-11-04)
 
 ## Bug Fixes
 
+- **CommandOverlay:** Not scrolling to current command (#266) ([4ea288a](https://github.com/toommyliu/vexed/commit/4ea288ab23e9a69b6038cd7d515dd72bd729bbb8))
 - **manager:** Checkbox click not toggling account selection (#265) ([6758505](https://github.com/toommyliu/vexed/commit/67585056428e82404fd0e7dba3ed9c8ef0cc451e))
 - **manager:** Enhance add account feedback and error handling (#264) ([3101258](https://github.com/toommyliu/vexed/commit/3101258aa199d209ef85a2ff2d454ad4d8e843b5))
 - **manager:** Improve feedback on editing account (#263) ([67c4959](https://github.com/toommyliu/vexed/commit/67c49597f65ab14a19a03f5b058371bb14aeb5b0))
