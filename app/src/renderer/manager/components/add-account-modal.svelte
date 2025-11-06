@@ -45,7 +45,7 @@
         managerState.accounts.set(cleanUsername, account);
       } else if (res?.msg === "USERNAME_ALREADY_EXISTS") {
         error = "An account with this username already exists.";
-      } else if (res?.msg === 'FAILED') {
+      } else if (res?.msg === "FAILED") {
         error = "Failed to add account. Please try again.";
         return;
       }

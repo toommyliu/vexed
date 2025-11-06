@@ -521,9 +521,7 @@
             </div>
           </div>
 
-          <div
-            class="flex min-h-0 flex-1 flex-col overflow-hidden"
-          >
+          <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
             <div
               class="h-full overflow-hidden rounded-md border border-gray-700/50 bg-background-primary backdrop-blur-sm"
             >
@@ -555,7 +553,11 @@
                 </div>
               {:else if flattenedItems.length > 0}
                 <div class="h-full p-2">
-                  <VirtualList data={flattenedItems} key="nodeId" class="no-scrollbar">
+                  <VirtualList
+                    data={flattenedItems}
+                    key="nodeId"
+                    class="no-scrollbar"
+                  >
                     {#snippet children({ data: item })}
                       {@render TreeNode(item)}
                     {/snippet}

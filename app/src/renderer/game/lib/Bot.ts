@@ -262,7 +262,7 @@ export class Bot extends TypedEmitter<Events> {
     const opts = options ?? {};
     opts.interval ??= 1_000;
     opts.timeout ??= 3_000;
-    
+
     const interval = opts.interval;
     const timeout = opts.timeout;
 
