@@ -301,8 +301,8 @@ export class Bot extends TypedEmitter<Events> {
 
           if (
             typeof opts.postDelay === "number" &&
-            opts.postDelay > 0 &&
-            Number.isFinite(opts.postDelay)
+            Number.isFinite(opts.postDelay) &&
+            opts.postDelay > 0
           )
             await this.sleep(opts.postDelay);
 
