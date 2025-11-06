@@ -10,9 +10,14 @@ export class CommandKill extends Command {
     const ac = new AbortController();
     const signal = ac.signal;
 
-    this.ctx.once("end", () => ac.abort());
+    const endHandler = () => ac.abort();
+    this.ctx.on("end", endHandler);
 
-    await this.bot.combat.kill(this.target, { signal, ...this.options });
+    try {
+      await this.bot.combat.kill(this.target, { signal, ...this.options });
+    } finally {
+      this.ctx.off("end", endHandler);
+    }
   }
 
   public override toString() {
