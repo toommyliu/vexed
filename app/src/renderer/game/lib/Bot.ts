@@ -1,5 +1,5 @@
 import { sleep } from "@vexed/utils";
-import { err, ok } from "neverthrow";
+import { errAsync, okAsync } from "neverthrow";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { Army } from "./Army";
 import { Auth } from "./Auth";
@@ -284,20 +284,11 @@ export class Bot extends TypedEmitter<Events> {
 
     try {
       while (true) {
-        if (aborted) return err("aborted");
+        const loopStartTime = performance.now();
 
-        if (
-          !options?.indefinite &&
-          timeout > 0 &&
-          Number.isFinite(timeout) &&
-          iterations * interval >= timeout
-        )
-          return err("timeout");
+        if (aborted) return await errAsync("aborted");
 
-        const res = condition(args);
-
-        if (typeof res === "boolean" && res) {
-          if (aborted) return err("aborted");
+        if (loopStartTime >= endTime) return await errAsync("timeout");
 
           if (
             typeof opts.postDelay === "number" &&
@@ -306,11 +297,26 @@ export class Bot extends TypedEmitter<Events> {
           )
             await this.sleep(opts.postDelay);
 
-          return ok(void 0);
+          return await okAsync(void 0);
         }
 
-        await this.sleep(interval, opts.signal);
-        iterations++;
+        if (aborted) return await errAsync("aborted");
+
+        const workDuration = performance.now() - loopStartTime;
+        const timeUntilTimeout = endTime - performance.now();
+
+        if (timeUntilTimeout <= 0) return await errAsync("timeout");
+
+        // the time to sleep, restricted by interval and time until timeout
+        // e.g. if the time until timeout is less than the interval, only sleep the remaining time
+        const sleepDuration = Math.min(
+          interval - workDuration,
+          timeUntilTimeout,
+        );
+
+        if (sleepDuration > 0) await this.sleep(sleepDuration, opts.signal);
+
+        if (aborted) return await errAsync("aborted");
       }
     } finally {
       opts.signal?.removeEventListener("abort", abortListener);
