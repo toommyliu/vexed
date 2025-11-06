@@ -72,10 +72,6 @@ export class Bank {
    * @param key - The name or ID of the item.
    */
   public async deposit(key: number | string): Promise<void> {
-    if (!this.bot.inventory.get(key)) {
-      throw new Error("Item not found in inventory");
-    }
-
     await this.open();
 
     this.bot.flash.call<boolean>(() => swf.bankDeposit(key));
@@ -106,15 +102,7 @@ export class Bank {
   public async withdraw(key: number | string): Promise<void> {
     await this.open();
 
-    if (!this.get(key)) {
-      // console.log(`${key} is not in bank`);
-      return;
-    }
-
-    if (this.bot.inventory.get(key)) {
-      // console.log(`${key} is already in inventory`);
-      return;
-    }
+    if (!this.get(key) || this.bot.inventory.get(key)) return;
 
     this.bot.flash.call<boolean>(() => swf.bankWithdraw(key));
 
