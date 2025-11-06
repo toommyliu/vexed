@@ -243,7 +243,7 @@ export class Bot extends TypedEmitter<Events> {
   }
 
   /**
-   * Pauses execution until a specified condition is met or a maximum number of iterations is reached.
+   * Pauses execution until a specified condition is met.
    *
    * @param condition - A function that returns a boolean indicating whether the condition is met.
    * It receives an object with an AbortSignal and an abort function.
@@ -266,7 +266,7 @@ export class Bot extends TypedEmitter<Events> {
     const interval = opts.interval;
     const timeout = opts.timeout;
 
-    let ac = null;
+    let ac: AbortController | null = null;
 
     if (!opts.signal) {
       ac = new AbortController();
@@ -276,11 +276,12 @@ export class Bot extends TypedEmitter<Events> {
     const abort = () => ac?.abort();
     const args = { signal: opts.signal, abort };
 
-    let iterations = 0;
     let aborted = false;
-
     const abortListener = () => (aborted = true);
-    opts.signal?.addEventListener("abort", abortListener, { once: true });
+    opts.signal.addEventListener("abort", abortListener, { once: true });
+
+    const startTime = performance.now();
+    const endTime = opts.indefinite ? Infinity : startTime + timeout;
 
     try {
       while (true) {
@@ -290,12 +291,14 @@ export class Bot extends TypedEmitter<Events> {
 
         if (loopStartTime >= endTime) return await errAsync("timeout");
 
+        if (condition(args)) {
           if (
             typeof opts.postDelay === "number" &&
             Number.isFinite(opts.postDelay) &&
             opts.postDelay > 0
-          )
+          ) {
             await this.sleep(opts.postDelay);
+          }
 
           return await okAsync(void 0);
         }
@@ -319,7 +322,7 @@ export class Bot extends TypedEmitter<Events> {
         if (aborted) return await errAsync("aborted");
       }
     } finally {
-      opts.signal?.removeEventListener("abort", abortListener);
+      opts.signal.removeEventListener("abort", abortListener);
     }
   }
 
