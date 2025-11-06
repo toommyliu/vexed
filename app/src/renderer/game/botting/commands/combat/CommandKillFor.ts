@@ -18,23 +18,28 @@ export class CommandKillFor extends Command {
 
     const finalOpts = { signal, ...this.options };
 
-    this.ctx.once("end", () => ac.abort());
+    const endHandler = () => ac.abort();
+    this.ctx.on("end", endHandler);
 
-    this.logger.debug(this.toString());
-    if (this.isTemp) {
-      await this.bot.combat.killForTempItem(
-        this.target,
-        this.item,
-        this.quantity,
-        finalOpts,
-      );
-    } else {
-      await this.bot.combat.killForItem(
-        this.target,
-        this.item,
-        this.quantity,
-        finalOpts,
-      );
+    try {
+      this.logger.debug(this.toString());
+      if (this.isTemp) {
+        await this.bot.combat.killForTempItem(
+          this.target,
+          this.item,
+          this.quantity,
+          finalOpts,
+        );
+      } else {
+        await this.bot.combat.killForItem(
+          this.target,
+          this.item,
+          this.quantity,
+          finalOpts,
+        );
+      }
+    } finally {
+      this.ctx.off("end", endHandler);
     }
   }
 
