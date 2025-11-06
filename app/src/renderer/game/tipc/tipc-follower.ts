@@ -131,11 +131,14 @@ async function startFollower() {
       return;
     }
 
+    // TODO: this is a little janky, sometimes it'll goto the player
+    // but still attempt to exit combat, which doesn't make sense...
+
     await exitFromCombat();
 
     bot.world.goto(name);
 
-    await bot.waitUntil(() => bot.player.isReady() && foundPlayer(), null, 3);
+    await bot.waitUntil(() => bot.player.isReady() && foundPlayer());
 
     if (foundPlayer()) {
       attempts = 3;
@@ -166,7 +169,8 @@ async function startFollower() {
       const name_ = name || bot.auth?.username;
 
       if (
-        !bot.world.isPlayerInMap(name_) ||
+        (name !== bot.auth?.username?.toLowerCase() &&
+          !bot.world.isPlayerInMap(name_)) ||
         !bot.world.isPlayerInCell(name_, bot.player.cell)
       ) {
         await goToPlayer();
@@ -234,7 +238,7 @@ handlers.follower.start.listen(async (input) => {
   config = parseConfig(input);
 
   bot.settings.counterAttack = config?.antiCounter;
-  await bot.waitUntil(() => bot.player.isReady(), null, -1);
+  await bot.waitUntil(() => bot.player.isReady());
 
   on = true;
   await startFollower();

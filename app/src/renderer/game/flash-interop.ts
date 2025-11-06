@@ -137,10 +137,10 @@ window.pext = async ([packet]) => {
 
 window.connection = async ([state]: [string]) => {
   if (state === "OnConnection") {
-    await bot.waitUntil(() => bot.player.isReady(), null, -1);
+    await bot.waitUntil(() => bot.player.isReady());
     bot.emit("login");
   } else if (state === "OnConnectionLost") {
-    await bot.waitUntil(() => !bot.player.isReady(), null, -1);
+    await bot.waitUntil(() => !bot.player.isReady());
     bot.emit("logout");
   }
 };
@@ -172,8 +172,7 @@ window.loaded = async () => {
       () =>
         bot.flash.get("mcLogin.currentLabel", true) === "Init" &&
         !bot.auth.isTemporarilyKicked(), // Ensure the player wasn't kicked earlier (this'll probably never happen)
-      null,
-      -1,
+      { timeout: -1 },
     );
 
     if (server) {
@@ -193,8 +192,7 @@ window.loaded = async () => {
 
       await bot.waitUntil(
         () => bot.flash.get("mcLogin.currentLabel", true) === "Servers",
-        null,
-        -1,
+        { timeout: -1 },
       );
 
       await client.manager.managerLoginSuccess({ username });
@@ -203,7 +201,7 @@ window.loaded = async () => {
 
   if (scriptPath) {
     try {
-      await bot.waitUntil(() => bot.player.isReady(), null, -1);
+      await bot.waitUntil(() => bot.player.isReady(), { timeout: -1 });
 
       if (window.context.isRunning()) return;
 

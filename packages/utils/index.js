@@ -177,8 +177,19 @@ function validateArgs(func, intervalLength, options) {
   }
 }
 
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function sleep(ms, signal) {
+  return new Promise((resolve, reject) => {
+    const timeoutId = setTimeout(resolve, ms);
+
+    if (signal) {
+      const onAbort = () => {
+        clearTimeout(timeoutId);
+        reject();
+      };
+
+      signal.addEventListener("abort", onAbort, { once: true });
+    }
+  });
 }
 
 module.exports = { interval, sleep };

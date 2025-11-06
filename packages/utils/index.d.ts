@@ -55,5 +55,6 @@ export function interval(
 /**
  * Pause for a number of milliseconds.
  * @param ms - milliseconds to sleep
+ * @param signal - optional AbortSignal to abort the sleep
  */
-export function sleep(ms: number): Promise<void>;
+export function sleep(ms: number, signal?: AbortSignal): Promise<void>;

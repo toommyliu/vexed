@@ -83,7 +83,8 @@ export function createManagerTipcRouter(tipcInstance: TipcInstance) {
             const existingIdx = accounts.findIndex(
               (acc) => acc.username === input.updatedAccount.username,
             );
-            if (existingIdx !== -1) return { msg: "USERNAME_ALREADY_EXISTS" } as const;
+            if (existingIdx !== -1)
+              return { msg: "USERNAME_ALREADY_EXISTS" } as const;
           }
 
           accounts[idx] = input.updatedAccount;

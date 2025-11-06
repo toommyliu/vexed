@@ -82,12 +82,12 @@ export class Inventory {
     this.bot.flash.call(() => swf.inventoryEquip(itemKey));
 
     await this.bot.waitUntil(
-      () => Boolean(this.get(itemKey)?.isEquipped()),
-      () => this.bot.player.isReady(),
-      10,
+      () =>
+        this.bot.player.isReady() && Boolean(this.get(itemKey)?.isEquipped()),
+      { timeout: 5_000 },
     );
 
-    // Make sure we are wearing the item after equipping
+    // Make sure we are wearing the item after equipping (this doesn't seem to work...)
     this.bot.packets.sendServer(
       `%xt%zm%wearItem%${this.bot.world.roomId}%${item.data.ItemID}%`,
       ServerPacket.String,

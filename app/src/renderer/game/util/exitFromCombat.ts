@@ -21,13 +21,15 @@ export async function exitFromCombat() {
         if (cell === ogCell) continue;
 
         await bot.world.jump(cell);
-        await bot.waitUntil(() => !bot.player.isInCombat(), null, 3);
+        await bot.waitUntil(() => !bot.player.isInCombat());
 
         if (!bot.player.isInCombat()) {
           success = true;
           break;
         }
       }
+
+      // TODO: this is incorrect
 
       // we didn't escape
       success = false;

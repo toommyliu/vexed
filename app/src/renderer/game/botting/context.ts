@@ -384,7 +384,7 @@ export class Context extends TypedEmitter<Events> {
   public async stop() {
     this._stop();
 
-    await this.bot.waitUntil(() => this.bot.player.alive, null, -1);
+    await this.bot.waitUntil(() => this.bot.player.alive);
     while (this.bot.player.isInCombat()) {
       await this.bot.world.jump("Enter", "Spawn");
       await this.bot.sleep(1_000);
@@ -400,7 +400,7 @@ export class Context extends TypedEmitter<Events> {
 
   private async doPreInit() {
     if (!this.bot.player.isReady())
-      await this.bot.waitUntil(() => this.bot.player.isReady(), null, -1);
+      await this.bot.waitUntil(() => this.bot.player.isReady());
 
     const questList = this._commands
       .filter(
@@ -456,7 +456,7 @@ export class Context extends TypedEmitter<Events> {
     this._commandIndex = 0;
 
     if (!this.bot.player.isReady())
-      await this.bot.waitUntil(() => this.bot.player.isReady(), null, -1);
+      await this.bot.waitUntil(() => this.bot.player.isReady());
 
     while (this._commandIndex < this._commands.length && this.isRunning()) {
       try {

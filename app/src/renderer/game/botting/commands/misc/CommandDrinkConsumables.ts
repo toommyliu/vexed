@@ -8,11 +8,13 @@ export class CommandDrinkConsumables extends Command {
   public override async execute() {
     for (const item of this.items) {
       await this.bot.inventory.equip(item);
-      await this.bot.waitUntil(
+
+      const res = await this.bot.waitUntil(
         () => this.bot.flash.get("world.lockdownPots", true) === false,
-        null,
-        -1,
       );
+      if (res.isErr() && res.error === "timeout")
+        this.logger.warn("Timed out but potions are still locked...");
+
       await this.bot.combat.useSkill(5, true, true);
       await this.bot.sleep(1_000);
     }

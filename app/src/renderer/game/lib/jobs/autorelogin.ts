@@ -70,11 +70,9 @@ export class AutoReloginJob extends Job {
       if (og_skipCutscenes) this.bot.settings.skipCutscenes = false;
 
       if (this.bot.auth.isTemporarilyKicked()) {
-        await this.bot.waitUntil(
-          () => !this.bot.auth.isTemporarilyKicked(),
-          null,
-          60,
-        );
+        await this.bot.waitUntil(() => !this.bot.auth.isTemporarilyKicked(), {
+          timeout: 60_000,
+        });
       }
 
       if (context.isRunning()) {
@@ -101,20 +99,26 @@ export class AutoReloginJob extends Job {
 
       this.bot.auth.login(AutoReloginJob.username!, AutoReloginJob.password!);
 
-      await this.bot.waitUntil(() => this.isInServerSelect(), null, 5);
+      await this.bot.waitUntil(() => this.isInServerSelect(), {
+        timeout: 10_000,
+      });
       if (!this.isInServerSelect()) {
         logger.debug("Still not in server select, aborting...");
         return;
       }
 
-      await this.bot.waitUntil(() => this.bot.auth.servers.length > 0, null, 5);
+      await this.bot.waitUntil(() => this.bot.auth.servers.length > 0, {
+        timeout: 5_000,
+      });
       if (this.bot.auth.servers.length === 0) {
         logger.debug("No servers loaded, aborting...");
         return;
       }
 
       this.bot.auth.connectTo(AutoReloginJob.server!);
-      await this.bot.waitUntil(() => this.bot.player.isReady(), null, 25);
+      await this.bot.waitUntil(() => this.bot.player.isReady(), {
+        timeout: 10_000,
+      });
 
       if (!this.bot.player.isReady()) {
         logger.debug("Still not ready after relogin, logging out...");

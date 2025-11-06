@@ -72,17 +72,14 @@ export class Bank {
    * @param key - The name or ID of the item.
    */
   public async deposit(key: number | string): Promise<void> {
-    if (!this.bot.inventory.get(key)) {
-      throw new Error("Item not found in inventory");
-    }
-
     await this.open();
 
     this.bot.flash.call<boolean>(() => swf.bankDeposit(key));
     await this.bot.waitUntil(
-      () => this.get(key) !== null && this.bot.inventory.get(key) === null,
-      () => this.bot.auth.isLoggedIn(),
-      3,
+      () =>
+        this.bot.auth.isLoggedIn() &&
+        this.get(key) !== null &&
+        this.bot.inventory.get(key) === null,
     );
   }
 
@@ -105,22 +102,15 @@ export class Bank {
   public async withdraw(key: number | string): Promise<void> {
     await this.open();
 
-    if (!this.get(key)) {
-      // console.log(`${key} is not in bank`);
-      return;
-    }
-
-    if (this.bot.inventory.get(key)) {
-      // console.log(`${key} is already in inventory`);
-      return;
-    }
+    if (!this.get(key) || this.bot.inventory.get(key)) return;
 
     this.bot.flash.call<boolean>(() => swf.bankWithdraw(key));
 
     await this.bot.waitUntil(
-      () => this.get(key) === null && this.bot.inventory.get(key) !== null,
-      () => this.bot.player.isReady(),
-      3,
+      () =>
+        this.bot.auth.isLoggedIn() &&
+        this.get(key) === null &&
+        this.bot.inventory.get(key) !== null,
     );
   }
 
@@ -153,9 +143,7 @@ export class Bank {
 
     this.bot.flash.call(() => swf.bankSwap(inventoryItem, bankItem));
     await this.bot.waitUntil(
-      () => !isInBank() && !isInInventory(),
-      () => this.bot.player.isReady(),
-      3,
+      () => this.bot.auth.isLoggedIn() && !isInBank() && !isInInventory(),
     );
   }
 
@@ -208,9 +196,10 @@ export class Bank {
     }
 
     await this.bot.waitUntil(
-      () => this.items.length > 0 /* wait until something is loaded */,
-      () => this.bot.player.isReady() && this.isOpen(),
-      10,
+      () =>
+        this.bot.player.isReady() &&
+        this.isOpen() &&
+        this.items.length > 0 /* wait until something is loaded */,
     );
   }
 

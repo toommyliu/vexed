@@ -285,7 +285,7 @@ export class Combat {
         if (this.pauseAttack) {
           this.cancelAutoAttack();
           this.cancelTarget();
-          await this.bot.waitUntil(() => !this.pauseAttack, null, -1);
+          await this.bot.waitUntil(() => !this.pauseAttack);
           return;
         }
 
@@ -340,10 +340,10 @@ export class Combat {
         if (isDead) {
           await this.bot.waitUntil(
             () =>
-              this.bot.player.state !== EntityState.Dead ||
-              this.bot.player.alive,
-            null,
-            -1,
+              this.bot.player.isReady() &&
+              (this.bot.player.state !== EntityState.Dead ||
+                this.bot.player.alive),
+            { timeout: 10_000 },
           );
           return;
         }
@@ -441,8 +441,9 @@ export class Combat {
    */
   public async rest(full = false, exit = false): Promise<void> {
     await this.bot.waitUntil(
-      () => this.bot.world.isActionAvailable(GameAction.Rest),
-      () => this.bot.auth.isLoggedIn(),
+      () =>
+        this.bot.auth.isLoggedIn() &&
+        this.bot.world.isActionAvailable(GameAction.Rest),
     );
 
     if (exit) {
@@ -464,9 +465,7 @@ export class Combat {
    * Exit from combat state.
    */
   public async exit(): Promise<void> {
-    if (this.bot.player.isInCombat()) {
-      await exitFromCombat();
-    }
+    await exitFromCombat();
   }
 }
 

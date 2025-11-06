@@ -42,7 +42,7 @@ export class Quests {
     if (this.get(id)) return;
 
     this.bot.flash.call(() => swf.questsLoad(id));
-    await this.bot.waitUntil(() => this.get(id) !== null, null, 5);
+    await this.bot.waitUntil(() => this.get(id) !== null);
   }
 
   /**
@@ -71,17 +71,16 @@ export class Quests {
     if (!this.get(id)) await this.load(id);
 
     // Ensure the quest is ready to be accepted
-    if (this.get(id)?.inProgress)
-      await this.bot.waitUntil(() => !this.get(id)?.inProgress, null, 5);
+    if (this.get(id)?.inProgress) {
+      await this.bot.waitUntil(() => !this.get(id)?.inProgress);
+    }
 
-    await this.bot.waitUntil(
-      () => this.bot.world.isActionAvailable(GameAction.AcceptQuest),
-      null,
-      5,
+    await this.bot.waitUntil(() =>
+      this.bot.world.isActionAvailable(GameAction.AcceptQuest),
     );
 
     this.bot.flash.call(() => swf.questsAccept(id));
-    await this.bot.waitUntil(() => Boolean(this.get(id)?.inProgress), null, 5);
+    await this.bot.waitUntil(() => Boolean(this.get(id)?.inProgress));
   }
 
   /**

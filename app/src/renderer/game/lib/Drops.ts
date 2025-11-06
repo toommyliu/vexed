@@ -147,11 +147,19 @@ export class Drops {
       //   `%xt%zm%getDrop%${this.bot.world.roomId}%${itemId}%`,
       // );
 
-      await this.bot.waitUntil(
-        () => this.bot.inventory.get(item) !== null,
-        null,
-        -1,
+      const res = await this.bot.waitUntil(
+        () =>
+          this.bot.player.isReady() && this.bot.inventory.get(item) !== null,
+        { timeout: 5_000 },
       );
+
+      if (res.isErr() && res.error === "timeout") {
+        // TODO: logger
+        console.debug(
+          `Timeout while waiting for item pickup: ${item} (ID: ${itemId})`,
+        );
+      }
+
       this.#removeDrop(itemId);
       return true;
     }
