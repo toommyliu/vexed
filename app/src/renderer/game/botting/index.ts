@@ -5,9 +5,9 @@ import { itemCommands } from "./commands/item";
 import { mapCommands } from "./commands/map";
 import { miscCommands } from "./commands/misc";
 import { questCommands } from "./commands/quest";
-import { Context } from "./context";
+import { CommandExecutor } from "./command-executor";
 
-const context = Context.getInstance();
+const context = CommandExecutor.getInstance();
 
 const builtIns = {
   ...armyCommands,

@@ -4,7 +4,7 @@ export class CommandRegisterBoost extends Command {
   public item!: string;
 
   public override execute() {
-    this.ctx.registerBoost(this.item);
+    this.bot.environment.addBoost(this.item);
     this.logger.debug(this.toString());
   }
 

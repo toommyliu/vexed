@@ -1,7 +1,7 @@
 import { interval } from "@vexed/utils";
 import type { LogFunctions } from "electron-log";
 import { Command } from "@botting/command";
-import type { Context } from "@botting/context";
+import type { CommandExecutor } from "@/renderer/game/botting/command-executor";
 import type { Bot } from "@lib/Bot";
 import { isMonsterMapId, extractMonsterMapId } from "@utils/isMonMapId";
 
@@ -44,7 +44,7 @@ export type ITauntStrategy = {
   cleanup(): void;
   doTaunt(): Promise<void>;
   getName(): string;
-  initialize(bot: Bot, ctx: Context, logger?: LogFunctions): Promise<boolean>;
+  initialize(bot: Bot, ctx: CommandExecutor, logger?: LogFunctions): Promise<boolean>;
   isActive: boolean;
 
   maxPlayers: number;
@@ -68,7 +68,7 @@ abstract class BaseTauntStrategy implements ITauntStrategy {
 
   protected bot!: Bot;
 
-  protected ctx!: Context;
+  protected ctx!: CommandExecutor;
 
   protected logger!: LogFunctions;
 
@@ -90,7 +90,7 @@ abstract class BaseTauntStrategy implements ITauntStrategy {
 
   public async initialize(
     bot: Bot,
-    ctx: Context,
+    ctx: CommandExecutor,
     logger: LogFunctions,
   ): Promise<boolean> {
     this.bot = bot;

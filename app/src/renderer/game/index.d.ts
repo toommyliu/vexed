@@ -1,4 +1,4 @@
-import type { Context } from "./botting/context";
+import type { CommandExecutor } from "./botting/command-executor";
 import type { cmd } from "./botting/index";
 import type { Bot } from "./lib/Bot";
 import type { ClientPacket } from "./lib/Packets";
@@ -219,7 +219,7 @@ declare global {
 
     // botting commands
     cmd: typeof cmd;
-    context: Context;
+    context: CommandExecutor;
     /* eslint-enable typescript-sort-keys/interface */
   }
 }
