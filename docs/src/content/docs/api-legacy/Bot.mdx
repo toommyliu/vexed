@@ -102,13 +102,13 @@ Pauses execution for a specified amount of time.
 **Returns**: `Promise<void>`
 
 ### waitUntil
-Pauses execution until a specified condition is met or a maximum number of iterations is reached.
+Pauses execution until a specified condition is met.
 | Parameter | Type | Optional | Default | Description |
 |-----------|------|----------|---------|-------------|
 | condition | `(__namedParameters: { signal: AbortSignal; abort: any }) => boolean` |  |  | A function that returns a boolean indicating whether the condition is met. It receives an object with an AbortSignal and an abort function. |
 | options | `WaitUntilOptions` \| `null` | ✓ | `{}` | Optional settings for the waitUntil function. |
 
-**Returns**: `Promise<Err<never, "aborted">` \| `Err<never, "timeout">` \| `Ok<undefined, never>>`
+**Returns**: `Promise<Result<never, string>` \| `Result<undefined, never>>`
 
 ### getInstance <Badge text="static" />
 Gets the singleton instance of the Bot class.
