@@ -202,15 +202,22 @@ export function initCommandOverlayState() {
   }
 
   function savePosition(overlay: HTMLDivElement): void {
+    const { left, top } = overlay.style;
+
+    if (!left || !top) {
+      return;
+    }
+
     const position: Position = {
-      left: overlay.style.left,
-      top: overlay.style.top,
+      left,
+      top,
       visible: listVisible,
     };
 
     if (listVisible) {
-      position.width = overlay.style.width;
-      position.height = overlay.style.height;
+      const computed = window.getComputedStyle(overlay);
+      position.width = overlay.style.width || computed.width;
+      position.height = overlay.style.height || computed.height;
     }
 
     localStorage.setItem(storageKey, JSON.stringify(position));
