@@ -1,3 +1,4 @@
+import { Mutex } from "async-mutex";
 import log from "electron-log";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { Bot } from "@lib/Bot";
@@ -11,6 +12,8 @@ const logger = log.scope("game/CommandExecutor");
 
 export class CommandExecutor extends TypedEmitter<Events> {
   private readonly bot = Bot.getInstance();
+
+  private readonly mutex = new Mutex();
 
   public static _instance: CommandExecutor | null = null;
 
@@ -90,6 +93,8 @@ export class CommandExecutor extends TypedEmitter<Events> {
     this._captureMode = false;
 
     this._on = false;
+
+    this.bot.on("logout", () => this._onLogout());
   }
 
   /**
@@ -341,23 +346,35 @@ export class CommandExecutor extends TypedEmitter<Events> {
   }
 
   public async start() {
-    this._on = true;
-    commandOverlayState.show();
+    await this.mutex.runExclusive(async () => {
+      if (this._on) return;
 
-    await this.doPreInit();
-    await this.runCommands();
+      await this.bot.waitUntil(() => this.bot.player.isReady(), {
+        indefinite: true,
+      });
+
+      this._on = true;
+
+      await this.doPreInit();
+      commandOverlayState.show();
+      await this.runCommands();
+    });
   }
 
   public async stop() {
-    this._stop();
+    await this.mutex.runExclusive(async () => {
+      if (!this._on) return;
 
-    await this.bot.waitUntil(() => this.bot.player.alive);
-    while (this.bot.player.isInCombat()) {
-      await this.bot.world.jump("Enter", "Spawn");
-      await this.bot.sleep(1_000);
-    }
+      this._stop();
 
-    this.bot.settings.lagKiller = false;
+      await this.bot.waitUntil(
+        () => this.bot.player.isReady() && this.bot.player.alive,
+      );
+
+      if (!this.bot.player.isReady() && !this.bot.player.alive) return;
+
+      await this.bot.combat.exit();
+    });
   }
 
   public static getInstance() {
@@ -462,6 +479,10 @@ export class CommandExecutor extends TypedEmitter<Events> {
     commandOverlayState.hide();
     this.emit("end");
     this._on = false;
+  }
+
+  private _onLogout() {
+    if (this.isRunning()) this._stop();
   }
 }
 
