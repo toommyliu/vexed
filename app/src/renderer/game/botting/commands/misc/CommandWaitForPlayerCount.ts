@@ -3,13 +3,17 @@ import { Command } from "@botting/command";
 export class CommandWaitForPlayerCount extends Command {
   public count!: number;
 
-  public override async execute() {
-    if (this.bot.world.playerNames.length !== this.count) {
-      this.ctx.commandIndex--;
-    }
+  public exact!: boolean;
+
+  public override async executeImpl() {
+    const goBack =
+      (this.exact && this.bot.world?.playerNames?.length !== this.count) ||
+      (!this.exact && this.bot.world?.playerNames?.length < this.count);
+
+    if (goBack) this.ctx.commandIndex--;
   }
 
   public override toString() {
-    return `Wait for player count: ${this.count}`;
+    return `Wait for player count: ${this.count}${this.exact ? " [exact]" : ""}`;
   }
 }
