@@ -7,7 +7,7 @@ export class CommandArmyJoin extends ArmyCommand {
 
   public padName?: string;
 
-  public override async execute(): Promise<void> {
+  public override async executeImpl() {
     await this.executeWithArmy(async () => {
       // mapName-roomNumber
 

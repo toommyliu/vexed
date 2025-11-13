@@ -3,7 +3,7 @@ import { Command } from "@botting/command";
 export class CommandUnregisterBoost extends Command {
   public item!: string;
 
-  public override execute() {
+  public override executeImpl() {
     this.bot.environment.removeBoost(this.item);
     this.logger.debug(this.toString());
   }

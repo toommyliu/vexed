@@ -7,7 +7,7 @@ export class CommandHunt extends Command {
 
   public most?: boolean = false;
 
-  public override async execute() {
+  public override async executeImpl() {
     const matchingMonsters = this.filterMonstersByTarget(
       this.bot.world.monsters,
       this.target,

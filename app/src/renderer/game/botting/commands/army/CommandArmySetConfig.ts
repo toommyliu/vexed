@@ -3,9 +3,9 @@ import { Command } from "@botting/command";
 export class CommandArmySetConfigCommand extends Command {
   public fileName!: string;
 
-  public override skipDelay = true;
+  protected override _skipDelay = true;
 
-  public override execute() {
+  public override executeImpl() {
     this.bot.army.setConfigName(this.fileName.toLowerCase());
     this.logger.debug(`Using config: ${this.fileName}.`);
   }

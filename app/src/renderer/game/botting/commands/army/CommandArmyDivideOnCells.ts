@@ -5,7 +5,7 @@ export class CommandArmyDivideOnCells extends ArmyCommand {
 
   public priorityCell?: string;
 
-  public override async execute() {
+  public override async executeImpl() {
     await this.executeWithArmy(async () => {
       const playerNumber = this.bot.army.getPlayerNumber();
       if (playerNumber === -1) return;

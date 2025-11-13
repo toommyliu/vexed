@@ -5,7 +5,7 @@ export class CommandRegisterDrop extends Command {
 
   public rejectElse?: boolean;
 
-  public override execute() {
+  public override executeImpl() {
     for (const item of this.item) {
       this.bot.environment.addItemName(item, this.rejectElse);
       this.logger.debug(`Register drop: ${item}`);

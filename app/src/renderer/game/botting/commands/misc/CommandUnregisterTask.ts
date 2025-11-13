@@ -3,7 +3,7 @@ import { Command } from "@botting/command";
 export class CommandUnregisterTask extends Command {
   public name!: string;
 
-  public override async execute() {
+  public override async executeImpl() {
     this.ctx.unregisterTask(this.name);
   }
 

@@ -1,7 +1,7 @@
 import { Command } from "@botting/command";
 
 export class CommandRestart extends Command {
-  public override async execute(): Promise<void> {
+  public override executeImpl() {
     this.ctx.commandIndex = 0;
   }
 

@@ -7,7 +7,7 @@ export class CommandUseSkill extends Command {
 
   public force = false;
 
-  public override async execute(): Promise<void> {
+  public override async executeImpl() {
     await this.bot.combat.useSkill(this.skill, this.wait, this.force);
   }
 

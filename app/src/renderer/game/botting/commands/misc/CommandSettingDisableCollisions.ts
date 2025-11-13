@@ -3,9 +3,9 @@ import { Command } from "@botting/command";
 export class CommandSettingDisableCollisions extends Command {
   public state!: boolean;
 
-  public override skipDelay = true;
+  protected override _skipDelay = true;
 
-  public override execute() {
+  public override executeImpl() {
     this.bot.settings.disableCollisions = this.state;
   }
 

@@ -5,7 +5,7 @@ export class CommandSetSpawnpoint extends Command {
 
   public pad?: string;
 
-  public override execute() {
+  public override executeImpl() {
     this.bot.world.setSpawnPoint(this.cell, this.pad);
   }
 

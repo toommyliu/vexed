@@ -1,7 +1,7 @@
 import { Command } from "@botting/command";
 
 export class CommandLogout extends Command {
-  public override execute() {
+  public override executeImpl() {
     if (!this.bot.auth.isLoggedIn()) return;
 
     this.bot.auth.logout();

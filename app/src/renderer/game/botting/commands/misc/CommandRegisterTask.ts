@@ -5,7 +5,7 @@ export class CommandRegisterTask extends Command {
 
   public taskFn!: () => Promise<void>;
 
-  public override async execute() {
+  public override async executeImpl() {
     this.ctx.registerTask(this.name, this.taskFn);
     void this.taskFn();
   }

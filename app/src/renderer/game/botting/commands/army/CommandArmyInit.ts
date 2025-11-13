@@ -1,9 +1,9 @@
 import { Command } from "@botting/command";
 
 export class CommandArmyInit extends Command {
-  public override skipDelay = true;
+  protected override _skipDelay = true;
 
-  public override async execute() {
+  public override async executeImpl() {
     await this.bot.army.init();
 
     if (!this.bot.army.isInitialized) {

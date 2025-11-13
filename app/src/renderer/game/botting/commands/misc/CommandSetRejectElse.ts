@@ -3,7 +3,7 @@ import { Command } from "@botting/command";
 export class CommandSetRejectElse extends Command {
   public val!: boolean;
 
-  public override execute() {
+  public override executeImpl() {
     this.bot.environment.rejectElse = this.val;
   }
 

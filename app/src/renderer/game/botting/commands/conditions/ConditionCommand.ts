@@ -18,7 +18,7 @@ import { Command } from "@botting/command";
  * of whether the underlying logic is positive or negative.
  */
 export abstract class ConditionCommand extends Command {
-  public override skipDelay = true;
+  protected override _skipDelay = true;
 
   /**
    * Evaluates the condition that determines whether to execute the next command.
@@ -29,7 +29,7 @@ export abstract class ConditionCommand extends Command {
    */
   public abstract getCondition(): Promise<boolean>;
 
-  public override async execute(): Promise<void> {
+  public override async executeImpl() {
     const isConditionMet = await this.getCondition();
     if (!isConditionMet) this.ctx.commandIndex++;
   }

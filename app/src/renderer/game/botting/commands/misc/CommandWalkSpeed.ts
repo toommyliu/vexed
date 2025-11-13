@@ -3,9 +3,9 @@ import { Command } from "@botting/command";
 export class CommandWalkSpeed extends Command {
   public speed!: number;
 
-  public override skipDelay = true;
+  protected override _skipDelay = true;
 
-  public override execute() {
+  public override executeImpl() {
     this.bot.settings.walkSpeed = this.speed;
   }
 

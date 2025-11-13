@@ -13,7 +13,7 @@ export class CommandArmyKill extends ArmyCommand {
 
   public options!: Partial<KillOptions>;
 
-  public override async execute() {
+  public override async executeImpl() {
     const abortController = new AbortController();
 
     await this.executeWithArmy(async () => {

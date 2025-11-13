@@ -3,7 +3,7 @@ import { Command } from "@botting/command";
 export class CommandSetFPS extends Command {
   public fps!: number;
 
-  public override execute() {
+  public override executeImpl() {
     this.bot.settings.setFps(this.fps);
   }
 
