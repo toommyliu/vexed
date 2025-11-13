@@ -1,8 +1,9 @@
 import { Command } from "@botting/command";
+import { AutoZone } from "../../autozone";
 
 export class CommandAutoZoneUltraDage extends Command {
   public override execute() {
-    this.ctx.autoZone = "ultradage";
+    AutoZone.map = "ultradage";
   }
 
   public override toString(): string {
