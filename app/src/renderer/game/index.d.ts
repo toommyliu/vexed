@@ -32,6 +32,8 @@ declare global {
     selectArrayObjects(path: string, selector: string): string;
     isNull(path: string): boolean;
     sendClientPacket(packet: string, type: ClientPacket): void;
+    isConnMcBackButtonVisible(): boolean;
+    getConnMcText(): string;
 
     authIsLoggedIn(): boolean;
     authIsTemporarilyKicked(): boolean;
