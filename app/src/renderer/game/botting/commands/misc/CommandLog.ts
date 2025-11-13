@@ -5,7 +5,7 @@ export class CommandLog extends Command {
 
   public level!: string;
 
-  public override execute() {
+  public override executeImpl() {
     // TODO: this'll be more useful when we add runtime logging
 
     // moderator

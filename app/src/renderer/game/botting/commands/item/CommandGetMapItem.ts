@@ -3,7 +3,7 @@ import { Command } from "@botting/command";
 export class CommandGetMapItem extends Command {
   public itemId!: number;
 
-  public override async execute() {
+  public override async executeImpl() {
     await this.bot.world.getMapItem(this.itemId);
   }
 

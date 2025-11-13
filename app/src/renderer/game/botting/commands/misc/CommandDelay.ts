@@ -3,7 +3,7 @@ import { Command } from "@botting/command";
 export class CommandDelay extends Command {
   public delay!: number;
 
-  public override async execute() {
+  public override async executeImpl() {
     await this.bot.sleep(this.delay);
   }
 

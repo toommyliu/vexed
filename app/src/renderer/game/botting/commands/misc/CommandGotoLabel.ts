@@ -4,7 +4,7 @@ import { CommandLabel } from "./CommandLabel";
 export class CommandGotoLabel extends Command {
   public label!: string;
 
-  public override execute() {
+  public override executeImpl() {
     const index = this.ctx.commands.findIndex(
       (cmd) =>
         cmd instanceof CommandLabel &&

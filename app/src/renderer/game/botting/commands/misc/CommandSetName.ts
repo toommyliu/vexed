@@ -3,9 +3,9 @@ import { Command } from "@botting/command";
 export class CommandSetName extends Command {
   public name!: string;
 
-  public override skipDelay = true;
+  protected override _skipDelay = true;
 
-  public override execute() {
+  public override executeImpl() {
     this.bot.settings.customName = this.name;
   }
 

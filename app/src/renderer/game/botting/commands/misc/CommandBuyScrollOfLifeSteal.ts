@@ -6,7 +6,7 @@ const MAX_QTY = 99;
 export class CommandBuyScrollOfLifeSteal extends Command {
   public qty!: number;
 
-  public override async execute() {
+  public override async executeImpl() {
     if (this.bot.inventory.contains(ITEM, MAX_QTY)) {
       return;
     }

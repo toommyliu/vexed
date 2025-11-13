@@ -3,7 +3,7 @@ import { Command } from "@botting/command";
 export class CommandSetDelay extends Command {
   public delay!: number;
 
-  public override execute() {
+  public override executeImpl() {
     this.ctx.setCommandDelay(this.delay);
   }
 

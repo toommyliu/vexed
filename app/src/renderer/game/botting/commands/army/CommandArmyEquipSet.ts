@@ -8,7 +8,7 @@ export class CommandArmyEquipSet extends ArmyCommand {
   // When true, resolves item names through a common lookup table.
   public refMode: boolean = false;
 
-  public override async execute(): Promise<void> {
+  public override async executeImpl() {
     const set = this.bot.army.config.get(this.setName) as unknown as Record<
       string,
       Set

@@ -5,7 +5,7 @@ export class CommandMoveToCell extends Command {
 
   public pad = "Spawn";
 
-  public override async execute() {
+  public override async executeImpl() {
     await this.bot.world.jump(this.cell, this.pad);
   }
 

@@ -8,9 +8,9 @@ export class CommandAutoRelogin extends Command {
 
   public server?: string;
 
-  public override skipDelay = true;
+  protected override _skipDelay = true;
 
-  public override execute() {
+  public override executeImpl() {
     const username = this.username ?? this.bot.auth.username;
     const password = this.password ?? this.bot.auth.password;
     const server =

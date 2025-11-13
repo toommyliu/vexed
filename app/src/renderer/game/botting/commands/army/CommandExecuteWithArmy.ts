@@ -6,7 +6,7 @@ export class CommandExecuteWithArmy extends ArmyCommand {
 
   public fnName?: string;
 
-  public override async execute(): Promise<void> {
+  public override async executeImpl() {
     await this.executeWithArmy(async () => {
       await this.fn?.(this.bot);
     });

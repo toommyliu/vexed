@@ -2,7 +2,7 @@ import { Command } from "@botting/command";
 import { AutoZone } from "../../autozone";
 
 export class CommandAutoZoneQueenIona extends Command {
-  public override execute() {
+  public override executeImpl() {
     AutoZone.map = "queeniona";
   }
 

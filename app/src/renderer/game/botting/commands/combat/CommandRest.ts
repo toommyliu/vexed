@@ -3,7 +3,7 @@ import { Command } from "@botting/command";
 export class CommandRest extends Command {
   public full = false;
 
-  public override async execute(): Promise<void> {
+  public override async executeImpl() {
     await this.bot.combat.rest(this.full, true);
   }
 

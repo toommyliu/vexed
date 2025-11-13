@@ -5,7 +5,7 @@ export class CommandDrinkConsumables extends Command {
 
   public equipAfter!: string;
 
-  public override async execute() {
+  public override async executeImpl() {
     for (const item of this.items) {
       await this.bot.inventory.equip(item);
 

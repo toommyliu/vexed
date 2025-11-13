@@ -3,9 +3,9 @@ import { Command } from "@botting/command";
 export class CommandSetGuild extends Command {
   public guild!: string;
 
-  public override skipDelay = true;
+  protected override _skipDelay = true;
 
-  public override execute() {
+  public override executeImpl() {
     this.bot.settings.customGuild = this.guild;
   }
 

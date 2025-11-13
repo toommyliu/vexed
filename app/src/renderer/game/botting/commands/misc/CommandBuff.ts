@@ -7,7 +7,7 @@ export class CommandBuff extends Command {
 
   public wait!: boolean;
 
-  public override async execute() {
+  public override async executeImpl() {
     if (!this.skills?.length) this.skills = SKILL_IDS;
 
     for (const skillIdx of this.skills) {

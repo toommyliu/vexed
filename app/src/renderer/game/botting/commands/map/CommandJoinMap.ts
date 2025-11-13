@@ -7,7 +7,7 @@ export class CommandJoinMap extends Command {
 
   public pad = "Spawn";
 
-  public override async execute() {
+  public override async executeImpl() {
     await this.bot.world.join(this.map, this.cell, this.pad);
   }
 
