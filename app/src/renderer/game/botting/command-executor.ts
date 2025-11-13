@@ -18,11 +18,6 @@ export class CommandExecutor extends TypedEmitter<Events> {
   public static _instance: CommandExecutor | null = null;
 
   /**
-   * List of boost to watch and use.
-   */
-  // boosts are now stored in bot.environment
-
-  /**
    * "pext" handlers.
    */
   private readonly _pextHandlers: Map<
