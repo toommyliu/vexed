@@ -284,17 +284,19 @@ export const miscCommands = {
     window.context.addCommand(new CommandStopBot());
   },
   /**
-   * Waits for a specified number of players to be in the map.
+   * Waits for a specific number of players to be in the map.
    *
    * @param count - The number of players to wait for.
+   * @param exact - Whether to wait for the exact number of players.
    */
-  wait_for_player_count(count: number) {
+  wait_for_player_count(count: number, exact = false) {
     if (typeof count !== "number" || count < 0) {
       throw new ArgsError("count is required");
     }
 
     const cmd = new CommandWaitForPlayerCount();
     cmd.count = Math.trunc(count);
+    cmd.exact = exact;
     window.context.addCommand(cmd);
   },
   /**
