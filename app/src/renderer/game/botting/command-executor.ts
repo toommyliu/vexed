@@ -466,7 +466,7 @@ export class CommandExecutor extends TypedEmitter<Events> {
           this._commandDelay === 0 || command?.skipDelay
             ? 50
             : this._commandDelay,
-          // this._ac.signal,
+          this._ac.signal,
         );
         if (!this.isRunning()) break;
 
