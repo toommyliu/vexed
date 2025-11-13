@@ -3,6 +3,7 @@ import log from "electron-log";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { Bot } from "@lib/Bot";
 import { commandOverlayState } from "../state.svelte";
+import { CancellationError } from "../util/async";
 import type { Command } from "./command";
 import { CommandRegisterDrop } from "./commands/item/CommandRegisterDrop";
 import { CommandAcceptQuest } from "./commands/quest/CommandAcceptQuest";
@@ -51,7 +52,7 @@ export class CommandExecutor extends TypedEmitter<Events> {
 
   private _commandIndex: number;
 
-  private _on: boolean;
+  private _ac: AbortController;
 
   /**
    * Captured commands when in capture mode.
@@ -78,7 +79,8 @@ export class CommandExecutor extends TypedEmitter<Events> {
     this._capturedCommands = [];
     this._captureMode = false;
 
-    this._on = false;
+    this._ac = new AbortController();
+    this._ac.abort(); // initially not running
 
     this.bot.on("logout", () => this._onLogout());
   }
@@ -328,18 +330,18 @@ export class CommandExecutor extends TypedEmitter<Events> {
   }
 
   public isRunning() {
-    return this._on;
+    return !this._ac.signal.aborted;
   }
 
   public async start() {
     await this.mutex.runExclusive(async () => {
-      if (this._on) return;
+      if (this.isRunning()) return;
 
       await this.bot.waitUntil(() => this.bot.player.isReady(), {
         indefinite: true,
       });
 
-      this._on = true;
+      this._ac = new AbortController();
 
       await this.doPreInit();
       commandOverlayState.show();
@@ -349,7 +351,7 @@ export class CommandExecutor extends TypedEmitter<Events> {
 
   public async stop() {
     await this.mutex.runExclusive(async () => {
-      if (!this._on) return;
+      if (!this.isRunning()) return;
 
       this._stop();
 
@@ -435,7 +437,13 @@ export class CommandExecutor extends TypedEmitter<Events> {
 
         commandOverlayState.updateCommands(this._commands, this._commandIndex);
 
-        await command.execute();
+        const abortPromise = new Promise<void>((_resolve, reject) => {
+          this._ac.signal.addEventListener("abort", () => {
+            reject(new CancellationError());
+          });
+        });
+
+        await Promise.race([command.execute(this._ac.signal), abortPromise]);
 
         if (!this.isRunning()) break;
 
@@ -444,11 +452,14 @@ export class CommandExecutor extends TypedEmitter<Events> {
           this._commandDelay === 0 || command?.skipDelay
             ? 50
             : this._commandDelay,
+          // this._ac.signal,
         );
         if (!this.isRunning()) break;
 
         this._commandIndex++;
       } catch (error) {
+        if (error instanceof CancellationError) break;
+
         logger.error(
           `Error executing command at index ${this._commandIndex}. ${error}`,
         );
@@ -462,9 +473,9 @@ export class CommandExecutor extends TypedEmitter<Events> {
   }
 
   private _stop() {
-    commandOverlayState.hide();
     this.emit("end");
-    this._on = false;
+    this._ac.abort();
+    commandOverlayState.hide();
   }
 
   private _onLogout() {
