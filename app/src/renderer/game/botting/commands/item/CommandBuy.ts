@@ -9,7 +9,7 @@ export class CommandBuy extends Command {
 
   public auto!: boolean;
 
-  public override async execute() {
+  public override async executeImpl() {
     if (!this.getItem()) {
       this.logger.debug(`Load shop: ${this.shopId}`);
       // The item is not found in the current shop, assume it might be a different shop

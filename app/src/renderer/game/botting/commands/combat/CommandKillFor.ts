@@ -12,7 +12,7 @@ export class CommandKillFor extends Command {
 
   public options!: Partial<KillOptions>;
 
-  public override async execute() {
+  public override async executeImpl() {
     const ac = new AbortController();
     const signal = ac.signal;
 

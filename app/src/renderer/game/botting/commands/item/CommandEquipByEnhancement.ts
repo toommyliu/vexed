@@ -41,7 +41,7 @@ export class CommandEquipByEnhancement extends Command {
 
   public itemType?: string;
 
-  public override async execute() {
+  public override async executeImpl() {
     const targetItem = this.findMatchingItem();
 
     this.logger.debug(

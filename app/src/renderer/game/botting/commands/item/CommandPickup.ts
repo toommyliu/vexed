@@ -3,7 +3,7 @@ import { Command } from "@botting/command";
 export class CommandPickup extends Command {
   public item!: number | string;
 
-  public override async execute() {
+  public override async executeImpl() {
     await this.bot.drops.pickup(this.item);
   }
 

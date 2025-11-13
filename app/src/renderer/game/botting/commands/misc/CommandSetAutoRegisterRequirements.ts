@@ -3,7 +3,7 @@ import { Command } from "@botting/command";
 export class CommandSetAutoRegisterRequirements extends Command {
   public val!: boolean;
 
-  public override execute() {
+  public override executeImpl() {
     this.bot.environment.autoRegisterRequirements = this.val;
   }
 

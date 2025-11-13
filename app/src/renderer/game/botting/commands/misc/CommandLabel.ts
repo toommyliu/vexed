@@ -3,9 +3,9 @@ import { Command } from "@botting/command";
 export class CommandLabel extends Command {
   public label!: string;
 
-  public override skipDelay = true;
+  protected override _skipDelay = true;
 
-  public override execute() {}
+  public override executeImpl() {}
 
   public override toString() {
     return `Label: ${this.label}`;

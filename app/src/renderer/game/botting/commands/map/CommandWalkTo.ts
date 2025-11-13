@@ -5,7 +5,7 @@ export class CommandWalkTo extends Command {
 
   public y!: number;
 
-  public override async execute() {
+  public override async executeImpl() {
     this.bot.player.walkTo(this.x, this.y);
     await this.bot.waitUntil(() => {
       const position = this.bot.player.position;

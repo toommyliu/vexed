@@ -9,7 +9,7 @@ export class CommandBuyScrollOfEnrage extends Command {
 
   private static SHOP_ID = 693;
 
-  public override async execute(): Promise<void> {
+  public override async executeImpl() {
     if (
       this.bot.inventory.contains(CommandBuyScrollOfEnrage.ITEM_NAME, this.qty)
     ) {

@@ -3,7 +3,7 @@ import { ConditionCommand } from "./ConditionCommand";
 export class CommandIsNotMaxStack extends ConditionCommand {
   public item!: string;
 
-  public override skipDelay = true;
+  protected override _skipDelay = true;
 
   public override async getCondition(): Promise<boolean> {
     return !this.bot.inventory.get(this.item)?.isMaxed();

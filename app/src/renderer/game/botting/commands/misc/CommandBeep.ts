@@ -38,7 +38,7 @@ async function beep(
 export class CommandBeep extends Command {
   public times!: number;
 
-  public override async execute() {
+  public override async executeImpl() {
     const audioContext = new AudioContext();
 
     try {

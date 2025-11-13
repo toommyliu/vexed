@@ -1,7 +1,7 @@
 import { Command } from "@botting/command";
 
 export class CommandCancelTarget extends Command {
-  public override execute() {
+  public override executeImpl() {
     this.bot.combat.cancelAutoAttack();
     this.bot.combat.cancelTarget();
   }

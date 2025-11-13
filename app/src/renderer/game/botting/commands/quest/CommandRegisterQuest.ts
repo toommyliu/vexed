@@ -3,9 +3,9 @@ import { Command } from "@botting/command";
 export class CommandRegisterQuest extends Command {
   public questIds!: (number | string)[];
 
-  public override skipDelay = true;
+  protected override _skipDelay = true;
 
-  public override execute() {
+  public override executeImpl() {
     for (const questId of this.questIds) {
       this.bot.environment.addQuestId(questId);
       this.logger.debug(`Register quest: ${questId}`);

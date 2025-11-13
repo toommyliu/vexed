@@ -3,7 +3,7 @@ import { Command } from "@botting/command";
 export class CommandUnregisterDrop extends Command {
   public item!: string[];
 
-  public override execute() {
+  public override executeImpl() {
     for (const item of this.item) {
       this.bot.environment.removeItemName(item);
       this.logger.debug(`Unregister drop: ${item}`);

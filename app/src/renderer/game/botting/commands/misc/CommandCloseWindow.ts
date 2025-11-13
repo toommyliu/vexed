@@ -1,7 +1,7 @@
 import { Command } from "@botting/command";
 
 export class CommandCloseWindow extends Command {
-  public override async execute() {
+  public override async executeImpl() {
     window.close();
   }
 

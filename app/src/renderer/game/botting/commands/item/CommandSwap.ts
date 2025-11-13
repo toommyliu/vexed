@@ -5,7 +5,7 @@ export class CommandSwap extends Command {
 
   public invItem!: number | string;
 
-  public override async execute() {
+  public override async executeImpl() {
     await this.bot.bank.swap(this.bankItem, this.invItem);
   }
 

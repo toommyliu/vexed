@@ -1,3 +1,4 @@
+import { AutoZone } from "../botting/autozone";
 import type { Bot } from "../lib/Bot";
 
 const getRandomIntInRange = (min: number, max: number) =>
@@ -56,7 +57,7 @@ export async function event(bot: Bot, pkt: EventPacket) {
 
   const zone = pkt.args.zoneSet;
   const config = AUTO_ZONES[mapName];
-  if (config && window.context.autoZone === mapName) {
+  if (config && AutoZone.map === mapName) {
     const zonePos = config.zones[zone];
     if (zonePos) {
       const xPos = getRandomIntInRange(zonePos.x[0], zonePos.x[1]);
@@ -66,7 +67,7 @@ export async function event(bot: Bot, pkt: EventPacket) {
     }
   }
 
-  if (mapName === "queeniona" && window.context.autoZone === "queeniona") {
+  if (mapName === "queeniona" && AutoZone.map === "queeniona") {
     await bot.sleep(500);
 
     try {

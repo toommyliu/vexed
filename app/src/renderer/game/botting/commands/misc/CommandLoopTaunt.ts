@@ -1,7 +1,7 @@
 import { interval } from "@vexed/utils";
 import type { LogFunctions } from "electron-log";
 import { Command } from "@botting/command";
-import type { CommandExecutor } from "@/renderer/game/botting/command-executor";
+import type { CommandExecutor } from "@botting/command-executor";
 import type { Bot } from "@lib/Bot";
 import { isMonsterMapId, extractMonsterMapId } from "@utils/isMonMapId";
 
@@ -329,7 +329,7 @@ export class CommandLoopTaunt extends Command {
 
   private isRunning: boolean = false;
 
-  public override async execute(): Promise<void> {
+  public override async executeImpl() {
     void this.startBackgroundExecution();
   }
 
