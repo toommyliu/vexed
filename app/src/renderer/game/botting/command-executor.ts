@@ -472,7 +472,12 @@ export class CommandExecutor extends TypedEmitter<Events> {
 
         this._commandIndex++;
       } catch (error) {
-        if (error instanceof CancellationError) break;
+        if (
+          !error ||
+          this._ac.signal.aborted ||
+          error instanceof CancellationError
+        )
+          break;
 
         logger.error(
           `Error executing command at index ${this._commandIndex}. ${error}`,
