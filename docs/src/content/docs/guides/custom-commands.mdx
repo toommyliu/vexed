@@ -10,7 +10,7 @@ import { Aside } from "@astrojs/starlight/components";
 
 ## What are custom commands?
 
-Custom commands let you extend vexed with your own functionality. Once created, they work just like built-in commands.
+Custom commands let you extend the script runtime with your own functionality. Once created, they work just like built-in commands.
 
 ## Key features
 
@@ -33,7 +33,7 @@ Custom commands let you extend vexed with your own functionality. Once created, 
 cmd.register_command("name", (Command) => {
   return class MyNewCommand extends Command {
     /**
-      * Executes the command.
+      * Implementation of the command execution logic, called when the command is invoked. 
       * @param signal AbortSignal to check for cancellation
       */
     executeImpl(signal) { /* required */
