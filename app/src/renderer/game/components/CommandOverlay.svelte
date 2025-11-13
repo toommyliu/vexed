@@ -18,7 +18,9 @@
     if (overlay) {
       if (commandOverlayState.isVisible) {
         commandOverlayState.loadPosition(overlay);
-        ensureWithinViewport();
+        tick().then(() => {
+          ensureWithinViewport();
+        });
       } else {
         commandOverlayState.savePosition(overlay);
       }
