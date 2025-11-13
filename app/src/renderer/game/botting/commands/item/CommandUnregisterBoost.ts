@@ -4,7 +4,7 @@ export class CommandUnregisterBoost extends Command {
   public item!: string;
 
   public override execute() {
-    this.ctx.unregisterBoost(this.item);
+    this.bot.environment.removeBoost(this.item);
     this.logger.debug(this.toString());
   }
 

@@ -5,7 +5,7 @@ export class CommandUnregisterDrop extends Command {
 
   public override execute() {
     for (const item of this.item) {
-      this.ctx.unregisterDrop(item);
+      this.bot.environment.removeItemName(item);
       this.logger.debug(`Unregister drop: ${item}`);
     }
   }

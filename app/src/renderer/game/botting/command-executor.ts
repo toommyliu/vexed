@@ -7,12 +7,12 @@ import { CommandRegisterDrop } from "./commands/item/CommandRegisterDrop";
 import { CommandAcceptQuest } from "./commands/quest/CommandAcceptQuest";
 import { CommandRegisterQuest } from "./commands/quest/CommandRegisterQuest";
 
-const logger = log.scope("game/context");
+const logger = log.scope("game/CommandExecutor");
 
-export class Context extends TypedEmitter<Events> {
+export class CommandExecutor extends TypedEmitter<Events> {
   private readonly bot = Bot.getInstance();
 
-  public static _instance: Context | null = null;
+  public static _instance: CommandExecutor | null = null;
 
   /**
    * List of boost to watch and use.
@@ -336,39 +336,6 @@ export class Context extends TypedEmitter<Events> {
     this._commandDelay = delay;
   }
 
-  /**
-   * Starts automated pickup for an item.
-   *
-   * @param item - The item name
-   * @param rejectElse - Whether to reject all other items
-   */
-  public registerDrop(item: string, rejectElse?: boolean) {
-    this.bot.environment.addItemName(item, rejectElse);
-  }
-
-  /**
-   * Stops automated pickup for an item.
-   *
-   * @param item - The item name
-   */
-  public unregisterDrop(item: string) {
-    this.bot.environment.removeItemName(item);
-  }
-
-  /**
-   * @param name - The item name of the boost.
-   */
-  public registerBoost(name: string) {
-    this.bot.environment.addBoost(name);
-  }
-
-  /**
-   * @param name - The item name of the boost.
-   */
-  public unregisterBoost(name: string) {
-    this.bot.environment.removeBoost(name);
-  }
-
   public isRunning() {
     return this._on;
   }
@@ -394,7 +361,7 @@ export class Context extends TypedEmitter<Events> {
   }
 
   public static getInstance() {
-    this._instance ??= new Context();
+    this._instance ??= new CommandExecutor();
     return this._instance;
   }
 

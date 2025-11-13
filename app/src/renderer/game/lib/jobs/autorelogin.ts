@@ -1,6 +1,6 @@
 import { Mutex } from "async-mutex";
 import log from "electron-log";
-import { Context } from "@botting/context";
+import { CommandExecutor } from "@/renderer/game/botting/command-executor";
 import type { Bot } from "@lib/Bot";
 import { Job } from "./Job";
 
@@ -45,7 +45,7 @@ export class AutoReloginJob extends Job {
   public override async execute() {
     if (this.bot.player.isReady()) return;
 
-    const context = Context.getInstance();
+    const context = CommandExecutor.getInstance();
     if (context.isRunning()) return;
 
     if (

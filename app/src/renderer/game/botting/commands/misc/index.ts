@@ -1,4 +1,4 @@
-import { Context } from "@/renderer/game/botting/context";
+import { CommandExecutor } from "@/renderer/game/botting/command-executor";
 import { Bot } from "@/renderer/game/lib/Bot";
 import { ArgsError } from "@botting/ArgsError";
 import { Command } from "@botting/command";
@@ -479,7 +479,7 @@ export const miscCommands = {
       throw new ArgsError("handler is required");
     }
 
-    const context = Context.getInstance();
+    const context = CommandExecutor.getInstance();
     const _name = name.toLowerCase();
 
     if (type === "pext") {
@@ -517,7 +517,7 @@ export const miscCommands = {
       throw new ArgsError("handler name is required");
     }
 
-    const context = Context.getInstance();
+    const context = CommandExecutor.getInstance();
     const _name = name.toLowerCase();
 
     if (type === "pext") {
