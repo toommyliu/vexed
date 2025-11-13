@@ -334,7 +334,9 @@ export class CommandExecutor extends TypedEmitter<Events> {
   }
 
   public async start() {
-    await this.mutex.runExclusive(async () => {
+    const release = await this.mutex.acquire();
+
+    try {
       if (this.isRunning()) return;
 
       await this.bot.waitUntil(() => this.bot.player.isReady(), {
@@ -342,11 +344,23 @@ export class CommandExecutor extends TypedEmitter<Events> {
       });
 
       this._ac = new AbortController();
+    } finally {
+      release();
+    }
 
+    if (!this.isRunning()) return;
+
+    try {
       await this.doPreInit();
+
+      if (!this.isRunning()) return;
+
       commandOverlayState.show();
       await this.runCommands();
-    });
+    } catch (error) {
+      if (this.isRunning()) this._stop();
+      throw error;
+    }
   }
 
   public async stop() {
@@ -473,8 +487,11 @@ export class CommandExecutor extends TypedEmitter<Events> {
   }
 
   private _stop() {
-    this.emit("end");
-    this._ac.abort();
+    if (!this._ac.signal.aborted) {
+      this.emit("end");
+      this._ac.abort();
+    }
+
     commandOverlayState.hide();
   }
 
