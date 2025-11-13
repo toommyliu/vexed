@@ -391,18 +391,10 @@ export const miscCommands = {
     cmd.qty = Math.trunc(qty);
     window.context.addCommand(cmd);
   },
-  // equip_loadout(loadoutName: string) {
-  //   if (!loadoutName || typeof loadoutName !== "string") {
-  //     throw new ArgsError("loadoutName is required");
-  //   }
-
-  //   const cmd = new CommandEquipLoadout();
-  //   cmd.loadoutName = loadoutName;
-  //   window.context.addCommand(cmd);
-  // },
   register_command(
     name: string,
-    cmdFactory: (CommandClass: typeof Command) => Command,
+    // cmdFactory should return a Command constructor (a class), not an instance
+    cmdFactory: (CommandClass: typeof Command) => typeof Command,
   ) {
     if (!name || typeof name !== "string") {
       throw new ArgsError("command name is required");
@@ -411,27 +403,40 @@ export const miscCommands = {
     const commandRegistry = CommandRegistry.getInstance();
 
     const _name = name.toLowerCase();
+
     // don't allow built-ins to be overwritten
     if (commandRegistry.commands.has(_name)) {
       throw new ArgsError("built-in commands cannot be overwritten");
     }
 
-    commandRegistry.registerCustomCommand(_name, () => {});
+    const cls = cmdFactory(Command);
 
-    const command = cmdFactory(Command);
-
-    if (
-      !(command instanceof Command) ||
-      typeof command?.execute !== "function" ||
-      typeof command?.toString !== "function"
-    ) {
-      throw new ArgsError("cmdFactory must return a valid Command");
+    if (typeof cls !== "function") {
+      throw new ArgsError("cmdFactory must return a Command constructor (class)");
     }
+
+    if (!(cls.prototype instanceof Command)) {
+      throw new ArgsError("cmdFactory must return a class that extends Command");
+    }
+
+    if (!Object.hasOwn(cls.prototype, "executeImpl") || typeof (cls.prototype as any).executeImpl !== "function") {
+      throw new ArgsError("command must implement executeImpl()");
+    }
+
+    if (!Object.hasOwn(cls.prototype, "toString") || typeof cls.prototype.toString !== "function") {
+      throw new ArgsError("command must implement toString()");
+    }
+
+    if (Object.hasOwn(cls.prototype, "execute")) {
+      throw new ArgsError("command must not override execute()");
+    }
+
+    commandRegistry.registerCustomCommand(_name, () => {});
 
     Object.defineProperty(window.cmd, _name, {
       value(...args: unknown[]) {
-        const newCmd = Object.create(command);
-        newCmd.args = args;
+        const newCmd = new (cls as new () => Command)();
+        Object.defineProperty(newCmd, "args", { value: args });
         window.context.addCommand(newCmd);
       },
     });
