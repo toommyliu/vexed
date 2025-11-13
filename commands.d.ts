@@ -381,7 +381,7 @@ when null(s) are passed. */
   use_autozone_queeniona(): void;
   /** Enables auto-zoning for ultradage map. */
   use_autozone_ultradage(): void;
-  /** Waits for a specified number of players to be in the map. */
+  /** Waits for a specific number of players to be in the map. */
   wait_for_player_count(count: number, exact?: boolean): void;
   /** Accepts a quest. */
   accept_quest(questId: number): void;
