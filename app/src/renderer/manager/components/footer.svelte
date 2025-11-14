@@ -60,20 +60,20 @@
       </div>
 
       <div class="flex flex-col space-y-2">
-        <div class="flex items-center space-x-3 text-sm text-gray-300">
+        <div class="flex items-center space-x-3 text-sm text-gray-300 min-w-0">
           <input
             type="checkbox"
             id="start-with-script"
             class="rounded border-zinc-600/50 bg-zinc-950/80 text-emerald-500 transition-colors focus:ring-emerald-500/20"
             bind:checked={managerState.startWithScript}
           />
-          <label for="start-with-script" class="font-medium"
+          <label for="start-with-script" class="font-medium whitespace-nowrap"
             >Start with script</label
           >
           <div class="flex items-center space-x-2">
             <button
               class={cn(
-                "rounded-lg border border-zinc-600/30 bg-zinc-900/60 px-3 py-1 text-xs text-gray-400 transition-all duration-200",
+                "rounded-lg border border-zinc-600/30 bg-zinc-900/60 px-3 py-1 text-xs text-gray-400 transition-all duration-200 whitespace-nowrap flex-shrink-0",
                 !managerState.startWithScript &&
                   "pointer-events-none cursor-not-allowed opacity-50",
                 managerState.startWithScript && "hover:bg-zinc-800/60",
@@ -107,16 +107,16 @@
       <span class="text-sm text-gray-300">
         Selected: <span class="font-semibold">{selectedCount}</span>
       </span>
-      <div class="flex space-x-4">
+      <div class="flex w-full sm:w-auto flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0 items-stretch">
         <button
-          class="rounded-md border border-red-600/50 bg-red-900/30 px-4 py-1.5 text-sm font-medium text-red-200 shadow-lg transition-all duration-200 hover:bg-red-800/40 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-red-500/50"
+          class="w-full sm:w-auto rounded-md border border-red-600/50 bg-red-900/30 px-4 py-1.5 text-sm font-medium text-red-200 shadow-lg transition-all duration-200 hover:bg-red-800/40 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-red-500/50 text-center"
           onclick={removeSelected}
           title="Remove selected accounts"
         >
           Remove Selected
         </button>
         <button
-          class="rounded-md bg-gradient-to-r from-emerald-600 to-emerald-700 px-4 py-1.5 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:from-emerald-500 hover:to-emerald-600 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+          class="w-full sm:w-auto rounded-md bg-gradient-to-r from-emerald-600 to-emerald-700 px-4 py-1.5 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:from-emerald-500 hover:to-emerald-600 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/50 text-center"
           onclick={startSelected}
           title="Start selected accounts"
         >
