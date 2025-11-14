@@ -10,7 +10,7 @@ import { Aside } from "@astrojs/starlight/components";
 
 ## What are custom commands?
 
-Custom commands let you extend vexed with your own functionality. Once created, they work just like built-in commands.
+Custom commands let you extend the script runtime with your own functionality. Once created, they work just like built-in commands.
 
 ## Key features
 
@@ -24,26 +24,28 @@ Custom commands let you extend vexed with your own functionality. Once created, 
 
 ```js showLineNumbers
 // Register a command with:
-//   cmd.register_command(name, commandFunction)
+//   cmd.register_command(name, commandFactory);
 //
 // Where:
 // - name: name of the command
-// - commandFunction: function that returns a Command object
+// - commandFactory: factory function that is called with the Command base class, and should return a subclass of Command
 
-cmd.register_command("name", (Command) {
-  const command = new Command();
+cmd.register_command("name", (Command) => {
+  return class MyNewCommand extends Command {
+    /**
+      * Implementation of the command execution logic, called when the command is invoked. 
+      * @param signal AbortSignal to check for cancellation
+      */
+    executeImpl(signal) { /* required */
+      // this.bot -> Bot
+      // this.args -> [] ; arguments passed to the command
+      // this.ctx -> CommandExecutor (undocumented)
+    }
 
-  command.execute = function () {
-    // this.bot -> Bot
-    // this.args -> [] ; arguments passed to the command
-    // this.ctx -> Context (undocumented)
-  };
-
-  command.toString = function () {
-    return "Command description";
-  };
-
-  return command;
+    toString() { /* required */
+      return "Command description";
+    }
+  }
 });
 ```
 
@@ -62,40 +64,43 @@ cmd.unregister_command(name);
 ## Example
 
 ```js showLineNumbers
-cmd.register_command("is_in_bank_or_inventory", (Command) => {
-  const command = new Command();
+cmd.register_command('is_in_bank_or_inventory', (Command) => {
+  return class IsInBankOrInventoryCommand extends Command {
+    executeImpl() {
+      // this.args = ["Barber", "hello", "world", ["how", "are", "you"], "today"]
+      const item = this.args[0]
 
-  // Important: Use regular functions, not arrow functions
-  // This ensures proper "this" context
-  command.execute = function () {
-    const item = this.args[0]; // "Barber"
+      const isInBank = this.bot.bank.contains(item)
+      const isInInventory = this.bot.inventory.contains(item)
 
-    const isInBank = this.bot.bank.contains(item);
-    const isInInventory = this.bot.inventory.contains(item);
+      if (!(isInBank || isInInventory)) this.ctx.commandIndex++
+    }
 
-    // Skip to the command after this command if item is not in bank or inventory
-    if (!(isInBank || isInInventory)) this.ctx.commandIndex++;
-  };
+    toString() {
+      return `Item is in bank or inventory: ${this.args[0]}`
+    }
+  }
+})
 
-  command.toString = function () {
-    return `Item is in bank or inventory: ${this.args[0]}`;
-  };
+cmd.is_in_bank_or_inventory(
+  'Barber',
+  'hello',
+  'world',
+  ['how', 'are', 'you'],
+  'today',
+)
+cmd.goto_label('yes')
+cmd.goto_label('no')
 
-  return command;
-});
+cmd.label('yes')
+cmd.log('yes in inventory or bank')
+cmd.goto_label('stop')
 
-cmd.is_in_bank_or_inventory("Barber");
-cmd.goto_label("yes");
-cmd.goto_label("no");
+cmd.label('no')
+cmd.log('no in inventory or bank')
+cmd.goto_label('stop')
 
-cmd.label("yes");
-cmd.log("yes to is_in_bank_or_inventory");
-cmd.goto_label("stop");
-
-cmd.label("no");
-cmd.log("no to is_in_bank_or_inventory");
-cmd.goto_label("stop");
-
-cmd.label("stop");
-cmd.log("stop!");
+cmd.label('stop')
+cmd.log('stop!')
+cmd.stop_bot()
 ```
