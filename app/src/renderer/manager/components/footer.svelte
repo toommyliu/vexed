@@ -6,6 +6,20 @@
 
   let selectedCount = $derived(managerState.selectedAccounts.size);
 
+  let allSelected = $derived(
+    managerState.selectedAccounts.size === managerState.accounts.size &&
+      managerState.accounts.size > 0,
+  );
+
+  const toggleAll = () => {
+    if (allSelected) {
+      managerState.selectedAccounts.clear();
+    } else {
+      for (const username of managerState.accounts.keys())
+        managerState.selectedAccounts.add(username);
+    }
+  };
+
   const startSelected = async () => {
     if (managerState.selectedAccounts.size === 0) return;
 
@@ -60,20 +74,20 @@
       </div>
 
       <div class="flex flex-col space-y-2">
-        <div class="flex items-center space-x-3 text-sm text-gray-300">
+        <div class="flex min-w-0 items-center space-x-3 text-sm text-gray-300">
           <input
             type="checkbox"
             id="start-with-script"
             class="rounded border-zinc-600/50 bg-zinc-950/80 text-emerald-500 transition-colors focus:ring-emerald-500/20"
             bind:checked={managerState.startWithScript}
           />
-          <label for="start-with-script" class="font-medium"
+          <label for="start-with-script" class="whitespace-nowrap font-medium"
             >Start with script</label
           >
           <div class="flex items-center space-x-2">
             <button
               class={cn(
-                "rounded-lg border border-zinc-600/30 bg-zinc-900/60 px-3 py-1 text-xs text-gray-400 transition-all duration-200",
+                "flex-shrink-0 whitespace-nowrap rounded-lg border border-zinc-600/30 bg-zinc-900/60 px-3 py-1 text-xs text-gray-400 transition-all duration-200",
                 !managerState.startWithScript &&
                   "pointer-events-none cursor-not-allowed opacity-50",
                 managerState.startWithScript && "hover:bg-zinc-800/60",
@@ -104,19 +118,35 @@
     <div
       class="mt-6 flex flex-col items-start space-y-3 sm:mt-0 sm:w-1/2 sm:items-end"
     >
-      <span class="text-sm text-gray-300">
-        Selected: <span class="font-semibold">{selectedCount}</span>
-      </span>
-      <div class="flex space-x-4">
+      <div class="flex items-center space-x-4">
+        <span class="text-sm text-gray-300">
+          Selected: <span class="font-semibold">{selectedCount}</span>
+        </span>
+        <div class="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            id="select-all"
+            class="h-4 w-4 rounded border-zinc-600 bg-zinc-950 text-emerald-500 transition-colors focus:ring-emerald-500/20"
+            checked={allSelected}
+            onchange={toggleAll}
+          />
+          <label for="select-all" class="text-sm font-medium text-gray-300"
+            >Select All</label
+          >
+        </div>
+      </div>
+      <div
+        class="flex w-full flex-col items-stretch space-y-2 sm:w-auto sm:flex-row sm:space-x-4 sm:space-y-0"
+      >
         <button
-          class="rounded-md border border-red-600/50 bg-red-900/30 px-4 py-1.5 text-sm font-medium text-red-200 shadow-lg transition-all duration-200 hover:bg-red-800/40 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-red-500/50"
+          class="w-full rounded-md border border-red-600/50 bg-red-900/30 px-4 py-1.5 text-center text-sm font-medium text-red-200 shadow-lg transition-all duration-200 hover:bg-red-800/40 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-red-500/50 sm:w-auto"
           onclick={removeSelected}
           title="Remove selected accounts"
         >
           Remove Selected
         </button>
         <button
-          class="rounded-md bg-gradient-to-r from-emerald-600 to-emerald-700 px-4 py-1.5 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:from-emerald-500 hover:to-emerald-600 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+          class="w-full rounded-md bg-gradient-to-r from-emerald-600 to-emerald-700 px-4 py-1.5 text-center text-sm font-medium text-white shadow-lg transition-all duration-200 hover:from-emerald-500 hover:to-emerald-600 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/50 sm:w-auto"
           onclick={startSelected}
           title="Start selected accounts"
         >

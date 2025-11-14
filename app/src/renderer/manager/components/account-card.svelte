@@ -27,22 +27,22 @@
 </script>
 
 <div
-  class="group rounded-md border border-zinc-700/50 bg-background-secondary shadow-lg backdrop-blur-sm transition-all duration-300 hover:border-zinc-600/70 hover:shadow-xl hover:shadow-zinc-900/20"
+  class="group cursor-pointer rounded-md border border-zinc-700/50 bg-background-secondary shadow-lg backdrop-blur-sm transition-all duration-300 hover:border-zinc-600/70 hover:shadow-xl hover:shadow-zinc-900/20"
+  onclick={toggleAccount}
+  onkeydown={(ev) => {
+    if (ev.key === "Enter" || ev.key === " ") {
+      ev.preventDefault();
+      toggleAccount();
+    }
+  }}
+  role="button"
+  tabindex="0"
 >
   <div
     class="flex flex-col space-y-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 sm:p-5"
   >
     <div
       class="flex min-w-0 flex-1 items-center space-x-3 sm:space-x-4"
-      onclick={toggleAccount}
-      onkeydown={(ev) => {
-        if (ev.key === "Enter" || ev.key === " ") {
-          ev.preventDefault();
-          toggleAccount();
-        }
-      }}
-      role="button"
-      tabindex="0"
     >
       <input
         type="checkbox"
@@ -51,7 +51,7 @@
         title="Select this account"
       />
       <span
-        class="min-w-0 flex-1 cursor-pointer select-none overflow-hidden text-ellipsis whitespace-nowrap text-base font-medium text-white transition-colors duration-200 group-hover:text-emerald-100"
+        class="min-w-0 flex-1 select-none overflow-hidden text-ellipsis whitespace-nowrap text-base font-medium text-white transition-colors duration-200 group-hover:text-emerald-100"
         title={account.username}
       >
         {account.username}
@@ -92,7 +92,8 @@
     <div class="flex flex-shrink-0 items-center space-x-2 sm:w-auto">
       <button
         class="flex-shrink-0 rounded-md border border-red-600/50 bg-red-900/30 px-2 py-1.5 text-xs font-medium text-red-200 shadow-md transition-all duration-200 hover:bg-red-800/40 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500/50 sm:min-w-[70px] sm:px-3 sm:text-sm"
-        onclick={async () => {
+        onclick={async (ev) => {
+          ev.stopPropagation();
           const success = await removeAccount(account);
           if (success) {
             managerState.accounts.delete(account.username.toLowerCase());
@@ -109,7 +110,8 @@
           !isDisabled && "hover:bg-emerald-500/80",
         )}
         disabled={isDisabled}
-        onclick={async () => {
+        onclick={async (ev) => {
+          ev.stopPropagation();
           await startAccount({
             ...account,
             server: managerState.selectedServer || null,
