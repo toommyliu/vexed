@@ -501,6 +501,13 @@ export class CommandExecutor extends TypedEmitter<Events> {
   }
 
   private _onLogout() {
+    // TODO: better strategy for:
+    /*
+    cmd.logout()
+    cmd.close_window() // doesn't work
+    */
+
+    
     if (this.isRunning()) this._stop();
   }
 }

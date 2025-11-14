@@ -137,10 +137,10 @@ window.pext = async ([packet]) => {
 
 window.connection = async ([state]: [string]) => {
   if (state === "OnConnection") {
-    await bot.waitUntil(() => bot.player.isReady());
+    await bot.waitUntil(() => bot.player.isReady(), { indefinite: true });
     bot.emit("login");
   } else if (state === "OnConnectionLost") {
-    await bot.waitUntil(() => !bot.player.isReady());
+    await bot.waitUntil(() => !bot.player.isReady(), { indefinite: true });
     bot.emit("logout");
   }
 };
