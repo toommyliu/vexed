@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+# [0.5.2](https://github.com/toommyliu/vexed/compare/0.5.1...0.5.2) - (2025-11-14)
+
+## Bug Fixes
+
+- Prevent auth lifecycle events from emitting prematurely (#283) ([47833f0](https://github.com/toommyliu/vexed/commit/47833f0a39408dbd18b0ad87cf8f01f2d957953b))
+- Ignore empty errors (#279) ([76d0f59](https://github.com/toommyliu/vexed/commit/76d0f59c64e602430da048e49d9bb213f6fb19c3))
+- **botting:** Restore ability to manually stop scripts (#278 ([5dfc6fc](https://github.com/toommyliu/vexed/commit/5dfc6fc8b0503945d34cff2079e13020dcb0d32a))
+- **commands:** Add proper command cancellation and improve executor reliability ([4a80401](https://github.com/toommyliu/vexed/commit/4a804018b853ec6c62a7661e5293399b7c5c0316))
+- Properly save command overlay position (#274) ([e0e9383](https://github.com/toommyliu/vexed/commit/e0e9383f05857fa151901b6f152eec9b3bca5868))
+
+## Documentation
+
+- Update register_command (#281) ([cfa5cac](https://github.com/toommyliu/vexed/commit/cfa5cacf4b9c8ed32723225ae79768b7cb7f8d51))
+- Auto-update API documentation ([0e6b7b1](https://github.com/toommyliu/vexed/commit/0e6b7b117402b7a4832705aedfa2aa9a57cd2b2f))
+- Auto-update API documentation ([3db66eb](https://github.com/toommyliu/vexed/commit/3db66ebe330bee688cd9ed49e65fc2c790197a11))
+- Auto-update API documentation ([ef0ae27](https://github.com/toommyliu/vexed/commit/ef0ae27c6d46f3b86b1b1fd12e43c9352e9fe0e5))
+
+## Features
+
+- **manager:** Ui improvements, toggle all (#282) ([9e67d3f](https://github.com/toommyliu/vexed/commit/9e67d3fff30429f4571e740655ef66de2e27f856))
+- **CommandWaitForPlayerCount:** Add exact match option (#277) ([1f723b3](https://github.com/toommyliu/vexed/commit/1f723b369ce670ae19bfc0c1d9a6ddd5e9377bcc))
+
+## Refactor
+
+- **commands:** Update register_command strategy (#280) ([f4742bc](https://github.com/toommyliu/vexed/commit/f4742bc1947f1b6d785dd40732de075074c774fa))
+- Rename Context to CommandExecutor (#275) ([76ce16d](https://github.com/toommyliu/vexed/commit/76ce16dc2afbba6bf69ab402bfe3bd548159088c))
+- Improve how timeouts are managed (#269) ([59f388d](https://github.com/toommyliu/vexed/commit/59f388d10ed311fa8844b7d41076279c8bab6806))
+
 # [0.5.1](https://github.com/toommyliu/vexed/compare/0.5.0...0.5.1) - (2025-11-06)
 
 ## Bug Fixes
