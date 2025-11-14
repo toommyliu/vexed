@@ -24,11 +24,11 @@ Custom commands let you extend the script runtime with your own functionality. O
 
 ```js showLineNumbers
 // Register a command with:
-//   cmd.register_command(name, commandFunction)
+//   cmd.register_command(name, commandFactory);
 //
 // Where:
 // - name: name of the command
-// - commandFunction: function that returns a Command subclass
+// - commandFactory: factory function that is called with the Command base class, and should return a subclass of Command
 
 cmd.register_command("name", (Command) => {
   return class MyNewCommand extends Command {
