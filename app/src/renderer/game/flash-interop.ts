@@ -169,15 +169,10 @@ window.loaded = async () => {
     }
 
     if (server) {
-      const ogDelay = AutoReloginJob.delay;
-
-      AutoReloginJob.setCredentials(username!, password!, server!);
-      AutoReloginJob.delay = 0;
+      await AutoReloginJob.setCredentials(username!, password!, server!);
 
       bot.once("login", async () => {
-        AutoReloginJob.reset();
-        AutoReloginJob.delay = ogDelay;
-
+        await AutoReloginJob.reset();
         await client.manager.managerLoginSuccess({ username });
       });
     } else {
