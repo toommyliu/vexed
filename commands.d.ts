@@ -305,6 +305,8 @@ If results are ambiguous, the first matching item will be used. Use itemType to 
   disable_skipcutscenes(): void;
   /** Performs loop taunt based on one or more strategies. See [looptaunt guide](/guides/looptaunt) for more details. */
   do_looptaunt(strategies: [string, number, number, string?][]): void;
+  /** Does the Wheel of Doom spin (non-members). */
+  do_wheelofdoom(to_bank?: boolean): void;
   /** Drinks consumable items. */
   drink_consumables(items: string | string[], equipAfter?: string): void;
   /** Enables the anti-counter attack setting. */

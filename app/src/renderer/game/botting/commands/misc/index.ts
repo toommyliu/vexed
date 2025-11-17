@@ -17,6 +17,7 @@ import { CommandBuyScrollOfLifeSteal } from "./CommandBuyScrollOfLifeSteal";
 import { CommandCloseWindow } from "./CommandCloseWindow";
 import { CommandDelay } from "./CommandDelay";
 // import { CommandEquipLoadout } from "./CommandEquipLoadout";
+import { CommandDoWheelOfDoom } from "./CommandDoWheelOfDoom";
 import { CommandDrinkConsumables } from "./CommandDrinkConsumables";
 import { CommandGotoLabel } from "./CommandGotoLabel";
 import { CommandGotoPlayer } from "./CommandGotoPlayer";
@@ -828,4 +829,18 @@ export const miscCommands = {
     cmd.val = val;
     window.context.addCommand(cmd);
   },
+  /**
+   * Does the Wheel of Doom spin (non-members).
+   * 
+   * @param to_bank - Whether to put the reward in the bank.
+   */
+  do_wheelofdoom(to_bank: boolean = false) {
+    if (typeof to_bank !== "boolean") {
+      throw new ArgsError("to_bank must be a boolean");
+    }
+
+    const cmd = new CommandDoWheelOfDoom();
+    cmd.bank = to_bank;
+    window.context.addCommand(cmd);
+  }
 };
