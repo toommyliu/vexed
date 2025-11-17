@@ -17,5 +17,5 @@
   "description": "Build cross platform desktop apps with JavaScript, HTML, and CSS",
   "license": "MIT",
   "author": "Electron Community",
-  "version": "7.2.4"
+  "version": "11.5.0"
 }
