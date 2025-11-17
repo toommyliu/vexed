@@ -21,7 +21,7 @@ const MAX_FAILED_COOLDOWN = 60_000;
 
 export class AutoReloginJob extends Job {
   private readonly mutex = new Mutex();
-  
+
   private static readonly globalMutex = new Mutex();
 
   public static get username(): string | null {
@@ -35,7 +35,7 @@ export class AutoReloginJob extends Job {
   public static get server(): string | null {
     return _server;
   }
-  
+
   public static get delay(): number {
     return delay;
   }
@@ -122,7 +122,10 @@ export class AutoReloginJob extends Job {
       return;
     }
 
-    if (this.mutex.isLocked()) return;
+    if (this.mutex.isLocked()) {
+      logger.debug("instance mutex is locked; skipping autorelogin");
+      return;
+    }
 
     const now = Date.now();
     if (now - lastFailedAttempt < failedCooldown) {
@@ -145,10 +148,14 @@ export class AutoReloginJob extends Job {
 
     if (pendingSetCredentials) {
       logger.debug("setCredentials in-flight; waiting for credentials to be applied");
-      await this.bot.waitUntil(() => !pendingSetCredentials, {
+      const pendRes = await this.bot.waitUntil(() => !pendingSetCredentials, {
         interval: 50,
         timeout: 10_000,
       });
+      if (pendRes.isErr()) {
+        logger.warn("Timed out waiting for credentials to be applied; aborting autorelogin attempt");
+        return;
+      }
     }
 
     await AutoReloginJob.globalMutex.runExclusive(async () => {
@@ -210,8 +217,18 @@ export class AutoReloginJob extends Job {
           return;
         }
 
-        this.bot.auth.login(_username!, _password!);
-        initiatedLogin = true;
+        try {
+          this.bot.auth.login(_username!, _password!);
+          initiatedLogin = true;
+        } catch (error) {
+          logger.error(`Exception thrown during auth.login: ${error}`);
+          // treat as failure
+          AutoReloginJob.markFailure();
+          logger.debug(
+            `autorelogin failed (#${consecutiveFailures}); cooldown ${failedCooldown}ms`,
+          );
+          return;
+        }
 
         await this.bot
           .waitUntil(() => this.isInServerSelect(), {
@@ -248,7 +265,7 @@ export class AutoReloginJob extends Job {
 
         let didClickServer: boolean;
         try {
-          didClickServer = this.bot.auth.connectTo(_server!);
+          didClickServer = await Promise.resolve(this.bot.auth.connectTo(_server!));
         } catch (error) {
           logger.debug(`Server connection attempt failed: ${error}`);
           AutoReloginJob.markFailure();
@@ -323,54 +340,40 @@ export class AutoReloginJob extends Job {
               _username &&
               this.bot.auth.username.toLowerCase() !== _username.toLowerCase(),
           );
+
+          logger.debug(`waitUntil login returned error=${res.error}; manualDifferentUser=${manualDifferentUser}`);
+
           if (res.error === "aborted") {
             logger.debug("Aborted while waiting for login...");
-            if (initiatedLogin && this.bot.auth.isLoggedIn()) {
-              if (manualDifferentUser) {
-                logger.debug(
-                  "Skipping logout because a different user is logged in",
-                );
-              } else {
-                logger.debug("Logout initiated by autorelogin job after abort");
-                this.bot.auth.logout();
-              }
-            }
-
-            if (manualDifferentUser) {
-              logger.debug(
-                "No failure state update due to manual login by different user",
-              );
-            } else {
-              AutoReloginJob.markSoftFailure();
-              logger.debug(
-                `autorelogin soft failure; cooldown ${failedCooldown}ms`,
-              );
-            }
           } else if (res.error === "timeout") {
             logger.debug("Timed out while waiting for login...");
-            if (initiatedLogin && this.bot.auth.isLoggedIn()) {
-              if (manualDifferentUser) {
-                logger.debug(
-                  "Skipping logout because a different user is logged in",
-                );
-              } else {
-                logger.debug(
-                  "Logout initiated by autorelogin job after timeout",
-                );
+          }
+
+          if (initiatedLogin && this.bot.auth.isLoggedIn()) {
+            if (manualDifferentUser) {
+              logger.debug("Skipping logout because a different user is logged in");
+            } else {
+              logger.debug("Logout initiated by autorelogin job after aborted/timeout login wait");
+              try {
                 this.bot.auth.logout();
+              } catch (error) {
+                logger.warn(`Failed to logout after aborted/timeout: ${error}`);
               }
             }
+          }
 
-            if (manualDifferentUser) {
-              logger.debug(
-                "No failure state update due to manual login by different user",
-              );
-            } else {
-              AutoReloginJob.markFailure();
-              logger.debug(
-                `autorelogin failed (#${consecutiveFailures}); cooldown ${failedCooldown}ms`,
-              );
-            }
+          if (manualDifferentUser) {
+            logger.debug(
+              "No failure state update due to manual login by different user",
+            );
+          } else if (res.error === "aborted") {
+            AutoReloginJob.markSoftFailure();
+            logger.debug(`autorelogin soft failure; cooldown ${failedCooldown}ms`);
+          } else {
+            AutoReloginJob.markFailure();
+            logger.debug(
+              `autorelogin failed (#${consecutiveFailures}); cooldown ${failedCooldown}ms`,
+            );
           }
 
           return;
@@ -437,16 +440,20 @@ export class AutoReloginJob extends Job {
     server?: string,
   ): Promise<void> {
     // Use a pending flag so execute() will defer while credentials are being set
-    pendingSetCredentials = true;
     await AutoReloginJob.globalMutex.runExclusive(async () => {
-      if (username) _username = username;
-      if (password) _password = password;
-      if (server) _server = server;
+      pendingSetCredentials = true;
+      try {
+        if (username) _username = username;
+        if (password) _password = password;
+        if (server) _server = server;
 
-      lastAttemptTime = 0; // allow immediate attempt
-      AutoReloginJob.resetFailureState();
+        lastAttemptTime = 0; // allow immediate attempt
+        AutoReloginJob.resetFailureState();
+      } finally {
+        pendingSetCredentials = false;
+      }
     });
-    pendingSetCredentials = false;
+
     log.debug(`AutoReloginJob.setCredentials: username=${_username} server=${_server}`);
   }
 
