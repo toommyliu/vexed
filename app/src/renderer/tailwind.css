@@ -1,3 +1,5 @@
+@import "@fontsource/inter";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -15,10 +17,60 @@
   }
 }
 
+@layer base {
+  :root {
+    --background: 255 255 255;
+    --foreground: 37 37 37;
+    --card: 255 255 255;
+    --card-foreground: 37 37 37;
+    --popover: 255 255 255;
+    --popover-foreground: 37 37 37;
+    --primary: 52 52 52;
+    --primary-foreground: 251 251 251;
+    --secondary: 247 247 247;
+    --secondary-foreground: 52 52 52;
+    --muted: 247 247 247;
+    --muted-foreground: 142 142 142;
+    --accent: 247 247 247;
+    --accent-foreground: 52 52 52;
+    --destructive: 147 77 70;
+    --destructive-foreground: 251 251 251;
+    --success: 34 197 94;
+    --success-foreground: 255 255 255;
+    --border: 235 235 235;
+    --input: 235 235 235;
+    --ring: 180 180 180;
+    --radius: 0.625rem;
+  }
+
+  .dark {
+    --background: 37 37 37;
+    --foreground: 251 251 251;
+    --card: 52 52 52;
+    --card-foreground: 251 251 251;
+    --popover: 52 52 52;
+    --popover-foreground: 251 251 251;
+    --primary: 235 235 235;
+    --primary-foreground: 52 52 52;
+    --secondary: 69 69 69;
+    --secondary-foreground: 251 251 251;
+    --muted: 69 69 69;
+    --muted-foreground: 180 180 180;
+    --accent: 69 69 69;
+    --accent-foreground: 251 251 251;
+    --destructive: 179 107 99;
+    --destructive-foreground: 251 251 251;
+    --success: 34 197 94;
+    --success-foreground: 255 255 255;
+    --border: 255 255 255;
+    --input: 255 255 255;
+    --ring: 142 142 142;
+  }
+}
+
 body {
   color: white !important;
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font-family: "Inter", sans-serif;
   font-size: 15px;
   line-height: 1.5;
 }
@@ -34,7 +86,8 @@ input[type="checkbox"] {
 
 input[type="checkbox"]:not(:checked) {
   appearance: none;
-  background-color: rgb(24 24 27); /* bg-zinc-900 */
+  background-color: rgb(24 24 27);
+  /* bg-zinc-900 */
   border-radius: 2px;
   border: 1px solid #4b5563;
 }
@@ -45,7 +98,7 @@ input[type="checkbox"]:checked {
   height: 14px;
 }
 
-input[type="checkbox"] + label {
+input[type="checkbox"]+label {
   margin-left: 5px;
   cursor: pointer;
 }
