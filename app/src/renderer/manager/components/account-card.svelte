@@ -1,8 +1,7 @@
 <script lang="ts">
   import type { Account, AccountWithServer } from "../../../shared/types";
-  import { cn } from "../../../shared";
   import { managerState } from "../state.svelte";
-  import { Button } from "@vexed/ui";
+  import { Button, Card } from "@vexed/ui";
 
   const { account, removeAccount, startAccount, editAccount }: Props = $props();
 
@@ -39,7 +38,7 @@
   role="button"
   tabindex="0"
 >
-  <div
+  <Card
     class="flex flex-col space-y-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 sm:p-5"
   >
     <div
@@ -91,8 +90,9 @@
       {/if}
     </div>
     <div class="flex flex-shrink-0 items-center space-x-2 sm:w-auto">
-      <button
-        class="flex-shrink-0 rounded-md border border-red-600/50 bg-red-900/30 px-2 py-1.5 text-xs font-medium text-red-200 shadow-md transition-all duration-200 hover:bg-red-800/40 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500/50 sm:min-w-[70px] sm:px-3 sm:text-sm"
+      <Button
+        variant="destructive"
+        size="sm"
         onclick={async (ev) => {
           ev.stopPropagation();
           const success = await removeAccount(account);
@@ -102,10 +102,11 @@
             window.alert("Failed to remove account.");
           }
         }}
-        title="Remove this account">Remove</button
+        title="Remove this account">Remove</Button
       >
       <Button
-        variant="primary"
+        variant="success"
+        size="sm"
         disabled={isDisabled}
         onclick={async (ev) => {
           ev.stopPropagation();
@@ -117,5 +118,5 @@
         title="Start this account">Start</Button
       >
     </div>
-  </div>
+  </Card>
 </div>

@@ -1,3 +1,6 @@
+// Global styles
+import "./styles.css";
+
 // Core components
 export { default as Button } from "./Button.svelte";
 export { default as VirtualList } from "./vlist/VirtualList.svelte";
