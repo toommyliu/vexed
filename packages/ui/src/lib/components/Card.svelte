@@ -28,13 +28,13 @@
 
   /** @type {"default" | "zinc"} */
   export let variant = undefined;
-  
+
   /** @type {"none" | "sm" | "md" | "lg"} */
   export let padding = undefined;
-  
+
   /** @type {boolean} */
   export let hoverable = undefined;
-  
+
   /** @type {string} */
   let className = "";
   export { className as class };

@@ -16,19 +16,19 @@
 
   /** @type {boolean} */
   export let checked = false;
-  
+
   /** @type {boolean} */
   export let disabled = false;
-  
+
   /** @type {string | undefined} */
   export let id = undefined;
-  
+
   /** @type {string | undefined} */
   export let label = undefined;
-  
+
   /** @type {"emerald" | "blue" | undefined} */
   export let variant = undefined;
-  
+
   /** @type {string} */
   let className = "";
   export { className as class };
@@ -44,7 +44,9 @@
       class={checkbox({ variant })}
       {...$$restProps}
     />
-    <span class="text-sm text-gray-300 {disabled ? 'opacity-50' : ''}">{label}</span>
+    <span class="text-sm text-gray-300 {disabled ? 'opacity-50' : ''}"
+      >{label}</span
+    >
   </label>
 {:else}
   <input

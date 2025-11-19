@@ -253,6 +253,11 @@ const createCssConfig = ({ entryPoint, outfile }) => ({
   bundle: true,
   minify: isProduction,
   sourcemap: !isProduction,
+  loader: {
+    '.woff': 'file',
+    '.woff2': 'file',
+  },
+  assetNames: 'assets/[name]-[hash][ext]',
   plugins: [alias(pathAliases), postCssPlugin()],
 });
 
