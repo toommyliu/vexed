@@ -2,6 +2,7 @@
   import type { Account, AccountWithServer } from "../../../shared/types";
   import { cn } from "../../../shared";
   import { managerState } from "../state.svelte";
+  import { Button } from "@vexed/ui";
 
   const { account, removeAccount, startAccount, editAccount }: Props = $props();
 
@@ -27,7 +28,7 @@
 </script>
 
 <div
-  class="group cursor-pointer rounded-md border border-zinc-700/50 bg-background-secondary shadow-lg backdrop-blur-sm transition-all duration-300 hover:border-zinc-600/70 hover:shadow-xl hover:shadow-zinc-900/20"
+  class="bg-background-secondary group cursor-pointer rounded-md border border-zinc-700/50 bg-background-secondary shadow-lg backdrop-blur-sm transition-all duration-300 hover:border-zinc-600/70 hover:shadow-xl hover:shadow-zinc-900/20"
   onclick={toggleAccount}
   onkeydown={(ev) => {
     if (ev.key === "Enter" || ev.key === " ") {
@@ -103,12 +104,8 @@
         }}
         title="Remove this account">Remove</button
       >
-      <button
-        class={cn(
-          "flex-shrink-0 rounded-md bg-gradient-to-r from-emerald-600 to-emerald-700 px-2 py-1.5 text-xs font-medium text-white shadow-md transition-all duration-200 hover:from-emerald-500 hover:to-emerald-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/50 sm:min-w-[70px] sm:px-3 sm:text-sm",
-          isDisabled && "pointers-events-none cursor-not-allowed opacity-50",
-          !isDisabled && "hover:bg-emerald-500/80",
-        )}
+      <Button
+        variant="primary"
         disabled={isDisabled}
         onclick={async (ev) => {
           ev.stopPropagation();
@@ -117,7 +114,7 @@
             server: managerState.selectedServer || null,
           });
         }}
-        title="Start this account">Start</button
+        title="Start this account">Start</Button
       >
     </div>
   </div>
