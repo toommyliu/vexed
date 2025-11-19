@@ -1,54 +1,57 @@
-<script lang="ts">
-  // shadcn
-  import type { Snippet } from "svelte";
-  import type { HTMLButtonAttributes } from "svelte/elements";
-  import { cn } from "./util/cn";
+<script>
+  import { tv } from "tailwind-variants";
 
-  type Variant = "default" | "primary" | "secondary" | "destructive";
-  type Size = "default" | "sm" | "lg" | "icon" | "icon-sm" | "icon-lg";
+  const button = tv({
+    base: "inline-flex items-center justify-center rounded-md font-medium transition-all duration-200 focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50",
+    variants: {
+      variant: {
+        primary: "bg-blue-600 hover:bg-blue-500 text-white shadow-md hover:shadow-lg focus:ring-blue-500/50",
+        success: "bg-emerald-600 hover:bg-emerald-500 text-white shadow-md hover:shadow-lg focus:ring-emerald-500/50",
+        danger: "border border-red-600/50 bg-red-900/30 text-red-200 hover:bg-red-800/40 shadow-md hover:shadow-lg focus:ring-red-500/50",
+        secondary: "border border-zinc-700 bg-zinc-800 text-white hover:bg-zinc-700 shadow-sm hover:shadow-md focus:ring-zinc-500/50",
+        ghost: "bg-transparent hover:bg-gray-700/50 text-gray-300 border-transparent focus:ring-gray-500/50",
+      },
+      size: {
+        xs: "px-2 py-1 text-xs",
+        sm: "px-3 py-1.5 text-sm",
+        md: "px-4 py-2 text-sm",
+        lg: "px-6 py-3 text-base",
+      },
+    },
+    defaultVariants: {
+      variant: "primary",
+      size: "md",
+    },
+  });
 
-  interface Props extends HTMLButtonAttributes {
-    variant?: Variant;
-    size?: Size;
-    children?: Snippet;
-  }
-
-  let {
-    variant = "default",
-    size = "default",
-    children,
-    class: cls,
-    ...rest
-  }: Props = $props();
-
-  function getVariantClass(v: Variant): string {
-    const variants: Record<Variant, string> = {
-      default: "",
-      primary: "btn--primary",
-      secondary: "btn--secondary",
-      destructive: "btn--destructive",
-    };
-    return variants[v];
-  }
-
-  function getSizeClass(s: Size): string {
-    const sizes: Record<Size, string> = {
-      default: "",
-      sm: "btn--sm",
-      lg: "btn--lg",
-      icon: "btn--icon",
-      "icon-sm": "btn--icon-sm",
-      "icon-lg": "btn--icon-lg",
-    };
-    return sizes[s];
-  }
+  /** @type {"primary" | "success" | "danger" | "secondary" | "ghost"} */
+  export let variant = undefined;
+  
+  /** @type {"xs" | "sm" | "md" | "lg"} */
+  export let size = undefined;
+  
+  /** @type {"button" | "submit" | "reset"} */
+  export let type = "button";
+  
+  /** @type {boolean} */
+  export let disabled = false;
+  
+  /** @type {(event: MouseEvent) => void} */
+  export let onclick = undefined;
+  
+  /** @type {string} */
+  let className = "";
+  export { className as class };
 </script>
 
 <button
-  class={cn("btn", getVariantClass(variant), getSizeClass(size), cls)}
-  {...rest}
+  {type}
+  {disabled}
+  on:click={onclick}
+  class={button({ variant, size, class: className })}
+  {...$$restProps}
 >
-  {@render children?.()}
+  <slot />
 </button>
 
 <style>
