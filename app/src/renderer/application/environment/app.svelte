@@ -386,7 +386,7 @@
 </script>
 
 <main
-  class="m-0 flex min-h-screen flex-col overflow-hidden bg-background-primary text-white focus:outline-none"
+  class="bg-background-primary m-0 flex min-h-screen flex-col overflow-hidden text-white focus:outline-none"
 >
   <div class="flex flex-1 flex-col overflow-y-auto py-6">
     <div class="mx-auto w-full max-w-5xl space-y-6 px-3 sm:px-6">
@@ -394,7 +394,7 @@
         class="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8 lg:grid-cols-3 lg:gap-8"
       >
         <section
-          class="flex max-h-96 flex-col rounded-md border border-gray-800/50 bg-background-secondary p-4 backdrop-blur-sm"
+          class="bg-background-secondary flex max-h-96 flex-col rounded-md border border-gray-800/50 p-4 backdrop-blur-sm"
         >
           <div class="flex items-center justify-between">
             <div>
@@ -467,7 +467,7 @@
                 disabled={isSyncing}
                 onchange={(ev) =>
                   updateAutoRegisterRequirements(
-                    (ev.target as HTMLInputElement).checked,
+                    ev.target.checked
                   )}
                 title="Automatically adds all quest-required items to the drop list."
               />
@@ -481,7 +481,7 @@
                 disabled={isSyncing}
                 onchange={(ev) =>
                   updateAutoRegisterRewards(
-                    (ev.target as HTMLInputElement).checked,
+                    ev.target.checked,
                   )}
                 title="Automatically adds all quest reward items to the drop list."
               />
@@ -491,7 +491,7 @@
         </section>
 
         <section
-          class="flex max-h-96 flex-col rounded-md border border-gray-800/50 bg-background-secondary p-4 backdrop-blur-sm"
+          class="bg-background-secondary flex max-h-96 flex-col rounded-md border border-gray-800/50 p-4 backdrop-blur-sm"
         >
           <div class="flex flex-shrink-0 items-center justify-between">
             <div>
@@ -573,7 +573,7 @@
         </section>
 
         <section
-          class="flex max-h-96 flex-col rounded-md border border-gray-800/50 bg-background-secondary p-4 backdrop-blur-sm"
+          class="bg-background-secondary flex max-h-96 flex-col rounded-md border border-gray-800/50 p-4 backdrop-blur-sm"
         >
           <div class="flex items-center justify-between">
             <div>
