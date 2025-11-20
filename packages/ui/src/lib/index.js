@@ -19,20 +19,31 @@ export {
     SelectSeparator,
 } from "./components/select/index.js";
 
-// Layout components
+// Display components
+export { default as Badge } from "./components/Badge.svelte";
+export { default as Kbd } from "./components/Kbd.svelte";
+export { default as Label } from "./components/Label.svelte";
 export {
     Card,
     CardHeader,
+    CardFooter,
     CardTitle,
     CardDescription,
     CardContent,
-    CardFooter,
 } from "./components/card/index.js";
-export { default as Modal } from "./components/Modal.svelte";
-export { default as Section } from "./components/Section.svelte";
 
-// Display components
-export { default as Tag } from "./components/Tag.svelte";
+// Overlay components
+export {
+    Dialog,
+    DialogTrigger,
+    DialogContent,
+    DialogHeader,
+    DialogFooter,
+    DialogTitle,
+    DialogDescription,
+    DialogClose,
+} from "./components/dialog/index.js";
+
 
 // Design tokens
 export { colors, opacities } from "./tokens/colors.js";
