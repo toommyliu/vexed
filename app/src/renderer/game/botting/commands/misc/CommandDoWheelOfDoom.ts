@@ -6,8 +6,12 @@ const TREASURE_POTION = "Treasure Potion";
 const TARGET_QTY = 3;
 const QUEST_ID = 3_076;
 
+const TIMEOUT = 30_000;
+
 export class CommandDoWheelOfDoom extends Command {
   public bank: boolean = false;
+
+  private done = false;
 
   public override async executeImpl() {
     const hasItem = await this.checkItemStatus();
@@ -27,7 +31,9 @@ export class CommandDoWheelOfDoom extends Command {
     this.bot.on('pext', fn);
 
     await this.bot.quests.complete(QUEST_ID);
-    await this.bot.sleep(2_000);
+
+    const timeoutAt = Date.now() + TIMEOUT;
+    await this.bot.waitUntil(() => this.done || Date.now() > timeoutAt, { indefinite: true });
 
     this.bot.off('pext', fn);
   }
@@ -59,6 +65,8 @@ export class CommandDoWheelOfDoom extends Command {
         this.logger.debug(`Deposited ${itemObj?.sName} into bank.`);
       }
     }
+
+    this.done = true;
   }
 
   private async checkItemStatus() {
@@ -73,7 +81,7 @@ export class CommandDoWheelOfDoom extends Command {
   }
 
   public override toString() {
-    return `Do Wheel of Doom [to bank: ${this.bank}]`;
+    return `Do Wheel of Doom [bank: ${this.bank}]`;
   }
 }
 
