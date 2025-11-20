@@ -1,60 +1,92 @@
 <script>
-  import { tv } from "tailwind-variants";
+  import { cn } from "$lib/util/cn";
 
-  const checkbox = tv({
-    base: "h-4 w-4 rounded border-gray-700/50 bg-gray-800/50 transition-colors focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50",
-    variants: {
-      variant: {
-        emerald: "text-emerald-500 focus:ring-emerald-500/20",
-        blue: "text-blue-500 focus:ring-blue-500/20",
-      },
-    },
-    defaultVariants: {
-      variant: "emerald",
-    },
-  });
-
-  /** @type {boolean} */
-  export let checked = false;
-
-  /** @type {boolean} */
-  export let disabled = false;
-
-  /** @type {string | undefined} */
-  export let id = undefined;
-
-  /** @type {string | undefined} */
-  export let label = undefined;
-
-  /** @type {"emerald" | "blue" | undefined} */
-  export let variant = undefined;
-
-  /** @type {string} */
-  let className = "";
-  export { className as class };
+  let {
+    class: className = undefined,
+    checked = $bindable(false),
+    disabled = false,
+    id = undefined,
+    label = undefined,
+    indeterminate = false,
+    ...restProps
+  } = $props();
 </script>
 
-{#if label}
-  <label class="flex items-center space-x-2 {className}">
-    <input
-      type="checkbox"
-      {id}
-      {disabled}
-      bind:checked
-      class={checkbox({ variant })}
-      {...$$restProps}
-    />
-    <span class="text-sm text-gray-300 {disabled ? 'opacity-50' : ''}"
-      >{label}</span
+{#snippet checkboxControl()}
+  <button
+    type="button"
+    role="checkbox"
+    aria-checked={indeterminate ? "mixed" : checked}
+    {disabled}
+    {id}
+    onclick={() => {
+      if (!disabled) checked = !checked;
+    }}
+    class={cn(
+      "peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground data-[state=checked]:border-primary",
+      className,
+    )}
+    data-state={indeterminate
+      ? "indeterminate"
+      : checked
+        ? "checked"
+        : "unchecked"}
+    {...restProps}
+  >
+    <span
+      class={cn(
+        "flex items-center justify-center text-current",
+        checked || indeterminate ? "opacity-100" : "opacity-0",
+      )}
     >
+      {#if indeterminate}
+        <svg
+          class="h-3 w-3"
+          fill="none"
+          height="24"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="3"
+          viewBox="0 0 24 24"
+          width="24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path d="M5.252 12h13.496" />
+        </svg>
+      {:else}
+        <svg
+          class="h-3 w-3"
+          fill="none"
+          height="24"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="3"
+          viewBox="0 0 24 24"
+          width="24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path d="M5.252 12.7 10.2 18.63 18.748 5.37" />
+        </svg>
+      {/if}
+    </span>
+  </button>
+{/snippet}
+
+{#if label}
+  <label
+    class="flex items-center space-x-2 cursor-pointer {disabled
+      ? 'cursor-not-allowed opacity-70'
+      : ''}"
+  >
+    {@render checkboxControl()}
+    <span
+      class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+    >
+      {label}
+    </span>
   </label>
 {:else}
-  <input
-    type="checkbox"
-    {id}
-    {disabled}
-    bind:checked
-    class={checkbox({ variant, class: className })}
-    {...$$restProps}
-  />
+  {@render checkboxControl()}
 {/if}
