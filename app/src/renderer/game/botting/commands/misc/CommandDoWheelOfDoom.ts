@@ -32,7 +32,7 @@ export class CommandDoWheelOfDoom extends Command {
     this.bot.off('pext', fn);
   }
 
-  private async pext(packet: Record<string,unknown>) {
+  private async pext(packet: Record<string, unknown>) {
     if (typeof packet !== 'object') return;
 
     const pkt = packet as PextPacket;
@@ -58,13 +58,13 @@ export class CommandDoWheelOfDoom extends Command {
         await this.bot.bank.deposit(itemObj?.sName);
         this.logger.debug(`Deposited ${itemObj?.sName} into bank.`);
       }
+    }
   }
-}
 
   private async checkItemStatus() {
     if (!this.bot.inventory.contains(GEAR_OF_DOOM)) {
       await this.bot.bank.open();
-      if (!this.bot.bank.contains) return false;
+      if (!this.bot.bank.contains(GEAR_OF_DOOM, TARGET_QTY)) return false;
 
       await this.bot.bank.withdraw(GEAR_OF_DOOM);
     }
