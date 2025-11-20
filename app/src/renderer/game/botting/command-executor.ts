@@ -80,7 +80,7 @@ export class CommandExecutor extends TypedEmitter<Events> {
     this._captureMode = false;
 
     this._ac = new AbortController();
-    this._ac.abort(); // initially not running
+    this._ac.abort(); 
 
     this.bot.on("logout", () => this._onLogout());
   }

@@ -33,6 +33,8 @@ export async function exitFromCombat() {
 
       // TODO: this is incorrect
 
+      // TODO: this is incorrect
+
       // we didn't escape
       success = false;
     }
