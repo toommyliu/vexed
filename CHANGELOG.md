@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+# [0.5.3](https://github.com/toommyliu/vexed/compare/0.5.2...0.5.3) - (2025-11-20)
+
+## Bug Fixes
+
+- **commands/DoWheelOfDoom:** Fix Gear of Doom bank check (#286) ([a0c62f1](https://github.com/toommyliu/vexed/commit/a0c62f1a624589abaa0887ffea5945a551c4eb35))
+- **AutoRelogin:** Enhance reliability and retry mechanism (#272) ([9aa5e68](https://github.com/toommyliu/vexed/commit/9aa5e68ec5bfce0e1af79ef945b8daec1b011434))
+
+## Documentation
+
+- Auto-update API documentation ([184913a](https://github.com/toommyliu/vexed/commit/184913afcd7ff180ae34b7dbf8aee116915015d1))
+- Auto-update API documentation ([93383ec](https://github.com/toommyliu/vexed/commit/93383ec7af3a7715e96b95d76ffa7cde1283dcaf))
+
+## Features
+
+- **commands:** Do_wheelofdoom (non-members) (#284) ([7f99a4c](https://github.com/toommyliu/vexed/commit/7f99a4ca8704977a5b1f5afd18f1897803431800))
+
 # [0.5.2](https://github.com/toommyliu/vexed/compare/0.5.1...0.5.2) - (2025-11-14)
 
 ## Bug Fixes
