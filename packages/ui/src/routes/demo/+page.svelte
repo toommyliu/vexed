@@ -14,8 +14,17 @@
         CardDescription,
         CardContent,
         CardFooter,
-        Modal,
-        Tag,
+        Badge,
+        Kbd,
+        Label,
+        Dialog,
+        DialogTrigger,
+        DialogContent,
+        DialogHeader,
+        DialogFooter,
+        DialogTitle,
+        DialogDescription,
+        DialogClose,
     } from "$lib";
     import { onMount } from "svelte";
 
@@ -103,10 +112,7 @@
                 <p class="text-sm text-gray-500">Checked: {checkboxChecked}</p>
 
                 <div class="space-y-2">
-                    <label
-                        class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >Select Option</label
-                    >
+                    <Label>Select Option</Label>
                     <Select bind:value={selectedOption}>
                         <SelectTrigger>
                             <SelectValue placeholder="Select an option" />
@@ -149,16 +155,17 @@
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Tags</CardTitle>
+                        <CardTitle>Badges</CardTitle>
                         <CardDescription
-                            >Example of tags inside a card</CardDescription
+                            >Example of badges inside a card</CardDescription
                         >
                     </CardHeader>
                     <CardContent>
-                        <div class="flex gap-2">
-                            <Tag>Default</Tag>
-                            <Tag variant="primary">Primary</Tag>
-                            <Tag variant="secondary">Secondary</Tag>
+                        <div class="flex gap-2 flex-wrap">
+                            <Badge>Default</Badge>
+                            <Badge variant="secondary">Secondary</Badge>
+                            <Badge variant="outline">Outline</Badge>
+                            <Badge variant="destructive">Destructive</Badge>
                         </div>
                     </CardContent>
                 </Card>
@@ -168,25 +175,56 @@
 
     <Card>
         <CardHeader>
-            <CardTitle>Modal</CardTitle>
+            <CardTitle>Typography & Keyboard</CardTitle>
         </CardHeader>
         <CardContent>
-            <Button onclick={() => (showModal = true)}>Open Modal</Button>
+            <div class="space-y-4">
+                <div class="flex items-center gap-2">
+                    <Label>Press</Label>
+                    <Kbd>⌘</Kbd>
+                    <Label>+</Label>
+                    <Kbd>K</Kbd>
+                    <Label>to search</Label>
+                </div>
+            </div>
+        </CardContent>
+    </Card>
 
-            {#if showModal}
-                <Modal onclose={() => (showModal = false)} title="Demo Modal">
-                    <p>This is a modal dialog.</p>
-                    <div class="flex justify-end gap-2 mt-4">
-                        <Button
-                            variant="ghost"
-                            onclick={() => (showModal = false)}>Cancel</Button
-                        >
-                        <Button onclick={() => (showModal = false)}
-                            >Confirm</Button
-                        >
+    <Card>
+        <CardHeader>
+            <CardTitle>Dialog</CardTitle>
+        </CardHeader>
+        <CardContent>
+            <Dialog>
+                <DialogTrigger>
+                    <Button>Open Dialog</Button>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Edit profile</DialogTitle>
+                        <DialogDescription>
+                            Make changes to your profile here. Click save when
+                            you're done.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div class="grid gap-4 py-4 px-6">
+                        <div class="grid grid-cols-4 items-center gap-4">
+                            <Label class="text-right">Name</Label>
+                            <Input value="Pedro Duarte" class="col-span-3" />
+                        </div>
+                        <div class="grid grid-cols-4 items-center gap-4">
+                            <Label class="text-right">Username</Label>
+                            <Input value="@peduarte" class="col-span-3" />
+                        </div>
                     </div>
-                </Modal>
-            {/if}
+                    <DialogFooter>
+                        <DialogClose>
+                            <Button variant="outline">Cancel</Button>
+                        </DialogClose>
+                        <Button type="submit">Save changes</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </CardContent>
     </Card>
 </div>
