@@ -11,7 +11,14 @@ export { default as Checkbox } from "./components/Checkbox.svelte";
 export { default as Select } from "./components/Select.svelte";
 
 // Layout components
-export { default as Card } from "./components/Card.svelte";
+export {
+    Card,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    CardContent,
+    CardFooter,
+} from "./components/card/index.js";
 export { default as Modal } from "./components/Modal.svelte";
 export { default as Section } from "./components/Section.svelte";
 
