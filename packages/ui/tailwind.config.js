@@ -22,6 +22,18 @@ export default {
 					DEFAULT: "rgb(var(--destructive) / <alpha-value>)",
 					foreground: "rgb(var(--destructive-foreground) / <alpha-value>)",
 				},
+				success: {
+					DEFAULT: "rgb(var(--success) / <alpha-value>)",
+					foreground: "rgb(var(--success-foreground) / <alpha-value>)",
+				},
+				warning: {
+					DEFAULT: "rgb(var(--warning) / <alpha-value>)",
+					foreground: "rgb(var(--warning-foreground) / <alpha-value>)",
+				},
+				info: {
+					DEFAULT: "rgb(var(--info) / <alpha-value>)",
+					foreground: "rgb(var(--info-foreground) / <alpha-value>)",
+				},
 				muted: {
 					DEFAULT: "rgb(var(--muted) / <alpha-value>)",
 					foreground: "rgb(var(--muted-foreground) / <alpha-value>)",
@@ -54,7 +66,7 @@ export default {
 				md: "calc(var(--radius) - 2px)",
 				sm: "calc(var(--radius) - 4px)",
 			},
-		}
+		},
 	},
 	plugins: []
 };
