@@ -1,8 +1,11 @@
 <script lang="ts">
     import { cn } from "$lib/util/cn";
     import type { HTMLAttributes } from "svelte/elements";
+    import type { Snippet } from "svelte";
 
-    interface Props extends HTMLAttributes<HTMLDivElement> {}
+    interface Props extends HTMLAttributes<HTMLDivElement> {
+        children?: Snippet;
+    }
 
     let {
         class: className = undefined,
