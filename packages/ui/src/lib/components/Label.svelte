@@ -12,7 +12,11 @@
 </script>
 
 <label
-    class={cn("inline-flex items-center gap-2 text-sm/4", className)}
+    class={cn(
+        "inline-flex items-center gap-2 text-sm/4",
+        restProps.for && "cursor-pointer",
+        className,
+    )}
     data-slot="label"
     {...restProps}
 >
