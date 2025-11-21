@@ -360,6 +360,33 @@
                     <Checkbox id="disabled-checkbox" disabled checked />
                     <Label for="disabled-checkbox">Disabled checked</Label>
                 </div>
+                <div class="space-y-2">
+                    <h3 class="text-sm font-medium text-muted-foreground">
+                        Two-way Binding
+                    </h3>
+                    <div class="flex items-center space-x-2">
+                        <Checkbox
+                            id="bound-checkbox"
+                            bind:checked={switchChecked}
+                        />
+                        <Label for="bound-checkbox"
+                            >Bound to Switch state ({switchChecked})</Label
+                        >
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="text-sm font-medium text-muted-foreground">
+                        Controlled (Indeterminate)
+                    </h3>
+                    <div class="flex items-center space-x-2">
+                        <Checkbox
+                            id="indeterminate-checkbox"
+                            checked="indeterminate"
+                        />
+                        <Label for="indeterminate-checkbox">Indeterminate</Label
+                        >
+                    </div>
+                </div>
             </div>
         </section>
 
