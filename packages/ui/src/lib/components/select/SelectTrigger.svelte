@@ -3,16 +3,7 @@
     import { cn } from "$lib/util/cn";
     import { ChevronsUpDown } from "lucide-svelte";
     import type { HTMLButtonAttributes } from "svelte/elements";
-
-    interface SelectContext {
-        value: any;
-        open: boolean;
-        disabled: boolean;
-        toggle: () => void;
-        close: () => void;
-        anchorWidth: number;
-        setAnchorWidth: (width: number) => void;
-    }
+    import type { SelectContext } from "./types";
 
     interface Props extends HTMLButtonAttributes {
         size?: "sm" | "default" | "lg";
