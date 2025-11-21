@@ -1,71 +1,22 @@
 <script>
     import {
         Group,
-        GroupSeparator,
-        GroupText,
         Empty,
-        EmptyHeader,
-        EmptyMedia,
-        EmptyTitle,
-        EmptyDescription,
-        EmptyContent,
         Tabs,
-        TabsList,
-        TabsTrigger,
-        TabsContent,
         Menu,
-        MenuTrigger,
-        MenuContent,
-        MenuItem,
-        MenuSeparator,
-        MenuLabel,
         Alert,
-        AlertTitle,
-        AlertDescription,
         Switch,
         NumberField,
-        NumberFieldInput,
-        NumberFieldIncrement,
-        NumberFieldDecrement,
-        NumberFieldGroup,
         Button,
         Input,
         Checkbox,
         Select,
-        SelectTrigger,
-        SelectContent,
-        SelectItem,
-        SelectValue,
-        SelectGroup,
-        SelectGroupLabel,
-        SelectSeparator,
         Badge,
         Kbd,
         Label,
         Card,
-        CardHeader,
-        CardFooter,
-        CardTitle,
-        CardDescription,
-        CardContent,
         Dialog,
-        DialogTrigger,
-        DialogContent,
-        DialogHeader,
-        DialogFooter,
-        DialogTitle,
-        DialogDescription,
-        DialogClose,
         Combobox,
-        ComboboxInput,
-        ComboboxTrigger,
-        ComboboxContent,
-        ComboboxList,
-        ComboboxItem,
-        ComboboxGroup,
-        ComboboxGroupLabel,
-        ComboboxSeparator,
-        ComboboxEmpty,
         Dropdown,
     } from "$lib";
     import { onMount } from "svelte";
@@ -273,7 +224,7 @@
         <section class="space-y-4">
             <h2 class="text-2xl font-semibold border-b pb-2">Alert</h2>
             <div class="space-y-4">
-                <Alert>
+                <Alert.Root>
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
@@ -292,12 +243,12 @@
                             y2="19"
                         /></svg
                     >
-                    <AlertTitle>Heads up!</AlertTitle>
-                    <AlertDescription>
+                    <Alert.Title>Heads up!</Alert.Title>
+                    <Alert.Description>
                         You can add components to your app using the cli.
-                    </AlertDescription>
-                </Alert>
-                <Alert variant="destructive">
+                    </Alert.Description>
+                </Alert.Root>
+                <Alert.Root variant="destructive">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
@@ -316,11 +267,11 @@
                             y2="12"
                         /><line x1="12" x2="12.01" y1="16" y2="16" /></svg
                     >
-                    <AlertTitle>Error</AlertTitle>
-                    <AlertDescription>
+                    <Alert.Title>Error</Alert.Title>
+                    <Alert.Description>
                         Your session has expired. Please log in again.
-                    </AlertDescription>
-                </Alert>
+                    </Alert.Description>
+                </Alert.Root>
             </div>
         </section>
 
@@ -422,60 +373,60 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="space-y-2">
                         <Label>Small</Label>
-                        <Select bind:value={selectValue} class="w-full">
-                            <SelectTrigger size="sm">
-                                <SelectValue placeholder="Select..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="sm1"
-                                    >Small Option 1</SelectItem
+                        <Select.Root bind:value={selectValue} class="w-full">
+                            <Select.Trigger size="sm">
+                                <Select.Value placeholder="Select..." />
+                            </Select.Trigger>
+                            <Select.Content>
+                                <Select.Item value="sm1"
+                                    >Small Option 1</Select.Item
                                 >
-                                <SelectItem value="sm2"
-                                    >Small Option 2</SelectItem
+                                <Select.Item value="sm2"
+                                    >Small Option 2</Select.Item
                                 >
-                                <SelectItem value="sm3"
-                                    >Small Option 3</SelectItem
+                                <Select.Item value="sm3"
+                                    >Small Option 3</Select.Item
                                 >
-                            </SelectContent>
-                        </Select>
+                            </Select.Content>
+                        </Select.Root>
                     </div>
                     <div class="space-y-2">
                         <Label>Default</Label>
-                        <Select bind:value={selectValue} class="w-full">
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="def1"
-                                    >Default Option 1</SelectItem
+                        <Select.Root bind:value={selectValue} class="w-full">
+                            <Select.Trigger>
+                                <Select.Value placeholder="Select..." />
+                            </Select.Trigger>
+                            <Select.Content>
+                                <Select.Item value="def1"
+                                    >Default Option 1</Select.Item
                                 >
-                                <SelectItem value="def2"
-                                    >Default Option 2</SelectItem
+                                <Select.Item value="def2"
+                                    >Default Option 2</Select.Item
                                 >
-                                <SelectItem value="def3"
-                                    >Default Option 3</SelectItem
+                                <Select.Item value="def3"
+                                    >Default Option 3</Select.Item
                                 >
-                            </SelectContent>
-                        </Select>
+                            </Select.Content>
+                        </Select.Root>
                     </div>
                     <div class="space-y-2">
                         <Label>Large</Label>
-                        <Select bind:value={selectValue} class="w-full">
-                            <SelectTrigger size="lg">
-                                <SelectValue placeholder="Select..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="lg1"
-                                    >Large Option 1</SelectItem
+                        <Select.Root bind:value={selectValue} class="w-full">
+                            <Select.Trigger size="lg">
+                                <Select.Value placeholder="Select..." />
+                            </Select.Trigger>
+                            <Select.Content>
+                                <Select.Item value="lg1"
+                                    >Large Option 1</Select.Item
                                 >
-                                <SelectItem value="lg2"
-                                    >Large Option 2</SelectItem
+                                <Select.Item value="lg2"
+                                    >Large Option 2</Select.Item
                                 >
-                                <SelectItem value="lg3"
-                                    >Large Option 3</SelectItem
+                                <Select.Item value="lg3"
+                                    >Large Option 3</Select.Item
                                 >
-                            </SelectContent>
-                        </Select>
+                            </Select.Content>
+                        </Select.Root>
                     </div>
                 </div>
             </div>
@@ -483,32 +434,40 @@
             <!-- Groups and Separators -->
             <div class="space-y-2">
                 <Label>With Groups & Separators</Label>
-                <Select bind:value={selectValue} class="max-w-[280px]">
-                    <SelectTrigger>
-                        <SelectValue placeholder="Select a fruit" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectGroup>
-                            <SelectGroupLabel>Fruits</SelectGroupLabel>
-                            <SelectItem value="apple">Apple</SelectItem>
-                            <SelectItem value="banana">Banana</SelectItem>
-                            <SelectItem value="blueberry">Blueberry</SelectItem>
-                            <SelectItem value="grapes">Grapes</SelectItem>
-                            <SelectItem value="pineapple">Pineapple</SelectItem>
-                        </SelectGroup>
-                        <SelectSeparator />
-                        <SelectGroup>
-                            <SelectGroupLabel>Vegetables</SelectGroupLabel>
-                            <SelectItem value="aubergine">Aubergine</SelectItem>
-                            <SelectItem value="broccoli">Broccoli</SelectItem>
-                            <SelectItem value="carrot" disabled
-                                >Carrot (Disabled)</SelectItem
+                <Select.Root bind:value={selectValue} class="max-w-[280px]">
+                    <Select.Trigger>
+                        <Select.Value placeholder="Select a fruit" />
+                    </Select.Trigger>
+                    <Select.Content>
+                        <Select.Group>
+                            <Select.GroupLabel>Fruits</Select.GroupLabel>
+                            <Select.Item value="apple">Apple</Select.Item>
+                            <Select.Item value="banana">Banana</Select.Item>
+                            <Select.Item value="blueberry"
+                                >Blueberry</Select.Item
                             >
-                            <SelectItem value="courgette">Courgette</SelectItem>
-                            <SelectItem value="leek">Leek</SelectItem>
-                        </SelectGroup>
-                    </SelectContent>
-                </Select>
+                            <Select.Item value="grapes">Grapes</Select.Item>
+                            <Select.Item value="pineapple"
+                                >Pineapple</Select.Item
+                            >
+                        </Select.Group>
+                        <Select.Separator />
+                        <Select.Group>
+                            <Select.GroupLabel>Vegetables</Select.GroupLabel>
+                            <Select.Item value="aubergine"
+                                >Aubergine</Select.Item
+                            >
+                            <Select.Item value="broccoli">Broccoli</Select.Item>
+                            <Select.Item value="carrot" disabled
+                                >Carrot (Disabled)</Select.Item
+                            >
+                            <Select.Item value="courgette"
+                                >Courgette</Select.Item
+                            >
+                            <Select.Item value="leek">Leek</Select.Item>
+                        </Select.Group>
+                    </Select.Content>
+                </Select.Root>
                 <p class="text-sm text-muted-foreground">
                     Selected: {selectValue || "None"}
                 </p>
@@ -517,45 +476,45 @@
             <!-- Long List with Scroll -->
             <div class="space-y-2">
                 <Label>Long List (with Scroll Arrows)</Label>
-                <Select class="max-w-[280px]">
-                    <SelectTrigger>
-                        <SelectValue placeholder="Select a country" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="us">United States</SelectItem>
-                        <SelectItem value="ca">Canada</SelectItem>
-                        <SelectItem value="mx">Mexico</SelectItem>
-                        <SelectItem value="uk">United Kingdom</SelectItem>
-                        <SelectItem value="fr">France</SelectItem>
-                        <SelectItem value="de">Germany</SelectItem>
-                        <SelectItem value="it">Italy</SelectItem>
-                        <SelectItem value="es">Spain</SelectItem>
-                        <SelectItem value="jp">Japan</SelectItem>
-                        <SelectItem value="cn">China</SelectItem>
-                        <SelectItem value="in">India</SelectItem>
-                        <SelectItem value="br">Brazil</SelectItem>
-                        <SelectItem value="au">Australia</SelectItem>
-                        <SelectItem value="za">South Africa</SelectItem>
-                        <SelectItem value="ru">Russia</SelectItem>
-                        <SelectItem value="kr">South Korea</SelectItem>
-                        <SelectItem value="sg">Singapore</SelectItem>
-                        <SelectItem value="nz">New Zealand</SelectItem>
-                    </SelectContent>
-                </Select>
+                <Select.Root class="max-w-[280px]">
+                    <Select.Trigger>
+                        <Select.Value placeholder="Select a country" />
+                    </Select.Trigger>
+                    <Select.Content>
+                        <Select.Item value="us">United States</Select.Item>
+                        <Select.Item value="ca">Canada</Select.Item>
+                        <Select.Item value="mx">Mexico</Select.Item>
+                        <Select.Item value="uk">United Kingdom</Select.Item>
+                        <Select.Item value="fr">France</Select.Item>
+                        <Select.Item value="de">Germany</Select.Item>
+                        <Select.Item value="it">Italy</Select.Item>
+                        <Select.Item value="es">Spain</Select.Item>
+                        <Select.Item value="jp">Japan</Select.Item>
+                        <Select.Item value="cn">China</Select.Item>
+                        <Select.Item value="in">India</Select.Item>
+                        <Select.Item value="br">Brazil</Select.Item>
+                        <Select.Item value="au">Australia</Select.Item>
+                        <Select.Item value="za">South Africa</Select.Item>
+                        <Select.Item value="ru">Russia</Select.Item>
+                        <Select.Item value="kr">South Korea</Select.Item>
+                        <Select.Item value="sg">Singapore</Select.Item>
+                        <Select.Item value="nz">New Zealand</Select.Item>
+                    </Select.Content>
+                </Select.Root>
             </div>
 
             <!-- Disabled State -->
             <div class="space-y-2">
                 <Label>Disabled Select</Label>
-                <Select disabled class="max-w-[280px]">
-                    <SelectTrigger>
-                        <SelectValue placeholder="Disabled select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="disabled1">Option 1</SelectItem>
-                        <SelectItem value="disabled2">Option 2</SelectItem>
-                    </SelectContent>
-                </Select>
+                <Select.Root disabled class="max-w-[280px]">
+                    <Select.Trigger>
+                        <Select.Value placeholder="Disabled select" />
+                    </Select.Trigger>
+                    <Select.Content>
+                        <Select.Item value="disabled1">Option 1</Select.Item>
+                        <Select.Item value="disabled2">Option 2</Select.Item>
+                    </Select.Content>
+                </Select.Root>
             </div>
         </section>
 
@@ -564,7 +523,7 @@
             <h2 class="text-2xl font-semibold border-b pb-2">Combobox</h2>
             <div class="space-y-4">
                 <div class="w-[200px]">
-                    <Combobox
+                    <Combobox.Root
                         bind:value={selectedFramework}
                         bind:inputValue={comboboxInputValue}
                         bind:open={comboboxOpen}
@@ -575,32 +534,32 @@
                         }}
                     >
                         <div class="relative">
-                            <ComboboxInput placeholder="Select framework..." />
-                            <ComboboxTrigger />
+                            <Combobox.Input placeholder="Select framework..." />
+                            <Combobox.Trigger />
                         </div>
-                        <ComboboxContent>
-                            <ComboboxList>
-                                <ComboboxGroup>
-                                    <ComboboxGroupLabel
-                                        >Frameworks</ComboboxGroupLabel
+                        <Combobox.Content>
+                            <Combobox.List>
+                                <Combobox.Group>
+                                    <Combobox.GroupLabel
+                                        >Frameworks</Combobox.GroupLabel
                                     >
                                     {#each filteredFrameworks as framework (framework.value)}
-                                        <ComboboxItem
+                                        <Combobox.Item
                                             value={framework.value}
                                             label={framework.label}
                                         >
                                             {framework.label}
-                                        </ComboboxItem>
+                                        </Combobox.Item>
                                     {/each}
                                     {#if filteredFrameworks.length === 0}
-                                        <ComboboxEmpty
-                                            >No framework found.</ComboboxEmpty
+                                        <Combobox.Empty
+                                            >No framework found.</Combobox.Empty
                                         >
                                     {/if}
-                                </ComboboxGroup>
-                            </ComboboxList>
-                        </ComboboxContent>
-                    </Combobox>
+                                </Combobox.Group>
+                            </Combobox.List>
+                        </Combobox.Content>
+                    </Combobox.Root>
                 </div>
                 <div class="text-sm text-muted-foreground">
                     Selected: {selectedFramework}
@@ -614,25 +573,25 @@
             <div class="space-y-4">
                 <div class="w-[200px]">
                     <Dropdown bind:value={dropdownValue}>
-                        <ComboboxGroup>
-                            <ComboboxGroupLabel>Fruits</ComboboxGroupLabel>
-                            <ComboboxItem value="apple" label="Apple"
-                                >Apple</ComboboxItem
+                        <Combobox.Group>
+                            <Combobox.GroupLabel>Fruits</Combobox.GroupLabel>
+                            <Combobox.Item value="apple" label="Apple"
+                                >Apple</Combobox.Item
                             >
-                            <ComboboxItem value="banana" label="Banana"
-                                >Banana</ComboboxItem
+                            <Combobox.Item value="banana" label="Banana"
+                                >Banana</Combobox.Item
                             >
-                            <ComboboxItem value="blueberry" label="Blueberry">
+                            <Combobox.Item value="blueberry" label="Blueberry">
                                 Blueberry
-                            </ComboboxItem>
-                            <ComboboxSeparator />
-                            <ComboboxItem value="grapes" label="Grapes"
-                                >Grapes</ComboboxItem
+                            </Combobox.Item>
+                            <Combobox.Separator />
+                            <Combobox.Item value="grapes" label="Grapes"
+                                >Grapes</Combobox.Item
                             >
-                            <ComboboxItem value="pineapple" label="Pineapple">
+                            <Combobox.Item value="pineapple" label="Pineapple">
                                 Pineapple
-                            </ComboboxItem>
-                        </ComboboxGroup>
+                            </Combobox.Item>
+                        </Combobox.Group>
                     </Dropdown>
                 </div>
                 <div class="text-sm text-muted-foreground">
@@ -662,28 +621,28 @@
             <div class="space-y-4">
                 <div class="space-y-2">
                     <Label>Default (0-100)</Label>
-                    <NumberField
+                    <NumberField.Root
                         bind:value={numberValue}
                         min={0}
                         max={100}
                         class="w-[150px]"
                     >
-                        <NumberFieldGroup>
-                            <NumberFieldInput />
-                            <NumberFieldIncrement />
-                            <NumberFieldDecrement />
-                        </NumberFieldGroup>
-                    </NumberField>
+                        <NumberField.Group>
+                            <NumberField.Input />
+                            <NumberField.Increment />
+                            <NumberField.Decrement />
+                        </NumberField.Group>
+                    </NumberField.Root>
                 </div>
                 <div class="space-y-2">
                     <Label>Step 0.5</Label>
-                    <NumberField value={1.5} step={0.5} class="w-[150px]">
-                        <NumberFieldGroup>
-                            <NumberFieldInput />
-                            <NumberFieldIncrement />
-                            <NumberFieldDecrement />
-                        </NumberFieldGroup>
-                    </NumberField>
+                    <NumberField.Root value={1.5} step={0.5} class="w-[150px]">
+                        <NumberField.Group>
+                            <NumberField.Input />
+                            <NumberField.Increment />
+                            <NumberField.Decrement />
+                        </NumberField.Group>
+                    </NumberField.Root>
                 </div>
             </div>
         </section>
@@ -691,20 +650,20 @@
         <!-- Tabs -->
         <section class="space-y-4">
             <h2 class="text-2xl font-semibold border-b pb-2">Tabs</h2>
-            <Tabs bind:value={tabValue} class="w-[400px]">
-                <TabsList class="grid w-full grid-cols-2">
-                    <TabsTrigger value="account">Account</TabsTrigger>
-                    <TabsTrigger value="password">Password</TabsTrigger>
-                </TabsList>
-                <TabsContent value="account">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Account</CardTitle>
-                            <CardDescription
-                                >Make changes to your account here.</CardDescription
+            <Tabs.Root bind:value={tabValue} class="w-[400px]">
+                <Tabs.List class="grid w-full grid-cols-2">
+                    <Tabs.Trigger value="account">Account</Tabs.Trigger>
+                    <Tabs.Trigger value="password">Password</Tabs.Trigger>
+                </Tabs.List>
+                <Tabs.Content value="account">
+                    <Card.Root>
+                        <Card.Header>
+                            <Card.Title>Account</Card.Title>
+                            <Card.Description
+                                >Make changes to your account here.</Card.Description
                             >
-                        </CardHeader>
-                        <CardContent class="space-y-2">
+                        </Card.Header>
+                        <Card.Content class="space-y-2">
                             <div class="space-y-1">
                                 <Label for="name">Name</Label>
                                 <Input id="name" value="Pedro Duarte" />
@@ -713,21 +672,22 @@
                                 <Label for="username">Username</Label>
                                 <Input id="username" value="@peduarte" />
                             </div>
-                        </CardContent>
-                        <CardFooter>
+                        </Card.Content>
+                        <Card.Footer>
                             <Button>Save changes</Button>
-                        </CardFooter>
-                    </Card>
-                </TabsContent>
-                <TabsContent value="password">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Password</CardTitle>
-                            <CardDescription
-                                >Change your password here.</CardDescription
+                        </Card.Footer>
+                    </Card.Root>
+                </Tabs.Content>
+                <Tabs.Content value="password">
+                    <Card.Root>
+                        <Card.Header>
+                            <Card.Title>Password</Card.Title>
+                            <Card.Description
+                                >Change your password here.</Card.Description
                             >
-                        </CardHeader>
-                        <CardContent class="space-y-2">
+                            >
+                        </Card.Header>
+                        <Card.Content class="space-y-2">
                             <div class="space-y-1">
                                 <Label for="current">Current password</Label>
                                 <Input id="current" type="password" />
@@ -736,35 +696,35 @@
                                 <Label for="new">New password</Label>
                                 <Input id="new" type="password" />
                             </div>
-                        </CardContent>
-                        <CardFooter>
+                        </Card.Content>
+                        <Card.Footer>
                             <Button>Save password</Button>
-                        </CardFooter>
-                    </Card>
-                </TabsContent>
-            </Tabs>
+                        </Card.Footer>
+                    </Card.Root>
+                </Tabs.Content>
+            </Tabs.Root>
         </section>
 
         <!-- Menu -->
         <section class="space-y-4">
             <h2 class="text-2xl font-semibold border-b pb-2">Menu</h2>
-            <Menu>
-                <MenuTrigger>
+            <Menu.Root>
+                <Menu.Trigger>
                     <Button variant="outline">Open Menu</Button>
-                </MenuTrigger>
-                <MenuContent>
-                    <MenuLabel>My Account</MenuLabel>
-                    <MenuSeparator />
-                    <MenuItem>Profile</MenuItem>
-                    <MenuItem>Billing</MenuItem>
-                    <MenuItem>Team</MenuItem>
-                    <MenuItem>Subscription</MenuItem>
-                    <MenuSeparator />
-                    <MenuItem disabled>Disabled Item</MenuItem>
-                    <MenuSeparator />
-                    <MenuItem class="text-destructive">Log out</MenuItem>
-                </MenuContent>
-            </Menu>
+                </Menu.Trigger>
+                <Menu.Content>
+                    <Menu.Label>My Account</Menu.Label>
+                    <Menu.Separator />
+                    <Menu.Item>Profile</Menu.Item>
+                    <Menu.Item>Billing</Menu.Item>
+                    <Menu.Item>Team</Menu.Item>
+                    <Menu.Item>Subscription</Menu.Item>
+                    <Menu.Separator />
+                    <Menu.Item disabled>Disabled Item</Menu.Item>
+                    <Menu.Separator />
+                    <Menu.Item class="text-destructive">Log out</Menu.Item>
+                </Menu.Content>
+            </Menu.Root>
         </section>
 
         <!-- Group -->
@@ -775,25 +735,25 @@
                     <h3 class="text-sm font-medium text-muted-foreground">
                         Horizontal
                     </h3>
-                    <Group>
-                        <GroupText>Item 1</GroupText>
-                        <GroupSeparator />
-                        <GroupText>Item 2</GroupText>
-                        <GroupSeparator />
-                        <GroupText>Item 3</GroupText>
-                    </Group>
+                    <Group.Root>
+                        <Group.Text>Item 1</Group.Text>
+                        <Group.Separator />
+                        <Group.Text>Item 2</Group.Text>
+                        <Group.Separator />
+                        <Group.Text>Item 3</Group.Text>
+                    </Group.Root>
                 </div>
                 <div class="space-y-2">
                     <h3 class="text-sm font-medium text-muted-foreground">
                         Vertical
                     </h3>
-                    <Group orientation="vertical">
-                        <GroupText>Item 1</GroupText>
-                        <GroupSeparator orientation="horizontal" />
-                        <GroupText>Item 2</GroupText>
-                        <GroupSeparator orientation="horizontal" />
-                        <GroupText>Item 3</GroupText>
-                    </Group>
+                    <Group.Root orientation="vertical">
+                        <Group.Text>Item 1</Group.Text>
+                        <Group.Separator orientation="horizontal" />
+                        <Group.Text>Item 2</Group.Text>
+                        <Group.Separator orientation="horizontal" />
+                        <Group.Text>Item 3</Group.Text>
+                    </Group.Root>
                 </div>
             </div>
         </section>
@@ -803,29 +763,29 @@
             <h2 class="text-2xl font-semibold border-b pb-2">Empty</h2>
             <div class="grid md:grid-cols-2 gap-4">
                 <div class="border rounded-md p-4">
-                    <Empty>
-                        <EmptyHeader>
-                            <EmptyMedia>
+                    <Empty.Root>
+                        <Empty.Header>
+                            <Empty.Media>
                                 <div
                                     class="w-12 h-12 bg-muted rounded-full flex items-center justify-center"
                                 >
                                     📦
                                 </div>
-                            </EmptyMedia>
-                            <EmptyTitle>No items found</EmptyTitle>
-                            <EmptyDescription>
+                            </Empty.Media>
+                            <Empty.Title>No items found</Empty.Title>
+                            <Empty.Description>
                                 You haven't added any items yet.
-                            </EmptyDescription>
-                        </EmptyHeader>
-                        <EmptyContent>
+                            </Empty.Description>
+                        </Empty.Header>
+                        <Empty.Content>
                             <Button>Create Item</Button>
-                        </EmptyContent>
-                    </Empty>
+                        </Empty.Content>
+                    </Empty.Root>
                 </div>
                 <div class="border rounded-md p-4">
-                    <Empty>
-                        <EmptyHeader>
-                            <EmptyMedia variant="icon">
+                    <Empty.Root>
+                        <Empty.Header>
+                            <Empty.Media variant="icon">
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     width="24"
@@ -841,13 +801,13 @@
                                         d="m21 21-4.3-4.3"
                                     /></svg
                                 >
-                            </EmptyMedia>
-                            <EmptyTitle>No results</EmptyTitle>
-                            <EmptyDescription>
+                            </Empty.Media>
+                            <Empty.Title>No results</Empty.Title>
+                            <Empty.Description>
                                 We couldn't find any results for your search.
-                            </EmptyDescription>
-                        </EmptyHeader>
-                    </Empty>
+                            </Empty.Description>
+                        </Empty.Header>
+                    </Empty.Root>
                 </div>
             </div>
         </section>
@@ -869,14 +829,14 @@
         <section class="space-y-4">
             <h2 class="text-2xl font-semibold border-b pb-2">Card</h2>
             <div class="grid md:grid-cols-2 gap-4">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Create project</CardTitle>
-                        <CardDescription
-                            >Deploy your new project in one-click.</CardDescription
+                <Card.Root>
+                    <Card.Header>
+                        <Card.Title>Create project</Card.Title>
+                        <Card.Description
+                            >Deploy your new project in one-click.</Card.Description
                         >
-                    </CardHeader>
-                    <CardContent>
+                    </Card.Header>
+                    <Card.Content>
                         <div class="grid w-full items-center gap-4">
                             <div class="flex flex-col space-y-1.5">
                                 <Label for="project-name">Name</Label>
@@ -886,20 +846,20 @@
                                 />
                             </div>
                         </div>
-                    </CardContent>
-                    <CardFooter class="flex justify-between">
+                    </Card.Content>
+                    <Card.Footer class="flex justify-between">
                         <Button variant="outline">Cancel</Button>
                         <Button>Deploy</Button>
-                    </CardFooter>
-                </Card>
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Notifications</CardTitle>
-                        <CardDescription
-                            >You have 3 unread messages.</CardDescription
+                    </Card.Footer>
+                </Card.Root>
+                <Card.Root>
+                    <Card.Header>
+                        <Card.Title>Notifications</Card.Title>
+                        <Card.Description
+                            >You have 3 unread messages.</Card.Description
                         >
-                    </CardHeader>
-                    <CardContent>
+                    </Card.Header>
+                    <Card.Content>
                         <div
                             class="flex items-center space-x-4 rounded-md border p-4"
                         >
@@ -930,22 +890,22 @@
                             </div>
                             <Switch />
                         </div>
-                    </CardContent>
-                </Card>
+                    </Card.Content>
+                </Card.Root>
             </div>
         </section>
 
         <!-- Dialog -->
         <section class="space-y-4">
             <h2 class="text-2xl font-semibold border-b pb-2">Dialog</h2>
-            <Dialog>
-                <DialogTrigger>
+            <Dialog.Root>
+                <Dialog.Trigger>
                     <Button>Edit Profile</Button>
-                </DialogTrigger>
-                <DialogContent class="sm:max-w-[425px]">
-                    <DialogHeader>
-                        <DialogTitle>Edit profile</DialogTitle>
-                        <DialogDescription>
+                </Dialog.Trigger>
+                <Dialog.Content class="sm:max-w-[425px]">
+                    <Dialog.Header>
+                        <Dialog.Title>Edit profile</Dialog.Title>
+                        <Dialog.Description>
                             Make changes to your profile here. Click save when
                             you're done.
                             <div class="grid gap-4 py-4">
@@ -975,16 +935,16 @@
                                     />
                                 </div>
                             </div>
-                        </DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter>
-                        <DialogClose>
+                        </Dialog.Description>
+                    </Dialog.Header>
+                    <Dialog.Footer>
+                        <Dialog.Close>
                             <Button variant="outline">Cancel</Button>
-                        </DialogClose>
+                        </Dialog.Close>
                         <Button>Save changes</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                    </Dialog.Footer>
+                </Dialog.Content>
+            </Dialog.Root>
         </section>
     </div>
 </div>

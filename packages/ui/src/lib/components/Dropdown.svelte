@@ -1,9 +1,9 @@
 <script lang="ts">
-    import Combobox from "./Combobox.svelte";
-    import ComboboxInput from "./ComboboxInput.svelte";
-    import ComboboxTrigger from "./ComboboxTrigger.svelte";
-    import ComboboxContent from "./ComboboxContent.svelte";
-    import ComboboxList from "./ComboboxList.svelte";
+    import Combobox from "./combobox/Combobox.svelte";
+    import ComboboxInput from "./combobox/ComboboxInput.svelte";
+    import ComboboxTrigger from "./combobox/ComboboxTrigger.svelte";
+    import ComboboxContent from "./combobox/ComboboxContent.svelte";
+    import ComboboxList from "./combobox/ComboboxList.svelte";
     import type { HTMLAttributes } from "svelte/elements";
     import { cn } from "$lib/util/cn";
 
