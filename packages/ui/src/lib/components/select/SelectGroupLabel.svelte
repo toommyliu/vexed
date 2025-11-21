@@ -1,8 +1,23 @@
-<script>
+<script lang="ts">
     import { cn } from "$lib/util/cn";
-    let { class: className = undefined, children, ...restProps } = $props();
+    import type { HTMLAttributes } from "svelte/elements";
+
+    interface Props extends HTMLAttributes<HTMLDivElement> {}
+
+    let {
+        class: className = undefined,
+        children,
+        ...restProps
+    }: Props = $props();
 </script>
 
-<div class={cn("px-2 py-1.5 text-sm font-semibold", className)} {...restProps}>
+<div
+    class={cn(
+        "px-2 py-1.5 font-medium text-muted-foreground text-xs",
+        className,
+    )}
+    data-slot="select-group-label"
+    {...restProps}
+>
     {@render children?.()}
 </div>

@@ -1,14 +1,15 @@
-<script>
-    import { tv } from "tailwind-variants";
+<script lang="ts">
+    import { tv, type VariantProps } from "tailwind-variants";
     import { cn } from "$lib/util/cn";
+    import type { HTMLAttributes } from "svelte/elements";
 
     const badgeVariants = tv({
         base: "relative inline-flex shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded-sm border border-transparent font-medium outline-none transition-shadow focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-64 [&_svg:not([class*='size-'])]:size-3 [&_svg]:pointer-events-none [&_svg]:shrink-0 [button,a&]:cursor-pointer [button,a&]:pointer-coarse:after:absolute [button,a&]:pointer-coarse:after:size-full [button,a&]:pointer-coarse:after:min-h-11 [button,a&]:pointer-coarse:after:min-w-11",
         variants: {
             size: {
-                default: "px-[calc(theme(spacing.1)-1px)] text-xs",
-                lg: "px-[calc(theme(spacing.1.5)-1px)] text-sm",
-                sm: "rounded-[calc(var(--radius-sm)-2px)] px-[calc(theme(spacing.1)-1px)] text-[.625rem]",
+                default: "px-[calc(theme(spacing[1])-1px)] text-xs",
+                lg: "px-[calc(theme(spacing[1.5])-1px)] text-sm",
+                sm: "rounded px-[calc(theme(spacing[1])-1px)] text-[.625rem]",
             },
             variant: {
                 default:
@@ -33,21 +34,27 @@
         },
     });
 
-    /** @type {import('tailwind-variants').VariantProps<typeof badgeVariants>['variant']} */
-    export let variant = "default";
+    type BadgeVariant = VariantProps<typeof badgeVariants>["variant"];
+    type BadgeSize = VariantProps<typeof badgeVariants>["size"];
 
-    /** @type {import('tailwind-variants').VariantProps<typeof badgeVariants>['size']} */
-    export let size = "default";
+    interface Props extends HTMLAttributes<HTMLSpanElement> {
+        variant?: BadgeVariant;
+        size?: BadgeSize;
+    }
 
-    /** @type {string} */
-    let className = undefined;
-    export { className as class };
+    let {
+        variant = "default",
+        size = "default",
+        class: className = undefined,
+        children,
+        ...restProps
+    }: Props = $props();
 </script>
 
 <span
     class={cn(badgeVariants({ variant, size }), className)}
     data-slot="badge"
-    {...$$restProps}
+    {...restProps}
 >
-    <slot />
+    {@render children?.()}
 </span>

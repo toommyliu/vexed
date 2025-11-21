@@ -1,18 +1,39 @@
-<script>
+<script lang="ts">
     import { getContext } from "svelte";
     import { cn } from "$lib/util/cn";
+    import type { HTMLAttributes } from "svelte/elements";
+
+    interface SelectContext {
+        value: any;
+        open: boolean;
+        disabled: boolean;
+        toggle: () => void;
+        close: () => void;
+    }
+
+    interface Props extends HTMLAttributes<HTMLSpanElement> {
+        placeholder?: string;
+    }
 
     let {
-        class: className = undefined,
         placeholder = "Select...",
+        class: className = undefined,
+        children,
         ...restProps
-    } = $props();
-    const ctx = getContext("select");
+    }: Props = $props();
+
+    const ctx = getContext<SelectContext>("select");
 </script>
 
-<span class={cn("block truncate", className)} {...restProps}>
+<span
+    class={cn("flex-1 truncate", className)}
+    data-slot="select-value"
+    {...restProps}
+>
     {#if ctx.value}
         {ctx.value}
+    {:else if children}
+        {@render children?.()}
     {:else}
         <span class="text-muted-foreground">{placeholder}</span>
     {/if}

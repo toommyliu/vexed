@@ -1,36 +1,55 @@
-<script>
+<script lang="ts">
     import { getContext, onDestroy } from "svelte";
     import { fade, scale } from "svelte/transition";
     import { cn } from "$lib/util/cn";
+    import type { HTMLAttributes } from "svelte/elements";
+    import type { Writable } from "svelte/store";
 
-    /** @type {string} */
-    let className = undefined;
-    export { className as class };
+    interface DialogContext {
+        open: Writable<boolean>;
+        updateOpen: (newOpen: boolean) => void;
+    }
 
-    /** @type {boolean} */
-    export let showCloseButton = true;
+    interface Props extends HTMLAttributes<HTMLDivElement> {
+        showCloseButton?: boolean;
+    }
 
-    const { open, updateOpen } = getContext("dialog");
+    let {
+        class: className = undefined,
+        showCloseButton = true,
+        children,
+        ...restProps
+    }: Props = $props();
+
+    const { open, updateOpen } = getContext<DialogContext>("dialog");
 
     function handleClose() {
         updateOpen(false);
     }
 
-    function handleKeydown(e) {
+    function handleKeydown(e: KeyboardEvent) {
         if (e.key === "Escape" && $open) {
             handleClose();
         }
     }
 
-    $: if ($open) {
-        if (typeof document !== "undefined") {
-            document.body.style.overflow = "hidden";
-        }
-    } else {
-        if (typeof document !== "undefined") {
-            document.body.style.overflow = "";
+    function handleBackdropKeydown(e: KeyboardEvent) {
+        if (e.key === "Enter") {
+            handleClose();
         }
     }
+
+    $effect(() => {
+        if ($open) {
+            if (typeof document !== "undefined") {
+                document.body.style.overflow = "hidden";
+            }
+        } else {
+            if (typeof document !== "undefined") {
+                document.body.style.overflow = "";
+            }
+        }
+    });
 
     onDestroy(() => {
         if (typeof document !== "undefined") {
@@ -39,7 +58,7 @@
     });
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<svelte:window onkeydown={handleKeydown} />
 
 {#if $open}
     <div class="relative z-50">
@@ -48,8 +67,8 @@
             class="fixed inset-0 z-50 bg-black/32 backdrop-blur-sm transition-all duration-200"
             transition:fade={{ duration: 200 }}
             data-slot="dialog-backdrop"
-            on:click={handleClose}
-            on:keydown={(e) => e.key === "Enter" && handleClose()}
+            onclick={handleClose}
+            onkeydown={handleBackdropKeydown}
             role="button"
             tabindex="0"
         ></div>
@@ -67,14 +86,14 @@
                     )}
                     transition:scale={{ start: 0.95, duration: 200 }}
                     data-slot="dialog-popup"
-                    {...$$restProps}
+                    {...restProps}
                 >
                     <div class="flex h-full flex-col overflow-y-auto">
-                        <slot />
+                        {@render children?.()}
                         {#if showCloseButton}
                             <button
                                 class="absolute end-2 top-2 inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-md border border-transparent opacity-72 outline-none transition-[color,background-color,box-shadow,opacity] pointer-coarse:after:absolute pointer-coarse:after:size-full pointer-coarse:after:min-h-11 pointer-coarse:after:min-w-11 hover:opacity-100 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0"
-                                on:click={handleClose}
+                                onclick={handleClose}
                             >
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"

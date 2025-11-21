@@ -1,18 +1,38 @@
-<script>
+<script lang="ts">
     import { getContext } from "svelte";
     import { cn } from "$lib/util/cn";
+    import type { HTMLAttributes } from "svelte/elements";
+
+    interface SelectContext {
+        value: any;
+        open: boolean;
+        disabled: boolean;
+        toggle: () => void;
+        close: () => void;
+    }
+
+    interface Props extends HTMLAttributes<HTMLButtonElement> {
+        value: any;
+        disabled?: boolean;
+    }
 
     let {
-        class: className = undefined,
         value,
-        children,
         disabled = false,
+        class: className = undefined,
+        children,
         ...restProps
-    } = $props();
+    }: Props = $props();
 
-    const ctx = getContext("select");
+    const ctx = getContext<SelectContext>("select");
 
     let isSelected = $derived(ctx.value === value);
+
+    function handleSelect() {
+        if (disabled) return;
+        ctx.value = value;
+        ctx.close();
+    }
 </script>
 
 <button
@@ -20,38 +40,35 @@
     role="option"
     aria-selected={isSelected}
     {disabled}
-    onclick={() => {
-        if (!disabled) {
-            ctx.value = value;
-            ctx.close();
-        }
-    }}
+    onclick={handleSelect}
+    onmouseenter={(e) => e.currentTarget.setAttribute("data-highlighted", "")}
+    onmouseleave={(e) => e.currentTarget.removeAttribute("data-highlighted")}
     class={cn(
-        "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 hover:bg-accent hover:text-accent-foreground",
-        isSelected && "bg-accent text-accent-foreground",
+        "grid cursor-default grid-cols-[1rem_1fr] items-center gap-2 rounded-sm py-1 ps-2 pe-4 text-base outline-none [&[data-disabled]]:pointer-events-none [&[data-highlighted]]:bg-accent [&[data-highlighted]]:text-accent-foreground [&[data-disabled]]:opacity-64 sm:text-sm [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         className,
     )}
+    data-slot="select-item"
+    data-disabled={disabled ? "" : undefined}
     {...restProps}
 >
-    {#if isSelected}
-        <span
-            class="absolute left-2 flex h-3.5 w-3.5 items-center justify-center"
-        >
+    <span class="col-start-1">
+        {#if isSelected}
             <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
                 fill="none"
+                height="24"
                 stroke="currentColor"
-                stroke-width="2"
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                class="h-4 w-4"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                class="size-4"
             >
-                <polyline points="20 6 9 17 4 12" />
+                <path d="M5.252 12.7 10.2 18.63 18.748 5.37" />
             </svg>
-        </span>
-    {/if}
-    {@render children?.()}
+        {/if}
+    </span>
+    <span class="col-start-2 min-w-0">
+        {@render children?.()}
+    </span>
 </button>

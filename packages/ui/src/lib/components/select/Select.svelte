@@ -1,6 +1,25 @@
-<script>
+<script lang="ts">
     import { setContext } from "svelte";
-    import { writable } from "svelte/store";
+    import type { HTMLAttributes } from "svelte/elements";
+
+    interface SelectContext {
+        value: any;
+        open: boolean;
+        disabled: boolean;
+        toggle: () => void;
+        close: () => void;
+        anchorWidth: number;
+        setAnchorWidth: (width: number) => void;
+    }
+
+    interface Props extends HTMLAttributes<HTMLDivElement> {
+        value?: any;
+        onValueChange?: (value: any) => void;
+        open?: boolean;
+        disabled?: boolean;
+        name?: string;
+        required?: boolean;
+    }
 
     let {
         value = $bindable(undefined),
@@ -10,18 +29,13 @@
         name = undefined,
         required = false,
         children,
-    } = $props();
+        class: className = undefined,
+        ...restProps
+    }: Props = $props();
 
-    // Use a store for reactive context in Svelte 5 if we want deep reactivity,
-    // or just pass a state object if using runes deeply.
-    // For simplicity and compatibility, I'll use a simple context object with getters/setters or stores.
-    // Actually, with Svelte 5 runes, we can pass a state object.
+    let anchorWidth = $state(0);
 
-    // Let's use a simple closure-based context for now to avoid complex store logic if possible,
-    // but since we need to react to changes in children, stores or runes state is best.
-    // I'll use a custom context object.
-
-    const ctx = {
+    const ctx: SelectContext = {
         get value() {
             return value;
         },
@@ -38,6 +52,12 @@
         get disabled() {
             return disabled;
         },
+        get anchorWidth() {
+            return anchorWidth;
+        },
+        setAnchorWidth(width: number) {
+            anchorWidth = width;
+        },
         toggle() {
             if (!disabled) open = !open;
         },
@@ -49,7 +69,11 @@
     setContext("select", ctx);
 </script>
 
-<div class="relative inline-block text-left w-full">
+<div
+    class={className || "relative inline-block text-left w-full"}
+    style="--anchor-width: {anchorWidth}px"
+    {...restProps}
+>
     {@render children?.()}
     {#if name}
         <input type="hidden" {name} {value} {required} />

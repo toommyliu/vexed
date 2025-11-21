@@ -1,26 +1,41 @@
-<script>
+<script lang="ts">
     import { getContext } from "svelte";
     import { cn } from "$lib/util/cn";
+    import type { HTMLAttributes } from "svelte/elements";
 
-    /** @type {string} */
-    let className = undefined;
-    export { className as class };
+    interface DialogContext {
+        updateOpen: (newOpen: boolean) => void;
+    }
 
-    const { updateOpen } = getContext("dialog");
+    interface Props extends HTMLAttributes<HTMLDivElement> {}
+
+    let {
+        class: className = undefined,
+        children,
+        ...restProps
+    }: Props = $props();
+
+    const { updateOpen } = getContext<DialogContext>("dialog");
 
     function handleClick() {
         updateOpen(true);
+    }
+
+    function handleKeydown(e: KeyboardEvent) {
+        if (e.key === "Enter") {
+            handleClick();
+        }
     }
 </script>
 
 <div
     class={cn("inline-flex", className)}
     data-slot="dialog-trigger"
-    on:click={handleClick}
-    on:keydown={(e) => e.key === "Enter" && handleClick()}
+    onclick={handleClick}
+    onkeydown={handleKeydown}
     role="button"
     tabindex="0"
-    {...$$restProps}
+    {...restProps}
 >
-    <slot />
+    {@render children?.()}
 </div>
