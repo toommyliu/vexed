@@ -52,38 +52,42 @@
             transition:scale={{ start: 0.98, duration: 100 }}
             data-slot="select-popup"
         >
-            {#if showScrollUp}
+            <div class="relative">
                 <div
-                    class="top-0 z-50 flex h-6 w-full cursor-default items-center justify-end before:pointer-events-none before:absolute before:inset-x-px before:top-px before:h-[200%] before:rounded-t-[calc(theme(borderRadius.lg)-1px)] before:bg-gradient-to-b before:from-50% before:from-popover"
+                    class="pointer-events-none absolute left-0 right-0 top-0 z-50 flex h-6 w-full cursor-default items-center justify-center overflow-hidden transition-opacity duration-150 before:pointer-events-none before:absolute before:inset-x-px before:top-px before:h-[200%] before:rounded-t-[calc(theme(borderRadius.lg)-1px)] before:bg-gradient-to-b before:from-50% before:from-popover"
+                    class:opacity-0={!showScrollUp}
+                    class:opacity-100={showScrollUp}
                     data-slot="select-scroll-up-arrow"
                 >
                     <ChevronUp class="relative size-4" />
                 </div>
-            {/if}
-            <span
-                class="relative block h-full rounded-lg border bg-popover bg-clip-padding before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(theme(borderRadius.lg)-1px)] before:shadow-lg dark:bg-clip-border"
-            >
-                <div
-                    bind:this={listElement}
-                    onscroll={handleScroll}
-                    class={cn(
-                        "max-h-60 min-w-[var(--anchor-width)] overflow-y-auto p-1",
-                        className,
-                    )}
-                    data-slot="select-list"
-                    {...restProps}
+                <span
+                    class="relative block rounded-lg border bg-popover bg-clip-padding before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(theme(borderRadius.lg)-1px)] before:shadow-lg dark:bg-clip-border"
                 >
-                    {@render children?.()}
-                </div>
-            </span>
-            {#if showScrollDown}
+                    <div
+                        bind:this={listElement}
+                        onscroll={handleScroll}
+                        class={cn(
+                            "max-h-60 min-w-[var(--anchor-width)] overflow-y-auto p-1 transition-[padding] duration-150",
+                            showScrollUp && "pt-7",
+                            showScrollDown && "pb-7",
+                            className,
+                        )}
+                        data-slot="select-list"
+                        {...restProps}
+                    >
+                        {@render children?.()}
+                    </div>
+                </span>
                 <div
-                    class="bottom-0 z-50 flex h-6 w-full cursor-default items-center justify-end before:pointer-events-none before:absolute before:inset-x-px before:bottom-px before:h-[200%] before:rounded-b-[calc(theme(borderRadius.lg)-1px)] before:bg-gradient-to-t before:from-50% before:from-popover"
+                    class="pointer-events-none absolute bottom-0 left-0 right-0 z-50 flex h-6 w-full cursor-default items-center justify-center overflow-hidden transition-opacity duration-150 before:pointer-events-none before:absolute before:inset-x-px before:bottom-px before:h-[200%] before:rounded-b-[calc(theme(borderRadius.lg)-1px)] before:bg-gradient-to-t before:from-50% before:from-popover"
+                    class:opacity-0={!showScrollDown}
+                    class:opacity-100={showScrollDown}
                     data-slot="select-scroll-down-arrow"
                 >
                     <ChevronDown class="relative size-4" />
                 </div>
-            {/if}
+            </div>
         </div>
     </div>
 {/if}
