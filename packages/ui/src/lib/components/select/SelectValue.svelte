@@ -26,7 +26,7 @@
 </script>
 
 <span
-    class={cn("flex-1 truncate", className)}
+    class={cn("flex-1 truncate text-left", className)}
     data-slot="select-value"
     {...restProps}
 >

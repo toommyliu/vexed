@@ -61,7 +61,7 @@
         >
             {#if showScrollUp}
                 <div
-                    class="top-0 z-50 flex h-6 w-full cursor-default items-center justify-center before:pointer-events-none before:absolute before:inset-x-px before:top-px before:h-[200%] before:rounded-t-[calc(theme(borderRadius.lg)-1px)] before:bg-gradient-to-b before:from-50% before:from-popover"
+                    class="top-0 z-50 flex h-6 w-full cursor-default items-center justify-end before:pointer-events-none before:absolute before:inset-x-px before:top-px before:h-[200%] before:rounded-t-[calc(theme(borderRadius.lg)-1px)] before:bg-gradient-to-b before:from-50% before:from-popover"
                     data-slot="select-scroll-up-arrow"
                 >
                     <ChevronUp class="relative size-4" />
@@ -85,7 +85,7 @@
             </span>
             {#if showScrollDown}
                 <div
-                    class="bottom-0 z-50 flex h-6 w-full cursor-default items-center justify-center before:pointer-events-none before:absolute before:inset-x-px before:bottom-px before:h-[200%] before:rounded-b-[calc(theme(borderRadius.lg)-1px)] before:bg-gradient-to-t before:from-50% before:from-popover"
+                    class="bottom-0 z-50 flex h-6 w-full cursor-default items-center justify-end before:pointer-events-none before:absolute before:inset-x-px before:bottom-px before:h-[200%] before:rounded-b-[calc(theme(borderRadius.lg)-1px)] before:bg-gradient-to-t before:from-50% before:from-popover"
                     data-slot="select-scroll-down-arrow"
                 >
                     <ChevronDown class="relative size-4" />
