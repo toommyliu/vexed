@@ -92,6 +92,11 @@
       "svelte": "./dist/components/card/index.js",
       "default": "./dist/components/card/index.js"
     },
+    "./Table": {
+      "types": "./dist/components/table/index.d.ts",
+      "svelte": "./dist/components/table/index.js",
+      "default": "./dist/components/table/index.js"
+    },
     "./Dialog": {
       "types": "./dist/components/dialog/index.d.ts",
       "svelte": "./dist/components/dialog/index.js",

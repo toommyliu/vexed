@@ -17,6 +17,7 @@ export { default as Badge } from "./components/Badge.svelte";
 export { default as Kbd } from "./components/Kbd.svelte";
 export { default as Label } from "./components/Label.svelte";
 export * as Card from "./components/card/index.js";
+export * as Table from "./components/table/index.js";
 
 // Overlay components
 export * as Dialog from "./components/dialog/index.js";
