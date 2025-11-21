@@ -4,11 +4,7 @@
     import { cn } from "$lib/util/cn";
     import type { HTMLAttributes } from "svelte/elements";
     import type { Writable } from "svelte/store";
-
-    interface DialogContext {
-        open: Writable<boolean>;
-        updateOpen: (newOpen: boolean) => void;
-    }
+    import type { DialogContext } from "./types";
 
     interface Props extends HTMLAttributes<HTMLDivElement> {
         showCloseButton?: boolean;

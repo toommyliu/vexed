@@ -3,11 +3,7 @@
     import { cn } from "$lib/util/cn";
     import { scale } from "svelte/transition";
     import type { HTMLAttributes } from "svelte/elements";
-
-    interface MenuContext {
-        open: boolean;
-        close: () => void;
-    }
+    import type { MenuContext } from "./types";
 
     interface Props extends HTMLAttributes<HTMLDivElement> {
         align?: "start" | "end";
