@@ -1,5 +1,5 @@
-export { default as NumberField } from './NumberField.svelte';
-export { default as NumberFieldInput } from './NumberFieldInput.svelte';
-export { default as NumberFieldIncrement } from './NumberFieldIncrement.svelte';
-export { default as NumberFieldDecrement } from './NumberFieldDecrement.svelte';
-export { default as NumberFieldGroup } from './NumberFieldGroup.svelte';
+export { default as Root } from "./NumberField.svelte";
+export { default as Input } from "./NumberFieldInput.svelte";
+export { default as Increment } from "./NumberFieldIncrement.svelte";
+export { default as Decrement } from "./NumberFieldDecrement.svelte";
+export { default as Group } from "./NumberFieldGroup.svelte";

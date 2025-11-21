@@ -1,3 +1,3 @@
-export { default as Group } from './Group.svelte';
-export { default as GroupSeparator } from './GroupSeparator.svelte';
-export { default as GroupText } from './GroupText.svelte';
+export { default as Root } from "./Group.svelte";
+export { default as Separator } from "./GroupSeparator.svelte";
+export { default as Text } from "./GroupText.svelte";
