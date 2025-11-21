@@ -10,7 +10,7 @@
       "transition-shadow",
       "before:pointer-events-none before:absolute before:inset-0 before:rounded-[7px]",
       "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background",
-      "disabled:pointer-events-none disabled:opacity-64",
+      "disabled:pointer-events-none disabled:opacity-50",
       "[&_svg:not([class*='size-'])]:w-4 [&_svg:not([class*='size-'])]:h-4",
       "[&_svg]:pointer-events-none [&_svg]:shrink-0",
     ],
