@@ -2,10 +2,7 @@
     import { getContext } from "svelte";
     import { cn } from "$lib/util/cn";
     import type { HTMLAttributes } from "svelte/elements";
-
-    interface DialogContext {
-        updateOpen: (newOpen: boolean) => void;
-    }
+    import type { DialogContext } from "./types";
 
     interface Props extends HTMLAttributes<HTMLDivElement> {}
 

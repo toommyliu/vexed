@@ -2,10 +2,7 @@
     import { setContext } from "svelte";
     import { cn } from "$lib/util/cn";
     import type { HTMLAttributes } from "svelte/elements";
-
-    interface TabsContext {
-        value: string | undefined;
-    }
+    import type { TabsContext } from "./types";
 
     interface Props extends HTMLAttributes<HTMLDivElement> {
         value?: string;

@@ -3,15 +3,7 @@
     import { cn } from "$lib/util/cn";
     import { Plus } from "lucide-svelte";
     import type { HTMLButtonAttributes } from "svelte/elements";
-
-    interface NumberFieldContext {
-        value: number;
-        min?: number;
-        max?: number;
-        step: number;
-        increment: () => void;
-        decrement: () => void;
-    }
+    import type { NumberFieldContext } from "./types";
 
     interface Props extends HTMLButtonAttributes {}
 

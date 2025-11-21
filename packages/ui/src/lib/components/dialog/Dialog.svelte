@@ -1,11 +1,7 @@
 <script lang="ts">
     import { setContext } from "svelte";
     import { writable } from "svelte/store";
-
-    interface DialogContext {
-        open: ReturnType<typeof writable<boolean>>;
-        updateOpen: (newOpen: boolean) => void;
-    }
+    import type { DialogContext } from "./types";
 
     interface Props {
         open?: boolean;

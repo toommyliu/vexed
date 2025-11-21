@@ -2,11 +2,7 @@
     import { getContext } from "svelte";
     import { cn } from "$lib/util/cn";
     import type { HTMLButtonAttributes } from "svelte/elements";
-
-    interface MenuContext {
-        open: boolean;
-        close: () => void;
-    }
+    import type { MenuContext } from "./types";
 
     interface Props extends HTMLButtonAttributes {
         disabled?: boolean;
