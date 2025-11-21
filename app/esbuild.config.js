@@ -1,7 +1,6 @@
 const { resolve, dirname } = require("path");
 const { readdir, copy, ensureDir, readFileSync } = require("fs-extra");
 const { build, context } = require("esbuild");
-const { watch } = require("watchlist");
 const sveltePlugin = require("esbuild-svelte");
 const postCssPlugin = require("esbuild-postcss");
 const alias = require("esbuild-plugin-alias");
@@ -285,28 +284,39 @@ async function generateHtmlFiles() {
  * @param {string} contextName
  * @returns {Promise<{ context: import('esbuild').Context, rebuildWithNewFiles: () => Promise<void> }>}
  */
-async function createBuildContext(config, srcDir, outDir, contextName) {
-  const createRebuildPlugin = (contextLabel) => ({
-    name: `rebuild-logger-${contextLabel}`,
-    setup(build) {
-      build.onStart(() => {
-        console.time(`${contextLabel} rebuild`);
-      });
-      build.onEnd((result) => {
-        const timestamp = new Date().toLocaleTimeString();
-        if (result.errors.length > 0) {
-          console.error(
-            `[${timestamp}] ${contextLabel} rebuild failed:`,
-            result.errors,
-          );
-        } else {
-          console.timeEnd(`${contextLabel} rebuild`);
-          console.log(`[${timestamp}] ${contextLabel} rebuilt successfully`);
-        }
-      });
-    },
-  });
+/**
+ * @param {string} label
+ * @returns {import('esbuild').Plugin}
+ */
+const createRebuildLoggerPlugin = (label) => ({
+  name: `rebuild-logger-${label}`,
+  setup(build) {
+    build.onStart(() => {
+      console.time(`${label} rebuild`);
+    });
+    build.onEnd((result) => {
+      const timestamp = new Date().toLocaleTimeString();
+      if (result.errors.length > 0) {
+        console.error(
+          `[${timestamp}] ${label} rebuild failed:`,
+          result.errors,
+        );
+      } else {
+        console.timeEnd(`${label} rebuild`);
+        // console.log(`[${timestamp}] ${label} rebuilt successfully`);
+      }
+    });
+  },
+});
 
+/**
+ * @param {import('esbuild').BuildOptions} config
+ * @param {string} srcDir
+ * @param {string} outDir
+ * @param {string} contextName
+ * @returns {Promise<{ context: import('esbuild').Context, rebuildWithNewFiles: () => Promise<void> }>}
+ */
+async function createBuildContext(config, srcDir, outDir, contextName) {
   let buildCtx = null;
   let currentEntryPoints = await readdirp(srcDir);
 
@@ -320,7 +330,7 @@ async function createBuildContext(config, srcDir, outDir, contextName) {
       ...config,
       entryPoints,
       outdir: outDir,
-      plugins: [...(config.plugins || []), createRebuildPlugin(contextName)],
+      plugins: [...(config.plugins || []), createRebuildLoggerPlugin(contextName)],
     });
 
     return buildCtx;
@@ -332,6 +342,18 @@ async function createBuildContext(config, srcDir, outDir, contextName) {
     try {
       const newEntryPoints = await readdirp(srcDir);
 
+      const currentSet = new Set(currentEntryPoints);
+      const newSet = new Set(newEntryPoints);
+
+      const hasChanged =
+        currentSet.size !== newSet.size ||
+        [...currentSet].some(file => !newSet.has(file));
+
+      if (!hasChanged) {
+        return;
+      }
+
+      console.log(`[${contextName}] Entry points changed, recreating context...`);
       currentEntryPoints = newEntryPoints;
       buildCtx = await createNewContext(currentEntryPoints);
 
@@ -346,29 +368,8 @@ async function createBuildContext(config, srcDir, outDir, contextName) {
   return { context: buildCtx, rebuildWithNewFiles };
 }
 
-async function watchAndRebuild({ name, paths, onChange, start }) {
-  const watchTargets = toArray(paths).map((targetPath) =>
-    resolve(__dirname, targetPath),
-  );
-
-  try {
-    await watch(watchTargets, async () => {
-      console.log(`Changes detected in ${name}, rebuilding...`);
-      try {
-        await onChange();
-      } catch (error) {
-        console.error(`${name} rebuild failed:`, error);
-      }
-    });
-
-    return start();
-  } catch (error) {
-    console.error(`Failed to start watching ${name}:`, error);
-    throw error;
-  }
-}
-
 async function runWatchMode(commonConfig, svelteConfigs, cssConfigs) {
+  // 1. Script Targets: Watch for file additions/removals manually, let esbuild handle content changes
   const scriptContexts = await Promise.all(
     SCRIPT_TARGETS.map(async (target) => {
       const { context: ctx, rebuildWithNewFiles } = await createBuildContext(
@@ -378,50 +379,41 @@ async function runWatchMode(commonConfig, svelteConfigs, cssConfigs) {
         target.name,
       );
 
-      return { target, context: ctx, rebuildWithNewFiles };
+      await ctx.watch();
+
+      return { target, rebuildWithNewFiles };
     }),
   );
 
-  const svelteContexts = await Promise.all(
+  scriptContexts.forEach(({ target, rebuildWithNewFiles }) => {
+    watch(target.watchPaths, async () => {
+      await rebuildWithNewFiles();
+    });
+  });
+
+  // 2. Svelte Targets: Use esbuild's native watch
+  await Promise.all(
     svelteConfigs.map(async (target) => {
-      const ctx = await context(target.config);
-      return { target, context: ctx };
+      const config = {
+        ...target.config,
+        plugins: [...(target.config.plugins || []), createRebuildLoggerPlugin(`${target.name} Svelte`)]
+      };
+      const ctx = await context(config);
+      await ctx.watch();
     }),
   );
 
-  const cssContexts = await Promise.all(
+  // 3. CSS Targets: Use esbuild's native watch
+  await Promise.all(
     cssConfigs.map(async (target) => {
-      const ctx = await context(target.config);
-      return { target, context: ctx };
+      const config = {
+        ...target.config,
+        plugins: [...(target.config.plugins || []), createRebuildLoggerPlugin(`${target.name} CSS`)]
+      };
+      const ctx = await context(config);
+      await ctx.watch();
     }),
   );
-
-  await Promise.all([
-    ...scriptContexts.map(({ target, context: ctx, rebuildWithNewFiles }) =>
-      watchAndRebuild({
-        name: `${target.name} scripts`,
-        paths: target.watchPaths,
-        onChange: rebuildWithNewFiles,
-        start: () => ctx.watch(),
-      }),
-    ),
-    ...svelteContexts.map(({ target, context: ctx }) =>
-      watchAndRebuild({
-        name: `${target.name} Svelte`,
-        paths: target.watchPaths,
-        onChange: () => ctx.rebuild(),
-        start: () => ctx.watch(),
-      }),
-    ),
-    ...cssContexts.map(({ target, context: ctx }) =>
-      watchAndRebuild({
-        name: `${target.name} CSS`,
-        paths: target.watchPaths,
-        onChange: () => ctx.rebuild(),
-        start: () => ctx.watch(),
-      }),
-    ),
-  ]);
 
   console.log("Watching for changes...");
 }
