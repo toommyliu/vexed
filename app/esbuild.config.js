@@ -3,7 +3,6 @@ const { readdir, copy, ensureDir, readFileSync } = require("fs-extra");
 const { build, context } = require("esbuild");
 const { watch } = require("watchlist");
 const sveltePlugin = require("esbuild-svelte");
-const sveltePreprocess = require("svelte-preprocess");
 const postCssPlugin = require("esbuild-postcss");
 const alias = require("esbuild-plugin-alias");
 const { parse } = require("jsonc-parser");
@@ -237,12 +236,7 @@ const createSvelteConfig = ({ entryPoint, outfile, tsconfigFile }) => ({
         dev: !isProduction,
         css: "injected",
       },
-      preprocess: sveltePreprocess({
-        sourceMap: !isProduction,
-        typescript: {
-          tsconfigFile,
-        },
-      }),
+      preprocess: require("@sveltejs/vite-plugin-svelte").vitePreprocess(),
     }),
   ],
 });
