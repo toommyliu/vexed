@@ -19,6 +19,7 @@
         Dialog,
         Combobox,
         Dropdown,
+        Frame,
     } from "$lib";
     import { onMount } from "svelte";
 
@@ -1156,6 +1157,90 @@
                     </Dialog.Footer>
                 </Dialog.Content>
             </Dialog.Root>
+        </section>
+
+        <!-- Frame -->
+        <section class="space-y-4">
+            <h2 class="text-2xl font-semibold border-b pb-2">Frame</h2>
+            <div class="space-y-4">
+                <Frame.Root>
+                    <Frame.Header>
+                        <Frame.Title>Accounts</Frame.Title>
+                        <Frame.Description
+                            >Manage your game accounts.</Frame.Description
+                        >
+                    </Frame.Header>
+                    <Frame.Panel>
+                        <Table.Root
+                            class="border-separate border-spacing-x-0 border-spacing-y-1"
+                        >
+                            <Table.Body>
+                                <Table.Row
+                                    class="hover:[&>td]:bg-muted/50 cursor-pointer hover:bg-transparent [&>td:first-child]:rounded-l-md [&>td:last-child]:rounded-r-md"
+                                >
+                                    <Table.Cell>
+                                        <Checkbox />
+                                    </Table.Cell>
+                                    <Table.Cell class="font-medium"
+                                        >user1</Table.Cell
+                                    >
+                                    <Table.Cell class="text-right">
+                                        <Button variant="ghost" size="icon-sm">
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                width="24"
+                                                height="24"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                stroke-width="2"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                class="lucide lucide-pencil h-4 w-4"
+                                                ><path
+                                                    d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"
+                                                /><path d="m15 5 4 4" /></svg
+                                            >
+                                        </Button>
+                                    </Table.Cell>
+                                </Table.Row>
+                                <Table.Row
+                                    class="hover:[&>td]:bg-muted/50 cursor-pointer hover:bg-transparent [&>td:first-child]:rounded-l-md [&>td:last-child]:rounded-r-md"
+                                >
+                                    <Table.Cell>
+                                        <Checkbox checked />
+                                    </Table.Cell>
+                                    <Table.Cell class="font-medium"
+                                        >user2</Table.Cell
+                                    >
+                                    <Table.Cell class="text-right">
+                                        <Button variant="ghost" size="icon-sm">
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                width="24"
+                                                height="24"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                stroke-width="2"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                class="lucide lucide-pencil h-4 w-4"
+                                                ><path
+                                                    d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"
+                                                /><path d="m15 5 4 4" /></svg
+                                            >
+                                        </Button>
+                                    </Table.Cell>
+                                </Table.Row>
+                            </Table.Body>
+                        </Table.Root>
+                    </Frame.Panel>
+                    <Frame.Footer>
+                        <Button class="w-full">Add Account</Button>
+                    </Frame.Footer>
+                </Frame.Root>
+            </div>
         </section>
     </div>
 </div>
