@@ -1,19 +1,8 @@
-import Dialog from "./Dialog.svelte";
-import DialogTrigger from "./DialogTrigger.svelte";
-import DialogContent from "./DialogContent.svelte";
-import DialogHeader from "./DialogHeader.svelte";
-import DialogFooter from "./DialogFooter.svelte";
-import DialogTitle from "./DialogTitle.svelte";
-import DialogDescription from "./DialogDescription.svelte";
-import DialogClose from "./DialogClose.svelte";
-
-export {
-    Dialog,
-    DialogTrigger,
-    DialogContent,
-    DialogHeader,
-    DialogFooter,
-    DialogTitle,
-    DialogDescription,
-    DialogClose,
-};
+export { default as Root } from "./Dialog.svelte";
+export { default as Trigger } from "./DialogTrigger.svelte";
+export { default as Content } from "./DialogContent.svelte";
+export { default as Header } from "./DialogHeader.svelte";
+export { default as Footer } from "./DialogFooter.svelte";
+export { default as Title } from "./DialogTitle.svelte";
+export { default as Description } from "./DialogDescription.svelte";
+export { default as Close } from "./DialogClose.svelte";
