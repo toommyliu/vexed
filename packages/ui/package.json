@@ -97,6 +97,11 @@
       "svelte": "./dist/components/table/index.js",
       "default": "./dist/components/table/index.js"
     },
+    "./Frame": {
+      "types": "./dist/components/frame/index.d.ts",
+      "svelte": "./dist/components/frame/index.js",
+      "default": "./dist/components/frame/index.js"
+    },
     "./Dialog": {
       "types": "./dist/components/dialog/index.d.ts",
       "svelte": "./dist/components/dialog/index.js",
