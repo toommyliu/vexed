@@ -19,6 +19,20 @@ export {
     SelectSeparator,
 } from "./components/select/index.js";
 
+export {
+    Combobox,
+    ComboboxInput,
+    ComboboxTrigger,
+    ComboboxContent,
+    ComboboxList,
+    ComboboxItem,
+    ComboboxGroup,
+    ComboboxGroupLabel,
+    ComboboxSeparator,
+    ComboboxEmpty,
+    Dropdown,
+} from "./components/combobox/index.js";
+
 // Display components
 export { default as Badge } from "./components/Badge.svelte";
 export { default as Kbd } from "./components/Kbd.svelte";
