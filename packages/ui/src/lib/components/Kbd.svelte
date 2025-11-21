@@ -1,9 +1,14 @@
-<script>
+<script lang="ts">
     import { cn } from "$lib/util/cn";
+    import type { HTMLAttributes } from "svelte/elements";
 
-    /** @type {string} */
-    let className = undefined;
-    export { className as class };
+    interface Props extends HTMLAttributes<HTMLElement> {}
+
+    let {
+        class: className = undefined,
+        children,
+        ...restProps
+    }: Props = $props();
 </script>
 
 <kbd
@@ -12,7 +17,7 @@
         className,
     )}
     data-slot="kbd"
-    {...$$restProps}
+    {...restProps}
 >
-    <slot />
+    {@render children?.()}
 </kbd>

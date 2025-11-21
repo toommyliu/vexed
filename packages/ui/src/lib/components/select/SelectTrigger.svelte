@@ -1,35 +1,58 @@
-<script>
+<script lang="ts">
     import { getContext } from "svelte";
     import { cn } from "$lib/util/cn";
+    import { ChevronsUpDown } from "lucide-svelte";
+    import type { HTMLButtonAttributes } from "svelte/elements";
 
-    let { class: className = undefined, children, ...restProps } = $props();
-    const ctx = getContext("select");
+    interface SelectContext {
+        value: any;
+        open: boolean;
+        disabled: boolean;
+        toggle: () => void;
+        close: () => void;
+        anchorWidth: number;
+        setAnchorWidth: (width: number) => void;
+    }
+
+    interface Props extends HTMLButtonAttributes {
+        size?: "sm" | "default" | "lg";
+    }
+
+    let {
+        size = "default",
+        class: className = undefined,
+        children,
+        ...restProps
+    }: Props = $props();
+
+    const ctx = getContext<SelectContext>("select");
+    let buttonElement = $state<HTMLButtonElement>();
+
+    $effect(() => {
+        if (buttonElement) {
+            ctx.setAnchorWidth(buttonElement.offsetWidth);
+        }
+    });
 </script>
 
 <button
+    bind:this={buttonElement}
     type="button"
     onclick={() => ctx.toggle()}
     class={cn(
-        "flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+        "relative inline-flex w-full min-w-36 select-none items-center justify-between rounded-lg border border-input bg-background bg-clip-padding text-base/5 shadow-xs outline-none ring-ring/24 transition-shadow before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(theme(borderRadius.lg)-1px)] focus-visible:border-ring focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-64 sm:text-sm dark:bg-input/32 [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:opacity-72",
+        size === "sm" && "gap-1.5 px-2 py-1 text-sm",
+        size === "default" && "gap-2 px-3 py-1.5",
+        size === "lg" && "gap-2 px-3 py-2",
         className,
     )}
     aria-expanded={ctx.open}
     disabled={ctx.disabled}
+    data-slot="select-trigger"
     {...restProps}
 >
     {@render children?.()}
-    <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        class="h-4 w-4 opacity-50"
-    >
-        <path d="m6 9 6 6 6-6" />
-    </svg>
+    <span data-slot="select-icon" class="-me-1 opacity-72">
+        <ChevronsUpDown class="size-4" />
+    </span>
 </button>
