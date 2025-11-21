@@ -2,23 +2,12 @@
 module.exports = {
   darkMode: "class",
   content: [
-    "./public/**/*.html",
-    "./src/renderer/game/ui.ts",
-    "./src/renderer/game/ui-utils.ts",
-    "./src/renderer/game/flash-interop.ts",
-    "./src/renderer/game/util/addCheckbox.ts",
-    "./src/renderer/game/scripts/**/*.ts",
-    "./src/renderer/manager/**/*.ts",
-
     "./src/**/*.{html,js,svelte,ts}",
-
     "../packages/ui/src/**/*.{html,js,svelte,ts}",
   ],
   theme: {
     extend: {
       colors: {
-        "background-primary": "#111111",
-        "background-secondary": "#1a1a1a",
         border: "rgb(var(--border) / <alpha-value>)",
         input: "rgb(var(--input) / <alpha-value>)",
         ring: "rgb(var(--ring) / <alpha-value>)",
@@ -39,6 +28,14 @@ module.exports = {
         success: {
           DEFAULT: "rgb(var(--success) / <alpha-value>)",
           foreground: "rgb(var(--success-foreground) / <alpha-value>)",
+        },
+        warning: {
+          DEFAULT: "rgb(var(--warning) / <alpha-value>)",
+          foreground: "rgb(var(--warning-foreground) / <alpha-value>)",
+        },
+        info: {
+          DEFAULT: "rgb(var(--info) / <alpha-value>)",
+          foreground: "rgb(var(--info-foreground) / <alpha-value>)",
         },
         muted: {
           DEFAULT: "rgb(var(--muted) / <alpha-value>)",
