@@ -835,30 +835,35 @@
                         <DialogDescription>
                             Make changes to your profile here. Click save when
                             you're done.
+                            <div class="grid gap-4 py-4">
+                                <div
+                                    class="grid grid-cols-4 items-center gap-4"
+                                >
+                                    <Label for="dialog-name" class="text-right"
+                                        >Name</Label
+                                    >
+                                    <Input
+                                        id="dialog-name"
+                                        value="Pedro Duarte"
+                                        class="col-span-3"
+                                    />
+                                </div>
+                                <div
+                                    class="grid grid-cols-4 items-center gap-4"
+                                >
+                                    <Label
+                                        for="dialog-username"
+                                        class="text-right">Username</Label
+                                    >
+                                    <Input
+                                        id="dialog-username"
+                                        value="@peduarte"
+                                        class="col-span-3"
+                                    />
+                                </div>
+                            </div>
                         </DialogDescription>
                     </DialogHeader>
-                    <div class="grid gap-4 py-4">
-                        <div class="grid grid-cols-4 items-center gap-4">
-                            <Label for="dialog-name" class="text-right"
-                                >Name</Label
-                            >
-                            <Input
-                                id="dialog-name"
-                                value="Pedro Duarte"
-                                class="col-span-3"
-                            />
-                        </div>
-                        <div class="grid grid-cols-4 items-center gap-4">
-                            <Label for="dialog-username" class="text-right"
-                                >Username</Label
-                            >
-                            <Input
-                                id="dialog-username"
-                                value="@peduarte"
-                                class="col-span-3"
-                            />
-                        </div>
-                    </div>
                     <DialogFooter>
                         <DialogClose>
                             <Button variant="outline">Cancel</Button>
