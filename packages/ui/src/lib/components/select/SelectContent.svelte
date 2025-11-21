@@ -1,7 +1,7 @@
 <script lang="ts">
     import { getContext } from "svelte";
     import { cn } from "$lib/util/cn";
-    import { scale } from "svelte/transition";
+    import { motionScale } from "$lib/util/motion";
     import { ChevronUp, ChevronDown } from "lucide-svelte";
     import type { HTMLAttributes } from "svelte/elements";
     import type { SelectContext } from "./types";
@@ -56,7 +56,7 @@
                 "transition-[scale,opacity] duration-100",
                 side === "bottom" ? "origin-top" : "origin-bottom",
             )}
-            transition:scale={{ start: 0.98, duration: 100 }}
+            transition:motionScale={{ start: 0.98, duration: 100 }}
             data-slot="select-popup"
         >
             <div class="relative">

@@ -1,7 +1,7 @@
 <script lang="ts">
     import { getContext } from "svelte";
     import { cn } from "$lib/util/cn";
-    import { scale } from "svelte/transition";
+    import { motionScale } from "$lib/util/motion";
     import type { HTMLAttributes } from "svelte/elements";
     import type { ComboboxContext } from "./types";
 
@@ -30,7 +30,7 @@
     >
         <div
             class="origin-top transition-[scale,opacity] duration-100"
-            transition:scale={{ start: 0.98, duration: 100 }}
+            transition:motionScale={{ start: 0.98, duration: 100 }}
             data-slot="combobox-popup"
         >
             <div
