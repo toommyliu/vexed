@@ -44,7 +44,7 @@
     onmouseenter={(e) => e.currentTarget.setAttribute("data-highlighted", "")}
     onmouseleave={(e) => e.currentTarget.removeAttribute("data-highlighted")}
     class={cn(
-        "grid cursor-default grid-cols-[1rem_1fr] items-center gap-2 rounded-sm py-1 ps-2 pe-4 text-base outline-none [&[data-disabled]]:pointer-events-none [&[data-highlighted]]:bg-accent [&[data-highlighted]]:text-accent-foreground [&[data-disabled]]:opacity-64 sm:text-sm [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "w-full grid cursor-default grid-cols-[1rem_1fr] items-center gap-2 rounded-sm py-1 ps-2 pe-4 text-base outline-none [&[data-disabled]]:pointer-events-none [&[data-highlighted]]:bg-accent [&[data-highlighted]]:text-accent-foreground [&[data-disabled]]:opacity-64 sm:text-sm [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         className,
     )}
     data-slot="select-item"
