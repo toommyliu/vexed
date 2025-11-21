@@ -35,7 +35,7 @@
     {disabled}
     onclick={handleSelect}
     class={cn(
-        "w-full grid cursor-default grid-cols-[1rem_1fr] gap-2 rounded-sm bg-transparent py-1 ps-2 pe-4 text-base outline-none hover:bg-accent hover:text-accent-foreground sm:text-sm [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "w-full grid cursor-default grid-cols-[1rem_1fr] items-start gap-2 rounded-sm bg-transparent py-1 ps-2 pe-4 text-base outline-none hover:bg-accent hover:text-accent-foreground sm:text-sm [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         "[&[data-disabled]]:cursor-not-allowed [&[data-disabled]]:opacity-50 [&[data-disabled]]:pointer-events-none [&[data-disabled]:hover]:bg-transparent",
         className,
     )}
@@ -60,7 +60,7 @@
             </svg>
         {/if}
     </span>
-    <span class="col-start-2 min-w-0">
+    <span class="col-start-2 min-w-0 text-start">
         {@render children?.()}
     </span>
 </button>
