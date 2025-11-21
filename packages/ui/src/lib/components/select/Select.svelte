@@ -2,16 +2,7 @@
   import { cn } from "$lib/util/cn";
   import { setContext } from "svelte";
   import type { HTMLAttributes } from "svelte/elements";
-
-  interface SelectContext {
-    value: any;
-    open: boolean;
-    disabled: boolean;
-    toggle: () => void;
-    close: () => void;
-    anchorWidth: number;
-    setAnchorWidth: (width: number) => void;
-  }
+  import type { SelectContext } from "./types";
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
     value?: any;
