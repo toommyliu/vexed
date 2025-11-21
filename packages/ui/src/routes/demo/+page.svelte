@@ -391,7 +391,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="space-y-2">
                         <Label>Small</Label>
-                        <Select bind:value={selectValue}>
+                        <Select bind:value={selectValue} class="w-full">
                             <SelectTrigger size="sm">
                                 <SelectValue placeholder="Select..." />
                             </SelectTrigger>
@@ -410,7 +410,7 @@
                     </div>
                     <div class="space-y-2">
                         <Label>Default</Label>
-                        <Select bind:value={selectValue}>
+                        <Select bind:value={selectValue} class="w-full">
                             <SelectTrigger>
                                 <SelectValue placeholder="Select..." />
                             </SelectTrigger>
@@ -429,7 +429,7 @@
                     </div>
                     <div class="space-y-2">
                         <Label>Large</Label>
-                        <Select bind:value={selectValue}>
+                        <Select bind:value={selectValue} class="w-full">
                             <SelectTrigger size="lg">
                                 <SelectValue placeholder="Select..." />
                             </SelectTrigger>
