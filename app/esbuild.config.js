@@ -6,6 +6,7 @@ const sveltePlugin = require("esbuild-svelte");
 const postCssPlugin = require("esbuild-postcss");
 const alias = require("esbuild-plugin-alias");
 const { parse } = require("jsonc-parser");
+const { readFile, writeFile } = require('fs-extra');
 
 const isProduction = process.env.NODE_ENV === "production";
 const isWatch = process.argv.includes("--watch") || process.argv.includes("-w");
@@ -141,45 +142,6 @@ const CSS_TARGETS = [
   },
 ];
 
-const HTML_COPY_TARGETS = [
-  { src: "./src/renderer/game/index.html", dest: "./dist/game/index.html" },
-  {
-    src: "./src/renderer/application/logs/index.html",
-    dest: "./dist/application/logs/index.html",
-  },
-  {
-    src: "./src/renderer/application/environment/index.html",
-    dest: "./dist/application/environment/index.html",
-  },
-  {
-    src: "./src/renderer/manager/index.html",
-    dest: "./dist/manager/index.html",
-  },
-  {
-    src: "./src/renderer/tools/fast-travels/index.html",
-    dest: "./dist/tools/fast-travels/index.html",
-  },
-  {
-    src: "./src/renderer/tools/follower/index.html",
-    dest: "./dist/tools/follower/index.html",
-  },
-  {
-    src: "./src/renderer/tools/loader-grabber/index.html",
-    dest: "./dist/tools/loader-grabber/index.html",
-  },
-  {
-    src: "./src/renderer/application/hotkeys/index.html",
-    dest: "./dist/application/hotkeys/index.html",
-  },
-  {
-    src: "./src/renderer/packets/logger/index.html",
-    dest: "./dist/packets/logger/index.html",
-  },
-  {
-    src: "./src/renderer/packets/spammer/index.html",
-    dest: "./dist/packets/spammer/index.html",
-  },
-];
 
 const toArray = (value) => (Array.isArray(value) ? value : [value]);
 
@@ -276,19 +238,41 @@ const readdirp = async (dir) => {
 };
 
 /**
- * Copy HTML files from src/renderer to dist
+ * Generate HTML files from template for each window
  * @returns {Promise<void>}
  */
-async function copyHtmlFiles() {
+async function generateHtmlFiles() {
+  const templatePath = resolve(__dirname, './src/renderer/template.html');
+  const template = await readFile(templatePath, 'utf-8');
+
+  const SCRIPT_PATH = 'build/main.js';
+
+  const htmlTargets = [
+    { dest: './dist/game/index.html', cssPath: '../build/tailwind.css', scriptPath: SCRIPT_PATH },
+    { dest: './dist/application/logs/index.html', cssPath: '../../build/tailwind.css', scriptPath: SCRIPT_PATH },
+    { dest: './dist/application/environment/index.html', cssPath: '../../build/tailwind.css', scriptPath: SCRIPT_PATH },
+    { dest: './dist/manager/index.html', cssPath: '../build/tailwind.css', scriptPath: SCRIPT_PATH },
+    { dest: './dist/tools/fast-travels/index.html', cssPath: '../../build/tailwind.css', scriptPath: SCRIPT_PATH },
+    { dest: './dist/tools/follower/index.html', cssPath: '../../build/tailwind.css', scriptPath: SCRIPT_PATH },
+    { dest: './dist/tools/loader-grabber/index.html', cssPath: '../../build/tailwind.css', scriptPath: SCRIPT_PATH },
+    { dest: './dist/application/hotkeys/index.html', cssPath: '../../build/tailwind.css', scriptPath: SCRIPT_PATH },
+    { dest: './dist/packets/logger/index.html', cssPath: '../../build/tailwind.css', scriptPath: SCRIPT_PATH },
+    { dest: './dist/packets/spammer/index.html', cssPath: '../../build/tailwind.css', scriptPath: SCRIPT_PATH },
+  ];
+
   await Promise.all(
-    HTML_COPY_TARGETS.map(async ({ src, dest }) => {
+    htmlTargets.map(async ({ dest, cssPath, scriptPath }) => {
       try {
-        const sourcePath = resolve(__dirname, src);
         const destinationPath = resolve(__dirname, dest);
         await ensureDir(dirname(destinationPath));
-        await copy(sourcePath, destinationPath);
+
+        const html = template
+          .replace('{{CSS_PATH}}', cssPath)
+          .replace('{{SCRIPT_PATH}}', scriptPath);
+
+        await writeFile(destinationPath, html, 'utf-8');
       } catch (error) {
-        console.error(`Failed to copy ${src} -> ${dest}:`, error);
+        console.error(`Failed to generate ${dest}:`, error);
       }
     }),
   );
@@ -463,7 +447,7 @@ async function runBuildMode(commonConfig, svelteConfigs, cssConfigs) {
         await build(target.config);
       }),
     ),
-    timed("HTML copy took", copyHtmlFiles),
+    timed("HTML generation took", generateHtmlFiles),
   ]);
 }
 
