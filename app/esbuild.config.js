@@ -1,11 +1,12 @@
 const { resolve, dirname } = require("path");
-const { readdir, copy, ensureDir, readFileSync } = require("fs-extra");
+const { readdir, ensureDir, readFileSync } = require("fs-extra");
 const { build, context } = require("esbuild");
 const sveltePlugin = require("esbuild-svelte");
 const postCssPlugin = require("esbuild-postcss");
 const alias = require("esbuild-plugin-alias");
 const { parse } = require("jsonc-parser");
 const { readFile, writeFile } = require('fs-extra');
+const { watch } = require('watchlist');
 
 const isProduction = process.env.NODE_ENV === "production";
 const isWatch = process.argv.includes("--watch") || process.argv.includes("-w");
