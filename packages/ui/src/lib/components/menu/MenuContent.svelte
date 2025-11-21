@@ -1,7 +1,7 @@
 <script lang="ts">
     import { getContext } from "svelte";
     import { cn } from "$lib/util/cn";
-    import { scale } from "svelte/transition";
+    import { motionScale } from "$lib/util/motion";
     import type { HTMLAttributes } from "svelte/elements";
     import type { MenuContext } from "./types";
 
@@ -30,7 +30,7 @@
             align === "end" ? "right-0" : "left-0",
             className,
         )}
-        transition:scale={{ start: 0.95, duration: 100 }}
+        transition:motionScale={{ start: 0.95, duration: 100 }}
         {...restProps}
     >
         {@render children?.()}
