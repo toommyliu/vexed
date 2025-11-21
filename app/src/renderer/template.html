@@ -36,6 +36,39 @@
                 }
             });
         })();
+
+        // Motion preference detection
+        (function () {
+            const motionPreference = localStorage.getItem('motion');
+            const systemPrefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            // Apply reduce-motion class based on localStorage or system preference
+            if (motionPreference === 'reduce' || (!motionPreference && systemPrefersReducedMotion)) {
+                document.documentElement.classList.add('reduce-motion');
+            }
+
+            // Listen for system preference changes
+            window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', (e) => {
+                if (!localStorage.getItem('motion')) {
+                    if (e.matches) {
+                        document.documentElement.classList.add('reduce-motion');
+                    } else {
+                        document.documentElement.classList.remove('reduce-motion');
+                    }
+                }
+            });
+
+            // Listen for localStorage changes from other windows
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'motion') {
+                    if (e.newValue === 'reduce') {
+                        document.documentElement.classList.add('reduce-motion');
+                    } else if (e.newValue === 'allow') {
+                        document.documentElement.classList.remove('reduce-motion');
+                    }
+                }
+            });
+        })();
     </script>
     <link href="{{CSS_PATH}}" rel="stylesheet" />
 </head>
