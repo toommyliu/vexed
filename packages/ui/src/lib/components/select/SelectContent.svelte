@@ -50,7 +50,7 @@
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div class="fixed inset-0 z-50" onclick={() => ctx.close()}></div>
     <div
-        class="absolute z-50 select-none w-full"
+        class="absolute z-50 select-none"
         style="top: calc(100% + {sideOffset}px);"
         data-slot="select-positioner"
     >
