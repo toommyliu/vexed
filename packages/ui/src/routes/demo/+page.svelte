@@ -56,6 +56,17 @@
         DialogTitle,
         DialogDescription,
         DialogClose,
+        Combobox,
+        ComboboxInput,
+        ComboboxTrigger,
+        ComboboxContent,
+        ComboboxList,
+        ComboboxItem,
+        ComboboxGroup,
+        ComboboxGroupLabel,
+        ComboboxSeparator,
+        ComboboxEmpty,
+        Dropdown,
     } from "$lib";
     import { onMount } from "svelte";
 
@@ -66,6 +77,26 @@
     let isDark = $state(false);
     let inputValue = $state("");
     let selectValue = $state("");
+
+    let frameworks = [
+        { value: "next.js", label: "Next.js" },
+        { value: "sveltekit", label: "SvelteKit" },
+        { value: "nuxt.js", label: "Nuxt.js" },
+        { value: "remix", label: "Remix" },
+        { value: "astro", label: "Astro" },
+    ];
+
+    let selectedFramework = $state("sveltekit");
+    let comboboxInputValue = $state("");
+    let comboboxOpen = $state(false);
+
+    let filteredFrameworks = $derived(
+        frameworks.filter((f) =>
+            f.label.toLowerCase().includes(comboboxInputValue.toLowerCase()),
+        ),
+    );
+
+    let dropdownValue = $state("apple");
 
     function toggleDarkMode() {
         isDark = !isDark;
@@ -525,6 +556,88 @@
                         <SelectItem value="disabled2">Option 2</SelectItem>
                     </SelectContent>
                 </Select>
+            </div>
+        </section>
+
+        <!-- Combobox -->
+        <section class="space-y-4">
+            <h2 class="text-2xl font-semibold border-b pb-2">Combobox</h2>
+            <div class="space-y-4">
+                <div class="w-[200px]">
+                    <Combobox
+                        bind:value={selectedFramework}
+                        bind:inputValue={comboboxInputValue}
+                        bind:open={comboboxOpen}
+                        onValueChange={(v) => {
+                            console.log("Selected:", v);
+                            const fw = frameworks.find((f) => f.value === v);
+                            if (fw) comboboxInputValue = fw.label;
+                        }}
+                    >
+                        <div class="relative">
+                            <ComboboxInput placeholder="Select framework..." />
+                            <ComboboxTrigger />
+                        </div>
+                        <ComboboxContent>
+                            <ComboboxList>
+                                <ComboboxGroup>
+                                    <ComboboxGroupLabel
+                                        >Frameworks</ComboboxGroupLabel
+                                    >
+                                    {#each filteredFrameworks as framework (framework.value)}
+                                        <ComboboxItem
+                                            value={framework.value}
+                                            label={framework.label}
+                                        >
+                                            {framework.label}
+                                        </ComboboxItem>
+                                    {/each}
+                                    {#if filteredFrameworks.length === 0}
+                                        <ComboboxEmpty
+                                            >No framework found.</ComboboxEmpty
+                                        >
+                                    {/if}
+                                </ComboboxGroup>
+                            </ComboboxList>
+                        </ComboboxContent>
+                    </Combobox>
+                </div>
+                <div class="text-sm text-muted-foreground">
+                    Selected: {selectedFramework}
+                </div>
+            </div>
+        </section>
+
+        <!-- Dropdown -->
+        <section class="space-y-4">
+            <h2 class="text-2xl font-semibold border-b pb-2">Dropdown</h2>
+            <div class="space-y-4">
+                <div class="w-[200px]">
+                    <Dropdown bind:value={dropdownValue}>
+                        <ComboboxGroup>
+                            <ComboboxGroupLabel>Fruits</ComboboxGroupLabel>
+                            <ComboboxItem value="apple" label="Apple"
+                                >Apple</ComboboxItem
+                            >
+                            <ComboboxItem value="banana" label="Banana"
+                                >Banana</ComboboxItem
+                            >
+                            <ComboboxItem value="blueberry" label="Blueberry">
+                                Blueberry
+                            </ComboboxItem>
+                            <ComboboxSeparator />
+                            <ComboboxItem value="grapes" label="Grapes"
+                                >Grapes</ComboboxItem
+                            >
+                            <ComboboxItem value="pineapple" label="Pineapple">
+                                Pineapple
+                            </ComboboxItem>
+                        </ComboboxGroup>
+                    </Dropdown>
+                </div>
+                <div class="text-sm text-muted-foreground">
+                    Selected: {dropdownValue}
+                </div>
             </div>
         </section>
 
