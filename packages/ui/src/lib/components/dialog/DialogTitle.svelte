@@ -1,15 +1,20 @@
-<script>
+<script lang="ts">
     import { cn } from "$lib/util/cn";
+    import type { HTMLAttributes } from "svelte/elements";
 
-    /** @type {string} */
-    let className = undefined;
-    export { className as class };
+    interface Props extends HTMLAttributes<HTMLHeadingElement> {}
+
+    let {
+        class: className = undefined,
+        children,
+        ...restProps
+    }: Props = $props();
 </script>
 
 <h2
     class={cn("font-heading text-xl leading-none", className)}
     data-slot="dialog-title"
-    {...$$restProps}
+    {...restProps}
 >
-    <slot />
+    {@render children?.()}
 </h2>

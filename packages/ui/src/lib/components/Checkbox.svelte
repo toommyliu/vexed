@@ -1,5 +1,12 @@
-<script>
+<script lang="ts">
   import { cn } from "$lib/util/cn";
+  import type { HTMLButtonAttributes } from "svelte/elements";
+
+  interface Props extends HTMLButtonAttributes {
+    checked?: boolean;
+    label?: string;
+    indeterminate?: boolean;
+  }
 
   let {
     class: className = undefined,
@@ -9,7 +16,7 @@
     label = undefined,
     indeterminate = false,
     ...restProps
-  } = $props();
+  }: Props = $props();
 </script>
 
 {#snippet checkboxControl()}
