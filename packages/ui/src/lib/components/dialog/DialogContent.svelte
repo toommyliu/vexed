@@ -1,6 +1,6 @@
 <script lang="ts">
     import { getContext, onDestroy } from "svelte";
-    import { fade, scale } from "svelte/transition";
+    import { motionFade, motionScale } from "$lib/util/motion";
     import { cn } from "$lib/util/cn";
     import type { HTMLAttributes } from "svelte/elements";
     import type { Writable } from "svelte/store";
@@ -61,7 +61,7 @@
         <!-- Backdrop -->
         <div
             class="fixed inset-0 z-50 bg-black/32 backdrop-blur-sm transition-all duration-200"
-            transition:fade={{ duration: 200 }}
+            transition:motionFade={{ duration: 200 }}
             data-slot="dialog-backdrop"
             onclick={handleClose}
             onkeydown={handleBackdropKeydown}
@@ -80,7 +80,7 @@
                         "pointer-events-auto sm:-translate-y-[calc(1.25rem*var(--nested-dialogs))] relative row-start-2 grid max-h-full w-full min-w-0 origin-top overflow-hidden border bg-popover bg-clip-padding text-popover-foreground shadow-lg transition-[scale,opacity,translate] duration-200 ease-in-out will-change-transform before:pointer-events-none before:absolute before:inset-0 before:shadow-[0_1px_--theme(--color-black/4%)] max-sm:border-none max-sm:opacity-[calc(1-min(var(--nested-dialogs),1))] max-sm:before:hidden sm:max-w-lg sm:scale-[calc(1-0.1*var(--nested-dialogs))] sm:rounded-2xl sm:before:rounded-[calc(var(--radius-2xl)-1px)] dark:bg-clip-border dark:before:shadow-[0_-1px_--theme(--color-white/8%)]",
                         className,
                     )}
-                    transition:scale={{ start: 0.95, duration: 200 }}
+                    transition:motionScale={{ start: 0.95, duration: 200 }}
                     data-slot="dialog-popup"
                     {...restProps}
                 >
