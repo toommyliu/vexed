@@ -15,6 +15,7 @@
         Kbd,
         Label,
         Card,
+        Table,
         Dialog,
         Combobox,
         Dropdown,
@@ -919,6 +920,189 @@
                         </div>
                     </Card.Content>
                 </Card.Root>
+            </div>
+        </section>
+
+        <!-- Table -->
+        <section class="space-y-4">
+            <h2 class="text-2xl font-semibold border-b pb-2">Table</h2>
+            <div class="space-y-6">
+                <div class="space-y-2">
+                    <h3 class="text-sm font-medium text-muted-foreground">
+                        Basic Table
+                    </h3>
+                    <Table.Root>
+                        <Table.Header>
+                            <Table.Row>
+                                <Table.Head class="w-[100px]">ID</Table.Head>
+                                <Table.Head>Name</Table.Head>
+                                <Table.Head>Status</Table.Head>
+                                <Table.Head class="text-right"
+                                    >Amount</Table.Head
+                                >
+                            </Table.Row>
+                        </Table.Header>
+                        <Table.Body>
+                            <Table.Row>
+                                <Table.Cell class="font-medium"
+                                    >INV001</Table.Cell
+                                >
+                                <Table.Cell>John Doe</Table.Cell>
+                                <Table.Cell>
+                                    <Badge size="sm" variant="default"
+                                        >Paid</Badge
+                                    >
+                                </Table.Cell>
+                                <Table.Cell class="text-right"
+                                    >$250.00</Table.Cell
+                                >
+                            </Table.Row>
+                            <Table.Row>
+                                <Table.Cell class="font-medium"
+                                    >INV002</Table.Cell
+                                >
+                                <Table.Cell>Jane Smith</Table.Cell>
+                                <Table.Cell>
+                                    <Badge size="sm" variant="secondary"
+                                        >Pending</Badge
+                                    >
+                                </Table.Cell>
+                                <Table.Cell class="text-right"
+                                    >$150.00</Table.Cell
+                                >
+                            </Table.Row>
+                            <Table.Row>
+                                <Table.Cell class="font-medium"
+                                    >INV003</Table.Cell
+                                >
+                                <Table.Cell>Bob Johnson</Table.Cell>
+                                <Table.Cell>
+                                    <Badge size="sm" variant="default"
+                                        >Paid</Badge
+                                    >
+                                </Table.Cell>
+                                <Table.Cell class="text-right"
+                                    >$350.00</Table.Cell
+                                >
+                            </Table.Row>
+                            <Table.Row>
+                                <Table.Cell class="font-medium"
+                                    >INV004</Table.Cell
+                                >
+                                <Table.Cell>Alice Williams</Table.Cell>
+                                <Table.Cell>
+                                    <Badge size="sm" variant="destructive"
+                                        >Overdue</Badge
+                                    >
+                                </Table.Cell>
+                                <Table.Cell class="text-right"
+                                    >$450.00</Table.Cell
+                                >
+                            </Table.Row>
+                        </Table.Body>
+                    </Table.Root>
+                </div>
+
+                <div class="space-y-2">
+                    <h3 class="text-sm font-medium text-muted-foreground">
+                        Table with Selection
+                    </h3>
+                    <Table.Root>
+                        <Table.Header>
+                            <Table.Row>
+                                <Table.Head class="w-[50px]">
+                                    <Checkbox />
+                                </Table.Head>
+                                <Table.Head>Username</Table.Head>
+                                <Table.Head>Email</Table.Head>
+                                <Table.Head>Role</Table.Head>
+                            </Table.Row>
+                        </Table.Header>
+                        <Table.Body>
+                            <Table.Row>
+                                <Table.Cell>
+                                    <Checkbox />
+                                </Table.Cell>
+                                <Table.Cell class="font-medium"
+                                    >admin</Table.Cell
+                                >
+                                <Table.Cell>admin@example.com</Table.Cell>
+                                <Table.Cell>Administrator</Table.Cell>
+                            </Table.Row>
+                            <Table.Row data-state="selected">
+                                <Table.Cell>
+                                    <Checkbox checked />
+                                </Table.Cell>
+                                <Table.Cell class="font-medium"
+                                    >user123</Table.Cell
+                                >
+                                <Table.Cell>user@example.com</Table.Cell>
+                                <Table.Cell>User</Table.Cell>
+                            </Table.Row>
+                            <Table.Row>
+                                <Table.Cell>
+                                    <Checkbox />
+                                </Table.Cell>
+                                <Table.Cell class="font-medium"
+                                    >guest</Table.Cell
+                                >
+                                <Table.Cell>guest@example.com</Table.Cell>
+                                <Table.Cell>Guest</Table.Cell>
+                            </Table.Row>
+                        </Table.Body>
+                    </Table.Root>
+                </div>
+
+                <div class="space-y-2">
+                    <h3 class="text-sm font-medium text-muted-foreground">
+                        Table with Footer & Caption
+                    </h3>
+                    <Table.Root>
+                        <Table.Caption
+                            >A list of your recent transactions.</Table.Caption
+                        >
+                        <Table.Header>
+                            <Table.Row>
+                                <Table.Head>Transaction</Table.Head>
+                                <Table.Head>Date</Table.Head>
+                                <Table.Head class="text-right"
+                                    >Amount</Table.Head
+                                >
+                            </Table.Row>
+                        </Table.Header>
+                        <Table.Body>
+                            <Table.Row>
+                                <Table.Cell>Payment received</Table.Cell>
+                                <Table.Cell>2024-01-15</Table.Cell>
+                                <Table.Cell class="text-right"
+                                    >$100.00</Table.Cell
+                                >
+                            </Table.Row>
+                            <Table.Row>
+                                <Table.Cell>Refund issued</Table.Cell>
+                                <Table.Cell>2024-01-14</Table.Cell>
+                                <Table.Cell class="text-right"
+                                    >-$25.00</Table.Cell
+                                >
+                            </Table.Row>
+                            <Table.Row>
+                                <Table.Cell>Payment received</Table.Cell>
+                                <Table.Cell>2024-01-13</Table.Cell>
+                                <Table.Cell class="text-right"
+                                    >$75.00</Table.Cell
+                                >
+                            </Table.Row>
+                        </Table.Body>
+                        <Table.Footer>
+                            <Table.Row>
+                                <Table.Cell colspan="2">Total</Table.Cell>
+                                <Table.Cell class="text-right"
+                                    >$150.00</Table.Cell
+                                >
+                            </Table.Row>
+                        </Table.Footer>
+                    </Table.Root>
+                </div>
             </div>
         </section>
 
