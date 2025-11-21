@@ -31,7 +31,7 @@ export * as Alert from "./components/alert/index.js";
 export { Switch } from "./components/switch/index.js";
 export * as NumberField from "./components/number-field/index.js";
 
-
+export { cn } from "./util/cn";
 
 // Design tokens
 export { colors, opacities } from "./tokens/colors.js";
