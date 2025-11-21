@@ -2,14 +2,7 @@
     import { getContext } from "svelte";
     import { cn } from "$lib/util/cn";
     import type { HTMLAttributes } from "svelte/elements";
-
-    interface SelectContext {
-        value: any;
-        open: boolean;
-        disabled: boolean;
-        toggle: () => void;
-        close: () => void;
-    }
+    import type { SelectContext } from "./types";
 
     interface Props extends HTMLAttributes<HTMLButtonElement> {
         value: any;

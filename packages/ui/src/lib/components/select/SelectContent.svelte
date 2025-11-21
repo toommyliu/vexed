@@ -1,17 +1,10 @@
 <script lang="ts">
     import { getContext } from "svelte";
     import { cn } from "$lib/util/cn";
-    import { fade, scale } from "svelte/transition";
+    import { scale } from "svelte/transition";
     import { ChevronUp, ChevronDown } from "lucide-svelte";
     import type { HTMLAttributes } from "svelte/elements";
-
-    interface SelectContext {
-        value: any;
-        open: boolean;
-        disabled: boolean;
-        toggle: () => void;
-        close: () => void;
-    }
+    import type { SelectContext } from "./types";
 
     interface Props extends HTMLAttributes<HTMLDivElement> {
         sideOffset?: number;
