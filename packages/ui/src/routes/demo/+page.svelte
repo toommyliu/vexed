@@ -20,6 +20,10 @@
         Combobox,
         Dropdown,
         Frame,
+        Textarea,
+        InputGroup,
+        Field,
+        Separator,
     } from "$lib";
     import { onMount } from "svelte";
 
@@ -1239,6 +1243,128 @@
                         <Button class="w-full">Add Account</Button>
                     </Frame.Footer>
                 </Frame.Root>
+            </div>
+        </section>
+
+        <!-- Textarea -->
+        <section class="space-y-4">
+            <h2 class="text-2xl font-semibold border-b pb-2">Textarea</h2>
+            <div class="space-y-4">
+                <div class="space-y-2">
+                    <Label>Default</Label>
+                    <Textarea placeholder="Type your message here." />
+                </div>
+                <div class="space-y-2">
+                    <Label>Small</Label>
+                    <Textarea size="sm" placeholder="Type your message here." />
+                </div>
+                <div class="space-y-2">
+                    <Label>Large</Label>
+                    <Textarea size="lg" placeholder="Type your message here." />
+                </div>
+                <div class="space-y-2">
+                    <Label>Disabled</Label>
+                    <Textarea disabled placeholder="Type your message here." />
+                </div>
+            </div>
+        </section>
+
+        <!-- InputGroup -->
+        <section class="space-y-4">
+            <h2 class="text-2xl font-semibold border-b pb-2">InputGroup</h2>
+            <div class="space-y-4">
+                <div class="space-y-2">
+                    <Label>With Text Addon</Label>
+                    <InputGroup.Root>
+                        <InputGroup.Addon>
+                            <InputGroup.Text>@</InputGroup.Text>
+                        </InputGroup.Addon>
+                        <Input placeholder="Username" />
+                    </InputGroup.Root>
+                </div>
+                <div class="space-y-2">
+                    <Label>With Button Addon</Label>
+                    <InputGroup.Root>
+                        <Input placeholder="Search..." />
+                        <InputGroup.Addon>
+                            <Button variant="ghost" size="icon">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    class="lucide lucide-search"
+                                    ><circle cx="11" cy="11" r="8" /><path
+                                        d="m21 21-4.3-4.3"
+                                    /></svg
+                                >
+                            </Button>
+                        </InputGroup.Addon>
+                    </InputGroup.Root>
+                </div>
+                <div class="space-y-2">
+                    <Label>With Textarea</Label>
+                    <InputGroup.Root>
+                        <Textarea placeholder="Type your message here." />
+                        <InputGroup.Addon align="block-end">
+                            <div class="flex w-full justify-between">
+                                <span class="text-xs text-muted-foreground"
+                                    >0/500</span
+                                >
+                                <Button size="sm">Send</Button>
+                            </div>
+                        </InputGroup.Addon>
+                    </InputGroup.Root>
+                </div>
+            </div>
+        </section>
+
+        <!-- Field -->
+        <section class="space-y-4">
+            <h2 class="text-2xl font-semibold border-b pb-2">Field</h2>
+            <div class="space-y-4">
+                <Field.Root>
+                    <Field.Label>Username</Field.Label>
+                    <Input placeholder="Enter username" />
+                    <Field.Description>
+                        This is your public display name.
+                    </Field.Description>
+                </Field.Root>
+                <Field.Root>
+                    <Field.Label>Email</Field.Label>
+                    <Input placeholder="Enter email" />
+                    <Field.Error>Invalid email address.</Field.Error>
+                </Field.Root>
+            </div>
+        </section>
+
+        <!-- Separator -->
+        <section class="space-y-4">
+            <h2 class="text-2xl font-semibold border-b pb-2">Separator</h2>
+            <div class="space-y-4">
+                <div>
+                    <div class="space-y-1">
+                        <h4 class="text-sm font-medium leading-none">
+                            Radix Primitives
+                        </h4>
+                        <p class="text-sm text-muted-foreground">
+                            An open-source UI component library.
+                        </p>
+                    </div>
+                    <Separator class="my-4" />
+                    <div class="flex h-5 items-center space-x-4 text-sm">
+                        <div>Blog</div>
+                        <Separator orientation="vertical" />
+                        <div>Docs</div>
+                        <Separator orientation="vertical" />
+                        <div>Source</div>
+                    </div>
+                </div>
             </div>
         </section>
     </div>

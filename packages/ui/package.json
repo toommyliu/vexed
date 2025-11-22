@@ -148,6 +148,26 @@
       "svelte": "./dist/components/number-field/index.js",
       "default": "./dist/components/number-field/index.js"
     },
+    "./Textarea": {
+      "types": "./dist/components/Textarea.svelte.d.ts",
+      "svelte": "./dist/components/Textarea.svelte",
+      "default": "./dist/components/Textarea.svelte"
+    },
+    "./Separator": {
+      "types": "./dist/components/Separator.svelte.d.ts",
+      "svelte": "./dist/components/Separator.svelte",
+      "default": "./dist/components/Separator.svelte"
+    },
+    "./InputGroup": {
+      "types": "./dist/components/input-group/index.d.ts",
+      "svelte": "./dist/components/input-group/index.js",
+      "default": "./dist/components/input-group/index.js"
+    },
+    "./Field": {
+      "types": "./dist/components/field/index.d.ts",
+      "svelte": "./dist/components/field/index.js",
+      "default": "./dist/components/field/index.js"
+    },
     "./styles.css": {
       "import": "./dist/styles.css",
       "default": "./dist/styles.css"
