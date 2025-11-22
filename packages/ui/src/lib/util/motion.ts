@@ -1,12 +1,14 @@
 import type {
     BlurParams,
+    CrossfadeParams,
+    DrawParams,
     FadeParams,
     FlyParams,
     ScaleParams,
     SlideParams,
     TransitionConfig,
 } from "svelte/transition";
-import { blur, fade, fly, scale, slide } from "svelte/transition";
+import { blur, crossfade, draw, fade, fly, scale, slide } from "svelte/transition";
 
 /**
  * Checks if the user prefers reduced motion.
@@ -20,10 +22,11 @@ function prefersReducedMotion(): boolean {
  * Wraps a Svelte transition to respect the user's motion preferences.
  * If the user prefers reduced motion, the transition duration is set to 0.
  */
-function createMotionAwareTransition<T extends TransitionConfig>(
-    transitionFn: (node: Element, params?: any) => T,
-) {
-    return (node: Element, params?: any): T => {
+function createMotionAwareTransition<
+    T extends TransitionConfig,
+    E extends Element = Element,
+>(transitionFn: (node: E, params?: any) => T) {
+    return (node: E, params?: any): T => {
         const result = transitionFn(node, params);
         if (prefersReducedMotion()) {
             return {
@@ -32,6 +35,27 @@ function createMotionAwareTransition<T extends TransitionConfig>(
             };
         }
         return result;
+    };
+}
+
+/**
+ * Wraps Svelte crossfade transition to respect the user's motion preferences.
+ */
+function createMotionAwareCrossfadeTransition(
+    transitionFn: (node: any, params: any) => () => TransitionConfig,
+) {
+    return (node: any, params: any) => {
+        const makeConfig = transitionFn(node, params);
+        return () => {
+            const config = makeConfig();
+            if (prefersReducedMotion()) {
+                return {
+                    ...config,
+                    duration: 0,
+                };
+            }
+            return config;
+        };
     };
 }
 
@@ -60,8 +84,26 @@ export const motionSlide = createMotionAwareTransition(slide);
  */
 export const motionBlur = createMotionAwareTransition(blur);
 
+/**
+ * Motion-aware version of the `draw` transition.
+ */
+export const motionDraw = createMotionAwareTransition(draw);
+
+/**
+ * Motion-aware version of the `crossfade` transition.
+ */
+export const motionCrossfade = (params: CrossfadeParams) => {
+    const [send, receive] = crossfade(params);
+    return [
+        createMotionAwareCrossfadeTransition(send),
+        createMotionAwareCrossfadeTransition(receive),
+    ] as const;
+};
+
 export type {
     BlurParams,
+    CrossfadeParams,
+    DrawParams,
     FadeParams,
     FlyParams,
     ScaleParams,
