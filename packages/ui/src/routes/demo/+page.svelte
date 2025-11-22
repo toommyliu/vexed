@@ -714,7 +714,6 @@
                             <Card.Description
                                 >Change your password here.</Card.Description
                             >
-                            >
                         </Card.Header>
                         <Card.Content class="space-y-2">
                             <div class="space-y-1">
