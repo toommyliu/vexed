@@ -26,6 +26,11 @@ export * as Dialog from "./components/dialog/index.js";
 
 export * as Group from "./components/group/index.js";
 export * as Empty from "./components/empty/index.js";
+export * as InputGroup from "./components/input-group/index.js";
+export * as Field from "./components/field/index.js";
+
+export { default as Textarea } from "./components/Textarea.svelte";
+export { default as Separator } from "./components/Separator.svelte";
 
 export * as Tabs from "./components/tabs/index.js";
 export * as Menu from "./components/menu/index.js";
