@@ -31,6 +31,12 @@
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
+    "./motion": {
+      "types": "./dist/util/motion.d.ts",
+      "svelte": "./dist/util/motion.js",
+      "import": "./dist/util/motion.js",
+      "default": "./dist/util/motion.js"
+    },
     "./components": {
       "types": "./dist/components.d.ts",
       "svelte": "./dist/components.js",
