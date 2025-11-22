@@ -31,7 +31,7 @@
           "[&:is(:disabled,:active,[data-pressed])]:shadow-none",
         ],
         "destructive-outline": [
-          "border-border bg-transparent text-destructive-foreground",
+          "border-border bg-transparent text-destructive",
           "shadow-xs",
           "dark:bg-input/32 dark:bg-clip-border",
           "[&:is(:disabled,:active,[data-pressed])]:shadow-none",
