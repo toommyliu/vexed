@@ -98,10 +98,13 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
+    /* scroll instantly */
     html:focus-within {
         scroll-behavior: auto;
     }
 
+    /* instnat animations */
     *,
     *::before,
     *::after {
