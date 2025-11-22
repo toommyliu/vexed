@@ -3,7 +3,6 @@
     import { motionFade, motionScale } from "$lib/util/motion";
     import { cn } from "$lib/util/cn";
     import type { HTMLAttributes } from "svelte/elements";
-    import type { Writable } from "svelte/store";
     import type { DialogContext } from "./types";
 
     interface Props extends HTMLAttributes<HTMLDivElement> {
@@ -87,7 +86,7 @@
                     {@render children?.()}
                     {#if showCloseButton}
                         <button
-                            class="absolute end-2 top-2 inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-md border border-transparent opacity-72 outline-none transition-[color,background-color,box-shadow,opacity] pointer-coarse:after:absolute pointer-coarse:after:size-full pointer-coarse:after:min-h-11 pointer-coarse:after:min-w-11 hover:opacity-100 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0"
+                            class="absolute end-2 top-2 inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-md border border-transparent opacity-72 outline-none transition-[color,background-color,box-shadow,opacity] pointer-coarse:after:absolute pointer-coarse:after:size-full pointer-coarse:after:min-h-11 pointer-coarse:after:min-w-11 hover:opacity-100 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0 bg-transparent"
                             onclick={handleClose}
                         >
                             <svg
