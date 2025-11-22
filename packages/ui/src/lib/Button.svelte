@@ -54,15 +54,24 @@
         ],
         secondary: [
           "border-secondary bg-secondary text-secondary-foreground",
+          "shadow-xs",
           "hover:bg-secondary/90",
           "data-[pressed]:bg-secondary/90",
         ],
         ghost: [
-          "border-transparent",
+          "border-transparent bg-accent/50",
           "hover:bg-accent",
           "data-[pressed]:bg-accent",
         ],
         link: ["border-transparent", "underline-offset-4 hover:underline"],
+        "icon-button": [
+          "border-border bg-background text-foreground shadow-xs",
+          "hover:border-primary/40 hover:bg-accent hover:shadow-sm",
+          "data-[pressed]:bg-accent/90 data-[pressed]:border-primary/30",
+          "[&_svg]:text-foreground",
+          "dark:bg-card dark:border-border/80",
+          "dark:hover:bg-accent dark:hover:border-primary/40",
+        ],
       },
       size: {
         xs: [
