@@ -12,7 +12,7 @@
 
 <td
     class={cn(
-        "whitespace-nowrap p-2 align-middle has-[[role=checkbox]]:pe-0 [&>[role=checkbox]]:translate-y-[2px]",
+        "whitespace-nowrap p-2 align-middle has-[[role=checkbox]]:pe-0 [&>[role=checkbox]]:translate-y-[2px] first:rounded-l-lg last:rounded-r-lg",
         className,
     )}
     data-slot="table-cell"
