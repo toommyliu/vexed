@@ -1,11 +1,16 @@
+@import "@vexed/ui/styles.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+
   html,
   body {
     user-select: none;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-size: 16px;
   }
 }
 
@@ -13,39 +18,4 @@
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
-}
-
-body {
-  color: white !important;
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-  font-size: 15px;
-  line-height: 1.5;
-}
-
-input[type="checkbox"] {
-  position: relative;
-  width: 14px;
-  height: 14px;
-  margin: 0;
-  cursor: pointer;
-  vertical-align: middle;
-}
-
-input[type="checkbox"]:not(:checked) {
-  appearance: none;
-  background-color: rgb(24 24 27); /* bg-zinc-900 */
-  border-radius: 2px;
-  border: 1px solid #4b5563;
-}
-
-input[type="checkbox"]:checked {
-  position: relative;
-  width: 14px;
-  height: 14px;
-}
-
-input[type="checkbox"] + label {
-  margin-left: 5px;
-  cursor: pointer;
 }
