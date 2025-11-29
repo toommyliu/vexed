@@ -138,7 +138,12 @@ const CSS_TARGETS = [
     name: "tailwind",
     entryPoint: "./src/renderer/tailwind.css",
     outfile: "./dist/build/tailwind.css",
-    watchPaths: ["./src/renderer/tailwind.css", "./tailwind.config.js"],
+    watchPaths: [
+      "./src/renderer/tailwind.css",
+      "./tailwind.config.js",
+      "./src",
+      "../packages/ui/src",
+    ],
   },
 ];
 
@@ -413,6 +418,12 @@ async function runWatchMode(commonConfig, svelteConfigs, cssConfigs) {
       };
       const ctx = await context(config);
       await ctx.watch();
+
+      if (target.watchPaths) {
+        watch(target.watchPaths, async () => {
+          await ctx.rebuild();
+        });
+      }
     }),
   );
 
