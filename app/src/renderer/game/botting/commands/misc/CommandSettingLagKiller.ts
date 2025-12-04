@@ -7,6 +7,7 @@ export class CommandSettingLagKiller extends Command {
 
   public override executeImpl() {
     this.bot.settings.lagKiller = this.state;
+    this.bot.flash.call(() => swf.settingsLagKiller(!this.state));
   }
 
   public override toString() {
