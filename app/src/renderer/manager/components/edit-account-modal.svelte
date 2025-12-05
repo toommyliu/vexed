@@ -4,9 +4,8 @@
   import { Button, Input, Label } from "@vexed/ui";
   import * as InputGroup from "@vexed/ui/InputGroup";
   import * as Dialog from "@vexed/ui/Dialog";
-  import * as Alert from "@vexed/ui/Alert";
   import { motionFade } from "@vexed/ui/motion";
-  import { Eye, EyeOff } from "lucide-svelte";
+  import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-svelte";
 
   type Props = {
     isOpen: boolean;
@@ -83,35 +82,39 @@
 </script>
 
 <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
-  <Dialog.Content showCloseButton={false}>
-    <Dialog.Header>
-      <Dialog.Title>Edit Account</Dialog.Title>
-      <Dialog.Description>
-        Update the credentials for this account.
-      </Dialog.Description>
+  <Dialog.Content showCloseButton={true} class="sm:max-w-md">
+    <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent"></div>
+
+    <Dialog.Header class="pb-2">
+      <Dialog.Title class="text-lg font-semibold tracking-tight">Edit Account</Dialog.Title>
     </Dialog.Header>
 
-    {#if error}
-      {#key error}
-        <div transition:motionFade class="px-6">
-          <span class="text-destructive">{error}</span>
-        </div>
-      {/key}
-    {/if}
+    <form id="edit-account-form" onsubmit={handleSubmit} class="grid gap-5 px-6">
+      {#if error}
+        {#key error}
+          <div
+            transition:motionFade={{ duration: 150 }}
+            class="flex items-start gap-2.5 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2.5"
+          >
+            <AlertCircle class="size-4 text-destructive shrink-0 mt-0.5" />
+            <span class="text-sm text-destructive">{error}</span>
+          </div>
+        {/key}
+      {/if}
 
-    <form onsubmit={handleSubmit} class="grid gap-4 py-4">
       <div class="grid gap-2">
-        <Label for="edit-username">Username</Label>
+        <Label for="edit-username" class="text-sm font-medium">Username</Label>
         <Input
           id="edit-username"
           bind:value={username}
           disabled={isSubmitting}
           placeholder="Enter username"
-          required
+          autocomplete="username"
         />
       </div>
+
       <div class="grid gap-2">
-        <Label for="edit-password">Password</Label>
+        <Label for="edit-password" class="text-sm font-medium">Password</Label>
         <InputGroup.Root>
           <Input
             id="edit-password"
@@ -119,7 +122,7 @@
             bind:value={password}
             disabled={isSubmitting}
             placeholder="Enter password"
-            required
+            autocomplete="current-password"
           />
           <div title={showPassword ? "Hide password" : "Show password"}>
             <Button
@@ -139,23 +142,25 @@
           </div>
         </InputGroup.Root>
       </div>
-
-      <Dialog.Footer>
-        <Button variant="outline" onclick={onClose} disabled={isSubmitting}>
-          Cancel
-        </Button>
-        <Button
-          variant="default"
-          type="submit"
-          disabled={isSubmitting || !username.trim() || !password.trim()}
-        >
-          {#if isSubmitting}
-            Updating...
-          {:else}
-            Update
-          {/if}
-        </Button>
-      </Dialog.Footer>
     </form>
+
+    <Dialog.Footer class="pt-4 sm:bg-transparent sm:border-none">
+      <Button variant="outline" onclick={onClose} disabled={isSubmitting}>
+        Cancel
+      </Button>
+      <Button
+        type="submit"
+        form="edit-account-form"
+        disabled={isSubmitting || !username.trim() || !password.trim()}
+        class="min-w-[100px]"
+      >
+        {#if isSubmitting}
+          <Loader2 class="size-4 animate-spin" />
+          <span>Saving...</span>
+        {:else}
+          <span>Update</span>
+        {/if}
+      </Button>
+    </Dialog.Footer>
   </Dialog.Content>
 </Dialog.Root>

@@ -1,10 +1,12 @@
 <script lang="ts">
-  import type { Account } from "../../../shared/types";
-  import { client } from "../../../shared/tipc";
-  import { managerState } from "../state.svelte";
-  import { Button, Input, Label, InputGroup } from "@vexed/ui";
+  import type { Account } from "@shared/types";
+  import { Button, Input, Label } from "@vexed/ui";
+  import * as InputGroup from "@vexed/ui/InputGroup";
   import * as Dialog from "@vexed/ui/Dialog";
-  import { Eye, EyeOff } from "lucide-svelte";
+  import { motionFade } from "@vexed/ui/motion";
+  import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-svelte";
+  import { client } from "@shared/tipc";
+  import { managerState } from "../state.svelte";
 
   type Props = {
     isOpen: boolean;
@@ -18,93 +20,132 @@
   let showPassword = $state(false);
   let isSubmitting = $state(false);
   let error = $state("");
+  let fieldError = $state<"username" | "password" | null>(null);
+
+  $effect(() => {
+    if (!isOpen) {
+      username = "";
+      password = "";
+      showPassword = false;
+      error = "";
+      fieldError = null;
+      isSubmitting = false;
+    }
+  });
 
   const handleSubmit = async (ev: SubmitEvent) => {
     ev.preventDefault();
 
     const cleanUsername = username?.trim()?.toLowerCase();
-    const cleanPassword = password?.trim()?.toLowerCase();
+    const cleanPassword = password?.trim();
 
-    if (!cleanUsername || !cleanPassword) {
-      error = "Please fill in all fields";
+    if (!cleanUsername) {
+      error = "Username is required";
+      fieldError = "username";
+      return;
+    }
+
+    if (!cleanPassword) {
+      error = "Password is required";
+      fieldError = "password";
       return;
     }
 
     if (managerState.accounts.has(cleanUsername)) {
-      error = "An account with this username already exists.";
+      error = "An account with this username already exists";
+      fieldError = "username";
       return;
     }
 
     isSubmitting = true;
     error = "";
+    fieldError = null;
 
     try {
-      const account: Account = {
+      const newAccount: Account = {
         username: cleanUsername,
         password: cleanPassword,
       };
 
-      const res = await client.manager.addAccount(account);
-      if (res?.msg === "SUCCESS") {
-        managerState.accounts.set(cleanUsername, account);
-      } else if (res?.msg === "USERNAME_ALREADY_EXISTS") {
-        error = "An account with this username already exists.";
-      } else if (res?.msg === "FAILED") {
-        error = "Failed to add account. Please try again.";
-        return;
-      }
+      const res = await client.manager.addAccount(newAccount);
 
-      username = "";
-      password = "";
-      showPassword = false;
-      onClose();
+      switch (res?.msg) {
+        case "SUCCESS":
+          managerState.accounts.set(cleanUsername, newAccount);
+          onClose();
+          break;
+        case "USERNAME_ALREADY_EXISTS":
+          error = "An account with this username already exists";
+          fieldError = "username";
+          break;
+        case "FAILED":
+        default:
+          error = "Failed to save account. Please try again.";
+      }
     } catch (err) {
-      error = "Failed to add account. Please try again.";
+      error = "Failed to save account. Please try again.";
       console.error("Failed to add account:", err);
     } finally {
       isSubmitting = false;
     }
   };
+
+  function clearError() {
+    if (error) {
+      error = "";
+      fieldError = null;
+    }
+  }
 </script>
 
 <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
-  <Dialog.Content class="sm:max-w-[425px]">
-    <Dialog.Header>
-      <Dialog.Title>Add Account</Dialog.Title>
-      <Dialog.Description>
-        Enter the credentials for the new account here.
-      </Dialog.Description>
+  <Dialog.Content showCloseButton={true} class="sm:max-w-md">
+    <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent"></div>
+
+    <Dialog.Header class="pb-2">
+      <Dialog.Title class="text-lg font-semibold tracking-tight">Add Account</Dialog.Title>
     </Dialog.Header>
 
-    {#if error}
-      <div
-        class="border-destructive/20 bg-destructive/10 text-destructive rounded-md border p-3 text-sm"
-      >
-        {error}
-      </div>
-    {/if}
+    <form id="add-account-form" onsubmit={handleSubmit} class="grid gap-5 px-6">
+      {#if error}
+        {#key error}
+          <div
+            transition:motionFade={{ duration: 150 }}
+            class="flex items-start gap-2.5 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2.5"
+          >
+            <AlertCircle class="size-4 text-destructive shrink-0 mt-0.5" />
+            <span class="text-sm text-destructive">{error}</span>
+          </div>
+        {/key}
+      {/if}
 
-    <form onsubmit={handleSubmit} class="grid gap-4 py-4">
       <div class="grid gap-2">
-        <Label for="username">Username</Label>
+        <Label for="add-username" class="text-sm font-medium">Username</Label>
         <Input
-          id="username"
+          id="add-username"
           bind:value={username}
           disabled={isSubmitting}
           placeholder="Enter username"
-          required
+          autocomplete="username"
+          aria-invalid={fieldError === "username" ? "true" : undefined}
+          oninput={clearError}
+          class={fieldError === "username" ? "border-destructive/50" : ""}
         />
       </div>
+
       <div class="grid gap-2">
-        <Label for="password">Password</Label>
-        <InputGroup>
+        <Label for="add-password" class="text-sm font-medium">Password</Label>
+        <InputGroup.Root>
           <Input
-            id="password"
+            id="add-password"
             type={showPassword ? "text" : "password"}
             bind:value={password}
             disabled={isSubmitting}
             placeholder="Enter password"
-            required
+            autocomplete="current-password"
+            aria-invalid={fieldError === "password" ? "true" : undefined}
+            oninput={clearError}
+            class={fieldError === "password" ? "border-destructive/50" : ""}
           />
           <div title={showPassword ? "Hide password" : "Show password"}>
             <Button
@@ -122,29 +163,27 @@
               {/if}
             </Button>
           </div>
-        </InputGroup>
+        </InputGroup.Root>
       </div>
-
-      <Dialog.Footer>
-        <Button
-          type="button"
-          variant="outline"
-          onclick={onClose}
-          disabled={isSubmitting}
-        >
-          Cancel
-        </Button>
-        <Button
-          type="submit"
-          disabled={isSubmitting || !username.trim() || !password.trim()}
-        >
-          {#if isSubmitting}
-            Adding...
-          {:else}
-            Add Account
-          {/if}
-        </Button>
-      </Dialog.Footer>
     </form>
+
+    <Dialog.Footer class="pt-4 sm:bg-transparent sm:border-none">
+      <Button variant="outline" onclick={onClose} disabled={isSubmitting}>
+        Cancel
+      </Button>
+      <Button
+        type="submit"
+        form="add-account-form"
+        disabled={isSubmitting || !username.trim() || !password.trim()}
+        class="min-w-[120px]"
+      >
+        {#if isSubmitting}
+          <Loader2 class="size-4 animate-spin" />
+          <span>Saving...</span>
+        {:else}
+          <span>Save Account</span>
+        {/if}
+      </Button>
+    </Dialog.Footer>
   </Dialog.Content>
 </Dialog.Root>

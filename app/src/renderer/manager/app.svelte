@@ -13,7 +13,6 @@
     Square,
   } from "lucide-svelte";
   import { Button, Input, Checkbox, Switch, cn } from "@vexed/ui";
-  import * as Dialog from "@vexed/ui/Dialog";
   import * as Select from "@vexed/ui/Select";
 
   import { onMount } from "svelte";
@@ -23,6 +22,7 @@
   import { client } from "../../shared/tipc";
   import type { Account } from "../../shared/types";
   import EditAccountModal from "./components/edit-account-modal.svelte";
+  import AddAccountModal from "./components/add-account-modal.svelte";
 
   const { accounts, servers, selectedAccounts } = managerState;
 
@@ -33,8 +33,7 @@
   let isEditOpen = $state(false);
   let editingAccount = $state<Account | null>(null);
 
-  let newUsername = $state("");
-  let newPassword = $state(""); 
+
 
   let filteredAccounts = $derived(
     Array.from(accounts.values()).filter((acc) => {
@@ -107,35 +106,28 @@
     });
   }
 
-  async function handleAddAccount() {
-    if (!newUsername || !newPassword) return;
-    const key = newUsername.toLowerCase();
-    if (accounts.has(key)) {
-      return;
-    }
 
-    const newAccount: Account = {
-      username: newUsername,
-      password: newPassword,
-    };
-
-    await client.manager.addAccount(newAccount);
-    accounts.set(key, newAccount);
-
-    newUsername = "";
-    newPassword = "";
-    isAddOpen = false;
-  }
 
   async function handleRemove(usernames: string[]) {
     if (!confirm(`Remove ${usernames.length} account(s)?`)) return;
 
+    const failed: string[] = [];
+
     for (const u of usernames) {
       const acc = accounts.get(u.toLowerCase());
       if (acc) {
-        await removeAccount(acc);
-        selectedAccounts.delete(u.toLowerCase());
+        const success = await removeAccount(acc);
+        if (success) {
+          accounts.delete(u.toLowerCase());
+          selectedAccounts.delete(u.toLowerCase());
+        } else {
+          failed.push(u);
+        }
       }
+    }
+
+    if (failed.length > 0) {
+      alert(`Failed to remove ${failed.length} account(s). Please try again.`);
     }
   }
 
@@ -461,49 +453,12 @@
 
 </div>
 
-<Dialog.Root bind:open={isAddOpen}>
-  <Dialog.Content class="elevation-3">
-    <Dialog.Header>
-      <Dialog.Title>Add Account</Dialog.Title>
-      <Dialog.Description>
-        Enter the credentials for the new account.
-      </Dialog.Description>
-    </Dialog.Header>
-    <div class="grid gap-4 py-4">
-      <div class="grid grid-cols-4 items-center gap-4">
-        <label for="username" class="text-right text-sm font-medium">
-          Username
-        </label>
-        <Input
-          id="username"
-          bind:value={newUsername}
-          class="col-span-3"
-          placeholder="johndoe"
-        />
-      </div>
-      <div class="grid grid-cols-4 items-center gap-4">
-        <label for="password" class="text-right text-sm font-medium">
-          Password
-        </label>
-        <Input
-          id="password"
-          type="password"
-          bind:value={newPassword}
-          class="col-span-3"
-          placeholder="••••••"
-        />
-      </div>
-    </div>
-    <Dialog.Footer>
-      <Button variant="outline" onclick={() => (isAddOpen = false)}
-        >Cancel</Button
-      >
-      <Button onclick={handleAddAccount} disabled={!newUsername || !newPassword}
-        >Save Account</Button
-      >
-    </Dialog.Footer>
-  </Dialog.Content>
-</Dialog.Root>
+<AddAccountModal
+  isOpen={isAddOpen}
+  onClose={() => {
+    isAddOpen = false;
+  }}
+/>
 
 <EditAccountModal
   isOpen={isEditOpen}
