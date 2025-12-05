@@ -28,26 +28,41 @@ class Config {
     try {
       if (await pathExists(this.path)) {
         const loaded = await readJson(this.path);
-        this._cache = this._deepMerge(this.defaults, loaded);
 
-        // any defaults added?
-        if (JSON.stringify(this._cache) !== JSON.stringify(loaded)) {
-          await writeJson(this.path, this._cache);
+        // arrays don't require deep-merge
+        if (Array.isArray(this.defaults)) {
+          this._cache = loaded;
+        } else {
+          this._cache = this._deepMerge(this.defaults, loaded);
+          // any defaults added?
+          if (JSON.stringify(this._cache) !== JSON.stringify(loaded)) {
+            await writeJson(this.path, this._cache);
+          }
         }
       } else {
-        this._cache = { ...this.defaults };
+        this._cache = this._cloneDefaults();
         await writeJson(this.path, this._cache);
       }
     } catch (err) {
-      this._cache = { ...this.defaults };
+      this._cache = this._cloneDefaults();
     }
 
     return this._cache;
   }
 
+  /**
+   * Clone defaults appropriately for arrays vs objects.
+   * @returns {Array|Object} Cloned defaults
+   */
+  _cloneDefaults() {
+    return Array.isArray(this.defaults)
+      ? [...this.defaults]
+      : { ...this.defaults };
+  }
+
   async save() {
     if (this._cache === null) {
-      this._cache = { ...this.defaults };
+      this._cache = this._cloneDefaults();
     }
 
     await writeJson(this.path, this._cache);
@@ -74,7 +89,7 @@ class Config {
 
   get(key, defaultValue) {
     const store =
-      this._cache !== null ? this._cache : (this._cache = { ...this.defaults });
+      this._cache !== null ? this._cache : (this._cache = this._cloneDefaults());
 
     if (key === undefined) {
       return store;
@@ -125,7 +140,7 @@ class Config {
       const store =
         this._cache !== null
           ? this._cache
-          : (this._cache = { ...this.defaults });
+          : (this._cache = this._cloneDefaults());
       Object.assign(store, key);
       this._cache = store;
       return;
@@ -136,7 +151,7 @@ class Config {
     }
 
     const store =
-      this._cache !== null ? this._cache : (this._cache = { ...this.defaults });
+      this._cache !== null ? this._cache : (this._cache = this._cloneDefaults());
 
     if (key.includes(".")) {
       this._setNestedValue(store, key, value);
@@ -159,7 +174,7 @@ class Config {
 
   delete(key) {
     const store =
-      this._cache !== null ? this._cache : (this._cache = { ...this.defaults });
+      this._cache !== null ? this._cache : (this._cache = this._cloneDefaults());
 
     if (typeof key === "string" && key.includes(".")) {
       this._deleteNestedValue(store, key);
@@ -171,7 +186,7 @@ class Config {
   }
 
   clear() {
-    this._cache = { ...this.defaults };
+    this._cache = this._cloneDefaults();
   }
 
   reset() {
