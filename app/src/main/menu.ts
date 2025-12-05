@@ -1,7 +1,8 @@
 import Config from "@vexed/config";
-import { app, Menu, MenuItemConstructorOptions, nativeTheme } from "electron";
+import { app, dialog, Menu, MenuItemConstructorOptions, nativeTheme, shell } from "electron";
 import { IS_MAC } from "../shared/constants";
 import type { Settings } from "../shared/types";
+import { checkForUpdates } from "./updater";
 
 async function updateTheme(settings: Config<Settings>, theme: Settings['theme']) {
     nativeTheme.themeSource = theme;
@@ -18,6 +19,33 @@ export function createMenu(settings: Config<Settings>) {
                     label: app.name,
                     submenu: [
                         { role: "about" },
+                        {
+                            label: "Check for Updates...",
+                            click: async () => {
+                                const res = await checkForUpdates(true);
+                                if (!res) {
+                                    dialog.showMessageBox({
+                                        type: "info",
+                                        title: "No Updates",
+                                        message: "You're up to date!",
+                                        detail: `Current version: ${app.getVersion()}`,
+                                    });
+                                    return;
+                                }
+
+                                const { response } = await dialog.showMessageBox({
+                                    type: "info",
+                                    title: "Update Available",
+                                    message: `A new version is available: ${res.newVersion}`,
+                                    detail: `You are currently on version ${res.currentVersion}.`,
+                                    buttons: ["Download", "Later"],
+                                    defaultId: 0,
+                                });
+
+                                if (response === 0)
+                                    shell.openExternal(res.releaseUrl);
+                            },
+                        },
                         { type: "separator" },
                         { role: "hide" },
                         { role: "hideOthers" },
