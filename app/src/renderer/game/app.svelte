@@ -940,7 +940,7 @@
       <embed
         id="swf"
         src={`${swfPath}/loader.swf`}
-        class="absolute left-0 top-0 h-full w-full rounded-lg shadow-2xl"
+        class="absolute left-0 top-0 h-full w-full"
       />
     {/if}
   </div>
