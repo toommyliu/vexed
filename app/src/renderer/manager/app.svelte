@@ -12,7 +12,6 @@
     CheckSquare,
     Square,
   } from "lucide-svelte";
-
   import { Button, Input, Checkbox, Switch, cn } from "@vexed/ui";
   import * as Dialog from "@vexed/ui/Dialog";
   import * as Select from "@vexed/ui/Select";

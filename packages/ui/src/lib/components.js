@@ -1,4 +1,4 @@
-export * as Button from "./Button.svelte";
+export * as Button from "./components/Button.svelte";
 export * as VirtualList from "./vlist/VirtualList.svelte";
 export * as Input from "./components/Input.svelte";
 export * as Checkbox from "./components/Checkbox.svelte";
