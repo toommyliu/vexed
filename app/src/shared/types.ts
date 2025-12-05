@@ -61,6 +61,10 @@ export type Settings = {
    * The launch mode of the application.
    */
   launchMode: "game" | "manager";
+  /**
+   * The theme of the application.
+   */
+  theme: "system" | "light" | "dark";
 };
 
 export type EnvironmentState = {

@@ -1,12 +1,13 @@
 import "core-js/stable";
 import "./tray";
 
-import { join } from "path";
-import process from "process";
 import Config from "@vexed/config";
 import { registerIpcMain } from "@vexed/tipc/main";
-import { app, shell } from "electron";
+import { app, shell, nativeTheme } from "electron";
+import { createMenu } from "./menu";
 import log from "electron-log";
+import { join } from "path";
+import process from "process";
 import { version } from "../../package.json";
 import {
   BRAND,
@@ -163,7 +164,19 @@ if (gotTheLock) {
   app.exit();
 }
 
-app.once("ready", async () => handleAppLaunch());
+app.once("ready", async () => {
+  const settings = new Config<Settings>({
+    configName: "settings",
+    cwd: DOCUMENTS_PATH,
+    defaults: DEFAULT_SETTINGS,
+  });
+  await settings.load();
+
+  nativeTheme.themeSource = settings.get("theme") ?? "system";
+
+  createMenu(settings);
+  await handleAppLaunch();
+});
 
 app.on("before-quit", () => {
   setQuitting(true);

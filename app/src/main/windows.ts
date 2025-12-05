@@ -92,7 +92,6 @@ export async function createGame(
       backgroundThrottling: false,
       nodeIntegration: true,
       plugins: true,
-      // Pass CLI args for "Login with Account" feature
       additionalArguments: args,
       webgl: false,
     },
