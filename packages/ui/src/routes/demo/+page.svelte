@@ -1,4 +1,5 @@
 <script>
+    import "$lib/styles.css";
     import {
         Group,
         Empty,
