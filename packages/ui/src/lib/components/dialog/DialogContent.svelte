@@ -57,9 +57,8 @@
 
 {#if $open}
     <div class="relative z-50">
-        <!-- Backdrop -->
         <div
-            class="fixed inset-0 z-50 bg-black/32 backdrop-blur-sm transition-all duration-200"
+            class="fixed inset-0 z-50 bg-black/32 backdrop-blur-[2px] transition-all duration-200"
             transition:motionFade={{ duration: 200 }}
             data-slot="dialog-backdrop"
             onclick={handleClose}
@@ -68,11 +67,9 @@
             tabindex="0"
         ></div>
 
-        <!-- Popup Container -->
         <div
             class="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
         >
-            <!-- Popup -->
             <div
                 class={cn(
                     "pointer-events-auto relative grid max-h-full w-full min-w-0 origin-center overflow-hidden border bg-popover bg-clip-padding text-popover-foreground shadow-lg transition-[scale,opacity] duration-200 ease-in-out will-change-transform before:pointer-events-none before:absolute before:inset-0 before:shadow-[0_1px_--theme(--color-black/4%)] max-sm:border-none max-sm:before:hidden sm:max-w-lg sm:rounded-2xl sm:before:rounded-[calc(var(--radius-2xl)-1px)] dark:bg-clip-border dark:before:shadow-[0_-1px_--theme(--color-white/8%)]",
