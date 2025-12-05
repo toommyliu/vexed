@@ -19,23 +19,23 @@ export interface ConfigOptions<S = Record<string, any>> {
 
 type DeepValue<T, P extends string> = P extends `${infer K}.${infer Rest}`
   ? K extends keyof T
-    ? DeepValue<T[K], Rest>
-    : never
+  ? DeepValue<T[K], Rest>
+  : never
   : P extends keyof T
-    ? T[P]
-    : never;
+  ? T[P]
+  : never;
 
 type DotPrefix<K extends string, P extends string> = P extends ""
   ? K
   : `${K}.${P}`;
 type DeepKeyOf<T> = T extends object
   ? {
-      [K in Extract<keyof T, string>]: T[K] extends any[]
-        ? K
-        : T[K] extends object
-          ? DotPrefix<K, Extract<keyof T[K], string>> | K
-          : K;
-    }[Extract<keyof T, string>]
+    [K in Extract<keyof T, string>]: T[K] extends any[]
+    ? K
+    : T[K] extends object
+    ? DotPrefix<K, Extract<keyof T[K], string>> | K
+    : K;
+  }[Extract<keyof T, string>]
   : never;
 
 export default class Config<S = Record<string, any>> {
@@ -59,10 +59,21 @@ export default class Config<S = Record<string, any>> {
    */
   readonly defaults: Partial<S>;
 
+  /**
+   * Creates a new Config instance and loads it from disk.
+   * @param options - Configuration options
+   * @returns The loaded config instance
+   */
+  static create<T = Record<string, any>>(
+    options?: ConfigOptions<T>,
+  ): Promise<Config<T>>;
+
   constructor(options?: ConfigOptions<S>);
 
   /**
    * Load configuration from disk.
+   * Merges defaults with loaded values (loaded values take precedence).
+   * If new defaults were added, the file is updated.
    */
   load(): Promise<S>;
 
@@ -70,6 +81,17 @@ export default class Config<S = Record<string, any>> {
    * Persist the in-memory store to disk.
    */
   save(): Promise<void>;
+
+  /**
+   * Set a value and immediately persist to disk.
+   * @param key - The key to set or an object with multiple key-value pairs
+   * @param value - The value to set (ignored when key is an object)
+   */
+  setAndSave(key: Partial<S>): Promise<void>;
+  setAndSave<K extends DeepKeyOf<S>>(
+    key: K,
+    value: DeepValue<S, K>,
+  ): Promise<void>;
 
   /**
    * Reload configuration from disk, discarding any in-memory cache.
@@ -88,6 +110,33 @@ export default class Config<S = Record<string, any>> {
     key: K,
     defaultValue?: DeepValue<S, K>,
   ): DeepValue<S, K> | undefined;
+
+  /**
+   * Get a string value from the config.
+   * @param key - The key to get
+   * @param defaultValue - Default value if key doesn't exist or isn't a string
+   * @returns The string value or default
+   */
+  getString<K extends DeepKeyOf<S>>(key: K, defaultValue?: string): string;
+
+  /**
+   * Get a number value from the config.
+   * @param key - The key to get
+   * @param defaultValue - Default value if key doesn't exist or isn't a number
+   * @returns The number value or default
+   */
+  getNumber<K extends DeepKeyOf<S>>(key: K, defaultValue?: number): number;
+
+  /**
+   * Get a boolean value from the config.
+   * @param key - The key to get
+   * @param defaultValue - Default value if key doesn't exist or isn't a boolean
+   * @returns The boolean value or default
+   */
+  getBoolean<K extends DeepKeyOf<S>>(
+    key: K,
+    defaultValue?: boolean,
+  ): boolean;
 
   /**
    * Set a value in the config.
@@ -117,3 +166,4 @@ export default class Config<S = Record<string, any>> {
    */
   reset(): null;
 }
+

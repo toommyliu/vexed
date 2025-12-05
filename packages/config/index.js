@@ -2,6 +2,17 @@ const { resolve } = require("path");
 const { readJson, writeJson, pathExists } = require("@vexed/fs-utils");
 
 class Config {
+  /**
+   * Creates a new Config instance and loads it from disk.
+   * @param {Object} options - Configuration options
+   * @returns {Promise<Config>} The loaded config instance
+   */
+  static async create(options = {}) {
+    const config = new Config(options);
+    await config.load();
+    return config;
+  }
+
   constructor(options = {}) {
     this.configName = options.configName || "config";
     this.cwd = options.cwd || process.cwd();
@@ -16,7 +27,13 @@ class Config {
 
     try {
       if (await pathExists(this.path)) {
-        this._cache = await readJson(this.path);
+        const loaded = await readJson(this.path);
+        this._cache = this._deepMerge(this.defaults, loaded);
+
+        // any defaults added?
+        if (JSON.stringify(this._cache) !== JSON.stringify(loaded)) {
+          await writeJson(this.path, this._cache);
+        }
       } else {
         this._cache = { ...this.defaults };
         await writeJson(this.path, this._cache);
@@ -34,6 +51,16 @@ class Config {
     }
 
     await writeJson(this.path, this._cache);
+  }
+
+  /**
+   * Set a value and immediately persist to disk.
+   * @param {string|Object} key - The key to set or an object with multiple key-value pairs
+   * @param {*} value - The value to set (ignored when key is an object)
+   */
+  async setAndSave(key, value) {
+    this.set(key, value);
+    await this.save();
   }
 
   /**
@@ -58,6 +85,39 @@ class Config {
     }
 
     return key in store ? store[key] : defaultValue;
+  }
+
+  /**
+   * Get a string value from the config.
+   * @param {string} key - The key to get
+   * @param {string} defaultValue - Default value if key doesn't exist or isn't a string
+   * @returns {string}
+   */
+  getString(key, defaultValue = "") {
+    const val = this.get(key, defaultValue);
+    return typeof val === "string" ? val : defaultValue;
+  }
+
+  /**
+   * Get a number value from the config.
+   * @param {string} key - The key to get
+   * @param {number} defaultValue - Default value if key doesn't exist or isn't a number
+   * @returns {number}
+   */
+  getNumber(key, defaultValue = 0) {
+    const val = this.get(key, defaultValue);
+    return typeof val === "number" ? val : defaultValue;
+  }
+
+  /**
+   * Get a boolean value from the config.
+   * @param {string} key - The key to get
+   * @param {boolean} defaultValue - Default value if key doesn't exist or isn't a boolean
+   * @returns {boolean}
+   */
+  getBoolean(key, defaultValue = false) {
+    const val = this.get(key, defaultValue);
+    return typeof val === "boolean" ? val : defaultValue;
   }
 
   set(key, value) {
@@ -117,6 +177,32 @@ class Config {
   reset() {
     this._cache = null;
     return this._cache;
+  }
+
+  /**
+   * Deep merge two objects. Source values take precedence.
+   * @param {Object} target - The target (defaults)
+   * @param {Object} source - The source (loaded values)
+   * @returns {Object} The merged object
+   */
+  _deepMerge(target, source) {
+    const result = { ...target };
+    for (const key of Object.keys(source)) {
+      if (
+        source[key] !== null &&
+        typeof source[key] === "object" &&
+        !Array.isArray(source[key]) &&
+        target[key] !== null &&
+        typeof target[key] === "object" &&
+        !Array.isArray(target[key])
+      ) {
+        result[key] = this._deepMerge(target[key], source[key]);
+      } else {
+        result[key] = source[key];
+      }
+    }
+
+    return result;
   }
 
   _getNestedValue(obj, path, defaultValue) {
