@@ -17,6 +17,7 @@ export const DEFAULT_SETTINGS: Settings = {
   launchMode: "game",
   debug: false,
   checkForUpdates: false,
+  theme: "dark",
 } as const;
 
 export const DEFAULT_SKILLSETS = {
