@@ -20,7 +20,6 @@ export function createManagerTipcRouter(tipcInstance: TipcInstance) {
           defaults: DEFAULT_ACCOUNTS,
         });
         await config.load();
-        console.log('accounts', config.get());
         return config.get();
       } catch (error) {
         logger.error("Failed to get accounts.", error);
