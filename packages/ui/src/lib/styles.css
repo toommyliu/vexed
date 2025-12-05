@@ -105,12 +105,37 @@
     }
 }
 
-@layer utilities {
-
-    .focus-ring {
-        @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+@layer base {
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: rgb(var(--muted-foreground) / 0.3) transparent;
     }
 
+    *::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    *::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    *::-webkit-scrollbar-thumb {
+        background: rgb(var(--muted-foreground) / 0.3);
+        border-radius: 3px;
+        transition: background 0.2s;
+    }
+
+    *::-webkit-scrollbar-thumb:hover {
+        background: rgb(var(--muted-foreground) / 0.5);
+    }
+
+    *::-webkit-scrollbar-corner {
+        background: transparent;
+    }
+}
+
+@layer utilities {
     .elevation-1 {
         box-shadow: 0 1px 2px rgb(var(--elevation-1)),
             0 0 1px rgb(var(--elevation-1));

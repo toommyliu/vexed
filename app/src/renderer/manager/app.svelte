@@ -272,7 +272,6 @@
         </div>
       </div>
 
-      <!-- Selection Bar -->
       <div
         class="flex items-center justify-between text-sm transition-all duration-200"
       >
