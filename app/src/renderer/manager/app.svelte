@@ -8,12 +8,15 @@
     FileCode,
     Pencil,
     Loader,
+    Loader2,
     ToggleLeft,
     CheckSquare,
     Square,
+    AlertTriangle,
   } from "lucide-svelte";
   import { Button, Input, Checkbox, Switch, cn } from "@vexed/ui";
   import * as Select from "@vexed/ui/Select";
+  import * as AlertDialog from "@vexed/ui/AlertDialog";
 
   import { onMount } from "svelte";
 
@@ -33,7 +36,11 @@
   let isEditOpen = $state(false);
   let editingAccount = $state<Account | null>(null);
 
-
+  // Delete confirmation dialog state
+  let deleteDialogOpen = $state(false);
+  let deleteDialogLoading = $state(false);
+  let deleteDialogError = $state("");
+  let pendingDeleteUsernames = $state<string[]>([]);
 
   let filteredAccounts = $derived(
     Array.from(accounts.values()).filter((acc) => {
@@ -108,12 +115,19 @@
 
 
 
-  async function handleRemove(usernames: string[]) {
-    if (!confirm(`Remove ${usernames.length} account(s)?`)) return;
+  function handleRemove(usernames: string[]) {
+    pendingDeleteUsernames = usernames;
+    deleteDialogError = "";
+    deleteDialogLoading = false;
+    deleteDialogOpen = true;
+  }
 
+  async function confirmDelete() {
+    deleteDialogLoading = true;
+    deleteDialogError = "";
     const failed: string[] = [];
 
-    for (const u of usernames) {
+    for (const u of pendingDeleteUsernames) {
       const acc = accounts.get(u.toLowerCase());
       if (acc) {
         const success = await removeAccount(acc);
@@ -126,8 +140,21 @@
       }
     }
 
+    deleteDialogLoading = false;
+
     if (failed.length > 0) {
-      alert(`Failed to remove ${failed.length} account(s). Please try again.`);
+      deleteDialogError = `Failed to remove ${failed.length} account(s). Please try again.`;
+    } else {
+      deleteDialogOpen = false;
+      pendingDeleteUsernames = [];
+    }
+  }
+
+  function cancelDelete() {
+    if (!deleteDialogLoading) {
+      deleteDialogOpen = false;
+      pendingDeleteUsernames = [];
+      deleteDialogError = "";
     }
   }
 
@@ -468,3 +495,43 @@
     editingAccount = null;
   }}
 />
+<!-- Delete Confirmation Dialog -->
+<AlertDialog.Root bind:open={deleteDialogOpen}>
+  <AlertDialog.Content>
+    <AlertDialog.Header>
+      <AlertDialog.Title>
+        Remove {pendingDeleteUsernames.length} account{pendingDeleteUsernames.length !== 1 ? 's' : ''}?
+      </AlertDialog.Title>
+      <AlertDialog.Description>
+        {#if deleteDialogError}
+          <span class="text-destructive">{deleteDialogError}</span>
+        {:else}
+          This action cannot be undone.
+        {/if}
+      </AlertDialog.Description>
+    </AlertDialog.Header>
+    <AlertDialog.Footer>
+      <Button 
+        variant="outline" 
+        onclick={cancelDelete} 
+        disabled={deleteDialogLoading}
+        class="min-w-[80px]"
+      >
+        Cancel
+      </Button>
+      <Button 
+        variant="destructive" 
+        onclick={confirmDelete} 
+        disabled={deleteDialogLoading}
+        class="min-w-[80px]"
+      >
+        {#if deleteDialogLoading}
+          <Loader2 class="size-4 animate-spin" />
+          <span>Removing...</span>
+        {:else}
+          <span>Remove</span>
+        {/if}
+      </Button>
+    </AlertDialog.Footer>
+  </AlertDialog.Content>
+</AlertDialog.Root>
