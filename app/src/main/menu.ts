@@ -6,8 +6,7 @@ import { checkForUpdates } from "./updater";
 
 async function updateTheme(settings: Config<Settings>, theme: Settings['theme']) {
     nativeTheme.themeSource = theme;
-    settings.set("theme", theme);
-    await settings.save();
+    await settings.setAndSave('theme', theme);
 }
 
 export function createMenu(settings: Config<Settings>) {
