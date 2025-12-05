@@ -1,63 +1,71 @@
 <script lang="ts" generics="T">
-    import { isBrowser, Virtual } from "./virtual.js"
-    import Item from "./Item.svelte"
-    import { onDestroy, onMount, type Snippet, tick, untrack } from "svelte"
+    import { isBrowser, Virtual } from "./virtual.js";
+    import Item from "./Item.svelte";
+    import { onDestroy, onMount, type Snippet, tick, untrack } from "svelte";
 
     interface Props {
-        key: keyof T | typeof keyFn,
-        data: T[],
-        overflow?: number,
-        estimateSize?: number | ((item: T) => number),
-        isHorizontal?: boolean,
-        start?: number,
-        offset?: number,
-        pageMode?: boolean,
-        topThreshold?: number,
-        bottomThreshold?: number,
-        smoothScroll?: boolean,
-        class?: string,
-        style?: string,
-        onScroll?: (event: Event, range: {start: number, end: number, padFront: number, padBehind: number}) => void,
-        onTop?: () => void,
-        onBottom?: () => void,
-        header?: Snippet,
-        footer?: Snippet,
-        children?: Snippet<[{ data: T, index: number, localIndex: number }]>
+        key: keyof T | typeof keyFn;
+        data: T[];
+        overflow?: number;
+        estimateSize?: number | ((item: T) => number);
+        isHorizontal?: boolean;
+        start?: number;
+        offset?: number;
+        pageMode?: boolean;
+        topThreshold?: number;
+        bottomThreshold?: number;
+        smoothScroll?: boolean;
+        class?: string;
+        style?: string;
+        onScroll?: (
+            event: Event,
+            range: {
+                start: number;
+                end: number;
+                padFront: number;
+                padBehind: number;
+            },
+        ) => void;
+        onTop?: () => void;
+        onBottom?: () => void;
+        header?: Snippet;
+        footer?: Snippet;
+        children?: Snippet<[{ data: T; index: number; localIndex: number }]>;
     }
 
     let {
-    /**
-     * Unique key for getting data from `data`
-     * @type {string}
-     */
+        /**
+         * Unique key for getting data from `data`
+         * @type {string}
+         */
         key,
-    /**
-     * Source for list
-     * @type {Array<any>}
-     */
+        /**
+         * Source for list
+         * @type {Array<any>}
+         */
         data,
-    /**
-     * Count of items rendered outside of view (for each direction)
-     * @type {number}
-     */
+        /**
+         * Count of items rendered outside of view (for each direction)
+         * @type {number}
+         */
         overflow = 5,
-    /**
-     * Estimate size of each item, needs for smooth scrollbar
-     * @type {number}
-     */
+        /**
+         * Estimate size of each item, needs for smooth scrollbar
+         * @type {number}
+         */
         estimateSize = 50,
-    /**
-     * Scroll direction
-     * @type {boolean}
-     */
+        /**
+         * Scroll direction
+         * @type {boolean}
+         */
         isHorizontal = false,
-    /**
-     * scroll position start index
-     */
+        /**
+         * scroll position start index
+         */
         start = 0,
-    /**
-     * scroll position offset
-     */
+        /**
+         * scroll position offset
+         */
         offset = 0,
         /**
          * Let virtual list using global document to scroll through the list
@@ -94,30 +102,39 @@
         onBottom = () => {},
         header,
         footer,
-        children
-    }: Props = $props()
+        children,
+    }: Props = $props();
 
-    let keyFn: (item: T, index: number) => any = key instanceof Function ? key : (item: T) => item[key]
+    let keyFn: (item: T, index: number) => any = $derived(
+        key instanceof Function ? key : (item: T) => item[key],
+    );
 
-    let displayItems: T[] = $state([])
-    let paddingStyle: string = $state("")
-    let directionKey = isHorizontal ? "scrollLeft" as const : "scrollTop" as const
-    let virtual = new Virtual({
-        slotHeaderSize: 0,
-        slotFooterSize: 0,
-        overflow: overflow,
-        data: data,
-    }, onRangeChanged, keyFn, estimateSize)
-    let range = $state(virtual.getRange())
-    let root: HTMLDivElement
-    let shepherd: HTMLDivElement
-    let resizeObserver: ResizeObserver
+    let displayItems: T[] = $state([]);
+    let paddingStyle: string = $state("");
+    let directionKey = $derived(
+        isHorizontal ? ("scrollLeft" as const) : ("scrollTop" as const),
+    );
+    let virtual = new Virtual(
+        {
+            slotHeaderSize: 0,
+            slotFooterSize: 0,
+        },
+        onRangeChanged,
+        () => keyFn,
+        () => estimateSize,
+        () => overflow,
+        () => data,
+    );
+    let range = $state(virtual.getRange());
+    let root: HTMLDivElement;
+    let shepherd: HTMLDivElement;
+    let resizeObserver: ResizeObserver;
 
     /**
      * @type {(id: number) => number}
      */
     export function getSize(id: any) {
-        return virtual.sizes.get(id)
+        return virtual.sizes.get(id);
     }
 
     /**
@@ -125,7 +142,7 @@
      * @type {() => number}
      */
     export function getSizes() {
-        return virtual.sizes.size
+        return virtual.sizes.size;
     }
 
     /**
@@ -133,9 +150,12 @@
      */
     export function getOffset() {
         if (pageMode && isBrowser()) {
-            return document.documentElement[directionKey] || document.body[directionKey]
+            return (
+                document.documentElement[directionKey] ||
+                document.body[directionKey]
+            );
         } else {
-            return root ? Math.ceil(root[directionKey]) : 0
+            return root ? Math.ceil(root[directionKey]) : 0;
         }
     }
 
@@ -143,11 +163,11 @@
      * @type {() => number}
      */
     export function getClientSize() {
-        const key = isHorizontal ? "clientWidth" : "clientHeight"
+        const key = isHorizontal ? "clientWidth" : "clientHeight";
         if (pageMode && isBrowser()) {
-            return document.documentElement[key] || document.body[key]
+            return document.documentElement[key] || document.body[key];
         } else {
-            return root ? Math.ceil(root[key]) : 0
+            return root ? Math.ceil(root[key]) : 0;
         }
     }
 
@@ -155,11 +175,11 @@
      * @type {() => number}
      */
     export function getScrollSize() {
-        const key = isHorizontal ? "scrollWidth" : "scrollHeight"
+        const key = isHorizontal ? "scrollWidth" : "scrollHeight";
         if (pageMode && isBrowser()) {
-            return document.documentElement[key] || document.body[key]
+            return document.documentElement[key] || document.body[key];
         } else {
-            return root ? Math.ceil(root[key]) : 0
+            return root ? Math.ceil(root[key]) : 0;
         }
     }
 
@@ -168,10 +188,12 @@
      */
     export function updatePageModeFront() {
         if (root && isBrowser()) {
-            const rect = root.getBoundingClientRect()
-            const {defaultView} = root.ownerDocument
-            const offsetFront = isHorizontal ? (rect.left + defaultView!.pageXOffset) : (rect.top + defaultView!.pageYOffset)
-            virtual.updateParam("slotHeaderSize", offsetFront)
+            const rect = root.getBoundingClientRect();
+            const { defaultView } = root.ownerDocument;
+            const offsetFront = isHorizontal
+                ? rect.left + defaultView!.pageXOffset
+                : rect.top + defaultView!.pageYOffset;
+            virtual.updateParam("slotHeaderSize", offsetFront);
         }
     }
 
@@ -179,27 +201,27 @@
      * @type {(offset: number) => void}
      */
     export function scrollToOffset(offset: number) {
-        if (!isBrowser()) return
+        if (!isBrowser()) return;
         if (pageMode) {
             if (smoothScroll) {
                 window.scrollTo({
                     top: isHorizontal ? undefined : offset,
                     left: isHorizontal ? offset : undefined,
-                    behavior: 'smooth'
-                })
+                    behavior: "smooth",
+                });
             } else {
-                document.body[directionKey] = offset
-                document.documentElement[directionKey] = offset
+                document.body[directionKey] = offset;
+                document.documentElement[directionKey] = offset;
             }
         } else if (root) {
             if (smoothScroll) {
                 root.scrollTo({
                     top: isHorizontal ? undefined : offset,
                     left: isHorizontal ? offset : undefined,
-                    behavior: 'smooth'
-                })
+                    behavior: "smooth",
+                });
             } else {
-                root[directionKey] = offset
+                root[directionKey] = offset;
             }
         }
     }
@@ -209,10 +231,10 @@
      */
     export function scrollToIndex(index: number) {
         if (index >= data.length - 1) {
-            scrollToBottom()
+            scrollToBottom();
         } else {
-            const offset = virtual.getOffset(index)
-            scrollToOffset(offset)
+            const offset = virtual.getOffset(index);
+            scrollToOffset(offset);
         }
     }
 
@@ -221,83 +243,87 @@
      */
     export function scrollToBottom() {
         if (shepherd) {
-            const offset = shepherd[isHorizontal ? "offsetLeft" : "offsetTop"]
-            scrollToOffset(offset)
+            const offset = shepherd[isHorizontal ? "offsetLeft" : "offsetTop"];
+            scrollToOffset(offset);
 
             // check if it's really scrolled to the bottom
             // maybe list doesn't render and calculate to last range,
             // so we need retry in next event loop until it really at bottom
             setTimeout(() => {
                 if (getOffset() + getClientSize() + 1 < getScrollSize()) {
-                    scrollToBottom()
+                    scrollToBottom();
                 }
-            }, 3)
+            }, 3);
         }
     }
-    
+
     onMount(() => {
         resizeObserver = new ResizeObserver(() => onDivScroll());
-        onDivScroll()
+        onDivScroll();
         tick().then(() => {
             if (start) {
-                scrollToIndex(start)
+                scrollToIndex(start);
             } else if (offset) {
-                scrollToOffset(offset)
+                scrollToOffset(offset);
             }
-        })
+        });
 
         if (pageMode) {
-            updatePageModeFront()
+            updatePageModeFront();
 
             document.addEventListener("scroll", onDivScroll, {
                 passive: false,
-            })
+            });
         }
         resizeObserver.observe(root);
-    })
+    });
 
     onDestroy(() => {
         resizeObserver?.disconnect();
         if (pageMode && isBrowser()) {
-            document.removeEventListener("scroll", onDivScroll)
+            document.removeEventListener("scroll", onDivScroll);
         }
-    })
+    });
 
     function onItemResized(id: any, size: number, type: string) {
-        if (type === "item")
-            virtual.saveSize(id, size)
+        if (type === "item") virtual.saveSize(id, size);
         else if (type === "slot") {
-            if (id === "header")
-                virtual.updateParam("slotHeaderSize", size)
+            if (id === "header") virtual.updateParam("slotHeaderSize", size);
             else if (id === "footer")
-                virtual.updateParam("slotFooterSize", size)
+                virtual.updateParam("slotFooterSize", size);
 
             // virtual.handleSlotSizeChange()
         }
     }
 
     function onRangeChanged(range_: any) {
-        range = range_
-        paddingStyle = paddingStyle = isHorizontal ? `0px ${range.padBehind}px 0px ${range.padFront}px` : `${range.padFront}px 0px ${range.padBehind}px`
-        displayItems = data.slice(range.start, range.end + 1)
+        range = range_;
+        paddingStyle = paddingStyle = isHorizontal
+            ? `0px ${range.padBehind}px 0px ${range.padFront}px`
+            : `${range.padFront}px 0px ${range.padBehind}px`;
+        displayItems = data.slice(range.start, range.end + 1);
     }
 
     function onDivScroll(event?: Event) {
-        const offset = getOffset()
-        const clientSize = getClientSize()
-        const scrollSize = getScrollSize()
-        virtual.handleScroll(offset, clientSize)
-        if (event)
-            emitEvent(offset, clientSize, scrollSize, event)
+        const offset = getOffset();
+        const clientSize = getClientSize();
+        const scrollSize = getScrollSize();
+        virtual.handleScroll(offset, clientSize);
+        if (event) emitEvent(offset, clientSize, scrollSize, event);
     }
 
-    function emitEvent(offset: number, clientSize: number, scrollSize: number, event: Event) {
-        const range = virtual.getRange()
-        onScroll(event, range)
+    function emitEvent(
+        offset: number,
+        clientSize: number,
+        scrollSize: number,
+        event: Event,
+    ) {
+        const range = virtual.getRange();
+        onScroll(event, range);
 
         if (offset <= topThreshold) {
             onTop();
-        } else if ((scrollSize - offset) - clientSize >= bottomThreshold) {
+        } else if (scrollSize - offset - clientSize >= bottomThreshold) {
             onBottom();
         }
     }
@@ -305,26 +331,34 @@
     $effect(() => {
         if (offset) {
         }
-        untrack(() => scrollToOffset(offset))
+        untrack(() => scrollToOffset(offset));
     });
     $effect(() => {
         if (start) {
         }
-        untrack(() => scrollToIndex(start))
+        untrack(() => scrollToIndex(start));
     });
 
     $effect(() => {
         if (data) {
         }
-        untrack(() => handleDataSourcesChange(data))
+        untrack(() => {
+            virtual.rebuildOffsets();
+            virtual.handleScroll(
+                virtual.currOffset,
+                virtual.clientHeight,
+                true,
+            );
+        });
     });
-
-    async function handleDataSourcesChange(data: T[]) {
-        virtual.updateParam("data", data)
-    }
 </script>
 
-<div bind:this={root} onscroll={onDivScroll} style="overflow-y: auto; height: 100%; {inlineStyle}" class="virtual-scroll-root {className}">
+<div
+    bind:this={root}
+    onscroll={onDivScroll}
+    style="overflow-y: auto; height: 100%; {inlineStyle}"
+    class="virtual-scroll-root {className}"
+>
     {#if header}
         <Item onResize={onItemResized} type="slot" uniqueKey="header">
             {@render header?.()}
@@ -333,11 +367,16 @@
     <div style="padding: {paddingStyle}" class="virtual-scroll-wrapper">
         {#each displayItems as dataItem, dataIndex (keyFn(dataItem, dataIndex + range.start))}
             <Item
-                    onResize={onItemResized}
-                    uniqueKey={keyFn(dataItem, dataIndex + range.start)}
-                    horizontal={isHorizontal}
-                    type="item">
-                {@render children?.({ data: dataItem, index: dataIndex + range.start, localIndex: dataIndex })}
+                onResize={onItemResized}
+                uniqueKey={keyFn(dataItem, dataIndex + range.start)}
+                horizontal={isHorizontal}
+                type="item"
+            >
+                {@render children?.({
+                    data: dataItem,
+                    index: dataIndex + range.start,
+                    localIndex: dataIndex,
+                })}
             </Item>
         {/each}
     </div>
@@ -346,6 +385,11 @@
             {@render footer?.()}
         </Item>
     {/if}
-    <div bind:this={shepherd} class="shepherd"
-         style="width: {isHorizontal ? '0px' : '100%'};height: {isHorizontal ? '100%' : '0px'}"></div>
+    <div
+        bind:this={shepherd}
+        class="shepherd"
+        style="width: {isHorizontal ? '0px' : '100%'};height: {isHorizontal
+            ? '100%'
+            : '0px'}"
+    ></div>
 </div>
