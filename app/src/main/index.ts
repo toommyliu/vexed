@@ -1,7 +1,6 @@
 import "core-js/stable";
 import "./tray";
 
-import Config from "@vexed/config";
 import { registerIpcMain } from "@vexed/tipc/main";
 import { app, shell, nativeTheme } from "electron";
 import { createMenu } from "./menu";
@@ -11,13 +10,12 @@ import process from "process";
 import { version } from "../../package.json";
 import {
   BRAND,
-  DEFAULT_SETTINGS,
   DOCUMENTS_PATH,
   IS_MAC,
   IS_WINDOWS,
 } from "../shared/constants";
-import type { Settings } from "../shared/types";
 import { ASSET_PATH, logger } from "./constants";
+import { initSettings, getSettings } from "./settings";
 import { router } from "./tipc";
 import { checkForUpdates } from "./updater";
 import { showErrorDialog } from "./util/dialog";
@@ -68,14 +66,9 @@ function registerFlashPlugin() {
 
 async function handleAppLaunch(argv: string[] = process.argv) {
   try {
-    const settings = new Config<Settings>({
-      configName: "settings",
-      cwd: DOCUMENTS_PATH,
-      defaults: DEFAULT_SETTINGS,
-    });
-    await settings.load();
+    const settings = getSettings();
 
-    const level = settings.get("debug", false) ? "debug" : "info";
+    const level = settings.getBoolean("debug", false) ? "debug" : "info";
 
     log.initialize({
       rendererTransports: ["console", level === "debug" && "file"],
@@ -165,12 +158,7 @@ if (gotTheLock) {
 }
 
 app.once("ready", async () => {
-  const settings = new Config<Settings>({
-    configName: "settings",
-    cwd: DOCUMENTS_PATH,
-    defaults: DEFAULT_SETTINGS,
-  });
-  await settings.load();
+  const settings = await initSettings();
 
   nativeTheme.themeSource = settings.get("theme") ?? "system";
 
