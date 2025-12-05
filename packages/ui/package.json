@@ -177,6 +177,11 @@
     "./styles.css": {
       "import": "./dist/styles.css",
       "default": "./dist/styles.css"
+    },
+    "./AlertDialog": {
+      "types": "./dist/components/alert-dialog/index.d.ts",
+      "svelte": "./dist/components/alert-dialog/index.js",
+      "default": "./dist/components/alert-dialog/index.js"
     }
   },
   "peerDependencies": {
