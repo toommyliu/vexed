@@ -62,7 +62,7 @@
 </script>
 
 <div
-  class={cn("relative inline-block text-left", className)}
+  class={cn("relative block text-left", className)}
   style="--anchor-width: {anchorWidth}px"
   {...restProps}
 >
