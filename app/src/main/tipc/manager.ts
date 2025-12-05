@@ -4,7 +4,7 @@ import { readJson, writeJson } from "@vexed/fs-utils";
 import type { TipcInstance } from "@vexed/tipc";
 import { dialog } from "electron";
 import type { BrowserWindow, OpenDialogOptions } from "electron";
-import { ACCOUNTS_PATH, DOCUMENTS_PATH } from "../../shared/constants";
+import { ACCOUNTS_PATH, DEFAULT_ACCOUNTS, DOCUMENTS_PATH } from "../../shared/constants";
 import type { Account, AccountWithScript } from "../../shared/types";
 import { logger } from "../constants";
 import type { RendererHandlers } from "../tipc";
@@ -14,22 +14,24 @@ export function createManagerTipcRouter(tipcInstance: TipcInstance) {
   return {
     getAccounts: tipcInstance.procedure.action(async () => {
       try {
-        const config = new Config({
+        const config = new Config<Account[]>({
           configName: "accounts",
           cwd: DOCUMENTS_PATH,
+          defaults: DEFAULT_ACCOUNTS,
         });
         await config.load();
-        return config.get() as Account[];
+        console.log('accounts', config.get());
+        return config.get();
       } catch (error) {
         logger.error("Failed to get accounts.", error);
-        return [];
+        return DEFAULT_ACCOUNTS;
       }
     }),
     addAccount: tipcInstance.procedure
       .input<Account>()
       .action(async ({ input }) => {
         try {
-          const accounts = (await readJson<Account[]>(ACCOUNTS_PATH)) ?? [];
+          const accounts = (await readJson<Account[]>(ACCOUNTS_PATH)) ?? DEFAULT_ACCOUNTS;
 
           const idx = accounts.findIndex(
             (acc) => acc.username === input.username,
@@ -50,7 +52,7 @@ export function createManagerTipcRouter(tipcInstance: TipcInstance) {
       }>()
       .action(async ({ input }) => {
         try {
-          const accounts = (await readJson<Account[]>(ACCOUNTS_PATH)) ?? [];
+          const accounts = (await readJson<Account[]>(ACCOUNTS_PATH)) ?? DEFAULT_ACCOUNTS;
 
           const idx = accounts.findIndex(
             (acc) => acc.username === input.username,
@@ -72,7 +74,7 @@ export function createManagerTipcRouter(tipcInstance: TipcInstance) {
       }>()
       .action(async ({ input }) => {
         try {
-          const accounts = (await readJson<Account[]>(ACCOUNTS_PATH)) ?? [];
+          const accounts = (await readJson<Account[]>(ACCOUNTS_PATH)) ?? DEFAULT_ACCOUNTS;
 
           const idx = accounts.findIndex(
             (acc) => acc.username === input.originalUsername,
