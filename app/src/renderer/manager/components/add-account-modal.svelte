@@ -4,7 +4,10 @@
   import * as InputGroup from "@vexed/ui/InputGroup";
   import * as Dialog from "@vexed/ui/Dialog";
   import { motionFade } from "@vexed/ui/motion";
-  import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-svelte";
+  import Eye from "lucide-svelte/icons/eye";
+  import EyeOff from "lucide-svelte/icons/eye-off";
+  import LoaderCircle from "lucide-svelte/icons/loader-circle";
+  import AlertCircle from "lucide-svelte/icons/alert-circle";
   import { client } from "@shared/tipc";
   import { managerState } from "../state.svelte";
 
@@ -178,7 +181,7 @@
         class="min-w-[120px]"
       >
         {#if isSubmitting}
-          <Loader2 class="size-4 animate-spin" />
+          <LoaderCircle class="size-4 animate-spin" />
           <span>Saving...</span>
         {:else}
           <span>Save Account</span>
