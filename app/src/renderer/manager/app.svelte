@@ -156,9 +156,10 @@
     for (const u of usernames) {
       const acc = accounts.get(u.toLowerCase());
       if (acc) {
+        const serverName = managerState.selectedServer?.split(" (")?.[0] ?? null;
         startAccount({
           ...acc,
-          server: managerState.selectedServer || null,
+          server: serverName,
         });
       }
     }
