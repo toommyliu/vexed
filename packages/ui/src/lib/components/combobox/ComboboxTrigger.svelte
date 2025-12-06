@@ -1,7 +1,7 @@
 <script lang="ts">
     import { getContext } from "svelte";
     import { cn } from "$lib/util/cn";
-    import { ChevronsUpDown } from "lucide-svelte";
+    import ChevronsUpDown from "lucide-svelte/icons/chevrons-up-down";
     import type { HTMLButtonAttributes } from "svelte/elements";
     import type { ComboboxContext } from "./types";
 

@@ -1,7 +1,7 @@
 <script lang="ts">
     import { getContext } from "svelte";
     import { cn } from "$lib/util/cn";
-    import { Minus } from "lucide-svelte";
+    import Minus from "lucide-svelte/icons/minus";
     import type { HTMLButtonAttributes } from "svelte/elements";
     import type { NumberFieldContext } from "./types";
 

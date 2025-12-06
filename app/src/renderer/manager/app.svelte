@@ -1,18 +1,16 @@
 <script lang="ts">
-  import {
-    Plus,
-    Search,
-    Trash2,
-    Play,
-    Server as ServerIcon,
-    FileCode,
-    Pencil,
-    Loader,
-    Loader2,
-    ToggleLeft,
-    CheckSquare,
-    Square,
-  } from "lucide-svelte";
+  import Plus from "lucide-svelte/icons/plus";
+  import Search from "lucide-svelte/icons/search";
+  import Trash2 from "lucide-svelte/icons/trash2";
+  import Play from "lucide-svelte/icons/play";
+  import Server from "lucide-svelte/icons/server";
+  import FileCode from "lucide-svelte/icons/file-code";
+  import Pencil from "lucide-svelte/icons/pencil";
+  import Loader from "lucide-svelte/icons/loader";
+  import Loader2 from "lucide-svelte/icons/loader2";
+  import ToggleLeft from "lucide-svelte/icons/toggle-left";
+  import CheckSquare from "lucide-svelte/icons/check-square";
+  import Square from "lucide-svelte/icons/square";
   import { Button, Input, Checkbox, Switch, cn } from "@vexed/ui";
   import * as Select from "@vexed/ui/Select";
   import * as AlertDialog from "@vexed/ui/AlertDialog";
