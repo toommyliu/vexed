@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+# [0.5.6](https://github.com/toommyliu/vexed/compare/0.5.2...0.5.6) - (2025-12-06)
+
+## Bug Fixes
+
+- **cmd/DoWheelOfDoom:** Wait for unbank to finish before continuing command execution (#291) ([b1de395](https://github.com/toommyliu/vexed/commit/b1de3955f07877edc2d7b27154ce7ac3d26e00ce))
+- Potentially fix race condition with lag killer (#288) ([768bd35](https://github.com/toommyliu/vexed/commit/768bd35a8b543bfdda4004a94dbc1a898c9ae0f0))
+- **commands/DoWheelOfDoom:** Fix Gear of Doom bank check (#286) ([4ead518](https://github.com/toommyliu/vexed/commit/4ead51809d085de997ccd03a2e42cbd453a4ea3a))
+- **AutoRelogin:** Enhance reliability and retry mechanism (#272) ([85aae4f](https://github.com/toommyliu/vexed/commit/85aae4f9fce0953a576f27f99869dff8718ff915))
+- Update electron-builder target ([b709e5e](https://github.com/toommyliu/vexed/commit/b709e5edf763a0b35fe05b4095fdafbf75d2d2da))
+
+## Documentation
+
+- Auto-update API documentation ([8534153](https://github.com/toommyliu/vexed/commit/8534153879d0baac21efee039f310f55a168d38a))
+- Auto-update API documentation ([f3e44b4](https://github.com/toommyliu/vexed/commit/f3e44b4ea3b109da70ee5a2b4c7c53f0aae5f2c3))
+
+## Features
+
+- **cmd/ArmyEquipSet:** Support safe class/pot, add fields for potions and scroll (#290) ([8ea6ffa](https://github.com/toommyliu/vexed/commit/8ea6ffa698c64d0bfc2669f74200f9d0362048fd))
+- **commands:** Do_wheelofdoom (non-members) (#284) ([7f99a4c](https://github.com/toommyliu/vexed/commit/7f99a4ca8704977a5b1f5afd18f1897803431800))
+
 # [0.5.2](https://github.com/toommyliu/vexed/compare/0.5.1...0.5.2) - (2025-11-14)
 
 ## Bug Fixes
