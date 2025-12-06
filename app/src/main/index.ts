@@ -21,6 +21,7 @@ import { checkForUpdates } from "./updater";
 import { showErrorDialog } from "./util/dialog";
 import { createNotification } from "./util/notification";
 import { createAccountManager, createGame, setQuitting } from "./windows";
+import { equalsIgnoreCase } from "../shared/string";
 
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 
@@ -82,7 +83,7 @@ async function handleAppLaunch(argv: string[] = process.argv) {
 
     logger.info(`Hello - ${BRAND} v${version}`); // indicate app start
 
-    if (settings?.get("checkForUpdates", false) === true) {
+    if (settings?.getBoolean("checkForUpdates", false)) {
       const updateResult = await checkForUpdates(true);
       if (updateResult !== null) {
         logger.info(
@@ -99,24 +100,24 @@ async function handleAppLaunch(argv: string[] = process.argv) {
       }
     }
 
-    let launchMode = settings.get("launchMode", "game")?.toLowerCase();
-    if (launchMode !== "manager" && launchMode !== "game") {
-      launchMode = "game";
+    let launchMode = settings.getString("launchMode", "game");
+    if (!equalsIgnoreCase(launchMode, "manager") && !equalsIgnoreCase(launchMode, "game")) {
       logger.info(
         `Unknown launch mode, got "${launchMode}", defaulting to "game"...`,
       );
+      launchMode = "game";
     } else {
       logger.info(`Using launch mode: ${launchMode}`);
     }
 
     if (
-      launchMode === "manager" ||
-      argv.some((arg) => arg === "--manager" || arg === "-m")
+      equalsIgnoreCase(launchMode, "manager") ||
+      argv.some((arg) => equalsIgnoreCase(arg, "--manager") || equalsIgnoreCase(arg, "-m"))
     ) {
       await createAccountManager();
     } else if (
-      launchMode === "game" ||
-      argv.some((arg) => arg === "--game" || arg === "-g")
+      equalsIgnoreCase(launchMode, "game") ||
+      argv.some((arg) => equalsIgnoreCase(arg, "--game") || equalsIgnoreCase(arg, "-g"))
     ) {
       const account = {
         username:
