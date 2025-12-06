@@ -1,37 +1,56 @@
 <script lang="ts">
-  import AccountCard from "./components/account-card.svelte";
-  import Header from "./components/header.svelte";
-  import AddAccountModal from "./components/add-account-modal.svelte";
-  import EditAccountModal from "./components/edit-account-modal.svelte";
+  import Plus from "lucide-svelte/icons/plus";
+  import Search from "lucide-svelte/icons/search";
+  import Trash2 from "lucide-svelte/icons/trash-2";
+  import Play from "lucide-svelte/icons/play";
+  import ServerIcon from "lucide-svelte/icons/server";
+  import FileCode from "lucide-svelte/icons/file-code";
+  import Pencil from "lucide-svelte/icons/pencil";
+  import Loader from "lucide-svelte/icons/loader";
+  import LoaderCircle from "lucide-svelte/icons/loader-circle";
+  import ToggleLeft from "lucide-svelte/icons/toggle-left";
+  import CheckSquare from "lucide-svelte/icons/check-square";
+  import Square from "lucide-svelte/icons/square";
+  import { Button, Input, Checkbox, Switch, cn } from "@vexed/ui";
+  import * as Select from "@vexed/ui/Select";
+  import * as AlertDialog from "@vexed/ui/AlertDialog";
+
   import { onMount } from "svelte";
-  import Footer from "./components/footer.svelte";
+
   import { managerState } from "./state.svelte";
-  import { client, handlers } from "../../shared/tipc";
-  import { startAccount, removeAccount } from "./util";
+  import { removeAccount, startAccount } from "./util";
+  import { client } from "../../shared/tipc";
+  import type { Account } from "../../shared/types";
+  import EditAccountModal from "./components/edit-account-modal.svelte";
+  import AddAccountModal from "./components/add-account-modal.svelte";
 
-  const { accounts, servers, timeouts } = managerState;
+  const { accounts, servers, selectedAccounts } = managerState;
 
+  let searchQuery = $state("");
   let isLoading = $state(true);
-  let isModalOpen = $state(false);
-  let isEditModalOpen = $state(false);
-  let accountToEdit = $state<Account | null>(null);
 
-  handlers.manager.enableButton.listen((username) => {
-    if (timeouts.has(username)) {
-      clearTimeout(timeouts.get(username)!);
-      timeouts.delete(username);
-    }
-  });
+  let isAddOpen = $state(false);
+  let isEditOpen = $state(false);
+  let editingAccount = $state<Account | null>(null);
 
-  const handleEditAccount = (account: Account) => {
-    accountToEdit = account;
-    isEditModalOpen = true;
-  };
+  let deleteDialogOpen = $state(false);
+  let deleteDialogLoading = $state(false);
+  let deleteDialogError = $state("");
+  let pendingDeleteUsernames = $state<string[]>([]);
 
-  const handleCloseEditModal = () => {
-    isEditModalOpen = false;
-    accountToEdit = null;
-  };
+  let filteredAccounts = $derived(
+    Array.from(accounts.values()).filter((acc) => {
+      return acc.username.toLowerCase().includes(searchQuery.toLowerCase());
+    }),
+  );
+
+  let selectedCount = $derived(selectedAccounts.size);
+  let isAllSelected = $derived(
+    filteredAccounts.length > 0 &&
+      filteredAccounts.every((a) =>
+        selectedAccounts.has(a.username.toLowerCase()),
+      ),
+  );
 
   onMount(async () => {
     const [accountData, serverData] = await Promise.all([
@@ -42,70 +61,468 @@
     ]);
 
     if (Array.isArray(accountData)) {
-      for (const account of accountData!) {
-        if (
-          typeof account?.username !== "string" ||
-          typeof account?.password !== "string"
-        ) {
-          continue;
-        }
-
+      for (const account of accountData) {
+        if (typeof account?.username !== "string") continue;
         accounts.set(account.username.toLowerCase(), account);
       }
     }
 
-    for (let idx = 0; idx < serverData.length; ++idx) {
-      if (idx === 0) managerState.selectedServer = serverData[idx]!.sName;
-      servers.set(serverData[idx]!.sName, serverData[idx]!);
+    for (let i = 0; i < serverData.length; i++) {
+      const server = serverData[i];
+      if (i === 0) 
+        managerState.selectedServer = `${server.sName} (${server.iCount})`;
+      
+      servers.set(server.sName, server);
     }
 
     isLoading = false;
   });
 
-  handlers.manager.managerLoginSuccess.listen((username) => {
-    if (timeouts.has(username)) {
-      clearTimeout(timeouts.get(username)!);
-      timeouts.delete(username);
+  function toggleSelection(username: string) {
+    const key = username.toLowerCase();
+    if (selectedAccounts.has(key)) {
+      selectedAccounts.delete(key);
+    } else {
+      selectedAccounts.add(key);
     }
-  });
+  }
+
+  function toggleAll() {
+    if (isAllSelected) {
+      selectedAccounts.clear();
+    } else {
+      selectedAccounts.clear();
+      filteredAccounts.forEach((a) =>
+        selectedAccounts.add(a.username.toLowerCase()),
+      );
+    }
+  }
+
+  function toggleSelected() {
+    const currentSelected = new Set(selectedAccounts);
+    selectedAccounts.clear();
+    filteredAccounts.forEach((a) => {
+      const key = a.username.toLowerCase();
+      if (!currentSelected.has(key)) {
+        selectedAccounts.add(key);
+      }
+    });
+  }
+
+  function handleRemove(usernames: string[]) {
+    pendingDeleteUsernames = usernames;
+    deleteDialogError = "";
+    deleteDialogLoading = false;
+    deleteDialogOpen = true;
+  }
+
+  async function confirmDelete() {
+    deleteDialogLoading = true;
+    deleteDialogError = "";
+    const failed: string[] = [];
+
+    for (const u of pendingDeleteUsernames) {
+      const acc = accounts.get(u.toLowerCase());
+      if (acc) {
+        const success = await removeAccount(acc);
+        if (success) {
+          accounts.delete(u.toLowerCase());
+          selectedAccounts.delete(u.toLowerCase());
+        } else {
+          failed.push(u);
+        }
+      }
+    }
+
+    deleteDialogLoading = false;
+
+    if (failed.length > 0) {
+      deleteDialogError = `Failed to remove ${failed.length} account(s). Please try again.`;
+    } else {
+      deleteDialogOpen = false;
+      pendingDeleteUsernames = [];
+    }
+  }
+
+  function cancelDelete() {
+    if (!deleteDialogLoading) {
+      deleteDialogOpen = false;
+      pendingDeleteUsernames = [];
+      deleteDialogError = "";
+    }
+  }
+
+  function handleStart(usernames: string[]) {
+    for (const u of usernames) {
+      const acc = accounts.get(u.toLowerCase());
+      if (acc) {
+        const serverName = managerState.selectedServer?.split(" (")?.[0] ?? null;
+        startAccount({
+          ...acc,
+          server: serverName,
+        });
+      }
+    }
+  }
+
+  async function selectScript() {
+    const res = await client.manager.mgrLoadScript();
+    if (res) {
+      managerState.scriptPath = res;
+      managerState.startWithScript = true;
+    }
+  }
 </script>
 
-<main class="flex min-h-screen select-none flex-col bg-background-primary">
-  <div class="mx-auto box-border w-full max-w-4xl flex-grow p-6">
-    <Header onclick={() => (isModalOpen = true)} />
+<div class="bg-background flex h-screen flex-col">
+  <header
+    class="bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-10 border-b border-border/50 px-6 py-3 backdrop-blur-xl elevation-1"
+  >
+    <div class="mx-auto flex max-w-7xl items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div>
+          <h1 class="text-foreground text-base font-semibold tracking-tight">
+            Account Manager
+          </h1>
+        </div>
+      </div>
 
-    {#if isLoading}
-      <div class="flex h-full flex-col items-center justify-center space-y-4">
-        <div
-          class="h-8 w-8 animate-spin rounded-full border-4 border-gray-600 border-t-blue-500"
-        ></div>
-        <h2 class="text-xl font-medium text-gray-300">Loading...</h2>
+      <div class="flex items-center gap-2">
+        <Button size="sm" class="gap-2" onclick={() => (isAddOpen = true)}>
+          <Plus class="h-4 w-4" />
+          <span class="hidden sm:inline">Add Account</span>
+        </Button>
       </div>
-    {:else if accounts.size === 0}
-      <div class="flex h-full flex-col items-center justify-center space-y-4">
-        <h2 class="text-2xl font-semibold text-gray-300">No accounts found</h2>
-        <p class="text-gray-400">Add an account to get started</p>
-      </div>
-    {:else}
-      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {#each Array.from(accounts.values()) as account}
-          <AccountCard
-            {account}
-            {removeAccount}
-            {startAccount}
-            editAccount={handleEditAccount}
+    </div>
+  </header>
+
+  <main class="flex-1 overflow-hidden p-4 sm:p-6">
+    <div class="mx-auto flex h-full max-w-7xl flex-col gap-3">
+      <div class="flex flex-col gap-3">
+        <div class="relative">
+          <Search
+            class="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 pointer-events-none"
           />
-        {/each}
+          <Input
+            type="search"
+            placeholder="Search accounts..."
+            class="pl-10 bg-secondary/50 border-border/50 focus:bg-background transition-colors"
+            bind:value={searchQuery}
+          />
+        </div>
+
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Select.Root bind:value={managerState.selectedServer}>
+            <Select.Trigger class="w-full bg-secondary/50 border-border/50 hover:bg-secondary transition-colors">
+              <div class="flex items-center gap-2">
+                <ServerIcon class="text-muted-foreground h-4 w-4 shrink-0" />
+                <span class="text-foreground text-sm truncate"
+                  >{managerState.selectedServer?.split(" (")?.[0] ?? ""}</span
+                >
+              </div>
+            </Select.Trigger>
+            <Select.Content>
+              {#each servers.values() as server}
+                <Select.Item value={`${server.sName} (${server.iCount})`}>
+                  <span
+                    class="flex w-full items-center justify-between gap-4"
+                  >
+                    <span>{server.sName}</span>
+                    <span class="text-muted-foreground text-xs tabular-nums"
+                      >{server.iCount}</span
+                    >
+                  </span>
+                </Select.Item>
+              {/each}
+            </Select.Content>
+          </Select.Root>
+
+          <div
+            class="group relative flex items-stretch overflow-hidden rounded-lg border transition-all duration-200
+              {managerState.startWithScript
+                ? 'border-primary/40 bg-primary/5 elevation-1'
+                : 'border-border/50 bg-secondary/50'}"
+          >
+            <label
+              class="flex items-center gap-2 px-3 bg-transparent hover:bg-secondary/80 transition-colors cursor-pointer"
+            >
+              <Switch
+                bind:checked={managerState.startWithScript}
+                class="h-4 w-8 [&>span]:h-3 [&>span]:w-3 [&>span]:data-[state=checked]:translate-x-4"
+              />
+              <span
+                class="text-sm font-medium select-none whitespace-nowrap transition-colors
+                  {managerState.startWithScript ? 'text-foreground' : 'text-muted-foreground'}"
+              >
+                Script
+              </span>
+            </label>
+
+            <div
+              class="w-px self-stretch my-1.5 transition-colors
+                {managerState.startWithScript ? 'bg-primary/20' : 'bg-border/30'}"
+            ></div>
+
+            <Button
+              variant="ghost"
+              onclick={selectScript}
+              class="flex flex-1 items-center gap-2 px-3 min-w-0 rounded-none border-0 bg-transparent hover:bg-secondary/80 transition-colors"
+              title={managerState.scriptPath || "Select a script file"}
+            >
+              <FileCode
+                class={cn("h-4 w-4 shrink-0 transition-colors", managerState.scriptPath ? 'text-primary' : 'text-muted-foreground')}
+              />
+              <span
+                class="truncate text-sm transition-colors
+                  {managerState.scriptPath ? 'text-foreground font-medium' : 'text-muted-foreground'}"
+              >
+                {managerState.scriptPath
+                  ? managerState.scriptPath.split(/[/\\]/).pop()
+                  : "Choose file..."}
+              </span>
+            </Button>
+          </div>
+        </div>
       </div>
-    {/if}
-  </div>
 
-  <Footer />
+      <div
+        class="flex items-center justify-between text-sm transition-all duration-200"
+      >
+        <div class="flex items-center gap-3">
+          <span
+            class="flex items-center gap-1.5 text-muted-foreground transition-colors"
+          >
+            <span class="tabular-nums font-medium {selectedCount > 0 ? 'text-primary' : ''}"
+              >{selectedCount}</span
+            >
+            <span class="text-muted-foreground/70">of</span>
+            <span class="tabular-nums">{filteredAccounts.length}</span>
+            <span class="text-muted-foreground/70">selected</span>
+          </span>
+        </div>
 
-  <AddAccountModal isOpen={isModalOpen} onClose={() => (isModalOpen = false)} />
-  <EditAccountModal
-    isOpen={isEditModalOpen}
-    account={accountToEdit}
-    onClose={handleCloseEditModal}
-  />
-</main>
+        <div class="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onclick={toggleAll}
+            class="text-muted-foreground hover:text-foreground"
+            title={isAllSelected ? "Deselect all" : "Select all"}
+          >
+            {#if isAllSelected}
+              <Square class="h-4 w-4" />
+            {:else}
+              <CheckSquare class="h-4 w-4" />
+            {/if}
+            <span class="text-sm font-medium">{isAllSelected ? "None" : "All"}</span>
+          </Button>
+
+          <div class="h-4 w-px bg-border/30"></div>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onclick={toggleSelected}
+            class="text-muted-foreground hover:text-foreground"
+            title="Invert selection"
+          >
+            <ToggleLeft class="h-4 w-4" />
+            <span class="text-sm font-medium">Invert</span>
+          </Button>
+
+          <div class="h-4 w-px bg-border/30 ml-1"></div>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onclick={() => handleRemove(Array.from(selectedAccounts))}
+            disabled={selectedCount === 0}
+            class="ml-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+            title="Remove selected"
+          >
+            <Trash2 class="h-4 w-4" />
+            <span class="text-sm font-medium">Remove</span>
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onclick={() => handleStart(Array.from(selectedAccounts))}
+            disabled={selectedCount === 0}
+            class="ml-1 bg-primary text-primary-foreground hover:bg-primary/90"
+            title="Start selected"
+          >
+            <Play class="h-4 w-4" />
+            <span class="text-sm font-medium">Start</span>
+          </Button>
+        </div>
+      </div>
+
+      <div class="relative flex-1 overflow-auto -mx-1 px-1">
+        {#if isLoading}
+          <div
+            class="text-muted-foreground flex h-full flex-col items-center justify-center gap-3"
+          >
+            <Loader class="text-primary h-6 w-6 animate-spin" />
+            <p class="text-sm">Loading accounts...</p>
+          </div>
+        {:else if filteredAccounts.length === 0}
+          <div
+            class="flex h-full flex-col items-center justify-center gap-4 py-12 text-center"
+          >
+            <div class="bg-secondary/50 rounded-full p-4">
+              <Search class="text-muted-foreground h-6 w-6" />
+            </div>
+            <div class="space-y-1">
+              <h3 class="text-foreground font-medium">No accounts found</h3>
+              <p class="text-muted-foreground text-sm">
+                Try adjusting your filters or add a new account.
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              class="border-border/50"
+              onclick={() => {
+                searchQuery = "";
+                managerState.selectedServer = undefined;
+              }}
+            >
+              Clear Filters
+            </Button>
+          </div>
+        {:else}
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {#each filteredAccounts as account, index (account.username)}
+              {@const isSelected = selectedAccounts.has(
+                account.username.toLowerCase(),
+              )}
+
+              <div
+                class="group flex cursor-pointer items-center gap-4 rounded-xl border px-4 py-4 transition-all duration-150
+                  {isSelected
+                    ? 'border-primary/50 bg-primary/5 elevation-2'
+                    : 'border-border/50 bg-card hover:border-border hover:bg-secondary/30 hover:elevation-1'}"
+                onclick={() => toggleSelection(account.username)}
+                role="button"
+                tabindex="0"
+                onkeydown={(ev: KeyboardEvent) =>
+                  ev.key === "Enter" && toggleSelection(account.username)}
+              >
+                <Checkbox
+                  checked={isSelected}
+                  onclick={(ev: MouseEvent) => ev.stopPropagation()}
+                  onCheckedChange={() => toggleSelection(account.username)}
+                />
+
+                <span
+                  class="text-foreground flex-1 truncate text-base font-medium"
+                  >{account.username}</span
+                >
+                
+                <div
+                  class="flex items-center gap-0.5 opacity-0 transition-opacity duration-150 group-hover:opacity-100"
+                >
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    class="h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10"
+                    onclick={(ev: MouseEvent) => {
+                      ev.stopPropagation();
+                      handleStart([account.username]);
+                    }}
+                  >
+                    <Play class="h-3.5 w-3.5" />
+                  </Button>
+
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    class="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-secondary"
+                    onclick={(ev: MouseEvent) => {
+                      ev.stopPropagation();
+                      editingAccount = account;
+                      isEditOpen = true;
+                    }}
+                  >
+                    <Pencil class="h-3.5 w-3.5" />
+                  </Button>
+
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    class="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                    onclick={(ev: MouseEvent) => {
+                      ev.stopPropagation();
+                      handleRemove([account.username]);
+                    }}
+                  >
+                    <Trash2 class="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </div>
+            {/each}
+          </div>
+        {/if}
+      </div>
+    </div>
+  </main>
+
+
+</div>
+
+<AddAccountModal
+  isOpen={isAddOpen}
+  onClose={() => {
+    isAddOpen = false;
+  }}
+/>
+
+<EditAccountModal
+  isOpen={isEditOpen}
+  account={editingAccount}
+  onClose={() => {
+    isEditOpen = false;
+    editingAccount = null;
+  }}
+/>
+<!-- Delete Confirmation Dialog -->
+<AlertDialog.Root bind:open={deleteDialogOpen}>
+  <AlertDialog.Content>
+    <AlertDialog.Header>
+      <AlertDialog.Title>
+        Remove {pendingDeleteUsernames.length} account{pendingDeleteUsernames.length !== 1 ? 's' : ''}?
+      </AlertDialog.Title>
+      <AlertDialog.Description>
+        {#if deleteDialogError}
+          <span class="text-destructive">{deleteDialogError}</span>
+        {:else}
+          This action cannot be undone.
+        {/if}
+      </AlertDialog.Description>
+    </AlertDialog.Header>
+    <AlertDialog.Footer>
+      <Button 
+        variant="outline" 
+        onclick={cancelDelete} 
+        disabled={deleteDialogLoading}
+        class="min-w-[80px]"
+      >
+        Cancel
+      </Button>
+      <Button 
+        variant="destructive" 
+        onclick={confirmDelete} 
+        disabled={deleteDialogLoading}
+        class="min-w-[80px]"
+      >
+        {#if deleteDialogLoading}
+          <LoaderCircle class="size-4 animate-spin" />
+          <span>Removing...</span>
+        {:else}
+          <span>Remove</span>
+        {/if}
+      </Button>
+    </AlertDialog.Footer>
+  </AlertDialog.Content>
+</AlertDialog.Root>

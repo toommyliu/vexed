@@ -92,7 +92,6 @@ export async function createGame(
       backgroundThrottling: false,
       nodeIntegration: true,
       plugins: true,
-      // Pass CLI args for "Login with Account" feature
       additionalArguments: args,
       webgl: false,
     },
@@ -175,7 +174,12 @@ export async function createGame(
   if (!IS_PACKAGED) window.webContents.openDevTools({ mode: "right" });
 
   window.on("close", () => {
-    const windows = windowStore.get(window?.id);
+    if (!window || window.isDestroyed() || window.webContents.isDestroyed()) {
+      console.log('window is destroyed', window);
+      return;
+    }
+
+    const windows = windowStore.get(window.id);
     if (windows) {
       const toClose = [
         windows.app.environment,
@@ -184,13 +188,13 @@ export async function createGame(
         ...Object.values(windows.packets),
       ];
 
-      for (const window of toClose) {
+      for (const childWindow of toClose) {
         if (
-          window &&
-          !window?.isDestroyed() &&
-          !window?.webContents?.isDestroyed()
+          childWindow &&
+          !childWindow?.isDestroyed() &&
+          !childWindow?.webContents?.isDestroyed()
         ) {
-          window.destroy();
+          childWindow.destroy();
         }
       }
 

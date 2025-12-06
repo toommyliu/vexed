@@ -1,7 +1,7 @@
 import { client } from "../../shared/tipc";
 import { managerState } from "./state.svelte";
 
-export const startAccount = async (account: Account) => {
+export const startAccount = async (account: AccountWithServer) => {
   const { timeouts } = managerState;
 
   if (timeouts.has(account.username)) {
@@ -17,7 +17,7 @@ export const startAccount = async (account: Account) => {
   await client.manager.launchGame({
     username: account.username,
     password: account.password,
-    server: managerState.selectedServer!,
+    server: account.server ?? null,
     scriptPath:
       managerState.startWithScript && managerState.scriptPath
         ? managerState.scriptPath

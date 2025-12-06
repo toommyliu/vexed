@@ -3,7 +3,14 @@
   "version": "1.0.0",
   "main": "index.js",
   "types": "index.d.ts",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
   "dependencies": {
     "@vexed/fs-utils": "workspace:*"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.3"
   }
 }

@@ -4,8 +4,6 @@ type EstimateSize<T> = ((item: T) => number)
 interface IParam<T> {
     slotHeaderSize: number,
     slotFooterSize: number,
-    overflow: number,
-    data: T[],
 }
 
 interface IRange {
@@ -15,7 +13,7 @@ interface IRange {
     padBehind: number,
 }
 
-export class Virtual<T>{
+export class Virtual<T> {
     param: IParam<T>
     callUpdate: (range: IRange) => void
     currOffset = 0
@@ -25,22 +23,43 @@ export class Virtual<T>{
     sizes = new Map<any, number>()
     /** array of offsets for each container */
     offsets: number[]
-    keyFn: DataKey<T>
-    estimateSize: EstimateSize<T>
+    getKeyFn: () => DataKey<T>
+    getEstimateSize: () => number | EstimateSize<T>
+    getOverflow: () => number
+    getData: () => T[]
 
-    constructor(param: IParam<T>, callUpdate: typeof this.callUpdate, keyFn: DataKey<T>, estimateSize: number | EstimateSize<T>) {
+    get keyFn(): DataKey<T> {
+        return this.getKeyFn()
+    }
+
+    get estimateSize(): EstimateSize<T> {
+        const est = this.getEstimateSize()
+        return est instanceof Function ? est : () => est
+    }
+
+    get overflow(): number {
+        return this.getOverflow()
+    }
+
+    get data(): T[] {
+        return this.getData()
+    }
+
+    constructor(param: IParam<T>, callUpdate: typeof this.callUpdate, getKeyFn: () => DataKey<T>, getEstimateSize: () => number | EstimateSize<T>, getOverflow: () => number, getData: () => T[]) {
         // param data
         this.param = param
         this.callUpdate = callUpdate
-        this.keyFn = keyFn
-        this.estimateSize = estimateSize instanceof Function ? estimateSize : () => estimateSize
+        this.getKeyFn = getKeyFn
+        this.getEstimateSize = getEstimateSize
+        this.getOverflow = getOverflow
+        this.getData = getData
 
         // size data
         this.sizes = new Map()
         this.offsets = []
-        this.param.data.forEach((d, i) => {
-            let estimateSize = this.estimateSize instanceof Function ? this.estimateSize(d) : this.estimateSize
-            this.sizes.set(this.keyFn instanceof Function ? this.keyFn(d, i) : d[this.keyFn], estimateSize)
+        this.data.forEach((d, i) => {
+            let estimateSize = this.estimateSize(d)
+            this.sizes.set(this.keyFn(d, i), estimateSize)
         })
         this.rebuildOffsets()
 
@@ -56,21 +75,10 @@ export class Virtual<T>{
     getOffset(start: number) {
         return (start < 1 ? 0 : this.getIndexOffset(start)) + this.param.slotHeaderSize
     }
-    
+
     updateParam<K extends keyof IParam<T>>(key: K, value: IParam<T>[K]) {
         if (this.param && (key in this.param)) {
             this.param[key] = value
-            // if data change, find out deleted id and remove from size map
-            if (key === "data") {
-                let ids = (value as T[]).map(this.keyFn)
-                this.sizes.forEach((v, key) => {
-                    if (!ids.includes(key)) {
-                        this.sizes.delete(key)
-                    }
-                })
-                this.rebuildOffsets()
-                this.handleScroll(this.currOffset, this.clientHeight, true)
-            }
         }
     }
 
@@ -80,25 +88,25 @@ export class Virtual<T>{
             return
         }
         this.sizes.set(id, size)
-        this.rebuildOffsets(this.param.data.findIndex((d, i) => this.keyFn(d, i) === id))
+        this.rebuildOffsets(this.data.findIndex((d: T, i: number) => this.keyFn(d, i) === id))
     }
     // calculating range on scroll
     handleScroll(offset: number, clientHeight: number, forceUpdate = false) {
         this.currOffset = offset
         this.clientHeight = clientHeight
-        let startIndex = Math.max(this.offsets.findIndex(o => o >= offset) - 1 - this.param.overflow, 0)
+        let startIndex = Math.max(this.offsets.findIndex(o => o >= offset) - 1 - this.overflow, 0)
         let endIndex = this.offsets.findIndex(o => o >= offset + clientHeight)
         if (endIndex === -1) {
-            endIndex = this.param.data.length - 1
+            endIndex = this.data.length - 1
         } else if (endIndex < startIndex) {
             endIndex = startIndex
         }
-        endIndex = Math.min(endIndex + this.param.overflow, this.param.data.length - 1)
+        endIndex = Math.min(endIndex + this.overflow, this.data.length - 1)
         this.updateRange(startIndex, endIndex, forceUpdate)
     }
 
     // ----------- public method end -----------
-    
+
     // rebuilds the offset array
     rebuildOffsets(startIndex?: number) {
         if (startIndex === undefined) {
@@ -107,8 +115,8 @@ export class Virtual<T>{
         }
         if (startIndex === -1) return
         let lastOffset = this.offsets[startIndex] || 0
-        for (let i = startIndex + 1; i < this.param.data.length; i++) {
-            let id = this.keyFn(this.param.data[i - 1], i - 1)
+        for (let i = startIndex + 1; i < this.data.length; i++) {
+            let id = this.keyFn(this.data[i - 1], i - 1)
             lastOffset += this.sizes.get(id)!
             if (Number.isNaN(lastOffset)) {
             }
@@ -143,10 +151,10 @@ export class Virtual<T>{
 
     // return total behind offset
     getPadBehind() {
-        if (this.range.end >= this.param.data.length - 1) {
+        if (this.range.end >= this.data.length - 1) {
             return 0
         }
-        return this.offsets[this.offsets.length - 1] + this.sizes.get(this.keyFn(this.param.data[this.param.data.length - 1], this.param.data.length - 1))! - (this.offsets[this.range.end + 1])
+        return this.offsets[this.offsets.length - 1] + this.sizes.get(this.keyFn(this.data[this.data.length - 1], this.data.length - 1))! - (this.offsets[this.range.end + 1])
     }
 }
 
