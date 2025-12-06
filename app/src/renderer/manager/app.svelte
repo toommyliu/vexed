@@ -12,7 +12,6 @@
     ToggleLeft,
     CheckSquare,
     Square,
-    AlertTriangle,
   } from "lucide-svelte";
   import { Button, Input, Checkbox, Switch, cn } from "@vexed/ui";
   import * as Select from "@vexed/ui/Select";
@@ -36,7 +35,6 @@
   let isEditOpen = $state(false);
   let editingAccount = $state<Account | null>(null);
 
-  // Delete confirmation dialog state
   let deleteDialogOpen = $state(false);
   let deleteDialogLoading = $state(false);
   let deleteDialogError = $state("");
@@ -113,8 +111,6 @@
     });
   }
 
-
-
   function handleRemove(usernames: string[]) {
     pendingDeleteUsernames = usernames;
     deleteDialogError = "";
@@ -159,7 +155,7 @@
   }
 
   function handleStart(usernames: string[]) {
-    usernames.forEach((u) => {
+    for (const u of usernames) {
       const acc = accounts.get(u.toLowerCase());
       if (acc) {
         startAccount({
@@ -167,7 +163,7 @@
           server: managerState.selectedServer || null,
         });
       }
-    });
+    }
   }
 
   async function selectScript() {
@@ -268,10 +264,10 @@
                 {managerState.startWithScript ? 'bg-primary/20' : 'bg-border/30'}"
             ></div>
 
-            <button
-              type="button"
+            <Button
+              variant="ghost"
               onclick={selectScript}
-              class="flex flex-1 items-center gap-2 px-3 min-w-0 bg-transparent hover:bg-secondary/80 transition-colors cursor-pointer"
+              class="flex flex-1 items-center gap-2 px-3 min-w-0 rounded-none border-0 bg-transparent hover:bg-secondary/80 transition-colors"
               title={managerState.scriptPath || "Select a script file"}
             >
               <FileCode
@@ -285,7 +281,7 @@
                   ? managerState.scriptPath.split(/[/\\]/).pop()
                   : "Choose file..."}
               </span>
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -307,10 +303,11 @@
         </div>
 
         <div class="flex items-center gap-1">
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="sm"
             onclick={toggleAll}
-            class="flex items-center gap-2 rounded-lg px-3 py-1.5 text-muted-foreground transition-all duration-150 hover:bg-secondary hover:text-foreground active:scale-95"
+            class="text-muted-foreground hover:text-foreground"
             title={isAllSelected ? "Deselect all" : "Select all"}
           >
             {#if isAllSelected}
@@ -319,49 +316,46 @@
               <CheckSquare class="h-4 w-4" />
             {/if}
             <span class="text-sm font-medium">{isAllSelected ? "None" : "All"}</span>
-          </button>
+          </Button>
 
           <div class="h-4 w-px bg-border/30"></div>
 
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="sm"
             onclick={toggleSelected}
-            class="flex items-center gap-2 rounded-lg px-3 py-1.5 text-muted-foreground transition-all duration-150 hover:bg-secondary hover:text-foreground active:scale-95"
+            class="text-muted-foreground hover:text-foreground"
             title="Invert selection"
           >
             <ToggleLeft class="h-4 w-4" />
             <span class="text-sm font-medium">Invert</span>
-          </button>
+          </Button>
 
           <div class="h-4 w-px bg-border/30 ml-1"></div>
 
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="sm"
             onclick={() => handleRemove(Array.from(selectedAccounts))}
             disabled={selectedCount === 0}
-            class="flex items-center gap-2 rounded-lg px-3 py-1.5 transition-all duration-150 ml-1
-              {selectedCount > 0 
-                ? 'text-muted-foreground hover:bg-destructive/10 hover:text-destructive active:scale-95 cursor-pointer' 
-                : 'text-muted-foreground/40 cursor-not-allowed'}"
+            class="ml-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
             title="Remove selected"
           >
             <Trash2 class="h-4 w-4" />
             <span class="text-sm font-medium">Remove</span>
-          </button>
+          </Button>
 
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="sm"
             onclick={() => handleStart(Array.from(selectedAccounts))}
             disabled={selectedCount === 0}
-            class="flex items-center gap-2 rounded-lg px-3 py-1.5 transition-all duration-150 ml-1
-              {selectedCount > 0 
-                ? 'bg-primary text-primary-foreground hover:bg-primary/90 active:scale-95 cursor-pointer' 
-                : 'bg-primary/30 text-primary-foreground/50 cursor-not-allowed'}"
+            class="ml-1 bg-primary text-primary-foreground hover:bg-primary/90"
             title="Start selected"
           >
             <Play class="h-4 w-4" />
             <span class="text-sm font-medium">Start</span>
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -413,22 +407,20 @@
                 onclick={() => toggleSelection(account.username)}
                 role="button"
                 tabindex="0"
-                onkeydown={(e: KeyboardEvent) =>
-                  e.key === "Enter" && toggleSelection(account.username)}
+                onkeydown={(ev: KeyboardEvent) =>
+                  ev.key === "Enter" && toggleSelection(account.username)}
               >
                 <Checkbox
                   checked={isSelected}
-                  onclick={(e: MouseEvent) => e.stopPropagation()}
+                  onclick={(ev: MouseEvent) => ev.stopPropagation()}
                   onCheckedChange={() => toggleSelection(account.username)}
                 />
 
-                <!-- DO NOT CHANGE THIS!!! -->
                 <span
                   class="text-foreground flex-1 truncate text-base font-medium"
-                  >Account {index + 1}</span
+                  >{account.username}</span
                 >
-
-                <!-- Card Actions -->
+                
                 <div
                   class="flex items-center gap-0.5 opacity-0 transition-opacity duration-150 group-hover:opacity-100"
                 >
@@ -436,8 +428,8 @@
                     variant="ghost"
                     size="icon"
                     class="h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10"
-                    onclick={(e: MouseEvent) => {
-                      e.stopPropagation();
+                    onclick={(ev: MouseEvent) => {
+                      ev.stopPropagation();
                       handleStart([account.username]);
                     }}
                   >
@@ -448,8 +440,8 @@
                     variant="ghost"
                     size="icon"
                     class="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-secondary"
-                    onclick={(e: MouseEvent) => {
-                      e.stopPropagation();
+                    onclick={(ev: MouseEvent) => {
+                      ev.stopPropagation();
                       editingAccount = account;
                       isEditOpen = true;
                     }}
@@ -461,8 +453,8 @@
                     variant="ghost"
                     size="icon"
                     class="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                    onclick={(e: MouseEvent) => {
-                      e.stopPropagation();
+                    onclick={(ev: MouseEvent) => {
+                      ev.stopPropagation();
                       handleRemove([account.username]);
                     }}
                   >
