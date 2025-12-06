@@ -1,13 +1,13 @@
 <script lang="ts">
   import Plus from "lucide-svelte/icons/plus";
   import Search from "lucide-svelte/icons/search";
-  import Trash2 from "lucide-svelte/icons/trash2";
+  import Trash2 from "lucide-svelte/icons/trash-2";
   import Play from "lucide-svelte/icons/play";
-  import Server from "lucide-svelte/icons/server";
+  import ServerIcon from "lucide-svelte/icons/server";
   import FileCode from "lucide-svelte/icons/file-code";
   import Pencil from "lucide-svelte/icons/pencil";
   import Loader from "lucide-svelte/icons/loader";
-  import Loader2 from "lucide-svelte/icons/loader2";
+  import LoaderCircle from "lucide-svelte/icons/loader-circle";
   import ToggleLeft from "lucide-svelte/icons/toggle-left";
   import CheckSquare from "lucide-svelte/icons/check-square";
   import Square from "lucide-svelte/icons/square";
@@ -516,7 +516,7 @@
         class="min-w-[80px]"
       >
         {#if deleteDialogLoading}
-          <Loader2 class="size-4 animate-spin" />
+          <LoaderCircle class="size-4 animate-spin" />
           <span>Removing...</span>
         {:else}
           <span>Remove</span>
