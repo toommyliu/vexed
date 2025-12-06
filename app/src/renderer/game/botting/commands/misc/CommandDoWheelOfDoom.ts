@@ -23,41 +23,44 @@ export class CommandDoWheelOfDoom extends Command {
       return;
     }
 
-    const fn = this.pext.bind(this);
-    this.bot.on('pext', fn);
-
-    await this.bot.quests.complete(QUEST_ID);
-    await this.bot.sleep(2_000);
-
-    this.bot.off('pext', fn);
+    const items = await this.waitForWheelPacket();
+    await this.bankItems(items);
   }
 
-  private async pext(packet: Record<string, unknown>) {
-    if (typeof packet !== 'object') return;
+  private waitForWheelPacket(): Promise<Record<string, ItemData>> {
+    return new Promise((resolve) => {
+      const handler = (packet: Record<string, unknown>) => {
+        if (typeof packet !== 'object') return;
 
-    const pkt = packet as PextPacket;
-    if (pkt?.params?.type !== 'json' || pkt?.params?.dataObj?.cmd !== 'Wheel') return;
+        const pkt = packet as PextPacket;
+        if (pkt?.params?.type !== 'json' || pkt?.params?.dataObj?.cmd !== 'Wheel') return;
 
-    // {"params":{"dataObj":{"cmd":"Wheel","dropQty":2,"dropItems":{"ITEM_ID": ITEM_DATA},{"ITEM_ID": ITEM_DATA},...}},"type":"json"}
-    // maybe {"Item": ITEM_DATA} too
+        this.bot.off('pext', handler);
 
-    const items: Record<string, ItemData> = pkt?.params?.dataObj?.dropItems || {};
-    if (pkt?.params?.dataObj?.Item) {
-      const item = pkt?.params?.dataObj?.Item;
-      items[String(item.ItemID)] = item;
-    }
+        // {"params":{"dataObj":{"cmd":"Wheel","dropQty":2,"dropItems":{"ITEM_ID": ITEM_DATA},...}},"type":"json"}
+        const items: Record<string, ItemData> = pkt?.params?.dataObj?.dropItems || {};
+        if (pkt?.params?.dataObj?.Item) {
+          const item = pkt?.params?.dataObj?.Item;
+          items[String(item.ItemID)] = item;
+        }
 
-    const itemIds = Object.keys(items);
+        resolve(items);
+      };
 
-    for (const itemId of itemIds) {
-      // console.log(`GOT ITEM FROM WHEEL OF DOOM: ${itemId} - ${items?.[itemId]?.sName}`);
+      this.bot.on('pext', handler);
+      this.bot.quests.complete(QUEST_ID);
+    });
+  }
 
-      const itemObj = items[itemId];
-      if (this.bank && itemObj && itemObj?.sName !== TREASURE_POTION /* Treasure Potion is unbankable */) {
-        await this.bot.bank.open(true);
-        await this.bot.bank.deposit(itemObj?.sName);
-        this.logger.debug(`Deposited ${itemObj?.sName} into bank.`);
-      }
+  private async bankItems(items: Record<string, ItemData>) {
+    if (!this.bank) return;
+
+    for (const itemObj of Object.values(items)) {
+      if (itemObj?.sName === TREASURE_POTION) continue; // Treasure Potion is unbankable
+
+      await this.bot.bank.open(true);
+      await this.bot.bank.deposit(itemObj?.sName);
+      this.logger.debug(`Deposited ${itemObj?.sName} into bank.`);
     }
   }
 
