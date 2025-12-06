@@ -1,7 +1,5 @@
 import { ArmyCommand } from "./ArmyCommand";
 
-const ALLOWED_KEYS = ["armor", "cape", "class", "helm", "pet", "weapon"];
-
 export class CommandArmyEquipSet extends ArmyCommand {
   public setName!: string;
 
@@ -36,25 +34,70 @@ export class CommandArmyEquipSet extends ArmyCommand {
       }
     }
 
-    for (const [key, item] of Object.entries(playerSet)) {
-      if (!ALLOWED_KEYS.includes(key.toLowerCase())) continue;
+    console.log('playerSet', playerSet);
 
-      const resItem = this.#resolveItem(item);
-      if (resItem) {
-        this.logger.debug(`Equipping ${resItem} (${key}).`);
-        await this.bot.inventory.equip(resItem);
+    await this.#equipItem(playerSet.SafeClass, "SafeClass");
+    await this.#equipItem(playerSet.SafePot, "SafePot");
+    await this.#equipItem(playerSet.Class, "Class");
+    await this.#equipItem(playerSet.SafePot, "SafePot");
+    await this.#equipItem(playerSet.Weapon, "Weapon");
+    await this.#equipItem(playerSet.Cape, "Cape");
+    await this.#equipItem(playerSet.Helm, "Helm");
+
+    if (playerSet.Pots && Array.isArray(playerSet.Pots)) {
+      for (const pot of playerSet.Pots) {
+        const resPot = this.#resolveItem(pot);
+        console.log('resPot', resPot);
+        if (resPot)
+          await this.#drinkConsumable(resPot);
       }
+    } else {
+      this.logger.warn("No pots found.");
     }
+
+    await this.#equipItem(playerSet.Scroll, "Scroll");
   }
 
   public override toString() {
     return `Army equip set: ${this.setName}${this.refMode ? " [ref mode]" : ""}`;
   }
 
+  async #equipItem(item: string | undefined, label: string): Promise<void> {
+    if (!item) {
+      this.logger.warn(`No item found for ${label}.`);
+      return;
+    }
+
+    const resItem = this.#resolveItem(item);
+    if (resItem) {
+      this.logger.debug(`Equipping ${resItem} (${label}).`);
+      await this.bot.inventory.equip(resItem);
+    } else {
+      this.logger.warn(`Could not resolve ${item} (${label}).`);
+    }
+  }
+
+  async #drinkConsumable(item: string): Promise<void> {
+    this.logger.debug(`Drinking consumable: ${item}.`);
+    await this.bot.inventory.equip(item);
+
+    const res = await this.bot.waitUntil(
+      () => this.bot.flash.get("world.lockdownPots", true) === false,
+    );
+    if (res.isErr() && res.error === "timeout")
+      this.logger.warn("Timed out but potions are still locked...");
+
+    await this.bot.combat.useSkill(5, true, true);
+    await this.bot.sleep(1_000);
+  }
+
   #resolveItem(item: string): string | null {
     if (this.refMode) {
       const res = this.bot.army.config.get(item);
-      return typeof res === "string" ? res : null;
+      if (typeof res === "string") return res;
+
+      this.logger.debug(`Ref "${item}" not found, using as item name.`);
+      return item;
     }
 
     return item;
@@ -62,10 +105,14 @@ export class CommandArmyEquipSet extends ArmyCommand {
 }
 
 type Set = {
-  Armor?: string;
-  Cape?: string;
+  SafeClass?: string;
+  SafePot?: string;
   Class?: string;
+  Weapon?: string;
+  Cape?: string;
   Helm?: string;
   Pet?: string;
-  Weapon?: string;
+  Armor?: string;
+  Pots?: string[];
+  Scroll?: string;
 };

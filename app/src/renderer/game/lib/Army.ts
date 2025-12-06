@@ -37,7 +37,7 @@ export class Army {
 
   // private isInitialized = false;
 
-  public constructor(public readonly bot: Bot) {}
+  public constructor(public readonly bot: Bot) { }
 
   /**
    * Sets the config file name.
@@ -63,8 +63,6 @@ export class Army {
   public async init(): Promise<boolean> {
     try {
       await this.config.load();
-
-      logger.debug("Config loaded", this.config.get());
 
       const playerCount = this.config.get("PlayerCount");
       if (!playerCount) {
