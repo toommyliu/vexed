@@ -34,8 +34,6 @@ export class CommandArmyEquipSet extends ArmyCommand {
       }
     }
 
-    console.log('playerSet', playerSet);
-
     await this.#equipItem(playerSet.SafeClass, "SafeClass");
     await this.#equipItem(playerSet.SafePot, "SafePot");
     await this.#equipItem(playerSet.Class, "Class");
@@ -47,12 +45,9 @@ export class CommandArmyEquipSet extends ArmyCommand {
     if (playerSet.Pots && Array.isArray(playerSet.Pots)) {
       for (const pot of playerSet.Pots) {
         const resPot = this.#resolveItem(pot);
-        console.log('resPot', resPot);
         if (resPot)
           await this.#drinkConsumable(resPot);
       }
-    } else {
-      this.logger.warn("No pots found.");
     }
 
     await this.#equipItem(playerSet.Scroll, "Scroll");
