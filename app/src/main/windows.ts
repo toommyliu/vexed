@@ -183,13 +183,13 @@ export async function createGame(
         ...Object.values(windows.packets),
       ];
 
-      for (const window of toClose) {
+      for (const childWindow of toClose) {
         if (
-          window &&
-          !window?.isDestroyed() &&
-          !window?.webContents?.isDestroyed()
+          childWindow &&
+          !childWindow?.isDestroyed() &&
+          !childWindow?.webContents?.isDestroyed()
         ) {
-          window.destroy();
+          childWindow.destroy();
         }
       }
 
