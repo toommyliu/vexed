@@ -174,7 +174,12 @@ export async function createGame(
   if (!IS_PACKAGED) window.webContents.openDevTools({ mode: "right" });
 
   window.on("close", () => {
-    const windows = windowStore.get(window?.id);
+    if (!window || window.isDestroyed() || window.webContents.isDestroyed()) {
+      console.log('window is destroyed', window);
+      return;
+    }
+
+    const windows = windowStore.get(window.id);
     if (windows) {
       const toClose = [
         windows.app.environment,
