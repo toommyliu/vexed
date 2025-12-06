@@ -34,7 +34,6 @@
     "@vexed/collection": "workspace:*",
     "@vexed/config": "workspace:*",
     "@vexed/fs-utils": "workspace:*",
-    "@vexed/logger": "workspace:*",
     "@vexed/tipc": "workspace:*",
     "@vexed/ui": "workspace:*",
     "@vexed/utils": "workspace:*",
