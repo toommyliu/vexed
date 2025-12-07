@@ -1,4 +1,4 @@
-const { resolve, dirname } = require("path");
+const { resolve, dirname, relative, sep, posix } = require("path");
 const { readdir, ensureDir, readFileSync } = require("fs-extra");
 const { build, context } = require("esbuild");
 const sveltePlugin = require("esbuild-svelte");
@@ -36,6 +36,71 @@ function getPathAliases() {
 }
 
 const pathAliases = getPathAliases();
+
+/**
+ * Creates an esbuild plugin that transforms path alias imports to relative paths.
+
+ * @param {Record<string, string>} aliases - Map of alias patterns to absolute paths
+ * @returns {import('esbuild').Plugin}
+ */
+function createAliasTransformPlugin(aliases) {
+  const sortedAliases = Object.entries(aliases)
+    .map(([pattern, target]) => ({
+      prefix: pattern.replace("/*", ""),
+      target,
+    }))
+    .sort((a, b) => b.prefix.length - a.prefix.length);
+
+  return {
+    name: "alias-transform",
+    setup(build) {
+      build.onLoad({ filter: /\.[tj]sx?$/ }, async (args) => {
+        const source = await readFile(args.path, "utf8");
+        const fileDir = dirname(args.path);
+
+        const importRegex = /((?:import|export)\s+(?:[\s\S]*?\s+from\s+)?['"])([^'"]+)(['"])/g;
+        const dynamicImportRegex = /(import\s*\(\s*['"])([^'"]+)(['"]\s*\))/g;
+        const requireRegex = /(require\s*\(\s*['"])([^'"]+)(['"]\s*\))/g;
+
+        let transformed = source;
+
+        const replaceAlias = (match, prefix, modulePath, suffix) => {
+          for (const { prefix: aliasPrefix, target } of sortedAliases) {
+            if (modulePath === aliasPrefix || modulePath.startsWith(aliasPrefix + "/")) {
+              const subPath = modulePath.slice(aliasPrefix.length);
+              const absoluteTarget = target + subPath;
+              let relativePath = relative(fileDir, absoluteTarget);
+
+              relativePath = relativePath.split(sep).join(posix.sep);
+
+              if (!relativePath.startsWith(".")) {
+                relativePath = "./" + relativePath;
+              }
+
+              return prefix + relativePath + suffix;
+            }
+          }
+          return match;
+        };
+
+        transformed = transformed.replace(importRegex, replaceAlias);
+        transformed = transformed.replace(dynamicImportRegex, replaceAlias);
+        transformed = transformed.replace(requireRegex, replaceAlias);
+
+        if (transformed !== source) {
+          return {
+            contents: transformed,
+            loader: "ts"
+          };
+        }
+
+        return undefined;
+      });
+    },
+  };
+}
+
+const aliasTransformPlugin = createAliasTransformPlugin(pathAliases);
 
 const SCRIPT_TARGETS = [
   {
@@ -469,7 +534,7 @@ async function transpile() {
       minify: isProduction,
       sourcemap: !isProduction,
       treeShaking: true,
-      plugins: [aliasPath({ alias: pathAliases })],
+      plugins: [aliasTransformPlugin, aliasPath({ alias: pathAliases })],
     };
 
     const svelteConfigs = SVELTE_TARGETS.map((target) => ({
