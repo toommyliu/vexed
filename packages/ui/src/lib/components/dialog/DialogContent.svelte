@@ -72,7 +72,7 @@
         >
             <div
                 class={cn(
-                    "pointer-events-auto relative grid max-h-full w-full min-w-0 origin-center overflow-hidden border bg-popover bg-clip-padding text-popover-foreground shadow-lg transition-[scale,opacity] duration-200 ease-in-out will-change-transform before:pointer-events-none before:absolute before:inset-0 before:shadow-[0_1px_--theme(--color-black/4%)] max-sm:border-none max-sm:before:hidden sm:max-w-lg sm:rounded-2xl sm:before:rounded-[calc(var(--radius-2xl)-1px)] dark:bg-clip-border dark:before:shadow-[0_-1px_--theme(--color-white/8%)]",
+                    "pointer-events-auto relative grid max-h-full w-full min-w-0 origin-center overflow-hidden border bg-popover bg-clip-padding text-popover-foreground shadow-lg transition-[scale,opacity] duration-200 ease-in-out will-change-transform before:pointer-events-none before:absolute before:inset-0 before:shadow-[0_1px_--theme(--color-black/4%)] rounded-xl before:rounded-[calc(theme(borderRadius.xl)-1px)] sm:max-w-lg dark:bg-clip-border dark:before:shadow-[0_-1px_--theme(--color-white/8%)]",
                     className,
                 )}
                 transition:motionScale={{ start: 0.95, duration: 200 }}
