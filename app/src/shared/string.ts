@@ -5,7 +5,7 @@
  * @param b - the second string to compare
  * @returns true if the strings are equal, false otherwise
  */
-export function equalsIgnoreCase(a: string | undefined | null, b: string | undefined | null) {
+export function equalsIgnoreCase(a: string | null | undefined, b: string | null | undefined) {
     if (a === null || b === null || a === undefined || b === undefined)
         return false;
 
@@ -19,7 +19,7 @@ export function equalsIgnoreCase(a: string | undefined | null, b: string | undef
  * @param search - the string to search for
  * @returns true if the string contains the search string, false otherwise
  */
-export function includesIgnoreCase(str: string | undefined | null, search: string | undefined | null) {
+export function includesIgnoreCase(str: string | null | undefined, search: string | null | undefined) {
     if (str === null || search === null || str === undefined || search === undefined)
         return false;
 

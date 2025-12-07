@@ -3,7 +3,7 @@ const { readdir, ensureDir, readFileSync } = require("fs-extra");
 const { build, context } = require("esbuild");
 const sveltePlugin = require("esbuild-svelte");
 const postCssPlugin = require("esbuild-postcss");
-const alias = require("esbuild-plugin-alias");
+const { aliasPath } = require("esbuild-plugin-alias-path");
 const { parse } = require("jsonc-parser");
 const { readFile, writeFile } = require('fs-extra');
 const { watch } = require('watchlist');
@@ -23,10 +23,9 @@ function getPathAliases() {
     const aliases = {};
 
     for (const [aliasKey, aliasPaths] of Object.entries(paths)) {
-      const cleanKey = aliasKey.replace("/*", "");
       const firstPath = aliasPaths[0];
       const cleanPath = firstPath.replace("/*", "");
-      aliases[cleanKey] = resolve(__dirname, baseUrl, cleanPath);
+      aliases[aliasKey] = resolve(__dirname, baseUrl, cleanPath);
     }
 
     return aliases;
@@ -197,7 +196,7 @@ const createSvelteConfig = ({ entryPoint, outfile, tsconfigFile }) => ({
     js: "require('core-js/stable')",
   },
   plugins: [
-    alias(pathAliases),
+    aliasPath({ alias: pathAliases }),
     sveltePlugin({
       compilerOptions: {
         dev: !isProduction,
@@ -219,7 +218,7 @@ const createCssConfig = ({ entryPoint, outfile }) => ({
     '.woff2': 'file',
   },
   assetNames: 'assets/[name]-[hash][ext]',
-  plugins: [alias(pathAliases), postCssPlugin()],
+  plugins: [aliasPath({ alias: pathAliases }), postCssPlugin()],
 });
 
 /**
@@ -470,7 +469,7 @@ async function transpile() {
       minify: isProduction,
       sourcemap: !isProduction,
       treeShaking: true,
-      plugins: [alias(pathAliases)],
+      plugins: [aliasPath({ alias: pathAliases })],
     };
 
     const svelteConfigs = SVELTE_TARGETS.map((target) => ({

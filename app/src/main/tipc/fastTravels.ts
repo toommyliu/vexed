@@ -1,10 +1,10 @@
 import { readJson, writeJson } from "@vexed/fs-utils";
 import type { TipcInstance } from "@vexed/tipc";
-import { equalsIgnoreCase } from "@shared/string";
 import {
   DEFAULT_FAST_TRAVELS,
   FAST_TRAVELS_PATH,
 } from "../../shared/constants";
+import { equalsIgnoreCase } from "../../shared/string";
 import type { FastTravel, FastTravelRoomNumber } from "../../shared/types";
 import { logger } from "../constants";
 import type { RendererHandlers } from "../tipc";

@@ -64,7 +64,7 @@ export type Settings = {
   /**
    * The theme of the application.
    */
-  theme: "system" | "light" | "dark";
+  theme: "dark" | "light" | "system";
 };
 
 export type EnvironmentState = {

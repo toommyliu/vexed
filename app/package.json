@@ -67,6 +67,7 @@
     "electronmon": "^2.0.3",
     "esbuild": "^0.25.5",
     "esbuild-plugin-alias": "^0.2.1",
+    "esbuild-plugin-alias-path": "^2.0.2",
     "esbuild-postcss": "^0.0.4",
     "esbuild-svelte": "^0.9.3",
     "eslint": "^9.10.0",
