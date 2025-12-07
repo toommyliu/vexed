@@ -13,7 +13,7 @@
 
 <div
     class={cn(
-        "flex flex-col gap-1 px-6 pt-6 pb-4 text-center last:pb-6 sm:text-left",
+        "flex flex-col gap-1 px-6 pt-6 pb-4 text-left last:pb-6",
         className,
     )}
     data-slot="dialog-header"

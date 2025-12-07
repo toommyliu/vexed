@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { Button, Empty, Input } from "@vexed/ui";
+  import * as InputGroup from "@vexed/ui/InputGroup";
+  import * as AlertDialog from "@vexed/ui/AlertDialog";
   import Plus from "lucide-svelte/icons/plus";
   import Search from "lucide-svelte/icons/search";
   import Trash2 from "lucide-svelte/icons/trash-2";
@@ -7,16 +10,16 @@
   import Loader from "lucide-svelte/icons/loader";
   import LoaderCircle from "lucide-svelte/icons/loader-circle";
   import MapPin from "lucide-svelte/icons/map-pin";
-  import { Button, Input, cn } from "@vexed/ui";
-  import * as AlertDialog from "@vexed/ui/AlertDialog";
-
-  import { onMount } from "svelte";
-
-  import { client, handlers } from "../../../shared/tipc";
-  import type { FastTravel } from "../../../shared/types";
+  import { cn } from "@vexed/ui/util";
 
   import AddFastTravelModal from "./components/add-fast-travel-modal.svelte";
   import EditFastTravelModal from "./components/edit-fast-travel-modal.svelte";
+
+  import { onMount } from "svelte";
+
+  import { client, handlers } from "@shared/tipc";
+  import type { FastTravel } from "@shared/types";
+  import { DEFAULT_FAST_TRAVELS } from "@shared/constants";
 
   let locations = $state<FastTravel[]>([]);
   let roomNumber = $state<number>(100_000);
@@ -49,8 +52,14 @@
   handlers.fastTravels.fastTravelEnable.listen(() => (disabled = false));
 
   onMount(async () => {
-    const fastTravels = await client.fastTravels.getAll();
-    locations = fastTravels ?? [];
+    try {
+      const fastTravels = await client.fastTravels.getAll();
+      locations = fastTravels ?? [];
+    } catch (error) {
+      console.error("Failed to get fast travels.", error);
+      locations = [...DEFAULT_FAST_TRAVELS];
+    }
+
     isLoading = false;
   });
 
@@ -145,21 +154,21 @@
             />
           </div>
 
-          <div class="flex items-center gap-2">
-            <label
-              for="room-number"
-              class="text-sm font-medium text-muted-foreground whitespace-nowrap"
-            >
-              Room
-            </label>
-            <Input
-              id="room-number"
-              type="number"
-              bind:value={roomNumber}
-              class="bg-secondary/50 border-border/50 focus:bg-background transition-colors"
-              autocomplete="off"
-            />
-          </div>
+            <InputGroup.Root class="bg-secondary/50 border-border/50 focus-within:bg-background transition-colors">
+              <InputGroup.Addon>
+                <InputGroup.Text class="text-xs font-medium text-muted-foreground whitespace-nowrap">
+                  Room number 
+                </InputGroup.Text>
+              </InputGroup.Addon>
+              <Input
+                id="room-number"
+                type="number"
+                bind:value={roomNumber}
+                min={1}
+                max={100_000}
+                autocomplete="off"
+              />
+            </InputGroup.Root>
         </div>
       </div>
 
@@ -181,41 +190,41 @@
             <p class="text-sm">Loading locations...</p>
           </div>
         {:else if filteredLocations.length === 0}
-          <div
-            class="flex h-full flex-col items-center justify-center gap-4 py-12 text-center"
-          >
-            <div class="bg-secondary/50 rounded-full p-4">
-              <MapPin class="text-muted-foreground h-6 w-6" />
-            </div>
-            <div class="space-y-1">
-              <h3 class="text-foreground font-medium">No locations found</h3>
-              <p class="text-muted-foreground text-sm">
+          <Empty.Root>
+            <Empty.Header>
+              <Empty.Media variant="icon">
+                <MapPin />
+              </Empty.Media>
+              <Empty.Title>No locations found</Empty.Title>
+              <Empty.Description>
                 {searchQuery
                   ? "Try adjusting your search or add a new location."
                   : "Add your first fast travel location to get started."}
-              </p>
-            </div>
-            {#if searchQuery}
-              <Button
-                variant="outline"
-                size="sm"
-                class="border-border/50"
-                onclick={() => (searchQuery = "")}
-              >
-                Clear Search
-              </Button>
-            {:else}
-              <Button
-                variant="outline"
-                size="sm"
-                class="border-border/50"
-                onclick={() => (isAddOpen = true)}
-              >
-                <Plus class="h-4 w-4 mr-1" />
-                Add Location
-              </Button>
-            {/if}
-          </div>
+              </Empty.Description>
+            </Empty.Header>
+            <Empty.Content>
+              {#if searchQuery}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  class="border-border/50"
+                  onclick={() => (searchQuery = "")}
+                >
+                  Clear Search
+                </Button>
+              {:else}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  class="border-border/50"
+                  onclick={() => (isAddOpen = true)}
+                >
+                  <Plus class="h-4 w-4 mr-1" />
+                  Add Location
+                </Button>
+              {/if}
+            </Empty.Content>
+          </Empty.Root>
         {:else}
           <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {#each filteredLocations as location (location.name)}

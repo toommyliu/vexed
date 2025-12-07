@@ -144,7 +144,7 @@
       </div>
     </form>
 
-    <Dialog.Footer class="pt-4 sm:bg-transparent sm:border-none">
+    <Dialog.Footer>
       <Button variant="outline" onclick={onClose} disabled={isSubmitting}>
         Cancel
       </Button>
@@ -152,7 +152,6 @@
         type="submit"
         form="edit-account-form"
         disabled={isSubmitting || !username.trim() || !password.trim()}
-        class="min-w-[100px]"
       >
         {#if isSubmitting}
           <Loader2 class="size-4 animate-spin" />

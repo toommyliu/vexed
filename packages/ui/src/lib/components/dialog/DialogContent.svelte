@@ -68,11 +68,11 @@
         ></div>
 
         <div
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
+            class="fixed inset-0 z-50 flex items-center justify-center p-6 pointer-events-none"
         >
             <div
                 class={cn(
-                    "pointer-events-auto relative grid max-h-full w-full min-w-0 origin-center overflow-hidden border bg-popover bg-clip-padding text-popover-foreground shadow-lg transition-[scale,opacity] duration-200 ease-in-out will-change-transform before:pointer-events-none before:absolute before:inset-0 before:shadow-[0_1px_--theme(--color-black/4%)] rounded-xl before:rounded-[calc(theme(borderRadius.xl)-1px)] sm:max-w-lg dark:bg-clip-border dark:before:shadow-[0_-1px_--theme(--color-white/8%)]",
+                    "pointer-events-auto relative grid max-h-full w-full min-w-0 max-w-[calc(100%-2rem)] origin-center overflow-hidden border bg-popover bg-clip-padding text-popover-foreground shadow-lg transition-[scale,opacity] duration-200 ease-in-out will-change-transform before:pointer-events-none before:absolute before:inset-0 before:shadow-[0_1px_--theme(--color-black/4%)] rounded-xl before:rounded-[calc(theme(borderRadius.xl)-1px)] sm:max-w-sm dark:bg-clip-border dark:before:shadow-[0_-1px_--theme(--color-white/8%)]",
                     className,
                 )}
                 transition:motionScale={{ start: 0.95, duration: 200 }}

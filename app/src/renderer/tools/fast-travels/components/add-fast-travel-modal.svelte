@@ -165,15 +165,14 @@
       </div>
     </form>
 
-    <Dialog.Footer class="pt-4 sm:bg-transparent sm:border-none">
-      <Button variant="outline" onclick={onClose} disabled={isSubmitting} class="min-w-[100px]">
+    <Dialog.Footer>
+      <Button variant="outline" onclick={onClose} disabled={isSubmitting}>
         Cancel
       </Button>
       <Button
         type="submit"
         form="add-fast-travel-form"
         disabled={isSubmitting || !name.trim() || !map.trim()}
-        class="min-w-[100px]"
       >
         {#if isSubmitting}
           <LoaderCircle class="size-4 animate-spin" />
