@@ -19,7 +19,7 @@ export class Environment {
 
   private _isApplyingUpdate = false;
 
-  public constructor(public readonly bot: Bot) {}
+  public constructor(public readonly bot: Bot) { }
 
   /**
    * Gets the set of quest IDs.
@@ -224,14 +224,12 @@ export class Environment {
    * Adds an item name to the environment.
    *
    * @param itemName - The item name to add.
-   * @param rejectElse - Whether to reject else.
    */
-  public addItemName(itemName: string, rejectElse = this._rejectElse): void {
+  public addItemName(itemName: string): void {
     const trimmed = itemName.trim();
     if (!trimmed || this._itemNames.has(trimmed)) return;
 
     this._itemNames.add(trimmed);
-    this._rejectElse = rejectElse;
     this.syncToMain();
   }
 

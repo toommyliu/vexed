@@ -3,11 +3,9 @@ import { Command } from "@botting/command";
 export class CommandRegisterDrop extends Command {
   public item!: string[];
 
-  public rejectElse?: boolean;
-
   public override executeImpl() {
     for (const item of this.item) {
-      this.bot.environment.addItemName(item, this.rejectElse);
+      this.bot.environment.addItemName(item);
       this.logger.debug(`Register drop: ${item}`);
     }
   }

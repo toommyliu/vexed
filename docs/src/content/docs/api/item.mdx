@@ -86,10 +86,9 @@ Registers a consumable boost to use when available.
 ### cmd.register_drop
 Registers an item to be automatically picked up when possible.
 
-| Parameter | Type | Optional | Default | Description |
-|-----------|------|----------|---------|-------------|
-| items | `string` \| `string[]` |  |  | The name or item id of the item(s) to pick up. |
-| rejectElse | `boolean` | ✓ | `false` | Deprecated: Whether to reject items not in the pick up list. Use set_reject_else() instead. |
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| items | `string` \| `string[]` | The name or item id of the item(s) to pick up. |
 
 
 ### cmd.reject
