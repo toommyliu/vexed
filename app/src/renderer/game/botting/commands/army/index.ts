@@ -1,6 +1,5 @@
 import { ArgsError } from "@botting/ArgsError";
 import type { KillOptions } from "@lib/Combat";
-import { CommandArmyDivideOnCells } from "./CommandArmyDivideOnCells";
 import { CommandArmyEquipSet } from "./CommandArmyEquipSet";
 // import { CommandArmyEquipItem } from "./CommandArmyEquipItem";
 import { CommandArmyInit } from "./CommandArmyInit";
@@ -229,31 +228,6 @@ export const armyCommands = {
     const cmd = new CommandArmyEquipSet();
     cmd.setName = setName;
     cmd.refMode = refMode;
-    window.context.addCommand(cmd);
-  },
-  /**
-   * Splits the army into multiple cells, allowing for more efficient farming.
-   *
-   * @deprecated This command is deprecated and will be removed in a future release.
-   * @param cells - The list of cells to divide the army on.
-   * @param priorityCell - Optional fallback cell for players when there are more army players than available cells, or when the cells array is empty. Acts as an overflow destination.
-   */
-  army_divide_on_cells(cells: string[], priorityCell?: string) {
-    if (
-      !Array.isArray(cells) ||
-      cells?.length === 0 ||
-      cells.some((cell) => typeof cell !== "string")
-    ) {
-      throw new ArgsError("cells is required");
-    }
-
-    if (priorityCell && typeof priorityCell !== "string") {
-      throw new ArgsError("priorityCell is required");
-    }
-
-    const cmd = new CommandArmyDivideOnCells();
-    cmd.cells = cells;
-    if (priorityCell) cmd.priorityCell = priorityCell;
     window.context.addCommand(cmd);
   },
 };
