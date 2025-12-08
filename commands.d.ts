@@ -42,8 +42,6 @@ export interface CommandConstructor {
 }
 
 declare const cmd: {
-  /** Splits the army into multiple cells, allowing for more efficient farming. */
-  army_divide_on_cells(cells: string[], priorityCell?: string): void;
   /** Equips a set from the army config file. */
   army_equip_set(setName: string, refMode?: boolean): void;
   /** Initializes the army. */
