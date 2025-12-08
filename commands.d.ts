@@ -245,7 +245,7 @@ If results are ambiguous, the first matching item will be used. Use itemType to 
   /** Registers a consumable boost to use when available. */
   register_boost(item: string): void;
   /** Registers an item to be automatically picked up when possible. */
-  register_drop(items: string | string[], rejectElse?: boolean): void;
+  register_drop(items: string | string[]): void;
   /** Rejects an item from the drop list. */
   reject(item: string | number): void;
   /** Sells an item. */

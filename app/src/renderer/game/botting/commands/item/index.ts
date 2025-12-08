@@ -182,9 +182,8 @@ export const itemCommands = {
    * Registers an item to be automatically picked up when possible.
    *
    * @param items - The name or item id of the item(s) to pick up.
-   * @param rejectElse - @deprecated Whether to reject items not in the pick up list. Use set_reject_else() instead.
    */
-  register_drop(items: string[] | string, rejectElse: boolean = false) {
+  register_drop(items: string[] | string) {
     const itemArray = Array.isArray(items) ? items : [items];
     if (
       itemArray.length === 0 ||
@@ -193,13 +192,8 @@ export const itemCommands = {
       throw new ArgsError("items is required");
     }
 
-    if (typeof rejectElse !== "boolean") {
-      throw new ArgsError("rejectElse must be a boolean");
-    }
-
     const cmd = new CommandRegisterDrop();
     cmd.item = itemArray;
-    cmd.rejectElse = rejectElse;
     window.context.addCommand(cmd);
   },
   /**
