@@ -17,6 +17,9 @@ find . -name ".svelte-kit" -type d -prune -exec printf 'Deleting: %s\n' '{}' \; 
 # packages/electron specifics
 find . -name "path.txt" -type f -exec printf 'Deleting: %s\n' '{}' \; -exec rm -f '{}' \;
 
+# pnpm
+pnpm store prune
+
 read -p "Reinstall dependencies? [y/N] " -n 1 -r
 if [[ $REPLY =~ ^[Yy]$ ]]; then
   pnpm install
