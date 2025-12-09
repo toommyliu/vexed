@@ -1,6 +1,17 @@
 <script lang="ts">
-  import { client, handlers } from "../../../shared/tipc";
-  import { cn } from "../../../shared/cn";
+  import { Button, Input, Checkbox, Label } from "@vexed/ui";
+  import * as InputGroup from "@vexed/ui/InputGroup";
+  import { cn } from "@vexed/ui/util";
+  import UserRoundSearch from "lucide-svelte/icons/user-round-search";
+  import Swords from "lucide-svelte/icons/swords";
+  import Shield from "lucide-svelte/icons/shield";
+  import Play from "lucide-svelte/icons/play";
+  import Pause from "lucide-svelte/icons/pause";
+  import Target from "lucide-svelte/icons/target";
+  import Footprints from "lucide-svelte/icons/footprints";
+  import Timer from "lucide-svelte/icons/timer";
+
+  import { client, handlers } from "@shared/tipc";
 
   let playerName = $state("");
   let skillList = $state("1,2,3,4");
@@ -41,233 +52,231 @@
   handlers.game.gameReloaded.listen(() => (isEnabled = false));
 </script>
 
-<main
-  class="m-0 flex min-h-screen flex-col overflow-hidden bg-background-primary text-white focus:outline-none"
->
-  <div class="flex flex-1 items-center justify-center p-4">
-    <div class="w-full space-y-6 px-2 sm:px-4">
-      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        <div
-          class="rounded-md border border-gray-800/50 bg-background-secondary p-6 backdrop-blur-sm"
+<div class="bg-background flex h-screen flex-col">
+  <header
+    class="bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-10 border-b border-border/50 px-6 py-3 backdrop-blur-xl elevation-1"
+  >
+    <div class="mx-auto flex max-w-7xl items-center justify-between">
+      <div class="flex items-center gap-3">
+        <h1 class="text-foreground text-base font-semibold tracking-tight">
+          Follower
+        </h1>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <Button
+          size="sm"
+          variant={isEnabled ? "destructive" : "default"}
+          class="gap-2"
+          onclick={() => (isEnabled = !isEnabled)}
+          disabled={!playerName}
         >
+          {#if isEnabled}
+            <Pause class="h-4 w-4" />
+            <span class="hidden sm:inline">Stop</span>
+          {:else}
+            <Play class="h-4 w-4" />
+            <span class="hidden sm:inline">Start</span>
+          {/if}
+        </Button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 overflow-auto p-4 sm:p-6">
+    <div class="mx-auto flex max-w-7xl flex-col gap-4">
+      <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div class="rounded-xl border border-border/50 bg-card p-5">
+          <div class="mb-4 flex items-center gap-2">
+            <UserRoundSearch class="h-4 w-4 text-muted-foreground" />
+            <h2 class="text-sm font-medium text-foreground">Target</h2>
+          </div>
+
           <div class="space-y-4">
-            <div class="space-y-3">
-              <label
-                for="input-player"
-                class="block text-sm font-medium text-gray-300"
-              >
-                Player
-              </label>
-              <div class="flex space-x-2">
-                <input
+            <div class="space-y-1.5">
+              <Label for="input-player" class="text-muted-foreground">Player Name</Label>
+              <div class="flex gap-2">
+                <Input
                   type="text"
                   id="input-player"
                   bind:value={playerName}
                   placeholder="Enter player name to follow"
                   class={cn(
-                    "flex-1 rounded-md border border-gray-700/50 bg-gray-800/50 px-3 py-2 text-white placeholder-gray-500 transition-all duration-200 focus:border-blue-500/50 focus:bg-gray-800/70 focus:outline-none focus:ring-2 focus:ring-blue-500/20",
-                    isEnabled &&
-                      "pointer-events-none cursor-not-allowed opacity-50",
+                    "bg-secondary/50 border-border/50 focus:bg-background transition-colors",
+                    isEnabled && "pointer-events-none opacity-50"
                   )}
                   disabled={isEnabled}
+                  autocomplete="off"
                 />
-                <button
-                  class={cn(
-                    "rounded-md border border-gray-700/50 bg-gray-800/50 px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:bg-gray-700/50",
-                    isEnabled &&
-                      "pointer-events-none cursor-not-allowed opacity-50",
-                  )}
+                <Button
+                  variant="outline"
+                  size="default"
+                  class="shrink-0 border-border/50"
                   onclick={fillMe}
                   disabled={isEnabled}
                 >
                   Me
-                </button>
+                </Button>
               </div>
-            </div>
-
-            <div class="space-y-3">
-              <label
-                for="skill-list"
-                class="block text-sm font-medium text-gray-300"
-              >
-                Skill List
-              </label>
-              <div class="flex items-center space-x-3">
-                <input
-                  type="text"
-                  id="skill-list"
-                  bind:value={skillList}
-                  class={cn(
-                    "flex-1 rounded-md border border-gray-700/50 bg-gray-800/50 px-3 py-2 text-white transition-all duration-200 focus:border-blue-500/50 focus:bg-gray-800/70 focus:outline-none focus:ring-2 focus:ring-blue-500/20",
-                    isEnabled &&
-                      "pointer-events-none cursor-not-allowed opacity-50",
-                  )}
-                  disabled={isEnabled}
-                />
-                <div class="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="skill-wait"
-                    bind:checked={skillWait}
-                    class={cn(
-                      "rounded border-gray-700/50 bg-gray-800/50 text-blue-500 focus:ring-2 focus:ring-blue-500/20",
-                      isEnabled &&
-                        "pointer-events-none cursor-not-allowed opacity-50",
-                    )}
-                    disabled={isEnabled}
-                  />
-                  <label for="skill-wait" class="text-sm text-gray-300"
-                    >Wait</label
-                  >
-                </div>
-              </div>
-            </div>
-
-            <div class="space-y-3">
-              <label
-                for="skill-delay"
-                class="block text-sm font-medium text-gray-300"
-              >
-                Skill Delay
-              </label>
-              <div class="flex items-center space-x-2">
-                <input
-                  type="number"
-                  id="skill-delay"
-                  bind:value={skillDelay}
-                  min="0"
-                  class={cn(
-                    "flex-1 rounded-md border border-gray-700/50 bg-gray-800/50 px-3 py-2 text-white transition-all duration-200 focus:border-blue-500/50 focus:bg-gray-800/70 focus:outline-none focus:ring-2 focus:ring-blue-500/20",
-                    isEnabled &&
-                      "pointer-events-none cursor-not-allowed opacity-50",
-                  )}
-                  disabled={isEnabled}
-                />
-                <span class="text-sm text-gray-400">ms</span>
-              </div>
-            </div>
-
-            <div class="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="cb-enable"
-                bind:checked={isEnabled}
-                class="rounded border-gray-700/50 bg-gray-800/50 text-blue-500 focus:ring-2 focus:ring-blue-500/20"
-              />
-              <label for="cb-enable" class="text-sm font-medium text-gray-300">
-                Enabled
-              </label>
             </div>
           </div>
         </div>
 
-        <div
-          class="rounded-md border border-gray-800/50 bg-background-secondary p-6 backdrop-blur-sm"
-        >
+        <div class="rounded-xl border border-border/50 bg-card p-5">
+          <div class="mb-4 flex items-center gap-2">
+            <Swords class="h-4 w-4 text-muted-foreground" />
+            <h2 class="text-sm font-medium text-foreground">Combat</h2>
+          </div>
+
           <div class="space-y-4">
-            <div class="space-y-3">
-              <div class="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="cb-safe-skill"
-                  bind:checked={safeSkillEnabled}
+            <div class="space-y-1.5">
+              <Label for="skill-list" class="text-muted-foreground">Skill List</Label>
+              <div class="flex items-center gap-3">
+                <Input
+                  type="text"
+                  id="skill-list"
+                  bind:value={skillList}
+                  placeholder="1,2,3,4"
                   class={cn(
-                    "rounded border-gray-700/50 bg-gray-800/50 text-blue-500 focus:ring-2 focus:ring-blue-500/20",
-                    isEnabled &&
-                      "pointer-events-none cursor-not-allowed opacity-50",
+                    "bg-secondary/50 border-border/50 focus:bg-background transition-colors",
+                    isEnabled && "pointer-events-none opacity-50"
                   )}
                   disabled={isEnabled}
+                  autocomplete="off"
                 />
-                <label for="cb-safe-skill" class="text-sm text-gray-300">
-                  Use safe skill
-                </label>
-                <input
-                  type="number"
-                  bind:value={safeSkill}
-                  min="1"
-                  max="4"
-                  class={cn(
-                    "w-16 rounded-md border border-gray-700/50 bg-background-secondary px-2 py-1 text-center text-white transition-all duration-200 focus:border-blue-500/50 focus:outline-none",
-                    isEnabled &&
-                      "pointer-events-none cursor-not-allowed opacity-50",
-                  )}
-                  disabled={isEnabled}
-                />
-                <span class="text-sm text-gray-400">when HP &lt;</span>
-                <input
-                  type="number"
-                  bind:value={safeSkillHp}
-                  min="1"
-                  max="100"
-                  class={cn(
-                    "w-16 rounded-md border border-gray-700/50 bg-background-secondary px-2 py-1 text-center text-white transition-all duration-200 focus:border-blue-500/50 focus:outline-none",
-                    isEnabled &&
-                      "pointer-events-none cursor-not-allowed opacity-50",
-                  )}
-                  disabled={isEnabled}
-                />
-                <span class="text-sm text-gray-400">%</span>
+                <div class="flex items-center gap-2">
+                  <Checkbox
+                    id="skill-wait"
+                    bind:checked={skillWait}
+                    disabled={isEnabled}
+                  />
+                  <Label for="skill-wait" class="text-sm text-muted-foreground cursor-pointer">
+                    Wait
+                  </Label>
+                </div>
               </div>
             </div>
 
-            <div class="space-y-3">
-              <label
-                for="attack-priority"
-                class="block text-sm font-medium text-gray-300"
-              >
-                Attack Priority
-              </label>
-              <input
+            <div class="space-y-1.5">
+              <Label for="skill-delay" class="text-muted-foreground">Skill Delay</Label>
+              <InputGroup.Root class="bg-secondary/50 border-border/50 focus-within:bg-background transition-colors">
+                <InputGroup.Addon>
+                  <Timer class="h-4 w-4 text-muted-foreground" />
+                </InputGroup.Addon>
+                <Input
+                  type="number"
+                  id="skill-delay"
+                  bind:value={skillDelay}
+                  min={0}
+                  class={cn(isEnabled && "pointer-events-none opacity-50")}
+                  disabled={isEnabled}
+                  autocomplete="off"
+                />
+                <InputGroup.Addon>
+                  <InputGroup.Text class="text-xs font-medium text-muted-foreground">
+                    ms
+                  </InputGroup.Text>
+                </InputGroup.Addon>
+              </InputGroup.Root>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-xl border border-border/50 bg-card p-5">
+          <div class="mb-4 flex items-center gap-2">
+            <Shield class="h-4 w-4 text-muted-foreground" />
+            <h2 class="text-sm font-medium text-foreground">Safe Skill</h2>
+          </div>
+
+          <div class="space-y-4">
+            <div class="flex items-center gap-3">
+              <Checkbox
+                id="cb-safe-skill"
+                bind:checked={safeSkillEnabled}
+                disabled={isEnabled}
+              />
+              <Label for="cb-safe-skill" class="text-sm text-muted-foreground cursor-pointer">
+                Use skill 
+              </Label>
+              <Input
+                type="number"
+                bind:value={safeSkill}
+                min={1}
+                max={4}
+                class={cn(
+                  "w-16 bg-secondary/50 border-border/50 text-center focus:bg-background transition-colors",
+                  isEnabled && "pointer-events-none opacity-50"
+                )}
+                disabled={isEnabled}
+                autocomplete="off"
+              />
+              <span class="text-sm text-muted-foreground">when HP &lt;</span>
+              <Input
+                type="number"
+                bind:value={safeSkillHp}
+                min={1}
+                max={100}
+                class={cn(
+                  "w-16 bg-secondary/50 border-border/50 text-center focus:bg-background transition-colors",
+                  isEnabled && "pointer-events-none opacity-50"
+                )}
+                disabled={isEnabled}
+                autocomplete="off"
+              />
+              <span class="text-sm text-muted-foreground">%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-xl border border-border/50 bg-card p-5">
+          <div class="mb-4 flex items-center gap-2">
+            <Target class="h-4 w-4 text-muted-foreground" />
+            <h2 class="text-sm font-medium text-foreground">Options</h2>
+          </div>
+
+          <div class="space-y-4">
+            <div class="space-y-1.5">
+              <Label for="attack-priority" class="text-muted-foreground">Attack Priority</Label>
+              <Input
                 type="text"
                 id="attack-priority"
                 bind:value={attackPriority}
                 placeholder="Defense Drone, Attack Drone"
                 class={cn(
-                  "w-full rounded-md border border-gray-700/50 bg-gray-800/50 px-3 py-2 text-white placeholder-gray-500 transition-all duration-200 focus:border-blue-500/50 focus:bg-gray-800/70 focus:outline-none focus:ring-2 focus:ring-blue-500/20",
-                  isEnabled &&
-                    "pointer-events-none cursor-not-allowed opacity-50",
+                  "bg-secondary/50 border-border/50 focus:bg-background transition-colors",
+                  isEnabled && "pointer-events-none opacity-50"
                 )}
                 disabled={isEnabled}
+                autocomplete="off"
               />
             </div>
 
-            <div class="flex flex-wrap space-x-4">
-              <div class="flex items-center space-x-2">
-                <input
-                  type="checkbox"
+            <div class="flex flex-wrap gap-x-6 gap-y-3">
+              <div class="flex items-center gap-2">
+                <Checkbox
                   id="copy-walk"
                   bind:checked={copyWalk}
-                  class={cn(
-                    "rounded border-gray-700/50 bg-gray-800/50 text-blue-500 focus:ring-2 focus:ring-blue-500/20",
-                    isEnabled &&
-                      "pointer-events-none cursor-not-allowed opacity-50",
-                  )}
                   disabled={isEnabled}
                 />
-                <label for="copy-walk" class="text-sm text-gray-300"
-                  >Copy Walk</label
-                >
+                <Label for="copy-walk" class="text-sm text-muted-foreground cursor-pointer flex items-center gap-1.5">
+                  <Footprints class="h-3.5 w-3.5" />
+                  Copy Walk
+                </Label>
               </div>
-              <div class="flex items-center space-x-2">
-                <input
-                  type="checkbox"
+              <div class="flex items-center gap-2">
+                <Checkbox
                   id="cb-anti-counter"
                   bind:checked={antiCounter}
-                  class={cn(
-                    "rounded border-gray-700/50 bg-gray-800/50 text-blue-500 focus:ring-2 focus:ring-blue-500/20",
-                    isEnabled &&
-                      "pointer-events-none cursor-not-allowed opacity-50",
-                  )}
                   disabled={isEnabled}
                 />
-                <label for="cb-anti-counter" class="text-sm text-gray-300"
-                  >Anti Counter</label
-                >
+                <Label for="cb-anti-counter" class="text-sm text-muted-foreground cursor-pointer">
+                  Anti Counter
+                </Label>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</main>
+  </main>
+</div>
