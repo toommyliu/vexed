@@ -1,6 +1,18 @@
 <script lang="ts">
-  import { cn } from "../../../shared";
-  import { client, handlers } from "../../../shared/tipc";
+  import { Button, Checkbox, Label } from "@vexed/ui";
+  import * as Tabs from "@vexed/ui/Tabs";
+  import * as Empty from "@vexed/ui/Empty";
+  import { cn } from "@vexed/ui/util";
+  import Play from "lucide-svelte/icons/play";
+  import Pause from "lucide-svelte/icons/pause";
+  import Download from "lucide-svelte/icons/download";
+  import Copy from "lucide-svelte/icons/copy";
+  import Trash2 from "lucide-svelte/icons/trash-2";
+  import Clock from "lucide-svelte/icons/clock";
+  import ArrowDownToLine from "lucide-svelte/icons/arrow-down-to-line";
+  import Radio from "lucide-svelte/icons/radio";
+
+  import { client, handlers } from "@shared/tipc";
   import { v4 as uuid } from "@lukeed/uuid";
 
   type PacketType = "client" | "pext" | "server";
@@ -29,8 +41,8 @@
   let totalPackets = $derived(stats.client + stats.server + stats.pext);
   let filteredPackets = $derived(
     packets.filter(
-      (packet) => currentFilter === "all" || packet.type === currentFilter,
-    ),
+      (packet) => currentFilter === "all" || packet.type === currentFilter
+    )
   );
 
   function formatPacket(data: unknown, type: PacketType): string {
@@ -54,9 +66,20 @@
       case "client":
         return "text-blue-400";
       case "server":
-        return "text-green-400";
+        return "text-emerald-400";
       case "pext":
-        return "text-purple-400";
+        return "text-violet-400";
+    }
+  }
+
+  function getPacketTypeBadgeClass(type: PacketType): string {
+    switch (type) {
+      case "client":
+        return "bg-blue-500/20 text-blue-400";
+      case "server":
+        return "bg-emerald-500/20 text-emerald-400";
+      case "pext":
+        return "bg-violet-500/20 text-violet-400";
     }
   }
 
@@ -75,7 +98,6 @@
 
     if (on) {
       await client.packetLogger.packetLoggerStart();
-      // simulatePackets();
     } else {
       await client.packetLogger.packetLoggerStop();
     }
@@ -104,9 +126,8 @@
   async function copyPacket(content: string) {
     try {
       await navigator.clipboard.writeText(content);
-      console.log("Packet copied to clipboard");
-    } catch (err) {
-      console.error("Failed to copy packet:", err);
+    } catch {
+      // ignore
     }
   }
 
@@ -139,9 +160,8 @@
 
     try {
       await navigator.clipboard.writeText(content);
-      console.log("All packets copied to clipboard");
-    } catch (err) {
-      console.error("Failed to copy packets:", err);
+    } catch {
+      // ignore
     }
   }
 
@@ -153,291 +173,197 @@
   }
 
   handlers.packetLogger.packet.listen((packet) => {
-    if (!on) {
-      console.log("not on");
-      return;
-    }
+    if (!on) return;
 
     const type = packet.type as PacketType;
     addPacket(packet.packet, type);
   });
 
-  handlers.game.gameReloaded.listen(() => stop());
+  handlers.game.gameReloaded.listen(() => {
+    on = false;
+  });
 </script>
 
-<div class="min-h-screen select-none bg-background-primary text-gray-200">
-  <div class="mx-auto box-border w-full max-w-5xl p-4">
-    <div
-      class="mb-3 flex w-max flex-wrap border-b border-zinc-800 bg-background-secondary pb-1"
-    >
-      <button
-        onclick={() => (currentFilter = "all")}
-        class={cn(
-          "tab-button flex items-center text-sm font-medium transition-all duration-200 hover:text-blue-300",
-          currentFilter === "all" ? "active text-blue-400" : "text-gray-400",
-        )}
-      >
-        <span>All</span>
-        <span
-          class="ml-1.5 rounded bg-zinc-700 px-1.5 py-0.5 text-xs text-gray-300"
-        >
-          {totalPackets}
-        </span>
-      </button>
-      <button
-        onclick={() => (currentFilter = "client")}
-        class={cn(
-          "tab-button flex items-center text-sm font-medium transition-all duration-200 hover:text-gray-300",
-          currentFilter === "client" ? "active text-blue-400" : "text-gray-400",
-        )}
-      >
-        <span>packetFromClient</span>
-        <span
-          class="ml-1.5 rounded bg-zinc-700 px-1.5 py-0.5 text-xs text-gray-300"
-        >
-          {stats.client}
-        </span>
-      </button>
-      <button
-        onclick={() => (currentFilter = "server")}
-        class={cn(
-          "tab-button flex items-center text-sm font-medium transition-all duration-200 hover:text-gray-300",
-          currentFilter === "server" ? "active text-blue-400" : "text-gray-400",
-        )}
-      >
-        <span>packetFromServer</span>
-        <span
-          class="ml-1.5 rounded bg-zinc-700 px-1.5 py-0.5 text-xs text-gray-300"
-        >
-          {stats.server}
-        </span>
-      </button>
-      <button
-        onclick={() => (currentFilter = "pext")}
-        class={cn(
-          "tab-button flex items-center text-sm font-medium transition-all duration-200 hover:text-gray-300",
-          currentFilter === "pext" ? "active text-blue-400" : "text-gray-400",
-        )}
-      >
-        <span>pext</span>
-        <span
-          class="ml-1.5 rounded bg-zinc-700 px-1.5 py-0.5 text-xs text-gray-300"
-        >
-          {stats.pext}
-        </span>
-      </button>
-    </div>
-
-    <div class="mb-4">
-      <div
-        bind:this={loggerElement}
-        class="h-[350px] w-full resize-y rounded-md border border-zinc-800 bg-gray-800/50 p-3 shadow-md hover:border-zinc-700"
-      >
-        {#each filteredPackets as packet (packet.id)}
-          <div
-            class="line mb-1 flex cursor-pointer flex-wrap items-start rounded px-2 py-1 font-mono transition-colors duration-150 hover:bg-zinc-800"
-            onclick={() => copyPacket(packet.content)}
-            onkeydown={(ev) => {
-              if (ev.key === "Enter") {
-                ev.preventDefault();
-                copyPacket(packet.content);
-              }
-            }}
-            role="button"
-            tabindex="0"
-            title="Click to copy packet"
-          >
-            {#if showTimestamps}
-              <span
-                class="mr-1 w-24 flex-shrink-0 font-mono text-xs text-gray-500"
-              >
-                {formatTimestamp(packet.timestamp)}
-              </span>
-            {/if}
-            <span
-              class="font-mono text-xs {getPacketTypeColor(
-                packet.type,
-              )} mr-2 w-16 flex-shrink-0"
-            >
-              [{packet.type.toUpperCase()}]
-            </span>
-            <span
-              class="flex-1 whitespace-pre-wrap font-mono text-xs text-white"
-            >
-              {packet.content}
-            </span>
-          </div>
-        {/each}
+<div class="bg-background flex h-screen flex-col">
+  <header
+    class="bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-10 border-b border-border/50 px-6 py-3 backdrop-blur-xl elevation-1"
+  >
+    <div class="mx-auto flex max-w-7xl items-center justify-between">
+      <div class="flex items-center gap-3">
+        <h1 class="text-foreground text-base font-semibold tracking-tight">
+          Packet Logger
+        </h1>
       </div>
-    </div>
 
-    <div
-      class="action-buttons-container flex flex-wrap items-start justify-between"
-    >
-      <div class="action-button-group flex flex-1 flex-wrap space-x-2">
-        <button
+      <div class="flex items-center gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          class="gap-2 border-border/50"
           onclick={saveToFile}
-          class="action-button border border-zinc-700 bg-zinc-800 shadow-sm hover:bg-zinc-700 hover:shadow-md"
+          disabled={filteredPackets.length === 0}
         >
-          <span>Save To File</span>
-        </button>
-        <button
+          <Download class="h-4 w-4" />
+          <span class="hidden sm:inline">Save</span>
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          class="gap-2 border-border/50"
           onclick={copyAll}
-          class="action-button border border-zinc-700 bg-zinc-800 shadow-sm hover:bg-zinc-700 hover:shadow-md"
+          disabled={filteredPackets.length === 0}
         >
-          <span>Copy All</span>
-        </button>
-        <button
-          onclick={clearPackets}
-          class="action-button border border-zinc-700 bg-zinc-800 shadow-sm hover:bg-zinc-700 hover:shadow-md"
-        >
-          <span>Clear</span>
-        </button>
-        <button
-          onclick={() => (showTimestamps = !showTimestamps)}
-          class={cn(
-            "action-button",
-            showTimestamps
-              ? "border-blue-600 bg-blue-700 hover:bg-blue-600"
-              : "border-zinc-700 bg-zinc-800 hover:bg-zinc-700",
-          )}
-        >
-          <span>Show Timestamps</span>
-        </button>
-        <button
-          onclick={() => (autoScroll = !autoScroll)}
-          class={cn(
-            "action-button",
-            autoScroll
-              ? "border-blue-600 bg-blue-700 hover:bg-blue-600"
-              : "border-zinc-700 bg-zinc-800 shadow-sm hover:bg-zinc-700 hover:shadow-md",
-          )}
-        >
-          <span>Auto-Scroll</span>
-        </button>
-      </div>
-      <div class="toggle-capture-wrapper">
-        <button
+          <Copy class="h-4 w-4" />
+          <span class="hidden sm:inline">Copy All</span>
+        </Button>
+        <Button
+          size="sm"
+          variant={on ? "destructive" : "default"}
+          class="gap-2"
           onclick={toggleCapture}
-          class={cn(
-            "action-button text-white shadow-sm hover:shadow-md",
-            on
-              ? "bg-red-700 hover:bg-red-600"
-              : "bg-green-700 hover:bg-green-600",
-          )}
         >
-          <span>{on ? "Stop" : "Start"}</span>
-        </button>
+          {#if on}
+            <Pause class="h-4 w-4" />
+            <span class="hidden sm:inline">Stop</span>
+          {:else}
+            <Play class="h-4 w-4" />
+            <span class="hidden sm:inline">Start</span>
+          {/if}
+        </Button>
       </div>
     </div>
-  </div>
+  </header>
+
+  <main class="flex-1 overflow-hidden p-4 sm:p-6">
+    <div class="mx-auto flex h-full max-w-7xl flex-col gap-4">
+      <Tabs.Root bind:value={currentFilter} class="flex h-full flex-col gap-4">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <Tabs.List class="w-fit">
+            <Tabs.Trigger value="all" class="gap-2">
+              All
+              <span class="rounded bg-secondary px-1.5 py-0.5 text-xs tabular-nums">
+                {totalPackets}
+              </span>
+            </Tabs.Trigger>
+            <Tabs.Trigger value="client" class="gap-2">
+              <span class="text-blue-400">Client</span>
+              <span class="rounded bg-blue-500/20 px-1.5 py-0.5 text-xs tabular-nums text-blue-400">
+                {stats.client}
+              </span>
+            </Tabs.Trigger>
+            <Tabs.Trigger value="server" class="gap-2">
+              <span class="text-emerald-400">Server</span>
+              <span class="rounded bg-emerald-500/20 px-1.5 py-0.5 text-xs tabular-nums text-emerald-400">
+                {stats.server}
+              </span>
+            </Tabs.Trigger>
+            <Tabs.Trigger value="pext" class="gap-2">
+              <span class="text-violet-400">Pext</span>
+              <span class="rounded bg-violet-500/20 px-1.5 py-0.5 text-xs tabular-nums text-violet-400">
+                {stats.pext}
+              </span>
+            </Tabs.Trigger>
+          </Tabs.List>
+
+          <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2">
+              <Checkbox id="show-timestamps" bind:checked={showTimestamps} />
+              <Label for="show-timestamps" class="text-sm text-muted-foreground cursor-pointer flex items-center gap-1.5">
+                <Clock class="h-3.5 w-3.5" />
+                Timestamps
+              </Label>
+            </div>
+            <div class="flex items-center gap-2">
+              <Checkbox id="auto-scroll" bind:checked={autoScroll} />
+              <Label for="auto-scroll" class="text-sm text-muted-foreground cursor-pointer flex items-center gap-1.5">
+                <ArrowDownToLine class="h-3.5 w-3.5" />
+                Auto-scroll
+              </Label>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              class="gap-2 text-muted-foreground hover:text-destructive"
+              onclick={clearPackets}
+              disabled={packets.length === 0}
+            >
+              <Trash2 class="h-4 w-4" />
+              Clear
+            </Button>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between text-sm">
+          <span class="text-muted-foreground">
+            <span class="tabular-nums font-medium text-foreground">{filteredPackets.length}</span>
+            {#if currentFilter !== "all"}
+              <span class="text-muted-foreground/70">of {totalPackets}</span>
+            {/if}
+            <span class="text-muted-foreground/70">packet{filteredPackets.length !== 1 ? 's' : ''}</span>
+          </span>
+        </div>
+
+        <div class="relative flex-1 overflow-hidden rounded-xl border border-border/50 bg-card">
+          {#if filteredPackets.length === 0}
+            <div class="flex h-full items-center justify-center">
+              <Empty.Root>
+                <Empty.Header>
+                  <Empty.Media variant="icon">
+                    <Radio />
+                  </Empty.Media>
+                  <Empty.Title>No packets captured</Empty.Title>
+                  <Empty.Description>
+                    {#if on}
+                      Waiting for packets...
+                    {:else}
+                      Click "Start" to begin capturing packets.
+                    {/if}
+                  </Empty.Description>
+                </Empty.Header>
+              </Empty.Root>
+            </div>
+          {:else}
+            <div
+              bind:this={loggerElement}
+              class="h-full overflow-auto p-3 font-mono text-sm"
+            >
+              {#each filteredPackets as packet (packet.id)}
+                <div
+                  class="group flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 transition-colors hover:bg-secondary/50"
+                  onclick={() => copyPacket(packet.content)}
+                  onkeydown={(ev) => {
+                    if (ev.key === "Enter") {
+                      ev.preventDefault();
+                      copyPacket(packet.content);
+                    }
+                  }}
+                  role="button"
+                  tabindex="0"
+                  title="Click to copy"
+                >
+                  {#if showTimestamps}
+                    <span class="shrink-0 text-xs text-muted-foreground/70 tabular-nums">
+                      {formatTimestamp(packet.timestamp)}
+                    </span>
+                  {/if}
+                  <span
+                    class={cn(
+                      "shrink-0 rounded px-1.5 py-0.5 text-xs font-medium uppercase",
+                      getPacketTypeBadgeClass(packet.type)
+                    )}
+                  >
+                    {packet.type}
+                  </span>
+                  <span class="flex-1 whitespace-pre-wrap break-all text-foreground">
+                    {packet.content}
+                  </span>
+                  <Copy class="h-3.5 w-3.5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                </div>
+              {/each}
+            </div>
+          {/if}
+        </div>
+      </Tabs.Root>
+    </div>
+  </main>
 </div>
-
-<style>
-  .tab-button {
-    background-color: #18181b;
-    border-radius: 4px 4px 0 0;
-    padding: 8px 12px;
-    margin-right: 4px;
-    margin-bottom: 2px;
-  }
-  .tab-button:hover {
-    background-color: #27272a;
-  }
-  .tab-button.active {
-    position: relative;
-    background-color: #27272a;
-  }
-  .tab-button.active::after {
-    content: "";
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background-color: #3b82f6;
-    border-radius: 1px;
-  }
-
-  .resize-y {
-    resize: vertical;
-    overflow: auto;
-    min-height: 200px;
-    max-height: 80vh;
-    transition: none;
-  }
-  .line {
-    width: 100%;
-    max-width: 100%;
-    word-wrap: break-word;
-    display: flex;
-    align-items: flex-start;
-    gap: 0.25rem;
-  }
-  .line > span:first-child {
-    margin-right: 0.25rem;
-  }
-  .line > span:last-child {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .action-button {
-    position: relative;
-    overflow: hidden;
-    padding: 6px 12px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    min-width: fit-content;
-  }
-  .action-button span {
-    white-space: nowrap;
-  }
-  .action-button::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-  }
-
-  @media (max-width: 768px) {
-    .action-button {
-      padding: 6px 8px;
-      font-size: 13px;
-    }
-  }
-  @media (max-width: 640px) {
-    .action-buttons-container {
-      flex-direction: column-reverse;
-      width: 100%;
-    }
-    .action-button-group {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 8px;
-      width: 100%;
-      margin-top: 8px;
-    }
-    .action-button-group .action-button {
-      width: 100%;
-      justify-content: center;
-    }
-    .space-x-2 > :not([hidden]) ~ :not([hidden]) {
-      margin-left: 0;
-    }
-    .toggle-capture-wrapper {
-      width: 100%;
-    }
-    .toggle-capture-wrapper .action-button {
-      width: 100%;
-      justify-content: center;
-    }
-  }
-</style>
