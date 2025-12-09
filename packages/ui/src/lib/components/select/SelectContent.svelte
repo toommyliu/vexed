@@ -9,12 +9,12 @@
 
     interface Props extends HTMLAttributes<HTMLDivElement> {
         sideOffset?: number;
-        side?: "top" | "bottom";
+        side?: "top" | "bottom" | "auto";
     }
 
     let {
         sideOffset = 4,
-        side = "bottom",
+        side = "auto",
         class: className = undefined,
         children,
         ...restProps
@@ -23,8 +23,10 @@
     const ctx = getContext<SelectContext>("select");
 
     let listElement = $state<HTMLDivElement>();
+    let positionerElement = $state<HTMLDivElement>();
     let showScrollUp = $state(false);
     let showScrollDown = $state(false);
+    let resolvedSide = $state<"top" | "bottom">("bottom");
 
     function handleScroll() {
         if (!listElement) return;
@@ -34,9 +36,32 @@
             listElement.scrollHeight - listElement.clientHeight - 1;
     }
 
+    function calculateOptimalSide(): "top" | "bottom" {
+        if (side !== "auto") return side;
+        if (!positionerElement) return "bottom";
+
+        const parent = positionerElement.parentElement;
+        if (!parent) return "bottom";
+
+        const rect = parent.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+
+        const spaceBelow = viewportHeight - rect.bottom;
+        const spaceAbove = rect.top;
+
+        const estimatedDropdownHeight = 260;
+
+        if (spaceBelow >= estimatedDropdownHeight) return "bottom";
+        if (spaceAbove > spaceBelow) return "top";
+        return "bottom";
+    }
+
     $effect(() => {
-        if (ctx.open && listElement) {
-            handleScroll();
+        if (ctx.open) {
+            resolvedSide = calculateOptimalSide();
+            if (listElement) {
+                handleScroll();
+            }
         }
     });
 </script>
@@ -46,8 +71,9 @@
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div class="fixed inset-0 z-50" onclick={() => ctx.close()}></div>
     <div
+        bind:this={positionerElement}
         class="absolute z-50 select-none"
-        style={side === "bottom"
+        style={resolvedSide === "bottom"
             ? `top: calc(100% + ${sideOffset}px);`
             : `bottom: calc(100% + ${sideOffset}px);`}
         data-slot="select-positioner"
@@ -55,7 +81,7 @@
         <div
             class={cn(
                 "transition-[scale,opacity] duration-100",
-                side === "bottom" ? "origin-top" : "origin-bottom",
+                resolvedSide === "bottom" ? "origin-top" : "origin-bottom",
             )}
             transition:motionScale={{ start: 0.98, duration: 100 }}
             data-slot="select-popup"
