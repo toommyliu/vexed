@@ -1,6 +1,7 @@
 <script lang="ts">
   import { WindowIds } from "@shared/types";
   import { client } from "@shared/tipc";
+  import { Button } from "@vexed/ui";
   import Kbd from "@vexed/ui/Kbd";
 
   interface MenuItem {
@@ -93,13 +94,15 @@
         Application
       </div>
       {#each applicationItems as item (item.id)}
-        <button
-          class="flex w-full items-center justify-between bg-transparent rounded-md px-2 py-1.5 text-left text-xs text-foreground/80 transition-colors hover:bg-accent hover:text-foreground"
+        <Button
+          variant="ghost"
+          size="sm"
+          class="w-full justify-between text-xs bg-transparent hover:bg-accent"
           onclick={() => handleItemClick(item)}
         >
           <span>{item.label}</span>
           <Kbd hotkey={item.hotkey} class="ml-2" />
-        </button>
+        </Button>
       {/each}
     </div>
 
@@ -111,13 +114,15 @@
         Tools
       </div>
       {#each toolsItems as item (item.id)}
-        <button
-          class="flex w-full items-center justify-between bg-transparent rounded-md px-2 py-1.5 text-left text-xs text-foreground/80 transition-colors hover:bg-accent hover:text-foreground"
+        <Button
+          variant="ghost"
+          size="sm"
+          class="w-full justify-between text-xs bg-transparent hover:bg-accent"
           onclick={() => handleItemClick(item)}
         >
           <span>{item.label}</span>
           <Kbd hotkey={item.hotkey} class="ml-2" />
-        </button>
+        </Button>
       {/each}
     </div>
 
@@ -129,13 +134,15 @@
         Packets
       </div>
       {#each packetsItems as item (item.id)}
-        <button
-          class="flex w-full items-center justify-between bg-transparent rounded-md px-2 py-1.5 text-left text-xs text-foreground/80 transition-colors hover:bg-accent hover:text-foreground"
+        <Button
+          variant="ghost"
+          size="sm"
+          class="w-full justify-between text-xs bg-transparent hover:bg-accent"
           onclick={() => handleItemClick(item)}
         >
           <span>{item.label}</span>
           <Kbd hotkey={item.hotkey} class="ml-2" />
-        </button>
+        </Button>
       {/each}
     </div>
   </div>

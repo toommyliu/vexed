@@ -30,6 +30,7 @@
     "changelog": "cd .. && git-cliff --config cliff.toml --output CHANGELOG.md"
   },
   "dependencies": {
+    "@fontsource-variable/inter": "^5.2.8",
     "@lukeed/uuid": "^2.0.1",
     "@vexed/collection": "workspace:*",
     "@vexed/config": "workspace:*",

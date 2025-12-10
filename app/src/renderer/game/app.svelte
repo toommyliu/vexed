@@ -538,6 +538,7 @@
                 <span>Disable Collisions</span>
                 {#if gameState.disableCollisions}<IconCheckmark />{/if}
               </Menu.Item>
+              <!-- TODO: better controls -->
               <Menu.Item
                 class="bg-transparent flex items-center justify-between"
                 onclick={() => (gameState.walkSpeed = (gameState.walkSpeed + 8) % 100)}
