@@ -1,8 +1,17 @@
 <script lang="ts">
+  import { Button, Checkbox, Input, Label } from "@vexed/ui";
   import log from "electron-log";
   import { onMount } from "svelte";
+
+  import Plus from "lucide-svelte/icons/plus";
+  import X from "lucide-svelte/icons/x";
+  import Trash2 from "lucide-svelte/icons/trash-2";
+  import Scroll from "lucide-svelte/icons/scroll";
+  import Package from "lucide-svelte/icons/package";
+  import Zap from "lucide-svelte/icons/zap";
+  import Download from "lucide-svelte/icons/download";
+
   import { normalizeId } from "@game/util/normalizeId";
-  import { cn } from "@shared/cn";
   import { client, handlers } from "@shared/tipc";
   import type { EnvironmentState } from "@shared/types";
 
@@ -38,7 +47,7 @@
     }
 
     const normalizedDrops = Array.from(dedupDrops.values()).sort((a, b) =>
-      a.localeCompare(b),
+      a.localeCompare(b)
     );
 
     const dedupBoosts = new Map<string, string>();
@@ -51,7 +60,7 @@
     }
 
     const normalizedBoosts = Array.from(dedupBoosts.values()).sort((a, b) =>
-      a.localeCompare(b),
+      a.localeCompare(b)
     );
 
     const normalizedRejectElse = Boolean(state.rejectElse);
@@ -82,7 +91,7 @@
     boostItems: string[],
     rejectElse: boolean,
     autoRegisterRequirements: boolean,
-    autoRegisterRewards: boolean,
+    autoRegisterRewards: boolean
   ) {
     const normalizedQuestIds = [...questIds].sort((a, b) => a - b);
 
@@ -96,7 +105,7 @@
     }
 
     const normalizedDrops = Array.from(dedupDrops.values()).sort((a, b) =>
-      a.localeCompare(b),
+      a.localeCompare(b)
     );
 
     const dedupBoosts = new Map<string, string>();
@@ -108,7 +117,7 @@
     }
 
     const normalizedBoosts = Array.from(dedupBoosts.values()).sort((a, b) =>
-      a.localeCompare(b),
+      a.localeCompare(b)
     );
 
     return {
@@ -142,7 +151,7 @@
       boostItems,
       rejectElse,
       autoRegisterRequirements,
-      autoRegisterRewards,
+      autoRegisterRewards
     );
 
     isSyncing = true;
@@ -154,7 +163,7 @@
       isSyncing = false;
       if (pendingSync) {
         pendingSync = false;
-        void syncEnvironment(); // retry again
+        void syncEnvironment();
       }
     }
   }
@@ -385,275 +394,291 @@
   });
 </script>
 
-<main
-  class="bg-background-primary m-0 flex min-h-screen flex-col overflow-hidden text-white focus:outline-none"
->
-  <div class="flex flex-1 flex-col overflow-y-auto py-6">
-    <div class="mx-auto w-full max-w-5xl space-y-6 px-3 sm:px-6">
-      <div
-        class="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8 lg:grid-cols-3 lg:gap-8"
-      >
-        <section
-          class="bg-background-secondary flex max-h-96 flex-col rounded-md border border-gray-800/50 p-4 backdrop-blur-sm"
-        >
-          <div class="flex items-center justify-between">
-            <div>
-              <h2 class="text-lg font-medium text-white">Quests</h2>
+<div class="bg-background flex h-screen flex-col">
+  <header
+    class="bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-10 border-b border-border/50 px-6 py-3 backdrop-blur-xl elevation-1"
+  >
+    <div class="mx-auto flex max-w-7xl items-center justify-between">
+      <div class="flex items-center gap-3">
+        <h1 class="text-foreground text-base font-semibold tracking-tight">
+          Environment
+        </h1>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 overflow-auto p-4 sm:p-6">
+    <div class="mx-auto max-w-7xl">
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <section class="flex flex-col rounded-xl border border-border/50 bg-card">
+          <div class="flex items-center justify-between border-b border-border/50 px-4 py-3">
+            <div class="flex items-center gap-2">
+              <Scroll class="h-4 w-4 text-muted-foreground" />
+              <h2 class="text-sm font-semibold text-foreground">Quests</h2>
+              {#if questIds.length > 0}
+                <span class="rounded bg-secondary px-1.5 py-0.5 text-xs tabular-nums text-muted-foreground">
+                  {questIds.length}
+                </span>
+              {/if}
             </div>
-            {#if questIds.length}
-              <button
-                type="button"
-                class="rounded bg-transparent text-xs font-medium text-blue-400 transition duration-150 hover:text-blue-300 focus:outline-none disabled:pointer-events-none disabled:opacity-50"
+            {#if questIds.length > 0}
+              <Button
+                variant="ghost"
+                size="sm"
+                class="h-7 gap-1.5 text-xs text-muted-foreground hover:text-destructive"
                 onclick={clearQuests}
                 disabled={isSyncing}
               >
-                Clear all
-              </button>
+                <Trash2 class="h-3.5 w-3.5" />
+                Clear
+              </Button>
             {/if}
           </div>
 
-          <form
-            class="mt-6 flex flex-shrink-0 items-center space-x-2"
-            onsubmit={handleQuestSubmit}
-          >
-            <input
-              type="text"
-              bind:value={questInput}
-              class="flex-1 rounded-md border border-gray-700/50 bg-gray-800/50 px-3 py-1 text-xs text-white placeholder-gray-500 shadow-inner transition-all duration-200 focus:bg-gray-800/70 focus:outline-none"
-            />
-            <button
-              type="submit"
-              class={cn(
-                "rounded-md border border-gray-700/50 bg-gray-800/50 px-3 py-1 text-xs font-medium text-white shadow-md transition duration-200 hover:bg-gray-700/50 hover:shadow-lg",
-                (isSyncing || !questInput.trim()) &&
-                  "pointer-events-none cursor-not-allowed opacity-50",
-              )}
-              disabled={isSyncing || !questInput.trim()}
-            >
-              Add
-            </button>
-          </form>
+          <div class="flex flex-col gap-3 p-4">
+            <form class="flex items-center gap-2" onsubmit={handleQuestSubmit}>
+              <Input
+                type="text"
+                placeholder="Enter quest ID..."
+                bind:value={questInput}
+                class="flex-1 bg-secondary/50 border-border/50"
+              />
+              <Button
+                type="submit"
+                size="sm"
+                class="gap-1.5"
+                disabled={isSyncing || !questInput.trim()}
+              >
+                <Plus class="h-4 w-4" />
+                Add
+              </Button>
+            </form>
 
-          <div class="no-scrollbar mt-4 min-h-0 flex-1 overflow-y-auto">
-            <div class="no-scrollbar flex max-h-24 flex-wrap overflow-y-auto">
-              {#if questIds.length}
-                {#each questIds as questId (questId)}
-                  <span
-                    class="group mb-2 mr-2 inline-flex items-center space-x-2 rounded-full border border-gray-700/50 bg-gray-800/50 px-3 py-1 text-xs"
-                  >
-                    <span class="font-medium text-gray-200">{questId}</span>
-                    <button
-                      type="button"
-                      class="flex h-4 w-4 items-center justify-center rounded-full bg-transparent leading-none text-gray-400 transition duration-150 hover:bg-gray-700/50 hover:text-red-400"
-                      onclick={() => removeQuest(questId)}
-                      disabled={isSyncing}
+            <div class="min-h-[80px] max-h-32 overflow-y-auto">
+              {#if questIds.length === 0}
+                <div class="flex h-20 items-center justify-center">
+                  <span class="text-xs text-muted-foreground/70">No quests registered</span>
+                </div>
+              {:else}
+                <div class="flex flex-wrap gap-1.5">
+                  {#each questIds as questId (questId)}
+                    <span
+                      class="group inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-secondary/50 px-2.5 py-1 text-xs font-medium text-foreground transition-colors hover:bg-secondary"
                     >
-                      ×
-                    </button>
-                  </span>
-                {/each}
+                      {questId}
+                      <button
+                        type="button"
+                        class="flex h-4 w-4 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/20 hover:text-destructive"
+                        onclick={() => removeQuest(questId)}
+                        disabled={isSyncing}
+                      >
+                        <X class="h-3 w-3" />
+                      </button>
+                    </span>
+                  {/each}
+                </div>
               {/if}
             </div>
-          </div>
 
-          <div
-            class="mt-6 flex flex-shrink-0 flex-col space-y-3 border-t border-gray-800/40 pt-4 md:flex-row md:space-x-3 md:space-y-0"
-          >
-            <label class="flex items-center space-x-2 text-xs text-gray-300">
-              <input
-                type="checkbox"
-                class="h-4 w-4 rounded border-gray-700/50 bg-gray-800/50 text-blue-500 shadow-inner focus:ring-2 focus:ring-blue-500/20"
-                checked={autoRegisterRequirements}
-                disabled={isSyncing}
-                onchange={(ev) =>
-                  updateAutoRegisterRequirements(
-                    ev.target.checked
-                  )}
-                title="Automatically adds all quest-required items to the drop list."
-              />
-              <span class="whitespace-nowrap">Auto register requirements</span>
-            </label>
-            <label class="flex items-center space-x-2 text-xs text-gray-300">
-              <input
-                type="checkbox"
-                class="h-4 w-4 rounded border-gray-700/50 bg-gray-800/50 text-blue-500 shadow-inner focus:ring-2 focus:ring-blue-500/20"
-                checked={autoRegisterRewards}
-                disabled={isSyncing}
-                onchange={(ev) =>
-                  updateAutoRegisterRewards(
-                    ev.target.checked,
-                  )}
-                title="Automatically adds all quest reward items to the drop list."
-              />
-              <span class="whitespace-nowrap">Auto register rewards</span>
-            </label>
+            <div class="flex flex-col gap-2.5 border-t border-border/50 pt-3">
+              <div class="flex items-center gap-2">
+                <Checkbox
+                  id="auto-requirements"
+                  checked={autoRegisterRequirements}
+                  disabled={isSyncing}
+                  onCheckedChange={(checked) => updateAutoRegisterRequirements(Boolean(checked))}
+                />
+                <Label for="auto-requirements" class="text-xs text-muted-foreground cursor-pointer">
+                  Auto register requirements
+                </Label>
+              </div>
+              <div class="flex items-center gap-2">
+                <Checkbox
+                  id="auto-rewards"
+                  checked={autoRegisterRewards}
+                  disabled={isSyncing}
+                  onCheckedChange={(checked) => updateAutoRegisterRewards(Boolean(checked))}
+                />
+                <Label for="auto-rewards" class="text-xs text-muted-foreground cursor-pointer">
+                  Auto register rewards
+                </Label>
+              </div>
+            </div>
           </div>
         </section>
 
-        <section
-          class="bg-background-secondary flex max-h-96 flex-col rounded-md border border-gray-800/50 p-4 backdrop-blur-sm"
-        >
-          <div class="flex flex-shrink-0 items-center justify-between">
-            <div>
-              <h2 class="text-lg font-medium text-white">Drops</h2>
+        <section class="flex flex-col rounded-xl border border-border/50 bg-card">
+          <div class="flex items-center justify-between border-b border-border/50 px-4 py-3">
+            <div class="flex items-center gap-2">
+              <Package class="h-4 w-4 text-muted-foreground" />
+              <h2 class="text-sm font-semibold text-foreground">Drops</h2>
+              {#if dropItems.length > 0}
+                <span class="rounded bg-secondary px-1.5 py-0.5 text-xs tabular-nums text-muted-foreground">
+                  {dropItems.length}
+                </span>
+              {/if}
             </div>
-            {#if dropItems.length}
-              <button
-                type="button"
-                class="rounded bg-transparent text-xs font-medium text-blue-400 transition duration-150 hover:text-blue-300 focus:outline-none disabled:pointer-events-none disabled:opacity-50"
+            {#if dropItems.length > 0}
+              <Button
+                variant="ghost"
+                size="sm"
+                class="h-7 gap-1.5 text-xs text-muted-foreground hover:text-destructive"
                 onclick={clearDrops}
                 disabled={isSyncing}
               >
-                Clear all
-              </button>
+                <Trash2 class="h-3.5 w-3.5" />
+                Clear
+              </Button>
             {/if}
           </div>
 
-          <form
-            class="mt-6 flex flex-shrink-0 items-center space-x-2"
-            onsubmit={handleDropSubmit}
-          >
-            <input
-              type="text"
-              bind:value={dropInput}
-              class="flex-1 rounded-md border border-gray-700/50 bg-gray-800/50 px-3 py-1 text-xs text-white placeholder-gray-500 shadow-inner transition-all duration-200 focus:bg-gray-800/70 focus:outline-none"
-              autocomplete="off"
-              spellcheck={false}
-            />
-            <button
-              type="submit"
-              class={cn(
-                "rounded-md border border-gray-700/50 bg-gray-800/50 px-3 py-1 text-xs font-medium text-white shadow-md transition duration-200 hover:bg-gray-700/50 hover:shadow-lg",
-                (isSyncing || !dropInput.trim()) &&
-                  "pointer-events-none cursor-not-allowed opacity-50",
-              )}
-              disabled={isSyncing || !dropInput.trim()}
-            >
-              Add
-            </button>
-          </form>
+          <div class="flex flex-col gap-3 p-4">
+            <form class="flex items-center gap-2" onsubmit={handleDropSubmit}>
+              <Input
+                type="text"
+                placeholder="Enter item name..."
+                bind:value={dropInput}
+                class="flex-1 bg-secondary/50 border-border/50"
+                autocomplete="off"
+                spellcheck="false"
+              />
+              <Button
+                type="submit"
+                size="sm"
+                class="gap-1.5"
+                disabled={isSyncing || !dropInput.trim()}
+              >
+                <Plus class="h-4 w-4" />
+                Add
+              </Button>
+            </form>
 
-          <div class="no-scrollbar mt-4 min-h-0 flex-1 overflow-y-auto">
-            <div class="no-scrollbar flex max-h-24 flex-wrap overflow-y-auto">
-              {#if dropItems.length}
-                {#each dropItems as drop (drop)}
-                  <span
-                    class="group mb-2 mr-2 inline-flex items-center space-x-2 rounded-full border border-gray-700/50 bg-gray-800/50 px-3 py-1 text-xs"
-                  >
-                    <span class="font-medium text-gray-200">{drop}</span>
-                    <button
-                      type="button"
-                      class="flex h-4 w-4 items-center justify-center rounded-full bg-transparent leading-none text-gray-400 transition duration-150 hover:bg-gray-700/50 hover:text-red-400"
-                      onclick={() => removeDrop(drop)}
-                      disabled={isSyncing}
+            <div class="min-h-[80px] max-h-32 overflow-y-auto">
+              {#if dropItems.length === 0}
+                <div class="flex h-20 items-center justify-center">
+                  <span class="text-xs text-muted-foreground/70">No drops registered</span>
+                </div>
+              {:else}
+                <div class="flex flex-wrap gap-1.5">
+                  {#each dropItems as drop (drop)}
+                    <span
+                      class="group inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-secondary/50 px-2.5 py-1 text-xs font-medium text-foreground transition-colors hover:bg-secondary"
                     >
-                      ×
-                    </button>
-                  </span>
-                {/each}
+                      {drop}
+                      <button
+                        type="button"
+                        class="flex h-4 w-4 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/20 hover:text-destructive"
+                        onclick={() => removeDrop(drop)}
+                        disabled={isSyncing}
+                      >
+                        <X class="h-3 w-3" />
+                      </button>
+                    </span>
+                  {/each}
+                </div>
               {/if}
             </div>
-          </div>
 
-          <div
-            class="mt-6 flex flex-shrink-0 flex-wrap items-center justify-between space-x-3 space-y-3 border-t border-gray-800/40 pt-4"
-          >
-            <label class="flex items-center space-x-2 text-xs text-gray-300">
-              <input
-                type="checkbox"
+            <div class="flex items-center gap-2 border-t border-border/50 pt-3">
+              <Checkbox
+                id="reject-else"
                 checked={rejectElse}
                 disabled={isSyncing}
-                class="h-4 w-4 rounded border-gray-700/50 bg-gray-800/50 text-blue-500 shadow-inner focus:ring-2 focus:ring-blue-500/20"
-                onchange={(ev) =>
-                  updateRejectElse((ev.target as HTMLInputElement).checked)}
+                onCheckedChange={(checked) => updateRejectElse(Boolean(checked))}
               />
-              <span>Reject else</span>
-            </label>
+              <Label for="reject-else" class="text-xs text-muted-foreground cursor-pointer">
+                Reject else
+              </Label>
+            </div>
           </div>
         </section>
 
-        <section
-          class="bg-background-secondary flex max-h-96 flex-col rounded-md border border-gray-800/50 p-4 backdrop-blur-sm"
-        >
-          <div class="flex items-center justify-between">
-            <div>
-              <h2 class="text-lg font-medium text-white">Boosts</h2>
+        <section class="flex flex-col rounded-xl border border-border/50 bg-card">
+          <div class="flex items-center justify-between border-b border-border/50 px-4 py-3">
+            <div class="flex items-center gap-2">
+              <Zap class="h-4 w-4 text-muted-foreground" />
+              <h2 class="text-sm font-semibold text-foreground">Boosts</h2>
+              {#if boostItems.length > 0}
+                <span class="rounded bg-secondary px-1.5 py-0.5 text-xs tabular-nums text-muted-foreground">
+                  {boostItems.length}
+                </span>
+              {/if}
             </div>
-            <div class="flex space-x-2">
-              <button
-                type="button"
-                class={cn(
-                  "rounded-md border border-gray-700/50 bg-gray-800/50 px-3 py-1 text-xs font-medium text-white shadow-md transition duration-200 hover:bg-gray-700/50 hover:shadow-lg",
-                  isSyncing &&
-                    "pointer-events-none cursor-not-allowed opacity-50",
-                )}
+            <div class="flex items-center gap-1">
+              <Button
+                variant="outline"
+                size="sm"
+                class="h-7 gap-1.5 text-xs border-border/50"
                 onclick={grabBoosts}
                 disabled={isSyncing}
               >
+                <Download class="h-3.5 w-3.5" />
                 Grab
-              </button>
-              {#if boostItems.length}
-                <button
-                  type="button"
-                  class="rounded bg-transparent text-xs font-medium text-blue-400 transition duration-150 hover:text-blue-300 focus:outline-none disabled:pointer-events-none disabled:opacity-50"
+              </Button>
+              {#if boostItems.length > 0}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  class="h-7 gap-1.5 text-xs text-muted-foreground hover:text-destructive"
                   onclick={clearBoosts}
                   disabled={isSyncing}
                 >
-                  Clear all
-                </button>
+                  <Trash2 class="h-3.5 w-3.5" />
+                  Clear
+                </Button>
               {/if}
             </div>
           </div>
 
-          <form
-            class="mt-6 flex flex-shrink-0 items-center space-x-2"
-            onsubmit={handleBoostSubmit}
-          >
-            <input
-              type="text"
-              bind:value={boostInput}
-              class="flex-1 rounded-md border border-gray-700/50 bg-gray-800/50 px-3 py-1 text-xs text-white placeholder-gray-500 shadow-inner transition-all duration-200 focus:bg-gray-800/70 focus:outline-none"
-              autocomplete="off"
-              spellcheck={false}
-            />
-            <button
-              type="submit"
-              class={cn(
-                "rounded-md border border-gray-700/50 bg-gray-800/50 px-3 py-1 text-xs font-medium text-white shadow-md transition duration-200 hover:bg-gray-700/50 hover:shadow-lg",
-                (isSyncing || !boostInput.trim()) &&
-                  "pointer-events-none cursor-not-allowed opacity-50",
-              )}
-              disabled={isSyncing || !boostInput.trim()}
-            >
-              Add
-            </button>
-          </form>
+          <div class="flex flex-col gap-3 p-4">
+            <form class="flex items-center gap-2" onsubmit={handleBoostSubmit}>
+              <Input
+                type="text"
+                placeholder="Enter boost name..."
+                bind:value={boostInput}
+                class="flex-1 bg-secondary/50 border-border/50"
+                autocomplete="off"
+                spellcheck="false"
+              />
+              <Button
+                type="submit"
+                size="sm"
+                class="gap-1.5"
+                disabled={isSyncing || !boostInput.trim()}
+              >
+                <Plus class="h-4 w-4" />
+                Add
+              </Button>
+            </form>
 
-          <div class="no-scrollbar mt-4 min-h-0 flex-1 overflow-y-auto">
-            <div class="no-scrollbar flex max-h-24 flex-wrap overflow-y-auto">
-              {#if boostItems.length}
-                {#each boostItems as boost (boost)}
-                  <span
-                    class="group mb-2 mr-2 inline-flex items-center space-x-2 rounded-full border border-gray-700/50 bg-gray-800/50 px-3 py-1 text-xs"
-                  >
-                    <span class="font-medium text-gray-200">{boost}</span>
-                    <button
-                      type="button"
-                      class="flex h-4 w-4 items-center justify-center rounded-full bg-transparent leading-none text-gray-400 transition duration-150 hover:bg-gray-700/50 hover:text-red-400"
-                      onclick={() => removeBoost(boost)}
-                      disabled={isSyncing}
+            <div class="min-h-[80px] max-h-32 overflow-y-auto">
+              {#if boostItems.length === 0}
+                <div class="flex h-20 items-center justify-center">
+                  <span class="text-xs text-muted-foreground/70">No boosts registered</span>
+                </div>
+              {:else}
+                <div class="flex flex-wrap gap-1.5">
+                  {#each boostItems as boost (boost)}
+                    <span
+                      class="group inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-secondary/50 px-2.5 py-1 text-xs font-medium text-foreground transition-colors hover:bg-secondary"
                     >
-                      ×
-                    </button>
-                  </span>
-                {/each}
+                      {boost}
+                      <button
+                        type="button"
+                        class="flex h-4 w-4 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/20 hover:text-destructive"
+                        onclick={() => removeBoost(boost)}
+                        disabled={isSyncing}
+                      >
+                        <X class="h-3 w-3" />
+                      </button>
+                    </span>
+                  {/each}
+                </div>
               {/if}
             </div>
           </div>
-
-          <div class="mt-6 flex-shrink-0"></div>
         </section>
       </div>
     </div>
-  </div>
-</main>
+  </main>
+</div>

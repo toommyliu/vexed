@@ -14,29 +14,29 @@ export function formatHotkey(hotkey: string): string {
   return hotkey
     .split("+")
     .map((part) => {
-      // Modifier keys
-      if (part === "ctrl" || part === "control") return "Ctrl";
-      if (part === "alt" || part === "option") return "Alt";
-      if (part === "shift") return "Shift";
-      if (part === "cmd" || part === "command") return "Command";
-      if (part === "meta") return isMac ? "Command" : "Win";
+      // Modifier keys - use Mac-style symbols for compact display
+      if (part === "ctrl" || part === "control") return isMac ? "⌃" : "Ctrl";
+      if (part === "alt" || part === "option") return isMac ? "⌥" : "Alt";
+      if (part === "shift") return isMac ? "⇧" : "Shift";
+      if (part === "cmd" || part === "command") return "⌘";
+      if (part === "meta") return isMac ? "⌘" : "Win";
 
-      // "Special" keys"
-      if (part === "space") return "Space";
-      if (part === "enter" || part === "return") return "Enter";
-      if (part === "tab") return "Tab";
+      // Special keys - use symbols where appropriate
+      if (part === "space") return "␣";
+      if (part === "enter" || part === "return") return "↵";
+      if (part === "tab") return "⇥";
       if (part === "escape" || part === "esc") return "Esc";
-      if (part === "backspace") return "Backspace";
-      if (part === "delete" || part === "del") return "Delete";
-      if (part === "up") return "Up";
-      if (part === "down") return "Down";
-      if (part === "left") return "Left";
-      if (part === "right") return "Right";
+      if (part === "backspace") return "⌫";
+      if (part === "delete" || part === "del") return "⌦";
+      if (part === "up") return "↑";
+      if (part === "down") return "↓";
+      if (part === "left") return "←";
+      if (part === "right") return "→";
 
       // Function keys
       if (/^f\d+$/i.test(part)) return part.toUpperCase();
 
-      return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
+      return part.toUpperCase();
     })
     .join("+");
 }
