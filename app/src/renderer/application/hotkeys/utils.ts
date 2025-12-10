@@ -8,20 +8,48 @@ export function isValidHotkey(input: string): boolean {
   return _isHotkey(input) && input.trim() !== "";
 }
 
+export function normalizeHotkey(hotkey: string): string {
+  if (!hotkey) return "";
+
+  const parts = hotkey.toLowerCase().split("+");
+  const modifiers: string[] = [];
+  let key = "";
+
+  for (const part of parts) {
+    if (part === "command" || part === "cmd" || part === "meta") {
+      modifiers.push(isMac ? "command" : "meta");
+    } else if (part === "ctrl" || part === "control") {
+      modifiers.push("ctrl");
+    } else if (part === "alt" || part === "option") {
+      modifiers.push("alt");
+    } else if (part === "shift") {
+      modifiers.push("shift");
+    } else {
+      key = part;
+    }
+  }
+
+  const order = ["command", "meta", "ctrl", "alt", "shift"];
+  modifiers.sort((a, b) => order.indexOf(a) - order.indexOf(b));
+
+  if (key) modifiers.push(key);
+  return modifiers.join("+");
+}
+
 export function formatHotkey(hotkey: string): string {
   if (!hotkey) return "None";
 
-  return hotkey
+  const normalized = normalizeHotkey(hotkey);
+
+  return normalized
     .split("+")
     .map((part) => {
-      // Modifier keys - use Mac-style symbols for compact display
       if (part === "ctrl" || part === "control") return isMac ? "⌃" : "Ctrl";
       if (part === "alt" || part === "option") return isMac ? "⌥" : "Alt";
       if (part === "shift") return isMac ? "⇧" : "Shift";
       if (part === "cmd" || part === "command") return "⌘";
       if (part === "meta") return isMac ? "⌘" : "Win";
 
-      // Special keys - use symbols where appropriate
       if (part === "space") return "␣";
       if (part === "enter" || part === "return") return "↵";
       if (part === "tab") return "⇥";
@@ -33,7 +61,6 @@ export function formatHotkey(hotkey: string): string {
       if (part === "left") return "←";
       if (part === "right") return "→";
 
-      // Function keys
       if (/^f\d+$/i.test(part)) return part.toUpperCase();
 
       return part.toUpperCase();
@@ -42,21 +69,20 @@ export function formatHotkey(hotkey: string): string {
 }
 
 export function parseKeyboardEvent(ev: KeyboardEvent): string | null {
-  // Stop recording on Escape or Backspace
   if (ev.key === "Escape" || ev.key === "Backspace") {
     return null;
   }
 
   const parts: string[] = [];
+
+  if (ev.metaKey) parts.push(isMac ? "command" : "meta");
   if (ev.ctrlKey) parts.push("ctrl");
   if (ev.altKey) parts.push("alt");
   if (ev.shiftKey) parts.push("shift");
-  if (ev.metaKey) parts.push(isMac ? "command" : "meta");
 
   let keyName = ev.key.toLowerCase();
   if (keyName === " ") keyName = "space";
 
-  // Don't allow modifiers as the only key
   const modifierKeys = ["control", "alt", "shift", "meta"];
   if (modifierKeys.includes(keyName) || !keyName || keyName.trim() === "") {
     return null;
