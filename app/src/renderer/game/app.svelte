@@ -930,11 +930,8 @@
   </div>
 
   <div
-    class="invisible relative opacity-0"
+    class="invisible relative flex-1 opacity-0"
     id="game-container"
-    style="height: {topNavVisible
-      ? 'calc(100vh - var(--topnav-height) - 2px)'
-      : '100vh'}"
   >
     {#if swfPath}
       <embed
