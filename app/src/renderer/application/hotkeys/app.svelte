@@ -2,7 +2,7 @@
   import Mousetrap from "mousetrap";
   import { onDestroy, onMount } from "svelte";
   import Config from "@vexed/config";
-  import { Button, Kbd } from "@vexed/ui";
+  import { Kbd } from "@vexed/ui";
   import { cn } from "@vexed/ui/util";
   import Settings from "lucide-svelte/icons/settings";
   import AppWindow from "lucide-svelte/icons/app-window";
@@ -11,7 +11,7 @@
   import Radio from "lucide-svelte/icons/radio";
   import Inbox from "lucide-svelte/icons/inbox";
   import AlertTriangle from "lucide-svelte/icons/triangle-alert";
-  import Check from "lucide-svelte/icons/check";
+
   import { client } from "@shared/tipc";
   import type { HotkeyConfig } from "@shared/types";
   import type { HotkeySection, RecordingState } from "./types";
@@ -211,6 +211,14 @@
       return;
     }
 
+    if (ev.key === "Enter" && recordingState.lastPressedKey) {
+      const conflictingAction = getActionForHotkey(recordingState.lastPressedKey, hotkeysSections);
+      if (!conflictingAction || conflictingAction === getActionNameById(recordingState.actionId || "")) {
+        confirmRecording(recordingState.lastPressedKey);
+      }
+      return;
+    }
+
     const combination = parseKeyboardEvent(ev);
     if (combination) {
       recordingState.lastPressedKey = combination;
@@ -276,13 +284,38 @@
           {#if isExpanded}
             <div class="mt-1 space-y-px pl-1">
               {#each section.items as item}
-                <button
-                  class="group/row flex w-full cursor-pointer items-center justify-between rounded-md bg-transparent px-2 py-2 text-left transition-colors hover:bg-secondary/30"
-                  onclick={() => startRecording(item.id)}
+                {@const isRecordingThis = recordingState.isRecording && recordingState.actionId === item.id}
+                {@const hasConflict = isRecordingThis && recordingState.lastPressedKey && getActionForHotkey(recordingState.lastPressedKey, hotkeysSections) && getActionForHotkey(recordingState.lastPressedKey, hotkeysSections) !== item.label}
+                <div
+                  class={cn(
+                    "group/row flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left transition-colors",
+                    isRecordingThis 
+                      ? "bg-secondary" 
+                      : "bg-transparent hover:bg-secondary/30 cursor-pointer"
+                  )}
+                  onclick={() => !isRecordingThis && startRecording(item.id)}
+                  onkeydown={(ev) => {
+                    if (!isRecordingThis && ev.key === "Enter") startRecording(item.id);
+                  }}
+                  role="button"
+                  tabindex="0"
                 >
                   <span class="text-sm text-foreground">{item.label}</span>
-                  <div class="flex min-w-[120px] items-center justify-end gap-2">
-                    {#if item.value}
+                  <div class="flex h-6 min-w-[100px] items-center justify-end">
+                    {#if isRecordingThis}
+                      {#if recordingState.lastPressedKey}
+                        <div class="flex items-center gap-1.5">
+                          {#each formatHotkey(recordingState.lastPressedKey).split("+") as keyPart, idx}
+                            {#if idx > 0}
+                              <span class="text-muted-foreground/50 text-xs">+</span>
+                            {/if}
+                            <Kbd class={cn(hasConflict && "border-destructive/50 text-destructive")}>{keyPart}</Kbd>
+                          {/each}
+                        </div>
+                      {:else}
+                        <span class="text-xs text-muted-foreground">Type shortcut...</span>
+                      {/if}
+                    {:else if item.value}
                       <div class="flex items-center gap-1.5">
                         {#each formatHotkey(item.value).split("+") as keyPart, idx}
                           {#if idx > 0}
@@ -293,23 +326,13 @@
                           </Kbd>
                         {/each}
                       </div>
-                      <svg
-                        class="h-3.5 w-3.5 text-muted-foreground/0 transition-all group-hover/row:text-muted-foreground/60"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        stroke-width="2"
-                      >
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
-                      </svg>
                     {:else}
-                      <span class="inline-flex h-6 items-center rounded border border-dashed border-muted-foreground/30 px-2.5 text-[11px] font-medium text-muted-foreground transition-colors group-hover/row:border-primary/50 group-hover/row:text-primary">
-                        Click to set
+                      <span class="text-xs text-muted-foreground/50 group-hover/row:text-muted-foreground">
+                        Add shortcut
                       </span>
-                      <div class="w-3.5"></div>
                     {/if}
                   </div>
-                </button>
+                </div>
               {/each}
             </div>
           {/if}
@@ -318,111 +341,3 @@
     </div>
   </div>
 </div>
-
-{#if recordingState.isRecording}
-  <div
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-    onclick={(ev) => {
-      if (ev.target === ev.currentTarget) stopRecording();
-    }}
-    onkeydown={(ev) => {
-      if (ev.key === "Escape") {
-        stopRecording();
-      }
-    }}
-    role="dialog"
-    tabindex="-1"
-  >
-    <div
-      class="relative mx-4 w-full max-w-sm rounded-xl border border-border/50 bg-card p-5 shadow-xl"
-      onclick={(ev) => ev.stopPropagation()}
-      onkeydown={(ev) => {
-        if (ev.key === "Escape") {
-          stopRecording();
-        }
-      }}
-      role="dialog"
-      tabindex="-1"
-    >
-      <div class="mb-4 text-center">
-        <h3 class="text-base font-semibold text-foreground">
-          {getActionNameById(recordingState.actionId || "")}
-        </h3>
-        <p class="mt-1 text-xs text-muted-foreground">
-          Press a key combination
-        </p>
-      </div>
-
-      <div class="mb-4 rounded-lg border border-border/50 bg-secondary/30 p-4">
-        <div class="flex min-h-[2.5rem] items-center justify-center">
-          {#if recordingState.isClearing}
-            <div class="flex items-center gap-2 text-emerald-400">
-              <Check class="h-4 w-4" />
-              <span class="text-sm">Cleared</span>
-            </div>
-          {:else if recordingState.lastPressedKey}
-            <div class="flex items-center gap-1.5">
-              {#each formatHotkey(recordingState.lastPressedKey).split("+") as keyPart, index}
-                {#if index > 0}
-                  <span class="text-muted-foreground text-sm">+</span>
-                {/if}
-                <Kbd>{keyPart}</Kbd>
-              {/each}
-            </div>
-          {:else}
-            <div class="flex items-center gap-2 text-muted-foreground">
-              <div class="h-1.5 w-1.5 animate-pulse rounded-full bg-primary"></div>
-              <span class="text-sm">Listening...</span>
-            </div>
-          {/if}
-        </div>
-      </div>
-
-      {#if recordingState.lastPressedKey && getActionForHotkey(recordingState.lastPressedKey, hotkeysSections) && getActionForHotkey(recordingState.lastPressedKey, hotkeysSections) !== getActionNameById(recordingState.actionId || "")}
-        <div class="mb-4 flex items-center gap-2 rounded-lg bg-destructive/10 px-3 py-2 text-xs text-destructive">
-          <AlertTriangle class="h-3.5 w-3.5 shrink-0" />
-          <span>
-            Already used by "{getActionForHotkey(recordingState.lastPressedKey, hotkeysSections)}"
-          </span>
-        </div>
-      {/if}
-
-      <div class="flex gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          class="flex-1"
-          onclick={stopRecording}
-        >
-          Cancel
-        </Button>
-
-        {#if recordingState.lastPressedKey}
-          <Button
-            size="sm"
-            class="flex-1 gap-1.5"
-            onclick={() => confirmRecording(recordingState.lastPressedKey)}
-            disabled={!!(
-              getActionForHotkey(
-                recordingState.lastPressedKey,
-                hotkeysSections,
-              ) &&
-              getActionForHotkey(
-                recordingState.lastPressedKey,
-                hotkeysSections,
-              ) !== getActionNameById(recordingState.actionId || "")
-            )}
-          >
-            <Check class="h-3.5 w-3.5" />
-            Save
-          </Button>
-        {/if}
-      </div>
-
-      <div class="mt-3 flex items-center justify-center gap-4 text-xs text-muted-foreground">
-        <span class="flex items-center gap-1.5"><Kbd>Esc</Kbd> cancel</span>
-        <span class="flex items-center gap-1.5"><Kbd>Backspace</Kbd> clear</span>
-      </div>
-    </div>
-  </div>
-{/if}
