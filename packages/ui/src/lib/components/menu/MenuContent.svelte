@@ -25,7 +25,7 @@
     <div class="fixed inset-0 z-50" onclick={() => ctx.close()}></div>
     <div
         class={cn(
-            "absolute z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
+            "absolute z-50 min-w-[8rem] overflow-hidden rounded-md bg-popover p-1 text-popover-foreground shadow-md",
             "top-[calc(100%+4px)]",
             align === "end" ? "right-0" : "left-0",
             className,

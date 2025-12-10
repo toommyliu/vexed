@@ -35,6 +35,8 @@
   import IconCheckmark from "./components/IconCheckmark.svelte";
   import Play from "lucide-svelte/icons/play";
   import Square from "lucide-svelte/icons/square";
+  import { Button, Checkbox, Label } from "@vexed/ui";
+  import * as Menu from "@vexed/ui/Menu";
 
   const logger = log.scope("game/app");
 
@@ -390,17 +392,6 @@
 </script>
 
 <svelte:window
-  on:click={(ev) => {
-    const target = ev.target as HTMLElement;
-
-    if (target.closest("[id$='-dropdowncontent']") || target.closest(".group"))
-      return;
-
-    openDropdown = null;
-  }}
-  on:blur={() => {
-    openDropdown = null;
-  }}
   on:mousedown={(ev) => {
     if ((ev.target as HTMLElement).id === "swf") openDropdown = null;
   }}
@@ -463,209 +454,107 @@
         </div>
 
         <div class="flex flex-row items-center">
-          <!-- Scripts Dropdown (simplified) -->
-          <div class="group relative inline-block cursor-pointer">
-            <button
-              class="bg-transparent rounded-md px-2 py-2 text-xs font-medium transition-all duration-200 hover:bg-accent"
-              onclick={(ev) => {
-                ev.stopPropagation();
-                toggleDropdown("scripts");
-              }}
-            >
-              Scripts
-            </button>
-            <div
-              class="absolute z-[9999] mt-1 min-w-40 rounded-lg border border-border bg-popover text-xs shadow-2xl backdrop-blur-md"
-              style:display={openDropdown === "scripts" ? "block" : "none"}
-            >
-              <button
-                class="bg-transparent flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 first:rounded-t-lg hover:bg-accent"
-                onclick={() => {
-                  openDropdown = null;
-                  void client.scripts.loadScript({ scriptPath: "" });
-                }}
-              >
-                Load Script
-              </button>
-              <button
-                class="bg-transparent flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-accent"
-                onclick={() => {
-                  openDropdown = null;
-                  commandOverlayState.toggle();
-                }}
-              >
-                {scriptState.showOverlay ? "Hide Overlay" : "Show Overlay"}
-              </button>
-              <button
-                class="bg-transparent flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 last:rounded-b-lg hover:bg-accent"
-                onclick={() => {
-                  openDropdown = null;
-                  void client.scripts.toggleDevTools();
-                }}
-              >
-                Dev Tools
-              </button>
-            </div>
-          </div>
-
-          <div
-            class="group relative inline-block cursor-pointer"
-            id="options-dropdown"
+          <Menu.Root
+            open={openDropdown === "scripts"}
+            onOpenChange={(open) => (openDropdown = open ? "scripts" : null)}
           >
-            <button
-              class="bg-transparent rounded-md px-2 py-2 text-xs font-medium transition-all duration-200 hover:bg-accent"
-              id="options"
-              onclick={(ev) => {
-                ev.stopPropagation();
-                toggleDropdown("options");
-              }}
-            >
+            <Menu.Trigger class="bg-transparent rounded-md px-2 py-2 text-xs font-medium transition-all duration-200 hover:bg-accent">
+              Scripts
+            </Menu.Trigger>
+            <Menu.Content class="min-w-40 text-xs">
+              <Menu.Item class="bg-transparent" onclick={() => void client.scripts.loadScript({ scriptPath: "" })}>
+                Load Script
+              </Menu.Item>
+              <Menu.Item class="bg-transparent" onclick={() => commandOverlayState.toggle()}>
+                {scriptState.showOverlay ? "Hide Overlay" : "Show Overlay"}
+              </Menu.Item>
+              <Menu.Item class="bg-transparent" onclick={() => void client.scripts.toggleDevTools()}>
+                Dev Tools
+              </Menu.Item>
+            </Menu.Content>
+          </Menu.Root>
+
+          <Menu.Root
+            open={openDropdown === "options"}
+            onOpenChange={(open) => (openDropdown = open ? "options" : null)}
+          >
+            <Menu.Trigger class="bg-transparent rounded-md px-2 py-2 text-xs font-medium transition-all duration-200 hover:bg-accent">
               Options
-            </button>
-            <div
-              class="absolute z-[9999] mt-1 min-w-48 rounded-lg border border-border bg-popover text-xs shadow-2xl backdrop-blur-md"
-              style:display={openDropdown === "options" ? "block" : "none"}
-              id="options-dropdowncontent"
-              role="menu"
-              tabindex="0"
-            >
-              <button
-                class="bg-transparent group flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 first:rounded-t-lg hover:bg-accent"
-                id="option-infinite-range"
-                class:option-active={gameState.infiniteRange}
-                onclick={() =>
-                  (gameState.infiniteRange = !gameState.infiniteRange)}
+            </Menu.Trigger>
+            <Menu.Content class="min-w-48 text-xs">
+              <Menu.Item
+                class="bg-transparent flex items-center justify-between"
+                onclick={() => (gameState.infiniteRange = !gameState.infiniteRange)}
               >
                 <span>Infinite Range</span>
-                <IconCheckmark />
-              </button>
-              <button
-                class="bg-transparent flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-accent"
-                id="option-provoke-cell"
-                class:option-active={gameState.provokeCell}
+                {#if gameState.infiniteRange}<IconCheckmark />{/if}
+              </Menu.Item>
+              <Menu.Item
+                class="bg-transparent flex items-center justify-between"
                 onclick={() => (gameState.provokeCell = !gameState.provokeCell)}
               >
                 <span>Provoke Cell</span>
-                <IconCheckmark />
-              </button>
-              <button
-                class="bg-transparent flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-accent"
-                id="option-enemy-magnet"
-                class:option-active={gameState.enemyMagnet}
+                {#if gameState.provokeCell}<IconCheckmark />{/if}
+              </Menu.Item>
+              <Menu.Item
+                class="bg-transparent flex items-center justify-between"
                 onclick={() => (gameState.enemyMagnet = !gameState.enemyMagnet)}
               >
                 <span>Enemy Magnet</span>
-                <IconCheckmark />
-              </button>
-              <button
-                class="bg-transparent flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-accent"
-                id="option-lag-killer"
-                class:option-active={gameState.lagKiller}
+                {#if gameState.enemyMagnet}<IconCheckmark />{/if}
+              </Menu.Item>
+              <Menu.Item
+                class="bg-transparent flex items-center justify-between"
                 onclick={() => (gameState.lagKiller = !gameState.lagKiller)}
               >
                 <span>Lag Killer</span>
-                <IconCheckmark />
-              </button>
-              <button
-                class="bg-transparent flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-accent"
-                id="option-hide-players"
-                class:option-active={gameState.hidePlayers}
+                {#if gameState.lagKiller}<IconCheckmark />{/if}
+              </Menu.Item>
+              <Menu.Item
+                class="bg-transparent flex items-center justify-between"
                 onclick={() => (gameState.hidePlayers = !gameState.hidePlayers)}
               >
                 <span>Hide Players</span>
-                <IconCheckmark />
-              </button>
-              <button
-                class="bg-transparent flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-accent"
-                id="option-skip-cutscenes"
-                class:option-active={gameState.skipCutscenes}
-                onclick={() =>
-                  (gameState.skipCutscenes = !gameState.skipCutscenes)}
+                {#if gameState.hidePlayers}<IconCheckmark />{/if}
+              </Menu.Item>
+              <Menu.Item
+                class="bg-transparent flex items-center justify-between"
+                onclick={() => (gameState.skipCutscenes = !gameState.skipCutscenes)}
               >
                 <span>Skip Cutscenes</span>
-                <IconCheckmark />
-              </button>
-              <button
-                class="bg-transparent flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-accent"
-                id="option-disable-fx"
-                class:option-active={gameState.disableFx}
+                {#if gameState.skipCutscenes}<IconCheckmark />{/if}
+              </Menu.Item>
+              <Menu.Item
+                class="bg-transparent flex items-center justify-between"
                 onclick={() => (gameState.disableFx = !gameState.disableFx)}
               >
                 <span>Disable FX</span>
-                <IconCheckmark />
-              </button>
-              <button
-                class="bg-transparent flex w-full items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-accent"
-                id="option-disable-collisions"
-                class:option-active={gameState.disableCollisions}
-                onclick={() =>
-                  (gameState.disableCollisions = !gameState.disableCollisions)}
+                {#if gameState.disableFx}<IconCheckmark />{/if}
+              </Menu.Item>
+              <Menu.Item
+                class="bg-transparent flex items-center justify-between"
+                onclick={() => (gameState.disableCollisions = !gameState.disableCollisions)}
               >
                 <span>Disable Collisions</span>
-                <IconCheckmark />
-              </button>
-              <div
-                class="flex w-full cursor-default items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-accent"
-                id="option-walkspeed"
-                onclick={(ev) => ev.stopPropagation()}
-                onkeydown={(ev) => {
-                  if (ev.key === "Enter" || ev.key === " ") {
-                    ev.preventDefault();
-                    gameState.walkSpeed = Number.parseInt(
-                      (ev.target as HTMLInputElement).value,
-                    );
-                  }
-                }}
-                role="button"
-                tabindex="0"
+                {#if gameState.disableCollisions}<IconCheckmark />{/if}
+              </Menu.Item>
+              <Menu.Item
+                class="bg-transparent flex items-center justify-between"
+                onclick={() => (gameState.walkSpeed = (gameState.walkSpeed + 8) % 100)}
               >
                 <span>Walk Speed</span>
-                <input
-                  type="number"
-                  class="w-14 rounded border border-border bg-muted px-2 py-1 text-xs text-foreground transition-all duration-200 focus:border-primary focus:ring-1 focus:ring-primary/50"
-                  bind:value={gameState.walkSpeed}
-                  min="0"
-                  max="99"
-                  onclick={(ev) => ev.stopPropagation()}
-                  onkeydown={(ev) => {
-                    if (ev.key === "Enter" || ev.key === " ") {
-                      ev.preventDefault();
-                      gameState.walkSpeed = Number.parseInt(
-                        (ev.target as HTMLInputElement).value,
-                      );
-                    }
-                  }}
-                />
-              </div>
-              <div
-                class="flex w-full cursor-default items-center justify-between px-4 py-2 text-left text-xs transition-colors duration-150 last:rounded-b-lg hover:bg-accent"
-                id="option-fps"
-                onclick={(ev) => ev.stopPropagation()}
-                onkeydown={(ev) => {
-                  if (ev.key === "Enter" || ev.key === " ") {
-                    ev.preventDefault();
-                    gameState.fps = Number.parseInt(
-                      (ev.target as HTMLInputElement).value,
-                    );
-                  }
-                }}
-                role="button"
-                tabindex="0"
+                <span class="text-muted-foreground">{gameState.walkSpeed}</span>
+              </Menu.Item>
+              <Menu.Item
+                class="bg-transparent flex items-center justify-between"
+                onclick={() => (gameState.fps = gameState.fps === 60 ? 30 : 60)}
               >
                 <span>FPS</span>
-                <input
-                  type="number"
-                  class="w-14 rounded border border-border bg-muted px-2 py-1 text-xs text-foreground transition-all duration-200 focus:border-primary focus:ring-1 focus:ring-primary/50"
-                  bind:value={gameState.fps}
-                  min="10"
-                  max="120"
-                  onclick={(ev) => ev.stopPropagation()}
-                />
-              </div>
-            </div>
-          </div>
+                <span class="text-muted-foreground">{gameState.fps}</span>
+              </Menu.Item>
+            </Menu.Content>
+          </Menu.Root>
 
-          <!-- Script Control Button -->
           <button
             class={cn(
               "ml-1 flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-all duration-200",
@@ -685,108 +574,72 @@
             {/if}
           </button>
         </div>
-        <div class="ml-auto mr-2 flex flex-row items-center">
-          <div class="ml-1.5 flex space-x-2">
-            <label
-              class="mr-1 flex cursor-pointer select-none items-center text-xs text-white"
-            >
-              <input
-                type="checkbox"
-                bind:checked={autoEnabled}
-                class="h-4 w-4 rounded border-gray-500/30 bg-background-primary focus:outline-none focus:ring-0"
-              />
-              <span class="ml-1.5">Auto</span>
-            </label>
-            <div
-              class="relative inline-block h-[25px] w-[86px] cursor-pointer"
-              id="pads-dropdown"
-            >
-              <button
-                class="h-full w-full rounded border border-gray-500/30 bg-background-primary p-0 text-xs transition-all duration-200 hover:border-gray-400/50"
-                class:cursor-not-allowed={!gameConnected}
-                class:opacity-50={!gameConnected}
-                id="pads"
-                disabled={!gameConnected}
-                onclick={(ev) => {
-                  ev.stopPropagation();
+        <div class="ml-auto mr-2 flex items-center gap-2">
+          <div class="flex items-center gap-2">
+            <Label class="flex cursor-pointer select-none items-center gap-1.5 text-xs text-foreground">
+              <Checkbox bind:checked={autoEnabled} />
+              <span>Auto</span>
+            </Label>
+            <Menu.Root
+              open={openDropdown === "pads"}
+              onOpenChange={(open) => {
+                if (open) {
                   updatePads();
-                  toggleDropdown("pads");
-                }}
+                  openDropdown = "pads";
+                } else {
+                  openDropdown = null;
+                }
+              }}
+              class="h-[25px] w-[86px]"
+            >
+              <Menu.Trigger
+                class="h-full w-full rounded-md border border-border bg-background px-2 text-xs text-foreground transition-all duration-200 hover:border-muted-foreground/60 hover:bg-accent/50 disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={!gameConnected}
               >
                 {currentSelectedPad}
-              </button>
-              <div
-                class="absolute top-full z-[9999] mt-1 min-w-40 rounded-lg border border-gray-700/50 bg-background-secondary text-xs shadow-2xl backdrop-blur-md"
-                style:display={openDropdown === "pads" ? "block" : "none"}
-                id="pads-dropdowncontent"
-                onmouseenter={() => (openDropdown = "pads")}
-                onmouseleave={() => (openDropdown = null)}
-                role="menu"
-                tabindex="0"
-              >
+              </Menu.Trigger>
+              <Menu.Content class="min-w-40 text-xs">
                 {#each validPads as pad}
-                  <button
-                    class={cn(
-                      "flex w-full items-center bg-background-secondary px-4 py-2 text-left transition-colors duration-150 hover:bg-gray-700/50",
-                      pad.isValid && "text-green-500 hover:text-green-500",
-                    )}
-                    class:first:rounded-t-lg={validPads.indexOf(pad) === 0}
-                    class:last:rounded-b-lg={validPads.indexOf(pad) ===
-                      validPads.length - 1}
+                  <Menu.Item
+                    class={cn("bg-transparent", pad.isValid && "text-primary")}
                     onclick={() => jumpToPad(pad.name)}
                   >
                     {pad.name}
-                  </button>
+                  </Menu.Item>
                 {/each}
-              </div>
-            </div>
-            <div
-              class="relative inline-block h-[25px] w-[86px] cursor-pointer"
-              id="cells-dropdown"
-            >
-              <button
-                class="h-full w-full rounded border border-gray-500/30 bg-background-primary p-0 text-xs transition-all duration-200 hover:border-gray-400/50"
-                class:cursor-not-allowed={!gameConnected}
-                class:opacity-50={!gameConnected}
-                id="cells"
-                disabled={!gameConnected}
-                onclick={(ev) => {
-                  ev.stopPropagation();
+              </Menu.Content>
+            </Menu.Root>
+            <Menu.Root
+              open={openDropdown === "cells"}
+              onOpenChange={(open) => {
+                if (open) {
                   updateCells();
-                  toggleDropdown("cells");
-                }}
+                  openDropdown = "cells";
+                } else {
+                  openDropdown = null;
+                }
+              }}
+              class="h-[25px] w-[86px]"
+            >
+              <Menu.Trigger
+                class="h-full w-full rounded-md border border-border bg-background px-2 text-xs text-foreground transition-all duration-200 hover:border-muted-foreground/60 hover:bg-accent/50 disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={!gameConnected}
               >
                 {currentSelectedCell}
-              </button>
-              <div
-                class="absolute top-full z-[9999] mt-1 max-h-[25vh] min-w-40 overflow-y-auto overflow-x-hidden rounded-lg border border-gray-700/50 bg-background-primary text-xs shadow-2xl backdrop-blur-md"
-                style:display={openDropdown === "cells" ? "block" : "none"}
-                id="cells-dropdowncontent"
-                onmouseenter={() => (openDropdown = "cells")}
-                onmouseleave={() => (openDropdown = null)}
-                role="menu"
-                tabindex="0"
-              >
+              </Menu.Trigger>
+              <Menu.Content class="max-h-[25vh] min-w-40 overflow-y-auto text-xs">
                 {#each availableCells as cell}
-                  <button
-                    class="flex w-full items-center px-4 py-2 text-left text-xs transition-colors duration-150 hover:bg-gray-700"
-                    class:first:rounded-t-lg={availableCells.indexOf(cell) ===
-                      0}
-                    class:last:rounded-b-lg={availableCells.indexOf(cell) ===
-                      availableCells.length - 1}
-                    onclick={() => jumpToCell(cell)}
-                  >
+                  <Menu.Item class="bg-transparent" onclick={() => jumpToCell(cell)}>
                     {cell}
-                  </button>
+                  </Menu.Item>
                 {/each}
-              </div>
-            </div>
+              </Menu.Content>
+            </Menu.Root>
           </div>
-          <div class="ml-1.5 flex space-x-1">
-            <button
-              class="mt-[3px] flex h-[25px] min-w-0 items-center justify-center rounded border border-gray-500/30 bg-background-primary px-[8px] py-0 text-xs text-white transition-all duration-200 hover:border-gray-400/50"
-              class:cursor-not-allowed={!gameConnected}
-              class:opacity-50={!gameConnected}
+          <div class="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="xs"
               disabled={!gameConnected}
               onclick={() => {
                 if (!bot.player.isReady()) return;
@@ -802,12 +655,11 @@
                 );
               }}
             >
-              x
-            </button>
-            <button
-              class="mt-[3px] flex h-[25px] min-w-0 items-center justify-center rounded border border-gray-500/30 bg-background-primary px-[8px] py-0 text-xs text-white transition-all duration-200 hover:border-gray-400/50"
-              class:cursor-not-allowed={!gameConnected}
-              class:opacity-50={!gameConnected}
+              Jump
+            </Button>
+            <Button
+              variant="ghost"
+              size="xs"
               disabled={!gameConnected}
               onclick={async () => {
                 if (!bot.player.isReady()) return;
@@ -820,7 +672,7 @@
               }}
             >
               Bank
-            </button>
+            </Button>
           </div>
         </div>
       </div>
