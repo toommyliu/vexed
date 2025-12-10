@@ -115,6 +115,10 @@
     }
 
     await saveHotkeyConfig();
+    await client.hotkeys.updateHotkey({
+      id: item!.id,
+      value: "",
+    });
     stopRecording();
   }
 
