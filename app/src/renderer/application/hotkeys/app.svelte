@@ -12,13 +12,10 @@
   import Inbox from "lucide-svelte/icons/inbox";
   import AlertTriangle from "lucide-svelte/icons/triangle-alert";
   import Check from "lucide-svelte/icons/check";
-
-
   import { client } from "@shared/tipc";
   import type { HotkeyConfig } from "@shared/types";
   import type { HotkeySection, RecordingState } from "./types";
   import {
-    isMac,
     isValidHotkey,
     formatHotkey,
     parseKeyboardEvent,
@@ -246,90 +243,79 @@
     </div>
   {/if}
 
-  <div class="flex flex-1 overflow-hidden">
-    <nav class="w-48 shrink-0 border-r border-border/50 bg-secondary/20 p-2">
-      {#each hotkeysSections as section}
-        <button
-          class={cn(
-            "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm transition-colors",
-            activeSection === section.name
-              ? "bg-primary/10 text-primary"
-              : "bg-transparent text-muted-foreground hover:bg-secondary/50 hover:text-foreground"
-          )}
-          onclick={() => (activeSection = section.name)}
-        >
-          {#if getSectionIcon(section.icon)}
-            {@const Icon = getSectionIcon(section.icon)}
-            <Icon class="h-4 w-4 shrink-0" />
+  <div class="flex-1 overflow-auto">
+    <div class="mx-auto max-w-xl px-6 py-4">
+      {#each hotkeysSections as section, sectionIndex}
+        {@const isExpanded = activeSection === section.name}
+        <div class={cn(sectionIndex > 0 && "mt-1")}>
+          <button
+            class="group flex w-full items-center gap-2 rounded-md bg-secondary/20 px-2 py-1.5 text-left transition-colors hover:bg-secondary/40"
+            onclick={() => (activeSection = isExpanded ? null : section.name)}
+          >
+            {#if getSectionIcon(section.icon)}
+              {@const Icon = getSectionIcon(section.icon)}
+              <Icon class="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+            {/if}
+            <span class="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              {section.name}
+            </span>
+            <svg
+              class={cn(
+                "ml-auto h-3.5 w-3.5 text-muted-foreground/60 transition-transform duration-150",
+                isExpanded && "rotate-180"
+              )}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          {#if isExpanded}
+            <div class="mt-1 space-y-px pl-1">
+              {#each section.items as item}
+                <button
+                  class="group/row flex w-full cursor-pointer items-center justify-between rounded-md bg-transparent px-2 py-2 text-left transition-colors hover:bg-secondary/30"
+                  onclick={() => startRecording(item.id)}
+                >
+                  <span class="text-sm text-foreground">{item.label}</span>
+                  <div class="flex min-w-[120px] items-center justify-end gap-2">
+                    {#if item.value}
+                      <div class="flex items-center gap-1.5">
+                        {#each formatHotkey(item.value).split("+") as keyPart, idx}
+                          {#if idx > 0}
+                            <span class="text-muted-foreground/50 text-xs">+</span>
+                          {/if}
+                          <Kbd class="transition-all group-hover/row:border-primary/40 group-hover/row:bg-muted/70">
+                            {keyPart}
+                          </Kbd>
+                        {/each}
+                      </div>
+                      <svg
+                        class="h-3.5 w-3.5 text-muted-foreground/0 transition-all group-hover/row:text-muted-foreground/60"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                      </svg>
+                    {:else}
+                      <span class="inline-flex h-6 items-center rounded border border-dashed border-muted-foreground/30 px-2.5 text-[11px] font-medium text-muted-foreground transition-colors group-hover/row:border-primary/50 group-hover/row:text-primary">
+                        Click to set
+                      </span>
+                      <div class="w-3.5"></div>
+                    {/if}
+                  </div>
+                </button>
+              {/each}
+            </div>
           {/if}
-          <span class="truncate">{section.name}</span>
-        </button>
+        </div>
       {/each}
-    </nav>
-
-    <main class="flex-1 overflow-auto">
-      {#each hotkeysSections as section}
-        {#if activeSection === section.name}
-          <div class="p-4">
-            <div class="mb-4 flex items-center gap-2">
-            </div>
-
-            <div class="rounded-lg border border-border/50 bg-card overflow-hidden">
-              <table class="w-full">
-                <thead>
-                  <tr class="border-b border-border/30 bg-secondary/30">
-                    <th class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Action
-                    </th>
-                    <th class="px-4 py-2 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Shortcut
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {#each section.items as item, index}
-                    <tr
-                      class={cn(
-                        "group transition-colors hover:bg-secondary/30",
-                        index !== section.items.length - 1 && "border-b border-border/20"
-                      )}
-                    >
-                      <td class="px-4 py-2.5">
-                        <span class="text-sm text-foreground">{item.label}</span>
-                      </td>
-                      <td class="px-4 py-2.5 text-right">
-                        {#if item.value}
-                          <button
-                            class="inline-flex items-center gap-1.5 bg-transparent"
-                            onclick={() => startRecording(item.id)}
-                          >
-                            {#each formatHotkey(item.value).split("+") as keyPart, idx}
-                              {#if idx > 0}
-                                <span class="text-muted-foreground/50 text-xs">+</span>
-                              {/if}
-                              <Kbd class="transition-colors group-hover:bg-muted/80">
-                                {keyPart}
-                              </Kbd>
-                            {/each}
-                          </button>
-                        {:else}
-                          <button
-                            class="inline-flex h-7 items-center rounded-md border border-dashed border-muted-foreground/30 px-3 text-[11px] font-medium text-muted-foreground transition-colors hover:border-primary/50 hover:text-primary"
-                            onclick={() => startRecording(item.id)}
-                          >
-                            Record Shortcut
-                          </button>
-                        {/if}
-                      </td>
-                    </tr>
-                  {/each}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        {/if}
-      {/each}
-    </main>
+    </div>
   </div>
 </div>
 
