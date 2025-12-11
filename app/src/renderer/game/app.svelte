@@ -426,18 +426,17 @@
   {#if topNavVisible}
     <div
       id="topnav-container"
-      class="relative z-[10000] min-h-8 border-b border-border bg-background backdrop-blur-sm"
+      class="relative z-[10000] flex h-9 items-center border-b border-border/50 bg-background/95 backdrop-blur-md"
     >
       <div
         id="topnav"
-        class="flex w-full flex-row items-center justify-between"
-      >
+        class="flex h-full w-full flex-row items-center gap-0.5 px-1">
         <div
-          class="group relative inline-block cursor-pointer"
+          class="group relative inline-flex h-full cursor-pointer items-center"
           id="windows-dropdown"
         >
           <button
-            class="bg-transparent rounded-md px-2 py-2 text-xs font-medium transition-all duration-200 hover:bg-accent"
+            class="flex h-7 shrink-0 items-center rounded bg-transparent px-2.5 text-[length:var(--topnav-font-size)] font-medium text-foreground/80 transition-colors duration-150 hover:bg-accent hover:text-foreground"
             id="windows"
             onclick={(ev) => {
               ev.stopPropagation();
@@ -453,15 +452,15 @@
           />
         </div>
 
-        <div class="flex flex-row items-center">
+        <div class="flex h-full flex-row items-center">
           <Menu.Root
             open={openDropdown === "scripts"}
             onOpenChange={(open) => (openDropdown = open ? "scripts" : null)}
           >
-            <Menu.Trigger class="bg-transparent rounded-md px-2 py-2 text-xs font-medium transition-all duration-200 hover:bg-accent">
+            <Menu.Trigger class="flex h-7 shrink-0 items-center rounded bg-transparent px-2.5 text-[length:var(--topnav-font-size)] font-medium text-foreground/80 transition-colors duration-150 hover:bg-accent hover:text-foreground">
               Scripts
             </Menu.Trigger>
-            <Menu.Content class="min-w-40 text-xs">
+            <Menu.Content class="min-w-40 text-[length:var(--topnav-font-size)]">
               <Menu.Item class="bg-transparent" onclick={() => void client.scripts.loadScript({ scriptPath: "" })}>
                 Load Script
               </Menu.Item>
@@ -478,10 +477,10 @@
             open={openDropdown === "options"}
             onOpenChange={(open) => (openDropdown = open ? "options" : null)}
           >
-            <Menu.Trigger class="bg-transparent rounded-md px-2 py-2 text-xs font-medium transition-all duration-200 hover:bg-accent">
+            <Menu.Trigger class="flex h-7 shrink-0 items-center rounded bg-transparent px-2.5 text-[length:var(--topnav-font-size)] font-medium text-foreground/80 transition-colors duration-150 hover:bg-accent hover:text-foreground">
               Options
             </Menu.Trigger>
-            <Menu.Content class="min-w-48 text-xs">
+            <Menu.Content class="min-w-48 text-[length:var(--topnav-font-size)]">
               <Menu.Item
                 class="bg-transparent flex items-center justify-between"
                 onclick={() => (gameState.infiniteRange = !gameState.infiniteRange)}
@@ -558,7 +557,7 @@
 
           <button
             class={cn(
-              "ml-1 flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-all duration-200",
+              "ml-0.5 flex h-6 shrink-0 items-center gap-1 rounded px-2 text-[length:var(--topnav-font-size-sm)] font-medium transition-colors duration-150",
               !scriptState.isLoaded && "cursor-not-allowed opacity-40",
               scriptState.isLoaded && !scriptState.isRunning && "bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30",
               scriptState.isRunning && "bg-amber-600/20 text-amber-400 hover:bg-amber-600/30"
@@ -567,20 +566,23 @@
             onclick={toggleScript}
           >
             {#if scriptState.isRunning}
-              <Square class="h-3 w-3" />
+              <Square class="size-2.5" />
               <span>Stop</span>
             {:else}
-              <Play class="h-3 w-3" />
+              <Play class="size-2.5" />
               <span>Run</span>
             {/if}
           </button>
         </div>
-        <div class="ml-auto mr-2 flex items-center gap-2">
-          <div class="flex items-center gap-2">
-            <Label class="flex cursor-pointer select-none items-center gap-1.5 text-xs text-foreground">
-              <Checkbox bind:checked={autoEnabled} />
-              <span>Auto</span>
-            </Label>
+
+        <div class="ml-auto flex h-full shrink-0 items-center gap-1 pr-1.5">
+          <div class="mr-1 h-4 w-px bg-border/60"></div>
+          <Label class="flex cursor-pointer select-none items-center gap-1.5 text-[length:var(--topnav-font-size-sm)] text-foreground/70 transition-colors hover:text-foreground">
+            <Checkbox bind:checked={autoEnabled} />
+            <span>Auto</span>
+          </Label>
+          <div class="ml-0.5 h-4 w-px bg-border/60"></div>
+          <div class="flex items-center gap-1">
             <Menu.Root
               open={openDropdown === "pads"}
               onOpenChange={(open) => {
@@ -591,15 +593,15 @@
                   openDropdown = null;
                 }
               }}
-              class="h-[25px] w-[86px]"
+              class="h-6 w-20"
             >
               <Menu.Trigger
-                class="h-full w-full rounded-md border border-border bg-background px-2 text-xs text-foreground transition-all duration-200 hover:border-muted-foreground/60 hover:bg-accent/50 disabled:cursor-not-allowed disabled:opacity-50"
+                class="flex h-full w-full items-center justify-between rounded border border-border/60 bg-background px-2 text-[length:var(--topnav-font-size-sm)] text-foreground/80 transition-colors duration-150 hover:border-border hover:bg-accent/30 disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={!gameConnected}
               >
                 {currentSelectedPad}
               </Menu.Trigger>
-              <Menu.Content class="min-w-40 text-xs">
+              <Menu.Content class="min-w-40 text-[length:var(--topnav-font-size-sm)]">
                 {#each validPads as pad}
                   <Menu.Item
                     class={cn("bg-transparent", pad.isValid && "text-primary")}
@@ -620,15 +622,15 @@
                   openDropdown = null;
                 }
               }}
-              class="h-[25px] w-[86px]"
+              class="h-6 w-20"
             >
               <Menu.Trigger
-                class="h-full w-full rounded-md border border-border bg-background px-2 text-xs text-foreground transition-all duration-200 hover:border-muted-foreground/60 hover:bg-accent/50 disabled:cursor-not-allowed disabled:opacity-50"
+                class="flex h-full w-full items-center justify-between rounded border border-border/60 bg-background px-2 text-[length:var(--topnav-font-size-sm)] text-foreground/80 transition-colors duration-150 hover:border-border hover:bg-accent/30 disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={!gameConnected}
               >
                 {currentSelectedCell}
               </Menu.Trigger>
-              <Menu.Content class="max-h-[25vh] min-w-40 overflow-y-auto text-xs">
+              <Menu.Content class="max-h-[25vh] min-w-40 overflow-y-auto text-[length:var(--topnav-font-size-sm)]">
                 {#each availableCells as cell}
                   <Menu.Item class="bg-transparent" onclick={() => jumpToCell(cell)}>
                     {cell}
@@ -636,11 +638,10 @@
                 {/each}
               </Menu.Content>
             </Menu.Root>
-          </div>
-          <div class="flex items-center gap-1">
             <Button
               variant="ghost"
               size="xs"
+              class="h-6 px-2 text-[length:var(--topnav-font-size-sm)] text-foreground/70 hover:text-foreground"
               disabled={!gameConnected}
               onclick={() => {
                 if (!bot.player.isReady()) return;
@@ -658,23 +659,25 @@
             >
               Jump
             </Button>
-            <Button
-              variant="ghost"
-              size="xs"
-              disabled={!gameConnected}
-              onclick={async () => {
-                if (!bot.player.isReady()) return;
-
-                if (bot.bank.isOpen()) {
-                  bot.flash.call(() => swf.bankOpen());
-                } else {
-                  await bot.bank.open();
-                }
-              }}
-            >
-              Bank
-            </Button>
           </div>
+          <div class="ml-0.5 h-4 w-px bg-border/60"></div>
+          <Button
+            variant="ghost"
+            size="xs"
+            class="h-6 px-2 text-[length:var(--topnav-font-size-sm)] text-foreground/70 hover:text-foreground"
+            disabled={!gameConnected}
+            onclick={async () => {
+              if (!bot.player.isReady()) return;
+
+              if (bot.bank.isOpen()) {
+                bot.flash.call(() => swf.bankOpen());
+              } else {
+                await bot.bank.open();
+              }
+            }}
+          >
+            Bank
+          </Button>
         </div>
       </div>
     </div>

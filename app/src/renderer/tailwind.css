@@ -6,15 +6,38 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --topnav-font-size: 11px;
+    --topnav-font-size-sm: 10px;
+  }
+
+  @media (min-width: 768px) {
+    :root {
+      --topnav-font-size: 12px;
+      --topnav-font-size-sm: 11px;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    :root {
+      --topnav-font-size: 13px;
+      --topnav-font-size-sm: 12px;
+    }
+  }
+
+  @media (min-width: 1536px) {
+    :root {
+      --topnav-font-size: 14px;
+      --topnav-font-size-sm: 13px;
+    }
+  }
 
   html,
   body {
     user-select: none;
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    font-size: 14px !important;
     font-feature-settings: 'cv01', 'cv02', 'cv03', 'cv04', 'ss01';
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
   }
 
   :focus,
