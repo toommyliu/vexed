@@ -318,6 +318,7 @@
             onblur={() => {
               bot.settings.customName = customName || null;
             }}
+            spellcheck={false}
           />
         </div>
 
@@ -331,6 +332,7 @@
             onblur={() => {
               bot.settings.customGuild = customGuild || null;
             }}
+            spellcheck={false}
           />
         </div>
       </div>
