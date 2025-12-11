@@ -88,6 +88,7 @@ export const DEFAULT_HOTKEYS: HotkeyConfig = {
   General: {
     "Toggle Autoattack": "",
     "Toggle Bank": IS_MAC ? "command+b" : "ctrl+b",
+    "Toggle Options Panel": IS_MAC ? "command+," : "ctrl+,",
     "Toggle Top Bar": IS_MAC ? "command+shift+t" : "ctrl+shift+t",
   },
   Application: {

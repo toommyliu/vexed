@@ -4,6 +4,7 @@
     gameState,
     scriptState,
     commandOverlayState,
+    optionsPanelState,
     appState,
   } from "./state.svelte";
   import { client, handlers } from "@shared/tipc";
@@ -31,8 +32,8 @@
 
   import CommandOverlay from "./components/CommandOverlay.svelte";
   import CommandPalette from "./components/CommandPalette.svelte";
+  import OptionsPanel from "./components/OptionsPanel.svelte";
   import WindowsMegaMenu from "./components/WindowsMegaMenu.svelte";
-  import IconCheckmark from "./components/IconCheckmark.svelte";
   import Play from "lucide-svelte/icons/play";
   import Square from "lucide-svelte/icons/square";
   import { Button, Checkbox, Label } from "@vexed/ui";
@@ -279,6 +280,10 @@
 
       case "open-packet-spammer":
         void client.game.launchWindow(WindowIds.PacketSpammer);
+        break;
+
+      case "toggle-options-panel":
+        optionsPanelState.toggle();
         break;
     }
   }
@@ -557,11 +562,9 @@
                 class="bg-transparent flex items-center justify-between"
                 onclick={() => (gameState.fps = gameState.fps === 60 ? 30 : 60)}
               >
-                <span>FPS</span>
-                <span class="text-muted-foreground">{gameState.fps}</span>
-              </Menu.Item>
-            </Menu.Content>
-          </Menu.Root>
+            <span>Options</span>
+            <Kbd hotkey={hotkeyValues["toggle-options-panel"] ?? ""} />
+          </button>
 
           <button
             class={cn(
@@ -735,6 +738,7 @@
   onToggleOverlay={() => commandOverlayState.toggle()}
   {hotkeyValues}
 />
+<OptionsPanel hotkey={hotkeyValues["toggle-options-panel"] ?? ""} />
 
 <style>
   :global(:root) {
