@@ -84,7 +84,7 @@
 
 {#if open}
   <div
-    class="windows-mega-menu absolute left-0 top-full z-[9999] mt-1 grid min-w-[420px] grid-cols-3 gap-0 overflow-hidden rounded-lg border border-border bg-popover shadow-2xl backdrop-blur-xl elevation-2"
+    class="windows-mega-menu absolute left-0 top-full z-[9999] mt-1 grid grid-cols-[auto_auto_auto] gap-0 overflow-hidden rounded-lg border border-border bg-popover shadow-2xl backdrop-blur-xl elevation-2"
   >
     <!-- Application Column -->
     <div class="border-r border-border/50 p-2">
@@ -97,11 +97,11 @@
         <Button
           variant="ghost"
           size="sm"
-          class="w-full justify-between text-xs bg-transparent hover:bg-accent"
+          class="w-full justify-between gap-2 text-xs bg-transparent hover:bg-accent"
           onclick={() => handleItemClick(item)}
         >
           <span>{item.label}</span>
-          <Kbd hotkey={item.hotkey} class="ml-2" />
+          <Kbd hotkey={item.hotkey} />
         </Button>
       {/each}
     </div>
@@ -117,11 +117,11 @@
         <Button
           variant="ghost"
           size="sm"
-          class="w-full justify-between text-xs bg-transparent hover:bg-accent"
+          class="w-full justify-between gap-2 text-xs bg-transparent hover:bg-accent"
           onclick={() => handleItemClick(item)}
         >
           <span>{item.label}</span>
-          <Kbd hotkey={item.hotkey} class="ml-2" />
+          <Kbd hotkey={item.hotkey} />
         </Button>
       {/each}
     </div>
@@ -137,11 +137,11 @@
         <Button
           variant="ghost"
           size="sm"
-          class="w-full justify-between text-xs bg-transparent hover:bg-accent"
+          class="w-full justify-between gap-2 text-xs bg-transparent hover:bg-accent"
           onclick={() => handleItemClick(item)}
         >
           <span>{item.label}</span>
-          <Kbd hotkey={item.hotkey} class="ml-2" />
+          <Kbd hotkey={item.hotkey} />
         </Button>
       {/each}
     </div>

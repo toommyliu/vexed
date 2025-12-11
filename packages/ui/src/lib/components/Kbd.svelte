@@ -45,7 +45,7 @@
 
 {#if hotkeyParts.length || children}
     <span
-        class={cn("inline-flex items-center gap-0.5", className)}
+        class={cn("inline-flex shrink-0 items-center gap-0.5", className)}
         data-slot="kbd-group"
         {...restProps}
     >
