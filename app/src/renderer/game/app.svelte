@@ -332,6 +332,15 @@
   });
 
   onMount(async () => {
+    config = new Config<HotkeyConfig>({
+      configName: "hotkeys",
+      cwd: DOCUMENTS_PATH,
+      defaults: DEFAULT_HOTKEYS,
+    });
+    await config.load();
+    await loadHotkeysFromConfig();
+    setupHotkeyHandlers();
+
     const ret = await client.game.getAssetPath();
     swfPath = ret;
 
@@ -352,15 +361,6 @@
   window.addEventListener(
     "gameLoaded",
     async () => {
-      config = new Config<HotkeyConfig>({
-        configName: "hotkeys",
-        cwd: DOCUMENTS_PATH,
-        defaults: DEFAULT_HOTKEYS,
-      });
-      await config.load();
-      await loadHotkeysFromConfig();
-      setupHotkeyHandlers();
-
       const skillSets = await client.game.getSkillSets();
 
       for (const [className, skillList] of Object.entries(skillSets)) {
