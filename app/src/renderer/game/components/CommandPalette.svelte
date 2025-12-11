@@ -162,6 +162,13 @@
     handleClose();
   }
 
+  function scrollSelectedIntoView(index: number) {
+    requestAnimationFrame(() => {
+      const el = document.querySelector(`[data-command-index="${index}"]`);
+      el?.scrollIntoView({ block: "nearest" });
+    });
+  }
+
   function handleKeydown(ev: KeyboardEvent) {
     if (ev.key === "Escape") {
       ev.preventDefault();
@@ -171,13 +178,17 @@
 
     if (ev.key === "ArrowDown") {
       ev.preventDefault();
-      selectedIndex = Math.min(selectedIndex + 1, filteredCommands.length - 1);
+      const newIndex = Math.min(selectedIndex + 1, filteredCommands.length - 1);
+      selectedIndex = newIndex;
+      scrollSelectedIntoView(newIndex);
       return;
     }
 
     if (ev.key === "ArrowUp") {
       ev.preventDefault();
-      selectedIndex = Math.max(selectedIndex - 1, 0);
+      const newIndex = Math.max(selectedIndex - 1, 0);
+      selectedIndex = newIndex;
+      scrollSelectedIntoView(newIndex);
       return;
     }
 
@@ -272,6 +283,7 @@
                       ? "bg-primary/20 text-foreground"
                       : "text-foreground/80 hover:bg-accent"
                   )}
+                  data-command-index={globalIndex}
                   onclick={() => executeCommand(cmd)}
                   onmouseenter={() => (selectedIndex = globalIndex)}
                 >
