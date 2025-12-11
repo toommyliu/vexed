@@ -1,15 +1,21 @@
 <script lang="ts">
   import { onMount, tick } from "svelte";
   import { gameState, optionsPanelState } from "@game/state.svelte";
-  import { Checkbox, Label } from "@vexed/ui";
+  import { Checkbox, Input, Label } from "@vexed/ui";
   import * as NumberField from "@vexed/ui/NumberField";
   import { motionScale, motionFade } from "@vexed/ui/motion";
   import X from "lucide-svelte/icons/x";
   import { cn } from "@shared/cn";
+  import { Bot } from "@game/lib/Bot";
+
+  const bot = Bot.getInstance();
 
   let panel: HTMLDivElement;
   let panelRef: HTMLDivElement | null = null;
   let wasVisible = false;
+
+  let customName = $state("");
+  let customGuild = $state("");
 
   type ResizeDirection =
     | "n"
@@ -301,6 +307,32 @@
             <NumberField.Input class="number-field-input" />
           </NumberField.Root>
         </div>
+
+        <div class="option-row-text">
+          <span class="option-label">Custom Name</span>
+          <Input
+            bind:value={customName}
+            placeholder="Display name"
+            size="sm"
+            class="text-input"
+            onblur={() => {
+              bot.settings.customName = customName || null;
+            }}
+          />
+        </div>
+
+        <div class="option-row-text">
+          <span class="option-label">Custom Guild</span>
+          <Input
+            bind:value={customGuild}
+            placeholder="Display guild"
+            size="sm"
+            class="text-input"
+            onblur={() => {
+              bot.settings.customGuild = customGuild || null;
+            }}
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -508,5 +540,22 @@
     font-size: 11px;
     text-align: center;
     border-radius: 4px;
+  }
+
+  .option-row-text {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 6px;
+    font-size: 12px;
+    gap: 8px;
+    grid-column: 1 / -1;
+  }
+
+  :global(.text-input) {
+    flex: 1;
+    min-width: 0;
+    height: 22px;
+    font-size: 11px;
   }
 </style>
