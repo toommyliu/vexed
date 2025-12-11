@@ -77,7 +77,7 @@ function initState() {
       if (typeof value === "number") {
         try {
           swf.settingsSetFPS(value);
-        } catch {}
+        } catch { }
       }
     },
   };
@@ -202,9 +202,11 @@ export function initCommandOverlayState() {
   }
 
   function savePosition(overlay: HTMLDivElement): void {
-    const { left, top } = overlay.style;
+    const computed = window.getComputedStyle(overlay);
+    const left = overlay.style.left || computed.left;
+    const top = overlay.style.top || computed.top;
 
-    if (!left || !top) {
+    if (!left || !top || left === 'auto' || top === 'auto') {
       return;
     }
 
@@ -215,7 +217,6 @@ export function initCommandOverlayState() {
     };
 
     if (listVisible) {
-      const computed = window.getComputedStyle(overlay);
       position.width = overlay.style.width || computed.width;
       position.height = overlay.style.height || computed.height;
     }
