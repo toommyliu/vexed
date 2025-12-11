@@ -57,7 +57,7 @@
 {#if formattedHotkey || children}
     <kbd
         class={cn(
-            "inline-flex h-5 min-w-5 cursor-default select-none items-center justify-center rounded border border-border/40 bg-muted/50 px-1 font-mono text-[10px] font-medium text-muted-foreground transition-all",
+            "inline-flex h-5 min-w-5 cursor-default select-none items-center justify-center rounded border border-border/40 bg-muted/50 px-1 text-[10px] font-medium text-muted-foreground transition-all",
             className,
         )}
         data-slot="kbd"

@@ -37,6 +37,7 @@
   import Square from "lucide-svelte/icons/square";
   import { Button, Checkbox, Label } from "@vexed/ui";
   import * as Menu from "@vexed/ui/Menu";
+  import Kbd from "@vexed/ui/Kbd";
 
   const logger = log.scope("game/app");
 
@@ -460,15 +461,18 @@
             <Menu.Trigger class="flex h-7 shrink-0 items-center rounded bg-transparent px-2.5 text-[length:var(--topnav-font-size)] font-medium text-foreground/80 transition-colors duration-150 hover:bg-accent hover:text-foreground">
               Scripts
             </Menu.Trigger>
-            <Menu.Content class="min-w-40 text-[length:var(--topnav-font-size)]">
-              <Menu.Item class="bg-transparent" onclick={() => void client.scripts.loadScript({ scriptPath: "" })}>
-                Load Script
+            <Menu.Content class="min-w-48 text-[length:var(--topnav-font-size)]">
+              <Menu.Item class="bg-transparent flex items-center justify-between" onclick={() => void client.scripts.loadScript({ scriptPath: "" })}>
+                <span>Load Script</span>
+                <Kbd hotkey={hotkeyValues["load-script"] ?? ""} class="ml-4" />
               </Menu.Item>
-              <Menu.Item class="bg-transparent" onclick={() => commandOverlayState.toggle()}>
-                {scriptState.showOverlay ? "Hide Overlay" : "Show Overlay"}
+              <Menu.Item class="bg-transparent flex items-center justify-between" onclick={() => commandOverlayState.toggle()}>
+                <span>{scriptState.showOverlay ? "Hide Overlay" : "Show Overlay"}</span>
+                <Kbd hotkey={hotkeyValues["toggle-command-overlay"] ?? ""} class="ml-4" />
               </Menu.Item>
-              <Menu.Item class="bg-transparent" onclick={() => void client.scripts.toggleDevTools()}>
-                Dev Tools
+              <Menu.Item class="bg-transparent flex items-center justify-between" onclick={() => void client.scripts.toggleDevTools()}>
+                <span>Dev Tools</span>
+                <Kbd hotkey={hotkeyValues["toggle-dev-tools"] ?? ""} class="ml-4" />
               </Menu.Item>
             </Menu.Content>
           </Menu.Root>
