@@ -17,7 +17,6 @@
   import type { HotkeySection, RecordingState } from "./types";
   import {
     isValidHotkey,
-    formatHotkey,
     parseKeyboardEvent,
     createHotkeyConfig,
     findConflicts,
@@ -290,7 +289,7 @@
                   class={cn(
                     "group/row flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left transition-colors",
                     isRecordingThis 
-                      ? "bg-secondary" 
+                      ? "bg-secondary/50" 
                       : "bg-transparent hover:bg-secondary/30 cursor-pointer"
                   )}
                   onclick={() => !isRecordingThis && startRecording(item.id)}
@@ -301,31 +300,15 @@
                   tabindex="0"
                 >
                   <span class="text-sm text-foreground">{item.label}</span>
-                  <div class="flex h-6 min-w-[100px] items-center justify-end">
+                  <div class="flex h-6 min-w-[100px] items-center justify-end gap-2">
                     {#if isRecordingThis}
                       {#if recordingState.lastPressedKey}
-                        <div class="flex items-center gap-1.5">
-                          {#each formatHotkey(recordingState.lastPressedKey).split("+") as keyPart, idx}
-                            {#if idx > 0}
-                              <span class="text-muted-foreground/50 text-xs">+</span>
-                            {/if}
-                            <Kbd class={cn(hasConflict && "border-destructive/50 text-destructive")}>{keyPart}</Kbd>
-                          {/each}
-                        </div>
+                        <Kbd hotkey={recordingState.lastPressedKey} class={hasConflict ? "border-destructive/50 text-destructive" : ""} />
                       {:else}
                         <span class="text-xs text-muted-foreground">Type shortcut...</span>
                       {/if}
                     {:else if item.value}
-                      <div class="flex items-center gap-1.5">
-                        {#each formatHotkey(item.value).split("+") as keyPart, idx}
-                          {#if idx > 0}
-                            <span class="text-muted-foreground/50 text-xs">+</span>
-                          {/if}
-                          <Kbd class="transition-all group-hover/row:border-primary/40 group-hover/row:bg-muted/70">
-                            {keyPart}
-                          </Kbd>
-                        {/each}
-                      </div>
+                      <Kbd hotkey={item.value} class="transition-all group-hover/row:border-primary/40 group-hover/row:bg-muted/70" />
                     {:else}
                       <span class="text-xs text-muted-foreground/50 group-hover/row:text-muted-foreground">
                         Add shortcut
@@ -333,6 +316,15 @@
                     {/if}
                   </div>
                 </div>
+                {#if isRecordingThis}
+                  <div class="flex items-center gap-3 px-2 pb-1 text-[10px] text-muted-foreground/70">
+                    <span><Kbd>Esc</Kbd> cancel</span>
+                    <span><Kbd>Backspace</Kbd> clear</span>
+                    {#if recordingState.lastPressedKey}
+                      <span><Kbd>Enter</Kbd> confirm</span>
+                    {/if}
+                  </div>
+                {/if}
               {/each}
             </div>
           {/if}

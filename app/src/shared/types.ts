@@ -113,6 +113,7 @@ export type HotkeyConfig = {
     "Open Environment"?: string;
   };
   General?: {
+    "Toggle Autoattack"?: string;
     "Toggle Bank"?: string;
     "Toggle Top Bar"?: string;
   };
@@ -127,7 +128,6 @@ export type HotkeyConfig = {
     "Toggle Script"?: string;
   };
   Tools?: {
-    "Open App Logs"?: string;
     "Open Fast Travels"?: string;
     "Open Follower"?: string;
     "Open Loader Grabber"?: string;

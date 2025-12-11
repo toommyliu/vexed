@@ -86,6 +86,7 @@ export const DEFAULT_ACCOUNTS: Account[] = [] as const;
 
 export const DEFAULT_HOTKEYS: HotkeyConfig = {
   General: {
+    "Toggle Autoattack": "",
     "Toggle Bank": IS_MAC ? "command+b" : "ctrl+b",
     "Toggle Top Bar": IS_MAC ? "command+shift+t" : "ctrl+shift+t",
   },
