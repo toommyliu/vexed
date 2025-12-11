@@ -321,6 +321,13 @@ export function initCommandOverlayState() {
 export function initOptionsPanelState() {
   const storageKey = "options-panel-position";
 
+  type OptionsPanelPosition = {
+    left: string;
+    top: string;
+    width?: string;
+    height?: string;
+  };
+
   let isVisible = $state(false);
   let isDragging = $state(false);
   let dragOffset = { x: 0, y: 0 };
@@ -350,7 +357,12 @@ export function initOptionsPanelState() {
       return;
     }
 
-    const position = { left, top };
+    const position: OptionsPanelPosition = {
+      left,
+      top,
+      width: panel.style.width || computed.width,
+      height: panel.style.height || computed.height,
+    };
     localStorage.setItem(storageKey, JSON.stringify(position));
   }
 
@@ -366,7 +378,7 @@ export function initOptionsPanelState() {
       return;
     }
 
-    const position = JSON.parse(savedPosition) as { left: string; top: string };
+    const position = JSON.parse(savedPosition) as OptionsPanelPosition;
 
     if (position.left && position.top) {
       panel.style.left = position.left;
@@ -377,6 +389,13 @@ export function initOptionsPanelState() {
       const minTop = Math.max(0, Math.round(topNavBottom));
       panel.style.left = "20px";
       panel.style.top = `${minTop}px`;
+    }
+
+    if (position.width) {
+      panel.style.width = position.width;
+    }
+    if (position.height) {
+      panel.style.height = position.height;
     }
   }
 

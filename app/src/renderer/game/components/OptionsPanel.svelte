@@ -4,15 +4,39 @@
   import { Checkbox, Label } from "@vexed/ui";
   import * as NumberField from "@vexed/ui/NumberField";
   import { motionScale, motionFade } from "@vexed/ui/motion";
-  import ChevronDown from "lucide-svelte/icons/chevron-down";
-  import ChevronRight from "lucide-svelte/icons/chevron-right";
   import X from "lucide-svelte/icons/x";
   import { cn } from "@shared/cn";
 
   let panel: HTMLDivElement;
   let panelRef: HTMLDivElement | null = null;
   let wasVisible = false;
-  let collapsed = $state(false);
+
+  type ResizeDirection =
+    | "n"
+    | "s"
+    | "e"
+    | "w"
+    | "ne"
+    | "nw"
+    | "se"
+    | "sw"
+    | null;
+  let resizeDirection = $state<ResizeDirection>(null);
+  let resizeStart = { x: 0, y: 0, width: 0, height: 0, left: 0, top: 0 };
+
+  const MIN_WIDTH = 280;
+  const MIN_HEIGHT = 160;
+
+  const options = [
+    { key: "infiniteRange", label: "Infinite Range" },
+    { key: "provokeCell", label: "Provoke Cell" },
+    { key: "enemyMagnet", label: "Enemy Magnet" },
+    { key: "lagKiller", label: "Lag Killer" },
+    { key: "hidePlayers", label: "Hide Players" },
+    { key: "skipCutscenes", label: "Skip Cutscenes" },
+    { key: "disableFx", label: "Disable FX" },
+    { key: "disableCollisions", label: "Disable Collisions" },
+  ] as const;
 
   $effect(() => {
     const isVisible = optionsPanelState.isVisible;
@@ -37,6 +61,7 @@
   function handleDragStart(ev: MouseEvent) {
     if (ev.button !== 0) return;
     if ((ev.target as HTMLElement).closest(".panel-control")) return;
+    if ((ev.target as HTMLElement).closest(".resize-handle")) return;
 
     optionsPanelState.setDragging(true);
 
@@ -48,6 +73,11 @@
   }
 
   function handleDragMove(ev: MouseEvent) {
+    if (resizeDirection) {
+      handleResizeMove(ev);
+      return;
+    }
+
     if (!optionsPanelState.isDragging) return;
 
     let x = ev.clientX - optionsPanelState.dragOffset.x;
@@ -68,11 +98,76 @@
   }
 
   function handleDragEnd() {
+    if (resizeDirection) {
+      resizeDirection = null;
+      optionsPanelState.savePosition(panel);
+      return;
+    }
+
     if (!optionsPanelState.isDragging) return;
 
     optionsPanelState.setDragging(false);
     ensureWithinViewport();
     optionsPanelState.savePosition(panel);
+  }
+
+  function handleResizeStart(ev: MouseEvent, direction: ResizeDirection) {
+    if (ev.button !== 0) return;
+    ev.stopPropagation();
+
+    resizeDirection = direction;
+    const rect = panel.getBoundingClientRect();
+    resizeStart = {
+      x: ev.clientX,
+      y: ev.clientY,
+      width: rect.width,
+      height: rect.height,
+      left: rect.left,
+      top: rect.top,
+    };
+  }
+
+  function handleResizeMove(ev: MouseEvent) {
+    if (!resizeDirection) return;
+
+    const deltaX = ev.clientX - resizeStart.x;
+    const deltaY = ev.clientY - resizeStart.y;
+
+    let newWidth = resizeStart.width;
+    let newHeight = resizeStart.height;
+    let newLeft = resizeStart.left;
+    let newTop = resizeStart.top;
+
+    const topNav = document.getElementById("topnav-container");
+    const topNavBottom = topNav?.getBoundingClientRect().bottom ?? 0;
+    const minTop = Math.max(0, Math.round(topNavBottom));
+
+    if (resizeDirection.includes("e")) {
+      newWidth = Math.max(MIN_WIDTH, resizeStart.width + deltaX);
+    }
+    if (resizeDirection.includes("w")) {
+      const potentialWidth = resizeStart.width - deltaX;
+      if (potentialWidth >= MIN_WIDTH) {
+        newWidth = potentialWidth;
+        newLeft = resizeStart.left + deltaX;
+      }
+    }
+    if (resizeDirection.includes("s")) {
+      newHeight = Math.max(MIN_HEIGHT, resizeStart.height + deltaY);
+    }
+    if (resizeDirection.includes("n")) {
+      const potentialHeight = resizeStart.height - deltaY;
+      const potentialTop = resizeStart.top + deltaY;
+      if (potentialHeight >= MIN_HEIGHT && potentialTop >= minTop) {
+        newHeight = potentialHeight;
+        newTop = potentialTop;
+      }
+    }
+
+    panel.style.width = `${newWidth}px`;
+    panel.style.height = `${newHeight}px`;
+    panel.style.left = `${newLeft}px`;
+    panel.style.top = `${newTop}px`;
   }
 
   function ensureWithinViewport() {
@@ -113,17 +208,6 @@
       window.removeEventListener("resize", ensureWithinViewport);
     };
   });
-
-  const options = [
-    { key: "infiniteRange", label: "Infinite Range" },
-    { key: "provokeCell", label: "Provoke Cell" },
-    { key: "enemyMagnet", label: "Enemy Magnet" },
-    { key: "lagKiller", label: "Lag Killer" },
-    { key: "hidePlayers", label: "Hide Players" },
-    { key: "skipCutscenes", label: "Skip Cutscenes" },
-    { key: "disableFx", label: "Disable FX" },
-    { key: "disableCollisions", label: "Disable Collisions" },
-  ] as const;
 </script>
 
 {#if optionsPanelState.isVisible}
@@ -131,37 +215,31 @@
     bind:this={panel}
     class={cn(
       "options-panel",
-      collapsed && "collapsed",
-      optionsPanelState.isDragging && "dragging"
+      optionsPanelState.isDragging && "dragging",
+      resizeDirection && "resizing"
     )}
     in:motionScale={{ duration: 120, start: 0.96, opacity: 0 }}
     out:motionFade={{ duration: 80 }}
   >
+    <!-- Resize handles -->
+    <div class="resize-handle resize-n" onmousedown={(e) => handleResizeStart(e, "n")}></div>
+    <div class="resize-handle resize-s" onmousedown={(e) => handleResizeStart(e, "s")}></div>
+    <div class="resize-handle resize-e" onmousedown={(e) => handleResizeStart(e, "e")}></div>
+    <div class="resize-handle resize-w" onmousedown={(e) => handleResizeStart(e, "w")}></div>
+    <div class="resize-handle resize-ne" onmousedown={(e) => handleResizeStart(e, "ne")}></div>
+    <div class="resize-handle resize-nw" onmousedown={(e) => handleResizeStart(e, "nw")}></div>
+    <div class="resize-handle resize-se" onmousedown={(e) => handleResizeStart(e, "se")}></div>
+    <div class="resize-handle resize-sw" onmousedown={(e) => handleResizeStart(e, "sw")}></div>
+
     <div
       class="panel-header"
       onmousedown={handleDragStart}
-      ondblclick={() => (collapsed = !collapsed)}
       role="toolbar"
       tabindex="0"
     >
       <span class="panel-header-text">Options</span>
 
       <div class="panel-header-controls">
-        <button
-          class="panel-control"
-          onclick={(ev) => {
-            ev.stopPropagation();
-            collapsed = !collapsed;
-          }}
-          aria-label={collapsed ? "Expand" : "Collapse"}
-        >
-          {#if collapsed}
-            <ChevronRight class="size-3.5" />
-          {:else}
-            <ChevronDown class="size-3.5" />
-          {/if}
-        </button>
-
         <button
           class="panel-control panel-close"
           onclick={(ev) => {
@@ -176,8 +254,8 @@
       </div>
     </div>
 
-    {#if !collapsed}
-      <div class="panel-content">
+    <div class="panel-content">
+      <div class="options-grid">
         {#each options as option (option.key)}
           <Label class="option-row">
             <Checkbox
@@ -189,8 +267,6 @@
             <span>{option.label}</span>
           </Label>
         {/each}
-
-        <div class="option-divider"></div>
 
         <div class="option-row-numeric">
           <span class="option-label">Walk Speed</span>
@@ -224,7 +300,7 @@
           </NumberField.Root>
         </div>
       </div>
-    {/if}
+    </div>
   </div>
 {/if}
 
@@ -233,23 +309,97 @@
     position: fixed;
     top: 40px;
     left: 20px;
+    width: 340px;
+    min-width: 280px;
+    min-height: 160px;
     background-color: rgb(var(--popover));
     border: 1px solid rgb(var(--border));
     border-radius: 10px;
-    min-width: 200px;
     z-index: 9999;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
     user-select: none;
     overflow: hidden;
-  }
-
-  .options-panel.collapsed {
-    overflow: visible;
+    display: flex;
+    flex-direction: column;
   }
 
   .options-panel.dragging {
     cursor: grabbing;
     opacity: 0.95;
+  }
+
+  .options-panel.resizing {
+    opacity: 0.95;
+  }
+
+  /* Resize handles */
+  .resize-handle {
+    position: absolute;
+    z-index: 10;
+  }
+
+  .resize-n {
+    top: 0;
+    left: 6px;
+    right: 6px;
+    height: 4px;
+    cursor: n-resize;
+  }
+
+  .resize-s {
+    bottom: 0;
+    left: 6px;
+    right: 6px;
+    height: 4px;
+    cursor: s-resize;
+  }
+
+  .resize-e {
+    right: 0;
+    top: 6px;
+    bottom: 6px;
+    width: 4px;
+    cursor: e-resize;
+  }
+
+  .resize-w {
+    left: 0;
+    top: 6px;
+    bottom: 6px;
+    width: 4px;
+    cursor: w-resize;
+  }
+
+  .resize-ne {
+    top: 0;
+    right: 0;
+    width: 8px;
+    height: 8px;
+    cursor: ne-resize;
+  }
+
+  .resize-nw {
+    top: 0;
+    left: 0;
+    width: 8px;
+    height: 8px;
+    cursor: nw-resize;
+  }
+
+  .resize-se {
+    bottom: 0;
+    right: 0;
+    width: 8px;
+    height: 8px;
+    cursor: se-resize;
+  }
+
+  .resize-sw {
+    bottom: 0;
+    left: 0;
+    width: 8px;
+    height: 8px;
+    cursor: sw-resize;
   }
 
   .panel-header {
@@ -266,7 +416,7 @@
     white-space: nowrap;
     font-size: 12px;
     font-weight: 500;
-    height: 20px;
+    flex-shrink: 0;
   }
 
   .panel-header-text {
@@ -304,15 +454,15 @@
     color: rgb(var(--destructive));
   }
 
-  .options-panel.collapsed .panel-header {
-    border-radius: 10px;
-    border-bottom: none;
+  .panel-content {
+    padding: 12px;
+    flex: 1;
+    overflow: auto;
   }
 
-  .panel-content {
-    padding: 8px;
-    display: flex;
-    flex-direction: column;
+  .options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
     gap: 4px;
   }
 
@@ -331,31 +481,28 @@
     background-color: rgb(var(--accent));
   }
 
-  .option-divider {
-    height: 1px;
-    background-color: rgb(var(--border));
-    margin: 4px 0;
-  }
-
   .option-row-numeric {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 4px 6px;
     font-size: 12px;
+    gap: 8px;
   }
 
   .option-label {
     color: rgb(var(--foreground));
+    flex-shrink: 0;
   }
 
   :global(.number-field-root) {
-    width: 60px;
+    width: 56px;
+    flex-shrink: 0;
   }
 
   :global(.number-field-input) {
-    height: 24px;
-    padding: 0 6px;
+    height: 22px;
+    padding: 0 4px;
     font-size: 11px;
     text-align: center;
     border-radius: 4px;
