@@ -47,6 +47,8 @@ export class Settings {
       this.bot.flash.call(() =>
         swf.settingsSetDisableCollisions(this.disableCollisions),
       );
+
+      this.setDeathAds(!this.disableDeathAds);
     }, 500);
   }
 
@@ -247,5 +249,16 @@ export class Settings {
 
   public set disableCollisions(on: boolean) {
     gameState.disableCollisions = on;
+  }
+
+  /**
+   * Whether "Disable Death Ads" is enabled.
+   */
+  public get disableDeathAds(): boolean {
+    return gameState.disableDeathAds;
+  }
+
+  public set disableDeathAds(on: boolean) {
+    gameState.disableDeathAds = on;
   }
 }
