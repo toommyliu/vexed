@@ -11,6 +11,7 @@
   import Radio from "lucide-svelte/icons/radio";
   import Inbox from "lucide-svelte/icons/inbox";
   import AlertTriangle from "lucide-svelte/icons/triangle-alert";
+  import ChevronDown from "lucide-svelte/icons/chevron-down";
 
   import { client } from "@shared/tipc";
   import type { HotkeyConfig } from "@shared/types";
@@ -266,18 +267,12 @@
             <span class="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               {section.name}
             </span>
-            <svg
+            <ChevronDown
               class={cn(
                 "ml-auto h-3.5 w-3.5 text-muted-foreground/60 transition-transform duration-150",
                 isExpanded && "rotate-180"
               )}
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-            </svg>
+            />
           </button>
 
           {#if isExpanded}
