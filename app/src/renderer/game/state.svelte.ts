@@ -11,6 +11,8 @@ function initState() {
   let skipCutscenes = $state(false);
   let disableFx = $state(false);
   let disableCollisions = $state(false);
+  let counterAttack = $state(false);
+  let disableDeathAds = $state(false);
   let walkSpeed = $state(8);
   let fps = $state(24);
 
@@ -62,6 +64,18 @@ function initState() {
     },
     set disableCollisions(value) {
       disableCollisions = value;
+    },
+    get counterAttack() {
+      return counterAttack;
+    },
+    set counterAttack(value) {
+      counterAttack = value;
+    },
+    get disableDeathAds() {
+      return disableDeathAds;
+    },
+    set disableDeathAds(value) {
+      disableDeathAds = value;
     },
     get walkSpeed() {
       return walkSpeed;
