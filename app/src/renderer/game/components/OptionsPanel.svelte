@@ -453,6 +453,7 @@
     font-size: 12px;
     font-weight: 500;
     flex-shrink: 0;
+    height: 20px;
   }
 
   .panel-header-text {
