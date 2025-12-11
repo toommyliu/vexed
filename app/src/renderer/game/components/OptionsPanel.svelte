@@ -559,5 +559,6 @@
     min-width: 0;
     height: 22px;
     font-size: 11px;
+    color: rgb(var(--foreground));
   }
 </style>
