@@ -335,6 +335,10 @@
     const ret = await client.game.getAssetPath();
     swfPath = ret;
 
+    window.addEventListener("openCommandPalette", () => {
+      commandPaletteOpen = true;
+    });
+
     await Promise.all([
       import("./tipc/tipc-fast-travels"),
       import("./tipc/tipc-environment"),

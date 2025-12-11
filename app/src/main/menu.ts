@@ -1,5 +1,6 @@
-import Config from "@vexed/config";
-import { app, dialog, Menu, MenuItemConstructorOptions, nativeTheme, shell } from "electron";
+import type Config from "@vexed/config";
+import type { MenuItemConstructorOptions } from "electron";
+import { app, dialog, Menu, nativeTheme, shell } from "electron";
 import { IS_MAC } from "../shared/constants";
 import type { Settings } from "../shared/types";
 import { checkForUpdates } from "./updater";
@@ -87,6 +88,19 @@ export function createMenu(settings: Config<Settings>) {
                 { role: "reload" },
                 { role: "forceReload" },
                 { role: "toggleDevTools" },
+                { type: "separator" },
+                {
+                    label: "Command Palette",
+                    accelerator: IS_MAC ? "Cmd+K" : "Ctrl+K",
+                    click: (_, browserWindow) => {
+                        if (!browserWindow) return;
+
+                        const gameWindow = browserWindow.getParentWindow() ?? browserWindow;
+                        void gameWindow.webContents.executeJavaScript(
+                            `window.dispatchEvent(new CustomEvent('openCommandPalette'))`
+                        );
+                    },
+                },
                 { type: "separator" },
                 {
                     label: "Appearance",
