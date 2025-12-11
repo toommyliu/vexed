@@ -16,57 +16,53 @@
     const IS_MAC = $derived.by(() => navigator.userAgent.includes("Mac"));
 
     /**
-     * Converts a hotkey string like "command+shift+t" to symbolic format "⌘⇧T"
+     * Converts a hotkey string like "command+shift+t" to an array of formatted keys
      */
-    function formatHotkey(hotkey: string): string {
-        if (!hotkey) return "";
+    function formatHotkeyParts(hotkey: string): string[] {
+        if (!hotkey) return [];
 
-        return hotkey
-            .split("+")
-            .map((part) => {
-                const lower = part.toLowerCase();
-                if (IS_MAC) {
-                    if (
-                        lower === "command" ||
-                        lower === "cmd" ||
-                        lower === "meta"
-                    )
-                        return "⌘";
-                    if (lower === "shift") return "⇧";
-                    if (lower === "alt" || lower === "option") return "⌥";
-                    if (lower === "control" || lower === "ctrl") return "⌃";
-                } else {
-                    if (
-                        lower === "command" ||
-                        lower === "cmd" ||
-                        lower === "meta"
-                    )
-                        return "Ctrl";
-                    if (lower === "shift") return "Shift";
-                    if (lower === "alt" || lower === "option") return "Alt";
-                    if (lower === "control" || lower === "ctrl") return "Ctrl";
-                }
-                return part.toUpperCase();
-            })
-            .join(IS_MAC ? "" : "+");
+        return hotkey.split("+").map((part) => {
+            const lower = part.toLowerCase();
+            if (IS_MAC) {
+                if (lower === "command" || lower === "cmd" || lower === "meta")
+                    return "⌘";
+                if (lower === "shift") return "⇧";
+                if (lower === "alt" || lower === "option") return "⌥";
+                if (lower === "control" || lower === "ctrl") return "⌃";
+            } else {
+                if (lower === "command" || lower === "cmd" || lower === "meta")
+                    return "Ctrl";
+                if (lower === "shift") return "Shift";
+                if (lower === "alt" || lower === "option") return "Alt";
+                if (lower === "control" || lower === "ctrl") return "Ctrl";
+            }
+            return part.toUpperCase();
+        });
     }
 
-    const formattedHotkey = $derived(hotkey ? formatHotkey(hotkey) : null);
+    const hotkeyParts = $derived(hotkey ? formatHotkeyParts(hotkey) : []);
 </script>
 
-{#if formattedHotkey || children}
-    <kbd
-        class={cn(
-            "inline-flex h-5 min-w-5 cursor-default select-none items-center justify-center rounded border border-border/40 bg-muted/50 px-1 text-[10px] font-medium text-muted-foreground transition-all",
-            className,
-        )}
-        data-slot="kbd"
+{#if hotkeyParts.length || children}
+    <span
+        class={cn("inline-flex items-center gap-0.5", className)}
+        data-slot="kbd-group"
         {...restProps}
     >
-        {#if formattedHotkey}
-            {formattedHotkey}
+        {#if hotkeyParts.length}
+            {#each hotkeyParts as part}
+                <kbd
+                    class="inline-flex h-5 min-w-5 cursor-default select-none items-center justify-center rounded border border-border/40 bg-muted/50 px-1 font-sans text-[10px] font-medium text-muted-foreground"
+                >
+                    {part}
+                </kbd>
+            {/each}
         {:else}
-            {@render children?.()}
+            <kbd
+                class="inline-flex h-5 min-w-5 cursor-default select-none items-center justify-center rounded border border-border/40 bg-muted/50 px-1 font-sans text-[10px] font-medium text-muted-foreground"
+            >
+                {@render children?.()}
+            </kbd>
         {/if}
-    </kbd>
+    </span>
 {/if}
