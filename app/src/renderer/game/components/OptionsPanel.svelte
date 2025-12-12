@@ -10,7 +10,8 @@
 
   const bot = Bot.getInstance();
 
-  let panel: HTMLDivElement;
+  // svelte-ignore non_reactive_update
+    let panel: HTMLDivElement;
   let panelRef: HTMLDivElement | null = null;
   let wasVisible = false;
 
@@ -30,7 +31,7 @@
   let resizeDirection = $state<ResizeDirection>(null);
   let resizeStart = { x: 0, y: 0, width: 0, height: 0, left: 0, top: 0 };
 
-  const MIN_WIDTH = 280;
+  const MIN_WIDTH = 320;
   const MIN_HEIGHT = 160;
 
   const options = [
@@ -138,6 +139,7 @@
   function handleResizeMove(ev: MouseEvent) {
     if (!resizeDirection) return;
 
+    const { innerWidth, innerHeight } = window;
     const deltaX = ev.clientX - resizeStart.x;
     const deltaY = ev.clientY - resizeStart.y;
 
@@ -151,24 +153,32 @@
     const minTop = Math.max(0, Math.round(topNavBottom));
 
     if (resizeDirection.includes("e")) {
-      newWidth = Math.max(MIN_WIDTH, resizeStart.width + deltaX);
+      const maxWidth = innerWidth - newLeft;
+      newWidth = Math.min(maxWidth, Math.max(MIN_WIDTH, resizeStart.width + deltaX));
     }
+
     if (resizeDirection.includes("w")) {
-      const potentialWidth = resizeStart.width - deltaX;
+      const potentialLeft = resizeStart.left + deltaX;
+      const clampedLeft = Math.max(0, potentialLeft);
+      const potentialWidth = resizeStart.width + (resizeStart.left - clampedLeft);
       if (potentialWidth >= MIN_WIDTH) {
         newWidth = potentialWidth;
-        newLeft = resizeStart.left + deltaX;
+        newLeft = clampedLeft;
       }
     }
+
     if (resizeDirection.includes("s")) {
-      newHeight = Math.max(MIN_HEIGHT, resizeStart.height + deltaY);
+      const maxHeight = innerHeight - newTop;
+      newHeight = Math.min(maxHeight, Math.max(MIN_HEIGHT, resizeStart.height + deltaY));
     }
+
     if (resizeDirection.includes("n")) {
-      const potentialHeight = resizeStart.height - deltaY;
       const potentialTop = resizeStart.top + deltaY;
-      if (potentialHeight >= MIN_HEIGHT && potentialTop >= minTop) {
+      const clampedTop = Math.max(minTop, potentialTop);
+      const potentialHeight = resizeStart.height + (resizeStart.top - clampedTop);
+      if (potentialHeight >= MIN_HEIGHT) {
         newHeight = potentialHeight;
-        newTop = potentialTop;
+        newTop = clampedTop;
       }
     }
 
@@ -184,23 +194,51 @@
     const rect = panel.getBoundingClientRect();
     const { innerWidth, innerHeight } = window;
 
-    if (rect.right > innerWidth) {
-      const newLeft = Math.max(0, innerWidth - rect.width);
-      panel.style.left = `${newLeft}px`;
-    }
-
     const topNav = document.getElementById("topnav-container");
     const topNavBottom = topNav?.getBoundingClientRect().bottom ?? 0;
     const minTop = Math.max(0, Math.round(topNavBottom));
 
-    if (rect.top < minTop) {
-      panel.style.top = `${minTop}px`;
+    let newLeft = rect.left;
+    let newTop = rect.top;
+    let newWidth = rect.width;
+    let newHeight = rect.height;
+
+    // clamp position
+    if (newLeft < 0) newLeft = 0;
+    if (newTop < minTop) newTop = minTop;
+    
+    // clamp dimensions
+    const maxWidth = innerWidth - newLeft;
+    const maxHeight = innerHeight - newTop;
+
+    if (newWidth > maxWidth) {
+      newWidth = Math.max(MIN_WIDTH, maxWidth);
+      if (newWidth > maxWidth) {
+        newLeft = Math.max(0, innerWidth - newWidth);
+      }
     }
 
-    if (rect.bottom > innerHeight) {
-      const newTop = Math.max(minTop, innerHeight - rect.height);
-      panel.style.top = `${newTop}px`;
+    if (newHeight > maxHeight) {
+      newHeight = Math.max(MIN_HEIGHT, maxHeight);
+      if (newHeight > maxHeight) {
+        newTop = Math.max(minTop, innerHeight - newHeight);
+      }
     }
+
+    // ensure right edge doesn't exceed viewport
+    if (newLeft + newWidth > innerWidth) {
+      newLeft = Math.max(0, innerWidth - newWidth);
+    }
+
+    // ensure bottom edge doesn't exceed viewport
+    if (newTop + newHeight > innerHeight) {
+      newTop = Math.max(minTop, innerHeight - newHeight);
+    }
+
+    panel.style.left = `${newLeft}px`;
+    panel.style.top = `${newTop}px`;
+    panel.style.width = `${newWidth}px`;
+    panel.style.height = `${newHeight}px`;
 
     optionsPanelState.savePosition(panel);
   }
@@ -280,35 +318,35 @@
       <div class="inputs-section">
         <div class="inputs-row">
           <div class="option-row-input">
-          <span class="option-label">Walk Speed</span>
-          <NumberField.Root
-            value={gameState.walkSpeed}
-            onValueChange={(v) => {
-              if (!Number.isNaN(v)) gameState.walkSpeed = v;
-            }}
-            min={1}
-            max={100}
-            step={1}
+            <span class="option-label">Walk Speed</span>
+            <NumberField.Root
+              value={gameState.walkSpeed}
+              onValueChange={(v) => {
+                if (!Number.isNaN(v)) gameState.walkSpeed = v;
+              }}
+              min={1}
+              max={100}
+              step={1}
               class="input-field"
-          >
+            >
               <NumberField.Input class="input-inner" />
-          </NumberField.Root>
-        </div>
+            </NumberField.Root>
+          </div>
 
           <div class="option-row-input">
-          <span class="option-label">FPS</span>
-          <NumberField.Root
-            value={gameState.fps}
-            onValueChange={(v) => {
-              if (!Number.isNaN(v)) gameState.fps = v;
-            }}
-            min={1}
-            max={60}
-            step={1}
+            <span class="option-label">FPS</span>
+            <NumberField.Root
+              value={gameState.fps}
+              onValueChange={(v) => {
+                if (!Number.isNaN(v)) gameState.fps = v;
+              }}
+              min={1}
+              max={60}
+              step={1}
               class="input-field"
-          >
+            >
               <NumberField.Input class="input-inner" />
-          </NumberField.Root>
+            </NumberField.Root>
           </div>
         </div>
 
