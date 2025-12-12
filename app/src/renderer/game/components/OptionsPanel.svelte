@@ -42,7 +42,7 @@
     { key: "skipCutscenes", label: "Skip Cutscenes" },
     { key: "disableFx", label: "Disable FX" },
     { key: "disableCollisions", label: "Disable Collisions" },
-    { key: "counterAttack", label: "Counter Attack" },
+    { key: "counterAttack", label: "Anti-Counter" },
     { key: "disableDeathAds", label: "Disable Death Ads" },
   ] as const;
 
