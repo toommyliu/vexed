@@ -275,8 +275,11 @@
             <span>{option.label}</span>
           </Label>
         {/each}
+      </div>
 
-        <div class="option-row-numeric">
+      <div class="inputs-section">
+        <div class="inputs-row">
+          <div class="option-row-input">
           <span class="option-label">Walk Speed</span>
           <NumberField.Root
             value={gameState.walkSpeed}
@@ -286,13 +289,13 @@
             min={1}
             max={100}
             step={1}
-            class="number-field-root"
+              class="input-field"
           >
-            <NumberField.Input class="number-field-input" />
+              <NumberField.Input class="input-inner" />
           </NumberField.Root>
         </div>
 
-        <div class="option-row-numeric">
+          <div class="option-row-input">
           <span class="option-label">FPS</span>
           <NumberField.Root
             value={gameState.fps}
@@ -302,10 +305,11 @@
             min={1}
             max={60}
             step={1}
-            class="number-field-root"
+              class="input-field"
           >
-            <NumberField.Input class="number-field-input" />
+              <NumberField.Input class="input-inner" />
           </NumberField.Root>
+          </div>
         </div>
 
         <div class="option-row-text">
@@ -503,6 +507,22 @@
     gap: 4px;
   }
 
+  .inputs-section {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgb(var(--border));
+  }
+
+  .inputs-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+  }
+
   :global(.option-row) {
     display: flex;
     align-items: center;
@@ -512,16 +532,16 @@
     cursor: pointer;
     font-size: 12px;
     transition: background-color 0.1s ease;
+    white-space: nowrap;
   }
 
   :global(.option-row:hover) {
     background-color: rgb(var(--accent));
   }
 
-  .option-row-numeric {
+  .option-row-input {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     padding: 4px 6px;
     font-size: 12px;
     gap: 8px;
@@ -530,19 +550,25 @@
   .option-label {
     color: rgb(var(--foreground));
     flex-shrink: 0;
+    white-space: nowrap;
   }
 
-  :global(.number-field-root) {
+  .option-row-text .option-label {
+    width: 80px;
+  }
+
+  :global(.input-field) {
     width: 56px;
     flex-shrink: 0;
   }
 
-  :global(.number-field-input) {
-    height: 22px;
-    padding: 0 4px;
+  :global(.input-inner) {
+    height: 24px;
+    padding: 0;
     font-size: 11px;
     text-align: center;
-    border-radius: 4px;
+    line-height: 24px;
+    border-radius: 6px;
   }
 
   .option-row-text {
@@ -552,14 +578,14 @@
     padding: 4px 6px;
     font-size: 12px;
     gap: 8px;
-    grid-column: 1 / -1;
   }
 
   :global(.text-input) {
     flex: 1;
     min-width: 0;
-    height: 22px;
+    height: 24px;
     font-size: 11px;
+    border-radius: 6px;
     color: rgb(var(--foreground));
   }
 </style>
