@@ -441,7 +441,7 @@
           id="windows-dropdown"
         >
           <button
-            class="flex h-7 shrink-0 items-center rounded bg-transparent px-2.5 text-[length:var(--topnav-font-size)] font-medium text-foreground/80 transition-colors duration-150 hover:bg-accent hover:text-foreground"
+            class="flex h-7 shrink-0 items-center rounded bg-transparent px-2.5 text-[13px] font-medium text-foreground/80 transition-colors duration-150 hover:bg-accent hover:text-foreground"
             id="windows"
             onclick={(ev) => {
               ev.stopPropagation();
@@ -462,10 +462,10 @@
             open={openDropdown === "scripts"}
             onOpenChange={(open) => (openDropdown = open ? "scripts" : null)}
           >
-            <Menu.Trigger class="flex h-7 shrink-0 items-center rounded bg-transparent px-2.5 text-[length:var(--topnav-font-size)] font-medium text-foreground/80 transition-colors duration-150 hover:bg-accent hover:text-foreground">
+            <Menu.Trigger class="flex h-7 shrink-0 items-center rounded bg-transparent px-2.5 text-[13px] font-medium text-foreground/80 transition-colors duration-150 hover:bg-accent hover:text-foreground">
               Scripts
             </Menu.Trigger>
-            <Menu.Content class="min-w-48 text-[length:var(--topnav-font-size)]">
+            <Menu.Content class="min-w-48 text-[13px]">
               <Menu.Item class="bg-transparent flex items-center justify-between" onclick={() => void client.scripts.loadScript({ scriptPath: "" })}>
                 <span>Load Script</span>
                 <Kbd hotkey={hotkeyValues["load-script"] ?? ""} class="ml-4" />
@@ -485,10 +485,10 @@
             open={openDropdown === "options"}
             onOpenChange={(open) => (openDropdown = open ? "options" : null)}
           >
-            <Menu.Trigger class="flex h-7 shrink-0 items-center rounded bg-transparent px-2.5 text-[length:var(--topnav-font-size)] font-medium text-foreground/80 transition-colors duration-150 hover:bg-accent hover:text-foreground">
+            <Menu.Trigger class="flex h-7 shrink-0 items-center rounded bg-transparent px-2.5 text-[13px] font-medium text-foreground/80 transition-colors duration-150 hover:bg-accent hover:text-foreground">
               Options
             </Menu.Trigger>
-            <Menu.Content class="min-w-48 text-[length:var(--topnav-font-size)]">
+            <Menu.Content class="min-w-48 text-[13px]">
               <Menu.Item
                 class="bg-transparent flex items-center justify-between"
                 onclick={() => (gameState.infiniteRange = !gameState.infiniteRange)}
@@ -565,7 +565,7 @@
 
           <button
             class={cn(
-              "ml-0.5 flex h-6 shrink-0 items-center gap-1 rounded px-2 text-[length:var(--topnav-font-size-sm)] font-medium transition-colors duration-150",
+              "ml-0.5 flex h-6 shrink-0 items-center gap-1 rounded px-2 text-[12px] font-medium transition-colors duration-150",
               !scriptState.isLoaded && "cursor-not-allowed opacity-40",
               scriptState.isLoaded && !scriptState.isRunning && "bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30",
               scriptState.isRunning && "bg-amber-600/20 text-amber-400 hover:bg-amber-600/30"
@@ -585,7 +585,7 @@
 
         <div class="ml-auto flex h-full shrink-0 items-center gap-1 pr-1.5">
           <div class="mr-1 h-4 w-px bg-border/60"></div>
-          <Label class="flex cursor-pointer select-none items-center gap-1.5 text-[length:var(--topnav-font-size-sm)] text-foreground/70 transition-colors hover:text-foreground">
+          <Label class="flex cursor-pointer select-none items-center gap-1.5 text-[12px] text-foreground/70 transition-colors hover:text-foreground">
             <Checkbox bind:checked={autoEnabled} />
             <span>Auto</span>
           </Label>
@@ -604,12 +604,12 @@
               class="h-6 w-20"
             >
               <Menu.Trigger
-                class="flex h-full w-full items-center justify-between rounded border border-border/60 bg-background px-2 text-[length:var(--topnav-font-size-sm)] text-foreground/80 transition-colors duration-150 hover:border-border hover:bg-accent/30 disabled:cursor-not-allowed disabled:opacity-50"
+                class="flex h-full w-full items-center justify-between rounded border border-border/60 bg-background px-2 text-[12px] text-foreground/80 transition-colors duration-150 hover:border-border hover:bg-accent/30 disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={!gameConnected}
               >
                 {currentSelectedPad}
               </Menu.Trigger>
-              <Menu.Content class="min-w-40 text-[length:var(--topnav-font-size-sm)]">
+              <Menu.Content class="min-w-40 text-[12px]">
                 {#each validPads as pad}
                   <Menu.Item
                     class={cn("bg-transparent", pad.isValid && "text-primary")}
@@ -633,12 +633,12 @@
               class="h-6 w-20"
             >
               <Menu.Trigger
-                class="flex h-full w-full items-center justify-between rounded border border-border/60 bg-background px-2 text-[length:var(--topnav-font-size-sm)] text-foreground/80 transition-colors duration-150 hover:border-border hover:bg-accent/30 disabled:cursor-not-allowed disabled:opacity-50"
+                class="flex h-full w-full items-center justify-between rounded border border-border/60 bg-background px-2 text-[12px] text-foreground/80 transition-colors duration-150 hover:border-border hover:bg-accent/30 disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={!gameConnected}
               >
                 {currentSelectedCell}
               </Menu.Trigger>
-              <Menu.Content class="max-h-[25vh] min-w-40 overflow-y-auto text-[length:var(--topnav-font-size-sm)]">
+              <Menu.Content class="max-h-[25vh] min-w-40 overflow-y-auto text-[12px]">
                 {#each availableCells as cell}
                   <Menu.Item class="bg-transparent" onclick={() => jumpToCell(cell)}>
                     {cell}
@@ -649,7 +649,7 @@
             <Button
               variant="ghost"
               size="xs"
-              class="h-6 px-2 text-[length:var(--topnav-font-size-sm)] text-foreground/70 hover:text-foreground"
+              class="h-6 px-2 text-[12px] text-foreground/70 hover:text-foreground"
               disabled={!gameConnected}
               onclick={() => {
                 if (!bot.player.isReady()) return;
@@ -672,7 +672,7 @@
           <Button
             variant="ghost"
             size="xs"
-            class="h-6 px-2 text-[length:var(--topnav-font-size-sm)] text-foreground/70 hover:text-foreground"
+            class="h-6 px-2 text-[12px] text-foreground/70 hover:text-foreground"
             disabled={!gameConnected}
             onclick={async () => {
               if (!bot.player.isReady()) return;

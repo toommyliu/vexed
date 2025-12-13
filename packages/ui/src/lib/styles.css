@@ -46,6 +46,9 @@
         --elevation-1: 0 0 0 / 0.04;
         --elevation-2: 0 0 0 / 0.08;
         --elevation-3: 0 0 0 / 0.12;
+
+        --ui-font-size: 13px;
+        --ui-font-size-sm: 12px;
     }
 
     .dark {
