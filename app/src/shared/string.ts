@@ -25,3 +25,20 @@ export function includesIgnoreCase(str: string | null | undefined, search: strin
 
     return str.toLowerCase().includes(search.toLowerCase());
 }
+
+/**
+ * Fuzzy match check - all words in the query must appear in the text.
+ * Useful for command palette-style searching where word order doesn't matter.
+ * 
+ * @param text - the text to search in
+ * @param query - the query string (can contain multiple words)
+ * @returns true if all query words appear in the text, false otherwise
+ */
+export function fuzzyMatchIgnoreCase(text: string | null | undefined, query: string | null | undefined) {
+    if (text === null || query === null || text === undefined || query === undefined)
+        return false;
+
+    const lowerText = text.toLowerCase();
+    const queryWords = query.toLowerCase().split(/\s+/).filter(Boolean);
+    return queryWords.every((word) => lowerText.includes(word));
+}

@@ -1,14 +1,15 @@
 <script lang="ts">
   import Kbd from "@vexed/ui/Kbd";
-  import Search from "lucide-svelte/icons/search";
   import Command from "lucide-svelte/icons/command";
+  import Search from "lucide-svelte/icons/search";
   import X from "lucide-svelte/icons/x";
 
-  import { equalsIgnoreCase } from "@shared/string"; 
+  import { gameState } from "@game/state.svelte";
   import { cn } from "@shared/cn";
   import { IS_MAC } from "@shared/constants";
-  import { WindowIds } from "@shared/types";
+  import { equalsIgnoreCase, fuzzyMatchIgnoreCase } from "@shared/string";
   import { client } from "@shared/tipc";
+  import { WindowIds } from "@shared/types";
 
   interface CommandItem {
     id: string;
@@ -130,14 +131,84 @@
       hotkey: hotkeyValues["open-packet-spammer"] ?? "",
       action: () => { void client.game.launchWindow(WindowIds.PacketSpammer); },
     },
+    {
+      id: "toggle-infinite-range",
+      label: gameState.infiniteRange ? "Disable Infinite Range" : "Enable Infinite Range",
+      category: "Options",
+      hotkey: hotkeyValues["toggle-infinite-range"] ?? "",
+      action: () => { gameState.infiniteRange = !gameState.infiniteRange; },
+    },
+    {
+      id: "toggle-provoke-cell",
+      label: gameState.provokeCell ? "Disable Provoke Cell" : "Enable Provoke Cell",
+      category: "Options",
+      hotkey: hotkeyValues["toggle-provoke-cell"] ?? "",
+      action: () => { gameState.provokeCell = !gameState.provokeCell; },
+    },
+    {
+      id: "toggle-enemy-magnet",
+      label: gameState.enemyMagnet ? "Disable Enemy Magnet" : "Enable Enemy Magnet",
+      category: "Options",
+      hotkey: hotkeyValues["toggle-enemy-magnet"] ?? "",
+      action: () => { gameState.enemyMagnet = !gameState.enemyMagnet; },
+    },
+    {
+      id: "toggle-lag-killer",
+      label: gameState.lagKiller ? "Disable Lag Killer" : "Enable Lag Killer",
+      category: "Options",
+      hotkey: hotkeyValues["toggle-lag-killer"] ?? "",
+      action: () => { gameState.lagKiller = !gameState.lagKiller; },
+    },
+    {
+      id: "toggle-hide-players",
+      label: gameState.hidePlayers ? "Disable Hide Players" : "Enable Hide Players",
+      category: "Options",
+      hotkey: hotkeyValues["toggle-hide-players"] ?? "",
+      action: () => { gameState.hidePlayers = !gameState.hidePlayers; },
+    },
+    {
+      id: "toggle-skip-cutscenes",
+      label: gameState.skipCutscenes ? "Disable Skip Cutscenes" : "Enable Skip Cutscenes",
+      category: "Options",
+      hotkey: hotkeyValues["toggle-skip-cutscenes"] ?? "",
+      action: () => { gameState.skipCutscenes = !gameState.skipCutscenes; },
+    },
+    {
+      id: "toggle-disable-fx",
+      label: gameState.disableFx ? "Enable FX" : "Disable FX",
+      category: "Options",
+      hotkey: hotkeyValues["toggle-disable-fx"] ?? "",
+      action: () => { gameState.disableFx = !gameState.disableFx; },
+    },
+    {
+      id: "toggle-disable-collisions",
+      label: gameState.disableCollisions ? "Enable Collisions" : "Disable Collisions",
+      category: "Options",
+      hotkey: hotkeyValues["toggle-disable-collisions"] ?? "",
+      action: () => { gameState.disableCollisions = !gameState.disableCollisions; },
+    },
+    {
+      id: "toggle-anti-counter",
+      label: gameState.counterAttack ? "Disable Anti-Counter" : "Enable Anti-Counter",
+      category: "Options",
+      hotkey: hotkeyValues["toggle-anti-counter"] ?? "",
+      action: () => { gameState.counterAttack = !gameState.counterAttack; },
+    },
+    {
+      id: "toggle-disable-death-ads",
+      label: gameState.disableDeathAds ? "Enable Death Ads" : "Disable Death Ads",
+      category: "Options",
+      hotkey: hotkeyValues["toggle-disable-death-ads"] ?? "",
+      action: () => { gameState.disableDeathAds = !gameState.disableDeathAds; },
+    },
   ]);
 
   const filteredCommands = $derived(
     searchQuery.trim()
       ? commands.filter(
           (cmd) =>
-            equalsIgnoreCase(cmd.label, searchQuery) ||
-            equalsIgnoreCase(cmd.category, searchQuery)
+            fuzzyMatchIgnoreCase(cmd.label, searchQuery) ||
+            fuzzyMatchIgnoreCase(cmd.category, searchQuery)
         )
       : commands
   );
@@ -235,7 +306,7 @@
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
-      class="absolute inset-0 bg-black/60 backdrop-blur-sm"
+      class="absolute inset-0 bg-black/60"
       onclick={handleClose}
     ></div>
 
