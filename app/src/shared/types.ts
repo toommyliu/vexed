@@ -115,6 +115,7 @@ export type HotkeyConfig = {
   General?: {
     "Toggle Autoattack"?: string;
     "Toggle Bank"?: string;
+    "Toggle Options Panel"?: string;
     "Toggle Top Bar"?: string;
   };
   Packets?: {

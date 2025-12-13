@@ -1,9 +1,9 @@
 <script lang="ts">
   import "./entrypoint";
   import {
-    gameState,
     scriptState,
     commandOverlayState,
+    optionsPanelState,
     appState,
   } from "./state.svelte";
   import { client, handlers } from "@shared/tipc";
@@ -31,8 +31,8 @@
 
   import CommandOverlay from "./components/CommandOverlay.svelte";
   import CommandPalette from "./components/CommandPalette.svelte";
+  import OptionsPanel from "./components/OptionsPanel.svelte";
   import WindowsMegaMenu from "./components/WindowsMegaMenu.svelte";
-  import IconCheckmark from "./components/IconCheckmark.svelte";
   import Play from "lucide-svelte/icons/play";
   import Square from "lucide-svelte/icons/square";
   import { Button, Checkbox, Label } from "@vexed/ui";
@@ -280,6 +280,10 @@
       case "open-packet-spammer":
         void client.game.launchWindow(WindowIds.PacketSpammer);
         break;
+
+      case "toggle-options-panel":
+        optionsPanelState.toggle();
+        break;
     }
   }
 
@@ -481,87 +485,12 @@
             </Menu.Content>
           </Menu.Root>
 
-          <Menu.Root
-            open={openDropdown === "options"}
-            onOpenChange={(open) => (openDropdown = open ? "options" : null)}
-          >
-            <Menu.Trigger class="flex h-7 shrink-0 items-center rounded bg-transparent px-2.5 text-[13px] font-medium text-foreground/80 transition-colors duration-150 hover:bg-accent hover:text-foreground">
-              Options
-            </Menu.Trigger>
-            <Menu.Content class="min-w-48 text-[13px]">
-              <Menu.Item
-                class="bg-transparent flex items-center justify-between"
-                onclick={() => (gameState.infiniteRange = !gameState.infiniteRange)}
+          <button
+            class="flex h-7 shrink-0 items-center gap-1.5 rounded bg-transparent px-2.5 text-[12px] font-medium text-foreground/80 transition-colors duration-150 hover:bg-accent hover:text-foreground"
+            onclick={() => optionsPanelState.toggle()}
               >
-                <span>Infinite Range</span>
-                {#if gameState.infiniteRange}<IconCheckmark />{/if}
-              </Menu.Item>
-              <Menu.Item
-                class="bg-transparent flex items-center justify-between"
-                onclick={() => (gameState.provokeCell = !gameState.provokeCell)}
-              >
-                <span>Provoke Cell</span>
-                {#if gameState.provokeCell}<IconCheckmark />{/if}
-              </Menu.Item>
-              <Menu.Item
-                class="bg-transparent flex items-center justify-between"
-                onclick={() => (gameState.enemyMagnet = !gameState.enemyMagnet)}
-              >
-                <span>Enemy Magnet</span>
-                {#if gameState.enemyMagnet}<IconCheckmark />{/if}
-              </Menu.Item>
-              <Menu.Item
-                class="bg-transparent flex items-center justify-between"
-                onclick={() => (gameState.lagKiller = !gameState.lagKiller)}
-              >
-                <span>Lag Killer</span>
-                {#if gameState.lagKiller}<IconCheckmark />{/if}
-              </Menu.Item>
-              <Menu.Item
-                class="bg-transparent flex items-center justify-between"
-                onclick={() => (gameState.hidePlayers = !gameState.hidePlayers)}
-              >
-                <span>Hide Players</span>
-                {#if gameState.hidePlayers}<IconCheckmark />{/if}
-              </Menu.Item>
-              <Menu.Item
-                class="bg-transparent flex items-center justify-between"
-                onclick={() => (gameState.skipCutscenes = !gameState.skipCutscenes)}
-              >
-                <span>Skip Cutscenes</span>
-                {#if gameState.skipCutscenes}<IconCheckmark />{/if}
-              </Menu.Item>
-              <Menu.Item
-                class="bg-transparent flex items-center justify-between"
-                onclick={() => (gameState.disableFx = !gameState.disableFx)}
-              >
-                <span>Disable FX</span>
-                {#if gameState.disableFx}<IconCheckmark />{/if}
-              </Menu.Item>
-              <Menu.Item
-                class="bg-transparent flex items-center justify-between"
-                onclick={() => (gameState.disableCollisions = !gameState.disableCollisions)}
-              >
-                <span>Disable Collisions</span>
-                {#if gameState.disableCollisions}<IconCheckmark />{/if}
-              </Menu.Item>
-              <!-- TODO: better controls -->
-              <Menu.Item
-                class="bg-transparent flex items-center justify-between"
-                onclick={() => (gameState.walkSpeed = (gameState.walkSpeed + 8) % 100)}
-              >
-                <span>Walk Speed</span>
-                <span class="text-muted-foreground">{gameState.walkSpeed}</span>
-              </Menu.Item>
-              <Menu.Item
-                class="bg-transparent flex items-center justify-between"
-                onclick={() => (gameState.fps = gameState.fps === 60 ? 30 : 60)}
-              >
-                <span>FPS</span>
-                <span class="text-muted-foreground">{gameState.fps}</span>
-              </Menu.Item>
-            </Menu.Content>
-          </Menu.Root>
+            <span>Options</span>
+          </button>
 
           <button
             class={cn(
@@ -735,6 +664,7 @@
   onToggleOverlay={() => commandOverlayState.toggle()}
   {hotkeyValues}
 />
+<OptionsPanel />
 
 <style>
   :global(:root) {

@@ -114,6 +114,12 @@ export function createHotkeyConfig(): HotkeySection[] {
           value: "",
         },
         {
+          id: "toggle-options-panel",
+          label: "Toggle Options Panel",
+          configKey: "General.Toggle Options Panel",
+          value: "",
+        },
+        {
           id: "toggle-top-bar",
           label: "Toggle Top Bar",
           configKey: "General.Toggle Top Bar",
