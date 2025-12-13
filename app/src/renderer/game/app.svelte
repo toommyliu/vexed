@@ -487,11 +487,10 @@
           </Menu.Root>
 
           <button
-            class="flex h-7 shrink-0 items-center gap-1.5 rounded bg-transparent px-2.5 text-[length:var(--topnav-font-size)] font-medium text-foreground/80 transition-colors duration-150 hover:bg-accent hover:text-foreground"
+            class="flex h-7 shrink-0 items-center gap-1.5 rounded bg-transparent px-2.5 text-[12px] font-medium text-foreground/80 transition-colors duration-150 hover:bg-accent hover:text-foreground"
             onclick={() => optionsPanelState.toggle()}
               >
             <span>Options</span>
-            <Kbd hotkey={hotkeyValues["toggle-options-panel"] ?? ""} />
           </button>
 
           <button
@@ -666,7 +665,7 @@
   onToggleOverlay={() => commandOverlayState.toggle()}
   {hotkeyValues}
 />
-<OptionsPanel hotkey={hotkeyValues["toggle-options-panel"] ?? ""} />
+<OptionsPanel />
 
 <style>
   :global(:root) {
