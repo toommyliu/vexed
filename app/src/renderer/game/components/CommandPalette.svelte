@@ -229,9 +229,9 @@
     onClose?.();
   }
 
-  function executeCommand(cmd: CommandItem) {
+  function executeCommand(cmd: CommandItem, shouldClose = false) {
     cmd.action();
-    handleClose();
+    if (shouldClose) handleClose();
   }
 
   function scrollSelectedIntoView(index: number) {
@@ -267,7 +267,8 @@
     if (ev.key === "Enter") {
       ev.preventDefault();
       const cmd = filteredCommands[selectedIndex];
-      if (cmd) executeCommand(cmd);
+      const modifier = IS_MAC ? ev.metaKey : ev.ctrlKey;
+      if (cmd) executeCommand(cmd, modifier);
       return;
     }
   }
@@ -361,7 +362,7 @@
                       : "text-foreground/80 hover:bg-accent"
                   )}
                   data-command-index={globalIndex}
-                  onclick={() => executeCommand(cmd)}
+                  onclick={(ev) => executeCommand(cmd, IS_MAC ? ev.metaKey : ev.ctrlKey)}
                   onmouseenter={() => mouseMoved && (selectedIndex = globalIndex)}
                 >
                   <span class="text-sm">{cmd.label}</span>
@@ -383,7 +384,12 @@
           </span>
           <span class="flex items-center gap-1">
             <Kbd>↵</Kbd>
-            <span>select</span>
+            <span>run</span>
+          </span>
+          <span class="flex items-center gap-1">
+            <Kbd>{IS_MAC ? "⌘" : "Ctrl"}</Kbd>
+            <Kbd>↵</Kbd>
+            <span>run & close</span>
           </span>
           <span class="flex items-center gap-1">
             <Kbd>esc</Kbd>
