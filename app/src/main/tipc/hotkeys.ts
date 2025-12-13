@@ -17,5 +17,13 @@ export function createHotkeysTipcRouter(tipcInstance: TipcInstance) {
           context.getRendererHandlers<RendererHandlers>(parent);
         await parentHandlers.hotkeys.updateHotkey.invoke(input);
       }),
+    reloadHotkeys: tipcInstance.procedure.action(async ({ context }) => {
+      const parent = context.senderParentWindow;
+      if (!parent || !windowStore.has(parent?.id)) return;
+
+      const parentHandlers =
+        context.getRendererHandlers<RendererHandlers>(parent);
+      await parentHandlers.hotkeys.reloadHotkeys.invoke();
+    }),
   };
 }

@@ -97,6 +97,7 @@ export type RendererHandlers = {
 
   hotkeys: {
     updateHotkey(input: { id: string; value: string }): Promise<void>;
+    reloadHotkeys(): Promise<void>;
   };
 
   packetLogger: {
