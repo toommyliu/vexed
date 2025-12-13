@@ -43,6 +43,7 @@
   let searchQuery = $state("");
   let selectedIndex = $state(0);
   let inputRef = $state<HTMLInputElement | null>(null);
+  let mouseMoved = $state(false);
 
   const commands = $derived<CommandItem[]>([
     {
@@ -259,7 +260,12 @@
         </button>
       </div>
 
-      <div class="max-h-[50vh] overflow-y-auto p-2">
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
+      <div
+        class="max-h-[50vh] overflow-y-auto p-2"
+        onscroll={() => (mouseMoved = false)}
+        onmousemove={() => (mouseMoved = true)}
+      >
         {#if filteredCommands.length === 0}
           <div class="px-3 py-8 text-center text-sm text-muted-foreground">
             No commands found
@@ -285,7 +291,7 @@
                   )}
                   data-command-index={globalIndex}
                   onclick={() => executeCommand(cmd)}
-                  onmouseenter={() => (selectedIndex = globalIndex)}
+                  onmouseenter={() => mouseMoved && (selectedIndex = globalIndex)}
                 >
                   <span class="text-sm">{cmd.label}</span>
                   <Kbd hotkey={cmd.hotkey} />
