@@ -1,14 +1,15 @@
 <script lang="ts">
   import Kbd from "@vexed/ui/Kbd";
-  import Search from "lucide-svelte/icons/search";
   import Command from "lucide-svelte/icons/command";
+  import Search from "lucide-svelte/icons/search";
   import X from "lucide-svelte/icons/x";
 
-  import { equalsIgnoreCase } from "@shared/string"; 
+  import { gameState } from "@game/state.svelte";
   import { cn } from "@shared/cn";
   import { IS_MAC } from "@shared/constants";
-  import { WindowIds } from "@shared/types";
+  import { equalsIgnoreCase, fuzzyMatchIgnoreCase } from "@shared/string";
   import { client } from "@shared/tipc";
+  import { WindowIds } from "@shared/types";
 
   interface CommandItem {
     id: string;
@@ -202,13 +203,12 @@
     },
   ]);
 
-
   const filteredCommands = $derived(
     searchQuery.trim()
       ? commands.filter(
           (cmd) =>
-            equalsIgnoreCase(cmd.label, searchQuery) ||
-            equalsIgnoreCase(cmd.category, searchQuery)
+            fuzzyMatchIgnoreCase(cmd.label, searchQuery) ||
+            fuzzyMatchIgnoreCase(cmd.category, searchQuery)
         )
       : commands
   );
@@ -306,7 +306,7 @@
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
-      class="absolute inset-0 bg-black/60 backdrop-blur-sm"
+      class="absolute inset-0 bg-black/60"
       onclick={handleClose}
     ></div>
 
