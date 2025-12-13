@@ -5,6 +5,7 @@
     commandOverlayState,
     optionsPanelState,
     appState,
+    gameState,
   } from "./state.svelte";
   import { client, handlers } from "@shared/tipc";
   import { cn } from "@shared/cn";
@@ -283,6 +284,46 @@
 
       case "toggle-options-panel":
         optionsPanelState.toggle();
+        break;
+
+      case "toggle-infinite-range":
+        gameState.infiniteRange = !gameState.infiniteRange;
+        break;
+
+      case "toggle-provoke-cell":
+        gameState.provokeCell = !gameState.provokeCell;
+        break;
+
+      case "toggle-enemy-magnet":
+        gameState.enemyMagnet = !gameState.enemyMagnet;
+        break;
+
+      case "toggle-lag-killer":
+        gameState.lagKiller = !gameState.lagKiller;
+        break;
+
+      case "toggle-hide-players":
+        gameState.hidePlayers = !gameState.hidePlayers;
+        break;
+
+      case "toggle-skip-cutscenes":
+        gameState.skipCutscenes = !gameState.skipCutscenes;
+        break;
+
+      case "toggle-disable-fx":
+        gameState.disableFx = !gameState.disableFx;
+        break;
+
+      case "toggle-disable-collisions":
+        gameState.disableCollisions = !gameState.disableCollisions;
+        break;
+
+      case "toggle-anti-counter":
+        gameState.counterAttack = !gameState.counterAttack;
+        break;
+
+      case "toggle-disable-death-ads":
+        gameState.disableDeathAds = !gameState.disableDeathAds;
         break;
     }
   }
@@ -664,7 +705,7 @@
   onToggleOverlay={() => commandOverlayState.toggle()}
   {hotkeyValues}
 />
-<OptionsPanel />
+<OptionsPanel {hotkeyValues} />
 
 <style>
   :global(:root) {

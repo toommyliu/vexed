@@ -95,6 +95,18 @@ export const DEFAULT_HOTKEYS: HotkeyConfig = {
     "Open App Logs": IS_MAC ? "command+shift+l" : "ctrl+shift+l",
     "Open Environment": IS_MAC ? "command+e" : "ctrl+e",
   },
+  Options: {
+    "Toggle Infinite Range": "alt+i",
+    "Toggle Provoke Cell": "",
+    "Toggle Enemy Magnet": "",
+    "Toggle Lag Killer": "alt+l",
+    "Toggle Hide Players": "",
+    "Toggle Skip Cutscenes": "",
+    "Toggle Disable FX": "",
+    "Toggle Disable Collisions": "",
+    "Toggle Anti-Counter": "",
+    "Toggle Disable Death Ads": "",
+  },
   Scripts: {
     "Load Script": "",
     "Toggle Command Overlay": "`",
