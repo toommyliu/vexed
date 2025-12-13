@@ -100,14 +100,14 @@ export class CommandArmyEquipSet extends ArmyCommand {
 }
 
 type Set = {
-  SafeClass?: string;
-  SafePot?: string;
-  Class?: string;
-  Weapon?: string;
+  Armor?: string;
   Cape?: string;
+  Class?: string;
   Helm?: string;
   Pet?: string;
-  Armor?: string;
   Pots?: string[];
+  SafeClass?: string;
+  SafePot?: string;
   Scroll?: string;
+  Weapon?: string;
 };

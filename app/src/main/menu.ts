@@ -24,7 +24,7 @@ export function createMenu(settings: Config<Settings>) {
                             click: async () => {
                                 const res = await checkForUpdates(true);
                                 if (!res) {
-                                    dialog.showMessageBox({
+                                    void dialog.showMessageBox({
                                         type: "info",
                                         title: "No Updates",
                                         message: "You're up to date!",
@@ -43,7 +43,7 @@ export function createMenu(settings: Config<Settings>) {
                                 });
 
                                 if (response === 0)
-                                    shell.openExternal(res.releaseUrl);
+                                    void shell.openExternal(res.releaseUrl);
                             },
                         },
                         { type: "separator" },
@@ -110,7 +110,7 @@ export function createMenu(settings: Config<Settings>) {
                             type: "radio",
                             checked: settings.get("theme") === "light",
                             click: async () =>
-                                await updateTheme(settings, "light")
+                                updateTheme(settings, "light")
 
                         },
                         {
@@ -118,7 +118,7 @@ export function createMenu(settings: Config<Settings>) {
                             type: "radio",
                             checked: settings.get("theme") === "dark",
                             click: async () =>
-                                await updateTheme(settings, "dark")
+                                updateTheme(settings, "dark")
 
                         },
                         {
@@ -126,7 +126,7 @@ export function createMenu(settings: Config<Settings>) {
                             type: "radio",
                             checked: settings.get("theme") === "system",
                             click: async () =>
-                                await updateTheme(settings, "system")
+                                updateTheme(settings, "system")
 
                         },
                     ],

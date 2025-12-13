@@ -73,7 +73,7 @@
   let grabberType = $state<string>("");
   let grabbedData = $state<GrabbedData | null>(null);
   let treeData = $state<TreeItem[]>([]);
-  let expandedNodes = $state<SvelteSet<string>>(new SvelteSet());
+  let expandedNodes = new SvelteSet<string>();
   let isLoading = $state<boolean>(false);
   let searchQuery = $state("");
   let flattenedItems = $derived(flattenTreeData(treeData, expandedNodes));

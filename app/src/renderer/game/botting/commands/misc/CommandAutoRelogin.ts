@@ -18,7 +18,7 @@ export class CommandAutoRelogin extends Command {
       this.bot.flash.get("objServerInfo.sName", true) ??
       undefined;
 
-    AutoReloginJob.setCredentials(username, password, server);
+    await AutoReloginJob.setCredentials(username, password, server);
     this.logger.debug(
       `Set AutoRelogin for ${username}${server ? ` [${server}]` : ""}.`,
     );

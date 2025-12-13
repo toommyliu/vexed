@@ -1,12 +1,11 @@
 import "core-js/stable";
 import "./tray";
 
-import { registerIpcMain } from "@vexed/tipc/main";
-import { app, shell, nativeTheme } from "electron";
-import { createMenu } from "./menu";
-import log from "electron-log";
 import { join } from "path";
 import process from "process";
+import { registerIpcMain } from "@vexed/tipc/main";
+import { app, shell, nativeTheme } from "electron";
+import log from "electron-log";
 import { version } from "../../package.json";
 import {
   BRAND,
@@ -14,14 +13,15 @@ import {
   IS_MAC,
   IS_WINDOWS,
 } from "../shared/constants";
+import { equalsIgnoreCase } from "../shared/string";
 import { ASSET_PATH, logger } from "./constants";
+import { createMenu } from "./menu";
 import { initSettings, getSettings } from "./settings";
 import { router } from "./tipc";
 import { checkForUpdates } from "./updater";
 import { showErrorDialog } from "./util/dialog";
 import { createNotification } from "./util/notification";
 import { createAccountManager, createGame, setQuitting } from "./windows";
-import { equalsIgnoreCase } from "../shared/string";
 
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 

@@ -1,6 +1,6 @@
+import Config from "@vexed/config";
 import { DEFAULT_SETTINGS, DOCUMENTS_PATH } from "../shared/constants";
 import type { Settings } from "../shared/types";
-import Config from "@vexed/config";
 
 let settings: Config<Settings>;
 

@@ -113,7 +113,7 @@ function initScriptState() {
 function initAppState() {
   // Whether the game has loaded.
   let gameLoaded = $state(false);
-  let skillSets = $state(new SvelteMap<string, SkillSet>());
+  let skillSets = new SvelteMap<string, SkillSet>();
 
   return {
     get gameLoaded() {
@@ -178,7 +178,7 @@ export function initCommandOverlayState() {
       lastIndex === currentIndex &&
       lastCommands.length === newItems.length &&
       lastCommands.every(
-        (cmd, i) => cmd.index === newItems[i]?.index && cmd.text === newItems[i]?.text
+        (cmd, idx) => cmd.index === newItems[idx]?.index && cmd.text === newItems[idx]?.text
       )
     ) {
       return false;
@@ -236,7 +236,7 @@ export function initCommandOverlayState() {
     const savedPosition = localStorage.getItem(storageKey);
 
     if (!savedPosition) {
-      const topNav = document.getElementById("topnav-container");
+      const topNav = document.querySelector("#topnav-container");
       const topNavBottom = topNav?.getBoundingClientRect().bottom ?? 0;
       const minTop = Math.max(0, Math.round(topNavBottom));
       overlay.style.left = "20px";
@@ -250,7 +250,7 @@ export function initCommandOverlayState() {
       overlay.style.left = position.left;
       overlay.style.top = position.top;
     } else {
-      const topNav = document.getElementById("topnav-container");
+      const topNav = document.querySelector("#topnav-container");
       const topNavBottom = topNav?.getBoundingClientRect().bottom ?? 0;
       const minTop = Math.max(0, Math.round(topNavBottom));
       overlay.style.left = "20px";

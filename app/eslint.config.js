@@ -69,9 +69,11 @@ const rules = [
       },
     },
     rules: {
-      // These rules crash with svelte-eslint-parser due to AST incompatibilities
+      // These rules crash or report false positives with svelte-eslint-parser
       "@stylistic/ts/padding-line-between-statements": "off",
       "@stylistic/js/spaced-comment": "off",
+      "import-x/newline-after-import": "off",
+      "import-x/order": "off",
     },
   },
   ...svelte.configs["flat/prettier"],
