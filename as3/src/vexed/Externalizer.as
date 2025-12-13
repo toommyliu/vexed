@@ -112,6 +112,7 @@ package vexed {
       externalize("questsIsInProgress", Quests.isInProgress);
       externalize("questsComplete", Quests.complete);
       externalize("questsAccept", Quests.accept);
+      externalize("questsAbandon", Quests.abandon);
       externalize("questsLoad", Quests.load);
       externalize("questsGet", Quests.get );
       externalize("questsGetMultiple", Quests.getMultiple);

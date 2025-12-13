@@ -4,7 +4,7 @@ import { GameAction } from "./World";
 import { Quest, type QuestData } from "./models/Quest";
 
 export class Quests {
-  public constructor(public bot: Bot) {}
+  public constructor(public bot: Bot) { }
 
   /**
    * A list of quests loaded in the client.
@@ -120,5 +120,19 @@ export class Quests {
     this.bot.flash.call(() => {
       swf.questsComplete(id, turnIns, itemId, special);
     });
+  }
+
+  /**
+   * Abandons a quest.
+   *
+   * @param questId - The quest id to abandon.
+   */
+  public async abandon(questId: number | string) {
+    const id = normalizeId(questId);
+
+    if (!this.get(id)?.inProgress) return;
+
+    this.bot.flash.call(() => swf.questsAbandon(id));
+    await this.bot.waitUntil(() => !this.get(id)?.inProgress);
   }
 }
