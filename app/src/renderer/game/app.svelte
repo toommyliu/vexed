@@ -95,11 +95,19 @@
   }
 
   function updateCells() {
-    if (!bot.player.isReady() || bot.world.roomId === prevRoomId) return;
+    if (!bot.player.isReady()) return;
 
-    availableCells = bot.world.cells || [];
-    currentSelectedCell = bot.player.cell || "";
-    prevRoomId = bot.world.roomId || -1;
+    const capturedRoomId = bot.world.roomId;
+    if (capturedRoomId === prevRoomId) return;
+
+    const cells = bot.world.cells || [];
+    const cell = bot.player.cell || "";
+
+    if (bot.world.roomId !== capturedRoomId) return;
+
+    availableCells = cells;
+    currentSelectedCell = cell;
+    prevRoomId = capturedRoomId;
   }
 
   function updatePads() {
