@@ -94,133 +94,70 @@ export function parseKeyboardEvent(ev: KeyboardEvent): string | null {
   return isValidHotkey(combination) ? combination : null;
 }
 
+/**
+ * Creates a hotkey item from a label, auto-generating id and configKey.
+ */
+function item(sectionName: string, label: string): { configKey: string; id: string; label: string; value: string } {
+  const id = label.toLowerCase().replaceAll(/\s+/g, "-").replaceAll(/[^\da-z-]/g, "");
+  return {
+    id,
+    label,
+    configKey: `${sectionName}.${label}`,
+    value: "",
+  };
+}
+
+/**
+ * Creates a hotkey section from a name and list of labels.
+ */
+function section(name: string, labels: string[]): HotkeySection {
+  return {
+    id: name.toLowerCase(),
+    name,
+    icon: name.toLowerCase(),
+    items: labels.map((label) => item(name, label)),
+  };
+}
+
 export function createHotkeyConfig(): HotkeySection[] {
   return [
-    {
-      id: "general",
-      name: "General",
-      icon: "general",
-      items: [
-        {
-          id: "toggle-autoattack",
-          label: "Toggle Autoattack",
-          configKey: "General.Toggle Autoattack",
-          value: "",
-        },
-        {
-          id: "toggle-bank",
-          label: "Toggle Bank",
-          configKey: "General.Toggle Bank",
-          value: "",
-        },
-        {
-          id: "toggle-options-panel",
-          label: "Toggle Options Panel",
-          configKey: "General.Toggle Options Panel",
-          value: "",
-        },
-        {
-          id: "toggle-top-bar",
-          label: "Toggle Top Bar",
-          configKey: "General.Toggle Top Bar",
-          value: "",
-        },
-      ],
-    },
-    {
-      id: "application",
-      name: "Application",
-      icon: "application",
-      items: [
-        {
-          id: "open-app-logs",
-          label: "Open App Logs",
-          configKey: "Application.Open App Logs",
-          value: "",
-        },
-        {
-          id: "open-environment",
-          label: "Open Environment",
-          configKey: "Application.Open Environment",
-          value: "",
-        },
-      ],
-    },
-    {
-      id: "scripts",
-      name: "Scripts",
-      icon: "scripts",
-      items: [
-        {
-          id: "load-script",
-          label: "Load Script",
-          configKey: "Scripts.Load Script",
-          value: "",
-        },
-        {
-          id: "toggle-script",
-          label: "Toggle Script",
-          configKey: "Scripts.Toggle Script",
-          value: "",
-        },
-        {
-          id: "toggle-command-overlay",
-          label: "Toggle Command Overlay",
-          configKey: "Scripts.Toggle Command Overlay",
-          value: "",
-        },
-        {
-          id: "toggle-dev-tools",
-          label: "Toggle Dev Tools",
-          configKey: "Scripts.Toggle Dev Tools",
-          value: "",
-        },
-      ],
-    },
-    {
-      id: "tools",
-      name: "Tools",
-      icon: "tools",
-      items: [
-        {
-          id: "open-fast-travels",
-          label: "Open Fast Travels",
-          configKey: "Tools.Open Fast Travels",
-          value: "",
-        },
-        {
-          id: "open-loader-grabber",
-          label: "Open Loader/Grabber",
-          configKey: "Tools.Open Loader Grabber",
-          value: "",
-        },
-        {
-          id: "open-follower",
-          label: "Open Follower",
-          configKey: "Tools.Open Follower",
-          value: "",
-        },
-      ],
-    },
-    {
-      id: "packets",
-      name: "Packets",
-      icon: "packets",
-      items: [
-        {
-          id: "open-packet-logger",
-          label: "Open Packet Logger",
-          configKey: "Packets.Open Packet Logger",
-          value: "",
-        },
-        {
-          id: "open-packet-spammer",
-          label: "Open Packet Spammer",
-          configKey: "Packets.Open Packet Spammer",
-          value: "",
-        },
-      ],
-    },
+    section("General", [
+      "Toggle Autoattack",
+      "Toggle Bank",
+      "Toggle Options Panel",
+      "Toggle Top Bar",
+    ]),
+    section("Application", [
+      "Open App Logs",
+      "Open Environment",
+    ]),
+    section("Scripts", [
+      "Load Script",
+      "Toggle Script",
+      "Toggle Command Overlay",
+      "Toggle Dev Tools",
+    ]),
+    section("Options", [
+      "Toggle Infinite Range",
+      "Toggle Provoke Cell",
+      "Toggle Enemy Magnet",
+      "Toggle Lag Killer",
+      "Toggle Hide Players",
+      "Toggle Skip Cutscenes",
+      "Toggle Disable FX",
+      "Toggle Disable Collisions",
+      "Toggle Anti-Counter",
+      "Toggle Disable Death Ads",
+    ]),
+    section("Tools", [
+      "Open Fast Travels",
+      "Open Loader/Grabber",
+      "Open Follower",
+    ]),
+    section("Packets", [
+      "Open Packet Logger",
+      "Open Packet Spammer",
+    ]),
   ];
 }
 

@@ -2,6 +2,7 @@
   import { onMount, tick } from "svelte";
   import { gameState, optionsPanelState } from "@game/state.svelte";
   import { Checkbox, Input, Label } from "@vexed/ui";
+  import Kbd from "@vexed/ui/Kbd";
   import * as NumberField from "@vexed/ui/NumberField";
   import { motionScale, motionFade } from "@vexed/ui/motion";
   import X from "lucide-svelte/icons/x";
@@ -11,7 +12,7 @@
   const bot = Bot.getInstance();
 
   // svelte-ignore non_reactive_update
-    let panel: HTMLDivElement;
+  let panel: HTMLDivElement;
   let panelRef: HTMLDivElement | null = null;
   let wasVisible = false;
 
@@ -34,17 +35,23 @@
   const MIN_WIDTH = 320;
   const MIN_HEIGHT = 160;
 
+  type Props = {
+    hotkeyValues: Record<string, string>;
+  };
+
+  let { hotkeyValues }: Props = $props();
+
   const options = [
-    { key: "infiniteRange", label: "Infinite Range" },
-    { key: "provokeCell", label: "Provoke Cell" },
-    { key: "enemyMagnet", label: "Enemy Magnet" },
-    { key: "lagKiller", label: "Lag Killer" },
-    { key: "hidePlayers", label: "Hide Players" },
-    { key: "skipCutscenes", label: "Skip Cutscenes" },
-    { key: "disableFx", label: "Disable FX" },
-    { key: "disableCollisions", label: "Disable Collisions" },
-    { key: "counterAttack", label: "Anti-Counter" },
-    { key: "disableDeathAds", label: "Disable Death Ads" },
+    { key: "infiniteRange", label: "Infinite Range", hotkeyId: "toggle-infinite-range" },
+    { key: "provokeCell", label: "Provoke Cell", hotkeyId: "toggle-provoke-cell" },
+    { key: "enemyMagnet", label: "Enemy Magnet", hotkeyId: "toggle-enemy-magnet" },
+    { key: "lagKiller", label: "Lag Killer", hotkeyId: "toggle-lag-killer" },
+    { key: "hidePlayers", label: "Hide Players", hotkeyId: "toggle-hide-players" },
+    { key: "skipCutscenes", label: "Skip Cutscenes", hotkeyId: "toggle-skip-cutscenes" },
+    { key: "disableFx", label: "Disable FX", hotkeyId: "toggle-disable-fx" },
+    { key: "disableCollisions", label: "Disable Collisions", hotkeyId: "toggle-disable-collisions" },
+    { key: "counterAttack", label: "Anti-Counter", hotkeyId: "toggle-anti-counter" },
+    { key: "disableDeathAds", label: "Disable Death Ads", hotkeyId: "toggle-disable-death-ads" },
   ] as const;
 
   $effect(() => {
@@ -97,7 +104,7 @@
 
     x = Math.max(0, Math.min(x, innerWidth - width));
 
-    const topNav = document.getElementById("topnav-container");
+    const topNav = document.querySelector("#topnav-container");
     const topNavBottom = topNav?.getBoundingClientRect().bottom ?? 0;
     const minY = Math.max(0, Math.round(topNavBottom));
     y = Math.max(minY, Math.min(y, innerHeight - height));
@@ -267,14 +274,14 @@
     in:motionScale={{ duration: 120, start: 0.96, opacity: 0 }}
     out:motionFade={{ duration: 80 }}
   >
-    <div role="presentation" class="resize-handle resize-n" onmousedown={(e) => handleResizeStart(e, "n")}></div>
-    <div role="presentation" class="resize-handle resize-s" onmousedown={(e) => handleResizeStart(e, "s")}></div>
-    <div role="presentation" class="resize-handle resize-e" onmousedown={(e) => handleResizeStart(e, "e")}></div>
-    <div role="presentation" class="resize-handle resize-w" onmousedown={(e) => handleResizeStart(e, "w")}></div>
-    <div role="presentation" class="resize-handle resize-ne" onmousedown={(e) => handleResizeStart(e, "ne")}></div>
-    <div role="presentation" class="resize-handle resize-nw" onmousedown={(e) => handleResizeStart(e, "nw")}></div>
-    <div role="presentation" class="resize-handle resize-se" onmousedown={(e) => handleResizeStart(e, "se")}></div>
-    <div role="presentation" class="resize-handle resize-sw" onmousedown={(e) => handleResizeStart(e, "sw")}></div>
+    <div role="presentation" class="resize-handle resize-n" onmousedown={(ev) => handleResizeStart(ev, "n")}></div>
+    <div role="presentation" class="resize-handle resize-s" onmousedown={(ev) => handleResizeStart(ev, "s")}></div>
+    <div role="presentation" class="resize-handle resize-e" onmousedown={(ev) => handleResizeStart(ev, "e")}></div>
+    <div role="presentation" class="resize-handle resize-w" onmousedown={(ev) => handleResizeStart(ev, "w")}></div>
+    <div role="presentation" class="resize-handle resize-ne" onmousedown={(ev) => handleResizeStart(ev, "ne")}></div>
+    <div role="presentation" class="resize-handle resize-nw" onmousedown={(ev) => handleResizeStart(ev, "nw")}></div>
+    <div role="presentation" class="resize-handle resize-se" onmousedown={(ev) => handleResizeStart(ev, "se")}></div>
+    <div role="presentation" class="resize-handle resize-sw" onmousedown={(ev) => handleResizeStart(ev, "sw")}></div>
 
     <div
       class="panel-header"
@@ -302,6 +309,7 @@
     <div class="panel-content">
       <div class="options-grid">
         {#each options as option (option.key)}
+        {@const hotkey = hotkeyValues[option.hotkeyId]}
           <Label class="option-row">
             <Checkbox
               checked={gameState[option.key]}
@@ -309,7 +317,8 @@
                 gameState[option.key] = checked === true;
               }}
             />
-            <span>{option.label}</span>
+            <span class="option-label-text">{option.label}</span>
+            <Kbd hotkey={hotkey ?? ""} />
           </Label>
         {/each}
       </div>
@@ -563,17 +572,25 @@
   :global(.option-row) {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     padding: 4px 6px;
     border-radius: 4px;
     cursor: pointer;
     font-size: 12px;
     transition: background-color 0.1s ease;
     white-space: nowrap;
+    overflow: hidden;
   }
 
   :global(.option-row:hover) {
     background-color: rgb(var(--accent));
+  }
+
+  .option-label-text {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .option-row-input {

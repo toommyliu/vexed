@@ -118,6 +118,18 @@ export type HotkeyConfig = {
     "Toggle Options Panel"?: string;
     "Toggle Top Bar"?: string;
   };
+  Options?: {
+    "Toggle Anti-Counter"?: string;
+    "Toggle Disable Collisions"?: string;
+    "Toggle Disable Death Ads"?: string;
+    "Toggle Disable FX"?: string;
+    "Toggle Enemy Magnet"?: string;
+    "Toggle Hide Players"?: string;
+    "Toggle Infinite Range"?: string;
+    "Toggle Lag Killer"?: string;
+    "Toggle Provoke Cell"?: string;
+    "Toggle Skip Cutscenes"?: string;
+  };
   Packets?: {
     "Open Packet Logger"?: string;
     "Open Packet Spammer"?: string;
