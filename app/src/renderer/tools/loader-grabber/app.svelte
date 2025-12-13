@@ -1,14 +1,27 @@
 <script lang="ts">
-  import { cn } from "../../../shared";
-  import { client } from "../../../shared/tipc";
-  import { GrabberDataType, LoaderDataType } from "../../../shared/types";
+  import { cn } from "@vexed/ui/util";
+  import { Button, Input } from "@vexed/ui";
+  import * as Empty from "@vexed/ui/Empty";
+  import * as Select from "@vexed/ui/Select";
+  import * as Tabs from "@vexed/ui/Tabs";
   import { VirtualList } from "@vexed/ui";
-  import type { QuestData } from "../../game/lib/models/Quest";
-  import type { ShopInfo } from "../../game/lib/Shops";
-  import type { ItemData } from "../../game/lib/models/Item";
-  import type { MonsterData } from "../../game/lib/models/Monster";
+  import Download from "lucide-svelte/icons/download";
+  import Loader from "lucide-svelte/icons/loader";
+  import Database from "lucide-svelte/icons/database";
+  import Upload from "lucide-svelte/icons/upload";
+  import Check from "lucide-svelte/icons/check";
+  import ChevronRight from "lucide-svelte/icons/chevron-right";
+  import Search from "lucide-svelte/icons/search";
+
   import { SvelteSet } from "svelte/reactivity";
   import log from "electron-log";
+
+  import { client } from "@shared/tipc";
+  import { GrabberDataType, LoaderDataType } from "@shared/types";
+  import type { QuestData } from "@game/lib/models/Quest";
+  import type { ShopInfo } from "@game/lib/Shops";
+  import type { ItemData } from "@game/lib/models/Item";
+  import type { MonsterData } from "@game/lib/models/Monster";
 
   const logger = log.scope("app/loader-grabber");
 
@@ -54,38 +67,54 @@
     );
   }
 
+  let activeTab = $state("grabber");
   let loaderId = $state<number>();
   let loaderType = $state<string>("");
   let grabberType = $state<string>("");
   let grabbedData = $state<GrabbedData | null>(null);
   let treeData = $state<TreeItem[]>([]);
-  let expandedNodes = $state<SvelteSet<string>>(new SvelteSet());
+  let expandedNodes = new SvelteSet<string>();
   let isLoading = $state<boolean>(false);
+  let searchQuery = $state("");
   let flattenedItems = $derived(flattenTreeData(treeData, expandedNodes));
+  let filteredTreeData = $derived(
+    searchQuery
+      ? treeData.filter((item) => {
+          const query = searchQuery.toLowerCase();
+          return item.name.toLowerCase().includes(query);
+        })
+      : treeData
+  );
+  let filteredItems = $derived(
+    searchQuery
+      ? flattenTreeData(filteredTreeData, expandedNodes)
+      : flattenedItems
+  );
+  let copiedNodeId = $state<string | null>(null);
 
   async function handleLoad() {
     if (!loaderType || (loaderType !== "3" && !loaderId)) return;
 
     switch (loaderType) {
-      case "0": // Hair shop
+      case "0":
         await client.loaderGrabber.load({
           type: LoaderDataType.HairShop,
           id: loaderId!,
         });
         break;
-      case "1": // Shop
+      case "1":
         await client.loaderGrabber.load({
           type: LoaderDataType.Shop,
           id: loaderId!,
         });
         break;
-      case "2": // Quest
+      case "2":
         await client.loaderGrabber.load({
           type: LoaderDataType.Quest,
           id: loaderId!,
         });
         break;
-      case "3": // Armor customizer
+      case "3":
         await client.loaderGrabber.load({
           type: LoaderDataType.ArmorCustomizer,
           id: loaderId!,
@@ -101,37 +130,37 @@
     try {
       let data: GrabbedData;
       switch (grabberType) {
-        case "0": // Shop Items
+        case "0":
           data = (await client.loaderGrabber.grab({
             type: GrabberDataType.Shop,
           })) as GrabbedData;
           break;
-        case "1": // Quests
+        case "1":
           data = (await client.loaderGrabber.grab({
             type: GrabberDataType.Quest,
           })) as GrabbedData;
           break;
-        case "2": // Inventory
+        case "2":
           data = (await client.loaderGrabber.grab({
             type: GrabberDataType.Inventory,
           })) as GrabbedData;
           break;
-        case "3": // Temp Inventory
+        case "3":
           data = (await client.loaderGrabber.grab({
             type: GrabberDataType.TempInventory,
           })) as GrabbedData;
           break;
-        case "4": // Bank
+        case "4":
           data = (await client.loaderGrabber.grab({
             type: GrabberDataType.Bank,
           })) as GrabbedData;
           break;
-        case "5": // Cell Monsters
+        case "5":
           data = (await client.loaderGrabber.grab({
             type: GrabberDataType.CellMonsters,
           })) as GrabbedData;
           break;
-        case "6": // Map Monsters
+        case "6":
           data = (await client.loaderGrabber.grab({
             type: GrabberDataType.MapMonsters,
           })) as GrabbedData;
@@ -147,7 +176,7 @@
       let out: TreeItem[] = [];
 
       switch (grabberType) {
-        case "0": // Shop Items
+        case "0":
           if (isShopInfo(data)) {
             out = data.items.map((item) => {
               return {
@@ -166,7 +195,7 @@
             });
           }
           break;
-        case "1": // Quests
+        case "1":
           if (isQuestDataArray(data)) {
             out = data.map((quest: QuestData) => ({
               name: `${quest.QuestID} - ${quest.sName}`,
@@ -215,8 +244,8 @@
             }));
           }
           break;
-        case "2": // Inventory
-        case "4": // Bank
+        case "2":
+        case "4":
           if (isItemDataArray(data)) {
             out = data.map((item: ItemData) => ({
               name: item.sName,
@@ -252,7 +281,7 @@
             }));
           }
           break;
-        case "3": // Temp Inventory
+        case "3":
           if (isItemDataArray(data)) {
             out = data.map((item) => ({
               name: item.sName,
@@ -269,8 +298,8 @@
             }));
           }
           break;
-        case "5": // Cell Monsters
-        case "6": // Map Monsters
+        case "5":
+        case "6":
           if (isMonsterDataArray(data)) {
             out = data.map((mon) => {
               const ret: TreeItem = {
@@ -379,198 +408,226 @@
     traverse(data);
     return result;
   }
+
+  async function copyValue(nodeId: string, value: string) {
+    try {
+      await navigator.clipboard.writeText(value);
+      copiedNodeId = nodeId;
+      setTimeout(() => {
+        if (copiedNodeId === nodeId) copiedNodeId = null;
+      }, 1500);
+    } catch {
+      // ignore
+    }
+  }
 </script>
 
-<main
-  class="m-0 flex min-h-screen flex-col overflow-hidden bg-background-primary text-white focus:outline-none"
->
-  <div
-    class="flex w-full flex-col space-y-6 p-4 sm:flex-row sm:space-x-6 sm:space-y-0"
+<div class="bg-background flex h-screen flex-col">
+  <header
+    class="bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-10 border-b border-border/50 px-6 py-3 backdrop-blur-xl elevation-1"
   >
-    <div class="flex-shrink-0 sm:w-1/3">
-      <div
-        class="h-full rounded-lg border border-gray-800/50 bg-background-secondary p-6 backdrop-blur-sm"
-      >
-        <h3 class="mb-6 text-xl font-semibold text-white">Loader</h3>
+    <div class="mx-auto flex max-w-7xl items-center justify-between">
+      <div class="flex items-center gap-3">
+        <h1 class="text-foreground text-base font-semibold tracking-tight">
+          Loader Grabber
+        </h1>
+      </div>
 
-        <div class="space-y-4">
-          <div>
-            <label
-              for="loader-id"
-              class="mb-2 block text-sm font-medium text-gray-300"
-            >
-              ID
-            </label>
-            <input
-              type="number"
-              id="loader-id"
-              bind:value={loaderId}
-              class="w-full rounded-md border border-gray-700/50 bg-gray-800/50 px-3 py-1 text-white placeholder-gray-500 transition-all duration-200 focus:border-blue-500/50 focus:bg-gray-800/70 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-              placeholder="Enter ID"
-              autocomplete="off"
-            />
-          </div>
-
-          <div>
-            <label
-              for="loader-select"
-              class="mb-2 block text-sm font-medium text-gray-300"
-            >
-              Data Type
-            </label>
-            <select
-              id="loader-select"
-              bind:value={loaderType}
-              class="w-full rounded-md border border-gray-700/50 bg-gray-800/50 px-3 py-1.5 text-white transition-all duration-200 focus:border-blue-500/50 focus:bg-gray-800/70 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-            >
-              <option value="" disabled>Select type...</option>
-              <option value="0">Hair shop</option>
-              <option value="1">Shop</option>
-              <option value="2">Quest</option>
-              <option value="3">Armor customizer</option>
-            </select>
-          </div>
-
-          <button
-            onclick={handleLoad}
-            disabled={!loaderType || (loaderType !== "3" && !loaderId)}
-            class="w-full rounded-md border border-gray-700/30 bg-gray-800/30 px-3 py-1.5 font-medium text-white transition-all duration-200 hover:border-gray-600/50 hover:bg-gray-700/40 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Load
-          </button>
-        </div>
+      <div class="flex items-center gap-2">
+        {#if activeTab === "grabber" && grabbedData}
+          <Button variant="outline" size="sm" class="gap-2" onclick={handleExport}>
+            <Download class="h-4 w-4" />
+            <span class="hidden sm:inline">Export</span>
+          </Button>
+        {/if}
       </div>
     </div>
+  </header>
 
-    <div class="w-full flex-grow sm:w-2/3">
-      <div
-        class="h-full rounded-lg border border-gray-800/50 bg-background-secondary p-6 backdrop-blur-sm"
-      >
-        <div
-          class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between"
-        >
-          <h2 class="mb-4 text-xl font-bold text-white sm:mb-0">Grabber</h2>
-          <div
-            class="flex flex-col space-y-2 sm:flex-row sm:space-x-4 sm:space-y-0"
-          >
-            <button
-              onclick={handleGrab}
-              disabled={!grabberType || isLoading}
-              class="rounded-md bg-blue-600 px-4 py-1.5 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-blue-500 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-blue-600"
-            >
-              {#if isLoading}
-                <div class="flex items-center space-x-1.5">
-                  <svg
-                    class="h-3.5 w-3.5 animate-spin text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      class="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      stroke-width="4"
-                    ></circle>
-                    <path
-                      class="opacity-75"
-                      fill="currentColor"
-                      d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  <span>Grabbing...</span>
-                </div>
-              {:else}
-                Grab
-              {/if}
-            </button>
-            <button
-              onclick={handleExport}
-              class="rounded-md bg-green-600 px-4 py-1.5 text-sm font-medium text-white transition-all duration-200 hover:bg-green-500 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-green-600"
-            >
-              Export
-            </button>
-          </div>
-        </div>
+  <main class="flex-1 overflow-hidden p-4 sm:p-6">
+    <div class="mx-auto flex h-full max-w-7xl flex-col gap-4">
+      <Tabs.Root bind:value={activeTab} class="flex h-full flex-col gap-4">
+        <Tabs.List class="w-fit">
+          <Tabs.Trigger value="grabber" class="gap-2">
+            <Download class="h-4 w-4" />
+            Grabber
+          </Tabs.Trigger>
+          <Tabs.Trigger value="loader" class="gap-2">
+            <Upload class="h-4 w-4" />
+            Loader
+          </Tabs.Trigger>
+        </Tabs.List>
 
-        <div class="flex h-[calc(100vh-12rem)] flex-col space-y-6">
-          <div class="flex-shrink-0 space-y-4">
-            <div>
-              <label
-                for="grabber-select"
-                class="mb-3 block text-sm font-medium text-gray-300"
-              >
-                Data Type
-              </label>
-              <select
-                id="grabber-select"
-                bind:value={grabberType}
-                class="w-full rounded-md border border-gray-700/50 bg-gray-800/50 px-4 py-3 text-white transition-all duration-200 focus:border-blue-500/50 focus:bg-gray-800/70 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-              >
-                <option value="" disabled>Select type...</option>
-                <option value="0">Shop Items</option>
-                <option value="1">Quests</option>
-                <option value="2">Inventory</option>
-                <option value="3">Temp Inventory</option>
-                <option value="4">Bank</option>
-                <option value="5">Cell Monsters</option>
-                <option value="6">Map Monsters</option>
-              </select>
+        <Tabs.Content value="loader" class="flex-1">
+          <div class="flex flex-col gap-4">
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div class="space-y-1.5">
+                <label for="loader-id" class="text-sm font-medium text-muted-foreground">
+                  ID
+                </label>
+                <Input
+                  type="number"
+                  id="loader-id"
+                  bind:value={loaderId}
+                  placeholder="Enter ID"
+                  class="bg-secondary/50 border-border/50 focus:bg-background transition-colors"
+                  autocomplete="off"
+                />
+              </div>
+
+              <div class="space-y-1.5">
+                <label for="loader-type" class="text-sm font-medium text-muted-foreground">
+                  Data Type
+                </label>
+                <Select.Root bind:value={loaderType}>
+                  <Select.Trigger class="w-full bg-secondary/50 border-border/50 hover:bg-secondary transition-colors">
+                    <span class="text-sm truncate">
+                      {#if loaderType === "0"}Hair Shop
+                      {:else if loaderType === "1"}Shop
+                      {:else if loaderType === "2"}Quest
+                      {:else if loaderType === "3"}Armor Customizer
+                      {:else}Select type...{/if}
+                    </span>
+                  </Select.Trigger>
+                  <Select.Content>
+                    <Select.Item value="0">Hair Shop</Select.Item>
+                    <Select.Item value="1">Shop</Select.Item>
+                    <Select.Item value="2">Quest</Select.Item>
+                    <Select.Item value="3">Armor Customizer</Select.Item>
+                  </Select.Content>
+                </Select.Root>
+              </div>
             </div>
+
+            <Button
+              onclick={handleLoad}
+              disabled={!loaderType || (loaderType !== "3" && !loaderId)}
+              class="w-full sm:w-auto gap-2"
+            >
+              <Upload class="h-4 w-4" />
+              Load Data
+            </Button>
+          </div>
+        </Tabs.Content>
+
+        <Tabs.Content value="grabber" class="flex h-full min-h-0 flex-1 flex-col gap-4">
+          <div class="flex flex-col gap-3">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
+              <div class="flex-1">
+                <Select.Root bind:value={grabberType}>
+                  <Select.Trigger class="w-full bg-secondary/50 border-border/50 hover:bg-secondary transition-colors">
+                    <span class="text-sm truncate">
+                      {#if grabberType === "0"}Shop Items
+                      {:else if grabberType === "1"}Quests
+                      {:else if grabberType === "2"}Inventory
+                      {:else if grabberType === "3"}Temp Inventory
+                      {:else if grabberType === "4"}Bank
+                      {:else if grabberType === "5"}Cell Monsters
+                      {:else if grabberType === "6"}Map Monsters
+                      {:else}Select type...{/if}
+                    </span>
+                  </Select.Trigger>
+                  <Select.Content>
+                    <Select.Item value="0">Shop Items</Select.Item>
+                    <Select.Item value="1">Quests</Select.Item>
+                    <Select.Item value="2">Inventory</Select.Item>
+                    <Select.Item value="3">Temp Inventory</Select.Item>
+                    <Select.Item value="4">Bank</Select.Item>
+                    <Select.Item value="5">Cell Monsters</Select.Item>
+                    <Select.Item value="6">Map Monsters</Select.Item>
+                  </Select.Content>
+                </Select.Root>
+              </div>
+
+              <Button
+                onclick={handleGrab}
+                disabled={!grabberType || isLoading}
+                class="gap-2"
+              >
+                {#if isLoading}
+                  <Loader class="h-4 w-4 animate-spin" />
+                  Grabbing...
+                {:else}
+                  <Download class="h-4 w-4" />
+                  Grab Data
+                {/if}
+              </Button>
+            </div>
+
+            {#if treeData.length > 0}
+              <div class="relative">
+                <Search
+                  class="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 pointer-events-none"
+                />
+                <Input
+                  type="search"
+                  placeholder="Search items..."
+                  class="pl-10 bg-secondary/50 border-border/50 focus:bg-background transition-colors"
+                  bind:value={searchQuery}
+                />
+              </div>
+            {/if}
           </div>
 
-          <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
-            <div
-              class="h-full overflow-hidden rounded-md border border-gray-700/50 bg-background-primary backdrop-blur-sm"
-            >
-              {#if isLoading}
-                <div class="flex h-full items-center justify-center p-8">
-                  <div class="flex flex-col items-center space-y-4">
-                    <svg
-                      class="h-8 w-8 animate-spin text-blue-400"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        class="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        stroke-width="4"
-                      ></circle>
-                      <path
-                        class="opacity-75"
-                        fill="currentColor"
-                        d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    <div class="text-gray-400">Loading data...</div>
-                  </div>
-                </div>
-              {:else if flattenedItems.length > 0}
-                <div class="h-full p-2">
-                  <VirtualList
-                    data={flattenedItems}
-                    key="nodeId"
-                    class="no-scrollbar"
-                  >
-                    {#snippet children({ data: item })}
-                      {@render TreeNode(item)}
-                    {/snippet}
-                  </VirtualList>
-                </div>
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-muted-foreground">
+              <span class="tabular-nums font-medium text-foreground">{filteredTreeData.length}</span>
+              {#if searchQuery && filteredTreeData.length !== treeData.length}
+                <span class="text-muted-foreground/70"> of {treeData.length}</span>
               {/if}
-            </div>
+              <span class="text-muted-foreground/70"> item{filteredTreeData.length !== 1 ? 's' : ''}</span>
+            </span>
           </div>
-        </div>
-      </div>
+
+          <div class="relative flex-1 overflow-hidden rounded-xl border border-border/50 bg-card">
+            {#if isLoading}
+              <div class="flex h-full flex-col items-center justify-center gap-3 text-muted-foreground">
+                <Loader class="text-primary h-6 w-6 animate-spin" />
+                <p class="text-sm">Loading data...</p>
+              </div>
+            {:else if treeData.length === 0}
+              <div class="flex h-full items-center justify-center">
+                <Empty.Root>
+                  <Empty.Header>
+                    <Empty.Media variant="icon">
+                      <Database />
+                    </Empty.Media>
+                    <Empty.Title>No data</Empty.Title>
+                    <Empty.Description>
+                      Select a data type and click "Grab Data" to fetch information.
+                    </Empty.Description>
+                  </Empty.Header>
+                </Empty.Root>
+              </div>
+            {:else if filteredItems.length === 0}
+              <div class="flex h-full items-center justify-center">
+                <Empty.Root>
+                  <Empty.Header>
+                    <Empty.Media variant="icon">
+                      <Search />
+                    </Empty.Media>
+                    <Empty.Title>No matches</Empty.Title>
+                    <Empty.Description>
+                      No items match "{searchQuery}"
+                    </Empty.Description>
+                  </Empty.Header>
+                </Empty.Root>
+              </div>
+            {:else}
+              <div class="h-full overflow-hidden p-2">
+                <VirtualList data={filteredItems} key="nodeId" class="no-scrollbar">
+                  {#snippet children({ data: item })}
+                    {@render TreeNode(item)}
+                  {/snippet}
+                </VirtualList>
+              </div>
+            {/if}
+          </div>
+        </Tabs.Content>
+      </Tabs.Root>
     </div>
-  </div>
-</main>
+  </main>
+</div>
 
 {#snippet TreeNode(item: FlattenedItem)}
   {@const isExpanded = expandedNodes.has(item.nodeId)}
@@ -590,142 +647,86 @@
     item.value !== "undefined" &&
     item.value !== "null" &&
     item.value !== ""}
+  {@const isCopied = copiedNodeId === item.nodeId}
 
   <div class="select-none">
     <div
       class={cn(
-        "group flex cursor-pointer items-start space-x-2 rounded-md px-2 py-1.5 text-sm transition-all duration-200 hover:bg-gray-700/40 hover:shadow-sm",
-        isLeaf && "cursor-default hover:bg-gray-700/20",
+        "group flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 text-sm transition-colors",
+        hasChildren ? "hover:bg-secondary/50" : "cursor-default",
       )}
       onclick={inputHandler}
-      onkeydown={inputHandler}
+      onkeydown={(ev) => ev.key === "Enter" && inputHandler()}
       style="margin-left: {item.level * 16}px"
       role="button"
       tabindex="0"
     >
       {#if hasChildren}
-        <div
-          class="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center"
-        >
-          <svg
+        <div class="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center">
+          <ChevronRight
             class={cn(
-              "h-3 w-3 text-gray-400 transition-all duration-300 ease-out group-hover:text-gray-300",
-              isExpanded && "rotate-90 text-blue-400",
+              "h-3.5 w-3.5 text-muted-foreground transition-transform duration-200",
+              isExpanded && "rotate-90 text-foreground",
             )}
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
-              clip-rule="evenodd"
-            />
-          </svg>
+          />
         </div>
       {:else}
-        <div
-          class="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center"
-        >
+        <div class="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center">
           {#if hasValue}
-            <svg
-              class="h-2.5 w-2.5 text-emerald-400/80"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <circle cx="10" cy="10" r="4" />
-            </svg>
+            <div class="h-1.5 w-1.5 rounded-full bg-muted-foreground/50"></div>
           {/if}
         </div>
       {/if}
 
-      <div class="flex min-w-0 flex-1 items-center space-x-2 leading-relaxed">
+      <div class="flex min-w-0 flex-1 items-center gap-2 leading-relaxed">
         {#if hasChildren}
-          <span
-            class="flex-shrink-0 truncate font-semibold text-blue-200 group-hover:text-blue-100"
-            >{item.name}</span
-          >
+          <span class="flex-shrink-0 truncate font-medium text-foreground">
+            {item.name}
+          </span>
+          <span class="text-xs text-muted-foreground">
+            ({item.children?.length})
+          </span>
         {:else if !hasChildren && item.name && hasValue}
-          <span
-            class="flex-shrink-0 truncate font-medium text-gray-300 group-hover:text-gray-200"
-            >{item.name}</span
-          >
+          <span class="flex-shrink-0 truncate font-medium text-foreground">
+            {item.name}
+          </span>
         {/if}
 
         {#if hasValue}
-          <span class="flex-shrink-0 text-gray-500">:</span>
-          <span
+          <button
             class={cn(
-              "font-mono text-sm text-emerald-300 transition-colors duration-200 hover:cursor-pointer hover:underline group-hover:text-emerald-200",
-              "min-w-0 truncate",
+              "inline-flex min-w-0 items-center gap-1 truncate rounded px-1.5 py-0.5 font-mono text-sm transition-all",
+              "bg-secondary/80 text-foreground hover:bg-secondary",
+              isCopied && "bg-success/20 text-success",
             )}
-            title={item.value}
-            onclick={() =>
-              navigator.clipboard.writeText(item.value!).catch(() => {})}
-            onkeydown={(ev) => {
-              if (ev.key === "Enter" || ev.key === " ") {
-                ev.preventDefault();
-                navigator.clipboard.writeText(item.value!).catch(() => {});
-              }
+            title="Click to copy"
+            onclick={(ev) => {
+              ev.stopPropagation();
+              copyValue(item.nodeId, item.value!);
             }}
-            tabindex="0"
-            role="button"
           >
-            {item.value}
-          </span>
+            {#if isCopied}<Check class="h-3 w-3 flex-shrink-0" />{/if}
+            <span class="truncate">{item.value}</span>
+          </button>
         {/if}
       </div>
     </div>
 
-    {#if hasChildren}
-      <div
-        class={cn(
-          "expand-container relative",
-          isExpanded ? "expanded" : "collapsed",
-        )}
-      >
-        {#if item.level < 3}
-          <div
-            class={cn(
-              "absolute border-l border-gray-600/40 transition-opacity duration-300",
-              isExpanded ? "opacity-100" : "opacity-0",
-            )}
-            style="left: {item.level * 20 +
-              15}px; top: 0; bottom: 0; width: 1px"
-          ></div>
-        {/if}
-        {#if isExpanded}
-          <div class="transition-all duration-300 ease-out">
-            {#each item.children || [] as child, index}
-              {@render TreeNode({
-                ...child,
-                level: item.level + 1,
-                nodeId: `${item.nodeId}-${index}-${child.name}-${item.level + 1}`,
-                index: item.index * 1000 + index,
-              } as FlattenedItem)}
-            {/each}
-          </div>
-        {/if}
+    {#if hasChildren && isExpanded}
+      <div class="relative">
+        <div
+          class="absolute left-0 top-0 bottom-0 w-px bg-border/40"
+          style="margin-left: {item.level * 16 + 18}px"
+        ></div>
+        {#each item.children || [] as child, index}
+          {@render TreeNode({
+            ...child,
+            level: item.level + 1,
+            nodeId: `${item.nodeId}-${index}-${child.name}-${item.level + 1}`,
+            index: item.index * 1000 + index,
+          } as FlattenedItem)}
+        {/each}
       </div>
     {/if}
   </div>
 {/snippet}
-
-<style>
-  .expand-container {
-    transition:
-      max-height 0.3s ease-out,
-      opacity 0.3s ease-out;
-    overflow: hidden;
-  }
-
-  .expand-container.expanded {
-    max-height: 2000px;
-  }
-
-  .expand-container.collapsed {
-    max-height: 0;
-    opacity: 0;
-  }
-</style>

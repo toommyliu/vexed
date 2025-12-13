@@ -1,12 +1,12 @@
-const { resolve, dirname } = require("path");
-const { readdir, copy, ensureDir, readFileSync } = require("fs-extra");
+const { resolve, dirname, relative, sep, posix } = require("path");
+const { readdir, ensureDir, readFileSync } = require("fs-extra");
 const { build, context } = require("esbuild");
-const { watch } = require("watchlist");
 const sveltePlugin = require("esbuild-svelte");
-const sveltePreprocess = require("svelte-preprocess");
 const postCssPlugin = require("esbuild-postcss");
-const alias = require("esbuild-plugin-alias");
+const { aliasPath } = require("esbuild-plugin-alias-path");
 const { parse } = require("jsonc-parser");
+const { readFile, writeFile } = require('fs-extra');
+const { watch } = require('watchlist');
 
 const isProduction = process.env.NODE_ENV === "production";
 const isWatch = process.argv.includes("--watch") || process.argv.includes("-w");
@@ -23,10 +23,9 @@ function getPathAliases() {
     const aliases = {};
 
     for (const [aliasKey, aliasPaths] of Object.entries(paths)) {
-      const cleanKey = aliasKey.replace("/*", "");
       const firstPath = aliasPaths[0];
       const cleanPath = firstPath.replace("/*", "");
-      aliases[cleanKey] = resolve(__dirname, baseUrl, cleanPath);
+      aliases[aliasKey] = resolve(__dirname, baseUrl, cleanPath);
     }
 
     return aliases;
@@ -37,6 +36,71 @@ function getPathAliases() {
 }
 
 const pathAliases = getPathAliases();
+
+/**
+ * Creates an esbuild plugin that transforms path alias imports to relative paths.
+
+ * @param {Record<string, string>} aliases - Map of alias patterns to absolute paths
+ * @returns {import('esbuild').Plugin}
+ */
+function createAliasTransformPlugin(aliases) {
+  const sortedAliases = Object.entries(aliases)
+    .map(([pattern, target]) => ({
+      prefix: pattern.replace("/*", ""),
+      target,
+    }))
+    .sort((a, b) => b.prefix.length - a.prefix.length);
+
+  return {
+    name: "alias-transform",
+    setup(build) {
+      build.onLoad({ filter: /\.[tj]sx?$/ }, async (args) => {
+        const source = await readFile(args.path, "utf8");
+        const fileDir = dirname(args.path);
+
+        const importRegex = /((?:import|export)\s+(?:[\s\S]*?\s+from\s+)?['"])([^'"]+)(['"])/g;
+        const dynamicImportRegex = /(import\s*\(\s*['"])([^'"]+)(['"]\s*\))/g;
+        const requireRegex = /(require\s*\(\s*['"])([^'"]+)(['"]\s*\))/g;
+
+        let transformed = source;
+
+        const replaceAlias = (match, prefix, modulePath, suffix) => {
+          for (const { prefix: aliasPrefix, target } of sortedAliases) {
+            if (modulePath === aliasPrefix || modulePath.startsWith(aliasPrefix + "/")) {
+              const subPath = modulePath.slice(aliasPrefix.length);
+              const absoluteTarget = target + subPath;
+              let relativePath = relative(fileDir, absoluteTarget);
+
+              relativePath = relativePath.split(sep).join(posix.sep);
+
+              if (!relativePath.startsWith(".")) {
+                relativePath = "./" + relativePath;
+              }
+
+              return prefix + relativePath + suffix;
+            }
+          }
+          return match;
+        };
+
+        transformed = transformed.replace(importRegex, replaceAlias);
+        transformed = transformed.replace(dynamicImportRegex, replaceAlias);
+        transformed = transformed.replace(requireRegex, replaceAlias);
+
+        if (transformed !== source) {
+          return {
+            contents: transformed,
+            loader: "ts"
+          };
+        }
+
+        return undefined;
+      });
+    },
+  };
+}
+
+const aliasTransformPlugin = createAliasTransformPlugin(pathAliases);
 
 const SCRIPT_TARGETS = [
   {
@@ -138,49 +202,15 @@ const CSS_TARGETS = [
     name: "tailwind",
     entryPoint: "./src/renderer/tailwind.css",
     outfile: "./dist/build/tailwind.css",
-    watchPaths: ["./src/renderer/tailwind.css", "./tailwind.config.js"],
+    watchPaths: [
+      "./src/renderer/tailwind.css",
+      "./tailwind.config.js",
+      "./src",
+      "../packages/ui/src",
+    ],
   },
 ];
 
-const HTML_COPY_TARGETS = [
-  { src: "./src/renderer/game/index.html", dest: "./dist/game/index.html" },
-  {
-    src: "./src/renderer/application/logs/index.html",
-    dest: "./dist/application/logs/index.html",
-  },
-  {
-    src: "./src/renderer/application/environment/index.html",
-    dest: "./dist/application/environment/index.html",
-  },
-  {
-    src: "./src/renderer/manager/index.html",
-    dest: "./dist/manager/index.html",
-  },
-  {
-    src: "./src/renderer/tools/fast-travels/index.html",
-    dest: "./dist/tools/fast-travels/index.html",
-  },
-  {
-    src: "./src/renderer/tools/follower/index.html",
-    dest: "./dist/tools/follower/index.html",
-  },
-  {
-    src: "./src/renderer/tools/loader-grabber/index.html",
-    dest: "./dist/tools/loader-grabber/index.html",
-  },
-  {
-    src: "./src/renderer/application/hotkeys/index.html",
-    dest: "./dist/application/hotkeys/index.html",
-  },
-  {
-    src: "./src/renderer/packets/logger/index.html",
-    dest: "./dist/packets/logger/index.html",
-  },
-  {
-    src: "./src/renderer/packets/spammer/index.html",
-    dest: "./dist/packets/spammer/index.html",
-  },
-];
 
 const toArray = (value) => (Array.isArray(value) ? value : [value]);
 
@@ -231,18 +261,13 @@ const createSvelteConfig = ({ entryPoint, outfile, tsconfigFile }) => ({
     js: "require('core-js/stable')",
   },
   plugins: [
-    alias(pathAliases),
+    aliasPath({ alias: pathAliases }),
     sveltePlugin({
       compilerOptions: {
         dev: !isProduction,
         css: "injected",
       },
-      preprocess: sveltePreprocess({
-        sourceMap: !isProduction,
-        typescript: {
-          tsconfigFile,
-        },
-      }),
+      preprocess: require("@sveltejs/vite-plugin-svelte").vitePreprocess(),
     }),
   ],
 });
@@ -253,7 +278,12 @@ const createCssConfig = ({ entryPoint, outfile }) => ({
   bundle: true,
   minify: isProduction,
   sourcemap: !isProduction,
-  plugins: [alias(pathAliases), postCssPlugin()],
+  loader: {
+    '.woff': 'file',
+    '.woff2': 'file',
+  },
+  assetNames: 'assets/[name]-[hash][ext]',
+  plugins: [aliasPath({ alias: pathAliases }), postCssPlugin()],
 });
 
 /**
@@ -277,19 +307,41 @@ const readdirp = async (dir) => {
 };
 
 /**
- * Copy HTML files from src/renderer to dist
+ * Generate HTML files from template for each window
  * @returns {Promise<void>}
  */
-async function copyHtmlFiles() {
+async function generateHtmlFiles() {
+  const templatePath = resolve(__dirname, './src/renderer/template.html');
+  const template = await readFile(templatePath, 'utf-8');
+
+  const SCRIPT_PATH = 'build/main.js';
+
+  const htmlTargets = [
+    { dest: './dist/game/index.html', cssPath: '../build/tailwind.css', scriptPath: SCRIPT_PATH },
+    { dest: './dist/application/logs/index.html', cssPath: '../../build/tailwind.css', scriptPath: SCRIPT_PATH },
+    { dest: './dist/application/environment/index.html', cssPath: '../../build/tailwind.css', scriptPath: SCRIPT_PATH },
+    { dest: './dist/manager/index.html', cssPath: '../build/tailwind.css', scriptPath: SCRIPT_PATH },
+    { dest: './dist/tools/fast-travels/index.html', cssPath: '../../build/tailwind.css', scriptPath: SCRIPT_PATH },
+    { dest: './dist/tools/follower/index.html', cssPath: '../../build/tailwind.css', scriptPath: SCRIPT_PATH },
+    { dest: './dist/tools/loader-grabber/index.html', cssPath: '../../build/tailwind.css', scriptPath: SCRIPT_PATH },
+    { dest: './dist/application/hotkeys/index.html', cssPath: '../../build/tailwind.css', scriptPath: SCRIPT_PATH },
+    { dest: './dist/packets/logger/index.html', cssPath: '../../build/tailwind.css', scriptPath: SCRIPT_PATH },
+    { dest: './dist/packets/spammer/index.html', cssPath: '../../build/tailwind.css', scriptPath: SCRIPT_PATH },
+  ];
+
   await Promise.all(
-    HTML_COPY_TARGETS.map(async ({ src, dest }) => {
+    htmlTargets.map(async ({ dest, cssPath, scriptPath }) => {
       try {
-        const sourcePath = resolve(__dirname, src);
         const destinationPath = resolve(__dirname, dest);
         await ensureDir(dirname(destinationPath));
-        await copy(sourcePath, destinationPath);
+
+        const html = template
+          .replace('{{CSS_PATH}}', cssPath)
+          .replace('{{SCRIPT_PATH}}', scriptPath);
+
+        await writeFile(destinationPath, html, 'utf-8');
       } catch (error) {
-        console.error(`Failed to copy ${src} -> ${dest}:`, error);
+        console.error(`Failed to generate ${dest}:`, error);
       }
     }),
   );
@@ -302,28 +354,39 @@ async function copyHtmlFiles() {
  * @param {string} contextName
  * @returns {Promise<{ context: import('esbuild').Context, rebuildWithNewFiles: () => Promise<void> }>}
  */
-async function createBuildContext(config, srcDir, outDir, contextName) {
-  const createRebuildPlugin = (contextLabel) => ({
-    name: `rebuild-logger-${contextLabel}`,
-    setup(build) {
-      build.onStart(() => {
-        console.time(`${contextLabel} rebuild`);
-      });
-      build.onEnd((result) => {
-        const timestamp = new Date().toLocaleTimeString();
-        if (result.errors.length > 0) {
-          console.error(
-            `[${timestamp}] ${contextLabel} rebuild failed:`,
-            result.errors,
-          );
-        } else {
-          console.timeEnd(`${contextLabel} rebuild`);
-          console.log(`[${timestamp}] ${contextLabel} rebuilt successfully`);
-        }
-      });
-    },
-  });
+/**
+ * @param {string} label
+ * @returns {import('esbuild').Plugin}
+ */
+const createRebuildLoggerPlugin = (label) => ({
+  name: `rebuild-logger-${label}`,
+  setup(build) {
+    build.onStart(() => {
+      console.time(`${label} rebuild`);
+    });
+    build.onEnd((result) => {
+      const timestamp = new Date().toLocaleTimeString();
+      if (result.errors.length > 0) {
+        console.error(
+          `[${timestamp}] ${label} rebuild failed:`,
+          result.errors,
+        );
+      } else {
+        console.timeEnd(`${label} rebuild`);
+        // console.log(`[${timestamp}] ${label} rebuilt successfully`);
+      }
+    });
+  },
+});
 
+/**
+ * @param {import('esbuild').BuildOptions} config
+ * @param {string} srcDir
+ * @param {string} outDir
+ * @param {string} contextName
+ * @returns {Promise<{ context: import('esbuild').Context, rebuildWithNewFiles: () => Promise<void> }>}
+ */
+async function createBuildContext(config, srcDir, outDir, contextName) {
   let buildCtx = null;
   let currentEntryPoints = await readdirp(srcDir);
 
@@ -337,7 +400,7 @@ async function createBuildContext(config, srcDir, outDir, contextName) {
       ...config,
       entryPoints,
       outdir: outDir,
-      plugins: [...(config.plugins || []), createRebuildPlugin(contextName)],
+      plugins: [...(config.plugins || []), createRebuildLoggerPlugin(contextName)],
     });
 
     return buildCtx;
@@ -349,6 +412,18 @@ async function createBuildContext(config, srcDir, outDir, contextName) {
     try {
       const newEntryPoints = await readdirp(srcDir);
 
+      const currentSet = new Set(currentEntryPoints);
+      const newSet = new Set(newEntryPoints);
+
+      const hasChanged =
+        currentSet.size !== newSet.size ||
+        [...currentSet].some(file => !newSet.has(file));
+
+      if (!hasChanged) {
+        return;
+      }
+
+      console.log(`[${contextName}] Entry points changed, recreating context...`);
       currentEntryPoints = newEntryPoints;
       buildCtx = await createNewContext(currentEntryPoints);
 
@@ -363,29 +438,8 @@ async function createBuildContext(config, srcDir, outDir, contextName) {
   return { context: buildCtx, rebuildWithNewFiles };
 }
 
-async function watchAndRebuild({ name, paths, onChange, start }) {
-  const watchTargets = toArray(paths).map((targetPath) =>
-    resolve(__dirname, targetPath),
-  );
-
-  try {
-    await watch(watchTargets, async () => {
-      console.log(`Changes detected in ${name}, rebuilding...`);
-      try {
-        await onChange();
-      } catch (error) {
-        console.error(`${name} rebuild failed:`, error);
-      }
-    });
-
-    return start();
-  } catch (error) {
-    console.error(`Failed to start watching ${name}:`, error);
-    throw error;
-  }
-}
-
 async function runWatchMode(commonConfig, svelteConfigs, cssConfigs) {
+  // 1. Script Targets: Watch for file additions/removals manually, let esbuild handle content changes
   const scriptContexts = await Promise.all(
     SCRIPT_TARGETS.map(async (target) => {
       const { context: ctx, rebuildWithNewFiles } = await createBuildContext(
@@ -395,50 +449,47 @@ async function runWatchMode(commonConfig, svelteConfigs, cssConfigs) {
         target.name,
       );
 
-      return { target, context: ctx, rebuildWithNewFiles };
+      await ctx.watch();
+
+      return { target, rebuildWithNewFiles };
     }),
   );
 
-  const svelteContexts = await Promise.all(
+  scriptContexts.forEach(({ target, rebuildWithNewFiles }) => {
+    watch(target.watchPaths, async () => {
+      await rebuildWithNewFiles();
+    });
+  });
+
+  // 2. Svelte Targets: Use esbuild's native watch
+  await Promise.all(
     svelteConfigs.map(async (target) => {
-      const ctx = await context(target.config);
-      return { target, context: ctx };
+      const config = {
+        ...target.config,
+        plugins: [...(target.config.plugins || []), createRebuildLoggerPlugin(`${target.name} Svelte`)]
+      };
+      const ctx = await context(config);
+      await ctx.watch();
     }),
   );
 
-  const cssContexts = await Promise.all(
+  // 3. CSS Targets: Use esbuild's native watch
+  await Promise.all(
     cssConfigs.map(async (target) => {
-      const ctx = await context(target.config);
-      return { target, context: ctx };
+      const config = {
+        ...target.config,
+        plugins: [...(target.config.plugins || []), createRebuildLoggerPlugin(`${target.name} CSS`)]
+      };
+      const ctx = await context(config);
+      await ctx.watch();
+
+      if (target.watchPaths) {
+        watch(target.watchPaths, async () => {
+          await ctx.rebuild();
+        });
+      }
     }),
   );
-
-  await Promise.all([
-    ...scriptContexts.map(({ target, context: ctx, rebuildWithNewFiles }) =>
-      watchAndRebuild({
-        name: `${target.name} scripts`,
-        paths: target.watchPaths,
-        onChange: rebuildWithNewFiles,
-        start: () => ctx.watch(),
-      }),
-    ),
-    ...svelteContexts.map(({ target, context: ctx }) =>
-      watchAndRebuild({
-        name: `${target.name} Svelte`,
-        paths: target.watchPaths,
-        onChange: () => ctx.rebuild(),
-        start: () => ctx.watch(),
-      }),
-    ),
-    ...cssContexts.map(({ target, context: ctx }) =>
-      watchAndRebuild({
-        name: `${target.name} CSS`,
-        paths: target.watchPaths,
-        onChange: () => ctx.rebuild(),
-        start: () => ctx.watch(),
-      }),
-    ),
-  ]);
 
   console.log("Watching for changes...");
 }
@@ -464,7 +515,7 @@ async function runBuildMode(commonConfig, svelteConfigs, cssConfigs) {
         await build(target.config);
       }),
     ),
-    timed("HTML copy took", copyHtmlFiles),
+    timed("HTML generation took", generateHtmlFiles),
   ]);
 }
 
@@ -483,7 +534,7 @@ async function transpile() {
       minify: isProduction,
       sourcemap: !isProduction,
       treeShaking: true,
-      plugins: [alias(pathAliases)],
+      plugins: [aliasTransformPlugin, aliasPath({ alias: pathAliases })],
     };
 
     const svelteConfigs = SVELTE_TARGETS.map((target) => ({

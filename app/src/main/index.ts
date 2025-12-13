@@ -3,20 +3,20 @@ import "./tray";
 
 import { join } from "path";
 import process from "process";
-import Config from "@vexed/config";
 import { registerIpcMain } from "@vexed/tipc/main";
-import { app, shell } from "electron";
+import { app, shell, nativeTheme } from "electron";
 import log from "electron-log";
 import { version } from "../../package.json";
 import {
   BRAND,
-  DEFAULT_SETTINGS,
   DOCUMENTS_PATH,
   IS_MAC,
   IS_WINDOWS,
 } from "../shared/constants";
-import type { Settings } from "../shared/types";
+import { equalsIgnoreCase } from "../shared/string";
 import { ASSET_PATH, logger } from "./constants";
+import { createMenu } from "./menu";
+import { initSettings, getSettings } from "./settings";
 import { router } from "./tipc";
 import { checkForUpdates } from "./updater";
 import { showErrorDialog } from "./util/dialog";
@@ -67,14 +67,9 @@ function registerFlashPlugin() {
 
 async function handleAppLaunch(argv: string[] = process.argv) {
   try {
-    const settings = new Config<Settings>({
-      configName: "settings",
-      cwd: DOCUMENTS_PATH,
-      defaults: DEFAULT_SETTINGS,
-    });
-    await settings.load();
+    const settings = getSettings();
 
-    const level = settings.get("debug", false) ? "debug" : "info";
+    const level = settings.getBoolean("debug", false) ? "debug" : "info";
 
     log.initialize({
       rendererTransports: ["console", level === "debug" && "file"],
@@ -88,7 +83,7 @@ async function handleAppLaunch(argv: string[] = process.argv) {
 
     logger.info(`Hello - ${BRAND} v${version}`); // indicate app start
 
-    if (settings?.get("checkForUpdates", false) === true) {
+    if (settings?.getBoolean("checkForUpdates", false)) {
       const updateResult = await checkForUpdates(true);
       if (updateResult !== null) {
         logger.info(
@@ -105,24 +100,24 @@ async function handleAppLaunch(argv: string[] = process.argv) {
       }
     }
 
-    let launchMode = settings.get("launchMode", "game")?.toLowerCase();
-    if (launchMode !== "manager" && launchMode !== "game") {
-      launchMode = "game";
+    let launchMode = settings.getString("launchMode", "game");
+    if (!equalsIgnoreCase(launchMode, "manager") && !equalsIgnoreCase(launchMode, "game")) {
       logger.info(
         `Unknown launch mode, got "${launchMode}", defaulting to "game"...`,
       );
+      launchMode = "game";
     } else {
       logger.info(`Using launch mode: ${launchMode}`);
     }
 
     if (
-      launchMode === "manager" ||
-      argv.some((arg) => arg === "--manager" || arg === "-m")
+      equalsIgnoreCase(launchMode, "manager") ||
+      argv.some((arg) => equalsIgnoreCase(arg, "--manager") || equalsIgnoreCase(arg, "-m"))
     ) {
       await createAccountManager();
     } else if (
-      launchMode === "game" ||
-      argv.some((arg) => arg === "--game" || arg === "-g")
+      equalsIgnoreCase(launchMode, "game") ||
+      argv.some((arg) => equalsIgnoreCase(arg, "--game") || equalsIgnoreCase(arg, "-g"))
     ) {
       const account = {
         username:
@@ -163,7 +158,14 @@ if (gotTheLock) {
   app.exit();
 }
 
-app.once("ready", async () => handleAppLaunch());
+app.once("ready", async () => {
+  const settings = await initSettings();
+
+  nativeTheme.themeSource = settings.get("theme") ?? "system";
+
+  createMenu(settings);
+  await handleAppLaunch();
+});
 
 app.on("before-quit", () => {
   setQuitting(true);

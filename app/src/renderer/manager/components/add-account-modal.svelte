@@ -1,6 +1,14 @@
 <script lang="ts">
-  import type { Account } from "../../../shared/types";
-  import { client } from "../../../shared/tipc";
+  import type { Account } from "@shared/types";
+  import { Button, Input, Label } from "@vexed/ui";
+  import * as InputGroup from "@vexed/ui/InputGroup";
+  import * as Dialog from "@vexed/ui/Dialog";
+  import { motionFade } from "@vexed/ui/motion";
+  import Eye from "lucide-svelte/icons/eye";
+  import EyeOff from "lucide-svelte/icons/eye-off";
+  import LoaderCircle from "lucide-svelte/icons/loader-circle";
+  import AlertCircle from "lucide-svelte/icons/alert-circle";
+  import { client } from "@shared/tipc";
   import { managerState } from "../state.svelte";
 
   type Props = {
@@ -12,184 +20,172 @@
 
   let username = $state("");
   let password = $state("");
+  let showPassword = $state(false);
   let isSubmitting = $state(false);
   let error = $state("");
+  let fieldError = $state<"username" | "password" | null>(null);
+
+  $effect(() => {
+    if (!isOpen) {
+      username = "";
+      password = "";
+      showPassword = false;
+      error = "";
+      fieldError = null;
+      isSubmitting = false;
+    }
+  });
 
   const handleSubmit = async (ev: SubmitEvent) => {
     ev.preventDefault();
 
     const cleanUsername = username?.trim()?.toLowerCase();
-    const cleanPassword = password?.trim()?.toLowerCase();
+    const cleanPassword = password?.trim();
 
-    if (!cleanUsername || !cleanPassword) {
-      error = "Please fill in all fields";
+    if (!cleanUsername) {
+      error = "Username is required";
+      fieldError = "username";
+      return;
+    }
+
+    if (!cleanPassword) {
+      error = "Password is required";
+      fieldError = "password";
       return;
     }
 
     if (managerState.accounts.has(cleanUsername)) {
-      error = "An account with this username already exists.";
+      error = "An account with this username already exists";
+      fieldError = "username";
       return;
     }
 
     isSubmitting = true;
     error = "";
+    fieldError = null;
 
     try {
-      const account: Account = {
+      const newAccount: Account = {
         username: cleanUsername,
         password: cleanPassword,
       };
 
-      const res = await client.manager.addAccount(account);
-      if (res?.msg === "SUCCESS") {
-        managerState.accounts.set(cleanUsername, account);
-      } else if (res?.msg === "USERNAME_ALREADY_EXISTS") {
-        error = "An account with this username already exists.";
-      } else if (res?.msg === "FAILED") {
-        error = "Failed to add account. Please try again.";
-        return;
-      }
+      const res = await client.manager.addAccount(newAccount);
 
-      username = "";
-      password = "";
-      onClose();
+      switch (res?.msg) {
+        case "SUCCESS":
+          managerState.accounts.set(cleanUsername, newAccount);
+          onClose();
+          break;
+        case "USERNAME_ALREADY_EXISTS":
+          error = "An account with this username already exists";
+          fieldError = "username";
+          break;
+        case "FAILED":
+        default:
+          error = "Failed to save account. Please try again.";
+      }
     } catch (err) {
-      error = "Failed to add account. Please try again.";
+      error = "Failed to save account. Please try again.";
       console.error("Failed to add account:", err);
     } finally {
       isSubmitting = false;
     }
   };
 
-  const handleKeydown = (ev: KeyboardEvent) => {
-    if (!isOpen) return;
-    if (ev.key === "Escape") onClose();
-  };
-
-  // Prevent body scroll when modal is open
-  $effect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
+  function clearError() {
+    if (error) {
+      error = "";
+      fieldError = null;
     }
-
-    return () => {
-      document.body.style.overflow = "";
-    };
-  });
+  }
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
+  <Dialog.Content showCloseButton={true} class="sm:max-w-md">
+    <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent"></div>
 
-{#if isOpen}
-  <div
-    class="fixed inset-0 z-50 flex h-screen w-screen items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
-    onclick={onClose}
-    onkeydown={(ev) => ev.key === "Enter" && onClose()}
-    role="button"
-    tabindex="0"
-  >
-    <div
-      class="relative w-full max-w-md rounded-md border border-zinc-700/50 bg-gradient-to-b from-zinc-900 to-zinc-950 p-6 shadow-2xl"
-      onclick={(ev) => ev.stopPropagation()}
-      onkeydown={(ev) => ev.key === "Enter" && ev.stopPropagation()}
-      role="dialog"
-      aria-labelledby="modal-title"
-      aria-modal="true"
-      tabindex="-1"
-    >
-      <button
-        class="absolute right-4 top-4 bg-transparent text-zinc-400 transition-colors hover:text-white"
-        onclick={onClose}
-        aria-label="Close modal"
-      >
-        <svg
-          class="h-6 w-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M6 18L18 6M6 6l12 12"
-          />
-        </svg>
-      </button>
+    <Dialog.Header class="pb-2">
+      <Dialog.Title class="text-lg font-semibold tracking-tight">Add Account</Dialog.Title>
+    </Dialog.Header>
 
-      <div class="mb-6">
-        <h2 id="modal-title" class="text-xl font-semibold text-white">
-          Add Account
-        </h2>
-      </div>
-
+    <form id="add-account-form" onsubmit={handleSubmit} class="grid gap-5 px-6">
       {#if error}
-        <div class="mb-4 rounded-md border border-red-500/20 bg-red-500/10 p-3">
-          <p class="text-sm text-red-400">{error}</p>
-        </div>
+        {#key error}
+          <div
+            transition:motionFade={{ duration: 150 }}
+            class="flex items-start gap-2.5 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2.5"
+          >
+            <AlertCircle class="size-4 text-destructive shrink-0 mt-0.5" />
+            <span class="text-sm text-destructive">{error}</span>
+          </div>
+        {/key}
       {/if}
 
-      <form onsubmit={handleSubmit} class="space-y-4">
-        <div>
-          <label
-            for="modal-username"
-            class="block text-sm font-medium text-zinc-300"
-          >
-            Username
-          </label>
-          <input
-            id="modal-username"
-            type="text"
-            bind:value={username}
-            required
-            disabled={isSubmitting}
-            placeholder="Enter username"
-            class="mt-1 w-full rounded-md border border-zinc-600/50 bg-zinc-950/50 p-2 text-white placeholder-zinc-500 transition-all duration-200 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 disabled:opacity-50"
-          />
-        </div>
+      <div class="grid gap-2">
+        <Label for="add-username" class="text-sm font-medium">Username</Label>
+        <Input
+          id="add-username"
+          bind:value={username}
+          disabled={isSubmitting}
+          placeholder="Enter username"
+          autocomplete="username"
+          aria-invalid={fieldError === "username" ? "true" : undefined}
+          oninput={clearError}
+          class={fieldError === "username" ? "border-destructive/50" : ""}
+        />
+      </div>
 
-        <div>
-          <label
-            for="modal-password"
-            class="block text-sm font-medium text-zinc-300"
-          >
-            Password
-          </label>
-          <input
-            id="modal-password"
-            type="text"
+      <div class="grid gap-2">
+        <Label for="add-password" class="text-sm font-medium">Password</Label>
+        <InputGroup.Root>
+          <Input
+            id="add-password"
+            type={showPassword ? "text" : "password"}
             bind:value={password}
-            required
             disabled={isSubmitting}
             placeholder="Enter password"
-            class="mt-1 w-full rounded-md border border-zinc-600/50 bg-zinc-950/50 p-2 text-white placeholder-zinc-500 transition-all duration-200 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 disabled:opacity-50"
+            autocomplete="current-password"
+            aria-invalid={fieldError === "password" ? "true" : undefined}
+            oninput={clearError}
+            class={fieldError === "password" ? "border-destructive/50" : ""}
           />
-        </div>
+          <div title={showPassword ? "Hide password" : "Show password"}>
+            <Button
+              variant="ghost"
+              size="icon"
+              class="text-muted-foreground hover:text-foreground transition-colors"
+              onclick={() => (showPassword = !showPassword)}
+              type="button"
+              tabindex={-1}
+            >
+              {#if showPassword}
+                <EyeOff class="size-4" />
+              {:else}
+                <Eye class="size-4" />
+              {/if}
+            </Button>
+          </div>
+        </InputGroup.Root>
+      </div>
+    </form>
 
-        <div class="flex space-x-2 pt-4">
-          <button
-            type="button"
-            onclick={onClose}
-            disabled={isSubmitting}
-            class="flex-1 rounded-md border border-zinc-600/50 bg-zinc-800/50 px-4 py-1.5 text-sm font-medium text-zinc-300 transition-all duration-200 hover:bg-zinc-700/50 focus:outline-none focus:ring-2 focus:ring-zinc-500/50 disabled:opacity-50"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={isSubmitting || !username.trim() || !password.trim()}
-            class="flex-1 rounded-md bg-gradient-to-r from-emerald-600 to-emerald-700 px-4 py-1.5 text-sm font-medium text-white transition-all duration-200 hover:from-emerald-500 hover:to-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 disabled:opacity-50"
-          >
-            {#if isSubmitting}
-              Adding...
-            {:else}
-              Add Account
-            {/if}
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-{/if}
+    <Dialog.Footer>
+      <Button variant="outline" onclick={onClose} disabled={isSubmitting}>
+        Cancel
+      </Button>
+      <Button
+        type="submit"
+        form="add-account-form"
+        disabled={isSubmitting || !username.trim() || !password.trim()}
+      >
+        {#if isSubmitting}
+          <LoaderCircle class="size-4 animate-spin" />
+          <span>Saving...</span>
+        {:else}
+          <span>Save Account</span>
+        {/if}
+      </Button>
+    </Dialog.Footer>
+  </Dialog.Content>
+</Dialog.Root>

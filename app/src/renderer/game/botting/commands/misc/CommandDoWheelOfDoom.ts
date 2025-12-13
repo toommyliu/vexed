@@ -27,29 +27,31 @@ export class CommandDoWheelOfDoom extends Command {
     await this.bankItems(items);
   }
 
-  private waitForWheelPacket(): Promise<Record<string, ItemData>> {
-    return new Promise((resolve) => {
-      const handler = (packet: Record<string, unknown>) => {
-        if (typeof packet !== 'object') return;
+  private async waitForWheelPacket(): Promise<Record<string, ItemData>> {
+    const { resolve, promise } = Promise.withResolvers<Record<string, ItemData>>();
 
-        const pkt = packet as PextPacket;
-        if (pkt?.params?.type !== 'json' || pkt?.params?.dataObj?.cmd !== 'Wheel') return;
+    const handler = (packet: Record<string, unknown>) => {
+      if (typeof packet !== 'object') return;
 
-        this.bot.off('pext', handler);
+      const pkt = packet as PextPacket;
+      if (pkt?.params?.type !== 'json' || pkt?.params?.dataObj?.cmd !== 'Wheel') return;
 
-        // {"params":{"dataObj":{"cmd":"Wheel","dropQty":2,"dropItems":{"ITEM_ID": ITEM_DATA},...}},"type":"json"}
-        const items: Record<string, ItemData> = pkt?.params?.dataObj?.dropItems || {};
-        if (pkt?.params?.dataObj?.Item) {
-          const item = pkt?.params?.dataObj?.Item;
-          items[String(item.ItemID)] = item;
-        }
+      this.bot.off('pext', handler);
 
-        resolve(items);
-      };
+      // {"params":{"dataObj":{"cmd":"Wheel","dropQty":2,"dropItems":{"ITEM_ID": ITEM_DATA},...}},"type":"json"}
+      const items: Record<string, ItemData> = pkt?.params?.dataObj?.dropItems || {};
+      if (pkt?.params?.dataObj?.Item) {
+        const item = pkt?.params?.dataObj?.Item;
+        items[String(item.ItemID)] = item;
+      }
 
-      this.bot.on('pext', handler);
-      this.bot.quests.complete(QUEST_ID);
-    });
+      resolve(items);
+    };
+
+    this.bot.on('pext', handler);
+    await this.bot.quests.complete(QUEST_ID);
+
+    return promise;
   }
 
   private async bankItems(items: Record<string, ItemData>) {

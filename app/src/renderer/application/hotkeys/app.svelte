@@ -2,13 +2,22 @@
   import Mousetrap from "mousetrap";
   import { onDestroy, onMount } from "svelte";
   import Config from "@vexed/config";
+  import { Kbd } from "@vexed/ui";
+  import { cn } from "@vexed/ui/util";
+  import Settings from "lucide-svelte/icons/settings";
+  import AppWindow from "lucide-svelte/icons/app-window";
+  import Code from "lucide-svelte/icons/code";
+  import Wrench from "lucide-svelte/icons/wrench";
+  import Radio from "lucide-svelte/icons/radio";
+  import Inbox from "lucide-svelte/icons/inbox";
+  import AlertTriangle from "lucide-svelte/icons/triangle-alert";
+  import ChevronDown from "lucide-svelte/icons/chevron-down";
+
   import { client } from "@shared/tipc";
   import type { HotkeyConfig } from "@shared/types";
   import type { HotkeySection, RecordingState } from "./types";
   import {
-    isMac,
     isValidHotkey,
-    formatHotkey,
     parseKeyboardEvent,
     createHotkeyConfig,
     findConflicts,
@@ -27,6 +36,7 @@
     lastPressedKey: "",
     isClearing: false,
   });
+  let activeSection = $state<string | null>(null);
 
   let conflicts = $derived(findConflicts(hotkeysSections));
 
@@ -122,6 +132,8 @@
     stopRecording();
   }
 
+
+
   function findHotkeyItemById(actionId: string) {
     for (const section of hotkeysSections) {
       for (const item of section.items) {
@@ -144,6 +156,23 @@
     recordingState.isClearing = false;
   }
 
+  function getSectionIcon(icon: string) {
+    switch (icon) {
+      case "general":
+        return Settings;
+      case "application":
+        return AppWindow;
+      case "scripts":
+        return Code;
+      case "tools":
+        return Wrench;
+      case "packets":
+        return Radio;
+      default:
+        return Inbox;
+    }
+  }
+
   onMount(async () => {
     config = new Config<HotkeyConfig>({
       configName: "hotkeys",
@@ -152,6 +181,10 @@
     });
     await config.load();
     await loadHotkeysFromConfig();
+
+    if (hotkeysSections.length > 0) {
+      activeSection = hotkeysSections[0].name;
+    }
   });
 
   onDestroy(() => {
@@ -168,15 +201,21 @@
     ev.preventDefault();
     ev.stopPropagation();
 
-    // Stop recording on Escape
     if (ev.key === "Escape") {
       stopRecording();
       return;
     }
 
-    // Clear hotkey on Backspace
     if (ev.key === "Backspace") {
       clearHotkey();
+      return;
+    }
+
+    if (ev.key === "Enter" && recordingState.lastPressedKey) {
+      const conflictingAction = getActionForHotkey(recordingState.lastPressedKey, hotkeysSections);
+      if (!conflictingAction || conflictingAction === getActionNameById(recordingState.actionId || "")) {
+        confirmRecording(recordingState.lastPressedKey);
+      }
       return;
     }
 
@@ -188,453 +227,104 @@
   }}
 />
 
-<main class="flex min-h-screen select-none flex-col bg-background-primary">
-  <div class="mx-auto w-full max-w-6xl flex-grow p-4">
-    {#if conflicts.length > 0}
-      <div class="mb-4 rounded-md border border-red-600/50 bg-red-900/30 p-3">
-        <div class="flex items-start space-x-3">
-          <div class="rounded bg-red-500/20 p-1">
-            <svg
-              class="h-4 w-4 text-red-400"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                clip-rule="evenodd"
-              />
-            </svg>
-          </div>
-          <div class="flex-1">
-            <h3 class="font-medium text-red-300">Hotkey Conflicts Detected</h3>
-            <p class="mt-1 text-sm text-red-200/80">
-              The following hotkeys are assigned to multiple actions: <span
-                class="font-mono">{conflicts.join(", ")}</span
-              >
-            </p>
-            <p class="text-xs text-gray-600">
-              Hotkeys have been disabled until the conflict is resolved.
-            </p>
-          </div>
-        </div>
+<div class="bg-background flex h-screen flex-col">
+  <header
+    class="bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-10 border-b border-border/50 px-6 py-3 backdrop-blur-xl elevation-1"
+  >
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <h1 class="text-foreground text-base font-semibold tracking-tight">
+          Hotkeys
+        </h1>
       </div>
-    {/if}
+    </div>
+  </header>
 
-    <div class="grid auto-cols-auto auto-rows-auto space-y-4">
-      {#each hotkeysSections as section}
-        <div
-          class="rounded-md border border-zinc-700/50 bg-background-secondary shadow-lg backdrop-blur-sm"
-        >
-          <div class="border-b border-zinc-700/30 px-4 py-3">
-            <div class="flex items-center space-x-3">
-              <div class="rounded-md bg-blue-500/20 p-2">
-                {#if section.icon === "general"}
-                  <svg
-                    class="h-5 w-5 text-blue-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                    />
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
-                {:else if section.icon === "application"}
-                  <svg
-                    class="h-5 w-5 text-blue-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <rect
-                      x="3"
-                      y="5"
-                      width="18"
-                      height="14"
-                      rx="2"
-                      ry="2"
-                      stroke-width="2"
-                    />
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M3 9h18"
-                    />
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M9 13h6M8 17h8"
-                    />
-                  </svg>
-                {:else if section.icon === "scripts"}
-                  <svg
-                    class="h-5 w-5 text-blue-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
-                    />
-                  </svg>
-                {:else if section.icon === "tools"}
-                  <svg
-                    class="h-5 w-5 text-blue-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
-                    />
-                  </svg>
-                {:else if section.icon === "packets"}
-                  <svg
-                    class="h-5 w-5 text-blue-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M5 7h6"
-                    />
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M11 7l3 -3"
-                    />
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M11 7l3 3"
-                    />
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M19 17h-6"
-                    />
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M13 17l-3 3"
-                    />
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M13 17l-3 -3"
-                    />
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M8 12h8"
-                    />
-                  </svg>
-                {:else}
-                  <svg
-                    class="h-5 w-5 text-blue-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-                    />
-                  </svg>
-                {/if}
-              </div>
-              <div>
-                <h2 class="text-lg font-semibold text-white">
-                  {section.name}
-                </h2>
-              </div>
-            </div>
-          </div>
+  {#if conflicts.length > 0}
+    <div class="border-b border-destructive/30 bg-destructive/5 px-6 py-2">
+      <div class="flex items-center gap-2 text-sm">
+        <AlertTriangle class="h-4 w-4 text-destructive" />
+        <span class="text-destructive">
+          Conflicts: <span class="font-mono">{conflicts.join(", ")}</span>
+        </span>
+      </div>
+    </div>
+  {/if}
 
-          <div class="grid grid-cols-1 gap-3 p-4 md:grid-cols-2 xl:grid-cols-3">
-            {#each section.items as item}
-              <div
-                class="group relative rounded-md border border-zinc-600/40 bg-zinc-800/30 p-3 transition-all duration-200 hover:border-zinc-500/60 hover:bg-zinc-700/40"
-              >
-                <div class="flex items-center justify-between">
-                  <div class="text-sm font-medium text-white">{item.label}</div>
+  <div class="flex-1 overflow-auto">
+    <div class="mx-auto max-w-xl px-6 py-4">
+      {#each hotkeysSections as section, sectionIndex}
+        {@const isExpanded = activeSection === section.name}
+        <div class={cn(sectionIndex > 0 && "mt-1")}>
+          <button
+            class="group flex w-full items-center gap-2 rounded-md bg-secondary/20 px-2 py-1.5 text-left transition-colors hover:bg-secondary/40"
+            onclick={() => (activeSection = isExpanded ? null : section.name)}
+          >
+            {#if getSectionIcon(section.icon)}
+              {@const Icon = getSectionIcon(section.icon)}
+              <Icon class="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+            {/if}
+            <span class="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              {section.name}
+            </span>
+            <ChevronDown
+              class={cn(
+                "ml-auto h-3.5 w-3.5 text-muted-foreground/60 transition-transform duration-150",
+                isExpanded && "rotate-180"
+              )}
+            />
+          </button>
 
-                  <div class="hotkey-container flex items-center">
-                    {#if item.value}
-                      <div class="relative flex items-center">
-                        <div
-                          class="rounded-md bg-gray-800/50 px-2 py-1 font-mono text-xs text-white"
-                          ondblclick={() => startRecording(item.id)}
-                          title="Double-click to edit"
-                          role="button"
-                          tabindex="0"
-                        >
-                          {formatHotkey(item.value)}
-                        </div>
-
-                        <button
-                          class="ml-2 rounded-md bg-gray-800/50 p-1 text-white transition-all duration-200 hover:bg-gray-700/60"
-                          onclick={() => startRecording(item.id)}
-                          title="Edit hotkey"
-                          aria-label="Edit hotkey"
-                        >
-                          <svg
-                            class="h-4 w-4"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
-                              d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                            />
-                          </svg>
-                        </button>
-                      </div>
+          {#if isExpanded}
+            <div class="mt-1 space-y-px pl-1">
+              {#each section.items as item}
+                {@const isRecordingThis = recordingState.isRecording && recordingState.actionId === item.id}
+                {@const hasConflict = isRecordingThis && recordingState.lastPressedKey && getActionForHotkey(recordingState.lastPressedKey, hotkeysSections) && getActionForHotkey(recordingState.lastPressedKey, hotkeysSections) !== item.label}
+                <div
+                  class={cn(
+                    "group/row flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left transition-colors",
+                    isRecordingThis 
+                      ? "bg-secondary/50" 
+                      : "bg-transparent hover:bg-secondary/30 cursor-pointer"
+                  )}
+                  onclick={() => !isRecordingThis && startRecording(item.id)}
+                  onkeydown={(ev) => {
+                    if (!isRecordingThis && ev.key === "Enter") startRecording(item.id);
+                  }}
+                  role="button"
+                  tabindex="0"
+                >
+                  <span class="text-sm text-foreground">{item.label}</span>
+                  <div class="flex h-6 min-w-[100px] items-center justify-end gap-2">
+                    {#if isRecordingThis}
+                      {#if recordingState.lastPressedKey}
+                        <Kbd hotkey={recordingState.lastPressedKey} class={hasConflict ? "border-destructive/50 text-destructive" : ""} />
+                      {:else}
+                        <span class="text-xs text-muted-foreground">Type shortcut...</span>
+                      {/if}
+                    {:else if item.value}
+                      <Kbd hotkey={item.value} class="transition-all group-hover/row:border-primary/40 group-hover/row:bg-muted/70" />
                     {:else}
-                      <div class="flex items-center">
-                        <div class="mr-2 text-xs text-zinc-500">Not set</div>
-                        <button
-                          class="rounded-md bg-gradient-to-r from-emerald-600 to-emerald-700 px-2 py-1 text-xs font-medium text-white shadow-sm transition-all duration-200 hover:from-emerald-500 hover:to-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-                          onclick={() => startRecording(item.id)}
-                        >
-                          Set
-                        </button>
-                      </div>
+                      <span class="text-xs text-muted-foreground/50 group-hover/row:text-muted-foreground">
+                        Add shortcut
+                      </span>
                     {/if}
                   </div>
                 </div>
-              </div>
-            {/each}
-          </div>
+                {#if isRecordingThis}
+                  <div class="flex items-center gap-3 px-2 pb-1 text-[10px] text-muted-foreground/70">
+                    <span><Kbd>Esc</Kbd> cancel</span>
+                    <span><Kbd>Backspace</Kbd> clear</span>
+                    {#if recordingState.lastPressedKey}
+                      <span><Kbd>Enter</Kbd> confirm</span>
+                    {/if}
+                  </div>
+                {/if}
+              {/each}
+            </div>
+          {/if}
         </div>
       {/each}
     </div>
   </div>
-</main>
-
-{#if recordingState.isRecording}
-  <div
-    class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm"
-    style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; transform: none;"
-    onclick={(ev) => {
-      if (ev.target === ev.currentTarget) stopRecording();
-    }}
-    onkeydown={(ev) => {
-      if (ev.key === "Escape") {
-        stopRecording();
-      }
-    }}
-    role="dialog"
-    tabindex="-1"
-  >
-    <div
-      class="relative mx-4 w-full max-w-md rounded-md border border-zinc-700/50 bg-background-secondary p-4 shadow-xl"
-      onclick={(ev) => ev.stopPropagation()}
-      onkeydown={(ev) => {
-        if (ev.key === "Escape") {
-          stopRecording();
-        }
-      }}
-      role="dialog"
-      tabindex="-1"
-    >
-      <div class="mb-4 text-center">
-        <h3 class="text-xl font-semibold text-white">Recording Hotkey</h3>
-        <p class="mt-1 text-gray-400">
-          Press any key combination for: <span class="font-medium text-blue-300"
-            >{getActionNameById(recordingState.actionId || "")}</span
-          >
-        </p>
-      </div>
-
-      <div class="mb-4 rounded-md border border-zinc-600/50 bg-zinc-800/30 p-4">
-        <div class="text-center">
-          <div class="flex min-h-[3rem] items-center justify-center">
-            {#if recordingState.isClearing}
-              <div class="flex items-center space-x-2 text-green-400">
-                <svg
-                  class="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                <span class="text-sm font-medium"
-                  >Hotkey cleared successfully</span
-                >
-              </div>
-            {:else if recordingState.lastPressedKey}
-              <div class="flex items-center space-x-2">
-                {#each formatHotkey(recordingState.lastPressedKey).split("+") as keyPart, index}
-                  {#if index > 0}
-                    <span class="text-zinc-400">+</span>
-                  {/if}
-                  <kbd
-                    class="rounded-md bg-zinc-600 px-3 py-2 font-mono text-sm font-medium text-white shadow-md"
-                  >
-                    {keyPart}
-                  </kbd>
-                {/each}
-              </div>
-            {:else}
-              <div class="flex items-center space-x-2 text-zinc-500">
-                <div
-                  class="h-2 w-2 animate-pulse rounded-full bg-blue-400"
-                ></div>
-                <span class="text-sm">Waiting for key input...</span>
-              </div>
-            {/if}
-          </div>
-        </div>
-      </div>
-
-      {#if recordingState.lastPressedKey && getActionForHotkey(recordingState.lastPressedKey, hotkeysSections) && getActionForHotkey(recordingState.lastPressedKey, hotkeysSections) !== getActionNameById(recordingState.actionId || "")}
-        <div class="mb-4 rounded-md border border-red-600/50 bg-red-900/30 p-3">
-          <div class="flex items-center space-x-2">
-            <svg
-              class="h-4 w-4 text-red-400"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                clip-rule="evenodd"
-              />
-            </svg>
-            <div class="flex-1">
-              <div class="text-sm font-medium text-red-300">
-                Conflict Detected
-              </div>
-              <div class="text-xs text-red-200/80">
-                This hotkey is already assigned to "{getActionForHotkey(
-                  recordingState.lastPressedKey,
-                  hotkeysSections,
-                )}"
-              </div>
-            </div>
-          </div>
-        </div>
-      {/if}
-
-      <div class="flex space-x-3">
-        <button
-          onclick={stopRecording}
-          class="flex-1 rounded-md border border-zinc-600/50 bg-zinc-800/30 px-4 py-2.5 text-sm font-medium text-zinc-300 transition-all duration-200 hover:bg-zinc-700/40 focus:outline-none focus:ring-2 focus:ring-zinc-500/50"
-        >
-          Cancel
-        </button>
-
-        {#if recordingState.lastPressedKey}
-          <button
-            onclick={() => confirmRecording(recordingState.lastPressedKey)}
-            class="flex-1 rounded-md bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-2.5 text-sm font-medium text-white shadow-md transition-all duration-200 hover:from-blue-500 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:from-zinc-600 disabled:to-zinc-500 disabled:opacity-50"
-            disabled={!!(
-              getActionForHotkey(
-                recordingState.lastPressedKey,
-                hotkeysSections,
-              ) &&
-              getActionForHotkey(
-                recordingState.lastPressedKey,
-                hotkeysSections,
-              ) !== getActionNameById(recordingState.actionId || "")
-            )}
-          >
-            <div class="flex items-center justify-center space-x-2">
-              <svg
-                class="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-              <span>Confirm</span>
-            </div>
-          </button>
-        {/if}
-      </div>
-
-      <div class="mt-4 rounded-md border border-zinc-600/30 bg-zinc-700/20 p-3">
-        <div class="mb-1 flex items-center space-x-2">
-          <svg
-            class="h-4 w-4 text-blue-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <span class="text-sm font-medium text-zinc-300">Tips</span>
-        </div>
-        <div class="space-y-1 text-xs text-zinc-400">
-          <p>
-            Press <kbd class="rounded bg-zinc-600 px-1.5 py-0.5 text-white"
-              >Esc</kbd
-            > to cancel
-          </p>
-          <p>
-            Press <kbd class="rounded bg-zinc-600 px-1.5 py-0.5 text-white"
-              >Backspace</kbd
-            > to clear the hotkey
-          </p>
-          <p>
-            Use modifier keys {isMac ? "(⌘, ⌥, ⇧)" : "(Ctrl, Alt, Shift)"} for better
-            combinations
-          </p>
-          <p>
-            Avoid system shortcuts like {isMac ? "⌘C, ⌘V" : "Ctrl+C, Ctrl+V"}
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-{/if}
+</div>

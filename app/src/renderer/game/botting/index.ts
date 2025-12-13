@@ -1,3 +1,4 @@
+import { CommandExecutor } from "./command-executor";
 import { armyCommands } from "./commands/army";
 import { combatCommands } from "./commands/combat";
 import { conditionsCommands } from "./commands/conditions";
@@ -5,7 +6,6 @@ import { itemCommands } from "./commands/item";
 import { mapCommands } from "./commands/map";
 import { miscCommands } from "./commands/misc";
 import { questCommands } from "./commands/quest";
-import { CommandExecutor } from "./command-executor";
 
 const context = CommandExecutor.getInstance();
 

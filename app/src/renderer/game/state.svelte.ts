@@ -77,7 +77,7 @@ function initState() {
       if (typeof value === "number") {
         try {
           swf.settingsSetFPS(value);
-        } catch {}
+        } catch { }
       }
     },
   };
@@ -113,7 +113,7 @@ function initScriptState() {
 function initAppState() {
   // Whether the game has loaded.
   let gameLoaded = $state(false);
-  let skillSets = $state(new SvelteMap<string, SkillSet>());
+  let skillSets = new SvelteMap<string, SkillSet>();
 
   return {
     get gameLoaded() {
@@ -139,10 +139,15 @@ type Position = {
   width?: string;
 };
 
+export type CommandItem = {
+  index: string;
+  text: string;
+};
+
 export function initCommandOverlayState() {
   const storageKey = "command-overlay-position";
 
-  let lastCommands = $state<string[]>([]);
+  let lastCommands = $state<CommandItem[]>([]);
   let lastIndex = $state(-1);
   let listVisible = $state(true);
   let isDragging = $state(false);
@@ -151,7 +156,7 @@ export function initCommandOverlayState() {
   let dragOffset = { x: 0, y: 0 };
   let updateThrottleId: number | null = null;
 
-  const commandStrings = $derived(lastCommands);
+  const commandItems = $derived(lastCommands);
   const commandCount = $derived(lastCommands.length);
   const headerText = $derived(`Commands (${commandCount})`);
   const toggleButtonText = $derived(listVisible ? "▼" : "▶");
@@ -164,19 +169,22 @@ export function initCommandOverlayState() {
    * @returns True if the command list was updated, false otherwise.
    */
   function updateCommands(commands: Command[], currentIndex: number): boolean {
-    const commandStrings = commands.map(
-      (cmd, index) => `[${index + 1}] ${cmd.toString()}`,
-    );
+    const newItems: CommandItem[] = commands.map((cmd, index) => ({
+      index: `[${index + 1}]`,
+      text: cmd.toString(),
+    }));
 
     if (
       lastIndex === currentIndex &&
-      lastCommands.length === commandStrings.length &&
-      lastCommands.every((cmd, index) => cmd === commandStrings[index])
+      lastCommands.length === newItems.length &&
+      lastCommands.every(
+        (cmd, idx) => cmd.index === newItems[idx]?.index && cmd.text === newItems[idx]?.text
+      )
     ) {
       return false;
     }
 
-    lastCommands = commandStrings;
+    lastCommands = newItems;
     lastIndex = currentIndex;
     return true;
   }
@@ -202,9 +210,11 @@ export function initCommandOverlayState() {
   }
 
   function savePosition(overlay: HTMLDivElement): void {
-    const { left, top } = overlay.style;
+    const computed = window.getComputedStyle(overlay);
+    const left = overlay.style.left || computed.left;
+    const top = overlay.style.top || computed.top;
 
-    if (!left || !top) {
+    if (!left || !top || left === 'auto' || top === 'auto') {
       return;
     }
 
@@ -215,7 +225,6 @@ export function initCommandOverlayState() {
     };
 
     if (listVisible) {
-      const computed = window.getComputedStyle(overlay);
       position.width = overlay.style.width || computed.width;
       position.height = overlay.style.height || computed.height;
     }
@@ -227,7 +236,7 @@ export function initCommandOverlayState() {
     const savedPosition = localStorage.getItem(storageKey);
 
     if (!savedPosition) {
-      const topNav = document.getElementById("topnav-container");
+      const topNav = document.querySelector("#topnav-container");
       const topNavBottom = topNav?.getBoundingClientRect().bottom ?? 0;
       const minTop = Math.max(0, Math.round(topNavBottom));
       overlay.style.left = "20px";
@@ -241,7 +250,7 @@ export function initCommandOverlayState() {
       overlay.style.left = position.left;
       overlay.style.top = position.top;
     } else {
-      const topNav = document.getElementById("topnav-container");
+      const topNav = document.querySelector("#topnav-container");
       const topNavBottom = topNav?.getBoundingClientRect().bottom ?? 0;
       const minTop = Math.max(0, Math.round(topNavBottom));
       overlay.style.left = "20px";
@@ -274,8 +283,8 @@ export function initCommandOverlayState() {
     get isVisible() {
       return isVisible;
     },
-    get commandStrings() {
-      return commandStrings;
+    get commandItems() {
+      return commandItems;
     },
     get commandCount() {
       return commandCount;

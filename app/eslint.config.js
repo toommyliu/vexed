@@ -57,6 +57,25 @@ const rules = [
   {
     files: ["./**/*.ts"],
   },
+  ...svelte.configs["flat/recommended"],
+  {
+    files: ["**/*.svelte", "**/*.svelte.ts"],
+    languageOptions: {
+      parserOptions: {
+        parser: require("@typescript-eslint/parser"),
+        svelteFeatures: {
+          experimentalGenerics: true,
+        },
+      },
+    },
+    rules: {
+      // These rules crash or report false positives with svelte-eslint-parser
+      "@stylistic/ts/padding-line-between-statements": "off",
+      "@stylistic/js/spaced-comment": "off",
+      "import-x/newline-after-import": "off",
+      "import-x/order": "off",
+    },
+  },
   ...svelte.configs["flat/prettier"],
   prettierRuleset,
 ];

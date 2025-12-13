@@ -62,7 +62,7 @@ const contextMenu = Menu.buildFromTemplate([
   {
     label: "Clear App Cache",
     click: () => {
-      session.defaultSession?.clearStorageData({
+      void session.defaultSession?.clearStorageData({
         storages: ["cookies", "appcache"],
       });
     },

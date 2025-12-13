@@ -10,7 +10,7 @@ export class CommandAutoRelogin extends Command {
 
   protected override _skipDelay = true;
 
-  public override executeImpl() {
+  public override async executeImpl() {
     const username = this.username ?? this.bot.auth.username;
     const password = this.password ?? this.bot.auth.password;
     const server =
@@ -18,7 +18,7 @@ export class CommandAutoRelogin extends Command {
       this.bot.flash.get("objServerInfo.sName", true) ??
       undefined;
 
-    AutoReloginJob.setCredentials(username, password, server);
+    await AutoReloginJob.setCredentials(username, password, server);
     this.logger.debug(
       `Set AutoRelogin for ${username}${server ? ` [${server}]` : ""}.`,
     );

@@ -1,30 +1,45 @@
 <script lang="ts">
-  import { onMount, onDestroy, tick } from "svelte";
-  import { fade } from "svelte/transition";
+  import { Button, Checkbox, Label } from "@vexed/ui";
+  import * as Empty from "@vexed/ui/Empty";
+  import { cn } from "@vexed/ui/util";
+  import { onMount, tick } from "svelte";
+  import log from "electron-log";
+
+  import Copy from "lucide-svelte/icons/copy";
+  import Download from "lucide-svelte/icons/download";
+  import Trash2 from "lucide-svelte/icons/trash-2";
+  import ArrowDownToLine from "lucide-svelte/icons/arrow-down-to-line";
+  import FileText from "lucide-svelte/icons/file-text";
+
   import { client, handlers } from "@shared/tipc";
   import type { AppLogEntry } from "@shared/types";
   import { LEVEL_LABELS } from "@/shared/constants";
-  import log from "electron-log";
 
   const logger = log.scope("app/logs");
 
   const LEVEL_CLASSES: Record<number, string> = {
-    0: "text-gray-400",
-    1: "text-gray-300",
-    2: "text-yellow-400",
-    3: "text-red-400",
+    0: "text-muted-foreground",
+    1: "text-foreground",
+    2: "text-amber-400",
+    3: "text-destructive",
   };
-  const TIMESTAMP_REGEX =
-    /^\s*\[?\s*([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:.]+Z|[0-9]{4}-[0-9]{2}-[0-9]{2}[ T][0-9:.]+|T?[0-9]{1,2}:[0-9]{2}(?::[0-9]{2}(?:\.[0-9]+)?)?)\s*\]?\s*(?:[:\-–—]{1,2}|::|\||\/)??\s*/i;
 
-  let entries: AppLogEntry[] = [];
-  let autoScroll = true;
-  let statusMessage = "";
-  let timeoutId: ReturnType<typeof setTimeout> | null = null;
-  let isSaving = false;
-  let isClearing = false;
-  let isCopyingAll = false;
-  let logsContainer: HTMLDivElement | null = null;
+  const LEVEL_BADGE_CLASSES: Record<number, string> = {
+    0: "bg-muted/50 text-muted-foreground",
+    1: "bg-secondary text-foreground",
+    2: "bg-amber-500/20 text-amber-400",
+    3: "bg-destructive/20 text-destructive",
+  };
+
+  const TIMESTAMP_REGEX =
+    /^\s*\[?\s*([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:.]+Z|[0-9]{4}-[0-9]{2}-[0-9]{2}[ T][0-9:.]+|T?[0-9]{1,2}:[0-9]{2}(?::[0-9]{2}(?:\.[0-9]+)?)?)\s*\]?\s*(?:[:\-–—]{1,2}|::|\||\/)?\s*/i;
+
+  let entries = $state<AppLogEntry[]>([]);
+  let autoScroll = $state(true);
+  let isSaving = $state(false);
+  let isClearing = $state(false);
+  let isCopyingAll = $state(false);
+  let logsContainer = $state<HTMLDivElement | null>(null);
 
   handlers.appLogs.init.listen(({ entries: val }) => {
     entries = val;
@@ -38,27 +53,31 @@
 
   handlers.appLogs.reset.listen(() => {
     entries = [];
-    updateStatus("Logs cleared.");
   });
 
   onMount(() => {
     void scrollToBottom(true);
   });
-  onDestroy(() => {
-    if (timeoutId) clearTimeout(timeoutId);
-  });
 
-  const getLevelLabel = (level: number): string =>
-    LEVEL_LABELS[level] ?? `level-${level}`;
-  const getLevelClass = (level: number): string =>
-    LEVEL_CLASSES[level] ?? "text-gray-300";
-  const formatTimestamp = (timestamp: number): string => {
+  function getLevelLabel(level: number): string {
+    return LEVEL_LABELS[level] ?? `level-${level}`;
+  }
+
+  function getLevelClass(level: number): string {
+    return LEVEL_CLASSES[level] ?? "text-foreground";
+  }
+
+  function getLevelBadgeClass(level: number): string {
+    return LEVEL_BADGE_CLASSES[level] ?? "bg-secondary text-foreground";
+  }
+
+  function formatTimestamp(timestamp: number): string {
     const d = new Date(timestamp);
     const isToday = d.toDateString() === new Date().toDateString();
     return isToday
       ? d.toLocaleTimeString()
       : `${d.toLocaleDateString()} ${d.toLocaleTimeString()}`;
-  };
+  }
 
   function formatSource(sourceId: string, lineNumber: number): string {
     if (!sourceId) return "renderer";
@@ -85,21 +104,11 @@
     return `[${timestamp}] [${level}] ${message}`;
   }
 
-  function updateStatus(message: string) {
-    statusMessage = message;
-    if (timeoutId) clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => {
-      statusMessage = "";
-    }, 1_500);
-  }
-
   async function copyEntry(entry: AppLogEntry) {
     try {
       await navigator.clipboard.writeText(formatEntryForCopy(entry));
-      updateStatus("Log copied to clipboard.");
     } catch (error) {
       logger.error("Failed to copy log.", error);
-      updateStatus("Copy failed.");
     }
   }
 
@@ -110,10 +119,8 @@
     try {
       const content = entries.map(formatEntryForCopy).join("\n");
       await navigator.clipboard.writeText(content);
-      updateStatus("Logs copied to clipboard.");
     } catch (error) {
       logger.error("Failed to copy logs.", error);
-      updateStatus("Copy failed.");
     } finally {
       isCopyingAll = false;
     }
@@ -124,17 +131,9 @@
 
     isClearing = true;
     try {
-      const result = await client.appLogs.clear();
-      if (result?.success !== true) {
-        if (result?.error === "EMPTY") {
-          updateStatus("No logs to clear.");
-        } else {
-          updateStatus("Clear failed.");
-        }
-      }
+      await client.appLogs.clear();
     } catch (error) {
       logger.error("Failed to clear logs.", error);
-      updateStatus("Clear failed.");
     } finally {
       isClearing = false;
     }
@@ -145,21 +144,9 @@
 
     isSaving = true;
     try {
-      const result = await client.appLogs.saveToFile();
-      if (result?.success) {
-        updateStatus("Logs saved.");
-      } else if (result?.canceled) {
-        updateStatus("Save canceled.");
-      } else if (result?.error === "EMPTY") {
-        updateStatus("No logs to save.");
-      } else if (result?.error) {
-        updateStatus("Save failed.");
-      } else {
-        updateStatus("Save complete.");
-      }
+      await client.appLogs.saveToFile();
     } catch (error) {
       logger.error("Failed to save logs.", error);
-      updateStatus("Save failed.");
     } finally {
       isSaving = false;
     }
@@ -177,106 +164,126 @@
   }
 </script>
 
-<main class="flex h-screen flex-col bg-background-primary text-gray-200">
+<div class="bg-background flex h-screen flex-col">
   <header
-    class="flex flex-wrap items-center justify-between space-x-3 border-b border-gray-800/50 bg-background-secondary px-4 py-2"
+    class="bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-10 border-b border-border/50 px-6 py-3 backdrop-blur-xl elevation-1"
   >
-    <div class="flex items-center space-x-2">
-      <h1 class="text-sm font-semibold text-gray-100">App Logs</h1>
-      {#if statusMessage}
-        <p
-          transition:fade={{ duration: 150 }}
-          class="flex min-h-[1rem] items-center text-xs text-gray-400"
+    <div class="mx-auto flex max-w-7xl items-center justify-between">
+      <div class="flex items-center gap-3">
+        <h1 class="text-foreground text-base font-semibold tracking-tight">
+          App Logs
+        </h1>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          class="gap-2 border-border/50"
+          onclick={() => void saveLogs()}
+          disabled={entries.length === 0 || isSaving}
         >
-          {statusMessage}
-        </p>
-      {/if}
-    </div>
-    <div class="flex flex-wrap items-center space-x-2 text-xs">
-      <label class="ml-3 flex cursor-pointer items-center text-gray-400">
-        <input
-          type="checkbox"
-          bind:checked={autoScroll}
-          class="h-4 w-4 rounded border-gray-600 bg-background-primary"
-          style="margin-right: 8px;"
-        />
-        Auto scroll
-      </label>
-      <button
-        class="rounded bg-gray-700/40 px-3 py-1 font-medium transition hover:bg-gray-600/50 disabled:cursor-not-allowed disabled:opacity-50"
-        onclick={() => void copyAll()}
-        disabled={entries.length === 0 || isCopyingAll}
-      >
-        Copy all
-      </button>
-      <button
-        class="rounded bg-gray-700/40 px-3 py-1 font-medium transition hover:bg-gray-600/50 disabled:cursor-not-allowed disabled:opacity-50"
-        onclick={() => void saveLogs()}
-        disabled={entries.length === 0 || isSaving}
-      >
-        Save to file
-      </button>
-      <button
-        class="rounded bg-red-700/60 px-3 py-1 font-medium transition hover:bg-red-600/70 disabled:cursor-not-allowed disabled:opacity-50"
-        onclick={() => void clearLogs()}
-        disabled={entries.length === 0 || isClearing}
-      >
-        Clear
-      </button>
+          <Download class="h-4 w-4" />
+          <span class="hidden sm:inline">Save</span>
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          class="gap-2 border-border/50"
+          onclick={() => void copyAll()}
+          disabled={entries.length === 0 || isCopyingAll}
+        >
+          <Copy class="h-4 w-4" />
+          <span class="hidden sm:inline">Copy All</span>
+        </Button>
+        <Button
+          variant="destructive"
+          size="sm"
+          class="gap-2"
+          onclick={() => void clearLogs()}
+          disabled={entries.length === 0 || isClearing}
+        >
+          <Trash2 class="h-4 w-4" />
+          <span class="hidden sm:inline">Clear</span>
+        </Button>
+      </div>
     </div>
   </header>
 
-  <section class="flex-1 overflow-hidden bg-background-primary">
-    {#if entries.length > 0}
-      <div
-        class="logs-list"
-        style="height: 100%; width: 100%; overflow-y: auto;"
-        bind:this={logsContainer}
-      >
-        {#each entries as entry, index (`${entry.timestamp}-${index}`)}
-          <div class="border-b border-gray-800/60 px-4 py-2">
-            <button
-              type="button"
-              class="w-full cursor-pointer rounded bg-transparent text-left transition hover:bg-gray-800/50 focus:bg-gray-800/50 focus:outline-none"
-              title="Click to copy this log"
-              onclick={() => void copyEntry(entry)}
-            >
+  <main class="flex-1 overflow-hidden p-4 sm:p-6">
+    <div class="mx-auto flex h-full max-w-7xl flex-col gap-4">
+      <div class="flex items-center justify-between">
+        <span class="text-sm text-muted-foreground">
+          <span class="tabular-nums font-medium text-foreground">{entries.length}</span>
+          <span class="text-muted-foreground/70">log{entries.length !== 1 ? 's' : ''}</span>
+        </span>
+
+        <div class="flex items-center gap-2">
+          <Checkbox id="auto-scroll" bind:checked={autoScroll} />
+          <Label for="auto-scroll" class="text-sm text-muted-foreground cursor-pointer flex items-center gap-1.5">
+            <ArrowDownToLine class="h-3.5 w-3.5" />
+            Auto-scroll
+          </Label>
+        </div>
+      </div>
+
+      <div class="relative flex-1 overflow-hidden rounded-xl border border-border/50 bg-card">
+        {#if entries.length === 0}
+          <div class="flex h-full items-center justify-center">
+            <Empty.Root>
+              <Empty.Header>
+                <Empty.Media variant="icon">
+                  <FileText />
+                </Empty.Media>
+                <Empty.Title>No logs yet</Empty.Title>
+                <Empty.Description>
+                  Application logs will appear here.
+                </Empty.Description>
+              </Empty.Header>
+            </Empty.Root>
+          </div>
+        {:else}
+          <div
+            bind:this={logsContainer}
+            class="h-full overflow-auto p-3 font-mono text-sm"
+          >
+            {#each entries as entry, index (`${entry.timestamp}-${index}`)}
               <div
-                class="flex flex-wrap items-center space-x-2 font-mono text-[11px] uppercase tracking-wide text-gray-400"
+                class="group flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 transition-colors hover:bg-secondary/50"
+                onclick={() => void copyEntry(entry)}
+                onkeydown={(ev) => {
+                  if (ev.key === "Enter") {
+                    ev.preventDefault();
+                    copyEntry(entry);
+                  }
+                }}
+                role="button"
+                tabindex="0"
+                title="Click to copy"
               >
-                <span>[{formatTimestamp(entry.timestamp)}]</span>
-                <span class={getLevelClass(entry.level)}>
+                <span class="shrink-0 text-xs text-muted-foreground/70 tabular-nums">
+                  {formatTimestamp(entry.timestamp)}
+                </span>
+                <span
+                  class={cn(
+                    "shrink-0 rounded px-1.5 py-0.5 text-xs font-medium uppercase",
+                    getLevelBadgeClass(entry.level)
+                  )}
+                >
                   {getLevelLabel(entry.level)}
                 </span>
-                <span class="text-gray-500">
+                <span class="shrink-0 text-xs text-muted-foreground/50">
                   {formatSource(entry.sourceId, entry.lineNumber)}
                 </span>
+                <span class="flex-1 whitespace-pre-wrap break-words text-foreground">
+                  {stripLeadingTimestamp(entry)}
+                </span>
+                <Copy class="h-3.5 w-3.5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
               </div>
-              <div
-                class="mt-1 whitespace-pre-wrap break-words font-mono text-xs text-gray-100"
-              >
-                {stripLeadingTimestamp(entry)}
-              </div>
-            </button>
+            {/each}
           </div>
-        {/each}
+        {/if}
       </div>
-    {/if}
-  </section>
-</main>
-
-<style>
-  :global(body) {
-    margin: 0;
-  }
-
-  :global(.logs-list) {
-    height: 100%;
-    overflow-y: auto;
-    background-color: transparent;
-  }
-
-  :global(.logs-list button:focus) {
-    outline: none;
-  }
-</style>
+    </div>
+  </main>
+</div>
