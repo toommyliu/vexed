@@ -1,7 +1,6 @@
 <script lang="ts">
   import "./entrypoint";
   import {
-    gameState,
     scriptState,
     commandOverlayState,
     optionsPanelState,

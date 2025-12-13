@@ -267,15 +267,14 @@
     in:motionScale={{ duration: 120, start: 0.96, opacity: 0 }}
     out:motionFade={{ duration: 80 }}
   >
-    <!-- Resize handles -->
-    <div class="resize-handle resize-n" onmousedown={(e) => handleResizeStart(e, "n")}></div>
-    <div class="resize-handle resize-s" onmousedown={(e) => handleResizeStart(e, "s")}></div>
-    <div class="resize-handle resize-e" onmousedown={(e) => handleResizeStart(e, "e")}></div>
-    <div class="resize-handle resize-w" onmousedown={(e) => handleResizeStart(e, "w")}></div>
-    <div class="resize-handle resize-ne" onmousedown={(e) => handleResizeStart(e, "ne")}></div>
-    <div class="resize-handle resize-nw" onmousedown={(e) => handleResizeStart(e, "nw")}></div>
-    <div class="resize-handle resize-se" onmousedown={(e) => handleResizeStart(e, "se")}></div>
-    <div class="resize-handle resize-sw" onmousedown={(e) => handleResizeStart(e, "sw")}></div>
+    <div role="presentation" class="resize-handle resize-n" onmousedown={(e) => handleResizeStart(e, "n")}></div>
+    <div role="presentation" class="resize-handle resize-s" onmousedown={(e) => handleResizeStart(e, "s")}></div>
+    <div role="presentation" class="resize-handle resize-e" onmousedown={(e) => handleResizeStart(e, "e")}></div>
+    <div role="presentation" class="resize-handle resize-w" onmousedown={(e) => handleResizeStart(e, "w")}></div>
+    <div role="presentation" class="resize-handle resize-ne" onmousedown={(e) => handleResizeStart(e, "ne")}></div>
+    <div role="presentation" class="resize-handle resize-nw" onmousedown={(e) => handleResizeStart(e, "nw")}></div>
+    <div role="presentation" class="resize-handle resize-se" onmousedown={(e) => handleResizeStart(e, "se")}></div>
+    <div role="presentation" class="resize-handle resize-sw" onmousedown={(e) => handleResizeStart(e, "sw")}></div>
 
     <div
       class="panel-header"
@@ -592,7 +591,8 @@
   }
 
   .option-row-text .option-label {
-    width: 80px;
+    min-width: 90px;
+    width: 90px;
   }
 
   :global(.input-field) {
@@ -610,15 +610,16 @@
   }
 
   .option-row-text {
-    display: flex;
+    display: grid;
+    grid-template-columns: 90px 1fr;
     align-items: center;
-    justify-content: space-between;
     padding: 4px 6px;
     font-size: 12px;
     gap: 8px;
   }
 
   :global(.text-input) {
+    display: flex;
     flex: 1;
     min-width: 0;
     height: 24px;
