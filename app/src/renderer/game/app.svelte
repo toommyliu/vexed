@@ -439,6 +439,11 @@
     await loadHotkeysFromConfig();
     setupHotkeyHandlers();
   });
+  handlers.hotkeys.reloadHotkeys.handle(async () => {
+    await config?.reload();
+    await loadHotkeysFromConfig();
+    setupHotkeyHandlers();
+  });
 </script>
 
 <svelte:window

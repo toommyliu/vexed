@@ -2,7 +2,7 @@
   import Mousetrap from "mousetrap";
   import { onDestroy, onMount } from "svelte";
   import Config from "@vexed/config";
-  import { Kbd } from "@vexed/ui";
+  import { AlertDialog, Button, Kbd } from "@vexed/ui";
   import { cn } from "@vexed/ui/util";
   import Settings from "lucide-svelte/icons/settings";
   import AppWindow from "lucide-svelte/icons/app-window";
@@ -12,6 +12,7 @@
   import Inbox from "lucide-svelte/icons/inbox";
   import AlertTriangle from "lucide-svelte/icons/triangle-alert";
   import ChevronDown from "lucide-svelte/icons/chevron-down";
+  import RotateCcw from "lucide-svelte/icons/rotate-ccw";
 
   import { client } from "@shared/tipc";
   import type { HotkeyConfig } from "@shared/types";
@@ -37,6 +38,7 @@
     isClearing: false,
   });
   let activeSection = $state<string | null>(null);
+  let confirmDialogOpen = $state(false);
 
   let conflicts = $derived(findConflicts(hotkeysSections));
 
@@ -73,6 +75,8 @@
           }
         }
       }
+      // Force reactivity update
+      hotkeysSections = [...hotkeysSections];
     } catch (error) {
       logger.error("Failed to load hotkeys from config.", error);
     }
@@ -132,7 +136,24 @@
     stopRecording();
   }
 
+  async function restoreDefaults() {
+    logger.info("Restoring defaults...");
+    if (!config) {
+      logger.warn("No config available, aborting restore.");
+      return;
+    }
 
+    stopRecording();
+
+    config.clear();
+    await config.save();
+    
+    await config.reload();
+    
+    await loadHotkeysFromConfig();
+    await client.hotkeys.reloadHotkeys();
+    logger.info("Hotkeys restored to defaults.");
+  }
 
   function findHotkeyItemById(actionId: string) {
     for (const section of hotkeysSections) {
@@ -182,9 +203,9 @@
     await config.load();
     await loadHotkeysFromConfig();
 
-    if (hotkeysSections.length > 0) {
-      activeSection = hotkeysSections[0].name;
-    }
+    if (hotkeysSections?.length > 0) {
+      activeSection = hotkeysSections[0]!.name;
+    } 
   });
 
   onDestroy(() => {
@@ -237,6 +258,13 @@
           Hotkeys
         </h1>
       </div>
+      <button
+        class="group flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground transition-all hover:bg-secondary/50 hover:text-foreground"
+        onclick={() => (confirmDialogOpen = true)}
+      >
+        <RotateCcw class="h-3 w-3 transition-transform duration-300 group-hover:-rotate-180" />
+        <span>Restore Defaults</span>
+      </button>
     </div>
   </header>
 
@@ -328,3 +356,29 @@
     </div>
   </div>
 </div>
+
+<AlertDialog.Root bind:open={confirmDialogOpen}>
+  <AlertDialog.Content>
+    <AlertDialog.Header>
+      <AlertDialog.Title>Restore Default Hotkeys?</AlertDialog.Title>
+      <AlertDialog.Description>
+        This will reset all hotkey bindings to their default values. Any custom hotkeys you've configured will be lost.
+      </AlertDialog.Description>
+    </AlertDialog.Header>
+    <AlertDialog.Footer>
+      <Button
+        variant="ghost"
+        size="sm"
+        onclick={() => (confirmDialogOpen = false)}
+      >
+        Cancel
+      </Button>
+      <AlertDialog.Action
+        class="inline-flex h-8 items-center justify-center rounded-md bg-destructive px-3 text-sm font-medium text-destructive-foreground transition-colors hover:bg-destructive/90"
+        onclick={restoreDefaults}
+      >
+        Restore Defaults
+      </AlertDialog.Action>
+    </AlertDialog.Footer>
+  </AlertDialog.Content>
+</AlertDialog.Root>
