@@ -25,6 +25,11 @@ body = """
 	## {{ group | upper_first }}
 	{% for message, message_commits in group_commits | group_by(attribute="message") %}
 		- {{ message | upper_first }} ({% for c in message_commits %}[{{ c.id | truncate(length=7, end="") }}]({{ self::remote_url() }}/commit/{{ c.id }}){% if not loop.last %}, {% endif %}{% endfor %})
+		{%- for c in message_commits %}
+			{%- if c.body %}
+				{{ "\n" }}  - {{ c.body | trim | indent(prefix="    ", first=false) }}
+			{%- endif %}
+		{%- endfor %}
 	{% endfor %}
 {% endfor %}\n
 """
