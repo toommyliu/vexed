@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount, tick } from "svelte";
   import { commandOverlayState, scriptState } from "@game/state.svelte";
+  import type { CommandItem } from "@game/state.svelte";
   import { VirtualList } from "@vexed/ui";
   import { motionScale, motionFade } from "@vexed/ui/motion";
   import ChevronDown from "lucide-svelte/icons/chevron-down";
@@ -11,7 +12,7 @@
   let overlay: HTMLDivElement;
   let listContainer: HTMLDivElement;
   // svelte-ignore non_reactive_update
-  let virtualList: VirtualList<string>;
+  let virtualList: VirtualList<CommandItem>;
 
   let resizeObserver: ResizeObserver | null = null;
   let overlayRef: HTMLDivElement | null = null;
@@ -152,7 +153,7 @@
     const headerHeight = 36;
     const listVpadding = 8;
     const calculatedHeight =
-      commandOverlayState.commandStrings.length * itemHeight +
+      commandOverlayState.commandItems.length * itemHeight +
       headerHeight +
       listVpadding;
     return calculatedHeight + 10;
@@ -300,11 +301,11 @@
         bind:this={listContainer}
         class="command-list-container"
       >
-        {#if commandOverlayState.commandStrings.length > 0}
+        {#if commandOverlayState.commandItems.length > 0}
           <VirtualList
             bind:this={virtualList}
-            data={commandOverlayState.commandStrings}
-            key={(_item: string, index: number) => `command-${index}`}
+            data={commandOverlayState.commandItems}
+            key={(_item, index: number) => `command-${index}`}
             smoothScroll={true}
             overflow={0}
           >
@@ -312,7 +313,7 @@
               data: command,
               index,
             }: {
-              data: string;
+              data: { index: string; text: string };
               index: number;
             })}
               <div
@@ -321,7 +322,8 @@
                   index === commandOverlayState.lastIndex && "active"
                 )}
               >
-                {command}
+                <span class="command-index">{command.index}</span>
+                <span class="command-text">{command.text}</span>
               </div>
             {/snippet}
           </VirtualList>
@@ -450,17 +452,28 @@
   .command-item {
     padding: 6px 10px;
     font-size: 11px;
-    font-family: "SF Mono", "Monaco", "Menlo", "Consolas", monospace;
     cursor: default;
     user-select: none;
-    background-color: transparent;
+    background-color: rgb(var(--muted) / 0.5);
     margin-bottom: 2px;
     border-radius: 6px;
     border-left: 3px solid transparent;
     transition: background-color 0.1s ease, border-color 0.1s ease;
     display: flex;
     align-items: center;
+    gap: 6px;
     color: rgb(var(--foreground));
+  }
+
+  .command-index {
+    font-family: "SF Mono", "Monaco", "Menlo", "Consolas", monospace;
+    color: rgb(var(--muted-foreground));
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+
+  .command-text {
+    font-family: inherit;
   }
 
   .command-item.active {

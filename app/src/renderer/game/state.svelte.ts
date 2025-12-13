@@ -139,10 +139,15 @@ type Position = {
   width?: string;
 };
 
+export type CommandItem = {
+  index: string;
+  text: string;
+};
+
 export function initCommandOverlayState() {
   const storageKey = "command-overlay-position";
 
-  let lastCommands = $state<string[]>([]);
+  let lastCommands = $state<CommandItem[]>([]);
   let lastIndex = $state(-1);
   let listVisible = $state(true);
   let isDragging = $state(false);
@@ -151,7 +156,7 @@ export function initCommandOverlayState() {
   let dragOffset = { x: 0, y: 0 };
   let updateThrottleId: number | null = null;
 
-  const commandStrings = $derived(lastCommands);
+  const commandItems = $derived(lastCommands);
   const commandCount = $derived(lastCommands.length);
   const headerText = $derived(`Commands (${commandCount})`);
   const toggleButtonText = $derived(listVisible ? "▼" : "▶");
@@ -164,19 +169,22 @@ export function initCommandOverlayState() {
    * @returns True if the command list was updated, false otherwise.
    */
   function updateCommands(commands: Command[], currentIndex: number): boolean {
-    const commandStrings = commands.map(
-      (cmd, index) => `[${index + 1}] ${cmd.toString()}`,
-    );
+    const newItems: CommandItem[] = commands.map((cmd, index) => ({
+      index: `[${index + 1}]`,
+      text: cmd.toString(),
+    }));
 
     if (
       lastIndex === currentIndex &&
-      lastCommands.length === commandStrings.length &&
-      lastCommands.every((cmd, index) => cmd === commandStrings[index])
+      lastCommands.length === newItems.length &&
+      lastCommands.every(
+        (cmd, i) => cmd.index === newItems[i]?.index && cmd.text === newItems[i]?.text
+      )
     ) {
       return false;
     }
 
-    lastCommands = commandStrings;
+    lastCommands = newItems;
     lastIndex = currentIndex;
     return true;
   }
@@ -275,8 +283,8 @@ export function initCommandOverlayState() {
     get isVisible() {
       return isVisible;
     },
-    get commandStrings() {
-      return commandStrings;
+    get commandItems() {
+      return commandItems;
     },
     get commandCount() {
       return commandCount;
