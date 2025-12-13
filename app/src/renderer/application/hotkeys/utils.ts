@@ -117,8 +117,10 @@ export function parseKeyboardEvent(ev: KeyboardEvent): string | null {
   let keyName = CODE_TO_KEY[ev.code];
 
   // fallback if key is not in the mapping  
-  keyName = ev.key.toLowerCase();
-  if (keyName === " ") keyName = "space";
+  if (!keyName) {
+    keyName = ev.key.toLowerCase();
+    if (keyName === " ") keyName = "space";
+  }
 
   const modifierKeys = ["control", "alt", "shift", "meta"];
   if (modifierKeys.includes(keyName) || !keyName || keyName.trim() === "") {
