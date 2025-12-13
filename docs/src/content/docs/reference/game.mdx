@@ -9,74 +9,73 @@ The game client looks like the typical AQW third-party client.
 
 You can always open another game client window by clicking the tray icon and selecting **Open Game**.
 
-Interact with the topnav dropdowns to display options for each feature.
+## Top Navigation Bar
 
-## Application
+The top navigation bar provides quick access to core features. From left to right:
 
-### Environment
+### Windows Dropdown
 
-The environment contains registered quests, drops, and boosts. 
+Opens a mega menu containing shortcuts to all application windows:
 
-Registered quests get automatically accepted and turned in when possible.
+- **Environment** - Manage registered quests, drops, and boosts
+- **Logs** - View application log messages
+- **Hotkeys** - Configure keyboard shortcuts
+- **Fast Travels** - Quick travel to popular areas
+- **Loader/Grabber** - Load and grab game data
+- **Follower** - Follow players around the map
+- **Packet Logger** - Log outgoing packets
+- **Packet Spammer** - Send packets to the server
 
-Registered drops get automatically picked up when they appear in the drop list.
+### Scripts Dropdown
 
-Registered boosts get automatically activated when possible.
+- **Load Script** - Opens a file dialog to load a script file
+- **Show/Hide Overlay** - Toggles the command overlay visibility
+- **Dev Tools** - Opens Chrome DevTools for debugging
 
-### Logs
+### Options Button
 
-Messages from the game dev tools are neatly displayed here. Enable `debug` in settings for more information.
+Opens the options panel for quick access to game modifications and settings.
 
-### Hotkeys
+### Run/Stop Button
 
-Hotkeys for interacting with the app. Note hotkeys only work when the app is focused.
-
-## Scripts
-
-### Load
-
-Loads a script file. Scripts can be in the commands or legacy format.
-
-### Start/Stop
-
-Starts or stops the script.
+Starts or stops the currently loaded script. Only enabled when a script is loaded.
 
 <Aside>
   Scripts can only begin executing when the player is in a
   [ready](/api-legacy/player#isready) state.
 </Aside>
 
-### Toggle Dev Tools
+### Auto Checkbox
 
-Toggles the chrome dev tools.
+Enables auto-attack mode. When enabled, the player will automatically attack monsters and use skills based on configured skill sets.
 
-## Tools
+### Cell/Pad Selectors
 
-### Fast Travels
+Two dropdown menus for selecting the target cell and pad. Valid pads for the current cell are highlighted.
 
-Shortcuts to popular areas in the game.
+### Jump Button
 
-The list of locations are stored in `Documents/Vexed/locations.json`.
+Jumps to the selected cell and pad combination.
 
-### Loader/Grabber
+### Bank Button
 
-Grabs and loads various forms of game data.
+Opens or closes the bank interface.
 
-Grabber displays data in a tree view.
+## Menu Bar
 
-### Follower
+Additional features are available in the application menu bar.
 
-Follows a player around, acting as a combat assistant.
+### Command Palette
 
-## Packets
+Open the command palette with `Cmd+K` (macOS) or `Ctrl+K` (Windows) to quickly access commands and toggle options. Available under **View → Command Palette**.
 
-### Logger
+### Appearance
 
-Logs packets being sent by the game client.
+Change the application theme. Available under **View → Appearance**:
 
-### Spammer
-
-Sends a set of packets to the game server.
+- **Light** - Light color scheme
+- **Dark** - Dark color scheme  
+- **System** - Follow system preference
 
 ## Options
 
