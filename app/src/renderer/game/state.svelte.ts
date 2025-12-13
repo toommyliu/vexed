@@ -384,7 +384,7 @@ export function initOptionsPanelState() {
     const savedPosition = localStorage.getItem(storageKey);
 
     if (!savedPosition) {
-      const topNav = document.getElementById("topnav-container");
+      const topNav = document.querySelector("#topnav-container");
       const topNavBottom = topNav?.getBoundingClientRect().bottom ?? 0;
       const minTop = Math.max(0, Math.round(topNavBottom));
       panel.style.left = "20px";
@@ -398,7 +398,7 @@ export function initOptionsPanelState() {
       panel.style.left = position.left;
       panel.style.top = position.top;
     } else {
-      const topNav = document.getElementById("topnav-container");
+      const topNav = document.querySelector("#topnav-container");
       const topNavBottom = topNav?.getBoundingClientRect().bottom ?? 0;
       const minTop = Math.max(0, Math.round(topNavBottom));
       panel.style.left = "20px";

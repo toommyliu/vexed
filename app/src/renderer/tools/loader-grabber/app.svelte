@@ -718,7 +718,7 @@
           class="absolute left-0 top-0 bottom-0 w-px bg-border/40"
           style="margin-left: {item.level * 16 + 18}px"
         ></div>
-        {#each item.children || [] as child, index}
+        {#each item.children || [] as child, index (`${child.name}-${index}`)}
           {@render TreeNode({
             ...child,
             level: item.level + 1,

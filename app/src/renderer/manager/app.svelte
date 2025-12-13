@@ -222,7 +222,7 @@
               </div>
             </Select.Trigger>
             <Select.Content>
-              {#each servers.values() as server}
+              {#each servers.values() as server (server.sName)}
                 <Select.Item value={`${server.sName} (${server.iCount})`}>
                   <span
                     class="flex w-full items-center justify-between gap-4"

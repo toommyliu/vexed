@@ -214,7 +214,7 @@
             </div>
           {:else}
             <div class="space-y-1">
-              {#each packets as packet, index}
+              {#each packets as packet, index (index)}
                 <div
                   class={cn(
                     "flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 font-mono text-sm transition-colors",
