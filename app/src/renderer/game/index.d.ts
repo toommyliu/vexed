@@ -123,6 +123,7 @@ declare global {
     ): void;
     questsAccept(questId: number): void;
     questsLoad(questId: number): void;
+    questsAbandon(questId: number): void;
     questsGet(questId: number): Nullable<Record<string, unknown>>;
     questsGetMultiple(questIds: string): void;
     questsGetTree(): QuestData[];
@@ -224,4 +225,4 @@ declare global {
   }
 }
 
-export {};
+export { };

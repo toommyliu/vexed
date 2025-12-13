@@ -3,6 +3,7 @@ import { CommandAcceptQuest } from "./CommandAcceptQuest";
 import { CommandCompleteQuest } from "./CommandCompleteQuest";
 import { CommandRegisterQuest } from "./CommandRegisterQuest";
 import { CommandUnregisterQuest } from "./CommandUnregisterQuest";
+import { CommandAbandonQuest } from "./CommandAbandonQuest";
 
 export const questCommands = {
   /**
@@ -33,6 +34,22 @@ export const questCommands = {
     cmd.questId = questId;
     window.context.addCommand(cmd);
   },
+
+  /**
+   * Abandons a quest.
+   *
+   * @param questId - The ID of the quest.
+   */
+  abandon_quest(questId: number) {
+    if (!questId || typeof questId !== "number") {
+      throw new ArgsError("questId is required");
+    }
+
+    const cmd = new CommandAbandonQuest();
+    cmd.questId = questId;
+    window.context.addCommand(cmd);
+  },
+
   /**
    * Registers one or more quests, which automatically handles accepting and completing them.
    *

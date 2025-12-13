@@ -17,6 +17,10 @@ package vexed.game {
       game.world.acceptQuest(questId);
     }
 
+    public static function abandon(questId:int):void {
+      game.world.abandonQuest(questId);
+    }
+
     public static function load(questId:int):void {
       game.world.showQuests([questId], "q");
     }
