@@ -57,6 +57,18 @@ const rules = [
   {
     files: ["./**/*.ts"],
   },
+  ...svelte.configs["flat/recommended"],
+  {
+    files: ["**/*.svelte", "**/*.svelte.ts"],
+    languageOptions: {
+      parserOptions: {
+        parser: require("@typescript-eslint/parser"),
+        svelteFeatures: {
+          experimentalGenerics: true,
+        },
+      },
+    },
+  },
   ...svelte.configs["flat/prettier"],
   prettierRuleset,
 ];
