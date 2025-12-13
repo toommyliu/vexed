@@ -440,22 +440,11 @@
     color: rgb(var(--foreground));
     height: calc(100% - 36px);
     user-select: none;
-    scrollbar-width: none;
   }
 
   .command-list-container :global(.virtual-scroll-root) {
     box-sizing: border-box;
     padding: 4px 6px;
-  }
-
-  .command-list-container :global(*) {
-    scrollbar-width: none;
-  }
-
-  .command-list-container :global(*::-webkit-scrollbar) {
-    width: 0;
-    height: 0;
-    background: transparent;
   }
 
   .command-item {
