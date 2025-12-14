@@ -4,12 +4,20 @@ import type { AvatarData } from "../../lib/models/Avatar";
 export async function moveToArea(bot: Bot, packet: MoveToAreaPacket) {
   bot.world._moveToArea(packet);
 
-  // Update player cell/pad from uoBranch
-  const localPlayer = packet.uoBranch.find(
+  // Update player cell/pad and position from uoBranch
+  const localPlayerData = packet.uoBranch.find(
     (p) => p.uoName.toLowerCase() === bot.auth.username.toLowerCase(),
   );
-  if (localPlayer) {
-    bot.player._setLocation(localPlayer.strFrame, localPlayer.strPad ?? "Spawn");
+  if (localPlayerData) {
+    bot.player._setLocation(localPlayerData.strFrame, localPlayerData.strPad ?? "Spawn");
+  }
+
+  // Get the Avatar from world.players and extract position
+  const localAvatar = bot.world.players.get(bot.auth.username);
+  if (localAvatar) {
+    const x = localAvatar.xPos ?? Number(localPlayerData?.px ?? 0);
+    const y = localAvatar.yPos ?? Number(localPlayerData?.py ?? 0);
+    bot.player._setPosition(x, y);
   }
 
   bot.emit("mapChanged", packet.areaName);

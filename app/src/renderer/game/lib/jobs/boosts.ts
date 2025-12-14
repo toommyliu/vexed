@@ -14,7 +14,7 @@ export class BoostsJob extends Job {
       const variant = this.resolveBoostType(boost);
       if (!variant) continue;
 
-      const item = this.bot.inventory.get(boost);
+      const item = this.bot.player.inventory.get(boost);
       if (item?.data.sType !== "ServerUse") continue;
 
       if (this.bot.player.isBoostActive(variant)) {

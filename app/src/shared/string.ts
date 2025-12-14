@@ -42,3 +42,8 @@ export function fuzzyMatchIgnoreCase(text: string | null | undefined, query: str
     const queryWords = query.toLowerCase().split(/\s+/).filter(Boolean);
     return queryWords.every((word) => lowerText.includes(word));
 }
+
+export const string = {
+    equals: equalsIgnoreCase,
+    includes: includesIgnoreCase,
+}

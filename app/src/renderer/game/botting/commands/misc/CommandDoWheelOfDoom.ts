@@ -67,14 +67,14 @@ export class CommandDoWheelOfDoom extends Command {
   }
 
   private async checkItemStatus() {
-    if (!this.bot.inventory.contains(GEAR_OF_DOOM)) {
+    if (!this.bot.player.inventory.contains(GEAR_OF_DOOM)) {
       await this.bot.bank.open();
       if (!this.bot.bank.contains(GEAR_OF_DOOM, TARGET_QTY)) return false;
 
       await this.bot.bank.withdraw(GEAR_OF_DOOM);
     }
 
-    return this.bot.inventory.contains(GEAR_OF_DOOM, TARGET_QTY);
+    return this.bot.player.inventory.contains(GEAR_OF_DOOM, TARGET_QTY);
   }
 
   public override toString() {

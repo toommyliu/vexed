@@ -7,6 +7,7 @@ import { GameAction } from "./World";
 import { type AvatarData, Avatar } from "./models/Avatar";
 import { EntityState } from "./models/BaseEntity";
 import { type MonsterData, Monster } from "./models/Monster";
+import { number } from "@/shared/number";
 
 const DEFAULT_KILL_OPTIONS: KillOptions = {
   killPriority: [],
@@ -82,7 +83,7 @@ export class Combat {
    */
   public pauseAttack: boolean = false;
 
-  public constructor(public bot: Bot) {}
+  public constructor(public bot: Bot) { }
 
   /**
    * Whether the player has a target.
@@ -133,9 +134,8 @@ export class Combat {
       return;
     }
 
-    const idx = Number.parseInt(String(index), 10);
-
-    if (idx < 0 || idx > 5) {
+    const idx = number(String(index));
+    if (!idx || idx < 0 || idx > 5) {
       return;
     }
 
@@ -151,8 +151,8 @@ export class Combat {
   }
 
   public canUseSkill(index: number | string): boolean {
-    const idx = Number.parseInt(String(index), 10);
-    if (idx < 0 || idx > 5) {
+    const idx = number(String(index));
+    if (!idx || idx < 0 || idx > 5) {
       return false;
     }
 
@@ -235,12 +235,12 @@ export class Combat {
     const _boundedSkillAction =
       typeof skillAction === "function"
         ? skillAction
-            .bind({
-              bot: this.bot,
-            })() // the skillAction function
-            .bind({
-              bot: this.bot,
-            }) // the returned function (the actual closure)
+          .bind({
+            bot: this.bot,
+          })() // the skillAction function
+          .bind({
+            bot: this.bot,
+          }) // the returned function (the actual closure)
         : null;
 
     let skillIndex = 0;
@@ -315,7 +315,7 @@ export class Combat {
           if (_boundedSkillAction) {
             try {
               await _boundedSkillAction();
-            } catch {}
+            } catch { }
           } else {
             const skill = skillSet[skillIndex]!;
             skillIndex = (skillIndex + 1) % skillSet.length;
@@ -406,7 +406,7 @@ export class Combat {
     options: Partial<KillOptions> = {},
   ): Promise<void> {
     const opts: KillOptions = validateKillOptions(options);
-    const store = isTemp ? this.bot.tempInventory : this.bot.inventory;
+    const store = isTemp ? this.bot.player.tempInventory : this.bot.player.inventory;
 
     const hasRequiredItems = () => store.contains(item, quantity);
 

@@ -1,3 +1,4 @@
+import { number } from "@/shared/number";
 import type { LoadShopPacket } from "../packet-handlers/json";
 import type { Bot } from "./Bot";
 import { GameAction } from "./World";
@@ -37,7 +38,7 @@ export class Shops {
   /**
    * Whether any shop is loaded.
    */
-  public isShopLoaded(): boolean {
+  public get loaded(): boolean {
     return this.info !== null;
   }
 
@@ -61,7 +62,7 @@ export class Shops {
    * @param itemName - The name of the item.
    */
   public getByName(itemName: string): ShopItem | null {
-    if (!this.isShopLoaded()) return null;
+    if (!this.loaded) return null;
 
     const item = this.info!.items.find(
       (shopItem) => shopItem.sName.toLowerCase() === itemName.toLowerCase(),
@@ -72,12 +73,12 @@ export class Shops {
   }
 
   /**
-   * Get a shop item by its ID.
+   * Get a shop item by its item ID.
    *
    * @param itemId - The ID of the item.
    */
   public getById(itemId: number): ShopItem | null {
-    if (!this.isShopLoaded()) return null;
+    if (!this.loaded) return null;
 
     const item = this.info!.items.find(
       (shopItem) => shopItem.ItemID === itemId,
@@ -101,7 +102,7 @@ export class Shops {
       this.bot.world.isActionAvailable(GameAction.BuyItem),
     );
 
-    if (!this.isShopLoaded()) return;
+    if (!this.loaded) return;
 
     const item = this.info!.items.find(
       (shopItem) => shopItem.sName.toLowerCase() === itemName.toLowerCase(),
@@ -113,7 +114,7 @@ export class Shops {
     const qty = quantity ?? 1;
 
     this.bot.flash.call(() => swf.shopBuyByName(itemName, qty));
-    await this.bot.waitUntil(() => this.bot.inventory.contains(itemName));
+    await this.bot.waitUntil(() => this.bot.player.inventory.contains(itemName));
   }
 
   /**
@@ -123,11 +124,11 @@ export class Shops {
    * @param quantity - The quantity of the item.
    */
   public async buyById(itemId: number, quantity: number): Promise<void> {
+    if (!this.loaded) return;
+
     await this.bot.waitUntil(() =>
       this.bot.world.isActionAvailable(GameAction.BuyItem),
     );
-
-    if (!this.isShopLoaded()) return;
 
     const item = this.info!.items.find(
       (shopItem) => shopItem.ItemID === itemId,
@@ -144,7 +145,7 @@ export class Shops {
 
     const expectedQuantity = qty * item.iQty;
     await this.bot.waitUntil(() =>
-      this.bot.inventory.contains(itemId, expectedQuantity),
+      this.bot.player.inventory.contains(itemId, expectedQuantity),
     );
   }
 
@@ -154,32 +155,33 @@ export class Shops {
    * @param shopId - The shop ID.
    */
   public async load(shopId: number | string): Promise<void> {
+    const id = number(shopId);
+    if (!id) return;
+
     await this.bot.waitUntil(() =>
       this.bot.world.isActionAvailable(GameAction.LoadShop),
     );
-    this.bot.flash.call(() =>
-      swf.shopLoad(Number.parseInt(String(shopId), 10)),
-    );
-    await this.bot.waitUntil(() => this.isShopLoaded());
+
+    this.bot.flash.call(() => swf.shopLoad(id));
+    await this.bot.waitUntil(() => this.loaded);
   }
 
   /**
    * Sells an entire stack of an item.
    *
-   * @param key - The name or ID of the item.
+   * @param item - The name or ID of the item.
    */
-  public async sell(key: string): Promise<void> {
+  public async sell(item: string): Promise<void> {
+    const obj = this.bot.player.inventory.get(item);
+    if (!obj) return;
+
     await this.bot.waitUntil(() =>
       this.bot.world.isActionAvailable(GameAction.SellItem),
     );
 
-    const item = this.bot.inventory.get(key);
-
-    if (!item) return;
-
     await this.bot.sleep(1_000);
-    this.bot.flash.call(() => swf.shopSellByName(item.name));
-    await this.bot.waitUntil(() => !this.bot.inventory.get(key));
+    this.bot.flash.call(() => swf.shopSellByName(obj.name));
+    await this.bot.waitUntil(() => !this.bot.player.inventory.contains(obj.name));
   }
 
   /**
@@ -188,9 +190,10 @@ export class Shops {
    * @param shopId - The shop ID.
    */
   public loadHairShop(shopId: number | string): void {
-    this.bot.flash.call(() =>
-      swf.shopLoadHairShop(Number.parseInt(String(shopId), 10)),
-    );
+    const id = number(shopId);
+    if (!id) return;
+
+    this.bot.flash.call(() => swf.shopLoadHairShop(id));
   }
 
   /**

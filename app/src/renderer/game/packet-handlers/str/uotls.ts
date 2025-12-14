@@ -1,4 +1,5 @@
 import type { Bot } from "@lib/Bot";
+import { string } from "@shared/string";
 
 const parseValue = (parts: string[], prefix: string) =>
   parts.find((part) => part.startsWith(prefix))?.split(":")[1];
@@ -6,10 +7,7 @@ const parseValue = (parts: string[], prefix: string) =>
 export function strUotls(bot: Bot, args: string[]) {
   const playerName = args[2];
   const player = bot.world.players.get(playerName!);
-
-  if (!player) {
-    return;
-  }
+  if (!player) return;
 
   const parts = args[args.length - 1]?.split(",");
 
@@ -21,12 +19,16 @@ export function strUotls(bot: Bot, args: string[]) {
     player.xPos = tx;
     player.yPos = ty;
     player.data.strFrame = parseValue(parts!, "strFrame:") ?? "Enter";
+
+    // Update local player's tracked position
+    if (string.equals(playerName, bot.auth.username)) {
+      bot.player._setPosition(tx, ty);
+    }
   }
 
   // Player afk
   if (parts?.[0] === "afk:true") {
-    if (bot.auth.username.toLowerCase() === playerName!.toLowerCase())
-      bot.emit("afk");
-    else bot.emit("afk", playerName!);
+    player.data.afk = true;
+    bot.emit('afk', playerName?.toLowerCase());
   }
 }

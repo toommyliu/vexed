@@ -1,5 +1,7 @@
 import { Collection } from "@vexed/collection";
 import type { Bot } from "./Bot";
+import { Inventory } from "./Inventory";
+import { TempInventory } from "./TempInventory";
 import { EntityState } from "./models/BaseEntity";
 import { Faction } from "./models/Faction";
 
@@ -11,6 +13,16 @@ export enum BoostType {
 }
 
 export class Player {
+  /**
+   * The player's inventory.
+   */
+  public readonly inventory: Inventory;
+
+  /**
+   * The player's temp inventory.
+   */
+  public readonly tempInventory: TempInventory;
+
   /**
    * The state of the player.
    */
@@ -48,10 +60,15 @@ export class Player {
 
   #cell = "Enter";
   #pad = "Spawn";
+  #x = 0;
+  #y = 0;
   #factions = new Collection<number, Faction>();
   #isDead = false;
 
-  public constructor(public readonly bot: Bot) { }
+  public constructor(public readonly bot: Bot) {
+    this.inventory = new Inventory(bot);
+    this.tempInventory = new TempInventory(bot);
+  }
 
   /**
    * The player's faction data.
@@ -71,7 +88,7 @@ export class Player {
    * The name of the player's equipped class.
    */
   public get className(): string {
-    return this.bot.inventory.className;
+    return this.bot.player.inventory.className;
   }
 
   /**
@@ -120,7 +137,7 @@ export class Player {
    * The player's current position.
    */
   public get position(): [number, number] {
-    return this.bot.flash.call(() => swf.playerGetPosition());
+    return [this.#x, this.#y];
   }
 
   /**
@@ -167,6 +184,15 @@ export class Player {
 
   /**
    * @internal
+   * Updates position from uotls/moveToArea packets.
+   */
+  public _setPosition(x: number, y: number): void {
+    this.#x = x;
+    this.#y = y;
+  }
+
+  /**
+   * @internal
    * Adds or updates a faction from packets.
    */
   public _addFaction(faction: Faction): void {
@@ -190,6 +216,8 @@ export class Player {
     this.#isDead = false;
     this.#cell = "Enter";
     this.#pad = "Spawn";
+    this.#x = 0;
+    this.#y = 0;
   }
 
   /**

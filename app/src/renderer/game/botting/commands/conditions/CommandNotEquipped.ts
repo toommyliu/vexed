@@ -4,7 +4,7 @@ export class CommandNotEquipped extends ConditionCommand {
   public item!: string;
 
   public override async getCondition(): Promise<boolean> {
-    return !this.bot.inventory.get(this.item)?.isEquipped();
+    return !this.bot.player.inventory.get(this.item)?.isEquipped();
   }
 
   public override toString() {

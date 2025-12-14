@@ -149,7 +149,7 @@ export class Drops {
 
       const res = await this.bot.waitUntil(
         () =>
-          this.bot.player.isReady() && this.bot.inventory.get(item) !== null,
+          this.bot.player.isReady() && this.bot.player.inventory.get(item) !== null,
         { timeout: 5_000 },
       );
 

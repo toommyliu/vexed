@@ -28,7 +28,7 @@ handlers.loaderGrabber.grab.handle(async ({ type }) => {
 
   switch (type) {
     case GrabberDataType.Shop:
-      if (!bot.shops.isShopLoaded()) return [];
+      if (!bot.shops.loaded) return [];
       return bot.shops.info;
     case GrabberDataType.Quest:
       return bot.flash.call(() => swf.questsGetTree());

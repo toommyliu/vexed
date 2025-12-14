@@ -50,14 +50,14 @@ export class CommandEquipByEnhancement extends Command {
 
     if (targetItem && !targetItem.isEquipped()) {
       this.logger.debug(`Equipping item: ${targetItem.name}`);
-      await this.bot.inventory.equip(targetItem.name);
+      await this.bot.player.inventory.equip(targetItem.name);
     } else if (!targetItem) {
       this.logger.debug("No matching item found.");
     }
   }
 
   private findMatchingItem(): InventoryItem | undefined {
-    return this.bot.inventory.items.find((item: InventoryItem) => {
+    return this.bot.player.inventory.items.find((item: InventoryItem) => {
       if (this.itemType) {
         const itemTypeLower = this.itemType.toLowerCase() as ItemType;
         if (itemTypeLower === "weapon" && !item.isWeapon()) return false;

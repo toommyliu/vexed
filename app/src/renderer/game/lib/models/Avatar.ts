@@ -7,12 +7,12 @@ export class Avatar extends BaseEntity {
   /**
    * The player's x position.
    */
-  public xPos!: number;
+  public xPos: number;
 
   /**
    * The player's y position.
    */
-  public yPos!: number;
+  public yPos: number;
 
   public constructor(
     /**
@@ -21,6 +21,9 @@ export class Avatar extends BaseEntity {
     public override data: AvatarData,
   ) {
     super(data);
+
+    this.xPos = data.tx ?? Number(data.px ?? 0);
+    this.yPos = data.ty ?? Number(data.py ?? 0);
   }
 
   /**
@@ -57,24 +60,27 @@ export class Avatar extends BaseEntity {
   public get username() {
     return this.data.strUsername;
   }
+
+  /**
+   * Whether the player is afk.
+   */
+  public isAfk() {
+    return this.data.afk;
+  }
 }
 
 export type AvatarData = BaseEntityData & {
   afk: boolean;
-  // bResting: boolean;
   entID: number;
   entType: string;
   intLevel: number;
   intMP: number;
   intMPMax: number;
   intSP: number;
-  // intSPMax: number;
-  // mvtd: string;
-  // mvts: string;
-  // px: string;
-  // py: string;
-  // showCloak: boolean;
-  // showHelm: boolean;
+  px?: string;
+  py?: string;
+  tx?: number;
+  ty?: number;
   strFrame: string;
   strPad: string;
   strUsername: string; // respects casing

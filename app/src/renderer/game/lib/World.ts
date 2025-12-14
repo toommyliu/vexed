@@ -7,6 +7,7 @@ import { MonsterCollection } from "./collections/monsters";
 import { PlayerCollection } from "./collections/players";
 import { Avatar } from "./models/Avatar";
 import { Monster } from "./models/Monster";
+import { number } from "@/shared/number";
 
 export enum GameAction {
   /**
@@ -147,7 +148,9 @@ export class World {
   public isMonsterAvailable(monsterResolvable: string): boolean {
     if (isMonsterMapId(monsterResolvable)) {
       const monMapIdStr = extractMonsterMapId(monsterResolvable);
-      const monMapId = Number.parseInt(monMapIdStr, 10);
+      const monMapId = number(monMapIdStr);
+      if (monMapId === null)
+        return false;
 
       return this.availableMonsters.some((mon) => mon.monMapId === monMapId);
     }

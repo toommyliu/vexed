@@ -1,6 +1,7 @@
 import { interval } from "@vexed/utils";
 import { gameState } from "../state.svelte";
 import type { Bot } from "./Bot";
+import { number } from "@/shared/number";
 
 export class Settings {
   /**
@@ -165,8 +166,8 @@ export class Settings {
       const val = Math.max(0, Math.min(99, speed));
       gameState.walkSpeed = val;
     } else if (typeof speed === "string") {
-      const val = Number.parseInt(speed, 10);
-      const tmp = Number.isNaN(val) ? 8 : Math.max(0, Math.min(99, val));
+      const val = number(speed, 8);
+      const tmp = Math.max(0, Math.min(99, val));
       gameState.walkSpeed = tmp;
     }
   }

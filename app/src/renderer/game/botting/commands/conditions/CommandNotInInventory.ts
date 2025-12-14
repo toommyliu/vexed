@@ -6,7 +6,7 @@ export class CommandNotInInventory extends ConditionCommand {
   public qty = 1;
 
   public override async getCondition(): Promise<boolean> {
-    return !this.bot.inventory.contains(this.item, this.qty);
+    return !this.bot.player.inventory.contains(this.item, this.qty);
   }
 
   public override toString() {

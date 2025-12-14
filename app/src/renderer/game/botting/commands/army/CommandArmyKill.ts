@@ -38,8 +38,8 @@ export class CommandArmyKill extends ArmyCommand {
           // Check for item quantity if the player isn't done yet
           if (!this.isDone) {
             const done = this.isTemp
-              ? this.bot.tempInventory.contains(this.itemName!, this.qty!)
-              : this.bot.inventory.contains(this.itemName!, this.qty!);
+              ? this.bot.player.tempInventory.contains(this.itemName!, this.qty!)
+              : this.bot.player.inventory.contains(this.itemName!, this.qty!);
 
             if (done) {
               void this.sendDone();

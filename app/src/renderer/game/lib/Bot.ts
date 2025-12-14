@@ -15,14 +15,12 @@ import { Combat } from "./Combat";
 import { Drops } from "./Drops";
 import { Environment } from "./Environment";
 import { House } from "./House";
-import { Inventory } from "./Inventory";
 import { Packets } from "./Packets";
 import { Player } from "./Player";
 import { Quests } from "./Quests";
 import { Scheduler } from "./Scheduler";
 import { Settings } from "./Settings";
 import { Shops } from "./Shops";
-import { TempInventory } from "./TempInventory";
 import { AuraStore } from "./util/AuraStore";
 import { World } from "./World";
 import { AutoReloginJob } from "./jobs/autorelogin";
@@ -169,11 +167,6 @@ export class Bot extends TypedEmitter<Events> {
   public house: InstanceType<typeof House>;
 
   /**
-   * The Inventory API class instance.
-   */
-  public inventory: InstanceType<typeof Inventory>;
-
-  /**
    * The local Player API class instance.
    */
   public player: InstanceType<typeof Player>;
@@ -204,11 +197,6 @@ export class Bot extends TypedEmitter<Events> {
   public shops: InstanceType<typeof Shops>;
 
   /**
-   * The TempInventory API class instance.
-   */
-  public tempInventory: InstanceType<typeof TempInventory>;
-
-  /**
    * The World API class instance.
    */
   public world: InstanceType<typeof World>;
@@ -235,14 +223,13 @@ export class Bot extends TypedEmitter<Events> {
     this.combat = new Combat(this);
     this.drops = new Drops(this);
     this.house = new House(this);
-    this.inventory = new Inventory(this);
     this.player = new Player(this);
     this.packets = new Packets(this);
     this.quests = new Quests(this);
     this.settings = new Settings(this);
     this.shops = new Shops(this);
-    this.tempInventory = new TempInventory(this);
     this.world = new World(this);
+
 
     this.environment = new Environment(this);
     this.scheduler = new Scheduler(this);
@@ -254,8 +241,8 @@ export class Bot extends TypedEmitter<Events> {
 
     this.on("logout", () => {
       this.world.playerUids.clear();
-      this.inventory._clear();
-      this.tempInventory._clear();
+      this.player.inventory._clear();
+      this.player.tempInventory._clear();
       this.player._clear();
       this.shops._clear();
       AuraStore.clear();

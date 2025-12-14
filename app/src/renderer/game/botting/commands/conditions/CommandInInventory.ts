@@ -6,7 +6,7 @@ export class CommandInInventory extends ConditionCommand {
   public qty = 1;
 
   public override async getCondition(): Promise<boolean> {
-    return (this.bot.inventory.get(this.item)?.quantity ?? 0) >= this.qty;
+    return (this.bot.player.inventory.get(this.item)?.quantity ?? 0) >= this.qty;
   }
 
   public override toString() {

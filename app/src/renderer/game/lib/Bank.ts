@@ -80,7 +80,7 @@ export class Bank {
       () =>
         this.bot.auth.isLoggedIn() &&
         this.get(key) !== null &&
-        this.bot.inventory.get(key) === null,
+        this.bot.player.inventory.get(key) === null,
     );
   }
 
@@ -103,7 +103,7 @@ export class Bank {
   public async withdraw(key: number | string): Promise<void> {
     await this.open();
 
-    if (!this.get(key) || this.bot.inventory.get(key)) return;
+    if (!this.get(key) || this.bot.player.inventory.get(key)) return;
 
     this.bot.flash.call<boolean>(() => swf.bankWithdraw(key));
 
@@ -111,7 +111,7 @@ export class Bank {
       () =>
         this.bot.auth.isLoggedIn() &&
         this.get(key) === null &&
-        this.bot.inventory.get(key) !== null,
+        this.bot.player.inventory.get(key) !== null,
     );
   }
 
@@ -136,7 +136,7 @@ export class Bank {
     await this.open();
 
     const isInBank = () => Boolean(this.get(bankItem));
-    const isInInventory = () => Boolean(this.bot.inventory.get(inventoryItem));
+    const isInInventory = () => Boolean(this.bot.player.inventory.get(inventoryItem));
 
     if (!isInBank() || !isInInventory()) {
       return;

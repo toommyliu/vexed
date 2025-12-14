@@ -11,7 +11,7 @@ export class CommandBuyScrollOfEnrage extends Command {
 
   public override async executeImpl() {
     if (
-      this.bot.inventory.contains(CommandBuyScrollOfEnrage.ITEM_NAME, this.qty)
+      this.bot.player.inventory.contains(CommandBuyScrollOfEnrage.ITEM_NAME, this.qty)
     ) {
       return;
     }
@@ -27,7 +27,7 @@ export class CommandBuyScrollOfEnrage extends Command {
 
     while (
       this.ctx.isRunning() &&
-      !this.bot.inventory.contains(CommandBuyScrollOfEnrage.ITEM_NAME, this.qty)
+      !this.bot.player.inventory.contains(CommandBuyScrollOfEnrage.ITEM_NAME, this.qty)
     ) {
       if (this.bot.drops.hasDrop(CommandBuyScrollOfEnrage.ITEM_NAME)) {
         await this.bot.drops.pickup(CommandBuyScrollOfEnrage.ITEM_NAME);
@@ -35,21 +35,21 @@ export class CommandBuyScrollOfEnrage extends Command {
 
       await this.bot.quests.accept(CommandBuyScrollOfEnrage.QUEST_ID);
 
-      if (!this.bot.inventory.contains("Gold Voucher 100k", 1)) {
+      if (!this.bot.player.inventory.contains("Gold Voucher 100k", 1)) {
         if (this.bot.player.gold < 100_000) break;
 
         await this.bot.shops.buyByName("Gold Voucher 100k", 1);
       }
 
-      if (!this.bot.inventory.contains("Arcane Quill", 1)) {
+      if (!this.bot.player.inventory.contains("Arcane Quill", 1)) {
         if (this.bot.player.gold < 100_000) break;
 
         await this.bot.shops.buyByName("Arcane Quill", 1);
       }
 
-      if (!this.bot.inventory.contains("Zealous Ink", 5)) {
+      if (!this.bot.player.inventory.contains("Zealous Ink", 5)) {
         const arcaneQuillQty =
-          this.bot.inventory.get("Arcane Quill")?.quantity ?? 0;
+          this.bot.player.inventory.get("Arcane Quill")?.quantity ?? 0;
 
         if (arcaneQuillQty < 1) break;
 

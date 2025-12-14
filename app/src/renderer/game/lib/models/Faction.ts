@@ -1,3 +1,5 @@
+import { number } from "@shared/number";
+
 /**
  * Represents a game faction.
  */
@@ -6,13 +8,13 @@ export class Faction {
     /**
      * Data about this faction.
      */ public data: FactionData,
-  ) {}
+  ) { }
 
   /**
    * The ID of the faction.
    */
   public get id(): number {
-    return Number.parseInt(this.data.FactionID, 10);
+    return number(this.data.FactionID, -1);
   }
 
   /**
