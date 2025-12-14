@@ -11,7 +11,7 @@ Type: `Map<string, StoredAura`[]>`
 
 ### playerAuras <Badge text="Getter" size="small" />	
 
-Type: `Map<string, StoredAura`[]>`
+Type: `Map<number, StoredAura`[]>`
 
 ## Methods
 
@@ -24,10 +24,11 @@ Type: `Map<string, StoredAura`[]>`
 **Returns**: `void`
 
 ### addPlayerAura <Badge text="static" />
+Adds an aura to a player by entID.
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| playerName | `string` |  |
-| aura | [`Aura`](/api-legacy/typedefs/aura) |  |
+| entId | `number` | The player's entity ID. |
+| aura | [`Aura`](/api-legacy/typedefs/aura) | The aura to add. |
 
 **Returns**: `void`
 
@@ -43,9 +44,10 @@ Type: `Map<string, StoredAura`[]>`
 **Returns**: `void`
 
 ### clearPlayerAuras <Badge text="static" />
+Clears all auras for a player by entID.
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| playerName | `string` |  |
+| entId | `number` | The player's entity ID. |
 
 **Returns**: `void`
 
@@ -67,17 +69,26 @@ Type: `Map<string, StoredAura`[]>`
 ### getPlayerAura <Badge text="static" />
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| playerName | `string` |  |
+| username | `string` |  |
 | auraName | `string` |  |
 
 **Returns**: `StoredAura` \| `undefined`
 
 ### getPlayerAuras <Badge text="static" />
+Gets a player's auras by username.
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| playerName | `string` |  |
+| username | `string` | The player's username. |
 
 **Returns**: `StoredAura`[]
+
+### getPlayerEntId <Badge text="static" />
+Gets a player's entID by username.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| username | `string` | The player's username. |
+
+**Returns**: `number` \| `undefined`
 
 ### hasMonsterAura <Badge text="static" />
 | Parameter | Type | Description |
@@ -87,10 +98,18 @@ Type: `Map<string, StoredAura`[]>`
 
 **Returns**: `boolean`
 
+### hasPlayer <Badge text="static" />
+Checks if a player is registered for aura tracking.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| username | `string` | The player's username. |
+
+**Returns**: `boolean`
+
 ### hasPlayerAura <Badge text="static" />
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| playerName | `string` |  |
+| username | `string` |  |
 | auraName | `string` |  |
 
 **Returns**: `boolean`
@@ -104,10 +123,20 @@ Type: `Map<string, StoredAura`[]>`
 **Returns**: `void`
 
 ### refreshPlayerAura <Badge text="static" />
+Refreshes an aura on a player by entID.
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| playerName | `string` |  |
-| aura | [`Aura`](/api-legacy/typedefs/aura) |  |
+| entId | `number` | The player's entity ID. |
+| aura | [`Aura`](/api-legacy/typedefs/aura) | The aura to refresh. |
+
+**Returns**: `void`
+
+### registerPlayer <Badge text="static" />
+Registers a player's entID for aura tracking.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| username | `string` | The player's username. |
+| entId | `number` | The player's entity ID. |
 
 **Returns**: `void`
 
@@ -120,9 +149,18 @@ Type: `Map<string, StoredAura`[]>`
 **Returns**: `void`
 
 ### removePlayerAura <Badge text="static" />
+Removes an aura from a player by entID.
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| playerName | `string` |  |
-| auraName | `string` |  |
+| entId | `number` | The player's entity ID. |
+| auraName | `string` | The name of the aura to remove. |
+
+**Returns**: `void`
+
+### unregisterPlayer <Badge text="static" />
+Unregisters a player from aura tracking.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| username | `string` | The player's username. |
 
 **Returns**: `void`
