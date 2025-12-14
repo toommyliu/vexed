@@ -1,7 +1,7 @@
 import type { Bot } from "@lib/Bot";
 
 export function acceptQuest(bot: Bot, packet: AcceptQuestPacket) {
-  bot.emit("acceptQuest", packet);
+  bot.quests._acceptQuest(packet);
 }
 
 export type AcceptQuestPacket = {

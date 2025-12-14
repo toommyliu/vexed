@@ -1,16 +1,13 @@
-import type { BankFromInvPacket } from "../packet-handlers/json/bankFromInv";
+import type { BankFromInvPacket } from "../packet-handlers/json/bank-from-inv";
 import type { Bot } from "./Bot";
 import { BankItem } from "./models/BankItem";
 import type { ItemData } from "./models/Item";
-import log from 'electron-log';
 
 export class Bank {
   // Whether bank items have been loaded.
   private isLoaded = false;
 
-  #logger = log.scope("game/lib/Bank");
-
-  public constructor(public bot: Bot) {}
+  public constructor(public bot: Bot) { }
 
   /**
    * The list of items in the bank.
@@ -214,7 +211,11 @@ export class Bank {
     return this.bot.flash.call(() => swf.bankIsOpen());
   }
 
-  #bankFromInv(packet: BankFromInvPacket) {
-    
+  /**
+   * @internal
+   * Handles bankFromInv packet from the server.
+   */
+  public _bankFromInv(_packet: BankFromInvPacket) {
+    // TODO: Implement bank state tracking from packets
   }
 }

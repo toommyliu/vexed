@@ -2,6 +2,8 @@ import type { Bot } from "../../lib/Bot";
 import type { AvatarData } from "../../lib/models/Avatar";
 
 export async function moveToArea(bot: Bot, packet: MoveToAreaPacket) {
+  bot.world._moveToArea(packet);
+
   bot.emit("mapChanged", packet.areaName);
   bot.emit("moveToArea", packet);
 }

@@ -2,7 +2,7 @@ import type { Bot } from "@lib/Bot";
 import type { QuestData } from "@lib/models/Quest";
 
 export function getQuests(bot: Bot, packet: GetQuestsPacket) {
-  bot.emit("getQuests", packet);
+  bot.quests._getQuests(packet);
 }
 
 export type GetQuestsPacket = {

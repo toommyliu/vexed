@@ -1,7 +1,7 @@
 import { exitFromCombat } from "@utils/exitFromCombat";
 import { extractMonsterMapId, isMonsterMapId } from "@utils/isMonMapId";
 import type { CtPacket } from "../packet-handlers/ct";
-import type { MoveToAreaPacket } from "../packet-handlers/json/moveToArea";
+import type { MoveToAreaPacket } from "../packet-handlers/json";
 import type { Bot } from "./Bot";
 import { MonsterCollection } from "./collections/monsters";
 import { PlayerCollection } from "./collections/players";
@@ -80,10 +80,7 @@ export class World {
 
   #monsters = new MonsterCollection();
 
-  public constructor(public readonly bot: Bot) {
-    this.bot.on("moveToArea", this.#moveToArea.bind(this));
-    this.bot.on("ct", this.#ct.bind(this));
-  }
+  public constructor(public readonly bot: Bot) { }
 
   /**
    * A list of all player names in the map.
@@ -350,7 +347,11 @@ export class World {
     );
   }
 
-  #moveToArea(packet: MoveToAreaPacket) {
+  /**
+   * @internal
+   * Handles the moveToArea packet from the server.
+   */
+  public _moveToArea(packet: MoveToAreaPacket) {
     const parts = packet.areaName.split("-");
     this.#mapName = parts[0]!;
     this.#mapNumber = Number(parts[1]) || 1;
@@ -397,7 +398,11 @@ export class World {
     }
   }
 
-  #ct(packet: CtPacket) {
+  /**
+   * @internal
+   * Handles monster state updates from ct packets.
+   */
+  public _ct(packet: CtPacket) {
     if (!("m" in packet) || typeof packet.m !== "object") return;
 
     for (const [monMapId, data] of Object.entries(packet.m)) {
@@ -406,6 +411,23 @@ export class World {
 
       if (data?.intState) mon.data.intState = data.intState;
       if (data?.intHP) mon.data.intHP = data.intHP;
+    }
+  }
+
+  /**
+   * @internal
+   * Handles individual monster state updates from mtls packets.
+   */
+  public _mtls(packet: { id: number; o: { intHP?: number; intState?: number } }) {
+    const mon = this.#monsters.get(packet.id);
+    if (!mon) return;
+
+    if (packet.o.intState !== undefined) {
+      mon.data.intState = packet.o.intState;
+    }
+
+    if (packet.o.intHP !== undefined) {
+      mon.data.intHP = packet.o.intHP;
     }
   }
 }

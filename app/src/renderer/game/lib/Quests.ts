@@ -1,8 +1,7 @@
 import { Collection } from "@vexed/collection";
 import log from 'electron-log';
 import { normalizeId } from "@utils/normalizeId";
-import type { AcceptQuestPacket } from "../packet-handlers/json/acceptQuest";
-import type { GetQuestsPacket } from "../packet-handlers/json/getQuests";
+import type { AcceptQuestPacket, GetQuestsPacket } from "../packet-handlers/json";
 import type { Bot } from "./Bot";
 import { GameAction } from "./World";
 import { Quest } from "./models/Quest";
@@ -12,13 +11,7 @@ export class Quests {
 
   #logger = log.scope("game/lib/Quests");
 
-  public constructor(public readonly bot: Bot) {
-    const fn_1 = this.#acceptQuest.bind(this);
-    const fn_2 = this.#getQuests.bind(this);
-
-    this.bot.on("acceptQuest", fn_1);
-    this.bot.on("getQuests", fn_2);
-  }
+  public constructor(public readonly bot: Bot) { }
 
   /**
    * A list of quests loaded in the client.
@@ -54,7 +47,7 @@ export class Quests {
     if (this.get(id)) return;
 
     this.bot.flash.call(() => swf.questsLoad(id));
-    await this.bot.waitUntil(() => Boolean(this.get(id));
+    await this.bot.waitUntil(() => Boolean(this.get(id)));
   }
 
   /**
@@ -134,7 +127,11 @@ export class Quests {
     });
   }
 
-  #acceptQuest(packet: AcceptQuestPacket) {
+  /**
+   * @internal
+   * Handles acceptQuest packet from the server.
+   */
+  public _acceptQuest(packet: AcceptQuestPacket) {
     if (packet.bSuccess !== 1 || packet.msg !== "success") {
       this.#logger.debug(`Failed to accept quest: ${packet.QuestID}`);
       return;
@@ -144,7 +141,11 @@ export class Quests {
     this.#quests.get(packet.QuestID)!.data.status = "p";
   }
 
-  #getQuests(packet: GetQuestsPacket) {
+  /**
+   * @internal
+   * Handles getQuests packet from the server.
+   */
+  public _getQuests(packet: GetQuestsPacket) {
     for (const [questId, questData] of Object.entries(packet.quests)) {
       this.#quests.set(Number(questId), new Quest(questData));
       this.#logger.debug(`Get quest - ${questData.sName} - ${questData.QuestID}`);

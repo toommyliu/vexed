@@ -7,6 +7,8 @@ const REMOVE_AURAS = new Set(["aura-", "aura--"]);
 
 // "Combat Tick"
 export function ct(bot: Bot, packet: CtPacket) {
+  bot.world._ct(packet);
+
   bot.emit("ct", packet);
 
   if (Array.isArray(packet?.anims) && packet?.anims?.length) {

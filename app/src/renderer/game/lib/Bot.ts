@@ -2,9 +2,12 @@ import { sleep } from "@vexed/utils";
 import { errAsync, okAsync } from "neverthrow";
 import { TypedEmitter } from "tiny-typed-emitter";
 import type { CtPacket } from "../packet-handlers/ct";
-import type { AcceptQuestPacket } from "../packet-handlers/json/acceptQuest";
-import type { GetQuestsPacket } from "../packet-handlers/json/getQuests";
-import type { MoveToAreaPacket } from "../packet-handlers/json/moveToArea";
+import type {
+  AcceptQuestPacket,
+  GetQuestsPacket,
+  MoveToAreaPacket,
+} from "../packet-handlers/json";
+import type { BankFromInvPacket } from "../packet-handlers/json/bank-from-inv";
 import { Army } from "./Army";
 import { Auth } from "./Auth";
 import { Bank } from "./Bank";
@@ -28,7 +31,6 @@ import { QuestsJob } from "./jobs/quests";
 import type { Aura } from "./models/BaseEntity";
 import type { Monster } from "./models/Monster";
 import { Flash } from "./util/Flash";
-import type { BankFromInvPacket } from "../packet-handlers/json/bankFromInv";
 
 type Events = {
   acceptQuest(packet: AcceptQuestPacket): void;
@@ -112,6 +114,15 @@ type Events = {
    * @param playerName - The name of the player.
    */
   playerLeave(playerName: string): void;
+  addFaction(faction: { FactionID: string; sName: string; iRep: string }): void;
+  addItems(packet: { items: Record<string, unknown> }): void;
+  buyItem(packet: { ItemID: number; iQty: number }): void;
+  loadShop(shopinfo: { ShopID: number; sName: string }): void;
+  questComplete(packet: { QuestID: number; sName: string }): void;
+  questFailed(packet: { QuestID: number; sName: string; msg?: string }): void;
+  sellItem(packet: { CharItemID: number; intAmount?: number }): void;
+  skillEquip(skill: { anim: string; cd: number; strl: string; tgt: string }): void;
+  turnIn(packet: { sItems: string }): void;
 };
 
 export class Bot extends TypedEmitter<Events> {

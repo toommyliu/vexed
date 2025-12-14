@@ -6,17 +6,22 @@ const isMonPkt = (
 ): packet is AddGoldExpPkt & AddGoldExpPktMon => packet.typ === "m";
 
 export async function addGoldExp(bot: Bot, packet: AddGoldExpPkt) {
-  if (!isMonPkt(packet)) return;
+  const totalGold = packet.intGold + (packet.bonusGold ?? 0);
+  if (totalGold > 0) {
+    bot.player.gold += totalGold;
+  }
 
-  bot.emit("monsterDeath", packet.id);
+  if (isMonPkt(packet)) {
+    bot.emit("monsterDeath", packet.id);
 
-  AuraStore.clearMonsterAuras(String(packet.id));
+    AuraStore.clearMonsterAuras(String(packet.id));
 
-  const mon = bot.world.availableMonsters.get(packet.id);
-  if (!mon) return;
+    const mon = bot.world.availableMonsters.get(packet.id);
+    if (!mon) return;
 
-  mon.data.intHP = 0;
-  mon.data.intState = 0;
+    mon.data.intHP = 0;
+    mon.data.intState = 0;
+  }
 }
 
 type AddGoldExpPktMon = {

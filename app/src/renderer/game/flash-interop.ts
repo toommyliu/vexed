@@ -6,35 +6,13 @@ import { AutoReloginJob } from "@lib/jobs/autorelogin";
 import { client } from "@shared/tipc";
 import { AuraStore } from "./lib/util/AuraStore";
 import { ct } from "./packet-handlers/ct";
-import { acceptQuest } from "./packet-handlers/json/acceptQuest";
-import { addGoldExp } from "./packet-handlers/json/addGoldExp";
-import { clearAuras } from "./packet-handlers/json/clearAuras";
-import { dropItem } from "./packet-handlers/json/dropItem";
-import { event } from "./packet-handlers/json/event";
-import { getQuests } from "./packet-handlers/json/getQuests";
-import { initUserData } from "./packet-handlers/json/initUserData";
-import { initUserDatas } from "./packet-handlers/json/initUserDatas";
-import { moveToArea } from "./packet-handlers/json/moveToArea";
-import { jsonUotls } from "./packet-handlers/json/uotls";
-import { respawnMon } from "./packet-handlers/str/respawnMon";
+import { jsonHandlers } from "./packet-handlers/json";
+import { respawnMon } from "./packet-handlers/str/respawn-mon";
 import { strUotls } from "./packet-handlers/str/uotls";
 import { appState } from "./state.svelte";
 
 const logger = log.scope("game/flash-interop");
 const bot = Bot.getInstance();
-
-const JSON_HANDLERS = {
-  acceptQuest,
-  addGoldExp,
-  clearAuras,
-  dropItem,
-  event,
-  getQuests,
-  initUserData,
-  initUserDatas,
-  moveToArea,
-  uotls: jsonUotls,
-};
 
 window.packetFromClient = ([packet]: [string]) => {
   bot.emit("packetFromClient", packet);
@@ -119,13 +97,12 @@ window.pext = async ([packet]) => {
         break;
     }
   } else if (pkt?.params?.type === "json") {
-    const dataObj = pkt?.params?.dataObj; // { intGold: 8, cmd: '', intExp: 0, bonusGold: 2, typ: 'm' }
-    const fn = JSON_HANDLERS[pkt?.params?.dataObj?.cmd as keyof typeof JSON_HANDLERS];
-    
-    if (typeof fn === "function") {
-      const res = fn(bot, dataObj);
-      if (res instanceof Promise)
-        void res;
+    const dataObj = pkt?.params?.dataObj;
+    const handler = jsonHandlers[dataObj?.cmd];
+
+    if (typeof handler === "function") {
+      const res = handler(bot, dataObj);
+      if (res instanceof Promise) void res;
     }
   }
 };
@@ -192,7 +169,7 @@ window.loaded = async () => {
       const decodedPath = decodeURIComponent(path!);
 
       await client.scripts.loadScript({ scriptPath: decodedPath });
-    } catch {}
+    } catch { }
   }
 };
 
