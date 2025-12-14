@@ -39,7 +39,8 @@ export function ct(bot: Bot, packet: CtPacket) {
       const data = packet.p[playerName];
       if (data?.intState === 0 && data?.intHP === 0) {
         bot.emit("playerDeath", playerName);
-        AuraStore.playerAuras.delete(playerName);
+        const entId = AuraStore.getPlayerEntId(playerName);
+        if (entId !== undefined) AuraStore.clearPlayerAuras(entId);
       }
     }
   }
@@ -64,25 +65,15 @@ export function ct(bot: Bot, packet: CtPacket) {
               isNew: aura_?.isNew || false,
             };
 
-            if ("val" in aura_) {
-              if (typeof aura_.val === "number") data.value = aura_.val;
-              // else {
-              //   console.log(
-              //     "(1) unexpected aura val type:",
-              //     typeof aura_.val,
-              //     aura_.val,
-              //   );
-              // }
-
-              if (data.isNew) AuraStore.addMonsterAura(tgtId, data);
-              else AuraStore.refreshMonsterAura(tgtId, data);
+            if ("val" in aura_ && typeof aura_.val === "number") {
+              data.value = aura_.val;
             }
+
+            if (data.isNew) AuraStore.addMonsterAura(tgtId, data);
+            else AuraStore.refreshMonsterAura(tgtId, data);
           }
         } else if (type === "p") {
-          const username = [...bot.world.playerUids].find(
-            ([, uid]) => uid === Number(tgtId),
-          )?.[0];
-          if (!username) continue;
+          const entId = Number(tgtId);
 
           for (const aura_ of aura?.auras ?? []) {
             const data: Aura = {
@@ -91,21 +82,12 @@ export function ct(bot: Bot, packet: CtPacket) {
               isNew: aura_?.isNew || false,
             };
 
-            if ("val" in aura_) {
-              if (typeof aura_.val === "number") data.value = aura_.val;
-              // else {
-              //   console.log(
-              //     "(2) unexpected aura val type:",
-              //     typeof aura_.val,
-              //     aura_.val,
-              //     "aura obj:",
-              //     aura_,
-              //   );
-              // }
-
-              if (data.isNew) AuraStore.addPlayerAura(username, data);
-              else AuraStore.refreshPlayerAura(username, data);
+            if ("val" in aura_ && typeof aura_.val === "number") {
+              data.value = aura_.val;
             }
+
+            if (data.isNew) AuraStore.addPlayerAura(entId, data);
+            else AuraStore.refreshPlayerAura(entId, data);
           }
         }
       } else if (REMOVE_AURAS.has(aura.cmd)) {
@@ -120,12 +102,7 @@ export function ct(bot: Bot, packet: CtPacket) {
             bot.combat.pauseAttack = false;
           }
         } else if (type === "p") {
-          const username = [...bot.world.playerUids].find(
-            ([, uid]) => uid === Number(tgtId),
-          )?.[0];
-          if (!username) continue;
-
-          AuraStore.removePlayerAura(username, auraName);
+          AuraStore.removePlayerAura(Number(tgtId), auraName);
         }
       }
     }

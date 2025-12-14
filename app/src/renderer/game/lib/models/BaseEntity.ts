@@ -21,7 +21,7 @@ export enum EntityState {
  * Base class for entities in the game world.
  */
 export abstract class BaseEntity {
-  protected constructor(public data: BaseEntityData) {}
+  protected constructor(public data: BaseEntityData) { }
 
   /**
    * The entity's current HP.
@@ -212,9 +212,9 @@ export type Aura = {
   duration?: number;
   isNew?: boolean;
   name: string;
-  /*
-    aura might exist but not have a value.
-    some auras might have string value (ultraezrajal Counter Attack)
-  */
+  /**
+   * The aura's value, if applicable.
+   * Can be an integer or float.
+   */
   value?: number;
 };

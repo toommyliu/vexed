@@ -7,7 +7,9 @@ type StoredAura = Aura & {
 export class AuraStore {
   static #monAuras: Map<string, StoredAura[]> = new Map(); // monMapId -> auras
 
-  static #playerAuras: Map<string, StoredAura[]> = new Map(); // playerName -> auras
+  static #playerAuras: Map<number, StoredAura[]> = new Map(); // entID -> auras
+
+  static #playerEntIds: Map<string, number> = new Map(); // username (lowercase) -> entID
 
   public static get monsterAuras() {
     return this.#monAuras;
@@ -15,6 +17,39 @@ export class AuraStore {
 
   public static get playerAuras() {
     return this.#playerAuras;
+  }
+
+  /**
+   * Registers a player's entID for aura tracking.
+   *
+   * @param username - The player's username.
+   * @param entId - The player's entity ID.
+   */
+  public static registerPlayer(username: string, entId: number) {
+    this.#playerEntIds.set(username.toLowerCase(), entId);
+  }
+
+  /**
+   * Checks if a player is registered for aura tracking.
+   *
+   * @param username - The player's username.
+   */
+  public static hasPlayer(username: string): boolean {
+    return this.#playerEntIds.has(username.toLowerCase());
+  }
+
+  /**
+   * Unregisters a player from aura tracking.
+   *
+   * @param username - The player's username.
+   */
+  public static unregisterPlayer(username: string) {
+    const entId = this.#playerEntIds.get(username.toLowerCase());
+    if (entId !== undefined) {
+      this.#playerAuras.delete(entId);
+    }
+
+    this.#playerEntIds.delete(username.toLowerCase());
   }
 
   public static getMonsterAuras(monMapId: string): StoredAura[] {
@@ -70,16 +105,29 @@ export class AuraStore {
     this.#monAuras.set(monMapId, updatedAuras);
   }
 
-  public static getPlayerAuras(playerName: string): StoredAura[] {
-    return this.#playerAuras.get(playerName) ?? [];
+  /**
+   * Gets a player's auras by username.
+   *
+   * @param username - The player's username.
+   */
+  public static getPlayerAuras(username: string): StoredAura[] {
+    const entId = this.#playerEntIds.get(username.toLowerCase());
+    if (entId === undefined) return [];
+    return this.#playerAuras.get(entId) ?? [];
   }
 
-  public static addPlayerAura(playerName: string, aura: Aura) {
-    if (!this.#playerAuras.has(playerName)) {
-      this.#playerAuras.set(playerName, []);
+  /**
+   * Adds an aura to a player by entID.
+   *
+   * @param entId - The player's entity ID.
+   * @param aura - The aura to add.
+   */
+  public static addPlayerAura(entId: number, aura: Aura) {
+    if (!this.#playerAuras.has(entId)) {
+      this.#playerAuras.set(entId, []);
     }
 
-    const auras = this.#playerAuras.get(playerName)!;
+    const auras = this.#playerAuras.get(entId)!;
     const existingAura = auras.find((a) => a.name === aura.name);
 
     if (existingAura) {
@@ -94,12 +142,18 @@ export class AuraStore {
     }
   }
 
-  public static refreshPlayerAura(playerName: string, aura: Aura) {
-    if (!this.#playerAuras.has(playerName)) {
-      this.#playerAuras.set(playerName, []);
+  /**
+   * Refreshes an aura on a player by entID.
+   *
+   * @param entId - The player's entity ID.
+   * @param aura - The aura to refresh.
+   */
+  public static refreshPlayerAura(entId: number, aura: Aura) {
+    if (!this.#playerAuras.has(entId)) {
+      this.#playerAuras.set(entId, []);
     }
 
-    const auras = this.#playerAuras.get(playerName)!;
+    const auras = this.#playerAuras.get(entId)!;
     const existingAura = auras.find((a) => a.name === aura.name);
 
     if (existingAura) {
@@ -113,17 +167,28 @@ export class AuraStore {
     }
   }
 
-  public static removePlayerAura(playerName: string, auraName: string) {
-    if (!this.#playerAuras.has(playerName)) return;
+  /**
+   * Removes an aura from a player by entID.
+   *
+   * @param entId - The player's entity ID.
+   * @param auraName - The name of the aura to remove.
+   */
+  public static removePlayerAura(entId: number, auraName: string) {
+    if (!this.#playerAuras.has(entId)) return;
 
     const updatedAuras = this.#playerAuras
-      .get(playerName)!
+      .get(entId)!
       .filter((a) => a.name !== auraName);
-    this.#playerAuras.set(playerName, updatedAuras);
+    this.#playerAuras.set(entId, updatedAuras);
   }
 
-  public static clearPlayerAuras(playerName: string) {
-    this.#playerAuras.delete(playerName);
+  /**
+   * Clears all auras for a player by entID.
+   *
+   * @param entId - The player's entity ID.
+   */
+  public static clearPlayerAuras(entId: number) {
+    this.#playerAuras.delete(entId);
   }
 
   public static clearMonsterAuras(monMapId: string) {
@@ -133,10 +198,11 @@ export class AuraStore {
   public static clear() {
     this.#monAuras.clear();
     this.#playerAuras.clear();
+    this.#playerEntIds.clear();
   }
 
-  public static hasPlayerAura(playerName: string, auraName: string): boolean {
-    return this.getPlayerAuras(playerName).some((a) => a.name === auraName);
+  public static hasPlayerAura(username: string, auraName: string): boolean {
+    return this.getPlayerAuras(username).some((a) => a.name === auraName);
   }
 
   public static hasMonsterAura(monMapId: string, auraName: string): boolean {
@@ -144,10 +210,10 @@ export class AuraStore {
   }
 
   public static getPlayerAura(
-    playerName: string,
+    username: string,
     auraName: string,
   ): StoredAura | undefined {
-    return this.getPlayerAuras(playerName).find((a) => a.name === auraName);
+    return this.getPlayerAuras(username).find((a) => a.name === auraName);
   }
 
   public static getMonsterAura(
@@ -155,5 +221,15 @@ export class AuraStore {
     auraName: string,
   ): StoredAura | undefined {
     return this.getMonsterAuras(monMapId).find((a) => a.name === auraName);
+  }
+
+  /**
+   * Gets a player's entID by username.
+   *
+   * @param username - The player's username.
+   * @returns The player's entID, or undefined if not registered.
+   */
+  public static getPlayerEntId(username: string): number | undefined {
+    return this.#playerEntIds.get(username.toLowerCase());
   }
 }

@@ -1,6 +1,5 @@
 import process from "process";
 import log from "electron-log/renderer";
-import { XMLParser } from "fast-xml-parser";
 import { Bot } from "@lib/Bot";
 import { AutoReloginJob } from "@lib/jobs/autorelogin";
 import { client } from "@shared/tipc";
@@ -36,35 +35,6 @@ window.packetFromServer = ([packet]: [string]) => {
     ) {
       ct(bot, pkt?.b?.o);
     }
-  } else if (packet.startsWith("<") && packet.includes("action='joinOK'")) {
-    const parser = new XMLParser({
-      ignoreAttributes: false, // preserve attributes
-      attributeNamePrefix: "", // don't prefix attribute names
-    });
-    const pkt = parser.parse(packet);
-
-    // TODO: this id is the same as entID
-
-    if (Array.isArray(pkt?.msg?.body?.uLs?.u)) {
-      for (const [name] of bot.world.playerUids) {
-        if (name.toLowerCase() !== bot.auth.username.toLowerCase())
-          bot.world.playerUids.delete(name);
-      }
-
-      for (const [username] of AuraStore.playerAuras) {
-        if (username.toLowerCase() !== bot.auth.username.toLowerCase())
-          AuraStore.clearPlayerAuras(username);
-      }
-
-      for (const [monMapId] of AuraStore.monsterAuras)
-        AuraStore.monsterAuras.delete(monMapId);
-
-      for (const user of pkt?.msg?.body?.uLs?.u ?? []) {
-        const username = user?.n;
-        const uid = Number.parseInt(user?.i, 10);
-        bot.world.playerUids.set(username, uid);
-      }
-    }
   }
 };
 
@@ -90,7 +60,7 @@ window.pext = async ([packet]) => {
       case "exitArea":
         {
           const playerName = dataObj[dataObj.length - 1];
-          AuraStore.clearPlayerAuras(playerName);
+          AuraStore.unregisterPlayer(playerName);
           bot.emit("playerLeave", playerName);
         }
 
@@ -129,8 +99,10 @@ window.pext = async ([packet]) => {
       case "event":
         void event(bot, dataObj);
         break;
-      case "clearAuras":
-        AuraStore.clearPlayerAuras(bot.auth.username.toLowerCase()); // only ever called on ourselves
+      case "clearAuras": {
+        const entId = AuraStore.getPlayerEntId(bot.auth.username);
+        if (entId !== undefined) AuraStore.clearPlayerAuras(entId);
+      }
     }
   }
 };
@@ -197,7 +169,7 @@ window.loaded = async () => {
       const decodedPath = decodeURIComponent(path!);
 
       await client.scripts.loadScript({ scriptPath: decodedPath });
-    } catch {}
+    } catch { }
   }
 };
 

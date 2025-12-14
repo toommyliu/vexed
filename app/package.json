@@ -42,7 +42,6 @@
     "clsx": "^2.1.1",
     "core-js": "^3.42.0",
     "electron-log": "github:toommyliu/electron-log",
-    "fast-xml-parser": "^5.2.5",
     "is-hotkey": "^0.2.0",
     "lodash.merge": "^4.6.2",
     "mousetrap": "^1.6.5",
