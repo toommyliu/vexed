@@ -592,7 +592,7 @@
               >
                 {currentSelectedPad}
               </Menu.Trigger>
-              <Menu.Content class="min-w-40 text-[12px]">
+              <Menu.Content align="end" class="min-w-40 text-[12px]">
                 {#each validPads as pad}
                   <Menu.Item
                     class={cn("bg-transparent", pad.isValid && "text-primary")}
@@ -621,7 +621,7 @@
               >
                 {currentSelectedCell}
               </Menu.Trigger>
-              <Menu.Content class="max-h-[25vh] min-w-40 overflow-y-auto text-[12px]">
+              <Menu.Content align="end" class="max-h-[25vh] min-w-40 overflow-y-auto text-[12px]">
                 {#each availableCells as cell}
                   <Menu.Item class="bg-transparent" onclick={() => jumpToCell(cell)}>
                     {cell}
@@ -629,27 +629,6 @@
                 {/each}
               </Menu.Content>
             </Menu.Root>
-            <Button
-              variant="ghost"
-              size="xs"
-              class="h-6 px-2 text-[12px] text-foreground/70 hover:text-foreground"
-              disabled={!gameConnected}
-              onclick={() => {
-                if (!bot.player.isReady()) return;
-
-                updateCells();
-                updatePads();
-
-                currentSelectedCell = bot.player.cell ?? "Enter";
-                currentSelectedPad = bot.player.pad ?? "Spawn";
-
-                bot.flash.call(() =>
-                  swf.playerJump(currentSelectedCell, currentSelectedPad),
-                );
-              }}
-            >
-              Jump
-            </Button>
           </div>
           <div class="ml-0.5 h-4 w-px bg-border/60"></div>
           <Button
