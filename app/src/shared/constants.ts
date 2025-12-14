@@ -124,8 +124,9 @@ export const DEFAULT_HOTKEYS: HotkeyConfig = {
   },
 } as const;
 
-export const ARTIX_USERAGENT =
-  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16_0) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36" as const;
+export const ARTIX_USERAGENT = IS_MAC ?
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16_0) AppleWebKit/537.36 (KHTML, like Gecko) ArtixGameLauncher/2.2.0 Chrome/80.0.3987.163 Electron/8.5.5 Safari/537.36" :
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ArtixGameLauncher/2.2.0 Chrome/80.0.3987.163 Electron/8.5.5 Safari/537.36";
 
 export const WHITELISTED_DOMAINS = [
   "aq.com",
