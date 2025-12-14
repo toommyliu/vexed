@@ -1,0 +1,5 @@
+{
+    "installCommand": "cd docs && bun install",
+    "buildCommand": "cd docs && bun run build",
+    "outputDirectory": "docs/dist"
+}

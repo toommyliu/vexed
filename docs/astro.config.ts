@@ -1,7 +1,6 @@
 import starlight from '@astrojs/starlight';
 import { defineConfig, passthroughImageService } from 'astro/config';
 import vercel from '@astrojs/vercel';
-
 import apiJson from './api.json';
 import apiLegacyJson from './api-legacy.json';
 
@@ -123,5 +122,4 @@ export default defineConfig({
   image: {
     service: passthroughImageService(),
   },
-  adapter: vercel(),
 });
