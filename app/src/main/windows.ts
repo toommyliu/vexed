@@ -1,11 +1,25 @@
 import { join, resolve } from "path";
 import { getRendererHandlers } from "@vexed/tipc";
-import { BrowserWindow } from "electron";
+import { BrowserWindow, screen } from "electron";
 import { BRAND } from "../shared/constants";
 import type { AccountWithScript, AppLogEntry } from "../shared/types";
 import { DIST_PATH, IS_PACKAGED } from "./constants";
 import type { RendererHandlers } from "./tipc";
 import { applySecurityPolicy } from "./util/applySecurityPolicy";
+
+/**
+ * Gets the x/y position to center a window on the monitor where the cursor is located.
+ */
+function getCenteredPosition(width: number, height: number): { x: number; y: number } {
+  const cursorPoint = screen.getCursorScreenPoint();
+  const display = screen.getDisplayNearestPoint(cursorPoint);
+  const { workArea } = display;
+
+  return {
+    x: workArea.x + Math.floor((workArea.width - width) / 2),
+    y: workArea.y + Math.floor((workArea.height - height) / 2),
+  };
+}
 
 const DIST_GAME = join(DIST_PATH, "game/");
 const DIST_MANAGER = join(DIST_PATH, "manager/");
@@ -30,9 +44,15 @@ export async function createAccountManager(): Promise<void> {
     return;
   }
 
+  const width = 966;
+  const height = 552;
+  const { x, y } = getCenteredPosition(width, height);
+
   const window = new BrowserWindow({
-    width: 966,
-    height: 552,
+    width,
+    height,
+    x,
+    y,
     title: BRAND,
     webPreferences: {
       nodeIntegration: true,
@@ -84,9 +104,15 @@ export async function createGame(
     args.push(`--scriptPath=${encodedScriptPath}`);
   }
 
+  const width = 966;
+  const height = 552;
+  const { x, y } = getCenteredPosition(width, height);
+
   const window = new BrowserWindow({
-    width: 966,
-    height: 552,
+    width,
+    height,
+    x,
+    y,
     title: BRAND,
     webPreferences: {
       backgroundThrottling: false,
