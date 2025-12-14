@@ -17,13 +17,24 @@ Select the correct file for your platform.
 
 ### macOS
 
-When running the app for the first time, you might see a warning saying **vexed cannot be opened because Apple cannot check it for malicious software**. This happens because the app isn't signed with an Apple developer certificate. To run the app:
+When running the app for the first time, you might see a warning saying **vexed cannot be opened because Apple cannot check it for malicious software**. This happens because the app isn't signed with an Apple developer certificate.
 
-1. Click **OK** to dismiss the initial warning
-2. Open **Finder** and locate the app
-3. Hold **Control (⌃)** and click the app icon
-4. Select **Open** from the context menu
-5. Click **Open** in the dialog that appears
+See [Apple's documentation](https://support.apple.com/guide/mac-help/apple-cant-check-app-for-malicious-software-mchleab3a043/mac) for more details.
+
+#### Newer macOS versions (Sonoma and later)
+
+1. Open **System Settings**, then click **Privacy & Security** in the sidebar
+2. Scroll down to **Security**, then click **Open**
+3. Click **Open Anyway**
+4. Enter your login password, then click OK.
+
+#### Older versions (Ventura and older)
+
+1. In **Finder**, locate the app (don't use Launchpad)
+2. **Control-click** the app icon, then choose **Open** from the shortcut menu
+3. Click **Open**
+
+---
 
 It might also prompt you to install Rosetta 2, which is required to run x86_64 apps on Apple Silicon Macs.
 
