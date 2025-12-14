@@ -1,23 +1,14 @@
-import type { Bot } from "../lib/Bot";
+import type { Bot } from "@lib/Bot";
+import { AuraStore } from "@lib/util/AuraStore";
+import { equalsIgnoreCase } from "@shared/string";
 
 export function initUserData(bot: Bot, packet: Packet) {
   const username = packet.data.strUsername;
 
-  if (username.toLowerCase() === bot.auth.username.toLowerCase()) return;
+  if (equalsIgnoreCase(username, bot.auth.username) || AuraStore.hasPlayer(username)) return;
 
-  // console.log(`initUserData: ${username}`);
-
+  AuraStore.registerPlayer(username, packet.uid);
   bot.emit("playerJoin", username);
-  if (bot.world.playerUids.has(username)) {
-    // console.warn(`(2) duplicated uid for ${username}`);
-    return;
-  } else if (bot.world.playerUids.has(username.toLowerCase())) {
-    // console.warn(`(2.1) duplicated uid for ${username}`);
-    return;
-  }
-
-  // console.log(`initUserData: ${username} -> ${packet.uid}`);
-  bot.world.playerUids.set(username, packet.uid);
 }
 
 type Packet = {
