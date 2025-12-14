@@ -17,7 +17,7 @@ function isDomainWhitelisted(hostname: string): boolean {
 }
 
 export function applySecurityPolicy(window: BrowserWindow): void {
-  if (IS_WINDOWS) window.setMenuBarVisibility(false);
+  if (IS_WINDOWS) window.setAutoHideMenuBar(true);
 
   window.webContents.userAgent = ARTIX_USERAGENT;
   session.defaultSession?.webRequest.onBeforeSendHeaders((details, fn) => {
@@ -68,7 +68,7 @@ export function applySecurityPolicy(window: BrowserWindow): void {
       if (
         parsedUrl.hostname === "www.facebook.com" &&
         parsedUrl.searchParams.get("redirect_uri") ===
-          "https://game.aq.com/game/AQWFB.html"
+        "https://game.aq.com/game/AQWFB.html"
       ) {
         return;
       }
