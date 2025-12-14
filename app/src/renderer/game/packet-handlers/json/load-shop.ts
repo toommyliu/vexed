@@ -1,7 +1,7 @@
 import type { Bot } from "@lib/Bot";
 
 export function loadShop(bot: Bot, packet: LoadShopPacket) {
-    bot.emit("loadShop", packet.shopinfo);
+    bot.shops._handleLoadShop(packet);
 }
 
 export type LoadShopPacket = {

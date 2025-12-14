@@ -1,3 +1,5 @@
+import { Collection } from "@vexed/collection";
+import type { AddItemsPacket, LoadInventoryBigPacket } from "../packet-handlers/json";
 import type { Bot } from "./Bot";
 import { ServerPacket } from "./Packets";
 import { GameAction } from "./World";
@@ -5,15 +7,111 @@ import { InventoryItem } from "./models/InventoryItem";
 import type { ItemData } from "./models/Item";
 
 export class Inventory {
-  public constructor(public readonly bot: Bot) {}
+  #items = new Collection<number, InventoryItem>();
+  #totalSlots = 0;
+  #className = "";
+
+  public constructor(public readonly bot: Bot) { }
 
   /**
-   * Gets items in the Inventory of the current player.
+   * @internal
+   * Handles loadInventoryBig packet for initial inventory load.
    */
-  public get items(): InventoryItem[] {
-    return this.bot.flash
-      .call<unknown[]>(() => swf.inventoryGetItems())
-      .map((data) => new InventoryItem(data as unknown as ItemData));
+  public _handleLoadInventoryBig(packet: LoadInventoryBigPacket): void {
+    this.#items.clear();
+
+    if (packet.iSlots) {
+      this.#totalSlots = packet.iSlots;
+    }
+
+    for (const itemData of packet.items) {
+      const item = new InventoryItem(itemData);
+      this.#items.set(item.id, item);
+
+      if (item.category === "Class" && itemData.bEquip === 1) {
+        this.#className = item.name;
+      }
+    }
+  }
+
+  /**
+   * @internal
+   * Handles addItems packets to update local inventory state.
+   */
+  public _handleAddItems(packet: AddItemsPacket): void {
+    for (const [, itemData] of Object.entries(packet.items)) {
+      const item = new InventoryItem(itemData as ItemData);
+
+      if (item.category === "Class" && itemData.bEquip === 1) {
+        this.#className = item.name;
+      }
+
+      if (itemData.CharItemID) {
+        this.#items.set(item.id, item);
+      }
+    }
+  }
+
+  /**
+   * @internal
+   * Handles item removal (e.g., from turnIn, sellItem).
+   */
+  public _removeItem(itemId: number, quantity: number): void {
+    const item = this.#items.get(itemId);
+    if (!item) return;
+
+    const newQty = item.quantity - quantity;
+    if (newQty <= 0) {
+      this.#items.delete(itemId);
+    } else {
+      item.data.iQty = newQty;
+    }
+  }
+
+  /**
+   * @internal
+   * Handles equipping an item, tracking class name if applicable.
+   */
+  public _handleEquip(itemId: number): void {
+    const item = this.#items.get(itemId);
+    if (!item) return;
+
+    item.data.bEquip = 1;
+
+    if (item.category === "Class") {
+      this.#className = item.name;
+    }
+  }
+
+  /**
+   * @internal
+   * Clears local inventory state (e.g., on logout).
+   */
+  public _clear(): void {
+    this.#items.clear();
+    this.#className = "";
+  }
+
+  /**
+   * @internal
+   * Sets total inventory slots from initial data.
+   */
+  public _setTotalSlots(slots: number): void {
+    this.#totalSlots = slots;
+  }
+
+  /**
+   * The currently equipped class name.
+   */
+  public get className(): string {
+    return this.#className;
+  }
+
+  /**
+   * The collection of items in the Inventory.
+   */
+  public get items(): Collection<number, InventoryItem> {
+    return this.#items;
   }
 
   /**
@@ -22,12 +120,14 @@ export class Inventory {
    * @param key - The name or ID of the item.
    */
   public get(key: number | string): InventoryItem | null {
-    return this.bot.flash.call(() => {
-      const item = swf.inventoryGetItem(key);
-      if (!item) return null;
+    if (typeof key === "number") {
+      return this.#items.get(key) ?? null;
+    }
 
-      return new InventoryItem(item);
-    });
+    const lowerKey = key.toLowerCase();
+    return (
+      this.#items.find((item) => item.name.toLowerCase() === lowerKey) ?? null
+    );
   }
 
   /**
@@ -48,14 +148,14 @@ export class Inventory {
    * The total slots available in the player's inventory.
    */
   public get totalSlots(): number {
-    return this.bot.flash.call(() => swf.inventoryGetSlots());
+    return this.#totalSlots;
   }
 
   /**
    * The number of used slots in the player's inventory.
    */
   public get usedSlots(): number {
-    return this.bot.flash.call(() => swf.inventoryGetUsedSlots());
+    return this.#items.size;
   }
 
   /**
@@ -80,6 +180,7 @@ export class Inventory {
     );
 
     this.bot.flash.call(() => swf.inventoryEquip(itemKey));
+    this._handleEquip(item.id);
 
     await this.bot.waitUntil(
       () =>
@@ -87,7 +188,6 @@ export class Inventory {
       { timeout: 5_000 },
     );
 
-    // Make sure we are wearing the item after equipping (this doesn't seem to work...)
     this.bot.packets.sendServer(
       `%xt%zm%wearItem%${this.bot.world.roomId}%${item.data.ItemID}%`,
       ServerPacket.String,

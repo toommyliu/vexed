@@ -1,4 +1,4 @@
-// import type { Loadout } from "../botting/util/LoadoutConfig";
+import { Collection } from "@vexed/collection";
 import type { Bot } from "./Bot";
 import { EntityState } from "./models/BaseEntity";
 import { Faction } from "./models/Faction";
@@ -46,22 +46,32 @@ export class Player {
    */
   public level!: number;
 
-  public constructor(public readonly bot: Bot) {}
+  #cell = "Enter";
+  #pad = "Spawn";
+  #factions = new Collection<number, Faction>();
+  #isDead = false;
+
+  public constructor(public readonly bot: Bot) { }
 
   /**
    * The player's faction data.
    */
-  public get factions(): Faction[] {
-    return this.bot.flash.call(() =>
-      swf.playerGetFactions().map((data) => new Faction(data)),
-    );
+  public get factions(): Collection<number, Faction> {
+    return this.#factions;
+  }
+
+  /**
+   * Whether the player is dead.
+   */
+  public get isDead(): boolean {
+    return this.#isDead;
   }
 
   /**
    * The name of the player's equipped class.
    */
   public get className(): string {
-    return this.bot.flash.call(() => swf.playerGetClassName());
+    return this.bot.inventory.className;
   }
 
   /**
@@ -136,14 +146,50 @@ export class Player {
    * The cell the player is in, in the map.
    */
   public get cell(): string {
-    return this.bot.flash.call(() => swf.playerGetCell());
+    return this.#cell;
   }
 
   /**
    * The pad the player is in, in the map.
    */
   public get pad(): string {
-    return this.bot.flash.call(() => swf.playerGetPad());
+    return this.#pad;
+  }
+
+  /**
+   * @internal
+   * Updates cell/pad from str/uotls packets.
+   */
+  public _setLocation(cell: string, pad: string): void {
+    this.#cell = cell;
+    this.#pad = pad;
+  }
+
+  /**
+   * @internal
+   * Adds or updates a faction from packets.
+   */
+  public _addFaction(faction: Faction): void {
+    this.#factions.set(faction.id, faction);
+  }
+
+  /**
+   * @internal
+   * Sets death state from playerDeath packet.
+   */
+  public _setDead(isDead: boolean): void {
+    this.#isDead = isDead;
+  }
+
+  /**
+   * @internal
+   * Clears player state (e.g., on logout).
+   */
+  public _clear(): void {
+    this.#factions.clear();
+    this.#isDead = false;
+    this.#cell = "Enter";
+    this.#pad = "Spawn";
   }
 
   /**

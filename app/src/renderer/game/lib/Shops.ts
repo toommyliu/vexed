@@ -1,9 +1,38 @@
+import type { LoadShopPacket } from "../packet-handlers/json";
 import type { Bot } from "./Bot";
 import { GameAction } from "./World";
 import { ShopItem, type ShopItemData } from "./models/ShopItem";
 
 export class Shops {
-  public constructor(public bot: Bot) {}
+  #shopInfo: ShopInfo | null = null;
+
+  public constructor(public bot: Bot) { }
+
+  /**
+   * @internal
+   * Handles loadShop packets to cache shop data.
+   */
+  public _handleLoadShop(packet: LoadShopPacket): void {
+    this.#shopInfo = {
+      ShopID: String(packet.shopinfo.ShopID),
+      sName: packet.shopinfo.sName,
+      sField: packet.shopinfo.sField ?? "",
+      items: packet.shopinfo.items as unknown as ShopItemData[],
+      Location: "",
+      bHouse: "0",
+      bStaff: "0",
+      bUpgrd: "0",
+      iIndex: "0",
+    };
+  }
+
+  /**
+   * @internal
+   * Clears cached shop data (e.g., on map change).
+   */
+  public _clear(): void {
+    this.#shopInfo = null;
+  }
 
   /**
    * Whether any shop is loaded.
@@ -16,7 +45,7 @@ export class Shops {
    * The info about the current loaded shop.
    */
   public get info(): ShopInfo | null {
-    return this.bot.flash.get("world.shopinfo", true);
+    return this.#shopInfo;
   }
 
   /**
@@ -30,7 +59,6 @@ export class Shops {
    * Get a shop item by its name.
    *
    * @param itemName - The name of the item.
-   * @returns
    */
   public getByName(itemName: string): ShopItem | null {
     if (!this.isShopLoaded()) return null;
@@ -47,7 +75,6 @@ export class Shops {
    * Get a shop item by its ID.
    *
    * @param itemId - The ID of the item.
-   * @returns The shop item data or null if not found.
    */
   public getById(itemId: number): ShopItem | null {
     if (!this.isShopLoaded()) return null;
@@ -64,7 +91,7 @@ export class Shops {
    * Buy an item from the shop.
    *
    * @param itemName - The name of the item.
-   * @param quantity - The quantity of the item. If not provided, it will default to 1.
+   * @param quantity - The quantity of the item. Defaults to 1.
    */
   public async buyByName(
     itemName: string,
@@ -93,7 +120,7 @@ export class Shops {
    * Buy an item from the shop.
    *
    * @param itemId - The id of the item.
-   * @param quantity -The quantity of the item.
+   * @param quantity - The quantity of the item.
    */
   public async buyById(itemId: number, quantity: number): Promise<void> {
     await this.bot.waitUntil(() =>
@@ -109,14 +136,12 @@ export class Shops {
 
     let qty = quantity;
 
-    // Adjust quantity if the item has multiple units per purchase
     if (item.iQty > 1) {
       qty = Math.ceil(qty / item.iQty);
     }
 
     this.bot.flash.call(() => swf.shopBuyById(itemId, qty));
 
-    // Wait for the actual quantity we expect to receive (qty * item.iQty)
     const expectedQuantity = qty * item.iQty;
     await this.bot.waitUntil(() =>
       this.bot.inventory.contains(itemId, expectedQuantity),
@@ -176,16 +201,8 @@ export class Shops {
   }
 
   /**
-   * Whether an item can be bought from the shop, works for both normal and merge shops.
+   * Whether an item can be bought from the shop.
    *
-   * @remarks This operation performs client-side checks only. The final validation is done server-side.
-   * - Upgrade status
-   * - Faction reputation
-   * - Class points
-   * - Quest status
-   * - Sufficient gold
-   * - Sufficient ACs
-   * - Sufficient inventory / house space
    * @param itemName - The name of the item.
    */
   public canBuyItem(itemName: string): boolean {

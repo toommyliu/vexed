@@ -23,6 +23,7 @@ import { Scheduler } from "./Scheduler";
 import { Settings } from "./Settings";
 import { Shops } from "./Shops";
 import { TempInventory } from "./TempInventory";
+import { AuraStore } from "./util/AuraStore";
 import { World } from "./World";
 import { AutoReloginJob } from "./jobs/autorelogin";
 import { BoostsJob } from "./jobs/boosts";
@@ -118,6 +119,7 @@ type Events = {
   addItems(packet: { items: Record<string, unknown> }): void;
   buyItem(packet: { ItemID: number; iQty: number }): void;
   loadShop(shopinfo: { ShopID: number; sName: string }): void;
+  playerDeath(playerName?: string): void;
   questComplete(packet: { QuestID: number; sName: string }): void;
   questFailed(packet: { QuestID: number; sName: string; msg?: string }): void;
   sellItem(packet: { CharItemID: number; intAmount?: number }): void;
@@ -252,6 +254,11 @@ export class Bot extends TypedEmitter<Events> {
 
     this.on("logout", () => {
       this.world.playerUids.clear();
+      this.inventory._clear();
+      this.tempInventory._clear();
+      this.player._clear();
+      this.shops._clear();
+      AuraStore.clear();
     });
   }
 

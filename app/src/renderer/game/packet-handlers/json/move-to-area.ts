@@ -4,6 +4,14 @@ import type { AvatarData } from "../../lib/models/Avatar";
 export async function moveToArea(bot: Bot, packet: MoveToAreaPacket) {
   bot.world._moveToArea(packet);
 
+  // Update player cell/pad from uoBranch
+  const localPlayer = packet.uoBranch.find(
+    (p) => p.uoName.toLowerCase() === bot.auth.username.toLowerCase(),
+  );
+  if (localPlayer) {
+    bot.player._setLocation(localPlayer.strFrame, localPlayer.strPad ?? "Spawn");
+  }
+
   bot.emit("mapChanged", packet.areaName);
   bot.emit("moveToArea", packet);
 }

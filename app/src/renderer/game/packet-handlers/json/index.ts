@@ -13,9 +13,14 @@ import { event, type EventPacket } from "./event";
 import { getQuests, type GetQuestsPacket } from "./get-quests";
 import { initUserData, type InitUserDataPacket } from "./init-user-data";
 import { initUserDatas } from "./init-user-datas";
+import {
+    loadInventoryBig,
+    type LoadInventoryBigPacket,
+} from "./load-inventory-big";
 import { loadShop, type LoadShopPacket } from "./load-shop";
 import { moveToArea, type MoveToAreaPacket } from "./move-to-area";
 import { mtls, type MtlsPacket } from "./mtls";
+import { playerDeath, type PlayerDeathPacket } from "./player-death";
 import { seia, type SeiaPacket } from "./seia";
 import { sellItem, type SellItemPacket } from "./sell-item";
 import { turnIn, type TurnInPacket } from "./turn-in";
@@ -34,9 +39,11 @@ export type JsonPacket =
     | GetQuestsPacket
     | InitUserDataPacket
     | JsonUotlsPacket
+    | LoadInventoryBigPacket
     | LoadShopPacket
     | MoveToAreaPacket
     | MtlsPacket
+    | PlayerDeathPacket
     | SeiaPacket
     | SellItemPacket
     | TurnInPacket;
@@ -56,9 +63,11 @@ export const jsonHandlers: Record<string, PacketHandler> = {
     getQuests: getQuests as PacketHandler,
     initUserData: initUserData as PacketHandler,
     initUserDatas: initUserDatas as PacketHandler,
+    loadInventoryBig: loadInventoryBig as PacketHandler,
     loadShop: loadShop as PacketHandler,
     moveToArea: moveToArea as PacketHandler,
     mtls: mtls as PacketHandler,
+    playerDeath: playerDeath as PacketHandler,
     seia: seia as PacketHandler,
     sellItem: sellItem as PacketHandler,
     turnIn: turnIn as PacketHandler,
@@ -78,9 +87,11 @@ export type {
     GetQuestsPacket,
     InitUserDataPacket,
     JsonUotlsPacket,
+    LoadInventoryBigPacket,
     LoadShopPacket,
     MoveToAreaPacket,
     MtlsPacket,
+    PlayerDeathPacket,
     SeiaPacket,
     SellItemPacket,
     TurnInPacket,
