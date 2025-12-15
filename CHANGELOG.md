@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
+# [0.6.2](https://github.com/toommyliu/vexed/compare/0.6.1...0.6.2) - (2025-12-15)
+
+## Bug Fixes
+
+- Fix windows dev env ([b2a3153](https://github.com/toommyliu/vexed/commit/b2a31531b5aa76482558e31608348da57b81170d))
+
+- **app:** Set app id (#315) ([a221dc6](https://github.com/toommyliu/vexed/commit/a221dc6a54293b0aac02902c21517f661f6d0c12))
+
+  - the app name is now displayed in update notifications on Windows
+
+- Set app name ([8107869](https://github.com/toommyliu/vexed/commit/81078696f7a0cce34fbecaa3776357fc0e057b89))
+
+
+## Refactor
+
+- **environment:** Isolate between instances, add sync action (#314) ([6bbc6d7](https://github.com/toommyliu/vexed/commit/6bbc6d78a1e276cc0204fc2f1c005371a9ff9c63))
+
+
+## Features
+
+- **app:** Add Help menu (#316) ([75ff662](https://github.com/toommyliu/vexed/commit/75ff66258088fee808dd018f7146a89f1dff41ec))
+
+  - for Windows: About, Check for updates
+
+- **app:** Support macos sequoia tiling options ([ab38873](https://github.com/toommyliu/vexed/commit/ab388730ad2774b37716d980628543c12c6dcc1d))
+
+
 # [0.6.1](https://github.com/toommyliu/vexed/compare/0.6.0...0.6.1) - (2025-12-15)
 
 ## Bug Fixes
