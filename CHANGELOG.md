@@ -2,6 +2,40 @@
 
 All notable changes to this project will be documented in this file.
 
+# [0.6.1](https://github.com/toommyliu/vexed/compare/0.6.0...0.6.1) - (2025-12-15)
+
+## Bug Fixes
+
+- Improve clamping of NumberInput ([94aecaf](https://github.com/toommyliu/vexed/commit/94aecafcbd9a9f48e6459c18a8426590801b6e8a))
+
+- Improve font sizing of Select component ([9b95d9e](https://github.com/toommyliu/vexed/commit/9b95d9ebac89fdd2a550f50f48698e37f3eb1ea9))
+
+
+## Refactor
+
+- Improve auras tracking (#312) ([0658eda](https://github.com/toommyliu/vexed/commit/0658eda5eb0ace89014b02d51e1e9077c028c48c))
+
+- Remove Jump button (#309) ([4ff2329](https://github.com/toommyliu/vexed/commit/4ff23293878e882cb0fca07c7f83a0cdb468fbdf))
+
+
+## Features
+
+- **app:** Center windows on current monitor (#311) ([db1972b](https://github.com/toommyliu/vexed/commit/db1972b46390bd0930bf7a965efae683b41b3df6))
+
+  - applies to the monitor where the current is positioned
+
+- **loader-grabber:** Display inventory item enhancements (#313) ([1172388](https://github.com/toommyliu/vexed/commit/117238811422d9649270e3a08d9e9085eb5d14bd))
+
+- Highlight selected cell/pad in menu (#310) ([0f5dcc7](https://github.com/toommyliu/vexed/commit/0f5dcc7a60919db78e0e65146f6dd712584abbb5))
+
+- Improve keyboard navigation of components ([36e7ab8](https://github.com/toommyliu/vexed/commit/36e7ab867db535ca6862f7f8694095c62ecc970d))
+
+
+## Documentation
+
+- Auto-update API documentation ([15fac11](https://github.com/toommyliu/vexed/commit/15fac111b585b8a6a1698d923b326f4a2ec2efeb))
+
+
 # [0.6.0](https://github.com/toommyliu/vexed/compare/0.5.6...0.6.0) - (2025-12-14)
 
 ## Bug Fixes
