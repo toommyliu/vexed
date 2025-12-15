@@ -1,5 +1,6 @@
 {
   "name": "@vexed/electron",
+  "productName": "vexed",
   "version": "0.6.1",
   "main": "dist/main/index.js",
   "repository": {
