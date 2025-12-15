@@ -1,4 +1,11 @@
-const ALL_ENHANCEMENTS: EnhancementP[] = [
+export type EnhancementP = {
+  DIS?: boolean;
+  ID: number;
+  sDesc: string;
+  sName: string;
+};
+
+export const ALL_ENHANCEMENTS: EnhancementP[] = [
   {
     ID: 1,
     sName: "Adventurer",
@@ -227,9 +234,12 @@ export function getHelmProcName(procId: number): string {
   return FORGE_HELM_ENHANCEMENTS.find((enh) => enh.ID === procId)?.sName ?? "";
 }
 
-type EnhancementP = {
-  DIS?: boolean;
-  ID: number;
-  sDesc: string;
-  sName: string;
-};
+/**
+ * Get the enhancement name by pattern ID.
+ *
+ * @param enhPatternId - The enhancement pattern ID.
+ * @returns The name of the enhancement, or an empty string if not found.
+ */
+export function getEnhancementName(enhPatternId: number): string {
+  return ALL_ENHANCEMENTS.find((enh) => enh.ID === enhPatternId)?.sName ?? "";
+}

@@ -22,6 +22,7 @@
   import type { ShopInfo } from "@game/lib/Shops";
   import type { ItemData } from "@game/lib/models/Item";
   import type { MonsterData } from "@game/lib/models/Monster";
+  import { getEnhancementName, getWeaponProcName } from "@game/lib/util/enhancements";
 
   const logger = log.scope("app/loader-grabber");
 
@@ -247,9 +248,8 @@
         case "2":
         case "4":
           if (isItemDataArray(data)) {
-            out = data.map((item: ItemData) => ({
-              name: item.sName,
-              children: [
+            out = data.map((item: ItemData) => {
+              const children: TreeItem[] = [
                 {
                   name: "ID",
                   value: String(item.ItemID),
@@ -273,12 +273,30 @@
                   name: "Category",
                   value: item.sType,
                 },
-                {
-                  name: "Description",
-                  value: item.sDesc,
-                },
-              ],
-            }));
+              ];
+
+              const enhancementName = getEnhancementName(item.EnhPatternID);
+              const procName = item.ProcID ? getWeaponProcName(item.ProcID) : "";
+              const validProc = procName && procName !== "Unknown" ? procName : "";
+              
+              if (enhancementName || validProc) {
+                const parts = [enhancementName, validProc].filter(Boolean);
+                children.push({
+                  name: "Enhancement",
+                  value: parts.join(", "),
+                });
+              }
+
+              children.push({
+                name: "Description",
+                value: item.sDesc,
+              });
+
+              return {
+                name: item.sName,
+                children,
+              };
+            });
           }
           break;
         case "3":
@@ -632,7 +650,6 @@
 {#snippet TreeNode(item: FlattenedItem)}
   {@const isExpanded = expandedNodes.has(item.nodeId)}
   {@const hasChildren = item.children && item.children.length > 0}
-  {@const isLeaf = !hasChildren}
   {@const inputHandler = () => {
     if (hasChildren) {
       if (isExpanded) {
@@ -711,22 +728,5 @@
         {/if}
       </div>
     </div>
-
-    {#if hasChildren && isExpanded}
-      <div class="relative">
-        <div
-          class="absolute left-0 top-0 bottom-0 w-px bg-border/40"
-          style="margin-left: {item.level * 16 + 18}px"
-        ></div>
-        {#each item.children || [] as child, index (`${child.name}-${index}`)}
-          {@render TreeNode({
-            ...child,
-            level: item.level + 1,
-            nodeId: `${item.nodeId}-${index}-${child.name}-${item.level + 1}`,
-            index: item.index * 1000 + index,
-          } as FlattenedItem)}
-        {/each}
-      </div>
-    {/if}
   </div>
 {/snippet}
