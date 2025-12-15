@@ -248,9 +248,8 @@
         case "2":
         case "4":
           if (isItemDataArray(data)) {
-            out = data.map((item: ItemData) => ({
-              name: item.sName,
-              children: [
+            out = data.map((item: ItemData) => {
+              const children: TreeItem[] = [
                 {
                   name: "ID",
                   value: String(item.ItemID),
@@ -289,8 +288,8 @@
               }
 
               children.push({
-                  name: "Description",
-                  value: item.sDesc,
+                name: "Description",
+                value: item.sDesc,
               });
 
               return {
@@ -651,7 +650,6 @@
 {#snippet TreeNode(item: FlattenedItem)}
   {@const isExpanded = expandedNodes.has(item.nodeId)}
   {@const hasChildren = item.children && item.children.length > 0}
-  {@const isLeaf = !hasChildren}
   {@const inputHandler = () => {
     if (hasChildren) {
       if (isExpanded) {
@@ -730,22 +728,5 @@
         {/if}
       </div>
     </div>
-
-    {#if hasChildren && isExpanded}
-      <div class="relative">
-        <div
-          class="absolute left-0 top-0 bottom-0 w-px bg-border/40"
-          style="margin-left: {item.level * 16 + 18}px"
-        ></div>
-        {#each item.children || [] as child, index (`${child.name}-${index}`)}
-          {@render TreeNode({
-            ...child,
-            level: item.level + 1,
-            nodeId: `${item.nodeId}-${index}-${child.name}-${item.level + 1}`,
-            index: item.index * 1000 + index,
-          } as FlattenedItem)}
-        {/each}
-      </div>
-    {/if}
   </div>
 {/snippet}
