@@ -2,8 +2,8 @@
 
 import Config from "@vexed/config";
 import log from "electron-log";
-import { STORAGE_PATH } from "@shared/constants";
-import { client } from "@shared/tipc";
+import { STORAGE_PATH } from "~/shared/constants";
+import { client } from "~/shared/tipc";
 import type { Bot } from "./Bot";
 
 const logger = log.scope("game/army");

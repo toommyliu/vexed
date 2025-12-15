@@ -11,9 +11,9 @@
   import Zap from "lucide-svelte/icons/zap";
   import Download from "lucide-svelte/icons/download";
 
-  import { normalizeId } from "@game/util/normalizeId";
-  import { client, handlers } from "@shared/tipc";
-  import type { EnvironmentState } from "@shared/types";
+  import { normalizeId } from "~/game/util/normalizeId";
+  import { client, handlers } from "~/shared/tipc";
+  import type { EnvironmentState } from "~/shared/types";
 
   const logger = log.scope("app/environment");
 

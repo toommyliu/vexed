@@ -1,4 +1,4 @@
-import { ArgsError } from "@botting/ArgsError";
+import { ArgsError } from "~/botting/ArgsError";
 import { CommandBuy } from "./CommandBuy";
 import { CommandDeposit } from "./CommandDeposit";
 import { CommandEquipByEnhancement } from "./CommandEquipByEnhancement";

@@ -1,13 +1,13 @@
 <script lang="ts">
   import { onMount, tick } from "svelte";
-  import { gameState, optionsPanelState } from "@game/state.svelte";
+  import { gameState, optionsPanelState } from "~/game/state.svelte";
   import { Checkbox, Input, Label } from "@vexed/ui";
   import Kbd from "@vexed/ui/Kbd";
   import * as NumberField from "@vexed/ui/NumberField";
   import { motionScale, motionFade } from "@vexed/ui/motion";
   import X from "lucide-svelte/icons/x";
-  import { cn } from "@shared/cn";
-  import { Bot } from "@game/lib/Bot";
+  import { cn } from "~/shared/cn";
+  import { Bot } from "~/game/lib/Bot";
 
   const bot = Bot.getInstance();
 

@@ -1,4 +1,4 @@
-import { Command } from "@botting/command";
+import { Command } from "~/botting/command";
 
 export class CommandSetAutoRegisterRequirements extends Command {
   public val!: boolean;

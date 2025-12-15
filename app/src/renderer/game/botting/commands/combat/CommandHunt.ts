@@ -1,6 +1,6 @@
-import { Command } from "@botting/command";
-import type { MonsterData } from "@lib/models/Monster";
-import { extractMonsterMapId, isMonsterMapId } from "@utils/isMonMapId";
+import { Command } from "~/botting/command";
+import type { MonsterData } from "~/lib/models/Monster";
+import { extractMonsterMapId, isMonsterMapId } from "~/utils/isMonMapId";
 
 export class CommandHunt extends Command {
   public target!: string;

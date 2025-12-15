@@ -12,7 +12,7 @@
   import ArrowDownToLine from "lucide-svelte/icons/arrow-down-to-line";
   import Radio from "lucide-svelte/icons/radio";
 
-  import { client, handlers } from "@shared/tipc";
+  import { client, handlers } from "~/shared/tipc";
   import { v4 as uuid } from "@lukeed/uuid";
 
   type PacketType = "client" | "pext" | "server";

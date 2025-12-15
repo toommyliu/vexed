@@ -1,4 +1,4 @@
-import { Command } from "@botting/command";
+import { Command } from "~/botting/command";
 
 export class CommandSettingAntiCounter extends Command {
   public state!: boolean;

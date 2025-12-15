@@ -11,7 +11,7 @@
   import Send from "lucide-svelte/icons/send";
   import Package from "lucide-svelte/icons/package";
 
-  import { client, handlers } from "@shared/tipc";
+  import { client, handlers } from "~/shared/tipc";
 
   let packets = $state<string[]>([]);
   let packetInput = $state("");

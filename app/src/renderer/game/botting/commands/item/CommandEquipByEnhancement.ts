@@ -1,5 +1,5 @@
-import { Command } from "@botting/command";
-import type { InventoryItem } from "@lib/models/InventoryItem";
+import { Command } from "~/botting/command";
+import type { InventoryItem } from "~/lib/models/InventoryItem";
 import {
   getWeaponProcName,
   isBasicEnhancement,
@@ -7,7 +7,7 @@ import {
   areNamesEqual,
   getCapeProcName,
   getHelmProcName,
-} from "@lib/util/enhancements";
+} from "~/lib/util/enhancements";
 
 type ItemType = "cape" | "helm" | "weapon";
 

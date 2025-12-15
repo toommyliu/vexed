@@ -2,7 +2,7 @@ import type { TipcInstance } from "@vexed/tipc";
 import type {
   EnvironmentState,
   EnvironmentUpdatePayload,
-} from "../../shared/types";
+} from "~/shared/types";
 import type { RendererHandlers } from "../tipc";
 import { windowStore } from "../windows";
 
@@ -15,7 +15,6 @@ const EMPTY_STATE: EnvironmentState = {
   rejectElse: false,
 };
 
-
 // game window id -> environment state
 const stateMap = new Map<number, EnvironmentState>();
 
@@ -25,6 +24,7 @@ function getWindowState(windowId: number): EnvironmentState {
     windowState = { ...EMPTY_STATE };
     stateMap.set(windowId, windowState);
   }
+
   return windowState;
 }
 

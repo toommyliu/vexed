@@ -1,5 +1,5 @@
-import { ArgsError } from "@botting/ArgsError";
-import type { KillOptions } from "@lib/Combat";
+import { ArgsError } from "~/botting/ArgsError";
+import type { KillOptions } from "~/lib/Combat";
 import { CommandArmyEquipSet } from "./CommandArmyEquipSet";
 // import { CommandArmyEquipItem } from "./CommandArmyEquipItem";
 import { CommandArmyInit } from "./CommandArmyInit";

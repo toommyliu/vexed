@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Account } from "@shared/types";
+  import type { Account } from "~/shared/types";
   import { Button, Input, Label } from "@vexed/ui";
   import * as InputGroup from "@vexed/ui/InputGroup";
   import * as Dialog from "@vexed/ui/Dialog";
@@ -8,7 +8,7 @@
   import EyeOff from "lucide-svelte/icons/eye-off";
   import LoaderCircle from "lucide-svelte/icons/loader-circle";
   import AlertCircle from "lucide-svelte/icons/alert-circle";
-  import { client } from "@shared/tipc";
+  import { client } from "~/shared/tipc";
   import { managerState } from "../state.svelte";
 
   type Props = {

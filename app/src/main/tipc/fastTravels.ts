@@ -3,9 +3,9 @@ import type { TipcInstance } from "@vexed/tipc";
 import {
   DEFAULT_FAST_TRAVELS,
   FAST_TRAVELS_PATH,
-} from "@shared/constants";
-import { equalsIgnoreCase } from "@shared/string";
-import type { FastTravel, FastTravelRoomNumber } from "@shared/types";
+} from "~/shared/constants";
+import { equalsIgnoreCase } from "~/shared/string";
+import type { FastTravel, FastTravelRoomNumber } from "~/shared/types";
 import { logger } from "../constants";
 import type { RendererHandlers } from "../tipc";
 import { windowStore } from "../windows";

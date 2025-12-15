@@ -16,13 +16,13 @@
   import { SvelteSet } from "svelte/reactivity";
   import log from "electron-log";
 
-  import { client } from "@shared/tipc";
-  import { GrabberDataType, LoaderDataType } from "@shared/types";
-  import type { QuestData } from "@game/lib/models/Quest";
-  import type { ShopInfo } from "@game/lib/Shops";
-  import type { ItemData } from "@game/lib/models/Item";
-  import type { MonsterData } from "@game/lib/models/Monster";
-  import { getEnhancementName, getWeaponProcName } from "@game/lib/util/enhancements";
+  import { client } from "~/shared/tipc";
+  import { GrabberDataType, LoaderDataType } from "~/shared/types";
+  import type { QuestData } from "~/game/lib/models/Quest";
+  import type { ShopInfo } from "~/game/lib/Shops";
+  import type { ItemData } from "~/game/lib/models/Item";
+  import type { MonsterData } from "~/game/lib/models/Monster";
+  import { getEnhancementName, getWeaponProcName } from "~/game/lib/util/enhancements";
 
   const logger = log.scope("app/loader-grabber");
 

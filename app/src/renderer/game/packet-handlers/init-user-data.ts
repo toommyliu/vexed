@@ -1,6 +1,6 @@
-import type { Bot } from "@lib/Bot";
-import { AuraStore } from "@lib/util/AuraStore";
-import { equalsIgnoreCase } from "@shared/string";
+import type { Bot } from "~/lib/Bot";
+import { AuraStore } from "~/lib/util/AuraStore";
+import { equalsIgnoreCase } from "~/shared/string";
 
 export function initUserData(bot: Bot, packet: Packet) {
   const username = packet.data.strUsername;

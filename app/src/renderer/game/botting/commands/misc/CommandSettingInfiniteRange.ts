@@ -1,4 +1,4 @@
-import { Command } from "@botting/command";
+import { Command } from "~/botting/command";
 
 export class CommandSettingInfiniteRange extends Command {
   public state!: boolean;

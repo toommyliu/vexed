@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Account } from "@shared/types";
+  import type { Account } from "~/shared/types";
   import { editAccount } from "../util";
   import { Button, Input, Label } from "@vexed/ui";
   import * as InputGroup from "@vexed/ui/InputGroup";

@@ -1,4 +1,4 @@
-import { Command } from "@botting/command";
+import { Command } from "~/botting/command";
 
 const SKILL_IDS = [1, 2, 3];
 

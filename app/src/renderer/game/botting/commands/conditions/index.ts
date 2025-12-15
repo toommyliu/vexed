@@ -1,4 +1,4 @@
-import { ArgsError } from "@botting/ArgsError";
+import { ArgsError } from "~/botting/ArgsError";
 import { CommandAnd } from "./CommandAnd";
 import { CommandAnyPlayerHpPercentageGreaterThan } from "./CommandAnyPlayerHpPercentageGreaterThan";
 import { CommandAnyPlayerHpPercentageLessThan } from "./CommandAnyPlayerHpPercentageLessThan";

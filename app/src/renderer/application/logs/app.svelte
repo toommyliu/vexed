@@ -11,9 +11,9 @@
   import ArrowDownToLine from "lucide-svelte/icons/arrow-down-to-line";
   import FileText from "lucide-svelte/icons/file-text";
 
-  import { client, handlers } from "@shared/tipc";
-  import type { AppLogEntry } from "@shared/types";
-  import { LEVEL_LABELS } from "@/shared/constants";
+  import { client, handlers } from "~/shared/tipc";
+  import type { AppLogEntry } from "~/shared/types";
+  import { LEVEL_LABELS } from "~/shared/constants";
 
   const logger = log.scope("app/logs");
 

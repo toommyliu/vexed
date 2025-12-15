@@ -11,7 +11,7 @@
   import Footprints from "lucide-svelte/icons/footprints";
   import Timer from "lucide-svelte/icons/timer";
 
-  import { client, handlers } from "@shared/tipc";
+  import { client, handlers } from "~/shared/tipc";
 
   let playerName = $state("");
   let skillList = $state("1,2,3,4");

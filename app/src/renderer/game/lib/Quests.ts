@@ -1,4 +1,4 @@
-import { normalizeId } from "@utils/normalizeId";
+import { normalizeId } from "~/utils/normalizeId";
 import type { Bot } from "./Bot";
 import { GameAction } from "./World";
 import { Quest, type QuestData } from "./models/Quest";

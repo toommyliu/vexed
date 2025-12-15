@@ -4,12 +4,12 @@
   import Search from "lucide-svelte/icons/search";
   import X from "lucide-svelte/icons/x";
 
-  import { gameState } from "@game/state.svelte";
-  import { cn } from "@shared/cn";
-  import { IS_MAC } from "@shared/constants";
-  import { equalsIgnoreCase, fuzzyMatchIgnoreCase } from "@shared/string";
-  import { client } from "@shared/tipc";
-  import { WindowIds } from "@shared/types";
+  import { gameState } from "~/game/state.svelte";
+  import { cn } from "~/shared/cn";
+  import { IS_MAC } from "~/shared/constants";
+  import { equalsIgnoreCase, fuzzyMatchIgnoreCase } from "~/shared/string";
+  import { client } from "~/shared/tipc";
+  import { WindowIds } from "~/shared/types";
 
   interface CommandItem {
     id: string;

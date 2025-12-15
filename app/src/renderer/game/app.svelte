@@ -7,12 +7,12 @@
     appState,
     gameState,
   } from "./state.svelte";
-  import { client, handlers } from "@shared/tipc";
-  import { cn } from "@shared/cn";
-  import { WindowIds } from "@shared/types";
+  import { client, handlers } from "~/shared/tipc";
+  import { cn } from "~/shared/cn";
+  import { WindowIds } from "~/shared/types";
   import { Bot } from "./lib/Bot";
   import { onMount, onDestroy } from "svelte";
-  import type { HotkeyConfig } from "@shared/types";
+  import type { HotkeyConfig } from "~/shared/types";
   import Mousetrap from "mousetrap";
   import {
     createHotkeyConfig,
@@ -26,7 +26,7 @@
     DOCUMENTS_PATH,
     IS_WINDOWS,
     IS_MAC,
-  } from "@shared/constants";
+  } from "~/shared/constants";
   import { parseSkillString } from "./util/skillParser";
   import log from "electron-log";
 

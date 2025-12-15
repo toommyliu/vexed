@@ -7,10 +7,13 @@
     // "disableSourceOfProjectReferenceRedirect": true,
     // "disableSolutionSearching": true,
     // "disableReferencedProjectLoad": true,
-
     /* Language and Environment */
     "target": "es6",
-    "lib": ["esnext", "dom", "dom.iterable"],
+    "lib": [
+      "esnext",
+      "dom",
+      "dom.iterable"
+    ],
     // "jsx": "preserve",
     // "experimentalDecorators": true,
     // "emitDecoratorMetadata": true,
@@ -21,22 +24,39 @@
     // "noLib": true,
     // "useDefineForClassFields": true,
     // "moduleDetection": "auto",
-
     /* Modules */
     "module": "esnext",
     // "rootDir": "./",
     "moduleResolution": "bundler",
     "baseUrl": "./",
     "paths": {
-      "@/*": ["src/*"],
-      "@main/*": ["src/main/*"],
-      "@renderer/*": ["src/renderer/*"],
-      "@shared/*": ["src/shared/*"],
-      "@game/*": ["src/renderer/game/*"],
-      "@manager/*": ["src/renderer/manager/*"],
-      "@lib/*": ["src/renderer/game/lib/*"],
-      "@botting/*": ["src/renderer/game/botting/*"],
-      "@utils/*": ["src/renderer/game/util/*"]
+      "~/*": [
+        "src/*"
+      ],
+      "~/main/*": [
+        "src/main/*"
+      ],
+      "~/renderer/*": [
+        "src/renderer/*"
+      ],
+      "~/shared/*": [
+        "src/shared/*"
+      ],
+      "~/game/*": [
+        "src/renderer/game/*"
+      ],
+      "~/manager/*": [
+        "src/renderer/manager/*"
+      ],
+      "~/lib/*": [
+        "src/renderer/game/lib/*"
+      ],
+      "~/botting/*": [
+        "src/renderer/game/botting/*"
+      ],
+      "~/utils/*": [
+        "src/renderer/game/util/*"
+      ]
     },
     // "rootDirs": [],
     // "typeRoots": [],
@@ -50,11 +70,9 @@
     // "resolveJsonModule": true,
     // "allowArbitraryExtensions": true,
     // "noResolve": true,
-
     /* JavaScript Support */
     // "allowJs": true,
     // "checkJs": true,
-
     /* Emit */
     // "declaration": true,
     // "declarationMap": true,
@@ -77,7 +95,6 @@
     // "noEmitOnError": true,
     // "preserveConstEnums": true,
     // "declarationDir": "./",
-
     /* Interop Constraints */
     // "isolatedModules": true,
     // "verbatimModuleSyntax": true,
@@ -86,7 +103,6 @@
     "esModuleInterop": true,
     // "preserveSymlinks": true,
     "forceConsistentCasingInFileNames": true,
-
     /* Type Checking */
     "strict": true,
     "noImplicitAny": true,
@@ -107,11 +123,15 @@
     "noPropertyAccessFromIndexSignature": true,
     "allowUnusedLabels": false,
     "allowUnreachableCode": false,
-
     /* Completeness */
     "skipDefaultLibCheck": true,
     "skipLibCheck": true
   },
-  "include": ["./src/**/*"],
-  "exclude": ["./dist/**/*", "./node_modules/"]
+  "include": [
+    "./src/**/*"
+  ],
+  "exclude": [
+    "./dist/**/*",
+    "./node_modules/"
+  ]
 }
