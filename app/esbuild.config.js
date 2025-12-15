@@ -195,6 +195,13 @@ const SVELTE_TARGETS = [
     tsconfigFile: "./src/renderer/game/tsconfig.json",
     watchPaths: ["./src/renderer/packets/spammer"],
   },
+  {
+    name: "onboarding",
+    entryPoint: "./src/renderer/onboarding/main.ts",
+    outfile: "./dist/onboarding/build/main.js",
+    tsconfigFile: "./src/renderer/game/tsconfig.json",
+    watchPaths: ["./src/renderer/onboarding"],
+  },
 ];
 
 const CSS_TARGETS = [
@@ -327,6 +334,7 @@ async function generateHtmlFiles() {
     { dest: './dist/application/hotkeys/index.html', cssPath: '../../build/tailwind.css', scriptPath: SCRIPT_PATH },
     { dest: './dist/packets/logger/index.html', cssPath: '../../build/tailwind.css', scriptPath: SCRIPT_PATH },
     { dest: './dist/packets/spammer/index.html', cssPath: '../../build/tailwind.css', scriptPath: SCRIPT_PATH },
+    { dest: './dist/onboarding/index.html', cssPath: '../build/tailwind.css', scriptPath: SCRIPT_PATH },
   ];
 
   await Promise.all(

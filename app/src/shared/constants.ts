@@ -17,6 +17,7 @@ export const DEFAULT_SETTINGS: Settings = {
   launchMode: "game",
   debug: false,
   checkForUpdates: false,
+  onboardingCompleted: false,
   theme: "dark",
 } as const;
 
