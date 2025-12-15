@@ -9,7 +9,9 @@
   import X from "lucide-svelte/icons/x";
   import { cn } from "~/shared/cn";
 
+  // svelte-ignore non_reactive_update
   let overlay: HTMLDivElement;
+  // svelte-ignore non_reactive_update
   let listContainer: HTMLDivElement;
   // svelte-ignore non_reactive_update
   let virtualList: VirtualList<CommandItem>;
