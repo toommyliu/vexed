@@ -133,6 +133,10 @@
       {
         "label": "ShopInfo",
         "link": "/api-legacy/typedefs/shopinfo"
+      },
+      {
+        "label": "EnhancementP",
+        "link": "/api-legacy/typedefs/enhancementp"
       }
     ],
     "collapsed": true
