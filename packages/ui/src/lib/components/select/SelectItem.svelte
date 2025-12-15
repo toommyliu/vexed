@@ -35,7 +35,7 @@
     {disabled}
     onclick={handleSelect}
     class={cn(
-        "relative w-full flex cursor-default items-center gap-2 rounded-sm bg-transparent py-1.5 px-2 text-base outline-none hover:bg-accent hover:text-accent-foreground sm:text-sm [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "relative w-full flex cursor-default items-center gap-2 rounded-sm bg-transparent py-1.5 px-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         "[&[data-disabled]]:cursor-not-allowed [&[data-disabled]]:opacity-50 [&[data-disabled]]:pointer-events-none [&[data-disabled]:hover]:bg-transparent",
         className,
     )}
