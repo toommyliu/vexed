@@ -10,6 +10,7 @@
   import Package from "lucide-svelte/icons/package";
   import Zap from "lucide-svelte/icons/zap";
   import Download from "lucide-svelte/icons/download";
+  import Share2 from "lucide-svelte/icons/share-2";
 
   import { normalizeId } from "~/game/util/normalizeId";
   import { client, handlers } from "~/shared/tipc";
@@ -27,6 +28,7 @@
   let autoRegisterRequirements = $state(false);
   let autoRegisterRewards = $state(false);
   let isSyncing = $state(false);
+  let isBroadcasting = $state(false);
   let pendingSync = false;
 
   function areArraysEqual<T>(a: T[], b: T[]): boolean {
@@ -392,6 +394,28 @@
   handlers.environment.stateChanged.listen((state) => {
     void shouldUpdateState(state);
   });
+
+  async function broadcastToAll() {
+    if (isBroadcasting) return;
+
+    const payload = normalizePayload(
+      questIds,
+      dropItems,
+      boostItems,
+      rejectElse,
+      autoRegisterRequirements,
+      autoRegisterRewards
+    );
+
+    isBroadcasting = true;
+    try {
+      await client.environment.broadcastState(payload);
+    } catch (error) {
+      logger.error("Failed to broadcast environment state.", error);
+    } finally {
+      isBroadcasting = false;
+    }
+  }
 </script>
 
 <div class="bg-background flex h-screen flex-col">
@@ -404,6 +428,16 @@
           Environment
         </h1>
       </div>
+      <Button
+        variant="outline"
+        size="sm"
+        class="h-7 gap-1.5 text-xs border-border/50"
+        onclick={broadcastToAll}
+        disabled={isBroadcasting || isSyncing}
+      >
+        <Share2 class="h-3.5 w-3.5" />
+        Sync to All
+      </Button>
     </div>
   </header>
 

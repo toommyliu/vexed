@@ -138,5 +138,33 @@ export function createEnvironmentTipcRouter(tipcInstance: TipcInstance) {
           context.getRendererHandlers<RendererHandlers>(environmentWindow);
         rendererHandlers.environment.stateChanged.send(input);
       }),
+    broadcastState: tipcInstance.procedure
+      .input<EnvironmentState>()
+      .action(async ({ context, input }) => {
+        const senderWindow = context?.senderWindow;
+        const senderParent = context?.senderParentWindow;
+        const senderGameWindowId = senderParent?.id ?? senderWindow?.id;
+
+        for (const [gameWindowId, storeRef] of windowStore.entries()) {
+          if (gameWindowId === senderGameWindowId) continue;
+
+          // Update stateMap for this window
+          stateMap.set(gameWindowId, input);
+
+          // Notify the game window
+          const gameWindow = storeRef.game;
+          if (gameWindow && !gameWindow.isDestroyed() && !gameWindow.webContents.isDestroyed()) {
+            const gameHandlers = context.getRendererHandlers<RendererHandlers>(gameWindow);
+            gameHandlers.environment.stateChanged.send(input);
+          }
+
+          // Notify the environment window if open
+          const envWindow = storeRef.app.environment;
+          if (envWindow && !envWindow.isDestroyed() && !envWindow.webContents.isDestroyed()) {
+            const envHandlers = context.getRendererHandlers<RendererHandlers>(envWindow);
+            envHandlers.environment.stateChanged.send(input);
+          }
+        }
+      }),
   };
 }
