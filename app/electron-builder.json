@@ -1,40 +1,55 @@
 {
+  "appId": "com.github.vexed",
   "productName": "vexed",
   "electronVersion": "11.5.0",
   "directories": {
     "output": "build"
   },
   "mac": {
-    "files": ["dist/**/*"],
+    "files": [
+      "dist/**/*"
+    ],
     "extraFiles": [
       {
         "from": "../assets",
         "to": "Resources/app/assets",
-        "filter": ["**/*", "!pepflashplayer.dll"]
+        "filter": [
+          "**/*",
+          "!pepflashplayer.dll"
+        ]
       }
     ],
     "asar": false,
     "target": {
       "target": "zip",
-      "arch": ["x64"]
+      "arch": [
+        "x64"
+      ]
     },
     "icon": "../assets/icon.png",
     "artifactName": "${productName}-${os}.${ext}"
   },
   "win": {
-    "files": ["dist/**/*"],
+    "files": [
+      "dist/**/*"
+    ],
     "extraFiles": [
       {
         "from": "../assets",
         "to": "assets",
-        "filter": ["**/*", "!PepperFlashPlayer.plugin"]
+        "filter": [
+          "**/*",
+          "!PepperFlashPlayer.plugin"
+        ]
       }
     ],
     "icon": "../assets/icon.ico",
     "asar": false,
     "target": {
       "target": "zip",
-      "arch": ["x64"]
+      "arch": [
+        "x64"
+      ]
     },
     "artifactName": "${productName}-${os}.${ext}"
   },
