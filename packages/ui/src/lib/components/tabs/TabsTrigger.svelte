@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { getContext } from "svelte";
+    import { getContext, onDestroy, onMount } from "svelte";
     import { cn } from "$lib/util/cn";
     import type { HTMLButtonAttributes } from "svelte/elements";
     import type { TabsContext } from "./types";
@@ -18,9 +18,27 @@
     }: Props = $props();
 
     const ctx = getContext<TabsContext>("tabs");
+    const id = Math.random().toString(36).substring(2, 15);
+
+    let buttonElement = $state<HTMLButtonElement>();
+
+    onMount(() => {
+        ctx.registerTab(id, value, disabled);
+    });
+
+    onDestroy(() => {
+        ctx.unregisterTab(id);
+    });
+
+    $effect(() => {
+        if (ctx.value === value && buttonElement) {
+            buttonElement.focus();
+        }
+    });
 </script>
 
 <button
+    bind:this={buttonElement}
     type="button"
     role="tab"
     aria-selected={ctx.value === value}

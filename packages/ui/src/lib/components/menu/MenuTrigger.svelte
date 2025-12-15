@@ -13,13 +13,30 @@
     }: Props = $props();
 
     const ctx = getContext<MenuContext>("menu");
+
+    function handleKeyDown(e: KeyboardEvent) {
+        if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            ctx.open = !ctx.open;
+        } else if (e.key === "ArrowDown") {
+            e.preventDefault();
+            if (!ctx.open) {
+                ctx.open = true;
+            }
+            const firstEnabled = ctx.items.findIndex((i) => !i.disabled);
+            if (firstEnabled !== -1) {
+                ctx.setHighlightedIndex(firstEnabled);
+            }
+        }
+    }
 </script>
 
 <button
     type="button"
     class={cn(className)}
     onclick={() => (ctx.open = !ctx.open)}
-    aria-haspopup="true"
+    onkeydown={handleKeyDown}
+    aria-haspopup="menu"
     aria-expanded={ctx.open}
     {...restProps}
 >

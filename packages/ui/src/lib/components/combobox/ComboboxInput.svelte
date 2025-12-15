@@ -39,7 +39,7 @@
                 (ctx.highlightedIndex - 1 + ctx.items.length) %
                     ctx.items.length,
             );
-        } else if (e.key === "Enter") {
+        } else if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
             if (ctx.open && ctx.highlightedIndex >= 0) {
                 const item = ctx.items[ctx.highlightedIndex];
@@ -47,9 +47,8 @@
                     ctx.setValue(item.value);
                     ctx.close();
                 }
-            } else {
-                // If closed or no highlight, maybe just toggle?
-                // Standard combobox behavior: enter selects if list is open.
+            } else if (!ctx.open) {
+                ctx.setOpen(true);
             }
         } else if (e.key === "Escape") {
             e.preventDefault();

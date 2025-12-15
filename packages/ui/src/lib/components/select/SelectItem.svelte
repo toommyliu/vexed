@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { getContext } from "svelte";
+    import { getContext, onDestroy, onMount } from "svelte";
     import { cn } from "$lib/util/cn";
     import type { HTMLAttributes } from "svelte/elements";
     import type { SelectContext } from "./types";
@@ -18,14 +18,49 @@
     }: Props = $props();
 
     const ctx = getContext<SelectContext>("select");
+    const id = Math.random().toString(36).substring(2, 15);
+
+    onMount(() => {
+        ctx.registerItem(id, value, disabled);
+    });
+
+    onDestroy(() => {
+        ctx.unregisterItem(id);
+    });
 
     let isSelected = $derived(ctx.value === value);
+    let isHighlighted = $derived(
+        ctx.highlightedIndex >= 0 && ctx.items[ctx.highlightedIndex]?.id === id,
+    );
 
     function handleSelect() {
         if (disabled) return;
         ctx.value = value;
         ctx.close();
     }
+
+    function handleMouseEnter() {
+        if (disabled) return;
+        const index = ctx.getItemIndex(id);
+        if (index !== -1) {
+            ctx.setHighlightedIndex(index);
+        }
+    }
+
+    $effect(() => {
+        if (isHighlighted) {
+            const originalSelect = ctx.selectHighlighted;
+            ctx.selectHighlighted = () => {
+                if (!disabled) {
+                    ctx.value = value;
+                    ctx.close();
+                }
+            };
+            return () => {
+                ctx.selectHighlighted = originalSelect;
+            };
+        }
+    });
 </script>
 
 <button
@@ -34,13 +69,17 @@
     aria-selected={isSelected}
     {disabled}
     onclick={handleSelect}
+    onmouseenter={handleMouseEnter}
     class={cn(
-        "relative w-full flex cursor-default items-center gap-2 rounded-sm bg-transparent py-1.5 px-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "relative w-full flex cursor-default items-center gap-2 rounded-sm bg-transparent py-1.5 px-2 text-sm outline-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
+        "hover:bg-accent hover:text-accent-foreground",
         "[&[data-disabled]]:cursor-not-allowed [&[data-disabled]]:opacity-50 [&[data-disabled]]:pointer-events-none [&[data-disabled]:hover]:bg-transparent",
         className,
     )}
     data-slot="select-item"
     data-disabled={disabled ? "" : undefined}
+    data-highlighted={isHighlighted ? "" : undefined}
     {...restProps}
 >
     <span class="flex-1 min-w-0 text-start">

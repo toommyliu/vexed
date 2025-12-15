@@ -17,6 +17,9 @@
         ...restProps
     }: Props = $props();
 
+    let tabs = $state<{ id: string; value: string; disabled: boolean }[]>([]);
+    let focusedTabValue = $state<string | undefined>(undefined);
+
     const ctx: TabsContext = {
         get value() {
             return value;
@@ -24,6 +27,21 @@
         set value(v) {
             value = v;
             onValueChange?.(v);
+        },
+        get tabs() {
+            return tabs;
+        },
+        registerTab(id: string, tabValue: string, disabled: boolean) {
+            tabs.push({ id, value: tabValue, disabled });
+        },
+        unregisterTab(id: string) {
+            const index = tabs.findIndex((t) => t.id === id);
+            if (index !== -1) {
+                tabs.splice(index, 1);
+            }
+        },
+        focusTab(tabValue: string) {
+            focusedTabValue = tabValue;
         },
     };
 

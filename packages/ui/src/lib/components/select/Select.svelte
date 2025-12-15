@@ -26,6 +26,8 @@
   }: Props = $props();
 
   let anchorWidth = $state(0);
+  let items = $state<{ id: string; value: any; disabled: boolean }[]>([]);
+  let highlightedIndex = $state(-1);
 
   const ctx: SelectContext = {
     get value() {
@@ -40,6 +42,7 @@
     },
     set open(v) {
       open = v;
+      if (!v) highlightedIndex = -1;
     },
     get disabled() {
       return disabled;
@@ -55,7 +58,30 @@
     },
     close() {
       open = false;
+      highlightedIndex = -1;
     },
+    get items() {
+      return items;
+    },
+    get highlightedIndex() {
+      return highlightedIndex;
+    },
+    setHighlightedIndex(index: number) {
+      highlightedIndex = index;
+    },
+    registerItem(id: string, itemValue: any, itemDisabled: boolean) {
+      items.push({ id, value: itemValue, disabled: itemDisabled });
+    },
+    unregisterItem(id: string) {
+      const index = items.findIndex((i) => i.id === id);
+      if (index !== -1) {
+        items.splice(index, 1);
+      }
+    },
+    getItemIndex(id: string) {
+      return items.findIndex((i) => i.id === id);
+    },
+    selectHighlighted() {},
   };
 
   setContext("select", ctx);

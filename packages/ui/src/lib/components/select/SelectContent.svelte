@@ -56,11 +56,63 @@
         return "bottom";
     }
 
+    function getNextEnabledIndex(
+        currentIndex: number,
+        direction: 1 | -1,
+    ): number {
+        if (ctx.items.length === 0) return -1;
+        let index = currentIndex;
+        for (let i = 0; i < ctx.items.length; i++) {
+            index = (index + direction + ctx.items.length) % ctx.items.length;
+            if (!ctx.items[index].disabled) return index;
+        }
+        return -1;
+    }
+
+    function handleKeyDown(e: KeyboardEvent) {
+        if (e.key === "ArrowDown") {
+            e.preventDefault();
+            const next = getNextEnabledIndex(ctx.highlightedIndex, 1);
+            if (next !== -1) ctx.setHighlightedIndex(next);
+        } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            const prev = getNextEnabledIndex(ctx.highlightedIndex, -1);
+            if (prev !== -1) ctx.setHighlightedIndex(prev);
+        } else if (e.key === "Escape") {
+            e.preventDefault();
+            ctx.close();
+        } else if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            if (ctx.highlightedIndex >= 0) {
+                ctx.selectHighlighted();
+            }
+        }
+    }
+
     $effect(() => {
         if (ctx.open) {
             resolvedSide = calculateOptimalSide();
             if (listElement) {
                 handleScroll();
+                listElement.focus();
+                if (ctx.highlightedIndex === -1) {
+                    const selectedIndex = ctx.items.findIndex(
+                        (i) => i.value === ctx.value,
+                    );
+                    if (
+                        selectedIndex !== -1 &&
+                        !ctx.items[selectedIndex].disabled
+                    ) {
+                        ctx.setHighlightedIndex(selectedIndex);
+                    } else {
+                        const firstEnabled = ctx.items.findIndex(
+                            (i) => !i.disabled,
+                        );
+                        if (firstEnabled !== -1) {
+                            ctx.setHighlightedIndex(firstEnabled);
+                        }
+                    }
+                }
             }
         }
     });
@@ -98,11 +150,15 @@
                 <span
                     class="relative block rounded-lg border bg-popover bg-clip-padding before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(theme(borderRadius.lg)-1px)] before:shadow-lg dark:bg-clip-border"
                 >
+                    <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
                     <div
                         bind:this={listElement}
+                        role="listbox"
+                        tabindex="0"
                         onscroll={handleScroll}
+                        onkeydown={handleKeyDown}
                         class={cn(
-                            "max-h-60 min-w-[var(--anchor-width)] overflow-y-auto p-1 transition-[padding] duration-150",
+                            "max-h-60 min-w-[var(--anchor-width)] overflow-y-auto p-1 transition-[padding] duration-150 outline-none",
                             showScrollUp && "pt-7",
                             showScrollDown && "pb-7",
                             className,

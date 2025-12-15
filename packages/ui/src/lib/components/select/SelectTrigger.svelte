@@ -24,12 +24,49 @@
             ctx.setAnchorWidth(buttonElement.offsetWidth);
         }
     });
+
+    function getNextEnabledIndex(
+        currentIndex: number,
+        direction: 1 | -1,
+    ): number {
+        if (ctx.items.length === 0) return -1;
+        let index = currentIndex;
+        for (let i = 0; i < ctx.items.length; i++) {
+            index = (index + direction + ctx.items.length) % ctx.items.length;
+            if (!ctx.items[index].disabled) return index;
+        }
+        return -1;
+    }
+
+    function handleKeyDown(e: KeyboardEvent) {
+        if (ctx.disabled) return;
+
+        if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            ctx.toggle();
+        } else if (e.key === "ArrowDown") {
+            e.preventDefault();
+            if (!ctx.open) {
+                ctx.open = true;
+            }
+            const next = getNextEnabledIndex(ctx.highlightedIndex, 1);
+            if (next !== -1) ctx.setHighlightedIndex(next);
+        } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            if (!ctx.open) {
+                ctx.open = true;
+            }
+            const prev = getNextEnabledIndex(ctx.highlightedIndex, -1);
+            if (prev !== -1) ctx.setHighlightedIndex(prev);
+        }
+    }
 </script>
 
 <button
     bind:this={buttonElement}
     type="button"
     onclick={() => ctx.toggle()}
+    onkeydown={handleKeyDown}
     class={cn(
         "relative flex items-center justify-between select-none rounded-lg border border-input bg-background bg-clip-padding text-base/5 shadow-xs outline-none ring-ring/24 transition-shadow before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(theme(borderRadius.lg)-1px)] focus-visible:border-ring focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 sm:text-sm dark:bg-input/32 [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:opacity-72",
         size === "sm" && "gap-1.5 px-2 py-1 text-sm",
@@ -37,6 +74,7 @@
         size === "lg" && "gap-2 px-3 py-2",
         className,
     )}
+    aria-haspopup="listbox"
     aria-expanded={ctx.open}
     disabled={ctx.disabled}
     data-slot="select-trigger"
