@@ -141,19 +141,7 @@ export function createMenu(settings: Config<Settings>) {
         },
         // { role: 'windowMenu' }
         {
-            label: "Window",
-            submenu: [
-                { role: "minimize" },
-                { role: "zoom" },
-                ...(IS_MAC
-                    ? [
-                        { type: "separator" },
-                        { role: "front" },
-                        { type: "separator" },
-                        { role: "window" },
-                    ]
-                    : [{ role: "close" }]),
-            ],
+            role: 'windowMenu',
         },
     ] as MenuItemConstructorOptions[];
 
