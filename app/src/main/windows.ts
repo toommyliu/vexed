@@ -5,6 +5,7 @@ import { BRAND } from "../shared/constants";
 import type { AccountWithScript, AppLogEntry } from "../shared/types";
 import { DIST_PATH, IS_PACKAGED } from "./constants";
 import type { RendererHandlers } from "./tipc";
+import { cleanupEnvironmentState } from "./tipc/environment";
 import { applySecurityPolicy } from "./util/applySecurityPolicy";
 
 /**
@@ -225,6 +226,7 @@ export async function createGame(
       }
 
       windowStore.delete(window.id);
+      cleanupEnvironmentState(window.id);
     }
   });
 }
