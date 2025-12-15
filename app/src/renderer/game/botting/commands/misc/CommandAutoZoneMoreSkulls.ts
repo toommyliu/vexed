@@ -1,4 +1,4 @@
-import { Command } from "@botting/command";
+import { Command } from "~/botting/command";
 import { AutoZone } from "../../autozone";
 
 export class CommandAutoZoneMoreSkulls extends Command {

@@ -1,5 +1,5 @@
-import { exitFromCombat } from "@utils/exitFromCombat";
-import { extractMonsterMapId, isMonsterMapId } from "@utils/isMonMapId";
+import { exitFromCombat } from "~/utils/exitFromCombat";
+import { extractMonsterMapId, isMonsterMapId } from "~/utils/isMonMapId";
 import type { Bot } from "./Bot";
 import { Avatar, type AvatarData } from "./models/Avatar";
 import type { ItemData } from "./models/Item";

@@ -1,10 +1,10 @@
 import { interval } from "@vexed/utils";
 import { Mutex } from "async-mutex";
 // import log from "electron-log";
-import { Bot } from "@lib/Bot";
-import { handlers } from "@shared/tipc";
-import { doPriorityAttack } from "@utils/doPriorityAttack";
-import { exitFromCombat } from "@utils/exitFromCombat";
+import { Bot } from "~/lib/Bot";
+import { handlers } from "~/shared/tipc";
+import { doPriorityAttack } from "~/utils/doPriorityAttack";
+import { exitFromCombat } from "~/utils/exitFromCombat";
 
 let on = false;
 

@@ -1,4 +1,4 @@
-import { Command } from "@botting/command";
+import { Command } from "~/botting/command";
 
 export class CommandMoveToCell extends Command {
   public cell!: string;

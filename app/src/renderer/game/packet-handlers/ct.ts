@@ -1,6 +1,6 @@
-import type { Bot } from "@lib/Bot";
-import type { Aura } from "@lib/models/BaseEntity";
-import { AuraStore } from "@lib/util/AuraStore";
+import type { Bot } from "~/lib/Bot";
+import type { Aura } from "~/lib/models/BaseEntity";
+import { AuraStore } from "~/lib/util/AuraStore";
 
 const ADD_AURAS = new Set(["aura+", "aura++"]);
 const REMOVE_AURAS = new Set(["aura-", "aura--"]);

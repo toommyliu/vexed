@@ -1,5 +1,5 @@
-import { AutoReloginJob } from "@/renderer/game/lib/jobs/autorelogin";
-import { Command } from "@botting/command";
+import { AutoReloginJob } from "~/renderer/game/lib/jobs/autorelogin";
+import { Command } from "~/botting/command";
 
 export class CommandAutoRelogin extends Command {
   public username?: string;

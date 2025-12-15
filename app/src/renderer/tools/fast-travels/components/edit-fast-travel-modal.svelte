@@ -1,11 +1,11 @@
 <script lang="ts">
-  import type { FastTravel } from "@shared/types";
+  import type { FastTravel } from "~/shared/types";
   import { Button, Input, Label } from "@vexed/ui";
   import * as Dialog from "@vexed/ui/Dialog";
   import { motionFade } from "@vexed/ui/motion";
   import LoaderCircle from "lucide-svelte/icons/loader-circle";
   import AlertCircle from "lucide-svelte/icons/alert-circle";
-  import { client } from "@shared/tipc";
+  import { client } from "~/shared/tipc";
 
   type Props = {
     isOpen: boolean;

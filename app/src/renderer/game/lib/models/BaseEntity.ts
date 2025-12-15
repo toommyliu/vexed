@@ -1,4 +1,4 @@
-import { AuraStore } from "@lib/util/AuraStore";
+import { AuraStore } from "~/lib/util/AuraStore";
 import type { Avatar } from "./Avatar";
 import type { Monster } from "./Monster";
 

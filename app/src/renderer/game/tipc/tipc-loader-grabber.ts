@@ -1,6 +1,6 @@
-import { Bot } from "@lib/Bot";
-import { handlers } from "@shared/tipc";
-import { GrabberDataType, LoaderDataType } from "@shared/types";
+import { Bot } from "~/lib/Bot";
+import { handlers } from "~/shared/tipc";
+import { GrabberDataType, LoaderDataType } from "~/shared/types";
 
 const bot = Bot.getInstance();
 

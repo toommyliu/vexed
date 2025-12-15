@@ -1,5 +1,5 @@
 import log from "electron-log";
-import { Bot } from "@lib/Bot";
+import { Bot } from "~/lib/Bot";
 import { CancellationError } from "../util/async";
 
 export abstract class Command {

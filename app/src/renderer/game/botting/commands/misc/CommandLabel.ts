@@ -1,4 +1,4 @@
-import { Command } from "@botting/command";
+import { Command } from "~/botting/command";
 
 export class CommandLabel extends Command {
   public label!: string;

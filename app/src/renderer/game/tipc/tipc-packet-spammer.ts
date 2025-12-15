@@ -1,6 +1,6 @@
 import { interval } from "@vexed/utils";
 import { Mutex } from "async-mutex";
-import { handlers } from "@shared/tipc";
+import { handlers } from "~/shared/tipc";
 import { Bot } from "../lib/Bot";
 
 const mutex = new Mutex();

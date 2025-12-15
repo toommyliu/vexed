@@ -1,4 +1,4 @@
-import type { Bot } from "@lib/Bot";
+import type { Bot } from "~/lib/Bot";
 import { BoostType } from "../Player";
 import { Job } from "./Job";
 

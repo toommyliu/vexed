@@ -14,8 +14,8 @@
   import ChevronDown from "lucide-svelte/icons/chevron-down";
   import RotateCcw from "lucide-svelte/icons/rotate-ccw";
 
-  import { client } from "@shared/tipc";
-  import type { HotkeyConfig } from "@shared/types";
+  import { client } from "~/shared/tipc";
+  import type { HotkeyConfig } from "~/shared/types";
   import type { HotkeySection, RecordingState } from "./types";
   import {
     isValidHotkey,
@@ -24,7 +24,7 @@
     findConflicts,
     getActionForHotkey,
   } from "./utils";
-  import { DEFAULT_HOTKEYS, DOCUMENTS_PATH } from "@/shared";
+  import { DEFAULT_HOTKEYS, DOCUMENTS_PATH } from "~/shared";
   import log from "electron-log";
 
   const logger = log.scope("tools/hotkeys");

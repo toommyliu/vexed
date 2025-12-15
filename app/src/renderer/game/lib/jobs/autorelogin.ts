@@ -1,7 +1,7 @@
 import { Mutex } from "async-mutex";
 import log from "electron-log";
-import { CommandExecutor } from "@botting/command-executor";
-import type { Bot } from "@lib/Bot";
+import { CommandExecutor } from "~/botting/command-executor";
+import type { Bot } from "~/lib/Bot";
 import { Job } from "./Job";
 
 const logger = log.scope("AutoRelogin");

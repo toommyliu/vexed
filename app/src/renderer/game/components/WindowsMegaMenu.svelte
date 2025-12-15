@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { WindowIds } from "@shared/types";
-  import { client } from "@shared/tipc";
+  import { WindowIds } from "~/shared/types";
+  import { client } from "~/shared/tipc";
   import { Button } from "@vexed/ui";
   import Kbd from "@vexed/ui/Kbd";
 

@@ -1,5 +1,5 @@
 import { Mutex } from "async-mutex";
-import { client } from "@shared/tipc";
+import { client } from "~/shared/tipc";
 import type { Bot } from "../Bot";
 import { Job } from "./Job";
 

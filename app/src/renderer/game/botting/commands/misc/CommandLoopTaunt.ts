@@ -1,9 +1,9 @@
 import { interval } from "@vexed/utils";
 import type { LogFunctions } from "electron-log";
-import { Command } from "@botting/command";
-import type { CommandExecutor } from "@botting/command-executor";
-import type { Bot } from "@lib/Bot";
-import { isMonsterMapId, extractMonsterMapId } from "@utils/isMonMapId";
+import { Command } from "~/botting/command";
+import type { CommandExecutor } from "~/botting/command-executor";
+import type { Bot } from "~/lib/Bot";
+import { isMonsterMapId, extractMonsterMapId } from "~/utils/isMonMapId";
 
 // const id = 517;
 // const sArg1 = "12917";

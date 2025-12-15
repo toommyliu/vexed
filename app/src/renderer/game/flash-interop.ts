@@ -1,8 +1,8 @@
 import process from "process";
 import log from "electron-log/renderer";
-import { Bot } from "@lib/Bot";
-import { AutoReloginJob } from "@lib/jobs/autorelogin";
-import { client } from "@shared/tipc";
+import { Bot } from "~/lib/Bot";
+import { AutoReloginJob } from "~/lib/jobs/autorelogin";
+import { client } from "~/shared/tipc";
 import { AuraStore } from "./lib/util/AuraStore";
 import { addGoldExp } from "./packet-handlers/add-gold-exp";
 import { ct } from "./packet-handlers/ct";

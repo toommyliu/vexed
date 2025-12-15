@@ -17,9 +17,9 @@
 
   import { onMount } from "svelte";
 
-  import { client, handlers } from "@shared/tipc";
-  import type { FastTravel } from "@shared/types";
-  import { DEFAULT_FAST_TRAVELS } from "@shared/constants";
+  import { client, handlers } from "~/shared/tipc";
+  import type { FastTravel } from "~/shared/types";
+  import { DEFAULT_FAST_TRAVELS } from "~/shared/constants";
 
   let locations = $state<FastTravel[]>([]);
   let roomNumber = $state<number>(100_000);

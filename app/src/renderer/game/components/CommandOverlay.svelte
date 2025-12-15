@@ -1,15 +1,17 @@
 <script lang="ts">
   import { onMount, tick } from "svelte";
-  import { commandOverlayState, scriptState } from "@game/state.svelte";
-  import type { CommandItem } from "@game/state.svelte";
+  import { commandOverlayState, scriptState } from "~/game/state.svelte";
+  import type { CommandItem } from "~/game/state.svelte";
   import { VirtualList } from "@vexed/ui";
   import { motionScale, motionFade } from "@vexed/ui/motion";
   import ChevronDown from "lucide-svelte/icons/chevron-down";
   import ChevronRight from "lucide-svelte/icons/chevron-right";
   import X from "lucide-svelte/icons/x";
-  import { cn } from "@shared/cn";
+  import { cn } from "~/shared/cn";
 
+  // svelte-ignore non_reactive_update
   let overlay: HTMLDivElement;
+  // svelte-ignore non_reactive_update
   let listContainer: HTMLDivElement;
   // svelte-ignore non_reactive_update
   let virtualList: VirtualList<CommandItem>;

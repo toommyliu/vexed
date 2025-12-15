@@ -1,5 +1,5 @@
 import { interval } from "@vexed/utils";
-import type { KillOptions } from "@lib/Combat";
+import type { KillOptions } from "~/lib/Combat";
 import { ArmyCommand } from "./ArmyCommand";
 
 export class CommandArmyKill extends ArmyCommand {
