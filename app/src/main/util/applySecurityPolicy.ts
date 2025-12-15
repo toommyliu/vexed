@@ -3,7 +3,6 @@ import { BrowserWindow, session } from "electron";
 import {
   ARTIX_USERAGENT,
   WHITELISTED_DOMAINS,
-  IS_WINDOWS,
 } from "../../shared/constants";
 import { logger } from "../constants";
 
@@ -17,8 +16,6 @@ function isDomainWhitelisted(hostname: string): boolean {
 }
 
 export function applySecurityPolicy(window: BrowserWindow): void {
-  if (IS_WINDOWS) window.setAutoHideMenuBar(true);
-
   window.webContents.userAgent = ARTIX_USERAGENT;
   session.defaultSession?.webRequest.onBeforeSendHeaders((details, fn) => {
     const requestHeaders = details.requestHeaders;
