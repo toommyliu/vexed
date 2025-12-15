@@ -10,6 +10,31 @@ async function updateTheme(settings: Config<Settings>, theme: Settings['theme'])
     await settings.setAndSave('theme', theme);
 }
 
+async function handleCheckForUpdates() {
+    const res = await checkForUpdates(true);
+    if (!res) {
+        void dialog.showMessageBox({
+            type: "info",
+            title: "No Updates",
+            message: "You're up to date!",
+            detail: `Current version: ${app.getVersion()}`,
+        });
+        return;
+    }
+
+    const { response } = await dialog.showMessageBox({
+        type: "info",
+        title: "Update Available",
+        message: `A new version is available: ${res.newVersion}`,
+        detail: `You are currently on version ${res.currentVersion}.`,
+        buttons: ["Download", "Later"],
+        defaultId: 0,
+    });
+
+    if (response === 0)
+        void shell.openExternal(res.releaseUrl);
+}
+
 export function createMenu(settings: Config<Settings>) {
     const template: MenuItemConstructorOptions[] = [
         // { role: 'appMenu' }
@@ -21,30 +46,7 @@ export function createMenu(settings: Config<Settings>) {
                         { role: "about" },
                         {
                             label: "Check for Updates...",
-                            click: async () => {
-                                const res = await checkForUpdates(true);
-                                if (!res) {
-                                    void dialog.showMessageBox({
-                                        type: "info",
-                                        title: "No Updates",
-                                        message: "You're up to date!",
-                                        detail: `Current version: ${app.getVersion()}`,
-                                    });
-                                    return;
-                                }
-
-                                const { response } = await dialog.showMessageBox({
-                                    type: "info",
-                                    title: "Update Available",
-                                    message: `A new version is available: ${res.newVersion}`,
-                                    detail: `You are currently on version ${res.currentVersion}.`,
-                                    buttons: ["Download", "Later"],
-                                    defaultId: 0,
-                                });
-
-                                if (response === 0)
-                                    void shell.openExternal(res.releaseUrl);
-                            },
+                            click: handleCheckForUpdates,
                         },
                         { type: "separator" },
                         { role: "hide" },
@@ -143,6 +145,32 @@ export function createMenu(settings: Config<Settings>) {
         {
             role: 'windowMenu',
         },
+        // { role: 'helpMenu' }
+        ...(!IS_MAC
+            ? [
+                {
+                    label: "Help",
+                    submenu: [
+                        {
+                            label: `About ${app.name}`,
+                            click: () => {
+                                void dialog.showMessageBox({
+                                    type: "info",
+                                    title: `About ${app.name}`,
+                                    message: app.name,
+                                    detail: `Version: ${app.getVersion()}`,
+                                });
+                            },
+                        },
+                        { type: "separator" },
+                        {
+                            label: "Check for Updates...",
+                            click: handleCheckForUpdates,
+                        },
+                    ],
+                },
+            ]
+            : []),
     ] as MenuItemConstructorOptions[];
 
     const menu = Menu.buildFromTemplate(template);
