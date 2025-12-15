@@ -147,6 +147,10 @@ async function handleAppLaunch(argv: string[] = process.argv) {
 registerFlashPlugin();
 registerIpcMain(router);
 
+if (IS_WINDOWS) {
+  app.setAppUserModelId(BRAND);
+}
+
 const gotTheLock = app.requestSingleInstanceLock();
 if (gotTheLock) {
   // Main instance: handle second instance attempts
