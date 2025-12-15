@@ -14,13 +14,21 @@
     );
 
     function handleInput(e: Event) {
-        let parsed = parseFloat((e.currentTarget as HTMLInputElement).value);
+        const parsed = parseFloat((e.currentTarget as HTMLInputElement).value);
         if (Number.isNaN(parsed)) return;
+        ctx.value = parsed;
+    }
 
+    function handleBlur(e: Event) {
+        const input = e.currentTarget as HTMLInputElement;
+        let parsed = parseFloat(input.value);
+        if (Number.isNaN(parsed)) {
+            parsed = ctx.min ?? 0;
+        }
         if (ctx.min !== undefined) parsed = Math.max(ctx.min, parsed);
         if (ctx.max !== undefined) parsed = Math.min(ctx.max, parsed);
-
         ctx.value = parsed;
+        input.value = String(parsed);
     }
 </script>
 
@@ -31,6 +39,7 @@
     max={ctx.max}
     step={ctx.step}
     oninput={handleInput}
+    onblur={handleBlur}
     class={cn(
         "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
         className,
