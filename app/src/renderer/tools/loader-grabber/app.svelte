@@ -22,6 +22,7 @@
   import type { ShopInfo } from "@game/lib/Shops";
   import type { ItemData } from "@game/lib/models/Item";
   import type { MonsterData } from "@game/lib/models/Monster";
+  import { getEnhancementName, getWeaponProcName } from "@game/lib/util/enhancements";
 
   const logger = log.scope("app/loader-grabber");
 
@@ -273,12 +274,30 @@
                   name: "Category",
                   value: item.sType,
                 },
-                {
+              ];
+
+              const enhancementName = getEnhancementName(item.EnhPatternID);
+              const procName = item.ProcID ? getWeaponProcName(item.ProcID) : "";
+              const validProc = procName && procName !== "Unknown" ? procName : "";
+              
+              if (enhancementName || validProc) {
+                const parts = [enhancementName, validProc].filter(Boolean);
+                children.push({
+                  name: "Enhancement",
+                  value: parts.join(", "),
+                });
+              }
+
+              children.push({
                   name: "Description",
                   value: item.sDesc,
-                },
-              ],
-            }));
+              });
+
+              return {
+                name: item.sName,
+                children,
+              };
+            });
           }
           break;
         case "3":
