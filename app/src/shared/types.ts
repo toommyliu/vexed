@@ -62,6 +62,10 @@ export type Settings = {
    */
   launchMode: "game" | "manager";
   /**
+   * Whether the onboarding has been completed.
+   */
+  onboardingCompleted: boolean;
+  /**
    * The theme of the application.
    */
   theme: "dark" | "light" | "system";

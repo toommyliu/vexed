@@ -21,7 +21,7 @@ import { router } from "./tipc";
 import { checkForUpdates } from "./updater";
 import { showErrorDialog } from "./util/dialog";
 import { createNotification } from "./util/notification";
-import { createAccountManager, createGame, setQuitting } from "./windows";
+import { createAccountManager, createGame, createOnboarding, setQuitting, setOnboarding, getIsOnboarding } from "./windows";
 
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 
@@ -167,6 +167,15 @@ app.once("ready", async () => {
 
   nativeTheme.themeSource = settings.get("theme") ?? "system";
 
+  // Show onboarding on first launch
+  if (!settings.getBoolean("onboardingCompleted", false)) {
+    setOnboarding(true);
+    await createOnboarding();
+    setOnboarding(false);
+    // Reload settings after onboarding completes
+    nativeTheme.themeSource = settings.get("theme") ?? "system";
+  }
+
   createMenu(settings);
   await handleAppLaunch();
 });
@@ -176,6 +185,8 @@ app.on("before-quit", () => {
 });
 
 app.on("window-all-closed", () => {
+  // Don't quit during onboarding - the main window will be created after
+  if (getIsOnboarding()) return;
   logger.info("Bye!");
   app.quit();
 });

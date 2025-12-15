@@ -19,6 +19,7 @@ import { createLoaderGrabberTipcRouter } from "./tipc/loaderGrabber";
 import { createManagerTipcRouter } from "./tipc/manager";
 import { createPacketLoggerTipcRouter } from "./tipc/packetLogger";
 import { createPacketSpammerTipcRouter } from "./tipc/packetSpammer";
+import { createOnboardingTipcRouter } from "./tipc/onboarding";
 import { createScriptsTipcRouter } from "./tipc/scripts";
 
 const tipcInstance = tipc.create();
@@ -36,6 +37,7 @@ export const router = {
   manager: createManagerTipcRouter(tipcInstance),
   army: createArmyTipcRouter(tipcInstance),
   environment: createEnvironmentTipcRouter(tipcInstance),
+  onboarding: createOnboardingTipcRouter(tipcInstance),
 };
 
 export type TipcRouter = typeof router;

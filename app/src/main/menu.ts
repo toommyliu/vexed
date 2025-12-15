@@ -13,6 +13,7 @@ import type { Settings } from "~/shared/types";
 import { showErrorDialog } from "./util/dialog";
 import { checkForUpdates } from "./updater";
 import { logger } from "./constants";
+import { createOnboarding } from "./windows";
 
 async function updateTheme(settings: Config<Settings>, theme: Settings['theme']) {
     nativeTheme.themeSource = theme;
@@ -120,6 +121,13 @@ export function createMenu(settings: Config<Settings>) {
                         {
                             label: "Check for Updates...",
                             click: handleCheckForUpdates,
+                        },
+                        {
+                            label: "Preferences...",
+                            accelerator: "Cmd+,",
+                            click: async () => {
+                                await createOnboarding();
+                            },
                         },
                         { type: "separator" },
                         { role: "hide" },

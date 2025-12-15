@@ -4,6 +4,7 @@ import { BrowserWindow, screen } from "electron";
 import { BRAND } from "../shared/constants";
 import type { AccountWithScript, AppLogEntry } from "../shared/types";
 import { DIST_PATH, IS_PACKAGED } from "./constants";
+import { getSettings } from "./settings";
 import type { RendererHandlers } from "./tipc";
 import { cleanupEnvironmentState } from "./tipc/environment";
 import { applySecurityPolicy } from "./util/applySecurityPolicy";
@@ -24,9 +25,11 @@ function getCenteredPosition(width: number, height: number): { x: number; y: num
 
 const DIST_GAME = join(DIST_PATH, "game/");
 const DIST_MANAGER = join(DIST_PATH, "manager/");
+const DIST_ONBOARDING = join(DIST_PATH, "onboarding/");
 
 let mgrWindow: BrowserWindow | null;
 let isQuitting = false;
+let isOnboarding = false;
 
 export const windowStore: WindowStore = new Map();
 
@@ -36,6 +39,46 @@ export function getManagerWindow(): BrowserWindow | null {
 
 export function setQuitting(quitting: boolean): void {
   isQuitting = quitting;
+}
+
+export function setOnboarding(onboarding: boolean): void {
+  isOnboarding = onboarding;
+}
+
+export function getIsOnboarding(): boolean {
+  return isOnboarding;
+}
+
+export async function createOnboarding(): Promise<void> {
+  const width = 320;
+  const height = 320;
+  const { x, y } = getCenteredPosition(width, height);
+
+  const window = new BrowserWindow({
+    width,
+    height,
+    x,
+    y,
+    title: BRAND,
+    webPreferences: {
+      nodeIntegration: true,
+    },
+    useContentSize: true,
+    resizable: false,
+    minimizable: false,
+    maximizable: false,
+  });
+
+  applySecurityPolicy(window);
+  void window.loadURL(`file://${resolve(DIST_ONBOARDING, "index.html")}`);
+
+  return new Promise((resolve) => {
+    window.on("closed", async () => {
+      const settings = getSettings();
+      await settings.save();
+      resolve();
+    });
+  });
 }
 
 export async function createAccountManager(): Promise<void> {
