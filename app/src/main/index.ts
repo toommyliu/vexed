@@ -148,7 +148,7 @@ registerFlashPlugin();
 registerIpcMain(router);
 
 if (IS_WINDOWS) {
-  app.setAppUserModelId("com.github.vexed");
+  app.setAppUserModelId(BRAND);
 }
 
 const gotTheLock = app.requestSingleInstanceLock();
