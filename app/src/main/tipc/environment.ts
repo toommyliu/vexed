@@ -86,16 +86,18 @@ export function createEnvironmentTipcRouter(tipcInstance: TipcInstance) {
         if (!windowId) return;
 
         const newState = applyUpdate(windowId, input);
+        const isFromGameWindow = browserWindow && windowStore.has(browserWindow.id);
 
-        // Notify the environment window (from game window)
-        if (browserWindow && !windowStore.has(browserWindow.id)) {
-          const rendererHandlers =
-            context.getRendererHandlers<RendererHandlers>(browserWindow);
-          rendererHandlers.environment.stateChanged.send(newState);
-        }
-
-        // Notify the game window (from environment window)
-        if (parent && !parent.isDestroyed()) {
+        if (isFromGameWindow) {
+          // Game window sent update → notify environment window if open
+          const storeRef = windowStore.get(browserWindow.id);
+          const envWindow = storeRef?.app.environment;
+          if (envWindow && !envWindow.isDestroyed() && !envWindow.webContents.isDestroyed()) {
+            const envHandlers = context.getRendererHandlers<RendererHandlers>(envWindow);
+            envHandlers.environment.stateChanged.send(newState);
+          }
+        } else if (parent && !parent.isDestroyed() && !parent.webContents.isDestroyed()) {
+          // Environment window sent update → notify game window
           const parentHandlers =
             context.getRendererHandlers<RendererHandlers>(parent);
           parentHandlers.environment.stateChanged.send(newState);
@@ -114,9 +116,15 @@ export function createEnvironmentTipcRouter(tipcInstance: TipcInstance) {
     stateChanged: tipcInstance.procedure
       .input<EnvironmentState>()
       .action(async ({ context, input }) => {
-        if (!context?.senderWindow) return;
+        const senderWindow = context?.senderWindow;
+        if (!senderWindow) return;
 
-        const storeRef = windowStore.get(context?.senderWindow?.id);
+        const windowId = senderWindow.id;
+        if (windowStore.has(windowId)) {
+          stateMap.set(windowId, input);
+        }
+
+        const storeRef = windowStore.get(senderWindow.id);
         const environmentWindow = storeRef?.app.environment;
         if (
           !environmentWindow ||
