@@ -12,7 +12,7 @@ const {
 const { totalist } = require("totalist");
 const fs = require("fs").promises;
 
-const { unlink, stat, rm } = fs;
+const { unlink, stat, rmdir } = fs;
 
 /**
  * Ensures a directory exists, creating it if necessary.
@@ -265,7 +265,7 @@ async function deleteDirectory(path) {
   }
 
   try {
-    await rm(path, { recursive: true, force: true });
+    await rmdir(path, { recursive: true });
   } catch (err) {
     if (err && err.code !== "ENOENT") throw err;
   }
