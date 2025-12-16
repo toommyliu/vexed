@@ -82,7 +82,7 @@ const _deleteDirectory = async (dirPath: string) => {
 
 function handleClearAppCache() {
     void session.defaultSession?.clearStorageData({
-        storages: ["cookies", "appcache"],
+        storages: ["cookies", "appcache", "localstorage"],
     });
 }
 
