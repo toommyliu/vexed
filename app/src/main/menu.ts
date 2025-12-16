@@ -1,9 +1,18 @@
+import { join, sep } from "path";
+import {
+    deleteFile,
+    pathExists,
+    readDirRecursive,
+    deleteDirectory,
+} from "@vexed/fs-utils";
 import type Config from "@vexed/config";
 import type { MenuItemConstructorOptions } from "electron";
-import { app, dialog, Menu, nativeTheme, shell } from "electron";
-import { IS_MAC } from "../shared/constants";
-import type { Settings } from "../shared/types";
+import { app, dialog, Menu, nativeTheme, session, shell } from "electron";
+import { IS_MAC } from "~/shared/constants";
+import type { Settings } from "~/shared/types";
+import { showErrorDialog } from "./util/dialog";
 import { checkForUpdates } from "./updater";
+import { logger } from "./constants";
 
 async function updateTheme(settings: Config<Settings>, theme: Settings['theme']) {
     nativeTheme.themeSource = theme;
@@ -33,6 +42,65 @@ async function handleCheckForUpdates() {
 
     if (response === 0)
         void shell.openExternal(res.releaseUrl);
+}
+
+const _deleteDirectory = async (dirPath: string) => {
+    if (!(await pathExists(dirPath))) {
+        console.log(`Directory does not exist: ${dirPath}`);
+        return;
+    }
+
+    try {
+        const dirs = new Set<string>();
+        const files = new Set<string>();
+
+        await readDirRecursive(dirPath, {
+            filter: (_, absPath, stats) => {
+                if (stats.isFile()) files.add(absPath);
+                else if (stats.isDirectory()) dirs.add(absPath);
+                return true;
+            },
+        });
+
+        // Delete files first
+        for (const filePath of files) await deleteFile(filePath);
+
+        // Sort the directories by depth (a.k.a deepest path first)
+        const sortedDirs = Array.from(dirs).sort(
+            (a, b) => b.split(sep).length - a.split(sep).length,
+        );
+        for (const dir of sortedDirs) await deleteDirectory(dir);
+
+        await deleteDirectory(dirPath);
+    } catch (error) {
+        logger.error(error);
+        showErrorDialog({
+            message: "Failed to clear Flash cache",
+        });
+    }
+};
+
+function handleClearAppCache() {
+    void session.defaultSession?.clearStorageData({
+        storages: ["cookies", "appcache"],
+    });
+}
+
+async function handleClearFlashCache() {
+    const flashPath = join(
+        app.getPath("userData"),
+        "Pepper Data",
+        "Shockwave Flash",
+        "WritableRoot",
+    );
+
+    await _deleteDirectory(flashPath);
+
+    await dialog.showMessageBox({
+        message:
+            "Flash cache cleared successfully. An app restart is required.",
+        type: "info",
+    });
 }
 
 export function createMenu(settings: Config<Settings>) {
@@ -146,11 +214,11 @@ export function createMenu(settings: Config<Settings>) {
             role: 'windowMenu',
         },
         // { role: 'helpMenu' }
-        ...(!IS_MAC
-            ? [
-                {
-                    label: "Help",
-                    submenu: [
+        {
+            label: "Help",
+            submenu: [
+                ...(!IS_MAC
+                    ? [
                         {
                             label: `About ${app.name}`,
                             click: () => {
@@ -167,10 +235,19 @@ export function createMenu(settings: Config<Settings>) {
                             label: "Check for Updates...",
                             click: handleCheckForUpdates,
                         },
-                    ],
+                        { type: "separator" },
+                    ]
+                    : []),
+                {
+                    label: "Clear App Cache",
+                    click: handleClearAppCache,
                 },
-            ]
-            : []),
+                {
+                    label: "Clear Flash Cache",
+                    click: () => void handleClearFlashCache(),
+                },
+            ],
+        },
     ] as MenuItemConstructorOptions[];
 
     const menu = Menu.buildFromTemplate(template);

@@ -282,5 +282,6 @@ module.exports = {
   ensureFile,
   ensureJsonFile,
   deleteFile,
+  deleteDirectory,
   readDirRecursive,
 };
