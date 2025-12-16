@@ -96,11 +96,16 @@ async function handleClearFlashCache() {
 
     await _deleteDirectory(flashPath);
 
-    await dialog.showMessageBox({
-        message:
-            "Flash cache cleared successfully. An app restart is required.",
+    const { response } = await dialog.showMessageBox({
+        message: "Flash cache cleared successfully. A restart is required.",
         type: "info",
+        buttons: ["Quit", "Later"],
+        defaultId: 0,
     });
+
+    if (response === 0) {
+        app.quit();
+    }
 }
 
 export function createMenu(settings: Config<Settings>) {
