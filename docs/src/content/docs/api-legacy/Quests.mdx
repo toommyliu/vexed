@@ -25,7 +25,7 @@ Type: [`Quest`](/api-legacy/models/quest)[]
 Abandons a quest.
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| questId | `string` \| `number` | The quest id to abandon. |
+| questId | `number` | The quest id to abandon. |
 
 **Returns**: `Promise<void>`
 
@@ -33,7 +33,7 @@ Abandons a quest.
 Accepts a quest.
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| questId | `string` \| `number` | The quest id to accept. |
+| questId | `number` | The quest id to accept. |
 
 **Returns**: `Promise<void>`
 
@@ -41,7 +41,7 @@ Accepts a quest.
 Accepts multiple quests concurrently.
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| questIds | `(string` \| `number)`[] | List of quest ids to accept. |
+| questIds | `number`[] | List of quest ids to accept. |
 
 **Returns**: `Promise<void>`
 
@@ -49,7 +49,7 @@ Accepts multiple quests concurrently.
 Completes a quest.
 | Parameter | Type | Optional | Default | Description |
 |-----------|------|----------|---------|-------------|
-| questId | `string` \| `number` |  |  | The quest id to complete. |
+| questId | `number` |  |  | The quest id to complete. |
 | turnIns | `number` | ✓ | `1` | The number of times to turn-in the quest. |
 | itemId | `number` | ✓ | `-1` | The ID of the quest rewards to select. |
 | special | `boolean` | ✓ | `false` | Whether the quest is "special." |
@@ -60,7 +60,7 @@ Completes a quest.
 Resolves for a Quest instance.
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| questId | `string` \| `number` | The id of the quest. |
+| questId | `number` | The id of the quest. |
 
 **Returns**: [`Quest`](/api-legacy/models/quest) \| `null`
 
@@ -68,7 +68,7 @@ Resolves for a Quest instance.
 Loads a quest.
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| questId | `string` \| `number` | The quest id to load. |
+| questId | `number` | The quest id to load. |
 
 **Returns**: `Promise<void>`
 
@@ -76,6 +76,6 @@ Loads a quest.
 Loads multiple quests at once.
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| questIds | `(string` \| `number)`[] | List of quest ids to load |
+| questIds | `number`[] | List of quest ids to load |
 
 **Returns**: `Promise<void>`
