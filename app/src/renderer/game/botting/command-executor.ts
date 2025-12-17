@@ -80,7 +80,7 @@ export class CommandExecutor extends TypedEmitter<Events> {
     this._captureMode = false;
 
     this._ac = new AbortController();
-    this._ac.abort(); 
+    this._ac.abort();
 
     this.bot.on("logout", () => this._onLogout());
   }
@@ -171,7 +171,7 @@ export class CommandExecutor extends TypedEmitter<Events> {
             packet,
           );
         }
-      } catch {}
+      } catch { }
     });
 
     this.bot.on("packetFromServer", async (packet: string) => {
@@ -188,7 +188,7 @@ export class CommandExecutor extends TypedEmitter<Events> {
             packet,
           );
         }
-      } catch {}
+      } catch { }
     });
 
     this.bot.on("packetFromClient", async (packet: string) => {
@@ -205,7 +205,7 @@ export class CommandExecutor extends TypedEmitter<Events> {
             packet,
           );
         }
-      } catch {}
+      } catch { }
     });
   }
 
@@ -396,11 +396,11 @@ export class CommandExecutor extends TypedEmitter<Events> {
       )
       .flatMap((cmd) => {
         if (cmd instanceof CommandRegisterQuest) {
-          return cmd.questIds.flatMap(String);
+          return cmd.questIds;
         }
 
         if (cmd instanceof CommandAcceptQuest) {
-          return [String(cmd.questId)];
+          return [cmd.questId];
         }
 
         return [];
@@ -507,7 +507,7 @@ export class CommandExecutor extends TypedEmitter<Events> {
     cmd.close_window() // doesn't work
     */
 
-    
+
     if (this.isRunning()) this._stop();
   }
 }

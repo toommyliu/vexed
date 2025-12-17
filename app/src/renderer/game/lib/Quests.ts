@@ -1,4 +1,3 @@
-import { normalizeId } from "~/utils/normalizeId";
 import type { Bot } from "./Bot";
 import { GameAction } from "./World";
 import { Quest, type QuestData } from "./models/Quest";
@@ -27,9 +26,8 @@ export class Quests {
    *
    * @param questId - The id of the quest.
    */
-  public get(questId: number | string): Quest | null {
-    const id = normalizeId(questId);
-    return this.tree.find((quest) => normalizeId(quest.id) === id) ?? null;
+  public get(questId: number): Quest | null {
+    return this.tree.find((quest) => quest.id === questId) ?? null;
   }
 
   /**
@@ -37,12 +35,11 @@ export class Quests {
    *
    * @param questId - The quest id to load.
    */
-  public async load(questId: number | string): Promise<void> {
-    const id = normalizeId(questId);
-    if (this.get(id)) return;
+  public async load(questId: number): Promise<void> {
+    if (this.get(questId)) return;
 
-    this.bot.flash.call(() => swf.questsLoad(id));
-    await this.bot.waitUntil(() => this.get(id) !== null);
+    this.bot.flash.call(() => swf.questsLoad(questId));
+    await this.bot.waitUntil(() => this.get(questId) !== null);
   }
 
   /**
@@ -51,12 +48,10 @@ export class Quests {
    * @param questIds - List of quest ids to load
    * @returns Promise<void>
    */
-  public async loadMultiple(questIds: (number | string)[]): Promise<void> {
-    if (!Array.isArray(questIds) || !questIds.length) return;
+  public async loadMultiple(questIds: number[]): Promise<void> {
+    if (questIds.length === 0) return;
 
-    const ids = questIds.map(normalizeId);
-    this.bot.flash.call(() => swf.questsGetMultiple(ids.join(",")));
-    // await Promise.all(ids.map(async (id) => this.load(id)));
+    this.bot.flash.call(() => swf.questsGetMultiple(questIds.join(",")));
   }
 
   /**
@@ -65,22 +60,20 @@ export class Quests {
    * @param questId - The quest id to accept.
    * @returns Promise<void>
    */
-  public async accept(questId: number | string): Promise<void> {
-    const id = normalizeId(questId);
-
-    if (!this.get(id)) await this.load(id);
+  public async accept(questId: number): Promise<void> {
+    if (!this.get(questId)) await this.load(questId);
 
     // Ensure the quest is ready to be accepted
-    if (this.get(id)?.inProgress) {
-      await this.bot.waitUntil(() => !this.get(id)?.inProgress);
+    if (this.get(questId)?.inProgress) {
+      await this.bot.waitUntil(() => !this.get(questId)?.inProgress);
     }
 
     await this.bot.waitUntil(() =>
       this.bot.world.isActionAvailable(GameAction.AcceptQuest),
     );
 
-    this.bot.flash.call(() => swf.questsAccept(id));
-    await this.bot.waitUntil(() => Boolean(this.get(id)?.inProgress));
+    this.bot.flash.call(() => swf.questsAccept(questId));
+    await this.bot.waitUntil(() => Boolean(this.get(questId)?.inProgress));
   }
 
   /**
@@ -89,10 +82,10 @@ export class Quests {
    * @param questIds - List of quest ids to accept.
    * @returns Promise<void>
    */
-  public async acceptMultiple(questIds: (number | string)[]): Promise<void> {
-    if (!Array.isArray(questIds) || !questIds.length) return;
+  public async acceptMultiple(questIds: number[]): Promise<void> {
+    if (questIds.length === 0) return;
 
-    await Promise.all(questIds.map(async (id) => this.accept(id)));
+    await Promise.all(questIds.map((id) => this.accept(id)));
   }
 
   /**
@@ -104,21 +97,19 @@ export class Quests {
    * @param special - Whether the quest is "special."
    */
   public async complete(
-    questId: number | string,
+    questId: number,
     turnIns = 1,
     itemId = -1,
     special = false,
-  ) {
+  ): Promise<void> {
     await this.bot.waitUntil(() =>
       this.bot.world.isActionAvailable(GameAction.TryQuestComplete),
     );
 
-    const id = normalizeId(questId);
-
-    if (!this.get(id)?.canComplete()) return;
+    if (!this.get(questId)?.canComplete()) return;
 
     this.bot.flash.call(() => {
-      swf.questsComplete(id, turnIns, itemId, special);
+      swf.questsComplete(questId, turnIns, itemId, special);
     });
   }
 
@@ -127,12 +118,10 @@ export class Quests {
    *
    * @param questId - The quest id to abandon.
    */
-  public async abandon(questId: number | string) {
-    const id = normalizeId(questId);
+  public async abandon(questId: number): Promise<void> {
+    if (!this.get(questId)?.inProgress) return;
 
-    if (!this.get(id)?.inProgress) return;
-
-    this.bot.flash.call(() => swf.questsAbandon(id));
-    await this.bot.waitUntil(() => !this.get(id)?.inProgress);
+    this.bot.flash.call(() => swf.questsAbandon(questId));
+    await this.bot.waitUntil(() => !this.get(questId)?.inProgress);
   }
 }

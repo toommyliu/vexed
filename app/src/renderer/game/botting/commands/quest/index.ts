@@ -55,13 +55,10 @@ export const questCommands = {
    *
    * @param questIds - The ID or array of IDs of the quests.
    */
-  register_quest(questIds: number[] | string[] | number | string) {
+  register_quest(questIds: number | number[]) {
     const ids = Array.isArray(questIds) ? questIds : [questIds];
-    if (
-      ids.length === 0 ||
-      ids.some((id) => typeof id !== "number" && typeof id !== "string")
-    ) {
-      throw new ArgsError("questIds is required");
+    if (ids.length === 0 || ids.some((id) => typeof id !== "number")) {
+      throw new ArgsError("questIds must be number or number[]");
     }
 
     const cmd = new CommandRegisterQuest();
@@ -73,13 +70,10 @@ export const questCommands = {
    *
    * @param questIds - The ID or array of IDs of the quests.
    */
-  unregister_quest(questIds: number[] | string[] | number | string) {
+  unregister_quest(questIds: number | number[]) {
     const ids = Array.isArray(questIds) ? questIds : [questIds];
-    if (
-      ids.length === 0 ||
-      ids.some((id) => typeof id !== "number" && typeof id !== "string")
-    ) {
-      throw new ArgsError("questIds is required");
+    if (ids.length === 0 || ids.some((id) => typeof id !== "number")) {
+      throw new ArgsError("questIds must be number or number[]");
     }
 
     const cmd = new CommandUnregisterQuest();
@@ -87,3 +81,4 @@ export const questCommands = {
     window.context.addCommand(cmd);
   },
 };
+
