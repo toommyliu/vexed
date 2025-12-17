@@ -10,6 +10,7 @@ type InitUserDataData = {
   uid: number;
 };
 
+// only ever called once when we first join the world
 export default {
   cmd: "initUserData",
   type: "json",
