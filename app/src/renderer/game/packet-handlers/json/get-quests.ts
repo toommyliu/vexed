@@ -1,5 +1,5 @@
-import type { QuestData } from "~/lib/models/Quest";
 import { QuestCache } from "~/lib/cache/QuestCache";
+import type { QuestData } from "~/lib/models/Quest";
 import type { JsonPacketHandler } from "../types";
 
 type GetQuestsData = {

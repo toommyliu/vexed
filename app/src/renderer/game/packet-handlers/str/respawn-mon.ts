@@ -8,7 +8,7 @@ export default {
     if (Number.isNaN(monMapId)) return;
 
     const monster = bot.world.availableMonsters.find(
-      (m) => m.monMapId === monMapId,
+      (mon) => mon.monMapId === monMapId,
     );
     if (monster) {
       bot.emit("monsterRespawn", monster);

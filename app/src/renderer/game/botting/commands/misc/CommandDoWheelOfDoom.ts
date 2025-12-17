@@ -1,5 +1,5 @@
-import type { ItemData } from "~/renderer/game/lib/models/Item";
 import { Command } from "~/botting/command";
+import type { ItemData } from "~/renderer/game/lib/models/Item";
 
 const GEAR_OF_DOOM = "Gear of Doom";
 const TREASURE_POTION = "Treasure Potion";

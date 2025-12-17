@@ -1,8 +1,8 @@
-import { CommandExecutor } from "~/renderer/game/botting/command-executor";
-import { Bot } from "~/renderer/game/lib/Bot";
 import { ArgsError } from "~/botting/ArgsError";
 import { Command } from "~/botting/command";
 import { CommandRegistry } from "~/botting/command-registry";
+import { CommandExecutor } from "~/renderer/game/botting/command-executor";
+import { Bot } from "~/renderer/game/lib/Bot";
 import { CommandAutoRelogin } from "./CommandAutoRelogin";
 import { CommandAutoZoneAstralShrine } from "./CommandAutoZoneAstralShrine";
 import { CommandAutoZoneDarkCarnax } from "./CommandAutoZoneDarkCarnax";
@@ -442,7 +442,7 @@ export const miscCommands = {
       throw new ArgsError("command must not override execute()");
     }
 
-    commandRegistry.registerCustomCommand(_name, () => {});
+    commandRegistry.registerCustomCommand(_name, () => { });
 
     Object.defineProperty(window.cmd, _name, {
       value(...args: unknown[]) {

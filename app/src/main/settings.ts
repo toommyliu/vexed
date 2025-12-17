@@ -7,6 +7,7 @@ let settings: Config<Settings>;
 export async function initSettings(): Promise<Config<Settings>> {
   if (settings) return settings;
 
+  // eslint-disable-next-line require-atomic-updates
   settings = await Config.create<Settings>({
     configName: "settings",
     cwd: DOCUMENTS_PATH,

@@ -40,9 +40,9 @@ export default {
     AuraCache.clear();
 
     for (const user of data.uoBranch ?? []) {
-      if (user.strUsername.toLowerCase() === bot.auth.username.toLowerCase()) {
+      if (user.strUsername.toLowerCase() === bot.auth.username.toLowerCase())
         continue;
-      }
+
       AuraCache.registerPlayer(user.strUsername, user.entID);
     }
 

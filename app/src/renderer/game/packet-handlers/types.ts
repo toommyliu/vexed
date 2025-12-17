@@ -3,19 +3,19 @@ import type { Bot } from "~/lib/Bot";
 /**
  * Handler for JSON-type packets from pext.
  */
-export interface JsonPacketHandler<T = unknown> {
+export type JsonPacketHandler<T = unknown> = {
   readonly cmd: string;
+  run(bot: Bot, data: T): Promise<void> | void;
   readonly type: "json";
-  run(bot: Bot, data: T): void | Promise<void>;
 }
 
 /**
  * Handler for string-type packets from pext (dataObj is string[]).
  */
-export interface StrPacketHandler {
+export type StrPacketHandler = {
   readonly cmd: string;
+  run(bot: Bot, data: string[]): Promise<void> | void;
   readonly type: "str";
-  run(bot: Bot, data: string[]): void | Promise<void>;
 }
 
 export type PacketHandler<T = unknown> =

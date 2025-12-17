@@ -1,18 +1,18 @@
 import { join, sep } from "path";
+import type Config from "@vexed/config";
 import {
   deleteFile,
   pathExists,
   readDirRecursive,
   deleteDirectory,
 } from "@vexed/fs-utils";
-import type Config from "@vexed/config";
 import type { MenuItemConstructorOptions } from "electron";
 import { app, dialog, Menu, nativeTheme, session, shell } from "electron";
 import { IS_MAC } from "~/shared/constants";
 import type { Settings } from "~/shared/types";
-import { showErrorDialog } from "./util/dialog";
-import { checkForUpdates } from "./updater";
 import { logger } from "./constants";
+import { checkForUpdates } from "./updater";
+import { showErrorDialog } from "./util/dialog";
 
 async function updateTheme(
   settings: Config<Settings>,
@@ -115,23 +115,23 @@ export function createMenu(settings: Config<Settings>) {
     // { role: 'appMenu' }
     ...(IS_MAC
       ? [
-          {
-            label: app.name,
-            submenu: [
-              { role: "about" },
-              {
-                label: "Check for Updates...",
-                click: handleCheckForUpdates,
-              },
-              { type: "separator" },
-              { role: "hide" },
-              { role: "hideOthers" },
-              { role: "unhide" },
-              { type: "separator" },
-              { role: "quit" },
-            ],
-          },
-        ]
+        {
+          label: app.name,
+          submenu: [
+            { role: "about" },
+            {
+              label: "Check for Updates...",
+              click: handleCheckForUpdates,
+            },
+            { type: "separator" },
+            { role: "hide" },
+            { role: "hideOthers" },
+            { role: "unhide" },
+            { type: "separator" },
+            { role: "quit" },
+          ],
+        },
+      ]
       : []),
     // { role: 'fileMenu' }
     {
@@ -150,11 +150,11 @@ export function createMenu(settings: Config<Settings>) {
         { role: "paste" },
         ...(IS_MAC
           ? [
-              { role: "pasteAndMatchStyle" },
-              { role: "delete" },
-              { role: "selectAll" },
-              { type: "separator" },
-            ]
+            { role: "pasteAndMatchStyle" },
+            { role: "delete" },
+            { role: "selectAll" },
+            { type: "separator" },
+          ]
           : [{ role: "delete" }, { type: "separator" }, { role: "selectAll" }]),
       ],
     },
@@ -220,24 +220,24 @@ export function createMenu(settings: Config<Settings>) {
       submenu: [
         ...(!IS_MAC
           ? [
-              {
-                label: `About ${app.name}`,
-                click: () => {
-                  void dialog.showMessageBox({
-                    type: "info",
-                    title: `About ${app.name}`,
-                    message: app.name,
-                    detail: `Version: ${app.getVersion()}`,
-                  });
-                },
+            {
+              label: `About ${app.name}`,
+              click: () => {
+                void dialog.showMessageBox({
+                  type: "info",
+                  title: `About ${app.name}`,
+                  message: app.name,
+                  detail: `Version: ${app.getVersion()}`,
+                });
               },
-              { type: "separator" },
-              {
-                label: "Check for Updates...",
-                click: handleCheckForUpdates,
-              },
-              { type: "separator" },
-            ]
+            },
+            { type: "separator" },
+            {
+              label: "Check for Updates...",
+              click: handleCheckForUpdates,
+            },
+            { type: "separator" },
+          ]
           : []),
         {
           label: "Clear App Cache",

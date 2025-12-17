@@ -59,10 +59,12 @@ window.pext = async ([packet]) => {
       if (lastServerCt && lastPextCt) {
         const serverStr = JSON.stringify(
           lastServerCt,
+          // eslint-disable-next-line @typescript-eslint/require-array-sort-compare
           Object.keys(lastServerCt as object).sort(),
         );
         const pextStr = JSON.stringify(
           lastPextCt,
+          // eslint-disable-next-line @typescript-eslint/require-array-sort-compare
           Object.keys(lastPextCt as object).sort(),
         );
         if (serverStr !== pextStr) {
@@ -70,6 +72,7 @@ window.pext = async ([packet]) => {
           logger.warn("Server CT:", lastServerCt);
           logger.warn("Pext CT:", lastPextCt);
         }
+
         lastServerCt = null;
         lastPextCt = null;
       }
@@ -143,7 +146,7 @@ window.loaded = async () => {
       const decodedPath = decodeURIComponent(path!);
 
       await client.scripts.loadScript({ scriptPath: decodedPath });
-    } catch {}
+    } catch { }
   }
 };
 

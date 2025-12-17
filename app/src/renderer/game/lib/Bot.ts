@@ -17,6 +17,7 @@ import { Settings } from "./Settings";
 import { Shops } from "./Shops";
 import { TempInventory } from "./TempInventory";
 import { World } from "./World";
+import { AuraCache } from "./cache/AuraCache";
 import { AutoReloginJob } from "./jobs/autorelogin";
 import { BoostsJob } from "./jobs/boosts";
 import { DropsJob } from "./jobs/drops";
@@ -24,7 +25,6 @@ import { QuestsJob } from "./jobs/quests";
 import type { Aura } from "./models/BaseEntity";
 import type { Monster } from "./models/Monster";
 import { Flash } from "./util/Flash";
-import { AuraCache } from "./cache/AuraCache";
 
 type Events = {
   /**

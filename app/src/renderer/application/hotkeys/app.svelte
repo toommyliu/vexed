@@ -282,76 +282,80 @@
   <div class="flex-1 overflow-auto">
     <div class="mx-auto max-w-xl px-6 py-4">
       {#each hotkeysSections as section, sectionIndex}
+        {#key section.name}
         {@const isExpanded = activeSection === section.name}
-        <div class={cn(sectionIndex > 0 && "mt-1")}>
-          <button
-            class="group flex w-full items-center gap-2 rounded-md bg-secondary/20 px-2 py-1.5 text-left transition-colors hover:bg-secondary/40"
-            onclick={() => (activeSection = isExpanded ? null : section.name)}
-          >
-            {#if getSectionIcon(section.icon)}
-              {@const Icon = getSectionIcon(section.icon)}
-              <Icon class="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-            {/if}
-            <span class="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              {section.name}
-            </span>
-            <ChevronDown
-              class={cn(
-                "ml-auto h-3.5 w-3.5 text-muted-foreground/60 transition-transform duration-150",
-                isExpanded && "rotate-180"
-              )}
-            />
-          </button>
+          <div class={cn(sectionIndex > 0 && "mt-1")}>
+            <button
+              class="group flex w-full items-center gap-2 rounded-md bg-secondary/20 px-2 py-1.5 text-left transition-colors hover:bg-secondary/40"
+              onclick={() => (activeSection = isExpanded ? null : section.name)}
+            >
+              {#if getSectionIcon(section.icon)}
+                {@const Icon = getSectionIcon(section.icon)}
+                <Icon class="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+              {/if}
+              <span class="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                {section.name}
+              </span>
+              <ChevronDown
+                class={cn(
+                  "ml-auto h-3.5 w-3.5 text-muted-foreground/60 transition-transform duration-150",
+                  isExpanded && "rotate-180"
+                )}
+              />
+            </button>
 
-          {#if isExpanded}
-            <div class="mt-1 space-y-px pl-1">
-              {#each section.items as item}
-                {@const isRecordingThis = recordingState.isRecording && recordingState.actionId === item.id}
-                {@const hasConflict = isRecordingThis && recordingState.lastPressedKey && getActionForHotkey(recordingState.lastPressedKey, hotkeysSections) && getActionForHotkey(recordingState.lastPressedKey, hotkeysSections) !== item.label}
-                <div
-                  class={cn(
-                    "group/row flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left transition-colors",
-                    isRecordingThis 
-                      ? "bg-secondary/50" 
-                      : "bg-transparent hover:bg-secondary/30 cursor-pointer"
-                  )}
-                  onclick={() => !isRecordingThis && startRecording(item.id)}
-                  onkeydown={(ev) => {
-                    if (!isRecordingThis && ev.key === "Enter") startRecording(item.id);
-                  }}
-                  role="button"
-                  tabindex="0"
-                >
-                  <span class="text-sm text-foreground">{item.label}</span>
-                  <div class="flex h-6 min-w-[100px] items-center justify-end gap-2">
+            {#if isExpanded}
+              <div class="mt-1 space-y-px pl-1">
+                {#each section.items as item}
+                  {#key item.id}
+                    {@const isRecordingThis = recordingState.isRecording && recordingState.actionId === item.id}
+                    {@const hasConflict = isRecordingThis && recordingState.lastPressedKey && getActionForHotkey(recordingState.lastPressedKey, hotkeysSections) && getActionForHotkey(recordingState.lastPressedKey, hotkeysSections) !== item.label}
+                    <div
+                      class={cn(
+                        "group/row flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left transition-colors",
+                        isRecordingThis 
+                          ? "bg-secondary/50" 
+                          : "bg-transparent hover:bg-secondary/30 cursor-pointer"
+                      )}
+                      onclick={() => !isRecordingThis && startRecording(item.id)}
+                      onkeydown={(ev) => {
+                        if (!isRecordingThis && ev.key === "Enter") startRecording(item.id);
+                      }}
+                      role="button"
+                      tabindex="0"
+                    >
+                      <span class="text-sm text-foreground">{item.label}</span>
+                      <div class="flex h-6 min-w-[100px] items-center justify-end gap-2">
+                        {#if isRecordingThis}
+                          {#if recordingState.lastPressedKey}
+                            <Kbd hotkey={recordingState.lastPressedKey} class={hasConflict ? "border-destructive/50 text-destructive" : ""} />
+                          {:else}
+                            <span class="text-xs text-muted-foreground">Type shortcut...</span>
+                          {/if}
+                        {:else if item.value}
+                          <Kbd hotkey={item.value} class="transition-all group-hover/row:border-primary/40 group-hover/row:bg-muted/70" />
+                        {:else}
+                          <span class="text-xs text-muted-foreground/50 group-hover/row:text-muted-foreground">
+                            Add shortcut
+                          </span>
+                        {/if}
+                      </div>
+                    </div>
                     {#if isRecordingThis}
-                      {#if recordingState.lastPressedKey}
-                        <Kbd hotkey={recordingState.lastPressedKey} class={hasConflict ? "border-destructive/50 text-destructive" : ""} />
-                      {:else}
-                        <span class="text-xs text-muted-foreground">Type shortcut...</span>
-                      {/if}
-                    {:else if item.value}
-                      <Kbd hotkey={item.value} class="transition-all group-hover/row:border-primary/40 group-hover/row:bg-muted/70" />
-                    {:else}
-                      <span class="text-xs text-muted-foreground/50 group-hover/row:text-muted-foreground">
-                        Add shortcut
-                      </span>
+                      <div class="flex items-center gap-3 px-2 pb-1 text-[10px] text-muted-foreground/70">
+                        <span><Kbd>Esc</Kbd> cancel</span>
+                        <span><Kbd>Backspace</Kbd> clear</span>
+                        {#if recordingState.lastPressedKey}
+                          <span><Kbd>Enter</Kbd> confirm</span>
+                        {/if}
+                      </div>
                     {/if}
-                  </div>
-                </div>
-                {#if isRecordingThis}
-                  <div class="flex items-center gap-3 px-2 pb-1 text-[10px] text-muted-foreground/70">
-                    <span><Kbd>Esc</Kbd> cancel</span>
-                    <span><Kbd>Backspace</Kbd> clear</span>
-                    {#if recordingState.lastPressedKey}
-                      <span><Kbd>Enter</Kbd> confirm</span>
-                    {/if}
-                  </div>
-                {/if}
-              {/each}
-            </div>
-          {/if}
-        </div>
+                  {/key}
+                {/each}
+              </div>
+            {/if}
+          </div>
+        {/key}
       {/each}
     </div>
   </div>

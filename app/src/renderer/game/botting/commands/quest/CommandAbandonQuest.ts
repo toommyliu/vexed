@@ -3,7 +3,7 @@ import { Command } from "~/botting/command";
 export class CommandAbandonQuest extends Command {
   public questId!: number;
 
-  public override executeImpl(): Promise<void> {
+  public override async executeImpl(): Promise<void> {
     return this.bot.quests.abandon(this.questId);
   }
 
