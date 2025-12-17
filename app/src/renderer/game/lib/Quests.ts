@@ -1,14 +1,19 @@
 import type { Bot } from "./Bot";
 import { GameAction } from "./World";
 import { Quest, type QuestData } from "./models/Quest";
+import { QuestCache } from "./cache/QuestCache";
 
 export class Quests {
   public constructor(public bot: Bot) { }
 
   /**
    * A list of quests loaded in the client.
+   * Uses JS cache when `QuestCache.useCached` is true.
    */
   public get tree(): Quest[] {
+    if (QuestCache.useCached && QuestCache.size > 0) {
+      return QuestCache.getAll().map((data) => new Quest(data));
+    }
     return this.bot.flash.call(() =>
       swf.questsGetTree().map((data: QuestData) => new Quest(data)),
     );
@@ -27,7 +32,10 @@ export class Quests {
    * @param questId - The id of the quest.
    */
   public get(questId: number): Quest | null {
-    return this.tree.find((quest) => quest.id === questId) ?? null;
+    const cached = QuestCache.get(questId);
+    if (cached) return new Quest(cached);
+
+    return null;
   }
 
   /**
@@ -49,7 +57,7 @@ export class Quests {
    * @returns Promise<void>
    */
   public async loadMultiple(questIds: number[]): Promise<void> {
-    if (questIds.length === 0) return;
+    if (!Array.isArray(questIds) || !questIds.length) return;
 
     this.bot.flash.call(() => swf.questsGetMultiple(questIds.join(",")));
   }
@@ -83,7 +91,7 @@ export class Quests {
    * @returns Promise<void>
    */
   public async acceptMultiple(questIds: number[]): Promise<void> {
-    if (questIds.length === 0) return;
+    if (!Array.isArray(questIds) || !questIds.length) return;
 
     await Promise.all(questIds.map((id) => this.accept(id)));
   }

@@ -1,4 +1,4 @@
-import { AuraStore } from "~/lib/util/AuraStore";
+import { AuraCache } from "~/lib/cache/AuraCache";
 import type { Avatar } from "./Avatar";
 import type { Monster } from "./Monster";
 
@@ -96,9 +96,9 @@ export abstract class BaseEntity {
    */
   public get auras(): Aura[] {
     if (this.isPlayer()) {
-      return AuraStore.getPlayerAuras((this as Avatar).data.strUsername);
+      return AuraCache.getPlayerAuras((this as Avatar).data.strUsername);
     } else if (this.isMonster()) {
-      return AuraStore.getMonsterAuras(
+      return AuraCache.getMonsterAuras(
         (this as Monster).data.MonMapID.toString(),
       );
     }
@@ -114,9 +114,9 @@ export abstract class BaseEntity {
    */
   public getAura(name: string): Aura | undefined {
     if (this.isPlayer()) {
-      return AuraStore.getPlayerAura((this as Avatar).data.strUsername, name);
+      return AuraCache.getPlayerAura((this as Avatar).data.strUsername, name);
     } else if (this.isMonster()) {
-      return AuraStore.getMonsterAura(
+      return AuraCache.getMonsterAura(
         (this as Monster).data.MonMapID.toString(),
         name,
       );

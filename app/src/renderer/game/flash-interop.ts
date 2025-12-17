@@ -3,7 +3,7 @@ import log from "electron-log/renderer";
 import { Bot } from "~/lib/Bot";
 import { AutoReloginJob } from "~/lib/jobs/autorelogin";
 import { client } from "~/shared/tipc";
-import { AuraStore } from "./lib/util/AuraStore";
+import { AuraCache } from "./lib/cache/AuraCache";
 import { addGoldExp } from "./packet-handlers/add-gold-exp";
 import { ct } from "./packet-handlers/ct";
 import { dropItem } from "./packet-handlers/drop-item";
@@ -11,6 +11,7 @@ import { event } from "./packet-handlers/event";
 import { initUserData } from "./packet-handlers/init-user-data";
 import { initUserDatas } from "./packet-handlers/initUserDatas";
 import { moveToArea } from "./packet-handlers/move-to-area";
+import { getQuests } from "./packet-handlers/get-quests";
 import { appState } from "./state.svelte";
 
 const logger = log.scope("game/flash-interop");
@@ -60,7 +61,7 @@ window.pext = async ([packet]) => {
       case "exitArea":
         {
           const playerName = dataObj[dataObj.length - 1];
-          AuraStore.unregisterPlayer(playerName);
+          AuraCache.unregisterPlayer(playerName);
           bot.emit("playerLeave", playerName);
         }
 
@@ -100,9 +101,17 @@ window.pext = async ([packet]) => {
         void event(bot, dataObj);
         break;
       case "clearAuras": {
-        const entId = AuraStore.getPlayerEntId(bot.auth.username);
-        if (entId !== undefined) AuraStore.clearPlayerAuras(entId);
+        const entId = AuraCache.getPlayerEntId(bot.auth.username);
+        if (entId !== undefined) AuraCache.clearPlayerAuras(entId);
+        break;
       }
+      case "getQuests":
+        getQuests(bot, dataObj);
+        break;
+      case "ccqr":
+        // Quest completed - could invalidate cache if needed
+        // For now, the Flash side updates questTree so cache stays in sync via next getQuests
+        break;
     }
   }
 };

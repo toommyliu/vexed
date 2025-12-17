@@ -1,5 +1,5 @@
 import type { Bot } from "../lib/Bot";
-import { AuraStore } from "../lib/util/AuraStore";
+import { AuraCache } from "../lib/cache/AuraCache";
 
 function isMonPkt(
   packet: AddGoldExpPkt,
@@ -16,7 +16,7 @@ export async function addGoldExp(bot: Bot, packet: AddGoldExpPkt) {
     await bot.waitUntil(() => Boolean(getMonster()?.alive));
     bot.emit("monsterRespawn", getMonster());
 
-    AuraStore.monsterAuras.delete(String(packet.id));
+    AuraCache.monsterAuras.delete(String(packet.id));
   }
 }
 

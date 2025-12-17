@@ -24,7 +24,7 @@ import { QuestsJob } from "./jobs/quests";
 import type { Aura } from "./models/BaseEntity";
 import type { Monster } from "./models/Monster";
 import { Flash } from "./util/Flash";
-import { AuraStore } from "./util/AuraStore";
+import { AuraCache } from "./cache/AuraCache";
 
 type Events = {
   /**
@@ -228,7 +228,7 @@ export class Bot extends TypedEmitter<Events> {
     this.scheduler.addJob(new AutoReloginJob(this));
 
     this.on("logout", () => {
-      AuraStore.clear();
+      AuraCache.clear();
     });
   }
 

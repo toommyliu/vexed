@@ -1,6 +1,6 @@
 import type { Bot } from "~/lib/Bot";
 import type { Aura } from "~/lib/models/BaseEntity";
-import { AuraStore } from "~/lib/util/AuraStore";
+import { AuraCache } from "~/lib/cache/AuraCache";
 
 const ADD_AURAS = new Set(["aura+", "aura++"]);
 const REMOVE_AURAS = new Set(["aura-", "aura--"]);
@@ -39,8 +39,8 @@ export function ct(bot: Bot, packet: CtPacket) {
       const data = packet.p[playerName];
       if (data?.intState === 0 && data?.intHP === 0) {
         bot.emit("playerDeath", playerName);
-        const entId = AuraStore.getPlayerEntId(playerName);
-        if (entId !== undefined) AuraStore.clearPlayerAuras(entId);
+        const entId = AuraCache.getPlayerEntId(playerName);
+        if (entId !== undefined) AuraCache.clearPlayerAuras(entId);
       }
     }
   }
@@ -69,8 +69,8 @@ export function ct(bot: Bot, packet: CtPacket) {
               data.value = aura_.val;
             }
 
-            if (data.isNew) AuraStore.addMonsterAura(tgtId, data);
-            else AuraStore.refreshMonsterAura(tgtId, data);
+            if (data.isNew) AuraCache.addMonsterAura(tgtId, data);
+            else AuraCache.refreshMonsterAura(tgtId, data);
           }
         } else if (type === "p") {
           const entId = Number(tgtId);
@@ -86,8 +86,8 @@ export function ct(bot: Bot, packet: CtPacket) {
               data.value = aura_.val;
             }
 
-            if (data.isNew) AuraStore.addPlayerAura(entId, data);
-            else AuraStore.refreshPlayerAura(entId, data);
+            if (data.isNew) AuraCache.addPlayerAura(entId, data);
+            else AuraCache.refreshPlayerAura(entId, data);
           }
         }
       } else if (REMOVE_AURAS.has(aura.cmd)) {
@@ -95,14 +95,14 @@ export function ct(bot: Bot, packet: CtPacket) {
         if (!auraName) continue;
 
         if (type === "m") {
-          AuraStore.removeMonsterAura(tgtId, auraName);
+          AuraCache.removeMonsterAura(tgtId, auraName);
 
           if (auraName === "Counter Attack" && bot.settings.counterAttack) {
             bot.combat.attack(`id:${tgtId}`);
             bot.combat.pauseAttack = false;
           }
         } else if (type === "p") {
-          AuraStore.removePlayerAura(Number(tgtId), auraName);
+          AuraCache.removePlayerAura(Number(tgtId), auraName);
         }
       }
     }

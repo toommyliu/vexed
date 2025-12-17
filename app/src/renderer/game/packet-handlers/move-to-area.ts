@@ -1,12 +1,12 @@
 import type { Bot } from "../lib/Bot";
-import { AuraStore } from "../lib/util/AuraStore";
+import { AuraCache } from "../lib/cache/AuraCache";
 
 export async function moveToArea(bot: Bot, packet: Packet) {
-  AuraStore.clear();
+  AuraCache.clear();
 
   for (const user of packet.uoBranch ?? []) {
     if (user.strUsername.toLowerCase() === bot.auth.username.toLowerCase()) continue;
-    AuraStore.registerPlayer(user.strUsername, user.entID);
+    AuraCache.registerPlayer(user.strUsername, user.entID);
   }
 
   bot.emit("mapChanged", packet.areaName);

@@ -1,13 +1,13 @@
 import type { Bot } from "~/lib/Bot";
-import { AuraStore } from "~/lib/util/AuraStore";
+import { AuraCache } from "~/lib/cache/AuraCache";
 import { equalsIgnoreCase } from "~/shared/string";
 
 export function initUserData(bot: Bot, packet: Packet) {
   const username = packet.data.strUsername;
 
-  if (equalsIgnoreCase(username, bot.auth.username) || AuraStore.hasPlayer(username)) return;
+  if (equalsIgnoreCase(username, bot.auth.username) || AuraCache.hasPlayer(username)) return;
 
-  AuraStore.registerPlayer(username, packet.uid);
+  AuraCache.registerPlayer(username, packet.uid);
   bot.emit("playerJoin", username);
 }
 
