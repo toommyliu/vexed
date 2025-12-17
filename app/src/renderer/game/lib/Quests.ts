@@ -4,7 +4,7 @@ import { Quest, type QuestData } from "./models/Quest";
 import { QuestCache } from "./cache/QuestCache";
 
 export class Quests {
-  public constructor(public bot: Bot) { }
+  public constructor(public bot: Bot) {}
 
   /**
    * A list of quests loaded in the client.

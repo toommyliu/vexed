@@ -91,7 +91,7 @@ function initState() {
       if (typeof value === "number") {
         try {
           swf.settingsSetFPS(value);
-        } catch { }
+        } catch {}
       }
     },
   };
@@ -192,7 +192,9 @@ export function initCommandOverlayState() {
       lastIndex === currentIndex &&
       lastCommands.length === newItems.length &&
       lastCommands.every(
-        (cmd, idx) => cmd.index === newItems[idx]?.index && cmd.text === newItems[idx]?.text
+        (cmd, idx) =>
+          cmd.index === newItems[idx]?.index &&
+          cmd.text === newItems[idx]?.text,
       )
     ) {
       return false;
@@ -228,7 +230,7 @@ export function initCommandOverlayState() {
     const left = overlay.style.left || computed.left;
     const top = overlay.style.top || computed.top;
 
-    if (!left || !top || left === 'auto' || top === 'auto') {
+    if (!left || !top || left === "auto" || top === "auto") {
       return;
     }
 

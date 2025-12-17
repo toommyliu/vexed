@@ -21,7 +21,7 @@ export enum EntityState {
  * Base class for entities in the game world.
  */
 export abstract class BaseEntity {
-  protected constructor(public data: BaseEntityData) { }
+  protected constructor(public data: BaseEntityData) {}
 
   /**
    * The entity's current HP.

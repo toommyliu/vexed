@@ -45,8 +45,7 @@ export class CommandArmyEquipSet extends ArmyCommand {
     if (playerSet.Pots && Array.isArray(playerSet.Pots)) {
       for (const pot of playerSet.Pots) {
         const resPot = this.#resolveItem(pot);
-        if (resPot)
-          await this.#drinkConsumable(resPot);
+        if (resPot) await this.#drinkConsumable(resPot);
       }
     }
 

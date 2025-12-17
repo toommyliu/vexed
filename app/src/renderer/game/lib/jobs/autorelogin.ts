@@ -70,16 +70,16 @@ export class AutoReloginJob extends Job {
   private static setCooldownForFailure(): void {
     const attempt = Math.min(
       AutoReloginJob.consecutiveFailures,
-      MAX_CONSECUTIVE_FAILURES
+      MAX_CONSECUTIVE_FAILURES,
     );
     const base = Math.min(
       MIN_FAILED_COOLDOWN * 2 ** Math.max(0, attempt - 1),
-      MAX_FAILED_COOLDOWN
+      MAX_FAILED_COOLDOWN,
     ); // exponential backoff
     const jitter = Math.floor(Math.random() * JITTER_MAX);
     AutoReloginJob.failedCooldown = Math.min(
       base + jitter,
-      MAX_FAILED_COOLDOWN
+      MAX_FAILED_COOLDOWN,
     );
   }
 
@@ -106,10 +106,7 @@ export class AutoReloginJob extends Job {
     const softCooldown =
       SOFT_FAILURE_COOLDOWN_BASE +
       Math.floor(Math.random() * SOFT_FAILURE_COOLDOWN_JITTER);
-    AutoReloginJob.failedCooldown = Math.min(
-      softCooldown,
-      MAX_FAILED_COOLDOWN
-    );
+    AutoReloginJob.failedCooldown = Math.min(softCooldown, MAX_FAILED_COOLDOWN);
     AutoReloginJob.lastFailedAttempt = now;
     AutoReloginJob.lastAttemptTime = now;
     /* log.debug(
@@ -200,7 +197,7 @@ export class AutoReloginJob extends Job {
         {
           interval: 50,
           timeout: TIMEOUT_CREDENTIALS_APPLY,
-        }
+        },
       );
       if (pendRes.isErr()) {
         /* logger.warn(
@@ -267,7 +264,7 @@ export class AutoReloginJob extends Job {
       try {
         this.bot.auth.login(
           AutoReloginJob._username!,
-          AutoReloginJob._password!
+          AutoReloginJob._password!,
         );
         initiatedLogin = true;
       } catch {
@@ -367,7 +364,7 @@ export class AutoReloginJob extends Job {
     let didClickServer: boolean;
     try {
       didClickServer = await Promise.resolve(
-        this.bot.auth.connectTo(AutoReloginJob._server!)
+        this.bot.auth.connectTo(AutoReloginJob._server!),
       );
     } catch {
       // logger.debug(`Server connection attempt failed: ${error}`);
@@ -389,7 +386,7 @@ export class AutoReloginJob extends Job {
 
   private async waitForGameEntry(
     didClickServer: boolean,
-    initiatedLogin: boolean
+    initiatedLogin: boolean,
   ): Promise<boolean> {
     const res = await this.bot.waitUntil(
       (arg) => {
@@ -399,7 +396,8 @@ export class AutoReloginJob extends Job {
         )
           return true;
 
-        const connMcText = this.bot.flash.call<string>(() => swf.getConnMcText()) ?? "";
+        const connMcText =
+          this.bot.flash.call<string>(() => swf.getConnMcText()) ?? "";
         if (connMcText === "null" && didClickServer) {
           /* logger.debug(
             "currentLabel is=" + this.bot.flash.get("currentLabel", true)
@@ -415,7 +413,9 @@ export class AutoReloginJob extends Job {
           return false;
         }
 
-        const isBackButtonVisible = this.bot.flash.call<boolean>(() => swf.isConnMcBackButtonVisible());
+        const isBackButtonVisible = this.bot.flash.call<boolean>(() =>
+          swf.isConnMcBackButtonVisible(),
+        );
         if (isBackButtonVisible) {
           // logger.debug("Back button visible, aborting login attempt...");
           arg.abort();
@@ -424,7 +424,7 @@ export class AutoReloginJob extends Job {
 
         return false;
       },
-      { interval: 5_000, timeout: TIMEOUT_GAME_ENTRY }
+      { interval: 5_000, timeout: TIMEOUT_GAME_ENTRY },
     );
 
     if (res.isErr()) {
@@ -445,16 +445,13 @@ export class AutoReloginJob extends Job {
     return true;
   }
 
-  private handleLoginFailure(
-    reason: string,
-    initiatedLogin: boolean
-  ) {
+  private handleLoginFailure(reason: string, initiatedLogin: boolean) {
     const manualDifferentUser = Boolean(
       this.bot.auth.isLoggedIn() &&
       this.bot.auth.username &&
       AutoReloginJob._username &&
       this.bot.auth.username.toLowerCase() !==
-      AutoReloginJob._username.toLowerCase()
+        AutoReloginJob._username.toLowerCase(),
     );
 
     /* logger.debug(
@@ -491,7 +488,7 @@ export class AutoReloginJob extends Job {
   public static async setCredentials(
     username: string,
     password: string,
-    server?: string
+    server?: string,
   ): Promise<void> {
     await AutoReloginJob.globalMutex.runExclusive(async () => {
       AutoReloginJob.pendingSetCredentials = true;

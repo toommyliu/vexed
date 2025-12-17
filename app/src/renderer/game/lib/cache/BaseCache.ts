@@ -6,4 +6,4 @@
  * Concrete caches (QuestCache, AuraCache) implement their own static Maps
  * since TypeScript static inheritance has limitations.
  */
-export abstract class BaseCache { }
+export abstract class BaseCache {}

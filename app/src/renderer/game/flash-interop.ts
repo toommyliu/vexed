@@ -3,15 +3,8 @@ import log from "electron-log/renderer";
 import { Bot } from "~/lib/Bot";
 import { AutoReloginJob } from "~/lib/jobs/autorelogin";
 import { client } from "~/shared/tipc";
-import { AuraCache } from "./lib/cache/AuraCache";
-import { addGoldExp } from "./packet-handlers/add-gold-exp";
 import { ct } from "./packet-handlers/ct";
-import { dropItem } from "./packet-handlers/drop-item";
-import { event } from "./packet-handlers/event";
-import { initUserData } from "./packet-handlers/init-user-data";
-import { initUserDatas } from "./packet-handlers/initUserDatas";
-import { moveToArea } from "./packet-handlers/move-to-area";
-import { getQuests } from "./packet-handlers/get-quests";
+import { dispatchJsonPacket, dispatchStrPacket } from "./packet-handlers";
 import { appState } from "./state.svelte";
 
 const logger = log.scope("game/flash-interop");
@@ -21,6 +14,9 @@ const bot = Bot.getInstance();
 window.packetFromClient = ([packet]: [string]) => {
   bot.emit("packetFromClient", packet);
 };
+
+let lastServerCt: unknown = null;
+let lastPextCt: unknown = null;
 
 window.packetFromServer = ([packet]: [string]) => {
   bot.emit("packetFromServer", packet);
@@ -34,6 +30,7 @@ window.packetFromServer = ([packet]: [string]) => {
       typeof pkt?.b?.o?.cmd === "string" &&
       pkt?.b?.o?.cmd === "ct"
     ) {
+      lastServerCt = pkt?.b?.o;
       ct(bot, pkt?.b?.o);
     }
   }
@@ -51,67 +48,35 @@ window.pext = async ([packet]) => {
   bot.emit("pext", pkt);
 
   if (pkt?.params?.type === "str") {
-    const dataObj = pkt?.params?.dataObj; // ['exitArea', '-1', 'ENT_ID', 'PLAYER']
-
-    // const ogPkt = `%xt%${dataObj.join("%")}%`; // %xt%exitArea%-1%ENT_ID%PLAYER%
-
-    switch (dataObj[0]) {
-      case "respawnMon":
-        break;
-      case "exitArea":
-        {
-          const playerName = dataObj[dataObj.length - 1];
-          AuraCache.unregisterPlayer(playerName);
-          bot.emit("playerLeave", playerName);
-        }
-
-        break;
-      case "uotls":
-        if (
-          Array.isArray(dataObj) &&
-          dataObj?.length === 4 &&
-          dataObj[2]?.toLowerCase() === bot.auth?.username?.toLowerCase() &&
-          dataObj[3] === "afk:true"
-        ) {
-          bot.emit("afk");
-        }
-
-        break;
-    }
+    const dataObj = pkt?.params?.dataObj as string[];
+    dispatchStrPacket(bot, dataObj);
   } else if (pkt?.params?.type === "json") {
-    const dataObj = pkt?.params?.dataObj; // { intGold: 8, cmd: '', intExp: 0, bonusGold: 2, typ: 'm' }
+    const dataObj = pkt?.params?.dataObj;
+    const cmd = dataObj?.cmd as string | undefined;
 
-    switch (pkt?.params?.dataObj?.cmd) {
-      case "addGoldExp":
-        void addGoldExp(bot, dataObj);
-        break;
-      case "dropItem":
-        void dropItem(bot, dataObj);
-        break;
-      case "initUserData":
-        initUserData(bot, dataObj);
-        break;
-      case "initUserDatas":
-        void initUserDatas(bot, dataObj);
-        break;
-      case "moveToArea":
-        void moveToArea(bot, dataObj);
-        break;
-      case "event":
-        void event(bot, dataObj);
-        break;
-      case "clearAuras": {
-        const entId = AuraCache.getPlayerEntId(bot.auth.username);
-        if (entId !== undefined) AuraCache.clearPlayerAuras(entId);
-        break;
+    if (cmd === "ct") {
+      lastPextCt = dataObj;
+      if (lastServerCt && lastPextCt) {
+        const serverStr = JSON.stringify(
+          lastServerCt,
+          Object.keys(lastServerCt as object).sort(),
+        );
+        const pextStr = JSON.stringify(
+          lastPextCt,
+          Object.keys(lastPextCt as object).sort(),
+        );
+        if (serverStr !== pextStr) {
+          logger.warn("CT DIFF DETECTED!");
+          logger.warn("Server CT:", lastServerCt);
+          logger.warn("Pext CT:", lastPextCt);
+        }
+        lastServerCt = null;
+        lastPextCt = null;
       }
-      case "getQuests":
-        getQuests(bot, dataObj);
-        break;
-      case "ccqr":
-        // Quest completed - could invalidate cache if needed
-        // For now, the Flash side updates questTree so cache stays in sync via next getQuests
-        break;
+    }
+
+    if (cmd) {
+      dispatchJsonPacket(bot, cmd, dataObj);
     }
   }
 };
@@ -178,7 +143,7 @@ window.loaded = async () => {
       const decodedPath = decodeURIComponent(path!);
 
       await client.scripts.loadScript({ scriptPath: decodedPath });
-    } catch { }
+    } catch {}
   }
 };
 

@@ -1,9 +1,6 @@
 import { URL } from "url";
 import { BrowserWindow, session } from "electron";
-import {
-  ARTIX_USERAGENT,
-  WHITELISTED_DOMAINS,
-} from "../../shared/constants";
+import { ARTIX_USERAGENT, WHITELISTED_DOMAINS } from "../../shared/constants";
 import { logger } from "../constants";
 
 function isDomainWhitelisted(hostname: string): boolean {
@@ -65,7 +62,7 @@ export function applySecurityPolicy(window: BrowserWindow): void {
       if (
         parsedUrl.hostname === "www.facebook.com" &&
         parsedUrl.searchParams.get("redirect_uri") ===
-        "https://game.aq.com/game/AQWFB.html"
+          "https://game.aq.com/game/AQWFB.html"
       ) {
         return;
       }

@@ -11,7 +11,10 @@ import { applySecurityPolicy } from "./util/applySecurityPolicy";
 /**
  * Gets the x/y position to center a window on the monitor where the cursor is located.
  */
-function getCenteredPosition(width: number, height: number): { x: number; y: number } {
+function getCenteredPosition(
+  width: number,
+  height: number,
+): { x: number; y: number } {
   const cursorPoint = screen.getCursorScreenPoint();
   const display = screen.getDisplayNearestPoint(cursorPoint);
   const { workArea } = display;
@@ -202,7 +205,7 @@ export async function createGame(
 
   window.on("close", () => {
     if (!window || window.isDestroyed() || window.webContents.isDestroyed()) {
-      console.log('window is destroyed', window);
+      console.log("window is destroyed", window);
       return;
     }
 

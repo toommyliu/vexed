@@ -413,18 +413,28 @@ export const miscCommands = {
     const cls = cmdFactory(Command);
 
     if (typeof cls !== "function") {
-      throw new ArgsError("cmdFactory must return a Command constructor (class)");
+      throw new ArgsError(
+        "cmdFactory must return a Command constructor (class)",
+      );
     }
 
     if (!(cls.prototype instanceof Command)) {
-      throw new ArgsError("cmdFactory must return a class that extends Command");
+      throw new ArgsError(
+        "cmdFactory must return a class that extends Command",
+      );
     }
 
-    if (!Object.hasOwn(cls.prototype, "executeImpl") || typeof (cls.prototype as any).executeImpl !== "function") {
+    if (
+      !Object.hasOwn(cls.prototype, "executeImpl") ||
+      typeof (cls.prototype as any).executeImpl !== "function"
+    ) {
       throw new ArgsError("command must implement executeImpl()");
     }
 
-    if (!Object.hasOwn(cls.prototype, "toString") || typeof cls.prototype.toString !== "function") {
+    if (
+      !Object.hasOwn(cls.prototype, "toString") ||
+      typeof cls.prototype.toString !== "function"
+    ) {
       throw new ArgsError("command must implement toString()");
     }
 
@@ -831,7 +841,7 @@ export const miscCommands = {
   },
   /**
    * Does the Wheel of Doom spin (non-members).
-   * 
+   *
    * @param to_bank - Whether to put the reward in the bank.
    */
   do_wheelofdoom(to_bank: boolean = false) {
@@ -842,5 +852,5 @@ export const miscCommands = {
     const cmd = new CommandDoWheelOfDoom();
     cmd.bank = to_bank;
     window.context.addCommand(cmd);
-  }
+  },
 };

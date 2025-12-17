@@ -44,7 +44,11 @@ export type ITauntStrategy = {
   cleanup(): void;
   doTaunt(): Promise<void>;
   getName(): string;
-  initialize(bot: Bot, ctx: CommandExecutor, logger?: LogFunctions): Promise<boolean>;
+  initialize(
+    bot: Bot,
+    ctx: CommandExecutor,
+    logger?: LogFunctions,
+  ): Promise<boolean>;
   isActive: boolean;
 
   maxPlayers: number;
