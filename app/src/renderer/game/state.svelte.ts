@@ -91,7 +91,7 @@ function initState() {
       if (typeof value === "number") {
         try {
           swf.settingsSetFPS(value);
-        } catch {}
+        } catch { }
       }
     },
   };

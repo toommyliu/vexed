@@ -3,13 +3,28 @@ import log from "electron-log/renderer";
 import { Bot } from "~/lib/Bot";
 import { AutoReloginJob } from "~/lib/jobs/autorelogin";
 import { client } from "~/shared/tipc";
-import { ct } from "./packet-handlers/ct";
 import { dispatchJsonPacket, dispatchStrPacket } from "./packet-handlers";
+import { ct } from "./packet-handlers/ct";
 import { appState } from "./state.svelte";
 
 const logger = log.scope("game/flash-interop");
 
 const bot = Bot.getInstance();
+
+function sortObjectKeys(obj: unknown): unknown {
+  if (Array.isArray(obj)) {
+    return obj.map(sortObjectKeys);
+  } else if (obj !== null && typeof obj === "object") {
+    return Object.keys(obj)
+      .sort((a, b) => a.localeCompare(b))
+      .reduce<Record<string, unknown>>((acc, key) => {
+        acc[key] = sortObjectKeys((obj as Record<string, unknown>)[key]);
+        return acc;
+      }, {});
+  }
+
+  return obj;
+}
 
 window.packetFromClient = ([packet]: [string]) => {
   bot.emit("packetFromClient", packet);
@@ -57,16 +72,8 @@ window.pext = async ([packet]) => {
     if (cmd === "ct") {
       lastPextCt = dataObj;
       if (lastServerCt && lastPextCt) {
-        const serverStr = JSON.stringify(
-          lastServerCt,
-          // eslint-disable-next-line @typescript-eslint/require-array-sort-compare
-          Object.keys(lastServerCt as object).sort(),
-        );
-        const pextStr = JSON.stringify(
-          lastPextCt,
-          // eslint-disable-next-line @typescript-eslint/require-array-sort-compare
-          Object.keys(lastPextCt as object).sort(),
-        );
+        const serverStr = JSON.stringify(sortObjectKeys(lastServerCt));
+        const pextStr = JSON.stringify(sortObjectKeys(lastPextCt));
         if (serverStr !== pextStr) {
           logger.warn("CT DIFF DETECTED!");
           logger.warn("Server CT:", lastServerCt);
