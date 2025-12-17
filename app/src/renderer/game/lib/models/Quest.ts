@@ -7,7 +7,19 @@ import type { ItemData } from "./Item";
 export class Quest {
   #bot = Bot.getInstance();
 
-  public constructor(public data: QuestData) {}
+  /**
+   * Creates a Quest instance by loading its data from the game.
+   *
+   * @param id - The quest ID to load.
+   * @returns The Quest instance, or null if not found.
+   */
+  public static async fromId(id: number): Promise<Quest | null> {
+    const bot = Bot.getInstance();
+    await bot.quests.load(id);
+    return bot.quests.get(id);
+  }
+
+  public constructor(public data: QuestData) { }
 
   /**
    * The name of this quest.
