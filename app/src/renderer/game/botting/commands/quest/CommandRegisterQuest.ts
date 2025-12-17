@@ -1,7 +1,7 @@
 import { Command } from "~/botting/command";
 
 export class CommandRegisterQuest extends Command {
-  public questIds!: (number | string)[];
+  public questIds!: number[];
 
   protected override _skipDelay = true;
 
