@@ -110,6 +110,13 @@ export class CommandEnhanceItem extends Command {
         }
 
         await this.bot.shops.load(shopId);
+        await this.bot.waitUntil(
+            () => {
+                const info = this.bot.shops.info;
+                return info !== null && Number(info.ShopID) === shopId && info.items.length > 0;
+            },
+            { timeout: 15_000, interval: 500 },
+        );
 
         const isMember = this.bot.player.isMember();
         const enhItem = this.findBestEnhancement(item, patternId, procId, isMember);
@@ -147,7 +154,6 @@ export class CommandEnhanceItem extends Command {
         }
 
         await this.bot.world.join("museum");
-        await this.bot.sleep(1_000);
     }
 
     private findBestEnhancement(
