@@ -388,7 +388,7 @@ when null(s) are passed. */
   /** Accepts a quest. */
   accept_quest(questId: number): void;
   /** Completes a quest. */
-  complete_quest(questId: number): void;
+  complete_quest(questId: number, itemId?: number): void;
   /** Registers one or more quests, which automatically handles accepting and completing them. */
   register_quest(questIds: number | number[]): void;
   /** Unregisters one or more quests. */
