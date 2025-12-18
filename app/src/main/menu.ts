@@ -1,18 +1,18 @@
 import { join, sep } from "path";
+import type Config from "@vexed/config";
 import {
     deleteFile,
     pathExists,
     readDirRecursive,
     deleteDirectory,
 } from "@vexed/fs-utils";
-import type Config from "@vexed/config";
 import type { MenuItemConstructorOptions } from "electron";
 import { app, dialog, Menu, nativeTheme, session, shell } from "electron";
 import { IS_MAC } from "~/shared/constants";
 import type { Settings } from "~/shared/types";
-import { showErrorDialog } from "./util/dialog";
-import { checkForUpdates } from "./updater";
 import { logger } from "./constants";
+import { checkForUpdates } from "./updater";
+import { showErrorDialog } from "./util/dialog";
 import { createOnboarding } from "./windows";
 
 async function updateTheme(settings: Config<Settings>, theme: Settings['theme']) {
