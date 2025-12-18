@@ -147,6 +147,7 @@ export class CommandEnhanceItem extends Command {
         }
 
         await this.bot.world.join("museum");
+        await this.bot.sleep(1_000);
     }
 
     private findBestEnhancement(
