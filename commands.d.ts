@@ -235,10 +235,8 @@ to be satisfied. */
   /** Enhances an item with the specified enhancement. */
   enhance_item(itemName: string, enhancementName: string, procName?: string): void;
   equip_item(item: string): void;
-  /** Equips an item using its enhancement name. Supports colloquial variants of the enhancement name.
-
-If results are ambiguous, the first matching item will be used. Use itemType to narrow the result. */
-  equip_item_by_enhancement(enhancementName: string, itemType?: string): void;
+  /** Equips an item using its enhancement name. */
+  equip_item_by_enhancement(enhancementName: string, procOrItemType?: string): void;
   get_map_item(item: string | number): void;
   /** Loads a shop. */
   load_shop(shopId: number): void;

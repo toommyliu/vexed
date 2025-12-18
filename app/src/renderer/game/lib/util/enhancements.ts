@@ -187,12 +187,15 @@ const WEAPON_SPECIAL_NAMES: Record<WeaponSpecial, string> = {
   [WeaponSpecial.Ravenous]: "Ravenous",
 };
 
-const WEAPON_PROC_VARIANTS: Record<string, string[]> = {
+export const AWE_PROC_VARIANTS: Record<string, string[]> = {
   "spiral carve": ["scarve", "spiral"],
   "health vamp": ["healthvamp", "hvamp", "hp vamp"],
   "mana vamp": ["manavamp", "mvamp", "mp vamp"],
   "powerword die": ["powerword", "pwd", "pw die"],
   "awe blast": ["ablast", "aweblast", "blast"],
+};
+
+export const FORGE_WEAPON_PROC_VARIANTS: Record<string, string[]> = {
   lacerate: ["lac"],
   smite: [],
   valiance: ["val"],
@@ -203,7 +206,13 @@ const WEAPON_PROC_VARIANTS: Record<string, string[]> = {
   dauntless: ["dtl"],
   ravenous: ["rav"],
 };
-const CAPE_PROC_VARIANTS: Record<string, string[]> = {
+
+export const WEAPON_PROC_VARIANTS: Record<string, string[]> = {
+  ...AWE_PROC_VARIANTS,
+  ...FORGE_WEAPON_PROC_VARIANTS,
+};
+
+export const CAPE_PROC_VARIANTS: Record<string, string[]> = {
   absolution: ["abso"],
   avarice: ["ava"],
   lament: ["lam"],
@@ -211,7 +220,8 @@ const CAPE_PROC_VARIANTS: Record<string, string[]> = {
   vainglory: [],
   forge: [],
 };
-const HELM_PROC_VARIANTS: Record<string, string[]> = {
+
+export const HELM_PROC_VARIANTS: Record<string, string[]> = {
   vim: [],
   examen: [],
   pneuma: [],
