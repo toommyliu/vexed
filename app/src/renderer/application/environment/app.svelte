@@ -566,22 +566,33 @@
                       <span class="tabular-nums">{questId}</span>
                       {#if questItemIds[questId] !== undefined}
                         <span class="text-muted-foreground">:</span>
-                        <span class="tabular-nums text-foreground">{questItemIds[questId]}</span>
-                        <button
-                          type="button"
-                          class="flex h-3.5 w-3.5 items-center justify-center rounded-full text-muted-foreground/60 transition-colors hover:bg-secondary hover:text-muted-foreground opacity-0 group-hover:opacity-100"
-                          onclick={() => updateQuestItemId(questId, "")}
+                        <input
+                          type="number"
+                          class="w-14 bg-transparent border-none outline-none text-xs tabular-nums text-foreground [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          value={String(questItemIds[questId])}
+                          onblur={(ev) => updateQuestItemId(questId, ev.currentTarget.value)}
+                          onkeydown={(ev) => {
+                            if (ev.key === "Enter") {
+                              ev.currentTarget.blur();
+                            }
+                          }}
                           disabled={isSyncing}
-                          title="Clear item ID"
-                        >
-                          <X class="h-2.5 w-2.5" />
-                        </button>
+                        />
                       {:else}
                         <input
                           type="text"
                           class="w-12 bg-transparent border-none outline-none text-xs tabular-nums text-foreground placeholder:text-muted-foreground/40 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
                           placeholder=":itemId"
-                          oninput={(e) => updateQuestItemId(questId, e.currentTarget.value)}
+                          onblur={(ev) => {
+                            if (ev.currentTarget.value.trim()) {
+                              updateQuestItemId(questId, ev.currentTarget.value);
+                            }
+                          }}
+                          onkeydown={(ev) => {
+                            if (ev.key === "Enter") {
+                              ev.currentTarget.blur();
+                            }
+                          }}
                           disabled={isSyncing}
                         />
                       {/if}
