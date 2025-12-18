@@ -253,34 +253,41 @@ export const itemCommands = {
     window.context.addCommand(cmd);
   },
   /**
-   * Equips an item using its enhancement name. Supports colloquial variants of the enhancement name.
+   * Equips an item using its enhancement name.
    *
-   * If results are ambiguous, the first matching item will be used. Use itemType to narrow the result.
+   * Supports both explicit and colloquial formats. If results are ambiguous,
+   * the first matching item will be used. Use procOrItemType to narrow the result.
    *
    * @example
    * ```js
-   * cmd.equip_item_by_enhancement("Lucky", "weapon")
-   * cmd.equip_item_by_enhancement("Arcanas")
-   * cmd.equip_item_by_enhancement("Peni")
+   * // Basic enhancement with optional item type filter
+   * cmd.equip_item_by_enhancement("Lucky", "Weapon")
+   * cmd.equip_item_by_enhancement("Fighter")
+   *
+   * // Basic enhancement + Awe proc (weapons only)
+   * cmd.equip_item_by_enhancement("Lucky", "Spiral Carve")
+   * cmd.equip_item_by_enhancement("Fighter", "Awe Blast")
+   *
+   * // Forge mode - equip by proc name
+   * cmd.equip_item_by_enhancement("Forge", "Arcanas")       // weapon
+   * cmd.equip_item_by_enhancement("Forge", "Penitence")     // cape
+   * cmd.equip_item_by_enhancement("Forge", "Anima")         // helm
+   *
+   * // Colloquial variants still supported
+   * cmd.equip_item_by_enhancement("Arcanas")                // auto-detects weapon
+   * cmd.equip_item_by_enhancement("Peni")                   // auto-detects cape
    * ```
-   * @param enhancementName - The name of the enhancement.
-   * @param itemType - The type of item to equip. Can be "weapon", "helm", or "cape".
+   * @param enhancementName - The enhancement name (Lucky, Fighter, etc.) or "Forge" for proc matching.
+   * @param procOrItemType - Item type filter ("weapon", "helm", "cape"), Awe proc, or Forge proc name.
    */
-  equip_item_by_enhancement(enhancementName: string, itemType?: string) {
+  equip_item_by_enhancement(enhancementName: string, procOrItemType?: string) {
     if (typeof enhancementName !== "string") {
       throw new ArgsError("enhancementName is required");
     }
 
-    if (
-      typeof itemType === "string" &&
-      !["weapon", "helm", "cape"].includes(itemType.toLowerCase())
-    ) {
-      throw new ArgsError("itemType is required");
-    }
-
     const cmd = new CommandEquipByEnhancement();
     cmd.enhancementName = enhancementName;
-    if (itemType) cmd.itemType = itemType;
+    if (procOrItemType) cmd.procOrItemType = procOrItemType;
 
     window.context.addCommand(cmd);
   },
