@@ -78,8 +78,6 @@ function applyUpdate(
     rejectElse: payload.rejectElse ?? currentState.rejectElse,
   };
 
-  console.log('new state', newState);
-
   stateMap.set(windowId, newState);
   return newState;
 }
