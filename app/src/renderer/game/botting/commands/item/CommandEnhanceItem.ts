@@ -133,12 +133,11 @@ export class CommandEnhanceItem extends Command {
         );
 
         this.logger.debug(
-            `Enhanced ${this.itemName} with ${this.enhancementName}${this.procName ? `/${this.procName}` : ""} (shop: ${shopId}, pattern: ${patternId}, proc: ${procId})`,
+            `Enhanced ${this.itemName} with ${this.enhancementName}${this.procName ? `(${this.procName})` : ""} (shop: ${shopId}, pattern: ${patternId}, proc: ${procId})`,
         );
 
         await this.bot.sleep(1_000);
     }
-
 
     private async joinForgeIfNeeded(): Promise<void> {
         if (this.bot.world.name.toLowerCase() === "forge") {
@@ -186,7 +185,16 @@ export class CommandEnhanceItem extends Command {
                 hasRep = faction !== undefined && faction.totalRep >= requiredRep;
             }
 
-            const canPurchase = hasGold && hasLevel && hasRep && (isMember || !isUpgradeItem);
+            // Check quest completion requirement
+            const questSlot = Number(shopItem.iQSindex ?? -1);
+            const questValue = Number(shopItem.iQSvalue ?? 0);
+            let hasQuest = true;
+            if (questSlot >= 0) {
+                const currentValue = this.bot.flash.call<number>("world.getQuestValue", questSlot);
+                hasQuest = currentValue >= questValue;
+            }
+
+            const canPurchase = hasGold && hasLevel && hasRep && hasQuest && (isMember || !isUpgradeItem);
 
             // Match item category to enhancement slot
             const categoryMatch =
@@ -224,7 +232,6 @@ export class CommandEnhanceItem extends Command {
 
         return { id: candidates[0]!.ItemID };
     }
-
 
     public override toString(): string {
         return `Enhance item: ${this.itemName} [${this.enhancementName}:${this.procName}]`;
