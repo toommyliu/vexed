@@ -7,7 +7,7 @@ export class Item {
      * Data about this item
      */
     public data: ItemData,
-  ) {}
+  ) { }
 
   /**
    * The ID of the item.
@@ -183,6 +183,7 @@ export type ItemData = {
   EnhID: number;
   EnhLvl: number;
   EnhPatternID: number;
+  PatternID?: number | string;
   EnhRng: number;
   EnhRty: number;
   ItemID: number;

@@ -1,6 +1,7 @@
 import { ArgsError } from "~/botting/ArgsError";
 import { CommandBuy } from "./CommandBuy";
 import { CommandDeposit } from "./CommandDeposit";
+import { CommandEnhanceItem } from "./CommandEnhanceItem";
 import { CommandEquipByEnhancement } from "./CommandEquipByEnhancement";
 import { CommandEquipItem } from "./CommandEquipItem";
 import { CommandGetMapItem } from "./CommandGetMapItem";
@@ -297,4 +298,46 @@ export const itemCommands = {
     cmd.shopId = shopId;
     window.context.addCommand(cmd);
   },
+  /**
+   * Enhances an item with the specified enhancement.
+   *
+   * @example
+   * ```js
+   * // Basic enhancement
+   * cmd.enhance_item("Void Highlord", "Lucky")
+   *
+   * // Awe enhancement (weapon only) - base type + Awe proc
+   * cmd.enhance_item("Weapon", "Lucky", "Spiral Carve")
+   * cmd.enhance_item("Weapon", "Fighter", "Awe Blast")
+   *
+   * // Forge enhancement - item type is deduced from item name
+   * cmd.enhance_item("Necrotic Sword", "Forge") // base Forge
+   * cmd.enhance_item("Necrotic Sword", "Forge", "Valiance") // weapon Forge proc
+   * cmd.enhance_item("Cape", "Forge", "Vainglory") // cape Forge special
+   * cmd.enhance_item("Helm", "Forge", "Anima") // helm Forge special
+   * ```
+   * @param itemName - The name of the item to enhance.
+   * @param enhancementName - The enhancement type (Lucky, Fighter, Wizard, etc.) or "Forge".
+   * @param procName - Optional. Awe proc (Spiral Carve) or Forge proc (Valiance, Vainglory, Anima).
+   */
+  enhance_item(itemName: string, enhancementName: string, procName?: string) {
+    if (!itemName || typeof itemName !== "string") {
+      throw new ArgsError("itemName is required");
+    }
+
+    if (!enhancementName || typeof enhancementName !== "string") {
+      throw new ArgsError("enhancementName is required");
+    }
+
+    if (procName && typeof procName !== "string") {
+      throw new ArgsError("procName is required");
+    }
+
+    const cmd = new CommandEnhanceItem();
+    cmd.itemName = itemName;
+    cmd.enhancementName = enhancementName;
+    if (procName) cmd.procName = procName;
+    window.context.addCommand(cmd);
+  },
+
 };
