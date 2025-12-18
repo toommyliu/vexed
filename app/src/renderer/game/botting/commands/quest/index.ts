@@ -2,7 +2,10 @@ import { ArgsError } from "~/botting/ArgsError";
 import { CommandAbandonQuest } from "./CommandAbandonQuest";
 import { CommandAcceptQuest } from "./CommandAcceptQuest";
 import { CommandCompleteQuest } from "./CommandCompleteQuest";
-import { CommandRegisterQuest } from "./CommandRegisterQuest";
+import {
+  CommandRegisterQuest,
+  type QuestRegistration,
+} from "./CommandRegisterQuest";
 import { CommandUnregisterQuest } from "./CommandUnregisterQuest";
 
 export const questCommands = {
@@ -53,16 +56,42 @@ export const questCommands = {
   /**
    * Registers one or more quests, which automatically handles accepting and completing them.
    *
-   * @param questIds - The ID or array of IDs of the quests.
+   * @param questIds - The ID, array of IDs, or array of quest registration objects.
+   * @param itemId - Optional item ID when passing a single quest ID.
    */
-  register_quest(questIds: number[] | number) {
-    const ids = Array.isArray(questIds) ? questIds : [questIds];
-    if (ids.length === 0 || ids.some((id) => typeof id !== "number")) {
-      throw new ArgsError("questIds must be number or number[]");
+  register_quest(
+    questIds: number | number[] | QuestRegistration[],
+    itemId?: number,
+  ) {
+    const quests: QuestRegistration[] = [];
+
+    if (typeof questIds === "number") {
+      const registration: QuestRegistration = { questId: questIds };
+      if (itemId !== undefined) {
+        registration.itemId = itemId;
+      }
+
+      quests.push(registration);
+    } else if (Array.isArray(questIds)) {
+      for (const item of questIds) {
+        if (typeof item === "number") {
+          quests.push({ questId: item });
+        } else if (
+          typeof item === "object" &&
+          item !== null &&
+          "questId" in item
+        ) {
+          quests.push(item as QuestRegistration);
+        }
+      }
+    }
+
+    if (quests.length === 0) {
+      throw new ArgsError("questIds is required");
     }
 
     const cmd = new CommandRegisterQuest();
-    cmd.questIds = ids;
+    cmd.quests = quests;
     window.context.addCommand(cmd);
   },
   /**
