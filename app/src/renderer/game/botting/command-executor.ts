@@ -396,7 +396,7 @@ export class CommandExecutor extends TypedEmitter<Events> {
       )
       .flatMap((cmd) => {
         if (cmd instanceof CommandRegisterQuest) {
-          return cmd.questIds;
+          return cmd.quests.map((quest) => quest.questId);
         }
 
         if (cmd instanceof CommandAcceptQuest) {
