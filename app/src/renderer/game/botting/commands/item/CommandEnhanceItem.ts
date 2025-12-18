@@ -133,7 +133,7 @@ export class CommandEnhanceItem extends Command {
         );
 
         this.logger.debug(
-            `Enhanced ${this.itemName} with ${this.enhancementName}${this.procName ? `(${this.procName})` : ""} (shop: ${shopId}, pattern: ${patternId}, proc: ${procId})`,
+            `Enhanced ${this.itemName} with ${this.enhancementName}${this.procName ? ` (${this.procName})` : ""} (shop: ${shopId}, item: ${enhItem.id}, pattern: ${patternId}, proc: ${procId})`,
         );
 
         await this.bot.sleep(1_000);
