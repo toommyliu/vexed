@@ -56,32 +56,52 @@ export const questCommands = {
   /**
    * Registers one or more quests, which automatically handles accepting and completing them.
    *
-   * @param questIds - The ID, array of IDs, or array of quest registration objects.
+   * @param questIds - Quest ID, array of quest IDs, or array containing IDs and [questId, itemId] tuples.
    * @param itemId - Optional item ID when passing a single quest ID.
    */
   register_quest(
-    questIds: number | number[] | QuestRegistration[],
+    questIds: (number | [number, number])[] | number | [number, number],
     itemId?: number,
   ) {
     const quests: QuestRegistration[] = [];
 
     if (typeof questIds === "number") {
+      // Single quest ID
       const registration: QuestRegistration = { questId: questIds };
       if (itemId !== undefined) {
         registration.itemId = itemId;
       }
 
       quests.push(registration);
+    } else if (
+      Array.isArray(questIds) &&
+      questIds.length === 2 &&
+      typeof questIds[0] === "number" &&
+      typeof questIds[1] === "number" &&
+      !Array.isArray(questIds[0])
+    ) {
+      // Check if this is a tuple [questId, itemId] vs array of two quest IDs
+      // When itemId is provided as second arg, treat first arg as array of two quests
+      if (itemId === undefined) {
+        // Treat as tuple [questId, itemId] since that's the new syntax
+        quests.push({ itemId: questIds[1], questId: questIds[0] });
+      } else {
+        // This has extra itemId - treat as array with two quests (itemId ignored)
+        quests.push({ questId: questIds[0] });
+        quests.push({ questId: questIds[1] });
+      }
     } else if (Array.isArray(questIds)) {
+      // Array of quest IDs and/or tuples
       for (const item of questIds) {
         if (typeof item === "number") {
           quests.push({ questId: item });
         } else if (
-          typeof item === "object" &&
-          item !== null &&
-          "questId" in item
+          Array.isArray(item) &&
+          item.length === 2 &&
+          typeof item[0] === "number" &&
+          typeof item[1] === "number"
         ) {
-          quests.push(item as QuestRegistration);
+          quests.push({ itemId: item[1], questId: item[0] });
         }
       }
     }
