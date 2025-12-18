@@ -594,16 +594,17 @@
               </Menu.Trigger>
               <Menu.Content align="end" class="min-w-40 text-[12px]">
                 {#each validPads as pad}
-                  <Menu.Item
-                    class={cn("bg-transparent", pad.isValid && pad.name !== currentSelectedPad && "text-emerald-400", pad.name === currentSelectedPad && "bg-accent/50 text-primary font-medium")}
-                        onclick={() => jumpToPad(pad.name)}
-                      >
+                  {#key pad.name}
+                    <Menu.Item
+                      class={cn("bg-transparent", pad.isValid && pad.name !== currentSelectedPad && "text-emerald-400", pad.name === currentSelectedPad && "bg-accent/50 text-primary font-medium")}
+                      onclick={() => jumpToPad(pad.name)}
+                    >
                       {pad.name}
                     </Menu.Item>
                   {/key}
                 {/each}
               </Menu.Content>
-            </Menu.Root>
+            </Menu.Root> 
             <Menu.Root
               open={openDropdown === "cells"}
               onOpenChange={(open) => {
