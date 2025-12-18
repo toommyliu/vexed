@@ -18,9 +18,17 @@ export type ShopItemData = ItemData & {
    */
   FactionID: string;
   /**
+   * Proc ID for Forge/Awe weapon enhancements
+   */
+  ItemProcID?: string;
+  /**
    * Shop item id.
    */
   ShopItemID: string;
+  /**
+   * Enhancement-specific properties
+   */
+  bEnhShop?: boolean;
   /**
    * Whether the item can be placed in a house.
    */
@@ -35,6 +43,7 @@ export type ShopItemData = ItemData & {
    * Faction associated with the item.
    */
   sFaction: string;
+  sQuest?: string;
   /**
    * Items required to merge this item.
    */
