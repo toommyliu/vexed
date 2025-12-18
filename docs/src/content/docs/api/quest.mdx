@@ -36,7 +36,20 @@ Registers one or more quests, which automatically handles accepting and completi
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| questIds | `number` \| `number[]` | The ID or array of IDs of the quests. |
+| questIds | `number` \| `[number, number]` \| `(number` \| `[number, number])[]` | Quest ID, array of quest IDs, or array containing IDs and [questId, itemId] tuples. |
+| itemId | `number?` | Optional item ID when passing a single quest ID. |
+
+<Code code={`// Single quest
+cmd.register_quest(1234);
+
+// Single quest with item ID
+cmd.register_quest(1234, 5678);
+
+// Multiple quests
+cmd.register_quest([1234, 5678, 9012]);
+
+// Multiple quests, some with item IDs
+cmd.register_quest([1234, [5678, 9999], 9012]); `} lang="js" />
 
 
 ### cmd.unregister_quest
