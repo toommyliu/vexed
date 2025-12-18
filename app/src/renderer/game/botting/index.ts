@@ -30,5 +30,26 @@ for (const [key, value] of Object.entries(builtIns)) {
   });
 }
 
+// dbg.COMMAND(...args) to quickly execute a command, without needing executor to run
+export const dbg = new Proxy({} as Record<string, (...args: unknown[]) => Promise<void>>, {
+  get(_target, prop: string) {
+    return async (...args: unknown[]) => {
+      const [command] = context.captureCommands(() => {
+        const fn = builtIns[prop as keyof typeof builtIns];
+        if (fn) (fn as (...args: unknown[]) => void)(...args);
+      });
+
+      if (!command) {
+        return;
+      }
+
+      await command.execute(new AbortController().signal);
+    };
+  },
+});
+
+// @ts-expect-error don't care
+window.dbg = dbg;
+
 window.cmd = cmd;
 window.context = context;
