@@ -24,14 +24,19 @@ export const questCommands = {
    * Completes a quest.
    *
    * @param questId - The ID of the quest.
+   * @param itemId - Optional item reward ID to select.
    */
-  complete_quest(questId: number) {
+  complete_quest(questId: number, itemId?: number) {
     if (!questId || typeof questId !== "number") {
       throw new ArgsError("questId is required");
     }
 
     const cmd = new CommandCompleteQuest();
     cmd.questId = questId;
+    if (itemId !== undefined) {
+      cmd.itemId = itemId;
+    }
+
     window.context.addCommand(cmd);
   },
 
