@@ -176,7 +176,17 @@ export class CommandEnhanceItem extends Command {
             const isUpgradeItem = Number(shopItem.bUpg) === 1;
             const hasGold = this.bot.player.gold >= cost;
             const hasLevel = level <= this.bot.player.level;
-            const canPurchase = hasGold && hasLevel && (isMember || !isUpgradeItem);
+
+            // Check faction reputation requirement
+            const requiredRep = Number(shopItem.iReqRep ?? 0);
+            const factionId = Number(shopItem.FactionID ?? 0);
+            let hasRep = true;
+            if (requiredRep > 0 && factionId > 0) {
+                const faction = this.bot.player.factions.find((fac) => fac.id === factionId);
+                hasRep = faction !== undefined && faction.totalRep >= requiredRep;
+            }
+
+            const canPurchase = hasGold && hasLevel && hasRep && (isMember || !isUpgradeItem);
 
             // Match item category to enhancement slot
             const categoryMatch =
