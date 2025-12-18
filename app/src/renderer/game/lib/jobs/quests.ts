@@ -57,7 +57,8 @@ export class QuestsJob extends Job {
           const maxTurnIns = Number(
             this.bot.flash.call<string>("world.maximumQuestTurnIns", questId),
           );
-          await this.bot.quests.complete(questId, maxTurnIns);
+          const itemId = this.bot.environment.getQuestItemId(questId) ?? -1;
+          await this.bot.quests.complete(questId, maxTurnIns, itemId);
         }
 
         if (!this.isInProgress(questId)) {

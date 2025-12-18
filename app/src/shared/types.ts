@@ -67,12 +67,25 @@ export type Settings = {
   theme: "dark" | "light" | "system";
 };
 
+export type QuestEntry = {
+  /**
+   * Optional item ID for quests with multiple rewards.
+   * If specified, this item will be selected when completing the quest.
+   */
+  itemId?: number;
+  questId: number;
+};
+
 export type EnvironmentState = {
   autoRegisterRequirements: boolean;
   autoRegisterRewards: boolean;
   boosts: string[];
   itemNames: string[];
   questIds: number[];
+  /**
+   * Mapping of quest ID to selected item ID for reward selection.
+   */
+  questItemIds: Record<number, number>;
   rejectElse: boolean;
 };
 
@@ -82,6 +95,10 @@ export type EnvironmentUpdatePayload = {
   boosts?: string[];
   itemNames: string[];
   questIds: (number | string)[];
+  /**
+   * Mapping of quest ID to selected item ID for reward selection.
+   */
+  questItemIds?: Record<number, number>;
   rejectElse: boolean;
 };
 

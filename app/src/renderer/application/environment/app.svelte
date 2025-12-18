@@ -22,6 +22,7 @@
   let dropInput = $state("");
   let boostInput = $state("");
   let questIds = $state<number[]>([]);
+  let questItemIds = $state<Record<number, number>>({});
   let dropItems = $state<string[]>([]);
   let boostItems = $state<string[]>([]);
   let rejectElse = $state(false);
@@ -34,6 +35,13 @@
   function areArraysEqual<T>(a: T[], b: T[]): boolean {
     if (a.length !== b.length) return false;
     return a.every((value, idx) => value === b[idx]);
+  }
+
+  function areRecordsEqual(a: Record<number, number>, b: Record<number, number>): boolean {
+    const aKeys = Object.keys(a);
+    const bKeys = Object.keys(b);
+    if (aKeys.length !== bKeys.length) return false;
+    return aKeys.every((key) => a[Number(key)] === b[Number(key)]);
   }
 
   function shouldUpdateState(state: EnvironmentState): boolean {
@@ -66,9 +74,11 @@
     );
 
     const normalizedRejectElse = Boolean(state.rejectElse);
+    const normalizedQuestItemIds = state.questItemIds ?? {};
 
     const isSame =
       areArraysEqual(questIds, normalizedQuestIds) &&
+      areRecordsEqual(questItemIds, normalizedQuestItemIds) &&
       areArraysEqual(dropItems, normalizedDrops) &&
       areArraysEqual(boostItems, normalizedBoosts) &&
       rejectElse === normalizedRejectElse &&
@@ -78,6 +88,7 @@
     if (isSame) return false;
 
     questIds = normalizedQuestIds;
+    questItemIds = normalizedQuestItemIds;
     dropItems = normalizedDrops;
     boostItems = normalizedBoosts;
     rejectElse = normalizedRejectElse;
@@ -89,6 +100,7 @@
 
   function normalizePayload(
     questIds: number[],
+    questItemIds: Record<number, number>,
     dropItems: string[],
     boostItems: string[],
     rejectElse: boolean,
@@ -96,6 +108,16 @@
     autoRegisterRewards: boolean
   ) {
     const normalizedQuestIds = [...questIds].sort((a, b) => a - b);
+    const questIdSet = new Set(normalizedQuestIds);
+
+    // Filter questItemIds to only include valid quest IDs
+    const normalizedQuestItemIds: Record<number, number> = {};
+    for (const [questIdStr, itemId] of Object.entries(questItemIds)) {
+      const questId = Number(questIdStr);
+      if (questIdSet.has(questId)) {
+        normalizedQuestItemIds[questId] = itemId;
+      }
+    }
 
     const dedupDrops = new Map<string, string>();
     for (const item of dropItems) {
@@ -124,6 +146,7 @@
 
     return {
       questIds: normalizedQuestIds,
+      questItemIds: normalizedQuestItemIds,
       itemNames: normalizedDrops,
       boosts: normalizedBoosts,
       rejectElse: Boolean(rejectElse),
@@ -149,6 +172,7 @@
 
     const payload = normalizePayload(
       questIds,
+      questItemIds,
       dropItems,
       boostItems,
       rejectElse,
@@ -182,14 +206,35 @@
     }
 
     const current = new Set(questIds);
+    const newItemIds = { ...questItemIds };
     let added = false;
 
     for (const token of tokens) {
-      const parsed = normalizeId(token);
+      const colonIndex = token.indexOf(":");
+      let questIdPart: string;
+      let itemIdPart: string | undefined;
+
+      if (colonIndex !== -1) {
+        questIdPart = token.slice(0, colonIndex);
+        itemIdPart = token.slice(colonIndex + 1);
+      } else {
+        questIdPart = token;
+      }
+
+      const parsed = normalizeId(questIdPart);
       if (parsed === null || parsed === -1) continue;
+
       if (!current.has(parsed)) {
         current.add(parsed);
         added = true;
+      }
+
+      if (itemIdPart) {
+        const itemId = Number(itemIdPart);
+        if (!Number.isNaN(itemId) && itemId > 0) {
+          newItemIds[parsed] = itemId;
+          added = true;
+        }
       }
     }
 
@@ -199,6 +244,7 @@
 
     questInput = "";
     questIds = Array.from(current).sort((a, b) => a - b);
+    questItemIds = newItemIds;
     void syncEnvironment();
   }
 
@@ -214,6 +260,9 @@
     if (next.length === questIds.length) return;
 
     questIds = next;
+    // Also remove from questItemIds
+    const { [id]: _, ...rest } = questItemIds;
+    questItemIds = rest;
     void syncEnvironment();
   }
 
@@ -221,6 +270,19 @@
     if (!questIds.length) return;
 
     questIds = [];
+    questItemIds = {};
+    void syncEnvironment();
+  }
+
+  function updateQuestItemId(questId: number, itemIdStr: string) {
+    const itemId = Number(itemIdStr);
+    if (!itemIdStr || Number.isNaN(itemId) || itemId <= 0) {
+      // Clear the item ID if empty or invalid
+      const { [questId]: _, ...rest } = questItemIds;
+      questItemIds = rest;
+    } else {
+      questItemIds = { ...questItemIds, [questId]: itemId };
+    }
     void syncEnvironment();
   }
 
@@ -381,6 +443,7 @@
     dropInput = "";
     boostInput = "";
     questIds = [];
+    questItemIds = {};
     dropItems = [];
     boostItems = [];
     rejectElse = false;
@@ -400,6 +463,7 @@
 
     const payload = normalizePayload(
       questIds,
+      questItemIds,
       dropItems,
       boostItems,
       rejectElse,
@@ -497,9 +561,30 @@
                 <div class="flex flex-wrap gap-1.5">
                   {#each questIds as questId (questId)}
                     <span
-                      class="group inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-secondary/50 px-2.5 py-1 text-xs font-medium text-foreground transition-colors hover:bg-secondary"
+                      class="group inline-flex items-center gap-1 rounded-full border border-border/50 bg-secondary/50 px-2 py-1 text-xs font-medium text-foreground transition-colors hover:bg-secondary"
                     >
-                      {questId}
+                      <span class="tabular-nums">{questId}</span>
+                      {#if questItemIds[questId] !== undefined}
+                        <span class="text-muted-foreground">:</span>
+                        <span class="tabular-nums text-foreground">{questItemIds[questId]}</span>
+                        <button
+                          type="button"
+                          class="flex h-3.5 w-3.5 items-center justify-center rounded-full text-muted-foreground/60 transition-colors hover:bg-secondary hover:text-muted-foreground opacity-0 group-hover:opacity-100"
+                          onclick={() => updateQuestItemId(questId, "")}
+                          disabled={isSyncing}
+                          title="Clear item ID"
+                        >
+                          <X class="h-2.5 w-2.5" />
+                        </button>
+                      {:else}
+                        <input
+                          type="text"
+                          class="w-12 bg-transparent border-none outline-none text-xs tabular-nums text-foreground placeholder:text-muted-foreground/40 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+                          placeholder=":itemId"
+                          oninput={(e) => updateQuestItemId(questId, e.currentTarget.value)}
+                          disabled={isSyncing}
+                        />
+                      {/if}
                       <button
                         type="button"
                         class="flex h-4 w-4 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/20 hover:text-destructive"

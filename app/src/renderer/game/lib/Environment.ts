@@ -7,6 +7,8 @@ import type { QuestsJob } from "./jobs/quests";
 export class Environment {
   private _questIds = new Set<number>();
 
+  private _questItemIds = new Map<number, number>();
+
   private _itemNames = new Set<string>();
 
   private _boosts = new Set<string>();
@@ -28,6 +30,15 @@ export class Environment {
    */
   public get questIds(): ReadonlySet<number> {
     return this._questIds;
+  }
+
+  /**
+   * Gets the map of quest IDs to selected item IDs.
+   *
+   * @returns The readonly map of quest item IDs.
+   */
+  public get questItemIds(): ReadonlyMap<number, number> {
+    return this._questItemIds;
   }
 
   /**
@@ -117,6 +128,7 @@ export class Environment {
       this.setQuestIds(update.questIds);
       this.setItemNames(update.itemNames);
 
+      if (update.questItemIds !== undefined) this.setQuestItemIds(update.questItemIds);
       if (update.rejectElse !== undefined) this._rejectElse = update.rejectElse;
       if (update.boosts !== undefined) this.setBoosts(update.boosts);
       if (update.autoRegisterRequirements !== undefined)
@@ -136,6 +148,7 @@ export class Environment {
 
     const payload: EnvironmentUpdatePayload = {
       questIds: Array.from(this._questIds),
+      questItemIds: Object.fromEntries(this._questItemIds),
       itemNames: Array.from(this._itemNames),
       boosts: Array.from(this._boosts),
       rejectElse: this._rejectElse,
@@ -166,6 +179,8 @@ export class Environment {
         this.bot.scheduler
           .getJob<QuestsJob>("quests")
           ?.clearQuestRegistration(questId);
+        // Also remove from questItemIds
+        this._questItemIds.delete(questId);
       }
     }
 
@@ -173,6 +188,21 @@ export class Environment {
 
     for (const questId of normalized) {
       this._questIds.add(questId);
+    }
+  }
+
+  /**
+   * Sets the quest item IDs mapping.
+   *
+   * @param questItemIds - The quest item IDs mapping to set.
+   */
+  private setQuestItemIds(questItemIds: Record<number, number>): void {
+    this._questItemIds.clear();
+    for (const [questIdStr, itemId] of Object.entries(questItemIds)) {
+      const questId = Number(questIdStr);
+      if (!Number.isNaN(questId) && this._questIds.has(questId)) {
+        this._questItemIds.set(questId, itemId);
+      }
     }
   }
 
@@ -199,6 +229,42 @@ export class Environment {
     if (parsedQuestId === -1) return;
 
     this._questIds.delete(parsedQuestId);
+    this._questItemIds.delete(parsedQuestId);
+    this.syncToMain();
+  }
+
+  /**
+   * Sets the item ID for a quest (for quests with multiple rewards).
+   *
+   * @param questId - The quest ID.
+   * @param itemId - The item ID to select when completing the quest.
+   */
+  public setQuestItemId(questId: number, itemId: number): void {
+    if (!this._questIds.has(questId)) return;
+
+    this._questItemIds.set(questId, itemId);
+    this.syncToMain();
+  }
+
+  /**
+   * Gets the item ID for a quest.
+   *
+   * @param questId - The quest ID.
+   * @returns The item ID, or undefined if not set.
+   */
+  public getQuestItemId(questId: number): number | undefined {
+    return this._questItemIds.get(questId);
+  }
+
+  /**
+   * Removes the item ID for a quest.
+   *
+   * @param questId - The quest ID.
+   */
+  public removeQuestItemId(questId: number): void {
+    if (!this._questItemIds.has(questId)) return;
+
+    this._questItemIds.delete(questId);
     this.syncToMain();
   }
 
