@@ -29,6 +29,9 @@ body = """
 			{%- if c.body %}
 				{{ "\n" }}  - {{ c.body | trim | indent(prefix="    ", first=false) }}
 			{%- endif %}
+			{%- for footer in c.footers %}
+				{{ "\n" }}  - {{ footer.token }}: {{ footer.value | trim | indent(prefix="    ", first=false) }}
+			{%- endfor %}
 		{%- endfor %}
 	{% endfor %}
 {% endfor %}\n
