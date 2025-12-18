@@ -10,8 +10,7 @@ export class CommandCompleteQuest extends Command {
   }
 
   public override toString() {
-    const itemPart =
-      this.itemId === undefined ? "" : ` (itemId: ${this.itemId})`;
+    const itemPart = this.itemId === undefined ? "" : `:${this.itemId}`;
     return `Complete quest: ${this.questId}${itemPart}`;
   }
 }
