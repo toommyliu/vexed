@@ -58,6 +58,20 @@ export const questCommands = {
    *
    * @param questIds - Quest ID, array of quest IDs, or array containing IDs and [questId, itemId] tuples.
    * @param itemId - Optional item ID when passing a single quest ID.
+   * @example
+   * ```js
+   * // Single quest
+   * cmd.register_quest(1234);
+   *
+   * // Single quest with item ID
+   * cmd.register_quest(1234, 5678);
+   *
+   * // Multiple quests
+   * cmd.register_quest([1234, 5678, 9012]);
+   *
+   * // Multiple quests, some with item IDs
+   * cmd.register_quest([1234, [5678, 9999], 9012]); 
+   * ```
    */
   register_quest(
     questIds: (number | [number, number])[] | number | [number, number],
@@ -83,7 +97,7 @@ export const questCommands = {
       // Check if this is a tuple [questId, itemId] vs array of two quest IDs
       // When itemId is provided as second arg, treat first arg as array of two quests
       if (itemId === undefined) {
-        // Treat as tuple [questId, itemId] since that's the new syntax
+        // Treat as tuple [questId, itemId]
         quests.push({ itemId: questIds[1], questId: questIds[0] });
       } else {
         // This has extra itemId - treat as array with two quests (itemId ignored)
@@ -122,7 +136,7 @@ export const questCommands = {
   unregister_quest(questIds: number[] | number) {
     const ids = Array.isArray(questIds) ? questIds : [questIds];
     if (ids.length === 0 || ids.some((id) => typeof id !== "number")) {
-      throw new ArgsError("questIds must be number or number[]");
+      throw new ArgsError("questIds is required");
     }
 
     const cmd = new CommandUnregisterQuest();
