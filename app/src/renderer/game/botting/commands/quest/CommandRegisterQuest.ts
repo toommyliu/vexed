@@ -1,22 +1,38 @@
 import { Command } from "~/botting/command";
 
+export type QuestRegistration = {
+  itemId?: number;
+  questId: number;
+};
+
 export class CommandRegisterQuest extends Command {
-  public questIds!: number[];
+  public quests!: QuestRegistration[];
 
   protected override _skipDelay = true;
 
   public override executeImpl() {
-    for (const questId of this.questIds) {
-      this.bot.environment.addQuestId(questId);
-      this.logger.debug(`Register quest: ${questId}`);
+    for (const quest of this.quests) {
+      this.bot.environment.addQuestId(quest.questId);
+      if (quest.itemId !== undefined) {
+        this.bot.environment.setQuestItemId(quest.questId, quest.itemId);
+      }
+
+      this.logger.debug(
+        quest.itemId === undefined
+          ? `Register quest: ${quest.questId}`
+          : `Register quest: ${quest.questId} (itemId: ${quest.itemId})`,
+      );
     }
   }
 
   public override toString() {
-    if (this.questIds.length === 1) {
-      return `Register quest: ${this.questIds[0]}`;
+    if (this.quests.length === 1) {
+      const quest = this.quests[0]!;
+      const itemPart =
+        quest.itemId === undefined ? "" : ` (itemId: ${quest.itemId})`;
+      return `Register quest: ${quest.questId}${itemPart}`;
     }
 
-    return `Register quests: ${this.questIds.join(", ")}`;
+    return `Register quests: ${this.quests.map((quest) => quest.questId).join(", ")}`;
   }
 }
