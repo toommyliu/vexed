@@ -62,18 +62,30 @@ cmd.enhance_item("Helm", "Forge", "Anima") // helm Forge special`} lang="js" />
 
 
 ### cmd.equip_item_by_enhancement
-Equips an item using its enhancement name. Supports colloquial variants of the enhancement name.
-
-If results are ambiguous, the first matching item will be used. Use itemType to narrow the result.
+Equips an item using its enhancement name.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| enhancementName | `string` | The name of the enhancement. |
-| itemType | `string?` | The type of item to equip. Can be "weapon", "helm", or "cape". |
+| enhancementName | `string` | The enhancement name (Lucky, Fighter, etc.) or "Forge" for proc matching. |
+| procOrItemType | `string?` | If the enhancement name is "Forge", this should be the proc name. Otherwise, this should be the item type (weapon, helm, cape) or Awe proc if applicable. |
 
-<Code code={`cmd.equip_item_by_enhancement("Lucky", "weapon")
-cmd.equip_item_by_enhancement("Arcanas")
-cmd.equip_item_by_enhancement("Peni")`} lang="js" />
+<Code code={`// 1. forge + proc name
+cmd.equip_item_by_enhancement("Forge", "Arcana's Concerto")
+cmd.equip_item_by_enhancement("Forge", "arcanas") 
+cmd.equip_item_by_enhancement("Forge", "Penitence")
+cmd.equip_item_by_enhancement("Forge", "Anima")
+
+// 2. basic + awe proc (weapon)
+cmd.equip_item_by_enhancement("Lucky", "Spiral Carve")
+cmd.equip_item_by_enhancement("Fighter", "Awe Blast")
+
+// 3. basic + item type filter
+cmd.equip_item_by_enhancement("Lucky", "Weapon")
+cmd.equip_item_by_enhancement("Fighter", "Cape")
+
+// 4. basic only (first match)
+cmd.equip_item_by_enhancement("Fighter")
+cmd.equip_item_by_enhancement("Lucky")`} lang="js" />
 
 
 ### cmd.get_map_item

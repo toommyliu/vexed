@@ -255,34 +255,36 @@ export const itemCommands = {
   /**
    * Equips an item using its enhancement name.
    *
-   * Supports both explicit and colloquial formats. If results are ambiguous,
-   * the first matching item will be used. Use procOrItemType to narrow the result.
-   *
    * @example
    * ```js
-   * // Basic enhancement with optional item type filter
-   * cmd.equip_item_by_enhancement("Lucky", "Weapon")
-   * cmd.equip_item_by_enhancement("Fighter")
+   * // 1. forge + proc name
+   * cmd.equip_item_by_enhancement("Forge", "Arcana's Concerto")
+   * cmd.equip_item_by_enhancement("Forge", "arcanas") 
+   * cmd.equip_item_by_enhancement("Forge", "Penitence")
+   * cmd.equip_item_by_enhancement("Forge", "Anima")
    *
-   * // Basic enhancement + Awe proc (weapons only)
+   * // 2. basic + awe proc (weapon)
    * cmd.equip_item_by_enhancement("Lucky", "Spiral Carve")
    * cmd.equip_item_by_enhancement("Fighter", "Awe Blast")
    *
-   * // Forge mode - equip by proc name
-   * cmd.equip_item_by_enhancement("Forge", "Arcanas")       // weapon
-   * cmd.equip_item_by_enhancement("Forge", "Penitence")     // cape
-   * cmd.equip_item_by_enhancement("Forge", "Anima")         // helm
+   * // 3. basic + item type filter
+   * cmd.equip_item_by_enhancement("Lucky", "Weapon")
+   * cmd.equip_item_by_enhancement("Fighter", "Cape")
    *
-   * // Colloquial variants still supported
-   * cmd.equip_item_by_enhancement("Arcanas")                // auto-detects weapon
-   * cmd.equip_item_by_enhancement("Peni")                   // auto-detects cape
+   * // 4. basic only (first match)
+   * cmd.equip_item_by_enhancement("Fighter")
+   * cmd.equip_item_by_enhancement("Lucky")
    * ```
    * @param enhancementName - The enhancement name (Lucky, Fighter, etc.) or "Forge" for proc matching.
-   * @param procOrItemType - Item type filter ("weapon", "helm", "cape"), Awe proc, or Forge proc name.
+   * @param procOrItemType - If the enhancement name is "Forge", this should be the proc name. Otherwise, this should be the item type (weapon, helm, cape) or Awe proc if applicable.
    */
   equip_item_by_enhancement(enhancementName: string, procOrItemType?: string) {
     if (typeof enhancementName !== "string") {
       throw new ArgsError("enhancementName is required");
+    }
+
+    if (procOrItemType && typeof procOrItemType !== "string") {
+      throw new ArgsError("procOrItemType is required");
     }
 
     const cmd = new CommandEquipByEnhancement();
