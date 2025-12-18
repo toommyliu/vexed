@@ -1,9 +1,9 @@
 import { ArgsError } from "~/botting/ArgsError";
+import { CommandAbandonQuest } from "./CommandAbandonQuest";
 import { CommandAcceptQuest } from "./CommandAcceptQuest";
 import { CommandCompleteQuest } from "./CommandCompleteQuest";
 import { CommandRegisterQuest } from "./CommandRegisterQuest";
 import { CommandUnregisterQuest } from "./CommandUnregisterQuest";
-import { CommandAbandonQuest } from "./CommandAbandonQuest";
 
 export const questCommands = {
   /**
@@ -55,7 +55,7 @@ export const questCommands = {
    *
    * @param questIds - The ID or array of IDs of the quests.
    */
-  register_quest(questIds: number | number[]) {
+  register_quest(questIds: number[] | number) {
     const ids = Array.isArray(questIds) ? questIds : [questIds];
     if (ids.length === 0 || ids.some((id) => typeof id !== "number")) {
       throw new ArgsError("questIds must be number or number[]");
@@ -70,7 +70,7 @@ export const questCommands = {
    *
    * @param questIds - The ID or array of IDs of the quests.
    */
-  unregister_quest(questIds: number | number[]) {
+  unregister_quest(questIds: number[] | number) {
     const ids = Array.isArray(questIds) ? questIds : [questIds];
     if (ids.length === 0 || ids.some((id) => typeof id !== "number")) {
       throw new ArgsError("questIds must be number or number[]");

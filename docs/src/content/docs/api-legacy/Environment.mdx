@@ -34,6 +34,11 @@ Gets the set of quest IDs.
 
 Type: `ReadonlySet<number>`
 
+### questItemIds <Badge text="Getter" size="small" />	
+Gets the map of quest IDs to selected item IDs.
+
+Type: `ReadonlyMap<number, number>`
+
 ### rejectElse <Badge text="Getter" size="small" />	 <Badge text="Setter" size="small" />
 Gets the reject else flag.
 
@@ -73,6 +78,14 @@ Updates the environment state with the given update payload.
 
 **Returns**: `void`
 
+### getQuestItemId
+Gets the item ID for a quest.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| questId | `number` | The quest ID. |
+
+**Returns**: `number` \| `undefined`
+
 ### hasBoost
 Checks if the environment has the specified boost.
 | Parameter | Type | Description |
@@ -110,5 +123,22 @@ Removes a quest ID from the environment.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | questId | `string` \| `number` | The quest ID to remove. |
+
+**Returns**: `void`
+
+### removeQuestItemId
+Removes the item ID for a quest.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| questId | `number` | The quest ID. |
+
+**Returns**: `void`
+
+### setQuestItemId
+Sets the item ID for a quest (for quests with multiple rewards).
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| questId | `number` | The quest ID. |
+| itemId | `number` | The item ID to select when completing the quest. |
 
 **Returns**: `void`

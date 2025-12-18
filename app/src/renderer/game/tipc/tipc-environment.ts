@@ -7,6 +7,7 @@ const bot = Bot.getInstance();
 handlers.environment.stateChanged.listen((state: EnvironmentState) => {
   bot.environment.applyUpdate({
     questIds: state.questIds,
+    questItemIds: state.questItemIds,
     itemNames: state.itemNames,
     boosts: state.boosts,
     rejectElse: state.rejectElse,

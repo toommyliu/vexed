@@ -12,6 +12,7 @@ const EMPTY_STATE: EnvironmentState = {
   boosts: [],
   itemNames: [],
   questIds: [],
+  questItemIds: {},
   rejectElse: false,
 };
 
@@ -53,15 +54,28 @@ function applyUpdate(
     .filter(Boolean)
     .sort((a, b) => a.localeCompare(b));
 
+  // Filter questItemIds to only include valid quest IDs
+  const questIdSet = new Set(normalizedQuestIds);
+  const normalizedQuestItemIds: Record<number, number> = {};
+  if (payload.questItemIds) {
+    for (const [questIdStr, itemId] of Object.entries(payload.questItemIds)) {
+      const questId = Number(questIdStr);
+      if (questIdSet.has(questId)) {
+        normalizedQuestItemIds[questId] = itemId;
+      }
+    }
+  }
+
   const newState: EnvironmentState = {
-    questIds: normalizedQuestIds,
-    itemNames: normalizedItemNames,
-    boosts: normalizedBoosts,
-    rejectElse: payload.rejectElse ?? currentState.rejectElse,
     autoRegisterRequirements:
       payload.autoRegisterRequirements ?? currentState.autoRegisterRequirements,
     autoRegisterRewards:
       payload.autoRegisterRewards ?? currentState.autoRegisterRewards,
+    boosts: normalizedBoosts,
+    itemNames: normalizedItemNames,
+    questIds: normalizedQuestIds,
+    questItemIds: normalizedQuestItemIds,
+    rejectElse: payload.rejectElse ?? currentState.rejectElse,
   };
 
   stateMap.set(windowId, newState);
