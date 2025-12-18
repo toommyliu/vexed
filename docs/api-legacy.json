@@ -161,6 +161,22 @@
         "link": "/api-legacy/enums/boosttype"
       },
       {
+        "label": "CapeSpecial",
+        "link": "/api-legacy/enums/capespecial"
+      },
+      {
+        "label": "EnhancementType",
+        "link": "/api-legacy/enums/enhancementtype"
+      },
+      {
+        "label": "HelmSpecial",
+        "link": "/api-legacy/enums/helmspecial"
+      },
+      {
+        "label": "WeaponSpecial",
+        "link": "/api-legacy/enums/weaponspecial"
+      },
+      {
         "label": "GameAction",
         "link": "/api-legacy/enums/gameaction"
       }

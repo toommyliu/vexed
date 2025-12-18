@@ -30,6 +30,7 @@ title: ShopItemData
 | iStk | `number` |  |  |
 | ItemID | `number` |  |  |
 | iType | `number` |  |  |
+| PatternID | `number` \| `string?` | ✓ |  |
 | ProcID | `number`? | ✓ |  |
 | sDesc | `string` |  |  |
 | sElmt | `string` |  |  |
@@ -40,6 +41,7 @@ title: ShopItemData
 | sMeta | `string` |  |  |
 | sName | `string` |  |  |
 | sType | `string` |  |  |
+| bEnhShop | `boolean`? | ✓ | Enhancement-specific properties |
 | bHouse | `string` |  | Whether the item can be placed in a house. |
 | FactionID | `string` |  | Faction ID associated with the item. |
 | iClass | `string` |  |  |
@@ -48,6 +50,8 @@ title: ShopItemData
 | iQtyRemain | `string` |  |  |
 | iReqCP | `string` |  |  |
 | iReqRep | `string` |  |  |
+| ItemProcID | `string`? | ✓ | Proc ID for Forge/Awe weapon enhancements |
 | sFaction | `string` |  | Faction associated with the item. |
 | ShopItemID | `string` |  | Shop item id. |
+| sQuest | `string`? | ✓ |  |
 | turnin | `{ iQty: string; ItemID: string; sName: string }`[]? | ✓ | Items required to merge this item. |

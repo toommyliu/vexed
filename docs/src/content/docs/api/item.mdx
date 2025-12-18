@@ -32,6 +32,29 @@ Puts an item into the bank.
 | item | `string` \| `number` \| `(string` \| `number)[]` | The item to deposit. If provided an array, each item will be deposited. |
 
 
+### cmd.enhance_item
+Enhances an item with the specified enhancement.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| itemName | `string` | The name of the item to enhance. |
+| enhancementName | `string` | The enhancement type (Lucky, Fighter, Wizard, etc.) or "Forge". |
+| procName | `string?` | Optional. Awe proc (Spiral Carve) or Forge proc (Valiance, Vainglory, Anima). |
+
+<Code code={`// Basic enhancement
+cmd.enhance_item("Void Highlord", "Lucky")
+
+// Awe enhancement (weapon only) - base type + Awe proc
+cmd.enhance_item("Weapon", "Lucky", "Spiral Carve")
+cmd.enhance_item("Weapon", "Fighter", "Awe Blast")
+
+// Forge enhancement - item type is deduced from item name
+cmd.enhance_item("Necrotic Sword", "Forge") // base Forge
+cmd.enhance_item("Necrotic Sword", "Forge", "Valiance") // weapon Forge proc
+cmd.enhance_item("Cape", "Forge", "Vainglory") // cape Forge special
+cmd.enhance_item("Helm", "Forge", "Anima") // helm Forge special`} lang="js" />
+
+
 ### cmd.equip_item
 | Parameter | Type | Description |
 |-----------|------|-------------|

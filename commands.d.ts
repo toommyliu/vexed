@@ -232,6 +232,8 @@ to be satisfied. */
   buy_item(shopId: number, item: string | number, quantity: number, auto?: boolean): void;
   /** Puts an item into the bank. */
   deposit(item: string | number | (string | number)[]): void;
+  /** Enhances an item with the specified enhancement. */
+  enhance_item(itemName: string, enhancementName: string, procName?: string): void;
   equip_item(item: string): void;
   /** Equips an item using its enhancement name. Supports colloquial variants of the enhancement name.
 
