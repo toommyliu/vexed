@@ -203,10 +203,14 @@ export class CommandEnhanceItem extends Command {
                 (category === "cape" && enhTarget === "ba") ||
                 (item.isWeapon() && enhTarget === "weapon");
 
-            // Match pattern ID
+            // Match pattern ID and/or proc ID
             const itemPatternId = Number(shopItem.PatternID ?? shopItem.EnhPatternID ?? 0);
             const itemProcId = Number(shopItem.ItemProcID ?? shopItem.ProcID ?? 0);
-            const patternMatch = itemPatternId === patternId && itemProcId === procId;
+            // When procId is specified, only match by procId (proc enhancements have their own PatternID)
+            // When procId is 0, match by patternId (base enhancements)
+            const patternMatch = procId > 0
+                ? itemProcId === procId
+                : itemPatternId === patternId && itemProcId === 0;
 
             return canPurchase && categoryMatch && patternMatch;
         });
