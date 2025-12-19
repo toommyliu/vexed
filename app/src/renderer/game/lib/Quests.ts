@@ -1,23 +1,24 @@
 import type { Bot } from "./Bot";
 import { GameAction } from "./World";
 import { QuestCache } from "./cache/QuestCache";
+import type { QuestData } from "./models/Quest";
 import { Quest } from "./models/Quest";
 
 export class Quests {
   public constructor(public bot: Bot) { }
 
   /**
-   * A list of quests loaded in the client.
+   * A list of quests loaded in the client as Quest instances.
    */
   public get tree(): Quest[] {
     return QuestCache.getAll().map((data) => new Quest(data));
   }
 
   /**
-   * A list of accepted quests.
+   * A list of quests loaded in the client as raw QuestData.
    */
-  public get accepted(): Quest[] {
-    return this.tree.filter((quest) => quest.inProgress);
+  public get rawTree(): QuestData[] {
+    return QuestCache.getAll();
   }
 
   /**
@@ -123,10 +124,9 @@ export class Quests {
   public async abandon(questId: number): Promise<void> {
     if (!this.get(questId)?.inProgress) return;
 
-    this.bot.flash.call(() => swf.questsAbandon(questId));
+    this.bot.flash.call(() =>
+      swf.callGameFunction("world.abandonQuest", questId),
+    );
     await this.bot.waitUntil(() => !this.get(questId)?.inProgress);
-
-    // Update cache to reflect that the quest is no longer in progress
-    QuestCache.update(questId, { inProgress: false });
   }
 }
