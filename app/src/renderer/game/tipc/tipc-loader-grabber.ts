@@ -1,4 +1,5 @@
 import { Bot } from "~/lib/Bot";
+import { QuestCache } from "~/lib/cache/QuestCache";
 import { handlers } from "~/shared/tipc";
 import { GrabberDataType, LoaderDataType } from "~/shared/types";
 
@@ -31,7 +32,7 @@ handlers.loaderGrabber.grab.handle(async ({ type }) => {
       if (!bot.shops.isShopLoaded()) return [];
       return bot.shops.info;
     case GrabberDataType.Quest:
-      return bot.flash.call(() => swf.questsGetTree());
+      return QuestCache.getAll();
     case GrabberDataType.Inventory:
       return bot.flash.call(() => swf.inventoryGetItems());
     case GrabberDataType.TempInventory:

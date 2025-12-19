@@ -39,6 +39,10 @@ export class Quest {
    * Whether this quest is in progress.
    */
   public get inProgress(): boolean {
+    if (this.data.inProgress !== undefined) {
+      return this.data.inProgress;
+    }
+
     return this.#bot.flash.call(() => swf.questsIsInProgress(this.id));
   }
 
@@ -191,6 +195,11 @@ export type QuestData = {
   iSlot: number;
   iValue: number;
   iWar: number;
+  /**
+   * Whether this quest is in progress.
+   * This is set by the acceptQuest packet handler.
+   */
+  inProgress?: boolean;
   metaValues: Record<string, string>;
   oItems: Record<string, ItemData>;
   oRewards: Record<string, QuestRewards2Raw>;

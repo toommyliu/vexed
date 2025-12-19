@@ -65,7 +65,7 @@ export enum GameAction {
 }
 
 export class World {
-  public constructor(public readonly bot: Bot) { }
+  public constructor(public readonly bot: Bot) {}
 
   /**
    * A list of all player names in the map.

@@ -1,28 +1,30 @@
 <!doctype html>
 <html>
-
-<head>
+  <head>
     <script>
-        (function () {
-            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            if (systemPrefersDark) {
-                document.documentElement.classList.add('dark');
-            }
+      (function () {
+        const systemPrefersDark = window.matchMedia(
+          "(prefers-color-scheme: dark)",
+        ).matches;
+        if (systemPrefersDark) {
+          document.documentElement.classList.add("dark");
+        }
 
-            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-                if (e.matches) {
-                    document.documentElement.classList.add('dark');
-                } else {
-                    document.documentElement.classList.remove('dark');
-                }
-            });
-        })();
+        window
+          .matchMedia("(prefers-color-scheme: dark)")
+          .addEventListener("change", (e) => {
+            if (e.matches) {
+              document.documentElement.classList.add("dark");
+            } else {
+              document.documentElement.classList.remove("dark");
+            }
+          });
+      })();
     </script>
     <link href="{{CSS_PATH}}" rel="stylesheet" />
-</head>
+  </head>
 
-<body>
+  <body>
     <script src="{{SCRIPT_PATH}}"></script>
-</body>
-
+  </body>
 </html>

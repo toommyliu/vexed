@@ -37,7 +37,7 @@ export class Army {
 
   // private isInitialized = false;
 
-  public constructor(public readonly bot: Bot) { }
+  public constructor(public readonly bot: Bot) {}
 
   /**
    * Sets the config file name.

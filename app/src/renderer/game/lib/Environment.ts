@@ -21,7 +21,7 @@ export class Environment {
 
   private _isApplyingUpdate = false;
 
-  public constructor(public readonly bot: Bot) { }
+  public constructor(public readonly bot: Bot) {}
 
   /**
    * Gets the set of quest IDs.

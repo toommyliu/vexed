@@ -6,12 +6,19 @@
 @tailwind utilities;
 
 @layer base {
-
   html,
   body {
     user-select: none;
-    font-family: 'Inter', 'SF Pro Display', 'SF Pro Text', 'SF Pro', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-    font-feature-settings: 'cv01', 'cv02', 'cv03', 'cv04', 'ss01';
+    font-family:
+      "Inter",
+      "SF Pro Display",
+      "SF Pro Text",
+      "SF Pro",
+      -apple-system,
+      BlinkMacSystemFont,
+      system-ui,
+      sans-serif;
+    font-feature-settings: "cv01", "cv02", "cv03", "cv04", "ss01";
     -webkit-font-smoothing: antialiased;
   }
 

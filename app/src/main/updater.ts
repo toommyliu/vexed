@@ -31,7 +31,7 @@ async function readLastUpdateCheck(): Promise<number | null> {
 async function writeLastUpdateCheck(timestamp: number): Promise<void> {
   try {
     await fs.writeFile(lastUpdateCheckFile, String(timestamp));
-  } catch { }
+  } catch {}
 }
 
 async function readETag(): Promise<string | null> {
@@ -45,7 +45,7 @@ async function readETag(): Promise<string | null> {
 async function writeETag(eTag: string): Promise<void> {
   try {
     await fs.writeFile(eTagFile, eTag);
-  } catch { }
+  } catch {}
 }
 
 export async function checkForUpdates(

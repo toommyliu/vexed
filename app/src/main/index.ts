@@ -7,12 +7,7 @@ import { registerIpcMain } from "@vexed/tipc/main";
 import { app, shell, nativeTheme } from "electron";
 import log from "electron-log";
 import { version } from "../../package.json";
-import {
-  BRAND,
-  DOCUMENTS_PATH,
-  IS_MAC,
-  IS_WINDOWS,
-} from "../shared/constants";
+import { BRAND, DOCUMENTS_PATH, IS_MAC, IS_WINDOWS } from "../shared/constants";
 import { equalsIgnoreCase } from "../shared/string";
 import { ASSET_PATH, logger } from "./constants";
 import { createMenu } from "./menu";
@@ -101,7 +96,10 @@ async function handleAppLaunch(argv: string[] = process.argv) {
     }
 
     let launchMode = settings.getString("launchMode", "game");
-    if (!equalsIgnoreCase(launchMode, "manager") && !equalsIgnoreCase(launchMode, "game")) {
+    if (
+      !equalsIgnoreCase(launchMode, "manager") &&
+      !equalsIgnoreCase(launchMode, "game")
+    ) {
       logger.info(
         `Unknown launch mode, got "${launchMode}", defaulting to "game"...`,
       );
@@ -112,12 +110,17 @@ async function handleAppLaunch(argv: string[] = process.argv) {
 
     if (
       equalsIgnoreCase(launchMode, "manager") ||
-      argv.some((arg) => equalsIgnoreCase(arg, "--manager") || equalsIgnoreCase(arg, "-m"))
+      argv.some(
+        (arg) =>
+          equalsIgnoreCase(arg, "--manager") || equalsIgnoreCase(arg, "-m"),
+      )
     ) {
       await createAccountManager();
     } else if (
       equalsIgnoreCase(launchMode, "game") ||
-      argv.some((arg) => equalsIgnoreCase(arg, "--game") || equalsIgnoreCase(arg, "-g"))
+      argv.some(
+        (arg) => equalsIgnoreCase(arg, "--game") || equalsIgnoreCase(arg, "-g"),
+      )
     ) {
       const account = {
         username:

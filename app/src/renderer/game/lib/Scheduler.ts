@@ -13,7 +13,7 @@ export class Scheduler {
 
   private _activeJob: Job | null = null;
 
-  public constructor(public bot: Bot) {}
+  public constructor(public bot: Bot) { }
 
   public get activeJob() {
     return this._activeJob;
@@ -100,6 +100,7 @@ export class Scheduler {
 
   /**
    * Get a job.
+   *
    * @param jobId - The ID of the job.
    * @returns The job, or null if not found.
    */

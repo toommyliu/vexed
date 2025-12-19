@@ -594,15 +594,17 @@
               </Menu.Trigger>
               <Menu.Content align="end" class="min-w-40 text-[12px]">
                 {#each validPads as pad}
-                  <Menu.Item
-                    class={cn("bg-transparent", pad.isValid && pad.name !== currentSelectedPad && "text-emerald-400", pad.name === currentSelectedPad && "bg-accent/50 text-primary font-medium")}
-                    onclick={() => jumpToPad(pad.name)}
-                  >
-                    {pad.name}
-                  </Menu.Item>
+                  {#key pad.name}
+                    <Menu.Item
+                      class={cn("bg-transparent", pad.isValid && pad.name !== currentSelectedPad && "text-emerald-400", pad.name === currentSelectedPad && "bg-accent/50 text-primary font-medium")}
+                      onclick={() => jumpToPad(pad.name)}
+                    >
+                      {pad.name}
+                    </Menu.Item>
+                  {/key}
                 {/each}
               </Menu.Content>
-            </Menu.Root>
+            </Menu.Root> 
             <Menu.Root
               open={openDropdown === "cells"}
               onOpenChange={(open) => {
@@ -623,9 +625,11 @@
               </Menu.Trigger>
               <Menu.Content align="end" class="max-h-[25vh] min-w-40 overflow-y-auto text-[12px]">
                 {#each availableCells as cell}
-                  <Menu.Item class={cn("bg-transparent", cell === currentSelectedCell && "bg-accent/50 text-primary font-medium")} onclick={() => jumpToCell(cell)}>
-                    {cell}
-                  </Menu.Item>
+                  {#key cell}
+                    <Menu.Item class={cn("bg-transparent", cell === currentSelectedCell && "bg-accent/50 text-primary font-medium")} onclick={() => jumpToCell(cell)}>
+                      {cell}
+                    </Menu.Item>
+                  {/key}
                 {/each}
               </Menu.Content>
             </Menu.Root>

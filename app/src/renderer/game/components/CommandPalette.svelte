@@ -344,32 +344,36 @@
           </div>
         {:else}
           {#each Object.entries(groupedCommands()) as [category, items]}
-            <div class="mb-2 last:mb-0">
-              <div
-                class="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"
-              >
-                {category}
-              </div>
-              {#each items as cmd (cmd.id)}
-                {@const globalIndex = filteredCommands.indexOf(cmd)}
-                <!-- svelte-ignore a11y_click_events_have_key_events -->
-                <!-- svelte-ignore a11y_no_static_element_interactions -->
+            {#key category}
+              <div class="mb-2 last:mb-0">
                 <div
-                  class={cn(
-                    "flex cursor-pointer items-center justify-between rounded-lg px-3 py-2 transition-colors",
-                    globalIndex === selectedIndex
-                      ? "bg-primary/20 text-foreground"
-                      : "text-foreground/80 hover:bg-accent"
-                  )}
-                  data-command-index={globalIndex}
-                  onclick={(ev) => executeCommand(cmd, IS_MAC ? ev.metaKey : ev.ctrlKey)}
-                  onmouseenter={() => mouseMoved && (selectedIndex = globalIndex)}
+                  class="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"
                 >
-                  <span class="text-sm">{cmd.label}</span>
-                  <Kbd hotkey={cmd.hotkey} />
+                  {category}
                 </div>
-              {/each}
-            </div>
+                {#each items as cmd (cmd.id)}
+                  {#key cmd.id}
+                    {@const globalIndex = filteredCommands.indexOf(cmd)}
+                    <!-- svelte-ignore a11y_click_events_have_key_events -->
+                    <!-- svelte-ignore a11y_no_static_element_interactions -->
+                    <div
+                      class={cn(
+                        "flex cursor-pointer items-center justify-between rounded-lg px-3 py-2 transition-colors",
+                        globalIndex === selectedIndex
+                          ? "bg-primary/20 text-foreground"
+                          : "text-foreground/80 hover:bg-accent"
+                      )}
+                      data-command-index={globalIndex}
+                      onclick={(ev) => executeCommand(cmd, IS_MAC ? ev.metaKey : ev.ctrlKey)}
+                      onmouseenter={() => mouseMoved && (selectedIndex = globalIndex)}
+                    >
+                      <span class="text-sm">{cmd.label}</span>
+                      <Kbd hotkey={cmd.hotkey} />
+                    </div>
+                  {/key}
+                {/each}
+              </div>
+            {/key}
           {/each}
         {/if}
       </div>

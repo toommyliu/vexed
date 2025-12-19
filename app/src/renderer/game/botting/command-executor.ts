@@ -507,7 +507,6 @@ export class CommandExecutor extends TypedEmitter<Events> {
     cmd.close_window() // doesn't work
     */
 
-
     if (this.isRunning()) this._stop();
   }
 }

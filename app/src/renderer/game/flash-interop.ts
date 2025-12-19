@@ -3,23 +3,35 @@ import log from "electron-log/renderer";
 import { Bot } from "~/lib/Bot";
 import { AutoReloginJob } from "~/lib/jobs/autorelogin";
 import { client } from "~/shared/tipc";
-import { AuraStore } from "./lib/util/AuraStore";
-import { addGoldExp } from "./packet-handlers/add-gold-exp";
+import { dispatchJsonPacket, dispatchStrPacket } from "./packet-handlers";
 import { ct } from "./packet-handlers/ct";
-import { dropItem } from "./packet-handlers/drop-item";
-import { event } from "./packet-handlers/event";
-import { initUserData } from "./packet-handlers/init-user-data";
-import { initUserDatas } from "./packet-handlers/initUserDatas";
-import { moveToArea } from "./packet-handlers/move-to-area";
 import { appState } from "./state.svelte";
 
 const logger = log.scope("game/flash-interop");
 
 const bot = Bot.getInstance();
 
+function sortObjectKeys(obj: unknown): unknown {
+  if (Array.isArray(obj)) {
+    return obj.map(sortObjectKeys);
+  } else if (obj !== null && typeof obj === "object") {
+    return Object.keys(obj)
+      .sort((a, b) => a.localeCompare(b))
+      .reduce<Record<string, unknown>>((acc, key) => {
+        acc[key] = sortObjectKeys((obj as Record<string, unknown>)[key]);
+        return acc;
+      }, {});
+  }
+
+  return obj;
+}
+
 window.packetFromClient = ([packet]: [string]) => {
   bot.emit("packetFromClient", packet);
 };
+
+let lastServerCt: unknown = null;
+let lastPextCt: unknown = null;
 
 window.packetFromServer = ([packet]: [string]) => {
   bot.emit("packetFromServer", packet);
@@ -33,6 +45,7 @@ window.packetFromServer = ([packet]: [string]) => {
       typeof pkt?.b?.o?.cmd === "string" &&
       pkt?.b?.o?.cmd === "ct"
     ) {
+      lastServerCt = pkt?.b?.o;
       ct(bot, pkt?.b?.o);
     }
   }
@@ -50,59 +63,30 @@ window.pext = async ([packet]) => {
   bot.emit("pext", pkt);
 
   if (pkt?.params?.type === "str") {
-    const dataObj = pkt?.params?.dataObj; // ['exitArea', '-1', 'ENT_ID', 'PLAYER']
-
-    // const ogPkt = `%xt%${dataObj.join("%")}%`; // %xt%exitArea%-1%ENT_ID%PLAYER%
-
-    switch (dataObj[0]) {
-      case "respawnMon":
-        break;
-      case "exitArea":
-        {
-          const playerName = dataObj[dataObj.length - 1];
-          AuraStore.unregisterPlayer(playerName);
-          bot.emit("playerLeave", playerName);
-        }
-
-        break;
-      case "uotls":
-        if (
-          Array.isArray(dataObj) &&
-          dataObj?.length === 4 &&
-          dataObj[2]?.toLowerCase() === bot.auth?.username?.toLowerCase() &&
-          dataObj[3] === "afk:true"
-        ) {
-          bot.emit("afk");
-        }
-
-        break;
-    }
+    const dataObj = pkt?.params?.dataObj as string[];
+    dispatchStrPacket(bot, dataObj);
   } else if (pkt?.params?.type === "json") {
-    const dataObj = pkt?.params?.dataObj; // { intGold: 8, cmd: '', intExp: 0, bonusGold: 2, typ: 'm' }
+    const dataObj = pkt?.params?.dataObj;
+    const cmd = dataObj?.cmd as string | undefined;
 
-    switch (pkt?.params?.dataObj?.cmd) {
-      case "addGoldExp":
-        void addGoldExp(bot, dataObj);
-        break;
-      case "dropItem":
-        void dropItem(bot, dataObj);
-        break;
-      case "initUserData":
-        initUserData(bot, dataObj);
-        break;
-      case "initUserDatas":
-        void initUserDatas(bot, dataObj);
-        break;
-      case "moveToArea":
-        void moveToArea(bot, dataObj);
-        break;
-      case "event":
-        void event(bot, dataObj);
-        break;
-      case "clearAuras": {
-        const entId = AuraStore.getPlayerEntId(bot.auth.username);
-        if (entId !== undefined) AuraStore.clearPlayerAuras(entId);
+    if (cmd === "ct") {
+      lastPextCt = dataObj;
+      if (lastServerCt && lastPextCt) {
+        const serverStr = JSON.stringify(sortObjectKeys(lastServerCt));
+        const pextStr = JSON.stringify(sortObjectKeys(lastPextCt));
+        if (serverStr !== pextStr) {
+          logger.warn("CT DIFF DETECTED!");
+          logger.warn("Server CT:", lastServerCt);
+          logger.warn("Pext CT:", lastPextCt);
+        }
+
+        lastServerCt = null;
+        lastPextCt = null;
       }
+    }
+
+    if (cmd) {
+      dispatchJsonPacket(bot, cmd, dataObj);
     }
   }
 };

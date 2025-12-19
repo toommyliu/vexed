@@ -4,7 +4,7 @@ type StoredAura = Aura & {
   stack?: number;
 };
 
-export class AuraStore {
+export class AuraCache {
   static #monAuras: Map<string, StoredAura[]> = new Map(); // monMapId -> auras
 
   static #playerAuras: Map<number, StoredAura[]> = new Map(); // entID -> auras
