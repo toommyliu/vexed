@@ -1,4 +1,5 @@
 import type { JsonPacketHandler } from "../types";
+import acceptQuest from "./accept-quest";
 import addGoldExp from "./add-gold-exp";
 import ccqr from "./ccqr";
 import clearAuras from "./clear-auras";
@@ -10,6 +11,7 @@ import initUserDatas from "./init-user-datas";
 import moveToArea from "./move-to-area";
 
 export const jsonHandlers: JsonPacketHandler<unknown>[] = [
+  acceptQuest,
   addGoldExp,
   ccqr,
   clearAuras,
@@ -25,6 +27,7 @@ export const jsonHandlerMap = new Map<string, JsonPacketHandler<unknown>>(
   jsonHandlers.map((fn) => [fn.cmd, fn]),
 );
 
+export { default as acceptQuest } from "./accept-quest";
 export { default as addGoldExp } from "./add-gold-exp";
 export { default as ccqr } from "./ccqr";
 export { default as clearAuras } from "./clear-auras";

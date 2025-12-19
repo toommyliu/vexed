@@ -4,12 +4,6 @@ export class QuestCache {
   static #quests: Map<number, QuestData> = new Map();
 
   /**
-   * Whether to use the JS cache for quest lookups.
-   * Toggle this at runtime to compare performance.
-   */
-  public static useCached = false;
-
-  /**
    * Stores quest data in the cache.
    */
   public static set(questId: number, data: QuestData): void {

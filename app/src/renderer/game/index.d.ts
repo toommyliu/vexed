@@ -126,7 +126,6 @@ declare global {
     questsAbandon(questId: number): void;
     questsGet(questId: number): Nullable<Record<string, unknown>>;
     questsGetMultiple(questIds: string): void;
-    questsGetTree(): QuestData[];
     questsGetQuestValidationString(quest: QuestData): string;
     questsHasRequiredItemsForQuest(quest: QuestData): boolean;
     questsIsAvailable(questId: number): boolean;
@@ -211,6 +210,7 @@ declare global {
     loaded(): Promise<void> | void;
     connection(state: [string]): void;
     pext([packet]: [string]): Promise<void> | void;
+    gameEvent(event: { type: string;[key: string]: unknown }): void;
     progress([percent]: [number]): void;
 
     swf: GameSWF;
@@ -225,4 +225,4 @@ declare global {
   }
 }
 
-export {};
+export { };

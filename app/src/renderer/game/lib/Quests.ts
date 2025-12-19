@@ -1,23 +1,16 @@
 import type { Bot } from "./Bot";
 import { GameAction } from "./World";
 import { QuestCache } from "./cache/QuestCache";
-import { Quest, type QuestData } from "./models/Quest";
+import { Quest } from "./models/Quest";
 
 export class Quests {
   public constructor(public bot: Bot) { }
 
   /**
    * A list of quests loaded in the client.
-   * Uses JS cache when `QuestCache.useCached` is true.
    */
   public get tree(): Quest[] {
-    if (QuestCache.useCached && QuestCache.size > 0) {
-      return QuestCache.getAll().map((data) => new Quest(data));
-    }
-
-    return this.bot.flash.call(() =>
-      swf.questsGetTree().map((data: QuestData) => new Quest(data)),
-    );
+    return QuestCache.getAll().map((data) => new Quest(data));
   }
 
   /**
@@ -94,7 +87,7 @@ export class Quests {
   public async acceptMultiple(questIds: number[]): Promise<void> {
     if (!Array.isArray(questIds) || !questIds.length) return;
 
-    await Promise.all(questIds.map((id) => this.accept(id)));
+    await Promise.all(questIds.map(async (id) => this.accept(id)));
   }
 
   /**
@@ -132,5 +125,8 @@ export class Quests {
 
     this.bot.flash.call(() => swf.questsAbandon(questId));
     await this.bot.waitUntil(() => !this.get(questId)?.inProgress);
+
+    // Update cache to reflect that the quest is no longer in progress
+    QuestCache.update(questId, { inProgress: false });
   }
 }
