@@ -125,7 +125,6 @@ export class Shops {
 
   /**
    * Buy a shop item by its ShopItemID (unique per shop entry).
-   * Useful when multiple entries have the same ItemID or name.
    *
    * @param shopItemId - The ShopItemID of the item.
    * @param quantity - The quantity to buy.
@@ -160,7 +159,6 @@ export class Shops {
       this.bot.inventory.contains(item.sName),
     );
   }
-
 
   /**
    * Load a shop.
