@@ -367,7 +367,7 @@
 
   .command-overlay.collapsed {
     resize: none;
-    overflow: visible;
+
     min-width: auto;
     width: auto !important;
     height: auto !important;
@@ -437,7 +437,7 @@
 
   .command-overlay.collapsed .command-overlay-header {
     border-bottom: none;
-    border-radius: inherit;
+
   }
 
   .command-list-container {
