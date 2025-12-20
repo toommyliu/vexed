@@ -39,6 +39,15 @@ Buy an item from the shop.
 
 **Returns**: `Promise<void>`
 
+### buyByShopItemId
+Buy a shop item by its ShopItemID (unique per shop entry).
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| shopItemId | `string` \| `number` | The ShopItemID of the item. |
+| quantity | `number` | The quantity to buy. |
+
+**Returns**: `Promise<void>`
+
 ### canBuyItem
 Whether an item can be bought from the shop, works for both normal and merge shops.
 | Parameter | Type | Description |

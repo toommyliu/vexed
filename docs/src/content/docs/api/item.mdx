@@ -71,7 +71,7 @@ Equips an item using its enhancement name.
 
 <Code code={`// 1. forge + proc name
 cmd.equip_item_by_enhancement("Forge", "Arcana's Concerto")
-cmd.equip_item_by_enhancement("Forge", "arcanas") 
+cmd.equip_item_by_enhancement("Forge", "arcanas")
 cmd.equip_item_by_enhancement("Forge", "Penitence")
 cmd.equip_item_by_enhancement("Forge", "Anima")
 
@@ -86,6 +86,20 @@ cmd.equip_item_by_enhancement("Fighter", "Cape")
 // 4. basic only (first match)
 cmd.equip_item_by_enhancement("Fighter")
 cmd.equip_item_by_enhancement("Lucky")`} lang="js" />
+
+
+### cmd.farm_potion
+[experimental] Farms an alchemy potion.
+
+| Parameter | Type | Optional | Default | Description |
+|-----------|------|----------|---------|-------------|
+| potionName | `string` |  |  | The name of the potion to farm. |
+| quantity | `number` |  |  | The quantity to farm (max 300, or 99 for Unstable Divine Elixir). |
+| buyReagents | `boolean` | ✓ | `false` | If true, buy reagents from shops instead of farming. |
+
+<Code code={`cmd.farm_potion("Fate Tonic", 100)
+cmd.farm_potion("Potent Battle Elixir", 300, true) // buy reagents with gold
+cmd.farm_potion("Felicitous Philtre", 50) // buy-only potion`} lang="js" />
 
 
 ### cmd.get_map_item

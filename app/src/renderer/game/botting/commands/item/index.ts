@@ -350,7 +350,7 @@ export const itemCommands = {
     window.context.addCommand(cmd);
   },
   /**
-   * Farms an alchemy potion.
+   * [experimental] Farms an alchemy potion.
    *
    * @example
    * ```js
@@ -371,12 +371,8 @@ export const itemCommands = {
       throw new ArgsError("potionName is required");
     }
 
-    if (!quantity || typeof quantity !== "number" || quantity < 1) {
+    if (!quantity || typeof quantity !== "number" || quantity < 1 || quantity > 300) {
       throw new ArgsError("quantity is required");
-    }
-
-    if (quantity > 300) {
-      throw new ArgsError("quantity must be <= 300");
     }
 
     const cmd = new CommandFarmPotion();

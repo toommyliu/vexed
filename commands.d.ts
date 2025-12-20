@@ -237,6 +237,8 @@ to be satisfied. */
   equip_item(item: string): void;
   /** Equips an item using its enhancement name. */
   equip_item_by_enhancement(enhancementName: string, procOrItemType?: string): void;
+  /** [experimental] Farms an alchemy potion. */
+  farm_potion(potionName: string, quantity: number, buyReagents?: boolean): void;
   get_map_item(item: string | number): void;
   /** Loads a shop. */
   load_shop(shopId: number): void;
