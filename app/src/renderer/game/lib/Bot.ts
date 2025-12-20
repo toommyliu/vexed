@@ -193,6 +193,11 @@ export class Bot extends TypedEmitter<Events> {
    */
   public flash: InstanceType<typeof Flash>;
 
+  /**
+   * The current abort signal from the executing command context.
+   */
+  public currentSignal: AbortSignal | undefined;
+
   public constructor() {
     super();
 
@@ -239,7 +244,7 @@ export class Bot extends TypedEmitter<Events> {
    * @param signal - An optional AbortSignal to abort the sleep.
    */
   public async sleep(ms: number, signal?: AbortSignal): Promise<void> {
-    await sleep(ms, signal);
+    await sleep(ms, signal ?? this.currentSignal);
   }
 
   /**

@@ -171,7 +171,7 @@ export class CommandExecutor extends TypedEmitter<Events> {
             packet,
           );
         }
-      } catch { }
+      } catch {}
     });
 
     this.bot.on("packetFromServer", async (packet: string) => {
@@ -188,7 +188,7 @@ export class CommandExecutor extends TypedEmitter<Events> {
             packet,
           );
         }
-      } catch { }
+      } catch {}
     });
 
     this.bot.on("packetFromClient", async (packet: string) => {
@@ -205,7 +205,7 @@ export class CommandExecutor extends TypedEmitter<Events> {
             packet,
           );
         }
-      } catch { }
+      } catch {}
     });
   }
 
@@ -444,6 +444,8 @@ export class CommandExecutor extends TypedEmitter<Events> {
     if (!this.bot.player.isReady())
       await this.bot.waitUntil(() => this.bot.player.isReady());
 
+    this.bot.currentSignal = this._ac.signal;
+
     while (this._commandIndex < this._commands.length && this.isRunning()) {
       try {
         const command = this.getCommand(this._commandIndex);
@@ -497,6 +499,8 @@ export class CommandExecutor extends TypedEmitter<Events> {
       this._ac.abort();
     }
 
+    this.bot.currentSignal = undefined;
+
     commandOverlayState.hide();
   }
 
@@ -506,7 +510,6 @@ export class CommandExecutor extends TypedEmitter<Events> {
     cmd.logout()
     cmd.close_window() // doesn't work
     */
-
 
     if (this.isRunning()) this._stop();
   }

@@ -37,7 +37,7 @@ export class Army {
 
   // private isInitialized = false;
 
-  public constructor(public readonly bot: Bot) { }
+  public constructor(public readonly bot: Bot) {}
 
   /**
    * Sets the config file name.
@@ -143,7 +143,8 @@ export class Army {
     const playerList = Array.from(this.players);
 
     while (
-      !playerList.every((player) => this.bot.world.isPlayerInMap(player))
+      !playerList.every((player) => this.bot.world.isPlayerInMap(player)) &&
+      !this.bot.currentSignal?.aborted
     ) {
       await this.bot.sleep(1_000);
     }

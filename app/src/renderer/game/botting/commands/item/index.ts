@@ -260,7 +260,7 @@ export const itemCommands = {
    * ```js
    * // 1. forge + proc name
    * cmd.equip_item_by_enhancement("Forge", "Arcana's Concerto")
-   * cmd.equip_item_by_enhancement("Forge", "arcanas") 
+   * cmd.equip_item_by_enhancement("Forge", "arcanas")
    * cmd.equip_item_by_enhancement("Forge", "Penitence")
    * cmd.equip_item_by_enhancement("Forge", "Anima")
    *
@@ -362,7 +362,11 @@ export const itemCommands = {
    * @param quantity - The quantity to farm (max 300, or 99 for Unstable Divine Elixir).
    * @param buyReagents - If true, buy reagents from shops instead of farming.
    */
-  farm_potion(potionName: string, quantity: number, buyReagents: boolean = false) {
+  farm_potion(
+    potionName: string,
+    quantity: number,
+    buyReagents: boolean = false,
+  ) {
     if (!potionName || typeof potionName !== "string") {
       throw new ArgsError("potionName is required");
     }

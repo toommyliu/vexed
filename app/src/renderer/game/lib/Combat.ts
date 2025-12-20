@@ -412,7 +412,11 @@ export class Combat {
 
     if (hasRequiredItems()) return;
 
-    while (!hasRequiredItems()) {
+    while (
+      !hasRequiredItems() &&
+      !opts.signal?.aborted &&
+      !this.bot.currentSignal?.aborted
+    ) {
       await this.kill(monsterResolvable, opts);
 
       if (!isTemp) {
