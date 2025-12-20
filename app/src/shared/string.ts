@@ -28,7 +28,6 @@ export function includesIgnoreCase(str: string | null | undefined, search: strin
 
 /**
  * Fuzzy match check - all words in the query must appear in the text.
- * Useful for command palette-style searching where word order doesn't matter.
  * 
  * @param text - the text to search in
  * @param query - the query string (can contain multiple words)

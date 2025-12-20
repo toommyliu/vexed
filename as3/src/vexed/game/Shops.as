@@ -1,35 +1,45 @@
-package vexed.game {
+package vexed.game
+{
   import vexed.Main;
   import vexed.util.Util;
 
-  public class Shops {
+  public class Shops
+  {
     private static var game:Object = Main.getInstance().getGame();
 
-    public static function getInfo():Object {
+    public static function getInfo():Object
+    {
       return game.world.shopinfo;
     }
 
-    public static function getItems():Array {
+    public static function getItems():Array
+    {
       return game.world.shopinfo.items;
     }
 
-    public static function getItem(key:*):Object {
+    public static function getItem(key:*):Object
+    {
       if (!key)
         return null;
 
-      if (game.world.shopinfo !== null && game.world.shopinfo.items is Array) {
+      if (game.world.shopinfo !== null && game.world.shopinfo.items is Array)
+      {
         var item:Object;
         var items:Array = game.world.shopinfo.items;
-        if (key is String) {
+        if (key is String)
+        {
           key = key.toLowerCase();
-          for each (item in items) {
+          for each (item in items)
+          {
             if (item.sName.toLowerCase() === key /* name key */ || item.ItemID === key /* string key */)
               return item;
           }
         }
-        else if (key is int) {
+        else if (key is int)
+        {
           key = String(key);
-          for each (item in items) {
+          for each (item in items)
+          {
             if (item.ItemID === key /* int key */)
               return item;
           }
@@ -39,7 +49,32 @@ package vexed.game {
       return null;
     }
 
-    public static function buyByName(name:String, quantity:int = 1):Boolean {
+    /**
+     * Get a shop item by its ShopItemID (unique per shop entry).
+     * Useful when multiple entries have the same ItemID or name.
+     */
+    public static function getItemByShopItemId(shopItemId:*):Object
+    {
+      if (!shopItemId)
+        return null;
+
+      if (game.world.shopinfo !== null && game.world.shopinfo.items is Array)
+      {
+        var item:Object;
+        var items:Array = game.world.shopinfo.items;
+        var sid:String = String(shopItemId);
+        for each (item in items)
+        {
+          if (item.ShopItemID === sid)
+            return item;
+        }
+      }
+
+      return null;
+    }
+
+    public static function buyByName(name:String, quantity:int = 1):Boolean
+    {
       if (!name)
         return false;
 
@@ -50,10 +85,12 @@ package vexed.game {
       if (!item)
         return false;
 
-      if (quantity === 1) {
+      if (quantity === 1)
+      {
         game.world.sendBuyItemRequest(item);
       }
-      else {
+      else
+      {
         var buyObj:Object = new Object();
         buyObj.accept = 1;
         buyObj.iQty = quantity;
@@ -64,7 +101,8 @@ package vexed.game {
       return true;
     }
 
-    public static function buyById(id:* /* string or int ItemID */, quantity:int = 1):Boolean {
+    public static function buyById(id:* /* string or int ItemID */, quantity:int = 1):Boolean
+    {
       if (!id)
         return false;
 
@@ -74,7 +112,40 @@ package vexed.game {
       return buyByName(String(id), quantity);
     }
 
-    public static function sellByName(name:String, quantity:int = -1):Boolean {
+    /**
+     * Buy a shop item by its ShopItemID (unique per shop entry).
+     * Useful when multiple entries have the same ItemID or name.
+     */
+    public static function buyByShopItemId(shopItemId:*, quantity:int = 1):Boolean
+    {
+      if (!shopItemId)
+        return false;
+
+      if (quantity <= 0)
+        return false;
+
+      var item:Object = getItemByShopItemId(shopItemId);
+      if (!item)
+        return false;
+
+      if (quantity === 1)
+      {
+        game.world.sendBuyItemRequest(item);
+      }
+      else
+      {
+        var buyObj:Object = new Object();
+        buyObj.accept = 1;
+        buyObj.iQty = quantity;
+        buyObj.iSel = item;
+        game.world.sendBuyItemRequestWithQuantity(buyObj);
+      }
+
+      return true;
+    }
+
+    public static function sellByName(name:String, quantity:int = -1):Boolean
+    {
       if (!name)
         return false;
 
@@ -85,11 +156,13 @@ package vexed.game {
       if (!item)
         return false;
 
-      if (quantity === -1) {
+      if (quantity === -1)
+      {
         // sell stack
         game.world.sendSellItemRequest(item);
       }
-      else {
+      else
+      {
         // sell quantity
         var sellObj:Object = new Object();
         sellObj.accept = 1;
@@ -100,7 +173,8 @@ package vexed.game {
       return true;
     }
 
-    public static function sellById(id:* /* string or int ItemID */, quantity:int = -1):Boolean {
+    public static function sellById(id:* /* string or int ItemID */, quantity:int = -1):Boolean
+    {
       if (!id)
         return false;
 
@@ -110,26 +184,31 @@ package vexed.game {
       return sellByName(String(id), quantity);
     }
 
-    public static function load(shopId:int):void {
+    public static function load(shopId:int):void
+    {
       game.world.sendLoadShopRequest(shopId);
     }
 
-    public static function loadHairShop(shopId:int):void {
+    public static function loadHairShop(shopId:int):void
+    {
       game.world.sendLoadHairShopRequest(shopId);
     }
 
-    public static function loadArmorCustomize():void {
+    public static function loadArmorCustomize():void
+    {
       game.openArmorCustomize();
     }
 
-    public static function isMergeShop():Boolean {
+    public static function isMergeShop():Boolean
+    {
       if (!game.world.shopinfo)
         return false;
 
       return game.isMergeShop(game.world.shopinfo);
     }
 
-    public static function canBuyItem(itemName:String):Boolean {
+    public static function canBuyItem(itemName:String):Boolean
+    {
       if (!game.world.shopinfo)
         return false;
 
@@ -137,8 +216,10 @@ package vexed.game {
       if (!item)
         return false;
 
-      if (isMergeShop()) {
-        for each (var req:Object in item.turnin) {
+      if (isMergeShop())
+      {
+        for each (var req:Object in item.turnin)
+        {
           if (!Inventory.contains(req.sName))
             return false;
         }

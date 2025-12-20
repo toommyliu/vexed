@@ -372,6 +372,7 @@
     width: auto !important;
     height: auto !important;
     min-height: 0;
+    border-radius: 10px;
   }
 
   .command-overlay.dragging {
@@ -389,7 +390,6 @@
     cursor: grab;
     color: rgb(var(--foreground));
     border-bottom: 1px solid rgb(var(--border));
-    border-radius: 10px 10px 0 0;
     user-select: none;
     white-space: nowrap;
     font-size: 12px;
@@ -436,8 +436,8 @@
   }
 
   .command-overlay.collapsed .command-overlay-header {
-    border-radius: 10px;
     border-bottom: none;
+    border-radius: inherit;
   }
 
   .command-list-container {

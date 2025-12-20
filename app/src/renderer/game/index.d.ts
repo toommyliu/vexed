@@ -160,8 +160,10 @@ declare global {
     shopGetInfo(): Nullable<ShopInfo>;
     shopGetItems(): ItemData[];
     shopGetItem(key: number | string): Nullable<ItemData>;
+    shopGetItemByShopItemId(shopItemId: number | string): Nullable<ItemData>;
     shopBuyByName(name: string, quantity?: number): boolean;
     shopBuyById(id: number | string, quantity?: number): boolean;
+    shopBuyByShopItemId(shopItemId: number | string, quantity?: number): boolean;
     shopSellByName(name: string, quantity?: number): boolean;
     shopSellById(id: number | string, quantity?: number): boolean;
     shopLoad(shopId: number): void;
@@ -169,6 +171,7 @@ declare global {
     shopLoadArmorCustomize(): void;
     shopCanBuyItem(itemName: string): boolean;
     shopIsMergeShop(): boolean;
+
 
     tempInventoryGetItems(): ItemData[];
     tempInventoryGetItem(key: number | string): Nullable<ItemData>;

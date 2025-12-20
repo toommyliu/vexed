@@ -1,4 +1,5 @@
-package vexed {
+package vexed
+{
   import flash.external.ExternalInterface;
   import vexed.module.Modules;
   import vexed.game.*;
@@ -6,8 +7,10 @@ package vexed {
   // import flash.utils.Dictionary;
   // import vexed.module.Drops;
 
-  public class Externalizer {
-    public function init(root:Main):void {
+  public class Externalizer
+  {
+    public function init(root:Main):void
+    {
       externalize("getGameObject", Main.getGameObject);
       externalize("getGameObjectS", Main.getGameObjectS);
       externalize("getGameObjectKey", Main.getGameObjectKey);
@@ -134,31 +137,41 @@ package vexed {
       externalize("settingsSetWalkSpeed", Settings.setWalkSpeed);
       externalize("settingsSetAccessLevel", Settings.setAccessLevel);
       externalize("settingsSetDeathAds", Settings.setDeathAds);
-      externalize("settingsSetDisableCollisions", function(on:Boolean):void {
-          if (on) {
+      externalize("settingsSetDisableCollisions", function(on:Boolean):void
+        {
+          if (on)
+          {
             Modules.enable("DisableCollisions");
           }
-          else {
+          else
+          {
             Modules.disable("DisableCollisions");
           }
         });
-      externalize("settingsSetDisableFX", function(on:Boolean):void {
-          if (on) {
+      externalize("settingsSetDisableFX", function(on:Boolean):void
+        {
+          if (on)
+          {
             Modules.enable("DisableFX");
           }
-          else {
+          else
+          {
             Modules.disable("DisableFX");
           }
         });
-      externalize("settingsSetHidePlayers", function(on:Boolean):void {
-          if (on) {
+      externalize("settingsSetHidePlayers", function(on:Boolean):void
+        {
+          if (on)
+          {
             Modules.enable("HidePlayers");
           }
-          else {
+          else
+          {
             Modules.disable("HidePlayers");
           }
         });
-      externalize("settingsSetFPS", function(fps:int):void {
+      externalize("settingsSetFPS", function(fps:int):void
+        {
           Main.getInstance().getStage().frameRate = fps;
         });
 
@@ -166,8 +179,10 @@ package vexed {
       externalize("shopGetInfo", Shops.getInfo);
       externalize("shopGetItems", Shops.getItems);
       externalize("shopGetItem", Shops.getItem);
+      externalize("shopGetItemByShopItemId", Shops.getItemByShopItemId);
       externalize("shopBuyByName", Shops.buyByName);
       externalize("shopBuyById", Shops.buyById);
+      externalize("shopBuyByShopItemId", Shops.buyByShopItemId);
       externalize("shopSellByName", Shops.sellByName);
       externalize("shopSellById", Shops.sellById);
       externalize("shopLoad", Shops.load);
@@ -202,13 +217,16 @@ package vexed {
       externalize("worldGetMapItem", World.getMapItem);
       externalize("worldSetSpawnPoint", World.setSpawnPoint);
 
-      externalize("isTextFieldFocused", function():Boolean {
+      externalize("isTextFieldFocused", function():Boolean
+        {
           var game:* = Main.getInstance().getGame();
 
-          try {
+          try
+          {
             return game.stage.focus is TextField;
           }
-          catch (e:Error) {
+          catch (e:Error)
+          {
             return false;
           }
 
@@ -227,15 +245,18 @@ package vexed {
       debug("Externalizer::init done.");
     }
 
-    public function externalize(name:String, func:Function):void {
+    public function externalize(name:String, func:Function):void
+    {
       ExternalInterface.addCallback(name, func);
     }
 
-    public function call(name:String, ...rest):* {
+    public function call(name:String, ...rest):*
+    {
       return ExternalInterface.call(name, rest);
     }
 
-    public function debug(message:String):void {
+    public function debug(message:String):void
+    {
       this.call("flashDebug", message);
     }
   }

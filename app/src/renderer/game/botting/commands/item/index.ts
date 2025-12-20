@@ -4,6 +4,7 @@ import { CommandDeposit } from "./CommandDeposit";
 import { CommandEnhanceItem } from "./CommandEnhanceItem";
 import { CommandEquipByEnhancement } from "./CommandEquipByEnhancement";
 import { CommandEquipItem } from "./CommandEquipItem";
+import { CommandFarmPotion } from "./CommandFarmPotion";
 import { CommandGetMapItem } from "./CommandGetMapItem";
 import { CommandLoadShop } from "./CommandLoadShop";
 import { CommandPickup } from "./CommandPickup";
@@ -348,5 +349,36 @@ export const itemCommands = {
     if (procName) cmd.procName = procName;
     window.context.addCommand(cmd);
   },
+  /**
+   * Farms an alchemy potion.
+   *
+   * @example
+   * ```js
+   * cmd.farm_potion("Fate Tonic", 100)
+   * cmd.farm_potion("Potent Battle Elixir", 300, true) // buy reagents with gold
+   * cmd.farm_potion("Felicitous Philtre", 50) // buy-only potion
+   * ```
+   * @param potionName - The name of the potion to farm.
+   * @param quantity - The quantity to farm (max 300, or 99 for Unstable Divine Elixir).
+   * @param buyReagents - If true, buy reagents from shops instead of farming.
+   */
+  farm_potion(potionName: string, quantity: number, buyReagents: boolean = false) {
+    if (!potionName || typeof potionName !== "string") {
+      throw new ArgsError("potionName is required");
+    }
 
+    if (!quantity || typeof quantity !== "number" || quantity < 1) {
+      throw new ArgsError("quantity is required");
+    }
+
+    if (quantity > 300) {
+      throw new ArgsError("quantity must be <= 300");
+    }
+
+    const cmd = new CommandFarmPotion();
+    cmd.potionName = potionName;
+    cmd.quantity = quantity;
+    cmd.buyReagents = buyReagents;
+    window.context.addCommand(cmd);
+  },
 };

@@ -3,7 +3,7 @@ import { GameAction } from "./World";
 import { ShopItem, type ShopItemData } from "./models/ShopItem";
 
 export class Shops {
-  public constructor(public bot: Bot) {}
+  public constructor(public bot: Bot) { }
 
   /**
    * Whether any shop is loaded.
@@ -122,6 +122,45 @@ export class Shops {
       this.bot.inventory.contains(itemId, expectedQuantity),
     );
   }
+
+  /**
+   * Buy a shop item by its ShopItemID (unique per shop entry).
+   * Useful when multiple entries have the same ItemID or name.
+   *
+   * @param shopItemId - The ShopItemID of the item.
+   * @param quantity - The quantity to buy.
+   */
+  public async buyByShopItemId(
+    shopItemId: number | string,
+    quantity: number,
+  ): Promise<void> {
+    await this.bot.waitUntil(() =>
+      this.bot.world.isActionAvailable(GameAction.BuyItem),
+    );
+
+    if (!this.isShopLoaded()) return;
+
+    const sid = String(shopItemId);
+    const item = this.info!.items.find(
+      (shopItem) => shopItem.ShopItemID === sid,
+    );
+    if (!item || !this.bot.shops.canBuyItem(item?.sName)) return;
+
+    let qty = quantity;
+
+    // Adjust quantity if the item has multiple units per purchase
+    if (item.iQty > 1) {
+      qty = Math.ceil(qty / item.iQty);
+    }
+
+    this.bot.flash.call(() => swf.shopBuyByShopItemId(shopItemId, qty));
+
+    // Wait for the item to appear in inventory
+    await this.bot.waitUntil(() =>
+      this.bot.inventory.contains(item.sName),
+    );
+  }
+
 
   /**
    * Load a shop.
