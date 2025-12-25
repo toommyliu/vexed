@@ -5,6 +5,10 @@ import { Bot } from "~/lib/Bot";
 import { commandOverlayState } from "../state.svelte";
 import { CancellationError } from "../util/async";
 import type { Command } from "./command";
+import {
+  createCommandContext,
+  type CommandContext,
+} from "./command-context";
 import { CommandRegisterDrop } from "./commands/item/CommandRegisterDrop";
 import { CommandAcceptQuest } from "./commands/quest/CommandAcceptQuest";
 import { CommandRegisterQuest } from "./commands/quest/CommandRegisterQuest";
@@ -53,6 +57,11 @@ export class CommandExecutor extends TypedEmitter<Events> {
   private _commandIndex: number;
 
   private _ac: AbortController;
+
+  /**
+   * The current command context, or null if not executing.
+   */
+  private _currentContext: CommandContext | null = null;
 
   /**
    * Captured commands when in capture mode.
@@ -171,7 +180,7 @@ export class CommandExecutor extends TypedEmitter<Events> {
             packet,
           );
         }
-      } catch {}
+      } catch { }
     });
 
     this.bot.on("packetFromServer", async (packet: string) => {
@@ -188,7 +197,7 @@ export class CommandExecutor extends TypedEmitter<Events> {
             packet,
           );
         }
-      } catch {}
+      } catch { }
     });
 
     this.bot.on("packetFromClient", async (packet: string) => {
@@ -205,7 +214,7 @@ export class CommandExecutor extends TypedEmitter<Events> {
             packet,
           );
         }
-      } catch {}
+      } catch { }
     });
   }
 
@@ -444,7 +453,7 @@ export class CommandExecutor extends TypedEmitter<Events> {
     if (!this.bot.player.isReady())
       await this.bot.waitUntil(() => this.bot.player.isReady());
 
-    this.bot.currentSignal = this._ac.signal;
+    this._currentContext = createCommandContext(this._ac.signal);
 
     while (this._commandIndex < this._commands.length && this.isRunning()) {
       try {
@@ -459,7 +468,7 @@ export class CommandExecutor extends TypedEmitter<Events> {
           });
         });
 
-        await Promise.race([command.execute(this._ac.signal), abortPromise]);
+        await Promise.race([command.execute(this._currentContext), abortPromise]);
 
         if (!this.isRunning()) break;
 
@@ -499,7 +508,7 @@ export class CommandExecutor extends TypedEmitter<Events> {
       this._ac.abort();
     }
 
-    this.bot.currentSignal = undefined;
+    this._currentContext = null;
 
     commandOverlayState.hide();
   }

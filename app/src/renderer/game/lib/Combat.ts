@@ -82,7 +82,7 @@ export class Combat {
    */
   public pauseAttack: boolean = false;
 
-  public constructor(public bot: Bot) {}
+  public constructor(public bot: Bot) { }
 
   /**
    * Whether the player has a target.
@@ -235,12 +235,12 @@ export class Combat {
     const _boundedSkillAction =
       typeof skillAction === "function"
         ? skillAction
-            .bind({
-              bot: this.bot,
-            })() // the skillAction function
-            .bind({
-              bot: this.bot,
-            }) // the returned function (the actual closure)
+          .bind({
+            bot: this.bot,
+          })() // the skillAction function
+          .bind({
+            bot: this.bot,
+          }) // the returned function (the actual closure)
         : null;
 
     let skillIndex = 0;
@@ -315,7 +315,7 @@ export class Combat {
           if (_boundedSkillAction) {
             try {
               await _boundedSkillAction();
-            } catch {}
+            } catch { }
           } else {
             const skill = skillSet[skillIndex]!;
             skillIndex = (skillIndex + 1) % skillSet.length;
@@ -414,8 +414,7 @@ export class Combat {
 
     while (
       !hasRequiredItems() &&
-      !opts.signal?.aborted &&
-      !this.bot.currentSignal?.aborted
+      !opts.signal?.aborted
     ) {
       await this.kill(monsterResolvable, opts);
 

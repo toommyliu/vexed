@@ -800,7 +800,6 @@ export class CommandFarmPotion extends Command {
 
     while (
       this.ctx.isRunning() &&
-      !this.bot.currentSignal?.aborted &&
       !this.bot.inventory.contains(recipe.name, targetQuantity) &&
       this.bot.inventory.contains(recipe.reagent1) &&
       this.bot.inventory.contains(recipe.reagent2) &&

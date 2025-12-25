@@ -1,3 +1,4 @@
+import { createCommandContext } from "./command-context";
 import { CommandExecutor } from "./command-executor";
 import { armyCommands } from "./commands/army";
 import { combatCommands } from "./commands/combat";
@@ -43,7 +44,8 @@ export const dbg = new Proxy({} as Record<string, (...args: unknown[]) => Promis
         return;
       }
 
-      await command.execute(new AbortController().signal);
+      const ctx = createCommandContext(new AbortController().signal);
+      await command.execute(ctx);
     };
   },
 });
@@ -53,3 +55,4 @@ window.dbg = dbg;
 
 window.cmd = cmd;
 window.context = context;
+

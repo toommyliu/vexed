@@ -37,7 +37,7 @@ export class Army {
 
   // private isInitialized = false;
 
-  public constructor(public readonly bot: Bot) {}
+  public constructor(public readonly bot: Bot) { }
 
   /**
    * Sets the config file name.
@@ -138,15 +138,17 @@ export class Army {
 
   /**
    * Waits for all players in the army in the map.
+   *
+   * @param signal - Optional AbortSignal to abort the wait.
    */
-  public async waitForAll() {
+  public async waitForAll(signal?: AbortSignal) {
     const playerList = Array.from(this.players);
 
     while (
       !playerList.every((player) => this.bot.world.isPlayerInMap(player)) &&
-      !this.bot.currentSignal?.aborted
+      !signal?.aborted
     ) {
-      await this.bot.sleep(1_000);
+      await this.bot.sleep(1_000, signal);
     }
   }
 
