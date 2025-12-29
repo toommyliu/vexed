@@ -1,7 +1,5 @@
 <script lang="ts">
-  import { Switch, Label, Button } from "@vexed/ui";
-  import * as Tabs from "@vexed/ui/Tabs";
-
+  import { Switch, Button } from "@vexed/ui";
   import { onMount } from "svelte";
 
   import { client } from "~/shared/tipc";
@@ -43,57 +41,78 @@
       theme,
     });
   });
-
-  async function handleSave() {
-    await client.onboarding.saveSettings({
-      checkForUpdates,
-      debug,
-      launchMode,
-      theme,
-    });
-  }
 </script>
 
-<div class="bg-background flex h-screen flex-col p-4">
+<div class="flex h-screen flex-col bg-background p-5 animate-in fade-in slide-in-from-bottom-1 duration-300">
   {#if isLoading}
     <div class="flex flex-1 items-center justify-center">
-      <p class="text-muted-foreground">Loading...</p>
+      <div class="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground/20 border-t-primary"></div>
     </div>
   {:else}
     <div class="flex flex-1 flex-col gap-4">
-      <div class="flex items-center justify-between">
-        <Label for="checkForUpdates">Check for Updates</Label>
-        <Switch id="checkForUpdates" bind:checked={checkForUpdates} />
+      <div class="flex flex-col gap-1.5">
+        <span class="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Theme</span>
+        <div class="flex gap-1.5">
+          <Button
+            class="flex-1"
+            size="sm"
+            variant={theme === "dark" ? "default" : "ghost"}
+            onclick={() => (theme = "dark")}
+          >
+            Dark
+          </Button>
+          <Button
+            class="flex-1"
+            size="sm"
+            variant={theme === "light" ? "default" : "ghost"}
+            onclick={() => (theme = "light")}
+          >
+            Light
+          </Button>
+          <Button
+            class="flex-1"
+            size="sm"
+            variant={theme === "system" ? "default" : "ghost"}
+            onclick={() => (theme = "system")}
+          >
+            Auto
+          </Button>
+        </div>
       </div>
 
-      <div class="flex items-center justify-between">
-        <Label for="debug">Debug Mode</Label>
-        <Switch id="debug" bind:checked={debug} />
+      <div class="flex flex-col gap-1.5">
+        <span class="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Launch Mode</span>
+        <div class="flex gap-1.5">
+          <Button
+            class="flex-1"
+            size="sm"
+            variant={launchMode === "game" ? "default" : "ghost"}
+            onclick={() => (launchMode = "game")}
+            title="Launch directly into the game client"
+          >
+            Game
+          </Button>
+          <Button
+            class="flex-1"
+            size="sm"
+            variant={launchMode === "manager" ? "default" : "ghost"}
+            onclick={() => (launchMode = "manager")}
+            title="Launch the account manager to handle multiple accounts"
+          >
+            Manager
+          </Button>
+        </div>
       </div>
 
-      <div class="flex items-center justify-between">
-        <Label>Launch Mode</Label>
-        <Tabs.Root bind:value={launchMode}>
-          <Tabs.List>
-            <Tabs.Trigger value="game">Game</Tabs.Trigger>
-            <Tabs.Trigger value="manager">Manager</Tabs.Trigger>
-          </Tabs.List>
-        </Tabs.Root>
-      </div>
-
-      <div class="flex items-center justify-between">
-        <Label>Theme</Label>
-        <Tabs.Root bind:value={theme}>
-          <Tabs.List>
-            <Tabs.Trigger value="dark">Dark</Tabs.Trigger>
-            <Tabs.Trigger value="light">Light</Tabs.Trigger>
-            <Tabs.Trigger value="system">System</Tabs.Trigger>
-          </Tabs.List>
-        </Tabs.Root>
-      </div>
-
-      <div class="mt-auto pt-4">
-        <Button class="w-full" size="sm" onclick={handleSave}>Get Started</Button>
+      <div class="flex flex-col gap-2.5 pt-1">
+        <label class="flex cursor-pointer items-center justify-between">
+          <span class="text-[13px] text-foreground">Check for Updates</span>
+          <Switch bind:checked={checkForUpdates} class="scale-[0.85] origin-right" />
+        </label>
+        <label class="flex cursor-pointer items-center justify-between">
+          <span class="text-[13px] text-foreground">Debug Mode</span>
+          <Switch bind:checked={debug} class="scale-[0.85] origin-right" />
+        </label>
       </div>
     </div>
   {/if}

@@ -28,8 +28,8 @@ const DIST_MANAGER = join(DIST_PATH, "manager/");
 const DIST_ONBOARDING = join(DIST_PATH, "onboarding/");
 
 let mgrWindow: BrowserWindow | null;
+let onboardingWindow: BrowserWindow | null;
 let isQuitting = false;
-let isOnboarding = false;
 
 export const windowStore: WindowStore = new Map();
 
@@ -41,15 +41,13 @@ export function setQuitting(quitting: boolean): void {
   isQuitting = quitting;
 }
 
-export function setOnboarding(onboarding: boolean): void {
-  isOnboarding = onboarding;
-}
-
-export function getIsOnboarding(): boolean {
-  return isOnboarding;
-}
-
 export async function createOnboarding(): Promise<void> {
+  if (onboardingWindow && !onboardingWindow.isDestroyed()) {
+    onboardingWindow.show();
+    onboardingWindow.focus();
+    return;
+  }
+
   const width = 320;
   const height = 320;
   const { x, y } = getCenteredPosition(width, height);
@@ -69,11 +67,14 @@ export async function createOnboarding(): Promise<void> {
     maximizable: false,
   });
 
+  onboardingWindow = window;
+
   applySecurityPolicy(window);
   void window.loadURL(`file://${resolve(DIST_ONBOARDING, "index.html")}`);
 
   return new Promise((resolve) => {
     window.on("closed", async () => {
+      onboardingWindow = null;
       const settings = getSettings();
       await settings.save();
       resolve();

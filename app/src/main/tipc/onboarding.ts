@@ -1,8 +1,6 @@
-import { writeFile } from "@vexed/fs-utils";
 import type { TipcInstance } from "@vexed/tipc";
 import { nativeTheme } from "electron";
 import type { Settings } from "../../shared/types";
-import { ONBOARDING_MARKER_PATH } from "../constants";
 import { getSettings } from "../settings";
 
 export type OnboardingSettings = Pick<
@@ -38,23 +36,6 @@ export function createOnboardingTipcRouter(tipcInstance: TipcInstance) {
                 nativeTheme.themeSource = input.theme;
 
                 await settings.save();
-            }),
-        saveSettings: tipcInstance.procedure
-            .input<OnboardingSettings>()
-            .action(async ({ input, context }) => {
-                const settings = getSettings();
-                settings.set("checkForUpdates", input.checkForUpdates);
-                settings.set("debug", input.debug);
-                settings.set("launchMode", input.launchMode);
-                settings.set("theme", input.theme);
-
-                nativeTheme.themeSource = input.theme;
-
-                await settings.save();
-
-                await writeFile(ONBOARDING_MARKER_PATH, "");
-
-                context.senderWindow?.close();
             }),
     };
 }

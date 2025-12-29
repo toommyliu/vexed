@@ -3,7 +3,6 @@ import "./tray";
 
 import { join } from "path";
 import process from "process";
-import { pathExists } from "@vexed/fs-utils";
 import { registerIpcMain } from "@vexed/tipc/main";
 import { app, shell, nativeTheme } from "electron";
 import log from "electron-log";
@@ -15,14 +14,14 @@ import {
   IS_WINDOWS,
 } from "../shared/constants";
 import { equalsIgnoreCase } from "../shared/string";
-import { ASSET_PATH, logger, ONBOARDING_MARKER_PATH } from "./constants";
+import { ASSET_PATH, logger } from "./constants";
 import { createMenu } from "./menu";
 import { initSettings, getSettings } from "./settings";
 import { router } from "./tipc";
 import { checkForUpdates } from "./updater";
 import { showErrorDialog } from "./util/dialog";
 import { createNotification } from "./util/notification";
-import { createAccountManager, createGame, createOnboarding, setQuitting, setOnboarding, getIsOnboarding } from "./windows";
+import { createAccountManager, createGame, setQuitting } from "./windows";
 
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 
@@ -168,16 +167,6 @@ app.once("ready", async () => {
 
   nativeTheme.themeSource = settings.get("theme") ?? "system";
 
-  // Show onboarding on first launch (marker file indicates completion)
-  const onboardingCompleted = await pathExists(ONBOARDING_MARKER_PATH);
-  if (!onboardingCompleted) {
-    setOnboarding(true);
-    await createOnboarding();
-    setOnboarding(false);
-    // Reload settings after onboarding completes
-    nativeTheme.themeSource = settings.get("theme") ?? "system";
-  }
-
   createMenu(settings);
   await handleAppLaunch();
 });
@@ -187,8 +176,6 @@ app.on("before-quit", () => {
 });
 
 app.on("window-all-closed", () => {
-  // Don't quit during onboarding - the main window will be created after
-  if (getIsOnboarding()) return;
   logger.info("Bye!");
   app.quit();
 });
