@@ -3,6 +3,7 @@ import "./tray";
 
 import { join } from "path";
 import process from "process";
+import { pathExists } from "@vexed/fs-utils";
 import { registerIpcMain } from "@vexed/tipc/main";
 import { app, shell, nativeTheme } from "electron";
 import log from "electron-log";
@@ -14,7 +15,7 @@ import {
   IS_WINDOWS,
 } from "../shared/constants";
 import { equalsIgnoreCase } from "../shared/string";
-import { ASSET_PATH, logger } from "./constants";
+import { ASSET_PATH, logger, ONBOARDING_MARKER_PATH } from "./constants";
 import { createMenu } from "./menu";
 import { initSettings, getSettings } from "./settings";
 import { router } from "./tipc";
@@ -167,8 +168,9 @@ app.once("ready", async () => {
 
   nativeTheme.themeSource = settings.get("theme") ?? "system";
 
-  // Show onboarding on first launch
-  if (!settings.getBoolean("onboardingCompleted", false)) {
+  // Show onboarding on first launch (marker file indicates completion)
+  const onboardingCompleted = await pathExists(ONBOARDING_MARKER_PATH);
+  if (!onboardingCompleted) {
     setOnboarding(true);
     await createOnboarding();
     setOnboarding(false);

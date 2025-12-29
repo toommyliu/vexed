@@ -17,3 +17,8 @@ export const DIST_PATH = IS_PACKAGED
   : join(process.cwd(), "dist");
 
 export const logger = log.scope("main");
+
+/**
+ * Path to the marker file indicating onboarding has been completed.
+ */
+export const ONBOARDING_MARKER_PATH = join(app.getPath("userData"), ".onboarding-complete");

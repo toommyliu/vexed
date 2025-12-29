@@ -1,7 +1,9 @@
+import { writeFile } from "@vexed/fs-utils";
 import type { TipcInstance } from "@vexed/tipc";
 import { nativeTheme } from "electron";
-import { getSettings } from "../settings";
 import type { Settings } from "../../shared/types";
+import { ONBOARDING_MARKER_PATH } from "../constants";
+import { getSettings } from "../settings";
 
 export type OnboardingSettings = Pick<
     Settings,
@@ -49,6 +51,9 @@ export function createOnboardingTipcRouter(tipcInstance: TipcInstance) {
                 nativeTheme.themeSource = input.theme;
 
                 await settings.save();
+
+                await writeFile(ONBOARDING_MARKER_PATH, "");
+
                 context.senderWindow?.close();
             }),
     };

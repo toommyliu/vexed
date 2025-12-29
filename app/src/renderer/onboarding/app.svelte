@@ -4,7 +4,7 @@
 
   import { onMount } from "svelte";
 
-  import { client } from "@shared/tipc";
+  import { client } from "~/shared/tipc";
 
   let checkForUpdates = $state(false);
   let debug = $state(false);
