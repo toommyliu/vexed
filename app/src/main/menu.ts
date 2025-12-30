@@ -123,7 +123,7 @@ export function createMenu(settings: Config<Settings>) {
                             click: handleCheckForUpdates,
                         },
                         {
-                            label: "Preferences...",
+                            label: "Settings...",
                             accelerator: "Cmd+,",
                             click: async () => {
                                 await createOnboarding();

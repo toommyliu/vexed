@@ -25,11 +25,14 @@ function getCenteredPosition(width: number, height: number): { x: number; y: num
 
 const DIST_GAME = join(DIST_PATH, "game/");
 const DIST_MANAGER = join(DIST_PATH, "manager/");
-const DIST_ONBOARDING = join(DIST_PATH, "onboarding/");
+const DIST_ONBOARDING = join(DIST_PATH, "onboarding/"); // settings
 
 let mgrWindow: BrowserWindow | null;
 let onboardingWindow: BrowserWindow | null;
 let isQuitting = false;
+
+let onboardingRequestedToShow = false;
+let onboardingReadyToShow = false;
 
 export const windowStore: WindowStore = new Map();
 
@@ -41,12 +44,11 @@ export function setQuitting(quitting: boolean): void {
   isQuitting = quitting;
 }
 
-export async function createOnboarding(): Promise<void> {
-  if (onboardingWindow && !onboardingWindow.isDestroyed()) {
-    onboardingWindow.show();
-    onboardingWindow.focus();
-    return;
-  }
+export async function prewarmOnboarding(): Promise<void> {
+  if (onboardingWindow && !onboardingWindow.isDestroyed()) return;
+
+  onboardingRequestedToShow = false;
+  onboardingReadyToShow = false;
 
   const width = 320;
   const height = 320;
@@ -58,6 +60,7 @@ export async function createOnboarding(): Promise<void> {
     x,
     y,
     title: BRAND,
+    show: false,
     webPreferences: {
       nodeIntegration: true,
     },
@@ -69,17 +72,45 @@ export async function createOnboarding(): Promise<void> {
 
   onboardingWindow = window;
 
+  window.once("ready-to-show", () => {
+    onboardingReadyToShow = true;
+    if (onboardingRequestedToShow && !window.isDestroyed()) {
+      window.show();
+      window.focus();
+    }
+  });
+
+  window.on("close", (ev) => {
+    if (isQuitting) return;
+    ev.preventDefault();
+    window.hide();
+    void getSettings().save();
+  });
+
+  window.on("closed", () => {
+    onboardingWindow = null;
+    onboardingRequestedToShow = false;
+    onboardingReadyToShow = false;
+    void getSettings().save();
+  });
+
   applySecurityPolicy(window);
   void window.loadURL(`file://${resolve(DIST_ONBOARDING, "index.html")}`);
+}
 
-  return new Promise((resolve) => {
-    window.on("closed", async () => {
-      onboardingWindow = null;
-      const settings = getSettings();
-      await settings.save();
-      resolve();
-    });
-  });
+export async function createOnboarding(): Promise<void> {
+  onboardingRequestedToShow = true;
+
+  if (!onboardingWindow || onboardingWindow.isDestroyed()) {
+    await prewarmOnboarding();
+  }
+
+  if (!onboardingWindow || onboardingWindow.isDestroyed()) return;
+
+  if (onboardingReadyToShow) {
+    onboardingWindow.show();
+    onboardingWindow.focus();
+  }
 }
 
 export async function createAccountManager(): Promise<void> {

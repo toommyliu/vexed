@@ -21,7 +21,12 @@ import { router } from "./tipc";
 import { checkForUpdates } from "./updater";
 import { showErrorDialog } from "./util/dialog";
 import { createNotification } from "./util/notification";
-import { createAccountManager, createGame, setQuitting } from "./windows";
+import {
+  createAccountManager,
+  createGame,
+  prewarmOnboarding,
+  setQuitting,
+} from "./windows";
 
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 
@@ -168,6 +173,9 @@ app.once("ready", async () => {
   nativeTheme.themeSource = settings.get("theme") ?? "system";
 
   createMenu(settings);
+
+  // Preload settings window to make first open feel instant.
+  void prewarmOnboarding();
   await handleAppLaunch();
 });
 
