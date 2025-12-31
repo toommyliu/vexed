@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, tick } from "svelte";
+  import { onMount, tick, untrack } from "svelte";
   import { gameState, optionsPanelState } from "~/game/state.svelte";
   import { Checkbox, Input, Label } from "@vexed/ui";
   import Kbd from "@vexed/ui/Kbd";
@@ -18,6 +18,34 @@
 
   let customName = $state("");
   let customGuild = $state("");
+
+  let nameDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+  $effect(() => {
+    const name = customName;
+    untrack(() => {
+      if (nameDebounceTimer) clearTimeout(nameDebounceTimer);
+      nameDebounceTimer = setTimeout(() => {
+        bot.settings.customName = name || null;
+      }, 300);
+    });
+    return () => {
+      if (nameDebounceTimer) clearTimeout(nameDebounceTimer);
+    };
+  });
+
+  let guildDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+  $effect(() => {
+    const guild = customGuild;
+    untrack(() => {
+      if (guildDebounceTimer) clearTimeout(guildDebounceTimer);
+      guildDebounceTimer = setTimeout(() => {
+        bot.settings.customGuild = guild || null;
+      }, 300);
+    });
+    return () => {
+      if (guildDebounceTimer) clearTimeout(guildDebounceTimer);
+    };
+  });
 
   type ResizeDirection =
     | "n"
@@ -365,9 +393,6 @@
             placeholder="Display name"
             size="sm"
             class="text-input"
-            onblur={() => {
-              bot.settings.customName = customName || null;
-            }}
             spellcheck={false}
           />
         </div>
@@ -379,9 +404,6 @@
             placeholder="Display guild"
             size="sm"
             class="text-input"
-            onblur={() => {
-              bot.settings.customGuild = customGuild || null;
-            }}
             spellcheck={false}
           />
         </div>
