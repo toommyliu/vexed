@@ -1,18 +1,19 @@
 import { join, sep } from "path";
+import type Config from "@vexed/config";
 import {
     deleteFile,
     pathExists,
     readDirRecursive,
     deleteDirectory,
 } from "@vexed/fs-utils";
-import type Config from "@vexed/config";
 import type { MenuItemConstructorOptions } from "electron";
 import { app, dialog, Menu, nativeTheme, session, shell } from "electron";
 import { IS_MAC } from "~/shared/constants";
 import type { Settings } from "~/shared/types";
-import { showErrorDialog } from "./util/dialog";
-import { checkForUpdates } from "./updater";
 import { logger } from "./constants";
+import { checkForUpdates } from "./updater";
+import { showErrorDialog } from "./util/dialog";
+import { createOnboarding } from "./windows";
 
 async function updateTheme(settings: Config<Settings>, theme: Settings['theme']) {
     nativeTheme.themeSource = theme;
@@ -121,6 +122,13 @@ export function createMenu(settings: Config<Settings>) {
                             label: "Check for Updates...",
                             click: handleCheckForUpdates,
                         },
+                        {
+                            label: "Settings...",
+                            accelerator: "Cmd+,",
+                            click: async () => {
+                                await createOnboarding();
+                            },
+                        },
                         { type: "separator" },
                         { role: "hide" },
                         { role: "hideOthers" },
@@ -134,7 +142,19 @@ export function createMenu(settings: Config<Settings>) {
         // { role: 'fileMenu' }
         {
             label: "File",
-            submenu: [IS_MAC ? { role: "close" } : { role: "quit" }],
+            submenu: IS_MAC
+                ? [{ role: "close" }]
+                : [
+                    {
+                        label: "Settings",
+                        accelerator: "Ctrl+,",
+                        click: async () => {
+                            await createOnboarding();
+                        },
+                    },
+                    { type: "separator" },
+                    { role: "quit" },
+                ],
         },
         // { role: 'editMenu' }
         {
