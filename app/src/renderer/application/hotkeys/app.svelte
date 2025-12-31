@@ -312,7 +312,7 @@
                   class={cn(
                     "group/row flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left transition-colors",
                     isRecordingThis 
-                      ? "bg-secondary/50" 
+                      ? "bg-primary/5 relative" 
                       : "bg-transparent hover:bg-secondary/30 cursor-pointer"
                   )}
                   onclick={() => !isRecordingThis && startRecording(item.id)}
@@ -323,12 +323,20 @@
                   tabindex="0"
                 >
                   <span class="text-sm text-foreground">{item.label}</span>
-                  <div class="flex h-6 min-w-[100px] items-center justify-end gap-2">
+                  <div class={cn(
+                    "flex h-7 min-w-[110px] items-center justify-end gap-2 rounded-md px-2 transition-all")}>
                     {#if isRecordingThis}
                       {#if recordingState.lastPressedKey}
-                        <Kbd hotkey={recordingState.lastPressedKey} class={hasConflict ? "border-destructive/50 text-destructive" : ""} />
+                        <span class={cn("key-pop", hasConflict && "conflict-shake")}>
+                          <Kbd hotkey={recordingState.lastPressedKey} class={cn(
+                            "transition-all",
+                            hasConflict 
+                              ? "border-destructive/60 text-destructive shadow-[0_0_8px_hsl(var(--destructive)/0.3)]" 
+                              : "border-primary/50 shadow-[0_0_6px_hsl(var(--primary)/0.2)]"
+                          )} />
+                        </span>
                       {:else}
-                        <span class="text-xs text-muted-foreground">Type shortcut...</span>
+                        <span class="text-xs text-primary animate-pulse">...</span>
                       {/if}
                     {:else if item.value}
                       <Kbd hotkey={item.value} class="transition-all group-hover/row:border-primary/40 group-hover/row:bg-muted/70" />
@@ -340,11 +348,13 @@
                   </div>
                 </div>
                 {#if isRecordingThis}
-                  <div class="flex items-center gap-3 px-2 pb-1 text-[10px] text-muted-foreground/70">
+                  <div class="mt-1.5 flex items-center gap-3 rounded-md px-2.5 py-1.5 text-[10px] text-muted-foreground/70">
                     <span><Kbd>Esc</Kbd> cancel</span>
                     <span><Kbd>Backspace</Kbd> clear</span>
                     {#if recordingState.lastPressedKey}
-                      <span><Kbd>Enter</Kbd> confirm</span>
+                      <span class={hasConflict ? "text-destructive/70" : "text-primary/70"}>
+                        <Kbd>Enter</Kbd> {hasConflict ? "conflict" : "confirm"}
+                      </span>
                     {/if}
                   </div>
                 {/if}
@@ -382,3 +392,34 @@
     </AlertDialog.Footer>
   </AlertDialog.Content>
 </AlertDialog.Root>
+
+<style>
+  /* Keystroke pop-in animation */
+  .key-pop {
+    animation: key-pop 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  
+  @keyframes key-pop {
+    0% { 
+      transform: scale(0.85);
+      opacity: 0.5;
+    }
+    100% { 
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  
+  /* Conflict shake animation */
+  .conflict-shake {
+    animation: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  }
+  
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-3px); }
+    40% { transform: translateX(3px); }
+    60% { transform: translateX(-2px); }
+    80% { transform: translateX(2px); }
+  }
+</style>
