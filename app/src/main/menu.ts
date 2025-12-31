@@ -142,7 +142,19 @@ export function createMenu(settings: Config<Settings>) {
         // { role: 'fileMenu' }
         {
             label: "File",
-            submenu: [IS_MAC ? { role: "close" } : { role: "quit" }],
+            submenu: IS_MAC
+                ? [{ role: "close" }]
+                : [
+                    {
+                        label: "Settings",
+                        accelerator: "Ctrl+,",
+                        click: async () => {
+                            await createOnboarding();
+                        },
+                    },
+                    { type: "separator" },
+                    { role: "quit" },
+                ],
         },
         // { role: 'editMenu' }
         {
