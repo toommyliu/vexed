@@ -260,7 +260,10 @@
       </div>
       <button
         class="group flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground transition-all hover:bg-secondary/50 hover:text-foreground"
-        onclick={() => (confirmDialogOpen = true)}
+        onclick={() => {
+          stopRecording();
+          confirmDialogOpen = true;
+        }}
       >
         <RotateCcw class="h-3 w-3 transition-transform duration-300 group-hover:-rotate-180" />
         <span>Restore Defaults</span>
