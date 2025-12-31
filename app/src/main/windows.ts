@@ -51,7 +51,7 @@ export async function prewarmOnboarding(): Promise<void> {
   onboardingReadyToShow = false;
 
   const width = 320;
-  const height = 320;
+  const height = 250;
   const { x, y } = getCenteredPosition(width, height);
 
   const window = new BrowserWindow({
