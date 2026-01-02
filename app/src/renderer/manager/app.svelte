@@ -286,9 +286,9 @@
       </div>
 
       <div
-        class="flex items-center justify-between text-sm transition-all duration-200"
+        class="flex flex-wrap items-center justify-between gap-2 sm:gap-3 text-sm transition-all duration-200"
       >
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3 shrink-0">
           <span
             class="flex items-center gap-1.5 text-muted-foreground transition-colors"
           >
@@ -301,12 +301,12 @@
           </span>
         </div>
 
-        <div class="flex items-center gap-1">
+        <div class="flex items-center gap-0.5 sm:gap-1 flex-wrap">
           <Button
             variant="ghost"
             size="sm"
             onclick={toggleAll}
-            class="text-muted-foreground hover:text-foreground"
+            class="text-muted-foreground hover:text-foreground px-2 sm:px-3"
             title={isAllSelected ? "Deselect all" : "Select all"}
           >
             {#if isAllSelected}
@@ -314,34 +314,34 @@
             {:else}
               <CheckSquare class="h-4 w-4" />
             {/if}
-            <span class="text-sm font-medium">{isAllSelected ? "None" : "All"}</span>
+            <span class="text-sm font-medium hidden xs:inline sm:inline">{isAllSelected ? "None" : "All"}</span>
           </Button>
 
-          <div class="h-4 w-px bg-border/30"></div>
+          <div class="h-4 w-px bg-border/30 hidden sm:block"></div>
 
           <Button
             variant="ghost"
             size="sm"
             onclick={toggleSelected}
-            class="text-muted-foreground hover:text-foreground"
+            class="text-muted-foreground hover:text-foreground px-2 sm:px-3"
             title="Invert selection"
           >
             <ToggleLeft class="h-4 w-4" />
-            <span class="text-sm font-medium">Invert</span>
+            <span class="text-sm font-medium hidden sm:inline">Invert</span>
           </Button>
 
-          <div class="h-4 w-px bg-border/30 ml-1"></div>
+          <div class="h-4 w-px bg-border/30 ml-0.5 sm:ml-1 hidden sm:block"></div>
 
           <Button
             variant="ghost"
             size="sm"
             onclick={() => handleRemove(Array.from(selectedAccounts))}
             disabled={selectedCount === 0}
-            class="ml-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+            class="ml-0.5 sm:ml-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive px-2 sm:px-3"
             title="Remove selected"
           >
             <Trash2 class="h-4 w-4" />
-            <span class="text-sm font-medium">Remove</span>
+            <span class="text-sm font-medium hidden sm:inline">Remove</span>
           </Button>
 
           <Button
@@ -349,11 +349,11 @@
             size="sm"
             onclick={() => handleStart(Array.from(selectedAccounts))}
             disabled={selectedCount === 0}
-            class="ml-1 bg-primary text-primary-foreground hover:bg-primary/90"
+            class="ml-0.5 sm:ml-1 bg-primary text-primary-foreground hover:bg-primary/90 px-2 sm:px-3"
             title="Start selected"
           >
             <Play class="h-4 w-4" />
-            <span class="text-sm font-medium">Start</span>
+            <span class="text-sm font-medium hidden sm:inline">Start</span>
           </Button>
         </div>
       </div>
