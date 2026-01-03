@@ -1,12 +1,3 @@
-// https://github.com/Froztt13/Grimlite-Li/blob/master/bin/Debug/ClientConfig.cfg
-
-// SCARLET SORCERESS=1:SH>60;2;3;4:SH>60|500
-// Use skill 1 if hp is greater than 60%
-// Use skill 2
-// Use skill 3
-// Use skill 4 if hp is greater than 60%
-// Delay of 500ms between skills
-
 const SEP_TOKEN = ";"; // separator between skill indices
 const SAFE_SEP_TOKEN = ":"; // separator between skill index and condition
 const VALID_OPERATORS = [">=", "<=", ">", "<"] as const;
@@ -16,6 +7,28 @@ const WAIT_TOKEN = "W";
 const DELAY_TOKEN = "|"; // separator for delay at the end of skill list
 
 type Operator = (typeof VALID_OPERATORS)[number];
+
+export type SkillCondition = {
+  type: "hp" | "mp";
+  operator: Operator;
+  value: number;
+};
+
+export type SkillJson = {
+  index: number;
+  wait?: boolean;
+  condition?: SkillCondition;
+};
+
+/** A skill can be just a number (index) or a full object */
+export type SkillJsonInput = number | SkillJson;
+
+export type SkillSetJson = {
+  skills: SkillJsonInput[];
+  delay?: number;
+};
+
+export type SkillSetsConfig = Record<string, SkillSetJson>;
 
 export class SkillSet {
   #skills: Skill[] = [];
@@ -49,6 +62,13 @@ export class SkillSet {
     return this.#delay
       ? `${skillString}${DELAY_TOKEN}${this.#delay}`
       : skillString;
+  }
+
+  public toJSON(): SkillSetJson {
+    return {
+      skills: this.#skills.map((skill) => skill.toJSON()),
+      ...(this.#delay !== undefined && { delay: this.#delay }),
+    };
   }
 }
 
@@ -136,6 +156,24 @@ class Skill {
       waitFlag && (safeCondition || opCondition) ? SAFE_SEP_TOKEN : "";
 
     return `${this.index}${waitFlag}${separator}${safeCondition}${opCondition}`;
+  }
+
+  public toJSON(): SkillJson {
+    const result: SkillJson = { index: this.index };
+
+    if (this.isWait) {
+      result.wait = true;
+    }
+
+    if ((this.isHp || this.isMp) && this.operator && this.value !== undefined) {
+      result.condition = {
+        type: this.isHp ? "hp" : "mp",
+        operator: this.operator,
+        value: this.value,
+      };
+    }
+
+    return result;
   }
 }
 
@@ -241,4 +279,63 @@ function parseSkillPart(part: string) {
   }
 
   return skill;
+}
+
+/**
+ * Parse a JSON-based skillset configuration into a SkillSet object.
+ *
+ * @example
+ * ```json
+ * {
+ *   "skills": [
+ *     { "index": 3 },
+ *     { "index": 4 },
+ *     { "index": 1, "wait": true },
+ *     { "index": 2, "condition": { "type": "hp", "operator": ">", "value": 60 } }
+ *   ],
+ *   "delay": 150
+ * }
+ * ```
+ */
+export function parseSkillSetJson(json: SkillSetJson): SkillSet {
+  const skillSet = new SkillSet();
+
+  for (const skillInput of json.skills) {
+    // Handle shorthand number format: [3, 4, 1, 2]
+    if (typeof skillInput === "number") {
+      if (skillInput < 0 || skillInput > 5) continue;
+      skillSet.addSkill(new Skill(skillInput));
+      continue;
+    }
+
+    // Handle full object format: { index: 3, wait: true, condition: {...} }
+    const skill = new Skill(skillInput.index);
+
+    if (skill.index < 0 || skill.index > 5) {
+      continue;
+    }
+
+    skill.setWait(skillInput.wait ?? false);
+
+    if (skillInput.condition) {
+      const { type, operator, value } = skillInput.condition;
+
+      skill.setHp(type === "hp");
+      skill.setMp(type === "mp");
+
+      if (VALID_OPERATORS.includes(operator)) {
+        skill.setOperator(operator);
+      }
+
+      skill.setValue(value);
+    }
+
+    skillSet.addSkill(skill);
+  }
+
+  if (json.delay !== undefined) {
+    skillSet.setDelay(json.delay);
+  }
+
+  return skillSet;
 }
