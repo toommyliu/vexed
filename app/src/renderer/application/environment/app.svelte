@@ -500,7 +500,7 @@
         disabled={isBroadcasting || isSyncing}
       >
         <Share2 class="h-3.5 w-3.5" />
-        Sync to All
+        Sync to all
       </Button>
     </div>
   </header>

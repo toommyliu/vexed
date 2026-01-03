@@ -124,7 +124,7 @@
     <div class="fixed inset-0 z-50" onclick={() => ctx.close()}></div>
     <div
         bind:this={positionerElement}
-        class="absolute z-50 select-none"
+        class="absolute z-50 max-w-[calc(100vw-1rem)] select-none"
         style={resolvedSide === "bottom"
             ? `top: calc(100% + ${sideOffset}px);`
             : `bottom: calc(100% + ${sideOffset}px);`}

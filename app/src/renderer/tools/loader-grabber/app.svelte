@@ -1,10 +1,12 @@
 <script lang="ts">
   import { cn } from "@vexed/ui/util";
   import { Button, Input } from "@vexed/ui";
+  import * as NumberField from "@vexed/ui/NumberField";
   import * as Empty from "@vexed/ui/Empty";
   import * as Select from "@vexed/ui/Select";
   import * as Tabs from "@vexed/ui/Tabs";
   import { VirtualList } from "@vexed/ui";
+
   import Download from "lucide-svelte/icons/download";
   import Loader from "lucide-svelte/icons/loader";
   import Database from "lucide-svelte/icons/database";
@@ -69,7 +71,7 @@
   }
 
   let activeTab = $state("grabber");
-  let loaderId = $state<number>();
+  let loaderId = $state(0);
   let loaderType = $state<string>("");
   let grabberType = $state<string>("");
   let grabbedData = $state<GrabbedData | null>(null);
@@ -278,7 +280,7 @@
               const enhancementName = getEnhancementName(item.EnhPatternID);
               const procName = item.ProcID ? getWeaponProcName(item.ProcID) : "";
               const validProc = procName && procName !== "Unknown" ? procName : "";
-              
+
               if (enhancementName || validProc) {
                 const parts = [enhancementName, validProc].filter(Boolean);
                 children.push({
@@ -479,19 +481,17 @@
         <Tabs.Content value="loader" class="flex-1">
           <div class="flex flex-col gap-4">
             <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div class="space-y-1.5">
+              <NumberField.Root bind:value={loaderId} min={1} class="space-y-1.5">
                 <label for="loader-id" class="text-sm font-medium text-muted-foreground">
                   ID
                 </label>
-                <Input
-                  type="number"
+                <NumberField.Input
                   id="loader-id"
-                  bind:value={loaderId}
                   placeholder="Enter ID"
                   class="bg-secondary/50 border-border/50 focus:bg-background transition-colors"
                   autocomplete="off"
                 />
-              </div>
+              </NumberField.Root>
 
               <div class="space-y-1.5">
                 <label for="loader-type" class="text-sm font-medium text-muted-foreground">
