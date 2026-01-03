@@ -12,7 +12,10 @@ A skillset is a sequence of skills to use for some class, specifically for the A
 
 ```json
 {
-  "Legion Revenant": "3;1;2;4|150"
+  "Legion Revenant": {
+    "skills": [3, 4, 1, 2],
+    "delay": 150
+  }
 }
 ```
 
@@ -20,49 +23,73 @@ This describes a skillset for Legion Revenant class. The casing of the class nam
 
 ## Basic Structure
 
-Skillsets are encoded as a string as follows:
+Skillsets are stored as JSON objects with the following properties:
 
-- Semicolon (`;`) separates different skills
-- Pipe (`|`) terminates the skillset and specifies the delay between skill casts (optional)
-- Skills are numbered 0-5
-  - 0 = Auto attack (basic attack)
-  - 1-4 = Skills 1 through 4
-  - 5 = potion / consumable
+- `skills` - An array of skills to execute in order (can be numbers or objects)
+- `delay` - Optional delay in milliseconds between skill casts (default: 150)
 
-  Indicies out of the range are ignored.
+Skills can be:
+- **Numbers** - Just the skill index (e.g., `3`) for simple skills
+- **Objects** - Full skill objects for advanced features (wait, conditions)
+
+Skill indices:
+- 0 = Auto attack (basic attack)
+- 1-4 = Skills 1 through 4
+- 5 = potion / consumable
+
+Indices out of the 0-5 range are ignored.
 
 ## Wait for skill
 
-To wait for a skill to be available, use the `W` flag after a skill index. For example:
+To wait for a skill to be available before casting, add `"wait": true`:
 
-```
-
-1;2W;3;4
-
+```json
+{
+  "skills": [
+    { "index": 1 },
+    { "index": 2, "wait": true },
+    { "index": 3 },
+    { "index": 4 }
+  ]
+}
 ```
 
 This means: use skill 1, wait for skill 2 to be available, then use skills 3 and 4. When waiting for a skill, no other skills get casted.
 
 ## Conditions
 
-You can add conditions to skills using a colon (`:`) after the skill number.
+You can add conditions to skills to only cast them when HP or MP meets a threshold.
 
 ### HP Conditions
 
-Use `SH` (Safe HP) followed by a comparison:
+Use a `condition` object with `"type": "hp"`:
 
 ```json
-1:SH>60;2;3;4:SH>30
+{
+  "skills": [
+    { "index": 1, "condition": { "type": "hp", "operator": ">", "value": 60 } },
+    { "index": 2 },
+    { "index": 3 },
+    { "index": 4, "condition": { "type": "hp", "operator": ">", "value": 30 } }
+  ]
+}
 ```
 
-Use skill 1 if hp is greater than 60%, use skill 2, use skill 3, use skill 4 if hp is greater than 30%.
+Use skill 1 if HP is greater than 60%, use skill 2, use skill 3, use skill 4 if HP is greater than 30%.
 
-### MP conditions
+### MP Conditions
 
-Use `SM` (Safe MP) followed by a comparison:
+Use a `condition` object with `"type": "mp"`:
 
 ```json
-1:SM>60;2;3;4:SM>30
+{
+  "skills": [
+    { "index": 1, "condition": { "type": "mp", "operator": ">", "value": 60 } },
+    { "index": 2 },
+    { "index": 3 },
+    { "index": 4, "condition": { "type": "mp", "operator": ">", "value": 30 } }
+  ]
+}
 ```
 
 ### Comparison Operators
@@ -72,10 +99,79 @@ Use `SM` (Safe MP) followed by a comparison:
 - `>=` = greater than or equal to
 - `<=` = less than or equal to
 
-### Chaining with Wait
+### Combining Wait with Conditions
 
-```
-1W:SH<40;2;3;4
+```json
+{
+  "skills": [
+    { "index": 1, "wait": true, "condition": { "type": "hp", "operator": "<", "value": 40 } },
+    { "index": 2 },
+    { "index": 3 },
+    { "index": 4 }
+  ]
+}
 ```
 
 Wait for skill 1 to be available to use but only if HP is below 40%, then use skills 2, 3, and 4.
+
+## Examples
+
+```json
+{
+  // Simple: just skill indices
+  "Legion Revenant": {
+    "skills": [3, 4, 1, 2]
+  },
+
+  // With delay between skills (100ms)
+  "Void Highlord": {
+    "skills": [2, 3, 5, 4, 1],
+    "delay": 100
+  },
+
+  // Wait for skill 1 before casting
+  "Chaos Avenger": {
+    "skills": [
+      { "index": 1, "wait": true },
+      2,
+      3,
+      4
+    ]
+  },
+
+  // Only use skill 3 if HP > 70%
+  "Dragon of Time": {
+    "skills": [
+      { "index": 3, "condition": { "type": "hp", "operator": ">", "value": 70 } },
+      2,
+      4,
+      1
+    ]
+  },
+
+  // Only use skill 2 if MP >= 40%
+  "Lightcaster": {
+    "skills": [
+      1,
+      { "index": 2, "condition": { "type": "mp", "operator": ">=", "value": 40 } },
+      3,
+      4
+    ],
+    "delay": 150
+  },
+
+  // Wait for skill 4 AND only if HP < 50%
+  "Chrono Assassin": {
+    "skills": [
+      { "index": 4, "wait": true, "condition": { "type": "hp", "operator": "<", "value": 50 } },
+      2,
+      3,
+      1
+    ]
+  }
+}
+```
+
+## Migration from Old Format
+
+If you have skillsets in the old string format (e.g., `"3;4;1;2|150"`), use the [Skillset Migration Tool](/tools/skillset-migration.html) to convert them to the new JSON format.
