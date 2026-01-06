@@ -1,6 +1,6 @@
 /**
  * Case-insensitive equality check.
- * 
+ *
  * @param a - the first string to compare
  * @param b - the second string to compare
  * @returns true if the strings are equal, false otherwise
@@ -14,7 +14,7 @@ export function equalsIgnoreCase(a: string | null | undefined, b: string | null 
 
 /**
  * Case-insensitive includes check.
- * 
+ *
  * @param str - the string to search in
  * @param search - the string to search for
  * @returns true if the string contains the search string, false otherwise
@@ -28,8 +28,7 @@ export function includesIgnoreCase(str: string | null | undefined, search: strin
 
 /**
  * Fuzzy match check - all words in the query must appear in the text.
- * Useful for command palette-style searching where word order doesn't matter.
- * 
+ *
  * @param text - the text to search in
  * @param query - the query string (can contain multiple words)
  * @returns true if all query words appear in the text, false otherwise

@@ -38,6 +38,9 @@
   let deleteDialogError = $state("");
   let pendingDeleteUsernames = $state<string[]>([]);
 
+  let serverFetchError = $state("");
+  let isRetryingServerFetch = $state(false);
+
   let filteredAccounts = $derived(
     Array.from(accounts.values()).filter((acc) => {
       return acc.username.toLowerCase().includes(searchQuery.toLowerCase());
@@ -52,31 +55,65 @@
       ),
   );
 
+  async function loadServers() {
+    try {
+      serverFetchError = "";
+      const resp = await fetch("https://game.aq.com/game/api/data/servers");
+
+      if (resp.status === 429) {
+        serverFetchError = "Too many requests. Please wait a moment before retrying.";
+        return;
+      }
+
+      if (!resp.ok) {
+        serverFetchError = `Failed to load servers (HTTP ${resp.status}).`;
+        return;
+      }
+
+      const serverData = await resp.json();
+      if (!Array.isArray(serverData)) {
+        serverFetchError = "Received invalid server data.";
+        return;
+      }
+
+      servers.clear();
+      for (let i = 0; i < serverData.length; i++) {
+        const server = serverData[i];
+        if (i === 0 && !managerState.selectedServer)
+          managerState.selectedServer = `${server.sName} (${server.iCount})`;
+
+        servers.set(server.sName, server);
+      }
+    } catch (err) {
+      console.error("Fetch error:", err);
+      serverFetchError = "Connection error. Please check your internet.";
+    }
+  }
+
   onMount(async () => {
-    const [accountData, serverData] = await Promise.all([
+    isLoading = true;
+
+    const [accountData] = await Promise.all([
       client.manager.getAccounts(),
-      fetch("https://game.aq.com/game/api/data/servers").then((resp) =>
-        resp.json(),
-      ),
+      loadServers(),
     ]);
 
     if (Array.isArray(accountData)) {
+      accounts.clear();
       for (const account of accountData) {
         if (typeof account?.username !== "string") continue;
         accounts.set(account.username.toLowerCase(), account);
       }
     }
 
-    for (let i = 0; i < serverData.length; i++) {
-      const server = serverData[i];
-      if (i === 0) 
-        managerState.selectedServer = `${server.sName} (${server.iCount})`;
-      
-      servers.set(server.sName, server);
-    }
-
     isLoading = false;
   });
+
+  async function retryServerFetch() {
+    isRetryingServerFetch = true;
+    await loadServers();
+    isRetryingServerFetch = false;
+  }
 
   function toggleSelection(username: string) {
     const key = username.toLowerCase();
@@ -212,30 +249,51 @@
         </div>
 
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Select.Root bind:value={managerState.selectedServer}>
-            <Select.Trigger class="w-full bg-secondary/50 border-border/50 hover:bg-secondary transition-colors">
-              <div class="flex items-center gap-2">
-                <ServerIcon class="text-muted-foreground h-4 w-4 shrink-0" />
-                <span class="text-foreground text-sm truncate"
-                  >{managerState.selectedServer?.split(" (")?.[0] ?? ""}</span
-                >
+          {#if serverFetchError}
+            <Button
+              variant="outline"
+              onclick={retryServerFetch}
+              disabled={isRetryingServerFetch}
+              class="flex w-full items-center justify-between gap-2 border-destructive/20 bg-destructive/5 hover:bg-destructive/10 text-destructive transition-colors h-10"
+            >
+              <div class="flex min-w-0 items-center gap-2">
+                <ServerIcon class="h-4 w-4 shrink-0" />
+                <span class="truncate text-xs font-medium">{serverFetchError}</span>
               </div>
-            </Select.Trigger>
-            <Select.Content>
-              {#each servers.values() as server (server.sName)}
-                <Select.Item value={`${server.sName} (${server.iCount})`}>
-                  <span
-                    class="flex w-full items-center justify-between gap-4"
+              <span class="bg-destructive text-destructive-foreground shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-widest leading-none">
+                {isRetryingServerFetch ? "..." : "Retry"}
+              </span>
+            </Button>
+          {:else}
+            <Select.Root bind:value={managerState.selectedServer}>
+              <Select.Trigger
+                class="w-full bg-secondary/50 border-border/50 hover:bg-secondary transition-colors"
+                disabled={servers.size === 0}
+              >
+                <div class="flex items-center gap-2">
+                  <ServerIcon class="text-muted-foreground h-4 w-4 shrink-0" />
+                  <span class="text-foreground text-sm truncate"
+                    >{managerState.selectedServer?.split(" (")?.[0] ??
+                      "Loading servers..."}</span
                   >
-                    <span>{server.sName}</span>
-                    <span class="text-muted-foreground text-xs tabular-nums"
-                      >{server.iCount}</span
+                </div>
+              </Select.Trigger>
+              <Select.Content>
+                {#each servers.values() as server (server.sName)}
+                  <Select.Item value={`${server.sName} (${server.iCount})`}>
+                    <span
+                      class="flex w-full items-center justify-between gap-4"
                     >
-                  </span>
-                </Select.Item>
-              {/each}
-            </Select.Content>
-          </Select.Root>
+                      <span>{server.sName}</span>
+                      <span class="text-muted-foreground text-xs tabular-nums"
+                        >{server.iCount}</span
+                      >
+                    </span>
+                  </Select.Item>
+                {/each}
+              </Select.Content>
+            </Select.Root>
+          {/if}
 
           <div
             class="group relative flex items-stretch overflow-hidden rounded-lg border transition-all duration-200
