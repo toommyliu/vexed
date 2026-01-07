@@ -17,13 +17,9 @@ export class BoostsJob extends Job {
       const item = this.bot.inventory.get(boost);
       if (item?.data.sType !== "ServerUse") continue;
 
-      if (this.bot.player.isBoostActive(variant)) {
-        console.log(`boost already active: ${variant}`);
-        continue;
-      }
+      if (this.bot.player.isBoostActive(variant)) continue;
 
-      // this.bot.flash.call(() => swf.playerUseBoost(item.id));
-      console.log(`using boost: ${item.name}`);
+      this.bot.flash.call(() => swf.playerUseBoost(item.id));
     }
   }
 
