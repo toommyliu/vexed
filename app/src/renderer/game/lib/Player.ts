@@ -11,7 +11,7 @@ export enum BoostType {
 }
 
 export class Player {
-  public constructor(public readonly bot: Bot) {}
+  public constructor(public readonly bot: Bot) { }
 
   /**
    * The player's faction data.
@@ -143,6 +143,11 @@ export class Player {
 
     this.bot.flash.call(() =>
       swf.playerWalkTo(Number(x), Number(y), Number(walkSpeed)),
+    );
+
+    const roomId = this.bot.world.roomId;
+    this.bot.packets.sendServer(
+      `%xt%zm%mv%${roomId}%${x}%${y}%${walkSpeed}%`,
     );
   }
 
