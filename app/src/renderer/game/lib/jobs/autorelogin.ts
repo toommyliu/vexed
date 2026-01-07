@@ -1,22 +1,16 @@
 import { Mutex } from "async-mutex";
-import log from "electron-log";
 import { CommandExecutor } from "~/botting/command-executor";
 import type { Bot } from "~/lib/Bot";
+import { autoReloginState } from "../autoReloginState.svelte";
 import { Job } from "./Job";
-
-const logger = log.scope("AutoRelogin");
-void log;
-void logger;
 
 const MAX_CONSECUTIVE_FAILURES = 5;
 const MIN_FAILED_COOLDOWN = 1_000;
 const MAX_FAILED_COOLDOWN = 60_000;
-const DEFAULT_DELAY = 5_000;
 const SOFT_FAILURE_COOLDOWN_BASE = 2_000;
 const SOFT_FAILURE_COOLDOWN_JITTER = 2_000;
 const JITTER_MAX = 3_000;
 
-const TIMEOUT_CREDENTIALS_APPLY = 10_000;
 const TIMEOUT_TEMP_KICK_WAIT = 60_000;
 const TIMEOUT_SERVER_SELECT = 10_000;
 const TIMEOUT_SERVERS_LOAD = 5_000;
@@ -28,15 +22,7 @@ export class AutoReloginJob extends Job {
 
   private static readonly globalMutex = new Mutex(); // global - for autorelogin job
 
-  private static _username: string | null = null;
-
-  private static _password: string | null = null;
-
-  private static _server: string | null = null;
-
-  private static _delay = DEFAULT_DELAY;
-
-  // Failure tracking
+  // Failure tracking (internal to job, not UI-relevant)
   private static lastFailedAttempt = 0;
 
   private static lastAttemptTime = 0;
@@ -44,28 +30,6 @@ export class AutoReloginJob extends Job {
   private static failedCooldown = 10_000;
 
   private static consecutiveFailures = 0;
-
-  private static pendingSetCredentials = false;
-
-  public static get username(): string | null {
-    return AutoReloginJob._username;
-  }
-
-  public static get password(): string | null {
-    return AutoReloginJob._password;
-  }
-
-  public static get server(): string | null {
-    return AutoReloginJob._server;
-  }
-
-  public static get delay(): number {
-    return AutoReloginJob._delay;
-  }
-
-  public static set delay(value: number) {
-    AutoReloginJob._delay = value;
-  }
 
   private static setCooldownForFailure(): void {
     const attempt = Math.min(
@@ -88,9 +52,6 @@ export class AutoReloginJob extends Job {
     AutoReloginJob.setCooldownForFailure();
     AutoReloginJob.lastFailedAttempt = now;
     AutoReloginJob.lastAttemptTime = now;
-    /* log.debug(
-      `autorelogin markFailure: failures=${AutoReloginJob.consecutiveFailures}, cooldown=${AutoReloginJob.failedCooldown}ms, lastAttemptTime=${AutoReloginJob.lastAttemptTime}`
-    ); */
   }
 
   private static resetFailureState(): void {
@@ -112,9 +73,6 @@ export class AutoReloginJob extends Job {
     );
     AutoReloginJob.lastFailedAttempt = now;
     AutoReloginJob.lastAttemptTime = now;
-    /* log.debug(
-      `autorelogin markSoftFailure: cooldown=${AutoReloginJob.failedCooldown}ms, lastAttemptTime=${AutoReloginJob.lastAttemptTime}`
-    ); */
   }
 
   public constructor(private readonly bot: Bot) {
@@ -131,11 +89,11 @@ export class AutoReloginJob extends Job {
     if (
       this.bot.auth.isLoggedIn() &&
       this.bot.auth.username &&
-      AutoReloginJob._username
+      autoReloginState.username
     ) {
       return (
         this.bot.auth.username.toLowerCase() !==
-        AutoReloginJob._username.toLowerCase()
+        autoReloginState.username.toLowerCase()
       );
     }
 
@@ -143,24 +101,21 @@ export class AutoReloginJob extends Job {
   }
 
   private shouldRun(): boolean {
+    // Check if autorelogin is enabled and configured
+    if (!autoReloginState.enabled || !autoReloginState.isConfigured) {
+      return false;
+    }
+
     if (this.bot.player.isReady()) {
-      // logger.debug("player ready; no need to autorelogin");
       return false;
     }
 
     const context = CommandExecutor.getInstance();
     if (context.isRunning()) {
-      // logger.debug("commands are running; skipping autorelogin");
-      return false;
-    }
-
-    if (this.bot.player.isReady()) {
-      // logger.debug("player ready; no need to autorelogin");
       return false;
     }
 
     if (this.mutex.isLocked()) {
-      // logger.debug("instance mutex is locked; skipping autorelogin");
       return false;
     }
 
@@ -169,19 +124,11 @@ export class AutoReloginJob extends Job {
       now - AutoReloginJob.lastFailedAttempt <
       AutoReloginJob.failedCooldown
     ) {
-      /* no remaining variable needed; previously used only for logging */
-      /* logger.debug(
-        `In cooldown from previous failed attempt, ${remaining}s remaining, skipping...`
-      );*/
       return false;
     }
 
     // eslint-disable-next-line sonarjs/prefer-single-boolean-return
-    if (now - AutoReloginJob.lastAttemptTime < AutoReloginJob.delay) {
-      /* no remaining variable needed; previously used only for logging */
-      /* logger.debug(
-        `Waiting between attempts, ${remaining}s remaining (enforced by delay=${AutoReloginJob.delay}ms)`
-      );*/
+    if (now - AutoReloginJob.lastAttemptTime < autoReloginState.delay) {
       return false;
     }
 
@@ -191,51 +138,24 @@ export class AutoReloginJob extends Job {
   public override execute = async () => {
     if (!this.shouldRun()) return;
 
-    if (AutoReloginJob.pendingSetCredentials) {
-      /* logger.debug(
-        "setCredentials in-flight; waiting for credentials to be applied"
-      );*/
-      const pendRes = await this.bot.waitUntil(
-        () => !AutoReloginJob.pendingSetCredentials,
-        {
-          interval: 50,
-          timeout: TIMEOUT_CREDENTIALS_APPLY,
-        }
-      );
-      if (pendRes.isErr()) {
-        /* logger.warn(
-          "Timed out waiting for credentials to be applied; aborting autorelogin attempt"
-        );*/
-        return;
-      }
-    }
-
     await AutoReloginJob.globalMutex.runExclusive(async () => {
-      // logger.debug("AutoReloginJob acq globalMutex for this attempt");
-      /* logger.debug(
-        `credentials: username=${AutoReloginJob._username}, server=${AutoReloginJob._server}`
-      );*/
-
       if (
-        !AutoReloginJob._username ||
-        !AutoReloginJob._password ||
-        !AutoReloginJob._server
+        !autoReloginState.username ||
+        !autoReloginState.password ||
+        !autoReloginState.server
       ) {
-        // logger.debug("No credentials present, aborting autorelogin");
         return;
       }
 
       await this.mutex.runExclusive(async () => {
         await this.performLoginAttempt();
       });
-      // logger.debug("AutoReloginJob releasing globalMutex after attempt");
     });
   };
 
   private async performLoginAttempt() {
     const executor = CommandExecutor.getInstance();
     if (executor.isRunning()) {
-      // logger.debug("Commands started running, aborting autorelogin");
       return;
     }
 
@@ -252,26 +172,21 @@ export class AutoReloginJob extends Job {
       });
 
       if (executor.isRunning()) {
-        /* logger.debug(
-          "Commands started running during temp kick wait, aborting..."
-        );*/
         return;
       }
 
-      // logger.debug(`Triggered, waiting ${AutoReloginJob.delay}ms...`);
       AutoReloginJob.lastAttemptTime = Date.now();
-      await this.bot.sleep(AutoReloginJob.delay);
+      await this.bot.sleep(autoReloginState.delay);
 
       if (this.checkInterruption(executor)) return;
 
       try {
         this.bot.auth.login(
-          AutoReloginJob._username!,
-          AutoReloginJob._password!
+          autoReloginState.username!,
+          autoReloginState.password!
         );
         initiatedLogin = true;
       } catch {
-        // logger.error(`Exception thrown during auth.login: ${error}`);
         AutoReloginJob.markFailure();
         return;
       }
@@ -286,16 +201,12 @@ export class AutoReloginJob extends Job {
       await this.bot.sleep(1_000);
 
       if (this.manualLoginDetected()) {
-        /* logger.debug(
-          "Manual login detected after clicking server, aborting autorelogin"
-        );*/
         return;
       }
 
       if (!(await this.waitForGameEntry(didClickServer, initiatedLogin)))
         return;
 
-      // logger.debug('success');
       AutoReloginJob.resetFailureState();
     } finally {
       this.bot.settings.lagKiller = og_lagKiller;
@@ -305,18 +216,15 @@ export class AutoReloginJob extends Job {
 
   private checkInterruption(context: any): boolean {
     if (context.isRunning()) {
-      // logger.debug("Commands started running, aborting...");
       return true;
     }
 
     if (this.bot.auth.isLoggedIn()) {
-      // logger.debug("Login state changed, aborting autorelogin");
       return true;
     }
 
     // eslint-disable-next-line sonarjs/prefer-single-boolean-return
     if (this.manualLoginDetected()) {
-      // logger.debug("Manual login detected, aborting autorelogin");
       return true;
     }
 
@@ -330,13 +238,12 @@ export class AutoReloginJob extends Job {
       })
       .then((res) => {
         if (res.isErr()) {
-          // logger.debug("Did not reach server select in time");
+          // Did not reach server select in time
         }
       });
 
     // eslint-disable-next-line sonarjs/prefer-single-boolean-return
     if (!this.isInServerSelect()) {
-      // logger.debug("Still not in server select, aborting...");
       return false;
     }
 
@@ -350,12 +257,11 @@ export class AutoReloginJob extends Job {
       })
       .then((res) => {
         if (res.isErr()) {
-          // logger.debug("Servers did not load in time");
+          // Servers did not load in time
         }
       });
 
     if (this.bot.auth.servers.length === 0) {
-      // logger.debug("No servers loaded, aborting...");
       AutoReloginJob.markFailure();
       return false;
     }
@@ -367,23 +273,18 @@ export class AutoReloginJob extends Job {
     let didClickServer: boolean;
     try {
       didClickServer = await Promise.resolve(
-        this.bot.auth.connectTo(AutoReloginJob._server!)
+        this.bot.auth.connectTo(autoReloginState.server!)
       );
     } catch {
-      // logger.debug(`Server connection attempt failed: ${error}`);
       AutoReloginJob.markFailure();
       return false;
     }
 
     if (!didClickServer) {
-      // logger.debug("connectTo returned false, aborting login attempt");
       AutoReloginJob.markFailure();
       return false;
     }
 
-    /* logger.debug(
-      `clicked server: ${AutoReloginJob._server!} - ${didClickServer}`
-    ); */
     return true;
   }
 
@@ -401,23 +302,17 @@ export class AutoReloginJob extends Job {
 
         const connMcText = this.bot.flash.call<string>(() => swf.getConnMcText()) ?? "";
         if (connMcText === "null" && didClickServer) {
-          /* logger.debug(
-            "currentLabel is=" + this.bot.flash.get("currentLabel", true)
-          ); */
-          // logger.debug("Null connection message detected, aborting...");
           arg.abort();
           return false;
         }
 
         if (connMcText.toLowerCase().includes("server is full")) {
-          // logger.debug("Server is full message detected, aborting...");
           arg.abort();
           return false;
         }
 
         const isBackButtonVisible = this.bot.flash.call<boolean>(() => swf.isConnMcBackButtonVisible());
         if (isBackButtonVisible) {
-          // logger.debug("Back button visible, aborting login attempt...");
           arg.abort();
           return false;
         }
@@ -437,7 +332,6 @@ export class AutoReloginJob extends Job {
     });
 
     if (!this.bot.player.isReady()) {
-      // logger.debug("Still not ready after relogin...");
       this.handleLoginFailure("not_ready", initiatedLogin);
       return false;
     }
@@ -452,32 +346,21 @@ export class AutoReloginJob extends Job {
     const manualDifferentUser = Boolean(
       this.bot.auth.isLoggedIn() &&
       this.bot.auth.username &&
-      AutoReloginJob._username &&
+      autoReloginState.username &&
       this.bot.auth.username.toLowerCase() !==
-      AutoReloginJob._username.toLowerCase()
+      autoReloginState.username.toLowerCase()
     );
 
-    /* logger.debug(
-      `Login failure: reason=${reason}; manualDifferentUser=${manualDifferentUser}`
-    ); */
-
-    if (initiatedLogin && this.bot.auth.isLoggedIn()) {
-      if (manualDifferentUser) {
-        // logger.debug("Skipping logout because a different user is logged in");
-      } else {
-        // logger.debug("Logout initiated by autorelogin job after failure");
-        try {
-          this.bot.auth.logout();
-        } catch {
-          // logger.warn(`Failed to logout after failure: ${error}`);
-        }
+    if (initiatedLogin && this.bot.auth.isLoggedIn() && !manualDifferentUser) {
+      try {
+        this.bot.auth.logout();
+      } catch {
+        // Failed to logout after failure
       }
     }
 
     if (manualDifferentUser) {
-      /* logger.debug(
-        "No failure state update due to manual login by different user"
-      ); */
+      // No failure state update due to manual login by different user
     } else if (reason === "aborted") {
       AutoReloginJob.markSoftFailure();
     } else {
@@ -486,45 +369,10 @@ export class AutoReloginJob extends Job {
   }
 
   /**
-   * Sets the credentials for auto-login.
+   * Resets failure tracking state. Called when credentials are updated.
    */
-  public static async setCredentials(
-    username: string,
-    password: string,
-    server?: string
-  ): Promise<void> {
-    await AutoReloginJob.globalMutex.runExclusive(async () => {
-      AutoReloginJob.pendingSetCredentials = true;
-      try {
-        if (username) AutoReloginJob._username = username;
-        if (password) AutoReloginJob._password = password;
-        if (server) AutoReloginJob._server = server;
-
-        AutoReloginJob.lastAttemptTime = 0; // allow immediate attempt
-        AutoReloginJob.resetFailureState();
-      } finally {
-        AutoReloginJob.pendingSetCredentials = false;
-      }
-    });
-
-    /* log.debug(
-      `AutoReloginJob.setCredentials: username=${AutoReloginJob._username} server=${AutoReloginJob._server}`
-    ); */
-  }
-
-  public static async reset() {
-    /* log.debug(
-      "AutoReloginJob.reset requested; waiting for any active autorelogin to finish..."
-    ); */
-    await AutoReloginJob.globalMutex.runExclusive(async () => {
-      AutoReloginJob._username = null;
-      AutoReloginJob._password = null;
-      AutoReloginJob._server = null;
-      AutoReloginJob._delay = DEFAULT_DELAY;
-      AutoReloginJob.resetFailureState();
-      /* log.info(
-        "AutoReloginJob.reset: credentials cleared and failure state reset"
-      ); */
-    });
+  public static resetForNewCredentials(): void {
+    AutoReloginJob.resetFailureState();
+    AutoReloginJob.lastAttemptTime = 0; // allow immediate attempt
   }
 }

@@ -76,8 +76,8 @@
         role="menu"
         tabindex="0"
         class={cn(
-            "absolute z-50 min-w-[8rem] overflow-hidden rounded-md bg-popover p-1 text-popover-foreground shadow-md outline-none",
-            "top-[calc(100%+4px)]",
+            "absolute z-50 min-w-[8rem] overflow-visible rounded-md bg-popover p-1 text-popover-foreground shadow-md outline-none",
+            "top-full mt-1",
             align === "end" ? "right-0" : "left-0",
             className,
         )}

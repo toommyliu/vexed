@@ -6,6 +6,7 @@
     optionsPanelState,
     appState,
     gameState,
+    autoReloginState,
   } from "./state.svelte";
   import { client, handlers } from "~/shared/tipc";
   import { cn } from "~/shared/cn";
@@ -34,6 +35,7 @@
   import CommandPalette from "./components/CommandPalette.svelte";
   import OptionsPanel from "./components/OptionsPanel.svelte";
   import WindowsMegaMenu from "./components/WindowsMegaMenu.svelte";
+  import { AutoReloginJob } from "./lib/jobs/autorelogin";
   import Play from "lucide-svelte/icons/play";
   import Square from "lucide-svelte/icons/square";
   import { Button, Checkbox, Label } from "@vexed/ui";
@@ -65,6 +67,30 @@
   let gameConnected = $state(false);
   bot.on("login", () => (gameConnected = true));
   bot.on("logout", () => (gameConnected = false));
+
+  // Auto-relogin menu state
+  let reloginServers = $state<string[]>([]);
+  let reloginUsername = $derived(bot.auth?.username ?? "");
+  let reloginPassword = $derived(bot.auth?.password ?? "");
+  let reloginCanEnable = $derived(Boolean(reloginUsername && reloginPassword));
+
+  function updateReloginServers() {
+    try {
+      reloginServers = (bot.auth?.servers ?? []).map((s) => s.name);
+    } catch {
+      reloginServers = [];
+    }
+  }
+
+  function enableRelogin(server: string) {
+    if (!reloginUsername || !reloginPassword) return;
+    autoReloginState.enable(reloginUsername, reloginPassword, server);
+    AutoReloginJob.resetForNewCredentials();
+  }
+
+  function disableRelogin() {
+    autoReloginState.disable();
+  }
 
   let topNavVisible = $state(true);
   let commandPaletteOpen = $state(false);
@@ -519,6 +545,7 @@
           <Menu.Root
             open={openDropdown === "scripts"}
             onOpenChange={(open) => (openDropdown = open ? "scripts" : null)}
+            class="flex h-full items-center"
           >
             <Menu.Trigger class="flex h-7 shrink-0 items-center rounded bg-transparent px-2.5 text-[13px] font-medium text-foreground/80 transition-colors duration-150 hover:bg-accent hover:text-foreground">
               Scripts
@@ -540,11 +567,68 @@
           </Menu.Root>
 
           <button
-            class="flex h-7 shrink-0 items-center gap-1.5 rounded bg-transparent px-2.5 text-[12px] font-medium text-foreground/80 transition-colors duration-150 hover:bg-accent hover:text-foreground"
+            class="flex h-7 shrink-0 items-center gap-1.5 rounded bg-transparent px-2.5 text-[13px] font-medium text-foreground/80 transition-colors duration-150 hover:bg-accent hover:text-foreground"
             onclick={() => optionsPanelState.toggle()}
               >
             <span>Options</span>
           </button>
+
+          <Menu.Root
+            open={openDropdown === "relogin"}
+            onOpenChange={(open) => {
+              if (open) {
+                updateReloginServers();
+                openDropdown = "relogin";
+              } else {
+                openDropdown = null;
+              }
+            }}
+            class="flex h-full items-center"
+          >
+            <Menu.Trigger
+              class={cn(
+                "flex h-7 shrink-0 items-center gap-1.5 rounded bg-transparent px-2.5 text-[13px] font-medium transition-all duration-200 hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50",
+                autoReloginState.enabled
+                  ? "text-emerald-400"
+                  : "text-foreground/80 hover:text-foreground"
+              )}
+              disabled={!gameConnected}
+            >
+              <span>Auto Relogin</span>
+            </Menu.Trigger>
+            <Menu.Content class="w-52 text-[13px]">
+              {#if autoReloginState.enabled}
+                <div class="px-2 py-1.5 text-xs text-muted-foreground/70 flex items-center gap-2">
+                  Username: {autoReloginState.username}
+                </div>
+                <div class="px-2 py-1.5 text-xs text-muted-foreground/70 flex items-center gap-2">
+                  Server: {autoReloginState.server}
+                </div>
+                <Menu.Separator />
+                <Menu.Item class="bg-transparent text-red-400 hover:text-red-300" onclick={disableRelogin}>
+                  Disable
+                </Menu.Item>
+              {:else if !reloginCanEnable}
+                <div class="px-3 py-3 text-center">
+                  <div class="text-muted-foreground/60 text-xs">Log in to enable</div>
+                </div>
+              {:else}
+                <Menu.Label class="text-[11px] text-muted-foreground/70 uppercase tracking-wider px-2 py-1.5">
+                  Enable for server
+                </Menu.Label>
+                <div class="max-h-52 overflow-y-auto pr-1">
+                  {#each reloginServers as server}
+                    <Menu.Item 
+                      class="bg-transparent hover:bg-emerald-500/10 hover:text-emerald-400 transition-colors"
+                      onclick={() => enableRelogin(server)}
+                    >
+                      {server}
+                    </Menu.Item>
+                  {/each}
+                </div>
+              {/if}
+            </Menu.Content>
+          </Menu.Root>
 
           <button
             class={cn(
@@ -567,7 +651,6 @@
         </div>
 
         <div class="ml-auto flex h-full shrink-0 items-center gap-1 pr-1.5">
-          <div class="mr-1 h-4 w-px bg-border/60"></div>
           <Label class="flex cursor-pointer select-none items-center gap-1.5 text-[12px] text-foreground/70 transition-colors hover:text-foreground">
             <Checkbox bind:checked={autoEnabled} />
             <span>Auto</span>

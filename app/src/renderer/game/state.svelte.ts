@@ -2,6 +2,8 @@ import { SvelteMap } from "svelte/reactivity";
 import type { Command } from "./botting/command";
 import type { SkillSet } from "./util/skillParser";
 
+export { autoReloginState } from "./lib/autoReloginState.svelte";
+
 function initState() {
   let infiniteRange = $state(false);
   let provokeCell = $state(false);
@@ -440,3 +442,4 @@ export const scriptState = initScriptState();
 export const appState = initAppState();
 export const commandOverlayState = initCommandOverlayState();
 export const optionsPanelState = initOptionsPanelState();
+

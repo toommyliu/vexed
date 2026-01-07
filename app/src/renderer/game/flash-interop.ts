@@ -11,7 +11,7 @@ import { event } from "./packet-handlers/event";
 import { initUserData } from "./packet-handlers/init-user-data";
 import { initUserDatas } from "./packet-handlers/initUserDatas";
 import { moveToArea } from "./packet-handlers/move-to-area";
-import { appState } from "./state.svelte";
+import { appState, autoReloginState } from "./state.svelte";
 
 const logger = log.scope("game/flash-interop");
 
@@ -141,10 +141,11 @@ window.loaded = async () => {
     }
 
     if (server) {
-      await AutoReloginJob.setCredentials(username!, password!, server!);
+      autoReloginState.enable(username!, password!, server!);
+      AutoReloginJob.resetForNewCredentials();
 
       bot.once("login", async () => {
-        await AutoReloginJob.reset();
+        autoReloginState.disable();
         await client.manager.managerLoginSuccess({ username });
       });
     } else {
