@@ -14,7 +14,6 @@ export function createFollowerTipcRouter(tipcInstance: TipcInstance) {
     }),
     start: tipcInstance.procedure
       .input<{
-        antiCounter: boolean;
         attackPriority: string;
         copyWalk: boolean;
         name: string;

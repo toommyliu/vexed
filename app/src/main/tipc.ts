@@ -17,9 +17,9 @@ import { createGameTipcRouter } from "./tipc/game";
 import { createHotkeysTipcRouter } from "./tipc/hotkeys";
 import { createLoaderGrabberTipcRouter } from "./tipc/loaderGrabber";
 import { createManagerTipcRouter } from "./tipc/manager";
+import { createOnboardingTipcRouter } from "./tipc/onboarding";
 import { createPacketLoggerTipcRouter } from "./tipc/packetLogger";
 import { createPacketSpammerTipcRouter } from "./tipc/packetSpammer";
-import { createOnboardingTipcRouter } from "./tipc/onboarding";
 import { createScriptsTipcRouter } from "./tipc/scripts";
 
 const tipcInstance = tipc.create();
@@ -83,7 +83,6 @@ export type RendererHandlers = {
   follower: {
     me(): Promise<string>;
     start(input: {
-      antiCounter: boolean;
       attackPriority: string;
       copyWalk: boolean;
       name: string;

@@ -1,15 +1,14 @@
 <script lang="ts">
   import { Button, Input, Checkbox, Label } from "@vexed/ui";
   import * as InputGroup from "@vexed/ui/InputGroup";
+  import * as NumberField from "@vexed/ui/NumberField";
   import { cn } from "@vexed/ui/util";
+ 
   import UserRoundSearch from "lucide-svelte/icons/user-round-search";
   import Swords from "lucide-svelte/icons/swords";
-  import Shield from "lucide-svelte/icons/shield";
   import Play from "lucide-svelte/icons/play";
   import Pause from "lucide-svelte/icons/pause";
-  import Target from "lucide-svelte/icons/target";
   import Footprints from "lucide-svelte/icons/footprints";
-  import Timer from "lucide-svelte/icons/timer";
 
   import { client, handlers } from "~/shared/tipc";
 
@@ -23,7 +22,6 @@
   let safeSkillHp = $state(60);
   let attackPriority = $state("");
   let copyWalk = $state(false);
-  let antiCounter = $state(false);
 
   async function fillMe() {
     const me = await client.follower.me();
@@ -42,7 +40,6 @@
         safeSkillHp: String(safeSkillHp),
         attackPriority,
         copyWalk,
-        antiCounter,
       });
     } else {
       void client.follower.stop();
@@ -119,6 +116,17 @@
                 </Button>
               </div>
             </div>
+            <div class="flex items-center gap-2">
+              <Checkbox
+                id="copy-walk"
+                bind:checked={copyWalk}
+                disabled={isEnabled}
+              />
+              <Label for="copy-walk" class="text-sm text-muted-foreground cursor-pointer flex items-center gap-1.5">
+                <Footprints class="h-3.5 w-3.5" />
+                Copy Walk
+              </Label>
+            </div>
           </div>
         </div>
 
@@ -127,114 +135,59 @@
             <Swords class="h-4 w-4 text-muted-foreground" />
             <h2 class="text-sm font-medium text-foreground">Combat</h2>
           </div>
-
           <div class="space-y-4">
-            <div class="space-y-1.5">
-              <Label for="skill-list" class="text-muted-foreground">Skill List</Label>
-              <div class="flex items-center gap-3">
-                <Input
-                  type="text"
-                  id="skill-list"
-                  bind:value={skillList}
-                  placeholder="1,2,3,4"
-                  class={cn(
-                    "bg-secondary/50 border-border/50 focus:bg-background transition-colors",
-                    isEnabled && "pointer-events-none opacity-50"
-                  )}
-                  disabled={isEnabled}
-                  autocomplete="off"
-                />
-                <div class="flex items-center gap-2">
-                  <Checkbox
-                    id="skill-wait"
-                    bind:checked={skillWait}
+            <div class="flex gap-4">
+              <div class="flex-1 space-y-1.5 flex flex-col">
+                <Label for="skill-list" class="text-muted-foreground">Skill List</Label>
+                <div class="flex items-center gap-3">
+                  <Input
+                    type="text"
+                    id="skill-list"
+                    bind:value={skillList}
+                    placeholder="1,2,3,4"
+                    class={cn(
+                      "bg-secondary/50 border-border/50 focus:bg-background transition-colors flex-1 w-auto min-w-0",
+                      isEnabled && "pointer-events-none opacity-50"
+                    )}
                     disabled={isEnabled}
+                    autocomplete="off"
                   />
-                  <Label for="skill-wait" class="text-sm text-muted-foreground cursor-pointer">
-                    Wait
-                  </Label>
+                </div>
+              </div>
+              <div class="space-y-1.5 flex flex-col">
+                <Label for="skill-delay" class="text-muted-foreground">Skill Delay</Label>
+                <div class="flex items-center gap-3">
+                  <InputGroup.Root class="h-8 w-28 bg-secondary/50 border-border/50 focus-within:bg-background transition-colors">
+                    <NumberField.Root bind:value={skillDelay} min={0}>
+                      <NumberField.Input
+                        id="skill-delay"
+                        class={cn(
+                          "h-8 border-0 bg-transparent",
+                          isEnabled && "pointer-events-none opacity-50"
+                        )}
+                        disabled={isEnabled}
+                        autocomplete="off"
+                      />
+                    </NumberField.Root>
+                    <InputGroup.Addon align="inline-end">
+                      <InputGroup.Text class="text-xs font-medium text-muted-foreground">
+                        ms
+                      </InputGroup.Text>
+                    </InputGroup.Addon>
+                  </InputGroup.Root>
+                  <div class="flex items-center gap-2">
+                    <Checkbox
+                      id="skill-wait"
+                      bind:checked={skillWait}
+                      disabled={isEnabled}
+                    />
+                    <Label for="skill-wait" class="text-sm text-muted-foreground cursor-pointer">
+                      Wait
+                    </Label>
+                  </div>
                 </div>
               </div>
             </div>
-
-            <div class="space-y-1.5">
-              <Label for="skill-delay" class="text-muted-foreground">Skill Delay</Label>
-              <InputGroup.Root class="bg-secondary/50 border-border/50 focus-within:bg-background transition-colors">
-                <InputGroup.Addon>
-                  <Timer class="h-4 w-4 text-muted-foreground" />
-                </InputGroup.Addon>
-                <Input
-                  type="number"
-                  id="skill-delay"
-                  bind:value={skillDelay}
-                  min={0}
-                  class={cn(isEnabled && "pointer-events-none opacity-50")}
-                  disabled={isEnabled}
-                  autocomplete="off"
-                />
-                <InputGroup.Addon>
-                  <InputGroup.Text class="text-xs font-medium text-muted-foreground">
-                    ms
-                  </InputGroup.Text>
-                </InputGroup.Addon>
-              </InputGroup.Root>
-            </div>
-          </div>
-        </div>
-
-        <div class="rounded-xl border border-border/50 bg-card p-5">
-          <div class="mb-4 flex items-center gap-2">
-            <Shield class="h-4 w-4 text-muted-foreground" />
-            <h2 class="text-sm font-medium text-foreground">Safe Skill</h2>
-          </div>
-
-          <div class="space-y-4">
-            <div class="flex items-center gap-3">
-              <Checkbox
-                id="cb-safe-skill"
-                bind:checked={safeSkillEnabled}
-                disabled={isEnabled}
-              />
-              <Label for="cb-safe-skill" class="text-sm text-muted-foreground cursor-pointer">
-                Use skill 
-              </Label>
-              <Input
-                type="number"
-                bind:value={safeSkill}
-                min={1}
-                max={4}
-                class={cn(
-                  "w-16 bg-secondary/50 border-border/50 text-center focus:bg-background transition-colors",
-                  isEnabled && "pointer-events-none opacity-50"
-                )}
-                disabled={isEnabled}
-                autocomplete="off"
-              />
-              <span class="text-sm text-muted-foreground">when HP &lt;</span>
-              <Input
-                type="number"
-                bind:value={safeSkillHp}
-                min={1}
-                max={100}
-                class={cn(
-                  "w-16 bg-secondary/50 border-border/50 text-center focus:bg-background transition-colors",
-                  isEnabled && "pointer-events-none opacity-50"
-                )}
-                disabled={isEnabled}
-                autocomplete="off"
-              />
-              <span class="text-sm text-muted-foreground">%</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="rounded-xl border border-border/50 bg-card p-5">
-          <div class="mb-4 flex items-center gap-2">
-            <Target class="h-4 w-4 text-muted-foreground" />
-            <h2 class="text-sm font-medium text-foreground">Options</h2>
-          </div>
-
-          <div class="space-y-4">
             <div class="space-y-1.5">
               <Label for="attack-priority" class="text-muted-foreground">Attack Priority</Label>
               <Input
@@ -250,29 +203,37 @@
                 autocomplete="off"
               />
             </div>
-
-            <div class="flex flex-wrap gap-x-6 gap-y-3">
-              <div class="flex items-center gap-2">
-                <Checkbox
-                  id="copy-walk"
-                  bind:checked={copyWalk}
+            <div class="flex items-center gap-3">
+              <Checkbox
+                id="cb-safe-skill"
+                bind:checked={safeSkillEnabled}
+                disabled={isEnabled}
+              />
+              <Label for="cb-safe-skill" class="text-sm text-muted-foreground cursor-pointer">
+                Use skill 
+              </Label>
+              <NumberField.Root bind:value={safeSkill} min={1} max={4} class="w-14">
+                <NumberField.Input
+                  class={cn(
+                    "h-8 bg-secondary/50 border-border/50 text-center focus:bg-background transition-colors",
+                    isEnabled && "pointer-events-none opacity-50"
+                  )}
                   disabled={isEnabled}
+                  autocomplete="off"
                 />
-                <Label for="copy-walk" class="text-sm text-muted-foreground cursor-pointer flex items-center gap-1.5">
-                  <Footprints class="h-3.5 w-3.5" />
-                  Copy Walk
-                </Label>
-              </div>
-              <div class="flex items-center gap-2">
-                <Checkbox
-                  id="cb-anti-counter"
-                  bind:checked={antiCounter}
+              </NumberField.Root>
+              <span class="text-sm text-muted-foreground">when HP &lt;</span>
+              <NumberField.Root bind:value={safeSkillHp} min={1} max={100} class="w-14">
+                <NumberField.Input
+                  class={cn(
+                    "h-8 bg-secondary/50 border-border/50 text-center focus:bg-background transition-colors",
+                    isEnabled && "pointer-events-none opacity-50"
+                  )}
                   disabled={isEnabled}
+                  autocomplete="off"
                 />
-                <Label for="cb-anti-counter" class="text-sm text-muted-foreground cursor-pointer">
-                  Anti Counter
-                </Label>
-              </div>
+              </NumberField.Root>
+              <span class="text-sm text-muted-foreground">%</span>
             </div>
           </div>
         </div>

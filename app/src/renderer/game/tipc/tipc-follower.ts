@@ -23,7 +23,6 @@ function parseConfig(rawConfig: FollowerStartInput) {
     skillDelay: rawSkillDelay,
     copyWalk: rawCopyWalk,
     attackPriority: rawAttackPriority,
-    antiCounter: rawAntiCounter,
     safeSkillEnabled: rawSafeSkillEnabled,
     safeSkill: rawSafeSkill,
     safeSkillHp: rawSafeSkillHp,
@@ -40,7 +39,6 @@ function parseConfig(rawConfig: FollowerStartInput) {
 
   const skillWait = Boolean(rawSkillWait);
   const copyWalk = Boolean(rawCopyWalk);
-  const antiCounter = Boolean(rawAntiCounter);
   const safeSkillEnabled = Boolean(rawSafeSkillEnabled);
 
   const skillDelay = Number.parseInt(rawSkillDelay, 10) ?? 150;
@@ -63,7 +61,6 @@ function parseConfig(rawConfig: FollowerStartInput) {
     skillDelay,
     copyWalk,
     attackPriority,
-    antiCounter,
     safeSkillEnabled,
     safeSkill,
     safeSkillHp,
@@ -239,7 +236,6 @@ handlers.follower.me.handle(async () => {
 handlers.follower.start.listen(async (input) => {
   config = parseConfig(input);
 
-  bot.settings.counterAttack = config?.antiCounter;
   await bot.waitUntil(() => bot.player.isReady());
 
   on = true;
@@ -264,7 +260,6 @@ type FollowerStartInput = Parameters<
   : never;
 
 type FollowerConfig = {
-  antiCounter: boolean;
   attackPriority: string[];
   copyWalk: boolean;
   name: string;
