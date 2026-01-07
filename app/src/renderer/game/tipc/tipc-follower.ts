@@ -1,10 +1,8 @@
 import { interval } from "@vexed/utils";
 import { Mutex } from "async-mutex";
-// import log from "electron-log";
 import { Bot } from "~/lib/Bot";
 import { handlers } from "~/shared/tipc";
 import { doPriorityAttack } from "~/utils/doPriorityAttack";
-import { exitFromCombat } from "~/utils/exitFromCombat";
 
 let on = false;
 
@@ -16,7 +14,6 @@ let config: FollowerConfig | null = null;
 
 const mutex = new Mutex();
 const bot = Bot.getInstance();
-// const logger = log.scope("game/follower");
 
 function parseConfig(rawConfig: FollowerStartInput) {
   const {
@@ -101,9 +98,9 @@ function packetHandler(packet: UotlPacket) {
     const spd = data.find((pkt) => pkt.startsWith("sp:"));
     const xPos = data.find((pkt) => pkt.startsWith("tx:"));
     const yPos = data.find((pkt) => pkt.startsWith("ty:"));
-    const x = Number.parseInt(xPos!.split(":")[1]!, 10) ?? 0;
-    const y = Number.parseInt(yPos!.split(":")[1]!, 10) ?? 0;
-    const speed = Number.parseInt(spd!.split(":")[1]!, 10) ?? 8;
+    const x = Number(xPos!.split(":")[1]!) ?? 0;
+    const y = Number(yPos!.split(":")[1]!) ?? 0;
+    const speed = Number(spd!.split(":")[1]!) ?? 8;
 
     bot.player.walkTo(x, y, speed);
   }
@@ -131,14 +128,19 @@ async function startFollower() {
       return;
     }
 
-    // TODO: this is a little janky, sometimes it'll goto the player
-    // but still attempt to exit combat, which doesn't make sense...
-
-    await exitFromCombat();
-
-    bot.world.goto(name);
-
-    await bot.waitUntil(() => bot.player.isReady() && foundPlayer());
+    if (bot.world.isPlayerInMap(name)) {
+      const targetPlayer = bot.world.players?.get(name);
+      if (targetPlayer) {
+        await bot.world.jump(targetPlayer.cell, targetPlayer.pad);
+        await bot.waitUntil(() => foundPlayer());
+      }
+    } else {
+      await bot.combat.exit();
+      bot.world.goto(name);
+      await bot.waitUntil(() => bot.player.isReady() && foundPlayer(), {
+        timeout: 10_000,
+      });
+    }
 
     if (foundPlayer()) {
       attempts = 3;

@@ -1,6 +1,5 @@
 import { interval } from "@vexed/utils";
 import { doPriorityAttack } from "~/utils/doPriorityAttack";
-import { exitFromCombat } from "~/utils/exitFromCombat";
 import { extractMonsterMapId, isMonsterMapId } from "~/utils/isMonMapId";
 import type { Bot } from "./Bot";
 import { GameAction } from "./World";
@@ -82,7 +81,7 @@ export class Combat {
    */
   public pauseAttack: boolean = false;
 
-  public constructor(public bot: Bot) {}
+  public constructor(public bot: Bot) { }
 
   /**
    * Whether the player has a target.
@@ -235,12 +234,12 @@ export class Combat {
     const _boundedSkillAction =
       typeof skillAction === "function"
         ? skillAction
-            .bind({
-              bot: this.bot,
-            })() // the skillAction function
-            .bind({
-              bot: this.bot,
-            }) // the returned function (the actual closure)
+          .bind({
+            bot: this.bot,
+          })() // the skillAction function
+          .bind({
+            bot: this.bot,
+          }) // the returned function (the actual closure)
         : null;
 
     let skillIndex = 0;
@@ -315,7 +314,7 @@ export class Combat {
           if (_boundedSkillAction) {
             try {
               await _boundedSkillAction();
-            } catch {}
+            } catch { }
           } else {
             const skill = skillSet[skillIndex]!;
             skillIndex = (skillIndex + 1) % skillSet.length;
@@ -464,8 +463,75 @@ export class Combat {
   /**
    * Exit from combat state.
    */
-  public async exit(): Promise<void> {
-    await exitFromCombat();
+  public async exit(): Promise<boolean> {
+    if (!this.bot.player.isInCombat()) return true;
+
+    const ogProvokeCell = this.bot.settings.provokeCell;
+    this.bot.settings.provokeCell = false;
+
+    let success = false;
+
+    try {
+      if (!this.bot.player.isInCombat()) {
+        success = true;
+        return success;
+      }
+
+      await this.bot.world.jump(this.bot.player.cell, this.bot.player.pad, true);
+
+      const res_1 = await this.bot.waitUntil(() => !this.bot.player.isInCombat(), {
+        timeout: 2_000,
+      });
+      if (res_1.isOk()) {
+        success = true;
+        return success;
+      }
+
+      const ogCell = this.bot.player.cell;
+
+      const cellsWithMonsters = new Set(
+        this.bot.world.monsters.map((mon) => mon.strFrame.toLowerCase()),
+      );
+      const cells = this.bot.world.cells
+        .filter(
+          (cell) =>
+            cell !== ogCell &&
+            cell.toLowerCase() !== "blank" &&
+            !/^cell\d+$/i.test(cell), // Cell1, Cell2, etc.
+        )
+        .sort((a, b) => {
+          const aHasMonsters = cellsWithMonsters.has(a.toLowerCase());
+          const bHasMonsters = cellsWithMonsters.has(b.toLowerCase());
+          if (aHasMonsters === bHasMonsters) return 0;
+          return aHasMonsters ? 1 : -1;
+        });
+
+      for (const cell of cells) {
+        await this.bot.world.jump(cell);
+
+        const res_2 = await this.bot.waitUntil(
+          () => !this.bot.player.isInCombat()
+        );
+        if (res_2.isOk()) {
+          success = true;
+          break;
+        }
+      }
+
+      if (!success && this.bot.player.isInCombat()) {
+        await this.bot.world.jump(ogCell);
+
+        const res_3 = await this.bot.waitUntil(
+          () => !this.bot.player.isInCombat()
+        );
+        success = res_3.isOk();
+      }
+
+      return success;
+    } finally {
+      await this.bot.sleep(500);
+      this.bot.settings.provokeCell = ogProvokeCell;
+    }
   }
 }
 

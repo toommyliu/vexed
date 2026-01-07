@@ -1,4 +1,3 @@
-import { exitFromCombat } from "~/utils/exitFromCombat";
 import { extractMonsterMapId, isMonsterMapId } from "~/utils/isMonMapId";
 import type { Bot } from "./Bot";
 import { Avatar, type AvatarData } from "./models/Avatar";
@@ -263,7 +262,7 @@ export class World {
     // Make sure the player is alive to be able to do the transfer.
     await this.bot.waitUntil(() => this.bot.player.alive);
 
-    await exitFromCombat();
+    await this.bot.combat.exit();
 
     await this.bot.waitUntil(
       () => this.isActionAvailable(GameAction.Transfer),
