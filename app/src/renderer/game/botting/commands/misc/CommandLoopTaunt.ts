@@ -245,7 +245,7 @@ export class SimpleStrategy extends BaseTauntStrategy {
             ) {
               // log(
               //   `[${this.getName()}] It's player ${this.playerIndex}'s turn to taunt ${this.target}`,
-              // );
+            // );
               await this.doTaunt();
             }
           }, 10_000); // 6s + 4s buffer

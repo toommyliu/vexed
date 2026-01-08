@@ -2,7 +2,7 @@ import { Command } from "~/botting/command";
 import { autoReloginState } from "~/renderer/game/state.svelte";
 
 export class CommandAutoRelogin extends Command {
-  public server?: string;
+  public server?: string | undefined;
 
   protected override _skipDelay = true;
 
@@ -11,8 +11,10 @@ export class CommandAutoRelogin extends Command {
     const password = this.bot.auth.password;
     const server =
       this.server ??
+      autoReloginState.fallbackServer ??
       this.bot.flash.get("objServerInfo.sName", true) ??
       undefined;
+    this.server = server;
 
     if (!username || !password || !server) {
       this.logger.debug('Invalid credentials');

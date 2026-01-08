@@ -641,18 +641,16 @@ export const miscCommands = {
   },
   /**
    * Enables Auto Relogin with the current session's credentials.
-   * Uses the username and password from the current login session.
    *
    * @example
    * cmd.use_autorelogin('Twig') // relogin to Twig server
+   * cmd.use_autorelogin() // relogin to the fallback server OR the current server otherwise
    * @param server - The server to log into.
    */
   use_autorelogin(
-    server: string,
+    server?: string,
   ) {
     const cmd = new CommandAutoRelogin();
-    if (!server || typeof server !== "string") throw new ArgsError("server is required");
-
     cmd.server = server;
     window.context.addCommand(cmd);
   },
@@ -824,7 +822,7 @@ export const miscCommands = {
   },
   /**
    * Does the Wheel of Doom spin (non-members).
-   * 
+   *
    * @param to_bank - Whether to put the reward in the bank.
    */
   do_wheelofdoom(to_bank: boolean = false) {
