@@ -71,10 +71,6 @@
         "link": "/api-legacy/typedefs/logininfo"
       },
       {
-        "label": "CredentialSource",
-        "link": "/api-legacy/typedefs/credentialsource"
-      },
-      {
         "label": "KillOptions",
         "link": "/api-legacy/typedefs/killoptions"
       },

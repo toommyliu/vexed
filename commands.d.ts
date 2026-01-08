@@ -285,6 +285,8 @@ to be satisfied. */
   delay(ms: number): void;
   /** Disables the anti-counter attack setting. */
   disable_anticounter(): void;
+  /** Disables Auto Relogin. */
+  disable_autorelogin(): void;
   /** Disables the "Disable collisions" setting. */
   disable_collisions(): void;
   /** Disables the "Enemy magnet" setting. */
