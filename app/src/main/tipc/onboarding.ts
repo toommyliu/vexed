@@ -1,11 +1,15 @@
 import type { TipcInstance } from "@vexed/tipc";
 import { nativeTheme } from "electron";
-import type { Settings } from "../../shared/types";
+import fetch from "node-fetch";
+import type { ServerData, Settings } from "~/shared/types";
+import { logger } from "../constants";
 import { getSettings } from "../settings";
+
+const SERVERS_API_URL = "https://game.aq.com/game/api/data/servers";
 
 export type OnboardingSettings = Pick<
     Settings,
-    "checkForUpdates" | "debug" | "launchMode" | "theme"
+    "checkForUpdates" | "debug" | "fallbackServer" | "launchMode" | "theme"
 >;
 
 export function createOnboardingTipcRouter(tipcInstance: TipcInstance) {
@@ -15,6 +19,7 @@ export function createOnboardingTipcRouter(tipcInstance: TipcInstance) {
             return {
                 checkForUpdates: settings.getBoolean("checkForUpdates", false),
                 debug: settings.getBoolean("debug", false),
+                fallbackServer: settings.getString("fallbackServer", ""),
                 launchMode: settings.getString("launchMode", "game") as
                     | "game"
                     | "manager",
@@ -30,6 +35,7 @@ export function createOnboardingTipcRouter(tipcInstance: TipcInstance) {
                 const settings = getSettings();
                 settings.set("checkForUpdates", input.checkForUpdates);
                 settings.set("debug", input.debug);
+                settings.set("fallbackServer", input.fallbackServer);
                 settings.set("launchMode", input.launchMode);
                 settings.set("theme", input.theme);
 
@@ -37,5 +43,26 @@ export function createOnboardingTipcRouter(tipcInstance: TipcInstance) {
 
                 await settings.save();
             }),
+        getServers: tipcInstance.procedure.action(async () => {
+            try {
+                const resp = await fetch(SERVERS_API_URL);
+                if (!resp.ok) {
+                    console.log('bad resp', resp);
+                    return [];
+                }
+
+                const data = await resp.json();
+                console.log('data', data);
+                if (!Array.isArray(data)) {
+                    console.log('not array');
+                    return [];
+                }
+
+                return data as ServerData[];
+            } catch (error) {
+                logger.error('Failed to fetch servers', error);
+                return [];
+            }
+        }),
     };
 }

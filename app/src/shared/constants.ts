@@ -14,9 +14,10 @@ export const ACCOUNTS_PATH = join(DOCUMENTS_PATH, "accounts.json");
 export const STORAGE_PATH = join(DOCUMENTS_PATH, "storage");
 
 export const DEFAULT_SETTINGS: Settings = {
-  launchMode: "game",
-  debug: false,
   checkForUpdates: false,
+  debug: false,
+  fallbackServer: "",
+  launchMode: "game",
   theme: "dark",
 } as const;
 

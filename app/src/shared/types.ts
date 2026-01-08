@@ -58,6 +58,10 @@ export type Settings = {
    */
   debug: boolean;
   /**
+   * The fallback server for autorelogin. Empty string means auto-select.
+   */
+  fallbackServer: string;
+  /**
    * The launch mode of the application.
    */
   launchMode: "game" | "manager";
@@ -162,4 +166,19 @@ export type HotkeyConfig = {
     "Open Follower"?: string;
     "Open Loader Grabber"?: string;
   };
+};
+
+// TODO: 
+
+export type ServerData = {
+  bOnline: number;
+  bUpg: number;
+  iChat: number;
+  iCount: number;
+  iLevel: number;
+  iMax: number;
+  iPort: number;
+  sIP: string;
+  sLang: string;
+  sName: string;
 };

@@ -1,46 +1,48 @@
 <script lang="ts">
-  import "./entrypoint";
-  import {
-    scriptState,
-    commandOverlayState,
-    optionsPanelState,
-    appState,
-    gameState,
-    autoReloginState,
-  } from "./state.svelte";
-  import { client, handlers } from "~/shared/tipc";
-  import { cn } from "~/shared/cn";
-  import { WindowIds } from "~/shared/types";
-  import { Bot } from "./lib/Bot";
-  import { onMount, onDestroy } from "svelte";
-  import type { HotkeyConfig } from "~/shared/types";
+  import Config from "@vexed/config";
+  import { interval } from "@vexed/utils";
+  import log from "electron-log";
   import Mousetrap from "mousetrap";
+  import { onDestroy, onMount } from "svelte";
+
+  import { cn } from "~/shared/cn";
+  import {
+    DEFAULT_HOTKEYS,
+    DOCUMENTS_PATH,
+    IS_MAC,
+    IS_WINDOWS,
+  } from "~/shared/constants";
+  import { client, handlers } from "~/shared/tipc";
+  import type { HotkeyConfig } from "~/shared/types";
+  import { WindowIds } from "~/shared/types";
+  import type { HotkeySection } from "../application/hotkeys/types";
   import {
     createHotkeyConfig,
     isValidHotkey,
   } from "../application/hotkeys/utils";
-  import type { HotkeySection } from "../application/hotkeys/types";
-  import { interval } from "@vexed/utils";
-  import Config from "@vexed/config";
+  import "./entrypoint";
+  import { Bot } from "./lib/Bot";
+  import { AutoReloginJob } from "./lib/jobs/autorelogin";
   import {
-    DEFAULT_HOTKEYS,
-    DOCUMENTS_PATH,
-    IS_WINDOWS,
-    IS_MAC,
-  } from "~/shared/constants";
+    appState,
+    autoReloginState,
+    commandOverlayState,
+    gameState,
+    optionsPanelState,
+    scriptState,
+  } from "./state.svelte";
   import { parseSkillString } from "./util/skillParser";
-  import log from "electron-log";
 
   import CommandOverlay from "./components/CommandOverlay.svelte";
   import CommandPalette from "./components/CommandPalette.svelte";
   import OptionsPanel from "./components/OptionsPanel.svelte";
   import WindowsMegaMenu from "./components/WindowsMegaMenu.svelte";
-  import { AutoReloginJob } from "./lib/jobs/autorelogin";
+ 
+  import { Button, Checkbox, Label } from "@vexed/ui";
+  import Kbd from "@vexed/ui/Kbd";
+  import * as Menu from "@vexed/ui/Menu";
   import Play from "lucide-svelte/icons/play";
   import Square from "lucide-svelte/icons/square";
-  import { Button, Checkbox, Label } from "@vexed/ui";
-  import * as Menu from "@vexed/ui/Menu";
-  import Kbd from "@vexed/ui/Kbd";
 
   const logger = log.scope("game/app");
 
@@ -435,6 +437,11 @@
       import("./tipc/tipc-packet-logger"),
       import("./tipc/tipc-packet-spammer"),
     ]);
+
+    const globalSettings = await client.onboarding.getSettings();
+    if (globalSettings.fallbackServer) {
+      autoReloginState.fallbackServer = globalSettings.fallbackServer;
+    }
   });
 
   window.addEventListener(
@@ -603,6 +610,9 @@
                 </div>
                 <div class="px-2 py-1.5 text-xs text-muted-foreground/70 flex items-center gap-2">
                   Server: {autoReloginState.server}
+                </div>
+                <div class="px-2 py-1.5 text-xs text-muted-foreground/70 flex items-center gap-2">
+                  Fallback: {autoReloginState.fallbackServer || "Auto"}
                 </div>
                 <Menu.Separator />
                 <Menu.Item class="bg-transparent text-red-400 hover:text-red-300" onclick={disableRelogin}>

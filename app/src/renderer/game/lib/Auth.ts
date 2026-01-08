@@ -2,7 +2,7 @@ import type { Bot } from "./Bot";
 import { Server } from "./models/Server";
 
 export class Auth {
-  public constructor(public readonly bot: Bot) {}
+  public constructor(public readonly bot: Bot) { }
 
   /**
    * The username of the current user.
@@ -79,4 +79,24 @@ export class Auth {
   public isTemporarilyKicked(): boolean {
     return this.bot.flash.call(() => swf.authIsTemporarilyKicked());
   }
+
+  /**
+   * Initial information available about the account.
+   */
+  public get loginInfo(): LoginInfo | null {
+    return this.bot.flash.getStatic("objLogin", true) as LoginInfo | null;
+  }
 }
+
+export type LoginInfo = {
+  /**
+   * Whether account is restricted to canned chat only servers
+   */
+  bCCOnly: number;
+  bSuccess: number;
+  iAccess: number;
+  iAge: number;
+  iEmailStatus: number;
+  iUpg: number;
+  iUpgDays: number;
+};

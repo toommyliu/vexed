@@ -1,3 +1,5 @@
+import type { ServerData } from "~/shared/types";
+
 /**
  * Represents a game server.
  */
@@ -6,7 +8,7 @@ export class Server {
     /**
      * Data about this server.
      */ public data: ServerData,
-  ) {}
+  ) { }
 
   /**
    * The maximum number of players.
@@ -63,44 +65,20 @@ export class Server {
   public isCanned(): boolean {
     return this.data.iChat === 0;
   }
+
+  /**
+   * Whether the server is online.
+   */
+  public isOnline(): boolean {
+    return this.data.bOnline === 1;
+  }
+
+  /**
+   * Whether the server is full (at or above capacity).
+   */
+  public isFull(): boolean {
+    return this.data.iCount >= this.data.iMax;
+  }
 }
 
-export type ServerData = {
-  /**
-   * Indicates if the server is online.
-   */
-  bOnline: number;
-  /**
-   * Indicates if this is an upgrade only server.
-   */
-  bUpg: number;
-  /**
-   * The chat-level restriction of the server (0=canned, 2=free).
-   */
-  iChat: number;
-  /**
-   * The number of players currently on the server.
-   */
-  iCount: number;
-  iLevel: number;
-  /**
-   * The maximum number of players allowed on the server.
-   */
-  iMax: number;
-  /**
-   * The port number the server is on.
-   */
-  iPort: number;
-  /**
-   * The IP address of the game server.
-   */
-  sIP: string;
-  /**
-   * The language of this server (en/xx/it/pt).
-   */
-  sLang: string;
-  /**
-   * The name of the game server.
-   */
-  sName: string;
-};
+export type { ServerData } from "~/shared/types";

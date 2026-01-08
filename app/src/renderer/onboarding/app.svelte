@@ -1,21 +1,34 @@
 <script lang="ts">
   import { Switch, Button } from "@vexed/ui";
+  import * as Select from "@vexed/ui/Select";
   import { onMount } from "svelte";
 
   import { client } from "~/shared/tipc";
+  import type { ServerData } from "~/shared/types";
 
   let checkForUpdates = $state(false);
   let debug = $state(false);
+  let fallbackServer = $state("");
   let launchMode = $state<"game" | "manager">("game");
   let theme = $state<"dark" | "light" | "system">("dark");
   let isLoading = $state(true);
+  let servers = $state<ServerData[]>([]);
 
   onMount(async () => {
-    const settings = await client.onboarding.getSettings();
+    const [settings, serverData] = await Promise.all([
+      client.onboarding.getSettings(),
+      client.onboarding.getServers(),
+    ]);
+
+    console.log("settings", settings);
+    console.log("serverData", serverData);
+
     checkForUpdates = settings.checkForUpdates;
     debug = settings.debug;
+    fallbackServer = settings.fallbackServer;
     launchMode = settings.launchMode;
     theme = settings.theme;
+    servers = serverData;
     isLoading = false;
   });
 
@@ -37,6 +50,7 @@
     client.onboarding.updateSettings({
       checkForUpdates,
       debug,
+      fallbackServer,
       launchMode,
       theme,
     });
@@ -113,6 +127,27 @@
           <span class="text-[13px] text-foreground">Debug Mode</span>
           <Switch bind:checked={debug} class="scale-[0.85] origin-right" />
         </label>
+      </div>
+
+      <div class="flex flex-col gap-1.5 pt-2 border-t border-border/30">
+        <span class="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+          Fallback Server
+        </span>
+        <Select.Root bind:value={fallbackServer}>
+          <Select.Trigger class="w-full h-8 text-[13px]">
+            <span class="truncate">
+              {fallbackServer || "Auto (first available)"}
+            </span>
+          </Select.Trigger>
+          <Select.Content class="max-h-52">
+            <Select.Item value="">Auto (first available)</Select.Item>
+            {#each servers as server (server.sName)}
+              <Select.Item value={server.sName}>
+                {server.sName}
+              </Select.Item>
+            {/each}
+          </Select.Content>
+        </Select.Root>
       </div>
     </div>
   {/if}

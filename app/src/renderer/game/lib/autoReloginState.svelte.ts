@@ -5,23 +5,20 @@ export type CredentialSource = "current" | "manual" | "saved";
 const DEFAULT_DELAY = 5_000;
 
 export function initAutoReloginState() {
-    // Core state
     let enabled = $state(false);
     let username = $state<string | null>(null);
     let password = $state<string | null>(null);
     let server = $state<string | null>(null);
+    let fallbackServer = $state<string | null>(null);
     let delay = $state(DEFAULT_DELAY);
     let source = $state<CredentialSource>("current");
 
-    // Manual input state (for the UI)
     let manualUsername = $state("");
     let manualPassword = $state("");
 
-    // Saved accounts state
     let savedAccounts = $state<Account[]>([]);
     let selectedSavedUsername = $state("");
 
-    // Derived: active credentials based on source
     const isConfigured = $derived(
         enabled && username !== null && password !== null && server !== null
     );
@@ -65,7 +62,6 @@ export function initAutoReloginState() {
     }
 
     return {
-        // Core state getters/setters
         get enabled() {
             return enabled;
         },
@@ -97,7 +93,13 @@ export function initAutoReloginState() {
             source = value;
         },
 
-        // Manual input state
+        get fallbackServer() {
+            return fallbackServer;
+        },
+        set fallbackServer(value) {
+            fallbackServer = value;
+        },
+
         get manualUsername() {
             return manualUsername;
         },
@@ -111,7 +113,6 @@ export function initAutoReloginState() {
             manualPassword = value;
         },
 
-        // Saved accounts state
         get savedAccounts() {
             return savedAccounts;
         },
@@ -125,12 +126,10 @@ export function initAutoReloginState() {
             selectedSavedUsername = value;
         },
 
-        // Derived
         get isConfigured() {
             return isConfigured;
         },
 
-        // Actions
         setCredentials,
         enable,
         disable,
