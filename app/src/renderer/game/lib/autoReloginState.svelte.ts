@@ -44,9 +44,6 @@ export function initAutoReloginState() {
 
     function disable() {
         enabled = false;
-        username = null;
-        password = null;
-        server = null;
     }
 
     function reset() {

@@ -70,11 +70,13 @@
   bot.on("login", () => (gameConnected = true));
   bot.on("logout", () => (gameConnected = false));
 
-  // Auto-relogin menu state
   let reloginServers = $state<string[]>([]);
   let reloginUsername = $derived(bot.auth?.username ?? "");
   let reloginPassword = $derived(bot.auth?.password ?? "");
-  let reloginCanEnable = $derived(Boolean(reloginUsername && reloginPassword));
+  let reloginCanEnable = $derived(
+    Boolean(reloginUsername && reloginPassword) ||
+    Boolean(autoReloginState.username && autoReloginState.password)
+  );
 
   function updateReloginServers() {
     try {
@@ -594,12 +596,11 @@
           >
             <Menu.Trigger
               class={cn(
-                "flex h-7 shrink-0 items-center gap-1.5 rounded bg-transparent px-2.5 text-[13px] font-medium transition-all duration-200 hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50",
+                "flex h-7 shrink-0 items-center gap-1.5 rounded bg-transparent px-2.5 text-[13px] font-medium transition-all duration-200 hover:bg-accent",
                 autoReloginState.enabled
                   ? "text-emerald-400"
                   : "text-foreground/80 hover:text-foreground"
               )}
-              disabled={!gameConnected}
             >
               <span>Auto Relogin</span>
             </Menu.Trigger>
@@ -614,9 +615,58 @@
                 <div class="px-2 py-1.5 text-xs text-muted-foreground/70 flex items-center gap-2">
                   Fallback: {autoReloginState.fallbackServer || "Auto"}
                 </div>
-                <Menu.Separator />
+                <div class="px-2 py-1.5 flex items-center justify-between gap-2">
+                  <span class="text-xs text-muted-foreground/70">Delay:</span>
+                  <div class="flex items-center gap-1">
+                    <input
+                      type="number"
+                      min="1"
+                      max="60"
+                      class="w-12 h-5 px-1 text-xs text-center rounded border border-border/60 bg-background text-foreground focus:outline-none focus:border-emerald-500/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      value={autoReloginState.delay / 1000}
+                      onchange={(ev) => {
+                        const val = Math.max(1, Math.min(60, Number(ev.currentTarget.value) || 5));
+                        autoReloginState.delay = val * 1000;
+                        ev.currentTarget.value = String(val);
+                      }}
+                    />
+                    <span class="text-xs text-muted-foreground/70">s</span>
+                  </div>
+                </div>
                 <Menu.Item class="bg-transparent text-red-400 hover:text-red-300" onclick={disableRelogin}>
                   Disable
+                </Menu.Item>
+              {:else if autoReloginState.username && autoReloginState.password}
+                <div class="px-2 py-1.5 text-xs text-muted-foreground/70 flex items-center gap-2">
+                  Username: {autoReloginState.username}
+                </div>
+                <Menu.Separator />
+                <Menu.Label class="text-[11px] text-muted-foreground/70 uppercase tracking-wider px-2 py-1.5">
+                  Enable for server
+                </Menu.Label>
+                <div class="max-h-52 overflow-y-auto pr-1">
+                  {#each reloginServers as server}
+                    <Menu.Item 
+                      class={cn(
+                        "bg-transparent hover:bg-emerald-500/10 hover:text-emerald-400 transition-colors",
+                        server === autoReloginState.server && "text-emerald-400"
+                      )}
+                      onclick={() => {
+                        autoReloginState.server = server;
+                        autoReloginState.enabled = true;
+                        AutoReloginJob.resetForNewCredentials();
+                      }}
+                    >
+                      {server}{server === autoReloginState.server ? " (last)" : ""}
+                    </Menu.Item>
+                  {/each}
+                </div>
+                <Menu.Separator />
+                <Menu.Item 
+                  class="bg-transparent text-muted-foreground hover:text-foreground"
+                  onclick={() => autoReloginState.reset()}
+                >
+                  Clear Credentials
                 </Menu.Item>
               {:else if !reloginCanEnable}
                 <div class="px-3 py-3 text-center">
