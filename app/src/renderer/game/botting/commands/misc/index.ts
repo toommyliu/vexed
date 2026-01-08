@@ -1,8 +1,8 @@
-import { CommandExecutor } from "~/renderer/game/botting/command-executor";
-import { Bot } from "~/renderer/game/lib/Bot";
 import { ArgsError } from "~/botting/ArgsError";
 import { Command } from "~/botting/command";
+import { CommandExecutor } from "~/botting/command-executor";
 import { CommandRegistry } from "~/botting/command-registry";
+import { Bot } from "~/lib/Bot";
 import { CommandAutoRelogin } from "./CommandAutoRelogin";
 import { CommandAutoZoneAstralShrine } from "./CommandAutoZoneAstralShrine";
 import { CommandAutoZoneDarkCarnax } from "./CommandAutoZoneDarkCarnax";
@@ -16,6 +16,7 @@ import { CommandBuyScrollOfEnrage } from "./CommandBuyScrollOfEnrage";
 import { CommandBuyScrollOfLifeSteal } from "./CommandBuyScrollOfLifeSteal";
 import { CommandCloseWindow } from "./CommandCloseWindow";
 import { CommandDelay } from "./CommandDelay";
+import { CommandDisableAutoRelogin } from "./CommandDisableAutoRelogin";
 // import { CommandEquipLoadout } from "./CommandEquipLoadout";
 import { CommandDoWheelOfDoom } from "./CommandDoWheelOfDoom";
 import { CommandDrinkConsumables } from "./CommandDrinkConsumables";
@@ -652,6 +653,13 @@ export const miscCommands = {
   ) {
     const cmd = new CommandAutoRelogin();
     cmd.server = server;
+    window.context.addCommand(cmd);
+  },
+  /**
+   * Disables Auto Relogin.
+   */
+  disable_autorelogin() {
+    const cmd = new CommandDisableAutoRelogin();
     window.context.addCommand(cmd);
   },
   /**
