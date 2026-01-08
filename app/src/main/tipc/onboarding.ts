@@ -46,18 +46,11 @@ export function createOnboardingTipcRouter(tipcInstance: TipcInstance) {
         getServers: tipcInstance.procedure.action(async () => {
             try {
                 const resp = await fetch(SERVERS_API_URL);
-                if (!resp.ok) {
-                    console.log('bad resp', resp);
-                    return [];
-                }
+                if (!resp.ok) return [];
 
                 const data = await resp.json();
-                console.log('data', data);
-                if (!Array.isArray(data)) {
-                    console.log('not array');
-                    return [];
-                }
 
+                if (!Array.isArray(data)) return [];
                 return data as ServerData[];
             } catch (error) {
                 logger.error('Failed to fetch servers', error);
