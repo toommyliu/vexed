@@ -31,7 +31,7 @@
     optionsPanelState,
     scriptState,
   } from "./state.svelte";
-  import { parseSkillString } from "./util/skillParser";
+  import { parseSkillSetJson, type SkillSetJson } from "./util/skillParser";
 
   import CommandOverlay from "./components/CommandOverlay.svelte";
   import CommandPalette from "./components/CommandPalette.svelte";
@@ -366,12 +366,13 @@
     }
   }
 
+  // TODO: follower should use auto skillsets
   $effect(() => {
     if (autoEnabled) {
       const currentCls = bot.player.className;
 
       const skillSet =
-        appState.skillSets?.get(currentCls) ?? parseSkillString("1;2;3;4|150");
+        appState.skillSets?.get(currentCls) ?? parseSkillSetJson({ skills: [1, 2, 3, 4], delay: 150 });
       const skillList = skillSet.skills;
       let idx = 0;
 
@@ -406,7 +407,7 @@
             }
 
             if (shouldCast)
-              await bot.combat.useSkill(skillIndex, true, skill.isWait);
+              await bot.combat.useSkill(skillIndex, false, skill.isWait);
             idx = (idx + 1) % skillList.length;
           }
         }
@@ -451,8 +452,8 @@
     async () => {
       const skillSets = await client.game.getSkillSets();
 
-      for (const [className, skillList] of Object.entries(skillSets)) {
-        const res = parseSkillString(skillList);
+      for (const [className, skillSetJson] of Object.entries(skillSets)) {
+        const res = parseSkillSetJson(skillSetJson as SkillSetJson);
         if (res) appState.skillSets.set(className.toUpperCase(), res);
       }
 
