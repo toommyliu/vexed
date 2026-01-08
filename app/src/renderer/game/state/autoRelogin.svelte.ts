@@ -2,7 +2,7 @@ import type { Account } from "~/shared/types";
 
 export type CredentialSource = "current" | "manual" | "saved";
 
-const DEFAULT_DELAY = 5_000;
+const DEFAULT_DELAY = 0;
 
 export function initAutoReloginState() {
     let enabled = $state(false);

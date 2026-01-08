@@ -91,7 +91,8 @@
   "electronmon": {
     "patterns": [
       "!dist/**/*",
-      "!scripts/**/*"
+      "!scripts/**/*",
+      "!src/renderer/**/*"
     ]
   },
   "overrides": {

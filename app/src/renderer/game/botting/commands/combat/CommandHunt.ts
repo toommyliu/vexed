@@ -1,6 +1,7 @@
 import { Command } from "~/botting/command";
-import type { MonsterData } from "~/lib/models/Monster";
+import type { Monster } from "~/lib/models/Monster";
 import { extractMonsterMapId, isMonsterMapId } from "~/utils/isMonMapId";
+import type { MonsterStore } from "~/state/monster-store";
 
 export class CommandHunt extends Command {
   public target!: string;
@@ -38,30 +39,30 @@ export class CommandHunt extends Command {
 
   // Get all monsters that match the target
   private filterMonstersByTarget(
-    monsters: MonsterData[],
+    monsters: MonsterStore,
     target: string,
-  ): MonsterData[] {
+  ): Monster[] {
     if (isMonsterMapId(target)) {
       const monMapIdStr = extractMonsterMapId(target);
       const monMapId = Number.parseInt(monMapIdStr, 10);
-      return monsters.filter((monster) => monster.MonMapID === monMapId);
+      return monsters.filter((monster) => monster.monMapId === monMapId).map((mon) => mon);
     }
 
-    if (target === "*") return monsters;
+    if (target === "*") return [...monsters.values()];
 
     return monsters.filter((monster) =>
-      monster.strMonName.toLowerCase().includes(target.toLowerCase()),
-    );
+      monster.name.toLowerCase().includes(target.toLowerCase()),
+    ).map((mon) => mon);
   }
 
   // Group monsters by their cell
   private groupMonstersByCell(
-    monsters: MonsterData[],
-  ): Map<string, MonsterData[]> {
-    const groups = new Map<string, MonsterData[]>();
+    monsters: Monster[],
+  ): Map<string, Monster[]> {
+    const groups = new Map<string, Monster[]>();
 
     for (const monster of monsters) {
-      const cell = monster.strFrame;
+      const cell = monster.cell;
       if (!groups.has(cell)) groups.set(cell, []);
 
       groups.get(cell)!.push(monster);
@@ -72,7 +73,7 @@ export class CommandHunt extends Command {
 
   // Find the best cell to jump to based on the 'most' option
   private findBestCell(
-    monstersByCell: Map<string, MonsterData[]>,
+    monstersByCell: Map<string, Monster[]>,
   ): string | null {
     const cells = Array.from(monstersByCell.keys());
 

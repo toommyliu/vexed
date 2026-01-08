@@ -56,6 +56,9 @@
       ],
       "~/utils/*": [
         "src/renderer/game/util/*"
+      ],
+      "~/state/*": [
+        "src/renderer/game/state/*"
       ]
     },
     // "rootDirs": [],

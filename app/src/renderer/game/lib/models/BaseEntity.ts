@@ -27,14 +27,14 @@ export abstract class BaseEntity {
    * The entity's current HP.
    */
   public get hp(): number {
-    return this.data.intHP;
+    return this.data.intHp;
   }
 
   /**
    * The entity's max HP.
    */
   public get maxHp(): number {
-    return this.data.intHPMax;
+    return this.data.intHpMax;
   }
 
   /**
@@ -99,7 +99,7 @@ export abstract class BaseEntity {
       return AuraStore.getPlayerAuras((this as Avatar).data.strUsername);
     } else if (this.isMonster()) {
       return AuraStore.getMonsterAuras(
-        (this as Monster).data.MonMapID.toString(),
+        (this as Monster).data.monMapId.toString(),
       );
     }
 
@@ -117,7 +117,7 @@ export abstract class BaseEntity {
       return AuraStore.getPlayerAura((this as Avatar).data.strUsername, name);
     } else if (this.isMonster()) {
       return AuraStore.getMonsterAura(
-        (this as Monster).data.MonMapID.toString(),
+        (this as Monster).data.monMapId.toString(),
         name,
       );
     }
@@ -202,8 +202,8 @@ export abstract class BaseEntity {
 }
 
 export type BaseEntityData = {
-  intHP: number;
-  intHPMax: number;
+  intHp: number;
+  intHpMax: number;
   intState: number;
   strFrame: string;
 };

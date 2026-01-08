@@ -16,14 +16,14 @@ export class Monster extends BaseEntity {
    * The monMapID of the monster.
    */
   public get monMapId(): number {
-    return this.data.MonMapID;
+    return this.data.monMapId;
   }
 
   /**
    * The global ID of the monster.
    */
   public get id(): number {
-    return this.data.MonID;
+    return this.data.monId;
   }
 
   /**
@@ -46,12 +46,21 @@ export class Monster extends BaseEntity {
   public get name(): string {
     return this.data.strMonName;
   }
+
+  /**
+   * The cell the monster is in.
+   */
+  public override get cell(): string {
+    return this.data.strFrame;
+  }
 }
 
 export type MonsterData = BaseEntityData & {
-  MonID: number;
-  MonMapID: number;
   iLvl: number;
+  intMp: number;
+  intMpMax: number;
+  monId: number;
+  monMapId: number;
   sRace: string;
   strFrame: string;
   strMonName: string;

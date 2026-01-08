@@ -2,7 +2,8 @@ import { extractMonsterMapId, isMonsterMapId } from "~/utils/isMonMapId";
 import type { Bot } from "./Bot";
 import { Avatar, type AvatarData } from "./models/Avatar";
 import type { ItemData } from "./models/Item";
-import { Monster, type MonsterData } from "./models/Monster";
+import { Monster } from "./models/Monster";
+import { MonsterStore } from '~/state/monster-store';
 
 export enum GameAction {
   /**
@@ -63,6 +64,8 @@ export enum GameAction {
   Who = "who",
 }
 
+const monsters = new MonsterStore();
+
 export class World {
   public constructor(public readonly bot: Bot) { }
 
@@ -122,16 +125,10 @@ export class World {
   }
 
   /**
-   *  A list of monsters in the map.
+   * The available monsters in the map.
    */
-  public get monsters(): MonsterData[] {
-    try {
-      return JSON.parse(
-        swf.selectArrayObjects("world.monsters", "objData"),
-      ) as MonsterData[];
-    } catch {
-      return [];
-    }
+  public get monsters(): MonsterStore {
+    return monsters;
   }
 
   /**

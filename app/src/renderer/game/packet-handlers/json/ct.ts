@@ -106,6 +106,23 @@ registerJsonHandler<CtPacket>("ct", (bot, packet) => {
       }
     }
   }
+
+  // monster
+  if ('m' in packet) {
+    for (const [monMapId, data] of Object.entries(packet.m)) {
+        const mon = bot.world.monsters.get(Number(monMapId));
+        if (!mon) continue;
+
+        if (typeof data?.intHP === 'number')
+            mon.data.intHp = data.intHP;
+
+        if (typeof data?.intMP === 'number')
+            mon.data.intMp = data.intMP;
+
+        if (typeof data?.intState === 'number')
+            mon.data.intState = data.intState;
+    }
+  }
 });
 
 type CtPacket = {
@@ -127,6 +144,14 @@ type CtPacket = {
   anims?: {
     msg?: string;
   }[];
+  m?: {
+    // monMapId -> monster condition
+    [key: string]: {
+      intHP?: number;
+      intMP?: number;
+      intState?: number;
+    };
+  };
   p?: {
     // player name
     [key: string]: {

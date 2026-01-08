@@ -1,18 +1,24 @@
-package vexed.game {
+package vexed.game
+{
   import vexed.Main;
   import flash.display.DisplayObject;
 
-  public class World {
+  public class World
+  {
     private static var game:Object = Main.getInstance().getGame();
 
     private static var padNames:RegExp = /(Spawn|Center|Left|Right|Up|Down|Top|Bottom)/;
 
-    public static function isLoaded():Boolean {
-      if (!game.world.mapLoadInProgress) {
-        try {
+    public static function isLoaded():Boolean
+    {
+      if (!game.world.mapLoadInProgress)
+      {
+        try
+        {
           return game.getChildAt((game.numChildren - 1)) != game.mcConnDetail;
         }
-        catch (e:Error) {
+        catch (e:Error)
+        {
           return false;
         }
       }
@@ -28,11 +34,14 @@ package vexed.game {
     public static function getPlayers():String /* { [name: string]: PlayerData } */
     {
       var ret:Object = {};
-      for (var player:String in game.world.uoTree) {
+      for (var player:String in game.world.uoTree)
+      {
         var playerObj:Object = game.world.uoTree[player];
-        if (playerObj !== null) {
+        if (playerObj !== null)
+        {
           var playerObj_:Object = getPlayer(player);
-          if (playerObj_ !== null) {
+          if (playerObj_ !== null)
+          {
             ret[player] = getPlayer(player);
           }
         }
@@ -40,7 +49,8 @@ package vexed.game {
       return JSON.stringify(ret);
     }
 
-    public static function getPlayer(name:String):String {
+    public static function getPlayer(name:String):String
+    {
       if (!name)
         return null;
 
@@ -52,39 +62,47 @@ package vexed.game {
 
       const ret:Object = {};
 
-      for (var key:String in playerObj) {
-        try {
+      for (var key:String in playerObj)
+      {
+        try
+        {
           if (key === 'auras')
             continue;
           else
             ret[key] = playerObj[key];
         }
-        catch (e:Error) {
+        catch (e:Error)
+        {
         }
       }
 
       return JSON.stringify(ret);
     }
 
-    public static function isPlayerInCell(name:String, cell:String = null):Boolean {
-      if (!name) {
+    public static function isPlayerInCell(name:String, cell:String = null):Boolean
+    {
+      if (!name)
+      {
         return false;
       }
 
       // Use current cell if none is provided
-      if (!cell) {
+      if (!cell)
+      {
         cell = game.world.strFrame;
       }
 
       var player:Object = game.world.uoTree[name.toLowerCase()];
-      if (!player) {
+      if (!player)
+      {
         return false;
       }
 
       return player.strFrame.toLowerCase() === cell.toLowerCase();
     }
 
-    public static function isActionAvailable(gameAction:String):Boolean {
+    public static function isActionAvailable(gameAction:String):Boolean
+    {
       var _loc_2:* = undefined;
       var _loc_3:* = undefined;
       var _loc_4:* = undefined;
@@ -96,14 +114,17 @@ package vexed.game {
       return _loc_5 < _loc_2.cd ? false : true;
     }
 
-    public static function getCellMonsters():Array {
+    public static function getCellMonsters():Array
+    {
       var monsters:Array = game.world.getMonstersByCell(game.world.strFrame);
       var ret:Array = [];
 
-      for (var id:Object in monsters) {
+      for (var id:Object in monsters)
+      {
         var monster:Object = monsters[id];
 
-        if (!Boolean(monster.pMC) || !Boolean(monster.pMC.visible) || monster.dataLeaf.intState <= 0) {
+        if (!Boolean(monster.pMC) || !Boolean(monster.pMC.visible) || monster.dataLeaf.intState <= 0)
+        {
           continue;
         }
 
@@ -122,16 +143,41 @@ package vexed.game {
       return ret;
     }
 
-    public static function getMonsterByName(name:String):Object {
-      if (!name) {
+    public static function getCellMonsterIds():Array
+    {
+      var monsters:Array = game.world.getMonstersByCell(game.world.strFrame);
+      var ret:Array = [];
+
+      for (var id:Object in monsters)
+      {
+        var monster:Object = monsters[id];
+
+        if (!Boolean(monster.pMC) || !Boolean(monster.pMC.visible) || monster.dataLeaf.intState <= 0)
+        {
+          continue;
+        }
+
+        ret.push(monster.dataLeaf.MonMapID);
+      }
+
+      return ret;
+    }
+
+    public static function getMonsterByName(name:String):Object
+    {
+      if (!name)
+      {
         return null;
       }
 
       name = name.toLowerCase();
-      for each (var mon:Object in game.world.getMonstersByCell(game.world.strFrame)) {
-        if (mon.pMC) {
+      for each (var mon:Object in game.world.getMonstersByCell(game.world.strFrame))
+      {
+        if (mon.pMC)
+        {
           var monsterName:String = mon.pMC.pname.ti.text.toLowerCase();
-          if (((monsterName.indexOf(name) > -1) || (name == "*")) && mon.dataLeaf.intState > 0) {
+          if (((monsterName.indexOf(name) > -1) || (name == "*")) && mon.dataLeaf.intState > 0)
+          {
             return mon;
           }
         }
@@ -140,15 +186,20 @@ package vexed.game {
       return null;
     }
 
-    public static function getMonsterByMonMapId(monMapId:*):Object {
-      if (!monMapId) {
+    public static function getMonsterByMonMapId(monMapId:*):Object
+    {
+      if (!monMapId)
+      {
         return null;
       }
 
-      for each (var mon:Object in game.world.getMonstersByCell(game.world.strFrame)) {
-        if (mon.pMC) {
+      for each (var mon:Object in game.world.getMonstersByCell(game.world.strFrame))
+      {
+        if (mon.pMC)
+        {
           var monster:int = mon.dataLeaf.MonMapID;
-          if (mon != null && mon.dataLeaf != null && mon.dataLeaf.MonMapID == monMapId) {
+          if (mon != null && mon.dataLeaf != null && mon.dataLeaf.MonMapID == monMapId)
+          {
             return mon;
           }
         }
@@ -157,20 +208,25 @@ package vexed.game {
       return null;
     }
 
-    public static function getCells():Array {
+    public static function getCells():Array
+    {
       var cells:Array = [];
-      for each (var cell:Object in game.world.map.currentScene.labels) {
+      for each (var cell:Object in game.world.map.currentScene.labels)
+      {
         cells.push(cell.name);
       }
       return cells;
     }
 
-    public static function getCellPads():Array {
+    public static function getCellPads():Array
+    {
       var cellPads:Array = new Array();
       var cellPadsCnt:int = game.world.map.numChildren;
-      for (var i:int = 0; i < cellPadsCnt; ++i) {
+      for (var i:int = 0; i < cellPadsCnt; ++i)
+      {
         var child:DisplayObject = game.world.map.getChildAt(i);
-        if (padNames.test(child.name)) {
+        if (padNames.test(child.name))
+        {
           cellPads.push(child.name);
         }
       }
@@ -187,36 +243,45 @@ package vexed.game {
     // return items;
     // }
 
-    public static function getRoomId():int {
+    public static function getRoomId():int
+    {
       return game.world.curRoom;
     }
 
-    public static function getRoomNumber():int {
+    public static function getRoomNumber():int
+    {
       return Number(game.world.strAreaName.split('-')[1]);
     }
 
-    public static function reload():void {
+    public static function reload():void
+    {
       game.world.reloadCurrentMap();
     }
 
-    public static function loadSwf(swf:String):void {
+    public static function loadSwf(swf:String):void
+    {
       game.world.loadMap(swf);
     }
 
-    public static function getMapItem(itemId:int):void {
-      if (!itemId) {
+    public static function getMapItem(itemId:int):void
+    {
+      if (!itemId)
+      {
         return;
       }
 
       game.world.getMapItem(itemId);
     }
 
-    public static function setSpawnPoint(cell:String = null, pad:String = null):void {
-      if (!cell) {
+    public static function setSpawnPoint(cell:String = null, pad:String = null):void
+    {
+      if (!cell)
+      {
         cell = game.world.strFrame;
       }
 
-      if (!pad) {
+      if (!pad)
+      {
         pad = game.world.strPad;
       }
 
