@@ -2,7 +2,7 @@ import { SvelteMap } from "svelte/reactivity";
 import type { Command } from "./botting/command";
 import type { SkillSet } from "./util/skillParser";
 
-export { autoReloginState } from "./lib/autoReloginState.svelte";
+export { autoReloginState } from "./state/autoRelogin.svelte";
 
 function initState() {
   let infiniteRange = $state(false);
@@ -338,10 +338,10 @@ export function initOptionsPanelState() {
   const storageKey = "options-panel-position";
 
   type OptionsPanelPosition = {
+    height?: string;
     left: string;
     top: string;
     width?: string;
-    height?: string;
   };
 
   let isVisible = $state(false);

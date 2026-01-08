@@ -1,8 +1,8 @@
 import { Mutex } from "async-mutex";
 import { CommandExecutor } from "~/botting/command-executor";
+import { autoReloginState } from "~/game/state/autoRelogin.svelte";
 import type { Bot } from "~/lib/Bot";
 import type { LoginInfo } from "../Auth";
-import { autoReloginState } from "../autoReloginState.svelte";
 import type { Server } from "../models/Server";
 import { Job } from "./Job";
 
