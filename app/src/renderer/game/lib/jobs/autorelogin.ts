@@ -252,26 +252,33 @@ export class AutoReloginJob extends Job {
 
   private async connectToServer(): Promise<boolean> {
     const servers = this.bot.auth.servers;
+    const loginInfo = this.bot.auth.loginInfo;
 
-    const useFallback = AutoReloginJob.consecutiveFailures >= MAX_CONSECUTIVE_FAILURES;
     let targetServerName = autoReloginState.server!;
+    let targetServer = servers.find(
+      (server) => server.name.toLowerCase().includes(targetServerName.toLowerCase())
+    );
 
-    if (useFallback) {
+    const primaryIneligible = !targetServer ||
+      !targetServer.isOnline() ||
+      targetServer.isFull() ||
+      (loginInfo && !this.isServerEligible(targetServer, loginInfo));
+
+    if (primaryIneligible || AutoReloginJob.consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
       const fallbackName = this.resolveFallbackServer(servers);
       if (fallbackName) {
         targetServerName = fallbackName;
+        targetServer = servers.find(
+          (server) => server.name.toLowerCase().includes(targetServerName.toLowerCase())
+        );
       }
     }
 
-    const targetServer = servers.find(
-      (server) => server.name.toLowerCase().includes(targetServerName.toLowerCase())
-    );
     if (!targetServer || !targetServer.isOnline() || targetServer.isFull()) {
       AutoReloginJob.markFailure();
       return false;
     }
 
-    const loginInfo = this.bot.auth.loginInfo;
     if (loginInfo && !this.isServerEligible(targetServer, loginInfo)) {
       AutoReloginJob.markFailure();
       return false;
