@@ -2,6 +2,73 @@
 
 All notable changes to this project will be documented in this file.
 
+# [0.7.0](https://github.com/toommyliu/vexed/compare/0.6.2...0.7.0) - (2026-01-08)
+
+## Bug Fixes
+
+- Boosts not being applied ([f5e71b5](https://github.com/toommyliu/vexed/commit/f5e71b519a91ff9fbdce8e35b1a17c47588af51c))
+
+- **command-overlay:** Fix header clipping behavior ([a9c5b8d](https://github.com/toommyliu/vexed/commit/a9c5b8df6dbc7f8a81fec914a1a0357f845554a5))
+
+- **manager:** Handle server fetch failure ([52570d5](https://github.com/toommyliu/vexed/commit/52570d54607c8d93d8167e940af55b97f1e836ef))
+
+- Improve Custom name/guild input behavior ([59dccd0](https://github.com/toommyliu/vexed/commit/59dccd049cf2da04072e4e964281270f7206a07e))
+
+- **manager:** Improve layout ([aaaa68a](https://github.com/toommyliu/vexed/commit/aaaa68aec9b5ff208c0befce03d33788cadf3bc5))
+
+- **follower:** Send move packet during Copy Walk ([4a2da31](https://github.com/toommyliu/vexed/commit/4a2da31fb1390a1320aff551d21c215580d6e564))
+
+- Ui tweaks ([daa7f92](https://github.com/toommyliu/vexed/commit/daa7f9234fddccd6c254b32d1ef4e9f7233c277a))
+
+- **game:** Use distinct color for valid pads in dropdown (#322) ([d47a57f](https://github.com/toommyliu/vexed/commit/d47a57fed7f5a56f584b282a70a1cc53719944e0))
+
+
+## Refactor
+
+- **quests:** Enforce strict number IDs and add Quest.fromId factory (#318) ([fa3de64](https://github.com/toommyliu/vexed/commit/fa3de64b033be677a2096d3f6ce01b472e0c81c4))
+
+- Port skill sets to json, add migration helper (#328) ([5033acd](https://github.com/toommyliu/vexed/commit/5033acd5ff1847a5aa70afea4e72ffa444a14349))
+
+  - use the https://aqw-vexed.vercel.app/tools/skillset-migration.html tool if you want to automatically update existing skill sets
+
+- **commands:** Require explicitness for equip_item_by_enhancement (#325) ([56e681c](https://github.com/toommyliu/vexed/commit/56e681c1ad3d72980a107e6a7d9d35acd0ddf4cb))
+
+  - now supports multiple types of Awe enhancements (Lucky, Fighter, etc)
+
+
+## Features
+
+- **commands:** Add item id support to complete_quest (#324) ([a27ec86](https://github.com/toommyliu/vexed/commit/a27ec863d5fed8ccc619ab0ef568976c4a26f7ba))
+
+- **commands:** Add item id support to register_quest (#323) ([a722ef1](https://github.com/toommyliu/vexed/commit/a722ef13af41aeb911f4442c9141696a75aeb34c))
+
+- **autorelogin:** Configurable UI, add fallback server, reliability improvements (#329) ([6af639f](https://github.com/toommyliu/vexed/commit/6af639f9b7ce74c479d3522e5c216cf7fb195ca4))
+
+  - added a menu for toggling autorelogin
+  - added support for a fallback server. if the selected server is full/the player is ineligible to join it, autorelogin will default to this server; configurable in settings
+  - update `cmd.use_autorelogin` to take the preferred server, otherwise defaulting to fallback or the last available server.
+  - added `cmd.disable_autorelogin`
+
+- **commands:** Enhance_item (#319) ([66d448b](https://github.com/toommyliu/vexed/commit/66d448b5138bbf2e1b09176c8619557316eae1ce))
+
+- **hotkeys:** Improve inline feedback (#327) ([334d4e0](https://github.com/toommyliu/vexed/commit/334d4e044368815e3cfbc8c7fa9316460df356f8))
+
+- Settings window (#326) ([1e107fa](https://github.com/toommyliu/vexed/commit/1e107fa627318928a8f06d86613d488bb1fa4714))
+
+- **environment:** Support item id for quests (#320) ([dd9f1f1](https://github.com/toommyliu/vexed/commit/dd9f1f1232b22afca1b4758749628003dbf91eba))
+
+  - format: QUESTID:ITEMID, click item id to edit without removing quest. if quest id is duplicated, latest ITEMID is kept
+
+- **follower:** Ui improvements ([7d6038b](https://github.com/toommyliu/vexed/commit/7d6038b714f893433ed0986e2cf8eda5f9ca1f84))
+
+
+## Documentation
+
+- Update macOS version names in getting started guide ([de317ac](https://github.com/toommyliu/vexed/commit/de317ac7abadf75e2ac73335e7c03cc999501163))
+
+- Auto-update API documentation ([d1ba390](https://github.com/toommyliu/vexed/commit/d1ba390fff8963c0b5fbdfa842e818b7c23c462b), [6222318](https://github.com/toommyliu/vexed/commit/62223189b21d36ca432d8d6d44daffe1e9e31c18))
+
+
 # [0.6.2](https://github.com/toommyliu/vexed/compare/0.6.1...0.6.2) - (2025-12-15)
 
 ## Bug Fixes
@@ -515,6 +582,8 @@ All notable changes to this project will be documented in this file.
 
 - Highlight cell pads (#123) ([34cc814](https://github.com/toommyliu/vexed/commit/34cc81423b7257d42a318fd6b79500ad3d133fdb))
 
+  - Closes: 43
+
 - **overlay:** Improve appearance (#151) ([6014cb0](https://github.com/toommyliu/vexed/commit/6014cb056c65af9a97eb275ed339339ca3682d7a))
 
 - Item enhancements (#150) ([ac58d2f](https://github.com/toommyliu/vexed/commit/ac58d2fd279e40d79ff5d9cdbb86fb8779f1b869))
@@ -526,6 +595,8 @@ All notable changes to this project will be documented in this file.
 - Refine item equipping logic in CommandArmyEquipSet (#154) ([0da6e80](https://github.com/toommyliu/vexed/commit/0da6e805de9f1c75e2b1277642fa9e6fda1822ca))
 
 - **Follower:** Reject else (#130) ([c444f0f](https://github.com/toommyliu/vexed/commit/c444f0f631064ebcd673f45f5b5eeb1a47e989ca))
+
+  - Closes: 128
 
 - **Manager:** Start with script (#136) ([fd8a2d1](https://github.com/toommyliu/vexed/commit/fd8a2d16ae17b5c8b3df7fd8ae808d454771d270))
 
@@ -846,14 +917,16 @@ All notable changes to this project will be documented in this file.
 
 - **electron:** Prevent manager window from closing (#96) ([359a699](https://github.com/toommyliu/vexed/commit/359a6992487c71ae7356f0397bfa30f592ec874b))
 
+  - Closes: 95
+
 
 ## Refactor
 
 - Rearchitecture (#97) ([c408c8d](https://github.com/toommyliu/vexed/commit/c408c8d7642d2b76f7f393678fb94e1eadff6c2a))
 
-  - - Revert from monorepo (tedious to manage, plus made electron dependency unstable)
-    - Fix app icon size
-    - Migrate from pnpm to yarn classic
+  - Revert from monorepo (tedious to manage, plus made electron dependency unstable)
+  - Fix app icon size
+  - Migrate from pnpm to yarn classic
 
 
 ## Features
@@ -1033,21 +1106,21 @@ All notable changes to this project will be documented in this file.
 
 - Improved script start/stop, refined child window handling, minor js-api adjustments (#75) ([874b528](https://github.com/toommyliu/vexed/commit/874b5280f989c641d3469f4dbb178ad2cf0e13d3))
 
-  - - fully handle window state through ipc
-    - better organization of child-window-related code
-    - fixed missing/broken functionality of child windows
-    - slightly closes #31, with some caveats
-    - closes #78 
-    - closes #33 
-         -  display waiting message when the script is being executed while the player isnt "ready"
-         - `console` methods are now proxied with a timestamp within the executing script
-         - script stop properly handled using signals + promise.race
-              - scripts are now toggled through user interaction, rather than programatically
-              - fixed signal not being aborted
-    - api changes:
-          - `combat#kill`: slightly improved kill detection
-          - `bank`: banks items are now only loaded the first time the bank ui is opened
-          - fixed `Lag Killer` clashing with `Skip Cutscenes`
+  - fully handle window state through ipc
+  - better organization of child-window-related code
+  - fixed missing/broken functionality of child windows
+  - slightly closes #31, with some caveats
+  - closes #78 
+  - closes #33 
+       -  display waiting message when the script is being executed while the player isnt "ready"
+       - `console` methods are now proxied with a timestamp within the executing script
+       - script stop properly handled using signals + promise.race
+            - scripts are now toggled through user interaction, rather than programatically
+            - fixed signal not being aborted
+  - api changes:
+        - `combat#kill`: slightly improved kill detection
+        - `bank`: banks items are now only loaded the first time the bank ui is opened
+        - fixed `Lag Killer` clashing with `Skip Cutscenes`
 
 - Supplement account manager (#72) ([ccabc3a](https://github.com/toommyliu/vexed/commit/ccabc3a71fc2a8ede843b11ea4557d6fb8b65465))
 
@@ -1381,7 +1454,7 @@ All notable changes to this project will be documented in this file.
 
 - Improve combat#kill logged out + player death detection ([8f29f1b](https://github.com/toommyliu/vexed/commit/8f29f1b26dbe63706e90960a812083f49d4d820c))
 
-  - - added wip combat#kill afk detection
+  - added wip combat#kill afk detection
 
 - Js scripting api (#12) ([f705180](https://github.com/toommyliu/vexed/commit/f7051809cd9ad16686ce31439041b679f5278aac))
 
@@ -1534,6 +1607,21 @@ All notable changes to this project will be documented in this file.
 - Json pretty print ([54fbf84](https://github.com/toommyliu/vexed/commit/54fbf840e4ae988bce14864d6167064cf1798ea7))
 
 - Lua api (#1) ([7a9687a](https://github.com/toommyliu/vexed/commit/7a9687aa8ede20eb738d7178272ff03e513078b4))
+
+  - tables: -auth
+    -bank
+    -client
+    -combat
+    -factions
+    -house
+    -inventory
+    -map
+    -monsters
+    -packet
+    -player
+    -quests
+    -shop
+    -temp_inventory
 
 - Quest#hasCompletedBefore() ([781ac8b](https://github.com/toommyliu/vexed/commit/781ac8bb0ad64596f455f7d8612c1d9e5fd3f8ea))
 
