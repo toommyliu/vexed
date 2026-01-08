@@ -272,17 +272,9 @@ export class AutoReloginJob extends Job {
     }
 
     const loginInfo = this.bot.auth.loginInfo;
-    if (loginInfo) {
-      const isUpgradeOnly = targetServer.isUpgrade() && loginInfo.iUpgDays < 0;
-      const isChatRestricted = targetServer.data.iChat > 0 && loginInfo.bCCOnly === 1;
-      const isUnderageNonMember = targetServer.data.iChat > 0 && loginInfo.iAge < 13 && loginInfo.iUpgDays < 0;
-      const isEmailUnconfirmed = targetServer.data.iLevel > 0 && loginInfo.iEmailStatus <= 2;
-      const hasPermanentFailure = isUpgradeOnly || isChatRestricted || isUnderageNonMember || isEmailUnconfirmed;
-
-      if (hasPermanentFailure) {
-        autoReloginState.disable();
-        return false;
-      }
+    if (loginInfo && !this.isServerEligible(targetServer, loginInfo)) {
+      AutoReloginJob.markFailure();
+      return false;
     }
 
     let didClickServer: boolean;
