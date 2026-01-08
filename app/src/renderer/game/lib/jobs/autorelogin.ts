@@ -385,10 +385,8 @@ export class AutoReloginJob extends Job {
   ) {
     const manualDifferentUser = Boolean(
       this.bot.auth.isLoggedIn() &&
-      this.bot.auth.username &&
-      autoReloginState.username &&
-      this.bot.auth.username.toLowerCase() !==
-      autoReloginState.username.toLowerCase()
+      this.bot.auth?.username?.toLowerCase() !==
+      autoReloginState?.username?.toLowerCase()
     );
 
     if (initiatedLogin && this.bot.auth.isLoggedIn() && !manualDifferentUser) {
