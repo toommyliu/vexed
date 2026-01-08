@@ -366,6 +366,7 @@
     }
   }
 
+  // TODO: follower should use auto skillsets
   $effect(() => {
     if (autoEnabled) {
       const currentCls = bot.player.className;
@@ -406,7 +407,7 @@
             }
 
             if (shouldCast)
-              await bot.combat.useSkill(skillIndex, true, skill.isWait);
+              await bot.combat.useSkill(skillIndex, false, skill.isWait);
             idx = (idx + 1) % skillList.length;
           }
         }
