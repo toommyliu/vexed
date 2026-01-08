@@ -1,12 +1,11 @@
-import type { Bot } from "~/lib/Bot";
 import type { Aura } from "~/lib/models/BaseEntity";
 import { AuraStore } from "~/lib/util/AuraStore";
+import { registerJsonHandler } from "../registry";
 
 const ADD_AURAS = new Set(["aura+", "aura++"]);
 const REMOVE_AURAS = new Set(["aura-", "aura--"]);
 
-// "Combat Tick"
-export function ct(bot: Bot, packet: CtPacket) {
+registerJsonHandler<CtPacket>("ct", (bot, packet) => {
   if (Array.isArray(packet?.anims) && packet?.anims?.length) {
     for (const anim of packet?.anims ?? []) {
       if (!anim?.msg) continue;
@@ -107,7 +106,7 @@ export function ct(bot: Bot, packet: CtPacket) {
       }
     }
   }
-}
+});
 
 type CtPacket = {
   a?: {

@@ -3,14 +3,7 @@ import log from "electron-log/renderer";
 import { Bot } from "~/lib/Bot";
 import { AutoReloginJob } from "~/lib/jobs/autorelogin";
 import { client } from "~/shared/tipc";
-import { AuraStore } from "./lib/util/AuraStore";
-import { addGoldExp } from "./packet-handlers/add-gold-exp";
-import { ct } from "./packet-handlers/ct";
-import { dropItem } from "./packet-handlers/drop-item";
-import { event } from "./packet-handlers/event";
-import { initUserData } from "./packet-handlers/init-user-data";
-import { initUserDatas } from "./packet-handlers/initUserDatas";
-import { moveToArea } from "./packet-handlers/move-to-area";
+import { dispatchJson, dispatchStr } from "./packet-handlers";
 import { appState, autoReloginState } from "./state.svelte";
 
 const logger = log.scope("game/flash-interop");
@@ -33,7 +26,7 @@ window.packetFromServer = ([packet]: [string]) => {
       typeof pkt?.b?.o?.cmd === "string" &&
       pkt?.b?.o?.cmd === "ct"
     ) {
-      ct(bot, pkt?.b?.o);
+      dispatchJson(bot, "ct", pkt?.b?.o);
     }
   }
 };
@@ -50,60 +43,11 @@ window.pext = async ([packet]) => {
   bot.emit("pext", pkt);
 
   if (pkt?.params?.type === "str") {
-    const dataObj = pkt?.params?.dataObj; // ['exitArea', '-1', 'ENT_ID', 'PLAYER']
-
-    // const ogPkt = `%xt%${dataObj.join("%")}%`; // %xt%exitArea%-1%ENT_ID%PLAYER%
-
-    switch (dataObj[0]) {
-      case "respawnMon":
-        break;
-      case "exitArea":
-        {
-          const playerName = dataObj[dataObj.length - 1];
-          AuraStore.unregisterPlayer(playerName);
-          bot.emit("playerLeave", playerName);
-        }
-
-        break;
-      case "uotls":
-        if (
-          Array.isArray(dataObj) &&
-          dataObj?.length === 4 &&
-          dataObj[2]?.toLowerCase() === bot.auth?.username?.toLowerCase() &&
-          dataObj[3] === "afk:true"
-        ) {
-          bot.emit("afk");
-        }
-
-        break;
-    }
+    const dataObj = pkt?.params?.dataObj;
+    dispatchStr(bot, dataObj[0], dataObj);
   } else if (pkt?.params?.type === "json") {
-    const dataObj = pkt?.params?.dataObj; // { intGold: 8, cmd: '', intExp: 0, bonusGold: 2, typ: 'm' }
-
-    switch (pkt?.params?.dataObj?.cmd) {
-      case "addGoldExp":
-        void addGoldExp(bot, dataObj);
-        break;
-      case "dropItem":
-        void dropItem(bot, dataObj);
-        break;
-      case "initUserData":
-        initUserData(bot, dataObj);
-        break;
-      case "initUserDatas":
-        void initUserDatas(bot, dataObj);
-        break;
-      case "moveToArea":
-        void moveToArea(bot, dataObj);
-        break;
-      case "event":
-        void event(bot, dataObj);
-        break;
-      case "clearAuras": {
-        const entId = AuraStore.getPlayerEntId(bot.auth.username);
-        if (entId !== undefined) AuraStore.clearPlayerAuras(entId);
-      }
-    }
+    const dataObj = pkt?.params?.dataObj;
+    dispatchJson(bot, dataObj.cmd, dataObj);
   }
 };
 

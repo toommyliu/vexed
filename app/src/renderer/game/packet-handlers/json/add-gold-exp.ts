@@ -1,5 +1,5 @@
-import type { Bot } from "../lib/Bot";
-import { AuraStore } from "../lib/util/AuraStore";
+import { AuraStore } from "~/lib/util/AuraStore";
+import { registerJsonHandler } from "../registry";
 
 function isMonPkt(
   packet: AddGoldExpPkt,
@@ -7,7 +7,7 @@ function isMonPkt(
   return packet.typ === "m";
 }
 
-export async function addGoldExp(bot: Bot, packet: AddGoldExpPkt) {
+registerJsonHandler<AddGoldExpPkt>("addGoldExp", async (bot, packet) => {
   if (isMonPkt(packet)) {
     const getMonster = () =>
       bot.world.availableMonsters.find((mon) => mon.monMapId === packet.id)!;
@@ -18,7 +18,7 @@ export async function addGoldExp(bot: Bot, packet: AddGoldExpPkt) {
 
     AuraStore.monsterAuras.delete(String(packet.id));
   }
-}
+});
 
 type AddGoldExpPktMon = {
   id: number; // monMapId

@@ -1,12 +1,12 @@
-import type { Bot } from "~/lib/Bot";
 import type { ItemData } from "~/lib/models/Item";
+import { registerJsonHandler } from "../registry";
 
-export async function dropItem(bot: Bot, packet: DropItemPacket) {
+registerJsonHandler<DropItemPacket>("dropItem", (bot, packet) => {
   for (const itemData of Object.values(packet.items))
     bot.drops.addDrop(itemData);
-}
+});
 
-export type DropItemPacket = {
+type DropItemPacket = {
   cmd: "dropItem";
   items: Record<number, ItemData>;
 };

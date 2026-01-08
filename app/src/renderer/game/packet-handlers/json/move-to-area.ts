@@ -1,7 +1,7 @@
-import type { Bot } from "../lib/Bot";
-import { AuraStore } from "../lib/util/AuraStore";
+import { AuraStore } from "~/lib/util/AuraStore";
+import { registerJsonHandler } from "../registry";
 
-export async function moveToArea(bot: Bot, packet: Packet) {
+registerJsonHandler<MoveToAreaPacket>("moveToArea", (bot, packet) => {
   AuraStore.clear();
 
   for (const user of packet.uoBranch ?? []) {
@@ -10,14 +10,14 @@ export async function moveToArea(bot: Bot, packet: Packet) {
   }
 
   bot.emit("mapChanged", packet.areaName);
-}
+});
 
-type Packet = {
+type MoveToAreaPacket = {
   areaId: number;
   areaName: string; // buyhouse-12345
   cmd: string; // moveToArea
   intType: string;
-  monBranch: any[];
+  monBranch: unknown[];
   sExtra: string;
   strMapFileName: string;
   strMapName: string; // buyhouse
