@@ -365,10 +365,8 @@ The task function is bound to an object containing the bot instance and the cont
   unregister_handler(type: "packetFromClient" | "packetFromServer" | "pext", name: string): void;
   /** Unregisters a previously registered task. */
   unregister_task(name: string): void;
-  /** Sets the credentials to use for Auto Relogin.
-After a login attempt, the client stores the username and password used to log in, regardless if successful. These fields are re-used
-when null(s) are passed. */
-  use_autorelogin(username: string | null, password: string | null, server: string | null): void;
+  /** Enables Auto Relogin with the current session's credentials. */
+  use_autorelogin(server?: string): void;
   /** Enables auto-zoning for astralshrine map. */
   use_autozone_astralshrine(): void;
   /** Enables auto-zoning for darkcarnax map. */

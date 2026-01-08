@@ -1,8 +1,8 @@
-import { CommandExecutor } from "~/renderer/game/botting/command-executor";
-import { Bot } from "~/renderer/game/lib/Bot";
 import { ArgsError } from "~/botting/ArgsError";
 import { Command } from "~/botting/command";
+import { CommandExecutor } from "~/botting/command-executor";
 import { CommandRegistry } from "~/botting/command-registry";
+import { Bot } from "~/lib/Bot";
 import { CommandAutoRelogin } from "./CommandAutoRelogin";
 import { CommandAutoZoneAstralShrine } from "./CommandAutoZoneAstralShrine";
 import { CommandAutoZoneDarkCarnax } from "./CommandAutoZoneDarkCarnax";
@@ -16,6 +16,7 @@ import { CommandBuyScrollOfEnrage } from "./CommandBuyScrollOfEnrage";
 import { CommandBuyScrollOfLifeSteal } from "./CommandBuyScrollOfLifeSteal";
 import { CommandCloseWindow } from "./CommandCloseWindow";
 import { CommandDelay } from "./CommandDelay";
+import { CommandDisableAutoRelogin } from "./CommandDisableAutoRelogin";
 // import { CommandEquipLoadout } from "./CommandEquipLoadout";
 import { CommandDoWheelOfDoom } from "./CommandDoWheelOfDoom";
 import { CommandDrinkConsumables } from "./CommandDrinkConsumables";
@@ -432,7 +433,7 @@ export const miscCommands = {
       throw new ArgsError("command must not override execute()");
     }
 
-    commandRegistry.registerCustomCommand(_name, () => {});
+    commandRegistry.registerCustomCommand(_name, () => { });
 
     Object.defineProperty(window.cmd, _name, {
       value(...args: unknown[]) {
@@ -640,27 +641,25 @@ export const miscCommands = {
     window.context.addCommand(cmd);
   },
   /**
-   * Sets the credentials to use for Auto Relogin.
-   * After a login attempt, the client stores the username and password used to log in, regardless if successful. These fields are re-used
-   * when null(s) are passed.
+   * Enables Auto Relogin with the current session's credentials.
    *
    * @example
-   * cmd.use_autorelogin(null, null, 'Twig') // uses the current username and password, but sets the server to Twig
-   * cmd.use_autorelogin('myusername', 'mypassword', null) // uses the current server, but sets the username and password
-   * @param username - The username of the account. If set to null, the current username (as shown to the bot) will be used.
-   * @param password - The password of the account. If set to null, the current password (as shown to the bot) will be used.
-   * @param server - The server to log into. If set to null, the current server will be used.
+   * cmd.use_autorelogin('Twig') // relogin to Twig server
+   * cmd.use_autorelogin() // relogin to the fallback server OR the current server otherwise
+   * @param server - The server to log into.
    */
   use_autorelogin(
-    username: string | null,
-    password: string | null,
-    server: string | null,
+    server?: string,
   ) {
     const cmd = new CommandAutoRelogin();
-    if (username) cmd.username = username;
-    if (password) cmd.password = password;
-    if (server) cmd.server = server;
-
+    cmd.server = server;
+    window.context.addCommand(cmd);
+  },
+  /**
+   * Disables Auto Relogin.
+   */
+  disable_autorelogin() {
+    const cmd = new CommandDisableAutoRelogin();
     window.context.addCommand(cmd);
   },
   /**
@@ -831,7 +830,7 @@ export const miscCommands = {
   },
   /**
    * Does the Wheel of Doom spin (non-members).
-   * 
+   *
    * @param to_bank - Whether to put the reward in the bank.
    */
   do_wheelofdoom(to_bank: boolean = false) {

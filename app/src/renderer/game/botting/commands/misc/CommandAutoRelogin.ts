@@ -1,30 +1,33 @@
-import { AutoReloginJob } from "~/renderer/game/lib/jobs/autorelogin";
 import { Command } from "~/botting/command";
+import { autoReloginState } from "~/renderer/game/state.svelte";
 
 export class CommandAutoRelogin extends Command {
-  public username?: string;
-
-  public password?: string;
-
-  public server?: string;
+  public server?: string | undefined;
 
   protected override _skipDelay = true;
 
   public override async executeImpl() {
-    const username = this.username ?? this.bot.auth.username;
-    const password = this.password ?? this.bot.auth.password;
+    const username = this.bot.auth.username;
+    const password = this.bot.auth.password;
     const server =
       this.server ??
+      autoReloginState.fallbackServer ??
       this.bot.flash.get("objServerInfo.sName", true) ??
       undefined;
+    this.server = server;
 
-    await AutoReloginJob.setCredentials(username, password, server);
+    if (!username || !password || !server) {
+      this.logger.debug('Invalid credentials');
+      return;
+    }
+
+    autoReloginState.enable(username, password, server);
     this.logger.debug(
-      `Set AutoRelogin for ${username}${server ? ` [${server}]` : ""}.`,
+      `Enabled AutoRelogin for ${username} [${server}].`,
     );
   }
 
   public override toString() {
-    return `Use AutoRelogin: ${this.username} ${this.server ? `[${this.server}]` : ""}`;
+    return `Enable AutoRelogin${this.server ? ` [${this.server}]` : ""}`;
   }
 }
