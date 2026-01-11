@@ -1,6 +1,7 @@
 <script lang="ts">
   import { motionScale, motionFade } from "@vexed/ui/motion";
   import { onMount, tick } from "svelte";
+  import type { Snippet } from "svelte";
   import X from "lucide-svelte/icons/x";
   import { cn } from "~/shared/cn";
 
@@ -28,24 +29,34 @@
     | null;
 
   type Props = {
-    title: string;
+    title?: string;
     panelState: PanelState;
     minWidth?: number;
     minHeight?: number;
     defaultWidth?: number;
     class?: string;
     headerClass?: string;
-    children?: import("svelte").Snippet;
+    showClose?: boolean;
+    canResize?: boolean;
+    onheaderdblclick?: (ev: MouseEvent) => void;
+    onheadercontextmenu?: (ev: MouseEvent) => void;
+    header?: Snippet;
+    children?: Snippet;
   };
 
   let {
-    title,
+    title = "",
     panelState,
     minWidth = 320,
     minHeight = 160,
     defaultWidth = 340,
     class: className = "",
     headerClass = "",
+    showClose = true,
+    canResize = true,
+    onheaderdblclick,
+    onheadercontextmenu,
+    header,
     children,
   }: Props = $props();
 
@@ -56,6 +67,10 @@
 
   let resizeDirection = $state<ResizeDirection>(null);
   let resizeStart = { x: 0, y: 0, width: 0, height: 0, left: 0, top: 0 };
+
+  let topNav: HTMLElement | null = null;
+  let cachedBoundingRect: DOMRect | null = null;
+  let frameId: number | null = null;
 
   $effect(() => {
     const isVisible = panelState.isVisible;
@@ -84,10 +99,10 @@
 
     panelState.setDragging(true);
 
-    const rect = panel.getBoundingClientRect();
+    cachedBoundingRect = panel.getBoundingClientRect();
     panelState.dragOffset = {
-      x: ev.clientX - rect.left,
-      y: ev.clientY - rect.top,
+      x: ev.clientX - cachedBoundingRect.left,
+      y: ev.clientY - cachedBoundingRect.top,
     };
   }
 
@@ -97,26 +112,33 @@
       return;
     }
 
-    if (!panelState.isDragging) return;
+    if (!panelState.isDragging || !panel) return;
 
-    let x = ev.clientX - panelState.dragOffset.x;
-    let y = ev.clientY - panelState.dragOffset.y;
+    if (frameId) cancelAnimationFrame(frameId);
+    frameId = requestAnimationFrame(() => {
+      let x = ev.clientX - panelState.dragOffset.x;
+      let y = ev.clientY - panelState.dragOffset.y;
 
-    const { width, height } = panel.getBoundingClientRect();
-    const { innerWidth, innerHeight } = window;
+      const { width, height } = cachedBoundingRect || panel.getBoundingClientRect();
+      const { innerWidth, innerHeight } = window;
 
-    x = Math.max(0, Math.min(x, innerWidth - width));
+      const topNavBottom = topNav?.getBoundingClientRect().bottom ?? 0;
+      const minY = Math.max(0, Math.round(topNavBottom));
 
-    const topNav = document.querySelector("#topnav-container");
-    const topNavBottom = topNav?.getBoundingClientRect().bottom ?? 0;
-    const minY = Math.max(0, Math.round(topNavBottom));
-    y = Math.max(minY, Math.min(y, innerHeight - height));
+      x = Math.max(0, Math.min(x, innerWidth - width));
+      y = Math.max(minY, Math.min(y, innerHeight - height));
 
-    panel.style.left = `${x}px`;
-    panel.style.top = `${y}px`;
+      panel.style.left = `${x}px`;
+      panel.style.top = `${y}px`;
+    });
   }
 
   function handleDragEnd() {
+    if (frameId) {
+      cancelAnimationFrame(frameId);
+      frameId = null;
+    }
+
     if (resizeDirection) {
       resizeDirection = null;
       panelState.savePosition(panel);
@@ -128,6 +150,7 @@
     panelState.setDragging(false);
     ensureWithinViewport();
     panelState.savePosition(panel);
+    cachedBoundingRect = null;
   }
 
   function handleResizeStart(ev: MouseEvent, direction: ResizeDirection) {
@@ -147,55 +170,58 @@
   }
 
   function handleResizeMove(ev: MouseEvent) {
-    if (!resizeDirection) return;
+    if (!resizeDirection || !panel) return;
 
-    const { innerWidth, innerHeight } = window;
-    const deltaX = ev.clientX - resizeStart.x;
-    const deltaY = ev.clientY - resizeStart.y;
+    const currentDirection = resizeDirection;
+    if (frameId) cancelAnimationFrame(frameId);
+    frameId = requestAnimationFrame(() => {
+      const { innerWidth, innerHeight } = window;
+      const deltaX = ev.clientX - resizeStart.x;
+      const deltaY = ev.clientY - resizeStart.y;
 
-    let newWidth = resizeStart.width;
-    let newHeight = resizeStart.height;
-    let newLeft = resizeStart.left;
-    let newTop = resizeStart.top;
+      let newWidth = resizeStart.width;
+      let newHeight = resizeStart.height;
+      let newLeft = resizeStart.left;
+      let newTop = resizeStart.top;
 
-    const topNav = document.getElementById("topnav-container");
-    const topNavBottom = topNav?.getBoundingClientRect().bottom ?? 0;
-    const minTop = Math.max(0, Math.round(topNavBottom));
+      const topNavBottom = topNav?.getBoundingClientRect().bottom ?? 0;
+      const minTop = Math.max(0, Math.round(topNavBottom));
 
-    if (resizeDirection.includes("e")) {
-      const maxWidth = innerWidth - newLeft;
-      newWidth = Math.min(maxWidth, Math.max(minWidth, resizeStart.width + deltaX));
-    }
-
-    if (resizeDirection.includes("w")) {
-      const potentialLeft = resizeStart.left + deltaX;
-      const clampedLeft = Math.max(0, potentialLeft);
-      const potentialWidth = resizeStart.width + (resizeStart.left - clampedLeft);
-      if (potentialWidth >= minWidth) {
-        newWidth = potentialWidth;
-        newLeft = clampedLeft;
+      if (currentDirection.includes("e")) {
+        const maxWidth = innerWidth - newLeft;
+        newWidth = Math.min(maxWidth, Math.max(minWidth, resizeStart.width + deltaX));
       }
-    }
 
-    if (resizeDirection.includes("s")) {
-      const maxHeight = innerHeight - newTop;
-      newHeight = Math.min(maxHeight, Math.max(minHeight, resizeStart.height + deltaY));
-    }
-
-    if (resizeDirection.includes("n")) {
-      const potentialTop = resizeStart.top + deltaY;
-      const clampedTop = Math.max(minTop, potentialTop);
-      const potentialHeight = resizeStart.height + (resizeStart.top - clampedTop);
-      if (potentialHeight >= minHeight) {
-        newHeight = potentialHeight;
-        newTop = clampedTop;
+      if (currentDirection.includes("w")) {
+        const potentialLeft = resizeStart.left + deltaX;
+        const clampedLeft = Math.max(0, potentialLeft);
+        const potentialWidth = resizeStart.width + (resizeStart.left - clampedLeft);
+        if (potentialWidth >= minWidth) {
+          newWidth = potentialWidth;
+          newLeft = clampedLeft;
+        }
       }
-    }
 
-    panel.style.width = `${newWidth}px`;
-    panel.style.height = `${newHeight}px`;
-    panel.style.left = `${newLeft}px`;
-    panel.style.top = `${newTop}px`;
+      if (currentDirection.includes("s")) {
+        const maxHeight = innerHeight - newTop;
+        newHeight = Math.min(maxHeight, Math.max(minHeight, resizeStart.height + deltaY));
+      }
+
+      if (currentDirection.includes("n")) {
+        const potentialTop = resizeStart.top + deltaY;
+        const clampedTop = Math.max(minTop, potentialTop);
+        const potentialHeight = resizeStart.height + (resizeStart.top - clampedTop);
+        if (potentialHeight >= minHeight) {
+          newHeight = potentialHeight;
+          newTop = clampedTop;
+        }
+      }
+
+      panel.style.width = `${newWidth}px`;
+      panel.style.height = `${newHeight}px`;
+      panel.style.left = `${newLeft}px`;
+      panel.style.top = `${newTop}px`;
+    });
   }
 
   function ensureWithinViewport() {
@@ -204,7 +230,6 @@
     const rect = panel.getBoundingClientRect();
     const { innerWidth, innerHeight } = window;
 
-    const topNav = document.getElementById("topnav-container");
     const topNavBottom = topNav?.getBoundingClientRect().bottom ?? 0;
     const minTop = Math.max(0, Math.round(topNavBottom));
 
@@ -250,6 +275,7 @@
   }
 
   onMount(() => {
+    topNav = document.getElementById("topnav-container");
     document.addEventListener("mousemove", handleDragMove);
     document.addEventListener("mouseup", handleDragEnd);
     window.addEventListener("resize", ensureWithinViewport);
@@ -258,6 +284,7 @@
       document.removeEventListener("mousemove", handleDragMove);
       document.removeEventListener("mouseup", handleDragEnd);
       window.removeEventListener("resize", ensureWithinViewport);
+      if (frameId) cancelAnimationFrame(frameId);
     };
   });
 </script>
@@ -275,15 +302,17 @@
     in:motionScale={{ duration: 120, start: 0.96, opacity: 0 }}
     out:motionFade={{ duration: 80 }}
   >
-    <!-- Resize handles -->
-    <div data-resize role="presentation" class="absolute z-10 top-0 left-1.5 right-1.5 h-1 cursor-n-resize" onmousedown={(ev) => handleResizeStart(ev, "n")}></div>
-    <div data-resize role="presentation" class="absolute z-10 bottom-0 left-1.5 right-1.5 h-1 cursor-s-resize" onmousedown={(ev) => handleResizeStart(ev, "s")}></div>
-    <div data-resize role="presentation" class="absolute z-10 right-0 top-1.5 bottom-1.5 w-1 cursor-e-resize" onmousedown={(ev) => handleResizeStart(ev, "e")}></div>
-    <div data-resize role="presentation" class="absolute z-10 left-0 top-1.5 bottom-1.5 w-1 cursor-w-resize" onmousedown={(ev) => handleResizeStart(ev, "w")}></div>
-    <div data-resize role="presentation" class="absolute z-10 top-0 right-0 w-2 h-2 cursor-ne-resize" onmousedown={(ev) => handleResizeStart(ev, "ne")}></div>
-    <div data-resize role="presentation" class="absolute z-10 top-0 left-0 w-2 h-2 cursor-nw-resize" onmousedown={(ev) => handleResizeStart(ev, "nw")}></div>
-    <div data-resize role="presentation" class="absolute z-10 bottom-0 right-0 w-2 h-2 cursor-se-resize" onmousedown={(ev) => handleResizeStart(ev, "se")}></div>
-    <div data-resize role="presentation" class="absolute z-10 bottom-0 left-0 w-2 h-2 cursor-sw-resize" onmousedown={(ev) => handleResizeStart(ev, "sw")}></div>
+    {#if canResize}
+      <!-- Resize handles -->
+      <div data-resize role="presentation" class="absolute z-10 top-0 left-1.5 right-1.5 h-1 cursor-n-resize" onmousedown={(ev) => handleResizeStart(ev, "n")}></div>
+      <div data-resize role="presentation" class="absolute z-10 bottom-0 left-1.5 right-1.5 h-1 cursor-s-resize" onmousedown={(ev) => handleResizeStart(ev, "s")}></div>
+      <div data-resize role="presentation" class="absolute z-10 right-0 top-1.5 bottom-1.5 w-1 cursor-e-resize" onmousedown={(ev) => handleResizeStart(ev, "e")}></div>
+      <div data-resize role="presentation" class="absolute z-10 left-0 top-1.5 bottom-1.5 w-1 cursor-w-resize" onmousedown={(ev) => handleResizeStart(ev, "w")}></div>
+      <div data-resize role="presentation" class="absolute z-10 top-0 right-0 w-2 h-2 cursor-ne-resize" onmousedown={(ev) => handleResizeStart(ev, "ne")}></div>
+      <div data-resize role="presentation" class="absolute z-10 top-0 left-0 w-2 h-2 cursor-nw-resize" onmousedown={(ev) => handleResizeStart(ev, "nw")}></div>
+      <div data-resize role="presentation" class="absolute z-10 bottom-0 right-0 w-2 h-2 cursor-se-resize" onmousedown={(ev) => handleResizeStart(ev, "se")}></div>
+      <div data-resize role="presentation" class="absolute z-10 bottom-0 left-0 w-2 h-2 cursor-sw-resize" onmousedown={(ev) => handleResizeStart(ev, "sw")}></div>
+    {/if}
 
     <!-- Header -->
     <div
@@ -292,23 +321,31 @@
         headerClass
       )}
       onmousedown={handleDragStart}
+      ondblclick={onheaderdblclick}
+      oncontextmenu={onheadercontextmenu ? (ev) => { ev.preventDefault(); onheadercontextmenu(ev); } : undefined}
       role="toolbar"
       tabindex="0"
     >
-      <span class="flex-1 mr-2 text-foreground">{title}</span>
+      {#if header}
+        {@render header()}
+      {:else}
+        <span class="flex-1 mr-2 text-foreground">{title}</span>
+      {/if}
 
       <div class="flex gap-1 items-center">
-        <button
-          class="panel-control w-5 h-5 flex items-center justify-center cursor-pointer text-muted-foreground rounded border-none bg-transparent transition-colors hover:text-destructive hover:bg-accent"
-          onclick={(ev) => {
-            ev.stopPropagation();
-            panelState.savePosition(panel);
-            panelState.hide();
-          }}
-          aria-label="Close"
-        >
-          <X class="size-3" />
-        </button>
+        {#if showClose}
+          <button
+            class="panel-control w-5 h-5 flex items-center justify-center cursor-pointer text-muted-foreground rounded border-none bg-transparent transition-colors hover:text-destructive hover:bg-accent"
+            onclick={(ev) => {
+              ev.stopPropagation();
+              panelState.savePosition(panel);
+              panelState.hide();
+            }}
+            aria-label="Close"
+          >
+            <X class="size-3" />
+          </button>
+        {/if}
       </div>
     </div>
 
