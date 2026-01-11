@@ -289,6 +289,8 @@ to be satisfied. */
   disable_autorelogin(): void;
   /** Disables the "Disable collisions" setting. */
   disable_collisions(): void;
+  /** Disables the "Disable death ads" setting. */
+  disable_death_ads(): void;
   /** Disables the "Enemy magnet" setting. */
   disable_enemymagnet(): void;
   /** Disables the "Disable FX" setting. */
@@ -313,6 +315,8 @@ to be satisfied. */
   enable_anticounter(): void;
   /** Enables the "Disable collisions" setting. */
   enable_collisions(): void;
+  /** Enables the "Disable death ads" setting. */
+  enable_death_ads(): void;
   /** Enables the "Enemy magnet" setting. */
   enable_enemymagnet(): void;
   /** Enables the "Disable FX" setting. */
