@@ -167,7 +167,7 @@ export const miscCommands = {
     window.context.addCommand(cmd);
   },
   /**
-   * Enables the "Disable death ads" setting.
+   * Disables the "Disable death ads" setting.
    */
   enable_death_ads() {
     const cmd = new CommandSettingDisableDeathAds();
@@ -175,7 +175,7 @@ export const miscCommands = {
     window.context.addCommand(cmd);
   },
   /**
-   * Disables the "Disable death ads" setting.
+   * Enables the "Disable death ads" setting.
    */
   disable_death_ads() {
     const cmd = new CommandSettingDisableDeathAds();
