@@ -289,7 +289,10 @@
         <div class={cn(sectionIndex > 0 && "mt-1")}>
           <button
             class="group flex w-full items-center gap-2 rounded-md bg-secondary/20 px-2 py-1.5 text-left transition-colors hover:bg-secondary/40"
-            onclick={() => (activeSection = isExpanded ? null : section.name)}
+            onclick={() => {
+              if (recordingState.isRecording) stopRecording();
+              activeSection = isExpanded ? null : section.name;
+            }}
           >
             {#if getSectionIcon(section.icon)}
               {@const Icon = getSectionIcon(section.icon)}
