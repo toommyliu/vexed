@@ -1,12 +1,13 @@
 <script lang="ts">
     import { setContext } from "svelte";
+    import type { Snippet } from "svelte";
     import { writable } from "svelte/store";
     import type { DialogContext } from "./types";
 
     interface Props {
         open?: boolean;
         onOpenChange?: (open: boolean) => void;
-        children?: import("svelte").Snippet;
+        children?: Snippet;
     }
 
     let {

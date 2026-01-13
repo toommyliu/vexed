@@ -147,9 +147,9 @@
 
     config.clear();
     await config.save();
-    
+
     await config.reload();
-    
+
     await loadHotkeysFromConfig();
     await client.hotkeys.reloadHotkeys();
     logger.info("Hotkeys restored to defaults.");
@@ -205,7 +205,7 @@
 
     if (hotkeysSections?.length > 0) {
       activeSection = hotkeysSections[0]!.name;
-    } 
+    }
   });
 
   onDestroy(() => {
@@ -303,7 +303,7 @@
             </span>
             <ChevronDown
               class={cn(
-                "ml-auto h-3.5 w-3.5 text-muted-foreground/60 transition-transform duration-150",
+                "ml-auto h-3.5 w-3.5 text-muted-foreground/60",
                 isExpanded && "rotate-180"
               )}
             />
@@ -317,8 +317,8 @@
                 <div
                   class={cn(
                     "group/row flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left transition-colors",
-                    isRecordingThis 
-                      ? "bg-primary/5 relative" 
+                    isRecordingThis
+                      ? "bg-primary/5 relative"
                       : "bg-transparent hover:bg-secondary/30 cursor-pointer"
                   )}
                   onclick={() => !isRecordingThis && startRecording(item.id)}
@@ -336,8 +336,8 @@
                         <span class={cn("key-pop", hasConflict && "conflict-shake")}>
                           <Kbd hotkey={recordingState.lastPressedKey} class={cn(
                             "transition-all",
-                            hasConflict 
-                              ? "border-destructive/60 text-destructive shadow-[0_0_8px_hsl(var(--destructive)/0.3)]" 
+                            hasConflict
+                              ? "border-destructive/60 text-destructive shadow-[0_0_8px_hsl(var(--destructive)/0.3)]"
                               : "border-primary/50 shadow-[0_0_6px_hsl(var(--primary)/0.2)]"
                           )} />
                         </span>
@@ -345,7 +345,7 @@
                         <span class="text-xs text-primary animate-pulse">...</span>
                       {/if}
                     {:else if item.value}
-                      <Kbd hotkey={item.value} class="transition-all group-hover/row:border-primary/40 group-hover/row:bg-muted/70" />
+                      <Kbd hotkey={item.value} class="transition-all group-hover/row:border-primary/40" />
                     {:else}
                       <span class="text-xs text-muted-foreground/50 group-hover/row:text-muted-foreground">
                         Add shortcut
@@ -389,12 +389,16 @@
       >
         Cancel
       </Button>
-      <AlertDialog.Action
-        class="inline-flex h-8 items-center justify-center rounded-md bg-destructive px-3 text-sm font-medium text-destructive-foreground transition-colors hover:bg-destructive/90"
-        onclick={restoreDefaults}
+      <Button
+        variant="destructive"
+        size="sm"
+        onclick={() => {
+          restoreDefaults();
+          confirmDialogOpen = false;
+        }}
       >
         Restore Defaults
-      </AlertDialog.Action>
+      </Button>
     </AlertDialog.Footer>
   </AlertDialog.Content>
 </AlertDialog.Root>
@@ -404,23 +408,23 @@
   .key-pop {
     animation: key-pop 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
-  
+
   @keyframes key-pop {
-    0% { 
+    0% {
       transform: scale(0.85);
       opacity: 0.5;
     }
-    100% { 
+    100% {
       transform: scale(1);
       opacity: 1;
     }
   }
-  
+
   /* Conflict shake animation */
   .conflict-shake {
     animation: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97);
   }
-  
+
   @keyframes shake {
     0%, 100% { transform: translateX(0); }
     20% { transform: translateX(-3px); }
