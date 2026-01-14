@@ -1,14 +1,11 @@
 <script lang="ts">
-  import { Button, Input, Checkbox, Label } from "@vexed/ui";
+  import { Button, Input, Checkbox, Label, Card } from "@vexed/ui";
   import * as InputGroup from "@vexed/ui/InputGroup";
   import * as NumberField from "@vexed/ui/NumberField";
   import { cn } from "@vexed/ui/util";
- 
-  import UserRoundSearch from "lucide-svelte/icons/user-round-search";
-  import Swords from "lucide-svelte/icons/swords";
+
   import Play from "lucide-svelte/icons/play";
   import Pause from "lucide-svelte/icons/pause";
-  import Footprints from "lucide-svelte/icons/footprints";
 
   import { client, handlers } from "~/shared/tipc";
 
@@ -51,7 +48,7 @@
 
 <div class="bg-background flex h-screen flex-col">
   <header
-    class="bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-10 border-b border-border/50 px-6 py-3 backdrop-blur-xl elevation-1"
+    class="bg-background/95 supports-[backdrop-filter]:bg-background/80 border-border/50 elevation-1 sticky top-0 z-10 border-b px-6 py-3 backdrop-blur-xl"
   >
     <div class="mx-auto flex max-w-7xl items-center justify-between">
       <div class="flex items-center gap-3">
@@ -83,24 +80,30 @@
   <main class="flex-1 overflow-auto p-4 sm:p-6">
     <div class="mx-auto flex max-w-7xl flex-col gap-4">
       <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div class="rounded-xl border border-border/50 bg-card p-5">
-          <div class="mb-4 flex items-center gap-2">
-            <UserRoundSearch class="h-4 w-4 text-muted-foreground" />
-            <h2 class="text-sm font-medium text-foreground">Target</h2>
-          </div>
+        <Card.Root class="border-border/40 gap-0 overflow-hidden py-0">
+          <Card.Header
+            class="border-border/20 relative flex flex-row items-center space-y-0 border-b px-4 py-2"
+          >
+            <div
+              class="bg-primary/50 absolute bottom-3 left-0 top-3 w-0.5 rounded-full"
+            ></div>
+            <h2 class="text-foreground/80 text-sm font-medium">Target</h2>
+          </Card.Header>
 
-          <div class="space-y-4">
+          <Card.Content class="space-y-4 p-5">
             <div class="space-y-1.5">
-              <Label for="input-player" class="text-muted-foreground">Player Name</Label>
+              <Label for="input-player" class="text-muted-foreground"
+                >Player Name</Label
+              >
               <div class="flex gap-2">
                 <Input
                   type="text"
                   id="input-player"
                   bind:value={playerName}
-                  placeholder="Enter player name to follow"
+                  placeholder="Enter player name..."
                   class={cn(
                     "bg-secondary/50 border-border/50 focus:bg-background transition-colors",
-                    isEnabled && "pointer-events-none opacity-50"
+                    isEnabled && "pointer-events-none opacity-50",
                   )}
                   disabled={isEnabled}
                   autocomplete="off"
@@ -108,7 +111,7 @@
                 <Button
                   variant="outline"
                   size="default"
-                  class="shrink-0 border-border/50"
+                  class="border-border/50 shrink-0"
                   onclick={fillMe}
                   disabled={isEnabled}
                 >
@@ -122,23 +125,31 @@
                 bind:checked={copyWalk}
                 disabled={isEnabled}
               />
-              <Label for="copy-walk" class="text-sm text-muted-foreground cursor-pointer flex items-center gap-1.5">
-                <Footprints class="h-3.5 w-3.5" />
+              <Label
+                for="copy-walk"
+                class="text-muted-foreground flex cursor-pointer items-center gap-1.5 text-sm"
+              >
                 Copy Walk
               </Label>
             </div>
-          </div>
-        </div>
+          </Card.Content>
+        </Card.Root>
 
-        <div class="rounded-xl border border-border/50 bg-card p-5">
-          <div class="mb-4 flex items-center gap-2">
-            <Swords class="h-4 w-4 text-muted-foreground" />
-            <h2 class="text-sm font-medium text-foreground">Combat</h2>
-          </div>
-          <div class="space-y-4">
+        <Card.Root class="border-border/40 gap-0 overflow-hidden py-0">
+          <Card.Header
+            class="border-border/20 relative flex flex-row items-center space-y-0 border-b px-4 py-2"
+          >
+            <div
+              class="bg-primary/50 absolute bottom-3 left-0 top-3 w-0.5 rounded-full"
+            ></div>
+            <h2 class="text-foreground/80 text-sm font-medium">Combat</h2>
+          </Card.Header>
+          <Card.Content class="space-y-4 p-5">
             <div class="flex gap-4">
-              <div class="flex-1 space-y-1.5 flex flex-col">
-                <Label for="skill-list" class="text-muted-foreground">Skill List</Label>
+              <div class="flex flex-1 flex-col space-y-1.5">
+                <Label for="skill-list" class="text-muted-foreground"
+                  >Skill List</Label
+                >
                 <div class="flex items-center gap-3">
                   <Input
                     type="text"
@@ -146,31 +157,37 @@
                     bind:value={skillList}
                     placeholder="1,2,3,4"
                     class={cn(
-                      "bg-secondary/50 border-border/50 focus:bg-background transition-colors flex-1 w-auto min-w-0",
-                      isEnabled && "pointer-events-none opacity-50"
+                      "bg-secondary/50 border-border/50 focus:bg-background w-auto min-w-0 flex-1 transition-colors",
+                      isEnabled && "pointer-events-none opacity-50",
                     )}
                     disabled={isEnabled}
                     autocomplete="off"
                   />
                 </div>
               </div>
-              <div class="space-y-1.5 flex flex-col">
-                <Label for="skill-delay" class="text-muted-foreground">Skill Delay</Label>
+              <div class="flex flex-col space-y-1.5">
+                <Label for="skill-delay" class="text-muted-foreground"
+                  >Skill Delay</Label
+                >
                 <div class="flex items-center gap-3">
-                  <InputGroup.Root class="h-8 w-28 bg-secondary/50 border-border/50 focus-within:bg-background transition-colors">
+                  <InputGroup.Root
+                    class="bg-secondary/50 border-border/50 focus-within:bg-background h-8 w-28 transition-colors"
+                  >
                     <NumberField.Root bind:value={skillDelay} min={0}>
                       <NumberField.Input
                         id="skill-delay"
                         class={cn(
                           "h-8 border-0 bg-transparent",
-                          isEnabled && "pointer-events-none opacity-50"
+                          isEnabled && "pointer-events-none opacity-50",
                         )}
                         disabled={isEnabled}
                         autocomplete="off"
                       />
                     </NumberField.Root>
                     <InputGroup.Addon align="inline-end">
-                      <InputGroup.Text class="text-xs font-medium text-muted-foreground">
+                      <InputGroup.Text
+                        class="text-muted-foreground text-xs font-medium"
+                      >
                         ms
                       </InputGroup.Text>
                     </InputGroup.Addon>
@@ -181,7 +198,10 @@
                       bind:checked={skillWait}
                       disabled={isEnabled}
                     />
-                    <Label for="skill-wait" class="text-sm text-muted-foreground cursor-pointer">
+                    <Label
+                      for="skill-wait"
+                      class="text-muted-foreground cursor-pointer text-sm"
+                    >
                       Wait
                     </Label>
                   </div>
@@ -189,7 +209,9 @@
               </div>
             </div>
             <div class="space-y-1.5">
-              <Label for="attack-priority" class="text-muted-foreground">Attack Priority</Label>
+              <Label for="attack-priority" class="text-muted-foreground"
+                >Attack Priority</Label
+              >
               <Input
                 type="text"
                 id="attack-priority"
@@ -197,7 +219,7 @@
                 placeholder="Defense Drone, Attack Drone"
                 class={cn(
                   "bg-secondary/50 border-border/50 focus:bg-background transition-colors",
-                  isEnabled && "pointer-events-none opacity-50"
+                  isEnabled && "pointer-events-none opacity-50",
                 )}
                 disabled={isEnabled}
                 autocomplete="off"
@@ -209,34 +231,47 @@
                 bind:checked={safeSkillEnabled}
                 disabled={isEnabled}
               />
-              <Label for="cb-safe-skill" class="text-sm text-muted-foreground cursor-pointer">
-                Use skill 
+              <Label
+                for="cb-safe-skill"
+                class="text-muted-foreground cursor-pointer text-sm"
+              >
+                Use skill
               </Label>
-              <NumberField.Root bind:value={safeSkill} min={1} max={4} class="w-14">
+              <NumberField.Root
+                bind:value={safeSkill}
+                min={1}
+                max={4}
+                class="w-14"
+              >
                 <NumberField.Input
                   class={cn(
-                    "h-8 bg-secondary/50 border-border/50 text-center focus:bg-background transition-colors",
-                    isEnabled && "pointer-events-none opacity-50"
+                    "bg-secondary/50 border-border/50 focus:bg-background h-8 text-center transition-colors",
+                    isEnabled && "pointer-events-none opacity-50",
                   )}
                   disabled={isEnabled}
                   autocomplete="off"
                 />
               </NumberField.Root>
-              <span class="text-sm text-muted-foreground">when HP &lt;</span>
-              <NumberField.Root bind:value={safeSkillHp} min={1} max={100} class="w-14">
+              <span class="text-muted-foreground text-sm">when HP &lt;</span>
+              <NumberField.Root
+                bind:value={safeSkillHp}
+                min={1}
+                max={100}
+                class="w-14"
+              >
                 <NumberField.Input
                   class={cn(
-                    "h-8 bg-secondary/50 border-border/50 text-center focus:bg-background transition-colors",
-                    isEnabled && "pointer-events-none opacity-50"
+                    "bg-secondary/50 border-border/50 focus:bg-background h-8 text-center transition-colors",
+                    isEnabled && "pointer-events-none opacity-50",
                   )}
                   disabled={isEnabled}
                   autocomplete="off"
                 />
               </NumberField.Root>
-              <span class="text-sm text-muted-foreground">%</span>
+              <span class="text-muted-foreground text-sm">%</span>
             </div>
-          </div>
-        </div>
+          </Card.Content>
+        </Card.Root>
       </div>
     </div>
   </main>
