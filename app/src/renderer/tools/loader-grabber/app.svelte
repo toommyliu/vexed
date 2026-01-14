@@ -80,17 +80,36 @@
   let expandedNodes = new SvelteSet<string>();
   let isLoading = $state<boolean>(false);
   let searchQuery = $state("");
+  let debouncedSearchQuery = $state("");
+
+  $effect(() => {
+    const query = searchQuery;
+    if (!query) {
+      debouncedSearchQuery = "";
+      return;
+    }
+
+    // for very short queries, we debounce it so it doesn't get too fast
+    // esp. if the source data is large
+    const delay = query.length <= 3 ? 300 : 150;
+    const timeout = setTimeout(() => {
+      debouncedSearchQuery = query;
+    }, delay);
+
+    return () => clearTimeout(timeout);
+  });
+
   let flattenedItems = $derived(flattenTreeData(treeData, expandedNodes));
   let filteredTreeData = $derived(
-    searchQuery
+    debouncedSearchQuery
       ? treeData.filter((item) => {
-          const query = searchQuery.toLowerCase();
+          const query = debouncedSearchQuery.toLowerCase();
           return item.name.toLowerCase().includes(query);
         })
       : treeData,
   );
   let filteredItems = $derived(
-    searchQuery
+    debouncedSearchQuery
       ? flattenTreeData(filteredTreeData, expandedNodes)
       : flattenedItems,
   );
@@ -621,7 +640,7 @@
               <span class="text-foreground font-medium tabular-nums"
                 >{filteredTreeData.length}</span
               >
-              {#if searchQuery && filteredTreeData.length !== treeData.length}
+              {#if debouncedSearchQuery && filteredTreeData.length !== treeData.length}
                 <span class="text-muted-foreground/70">
                   of {treeData.length}</span
                 >
