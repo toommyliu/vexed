@@ -42,7 +42,7 @@
   import Kbd from "@vexed/ui/Kbd";
   import * as Menu from "@vexed/ui/Menu";
   import Play from "@vexed/ui/icons/Play";
-  import Square from "lucide-svelte/icons/square";
+  import Square from "@vexed/ui/icons/Square";
 
   const logger = log.scope("game/app");
 

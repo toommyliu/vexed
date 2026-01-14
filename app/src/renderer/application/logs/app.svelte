@@ -4,10 +4,10 @@
   import { onMount, tick } from "svelte";
   import log from "electron-log";
 
-  import Copy from "@vexed/ui/icons/copy";
-  import Download from "@vexed/ui/icons/download";
-  import Trash2 from "@vexed/ui/icons/trash-2";
-  import ArrowDownToLine from "@vexed/ui/icons/arrow-down-to-line";
+  import Copy from "@vexed/ui/icons/Copy";
+  import Download from "@vexed/ui/icons/Download";
+  import Trash2 from "@vexed/ui/icons/Trash2";
+  import ArrowDownToLine from "@vexed/ui/icons/ArrowDownToLine";
 
   import { client, handlers } from "~/shared/tipc";
   import type { AppLogEntry } from "~/shared/types";

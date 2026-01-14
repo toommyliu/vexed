@@ -57,6 +57,7 @@
   import ArrowDownToLine from "$lib/components/icons/ArrowDownToLine.svelte";
   import Upload from "$lib/components/icons/Upload.svelte";
   import ChevronRight from "$lib/components/icons/ChevronRight.svelte";
+  import Square from "$lib/components/icons/Square.svelte";
 
   let switchChecked = $state(false);
   let switchUnchecked = $state(false);
@@ -306,6 +307,12 @@
         >
           <ChevronRight class="h-5 w-5" />
           <span class="text-xs text-muted-foreground">ChevronRight</span>
+        </div>
+        <div
+          class="flex flex-col items-center gap-2 p-3 rounded-lg border bg-card"
+        >
+          <Square class="h-5 w-5" />
+          <span class="text-xs text-muted-foreground">Square</span>
         </div>
       </div>
     </section>

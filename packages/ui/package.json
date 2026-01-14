@@ -332,6 +332,11 @@
       "types": "./dist/components/icons/ChevronRight.svelte.d.ts",
       "svelte": "./dist/components/icons/ChevronRight.svelte",
       "default": "./dist/components/icons/ChevronRight.svelte"
+    },
+    "./icons/Square": {
+      "types": "./dist/components/icons/Square.svelte.d.ts",
+      "svelte": "./dist/components/icons/Square.svelte",
+      "default": "./dist/components/icons/Square.svelte"
     }
   },
   "peerDependencies": {
