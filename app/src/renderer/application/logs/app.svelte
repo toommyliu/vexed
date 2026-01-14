@@ -4,10 +4,10 @@
   import { onMount, tick } from "svelte";
   import log from "electron-log";
 
-  import Copy from "lucide-svelte/icons/copy";
-  import Download from "lucide-svelte/icons/download";
-  import Trash2 from "lucide-svelte/icons/trash-2";
-  import ArrowDownToLine from "lucide-svelte/icons/arrow-down-to-line";
+  import Copy from "@vexed/ui/icons/copy";
+  import Download from "@vexed/ui/icons/download";
+  import Trash2 from "@vexed/ui/icons/trash-2";
+  import ArrowDownToLine from "@vexed/ui/icons/arrow-down-to-line";
 
   import { client, handlers } from "~/shared/tipc";
   import type { AppLogEntry } from "~/shared/types";
@@ -158,13 +158,13 @@
   }
 </script>
 
-<div class="flex h-screen flex-col bg-background">
+<div class="bg-background flex h-screen flex-col">
   <header
-    class="elevation-1 sticky top-0 z-10 border-b border-border/50 bg-background/95 px-6 py-3 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80"
+    class="elevation-1 border-border/50 bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-10 border-b px-6 py-3 backdrop-blur-xl"
   >
     <div class="mx-auto flex max-w-7xl items-center justify-between">
       <div class="flex items-center gap-3">
-        <h1 class="text-base font-semibold tracking-tight text-foreground">
+        <h1 class="text-foreground text-base font-semibold tracking-tight">
           App Logs
         </h1>
       </div>
@@ -173,7 +173,7 @@
         <Button
           variant="outline"
           size="sm"
-          class="gap-2 border-border/50"
+          class="border-border/50 gap-2"
           onclick={() => void saveLogs()}
           disabled={entries.length === 0 || isSaving}
         >
@@ -183,7 +183,7 @@
         <Button
           variant="outline"
           size="sm"
-          class="gap-2 border-border/50"
+          class="border-border/50 gap-2"
           onclick={() => void copyAll()}
           disabled={entries.length === 0 || isCopyingAll}
         >
@@ -207,8 +207,8 @@
   <main class="flex-1 overflow-hidden p-4 sm:p-6">
     <div class="mx-auto flex h-full max-w-7xl flex-col gap-4">
       <div class="flex items-center justify-between">
-        <span class="text-sm text-muted-foreground">
-          <span class="font-medium tabular-nums text-foreground"
+        <span class="text-muted-foreground text-sm">
+          <span class="text-foreground font-medium tabular-nums"
             >{entries.length}</span
           >
           <span class="text-muted-foreground/70"
@@ -220,7 +220,7 @@
           <Checkbox id="auto-scroll" bind:checked={autoScroll} />
           <Label
             for="auto-scroll"
-            class="flex cursor-pointer items-center gap-1.5 text-sm text-muted-foreground"
+            class="text-muted-foreground flex cursor-pointer items-center gap-1.5 text-sm"
           >
             <ArrowDownToLine class="h-3.5 w-3.5" />
             Auto-scroll
@@ -229,11 +229,11 @@
       </div>
 
       <div
-        class="relative flex-1 overflow-hidden rounded-xl border border-border/50 bg-card"
+        class="border-border/50 bg-card relative flex-1 overflow-hidden rounded-xl border"
       >
         {#if entries.length === 0}
           <div class="flex h-full items-center justify-center">
-            <p class="text-center text-muted-foreground">No logs yet.</p>
+            <p class="text-muted-foreground text-center">No logs yet.</p>
           </div>
         {:else}
           <div
@@ -242,7 +242,7 @@
           >
             {#each entries as entry, index (`${entry.timestamp}-${index}`)}
               <div
-                class="group flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 transition-colors hover:bg-secondary/50"
+                class="hover:bg-secondary/50 group flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 transition-colors"
                 onclick={() => void copyEntry(entry)}
                 onkeydown={(ev) => {
                   if (ev.key === "Enter") {
@@ -255,7 +255,7 @@
                 title="Click to copy"
               >
                 <span
-                  class="shrink-0 text-xs tabular-nums text-muted-foreground/70"
+                  class="text-muted-foreground/70 shrink-0 text-xs tabular-nums"
                 >
                   {formatTimestamp(entry.timestamp)}
                 </span>
@@ -267,16 +267,16 @@
                 >
                   {getLevelLabel(entry.level)}
                 </span>
-                <span class="shrink-0 text-xs text-muted-foreground/50">
+                <span class="text-muted-foreground/50 shrink-0 text-xs">
                   {formatSource(entry.sourceId, entry.lineNumber)}
                 </span>
                 <span
-                  class="flex-1 whitespace-pre-wrap break-words text-foreground"
+                  class="text-foreground flex-1 whitespace-pre-wrap break-words"
                 >
                   {stripLeadingTimestamp(entry)}
                 </span>
                 <Copy
-                  class="h-3.5 w-3.5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                  class="text-muted-foreground h-3.5 w-3.5 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
                 />
               </div>
             {/each}

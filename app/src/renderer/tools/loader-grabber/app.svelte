@@ -6,13 +6,13 @@
   import * as Tabs from "@vexed/ui/Tabs";
   import { VirtualList } from "@vexed/ui";
 
-  import Download from "lucide-svelte/icons/download";
-  import Loader from "lucide-svelte/icons/loader";
-  import Upload from "lucide-svelte/icons/upload";
-  import Check from "lucide-svelte/icons/check";
-  import ChevronRight from "lucide-svelte/icons/chevron-right";
-  import Search from "lucide-svelte/icons/search";
-  import Copy from "lucide-svelte/icons/copy";
+  import Download from "@vexed/ui/icons/Download";
+  import Loader from "@vexed/ui/icons/Loader";
+  import Upload from "@vexed/ui/icons/Upload";
+  import Check from "@vexed/ui/icons/Check";
+  import ChevronRight from "@vexed/ui/icons/ChevronRight";
+  import Search from "@vexed/ui/icons/Search";
+  import Copy from "@vexed/ui/icons/Copy";
 
   import { SvelteSet } from "svelte/reactivity";
   import log from "electron-log";

@@ -1,14 +1,16 @@
 <script lang="ts">
-  import type { Account } from "~/shared/types";
   import { Button, Input, Label } from "@vexed/ui";
   import * as InputGroup from "@vexed/ui/InputGroup";
   import * as Dialog from "@vexed/ui/Dialog";
   import { motionFade } from "@vexed/ui/motion";
-  import Eye from "lucide-svelte/icons/eye";
-  import EyeOff from "lucide-svelte/icons/eye-off";
-  import LoaderCircle from "lucide-svelte/icons/loader-circle";
-  import AlertCircle from "lucide-svelte/icons/alert-circle";
+  import Eye from "@vexed/ui/icons/Eye";
+  import EyeOff from "@vexed/ui/icons/EyeOff";
+  import Loader from "@vexed/ui/icons/Loader";
+  import AlertCircle from "@vexed/ui/icons/AlertCircle";
+
+  import type { Account } from "~/shared/types";
   import { client } from "~/shared/tipc";
+
   import { managerState } from "../state.svelte";
 
   type Props = {
@@ -103,10 +105,14 @@
 
 <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
   <Dialog.Content showCloseButton={true} class="sm:max-w-md">
-    <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent"></div>
+    <div
+      class="via-primary/40 absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent to-transparent"
+    ></div>
 
     <Dialog.Header class="pb-2">
-      <Dialog.Title class="text-lg font-semibold tracking-tight">Add Account</Dialog.Title>
+      <Dialog.Title class="text-lg font-semibold tracking-tight"
+        >Add Account</Dialog.Title
+      >
     </Dialog.Header>
 
     <form id="add-account-form" onsubmit={handleSubmit} class="grid gap-5 px-6">
@@ -114,10 +120,10 @@
         {#key error}
           <div
             transition:motionFade={{ duration: 150 }}
-            class="flex items-start gap-2.5 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2.5"
+            class="border-destructive/30 bg-destructive/5 flex items-start gap-2.5 rounded-lg border px-3 py-2.5"
           >
-            <AlertCircle class="size-4 text-destructive shrink-0 mt-0.5" />
-            <span class="text-sm text-destructive">{error}</span>
+            <AlertCircle class="text-destructive mt-0.5 size-4 shrink-0" />
+            <span class="text-destructive text-sm">{error}</span>
           </div>
         {/key}
       {/if}
@@ -180,7 +186,7 @@
         disabled={isSubmitting || !username.trim() || !password.trim()}
       >
         {#if isSubmitting}
-          <LoaderCircle class="size-4 animate-spin" />
+          <Loader class="size-4 animate-spin" />
           <span>Saving...</span>
         {:else}
           <span>Save Account</span>

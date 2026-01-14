@@ -297,6 +297,31 @@
       "types": "./dist/components/icons/Wrench.svelte.d.ts",
       "svelte": "./dist/components/icons/Wrench.svelte",
       "default": "./dist/components/icons/Wrench.svelte"
+    },
+    "./icons/AlertCircle": {
+      "types": "./dist/components/icons/AlertCircle.svelte.d.ts",
+      "svelte": "./dist/components/icons/AlertCircle.svelte",
+      "default": "./dist/components/icons/AlertCircle.svelte"
+    },
+    "./icons/Eye": {
+      "types": "./dist/components/icons/Eye.svelte.d.ts",
+      "svelte": "./dist/components/icons/Eye.svelte",
+      "default": "./dist/components/icons/Eye.svelte"
+    },
+    "./icons/EyeOff": {
+      "types": "./dist/components/icons/EyeOff.svelte.d.ts",
+      "svelte": "./dist/components/icons/EyeOff.svelte",
+      "default": "./dist/components/icons/EyeOff.svelte"
+    },
+    "./icons/Command": {
+      "types": "./dist/components/icons/Command.svelte.d.ts",
+      "svelte": "./dist/components/icons/Command.svelte",
+      "default": "./dist/components/icons/Command.svelte"
+    },
+    "./icons/ArrowDownToLine": {
+      "types": "./dist/components/icons/ArrowDownToLine.svelte.d.ts",
+      "svelte": "./dist/components/icons/ArrowDownToLine.svelte",
+      "default": "./dist/components/icons/ArrowDownToLine.svelte"
     }
   },
   "peerDependencies": {

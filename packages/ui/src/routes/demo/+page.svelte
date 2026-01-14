@@ -50,6 +50,11 @@
   import RotateCcw from "$lib/components/icons/RotateCcw.svelte";
   import Settings from "$lib/components/icons/Settings.svelte";
   import Wrench from "$lib/components/icons/Wrench.svelte";
+  import AlertCircle from "$lib/components/icons/AlertCircle.svelte";
+  import Eye from "$lib/components/icons/Eye.svelte";
+  import EyeOff from "$lib/components/icons/EyeOff.svelte";
+  import Command from "$lib/components/icons/Command.svelte";
+  import ArrowDownToLine from "$lib/components/icons/ArrowDownToLine.svelte";
 
   let switchChecked = $state(false);
   let switchUnchecked = $state(false);
@@ -257,6 +262,36 @@
         >
           <Wrench class="h-5 w-5" />
           <span class="text-xs text-muted-foreground">Wrench</span>
+        </div>
+        <div
+          class="flex flex-col items-center gap-2 p-3 rounded-lg border bg-card"
+        >
+          <AlertCircle class="h-5 w-5" />
+          <span class="text-xs text-muted-foreground">AlertCircle</span>
+        </div>
+        <div
+          class="flex flex-col items-center gap-2 p-3 rounded-lg border bg-card"
+        >
+          <Eye class="h-5 w-5" />
+          <span class="text-xs text-muted-foreground">Eye</span>
+        </div>
+        <div
+          class="flex flex-col items-center gap-2 p-3 rounded-lg border bg-card"
+        >
+          <EyeOff class="h-5 w-5" />
+          <span class="text-xs text-muted-foreground">EyeOff</span>
+        </div>
+        <div
+          class="flex flex-col items-center gap-2 p-3 rounded-lg border bg-card"
+        >
+          <Command class="h-5 w-5" />
+          <span class="text-xs text-muted-foreground">Command</span>
+        </div>
+        <div
+          class="flex flex-col items-center gap-2 p-3 rounded-lg border bg-card"
+        >
+          <ArrowDownToLine class="h-5 w-5" />
+          <span class="text-xs text-muted-foreground">ArrowDownToLine</span>
         </div>
       </div>
     </section>
