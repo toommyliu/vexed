@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+# [0.7.1](https://github.com/toommyliu/vexed/compare/0.7.0...0.7.1) - (2026-01-14)
+
+## Bug Fixes
+
+- **game:** Fix anti-counter setting state sync (#333) ([455ac99](https://github.com/toommyliu/vexed/commit/455ac99e8aa07c14f4fd50a7ad05b618ab2524e7))
+
+- **hotkeys:** Stop recording when changing active hotkey section (#330) ([9b92fca](https://github.com/toommyliu/vexed/commit/9b92fca620dbfd64bb760bb007a90c86c7805f1e))
+
+- Ui tweaks (#332) ([e4a2fdb](https://github.com/toommyliu/vexed/commit/e4a2fdbd5588bdd6ab205c043e634bf0e236a302))
+
+
+## Features
+
+- **commands:** Enable/disable death ads (#331) ([ad6ad35](https://github.com/toommyliu/vexed/commit/ad6ad35a63235d30408b2bca3b0989d1414d72c8))
+
+  - The ergonomics of the command will be improved in the future
+
+
+## Documentation
+
+- Clean up sections, add links to ultra-scripts ([ff65daa](https://github.com/toommyliu/vexed/commit/ff65daadfc7e0d6c977e4c4d4a4c92ac21ba8dd5))
+
+
 # [0.7.0](https://github.com/toommyliu/vexed/compare/0.6.2...0.7.0) - (2026-01-08)
 
 ## Bug Fixes
