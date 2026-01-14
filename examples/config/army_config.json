@@ -1,0 +1,424 @@
+{
+  "PlayerCount": 4,
+  "RoomNumber": "12345",
+  "Player1": "a",
+  "Player2": "b",
+  "Player3": "c",
+  "Player4": "d",
+  "SafePot": "Elders' Blood",
+  "SafeClass": "Void HighLord",
+  "Dauntless": "",
+  "Valiance": "",
+  "Arcana": "",
+  "AweBlast": "",
+  "AweBlastWiz": "",
+  "Ravenous": "",
+  "Elysium": "",
+  "Lacerate": "",
+  "Vim": "",
+  "Praxis": "",
+  "Pneuma": "",
+  "WizHelm": "",
+  "LuckHelm": "",
+  "ForgeHelm": "",
+  "AnimaHelm": "",
+  "PneumaHelm": "",
+  "Absolution": "",
+  "Avarice": "",
+  "Penitence": "",
+  "Vainglory": "",
+  "Lament": "",
+  "LegionRevenant": "Legion Revenant",
+  "ChaosAvenger": "Chaos Avenger",
+  "LordOfOrder": "Lord Of Order",
+  "ArchPaladin": "ArchPaladin",
+  "AlphaOmega": "Alpha DOOMmega",
+  "StoneCrusher": "StoneCrusher",
+  "QuantumChronomancer": "Quantum Chronomancer",
+  "VerusDoomKnight": "Verus DoomKnight",
+  "LightCaster": "LightCaster",
+  "VoidHighlord": "Void Highlord",
+  "LegionDoomknight": "Legion Doomknight",
+  "UltraEzrajal": {
+    "Player1": {
+      "SafeClass": "SafeClass",
+      "SafePot": "SafePot",
+      "Weapon": "Valiance",
+      "Cape": "Penitence",
+      "Helm": "WizHelm",
+      "Class": "LegionRevenant",
+      "Scroll": "Scroll Of Enrage"
+    },
+    "Player2": {
+      "SafeClass": "SafeClass",
+      "SafePot": "SafePot",
+      "Weapon": "Valiance",
+      "Cape": "Penitence",
+      "Helm": "LuckHelm",
+      "Class": "ChaosAvenger",
+      "Scroll": "Scroll Of Enrage"
+    },
+    "Player3": {
+      "SafeClass": "SafeClass",
+      "SafePot": "SafePot",
+      "Weapon": "Valiance",
+      "Cape": "Penitence",
+      "Helm": "LuckHelm",
+      "Class": "LordOfOrder",
+      "Scroll": "Scroll Of Enrage"
+    },
+    "Player4": {
+      "SafeClass": "SafeClass",
+      "SafePot": "SafePot",
+      "Weapon": "Valiance",
+      "Cape": "Penitence",
+      "Helm": "LuckHelm",
+      "Class": "ArchPaladin",
+      "Scroll": "Scroll Of Enrage"
+    }
+  },
+  "UltraWarden": {
+    "Player1": {
+      "SafeClass": "SafeClass",
+      "SafePot": "SafePot",
+      "Weapon": "Valiance",
+      "Cape": "Penitence",
+      "Helm": "WizHelm",
+      "Class": "LegionRevenant",
+      "Scroll": "Scroll Of Enrage"
+    },
+    "Player2": {
+      "SafeClass": "SafeClass",
+      "SafePot": "SafePot",
+      "Weapon": "Valiance",
+      "Cape": "Penitence",
+      "Helm": "LuckHelm",
+      "Class": "ChaosAvenger",
+      "Scroll": "Scroll Of Enrage"
+    },
+    "Player3": {
+      "SafeClass": "SafeClass",
+      "SafePot": "SafePot",
+      "Weapon": "Valiance",
+      "Cape": "Penitence",
+      "Helm": "LuckHelm",
+      "Class": "LordOfOrder",
+      "Scroll": "Scroll Of Enrage"
+    },
+    "Player4": {
+      "SafeClass": "SafeClass",
+      "SafePot": "SafePot",
+      "Weapon": "Valiance",
+      "Cape": "Penitence",
+      "Helm": "LuckHelm",
+      "Class": "ArchPaladin",
+      "Scroll": "Scroll Of Enrage"
+    }
+  },
+  "UltraEngineer": {
+    "Player1": {
+      "SafeClass": "SafeClass",
+      "SafePot": "SafePot",
+      "Weapon": "Valiance",
+      "Cape": "Penitence",
+      "Helm": "WizHelm",
+      "Class": "LegionRevenant",
+      "Scroll": "Scroll Of Enrage"
+    },
+    "Player2": {
+      "SafeClass": "SafeClass",
+      "SafePot": "SafePot",
+      "Weapon": "Valiance",
+      "Cape": "Penitence",
+      "Helm": "LuckHelm",
+      "Class": "ChaosAvenger",
+      "Scroll": "Scroll Of Enrage"
+    },
+    "Player3": {
+      "SafeClass": "SafeClass",
+      "SafePot": "SafePot",
+      "Weapon": "Valiance",
+      "Cape": "Penitence",
+      "Helm": "LuckHelm",
+      "Class": "LordOfOrder",
+      "Scroll": "Scroll Of Enrage"
+    },
+    "Player4": {
+      "SafeClass": "SafeClass",
+      "SafePot": "SafePot",
+      "Weapon": "Valiance",
+      "Cape": "Penitence",
+      "Helm": "LuckHelm",
+      "Class": "ArchPaladin",
+      "Scroll": "Scroll Of Enrage"
+    }
+  },
+  "UltraTyndarius": {
+    "Player1": {
+      "SafeClass": "SafeClass",
+      "SafePot": "SafePot",
+      "Weapon": "Valiance",
+      "Cape": "Penitence",
+      "Helm": "WizHelm",
+      "Class": "LegionRevenant",
+      "Scroll": "Scroll Of Enrage"
+    },
+    "Player2": {
+      "SafeClass": "SafeClass",
+      "SafePot": "SafePot",
+      "Weapon": "Valiance",
+      "Cape": "Penitence",
+      "Helm": "LuckHelm",
+      "Class": "ChaosAvenger",
+      "Scroll": "Scroll Of Enrage"
+    },
+    "Player3": {
+      "SafeClass": "SafeClass",
+      "SafePot": "SafePot",
+      "Weapon": "Valiance",
+      "Cape": "Penitence",
+      "Helm": "LuckHelm",
+      "Class": "LordOfOrder",
+      "Scroll": "Scroll Of Enrage"
+    },
+    "Player4": {
+      "SafeClass": "SafeClass",
+      "SafePot": "SafePot",
+      "Weapon": "Valiance",
+      "Cape": "Penitence",
+      "Helm": "LuckHelm",
+      "Class": "ArchPaladin",
+      "Scroll": "Scroll Of Enrage"
+    }
+  },
+  "ChampionDrakath": {
+    "Player1": {
+      "Weapon": "Valiance",
+      "Cape": "Vainglory",
+      "Helm": "WizHelm",
+      "Class": "LegionRevenant",
+      "SafePot": "Elders' Blood",
+      "SafeClass": "Void HighLord",
+      "Scroll": "Scroll Of Enrage"
+    },
+    "Player2": {
+      "Weapon": "Arcana",
+      "Cape": "Absolution",
+      "Helm": "WizHelm",
+      "Class": "StoneCrusher",
+      "SafePot": "Elders' Blood",
+      "SafeClass": "Void HighLord",
+      "Scroll": "Scroll Of Life Steal"
+    },
+    "Player3": {
+      "Weapon": "AweBlast",
+      "Cape": "Absolution",
+      "Helm": "LuckHelm",
+      "Class": "LordOfOrder",
+      "SafePot": "Elders' Blood",
+      "SafeClass": "Void HighLord",
+      "Scroll": "Scroll Of Life Steal"
+    },
+    "Player4": {
+      "Weapon": "Arcana",
+      "Cape": "Penitence",
+      "Helm": "LuckHelm",
+      "Class": "ArchPaladin",
+      "SafePot": "Elders' Blood",
+      "SafeClass": "Void HighLord",
+      "Scroll": "Scroll Of Life Steal"
+    }
+  },
+  "UltraDage": {
+    "Player1": {
+      "Weapon": "Dauntless",
+      "Cape": "Penitence",
+      "Helm": "AnimaHelm",
+      "Class": "LegionDoomknight",
+      "SafeClass": "Void HighLord",
+      "SafePot": "Elders' Blood",
+      "Scroll": "Scroll Of Enrage"
+    },
+    "Player2": {
+      "Weapon": "Dauntless",
+      "Cape": "Lament",
+      "Helm": "ForgeHelm",
+      "Class": "QuantumChronomancer",
+      "SafeClass": "Void HighLord",
+      "SafePot": "Elders' Blood",
+      "Scroll": "Scroll Of Life Steal"
+    },
+    "Player3": {
+      "Weapon": "Dauntless",
+      "Cape": "Lament",
+      "Helm": "ForgeHelm",
+      "Class": "ChaosAvenger",
+      "SafeClass": "Void HighLord",
+      "SafePot": "Elders' Blood",
+      "Scroll": "Scroll Of Enrage"
+    },
+    "Player4": {
+      "Weapon": "Dauntless",
+      "Cape": "Lament",
+      "Helm": "ForgeHelm",
+      "Class": "VerusDoomKnight",
+      "SafeClass": "Void HighLord",
+      "SafePot": "Elders' Blood",
+      "Scroll": "Scroll Of Life Steal"
+    }
+  },
+  "UltraNulgath": {
+    "Player1": {
+      "Weapon": "Arcana",
+      "Cape": "Vainglory",
+      "Helm": "ForgeHelm",
+      "Class": "LegionRevenant",
+      "SafeClass": "Void HighLord",
+      "SafePot": "Elders' Blood",
+      "Scroll": "Scroll Of Enrage"
+    },
+    "Player2": {
+      "Weapon": "Dauntless",
+      "Cape": "Lament",
+      "Helm": "ForgeHelm",
+      "Class": "ChaosAvenger",
+      "SafeClass": "Void HighLord",
+      "SafePot": "Elders' Blood",
+      "Scroll": "Scroll Of Enrage"
+    },
+    "Player3": {
+      "Weapon": "AweBlast",
+      "Cape": "Penitence",
+      "Helm": "LuckHelm",
+      "Class": "LordOfOrder",
+      "SafeClass": "Void HighLord",
+      "SafePot": "Elders' Blood",
+      "Scroll": "Scroll Of Enrage"
+    },
+    "Player4": {
+      "Weapon": "Valiance",
+      "Cape": "Penitence",
+      "Helm": "LuckHelm",
+      "Class": "ArchPaladin",
+      "SafeClass": "Void HighLord",
+      "SafePot": "Elders' Blood",
+      "Scroll": "Scroll Of Enrage"
+    }
+  },
+  "UltraDarkon": {
+    "Player1": {
+      "Weapon": "Valiance",
+      "Cape": "Penitence",
+      "Helm": "PneumaHelm",
+      "Class": "LegionRevenant",
+      "SafeClass": "Void HighLord",
+      "SafePot": "Elders' Blood",
+      "Pots": ["Fate Tonic", "Battle Elixir", "Felictous Philtre"],
+      "Scroll": "Scroll of Enrage"
+    },
+    "Player2": {
+      "Weapon": "Praxis",
+      "Cape": "Avarice",
+      "Helm": "Vim",
+      "Class": "AlphaOmega",
+      "SafeClass": "Void HighLord",
+      "SafePot": "Elders' Blood",
+      "Pots": ["Fate Tonic", "Battle Elixir", "Felictous Philtre"],
+      "Scroll": "Scroll Of Enrage"
+    },
+    "Player3": {
+      "Weapon": "AweBlast",
+      "Cape": "Absolution",
+      "Helm": "ForgeHelm",
+      "Class": "LordOfOrder",
+      "SafeClass": "Void HighLord",
+      "SafePot": "Elders' Blood",
+      "Pots": ["Fate Tonic", "Divine Elixir", "Potent Honor Potion"]
+    },
+    "Player4": {
+      "Weapon": "Valiance",
+      "Cape": "Lament",
+      "Helm": "AnimaHelm",
+      "Class": "StoneCrusher",
+      "SafeClass": "Void HighLord",
+      "SafePot": "Elders' Blood",
+      "Pots": ["Might Tonic", "Divine Elixir", "Potent Honor Potion"]
+    }
+  },
+  "UltraDrago": {
+    "Player1": {
+      "Weapon": "Arcana",
+      "Cape": "Vainglory",
+      "Helm": "ForgeHelm",
+      "Class": "LegionRevenant",
+      "SafeClass": "Void HighLord",
+      "SafePot": "Elders' Blood",
+      "Scroll": "Scroll Of Enrage"
+    },
+    "Player2": {
+      "Weapon": "Dauntless",
+      "Cape": "Lament",
+      "Helm": "ForgeHelm",
+      "Class": "ChaosAvenger",
+      "SafeClass": "Void HighLord",
+      "SafePot": "Elders' Blood",
+      "Scroll": "Scroll Of Enrage"
+    },
+    "Player3": {
+      "Weapon": "AweBlast",
+      "Cape": "Penitence",
+      "Helm": "LuckHelm",
+      "Class": "LordOfOrder",
+      "SafeClass": "Void HighLord",
+      "SafePot": "Elders' Blood",
+      "Scroll": "Scroll Of Enrage"
+    },
+    "Player4": {
+      "Weapon": "Valiance",
+      "Cape": "Penitence",
+      "Helm": "LuckHelm",
+      "Class": "ArchPaladin",
+      "SafeClass": "Void HighLord",
+      "SafePot": "Elders' Blood",
+      "Scroll": "Scroll Of Enrage"
+    }
+  },
+  "UltraSpeaker": {
+    "Player1": {
+      "Weapon": "Arcana",
+      "Cape": "Penitence",
+      "Helm": "WizHelm",
+      "Class": "LegionRevenant",
+      "SafeClass": "Void HighLord",
+      "SafePot": "Elders' Blood",
+      "Scroll": "Scroll Of Enrage"
+    },
+    "Player2": {
+      "Weapon": "Valiance",
+      "Cape": "Penitence",
+      "Helm": "LuckHelm",
+      "Class": "VerusDoomKnight",
+      "SafeClass": "Void HighLord",
+      "SafePot": "Elders' Blood",
+      "Scroll": "Scroll Of Enrage"
+    },
+    "Player3": {
+      "Weapon": "AweBlast",
+      "Cape": "Penitence",
+      "Helm": "LuckHelm",
+      "Class": "LordOfOrder",
+      "SafeClass": "Void HighLord",
+      "SafePot": "Elders' Blood",
+      "Scroll": "Scroll Of Enrage"
+    },
+    "Player4": {
+      "Weapon": "Lacerate",
+      "Cape": "Penitence",
+      "Helm": "LuckHelm",
+      "Class": "ArchPaladin",
+      "SafeClass": "Void HighLord",
+      "SafePot": "Elders' Blood",
+      "Scroll": "Scroll Of Enrage"
+    }
+  }
+}
