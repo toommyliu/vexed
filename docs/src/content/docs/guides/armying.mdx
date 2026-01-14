@@ -27,6 +27,7 @@ export const sampleConfigSets = String.raw`
          "SafeClass": "Void Highlord",
          "SafePot": "Elders' Blood",
          "Class": "LegionRevenant",
+         "Armor": "LegionRevenant",
          "Weapon": "Valiance",
          "Cape": "Vainglory",
          "Helm": "WizHelm",
@@ -78,37 +79,50 @@ The assumption is made that Player1 acts as the leader.
 
 1. PlayerCount
 
-   This way, scripts know how many players to expect.
+   The size of the army-so scripts know how many players to expect.
 
 2. RoomNumber
 
-   This way, scripts know which room to join.
+   The room number to join.
 
 </Steps>
 
 ### Sets
 
-We will define sets using the boss name.
+We will define sets using the boss name. You may do it however you want.
 
 <Code code={sampleConfigSets} lang="json" title="config.json" />
 
-The set name is defined as `UltraNulgath`, and the individual items are associated with their player number. Sets can also include `Pet`.
+The set name is defined as `UltraNulgath`, and the individual items are associated with their player number.
 
 #### Available Set Fields
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `SafeClass` | `string` | Safe class to equip first (prevents class skill conflicts) |
-| `SafePot` | `string` | Consumable to equip before/after class swap (protects potion slot) |
-| `Class` | `string` | Combat class to use |
-| `Weapon` | `string` | Weapon to equip |
-| `Cape` | `string` | Cape to equip |
-| `Helm` | `string` | Helm to equip |
-| `Pet` | `string` | Pet to equip |
-| `Pots` | `string[]` | Array of potions to drink (equip → use skill 5 → wait) |
-| `Scroll` | `string` | Final consumable to equip after drinking pots (e.g., Scroll of Enrage) |
+| Field       | Type       | Description                                                            |
+| ----------- | ---------- | ---------------------------------------------------------------------- |
+| `SafeClass` | `string`   | Backup class used to prevent pots from arbitrarily locking             |
+| `SafePot`   | `string`   | Backup consumable used to prevent pots from arbitrarily locking        |
+| `Armor`     | `string`   | Armor to equip                                                         |
+| `Class`     | `string`   | Class to equip                                                         |
+| `Weapon`    | `string`   | Weapon to equip                                                        |
+| `Cape`      | `string`   | Cape to equip                                                          |
+| `Helm`      | `string`   | Helm to equip                                                          |
+| `Pet`       | `string`   | Pet to equip                                                           |
+| `Pots`      | `string[]` | Array of potions to drink (equip → use skill 5 → wait)                 |
+| `Scroll`    | `string`   | Final consumable to equip after drinking pots (e.g., Scroll of Enrage) |
 
-Use sets with the [cmd.army_equip_set](/api/army#cmdarmy_equip_set) command.
+#### Equip Order
+
+1.  SafeClass
+2.  SafePot
+3.  Class
+4.  SafePot
+5.  Equipment
+6.  Potions
+7.  Scroll
+
+Equip sets with the [cmd.army_equip_set](/api/army#cmdarmy_equip_set) command.
+
+Note that all fields are optional.
 
 ## Writing army scripts
 
@@ -138,3 +152,7 @@ to complete the task before the next command executes.
   actions using internal APIs. You could also use
   [cmd.register_command](/api/misc#cmdregister_command) too.
 </Aside>
+
+# Example
+
+View the full example [army_config.json](https://github.com/toommyliu/vexed/blob/main/examples/config/army_config.json).

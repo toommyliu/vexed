@@ -3,7 +3,7 @@ title: Game
 description: Core features and controls of the game client.
 ---
 
-import { Aside } from '@astrojs/starlight/components';
+import { Aside } from "@astrojs/starlight/components";
 
 The game client looks like the typical AQW third-party client.
 
@@ -22,7 +22,7 @@ Opens a mega menu containing shortcuts to all application windows:
 - **Hotkeys** - Configure keyboard shortcuts; only usable in the game window
 - **Fast Travels** - Quick travel to popular areas
 - **Loader/Grabber** - Load and grab game data
-- **Follower** - Follow players around the map
+- **Follower** - Follows a player and acts as a combat helper
 - **Packet Logger** - Log outgoing packets
 - **Packet Spammer** - Send packets to the server
 
@@ -35,6 +35,12 @@ Opens a mega menu containing shortcuts to all application windows:
 ### Options Button
 
 Opens the options panel for quick access to game modifications and settings.
+
+### AutoRelogin Button
+
+Controls the auto-relogin feature. To enable AutoRelogin, you must first be logged in and then select a target server.
+
+After 5 consecutive failures, autorelogin will try the fallback server or the first eligible server it finds.
 
 ### Run/Stop Button
 
@@ -70,7 +76,7 @@ Open the command palette with `Cmd+K` (macOS) or `Ctrl+K` (Windows) to quickly a
 Change the application theme. Available under **View → Appearance**:
 
 - **Light** - Light color scheme
-- **Dark** - Dark color scheme  
+- **Dark** - Dark color scheme
 - **System** - Follow system preference
 
 ## Options
