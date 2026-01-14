@@ -4,15 +4,15 @@
   import Config from "@vexed/config";
   import { AlertDialog, Button, Kbd } from "@vexed/ui";
   import { cn } from "@vexed/ui/util";
-  import Settings from "lucide-svelte/icons/settings";
-  import AppWindow from "lucide-svelte/icons/app-window";
-  import Code from "lucide-svelte/icons/code";
-  import Wrench from "lucide-svelte/icons/wrench";
-  import Radio from "lucide-svelte/icons/radio";
-  import Inbox from "lucide-svelte/icons/inbox";
-  import AlertTriangle from "lucide-svelte/icons/triangle-alert";
-  import ChevronDown from "lucide-svelte/icons/chevron-down";
-  import RotateCcw from "lucide-svelte/icons/rotate-ccw";
+  import Settings from "@vexed/ui/icons/Settings";
+  import AppWindow from "@vexed/ui/icons/AppWindow";
+  import Code from "@vexed/ui/icons/Code";
+  import Wrench from "@vexed/ui/icons/Wrench";
+  import Radio from "@vexed/ui/icons/Radio";
+  import Inbox from "@vexed/ui/icons/Inbox";
+  import AlertTriangle from "@vexed/ui/icons/AlertTriangle";
+  import ChevronDown from "@vexed/ui/icons/ChevronDown";
+  import RotateCcw from "@vexed/ui/icons/RotateCcw";
 
   import { client } from "~/shared/tipc";
   import type { HotkeyConfig } from "~/shared/types";
@@ -147,9 +147,9 @@
 
     config.clear();
     await config.save();
-    
+
     await config.reload();
-    
+
     await loadHotkeysFromConfig();
     await client.hotkeys.reloadHotkeys();
     logger.info("Hotkeys restored to defaults.");
@@ -205,7 +205,7 @@
 
     if (hotkeysSections?.length > 0) {
       activeSection = hotkeysSections[0]!.name;
-    } 
+    }
   });
 
   onDestroy(() => {
@@ -233,8 +233,14 @@
     }
 
     if (ev.key === "Enter" && recordingState.lastPressedKey) {
-      const conflictingAction = getActionForHotkey(recordingState.lastPressedKey, hotkeysSections);
-      if (!conflictingAction || conflictingAction === getActionNameById(recordingState.actionId || "")) {
+      const conflictingAction = getActionForHotkey(
+        recordingState.lastPressedKey,
+        hotkeysSections,
+      );
+      if (
+        !conflictingAction ||
+        conflictingAction === getActionNameById(recordingState.actionId || "")
+      ) {
         confirmRecording(recordingState.lastPressedKey);
       }
       return;
@@ -250,7 +256,7 @@
 
 <div class="bg-background flex h-screen flex-col">
   <header
-    class="bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-10 border-b border-border/50 px-6 py-3 backdrop-blur-xl elevation-1"
+    class="bg-background/95 supports-[backdrop-filter]:bg-background/80 border-border/50 elevation-1 sticky top-0 z-10 border-b px-6 py-3 backdrop-blur-xl"
   >
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-3">
@@ -259,22 +265,24 @@
         </h1>
       </div>
       <button
-        class="group flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground transition-all hover:bg-secondary/50 hover:text-foreground"
+        class="text-muted-foreground hover:bg-secondary/50 hover:text-foreground group flex items-center gap-1.5 rounded-md px-2 py-1 text-xs transition-all"
         onclick={() => {
           stopRecording();
           confirmDialogOpen = true;
         }}
       >
-        <RotateCcw class="h-3 w-3 transition-transform duration-300 group-hover:-rotate-180" />
+        <RotateCcw
+          class="h-3 w-3 transition-transform duration-300 group-hover:-rotate-180"
+        />
         <span>Restore Defaults</span>
       </button>
     </div>
   </header>
 
   {#if conflicts.length > 0}
-    <div class="border-b border-destructive/30 bg-destructive/5 px-6 py-2">
+    <div class="border-destructive/30 bg-destructive/5 border-b px-6 py-2">
       <div class="flex items-center gap-2 text-sm">
-        <AlertTriangle class="h-4 w-4 text-destructive" />
+        <AlertTriangle class="text-destructive h-4 w-4" />
         <span class="text-destructive">
           Conflicts: <span class="font-mono">{conflicts.join(", ")}</span>
         </span>
@@ -296,15 +304,17 @@
           >
             {#if getSectionIcon(section.icon)}
               {@const Icon = getSectionIcon(section.icon)}
-              <Icon class="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+              <Icon class="text-muted-foreground h-3.5 w-3.5 shrink-0" />
             {/if}
-            <span class="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            <span
+              class="text-muted-foreground text-xs font-medium uppercase tracking-wide"
+            >
               {section.name}
             </span>
             <ChevronDown
               class={cn(
-                "ml-auto h-3.5 w-3.5 text-muted-foreground/60 transition-transform duration-150",
-                isExpanded && "rotate-180"
+                "text-muted-foreground/60 ml-auto h-3.5 w-3.5",
+                isExpanded && "rotate-180",
               )}
             />
           </button>
@@ -312,54 +322,89 @@
           {#if isExpanded}
             <div class="mt-1 space-y-px pl-1">
               {#each section.items as item}
-                {@const isRecordingThis = recordingState.isRecording && recordingState.actionId === item.id}
-                {@const hasConflict = isRecordingThis && recordingState.lastPressedKey && getActionForHotkey(recordingState.lastPressedKey, hotkeysSections) && getActionForHotkey(recordingState.lastPressedKey, hotkeysSections) !== item.label}
+                {@const isRecordingThis =
+                  recordingState.isRecording &&
+                  recordingState.actionId === item.id}
+                {@const hasConflict =
+                  isRecordingThis &&
+                  recordingState.lastPressedKey &&
+                  getActionForHotkey(
+                    recordingState.lastPressedKey,
+                    hotkeysSections,
+                  ) &&
+                  getActionForHotkey(
+                    recordingState.lastPressedKey,
+                    hotkeysSections,
+                  ) !== item.label}
                 <div
                   class={cn(
                     "group/row flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left transition-colors",
-                    isRecordingThis 
-                      ? "bg-primary/5 relative" 
-                      : "bg-transparent hover:bg-secondary/30 cursor-pointer"
+                    isRecordingThis
+                      ? "bg-primary/5 relative"
+                      : "hover:bg-secondary/30 cursor-pointer bg-transparent",
                   )}
                   onclick={() => !isRecordingThis && startRecording(item.id)}
                   onkeydown={(ev) => {
-                    if (!isRecordingThis && ev.key === "Enter") startRecording(item.id);
+                    if (!isRecordingThis && ev.key === "Enter")
+                      startRecording(item.id);
                   }}
                   role="button"
                   tabindex="0"
                 >
-                  <span class="text-sm text-foreground">{item.label}</span>
-                  <div class={cn(
-                    "flex h-7 min-w-[110px] items-center justify-end gap-2 rounded-md px-2 transition-all")}>
+                  <span class="text-foreground text-sm">{item.label}</span>
+                  <div
+                    class={cn(
+                      "flex h-7 min-w-[110px] items-center justify-end gap-2 rounded-md px-2 transition-all",
+                    )}
+                  >
                     {#if isRecordingThis}
                       {#if recordingState.lastPressedKey}
-                        <span class={cn("key-pop", hasConflict && "conflict-shake")}>
-                          <Kbd hotkey={recordingState.lastPressedKey} class={cn(
-                            "transition-all",
-                            hasConflict 
-                              ? "border-destructive/60 text-destructive shadow-[0_0_8px_hsl(var(--destructive)/0.3)]" 
-                              : "border-primary/50 shadow-[0_0_6px_hsl(var(--primary)/0.2)]"
-                          )} />
+                        <span
+                          class={cn("key-pop", hasConflict && "conflict-shake")}
+                        >
+                          <Kbd
+                            hotkey={recordingState.lastPressedKey}
+                            class={cn(
+                              "transition-all",
+                              hasConflict
+                                ? "border-destructive/60 text-destructive shadow-[0_0_8px_hsl(var(--destructive)/0.3)]"
+                                : "border-primary/50 shadow-[0_0_6px_hsl(var(--primary)/0.2)]",
+                            )}
+                          />
                         </span>
                       {:else}
-                        <span class="text-xs text-primary animate-pulse">...</span>
+                        <span class="text-primary animate-pulse text-xs"
+                          >...</span
+                        >
                       {/if}
                     {:else if item.value}
-                      <Kbd hotkey={item.value} class="transition-all group-hover/row:border-primary/40 group-hover/row:bg-muted/70" />
+                      <Kbd
+                        hotkey={item.value}
+                        class="group-hover/row:border-primary/40 transition-all"
+                      />
                     {:else}
-                      <span class="text-xs text-muted-foreground/50 group-hover/row:text-muted-foreground">
-                        Add shortcut
+                      <span
+                        class="text-muted-foreground/50 group-hover/row:text-muted-foreground text-xs"
+                      >
+                        Click to bind
                       </span>
                     {/if}
                   </div>
                 </div>
                 {#if isRecordingThis}
-                  <div class="mt-1.5 flex items-center gap-3 rounded-md px-2.5 py-1.5 text-[10px] text-muted-foreground/70">
+                  <div
+                    class="text-muted-foreground/70 mt-1.5 flex items-center gap-3 rounded-md px-2.5 py-1.5 text-[10px]"
+                  >
                     <span><Kbd>Esc</Kbd> cancel</span>
                     <span><Kbd>Backspace</Kbd> clear</span>
                     {#if recordingState.lastPressedKey}
-                      <span class={hasConflict ? "text-destructive/70" : "text-primary/70"}>
-                        <Kbd>Enter</Kbd> {hasConflict ? "conflict" : "confirm"}
+                      <span
+                        class={hasConflict
+                          ? "text-destructive/70"
+                          : "text-primary/70"}
+                      >
+                        <Kbd>Enter</Kbd>
+                        {hasConflict ? "conflict" : "confirm"}
                       </span>
                     {/if}
                   </div>
@@ -378,7 +423,8 @@
     <AlertDialog.Header>
       <AlertDialog.Title>Restore Default Hotkeys?</AlertDialog.Title>
       <AlertDialog.Description>
-        This will reset all hotkey bindings to their default values. Any custom hotkeys you've configured will be lost.
+        This will reset all hotkey bindings to their default values. Any custom
+        hotkeys you've configured will be lost.
       </AlertDialog.Description>
     </AlertDialog.Header>
     <AlertDialog.Footer>
@@ -389,12 +435,16 @@
       >
         Cancel
       </Button>
-      <AlertDialog.Action
-        class="inline-flex h-8 items-center justify-center rounded-md bg-destructive px-3 text-sm font-medium text-destructive-foreground transition-colors hover:bg-destructive/90"
-        onclick={restoreDefaults}
+      <Button
+        variant="destructive"
+        size="sm"
+        onclick={() => {
+          restoreDefaults();
+          confirmDialogOpen = false;
+        }}
       >
         Restore Defaults
-      </AlertDialog.Action>
+      </Button>
     </AlertDialog.Footer>
   </AlertDialog.Content>
 </AlertDialog.Root>
@@ -404,28 +454,39 @@
   .key-pop {
     animation: key-pop 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
-  
+
   @keyframes key-pop {
-    0% { 
+    0% {
       transform: scale(0.85);
       opacity: 0.5;
     }
-    100% { 
+    100% {
       transform: scale(1);
       opacity: 1;
     }
   }
-  
+
   /* Conflict shake animation */
   .conflict-shake {
     animation: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97);
   }
-  
+
   @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    20% { transform: translateX(-3px); }
-    40% { transform: translateX(3px); }
-    60% { transform: translateX(-2px); }
-    80% { transform: translateX(2px); }
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    20% {
+      transform: translateX(-3px);
+    }
+    40% {
+      transform: translateX(3px);
+    }
+    60% {
+      transform: translateX(-2px);
+    }
+    80% {
+      transform: translateX(2px);
+    }
   }
 </style>

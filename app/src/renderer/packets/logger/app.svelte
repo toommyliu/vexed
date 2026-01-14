@@ -1,20 +1,14 @@
 <script lang="ts">
-  import { Button, Checkbox, Label } from "@vexed/ui";
+  import { Button, Checkbox, cn, Label } from "@vexed/ui";
   import * as Tabs from "@vexed/ui/Tabs";
-  import * as Empty from "@vexed/ui/Empty";
-  import { cn } from "@vexed/ui/util";
-  import Play from "lucide-svelte/icons/play";
-  import Pause from "lucide-svelte/icons/pause";
-  import Download from "lucide-svelte/icons/download";
-  import Copy from "lucide-svelte/icons/copy";
-  import Trash2 from "lucide-svelte/icons/trash-2";
-  import Clock from "lucide-svelte/icons/clock";
-  import ArrowDownToLine from "lucide-svelte/icons/arrow-down-to-line";
-  import Radio from "lucide-svelte/icons/radio";
+  import Play from "@vexed/ui/icons/Play";
+  import Pause from "@vexed/ui/icons/Pause";
+  import Download from "@vexed/ui/icons/Download";
+  import Copy from "@vexed/ui/icons/Copy";
+  import Trash2 from "@vexed/ui/icons/Trash2";
 
   import { client, handlers } from "~/shared/tipc";
   import { v4 as uuid } from "@lukeed/uuid";
-
   type PacketType = "client" | "pext" | "server";
   type PacketFilter = PacketType | "all";
   type PacketEntry = {
@@ -41,8 +35,8 @@
   let totalPackets = $derived(stats.client + stats.server + stats.pext);
   let filteredPackets = $derived(
     packets.filter(
-      (packet) => currentFilter === "all" || packet.type === currentFilter
-    )
+      (packet) => currentFilter === "all" || packet.type === currentFilter,
+    ),
   );
 
   function formatPacket(data: unknown, type: PacketType): string {
@@ -59,17 +53,6 @@
     }
 
     return typeof data === "string" ? data : JSON.stringify(data, null, 2);
-  }
-
-  function getPacketTypeColor(type: PacketType): string {
-    switch (type) {
-      case "client":
-        return "text-blue-400";
-      case "server":
-        return "text-emerald-400";
-      case "pext":
-        return "text-violet-400";
-    }
   }
 
   function getPacketTypeBadgeClass(type: PacketType): string {
@@ -160,9 +143,7 @@
 
     try {
       await navigator.clipboard.writeText(content);
-    } catch {
-      // ignore
-    }
+    } catch {}
   }
 
   function clearPackets() {
@@ -186,7 +167,7 @@
 
 <div class="bg-background flex h-screen flex-col">
   <header
-    class="bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-10 border-b border-border/50 px-6 py-3 backdrop-blur-xl elevation-1"
+    class="elevation-1 border-border/50 bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-10 border-b px-6 py-3 backdrop-blur-xl"
   >
     <div class="mx-auto flex max-w-7xl items-center justify-between">
       <div class="flex items-center gap-3">
@@ -199,7 +180,7 @@
         <Button
           variant="outline"
           size="sm"
-          class="gap-2 border-border/50"
+          class="border-border/50 gap-2"
           onclick={saveToFile}
           disabled={filteredPackets.length === 0}
         >
@@ -209,7 +190,7 @@
         <Button
           variant="outline"
           size="sm"
-          class="gap-2 border-border/50"
+          class="border-border/50 gap-2"
           onclick={copyAll}
           disabled={filteredPackets.length === 0}
         >
@@ -237,29 +218,39 @@
   <main class="flex-1 overflow-hidden p-4 sm:p-6">
     <div class="mx-auto flex h-full max-w-7xl flex-col gap-4">
       <Tabs.Root bind:value={currentFilter} class="flex h-full flex-col gap-4">
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div
+          class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+        >
           <Tabs.List class="w-fit">
             <Tabs.Trigger value="all" class="gap-2">
               All
-              <span class="rounded bg-secondary px-1.5 py-0.5 text-xs tabular-nums">
+              <span
+                class="bg-secondary rounded px-1.5 py-0.5 text-xs tabular-nums"
+              >
                 {totalPackets}
               </span>
             </Tabs.Trigger>
             <Tabs.Trigger value="client" class="gap-2">
               <span class="text-blue-400">Client</span>
-              <span class="rounded bg-blue-500/20 px-1.5 py-0.5 text-xs tabular-nums text-blue-400">
+              <span
+                class="rounded bg-blue-500/20 px-1.5 py-0.5 text-xs tabular-nums text-blue-400"
+              >
                 {stats.client}
               </span>
             </Tabs.Trigger>
             <Tabs.Trigger value="server" class="gap-2">
               <span class="text-emerald-400">Server</span>
-              <span class="rounded bg-emerald-500/20 px-1.5 py-0.5 text-xs tabular-nums text-emerald-400">
+              <span
+                class="rounded bg-emerald-500/20 px-1.5 py-0.5 text-xs tabular-nums text-emerald-400"
+              >
                 {stats.server}
               </span>
             </Tabs.Trigger>
             <Tabs.Trigger value="pext" class="gap-2">
               <span class="text-violet-400">Pext</span>
-              <span class="rounded bg-violet-500/20 px-1.5 py-0.5 text-xs tabular-nums text-violet-400">
+              <span
+                class="rounded bg-violet-500/20 px-1.5 py-0.5 text-xs tabular-nums text-violet-400"
+              >
                 {stats.pext}
               </span>
             </Tabs.Trigger>
@@ -268,22 +259,26 @@
           <div class="flex items-center gap-4">
             <div class="flex items-center gap-2">
               <Checkbox id="show-timestamps" bind:checked={showTimestamps} />
-              <Label for="show-timestamps" class="text-sm text-muted-foreground cursor-pointer flex items-center gap-1.5">
-                <Clock class="h-3.5 w-3.5" />
+              <Label
+                for="show-timestamps"
+                class="text-muted-foreground flex cursor-pointer items-center gap-1.5 text-sm"
+              >
                 Timestamps
               </Label>
             </div>
             <div class="flex items-center gap-2">
               <Checkbox id="auto-scroll" bind:checked={autoScroll} />
-              <Label for="auto-scroll" class="text-sm text-muted-foreground cursor-pointer flex items-center gap-1.5">
-                <ArrowDownToLine class="h-3.5 w-3.5" />
+              <Label
+                for="auto-scroll"
+                class="text-muted-foreground flex cursor-pointer items-center gap-1.5 text-sm"
+              >
                 Auto-scroll
               </Label>
             </div>
             <Button
               variant="ghost"
               size="sm"
-              class="gap-2 text-muted-foreground hover:text-destructive"
+              class="text-destructive gap-2"
               onclick={clearPackets}
               disabled={packets.length === 0}
             >
@@ -295,32 +290,26 @@
 
         <div class="flex items-center justify-between text-sm">
           <span class="text-muted-foreground">
-            <span class="tabular-nums font-medium text-foreground">{filteredPackets.length}</span>
+            <span class="text-foreground font-medium tabular-nums"
+              >{filteredPackets.length}</span
+            >
             {#if currentFilter !== "all"}
               <span class="text-muted-foreground/70">of {totalPackets}</span>
             {/if}
-            <span class="text-muted-foreground/70">packet{filteredPackets.length !== 1 ? 's' : ''}</span>
+            <span class="text-muted-foreground/70"
+              >packet{filteredPackets.length !== 1 ? "s" : ""}</span
+            >
           </span>
         </div>
 
-        <div class="relative flex-1 overflow-hidden rounded-xl border border-border/50 bg-card">
+        <div
+          class="border-border/50 bg-card relative flex-1 overflow-hidden rounded-xl border"
+        >
           {#if filteredPackets.length === 0}
             <div class="flex h-full items-center justify-center">
-              <Empty.Root>
-                <Empty.Header>
-                  <Empty.Media variant="icon">
-                    <Radio />
-                  </Empty.Media>
-                  <Empty.Title>No packets captured</Empty.Title>
-                  <Empty.Description>
-                    {#if on}
-                      Waiting for packets...
-                    {:else}
-                      Click "Start" to begin capturing packets.
-                    {/if}
-                  </Empty.Description>
-                </Empty.Header>
-              </Empty.Root>
+              <p class="text-muted-foreground text-center text-sm">
+                No packets captured yet
+              </p>
             </div>
           {:else}
             <div
@@ -329,7 +318,7 @@
             >
               {#each filteredPackets as packet (packet.id)}
                 <div
-                  class="group flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 transition-colors hover:bg-secondary/50"
+                  class="hover:bg-secondary/50 group flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 transition-colors"
                   onclick={() => copyPacket(packet.content)}
                   onkeydown={(ev) => {
                     if (ev.key === "Enter") {
@@ -342,22 +331,28 @@
                   title="Click to copy"
                 >
                   {#if showTimestamps}
-                    <span class="shrink-0 text-xs text-muted-foreground/70 tabular-nums">
+                    <span
+                      class="text-muted-foreground/70 shrink-0 text-xs tabular-nums"
+                    >
                       {formatTimestamp(packet.timestamp)}
                     </span>
                   {/if}
                   <span
                     class={cn(
                       "shrink-0 rounded px-1.5 py-0.5 text-xs font-medium uppercase",
-                      getPacketTypeBadgeClass(packet.type)
+                      getPacketTypeBadgeClass(packet.type),
                     )}
                   >
                     {packet.type}
                   </span>
-                  <span class="flex-1 whitespace-pre-wrap break-all text-foreground">
+                  <span
+                    class="text-foreground flex-1 whitespace-pre-wrap break-all"
+                  >
                     {packet.content}
                   </span>
-                  <Copy class="h-3.5 w-3.5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                  <Copy
+                    class="text-muted-foreground h-3.5 w-3.5 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
+                  />
                 </div>
               {/each}
             </div>

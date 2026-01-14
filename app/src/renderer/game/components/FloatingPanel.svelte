@@ -2,7 +2,7 @@
   import { motionScale, motionFade } from "@vexed/ui/motion";
   import { onMount, tick } from "svelte";
   import type { Snippet } from "svelte";
-  import X from "lucide-svelte/icons/x";
+  import X from "@vexed/ui/icons/X";
   import { cn } from "~/shared/cn";
 
   type PanelState = {
@@ -293,10 +293,10 @@
   <div
     bind:this={panel}
     class={cn(
-      "fixed top-10 left-5 min-w-[280px] min-h-[160px] bg-popover border border-border rounded-[10px] z-[9999] shadow-lg select-none overflow-hidden flex flex-col",
+      "bg-popover border-border fixed left-5 top-10 z-[9999] flex min-h-[160px] min-w-[280px] select-none flex-col overflow-hidden rounded-[10px] border shadow-lg",
       panelState.isDragging && "cursor-grabbing opacity-95",
       resizeDirection && "opacity-95",
-      className
+      className,
     )}
     style="width: {defaultWidth}px;"
     in:motionScale={{ duration: 120, start: 0.96, opacity: 0 }}
@@ -317,8 +317,8 @@
     <!-- Header -->
     <div
       class={cn(
-        "flex items-center justify-between bg-gradient-to-br from-primary/10 to-muted px-3 py-2 cursor-grab text-foreground border-b border-border rounded-t-[10px] select-none whitespace-nowrap text-xs font-medium shrink-0 h-5",
-        headerClass
+        "from-primary/10 to-muted text-foreground border-border flex h-5 shrink-0 cursor-grab select-none items-center justify-between whitespace-nowrap rounded-t-[10px] border-b bg-gradient-to-br px-3 py-2 text-xs font-medium",
+        headerClass,
       )}
       onmousedown={handleDragStart}
       ondblclick={onheaderdblclick}
@@ -350,7 +350,7 @@
     </div>
 
     <!-- Content -->
-    <div class="p-3 flex-1 overflow-auto">
+    <div class="flex-1 overflow-auto p-3">
       {@render children?.()}
     </div>
   </div>

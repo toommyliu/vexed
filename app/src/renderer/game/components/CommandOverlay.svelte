@@ -1,8 +1,8 @@
 <script lang="ts">
   import { tick } from "svelte";
   import { VirtualList } from "@vexed/ui";
-  import ChevronDown from "lucide-svelte/icons/chevron-down";
-  import ChevronRight from "lucide-svelte/icons/chevron-right";
+  import ChevronDown from "@vexed/ui/icons/ChevronDown";
+  import ChevronRight from "@vexed/ui/icons/ChevronRight";
 
   import { commandOverlayState, scriptState } from "~/game/state.svelte";
   import type { CommandItem } from "~/game/state.svelte";
@@ -216,7 +216,9 @@
     margin-bottom: 2px;
     border-radius: 6px;
     border-left: 3px solid transparent;
-    transition: background-color 0.1s ease, border-color 0.1s ease;
+    transition:
+      background-color 0.1s ease,
+      border-color 0.1s ease;
     display: flex;
     align-items: center;
     gap: 6px;

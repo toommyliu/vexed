@@ -1,19 +1,18 @@
 <script lang="ts">
   import { cn } from "@vexed/ui/util";
-  import { Button, Input } from "@vexed/ui";
+  import { Button, Input, Label } from "@vexed/ui";
   import * as NumberField from "@vexed/ui/NumberField";
-  import * as Empty from "@vexed/ui/Empty";
   import * as Select from "@vexed/ui/Select";
   import * as Tabs from "@vexed/ui/Tabs";
   import { VirtualList } from "@vexed/ui";
 
-  import Download from "lucide-svelte/icons/download";
-  import Loader from "lucide-svelte/icons/loader";
-  import Database from "lucide-svelte/icons/database";
-  import Upload from "lucide-svelte/icons/upload";
-  import Check from "lucide-svelte/icons/check";
-  import ChevronRight from "lucide-svelte/icons/chevron-right";
-  import Search from "lucide-svelte/icons/search";
+  import Download from "@vexed/ui/icons/Download";
+  import Loader from "@vexed/ui/icons/Loader";
+  import Upload from "@vexed/ui/icons/Upload";
+  import Check from "@vexed/ui/icons/Check";
+  import ChevronRight from "@vexed/ui/icons/ChevronRight";
+  import Search from "@vexed/ui/icons/Search";
+  import Copy from "@vexed/ui/icons/Copy";
 
   import { SvelteSet } from "svelte/reactivity";
   import log from "electron-log";
@@ -24,7 +23,10 @@
   import type { ShopInfo } from "~/game/lib/Shops";
   import type { ItemData } from "~/game/lib/models/Item";
   import type { MonsterData } from "~/game/lib/models/Monster";
-  import { getEnhancementName, getWeaponProcName } from "~/game/lib/util/enhancements";
+  import {
+    getEnhancementName,
+    getWeaponProcName,
+  } from "~/game/lib/util/enhancements";
 
   const logger = log.scope("app/loader-grabber");
 
@@ -70,7 +72,7 @@
     );
   }
 
-  let activeTab = $state("grabber");
+  let activeTab = $state("loader");
   let loaderId = $state(0);
   let loaderType = $state<string>("");
   let grabberType = $state<string>("");
@@ -79,19 +81,38 @@
   let expandedNodes = new SvelteSet<string>();
   let isLoading = $state<boolean>(false);
   let searchQuery = $state("");
+  let debouncedSearchQuery = $state("");
+
+  $effect(() => {
+    const query = searchQuery;
+    if (!query) {
+      debouncedSearchQuery = "";
+      return;
+    }
+
+    // for very short queries, we debounce it so it doesn't get too fast
+    // esp. if the source data is large
+    const delay = query.length <= 3 ? 300 : 150;
+    const timeout = setTimeout(() => {
+      debouncedSearchQuery = query;
+    }, delay);
+
+    return () => clearTimeout(timeout);
+  });
+
   let flattenedItems = $derived(flattenTreeData(treeData, expandedNodes));
   let filteredTreeData = $derived(
-    searchQuery
+    debouncedSearchQuery
       ? treeData.filter((item) => {
-          const query = searchQuery.toLowerCase();
+          const query = debouncedSearchQuery.toLowerCase();
           return item.name.toLowerCase().includes(query);
         })
-      : treeData
+      : treeData,
   );
   let filteredItems = $derived(
-    searchQuery
+    debouncedSearchQuery
       ? flattenTreeData(filteredTreeData, expandedNodes)
-      : flattenedItems
+      : flattenedItems,
   );
   let copiedNodeId = $state<string | null>(null);
 
@@ -278,8 +299,11 @@
               ];
 
               const enhancementName = getEnhancementName(item.EnhPatternID);
-              const procName = item.ProcID ? getWeaponProcName(item.ProcID) : "";
-              const validProc = procName && procName !== "Unknown" ? procName : "";
+              const procName = item.ProcID
+                ? getWeaponProcName(item.ProcID)
+                : "";
+              const validProc =
+                procName && procName !== "Unknown" ? procName : "";
 
               if (enhancementName || validProc) {
                 const parts = [enhancementName, validProc].filter(Boolean);
@@ -440,11 +464,30 @@
       // ignore
     }
   }
+
+  async function copyNodeJson(item: FlattenedItem) {
+    try {
+      const data = JSON.stringify(
+        item,
+        (key, value) => {
+          if (key === "nodeId" || key === "level" || key === "index")
+            return undefined;
+          return value;
+        },
+        2,
+      );
+      await navigator.clipboard.writeText(data);
+      copiedNodeId = item.nodeId;
+      setTimeout(() => {
+        if (copiedNodeId === item.nodeId) copiedNodeId = null;
+      }, 1500);
+    } catch {}
+  }
 </script>
 
 <div class="bg-background flex h-screen flex-col">
   <header
-    class="bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-10 border-b border-border/50 px-6 py-3 backdrop-blur-xl elevation-1"
+    class="bg-background/95 supports-[backdrop-filter]:bg-background/80 border-border/50 elevation-1 sticky top-0 z-10 border-b px-6 py-3 backdrop-blur-xl"
   >
     <div class="mx-auto flex max-w-7xl items-center justify-between">
       <div class="flex items-center gap-3">
@@ -455,7 +498,12 @@
 
       <div class="flex items-center gap-2">
         {#if activeTab === "grabber" && grabbedData}
-          <Button variant="outline" size="sm" class="gap-2" onclick={handleExport}>
+          <Button
+            variant="outline"
+            size="sm"
+            class="gap-2"
+            onclick={handleExport}
+          >
             <Download class="h-4 w-4" />
             <span class="hidden sm:inline">Export</span>
           </Button>
@@ -468,50 +516,59 @@
     <div class="mx-auto flex h-full max-w-7xl flex-col gap-4">
       <Tabs.Root bind:value={activeTab} class="flex h-full flex-col gap-4">
         <Tabs.List class="w-fit">
-          <Tabs.Trigger value="grabber" class="gap-2">
-            <Download class="h-4 w-4" />
-            Grabber
-          </Tabs.Trigger>
           <Tabs.Trigger value="loader" class="gap-2">
             <Upload class="h-4 w-4" />
             Loader
+          </Tabs.Trigger>
+          <Tabs.Trigger value="grabber" class="gap-2">
+            <Download class="h-4 w-4" />
+            Grabber
           </Tabs.Trigger>
         </Tabs.List>
 
         <Tabs.Content value="loader" class="flex-1">
           <div class="flex flex-col gap-4">
-            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <NumberField.Root bind:value={loaderId} min={1} class="space-y-1.5">
-                <label for="loader-id" class="text-sm font-medium text-muted-foreground">
-                  ID
-                </label>
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <NumberField.Root
+                bind:value={loaderId}
+                min={1}
+                max={Number.MAX_SAFE_INTEGER}
+                class="gap-2"
+              >
+                <Label for="loader-id">ID</Label>
                 <NumberField.Input
                   id="loader-id"
-                  placeholder="Enter ID"
-                  class="bg-secondary/50 border-border/50 focus:bg-background transition-colors"
+                  placeholder="e.g. 1337"
+                  class="bg-secondary/50 border-border/50 focus:bg-background h-10 font-mono transition-all"
                   autocomplete="off"
                 />
               </NumberField.Root>
 
-              <div class="space-y-1.5">
-                <label for="loader-type" class="text-sm font-medium text-muted-foreground">
-                  Data Type
-                </label>
+              <div class="grid gap-2">
+                <Label for="loader-type">Source</Label>
                 <Select.Root bind:value={loaderType}>
-                  <Select.Trigger class="w-full bg-secondary/50 border-border/50 hover:bg-secondary transition-colors">
-                    <span class="text-sm truncate">
-                      {#if loaderType === "0"}Hair Shop
+                  <Select.Trigger
+                    id="loader-type"
+                    class="bg-secondary/50 border-border/50 hover:bg-secondary h-10 w-full transition-all"
+                  >
+                    <span
+                      class={cn(
+                        "truncate text-sm",
+                        !loaderType && "text-muted-foreground",
+                      )}
+                    >
+                      {#if loaderType === "0"}Hair shop
                       {:else if loaderType === "1"}Shop
                       {:else if loaderType === "2"}Quest
-                      {:else if loaderType === "3"}Armor Customizer
-                      {:else}Select type...{/if}
+                      {:else if loaderType === "3"}Armor customizer
+                      {:else}Select source...{/if}
                     </span>
                   </Select.Trigger>
                   <Select.Content>
-                    <Select.Item value="0">Hair Shop</Select.Item>
+                    <Select.Item value="0">Hair shop</Select.Item>
                     <Select.Item value="1">Shop</Select.Item>
                     <Select.Item value="2">Quest</Select.Item>
-                    <Select.Item value="3">Armor Customizer</Select.Item>
+                    <Select.Item value="3">Armor customizer</Select.Item>
                   </Select.Content>
                 </Select.Root>
               </div>
@@ -520,39 +577,50 @@
             <Button
               onclick={handleLoad}
               disabled={!loaderType || (loaderType !== "3" && !loaderId)}
-              class="w-full sm:w-auto gap-2"
+              class="h-10 w-full gap-2 shadow-sm transition-all hover:scale-[1.01] active:scale-[0.99]"
             >
-              <Upload class="h-4 w-4" />
-              Load Data
+              Load
             </Button>
           </div>
         </Tabs.Content>
 
-        <Tabs.Content value="grabber" class="flex h-full min-h-0 flex-1 flex-col gap-4">
-          <div class="flex flex-col gap-3">
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
-              <div class="flex-1">
+        <Tabs.Content
+          value="grabber"
+          class="flex h-full min-h-0 flex-1 flex-col gap-4"
+        >
+          <div class="flex flex-col gap-4">
+            <div class="flex flex-col gap-4 p-1 sm:flex-row sm:items-end">
+              <div class="grid flex-1 gap-2">
+                <Label for="grabber-type">Source</Label>
                 <Select.Root bind:value={grabberType}>
-                  <Select.Trigger class="w-full bg-secondary/50 border-border/50 hover:bg-secondary transition-colors">
-                    <span class="text-sm truncate">
-                      {#if grabberType === "0"}Shop Items
+                  <Select.Trigger
+                    id="grabber-type"
+                    class="bg-secondary/50 border-border/40 hover:bg-secondary h-10 w-full !ring-0 !ring-offset-0 transition-all"
+                  >
+                    <span
+                      class={cn(
+                        "truncate text-sm",
+                        !grabberType && "text-muted-foreground",
+                      )}
+                    >
+                      {#if grabberType === "0"}Shop items
                       {:else if grabberType === "1"}Quests
                       {:else if grabberType === "2"}Inventory
-                      {:else if grabberType === "3"}Temp Inventory
+                      {:else if grabberType === "3"}Temp inventory
                       {:else if grabberType === "4"}Bank
-                      {:else if grabberType === "5"}Cell Monsters
-                      {:else if grabberType === "6"}Map Monsters
-                      {:else}Select type...{/if}
+                      {:else if grabberType === "5"}Cell monsters
+                      {:else if grabberType === "6"}Map monsters
+                      {:else}Select source...{/if}
                     </span>
                   </Select.Trigger>
                   <Select.Content>
-                    <Select.Item value="0">Shop Items</Select.Item>
+                    <Select.Item value="0">Shop items</Select.Item>
                     <Select.Item value="1">Quests</Select.Item>
                     <Select.Item value="2">Inventory</Select.Item>
-                    <Select.Item value="3">Temp Inventory</Select.Item>
+                    <Select.Item value="3">Temp inventory</Select.Item>
                     <Select.Item value="4">Bank</Select.Item>
-                    <Select.Item value="5">Cell Monsters</Select.Item>
-                    <Select.Item value="6">Map Monsters</Select.Item>
+                    <Select.Item value="5">Cell monsters</Select.Item>
+                    <Select.Item value="6">Map monsters</Select.Item>
                   </Select.Content>
                 </Select.Root>
               </div>
@@ -560,14 +628,13 @@
               <Button
                 onclick={handleGrab}
                 disabled={!grabberType || isLoading}
-                class="gap-2"
+                class="h-10 w-[140px] gap-2 px-6 shadow-sm !ring-0 !ring-offset-0 transition-all"
               >
                 {#if isLoading}
                   <Loader class="h-4 w-4 animate-spin" />
                   Grabbing...
                 {:else}
-                  <Download class="h-4 w-4" />
-                  Grab Data
+                  Grab
                 {/if}
               </Button>
             </div>
@@ -575,12 +642,12 @@
             {#if treeData.length > 0}
               <div class="relative">
                 <Search
-                  class="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 pointer-events-none"
+                  class="text-muted-foreground pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2"
                 />
                 <Input
                   type="search"
                   placeholder="Search items..."
-                  class="pl-10 bg-secondary/50 border-border/50 focus:bg-background transition-colors"
+                  class="bg-secondary/50 border-border/50 focus:bg-background pl-10 transition-colors"
                   bind:value={searchQuery}
                 />
               </div>
@@ -588,52 +655,33 @@
           </div>
 
           <div class="flex items-center justify-between text-sm">
-            <span class="text-muted-foreground">
-              <span class="tabular-nums font-medium text-foreground">{filteredTreeData.length}</span>
-              {#if searchQuery && filteredTreeData.length !== treeData.length}
-                <span class="text-muted-foreground/70"> of {treeData.length}</span>
-              {/if}
-              <span class="text-muted-foreground/70"> item{filteredTreeData.length !== 1 ? 's' : ''}</span>
-            </span>
+            <div class="flex items-center gap-4">
+              <span class="text-muted-foreground">
+                <span class="text-foreground font-medium tabular-nums"
+                  >{filteredTreeData.length}</span
+                >
+                {#if debouncedSearchQuery && filteredTreeData.length !== treeData.length}
+                  <span class="text-muted-foreground/70">
+                    of {treeData.length}</span
+                  >
+                {/if}
+                <span class="text-muted-foreground/70">
+                  item{filteredTreeData.length !== 1 ? "s" : ""}</span
+                >
+              </span>
+            </div>
           </div>
 
-          <div class="relative flex-1 overflow-hidden rounded-xl border border-border/50 bg-card">
-            {#if isLoading}
-              <div class="flex h-full flex-col items-center justify-center gap-3 text-muted-foreground">
-                <Loader class="text-primary h-6 w-6 animate-spin" />
-                <p class="text-sm">Loading data...</p>
-              </div>
-            {:else if treeData.length === 0}
-              <div class="flex h-full items-center justify-center">
-                <Empty.Root>
-                  <Empty.Header>
-                    <Empty.Media variant="icon">
-                      <Database />
-                    </Empty.Media>
-                    <Empty.Title>No data</Empty.Title>
-                    <Empty.Description>
-                      Select a data type and click "Grab Data" to fetch information.
-                    </Empty.Description>
-                  </Empty.Header>
-                </Empty.Root>
-              </div>
-            {:else if filteredItems.length === 0}
-              <div class="flex h-full items-center justify-center">
-                <Empty.Root>
-                  <Empty.Header>
-                    <Empty.Media variant="icon">
-                      <Search />
-                    </Empty.Media>
-                    <Empty.Title>No matches</Empty.Title>
-                    <Empty.Description>
-                      No items match "{searchQuery}"
-                    </Empty.Description>
-                  </Empty.Header>
-                </Empty.Root>
-              </div>
-            {:else}
+          <div
+            class="border-border/50 bg-card relative flex-1 overflow-hidden rounded-xl border"
+          >
+            {#if !isLoading}
               <div class="h-full overflow-hidden p-2">
-                <VirtualList data={filteredItems} key="nodeId" class="no-scrollbar">
+                <VirtualList
+                  data={filteredItems}
+                  key="nodeId"
+                  class="no-scrollbar"
+                >
                   {#snippet children({ data: item })}
                     {@render TreeNode(item)}
                   {/snippet}
@@ -666,45 +714,101 @@
     item.value !== ""}
   {@const isCopied = copiedNodeId === item.nodeId}
 
-  <div class="select-none">
+  <div class="group/row relative select-none">
+    {#if item.level > 0}
+      {#each Array(item.level) as _, i}
+        <div
+          class="border-border/10 absolute top-0 h-full border-l"
+          style="left: {i * 16 + 18}px"
+        ></div>
+      {/each}
+      <!-- Connector line for leaf nodes -->
+      {#if !hasChildren}
+        <div
+          class="bg-border/10 absolute top-1/2 h-[1px]"
+          style="left: {(item.level - 1) * 16 + 18}px; width: 24px;"
+        ></div>
+      {/if}
+    {/if}
+
     <div
       class={cn(
-        "group flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 text-sm transition-colors",
-        hasChildren ? "hover:bg-secondary/50" : "cursor-default",
+        "group relative flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 text-sm transition-all",
+        hasChildren ? "hover:bg-secondary/40" : "cursor-default",
+        isExpanded && hasChildren && "bg-secondary/20",
       )}
       onclick={inputHandler}
       onkeydown={(ev) => ev.key === "Enter" && inputHandler()}
-      style="margin-left: {item.level * 16}px"
+      style="padding-left: {item.level * 16 + 8}px"
       role="button"
       tabindex="0"
     >
       {#if hasChildren}
-        <div class="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center">
+        <div
+          class="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center"
+        >
           <ChevronRight
             class={cn(
-              "h-3.5 w-3.5 text-muted-foreground transition-transform duration-200",
-              isExpanded && "rotate-90 text-foreground",
+              "text-muted-foreground h-3.5 w-3.5 transition-transform duration-200",
+              isExpanded && "text-foreground rotate-90",
             )}
           />
         </div>
       {:else}
-        <div class="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center">
-          {#if hasValue}
-            <div class="h-1.5 w-1.5 rounded-full bg-muted-foreground/50"></div>
-          {/if}
-        </div>
+        <!-- Spacer to maintain alignment with siblings -->
+        <div class="mt-0.5 h-5 w-5 flex-shrink-0"></div>
       {/if}
 
       <div class="flex min-w-0 flex-1 items-center gap-2 leading-relaxed">
         {#if hasChildren}
-          <span class="flex-shrink-0 truncate font-medium text-foreground">
-            {item.name}
-          </span>
-          <span class="text-xs text-muted-foreground">
-            ({item.children?.length})
-          </span>
-        {:else if !hasChildren && item.name && hasValue}
-          <span class="flex-shrink-0 truncate font-medium text-foreground">
+          <div class="flex min-w-0 flex-1 items-center gap-2">
+            <span class="text-foreground flex-shrink-0 truncate font-semibold">
+              {#if debouncedSearchQuery}
+                {@const parts = item.name.split(
+                  new RegExp(`(${debouncedSearchQuery})`, "gi"),
+                )}
+                {#each parts as part}
+                  {#if part.toLowerCase() === debouncedSearchQuery.toLowerCase()}
+                    <mark
+                      class="bg-primary/20 text-foreground rounded-sm px-0.5"
+                      >{part}</mark
+                    >
+                  {:else}
+                    {part}
+                  {/if}
+                {/each}
+              {:else}
+                {item.name}
+              {/if}
+            </span>
+            <span class="text-muted-foreground/50 text-xs font-medium">
+              {item.children?.length}
+            </span>
+          </div>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            class={cn(
+              "hover:bg-secondary/80 h-6 w-6 shadow-sm transition-all",
+              isCopied && "text-success/100",
+            )}
+            onclick={(ev) => {
+              ev.stopPropagation();
+              copyNodeJson(item);
+            }}
+            title="Copy JSON"
+          >
+            {#if isCopied}
+              <Check class="h-2 w-2" />
+            {:else}
+              <Copy class="h-2 w-2" />
+            {/if}
+          </Button>
+        {:else if !hasChildren && item.name}
+          <span
+            class="text-muted-foreground flex-shrink-0 truncate font-medium"
+          >
             {item.name}
           </span>
         {/if}
@@ -712,9 +816,9 @@
         {#if hasValue}
           <button
             class={cn(
-              "inline-flex min-w-0 items-center gap-1 truncate rounded px-1.5 py-0.5 font-mono text-sm transition-all",
-              "bg-secondary/80 text-foreground hover:bg-secondary",
-              isCopied && "bg-success/20 text-success",
+              "inline-flex min-w-0 items-center gap-1.5 truncate rounded-md px-2 py-0.5 font-mono text-[13px] transition-all",
+              "bg-secondary/60 text-foreground ring-border/50 hover:bg-secondary hover:ring-border ring-1",
+              isCopied && "bg-success/10 text-success ring-success/30",
             )}
             title="Click to copy"
             onclick={(ev) => {
@@ -722,7 +826,9 @@
               copyValue(item.nodeId, item.value!);
             }}
           >
-            {#if isCopied}<Check class="h-3 w-3 flex-shrink-0" />{/if}
+            {#if isCopied}
+              <Check class="h-3 w-3 flex-shrink-0" />
+            {/if}
             <span class="truncate">{item.value}</span>
           </button>
         {/if}

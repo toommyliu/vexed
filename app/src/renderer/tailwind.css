@@ -16,7 +16,8 @@
   }
 
   :focus,
-  :focus-visible {
+  :focus-visible,
+  :active {
     outline: none !important;
     box-shadow: none !important;
   }

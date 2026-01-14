@@ -1,15 +1,13 @@
 <script lang="ts">
   import { Button, Checkbox, Label } from "@vexed/ui";
-  import * as Empty from "@vexed/ui/Empty";
   import { cn } from "@vexed/ui/util";
   import { onMount, tick } from "svelte";
   import log from "electron-log";
 
-  import Copy from "lucide-svelte/icons/copy";
-  import Download from "lucide-svelte/icons/download";
-  import Trash2 from "lucide-svelte/icons/trash-2";
-  import ArrowDownToLine from "lucide-svelte/icons/arrow-down-to-line";
-  import FileText from "lucide-svelte/icons/file-text";
+  import Copy from "@vexed/ui/icons/Copy";
+  import Download from "@vexed/ui/icons/Download";
+  import Trash2 from "@vexed/ui/icons/Trash2";
+  import ArrowDownToLine from "@vexed/ui/icons/ArrowDownToLine";
 
   import { client, handlers } from "~/shared/tipc";
   import type { AppLogEntry } from "~/shared/types";
@@ -61,10 +59,6 @@
 
   function getLevelLabel(level: number): string {
     return LEVEL_LABELS[level] ?? `level-${level}`;
-  }
-
-  function getLevelClass(level: number): string {
-    return LEVEL_CLASSES[level] ?? "text-foreground";
   }
 
   function getLevelBadgeClass(level: number): string {
@@ -166,7 +160,7 @@
 
 <div class="bg-background flex h-screen flex-col">
   <header
-    class="bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-10 border-b border-border/50 px-6 py-3 backdrop-blur-xl elevation-1"
+    class="elevation-1 border-border/50 bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-10 border-b px-6 py-3 backdrop-blur-xl"
   >
     <div class="mx-auto flex max-w-7xl items-center justify-between">
       <div class="flex items-center gap-3">
@@ -179,7 +173,7 @@
         <Button
           variant="outline"
           size="sm"
-          class="gap-2 border-border/50"
+          class="border-border/50 gap-2"
           onclick={() => void saveLogs()}
           disabled={entries.length === 0 || isSaving}
         >
@@ -189,7 +183,7 @@
         <Button
           variant="outline"
           size="sm"
-          class="gap-2 border-border/50"
+          class="border-border/50 gap-2"
           onclick={() => void copyAll()}
           disabled={entries.length === 0 || isCopyingAll}
         >
@@ -213,34 +207,33 @@
   <main class="flex-1 overflow-hidden p-4 sm:p-6">
     <div class="mx-auto flex h-full max-w-7xl flex-col gap-4">
       <div class="flex items-center justify-between">
-        <span class="text-sm text-muted-foreground">
-          <span class="tabular-nums font-medium text-foreground">{entries.length}</span>
-          <span class="text-muted-foreground/70">log{entries.length !== 1 ? 's' : ''}</span>
+        <span class="text-muted-foreground text-sm">
+          <span class="text-foreground font-medium tabular-nums"
+            >{entries.length}</span
+          >
+          <span class="text-muted-foreground/70"
+            >log{entries.length !== 1 ? "s" : ""}</span
+          >
         </span>
 
         <div class="flex items-center gap-2">
           <Checkbox id="auto-scroll" bind:checked={autoScroll} />
-          <Label for="auto-scroll" class="text-sm text-muted-foreground cursor-pointer flex items-center gap-1.5">
+          <Label
+            for="auto-scroll"
+            class="text-muted-foreground flex cursor-pointer items-center gap-1.5 text-sm"
+          >
             <ArrowDownToLine class="h-3.5 w-3.5" />
             Auto-scroll
           </Label>
         </div>
       </div>
 
-      <div class="relative flex-1 overflow-hidden rounded-xl border border-border/50 bg-card">
+      <div
+        class="border-border/50 bg-card relative flex-1 overflow-hidden rounded-xl border"
+      >
         {#if entries.length === 0}
           <div class="flex h-full items-center justify-center">
-            <Empty.Root>
-              <Empty.Header>
-                <Empty.Media variant="icon">
-                  <FileText />
-                </Empty.Media>
-                <Empty.Title>No logs yet</Empty.Title>
-                <Empty.Description>
-                  Application logs will appear here.
-                </Empty.Description>
-              </Empty.Header>
-            </Empty.Root>
+            <p class="text-muted-foreground text-center">No logs yet.</p>
           </div>
         {:else}
           <div
@@ -249,7 +242,7 @@
           >
             {#each entries as entry, index (`${entry.timestamp}-${index}`)}
               <div
-                class="group flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 transition-colors hover:bg-secondary/50"
+                class="hover:bg-secondary/50 group flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 transition-colors"
                 onclick={() => void copyEntry(entry)}
                 onkeydown={(ev) => {
                   if (ev.key === "Enter") {
@@ -261,24 +254,30 @@
                 tabindex="0"
                 title="Click to copy"
               >
-                <span class="shrink-0 text-xs text-muted-foreground/70 tabular-nums">
+                <span
+                  class="text-muted-foreground/70 shrink-0 text-xs tabular-nums"
+                >
                   {formatTimestamp(entry.timestamp)}
                 </span>
                 <span
                   class={cn(
                     "shrink-0 rounded px-1.5 py-0.5 text-xs font-medium uppercase",
-                    getLevelBadgeClass(entry.level)
+                    getLevelBadgeClass(entry.level),
                   )}
                 >
                   {getLevelLabel(entry.level)}
                 </span>
-                <span class="shrink-0 text-xs text-muted-foreground/50">
+                <span class="text-muted-foreground/50 shrink-0 text-xs">
                   {formatSource(entry.sourceId, entry.lineNumber)}
                 </span>
-                <span class="flex-1 whitespace-pre-wrap break-words text-foreground">
+                <span
+                  class="text-foreground flex-1 whitespace-pre-wrap break-words"
+                >
                   {stripLeadingTimestamp(entry)}
                 </span>
-                <Copy class="h-3.5 w-3.5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                <Copy
+                  class="text-muted-foreground h-3.5 w-3.5 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
+                />
               </div>
             {/each}
           </div>

@@ -47,16 +47,48 @@
   let { hotkeyValues }: Props = $props();
 
   const options = [
-    { key: "infiniteRange", label: "Infinite Range", hotkeyId: "toggle-infinite-range" },
-    { key: "provokeCell", label: "Provoke Cell", hotkeyId: "toggle-provoke-cell" },
-    { key: "enemyMagnet", label: "Enemy Magnet", hotkeyId: "toggle-enemy-magnet" },
+    {
+      key: "infiniteRange",
+      label: "Infinite Range",
+      hotkeyId: "toggle-infinite-range",
+    },
+    {
+      key: "provokeCell",
+      label: "Provoke Cell",
+      hotkeyId: "toggle-provoke-cell",
+    },
+    {
+      key: "enemyMagnet",
+      label: "Enemy Magnet",
+      hotkeyId: "toggle-enemy-magnet",
+    },
     { key: "lagKiller", label: "Lag Killer", hotkeyId: "toggle-lag-killer" },
-    { key: "hidePlayers", label: "Hide Players", hotkeyId: "toggle-hide-players" },
-    { key: "skipCutscenes", label: "Skip Cutscenes", hotkeyId: "toggle-skip-cutscenes" },
+    {
+      key: "hidePlayers",
+      label: "Hide Players",
+      hotkeyId: "toggle-hide-players",
+    },
+    {
+      key: "skipCutscenes",
+      label: "Skip Cutscenes",
+      hotkeyId: "toggle-skip-cutscenes",
+    },
     { key: "disableFx", label: "Disable FX", hotkeyId: "toggle-disable-fx" },
-    { key: "disableCollisions", label: "Disable Collisions", hotkeyId: "toggle-disable-collisions" },
-    { key: "counterAttack", label: "Anti-Counter", hotkeyId: "toggle-anti-counter" },
-    { key: "disableDeathAds", label: "Disable Death Ads", hotkeyId: "toggle-disable-death-ads" },
+    {
+      key: "disableCollisions",
+      label: "Disable Collisions",
+      hotkeyId: "toggle-disable-collisions",
+    },
+    {
+      key: "counterAttack",
+      label: "Anti-Counter",
+      hotkeyId: "toggle-anti-counter",
+    },
+    {
+      key: "disableDeathAds",
+      label: "Disable Death Ads",
+      hotkeyId: "toggle-disable-death-ads",
+    },
   ] as const;
 </script>
 

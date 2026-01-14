@@ -11,7 +11,6 @@ export * as Label from "./components/Label.svelte";
 export * as Card from "./components/card/index.js";
 export * as Dialog from "./components/dialog/index.js";
 export * as Group from "./components/group/index.js";
-export * as Empty from "./components/empty/index.js";
 export * as Tabs from "./components/tabs/index.js";
 export * as Menu from "./components/menu/index.js";
 export * as Alert from "./components/alert/index.js";

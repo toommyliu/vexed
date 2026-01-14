@@ -3,8 +3,8 @@
   import { Button, Input, Label } from "@vexed/ui";
   import * as Dialog from "@vexed/ui/Dialog";
   import { motionFade } from "@vexed/ui/motion";
-  import LoaderCircle from "lucide-svelte/icons/loader-circle";
-  import AlertCircle from "lucide-svelte/icons/alert-circle";
+  import Loader from "@vexed/ui/icons/Loader";
+  import AlertCircle from "@vexed/ui/icons/AlertCircle";
   import { client } from "~/shared/tipc";
 
   type Props = {
@@ -96,21 +96,29 @@
 
 <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
   <Dialog.Content showCloseButton={true} class="sm:max-w-md">
-    <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent"></div>
+    <div
+      class="via-primary/40 absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent to-transparent"
+    ></div>
 
     <Dialog.Header class="pb-2">
-      <Dialog.Title class="text-lg font-semibold tracking-tight">Edit Location</Dialog.Title>
+      <Dialog.Title class="text-lg font-semibold tracking-tight"
+        >Edit Location</Dialog.Title
+      >
     </Dialog.Header>
 
-    <form id="edit-fast-travel-form" onsubmit={handleSubmit} class="grid gap-4 px-6">
+    <form
+      id="edit-fast-travel-form"
+      onsubmit={handleSubmit}
+      class="grid gap-4 px-6"
+    >
       {#if error}
         {#key error}
           <div
             transition:motionFade={{ duration: 150 }}
-            class="flex items-start gap-2.5 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2.5"
+            class="border-destructive/30 bg-destructive/5 flex items-start gap-2.5 rounded-lg border px-3 py-2.5"
           >
-            <AlertCircle class="size-4 text-destructive shrink-0 mt-0.5" />
-            <span class="text-sm text-destructive">{error}</span>
+            <AlertCircle class="text-destructive mt-0.5 size-4 shrink-0" />
+            <span class="text-destructive text-sm">{error}</span>
           </div>
         {/key}
       {/if}
@@ -137,7 +145,11 @@
 
       <div class="grid grid-cols-2 gap-3">
         <div class="grid gap-2">
-          <Label for="edit-cell" class="text-sm font-medium text-muted-foreground">Cell <span class="text-xs">(optional)</span></Label>
+          <Label
+            for="edit-cell"
+            class="text-muted-foreground text-sm font-medium"
+            >Cell <span class="text-xs">(optional)</span></Label
+          >
           <Input
             id="edit-cell"
             bind:value={cell}
@@ -146,7 +158,11 @@
           />
         </div>
         <div class="grid gap-2">
-          <Label for="edit-pad" class="text-sm font-medium text-muted-foreground">Pad <span class="text-xs">(optional)</span></Label>
+          <Label
+            for="edit-pad"
+            class="text-muted-foreground text-sm font-medium"
+            >Pad <span class="text-xs">(optional)</span></Label
+          >
           <Input
             id="edit-pad"
             bind:value={pad}
@@ -167,7 +183,7 @@
         disabled={isSubmitting || !name.trim() || !map.trim()}
       >
         {#if isSubmitting}
-          <LoaderCircle class="size-4 animate-spin" />
+          <Loader class="size-4 animate-spin" />
           <span>Saving...</span>
         {:else}
           <span>Update</span>

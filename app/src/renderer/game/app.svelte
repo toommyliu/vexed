@@ -37,12 +37,12 @@
   import CommandPalette from "./components/CommandPalette.svelte";
   import OptionsPanel from "./components/OptionsPanel.svelte";
   import WindowsMegaMenu from "./components/WindowsMegaMenu.svelte";
- 
+
   import { Button, Checkbox, Label } from "@vexed/ui";
   import Kbd from "@vexed/ui/Kbd";
   import * as Menu from "@vexed/ui/Menu";
-  import Play from "lucide-svelte/icons/play";
-  import Square from "lucide-svelte/icons/square";
+  import Play from "@vexed/ui/icons/Play";
+  import Square from "@vexed/ui/icons/Square";
 
   const logger = log.scope("game/app");
 
@@ -75,7 +75,7 @@
   let reloginPassword = $derived(bot.auth?.password ?? "");
   let reloginCanEnable = $derived(
     Boolean(reloginUsername && reloginPassword) ||
-    Boolean(autoReloginState.username && autoReloginState.password)
+      Boolean(autoReloginState.username && autoReloginState.password),
   );
 
   function updateReloginServers() {
@@ -372,7 +372,8 @@
       const currentCls = bot.player.className;
 
       const skillSet =
-        appState.skillSets?.get(currentCls) ?? parseSkillSetJson({ skills: [1, 2, 3, 4], delay: 150 });
+        appState.skillSets?.get(currentCls) ??
+        parseSkillSetJson({ skills: [1, 2, 3, 4], delay: 150 });
       const skillList = skillSet.skills;
       let idx = 0;
 
@@ -520,22 +521,23 @@
 />
 
 <main
-  class="m-0 flex h-screen flex-col overflow-hidden bg-background text-foreground focus:outline-none"
+  class="bg-background text-foreground m-0 flex h-screen flex-col overflow-hidden focus:outline-none"
 >
   {#if topNavVisible}
     <div
       id="topnav-container"
-      class="relative z-[10000] flex h-9 items-center border-b border-border/50 bg-background/95 backdrop-blur-md"
+      class="border-border/50 bg-background/95 relative z-[10000] flex h-9 items-center border-b backdrop-blur-md"
     >
       <div
         id="topnav"
-        class="flex h-full w-full flex-row items-center gap-0.5 px-1">
+        class="flex h-full w-full flex-row items-center gap-0.5 px-1"
+      >
         <div
           class="group relative inline-flex h-full cursor-pointer items-center"
           id="windows-dropdown"
         >
           <button
-            class="flex h-7 shrink-0 items-center rounded bg-transparent px-2.5 text-[13px] font-medium text-foreground/80 transition-colors duration-150 hover:bg-accent hover:text-foreground"
+            class="text-foreground/80 hover:bg-accent hover:text-foreground flex h-7 shrink-0 items-center rounded bg-transparent px-2.5 text-[13px] font-medium transition-colors duration-150"
             id="windows"
             onclick={(ev) => {
               ev.stopPropagation();
@@ -557,29 +559,51 @@
             onOpenChange={(open) => (openDropdown = open ? "scripts" : null)}
             class="flex h-full items-center"
           >
-            <Menu.Trigger class="flex h-7 shrink-0 items-center rounded bg-transparent px-2.5 text-[13px] font-medium text-foreground/80 transition-colors duration-150 hover:bg-accent hover:text-foreground">
+            <Menu.Trigger
+              class="text-foreground/80 hover:bg-accent hover:text-foreground flex h-7 shrink-0 items-center rounded bg-transparent px-2.5 text-[13px] font-medium transition-colors duration-150"
+            >
               Scripts
             </Menu.Trigger>
             <Menu.Content class="min-w-48 text-[13px]">
-              <Menu.Item class="bg-transparent flex items-center justify-between" onclick={() => void client.scripts.loadScript({ scriptPath: "" })}>
+              <Menu.Item
+                class="flex items-center justify-between bg-transparent"
+                onclick={() =>
+                  void client.scripts.loadScript({ scriptPath: "" })}
+              >
                 <span>Load Script</span>
                 <Kbd hotkey={hotkeyValues["load-script"] ?? ""} class="ml-4" />
               </Menu.Item>
-              <Menu.Item class="bg-transparent flex items-center justify-between" onclick={() => commandOverlayState.toggle()}>
-                <span>{scriptState.showOverlay ? "Hide Overlay" : "Show Overlay"}</span>
-                <Kbd hotkey={hotkeyValues["toggle-command-overlay"] ?? ""} class="ml-4" />
+              <Menu.Item
+                class="flex items-center justify-between bg-transparent"
+                onclick={() => commandOverlayState.toggle()}
+              >
+                <span
+                  >{scriptState.showOverlay
+                    ? "Hide Overlay"
+                    : "Show Overlay"}</span
+                >
+                <Kbd
+                  hotkey={hotkeyValues["toggle-command-overlay"] ?? ""}
+                  class="ml-4"
+                />
               </Menu.Item>
-              <Menu.Item class="bg-transparent flex items-center justify-between" onclick={() => void client.scripts.toggleDevTools()}>
+              <Menu.Item
+                class="flex items-center justify-between bg-transparent"
+                onclick={() => void client.scripts.toggleDevTools()}
+              >
                 <span>Dev Tools</span>
-                <Kbd hotkey={hotkeyValues["toggle-dev-tools"] ?? ""} class="ml-4" />
+                <Kbd
+                  hotkey={hotkeyValues["toggle-dev-tools"] ?? ""}
+                  class="ml-4"
+                />
               </Menu.Item>
             </Menu.Content>
           </Menu.Root>
 
           <button
-            class="flex h-7 shrink-0 items-center gap-1.5 rounded bg-transparent px-2.5 text-[13px] font-medium text-foreground/80 transition-colors duration-150 hover:bg-accent hover:text-foreground"
+            class="text-foreground/80 hover:bg-accent hover:text-foreground flex h-7 shrink-0 items-center gap-1.5 rounded bg-transparent px-2.5 text-[13px] font-medium transition-colors duration-150"
             onclick={() => optionsPanelState.toggle()}
-              >
+          >
             <span>Options</span>
           </button>
 
@@ -597,60 +621,79 @@
           >
             <Menu.Trigger
               class={cn(
-                "flex h-7 shrink-0 items-center gap-1.5 rounded bg-transparent px-2.5 text-[13px] font-medium transition-all duration-200 hover:bg-accent",
+                "hover:bg-accent flex h-7 shrink-0 items-center gap-1.5 rounded bg-transparent px-2.5 text-[13px] font-medium transition-all duration-200",
                 autoReloginState.enabled
                   ? "text-emerald-400"
-                  : "text-foreground/80 hover:text-foreground"
+                  : "text-foreground/80 hover:text-foreground",
               )}
             >
               <span>Auto Relogin</span>
             </Menu.Trigger>
             <Menu.Content class="w-52 text-[13px]">
               {#if autoReloginState.enabled}
-                <div class="px-2 py-1.5 text-xs text-muted-foreground/70 flex items-center gap-2">
+                <div
+                  class="text-muted-foreground/70 flex items-center gap-2 px-2 py-1.5 text-xs"
+                >
                   Username: {autoReloginState.username}
                 </div>
-                <div class="px-2 py-1.5 text-xs text-muted-foreground/70 flex items-center gap-2">
+                <div
+                  class="text-muted-foreground/70 flex items-center gap-2 px-2 py-1.5 text-xs"
+                >
                   Server: {autoReloginState.server}
                 </div>
-                <div class="px-2 py-1.5 text-xs text-muted-foreground/70 flex items-center gap-2">
+                <div
+                  class="text-muted-foreground/70 flex items-center gap-2 px-2 py-1.5 text-xs"
+                >
                   Fallback: {autoReloginState.fallbackServer || "Auto"}
                 </div>
-                <div class="px-2 py-1.5 flex items-center justify-between gap-2">
-                  <span class="text-xs text-muted-foreground/70">Delay:</span>
+                <div
+                  class="flex items-center justify-between gap-2 px-2 py-1.5"
+                >
+                  <span class="text-muted-foreground/70 text-xs">Delay:</span>
                   <div class="flex items-center gap-1">
                     <input
                       type="number"
                       min="1"
                       max="60"
-                      class="w-12 h-5 px-1 text-xs text-center rounded border border-border/60 bg-background text-foreground focus:outline-none focus:border-emerald-500/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      class="border-border/60 bg-background text-foreground h-5 w-12 rounded border px-1 text-center text-xs [appearance:textfield] focus:border-emerald-500/50 focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                       value={autoReloginState.delay / 1000}
                       onchange={(ev) => {
-                        const val = Math.max(1, Math.min(60, Number(ev.currentTarget.value) || 5));
+                        const val = Math.max(
+                          1,
+                          Math.min(60, Number(ev.currentTarget.value) || 5),
+                        );
                         autoReloginState.delay = val * 1000;
                         ev.currentTarget.value = String(val);
                       }}
                     />
-                    <span class="text-xs text-muted-foreground/70">s</span>
+                    <span class="text-muted-foreground/70 text-xs">s</span>
                   </div>
                 </div>
-                <Menu.Item class="bg-transparent text-red-400 hover:text-red-300" onclick={disableRelogin}>
+                <Menu.Item
+                  class="bg-transparent text-red-400 hover:text-red-300"
+                  onclick={disableRelogin}
+                >
                   Disable
                 </Menu.Item>
               {:else if autoReloginState.username && autoReloginState.password}
-                <div class="px-2 py-1.5 text-xs text-muted-foreground/70 flex items-center gap-2">
+                <div
+                  class="text-muted-foreground/70 flex items-center gap-2 px-2 py-1.5 text-xs"
+                >
                   Username: {autoReloginState.username}
                 </div>
                 <Menu.Separator />
-                <Menu.Label class="text-[11px] text-muted-foreground/70 uppercase tracking-wider px-2 py-1.5">
+                <Menu.Label
+                  class="text-muted-foreground/70 px-2 py-1.5 text-[11px] uppercase tracking-wider"
+                >
                   Enable for server
                 </Menu.Label>
                 <div class="max-h-52 overflow-y-auto pr-1">
                   {#each reloginServers as server}
-                    <Menu.Item 
+                    <Menu.Item
                       class={cn(
-                        "bg-transparent hover:bg-emerald-500/10 hover:text-emerald-400 transition-colors",
-                        server === autoReloginState.server && "text-emerald-400"
+                        "bg-transparent transition-colors hover:bg-emerald-500/10 hover:text-emerald-400",
+                        server === autoReloginState.server &&
+                          "text-emerald-400",
                       )}
                       onclick={() => {
                         autoReloginState.server = server;
@@ -658,29 +701,35 @@
                         AutoReloginJob.resetForNewCredentials();
                       }}
                     >
-                      {server}{server === autoReloginState.server ? " (last)" : ""}
+                      {server}{server === autoReloginState.server
+                        ? " (last)"
+                        : ""}
                     </Menu.Item>
                   {/each}
                 </div>
                 <Menu.Separator />
-                <Menu.Item 
-                  class="bg-transparent text-muted-foreground hover:text-foreground"
+                <Menu.Item
+                  class="text-muted-foreground hover:text-foreground bg-transparent"
                   onclick={() => autoReloginState.reset()}
                 >
                   Clear Credentials
                 </Menu.Item>
               {:else if !reloginCanEnable}
                 <div class="px-3 py-3 text-center">
-                  <div class="text-muted-foreground/60 text-xs">Log in to enable</div>
+                  <div class="text-muted-foreground/60 text-xs">
+                    Log in to enable
+                  </div>
                 </div>
               {:else}
-                <Menu.Label class="text-[11px] text-muted-foreground/70 uppercase tracking-wider px-2 py-1.5">
+                <Menu.Label
+                  class="text-muted-foreground/70 px-2 py-1.5 text-[11px] uppercase tracking-wider"
+                >
                   Enable for server
                 </Menu.Label>
                 <div class="max-h-52 overflow-y-auto pr-1">
                   {#each reloginServers as server}
-                    <Menu.Item 
-                      class="bg-transparent hover:bg-emerald-500/10 hover:text-emerald-400 transition-colors"
+                    <Menu.Item
+                      class="bg-transparent transition-colors hover:bg-emerald-500/10 hover:text-emerald-400"
                       onclick={() => enableRelogin(server)}
                     >
                       {server}
@@ -695,8 +744,11 @@
             class={cn(
               "ml-0.5 flex h-6 shrink-0 items-center gap-1 rounded px-2 text-[12px] font-medium transition-colors duration-150",
               !scriptState.isLoaded && "cursor-not-allowed opacity-40",
-              scriptState.isLoaded && !scriptState.isRunning && "bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30",
-              scriptState.isRunning && "bg-amber-600/20 text-amber-400 hover:bg-amber-600/30"
+              scriptState.isLoaded &&
+                !scriptState.isRunning &&
+                "bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30",
+              scriptState.isRunning &&
+                "bg-amber-600/20 text-amber-400 hover:bg-amber-600/30",
             )}
             disabled={!scriptState.isLoaded}
             onclick={toggleScript}
@@ -712,11 +764,13 @@
         </div>
 
         <div class="ml-auto flex h-full shrink-0 items-center gap-1 pr-1.5">
-          <Label class="flex cursor-pointer select-none items-center gap-1.5 text-[12px] text-foreground/70 transition-colors hover:text-foreground">
+          <Label
+            class="text-foreground/70 hover:text-foreground flex cursor-pointer select-none items-center gap-1.5 text-[12px] transition-colors"
+          >
             <Checkbox bind:checked={autoEnabled} />
             <span>Auto</span>
           </Label>
-          <div class="ml-0.5 h-4 w-px bg-border/60"></div>
+          <div class="bg-border/60 ml-0.5 h-4 w-px"></div>
           <div class="flex items-center gap-1">
             <Menu.Root
               open={openDropdown === "pads"}
@@ -731,7 +785,7 @@
               class="h-6 w-20"
             >
               <Menu.Trigger
-                class="flex h-full w-full items-center justify-between rounded border border-border/60 bg-background px-2 text-[12px] text-foreground/80 transition-colors duration-150 hover:border-border hover:bg-accent/30 disabled:cursor-not-allowed disabled:opacity-50"
+                class="border-border/60 bg-background text-foreground/80 hover:border-border hover:bg-accent/30 flex h-full w-full items-center justify-between rounded border px-2 text-[12px] transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={!gameConnected}
               >
                 {currentSelectedPad}
@@ -739,7 +793,14 @@
               <Menu.Content align="end" class="min-w-40 text-[12px]">
                 {#each validPads as pad}
                   <Menu.Item
-                    class={cn("bg-transparent", pad.isValid && pad.name !== currentSelectedPad && "text-emerald-400", pad.name === currentSelectedPad && "bg-accent/50 text-primary font-medium")}
+                    class={cn(
+                      "bg-transparent",
+                      pad.isValid &&
+                        pad.name !== currentSelectedPad &&
+                        "text-emerald-400",
+                      pad.name === currentSelectedPad &&
+                        "bg-accent/50 text-primary font-medium",
+                    )}
                     onclick={() => jumpToPad(pad.name)}
                   >
                     {pad.name}
@@ -760,25 +821,35 @@
               class="h-6 w-20"
             >
               <Menu.Trigger
-                class="flex h-full w-full items-center justify-between rounded border border-border/60 bg-background px-2 text-[12px] text-foreground/80 transition-colors duration-150 hover:border-border hover:bg-accent/30 disabled:cursor-not-allowed disabled:opacity-50"
+                class="border-border/60 bg-background text-foreground/80 hover:border-border hover:bg-accent/30 flex h-full w-full items-center justify-between rounded border px-2 text-[12px] transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={!gameConnected}
               >
                 {currentSelectedCell}
               </Menu.Trigger>
-              <Menu.Content align="end" class="max-h-[25vh] min-w-40 overflow-y-auto text-[12px]">
+              <Menu.Content
+                align="end"
+                class="max-h-[25vh] min-w-40 overflow-y-auto text-[12px]"
+              >
                 {#each availableCells as cell}
-                  <Menu.Item class={cn("bg-transparent", cell === currentSelectedCell && "bg-accent/50 text-primary font-medium")} onclick={() => jumpToCell(cell)}>
+                  <Menu.Item
+                    class={cn(
+                      "bg-transparent",
+                      cell === currentSelectedCell &&
+                        "bg-accent/50 text-primary font-medium",
+                    )}
+                    onclick={() => jumpToCell(cell)}
+                  >
                     {cell}
                   </Menu.Item>
                 {/each}
               </Menu.Content>
             </Menu.Root>
           </div>
-          <div class="ml-0.5 h-4 w-px bg-border/60"></div>
+          <div class="bg-border/60 ml-0.5 h-4 w-px"></div>
           <Button
             variant="ghost"
             size="xs"
-            class="h-6 px-2 text-[12px] text-foreground/70 hover:text-foreground"
+            class="text-foreground/70 hover:text-foreground h-6 px-2 text-[12px]"
             disabled={!gameConnected}
             onclick={async () => {
               if (!bot.player.isReady()) return;
@@ -798,7 +869,7 @@
   {/if}
 
   <div
-    class="flex min-h-screen flex-col items-center justify-center bg-background-primary"
+    class="bg-background-primary flex min-h-screen flex-col items-center justify-center"
     id="loader-container"
   >
     <div class="w-full max-w-md px-8">
@@ -817,10 +888,7 @@
     </div>
   </div>
 
-  <div
-    class="invisible relative flex-1 opacity-0"
-    id="game-container"
-  >
+  <div class="invisible relative flex-1 opacity-0" id="game-container">
     {#if swfPath}
       <embed
         id="swf"

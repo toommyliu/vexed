@@ -1,17 +1,11 @@
 <script lang="ts">
-  import Plus from "lucide-svelte/icons/plus";
-  import Search from "lucide-svelte/icons/search";
-  import Trash2 from "lucide-svelte/icons/trash-2";
-  import Play from "lucide-svelte/icons/play";
-  import ServerIcon from "lucide-svelte/icons/server";
-  import FileCode from "lucide-svelte/icons/file-code";
-  import Pencil from "lucide-svelte/icons/pencil";
-  import Loader from "lucide-svelte/icons/loader";
-  import LoaderCircle from "lucide-svelte/icons/loader-circle";
-  import ToggleLeft from "lucide-svelte/icons/toggle-left";
-  import CheckSquare from "lucide-svelte/icons/check-square";
-  import Square from "lucide-svelte/icons/square";
-  import { Button, Input, Checkbox, Switch, cn } from "@vexed/ui";
+  import Plus from "@vexed/ui/icons/Plus";
+  import Search from "@vexed/ui/icons/Search";
+  import Trash2 from "@vexed/ui/icons/Trash2";
+  import Play from "@vexed/ui/icons/Play";
+  import Pencil from "@vexed/ui/icons/Pencil";
+  import Loader from "@vexed/ui/icons/Loader";
+  import { Button, Input, Checkbox, Switch } from "@vexed/ui";
   import * as Select from "@vexed/ui/Select";
   import * as AlertDialog from "@vexed/ui/AlertDialog";
 
@@ -61,7 +55,8 @@
       const resp = await fetch("https://game.aq.com/game/api/data/servers");
 
       if (resp.status === 429) {
-        serverFetchError = "Too many requests. Please wait a moment before retrying.";
+        serverFetchError =
+          "Too many requests. Please wait a moment before retrying.";
         return;
       }
 
@@ -193,7 +188,8 @@
     for (const u of usernames) {
       const acc = accounts.get(u.toLowerCase());
       if (acc) {
-        const serverName = managerState.selectedServer?.split(" (")?.[0] ?? null;
+        const serverName =
+          managerState.selectedServer?.split(" (")?.[0] ?? null;
         startAccount({
           ...acc,
           server: serverName,
@@ -213,7 +209,7 @@
 
 <div class="bg-background flex h-screen flex-col">
   <header
-    class="bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-10 border-b border-border/50 px-6 py-3 backdrop-blur-xl elevation-1"
+    class="bg-background/95 supports-[backdrop-filter]:bg-background/80 border-border/50 elevation-1 sticky top-0 z-10 border-b px-6 py-3 backdrop-blur-xl"
   >
     <div class="mx-auto flex max-w-7xl items-center justify-between">
       <div class="flex items-center gap-3">
@@ -238,12 +234,12 @@
       <div class="flex flex-col gap-3">
         <div class="relative">
           <Search
-            class="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 pointer-events-none"
+            class="text-muted-foreground pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2"
           />
           <Input
             type="search"
             placeholder="Search accounts..."
-            class="pl-10 bg-secondary/50 border-border/50 focus:bg-background transition-colors"
+            class="bg-secondary/50 border-border/50 focus:bg-background pl-10 transition-colors"
             bind:value={searchQuery}
           />
         </div>
@@ -254,25 +250,27 @@
               variant="outline"
               onclick={retryServerFetch}
               disabled={isRetryingServerFetch}
-              class="flex w-full items-center justify-between gap-2 border-destructive/20 bg-destructive/5 hover:bg-destructive/10 text-destructive transition-colors h-10"
+              class="border-destructive/20 bg-destructive/5 hover:bg-destructive/10 text-destructive flex h-10 w-full items-center justify-between gap-2 transition-colors"
             >
-              <div class="flex min-w-0 items-center gap-2">
-                <ServerIcon class="h-4 w-4 shrink-0" />
-                <span class="truncate text-xs font-medium">{serverFetchError}</span>
-              </div>
-              <span class="bg-destructive text-destructive-foreground shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-widest leading-none">
+              <span class="truncate text-xs font-medium"
+                >{serverFetchError}</span
+              >
+              <span
+                class="bg-destructive text-destructive-foreground shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase leading-none tracking-widest"
+              >
                 {isRetryingServerFetch ? "..." : "Retry"}
               </span>
             </Button>
           {:else}
             <Select.Root bind:value={managerState.selectedServer}>
               <Select.Trigger
-                class="w-full bg-secondary/50 border-border/50 hover:bg-secondary transition-colors"
+                class="bg-secondary/50 border-border/50 hover:bg-secondary w-full transition-colors"
                 disabled={servers.size === 0}
               >
                 <div class="flex items-center gap-2">
-                  <ServerIcon class="text-muted-foreground h-4 w-4 shrink-0" />
-                  <span class="text-foreground text-sm truncate"
+                  <span class="text-muted-foreground text-sm">Login server</span
+                  >
+                  <span class="text-foreground truncate text-sm"
                     >{managerState.selectedServer?.split(" (")?.[0] ??
                       "Loading servers..."}</span
                   >
@@ -298,41 +296,44 @@
           <div
             class="group relative flex items-stretch overflow-hidden rounded-lg border transition-all duration-200
               {managerState.startWithScript
-                ? 'border-primary/40 bg-primary/5 elevation-1'
-                : 'border-border/50 bg-secondary/50'}"
+              ? 'border-primary/40 bg-primary/5 elevation-1'
+              : 'border-border/50 bg-secondary/50'}"
           >
             <label
-              class="flex items-center gap-2 px-3 bg-transparent hover:bg-secondary/80 transition-colors cursor-pointer"
+              class="hover:bg-secondary/80 flex cursor-pointer items-center gap-2 bg-transparent px-3 transition-colors"
             >
               <Switch
                 bind:checked={managerState.startWithScript}
                 class="h-4 w-8 [&>span]:h-3 [&>span]:w-3 [&>span]:data-[state=checked]:translate-x-4"
               />
               <span
-                class="text-sm font-medium select-none whitespace-nowrap transition-colors
-                  {managerState.startWithScript ? 'text-foreground' : 'text-muted-foreground'}"
+                class="select-none whitespace-nowrap text-sm font-medium transition-colors
+                  {managerState.startWithScript
+                  ? 'text-foreground'
+                  : 'text-muted-foreground'}"
               >
                 Script
               </span>
             </label>
 
             <div
-              class="w-px self-stretch my-1.5 transition-colors
-                {managerState.startWithScript ? 'bg-primary/20' : 'bg-border/30'}"
+              class="my-1.5 w-px self-stretch transition-colors
+                {managerState.startWithScript
+                ? 'bg-primary/20'
+                : 'bg-border/30'}"
             ></div>
 
             <Button
               variant="ghost"
               onclick={selectScript}
-              class="flex flex-1 items-center gap-2 px-3 min-w-0 rounded-none border-0 bg-transparent hover:bg-secondary/80 transition-colors"
+              class="hover:bg-secondary/80 flex min-w-0 flex-1 items-center rounded-none border-0 bg-transparent px-3 transition-colors"
               title={managerState.scriptPath || "Select a script file"}
             >
-              <FileCode
-                class={cn("h-4 w-4 shrink-0 transition-colors", managerState.scriptPath ? 'text-primary' : 'text-muted-foreground')}
-              />
               <span
                 class="truncate text-sm transition-colors
-                  {managerState.scriptPath ? 'text-foreground font-medium' : 'text-muted-foreground'}"
+                  {managerState.scriptPath
+                  ? 'text-foreground font-medium'
+                  : 'text-muted-foreground'}"
               >
                 {managerState.scriptPath
                   ? managerState.scriptPath.split(/[/\\]/).pop()
@@ -344,14 +345,16 @@
       </div>
 
       <div
-        class="flex flex-wrap items-center justify-between gap-2 sm:gap-3 text-sm transition-all duration-200"
+        class="flex flex-wrap items-center justify-between gap-2 text-sm transition-all duration-200 sm:gap-3"
       >
-        <div class="flex items-center gap-3 shrink-0">
+        <div class="flex shrink-0 items-center gap-3">
           <span
-            class="flex items-center gap-1.5 text-muted-foreground transition-colors"
+            class="text-muted-foreground flex items-center gap-1.5 transition-colors"
           >
-            <span class="tabular-nums font-medium {selectedCount > 0 ? 'text-primary' : ''}"
-              >{selectedCount}</span
+            <span
+              class="font-medium tabular-nums {selectedCount > 0
+                ? 'text-primary'
+                : ''}">{selectedCount}</span
             >
             <span class="text-muted-foreground/70">of</span>
             <span class="tabular-nums">{filteredAccounts.length}</span>
@@ -359,7 +362,7 @@
           </span>
         </div>
 
-        <div class="flex items-center gap-0.5 sm:gap-1 flex-wrap">
+        <div class="flex flex-wrap items-center gap-0.5 sm:gap-1">
           <Button
             variant="ghost"
             size="sm"
@@ -367,15 +370,12 @@
             class="text-muted-foreground hover:text-foreground px-2 sm:px-3"
             title={isAllSelected ? "Deselect all" : "Select all"}
           >
-            {#if isAllSelected}
-              <Square class="h-4 w-4" />
-            {:else}
-              <CheckSquare class="h-4 w-4" />
-            {/if}
-            <span class="text-sm font-medium hidden xs:inline sm:inline">{isAllSelected ? "None" : "All"}</span>
+            <span class="text-sm font-medium"
+              >{isAllSelected ? "None" : "All"}</span
+            >
           </Button>
 
-          <div class="h-4 w-px bg-border/30 hidden sm:block"></div>
+          <div class="bg-border/30 hidden h-4 w-px sm:block"></div>
 
           <Button
             variant="ghost"
@@ -384,22 +384,23 @@
             class="text-muted-foreground hover:text-foreground px-2 sm:px-3"
             title="Invert selection"
           >
-            <ToggleLeft class="h-4 w-4" />
-            <span class="text-sm font-medium hidden sm:inline">Invert</span>
+            <span class="text-sm font-medium">Invert</span>
           </Button>
 
-          <div class="h-4 w-px bg-border/30 ml-0.5 sm:ml-1 hidden sm:block"></div>
+          <div
+            class="bg-border/30 ml-0.5 hidden h-4 w-px sm:ml-1 sm:block"
+          ></div>
 
           <Button
             variant="ghost"
             size="sm"
             onclick={() => handleRemove(Array.from(selectedAccounts))}
             disabled={selectedCount === 0}
-            class="ml-0.5 sm:ml-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive px-2 sm:px-3"
+            class="text-muted-foreground hover:bg-destructive/10 hover:text-destructive ml-0.5 px-2 sm:ml-1 sm:px-3"
             title="Remove selected"
           >
             <Trash2 class="h-4 w-4" />
-            <span class="text-sm font-medium hidden sm:inline">Remove</span>
+            <span class="hidden text-sm font-medium sm:inline">Remove</span>
           </Button>
 
           <Button
@@ -407,16 +408,16 @@
             size="sm"
             onclick={() => handleStart(Array.from(selectedAccounts))}
             disabled={selectedCount === 0}
-            class="ml-0.5 sm:ml-1 bg-primary text-primary-foreground hover:bg-primary/90 px-2 sm:px-3"
+            class="bg-primary text-primary-foreground hover:bg-primary/90 ml-0.5 px-2 sm:ml-1 sm:px-3"
             title="Start selected"
           >
             <Play class="h-4 w-4" />
-            <span class="text-sm font-medium hidden sm:inline">Start</span>
+            <span class="hidden text-sm font-medium sm:inline">Start</span>
           </Button>
         </div>
       </div>
 
-      <div class="relative flex-1 overflow-auto -mx-1 px-1">
+      <div class="relative -mx-1 flex-1 overflow-auto px-1">
         {#if isLoading}
           <div
             class="text-muted-foreground flex h-full flex-col items-center justify-center gap-3"
@@ -426,11 +427,8 @@
           </div>
         {:else if filteredAccounts.length === 0}
           <div
-            class="flex h-full flex-col items-center justify-center gap-4 py-12 text-center"
+            class="flex h-full flex-col items-center justify-center gap-3 py-12 text-center"
           >
-            <div class="bg-secondary/50 rounded-full p-4">
-              <Search class="text-muted-foreground h-6 w-6" />
-            </div>
             <div class="space-y-1">
               <h3 class="text-foreground font-medium">No accounts found</h3>
               <p class="text-muted-foreground text-sm">
@@ -459,8 +457,8 @@
               <div
                 class="group flex cursor-pointer items-center gap-4 rounded-xl border px-4 py-4 transition-all duration-150
                   {isSelected
-                    ? 'border-primary/50 bg-primary/5 elevation-2'
-                    : 'border-border/50 bg-card hover:border-border hover:bg-secondary/30 hover:elevation-1'}"
+                  ? 'border-primary/50 bg-primary/5 elevation-2'
+                  : 'border-border/50 bg-card hover:border-border hover:bg-secondary/30 hover:elevation-1'}"
                 onclick={() => toggleSelection(account.username)}
                 role="button"
                 tabindex="0"
@@ -477,14 +475,14 @@
                   class="text-foreground flex-1 truncate text-base font-medium"
                   >{account.username}</span
                 >
-                
+
                 <div
                   class="flex items-center gap-0.5 opacity-0 transition-opacity duration-150 group-hover:opacity-100"
                 >
                   <Button
                     variant="ghost"
                     size="icon"
-                    class="h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10"
+                    class="text-muted-foreground hover:text-primary hover:bg-primary/10 h-7 w-7"
                     onclick={(ev: MouseEvent) => {
                       ev.stopPropagation();
                       handleStart([account.username]);
@@ -496,8 +494,8 @@
                   <Button
                     variant="ghost"
                     size="icon"
-                    class="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-secondary"
-                    onclick={(ev: MouseEvent) => {
+                    class="text-muted-foreground hover:text-foreground hover:bg-secondary h-7 w-7"
+                    onclick={(ev) => {
                       ev.stopPropagation();
                       editingAccount = account;
                       isEditOpen = true;
@@ -509,8 +507,8 @@
                   <Button
                     variant="ghost"
                     size="icon"
-                    class="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                    onclick={(ev: MouseEvent) => {
+                    class="text-muted-foreground hover:text-destructive hover:bg-destructive/10 h-7 w-7"
+                    onclick={(ev) => {
                       ev.stopPropagation();
                       handleRemove([account.username]);
                     }}
@@ -525,8 +523,6 @@
       </div>
     </div>
   </main>
-
-
 </div>
 
 <AddAccountModal
@@ -544,12 +540,15 @@
     editingAccount = null;
   }}
 />
-<!-- Delete Confirmation Dialog -->
+
 <AlertDialog.Root bind:open={deleteDialogOpen}>
   <AlertDialog.Content>
     <AlertDialog.Header>
       <AlertDialog.Title>
-        Remove {pendingDeleteUsernames.length} account{pendingDeleteUsernames.length !== 1 ? 's' : ''}?
+        Remove {pendingDeleteUsernames.length} account{pendingDeleteUsernames.length !==
+        1
+          ? "s"
+          : ""}?
       </AlertDialog.Title>
       <AlertDialog.Description>
         {#if deleteDialogError}
@@ -560,22 +559,22 @@
       </AlertDialog.Description>
     </AlertDialog.Header>
     <AlertDialog.Footer>
-      <Button 
-        variant="outline" 
-        onclick={cancelDelete} 
+      <Button
+        variant="outline"
+        onclick={cancelDelete}
         disabled={deleteDialogLoading}
         class="min-w-[80px]"
       >
         Cancel
       </Button>
-      <Button 
-        variant="destructive" 
-        onclick={confirmDelete} 
+      <Button
+        variant="destructive"
+        onclick={confirmDelete}
         disabled={deleteDialogLoading}
         class="min-w-[80px]"
       >
         {#if deleteDialogLoading}
-          <LoaderCircle class="size-4 animate-spin" />
+          <Loader class="size-4 animate-spin" />
           <span>Removing...</span>
         {:else}
           <span>Remove</span>
