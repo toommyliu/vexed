@@ -322,6 +322,16 @@
       "types": "./dist/components/icons/ArrowDownToLine.svelte.d.ts",
       "svelte": "./dist/components/icons/ArrowDownToLine.svelte",
       "default": "./dist/components/icons/ArrowDownToLine.svelte"
+    },
+    "./icons/Upload": {
+      "types": "./dist/components/icons/Upload.svelte.d.ts",
+      "svelte": "./dist/components/icons/Upload.svelte",
+      "default": "./dist/components/icons/Upload.svelte"
+    },
+    "./icons/ChevronRight": {
+      "types": "./dist/components/icons/ChevronRight.svelte.d.ts",
+      "svelte": "./dist/components/icons/ChevronRight.svelte",
+      "default": "./dist/components/icons/ChevronRight.svelte"
     }
   },
   "peerDependencies": {

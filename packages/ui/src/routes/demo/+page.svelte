@@ -55,6 +55,8 @@
   import EyeOff from "$lib/components/icons/EyeOff.svelte";
   import Command from "$lib/components/icons/Command.svelte";
   import ArrowDownToLine from "$lib/components/icons/ArrowDownToLine.svelte";
+  import Upload from "$lib/components/icons/Upload.svelte";
+  import ChevronRight from "$lib/components/icons/ChevronRight.svelte";
 
   let switchChecked = $state(false);
   let switchUnchecked = $state(false);
@@ -292,6 +294,18 @@
         >
           <ArrowDownToLine class="h-5 w-5" />
           <span class="text-xs text-muted-foreground">ArrowDownToLine</span>
+        </div>
+        <div
+          class="flex flex-col items-center gap-2 p-3 rounded-lg border bg-card"
+        >
+          <Upload class="h-5 w-5" />
+          <span class="text-xs text-muted-foreground">Upload</span>
+        </div>
+        <div
+          class="flex flex-col items-center gap-2 p-3 rounded-lg border bg-card"
+        >
+          <ChevronRight class="h-5 w-5" />
+          <span class="text-xs text-muted-foreground">ChevronRight</span>
         </div>
       </div>
     </section>
