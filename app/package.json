@@ -45,7 +45,6 @@
     "electron-log": "github:toommyliu/electron-log",
     "is-hotkey": "^0.2.0",
     "lodash.merge": "^4.6.2",
-    "lucide-svelte": "^0.562.0",
     "mousetrap": "^1.6.5",
     "neverthrow": "^8.2.0",
     "node-fetch": "^2.7.0",
