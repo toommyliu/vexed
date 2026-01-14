@@ -1,0 +1,5 @@
+cmd.use_autozone_darkcarnax()
+cmd.join('darkcarnax-1e99', 'Boss', 'Right')
+cmd.equip_item('Dragon of Time')
+cmd.enable_infiniterange()
+cmd.kill('*', { skillSet: [3, 2, 1, 2, 4] })
