@@ -6,9 +6,6 @@
   import Plus from "lucide-svelte/icons/plus";
   import X from "lucide-svelte/icons/x";
   import Trash2 from "lucide-svelte/icons/trash-2";
-  import Scroll from "lucide-svelte/icons/scroll";
-  import Package from "lucide-svelte/icons/package";
-  import Zap from "lucide-svelte/icons/zap";
   import Download from "lucide-svelte/icons/download";
   import Share2 from "lucide-svelte/icons/share-2";
 
@@ -37,7 +34,10 @@
     return a.every((value, idx) => value === b[idx]);
   }
 
-  function areRecordsEqual(a: Record<number, number>, b: Record<number, number>): boolean {
+  function areRecordsEqual(
+    a: Record<number, number>,
+    b: Record<number, number>,
+  ): boolean {
     const aKeys = Object.keys(a);
     const bKeys = Object.keys(b);
     if (aKeys.length !== bKeys.length) return false;
@@ -57,7 +57,7 @@
     }
 
     const normalizedDrops = Array.from(dedupDrops.values()).sort((a, b) =>
-      a.localeCompare(b)
+      a.localeCompare(b),
     );
 
     const dedupBoosts = new Map<string, string>();
@@ -70,7 +70,7 @@
     }
 
     const normalizedBoosts = Array.from(dedupBoosts.values()).sort((a, b) =>
-      a.localeCompare(b)
+      a.localeCompare(b),
     );
 
     const normalizedRejectElse = Boolean(state.rejectElse);
@@ -105,7 +105,7 @@
     boostItems: string[],
     rejectElse: boolean,
     autoRegisterRequirements: boolean,
-    autoRegisterRewards: boolean
+    autoRegisterRewards: boolean,
   ) {
     const normalizedQuestIds = [...questIds].sort((a, b) => a - b);
     const questIdSet = new Set(normalizedQuestIds);
@@ -129,7 +129,7 @@
     }
 
     const normalizedDrops = Array.from(dedupDrops.values()).sort((a, b) =>
-      a.localeCompare(b)
+      a.localeCompare(b),
     );
 
     const dedupBoosts = new Map<string, string>();
@@ -141,7 +141,7 @@
     }
 
     const normalizedBoosts = Array.from(dedupBoosts.values()).sort((a, b) =>
-      a.localeCompare(b)
+      a.localeCompare(b),
     );
 
     return {
@@ -177,7 +177,7 @@
       boostItems,
       rejectElse,
       autoRegisterRequirements,
-      autoRegisterRewards
+      autoRegisterRewards,
     );
 
     isSyncing = true;
@@ -458,6 +458,14 @@
     void shouldUpdateState(state);
   });
 
+  function clearAll() {
+    questIds = [];
+    questItemIds = {};
+    dropItems = [];
+    boostItems = [];
+    void syncEnvironment();
+  }
+
   async function broadcastToAll() {
     if (isBroadcasting) return;
 
@@ -468,7 +476,7 @@
       boostItems,
       rejectElse,
       autoRegisterRequirements,
-      autoRegisterRewards
+      autoRegisterRewards,
     );
 
     isBroadcasting = true;
@@ -484,7 +492,7 @@
 
 <div class="bg-background flex h-screen flex-col">
   <header
-    class="bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-10 border-b border-border/50 px-6 py-3 backdrop-blur-xl elevation-1"
+    class="bg-background/95 supports-[backdrop-filter]:bg-background/80 border-border/50 sticky top-0 z-10 border-b px-6 py-3"
   >
     <div class="mx-auto flex max-w-7xl items-center justify-between">
       <div class="flex items-center gap-3">
@@ -492,29 +500,52 @@
           Environment
         </h1>
       </div>
-      <Button
-        variant="outline"
-        size="sm"
-        class="h-7 gap-1.5 text-xs border-border/50"
-        onclick={broadcastToAll}
-        disabled={isBroadcasting || isSyncing}
-      >
-        <Share2 class="h-3.5 w-3.5" />
-        Sync to all
-      </Button>
+      <div class="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          class="text-destructive h-7 gap-1.5 text-xs"
+          onclick={clearAll}
+        >
+          <Trash2 class="h-3.5 w-3.5" />
+          Clear all
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          class="border-border/50 h-7 gap-1.5 text-xs"
+          onclick={broadcastToAll}
+          disabled={isBroadcasting}
+        >
+          <Share2 class="h-3.5 w-3.5" />
+          Sync to all
+        </Button>
+      </div>
     </div>
   </header>
 
   <main class="flex-1 overflow-auto p-4 sm:p-6">
     <div class="mx-auto max-w-7xl">
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <section class="flex flex-col rounded-xl border border-border/50 bg-card">
-          <div class="flex items-center justify-between border-b border-border/50 px-4 py-3">
+        <section
+          class="border-border/50 bg-card flex flex-col rounded-xl border"
+        >
+          <div
+            class="border-border/50 relative flex min-h-[52px] items-center justify-between border-b px-4 py-3"
+          >
+            <div
+              class="absolute bottom-3 left-0 top-3 w-0.5 rounded-full bg-blue-500/80"
+            ></div>
             <div class="flex items-center gap-2">
-              <Scroll class="h-4 w-4 text-muted-foreground" />
-              <h2 class="text-sm font-semibold text-foreground">Quests</h2>
+              <h2
+                class="text-foreground/90 text-sm font-semibold tracking-tight"
+              >
+                Quests
+              </h2>
               {#if questIds.length > 0}
-                <span class="rounded bg-secondary px-1.5 py-0.5 text-xs tabular-nums text-muted-foreground">
+                <span
+                  class="rounded bg-blue-500/10 px-1.5 py-0.5 text-[10px] font-bold tabular-nums text-blue-500/80"
+                >
                   {questIds.length}
                 </span>
               {/if}
@@ -523,9 +554,8 @@
               <Button
                 variant="ghost"
                 size="sm"
-                class="h-7 gap-1.5 text-xs text-muted-foreground hover:text-destructive"
+                class="text-destructive h-7 gap-1.5 text-xs"
                 onclick={clearQuests}
-                disabled={isSyncing}
               >
                 <Trash2 class="h-3.5 w-3.5" />
                 Clear
@@ -539,53 +569,58 @@
                 type="text"
                 placeholder="Enter quest ID..."
                 bind:value={questInput}
-                class="flex-1 bg-secondary/50 border-border/50"
+                class="bg-secondary/50 border-border/50 flex-1"
               />
               <Button
                 type="submit"
                 size="sm"
                 class="gap-1.5"
-                disabled={isSyncing || !questInput.trim()}
+                disabled={!questInput.trim()}
               >
                 <Plus class="h-4 w-4" />
                 Add
               </Button>
             </form>
 
-            <div class="min-h-[80px] max-h-32 overflow-y-auto">
+            <div class="max-h-32 min-h-[80px] overflow-y-auto">
               {#if questIds.length === 0}
                 <div class="flex h-20 items-center justify-center">
-                  <span class="text-xs text-muted-foreground/70">No quests registered</span>
+                  <span class="text-muted-foreground/70 text-xs"
+                    >No quests registered</span
+                  >
                 </div>
               {:else}
                 <div class="flex flex-wrap gap-1.5">
                   {#each questIds as questId (questId)}
                     <span
-                      class="group inline-flex items-center gap-1 rounded-full border border-border/50 bg-secondary/50 px-2 py-1 text-xs font-medium text-foreground transition-colors hover:bg-secondary"
+                      class="border-border/50 bg-secondary/50 text-foreground hover:bg-secondary group inline-flex items-center gap-1 rounded-full border px-2 py-1 text-xs font-medium transition-colors"
                     >
                       <span class="tabular-nums">{questId}</span>
                       {#if questItemIds[questId] !== undefined}
                         <span class="text-muted-foreground">:</span>
                         <input
                           type="number"
-                          class="w-14 bg-transparent border-none outline-none text-xs tabular-nums text-foreground [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          class="text-foreground w-14 border-none bg-transparent text-xs tabular-nums outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                           value={String(questItemIds[questId])}
-                          onblur={(ev) => updateQuestItemId(questId, ev.currentTarget.value)}
+                          onblur={(ev) =>
+                            updateQuestItemId(questId, ev.currentTarget.value)}
                           onkeydown={(ev) => {
                             if (ev.key === "Enter") {
                               ev.currentTarget.blur();
                             }
                           }}
-                          disabled={isSyncing}
                         />
                       {:else}
                         <input
                           type="text"
-                          class="w-12 bg-transparent border-none outline-none text-xs tabular-nums text-foreground placeholder:text-muted-foreground/40 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+                          class="text-foreground placeholder:text-muted-foreground/40 w-12 border-none bg-transparent text-xs tabular-nums opacity-0 outline-none transition-opacity focus:opacity-100 group-hover:opacity-100"
                           placeholder=":itemId"
                           onblur={(ev) => {
                             if (ev.currentTarget.value.trim()) {
-                              updateQuestItemId(questId, ev.currentTarget.value);
+                              updateQuestItemId(
+                                questId,
+                                ev.currentTarget.value,
+                              );
                             }
                           }}
                           onkeydown={(ev) => {
@@ -593,14 +628,12 @@
                               ev.currentTarget.blur();
                             }
                           }}
-                          disabled={isSyncing}
                         />
                       {/if}
                       <button
                         type="button"
-                        class="flex h-4 w-4 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/20 hover:text-destructive"
+                        class="text-muted-foreground hover:bg-destructive/20 hover:text-destructive flex h-4 w-4 items-center justify-center rounded-full transition-colors"
                         onclick={() => removeQuest(questId)}
-                        disabled={isSyncing}
                       >
                         <X class="h-3 w-3" />
                       </button>
@@ -610,15 +643,18 @@
               {/if}
             </div>
 
-            <div class="flex flex-col gap-2.5 border-t border-border/50 pt-3">
+            <div class="border-border/50 flex flex-col gap-2.5 border-t pt-3">
               <div class="flex items-center gap-2">
                 <Checkbox
                   id="auto-requirements"
                   checked={autoRegisterRequirements}
-                  disabled={isSyncing}
-                  onCheckedChange={(checked) => updateAutoRegisterRequirements(Boolean(checked))}
+                  onCheckedChange={(checked) =>
+                    updateAutoRegisterRequirements(Boolean(checked))}
                 />
-                <Label for="auto-requirements" class="text-xs text-muted-foreground cursor-pointer">
+                <Label
+                  for="auto-requirements"
+                  class="text-muted-foreground cursor-pointer text-xs"
+                >
                   Auto register requirements
                 </Label>
               </div>
@@ -626,10 +662,13 @@
                 <Checkbox
                   id="auto-rewards"
                   checked={autoRegisterRewards}
-                  disabled={isSyncing}
-                  onCheckedChange={(checked) => updateAutoRegisterRewards(Boolean(checked))}
+                  onCheckedChange={(checked) =>
+                    updateAutoRegisterRewards(Boolean(checked))}
                 />
-                <Label for="auto-rewards" class="text-xs text-muted-foreground cursor-pointer">
+                <Label
+                  for="auto-rewards"
+                  class="text-muted-foreground cursor-pointer text-xs"
+                >
                   Auto register rewards
                 </Label>
               </div>
@@ -637,13 +676,25 @@
           </div>
         </section>
 
-        <section class="flex flex-col rounded-xl border border-border/50 bg-card">
-          <div class="flex items-center justify-between border-b border-border/50 px-4 py-3">
+        <section
+          class="border-border/50 bg-card flex flex-col rounded-xl border"
+        >
+          <div
+            class="border-border/50 relative flex min-h-[52px] items-center justify-between border-b px-4 py-3"
+          >
+            <div
+              class="absolute bottom-3 left-0 top-3 w-0.5 rounded-full bg-emerald-500/80"
+            ></div>
             <div class="flex items-center gap-2">
-              <Package class="h-4 w-4 text-muted-foreground" />
-              <h2 class="text-sm font-semibold text-foreground">Drops</h2>
+              <h2
+                class="text-foreground/90 text-sm font-semibold tracking-tight"
+              >
+                Drops
+              </h2>
               {#if dropItems.length > 0}
-                <span class="rounded bg-secondary px-1.5 py-0.5 text-xs tabular-nums text-muted-foreground">
+                <span
+                  class="rounded bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-bold tabular-nums text-emerald-500/80"
+                >
                   {dropItems.length}
                 </span>
               {/if}
@@ -652,9 +703,8 @@
               <Button
                 variant="ghost"
                 size="sm"
-                class="h-7 gap-1.5 text-xs text-muted-foreground hover:text-destructive"
+                class="text-destructive h-7 gap-1.5 text-xs"
                 onclick={clearDrops}
-                disabled={isSyncing}
               >
                 <Trash2 class="h-3.5 w-3.5" />
                 Clear
@@ -668,7 +718,7 @@
                 type="text"
                 placeholder="Enter item name..."
                 bind:value={dropInput}
-                class="flex-1 bg-secondary/50 border-border/50"
+                class="bg-secondary/50 border-border/50 flex-1"
                 autocomplete="off"
                 spellcheck="false"
               />
@@ -676,30 +726,31 @@
                 type="submit"
                 size="sm"
                 class="gap-1.5"
-                disabled={isSyncing || !dropInput.trim()}
+                disabled={!dropInput.trim()}
               >
                 <Plus class="h-4 w-4" />
                 Add
               </Button>
             </form>
 
-            <div class="min-h-[80px] max-h-32 overflow-y-auto">
+            <div class="max-h-32 min-h-[80px] overflow-y-auto">
               {#if dropItems.length === 0}
                 <div class="flex h-20 items-center justify-center">
-                  <span class="text-xs text-muted-foreground/70">No drops registered</span>
+                  <span class="text-muted-foreground/70 text-xs"
+                    >No drops registered</span
+                  >
                 </div>
               {:else}
                 <div class="flex flex-wrap gap-1.5">
                   {#each dropItems as drop (drop)}
                     <span
-                      class="group inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-secondary/50 px-2.5 py-1 text-xs font-medium text-foreground transition-colors hover:bg-secondary"
+                      class="border-border/50 bg-secondary/50 text-foreground hover:bg-secondary group inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors"
                     >
                       {drop}
                       <button
                         type="button"
-                        class="flex h-4 w-4 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/20 hover:text-destructive"
+                        class="text-muted-foreground hover:bg-destructive/20 hover:text-destructive flex h-4 w-4 items-center justify-center rounded-full transition-colors"
                         onclick={() => removeDrop(drop)}
-                        disabled={isSyncing}
                       >
                         <X class="h-3 w-3" />
                       </button>
@@ -709,27 +760,42 @@
               {/if}
             </div>
 
-            <div class="flex items-center gap-2 border-t border-border/50 pt-3">
+            <div class="border-border/50 flex items-center gap-2 border-t pt-3">
               <Checkbox
                 id="reject-else"
                 checked={rejectElse}
-                disabled={isSyncing}
-                onCheckedChange={(checked) => updateRejectElse(Boolean(checked))}
+                onCheckedChange={(checked) =>
+                  updateRejectElse(Boolean(checked))}
               />
-              <Label for="reject-else" class="text-xs text-muted-foreground cursor-pointer">
+              <Label
+                for="reject-else"
+                class="text-muted-foreground cursor-pointer text-xs"
+              >
                 Reject else
               </Label>
             </div>
           </div>
         </section>
 
-        <section class="flex flex-col rounded-xl border border-border/50 bg-card">
-          <div class="flex items-center justify-between border-b border-border/50 px-4 py-3">
+        <section
+          class="border-border/50 bg-card flex flex-col rounded-xl border"
+        >
+          <div
+            class="border-border/50 relative flex min-h-[52px] items-center justify-between border-b px-4 py-3"
+          >
+            <div
+              class="absolute bottom-3 left-0 top-3 w-0.5 rounded-full bg-amber-500/80"
+            ></div>
             <div class="flex items-center gap-2">
-              <Zap class="h-4 w-4 text-muted-foreground" />
-              <h2 class="text-sm font-semibold text-foreground">Boosts</h2>
+              <h2
+                class="text-foreground/90 text-sm font-semibold tracking-tight"
+              >
+                Boosts
+              </h2>
               {#if boostItems.length > 0}
-                <span class="rounded bg-secondary px-1.5 py-0.5 text-xs tabular-nums text-muted-foreground">
+                <span
+                  class="rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-bold tabular-nums text-amber-500/80"
+                >
                   {boostItems.length}
                 </span>
               {/if}
@@ -738,9 +804,8 @@
               <Button
                 variant="outline"
                 size="sm"
-                class="h-7 gap-1.5 text-xs border-border/50"
+                class="border-border/50 h-7 gap-1.5 text-xs"
                 onclick={grabBoosts}
-                disabled={isSyncing}
               >
                 <Download class="h-3.5 w-3.5" />
                 Grab
@@ -749,9 +814,8 @@
                 <Button
                   variant="ghost"
                   size="sm"
-                  class="h-7 gap-1.5 text-xs text-muted-foreground hover:text-destructive"
+                  class="text-destructive h-7 gap-1.5 text-xs"
                   onclick={clearBoosts}
-                  disabled={isSyncing}
                 >
                   <Trash2 class="h-3.5 w-3.5" />
                   Clear
@@ -766,7 +830,7 @@
                 type="text"
                 placeholder="Enter boost name..."
                 bind:value={boostInput}
-                class="flex-1 bg-secondary/50 border-border/50"
+                class="bg-secondary/50 border-border/50 flex-1"
                 autocomplete="off"
                 spellcheck="false"
               />
@@ -774,30 +838,31 @@
                 type="submit"
                 size="sm"
                 class="gap-1.5"
-                disabled={isSyncing || !boostInput.trim()}
+                disabled={!boostInput.trim()}
               >
                 <Plus class="h-4 w-4" />
                 Add
               </Button>
             </form>
 
-            <div class="min-h-[80px] max-h-32 overflow-y-auto">
+            <div class="max-h-32 min-h-[80px] overflow-y-auto">
               {#if boostItems.length === 0}
                 <div class="flex h-20 items-center justify-center">
-                  <span class="text-xs text-muted-foreground/70">No boosts registered</span>
+                  <span class="text-muted-foreground/70 text-xs"
+                    >No boosts registered</span
+                  >
                 </div>
               {:else}
                 <div class="flex flex-wrap gap-1.5">
                   {#each boostItems as boost (boost)}
                     <span
-                      class="group inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-secondary/50 px-2.5 py-1 text-xs font-medium text-foreground transition-colors hover:bg-secondary"
+                      class="border-border/50 bg-secondary/50 text-foreground hover:bg-secondary group inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors"
                     >
                       {boost}
                       <button
                         type="button"
-                        class="flex h-4 w-4 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/20 hover:text-destructive"
+                        class="text-muted-foreground hover:bg-destructive/20 hover:text-destructive flex h-4 w-4 items-center justify-center rounded-full transition-colors"
                         onclick={() => removeBoost(boost)}
-                        disabled={isSyncing}
                       >
                         <X class="h-3 w-3" />
                       </button>
