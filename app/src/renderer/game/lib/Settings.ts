@@ -34,9 +34,9 @@ export class Settings {
         this.bot.flash.call(() => swf.settingsSkipCutscenes());
       }
 
-      this.bot.flash.call(() => swf.settingsLagKiller(!this.lagKiller));
-
-      this.bot.flash.call(() => swf.settingsSetHidePlayers(this.hidePlayers));
+      if (this.lagKiller) {
+        this.bot.flash.call(() => swf.settingsLagKiller(false));
+      }
 
       if (this.walkSpeed !== 8) {
         this.bot.flash.call(() => swf.settingsSetWalkSpeed(this.walkSpeed));
