@@ -12,6 +12,7 @@
   import Check from "lucide-svelte/icons/check";
   import ChevronRight from "lucide-svelte/icons/chevron-right";
   import Search from "lucide-svelte/icons/search";
+  import Copy from "lucide-svelte/icons/copy";
 
   import { SvelteSet } from "svelte/reactivity";
   import log from "electron-log";
@@ -463,6 +464,25 @@
       // ignore
     }
   }
+
+  async function copyNodeJson(item: FlattenedItem) {
+    try {
+      const data = JSON.stringify(
+        item,
+        (key, value) => {
+          if (key === "nodeId" || key === "level" || key === "index")
+            return undefined;
+          return value;
+        },
+        2,
+      );
+      await navigator.clipboard.writeText(data);
+      copiedNodeId = item.nodeId;
+      setTimeout(() => {
+        if (copiedNodeId === item.nodeId) copiedNodeId = null;
+      }, 1500);
+    } catch {}
+  }
 </script>
 
 <div class="bg-background flex h-screen flex-col">
@@ -614,8 +634,7 @@
                   <Loader class="h-4 w-4 animate-spin" />
                   Grabbing...
                 {:else}
-                  <Download class="h-4 w-4" />
-                  Grab Data
+                  Grab
                 {/if}
               </Button>
             </div>
@@ -636,32 +655,27 @@
           </div>
 
           <div class="flex items-center justify-between text-sm">
-            <span class="text-muted-foreground">
-              <span class="text-foreground font-medium tabular-nums"
-                >{filteredTreeData.length}</span
-              >
-              {#if debouncedSearchQuery && filteredTreeData.length !== treeData.length}
-                <span class="text-muted-foreground/70">
-                  of {treeData.length}</span
+            <div class="flex items-center gap-4">
+              <span class="text-muted-foreground">
+                <span class="text-foreground font-medium tabular-nums"
+                  >{filteredTreeData.length}</span
                 >
-              {/if}
-              <span class="text-muted-foreground/70">
-                item{filteredTreeData.length !== 1 ? "s" : ""}</span
-              >
-            </span>
+                {#if debouncedSearchQuery && filteredTreeData.length !== treeData.length}
+                  <span class="text-muted-foreground/70">
+                    of {treeData.length}</span
+                  >
+                {/if}
+                <span class="text-muted-foreground/70">
+                  item{filteredTreeData.length !== 1 ? "s" : ""}</span
+                >
+              </span>
+            </div>
           </div>
 
           <div
             class="border-border/50 bg-card relative flex-1 overflow-hidden rounded-xl border"
           >
-            {#if isLoading}
-              <div
-                class="text-muted-foreground flex h-full flex-col items-center justify-center gap-3"
-              >
-                <Loader class="text-primary h-6 w-6 animate-spin" />
-                <p class="text-sm">Grabbing...</p>
-              </div>
-            {:else}
+            {#if !isLoading}
               <div class="h-full overflow-hidden p-2">
                 <VirtualList
                   data={filteredItems}
@@ -700,15 +714,32 @@
     item.value !== ""}
   {@const isCopied = copiedNodeId === item.nodeId}
 
-  <div class="select-none">
+  <div class="group/row relative select-none">
+    {#if item.level > 0}
+      {#each Array(item.level) as _, i}
+        <div
+          class="border-border/10 absolute top-0 h-full border-l"
+          style="left: {i * 16 + 18}px"
+        ></div>
+      {/each}
+      <!-- Connector line for leaf nodes -->
+      {#if !hasChildren}
+        <div
+          class="bg-border/10 absolute top-1/2 h-[1px]"
+          style="left: {(item.level - 1) * 16 + 18}px; width: 24px;"
+        ></div>
+      {/if}
+    {/if}
+
     <div
       class={cn(
-        "group flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 text-sm transition-colors",
-        hasChildren ? "hover:bg-secondary/50" : "cursor-default",
+        "group relative flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 text-sm transition-all",
+        hasChildren ? "hover:bg-secondary/40" : "cursor-default",
+        isExpanded && hasChildren && "bg-secondary/20",
       )}
       onclick={inputHandler}
       onkeydown={(ev) => ev.key === "Enter" && inputHandler()}
-      style="margin-left: {item.level * 16}px"
+      style="padding-left: {item.level * 16 + 8}px"
       role="button"
       tabindex="0"
     >
@@ -724,25 +755,60 @@
           />
         </div>
       {:else}
-        <div
-          class="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center"
-        >
-          {#if hasValue}
-            <div class="bg-muted-foreground/50 h-1.5 w-1.5 rounded-full"></div>
-          {/if}
-        </div>
+        <!-- Spacer to maintain alignment with siblings -->
+        <div class="mt-0.5 h-5 w-5 flex-shrink-0"></div>
       {/if}
 
       <div class="flex min-w-0 flex-1 items-center gap-2 leading-relaxed">
         {#if hasChildren}
-          <span class="text-foreground flex-shrink-0 truncate font-medium">
-            {item.name}
-          </span>
-          <span class="text-muted-foreground text-xs">
-            ({item.children?.length})
-          </span>
-        {:else if !hasChildren && item.name && hasValue}
-          <span class="text-foreground flex-shrink-0 truncate font-medium">
+          <div class="flex min-w-0 flex-1 items-center gap-2">
+            <span class="text-foreground flex-shrink-0 truncate font-semibold">
+              {#if debouncedSearchQuery}
+                {@const parts = item.name.split(
+                  new RegExp(`(${debouncedSearchQuery})`, "gi"),
+                )}
+                {#each parts as part}
+                  {#if part.toLowerCase() === debouncedSearchQuery.toLowerCase()}
+                    <mark
+                      class="bg-primary/20 text-foreground rounded-sm px-0.5"
+                      >{part}</mark
+                    >
+                  {:else}
+                    {part}
+                  {/if}
+                {/each}
+              {:else}
+                {item.name}
+              {/if}
+            </span>
+            <span class="text-muted-foreground/50 text-xs font-medium">
+              {item.children?.length}
+            </span>
+          </div>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            class={cn(
+              "hover:bg-secondary/80 h-6 w-6 shadow-sm transition-all",
+              isCopied && "text-success/100",
+            )}
+            onclick={(ev) => {
+              ev.stopPropagation();
+              copyNodeJson(item);
+            }}
+            title="Copy JSON"
+          >
+            {#if isCopied}
+              <Check class="h-2 w-2" />
+            {:else}
+              <Copy class="h-2 w-2" />
+            {/if}
+          </Button>
+        {:else if !hasChildren && item.name}
+          <span
+            class="text-muted-foreground flex-shrink-0 truncate font-medium"
+          >
             {item.name}
           </span>
         {/if}
@@ -750,9 +816,9 @@
         {#if hasValue}
           <button
             class={cn(
-              "inline-flex min-w-0 items-center gap-1 truncate rounded px-1.5 py-0.5 font-mono text-sm transition-all",
-              "bg-secondary/80 text-foreground hover:bg-secondary",
-              isCopied && "bg-success/20 text-success",
+              "inline-flex min-w-0 items-center gap-1.5 truncate rounded-md px-2 py-0.5 font-mono text-[13px] transition-all",
+              "bg-secondary/60 text-foreground ring-border/50 hover:bg-secondary hover:ring-border ring-1",
+              isCopied && "bg-success/10 text-success ring-success/30",
             )}
             title="Click to copy"
             onclick={(ev) => {
@@ -760,7 +826,9 @@
               copyValue(item.nodeId, item.value!);
             }}
           >
-            {#if isCopied}<Check class="h-3 w-3 flex-shrink-0" />{/if}
+            {#if isCopied}
+              <Check class="h-3 w-3 flex-shrink-0" />
+            {/if}
             <span class="truncate">{item.value}</span>
           </button>
         {/if}
