@@ -1,6 +1,5 @@
 <script lang="ts">
   import { Button, Checkbox, Label } from "@vexed/ui";
-  import * as Empty from "@vexed/ui/Empty";
   import { cn } from "@vexed/ui/util";
   import { onMount, tick } from "svelte";
   import log from "electron-log";
@@ -9,7 +8,6 @@
   import Download from "lucide-svelte/icons/download";
   import Trash2 from "lucide-svelte/icons/trash-2";
   import ArrowDownToLine from "lucide-svelte/icons/arrow-down-to-line";
-  import FileText from "lucide-svelte/icons/file-text";
 
   import { client, handlers } from "~/shared/tipc";
   import type { AppLogEntry } from "~/shared/types";
@@ -61,10 +59,6 @@
 
   function getLevelLabel(level: number): string {
     return LEVEL_LABELS[level] ?? `level-${level}`;
-  }
-
-  function getLevelClass(level: number): string {
-    return LEVEL_CLASSES[level] ?? "text-foreground";
   }
 
   function getLevelBadgeClass(level: number): string {
@@ -164,13 +158,13 @@
   }
 </script>
 
-<div class="bg-background flex h-screen flex-col">
+<div class="flex h-screen flex-col bg-background">
   <header
-    class="bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-10 border-b border-border/50 px-6 py-3 backdrop-blur-xl elevation-1"
+    class="elevation-1 sticky top-0 z-10 border-b border-border/50 bg-background/95 px-6 py-3 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80"
   >
     <div class="mx-auto flex max-w-7xl items-center justify-between">
       <div class="flex items-center gap-3">
-        <h1 class="text-foreground text-base font-semibold tracking-tight">
+        <h1 class="text-base font-semibold tracking-tight text-foreground">
           App Logs
         </h1>
       </div>
@@ -214,33 +208,32 @@
     <div class="mx-auto flex h-full max-w-7xl flex-col gap-4">
       <div class="flex items-center justify-between">
         <span class="text-sm text-muted-foreground">
-          <span class="tabular-nums font-medium text-foreground">{entries.length}</span>
-          <span class="text-muted-foreground/70">log{entries.length !== 1 ? 's' : ''}</span>
+          <span class="font-medium tabular-nums text-foreground"
+            >{entries.length}</span
+          >
+          <span class="text-muted-foreground/70"
+            >log{entries.length !== 1 ? "s" : ""}</span
+          >
         </span>
 
         <div class="flex items-center gap-2">
           <Checkbox id="auto-scroll" bind:checked={autoScroll} />
-          <Label for="auto-scroll" class="text-sm text-muted-foreground cursor-pointer flex items-center gap-1.5">
+          <Label
+            for="auto-scroll"
+            class="flex cursor-pointer items-center gap-1.5 text-sm text-muted-foreground"
+          >
             <ArrowDownToLine class="h-3.5 w-3.5" />
             Auto-scroll
           </Label>
         </div>
       </div>
 
-      <div class="relative flex-1 overflow-hidden rounded-xl border border-border/50 bg-card">
+      <div
+        class="relative flex-1 overflow-hidden rounded-xl border border-border/50 bg-card"
+      >
         {#if entries.length === 0}
           <div class="flex h-full items-center justify-center">
-            <Empty.Root>
-              <Empty.Header>
-                <Empty.Media variant="icon">
-                  <FileText />
-                </Empty.Media>
-                <Empty.Title>No logs yet</Empty.Title>
-                <Empty.Description>
-                  Application logs will appear here.
-                </Empty.Description>
-              </Empty.Header>
-            </Empty.Root>
+            <p class="text-center text-muted-foreground">No logs yet.</p>
           </div>
         {:else}
           <div
@@ -261,13 +254,15 @@
                 tabindex="0"
                 title="Click to copy"
               >
-                <span class="shrink-0 text-xs text-muted-foreground/70 tabular-nums">
+                <span
+                  class="shrink-0 text-xs tabular-nums text-muted-foreground/70"
+                >
                   {formatTimestamp(entry.timestamp)}
                 </span>
                 <span
                   class={cn(
                     "shrink-0 rounded px-1.5 py-0.5 text-xs font-medium uppercase",
-                    getLevelBadgeClass(entry.level)
+                    getLevelBadgeClass(entry.level),
                   )}
                 >
                   {getLevelLabel(entry.level)}
@@ -275,10 +270,14 @@
                 <span class="shrink-0 text-xs text-muted-foreground/50">
                   {formatSource(entry.sourceId, entry.lineNumber)}
                 </span>
-                <span class="flex-1 whitespace-pre-wrap break-words text-foreground">
+                <span
+                  class="flex-1 whitespace-pre-wrap break-words text-foreground"
+                >
                   {stripLeadingTimestamp(entry)}
                 </span>
-                <Copy class="h-3.5 w-3.5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                <Copy
+                  class="h-3.5 w-3.5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                />
               </div>
             {/each}
           </div>

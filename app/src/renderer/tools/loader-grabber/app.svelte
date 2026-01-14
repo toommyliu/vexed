@@ -2,14 +2,12 @@
   import { cn } from "@vexed/ui/util";
   import { Button, Input } from "@vexed/ui";
   import * as NumberField from "@vexed/ui/NumberField";
-  import * as Empty from "@vexed/ui/Empty";
   import * as Select from "@vexed/ui/Select";
   import * as Tabs from "@vexed/ui/Tabs";
   import { VirtualList } from "@vexed/ui";
 
   import Download from "lucide-svelte/icons/download";
   import Loader from "lucide-svelte/icons/loader";
-  import Database from "lucide-svelte/icons/database";
   import Upload from "lucide-svelte/icons/upload";
   import Check from "lucide-svelte/icons/check";
   import ChevronRight from "lucide-svelte/icons/chevron-right";
@@ -602,34 +600,6 @@
               <div class="flex h-full flex-col items-center justify-center gap-3 text-muted-foreground">
                 <Loader class="text-primary h-6 w-6 animate-spin" />
                 <p class="text-sm">Loading data...</p>
-              </div>
-            {:else if treeData.length === 0}
-              <div class="flex h-full items-center justify-center">
-                <Empty.Root>
-                  <Empty.Header>
-                    <Empty.Media variant="icon">
-                      <Database />
-                    </Empty.Media>
-                    <Empty.Title>No data</Empty.Title>
-                    <Empty.Description>
-                      Select a data type and click "Grab Data" to fetch information.
-                    </Empty.Description>
-                  </Empty.Header>
-                </Empty.Root>
-              </div>
-            {:else if filteredItems.length === 0}
-              <div class="flex h-full items-center justify-center">
-                <Empty.Root>
-                  <Empty.Header>
-                    <Empty.Media variant="icon">
-                      <Search />
-                    </Empty.Media>
-                    <Empty.Title>No matches</Empty.Title>
-                    <Empty.Description>
-                      No items match "{searchQuery}"
-                    </Empty.Description>
-                  </Empty.Header>
-                </Empty.Root>
               </div>
             {:else}
               <div class="h-full overflow-hidden p-2">

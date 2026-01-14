@@ -29,7 +29,7 @@
 >
   <input
     class={cn(
-      "w-full min-w-0 rounded-[inherit] bg-transparent px-[calc(theme(spacing.3)-1px)] py-[calc(theme(spacing[1.5])-1px)] outline-none placeholder:text-muted-foreground/64",
+      "w-full min-w-0 rounded-[inherit] bg-transparent px-[calc(theme(spacing.3)-1px)] py-[calc(theme(spacing[1.5])-1px)] outline-none placeholder:text-muted-foreground/64 placeholder:text-xs",
       size === "sm" &&
         "px-[calc(theme(spacing[2.5])-1px)] py-[calc(theme(spacing.1)-1px)]",
       size === "lg" && "py-[calc(theme(spacing.2)-1px)]",

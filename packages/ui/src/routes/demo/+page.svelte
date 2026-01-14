@@ -2,7 +2,6 @@
     import "$lib/styles.css";
     import {
         Group,
-        Empty,
         Tabs,
         Menu,
         Alert,
@@ -787,60 +786,6 @@
                         <Group.Separator orientation="horizontal" />
                         <Group.Text>Item 3</Group.Text>
                     </Group.Root>
-                </div>
-            </div>
-        </section>
-
-        <!-- Empty -->
-        <section class="space-y-4">
-            <h2 class="text-2xl font-semibold border-b pb-2">Empty</h2>
-            <div class="grid md:grid-cols-2 gap-4">
-                <div class="border rounded-md p-4">
-                    <Empty.Root>
-                        <Empty.Header>
-                            <Empty.Media>
-                                <div
-                                    class="w-12 h-12 bg-muted rounded-full flex items-center justify-center"
-                                >
-                                    📦
-                                </div>
-                            </Empty.Media>
-                            <Empty.Title>No items found</Empty.Title>
-                            <Empty.Description>
-                                You haven't added any items yet.
-                            </Empty.Description>
-                        </Empty.Header>
-                        <Empty.Content>
-                            <Button>Create Item</Button>
-                        </Empty.Content>
-                    </Empty.Root>
-                </div>
-                <div class="border rounded-md p-4">
-                    <Empty.Root>
-                        <Empty.Header>
-                            <Empty.Media variant="icon">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="24"
-                                    height="24"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    class="lucide lucide-search"
-                                    ><circle cx="11" cy="11" r="8" /><path
-                                        d="m21 21-4.3-4.3"
-                                    /></svg
-                                >
-                            </Empty.Media>
-                            <Empty.Title>No results</Empty.Title>
-                            <Empty.Description>
-                                We couldn't find any results for your search.
-                            </Empty.Description>
-                        </Empty.Header>
-                    </Empty.Root>
                 </div>
             </div>
         </section>

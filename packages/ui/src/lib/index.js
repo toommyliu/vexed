@@ -17,7 +17,6 @@ export * as Frame from "./components/frame/index.js";
 export * as Dialog from "./components/dialog/index.js";
 export * as AlertDialog from "./components/alert-dialog/index.js";
 export * as Group from "./components/group/index.js";
-export * as Empty from "./components/empty/index.js";
 export * as InputGroup from "./components/input-group/index.js";
 export * as Field from "./components/field/index.js";
 export { default as Textarea } from "./components/Textarea.svelte";

@@ -124,11 +124,6 @@
       "svelte": "./dist/components/group/index.js",
       "default": "./dist/components/group/index.js"
     },
-    "./Empty": {
-      "types": "./dist/components/empty/index.d.ts",
-      "svelte": "./dist/components/empty/index.js",
-      "default": "./dist/components/empty/index.js"
-    },
     "./Tabs": {
       "types": "./dist/components/tabs/index.d.ts",
       "svelte": "./dist/components/tabs/index.js",
