@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Button, Input, Label } from "@vexed/ui";
+  import { Button, Input, Label, Card } from "@vexed/ui";
   import * as InputGroup from "@vexed/ui/InputGroup";
   import { cn } from "@vexed/ui/util";
 
@@ -7,9 +7,6 @@
   import Pause from "lucide-svelte/icons/pause";
   import Plus from "lucide-svelte/icons/plus";
   import Trash2 from "lucide-svelte/icons/trash-2";
-  import Timer from "lucide-svelte/icons/timer";
-  import Send from "lucide-svelte/icons/send";
-  import Package from "lucide-svelte/icons/package";
 
   import { client, handlers } from "~/shared/tipc";
 
@@ -57,13 +54,13 @@
   handlers.game.gameReloaded.listen(() => (isRunning = false));
 </script>
 
-<div class="flex h-screen flex-col bg-background">
+<div class="bg-background flex h-screen flex-col">
   <header
-    class="elevation-1 sticky top-0 z-10 border-b border-border/50 bg-background/95 px-6 py-3 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80"
+    class="elevation-1 border-border/50 bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-10 border-b px-6 py-3 backdrop-blur-xl"
   >
     <div class="mx-auto flex max-w-7xl items-center justify-between">
       <div class="flex items-center gap-3">
-        <h1 class="text-base font-semibold tracking-tight text-foreground">
+        <h1 class="text-foreground text-base font-semibold tracking-tight">
           Packet Spammer
         </h1>
       </div>
@@ -90,13 +87,17 @@
 
   <main class="flex-1 overflow-auto p-4 sm:p-6">
     <div class="mx-auto flex max-w-7xl flex-col gap-4">
-      <div class="rounded-xl border border-border/50 bg-card p-5">
-        <div class="mb-4 flex items-center gap-2">
-          <Send class="h-4 w-4 text-muted-foreground" />
-          <h2 class="text-sm font-medium text-foreground">Add Packet</h2>
-        </div>
+      <Card.Root class="border-border/40 gap-0 overflow-hidden py-0">
+        <Card.Header
+          class="border-border/20 relative flex flex-row items-center space-y-0 border-b px-4 py-2"
+        >
+          <div
+            class="bg-primary/50 absolute bottom-3 left-0 top-3 w-0.5 rounded-full"
+          ></div>
+          <h2 class="text-foreground/80 text-sm font-medium">Add Packet</h2>
+        </Card.Header>
 
-        <div class="space-y-4">
+        <Card.Content class="space-y-4 p-5">
           <div class="space-y-1.5">
             <Label for="packet-input" class="text-muted-foreground"
               >Packet</Label
@@ -108,7 +109,7 @@
                 bind:value={packetInput}
                 placeholder="Enter packet..."
                 class={cn(
-                  "border-border/50 bg-secondary/50 font-mono transition-colors focus:bg-background",
+                  "border-border/50 bg-secondary/50 focus:bg-background font-mono transition-colors",
                   isRunning && "pointer-events-none opacity-50",
                 )}
                 disabled={isRunning}
@@ -138,7 +139,7 @@
               >Delay between packets</Label
             >
             <InputGroup.Root
-              class="max-w-xs border-border/50 bg-secondary/50 transition-colors focus-within:bg-background"
+              class="border-border/50 bg-secondary/50 focus-within:bg-background max-w-xs transition-colors"
             >
               <Input
                 type="number"
@@ -152,23 +153,24 @@
               />
               <InputGroup.Addon align="inline-end">
                 <InputGroup.Text
-                  class="text-xs font-medium text-muted-foreground"
+                  class="text-muted-foreground text-xs font-medium"
                 >
                   ms
                 </InputGroup.Text>
               </InputGroup.Addon>
             </InputGroup.Root>
           </div>
-        </div>
-      </div>
+        </Card.Content>
+      </Card.Root>
 
-      <div class="flex-1 rounded-xl border border-border/50 bg-card p-5">
-        <div class="mb-4 flex items-center justify-between">
+      <Card.Root class="border-border/40 flex-1 gap-0 overflow-hidden py-0">
+        <Card.Header
+          class="border-border/20 relative flex flex-row items-center justify-between space-y-0 border-b px-4 py-2"
+        >
           <div class="flex items-center gap-2">
-            <Package class="h-4 w-4 text-muted-foreground" />
-            <h2 class="text-sm font-medium text-foreground">Packet Queue</h2>
+            <h2 class="text-foreground/80 text-sm font-medium">Packet Queue</h2>
             <span
-              class="rounded bg-secondary px-1.5 py-0.5 text-xs tabular-nums text-muted-foreground"
+              class="bg-secondary text-muted-foreground rounded px-1.5 py-0.5 text-xs tabular-nums"
             >
               {packets.length}
             </span>
@@ -178,7 +180,7 @@
             <Button
               variant="ghost"
               size="sm"
-              class="gap-2 text-muted-foreground hover:text-destructive"
+              class="text-destructive gap-2"
               onclick={removePacket}
               disabled={!canRemove}
             >
@@ -188,7 +190,7 @@
             <Button
               variant="ghost"
               size="sm"
-              class="gap-2 text-muted-foreground hover:text-destructive"
+              class="text-destructive gap-2"
               onclick={clearPackets}
               disabled={isRunning || packets.length === 0}
             >
@@ -196,52 +198,56 @@
               Clear All
             </Button>
           </div>
-        </div>
+        </Card.Header>
 
-        <div
-          class="max-h-[350px] min-h-[200px] overflow-auto rounded-lg border border-border/50 bg-secondary/30 p-2"
-        >
-          {#if packets.length === 0}
-            <div class="flex h-full min-h-[180px] items-center justify-center">
-              <p class="text-center text-sm text-muted-foreground">
-                No packets added yet.
-              </p>
-            </div>
-          {:else}
-            <div class="space-y-1">
-              {#each packets as packet, index (index)}
-                <div
-                  class={cn(
-                    "flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 font-mono text-sm transition-colors",
-                    isRunning ? "cursor-default" : "cursor-pointer",
-                    selectedIndex === index
-                      ? "border border-primary/30 bg-primary/20 text-primary"
-                      : "border border-transparent text-foreground hover:bg-secondary/80",
-                  )}
-                  onclick={() =>
-                    !isRunning &&
-                    (selectedIndex = selectedIndex === index ? null : index)}
-                  onkeydown={(ev) => {
-                    if (ev.key === "Enter" && !isRunning) {
-                      ev.preventDefault();
-                      selectedIndex = selectedIndex === index ? null : index;
-                    }
-                  }}
-                  role="button"
-                  tabindex={isRunning ? -1 : 0}
-                >
-                  <span
-                    class="w-6 shrink-0 text-xs tabular-nums text-muted-foreground"
+        <Card.Content class="space-y-2 p-5">
+          <div
+            class="border-border/50 bg-secondary/30 max-h-[350px] min-h-[200px] overflow-auto rounded-lg border p-2"
+          >
+            {#if packets.length === 0}
+              <div
+                class="flex h-full min-h-[180px] items-center justify-center"
+              >
+                <p class="text-muted-foreground text-center text-sm">
+                  No packets added yet
+                </p>
+              </div>
+            {:else}
+              <div class="space-y-1">
+                {#each packets as packet, index (index)}
+                  <div
+                    class={cn(
+                      "flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 font-mono text-sm transition-colors",
+                      isRunning ? "cursor-default" : "cursor-pointer",
+                      selectedIndex === index
+                        ? "border-primary/30 bg-primary/20 text-primary border"
+                        : "text-foreground hover:bg-secondary/80 border border-transparent",
+                    )}
+                    onclick={() =>
+                      !isRunning &&
+                      (selectedIndex = selectedIndex === index ? null : index)}
+                    onkeydown={(ev) => {
+                      if (ev.key === "Enter" && !isRunning) {
+                        ev.preventDefault();
+                        selectedIndex = selectedIndex === index ? null : index;
+                      }
+                    }}
+                    role="button"
+                    tabindex={isRunning ? -1 : 0}
                   >
-                    {index + 1}.
-                  </span>
-                  <span class="flex-1 truncate">{packet}</span>
-                </div>
-              {/each}
-            </div>
-          {/if}
-        </div>
-      </div>
+                    <span
+                      class="text-muted-foreground w-6 shrink-0 text-xs tabular-nums"
+                    >
+                      {index + 1}.
+                    </span>
+                    <span class="flex-1 truncate">{packet}</span>
+                  </div>
+                {/each}
+              </div>
+            {/if}
+          </div>
+        </Card.Content>
+      </Card.Root>
     </div>
   </main>
 </div>
