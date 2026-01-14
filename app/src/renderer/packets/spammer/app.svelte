@@ -3,10 +3,10 @@
   import * as InputGroup from "@vexed/ui/InputGroup";
   import { cn } from "@vexed/ui/util";
 
-  import Play from "lucide-svelte/icons/play";
-  import Pause from "lucide-svelte/icons/pause";
-  import Plus from "lucide-svelte/icons/plus";
-  import Trash2 from "lucide-svelte/icons/trash-2";
+  import Play from "@vexed/ui/icons/Play";
+  import Pause from "@vexed/ui/icons/Pause";
+  import Plus from "@vexed/ui/icons/Plus";
+  import Trash2 from "@vexed/ui/icons/Trash2";
 
   import { client, handlers } from "~/shared/tipc";
 

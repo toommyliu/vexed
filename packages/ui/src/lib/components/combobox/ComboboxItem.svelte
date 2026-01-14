@@ -1,7 +1,7 @@
 <script lang="ts">
     import { getContext, onDestroy, onMount } from "svelte";
     import { cn } from "$lib/util/cn";
-    import Check from "lucide-svelte/icons/check";
+    import Check from "$lib/components/icons/Check.svelte"
     import type { HTMLAttributes } from "svelte/elements";
     import type { ComboboxContext } from "./types";
 

@@ -1,11 +1,10 @@
 <script lang="ts">
-  import Plus from "lucide-svelte/icons/plus";
-  import Search from "lucide-svelte/icons/search";
-  import Trash2 from "lucide-svelte/icons/trash-2";
-  import Play from "lucide-svelte/icons/play";
-  import Pencil from "lucide-svelte/icons/pencil";
-  import Loader from "lucide-svelte/icons/loader";
-  import LoaderCircle from "lucide-svelte/icons/loader-circle";
+  import Plus from "@vexed/ui/icons/Plus";
+  import Search from "@vexed/ui/icons/Search";
+  import Trash2 from "@vexed/ui/icons/Trash2";
+  import Play from "@vexed/ui/icons/Play";
+  import Pencil from "@vexed/ui/icons/Pencil";
+  import Loader from "@vexed/ui/icons/Loader";
   import { Button, Input, Checkbox, Switch } from "@vexed/ui";
   import * as Select from "@vexed/ui/Select";
   import * as AlertDialog from "@vexed/ui/AlertDialog";
@@ -496,7 +495,7 @@
                     variant="ghost"
                     size="icon"
                     class="text-muted-foreground hover:text-foreground hover:bg-secondary h-7 w-7"
-                    onclick={(ev: MouseEvent) => {
+                    onclick={(ev) => {
                       ev.stopPropagation();
                       editingAccount = account;
                       isEditOpen = true;
@@ -509,7 +508,7 @@
                     variant="ghost"
                     size="icon"
                     class="text-muted-foreground hover:text-destructive hover:bg-destructive/10 h-7 w-7"
-                    onclick={(ev: MouseEvent) => {
+                    onclick={(ev) => {
                       ev.stopPropagation();
                       handleRemove([account.username]);
                     }}
@@ -541,7 +540,7 @@
     editingAccount = null;
   }}
 />
-<!-- Delete Confirmation Dialog -->
+
 <AlertDialog.Root bind:open={deleteDialogOpen}>
   <AlertDialog.Content>
     <AlertDialog.Header>
@@ -575,7 +574,7 @@
         class="min-w-[80px]"
       >
         {#if deleteDialogLoading}
-          <LoaderCircle class="size-4 animate-spin" />
+          <Loader class="size-4 animate-spin" />
           <span>Removing...</span>
         {:else}
           <span>Remove</span>

@@ -177,6 +177,86 @@
       "types": "./dist/components/alert-dialog/index.d.ts",
       "svelte": "./dist/components/alert-dialog/index.js",
       "default": "./dist/components/alert-dialog/index.js"
+    },
+    "./icons/Check": {
+      "types": "./dist/components/icons/Check.svelte.d.ts",
+      "svelte": "./dist/components/icons/Check.svelte",
+      "default": "./dist/components/icons/Check.svelte"
+    },
+    "./icons/ChevronDown": {
+      "types": "./dist/components/icons/ChevronDown.svelte.d.ts",
+      "svelte": "./dist/components/icons/ChevronDown.svelte",
+      "default": "./dist/components/icons/ChevronDown.svelte"
+    },
+    "./icons/ChevronUp": {
+      "types": "./dist/components/icons/ChevronUp.svelte.d.ts",
+      "svelte": "./dist/components/icons/ChevronUp.svelte",
+      "default": "./dist/components/icons/ChevronUp.svelte"
+    },
+    "./icons/ChevronsUpDown": {
+      "types": "./dist/components/icons/ChevronsUpDown.svelte.d.ts",
+      "svelte": "./dist/components/icons/ChevronsUpDown.svelte",
+      "default": "./dist/components/icons/ChevronsUpDown.svelte"
+    },
+    "./icons/Copy": {
+      "types": "./dist/components/icons/Copy.svelte.d.ts",
+      "svelte": "./dist/components/icons/Copy.svelte",
+      "default": "./dist/components/icons/Copy.svelte"
+    },
+    "./icons/Download": {
+      "types": "./dist/components/icons/Download.svelte.d.ts",
+      "svelte": "./dist/components/icons/Download.svelte",
+      "default": "./dist/components/icons/Download.svelte"
+    },
+    "./icons/Icon": {
+      "types": "./dist/components/icons/Icon.svelte.d.ts",
+      "svelte": "./dist/components/icons/Icon.svelte",
+      "default": "./dist/components/icons/Icon.svelte"
+    },
+    "./icons/Loader": {
+      "types": "./dist/components/icons/Loader.svelte.d.ts",
+      "svelte": "./dist/components/icons/Loader.svelte",
+      "default": "./dist/components/icons/Loader.svelte"
+    },
+    "./icons/Pause": {
+      "types": "./dist/components/icons/Pause.svelte.d.ts",
+      "svelte": "./dist/components/icons/Pause.svelte",
+      "default": "./dist/components/icons/Pause.svelte"
+    },
+    "./icons/Pencil": {
+      "types": "./dist/components/icons/Pencil.svelte.d.ts",
+      "svelte": "./dist/components/icons/Pencil.svelte",
+      "default": "./dist/components/icons/Pencil.svelte"
+    },
+    "./icons/Play": {
+      "types": "./dist/components/icons/Play.svelte.d.ts",
+      "svelte": "./dist/components/icons/Play.svelte",
+      "default": "./dist/components/icons/Play.svelte"
+    },
+    "./icons/Plus": {
+      "types": "./dist/components/icons/Plus.svelte.d.ts",
+      "svelte": "./dist/components/icons/Plus.svelte",
+      "default": "./dist/components/icons/Plus.svelte"
+    },
+    "./icons/Search": {
+      "types": "./dist/components/icons/Search.svelte.d.ts",
+      "svelte": "./dist/components/icons/Search.svelte",
+      "default": "./dist/components/icons/Search.svelte"
+    },
+    "./icons/Share2": {
+      "types": "./dist/components/icons/Share2.svelte.d.ts",
+      "svelte": "./dist/components/icons/Share2.svelte",
+      "default": "./dist/components/icons/Share2.svelte"
+    },
+    "./icons/Trash2": {
+      "types": "./dist/components/icons/Trash2.svelte.d.ts",
+      "svelte": "./dist/components/icons/Trash2.svelte",
+      "default": "./dist/components/icons/Trash2.svelte"
+    },
+    "./icons/X": {
+      "types": "./dist/components/icons/X.svelte.d.ts",
+      "svelte": "./dist/components/icons/X.svelte",
+      "default": "./dist/components/icons/X.svelte"
     }
   },
   "peerDependencies": {
@@ -202,7 +282,6 @@
   ],
   "dependencies": {
     "clsx": "^2.1.1",
-    "lucide-svelte": "^0.554.0",
     "tailwind-variants": "^3.1.1"
   }
 }

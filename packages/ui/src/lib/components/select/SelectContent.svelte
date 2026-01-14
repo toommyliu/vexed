@@ -2,8 +2,8 @@
     import { getContext } from "svelte";
     import { cn } from "$lib/util/cn";
     import { motionScale } from "$lib/util/motion";
-    import ChevronUp from "lucide-svelte/icons/chevron-up";
-    import ChevronDown from "lucide-svelte/icons/chevron-down";
+    import ChevronUp from "$lib/components/icons/ChevronUp.svelte";
+    import ChevronDown from "$lib/components/icons/ChevronDown.svelte";
     import type { HTMLAttributes } from "svelte/elements";
     import type { SelectContext } from "./types";
 

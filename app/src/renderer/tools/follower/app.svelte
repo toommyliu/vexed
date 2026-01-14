@@ -4,8 +4,8 @@
   import * as NumberField from "@vexed/ui/NumberField";
   import { cn } from "@vexed/ui/util";
 
-  import Play from "lucide-svelte/icons/play";
-  import Pause from "lucide-svelte/icons/pause";
+  import Play from "@vexed/ui/icons/Play";
+  import Pause from "@vexed/ui/icons/Pause";
 
   import { client, handlers } from "~/shared/tipc";
 

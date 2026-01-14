@@ -3,11 +3,11 @@
   import log from "electron-log";
   import { onMount } from "svelte";
 
-  import Plus from "lucide-svelte/icons/plus";
-  import X from "lucide-svelte/icons/x";
-  import Trash2 from "lucide-svelte/icons/trash-2";
-  import Download from "lucide-svelte/icons/download";
-  import Share2 from "lucide-svelte/icons/share-2";
+  import Plus from "@vexed/ui/icons/Plus";
+  import X from "@vexed/ui/icons/X";
+  import Trash2 from "@vexed/ui/icons/Trash2";
+  import Download from "@vexed/ui/icons/Download";
+  import Share2 from "@vexed/ui/icons/Share2";
 
   import { normalizeId } from "~/game/util/normalizeId";
   import { client, handlers } from "~/shared/tipc";

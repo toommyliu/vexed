@@ -1,11 +1,11 @@
 <script lang="ts">
   import { Button, Checkbox, cn, Label } from "@vexed/ui";
   import * as Tabs from "@vexed/ui/Tabs";
-  import Play from "lucide-svelte/icons/play";
-  import Pause from "lucide-svelte/icons/pause";
-  import Download from "lucide-svelte/icons/download";
-  import Copy from "lucide-svelte/icons/copy";
-  import Trash2 from "lucide-svelte/icons/trash-2";
+  import Play from "@vexed/ui/icons/Play";
+  import Pause from "@vexed/ui/icons/Pause";
+  import Download from "@vexed/ui/icons/Download";
+  import Copy from "@vexed/ui/icons/Copy";
+  import Trash2 from "@vexed/ui/icons/Trash2";
 
   import { client, handlers } from "~/shared/tipc";
   import { v4 as uuid } from "@lukeed/uuid";
