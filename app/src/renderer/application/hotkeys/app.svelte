@@ -4,15 +4,15 @@
   import Config from "@vexed/config";
   import { AlertDialog, Button, Kbd } from "@vexed/ui";
   import { cn } from "@vexed/ui/util";
-  import Settings from "lucide-svelte/icons/settings";
-  import AppWindow from "lucide-svelte/icons/app-window";
-  import Code from "lucide-svelte/icons/code";
-  import Wrench from "lucide-svelte/icons/wrench";
-  import Radio from "lucide-svelte/icons/radio";
-  import Inbox from "lucide-svelte/icons/inbox";
-  import AlertTriangle from "lucide-svelte/icons/triangle-alert";
-  import ChevronDown from "lucide-svelte/icons/chevron-down";
-  import RotateCcw from "lucide-svelte/icons/rotate-ccw";
+  import Settings from "@vexed/ui/icons/Settings";
+  import AppWindow from "@vexed/ui/icons/AppWindow";
+  import Code from "@vexed/ui/icons/Code";
+  import Wrench from "@vexed/ui/icons/Wrench";
+  import Radio from "@vexed/ui/icons/Radio";
+  import Inbox from "@vexed/ui/icons/Inbox";
+  import AlertTriangle from "@vexed/ui/icons/AlertTriangle";
+  import ChevronDown from "@vexed/ui/icons/ChevronDown";
+  import RotateCcw from "@vexed/ui/icons/RotateCcw";
 
   import { client } from "~/shared/tipc";
   import type { HotkeyConfig } from "~/shared/types";

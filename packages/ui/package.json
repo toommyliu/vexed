@@ -257,6 +257,46 @@
       "types": "./dist/components/icons/X.svelte.d.ts",
       "svelte": "./dist/components/icons/X.svelte",
       "default": "./dist/components/icons/X.svelte"
+    },
+    "./icons/AlertTriangle": {
+      "types": "./dist/components/icons/AlertTriangle.svelte.d.ts",
+      "svelte": "./dist/components/icons/AlertTriangle.svelte",
+      "default": "./dist/components/icons/AlertTriangle.svelte"
+    },
+    "./icons/AppWindow": {
+      "types": "./dist/components/icons/AppWindow.svelte.d.ts",
+      "svelte": "./dist/components/icons/AppWindow.svelte",
+      "default": "./dist/components/icons/AppWindow.svelte"
+    },
+    "./icons/Code": {
+      "types": "./dist/components/icons/Code.svelte.d.ts",
+      "svelte": "./dist/components/icons/Code.svelte",
+      "default": "./dist/components/icons/Code.svelte"
+    },
+    "./icons/Inbox": {
+      "types": "./dist/components/icons/Inbox.svelte.d.ts",
+      "svelte": "./dist/components/icons/Inbox.svelte",
+      "default": "./dist/components/icons/Inbox.svelte"
+    },
+    "./icons/Radio": {
+      "types": "./dist/components/icons/Radio.svelte.d.ts",
+      "svelte": "./dist/components/icons/Radio.svelte",
+      "default": "./dist/components/icons/Radio.svelte"
+    },
+    "./icons/RotateCcw": {
+      "types": "./dist/components/icons/RotateCcw.svelte.d.ts",
+      "svelte": "./dist/components/icons/RotateCcw.svelte",
+      "default": "./dist/components/icons/RotateCcw.svelte"
+    },
+    "./icons/Settings": {
+      "types": "./dist/components/icons/Settings.svelte.d.ts",
+      "svelte": "./dist/components/icons/Settings.svelte",
+      "default": "./dist/components/icons/Settings.svelte"
+    },
+    "./icons/Wrench": {
+      "types": "./dist/components/icons/Wrench.svelte.d.ts",
+      "svelte": "./dist/components/icons/Wrench.svelte",
+      "default": "./dist/components/icons/Wrench.svelte"
     }
   },
   "peerDependencies": {

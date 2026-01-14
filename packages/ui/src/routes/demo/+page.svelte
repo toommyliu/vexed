@@ -42,6 +42,14 @@
   import Share2 from "$lib/components/icons/Share2.svelte";
   import Trash2 from "$lib/components/icons/Trash2.svelte";
   import X from "$lib/components/icons/X.svelte";
+  import AlertTriangle from "$lib/components/icons/AlertTriangle.svelte";
+  import AppWindow from "$lib/components/icons/AppWindow.svelte";
+  import Code from "$lib/components/icons/Code.svelte";
+  import Inbox from "$lib/components/icons/Inbox.svelte";
+  import Radio from "$lib/components/icons/Radio.svelte";
+  import RotateCcw from "$lib/components/icons/RotateCcw.svelte";
+  import Settings from "$lib/components/icons/Settings.svelte";
+  import Wrench from "$lib/components/icons/Wrench.svelte";
 
   let switchChecked = $state(false);
   let switchUnchecked = $state(false);
@@ -201,6 +209,54 @@
         >
           <X class="h-5 w-5" />
           <span class="text-xs text-muted-foreground">X</span>
+        </div>
+        <div
+          class="flex flex-col items-center gap-2 p-3 rounded-lg border bg-card"
+        >
+          <AlertTriangle class="h-5 w-5" />
+          <span class="text-xs text-muted-foreground">AlertTriangle</span>
+        </div>
+        <div
+          class="flex flex-col items-center gap-2 p-3 rounded-lg border bg-card"
+        >
+          <AppWindow class="h-5 w-5" />
+          <span class="text-xs text-muted-foreground">AppWindow</span>
+        </div>
+        <div
+          class="flex flex-col items-center gap-2 p-3 rounded-lg border bg-card"
+        >
+          <Code class="h-5 w-5" />
+          <span class="text-xs text-muted-foreground">Code</span>
+        </div>
+        <div
+          class="flex flex-col items-center gap-2 p-3 rounded-lg border bg-card"
+        >
+          <Inbox class="h-5 w-5" />
+          <span class="text-xs text-muted-foreground">Inbox</span>
+        </div>
+        <div
+          class="flex flex-col items-center gap-2 p-3 rounded-lg border bg-card"
+        >
+          <Radio class="h-5 w-5" />
+          <span class="text-xs text-muted-foreground">Radio</span>
+        </div>
+        <div
+          class="flex flex-col items-center gap-2 p-3 rounded-lg border bg-card"
+        >
+          <RotateCcw class="h-5 w-5" />
+          <span class="text-xs text-muted-foreground">RotateCcw</span>
+        </div>
+        <div
+          class="flex flex-col items-center gap-2 p-3 rounded-lg border bg-card"
+        >
+          <Settings class="h-5 w-5" />
+          <span class="text-xs text-muted-foreground">Settings</span>
+        </div>
+        <div
+          class="flex flex-col items-center gap-2 p-3 rounded-lg border bg-card"
+        >
+          <Wrench class="h-5 w-5" />
+          <span class="text-xs text-muted-foreground">Wrench</span>
         </div>
       </div>
     </section>

@@ -2,13 +2,12 @@
   import { Button, Input } from "@vexed/ui";
   import * as InputGroup from "@vexed/ui/InputGroup";
   import * as AlertDialog from "@vexed/ui/AlertDialog";
-  import Plus from "lucide-svelte/icons/plus";
-  import Search from "lucide-svelte/icons/search";
-  import Trash2 from "lucide-svelte/icons/trash-2";
-  import Play from "lucide-svelte/icons/play";
-  import Pencil from "lucide-svelte/icons/pencil";
-  import Loader from "lucide-svelte/icons/loader";
-  import LoaderCircle from "lucide-svelte/icons/loader-circle";
+  import Plus from "@vexed/ui/icons/Plus";
+  import Search from "@vexed/ui/icons/Search";
+  import Trash2 from "@vexed/ui/icons/Trash2";
+  import Play from "@vexed/ui/icons/Play";
+  import Pencil from "@vexed/ui/icons/Pencil";
+  import Loader from "@vexed/ui/icons/Loader";
   import { cn } from "@vexed/ui/util";
 
   import AddFastTravelModal from "./components/add-fast-travel-modal.svelte";
@@ -115,14 +114,14 @@
   }
 </script>
 
-<div class="flex h-screen flex-col bg-background">
+<div class="bg-background flex h-screen flex-col">
   <header
-    class="elevation-1 sticky top-0 z-10 border-b border-border/50 bg-background/95 px-6 py-3 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80"
+    class="elevation-1 border-border/50 bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-10 border-b px-6 py-3 backdrop-blur-xl"
   >
     <div class="mx-auto flex max-w-7xl items-center justify-between">
       <div class="flex items-center gap-3">
         <div>
-          <h1 class="text-base font-semibold tracking-tight text-foreground">
+          <h1 class="text-foreground text-base font-semibold tracking-tight">
             Fast Travels
           </h1>
         </div>
@@ -143,22 +142,22 @@
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div class="relative">
             <Search
-              class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+              class="text-muted-foreground pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2"
             />
             <Input
               type="search"
               placeholder="Search locations..."
-              class="border-border/50 bg-secondary/50 pl-10 transition-colors focus:bg-background"
+              class="border-border/50 bg-secondary/50 focus:bg-background pl-10 transition-colors"
               bind:value={searchQuery}
             />
           </div>
 
           <InputGroup.Root
-            class="border-border/50 bg-secondary/50 transition-colors focus-within:bg-background"
+            class="border-border/50 bg-secondary/50 focus-within:bg-background transition-colors"
           >
             <InputGroup.Addon>
               <InputGroup.Text
-                class="whitespace-nowrap text-xs font-medium text-muted-foreground"
+                class="text-muted-foreground whitespace-nowrap text-xs font-medium"
               >
                 Room number
               </InputGroup.Text>
@@ -177,7 +176,7 @@
 
       <div class="flex items-center justify-between text-sm">
         <span class="text-muted-foreground">
-          <span class="font-medium tabular-nums text-foreground"
+          <span class="text-foreground font-medium tabular-nums"
             >{filteredLocations.length}</span
           >
           <span class="text-muted-foreground/70"
@@ -189,14 +188,14 @@
       <div class="relative -mx-1 flex-1 overflow-auto px-1">
         {#if isLoading}
           <div
-            class="flex h-full flex-col items-center justify-center gap-3 text-muted-foreground"
+            class="text-muted-foreground flex h-full flex-col items-center justify-center gap-3"
           >
-            <Loader class="h-6 w-6 animate-spin text-primary" />
+            <Loader class="text-primary h-6 w-6 animate-spin" />
             <p class="text-sm">Loading locations...</p>
           </div>
         {:else if filteredLocations.length === 0}
           <div class="flex h-full flex-col items-center justify-center gap-3">
-            <p class="text-centered text-sm text-muted-foreground">
+            <p class="text-centered text-muted-foreground text-sm">
               {searchQuery ? "No locations found." : ""}
             </p>
           </div>
@@ -216,10 +215,10 @@
                   ev.key === "Enter" && !disabled && doFastTravel(location)}
               >
                 <div class="min-w-0 flex-1">
-                  <div class="truncate text-base font-medium text-foreground">
+                  <div class="text-foreground truncate text-base font-medium">
                     {location.name}
                   </div>
-                  <div class="truncate text-xs text-muted-foreground">
+                  <div class="text-muted-foreground truncate text-xs">
                     {location.map}{location.cell
                       ? ` › ${location.cell}`
                       : ""}{location.pad ? `:${location.pad}` : ""}
@@ -232,7 +231,7 @@
                   <Button
                     variant="ghost"
                     size="icon"
-                    class="h-7 w-7 text-muted-foreground hover:bg-primary/10 hover:text-primary"
+                    class="text-muted-foreground hover:bg-primary/10 hover:text-primary h-7 w-7"
                     onclick={(ev: MouseEvent) => {
                       ev.stopPropagation();
                       if (!disabled) doFastTravel(location);
@@ -245,7 +244,7 @@
                   <Button
                     variant="ghost"
                     size="icon"
-                    class="h-7 w-7 text-muted-foreground hover:bg-secondary hover:text-foreground"
+                    class="text-muted-foreground hover:bg-secondary hover:text-foreground h-7 w-7"
                     onclick={(ev: MouseEvent) => {
                       ev.stopPropagation();
                       editingLocation = location;
@@ -258,7 +257,7 @@
                   <Button
                     variant="ghost"
                     size="icon"
-                    class="h-7 w-7 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                    class="text-muted-foreground hover:bg-destructive/10 hover:text-destructive h-7 w-7"
                     onclick={(ev: MouseEvent) => {
                       ev.stopPropagation();
                       handleRemove(location.name);
@@ -321,7 +320,7 @@
         class="min-w-[80px]"
       >
         {#if deleteDialogLoading}
-          <LoaderCircle class="size-4 animate-spin" />
+          <Loader class="size-4 animate-spin" />
           <span>Removing...</span>
         {:else}
           <span>Remove</span>
