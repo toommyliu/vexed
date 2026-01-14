@@ -3,11 +3,6 @@ import { gameState } from "../state.svelte";
 import type { Bot } from "./Bot";
 
 export class Settings {
-  /**
-   * Whether to automatically stop attacking a Counter Attack is active.
-   */
-  public counterAttack = false;
-
   #customName: string | null = null;
 
   #customGuild: string | null = null;
@@ -260,5 +255,16 @@ export class Settings {
 
   public set disableDeathAds(on: boolean) {
     gameState.disableDeathAds = on;
+  }
+
+  /**
+   * Whether to automatically stop attacking when a Counter Attack is active.
+   */
+  public get counterAttack(): boolean {
+    return gameState.counterAttack;
+  }
+
+  public set counterAttack(on: boolean) {
+    gameState.counterAttack = on;
   }
 }
