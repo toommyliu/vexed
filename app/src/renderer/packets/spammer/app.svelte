@@ -89,7 +89,7 @@
     <div class="mx-auto flex max-w-7xl flex-col gap-4">
       <Card.Root class="border-border/40 gap-0 overflow-hidden py-0">
         <Card.Header
-          class="border-border/20 relative flex flex-row items-center space-y-0 border-b px-4 py-2"
+          class="border-border/20 relative flex h-10 flex-row items-center space-y-0 border-b px-4 py-0"
         >
           <div
             class="bg-primary/50 absolute bottom-3 left-0 top-3 w-0.5 rounded-full"
@@ -165,8 +165,11 @@
 
       <Card.Root class="border-border/40 flex-1 gap-0 overflow-hidden py-0">
         <Card.Header
-          class="border-border/20 relative flex flex-row items-center justify-between space-y-0 border-b px-4 py-2"
+          class="border-border/20 relative flex h-10 flex-row items-center justify-between space-y-0 border-b px-4 py-0"
         >
+          <div
+            class="bg-primary/50 absolute bottom-3 left-0 top-3 w-0.5 rounded-full"
+          ></div>
           <div class="flex items-center gap-2">
             <h2 class="text-foreground/80 text-sm font-medium">Packet Queue</h2>
             <span
