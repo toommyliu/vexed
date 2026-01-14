@@ -43,6 +43,7 @@ import { CommandSetName } from "./CommandSetName";
 import { CommandSetRejectElse } from "./CommandSetRejectElse";
 import { CommandSettingAntiCounter } from "./CommandSettingAntiCounter";
 import { CommandSettingDisableCollisions } from "./CommandSettingDisableCollisions";
+import { CommandSettingDisableDeathAds } from "./CommandSettingDisableDeathAds";
 import { CommandSettingDisableFx } from "./CommandSettingDisableFx";
 import { CommandSettingEnemyMagnet } from "./CommandSettingEnemyMagnet";
 import { CommandSettingHidePlayers } from "./CommandSettingHidePlayers";
@@ -162,6 +163,22 @@ export const miscCommands = {
    */
   disable_fx() {
     const cmd = new CommandSettingDisableFx();
+    cmd.state = false;
+    window.context.addCommand(cmd);
+  },
+  /**
+   * Disables the "Disable death ads" setting.
+   */
+  enable_death_ads() {
+    const cmd = new CommandSettingDisableDeathAds();
+    cmd.state = true;
+    window.context.addCommand(cmd);
+  },
+  /**
+   * Enables the "Disable death ads" setting.
+   */
+  disable_death_ads() {
+    const cmd = new CommandSettingDisableDeathAds();
     cmd.state = false;
     window.context.addCommand(cmd);
   },
