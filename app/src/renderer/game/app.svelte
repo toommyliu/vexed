@@ -1,3 +1,4 @@
+<script lang="ts">
   import Config from "@vexed/config";
   import { interval } from "@vexed/utils";
   import log from "electron-log";
