@@ -1,12 +1,9 @@
 import { readJson, writeJson } from "@vexed/fs-utils";
 import type { TipcInstance } from "@vexed/tipc";
-import {
-  DEFAULT_FAST_TRAVELS,
-  FAST_TRAVELS_PATH,
-} from "~/shared/constants";
+import { DEFAULT_FAST_TRAVELS, FAST_TRAVELS_PATH } from "~/shared/constants";
 import { equalsIgnoreCase } from "~/shared/string";
 import type { FastTravel, FastTravelRoomNumber } from "~/shared/types";
-import { logger } from "../constants";
+import { logger } from "../services/logger";
 import type { RendererHandlers } from "../tipc";
 import { windowStore } from "../windows";
 
@@ -16,7 +13,11 @@ export function createFastTravelsTipcRouter(tipcInstance: TipcInstance) {
       try {
         return await readJson<FastTravel[]>(FAST_TRAVELS_PATH);
       } catch (error) {
-        logger.error("Failed to read fast travels.", error);
+        logger.error(
+          "main",
+          "Failed to read fast travels.",
+          error instanceof Error ? error.message : error,
+        );
         return DEFAULT_FAST_TRAVELS;
       }
     }),
@@ -24,11 +25,12 @@ export function createFastTravelsTipcRouter(tipcInstance: TipcInstance) {
       .input<FastTravel>()
       .action(async ({ input }) => {
         try {
-          const fastTravels =
-            (await readJson<FastTravel[]>(FAST_TRAVELS_PATH)) ?? [...DEFAULT_FAST_TRAVELS];
+          const fastTravels = (await readJson<FastTravel[]>(
+            FAST_TRAVELS_PATH,
+          )) ?? [...DEFAULT_FAST_TRAVELS];
 
-          const idx = fastTravels.findIndex(
-            (ft) => equalsIgnoreCase(ft.name, input.name),
+          const idx = fastTravels.findIndex((ft) =>
+            equalsIgnoreCase(ft.name, input.name),
           );
           if (idx !== -1) return { msg: "NAME_ALREADY_EXISTS" } as const;
 
@@ -36,7 +38,11 @@ export function createFastTravelsTipcRouter(tipcInstance: TipcInstance) {
           await writeJson(FAST_TRAVELS_PATH, fastTravels);
           return { msg: "SUCCESS" } as const;
         } catch (error) {
-          logger.error("Failed to add fast travel.", error);
+          logger.error(
+            "main",
+            "Failed to add fast travel.",
+            error instanceof Error ? error.message : error,
+          );
           return { msg: "FAILED" } as const;
         }
       }),
@@ -44,26 +50,32 @@ export function createFastTravelsTipcRouter(tipcInstance: TipcInstance) {
       .input<{ fastTravel: FastTravel; originalName: string }>()
       .action(async ({ input }) => {
         try {
-          const fastTravels =
-            (await readJson<FastTravel[]>(FAST_TRAVELS_PATH)) ?? [...DEFAULT_FAST_TRAVELS];
+          const fastTravels = (await readJson<FastTravel[]>(
+            FAST_TRAVELS_PATH,
+          )) ?? [...DEFAULT_FAST_TRAVELS];
 
-          const idx = fastTravels.findIndex(
-            (ft) => equalsIgnoreCase(ft.name, input.originalName),
+          const idx = fastTravels.findIndex((ft) =>
+            equalsIgnoreCase(ft.name, input.originalName),
           );
           if (idx === -1) return { msg: "NOT_FOUND" } as const;
 
           if (!equalsIgnoreCase(input.fastTravel.name, input.originalName)) {
-            const existingIdx = fastTravels.findIndex(
-              (ft) => equalsIgnoreCase(ft.name, input.fastTravel.name),
+            const existingIdx = fastTravels.findIndex((ft) =>
+              equalsIgnoreCase(ft.name, input.fastTravel.name),
             );
-            if (existingIdx !== -1) return { msg: "NAME_ALREADY_EXISTS" } as const;
+            if (existingIdx !== -1)
+              return { msg: "NAME_ALREADY_EXISTS" } as const;
           }
 
           fastTravels[idx] = input.fastTravel;
           await writeJson(FAST_TRAVELS_PATH, fastTravels);
           return { msg: "SUCCESS" } as const;
         } catch (error) {
-          logger.error("Failed to update fast travel.", error);
+          logger.error(
+            "main",
+            "Failed to update fast travel.",
+            error instanceof Error ? error.message : error,
+          );
           return { msg: "FAILED" } as const;
         }
       }),
@@ -71,11 +83,12 @@ export function createFastTravelsTipcRouter(tipcInstance: TipcInstance) {
       .input<{ name: string }>()
       .action(async ({ input }) => {
         try {
-          const fastTravels =
-            (await readJson<FastTravel[]>(FAST_TRAVELS_PATH)) ?? [...DEFAULT_FAST_TRAVELS];
+          const fastTravels = (await readJson<FastTravel[]>(
+            FAST_TRAVELS_PATH,
+          )) ?? [...DEFAULT_FAST_TRAVELS];
 
-          const idx = fastTravels.findIndex(
-            (ft) => equalsIgnoreCase(ft.name, input.name),
+          const idx = fastTravels.findIndex((ft) =>
+            equalsIgnoreCase(ft.name, input.name),
           );
           if (idx === -1) return false;
 
@@ -83,7 +96,11 @@ export function createFastTravelsTipcRouter(tipcInstance: TipcInstance) {
           await writeJson(FAST_TRAVELS_PATH, fastTravels);
           return true;
         } catch (error) {
-          logger.error("Failed to remove fast travel.", error);
+          logger.error(
+            "main",
+            "Failed to remove fast travel.",
+            error instanceof Error ? error.message : error,
+          );
           return false;
         }
       }),

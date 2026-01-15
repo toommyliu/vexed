@@ -1,7 +1,12 @@
 import { v4 as uuid } from "@lukeed/uuid";
-import { BrowserWindow, WebContents, ipcMain, IpcMainEvent } from "electron";
 import {
-  ActionFunction,
+  BrowserWindow,
+  WebContents,
+  ipcMain,
+  IpcMainEvent,
+  IpcMainInvokeEvent,
+} from "electron";
+import {
   RendererHandlers,
   RendererHandlersCaller,
   Route,
@@ -15,9 +20,9 @@ export const registerIpcMain = (router: RouterType) => {
   const walk = (obj: RouterType, prefix = "") => {
     for (const [key, val] of Object.entries(obj)) {
       const channel = prefix ? `${prefix}.${key}` : key;
-      if ("action" in val) {
+      if ("action" in val || "event" in val) {
         const route = val as Route;
-        ipcMain.handle(channel, (e, payload) => {
+        const handler = (e: IpcMainInvokeEvent, payload: unknown) => {
           const senderWindow = BrowserWindow.fromWebContents(e.sender) ?? null;
           const senderParentWindow = senderWindow?.getParentWindow() ?? null;
 
@@ -38,11 +43,26 @@ export const registerIpcMain = (router: RouterType) => {
             },
           };
 
+          if ("event" in route) {
+            return route.event({
+              context,
+              input: payload,
+            });
+          }
+
           return route.action({
             context,
             input: payload,
           });
-        });
+        };
+
+        if ("event" in route) {
+          ipcMain.on(channel, (e, payload) => {
+            void handler(e, payload);
+          });
+        } else {
+          ipcMain.handle(channel, handler);
+        }
       } else {
         walk(val as RouterType, channel);
       }
