@@ -4,12 +4,14 @@ import type { TipcInstance } from "@vexed/tipc";
 import { BrowserWindow } from "electron";
 import { DEFAULT_SKILLSETS, DOCUMENTS_PATH } from "../../shared/constants";
 import { WindowIds } from "../../shared/types";
-import { ASSET_PATH, DIST_PATH, IS_PACKAGED, logger } from "../constants";
+import { ASSET_PATH, DIST_PATH, IS_PACKAGED } from "../constants";
+import { logger } from "../services/logger";
 import {
   registerSubwindow,
   unregisterSubwindow,
   windowStore,
 } from "../windows";
+import type { RendererHandlers } from "../tipc";
 
 export function createGameTipcRouter(tipcInstance: TipcInstance) {
   return {
@@ -147,7 +149,11 @@ export function createGameTipcRouter(tipcInstance: TipcInstance) {
         await config.load();
         return config.get();
       } catch (error) {
-        logger.error("Failed to get skill sets.", error);
+        logger.error(
+          "main",
+          "Failed to get skill sets.",
+          error instanceof Error ? error.message : error,
+        );
         return DEFAULT_SKILLSETS;
       }
     }),

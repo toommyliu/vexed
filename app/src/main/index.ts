@@ -5,17 +5,17 @@ import { join } from "path";
 import process from "process";
 import { registerIpcMain } from "@vexed/tipc/main";
 import { app, shell, nativeTheme } from "electron";
-import log from "electron-log";
 import { version } from "../../package.json";
-import {
-  BRAND,
-  DOCUMENTS_PATH,
-  IS_MAC,
-  IS_WINDOWS,
-} from "../shared/constants";
+import { BRAND, IS_MAC, IS_WINDOWS } from "../shared/constants";
 import { equalsIgnoreCase } from "../shared/string";
-import { ASSET_PATH, logger } from "./constants";
+import { ASSET_PATH } from "./constants";
 import { createMenu } from "./menu";
+import {
+  flushAndCloseLogger,
+  initMainLogger,
+  logger,
+  setLoggerDebugEnabled,
+} from "./services/logger";
 import { initSettings, getSettings } from "./settings";
 import { router } from "./tipc";
 import { checkForUpdates } from "./updater";
@@ -74,24 +74,16 @@ async function handleAppLaunch(argv: string[] = process.argv) {
   try {
     const settings = getSettings();
 
-    const level = settings.getBoolean("debug", false) ? "debug" : "info";
+    setLoggerDebugEnabled(settings.getBoolean("debug", false));
+    await initMainLogger();
 
-    log.initialize({
-      rendererTransports: ["console", level === "debug" && "file"],
-    });
-    log.scope.labelPadding = false;
-    log.transports.file.resolvePathFn = () => join(DOCUMENTS_PATH, "log.txt");
-    log.transports.file.format = "[{datetime}] ({level}){scope} {text}";
-    log.transports.console.format = "[{datetime}] ({level}){scope} {text}";
-    log.transports.file.level = level;
-    log.transports.console.level = level;
-
-    logger.info(`Hello - ${BRAND} v${version}`); // indicate app start
+    logger.info("main", `Hello - ${BRAND} v${version}`); // indicate app start
 
     if (settings?.getBoolean("checkForUpdates", false)) {
       const updateResult = await checkForUpdates(true);
       if (updateResult !== null) {
         logger.info(
+          "main",
           `Update available - ${updateResult.newVersion} (current: ${version})`,
         );
 
@@ -106,23 +98,32 @@ async function handleAppLaunch(argv: string[] = process.argv) {
     }
 
     let launchMode = settings.getString("launchMode", "game");
-    if (!equalsIgnoreCase(launchMode, "manager") && !equalsIgnoreCase(launchMode, "game")) {
+    if (
+      !equalsIgnoreCase(launchMode, "manager") &&
+      !equalsIgnoreCase(launchMode, "game")
+    ) {
       logger.info(
+        "main",
         `Unknown launch mode, got "${launchMode}", defaulting to "game"...`,
       );
       launchMode = "game";
     } else {
-      logger.info(`Using launch mode: ${launchMode}`);
+      logger.info("main", `Using launch mode: ${launchMode}`);
     }
 
     if (
       equalsIgnoreCase(launchMode, "manager") ||
-      argv.some((arg) => equalsIgnoreCase(arg, "--manager") || equalsIgnoreCase(arg, "-m"))
+      argv.some(
+        (arg) =>
+          equalsIgnoreCase(arg, "--manager") || equalsIgnoreCase(arg, "-m"),
+      )
     ) {
       await createAccountManager();
     } else if (
       equalsIgnoreCase(launchMode, "game") ||
-      argv.some((arg) => equalsIgnoreCase(arg, "--game") || equalsIgnoreCase(arg, "-g"))
+      argv.some(
+        (arg) => equalsIgnoreCase(arg, "--game") || equalsIgnoreCase(arg, "-g"),
+      )
     ) {
       const account = {
         username:
@@ -179,8 +180,23 @@ app.once("ready", async () => {
   await handleAppLaunch();
 });
 
-app.on("before-quit", () => {
+let loggerClosing = false;
+
+app.on("before-quit", async (event) => {
+  if (loggerClosing) return;
+
+  event.preventDefault();
+  loggerClosing = true;
   setQuitting(true);
+
+  await Promise.race([
+    flushAndCloseLogger(),
+    new Promise<void>((resolve) => {
+      globalThis.setTimeout(resolve, 2_000);
+    }),
+  ]);
+
+  app.quit();
 });
 
 app.on("window-all-closed", () => {

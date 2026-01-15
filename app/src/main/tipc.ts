@@ -14,6 +14,7 @@ import { createFollowerTipcRouter } from "./tipc/follower";
 import { createGameTipcRouter } from "./tipc/game";
 import { createHotkeysTipcRouter } from "./tipc/hotkeys";
 import { createLoaderGrabberTipcRouter } from "./tipc/loaderGrabber";
+import { createLoggerTipcRouter } from "./tipc/logger";
 import { createManagerTipcRouter } from "./tipc/manager";
 import { createOnboardingTipcRouter } from "./tipc/onboarding";
 import { createPacketLoggerTipcRouter } from "./tipc/packetLogger";
@@ -30,6 +31,7 @@ export const router = {
   follower: createFollowerTipcRouter(tipcInstance),
   packetLogger: createPacketLoggerTipcRouter(tipcInstance),
   packetSpammer: createPacketSpammerTipcRouter(tipcInstance),
+  logger: createLoggerTipcRouter(tipcInstance),
   hotkeys: createHotkeysTipcRouter(tipcInstance),
   manager: createManagerTipcRouter(tipcInstance),
   army: createArmyTipcRouter(tipcInstance),
