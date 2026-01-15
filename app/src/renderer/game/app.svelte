@@ -127,28 +127,29 @@
   function updateCells() {
     if (!bot.player.isReady()) return;
 
+    currentSelectedCell = bot.player.cell ?? "Enter";
+
     const capturedRoomId = bot.world.roomId;
     if (capturedRoomId === prevRoomId) return;
 
     const cells = bot.world.cells || [];
-    const cell = bot.player.cell || "";
 
     if (bot.world.roomId !== capturedRoomId) return;
 
     availableCells = cells;
-    currentSelectedCell = cell;
     prevRoomId = capturedRoomId;
   }
 
   function updatePads() {
     if (!bot.player.isReady()) return;
 
+    currentSelectedPad = bot.player.pad ?? "Spawn";
+
     const cellPads = bot.world.cellPads || [];
     validPads = DEFAULT_PADS.map((pad) => ({
       name: pad,
       isValid: cellPads.includes(pad),
     }));
-    currentSelectedPad = bot.player.pad ?? "Spawn";
   }
 
   function startScript() {
