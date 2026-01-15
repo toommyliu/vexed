@@ -2,22 +2,22 @@
   "name": "@vexed/tipc",
   "version": "0.4.0",
   "scripts": {
-    "build": "tsup tipc/src/main.ts tipc/src/renderer.ts --format cjs,esm --outDir dist",
+    "build": "tsup src/main.ts src/renderer.ts --format cjs,esm --outDir dist",
     "postinstall": "pnpm run build"
   },
   "exports": {
     "./main": {
-      "types": "./tipc/main/index.d.ts",
+      "types": "./src/main.d.ts",
       "import": "./dist/main.mjs",
       "require": "./dist/main.js"
     },
     "./renderer": {
-      "types": "./tipc/renderer/index.d.ts",
+      "types": "./src/renderer.d.ts",
       "import": "./dist/renderer.mjs",
       "require": "./dist/renderer.js"
     },
     ".": {
-      "types": "./tipc/main/index.d.ts",
+      "types": "./src/main.d.ts",
       "import": "./dist/main.mjs",
       "require": "./dist/main.js"
     },
@@ -26,16 +26,16 @@
   "typesVersions": {
     "*": {
       "main": [
-        "./tipc/main/index.d.ts"
+        "./src/main.d.ts"
       ],
       "renderer": [
-        "./tipc/renderer/index.d.ts"
+        "./src/renderer.d.ts"
       ]
     }
   },
   "main": "./dist/main.js",
   "module": "./dist/main.js",
-  "types": "./tipc/main/index.d.ts",
+  "types": "./src/main.d.ts",
   "devDependencies": {
     "@lukeed/uuid": "^2.0.1",
     "@swc/core": "^1.14.0",
