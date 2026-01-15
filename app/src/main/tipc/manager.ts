@@ -4,9 +4,13 @@ import { readJson, writeJson } from "@vexed/fs-utils";
 import type { TipcInstance } from "@vexed/tipc";
 import { dialog } from "electron";
 import type { BrowserWindow, OpenDialogOptions } from "electron";
-import { ACCOUNTS_PATH, DEFAULT_ACCOUNTS, DOCUMENTS_PATH } from "../../shared/constants";
+import {
+  ACCOUNTS_PATH,
+  DEFAULT_ACCOUNTS,
+  DOCUMENTS_PATH,
+} from "../../shared/constants";
 import type { Account, AccountWithScript } from "../../shared/types";
-import { logger } from "../constants";
+import { logger } from "../services/logger";
 import type { RendererHandlers } from "../tipc";
 import { createGame, getManagerWindow } from "../windows";
 
@@ -22,7 +26,11 @@ export function createManagerTipcRouter(tipcInstance: TipcInstance) {
         await config.load();
         return config.get();
       } catch (error) {
-        logger.error("Failed to get accounts.", error);
+        logger.error(
+          "main",
+          "Failed to get accounts.",
+          error instanceof Error ? error.message : error,
+        );
         return DEFAULT_ACCOUNTS;
       }
     }),
@@ -30,7 +38,8 @@ export function createManagerTipcRouter(tipcInstance: TipcInstance) {
       .input<Account>()
       .action(async ({ input }) => {
         try {
-          const accounts = (await readJson<Account[]>(ACCOUNTS_PATH)) ?? DEFAULT_ACCOUNTS;
+          const accounts =
+            (await readJson<Account[]>(ACCOUNTS_PATH)) ?? DEFAULT_ACCOUNTS;
 
           const idx = accounts.findIndex(
             (acc) => acc.username === input.username,
@@ -41,7 +50,11 @@ export function createManagerTipcRouter(tipcInstance: TipcInstance) {
           await writeJson(ACCOUNTS_PATH, accounts);
           return { msg: "SUCCESS" } as const;
         } catch (error) {
-          logger.error("Failed to add account.", error);
+          logger.error(
+            "main",
+            "Failed to add account.",
+            error instanceof Error ? error.message : error,
+          );
           return { msg: "FAILED" } as const;
         }
       }),
@@ -51,7 +64,8 @@ export function createManagerTipcRouter(tipcInstance: TipcInstance) {
       }>()
       .action(async ({ input }) => {
         try {
-          const accounts = (await readJson<Account[]>(ACCOUNTS_PATH)) ?? DEFAULT_ACCOUNTS;
+          const accounts =
+            (await readJson<Account[]>(ACCOUNTS_PATH)) ?? DEFAULT_ACCOUNTS;
 
           const idx = accounts.findIndex(
             (acc) => acc.username === input.username,
@@ -62,7 +76,11 @@ export function createManagerTipcRouter(tipcInstance: TipcInstance) {
           await writeJson(ACCOUNTS_PATH, accounts);
           return true;
         } catch (error) {
-          logger.error("Failed to remove account.", error);
+          logger.error(
+            "main",
+            "Failed to remove account.",
+            error instanceof Error ? error.message : error,
+          );
           return false;
         }
       }),
@@ -73,7 +91,8 @@ export function createManagerTipcRouter(tipcInstance: TipcInstance) {
       }>()
       .action(async ({ input }) => {
         try {
-          const accounts = (await readJson<Account[]>(ACCOUNTS_PATH)) ?? DEFAULT_ACCOUNTS;
+          const accounts =
+            (await readJson<Account[]>(ACCOUNTS_PATH)) ?? DEFAULT_ACCOUNTS;
 
           const idx = accounts.findIndex(
             (acc) => acc.username === input.originalUsername,
@@ -92,7 +111,11 @@ export function createManagerTipcRouter(tipcInstance: TipcInstance) {
           await writeJson(ACCOUNTS_PATH, accounts);
           return { msg: "SUCCESS" } as const;
         } catch (error) {
-          logger.error("Failed to update account.", error);
+          logger.error(
+            "main",
+            "Failed to update account.",
+            error instanceof Error ? error.message : error,
+          );
           return { msg: "FAILED" } as const;
         }
       }),
@@ -116,7 +139,11 @@ export function createManagerTipcRouter(tipcInstance: TipcInstance) {
 
         return res?.filePaths[0] ?? "";
       } catch (error) {
-        logger.error("Manager: failed to load script.", error);
+        logger.error(
+          "main",
+          "Manager: failed to load script.",
+          error instanceof Error ? error.message : error,
+        );
         return "";
       }
     }),

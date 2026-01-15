@@ -119,6 +119,25 @@ export enum WindowIds {
   PacketSpammer = "packets-spammer",
 }
 
+export type LogLevel = "debug" | "error" | "info" | "warn";
+export type LogProcess = "main" | "renderer";
+export type MainLogEntry = {
+  data?: unknown;
+  level: LogLevel;
+  message: string;
+  process: LogProcess;
+  scope: string;
+  timestamp: number;
+};
+
+export type AppLogEntry = {
+  level: number;
+  lineNumber: number;
+  message: string;
+  sourceId: string;
+  timestamp: number;
+};
+
 export type HotkeyConfig = {
   Application?: {
     "Open Environment"?: string;

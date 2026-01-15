@@ -7,22 +7,15 @@ export const client = createClient<TipcRouter>({
     try {
       return await ipcRenderer.invoke(...args);
     } catch (error) {
-      // console.error("IPC invoke error:", error);
-
-      if (error instanceof Error) {
-        if (error?.message === "IPC connection fatally interrupted.") {
-          // eslint-disable-next-line no-alert
-          alert(
-            "A critical app resource has failed. The application will now close.",
-          );
-          window.close();
-        }
-
-        console.error("IPC invoke error message:", error.message);
-        console.error("IPC invoke error stack:", error.stack);
-      }
-
+      console.error("IPC invoke error:", error);
       throw error;
+    }
+  },
+  ipcSend: (channel: string, ...args: unknown[]) => {
+    try {
+      ipcRenderer.send(channel, ...args);
+    } catch (error) {
+      console.error("IPC send error:", error);
     }
   },
 });

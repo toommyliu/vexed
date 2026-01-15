@@ -1,10 +1,7 @@
 import { URL } from "url";
 import { BrowserWindow, session } from "electron";
-import {
-  ARTIX_USERAGENT,
-  WHITELISTED_DOMAINS,
-} from "../../shared/constants";
-import { logger } from "../constants";
+import { ARTIX_USERAGENT, WHITELISTED_DOMAINS } from "../../shared/constants";
+import { logger } from "../services/logger";
 
 function isDomainWhitelisted(hostname: string): boolean {
   let normalized = hostname;
@@ -36,7 +33,7 @@ export function applySecurityPolicy(window: BrowserWindow): void {
   window.webContents.on("will-navigate", (ev, url) => {
     const parsedUrl = new URL(url);
     if (!isDomainWhitelisted(parsedUrl.hostname)) {
-      logger.debug(`Blocked navigation to: ${url}`);
+      logger.debug("main", `Blocked navigation to: ${url}`);
       ev.preventDefault();
     }
   });
@@ -44,7 +41,7 @@ export function applySecurityPolicy(window: BrowserWindow): void {
   window.webContents.on("will-redirect", (ev, url) => {
     const parsedUrl = new URL(url);
     if (!isDomainWhitelisted(parsedUrl.hostname)) {
-      logger.debug(`Blocked redirect to: ${url}`);
+      logger.debug("main", `Blocked redirect to: ${url}`);
       ev.preventDefault();
     }
   });
@@ -65,13 +62,13 @@ export function applySecurityPolicy(window: BrowserWindow): void {
       if (
         parsedUrl.hostname === "www.facebook.com" &&
         parsedUrl.searchParams.get("redirect_uri") ===
-        "https://game.aq.com/game/AQWFB.html"
+          "https://game.aq.com/game/AQWFB.html"
       ) {
         return;
       }
 
       if (!isDomainWhitelisted(parsedUrl.hostname)) {
-        logger.debug(`Blocked new-window to: ${url}`);
+        logger.debug("main", `Blocked new-window to: ${url}`);
         ev.preventDefault();
         return null;
       }

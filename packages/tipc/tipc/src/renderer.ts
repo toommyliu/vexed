@@ -7,12 +7,15 @@ import type {
 } from "./types";
 
 type InvokeFn = (input: unknown) => Promise<unknown>;
-type ProxyFn = InvokeFn & Record<string, unknown>;
+type SendFn = (input: unknown) => Promise<void>;
+type ProxyFn = InvokeFn & { send?: SendFn } & Record<string, unknown>;
 
 export const createClient = <Router extends RouterType>({
   ipcInvoke,
+  ipcSend,
 }: {
   ipcInvoke: IpcRenderer["invoke"];
+  ipcSend: IpcRenderer["send"];
 }): ClientFromRouter<Router> => {
   const makeProxy = (prefix = ""): ProxyFn => {
     // function target so the proxy is callable at every level
@@ -20,6 +23,13 @@ export const createClient = <Router extends RouterType>({
 
     return new Proxy(fn, {
       get: (_t, prop) => {
+        if (prop === "send") {
+          return (input: unknown) => {
+            ipcSend(prefix, input);
+            return Promise.resolve();
+          };
+        }
+
         const name = prop.toString();
         const channel = prefix ? `${prefix}.${name}` : name;
         return makeProxy(channel);
@@ -45,7 +55,7 @@ export const createEventHandlers = <T extends RendererHandlers>({
 }: {
   on: (
     channel: string,
-    handler: (event: IpcRendererEvent, ...args: unknown[]) => void
+    handler: (event: IpcRendererEvent, ...args: unknown[]) => void,
   ) => () => void;
 
   send: IpcRenderer["send"];

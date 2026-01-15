@@ -10,33 +10,50 @@ export type ActionFunction<TInput = any, TResult = any> = (args: {
   context: ActionContext;
   input: TInput;
 }) => Promise<TResult>;
+export type EventFunction<TInput = any> = (args: {
+  context: ActionContext;
+  input: TInput;
+}) => Promise<void>;
 export interface RouterType {
   [key: string]:
     | {
         action: ActionFunction;
       }
+    | {
+        event: EventFunction;
+      }
     | RouterType;
 }
-type IsProcedure<T> = T extends {
-  action: ActionFunction;
+type RouteInput<T> = T extends {
+  action: (options: { context: any; input: infer P }) => Promise<unknown>;
 }
-  ? true
-  : false;
-export type ClientFromRouter<Router extends RouterType> = {
-  [K in keyof Router]: IsProcedure<Router[K]> extends true
-    ? Router[K] extends {
-        action: infer A;
+  ? P
+  : T extends {
+        event: (options: { context: any; input: infer P }) => Promise<void>;
       }
-      ? A extends (options: {
-          context: any;
-          input: infer P;
-        }) => Promise<infer R>
-        ? (input: P) => Promise<R>
-        : never
-      : never
-    : Router[K] extends RouterType
-      ? ClientFromRouter<Router[K]>
-      : never;
+    ? P
+    : never;
+type RouteResult<T> = T extends {
+  action: (options: { context: any; input: any }) => Promise<infer R>;
+}
+  ? R
+  : never;
+type ActionClient<TInput, TResult> = {
+  (input: TInput): Promise<TResult>;
+  send?: (input: TInput) => Promise<void>;
+};
+type EventClient<TInput> = {
+  (input: TInput): Promise<void>;
+  send: (input: TInput) => Promise<void>;
+};
+export type ClientFromRouter<Router extends RouterType> = {
+  [K in keyof Router]: Router[K] extends { action: (...args: any[]) => any }
+    ? ActionClient<RouteInput<Router[K]>, RouteResult<Router[K]>>
+    : Router[K] extends { event: (...args: any[]) => any }
+      ? EventClient<RouteInput<Router[K]>>
+      : Router[K] extends RouterType
+        ? ClientFromRouter<Router[K]>
+        : never;
 };
 
 export type RendererHandlersFromRouter<Router extends RouterType> = {
@@ -52,9 +69,21 @@ export type RendererHandlersFromRouter<Router extends RouterType> = {
           send: (input: P) => void;
           invoke: (input: P) => Promise<R>;
         }
-    : Router[K] extends RouterType
-      ? RendererHandlersFromRouter<Router[K]>
-      : never;
+    : Router[K] extends {
+          event: (options: { context: any; input: infer P }) => Promise<void>;
+        }
+      ? P extends void
+        ? {
+            send: () => void;
+            invoke: () => Promise<void>;
+          }
+        : {
+            send: (input: P) => void;
+            invoke: (input: P) => Promise<void>;
+          }
+      : Router[K] extends RouterType
+        ? RendererHandlersFromRouter<Router[K]>
+        : never;
 };
 export interface RendererHandlers {
   [key: string]: ((...args: any[]) => any) | RendererHandlers;

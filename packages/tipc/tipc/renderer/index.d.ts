@@ -1,1 +1,1 @@
-export * from "../../types/renderer"
+export * from "../../types/renderer";
