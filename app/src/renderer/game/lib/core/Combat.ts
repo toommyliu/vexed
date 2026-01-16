@@ -409,7 +409,9 @@ export class Combat {
     options: Partial<KillOptions> = {},
   ): Promise<void> {
     const opts: KillOptions = validateKillOptions(options);
-    const store = isTemp ? this.bot.tempInventory : this.bot.inventory;
+    const store = isTemp
+      ? this.bot.player.tempInventory
+      : this.bot.player.inventory;
 
     const hasRequiredItems = () => store.contains(item, quantity);
 

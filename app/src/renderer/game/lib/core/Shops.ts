@@ -85,7 +85,9 @@ export class Shops {
     const qty = quantity ?? 1;
 
     this.bot.flash.call(() => swf.shopBuyByName(itemName, qty));
-    await this.bot.waitUntil(() => this.bot.inventory.contains(itemName));
+    await this.bot.waitUntil(() =>
+      this.bot.player.inventory.contains(itemName),
+    );
   }
 
   /**
@@ -118,7 +120,7 @@ export class Shops {
     // Wait for the actual quantity we expect to receive (qty * item.iQty)
     const expectedQuantity = qty * item.iQty;
     await this.bot.waitUntil(() =>
-      this.bot.inventory.contains(itemId, expectedQuantity),
+      this.bot.player.inventory.contains(itemId, expectedQuantity),
     );
   }
 
@@ -147,13 +149,13 @@ export class Shops {
       this.bot.world.isActionAvailable(GameAction.SellItem),
     );
 
-    const item = this.bot.inventory.get(key);
+    const item = this.bot.player.inventory.get(key);
 
     if (!item) return;
 
     await this.bot.sleep(1_000);
     this.bot.flash.call(() => swf.shopSellByName(item.name));
-    await this.bot.waitUntil(() => !this.bot.inventory.get(key));
+    await this.bot.waitUntil(() => !this.bot.player.inventory.get(key));
   }
 
   /**

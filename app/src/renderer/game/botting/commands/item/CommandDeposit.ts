@@ -7,7 +7,7 @@ export class CommandDeposit extends Command {
     const items = Array.isArray(this.item) ? this.item : [this.item];
     for (const item of items) {
       this.logger.debug(`Depositing: ${item}`);
-      await this.bot.bank.deposit(item);
+      await this.bot.player.bank.deposit(item);
     }
   }
 

@@ -1,5 +1,5 @@
 import { Command } from "~/botting/command";
-import { ServerPacket } from "~/renderer/game/lib/core/Packets";
+import { ServerPacket } from "~/lib/core/Packets";
 import {
   EnhancementType,
   resolveEnhancementType,
@@ -40,7 +40,7 @@ export class CommandEnhanceItem extends Command {
   public procName?: string;
 
   public override async executeImpl(): Promise<void> {
-    const item = this.bot.inventory.get(this.itemName);
+    const item = this.bot.player.inventory.get(this.itemName);
     if (!item) return;
 
     const ctx: ItemContext = {
@@ -219,7 +219,7 @@ export class CommandEnhanceItem extends Command {
   }
 
   private findBestEnhancement(
-    item: ReturnType<typeof this.bot.inventory.get>,
+    item: ReturnType<typeof this.bot.player.inventory.get>,
     patternId: number,
     procId: number = 0,
   ): { id: number } | null {

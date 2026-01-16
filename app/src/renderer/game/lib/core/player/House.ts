@@ -1,16 +1,15 @@
-import { HouseItem, type ItemData } from "@vexed/game";
+import { HouseItem } from "@vexed/game";
+import { house } from "~/lib/stores/house";
 import type { Bot } from "../Bot";
 
 export class House {
   public constructor(public readonly bot: Bot) {}
 
   /**
-   * Gets house items of the current player.
+   * The player's current house items.
    */
-  public get items(): HouseItem[] {
-    return this.bot.flash.call(() =>
-      swf.houseGetItems().map((data: ItemData) => new HouseItem(data)),
-    );
+  public get items() {
+    return house;
   }
 
   public get(key: number | string): HouseItem | null {

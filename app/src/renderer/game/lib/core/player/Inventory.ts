@@ -1,7 +1,7 @@
 import { GameAction, InventoryItem } from "@vexed/game";
+import { inventory } from "~/lib/stores/inventory";
 import type { Bot } from "../Bot";
 import { ServerPacket } from "../Packets";
-import { inventory } from "../../stores/inventory";
 
 export class Inventory {
   public constructor(public readonly bot: Bot) {}
@@ -10,7 +10,7 @@ export class Inventory {
    * All items in the player's inventory.
    */
   public get items() {
-    return inventory.all();
+    return inventory;
   }
 
   /**

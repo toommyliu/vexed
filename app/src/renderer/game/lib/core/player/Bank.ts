@@ -1,4 +1,4 @@
-import { BankItem, type ItemData } from "@vexed/game";
+import { bank } from "~/lib/stores/bank";
 import type { Bot } from "../Bot";
 
 export class Bank {
@@ -10,11 +10,8 @@ export class Bank {
   /**
    * The list of items in the bank.
    */
-  public get items(): BankItem[] {
-    const ret = this.bot.flash.call(() => swf.bankGetItems());
-    return Array.isArray(ret)
-      ? ret.map((item: ItemData) => new BankItem(item))
-      : [];
+  public get items() {
+    return bank;
   }
 
   /**
@@ -24,13 +21,14 @@ export class Bank {
    * Bank items must have been loaded beforehand to retrieve an item.
    * @param key - The name or ID of the item.
    */
-  public get(key: number | string): BankItem | null {
-    return this.bot.flash.call(() => {
-      const item = swf.bankGetItem(key);
-      if (!item) return null;
+  public get(key: number | string) {
+    if (typeof key === "number") {
+      return this.items.getById(key);
+    } else if (typeof key === "string") {
+      return this.items.getByName(key);
+    }
 
-      return new BankItem(item);
-    });
+    return undefined;
   }
 
   /**
@@ -78,7 +76,7 @@ export class Bank {
       () =>
         this.bot.auth.isLoggedIn() &&
         this.get(key) !== null &&
-        this.bot.inventory.get(key) === null,
+        this.bot.player.inventory.get(key) === null,
     );
   }
 
@@ -101,7 +99,7 @@ export class Bank {
   public async withdraw(key: number | string): Promise<void> {
     await this.open();
 
-    if (!this.get(key) || this.bot.inventory.get(key)) return;
+    if (!this.get(key) || this.bot.player.inventory.get(key)) return;
 
     this.bot.flash.call<boolean>(() => swf.bankWithdraw(key));
 
@@ -109,7 +107,7 @@ export class Bank {
       () =>
         this.bot.auth.isLoggedIn() &&
         this.get(key) === null &&
-        this.bot.inventory.get(key) !== null,
+        this.bot.player.inventory.get(key) !== null,
     );
   }
 
@@ -134,7 +132,8 @@ export class Bank {
     await this.open();
 
     const isInBank = () => Boolean(this.get(bankItem));
-    const isInInventory = () => Boolean(this.bot.inventory.get(inventoryItem));
+    const isInInventory = () =>
+      Boolean(this.bot.player.inventory.get(inventoryItem));
 
     if (!isInBank() || !isInInventory()) {
       return;
@@ -198,7 +197,7 @@ export class Bank {
       () =>
         this.bot.player.isReady() &&
         this.isOpen() &&
-        this.items.length > 0 /* wait until something is loaded */,
+        this.items.all().size > 0 /* wait until something is loaded */,
     );
   }
 

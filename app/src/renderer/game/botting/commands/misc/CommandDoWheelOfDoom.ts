@@ -63,21 +63,22 @@ export class CommandDoWheelOfDoom extends Command {
     for (const itemObj of Object.values(items)) {
       if (itemObj?.sName === TREASURE_POTION) continue; // Treasure Potion is unbankable
 
-      await this.bot.bank.open(true);
-      await this.bot.bank.deposit(itemObj?.sName);
+      await this.bot.player.bank.open(true);
+      await this.bot.player.bank.deposit(itemObj?.sName);
       this.logger.debug(`Deposited ${itemObj?.sName} into bank.`);
     }
   }
 
   private async checkItemStatus() {
-    if (!this.bot.inventory.contains(GEAR_OF_DOOM)) {
-      await this.bot.bank.open();
-      if (!this.bot.bank.contains(GEAR_OF_DOOM, TARGET_QTY)) return false;
+    if (!this.bot.player.inventory.contains(GEAR_OF_DOOM)) {
+      await this.bot.player.bank.open();
+      if (!this.bot.player.bank.contains(GEAR_OF_DOOM, TARGET_QTY))
+        return false;
 
-      await this.bot.bank.withdraw(GEAR_OF_DOOM);
+      await this.bot.player.bank.withdraw(GEAR_OF_DOOM);
     }
 
-    return this.bot.inventory.contains(GEAR_OF_DOOM, TARGET_QTY);
+    return this.bot.player.inventory.contains(GEAR_OF_DOOM, TARGET_QTY);
   }
 
   public override toString() {

@@ -39,7 +39,7 @@ export class CommandEquipByEnhancement extends Command {
 
     if (targetItem && !targetItem.isEquipped()) {
       this.logger.debug(`Equipping item: ${targetItem.name}`);
-      await this.bot.inventory.equip(targetItem.name);
+      await this.bot.player.inventory.equip(targetItem.name);
     } else if (!targetItem) {
       this.logger.debug("No matching item found.");
     }
@@ -52,7 +52,7 @@ export class CommandEquipByEnhancement extends Command {
     const isItemTypeFilter = ["weapon", "helm", "cape"].includes(secondArg);
     const isAweProc = this.matchesProcInVariants(secondArg, AWE_PROC_VARIANTS);
 
-    return this.bot.inventory.items.find((item: InventoryItem) => {
+    return this.bot.player.inventory.items.findBy((item: InventoryItem) => {
       if (!item.isWeapon() && !item.isCape() && !item.isHelm()) return false;
 
       // 1. forge + proc name

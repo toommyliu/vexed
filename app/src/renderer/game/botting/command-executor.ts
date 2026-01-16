@@ -426,8 +426,8 @@ export class CommandExecutor extends TypedEmitter<Events> {
     ];
 
     if (toWithdraw.length > 0) {
-      await this.bot.bank.open(true, true);
-      await this.bot.bank.withdrawMultiple(toWithdraw);
+      await this.bot.player.bank.open(true, true);
+      await this.bot.player.bank.withdrawMultiple(toWithdraw);
     }
 
     this.emit("start");

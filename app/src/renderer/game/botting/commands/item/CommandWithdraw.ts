@@ -6,7 +6,7 @@ export class CommandWithdraw extends Command {
   public override async executeImpl() {
     const items = Array.isArray(this.item) ? this.item : [this.item];
     for (const item of items) {
-      await this.bot.bank.withdraw(item);
+      await this.bot.player.bank.withdraw(item);
     }
   }
 

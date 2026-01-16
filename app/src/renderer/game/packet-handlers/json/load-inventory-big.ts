@@ -5,16 +5,12 @@ registerJsonHandler<LoadInventoryBigPacket>(
   "loadInventoryBig",
   (bot, packet) => {
     bot.player.factions.all().clear();
+    bot.player.house.items.all().clear();
+    bot.player.inventory.items.all().clear();
 
     for (const faction of packet.factions) bot.player.factions.add(faction);
-
-    // house items
-    for (const item of packet.hitems) {
-    }
-
-    // inventory
-    for (const item of packet.items) {
-    }
+    for (const item of packet.hitems) bot.player.house.items.add(item);
+    for (const item of packet.items) bot.player.inventory.items.add(item);
   },
 );
 

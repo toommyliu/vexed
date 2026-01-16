@@ -2,27 +2,23 @@ import type { Aura, Monster } from "@vexed/game";
 import { sleep } from "@vexed/utils";
 import { errAsync, okAsync } from "neverthrow";
 import { TypedEmitter } from "tiny-typed-emitter";
-import { Army } from "./Army";
-import { Auth } from "./Auth";
-import { Bank } from "./player/Bank";
-import { Combat } from "./Combat";
-import { Drops } from "./Drops";
-import { Environment } from "./Environment";
-import { House } from "./player/House";
-import { Inventory } from "./player/Inventory";
-import { Packets } from "./Packets";
-import { Player } from "./player/Player";
-import { Quests } from "./Quests";
-import { Scheduler } from "./Scheduler";
-import { Settings } from "./Settings";
-import { Shops } from "./Shops";
-import { TempInventory } from "./player/TempInventory";
-import { World } from "./World";
 import { AutoReloginJob } from "../jobs/autorelogin";
 import { BoostsJob } from "../jobs/boosts";
 import { DropsJob } from "../jobs/drops";
 import { QuestsJob } from "../jobs/quests";
 import { Flash } from "../util/Flash";
+import { Army } from "./Army";
+import { Auth } from "./Auth";
+import { Combat } from "./Combat";
+import { Drops } from "./Drops";
+import { Environment } from "./Environment";
+import { Packets } from "./Packets";
+import { Quests } from "./Quests";
+import { Scheduler } from "./Scheduler";
+import { Settings } from "./Settings";
+import { Shops } from "./Shops";
+import { World } from "./World";
+import { Player } from "./player/Player";
 
 type Events = {
   /**
@@ -111,11 +107,6 @@ export class Bot extends TypedEmitter<Events> {
   public auth: InstanceType<typeof Auth>;
 
   /**
-   * The Bank API class instance.
-   */
-  public bank: InstanceType<typeof Bank>;
-
-  /**
    * The Combat API class instance.
    */
   public combat: InstanceType<typeof Combat>;
@@ -129,16 +120,6 @@ export class Bot extends TypedEmitter<Events> {
    * The Environment API class instance.
    */
   public environment: InstanceType<typeof Environment>;
-
-  /**
-   * The House API class instance.
-   */
-  public house: InstanceType<typeof House>;
-
-  /**
-   * The Inventory API class instance.
-   */
-  public inventory: InstanceType<typeof Inventory>;
 
   /**
    * The local Player API class instance.
@@ -171,11 +152,6 @@ export class Bot extends TypedEmitter<Events> {
   public shops: InstanceType<typeof Shops>;
 
   /**
-   * The TempInventory API class instance.
-   */
-  public tempInventory: InstanceType<typeof TempInventory>;
-
-  /**
    * The World API class instance.
    */
   public world: InstanceType<typeof World>;
@@ -198,17 +174,13 @@ export class Bot extends TypedEmitter<Events> {
 
     this.army = new Army(this);
     this.auth = new Auth(this);
-    this.bank = new Bank(this);
     this.combat = new Combat(this);
     this.drops = new Drops(this);
-    this.house = new House(this);
-    this.inventory = new Inventory(this);
     this.player = new Player(this);
     this.packets = new Packets(this);
     this.quests = new Quests(this);
     this.settings = new Settings(this);
     this.shops = new Shops(this);
-    this.tempInventory = new TempInventory(this);
     this.world = new World(this);
 
     this.environment = new Environment(this);

@@ -6,7 +6,7 @@ export class CommandNotInHouse extends ConditionCommand {
   public qty = 1;
 
   public override async getCondition(): Promise<boolean> {
-    return (this.bot.house.get(this.item)?.quantity ?? 0) <= this.qty;
+    return (this.bot.player.house.get(this.item)?.quantity ?? 0) <= this.qty;
   }
 
   public override toString() {

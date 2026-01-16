@@ -1,6 +1,10 @@
 import { EntityState } from "@vexed/game";
 import { factions } from "~/lib/stores/faction";
 import type { Bot } from "../Bot";
+import { Bank } from "./Bank";
+import { House } from "./House";
+import { Inventory } from "./Inventory";
+import { TempInventory } from "./TempInventory";
 
 export enum BoostType {
   ClassPoints = "classPoints",
@@ -10,7 +14,20 @@ export enum BoostType {
 }
 
 export class Player {
-  public constructor(public readonly bot: Bot) {}
+  public readonly bank!: Bank;
+
+  public readonly house!: House;
+
+  public readonly inventory!: Inventory;
+
+  public readonly tempInventory!: TempInventory;
+
+  public constructor(public readonly bot: Bot) {
+    this.bank = new Bank(bot);
+    this.house = new House(bot);
+    this.inventory = new Inventory(bot);
+    this.tempInventory = new TempInventory(bot);
+  }
 
   /**
    * The player's faction data.

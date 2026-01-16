@@ -7,7 +7,7 @@ export class CommandDrinkConsumables extends Command {
 
   public override async executeImpl() {
     for (const item of this.items) {
-      await this.bot.inventory.equip(item);
+      await this.bot.player.inventory.equip(item);
 
       const res = await this.bot.waitUntil(
         () => this.bot.flash.get("world.lockdownPots", true) === false,
@@ -20,7 +20,7 @@ export class CommandDrinkConsumables extends Command {
     }
 
     if (this.equipAfter) {
-      await this.bot.inventory.equip(this.equipAfter);
+      await this.bot.player.inventory.equip(this.equipAfter);
     }
   }
 

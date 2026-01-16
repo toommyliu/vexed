@@ -7,11 +7,11 @@ export class CommandBuyScrollOfLifeSteal extends Command {
   public qty!: number;
 
   public override async executeImpl() {
-    if (this.bot.inventory.contains(ITEM, MAX_QTY)) {
+    if (this.bot.player.inventory.contains(ITEM, MAX_QTY)) {
       return;
     }
 
-    const currentQty = this.bot.inventory.get(ITEM)?.quantity ?? 0;
+    const currentQty = this.bot.player.inventory.get(ITEM)?.quantity ?? 0;
     const count = Math.min(
       this.qty -
         currentQty /* how many of the item needed to reach the desired qty */,

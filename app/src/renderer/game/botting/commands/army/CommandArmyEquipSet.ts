@@ -45,8 +45,7 @@ export class CommandArmyEquipSet extends ArmyCommand {
     if (playerSet.Pots && Array.isArray(playerSet.Pots)) {
       for (const pot of playerSet.Pots) {
         const resPot = this.#resolveItem(pot);
-        if (resPot)
-          await this.#drinkConsumable(resPot);
+        if (resPot) await this.#drinkConsumable(resPot);
       }
     }
 
@@ -66,7 +65,7 @@ export class CommandArmyEquipSet extends ArmyCommand {
     const resItem = this.#resolveItem(item);
     if (resItem) {
       this.logger.debug(`Equipping ${resItem} (${label}).`);
-      await this.bot.inventory.equip(resItem);
+      await this.bot.player.inventory.equip(resItem);
     } else {
       this.logger.warn(`Could not resolve ${item} (${label}).`);
     }
@@ -74,7 +73,7 @@ export class CommandArmyEquipSet extends ArmyCommand {
 
   async #drinkConsumable(item: string): Promise<void> {
     this.logger.debug(`Drinking consumable: ${item}.`);
-    await this.bot.inventory.equip(item);
+    await this.bot.player.inventory.equip(item);
 
     const res = await this.bot.waitUntil(
       () => this.bot.flash.get("world.lockdownPots", true) === false,

@@ -140,10 +140,10 @@ export class CommandBuy extends Command {
   private getTotalQuantityAcrossInventories(itemName: string): number {
     let total = 0;
 
-    const invItem = this.bot.inventory.get(itemName);
+    const invItem = this.bot.player.inventory.get(itemName);
     total += invItem?.quantity ?? 0;
 
-    const tempItem = this.bot.tempInventory.get(itemName);
+    const tempItem = this.bot.player.tempInventory.get(itemName);
     total += tempItem?.quantity ?? 0;
 
     return total;

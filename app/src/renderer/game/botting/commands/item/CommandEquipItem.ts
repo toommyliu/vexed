@@ -5,7 +5,7 @@ export class CommandEquipItem extends Command {
 
   public override async executeImpl() {
     this.logger.debug(this.toString());
-    await this.bot.inventory.equip(this.itemName);
+    await this.bot.player.inventory.equip(this.itemName);
   }
 
   public override toString() {

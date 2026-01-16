@@ -6,7 +6,7 @@ export class CommandInBank extends ConditionCommand {
   public qty?: number;
 
   public override async getCondition(): Promise<boolean> {
-    return this.bot.bank.contains(this.item, this.qty);
+    return this.bot.player.bank.contains(this.item, this.qty);
   }
 
   public override toString() {
