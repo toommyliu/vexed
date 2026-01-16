@@ -503,7 +503,7 @@ export class Combat {
       const ogCell = this.bot.player.cell;
 
       const cellsWithMonsters = new Set(
-        this.bot.world.monsters.map((mon) => mon.cell.toLowerCase()),
+        this.bot.world.monsters.all().map((mon) => mon.cell.toLowerCase()),
       );
       const cells = this.bot.world.cells
         .filter(

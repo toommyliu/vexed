@@ -1,11 +1,9 @@
 import { Monster, type ItemData, GameAction } from "@vexed/game";
+import { equalsIgnoreCase } from "@vexed/utils";
 import { extractMonsterMapId, isMonsterMapId } from "~/utils/isMonMapId";
+import { monsters } from "../stores/monster";
+import { players } from "../stores/player";
 import type { Bot } from "./Bot";
-import { MonsterStore } from "../stores/monster";
-import { PlayerStore } from "../stores/player";
-
-const monsters = new MonsterStore();
-const players = new PlayerStore();
 
 export class World {
   public constructor(public readonly bot: Bot) {}
@@ -14,7 +12,7 @@ export class World {
    * A list of all player names in the map.
    */
   public get playerNames(): readonly string[] {
-    return Array.from(this.players.keys());
+    return [...this.players.all().keys()];
   }
 
   /**
@@ -23,9 +21,8 @@ export class World {
    * @param name - The player name to check.
    */
   public isPlayerInMap(name: string) {
-    const lower = name.toLowerCase();
-    return this.playerNames.some(
-      (playerName) => playerName.toLowerCase() === lower,
+    return this.playerNames.some((playerName) =>
+      equalsIgnoreCase(playerName, name),
     );
   }
 
@@ -42,14 +39,14 @@ export class World {
   /**
    * The available players in the map.
    */
-  public get players(): PlayerStore {
+  public get players() {
     return players;
   }
 
   /**
    * The available monsters in the map.
    */
-  public get monsters(): MonsterStore {
+  public get monsters() {
     return monsters;
   }
 

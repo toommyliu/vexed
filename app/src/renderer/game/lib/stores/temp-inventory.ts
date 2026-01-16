@@ -10,7 +10,7 @@ export const tempInventory: Store<string, TempInventoryItem, ItemData> = {
   has: (key: string) => store.has(key),
   get: (key: string) => store.get(key),
   add: (data: ItemData) =>
-    store.set(String(data.CharItemID), new TempInventoryItem(data)),
+    store.set(String(data.ItemID), new TempInventoryItem(data)),
   remove: (key: string) => store.delete(key),
 
   getByName: (name: string) =>

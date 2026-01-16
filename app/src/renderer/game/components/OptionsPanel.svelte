@@ -4,7 +4,7 @@
   import { Checkbox, Input, Label } from "@vexed/ui";
   import Kbd from "@vexed/ui/Kbd";
   import * as NumberField from "@vexed/ui/NumberField";
-  import { Bot } from "~/game/lib/Bot";
+  import { Bot } from "~/game/lib/core/Bot";
   import FloatingPanel from "./FloatingPanel.svelte";
 
   const bot = Bot.getInstance();
@@ -101,7 +101,7 @@
   <div class="panel-content">
     <div class="options-grid">
       {#each options as option (option.key)}
-      {@const hotkey = hotkeyValues[option.hotkeyId]}
+        {@const hotkey = hotkeyValues[option.hotkeyId]}
         <Label class="option-row">
           <Checkbox
             checked={gameState[option.key]}

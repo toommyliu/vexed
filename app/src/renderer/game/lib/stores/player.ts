@@ -1,40 +1,42 @@
 import { Collection } from "@vexed/collection";
 import { Avatar, type AvatarData } from "@vexed/game";
+import type { PlayersStore } from "./store";
 
-export class PlayerStore extends Collection<string, Avatar> {
-  #entIds = new Map<string, number>(); // lowercase username -> entity id
+const store = new Collection<string, Avatar>();
+const entIds = new Map<string, number>(); // lowercase username -> entity id
 
-  public getEntId(username: string) {
-    return this.#entIds.get(username.toLowerCase());
+const register = (username: string, entId: number) => {
+  const lower = username.toLowerCase();
+  if (entIds.has(lower)) {
+    console.warn(
+      `Player ${username} is already registered. have: ${entIds.get(lower)}, want: ${entId}`,
+    );
+    return;
   }
 
-  /**
-   * Registers a player's entity id.
-   *
-   * @param username - The player's username.
-   * @param entId - The player's entity id.
-   */
-  public register(username: string, entId: number) {
-    if (this.#entIds.has(username.toLowerCase())) {
-      console.warn(
-        `Player ${username} is already registered. have: ${this.#entIds.get(username.toLowerCase())}, want: ${entId}`,
-      );
-      return;
-    }
+  entIds.set(lower, entId);
+  console.log(`register player: ${lower} :: ${entId}`);
+};
 
-    this.#entIds.set(username.toLowerCase(), entId);
-  }
-
-  /**
-   * Adds a player to the store.
-   *
-   * @param player - The player's data.
-   */
-  public add(player: AvatarData) {
+export const players: PlayersStore<string, Avatar, AvatarData> = {
+  all: () => store,
+  has: (key: string) => store.has(key),
+  get: (key: string) => store.get(key),
+  register,
+  add: (player: AvatarData) => {
     const lower = player.uoName; // already lowercased
-    this.set(lower, new Avatar(player));
-    this.register(lower, player.entID);
+    store.set(lower, new Avatar(player));
+    register(lower, player.entID);
+  },
+  remove: (key: string) => {
+    entIds.delete(key.toLowerCase());
+    store.delete(key);
+  },
 
-    console.log(`register player: ${lower} :: ${player.entID}`);
-  }
-}
+  getByName: (name: string) =>
+    store.find(
+      (avatar) => avatar.username?.toLowerCase() === name.toLowerCase(),
+    ),
+  getById: (id: number) => store.find((avatar) => avatar.data.entID === id),
+  findBy: (predicate: (value: Avatar) => boolean) => store.find(predicate),
+};

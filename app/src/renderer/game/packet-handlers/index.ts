@@ -9,6 +9,8 @@ import "./json/load-inventory-big";
 import "./json/move-to-area";
 import "./json/mtls";
 
-import "./str/exit-area";
 import "./str/respawn-mon";
 import "./str/uotls";
+
+// need to fix circular dependency
+export { dispatchJson, dispatchStr } from "./registry";

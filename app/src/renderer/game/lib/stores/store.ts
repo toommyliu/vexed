@@ -42,3 +42,11 @@ export interface Store<K, V, D = V> {
    */
   remove(key: K): void;
 }
+
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+export interface PlayersStore<K, V, D = V> extends Store<K, V, D> {
+  /**
+   * Register a player by username and entity ID
+   */
+  register(username: string, entId: number): void;
+}

@@ -1,7 +1,4 @@
-import log from "electron-log/renderer";
-import type { Bot } from "~/renderer/game/lib/core/Bot";
-
-const logger = log.scope("packet-handlers/registry");
+import type { Bot } from "~/lib/core/Bot";
 
 /**
  * Handler function type for processing packets.
@@ -29,16 +26,17 @@ export function registerJsonHandler<T>(
   handler: PacketHandler<T>,
 ): void {
   if (jsonHandlers.has(cmd)) {
-    logger.warn(`JSON handler for "${cmd}" is being overwritten`);
+    console.warn(`[json] "${cmd}" is being overwritten...`);
   }
 
+  console.log(`[json] registered :: ${cmd}`);
   jsonHandlers.set(cmd, handler as PacketHandler);
 }
 
 /**
  * Register a handler for a STR packet command.
  *
- * @param cmd - The command name (e.g., "exitArea", "uotls")
+ * @param cmd - The command name
  * @param handler - The handler function to invoke when this packet is received
  */
 export function registerStrHandler(
@@ -46,9 +44,10 @@ export function registerStrHandler(
   handler: PacketHandler<string[]>,
 ): void {
   if (strHandlers.has(cmd)) {
-    logger.warn(`STR handler for "${cmd}" is being overwritten`);
+    console.warn(`[str] "${cmd}" is being overwritten...`);
   }
 
+  console.log(`[str] registered :: ${cmd}`);
   strHandlers.set(cmd, handler);
 }
 
@@ -65,7 +64,7 @@ export function dispatchJson(bot: Bot, cmd: string, packet: unknown): void {
     try {
       void handler(bot, packet);
     } catch (error) {
-      logger.error(`Error in JSON handler for "${cmd}":`, error);
+      console.error(`[json] error in handler for "${cmd}":`, error);
     }
   }
 }
@@ -83,7 +82,7 @@ export function dispatchStr(bot: Bot, cmd: string, packet: string[]): void {
     try {
       void handler(bot, packet);
     } catch (error) {
-      logger.error(`Error in STR handler for "${cmd}":`, error);
+      console.error(`[str] error in handler for "${cmd}":`, error);
     }
   }
 }

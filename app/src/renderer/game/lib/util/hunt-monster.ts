@@ -1,22 +1,24 @@
-import type { Monster } from "@vexed/game";
-import type { MonsterStore } from "~/lib/stores/monster";
+import type { Monster, MonsterData } from "@vexed/game";
 import { extractMonsterMapId, isMonsterMapId } from "~/utils/isMonMapId";
+import type { Store } from "../stores/store";
 
 export function filterMonstersByTarget(
-  monsters: MonsterStore,
+  monsters: Store<number, Monster, MonsterData>,
   target: string,
 ): Monster[] {
   if (isMonsterMapId(target)) {
     const monMapIdStr = extractMonsterMapId(target);
     const monMapId = Number.parseInt(monMapIdStr, 10);
     return monsters
+      .all()
       .filter((monster) => monster.monMapId === monMapId)
       .map((mon) => mon);
   }
 
-  if (target === "*") return [...monsters.values()];
+  if (target === "*") return [...monsters.all().values()];
 
   return monsters
+    .all()
     .filter((monster) =>
       monster.name.toLowerCase().includes(target.toLowerCase()),
     )

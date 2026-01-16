@@ -1,9 +1,9 @@
 import process from "process";
 import log from "electron-log/renderer";
-import { Bot } from "~/renderer/game/lib/core/Bot";
+import { Bot } from "~/lib/core/Bot";
 import { AutoReloginJob } from "~/lib/jobs/autorelogin";
 import { client } from "~/shared/tipc";
-import { dispatchJson, dispatchStr } from "./packet-handlers/registry";
+import { dispatchJson, dispatchStr } from "./packet-handlers";
 import { appState, autoReloginState } from "./state.svelte";
 
 const logger = log.scope("game/flash-interop");

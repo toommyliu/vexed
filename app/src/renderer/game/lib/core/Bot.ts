@@ -190,10 +190,6 @@ export class Bot extends TypedEmitter<Events> {
     this.scheduler.addJob(new DropsJob(this));
     this.scheduler.addJob(new BoostsJob(this));
     this.scheduler.addJob(new AutoReloginJob(this));
-
-    this.on("logout", () => {
-      this.world.monsters.clear();
-    });
   }
 
   /**

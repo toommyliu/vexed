@@ -1,8 +1,8 @@
 import { registerJsonHandler } from "../registry";
 
 registerJsonHandler<MoveToAreaPacket>("moveToArea", (bot, packet) => {
-  bot.world.players.clear();
-  bot.world.monsters.clear();
+  bot.world.players.all().clear();
+  bot.world.monsters.all().clear();
 
   // save monster data
   const monDefMap = new Map(

@@ -21,7 +21,7 @@
     isValidHotkey,
   } from "../application/hotkeys/utils";
   import "./entrypoint";
-  import { Bot } from "./lib/Bot";
+  import { Bot } from "./lib/core/Bot";
   import { AutoReloginJob } from "./lib/jobs/autorelogin";
   import {
     appState,
@@ -256,10 +256,10 @@
   const toggleBank = () => {
     if (!bot.player.isReady()) return;
 
-    if (bot.bank.isOpen()) {
+    if (bot.player.bank.isOpen()) {
       bot.flash.call(() => swf.bankOpen());
     } else {
-      bot.bank.open();
+      bot.player.bank.open();
     }
   };
 
