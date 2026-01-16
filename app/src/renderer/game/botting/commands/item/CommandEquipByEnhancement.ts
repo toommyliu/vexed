@@ -1,5 +1,5 @@
+import type { InventoryItem } from "@vexed/game";
 import { Command } from "~/botting/command";
-import type { InventoryItem } from "~/lib/models/InventoryItem";
 import {
   getWeaponProcName,
   isBasicEnhancement,
@@ -113,7 +113,10 @@ export class CommandEquipByEnhancement extends Command {
     return false;
   }
 
-  private matchesProcInVariants(input: string, variants: Record<string, string[]>): boolean {
+  private matchesProcInVariants(
+    input: string,
+    variants: Record<string, string[]>,
+  ): boolean {
     const normalized = input.toLowerCase().trim();
     for (const [canonical, aliases] of Object.entries(variants)) {
       if (canonical === normalized || aliases.includes(normalized)) {
@@ -123,7 +126,6 @@ export class CommandEquipByEnhancement extends Command {
 
     return false;
   }
-
 
   private matchesBasicEnhancement(item: InventoryItem): boolean {
     const targetEnhancement = findEnhancementByName(this.enhancementName);
@@ -154,8 +156,8 @@ export class CommandEquipByEnhancement extends Command {
   }
 
   public override toString(): string {
-    return `Equip item by enhancement: ${this.enhancementName}${this.procOrItemType ? ` [${this.procOrItemType}]` : ""
-      }`;
+    return `Equip item by enhancement: ${this.enhancementName}${
+      this.procOrItemType ? ` [${this.procOrItemType}]` : ""
+    }`;
   }
 }
-

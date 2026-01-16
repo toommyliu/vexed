@@ -5,7 +5,6 @@ const logger = log.scope("packet-handlers/registry");
 
 /**
  * Handler function type for processing packets.
- * Can be sync or async, and receives the bot instance and packet data.
  */
 type PacketHandler<T = unknown> = (bot: Bot, packet: T) => Promise<void> | void;
 

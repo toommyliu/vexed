@@ -4,7 +4,7 @@
   import { onMount } from "svelte";
 
   import { client } from "~/shared/tipc";
-  import type { ServerData } from "~/shared/types";
+  import type { ServerData } from "@vexed/game";
 
   let checkForUpdates = $state(false);
   let debug = $state(false);
@@ -57,15 +57,22 @@
   });
 </script>
 
-<div class="flex h-screen flex-col bg-background p-5 animate-in fade-in slide-in-from-bottom-1 duration-300">
+<div
+  class="bg-background animate-in fade-in slide-in-from-bottom-1 flex h-screen flex-col p-5 duration-300"
+>
   {#if isLoading}
     <div class="flex flex-1 items-center justify-center">
-      <div class="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground/20 border-t-primary"></div>
+      <div
+        class="border-muted-foreground/20 border-t-primary h-5 w-5 animate-spin rounded-full border-2"
+      ></div>
     </div>
   {:else}
     <div class="flex flex-1 flex-col gap-4">
       <div class="flex flex-col gap-1.5">
-        <span class="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Theme</span>
+        <span
+          class="text-muted-foreground text-[11px] font-medium uppercase tracking-wide"
+          >Theme</span
+        >
         <div class="flex gap-1.5">
           <Button
             class="flex-1"
@@ -95,7 +102,10 @@
       </div>
 
       <div class="flex flex-col gap-1.5">
-        <span class="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Launch Mode</span>
+        <span
+          class="text-muted-foreground text-[11px] font-medium uppercase tracking-wide"
+          >Launch Mode</span
+        >
         <div class="flex gap-1.5">
           <Button
             class="flex-1"
@@ -120,21 +130,26 @@
 
       <div class="flex flex-col gap-2.5 pt-1">
         <label class="flex cursor-pointer items-center justify-between">
-          <span class="text-[13px] text-foreground">Check for Updates</span>
-          <Switch bind:checked={checkForUpdates} class="scale-[0.85] origin-right" />
+          <span class="text-foreground text-[13px]">Check for Updates</span>
+          <Switch
+            bind:checked={checkForUpdates}
+            class="origin-right scale-[0.85]"
+          />
         </label>
         <label class="flex cursor-pointer items-center justify-between">
-          <span class="text-[13px] text-foreground">Debug Mode</span>
-          <Switch bind:checked={debug} class="scale-[0.85] origin-right" />
+          <span class="text-foreground text-[13px]">Debug Mode</span>
+          <Switch bind:checked={debug} class="origin-right scale-[0.85]" />
         </label>
       </div>
 
-      <div class="flex flex-col gap-1.5 pt-2 border-t border-border/30">
-        <span class="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+      <div class="border-border/30 flex flex-col gap-1.5 border-t pt-2">
+        <span
+          class="text-muted-foreground text-[11px] font-medium uppercase tracking-wide"
+        >
           Fallback Server
         </span>
         <Select.Root bind:value={fallbackServer}>
-          <Select.Trigger class="w-full h-8 text-[13px]">
+          <Select.Trigger class="h-8 w-full text-[13px]">
             <span class="truncate">
               {fallbackServer || "Auto (first available)"}
             </span>

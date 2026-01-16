@@ -15,6 +15,7 @@ export * from "./types/Aura";
 export * from "./types/BaseEntityData";
 export * from "./types/EntityState";
 export * from "./types/FactionData";
+export * from "./types/GameAction";
 export * from "./types/ItemData";
 export * from "./types/QuestData";
 export * from "./types/QuestInfo";

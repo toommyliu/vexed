@@ -55,6 +55,7 @@ window.connection = async ([state]: [string]) => {
   if (state === "OnConnection") {
     await bot.waitUntil(() => bot.player.isReady(), { indefinite: true });
     bot.emit("login");
+    await bot.world.join("nexus");
   } else if (state === "OnConnectionLost") {
     await bot.waitUntil(() => !bot.player.isReady(), { indefinite: true });
     bot.emit("logout");
@@ -114,7 +115,7 @@ window.loaded = async () => {
       const decodedPath = decodeURIComponent(path!);
 
       await client.scripts.loadScript({ scriptPath: decodedPath });
-    } catch { }
+    } catch {}
   }
 };
 

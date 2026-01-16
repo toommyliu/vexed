@@ -1,17 +1,19 @@
-import { AuraStore } from "~/lib/util/AuraStore";
-import { equalsIgnoreCase } from "~/shared/string";
-import { registerJsonHandler } from "../registry";
+// import { equalsIgnoreCase } from "~/shared/string";
+// import { registerJsonHandler } from "../registry";
 
-registerJsonHandler<InitUserDatasPacket>("initUserDatas", (bot, packet) => {
-  for (const user of packet.a) {
-    const username = user.data.strUsername;
+// registerJsonHandler<InitUserDatasPacket>("initUserDatas", (bot, packet) => {
+//   for (const user of packet.a) {
+//     const username = user.data.strUsername;
 
-    if (equalsIgnoreCase(username, bot.auth.username) || AuraStore.hasPlayer(username)) continue;
+//     if (
+//       equalsIgnoreCase(username, bot.auth.username)
+//     )
+//       continue;
 
-    AuraStore.registerPlayer(username, user.uid);
-    bot.emit("playerJoin", username);
-  }
-});
+//     AuraStore.registerPlayer(username, user.uid);
+//     bot.emit("playerJoin", username);
+//   }
+// });
 
 type InitUserDatasPacket = {
   a: {

@@ -1,4 +1,4 @@
-import type { ItemData } from "~/renderer/game/lib/models/Item";
+import type { ItemData } from "@vexed/game";
 import { Command } from "~/botting/command";
 
 const GEAR_OF_DOOM = "Gear of Doom";
@@ -18,7 +18,7 @@ export class CommandDoWheelOfDoom extends Command {
     await this.bot.world.join("doom");
     await this.bot.quests.accept(QUEST_ID);
 
-    if (!this.bot.quests.get(QUEST_ID)?.canComplete()) {
+    if (!this.bot.quests.canComplete(QUEST_ID)) {
       this.logger.debug("Still cannot complete quest?");
       return;
     }
@@ -28,18 +28,21 @@ export class CommandDoWheelOfDoom extends Command {
   }
 
   private async waitForWheelPacket(): Promise<Record<string, ItemData>> {
-    const { resolve, promise } = Promise.withResolvers<Record<string, ItemData>>();
+    const { resolve, promise } =
+      Promise.withResolvers<Record<string, ItemData>>();
 
     const handler = (packet: Record<string, unknown>) => {
-      if (typeof packet !== 'object') return;
+      if (typeof packet !== "object") return;
 
       const pkt = packet as PextPacket;
-      if (pkt?.params?.type !== 'json' || pkt?.params?.dataObj?.cmd !== 'Wheel') return;
+      if (pkt?.params?.type !== "json" || pkt?.params?.dataObj?.cmd !== "Wheel")
+        return;
 
-      this.bot.off('pext', handler);
+      this.bot.off("pext", handler);
 
       // {"params":{"dataObj":{"cmd":"Wheel","dropQty":2,"dropItems":{"ITEM_ID": ITEM_DATA},...}},"type":"json"}
-      const items: Record<string, ItemData> = pkt?.params?.dataObj?.dropItems || {};
+      const items: Record<string, ItemData> =
+        pkt?.params?.dataObj?.dropItems || {};
       if (pkt?.params?.dataObj?.Item) {
         const item = pkt?.params?.dataObj?.Item;
         items[String(item.ItemID)] = item;
@@ -48,7 +51,7 @@ export class CommandDoWheelOfDoom extends Command {
       resolve(items);
     };
 
-    this.bot.on('pext', handler);
+    this.bot.on("pext", handler);
     await this.bot.quests.complete(QUEST_ID);
 
     return promise;
@@ -87,10 +90,11 @@ type PextPacket = {
     dataObj: {
       Item?: ItemData; // one of the rewards
       cmd: "Wheel";
-      dropItems: { // Treasure Chest, boosts..
+      dropItems: {
+        // Treasure Chest, boosts..
         [itemId: string]: ItemData;
       };
     };
     type: "json";
-  }
-}
+  };
+};

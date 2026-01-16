@@ -1,73 +1,18 @@
+import {
+  Monster,
+  Avatar,
+  type AvatarData,
+  type ItemData,
+  GameAction,
+} from "@vexed/game";
+import { MonsterStore } from "~/state/monster-store";
 import { extractMonsterMapId, isMonsterMapId } from "~/utils/isMonMapId";
 import type { Bot } from "./Bot";
-import { Avatar, type AvatarData } from "./models/Avatar";
-import type { ItemData } from "./models/Item";
-import { Monster } from "./models/Monster";
-import { MonsterStore } from '~/state/monster-store';
-
-export enum GameAction {
-  /**
-   * Accepting a quest.
-   */
-  AcceptQuest = "acceptQuest",
-  /**
-   * Buying an item.
-   */
-  BuyItem = "buyItem",
-  /**
-   * Do IA action.
-   */
-  DoIA = "doIA",
-  /**
-   * Equipping an item.
-   */
-  EquipItem = "equipItem",
-  /**
-   * Getting a map item (i.e. via the getMapItem packet).
-   */
-  GetMapItem = "getMapItem",
-  /**
-   * Loading an enhancement shop.
-   */
-  LoadEnhShop = "loadEnhShop",
-  /**
-   * Loading a hair shop.
-   */
-  LoadHairShop = "loadHairShop",
-  /**
-   * Loading a shop.
-   */
-  LoadShop = "loadShop",
-  /**
-   * Resting.
-   */
-  Rest = "rest",
-  /**
-   * Selling an item.
-   */
-  SellItem = "sellItem",
-  /**
-   * Joining another map.
-   */
-  Transfer = "tfer",
-  /**
-   * Sending a quest completion packet.
-   */
-  TryQuestComplete = "tryQuestComplete",
-  /**
-   * Unequipping an item.
-   */
-  UnequipItem = "unequipItem",
-  /**
-   * Who action.
-   */
-  Who = "who",
-}
 
 const monsters = new MonsterStore();
 
 export class World {
-  public constructor(public readonly bot: Bot) { }
+  public constructor(public readonly bot: Bot) {}
 
   /**
    * A list of all player names in the map.

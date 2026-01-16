@@ -1,5 +1,5 @@
+import type { ItemData } from "@vexed/game";
 import type { Bot } from "./Bot";
-import type { ItemData } from "./models/Item";
 
 export class Drops {
   /**

@@ -1,6 +1,5 @@
+import { BankItem, type ItemData } from "@vexed/game";
 import type { Bot } from "./Bot";
-import { BankItem } from "./models/BankItem";
-import type { ItemData } from "./models/Item";
 
 export class Bank {
   // Whether bank items have been loaded.

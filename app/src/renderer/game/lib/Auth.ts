@@ -1,8 +1,8 @@
+import { Server } from "@vexed/game";
 import type { Bot } from "./Bot";
-import { Server } from "./models/Server";
 
 export class Auth {
-  public constructor(public readonly bot: Bot) { }
+  public constructor(public readonly bot: Bot) {}
 
   /**
    * The username of the current user.

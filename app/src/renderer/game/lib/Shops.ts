@@ -1,6 +1,5 @@
+import { ShopItem, GameAction, type ShopItemData } from "@vexed/game";
 import type { Bot } from "./Bot";
-import { GameAction } from "./World";
-import { ShopItem, type ShopItemData } from "./models/ShopItem";
 
 export class Shops {
   public constructor(public bot: Bot) {}

@@ -1,6 +1,5 @@
+import { TempInventoryItem, type ItemData } from "@vexed/game";
 import type { Bot } from "./Bot";
-import type { ItemData } from "./models/Item";
-import { TempInventoryItem } from "./models/TempInventoryItem";
 
 export class TempInventory {
   public constructor(public bot: Bot) {}
@@ -11,7 +10,7 @@ export class TempInventory {
   public get items(): TempInventoryItem[] {
     const ret = this.bot.flash.call(() => swf.tempInventoryGetItems());
     return Array.isArray(ret)
-      ? ret.map((data) => new TempInventoryItem(data as unknown as ItemData))
+      ? ret.map((data: ItemData) => new TempInventoryItem(data))
       : [];
   }
 

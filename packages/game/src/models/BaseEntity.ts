@@ -117,6 +117,13 @@ export abstract class BaseEntity {
   }
 
   /**
+   * Removes all auras from the entity.
+   */
+  public clearAuras() {
+    this.#auras = [];
+  }
+
+  /**
    * Whether the entity has the specified aura. If a value is provided,
    * it will check if the aura has the specified value.
    *
