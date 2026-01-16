@@ -15,7 +15,10 @@ registerJsonHandler<AddGoldExpPkt>("addGoldExp", async (bot, packet) => {
 
     bot.emit("monsterDeath", monMapId);
 
+    monster.clearAuras();
     monster.data.intState = EntityState.Dead;
+    monster.data.intHp = 0;
+    monster.data.intMp = 0;
   }
 });
 

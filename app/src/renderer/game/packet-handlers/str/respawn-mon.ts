@@ -9,7 +9,6 @@ registerStrHandler("respawnMon", async (bot, packet) => {
   monster.data.intHp = monster.data.intHpMax;
   monster.data.intMp = monster.data.intMpMax;
   monster.data.intState = EntityState.Idle;
-  monster.clearAuras();
 
   bot.emit("monsterRespawn", monster);
 });
