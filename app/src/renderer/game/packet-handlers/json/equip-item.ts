@@ -8,7 +8,7 @@ registerJsonHandler<EquipItemPacket>("equipItem", (bot, packet) => {
   const item = bot.player.inventory.get(packet.ItemID);
   if (!item) return;
 
-  // find the previously equipped item and unequip it
+  // find the previously equipped item and unequip it, if it exists
   const previousItem = bot.player.inventory.items
     .all()
     .find((val) => val.data.bEquip === 1 && val.data.sES === packet.strES);

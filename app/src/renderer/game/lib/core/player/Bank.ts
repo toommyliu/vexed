@@ -22,12 +22,8 @@ export class Bank {
    * @param key - The name or ID of the item.
    */
   public get(key: number | string) {
-    if (typeof key === "number") {
-      return this.items.getById(key);
-    } else if (typeof key === "string") {
-      return this.items.getByName(key);
-    }
-
+    if (typeof key === "number") return this.items.getById(key);
+    if (typeof key === "string") return this.items.getByName(key);
     return undefined;
   }
 
@@ -39,7 +35,8 @@ export class Bank {
    * @param quantity - The quantity of the item.
    */
   public contains(key: number | string, quantity: number = 1): boolean {
-    return this.bot.flash.call(() => swf.bankContains(key, quantity));
+    const item = this.get(key);
+    return item !== undefined && item.quantity >= quantity;
   }
 
   /**
@@ -53,7 +50,7 @@ export class Bank {
    * The number of bank slots currently in use.
    */
   public get usedSlots(): number {
-    return this.bot.flash.call(() => swf.bankGetUsedSlots());
+    return this.items.all().size;
   }
 
   /**
@@ -69,7 +66,7 @@ export class Bank {
    * @param key - The name or ID of the item.
    */
   public async deposit(key: number | string): Promise<void> {
-    await this.open();
+    // await this.open();
 
     this.bot.flash.call<boolean>(() => swf.bankDeposit(key));
     await this.bot.waitUntil(

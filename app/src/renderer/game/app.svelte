@@ -855,10 +855,10 @@
             onclick={async () => {
               if (!bot.player.isReady()) return;
 
-              if (bot.bank.isOpen()) {
+              if (bot.player.bank.isOpen()) {
                 bot.flash.call(() => swf.bankOpen());
               } else {
-                await bot.bank.open();
+                await bot.player.bank.open();
               }
             }}
           >

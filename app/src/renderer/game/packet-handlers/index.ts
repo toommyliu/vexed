@@ -1,4 +1,6 @@
 import "./json/add-gold-exp";
+import "./json/bank-from-inv";
+import "./json/bank-to-inv";
 import "./json/clear-auras";
 import "./json/ct";
 import "./json/drop-item";
