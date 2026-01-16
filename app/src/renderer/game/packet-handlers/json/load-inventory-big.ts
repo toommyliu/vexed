@@ -4,9 +4,9 @@ import { registerJsonHandler } from "../registry";
 registerJsonHandler<LoadInventoryBigPacket>(
   "loadInventoryBig",
   (bot, packet) => {
-    bot.player.factions.all().clear();
-    bot.player.house.items.all().clear();
-    bot.player.inventory.items.all().clear();
+    bot.player.factions.clear();
+    bot.player.house.items.clear();
+    bot.player.inventory.items.clear();
 
     for (const faction of packet.factions ?? [])
       bot.player.factions.add(faction);

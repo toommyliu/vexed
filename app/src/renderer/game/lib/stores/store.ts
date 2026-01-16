@@ -13,6 +13,11 @@ export interface Store<K, V, D = V> {
   all(): Collection<K, V>;
 
   /**
+   * Clear all items from the store
+   */
+  clear(): void;
+
+  /**
    * Find an item using a custom predicate function
    */
   findBy(predicate: (value: V) => boolean): V | undefined;
@@ -21,11 +26,6 @@ export interface Store<K, V, D = V> {
    * Get an item by key
    */
   get(key: K): V | undefined;
-
-  /**
-   * Get an item by ID
-   */
-  getById(id: number): V | undefined;
 
   /**
    * Get an item by name (case-insensitive)
@@ -41,10 +41,20 @@ export interface Store<K, V, D = V> {
    * Remove an item by key
    */
   remove(key: K): void;
+
+  /**
+   * Update an existing item's data, or add if not present
+   */
+  set(key: K, data: D): void;
 }
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export interface PlayersStore<K, V, D = V> extends Store<K, V, D> {
+  /**
+   * Get a player by entity ID
+   */
+  getById(id: number): V | undefined;
+
   /**
    * Register a player by username and entity ID
    */

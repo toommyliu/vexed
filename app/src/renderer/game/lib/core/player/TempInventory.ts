@@ -1,4 +1,3 @@
-import type { TempInventoryItem } from "@vexed/game";
 import { tempInventory } from "~/lib/stores/temp-inventory";
 import type { Bot } from "../Bot";
 
@@ -15,22 +14,12 @@ export class TempInventory {
   /**
    * Gets an item from the temp inventory.
    *
-   * @param itemKey - The name or ID of the item.
+   * @param key - The name or ID of the item.
    */
-  public get(itemKey: number | string): TempInventoryItem | null {
-    const val = typeof itemKey === "string" ? itemKey.toLowerCase() : itemKey;
-
-    return (
-      this.items.find((item) => {
-        if (typeof val === "string") {
-          return item.name.toLowerCase() === val;
-        } else if (typeof val === "number") {
-          return item.id === val;
-        }
-
-        return false;
-      }) ?? null
-    );
+  public get(key: number | string) {
+    if (typeof key === "number") return tempInventory.get(key);
+    if (typeof key === "string") return tempInventory.getByName(key);
+    return undefined;
   }
 
   /**
@@ -41,6 +30,6 @@ export class TempInventory {
    */
   public contains(itemKey: number | string, quantity: number = 1): boolean {
     const item = this.get(itemKey);
-    return item !== null && item.quantity >= quantity;
+    return item !== undefined && item.quantity >= quantity;
   }
 }

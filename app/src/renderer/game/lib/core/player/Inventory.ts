@@ -19,7 +19,7 @@ export class Inventory {
    * @param key - The name or ID of the item.
    */
   public get(key: number | string) {
-    if (typeof key === "number") return this.items.getById(key);
+    if (typeof key === "number") return this.items.get(key);
     if (typeof key === "string") return this.items.getByName(key);
     return undefined;
   }
