@@ -51,15 +51,15 @@ export class Monster extends BaseEntity {
   /**
    * The cell the monster is in.
    */
-  public override get cell(): string {
+  public get cell(): string {
     return this.data.strFrame;
   }
 }
 
 export type MonsterData = BaseEntityData & {
   iLvl: number;
-  intMp: number;
-  intMpMax: number;
+  intMP: number;
+  intMPMax: number;
   monId: number;
   monMapId: number;
   sRace: string;

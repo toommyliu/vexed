@@ -6,8 +6,8 @@ registerStrHandler("respawnMon", async (bot, packet) => {
   const monster = bot.world.monsters.get(monMapId);
   if (!monster) return;
 
-  monster.data.intHp = monster.data.intHpMax;
-  monster.data.intMp = monster.data.intMpMax;
+  monster.data.intHP = monster.data.intHPMax;
+  monster.data.intMP = monster.data.intMPMax;
   monster.data.intState = EntityState.Idle;
 
   bot.emit("monsterRespawn", monster);

@@ -8,7 +8,6 @@ export type AvatarData = BaseEntityData & {
   intLevel: number;
   intMP: number;
   intMPMax: number;
-  intSP: number;
   strPad: string;
   strUsername: string; // respects casing
   tx: number;

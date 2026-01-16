@@ -17,8 +17,8 @@ registerJsonHandler<AddGoldExpPkt>("addGoldExp", async (bot, packet) => {
 
     monster.clearAuras();
     monster.data.intState = EntityState.Dead;
-    monster.data.intHp = 0;
-    monster.data.intMp = 0;
+    monster.data.intHP = 0;
+    monster.data.intMP = 0;
   }
 });
 

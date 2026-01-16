@@ -111,8 +111,8 @@ registerJsonHandler<CtPacket>("ct", (bot, packet) => {
       const mon = bot.world.monsters.get(Number(monMapId));
       if (!mon) continue;
 
-      if (typeof data?.intHP === "number") mon.data.intHp = data.intHP;
-      if (typeof data?.intMP === "number") mon.data.intMp = data.intMP;
+      if (typeof data?.intHP === "number") mon.data.intHP = data.intHP;
+      if (typeof data?.intMP === "number") mon.data.intMP = data.intMP;
       if (typeof data?.intState === "number") mon.data.intState = data.intState;
     }
   }

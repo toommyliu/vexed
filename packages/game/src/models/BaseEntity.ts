@@ -17,14 +17,14 @@ export abstract class BaseEntity {
    * The entity's current HP.
    */
   public get hp(): number {
-    return this.data.intHp;
+    return this.data.intHP;
   }
 
   /**
    * The entity's max HP.
    */
   public get maxHp(): number {
-    return this.data.intHpMax;
+    return this.data.intHPMax;
   }
 
   /**

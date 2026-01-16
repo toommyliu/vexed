@@ -2,14 +2,14 @@ import { registerJsonHandler } from "../registry";
 
 registerJsonHandler<MtlsPacket>("mtls", async (bot, packet) => {
   const monMapId = packet.id;
+  const monster = bot.world.monsters.get(monMapId);
+  if (!monster) return;
+
   const data = packet.o;
 
-  const mon = bot.world.monsters.get(monMapId);
-  if (!mon) return;
-
-  mon.data.intHp = data.intHP;
-  mon.data.intMp = data.intMP;
-  mon.data.intState = data.intState;
+  monster.data.intHP = data.intHP;
+  monster.data.intMP = data.intMP;
+  monster.data.intState = data.intState;
 });
 
 export type MtlsPacket = {

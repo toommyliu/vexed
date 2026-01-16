@@ -19,10 +19,10 @@ registerJsonHandler<MoveToAreaPacket>("moveToArea", (bot, packet) => {
       monId: Number(mon.MonID),
       monMapId: mon.MonMapID,
       iLvl: mon.iLvl,
-      intHp: mon.intHP,
-      intHpMax: mon.intHPMax,
-      intMp: mon.intMP,
-      intMpMax: mon.intMPMax,
+      intHP: mon.intHP,
+      intHPMax: mon.intHPMax,
+      intMP: mon.intMP,
+      intMPMax: mon.intMPMax,
       intState: mon.intState,
       sRace: def?.sRace ?? "Unknown",
       strMonName: def?.strMonName ?? "Unknown",
@@ -32,6 +32,26 @@ registerJsonHandler<MoveToAreaPacket>("moveToArea", (bot, packet) => {
   }
 
   // save player data
+  for (const plyr of packet.uoBranch ?? []) {
+    const obj = {
+      intHP: plyr.intHP,
+      intHPMax: plyr.intHPMax,
+      intMP: plyr.intMP,
+      intMPMax: plyr.intMPMax,
+      intState: plyr.intState,
+      strFrame: plyr.strFrame,
+      strUsername: plyr.strUsername,
+      tx: plyr.tx,
+      ty: plyr.ty,
+      uoName: plyr.uoName,
+      entID: plyr.entID,
+      entType: plyr.entType,
+      intLevel: plyr.intLevel,
+      strPad: plyr.strPad,
+      afk: plyr.afk,
+    };
+    bot.world.players.add(obj);
+  }
 });
 
 export type MoveToAreaPacket = {
@@ -75,7 +95,7 @@ export type MoveToAreaPacket = {
     intMPMax: number;
     intState: number;
     showCloak: boolean;
-    showHelm: boolean;
+    strFrame: string;
     strPad: string;
     strUsername: string;
     tx: number;

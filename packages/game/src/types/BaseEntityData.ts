@@ -1,6 +1,6 @@
 export type BaseEntityData = {
-  intHp: number;
-  intHpMax: number;
+  intHP: number;
+  intHPMax: number;
   intState: number;
   strFrame: string;
 };
