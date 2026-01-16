@@ -6,10 +6,7 @@ export class CommandFactionRankLessThan extends ConditionCommand {
   public rank!: number;
 
   public override async getCondition(): Promise<boolean> {
-    const faction = this.bot.player.factions.find(
-      (faction) => faction.name.toLowerCase() === this.faction.toLowerCase(),
-    );
-
+    const faction = this.bot.player.factions.get(this.faction.toLowerCase());
     return (faction?.rank ?? 0) <= this.rank;
   }
 

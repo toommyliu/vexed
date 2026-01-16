@@ -3,7 +3,7 @@ import log from "electron-log/renderer";
 import { Bot } from "~/lib/Bot";
 import { AutoReloginJob } from "~/lib/jobs/autorelogin";
 import { client } from "~/shared/tipc";
-import { dispatchJson, dispatchStr } from "./packet-handlers";
+import { dispatchJson, dispatchStr } from "./packet-handlers/registry";
 import { appState, autoReloginState } from "./state.svelte";
 
 const logger = log.scope("game/flash-interop");

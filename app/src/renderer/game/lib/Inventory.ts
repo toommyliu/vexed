@@ -1,17 +1,16 @@
-import { GameAction, InventoryItem, type ItemData } from "@vexed/game";
+import { GameAction, InventoryItem } from "@vexed/game";
 import type { Bot } from "./Bot";
 import { ServerPacket } from "./Packets";
+import { inventory } from "./stores/inventory";
 
 export class Inventory {
   public constructor(public readonly bot: Bot) {}
 
   /**
-   * Gets items in the Inventory of the current player.
+   * All items in the player's inventory.
    */
-  public get items(): InventoryItem[] {
-    return this.bot.flash
-      .call<ItemData[]>(() => swf.inventoryGetItems())
-      .map((data: ItemData) => new InventoryItem(data));
+  public get items() {
+    return inventory.all();
   }
 
   /**
@@ -20,6 +19,7 @@ export class Inventory {
    * @param key - The name or ID of the item.
    */
   public get(key: number | string): InventoryItem | null {
+    // TODO:
     return this.bot.flash.call(() => {
       const item = swf.inventoryGetItem(key);
       if (!item) return null;

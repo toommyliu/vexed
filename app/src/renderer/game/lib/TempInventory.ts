@@ -1,17 +1,15 @@
-import { TempInventoryItem, type ItemData } from "@vexed/game";
+import type { TempInventoryItem } from "@vexed/game";
 import type { Bot } from "./Bot";
+import { tempInventory } from "./stores/temp-inventory";
 
 export class TempInventory {
   public constructor(public bot: Bot) {}
 
   /**
-   * A list of items in the temp inventory.
+   * Items in the player's temp inventory.
    */
-  public get items(): TempInventoryItem[] {
-    const ret = this.bot.flash.call(() => swf.tempInventoryGetItems());
-    return Array.isArray(ret)
-      ? ret.map((data: ItemData) => new TempInventoryItem(data))
-      : [];
+  public get items() {
+    return tempInventory.all();
   }
 
   /**

@@ -1,5 +1,6 @@
-import { Faction, EntityState } from "@vexed/game";
+import { EntityState } from "@vexed/game";
 import type { Bot } from "./Bot";
+import { factions } from "./stores/faction";
 
 export enum BoostType {
   ClassPoints = "classPoints",
@@ -14,10 +15,8 @@ export class Player {
   /**
    * The player's faction data.
    */
-  public get factions(): Faction[] {
-    return this.bot.flash.call(() =>
-      swf.playerGetFactions().map((data) => new Faction(data)),
-    );
+  public get factions() {
+    return factions;
   }
 
   /**
@@ -204,35 +203,4 @@ export class Player {
         return false;
     }
   }
-
-  // /**
-  //  * Equips a loadout for the player.
-  //  *
-  //  * @remarks
-  //  * A loadout is to be read from file, not the player's outfits.
-  //  * @param loadout - The loadout to equip.
-  //  */
-  // public async equipLoadout(loadout: Loadout) {
-  //   const { Cape, Class, Helm, Pet, Weapon } = loadout;
-
-  //   if (Cape) {
-  //     await this.bot.inventory.equip(Cape);
-  //   }
-
-  //   if (Class) {
-  //     await this.bot.inventory.equip(Class);
-  //   }
-
-  //   if (Helm) {
-  //     await this.bot.inventory.equip(Helm);
-  //   }
-
-  //   if (Pet) {
-  //     await this.bot.inventory.equip(Pet);
-  //   }
-
-  //   if (Weapon) {
-  //     await this.bot.inventory.equip(Weapon);
-  //   }
-  // }
 }
