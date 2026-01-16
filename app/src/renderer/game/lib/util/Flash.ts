@@ -72,13 +72,37 @@ export class Flash {
   public get<T = any>(path: string, parse = false): T | null {
     try {
       const out = swf.getGameObject(path);
-      if (parse) {
+      if (parse === true) {
         return JSON.parse(out) as T;
       }
 
       return out as T;
     } catch {
       return null;
+    }
+  }
+
+  /**
+   * Gets an actionscript object at the given location.
+   *
+   * @param path - The path of the object, relative to Game.
+   * @param defaultValue - The default value to return if the path is not found.
+   * @param parse - Whether to call JSON.parse on the return value.
+   */
+  public getWithDefault<T = any>(
+    path: string,
+    defaultValue: T,
+    parse = false,
+  ): T {
+    try {
+      const out = swf.getGameObject(path);
+      if (parse === true) {
+        return JSON.parse(out) as T;
+      }
+
+      return out as T;
+    } catch {
+      return defaultValue;
     }
   }
 

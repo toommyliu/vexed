@@ -176,4 +176,11 @@ export class Item {
   public isMaxed(): boolean {
     return this.quantity === this.maxStack;
   }
+
+  /**
+   * Whether the item is member-only.
+   */
+  public isMember(): boolean {
+    return this.data.bUpg === 1;
+  }
 }

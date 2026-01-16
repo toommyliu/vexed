@@ -29,7 +29,6 @@ export function registerJsonHandler<T>(
     console.warn(`[json] "${cmd}" is being overwritten...`);
   }
 
-  console.log(`[json] registered :: ${cmd}`);
   jsonHandlers.set(cmd, handler as PacketHandler);
 }
 
@@ -47,7 +46,6 @@ export function registerStrHandler(
     console.warn(`[str] "${cmd}" is being overwritten...`);
   }
 
-  console.log(`[str] registered :: ${cmd}`);
   strHandlers.set(cmd, handler);
 }
 

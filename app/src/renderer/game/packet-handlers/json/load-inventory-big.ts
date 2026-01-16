@@ -8,8 +8,6 @@ registerJsonHandler<LoadInventoryBigPacket>(
     bot.player.house.items.all().clear();
     bot.player.inventory.items.all().clear();
 
-    console.log("packet", packet);
-
     for (const faction of packet.factions ?? [])
       bot.player.factions.add(faction);
     console.log(
