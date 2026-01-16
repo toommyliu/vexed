@@ -1,0 +1,14 @@
+{
+  "name": "@vexed/game",
+  "private": true,
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.cts",
+  "scripts": {
+    "build": "tsdown --outDir ./dist --format cjs --minify --entry ./src/index.ts --dts",
+    "postinstall": "npm run build"
+  },
+  "devDependencies": {
+    "tsdown": "0.20.0-beta.3",
+    "typescript": "^5.9.3"
+  }
+}

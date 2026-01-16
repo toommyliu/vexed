@@ -1,4 +1,5 @@
-import { BaseEntity, type BaseEntityData } from "./BaseEntity";
+import type { BaseEntityData } from "../types/BaseEntityData";
+import { BaseEntity } from "./BaseEntity";
 
 /**
  * Represents a player in the world.
@@ -8,7 +9,7 @@ export class Avatar extends BaseEntity {
     /**
      * Data about this player.
      */
-    public override data: AvatarData,
+    public override data: AvatarData
   ) {
     super(data);
   }

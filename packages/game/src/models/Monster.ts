@@ -1,4 +1,5 @@
-import { BaseEntity, type BaseEntityData } from "./BaseEntity";
+import { BaseEntity } from "./BaseEntity";
+import type { BaseEntityData } from "../types/BaseEntityData";
 
 /**
  * Represents a monster.
@@ -7,7 +8,7 @@ export class Monster extends BaseEntity {
   public constructor(
     /**
      * Data about this monster.
-     */ public override data: MonsterData,
+     */ public override data: MonsterData
   ) {
     super(data);
   }

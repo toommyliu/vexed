@@ -1,27 +1,17 @@
-import { AuraStore } from "~/lib/util/AuraStore";
+import type { Aura } from "../types/Aura";
 import type { Avatar } from "./Avatar";
 import type { Monster } from "./Monster";
 
-export enum EntityState {
-  /**
-   * The entity is dead.
-   */
-  Dead = 0,
-  /**
-   * The entity is idle.
-   */
-  Idle = 1,
-  /**
-   * The entity is in combat.
-   */
-  InCombat = 2,
-}
+import { BaseEntityData } from "../types/BaseEntityData";
+import { EntityState } from "../types/EntityState";
 
 /**
  * Base class for entities in the game world.
  */
 export abstract class BaseEntity {
-  protected constructor(public data: BaseEntityData) { }
+  #auras: Aura[] = [];
+
+  protected constructor(public data: BaseEntityData) {}
 
   /**
    * The entity's current HP.
@@ -94,16 +84,8 @@ export abstract class BaseEntity {
   /**
    * The entity's auras.
    */
-  public get auras(): Aura[] {
-    if (this.isPlayer()) {
-      return AuraStore.getPlayerAuras((this as Avatar).data.strUsername);
-    } else if (this.isMonster()) {
-      return AuraStore.getMonsterAuras(
-        (this as Monster).data.monMapId.toString(),
-      );
-    }
-
-    return [];
+  public get auras(): Readonly<Aura[]> {
+    return [...this.#auras];
   }
 
   /**
@@ -113,16 +95,25 @@ export abstract class BaseEntity {
    * @returns The aura with the specified name, or undefined if the entity does not have the aura.
    */
   public getAura(name: string): Aura | undefined {
-    if (this.isPlayer()) {
-      return AuraStore.getPlayerAura((this as Avatar).data.strUsername, name);
-    } else if (this.isMonster()) {
-      return AuraStore.getMonsterAura(
-        (this as Monster).data.monMapId.toString(),
-        name,
-      );
-    }
+    return this.auras.find((aura) => aura.name === name);
+  }
 
-    return undefined;
+  /**
+   * Adds an aura to the entity.
+   *
+   * @param aura - The aura to add.
+   */
+  public addAura(aura: Aura): void {
+    this.#auras.push(aura);
+  }
+
+  /**
+   * Removes an aura from the entity.
+   *
+   * @param name - The name of the aura to remove.
+   */
+  public removeAura(name: string): void {
+    this.#auras = this.#auras.filter((aura) => aura.name !== name);
   }
 
   /**
@@ -200,21 +191,3 @@ export abstract class BaseEntity {
     return this.cell.toLowerCase() === cell.toLowerCase();
   }
 }
-
-export type BaseEntityData = {
-  intHp: number;
-  intHpMax: number;
-  intState: number;
-  strFrame: string;
-};
-
-export type Aura = {
-  duration?: number;
-  isNew?: boolean;
-  name: string;
-  /**
-   * The aura's value, if applicable.
-   * Can be an integer or float.
-   */
-  value?: number;
-};

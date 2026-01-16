@@ -1,4 +1,4 @@
-import type { ServerData } from "~/shared/types";
+import type { ServerData } from "../types/ServerData";
 
 /**
  * Represents a game server.
@@ -7,8 +7,8 @@ export class Server {
   public constructor(
     /**
      * Data about this server.
-     */ public data: ServerData,
-  ) { }
+     */ public data: ServerData
+  ) {}
 
   /**
    * The maximum number of players.
@@ -80,5 +80,3 @@ export class Server {
     return this.data.iCount >= this.data.iMax;
   }
 }
-
-export type { ServerData } from "~/shared/types";

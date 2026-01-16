@@ -1,13 +1,4 @@
-import { Item, type ItemData } from "./Item";
-
-/**
- * Represents an item in the shop.
- */
-export class ShopItem extends Item {
-  public constructor(public override data: ShopItemData) {
-    super(data);
-  }
-}
+import type { ItemData } from "./ItemData";
 
 /**
  * Represents the data structure for an item.

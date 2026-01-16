@@ -1,3 +1,5 @@
+import type { ItemData } from "../types/ItemData";
+
 /**
  * The base class for all-things item related.
  */
@@ -6,8 +8,8 @@ export class Item {
     /**
      * Data about this item
      */
-    public data: ItemData,
-  ) { }
+    public data: ItemData
+  ) {}
 
   /**
    * The ID of the item.
@@ -175,43 +177,3 @@ export class Item {
     return this.quantity === this.maxStack;
   }
 }
-
-export type ItemData = {
-  CharID: number;
-  CharItemID: number;
-  EnhDPS: number;
-  EnhID: number;
-  EnhLvl: number;
-  EnhPatternID: number;
-  PatternID?: number | string;
-  EnhRng: number;
-  EnhRty: number;
-  ItemID: number;
-  ProcID?: number;
-  bBank: number;
-  bCoins: number;
-  bEquip: number;
-  bStaff: number;
-  bTemp: number;
-  bUpg: number;
-  bWear: number;
-  dPurchase: string;
-  iCost: number;
-  iDPS: number;
-  iHrs: number;
-  iLvl: number;
-  iQty: number;
-  iRng: number;
-  iRty: number;
-  iStk: number;
-  iType: number;
-  sDesc: string;
-  sES: string;
-  sElmt: string;
-  sFile: string;
-  sIcon: string;
-  sLink: string;
-  sMeta: string;
-  sName: string;
-  sType: string;
-};
