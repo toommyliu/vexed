@@ -1,16 +1,17 @@
 import type { CommandExecutor } from "./botting/command-executor";
 import type { cmd } from "./botting/index";
-import type { Bot } from "./lib/Bot";
-import type { ClientPacket } from "./lib/Packets";
-import type { ShopInfo } from "./lib/Shops";
-import type { GameAction } from "./lib/World";
+import type { Bot } from "./lib/core/Bot";
+import type { ClientPacket } from "./lib/core/Packets";
+import type { ShopInfo } from "./lib/core/Shops";
+import type { GameAction } from "./lib/core/World";
 import type { AvatarData } from "./lib/models/Avatar";
 import type { FactionData } from "./lib/models/Faction";
 import type { ItemData } from "./lib/models/Item";
 import type { MonsterData } from "./lib/models/Monster";
 import type { QuestData } from "./lib/models/Quest";
 import type { ServerData } from "./lib/models/Server";
-import type { Logger } from "./util/logger";
+
+// TODO: this needs a major update
 
 type Nullable<T> = T | null;
 declare global {
@@ -225,4 +226,4 @@ declare global {
   }
 }
 
-export { };
+export {};

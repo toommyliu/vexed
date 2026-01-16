@@ -1,8 +1,8 @@
 import { Monster, type ItemData, GameAction } from "@vexed/game";
 import { extractMonsterMapId, isMonsterMapId } from "~/utils/isMonMapId";
 import type { Bot } from "./Bot";
-import { MonsterStore } from "./stores/monster";
-import { PlayerStore } from "./stores/player";
+import { MonsterStore } from "../stores/monster";
+import { PlayerStore } from "../stores/player";
 
 const monsters = new MonsterStore();
 const players = new PlayerStore();

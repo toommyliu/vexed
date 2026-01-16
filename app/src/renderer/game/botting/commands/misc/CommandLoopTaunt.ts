@@ -2,7 +2,7 @@ import { interval } from "@vexed/utils";
 import type { LogFunctions } from "electron-log";
 import { Command } from "~/botting/command";
 import type { CommandExecutor } from "~/botting/command-executor";
-import type { Bot } from "~/lib/Bot";
+import type { Bot } from "~/renderer/game/lib/core/Bot";
 import { isMonsterMapId, extractMonsterMapId } from "~/utils/isMonMapId";
 
 // const id = 517;
@@ -44,7 +44,11 @@ export type ITauntStrategy = {
   cleanup(): void;
   doTaunt(): Promise<void>;
   getName(): string;
-  initialize(bot: Bot, ctx: CommandExecutor, logger?: LogFunctions): Promise<boolean>;
+  initialize(
+    bot: Bot,
+    ctx: CommandExecutor,
+    logger?: LogFunctions,
+  ): Promise<boolean>;
   isActive: boolean;
 
   maxPlayers: number;
@@ -245,7 +249,7 @@ export class SimpleStrategy extends BaseTauntStrategy {
             ) {
               // log(
               //   `[${this.getName()}] It's player ${this.playerIndex}'s turn to taunt ${this.target}`,
-            // );
+              // );
               await this.doTaunt();
             }
           }, 10_000); // 6s + 4s buffer

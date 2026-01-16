@@ -1,4 +1,4 @@
-import type { Bot } from "~/lib/Bot";
+import type { Bot } from "~/renderer/game/lib/core/Bot";
 import { ArmyCommand } from "./ArmyCommand";
 
 export class CommandExecuteWithArmy extends ArmyCommand {

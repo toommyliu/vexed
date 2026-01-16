@@ -4,25 +4,25 @@ import { errAsync, okAsync } from "neverthrow";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { Army } from "./Army";
 import { Auth } from "./Auth";
-import { Bank } from "./Bank";
+import { Bank } from "./player/Bank";
 import { Combat } from "./Combat";
 import { Drops } from "./Drops";
 import { Environment } from "./Environment";
-import { House } from "./House";
-import { Inventory } from "./Inventory";
+import { House } from "./player/House";
+import { Inventory } from "./player/Inventory";
 import { Packets } from "./Packets";
-import { Player } from "./Player";
+import { Player } from "./player/Player";
 import { Quests } from "./Quests";
 import { Scheduler } from "./Scheduler";
 import { Settings } from "./Settings";
 import { Shops } from "./Shops";
-import { TempInventory } from "./TempInventory";
+import { TempInventory } from "./player/TempInventory";
 import { World } from "./World";
-import { AutoReloginJob } from "./jobs/autorelogin";
-import { BoostsJob } from "./jobs/boosts";
-import { DropsJob } from "./jobs/drops";
-import { QuestsJob } from "./jobs/quests";
-import { Flash } from "./util/Flash";
+import { AutoReloginJob } from "../jobs/autorelogin";
+import { BoostsJob } from "../jobs/boosts";
+import { DropsJob } from "../jobs/drops";
+import { QuestsJob } from "../jobs/quests";
+import { Flash } from "../util/Flash";
 
 type Events = {
   /**

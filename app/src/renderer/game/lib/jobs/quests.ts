@@ -1,6 +1,6 @@
 import { Mutex } from "async-mutex";
 import { client } from "~/shared/tipc";
-import type { Bot } from "../Bot";
+import type { Bot } from "../core/Bot";
 import { Job } from "./Job";
 
 export class QuestsJob extends Job {

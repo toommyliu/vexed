@@ -1,4 +1,4 @@
-import type { Bot } from "../Bot";
+import type { Bot } from "../core/Bot";
 import { Job } from "./Job";
 
 export class DropsJob extends Job {

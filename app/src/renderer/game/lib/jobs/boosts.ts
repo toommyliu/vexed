@@ -1,5 +1,5 @@
-import type { Bot } from "~/lib/Bot";
-import { BoostType } from "../Player";
+import type { Bot } from "~/renderer/game/lib/core/Bot";
+import { BoostType } from "../core/player/Player";
 import { Job } from "./Job";
 
 export class BoostsJob extends Job {

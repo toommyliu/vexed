@@ -2,7 +2,7 @@ import { ArgsError } from "~/botting/ArgsError";
 import { Command } from "~/botting/command";
 import { CommandExecutor } from "~/botting/command-executor";
 import { CommandRegistry } from "~/botting/command-registry";
-import { Bot } from "~/lib/Bot";
+import { Bot } from "~/renderer/game/lib/core/Bot";
 import { CommandAutoRelogin } from "./CommandAutoRelogin";
 import { CommandAutoZoneAstralShrine } from "./CommandAutoZoneAstralShrine";
 import { CommandAutoZoneDarkCarnax } from "./CommandAutoZoneDarkCarnax";
@@ -431,18 +431,28 @@ export const miscCommands = {
     const cls = cmdFactory(Command);
 
     if (typeof cls !== "function") {
-      throw new ArgsError("cmdFactory must return a Command constructor (class)");
+      throw new ArgsError(
+        "cmdFactory must return a Command constructor (class)",
+      );
     }
 
     if (!(cls.prototype instanceof Command)) {
-      throw new ArgsError("cmdFactory must return a class that extends Command");
+      throw new ArgsError(
+        "cmdFactory must return a class that extends Command",
+      );
     }
 
-    if (!Object.hasOwn(cls.prototype, "executeImpl") || typeof (cls.prototype as any).executeImpl !== "function") {
+    if (
+      !Object.hasOwn(cls.prototype, "executeImpl") ||
+      typeof (cls.prototype as any).executeImpl !== "function"
+    ) {
       throw new ArgsError("command must implement executeImpl()");
     }
 
-    if (!Object.hasOwn(cls.prototype, "toString") || typeof cls.prototype.toString !== "function") {
+    if (
+      !Object.hasOwn(cls.prototype, "toString") ||
+      typeof cls.prototype.toString !== "function"
+    ) {
       throw new ArgsError("command must implement toString()");
     }
 
@@ -450,7 +460,7 @@ export const miscCommands = {
       throw new ArgsError("command must not override execute()");
     }
 
-    commandRegistry.registerCustomCommand(_name, () => { });
+    commandRegistry.registerCustomCommand(_name, () => {});
 
     Object.defineProperty(window.cmd, _name, {
       value(...args: unknown[]) {
@@ -665,9 +675,7 @@ export const miscCommands = {
    * cmd.use_autorelogin() // relogin to the fallback server OR the current server otherwise
    * @param server - The server to log into.
    */
-  use_autorelogin(
-    server?: string,
-  ) {
+  use_autorelogin(server?: string) {
     const cmd = new CommandAutoRelogin();
     cmd.server = server;
     window.context.addCommand(cmd);
@@ -858,5 +866,5 @@ export const miscCommands = {
     const cmd = new CommandDoWheelOfDoom();
     cmd.bank = to_bank;
     window.context.addCommand(cmd);
-  }
+  },
 };

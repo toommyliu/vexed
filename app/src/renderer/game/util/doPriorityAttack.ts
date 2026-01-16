@@ -1,4 +1,4 @@
-import { Bot } from "../lib/Bot";
+import { Bot } from "../lib/core/Bot";
 
 /**
  * Performs a priority attack on the first available monster in the provided list.

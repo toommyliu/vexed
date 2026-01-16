@@ -1,5 +1,5 @@
 import { AutoZone } from "../../botting/autozone";
-import type { Bot } from "../../lib/Bot";
+import type { Bot } from "../../lib/core/Bot";
 import { registerJsonHandler } from "../registry";
 
 const getRandomIntInRange = (min: number, max: number) =>
@@ -73,10 +73,12 @@ registerJsonHandler<EventPacket>("event", async (bot: Bot, pkt) => {
 
     try {
       const plyr = bot.world.players?.get(bot.auth.username);
-      const positiveCharge = (plyr?.getAura("Positive Charge")?.value ?? -1) > 0;
+      const positiveCharge =
+        (plyr?.getAura("Positive Charge")?.value ?? -1) > 0;
       const positiveChargeReverse =
         (plyr?.getAura("Positive Charge?")?.value ?? -1) > 0;
-      const negativeCharge = (plyr?.getAura("Negative Charge")?.value ?? -1) > 0;
+      const negativeCharge =
+        (plyr?.getAura("Negative Charge")?.value ?? -1) > 0;
       const negativeChargeReverse =
         (plyr?.getAura("Negative Charge?")?.value ?? -1) > 0;
 

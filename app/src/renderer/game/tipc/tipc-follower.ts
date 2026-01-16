@@ -1,6 +1,6 @@
 import { interval } from "@vexed/utils";
 import { Mutex } from "async-mutex";
-import { Bot } from "~/lib/Bot";
+import { Bot } from "~/renderer/game/lib/core/Bot";
 import { handlers } from "~/shared/tipc";
 import { doPriorityAttack } from "~/utils/doPriorityAttack";
 

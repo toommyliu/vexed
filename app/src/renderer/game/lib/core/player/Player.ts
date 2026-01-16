@@ -1,6 +1,6 @@
 import { EntityState } from "@vexed/game";
-import type { Bot } from "./Bot";
-import { factions } from "./stores/faction";
+import { factions } from "~/lib/stores/faction";
+import type { Bot } from "../Bot";
 
 export enum BoostType {
   ClassPoints = "classPoints",

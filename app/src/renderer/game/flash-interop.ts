@@ -1,6 +1,6 @@
 import process from "process";
 import log from "electron-log/renderer";
-import { Bot } from "~/lib/Bot";
+import { Bot } from "~/renderer/game/lib/core/Bot";
 import { AutoReloginJob } from "~/lib/jobs/autorelogin";
 import { client } from "~/shared/tipc";
 import { dispatchJson, dispatchStr } from "./packet-handlers/registry";

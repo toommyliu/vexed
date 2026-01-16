@@ -1,5 +1,5 @@
 import log from "electron-log/renderer";
-import type { Bot } from "~/lib/Bot";
+import type { Bot } from "~/renderer/game/lib/core/Bot";
 
 const logger = log.scope("packet-handlers/registry");
 

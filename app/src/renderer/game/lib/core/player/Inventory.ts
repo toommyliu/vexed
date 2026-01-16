@@ -1,7 +1,7 @@
 import { GameAction, InventoryItem } from "@vexed/game";
-import type { Bot } from "./Bot";
-import { ServerPacket } from "./Packets";
-import { inventory } from "./stores/inventory";
+import type { Bot } from "../Bot";
+import { ServerPacket } from "../Packets";
+import { inventory } from "../../stores/inventory";
 
 export class Inventory {
   public constructor(public readonly bot: Bot) {}

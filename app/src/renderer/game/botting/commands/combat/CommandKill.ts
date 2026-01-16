@@ -1,5 +1,5 @@
 import { Command } from "~/botting/command";
-import type { KillOptions } from "~/lib/Combat";
+import type { KillOptions } from "~/renderer/game/lib/core/Combat";
 
 export class CommandKill extends Command {
   public target!: string;

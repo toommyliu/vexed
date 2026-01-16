@@ -1,4 +1,4 @@
-import { Bot } from "~/lib/Bot";
+import { Bot } from "~/renderer/game/lib/core/Bot";
 import { handlers } from "~/shared/tipc";
 import { GrabberDataType, LoaderDataType } from "~/shared/types";
 

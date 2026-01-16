@@ -1,6 +1,6 @@
 import log from "electron-log";
 import type { Bot } from "./Bot";
-import type { Job } from "./jobs/Job";
+import type { Job } from "../jobs/Job";
 
 const logger = log.scope("game/Scheduler");
 

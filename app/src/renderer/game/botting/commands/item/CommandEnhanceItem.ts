@@ -1,5 +1,5 @@
 import { Command } from "~/botting/command";
-import { ServerPacket } from "~/lib/Packets";
+import { ServerPacket } from "~/renderer/game/lib/core/Packets";
 import {
   EnhancementType,
   resolveEnhancementType,

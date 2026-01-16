@@ -1,6 +1,6 @@
 import type { TempInventoryItem } from "@vexed/game";
-import type { Bot } from "./Bot";
-import { tempInventory } from "./stores/temp-inventory";
+import type { Bot } from "../Bot";
+import { tempInventory } from "../../stores/temp-inventory";
 
 export class TempInventory {
   public constructor(public bot: Bot) {}

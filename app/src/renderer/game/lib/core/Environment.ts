@@ -1,8 +1,8 @@
 import { client } from "~/shared/tipc";
 import type { EnvironmentUpdatePayload } from "~/shared/types";
-import { normalizeId } from "../util/normalizeId";
+import { normalizeId } from "../../util/normalizeId";
 import type { Bot } from "./Bot";
-import type { QuestsJob } from "./jobs/quests";
+import type { QuestsJob } from "../jobs/quests";
 
 export class Environment {
   private _questIds = new Set<number>();
@@ -21,7 +21,7 @@ export class Environment {
 
   private _isApplyingUpdate = false;
 
-  public constructor(public readonly bot: Bot) { }
+  public constructor(public readonly bot: Bot) {}
 
   /**
    * Gets the set of quest IDs.
@@ -128,7 +128,8 @@ export class Environment {
       this.setQuestIds(update.questIds);
       this.setItemNames(update.itemNames);
 
-      if (update.questItemIds !== undefined) this.setQuestItemIds(update.questItemIds);
+      if (update.questItemIds !== undefined)
+        this.setQuestItemIds(update.questItemIds);
       if (update.rejectElse !== undefined) this._rejectElse = update.rejectElse;
       if (update.boosts !== undefined) this.setBoosts(update.boosts);
       if (update.autoRegisterRequirements !== undefined)

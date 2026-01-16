@@ -1,4 +1,4 @@
-import { Bot } from "~/lib/Bot";
+import { Bot } from "~/renderer/game/lib/core/Bot";
 import { client, handlers } from "~/shared/tipc";
 
 let clientPacketListener: ((packet: string) => Promise<void>) | null = null;

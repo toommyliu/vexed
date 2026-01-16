@@ -1,5 +1,5 @@
 import { HouseItem, type ItemData } from "@vexed/game";
-import type { Bot } from "./Bot";
+import type { Bot } from "../Bot";
 
 export class House {
   public constructor(public readonly bot: Bot) {}

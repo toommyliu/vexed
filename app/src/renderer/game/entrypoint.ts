@@ -1,5 +1,5 @@
 import "./flash-interop";
-import "./lib/Bot";
+import "./lib/core/Bot";
 
 import { CommandRegistry } from "./botting/command-registry";
 import { cmd } from "./botting/index";
