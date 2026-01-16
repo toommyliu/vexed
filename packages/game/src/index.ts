@@ -12,6 +12,7 @@ export * from "./models/ShopItem";
 export * from "./models/TempInventoryItem";
 
 export * from "./types/Aura";
+export * from "./types/AvatarData";
 export * from "./types/BaseEntityData";
 export * from "./types/EntityState";
 export * from "./types/FactionData";

@@ -1,4 +1,4 @@
-import type { BaseEntityData } from "../types/BaseEntityData";
+import type { AvatarData } from "../types/AvatarData";
 import { BaseEntity } from "./BaseEntity";
 
 /**
@@ -49,25 +49,3 @@ export class Avatar extends BaseEntity {
     return this.data.strUsername;
   }
 }
-
-export type AvatarData = BaseEntityData & {
-  afk: boolean;
-  // bResting: boolean;
-  entID: number;
-  entType: string;
-  intLevel: number;
-  intMP: number;
-  intMPMax: number;
-  intSP: number;
-  // intSPMax: number;
-  // mvtd: string;
-  // mvts: string;
-  // px: string;
-  // py: string;
-  // showCloak: boolean;
-  // showHelm: boolean;
-  strFrame: string;
-  strPad: string;
-  strUsername: string; // respects casing
-  uoName: string; // lowercased
-};

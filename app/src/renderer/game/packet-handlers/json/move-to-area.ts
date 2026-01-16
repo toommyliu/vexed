@@ -1,8 +1,10 @@
 import { registerJsonHandler } from "../registry";
 
 registerJsonHandler<MoveToAreaPacket>("moveToArea", (bot, packet) => {
+  bot.world.players.clear();
   bot.world.monsters.clear();
 
+  // save monster data
   const monDefMap = new Map(
     packet.mondef?.map((def) => [def.MonID, def]) ?? [],
   );
@@ -26,9 +28,10 @@ registerJsonHandler<MoveToAreaPacket>("moveToArea", (bot, packet) => {
       strMonName: def?.strMonName ?? "Unknown",
       strFrame: mapInfo?.strFrame ?? "",
     };
-    console.table(obj);
     bot.world.monsters.add(obj);
   }
+
+  // save player data
 });
 
 export type MoveToAreaPacket = {
@@ -73,7 +76,6 @@ export type MoveToAreaPacket = {
     intState: number;
     showCloak: boolean;
     showHelm: boolean;
-    strFrame: string;
     strPad: string;
     strUsername: string;
     tx: number;

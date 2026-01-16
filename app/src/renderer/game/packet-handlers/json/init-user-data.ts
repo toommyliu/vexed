@@ -1,13 +1,8 @@
-// import { equalsIgnoreCase } from "~/shared/string";
-// import { registerJsonHandler } from "../registry";
+import { registerJsonHandler } from "../registry";
 
-// registerJsonHandler<InitUserDataPacket>("initUserData", (bot, packet) => {
-//   const username = packet.data.strUsername;
-
-//   if (equalsIgnoreCase(username, bot.auth.username)) return;
-
-//   bot.emit("playerJoin", username);
-// });
+registerJsonHandler<InitUserDataPacket>("initUserData", (bot, packet) => {
+  bot.world.players.register(packet.data.strUsername, packet.uid);
+});
 
 type InitUserDataPacket = {
   cmd: "initUserData";

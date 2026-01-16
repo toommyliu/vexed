@@ -1,15 +1,11 @@
-import {
-  Monster,
-  Avatar,
-  type AvatarData,
-  type ItemData,
-  GameAction,
-} from "@vexed/game";
-import { MonsterStore } from "~/state/monster-store";
+import { Monster, type ItemData, GameAction } from "@vexed/game";
 import { extractMonsterMapId, isMonsterMapId } from "~/utils/isMonMapId";
 import type { Bot } from "./Bot";
+import { MonsterStore } from "./stores/monster";
+import { PlayerStore } from "./stores/player";
 
 const monsters = new MonsterStore();
+const players = new PlayerStore();
 
 export class World {
   public constructor(public readonly bot: Bot) {}
@@ -17,8 +13,8 @@ export class World {
   /**
    * A list of all player names in the map.
    */
-  public get playerNames(): string[] {
-    return this.bot.flash.call(() => swf.worldGetPlayerNames()) ?? [];
+  public get playerNames(): readonly string[] {
+    return Array.from(this.players.keys());
   }
 
   /**
@@ -27,8 +23,9 @@ export class World {
    * @param name - The player name to check.
    */
   public isPlayerInMap(name: string) {
-    return this.playerNames.some((playerName) =>
-      playerName.toLowerCase().includes(name.toLowerCase()),
+    const lower = name.toLowerCase();
+    return this.playerNames.some(
+      (playerName) => playerName.toLowerCase() === lower,
     );
   }
 
@@ -39,34 +36,14 @@ export class World {
    * @param cell - The cell to check.
    */
   public isPlayerInCell(name: string, cell: string) {
-    return this.bot.flash.call<boolean>(() =>
-      swf.worldIsPlayerInCell(name, cell),
-    );
+    return this.players.get(name)?.isInCell(cell) ?? false;
   }
 
   /**
-   * A list of all players in the map.
+   * The available players in the map.
    */
-  public get players(): Map<string, Avatar> | null {
-    const out = this.bot.flash.call<string>(() => swf.worldGetPlayers());
-
-    if (!out) return null;
-
-    const parsedOut = out as unknown as Record<string, AvatarData>;
-
-    const map = new Map<string, Avatar>();
-    for (const [name, data] of Object.entries(parsedOut)) {
-      try {
-        map.set(
-          name?.toLowerCase(),
-          new Avatar(JSON.parse(data as unknown as string)),
-        );
-      } catch {
-        console.warn(`failed to parse avatar for: ${name}`);
-      }
-    }
-
-    return map;
+  public get players(): PlayerStore {
+    return players;
   }
 
   /**
@@ -297,8 +274,11 @@ export class World {
    * @param mapSwf - The swf to load.
    */
   public loadMapSwf(mapSwf: string): void {
-    this.bot.flash.call(() =>
-      swf.worldLoadSwf(`${mapSwf}${mapSwf.endsWith(".swf") ? "" : ".swf"}`),
-    );
+    let str = mapSwf;
+    if (!str.endsWith(".swf")) {
+      str += ".swf";
+    }
+
+    this.bot.flash.call(() => swf.worldLoadSwf(str));
   }
 }

@@ -1,5 +1,5 @@
 import type { Monster } from "@vexed/game";
-import type { MonsterStore } from "~/state/monster-store";
+import type { MonsterStore } from "~/lib/stores/monster";
 import { extractMonsterMapId, isMonsterMapId } from "~/utils/isMonMapId";
 
 export function filterMonstersByTarget(
@@ -31,7 +31,6 @@ export function groupMonstersByCell(
   for (const monster of monsters) {
     const cell = monster.cell;
     if (!groups.has(cell)) groups.set(cell, []);
-
     groups.get(cell)!.push(monster);
   }
 
