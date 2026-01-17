@@ -1,6 +1,6 @@
 import log from "electron-log";
-import type { Bot } from "./Bot";
 import type { Job } from "../jobs/Job";
+import type { Bot } from "./Bot";
 
 const logger = log.scope("game/Scheduler");
 
@@ -100,6 +100,7 @@ export class Scheduler {
 
   /**
    * Get a job.
+   *
    * @param jobId - The ID of the job.
    * @returns The job, or null if not found.
    */

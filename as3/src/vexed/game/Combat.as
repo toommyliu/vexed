@@ -95,15 +95,6 @@ package vexed.game {
       return Util.getSkillCooldownRemaining(skill);
     }
 
-    public static function cancelAutoAttack():void {
-      game.world.cancelAutoAttack();
-    }
-
-    public static function cancelTarget():void {
-      game.world.cancelTarget(); // cancel auto attack
-      game.world.cancelTarget(); // cancel target
-    }
-
     public static function attackMonster(mon:String):void {
       if (!mon)
         return;

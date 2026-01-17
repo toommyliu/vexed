@@ -13,8 +13,15 @@ import "./json/move-to-area";
 import "./json/mtls";
 import "./json/unequip-item";
 
+import "./str/move-to-cell";
+import "./str/mv";
 import "./str/respawn-mon";
 import "./str/uotls";
 
 // needed to fix circular dependency
-export { dispatchJson, dispatchStr } from "./registry";
+export {
+  dispatchClientStr,
+  dispatchJson,
+  dispatchStr,
+  registerClientStrHandler,
+} from "./registry";

@@ -73,36 +73,10 @@ package vexed.game {
       return true;
     }
 
-    public static function withdraw(key:*):Boolean {
-      var item:Object = getItem(key);
-      if (!item) {
-        return false;
-      }
-
-      game.world.sendBankToInvRequest(item);
-      return true;
-    }
-
-    public static function swap(invKey:*, bankKey:*):Boolean {
-      var invItem:Object = Inventory.getItem(invKey);
-      var bankItem:Object = getItem(bankKey);
-
-      if (!invItem || !bankItem) {
-        return false;
-      }
-
-      game.world.sendBankSwapInvRequest(bankItem, invItem);
-      return true;
-    }
-
     public static function open():void {
       // first loads the bank items if not already loaded
       // then toggles the bank window
       game.world.toggleBank();
-    }
-
-    public static function isOpen():Boolean {
-      return game.ui.mcPopup.currentLabel === "Bank";
     }
   }
 }

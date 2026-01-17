@@ -26,11 +26,6 @@ package vexed.game
       return false;
     }
 
-    public static function getPlayerNames():Array /* string[] names */
-    {
-      return game.world.areaUsers;
-    }
-
     public static function getPlayers():String /* { [name: string]: PlayerData } */
     {
       var ret:Object = {};
@@ -232,60 +227,6 @@ package vexed.game
       }
 
       return cellPads;
-    }
-
-    // public static function getItemTree():Array {
-    // var items:Array = [];
-    // for (var id:* in game.world.invTree) {
-    // items.push(game.world.invTree[id]);
-    // }
-
-    // return items;
-    // }
-
-    public static function getRoomId():int
-    {
-      return game.world.curRoom;
-    }
-
-    public static function getRoomNumber():int
-    {
-      return Number(game.world.strAreaName.split('-')[1]);
-    }
-
-    public static function reload():void
-    {
-      game.world.reloadCurrentMap();
-    }
-
-    public static function loadSwf(swf:String):void
-    {
-      game.world.loadMap(swf);
-    }
-
-    public static function getMapItem(itemId:int):void
-    {
-      if (!itemId)
-      {
-        return;
-      }
-
-      game.world.getMapItem(itemId);
-    }
-
-    public static function setSpawnPoint(cell:String = null, pad:String = null):void
-    {
-      if (!cell)
-      {
-        cell = game.world.strFrame;
-      }
-
-      if (!pad)
-      {
-        pad = game.world.strPad;
-      }
-
-      game.world.setSpawnPoint(cell, pad);
     }
   }
 }

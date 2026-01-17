@@ -1,4 +1,5 @@
 import { ShopItem, GameAction, type ShopItemData } from "@vexed/game";
+import { equalsIgnoreCase } from "@vexed/utils";
 import type { Bot } from "./Bot";
 
 export class Shops {
@@ -22,7 +23,13 @@ export class Shops {
    * Whether the shop is a merge shop.
    */
   public get isMergeShop(): boolean {
-    return this.bot.flash.call(() => swf.shopIsMergeShop());
+    if (!this.isShopLoaded()) return false;
+
+    for (const item of this.info?.items ?? []) {
+      if ("turnin" in item) return true;
+    }
+
+    return false;
   }
 
   /**
@@ -34,8 +41,8 @@ export class Shops {
   public getByName(itemName: string): ShopItem | null {
     if (!this.isShopLoaded()) return null;
 
-    const item = this.info!.items.find(
-      (shopItem) => shopItem.sName.toLowerCase() === itemName.toLowerCase(),
+    const item = this.info!.items.find((shopItem) =>
+      equalsIgnoreCase(shopItem.sName, itemName),
     );
 
     if (item) return new ShopItem(item);
@@ -75,8 +82,8 @@ export class Shops {
 
     if (!this.isShopLoaded()) return;
 
-    const item = this.info!.items.find(
-      (shopItem) => shopItem.sName.toLowerCase() === itemName.toLowerCase(),
+    const item = this.info!.items.find((shopItem) =>
+      equalsIgnoreCase(shopItem.sName, itemName),
     );
     if (!item || !this.bot.shops.canBuyItem(item?.sName)) {
       return;
@@ -129,13 +136,11 @@ export class Shops {
    *
    * @param shopId - The shop ID.
    */
-  public async load(shopId: number | string): Promise<void> {
+  public async load(shopId: number): Promise<void> {
     await this.bot.waitUntil(() =>
       this.bot.world.isActionAvailable(GameAction.LoadShop),
     );
-    this.bot.flash.call(() =>
-      swf.shopLoad(Number.parseInt(String(shopId), 10)),
-    );
+    this.bot.flash.call("world.sendLoadShopRequest", shopId);
     await this.bot.waitUntil(() => this.isShopLoaded());
   }
 
@@ -163,17 +168,15 @@ export class Shops {
    *
    * @param shopId - The shop ID.
    */
-  public loadHairShop(shopId: number | string): void {
-    this.bot.flash.call(() =>
-      swf.shopLoadHairShop(Number.parseInt(String(shopId), 10)),
-    );
+  public loadHairShop(shopId: number): void {
+    this.bot.flash.call("world.sendLoadHairShopRequest", shopId);
   }
 
   /**
    * Opens the Armor Customization menu.
    */
   public openArmorCustomizer(): void {
-    this.bot.flash.call(() => swf.shopLoadArmorCustomize());
+    this.bot.flash.call("openArmorCustomize");
   }
 
   /**

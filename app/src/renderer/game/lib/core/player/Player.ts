@@ -1,4 +1,5 @@
 import { EntityState } from "@vexed/game";
+import type { MoveToAreaPacket } from "~/game/packet-handlers/json/move-to-area";
 import { factions } from "~/lib/stores/faction";
 import type { Bot } from "../Bot";
 import { Bank } from "./Bank";
@@ -14,6 +15,14 @@ export enum BoostType {
 }
 
 export class Player {
+  #cell!: string;
+
+  #pad!: string;
+
+  #x!: number;
+
+  #y!: number;
+
   public readonly bank!: Bank;
 
   public readonly house!: House;
@@ -138,7 +147,7 @@ export class Player {
    * The player's current position.
    */
   public get position(): [number, number] {
-    return this.bot.flash.call(() => swf.playerGetPosition());
+    return [this.#x, this.#y];
   }
 
   /**
@@ -167,14 +176,14 @@ export class Player {
    * The cell the player is in, in the map.
    */
   public get cell(): string {
-    return this.bot.flash.call(() => swf.playerGetCell());
+    return this.#cell;
   }
 
   /**
    * The pad the player is in, in the map.
    */
   public get pad(): string {
-    return this.bot.flash.call(() => swf.playerGetPad());
+    return this.#pad;
   }
 
   /**
@@ -219,5 +228,23 @@ export class Player {
       default:
         return false;
     }
+  }
+
+  public _moveToArea() {
+    const me = this.bot.world.players.me;
+    if (me) {
+      this.#cell = me.data.strFrame;
+      this.#pad = me.data.strPad;
+    }
+  }
+
+  public _moveToCell(cell: string, pad: string) {
+    this.#cell = cell;
+    this.#pad = pad;
+  }
+
+  public _mv(x: number, y: number) {
+    this.#x = x;
+    this.#y = y;
   }
 }

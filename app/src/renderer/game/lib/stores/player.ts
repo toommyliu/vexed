@@ -5,18 +5,19 @@ import type { PlayersStore } from "./store";
 
 const store = new Collection<string, Avatar>();
 const entIds = new Map<string, number>(); // lowercase username -> entity id
+let myUsername: string | undefined;
 
 const register = (username: string, entId: number) => {
   const lower = username.toLowerCase();
   if (entIds.has(lower)) {
-    console.warn(
-      `Player ${username} is already registered. have: ${entIds.get(lower)}, want: ${entId}`,
-    );
+    // console.warn(
+    //   `Player ${username} is already registered. have: ${entIds.get(lower)}, want: ${entId}`,
+    // );
     return;
   }
 
   entIds.set(lower, entId);
-  console.log(`register player: ${lower} :: ${entId}`);
+  // console.log(`register player: ${lower} :: ${entId}`);
 };
 
 export const players: PlayersStore<string, Avatar, AvatarData> = {
@@ -25,8 +26,8 @@ export const players: PlayersStore<string, Avatar, AvatarData> = {
     store.clear();
     entIds.clear();
   },
-  has: (key: string) => store.has(key),
-  get: (key: string) => store.get(key),
+  has: (key: string) => store.has(key.toLowerCase()),
+  get: (key: string) => store.get(key.toLowerCase()),
   register,
   add: (player: AvatarData) => {
     const lower = player.uoName; // already lowercased
@@ -34,16 +35,23 @@ export const players: PlayersStore<string, Avatar, AvatarData> = {
     register(lower, player.entID);
   },
   set: (key: string, player: AvatarData) => {
-    store.set(key, new Avatar(player));
+    store.set(key.toLowerCase(), new Avatar(player));
     register(key.toLowerCase(), player.entID);
   },
   remove: (key: string) => {
     entIds.delete(key.toLowerCase());
-    store.delete(key);
+    store.delete(key.toLowerCase());
   },
 
   getByName: (name: string) =>
     store.find((avatar) => equalsIgnoreCase(avatar.username ?? "", name)),
   getById: (id: number) => store.find((avatar) => avatar.data.entID === id),
   findBy: (predicate: (value: Avatar) => boolean) => store.find(predicate),
+
+  get me() {
+    return myUsername ? store.get(myUsername) : undefined;
+  },
+  setMe(username: string) {
+    myUsername = username.toLowerCase();
+  },
 };

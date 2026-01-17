@@ -91,7 +91,7 @@ export class Combat {
    * Whether the player has a target.
    */
   public hasTarget(): boolean {
-    return Boolean(this.bot.flash.call<boolean>(() => swf.combatHasTarget()));
+    return this.bot.flash.call<boolean>(() => swf.combatHasTarget());
   }
 
   /**
@@ -192,14 +192,15 @@ export class Combat {
    * Cancels the current target.
    */
   public cancelTarget(): void {
-    this.bot.flash.call(() => swf.combatCancelTarget());
+    this.cancelAutoAttack();
+    this.bot.flash.call("world.cancelTarget"); // cancel target
   }
 
   /**
    * Cancels an auto attack.
    */
   public cancelAutoAttack(): void {
-    this.bot.flash.call(() => swf.combatCancelAutoAttack());
+    this.bot.flash.call("world.cancelAutoAttack");
   }
 
   /**

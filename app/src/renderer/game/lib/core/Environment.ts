@@ -1,8 +1,8 @@
 import { client } from "~/shared/tipc";
 import type { EnvironmentUpdatePayload } from "~/shared/types";
 import { normalizeId } from "../../util/normalizeId";
-import type { Bot } from "./Bot";
 import type { QuestsJob } from "../jobs/quests";
+import type { Bot } from "./Bot";
 
 export class Environment {
   private _questIds = new Set<number>();

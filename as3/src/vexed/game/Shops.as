@@ -110,25 +110,6 @@ package vexed.game {
       return sellByName(String(id), quantity);
     }
 
-    public static function load(shopId:int):void {
-      game.world.sendLoadShopRequest(shopId);
-    }
-
-    public static function loadHairShop(shopId:int):void {
-      game.world.sendLoadHairShopRequest(shopId);
-    }
-
-    public static function loadArmorCustomize():void {
-      game.openArmorCustomize();
-    }
-
-    public static function isMergeShop():Boolean {
-      if (!game.world.shopinfo)
-        return false;
-
-      return game.isMergeShop(game.world.shopinfo);
-    }
-
     public static function canBuyItem(itemName:String):Boolean {
       if (!game.world.shopinfo)
         return false;

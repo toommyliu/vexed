@@ -66,14 +66,16 @@ export class Bank {
    * @param key - The name or ID of the item.
    */
   public async deposit(key: number | string): Promise<void> {
-    // await this.open();
+    const invItem = this.bot.player.inventory.get(key);
+    if (!invItem) return;
 
-    this.bot.flash.call<boolean>(() => swf.bankDeposit(key));
+    await this.open();
+    this.bot.flash.call("world.sendBankFromInvRequest", invItem.data);
     await this.bot.waitUntil(
       () =>
         this.bot.auth.isLoggedIn() &&
-        this.get(key) !== null &&
-        this.bot.player.inventory.get(key) === null,
+        this.get(key) !== undefined &&
+        this.bot.player.inventory.get(key) === undefined,
     );
   }
 
@@ -85,7 +87,10 @@ export class Bank {
   public async depositMultiple(items: (number | string)[]): Promise<void> {
     if (!Array.isArray(items) || !items.length) return;
 
-    await Promise.all(items.map(async (item) => this.deposit(item)));
+    for (const item of items) {
+      await this.deposit(item);
+      await this.bot.sleep(500);
+    }
   }
 
   /**
@@ -96,23 +101,30 @@ export class Bank {
   public async withdraw(key: number | string): Promise<void> {
     await this.open();
 
-    if (!this.get(key) || this.bot.player.inventory.get(key)) return;
+    const item = this.get(key);
+    if (!item || this.bot.player.inventory.get(key)) return;
 
-    this.bot.flash.call<boolean>(() => swf.bankWithdraw(key));
+    this.bot.flash.call("world.sendBankToInvRequest", item.data);
 
     await this.bot.waitUntil(
       () =>
         this.bot.auth.isLoggedIn() &&
-        this.get(key) === null &&
-        this.bot.player.inventory.get(key) !== null,
+        this.get(key) !== undefined &&
+        this.bot.player.inventory.get(key) === undefined,
     );
   }
 
+  /**
+   * Takes multiple items out of the bank.
+   *
+   * @param items - The list of items to take out of the bank.
+   */
   public async withdrawMultiple(items: (number | string)[]): Promise<void> {
     if (!Array.isArray(items) || !items.length) return;
 
     for (const item of items) {
       await this.withdraw(item);
+      await this.bot.sleep(500);
     }
   }
 
@@ -128,17 +140,22 @@ export class Bank {
   ): Promise<void> {
     await this.open();
 
-    const isInBank = () => Boolean(this.get(bankItem));
-    const isInInventory = () =>
-      Boolean(this.bot.player.inventory.get(inventoryItem));
+    const bankItemData = this.get(bankItem)?.data;
+    const inventoryItemData =
+      this.bot.player.inventory.get(inventoryItem)?.data;
 
-    if (!isInBank() || !isInInventory()) {
-      return;
-    }
+    if (!bankItemData || !inventoryItemData) return;
 
-    this.bot.flash.call(() => swf.bankSwap(inventoryItem, bankItem));
+    this.bot.flash.call(
+      "world.sendBankSwapRequest",
+      bankItemData,
+      inventoryItemData,
+    );
     await this.bot.waitUntil(
-      () => this.bot.auth.isLoggedIn() && !isInBank() && !isInInventory(),
+      () =>
+        this.bot.auth.isLoggedIn() &&
+        this.get(bankItem) === undefined &&
+        this.bot.player.inventory.get(inventoryItem) === undefined,
     );
   }
 
@@ -202,6 +219,6 @@ export class Bank {
    * Whether the bank ui is open.
    */
   public isOpen(): boolean {
-    return this.bot.flash.call(() => swf.bankIsOpen());
+    return this.bot.flash.get("ui.mcPopup.currentLabel", true) === "Bank";
   }
 }

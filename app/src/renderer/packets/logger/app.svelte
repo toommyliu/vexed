@@ -160,9 +160,9 @@
     addPacket(packet.packet, type);
   });
 
-  handlers.game.gameReloaded.listen(() => {
-    on = false;
-  });
+  // handlers.game.gameReloaded.listen(() => {
+  //   on = false;
+  // });
 </script>
 
 <div class="bg-background flex h-screen flex-col">

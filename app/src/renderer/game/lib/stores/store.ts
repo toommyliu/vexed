@@ -56,7 +56,17 @@ export interface PlayersStore<K, V, D = V> extends Store<K, V, D> {
   getById(id: number): V | undefined;
 
   /**
+   * The current player's Avatar (self)
+   */
+  readonly me: V | undefined;
+
+  /**
    * Register a player by username and entity ID
    */
   register(username: string, entId: number): void;
+
+  /**
+   * Set the current player by username
+   */
+  setMe(username: string): void;
 }

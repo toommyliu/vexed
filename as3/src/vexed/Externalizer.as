@@ -4,8 +4,6 @@ package vexed
   import vexed.module.Modules;
   import vexed.game.*;
   import flash.text.TextField;
-  // import flash.utils.Dictionary;
-  // import vexed.module.Drops;
 
   public class Externalizer
   {
@@ -189,11 +187,6 @@ package vexed
       externalize("shopCanBuyItem", Shops.canBuyItem);
       externalize("shopIsMergeShop", Shops.isMergeShop);
 
-      // TempInventory
-      externalize("tempInventoryGetItems", TempInventory.getItems);
-      externalize("tempInventoryGetItem", TempInventory.getItem);
-      externalize("tempInventoryContains", TempInventory.contains);
-
       // World
       externalize("worldIsLoaded", World.isLoaded);
       externalize("worldGetPlayerNames", World.getPlayerNames);
@@ -231,15 +224,6 @@ package vexed
 
           return false;
         });
-      // externalize("startDrops", function():void {
-      // Modules.enable("Drops");
-      // });
-      // externalize("getDrops", function():Dictionary {
-      // return Drops.getDrops();
-      // });
-      // externalize("getDropsHumanized", function():Object {
-      // return Drops.getDropsHumanized();
-      // });
 
       debug("Externalizer::init done.");
     }

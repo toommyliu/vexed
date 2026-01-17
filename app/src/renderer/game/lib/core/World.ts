@@ -1,11 +1,19 @@
 import { Monster, type ItemData, GameAction } from "@vexed/game";
 import { equalsIgnoreCase } from "@vexed/utils";
 import { extractMonsterMapId, isMonsterMapId } from "~/utils/isMonMapId";
+import type { MoveToAreaPacket } from "../../packet-handlers/json/move-to-area";
 import { monsters } from "../stores/monster";
 import { players } from "../stores/player";
+import { parseMapStr } from "../util/parse-map-str";
 import type { Bot } from "./Bot";
 
 export class World {
+  #roomId!: number;
+
+  #roomName!: string;
+
+  #roomNumber!: number;
+
   public constructor(public readonly bot: Bot) {}
 
   /**
@@ -21,9 +29,7 @@ export class World {
    * @param name - The player name to check.
    */
   public isPlayerInMap(name: string) {
-    return this.playerNames.some((playerName) =>
-      equalsIgnoreCase(playerName, name),
-    );
+    return this.players.has(name);
   }
 
   /**
@@ -84,7 +90,7 @@ export class World {
    * Reloads the map.
    */
   public reload(): void {
-    this.bot.flash.call(() => swf.worldReload());
+    this.bot.flash.call("world.reloadCurrentMap");
   }
 
   /**
@@ -112,35 +118,30 @@ export class World {
    * Sets the player's spawnpoint.
    */
   public setSpawnPoint(cell?: string, pad?: string): void {
-    if (cell && pad) {
-      this.bot.flash.call("world.setSpawnPoint", cell, pad);
-      return;
-    }
-
-    this.bot.flash.call(() =>
-      swf.worldSetSpawnPoint(this.bot.player.cell, this.bot.player.pad),
-    );
+    const cellToUse = cell ?? this.bot.player.cell;
+    const padToUse = pad ?? this.bot.player.pad;
+    this.bot.flash.call("world.setSpawnPoint", cellToUse, padToUse);
   }
 
   /**
    * The current room area id.
    */
   public get roomId(): number {
-    return this.bot.flash.call(() => swf.worldGetRoomId());
+    return this.#roomId;
   }
 
   /**
    * The room number of the map.
    */
   public get roomNumber(): number {
-    return this.bot.flash.call(() => swf.worldGetRoomNumber());
+    return this.#roomNumber;
   }
 
   /**
    * The name of the map.
    */
   public get name(): string {
-    return this.bot.flash.call(() => swf.playerGetMap());
+    return this.#roomName;
   }
 
   /**
@@ -155,8 +156,7 @@ export class World {
     pad = "Spawn",
     ignoreCheck = false,
   ): Promise<void> {
-    const isSameCell = () =>
-      this.bot.player.cell.toLowerCase() === cell.toLowerCase();
+    const isSameCell = () => equalsIgnoreCase(this.bot.player.cell, cell);
     if (isSameCell() && !ignoreCheck) return;
 
     this.bot.flash.call(() => swf.playerJump(cell, pad));
@@ -185,40 +185,25 @@ export class World {
       { timeout: 5_000 },
     );
 
-    let mapStr = mapName;
-    // eslint-disable-next-line prefer-const
-    let [map_name, map_number] = mapStr.split("-");
-
-    if (this.name.toLowerCase() === map_name!.toLowerCase()) {
+    const parsed = parseMapStr(mapName);
+    if (parsed.length === 1 && equalsIgnoreCase(parsed[0], this.name)) {
       await this.jump(cell, pad);
       return;
     }
 
-    // If for some reason, the provided map number is invalid, assume a random large number
-    if (
-      map_number === "1e9" ||
-      map_number === "1e99" ||
-      Number.isNaN(
-        Number.parseInt(map_number!, 10),
-      ) /* any non-number, e.g yulgar-a*/
-    ) {
-      map_number = "100000";
-    }
+    let finalStr = parsed[0];
+    if (parsed[1]) finalStr += `-${parsed[1]}`;
 
-    mapStr = `${map_name}${map_number ? `-${map_number}` : ""}`;
-
-    this.bot.flash.call(() => swf.playerJoinMap(mapStr, cell, pad));
+    this.bot.flash.call(() => swf.playerJoinMap(finalStr, cell, pad));
     await this.bot.waitUntil(
-      () =>
-        !this.isLoading() &&
-        this.name.toLowerCase() === map_name!.toLowerCase(),
+      () => !this.isLoading() && equalsIgnoreCase(this.name, parsed[0]!),
       { timeout: 10_000 },
     );
 
     // Sometimes, the player might not end up in the correct cell/pad, even if specified
     if (
-      this.bot.player.cell.toLowerCase() !== cell.toLowerCase() ||
-      this.bot.player.pad.toLowerCase() !== pad.toLowerCase()
+      !equalsIgnoreCase(this.bot.player.cell, cell) ||
+      !equalsIgnoreCase(this.bot.player.pad, pad)
     ) {
       await this.jump(cell, pad);
     }
@@ -232,7 +217,7 @@ export class World {
    * @param playerName - The name of the player to goto.
    */
   public goto(playerName: string): void {
-    this.bot.flash.call(() => swf.playerGoTo(playerName));
+    this.bot.flash.call("world.goto", playerName);
   }
 
   /**
@@ -261,7 +246,7 @@ export class World {
     await this.bot.waitUntil(() =>
       this.isActionAvailable(GameAction.GetMapItem),
     );
-    this.bot.flash.call(() => swf.worldGetMapItem(itemId));
+    this.bot.flash.call("world.getMapitem", itemId);
     await this.bot.sleep(2_000);
   }
 
@@ -276,6 +261,70 @@ export class World {
       str += ".swf";
     }
 
-    this.bot.flash.call(() => swf.worldLoadSwf(str));
+    this.bot.flash.call("world.loadMap", str);
+  }
+
+  public _moveToArea(packet: MoveToAreaPacket): void {
+    this.players.clear();
+    this.monsters.clear();
+
+    // save map data
+    const [roomName, roomNumber] = parseMapStr(packet.areaName);
+    this.#roomName = roomName;
+    this.#roomNumber = Number(roomNumber);
+    this.#roomId = packet.areaId;
+
+    // save monster data
+    const monDefMap = new Map(
+      packet.mondef?.map((def) => [def.MonID, def]) ?? [],
+    );
+    const monMapMap = new Map(
+      packet.monmap?.map((monMapInfo) => [monMapInfo.MonMapID, monMapInfo]) ??
+        [],
+    );
+    for (const mon of packet.monBranch ?? []) {
+      const def = monDefMap.get(mon.MonID);
+      const mapInfo = monMapMap.get(String(mon.MonMapID));
+
+      const obj = {
+        monId: Number(mon.MonID),
+        monMapId: mon.MonMapID,
+        iLvl: mon.iLvl,
+        intHP: mon.intHP,
+        intHPMax: mon.intHPMax,
+        intMP: mon.intMP,
+        intMPMax: mon.intMPMax,
+        intState: mon.intState,
+        sRace: def?.sRace ?? "Unknown",
+        strMonName: def?.strMonName ?? "Unknown",
+        strFrame: mapInfo?.strFrame ?? "",
+      };
+      this.monsters.add(obj);
+    }
+
+    // save player data
+    for (const plyr of packet.uoBranch ?? []) {
+      const obj = {
+        intHP: plyr.intHP,
+        intHPMax: plyr.intHPMax,
+        intMP: plyr.intMP,
+        intMPMax: plyr.intMPMax,
+        intState: plyr.intState,
+        strFrame: plyr.strFrame,
+        strUsername: plyr.strUsername,
+        tx: plyr.tx,
+        ty: plyr.ty,
+        uoName: plyr.uoName,
+        entID: plyr.entID,
+        entType: plyr.entType,
+        intLevel: plyr.intLevel,
+        strPad: plyr.strPad,
+        afk: plyr.afk,
+      };
+      this.players.add(obj);
+
+      if (equalsIgnoreCase(plyr.strUsername, this.bot.auth.username))
+        this.players.setMe(plyr.uoName);
+    }
   }
 }
