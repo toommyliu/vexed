@@ -5,13 +5,20 @@ import { BaseEntity } from "./BaseEntity";
  * Represents a player in the world.
  */
 export class Avatar extends BaseEntity {
+  #data: AvatarData;
+
   public constructor(
     /**
      * Data about this player.
      */
-    public override data: AvatarData
+    data: AvatarData,
   ) {
     super(data);
+    this.#data = data;
+  }
+
+  public override get data(): AvatarData {
+    return this.#data;
   }
 
   /**
@@ -33,6 +40,14 @@ export class Avatar extends BaseEntity {
    */
   public get maxMp() {
     return this.data.intMPMax;
+  }
+
+  /**
+   * The player's current MP percentage.
+   */
+  public get mpPercentage(): number {
+    if (this.maxMp === 0) return 0;
+    return (this.mp / this.maxMp) * 100;
   }
 
   /**

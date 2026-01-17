@@ -1,4 +1,4 @@
-import { Monster, type ItemData, GameAction } from "@vexed/game";
+import { Monster, GameAction } from "@vexed/game";
 import { equalsIgnoreCase } from "@vexed/utils";
 import { extractMonsterMapId, isMonsterMapId } from "~/utils/isMonMapId";
 import type { MoveToAreaPacket } from "../../packet-handlers/json/move-to-area";
@@ -159,7 +159,7 @@ export class World {
     const isSameCell = () => equalsIgnoreCase(this.bot.player.cell, cell);
     if (isSameCell() && !ignoreCheck) return;
 
-    this.bot.flash.call(() => swf.playerJump(cell, pad));
+    this.bot.flash.call("world.moveToCell", cell, pad);
     await this.bot.waitUntil(isSameCell);
   }
 
@@ -177,7 +177,6 @@ export class World {
   ): Promise<void> {
     // Make sure the player is alive to be able to do the transfer.
     await this.bot.waitUntil(() => this.bot.player.alive);
-
     await this.bot.combat.exit();
 
     await this.bot.waitUntil(
@@ -194,7 +193,7 @@ export class World {
     let finalStr = parsed[0];
     if (parsed[1]) finalStr += `-${parsed[1]}`;
 
-    this.bot.flash.call(() => swf.playerJoinMap(finalStr, cell, pad));
+    this.bot.flash.call("world.gotoTown", finalStr, cell, pad);
     await this.bot.waitUntil(
       () => !this.isLoading() && equalsIgnoreCase(this.name, parsed[0]!),
       { timeout: 10_000 },
@@ -218,14 +217,6 @@ export class World {
    */
   public goto(playerName: string): void {
     this.bot.flash.call("world.goto", playerName);
-  }
-
-  /**
-   * The list of all items in the world.
-   *
-   */
-  public get itemTree(): ItemData[] {
-    return this.bot.flash.call(() => swf.worldGetItemTree());
   }
 
   /**
@@ -324,7 +315,7 @@ export class World {
       this.players.add(obj);
 
       if (equalsIgnoreCase(plyr.strUsername, this.bot.auth.username))
-        this.players.setMe(plyr.uoName);
+        this.players.setMe(plyr.strUsername);
     }
   }
 }

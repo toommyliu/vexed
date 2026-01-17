@@ -30,17 +30,21 @@ registerJsonHandler<CtPacket>("ct", (bot, packet) => {
   }
 
   // player
-  // if (typeof packet?.p === "object") {
-  //   for (const playerName in packet.p) {
-  //     if (!Object.hasOwn(packet.p, playerName)) continue;
-  //     const data = packet.p[playerName];
-  //     if (data?.intState === 0 && data?.intHP === 0) {
-  //       bot.emit("playerDeath", playerName);
-  //       const entId = AuraStore.getPlayerEntId(playerName);
-  //       if (entId !== undefined) AuraStore.clearPlayerAuras(entId);
-  //     }
-  //   }
-  // }
+  if (typeof packet?.p === "object") {
+    console.log("packet.p", packet.p);
+
+    for (const [playerName, data] of Object.entries(packet.p)) {
+      const player = bot.world.players.get(playerName);
+      if (!player) continue;
+
+      if (typeof data?.intState === "number")
+        player.data.intState = data.intState;
+      if (typeof data?.intHP === "number") player.data.intHP = data.intHP;
+      if (typeof data?.intMP === "number") player.data.intMP = data.intMP;
+
+      // TODO: auras
+    }
+  }
 
   // TODO: auras
   // if (Array.isArray(packet?.a)) {

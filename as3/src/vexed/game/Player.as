@@ -3,37 +3,7 @@ package vexed.game {
 
   public class Player {
     private static var game:Object = Main.getInstance().getGame();
-
-    public static function joinMap(map:String, cell:String = "Enter", pad:String = "Spawn"):void {
-      if (!map)
-        return;
-
-      game.world.gotoTown(map, cell, pad);
-    }
-
-    public static function getMap():String {
-      return game.world.strMapName;
-    }
-
-    public static function jump(cell:String, pad:String = "Spawn"):void {
-      if (!cell)
-        return;
-
-      game.world.moveToCell(cell, pad);
-    }
-
-    public static function getCell():String {
-      return game.world.strFrame;
-    }
-
-    public static function getPad():String {
-      return game.world.strPad;
-    }
-
-    public static function getFactions():Array {
-      return game.world.myAvatar.factions;
-    }
-
+    
     public static function getState():int {
       return game.world.myAvatar.dataLeaf.intState;
     }

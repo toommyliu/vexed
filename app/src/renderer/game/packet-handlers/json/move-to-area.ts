@@ -1,10 +1,7 @@
 import { registerJsonHandler } from "../registry";
 
 registerJsonHandler<MoveToAreaPacket>("moveToArea", (bot, packet) => {
-  console.log("packet", packet);
-
   bot.world._moveToArea(packet);
-  bot.player._moveToArea();
 });
 
 export type MoveToAreaPacket = {

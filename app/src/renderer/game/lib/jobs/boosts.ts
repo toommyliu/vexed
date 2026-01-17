@@ -1,5 +1,5 @@
 import type { Bot } from "~/renderer/game/lib/core/Bot";
-import { BoostType } from "../core/player/Player";
+import { type BoostType, BoostTypes } from "../core/player/Player";
 import { Job } from "./Job";
 
 export class BoostsJob extends Job {
@@ -25,10 +25,10 @@ export class BoostsJob extends Job {
 
   private resolveBoostType(name: string): BoostType | null {
     const lower = name.toLowerCase();
-    if (lower.includes("gold")) return BoostType.Gold;
-    if (lower.includes("xp")) return BoostType.Exp;
-    if (lower.includes("rep")) return BoostType.Rep;
-    if (lower.includes("class")) return BoostType.ClassPoints;
+    if (lower.includes("gold")) return BoostTypes.Gold;
+    if (lower.includes("xp")) return BoostTypes.Exp;
+    if (lower.includes("rep")) return BoostTypes.Rep;
+    if (lower.includes("class")) return BoostTypes.ClassPoints;
     return null;
   }
 }

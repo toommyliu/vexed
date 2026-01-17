@@ -11,7 +11,15 @@ import { EntityState } from "../types/EntityState";
 export abstract class BaseEntity {
   #auras: Aura[] = [];
 
-  protected constructor(public data: BaseEntityData) {}
+  #data: BaseEntityData;
+
+  protected constructor(data: BaseEntityData) {
+    this.#data = data;
+  }
+
+  public get data(): BaseEntityData {
+    return this.#data;
+  }
 
   /**
    * The entity's current HP.
@@ -25,6 +33,14 @@ export abstract class BaseEntity {
    */
   public get maxHp(): number {
     return this.data.intHPMax;
+  }
+
+  /**
+   * The entity's current HP percentage.
+   */
+  public get hpPercentage(): number {
+    if (this.maxHp === 0) return 0;
+    return (this.hp / this.maxHp) * 100;
   }
 
   /**

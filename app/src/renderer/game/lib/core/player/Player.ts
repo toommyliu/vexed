@@ -1,5 +1,5 @@
-import { EntityState } from "@vexed/game";
-import type { MoveToAreaPacket } from "~/game/packet-handlers/json/move-to-area";
+import { Avatar, type AvatarData } from "@vexed/game";
+import type { EquipItemPacket } from "~/game/packet-handlers/json/equip-item";
 import { factions } from "~/lib/stores/faction";
 import type { Bot } from "../Bot";
 import { Bank } from "./Bank";
@@ -7,21 +7,17 @@ import { House } from "./House";
 import { Inventory } from "./Inventory";
 import { TempInventory } from "./TempInventory";
 
-export enum BoostType {
-  ClassPoints = "classPoints",
-  Exp = "exp",
-  Gold = "gold",
-  Rep = "rep",
-}
+export const BoostTypes = {
+  ClassPoints: "classPoints",
+  Exp: "exp",
+  Gold: "gold",
+  Rep: "rep",
+} as const;
 
-export class Player {
-  #cell!: string;
+export type BoostType = (typeof BoostTypes)[keyof typeof BoostTypes];
 
-  #pad!: string;
-
-  #x!: number;
-
-  #y!: number;
+export class Player extends Avatar {
+  #className!: string;
 
   public readonly bank!: Bank;
 
@@ -32,10 +28,20 @@ export class Player {
   public readonly tempInventory!: TempInventory;
 
   public constructor(public readonly bot: Bot) {
+    super({} as AvatarData); // we don't have data yet
+
     this.bank = new Bank(bot);
     this.house = new House(bot);
     this.inventory = new Inventory(bot);
     this.tempInventory = new TempInventory(bot);
+  }
+
+  private get me() {
+    return this.bot.world.players.me;
+  }
+
+  public override get data(): AvatarData {
+    return this.me?.data ?? ({} as AvatarData);
   }
 
   /**
@@ -49,77 +55,7 @@ export class Player {
    * The name of the player's equipped class.
    */
   public get className(): string {
-    return this.bot.flash.call(() => swf.playerGetClassName());
-  }
-
-  /**
-   * The state of the player.
-   */
-  public get state(): (typeof EntityState)[keyof typeof EntityState] {
-    return this.bot.flash.call(() => swf.playerGetState());
-  }
-
-  /**
-   * Whether the player is in combat.
-   */
-  public isInCombat() {
-    return this.state === EntityState.InCombat;
-  }
-
-  /**
-   * The health of the player.
-   */
-  public get hp(): number {
-    return this.bot.flash.call(() => swf.playerGetHp());
-  }
-
-  /**
-   * The maximum health of the player.
-   */
-  public get maxHp(): number {
-    return this.bot.flash.call(() => swf.playerGetMaxHp());
-  }
-
-  /**
-   * The health percentage of the player.
-   */
-  public get hpPercentage(): number {
-    return (this.hp / this.maxHp) * 100;
-  }
-
-  /**
-   * Whether the player is alive.
-   */
-  public get alive(): boolean {
-    return this.hp > 0;
-  }
-
-  /**
-   * The mana of the player.
-   */
-  public get mp(): number {
-    return this.bot.flash.call(() => swf.playerGetMp());
-  }
-
-  /**
-   * The maximum mana of the player.
-   */
-  public get maxMp(): number {
-    return this.bot.flash.call(() => swf.playerGetMaxMp());
-  }
-
-  /**
-   * The percentage of mana the player has.
-   */
-  public get mpPercentage(): number {
-    return (this.mp / this.maxMp) * 100;
-  }
-
-  /**
-   * The level of the player.
-   */
-  public get level(): number {
-    return this.bot.flash.call(() => swf.playerGetLevel());
+    return this.#className;
   }
 
   /**
@@ -133,7 +69,7 @@ export class Player {
    * Whether the player is AFK.
    */
   public isAFK(): boolean {
-    return this.bot.flash.call(() => swf.playerIsAfk());
+    return this.bot.world.players.me?.data.afk ?? false;
   }
 
   /**
@@ -147,7 +83,9 @@ export class Player {
    * The player's current position.
    */
   public get position(): [number, number] {
-    return [this.#x, this.#y];
+    const me = this.bot.world.players.me;
+    if (!me) return [0, 0];
+    return [me.data.tx, me.data.ty];
   }
 
   /**
@@ -157,11 +95,7 @@ export class Player {
    * @param y - The y coordinate to walk to.
    * @param walkSpeed - The speed to walk at.
    */
-  public walkTo(
-    x: number | string,
-    y: number | string,
-    walkSpeed?: number | string,
-  ): void {
+  public walkTo(x: number, y: number, walkSpeed?: number): void {
     if (!this.bot.player.alive) return;
 
     this.bot.flash.call(() =>
@@ -170,20 +104,6 @@ export class Player {
 
     const roomId = this.bot.world.roomId;
     this.bot.packets.sendServer(`%xt%zm%mv%${roomId}%${x}%${y}%${walkSpeed}%`);
-  }
-
-  /**
-   * The cell the player is in, in the map.
-   */
-  public get cell(): string {
-    return this.#cell;
-  }
-
-  /**
-   * The pad the player is in, in the map.
-   */
-  public get pad(): string {
-    return this.#pad;
   }
 
   /**
@@ -213,38 +133,53 @@ export class Player {
    * @param type - The type of boost to check.
    * @returns Whether the boost is active.
    */
-  public isBoostActive(
-    type: (typeof BoostType)[keyof typeof BoostType],
-  ): boolean {
+  public isBoostActive(type: BoostType): boolean {
     switch (type) {
-      case BoostType.Gold:
+      case BoostTypes.Gold:
         return this.bot.flash.get("world.myAvatar.objData.iBoostG", true) > 0;
-      case BoostType.Exp:
+      case BoostTypes.Exp:
         return this.bot.flash.get("world.myAvatar.objData.iBoostXP", true) > 0;
-      case BoostType.Rep:
+      case BoostTypes.Rep:
         return this.bot.flash.get("world.myAvatar.objData.iBoostRep", true) > 0;
-      case BoostType.ClassPoints:
+      case BoostTypes.ClassPoints:
         return this.bot.flash.get("world.myAvatar.objData.iBoostCP", true) > 0;
       default:
         return false;
     }
   }
 
-  public _moveToArea() {
-    const me = this.bot.world.players.me;
-    if (me) {
-      this.#cell = me.data.strFrame;
-      this.#pad = me.data.strPad;
-    }
-  }
-
   public _moveToCell(cell: string, pad: string) {
-    this.#cell = cell;
-    this.#pad = pad;
+    if (!this.me) return;
+    this.data.strFrame = cell;
+    this.data.strPad = pad;
   }
 
-  public _mv(x: number, y: number) {
-    this.#x = x;
-    this.#y = y;
+  public _mv(xPos: number, yPos: number) {
+    if (!this.me) return;
+    this.data.tx = xPos;
+    this.data.ty = yPos;
+  }
+
+  public _equipItem(packet: EquipItemPacket) {
+    const item = this.inventory.get(packet.ItemID);
+    if (!item) return;
+
+    // unequip the previously equipped item if it exists
+    const previousItem = this.inventory.items
+      .all()
+      .find((val) => val.data.bEquip === 1 && val.data.sES === packet.strES);
+    if (previousItem) {
+      console.log(`equipItem :: unequipping ${previousItem.name}`);
+      previousItem.data.bEquip = 0;
+    }
+
+    // flag the item as equipped
+    console.log(`equipItem :: ${item.name}`);
+    item.data.bEquip = 1;
+
+    // equip class?
+    if (packet?.strES === "ar") {
+      this.#className = item.name.toUpperCase(); // backward compatibility
+    }
   }
 }

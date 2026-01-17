@@ -24,7 +24,7 @@ export class CommandBuyScrollOfLifeSteal extends Command {
     }
 
     await this.bot.world.join("arcangrove", "Potion", "Right");
-    await this.bot.shops.load("211");
+    await this.bot.shops.load(211);
 
     await this.bot.shops.buyByName(ITEM, count);
   }

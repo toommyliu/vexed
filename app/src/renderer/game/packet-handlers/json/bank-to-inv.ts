@@ -1,5 +1,3 @@
-// {"t":"xt","b":{"r":-1,"o":{"ItemID":"45739","cmd":"bankToInv"}}}
-
 import { registerJsonHandler } from "../registry";
 
 registerJsonHandler<BankToInvPacket>("bankToInv", (bot, packet) => {

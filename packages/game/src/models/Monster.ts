@@ -5,12 +5,20 @@ import type { BaseEntityData } from "../types/BaseEntityData";
  * Represents a monster.
  */
 export class Monster extends BaseEntity {
+  #data: MonsterData;
+
   public constructor(
     /**
      * Data about this monster.
-     */ public override data: MonsterData
+     */
+    data: MonsterData,
   ) {
     super(data);
+    this.#data = data;
+  }
+
+  public override get data(): MonsterData {
+    return this.#data;
   }
 
   /**
