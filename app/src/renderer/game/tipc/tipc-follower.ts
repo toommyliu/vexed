@@ -73,6 +73,9 @@ type UotlPacket = {
     type: string;
   };
 };
+
+// TODO: refactor state
+
 function packetHandler(packet: UotlPacket) {
   // Does it make sense to use run copy walk handler?
   if (!on || !config?.name) return;

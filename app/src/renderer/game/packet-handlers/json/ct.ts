@@ -31,8 +31,6 @@ registerJsonHandler<CtPacket>("ct", (bot, packet) => {
 
   // player
   if (typeof packet?.p === "object") {
-    console.log("packet.p", packet.p);
-
     for (const [playerName, data] of Object.entries(packet.p)) {
       const player = bot.world.players.get(playerName);
       if (!player) continue;

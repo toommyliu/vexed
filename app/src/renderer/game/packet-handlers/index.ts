@@ -12,6 +12,7 @@ import "./json/load-inventory-big";
 import "./json/move-to-area";
 import "./json/mtls";
 import "./json/unequip-item";
+import "./json/uotls";
 
 import "./str/move-to-cell";
 import "./str/mv";
