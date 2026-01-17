@@ -1,5 +1,7 @@
 import { registerJsonHandler } from "../registry";
 
+// TOOD: load bank
+
 registerJsonHandler<BankFromInvPacket>("bankFromInv", (bot, data) => {
   const item =
     bot.player.inventory.get(data.ItemID) ??

@@ -1,5 +1,7 @@
 import { registerJsonHandler } from "../registry";
 
+// TODO:
+
 registerJsonHandler<BankToInvPacket>("bankToInv", (bot, packet) => {
   console.log("data", packet);
 

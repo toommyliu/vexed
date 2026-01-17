@@ -11,6 +11,7 @@ export type ItemData = {
   ItemID: number;
   ProcID?: number;
   bBank: number;
+  bHouse: number;
   bCoins: number;
   bEquip: number;
   bStaff: number;
