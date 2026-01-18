@@ -1,15 +1,16 @@
 import { registerJsonHandler } from "../registry";
 
-registerJsonHandler<SellItemPacket>("sellItem", (bot, packet) => {
-  // this seems unused
-  if (packet.bBank === 1) {
+// trash button
+
+registerJsonHandler<RemoveItemPacket>("removeItem", (bot, packet) => {
+  if (packet.bBank) {
     const item = bot.player.bank.items.findBy(
       (item) => item.data.CharItemID === packet.CharItemID,
     );
     if (item) bot.player.bank.items.remove(item.id);
 
     // console.log(
-    //   `[sellItem] sold bank item ${item?.name ?? packet.CharItemID} :: ${packet.iQty}x`,
+    //   `[removeItem] removed bank item ${item?.name ?? packet.CharItemID} :: ${packet.iQty}x`,
     // );
 
     return;
@@ -30,7 +31,7 @@ registerJsonHandler<SellItemPacket>("sellItem", (bot, packet) => {
     }
 
     // console.log(
-    //   `[sellItem] sold inventory item ${invItem.name} :: ${iQty}x, now at ${newQty}x`,
+    //   `[removeItem] removed inventory item ${invItem.name} :: ${iQty}x, now at ${newQty}x`,
     // );
 
     return;
@@ -51,21 +52,20 @@ registerJsonHandler<SellItemPacket>("sellItem", (bot, packet) => {
     }
 
     // console.log(
-    //   `[sellItem] sold house item ${houseItem.name} :: ${iQty}x, now at ${newQty}x`,
+    //   `[removeItem] removed house item ${houseItem.name} :: ${iQty}x, now at ${newQty}x`,
     // );
 
     return;
   }
 
-  console.warn("[sellItem] unhandled packet", packet);
+  console.warn("[removeItem] unhandled packet", packet);
 });
 
-type SellItemPacket = {
+type RemoveItemPacket = {
   CharItemID: number;
-  bBank?: number;
-  bCoins: number;
-  cmd: "sellItem";
-  iQty?: number;
-  iQtyNow?: number;
-  intAmount: number;
+  bBank: number;
+  bSuccess: number;
+  cmd: "removeItem";
+  iQty: number;
+  iQtyNow: number;
 };

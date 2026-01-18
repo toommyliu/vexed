@@ -182,4 +182,16 @@ export class Player extends Avatar {
       this.#className = item.name.toUpperCase(); // backward compatibility
     }
   }
+
+  public _unequipItem(itemID: number) {
+    const item = this.inventory.get(itemID);
+    if (!item) return;
+
+    console.log(`unequipItem :: ${item.name}`);
+    item.data.bEquip = 0;
+  }
+
+  public _updateClass(className: string) {
+    this.#className = className.toUpperCase();
+  }
 }

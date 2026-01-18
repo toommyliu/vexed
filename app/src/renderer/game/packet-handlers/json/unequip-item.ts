@@ -5,11 +5,7 @@ registerJsonHandler<UnequipItemPacket>("unequipItem", (bot, packet) => {
   const player = bot.world.players.getById(packet.uid);
   if (!player || !equalsIgnoreCase(player?.username, bot.auth.username)) return;
 
-  const item = bot.player.inventory.get(packet.ItemID);
-  if (!item) return;
-
-  console.log(`unequipItem :: ${item.name}`);
-  item.data.bEquip = 0;
+  bot.player._unequipItem(packet.ItemID);
 });
 
 type UnequipItemPacket = {

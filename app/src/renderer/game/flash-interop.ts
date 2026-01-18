@@ -75,7 +75,7 @@ window.connection = async ([state]: [string]) => {
   if (state === "OnConnection") {
     await bot.waitUntil(() => bot.player.isReady(), { indefinite: true });
     bot.emit("login");
-    await bot.world.join("nexus");
+    await bot.world.join("escherion-1", "Boss");
   } else if (state === "OnConnectionLost") {
     await bot.waitUntil(() => !bot.player.isReady(), { indefinite: true });
     bot.emit("logout");

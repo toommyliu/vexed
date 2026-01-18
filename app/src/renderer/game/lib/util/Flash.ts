@@ -130,6 +130,30 @@ export class Flash {
   }
 
   /**
+   * Gets an actionscript array object at the given location.
+   *
+   * @param path - The path of the object, relative to Game.
+   * @param index - The index of the object.
+   * @param parse - Whether to call JSON.parse on the return value.
+   */
+  public getArrayObject<T = any>(
+    path: string,
+    index: number,
+    parse = false,
+  ): T | null {
+    try {
+      const res = swf.getArrayObject(path, index);
+      if (parse === true) {
+        return JSON.parse(res) as T;
+      }
+
+      return res as T;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
    * Sets an actionscript object at the given location.
    *
    * @param path - The path of the object, relative to Game.

@@ -8,7 +8,7 @@ export class TempInventory {
    * Items in the player's temp inventory.
    */
   public get items() {
-    return tempInventory.all();
+    return tempInventory;
   }
 
   /**
