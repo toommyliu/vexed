@@ -3,7 +3,11 @@ import log from "electron-log/renderer";
 import { Bot } from "~/lib/Bot";
 import { AutoReloginJob } from "~/lib/jobs/autorelogin";
 import { client } from "~/shared/tipc";
-import { dispatchJson, dispatchStr } from "./packet-handlers";
+import {
+  dispatchClientStr,
+  dispatchJson,
+  dispatchStr,
+} from "./packet-handlers";
 import { appState, autoReloginState } from "./state.svelte";
 
 const logger = log.scope("game/flash-interop");
@@ -11,10 +15,22 @@ const logger = log.scope("game/flash-interop");
 const bot = Bot.getInstance();
 
 window.packetFromClient = ([packet]: [string]) => {
+  if (!packet) return;
+
   bot.emit("packetFromClient", packet);
+
+  const pkt = packet.slice("[Sending - STR]: ".length);
+  if (pkt.startsWith("%xt%")) {
+    const parts = pkt.split("%").filter(Boolean);
+    const cmd = parts[2];
+    if (!cmd) return;
+    dispatchClientStr(bot, cmd, parts);
+  }
 };
 
 window.packetFromServer = ([packet]: [string]) => {
+  if (!packet) return;
+
   bot.emit("packetFromServer", packet);
 
   if (packet.startsWith("{")) {
@@ -114,7 +130,7 @@ window.loaded = async () => {
       const decodedPath = decodeURIComponent(path!);
 
       await client.scripts.loadScript({ scriptPath: decodedPath });
-    } catch { }
+    } catch {}
   }
 };
 
