@@ -2,7 +2,7 @@
 export interface KillOptions {
   /** An ascending list of monster names or monMapIDs to kill. This can also be a string of monsterResolvables deliminted by a comma. */
   killPriority: string[] | string;
-  /** Optional AbortSignal that can be used to abort the kill operation early. When the signal is aborted, the kill method will immediately stop and resolve. */
+  /** Optional AbortSignal that can be used to abort kill operation early. When the signal is aborted, the kill method will immediately stop and resolve. */
   signal?: AbortSignal;
   /** Custom skill action function that provides alternative combat logic. It should be implemented as a closure that returns an async function. When provided, this function replaces the default skill rotation logic. The outer and inner functions are bound with `bot` context. Skill logic should be implemented in the inner function. */
   skillAction: (() => () => Promise<void>) | null;
