@@ -1,4 +1,3 @@
-import type { Aura } from "../types/Aura";
 import type { Avatar } from "./Avatar";
 import type { Monster } from "./Monster";
 
@@ -9,8 +8,6 @@ import { EntityState } from "../types/EntityState";
  * Base class for entities in the game world.
  */
 export abstract class BaseEntity {
-  #auras: Aura[] = [];
-
   #data: BaseEntityData;
 
   protected constructor(data: BaseEntityData) {
@@ -95,68 +92,6 @@ export abstract class BaseEntity {
    */
   public isHpPercentageGreaterThan(value: number) {
     return (this.hp / this.maxHp) * 100 >= value && !this.isDead();
-  }
-
-  /**
-   * The entity's auras.
-   */
-  public get auras(): Readonly<Aura[]> {
-    return [...this.#auras];
-  }
-
-  /**
-   * Retrieves an aura active on the entity.
-   *
-   * @param name - The aura name.
-   * @returns The aura with the specified name, or undefined if the entity does not have the aura.
-   */
-  public getAura(name: string): Aura | undefined {
-    return this.auras.find((aura) => aura.name === name);
-  }
-
-  /**
-   * Adds an aura to the entity.
-   *
-   * @param aura - The aura to add.
-   */
-  public addAura(aura: Aura): void {
-    this.#auras.push(aura);
-  }
-
-  /**
-   * Removes an aura from the entity.
-   *
-   * @param name - The name of the aura to remove.
-   */
-  public removeAura(name: string): void {
-    this.#auras = this.#auras.filter((aura) => aura.name !== name);
-  }
-
-  /**
-   * Removes all auras from the entity.
-   */
-  public clearAuras() {
-    this.#auras = [];
-  }
-
-  /**
-   * Whether the entity has the specified aura. If a value is provided,
-   * it will check if the aura has the specified value.
-   *
-   * @param name - The aura name.
-   * @param value - The value to check.
-   * @returns True if the entity has the specified aura, false otherwise. If a value is provided,
-   * it will check if the aura has the specified value.
-   */
-  public hasAura(name: string, value?: number): boolean {
-    const aura = this.getAura(name);
-    if (!aura) return false;
-
-    if (value !== undefined) {
-      return aura?.value === value;
-    }
-
-    return true;
   }
 
   /**
