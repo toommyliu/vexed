@@ -102,9 +102,9 @@ abstract class BaseTauntStrategy implements ITauntStrategy {
     this.logger = logger;
 
     if (!this.parseTarget()) {
-      this.logger.debug(
-        `[${this.getName()}] Failed to parse target: ${this.target}.`,
-      );
+      // this.logger.debug(
+      //   `[${this.getName()}] Failed to parse target: ${this.target}.`,
+      // );
       return false;
     }
 
@@ -137,10 +137,6 @@ abstract class BaseTauntStrategy implements ITauntStrategy {
       (mon) => mon.name.toLowerCase() === this.target.toLowerCase(),
     );
     if (mon) {
-      console.log(
-        `[CommandLoopTaunt] Found monster for target '${this.target}':`,
-        JSON.stringify(mon),
-      );
       this.targetMonMapId = mon.monMapId;
       return true;
     }
@@ -153,9 +149,9 @@ abstract class BaseTauntStrategy implements ITauntStrategy {
 
   protected onMonsterDeath(monMapId: number): void {
     if (this.targetMonMapId !== monMapId) return;
-    this.logger.debug(
-      `[${this.getName()}] Monster died (${this.target}), strategy complete`,
-    );
+    // this.logger.debug(
+    //   `[${this.getName()}] Monster died (${this.target}), strategy complete`,
+    // );
     this.stopped = true;
     this.isActive = false;
   }
@@ -177,9 +173,9 @@ abstract class BaseTauntStrategy implements ITauntStrategy {
       await this.bot.sleep(50);
     }
 
-    this.logger.debug(
-      `[${this.getName()}] TAUNT - Player ${this.playerIndex}/${this.maxPlayers} on ${this.target}`,
-    );
+    // this.logger.debug(
+    //   `[${this.getName()}] TAUNT - Player ${this.playerIndex}/${this.maxPlayers} on ${this.target}`,
+    // );
   }
 
   public cleanup(): void {
@@ -200,12 +196,9 @@ export class SimpleStrategy extends BaseTauntStrategy {
     this.bot.on("packetFromServer", handler);
     this.listeners.push({ event: "packetFromServer", handler });
 
-    console.log(
-      `[SimpleStrategy] Registered packet handler for target ${this.target} (mapId: ${this.targetMonMapId})`,
-    );
-    this.logger.debug(
-      `[${this.getName()}] Started for ${this.target} - Player ${this.playerIndex}/${this.maxPlayers}`,
-    );
+    // this.logger.debug(
+    //   `[${this.getName()}] Started for ${this.target} - Player ${this.playerIndex}/${this.maxPlayers}`,
+    // );
   }
 
   private onPacketFromServer(packet: string): void {
@@ -218,8 +211,6 @@ export class SimpleStrategy extends BaseTauntStrategy {
 
       if (cmd !== "ct") return;
 
-      console.log("[SimpleStrategy] CT packet received");
-
       const auras = data?.a as any[] | undefined;
       if (!Array.isArray(auras) || !auras?.length) return;
 
@@ -228,47 +219,42 @@ export class SimpleStrategy extends BaseTauntStrategy {
           continue;
 
         const monMapId = Number(aItem?.tInf?.split(":")[1]);
-        console.log(
-          `[SimpleStrategy] CT aura update for m:${monMapId} (target: ${this.targetMonMapId} - ${aItem?.tInf})`,
-        );
 
         if (monMapId !== this.targetMonMapId) continue;
 
         const auraList = aItem?.auras as any[] | undefined;
 
         for (const aura of auraList ?? []) {
-          console.log(`[SimpleStrategy] Aura: ${aura?.nam}`);
           if (aura?.nam !== FOCUS) continue;
 
-          console.log(`[SimpleStrategy] Focus detected on target!`);
-          this.logger.debug("focus detected");
+          // this.logger.debug("focus detected");
 
           if (this.focusLock) {
-            this.logger.debug(
-              `[${this.getName()}] Focus detected but locked, skipping`,
-            );
+            // this.logger.debug(
+            //   `[${this.getName()}] Focus detected but locked, skipping`,
+            // );
             return;
           }
 
           if (this.stopped) return;
 
           this.focusLock = true;
-          this.logger.debug(
-            `[${this.getName()}] FOCUS detected - Count: ${this.focusCount + 1}`,
-          );
+          // this.logger.debug(
+          //   `[${this.getName()}] FOCUS detected - Count: ${this.focusCount + 1}`,
+          // );
 
           setTimeout(async () => {
             this.focusLock = false;
-            this.logger.debug(`[${this.getName()}] Focus lock released`);
+            // this.logger.debug(`[${this.getName()}] Focus lock released`);
 
             if (
               this.bot.player.isReady() &&
               !this.focusLock &&
               this.shouldTaunt(this.focusCount)
             ) {
-              this.logger.debug(
-                `[${this.getName()}] It's player ${this.playerIndex}'s turn to taunt ${this.target}`,
-              );
+              // this.logger.debug(
+              //   `[${this.getName()}] It's player ${this.playerIndex}'s turn to taunt ${this.target}`,
+              // );
               await this.doTaunt();
             }
           }, 10_000); // 6s + 4s buffer
@@ -302,9 +288,9 @@ export class MessageStrategy extends BaseTauntStrategy {
     this.bot.on("ctMessage", handler);
     this.listeners.push({ event: "ctMessage", handler });
 
-    this.logger.debug(
-      `[${this.getName()}] Started for ${this.target} - Player ${this.playerIndex}/${this.maxPlayers}, msg: "${this.msg}"`,
-    );
+    // this.logger.debug(
+    //   `[${this.getName()}] Started for ${this.target} - Player ${this.playerIndex}/${this.maxPlayers}, msg: "${this.msg}"`,
+    // );
   }
 
   private async onCtMessage(
@@ -322,14 +308,14 @@ export class MessageStrategy extends BaseTauntStrategy {
       return;
     }
 
-    this.logger.debug(
-      `[${this.getName()}] Message detected - count: ${this.focusCount + 1}.`,
-    );
+    // this.logger.debug(
+    //   `[${this.getName()}] Message detected - count: ${this.focusCount + 1}.`,
+    // );
 
     if (this.shouldTaunt(this.focusCount)) {
-      this.logger.debug(
-        `[${this.getName()}] It's player ${this.playerIndex}'s turn to taunt ${this.target}`,
-      );
+      // this.logger.debug(
+      //   `[${this.getName()}] It's player ${this.playerIndex}'s turn to taunt ${this.target}`,
+      // );
       await this.doTaunt();
     }
 
@@ -364,9 +350,6 @@ export class CommandLoopTaunt extends Command {
       this.currentStrategy?.cleanup();
     });
 
-    console.log(
-      `[CommandLoopTaunt] Starting background execution with ${this.strategyInstances.length} strategies`,
-    );
     void this.executeNextStrategy();
   }
 
@@ -375,9 +358,6 @@ export class CommandLoopTaunt extends Command {
       !this.isRunning ||
       this.currentStrategyIndex >= this.strategyInstances.length
     ) {
-      console.log(
-        `[CommandLoopTaunt] Execution finished or strategies exhausted`,
-      );
       return;
     }
 
@@ -398,20 +378,14 @@ export class CommandLoopTaunt extends Command {
     );
 
     if (!isInitialized) {
-      console.log(
-        `[CommandLoopTaunt] Strategy ${this.currentStrategyIndex} failed to initialize`,
-      );
       this.currentStrategyIndex++;
       void this.executeNextStrategy();
       return;
     }
 
-    this.logger.debug(
-      `Start strategy ${this.currentStrategyIndex + 1}/${this.strategyInstances.length}: ${this.currentStrategy.getName()}`,
-    );
-    console.log(
-      `[CommandLoopTaunt] Started strategy: ${this.currentStrategy.getName()}`,
-    );
+    // this.logger.debug(
+    //   `Start strategy ${this.currentStrategyIndex + 1}/${this.strategyInstances.length}: ${this.currentStrategy.getName()}`,
+    // );
 
     this.currentStrategy.start();
 
