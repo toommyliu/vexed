@@ -63,4 +63,18 @@ export class Avatar extends BaseEntity {
   public get username() {
     return this.data.strUsername;
   }
+
+  /**
+   * Whether the player is AFK.
+   */
+  public isAFK() {
+    return this.data.afk;
+  }
+
+  /**
+   * The player's position.
+   */
+  public get position(): [number, number] {
+    return [this.data.tx, this.data.ty];
+  }
 }

@@ -19,3 +19,4 @@ export * from "./types/QuestData";
 export * from "./types/QuestInfo";
 export * from "./types/ServerData";
 export * from "./types/ShopItemData";
+export * from "./types/BoostType";
