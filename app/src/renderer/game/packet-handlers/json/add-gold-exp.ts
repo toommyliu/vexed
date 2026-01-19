@@ -1,4 +1,4 @@
-import { AuraStore } from "~/lib/util/AuraStore";
+import { EntityState } from "@vexed/game";
 import { registerJsonHandler } from "../registry";
 
 function isMonPkt(
@@ -9,14 +9,16 @@ function isMonPkt(
 
 registerJsonHandler<AddGoldExpPkt>("addGoldExp", async (bot, packet) => {
   if (isMonPkt(packet)) {
-    const getMonster = () =>
-      bot.world.availableMonsters.find((mon) => mon.monMapId === packet.id)!;
+    const monMapId = packet.id;
+    const monster = bot.world.monsters.get(monMapId);
+    if (!monster) return;
 
-    bot.emit("monsterDeath", packet.id);
-    await bot.waitUntil(() => Boolean(getMonster()?.alive));
-    bot.emit("monsterRespawn", getMonster());
+    bot.emit("monsterDeath", monMapId);
 
-    AuraStore.monsterAuras.delete(String(packet.id));
+    monster.clearAuras();
+    monster.data.intState = EntityState.Dead;
+    monster.data.intHP = 0;
+    monster.data.intMP = 0;
   }
 });
 

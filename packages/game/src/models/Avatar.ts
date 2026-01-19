@@ -1,16 +1,24 @@
-import { BaseEntity, type BaseEntityData } from "./BaseEntity";
+import type { AvatarData } from "../types/AvatarData";
+import { BaseEntity } from "./BaseEntity";
 
 /**
  * Represents a player in the world.
  */
 export class Avatar extends BaseEntity {
+  #data: AvatarData;
+
   public constructor(
     /**
      * Data about this player.
      */
-    public override data: AvatarData,
+    data: AvatarData,
   ) {
     super(data);
+    this.#data = data;
+  }
+
+  public override get data(): AvatarData {
+    return this.#data;
   }
 
   /**
@@ -35,6 +43,14 @@ export class Avatar extends BaseEntity {
   }
 
   /**
+   * The player's current MP percentage.
+   */
+  public get mpPercentage(): number {
+    if (this.maxMp === 0) return 0;
+    return (this.mp / this.maxMp) * 100;
+  }
+
+  /**
    * The player's level.
    */
   public get level() {
@@ -48,25 +64,3 @@ export class Avatar extends BaseEntity {
     return this.data.strUsername;
   }
 }
-
-export type AvatarData = BaseEntityData & {
-  afk: boolean;
-  // bResting: boolean;
-  entID: number;
-  entType: string;
-  intLevel: number;
-  intMP: number;
-  intMPMax: number;
-  intSP: number;
-  // intSPMax: number;
-  // mvtd: string;
-  // mvts: string;
-  // px: string;
-  // py: string;
-  // showCloak: boolean;
-  // showHelm: boolean;
-  strFrame: string;
-  strPad: string;
-  strUsername: string; // respects casing
-  uoName: string; // lowercased
-};

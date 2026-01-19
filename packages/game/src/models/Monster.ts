@@ -1,29 +1,38 @@
-import { BaseEntity, type BaseEntityData } from "./BaseEntity";
+import { BaseEntity } from "./BaseEntity";
+import type { MonsterData } from "../types/MonsterData";
 
 /**
  * Represents a monster.
  */
 export class Monster extends BaseEntity {
+  #data: MonsterData;
+
   public constructor(
     /**
      * Data about this monster.
-     */ public override data: MonsterData,
+     */
+    data: MonsterData,
   ) {
     super(data);
+    this.#data = data;
+  }
+
+  public override get data(): MonsterData {
+    return this.#data;
   }
 
   /**
    * The monMapID of the monster.
    */
   public get monMapId(): number {
-    return this.data.MonMapID;
+    return this.data.monMapId;
   }
 
   /**
    * The global ID of the monster.
    */
   public get id(): number {
-    return this.data.MonID;
+    return this.data.monId;
   }
 
   /**
@@ -46,13 +55,11 @@ export class Monster extends BaseEntity {
   public get name(): string {
     return this.data.strMonName;
   }
-}
 
-export type MonsterData = BaseEntityData & {
-  MonID: number;
-  MonMapID: number;
-  iLvl: number;
-  sRace: string;
-  strFrame: string;
-  strMonName: string;
-};
+  /**
+   * The cell the monster is in.
+   */
+  public get cell(): string {
+    return this.data.strFrame;
+  }
+}

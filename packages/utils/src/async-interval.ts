@@ -1,23 +1,29 @@
 // https://www.npmjs.com/package/interval-promise
 
-/**
- * @param {any} val - value to check
- * @returns {boolean} true if the value is then-able
- */
-function isPromise(val) {
+export interface IntervalOptions {
+  iterations?: number;
+  stopOnError?: boolean;
+}
+
+export type IntervalFunction = (
+  iteration: number,
+  stop: () => void
+) => Promise<any>;
+
+export type IntervalLength = number | ((iteration: number) => number);
+
+function isPromise<T = any>(val: any): val is Promise<T> {
   return val !== null && typeof val.then === "function";
 }
 
 /**
  * Executes a function at specified intervals with promise support and advanced control
- * @param {Function} func - The function to execute at each interval
- * @param {number|Function} intervalLength - The interval length in milliseconds or a function that returns it
- * @param {Object} options - Configuration options
- * @param {number} [options.iterations=Infinity] - Number of iterations to run
- * @param {boolean} [options.stopOnError=true] - Whether to stop on error
- * @returns {Promise<void>} A promise that resolves when all intervals are complete
  */
-async function interval(func, intervalLength, options = {}) {
+export async function interval(
+  func: IntervalFunction,
+  intervalLength: IntervalLength,
+  options: IntervalOptions = {}
+): Promise<void> {
   validateArgs(func, intervalLength, options);
 
   const defaults = {
@@ -27,7 +33,7 @@ async function interval(func, intervalLength, options = {}) {
   const settings = { ...defaults, ...options };
 
   // Track all active timeouts in an array
-  const activeTimeouts = [];
+  const activeTimeouts: NodeJS.Timeout[] = [];
 
   // Helper function to clear all pending timeouts
   const clearAllTimeouts = () => {
@@ -39,8 +45,8 @@ async function interval(func, intervalLength, options = {}) {
     }
   };
 
-  return new Promise((resolve, reject) => {
-    const callFunction = (currentIteration) => {
+  return new Promise<void>((resolve, reject) => {
+    const callFunction = (currentIteration: number) => {
       // Set up a way to track if a "stop" was requested by the user function
       let stopRequested = false;
       const stop = () => {
@@ -76,8 +82,8 @@ async function interval(func, intervalLength, options = {}) {
         clearAllTimeouts();
         reject(
           new Error(
-            'Function for "intervalLength" argument must return a non-negative integer.',
-          ),
+            'Function for "intervalLength" argument must return a non-negative integer.'
+          )
         );
         return;
       }
@@ -120,11 +126,12 @@ async function interval(func, intervalLength, options = {}) {
 
 /**
  * A helper function to validate the arguments passed to interval(...)
- * @param {any} func
- * @param {any} intervalLength
- * @param {any} options
  */
-function validateArgs(func, intervalLength, options) {
+function validateArgs(
+  func: IntervalFunction,
+  intervalLength: IntervalLength,
+  options: IntervalOptions
+) {
   // Validate "func"
   if (typeof func !== "function") {
     throw new TypeError('Argument 1, "func", must be a function.');
@@ -134,12 +141,12 @@ function validateArgs(func, intervalLength, options) {
   if (typeof intervalLength === "number") {
     if (!Number.isInteger(intervalLength) || intervalLength < 0) {
       throw new TypeError(
-        'Argument 2, "intervalLength", must be a non-negative integer or a function that returns a non-negative integer.',
+        'Argument 2, "intervalLength", must be a non-negative integer or a function that returns a non-negative integer.'
       );
     }
   } else if (typeof intervalLength !== "function") {
     throw new TypeError(
-      'Argument 2, "intervalLength", must be a non-negative integer or a function that returns a non-negative integer.',
+      'Argument 2, "intervalLength", must be a non-negative integer or a function that returns a non-negative integer.'
     );
   }
 
@@ -164,7 +171,7 @@ function validateArgs(func, intervalLength, options) {
     (!Number.isInteger(options.iterations) || options.iterations < 1)
   ) {
     throw new TypeError(
-      'Option "iterations" must be Infinity or an integer greater than 0.',
+      'Option "iterations" must be Infinity or an integer greater than 0.'
     );
   }
 
@@ -176,20 +183,3 @@ function validateArgs(func, intervalLength, options) {
     throw new TypeError('Option "stopOnError" must be a boolean.');
   }
 }
-
-function sleep(ms, signal) {
-  return new Promise((resolve, reject) => {
-    const timeoutId = setTimeout(resolve, ms);
-
-    if (signal) {
-      const onAbort = () => {
-        clearTimeout(timeoutId);
-        reject();
-      };
-
-      signal.addEventListener("abort", onAbort, { once: true });
-    }
-  });
-}
-
-module.exports = { interval, sleep };

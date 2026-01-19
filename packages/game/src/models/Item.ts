@@ -1,3 +1,5 @@
+import type { ItemData } from "../types/ItemData";
+
 /**
  * The base class for all-things item related.
  */
@@ -7,7 +9,7 @@ export class Item {
      * Data about this item
      */
     public data: ItemData,
-  ) { }
+  ) {}
 
   /**
    * The ID of the item.
@@ -174,44 +176,81 @@ export class Item {
   public isMaxed(): boolean {
     return this.quantity === this.maxStack;
   }
-}
 
-export type ItemData = {
-  CharID: number;
-  CharItemID: number;
-  EnhDPS: number;
-  EnhID: number;
-  EnhLvl: number;
-  EnhPatternID: number;
-  PatternID?: number | string;
-  EnhRng: number;
-  EnhRty: number;
-  ItemID: number;
-  ProcID?: number;
-  bBank: number;
-  bCoins: number;
-  bEquip: number;
-  bStaff: number;
-  bTemp: number;
-  bUpg: number;
-  bWear: number;
-  dPurchase: string;
-  iCost: number;
-  iDPS: number;
-  iHrs: number;
-  iLvl: number;
-  iQty: number;
-  iRng: number;
-  iRty: number;
-  iStk: number;
-  iType: number;
-  sDesc: string;
-  sES: string;
-  sElmt: string;
-  sFile: string;
-  sIcon: string;
-  sLink: string;
-  sMeta: string;
-  sName: string;
-  sType: string;
-};
+  /**
+   * Whether the item is member-only.
+   */
+  public isMember(): boolean {
+    return this.data.bUpg === 1;
+  }
+
+  /**
+   * The character ID of this item.
+   */
+  public get charItemId(): number {
+    return this.data.CharItemID;
+  }
+
+  /**
+   * Whether the item is equipped.
+   */
+  public isEquipped(): boolean {
+    return this.data.bEquip === 1;
+  }
+
+  /**
+   * Whether the item is currently being worn.
+   */
+  public isWearing(): boolean {
+    return this.data.bWear === 1;
+  }
+
+  /**
+   * The level of the item.
+   */
+  public get level(): number {
+    return this.data.iLvl;
+  }
+
+  /**
+   * The enhancement level of the item.
+   */
+  public get enhancementLevel(): number {
+    return this.data.EnhLvl;
+  }
+
+  /**
+   * The enhancement pattern ID of the item.
+   *
+   * @remarks
+   * 1: Adventurer
+   *
+   * 2: Fighter
+   *
+   * 3: Thief
+   *
+   * 4: Armsman
+   *
+   * 5: Hybrid
+   *
+   * 6: Wizard
+   *
+   * 7: Healer
+   *
+   * 8: Spellbreaker
+   *
+   * 9: Lucky
+   *
+   * 10: Forge (?)
+   */
+  public get enhancementPatternId(): number {
+    return this.data.EnhPatternID;
+  }
+
+  /**
+   * Whether the item is a boost.
+   */
+  public isBoost(): boolean {
+    return this.data.sType === "ServerUse";
+  }
+}

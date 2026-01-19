@@ -1,4 +1,4 @@
-import type { ItemData } from "~/lib/models/Item";
+import type { ItemData } from "@vexed/game";
 import { registerJsonHandler } from "../registry";
 
 registerJsonHandler<DropItemPacket>("dropItem", (bot, packet) => {
