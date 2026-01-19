@@ -297,10 +297,6 @@
         void client.game.launchWindow(WindowIds.FastTravels);
         break;
 
-      case "open-app-logs":
-        void client.game.launchWindow(WindowIds.AppLogs);
-        break;
-
       case "open-environment":
         void client.game.launchWindow(WindowIds.Environment);
         break;
