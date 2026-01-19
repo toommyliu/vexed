@@ -5,10 +5,8 @@ import "./json/drop-item";
 import "./json/event";
 import "./json/init-user-data";
 import "./json/init-user-datas";
-import "./json/load-inventory-big";
 import "./json/move-to-area";
 import "./json/mtls";
-import "./json/update-class";
 import "./json/uotls";
 
 import "./str/move-to-cell";
