@@ -12,7 +12,6 @@ export const BoostTypes = {
   Gold: "gold",
   Rep: "rep",
 } as const;
-
 export type BoostType = (typeof BoostTypes)[keyof typeof BoostTypes];
 
 export class Player extends Avatar {

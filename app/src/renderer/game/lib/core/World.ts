@@ -60,7 +60,7 @@ export class World {
    * A list of monsters in the cell.
    */
   public get availableMonsters() {
-    // TODO:
+    // TODO: need to update the type properly
     const ret = this.bot.flash.call(() => swf.worldGetCellMonsters());
     return Array.isArray(ret) ? ret.map((data) => new Monster(data)) : [];
   }
@@ -238,7 +238,7 @@ export class World {
     await this.bot.waitUntil(() =>
       this.isActionAvailable(GameAction.GetMapItem),
     );
-    this.bot.flash.call("world.getMapitem", itemId);
+    this.bot.flash.call("world.getMapItem", itemId);
     await this.bot.sleep(2_000);
   }
 

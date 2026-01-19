@@ -1,5 +1,5 @@
-import { ItemData } from "@vexed/game";
-import { Bot } from "~/renderer/game/lib/core/Bot";
+import type { ItemData } from "@vexed/game";
+import { Bot } from "~/lib/core/Bot";
 import { handlers } from "~/shared/tipc";
 import { GrabberDataType, LoaderDataType } from "~/shared/types";
 

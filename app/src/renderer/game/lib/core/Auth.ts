@@ -1,4 +1,4 @@
-import { Server, ServerData } from "@vexed/game";
+import { Server, type ServerData } from "@vexed/game";
 import type { Bot } from "./Bot";
 
 export class Auth {
