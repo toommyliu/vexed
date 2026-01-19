@@ -1,4 +1,5 @@
 import type { Collection } from "@vexed/collection";
+import type { Avatar, AvatarData } from "@vexed/game";
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export interface Store<K, V, D = V> {
@@ -49,16 +50,16 @@ export interface Store<K, V, D = V> {
 }
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-export interface PlayersStore<K, V, D = V> extends Store<K, V, D> {
+export interface PlayersStore extends Store<string, Avatar, AvatarData> {
   /**
    * Get a player by entity ID
    */
-  getById(id: number): V | undefined;
+  getById(id: number): Avatar | undefined;
 
   /**
    * The current player's Avatar (self)
    */
-  readonly me: V | undefined;
+  readonly me: Avatar | undefined;
 
   /**
    * Register a player by username and entity ID

@@ -496,7 +496,10 @@ export class Combat {
       const ogCell = this.bot.player.cell;
 
       const cellsWithMonsters = new Set(
-        this.bot.world.monsters.map((mon) => mon.strFrame.toLowerCase()),
+        this.bot.world.monsters
+          .all()
+          .values()
+          .map((mon) => mon.cell.toLowerCase()),
       );
       const cells = this.bot.world.cells
         .filter(

@@ -20,7 +20,7 @@ const register = (username: string, entId: number) => {
   // console.log(`register player: ${lower} :: ${entId}`);
 };
 
-export const players: PlayersStore<string, Avatar, AvatarData> = {
+export const players: PlayersStore = {
   all: () => store,
   clear: () => {
     store.clear();

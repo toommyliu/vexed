@@ -1,7 +1,9 @@
-import { Monster, Avatar } from "@vexed/game";
-import type { AvatarData, ItemData, MonsterData } from "@vexed/game";
+import { Monster } from "@vexed/game";
 import { extractMonsterMapId, isMonsterMapId } from "~/utils/isMonMapId";
 import type { Bot } from "./Bot";
+import { monsters } from "./stores/monster";
+import { players } from "./stores/player";
+import type { PlayersStore } from "./stores/store";
 
 export enum GameAction {
   /**
@@ -96,47 +98,23 @@ export class World {
   }
 
   /**
-   * A list of all players in the map.
+   * A store of the players in the map.
    */
-  public get players(): Map<string, Avatar> | null {
-    const out = this.bot.flash.call<string>(() => swf.worldGetPlayers());
-
-    if (!out) return null;
-
-    const parsedOut = out as unknown as Record<string, AvatarData>;
-
-    const map = new Map<string, Avatar>();
-    for (const [name, data] of Object.entries(parsedOut)) {
-      try {
-        map.set(
-          name?.toLowerCase(),
-          new Avatar(JSON.parse(data as unknown as string)),
-        );
-      } catch {
-        console.warn(`failed to parse avatar for: ${name}`);
-      }
-    }
-
-    return map;
+  public get players(): PlayersStore {
+    return players;
   }
 
   /**
-   *  A list of monsters in the map.
+   * A store of the monsters in the map.
    */
-  public get monsters(): MonsterData[] {
-    try {
-      return JSON.parse(
-        swf.selectArrayObjects("world.monsters", "objData"),
-      ) as MonsterData[];
-    } catch {
-      return [];
-    }
+  public get monsters() {
+    return monsters;
   }
 
   /**
    * A list of monsters in the cell.
    */
-  public get availableMonsters() {
+  public get availableMonsters(): Monster[] {
     const ret = this.bot.flash.call(() => swf.worldGetCellMonsters());
     return Array.isArray(ret) ? ret.map((data) => new Monster(data)) : [];
   }
@@ -319,14 +297,6 @@ export class World {
   }
 
   /**
-   * The list of all items in the world.
-   *
-   */
-  public get itemTree(): ItemData[] {
-    return this.bot.flash.call(() => swf.worldGetItemTree());
-  }
-
-  /**
    * Whether the game action has cooled down.
    *
    * @param gameAction - The game action to check.
@@ -366,7 +336,10 @@ export class World {
    * @param most - Whether to target the cell with the most monsters. Otherwise, it will target the cell with the first matching monster.
    */
   public async hunt(target: string, most = false): Promise<void> {
-    const matchingMonsters = this.filterMonstersByTarget(this.monsters, target);
+    const matchingMonsters = this.filterMonstersByTarget(
+      Array.from(this.monsters.all().values()),
+      target,
+    );
 
     if (matchingMonsters.length === 0) return;
 
@@ -385,9 +358,9 @@ export class World {
   }
 
   private filterMonstersByTarget(
-    monsters: MonsterData[],
+    monsters: Monster[],
     target: string,
-  ): MonsterData[] {
+  ): Monster[] {
     if (isMonsterMapId(target)) {
       const monMapIdStr = extractMonsterMapId(target);
       const monMapId = Number.parseInt(monMapIdStr, 10);
@@ -396,17 +369,15 @@ export class World {
 
     if (target === "*") return monsters;
     return monsters.filter((monster) =>
-      monster.strMonName.toLowerCase().includes(target.toLowerCase()),
+      monster.name.toLowerCase().includes(target.toLowerCase()),
     );
   }
 
-  private groupMonstersByCell(
-    monsters: MonsterData[],
-  ): Map<string, MonsterData[]> {
-    const groups = new Map<string, MonsterData[]>();
+  private groupMonstersByCell(monsters: Monster[]): Map<string, Monster[]> {
+    const groups = new Map<string, Monster[]>();
 
     for (const monster of monsters) {
-      const cell = monster.strFrame;
+      const cell = monster.cell;
       if (!groups.has(cell)) groups.set(cell, []);
 
       groups.get(cell)!.push(monster);
@@ -416,7 +387,7 @@ export class World {
   }
 
   private findBestCell(
-    monstersByCell: Map<string, MonsterData[]>,
+    monstersByCell: Map<string, Monster[]>,
     most: boolean,
   ): string | null {
     const cells = Array.from(monstersByCell.keys());
