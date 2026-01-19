@@ -61,7 +61,6 @@
     "@types/node-fetch": "^2.6.13",
     "@typescript-eslint/eslint-plugin": "^8.4.0",
     "@typescript-eslint/parser": "^8.4.0",
-    "@typescript/native-preview": "7.0.0-dev.20260115.1",
     "autoprefixer": "^10.4.21",
     "cross-env": "^10.0.0",
     "del-cli": "^6.0.0",

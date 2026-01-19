@@ -4,6 +4,8 @@ import type { Bot } from "./Bot";
 import { monsters } from "./stores/monster";
 import { players } from "./stores/player";
 import type { PlayersStore } from "./stores/store";
+import { parseMapStr } from "./util/parse-map-str";
+import { equalsIgnoreCase } from "@vexed/utils";
 
 export enum GameAction {
   /**
@@ -238,48 +240,29 @@ export class World {
   ): Promise<void> {
     // Make sure the player is alive to be able to do the transfer.
     await this.bot.waitUntil(() => this.bot.player.alive);
-
     await this.bot.combat.exit();
-
     await this.bot.waitUntil(
       () => this.isActionAvailable(GameAction.Transfer),
       { timeout: 5_000 },
     );
 
-    let mapStr = mapName;
-    // eslint-disable-next-line prefer-const
-    let [map_name, map_number] = mapStr.split("-");
-
-    if (this.name.toLowerCase() === map_name!.toLowerCase()) {
+    const [roomName, roomNumber] = parseMapStr(mapName);
+    if (equalsIgnoreCase(roomName, this.name)) {
       await this.jump(cell, pad);
       return;
     }
 
-    // If for some reason, the provided map number is invalid, assume a random large number
-    if (
-      map_number === "1e9" ||
-      map_number === "1e99" ||
-      Number.isNaN(
-        Number.parseInt(map_number!, 10),
-      ) /* any non-number, e.g yulgar-a*/
-    ) {
-      map_number = "100000";
-    }
-
-    mapStr = `${map_name}${map_number ? `-${map_number}` : ""}`;
-
+    const mapStr = `${roomName}${roomNumber ? `-${roomNumber}` : ""}`;
     this.bot.flash.call(() => swf.playerJoinMap(mapStr, cell, pad));
     await this.bot.waitUntil(
-      () =>
-        !this.isLoading() &&
-        this.name.toLowerCase() === map_name!.toLowerCase(),
+      () => !this.isLoading() && equalsIgnoreCase(this.name, roomName),
       { timeout: 10_000 },
     );
 
     // Sometimes, the player might not end up in the correct cell/pad, even if specified
     if (
-      this.bot.player.cell.toLowerCase() !== cell.toLowerCase() ||
-      this.bot.player.pad.toLowerCase() !== pad.toLowerCase()
+      !equalsIgnoreCase(this.bot.player.cell, cell) ||
+      !equalsIgnoreCase(this.bot.player.pad, pad)
     ) {
       await this.jump(cell, pad);
     }

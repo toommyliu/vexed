@@ -6,12 +6,6 @@ registerJsonHandler<MoveToAreaPacket>("moveToArea", (bot, packet) => {
   bot.world.players.clear();
   bot.world.monsters.clear();
 
-  // save map data
-  // const [roomName, roomNumber] = parseMapStr(packet.areaName);
-  // this.#roomName = roomName;
-  // this.#roomNumber = Number(roomNumber);
-  // this.#roomId = packet.areaId;
-
   // save monster data
   const monDefMap = new Map(
     packet.mondef?.map((def) => [def.MonID, def]) ?? [],
