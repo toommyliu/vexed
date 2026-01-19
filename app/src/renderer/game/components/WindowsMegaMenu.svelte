@@ -27,12 +27,6 @@
       windowId: WindowIds.Environment,
     },
     {
-      id: "open-app-logs",
-      label: "Logs",
-      hotkey: hotkeyValues["open-app-logs"] ?? "",
-      windowId: WindowIds.AppLogs,
-    },
-    {
       id: "open-hotkeys",
       label: "Hotkeys",
       hotkey: "",
@@ -84,12 +78,12 @@
 
 {#if open}
   <div
-    class="windows-mega-menu absolute left-0 top-full z-[9999] mt-1 grid grid-cols-[auto_auto_auto] gap-0 overflow-hidden rounded-lg border border-border bg-popover shadow-2xl backdrop-blur-xl elevation-2"
+    class="windows-mega-menu border-border bg-popover elevation-2 absolute left-0 top-full z-[9999] mt-1 grid grid-cols-[auto_auto_auto] gap-0 overflow-hidden rounded-lg border shadow-2xl backdrop-blur-xl"
   >
     <!-- Application Column -->
-    <div class="border-r border-border/50 p-2">
+    <div class="border-border/50 border-r p-2">
       <div
-        class="mb-1 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"
+        class="text-muted-foreground mb-1 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider"
       >
         Application
       </div>
@@ -97,7 +91,7 @@
         <Button
           variant="ghost"
           size="sm"
-          class="w-full justify-between gap-2 text-xs bg-transparent hover:bg-accent"
+          class="hover:bg-accent w-full justify-between gap-2 bg-transparent text-xs"
           onclick={() => handleItemClick(item)}
         >
           <span>{item.label}</span>
@@ -107,9 +101,9 @@
     </div>
 
     <!-- Tools Column -->
-    <div class="border-r border-border/50 p-2">
+    <div class="border-border/50 border-r p-2">
       <div
-        class="mb-1 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"
+        class="text-muted-foreground mb-1 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider"
       >
         Tools
       </div>
@@ -117,7 +111,7 @@
         <Button
           variant="ghost"
           size="sm"
-          class="w-full justify-between gap-2 text-xs bg-transparent hover:bg-accent"
+          class="hover:bg-accent w-full justify-between gap-2 bg-transparent text-xs"
           onclick={() => handleItemClick(item)}
         >
           <span>{item.label}</span>
@@ -129,7 +123,7 @@
     <!-- Packets Column -->
     <div class="p-2">
       <div
-        class="mb-1 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"
+        class="text-muted-foreground mb-1 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider"
       >
         Packets
       </div>
@@ -137,7 +131,7 @@
         <Button
           variant="ghost"
           size="sm"
-          class="w-full justify-between gap-2 text-xs bg-transparent hover:bg-accent"
+          class="hover:bg-accent w-full justify-between gap-2 bg-transparent text-xs"
           onclick={() => handleItemClick(item)}
         >
           <span>{item.label}</span>

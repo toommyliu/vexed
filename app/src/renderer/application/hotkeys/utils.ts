@@ -167,7 +167,6 @@ export function createHotkeyConfig(): HotkeySection[] {
       "Toggle Top Bar",
     ]),
     section("Application", [
-      "Open App Logs",
       "Open Environment",
     ]),
     section("Scripts", [

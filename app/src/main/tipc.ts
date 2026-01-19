@@ -1,6 +1,5 @@
 import { tipc } from "@vexed/tipc";
 import type {
-  AppLogEntry,
   GrabberDataType,
   LoaderDataType,
   FastTravel,
@@ -8,7 +7,6 @@ import type {
   EnvironmentState,
   EnvironmentUpdatePayload,
 } from "../shared/types";
-import { createAppLogsTipcRouter } from "./tipc/appLogs";
 import { createArmyTipcRouter } from "./tipc/army";
 import { createEnvironmentTipcRouter } from "./tipc/environment";
 import { createFastTravelsTipcRouter } from "./tipc/fastTravels";
@@ -25,7 +23,6 @@ import { createScriptsTipcRouter } from "./tipc/scripts";
 const tipcInstance = tipc.create();
 
 export const router = {
-  appLogs: createAppLogsTipcRouter(tipcInstance),
   game: createGameTipcRouter(tipcInstance),
   scripts: createScriptsTipcRouter(tipcInstance),
   fastTravels: createFastTravelsTipcRouter(tipcInstance),
@@ -45,12 +42,6 @@ export type TipcRouter = typeof router;
 /* eslint-disable typescript-sort-keys/interface */
 
 export type RendererHandlers = {
-  appLogs: {
-    append(input: AppLogEntry): void;
-    init(input: { entries: AppLogEntry[] }): void;
-    reset(): void;
-  };
-
   environment: {
     getState(): Promise<EnvironmentState>;
     updateState(input: EnvironmentUpdatePayload): void;

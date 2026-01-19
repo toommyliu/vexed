@@ -107,7 +107,6 @@ export type EnvironmentUpdatePayload = {
 };
 
 export enum WindowIds {
-  AppLogs = "app-logs",
   Environment = "app-environment",
   FastTravels = "tools-fast-travels",
 
@@ -120,17 +119,8 @@ export enum WindowIds {
   PacketSpammer = "packets-spammer",
 }
 
-export type AppLogEntry = {
-  level: number;
-  lineNumber: number;
-  message: string;
-  sourceId: string;
-  timestamp: number;
-};
-
 export type HotkeyConfig = {
   Application?: {
-    "Open App Logs"?: string;
     "Open Environment"?: string;
   };
   General?: {

@@ -5,7 +5,6 @@ import { BrowserWindow } from "electron";
 import { DEFAULT_SKILLSETS, DOCUMENTS_PATH } from "../../shared/constants";
 import { WindowIds } from "../../shared/types";
 import { ASSET_PATH, DIST_PATH, IS_PACKAGED, logger } from "../constants";
-import type { RendererHandlers } from "../tipc";
 import { windowStore } from "../windows";
 
 export function createGameTipcRouter(tipcInstance: TipcInstance) {
@@ -29,12 +28,6 @@ export function createGameTipcRouter(tipcInstance: TipcInstance) {
             path = join(DIST_PATH, "application", "environment", "index.html");
             width = 783;
             height = 520;
-            break;
-          case WindowIds.AppLogs:
-            ref = storeRef.app.logs;
-            path = join(DIST_PATH, "application", "logs", "index.html");
-            width = 860;
-            height = 560;
             break;
           case WindowIds.Hotkeys:
             ref = storeRef.app.hotkeys;
@@ -98,9 +91,6 @@ export function createGameTipcRouter(tipcInstance: TipcInstance) {
           case WindowIds.Environment:
             storeRef.app.environment = window;
             break;
-          case WindowIds.AppLogs:
-            storeRef.app.logs = window;
-            break;
           case WindowIds.Hotkeys:
             storeRef.app.hotkeys = window;
             break;
@@ -130,16 +120,6 @@ export function createGameTipcRouter(tipcInstance: TipcInstance) {
           ev.preventDefault();
           window.hide();
         });
-
-        if (input === WindowIds.AppLogs) {
-          window.webContents.once("did-finish-load", () => {
-            const rendererHandlers =
-              context.getRendererHandlers<RendererHandlers>(window);
-            rendererHandlers.appLogs.init.send({
-              entries: storeRef.app.logHistory.slice(),
-            });
-          });
-        }
 
         await window.loadFile(path!);
 

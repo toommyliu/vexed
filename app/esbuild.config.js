@@ -5,8 +5,8 @@ const sveltePlugin = require("esbuild-svelte");
 const postCssPlugin = require("esbuild-postcss");
 const { aliasPath } = require("esbuild-plugin-alias-path");
 const { parse } = require("jsonc-parser");
-const { readFile, writeFile } = require('fs-extra');
-const { watch } = require('watchlist');
+const { readFile, writeFile } = require("fs-extra");
+const { watch } = require("watchlist");
 
 const isProduction = process.env.NODE_ENV === "production";
 const isWatch = process.argv.includes("--watch") || process.argv.includes("-w");
@@ -58,7 +58,8 @@ function createAliasTransformPlugin(aliases) {
         const source = await readFile(args.path, "utf8");
         const fileDir = dirname(args.path);
 
-        const importRegex = /((?:import|export)\s+(?:[\s\S]*?\s+from\s+)?['"])([^'"]+)(['"])/g;
+        const importRegex =
+          /((?:import|export)\s+(?:[\s\S]*?\s+from\s+)?['"])([^'"]+)(['"])/g;
         const dynamicImportRegex = /(import\s*\(\s*['"])([^'"]+)(['"]\s*\))/g;
         const requireRegex = /(require\s*\(\s*['"])([^'"]+)(['"]\s*\))/g;
 
@@ -66,7 +67,10 @@ function createAliasTransformPlugin(aliases) {
 
         const replaceAlias = (match, prefix, modulePath, suffix) => {
           for (const { prefix: aliasPrefix, target } of sortedAliases) {
-            if (modulePath === aliasPrefix || modulePath.startsWith(aliasPrefix + "/")) {
+            if (
+              modulePath === aliasPrefix ||
+              modulePath.startsWith(aliasPrefix + "/")
+            ) {
               const subPath = modulePath.slice(aliasPrefix.length);
               const absoluteTarget = target + subPath;
               let relativePath = relative(fileDir, absoluteTarget);
@@ -90,7 +94,7 @@ function createAliasTransformPlugin(aliases) {
         if (transformed !== source) {
           return {
             contents: transformed,
-            loader: "ts"
+            loader: "ts",
           };
         }
 
@@ -137,13 +141,6 @@ const SVELTE_TARGETS = [
     outfile: "./dist/game/build/main.js",
     tsconfigFile: "./src/renderer/game/tsconfig.json",
     watchPaths: ["./src/renderer/game"],
-  },
-  {
-    name: "game-logs",
-    entryPoint: "./src/renderer/application/logs/main.ts",
-    outfile: "./dist/application/logs/build/main.js",
-    tsconfigFile: "./src/renderer/game/tsconfig.json",
-    watchPaths: ["./src/renderer/application/logs"],
   },
   {
     name: "environment",
@@ -218,7 +215,6 @@ const CSS_TARGETS = [
   },
 ];
 
-
 const toArray = (value) => (Array.isArray(value) ? value : [value]);
 
 const timed = async (label, fn) => {
@@ -286,10 +282,10 @@ const createCssConfig = ({ entryPoint, outfile }) => ({
   minify: isProduction,
   sourcemap: !isProduction,
   loader: {
-    '.woff': 'file',
-    '.woff2': 'file',
+    ".woff": "file",
+    ".woff2": "file",
   },
-  assetNames: 'assets/[name]-[hash][ext]',
+  assetNames: "assets/[name]-[hash][ext]",
   plugins: [aliasPath({ alias: pathAliases }), postCssPlugin()],
 });
 
@@ -318,23 +314,62 @@ const readdirp = async (dir) => {
  * @returns {Promise<void>}
  */
 async function generateHtmlFiles() {
-  const templatePath = resolve(__dirname, './src/renderer/template.html');
-  const template = await readFile(templatePath, 'utf-8');
+  const templatePath = resolve(__dirname, "./src/renderer/template.html");
+  const template = await readFile(templatePath, "utf-8");
 
-  const SCRIPT_PATH = 'build/main.js';
+  const SCRIPT_PATH = "build/main.js";
 
   const htmlTargets = [
-    { dest: './dist/game/index.html', cssPath: '../build/tailwind.css', scriptPath: SCRIPT_PATH },
-    { dest: './dist/application/logs/index.html', cssPath: '../../build/tailwind.css', scriptPath: SCRIPT_PATH },
-    { dest: './dist/application/environment/index.html', cssPath: '../../build/tailwind.css', scriptPath: SCRIPT_PATH },
-    { dest: './dist/manager/index.html', cssPath: '../build/tailwind.css', scriptPath: SCRIPT_PATH },
-    { dest: './dist/tools/fast-travels/index.html', cssPath: '../../build/tailwind.css', scriptPath: SCRIPT_PATH },
-    { dest: './dist/tools/follower/index.html', cssPath: '../../build/tailwind.css', scriptPath: SCRIPT_PATH },
-    { dest: './dist/tools/loader-grabber/index.html', cssPath: '../../build/tailwind.css', scriptPath: SCRIPT_PATH },
-    { dest: './dist/application/hotkeys/index.html', cssPath: '../../build/tailwind.css', scriptPath: SCRIPT_PATH },
-    { dest: './dist/packets/logger/index.html', cssPath: '../../build/tailwind.css', scriptPath: SCRIPT_PATH },
-    { dest: './dist/packets/spammer/index.html', cssPath: '../../build/tailwind.css', scriptPath: SCRIPT_PATH },
-    { dest: './dist/onboarding/index.html', cssPath: '../build/tailwind.css', scriptPath: SCRIPT_PATH },
+    {
+      dest: "./dist/game/index.html",
+      cssPath: "../build/tailwind.css",
+      scriptPath: SCRIPT_PATH,
+    },
+    {
+      dest: "./dist/application/environment/index.html",
+      cssPath: "../../build/tailwind.css",
+      scriptPath: SCRIPT_PATH,
+    },
+    {
+      dest: "./dist/manager/index.html",
+      cssPath: "../build/tailwind.css",
+      scriptPath: SCRIPT_PATH,
+    },
+    {
+      dest: "./dist/tools/fast-travels/index.html",
+      cssPath: "../../build/tailwind.css",
+      scriptPath: SCRIPT_PATH,
+    },
+    {
+      dest: "./dist/tools/follower/index.html",
+      cssPath: "../../build/tailwind.css",
+      scriptPath: SCRIPT_PATH,
+    },
+    {
+      dest: "./dist/tools/loader-grabber/index.html",
+      cssPath: "../../build/tailwind.css",
+      scriptPath: SCRIPT_PATH,
+    },
+    {
+      dest: "./dist/application/hotkeys/index.html",
+      cssPath: "../../build/tailwind.css",
+      scriptPath: SCRIPT_PATH,
+    },
+    {
+      dest: "./dist/packets/logger/index.html",
+      cssPath: "../../build/tailwind.css",
+      scriptPath: SCRIPT_PATH,
+    },
+    {
+      dest: "./dist/packets/spammer/index.html",
+      cssPath: "../../build/tailwind.css",
+      scriptPath: SCRIPT_PATH,
+    },
+    {
+      dest: "./dist/onboarding/index.html",
+      cssPath: "../build/tailwind.css",
+      scriptPath: SCRIPT_PATH,
+    },
   ];
 
   await Promise.all(
@@ -344,10 +379,10 @@ async function generateHtmlFiles() {
         await ensureDir(dirname(destinationPath));
 
         const html = template
-          .replace('{{CSS_PATH}}', cssPath)
-          .replace('{{SCRIPT_PATH}}', scriptPath);
+          .replace("{{CSS_PATH}}", cssPath)
+          .replace("{{SCRIPT_PATH}}", scriptPath);
 
-        await writeFile(destinationPath, html, 'utf-8');
+        await writeFile(destinationPath, html, "utf-8");
       } catch (error) {
         console.error(`Failed to generate ${dest}:`, error);
       }
@@ -375,10 +410,7 @@ const createRebuildLoggerPlugin = (label) => ({
     build.onEnd((result) => {
       const timestamp = new Date().toLocaleTimeString();
       if (result.errors.length > 0) {
-        console.error(
-          `[${timestamp}] ${label} rebuild failed:`,
-          result.errors,
-        );
+        console.error(`[${timestamp}] ${label} rebuild failed:`, result.errors);
       } else {
         console.timeEnd(`${label} rebuild`);
         // console.log(`[${timestamp}] ${label} rebuilt successfully`);
@@ -408,7 +440,10 @@ async function createBuildContext(config, srcDir, outDir, contextName) {
       ...config,
       entryPoints,
       outdir: outDir,
-      plugins: [...(config.plugins || []), createRebuildLoggerPlugin(contextName)],
+      plugins: [
+        ...(config.plugins || []),
+        createRebuildLoggerPlugin(contextName),
+      ],
     });
 
     return buildCtx;
@@ -425,13 +460,15 @@ async function createBuildContext(config, srcDir, outDir, contextName) {
 
       const hasChanged =
         currentSet.size !== newSet.size ||
-        [...currentSet].some(file => !newSet.has(file));
+        [...currentSet].some((file) => !newSet.has(file));
 
       if (!hasChanged) {
         return;
       }
 
-      console.log(`[${contextName}] Entry points changed, recreating context...`);
+      console.log(
+        `[${contextName}] Entry points changed, recreating context...`,
+      );
       currentEntryPoints = newEntryPoints;
       buildCtx = await createNewContext(currentEntryPoints);
 
@@ -474,7 +511,10 @@ async function runWatchMode(commonConfig, svelteConfigs, cssConfigs) {
     svelteConfigs.map(async (target) => {
       const config = {
         ...target.config,
-        plugins: [...(target.config.plugins || []), createRebuildLoggerPlugin(`${target.name} Svelte`)]
+        plugins: [
+          ...(target.config.plugins || []),
+          createRebuildLoggerPlugin(`${target.name} Svelte`),
+        ],
       };
       const ctx = await context(config);
       await ctx.watch();
@@ -486,7 +526,10 @@ async function runWatchMode(commonConfig, svelteConfigs, cssConfigs) {
     cssConfigs.map(async (target) => {
       const config = {
         ...target.config,
-        plugins: [...(target.config.plugins || []), createRebuildLoggerPlugin(`${target.name} CSS`)]
+        plugins: [
+          ...(target.config.plugins || []),
+          createRebuildLoggerPlugin(`${target.name} CSS`),
+        ],
       };
       const ctx = await context(config);
       await ctx.watch();

@@ -93,15 +93,6 @@
       },
     },
     {
-      id: "open-app-logs",
-      label: "Logs",
-      category: "Application",
-      hotkey: hotkeyValues["open-app-logs"] ?? "",
-      action: () => {
-        void client.game.launchWindow(WindowIds.AppLogs);
-      },
-    },
-    {
       id: "open-hotkeys",
       label: "Hotkeys",
       category: "Application",

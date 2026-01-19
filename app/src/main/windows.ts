@@ -1,18 +1,19 @@
 import { join, resolve } from "path";
-import { getRendererHandlers } from "@vexed/tipc";
 import { BrowserWindow, screen } from "electron";
 import { BRAND } from "../shared/constants";
-import type { AccountWithScript, AppLogEntry } from "../shared/types";
+import type { AccountWithScript } from "../shared/types";
 import { DIST_PATH, IS_PACKAGED } from "./constants";
 import { getSettings } from "./settings";
-import type { RendererHandlers } from "./tipc";
 import { cleanupEnvironmentState } from "./tipc/environment";
 import { applySecurityPolicy } from "./util/applySecurityPolicy";
 
 /**
  * Gets the x/y position to center a window on the monitor where the cursor is located.
  */
-function getCenteredPosition(width: number, height: number): { x: number; y: number } {
+function getCenteredPosition(
+  width: number,
+  height: number,
+): { x: number; y: number } {
   const cursorPoint = screen.getCursorScreenPoint();
   const display = screen.getDisplayNearestPoint(cursorPoint);
   const { workArea } = display;
@@ -203,13 +204,9 @@ export async function createGame(
     useContentSize: true,
   });
 
-  const logHistory: AppLogEntry[] = [];
-
   windowStore.set(window.id, {
     app: {
       environment: null,
-      logHistory,
-      logs: null,
       hotkeys: null,
     },
     game: window,
@@ -221,55 +218,6 @@ export async function createGame(
     packets: { logger: null, spammer: null },
   });
 
-  window.webContents.on("did-finish-load", () => {
-    const storeRef = windowStore.get(window.id);
-    if (!storeRef) return;
-
-    if (storeRef.app.logHistory.length) storeRef.app.logHistory.length = 0;
-
-    const logsWindow = storeRef.app.logs;
-    if (
-      logsWindow &&
-      !logsWindow.isDestroyed() &&
-      !logsWindow.webContents.isDestroyed()
-    ) {
-      const rendererHandlers = getRendererHandlers<RendererHandlers>(
-        logsWindow.webContents,
-      );
-      rendererHandlers.appLogs.reset.send();
-    }
-  });
-
-  window.webContents.on(
-    "console-message",
-    (_ev, level, message, lineNumber, sourceId) => {
-      const storeRef = windowStore.get(window.id);
-      if (!storeRef) return;
-
-      const entry: AppLogEntry = {
-        level,
-        lineNumber,
-        message,
-        sourceId,
-        timestamp: Date.now(),
-      };
-
-      storeRef.app.logHistory.push(entry);
-
-      const logsWindow = storeRef.app.logs;
-      if (
-        logsWindow &&
-        !logsWindow.isDestroyed() &&
-        !logsWindow.webContents.isDestroyed()
-      ) {
-        const rendererHandlers = getRendererHandlers<RendererHandlers>(
-          logsWindow.webContents,
-        );
-        rendererHandlers.appLogs.append.send(entry);
-      }
-    },
-  );
-
   void window.loadURL(`file://${resolve(DIST_GAME, "index.html")}`);
   applySecurityPolicy(window);
 
@@ -277,7 +225,7 @@ export async function createGame(
 
   window.on("close", () => {
     if (!window || window.isDestroyed() || window.webContents.isDestroyed()) {
-      console.log('window is destroyed', window);
+      console.log("window is destroyed", window);
       return;
     }
 
@@ -285,7 +233,6 @@ export async function createGame(
     if (windows) {
       const toClose = [
         windows.app.environment,
-        windows.app.logs,
         ...Object.values(windows.tools),
         ...Object.values(windows.packets),
       ];
@@ -312,8 +259,6 @@ export type WindowStore = Map<
     app: {
       environment: BrowserWindow | null;
       hotkeys: BrowserWindow | null;
-      logHistory: AppLogEntry[];
-      logs: BrowserWindow | null;
     };
     game: BrowserWindow;
     packets: {

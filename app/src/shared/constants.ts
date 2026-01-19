@@ -95,7 +95,6 @@ export const DEFAULT_HOTKEYS: HotkeyConfig = {
     "Toggle Top Bar": IS_MAC ? "command+shift+t" : "ctrl+shift+t",
   },
   Application: {
-    "Open App Logs": IS_MAC ? "command+shift+l" : "ctrl+shift+l",
     "Open Environment": IS_MAC ? "command+e" : "ctrl+e",
   },
   Options: {
