@@ -1,5 +1,5 @@
+import type { Item } from "@vexed/game";
 import { Command } from "~/botting/command";
-import type { InventoryItem } from "~/lib/models/InventoryItem";
 import {
   getWeaponProcName,
   isBasicEnhancement,
@@ -45,14 +45,14 @@ export class CommandEquipByEnhancement extends Command {
     }
   }
 
-  private findMatchingItem(): InventoryItem | undefined {
+  private findMatchingItem(): Item | undefined {
     const isForge = this.enhancementName.toLowerCase().trim() === "forge";
     const isBasic = isBasicEnhancement(this.enhancementName);
     const secondArg = (this.procOrItemType ?? "").toLowerCase().trim();
     const isItemTypeFilter = ["weapon", "helm", "cape"].includes(secondArg);
     const isAweProc = this.matchesProcInVariants(secondArg, AWE_PROC_VARIANTS);
 
-    return this.bot.inventory.items.find((item: InventoryItem) => {
+    return this.bot.inventory.items.find((item: Item) => {
       if (!item.isWeapon() && !item.isCape() && !item.isHelm()) return false;
 
       // 1. forge + proc name
@@ -89,7 +89,7 @@ export class CommandEquipByEnhancement extends Command {
     });
   }
 
-  private matchesForgeProcByType(item: InventoryItem): boolean {
+  private matchesForgeProcByType(item: Item): boolean {
     const procName = this.procOrItemType ?? "";
     if (!procName) return false;
 
@@ -113,7 +113,10 @@ export class CommandEquipByEnhancement extends Command {
     return false;
   }
 
-  private matchesProcInVariants(input: string, variants: Record<string, string[]>): boolean {
+  private matchesProcInVariants(
+    input: string,
+    variants: Record<string, string[]>,
+  ): boolean {
     const normalized = input.toLowerCase().trim();
     for (const [canonical, aliases] of Object.entries(variants)) {
       if (canonical === normalized || aliases.includes(normalized)) {
@@ -124,25 +127,24 @@ export class CommandEquipByEnhancement extends Command {
     return false;
   }
 
-
-  private matchesBasicEnhancement(item: InventoryItem): boolean {
+  private matchesBasicEnhancement(item: Item): boolean {
     const targetEnhancement = findEnhancementByName(this.enhancementName);
     return item.enhancementPatternId === targetEnhancement?.ID;
   }
 
-  private matchesWeaponProc(item: InventoryItem, procName: string): boolean {
+  private matchesWeaponProc(item: Item, procName: string): boolean {
     if (item.data?.ProcID === undefined) return false;
 
     const weaponProcName = getWeaponProcName(item.data.ProcID);
     return areNamesEqual(weaponProcName, procName, WEAPON_PROC_VARIANTS);
   }
 
-  private matchesCapeProc(item: InventoryItem, procName: string): boolean {
+  private matchesCapeProc(item: Item, procName: string): boolean {
     const capeProcName = getCapeProcName(item.enhancementPatternId);
     return areNamesEqual(capeProcName, procName, CAPE_PROC_VARIANTS);
   }
 
-  private matchesHelmProc(item: InventoryItem, procName: string): boolean {
+  private matchesHelmProc(item: Item, procName: string): boolean {
     const helmProcName = getHelmProcName(item.enhancementPatternId);
     const normalized = procName.toLowerCase().trim();
     const helmNormalized = helmProcName.toLowerCase().trim();
@@ -154,8 +156,8 @@ export class CommandEquipByEnhancement extends Command {
   }
 
   public override toString(): string {
-    return `Equip item by enhancement: ${this.enhancementName}${this.procOrItemType ? ` [${this.procOrItemType}]` : ""
-      }`;
+    return `Equip item by enhancement: ${this.enhancementName}${
+      this.procOrItemType ? ` [${this.procOrItemType}]` : ""
+    }`;
   }
 }
-

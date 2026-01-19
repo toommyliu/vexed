@@ -1,4 +1,4 @@
-import type { Aura } from "../models/BaseEntity";
+import type { Aura } from "@vexed/game";
 
 type StoredAura = Aura & {
   stack?: number;

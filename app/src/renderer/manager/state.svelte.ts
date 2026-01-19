@@ -1,6 +1,6 @@
 import { SvelteMap, SvelteSet } from "svelte/reactivity";
 import type { Account } from "../../shared/types";
-import type { ServerData } from "../game/lib/models/Server";
+import type { ServerData } from "@vexed/game";
 
 function initManager() {
   const servers = new SvelteMap<string, ServerData>();

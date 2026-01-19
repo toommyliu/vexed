@@ -1,16 +1,16 @@
+import { Quest, type QuestInfo } from "@vexed/game";
 import type { Bot } from "./Bot";
 import { GameAction } from "./World";
-import { Quest, type QuestData } from "./models/Quest";
 
 export class Quests {
-  public constructor(public bot: Bot) { }
+  public constructor(public bot: Bot) {}
 
   /**
    * A list of quests loaded in the client.
    */
   public get tree(): Quest[] {
     return this.bot.flash.call(() =>
-      swf.questsGetTree().map((data: QuestData) => new Quest(data)),
+      swf.questsGetTree().map((data: QuestInfo) => new Quest(data)),
     );
   }
 
@@ -18,7 +18,7 @@ export class Quests {
    * A list of accepted quests.
    */
   public get accepted(): Quest[] {
-    return this.tree.filter((quest) => quest.inProgress);
+    return this.tree.filter((quest) => this.inProgress(quest.id));
   }
 
   /**
@@ -37,7 +37,6 @@ export class Quests {
    */
   public async load(questId: number): Promise<void> {
     if (this.get(questId)) return;
-
     this.bot.flash.call(() => swf.questsLoad(questId));
     await this.bot.waitUntil(() => this.get(questId) !== null);
   }
@@ -50,7 +49,6 @@ export class Quests {
    */
   public async loadMultiple(questIds: number[]): Promise<void> {
     if (questIds.length === 0) return;
-
     this.bot.flash.call(() => swf.questsGetMultiple(questIds.join(",")));
   }
 
@@ -64,8 +62,8 @@ export class Quests {
     if (!this.get(questId)) await this.load(questId);
 
     // Ensure the quest is ready to be accepted
-    if (this.get(questId)?.inProgress) {
-      await this.bot.waitUntil(() => !this.get(questId)?.inProgress);
+    if (this.inProgress(questId)) {
+      await this.bot.waitUntil(() => !this.inProgress(questId));
     }
 
     await this.bot.waitUntil(() =>
@@ -73,7 +71,7 @@ export class Quests {
     );
 
     this.bot.flash.call(() => swf.questsAccept(questId));
-    await this.bot.waitUntil(() => Boolean(this.get(questId)?.inProgress));
+    await this.bot.waitUntil(() => this.inProgress(questId));
   }
 
   /**
@@ -102,12 +100,11 @@ export class Quests {
     itemId = -1,
     special = false,
   ): Promise<void> {
+    if (!this.canComplete(questId)) return;
+
     await this.bot.waitUntil(() =>
       this.bot.world.isActionAvailable(GameAction.TryQuestComplete),
     );
-
-    if (!this.get(questId)?.canComplete()) return;
-
     this.bot.flash.call(() => {
       swf.questsComplete(questId, turnIns, itemId, special);
     });
@@ -119,9 +116,26 @@ export class Quests {
    * @param questId - The quest id to abandon.
    */
   public async abandon(questId: number): Promise<void> {
-    if (!this.get(questId)?.inProgress) return;
-
+    if (!this.inProgress(questId)) return;
     this.bot.flash.call(() => swf.questsAbandon(questId));
-    await this.bot.waitUntil(() => !this.get(questId)?.inProgress);
+    await this.bot.waitUntil(() => !this.inProgress(questId));
+  }
+
+  /**
+   * Whether a quest can be completed.
+   *
+   * @param questId - The quest id to check.
+   */
+  public canComplete(questId: number): boolean {
+    return this.bot.flash.call(() => swf.questsCanCompleteQuest(questId));
+  }
+
+  /**
+   * Whether a quest is in progress.
+   *
+   * @param questId - The quest id to check.
+   */
+  public inProgress(questId: number): boolean {
+    return this.bot.flash.call(() => swf.questsIsInProgress(questId));
   }
 }

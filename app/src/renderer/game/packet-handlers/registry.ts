@@ -1,4 +1,4 @@
-import type { Bot } from "~/lib/core/Bot";
+import type { Bot } from "~/lib/Bot";
 
 /**
  * Handler function type for processing packets.

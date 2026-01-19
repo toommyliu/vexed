@@ -5,6 +5,7 @@ export * from "./models/Item";
 export * from "./models/Monster";
 export * from "./models/Quest";
 export * from "./models/Server";
+export * from "./models/ShopItem";
 
 export * from "./types/Aura";
 export * from "./types/AvatarData";

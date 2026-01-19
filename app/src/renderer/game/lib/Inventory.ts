@@ -1,8 +1,7 @@
 import type { Bot } from "./Bot";
 import { ServerPacket } from "./Packets";
 import { GameAction } from "./World";
-import { InventoryItem } from "./models/InventoryItem";
-import type { ItemData } from "./models/Item";
+import { Item, type ItemData } from "@vexed/game";
 
 export class Inventory {
   public constructor(public readonly bot: Bot) {}
@@ -10,10 +9,10 @@ export class Inventory {
   /**
    * Gets items in the Inventory of the current player.
    */
-  public get items(): InventoryItem[] {
+  public get items(): Item[] {
     return this.bot.flash
       .call<unknown[]>(() => swf.inventoryGetItems())
-      .map((data) => new InventoryItem(data as unknown as ItemData));
+      .map((data) => new Item(data as unknown as ItemData));
   }
 
   /**
@@ -21,12 +20,11 @@ export class Inventory {
    *
    * @param key - The name or ID of the item.
    */
-  public get(key: number | string): InventoryItem | null {
+  public get(key: number | string): Item | null {
     return this.bot.flash.call(() => {
       const item = swf.inventoryGetItem(key);
       if (!item) return null;
-
-      return new InventoryItem(item);
+      return new Item(item);
     });
   }
 

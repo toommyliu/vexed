@@ -1,9 +1,9 @@
+import type { Server } from "@vexed/game";
 import { Mutex } from "async-mutex";
 import { CommandExecutor } from "~/botting/command-executor";
 import { autoReloginState } from "~/game/state/autoRelogin.svelte";
 import type { Bot } from "~/lib/Bot";
 import type { LoginInfo } from "../Auth";
-import type { Server } from "../models/Server";
 import { Job } from "./Job";
 
 const MAX_CONSECUTIVE_FAILURES = 5;
@@ -36,16 +36,16 @@ export class AutoReloginJob extends Job {
   private static setCooldownForFailure(): void {
     const attempt = Math.min(
       AutoReloginJob.consecutiveFailures,
-      MAX_CONSECUTIVE_FAILURES
+      MAX_CONSECUTIVE_FAILURES,
     );
     const base = Math.min(
       MIN_FAILED_COOLDOWN * 2 ** Math.max(0, attempt - 1),
-      MAX_FAILED_COOLDOWN
+      MAX_FAILED_COOLDOWN,
     ); // exponential backoff
     const jitter = Math.floor(Math.random() * JITTER_MAX);
     AutoReloginJob.failedCooldown = Math.min(
       base + jitter,
-      MAX_FAILED_COOLDOWN
+      MAX_FAILED_COOLDOWN,
     );
   }
 
@@ -69,10 +69,7 @@ export class AutoReloginJob extends Job {
     const softCooldown =
       SOFT_FAILURE_COOLDOWN_BASE +
       Math.floor(Math.random() * SOFT_FAILURE_COOLDOWN_JITTER);
-    AutoReloginJob.failedCooldown = Math.min(
-      softCooldown,
-      MAX_FAILED_COOLDOWN
-    );
+    AutoReloginJob.failedCooldown = Math.min(softCooldown, MAX_FAILED_COOLDOWN);
     AutoReloginJob.lastFailedAttempt = now;
     AutoReloginJob.lastAttemptTime = now;
   }
@@ -184,7 +181,7 @@ export class AutoReloginJob extends Job {
       try {
         this.bot.auth.login(
           autoReloginState.username!,
-          autoReloginState.password!
+          autoReloginState.password!,
         );
         initiatedLogin = true;
       } catch {
@@ -228,19 +225,17 @@ export class AutoReloginJob extends Job {
   }
 
   private async waitForServerSelect(): Promise<boolean> {
-    await this.bot
-      .waitUntil(() => this.isInServerSelect(), {
-        timeout: TIMEOUT_SERVER_SELECT,
-      });
+    await this.bot.waitUntil(() => this.isInServerSelect(), {
+      timeout: TIMEOUT_SERVER_SELECT,
+    });
 
     return this.isInServerSelect();
   }
 
   private async loadServers(): Promise<boolean> {
-    await this.bot
-      .waitUntil(() => this.bot.auth.servers.length > 0, {
-        timeout: TIMEOUT_SERVERS_LOAD,
-      });
+    await this.bot.waitUntil(() => this.bot.auth.servers.length > 0, {
+      timeout: TIMEOUT_SERVERS_LOAD,
+    });
 
     if (this.bot.auth.servers.length === 0) {
       AutoReloginJob.markFailure();
@@ -255,21 +250,25 @@ export class AutoReloginJob extends Job {
     const loginInfo = this.bot.auth.loginInfo;
 
     let targetServerName = autoReloginState.server!;
-    let targetServer = servers.find(
-      (server) => server.name.toLowerCase().includes(targetServerName.toLowerCase())
+    let targetServer = servers.find((server) =>
+      server.name.toLowerCase().includes(targetServerName.toLowerCase()),
     );
 
-    const primaryIneligible = !targetServer ||
+    const primaryIneligible =
+      !targetServer ||
       !targetServer.isOnline() ||
       targetServer.isFull() ||
       (loginInfo && !this.isServerEligible(targetServer, loginInfo));
 
-    if (primaryIneligible || AutoReloginJob.consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+    if (
+      primaryIneligible ||
+      AutoReloginJob.consecutiveFailures >= MAX_CONSECUTIVE_FAILURES
+    ) {
       const fallbackName = this.resolveFallbackServer(servers);
       if (fallbackName) {
         targetServerName = fallbackName;
-        targetServer = servers.find(
-          (server) => server.name.toLowerCase().includes(targetServerName.toLowerCase())
+        targetServer = servers.find((server) =>
+          server.name.toLowerCase().includes(targetServerName.toLowerCase()),
         );
       }
     }
@@ -287,7 +286,7 @@ export class AutoReloginJob extends Job {
     let didClickServer: boolean;
     try {
       didClickServer = await Promise.resolve(
-        this.bot.auth.connectTo(targetServerName)
+        this.bot.auth.connectTo(targetServerName),
       );
     } catch {
       AutoReloginJob.markFailure();
@@ -307,8 +306,10 @@ export class AutoReloginJob extends Job {
     const primaryServer = autoReloginState.server?.toLowerCase();
 
     if (autoReloginState.fallbackServer) {
-      const fallback = servers.find(
-        (srv) => srv.name.toLowerCase().includes(autoReloginState.fallbackServer!.toLowerCase())
+      const fallback = servers.find((srv) =>
+        srv.name
+          .toLowerCase()
+          .includes(autoReloginState.fallbackServer!.toLowerCase()),
       );
       if (fallback && this.isServerEligible(fallback, loginInfo)) {
         return fallback.name;
@@ -323,21 +324,31 @@ export class AutoReloginJob extends Job {
     return null;
   }
 
-  private isServerEligible(server: Server, loginInfo: LoginInfo | null): boolean {
+  private isServerEligible(
+    server: Server,
+    loginInfo: LoginInfo | null,
+  ): boolean {
     if (!server.isOnline() || server.isFull()) return false;
     if (!loginInfo) return true;
 
     const isUpgradeOnly = server.isUpgrade() && loginInfo.iUpgDays < 0;
     const isChatRestricted = server.data.iChat > 0 && loginInfo.bCCOnly === 1;
-    const isUnderageNonMember = server.data.iChat > 0 && loginInfo.iAge < 13 && loginInfo.iUpgDays < 0;
-    const isEmailUnconfirmed = server.data.iLevel > 0 && loginInfo.iEmailStatus <= 2;
+    const isUnderageNonMember =
+      server.data.iChat > 0 && loginInfo.iAge < 13 && loginInfo.iUpgDays < 0;
+    const isEmailUnconfirmed =
+      server.data.iLevel > 0 && loginInfo.iEmailStatus <= 2;
 
-    return !(isUpgradeOnly || isChatRestricted || isUnderageNonMember || isEmailUnconfirmed);
+    return !(
+      isUpgradeOnly ||
+      isChatRestricted ||
+      isUnderageNonMember ||
+      isEmailUnconfirmed
+    );
   }
 
   private async waitForGameEntry(
     didClickServer: boolean,
-    initiatedLogin: boolean
+    initiatedLogin: boolean,
   ): Promise<boolean> {
     const res = await this.bot.waitUntil(
       (arg) => {
@@ -347,7 +358,8 @@ export class AutoReloginJob extends Job {
         )
           return true;
 
-        const connMcText = this.bot.flash.call<string>(() => swf.getConnMcText()) ?? "";
+        const connMcText =
+          this.bot.flash.call<string>(() => swf.getConnMcText()) ?? "";
         if (connMcText === "null" && didClickServer) {
           arg.abort();
           return false;
@@ -358,7 +370,9 @@ export class AutoReloginJob extends Job {
           return false;
         }
 
-        const isBackButtonVisible = this.bot.flash.call<boolean>(() => swf.isConnMcBackButtonVisible());
+        const isBackButtonVisible = this.bot.flash.call<boolean>(() =>
+          swf.isConnMcBackButtonVisible(),
+        );
         if (isBackButtonVisible) {
           arg.abort();
           return false;
@@ -366,7 +380,7 @@ export class AutoReloginJob extends Job {
 
         return false;
       },
-      { interval: 5_000, timeout: TIMEOUT_GAME_ENTRY }
+      { interval: 5_000, timeout: TIMEOUT_GAME_ENTRY },
     );
 
     if (res.isErr()) {
@@ -386,21 +400,17 @@ export class AutoReloginJob extends Job {
     return true;
   }
 
-  private handleLoginFailure(
-    reason: string,
-    initiatedLogin: boolean
-  ) {
+  private handleLoginFailure(reason: string, initiatedLogin: boolean) {
     const manualDifferentUser = Boolean(
       this.bot.auth.isLoggedIn() &&
       this.bot.auth?.username?.toLowerCase() !==
-      autoReloginState?.username?.toLowerCase()
+        autoReloginState?.username?.toLowerCase(),
     );
 
     if (initiatedLogin && this.bot.auth.isLoggedIn() && !manualDifferentUser) {
       try {
         this.bot.auth.logout();
-      } catch {
-      }
+      } catch {}
     }
 
     if (manualDifferentUser) {

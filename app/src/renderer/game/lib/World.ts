@@ -1,8 +1,7 @@
+import { Monster, Avatar } from "@vexed/game";
+import type { AvatarData, ItemData, MonsterData } from "@vexed/game";
 import { extractMonsterMapId, isMonsterMapId } from "~/utils/isMonMapId";
 import type { Bot } from "./Bot";
-import { Avatar, type AvatarData } from "./models/Avatar";
-import type { ItemData } from "./models/Item";
-import { Monster, type MonsterData } from "./models/Monster";
 
 export enum GameAction {
   /**
@@ -64,7 +63,7 @@ export enum GameAction {
 }
 
 export class World {
-  public constructor(public readonly bot: Bot) { }
+  public constructor(public readonly bot: Bot) {}
 
   /**
    * A list of all player names in the map.
@@ -358,5 +357,87 @@ export class World {
     this.bot.flash.call(() =>
       swf.worldLoadSwf(`${mapSwf}${mapSwf.endsWith(".swf") ? "" : ".swf"}`),
     );
+  }
+
+  /**
+   * Hunt for a monster in the map.
+   *
+   * @param target - The monster name or monMapId to hunt.
+   * @param most - Whether to target the cell with the most monsters. Otherwise, it will target the cell with the first matching monster.
+   */
+  public async hunt(target: string, most = false): Promise<void> {
+    const matchingMonsters = this.filterMonstersByTarget(this.monsters, target);
+
+    if (matchingMonsters.length === 0) return;
+
+    const monstersByCell = this.groupMonstersByCell(matchingMonsters);
+    const targetCell = this.findBestCell(monstersByCell, most);
+
+    if (!targetCell) {
+      return;
+    }
+
+    await this.jump(targetCell);
+
+    const cellPad =
+      this.cellPads[Math.floor(Math.random() * this.cellPads.length)];
+    await this.jump(targetCell, cellPad, true);
+  }
+
+  private filterMonstersByTarget(
+    monsters: MonsterData[],
+    target: string,
+  ): MonsterData[] {
+    if (isMonsterMapId(target)) {
+      const monMapIdStr = extractMonsterMapId(target);
+      const monMapId = Number.parseInt(monMapIdStr, 10);
+      return monsters.filter((monster) => monster.monMapId === monMapId);
+    }
+
+    if (target === "*") return monsters;
+    return monsters.filter((monster) =>
+      monster.strMonName.toLowerCase().includes(target.toLowerCase()),
+    );
+  }
+
+  private groupMonstersByCell(
+    monsters: MonsterData[],
+  ): Map<string, MonsterData[]> {
+    const groups = new Map<string, MonsterData[]>();
+
+    for (const monster of monsters) {
+      const cell = monster.strFrame;
+      if (!groups.has(cell)) groups.set(cell, []);
+
+      groups.get(cell)!.push(monster);
+    }
+
+    return groups;
+  }
+
+  private findBestCell(
+    monstersByCell: Map<string, MonsterData[]>,
+    most: boolean,
+  ): string | null {
+    const cells = Array.from(monstersByCell.keys());
+
+    if (cells.length === 0) return null;
+
+    if (!most) return cells[0] ?? null;
+
+    let bestCell = cells[0];
+    if (!bestCell) return null;
+
+    let maxCount = monstersByCell.get(bestCell)?.length ?? 0;
+
+    for (const cell of cells) {
+      const count = monstersByCell.get(cell)?.length ?? 0;
+      if (count > maxCount) {
+        maxCount = count;
+        bestCell = cell;
+      }
+    }
+
+    return bestCell ?? null;
   }
 }

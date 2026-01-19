@@ -1,3 +1,4 @@
+import type { Aura, Monster } from "@vexed/game";
 import { sleep } from "@vexed/utils";
 import { errAsync, okAsync } from "neverthrow";
 import { TypedEmitter } from "tiny-typed-emitter";
@@ -21,10 +22,8 @@ import { AutoReloginJob } from "./jobs/autorelogin";
 import { BoostsJob } from "./jobs/boosts";
 import { DropsJob } from "./jobs/drops";
 import { QuestsJob } from "./jobs/quests";
-import type { Aura } from "./models/BaseEntity";
-import type { Monster } from "./models/Monster";
-import { Flash } from "./util/Flash";
 import { AuraStore } from "./util/AuraStore";
+import { Flash } from "./util/Flash";
 
 type Events = {
   /**

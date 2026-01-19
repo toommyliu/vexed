@@ -1,7 +1,5 @@
-// import type { Loadout } from "../botting/util/LoadoutConfig";
+import { EntityState, Faction } from "@vexed/game";
 import type { Bot } from "./Bot";
-import { EntityState } from "./models/BaseEntity";
-import { Faction } from "./models/Faction";
 
 export enum BoostType {
   ClassPoints = "classPoints",
@@ -11,7 +9,7 @@ export enum BoostType {
 }
 
 export class Player {
-  public constructor(public readonly bot: Bot) { }
+  public constructor(public readonly bot: Bot) {}
 
   /**
    * The player's faction data.
@@ -146,9 +144,7 @@ export class Player {
     );
 
     const roomId = this.bot.world.roomId;
-    this.bot.packets.sendServer(
-      `%xt%zm%mv%${roomId}%${x}%${y}%${walkSpeed}%`,
-    );
+    this.bot.packets.sendServer(`%xt%zm%mv%${roomId}%${x}%${y}%${walkSpeed}%`);
   }
 
   /**
