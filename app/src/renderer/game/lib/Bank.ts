@@ -1,6 +1,5 @@
 import type { Bot } from "./Bot";
-import { BankItem } from "./models/BankItem";
-import type { ItemData } from "./models/Item";
+import { Item, type ItemData } from "@vexed/game";
 
 export class Bank {
   // Whether bank items have been loaded.
@@ -11,10 +10,10 @@ export class Bank {
   /**
    * The list of items in the bank.
    */
-  public get items(): BankItem[] {
+  public get items(): Item[] {
     const ret = this.bot.flash.call(() => swf.bankGetItems());
     return Array.isArray(ret)
-      ? ret.map((item: ItemData) => new BankItem(item))
+      ? ret.map((item: ItemData) => new Item(item))
       : [];
   }
 
@@ -25,12 +24,11 @@ export class Bank {
    * Bank items must have been loaded beforehand to retrieve an item.
    * @param key - The name or ID of the item.
    */
-  public get(key: number | string): BankItem | null {
+  public get(key: number | string): Item | null {
     return this.bot.flash.call(() => {
       const item = swf.bankGetItem(key);
       if (!item) return null;
-
-      return new BankItem(item);
+      return new Item(item);
     });
   }
 

@@ -1,11 +1,10 @@
+import type { AvatarData, MonsterData } from "@vexed/game";
+import { Avatar, Monster, EntityState } from "@vexed/game";
 import { interval } from "@vexed/utils";
 import { doPriorityAttack } from "~/utils/doPriorityAttack";
 import { extractMonsterMapId, isMonsterMapId } from "~/utils/isMonMapId";
 import type { Bot } from "./Bot";
 import { GameAction } from "./World";
-import { type AvatarData, Avatar } from "./models/Avatar";
-import { EntityState } from "./models/BaseEntity";
-import { type MonsterData, Monster } from "./models/Monster";
 
 const DEFAULT_KILL_OPTIONS: KillOptions = {
   killPriority: [],
@@ -81,7 +80,7 @@ export class Combat {
    */
   public pauseAttack: boolean = false;
 
-  public constructor(public bot: Bot) { }
+  public constructor(public bot: Bot) {}
 
   /**
    * Whether the player has a target.
@@ -234,12 +233,12 @@ export class Combat {
     const _boundedSkillAction =
       typeof skillAction === "function"
         ? skillAction
-          .bind({
-            bot: this.bot,
-          })() // the skillAction function
-          .bind({
-            bot: this.bot,
-          }) // the returned function (the actual closure)
+            .bind({
+              bot: this.bot,
+            })() // the skillAction function
+            .bind({
+              bot: this.bot,
+            }) // the returned function (the actual closure)
         : null;
 
     let skillIndex = 0;
@@ -314,7 +313,7 @@ export class Combat {
           if (_boundedSkillAction) {
             try {
               await _boundedSkillAction();
-            } catch { }
+            } catch {}
           } else {
             const skill = skillSet[skillIndex]!;
             skillIndex = (skillIndex + 1) % skillSet.length;
@@ -477,11 +476,18 @@ export class Combat {
         return success;
       }
 
-      await this.bot.world.jump(this.bot.player.cell, this.bot.player.pad, true);
+      await this.bot.world.jump(
+        this.bot.player.cell,
+        this.bot.player.pad,
+        true,
+      );
 
-      const res_1 = await this.bot.waitUntil(() => !this.bot.player.isInCombat(), {
-        timeout: 2_000,
-      });
+      const res_1 = await this.bot.waitUntil(
+        () => !this.bot.player.isInCombat(),
+        {
+          timeout: 2_000,
+        },
+      );
       if (res_1.isOk()) {
         success = true;
         return success;
@@ -490,7 +496,10 @@ export class Combat {
       const ogCell = this.bot.player.cell;
 
       const cellsWithMonsters = new Set(
-        this.bot.world.monsters.map((mon) => mon.strFrame.toLowerCase()),
+        this.bot.world.monsters
+          .all()
+          .values()
+          .map((mon) => mon.cell.toLowerCase()),
       );
       const cells = this.bot.world.cells
         .filter(
@@ -510,7 +519,7 @@ export class Combat {
         await this.bot.world.jump(cell);
 
         const res_2 = await this.bot.waitUntil(
-          () => !this.bot.player.isInCombat()
+          () => !this.bot.player.isInCombat(),
         );
         if (res_2.isOk()) {
           success = true;
@@ -522,7 +531,7 @@ export class Combat {
         await this.bot.world.jump(ogCell);
 
         const res_3 = await this.bot.waitUntil(
-          () => !this.bot.player.isInCombat()
+          () => !this.bot.player.isInCombat(),
         );
         success = res_3.isOk();
       }

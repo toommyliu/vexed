@@ -36,6 +36,7 @@
     "@vexed/collection": "workspace:*",
     "@vexed/config": "workspace:*",
     "@vexed/fs-utils": "workspace:*",
+    "@vexed/game": "workspace:*",
     "@vexed/tipc": "workspace:*",
     "@vexed/ui": "workspace:*",
     "@vexed/utils": "workspace:*",
@@ -86,12 +87,13 @@
     "tailwindcss": "^3.4.17",
     "tsx": "^4.19.4",
     "typedoc": "^0.28.4",
-    "typescript": "^5.5.4"
+    "typescript": "^5.9.3"
   },
   "electronmon": {
     "patterns": [
       "!dist/**/*",
-      "!scripts/**/*"
+      "!scripts/**/*",
+      "!src/renderer/**/*"
     ]
   },
   "overrides": {

@@ -1,8 +1,11 @@
+import { Monster } from "@vexed/game";
 import { extractMonsterMapId, isMonsterMapId } from "~/utils/isMonMapId";
 import type { Bot } from "./Bot";
-import { Avatar, type AvatarData } from "./models/Avatar";
-import type { ItemData } from "./models/Item";
-import { Monster, type MonsterData } from "./models/Monster";
+import { monsters } from "./stores/monster";
+import { players } from "./stores/player";
+import type { PlayersStore } from "./stores/store";
+import { parseMapStr } from "./util/parse-map-str";
+import { equalsIgnoreCase } from "@vexed/utils";
 
 export enum GameAction {
   /**
@@ -64,7 +67,7 @@ export enum GameAction {
 }
 
 export class World {
-  public constructor(public readonly bot: Bot) { }
+  public constructor(public readonly bot: Bot) {}
 
   /**
    * A list of all player names in the map.
@@ -97,47 +100,23 @@ export class World {
   }
 
   /**
-   * A list of all players in the map.
+   * A store of the players in the map.
    */
-  public get players(): Map<string, Avatar> | null {
-    const out = this.bot.flash.call<string>(() => swf.worldGetPlayers());
-
-    if (!out) return null;
-
-    const parsedOut = out as unknown as Record<string, AvatarData>;
-
-    const map = new Map<string, Avatar>();
-    for (const [name, data] of Object.entries(parsedOut)) {
-      try {
-        map.set(
-          name?.toLowerCase(),
-          new Avatar(JSON.parse(data as unknown as string)),
-        );
-      } catch {
-        console.warn(`failed to parse avatar for: ${name}`);
-      }
-    }
-
-    return map;
+  public get players(): PlayersStore {
+    return players;
   }
 
   /**
-   *  A list of monsters in the map.
+   * A store of the monsters in the map.
    */
-  public get monsters(): MonsterData[] {
-    try {
-      return JSON.parse(
-        swf.selectArrayObjects("world.monsters", "objData"),
-      ) as MonsterData[];
-    } catch {
-      return [];
-    }
+  public get monsters() {
+    return monsters;
   }
 
   /**
    * A list of monsters in the cell.
    */
-  public get availableMonsters() {
+  public get availableMonsters(): Monster[] {
     const ret = this.bot.flash.call(() => swf.worldGetCellMonsters());
     return Array.isArray(ret) ? ret.map((data) => new Monster(data)) : [];
   }
@@ -261,48 +240,29 @@ export class World {
   ): Promise<void> {
     // Make sure the player is alive to be able to do the transfer.
     await this.bot.waitUntil(() => this.bot.player.alive);
-
     await this.bot.combat.exit();
-
     await this.bot.waitUntil(
       () => this.isActionAvailable(GameAction.Transfer),
       { timeout: 5_000 },
     );
 
-    let mapStr = mapName;
-    // eslint-disable-next-line prefer-const
-    let [map_name, map_number] = mapStr.split("-");
-
-    if (this.name.toLowerCase() === map_name!.toLowerCase()) {
+    const [roomName, roomNumber] = parseMapStr(mapName);
+    if (equalsIgnoreCase(roomName, this.name)) {
       await this.jump(cell, pad);
       return;
     }
 
-    // If for some reason, the provided map number is invalid, assume a random large number
-    if (
-      map_number === "1e9" ||
-      map_number === "1e99" ||
-      Number.isNaN(
-        Number.parseInt(map_number!, 10),
-      ) /* any non-number, e.g yulgar-a*/
-    ) {
-      map_number = "100000";
-    }
-
-    mapStr = `${map_name}${map_number ? `-${map_number}` : ""}`;
-
+    const mapStr = `${roomName}${roomNumber ? `-${roomNumber}` : ""}`;
     this.bot.flash.call(() => swf.playerJoinMap(mapStr, cell, pad));
     await this.bot.waitUntil(
-      () =>
-        !this.isLoading() &&
-        this.name.toLowerCase() === map_name!.toLowerCase(),
+      () => !this.isLoading() && equalsIgnoreCase(this.name, roomName),
       { timeout: 10_000 },
     );
 
     // Sometimes, the player might not end up in the correct cell/pad, even if specified
     if (
-      this.bot.player.cell.toLowerCase() !== cell.toLowerCase() ||
-      this.bot.player.pad.toLowerCase() !== pad.toLowerCase()
+      !equalsIgnoreCase(this.bot.player.cell, cell) ||
+      !equalsIgnoreCase(this.bot.player.pad, pad)
     ) {
       await this.jump(cell, pad);
     }
@@ -317,14 +277,6 @@ export class World {
    */
   public goto(playerName: string): void {
     this.bot.flash.call(() => swf.playerGoTo(playerName));
-  }
-
-  /**
-   * The list of all items in the world.
-   *
-   */
-  public get itemTree(): ItemData[] {
-    return this.bot.flash.call(() => swf.worldGetItemTree());
   }
 
   /**
@@ -358,5 +310,88 @@ export class World {
     this.bot.flash.call(() =>
       swf.worldLoadSwf(`${mapSwf}${mapSwf.endsWith(".swf") ? "" : ".swf"}`),
     );
+  }
+
+  /**
+   * Hunt for a monster in the map.
+   *
+   * @param target - The monster name or monMapId to hunt.
+   * @param most - Whether to target the cell with the most monsters. Otherwise, it will target the cell with the first matching monster.
+   */
+  public async hunt(target: string, most = false): Promise<void> {
+    const matchingMonsters = this.filterMonstersByTarget(
+      Array.from(this.monsters.all().values()),
+      target,
+    );
+
+    if (matchingMonsters.length === 0) return;
+
+    const monstersByCell = this.groupMonstersByCell(matchingMonsters);
+    const targetCell = this.findBestCell(monstersByCell, most);
+
+    if (!targetCell) {
+      return;
+    }
+
+    await this.jump(targetCell);
+
+    const cellPad =
+      this.cellPads[Math.floor(Math.random() * this.cellPads.length)];
+    await this.jump(targetCell, cellPad, true);
+  }
+
+  private filterMonstersByTarget(
+    monsters: Monster[],
+    target: string,
+  ): Monster[] {
+    if (isMonsterMapId(target)) {
+      const monMapIdStr = extractMonsterMapId(target);
+      const monMapId = Number.parseInt(monMapIdStr, 10);
+      return monsters.filter((monster) => monster.monMapId === monMapId);
+    }
+
+    if (target === "*") return monsters;
+    return monsters.filter((monster) =>
+      monster.name.toLowerCase().includes(target.toLowerCase()),
+    );
+  }
+
+  private groupMonstersByCell(monsters: Monster[]): Map<string, Monster[]> {
+    const groups = new Map<string, Monster[]>();
+
+    for (const monster of monsters) {
+      const cell = monster.cell;
+      if (!groups.has(cell)) groups.set(cell, []);
+
+      groups.get(cell)!.push(monster);
+    }
+
+    return groups;
+  }
+
+  private findBestCell(
+    monstersByCell: Map<string, Monster[]>,
+    most: boolean,
+  ): string | null {
+    const cells = Array.from(monstersByCell.keys());
+
+    if (cells.length === 0) return null;
+
+    if (!most) return cells[0] ?? null;
+
+    let bestCell = cells[0];
+    if (!bestCell) return null;
+
+    let maxCount = monstersByCell.get(bestCell)?.length ?? 0;
+
+    for (const cell of cells) {
+      const count = monstersByCell.get(cell)?.length ?? 0;
+      if (count > maxCount) {
+        maxCount = count;
+        bestCell = cell;
+      }
+    }
+
+    return bestCell ?? null;
   }
 }

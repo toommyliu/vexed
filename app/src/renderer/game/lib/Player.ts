@@ -1,17 +1,14 @@
-// import type { Loadout } from "../botting/util/LoadoutConfig";
+import { Avatar, BoostType, Faction, type AvatarData } from "@vexed/game";
 import type { Bot } from "./Bot";
-import { EntityState } from "./models/BaseEntity";
-import { Faction } from "./models/Faction";
 
-export enum BoostType {
-  ClassPoints = "classPoints",
-  Exp = "exp",
-  Gold = "gold",
-  Rep = "rep",
-}
+export class Player extends Avatar {
+  public constructor(public readonly bot: Bot) {
+    super({} as AvatarData);
+  }
 
-export class Player {
-  public constructor(public readonly bot: Bot) { }
+  public override get data(): AvatarData {
+    return this.bot.world.players.me?.data ?? super.data;
+  }
 
   /**
    * The player's faction data.
@@ -30,76 +27,6 @@ export class Player {
   }
 
   /**
-   * The state of the player.
-   */
-  public get state(): (typeof EntityState)[keyof typeof EntityState] {
-    return this.bot.flash.call(() => swf.playerGetState());
-  }
-
-  /**
-   * Whether the player is in combat.
-   */
-  public isInCombat() {
-    return this.state === EntityState.InCombat;
-  }
-
-  /**
-   * The health of the player.
-   */
-  public get hp(): number {
-    return this.bot.flash.call(() => swf.playerGetHp());
-  }
-
-  /**
-   * The maximum health of the player.
-   */
-  public get maxHp(): number {
-    return this.bot.flash.call(() => swf.playerGetMaxHp());
-  }
-
-  /**
-   * The health percentage of the player.
-   */
-  public get hpPercentage(): number {
-    return (this.hp / this.maxHp) * 100;
-  }
-
-  /**
-   * Whether the player is alive.
-   */
-  public get alive(): boolean {
-    return this.hp > 0;
-  }
-
-  /**
-   * The mana of the player.
-   */
-  public get mp(): number {
-    return this.bot.flash.call(() => swf.playerGetMp());
-  }
-
-  /**
-   * The maximum mana of the player.
-   */
-  public get maxMp(): number {
-    return this.bot.flash.call(() => swf.playerGetMaxMp());
-  }
-
-  /**
-   * The percentage of mana the player has.
-   */
-  public get mpPercentage(): number {
-    return (this.mp / this.maxMp) * 100;
-  }
-
-  /**
-   * The level of the player.
-   */
-  public get level(): number {
-    return this.bot.flash.call(() => swf.playerGetLevel());
-  }
-
-  /**
    * The player's gold.
    */
   public get gold(): number {
@@ -107,24 +34,10 @@ export class Player {
   }
 
   /**
-   * Whether the player is AFK.
-   */
-  public isAFK(): boolean {
-    return this.bot.flash.call(() => swf.playerIsAfk());
-  }
-
-  /**
    * Whether the player has an active membership.
    */
   public isMember(): boolean {
     return this.bot.flash.call(() => swf.playerIsMember());
-  }
-
-  /**
-   * The player's current position.
-   */
-  public get position(): [number, number] {
-    return this.bot.flash.call(() => swf.playerGetPosition());
   }
 
   /**
@@ -139,30 +52,14 @@ export class Player {
     y: number | string,
     walkSpeed?: number | string,
   ): void {
-    if (!this.bot.player.alive) return;
+    if (!this.alive) return;
 
     this.bot.flash.call(() =>
       swf.playerWalkTo(Number(x), Number(y), Number(walkSpeed)),
     );
 
     const roomId = this.bot.world.roomId;
-    this.bot.packets.sendServer(
-      `%xt%zm%mv%${roomId}%${x}%${y}%${walkSpeed}%`,
-    );
-  }
-
-  /**
-   * The cell the player is in, in the map.
-   */
-  public get cell(): string {
-    return this.bot.flash.call(() => swf.playerGetCell());
-  }
-
-  /**
-   * The pad the player is in, in the map.
-   */
-  public get pad(): string {
-    return this.bot.flash.call(() => swf.playerGetPad());
+    this.bot.packets.sendServer(`%xt%zm%mv%${roomId}%${x}%${y}%${walkSpeed}%`);
   }
 
   /**
@@ -192,9 +89,7 @@ export class Player {
    * @param type - The type of boost to check.
    * @returns Whether the boost is active.
    */
-  public isBoostActive(
-    type: (typeof BoostType)[keyof typeof BoostType],
-  ): boolean {
+  public isBoostActive(type: BoostType): boolean {
     switch (type) {
       case BoostType.Gold:
         return this.bot.flash.get("world.myAvatar.objData.iBoostG", true) > 0;
@@ -208,35 +103,4 @@ export class Player {
         return false;
     }
   }
-
-  // /**
-  //  * Equips a loadout for the player.
-  //  *
-  //  * @remarks
-  //  * A loadout is to be read from file, not the player's outfits.
-  //  * @param loadout - The loadout to equip.
-  //  */
-  // public async equipLoadout(loadout: Loadout) {
-  //   const { Cape, Class, Helm, Pet, Weapon } = loadout;
-
-  //   if (Cape) {
-  //     await this.bot.inventory.equip(Cape);
-  //   }
-
-  //   if (Class) {
-  //     await this.bot.inventory.equip(Class);
-  //   }
-
-  //   if (Helm) {
-  //     await this.bot.inventory.equip(Helm);
-  //   }
-
-  //   if (Pet) {
-  //     await this.bot.inventory.equip(Pet);
-  //   }
-
-  //   if (Weapon) {
-  //     await this.bot.inventory.equip(Weapon);
-  //   }
-  // }
 }

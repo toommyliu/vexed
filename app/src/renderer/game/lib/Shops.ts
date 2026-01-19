@@ -1,6 +1,6 @@
+import { ShopItem, type ShopItemData } from "@vexed/game";
 import type { Bot } from "./Bot";
 import { GameAction } from "./World";
-import { ShopItem, type ShopItemData } from "./models/ShopItem";
 
 export class Shops {
   public constructor(public bot: Bot) {}
@@ -38,9 +38,8 @@ export class Shops {
     const item = this.info!.items.find(
       (shopItem) => shopItem.sName.toLowerCase() === itemName.toLowerCase(),
     );
-
-    if (item) return new ShopItem(item);
-    return null;
+    if (!item) return null;
+    return new ShopItem(item);
   }
 
   /**
@@ -55,9 +54,8 @@ export class Shops {
     const item = this.info!.items.find(
       (shopItem) => shopItem.ItemID === itemId,
     );
-
-    if (item) return new ShopItem(item);
-    return null;
+    if (!item) return null;
+    return new ShopItem(item);
   }
 
   /**
