@@ -79,25 +79,12 @@ registerJsonHandler<CtPacket>("ct", (bot, packet) => {
           } else {
             auraStore.update(targetId, aura);
           }
-
-          {
-            const aura = auraStore.getAura(targetId, auraData.nam)!;
-            if (aura.name === "Focus") {
-              console.log(
-                `ct :: added aura ${aura.name} to ${auraObj.tInf} (now at ${aura.stack})`,
-              );
-            }
-          }
         }
       } else if (REMOVE_AURAS.has(auraObj.cmd)) {
         const auraName = auraObj.aura?.nam;
         if (!auraName) continue;
 
         auraStore.remove(targetId, auraName);
-
-        if (auraName === "Focus") {
-          console.log(`ct :: removed Focus from ${auraObj.tInf}`);
-        }
 
         if (
           targetType === "m" &&

@@ -14,6 +14,7 @@ registerStrHandler("uotls", (bot, packet) => {
     const name = packet[2]?.toLowerCase();
 
     // TODO: remove this
+
     // backward compatibility
     if (afkOn && equalsIgnoreCase(name, bot.auth.username)) bot.emit("afk");
 
@@ -41,8 +42,6 @@ registerStrHandler("uotls", (bot, packet) => {
   }
 
   // (remote) player cell change
-  // mvts:-1,px:500,py:375,strPad:Top,bResting:false,mvtd:0,tx:0,ty:0,strFrame:r1
-
   if (packet.length === 4 && data.startsWith("mvts:")) {
     const name = packet[2]?.toLowerCase() ?? "";
     const player = bot.world.players.getByName(name);
@@ -53,12 +52,13 @@ registerStrHandler("uotls", (bot, packet) => {
     const cell = get("strFrame:");
     const pad = get("strPad:");
 
-    // these position values seem incorrect...
-    if (Number.isFinite(tx)) player.data.tx = tx;
-    if (Number.isFinite(ty)) player.data.ty = ty;
     if (typeof cell === "string") player.data.strFrame = cell;
     if (typeof pad === "string") player.data.strPad = pad;
 
-    console.log(`uotls :: ${name} moved to ${tx}:${ty} in ${cell} (${pad})`);
+    // these position values seem incorrect...
+    if (Number.isFinite(tx)) player.data.tx = tx;
+    if (Number.isFinite(ty)) player.data.ty = ty;
+
+    // console.log(`uotls :: ${name} moved to ${tx}:${ty} in ${cell} (${pad})`);
   }
 });
