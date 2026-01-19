@@ -8,7 +8,7 @@ export class Item {
     /**
      * Data about this item
      */
-    public data: ItemData
+    public data: ItemData,
   ) {}
 
   /**
@@ -182,5 +182,75 @@ export class Item {
    */
   public isMember(): boolean {
     return this.data.bUpg === 1;
+  }
+
+  /**
+   * The character ID of this item.
+   */
+  public get charItemId(): number {
+    return this.data.CharItemID;
+  }
+
+  /**
+   * Whether the item is equipped.
+   */
+  public isEquipped(): boolean {
+    return this.data.bEquip === 1;
+  }
+
+  /**
+   * Whether the item is currently being worn.
+   */
+  public isWearing(): boolean {
+    return this.data.bWear === 1;
+  }
+
+  /**
+   * The level of the item.
+   */
+  public get level(): number {
+    return this.data.iLvl;
+  }
+
+  /**
+   * The enhancement level of the item.
+   */
+  public get enhancementLevel(): number {
+    return this.data.EnhLvl;
+  }
+
+  /**
+   * The enhancement pattern ID of the item.
+   *
+   * @remarks
+   * 1: Adventurer
+   *
+   * 2: Fighter
+   *
+   * 3: Thief
+   *
+   * 4: Armsman
+   *
+   * 5: Hybrid
+   *
+   * 6: Wizard
+   *
+   * 7: Healer
+   *
+   * 8: Spellbreaker
+   *
+   * 9: Lucky
+   *
+   * 10: Forge (?)
+   */
+  public get enhancementPatternId(): number {
+    return this.data.EnhPatternID;
+  }
+
+  /**
+   * Whether the item is a boost.
+   */
+  public isBoost(): boolean {
+    return this.data.sType === "ServerUse";
   }
 }

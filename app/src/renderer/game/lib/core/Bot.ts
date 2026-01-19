@@ -59,12 +59,6 @@ type Events = {
    */
   monsterDeath(monMapId: number): void;
   /**
-   * This event is emitted when a monster has respawned.
-   *
-   * @param monster - The monster that has respawned.
-   */
-  monsterRespawn(monster: Monster): void;
-  /**
    * @param packet - The packet dispatched from the client.
    */
   packetFromClient(packet: string): void;

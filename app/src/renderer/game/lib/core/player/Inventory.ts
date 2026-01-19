@@ -1,42 +1,43 @@
-import { GameAction } from "@vexed/game";
-import { inventory } from "~/lib/stores/inventory";
+import { GameAction, Item, type ItemData } from "@vexed/game";
 import type { Bot } from "../Bot";
 import { ServerPacket } from "../Packets";
+import { ItemContainer } from "./ItemContainer";
 
-export class Inventory {
-  public constructor(public readonly bot: Bot) {}
-
-  /**
-   * All items in the player's inventory.
-   */
-  public get items() {
-    return inventory;
+export class Inventory extends ItemContainer<Item> {
+  public constructor(bot: Bot) {
+    super(bot);
   }
 
   /**
-   * Resolves for an Item in the Inventory.
+   * Returns all items in the player's inventory.
+   */
+  public all(): Item[] {
+    return this.bot.flash
+      .getWithDefault<ItemData[]>("world.myAvatar.items", [])
+      .map((item) => new Item(item));
+  }
+
+  /**
+   * Gets an item from the inventory.
    *
    * @param key - The name or ID of the item.
    */
-  public get(key: number | string) {
-    if (typeof key === "number") return this.items.get(key);
-    if (typeof key === "string") return this.items.getByName(key);
-    return undefined;
+  public get(key: number | string): Item | undefined {
+    const data = this.bot.flash.call<any | null>(() =>
+      swf.inventoryGetItem(key),
+    );
+    return data ? new Item(data) : undefined;
   }
 
   /**
    * Whether an item meets the quantity in the inventory.
    *
    * @remarks If the item is a Class, the quantity is ignored.
-   * @param itemKey - The name or ID of the item.
+   * @param key - The name or ID of the item.
    * @param quantity - The quantity of the item.
    */
-  public contains(itemKey: number | string, quantity: number = 1): boolean {
-    const item = this.get(itemKey);
-    return (
-      item !== undefined &&
-      (item.quantity >= quantity || item.category === "Class")
-    );
+  public contains(key: number | string, quantity: number = 1): boolean {
+    return this.bot.flash.call(() => swf.inventoryContains(key, quantity));
   }
 
   /**
@@ -46,7 +47,6 @@ export class Inventory {
     return this.bot.flash.getWithDefault<number>(
       "world.myAvatar.objData.iBagSlots",
       0,
-      true,
     );
   }
 
@@ -54,14 +54,7 @@ export class Inventory {
    * The number of used slots in the player's inventory.
    */
   public get usedSlots(): number {
-    return this.items.all().size;
-  }
-
-  /**
-   * The number of available slots in the player's inventory.
-   */
-  public get availableSlots(): number {
-    return this.totalSlots - this.usedSlots;
+    return this.bot.flash.getWithDefault("world.myAvatar.items.length", 0);
   }
 
   /**

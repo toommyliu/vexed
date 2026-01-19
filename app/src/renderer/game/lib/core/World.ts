@@ -60,6 +60,7 @@ export class World {
    * A list of monsters in the cell.
    */
   public get availableMonsters() {
+    // TODO:
     const ret = this.bot.flash.call(() => swf.worldGetCellMonsters());
     return Array.isArray(ret) ? ret.map((data) => new Monster(data)) : [];
   }

@@ -1,5 +1,5 @@
 import { BaseEntity } from "./BaseEntity";
-import type { BaseEntityData } from "../types/BaseEntityData";
+import type { MonsterData } from "../types/MonsterData";
 
 /**
  * Represents a monster.
@@ -63,14 +63,3 @@ export class Monster extends BaseEntity {
     return this.data.strFrame;
   }
 }
-
-export type MonsterData = BaseEntityData & {
-  iLvl: number;
-  intMP: number;
-  intMPMax: number;
-  monId: number;
-  monMapId: number;
-  sRace: string;
-  strFrame: string;
-  strMonName: string;
-};

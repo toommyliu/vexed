@@ -1,15 +1,10 @@
 export * from "./models/Avatar";
-export * from "./models/BankItem";
 export * from "./models/BaseEntity";
 export * from "./models/Faction";
-export * from "./models/HouseItem";
-export * from "./models/InventoryItem";
 export * from "./models/Item";
 export * from "./models/Monster";
 export * from "./models/Quest";
 export * from "./models/Server";
-export * from "./models/ShopItem";
-export * from "./models/TempInventoryItem";
 
 export * from "./types/Aura";
 export * from "./types/AvatarData";
@@ -18,6 +13,7 @@ export * from "./types/EntityState";
 export * from "./types/FactionData";
 export * from "./types/GameAction";
 export * from "./types/ItemData";
+export * from "./types/MonsterData";
 export * from "./types/QuestData";
 export * from "./types/QuestInfo";
 export * from "./types/ServerData";

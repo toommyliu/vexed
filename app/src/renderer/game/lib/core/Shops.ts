@@ -1,4 +1,4 @@
-import { ShopItem, GameAction, type ShopItemData } from "@vexed/game";
+import { Item, GameAction, type ShopItemData } from "@vexed/game";
 import { equalsIgnoreCase } from "@vexed/utils";
 import type { Bot } from "./Bot";
 
@@ -38,14 +38,14 @@ export class Shops {
    * @param itemName - The name of the item.
    * @returns
    */
-  public getByName(itemName: string): ShopItem | null {
+  public getByName(itemName: string): Item | null {
     if (!this.isShopLoaded()) return null;
 
     const item = this.info!.items.find((shopItem) =>
       equalsIgnoreCase(shopItem.sName, itemName),
     );
 
-    if (item) return new ShopItem(item);
+    if (item) return new Item(item);
     return null;
   }
 
@@ -55,14 +55,14 @@ export class Shops {
    * @param itemId - The ID of the item.
    * @returns The shop item data or null if not found.
    */
-  public getById(itemId: number): ShopItem | null {
+  public getById(itemId: number): Item | null {
     if (!this.isShopLoaded()) return null;
 
     const item = this.info!.items.find(
       (shopItem) => shopItem.ItemID === itemId,
     );
 
-    if (item) return new ShopItem(item);
+    if (item) return new Item(item);
     return null;
   }
 

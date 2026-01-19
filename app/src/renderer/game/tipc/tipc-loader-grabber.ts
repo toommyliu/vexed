@@ -1,3 +1,4 @@
+import { ItemData } from "@vexed/game";
 import { Bot } from "~/renderer/game/lib/core/Bot";
 import { handlers } from "~/shared/tipc";
 import { GrabberDataType, LoaderDataType } from "~/shared/types";
@@ -33,11 +34,14 @@ handlers.loaderGrabber.grab.handle(async ({ type }) => {
     case GrabberDataType.Quest:
       return bot.flash.call(() => swf.questsGetTree());
     case GrabberDataType.Inventory:
-      return bot.flash.call(() => swf.inventoryGetItems());
+      return bot.flash.getWithDefault<ItemData[]>("world.myAvatar.items", []);
     case GrabberDataType.TempInventory:
-      return bot.flash.call(() => swf.tempInventoryGetItems());
+      return bot.flash.getWithDefault<ItemData[]>(
+        "world.myAvatar.tempitems",
+        [],
+      );
     case GrabberDataType.Bank:
-      return bot.flash.call(() => swf.bankGetItems());
+      return bot.flash.getWithDefault<ItemData[]>("world.mybankinfo.items", []);
     case GrabberDataType.CellMonsters:
       return bot.flash.call(() => swf.worldGetCellMonsters());
     case GrabberDataType.MapMonsters:

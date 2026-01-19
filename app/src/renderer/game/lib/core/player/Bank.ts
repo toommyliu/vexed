@@ -1,17 +1,22 @@
-import { bank } from "~/lib/stores/bank";
+import { Item, type ItemData } from "@vexed/game";
 import type { Bot } from "../Bot";
+import { ItemContainer } from "./ItemContainer";
 
-export class Bank {
+export class Bank extends ItemContainer<Item> {
   // Whether bank items have been loaded.
   private isLoaded = false;
 
-  public constructor(public bot: Bot) {}
+  public constructor(bot: Bot) {
+    super(bot);
+  }
 
   /**
-   * The list of items in the bank.
+   * Returns all items in the bank.
    */
-  public get items() {
-    return bank;
+  public all(): Item[] {
+    return this.bot.flash
+      .getWithDefault<ItemData[]>("world.bankinfo.items", [])
+      .map((item) => new Item(item));
   }
 
   /**
@@ -21,10 +26,9 @@ export class Bank {
    * Bank items must have been loaded beforehand to retrieve an item.
    * @param key - The name or ID of the item.
    */
-  public get(key: number | string) {
-    if (typeof key === "number") return this.items.get(key);
-    if (typeof key === "string") return this.items.getByName(key);
-    return undefined;
+  public get(key: number | string): Item | undefined {
+    const data = this.bot.flash.call<any | null>(() => swf.bankGetItem(key));
+    return data ? new Item(data) : undefined;
   }
 
   /**
@@ -35,29 +39,21 @@ export class Bank {
    * @param quantity - The quantity of the item.
    */
   public contains(key: number | string, quantity: number = 1): boolean {
-    const item = this.get(key);
-    return item !== undefined && item.quantity >= quantity;
+    return this.bot.flash.call(() => swf.bankContains(key, quantity));
   }
 
   /**
    * The number of bank slots.
    */
   public get totalSlots(): number {
-    return this.bot.flash.call(() => swf.bankGetSlots());
+    return this.bot.flash.get("world.myAvatar.objData.iBankSlots", true) ?? 0;
   }
 
   /**
    * The number of bank slots currently in use.
    */
   public get usedSlots(): number {
-    return this.items.all().size;
-  }
-
-  /**
-   * The number of bank slots available.
-   */
-  public get availableSlots(): number {
-    return this.totalSlots - this.usedSlots;
+    return this.bot.flash.get("world.myAvatar.iBankCount", true) ?? 0;
   }
 
   /**
@@ -66,11 +62,8 @@ export class Bank {
    * @param key - The name or ID of the item.
    */
   public async deposit(key: number | string): Promise<void> {
-    const invItem = this.bot.player.inventory.get(key);
-    if (!invItem) return;
-
     await this.open();
-    this.bot.flash.call("world.sendBankFromInvRequest", invItem.data);
+    this.bot.flash.call(() => swf.bankDeposit(key));
     await this.bot.waitUntil(
       () =>
         this.bot.auth.isLoggedIn() &&
@@ -86,7 +79,6 @@ export class Bank {
    */
   public async depositMultiple(items: (number | string)[]): Promise<void> {
     if (!Array.isArray(items) || !items.length) return;
-
     for (const item of items) {
       await this.deposit(item);
       await this.bot.sleep(500);
@@ -100,12 +92,7 @@ export class Bank {
    */
   public async withdraw(key: number | string): Promise<void> {
     await this.open();
-
-    const item = this.get(key);
-    if (!item || this.bot.player.inventory.get(key)) return;
-
-    this.bot.flash.call("world.sendBankToInvRequest", item.data);
-
+    this.bot.flash.call(() => swf.bankWithdraw(key));
     await this.bot.waitUntil(
       () =>
         this.bot.auth.isLoggedIn() &&
@@ -121,7 +108,6 @@ export class Bank {
    */
   public async withdrawMultiple(items: (number | string)[]): Promise<void> {
     if (!Array.isArray(items) || !items.length) return;
-
     for (const item of items) {
       await this.withdraw(item);
       await this.bot.sleep(500);
@@ -146,11 +132,7 @@ export class Bank {
 
     if (!bankItemData || !inventoryItemData) return;
 
-    this.bot.flash.call(
-      "world.sendBankSwapRequest",
-      bankItemData,
-      inventoryItemData,
-    );
+    // TODO:
     await this.bot.waitUntil(
       () =>
         this.bot.auth.isLoggedIn() &&
@@ -169,11 +151,10 @@ export class Bank {
   ): Promise<void> {
     if (!Array.isArray(items) || !items.length) return;
 
-    await Promise.all(
-      items.map(async ([bankItem, inventoryItem]) =>
-        this.swap(bankItem, inventoryItem),
-      ),
-    );
+    for (const [bankItem, inventoryItem] of items) {
+      await this.swap(bankItem, inventoryItem);
+      await this.bot.sleep(500);
+    }
   }
 
   /**
@@ -192,13 +173,13 @@ export class Bank {
 
     // If it's already open, close it first
     if (this.isOpen()) {
-      this.bot.flash.call(() => swf.bankOpen());
+      this.bot.flash.call("world.toggleBank");
       await this.bot.waitUntil(() => !this.isOpen());
       await this.bot.sleep(500);
     }
 
     // Open the ui
-    this.bot.flash.call(() => swf.bankOpen());
+    this.bot.flash.call("world.toggleBank");
     await this.bot.waitUntil(() => this.isOpen());
 
     // Load items if needed
@@ -211,7 +192,7 @@ export class Bank {
       () =>
         this.bot.player.isReady() &&
         this.isOpen() &&
-        this.items.all().size > 0 /* wait until something is loaded */,
+        this.all().length > 0 /* wait until something is loaded */,
     );
   }
 
@@ -219,6 +200,9 @@ export class Bank {
    * Whether the bank ui is open.
    */
   public isOpen(): boolean {
-    return this.bot.flash.get("ui.mcPopup.currentLabel", true) === "Bank";
+    return (
+      this.bot.flash.getWithDefault("ui.mcPopup.currentLabel", "" as string) ===
+      "Bank"
+    );
   }
 }

@@ -4,12 +4,19 @@ import type { Bot } from "./lib/core/Bot";
 import type { ClientPacket } from "./lib/core/Packets";
 import type { ShopInfo } from "./lib/core/Shops";
 import type { GameAction } from "./lib/core/World";
-import type { AvatarData } from "./lib/models/Avatar";
-import type { FactionData } from "./lib/models/Faction";
 import type { ItemData } from "./lib/models/Item";
 import type { MonsterData } from "./lib/models/Monster";
 import type { QuestData } from "./lib/models/Quest";
 import type { ServerData } from "./lib/models/Server";
+
+import type {
+  AvatarData,
+  FactionData,
+  ItemData,
+  MonsterData,
+  QuestInfo,
+  ServerData,
+} from "@vexed/game";
 
 // TODO: this needs a major update
 
@@ -36,25 +43,22 @@ declare global {
     isConnMcBackButtonVisible(): boolean;
     getConnMcText(): string;
 
+    // Auth
     authIsLoggedIn(): boolean;
     authIsTemporarilyKicked(): boolean;
     authLogin(username: string, password: string): void;
     authLogout(): void;
-    authGetServers(): ServerData[];
     authConnectTo(server: string): void;
 
-    bankGetItems(): ItemData[];
+    // Bank
     bankGetItem(key: number | string): ItemData | null;
     bankContains(key: number | string, quantity?: number): boolean;
     bankLoadItems(): void;
-    bankGetSlots(): number;
-    bankGetUsedSlots(): number;
     bankDeposit(key: number | string): boolean;
     bankWithdraw(key: number | string): boolean;
     bankSwap(invKey: number | string, bankKey: number | string): boolean;
-    bankOpen(): void;
-    bankIsOpen(): boolean;
 
+    // Combat
     combatHasTarget(): boolean;
     combatGetTarget(): Record<string, unknown> | null;
     combatUseSkill(index: number): void;
@@ -72,48 +76,18 @@ declare global {
     dropStackGetItems(): { [key: number]: ItemData };
     dropStackToggleUi(): boolean;
 
-    houseGetItems(): ItemData[];
+    // House - done
     houseGetItem(key: number | string): Nullable<ItemData>;
     houseContains(key: number | string, quantity: number | undefined): boolean;
     houseGetSlots(): number;
 
-    inventoryGetItems(): ItemData[];
-    inventoryGetItem(key: number | string): Nullable<ItemData>;
-    inventoryContains(
-      key: number | string,
-      quantity: number | undefined,
-    ): boolean;
-    inventoryGetSlots(): number;
-    inventoryGetUsedSlots(): number;
-    inventoryEquip(key: number | string): boolean;
+    // Inventory - done
+    inventoryGetItem(key: number | string): ItemData | null;
+    inventoryContains(key: number | string, quantity?: number): boolean;
 
-    playerJoinMap(map: string, cell: string | null, pad: string | null): void;
-    playerGetMap(): string;
-    playerJump(cell: string, pad: string | null): void;
-    playerGetCell(): string;
-    playerGetPad(): string;
-    playerGetFactions(): FactionData[];
-    playerGetState(): number;
-    playerGetHp(): number;
-    playerGetMaxHp(): number;
-    playerGetMp(): number;
-    playerGetMaxMp(): number;
-    playerGetLevel(): number;
-    playerGetGold(): number;
-    playerIsMember(): boolean;
-    playerIsAfk(): boolean;
-    playerGetPosition(): [number, number];
+    // Player - done
     playerWalkTo(x: number, y: number, walkSpeed?: number): void;
-    playerRest(): void;
-    playerUseBoost(itemId: number): boolean;
-    playerHasActiveBoost(boost: string): boolean;
-    playerGetClassName(): string;
-    playerGetUserId(): number;
-    playerGetCharId(): number;
-    playerGetGender(): string;
-    playerGetData(): Record<string, unknown>;
     playerIsLoaded(): boolean;
-    playerGoTo(name: string): void;
 
     questsIsInProgress(questId: number): boolean;
     questsComplete(
@@ -142,16 +116,6 @@ declare global {
     settingsSetName(name: string): void;
     settingsSetGuild(name: string): void;
     settingsSetWalkSpeed(speed: number): void;
-    settingsSetAccessLevel(
-      accessLevel:
-        | "30"
-        | "40"
-        | "50"
-        | "60"
-        | "Member"
-        | "Moderator"
-        | "Non Member",
-    );
     settingsSetDeathAds(on: boolean): void;
     settingsSetDisableCollisions(on: boolean): void;
     settingsSetDisableFX(on: boolean): void;
@@ -171,31 +135,16 @@ declare global {
     shopCanBuyItem(itemName: string): boolean;
     shopIsMergeShop(): boolean;
 
-    tempInventoryGetItems(): ItemData[];
+    // TempInventory - done
     tempInventoryGetItem(key: number | string): Nullable<ItemData>;
     tempInventoryContains(key: number | string, quantity?: number): boolean;
 
+    // World
     worldIsLoaded(): boolean;
-    worldGetPlayerNames(): string[];
-    worldGetPlayers(): string;
-    worldGetPlayer(name: string): string;
-    worldIsPlayerInCell(name: string, cell?: string): boolean;
-    worldIsActionAvailable(
-      gameAction: (typeof GameAction)[keyof typeof GameAction],
-    ): boolean;
+    worldIsActionAvailable(gameAction: string): boolean;
     worldGetCellMonsters(): MonsterData[];
-    worldGetMonsterByName(key: string | "*"): Nullable<MonsterData>;
-    worldGetMonsterByMonMapId(key: number): Nullable<MonsterData>;
-    worldIsMonsterAvailable(key: number | string | "*"): boolean;
     worldGetCells(): string[];
     worldGetCellPads(): string[];
-    worldGetItemTree(): ItemData[];
-    worldGetRoomId(): number;
-    worldGetRoomNumber(): number;
-    worldReload(): void;
-    worldLoadSwf(swf: string): void;
-    worldGetMapItem(itemId: number): void;
-    worldSetSpawnPoint(cell?: string, pad?: string): void;
 
     isTextFieldFocused(): boolean;
   };
@@ -204,7 +153,6 @@ declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface Window {
     /* eslint-disable typescript-sort-keys/interface */
-
     // interop
     flashDebug(...args: string[]): void;
     packetFromClient(packet: [string]): Promise<void> | void;

@@ -456,7 +456,7 @@ export class Combat {
       await this.exit();
     }
 
-    swf.playerRest();
+    this.bot.flash.call("world.rest");
 
     if (full) {
       await this.bot.waitUntil(

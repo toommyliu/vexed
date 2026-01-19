@@ -1,3 +1,4 @@
+import type { ShopItemData } from "@vexed/game";
 import { Command } from "~/botting/command";
 
 export class CommandBuy extends Command {
@@ -68,12 +69,14 @@ export class CommandBuy extends Command {
       return;
     }
 
-    if (!shopItem.data.turnin || shopItem.data.turnin.length === 0) {
+    const shopItemData = shopItem.data as ShopItemData;
+
+    if (!shopItemData.turnin || shopItemData.turnin.length === 0) {
       await this.normalBuy();
       return;
     }
 
-    const requirements = shopItem.data.turnin;
+    const requirements = shopItemData.turnin;
     const missingItems: {
       cost: number;
       isAC: boolean;

@@ -26,76 +26,6 @@ package vexed.game
       return false;
     }
 
-    public static function getPlayers():String /* { [name: string]: PlayerData } */
-    {
-      var ret:Object = {};
-      for (var player:String in game.world.uoTree)
-      {
-        var playerObj:Object = game.world.uoTree[player];
-        if (playerObj !== null)
-        {
-          var playerObj_:Object = getPlayer(player);
-          if (playerObj_ !== null)
-          {
-            ret[player] = getPlayer(player);
-          }
-        }
-      }
-      return JSON.stringify(ret);
-    }
-
-    public static function getPlayer(name:String):String
-    {
-      if (!name)
-        return null;
-
-      name = name.toLowerCase();
-
-      const playerObj:Object = game.world.uoTree[name];
-      if (!playerObj)
-        return null;
-
-      const ret:Object = {};
-
-      for (var key:String in playerObj)
-      {
-        try
-        {
-          if (key === 'auras')
-            continue;
-          else
-            ret[key] = playerObj[key];
-        }
-        catch (e:Error)
-        {
-        }
-      }
-
-      return JSON.stringify(ret);
-    }
-
-    public static function isPlayerInCell(name:String, cell:String = null):Boolean
-    {
-      if (!name)
-      {
-        return false;
-      }
-
-      // Use current cell if none is provided
-      if (!cell)
-      {
-        cell = game.world.strFrame;
-      }
-
-      var player:Object = game.world.uoTree[name.toLowerCase()];
-      if (!player)
-      {
-        return false;
-      }
-
-      return player.strFrame.toLowerCase() === cell.toLowerCase();
-    }
-
     public static function isActionAvailable(gameAction:String):Boolean
     {
       var _loc_2:* = undefined;
@@ -109,17 +39,14 @@ package vexed.game
       return _loc_5 < _loc_2.cd ? false : true;
     }
 
-    public static function getCellMonsters():Array
-    {
+    public static function getCellMonsters():Array {
       var monsters:Array = game.world.getMonstersByCell(game.world.strFrame);
       var ret:Array = [];
 
-      for (var id:Object in monsters)
-      {
+      for (var id:Object in monsters) {
         var monster:Object = monsters[id];
 
-        if (!Boolean(monster.pMC) || !Boolean(monster.pMC.visible) || monster.dataLeaf.intState <= 0)
-        {
+        if (!Boolean(monster.pMC) || !Boolean(monster.pMC.visible) || monster.dataLeaf.intState <= 0) {
           continue;
         }
 
@@ -133,26 +60,6 @@ package vexed.game
         mon.intHP = monster.dataLeaf.intHP;
         mon.intHPMax = monster.dataLeaf.intHPMax;
         ret.push(mon);
-      }
-
-      return ret;
-    }
-
-    public static function getCellMonsterIds():Array
-    {
-      var monsters:Array = game.world.getMonstersByCell(game.world.strFrame);
-      var ret:Array = [];
-
-      for (var id:Object in monsters)
-      {
-        var monster:Object = monsters[id];
-
-        if (!Boolean(monster.pMC) || !Boolean(monster.pMC.visible) || monster.dataLeaf.intState <= 0)
-        {
-          continue;
-        }
-
-        ret.push(monster.dataLeaf.MonMapID);
       }
 
       return ret;

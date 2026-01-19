@@ -1,5 +1,5 @@
-import { AutoZone } from "../../botting/autozone";
-import type { Bot } from "../../lib/core/Bot";
+import { AutoZone } from "~/botting/autozone";
+import type { Bot } from "~/lib/core/Bot";
 import { registerJsonHandler } from "../registry";
 
 const getRandomIntInRange = (min: number, max: number) =>

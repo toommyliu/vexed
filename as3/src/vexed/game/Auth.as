@@ -28,30 +28,14 @@ package vexed.game
 
     public static function logout():void
     {
-      if (game.sfc.isConnected)
-      {
-        game.sfc.disconnect();
-      }
+      if (game.sfc.isConnected) game.sfc.disconnect();
       game.removeAllChildren();
       game.gotoAndPlay("Login");
     }
 
-    public static function getServers():Array
-    {
-      if (game.serialCmd != null && game.serialCmd.servers is Array)
-      {
-        return game.serialCmd.servers;
-      }
-
-      return null;
-    }
-
     public static function connectTo(server:String):Boolean
     {
-      if (!server)
-      {
-        return false;
-      }
+      if (!server) return false;
       server = server.toLowerCase();
       var source:* = Main.getInstance().getGame().mcLogin.sl.iList;
       for (var i:int = 0; i < source.numChildren; i++)
@@ -63,7 +47,6 @@ package vexed.game
           return true;
         }
       }
-
       return false;
     }
   }

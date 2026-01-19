@@ -11,15 +11,14 @@ export class BoostsJob extends Job {
     if (this.bot.environment.boosts.size === 0) return;
 
     for (const boost of this.bot.environment.boosts) {
-      const variant = this.resolveBoostType(boost);
-      if (!variant) continue;
+      const type = this.resolveBoostType(boost);
+      if (!type) continue;
 
       const item = this.bot.player.inventory.get(boost);
-      if (item?.data.sType !== "ServerUse") continue;
+      if (!item?.isBoost()) continue;
+      if (this.bot.player.isBoostActive(type)) continue;
 
-      if (this.bot.player.isBoostActive(variant)) continue;
-
-      this.bot.flash.call(() => swf.playerUseBoost(item.id));
+      this.bot.flash.call("world.sendUseItemRequest", item.data);
     }
   }
 

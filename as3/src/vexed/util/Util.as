@@ -174,5 +174,30 @@ package vexed.util {
       }
       return !(Number(param1.iClass) > 0 && game.world.myAvatar.getCPByID(param1.iClass) < param1.iReqCP);
     }
+
+    public static function findItem(items:Array, key:*):Object {
+      if (items == null) return null;
+
+      var item:Object;
+      if (key is String) {
+        var lowerKey:String = key.toLowerCase();
+        for each (item in items) {
+          if (item != null && item.sName != null && (item.sName === key || item.sName.toLowerCase() === lowerKey))
+            return item;
+        }
+      } else if (key is int) {
+        for each (item in items) {
+          if (item != null && item.ItemID == key)
+            return item;
+        }
+      }
+
+      return null;
+    }
+
+    public static function hasItem(items:Array, key:*, quantity:int = 1):Boolean {
+      var item:Object = findItem(items, key);
+      return item != null && item.iQty >= quantity;
+    }
   }
 }

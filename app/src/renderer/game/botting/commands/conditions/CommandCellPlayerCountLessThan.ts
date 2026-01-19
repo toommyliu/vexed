@@ -9,12 +9,8 @@ export class CommandCellPlayerCountLessThan extends ConditionCommand {
     const cellToUse = (this.cell ?? this.bot.player.cell).toLowerCase();
     let cellCount = 0;
 
-    for (const player of this.bot.world.playerNames) {
-      const isSameCell = this.bot.flash.call(() =>
-        swf.worldIsPlayerInCell(player, cellToUse),
-      );
-
-      if (isSameCell) cellCount++;
+    for (const player of this.bot.world.players.all().values()) {
+      if (player.isInCell(cellToUse)) cellCount++;
     }
 
     return cellCount < this.count;

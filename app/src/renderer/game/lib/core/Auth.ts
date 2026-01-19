@@ -1,4 +1,4 @@
-import { Server } from "@vexed/game";
+import { Server, ServerData } from "@vexed/game";
 import type { Bot } from "./Bot";
 
 export class Auth {
@@ -57,7 +57,9 @@ export class Auth {
    * The value is set after a successful login.
    */
   public get servers(): Server[] {
-    return swf.authGetServers().map((server) => new Server(server));
+    return this.bot.flash
+      .getWithDefault<ServerData[]>("serialCmd.servers", [])
+      .map((server) => new Server(server));
   }
 
   /**

@@ -14,29 +14,7 @@ package vexed.game {
     }
 
     public static function getItem(key:*):Object {
-      if (!key)
-        return null;
-
-      if (game.world.shopinfo !== null && game.world.shopinfo.items is Array) {
-        var item:Object;
-        var items:Array = game.world.shopinfo.items;
-        if (key is String) {
-          key = key.toLowerCase();
-          for each (item in items) {
-            if (item.sName.toLowerCase() === key /* name key */ || item.ItemID === key /* string key */)
-              return item;
-          }
-        }
-        else if (key is int) {
-          key = String(key);
-          for each (item in items) {
-            if (item.ItemID === key /* int key */)
-              return item;
-          }
-        }
-      }
-
-      return null;
+      return Util.findItem(game.world.shopinfo.items, key);
     }
 
     public static function buyByName(name:String, quantity:int = 1):Boolean {

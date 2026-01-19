@@ -87,20 +87,11 @@ export class Flash {
    *
    * @param path - The path of the object, relative to Game.
    * @param defaultValue - The default value to return if the path is not found.
-   * @param parse - Whether to call JSON.parse on the return value.
    */
-  public getWithDefault<T = any>(
-    path: string,
-    defaultValue: T,
-    parse = false,
-  ): T {
+  public getWithDefault<T = any>(path: string, defaultValue: T): T {
     try {
       const out = swf.getGameObject(path);
-      if (parse === true) {
-        return JSON.parse(out) as T;
-      }
-
-      return out as T;
+      return JSON.parse(out) as T;
     } catch {
       return defaultValue;
     }

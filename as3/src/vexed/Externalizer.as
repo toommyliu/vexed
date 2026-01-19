@@ -25,26 +25,20 @@ package vexed
       externalize("getConnMcText", Main.getConnMcText);
       externalize("hideConnMc", Main.hideConnMc);
 
-      // Auth
+      // Auth - done
       externalize("authIsLoggedIn", Auth.isLoggedIn);
       externalize("authIsTemporarilyKicked", Auth.isTemporarilyKicked);
       externalize("authLogin", Auth.login);
       externalize("authLogout", Auth.logout);
-      externalize("authGetServers", Auth.getServers);
       externalize("authConnectTo", Auth.connectTo);
 
-      // Bank
-      externalize("bankGetItems", Bank.getItems);
+      // Bank - done
       externalize("bankGetItem", Bank.getItem);
       externalize("bankContains", Bank.contains);
       externalize("bankLoadItems", Bank.loadItems);
-      externalize("bankGetSlots", Bank.getSlots);
-      externalize("bankGetUsedSlots", Bank.getUsedSlots);
       externalize("bankDeposit", Bank.deposit);
       externalize("bankWithdraw", Bank.withdraw);
       externalize("bankSwap", Bank.swap);
-      externalize("bankOpen", Bank.open);
-      externalize("bankIsOpen", Bank.isOpen);
 
       // Combat
       externalize("combatHasTarget", Combat.hasTarget);
@@ -66,48 +60,17 @@ package vexed
       externalize("dropStackGetItems", DropList.getItems);
       externalize("dropStackToggleUi", DropList.toggleUi);
 
-      // House
-      externalize("houseGetItems", House.getItems);
+      // House - done
       externalize("houseGetItem", House.getItem);
-      externalize("houseGetSlots", House.getSlots);
-      externalize("houseGetUsedSlots", House.getUsedSlots);
+      externalize("houseContains", House.contains);
 
-      // Inventory
-      externalize("inventoryGetItems", Inventory.getItems);
+      // Inventory - done
       externalize("inventoryGetItem", Inventory.getItem);
       externalize("inventoryContains", Inventory.contains);
-      externalize("inventoryGetSlots", Inventory.getSlots);
-      externalize("inventoryGetUsedSlots", Inventory.getUsedSlots);
-      externalize("inventoryEquip", Inventory.equip);
 
       // Player
-      externalize("playerJoinMap", Player.joinMap);
-      externalize("playerGetMap", Player.getMap);
-      externalize("playerJump", Player.jump);
-      externalize("playerGetCell", Player.getCell);
-      externalize("playerGetPad", Player.getPad);
-      externalize("playerGetFactions", Player.getFactions);
-      externalize("playerGetState", Player.getState);
-      externalize("playerGetHp", Player.getHp);
-      externalize("playerGetMaxHp", Player.getMaxHp);
-      externalize("playerGetMp", Player.getMp);
-      externalize("playerGetMaxMp", Player.getMaxMp);
-      externalize("playerGetLevel", Player.getLevel);
-      externalize("playerGetGold", Player.getGold);
-      externalize("playerIsMember", Player.isMember);
-      externalize("playerIsAfk", Player.isAfk);
-      externalize("playerGetPosition", Player.getPosition);
       externalize("playerWalkTo", Player.walkTo);
-      externalize("playerRest", Player.rest);
-      externalize("playerUseBoost", Player.useBoost);
-      externalize("playerHasActiveBoost", Player.hasActiveBoost);
-      externalize("playerGetClassName", Player.getClassName);
-      externalize("playerGetUserId", Player.getUserId);
-      externalize("playerGetCharId", Player.getCharId);
-      externalize("playerGetGender", Player.getGender);
-      externalize("playerGetData", Player.getData);
       externalize("playerIsLoaded", Player.isLoaded);
-      externalize("playerGoTo", Player.goToPlayer);
 
       // Quests
       externalize("questsIsInProgress", Quests.isInProgress);
@@ -174,40 +137,17 @@ package vexed
         });
 
       // Shops
-      externalize("shopGetInfo", Shops.getInfo);
-      externalize("shopGetItems", Shops.getItems);
-      externalize("shopGetItem", Shops.getItem);
-      externalize("shopBuyByName", Shops.buyByName);
-      externalize("shopBuyById", Shops.buyById);
-      externalize("shopSellByName", Shops.sellByName);
-      externalize("shopSellById", Shops.sellById);
-      externalize("shopLoad", Shops.load);
-      externalize("shopLoadHairShop", Shops.loadHairShop);
-      externalize("shopLoadArmorCustomize", Shops.loadArmorCustomize);
-      externalize("shopCanBuyItem", Shops.canBuyItem);
-      externalize("shopIsMergeShop", Shops.isMergeShop);
+
+      // TempInventory
+      externalize("tempInventoryGetItem", TempInventory.getItem);
+      externalize("tempInventoryContains", TempInventory.contains);
 
       // World
       externalize("worldIsLoaded", World.isLoaded);
-      externalize("worldGetPlayerNames", World.getPlayerNames);
-      externalize("worldGetPlayers", World.getPlayers);
-      externalize("worldGetPlayer", World.getPlayer);
-      externalize("worldIsPlayerInCell", World.isPlayerInCell);
       externalize("worldIsActionAvailable", World.isActionAvailable);
       externalize("worldGetCellMonsters", World.getCellMonsters);
-      externalize("worldGetCellMonsterIds", World.getCellMonsterIds);
-      externalize("worldGetMonsterByName", World.getMonsterByName);
-      externalize("worldGetMonsterByMonMapId", World.getMonsterByMonMapId);
-      // externalize("worldIsMonsterAvailable", World.isMonsterAvailable);
       externalize("worldGetCells", World.getCells);
       externalize("worldGetCellPads", World.getCellPads);
-      // externalize("worldGetItemTree", World.getItemTree);
-      externalize("worldGetRoomId", World.getRoomId);
-      externalize("worldGetRoomNumber", World.getRoomNumber);
-      externalize("worldReload", World.reload);
-      externalize("worldLoadSwf", World.loadSwf);
-      externalize("worldGetMapItem", World.getMapItem);
-      externalize("worldSetSpawnPoint", World.setSpawnPoint);
 
       externalize("isTextFieldFocused", function():Boolean
         {

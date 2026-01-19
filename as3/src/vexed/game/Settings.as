@@ -46,51 +46,6 @@ package vexed.game {
       game.world.WALKSPEED = speed;
     }
 
-    public static function setAccessLevel(accessLevel:String):void {
-      if (!accessLevel)
-        return;
-
-      switch (accessLevel) {
-        case "Non Member":
-          game.world.myAvatar.pMC.pname.ti.textColor = 16777215;
-          game.world.myAvatar.pMC.pname.filters = [new GlowFilter(0, 1, 3, 3, 64, 1)];
-          game.world.myAvatar.objData.iUpgDays = -1;
-          game.world.myAvatar.objData.iUpg = 0;
-          break;
-        case "Member":
-          game.world.myAvatar.pMC.pname.ti.textColor = 9229823;
-          game.world.myAvatar.pMC.pname.filters = [new GlowFilter(0, 1, 3, 3, 64, 1)];
-          game.world.myAvatar.objData.iUpgDays = 30;
-          game.world.myAvatar.objData.iUpg = 1;
-          break;
-        case "Moderator":
-        case "60":
-          // Yellow
-          game.world.myAvatar.pMC.pname.ti.textColor = 16698168;
-          game.world.myAvatar.pMC.pname.filters = [new GlowFilter(0, 1, 3, 3, 64, 1)];
-          game.world.myAvatar.objData.intAccessLevel = 60;
-          break;
-        case "30":
-          // Dark Green
-          game.world.myAvatar.pMC.pname.ti.textColor = 52881;
-          game.world.myAvatar.pMC.pname.filters = [new GlowFilter(0, 1, 3, 3, 64, 1)];
-          game.world.myAvatar.objData.intAccessLevel = 30;
-          break;
-        case "40":
-          // Light Green
-          game.world.myAvatar.pMC.pname.ti.textColor = 5308200;
-          game.world.myAvatar.pMC.pname.filters = [new GlowFilter(0, 1, 3, 3, 64, 1)];
-          game.world.myAvatar.objData.intAccessLevel = 40;
-          break;
-        case "50":
-          // Purple
-          game.world.myAvatar.pMC.pname.ti.textColor = 12283391;
-          game.world.myAvatar.pMC.pname.filters = [new GlowFilter(0, 1, 3, 3, 64, 1)];
-          game.world.myAvatar.objData.intAccessLevel = 50;
-          break;
-      }
-    }
-
     public static function setDeathAds(on:Boolean):void {
       game.userPreference.data.bDeathAd = on;
     }

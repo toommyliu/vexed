@@ -19,9 +19,9 @@ handlers.environment.stateChanged.listen((state: EnvironmentState) => {
 handlers.environment.grabBoosts.handle(async () => {
   if (!bot.player.isReady()) return [];
 
-  return bot.player.inventory.items
+  return bot.player.inventory
     .all()
-    .filter((item) => item.data.sType === "ServerUse")
+    .filter((item) => item.isBoost())
     .map((item) => item.name);
 });
 

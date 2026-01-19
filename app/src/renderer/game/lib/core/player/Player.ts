@@ -1,5 +1,4 @@
 import { Avatar, type AvatarData } from "@vexed/game";
-import type { EquipItemPacket } from "~/game/packet-handlers/json/equip-item";
 import { factions } from "~/lib/stores/faction";
 import type { Bot } from "../Bot";
 import { Bank } from "./Bank";
@@ -62,7 +61,7 @@ export class Player extends Avatar {
    * The player's gold.
    */
   public get gold(): number {
-    return this.bot.flash.call(() => swf.playerGetGold());
+    return this.bot.flash.getWithDefault("world.myAvatar.objData.intGold", 0);
   }
 
   /**
@@ -76,7 +75,10 @@ export class Player extends Avatar {
    * Whether the player has an active membership.
    */
   public isMember(): boolean {
-    return this.bot.flash.call(() => swf.playerIsMember());
+    return this.bot.flash.getWithDefault(
+      "world.myAvatar.dataLeaf.member",
+      false,
+    );
   }
 
   /**
@@ -96,7 +98,7 @@ export class Player extends Avatar {
    * @param walkSpeed - The speed to walk at.
    */
   public walkTo(x: number, y: number, walkSpeed?: number): void {
-    if (!this.bot.player.alive) return;
+    if (!this.alive) return;
 
     this.bot.flash.call(() =>
       swf.playerWalkTo(Number(x), Number(y), Number(walkSpeed)),
@@ -158,37 +160,6 @@ export class Player extends Avatar {
     if (!this.me) return;
     this.data.tx = xPos;
     this.data.ty = yPos;
-  }
-
-  public _equipItem(packet: EquipItemPacket) {
-    const item = this.inventory.get(packet.ItemID);
-    if (!item) return;
-
-    // unequip the previously equipped item if it exists
-    const previousItem = this.inventory.items
-      .all()
-      .find((val) => val.data.bEquip === 1 && val.data.sES === packet.strES);
-    if (previousItem) {
-      console.log(`equipItem :: unequipping ${previousItem.name}`);
-      previousItem.data.bEquip = 0;
-    }
-
-    // flag the item as equipped
-    console.log(`equipItem :: ${item.name}`);
-    item.data.bEquip = 1;
-
-    // equip class?
-    if (packet?.strES === "ar") {
-      this.#className = item.name.toUpperCase(); // backward compatibility
-    }
-  }
-
-  public _unequipItem(itemID: number) {
-    const item = this.inventory.get(itemID);
-    if (!item) return;
-
-    console.log(`unequipItem :: ${item.name}`);
-    item.data.bEquip = 0;
   }
 
   public _updateClass(className: string) {
