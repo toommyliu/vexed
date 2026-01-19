@@ -1,19 +1,25 @@
+import type { Collection } from "@vexed/collection";
 import { AutoZone } from "~/botting/autozone";
 import type { Bot } from "~/lib/Bot";
-import { auras } from "~/lib/stores/aura";
+import { auras, type StoredAura } from "~/lib/stores/aura";
 import { registerJsonHandler } from "../registry";
 
-const getRandomIntInRange = (min: number, max: number) =>
-  Math.floor(Math.random() * (max - min + 1)) + min;
+type ZoneSet = "" | "A" | "B";
+
+type Coordinates = [number, number];
+
+type ZoneConfig = {
+  zones: Record<ZoneSet, { x: Coordinates; y: Coordinates }>;
+};
+
+type EventPacket = {
+  args: {
+    zoneSet: ZoneSet;
+  };
+};
 
 /* eslint-disable id-length */
-const AUTO_ZONES: Record<
-  string,
-  {
-    // Range of x and y coordinate for that zone
-    zones: Record<"" | "A" | "B", { x: [number, number]; y: [number, number] }>;
-  }
-> = {
+const AUTO_ZONES: Record<string, ZoneConfig> = {
   ledgermayne: {
     zones: {
       A: { x: [147, 276], y: [353, 357] },
@@ -52,78 +58,74 @@ const AUTO_ZONES: Record<
 };
 /* eslint-enable id-length */
 
-registerJsonHandler<EventPacket>("event", async (bot: Bot, pkt) => {
-  const mapName = bot.world.name;
+const getRandomIntInRange = (min: number, max: number) =>
+  Math.floor(Math.random() * (max - min + 1)) + min;
+const getRandomCoordinate = (range: Coordinates): number =>
+  getRandomIntInRange(range[0], range[1]);
 
+const walkToRandomPosition = (
+  bot: Bot,
+  xRange: Coordinates,
+  yRange: Coordinates,
+): void => {
+  const xPos = getRandomCoordinate(xRange);
+  const yPos = getRandomCoordinate(yRange);
+  bot.player.walkTo(xPos, yPos);
+};
+
+const hasAura = (
+  aurasStore: Collection<string, StoredAura> | undefined,
+  auraName: string,
+): boolean => (aurasStore?.get(auraName)?.value ?? 0) > 0;
+
+const handleAutoZone = (bot: Bot, mapName: string, zone: ZoneSet): boolean => {
+  const config: ZoneConfig | undefined = AUTO_ZONES[mapName];
+  if (!config || AutoZone.map !== mapName) return false;
+
+  const zonePos = config.zones[zone];
+  if (!zonePos) return false;
+
+  walkToRandomPosition(bot, zonePos.x, zonePos.y);
+  return true;
+};
+
+const handleQueenionaZone = async (bot: Bot, zone: ZoneSet): Promise<void> => {
+  await bot.sleep(500);
+
+  const me = bot.world.players.me;
+  if (!me) return;
+
+  const myAuras = auras.players.get(me.data.entID);
+  const positiveCharge =
+    hasAura(myAuras, "Positive Charge") || hasAura(myAuras, "Positive Charge?");
+  const negativeCharge =
+    hasAura(myAuras, "Negative Charge") || hasAura(myAuras, "Negative Charge?");
+
+  const moveLeft = () => walkToRandomPosition(bot, [111, 272], [369, 379]);
+  const moveRight = () => walkToRandomPosition(bot, [746, 869], [369, 379]);
+  const moveCenter = () => bot.player.walkTo(490, 320);
+
+  if (zone === "A") {
+    if (positiveCharge) moveRight();
+    else if (negativeCharge) moveLeft();
+  } else if (zone === "B") {
+    if (positiveCharge) moveLeft();
+    else if (negativeCharge) moveRight();
+  } else {
+    moveCenter();
+  }
+};
+
+registerJsonHandler<EventPacket>("event", async (bot: Bot, pkt) => {
   if (!bot.player.isReady()) return;
 
+  const mapName = bot.world.name;
   const zone = pkt.args.zoneSet;
-  const config = AUTO_ZONES[mapName];
-  if (config && AutoZone.map === mapName) {
-    const zonePos = config.zones[zone];
-    if (zonePos) {
-      const xPos = getRandomIntInRange(zonePos.x[0], zonePos.x[1]);
-      const yPos = getRandomIntInRange(zonePos.y[0], zonePos.y[1]);
-      bot.player.walkTo(xPos, yPos);
-      return;
-    }
-  }
 
   if (mapName === "queeniona" && AutoZone.map === "queeniona") {
-    await bot.sleep(500);
-
-    try {
-      const me = bot.world.players.me;
-      if (!me) return;
-
-      const myAuras = auras.players.get(me.data.entID);
-      const positiveCharge = (myAuras?.get("Positive Charge")?.value ?? 0) > 0;
-      const positiveChargeReverse =
-        (myAuras?.get("Positive Charge?")?.value ?? 0) > 0;
-      const negativeCharge = (myAuras?.get("Negative Charge")?.value ?? 0) > 0;
-      const negativeChargeReverse =
-        (myAuras?.get("Negative Charge?")?.value ?? 0) > 0;
-
-      const hasPositiveCharge = positiveCharge || positiveChargeReverse;
-      const hasNegativeCharge = negativeCharge || negativeChargeReverse;
-
-      const moveLeft = () => {
-        const xPos = getRandomIntInRange(111, 272);
-        const yPos = getRandomIntInRange(369, 379);
-        bot.player.walkTo(xPos, yPos);
-      };
-
-      const moveRight = () => {
-        const xPos = getRandomIntInRange(746, 869);
-        const yPos = getRandomIntInRange(369, 379);
-        bot.player.walkTo(xPos, yPos);
-      };
-
-      const moveCenter = () => {
-        bot.player.walkTo(490, 320);
-      };
-
-      if (zone === "A") {
-        if (hasPositiveCharge) {
-          moveRight();
-        } else if (hasNegativeCharge) {
-          moveLeft();
-        }
-      } else if (zone === "B") {
-        if (hasPositiveCharge) {
-          moveLeft();
-        } else if (hasNegativeCharge) {
-          moveRight();
-        }
-      } else {
-        moveCenter();
-      }
-    } catch {}
+    await handleQueenionaZone(bot, zone);
+    return;
   }
-});
 
-type EventPacket = {
-  args: {
-    zoneSet: "" | "A" | "B";
-  };
-};
+  handleAutoZone(bot, mapName, zone);
+});
