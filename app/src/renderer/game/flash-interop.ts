@@ -29,13 +29,16 @@ window.packetFromClient = ([packet]: [string]) => {
 };
 
 window.packetFromServer = ([packet]: [string]) => {
-  if (!packet) return;
+  if (!packet) {
+    console.log("no packet?");
+    return;
+  }
 
   bot.emit("packetFromServer", packet);
 
+  // ct seems jank in pext, so we'll just handle it here
   if (packet.startsWith("{")) {
     const pkt = JSON.parse(packet);
-
     if (
       typeof pkt?.t === "string" &&
       pkt?.t === "xt" &&
@@ -63,7 +66,9 @@ window.pext = async ([packet]) => {
     dispatchStr(bot, dataObj[0], dataObj);
   } else if (pkt?.params?.type === "json") {
     const dataObj = pkt?.params?.dataObj;
-    dispatchJson(bot, dataObj.cmd, dataObj);
+    const cmd = dataObj.cmd;
+    if (cmd === "ct") return;
+    dispatchJson(bot, cmd, dataObj);
   }
 };
 

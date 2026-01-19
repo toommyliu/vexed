@@ -1,4 +1,5 @@
 import { EntityState } from "@vexed/game";
+import { auras } from "~/lib/stores/aura";
 import { registerJsonHandler } from "../registry";
 
 function isMonPkt(
@@ -15,7 +16,7 @@ registerJsonHandler<AddGoldExpPkt>("addGoldExp", async (bot, packet) => {
 
     bot.emit("monsterDeath", monMapId);
 
-    monster.clearAuras();
+    auras.monsters.clearTarget(monMapId);
     monster.data.intState = EntityState.Dead;
     monster.data.intHP = 0;
     monster.data.intMP = 0;

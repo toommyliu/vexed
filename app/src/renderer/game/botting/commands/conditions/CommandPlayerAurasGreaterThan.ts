@@ -1,3 +1,4 @@
+import { auras } from "~/lib/stores/aura";
 import { ConditionCommand } from "./ConditionCommand";
 
 export class CommandPlayerAurasGreaterThan extends ConditionCommand {
@@ -8,10 +9,11 @@ export class CommandPlayerAurasGreaterThan extends ConditionCommand {
   public value!: number;
 
   public override async getCondition(): Promise<boolean> {
-    const aura = this.bot.world.players
-      ?.get((this.player ?? this.bot.auth.username).toLowerCase())
-      ?.getAura(this.aura);
-
+    const player = this.bot.world.players.getByName(
+      this.player ?? this.bot.auth.username,
+    );
+    if (!player) return false;
+    const aura = auras.players.getAura(player.data.entID, this.aura);
     return (aura?.value ?? 0) > this.value;
   }
 

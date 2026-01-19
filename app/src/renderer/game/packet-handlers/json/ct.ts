@@ -1,7 +1,9 @@
+import { EntityState, type Aura } from "@vexed/game";
+import { auras } from "~/lib/stores/aura";
 import { registerJsonHandler } from "../registry";
 
-// const ADD_AURAS = new Set(["aura+", "aura++"]);
-// const REMOVE_AURAS = new Set(["aura-", "aura--"]);
+const ADD_AURAS = new Set(["aura+", "aura++"]);
+const REMOVE_AURAS = new Set(["aura-", "aura--"]);
 
 registerJsonHandler<CtPacket>("ct", (bot, packet) => {
   if (Array.isArray(packet?.anims) && packet?.anims?.length) {
@@ -40,72 +42,74 @@ registerJsonHandler<CtPacket>("ct", (bot, packet) => {
       if (typeof data?.intHP === "number") player.data.intHP = data.intHP;
       if (typeof data?.intMP === "number") player.data.intMP = data.intMP;
 
-      // TODO: auras
+      if (
+        player.data.intState === EntityState.Dead &&
+        player.data.intHP === 0
+      ) {
+        console.log(`ct :: ${player.data.uoName} died, clearing auras`);
+        auras.players.clearTarget(player.data.entID);
+      }
     }
   }
 
-  // TODO: auras
-  // if (Array.isArray(packet?.a)) {
-  //   for (const aura of packet?.a ?? []) {
-  //     if (!aura?.cmd) continue;
+  // auras
+  if (Array.isArray(packet?.a)) {
+    for (const auraObj of packet.a) {
+      if (!auraObj?.cmd) continue;
 
-  //     const parts = aura?.tInf?.split(":");
-  //     const type = parts?.[0] as "m" | "p" | undefined;
-  //     const tgtId = parts?.[1] as string | undefined;
+      const parts = auraObj.tInf?.split(":");
+      const targetType = parts?.[0] as "m" | "p" | undefined;
+      const targetIdStr = parts?.[1];
 
-  //     if (!type || !tgtId) continue;
+      if (!targetType || !targetIdStr) continue;
 
-  //     if (ADD_AURAS.has(aura.cmd)) {
-  //       if (type === "m") {
-  //         for (const aura_ of aura?.auras ?? []) {
-  //           const data: Aura = {
-  //             name: aura_.nam,
-  //             duration: aura_.dur ?? 0,
-  //             isNew: aura_?.isNew || false,
-  //           };
+      const auraStore = targetType === "m" ? auras.monsters : auras.players;
+      const targetId = Number(targetIdStr);
 
-  //           if ("val" in aura_ && typeof aura_.val === "number") {
-  //             data.value = aura_.val;
-  //           }
+      if (ADD_AURAS.has(auraObj.cmd)) {
+        for (const auraData of auraObj.auras ?? []) {
+          const aura: Aura = {
+            name: auraData.nam,
+            duration: auraData.dur ?? 0,
+          };
 
-  //           if (data.isNew) AuraStore.addMonsterAura(tgtId, data);
-  //           else AuraStore.refreshMonsterAura(tgtId, data);
-  //         }
-  //       } else if (type === "p") {
-  //         const entId = Number(tgtId);
+          if (auraData.val !== undefined) aura.value = auraData.val;
+          if (auraData.isNew) {
+            auraStore.add(targetId, aura);
+          } else {
+            auraStore.update(targetId, aura);
+          }
 
-  //         for (const aura_ of aura?.auras ?? []) {
-  //           const data: Aura = {
-  //             name: aura_.nam,
-  //             duration: aura_.dur ?? 0,
-  //             isNew: aura_?.isNew || false,
-  //           };
+          {
+            const aura = auraStore.getAura(targetId, auraData.nam)!;
+            if (aura.name === "Focus") {
+              console.log(
+                `ct :: added aura ${aura.name} to ${auraObj.tInf} (now at ${aura.stack})`,
+              );
+            }
+          }
+        }
+      } else if (REMOVE_AURAS.has(auraObj.cmd)) {
+        const auraName = auraObj.aura?.nam;
+        if (!auraName) continue;
 
-  //           if ("val" in aura_ && typeof aura_.val === "number") {
-  //             data.value = aura_.val;
-  //           }
+        auraStore.remove(targetId, auraName);
 
-  //           if (data.isNew) AuraStore.addPlayerAura(entId, data);
-  //           else AuraStore.refreshPlayerAura(entId, data);
-  //         }
-  //       }
-  //     } else if (REMOVE_AURAS.has(aura.cmd)) {
-  //       const auraName = aura?.aura?.nam;
-  //       if (!auraName) continue;
+        if (auraName === "Focus") {
+          console.log(`ct :: removed Focus from ${auraObj.tInf}`);
+        }
 
-  //       if (type === "m") {
-  //         AuraStore.removeMonsterAura(tgtId, auraName);
-
-  //         if (auraName === "Counter Attack" && bot.settings.counterAttack) {
-  //           bot.combat.attack(`id:${tgtId}`);
-  //           bot.combat.pauseAttack = false;
-  //         }
-  //       } else if (type === "p") {
-  //         AuraStore.removePlayerAura(Number(tgtId), auraName);
-  //       }
-  //     }
-  //   }
-  // }
+        if (
+          targetType === "m" &&
+          auraName === "Counter Attack" &&
+          bot.settings.counterAttack
+        ) {
+          bot.combat.attack(`id:${targetIdStr}`);
+          bot.combat.pauseAttack = false;
+        }
+      }
+    }
+  }
 
   // update monster data
   if ("m" in packet) {
@@ -130,6 +134,7 @@ type CtPacket = {
       isNew: boolean;
       nam: string;
       t: string; // ? "s" -> self
+      val?: number;
     }[];
     cInf?: string; // p:uid ? the uid of the player that the applied the aura
     cmd?: string; // aura+ or aura-, aura++/aura-- for server messages?
