@@ -260,8 +260,24 @@ export function logFromRenderer(entry: MainLogEntry) {
   });
 }
 
+export function createLogger(scope: string) {
+  return {
+    debug: (message: string, data?: unknown) => {
+      logMain("debug", { scope, message, data });
+    },
+    info: (message: string, data?: unknown) => {
+      logMain("info", { scope, message, data });
+    },
+    warn: (message: string, data?: unknown) => {
+      logMain("warn", { scope, message, data });
+    },
+    error: (message: string, data?: unknown) => {
+      logMain("error", { scope, message, data });
+    },
+  };
+}
+
 export const logger = {
-  // TODO: consider adding a factory for scopes
   debug: (scope: string, message?: string, data?: unknown) => {
     const resolvedMessage = message ?? scope;
     const resolvedScope = message ? scope : undefined;
