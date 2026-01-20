@@ -3,8 +3,8 @@ import type {
   EnvironmentState,
   EnvironmentUpdatePayload,
 } from "~/shared/types";
+import { windowsService } from "../services/windows";
 import type { RendererHandlers } from "../tipc";
-import { windowStore } from "../windows";
 
 const EMPTY_STATE: EnvironmentState = {
   autoRegisterRequirements: false,
@@ -100,17 +100,30 @@ export function createEnvironmentTipcRouter(tipcInstance: TipcInstance) {
         if (!windowId) return;
 
         const newState = applyUpdate(windowId, input);
-        const isFromGameWindow = browserWindow && windowStore.has(browserWindow.id);
+        const isFromGameWindow =
+          browserWindow &&
+          windowsService.getWindowStore().has(browserWindow.id);
 
         if (isFromGameWindow) {
           // Game window sent update → notify environment window if open
-          const storeRef = windowStore.get(browserWindow.id);
+          const storeRef = windowsService
+            .getWindowStore()
+            .get(browserWindow.id);
           const envWindow = storeRef?.app.environment;
-          if (envWindow && !envWindow.isDestroyed() && !envWindow.webContents.isDestroyed()) {
-            const envHandlers = context.getRendererHandlers<RendererHandlers>(envWindow);
+          if (
+            envWindow &&
+            !envWindow.isDestroyed() &&
+            !envWindow.webContents.isDestroyed()
+          ) {
+            const envHandlers =
+              context.getRendererHandlers<RendererHandlers>(envWindow);
             envHandlers.environment.stateChanged.send(newState);
           }
-        } else if (parent && !parent.isDestroyed() && !parent.webContents.isDestroyed()) {
+        } else if (
+          parent &&
+          !parent.isDestroyed() &&
+          !parent.webContents.isDestroyed()
+        ) {
           // Environment window sent update → notify game window
           const parentHandlers =
             context.getRendererHandlers<RendererHandlers>(parent);
@@ -134,11 +147,11 @@ export function createEnvironmentTipcRouter(tipcInstance: TipcInstance) {
         if (!senderWindow) return;
 
         const windowId = senderWindow.id;
-        if (windowStore.has(windowId)) {
+        if (windowsService.getWindowStore().has(windowId)) {
           stateMap.set(windowId, input);
         }
 
-        const storeRef = windowStore.get(senderWindow.id);
+        const storeRef = windowsService.getWindowStore().get(senderWindow.id);
         const environmentWindow = storeRef?.app.environment;
         if (
           !environmentWindow ||
@@ -159,7 +172,9 @@ export function createEnvironmentTipcRouter(tipcInstance: TipcInstance) {
         const senderParent = context?.senderParentWindow;
         const senderGameWindowId = senderParent?.id ?? senderWindow?.id;
 
-        for (const [gameWindowId, storeRef] of windowStore.entries()) {
+        for (const [gameWindowId, storeRef] of windowsService
+          .getWindowStore()
+          .entries()) {
           if (gameWindowId === senderGameWindowId) continue;
 
           // Update stateMap for this window
@@ -167,15 +182,25 @@ export function createEnvironmentTipcRouter(tipcInstance: TipcInstance) {
 
           // Notify the game window
           const gameWindow = storeRef.game;
-          if (gameWindow && !gameWindow.isDestroyed() && !gameWindow.webContents.isDestroyed()) {
-            const gameHandlers = context.getRendererHandlers<RendererHandlers>(gameWindow);
+          if (
+            gameWindow &&
+            !gameWindow.isDestroyed() &&
+            !gameWindow.webContents.isDestroyed()
+          ) {
+            const gameHandlers =
+              context.getRendererHandlers<RendererHandlers>(gameWindow);
             gameHandlers.environment.stateChanged.send(input);
           }
 
           // Notify the environment window if open
           const envWindow = storeRef.app.environment;
-          if (envWindow && !envWindow.isDestroyed() && !envWindow.webContents.isDestroyed()) {
-            const envHandlers = context.getRendererHandlers<RendererHandlers>(envWindow);
+          if (
+            envWindow &&
+            !envWindow.isDestroyed() &&
+            !envWindow.webContents.isDestroyed()
+          ) {
+            const envHandlers =
+              context.getRendererHandlers<RendererHandlers>(envWindow);
             envHandlers.environment.stateChanged.send(input);
           }
         }

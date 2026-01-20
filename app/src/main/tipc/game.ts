@@ -2,12 +2,11 @@ import { join } from "path";
 import Config from "@vexed/config";
 import type { TipcInstance } from "@vexed/tipc";
 import { BrowserWindow } from "electron";
-import { DEFAULT_SKILLSETS, DOCUMENTS_PATH } from "../../shared/constants";
-import { WindowIds } from "../../shared/types";
+import { DEFAULT_SKILLSETS, DOCUMENTS_PATH } from "~/shared/constants";
+import { WindowIds } from "~/shared/types";
 import { ASSET_PATH, DIST_PATH, IS_PACKAGED } from "../constants";
 import { logger } from "../services/logger";
-import type { RendererHandlers } from "../tipc";
-import { windowStore } from "../windows";
+import { windowsService } from "../services/windows";
 
 export function createGameTipcRouter(tipcInstance: TipcInstance) {
   return {
@@ -15,9 +14,13 @@ export function createGameTipcRouter(tipcInstance: TipcInstance) {
       .input<WindowIds>()
       .action(async ({ input, context }) => {
         const browserWindow = context.senderWindow;
-        if (!browserWindow || !windowStore.has(browserWindow?.id)) return;
+        if (
+          !browserWindow ||
+          !windowsService.getWindowStore().has(browserWindow?.id)
+        )
+          return;
 
-        const storeRef = windowStore.get(browserWindow.id)!;
+        const storeRef = windowsService.getWindowStore().get(browserWindow.id)!;
 
         let ref: BrowserWindow | null = null;
         let path: string | undefined;

@@ -1,12 +1,12 @@
 import type { TipcInstance } from "@vexed/tipc";
+import { windowsService } from "../services/windows";
 import type { RendererHandlers } from "../tipc";
-import { windowStore } from "../windows";
 
 export function createFollowerTipcRouter(tipcInstance: TipcInstance) {
   return {
     me: tipcInstance.procedure.action(async ({ context }) => {
       const parent = context.senderParentWindow;
-      if (!parent || !windowStore.has(parent.id)) return;
+      if (!parent || !windowsService.getWindowStore().has(parent.id)) return;
 
       const parentHandlers =
         context.getRendererHandlers<RendererHandlers>(parent);
@@ -26,7 +26,7 @@ export function createFollowerTipcRouter(tipcInstance: TipcInstance) {
       }>()
       .action(async ({ context, input }) => {
         const parent = context.senderParentWindow;
-        if (!parent || !windowStore.has(parent.id)) return;
+        if (!parent || !windowsService.getWindowStore().has(parent.id)) return;
 
         const parentHandlers =
           context.getRendererHandlers<RendererHandlers>(parent);
@@ -34,7 +34,7 @@ export function createFollowerTipcRouter(tipcInstance: TipcInstance) {
       }),
     stop: tipcInstance.procedure.action(async ({ context }) => {
       const parent = context.senderParentWindow;
-      if (!parent || !windowStore.has(parent.id)) return;
+      if (!parent || !windowsService.getWindowStore().has(parent.id)) return;
 
       const parentHandlers =
         context.getRendererHandlers<RendererHandlers>(parent);

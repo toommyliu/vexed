@@ -4,8 +4,8 @@ import { DEFAULT_FAST_TRAVELS, FAST_TRAVELS_PATH } from "~/shared/constants";
 import { equalsIgnoreCase } from "~/shared/string";
 import type { FastTravel, FastTravelRoomNumber } from "~/shared/types";
 import { logger } from "../services/logger";
+import { windowsService } from "../services/windows";
 import type { RendererHandlers } from "../tipc";
-import { windowStore } from "../windows";
 
 export function createFastTravelsTipcRouter(tipcInstance: TipcInstance) {
   return {
@@ -108,7 +108,7 @@ export function createFastTravelsTipcRouter(tipcInstance: TipcInstance) {
       .input<{ location: FastTravelRoomNumber }>()
       .action(async ({ input, context }) => {
         const parent = context.senderParentWindow;
-        if (!parent || !windowStore.has(parent.id)) return;
+        if (!parent || !windowsService.getWindowStore().has(parent.id)) return;
 
         const parentHandlers =
           context.getRendererHandlers<RendererHandlers>(parent);

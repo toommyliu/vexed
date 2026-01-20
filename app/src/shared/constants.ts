@@ -1,13 +1,13 @@
 import os from "os";
 import { join } from "path";
 import process from "process";
-import type { Account, FastTravel, HotkeyConfig } from "./types";
+import type { FastTravel, HotkeyConfig } from "./types";
 
 export const IS_WINDOWS = process.platform === "win32";
 export const IS_MAC = process.platform === "darwin";
 
-export const BRAND = "vexed";
-export const DOCUMENTS_PATH = join(os.homedir(), "Documents", BRAND);
+// TODO: move to main constants
+export const DOCUMENTS_PATH = join(os.homedir(), "Documents", "vexed");
 
 export const FAST_TRAVELS_PATH = join(DOCUMENTS_PATH, "fast-travels.json");
 

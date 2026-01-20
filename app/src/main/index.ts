@@ -4,11 +4,10 @@ import "./tray";
 import { join } from "path";
 import process from "process";
 import { registerIpcMain } from "@vexed/tipc/main";
+import { equalsIgnoreCase } from "@vexed/utils/string";
 import { app, shell, nativeTheme } from "electron";
 import { version } from "../../package.json";
-import { BRAND, IS_MAC, IS_WINDOWS } from "../shared/constants";
-import { equalsIgnoreCase } from "../shared/string";
-import { ASSET_PATH } from "./constants";
+import { BRAND, ASSET_PATH, IS_MAC, IS_WINDOWS } from "./constants";
 import { createMenu } from "./menu";
 import {
   flushAndCloseLogger,
@@ -16,17 +15,12 @@ import {
   logger,
   setLoggerDebugEnabled,
 } from "./services/logger";
+import { updaterService } from "./services/updater";
+import { windowsService } from "./services/windows";
 import { initSettings, getSettings } from "./settings";
 import { router } from "./tipc";
-import { checkForUpdates } from "./updater";
 import { showErrorDialog } from "./util/dialog";
 import { createNotification } from "./util/notification";
-import {
-  createAccountManager,
-  createGame,
-  prewarmOnboarding,
-  setQuitting,
-} from "./windows";
 
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 
@@ -80,7 +74,7 @@ async function handleAppLaunch(argv: string[] = process.argv) {
     logger.info("main", `Hello - ${BRAND} v${version}`); // indicate app start
 
     if (settings?.getBoolean("checkForUpdates", false)) {
-      const updateResult = await checkForUpdates(true);
+      const updateResult = await updaterService.checkForUpdates(true);
       if (updateResult !== null) {
         logger.info(
           "main",
@@ -111,14 +105,22 @@ async function handleAppLaunch(argv: string[] = process.argv) {
       logger.info("main", `Using launch mode: ${launchMode}`);
     }
 
+    const args = argv.reduce<Record<string, string>>((acc, arg) => {
+      if (arg.startsWith("--")) {
+        const key = arg.slice(2);
+        const value = argv[argv.indexOf(arg) + 1];
+        if (key && value !== undefined) acc[key] = value;
+      }
+
+      return acc;
+    }, {});
+
     if (
       equalsIgnoreCase(launchMode, "manager") ||
-      argv.some(
-        (arg) =>
-          equalsIgnoreCase(arg, "--manager") || equalsIgnoreCase(arg, "-m"),
-      )
+      args["manager"] ||
+      args["m"]
     ) {
-      await createAccountManager();
+      await windowsService.createAccountManager();
     } else if (
       equalsIgnoreCase(launchMode, "game") ||
       argv.some(
@@ -140,7 +142,7 @@ async function handleAppLaunch(argv: string[] = process.argv) {
             ?.split("=")?.[1] ?? "",
       };
 
-      await createGame(account);
+      await windowsService.createGame(account);
     }
   } catch (error) {
     showErrorDialog({
@@ -176,7 +178,7 @@ app.once("ready", async () => {
   createMenu(settings);
 
   // Preload settings window to make first open feel instant.
-  void prewarmOnboarding();
+  void windowsService.prewarmOnboarding();
   await handleAppLaunch();
 });
 
@@ -187,7 +189,7 @@ app.on("before-quit", async (event) => {
 
   event.preventDefault();
   loggerClosing = true;
-  setQuitting(true);
+  windowsService.setQuitting(true);
 
   await Promise.race([
     flushAndCloseLogger(),

@@ -11,9 +11,9 @@ import { app, dialog, Menu, nativeTheme, session, shell } from "electron";
 import { IS_MAC } from "~/shared/constants";
 import type { Settings } from "~/shared/types";
 import { logger } from "./services/logger";
-import { checkForUpdates } from "./updater";
+import { updaterService } from "./services/updater";
+import { windowsService } from "./services/windows";
 import { showErrorDialog } from "./util/dialog";
-import { createOnboarding } from "./windows";
 
 async function updateTheme(
   settings: Config<Settings>,
@@ -24,7 +24,7 @@ async function updateTheme(
 }
 
 async function handleCheckForUpdates() {
-  const updateResult = await checkForUpdates(true);
+  const updateResult = await updaterService.checkForUpdates(true);
   if (!updateResult) {
     void dialog.showMessageBox({
       type: "info",
@@ -126,7 +126,7 @@ export function createMenu(settings: Config<Settings>) {
                 label: "Settings...",
                 accelerator: "Cmd+,",
                 click: async () => {
-                  await createOnboarding();
+                  await windowsService.createOnboarding();
                 },
               },
               { type: "separator" },
@@ -149,7 +149,7 @@ export function createMenu(settings: Config<Settings>) {
               label: "Settings",
               accelerator: "Ctrl+,",
               click: async () => {
-                await createOnboarding();
+                await windowsService.createOnboarding();
               },
             },
             { type: "separator" },

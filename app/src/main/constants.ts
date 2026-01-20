@@ -6,6 +6,8 @@ import { app } from "electron";
 export const IS_WINDOWS = process.platform === "win32";
 export const IS_MAC = process.platform === "darwin";
 
+export const BRAND = "vexed";
+
 export const IS_PACKAGED = app.isPackaged;
 
 export const ASSET_PATH = IS_PACKAGED

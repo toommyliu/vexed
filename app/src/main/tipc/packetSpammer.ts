@@ -1,6 +1,6 @@
 import type { TipcInstance } from "@vexed/tipc";
+import { windowsService } from "../services/windows";
 import type { RendererHandlers } from "../tipc";
-import { windowStore } from "../windows";
 
 export function createPacketSpammerTipcRouter(tipcInstance: TipcInstance) {
   return {
@@ -11,7 +11,7 @@ export function createPacketSpammerTipcRouter(tipcInstance: TipcInstance) {
       }>()
       .action(async ({ input, context }) => {
         const parent = context.senderParentWindow;
-        if (!parent || !windowStore.has(parent.id)) return;
+        if (!parent || !windowsService.getWindowStore().has(parent.id)) return;
 
         const parentHandlers =
           context.getRendererHandlers<RendererHandlers>(parent);
@@ -19,7 +19,7 @@ export function createPacketSpammerTipcRouter(tipcInstance: TipcInstance) {
       }),
     packetSpammerStop: tipcInstance.procedure.action(async ({ context }) => {
       const parent = context.senderParentWindow;
-      if (!parent || !windowStore.has(parent.id)) return;
+      if (!parent || !windowsService.getWindowStore().has(parent.id)) return;
 
       const parentHandlers =
         context.getRendererHandlers<RendererHandlers>(parent);

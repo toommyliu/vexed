@@ -7,8 +7,8 @@ import type { BrowserWindow, OpenDialogOptions } from "electron";
 import { DOCUMENTS_PATH } from "~/shared/constants";
 import type { Account, AccountWithScript } from "~/shared/types";
 import { logger } from "../services/logger";
+import { windowsService } from "../services/windows";
 import type { RendererHandlers } from "../tipc";
-import { createGame, getManagerWindow } from "../windows";
 
 const ACCOUNTS_PATH = join(DOCUMENTS_PATH, "accounts.json");
 const DEFAULT_ACCOUNTS: Account[] = [];
@@ -147,12 +147,12 @@ export function createManagerTipcRouter(tipcInstance: TipcInstance) {
     launchGame: tipcInstance.procedure
       .input<AccountWithScript>()
       .action(async ({ input }) => {
-        await createGame(input);
+        await windowsService.createGame(input);
       }),
     managerLoginSuccess: tipcInstance.procedure
       .input<{ username: string }>()
       .action(async ({ input, context }) => {
-        const mgrWindow = getManagerWindow();
+        const mgrWindow = windowsService.getManagerWindow();
         if (!mgrWindow) return;
 
         const handlers =

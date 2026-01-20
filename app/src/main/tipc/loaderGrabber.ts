@@ -1,7 +1,7 @@
 import type { TipcInstance } from "@vexed/tipc";
 import type { LoaderDataType, GrabberDataType } from "../../shared/types";
+import { windowsService } from "../services/windows";
 import type { RendererHandlers } from "../tipc";
-import { windowStore } from "../windows";
 
 export function createLoaderGrabberTipcRouter(tipcInstance: TipcInstance) {
   return {
@@ -9,7 +9,7 @@ export function createLoaderGrabberTipcRouter(tipcInstance: TipcInstance) {
       .input<{ id: number; type: LoaderDataType }>()
       .action(async ({ input, context }) => {
         const parent = context.senderParentWindow;
-        if (!parent || !windowStore.has(parent.id)) return;
+        if (!parent || !windowsService.getWindowStore().has(parent.id)) return;
 
         const parentHandlers =
           context.getRendererHandlers<RendererHandlers>(parent);
@@ -20,7 +20,7 @@ export function createLoaderGrabberTipcRouter(tipcInstance: TipcInstance) {
       .input<{ type: GrabberDataType }>()
       .action(async ({ input, context }) => {
         const parent = context.senderParentWindow;
-        if (!parent || !windowStore.has(parent.id)) return;
+        if (!parent || !windowsService.getWindowStore().has(parent.id)) return;
 
         const parentHandlers =
           context.getRendererHandlers<RendererHandlers>(parent);

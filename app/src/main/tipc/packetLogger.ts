@@ -1,12 +1,12 @@
 import type { TipcInstance } from "@vexed/tipc";
+import { windowsService } from "../services/windows";
 import type { RendererHandlers } from "../tipc";
-import { windowStore } from "../windows";
 
 export function createPacketLoggerTipcRouter(tipcInstance: TipcInstance) {
   return {
     packetLoggerStart: tipcInstance.procedure.action(async ({ context }) => {
       const parent = context.senderParentWindow;
-      if (!parent || !windowStore.has(parent.id)) return;
+      if (!parent || !windowsService.getWindowStore().has(parent.id)) return;
 
       const parentHandlers =
         context.getRendererHandlers<RendererHandlers>(parent);
@@ -14,7 +14,7 @@ export function createPacketLoggerTipcRouter(tipcInstance: TipcInstance) {
     }),
     packetLoggerStop: tipcInstance.procedure.action(async ({ context }) => {
       const parent = context.senderParentWindow;
-      if (!parent || !windowStore.has(parent.id)) return;
+      if (!parent || !windowsService.getWindowStore().has(parent.id)) return;
 
       const parentHandlers =
         context.getRendererHandlers<RendererHandlers>(parent);
@@ -26,8 +26,9 @@ export function createPacketLoggerTipcRouter(tipcInstance: TipcInstance) {
         const browserWindow = context.senderWindow;
         if (!browserWindow) return;
 
-        const packetLoggerWindow = windowStore.get(browserWindow.id)?.packets
-          ?.logger;
+        const packetLoggerWindow = windowsService
+          .getWindowStore()
+          .get(browserWindow.id)?.packets?.logger;
         if (!packetLoggerWindow || packetLoggerWindow.isDestroyed()) return;
 
         const rendererHandler =
