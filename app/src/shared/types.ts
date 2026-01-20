@@ -130,14 +130,6 @@ export type MainLogEntry = {
   timestamp: number;
 };
 
-export type AppLogEntry = {
-  level: number;
-  lineNumber: number;
-  message: string;
-  sourceId: string;
-  timestamp: number;
-};
-
 export type HotkeyConfig = {
   Application?: {
     "Open Environment"?: string;
