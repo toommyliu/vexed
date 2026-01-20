@@ -5,6 +5,7 @@ import {
   RendererHandlers,
   RendererHandlersCaller,
   Route,
+  SendRoute,
   RouterType,
 } from "./types";
 import { tipc } from "./tipc";
@@ -39,6 +40,34 @@ export const registerIpcMain = (router: RouterType) => {
           };
 
           return route.action({
+            context,
+            input: payload,
+          });
+        });
+      } else if ("sendAction" in val) {
+        const route = val as SendRoute;
+        ipcMain.on(channel, (e, payload) => {
+          const senderWindow = BrowserWindow.fromWebContents(e.sender) ?? null;
+          const senderParentWindow = senderWindow?.getParentWindow() ?? null;
+
+          const context = {
+            sender: e.sender,
+            senderWindow,
+            senderParentWindow,
+            getRendererHandlers: <T extends RendererHandlers>(
+              target?: WebContents | BrowserWindow | null,
+            ): RendererHandlersCaller<T> => {
+              const resolvedTarget = target ?? e.sender;
+              const contents =
+                resolvedTarget instanceof BrowserWindow
+                  ? resolvedTarget.webContents
+                  : resolvedTarget;
+
+              return getRendererHandlers<T>(contents);
+            },
+          };
+
+          route.sendAction({
             context,
             input: payload,
           });
