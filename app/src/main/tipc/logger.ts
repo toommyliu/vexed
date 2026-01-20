@@ -6,7 +6,7 @@ export function createLoggerTipcRouter(tipcInstance: TipcInstance) {
   return {
     logEntry: tipcInstance.procedure
       .input<MainLogEntry>()
-      .event(async ({ input }) => {
+      .action(async ({ input }) => {
         logFromRenderer(input);
       }),
   };
