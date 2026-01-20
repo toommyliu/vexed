@@ -1,0 +1,41 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Main Process",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/app",
+      "runtimeExecutable": "${workspaceFolder}/app/node_modules/.bin/electron",
+      "windows": {
+        "runtimeExecutable": "${workspaceFolder}/app/node_modules/.bin/electron.cmd"
+      },
+      "program": "${workspaceFolder}/app/dist/main/index.js",
+      "outputCapture": "std",
+      "sourceMaps": true,
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "preLaunchTask": "compile",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Debug Main Process (Watch)",
+      "type": "node",
+      "request": "launch", 
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "${workspaceFolder}/app/node_modules/.bin/electronmon",
+      "windows": {
+        "runtimeExecutable": "${workspaceFolder}/app/node_modules/.bin/electronmon.cmd"
+      },
+      "args": ["."],
+      "outputCapture": "std",
+      "sourceMaps": true,
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "preLaunchTask": "compile",
+      "console": "integratedTerminal"
+    }
+  ]
+} 
