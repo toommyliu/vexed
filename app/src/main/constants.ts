@@ -1,7 +1,10 @@
 import { join, dirname } from "path";
 import process from "process";
 import { app } from "electron";
-import { IS_WINDOWS } from "../shared/constants";
+
+// TODO: expose these to renderer through tpc as state
+export const IS_WINDOWS = process.platform === "win32";
+export const IS_MAC = process.platform === "darwin";
 
 export const IS_PACKAGED = app.isPackaged;
 
