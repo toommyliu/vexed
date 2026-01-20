@@ -1,14 +1,23 @@
 import { URL } from "url";
 import { BrowserWindow, session } from "electron";
-import { ARTIX_USERAGENT, WHITELISTED_DOMAINS } from "../../shared/constants";
+import { IS_MAC } from "../constants";
 import { logger } from "../services/logger";
+
+const WHITELISTED_DOMAINS = [
+  "aq.com",
+  "artix.com",
+  "account.aq.com",
+  "aqwwiki.wikidot.com",
+  "heromart.com",
+];
+
+const ARTIX_USERAGENT = IS_MAC
+  ? "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16_0) AppleWebKit/537.36 (KHTML, like Gecko) ArtixGameLauncher/2.2.0 Chrome/80.0.3987.163 Electron/8.5.5 Safari/537.36"
+  : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ArtixGameLauncher/2.2.0 Chrome/80.0.3987.163 Electron/8.5.5 Safari/537.36";
 
 function isDomainWhitelisted(hostname: string): boolean {
   let normalized = hostname;
-  if (hostname.startsWith("www.")) {
-    normalized = hostname.slice(4);
-  }
-
+  if (hostname.startsWith("www.")) normalized = hostname.slice(4);
   return WHITELISTED_DOMAINS.includes(normalized);
 }
 
@@ -33,7 +42,7 @@ export function applySecurityPolicy(window: BrowserWindow): void {
   window.webContents.on("will-navigate", (ev, url) => {
     const parsedUrl = new URL(url);
     if (!isDomainWhitelisted(parsedUrl.hostname)) {
-      logger.debug("main", `Blocked navigation to: ${url}`);
+      logger.debug(`Blocked navigation to: ${url}`);
       ev.preventDefault();
     }
   });
@@ -41,7 +50,7 @@ export function applySecurityPolicy(window: BrowserWindow): void {
   window.webContents.on("will-redirect", (ev, url) => {
     const parsedUrl = new URL(url);
     if (!isDomainWhitelisted(parsedUrl.hostname)) {
-      logger.debug("main", `Blocked redirect to: ${url}`);
+      logger.debug(`Blocked redirect to: ${url}`);
       ev.preventDefault();
     }
   });

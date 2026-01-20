@@ -1,7 +1,7 @@
 import os from "os";
 import { join } from "path";
 import process from "process";
-import type { Account, FastTravel, Settings, HotkeyConfig } from "./types";
+import type { Account, FastTravel, HotkeyConfig } from "./types";
 
 export const IS_WINDOWS = process.platform === "win32";
 export const IS_MAC = process.platform === "darwin";
@@ -10,16 +10,8 @@ export const BRAND = "vexed";
 export const DOCUMENTS_PATH = join(os.homedir(), "Documents", BRAND);
 
 export const FAST_TRAVELS_PATH = join(DOCUMENTS_PATH, "fast-travels.json");
-export const ACCOUNTS_PATH = join(DOCUMENTS_PATH, "accounts.json");
-export const STORAGE_PATH = join(DOCUMENTS_PATH, "storage");
 
-export const DEFAULT_SETTINGS: Settings = {
-  checkForUpdates: false,
-  debug: false,
-  fallbackServer: "",
-  launchMode: "game",
-  theme: "dark",
-} as const;
+export const STORAGE_PATH = join(DOCUMENTS_PATH, "storage");
 
 export const DEFAULT_SKILLSETS = {
   "Legion Revenant": {
@@ -85,8 +77,6 @@ export const DEFAULT_FAST_TRAVELS: FastTravel[] = [
   },
 ] as const;
 
-export const DEFAULT_ACCOUNTS: Account[] = [] as const;
-
 export const DEFAULT_HOTKEYS: HotkeyConfig = {
   General: {
     "Toggle Autoattack": "",
@@ -124,23 +114,4 @@ export const DEFAULT_HOTKEYS: HotkeyConfig = {
     "Open Packet Logger": "",
     "Open Packet Spammer": "",
   },
-} as const;
-
-export const ARTIX_USERAGENT = IS_MAC ?
-  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16_0) AppleWebKit/537.36 (KHTML, like Gecko) ArtixGameLauncher/2.2.0 Chrome/80.0.3987.163 Electron/8.5.5 Safari/537.36" :
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ArtixGameLauncher/2.2.0 Chrome/80.0.3987.163 Electron/8.5.5 Safari/537.36";
-
-export const WHITELISTED_DOMAINS = [
-  "aq.com",
-  "artix.com",
-  "account.aq.com",
-  "aqwwiki.wikidot.com",
-  "heromart.com",
-];
-
-export const LEVEL_LABELS: Record<number, string> = {
-  0: "debug",
-  1: "log", // info
-  2: "warn",
-  3: "error",
 } as const;

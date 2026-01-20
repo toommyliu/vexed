@@ -217,17 +217,7 @@ export function logMainEntry(entry: MainLogEntry) {
   if (!shouldLog(entry)) return;
 
   const line = formatEntry(entry);
-
-  if (entry.level === "info") {
-    console.info(line);
-  } else if (entry.level === "warn") {
-    console.warn(line);
-  } else if (entry.level === "error") {
-    console.error(line);
-  } else if (entry.level === "debug") {
-    console.debug(line);
-  }
-
+  console[entry.level](line);
   enqueueLine(line);
 }
 
