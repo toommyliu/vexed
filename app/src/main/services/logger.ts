@@ -55,13 +55,13 @@ function safeStringify(value: unknown): string {
 function formatEntry(entry: MainLogEntry): string {
   const timestamp = new Date(entry.timestamp).toISOString();
   const level = entry.level.toUpperCase();
-  const scope = entry.scope ? `[${entry.scope}]` : "";
+  const scope = entry.scope ? `[${entry.scope}] ` : "";
   const processLabel = `[${entry.process}]`;
   const dataSegment =
     debugEnabled && entry.data !== undefined
       ? ` data=${safeStringify(entry.data)}`
       : "";
-  return `[${timestamp}] [${level}] ${processLabel} ${scope} ${entry.message}${dataSegment}`.trim();
+  return `[${timestamp}] [${level}] ${processLabel} ${scope}${entry.message}${dataSegment}`.trim();
 }
 
 function startFlushInterval() {
@@ -237,7 +237,7 @@ export function logMain(level: LogLevel, payload: LogPayload) {
     level,
     message: payload.message,
     process: "main",
-    scope: payload.scope ?? "main",
+    scope: payload.scope ?? "",
     timestamp: Date.now(),
   };
 
