@@ -1,9 +1,12 @@
-import type { ActionFunction } from "./types";
+import type { ActionFunction, SendActionFunction } from "./types";
 
 type ChainNode<TInput> = {
   input<NewInput>(): ChainNode<NewInput>;
   action<TResult>(action: ActionFunction<TInput, TResult>): {
     action: ActionFunction<TInput, TResult>;
+  };
+  sendAction(action: SendActionFunction<TInput>): {
+    sendAction: SendActionFunction<TInput>;
   };
   [key: string]: unknown;
 };
@@ -17,6 +20,12 @@ const createChainFns = <TInput>(): ChainNode<TInput> => {
     action: <TResult>(action: ActionFunction<TInput, TResult>) => {
       return {
         action,
+      };
+    },
+
+    sendAction: (action: SendActionFunction<TInput>) => {
+      return {
+        sendAction: action,
       };
     },
   };

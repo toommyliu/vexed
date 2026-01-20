@@ -3,7 +3,7 @@ export type ActionContext = {
   senderWindow: Electron.BrowserWindow | null;
   senderParentWindow: Electron.BrowserWindow | null;
   getRendererHandlers: <T extends RendererHandlers>(
-    target?: Electron.WebContents | Electron.BrowserWindow | null
+    target?: Electron.WebContents | Electron.BrowserWindow | null,
   ) => RendererHandlersCaller<T>;
 };
 
@@ -12,20 +12,30 @@ export type ActionFunction<TInput = any, TResult = any> = (args: {
   input: TInput;
 }) => Promise<TResult>;
 
+export type SendActionFunction<TInput = any> = (args: {
+  context: ActionContext;
+  input: TInput;
+}) => void;
+
 // A route is a leaf with an action. A RouterType can be nested arbitrarily.
 export type Route = { action: ActionFunction };
+export type SendRoute = { sendAction: SendActionFunction };
 export interface RouterType {
-  [key: string]: Route | RouterType;
+  [key: string]: Route | SendRoute | RouterType;
 }
 
 export type ClientFromRouter<Router extends RouterType> = {
   [K in keyof Router]: Router[K] extends {
     action: (options: { context: any; input: infer P }) => Promise<infer R>;
   }
-    ? (input: P) => Promise<R>
-    : Router[K] extends RouterType
-      ? ClientFromRouter<Router[K]>
-      : never;
+    ? ((input: P) => Promise<R>) & { send: (input: P) => void }
+    : Router[K] extends {
+          sendAction: (options: { context: any; input: infer P }) => void;
+        }
+      ? (input: P) => void
+      : Router[K] extends RouterType
+        ? ClientFromRouter<Router[K]>
+        : never;
 };
 
 // Renderer handlers can also be nested. A value is either a handler function or another nested map.
