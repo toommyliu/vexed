@@ -4,15 +4,14 @@ import { readJson, writeJson } from "@vexed/fs-utils";
 import type { TipcInstance } from "@vexed/tipc";
 import { dialog } from "electron";
 import type { BrowserWindow, OpenDialogOptions } from "electron";
-import {
-  ACCOUNTS_PATH,
-  DEFAULT_ACCOUNTS,
-  DOCUMENTS_PATH,
-} from "../../shared/constants";
-import type { Account, AccountWithScript } from "../../shared/types";
+import { DOCUMENTS_PATH } from "~/shared/constants";
+import type { Account, AccountWithScript } from "~/shared/types";
 import { logger } from "../services/logger";
 import type { RendererHandlers } from "../tipc";
 import { createGame, getManagerWindow } from "../windows";
+
+const ACCOUNTS_PATH = join(DOCUMENTS_PATH, "accounts.json");
+const DEFAULT_ACCOUNTS: Account[] = [];
 
 export function createManagerTipcRouter(tipcInstance: TipcInstance) {
   return {
@@ -38,8 +37,7 @@ export function createManagerTipcRouter(tipcInstance: TipcInstance) {
       .input<Account>()
       .action(async ({ input }) => {
         try {
-          const accounts =
-            (await readJson<Account[]>(ACCOUNTS_PATH)) ?? DEFAULT_ACCOUNTS;
+          const accounts = (await readJson<Account[]>(ACCOUNTS_PATH)) ?? [];
 
           const idx = accounts.findIndex(
             (acc) => acc.username === input.username,
@@ -64,8 +62,7 @@ export function createManagerTipcRouter(tipcInstance: TipcInstance) {
       }>()
       .action(async ({ input }) => {
         try {
-          const accounts =
-            (await readJson<Account[]>(ACCOUNTS_PATH)) ?? DEFAULT_ACCOUNTS;
+          const accounts = (await readJson<Account[]>(ACCOUNTS_PATH)) ?? [];
 
           const idx = accounts.findIndex(
             (acc) => acc.username === input.username,
