@@ -10,7 +10,7 @@
       "windows": {
         "runtimeExecutable": "${workspaceFolder}/app/node_modules/.bin/electron.cmd"
       },
-      "program": "${workspaceFolder}/app/dist/main/index.js",
+      "program": "${workspaceFolder}/app",
       "outputCapture": "std",
       "sourceMaps": true,
       "env": {
@@ -23,7 +23,7 @@
       "name": "Debug Main Process (Watch)",
       "type": "node",
       "request": "launch", 
-      "cwd": "${workspaceFolder}",
+      "cwd": "${workspaceFolder}/app",
       "runtimeExecutable": "${workspaceFolder}/app/node_modules/.bin/electronmon",
       "windows": {
         "runtimeExecutable": "${workspaceFolder}/app/node_modules/.bin/electronmon.cmd"
