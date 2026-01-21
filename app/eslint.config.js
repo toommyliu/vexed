@@ -9,7 +9,9 @@ const merge = require("lodash.merge");
 
 const commonFiles = ".ts";
 
-const commonRuleset = merge({}, ...common, { files: [`./src/**/*${commonFiles}`] });
+const commonRuleset = merge({}, ...common, {
+  files: [`./src/**/*${commonFiles}`],
+});
 
 const nodeRuleset = merge({}, ...node, {
   files: [`./src/main/**/*${commonFiles}`],
@@ -30,6 +32,8 @@ const typeScriptRuleset = merge({}, ...typescript, {
     //  https://github.com/typescript-eslint/typescript-eslint/issues/1824
     "@stylistic/ts/indent": "off",
     "unicorn/prefer-node-protocol": "off",
+    "unicorn/throw-new-error": "off",
+    "func-names": "off",
   },
 });
 
