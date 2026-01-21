@@ -37,12 +37,37 @@ let onboardingReadyToShow = false;
 
 export const windowStore: WindowStore = new Map();
 
+// subwindow ID → game window ID
+const parentMap = new Map<number, number>();
+
 export function getManagerWindow(): BrowserWindow | null {
   return mgrWindow;
 }
 
 export function setQuitting(quitting: boolean): void {
   isQuitting = quitting;
+}
+
+export function registerSubwindow(
+  gameWindowId: number,
+  subwindowId: number,
+): void {
+  parentMap.set(subwindowId, gameWindowId);
+}
+
+export function unregisterSubwindow(subwindowId: number): void {
+  parentMap.delete(subwindowId);
+}
+
+export function getGameWindowId(windowId: number): number | undefined {
+  if (windowStore.has(windowId)) return windowId;
+  return parentMap.get(windowId);
+}
+
+export function getGameWindow(windowId: number): BrowserWindow | null {
+  const gameId = getGameWindowId(windowId);
+  if (!gameId) return null;
+  return windowStore.get(gameId)?.game ?? null;
 }
 
 export async function prewarmOnboarding(): Promise<void> {
@@ -232,7 +257,7 @@ export async function createGame(
     const windows = windowStore.get(window.id);
     if (windows) {
       const toClose = [
-        windows.app.environment,
+        ...Object.values(windows.app),
         ...Object.values(windows.tools),
         ...Object.values(windows.packets),
       ];

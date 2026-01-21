@@ -1,14 +1,11 @@
 import { readJson, writeJson } from "@vexed/fs-utils";
 import type { TipcInstance } from "@vexed/tipc";
-import {
-  DEFAULT_FAST_TRAVELS,
-  FAST_TRAVELS_PATH,
-} from "~/shared/constants";
+import { DEFAULT_FAST_TRAVELS, FAST_TRAVELS_PATH } from "~/shared/constants";
 import { equalsIgnoreCase } from "~/shared/string";
 import type { FastTravel, FastTravelRoomNumber } from "~/shared/types";
 import { logger } from "../constants";
 import type { RendererHandlers } from "../tipc";
-import { windowStore } from "../windows";
+import { getGameWindow, getGameWindowId, windowStore } from "../windows";
 
 export function createFastTravelsTipcRouter(tipcInstance: TipcInstance) {
   return {
@@ -24,11 +21,12 @@ export function createFastTravelsTipcRouter(tipcInstance: TipcInstance) {
       .input<FastTravel>()
       .action(async ({ input }) => {
         try {
-          const fastTravels =
-            (await readJson<FastTravel[]>(FAST_TRAVELS_PATH)) ?? [...DEFAULT_FAST_TRAVELS];
+          const fastTravels = (await readJson<FastTravel[]>(
+            FAST_TRAVELS_PATH,
+          )) ?? [...DEFAULT_FAST_TRAVELS];
 
-          const idx = fastTravels.findIndex(
-            (ft) => equalsIgnoreCase(ft.name, input.name),
+          const idx = fastTravels.findIndex((ft) =>
+            equalsIgnoreCase(ft.name, input.name),
           );
           if (idx !== -1) return { msg: "NAME_ALREADY_EXISTS" } as const;
 
@@ -44,19 +42,21 @@ export function createFastTravelsTipcRouter(tipcInstance: TipcInstance) {
       .input<{ fastTravel: FastTravel; originalName: string }>()
       .action(async ({ input }) => {
         try {
-          const fastTravels =
-            (await readJson<FastTravel[]>(FAST_TRAVELS_PATH)) ?? [...DEFAULT_FAST_TRAVELS];
+          const fastTravels = (await readJson<FastTravel[]>(
+            FAST_TRAVELS_PATH,
+          )) ?? [...DEFAULT_FAST_TRAVELS];
 
-          const idx = fastTravels.findIndex(
-            (ft) => equalsIgnoreCase(ft.name, input.originalName),
+          const idx = fastTravels.findIndex((ft) =>
+            equalsIgnoreCase(ft.name, input.originalName),
           );
           if (idx === -1) return { msg: "NOT_FOUND" } as const;
 
           if (!equalsIgnoreCase(input.fastTravel.name, input.originalName)) {
-            const existingIdx = fastTravels.findIndex(
-              (ft) => equalsIgnoreCase(ft.name, input.fastTravel.name),
+            const existingIdx = fastTravels.findIndex((ft) =>
+              equalsIgnoreCase(ft.name, input.fastTravel.name),
             );
-            if (existingIdx !== -1) return { msg: "NAME_ALREADY_EXISTS" } as const;
+            if (existingIdx !== -1)
+              return { msg: "NAME_ALREADY_EXISTS" } as const;
           }
 
           fastTravels[idx] = input.fastTravel;
@@ -71,11 +71,12 @@ export function createFastTravelsTipcRouter(tipcInstance: TipcInstance) {
       .input<{ name: string }>()
       .action(async ({ input }) => {
         try {
-          const fastTravels =
-            (await readJson<FastTravel[]>(FAST_TRAVELS_PATH)) ?? [...DEFAULT_FAST_TRAVELS];
+          const fastTravels = (await readJson<FastTravel[]>(
+            FAST_TRAVELS_PATH,
+          )) ?? [...DEFAULT_FAST_TRAVELS];
 
-          const idx = fastTravels.findIndex(
-            (ft) => equalsIgnoreCase(ft.name, input.name),
+          const idx = fastTravels.findIndex((ft) =>
+            equalsIgnoreCase(ft.name, input.name),
           );
           if (idx === -1) return false;
 
@@ -90,8 +91,14 @@ export function createFastTravelsTipcRouter(tipcInstance: TipcInstance) {
     doFastTravel: tipcInstance.procedure
       .input<{ location: FastTravelRoomNumber }>()
       .action(async ({ input, context }) => {
-        const parent = context.senderParentWindow;
-        if (!parent || !windowStore.has(parent.id)) return;
+        const senderWindow = context.senderWindow;
+        if (!senderWindow) return;
+
+        const gameWindowId = getGameWindowId(senderWindow.id);
+        if (!gameWindowId || !windowStore.has(gameWindowId)) return;
+
+        const parent = getGameWindow(senderWindow.id);
+        if (!parent) return;
 
         const parentHandlers =
           context.getRendererHandlers<RendererHandlers>(parent);

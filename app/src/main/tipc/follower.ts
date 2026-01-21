@@ -1,12 +1,18 @@
 import type { TipcInstance } from "@vexed/tipc";
 import type { RendererHandlers } from "../tipc";
-import { windowStore } from "../windows";
+import { getGameWindow, getGameWindowId, windowStore } from "../windows";
 
 export function createFollowerTipcRouter(tipcInstance: TipcInstance) {
   return {
     me: tipcInstance.procedure.action(async ({ context }) => {
-      const parent = context.senderParentWindow;
-      if (!parent || !windowStore.has(parent.id)) return;
+      const senderWindow = context.senderWindow;
+      if (!senderWindow) return;
+
+      const gameWindowId = getGameWindowId(senderWindow.id);
+      if (!gameWindowId || !windowStore.has(gameWindowId)) return;
+
+      const parent = getGameWindow(senderWindow.id);
+      if (!parent) return;
 
       const parentHandlers =
         context.getRendererHandlers<RendererHandlers>(parent);
@@ -25,16 +31,28 @@ export function createFollowerTipcRouter(tipcInstance: TipcInstance) {
         skillWait: boolean;
       }>()
       .action(async ({ context, input }) => {
-        const parent = context.senderParentWindow;
-        if (!parent || !windowStore.has(parent.id)) return;
+        const senderWindow = context.senderWindow;
+        if (!senderWindow) return;
+
+        const gameWindowId = getGameWindowId(senderWindow.id);
+        if (!gameWindowId || !windowStore.has(gameWindowId)) return;
+
+        const parent = getGameWindow(senderWindow.id);
+        if (!parent) return;
 
         const parentHandlers =
           context.getRendererHandlers<RendererHandlers>(parent);
         parentHandlers.follower.start.send(input);
       }),
     stop: tipcInstance.procedure.action(async ({ context }) => {
-      const parent = context.senderParentWindow;
-      if (!parent || !windowStore.has(parent.id)) return;
+      const senderWindow = context.senderWindow;
+      if (!senderWindow) return;
+
+      const gameWindowId = getGameWindowId(senderWindow.id);
+      if (!gameWindowId || !windowStore.has(gameWindowId)) return;
+
+      const parent = getGameWindow(senderWindow.id);
+      if (!parent) return;
 
       const parentHandlers =
         context.getRendererHandlers<RendererHandlers>(parent);

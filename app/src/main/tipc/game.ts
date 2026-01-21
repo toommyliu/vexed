@@ -5,7 +5,11 @@ import { BrowserWindow } from "electron";
 import { DEFAULT_SKILLSETS, DOCUMENTS_PATH } from "../../shared/constants";
 import { WindowIds } from "../../shared/types";
 import { ASSET_PATH, DIST_PATH, IS_PACKAGED, logger } from "../constants";
-import { windowStore } from "../windows";
+import {
+  registerSubwindow,
+  unregisterSubwindow,
+  windowStore,
+} from "../windows";
 
 export function createGameTipcRouter(tipcInstance: TipcInstance) {
   return {
@@ -78,7 +82,6 @@ export function createGameTipcRouter(tipcInstance: TipcInstance) {
             nodeIntegration: true,
           },
           useContentSize: true,
-          parent: browserWindow,
           width: width!,
           minWidth: width!,
           minHeight: height!,
@@ -86,6 +89,9 @@ export function createGameTipcRouter(tipcInstance: TipcInstance) {
           minimizable: false, // https://github.com/electron/electron/issues/26031
           show: false,
         });
+
+        // Register logical parent relationship
+        registerSubwindow(browserWindow.id, window.id);
 
         switch (input) {
           case WindowIds.Environment:
@@ -119,6 +125,11 @@ export function createGameTipcRouter(tipcInstance: TipcInstance) {
         window.on("close", (ev) => {
           ev.preventDefault();
           window.hide();
+        });
+
+        const subwindowId = window.id;
+        window.on("closed", () => {
+          unregisterSubwindow(subwindowId);
         });
 
         await window.loadFile(path!);
