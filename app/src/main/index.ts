@@ -7,8 +7,8 @@ import { registerIpcMain } from "@vexed/tipc/main";
 import { equalsIgnoreCase } from "@vexed/utils/string";
 import { app, shell, nativeTheme } from "electron";
 import { version } from "../../package.json";
-import { BRAND, IS_MAC, IS_WINDOWS } from "../shared/constants";
-import { ASSET_PATH } from "./constants";
+import { IS_MAC, IS_WINDOWS } from "../shared/constants";
+import { ASSET_PATH, BRAND } from "./constants";
 import { createMenu } from "./menu";
 import {
   flushAndCloseLogger,
@@ -29,6 +29,7 @@ import {
 } from "./windows";
 
 console.log("app.getVersion", app.getVersion());
+console.log("app.name", app.name);
 
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 
@@ -65,7 +66,7 @@ function registerFlashPlugin() {
     "Shockwave Flash",
     "WritableRoot",
   );
-
+  console.log("flash path :: ", flashPath);
   const trustManager = flashTrust.initSync(BRAND, flashPath);
   trustManager.empty();
 
