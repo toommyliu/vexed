@@ -1,8 +1,7 @@
 import { join, resolve } from "path";
 import { BrowserWindow, screen } from "electron";
-import { BRAND } from "../shared/constants";
 import type { AccountWithScript } from "../shared/types";
-import { DIST_PATH, IS_PACKAGED } from "./constants";
+import { BRAND, DIST_PATH, IS_PACKAGED } from "./constants";
 import { getSettings } from "./settings";
 import { cleanupEnvironmentState } from "./tipc/environment";
 import { applySecurityPolicy } from "./util/applySecurityPolicy";
