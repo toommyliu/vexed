@@ -17,16 +17,11 @@ import {
   setLoggerDebugEnabled,
 } from "./services/logger";
 import { updaterService } from "./services/updater";
+import { windowsService } from "./services/windows";
 import { initSettings, getSettings } from "./settings";
 import { router } from "./tipc";
 import { showErrorDialog } from "./util/dialog";
 import { createNotification } from "./util/notification";
-import {
-  createAccountManager,
-  createGame,
-  prewarmOnboarding,
-  setQuitting,
-} from "./windows";
 
 console.log("app.getVersion", app.getVersion());
 console.log("app.name", app.name);
@@ -103,18 +98,6 @@ async function handleAppLaunch(argv: string[] = process.argv) {
     }
 
     let launchMode = settings.getString("launchMode", "game");
-    if (
-      !equalsIgnoreCase(launchMode, "manager") &&
-      !equalsIgnoreCase(launchMode, "game")
-    ) {
-      logger.info(
-        "main",
-        `Unknown launch mode, got "${launchMode}", defaulting to "game"...`,
-      );
-      launchMode = "game";
-    } else {
-      logger.info("main", `Using launch mode: ${launchMode}`);
-    }
 
     const parseArgValue = (prefix: string) =>
       argv.find((arg) => arg.startsWith(prefix))?.split("=")[1] ?? "";
@@ -126,8 +109,18 @@ async function handleAppLaunch(argv: string[] = process.argv) {
     const isGameMode =
       equalsIgnoreCase(launchMode, "game") || hasFlag("--game", "-g");
 
+    if (!isManagerMode && !isGameMode) {
+      logger.info(
+        "main",
+        `Unknown launch mode, got "${launchMode}", defaulting to "game"...`,
+      );
+      launchMode = "game";
+    } else {
+      logger.info("main", `Using launch mode: ${launchMode}`);
+    }
+
     if (isManagerMode) {
-      await createAccountManager();
+      windowsService.manager();
     } else if (isGameMode) {
       const account = {
         username: parseArgValue("--username="),
@@ -135,7 +128,7 @@ async function handleAppLaunch(argv: string[] = process.argv) {
         server: parseArgValue("--server="),
         scriptPath: parseArgValue("--scriptPath="),
       };
-      await createGame(account);
+      windowsService.game(account);
     }
   } catch (error) {
     showErrorDialog({
@@ -165,24 +158,19 @@ if (gotTheLock) {
 
 app.once("ready", async () => {
   const settings = await initSettings();
-
   nativeTheme.themeSource = settings.get("theme") ?? "system";
-
   createMenu(settings);
-
-  // Preload settings window to make first open feel instant.
-  void prewarmOnboarding();
   await handleAppLaunch();
 });
 
 let loggerClosing = false;
 
-app.on("before-quit", async (event) => {
+app.on("before-quit", async (ev) => {
   if (loggerClosing) return;
 
-  event.preventDefault();
+  ev.preventDefault();
   loggerClosing = true;
-  setQuitting(true);
+  windowsService.setQuitting(true);
 
   await Promise.race([
     flushAndCloseLogger(),

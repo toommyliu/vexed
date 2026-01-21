@@ -1,6 +1,6 @@
 {
   "name": "better-result",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "private": true,
   "scripts": {
     "build": "tsdown --outDir ./dist --format cjs --entry './src/index.ts' --dts --exports",

@@ -3,8 +3,9 @@ import type {
   EnvironmentState,
   EnvironmentUpdatePayload,
 } from "~/shared/types";
+import { WindowIds } from "~/shared/types";
+import { windowsService } from "../services/windows";
 import type { RendererHandlers } from "../tipc";
-import { getGameWindow, getGameWindowId, windowStore } from "../windows";
 
 const EMPTY_STATE: EnvironmentState = {
   autoRegisterRequirements: false,
@@ -88,7 +89,7 @@ export function createEnvironmentTipcRouter(tipcInstance: TipcInstance) {
       const senderWindow = context.senderWindow;
       if (!senderWindow) return { ...EMPTY_STATE };
 
-      const gameWindowId = getGameWindowId(senderWindow.id);
+      const gameWindowId = windowsService.getGameWindowId(senderWindow.id);
       if (!gameWindowId) return { ...EMPTY_STATE };
 
       return getWindowState(gameWindowId);
@@ -99,16 +100,18 @@ export function createEnvironmentTipcRouter(tipcInstance: TipcInstance) {
         const senderWindow = context.senderWindow;
         if (!senderWindow) return;
 
-        const gameWindowId = getGameWindowId(senderWindow.id);
+        const gameWindowId = windowsService.getGameWindowId(senderWindow.id);
         if (!gameWindowId) return;
 
         const newState = applyUpdate(gameWindowId, input);
-        const isFromGameWindow = windowStore.has(senderWindow.id);
+        const isFromGameWindow = windowsService.isGameWindow(senderWindow.id);
 
         if (isFromGameWindow) {
           // Game window sent update → notify environment window if open
-          const storeRef = windowStore.get(senderWindow.id);
-          const envWindow = storeRef?.app.environment;
+          const envWindow = windowsService.getSubwindow(
+            senderWindow.id,
+            WindowIds.Environment,
+          );
           if (
             envWindow &&
             !envWindow.isDestroyed() &&
@@ -120,7 +123,7 @@ export function createEnvironmentTipcRouter(tipcInstance: TipcInstance) {
           }
         } else {
           // Environment window sent update → notify game window
-          const parent = getGameWindow(senderWindow.id);
+          const parent = windowsService.resolveGameWindow(senderWindow.id);
           if (
             parent &&
             !parent.isDestroyed() &&
@@ -136,7 +139,7 @@ export function createEnvironmentTipcRouter(tipcInstance: TipcInstance) {
       const senderWindow = context.senderWindow;
       if (!senderWindow) return [];
 
-      const parent = getGameWindow(senderWindow.id);
+      const parent = windowsService.resolveGameWindow(senderWindow.id);
       if (parent && !parent.isDestroyed()) {
         const parentHandlers =
           context.getRendererHandlers<RendererHandlers>(parent);
@@ -152,12 +155,14 @@ export function createEnvironmentTipcRouter(tipcInstance: TipcInstance) {
         if (!senderWindow) return;
 
         const windowId = senderWindow.id;
-        if (windowStore.has(windowId)) {
+        if (windowsService.isGameWindow(windowId)) {
           stateMap.set(windowId, input);
         }
 
-        const storeRef = windowStore.get(senderWindow.id);
-        const environmentWindow = storeRef?.app.environment;
+        const environmentWindow = windowsService.getSubwindow(
+          senderWindow.id,
+          WindowIds.Environment,
+        );
         if (
           !environmentWindow ||
           environmentWindow.isDestroyed() ||
@@ -176,18 +181,18 @@ export function createEnvironmentTipcRouter(tipcInstance: TipcInstance) {
         const senderWindow = context?.senderWindow;
         if (!senderWindow) return;
 
-        const senderGameWindowId = getGameWindowId(senderWindow.id);
+        const senderGameWindowId = windowsService.getGameWindowId(
+          senderWindow.id,
+        );
 
-        for (const [gameWindowId, storeRef] of windowStore.entries()) {
-          if (gameWindowId === senderGameWindowId) continue;
+        windowsService.forEachGameWindow((gameWindowId, gameWindow) => {
+          if (gameWindowId === senderGameWindowId) return;
 
           // Update stateMap for this window
           stateMap.set(gameWindowId, input);
 
           // Notify the game window
-          const gameWindow = storeRef.game;
           if (
-            gameWindow &&
             !gameWindow.isDestroyed() &&
             !gameWindow.webContents.isDestroyed()
           ) {
@@ -197,7 +202,10 @@ export function createEnvironmentTipcRouter(tipcInstance: TipcInstance) {
           }
 
           // Notify the environment window if open
-          const envWindow = storeRef.app.environment;
+          const envWindow = windowsService.getSubwindow(
+            gameWindowId,
+            WindowIds.Environment,
+          );
           if (
             envWindow &&
             !envWindow.isDestroyed() &&
@@ -207,7 +215,7 @@ export function createEnvironmentTipcRouter(tipcInstance: TipcInstance) {
               context.getRendererHandlers<RendererHandlers>(envWindow);
             envHandlers.environment.stateChanged.send(input);
           }
-        }
+        });
       }),
   };
 }

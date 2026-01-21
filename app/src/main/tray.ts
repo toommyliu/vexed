@@ -1,8 +1,8 @@
 import { join } from "path";
-import { Menu, Tray, app, nativeImage } from "electron";
+import { app, Menu, nativeImage, Tray } from "electron";
 import { IS_MAC } from "../shared/constants";
 import { ASSET_PATH, BRAND } from "./constants";
-import { createAccountManager, createGame } from "./windows";
+import { windowsService } from "./services/windows";
 
 // https://www.electronjs.org/docs/latest/faq#my-apps-tray-disappeared-after-a-few-minutes
 let tray: Tray | null = null;
@@ -10,11 +10,11 @@ let tray: Tray | null = null;
 const contextMenu = Menu.buildFromTemplate([
   {
     label: "Open Account Manager",
-    click: () => void createAccountManager(),
+    click: () => void windowsService.manager(),
   },
   {
     label: "Open Game",
-    click: () => void createGame(),
+    click: () => void windowsService.game(),
   },
   { type: "separator" },
   {

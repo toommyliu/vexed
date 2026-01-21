@@ -1,6 +1,6 @@
 import type { TipcInstance } from "@vexed/tipc";
+import { windowsService } from "../services/windows";
 import type { RendererHandlers } from "../tipc";
-import { getGameWindow, getGameWindowId, windowStore } from "../windows";
 
 export function createFollowerTipcRouter(tipcInstance: TipcInstance) {
   return {
@@ -8,10 +8,7 @@ export function createFollowerTipcRouter(tipcInstance: TipcInstance) {
       const senderWindow = context.senderWindow;
       if (!senderWindow) return;
 
-      const gameWindowId = getGameWindowId(senderWindow.id);
-      if (!gameWindowId || !windowStore.has(gameWindowId)) return;
-
-      const parent = getGameWindow(senderWindow.id);
+      const parent = windowsService.resolveGameWindow(senderWindow.id);
       if (!parent) return;
 
       const parentHandlers =
@@ -34,10 +31,7 @@ export function createFollowerTipcRouter(tipcInstance: TipcInstance) {
         const senderWindow = context.senderWindow;
         if (!senderWindow) return;
 
-        const gameWindowId = getGameWindowId(senderWindow.id);
-        if (!gameWindowId || !windowStore.has(gameWindowId)) return;
-
-        const parent = getGameWindow(senderWindow.id);
+        const parent = windowsService.resolveGameWindow(senderWindow.id);
         if (!parent) return;
 
         const parentHandlers =
@@ -48,10 +42,7 @@ export function createFollowerTipcRouter(tipcInstance: TipcInstance) {
       const senderWindow = context.senderWindow;
       if (!senderWindow) return;
 
-      const gameWindowId = getGameWindowId(senderWindow.id);
-      if (!gameWindowId || !windowStore.has(gameWindowId)) return;
-
-      const parent = getGameWindow(senderWindow.id);
+      const parent = windowsService.resolveGameWindow(senderWindow.id);
       if (!parent) return;
 
       const parentHandlers =

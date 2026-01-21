@@ -71,15 +71,6 @@ export type Settings = {
   theme: "dark" | "light" | "system";
 };
 
-export type QuestEntry = {
-  /**
-   * Optional item ID for quests with multiple rewards.
-   * If specified, this item will be selected when completing the quest.
-   */
-  itemId?: number;
-  questId: number;
-};
-
 export type EnvironmentState = {
   autoRegisterRequirements: boolean;
   autoRegisterRewards: boolean;
