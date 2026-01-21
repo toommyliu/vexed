@@ -65,20 +65,22 @@ class SubwindowHandleImpl implements SubwindowHandle {
   }
 
   private async create(config: SubwindowConfig): Promise<BrowserWindow> {
-    const window = new BrowserWindow({
-      title: "",
-      webPreferences: {
-        contextIsolation: false,
-        nodeIntegration: true,
-      },
-      useContentSize: true,
-      width: config.width,
-      minWidth: config.width,
-      height: config.height,
-      minHeight: config.height,
-      minimizable: false,
-      show: false,
-    });
+    const window = Result.unwrap(
+      this.service.createWindow({
+        title: "",
+        webPreferences: {
+          contextIsolation: false,
+          nodeIntegration: true,
+        },
+        useContentSize: true,
+        width: config.width,
+        minWidth: config.width,
+        height: config.height,
+        minHeight: config.height,
+        minimizable: false,
+        show: false,
+      }),
+    );
 
     // Register parent relationship
     this.service.registerSubwindow(this.gameWindowId, window.id);
@@ -100,8 +102,6 @@ class SubwindowHandleImpl implements SubwindowHandle {
     });
 
     await window.loadFile(join(DIST_PATH, config.path));
-
-    if (!IS_PACKAGED) window.webContents.openDevTools({ mode: "right" });
 
     return window;
   }
@@ -344,8 +344,12 @@ class WindowsService {
   }
 
   private getCenteredPosition(width: number, height: number) {
-    const cursorPoint = screen.getCursorScreenPoint();
-    const display = screen.getDisplayNearestPoint(cursorPoint);
+    // const display = parent
+    // ? screen.getDisplayMatching(parent.getBounds())
+    // : screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
+    const display = screen.getDisplayNearestPoint(
+      screen.getCursorScreenPoint(),
+    );
     const workArea = display.workArea;
 
     return Result.ok({
@@ -354,7 +358,12 @@ class WindowsService {
     });
   }
 
-  private createWindow(options: BrowserWindowConstructorOptions) {
+  /**
+   * Create a window with standard configuration.
+   *
+   * @param options - The window options.
+   */
+  public createWindow(options: BrowserWindowConstructorOptions) {
     const { x, y } = Result.unwrap(
       this.getCenteredPosition(options.width!, options.height!),
     );
