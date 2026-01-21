@@ -1,7 +1,7 @@
 import type { TipcInstance } from "@vexed/tipc";
-import type { LoaderDataType, GrabberDataType } from "../../shared/types";
+import type { GrabberDataType, LoaderDataType } from "~/shared/types";
+import { windowsService } from "../services/windows";
 import type { RendererHandlers } from "../tipc";
-import { getGameWindow, getGameWindowId, windowStore } from "../windows";
 
 export function createLoaderGrabberTipcRouter(tipcInstance: TipcInstance) {
   return {
@@ -11,10 +11,7 @@ export function createLoaderGrabberTipcRouter(tipcInstance: TipcInstance) {
         const senderWindow = context.senderWindow;
         if (!senderWindow) return;
 
-        const gameWindowId = getGameWindowId(senderWindow.id);
-        if (!gameWindowId || !windowStore.has(gameWindowId)) return;
-
-        const parent = getGameWindow(senderWindow.id);
+        const parent = windowsService.resolveGameWindow(senderWindow.id);
         if (!parent) return;
 
         const parentHandlers =
@@ -27,10 +24,7 @@ export function createLoaderGrabberTipcRouter(tipcInstance: TipcInstance) {
         const senderWindow = context.senderWindow;
         if (!senderWindow) return;
 
-        const gameWindowId = getGameWindowId(senderWindow.id);
-        if (!gameWindowId || !windowStore.has(gameWindowId)) return;
-
-        const parent = getGameWindow(senderWindow.id);
+        const parent = windowsService.resolveGameWindow(senderWindow.id);
         if (!parent) return;
 
         const parentHandlers =

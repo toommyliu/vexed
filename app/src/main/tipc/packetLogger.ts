@@ -1,6 +1,7 @@
 import type { TipcInstance } from "@vexed/tipc";
+import { WindowIds } from "~/shared/types";
+import { windowsService } from "../services/windows";
 import type { RendererHandlers } from "../tipc";
-import { getGameWindow, getGameWindowId, windowStore } from "../windows";
 
 export function createPacketLoggerTipcRouter(tipcInstance: TipcInstance) {
   return {
@@ -8,10 +9,7 @@ export function createPacketLoggerTipcRouter(tipcInstance: TipcInstance) {
       const senderWindow = context.senderWindow;
       if (!senderWindow) return;
 
-      const gameWindowId = getGameWindowId(senderWindow.id);
-      if (!gameWindowId || !windowStore.has(gameWindowId)) return;
-
-      const parent = getGameWindow(senderWindow.id);
+      const parent = windowsService.resolveGameWindow(senderWindow.id);
       if (!parent) return;
 
       const parentHandlers =
@@ -22,10 +20,7 @@ export function createPacketLoggerTipcRouter(tipcInstance: TipcInstance) {
       const senderWindow = context.senderWindow;
       if (!senderWindow) return;
 
-      const gameWindowId = getGameWindowId(senderWindow.id);
-      if (!gameWindowId || !windowStore.has(gameWindowId)) return;
-
-      const parent = getGameWindow(senderWindow.id);
+      const parent = windowsService.resolveGameWindow(senderWindow.id);
       if (!parent) return;
 
       const parentHandlers =
@@ -38,9 +33,14 @@ export function createPacketLoggerTipcRouter(tipcInstance: TipcInstance) {
         const browserWindow = context.senderWindow;
         if (!browserWindow) return;
 
-        const packetLoggerWindow = windowStore.get(browserWindow.id)?.packets
-          ?.logger;
-        if (!packetLoggerWindow || packetLoggerWindow.isDestroyed()) return;
+        const gameWindowId = windowsService.getGameWindowId(browserWindow.id);
+        if (!gameWindowId) return;
+
+        const packetLoggerWindow = windowsService.getSubwindow(
+          gameWindowId,
+          WindowIds.PacketLogger,
+        );
+        if (!packetLoggerWindow) return;
 
         const rendererHandler =
           context.getRendererHandlers<RendererHandlers>(packetLoggerWindow);
