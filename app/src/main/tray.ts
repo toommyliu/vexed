@@ -1,7 +1,7 @@
 import { join } from "path";
 import { Menu, Tray, app, nativeImage } from "electron";
-import { BRAND, IS_MAC } from "../shared/constants";
-import { ASSET_PATH } from "./constants";
+import { IS_MAC } from "../shared/constants";
+import { ASSET_PATH, BRAND } from "./constants";
 import { createAccountManager, createGame } from "./windows";
 
 // https://www.electronjs.org/docs/latest/faq#my-apps-tray-disappeared-after-a-few-minutes
