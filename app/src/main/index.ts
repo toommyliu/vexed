@@ -4,10 +4,10 @@ import "./tray";
 import { join } from "path";
 import process from "process";
 import { registerIpcMain } from "@vexed/tipc/main";
+import { equalsIgnoreCase } from "@vexed/utils/string";
 import { app, shell, nativeTheme } from "electron";
 import { version } from "../../package.json";
 import { BRAND, IS_MAC, IS_WINDOWS } from "../shared/constants";
-import { equalsIgnoreCase } from "../shared/string";
 import { ASSET_PATH } from "./constants";
 import { createMenu } from "./menu";
 import {
@@ -16,9 +16,9 @@ import {
   logger,
   setLoggerDebugEnabled,
 } from "./services/logger";
+import { updaterService } from "./services/updater";
 import { initSettings, getSettings } from "./settings";
 import { router } from "./tipc";
-import { checkForUpdates } from "./updater";
 import { showErrorDialog } from "./util/dialog";
 import { createNotification } from "./util/notification";
 import {
@@ -27,6 +27,8 @@ import {
   prewarmOnboarding,
   setQuitting,
 } from "./windows";
+
+console.log("app.getVersion", app.getVersion());
 
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 
@@ -71,6 +73,8 @@ function registerFlashPlugin() {
 }
 
 async function handleAppLaunch(argv: string[] = process.argv) {
+  console.log(await updaterService.run(true));
+
   try {
     const settings = getSettings();
 
@@ -80,7 +84,7 @@ async function handleAppLaunch(argv: string[] = process.argv) {
     logger.info("main", `Hello - ${BRAND} v${version}`); // indicate app start
 
     if (settings?.getBoolean("checkForUpdates", false)) {
-      const updateResult = await checkForUpdates(true);
+      const updateResult = await updaterService.run(true);
       if (updateResult !== null) {
         logger.info(
           "main",
@@ -111,35 +115,25 @@ async function handleAppLaunch(argv: string[] = process.argv) {
       logger.info("main", `Using launch mode: ${launchMode}`);
     }
 
-    if (
-      equalsIgnoreCase(launchMode, "manager") ||
-      argv.some(
-        (arg) =>
-          equalsIgnoreCase(arg, "--manager") || equalsIgnoreCase(arg, "-m"),
-      )
-    ) {
-      await createAccountManager();
-    } else if (
-      equalsIgnoreCase(launchMode, "game") ||
-      argv.some(
-        (arg) => equalsIgnoreCase(arg, "--game") || equalsIgnoreCase(arg, "-g"),
-      )
-    ) {
-      const account = {
-        username:
-          argv.find((arg) => arg.startsWith("--username="))?.split("=")?.[1] ??
-          "",
-        password:
-          argv.find((arg) => arg.startsWith("--password="))?.split("=")?.[1] ??
-          "",
-        server:
-          argv.find((arg) => arg.startsWith("--server="))?.split("=")[1] ?? "",
-        scriptPath:
-          argv
-            .find((arg) => arg.startsWith("--scriptPath="))
-            ?.split("=")?.[1] ?? "",
-      };
+    const parseArgValue = (prefix: string) =>
+      argv.find((arg) => arg.startsWith(prefix))?.split("=")[1] ?? "";
+    const hasFlag = (...flags: string[]) =>
+      argv.some((arg) => flags.some((flag) => equalsIgnoreCase(arg, flag)));
 
+    const isManagerMode =
+      equalsIgnoreCase(launchMode, "manager") || hasFlag("--manager", "-m");
+    const isGameMode =
+      equalsIgnoreCase(launchMode, "game") || hasFlag("--game", "-g");
+
+    if (isManagerMode) {
+      await createAccountManager();
+    } else if (isGameMode) {
+      const account = {
+        username: parseArgValue("--username="),
+        password: parseArgValue("--password="),
+        server: parseArgValue("--server="),
+        scriptPath: parseArgValue("--scriptPath="),
+      };
       await createGame(account);
     }
   } catch (error) {
