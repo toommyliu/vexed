@@ -46,12 +46,10 @@ export const registerIpcMain = (router: RouterType) => {
         const route = val as SendRoute;
         ipcMain.on(channel, (e, payload) => {
           const senderWindow = BrowserWindow.fromWebContents(e.sender) ?? null;
-          const senderParentWindow = senderWindow?.getParentWindow() ?? null;
 
           const context = {
             sender: e.sender,
             senderWindow,
-            senderParentWindow,
             getRendererHandlers: <T extends RendererHandlers>(
               target?: WebContents | BrowserWindow | null,
             ): RendererHandlersCaller<T> => {

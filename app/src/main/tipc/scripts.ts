@@ -2,7 +2,7 @@ import { join } from "path";
 import { readFile } from "@vexed/fs-utils";
 import type { TipcInstance } from "@vexed/tipc";
 import { dialog } from "electron";
-import { DOCUMENTS_PATH } from "../../shared/constants";
+import { DOCUMENTS_PATH } from "~/shared/constants";
 import type { RendererHandlers } from "../tipc";
 
 export function createScriptsTipcRouter(tipcInstance: TipcInstance) {
