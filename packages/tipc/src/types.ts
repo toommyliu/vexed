@@ -1,7 +1,6 @@
 export type ActionContext = {
   sender: Electron.WebContents;
   senderWindow: Electron.BrowserWindow | null;
-  senderParentWindow: Electron.BrowserWindow | null;
   getRendererHandlers: <T extends RendererHandlers>(
     target?: Electron.WebContents | Electron.BrowserWindow | null,
   ) => RendererHandlersCaller<T>;
