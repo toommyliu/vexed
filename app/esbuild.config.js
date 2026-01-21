@@ -604,7 +604,7 @@ async function transpile() {
       await runBuildMode(commonConfig, svelteConfigs, cssConfigs);
     }
   } catch (error) {
-    console.log(`An error occurred while transpiling: ${error}`);
+    console.error("An error occurred while transpiling:", error);
     if (!isWatch) {
       process.exit(1);
     }
