@@ -1,6 +1,6 @@
 import type { TipcInstance } from "@vexed/tipc";
 import type { RendererHandlers } from "../tipc";
-import { windowStore } from "../windows";
+import { getGameWindow, getGameWindowId, windowStore } from "../windows";
 
 export function createHotkeysTipcRouter(tipcInstance: TipcInstance) {
   return {
@@ -10,16 +10,28 @@ export function createHotkeysTipcRouter(tipcInstance: TipcInstance) {
         value: string;
       }>()
       .action(async ({ input, context }) => {
-        const parent = context.senderParentWindow;
-        if (!parent || !windowStore.has(parent?.id)) return;
+        const senderWindow = context.senderWindow;
+        if (!senderWindow) return;
+
+        const gameWindowId = getGameWindowId(senderWindow.id);
+        if (!gameWindowId || !windowStore.has(gameWindowId)) return;
+
+        const parent = getGameWindow(senderWindow.id);
+        if (!parent) return;
 
         const parentHandlers =
           context.getRendererHandlers<RendererHandlers>(parent);
         await parentHandlers.hotkeys.updateHotkey.invoke(input);
       }),
     reloadHotkeys: tipcInstance.procedure.action(async ({ context }) => {
-      const parent = context.senderParentWindow;
-      if (!parent || !windowStore.has(parent?.id)) return;
+      const senderWindow = context.senderWindow;
+      if (!senderWindow) return;
+
+      const gameWindowId = getGameWindowId(senderWindow.id);
+      if (!gameWindowId || !windowStore.has(gameWindowId)) return;
+
+      const parent = getGameWindow(senderWindow.id);
+      if (!parent) return;
 
       const parentHandlers =
         context.getRendererHandlers<RendererHandlers>(parent);
