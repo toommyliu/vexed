@@ -11,7 +11,6 @@ import {
   unregisterSubwindow,
   windowStore,
 } from "../windows";
-import type { RendererHandlers } from "../tipc";
 
 export function createGameTipcRouter(tipcInstance: TipcInstance) {
   return {
