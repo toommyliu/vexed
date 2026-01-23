@@ -7,19 +7,19 @@ import type {
   EnvironmentState,
   EnvironmentUpdatePayload,
 } from "../shared/types";
-import { createArmyTipcRouter } from "./tipc/army";
-import { createEnvironmentTipcRouter } from "./tipc/environment";
-import { createFastTravelsTipcRouter } from "./tipc/fastTravels";
-import { createFollowerTipcRouter } from "./tipc/follower";
-import { createGameTipcRouter } from "./tipc/game";
-import { createHotkeysTipcRouter } from "./tipc/hotkeys";
-import { createLoaderGrabberTipcRouter } from "./tipc/loaderGrabber";
-import { createLoggerTipcRouter } from "./tipc/logger";
-import { createManagerTipcRouter } from "./tipc/manager";
-import { createOnboardingTipcRouter } from "./tipc/onboarding";
-import { createPacketLoggerTipcRouter } from "./tipc/packetLogger";
-import { createPacketSpammerTipcRouter } from "./tipc/packetSpammer";
-import { createScriptsTipcRouter } from "./tipc/scripts";
+import { createArmyTipcRouter } from "./tipc/army.router";
+import { createEnvironmentTipcRouter } from "./tipc/environment.router";
+import { createFastTravelsTipcRouter } from "./tipc/fastTravels.router";
+import { createFollowerTipcRouter } from "./tipc/follower.router";
+import { createGameTipcRouter } from "./tipc/game.router";
+import { createHotkeysTipcRouter } from "./tipc/hotkeys.router";
+import { createLoaderGrabberTipcRouter } from "./tipc/loaderGrabber.router";
+import { createLoggerTipcRouter } from "./tipc/logger.router";
+import { createManagerTipcRouter } from "./tipc/manager.router";
+import { createOnboardingTipcRouter } from "./tipc/onboarding.router";
+import { createPacketLoggerTipcRouter } from "./tipc/packetLogger.router";
+import { createPacketSpammerTipcRouter } from "./tipc/packetSpammer.router";
+import { createScriptsTipcRouter } from "./tipc/scripts.router";
 
 const tipcInstance = tipc.create();
 
