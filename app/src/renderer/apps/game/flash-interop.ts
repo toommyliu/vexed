@@ -8,7 +8,7 @@ import {
   dispatchJson,
   dispatchStr,
 } from "./packet-handlers";
-import { appState, autoReloginState } from "./state.svelte";
+import { appState, autoReloginState } from "./state/index.svelte";
 
 const logger = log.scope("game/flash-interop");
 

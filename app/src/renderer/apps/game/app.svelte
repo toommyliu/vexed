@@ -21,7 +21,7 @@
     gameState,
     optionsPanelState,
     scriptState,
-  } from "./state.svelte";
+  } from "./state/index.svelte";
   import { platform } from "./state/platform.svelte";
   import { parseSkillSetJson, type SkillSetJson } from "./util/skillParser";
 

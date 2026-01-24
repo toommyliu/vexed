@@ -5,7 +5,7 @@
   import * as NumberField from "@vexed/ui/NumberField";
   import FloatingPanel from "./FloatingPanel.svelte";
 
-  import { gameState, optionsPanelState } from "../state.svelte";
+  import { gameState, optionsPanelState } from "../state/index.svelte";
 
   import { Bot } from "../lib/Bot";
 

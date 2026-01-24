@@ -7,8 +7,7 @@
   import { equalsIgnoreCase, fuzzyMatchIgnoreCase } from "@vexed/utils";
   import { get } from "svelte/store";
 
-  import { gameState } from "../state.svelte";
-  import { platform } from "../state/platform.svelte";
+  import { gameState, platform } from "../state/index.svelte";
 
   import { client } from "~/shared/tipc";
   import { WindowIds } from "~/shared/types";

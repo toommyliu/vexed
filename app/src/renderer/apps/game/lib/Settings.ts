@@ -1,5 +1,5 @@
 import { interval } from "@vexed/utils";
-import { gameState } from "../state.svelte";
+import { gameState } from "../state/game.svelte";
 import type { Bot } from "./Bot";
 
 export class Settings {
