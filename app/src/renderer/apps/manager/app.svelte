@@ -207,14 +207,14 @@
   }
 </script>
 
-<div class="bg-background flex h-screen flex-col">
+<div class="flex h-screen flex-col bg-background">
   <header
-    class="bg-background/95 supports-[backdrop-filter]:bg-background/80 border-border/50 elevation-1 sticky top-0 z-10 border-b px-6 py-3 backdrop-blur-xl"
+    class="elevation-1 sticky top-0 z-10 border-b border-border/50 bg-background/95 px-6 py-3 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80"
   >
     <div class="mx-auto flex max-w-7xl items-center justify-between">
       <div class="flex items-center gap-3">
         <div>
-          <h1 class="text-foreground text-base font-semibold tracking-tight">
+          <h1 class="text-base font-semibold tracking-tight text-foreground">
             Account Manager
           </h1>
         </div>
@@ -234,12 +234,12 @@
       <div class="flex flex-col gap-3">
         <div class="relative">
           <Search
-            class="text-muted-foreground pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2"
+            class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
           />
           <Input
             type="search"
             placeholder="Search accounts..."
-            class="bg-secondary/50 border-border/50 focus:bg-background pl-10 transition-colors"
+            class="border-border/50 bg-secondary/50 pl-10 transition-colors focus:bg-background"
             bind:value={searchQuery}
           />
         </div>
@@ -250,13 +250,13 @@
               variant="outline"
               onclick={retryServerFetch}
               disabled={isRetryingServerFetch}
-              class="border-destructive/20 bg-destructive/5 hover:bg-destructive/10 text-destructive flex h-10 w-full items-center justify-between gap-2 transition-colors"
+              class="flex h-10 w-full items-center justify-between gap-2 border-destructive/20 bg-destructive/5 text-destructive transition-colors hover:bg-destructive/10"
             >
               <span class="truncate text-xs font-medium"
                 >{serverFetchError}</span
               >
               <span
-                class="bg-destructive text-destructive-foreground shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase leading-none tracking-widest"
+                class="shrink-0 rounded bg-destructive px-1.5 py-0.5 text-[9px] font-bold uppercase leading-none tracking-widest text-destructive-foreground"
               >
                 {isRetryingServerFetch ? "..." : "Retry"}
               </span>
@@ -264,13 +264,13 @@
           {:else}
             <Select.Root bind:value={managerState.selectedServer}>
               <Select.Trigger
-                class="bg-secondary/50 border-border/50 hover:bg-secondary w-full transition-colors"
+                class="w-full border-border/50 bg-secondary/50 transition-colors hover:bg-secondary"
                 disabled={servers.size === 0}
               >
                 <div class="flex items-center gap-2">
-                  <span class="text-muted-foreground text-sm">Login server</span
+                  <span class="text-sm text-muted-foreground">Login server</span
                   >
-                  <span class="text-foreground truncate text-sm"
+                  <span class="truncate text-sm text-foreground"
                     >{managerState.selectedServer?.split(" (")?.[0] ??
                       "Loading servers..."}</span
                   >
@@ -283,7 +283,7 @@
                       class="flex w-full items-center justify-between gap-4"
                     >
                       <span>{server.sName}</span>
-                      <span class="text-muted-foreground text-xs tabular-nums"
+                      <span class="text-xs tabular-nums text-muted-foreground"
                         >{server.iCount}</span
                       >
                     </span>
@@ -296,11 +296,11 @@
           <div
             class="group relative flex items-stretch overflow-hidden rounded-lg border transition-all duration-200
               {managerState.startWithScript
-              ? 'border-primary/40 bg-primary/5 elevation-1'
+              ? 'elevation-1 border-primary/40 bg-primary/5'
               : 'border-border/50 bg-secondary/50'}"
           >
             <label
-              class="hover:bg-secondary/80 flex cursor-pointer items-center gap-2 bg-transparent px-3 transition-colors"
+              class="flex cursor-pointer items-center gap-2 bg-transparent px-3 transition-colors hover:bg-secondary/80"
             >
               <Switch
                 bind:checked={managerState.startWithScript}
@@ -326,13 +326,13 @@
             <Button
               variant="ghost"
               onclick={selectScript}
-              class="hover:bg-secondary/80 flex min-w-0 flex-1 items-center rounded-none border-0 bg-transparent px-3 transition-colors"
+              class="flex min-w-0 flex-1 items-center rounded-none border-0 bg-transparent px-3 transition-colors hover:bg-secondary/80"
               title={managerState.scriptPath || "Select a script file"}
             >
               <span
                 class="truncate text-sm transition-colors
                   {managerState.scriptPath
-                  ? 'text-foreground font-medium'
+                  ? 'font-medium text-foreground'
                   : 'text-muted-foreground'}"
               >
                 {managerState.scriptPath
@@ -349,7 +349,7 @@
       >
         <div class="flex shrink-0 items-center gap-3">
           <span
-            class="text-muted-foreground flex items-center gap-1.5 transition-colors"
+            class="flex items-center gap-1.5 text-muted-foreground transition-colors"
           >
             <span
               class="font-medium tabular-nums {selectedCount > 0
@@ -367,7 +367,7 @@
             variant="ghost"
             size="sm"
             onclick={toggleAll}
-            class="text-muted-foreground hover:text-foreground px-2 sm:px-3"
+            class="px-2 text-muted-foreground hover:text-foreground sm:px-3"
             title={isAllSelected ? "Deselect all" : "Select all"}
           >
             <span class="text-sm font-medium"
@@ -375,20 +375,20 @@
             >
           </Button>
 
-          <div class="bg-border/30 hidden h-4 w-px sm:block"></div>
+          <div class="hidden h-4 w-px bg-border/30 sm:block"></div>
 
           <Button
             variant="ghost"
             size="sm"
             onclick={toggleSelected}
-            class="text-muted-foreground hover:text-foreground px-2 sm:px-3"
+            class="px-2 text-muted-foreground hover:text-foreground sm:px-3"
             title="Invert selection"
           >
             <span class="text-sm font-medium">Invert</span>
           </Button>
 
           <div
-            class="bg-border/30 ml-0.5 hidden h-4 w-px sm:ml-1 sm:block"
+            class="ml-0.5 hidden h-4 w-px bg-border/30 sm:ml-1 sm:block"
           ></div>
 
           <Button
@@ -396,7 +396,7 @@
             size="sm"
             onclick={() => handleRemove(Array.from(selectedAccounts))}
             disabled={selectedCount === 0}
-            class="text-muted-foreground hover:bg-destructive/10 hover:text-destructive ml-0.5 px-2 sm:ml-1 sm:px-3"
+            class="ml-0.5 px-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive sm:ml-1 sm:px-3"
             title="Remove selected"
           >
             <Trash2 class="h-4 w-4" />
@@ -408,7 +408,7 @@
             size="sm"
             onclick={() => handleStart(Array.from(selectedAccounts))}
             disabled={selectedCount === 0}
-            class="bg-primary text-primary-foreground hover:bg-primary/90 ml-0.5 px-2 sm:ml-1 sm:px-3"
+            class="ml-0.5 bg-primary px-2 text-primary-foreground hover:bg-primary/90 sm:ml-1 sm:px-3"
             title="Start selected"
           >
             <Play class="h-4 w-4" />
@@ -420,9 +420,9 @@
       <div class="relative -mx-1 flex-1 overflow-auto px-1">
         {#if isLoading}
           <div
-            class="text-muted-foreground flex h-full flex-col items-center justify-center gap-3"
+            class="flex h-full flex-col items-center justify-center gap-3 text-muted-foreground"
           >
-            <Loader class="text-primary h-6 w-6 animate-spin" />
+            <Loader class="h-6 w-6 animate-spin text-primary" />
             <p class="text-sm">Loading accounts...</p>
           </div>
         {:else if filteredAccounts.length === 0}
@@ -430,8 +430,8 @@
             class="flex h-full flex-col items-center justify-center gap-3 py-12 text-center"
           >
             <div class="space-y-1">
-              <h3 class="text-foreground font-medium">No accounts found</h3>
-              <p class="text-muted-foreground text-sm">
+              <h3 class="font-medium text-foreground">No accounts found</h3>
+              <p class="text-sm text-muted-foreground">
                 Try adjusting your filters or add a new account.
               </p>
             </div>
@@ -449,7 +449,7 @@
           </div>
         {:else}
           <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {#each filteredAccounts as account, index (account.username)}
+            {#each filteredAccounts as account (account.username)}
               {@const isSelected = selectedAccounts.has(
                 account.username.toLowerCase(),
               )}
@@ -457,8 +457,8 @@
               <div
                 class="group flex cursor-pointer items-center gap-4 rounded-xl border px-4 py-4 transition-all duration-150
                   {isSelected
-                  ? 'border-primary/50 bg-primary/5 elevation-2'
-                  : 'border-border/50 bg-card hover:border-border hover:bg-secondary/30 hover:elevation-1'}"
+                  ? 'elevation-2 border-primary/50 bg-primary/5'
+                  : 'hover:elevation-1 border-border/50 bg-card hover:border-border hover:bg-secondary/30'}"
                 onclick={() => toggleSelection(account.username)}
                 role="button"
                 tabindex="0"
@@ -472,7 +472,7 @@
                 />
 
                 <span
-                  class="text-foreground flex-1 truncate text-base font-medium"
+                  class="flex-1 truncate text-base font-medium text-foreground"
                   >{account.username}</span
                 >
 
@@ -482,7 +482,7 @@
                   <Button
                     variant="ghost"
                     size="icon"
-                    class="text-muted-foreground hover:text-primary hover:bg-primary/10 h-7 w-7"
+                    class="h-7 w-7 text-muted-foreground hover:bg-primary/10 hover:text-primary"
                     onclick={(ev: MouseEvent) => {
                       ev.stopPropagation();
                       handleStart([account.username]);
@@ -494,7 +494,7 @@
                   <Button
                     variant="ghost"
                     size="icon"
-                    class="text-muted-foreground hover:text-foreground hover:bg-secondary h-7 w-7"
+                    class="h-7 w-7 text-muted-foreground hover:bg-secondary hover:text-foreground"
                     onclick={(ev) => {
                       ev.stopPropagation();
                       editingAccount = account;
@@ -507,7 +507,7 @@
                   <Button
                     variant="ghost"
                     size="icon"
-                    class="text-muted-foreground hover:text-destructive hover:bg-destructive/10 h-7 w-7"
+                    class="h-7 w-7 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                     onclick={(ev) => {
                       ev.stopPropagation();
                       handleRemove([account.username]);
