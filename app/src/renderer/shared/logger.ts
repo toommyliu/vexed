@@ -1,5 +1,5 @@
-import type { LogLevel, MainLogEntry } from "~/shared/types";
 import { client } from "~/shared/tipc";
+import type { LogLevel, MainLogEntry } from "~/shared/types";
 
 const levelToConsole: Record<LogLevel, keyof Console> = {
   debug: "debug",
@@ -10,7 +10,8 @@ const levelToConsole: Record<LogLevel, keyof Console> = {
 
 function sendEntry(entry: MainLogEntry) {
   try {
-    void client.logger.logEntry.send(entry);
+    console.log("sent:", entry);
+    void client.logger.logEntry(entry);
   } catch (error) {
     console.warn("Failed to forward log entry to main.", error);
   }
@@ -22,10 +23,10 @@ export function createRendererLogger(scope?: string) {
       ...args: unknown[]
     ) => void;
     const prefix = scope ? `[${scope}] ` : "";
-    if (data !== undefined) {
-      consoleMethod(`${prefix}${message}`, data);
-    } else {
+    if (data === undefined) {
       consoleMethod(`${prefix}${message}`);
+    } else {
+      consoleMethod(`${prefix}${message}`, data);
     }
 
     sendEntry({
