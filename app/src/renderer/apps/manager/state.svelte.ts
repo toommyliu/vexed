@@ -1,5 +1,5 @@
 import { SvelteMap, SvelteSet } from "svelte/reactivity";
-import type { Account } from "../../shared/types";
+import type { Account } from "../../../shared/types";
 import type { ServerData } from "@vexed/game";
 
 function initManager() {

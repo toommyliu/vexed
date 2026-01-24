@@ -127,78 +127,51 @@ const SCRIPT_TARGETS = [
   },
 ];
 
+const SUB_WINDOWS = [
+  "environment",
+  "hotkeys",
+  "fast-travels",
+  "follower",
+  "loader-grabber",
+  "packet-logger",
+  "packet-spammer",
+];
+
 const SVELTE_TARGETS = [
   {
     name: "manager",
-    entryPoint: "./src/renderer/manager/main.ts",
+    entryPoint: "./src/renderer/apps/manager/main.ts",
     outfile: "./dist/manager/build/main.js",
-    tsconfigFile: "./src/renderer/manager/tsconfig.json",
-    watchPaths: ["./src/renderer/manager"],
+    tsconfigFile: "./src/renderer/apps/manager/tsconfig.json",
+    watchPaths: ["./src/renderer/apps/manager"],
   },
   {
     name: "game",
-    entryPoint: "./src/renderer/game/main.ts",
+    entryPoint: "./src/renderer/apps/game/main.ts",
     outfile: "./dist/game/build/main.js",
-    tsconfigFile: "./src/renderer/game/tsconfig.json",
-    watchPaths: ["./src/renderer/game"],
-  },
-  {
-    name: "environment",
-    entryPoint: "./src/renderer/application/environment/main.ts",
-    outfile: "./dist/application/environment/build/main.js",
-    tsconfigFile: "./src/renderer/game/tsconfig.json",
-    watchPaths: ["./src/renderer/application/environment"],
-  },
-  {
-    name: "fast-travels",
-    entryPoint: "./src/renderer/tools/fast-travels/main.ts",
-    outfile: "./dist/tools/fast-travels/build/main.js",
-    tsconfigFile: "./src/renderer/game/tsconfig.json",
-    watchPaths: ["./src/renderer/tools/fast-travels"],
-  },
-  {
-    name: "loader-grabber",
-    entryPoint: "./src/renderer/tools/loader-grabber/main.ts",
-    outfile: "./dist/tools/loader-grabber/build/main.js",
-    tsconfigFile: "./src/renderer/game/tsconfig.json",
-    watchPaths: ["./src/renderer/tools/loader-grabber"],
-  },
-  {
-    name: "follower",
-    entryPoint: "./src/renderer/tools/follower/main.ts",
-    outfile: "./dist/tools/follower/build/main.js",
-    tsconfigFile: "./src/renderer/game/tsconfig.json",
-    watchPaths: ["./src/renderer/tools/follower"],
-  },
-  {
-    name: "hotkeys",
-    entryPoint: "./src/renderer/application/hotkeys/main.ts",
-    outfile: "./dist/application/hotkeys/build/main.js",
-    tsconfigFile: "./src/renderer/game/tsconfig.json",
-    watchPaths: ["./src/renderer/application/hotkeys"],
-  },
-  {
-    name: "packet-logger",
-    entryPoint: "./src/renderer/packets/logger/main.ts",
-    outfile: "./dist/packets/logger/build/main.js",
-    tsconfigFile: "./src/renderer/game/tsconfig.json",
-    watchPaths: ["./src/renderer/packets/logger"],
-  },
-  {
-    name: "packet-spammer",
-    logLabel: "packet-spammer svelte took",
-    entryPoint: "./src/renderer/packets/spammer/main.ts",
-    outfile: "./dist/packets/spammer/build/main.js",
-    tsconfigFile: "./src/renderer/game/tsconfig.json",
-    watchPaths: ["./src/renderer/packets/spammer"],
+    tsconfigFile: "./src/renderer/apps/game/tsconfig.json",
+    watchPaths: ["./src/renderer/apps/game"],
   },
   {
     name: "onboarding",
-    entryPoint: "./src/renderer/onboarding/main.ts",
+    entryPoint: "./src/renderer/apps/onboarding/main.ts",
     outfile: "./dist/onboarding/build/main.js",
-    tsconfigFile: "./src/renderer/game/tsconfig.json",
-    watchPaths: ["./src/renderer/onboarding"],
+    tsconfigFile: "./src/renderer/apps/game/tsconfig.json",
+    watchPaths: ["./src/renderer/apps/onboarding"],
   },
+  ...SUB_WINDOWS.map((name) => ({
+    name,
+    entryPoint: "./src/renderer/main.ts",
+    outfile: `./dist/views/${name}/build/main.js`,
+    tsconfigFile: "./src/renderer/apps/game/tsconfig.json",
+    watchPaths: ["./src/renderer/main.ts", `./src/renderer/views/${name}`],
+    aliases: {
+      "virtual:view": resolve(
+        __dirname,
+        `./src/renderer/views/${name}/app.svelte`,
+      ),
+    },
+  })),
 ];
 
 const CSS_TARGETS = [
@@ -229,7 +202,12 @@ const timed = async (label, fn) => {
   }
 };
 
-const createSvelteConfig = ({ entryPoint, outfile, tsconfigFile }) => ({
+const createSvelteConfig = ({
+  entryPoint,
+  outfile,
+  tsconfigFile,
+  aliases = {},
+}) => ({
   entryPoints: [entryPoint],
   outfile,
   bundle: true,
@@ -264,7 +242,7 @@ const createSvelteConfig = ({ entryPoint, outfile, tsconfigFile }) => ({
     js: "require('core-js/stable')",
   },
   plugins: [
-    aliasPath({ alias: pathAliases }),
+    aliasPath({ alias: { ...pathAliases, ...aliases } }),
     sveltePlugin({
       compilerOptions: {
         dev: !isProduction,
@@ -314,7 +292,7 @@ const readdirp = async (dir) => {
  * @returns {Promise<void>}
  */
 async function generateHtmlFiles() {
-  const templatePath = resolve(__dirname, "./src/renderer/template.html");
+  const templatePath = resolve(__dirname, "./src/renderer/index.html");
   const template = await readFile(templatePath, "utf-8");
 
   const SCRIPT_PATH = "build/main.js";
@@ -326,43 +304,8 @@ async function generateHtmlFiles() {
       scriptPath: SCRIPT_PATH,
     },
     {
-      dest: "./dist/application/environment/index.html",
-      cssPath: "../../build/tailwind.css",
-      scriptPath: SCRIPT_PATH,
-    },
-    {
       dest: "./dist/manager/index.html",
       cssPath: "../build/tailwind.css",
-      scriptPath: SCRIPT_PATH,
-    },
-    {
-      dest: "./dist/tools/fast-travels/index.html",
-      cssPath: "../../build/tailwind.css",
-      scriptPath: SCRIPT_PATH,
-    },
-    {
-      dest: "./dist/tools/follower/index.html",
-      cssPath: "../../build/tailwind.css",
-      scriptPath: SCRIPT_PATH,
-    },
-    {
-      dest: "./dist/tools/loader-grabber/index.html",
-      cssPath: "../../build/tailwind.css",
-      scriptPath: SCRIPT_PATH,
-    },
-    {
-      dest: "./dist/application/hotkeys/index.html",
-      cssPath: "../../build/tailwind.css",
-      scriptPath: SCRIPT_PATH,
-    },
-    {
-      dest: "./dist/packets/logger/index.html",
-      cssPath: "../../build/tailwind.css",
-      scriptPath: SCRIPT_PATH,
-    },
-    {
-      dest: "./dist/packets/spammer/index.html",
-      cssPath: "../../build/tailwind.css",
       scriptPath: SCRIPT_PATH,
     },
     {
@@ -370,6 +313,11 @@ async function generateHtmlFiles() {
       cssPath: "../build/tailwind.css",
       scriptPath: SCRIPT_PATH,
     },
+    ...SUB_WINDOWS.map((name) => ({
+      dest: `./dist/views/${name}/index.html`,
+      cssPath: "../../build/tailwind.css",
+      scriptPath: SCRIPT_PATH,
+    })),
   ];
 
   await Promise.all(
