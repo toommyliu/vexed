@@ -16,14 +16,11 @@
   import { SvelteSet } from "svelte/reactivity";
   import log from "electron-log";
 
+  import { getEnhancementName, getWeaponProcName } from "@vexed/game";
+  import type { QuestInfo, ShopInfo, ItemData, MonsterData } from "@vexed/game";
+
   import { client } from "~/shared/tipc";
   import { GrabberDataType, LoaderDataType } from "~/shared/types";
-  import {
-    getEnhancementName,
-    getWeaponProcName,
-  } from "../../apps/game/lib/util/enhancements";
-
-  import type { QuestInfo, ShopInfo, ItemData, MonsterData } from "@vexed/game";
 
   const logger = log.scope("app/loader-grabber");
 

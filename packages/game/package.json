@@ -7,6 +7,9 @@
     "build": "tsdown --outDir ./dist --format cjs --minify --entry ./src/index.ts --dts",
     "postinstall": "npm run build"
   },
+  "dependencies": {
+    "@vexed/utils": "workspace:*"
+  },
   "devDependencies": {
     "tsdown": "0.20.0-beta.3",
     "typescript": "^5.9.3"
