@@ -11,7 +11,7 @@ import {
   WEAPON_PROC_VARIANTS,
   CAPE_PROC_VARIANTS,
   HELM_PROC_VARIANTS,
-} from "../../../lib/util/enhancements";
+} from "@vexed/game";
 import { Command } from "../../command";
 
 type ItemType = "cape" | "helm" | "weapon";

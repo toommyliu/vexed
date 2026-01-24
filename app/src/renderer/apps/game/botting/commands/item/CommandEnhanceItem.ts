@@ -1,4 +1,3 @@
-import { ServerPacket } from "../../../lib/Packets";
 import {
   EnhancementType,
   resolveEnhancementType,
@@ -15,7 +14,8 @@ import {
   FORGE_ENHANCEMENT_PATTERN,
   CapeSpecial,
   HelmSpecial,
-} from "../../../lib/util/enhancements";
+} from "@vexed/game";
+import { ServerPacket } from "../../../lib/Packets";
 import { Command } from "../../command";
 
 type EnhancementStrategy = {
