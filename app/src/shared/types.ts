@@ -159,3 +159,9 @@ export type HotkeyConfig = {
     "Open Loader Grabber"?: string;
   };
 };
+
+export type Platform = {
+  isLinux: boolean;
+  isMac: boolean;
+  isWindows: boolean;
+};

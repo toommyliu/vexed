@@ -7,6 +7,7 @@ import type {
   EnvironmentState,
   EnvironmentUpdatePayload,
 } from "../shared/types";
+import { createAppTipcRouter } from "./tipc/app.router";
 import { createArmyTipcRouter } from "./tipc/army.router";
 import { createEnvironmentTipcRouter } from "./tipc/environment.router";
 import { createFastTravelsTipcRouter } from "./tipc/fastTravels.router";
@@ -37,6 +38,7 @@ export const router = {
   army: createArmyTipcRouter(tipcInstance),
   environment: createEnvironmentTipcRouter(tipcInstance),
   onboarding: createOnboardingTipcRouter(tipcInstance),
+  app: createAppTipcRouter(tipcInstance),
 };
 
 export type TipcRouter = typeof router;

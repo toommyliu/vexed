@@ -6,12 +6,7 @@
   import { onDestroy, onMount } from "svelte";
 
   import { cn } from "~/shared/cn";
-  import {
-    DEFAULT_HOTKEYS,
-    DOCUMENTS_PATH,
-    IS_MAC,
-    IS_WINDOWS,
-  } from "~/shared/constants";
+  import { DEFAULT_HOTKEYS, DOCUMENTS_PATH } from "~/shared/constants";
   import { client, handlers } from "~/shared/tipc";
   import type { HotkeyConfig } from "~/shared/types";
   import { WindowIds } from "~/shared/types";
@@ -488,26 +483,6 @@
 <svelte:window
   on:mousedown={(ev) => {
     if ((ev.target as HTMLElement).id === "swf") openDropdown = null;
-  }}
-  on:keydown={(ev) => {
-    if (
-      ((IS_MAC && ev.metaKey) /* cmd */ ||
-        (IS_WINDOWS && ev.ctrlKey)) /* ctrl */ &&
-      (ev.target as HTMLElement).id === "swf"
-    ) {
-      switch (ev.key.toLowerCase()) {
-        case "w":
-        case "q":
-          window.close();
-          break;
-        case "r":
-          if (ev.shiftKey) {
-            window.location.reload();
-          }
-
-          break;
-      }
-    }
   }}
   on:beforeunload={async () => {
     await client.scripts.gameReload();

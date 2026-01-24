@@ -1,7 +1,6 @@
 <script lang="ts">
   import Mousetrap from "mousetrap";
   import { onDestroy, onMount } from "svelte";
-  import Config from "@vexed/config";
   import { AlertDialog, Button, Kbd } from "@vexed/ui";
   import { cn } from "@vexed/ui/util";
   import Settings from "@vexed/ui/icons/Settings";
@@ -15,7 +14,6 @@
   import RotateCcw from "@vexed/ui/icons/RotateCcw";
 
   import { client } from "~/shared/tipc";
-  import type { HotkeyConfig } from "~/shared/types";
   import type { HotkeySection, RecordingState } from "./types";
   import {
     isValidHotkey,
@@ -24,12 +22,11 @@
     findConflicts,
     getActionForHotkey,
   } from "./utils";
-  import { DEFAULT_HOTKEYS, DOCUMENTS_PATH } from "~/shared";
-  import log from "electron-log";
+  import { createRendererLogger } from "../../shared/logger";
+  import type { Platform } from "~/shared/types";
 
-  const logger = log.scope("tools/hotkeys");
+  const logger = createRendererLogger();
 
-  let config = $state<Config<HotkeyConfig> | null>(null);
   let hotkeysSections = $state<HotkeySection[]>(createHotkeyConfig());
   let recordingState = $state<RecordingState>({
     isRecording: false,
@@ -38,36 +35,21 @@
     isClearing: false,
   });
   let activeSection = $state<string | null>(null);
-  let confirmDialogOpen = $state(false);
-
+  let dialogOpen = $state(false);
   let conflicts = $derived(findConflicts(hotkeysSections));
+  let platform = $state<Platform>();
 
-  async function saveHotkeyConfig() {
-    if (!config) return;
-
-    try {
-      for (const section of hotkeysSections) {
-        for (const item of section.items) {
-          // @ts-expect-error
-          config.set(item.configKey, item.value);
-        }
-      }
-
-      await config.save();
-      logger.info("Hotkey configuration saved successfully.");
-    } catch (error) {
-      logger.error("Failed to save hotkey configuration.", error);
-    }
-  }
-
-  async function loadHotkeysFromConfig() {
-    if (!config) return;
+  async function loadHotkeys() {
+    logger.info("loading hotkeys...");
 
     try {
+      const config = await client.hotkeys.all();
+      if (!config) return;
+
       for (const section of hotkeysSections) {
         for (const item of section.items) {
-          const hotkeyValue = config.get(item.configKey as any, "")! as string;
-
+          // @ts-expect-error - dynamic key access
+          const hotkeyValue = config[section.name]?.[item.label];
           if (hotkeyValue && isValidHotkey(hotkeyValue)) {
             item.value = hotkeyValue;
           } else {
@@ -75,7 +57,6 @@
           }
         }
       }
-      // Force reactivity update
       hotkeysSections = [...hotkeysSections];
     } catch (error) {
       logger.error("Failed to load hotkeys from config.", error);
@@ -83,9 +64,7 @@
   }
 
   function startRecording(actionId: string) {
-    if (recordingState.isRecording) {
-      return;
-    }
+    if (recordingState.isRecording) return;
 
     recordingState.isRecording = true;
     recordingState.actionId = actionId;
@@ -108,14 +87,14 @@
     }
 
     const item = findHotkeyItemById(recordingState.actionId);
-    if (item) {
-      item.value = combination;
-    }
+    if (!item) return;
+
+    item.value = combination;
 
     stopRecording();
-    await saveHotkeyConfig();
     await client.hotkeys.updateHotkey({
-      id: item!.id,
+      configKey: item.configKey,
+      id: item.id,
       value: combination,
     });
   }
@@ -124,13 +103,13 @@
     if (!recordingState.isRecording || !recordingState.actionId) return;
 
     const item = findHotkeyItemById(recordingState.actionId);
-    if (item) {
-      item.value = "";
-    }
+    if (!item) return;
 
-    await saveHotkeyConfig();
+    item.value = "";
+
     await client.hotkeys.updateHotkey({
-      id: item!.id,
+      configKey: item.configKey,
+      id: item.id,
       value: "",
     });
     stopRecording();
@@ -138,21 +117,14 @@
 
   async function restoreDefaults() {
     logger.info("Restoring defaults...");
-    if (!config) {
-      logger.warn("No config available, aborting restore.");
-      return;
-    }
-
     stopRecording();
 
-    config.clear();
-    await config.save();
-
-    await config.reload();
-
-    await loadHotkeysFromConfig();
-    await client.hotkeys.reloadHotkeys();
-    logger.info("Hotkeys restored to defaults.");
+    try {
+      await client.hotkeys.restoreDefaults();
+      await loadHotkeys();
+    } catch (error) {
+      logger.error("Failed to restore defaults", error);
+    }
   }
 
   function findHotkeyItemById(actionId: string) {
@@ -194,27 +166,7 @@
     }
   }
 
-  onMount(async () => {
-    config = new Config<HotkeyConfig>({
-      configName: "hotkeys",
-      cwd: DOCUMENTS_PATH,
-      defaults: DEFAULT_HOTKEYS,
-    });
-    await config.load();
-    await loadHotkeysFromConfig();
-
-    if (hotkeysSections?.length > 0) {
-      activeSection = hotkeysSections[0]!.name;
-    }
-  });
-
-  onDestroy(() => {
-    Mousetrap.reset();
-  });
-</script>
-
-<svelte:window
-  on:keydown={(ev) => {
+  function onKeyDown(ev: KeyboardEvent) {
     if (!recordingState.isRecording) return;
 
     if (!document.hasFocus() || document.hidden) return;
@@ -246,13 +198,29 @@
       return;
     }
 
-    const combination = parseKeyboardEvent(ev);
+    const combination = parseKeyboardEvent(ev, platform!);
     if (combination) {
       recordingState.lastPressedKey = combination;
       recordingState.isClearing = false;
     }
-  }}
-/>
+  }
+
+  onMount(async () => {
+    try {
+      platform = await client.app.platform();
+      console.log("platform", platform);
+      await loadHotkeys();
+    } catch {}
+
+    if (hotkeysSections?.length > 0) activeSection = hotkeysSections[0]!.name;
+  });
+
+  onDestroy(() => {
+    Mousetrap.reset();
+  });
+</script>
+
+<svelte:window on:keydown={(ev) => onKeyDown(ev)} />
 
 <div class="bg-background flex h-screen flex-col">
   <header
@@ -268,7 +236,7 @@
         class="text-muted-foreground hover:bg-secondary/50 hover:text-foreground group flex items-center gap-1.5 rounded-md px-2 py-1 text-xs transition-all"
         onclick={() => {
           stopRecording();
-          confirmDialogOpen = true;
+          dialogOpen = true;
         }}
       >
         <RotateCcw
@@ -296,7 +264,7 @@
         {@const isExpanded = activeSection === section.name}
         <div class={cn(sectionIndex > 0 && "mt-1")}>
           <button
-            class="group flex w-full items-center gap-2 rounded-md bg-secondary/20 px-2 py-1.5 text-left transition-colors hover:bg-secondary/40"
+            class="bg-secondary/20 hover:bg-secondary/40 group flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors"
             onclick={() => {
               if (recordingState.isRecording) stopRecording();
               activeSection = isExpanded ? null : section.name;
@@ -418,7 +386,7 @@
   </div>
 </div>
 
-<AlertDialog.Root bind:open={confirmDialogOpen}>
+<AlertDialog.Root bind:open={dialogOpen}>
   <AlertDialog.Content>
     <AlertDialog.Header>
       <AlertDialog.Title>Restore Default Hotkeys?</AlertDialog.Title>
@@ -428,22 +396,18 @@
       </AlertDialog.Description>
     </AlertDialog.Header>
     <AlertDialog.Footer>
-      <Button
-        variant="ghost"
-        size="sm"
-        onclick={() => (confirmDialogOpen = false)}
-      >
-        Cancel
+      <Button variant="ghost" size="sm" onclick={() => (dialogOpen = false)}>
+        No, cancel
       </Button>
       <Button
         variant="destructive"
         size="sm"
         onclick={() => {
           restoreDefaults();
-          confirmDialogOpen = false;
+          dialogOpen = false;
         }}
       >
-        Restore Defaults
+        Yes, restore
       </Button>
     </AlertDialog.Footer>
   </AlertDialog.Content>
