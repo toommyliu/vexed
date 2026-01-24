@@ -9,37 +9,37 @@ import { windowsService, type SubwindowConfig } from "../services/windows";
 const SUBWINDOW_CONFIGS: Record<WindowIds, SubwindowConfig> = {
   [WindowIds.Environment]: {
     height: 520,
-    path: "application/environment/index.html",
+    path: "views/environment/index.html",
     width: 783,
   },
   [WindowIds.FastTravels]: {
     height: 527,
-    path: "tools/fast-travels/index.html",
+    path: "views/fast-travels/index.html",
     width: 670,
   },
   [WindowIds.Follower]: {
     height: 415,
-    path: "tools/follower/index.html",
+    path: "views/follower/index.html",
     width: 943,
   },
   [WindowIds.Hotkeys]: {
     height: 400,
-    path: "application/hotkeys/index.html",
+    path: "views/hotkeys/index.html",
     width: 600,
   },
   [WindowIds.LoaderGrabber]: {
     height: 517,
-    path: "tools/loader-grabber/index.html",
+    path: "views/loader-grabber/index.html",
     width: 800,
   },
   [WindowIds.PacketLogger]: {
     height: 523,
-    path: "packets/logger/index.html",
+    path: "views/packet-logger/index.html",
     width: 797,
   },
   [WindowIds.PacketSpammer]: {
     height: 403,
-    path: "packets/spammer/index.html",
+    path: "views/packet-spammer/index.html",
     width: 608,
   },
 };

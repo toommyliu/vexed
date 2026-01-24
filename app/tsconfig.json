@@ -43,19 +43,19 @@
         "src/shared/*"
       ],
       "~/game/*": [
-        "src/renderer/game/*"
+        "src/renderer/apps/game/*"
       ],
       "~/manager/*": [
-        "src/renderer/manager/*"
+        "src/renderer/apps/manager/*"
       ],
       "~/lib/*": [
-        "src/renderer/game/lib/*"
+        "src/renderer/apps/game/lib/*"
       ],
       "~/botting/*": [
-        "src/renderer/game/botting/*"
+        "src/renderer/apps/game/botting/*"
       ],
       "~/utils/*": [
-        "src/renderer/game/util/*"
+        "src/renderer/apps/game/util/*"
       ]
     },
     // "rootDirs": [],

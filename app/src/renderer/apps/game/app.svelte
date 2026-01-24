@@ -15,11 +15,8 @@
   import { client, handlers } from "~/shared/tipc";
   import type { HotkeyConfig } from "~/shared/types";
   import { WindowIds } from "~/shared/types";
-  import type { HotkeySection } from "../application/hotkeys/types";
-  import {
-    createHotkeyConfig,
-    isValidHotkey,
-  } from "../application/hotkeys/utils";
+  import type { HotkeySection } from "../../views/hotkeys/types";
+  import { createHotkeyConfig, isValidHotkey } from "../../views/hotkeys/utils";
   import "./entrypoint";
   import { Bot } from "./lib/Bot";
   import { AutoReloginJob } from "./lib/jobs/autorelogin";
