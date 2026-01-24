@@ -1,4 +1,4 @@
-import { auras } from "~/lib/stores/aura";
+import { auras } from "../../../lib/stores/aura";
 import { ConditionCommand } from "./ConditionCommand";
 
 export class CommandPlayerAurasLessThan extends ConditionCommand {

@@ -1,4 +1,4 @@
-import { Command } from "~/botting/command";
+import { Command } from "../../command";
 
 export class CommandDeposit extends Command {
   public item!: (number | string)[] | number | string;

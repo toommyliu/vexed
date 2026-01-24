@@ -23,9 +23,6 @@ import { router } from "./tipc";
 import { showErrorDialog } from "./util/dialog";
 import { createNotification } from "./util/notification";
 
-console.log("app.getVersion", app.getVersion());
-console.log("app.name", app.name);
-
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 
 function registerFlashPlugin() {
@@ -61,7 +58,6 @@ function registerFlashPlugin() {
     "Shockwave Flash",
     "WritableRoot",
   );
-  console.log("flash path :: ", flashPath);
   const trustManager = flashTrust.initSync(BRAND, flashPath);
   trustManager.empty();
 
@@ -69,8 +65,6 @@ function registerFlashPlugin() {
 }
 
 async function handleAppLaunch(argv: string[] = process.argv) {
-  console.log(await updaterService.run(true));
-
   try {
     const settings = getSettings();
 
@@ -183,6 +177,5 @@ app.on("before-quit", async (ev) => {
 });
 
 app.on("window-all-closed", () => {
-  logger.info("Bye!");
   app.quit();
 });

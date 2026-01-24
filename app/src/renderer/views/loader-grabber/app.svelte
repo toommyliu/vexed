@@ -5,7 +5,6 @@
   import * as Select from "@vexed/ui/Select";
   import * as Tabs from "@vexed/ui/Tabs";
   import { VirtualList } from "@vexed/ui";
-
   import Download from "@vexed/ui/icons/Download";
   import Loader from "@vexed/ui/icons/Loader";
   import Upload from "@vexed/ui/icons/Upload";
@@ -19,25 +18,21 @@
 
   import { client } from "~/shared/tipc";
   import { GrabberDataType, LoaderDataType } from "~/shared/types";
-  import type { QuestData } from "~/game/lib/models/Quest";
-  import type { ShopInfo } from "~/game/lib/Shops";
-  import type { ItemData } from "~/game/lib/models/Item";
-  import type { MonsterData } from "~/game/lib/models/Monster";
   import {
     getEnhancementName,
     getWeaponProcName,
-  } from "~/game/lib/util/enhancements";
+  } from "../../apps/game/lib/util/enhancements";
+
+  import type { QuestInfo, ShopInfo, ItemData, MonsterData } from "@vexed/game";
 
   const logger = log.scope("app/loader-grabber");
 
-  type GrabbedData = ShopInfo | QuestData[] | ItemData[] | MonsterData[];
-
+  type GrabbedData = ShopInfo | QuestInfo[] | ItemData[] | MonsterData[];
   type TreeItem = {
     name: string;
     value?: string;
     children?: TreeItem[];
   };
-
   type FlattenedItem = TreeItem & {
     level: number;
     nodeId: string;
@@ -47,15 +42,13 @@
   function isShopInfo(data: GrabbedData): data is ShopInfo {
     return "items" in data && Array.isArray((data as ShopInfo).items);
   }
-
-  function isQuestDataArray(data: GrabbedData): data is QuestData[] {
+  function isQuestDataArray(data: GrabbedData): data is QuestInfo[] {
     return (
       Array.isArray(data) &&
       (data.length === 0 ||
         (data.length > 0 && data[0] != null && "QuestID" in data[0]))
     );
   }
-
   function isItemDataArray(data: GrabbedData): data is ItemData[] {
     return (
       Array.isArray(data) &&
@@ -63,7 +56,6 @@
         (data.length > 0 && data[0] != null && "ItemID" in data[0]))
     );
   }
-
   function isMonsterDataArray(data: GrabbedData): data is MonsterData[] {
     return (
       Array.isArray(data) &&
@@ -72,7 +64,7 @@
     );
   }
 
-  let activeTab = $state("loader");
+  let activeTab = $state<"loader" | "grabber">("loader");
   let loaderId = $state(0);
   let loaderType = $state<string>("");
   let grabberType = $state<string>("");
@@ -221,7 +213,7 @@
           break;
         case "1":
           if (isQuestDataArray(data)) {
-            out = data.map((quest: QuestData) => ({
+            out = data.map((quest: QuestInfo) => ({
               name: `${quest.QuestID} - ${quest.sName}`,
               children: [
                 { name: "ID", value: String(quest.QuestID) },
@@ -485,13 +477,13 @@
   }
 </script>
 
-<div class="bg-background flex h-screen flex-col">
+<div class="flex h-screen flex-col bg-background">
   <header
-    class="bg-background/95 supports-[backdrop-filter]:bg-background/80 border-border/50 elevation-1 sticky top-0 z-10 border-b px-6 py-3 backdrop-blur-xl"
+    class="elevation-1 sticky top-0 z-10 border-b border-border/50 bg-background/95 px-6 py-3 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80"
   >
     <div class="mx-auto flex max-w-7xl items-center justify-between">
       <div class="flex items-center gap-3">
-        <h1 class="text-foreground text-base font-semibold tracking-tight">
+        <h1 class="text-base font-semibold tracking-tight text-foreground">
           Loader Grabber
         </h1>
       </div>
@@ -539,7 +531,7 @@
                 <NumberField.Input
                   id="loader-id"
                   placeholder="e.g. 1337"
-                  class="bg-secondary/50 border-border/50 focus:bg-background h-10 font-mono transition-all"
+                  class="h-10 border-border/50 bg-secondary/50 font-mono transition-all focus:bg-background"
                   autocomplete="off"
                 />
               </NumberField.Root>
@@ -549,7 +541,7 @@
                 <Select.Root bind:value={loaderType}>
                   <Select.Trigger
                     id="loader-type"
-                    class="bg-secondary/50 border-border/50 hover:bg-secondary h-10 w-full transition-all"
+                    class="h-10 w-full border-border/50 bg-secondary/50 transition-all hover:bg-secondary"
                   >
                     <span
                       class={cn(
@@ -595,7 +587,7 @@
                 <Select.Root bind:value={grabberType}>
                   <Select.Trigger
                     id="grabber-type"
-                    class="bg-secondary/50 border-border/40 hover:bg-secondary h-10 w-full !ring-0 !ring-offset-0 transition-all"
+                    class="h-10 w-full border-border/40 bg-secondary/50 !ring-0 !ring-offset-0 transition-all hover:bg-secondary"
                   >
                     <span
                       class={cn(
@@ -642,12 +634,12 @@
             {#if treeData.length > 0}
               <div class="relative">
                 <Search
-                  class="text-muted-foreground pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2"
+                  class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
                 />
                 <Input
                   type="search"
                   placeholder="Search items..."
-                  class="bg-secondary/50 border-border/50 focus:bg-background pl-10 transition-colors"
+                  class="border-border/50 bg-secondary/50 pl-10 transition-colors focus:bg-background"
                   bind:value={searchQuery}
                 />
               </div>
@@ -657,7 +649,7 @@
           <div class="flex items-center justify-between text-sm">
             <div class="flex items-center gap-4">
               <span class="text-muted-foreground">
-                <span class="text-foreground font-medium tabular-nums"
+                <span class="font-medium tabular-nums text-foreground"
                   >{filteredTreeData.length}</span
                 >
                 {#if debouncedSearchQuery && filteredTreeData.length !== treeData.length}
@@ -673,7 +665,7 @@
           </div>
 
           <div
-            class="border-border/50 bg-card relative flex-1 overflow-hidden rounded-xl border"
+            class="relative flex-1 overflow-hidden rounded-xl border border-border/50 bg-card"
           >
             {#if !isLoading}
               <div class="h-full overflow-hidden p-2">
@@ -716,16 +708,16 @@
 
   <div class="group/row relative select-none">
     {#if item.level > 0}
-      {#each Array(item.level) as _, i}
+      {#each Array(item.level) as _, i (i)}
         <div
-          class="border-border/10 absolute top-0 h-full border-l"
+          class="absolute top-0 h-full border-l border-border/10"
           style="left: {i * 16 + 18}px"
         ></div>
       {/each}
       <!-- Connector line for leaf nodes -->
       {#if !hasChildren}
         <div
-          class="bg-border/10 absolute top-1/2 h-[1px]"
+          class="absolute top-1/2 h-[1px] bg-border/10"
           style="left: {(item.level - 1) * 16 + 18}px; width: 24px;"
         ></div>
       {/if}
@@ -749,8 +741,8 @@
         >
           <ChevronRight
             class={cn(
-              "text-muted-foreground h-3.5 w-3.5 transition-transform duration-200",
-              isExpanded && "text-foreground rotate-90",
+              "h-3.5 w-3.5 text-muted-foreground transition-transform duration-200",
+              isExpanded && "rotate-90 text-foreground",
             )}
           />
         </div>
@@ -762,7 +754,7 @@
       <div class="flex min-w-0 flex-1 items-center gap-2 leading-relaxed">
         {#if hasChildren}
           <div class="flex min-w-0 flex-1 items-center gap-2">
-            <span class="text-foreground flex-shrink-0 truncate font-semibold">
+            <span class="flex-shrink-0 truncate font-semibold text-foreground">
               {#if debouncedSearchQuery}
                 {@const parts = item.name.split(
                   new RegExp(`(${debouncedSearchQuery})`, "gi"),
@@ -770,7 +762,7 @@
                 {#each parts as part}
                   {#if part.toLowerCase() === debouncedSearchQuery.toLowerCase()}
                     <mark
-                      class="bg-primary/20 text-foreground rounded-sm px-0.5"
+                      class="rounded-sm bg-primary/20 px-0.5 text-foreground"
                       >{part}</mark
                     >
                   {:else}
@@ -781,7 +773,7 @@
                 {item.name}
               {/if}
             </span>
-            <span class="text-muted-foreground/50 text-xs font-medium">
+            <span class="text-xs font-medium text-muted-foreground/50">
               {item.children?.length}
             </span>
           </div>
@@ -790,7 +782,7 @@
             variant="ghost"
             size="icon"
             class={cn(
-              "hover:bg-secondary/80 h-6 w-6 shadow-sm transition-all",
+              "h-6 w-6 shadow-sm transition-all hover:bg-secondary/80",
               isCopied && "text-success/100",
             )}
             onclick={(ev) => {
@@ -807,7 +799,7 @@
           </Button>
         {:else if !hasChildren && item.name}
           <span
-            class="text-muted-foreground flex-shrink-0 truncate font-medium"
+            class="flex-shrink-0 truncate font-medium text-muted-foreground"
           >
             {item.name}
           </span>
@@ -817,7 +809,7 @@
           <button
             class={cn(
               "inline-flex min-w-0 items-center gap-1.5 truncate rounded-md px-2 py-0.5 font-mono text-[13px] transition-all",
-              "bg-secondary/60 text-foreground ring-border/50 hover:bg-secondary hover:ring-border ring-1",
+              "bg-secondary/60 text-foreground ring-1 ring-border/50 hover:bg-secondary hover:ring-border",
               isCopied && "bg-success/10 text-success ring-success/30",
             )}
             title="Click to copy"

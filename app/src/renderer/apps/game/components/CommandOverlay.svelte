@@ -4,8 +4,8 @@
   import ChevronDown from "@vexed/ui/icons/ChevronDown";
   import ChevronRight from "@vexed/ui/icons/ChevronRight";
 
-  import { commandOverlayState, scriptState } from "~/game/state.svelte";
-  import type { CommandItem } from "~/game/state.svelte";
+  import { commandOverlayState, scriptState } from "../state.svelte";
+  import type { CommandItem } from "../state.svelte";
 
   import { cn } from "~/shared/cn";
   import FloatingPanel from "./FloatingPanel.svelte";
@@ -37,10 +37,7 @@
   }
 
   function handleDoubleClick(ev: MouseEvent) {
-    if (
-      (ev.target as HTMLElement).closest(".command-overlay-control")
-    )
-      return;
+    if ((ev.target as HTMLElement).closest(".command-overlay-control")) return;
 
     commandOverlayState.toggleListVisibility();
   }
@@ -71,7 +68,7 @@
   panelState={commandOverlayState}
   class={cn(
     "command-overlay !min-h-0",
-    !commandOverlayState.listVisible && "collapsed"
+    !commandOverlayState.listVisible && "collapsed",
   )}
   headerClass="command-overlay-header"
   canResize={commandOverlayState.listVisible}
@@ -122,7 +119,7 @@
             <div
               class={cn(
                 "command-item",
-                index === commandOverlayState.lastIndex && "active"
+                index === commandOverlayState.lastIndex && "active",
               )}
             >
               <span class="command-index">{command.index}</span>

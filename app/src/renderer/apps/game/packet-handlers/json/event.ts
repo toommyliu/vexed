@@ -1,7 +1,7 @@
 import type { Collection } from "@vexed/collection";
-import { AutoZone } from "~/botting/autozone";
-import type { Bot } from "~/lib/Bot";
-import { auras, type StoredAura } from "~/lib/stores/aura";
+import { AutoZone } from "../../botting/autozone";
+import type { Bot } from "../../lib/Bot";
+import { auras, type StoredAura } from "../../lib/stores/aura";
 import { registerJsonHandler } from "../registry";
 
 type ZoneSet = "" | "A" | "B";

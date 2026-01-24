@@ -1,4 +1,4 @@
-import { Command } from "~/botting/command";
+import { Command } from "../../command";
 
 export class CommandCloseWindow extends Command {
   public override async executeImpl() {

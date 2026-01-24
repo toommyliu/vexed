@@ -1,11 +1,13 @@
 <script lang="ts">
   import { untrack } from "svelte";
-  import { gameState, optionsPanelState } from "~/game/state.svelte";
   import { Checkbox, Input, Label } from "@vexed/ui";
   import Kbd from "@vexed/ui/Kbd";
   import * as NumberField from "@vexed/ui/NumberField";
-  import { Bot } from "~/game/lib/Bot";
   import FloatingPanel from "./FloatingPanel.svelte";
+
+  import { gameState, optionsPanelState } from "../state.svelte";
+
+  import { Bot } from "../lib/Bot";
 
   const bot = Bot.getInstance();
 
@@ -101,7 +103,7 @@
   <div class="panel-content">
     <div class="options-grid">
       {#each options as option (option.key)}
-      {@const hotkey = hotkeyValues[option.hotkeyId]}
+        {@const hotkey = hotkeyValues[option.hotkeyId]}
         <Label class="option-row">
           <Checkbox
             checked={gameState[option.key]}

@@ -1,4 +1,4 @@
-import { Command } from "~/botting/command";
+import { Command } from "../../command";
 import type { KillOptions } from "~/lib/Combat";
 
 export class CommandKillFor extends Command {

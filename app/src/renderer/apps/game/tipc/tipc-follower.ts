@@ -1,8 +1,8 @@
 import { interval } from "@vexed/utils";
 import { Mutex } from "async-mutex";
-import { Bot } from "~/lib/Bot";
 import { handlers } from "~/shared/tipc";
-import { doPriorityAttack } from "~/utils/doPriorityAttack";
+import { Bot } from "../lib/Bot";
+import { doPriorityAttack } from "../util/doPriorityAttack";
 
 let on = false;
 

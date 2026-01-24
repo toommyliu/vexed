@@ -1,4 +1,4 @@
-import { Command } from "~/botting/command";
+import { Command } from "../../command";
 import { client, handlers } from "~/shared/tipc";
 
 export abstract class ArmyCommand extends Command {

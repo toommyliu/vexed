@@ -1,4 +1,4 @@
-import { ArgsError } from "~/botting/ArgsError";
+import { ArgsError } from "../../ArgsError";
 import { CommandAbandonQuest } from "./CommandAbandonQuest";
 import { CommandAcceptQuest } from "./CommandAcceptQuest";
 import { CommandCompleteQuest } from "./CommandCompleteQuest";
@@ -75,7 +75,7 @@ export const questCommands = {
    * cmd.register_quest([1234, 5678, 9012]);
    *
    * // Multiple quests, some with item IDs
-   * cmd.register_quest([1234, [5678, 9999], 9012]); 
+   * cmd.register_quest([1234, [5678, 9999], 9012]);
    * ```
    */
   register_quest(
@@ -149,4 +149,3 @@ export const questCommands = {
     window.context.addCommand(cmd);
   },
 };
-

@@ -1,15 +1,15 @@
-import { Command } from "~/botting/command";
+import { Command } from "../../command";
 
 export class CommandSettingDisableDeathAds extends Command {
-    public state: boolean = false;
+  public state: boolean = false;
 
-    protected override _skipDelay = true;
+  protected override _skipDelay = true;
 
-    public override executeImpl() {
-        this.bot.settings.disableDeathAds = this.state;
-    }
+  public override executeImpl() {
+    this.bot.settings.disableDeathAds = this.state;
+  }
 
-    public override toString() {
-        return `${this.state ? "Disable" : "Enable"} death ads`;
-    }
+  public override toString() {
+    return `${this.state ? "Disable" : "Enable"} death ads`;
+  }
 }

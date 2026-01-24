@@ -1,4 +1,4 @@
-import { Command } from "~/botting/command";
+import { Command } from "../../command";
 
 export class CommandBuyScrollOfEnrage extends Command {
   public qty!: number;
