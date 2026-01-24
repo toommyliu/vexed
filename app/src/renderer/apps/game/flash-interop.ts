@@ -8,7 +8,7 @@ import {
   dispatchJson,
   dispatchStr,
 } from "./packet-handlers";
-import { appState, autoReloginState } from "./state.svelte";
+import { appState, autoReloginState } from "./state/index.svelte";
 
 const logger = log.scope("game/flash-interop");
 
@@ -84,7 +84,10 @@ window.connection = async ([state]: [string]) => {
 
 window.loaded = async () => {
   window.dispatchEvent(new Event("gameLoaded"));
-  appState.gameLoaded = true;
+  appState.update((state) => ({
+    ...state,
+    gameLoaded: true,
+  }));
 
   void bot.scheduler.start();
 

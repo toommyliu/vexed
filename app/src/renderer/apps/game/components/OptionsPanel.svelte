@@ -5,7 +5,8 @@
   import * as NumberField from "@vexed/ui/NumberField";
   import FloatingPanel from "./FloatingPanel.svelte";
 
-  import { gameState, optionsPanelState } from "../state.svelte";
+  import { optionsState } from "../state/index.svelte";
+  import { optionsPanelState } from "../state/options-panel.svelte";
 
   import { Bot } from "../lib/Bot";
 
@@ -106,9 +107,9 @@
         {@const hotkey = hotkeyValues[option.hotkeyId]}
         <Label class="option-row">
           <Checkbox
-            checked={gameState[option.key]}
+            checked={optionsState[option.key]}
             onCheckedChange={(checked) => {
-              gameState[option.key] = checked === true;
+              optionsState[option.key] = checked === true;
             }}
           />
           <span class="option-label-text">{option.label}</span>
@@ -122,9 +123,9 @@
         <div class="option-row-input">
           <span class="option-label">Walk Speed</span>
           <NumberField.Root
-            value={gameState.walkSpeed}
+            value={optionsState.walkSpeed}
             onValueChange={(v) => {
-              if (!Number.isNaN(v)) gameState.walkSpeed = v;
+              if (!Number.isNaN(v)) optionsState.walkSpeed = v;
             }}
             min={1}
             max={100}
@@ -138,9 +139,9 @@
         <div class="option-row-input">
           <span class="option-label">FPS</span>
           <NumberField.Root
-            value={gameState.fps}
+            value={optionsState.fps}
             onValueChange={(v) => {
-              if (!Number.isNaN(v)) gameState.fps = v;
+              if (!Number.isNaN(v)) optionsState.fps = v;
             }}
             min={1}
             max={60}

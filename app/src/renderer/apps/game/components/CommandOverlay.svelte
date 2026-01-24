@@ -5,8 +5,8 @@
   import ChevronDown from "@vexed/ui/icons/ChevronDown";
   import ChevronRight from "@vexed/ui/icons/ChevronRight";
 
-  import { commandOverlayState, scriptState } from "../state.svelte";
-  import type { CommandItem } from "../state.svelte";
+  import { commandOverlayState, scriptState } from "../state/index.svelte";
+  import type { CommandItem } from "../state/command-overlay.svelte";
 
   import FloatingPanel from "./FloatingPanel.svelte";
 
@@ -14,7 +14,7 @@
   let virtualList: VirtualList<CommandItem>;
 
   $effect(() => {
-    scriptState.showOverlay = commandOverlayState.isVisible;
+    $scriptState.showOverlay = commandOverlayState.isVisible;
   });
 
   $effect(() => {

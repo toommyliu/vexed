@@ -1,5 +1,5 @@
 import { interval } from "@vexed/utils";
-import { gameState } from "../state.svelte";
+import { optionsState } from "../state/index.svelte";
 import type { Bot } from "./Bot";
 
 export class Settings {
@@ -51,7 +51,7 @@ export class Settings {
    * Whether Infinite Range is enabled.
    */
   public get infiniteRange(): boolean {
-    return gameState.infiniteRange;
+    return optionsState.infiniteRange;
   }
 
   /**
@@ -60,14 +60,14 @@ export class Settings {
    * @param on - If true, enables Infinite Range. Otherwise, disables it.
    */
   public set infiniteRange(on: boolean) {
-    gameState.infiniteRange = on;
+    optionsState.infiniteRange = on;
   }
 
   /**
    * Whether Provoke Cell is enabled.
    */
   public get provokeCell(): boolean {
-    return gameState.provokeCell;
+    return optionsState.provokeCell;
   }
 
   /**
@@ -76,14 +76,14 @@ export class Settings {
    * @param on - If true, enables Provoke Cell. Otherwise, disables it.
    */
   public set provokeCell(on: boolean) {
-    gameState.provokeCell = on;
+    optionsState.provokeCell = on;
   }
 
   /**
    * Whether Enemy Magnet is enabled.
    */
   public get enemyMagnet(): boolean {
-    return gameState.enemyMagnet;
+    return optionsState.enemyMagnet;
   }
 
   /**
@@ -92,14 +92,14 @@ export class Settings {
    * @param on - If true, enables Enemy Magnet. Otherwise, disables it.
    */
   public set enemyMagnet(on: boolean) {
-    gameState.enemyMagnet = on;
+    optionsState.enemyMagnet = on;
   }
 
   /**
    * Whether Lag Killer is enabled.
    */
   public get lagKiller(): boolean {
-    return gameState.lagKiller;
+    return optionsState.lagKiller;
   }
 
   /**
@@ -108,14 +108,14 @@ export class Settings {
    * @param on - If true, enables Lag Killer. Otherwise, disables it.
    */
   public set lagKiller(on: boolean) {
-    gameState.lagKiller = on;
+    optionsState.lagKiller = on;
   }
 
   /**
    * Whether Hide Players is enabled.
    */
   public get hidePlayers(): boolean {
-    return gameState.hidePlayers;
+    return optionsState.hidePlayers;
   }
 
   /**
@@ -124,14 +124,14 @@ export class Settings {
    * @param on - If true, enables Hide Players. Otherwise, disables it.
    */
   public set hidePlayers(on: boolean) {
-    gameState.hidePlayers = on;
+    optionsState.hidePlayers = on;
   }
 
   /**
    * Whether Skip Cutscenes is enabled.
    */
   public get skipCutscenes(): boolean {
-    return gameState.skipCutscenes;
+    return optionsState.skipCutscenes;
   }
 
   /**
@@ -140,14 +140,14 @@ export class Settings {
    * @param on - If true, enables Skip Cutscenes. Otherwise, disables it.
    */
   public set skipCutscenes(on: boolean) {
-    gameState.skipCutscenes = on;
+    optionsState.skipCutscenes = on;
   }
 
   /**
    * The player's walk speed.
    */
   public get walkSpeed(): number {
-    return gameState.walkSpeed;
+    return optionsState.walkSpeed;
   }
 
   /**
@@ -158,11 +158,11 @@ export class Settings {
   public set walkSpeed(speed: number | string) {
     if (typeof speed === "number") {
       const val = Math.max(0, Math.min(99, speed));
-      gameState.walkSpeed = val;
+      optionsState.walkSpeed = val;
     } else if (typeof speed === "string") {
       const val = Number.parseInt(speed, 10);
       const tmp = Number.isNaN(val) ? 8 : Math.max(0, Math.min(99, val));
-      gameState.walkSpeed = tmp;
+      optionsState.walkSpeed = tmp;
     }
   }
 
@@ -223,7 +223,7 @@ export class Settings {
    * Whether "Disable FX" is enabled.
    */
   public get disableFx(): boolean {
-    return gameState.disableFx;
+    return optionsState.disableFx;
   }
 
   /**
@@ -232,39 +232,39 @@ export class Settings {
    * @param on - If true, disables most visual effects.
    */
   public set disableFx(on: boolean) {
-    gameState.disableFx = on;
+    optionsState.disableFx = on;
   }
 
   /**
    * Whether "Disable Collisions" is enabled.
    */
   public get disableCollisions(): boolean {
-    return gameState.disableCollisions;
+    return optionsState.disableCollisions;
   }
 
   public set disableCollisions(on: boolean) {
-    gameState.disableCollisions = on;
+    optionsState.disableCollisions = on;
   }
 
   /**
    * Whether "Disable Death Ads" is enabled.
    */
   public get disableDeathAds(): boolean {
-    return gameState.disableDeathAds;
+    return optionsState.disableDeathAds;
   }
 
   public set disableDeathAds(on: boolean) {
-    gameState.disableDeathAds = on;
+    optionsState.disableDeathAds = on;
   }
 
   /**
    * Whether to automatically stop attacking when a Counter Attack is active.
    */
   public get counterAttack(): boolean {
-    return gameState.counterAttack;
+    return optionsState.counterAttack;
   }
 
   public set counterAttack(on: boolean) {
-    gameState.counterAttack = on;
+    optionsState.counterAttack = on;
   }
 }

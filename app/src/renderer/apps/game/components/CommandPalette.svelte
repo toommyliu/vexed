@@ -7,9 +7,7 @@
   import { equalsIgnoreCase, fuzzyMatchIgnoreCase } from "@vexed/utils";
   import { get } from "svelte/store";
 
-  import { gameState } from "../state.svelte";
-  import { platform } from "../state/platform.svelte";
-
+  import { optionsState, platform } from "../state/index.svelte";
   import { client } from "~/shared/tipc";
   import { WindowIds } from "~/shared/types";
 
@@ -150,108 +148,110 @@
     },
     {
       id: "toggle-infinite-range",
-      label: gameState.infiniteRange
+      label: optionsState.infiniteRange
         ? "Disable Infinite Range"
         : "Enable Infinite Range",
       category: "Options",
       hotkey: hotkeyValues["toggle-infinite-range"] ?? "",
       action: () => {
-        gameState.infiniteRange = !gameState.infiniteRange;
+        optionsState.infiniteRange = !optionsState.infiniteRange;
       },
     },
     {
       id: "toggle-provoke-cell",
-      label: gameState.provokeCell
+      label: optionsState.provokeCell
         ? "Disable Provoke Cell"
         : "Enable Provoke Cell",
       category: "Options",
       hotkey: hotkeyValues["toggle-provoke-cell"] ?? "",
       action: () => {
-        gameState.provokeCell = !gameState.provokeCell;
+        optionsState.provokeCell = !optionsState.provokeCell;
       },
     },
     {
       id: "toggle-enemy-magnet",
-      label: gameState.enemyMagnet
+      label: optionsState.enemyMagnet
         ? "Disable Enemy Magnet"
         : "Enable Enemy Magnet",
       category: "Options",
       hotkey: hotkeyValues["toggle-enemy-magnet"] ?? "",
       action: () => {
-        gameState.enemyMagnet = !gameState.enemyMagnet;
+        optionsState.enemyMagnet = !optionsState.enemyMagnet;
       },
     },
     {
       id: "toggle-lag-killer",
-      label: gameState.lagKiller ? "Disable Lag Killer" : "Enable Lag Killer",
+      label: optionsState.lagKiller
+        ? "Disable Lag Killer"
+        : "Enable Lag Killer",
       category: "Options",
       hotkey: hotkeyValues["toggle-lag-killer"] ?? "",
       action: () => {
-        gameState.lagKiller = !gameState.lagKiller;
+        optionsState.lagKiller = !optionsState.lagKiller;
       },
     },
     {
       id: "toggle-hide-players",
-      label: gameState.hidePlayers
+      label: optionsState.hidePlayers
         ? "Disable Hide Players"
         : "Enable Hide Players",
       category: "Options",
       hotkey: hotkeyValues["toggle-hide-players"] ?? "",
       action: () => {
-        gameState.hidePlayers = !gameState.hidePlayers;
+        optionsState.hidePlayers = !optionsState.hidePlayers;
       },
     },
     {
       id: "toggle-skip-cutscenes",
-      label: gameState.skipCutscenes
+      label: optionsState.skipCutscenes
         ? "Disable Skip Cutscenes"
         : "Enable Skip Cutscenes",
       category: "Options",
       hotkey: hotkeyValues["toggle-skip-cutscenes"] ?? "",
       action: () => {
-        gameState.skipCutscenes = !gameState.skipCutscenes;
+        optionsState.skipCutscenes = !optionsState.skipCutscenes;
       },
     },
     {
       id: "toggle-disable-fx",
-      label: gameState.disableFx ? "Enable FX" : "Disable FX",
+      label: optionsState.disableFx ? "Enable FX" : "Disable FX",
       category: "Options",
       hotkey: hotkeyValues["toggle-disable-fx"] ?? "",
       action: () => {
-        gameState.disableFx = !gameState.disableFx;
+        optionsState.disableFx = !optionsState.disableFx;
       },
     },
     {
       id: "toggle-disable-collisions",
-      label: gameState.disableCollisions
+      label: optionsState.disableCollisions
         ? "Enable Collisions"
         : "Disable Collisions",
       category: "Options",
       hotkey: hotkeyValues["toggle-disable-collisions"] ?? "",
       action: () => {
-        gameState.disableCollisions = !gameState.disableCollisions;
+        optionsState.disableCollisions = !optionsState.disableCollisions;
       },
     },
     {
       id: "toggle-anti-counter",
-      label: gameState.counterAttack
+      label: optionsState.counterAttack
         ? "Disable Anti-Counter"
         : "Enable Anti-Counter",
       category: "Options",
       hotkey: hotkeyValues["toggle-anti-counter"] ?? "",
       action: () => {
-        gameState.counterAttack = !gameState.counterAttack;
+        optionsState.counterAttack = !optionsState.counterAttack;
       },
     },
     {
       id: "toggle-disable-death-ads",
-      label: gameState.disableDeathAds
+      label: optionsState.disableDeathAds
         ? "Enable Death Ads"
         : "Disable Death Ads",
       category: "Options",
       hotkey: hotkeyValues["toggle-disable-death-ads"] ?? "",
       action: () => {
-        gameState.disableDeathAds = !gameState.disableDeathAds;
+        optionsState.disableDeathAds = !optionsState.disableDeathAds;
       },
     },
   ]);

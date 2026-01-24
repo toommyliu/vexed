@@ -1,4 +1,4 @@
-import { autoReloginState } from "../../../state/autoRelogin.svelte";
+import { autoReloginState } from "../../../state/auto-relogin.svelte";
 import { Command } from "../../command";
 
 export class CommandDisableAutoRelogin extends Command {

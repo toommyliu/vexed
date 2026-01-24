@@ -14,15 +14,15 @@
   import "./entrypoint";
   import { Bot } from "./lib/Bot";
   import { AutoReloginJob } from "./lib/jobs/autorelogin";
+  import { commandOverlayState } from "./state/command-overlay.svelte";
+  import { optionsPanelState } from "./state/options-panel.svelte";
   import {
     appState,
     autoReloginState,
-    commandOverlayState,
-    gameState,
-    optionsPanelState,
+    optionsState,
+    platform,
     scriptState,
-  } from "./state.svelte";
-  import { platform } from "./state/platform.svelte";
+  } from "./state/index.svelte";
   import { parseSkillSetJson, type SkillSetJson } from "./util/skillParser";
 
   import { Button, Checkbox, Label } from "@vexed/ui";
@@ -35,6 +35,7 @@
   import CommandPalette from "./components/CommandPalette.svelte";
   import OptionsPanel from "./components/OptionsPanel.svelte";
   import WindowsMegaMenu from "./components/WindowsMegaMenu.svelte";
+  import { get } from "svelte/store";
 
   const logger = log.scope("game/app");
 
@@ -150,12 +151,12 @@
     window.context.removeAllListeners("end");
 
     const onEnd = () => {
-      scriptState.isRunning = false;
+      get(scriptState).isRunning = false;
       window.context.removeListener("end", onEnd);
     };
 
     void window.context.start();
-    scriptState.isRunning = true;
+    scriptState.update((state) => ({ ...state, isRunning: true }));
     window.context.on("end", onEnd);
   }
 
@@ -163,19 +164,21 @@
     if (!window.context.isRunning()) return;
 
     window.context.stop();
-    scriptState.isRunning = false;
+    scriptState.update((state) => ({ ...state, isRunning: false }));
   }
 
   handlers.scripts.scriptLoaded.listen((fromManager) => {
-    scriptState.isLoaded = true;
-
     commandOverlayState.updateCommands(
       window.context.commands,
       window.context.commandIndex,
     );
     commandOverlayState.show();
 
-    scriptState.showOverlay = true;
+    scriptState.update((state) => ({
+      ...state,
+      showOverlay: true,
+      isLoaded: true,
+    }));
 
     // Auto start script if loaded from manager
     if (
@@ -192,9 +195,9 @@
   }
 
   function toggleScript() {
-    if (!scriptState.isLoaded) return;
+    if (!get(scriptState).isLoaded) return;
 
-    if (scriptState.isRunning) {
+    if (!get(scriptState).isRunning) {
       stopScript();
     } else {
       startScript();
@@ -314,43 +317,43 @@
         break;
 
       case "toggle-infinite-range":
-        gameState.infiniteRange = !gameState.infiniteRange;
+        optionsState.infiniteRange = !optionsState.infiniteRange;
         break;
 
       case "toggle-provoke-cell":
-        gameState.provokeCell = !gameState.provokeCell;
+        optionsState.provokeCell = !optionsState.provokeCell;
         break;
 
       case "toggle-enemy-magnet":
-        gameState.enemyMagnet = !gameState.enemyMagnet;
+        optionsState.enemyMagnet = !optionsState.enemyMagnet;
         break;
 
       case "toggle-lag-killer":
-        gameState.lagKiller = !gameState.lagKiller;
+        optionsState.lagKiller = !optionsState.lagKiller;
         break;
 
       case "toggle-hide-players":
-        gameState.hidePlayers = !gameState.hidePlayers;
+        optionsState.hidePlayers = !optionsState.hidePlayers;
         break;
 
       case "toggle-skip-cutscenes":
-        gameState.skipCutscenes = !gameState.skipCutscenes;
+        optionsState.skipCutscenes = !optionsState.skipCutscenes;
         break;
 
       case "toggle-disable-fx":
-        gameState.disableFx = !gameState.disableFx;
+        optionsState.disableFx = !optionsState.disableFx;
         break;
 
       case "toggle-disable-collisions":
-        gameState.disableCollisions = !gameState.disableCollisions;
+        optionsState.disableCollisions = !optionsState.disableCollisions;
         break;
 
       case "toggle-anti-counter":
-        gameState.counterAttack = !gameState.counterAttack;
+        optionsState.counterAttack = !optionsState.counterAttack;
         break;
 
       case "toggle-disable-death-ads":
-        gameState.disableDeathAds = !gameState.disableDeathAds;
+        optionsState.disableDeathAds = !optionsState.disableDeathAds;
         break;
     }
   }
@@ -361,7 +364,7 @@
       const currentCls = bot.player.className;
 
       const skillSet =
-        appState.skillSets?.get(currentCls) ??
+        $appState.skillSets?.get(currentCls) ??
         parseSkillSetJson({ skills: [1, 2, 3, 4], delay: 150 });
       const skillList = skillSet.skills;
       let idx = 0;
@@ -448,7 +451,7 @@
 
       for (const [className, skillSetJson] of Object.entries(skillSets)) {
         const res = parseSkillSetJson(skillSetJson as SkillSetJson);
-        if (res) appState.skillSets.set(className.toUpperCase(), res);
+        if (res) $appState.skillSets.set(className.toUpperCase(), res);
       }
 
       try {
@@ -551,7 +554,7 @@
                 onclick={() => commandOverlayState.toggle()}
               >
                 <span
-                  >{scriptState.showOverlay
+                  >{$scriptState.showOverlay
                     ? "Hide Overlay"
                     : "Show Overlay"}</span
                 >
@@ -661,7 +664,7 @@
                   Enable for server
                 </Menu.Label>
                 <div class="max-h-52 overflow-y-auto pr-1">
-                  {#each reloginServers as server}
+                  {#each reloginServers as server (server)}
                     <Menu.Item
                       class={cn(
                         "bg-transparent transition-colors hover:bg-emerald-500/10 hover:text-emerald-400",
@@ -700,7 +703,7 @@
                   Enable for server
                 </Menu.Label>
                 <div class="max-h-52 overflow-y-auto pr-1">
-                  {#each reloginServers as server}
+                  {#each reloginServers as server (server)}
                     <Menu.Item
                       class="bg-transparent transition-colors hover:bg-emerald-500/10 hover:text-emerald-400"
                       onclick={() => enableRelogin(server)}
@@ -716,17 +719,17 @@
           <button
             class={cn(
               "ml-0.5 flex h-6 shrink-0 items-center gap-1 rounded px-2 text-[12px] font-medium transition-colors duration-150",
-              !scriptState.isLoaded && "cursor-not-allowed opacity-40",
-              scriptState.isLoaded &&
-                !scriptState.isRunning &&
+              !$scriptState.isLoaded && "cursor-not-allowed opacity-40",
+              $scriptState.isLoaded &&
+                !$scriptState.isRunning &&
                 "bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30",
-              scriptState.isRunning &&
+              $scriptState.isRunning &&
                 "bg-amber-600/20 text-amber-400 hover:bg-amber-600/30",
             )}
-            disabled={!scriptState.isLoaded}
+            disabled={!$scriptState.isLoaded}
             onclick={toggleScript}
           >
-            {#if scriptState.isRunning}
+            {#if $scriptState.isRunning}
               <Square class="size-2.5" />
               <span>Stop</span>
             {:else}
@@ -764,7 +767,7 @@
                 {currentSelectedPad}
               </Menu.Trigger>
               <Menu.Content align="end" class="min-w-40 text-[12px]">
-                {#each validPads as pad}
+                {#each validPads as pad (pad)}
                   <Menu.Item
                     class={cn(
                       "bg-transparent",
@@ -803,7 +806,7 @@
                 align="end"
                 class="max-h-[25vh] min-w-40 overflow-y-auto text-[12px]"
               >
-                {#each availableCells as cell}
+                {#each availableCells as cell (cell)}
                   <Menu.Item
                     class={cn(
                       "bg-transparent",
@@ -875,8 +878,8 @@
 <CommandOverlay />
 <CommandPalette
   bind:open={commandPaletteOpen}
-  scriptLoaded={scriptState.isLoaded}
-  scriptRunning={scriptState.isRunning}
+  scriptLoaded={$scriptState.isLoaded}
+  scriptRunning={$scriptState.isRunning}
   onToggleScript={toggleScript}
   onLoadScript={() => void client.scripts.loadScript({ scriptPath: "" })}
   onToggleOverlay={() => commandOverlayState.toggle()}

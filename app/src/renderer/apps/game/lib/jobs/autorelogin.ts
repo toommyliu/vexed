@@ -1,7 +1,7 @@
 import type { Server } from "@vexed/game";
 import { Mutex } from "async-mutex";
 import { CommandExecutor } from "../../botting/command-executor";
-import { autoReloginState } from "../../state/autoRelogin.svelte";
+import { autoReloginState } from "../../state/auto-relogin.svelte";
 import type { LoginInfo } from "../Auth";
 import type { Bot } from "../Bot";
 import { Job } from "./Job";
