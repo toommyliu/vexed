@@ -42,7 +42,7 @@ async function ensureStream(): Promise<WriteStream | null> {
 
 function shouldLog(entry: MainLogEntry): boolean {
   // return !(entry.level === "debug" && !debugEnabled);
-  entry;
+  void entry;
   return true;
 }
 
