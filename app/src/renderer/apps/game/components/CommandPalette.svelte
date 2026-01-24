@@ -9,6 +9,7 @@
 
   import { gameState } from "../state.svelte";
   import { platform } from "../state/platform.svelte";
+
   import { client } from "~/shared/tipc";
   import { WindowIds } from "~/shared/types";
 
@@ -392,7 +393,7 @@
             No commands found
           </div>
         {:else}
-          {#each Object.entries(groupedCommands()) as [category, items]}
+          {#each Object.entries(groupedCommands()) as [category, items] (category)}
             <div class="mb-2 last:mb-0">
               <div
                 class="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"
@@ -412,7 +413,10 @@
                   )}
                   data-command-index={globalIndex}
                   onclick={(ev) =>
-                    executeCommand(cmd, IS_MAC ? ev.metaKey : ev.ctrlKey)}
+                    executeCommand(
+                      cmd,
+                      get(platform).isMac ? ev.metaKey : ev.ctrlKey,
+                    )}
                   onmouseenter={() =>
                     mouseMoved && (selectedIndex = globalIndex)}
                 >
@@ -438,7 +442,7 @@
             <span>run</span>
           </span>
           <span class="flex items-center gap-1">
-            <Kbd>{IS_MAC ? "⌘" : "Ctrl"}</Kbd>
+            <Kbd>{$platform.isMac ? "⌘" : "Ctrl"}</Kbd>
             <Kbd>↵</Kbd>
             <span>run & close</span>
           </span>

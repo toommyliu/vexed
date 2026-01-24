@@ -340,11 +340,11 @@
                 children: [
                   {
                     name: "ID",
-                    value: String(mon.MonID),
+                    value: String(mon.monId),
                   },
                   {
                     name: "MonMapID",
-                    value: String(mon.MonMapID),
+                    value: String(mon.monMapId),
                   },
                 ],
               };
