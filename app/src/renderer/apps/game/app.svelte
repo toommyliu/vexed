@@ -5,7 +5,6 @@
   import Mousetrap from "mousetrap";
   import { onDestroy, onMount } from "svelte";
 
-  import { cn } from "~/shared/cn";
   import { DEFAULT_HOTKEYS, DOCUMENTS_PATH } from "~/shared/constants";
   import { client, handlers } from "~/shared/tipc";
   import type { HotkeyConfig } from "~/shared/types";
@@ -26,16 +25,17 @@
   import { platform } from "./state/platform.svelte";
   import { parseSkillSetJson, type SkillSetJson } from "./util/skillParser";
 
+  import { Button, Checkbox, Label } from "@vexed/ui";
+  import { cn } from "@vexed/ui/util";
+  import Kbd from "@vexed/ui/Kbd";
+  import * as Menu from "@vexed/ui/Menu";
+  import Play from "@vexed/ui/icons/Play";
+  import Square from "@vexed/ui/icons/Square";
   import CommandOverlay from "./components/CommandOverlay.svelte";
   import CommandPalette from "./components/CommandPalette.svelte";
   import OptionsPanel from "./components/OptionsPanel.svelte";
   import WindowsMegaMenu from "./components/WindowsMegaMenu.svelte";
 
-  import { Button, Checkbox, Label } from "@vexed/ui";
-  import Kbd from "@vexed/ui/Kbd";
-  import * as Menu from "@vexed/ui/Menu";
-  import Play from "@vexed/ui/icons/Play";
-  import Square from "@vexed/ui/icons/Square";
   const logger = log.scope("game/app");
 
   const DEFAULT_PADS = [

@@ -8,8 +8,8 @@ import {
 } from "@vexed/fs-utils";
 import type { MenuItemConstructorOptions } from "electron";
 import { app, dialog, Menu, nativeTheme, session, shell } from "electron";
-import { IS_MAC } from "~/shared/constants";
 import type { Settings } from "~/shared/types";
+import { IS_MAC } from "./constants";
 import { logger } from "./services/logger";
 import { updaterService } from "./services/updater";
 import { windowsService } from "./services/windows";
@@ -188,6 +188,7 @@ export function createMenu(settings: Config<Settings>) {
           label: "Command Palette",
           accelerator: IS_MAC ? "Cmd+K" : "Ctrl+K",
           click: (_, browserWindow) => {
+            // TODO: this is a little jank
             if (!browserWindow) return;
 
             const gameWindow = browserWindow.getParentWindow() ?? browserWindow;

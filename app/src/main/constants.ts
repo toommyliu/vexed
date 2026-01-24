@@ -4,7 +4,6 @@ import { app } from "electron";
 
 export const BRAND = app.getName();
 
-// TODO: expose these to renderer through tpc as state
 export const IS_WINDOWS = process.platform === "win32";
 export const IS_MAC = process.platform === "darwin";
 export const IS_LINUX = process.platform === "linux";

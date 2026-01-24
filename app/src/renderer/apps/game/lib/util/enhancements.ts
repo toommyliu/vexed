@@ -1,4 +1,4 @@
-import { equalsIgnoreCase } from '~/shared/string';
+import { equalsIgnoreCase } from "@vexed/utils/string";
 
 export type EnhancementP = {
   DIS?: boolean;
@@ -291,13 +291,17 @@ export function isBasicEnhancement(enhancementName: string): boolean {
   const basicEnhancements = ALL_ENHANCEMENTS.filter(
     (enh) => !enh.DIS && enh.ID <= 10,
   );
-  return basicEnhancements.some((enh) => equalsIgnoreCase(enh.sName, enhancementName));
+  return basicEnhancements.some((enh) =>
+    equalsIgnoreCase(enh.sName, enhancementName),
+  );
 }
 
 export function findEnhancementByName(
   enhancementName: string,
 ): EnhancementP | undefined {
-  return ALL_ENHANCEMENTS.find((enh) => equalsIgnoreCase(enh.sName, enhancementName));
+  return ALL_ENHANCEMENTS.find((enh) =>
+    equalsIgnoreCase(enh.sName, enhancementName),
+  );
 }
 
 export function areNamesEqual(
@@ -311,7 +315,9 @@ export function areNamesEqual(
 
   const normalizedActual = actualName.toLowerCase().trim();
   const normalizedInput = inputName.toLowerCase().trim();
-  const matchedKey = Object.keys(variants).find((key) => key === normalizedActual);
+  const matchedKey = Object.keys(variants).find(
+    (key) => key === normalizedActual,
+  );
 
   return matchedKey
     ? (variants[matchedKey]?.includes(normalizedInput) ?? false)
@@ -335,5 +341,7 @@ export function isForgeWeaponProc(proc: WeaponSpecial): boolean {
 }
 
 export function isAweProc(proc: WeaponSpecial): boolean {
-  return proc >= WeaponSpecial.SpiralCarve && proc <= WeaponSpecial.PowerwordDIE;
+  return (
+    proc >= WeaponSpecial.SpiralCarve && proc <= WeaponSpecial.PowerwordDIE
+  );
 }
