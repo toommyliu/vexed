@@ -3,11 +3,11 @@
   import Command from "@vexed/ui/icons/Command";
   import Search from "@vexed/ui/icons/Search";
   import X from "@vexed/ui/icons/X";
+  import { cn } from "@vexed/ui/util";
+  import { equalsIgnoreCase, fuzzyMatchIgnoreCase } from "@vexed/utils";
 
-  import { gameState } from "~/game/state.svelte";
-  import { cn } from "~/shared/cn";
+  import { gameState } from "../state.svelte";
   import { IS_MAC } from "~/shared/constants";
-  import { equalsIgnoreCase, fuzzyMatchIgnoreCase } from "~/shared/string";
   import { client } from "~/shared/tipc";
   import { WindowIds } from "~/shared/types";
 
@@ -360,20 +360,20 @@
     <div class="absolute inset-0 bg-black/60" onclick={handleClose}></div>
 
     <div
-      class="command-palette border-border bg-popover elevation-2 relative z-10 w-full max-w-lg overflow-hidden rounded-xl border shadow-2xl backdrop-blur-xl"
+      class="command-palette elevation-2 relative z-10 w-full max-w-lg overflow-hidden rounded-xl border border-border bg-popover shadow-2xl backdrop-blur-xl"
     >
-      <div class="border-border flex items-center gap-3 border-b px-4 py-3">
-        <Search class="text-muted-foreground h-4 w-4 shrink-0" />
+      <div class="flex items-center gap-3 border-b border-border px-4 py-3">
+        <Search class="h-4 w-4 shrink-0 text-muted-foreground" />
         <input
           bind:this={inputRef}
           type="text"
           placeholder="Search commands..."
-          class="text-foreground placeholder:text-muted-foreground flex-1 bg-transparent text-sm focus:outline-none"
+          class="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
           bind:value={searchQuery}
           onkeydown={handleKeydown}
         />
         <button
-          class="text-muted-foreground hover:bg-accent hover:text-foreground flex h-5 w-5 items-center justify-center rounded bg-transparent transition-colors"
+          class="flex h-5 w-5 items-center justify-center rounded bg-transparent text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           onclick={handleClose}
         >
           <X class="h-3.5 w-3.5" />
@@ -387,14 +387,14 @@
         onmousemove={() => (mouseMoved = true)}
       >
         {#if filteredCommands.length === 0}
-          <div class="text-muted-foreground px-3 py-8 text-center text-sm">
+          <div class="px-3 py-8 text-center text-sm text-muted-foreground">
             No commands found
           </div>
         {:else}
           {#each Object.entries(groupedCommands()) as [category, items]}
             <div class="mb-2 last:mb-0">
               <div
-                class="text-muted-foreground px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider"
+                class="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"
               >
                 {category}
               </div>
@@ -425,7 +425,7 @@
       </div>
 
       <div
-        class="border-border text-muted-foreground flex items-center justify-between border-t px-4 py-2 text-[10px]"
+        class="flex items-center justify-between border-t border-border px-4 py-2 text-[10px] text-muted-foreground"
       >
         <div class="flex items-center gap-3">
           <span class="flex items-center gap-1">
@@ -446,7 +446,7 @@
             <span>close</span>
           </span>
         </div>
-        <div class="text-muted-foreground/60 flex items-center gap-1">
+        <div class="flex items-center gap-1 text-muted-foreground/60">
           <Command class="h-3 w-3" />
           <span>K</span>
         </div>

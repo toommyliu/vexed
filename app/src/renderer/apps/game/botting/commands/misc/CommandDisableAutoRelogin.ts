@@ -1,5 +1,5 @@
-import { Command } from "~/botting/command";
-import { autoReloginState } from "~/game/state.svelte";
+import { autoReloginState } from "../../../state/autoRelogin.svelte";
+import { Command } from "../../command";
 
 export class CommandDisableAutoRelogin extends Command {
   protected override _skipDelay = true;

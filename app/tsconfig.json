@@ -42,21 +42,6 @@
       "~/shared/*": [
         "src/shared/*"
       ],
-      "~/game/*": [
-        "src/renderer/apps/game/*"
-      ],
-      "~/manager/*": [
-        "src/renderer/apps/manager/*"
-      ],
-      "~/lib/*": [
-        "src/renderer/apps/game/lib/*"
-      ],
-      "~/botting/*": [
-        "src/renderer/apps/game/botting/*"
-      ],
-      "~/utils/*": [
-        "src/renderer/apps/game/util/*"
-      ]
     },
     // "rootDirs": [],
     // "typeRoots": [],

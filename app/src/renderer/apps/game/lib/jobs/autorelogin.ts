@@ -1,9 +1,9 @@
 import type { Server } from "@vexed/game";
 import { Mutex } from "async-mutex";
-import { CommandExecutor } from "~/botting/command-executor";
-import { autoReloginState } from "~/game/state/autoRelogin.svelte";
-import type { Bot } from "~/lib/Bot";
+import { CommandExecutor } from "../../botting/command-executor";
+import { autoReloginState } from "../../state/autoRelogin.svelte";
 import type { LoginInfo } from "../Auth";
+import type { Bot } from "../Bot";
 import { Job } from "./Job";
 
 const MAX_CONSECUTIVE_FAILURES = 5;

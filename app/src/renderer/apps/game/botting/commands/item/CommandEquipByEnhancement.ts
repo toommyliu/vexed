@@ -1,5 +1,4 @@
 import type { Item } from "@vexed/game";
-import { Command } from "~/botting/command";
 import {
   getWeaponProcName,
   isBasicEnhancement,
@@ -12,7 +11,8 @@ import {
   WEAPON_PROC_VARIANTS,
   CAPE_PROC_VARIANTS,
   HELM_PROC_VARIANTS,
-} from "~/lib/util/enhancements";
+} from "../../../lib/util/enhancements";
+import { Command } from "../../command";
 
 type ItemType = "cape" | "helm" | "weapon";
 

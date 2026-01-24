@@ -9,7 +9,7 @@
   import Download from "@vexed/ui/icons/Download";
   import Share2 from "@vexed/ui/icons/Share2";
 
-  import { normalizeId } from "~/game/util/normalizeId";
+  import { normalizeId } from "../../apps/game/util/normalizeId";
   import { client, handlers } from "~/shared/tipc";
   import type { EnvironmentState } from "~/shared/types";
 
@@ -490,13 +490,13 @@
   }
 </script>
 
-<div class="bg-background flex h-screen flex-col">
+<div class="flex h-screen flex-col bg-background">
   <header
-    class="bg-background/95 supports-[backdrop-filter]:bg-background/80 border-border/50 sticky top-0 z-10 border-b px-6 py-3"
+    class="sticky top-0 z-10 border-b border-border/50 bg-background/95 px-6 py-3 supports-[backdrop-filter]:bg-background/80"
   >
     <div class="mx-auto flex max-w-7xl items-center justify-between">
       <div class="flex items-center gap-3">
-        <h1 class="text-foreground text-base font-semibold tracking-tight">
+        <h1 class="text-base font-semibold tracking-tight text-foreground">
           Environment
         </h1>
       </div>
@@ -504,7 +504,7 @@
         <Button
           variant="ghost"
           size="sm"
-          class="text-destructive h-7 gap-1.5 text-xs"
+          class="h-7 gap-1.5 text-xs text-destructive"
           onclick={clearAll}
         >
           <Trash2 class="h-3.5 w-3.5" />
@@ -513,7 +513,7 @@
         <Button
           variant="outline"
           size="sm"
-          class="border-border/50 h-7 gap-1.5 text-xs"
+          class="h-7 gap-1.5 border-border/50 text-xs"
           onclick={broadcastToAll}
           disabled={isBroadcasting}
         >
@@ -528,17 +528,17 @@
     <div class="mx-auto max-w-7xl">
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         <section
-          class="border-border/50 bg-card flex flex-col rounded-xl border"
+          class="flex flex-col rounded-xl border border-border/50 bg-card"
         >
           <div
-            class="border-border/50 relative flex min-h-[52px] items-center justify-between border-b px-4 py-3"
+            class="relative flex min-h-[52px] items-center justify-between border-b border-border/50 px-4 py-3"
           >
             <div
               class="absolute bottom-3 left-0 top-3 w-0.5 rounded-full bg-blue-500/80"
             ></div>
             <div class="flex items-center gap-2">
               <h2
-                class="text-foreground/90 text-sm font-semibold tracking-tight"
+                class="text-sm font-semibold tracking-tight text-foreground/90"
               >
                 Quests
               </h2>
@@ -554,7 +554,7 @@
               <Button
                 variant="ghost"
                 size="sm"
-                class="text-destructive h-7 gap-1.5 text-xs"
+                class="h-7 gap-1.5 text-xs text-destructive"
                 onclick={clearQuests}
               >
                 <Trash2 class="h-3.5 w-3.5" />
@@ -569,7 +569,7 @@
                 type="text"
                 placeholder="Enter quest ID..."
                 bind:value={questInput}
-                class="bg-secondary/50 border-border/50 flex-1"
+                class="flex-1 border-border/50 bg-secondary/50"
               />
               <Button
                 type="submit"
@@ -585,7 +585,7 @@
             <div class="max-h-32 min-h-[80px] overflow-y-auto">
               {#if questIds.length === 0}
                 <div class="flex h-20 items-center justify-center">
-                  <span class="text-muted-foreground/70 text-xs"
+                  <span class="text-xs text-muted-foreground/70"
                     >No quests registered</span
                   >
                 </div>
@@ -593,14 +593,14 @@
                 <div class="flex flex-wrap gap-1.5">
                   {#each questIds as questId (questId)}
                     <span
-                      class="border-border/50 bg-secondary/50 text-foreground hover:bg-secondary group inline-flex items-center gap-1 rounded-full border px-2 py-1 text-xs font-medium transition-colors"
+                      class="group inline-flex items-center gap-1 rounded-full border border-border/50 bg-secondary/50 px-2 py-1 text-xs font-medium text-foreground transition-colors hover:bg-secondary"
                     >
                       <span class="tabular-nums">{questId}</span>
                       {#if questItemIds[questId] !== undefined}
                         <span class="text-muted-foreground">:</span>
                         <input
                           type="number"
-                          class="text-foreground w-14 border-none bg-transparent text-xs tabular-nums outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                          class="w-14 border-none bg-transparent text-xs tabular-nums text-foreground outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                           value={String(questItemIds[questId])}
                           onblur={(ev) =>
                             updateQuestItemId(questId, ev.currentTarget.value)}
@@ -613,7 +613,7 @@
                       {:else}
                         <input
                           type="text"
-                          class="text-foreground placeholder:text-muted-foreground/40 w-12 border-none bg-transparent text-xs tabular-nums opacity-0 outline-none transition-opacity focus:opacity-100 group-hover:opacity-100"
+                          class="w-12 border-none bg-transparent text-xs tabular-nums text-foreground opacity-0 outline-none transition-opacity placeholder:text-muted-foreground/40 focus:opacity-100 group-hover:opacity-100"
                           placeholder=":itemId"
                           onblur={(ev) => {
                             if (ev.currentTarget.value.trim()) {
@@ -632,7 +632,7 @@
                       {/if}
                       <button
                         type="button"
-                        class="text-muted-foreground hover:bg-destructive/20 hover:text-destructive flex h-4 w-4 items-center justify-center rounded-full transition-colors"
+                        class="flex h-4 w-4 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/20 hover:text-destructive"
                         onclick={() => removeQuest(questId)}
                       >
                         <X class="h-3 w-3" />
@@ -643,7 +643,7 @@
               {/if}
             </div>
 
-            <div class="border-border/50 flex flex-col gap-2.5 border-t pt-3">
+            <div class="flex flex-col gap-2.5 border-t border-border/50 pt-3">
               <div class="flex items-center gap-2">
                 <Checkbox
                   id="auto-requirements"
@@ -653,7 +653,7 @@
                 />
                 <Label
                   for="auto-requirements"
-                  class="text-muted-foreground cursor-pointer text-xs"
+                  class="cursor-pointer text-xs text-muted-foreground"
                 >
                   Auto register requirements
                 </Label>
@@ -667,7 +667,7 @@
                 />
                 <Label
                   for="auto-rewards"
-                  class="text-muted-foreground cursor-pointer text-xs"
+                  class="cursor-pointer text-xs text-muted-foreground"
                 >
                   Auto register rewards
                 </Label>
@@ -677,17 +677,17 @@
         </section>
 
         <section
-          class="border-border/50 bg-card flex flex-col rounded-xl border"
+          class="flex flex-col rounded-xl border border-border/50 bg-card"
         >
           <div
-            class="border-border/50 relative flex min-h-[52px] items-center justify-between border-b px-4 py-3"
+            class="relative flex min-h-[52px] items-center justify-between border-b border-border/50 px-4 py-3"
           >
             <div
               class="absolute bottom-3 left-0 top-3 w-0.5 rounded-full bg-emerald-500/80"
             ></div>
             <div class="flex items-center gap-2">
               <h2
-                class="text-foreground/90 text-sm font-semibold tracking-tight"
+                class="text-sm font-semibold tracking-tight text-foreground/90"
               >
                 Drops
               </h2>
@@ -703,7 +703,7 @@
               <Button
                 variant="ghost"
                 size="sm"
-                class="text-destructive h-7 gap-1.5 text-xs"
+                class="h-7 gap-1.5 text-xs text-destructive"
                 onclick={clearDrops}
               >
                 <Trash2 class="h-3.5 w-3.5" />
@@ -718,7 +718,7 @@
                 type="text"
                 placeholder="Enter item name..."
                 bind:value={dropInput}
-                class="bg-secondary/50 border-border/50 flex-1"
+                class="flex-1 border-border/50 bg-secondary/50"
                 autocomplete="off"
                 spellcheck="false"
               />
@@ -736,7 +736,7 @@
             <div class="max-h-32 min-h-[80px] overflow-y-auto">
               {#if dropItems.length === 0}
                 <div class="flex h-20 items-center justify-center">
-                  <span class="text-muted-foreground/70 text-xs"
+                  <span class="text-xs text-muted-foreground/70"
                     >No drops registered</span
                   >
                 </div>
@@ -744,12 +744,12 @@
                 <div class="flex flex-wrap gap-1.5">
                   {#each dropItems as drop (drop)}
                     <span
-                      class="border-border/50 bg-secondary/50 text-foreground hover:bg-secondary group inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors"
+                      class="group inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-secondary/50 px-2.5 py-1 text-xs font-medium text-foreground transition-colors hover:bg-secondary"
                     >
                       {drop}
                       <button
                         type="button"
-                        class="text-muted-foreground hover:bg-destructive/20 hover:text-destructive flex h-4 w-4 items-center justify-center rounded-full transition-colors"
+                        class="flex h-4 w-4 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/20 hover:text-destructive"
                         onclick={() => removeDrop(drop)}
                       >
                         <X class="h-3 w-3" />
@@ -760,7 +760,7 @@
               {/if}
             </div>
 
-            <div class="border-border/50 flex items-center gap-2 border-t pt-3">
+            <div class="flex items-center gap-2 border-t border-border/50 pt-3">
               <Checkbox
                 id="reject-else"
                 checked={rejectElse}
@@ -769,7 +769,7 @@
               />
               <Label
                 for="reject-else"
-                class="text-muted-foreground cursor-pointer text-xs"
+                class="cursor-pointer text-xs text-muted-foreground"
               >
                 Reject else
               </Label>
@@ -778,17 +778,17 @@
         </section>
 
         <section
-          class="border-border/50 bg-card flex flex-col rounded-xl border"
+          class="flex flex-col rounded-xl border border-border/50 bg-card"
         >
           <div
-            class="border-border/50 relative flex min-h-[52px] items-center justify-between border-b px-4 py-3"
+            class="relative flex min-h-[52px] items-center justify-between border-b border-border/50 px-4 py-3"
           >
             <div
               class="absolute bottom-3 left-0 top-3 w-0.5 rounded-full bg-amber-500/80"
             ></div>
             <div class="flex items-center gap-2">
               <h2
-                class="text-foreground/90 text-sm font-semibold tracking-tight"
+                class="text-sm font-semibold tracking-tight text-foreground/90"
               >
                 Boosts
               </h2>
@@ -804,7 +804,7 @@
               <Button
                 variant="outline"
                 size="sm"
-                class="border-border/50 h-7 gap-1.5 text-xs"
+                class="h-7 gap-1.5 border-border/50 text-xs"
                 onclick={grabBoosts}
               >
                 <Download class="h-3.5 w-3.5" />
@@ -814,7 +814,7 @@
                 <Button
                   variant="ghost"
                   size="sm"
-                  class="text-destructive h-7 gap-1.5 text-xs"
+                  class="h-7 gap-1.5 text-xs text-destructive"
                   onclick={clearBoosts}
                 >
                   <Trash2 class="h-3.5 w-3.5" />
@@ -830,7 +830,7 @@
                 type="text"
                 placeholder="Enter boost name..."
                 bind:value={boostInput}
-                class="bg-secondary/50 border-border/50 flex-1"
+                class="flex-1 border-border/50 bg-secondary/50"
                 autocomplete="off"
                 spellcheck="false"
               />
@@ -848,7 +848,7 @@
             <div class="max-h-32 min-h-[80px] overflow-y-auto">
               {#if boostItems.length === 0}
                 <div class="flex h-20 items-center justify-center">
-                  <span class="text-muted-foreground/70 text-xs"
+                  <span class="text-xs text-muted-foreground/70"
                     >No boosts registered</span
                   >
                 </div>
@@ -856,12 +856,12 @@
                 <div class="flex flex-wrap gap-1.5">
                   {#each boostItems as boost (boost)}
                     <span
-                      class="border-border/50 bg-secondary/50 text-foreground hover:bg-secondary group inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors"
+                      class="group inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-secondary/50 px-2.5 py-1 text-xs font-medium text-foreground transition-colors hover:bg-secondary"
                     >
                       {boost}
                       <button
                         type="button"
-                        class="text-muted-foreground hover:bg-destructive/20 hover:text-destructive flex h-4 w-4 items-center justify-center rounded-full transition-colors"
+                        class="flex h-4 w-4 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/20 hover:text-destructive"
                         onclick={() => removeBoost(boost)}
                       >
                         <X class="h-3 w-3" />

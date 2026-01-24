@@ -1,4 +1,4 @@
-import { auras } from "~/lib/stores/aura";
+import { auras } from "../../lib/stores/aura";
 import { registerJsonHandler } from "../registry";
 
 registerJsonHandler<ClearAurasPacket>("clearAuras", (bot) => {

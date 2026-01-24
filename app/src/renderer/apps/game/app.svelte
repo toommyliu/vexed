@@ -23,6 +23,7 @@
     optionsPanelState,
     scriptState,
   } from "./state.svelte";
+  import { platform } from "./state/platform.svelte";
   import { parseSkillSetJson, type SkillSetJson } from "./util/skillParser";
 
   import CommandOverlay from "./components/CommandOverlay.svelte";
@@ -35,7 +36,6 @@
   import * as Menu from "@vexed/ui/Menu";
   import Play from "@vexed/ui/icons/Play";
   import Square from "@vexed/ui/icons/Square";
-
   const logger = log.scope("game/app");
 
   const DEFAULT_PADS = [
@@ -415,6 +415,10 @@
     await loadHotkeysFromConfig();
     setupHotkeyHandlers();
 
+    const platformRes = await client.app.platform();
+    platform.set(platformRes);
+    console.log(platformRes);
+
     const ret = await client.game.getAssetPath();
     swfPath = ret;
 
@@ -490,12 +494,12 @@
 />
 
 <main
-  class="bg-background text-foreground m-0 flex h-screen flex-col overflow-hidden focus:outline-none"
+  class="m-0 flex h-screen flex-col overflow-hidden bg-background text-foreground focus:outline-none"
 >
   {#if topNavVisible}
     <div
       id="topnav-container"
-      class="border-border/50 bg-background/95 relative z-[10000] flex h-9 items-center border-b backdrop-blur-md"
+      class="relative z-[10000] flex h-9 items-center border-b border-border/50 bg-background/95 backdrop-blur-md"
     >
       <div
         id="topnav"
@@ -506,7 +510,7 @@
           id="windows-dropdown"
         >
           <button
-            class="text-foreground/80 hover:bg-accent hover:text-foreground flex h-7 shrink-0 items-center rounded bg-transparent px-2.5 text-[13px] font-medium transition-colors duration-150"
+            class="flex h-7 shrink-0 items-center rounded bg-transparent px-2.5 text-[13px] font-medium text-foreground/80 transition-colors duration-150 hover:bg-accent hover:text-foreground"
             id="windows"
             onclick={(ev) => {
               ev.stopPropagation();
@@ -529,7 +533,7 @@
             class="flex h-full items-center"
           >
             <Menu.Trigger
-              class="text-foreground/80 hover:bg-accent hover:text-foreground flex h-7 shrink-0 items-center rounded bg-transparent px-2.5 text-[13px] font-medium transition-colors duration-150"
+              class="flex h-7 shrink-0 items-center rounded bg-transparent px-2.5 text-[13px] font-medium text-foreground/80 transition-colors duration-150 hover:bg-accent hover:text-foreground"
             >
               Scripts
             </Menu.Trigger>
@@ -570,7 +574,7 @@
           </Menu.Root>
 
           <button
-            class="text-foreground/80 hover:bg-accent hover:text-foreground flex h-7 shrink-0 items-center gap-1.5 rounded bg-transparent px-2.5 text-[13px] font-medium transition-colors duration-150"
+            class="flex h-7 shrink-0 items-center gap-1.5 rounded bg-transparent px-2.5 text-[13px] font-medium text-foreground/80 transition-colors duration-150 hover:bg-accent hover:text-foreground"
             onclick={() => optionsPanelState.toggle()}
           >
             <span>Options</span>
@@ -590,7 +594,7 @@
           >
             <Menu.Trigger
               class={cn(
-                "hover:bg-accent flex h-7 shrink-0 items-center gap-1.5 rounded bg-transparent px-2.5 text-[13px] font-medium transition-all duration-200",
+                "flex h-7 shrink-0 items-center gap-1.5 rounded bg-transparent px-2.5 text-[13px] font-medium transition-all duration-200 hover:bg-accent",
                 autoReloginState.enabled
                   ? "text-emerald-400"
                   : "text-foreground/80 hover:text-foreground",
@@ -601,30 +605,30 @@
             <Menu.Content class="w-52 text-[13px]">
               {#if autoReloginState.enabled}
                 <div
-                  class="text-muted-foreground/70 flex items-center gap-2 px-2 py-1.5 text-xs"
+                  class="flex items-center gap-2 px-2 py-1.5 text-xs text-muted-foreground/70"
                 >
                   Username: {autoReloginState.username}
                 </div>
                 <div
-                  class="text-muted-foreground/70 flex items-center gap-2 px-2 py-1.5 text-xs"
+                  class="flex items-center gap-2 px-2 py-1.5 text-xs text-muted-foreground/70"
                 >
                   Server: {autoReloginState.server}
                 </div>
                 <div
-                  class="text-muted-foreground/70 flex items-center gap-2 px-2 py-1.5 text-xs"
+                  class="flex items-center gap-2 px-2 py-1.5 text-xs text-muted-foreground/70"
                 >
                   Fallback: {autoReloginState.fallbackServer || "Auto"}
                 </div>
                 <div
                   class="flex items-center justify-between gap-2 px-2 py-1.5"
                 >
-                  <span class="text-muted-foreground/70 text-xs">Delay:</span>
+                  <span class="text-xs text-muted-foreground/70">Delay:</span>
                   <div class="flex items-center gap-1">
                     <input
                       type="number"
                       min="1"
                       max="60"
-                      class="border-border/60 bg-background text-foreground h-5 w-12 rounded border px-1 text-center text-xs [appearance:textfield] focus:border-emerald-500/50 focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                      class="h-5 w-12 rounded border border-border/60 bg-background px-1 text-center text-xs text-foreground [appearance:textfield] focus:border-emerald-500/50 focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                       value={autoReloginState.delay / 1000}
                       onchange={(ev) => {
                         const val = Math.max(
@@ -635,7 +639,7 @@
                         ev.currentTarget.value = String(val);
                       }}
                     />
-                    <span class="text-muted-foreground/70 text-xs">s</span>
+                    <span class="text-xs text-muted-foreground/70">s</span>
                   </div>
                 </div>
                 <Menu.Item
@@ -646,13 +650,13 @@
                 </Menu.Item>
               {:else if autoReloginState.username && autoReloginState.password}
                 <div
-                  class="text-muted-foreground/70 flex items-center gap-2 px-2 py-1.5 text-xs"
+                  class="flex items-center gap-2 px-2 py-1.5 text-xs text-muted-foreground/70"
                 >
                   Username: {autoReloginState.username}
                 </div>
                 <Menu.Separator />
                 <Menu.Label
-                  class="text-muted-foreground/70 px-2 py-1.5 text-[11px] uppercase tracking-wider"
+                  class="px-2 py-1.5 text-[11px] uppercase tracking-wider text-muted-foreground/70"
                 >
                   Enable for server
                 </Menu.Label>
@@ -678,20 +682,20 @@
                 </div>
                 <Menu.Separator />
                 <Menu.Item
-                  class="text-muted-foreground hover:text-foreground bg-transparent"
+                  class="bg-transparent text-muted-foreground hover:text-foreground"
                   onclick={() => autoReloginState.reset()}
                 >
                   Clear Credentials
                 </Menu.Item>
               {:else if !reloginCanEnable}
                 <div class="px-3 py-3 text-center">
-                  <div class="text-muted-foreground/60 text-xs">
+                  <div class="text-xs text-muted-foreground/60">
                     Log in to enable
                   </div>
                 </div>
               {:else}
                 <Menu.Label
-                  class="text-muted-foreground/70 px-2 py-1.5 text-[11px] uppercase tracking-wider"
+                  class="px-2 py-1.5 text-[11px] uppercase tracking-wider text-muted-foreground/70"
                 >
                   Enable for server
                 </Menu.Label>
@@ -734,12 +738,12 @@
 
         <div class="ml-auto flex h-full shrink-0 items-center gap-1 pr-1.5">
           <Label
-            class="text-foreground/70 hover:text-foreground flex cursor-pointer select-none items-center gap-1.5 text-[12px] transition-colors"
+            class="flex cursor-pointer select-none items-center gap-1.5 text-[12px] text-foreground/70 transition-colors hover:text-foreground"
           >
             <Checkbox bind:checked={autoEnabled} />
             <span>Auto</span>
           </Label>
-          <div class="bg-border/60 ml-0.5 h-4 w-px"></div>
+          <div class="ml-0.5 h-4 w-px bg-border/60"></div>
           <div class="flex items-center gap-1">
             <Menu.Root
               open={openDropdown === "pads"}
@@ -754,7 +758,7 @@
               class="h-6 w-20"
             >
               <Menu.Trigger
-                class="border-border/60 bg-background text-foreground/80 hover:border-border hover:bg-accent/30 flex h-full w-full items-center justify-between rounded border px-2 text-[12px] transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50"
+                class="flex h-full w-full items-center justify-between rounded border border-border/60 bg-background px-2 text-[12px] text-foreground/80 transition-colors duration-150 hover:border-border hover:bg-accent/30 disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={!gameConnected}
               >
                 {currentSelectedPad}
@@ -768,7 +772,7 @@
                         pad.name !== currentSelectedPad &&
                         "text-emerald-400",
                       pad.name === currentSelectedPad &&
-                        "bg-accent/50 text-primary font-medium",
+                        "bg-accent/50 font-medium text-primary",
                     )}
                     onclick={() => jumpToPad(pad.name)}
                   >
@@ -790,7 +794,7 @@
               class="h-6 w-20"
             >
               <Menu.Trigger
-                class="border-border/60 bg-background text-foreground/80 hover:border-border hover:bg-accent/30 flex h-full w-full items-center justify-between rounded border px-2 text-[12px] transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50"
+                class="flex h-full w-full items-center justify-between rounded border border-border/60 bg-background px-2 text-[12px] text-foreground/80 transition-colors duration-150 hover:border-border hover:bg-accent/30 disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={!gameConnected}
               >
                 {currentSelectedCell}
@@ -804,7 +808,7 @@
                     class={cn(
                       "bg-transparent",
                       cell === currentSelectedCell &&
-                        "bg-accent/50 text-primary font-medium",
+                        "bg-accent/50 font-medium text-primary",
                     )}
                     onclick={() => jumpToCell(cell)}
                   >
@@ -814,11 +818,11 @@
               </Menu.Content>
             </Menu.Root>
           </div>
-          <div class="bg-border/60 ml-0.5 h-4 w-px"></div>
+          <div class="ml-0.5 h-4 w-px bg-border/60"></div>
           <Button
             variant="ghost"
             size="xs"
-            class="text-foreground/70 hover:text-foreground h-6 px-2 text-[12px]"
+            class="h-6 px-2 text-[12px] text-foreground/70 hover:text-foreground"
             disabled={!gameConnected}
             onclick={async () => {
               if (!bot.player.isReady()) return;

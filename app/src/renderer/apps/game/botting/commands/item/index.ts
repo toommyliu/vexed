@@ -1,4 +1,4 @@
-import { ArgsError } from "~/botting/ArgsError";
+import { ArgsError } from "../../ArgsError";
 import { CommandBuy } from "./CommandBuy";
 import { CommandDeposit } from "./CommandDeposit";
 import { CommandEnhanceItem } from "./CommandEnhanceItem";
@@ -259,7 +259,7 @@ export const itemCommands = {
    * ```js
    * // 1. forge + proc name
    * cmd.equip_item_by_enhancement("Forge", "Arcana's Concerto")
-   * cmd.equip_item_by_enhancement("Forge", "arcanas") 
+   * cmd.equip_item_by_enhancement("Forge", "arcanas")
    * cmd.equip_item_by_enhancement("Forge", "Penitence")
    * cmd.equip_item_by_enhancement("Forge", "Anima")
    *
@@ -348,5 +348,4 @@ export const itemCommands = {
     if (procName) cmd.procName = procName;
     window.context.addCommand(cmd);
   },
-
 };

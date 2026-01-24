@@ -1,5 +1,5 @@
 import { EntityState, type Aura } from "@vexed/game";
-import { auras } from "~/lib/stores/aura";
+import { auras } from "../../lib/stores/aura";
 import { registerJsonHandler } from "../registry";
 
 const ADD_AURAS = new Set(["aura+", "aura++"]);

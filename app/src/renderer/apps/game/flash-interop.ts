@@ -1,8 +1,8 @@
 import process from "process";
 import log from "electron-log/renderer";
-import { Bot } from "~/lib/Bot";
-import { AutoReloginJob } from "~/lib/jobs/autorelogin";
-import { client } from "~/shared/tipc";
+import * as tipc from "~/shared/tipc";
+import { Bot } from "./lib/Bot";
+import { AutoReloginJob } from "./lib/jobs/autorelogin";
 import {
   dispatchClientStr,
   dispatchJson,
@@ -111,7 +111,7 @@ window.loaded = async () => {
 
       bot.once("login", async () => {
         autoReloginState.disable();
-        await client.manager.managerLoginSuccess({ username });
+        await tipc.client.manager.managerLoginSuccess({ username });
       });
     } else {
       bot.auth.login(username!, password!);
@@ -121,7 +121,7 @@ window.loaded = async () => {
         { indefinite: true },
       );
 
-      await client.manager.managerLoginSuccess({ username });
+      await tipc.client.manager.managerLoginSuccess({ username });
     }
   }
 
@@ -134,7 +134,7 @@ window.loaded = async () => {
       const [, path] = scriptPath.split("=");
       const decodedPath = decodeURIComponent(path!);
 
-      await client.scripts.loadScript({ scriptPath: decodedPath });
+      await tipc.client.scripts.loadScript({ scriptPath: decodedPath });
     } catch {}
   }
 };

@@ -1,5 +1,5 @@
-import { Command } from "~/botting/command";
-import { autoReloginState } from "~/game/state.svelte";
+import { autoReloginState } from "../../../state/autoRelogin.svelte";
+import { Command } from "../../command";
 
 export class CommandAutoRelogin extends Command {
   public server?: string | undefined;

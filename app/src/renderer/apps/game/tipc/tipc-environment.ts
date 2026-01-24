@@ -1,6 +1,6 @@
-import { Bot } from "~/lib/Bot";
 import { client, handlers } from "~/shared/tipc";
 import type { EnvironmentState } from "~/shared/types";
+import { Bot } from "../lib/Bot";
 
 const bot = Bot.getInstance();
 

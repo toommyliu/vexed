@@ -1,5 +1,5 @@
-import { Bot } from "~/lib/Bot";
 import { handlers } from "~/shared/tipc";
+import { Bot } from "../lib/Bot";
 
 const bot = Bot.getInstance();
 

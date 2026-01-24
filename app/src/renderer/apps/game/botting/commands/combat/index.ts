@@ -1,5 +1,5 @@
-import { ArgsError } from "~/botting/ArgsError";
-import type { KillOptions } from "~/lib/Combat";
+import type { KillOptions } from "../../../lib/Combat";
+import { ArgsError } from "../../ArgsError";
 import { CommandAttack } from "./CommandAttack";
 import { CommandCancelTarget } from "./CommandCancelTarget";
 import { CommandExitCombat } from "./CommandExitCombat";

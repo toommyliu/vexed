@@ -1,7 +1,7 @@
 import { Mutex } from "async-mutex";
 import log from "electron-log";
 import { TypedEmitter } from "tiny-typed-emitter";
-import { Bot } from "~/lib/Bot";
+import { Bot } from "../lib/Bot";
 import { commandOverlayState } from "../state.svelte";
 import { CancellationError } from "../util/async";
 import type { Command } from "./command";
@@ -171,7 +171,7 @@ export class CommandExecutor extends TypedEmitter<Events> {
             packet,
           );
         }
-      } catch { }
+      } catch {}
     });
 
     this.bot.on("packetFromServer", async (packet: string) => {
@@ -188,7 +188,7 @@ export class CommandExecutor extends TypedEmitter<Events> {
             packet,
           );
         }
-      } catch { }
+      } catch {}
     });
 
     this.bot.on("packetFromClient", async (packet: string) => {
@@ -205,7 +205,7 @@ export class CommandExecutor extends TypedEmitter<Events> {
             packet,
           );
         }
-      } catch { }
+      } catch {}
     });
   }
 
@@ -506,7 +506,6 @@ export class CommandExecutor extends TypedEmitter<Events> {
     cmd.logout()
     cmd.close_window() // doesn't work
     */
-
 
     if (this.isRunning()) this._stop();
   }

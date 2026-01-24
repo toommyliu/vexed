@@ -1,5 +1,5 @@
 import type { ItemData } from "@vexed/game";
-import { Command } from "~/botting/command";
+import { Command } from "../../command";
 
 const GEAR_OF_DOOM = "Gear of Doom";
 const TREASURE_POTION = "Treasure Potion";

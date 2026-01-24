@@ -1,5 +1,5 @@
 import { EntityState } from "@vexed/game";
-import { auras } from "~/lib/stores/aura";
+import { auras } from "../../lib/stores/aura";
 import { registerJsonHandler } from "../registry";
 
 function isMonPkt(
