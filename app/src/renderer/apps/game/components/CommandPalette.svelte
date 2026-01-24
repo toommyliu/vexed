@@ -5,9 +5,10 @@
   import X from "@vexed/ui/icons/X";
   import { cn } from "@vexed/ui/util";
   import { equalsIgnoreCase, fuzzyMatchIgnoreCase } from "@vexed/utils";
+  import { get } from "svelte/store";
 
   import { gameState } from "../state.svelte";
-  import { IS_MAC } from "~/shared/constants";
+  import { platform } from "../state/platform.svelte";
   import { client } from "~/shared/tipc";
   import { WindowIds } from "~/shared/types";
 
@@ -318,7 +319,7 @@
     if (ev.key === "Enter") {
       ev.preventDefault();
       const cmd = filteredCommands[selectedIndex];
-      const modifier = IS_MAC ? ev.metaKey : ev.ctrlKey;
+      const modifier = get(platform).isMac ? ev.metaKey : ev.ctrlKey;
       if (cmd) executeCommand(cmd, modifier);
       return;
     }
@@ -341,7 +342,7 @@
   onkeydown={(ev) => {
     if (open) return;
 
-    const modifier = IS_MAC ? ev.metaKey : ev.ctrlKey;
+    const modifier = get(platform).isMac ? ev.metaKey : ev.ctrlKey;
     if (modifier && equalsIgnoreCase(ev.key, "k")) {
       ev.preventDefault();
       open = true;

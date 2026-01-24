@@ -3,7 +3,6 @@ import { join } from "path";
 import process from "process";
 import type { FastTravel, HotkeyConfig } from "./types";
 
-export const IS_WINDOWS = process.platform === "win32";
 export const IS_MAC = process.platform === "darwin";
 
 export const BRAND = "vexed";

@@ -1,9 +1,10 @@
 <script lang="ts">
   import { motionScale, motionFade } from "@vexed/ui/motion";
+  import { cn } from "@vexed/ui/util";
+  import X from "@vexed/ui/icons/X";
+
   import { onMount, tick } from "svelte";
   import type { Snippet } from "svelte";
-  import X from "@vexed/ui/icons/X";
-  import { cn } from "~/shared/cn";
 
   type PanelState = {
     isVisible: boolean;
@@ -119,7 +120,8 @@
       let x = ev.clientX - panelState.dragOffset.x;
       let y = ev.clientY - panelState.dragOffset.y;
 
-      const { width, height } = cachedBoundingRect || panel.getBoundingClientRect();
+      const { width, height } =
+        cachedBoundingRect || panel.getBoundingClientRect();
       const { innerWidth, innerHeight } = window;
 
       const topNavBottom = topNav?.getBoundingClientRect().bottom ?? 0;
@@ -189,13 +191,17 @@
 
       if (currentDirection.includes("e")) {
         const maxWidth = innerWidth - newLeft;
-        newWidth = Math.min(maxWidth, Math.max(minWidth, resizeStart.width + deltaX));
+        newWidth = Math.min(
+          maxWidth,
+          Math.max(minWidth, resizeStart.width + deltaX),
+        );
       }
 
       if (currentDirection.includes("w")) {
         const potentialLeft = resizeStart.left + deltaX;
         const clampedLeft = Math.max(0, potentialLeft);
-        const potentialWidth = resizeStart.width + (resizeStart.left - clampedLeft);
+        const potentialWidth =
+          resizeStart.width + (resizeStart.left - clampedLeft);
         if (potentialWidth >= minWidth) {
           newWidth = potentialWidth;
           newLeft = clampedLeft;
@@ -204,13 +210,17 @@
 
       if (currentDirection.includes("s")) {
         const maxHeight = innerHeight - newTop;
-        newHeight = Math.min(maxHeight, Math.max(minHeight, resizeStart.height + deltaY));
+        newHeight = Math.min(
+          maxHeight,
+          Math.max(minHeight, resizeStart.height + deltaY),
+        );
       }
 
       if (currentDirection.includes("n")) {
         const potentialTop = resizeStart.top + deltaY;
         const clampedTop = Math.max(minTop, potentialTop);
-        const potentialHeight = resizeStart.height + (resizeStart.top - clampedTop);
+        const potentialHeight =
+          resizeStart.height + (resizeStart.top - clampedTop);
         if (potentialHeight >= minHeight) {
           newHeight = potentialHeight;
           newTop = clampedTop;
@@ -293,7 +303,7 @@
   <div
     bind:this={panel}
     class={cn(
-      "bg-popover border-border fixed left-5 top-10 z-[9999] flex min-h-[160px] min-w-[280px] select-none flex-col overflow-hidden rounded-[10px] border shadow-lg",
+      "fixed left-5 top-10 z-[9999] flex min-h-[160px] min-w-[280px] select-none flex-col overflow-hidden rounded-[10px] border border-border bg-popover shadow-lg",
       panelState.isDragging && "cursor-grabbing opacity-95",
       resizeDirection && "opacity-95",
       className,
@@ -304,38 +314,83 @@
   >
     {#if canResize}
       <!-- Resize handles -->
-      <div data-resize role="presentation" class="absolute z-10 top-0 left-1.5 right-1.5 h-1 cursor-n-resize" onmousedown={(ev) => handleResizeStart(ev, "n")}></div>
-      <div data-resize role="presentation" class="absolute z-10 bottom-0 left-1.5 right-1.5 h-1 cursor-s-resize" onmousedown={(ev) => handleResizeStart(ev, "s")}></div>
-      <div data-resize role="presentation" class="absolute z-10 right-0 top-1.5 bottom-1.5 w-1 cursor-e-resize" onmousedown={(ev) => handleResizeStart(ev, "e")}></div>
-      <div data-resize role="presentation" class="absolute z-10 left-0 top-1.5 bottom-1.5 w-1 cursor-w-resize" onmousedown={(ev) => handleResizeStart(ev, "w")}></div>
-      <div data-resize role="presentation" class="absolute z-10 top-0 right-0 w-2 h-2 cursor-ne-resize" onmousedown={(ev) => handleResizeStart(ev, "ne")}></div>
-      <div data-resize role="presentation" class="absolute z-10 top-0 left-0 w-2 h-2 cursor-nw-resize" onmousedown={(ev) => handleResizeStart(ev, "nw")}></div>
-      <div data-resize role="presentation" class="absolute z-10 bottom-0 right-0 w-2 h-2 cursor-se-resize" onmousedown={(ev) => handleResizeStart(ev, "se")}></div>
-      <div data-resize role="presentation" class="absolute z-10 bottom-0 left-0 w-2 h-2 cursor-sw-resize" onmousedown={(ev) => handleResizeStart(ev, "sw")}></div>
+      <div
+        data-resize
+        role="presentation"
+        class="absolute left-1.5 right-1.5 top-0 z-10 h-1 cursor-n-resize"
+        onmousedown={(ev) => handleResizeStart(ev, "n")}
+      ></div>
+      <div
+        data-resize
+        role="presentation"
+        class="absolute bottom-0 left-1.5 right-1.5 z-10 h-1 cursor-s-resize"
+        onmousedown={(ev) => handleResizeStart(ev, "s")}
+      ></div>
+      <div
+        data-resize
+        role="presentation"
+        class="absolute bottom-1.5 right-0 top-1.5 z-10 w-1 cursor-e-resize"
+        onmousedown={(ev) => handleResizeStart(ev, "e")}
+      ></div>
+      <div
+        data-resize
+        role="presentation"
+        class="absolute bottom-1.5 left-0 top-1.5 z-10 w-1 cursor-w-resize"
+        onmousedown={(ev) => handleResizeStart(ev, "w")}
+      ></div>
+      <div
+        data-resize
+        role="presentation"
+        class="absolute right-0 top-0 z-10 h-2 w-2 cursor-ne-resize"
+        onmousedown={(ev) => handleResizeStart(ev, "ne")}
+      ></div>
+      <div
+        data-resize
+        role="presentation"
+        class="absolute left-0 top-0 z-10 h-2 w-2 cursor-nw-resize"
+        onmousedown={(ev) => handleResizeStart(ev, "nw")}
+      ></div>
+      <div
+        data-resize
+        role="presentation"
+        class="absolute bottom-0 right-0 z-10 h-2 w-2 cursor-se-resize"
+        onmousedown={(ev) => handleResizeStart(ev, "se")}
+      ></div>
+      <div
+        data-resize
+        role="presentation"
+        class="absolute bottom-0 left-0 z-10 h-2 w-2 cursor-sw-resize"
+        onmousedown={(ev) => handleResizeStart(ev, "sw")}
+      ></div>
     {/if}
 
     <!-- Header -->
     <div
       class={cn(
-        "from-primary/10 to-muted text-foreground border-border flex h-5 shrink-0 cursor-grab select-none items-center justify-between whitespace-nowrap rounded-t-[10px] border-b bg-gradient-to-br px-3 py-2 text-xs font-medium",
+        "flex h-5 shrink-0 cursor-grab select-none items-center justify-between whitespace-nowrap rounded-t-[10px] border-b border-border bg-gradient-to-br from-primary/10 to-muted px-3 py-2 text-xs font-medium text-foreground",
         headerClass,
       )}
       onmousedown={handleDragStart}
       ondblclick={onheaderdblclick}
-      oncontextmenu={onheadercontextmenu ? (ev) => { ev.preventDefault(); onheadercontextmenu(ev); } : undefined}
+      oncontextmenu={onheadercontextmenu
+        ? (ev) => {
+            ev.preventDefault();
+            onheadercontextmenu(ev);
+          }
+        : undefined}
       role="toolbar"
       tabindex="0"
     >
       {#if header}
         {@render header()}
       {:else}
-        <span class="flex-1 mr-2 text-foreground">{title}</span>
+        <span class="mr-2 flex-1 text-foreground">{title}</span>
       {/if}
 
-      <div class="flex gap-1 items-center">
+      <div class="flex items-center gap-1">
         {#if showClose}
           <button
-            class="panel-control w-5 h-5 flex items-center justify-center cursor-pointer text-muted-foreground rounded border-none bg-transparent transition-colors hover:text-destructive hover:bg-accent"
+            class="panel-control flex h-5 w-5 cursor-pointer items-center justify-center rounded border-none bg-transparent text-muted-foreground transition-colors hover:bg-accent hover:text-destructive"
             onclick={(ev) => {
               ev.stopPropagation();
               panelState.savePosition(panel);

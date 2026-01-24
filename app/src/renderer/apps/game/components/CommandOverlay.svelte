@@ -1,5 +1,6 @@
 <script lang="ts">
   import { tick } from "svelte";
+  import { cn } from "@vexed/ui/util";
   import { VirtualList } from "@vexed/ui";
   import ChevronDown from "@vexed/ui/icons/ChevronDown";
   import ChevronRight from "@vexed/ui/icons/ChevronRight";
@@ -7,7 +8,6 @@
   import { commandOverlayState, scriptState } from "../state.svelte";
   import type { CommandItem } from "../state.svelte";
 
-  import { cn } from "~/shared/cn";
   import FloatingPanel from "./FloatingPanel.svelte";
 
   // svelte-ignore non_reactive_update

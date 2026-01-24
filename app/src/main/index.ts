@@ -7,8 +7,7 @@ import { registerIpcMain } from "@vexed/tipc/main";
 import { equalsIgnoreCase } from "@vexed/utils/string";
 import { app, shell, nativeTheme } from "electron";
 import { version } from "../../package.json";
-import { IS_MAC, IS_WINDOWS } from "../shared/constants";
-import { ASSET_PATH, BRAND } from "./constants";
+import { ASSET_PATH, BRAND, IS_MAC, IS_WINDOWS, IS_LINUX } from "./constants";
 import { createMenu } from "./menu";
 import {
   flushAndCloseLogger,
@@ -35,6 +34,9 @@ function registerFlashPlugin() {
     pluginName = "pepflashplayer.dll";
   } else if (IS_MAC) {
     pluginName = "PepperFlashPlayer.plugin";
+  } else if (IS_LINUX) {
+    // TODO: fill me
+    pluginName = "";
   }
 
   if (!pluginName) {
