@@ -1,5 +1,5 @@
 import { BoostType } from "@vexed/game";
-import type { Bot } from "~/lib/Bot";
+import type { Bot } from "../Bot";
 import { Job } from "./Job";
 
 export class BoostsJob extends Job {

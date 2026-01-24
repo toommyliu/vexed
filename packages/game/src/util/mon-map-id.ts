@@ -20,7 +20,6 @@ export function isMonsterMapId(input: string): boolean {
 export function extractMonsterMapId(input: string): string {
   const prefix = PREFIXES.find((prefix) => input.startsWith(prefix));
   if (!prefix) return input;
-
   return input.slice(prefix.length);
 }
 
@@ -33,14 +32,12 @@ export function extractMonsterMapId(input: string): string {
 export function hasMultipleMonMapIds(input: string) {
   const parts = input.split(",").map((part) => part.trim());
   let count = 0;
-
   for (const part of parts) {
     if (isMonsterMapId(part)) {
       count++;
       if (count > 1) return true;
     }
   }
-
   return false;
 }
 
@@ -53,12 +50,8 @@ export function hasMultipleMonMapIds(input: string) {
 export function extractAllMonMapIds(input: string) {
   const parts = input.split(",").map((part) => part.trim());
   const monMapIds: string[] = [];
-
   for (const part of parts) {
-    if (isMonsterMapId(part)) {
-      monMapIds.push(extractMonsterMapId(part));
-    }
+    if (isMonsterMapId(part)) monMapIds.push(extractMonsterMapId(part));
   }
-
   return monMapIds;
 }
