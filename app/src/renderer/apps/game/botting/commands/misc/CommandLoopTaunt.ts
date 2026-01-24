@@ -1,7 +1,7 @@
+import { extractMonsterMapId, isMonsterMapId } from "@vexed/game";
 import { interval } from "@vexed/utils";
 import type { LogFunctions } from "electron-log";
 import type { Bot } from "../../../lib/Bot";
-import { extractMonsterMapId, isMonsterMapId } from "../../../util/isMonMapId";
 import { Command } from "../../command";
 import type { CommandExecutor } from "../../command-executor";
 

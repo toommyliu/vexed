@@ -1,6 +1,5 @@
-import { Monster } from "@vexed/game";
+import { Monster, extractMonsterMapId, isMonsterMapId } from "@vexed/game";
 import { equalsIgnoreCase } from "@vexed/utils";
-import { extractMonsterMapId, isMonsterMapId } from "../util/isMonMapId";
 import type { Bot } from "./Bot";
 import { monsters } from "./stores/monster";
 import { players } from "./stores/player";

@@ -1,8 +1,13 @@
 import type { AvatarData, MonsterData } from "@vexed/game";
-import { Avatar, Monster, EntityState } from "@vexed/game";
+import {
+  Avatar,
+  Monster,
+  EntityState,
+  extractMonsterMapId,
+  isMonsterMapId,
+} from "@vexed/game";
 import { interval } from "@vexed/utils";
 import { doPriorityAttack } from "../util/doPriorityAttack";
-import { extractMonsterMapId, isMonsterMapId } from "../util/isMonMapId";
 import type { Bot } from "./Bot";
 import { GameAction } from "./World";
 
