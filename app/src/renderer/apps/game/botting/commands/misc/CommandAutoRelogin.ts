@@ -1,5 +1,5 @@
 import { Command } from "~/botting/command";
-import { autoReloginState } from "~/renderer/game/state.svelte";
+import { autoReloginState } from "~/game/state.svelte";
 
 export class CommandAutoRelogin extends Command {
   public server?: string | undefined;
@@ -17,14 +17,12 @@ export class CommandAutoRelogin extends Command {
     this.server = server;
 
     if (!username || !password || !server) {
-      this.logger.debug('Invalid credentials');
+      this.logger.debug("Invalid credentials");
       return;
     }
 
     autoReloginState.enable(username, password, server);
-    this.logger.debug(
-      `Enabled AutoRelogin for ${username} [${server}].`,
-    );
+    this.logger.debug(`Enabled AutoRelogin for ${username} [${server}].`);
   }
 
   public override toString() {

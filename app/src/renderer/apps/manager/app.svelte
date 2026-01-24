@@ -13,8 +13,8 @@
 
   import { managerState } from "./state.svelte";
   import { removeAccount, startAccount } from "./util";
-  import { client } from "../../shared/tipc";
-  import type { Account } from "../../shared/types";
+  import { client } from "../../../shared/tipc";
+  import type { Account } from "../../../shared/types";
   import EditAccountModal from "./components/edit-account-modal.svelte";
   import AddAccountModal from "./components/add-account-modal.svelte";
 

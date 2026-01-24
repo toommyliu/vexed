@@ -5,7 +5,7 @@ import { screen } from "electron";
 import type { AccountWithScript, WindowIds } from "~/shared/types";
 import { BRAND, DIST_PATH, IS_PACKAGED } from "../constants";
 import { getSettings } from "../settings";
-import { cleanupEnvironmentState } from "../tipc/environment";
+import { cleanupEnvironmentState } from "../tipc/environment.router";
 import { applySecurityPolicy } from "../util/applySecurityPolicy";
 
 const DIST_GAME = join(DIST_PATH, "game/");
