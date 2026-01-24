@@ -41,7 +41,9 @@ async function ensureStream(): Promise<WriteStream | null> {
 }
 
 function shouldLog(entry: MainLogEntry): boolean {
-  return !(entry.level === "debug" && !debugEnabled);
+  // return !(entry.level === "debug" && !debugEnabled);
+  entry;
+  return true;
 }
 
 function safeStringify(value: unknown): string {
