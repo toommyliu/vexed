@@ -17,6 +17,9 @@ find . -name ".svelte-kit" -type d -prune -exec printf 'Deleting: %s\n' '{}' \; 
 # packages/electron specifics
 find . -name "path.txt" -type f -exec printf 'Deleting: %s\n' '{}' \; -exec rm -f '{}' \;
 
+# better-result specifics
+find . -name ".upstream" -type d -prune -exec printf 'Deleting: %s\n' '{}' \; -exec rm -rf '{}' +
+
 # pnpm
 pnpm store prune
 
