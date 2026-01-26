@@ -54,10 +54,6 @@ class UpdaterService {
 
     const now = Date.now();
     const currentVersion = app.getVersion();
-
-    console.log("now :: ", now);
-    console.log("currentVersion :: ", currentVersion);
-
     const result = await Result.gen(async function* (this: UpdaterService) {
       const lastCheck = yield* Result.await(this.readLastUpdateCheck());
 
@@ -73,9 +69,8 @@ class UpdaterService {
       if (release.eTag && release.eTag !== prevETag)
         yield* Result.await(this.writeETag(release.eTag));
 
-      if (!isNewer(release.data.tag_name, currentVersion)) {
+      if (!isNewer(release.data.tag_name, currentVersion))
         return Result.ok(null);
-      }
 
       return Result.ok({
         newVersion: release.data.tag_name,

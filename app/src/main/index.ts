@@ -10,9 +10,8 @@ import { version } from "../../package.json";
 import { ASSET_PATH, BRAND, IS_MAC, IS_WINDOWS, IS_LINUX } from "./constants";
 import { createMenu } from "./menu";
 import {
-  flushAndCloseLogger,
   initMainLogger,
-  logger,
+  createLogger,
   setLoggerDebugEnabled,
 } from "./services/logger";
 import { updaterService } from "./services/updater";
@@ -23,6 +22,8 @@ import { showErrorDialog } from "./util/dialog";
 import { createNotification } from "./util/notification";
 
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
+
+const logger = createLogger("main");
 
 function registerFlashPlugin() {
   // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
@@ -73,13 +74,12 @@ async function handleAppLaunch(argv: string[] = process.argv) {
     setLoggerDebugEnabled(settings.getBoolean("debug", false));
     await initMainLogger();
 
-    logger.info("main", `Hello - ${BRAND} v${version}`); // indicate app start
+    logger.info(`Hello - ${BRAND} v${version}`); // indicate app start
 
     if (settings?.getBoolean("checkForUpdates", false)) {
       const updateResult = await updaterService.run(true);
       if (updateResult !== null) {
         logger.info(
-          "main",
           `Update available - ${updateResult.newVersion} (current: ${version})`,
         );
 
@@ -107,12 +107,11 @@ async function handleAppLaunch(argv: string[] = process.argv) {
 
     if (!isManagerMode && !isGameMode) {
       logger.info(
-        "main",
         `Unknown launch mode, got "${launchMode}", defaulting to "game"...`,
       );
       launchMode = "game";
     } else {
-      logger.info("main", `Using launch mode: ${launchMode}`);
+      logger.info(`Using launch mode: ${launchMode}`);
     }
 
     if (isManagerMode) {
@@ -159,25 +158,18 @@ app.once("ready", async () => {
   await handleAppLaunch();
 });
 
-let loggerClosing = false;
-
 app.on("before-quit", async (ev) => {
-  if (loggerClosing) return;
-
+  if (windowsService.isQuitting) return;
   ev.preventDefault();
-  loggerClosing = true;
   windowsService.setQuitting(true);
-
-  await Promise.race([
-    flushAndCloseLogger(),
-    new Promise<void>((resolve) => {
-      globalThis.setTimeout(resolve, 2_000);
-    }),
-  ]);
-
   app.quit();
 });
 
 app.on("window-all-closed", () => {
   app.quit();
+});
+
+// exception in PromiseRejectCallback
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Unhandled Rejection at:", promise, "reason:", reason);
 });

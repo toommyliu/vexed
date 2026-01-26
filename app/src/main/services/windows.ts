@@ -337,7 +337,6 @@ class WindowsService {
       });
 
       this.onboardingWindow = window;
-
       void window.loadURL(`file://${resolve(DIST_ONBOARDING, "index.html")}`);
       return Result.ok(window);
     }, this);
@@ -376,9 +375,7 @@ class WindowsService {
     });
 
     applySecurityPolicy(window);
-
     if (!IS_PACKAGED) window.webContents.openDevTools({ mode: "right" });
-
     return Result.ok(window);
   }
 }
