@@ -1,13 +1,16 @@
-import { promises as fs } from "fs";
+import { createWriteStream, promises as fs, type WriteStream } from "fs";
 import { join } from "path";
-import pino from "pino";
+import process from "process";
 import { DOCUMENTS_PATH } from "~/shared/constants";
 import type { LogLevel, MainLogEntry } from "~/shared/types";
 
 const LOG_FILE_NAME = "log.txt";
+const FLUSH_INTERVAL_MS = 5_000;
 
-let pinoInstance: ReturnType<typeof pino> | null = null;
+let writeStream: WriteStream | null = null;
 let debugEnabled = false;
+let flushTimer: NodeJS.Timeout | null = null;
+let initPromise: Promise<void> | null = null;
 
 type LogPayload = {
   data?: unknown;
@@ -15,34 +18,68 @@ type LogPayload = {
   scope?: string | undefined;
 };
 
-export async function initMainLogger() {
-  if (pinoInstance) return;
+function formatEntry(entry: {
+  data?: unknown;
+  level: string;
+  message: string;
+  process?: string;
+  scope?: string;
+  timestamp: number;
+}): string {
+  const date = new Date(entry.timestamp).toISOString();
+  let dataStr = "";
 
-  try {
-    await fs.mkdir(DOCUMENTS_PATH, { recursive: true });
+  // todo:
+  if (entry.data !== undefined && entry.data !== null) {
+    if (entry.data instanceof Error) {
+      const { message, stack, name, ...extra } = entry.data as Error &
+        Record<string, unknown>;
+      const extraStr =
+        Object.keys(extra).length > 0 ? ` ${JSON.stringify(extra)}` : "";
 
-    if (pinoInstance) return;
-
-    const filePath = join(DOCUMENTS_PATH, LOG_FILE_NAME);
-    const destination = pino.destination({
-      dest: filePath,
-      sync: false,
-    });
-
-    pinoInstance = pino(
-      {
-        level: debugEnabled ? "debug" : "info",
-        timestamp: pino.stdTimeFunctions.isoTime,
-        formatters: {
-          level: (label: string) => ({ level: label }),
-        },
-        base: undefined, // remove hostname and pid
-      },
-      destination,
-    );
-  } catch (error) {
-    console.warn("logger: failed to initialize pino", error);
+      dataStr = `\n${stack ?? message}${extraStr}`;
+    } else {
+      dataStr = ` ${JSON.stringify(entry.data)}`;
+    }
   }
+
+  return `[${date}] [${entry.level.toUpperCase()}] ${
+    entry.process ? `[${entry.process}] ` : ""
+  }${entry.scope ? `[${entry.scope}] ` : ""}${entry.message}${dataStr}\n`;
+}
+
+export async function initMainLogger() {
+  if (writeStream) return;
+  if (initPromise) return initPromise;
+
+  initPromise = (async () => {
+    try {
+      await fs.mkdir(DOCUMENTS_PATH, { recursive: true });
+      const filePath = join(DOCUMENTS_PATH, LOG_FILE_NAME);
+
+      const stream = createWriteStream(filePath, {
+        flags: "a",
+        encoding: "utf8",
+        highWaterMark: 16_384, // 16KB buffer
+      });
+
+      writeStream = stream;
+
+      flushTimer = globalThis.setInterval(() => {
+        if (writeStream && !writeStream.destroyed) writeStream.uncork();
+      }, FLUSH_INTERVAL_MS);
+
+      process.on("exit", () => {
+        if (flushTimer) globalThis.clearInterval(flushTimer);
+        writeStream?.end();
+      });
+    } catch (error) {
+      console.warn("logger: failed to initialize write stream", error);
+      initPromise = null;
+    }
+  })();
+
+  return initPromise;
 }
 
 export function setLoggerDebugEnabled(enabled: boolean) {
@@ -50,20 +87,23 @@ export function setLoggerDebugEnabled(enabled: boolean) {
 }
 
 export function logMainEntry(entry: MainLogEntry) {
-  if (!pinoInstance) {
-    console[entry.level](`[${entry.scope}] ${entry.message}`, entry.data ?? "");
-    return;
+  const formatted = formatEntry({
+    ...entry,
+    level: entry.level,
+    timestamp: entry.timestamp || Date.now(),
+  });
+
+  process.stdout.write(formatted);
+  if (writeStream && !writeStream.destroyed) {
+    writeStream.write(formatted);
+  } else if (!writeStream) {
+    console[entry.level](formatted.trim());
   }
-
-  const { level, message, scope, data, process, timestamp } = entry;
-
-  // Terminal output
-  console[level](`[${scope || process}] ${message}`);
-  // File output
-  pinoInstance[level]({ scope, process, data, timestamp }, message);
 }
 
 export function logMain(level: LogLevel, payload: LogPayload) {
+  if (level === "debug" && !debugEnabled) return;
+
   logMainEntry({
     data: payload.data,
     level,

@@ -1,25 +1,28 @@
 import { readJson, writeJson } from "@vexed/fs-utils";
 import type { TipcInstance } from "@vexed/tipc";
 import { equalsIgnoreCase } from "@vexed/utils/string";
+import { Result } from "better-result";
 import { DEFAULT_FAST_TRAVELS, FAST_TRAVELS_PATH } from "~/shared/constants";
 import type { FastTravel, FastTravelRoomNumber } from "~/shared/types";
-import { logger } from "../services/logger";
+import { createLogger } from "../services/logger";
 import { windowsService } from "../services/windows";
 import type { RendererHandlers } from "../tipc";
+import { TipcResult } from "./result";
+
+const logger = createLogger("tipc:fast-travels");
 
 export function createFastTravelsTipcRouter(tipcInstance: TipcInstance) {
   return {
     getAll: tipcInstance.procedure.action(async () => {
-      try {
-        return await readJson<FastTravel[]>(FAST_TRAVELS_PATH);
-      } catch (error) {
-        logger.error(
-          "main",
-          "Failed to read fast travels.",
-          error instanceof Error ? error.message : error,
-        );
-        return DEFAULT_FAST_TRAVELS;
+      const result = await Result.tryPromise(async () =>
+        readJson<FastTravel[]>(FAST_TRAVELS_PATH),
+      );
+      if (result.isErr()) {
+        logger.error("Failed to read fast travels", result.error);
+        return TipcResult.err("");
       }
+
+      return TipcResult.ok(result.value);
     }),
     addFastTravel: tipcInstance.procedure
       .input<FastTravel>()
