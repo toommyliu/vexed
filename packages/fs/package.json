@@ -9,18 +9,24 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "tsdown --outDir ./dist --format cjs --entry './src/index.ts' --dts --exports"
+    "check": "tsc --noEmit --skipLibCheck src/index.ts src/json.ts src/file.ts src/dir.ts",
+    "build": "tsdown --outDir ./dist --format cjs --entry './src/index.ts' --dts --exports",
+    "test": "vitest run tests/*.test.ts",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "atomically": "1.7.0",
     "better-result": "workspace:*",
     "fs-extra": "11.3.1",
+    "proper-lockfile": "^4.1.2",
     "totalist": "^3.0.1"
   },
   "devDependencies": {
     "@types/fs-extra": "11.0.4",
     "@types/node": "22.10.10",
+    "@types/proper-lockfile": "^4.1.4",
     "tsdown": "0.20.0-beta.3",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.3"
   }
 }
