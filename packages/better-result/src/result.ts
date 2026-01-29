@@ -1,4 +1,4 @@
-import { panic, UnhandledException } from "./error";
+import { panic, ResultDeserializationError, UnhandledException } from "./error";
 import { dual } from "./dual";
 
 /** Executes fn, panics if it throws. */
@@ -403,13 +403,16 @@ const isError = <T, E>(result: Result<T, E>): result is Err<T, E> => {
 };
 
 const tryFn: {
-  <A>(thunk: () => A, config?: { retry?: { times: number } }): Result<A, UnhandledException>;
+  <A>(
+    thunk: () => Awaited<A>,
+    config?: { retry?: { times: number } },
+  ): Result<A, UnhandledException>;
   <A, E>(
-    options: { try: () => A; catch: (cause: unknown) => E },
+    options: { try: () => Awaited<A>; catch: (cause: unknown) => Awaited<E> },
     config?: { retry?: { times: number } },
   ): Result<A, E>;
 } = <A, E>(
-  options: (() => A) | { try: () => A; catch: (cause: unknown) => E },
+  options: (() => Awaited<A>) | { try: () => Awaited<A>; catch: (cause: unknown) => Awaited<E> },
   config?: { retry?: { times: number } },
 ): Result<A, E | UnhandledException> => {
   const execute = (): Result<A, E | UnhandledException> => {
@@ -746,19 +749,19 @@ const serialize = <T, E>(result: Result<T, E>): SerializedResult<T, E> => {
     : { status: "error", error: result.error };
 };
 
-const deserialize = <T, E>(value: unknown): Result<T, E> | null => {
+const deserialize = <T, E>(value: unknown): Result<T, E | ResultDeserializationError> => {
   if (isSerializedResult(value)) {
     return value.status === "ok"
       ? (new Ok(value.value) as Result<T, E>)
       : (new Err(value.error) as Result<T, E>);
   }
-  return null;
+  return err(new ResultDeserializationError({ value }));
 };
 
 /**
  * @deprecated Use `Result.deserialize` instead. Will be removed in 3.0.
  */
-const hydrate = <T, E>(value: unknown): Result<T, E> | null => {
+const hydrate = <T, E>(value: unknown): Result<T, E | ResultDeserializationError> => {
   return deserialize(value);
 };
 
@@ -983,10 +986,20 @@ export const Result = {
   serialize,
   /**
    * Rehydrates serialized Result from RPC back into Ok/Err instances.
-   * Returns null if not a serialized Result.
+   * Returns `Err<ResultDeserializationError>` if the input is not a valid serialized Result.
    *
    * @example
-   * const result = Result.deserialize<User, Error>(rpcResponse);
+   * // Valid serialized Result
+   * const result = Result.deserialize<User, AppError>(rpcResponse);
+   * if (Result.isOk(result)) {
+   *   console.log(result.value); // User
+   * }
+   *
+   * // Invalid input returns ResultDeserializationError
+   * const invalid = Result.deserialize({ foo: "bar" });
+   * if (Result.isError(invalid) && ResultDeserializationError.is(invalid.error)) {
+   *   console.log("Bad input:", invalid.error.value);
+   * }
    */
   deserialize,
   /**
