@@ -158,3 +158,31 @@ export class FsReadDirError extends TaggedError("FsReadDirError")<{
     });
   }
 }
+
+export class FsCleanupError extends TaggedError("FsCleanupError")<{
+  message: string;
+  path: string;
+  cause: unknown;
+}>() {
+  constructor(args: { path: string; cause: unknown }) {
+    super({
+      ...args,
+      message: `Failed to cleanup temporary files: ${args.path} - ${formatCause(args.cause)}`,
+    });
+  }
+}
+
+export type FsError =
+  | FsEnsureDirError
+  | FsPathExistsError
+  | FsReadError
+  | FsWriteError
+  | FsAppendError
+  | FsJsonParseError
+  | FsJsonSerializeError
+  | FsEnsureFileError
+  | FsStatError
+  | FsDeleteFileError
+  | FsDeleteDirError
+  | FsReadDirError
+  | FsCleanupError;

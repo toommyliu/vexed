@@ -168,8 +168,3 @@ app.on("before-quit", async (ev) => {
 app.on("window-all-closed", () => {
   app.quit();
 });
-
-// exception in PromiseRejectCallback
-process.on("unhandledRejection", (reason, promise) => {
-  console.error("Unhandled Rejection at:", promise, "reason:", reason);
-});

@@ -287,16 +287,16 @@ class WindowsService {
         useContentSize: true,
       });
 
-      window.on("close", (ev) => {
+      window.on("close", async (ev) => {
         if (this.isQuitting) return;
         ev.preventDefault();
         window.hide();
-        void getSettings().save();
+        await getSettings().save();
       });
 
-      window.on("closed", () => {
+      window.on("closed", async () => {
         this.managerWindow = null;
-        void getSettings().save();
+        await getSettings().save();
       });
 
       this.managerWindow = window;
@@ -324,16 +324,16 @@ class WindowsService {
         maximizable: false,
       });
 
-      window.on("close", (ev) => {
+      window.on("close", async (ev) => {
         if (this.isQuitting) return;
         ev.preventDefault();
         window.hide();
-        void getSettings().save();
+        await getSettings().save();
       });
 
-      window.on("closed", () => {
+      window.on("closed", async () => {
         this.onboardingWindow = null;
-        void getSettings().save();
+        await getSettings().save();
       });
 
       this.onboardingWindow = window;
