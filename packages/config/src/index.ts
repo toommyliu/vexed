@@ -1,4 +1,4 @@
-import { resolve } from "node:path";
+import { resolve } from "path";
 import { readJson, writeJson, pathExists, FsError } from "@vexed/fs";
 import { Result } from "better-result";
 
