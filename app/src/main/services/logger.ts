@@ -12,24 +12,34 @@ let debugEnabled = false;
 let flushTimer: NodeJS.Timeout | null = null;
 let initPromise: Promise<void> | null = null;
 
+// Cached Intl.DateTimeFormat for performant locale-aware date formatting
+const dateFormatter = new Intl.DateTimeFormat(undefined, {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  fractionalSecondDigits: 3,
+});
+
 type LogPayload = {
-  data?: unknown;
-  message: string;
+  data?: unknown | undefined;
+  message?: string | undefined;
   scope?: string | undefined;
 };
 
 function formatEntry(entry: {
-  data?: unknown;
+  data?: unknown | undefined;
   level: string;
-  message: string;
-  process?: string;
-  scope?: string;
+  message?: string | undefined;
+  process?: string | undefined;
+  scope?: string | undefined;
   timestamp: number;
 }): string {
-  const date = new Date(entry.timestamp).toISOString();
+  const date = dateFormatter.format(entry.timestamp);
   let dataStr = "";
 
-  // todo:
   if (entry.data !== undefined && entry.data !== null) {
     if (entry.data instanceof Error) {
       const { message, stack, name, ...extra } = entry.data as Error &
@@ -37,15 +47,15 @@ function formatEntry(entry: {
       const extraStr =
         Object.keys(extra).length > 0 ? ` ${JSON.stringify(extra)}` : "";
 
-      dataStr = `\n${stack ?? message}${extraStr}`;
+      dataStr = (entry.message ? "\n" : "") + `${stack ?? message}${extraStr}`;
     } else {
-      dataStr = ` ${JSON.stringify(entry.data)}`;
+      dataStr = (entry.message ? " " : "") + JSON.stringify(entry.data);
     }
   }
 
   return `[${date}] [${entry.level.toUpperCase()}] ${
     entry.process ? `[${entry.process}] ` : ""
-  }${entry.scope ? `[${entry.scope}] ` : ""}${entry.message}${dataStr}\n`;
+  }${entry.scope ? `[${entry.scope}] ` : ""}${entry.message ?? ""}${dataStr}\n`;
 }
 
 export async function initMainLogger() {
@@ -122,38 +132,40 @@ export function logFromRenderer(entry: MainLogEntry) {
   });
 }
 
+function resolveLogArgs(messageOrData?: unknown, ...args: unknown[]) {
+  if (typeof messageOrData === "string") {
+    return {
+      message: messageOrData,
+      data: args.length > 1 ? args : args[0],
+    };
+  }
+
+  return {
+    message: undefined,
+    data: args.length > 0 ? [messageOrData, ...args] : messageOrData,
+  };
+}
+
 export function createLogger(scope: string) {
   return {
-    debug: (message: string, data?: unknown) =>
-      logMain("debug", { scope, message, data }),
-    info: (message: string, data?: unknown) =>
-      logMain("info", { scope, message, data }),
-    warn: (message: string, data?: unknown) =>
-      logMain("warn", { scope, message, data }),
-    error: (message: string, data?: unknown) =>
-      logMain("error", { scope, message, data }),
+    debug: (messageOrData?: unknown, ...args: unknown[]) =>
+      logMain("debug", { scope, ...resolveLogArgs(messageOrData, ...args) }),
+    info: (messageOrData?: unknown, ...args: unknown[]) =>
+      logMain("info", { scope, ...resolveLogArgs(messageOrData, ...args) }),
+    warn: (messageOrData?: unknown, ...args: unknown[]) =>
+      logMain("warn", { scope, ...resolveLogArgs(messageOrData, ...args) }),
+    error: (messageOrData?: unknown, ...args: unknown[]) =>
+      logMain("error", { scope, ...resolveLogArgs(messageOrData, ...args) }),
   };
 }
 
 export const logger = {
-  debug: (scope: string, message?: string, data?: unknown) => {
-    const resolvedMessage = message ?? scope;
-    const resolvedScope = message ? scope : undefined;
-    logMain("debug", { scope: resolvedScope, message: resolvedMessage, data });
-  },
-  info: (scope: string, message?: string, data?: unknown) => {
-    const resolvedMessage = message ?? scope;
-    const resolvedScope = message ? scope : undefined;
-    logMain("info", { scope: resolvedScope, message: resolvedMessage, data });
-  },
-  warn: (scope: string, message?: string, data?: unknown) => {
-    const resolvedMessage = message ?? scope;
-    const resolvedScope = message ? scope : undefined;
-    logMain("warn", { scope: resolvedScope, message: resolvedMessage, data });
-  },
-  error: (scope: string, message?: string, data?: unknown) => {
-    const resolvedMessage = message ?? scope;
-    const resolvedScope = message ? scope : undefined;
-    logMain("error", { scope: resolvedScope, message: resolvedMessage, data });
-  },
+  debug: (scope: string, messageOrData?: unknown, ...args: unknown[]) =>
+    logMain("debug", { scope, ...resolveLogArgs(messageOrData, ...args) }),
+  info: (scope: string, messageOrData?: unknown, ...args: unknown[]) =>
+    logMain("info", { scope, ...resolveLogArgs(messageOrData, ...args) }),
+  warn: (scope: string, messageOrData?: unknown, ...args: unknown[]) =>
+    logMain("warn", { scope, ...resolveLogArgs(messageOrData, ...args) }),
+  error: (scope: string, messageOrData?: unknown, ...args: unknown[]) =>
+    logMain("error", { scope, ...resolveLogArgs(messageOrData, ...args) }),
 };

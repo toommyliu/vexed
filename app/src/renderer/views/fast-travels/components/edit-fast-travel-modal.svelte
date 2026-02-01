@@ -65,12 +65,16 @@
         ...(cleanPad && { pad: cleanPad }),
       };
 
-      const res = await client.fastTravels.updateFastTravel({
+      const res = await client.fastTravels.update({
         fastTravel: updatedFastTravel,
         originalName: fastTravel.name,
       });
+      if (!res.success) {
+        console.error(res.error);
+        return;
+      }
 
-      switch (res?.msg) {
+      switch (res.data) {
         case "SUCCESS":
           onSuccess(fastTravel.name, updatedFastTravel);
           onClose();
@@ -97,7 +101,7 @@
 <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
   <Dialog.Content showCloseButton={true} class="sm:max-w-md">
     <div
-      class="via-primary/40 absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent to-transparent"
+      class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent"
     ></div>
 
     <Dialog.Header class="pb-2">
@@ -115,10 +119,10 @@
         {#key error}
           <div
             transition:motionFade={{ duration: 150 }}
-            class="border-destructive/30 bg-destructive/5 flex items-start gap-2.5 rounded-lg border px-3 py-2.5"
+            class="flex items-start gap-2.5 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2.5"
           >
-            <AlertCircle class="text-destructive mt-0.5 size-4 shrink-0" />
-            <span class="text-destructive text-sm">{error}</span>
+            <AlertCircle class="mt-0.5 size-4 shrink-0 text-destructive" />
+            <span class="text-sm text-destructive">{error}</span>
           </div>
         {/key}
       {/if}
@@ -147,7 +151,7 @@
         <div class="grid gap-2">
           <Label
             for="edit-cell"
-            class="text-muted-foreground text-sm font-medium"
+            class="text-sm font-medium text-muted-foreground"
             >Cell <span class="text-xs">(optional)</span></Label
           >
           <Input
@@ -160,7 +164,7 @@
         <div class="grid gap-2">
           <Label
             for="edit-pad"
-            class="text-muted-foreground text-sm font-medium"
+            class="text-sm font-medium text-muted-foreground"
             >Pad <span class="text-xs">(optional)</span></Label
           >
           <Input

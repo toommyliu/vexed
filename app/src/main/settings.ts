@@ -15,12 +15,13 @@ let settings: Config<Settings>;
 export async function initSettings(): Promise<Config<Settings>> {
   if (settings) return settings;
 
-  // eslint-disable-next-line require-atomic-updates
-  settings = await Config.create<Settings>({
+  const result = await Config.create<Settings>({
     configName: "settings",
     cwd: DOCUMENTS_PATH,
     defaults: DEFAULT_SETTINGS,
   });
+  // eslint-disable-next-line require-atomic-updates
+  settings = result.unwrap();
   return settings;
 }
 

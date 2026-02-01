@@ -38,12 +38,23 @@
       loc.name.toLowerCase().includes(searchQuery.toLowerCase()),
     ),
   );
+  let timeoutId = $state<NodeJS.Timeout | null>(null);
 
   async function doFastTravel(location: FastTravel) {
     disabled = true;
+
+    if (timeoutId) clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      if (!disabled) {
+        return;
+      }
+      console.log("releasing");
+      disabled = false;
+    }, 10_000);
     await client.fastTravels.warp({
       location: { ...location, roomNumber },
     });
+    disabled = false;
   }
 
   handlers.fastTravels.enable.listen(() => (disabled = false));
@@ -51,7 +62,10 @@
   onMount(async () => {
     const result = await client.fastTravels.all();
     isLoading = false;
-    if (!result.success) return;
+    if (!result.success) {
+      console.error(result.error);
+      return;
+    }
     locations = result.data;
   });
 

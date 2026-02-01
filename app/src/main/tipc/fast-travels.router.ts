@@ -14,7 +14,7 @@ export function createFastTravelsTipcRouter(tipc: TipcInstance) {
     all: tipc.procedure.action(async () => {
       const result = await fastTravelsService.getAll();
       if (result.isErr()) {
-        logger.error("Failed to read fast travels", result.error);
+        logger.error(result.error);
         return TipcResult.err(result.error.message);
       }
 

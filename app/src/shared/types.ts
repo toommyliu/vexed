@@ -115,7 +115,7 @@ export type LogProcess = "main" | "renderer";
 export type MainLogEntry = {
   data?: unknown;
   level: LogLevel;
-  message: string;
+  message?: string | undefined;
   process: LogProcess;
   scope: string;
   timestamp: number;

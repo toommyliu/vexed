@@ -97,11 +97,7 @@ export function createManagerTipcRouter(tipc: TipcInstance) {
 
         return res?.filePaths[0] ?? "";
       } catch (error) {
-        logger.error(
-          "main",
-          "Manager: failed to load script.",
-          error instanceof Error ? error.message : error,
-        );
+        logger.error("Manager: failed to load script.", error);
         return "";
       }
     }),

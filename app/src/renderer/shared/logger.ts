@@ -17,17 +17,42 @@ function sendEntry(entry: MainLogEntry) {
   }
 }
 
+function resolveLogArgs(messageOrData?: unknown, ...args: unknown[]) {
+  if (typeof messageOrData === "string") {
+    return {
+      message: messageOrData,
+      data: args.length > 1 ? args : args[0],
+    };
+  }
+
+  return {
+    message: undefined,
+    data: args.length > 0 ? [messageOrData, ...args] : messageOrData,
+  };
+}
+
 export function createRendererLogger(scope?: string) {
-  const log = (level: LogLevel, message: string, data?: unknown) => {
+  const log = (
+    level: LogLevel,
+    messageOrData?: unknown,
+    ...args: unknown[]
+  ) => {
+    const { message, data } = resolveLogArgs(messageOrData, ...args);
     const consoleMethod = console[levelToConsole[level]] as (
       ...args: unknown[]
     ) => void;
     const prefix = scope ? `[${scope}] ` : "";
-    if (data === undefined) {
-      consoleMethod(`${prefix}${message}`);
-    } else {
-      consoleMethod(`${prefix}${message}`, data);
+
+    const logArgs: unknown[] = [];
+    if (prefix || message) {
+      logArgs.push(`${prefix}${message ?? ""}`);
     }
+
+    if (data !== undefined) {
+      logArgs.push(data);
+    }
+
+    consoleMethod(...logArgs);
 
     sendEntry({
       data,
@@ -40,9 +65,13 @@ export function createRendererLogger(scope?: string) {
   };
 
   return {
-    debug: (message: string, data?: unknown) => log("debug", message, data),
-    info: (message: string, data?: unknown) => log("info", message, data),
-    warn: (message: string, data?: unknown) => log("warn", message, data),
-    error: (message: string, data?: unknown) => log("error", message, data),
+    debug: (message: unknown, ...args: unknown[]) =>
+      log("debug", message, ...args),
+    info: (message: unknown, ...args: unknown[]) =>
+      log("info", message, ...args),
+    warn: (message: unknown, ...args: unknown[]) =>
+      log("warn", message, ...args),
+    error: (message: unknown, ...args: unknown[]) =>
+      log("error", message, ...args),
   };
 }

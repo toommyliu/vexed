@@ -1,4 +1,4 @@
-import { readJson, writeJson } from "@vexed/fs-utils";
+import { readJson, writeJson } from "@vexed/fs";
 import { equalsIgnoreCase } from "@vexed/utils/string";
 import { Result, TaggedError } from "better-result";
 import { DEFAULT_FAST_TRAVELS, FAST_TRAVELS_PATH } from "~/shared/constants";
@@ -50,9 +50,10 @@ export class FastTravelsService {
   public async getAll(): Promise<Result<FastTravel[], FastTravelFileError>> {
     return Result.tryPromise({
       try: async () => {
-        const data = await readJson<FastTravel[]>(FAST_TRAVELS_PATH);
-        if (!data || !Array.isArray(data)) return [...DEFAULT_FAST_TRAVELS];
-        return data;
+        const result = await readJson<FastTravel[]>(FAST_TRAVELS_PATH);
+        if (!result.isOk()) return [];
+        if (!Array.isArray(result.value)) return [...DEFAULT_FAST_TRAVELS];
+        return result.value;
       },
       catch: (error) =>
         new FastTravelFileError({
@@ -96,7 +97,6 @@ export class FastTravelsService {
   > {
     const fastTravelsResult = await this.getAll();
     if (fastTravelsResult.isErr()) return fastTravelsResult;
-
     const fastTravels = fastTravelsResult.value;
     const idx = fastTravels.findIndex((ft) =>
       equalsIgnoreCase(ft.name, originalName),
