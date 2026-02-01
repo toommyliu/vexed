@@ -93,26 +93,33 @@ async function handleAppLaunch(argv: string[] = process.argv) {
       }
     }
 
-    let launchMode = settings.getString("launchMode", "game");
-
     const parseArgValue = (prefix: string) =>
       argv.find((arg) => arg.startsWith(prefix))?.split("=")[1] ?? "";
     const hasFlag = (...flags: string[]) =>
       argv.some((arg) => flags.some((flag) => equalsIgnoreCase(arg, flag)));
 
-    const isManagerMode =
-      equalsIgnoreCase(launchMode, "manager") || hasFlag("--manager", "-m");
-    const isGameMode =
-      equalsIgnoreCase(launchMode, "game") || hasFlag("--game", "-g");
+    const isManagerFlag = hasFlag("--manager", "-m");
+    const isGameFlag = hasFlag("--game", "-g");
+
+    let launchMode = settings.getString("launchMode", "game");
+
+    if (isManagerFlag) {
+      launchMode = "manager";
+    } else if (isGameFlag) {
+      launchMode = "game";
+    }
+
+    const isManagerMode = equalsIgnoreCase(launchMode, "manager");
+    const isGameMode = equalsIgnoreCase(launchMode, "game");
 
     if (!isManagerMode && !isGameMode) {
-      logger.info(
+      logger.warn(
         `Unknown launch mode, got "${launchMode}", defaulting to "game"...`,
       );
       launchMode = "game";
-    } else {
-      logger.info(`Using launch mode: ${launchMode}`);
     }
+
+    logger.info(`Using launch mode: ${launchMode}`);
 
     if (isManagerMode) {
       windowsService.manager();
