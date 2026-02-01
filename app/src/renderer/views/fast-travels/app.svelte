@@ -17,7 +17,6 @@
 
   import { client, handlers } from "~/shared/tipc";
   import type { FastTravel } from "~/shared/types";
-  import { DEFAULT_FAST_TRAVELS } from "~/shared/constants";
 
   let locations = $state<FastTravel[]>([]);
   let roomNumber = $state<number>(100_000);
@@ -42,23 +41,18 @@
 
   async function doFastTravel(location: FastTravel) {
     disabled = true;
-    await client.fastTravels.doFastTravel({
+    await client.fastTravels.warp({
       location: { ...location, roomNumber },
     });
   }
 
-  handlers.fastTravels.fastTravelEnable.listen(() => (disabled = false));
+  handlers.fastTravels.enable.listen(() => (disabled = false));
 
   onMount(async () => {
-    try {
-      const fastTravels = await client.fastTravels.getAll();
-      locations = fastTravels ?? [];
-    } catch (error) {
-      console.error("Failed to get fast travels.", error);
-      locations = [...DEFAULT_FAST_TRAVELS];
-    }
-
+    const result = await client.fastTravels.all();
     isLoading = false;
+    if (!result.success) return;
+    locations = result.data;
   });
 
   $effect(() => {
@@ -88,7 +82,7 @@
     deleteDialogLoading = true;
     deleteDialogError = "";
 
-    const success = await client.fastTravels.removeFastTravel({
+    const success = await client.fastTravels.remove({
       name: pendingDeleteName,
     });
 
@@ -114,14 +108,14 @@
   }
 </script>
 
-<div class="bg-background flex h-screen flex-col">
+<div class="flex h-screen flex-col bg-background">
   <header
-    class="elevation-1 border-border/50 bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-10 border-b px-6 py-3 backdrop-blur-xl"
+    class="elevation-1 sticky top-0 z-10 border-b border-border/50 bg-background/95 px-6 py-3 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80"
   >
     <div class="mx-auto flex max-w-7xl items-center justify-between">
       <div class="flex items-center gap-3">
         <div>
-          <h1 class="text-foreground text-base font-semibold tracking-tight">
+          <h1 class="text-base font-semibold tracking-tight text-foreground">
             Fast Travels
           </h1>
         </div>
@@ -142,22 +136,22 @@
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div class="relative">
             <Search
-              class="text-muted-foreground pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2"
+              class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
             />
             <Input
               type="search"
               placeholder="Search locations..."
-              class="border-border/50 bg-secondary/50 focus:bg-background pl-10 transition-colors"
+              class="border-border/50 bg-secondary/50 pl-10 transition-colors focus:bg-background"
               bind:value={searchQuery}
             />
           </div>
 
           <InputGroup.Root
-            class="border-border/50 bg-secondary/50 focus-within:bg-background transition-colors"
+            class="border-border/50 bg-secondary/50 transition-colors focus-within:bg-background"
           >
             <InputGroup.Addon>
               <InputGroup.Text
-                class="text-muted-foreground whitespace-nowrap text-xs font-medium"
+                class="whitespace-nowrap text-xs font-medium text-muted-foreground"
               >
                 Room number
               </InputGroup.Text>
@@ -176,7 +170,7 @@
 
       <div class="flex items-center justify-between text-sm">
         <span class="text-muted-foreground">
-          <span class="text-foreground font-medium tabular-nums"
+          <span class="font-medium tabular-nums text-foreground"
             >{filteredLocations.length}</span
           >
           <span class="text-muted-foreground/70"
@@ -188,14 +182,14 @@
       <div class="relative -mx-1 flex-1 overflow-auto px-1">
         {#if isLoading}
           <div
-            class="text-muted-foreground flex h-full flex-col items-center justify-center gap-3"
+            class="flex h-full flex-col items-center justify-center gap-3 text-muted-foreground"
           >
-            <Loader class="text-primary h-6 w-6 animate-spin" />
+            <Loader class="h-6 w-6 animate-spin text-primary" />
             <p class="text-sm">Loading locations...</p>
           </div>
         {:else if filteredLocations.length === 0}
           <div class="flex h-full flex-col items-center justify-center gap-3">
-            <p class="text-centered text-muted-foreground text-sm">
+            <p class="text-centered text-sm text-muted-foreground">
               {searchQuery ? "No locations found." : ""}
             </p>
           </div>
@@ -215,10 +209,10 @@
                   ev.key === "Enter" && !disabled && doFastTravel(location)}
               >
                 <div class="min-w-0 flex-1">
-                  <div class="text-foreground truncate text-base font-medium">
+                  <div class="truncate text-base font-medium text-foreground">
                     {location.name}
                   </div>
-                  <div class="text-muted-foreground truncate text-xs">
+                  <div class="truncate text-xs text-muted-foreground">
                     {location.map}{location.cell
                       ? ` › ${location.cell}`
                       : ""}{location.pad ? `:${location.pad}` : ""}
@@ -231,7 +225,7 @@
                   <Button
                     variant="ghost"
                     size="icon"
-                    class="text-muted-foreground hover:bg-primary/10 hover:text-primary h-7 w-7"
+                    class="h-7 w-7 text-muted-foreground hover:bg-primary/10 hover:text-primary"
                     onclick={(ev: MouseEvent) => {
                       ev.stopPropagation();
                       if (!disabled) doFastTravel(location);
@@ -244,7 +238,7 @@
                   <Button
                     variant="ghost"
                     size="icon"
-                    class="text-muted-foreground hover:bg-secondary hover:text-foreground h-7 w-7"
+                    class="h-7 w-7 text-muted-foreground hover:bg-secondary hover:text-foreground"
                     onclick={(ev: MouseEvent) => {
                       ev.stopPropagation();
                       editingLocation = location;
@@ -257,7 +251,7 @@
                   <Button
                     variant="ghost"
                     size="icon"
-                    class="text-muted-foreground hover:bg-destructive/10 hover:text-destructive h-7 w-7"
+                    class="h-7 w-7 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                     onclick={(ev: MouseEvent) => {
                       ev.stopPropagation();
                       handleRemove(location.name);

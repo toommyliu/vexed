@@ -1,16 +1,16 @@
 import { tipc } from "@vexed/tipc";
 import type {
-  GrabberDataType,
-  LoaderDataType,
-  FastTravel,
-  FastTravelRoomNumber,
   EnvironmentState,
   EnvironmentUpdatePayload,
+  FastTravel,
+  FastTravelRoomNumber,
+  GrabberDataType,
+  LoaderDataType,
 } from "../shared/types";
 import { createAppTipcRouter } from "./tipc/app.router";
 import { createArmyTipcRouter } from "./tipc/army.router";
 import { createEnvironmentTipcRouter } from "./tipc/environment.router";
-import { createFastTravelsTipcRouter } from "./tipc/fastTravels.router";
+import { createFastTravelsTipcRouter } from "./tipc/fast-travels.router";
 import { createFollowerTipcRouter } from "./tipc/follower.router";
 import { createGameTipcRouter } from "./tipc/game.router";
 import { createHotkeysTipcRouter } from "./tipc/hotkeys.router";
@@ -20,6 +20,7 @@ import { createManagerTipcRouter } from "./tipc/manager.router";
 import { createOnboardingTipcRouter } from "./tipc/onboarding.router";
 import { createPacketLoggerTipcRouter } from "./tipc/packetLogger.router";
 import { createPacketSpammerTipcRouter } from "./tipc/packetSpammer.router";
+import type { TipcResult } from "./tipc/result";
 import { createScriptsTipcRouter } from "./tipc/scripts.router";
 
 const tipcInstance = tipc.create();
@@ -65,9 +66,19 @@ export type RendererHandlers = {
   };
 
   fastTravels: {
-    fastTravelEnable(): void;
-    doFastTravel({ location }: { location: FastTravelRoomNumber }): void;
-    getAll(): Promise<FastTravel[]>;
+    enable(): void;
+    warp({ location }: { location: FastTravelRoomNumber }): void;
+    all(): Promise<TipcResult<FastTravel[]>>;
+    add(
+      input: FastTravel,
+    ): Promise<TipcResult<"FAILED" | "NAME_ALREADY_EXISTS" | "SUCCESS">>;
+    update(input: {
+      fastTravel: FastTravel;
+      originalName: string;
+    }): Promise<
+      TipcResult<"FAILED" | "NAME_ALREADY_EXISTS" | "NOT_FOUND" | "SUCCESS">
+    >;
+    remove(input: { name: string }): Promise<TipcResult<boolean>>;
   };
 
   loaderGrabber: {
