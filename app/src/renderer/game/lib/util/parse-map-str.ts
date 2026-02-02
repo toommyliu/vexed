@@ -20,11 +20,10 @@ export function parseMapStr(str: string): [string, number] | [string] {
 
   if (!roomNumberStr) return [roomName];
 
-  const roomNumber = Number.parseInt(roomNumberStr, 10);
+  const roomNumber = Number(roomNumberStr);
 
   // treat invalid room numbers as private
   if (Number.isNaN(roomNumber) || !Number.isFinite(roomNumber))
     return [roomName, 100_000];
-
-  return [roomName, roomNumber];
+  return [roomName, roomNumber > 100_000 ? 100_000 : roomNumber];
 }
