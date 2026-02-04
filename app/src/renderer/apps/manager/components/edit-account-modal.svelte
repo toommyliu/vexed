@@ -60,24 +60,25 @@
       };
 
       const res = await editAccount(account.username, updatedAccount);
-
-      switch (res?.msg) {
-        case "SUCCESS":
-          onClose();
-          break;
-        case "USERNAME_ALREADY_EXISTS":
-          error = "Failed to update account. Username might already exist.";
-          break;
-        case "ACCOUNT_NOT_FOUND":
-          error = "Failed to update account. Original account not found.";
-          break;
-        case "FAILED":
-        default:
-          error = "Failed to update account. Please try again.";
+      if (!res?.success) {
+        switch (res?.error) {
+          case "USERNAME_ALREADY_EXISTS":
+            error = "Failed to update account. Username might already exist.";
+            break;
+          case "ACCOUNT_NOT_FOUND":
+            error = "Failed to update account. Original account not found.";
+            break;
+          case "FAILED":
+          default:
+            error = "Failed to update account. Please try again.";
+        }
+        return;
       }
+
+      onClose();
     } catch (err) {
       error = "Failed to update account. Please try again.";
-      console.error("Failed to update account.", err);
+      console.error("Failed to update account", err);
     } finally {
       isSubmitting = false;
     }
@@ -87,7 +88,7 @@
 <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
   <Dialog.Content showCloseButton={true} class="sm:max-w-md">
     <div
-      class="via-primary/40 absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent to-transparent"
+      class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent"
     ></div>
 
     <Dialog.Header class="pb-2">
@@ -105,10 +106,10 @@
         {#key error}
           <div
             transition:motionFade={{ duration: 150 }}
-            class="border-destructive/30 bg-destructive/5 flex items-start gap-2.5 rounded-lg border px-3 py-2.5"
+            class="flex items-start gap-2.5 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2.5"
           >
-            <AlertCircle class="text-destructive mt-0.5 size-4 shrink-0" />
-            <span class="text-destructive text-sm">{error}</span>
+            <AlertCircle class="mt-0.5 size-4 shrink-0 text-destructive" />
+            <span class="text-sm text-destructive">{error}</span>
           </div>
         {/key}
       {/if}
@@ -139,7 +140,7 @@
             <Button
               variant="ghost"
               size="icon"
-              class="text-muted-foreground hover:text-foreground transition-colors"
+              class="text-muted-foreground transition-colors hover:text-foreground"
               onclick={() => (showPassword = !showPassword)}
               type="button"
               tabindex={-1}

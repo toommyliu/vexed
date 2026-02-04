@@ -21,7 +21,7 @@ export class AccountNotFoundError extends TaggedError("AccountNotFoundError")<{
   public constructor(args: { username: string }) {
     super({
       ...args,
-      message: `Account not found: ${args.username}`,
+      message: `account "${args.username}" not found`,
     });
   }
 }
@@ -35,7 +35,7 @@ export class DuplicateUsernameError extends TaggedError(
   public constructor(args: { username: string }) {
     super({
       ...args,
-      message: `Username already exists: ${args.username}`,
+      message: `username "${args.username}" already exists`,
     });
   }
 }

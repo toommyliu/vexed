@@ -19,10 +19,11 @@ export function createManagerTipcRouter(tipc: TipcInstance) {
       const result = await accounts.getAll();
       return result.unwrapOr([] as Account[]);
     }),
+
     addAccount: tipc.procedure.input<Account>().action(async ({ input }) => {
       const result = await accounts.add(input);
-
       if (result.isErr()) {
+        logger.error(result.error);
         return matchErrorPartial(
           result.error,
           {
@@ -42,6 +43,7 @@ export function createManagerTipcRouter(tipc: TipcInstance) {
       .action(async ({ input }) => {
         const result = await accounts.remove(input.username);
         if (result.isErr()) {
+          logger.error(result.error);
           return matchErrorPartial(
             result.error,
             {
@@ -64,6 +66,7 @@ export function createManagerTipcRouter(tipc: TipcInstance) {
           input.updatedAccount,
         );
         if (result.isErr()) {
+          logger.error(result.error);
           return matchErrorPartial(
             result.error,
             {
@@ -97,7 +100,7 @@ export function createManagerTipcRouter(tipc: TipcInstance) {
 
         return res?.filePaths[0] ?? "";
       } catch (error) {
-        logger.error("Manager: failed to load script.", error);
+        logger.error("Failed to load script", error);
         return "";
       }
     }),

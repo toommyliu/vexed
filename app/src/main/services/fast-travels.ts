@@ -1,3 +1,4 @@
+import type { FsJsonParseError, FsReadError } from "@vexed/fs";
 import { readJson, writeJson } from "@vexed/fs";
 import { equalsIgnoreCase } from "@vexed/utils/string";
 import { Result, TaggedError } from "better-result";
@@ -24,10 +25,35 @@ export class FastTravelDuplicateNameError extends TaggedError(
   name: string;
 }>() {}
 
-export class FastTravelsService {
-  public async add(
+async function save(
+  fastTravels: FastTravel[],
+): Promise<Result<void, FastTravelFileError>> {
+  return Result.gen(async function* () {
+    const result = await writeJson(FAST_TRAVELS_PATH, fastTravels);
+    yield* result.mapError(
+      (error) =>
+        new FastTravelFileError({
+          cause: error,
+          message: "Failed to write fast travels file",
+          path: FAST_TRAVELS_PATH,
+        }),
+    );
+    return Result.ok();
+  });
+}
+
+export const fastTravels = {
+  async add(
     fastTravel: FastTravel,
-  ): Promise<Result<void, FastTravelDuplicateNameError | FastTravelFileError>> {
+  ): Promise<
+    Result<
+      void,
+      | FastTravelDuplicateNameError
+      | FastTravelFileError
+      | FsJsonParseError
+      | FsReadError
+    >
+  > {
     const fastTravelsResult = await this.getAll();
     if (fastTravelsResult.isErr()) return fastTravelsResult;
     const fastTravels = fastTravelsResult.value;
@@ -44,29 +70,30 @@ export class FastTravelsService {
     }
 
     fastTravels.push(fastTravel);
-    return this.save(fastTravels);
-  }
+    return save(fastTravels);
+  },
 
-  public async getAll(): Promise<Result<FastTravel[], FastTravelFileError>> {
-    return Result.tryPromise({
-      try: async () => {
-        const result = await readJson<FastTravel[]>(FAST_TRAVELS_PATH);
-        if (!result.isOk()) return [];
-        if (!Array.isArray(result.value)) return [...DEFAULT_FAST_TRAVELS];
-        return result.value;
-      },
-      catch: (error) =>
-        new FastTravelFileError({
-          cause: error,
-          message: "Failed to read fast travels file",
-          path: FAST_TRAVELS_PATH,
-        }),
+  async getAll(): Promise<
+    Result<FastTravel[], FsJsonParseError | FsReadError>
+  > {
+    return Result.gen(async function* () {
+      const result = yield* await readJson<FastTravel[]>(FAST_TRAVELS_PATH);
+      if (!Array.isArray(result)) return Result.ok([...DEFAULT_FAST_TRAVELS]);
+      return Result.ok(result);
     });
-  }
+  },
 
-  public async remove(
+  async remove(
     name: string,
-  ): Promise<Result<void, FastTravelFileError | FastTravelNotFoundError>> {
+  ): Promise<
+    Result<
+      void,
+      | FastTravelFileError
+      | FastTravelNotFoundError
+      | FsJsonParseError
+      | FsReadError
+    >
+  > {
     const fastTravelsResult = await this.getAll();
     if (fastTravelsResult.isErr()) return fastTravelsResult;
     const fastTravels = fastTravelsResult.value;
@@ -81,10 +108,10 @@ export class FastTravelsService {
     }
 
     fastTravels.splice(idx, 1);
-    return this.save(fastTravels);
-  }
+    return save(fastTravels);
+  },
 
-  public async update(
+  async update(
     originalName: string,
     updated: FastTravel,
   ): Promise<
@@ -93,6 +120,8 @@ export class FastTravelsService {
       | FastTravelDuplicateNameError
       | FastTravelFileError
       | FastTravelNotFoundError
+      | FsJsonParseError
+      | FsReadError
     >
   > {
     const fastTravelsResult = await this.getAll();
@@ -124,22 +153,6 @@ export class FastTravelsService {
     }
 
     fastTravels[idx] = updated;
-    return this.save(fastTravels);
-  }
-
-  private async save(
-    fastTravels: FastTravel[],
-  ): Promise<Result<void, FastTravelFileError>> {
-    return Result.tryPromise({
-      try: async () => writeJson(FAST_TRAVELS_PATH, fastTravels),
-      catch: (error) =>
-        new FastTravelFileError({
-          cause: error,
-          message: "Failed to write fast travels file",
-          path: FAST_TRAVELS_PATH,
-        }),
-    });
-  }
-}
-
-export const fastTravelsService = new FastTravelsService();
+    return save(fastTravels);
+  },
+};

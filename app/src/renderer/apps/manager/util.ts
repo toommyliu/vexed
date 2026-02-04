@@ -53,7 +53,7 @@ export const editAccount = async (
       updatedAccount,
     });
 
-    if (res?.msg === "SUCCESS") {
+    if (res?.success) {
       if (originalUsername === updatedAccount.username) {
         accounts.set(updatedAccount.username.toLowerCase(), updatedAccount);
       } else {
