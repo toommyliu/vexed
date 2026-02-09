@@ -1,9 +1,16 @@
-import type { ActionFunction, SendActionFunction } from "./types";
+import type {
+  ActionContext,
+  ActionContextWithSenderWindow,
+  ActionFunction,
+  SendActionFunction,
+} from "./types";
 
-type ChainNode<TInput> = {
-  input<NewInput>(): ChainNode<NewInput>;
-  action<TResult>(action: ActionFunction<TInput, TResult>): {
-    action: ActionFunction<TInput, TResult>;
+type ChainNode<TInput, TContext extends ActionContext = ActionContext> = {
+  input<NewInput>(): ChainNode<NewInput, TContext>;
+  requireSenderWindow(): ChainNode<TInput, ActionContextWithSenderWindow>;
+  action<TResult>(action: ActionFunction<TInput, TResult, TContext>): {
+    action: ActionFunction<TInput, TResult, TContext>;
+    __tipcMeta?: { requireSenderWindow?: boolean };
   };
   sendAction(action: SendActionFunction<TInput>): {
     sendAction: SendActionFunction<TInput>;
@@ -11,15 +18,26 @@ type ChainNode<TInput> = {
   [key: string]: unknown;
 };
 
-const createChainFns = <TInput>(): ChainNode<TInput> => {
-  const node: ChainNode<TInput> = {
+const createChainFns = <
+  TInput,
+  TContext extends ActionContext = ActionContext,
+>(meta: { requireSenderWindow?: boolean } = {}): ChainNode<TInput, TContext> => {
+  const node: ChainNode<TInput, TContext> = {
     input<NewInput>() {
-      return createChainFns<NewInput>();
+      return createChainFns<NewInput, TContext>(meta);
     },
 
-    action: <TResult>(action: ActionFunction<TInput, TResult>) => {
+    requireSenderWindow() {
+      return createChainFns<TInput, ActionContextWithSenderWindow>({
+        ...meta,
+        requireSenderWindow: true,
+      });
+    },
+
+    action: <TResult>(action: ActionFunction<TInput, TResult, TContext>) => {
       return {
         action,
+        __tipcMeta: { ...meta },
       };
     },
 
@@ -41,9 +59,10 @@ const createChainFns = <TInput>(): ChainNode<TInput> => {
       // Lazily create and cache a nested chain for namespacing
       const key = String(prop);
       if (!(key in target)) {
-        target[key] = createChainFns<unknown>();
+        // propagate current context/meta for nested namespaces
+        target[key] = createChainFns<unknown, TContext>(meta);
       }
-      return target[key];
+      return target[key] as unknown;
     },
   });
 };

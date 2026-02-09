@@ -1,7 +1,6 @@
 import { v4 as uuid } from "@lukeed/uuid";
 import { BrowserWindow, WebContents, ipcMain, IpcMainEvent } from "electron";
 import {
-  ActionFunction,
   RendererHandlers,
   RendererHandlersCaller,
   Route,
@@ -20,6 +19,10 @@ export const registerIpcMain = (router: RouterType) => {
         const route = val as Route;
         ipcMain.handle(channel, (e, payload) => {
           const senderWindow = BrowserWindow.fromWebContents(e.sender) ?? null;
+
+          if (route.__tipcMeta?.requireSenderWindow) {
+            if (!senderWindow || senderWindow.isDestroyed()) return;
+          }
 
           const context = {
             sender: e.sender,

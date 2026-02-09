@@ -6,8 +6,16 @@ export type ActionContext = {
   ) => RendererHandlersCaller<T>;
 };
 
-export type ActionFunction<TInput = any, TResult = any> = (args: {
-  context: ActionContext;
+export type ActionContextWithSenderWindow = ActionContext & {
+  senderWindow: Electron.BrowserWindow;
+};
+
+export type ActionFunction<
+  TInput = any,
+  TResult = any,
+  TContext extends ActionContext = ActionContext,
+> = (args: {
+  context: TContext;
   input: TInput;
 }) => Promise<TResult>;
 
@@ -16,8 +24,12 @@ export type SendActionFunction<TInput = any> = (args: {
   input: TInput;
 }) => void;
 
+type RouteMeta = {
+  requireSenderWindow?: boolean;
+};
+
 // A route is a leaf with an action. A RouterType can be nested arbitrarily.
-export type Route = { action: ActionFunction };
+export type Route = { action: ActionFunction; __tipcMeta?: RouteMeta };
 export type SendRoute = { sendAction: SendActionFunction };
 export interface RouterType {
   [key: string]: Route | SendRoute | RouterType;

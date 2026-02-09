@@ -6,18 +6,33 @@ export type ActionContext = {
     target?: Electron.WebContents | Electron.BrowserWindow | null,
   ) => RendererHandlersCaller<T>;
 };
-export type ActionFunction<TInput = any, TResult = any> = (args: {
-  context: ActionContext;
+
+export type ActionContextWithSenderWindow = ActionContext & {
+  senderWindow: Electron.BrowserWindow;
+};
+
+export type ActionFunction<
+  TInput = any,
+  TResult = any,
+  TContext extends ActionContext = ActionContext,
+> = (args: {
+  context: TContext;
   input: TInput;
 }) => Promise<TResult>;
+
 export type EventFunction<TInput = any> = (args: {
   context: ActionContext;
   input: TInput;
 }) => Promise<void>;
+type RouteMeta = {
+  requireSenderWindow?: boolean;
+};
+
 export interface RouterType {
   [key: string]:
     | {
         action: ActionFunction;
+        __tipcMeta?: RouteMeta;
       }
     | {
         event: EventFunction;
