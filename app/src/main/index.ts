@@ -7,6 +7,7 @@ import { registerIpcMain } from "@vexed/tipc/main";
 import { equalsIgnoreCase } from "@vexed/utils/string";
 import { app, shell, nativeTheme } from "electron";
 import { version } from "../../package.json";
+import { getArgValue, hasArgFlag } from "../shared/argv";
 import { ASSET_PATH, BRAND, IS_MAC, IS_WINDOWS, IS_LINUX } from "./constants";
 import { createMenu } from "./menu";
 import { initFlashService } from "./services/flash";
@@ -95,13 +96,8 @@ async function handleAppLaunch(argv: string[] = process.argv) {
       }
     }
 
-    const parseArgValue = (prefix: string) =>
-      argv.find((arg) => arg.startsWith(prefix))?.split("=")[1] ?? "";
-    const hasFlag = (...flags: string[]) =>
-      argv.some((arg) => flags.some((flag) => equalsIgnoreCase(arg, flag)));
-
-    const isManagerFlag = hasFlag("--manager", "-m");
-    const isGameFlag = hasFlag("--game", "-g");
+    const isManagerFlag = hasArgFlag(argv, "--manager", "-m");
+    const isGameFlag = hasArgFlag(argv, "--game", "-g");
 
     let launchMode = settings.getString("launchMode", "game");
 
@@ -127,11 +123,12 @@ async function handleAppLaunch(argv: string[] = process.argv) {
       windowsService.manager();
     } else if (isGameMode) {
       const account = {
-        username: parseArgValue("--username="),
-        password: parseArgValue("--password="),
-        server: parseArgValue("--server="),
-        scriptPath: parseArgValue("--scriptPath="),
+        username: getArgValue(argv, "--username=") ?? "",
+        password: getArgValue(argv, "--password=") ?? "",
+        server: getArgValue(argv, "--server=") ?? "",
+        scriptPath: getArgValue(argv, "--scriptPath=") ?? "",
       };
+
       windowsService.game(account);
     }
   } catch (error) {

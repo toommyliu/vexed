@@ -1,5 +1,6 @@
 import process from "process";
 import log from "electron-log/renderer";
+import { getArgValue } from "~/shared/argv";
 import * as tipc from "~/shared/tipc";
 import { Bot } from "./lib/Bot";
 import { AutoReloginJob } from "./lib/jobs/autorelogin";
@@ -11,12 +12,10 @@ import {
 import { appState, autoReloginState } from "./state/index.svelte";
 
 const logger = log.scope("game/flash-interop");
-
 const bot = Bot.getInstance();
 
 window.packetFromClient = ([packet]: [string]) => {
   if (!packet) return;
-
   bot.emit("packetFromClient", packet);
 
   const pkt = packet.slice("[Sending - STR]: ".length);
@@ -29,11 +28,7 @@ window.packetFromClient = ([packet]: [string]) => {
 };
 
 window.packetFromServer = ([packet]: [string]) => {
-  if (!packet) {
-    console.log("no packet?");
-    return;
-  }
-
+  if (!packet) return;
   bot.emit("packetFromServer", packet);
 
   // ct seems jank in pext, so we'll just handle it here
@@ -88,39 +83,24 @@ window.loaded = async () => {
 
   void bot.scheduler.start();
 
-  const usernameArg = process.argv.find((arg) => arg.startsWith("--username="));
-  const passwordArg = process.argv.find((arg) => arg.startsWith("--password="));
-  const scriptPath = process.argv.find((arg) =>
-    arg.startsWith("--scriptPath="),
-  );
-
-  if (usernameArg && passwordArg) {
-    const [, username] = usernameArg.split("=");
-    const [, password] = passwordArg.split("=");
-
-    const serverArg = process.argv.find((arg) => arg.startsWith("--server="));
-    const server = serverArg?.split("=")?.[1];
-
-    if (!username || !password) {
-      return;
-    }
-
+  const username = getArgValue(process.argv, "--username=");
+  const password = getArgValue(process.argv, "--password=");
+  const scriptPath = getArgValue(process.argv, "--scriptPath=");
+  if (username && password) {
+    const server = getArgValue(process.argv, "--server=");
     if (server) {
-      autoReloginState.enable(username!, password!, server!);
+      autoReloginState.enable(username, password, server);
       AutoReloginJob.resetForNewCredentials();
-
       bot.once("login", async () => {
         autoReloginState.disable();
         await tipc.client.manager.managerLoginSuccess({ username });
       });
     } else {
-      bot.auth.login(username!, password!);
-
+      bot.auth.login(username, password);
       await bot.waitUntil(
         () => bot.flash.get("mcLogin.currentLabel", true) === "Servers",
         { indefinite: true },
       );
-
       await tipc.client.manager.managerLoginSuccess({ username });
     }
   }
@@ -128,12 +108,8 @@ window.loaded = async () => {
   if (scriptPath) {
     try {
       await bot.waitUntil(() => bot.player.isReady(), { indefinite: true });
-
       if (window.context.isRunning()) return;
-
-      const [, path] = scriptPath.split("=");
-      const decodedPath = decodeURIComponent(path!);
-
+      const decodedPath = decodeURIComponent(scriptPath);
       await tipc.client.scripts.loadScript({ scriptPath: decodedPath });
     } catch {}
   }
