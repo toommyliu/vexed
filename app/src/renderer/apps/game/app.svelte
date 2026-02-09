@@ -498,7 +498,7 @@
                   Enable for server
                 </Menu.Label>
                 <div class="max-h-52 overflow-y-auto pr-1">
-                  {#each reloginServers as server}
+                  {#each reloginServers as server (server)}
                     <Menu.Item
                       class={cn(
                         "bg-transparent transition-colors hover:bg-emerald-500/10 hover:text-emerald-400",
@@ -537,7 +537,7 @@
                   Enable for server
                 </Menu.Label>
                 <div class="max-h-52 overflow-y-auto pr-1">
-                  {#each reloginServers as server}
+                  {#each reloginServers as server (server)}
                     <Menu.Item
                       class="bg-transparent transition-colors hover:bg-emerald-500/10 hover:text-emerald-400"
                       onclick={() => enableRelogin(server)}
@@ -601,7 +601,7 @@
                 {currentSelectedPad}
               </Menu.Trigger>
               <Menu.Content align="end" class="min-w-40 text-[12px]">
-                {#each validPads as pad}
+                {#each validPads as pad (pad)}
                   <Menu.Item
                     class={cn(
                       "bg-transparent",
@@ -640,7 +640,7 @@
                 align="end"
                 class="max-h-[25vh] min-w-40 overflow-y-auto text-[12px]"
               >
-                {#each availableCells as cell}
+                {#each availableCells as cell (cell)}
                   <Menu.Item
                     class={cn(
                       "bg-transparent",
