@@ -12,7 +12,6 @@ let debugEnabled = false;
 let flushTimer: NodeJS.Timeout | null = null;
 let initPromise: Promise<void> | null = null;
 
-// Cached Intl.DateTimeFormat for performant locale-aware date formatting
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
   year: "numeric",
   month: "2-digit",

@@ -14,7 +14,6 @@ let settings: Config<Settings>;
 
 export async function initSettings(): Promise<Config<Settings>> {
   if (settings) return settings;
-
   const result = await Config.create<Settings>({
     configName: "settings",
     cwd: DOCUMENTS_PATH,

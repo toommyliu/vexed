@@ -9,6 +9,7 @@ import { app, shell, nativeTheme } from "electron";
 import { version } from "../../package.json";
 import { ASSET_PATH, BRAND, IS_MAC, IS_WINDOWS, IS_LINUX } from "./constants";
 import { createMenu } from "./menu";
+import { initFlashService } from "./services/flash";
 import {
   initMainLogger,
   createLogger,
@@ -23,12 +24,9 @@ import { createNotification } from "./util/notification";
 
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 
-const logger = createLogger("main");
+const logger = createLogger("app");
 
-function registerFlashPlugin() {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
-  const flashTrust = require("nw-flash-trust");
-
+async function registerFlashPlugin() {
   let pluginName;
 
   if (IS_WINDOWS) {
@@ -54,17 +52,21 @@ function registerFlashPlugin() {
     "ppapi-flash-path",
     join(ASSET_PATH, pluginName),
   );
-
   const flashPath = join(
     app.getPath("userData"),
     "Pepper Data",
     "Shockwave Flash",
     "WritableRoot",
   );
-  const trustManager = flashTrust.initSync(BRAND, flashPath);
-  trustManager.empty();
 
-  trustManager.add(join(ASSET_PATH, "loader.swf"));
+  const result = await initFlashService(BRAND, flashPath);
+  if (result.isOk()) {
+    const trustManager = result.value;
+    await trustManager.empty();
+    await trustManager.add(join(ASSET_PATH, "loader.swf"));
+  } else {
+    logger.error("Failed to initialize Flash trust manager", result.error);
+  }
 }
 
 async function handleAppLaunch(argv: string[] = process.argv) {
@@ -140,7 +142,14 @@ async function handleAppLaunch(argv: string[] = process.argv) {
   }
 }
 
-registerFlashPlugin();
+void (async () => {
+  try {
+    await registerFlashPlugin();
+  } catch (error) {
+    logger.error("Failed to register Flash trust", error);
+  }
+})();
+
 registerIpcMain(router);
 
 if (IS_WINDOWS) {

@@ -43,7 +43,6 @@ async function handleCheckForUpdates() {
     buttons: ["Download", "Later"],
     defaultId: 0,
   });
-
   if (response === 0) void shell.openExternal(updateResult.releaseUrl);
 }
 
