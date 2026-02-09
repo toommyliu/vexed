@@ -58,12 +58,10 @@ const rules = [
   nodeRuleset,
   browserRuleset,
   typeScriptRuleset,
-  {
-    files: ["./**/*.ts"],
-  },
+  prettierRuleset,
   ...svelte.configs["flat/recommended"],
   {
-    files: ["**/*.svelte", "**/*.svelte.ts"],
+    files: ["src/**/*.svelte", "src/**/*.svelte.ts"],
     languageOptions: {
       parserOptions: {
         parser: require("@typescript-eslint/parser"),
