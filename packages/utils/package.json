@@ -2,7 +2,7 @@
   "name": "@vexed/utils",
   "private": true,
   "scripts": {
-    "build": "tsdown --outDir ./dist --format cjs --minify --entry './src/**/*.ts' --dts --exports",
+    "build": "tsdown --outDir ./dist --format cjs --minify --entry \"./src/**/*.ts\" --dts --exports",
     "postinstall": "npm run build"
   },
   "devDependencies": {

@@ -3,7 +3,7 @@
   "version": "2.7.0",
   "private": true,
   "scripts": {
-    "build": "tsdown --outDir ./dist --format cjs --entry './src/index.ts' --dts --exports",
+    "build": "tsdown --outDir ./dist --format cjs --entry \"./src/index.ts\" --dts --exports",
     "sync": "node scripts/sync.mjs",
     "postinstall": "npm run sync || echo 'better-result sync failed, using existing build'"
   },
