@@ -78,12 +78,8 @@
 
   async function toggleCapture() {
     on = !on;
-
-    if (on) {
-      await client.packetLogger.packetLoggerStart();
-    } else {
-      await client.packetLogger.packetLoggerStop();
-    }
+    if (on) await client.packets.startLogger();
+    else await client.packets.stopLogger();
   }
 
   function addPacket(data: unknown, type: PacketType) {
@@ -153,9 +149,8 @@
     stats.pext = 0;
   }
 
-  handlers.packetLogger.packet.listen((packet) => {
+  handlers.packets.onPacket.listen((packet) => {
     if (!on) return;
-
     const type = packet.type as PacketType;
     addPacket(packet.packet, type);
   });
@@ -165,13 +160,13 @@
   });
 </script>
 
-<div class="bg-background flex h-screen flex-col">
+<div class="flex h-screen flex-col bg-background">
   <header
-    class="elevation-1 border-border/50 bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-10 border-b px-6 py-3 backdrop-blur-xl"
+    class="elevation-1 sticky top-0 z-10 border-b border-border/50 bg-background/95 px-6 py-3 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80"
   >
     <div class="mx-auto flex max-w-7xl items-center justify-between">
       <div class="flex items-center gap-3">
-        <h1 class="text-foreground text-base font-semibold tracking-tight">
+        <h1 class="text-base font-semibold tracking-tight text-foreground">
           Packet Logger
         </h1>
       </div>
@@ -180,7 +175,7 @@
         <Button
           variant="outline"
           size="sm"
-          class="border-border/50 gap-2"
+          class="gap-2 border-border/50"
           onclick={saveToFile}
           disabled={filteredPackets.length === 0}
         >
@@ -190,7 +185,7 @@
         <Button
           variant="outline"
           size="sm"
-          class="border-border/50 gap-2"
+          class="gap-2 border-border/50"
           onclick={copyAll}
           disabled={filteredPackets.length === 0}
         >
@@ -225,7 +220,7 @@
             <Tabs.Trigger value="all" class="gap-2">
               All
               <span
-                class="bg-secondary rounded px-1.5 py-0.5 text-xs tabular-nums"
+                class="rounded bg-secondary px-1.5 py-0.5 text-xs tabular-nums"
               >
                 {totalPackets}
               </span>
@@ -261,7 +256,7 @@
               <Checkbox id="show-timestamps" bind:checked={showTimestamps} />
               <Label
                 for="show-timestamps"
-                class="text-muted-foreground flex cursor-pointer items-center gap-1.5 text-sm"
+                class="flex cursor-pointer items-center gap-1.5 text-sm text-muted-foreground"
               >
                 Timestamps
               </Label>
@@ -270,7 +265,7 @@
               <Checkbox id="auto-scroll" bind:checked={autoScroll} />
               <Label
                 for="auto-scroll"
-                class="text-muted-foreground flex cursor-pointer items-center gap-1.5 text-sm"
+                class="flex cursor-pointer items-center gap-1.5 text-sm text-muted-foreground"
               >
                 Auto-scroll
               </Label>
@@ -278,7 +273,7 @@
             <Button
               variant="ghost"
               size="sm"
-              class="text-destructive gap-2"
+              class="gap-2 text-destructive"
               onclick={clearPackets}
               disabled={packets.length === 0}
             >
@@ -290,7 +285,7 @@
 
         <div class="flex items-center justify-between text-sm">
           <span class="text-muted-foreground">
-            <span class="text-foreground font-medium tabular-nums"
+            <span class="font-medium tabular-nums text-foreground"
               >{filteredPackets.length}</span
             >
             {#if currentFilter !== "all"}
@@ -303,11 +298,11 @@
         </div>
 
         <div
-          class="border-border/50 bg-card relative flex-1 overflow-hidden rounded-xl border"
+          class="relative flex-1 overflow-hidden rounded-xl border border-border/50 bg-card"
         >
           {#if filteredPackets.length === 0}
             <div class="flex h-full items-center justify-center">
-              <p class="text-muted-foreground text-center text-sm">
+              <p class="text-center text-sm text-muted-foreground">
                 No packets captured yet
               </p>
             </div>
@@ -318,7 +313,7 @@
             >
               {#each filteredPackets as packet (packet.id)}
                 <div
-                  class="hover:bg-secondary/50 group flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 transition-colors"
+                  class="group flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 transition-colors hover:bg-secondary/50"
                   onclick={() => copyPacket(packet.content)}
                   onkeydown={(ev) => {
                     if (ev.key === "Enter") {
@@ -332,7 +327,7 @@
                 >
                   {#if showTimestamps}
                     <span
-                      class="text-muted-foreground/70 shrink-0 text-xs tabular-nums"
+                      class="shrink-0 text-xs tabular-nums text-muted-foreground/70"
                     >
                       {formatTimestamp(packet.timestamp)}
                     </span>
@@ -346,12 +341,12 @@
                     {packet.type}
                   </span>
                   <span
-                    class="text-foreground flex-1 whitespace-pre-wrap break-all"
+                    class="flex-1 whitespace-pre-wrap break-all text-foreground"
                   >
                     {packet.content}
                   </span>
                   <Copy
-                    class="text-muted-foreground h-3.5 w-3.5 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
+                    class="h-3.5 w-3.5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
                   />
                 </div>
               {/each}

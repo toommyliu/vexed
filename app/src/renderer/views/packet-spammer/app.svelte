@@ -42,25 +42,25 @@
 
   $effect(() => {
     if (isRunning) {
-      void client.packetSpammer.packetSpammerStart({
+      client.packets.startSpammer({
         packets: [...packets],
         delay,
       });
     } else {
-      void client.packetSpammer.packetSpammerStop();
+      client.packets.stopSpammer();
     }
   });
 
   handlers.game.gameReloaded.listen(() => (isRunning = false));
 </script>
 
-<div class="bg-background flex h-screen flex-col">
+<div class="flex h-screen flex-col bg-background">
   <header
-    class="elevation-1 border-border/50 bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-10 border-b px-6 py-3 backdrop-blur-xl"
+    class="elevation-1 sticky top-0 z-10 border-b border-border/50 bg-background/95 px-6 py-3 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80"
   >
     <div class="mx-auto flex max-w-7xl items-center justify-between">
       <div class="flex items-center gap-3">
-        <h1 class="text-foreground text-base font-semibold tracking-tight">
+        <h1 class="text-base font-semibold tracking-tight text-foreground">
           Packet Spammer
         </h1>
       </div>
@@ -87,14 +87,14 @@
 
   <main class="flex-1 overflow-auto p-4 sm:p-6">
     <div class="mx-auto flex max-w-7xl flex-col gap-4">
-      <Card.Root class="border-border/40 gap-0 overflow-hidden py-0">
+      <Card.Root class="gap-0 overflow-hidden border-border/40 py-0">
         <Card.Header
-          class="border-border/20 relative flex h-10 flex-row items-center space-y-0 border-b px-4 py-0"
+          class="relative flex h-10 flex-row items-center space-y-0 border-b border-border/20 px-4 py-0"
         >
           <div
-            class="bg-primary/50 absolute bottom-3 left-0 top-3 w-0.5 rounded-full"
+            class="absolute bottom-3 left-0 top-3 w-0.5 rounded-full bg-primary/50"
           ></div>
-          <h2 class="text-foreground/80 text-sm font-medium">Add Packet</h2>
+          <h2 class="text-sm font-medium text-foreground/80">Add Packet</h2>
         </Card.Header>
 
         <Card.Content class="space-y-4 p-5">
@@ -109,7 +109,7 @@
                 bind:value={packetInput}
                 placeholder="Enter packet..."
                 class={cn(
-                  "border-border/50 bg-secondary/50 focus:bg-background font-mono transition-colors",
+                  "border-border/50 bg-secondary/50 font-mono transition-colors focus:bg-background",
                   isRunning && "pointer-events-none opacity-50",
                 )}
                 disabled={isRunning}
@@ -139,7 +139,7 @@
               >Delay between packets</Label
             >
             <InputGroup.Root
-              class="border-border/50 bg-secondary/50 focus-within:bg-background max-w-xs transition-colors"
+              class="max-w-xs border-border/50 bg-secondary/50 transition-colors focus-within:bg-background"
             >
               <Input
                 type="number"
@@ -153,7 +153,7 @@
               />
               <InputGroup.Addon align="inline-end">
                 <InputGroup.Text
-                  class="text-muted-foreground text-xs font-medium"
+                  class="text-xs font-medium text-muted-foreground"
                 >
                   ms
                 </InputGroup.Text>
@@ -163,17 +163,17 @@
         </Card.Content>
       </Card.Root>
 
-      <Card.Root class="border-border/40 flex-1 gap-0 overflow-hidden py-0">
+      <Card.Root class="flex-1 gap-0 overflow-hidden border-border/40 py-0">
         <Card.Header
-          class="border-border/20 relative flex h-10 flex-row items-center justify-between space-y-0 border-b px-4 py-0"
+          class="relative flex h-10 flex-row items-center justify-between space-y-0 border-b border-border/20 px-4 py-0"
         >
           <div
-            class="bg-primary/50 absolute bottom-3 left-0 top-3 w-0.5 rounded-full"
+            class="absolute bottom-3 left-0 top-3 w-0.5 rounded-full bg-primary/50"
           ></div>
           <div class="flex items-center gap-2">
-            <h2 class="text-foreground/80 text-sm font-medium">Packet Queue</h2>
+            <h2 class="text-sm font-medium text-foreground/80">Packet Queue</h2>
             <span
-              class="bg-secondary text-muted-foreground rounded px-1.5 py-0.5 text-xs tabular-nums"
+              class="rounded bg-secondary px-1.5 py-0.5 text-xs tabular-nums text-muted-foreground"
             >
               {packets.length}
             </span>
@@ -183,7 +183,7 @@
             <Button
               variant="ghost"
               size="sm"
-              class="text-destructive gap-2"
+              class="gap-2 text-destructive"
               onclick={removePacket}
               disabled={!canRemove}
             >
@@ -193,7 +193,7 @@
             <Button
               variant="ghost"
               size="sm"
-              class="text-destructive gap-2"
+              class="gap-2 text-destructive"
               onclick={clearPackets}
               disabled={isRunning || packets.length === 0}
             >
@@ -205,13 +205,13 @@
 
         <Card.Content class="space-y-2 p-5">
           <div
-            class="border-border/50 bg-secondary/30 max-h-[350px] min-h-[200px] overflow-auto rounded-lg border p-2"
+            class="max-h-[350px] min-h-[200px] overflow-auto rounded-lg border border-border/50 bg-secondary/30 p-2"
           >
             {#if packets.length === 0}
               <div
                 class="flex h-full min-h-[180px] items-center justify-center"
               >
-                <p class="text-muted-foreground text-center text-sm">
+                <p class="text-center text-sm text-muted-foreground">
                   No packets added yet
                 </p>
               </div>
@@ -223,8 +223,8 @@
                       "flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 font-mono text-sm transition-colors",
                       isRunning ? "cursor-default" : "cursor-pointer",
                       selectedIndex === index
-                        ? "border-primary/30 bg-primary/20 text-primary border"
-                        : "text-foreground hover:bg-secondary/80 border border-transparent",
+                        ? "border border-primary/30 bg-primary/20 text-primary"
+                        : "border border-transparent text-foreground hover:bg-secondary/80",
                     )}
                     onclick={() =>
                       !isRunning &&
@@ -239,7 +239,7 @@
                     tabindex={isRunning ? -1 : 0}
                   >
                     <span
-                      class="text-muted-foreground w-6 shrink-0 text-xs tabular-nums"
+                      class="w-6 shrink-0 text-xs tabular-nums text-muted-foreground"
                     >
                       {index + 1}.
                     </span>

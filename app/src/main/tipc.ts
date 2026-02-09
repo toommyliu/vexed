@@ -1,4 +1,4 @@
-import { tipc } from "@vexed/tipc";
+import { tipc, type ClientFromRouter } from "@vexed/tipc";
 import type {
   EnvironmentState,
   EnvironmentUpdatePayload,
@@ -18,8 +18,7 @@ import { createLoaderGrabberTipcRouter } from "./tipc/loaderGrabber.router";
 import { createLoggerTipcRouter } from "./tipc/logger.router";
 import { createManagerTipcRouter } from "./tipc/manager.router";
 import { createOnboardingTipcRouter } from "./tipc/onboarding.router";
-import { createPacketLoggerTipcRouter } from "./tipc/packetLogger.router";
-import { createPacketSpammerTipcRouter } from "./tipc/packetSpammer.router";
+import { createPacketTipcRouter } from "./tipc/packets.router";
 import type { TipcResult } from "./tipc/result";
 import { createScriptsTipcRouter } from "./tipc/scripts.router";
 
@@ -31,8 +30,7 @@ export const router = {
   fastTravels: createFastTravelsTipcRouter(tipcInstance),
   loaderGrabber: createLoaderGrabberTipcRouter(tipcInstance),
   follower: createFollowerTipcRouter(tipcInstance),
-  packetLogger: createPacketLoggerTipcRouter(tipcInstance),
-  packetSpammer: createPacketSpammerTipcRouter(tipcInstance),
+  packets: createPacketTipcRouter(tipcInstance),
   logger: createLoggerTipcRouter(tipcInstance),
   hotkeys: createHotkeysTipcRouter(tipcInstance),
   manager: createManagerTipcRouter(tipcInstance),
@@ -107,16 +105,7 @@ export type RendererHandlers = {
     reloadHotkeys(): Promise<void>;
   };
 
-  packetLogger: {
-    start(): void;
-    stop(): void;
-    packet(input: { packet: string; type: string }): void;
-  };
-
-  packetSpammer: {
-    start(input: { delay: number; packets: string[] }): void;
-    stop(): void;
-  };
+  packets: ClientFromRouter<ReturnType<typeof createPacketTipcRouter>>;
 
   army: {
     init(input: {

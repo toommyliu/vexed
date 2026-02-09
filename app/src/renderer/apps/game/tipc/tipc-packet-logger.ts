@@ -19,27 +19,27 @@ function cleanupListeners() {
   pextPacketListener = null;
 }
 
-handlers.packetLogger.start.listen(() => {
+handlers.packets.startLogger.listen(() => {
   const bot = Bot.getInstance();
 
   cleanupListeners();
 
   clientPacketListener = async (packet) => {
-    await client.packetLogger.packetLoggerPacket({
+    await client.packets.onPacket({
       type: "client",
       packet,
     });
   };
 
   serverPacketListener = async (packet) => {
-    await client.packetLogger.packetLoggerPacket({
+    await client.packets.onPacket({
       type: "server",
       packet,
     });
   };
 
   pextPacketListener = async (packet) => {
-    await client.packetLogger.packetLoggerPacket({
+    await client.packets.onPacket({
       type: "pext",
       packet: JSON.stringify(packet),
     });
@@ -50,6 +50,6 @@ handlers.packetLogger.start.listen(() => {
   bot.on("pext", pextPacketListener);
 });
 
-handlers.packetLogger.stop.listen(() => {
+handlers.packets.stopLogger.listen(() => {
   cleanupListeners();
 });
