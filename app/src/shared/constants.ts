@@ -1,7 +1,7 @@
 import os from "os";
 import { join } from "path";
 import process from "process";
-import type { FastTravel, HotkeyConfig } from "./types";
+import type { FastTravel } from "./types";
 
 export const IS_MAC = process.platform === "darwin";
 
@@ -75,42 +75,3 @@ export const DEFAULT_FAST_TRAVELS: FastTravel[] = [
     pad: "Left",
   },
 ] as const;
-
-export const DEFAULT_HOTKEYS: HotkeyConfig = {
-  General: {
-    "Toggle Autoattack": "",
-    "Toggle Bank": IS_MAC ? "command+b" : "ctrl+b",
-    "Toggle Options Panel": IS_MAC ? "command+," : "ctrl+,",
-    "Toggle Top Bar": IS_MAC ? "command+shift+t" : "ctrl+shift+t",
-  },
-  Application: {
-    "Open Environment": IS_MAC ? "command+e" : "ctrl+e",
-  },
-  Options: {
-    "Toggle Infinite Range": "alt+i",
-    "Toggle Provoke Cell": "",
-    "Toggle Enemy Magnet": "",
-    "Toggle Lag Killer": "alt+l",
-    "Toggle Hide Players": "",
-    "Toggle Skip Cutscenes": "",
-    "Toggle Disable FX": "",
-    "Toggle Disable Collisions": "",
-    "Toggle Anti-Counter": "",
-    "Toggle Disable Death Ads": "",
-  },
-  Scripts: {
-    "Load Script": "",
-    "Toggle Command Overlay": "`",
-    "Toggle Dev Tools": IS_MAC ? "command+shift+i" : "ctrl+shift+i",
-    "Toggle Script": "",
-  },
-  Tools: {
-    "Open Fast Travels": "",
-    "Open Follower": "",
-    "Open Loader Grabber": "",
-  },
-  Packets: {
-    "Open Packet Logger": "",
-    "Open Packet Spammer": "",
-  },
-} as const;

@@ -1,7 +1,8 @@
 import Config from "@vexed/config";
 import type { TipcInstance } from "@vexed/tipc";
 import { Result } from "better-result";
-import { DEFAULT_HOTKEYS, DOCUMENTS_PATH } from "~/shared";
+import { DOCUMENTS_PATH } from "~/shared";
+import { createDefaultHotkeyConfig } from "~/shared/hotkeys/schema";
 import type { HotkeyConfig } from "~/shared/types";
 import { createLogger } from "../services/logger";
 import { windowsService } from "../services/windows";
@@ -12,7 +13,7 @@ const logger = createLogger("tipc:hotkeys");
 const config = new Config<HotkeyConfig>({
   configName: "hotkeys",
   cwd: DOCUMENTS_PATH,
-  defaults: DEFAULT_HOTKEYS,
+  defaults: createDefaultHotkeyConfig(),
 });
 
 export function createHotkeysTipcRouter(tipc: TipcInstance) {
@@ -21,12 +22,12 @@ export function createHotkeysTipcRouter(tipc: TipcInstance) {
       const senderWindow = context.senderWindow;
       if (!senderWindow) return null;
       const result = await Result.tryPromise({
-        try: async () => {
-          await config.reload();
-          const inner_result = config.get();
-          if (!inner_result || typeof inner_result !== "object")
-            return DEFAULT_HOTKEYS;
-          return inner_result;
+          try: async () => {
+            await config.reload();
+            const inner_result = config.get();
+            if (!inner_result || typeof inner_result !== "object")
+              return createDefaultHotkeyConfig();
+            return inner_result;
         },
         catch: (error) => {
           logger.error("Failed to get all hotkeys", error);
@@ -48,7 +49,6 @@ export function createHotkeysTipcRouter(tipc: TipcInstance) {
         config.set(input.configKey, input.value);
         const result = await Result.tryPromise({
           try: async () => {
-            throw new Error("Failed to update hotkey");
             await config.save();
 
             // Sync to all game windows
