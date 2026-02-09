@@ -5,6 +5,7 @@ import type {
   FastTravel,
   FastTravelRoomNumber,
   GrabberDataType,
+  HotkeyConfig,
   LoaderDataType,
 } from "../shared/types";
 import { createAppTipcRouter } from "./tipc/app.router";
@@ -101,10 +102,15 @@ export type RendererHandlers = {
   };
 
   hotkeys: {
-    updateHotkey(input: { id: string; value: string }): Promise<void>;
-    reloadHotkeys(): Promise<void>;
+    all(): Promise<HotkeyConfig>;
+    update(input: {
+      configKey: string;
+      id: string;
+      value: string;
+    }): Promise<void>;
+    restore(): Promise<void>;
+    reload(): Promise<void>;
   };
-
   packets: ClientFromRouter<ReturnType<typeof createPacketTipcRouter>>;
 
   army: {

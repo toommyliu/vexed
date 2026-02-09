@@ -200,12 +200,15 @@ class WindowsService {
   /**
    * Iterate over all game windows with their IDs.
    */
-  public forEachGameWindow(
-    fn: (gameWindowId: number, gameWindow: BrowserWindow) => void,
-  ): void {
+  public async forEachGameWindow(
+    fn: (
+      gameWindowId: number,
+      gameWindow: BrowserWindow,
+    ) => Promise<void> | void,
+  ): Promise<void> {
     for (const [gameWindowId, entry] of this.windowStore.entries()) {
       if (!entry.game.isDestroyed()) {
-        fn(gameWindowId, entry.game);
+        await fn(gameWindowId, entry.game);
       }
     }
   }

@@ -74,6 +74,8 @@
     Mousetrap.reset();
   }
 
+  // TODO: don't update UI if saving hotkey fails
+
   async function confirmRecording(combination: string) {
     if (!recordingState.isRecording || !recordingState.actionId) return;
     if (!combination || combination.trim() === "") return;
@@ -92,7 +94,7 @@
     item.value = combination;
 
     stopRecording();
-    await client.hotkeys.updateHotkey({
+    await client.hotkeys.update({
       configKey: item.configKey,
       id: item.id,
       value: combination,
@@ -101,13 +103,12 @@
 
   async function clearHotkey() {
     if (!recordingState.isRecording || !recordingState.actionId) return;
-
     const item = findHotkeyItemById(recordingState.actionId);
-    if (!item) return;
 
+    if (!item) return;
     item.value = "";
 
-    await client.hotkeys.updateHotkey({
+    await client.hotkeys.update({
       configKey: item.configKey,
       id: item.id,
       value: "",
@@ -222,18 +223,18 @@
 
 <svelte:window on:keydown={(ev) => onKeyDown(ev)} />
 
-<div class="bg-background flex h-screen flex-col">
+<div class="flex h-screen flex-col bg-background">
   <header
-    class="bg-background/95 supports-[backdrop-filter]:bg-background/80 border-border/50 elevation-1 sticky top-0 z-10 border-b px-6 py-3 backdrop-blur-xl"
+    class="elevation-1 sticky top-0 z-10 border-b border-border/50 bg-background/95 px-6 py-3 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80"
   >
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <h1 class="text-foreground text-base font-semibold tracking-tight">
+        <h1 class="text-base font-semibold tracking-tight text-foreground">
           Hotkeys
         </h1>
       </div>
       <button
-        class="text-muted-foreground hover:bg-secondary/50 hover:text-foreground group flex items-center gap-1.5 rounded-md px-2 py-1 text-xs transition-all"
+        class="group flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground transition-all hover:bg-secondary/50 hover:text-foreground"
         onclick={() => {
           stopRecording();
           dialogOpen = true;
@@ -248,9 +249,9 @@
   </header>
 
   {#if conflicts.length > 0}
-    <div class="border-destructive/30 bg-destructive/5 border-b px-6 py-2">
+    <div class="border-b border-destructive/30 bg-destructive/5 px-6 py-2">
       <div class="flex items-center gap-2 text-sm">
-        <AlertTriangle class="text-destructive h-4 w-4" />
+        <AlertTriangle class="h-4 w-4 text-destructive" />
         <span class="text-destructive">
           Conflicts: <span class="font-mono">{conflicts.join(", ")}</span>
         </span>
@@ -264,7 +265,7 @@
         {@const isExpanded = activeSection === section.name}
         <div class={cn(sectionIndex > 0 && "mt-1")}>
           <button
-            class="bg-secondary/20 hover:bg-secondary/40 group flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors"
+            class="group flex w-full items-center gap-2 rounded-md bg-secondary/20 px-2 py-1.5 text-left transition-colors hover:bg-secondary/40"
             onclick={() => {
               if (recordingState.isRecording) stopRecording();
               activeSection = isExpanded ? null : section.name;
@@ -272,16 +273,16 @@
           >
             {#if getSectionIcon(section.icon)}
               {@const Icon = getSectionIcon(section.icon)}
-              <Icon class="text-muted-foreground h-3.5 w-3.5 shrink-0" />
+              <Icon class="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
             {/if}
             <span
-              class="text-muted-foreground text-xs font-medium uppercase tracking-wide"
+              class="text-xs font-medium uppercase tracking-wide text-muted-foreground"
             >
               {section.name}
             </span>
             <ChevronDown
               class={cn(
-                "text-muted-foreground/60 ml-auto h-3.5 w-3.5",
+                "ml-auto h-3.5 w-3.5 text-muted-foreground/60",
                 isExpanded && "rotate-180",
               )}
             />
@@ -308,8 +309,8 @@
                   class={cn(
                     "group/row flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left transition-colors",
                     isRecordingThis
-                      ? "bg-primary/5 relative"
-                      : "hover:bg-secondary/30 cursor-pointer bg-transparent",
+                      ? "relative bg-primary/5"
+                      : "cursor-pointer bg-transparent hover:bg-secondary/30",
                   )}
                   onclick={() => !isRecordingThis && startRecording(item.id)}
                   onkeydown={(ev) => {
@@ -319,7 +320,7 @@
                   role="button"
                   tabindex="0"
                 >
-                  <span class="text-foreground text-sm">{item.label}</span>
+                  <span class="text-sm text-foreground">{item.label}</span>
                   <div
                     class={cn(
                       "flex h-7 min-w-[110px] items-center justify-end gap-2 rounded-md px-2 transition-all",
@@ -341,18 +342,18 @@
                           />
                         </span>
                       {:else}
-                        <span class="text-primary animate-pulse text-xs"
+                        <span class="animate-pulse text-xs text-primary"
                           >...</span
                         >
                       {/if}
                     {:else if item.value}
                       <Kbd
                         hotkey={item.value}
-                        class="group-hover/row:border-primary/40 transition-all"
+                        class="transition-all group-hover/row:border-primary/40"
                       />
                     {:else}
                       <span
-                        class="text-muted-foreground/50 group-hover/row:text-muted-foreground text-xs"
+                        class="text-xs text-muted-foreground/50 group-hover/row:text-muted-foreground"
                       >
                         Click to bind
                       </span>
@@ -361,7 +362,7 @@
                 </div>
                 {#if isRecordingThis}
                   <div
-                    class="text-muted-foreground/70 mt-1.5 flex items-center gap-3 rounded-md px-2.5 py-1.5 text-[10px]"
+                    class="mt-1.5 flex items-center gap-3 rounded-md px-2.5 py-1.5 text-[10px] text-muted-foreground/70"
                   >
                     <span><Kbd>Esc</Kbd> cancel</span>
                     <span><Kbd>Backspace</Kbd> clear</span>

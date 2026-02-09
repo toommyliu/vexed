@@ -1,24 +1,42 @@
 import Config from "@vexed/config";
 import type { TipcInstance } from "@vexed/tipc";
+import { Result } from "better-result";
 import { DEFAULT_HOTKEYS, DOCUMENTS_PATH } from "~/shared";
 import type { HotkeyConfig } from "~/shared/types";
+import { createLogger } from "../services/logger";
 import { windowsService } from "../services/windows";
 import type { RendererHandlers } from "../tipc";
+import { TipcResult } from "./result";
 
+const logger = createLogger("tipc:hotkeys");
 const config = new Config<HotkeyConfig>({
   configName: "hotkeys",
   cwd: DOCUMENTS_PATH,
   defaults: DEFAULT_HOTKEYS,
 });
 
-export function createHotkeysTipcRouter(tipcInstance: TipcInstance) {
+export function createHotkeysTipcRouter(tipc: TipcInstance) {
   return {
-    all: tipcInstance.procedure.action(async ({ context }) => {
+    all: tipc.procedure.action(async ({ context }) => {
       const senderWindow = context.senderWindow;
       if (!senderWindow) return null;
-      return config.get();
+      const result = await Result.tryPromise({
+        try: async () => {
+          await config.reload();
+          const inner_result = config.get();
+          if (!inner_result || typeof inner_result !== "object")
+            return DEFAULT_HOTKEYS;
+          return inner_result;
+        },
+        catch: (error) => {
+          logger.error("Failed to get all hotkeys", error);
+          return error;
+        },
+      });
+      if (result.isErr()) return TipcResult.err();
+      return TipcResult.ok(result.value);
     }),
-    updateHotkey: tipcInstance.procedure
+    update: tipc.procedure
       .input<{
         configKey: string;
         id: string;
@@ -27,22 +45,36 @@ export function createHotkeysTipcRouter(tipcInstance: TipcInstance) {
       .action(async ({ input, context }) => {
         const senderWindow = context.senderWindow;
         if (!senderWindow) return;
-
-        // @ts-expect-error - config.set is not typed for nested keys
         config.set(input.configKey, input.value);
-        await config.save();
+        const result = await Result.tryPromise({
+          try: async () => {
+            throw new Error("Failed to update hotkey");
+            await config.save();
 
-        const parent = windowsService.resolveGameWindow(senderWindow.id);
-        if (!parent) return;
-
-        const parentHandlers =
-          context.getRendererHandlers<RendererHandlers>(parent);
-        await parentHandlers.hotkeys.updateHotkey.invoke({
-          id: input.id,
-          value: input.value,
+            // Sync to all game windows
+            await windowsService.forEachGameWindow(async (_, window) => {
+              const handlers =
+                context.getRendererHandlers<RendererHandlers>(window);
+              await handlers.hotkeys.update.invoke({
+                id: input.id,
+                value: input.value,
+                configKey: input.configKey,
+              });
+            });
+          },
+          catch: (error) => {
+            logger.error(
+              `Failed to update hotkey "${input.configKey}" with value "${input.value}"`,
+              error,
+            );
+            return error;
+          },
         });
+
+        if (result.isErr()) return TipcResult.err();
+        return TipcResult.ok();
       }),
-    restoreDefaults: tipcInstance.procedure.action(async ({ context }) => {
+    restore: tipc.procedure.action(async ({ context }) => {
       const senderWindow = context.senderWindow;
       if (!senderWindow) return;
 
@@ -55,9 +87,9 @@ export function createHotkeysTipcRouter(tipcInstance: TipcInstance) {
 
       const parentHandlers =
         context.getRendererHandlers<RendererHandlers>(parent);
-      await parentHandlers.hotkeys.reloadHotkeys.invoke();
+      await parentHandlers.hotkeys.reload.invoke();
     }),
-    reloadHotkeys: tipcInstance.procedure.action(async ({ context }) => {
+    reload: tipc.procedure.action(async ({ context }) => {
       const senderWindow = context.senderWindow;
       if (!senderWindow) return;
 
@@ -66,7 +98,7 @@ export function createHotkeysTipcRouter(tipcInstance: TipcInstance) {
 
       const parentHandlers =
         context.getRendererHandlers<RendererHandlers>(parent);
-      await parentHandlers.hotkeys.reloadHotkeys.invoke();
+      await parentHandlers.hotkeys.reload.invoke();
     }),
   };
 }
