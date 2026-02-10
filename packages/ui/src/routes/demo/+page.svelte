@@ -813,58 +813,109 @@
     </section>
 
     <!-- Tabs -->
-    <section class="space-y-4">
+    <section class="space-y-8">
       <h2 class="text-2xl font-semibold border-b pb-2">Tabs</h2>
-      <Tabs.Root bind:value={tabValue} class="w-[400px]">
-        <Tabs.List class="grid w-full grid-cols-2">
-          <Tabs.Trigger value="account">Account</Tabs.Trigger>
-          <Tabs.Trigger value="password">Password</Tabs.Trigger>
-        </Tabs.List>
-        <Tabs.Content value="account">
-          <Card.Root>
-            <Card.Header>
-              <Card.Title>Account</Card.Title>
-              <Card.Description
-                >Make changes to your account here.</Card.Description
-              >
-            </Card.Header>
-            <Card.Content class="space-y-2">
-              <div class="space-y-1">
-                <Label for="name">Name</Label>
-                <Input id="name" value="Pedro Duarte" />
-              </div>
-              <div class="space-y-1">
-                <Label for="username">Username</Label>
-                <Input id="username" value="@peduarte" />
-              </div>
-            </Card.Content>
-            <Card.Footer>
-              <Button>Save changes</Button>
-            </Card.Footer>
-          </Card.Root>
-        </Tabs.Content>
-        <Tabs.Content value="password">
-          <Card.Root>
-            <Card.Header>
-              <Card.Title>Password</Card.Title>
-              <Card.Description>Change your password here.</Card.Description>
-            </Card.Header>
-            <Card.Content class="space-y-2">
-              <div class="space-y-1">
-                <Label for="current">Current password</Label>
-                <Input id="current" type="password" />
-              </div>
-              <div class="space-y-1">
-                <Label for="new">New password</Label>
-                <Input id="new" type="password" />
-              </div>
-            </Card.Content>
-            <Card.Footer>
-              <Button>Save password</Button>
-            </Card.Footer>
-          </Card.Root>
-        </Tabs.Content>
-      </Tabs.Root>
+
+      <div class="space-y-4">
+        <h3 class="text-lg font-medium">Horizontal (Default)</h3>
+        <Tabs.Root bind:value={tabValue}>
+          <Tabs.List>
+            <Tabs.Trigger value="account">Account</Tabs.Trigger>
+            <Tabs.Trigger value="password">Password</Tabs.Trigger>
+          </Tabs.List>
+          <Tabs.Content value="account">
+            <Card.Root>
+              <Card.Header>
+                <Card.Title>Account</Card.Title>
+                <Card.Description>
+                  Make changes to your account here.
+                </Card.Description>
+              </Card.Header>
+              <Card.Content class="space-y-2">
+                <div class="space-y-1">
+                  <Label for="name">Name</Label>
+                  <Input id="name" value="Pedro Duarte" />
+                </div>
+                <div class="space-y-1">
+                  <Label for="username">Username</Label>
+                  <Input id="username" value="@peduarte" />
+                </div>
+              </Card.Content>
+              <Card.Footer>
+                <Button>Save changes</Button>
+              </Card.Footer>
+            </Card.Root>
+          </Tabs.Content>
+          <Tabs.Content value="password">
+            <Card.Root>
+              <Card.Header>
+                <Card.Title>Password</Card.Title>
+                <Card.Description>Change your password here.</Card.Description>
+              </Card.Header>
+              <Card.Content class="space-y-2">
+                <div class="space-y-1">
+                  <Label for="current">Current password</Label>
+                  <Input id="current" type="password" />
+                </div>
+                <div class="space-y-1">
+                  <Label for="new">New password</Label>
+                  <Input id="new" type="password" />
+                </div>
+              </Card.Content>
+              <Card.Footer>
+                <Button>Save password</Button>
+              </Card.Footer>
+            </Card.Root>
+          </Tabs.Content>
+        </Tabs.Root>
+      </div>
+
+      <div class="space-y-4">
+        <h3 class="text-lg font-medium">Vertical</h3>
+        <Tabs.Root orientation="vertical" value="account" class="w-[600px]">
+          <Tabs.List>
+            <Tabs.Trigger value="account">Account</Tabs.Trigger>
+            <Tabs.Trigger value="password">Password</Tabs.Trigger>
+            <Tabs.Trigger value="settings">Settings</Tabs.Trigger>
+          </Tabs.List>
+          <Tabs.Content value="account">
+            <Card.Root>
+              <Card.Header>
+                <Card.Title>Account</Card.Title>
+                <Card.Description>
+                  Make changes to your account here.
+                </Card.Description>
+              </Card.Header>
+              <Card.Content class="space-y-2">
+                <div class="space-y-1">
+                  <Label for="vertical-name">Name</Label>
+                  <Input id="vertical-name" value="Pedro Duarte" />
+                </div>
+              </Card.Content>
+            </Card.Root>
+          </Tabs.Content>
+          <Tabs.Content value="password">
+            <Card.Root>
+              <Card.Header>
+                <Card.Title>Password</Card.Title>
+              </Card.Header>
+              <Card.Content>
+                <p class="text-sm text-muted">Change your password here.</p>
+              </Card.Content>
+            </Card.Root>
+          </Tabs.Content>
+          <Tabs.Content value="settings">
+            <Card.Root>
+              <Card.Header>
+                <Card.Title>Settings</Card.Title>
+              </Card.Header>
+              <Card.Content>
+                <p class="text-sm text-muted">Manage your settings.</p>
+              </Card.Content>
+            </Card.Root>
+          </Tabs.Content>
+        </Tabs.Root>
+      </div>
     </section>
 
     <!-- Menu -->
@@ -948,9 +999,9 @@
               </div>
             </div>
           </Card.Content>
-          <Card.Footer class="flex justify-between">
-            <Button variant="outline">Cancel</Button>
-            <Button>Deploy</Button>
+          <Card.Footer class="flex items-center justify-end gap-2">
+            <Button variant="ghost">Cancel</Button>
+            <Button variant="default">Deploy</Button>
           </Card.Footer>
         </Card.Root>
         <Card.Root>
