@@ -11,6 +11,7 @@
   "scripts": {
     "check": "tsc --noEmit --skipLibCheck src/index.ts src/json.ts src/file.ts src/dir.ts",
     "build": "tsdown",
+    "postinstall": "npm run build",
     "test": "vitest run tests/*.test.ts",
     "test:watch": "vitest"
   },
