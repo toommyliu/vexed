@@ -20,5 +20,3 @@ export * as Separator from "./components/Separator.svelte";
 export * as Textarea from "./components/Textarea.svelte";
 export * as Field from "./components/field/index.js";
 export * as InputGroup from "./components/input-group/index.js";
-export * as Frame from "./components/frame/index.js";
-export * as Table from "./components/table/index.js";
