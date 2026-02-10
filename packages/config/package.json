@@ -10,7 +10,7 @@
   },
   "scripts": {
     "check": "tsc --noEmit --skipLibCheck src/index.ts",
-    "build": "tsdown --outDir ./dist --format cjs --entry \"./src/index.ts\" --dts --exports",
+    "build": "tsdown",
     "test": "vitest run src/index.test.ts",
     "test:watch": "vitest"
   },

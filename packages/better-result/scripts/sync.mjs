@@ -1,8 +1,9 @@
 import { execSync } from "child_process";
-import { readFileSync, writeFileSync, existsSync, rmSync } from "fs";
+import { readFileSync, writeFileSync, existsSync, rmSync, cpSync } from "fs";
 import { join } from "path";
+import { fileURLToPath } from "url";
 
-const PACKAGE_DIR = new URL("..", import.meta.url).pathname;
+const PACKAGE_DIR = join(fileURLToPath(import.meta.url), "../..");
 const REPO_URL = "https://github.com/dmmulroy/better-result.git";
 const CLONE_DIR = join(PACKAGE_DIR, ".upstream");
 
@@ -43,7 +44,7 @@ async function sync() {
       rmSync(targetDir, { recursive: true, force: true });
     }
 
-    runCommand(`cp -r ${sourceDir} ${targetDir}`, PACKAGE_DIR, "pipe");
+    cpSync(sourceDir, targetDir, { recursive: true });
 
     console.log("Updating version...");
     const upstreamPackage = JSON.parse(

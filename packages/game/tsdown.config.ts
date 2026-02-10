@@ -4,7 +4,6 @@ export default defineConfig({
   entry: "src/index.ts",
   format: "cjs",
   outDir: "./dist",
+  minify: true,
   dts: true,
-  sourcemap: true,
-  exports: true,
 });

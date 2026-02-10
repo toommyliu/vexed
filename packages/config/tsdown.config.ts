@@ -5,6 +5,5 @@ export default defineConfig({
   format: "cjs",
   outDir: "./dist",
   dts: true,
-  sourcemap: true,
   exports: true,
 });

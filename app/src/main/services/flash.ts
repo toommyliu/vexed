@@ -9,19 +9,10 @@ const logger = createLogger("services:flash");
 // https://github.com/szwacz/nw-flash-trust/blob/master/main.js
 
 export type FlashTrustStore = {
-  /**
-   * Adds a path to the Flash Player's trust list.
-   */
   add(path: string): Promise<Result<void, Error>>;
-  /**
-   * Clears all trusted paths from the configuration file.
-   */
   empty(): Promise<Result<void, Error>>;
 };
 
-/**
- * Initializes the Flash trust manager.
- */
 export async function initFlashService(
   appName: string,
   flashRoot: string,
