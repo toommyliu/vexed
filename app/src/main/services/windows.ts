@@ -1,7 +1,10 @@
 import { join, resolve } from "path";
 import { Result } from "better-result";
-import { BrowserWindow, type BrowserWindowConstructorOptions } from "electron";
-import { screen } from "electron";
+import {
+  BrowserWindow,
+  screen,
+  type BrowserWindowConstructorOptions,
+} from "electron";
 import type { AccountWithScript, WindowIds } from "~/shared/types";
 import { BRAND, DIST_PATH, IS_PACKAGED } from "../constants";
 import { getSettings } from "../settings";
@@ -24,6 +27,7 @@ export type SubwindowConfig = {
   path: string; // relative to DIST_PATH
   width: number;
 };
+
 export type SubwindowHandle = {
   close(): void;
   get(): BrowserWindow | null;
@@ -33,14 +37,15 @@ export type SubwindowHandle = {
 
 class SubwindowHandleImpl implements SubwindowHandle {
   public constructor(
-    private readonly service: WindowsService,
-    private readonly storeRef: WindowStoreEntry,
-    private readonly gameWindowId: number,
-    private readonly id: WindowIds,
+    private readonly parentWindow: BrowserWindow,
+    private readonly getWindow: () => BrowserWindow | null,
+    private readonly openWindow: (
+      config: SubwindowConfig,
+    ) => Promise<BrowserWindow>,
   ) {}
 
   public get parent(): BrowserWindow {
-    return this.storeRef.game;
+    return this.parentWindow;
   }
 
   public close(): void {
@@ -48,68 +53,19 @@ class SubwindowHandleImpl implements SubwindowHandle {
   }
 
   public get(): BrowserWindow | null {
-    const win = this.storeRef.subwindows.get(this.id);
-    return win && !win.isDestroyed() ? win : null;
+    return this.getWindow();
   }
 
   public async open(config: SubwindowConfig): Promise<BrowserWindow> {
-    const existing = this.get();
-    if (existing) {
-      existing.show();
-      existing.focus();
-
-      return existing;
-    }
-
-    return this.create(config);
-  }
-
-  private async create(config: SubwindowConfig): Promise<BrowserWindow> {
-    const window = Result.unwrap(
-      this.service.createWindow({
-        title: "",
-        webPreferences: {
-          contextIsolation: false,
-          nodeIntegration: true,
-        },
-        useContentSize: true,
-        width: config.width,
-        minWidth: config.width,
-        height: config.height,
-        minHeight: config.height,
-        minimizable: false,
-        show: false,
-      }),
-    );
-
-    // Register parent relationship
-    this.service.registerSubwindow(this.gameWindowId, window.id);
-    this.storeRef.subwindows.set(this.id, window);
-
-    window.once("ready-to-show", () => {
-      window.show();
-    });
-
-    window.on("close", (ev) => {
-      ev.preventDefault();
-      window.hide();
-    });
-
-    const subwindowId = window.id;
-    window.on("closed", () => {
-      this.service.unregisterSubwindow(subwindowId);
-      this.storeRef.subwindows.delete(this.id);
-    });
-
-    await window.loadFile(join(DIST_PATH, config.path));
-
-    return window;
+    return this.openWindow(config);
   }
 }
 
 class WindowsService {
+  // windowStore keys are game window IDs only.
   private readonly windowStore: WindowStore = new Map();
 
+  // parentMap keys are subwindow IDs only; values point to game window IDs.
   private readonly parentMap: Map<number, number> = new Map();
 
   private managerWindow: BrowserWindow | null = null;
@@ -134,15 +90,161 @@ class WindowsService {
     this.parentMap.delete(subwindowId);
   }
 
+  private isWindowOpen(
+    window: BrowserWindow | null | undefined,
+  ): window is BrowserWindow {
+    return Boolean(window && !window.isDestroyed());
+  }
+
+  private isUsableWindow(
+    window: BrowserWindow | null | undefined,
+  ): window is BrowserWindow {
+    return Boolean(
+      window && !window.isDestroyed() && !window.webContents.isDestroyed(),
+    );
+  }
+
+  private showAndFocus(window: BrowserWindow): void {
+    window.show();
+    window.focus();
+  }
+
+  private resolveGameId(windowId: number): number | undefined {
+    if (this.windowStore.has(windowId)) return windowId;
+    return this.parentMap.get(windowId);
+  }
+
+  private registerGameWindow(window: BrowserWindow): number {
+    const windowId = window.id;
+    this.windowStore.set(windowId, {
+      game: window,
+      subwindows: new Map(),
+    });
+    return windowId;
+  }
+
+  private destroyTrackedSubwindows(entry: WindowStoreEntry): void {
+    for (const subwindow of entry.subwindows.values()) {
+      if (!subwindow || subwindow.isDestroyed()) continue;
+      subwindow.destroy();
+    }
+  }
+
+  private cleanupGameWindow(windowId: number): void {
+    const entry = this.windowStore.get(windowId);
+    if (!entry) return;
+    this.destroyTrackedSubwindows(entry);
+    this.windowStore.delete(windowId);
+    cleanupEnvironmentState(windowId);
+  }
+
+  private wireGameLifecycle(window: BrowserWindow, windowId: number): void {
+    window.on("close", () => {
+      if (!this.isUsableWindow(window)) return;
+      this.cleanupGameWindow(windowId);
+    });
+  }
+
+  private wireSubwindowLifecycle(
+    gameWindowId: number,
+    id: WindowIds,
+    storeRef: WindowStoreEntry,
+    window: BrowserWindow,
+  ): void {
+    this.registerSubwindow(gameWindowId, window.id);
+    storeRef.subwindows.set(id, window);
+    window.once("ready-to-show", () => {
+      window.show();
+    });
+    window.on("close", (ev) => {
+      ev.preventDefault();
+      window.hide();
+    });
+    const subwindowId = window.id;
+    window.on("closed", () => {
+      this.unregisterSubwindow(subwindowId);
+      storeRef.subwindows.delete(id);
+    });
+  }
+
+  private wireManagerLifecycle(window: BrowserWindow): void {
+    window.on("close", async (ev) => {
+      if (this.isQuitting) return;
+      ev.preventDefault();
+      window.hide();
+      await getSettings().save();
+    });
+
+    window.on("closed", async () => {
+      this.managerWindow = null;
+      await getSettings().save();
+    });
+  }
+
+  private wireOnboardingLifecycle(window: BrowserWindow): void {
+    window.on("close", async (ev) => {
+      if (this.isQuitting) return;
+      ev.preventDefault();
+      window.hide();
+      await getSettings().save();
+    });
+
+    window.on("closed", async () => {
+      this.onboardingWindow = null;
+      await getSettings().save();
+    });
+  }
+
+  private buildGameAdditionalArgs(account: AccountWithScript | null): string[] {
+    const args: string[] = [];
+    if (typeof account?.username === "string")
+      args.push(`--username=${account.username}`);
+    if (typeof account?.password === "string")
+      args.push(`--password=${account.password}`);
+    if (typeof account?.server === "string")
+      args.push(`--server=${account.server}`);
+    if (typeof account?.scriptPath === "string") {
+      const encodedScriptPath = encodeURIComponent(account.scriptPath);
+      args.push(`--scriptPath=${encodedScriptPath}`);
+    }
+
+    return args;
+  }
+
+  private async createSubwindow(
+    gameWindowId: number,
+    id: WindowIds,
+    storeRef: WindowStoreEntry,
+    config: SubwindowConfig,
+  ): Promise<BrowserWindow> {
+    const window = Result.unwrap(
+      this.createWindow({
+        title: "",
+        webPreferences: {
+          contextIsolation: false,
+          nodeIntegration: true,
+        },
+        useContentSize: true,
+        width: config.width,
+        minWidth: config.width,
+        height: config.height,
+        minHeight: config.height,
+        minimizable: false,
+        show: false,
+      }),
+    );
+    this.wireSubwindowLifecycle(gameWindowId, id, storeRef, window);
+    await window.loadFile(join(DIST_PATH, config.path));
+    return window;
+  }
+
   /**
-   * Resolve any window ID → its parent game window.
+   * Resolve any window ID to its parent game window.
    *
    * @param senderWindowId - The window ID to resolve from.
    */
   public resolveGameWindow(senderWindowId: number): BrowserWindow | null {
-    const gameId = this.windowStore.has(senderWindowId)
-      ? senderWindowId
-      : this.parentMap.get(senderWindowId);
+    const gameId = this.resolveGameId(senderWindowId);
     if (!gameId) return null;
     return this.windowStore.get(gameId)?.game ?? null;
   }
@@ -159,7 +261,18 @@ class WindowsService {
   ): SubwindowHandle | null {
     const storeRef = this.windowStore.get(gameWindowId);
     if (!storeRef) return null;
-    return new SubwindowHandleImpl(this, storeRef, gameWindowId, id);
+    const getWindow = () => this.getSubwindow(gameWindowId, id);
+    const openWindow = async (config: SubwindowConfig) => {
+      const existing = getWindow();
+      if (existing) {
+        this.showAndFocus(existing);
+        return existing;
+      }
+
+      return this.createSubwindow(gameWindowId, id, storeRef, config);
+    };
+
+    return new SubwindowHandleImpl(storeRef.game, getWindow, openWindow);
   }
 
   /**
@@ -175,7 +288,7 @@ class WindowsService {
     const storeRef = this.windowStore.get(gameWindowId);
     if (!storeRef) return null;
     const win = storeRef.subwindows.get(id);
-    return win && !win.isDestroyed() ? win : null;
+    return this.isWindowOpen(win) ? win : null;
   }
 
   /**
@@ -193,8 +306,7 @@ class WindowsService {
    * @param windowId - The window id to resolve from.
    */
   public getGameWindowId(windowId: number): number | undefined {
-    if (this.windowStore.has(windowId)) return windowId;
-    return this.parentMap.get(windowId);
+    return this.resolveGameId(windowId);
   }
 
   /**
@@ -207,25 +319,13 @@ class WindowsService {
     ) => Promise<void> | void,
   ): Promise<void> {
     for (const [gameWindowId, entry] of this.windowStore.entries()) {
-      if (!entry.game.isDestroyed()) {
-        await fn(gameWindowId, entry.game);
-      }
+      if (entry.game.isDestroyed()) continue;
+      await fn(gameWindowId, entry.game);
     }
   }
 
   public game(account: AccountWithScript | null = null) {
-    const args: string[] = [];
-    if (typeof account?.username === "string")
-      args.push(`--username=${account.username}`);
-    if (typeof account?.password === "string")
-      args.push(`--password=${account.password}`);
-    if (typeof account?.server === "string")
-      args.push(`--server=${account.server}`);
-    if (typeof account?.scriptPath === "string") {
-      const encodedScriptPath = encodeURIComponent(account.scriptPath);
-      args.push(`--scriptPath=${encodedScriptPath}`);
-    }
-
+    const args = this.buildGameAdditionalArgs(account);
     return Result.gen(function* () {
       const window = yield* this.createWindow({
         width: 966,
@@ -241,42 +341,16 @@ class WindowsService {
           ? { tabbingIdentifier: `game-${account?.username}` }
           : {}),
       });
-      const windowId = window.id;
-
-      this.windowStore.set(windowId, {
-        game: window,
-        subwindows: new Map(),
-      });
-
-      window.on("close", () => {
-        if (
-          !window ||
-          window?.isDestroyed() ||
-          window?.webContents?.isDestroyed()
-        )
-          return;
-
-        const entry = this.windowStore.get(windowId);
-        if (entry) {
-          for (const subwindow of entry.subwindows.values()) {
-            if (!subwindow || subwindow?.isDestroyed()) continue;
-            subwindow.destroy();
-          }
-
-          this.windowStore.delete(windowId);
-          cleanupEnvironmentState(windowId);
-        }
-      });
-
+      const windowId = this.registerGameWindow(window);
+      this.wireGameLifecycle(window, windowId);
       void window.loadURL(`file://${resolve(DIST_GAME, "index.html")}`);
       return Result.ok(window);
     }, this);
   }
 
   public manager() {
-    if (this.managerWindow && !this.managerWindow.isDestroyed()) {
-      this.managerWindow.show();
-      this.managerWindow.focus();
+    if (this.isWindowOpen(this.managerWindow)) {
+      this.showAndFocus(this.managerWindow);
       return Result.ok(this.managerWindow);
     }
 
@@ -289,30 +363,21 @@ class WindowsService {
         },
         useContentSize: true,
       });
-
-      window.on("close", async (ev) => {
-        if (this.isQuitting) return;
-        ev.preventDefault();
-        window.hide();
-        await getSettings().save();
-      });
-
-      window.on("closed", async () => {
-        this.managerWindow = null;
-        await getSettings().save();
-      });
-
+      this.wireManagerLifecycle(window);
       this.managerWindow = window;
-
       void window.loadURL(`file://${resolve(DIST_MANAGER, "index.html")}`);
       return Result.ok(window);
     }, this);
   }
 
+  public getManagerWindow(): BrowserWindow | null {
+    if (!this.isWindowOpen(this.managerWindow)) return null;
+    return this.managerWindow;
+  }
+
   public onboarding() {
-    if (this.onboardingWindow && !this.onboardingWindow.isDestroyed()) {
-      this.onboardingWindow.show();
-      this.onboardingWindow.focus();
+    if (this.isWindowOpen(this.onboardingWindow)) {
+      this.showAndFocus(this.onboardingWindow);
       return Result.ok(this.onboardingWindow);
     }
 
@@ -327,18 +392,7 @@ class WindowsService {
         maximizable: false,
       });
 
-      window.on("close", async (ev) => {
-        if (this.isQuitting) return;
-        ev.preventDefault();
-        window.hide();
-        await getSettings().save();
-      });
-
-      window.on("closed", async () => {
-        this.onboardingWindow = null;
-        await getSettings().save();
-      });
-
+      this.wireOnboardingLifecycle(window);
       this.onboardingWindow = window;
       void window.loadURL(`file://${resolve(DIST_ONBOARDING, "index.html")}`);
       return Result.ok(window);
@@ -353,7 +407,6 @@ class WindowsService {
       screen.getCursorScreenPoint(),
     );
     const workArea = display.workArea;
-
     return Result.ok({
       x: Math.floor(workArea.x + (workArea.width - width) / 2),
       y: Math.floor(workArea.y + (workArea.height - height) / 2),
@@ -376,7 +429,6 @@ class WindowsService {
       useContentSize: true,
       ...options,
     });
-
     applySecurityPolicy(window);
     if (!IS_PACKAGED) window.webContents.openDevTools({ mode: "right" });
     return Result.ok(window);

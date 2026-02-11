@@ -112,10 +112,8 @@ export function createManagerTipcRouter(tipc: TipcInstance) {
     managerLoginSuccess: tipc.procedure
       .input<{ username: string }>()
       .action(async ({ input, context }) => {
-        const result = windowsService.manager();
-        if (result.isErr()) return;
-
-        const mgrWindow = result.value;
+        const mgrWindow = windowsService.getManagerWindow();
+        if (!mgrWindow) return;
         const handlers =
           context.getRendererHandlers<RendererHandlers>(mgrWindow);
         handlers.manager.enableButton.send(input.username);

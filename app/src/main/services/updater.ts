@@ -56,19 +56,16 @@ class UpdaterService {
     const currentVersion = app.getVersion();
     const result = await Result.gen(async function* (this: UpdaterService) {
       const lastCheck = yield* Result.await(this.readLastUpdateCheck());
-
       if (!force && now - lastCheck < this.checkInterval)
         return Result.ok(null);
 
       yield* Result.await(this.writeLastUpdateCheck(now));
-
       const prevETag = yield* Result.await(this.readETag());
       const release = yield* Result.await(this.fetchRelease());
-      if (!release) return Result.ok(null);
 
+      if (!release) return Result.ok(null);
       if (release.eTag && release.eTag !== prevETag)
         yield* Result.await(this.writeETag(release.eTag));
-
       if (!isNewer(release.data.tag_name, currentVersion))
         return Result.ok(null);
 
@@ -78,7 +75,6 @@ class UpdaterService {
         releaseUrl: release.data.html_url,
       });
     }, this);
-
     return result.unwrapOr(null);
   }
 
