@@ -320,8 +320,12 @@ export const actionHandlers = COMMANDS.reduce(
 
 export function executeAction(actionId: UiActionId | string): void {
   const handler = actionHandlers[actionId as UiActionId];
-  if (handler) handler();
-  else console.warn(`Unknown action id: ${actionId}`);
+  if (!handler) {
+    console.warn(`Unknown action id: ${actionId}`);
+    return;
+  }
+
+  handler();
 }
 
 function resolveHotkey(
