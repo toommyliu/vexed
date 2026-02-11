@@ -1,4 +1,4 @@
-import _isHotkey from "is-hotkey";
+import isHotkeyOg from "is-hotkey";
 import type { Platform } from "../types";
 
 const CODE_TO_KEY: Record<string, string> = {
@@ -99,7 +99,7 @@ const MODIFIER_KEYS = ["control", "alt", "shift", "meta"];
 
 export function isValidHotkey(input: string): boolean {
   if (!input || typeof input !== "string") return false;
-  return _isHotkey(input) && input.trim() !== "";
+  return isHotkeyOg(input) && input.trim() !== "";
 }
 
 export function parseKeyboardEvent(

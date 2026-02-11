@@ -369,7 +369,7 @@
                         >
                           <Kbd
                             hotkey={recordingState.lastPressedKey}
-                            class={cn(
+                            kbdClass={cn(
                               "transition-all",
                               recordingConflict
                                 ? "border-destructive/60 text-destructive shadow-[0_0_8px_hsl(var(--destructive)/0.3)]"
@@ -385,7 +385,7 @@
                     {:else if item.value}
                       <Kbd
                         hotkey={item.value}
-                        class={cn(
+                        kbdClass={cn(
                           "transition-all group-hover/row:border-primary/40",
                           itemConflict &&
                             "border-destructive/40 text-destructive",
@@ -423,7 +423,7 @@
                           : "text-primary/70"}
                       >
                         <Kbd
-                          class={recordingConflict
+                          kbdClass={recordingConflict
                             ? "opacity-40 grayscale"
                             : ""}>Enter</Kbd
                         >

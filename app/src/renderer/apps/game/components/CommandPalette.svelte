@@ -7,253 +7,25 @@
   import { equalsIgnoreCase, fuzzyMatchIgnoreCase } from "@vexed/utils";
   import { get } from "svelte/store";
 
-  import { gameState, platform } from "../state/index.svelte";
-
-  import { client } from "~/shared/tipc";
-  import { WindowIds } from "~/shared/types";
-
-  interface CommandItem {
-    id: string;
-    label: string;
-    category: string;
-    hotkey: string;
-    action: () => void;
-  }
+  import { getUiCommands, type UiCommandSpec } from "../actions";
+  import { platform } from "../state/index.svelte";
 
   interface Props {
     open?: boolean;
     onClose?: () => void;
-    scriptLoaded?: boolean;
-    scriptRunning?: boolean;
-    onToggleScript?: () => void;
-    onLoadScript?: () => void;
-    onToggleOverlay?: () => void;
     hotkeyValues?: Record<string, string>;
   }
 
-  let {
-    open = $bindable(false),
-    onClose,
-    scriptLoaded = false,
-    scriptRunning = false,
-    onToggleScript,
-    onLoadScript,
-    onToggleOverlay,
-    hotkeyValues = {},
-  }: Props = $props();
+  let { open = $bindable(false), onClose, hotkeyValues = {} }: Props = $props();
 
   let searchQuery = $state("");
   let selectedIndex = $state(0);
   let inputRef = $state<HTMLInputElement | null>(null);
   let mouseMoved = $state(false);
 
-  const commands = $derived<CommandItem[]>([
-    {
-      id: "load-script",
-      label: "Load Script",
-      category: "Scripts",
-      hotkey: hotkeyValues["load-script"] ?? "",
-      action: () => {
-        onLoadScript?.();
-      },
-    },
-    {
-      id: "toggle-script",
-      label: scriptRunning ? "Stop Script" : "Start Script",
-      category: "Scripts",
-      hotkey: hotkeyValues["toggle-script"] ?? "",
-      action: () => {
-        if (scriptLoaded) onToggleScript?.();
-      },
-    },
-    {
-      id: "toggle-command-overlay",
-      label: "Toggle Command Overlay",
-      category: "Scripts",
-      hotkey: hotkeyValues["toggle-command-overlay"] ?? "",
-      action: () => {
-        onToggleOverlay?.();
-      },
-    },
-    {
-      id: "toggle-dev-tools",
-      label: "Toggle Dev Tools",
-      category: "Scripts",
-      hotkey: hotkeyValues["toggle-dev-tools"] ?? "",
-      action: () => {
-        void client.scripts.toggleDevTools();
-      },
-    },
-    {
-      id: "open-environment",
-      label: "Environment",
-      category: "Application",
-      hotkey: hotkeyValues["open-environment"] ?? "",
-      action: () => {
-        void client.app.launchWindow(WindowIds.Environment);
-      },
-    },
-    {
-      id: "open-hotkeys",
-      label: "Hotkeys",
-      category: "Application",
-      hotkey: "",
-      action: () => {
-        void client.app.launchWindow(WindowIds.Hotkeys);
-      },
-    },
-    {
-      id: "open-fast-travels",
-      label: "Fast Travels",
-      category: "Tools",
-      hotkey: hotkeyValues["open-fast-travels"] ?? "",
-      action: () => {
-        void client.app.launchWindow(WindowIds.FastTravels);
-      },
-    },
-    {
-      id: "open-loader-grabber",
-      label: "Loader/Grabber",
-      category: "Tools",
-      hotkey: hotkeyValues["open-loader-grabber"] ?? "",
-      action: () => {
-        void client.app.launchWindow(WindowIds.LoaderGrabber);
-      },
-    },
-    {
-      id: "open-follower",
-      label: "Follower",
-      category: "Tools",
-      hotkey: hotkeyValues["open-follower"] ?? "",
-      action: () => {
-        void client.app.launchWindow(WindowIds.Follower);
-      },
-    },
-    {
-      id: "open-packet-logger",
-      label: "Packet Logger",
-      category: "Packets",
-      hotkey: hotkeyValues["open-packet-logger"] ?? "",
-      action: () => {
-        void client.app.launchWindow(WindowIds.PacketLogger);
-      },
-    },
-    {
-      id: "open-packet-spammer",
-      label: "Packet Spammer",
-      category: "Packets",
-      hotkey: hotkeyValues["open-packet-spammer"] ?? "",
-      action: () => {
-        void client.app.launchWindow(WindowIds.PacketSpammer);
-      },
-    },
-    {
-      id: "toggle-infinite-range",
-      label: gameState.infiniteRange
-        ? "Disable Infinite Range"
-        : "Enable Infinite Range",
-      category: "Options",
-      hotkey: hotkeyValues["toggle-infinite-range"] ?? "",
-      action: () => {
-        gameState.infiniteRange = !gameState.infiniteRange;
-      },
-    },
-    {
-      id: "toggle-provoke-cell",
-      label: gameState.provokeCell
-        ? "Disable Provoke Cell"
-        : "Enable Provoke Cell",
-      category: "Options",
-      hotkey: hotkeyValues["toggle-provoke-cell"] ?? "",
-      action: () => {
-        gameState.provokeCell = !gameState.provokeCell;
-      },
-    },
-    {
-      id: "toggle-enemy-magnet",
-      label: gameState.enemyMagnet
-        ? "Disable Enemy Magnet"
-        : "Enable Enemy Magnet",
-      category: "Options",
-      hotkey: hotkeyValues["toggle-enemy-magnet"] ?? "",
-      action: () => {
-        gameState.enemyMagnet = !gameState.enemyMagnet;
-      },
-    },
-    {
-      id: "toggle-lag-killer",
-      label: gameState.lagKiller ? "Disable Lag Killer" : "Enable Lag Killer",
-      category: "Options",
-      hotkey: hotkeyValues["toggle-lag-killer"] ?? "",
-      action: () => {
-        gameState.lagKiller = !gameState.lagKiller;
-      },
-    },
-    {
-      id: "toggle-hide-players",
-      label: gameState.hidePlayers
-        ? "Disable Hide Players"
-        : "Enable Hide Players",
-      category: "Options",
-      hotkey: hotkeyValues["toggle-hide-players"] ?? "",
-      action: () => {
-        gameState.hidePlayers = !gameState.hidePlayers;
-      },
-    },
-    {
-      id: "toggle-skip-cutscenes",
-      label: gameState.skipCutscenes
-        ? "Disable Skip Cutscenes"
-        : "Enable Skip Cutscenes",
-      category: "Options",
-      hotkey: hotkeyValues["toggle-skip-cutscenes"] ?? "",
-      action: () => {
-        gameState.skipCutscenes = !gameState.skipCutscenes;
-      },
-    },
-    {
-      id: "toggle-disable-fx",
-      label: gameState.disableFx ? "Enable FX" : "Disable FX",
-      category: "Options",
-      hotkey: hotkeyValues["toggle-disable-fx"] ?? "",
-      action: () => {
-        gameState.disableFx = !gameState.disableFx;
-      },
-    },
-    {
-      id: "toggle-disable-collisions",
-      label: gameState.disableCollisions
-        ? "Enable Collisions"
-        : "Disable Collisions",
-      category: "Options",
-      hotkey: hotkeyValues["toggle-disable-collisions"] ?? "",
-      action: () => {
-        gameState.disableCollisions = !gameState.disableCollisions;
-      },
-    },
-    {
-      id: "toggle-anti-counter",
-      label: gameState.counterAttack
-        ? "Disable Anti-Counter"
-        : "Enable Anti-Counter",
-      category: "Options",
-      hotkey: hotkeyValues["toggle-anti-counter"] ?? "",
-      action: () => {
-        gameState.counterAttack = !gameState.counterAttack;
-      },
-    },
-    {
-      id: "toggle-disable-death-ads",
-      label: gameState.disableDeathAds
-        ? "Enable Death Ads"
-        : "Disable Death Ads",
-      category: "Options",
-      hotkey: hotkeyValues["toggle-disable-death-ads"] ?? "",
-      action: () => {
-        gameState.disableDeathAds = !gameState.disableDeathAds;
-      },
-    },
-  ]);
+  const commands = $derived.by<UiCommandSpec[]>(() =>
+    getUiCommands(hotkeyValues),
+  );
 
   const filteredCommands = $derived(
     searchQuery.trim()
@@ -266,7 +38,7 @@
   );
 
   const groupedCommands = $derived(() => {
-    const groups: Record<string, CommandItem[]> = {};
+    const groups: Record<string, UiCommandSpec[]> = {};
     for (const cmd of filteredCommands) {
       groups[cmd.category] = groups[cmd.category] ?? [];
       groups[cmd.category]!.push(cmd);
@@ -281,8 +53,8 @@
     onClose?.();
   }
 
-  function executeCommand(cmd: CommandItem, shouldClose = false) {
-    cmd.action();
+  function executeCommand(cmd: UiCommandSpec, shouldClose = false) {
+    cmd.run();
     if (shouldClose) handleClose();
   }
 
@@ -325,23 +97,19 @@
     }
   }
 
+  // Focus the input on open
   $effect(() => {
-    if (open && inputRef) {
-      inputRef.focus();
-    }
+    if (open && inputRef) inputRef.focus();
   });
 
   $effect(() => {
-    if (searchQuery !== undefined) {
-      selectedIndex = 0;
-    }
+    if (searchQuery !== undefined) selectedIndex = 0;
   });
 </script>
 
 <svelte:window
   onkeydown={(ev) => {
     if (open) return;
-
     const modifier = get(platform).isMac ? ev.metaKey : ev.ctrlKey;
     if (modifier && equalsIgnoreCase(ev.key, "k")) {
       ev.preventDefault();

@@ -1,140 +1,317 @@
+import type { HotkeyId } from "~/shared/hotkeys/schema";
 import { client } from "~/shared/tipc";
 import { WindowIds } from "~/shared/types";
+import { Bot } from "./lib/Bot";
 import {
   gameState,
   commandOverlayState,
   optionsPanelState,
+  scriptState,
 } from "./state/index.svelte";
 
-// TODO: refactor CommandPalette
-// improve impl
+const bot = Bot.getInstance();
 
-export const actions = {
-  toggleAutoattack: () => {
-    window.dispatchEvent(new CustomEvent("hotkey:toggle-autoattack"));
-  },
+export type UiActionId = HotkeyId | "open-hotkeys";
 
-  toggleBank: () => {
-    window.dispatchEvent(new CustomEvent("hotkey:toggle-bank"));
-  },
+export type UiCommandCategory =
+  | "Application"
+  | "Options"
+  | "Packets"
+  | "Scripts"
+  | "Tools";
 
-  toggleTopBar: () => {
-    window.dispatchEvent(new CustomEvent("hotkey:toggle-top-bar"));
-  },
-
-  loadScript: () => {
-    void client.scripts.loadScript({ scriptPath: "" });
-  },
-
-  toggleScript: () => {
-    window.dispatchEvent(new CustomEvent("hotkey:toggle-script"));
-  },
-
-  toggleCommandOverlay: () => {
-    commandOverlayState.toggle();
-  },
-
-  toggleDevTools: () => {
-    void client.scripts.toggleDevTools();
-  },
-
-  openFastTravels: () => {
-    void client.app.launchWindow(WindowIds.FastTravels);
-  },
-
-  openEnvironment: () => {
-    void client.app.launchWindow(WindowIds.Environment);
-  },
-
-  openLoaderGrabber: () => {
-    void client.app.launchWindow(WindowIds.LoaderGrabber);
-  },
-
-  openFollower: () => {
-    void client.app.launchWindow(WindowIds.Follower);
-  },
-
-  openPacketLogger: () => {
-    void client.app.launchWindow(WindowIds.PacketLogger);
-  },
-
-  openPacketSpammer: () => {
-    void client.app.launchWindow(WindowIds.PacketSpammer);
-  },
-
-  toggleOptionsPanel: () => {
-    optionsPanelState.toggle();
-  },
-
-  toggleInfiniteRange: () => {
-    gameState.infiniteRange = !gameState.infiniteRange;
-  },
-
-  toggleProvokeCell: () => {
-    gameState.provokeCell = !gameState.provokeCell;
-  },
-
-  toggleEnemyMagnet: () => {
-    gameState.enemyMagnet = !gameState.enemyMagnet;
-  },
-
-  toggleLagKiller: () => {
-    gameState.lagKiller = !gameState.lagKiller;
-  },
-
-  toggleHidePlayers: () => {
-    gameState.hidePlayers = !gameState.hidePlayers;
-  },
-
-  toggleSkipCutscenes: () => {
-    gameState.skipCutscenes = !gameState.skipCutscenes;
-  },
-
-  toggleDisableFx: () => {
-    gameState.disableFx = !gameState.disableFx;
-  },
-
-  toggleDisableCollisions: () => {
-    gameState.disableCollisions = !gameState.disableCollisions;
-  },
-
-  toggleAntiCounter: () => {
-    gameState.counterAttack = !gameState.counterAttack;
-  },
-
-  toggleDisableDeathAds: () => {
-    gameState.disableDeathAds = !gameState.disableDeathAds;
-  },
-} as const;
-
-export const actionHandlers: Record<string, () => void> = {
-  "toggle-autoattack": actions.toggleAutoattack,
-  "toggle-bank": actions.toggleBank,
-  "toggle-top-bar": actions.toggleTopBar,
-  "load-script": actions.loadScript,
-  "toggle-script": actions.toggleScript,
-  "toggle-command-overlay": actions.toggleCommandOverlay,
-  "toggle-dev-tools": actions.toggleDevTools,
-  "open-fast-travels": actions.openFastTravels,
-  "open-environment": actions.openEnvironment,
-  "open-loadergrabber": actions.openLoaderGrabber,
-  "open-follower": actions.openFollower,
-  "open-packet-logger": actions.openPacketLogger,
-  "open-packet-spammer": actions.openPacketSpammer,
-  "toggle-options-panel": actions.toggleOptionsPanel,
-  "toggle-infinite-range": actions.toggleInfiniteRange,
-  "toggle-provoke-cell": actions.toggleProvokeCell,
-  "toggle-enemy-magnet": actions.toggleEnemyMagnet,
-  "toggle-lag-killer": actions.toggleLagKiller,
-  "toggle-hide-players": actions.toggleHidePlayers,
-  "toggle-skip-cutscenes": actions.toggleSkipCutscenes,
-  "toggle-disable-fx": actions.toggleDisableFx,
-  "toggle-disable-collisions": actions.toggleDisableCollisions,
-  "toggle-anti-counter": actions.toggleAntiCounter,
-  "toggle-disable-death-ads": actions.toggleDisableDeathAds,
+export type UiCommandSpec = {
+  category: UiCommandCategory;
+  hotkey: string;
+  id: UiActionId;
+  label: string;
+  run(): void;
 };
 
-export function executeAction(actionId: string): void {
-  const handler = actionHandlers[actionId];
+function openWindow(windowId: WindowIds): void {
+  void client.app.launchWindow(windowId);
+}
+
+export function loadScript(): void {
+  void client.scripts.loadScript({ scriptPath: "" });
+}
+
+export function startScript(): void {
+  if (!window.context.commands.length || window.context.isRunning()) return;
+  window.context.removeAllListeners("end");
+  const onEnd = () => {
+    scriptState.isRunning = false;
+    window.context.removeListener("end", onEnd);
+  };
+
+  void window.context.start();
+  scriptState.isRunning = true;
+  window.context.on("end", onEnd);
+}
+
+export function stopScript(): void {
+  if (!window.context.isRunning()) return;
+  void window.context.stop();
+  scriptState.isRunning = false;
+}
+
+export function toggleScript(): void {
+  if (!scriptState.isLoaded) return;
+  if (scriptState.isRunning) {
+    stopScript();
+  } else {
+    startScript();
+  }
+}
+
+function toggleBank(): void {
+  if (!bot.player.isReady()) return;
+
+  if (bot.bank.isOpen()) {
+    bot.flash.call(() => swf.bankOpen());
+  } else {
+    void bot.bank.open();
+  }
+}
+
+export const actionHandlers = {
+  "toggle-autoattack": () => {
+    gameState.autoAttackEnabled = !gameState.autoAttackEnabled;
+  },
+  "toggle-bank": toggleBank,
+  "toggle-top-bar": () => {
+    gameState.topNavVisible = !gameState.topNavVisible;
+  },
+  "load-script": loadScript,
+  "toggle-script": toggleScript,
+  "toggle-command-overlay": () => {
+    commandOverlayState.toggle();
+  },
+  "toggle-dev-tools": () => {
+    void client.scripts.toggleDevTools();
+  },
+  "open-fast-travels": () => openWindow(WindowIds.FastTravels),
+  "open-environment": () => openWindow(WindowIds.Environment),
+  "open-hotkeys": () => openWindow(WindowIds.Hotkeys),
+  "open-loader-grabber": () => openWindow(WindowIds.LoaderGrabber),
+  "open-follower": () => openWindow(WindowIds.Follower),
+  "open-packet-logger": () => openWindow(WindowIds.PacketLogger),
+  "open-packet-spammer": () => openWindow(WindowIds.PacketSpammer),
+  "toggle-options-panel": () => {
+    optionsPanelState.toggle();
+  },
+  "toggle-infinite-range": () => {
+    gameState.infiniteRange = !gameState.infiniteRange;
+  },
+  "toggle-provoke-cell": () => {
+    gameState.provokeCell = !gameState.provokeCell;
+  },
+  "toggle-enemy-magnet": () => {
+    gameState.enemyMagnet = !gameState.enemyMagnet;
+  },
+  "toggle-lag-killer": () => {
+    gameState.lagKiller = !gameState.lagKiller;
+  },
+  "toggle-hide-players": () => {
+    gameState.hidePlayers = !gameState.hidePlayers;
+  },
+  "toggle-skip-cutscenes": () => {
+    gameState.skipCutscenes = !gameState.skipCutscenes;
+  },
+  "toggle-disable-fx": () => {
+    gameState.disableFx = !gameState.disableFx;
+  },
+  "toggle-disable-collisions": () => {
+    gameState.disableCollisions = !gameState.disableCollisions;
+  },
+  "toggle-anti-counter": () => {
+    gameState.counterAttack = !gameState.counterAttack;
+  },
+  "toggle-disable-death-ads": () => {
+    gameState.disableDeathAds = !gameState.disableDeathAds;
+  },
+} satisfies Record<UiActionId, () => void>;
+
+export function executeAction(actionId: UiActionId | string): void {
+  const handler = actionHandlers[actionId as UiActionId];
   if (handler) handler();
+  else console.warn(`Unknown action id: ${actionId}`);
+}
+
+function resolveHotkey(
+  hotkeyValues: Record<string, string>,
+  id?: HotkeyId,
+): string {
+  if (!id) return "";
+  return hotkeyValues[id] ?? "";
+}
+
+export function getUiCommands(
+  hotkeyValues: Record<string, string> = {},
+): UiCommandSpec[] {
+  return [
+    {
+      id: "load-script",
+      label: "Load Script",
+      category: "Scripts",
+      hotkey: resolveHotkey(hotkeyValues, "load-script"),
+      run: () => executeAction("load-script"),
+    },
+    {
+      id: "toggle-script",
+      label: scriptState.isRunning ? "Stop Script" : "Start Script",
+      category: "Scripts",
+      hotkey: resolveHotkey(hotkeyValues, "toggle-script"),
+      run: () => executeAction("toggle-script"),
+    },
+    {
+      id: "toggle-command-overlay",
+      label: "Toggle Command Overlay",
+      category: "Scripts",
+      hotkey: resolveHotkey(hotkeyValues, "toggle-command-overlay"),
+      run: () => executeAction("toggle-command-overlay"),
+    },
+    {
+      id: "toggle-dev-tools",
+      label: "Toggle Dev Tools",
+      category: "Scripts",
+      hotkey: resolveHotkey(hotkeyValues, "toggle-dev-tools"),
+      run: () => executeAction("toggle-dev-tools"),
+    },
+    {
+      id: "open-environment",
+      label: "Environment",
+      category: "Application",
+      hotkey: resolveHotkey(hotkeyValues, "open-environment"),
+      run: () => executeAction("open-environment"),
+    },
+    {
+      id: "open-hotkeys",
+      label: "Hotkeys",
+      category: "Application",
+      hotkey: "",
+      run: () => executeAction("open-hotkeys"),
+    },
+    {
+      id: "open-fast-travels",
+      label: "Fast Travels",
+      category: "Tools",
+      hotkey: resolveHotkey(hotkeyValues, "open-fast-travels"),
+      run: () => executeAction("open-fast-travels"),
+    },
+    {
+      id: "open-loader-grabber",
+      label: "Loader/Grabber",
+      category: "Tools",
+      hotkey: resolveHotkey(hotkeyValues, "open-loader-grabber"),
+      run: () => executeAction("open-loader-grabber"),
+    },
+    {
+      id: "open-follower",
+      label: "Follower",
+      category: "Tools",
+      hotkey: resolveHotkey(hotkeyValues, "open-follower"),
+      run: () => executeAction("open-follower"),
+    },
+    {
+      id: "open-packet-logger",
+      label: "Packet Logger",
+      category: "Packets",
+      hotkey: resolveHotkey(hotkeyValues, "open-packet-logger"),
+      run: () => executeAction("open-packet-logger"),
+    },
+    {
+      id: "open-packet-spammer",
+      label: "Packet Spammer",
+      category: "Packets",
+      hotkey: resolveHotkey(hotkeyValues, "open-packet-spammer"),
+      run: () => executeAction("open-packet-spammer"),
+    },
+    {
+      id: "toggle-infinite-range",
+      label: gameState.infiniteRange
+        ? "Disable Infinite Range"
+        : "Enable Infinite Range",
+      category: "Options",
+      hotkey: resolveHotkey(hotkeyValues, "toggle-infinite-range"),
+      run: () => executeAction("toggle-infinite-range"),
+    },
+    {
+      id: "toggle-provoke-cell",
+      label: gameState.provokeCell
+        ? "Disable Provoke Cell"
+        : "Enable Provoke Cell",
+      category: "Options",
+      hotkey: resolveHotkey(hotkeyValues, "toggle-provoke-cell"),
+      run: () => executeAction("toggle-provoke-cell"),
+    },
+    {
+      id: "toggle-enemy-magnet",
+      label: gameState.enemyMagnet
+        ? "Disable Enemy Magnet"
+        : "Enable Enemy Magnet",
+      category: "Options",
+      hotkey: resolveHotkey(hotkeyValues, "toggle-enemy-magnet"),
+      run: () => executeAction("toggle-enemy-magnet"),
+    },
+    {
+      id: "toggle-lag-killer",
+      label: gameState.lagKiller ? "Disable Lag Killer" : "Enable Lag Killer",
+      category: "Options",
+      hotkey: resolveHotkey(hotkeyValues, "toggle-lag-killer"),
+      run: () => executeAction("toggle-lag-killer"),
+    },
+    {
+      id: "toggle-hide-players",
+      label: gameState.hidePlayers
+        ? "Disable Hide Players"
+        : "Enable Hide Players",
+      category: "Options",
+      hotkey: resolveHotkey(hotkeyValues, "toggle-hide-players"),
+      run: () => executeAction("toggle-hide-players"),
+    },
+    {
+      id: "toggle-skip-cutscenes",
+      label: gameState.skipCutscenes
+        ? "Disable Skip Cutscenes"
+        : "Enable Skip Cutscenes",
+      category: "Options",
+      hotkey: resolveHotkey(hotkeyValues, "toggle-skip-cutscenes"),
+      run: () => executeAction("toggle-skip-cutscenes"),
+    },
+    {
+      id: "toggle-disable-fx",
+      label: gameState.disableFx ? "Enable FX" : "Disable FX",
+      category: "Options",
+      hotkey: resolveHotkey(hotkeyValues, "toggle-disable-fx"),
+      run: () => executeAction("toggle-disable-fx"),
+    },
+    {
+      id: "toggle-disable-collisions",
+      label: gameState.disableCollisions
+        ? "Enable Collisions"
+        : "Disable Collisions",
+      category: "Options",
+      hotkey: resolveHotkey(hotkeyValues, "toggle-disable-collisions"),
+      run: () => executeAction("toggle-disable-collisions"),
+    },
+    {
+      id: "toggle-anti-counter",
+      label: gameState.counterAttack
+        ? "Disable Anti-Counter"
+        : "Enable Anti-Counter",
+      category: "Options",
+      hotkey: resolveHotkey(hotkeyValues, "toggle-anti-counter"),
+      run: () => executeAction("toggle-anti-counter"),
+    },
+    {
+      id: "toggle-disable-death-ads",
+      label: gameState.disableDeathAds
+        ? "Enable Death Ads"
+        : "Disable Death Ads",
+      category: "Options",
+      hotkey: resolveHotkey(hotkeyValues, "toggle-disable-death-ads"),
+      run: () => executeAction("toggle-disable-death-ads"),
+    },
+  ];
 }

@@ -51,6 +51,16 @@ export class Scheduler {
   }
 
   /**
+   * Get a job.
+   *
+   * @param jobId - The ID of the job.
+   * @returns The job, or null if not found.
+   */
+  public getJob<T extends Job>(jobId: string): T | null {
+    return (this.jobs.get(jobId) as T) ?? null;
+  }
+
+  /**
    * Starts the scheduler, executing jobs in order of priority.
    * Jobs with higher priority (larger number) are executed first.
    */
@@ -96,15 +106,6 @@ export class Scheduler {
   public stop() {
     this.ac?.abort();
     this._isRunning = false;
-  }
-
-  /**
-   * Get a job.
-   * @param jobId - The ID of the job.
-   * @returns The job, or null if not found.
-   */
-  public getJob<T extends Job>(jobId: string): T | null {
-    return (this.jobs.get(jobId) as T) ?? null;
   }
 
   /**

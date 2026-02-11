@@ -8,17 +8,19 @@
 
   import { client, handlers } from "~/shared/tipc";
 
+  import { executeAction, loadScript, toggleScript } from "./actions";
   import { Bot } from "./lib/Bot";
   import { AutoReloginJob } from "./lib/jobs/autorelogin";
   import {
     appState,
     autoReloginState,
     commandOverlayState,
+    gameState,
     hotkeyState,
-    optionsPanelState,
     scriptState,
   } from "./state/index.svelte";
   import { platform } from "./state/platform.svelte";
+  import { gameLoaded } from "./state/app.svelte";
   import { parseSkillSetJson, type SkillSetJson } from "./util/skillParser";
 
   import { Button, Checkbox, Label } from "@vexed/ui";
@@ -31,7 +33,6 @@
   import CommandPalette from "./components/CommandPalette.svelte";
   import OptionsPanel from "./components/OptionsPanel.svelte";
   import WindowsMegaMenu from "./components/WindowsMegaMenu.svelte";
-  import { gameLoaded } from "./state/app.svelte";
 
   const logger = log.scope("game/app");
 
@@ -50,8 +51,6 @@
   let swfPath = $state<string>();
 
   let openDropdown = $state<string | null>(null);
-
-  let autoEnabled = $state(false);
 
   let gameConnected = $state(false);
   bot.on("login", () => (gameConnected = true));
@@ -83,7 +82,6 @@
     autoReloginState.disable();
   }
 
-  let topNavVisible = $state(true);
   let commandPaletteOpen = $state(false);
   let hotkeyValues = $derived(hotkeyState.toRecord());
 
@@ -139,28 +137,6 @@
     }));
   }
 
-  function startScript() {
-    if (!window.context.commands.length || window.context.isRunning()) return;
-
-    window.context.removeAllListeners("end");
-
-    const onEnd = () => {
-      scriptState.isRunning = false;
-      window.context.removeListener("end", onEnd);
-    };
-
-    void window.context.start();
-    scriptState.isRunning = true;
-    window.context.on("end", onEnd);
-  }
-
-  function stopScript() {
-    if (!window.context.isRunning()) return;
-
-    window.context.stop();
-    scriptState.isRunning = false;
-  }
-
   handlers.scripts.scriptLoaded.listen((fromManager) => {
     scriptState.isLoaded = true;
 
@@ -178,7 +154,7 @@
       window.context.commands.length &&
       !window.context.isRunning()
     ) {
-      startScript();
+      toggleScript();
     }
   });
 
@@ -186,29 +162,9 @@
     openDropdown = openDropdown === dropdownName ? null : dropdownName;
   }
 
-  function toggleScript() {
-    if (!scriptState.isLoaded) return;
-
-    if (scriptState.isRunning) {
-      stopScript();
-    } else {
-      startScript();
-    }
-  }
-
-  const toggleBank = () => {
-    if (!bot.player.isReady()) return;
-
-    if (bot.bank.isOpen()) {
-      bot.flash.call(() => swf.bankOpen());
-    } else {
-      bot.bank.open();
-    }
-  };
-
   // TODO: follower should use auto skillsets
   $effect(() => {
-    if (autoEnabled) {
+    if (gameState.autoAttackEnabled) {
       const currentCls = bot.player.className;
 
       const skillSet =
@@ -218,7 +174,7 @@
       let idx = 0;
 
       void interval(async (_, stop) => {
-        if (!autoEnabled) {
+        if (!gameState.autoAttackEnabled) {
           stop();
           return;
         }
@@ -254,22 +210,6 @@
         }
       }, skillSet.delay ?? 150);
     }
-  });
-
-  window.addEventListener("openCommandPalette", () => {
-    commandPaletteOpen = true;
-  });
-  window.addEventListener("hotkey:toggle-autoattack", () => {
-    autoEnabled = !autoEnabled;
-  });
-  window.addEventListener("hotkey:toggle-bank", () => {
-    toggleBank();
-  });
-  window.addEventListener("hotkey:toggle-top-bar", () => {
-    topNavVisible = !topNavVisible;
-  });
-  window.addEventListener("hotkey:toggle-script", () => {
-    toggleScript();
   });
 
   onMount(async () => {
@@ -355,7 +295,7 @@
 <main
   class="m-0 flex h-screen flex-col overflow-hidden bg-background text-foreground focus:outline-none"
 >
-  {#if topNavVisible}
+  {#if gameState.topNavVisible}
     <div
       id="topnav-container"
       class="relative z-[10000] flex h-9 items-center border-b border-border/50 bg-background/95 backdrop-blur-md"
@@ -399,15 +339,14 @@
             <Menu.Content class="min-w-48 text-[13px]">
               <Menu.Item
                 class="flex items-center justify-between bg-transparent"
-                onclick={() =>
-                  void client.scripts.loadScript({ scriptPath: "" })}
+                onclick={loadScript}
               >
                 <span>Load Script</span>
                 <Kbd hotkey={hotkeyValues["load-script"] ?? ""} class="ml-4" />
               </Menu.Item>
               <Menu.Item
                 class="flex items-center justify-between bg-transparent"
-                onclick={() => commandOverlayState.toggle()}
+                onclick={() => executeAction("toggle-command-overlay")}
               >
                 <span
                   >{scriptState.showOverlay
@@ -434,7 +373,7 @@
 
           <button
             class="flex h-7 shrink-0 items-center gap-1.5 rounded bg-transparent px-2.5 text-[13px] font-medium text-foreground/80 transition-colors duration-150 hover:bg-accent hover:text-foreground"
-            onclick={() => optionsPanelState.toggle()}
+            onclick={() => executeAction("toggle-options-panel")}
           >
             <span>Options</span>
           </button>
@@ -599,7 +538,7 @@
           <Label
             class="flex cursor-pointer select-none items-center gap-1.5 text-[12px] text-foreground/70 transition-colors hover:text-foreground"
           >
-            <Checkbox bind:checked={autoEnabled} />
+            <Checkbox bind:checked={gameState.autoAttackEnabled} />
             <span>Auto</span>
           </Label>
           <div class="ml-0.5 h-4 w-px bg-border/60"></div>
@@ -732,15 +671,7 @@
 </main>
 
 <CommandOverlay />
-<CommandPalette
-  bind:open={commandPaletteOpen}
-  scriptLoaded={scriptState.isLoaded}
-  scriptRunning={scriptState.isRunning}
-  onToggleScript={toggleScript}
-  onLoadScript={() => void client.scripts.loadScript({ scriptPath: "" })}
-  onToggleOverlay={() => commandOverlayState.toggle()}
-  {hotkeyValues}
-/>
+<CommandPalette bind:open={commandPaletteOpen} {hotkeyValues} />
 <OptionsPanel {hotkeyValues} />
 
 <style>

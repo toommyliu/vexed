@@ -8,6 +8,8 @@ let disableFx = $state(false);
 let disableCollisions = $state(false);
 let counterAttack = $state(false);
 let disableDeathAds = $state(false);
+let autoAttackEnabled = $state(false);
+let topNavVisible = $state(true);
 let walkSpeed = $state(8);
 let fps = $state(24);
 
@@ -71,6 +73,18 @@ export const gameState = {
   },
   set disableDeathAds(value) {
     disableDeathAds = value;
+  },
+  get autoAttackEnabled() {
+    return autoAttackEnabled;
+  },
+  set autoAttackEnabled(value) {
+    autoAttackEnabled = value;
+  },
+  get topNavVisible() {
+    return topNavVisible;
+  },
+  set topNavVisible(value) {
+    topNavVisible = value;
   },
   get walkSpeed() {
     return walkSpeed;
