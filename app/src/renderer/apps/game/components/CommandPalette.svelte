@@ -90,7 +90,7 @@
       category: "Application",
       hotkey: hotkeyValues["open-environment"] ?? "",
       action: () => {
-        void client.game.launchWindow(WindowIds.Environment);
+        void client.app.launchWindow(WindowIds.Environment);
       },
     },
     {
@@ -99,7 +99,7 @@
       category: "Application",
       hotkey: "",
       action: () => {
-        void client.game.launchWindow(WindowIds.Hotkeys);
+        void client.app.launchWindow(WindowIds.Hotkeys);
       },
     },
     {
@@ -108,7 +108,7 @@
       category: "Tools",
       hotkey: hotkeyValues["open-fast-travels"] ?? "",
       action: () => {
-        void client.game.launchWindow(WindowIds.FastTravels);
+        void client.app.launchWindow(WindowIds.FastTravels);
       },
     },
     {
@@ -117,7 +117,7 @@
       category: "Tools",
       hotkey: hotkeyValues["open-loader-grabber"] ?? "",
       action: () => {
-        void client.game.launchWindow(WindowIds.LoaderGrabber);
+        void client.app.launchWindow(WindowIds.LoaderGrabber);
       },
     },
     {
@@ -126,7 +126,7 @@
       category: "Tools",
       hotkey: hotkeyValues["open-follower"] ?? "",
       action: () => {
-        void client.game.launchWindow(WindowIds.Follower);
+        void client.app.launchWindow(WindowIds.Follower);
       },
     },
     {
@@ -135,7 +135,7 @@
       category: "Packets",
       hotkey: hotkeyValues["open-packet-logger"] ?? "",
       action: () => {
-        void client.game.launchWindow(WindowIds.PacketLogger);
+        void client.app.launchWindow(WindowIds.PacketLogger);
       },
     },
     {
@@ -144,7 +144,7 @@
       category: "Packets",
       hotkey: hotkeyValues["open-packet-spammer"] ?? "",
       action: () => {
-        void client.game.launchWindow(WindowIds.PacketSpammer);
+        void client.app.launchWindow(WindowIds.PacketSpammer);
       },
     },
     {

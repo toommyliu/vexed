@@ -275,7 +275,7 @@
     const platformRes = await client.app.platform();
     platform.set(platformRes);
 
-    const ret = await client.game.getAssetPath();
+    const ret = await client.app.getAssetPath();
     swfPath = ret;
 
     await Promise.all([
@@ -296,39 +296,58 @@
   window.addEventListener(
     "gameLoaded",
     async () => {
-      const skillSets = await client.game.getSkillSets();
+      const [skillSetsResult, envStateResult] = await Promise.allSettled([
+        client.app.getSkillSets(),
+        client.environment.getState(),
+      ]);
 
-      for (const [className, skillSetJson] of Object.entries(skillSets)) {
-        const res = parseSkillSetJson(skillSetJson as SkillSetJson);
-        if (res) appState.skillSets.set(className.toUpperCase(), res);
+      // Skill sets
+      if (skillSetsResult.status === "fulfilled") {
+        const skillSets = skillSetsResult.value;
+        if (skillSets.success) {
+          for (const [className, skillSetJson] of Object.entries(
+            skillSets.data,
+          )) {
+            const res = parseSkillSetJson(skillSetJson as SkillSetJson);
+            if (res) appState.skillSets.set(className.toUpperCase(), res);
+          }
+        }
+      } else {
+        logger.error("Failed to load skill sets", skillSetsResult.reason);
       }
 
-      try {
-        const state = await client.environment.getState();
-        bot.environment.applyUpdate({
-          questIds: state.questIds,
-          itemNames: state.itemNames,
-          boosts: state.boosts,
-          rejectElse: state.rejectElse,
-          autoRegisterRequirements: state.autoRegisterRequirements,
-          autoRegisterRewards: state.autoRegisterRewards,
-        });
-      } catch (error) {
-        logger.error("Failed to sync environment.", error);
+      // Environment state
+      if (envStateResult.status === "fulfilled") {
+        const state = envStateResult.value;
+        try {
+          bot.environment.applyUpdate({
+            questIds: state.questIds,
+            itemNames: state.itemNames,
+            boosts: state.boosts,
+            rejectElse: state.rejectElse,
+            autoRegisterRequirements: state.autoRegisterRequirements,
+            autoRegisterRewards: state.autoRegisterRewards,
+          });
+        } catch (error) {
+          logger.error("Failed to apply environment update", error);
+        }
+      } else {
+        logger.error("Failed to sync environment", envStateResult.reason);
       }
     },
     { once: true },
   );
-</script>
 
-<svelte:window
-  on:mousedown={(ev) => {
-    if ((ev.target as HTMLElement).id === "swf") openDropdown = null;
-  }}
-  on:beforeunload={async () => {
+  window.addEventListener("mousedown", (ev) => {
+    const el = ev.target as HTMLElement;
+    // If clicking into the game, close the dropdowns
+    if (el?.id === "swf") openDropdown = null;
+  });
+
+  window.addEventListener("beforeunload", async () => {
     await client.scripts.gameReload();
-  }}
-/>
+  });
+</script>
 
 <main
   class="m-0 flex h-screen flex-col overflow-hidden bg-background text-foreground focus:outline-none"

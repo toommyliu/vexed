@@ -71,7 +71,7 @@
   ]);
 
   function handleItemClick(item: MenuItem) {
-    void client.game.launchWindow(item.windowId);
+    void client.app.launchWindow(item.windowId);
     onClose?.();
   }
 </script>

@@ -13,7 +13,6 @@ import { createArmyTipcRouter } from "./tipc/army.router";
 import { createEnvironmentTipcRouter } from "./tipc/environment.router";
 import { createFastTravelsTipcRouter } from "./tipc/fast-travels.router";
 import { createFollowerTipcRouter } from "./tipc/follower.router";
-import { createGameTipcRouter } from "./tipc/game.router";
 import { createHotkeysTipcRouter } from "./tipc/hotkeys.router";
 import { createLoaderGrabberTipcRouter } from "./tipc/loaderGrabber.router";
 import { createLoggerTipcRouter } from "./tipc/logger.router";
@@ -26,7 +25,6 @@ import { createScriptsTipcRouter } from "./tipc/scripts.router";
 const tipcInstance = tipc.create();
 
 export const router = {
-  game: createGameTipcRouter(tipcInstance),
   scripts: createScriptsTipcRouter(tipcInstance),
   fastTravels: createFastTravelsTipcRouter(tipcInstance),
   loaderGrabber: createLoaderGrabberTipcRouter(tipcInstance),

@@ -29,7 +29,10 @@ type RouteMeta = {
 };
 
 // A route is a leaf with an action. A RouterType can be nested arbitrarily.
-export type Route = { action: ActionFunction; __tipcMeta?: RouteMeta };
+export type Route = {
+  action: ActionFunction<any, any, any>;
+  __tipcMeta?: RouteMeta;
+};
 export type SendRoute = { sendAction: SendActionFunction };
 export interface RouterType {
   [key: string]: Route | SendRoute | RouterType;

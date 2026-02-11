@@ -39,27 +39,27 @@ export const actions = {
   },
 
   openFastTravels: () => {
-    void client.game.launchWindow(WindowIds.FastTravels);
+    void client.app.launchWindow(WindowIds.FastTravels);
   },
 
   openEnvironment: () => {
-    void client.game.launchWindow(WindowIds.Environment);
+    void client.app.launchWindow(WindowIds.Environment);
   },
 
   openLoaderGrabber: () => {
-    void client.game.launchWindow(WindowIds.LoaderGrabber);
+    void client.app.launchWindow(WindowIds.LoaderGrabber);
   },
 
   openFollower: () => {
-    void client.game.launchWindow(WindowIds.Follower);
+    void client.app.launchWindow(WindowIds.Follower);
   },
 
   openPacketLogger: () => {
-    void client.game.launchWindow(WindowIds.PacketLogger);
+    void client.app.launchWindow(WindowIds.PacketLogger);
   },
 
   openPacketSpammer: () => {
-    void client.game.launchWindow(WindowIds.PacketSpammer);
+    void client.app.launchWindow(WindowIds.PacketSpammer);
   },
 
   toggleOptionsPanel: () => {
