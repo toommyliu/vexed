@@ -1,6 +1,6 @@
 <script lang="ts">
   import "./entrypoint";
-  import "./hotkeys.svelte";
+  import "./hotkeys";
 
   import { interval } from "@vexed/utils";
   import log from "electron-log";
