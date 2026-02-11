@@ -59,7 +59,7 @@ const config = new Config<typeof DEFAULT_SKILLSETS>({
 });
 export function createAppTipcRouter(tipc: TipcInstance) {
   return {
-    platform: tipc.procedure.action(async () => platform),
+    getPlatform: tipc.procedure.action(async () => platform),
 
     getAssetPath: tipc.procedure.action(async () => ASSET_PATH),
 

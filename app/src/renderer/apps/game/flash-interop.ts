@@ -9,7 +9,8 @@ import {
   dispatchJson,
   dispatchStr,
 } from "./packet-handlers";
-import { appState, autoReloginState } from "./state/index.svelte";
+import { gameLoaded } from "./state/app.svelte";
+import { autoReloginState } from "./state/index.svelte";
 
 const logger = log.scope("game/flash-interop");
 const bot = Bot.getInstance();
@@ -78,8 +79,7 @@ window.connection = async ([state]: [string]) => {
 };
 
 window.loaded = async () => {
-  window.dispatchEvent(new Event("gameLoaded"));
-  appState.gameLoaded = true;
+  gameLoaded.set(true);
 
   void bot.scheduler.start();
 
@@ -124,8 +124,7 @@ window.flashDebug = (...args: string[]) => {
   logger.info(...args);
 };
 
-// @ts-expect-error - provided by flash and properly typed
-window.progress = (percent: number) => {
+window.progress = ([percent]: [number]) => {
   const progressText = document.querySelector(
     "#progress-text",
   ) as HTMLSpanElement;
@@ -160,6 +159,6 @@ window.progress = (percent: number) => {
       const cl = gameContainer.classList;
       cl.remove("invisible", "opacity-0");
       cl.add("opacity-100", "visible");
-    }
+  }
   }
 };

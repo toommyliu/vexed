@@ -5,6 +5,7 @@ import fetch from "node-fetch";
 import type { Settings } from "~/shared/types";
 import { logger, setLoggerDebugEnabled } from "../services/logger";
 import { getSettings } from "../settings";
+import { TipcResult } from "./result";
 
 const SERVERS_API_URL = "https://game.aq.com/game/api/data/servers";
 

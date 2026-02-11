@@ -1,10 +1,11 @@
 import Mousetrap from "mousetrap";
-import { handlers } from "~/shared/tipc";
-import { appState, hotkeyState } from "./state/index.svelte";
-import { HOTKEY_SECTIONS } from "~/shared/hotkeys/schema";
 import { isValidHotkey } from "~/shared/hotkeys/input";
-import { Bot } from "./lib/Bot";
+import { HOTKEY_SECTIONS } from "~/shared/hotkeys/schema";
+import { handlers } from "~/shared/tipc";
 import { executeAction } from "./actions";
+import { Bot } from "./lib/Bot";
+import { gameLoaded } from "./state/app.svelte";
+import { hotkeyState } from "./state/index.svelte";
 
 const bot = Bot.getInstance();
 
@@ -38,8 +39,6 @@ handlers.hotkeys.reload.handle(async () => {
   await initHotkeys();
 });
 
-$effect.root(() => {
-  $effect(() => {
-    if (appState.gameLoaded) void initHotkeys();
-  });
+gameLoaded.subscribe((val) => {
+  if (val) void initHotkeys();
 });

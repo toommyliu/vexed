@@ -211,7 +211,7 @@ declare global {
     loaded(): Promise<void> | void;
     connection(state: [string]): void;
     pext([packet]: [string]): Promise<void> | void;
-    progress([percent]: [number]): void;
+    progress(percent: [number]): void;
 
     swf: GameSWF;
 
@@ -225,4 +225,4 @@ declare global {
   }
 }
 
-export { };
+export {};
