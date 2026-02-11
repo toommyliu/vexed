@@ -286,8 +286,13 @@
     flex: 1;
     min-width: 0;
     height: 24px;
-    font-size: 11px;
     border-radius: 6px;
     color: rgb(var(--foreground));
+  }
+
+  :global(.text-input > input) {
+    font-size: 11px;
+    padding: 0 8px;
+    line-height: normal;
   }
 </style>

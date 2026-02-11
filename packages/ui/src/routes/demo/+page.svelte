@@ -935,7 +935,7 @@
           <Menu.Separator />
           <Menu.Item disabled>Disabled Item</Menu.Item>
           <Menu.Separator />
-          <Menu.Item class="text-destructive">Log out</Menu.Item>
+          <Menu.Item variant="destructive">Log out</Menu.Item>
         </Menu.Content>
       </Menu.Root>
     </section>

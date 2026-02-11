@@ -600,7 +600,7 @@
               >
                 {currentSelectedPad}
               </Menu.Trigger>
-              <Menu.Content align="end" class="min-w-40 text-[12px]">
+              <Menu.Content align="end" class="min-w-40 text-xs">
                 {#each validPads as pad (pad)}
                   <Menu.Item
                     class={cn(
