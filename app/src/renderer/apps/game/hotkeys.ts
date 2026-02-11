@@ -39,6 +39,6 @@ handlers.hotkeys.reload.handle(async () => {
   await initHotkeys();
 });
 
-gameLoaded.subscribe((val) => {
-  if (val) void initHotkeys();
+gameLoaded.subscribe(async (val) => {
+  await initHotkeys();
 });
