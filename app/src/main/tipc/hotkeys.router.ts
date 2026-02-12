@@ -7,6 +7,7 @@ import type { HotkeyConfig } from "~/shared/types";
 import { createLogger } from "../services/logger";
 import { windowsService } from "../services/windows";
 import type { RendererHandlers } from "../tipc";
+import { withParentGameHandlers } from "./forwarding";
 import { TipcResult } from "./result";
 
 const logger = createLogger("tipc:hotkeys");
@@ -83,21 +84,14 @@ export function createHotkeysTipcRouter(tipc: TipcInstance) {
           },
         });
         if (result.isErr()) return;
-
-        const parent = windowsService.resolveGameWindow(
-          context.senderWindowId,
+        await withParentGameHandlers(context, async (parentHandlers) =>
+          parentHandlers.hotkeys.reload.invoke(),
         );
-        if (!parent) return;
-        const parentHandlers =
-          context.getRendererHandlers<RendererHandlers>(parent);
-        await parentHandlers.hotkeys.reload.invoke();
       }),
     reload: tipc.procedure.requireSenderWindow().action(async ({ context }) => {
-      const parent = windowsService.resolveGameWindow(context.senderWindowId);
-      if (!parent) return;
-      const parentHandlers =
-        context.getRendererHandlers<RendererHandlers>(parent);
-      await parentHandlers.hotkeys.reload.invoke();
+      await withParentGameHandlers(context, async (parentHandlers) =>
+        parentHandlers.hotkeys.reload.invoke(),
+      );
     }),
   };
 }

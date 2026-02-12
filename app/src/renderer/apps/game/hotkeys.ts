@@ -32,10 +32,12 @@ async function initHotkeys() {
 }
 
 handlers.hotkeys.update.handle(async () => {
+  console.log("got update hotkeys");
   await initHotkeys();
 });
 
 handlers.hotkeys.reload.handle(async () => {
+  console.log("got reload hotkeys");
   await initHotkeys();
 });
 

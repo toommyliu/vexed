@@ -3,8 +3,8 @@ import { matchError } from "better-result";
 import type { FastTravel, FastTravelRoomNumber } from "~/shared/types";
 import { fastTravels } from "../services/fast-travels";
 import { createLogger } from "../services/logger";
-import { windowsService } from "../services/windows";
 import type { RendererHandlers } from "../tipc";
+import { getParentGameHandlers } from "./forwarding";
 import { TipcResult } from "./result";
 
 const logger = createLogger("tipc:fast-travels");
@@ -95,14 +95,8 @@ export function createFastTravelsTipcRouter(tipc: TipcInstance) {
     warp: tipc.procedure
       .input<{ location: FastTravelRoomNumber }>()
       .action(async ({ input, context }) => {
-        const senderWindow = context.senderWindow;
-        if (!senderWindow) return;
-
-        const parent = windowsService.resolveGameWindow(senderWindow.id);
-        if (!parent) return;
-
-        const parentHandlers =
-          context.getRendererHandlers<RendererHandlers>(parent);
+        const parentHandlers = getParentGameHandlers(context);
+        if (!parentHandlers) return;
         const childHandlers = context.getRendererHandlers<RendererHandlers>();
 
         await parentHandlers.fastTravels.warp.invoke({

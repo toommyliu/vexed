@@ -1,11 +1,11 @@
 import Config from "@vexed/config";
 import type { TipcInstance } from "@vexed/tipc";
+import { Result } from "better-result";
 import { DEFAULT_SKILLSETS, DOCUMENTS_PATH } from "~/shared/constants";
 import { WindowIds } from "~/shared/types";
 import { ASSET_PATH, IS_WINDOWS, IS_MAC, IS_LINUX } from "../constants";
 import { logger } from "../services/logger";
 import { windowsService, type SubwindowConfig } from "../services/windows";
-import { Result } from "better-result";
 import { TipcResult } from "./result";
 
 const platform = {

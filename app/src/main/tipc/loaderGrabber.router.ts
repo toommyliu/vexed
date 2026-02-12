@@ -1,7 +1,6 @@
 import type { TipcInstance } from "@vexed/tipc";
 import type { GrabberDataType, LoaderDataType } from "~/shared/types";
-import { windowsService } from "../services/windows";
-import type { RendererHandlers } from "../tipc";
+import { withParentGameHandlers } from "./forwarding";
 
 export function createLoaderGrabberTipcRouter(tipcInstance: TipcInstance) {
   return {
@@ -9,27 +8,17 @@ export function createLoaderGrabberTipcRouter(tipcInstance: TipcInstance) {
       .input<{ id: number; type: LoaderDataType }>()
       .requireSenderWindow()
       .action(async ({ input, context }) => {
-        const parent = windowsService.resolveGameWindow(
-          context.senderWindowId,
+        await withParentGameHandlers(context, (parentHandlers) =>
+          parentHandlers.loaderGrabber.load.send(input),
         );
-        if (!parent) return;
-
-        const parentHandlers =
-          context.getRendererHandlers<RendererHandlers>(parent);
-        parentHandlers.loaderGrabber.load.send(input);
       }),
     grab: tipcInstance.procedure
       .input<{ type: GrabberDataType }>()
       .requireSenderWindow()
-      .action(async ({ input, context }) => {
-        const parent = windowsService.resolveGameWindow(
-          context.senderWindowId,
-        );
-        if (!parent) return;
-
-        const parentHandlers =
-          context.getRendererHandlers<RendererHandlers>(parent);
-        return parentHandlers.loaderGrabber.grab.invoke({ type: input.type });
-      }),
+      .action(async ({ input, context }) =>
+        withParentGameHandlers(context, async (parentHandlers) =>
+          parentHandlers.loaderGrabber.grab.invoke({ type: input.type }),
+        ),
+      ),
   };
 }

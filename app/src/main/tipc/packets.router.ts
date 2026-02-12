@@ -2,30 +2,19 @@ import type { TipcInstance } from "@vexed/tipc";
 import { WindowIds } from "~/shared/types";
 import { windowsService } from "../services/windows";
 import type { RendererHandlers } from "../tipc";
+import { withParentGameHandlers } from "./forwarding";
 
 export function createPacketTipcRouter(tipc: TipcInstance) {
   return {
     startLogger: tipc.procedure.action(async ({ context }) => {
-      const senderWindow = context.senderWindow;
-      if (!senderWindow) return;
-
-      const parent = windowsService.resolveGameWindow(senderWindow.id);
-      if (!parent) return;
-
-      const parentHandlers =
-        context.getRendererHandlers<RendererHandlers>(parent);
-      parentHandlers.packets.startLogger.send();
+      await withParentGameHandlers(context, (parentHandlers) =>
+        parentHandlers.packets.startLogger.send(),
+      );
     }),
     stopLogger: tipc.procedure.action(async ({ context }) => {
-      const senderWindow = context.senderWindow;
-      if (!senderWindow) return;
-
-      const parent = windowsService.resolveGameWindow(senderWindow.id);
-      if (!parent) return;
-
-      const parentHandlers =
-        context.getRendererHandlers<RendererHandlers>(parent);
-      parentHandlers.packets.stopLogger.send();
+      await withParentGameHandlers(context, (parentHandlers) =>
+        parentHandlers.packets.stopLogger.send(),
+      );
     }),
     onPacket: tipc.procedure
       .input<{ packet: string; type: string }>()
@@ -53,26 +42,14 @@ export function createPacketTipcRouter(tipc: TipcInstance) {
         packets: string[];
       }>()
       .action(async ({ input, context }) => {
-        const senderWindow = context.senderWindow;
-        if (!senderWindow) return;
-
-        const parent = windowsService.resolveGameWindow(senderWindow.id);
-        if (!parent) return;
-
-        const parentHandlers =
-          context.getRendererHandlers<RendererHandlers>(parent);
-        parentHandlers.packets.startSpammer.send(input);
+        await withParentGameHandlers(context, (parentHandlers) =>
+          parentHandlers.packets.startSpammer.send(input),
+        );
       }),
     stopSpammer: tipc.procedure.action(async ({ context }) => {
-      const senderWindow = context.senderWindow;
-      if (!senderWindow) return;
-
-      const parent = windowsService.resolveGameWindow(senderWindow.id);
-      if (!parent) return;
-
-      const parentHandlers =
-        context.getRendererHandlers<RendererHandlers>(parent);
-      parentHandlers.packets.stopSpammer.send();
+      await withParentGameHandlers(context, (parentHandlers) =>
+        parentHandlers.packets.stopSpammer.send(),
+      );
     }),
   };
 }
