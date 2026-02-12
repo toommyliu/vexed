@@ -4,17 +4,16 @@ import type { RendererHandlers } from "../tipc";
 
 export function createFollowerTipcRouter(tipcInstance: TipcInstance) {
   return {
-    me: tipcInstance.procedure.action(async ({ context }) => {
-      const senderWindow = context.senderWindow;
-      if (!senderWindow) return;
+    me: tipcInstance.procedure
+      .requireSenderWindow()
+      .action(async ({ context }) => {
+        const parent = windowsService.resolveGameWindow(context.senderWindowId);
+        if (!parent) return;
 
-      const parent = windowsService.resolveGameWindow(senderWindow.id);
-      if (!parent) return;
-
-      const parentHandlers =
-        context.getRendererHandlers<RendererHandlers>(parent);
-      return parentHandlers.follower.me.invoke();
-    }),
+        const parentHandlers =
+          context.getRendererHandlers<RendererHandlers>(parent);
+        return parentHandlers.follower.me.invoke();
+      }),
     start: tipcInstance.procedure
       .input<{
         attackPriority: string;
@@ -27,27 +26,24 @@ export function createFollowerTipcRouter(tipcInstance: TipcInstance) {
         skillList: string;
         skillWait: boolean;
       }>()
+      .requireSenderWindow()
       .action(async ({ context, input }) => {
-        const senderWindow = context.senderWindow;
-        if (!senderWindow) return;
-
-        const parent = windowsService.resolveGameWindow(senderWindow.id);
+        const parent = windowsService.resolveGameWindow(context.senderWindowId);
         if (!parent) return;
 
         const parentHandlers =
           context.getRendererHandlers<RendererHandlers>(parent);
         parentHandlers.follower.start.send(input);
       }),
-    stop: tipcInstance.procedure.action(async ({ context }) => {
-      const senderWindow = context.senderWindow;
-      if (!senderWindow) return;
+    stop: tipcInstance.procedure
+      .requireSenderWindow()
+      .action(async ({ context }) => {
+        const parent = windowsService.resolveGameWindow(context.senderWindowId);
+        if (!parent) return;
 
-      const parent = windowsService.resolveGameWindow(senderWindow.id);
-      if (!parent) return;
-
-      const parentHandlers =
-        context.getRendererHandlers<RendererHandlers>(parent);
-      parentHandlers.follower.stop.send();
-    }),
+        const parentHandlers =
+          context.getRendererHandlers<RendererHandlers>(parent);
+        parentHandlers.follower.stop.send();
+      }),
   };
 }

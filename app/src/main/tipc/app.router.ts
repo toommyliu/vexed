@@ -81,7 +81,7 @@ export function createAppTipcRouter(tipc: TipcInstance) {
       .input<WindowIds>()
       .requireSenderWindow()
       .action(async ({ input, context }) => {
-        const handle = windowsService.subwindow(context.senderWindow.id, input);
+        const handle = windowsService.subwindow(context.senderWindowId, input);
         if (!handle) return;
         const config = SUBWINDOW_CONFIGS[input];
         await handle.open(config);

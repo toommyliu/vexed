@@ -19,6 +19,7 @@ export const registerIpcMain = (router: RouterType) => {
         const route = val as Route;
         ipcMain.handle(channel, (e, payload) => {
           const senderWindow = BrowserWindow.fromWebContents(e.sender) ?? null;
+          const senderWindowId = senderWindow?.id ?? null;
 
           if (route.__tipcMeta?.requireSenderWindow) {
             if (!senderWindow || senderWindow.isDestroyed()) return;
@@ -27,6 +28,7 @@ export const registerIpcMain = (router: RouterType) => {
           const context = {
             sender: e.sender,
             senderWindow,
+            senderWindowId,
             getRendererHandlers: <T extends RendererHandlers>(
               target?: WebContents | BrowserWindow | null,
             ): RendererHandlersCaller<T> => {
@@ -49,10 +51,12 @@ export const registerIpcMain = (router: RouterType) => {
         const route = val as SendRoute;
         ipcMain.on(channel, (e, payload) => {
           const senderWindow = BrowserWindow.fromWebContents(e.sender) ?? null;
+          const senderWindowId = senderWindow?.id ?? null;
 
           const context = {
             sender: e.sender,
             senderWindow,
+            senderWindowId,
             getRendererHandlers: <T extends RendererHandlers>(
               target?: WebContents | BrowserWindow | null,
             ): RendererHandlersCaller<T> => {

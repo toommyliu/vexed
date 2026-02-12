@@ -200,12 +200,17 @@
   }
 
   onMount(async () => {
-    try {
-      platform = await client.app.platform();
-      await loadHotkeys();
-    } catch (error) {
-      console.error("Failed to load hotkeys", error);
-    }
+    const [platformRes, hotkeysRes] = await Promise.allSettled([
+      client.app.getPlatform(),
+      loadHotkeys(),
+    ]);
+
+    if (platformRes.status === "fulfilled") {
+      platform = platformRes.value;
+    } else console.error("Failed to get platform", platformRes.reason);
+
+    if (hotkeysRes.status !== "fulfilled")
+      console.error("Failed to load hotkeys", hotkeysRes.reason);
 
     if (hotkeysSections?.length > 0) activeSection = hotkeysSections[0]!.name;
   });

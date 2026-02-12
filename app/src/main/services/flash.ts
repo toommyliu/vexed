@@ -18,7 +18,7 @@ export async function initFlashService(
   flashRoot: string,
 ): Promise<Result<FlashTrustStore, Error>> {
   return Result.gen(async function* () {
-    logger.debug("flash player folder ::", flashRoot);
+    logger.debug("Flash root: ", flashRoot);
 
     const cfgFolder = join(flashRoot, "#Security", "FlashPlayerTrust");
     yield* Result.await(ensureDir(cfgFolder));

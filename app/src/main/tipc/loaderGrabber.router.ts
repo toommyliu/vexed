@@ -7,11 +7,11 @@ export function createLoaderGrabberTipcRouter(tipcInstance: TipcInstance) {
   return {
     load: tipcInstance.procedure
       .input<{ id: number; type: LoaderDataType }>()
+      .requireSenderWindow()
       .action(async ({ input, context }) => {
-        const senderWindow = context.senderWindow;
-        if (!senderWindow) return;
-
-        const parent = windowsService.resolveGameWindow(senderWindow.id);
+        const parent = windowsService.resolveGameWindow(
+          context.senderWindowId,
+        );
         if (!parent) return;
 
         const parentHandlers =
@@ -20,11 +20,11 @@ export function createLoaderGrabberTipcRouter(tipcInstance: TipcInstance) {
       }),
     grab: tipcInstance.procedure
       .input<{ type: GrabberDataType }>()
+      .requireSenderWindow()
       .action(async ({ input, context }) => {
-        const senderWindow = context.senderWindow;
-        if (!senderWindow) return;
-
-        const parent = windowsService.resolveGameWindow(senderWindow.id);
+        const parent = windowsService.resolveGameWindow(
+          context.senderWindowId,
+        );
         if (!parent) return;
 
         const parentHandlers =

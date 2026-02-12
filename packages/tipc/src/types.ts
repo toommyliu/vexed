@@ -1,6 +1,7 @@
 export type ActionContext = {
   sender: Electron.WebContents;
   senderWindow: Electron.BrowserWindow | null;
+  senderWindowId: number | null;
   getRendererHandlers: <T extends RendererHandlers>(
     target?: Electron.WebContents | Electron.BrowserWindow | null,
   ) => RendererHandlersCaller<T>;
@@ -8,6 +9,7 @@ export type ActionContext = {
 
 export type ActionContextWithSenderWindow = ActionContext & {
   senderWindow: Electron.BrowserWindow;
+  senderWindowId: number;
 };
 
 export type ActionFunction<

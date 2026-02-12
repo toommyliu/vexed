@@ -18,16 +18,14 @@ const config = new Config<HotkeyConfig>({
 
 export function createHotkeysTipcRouter(tipc: TipcInstance) {
   return {
-    all: tipc.procedure.action(async ({ context }) => {
-      const senderWindow = context.senderWindow;
-      if (!senderWindow) return null;
+    all: tipc.procedure.requireSenderWindow().action(async () => {
       const result = await Result.tryPromise({
-          try: async () => {
-            await config.reload();
-            const inner_result = config.get();
-            if (!inner_result || typeof inner_result !== "object")
-              return createDefaultHotkeyConfig();
-            return inner_result;
+        try: async () => {
+          await config.reload();
+          const get = config.get();
+          if (!get || typeof get !== "object")
+            return createDefaultHotkeyConfig();
+          return get;
         },
         catch: (error) => {
           logger.error("Failed to get all hotkeys", error);
@@ -43,14 +41,12 @@ export function createHotkeysTipcRouter(tipc: TipcInstance) {
         id: string;
         value: string;
       }>()
+      .requireSenderWindow()
       .action(async ({ input, context }) => {
-        const senderWindow = context.senderWindow;
-        if (!senderWindow) return;
         config.set(input.configKey, input.value);
         const result = await Result.tryPromise({
           try: async () => {
             await config.save();
-
             // Sync to all game windows
             await windowsService.forEachGameWindow(async (_, window) => {
               const handlers =
@@ -70,32 +66,35 @@ export function createHotkeysTipcRouter(tipc: TipcInstance) {
             return error;
           },
         });
-
         if (result.isErr()) return TipcResult.err();
         return TipcResult.ok();
       }),
-    restore: tipc.procedure.action(async ({ context }) => {
-      const senderWindow = context.senderWindow;
-      if (!senderWindow) return;
+    restore: tipc.procedure
+      .requireSenderWindow()
+      .action(async ({ context }) => {
+        config.clear();
+        const result = await Result.tryPromise({
+          try: async () => {
+            await config.save();
+            await config.reload();
+          },
+          catch: (error) => {
+            logger.error("Failed to restore default hotkeys", error);
+          },
+        });
+        if (result.isErr()) return;
 
-      config.clear();
-      await config.save();
-      await config.reload();
-
-      const parent = windowsService.resolveGameWindow(senderWindow.id);
+        const parent = windowsService.resolveGameWindow(
+          context.senderWindowId,
+        );
+        if (!parent) return;
+        const parentHandlers =
+          context.getRendererHandlers<RendererHandlers>(parent);
+        await parentHandlers.hotkeys.reload.invoke();
+      }),
+    reload: tipc.procedure.requireSenderWindow().action(async ({ context }) => {
+      const parent = windowsService.resolveGameWindow(context.senderWindowId);
       if (!parent) return;
-
-      const parentHandlers =
-        context.getRendererHandlers<RendererHandlers>(parent);
-      await parentHandlers.hotkeys.reload.invoke();
-    }),
-    reload: tipc.procedure.action(async ({ context }) => {
-      const senderWindow = context.senderWindow;
-      if (!senderWindow) return;
-
-      const parent = windowsService.resolveGameWindow(senderWindow.id);
-      if (!parent) return;
-
       const parentHandlers =
         context.getRendererHandlers<RendererHandlers>(parent);
       await parentHandlers.hotkeys.reload.invoke();
