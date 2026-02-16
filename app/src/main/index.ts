@@ -82,10 +82,6 @@ async function handleAppLaunch(argv: string[] = process.argv) {
     if (settings?.getBoolean("checkForUpdates", false)) {
       const updateResult = await updaterService.run(true);
       if (updateResult !== null) {
-        logger.info(
-          `Update available - ${updateResult.newVersion} (current: ${version})`,
-        );
-
         const notif = createNotification(
           "Update available",
           `Version ${updateResult.newVersion} is available. Click to view.`,

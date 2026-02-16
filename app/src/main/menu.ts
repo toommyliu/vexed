@@ -1,19 +1,15 @@
-import { join, sep } from "path";
+import { join } from "path";
 import type Config from "@vexed/config";
-import {
-  deleteFile,
-  pathExists,
-  readDirRecursive,
-  deleteDirectory,
-} from "@vexed/fs-utils";
+import * as fs from '@vexed/fs';
 import type { MenuItemConstructorOptions } from "electron";
 import { app, dialog, Menu, nativeTheme, session, shell } from "electron";
 import type { Settings } from "~/shared/types";
 import { IS_MAC } from "./constants";
-import { logger } from "./services/logger";
+import { createLogger } from "./services/logger";
 import { updaterService } from "./services/updater";
 import { windowsService } from "./services/windows";
-import { showErrorDialog } from "./util/dialog";
+
+const logger = createLogger('app:menu');
 
 async function updateTheme(
   settings: Config<Settings>,
@@ -46,46 +42,14 @@ async function handleCheckForUpdates() {
   if (response === 0) void shell.openExternal(updateResult.releaseUrl);
 }
 
-const _deleteDirectory = async (dirPath: string) => {
-  if (!(await pathExists(dirPath))) {
-    console.log(`Directory does not exist: ${dirPath}`);
-    return;
-  }
-
-  try {
-    const dirs = new Set<string>();
-    const files = new Set<string>();
-
-    await readDirRecursive(dirPath, {
-      filter: (_, absPath, stats) => {
-        if (stats.isFile()) files.add(absPath);
-        else if (stats.isDirectory()) dirs.add(absPath);
-        return true;
-      },
-    });
-
-    // Delete files first
-    for (const filePath of files) await deleteFile(filePath);
-
-    // Sort the directories by depth (a.k.a deepest path first)
-    const sortedDirs = Array.from(dirs).sort(
-      (a, b) => b.split(sep).length - a.split(sep).length,
-    );
-    for (const dir of sortedDirs) await deleteDirectory(dir);
-
-    await deleteDirectory(dirPath);
-  } catch (error) {
-    logger.error("main", "Failed to clear Flash cache", error);
-    showErrorDialog({
-      message: "Failed to clear Flash cache",
-    });
-  }
-};
-
 function clearAppCache() {
   void session.defaultSession?.clearStorageData({
     storages: ["cookies", "appcache", "localstorage"],
-  });
+  // eslint-disable-next-line promise/prefer-await-to-callbacks, promise/prefer-await-to-then
+  }).catch((error) => {
+    logger.error("Failed to clear app cache", error);
+    return null;
+  })
 }
 
 async function clearFlashCache() {
@@ -96,7 +60,7 @@ async function clearFlashCache() {
     "WritableRoot",
   );
 
-  await _deleteDirectory(flashPath);
+  await fs.deleteDir(flashPath);
 
   const { response } = await dialog.showMessageBox({
     message: "Flash cache cleared successfully. A restart is required.",
@@ -104,8 +68,7 @@ async function clearFlashCache() {
     buttons: ["Quit", "Later"],
     defaultId: 0,
   });
-
-  if (response === 0) app.quit();
+  if (response === 0 /* Quit */) app.quit();
 }
 
 export function createMenu(settings: Config<Settings>) {
@@ -268,7 +231,6 @@ export function createMenu(settings: Config<Settings>) {
       ],
     },
   ] as MenuItemConstructorOptions[];
-
   const menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
 }
