@@ -11,7 +11,7 @@ const levelToConsole: Record<LogLevel, keyof Console> = {
 function sendEntry(entry: MainLogEntry) {
   try {
     console.log("sent:", entry);
-    void client.logger.logEntry(entry);
+    void client.app.logEntry(entry);
   } catch (error) {
     console.warn("Failed to forward log entry to main.", error);
   }

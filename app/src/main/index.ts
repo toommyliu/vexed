@@ -14,7 +14,7 @@ import { initFlashService } from "./services/flash";
 import {
   initMainLogger,
   createLogger,
-  setLoggerDebugEnabled,
+  setLoggerDebug,
 } from "./services/logger";
 import { updaterService } from "./services/updater";
 import { windowsService } from "./services/windows";
@@ -74,7 +74,7 @@ async function handleAppLaunch(argv: string[] = process.argv) {
   try {
     const settings = getSettings();
 
-    setLoggerDebugEnabled(settings.getBoolean("debug", false));
+    setLoggerDebug(settings.getBoolean("debug", false));
     await initMainLogger();
 
     logger.info(`Hello - ${BRAND} v${version}`); // indicate app start

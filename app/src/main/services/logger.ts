@@ -91,7 +91,7 @@ export async function initMainLogger() {
   return initPromise;
 }
 
-export function setLoggerDebugEnabled(enabled: boolean) {
+export function setLoggerDebug(enabled: boolean) {
   debugEnabled = enabled;
 }
 

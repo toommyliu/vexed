@@ -6,11 +6,12 @@ import { DEFAULT_SKILLSETS, DOCUMENTS_PATH } from "~/shared/constants";
 import {
   WindowIds,
   type AccountWithScript,
+  type MainLogEntry,
   type Settings,
 } from "~/shared/types";
 import { ASSET_PATH, IS_LINUX, IS_MAC, IS_WINDOWS } from "../constants";
 import { gameServers } from "../services/game-servers";
-import { logger, setLoggerDebugEnabled } from "../services/logger";
+import { logger, logFromRenderer, setLoggerDebug } from "../services/logger";
 import { scriptService } from "../services/scripts";
 import { windowsService, type SubwindowConfig } from "../services/windows";
 import { getSettings } from "../settings";
@@ -137,7 +138,7 @@ export function createAppTipcRouter(tipc: TipcInstance) {
     getSettings: tipc.procedure.action(async () => {
       const settings = getSettings();
       const debug = settings.getBoolean("debug", false);
-      setLoggerDebugEnabled(debug);
+      setLoggerDebug(debug);
       return {
         checkForUpdates: settings.getBoolean("checkForUpdates", false),
         debug,
@@ -161,11 +162,15 @@ export function createAppTipcRouter(tipc: TipcInstance) {
         settings.set("fallbackServer", input.fallbackServer);
         settings.set("launchMode", input.launchMode);
         settings.set("theme", input.theme);
-        setLoggerDebugEnabled(input.debug);
+        setLoggerDebug(input.debug);
         nativeTheme.themeSource = input.theme;
         await settings.save();
       }),
 
     getServers: tipc.procedure.action(async () => gameServers.get()),
+
+    logEntry: tipc.procedure.input<MainLogEntry>().action(async ({ input }) => {
+      logFromRenderer(input);
+    }),
   };
 }

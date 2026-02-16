@@ -15,9 +15,7 @@ import { createFastTravelsTipcRouter } from "./tipc/fast-travels.router";
 import { createFollowerTipcRouter } from "./tipc/follower.router";
 import { createHotkeysTipcRouter } from "./tipc/hotkeys.router";
 import { createLoaderGrabberTipcRouter } from "./tipc/loader-grabber.router";
-import { createLoggerTipcRouter } from "./tipc/logger.router";
 import { createManagerTipcRouter } from "./tipc/manager.router";
-import { createOnboardingTipcRouter } from "./tipc/onboarding.router";
 import { createPacketTipcRouter } from "./tipc/packets.router";
 import type { TipcResult } from "./tipc/result";
 import { createScriptsTipcRouter } from "./tipc/scripts.router";
@@ -30,12 +28,10 @@ export const router = {
   loaderGrabber: createLoaderGrabberTipcRouter(tipcInstance),
   follower: createFollowerTipcRouter(tipcInstance),
   packets: createPacketTipcRouter(tipcInstance),
-  logger: createLoggerTipcRouter(tipcInstance),
   hotkeys: createHotkeysTipcRouter(tipcInstance),
   manager: createManagerTipcRouter(tipcInstance),
   army: createArmyTipcRouter(tipcInstance),
   environment: createEnvironmentTipcRouter(tipcInstance),
-  onboarding: createOnboardingTipcRouter(tipcInstance),
   app: createAppTipcRouter(tipcInstance),
 };
 
