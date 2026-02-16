@@ -20,7 +20,9 @@ export function createPacketTipcRouter(tipc: TipcInstance) {
       .input<{ packet: string; type: string }>()
       .requireSenderWindow()
       .action(async ({ input, context }) => {
-        const gameWindowId = windowsService.getGameWindowId(browserWindow.id);
+        const gameWindowId = windowsService.getGameWindowId(
+          context.senderWindowId,
+        );
         if (!gameWindowId) return;
         const packetLoggerWindow = windowsService.getSubwindow(
           gameWindowId,

@@ -1,9 +1,8 @@
 import type { TipcInstance } from "@vexed/tipc";
 import { matchErrorPartial } from "better-result";
-import type { Account, AccountWithScript } from "~/shared/types";
+import type { Account } from "~/shared/types";
 import { accounts } from "../services/accounts";
 import { createLogger } from "../services/logger";
-import { scriptService } from "../services/scripts";
 import { windowsService } from "../services/windows";
 import type { RendererHandlers } from "../tipc";
 import { TipcResult } from "./result";

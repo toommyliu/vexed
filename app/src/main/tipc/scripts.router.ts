@@ -6,12 +6,10 @@ export function createScriptsTipcRouter(tipcInstance: TipcInstance) {
   return {
     loadScript: tipcInstance.procedure
       .input<{ scriptPath?: string }>()
+      .requireSenderWindow()
       .action(async ({ input, context }) => {
-        const browserWindow = context.senderWindow;
-        if (!browserWindow) return;
-
         const result = await scriptService.loadAndRun(
-          browserWindow,
+          context.senderWindow,
           input?.scriptPath,
         );
 
