@@ -1,4 +1,5 @@
 import type { TipcInstance } from "@vexed/tipc";
+import type { RawFollowerConfig } from "~/shared/follower/types";
 import { withParentGameHandlers } from "./forwarding";
 
 export function createFollowerTipcRouter(tipcInstance: TipcInstance) {
@@ -10,24 +11,16 @@ export function createFollowerTipcRouter(tipcInstance: TipcInstance) {
           parentHandlers.follower.me.invoke(),
         ),
       ),
+
     start: tipcInstance.procedure
-      .input<{
-        attackPriority: string;
-        copyWalk: boolean;
-        name: string;
-        safeSkill: string;
-        safeSkillEnabled: boolean;
-        safeSkillHp: string;
-        skillDelay: string;
-        skillList: string;
-        skillWait: boolean;
-      }>()
+      .input<RawFollowerConfig>()
       .requireSenderWindow()
       .action(async ({ context, input }) => {
         await withParentGameHandlers(context, (parentHandlers) =>
           parentHandlers.follower.start.send(input),
         );
       }),
+
     stop: tipcInstance.procedure
       .requireSenderWindow()
       .action(async ({ context }) => {

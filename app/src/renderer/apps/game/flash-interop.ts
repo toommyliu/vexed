@@ -93,7 +93,7 @@ window.loaded = async () => {
       AutoReloginJob.resetForNewCredentials();
       bot.once("login", async () => {
         autoReloginState.disable();
-        await tipc.client.manager.managerLoginSuccess({ username });
+        await tipc.client.manager.onLogin({ username });
       });
     } else {
       bot.auth.login(username, password);
@@ -101,7 +101,7 @@ window.loaded = async () => {
         () => bot.flash.get("mcLogin.currentLabel", true) === "Servers",
         { indefinite: true },
       );
-      await tipc.client.manager.managerLoginSuccess({ username });
+      await tipc.client.manager.onLogin({ username });
     }
   }
 
@@ -159,6 +159,6 @@ window.progress = ([percent]: [number]) => {
       const cl = gameContainer.classList;
       cl.remove("invisible", "opacity-0");
       cl.add("opacity-100", "visible");
-  }
+    }
   }
 };

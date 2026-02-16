@@ -25,7 +25,6 @@ export function applySecurityPolicy(window: BrowserWindow): void {
   window.webContents.userAgent = ARTIX_USERAGENT;
   session.defaultSession?.webRequest.onBeforeSendHeaders((details, fn) => {
     const requestHeaders = details.requestHeaders;
-
     Object.defineProperty(requestHeaders, "User-Agent", {
       value: ARTIX_USERAGENT,
     });
@@ -35,7 +34,6 @@ export function applySecurityPolicy(window: BrowserWindow): void {
     Object.defineProperty(requestHeaders, "X-Requested-With", {
       value: "ShockwaveFlash/32.0.0.371",
     });
-
     fn({ requestHeaders, cancel: false });
   });
 

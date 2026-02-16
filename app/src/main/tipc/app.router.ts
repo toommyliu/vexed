@@ -1,11 +1,19 @@
 import Config from "@vexed/config";
 import type { TipcInstance } from "@vexed/tipc";
 import { Result } from "better-result";
+import { nativeTheme } from "electron";
 import { DEFAULT_SKILLSETS, DOCUMENTS_PATH } from "~/shared/constants";
-import { WindowIds } from "~/shared/types";
-import { ASSET_PATH, IS_WINDOWS, IS_MAC, IS_LINUX } from "../constants";
-import { logger } from "../services/logger";
+import {
+  WindowIds,
+  type AccountWithScript,
+  type Settings,
+} from "~/shared/types";
+import { ASSET_PATH, IS_LINUX, IS_MAC, IS_WINDOWS } from "../constants";
+import { gameServers } from "../services/game-servers";
+import { logger, setLoggerDebugEnabled } from "../services/logger";
+import { scriptService } from "../services/scripts";
 import { windowsService, type SubwindowConfig } from "../services/windows";
+import { getSettings } from "../settings";
 import { TipcResult } from "./result";
 
 const platform = {
@@ -57,6 +65,7 @@ const config = new Config<typeof DEFAULT_SKILLSETS>({
   cwd: DOCUMENTS_PATH,
   defaults: DEFAULT_SKILLSETS,
 });
+
 export function createAppTipcRouter(tipc: TipcInstance) {
   return {
     getPlatform: tipc.procedure.action(async () => platform),
@@ -77,6 +86,12 @@ export function createAppTipcRouter(tipc: TipcInstance) {
       return TipcResult.ok(result.unwrap());
     }),
 
+    launchGame: tipc.procedure
+      .input<AccountWithScript>()
+      .action(async ({ input }) => {
+        windowsService.game(input);
+      }),
+
     launchWindow: tipc.procedure
       .input<WindowIds>()
       .requireSenderWindow()
@@ -86,5 +101,71 @@ export function createAppTipcRouter(tipc: TipcInstance) {
         const config = SUBWINDOW_CONFIGS[input];
         await handle.open(config);
       }),
+
+    loadScript: tipc.procedure
+      .requireSenderWindow()
+      .input<{ scriptPath?: string }>()
+      .action(async ({ context, input: { scriptPath } }) => {
+        const isGameWindow = windowsService.isGameWindow(
+          context.senderWindowId,
+        );
+
+        // Game: if no script path, prompt and load. If script path provided, load directly
+        if (isGameWindow) {
+          if (scriptPath) {
+            await scriptService.loadAndRun(context.senderWindow, scriptPath);
+            return;
+          }
+
+          const result = await scriptService.loadAndRun(context.senderWindow);
+          if (result.isErr()) {
+            logger.error("Failed to load script", result.error);
+            return;
+          }
+        }
+
+        const path = await scriptService.selectScriptPath(
+          context.senderWindow ?? undefined,
+        );
+        return path ?? "";
+      }),
+
+    toggleDevTools: tipc.procedure.action(async ({ context }) => {
+      context.senderWindow?.webContents?.toggleDevTools();
+    }),
+
+    getSettings: tipc.procedure.action(async () => {
+      const settings = getSettings();
+      const debug = settings.getBoolean("debug", false);
+      setLoggerDebugEnabled(debug);
+      return {
+        checkForUpdates: settings.getBoolean("checkForUpdates", false),
+        debug,
+        fallbackServer: settings.getString("fallbackServer", ""),
+        launchMode: settings.getString("launchMode", "game") as
+          | "game"
+          | "manager",
+        theme: settings.getString("theme", "dark") as
+          | "dark"
+          | "light"
+          | "system",
+      } satisfies Settings;
+    }),
+
+    updateSettings: tipc.procedure
+      .input<Settings>()
+      .action(async ({ input }) => {
+        const settings = getSettings();
+        settings.set("checkForUpdates", input.checkForUpdates);
+        settings.set("debug", input.debug);
+        settings.set("fallbackServer", input.fallbackServer);
+        settings.set("launchMode", input.launchMode);
+        settings.set("theme", input.theme);
+        setLoggerDebugEnabled(input.debug);
+        nativeTheme.themeSource = input.theme;
+        await settings.save();
+      }),
+
+    getServers: tipc.procedure.action(async () => gameServers.get()),
   };
 }

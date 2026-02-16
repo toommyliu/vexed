@@ -13,7 +13,7 @@
 
   import { managerState } from "./state.svelte";
   import { removeAccount, startAccount } from "./util";
-  import { client } from "../../../shared/tipc";
+  import { client, handlers } from "../../../shared/tipc";
   import type { Account } from "../../../shared/types";
   import EditAccountModal from "./components/edit-account-modal.svelte";
   import AddAccountModal from "./components/add-account-modal.svelte";
@@ -199,12 +199,17 @@
   }
 
   async function selectScript() {
-    const res = await client.manager.mgrLoadScript();
-    if (res) {
-      managerState.scriptPath = res;
+    const path = await client.app.loadScript();
+    if (path) {
+      console.log(`Loaded script path: ${path}`);
+      managerState.scriptPath = path;
       managerState.startWithScript = true;
     }
   }
+
+  handlers.manager.onLogin.listen((username) => {
+    console.log(`${username} completed log in...`);
+  });
 </script>
 
 <div class="flex h-screen flex-col bg-background">

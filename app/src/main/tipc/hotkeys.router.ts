@@ -36,6 +36,7 @@ export function createHotkeysTipcRouter(tipc: TipcInstance) {
       if (result.isErr()) return TipcResult.err();
       return TipcResult.ok(result.value);
     }),
+
     update: tipc.procedure
       .input<{
         configKey: string;
@@ -70,6 +71,7 @@ export function createHotkeysTipcRouter(tipc: TipcInstance) {
         if (result.isErr()) return TipcResult.err();
         return TipcResult.ok();
       }),
+
     restore: tipc.procedure
       .requireSenderWindow()
       .action(async ({ context }) => {
@@ -88,6 +90,7 @@ export function createHotkeysTipcRouter(tipc: TipcInstance) {
           parentHandlers.hotkeys.reload.invoke(),
         );
       }),
+
     reload: tipc.procedure.requireSenderWindow().action(async ({ context }) => {
       await withParentGameHandlers(context, async (parentHandlers) =>
         parentHandlers.hotkeys.reload.invoke(),

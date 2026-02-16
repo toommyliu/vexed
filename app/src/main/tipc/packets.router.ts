@@ -18,19 +18,15 @@ export function createPacketTipcRouter(tipc: TipcInstance) {
     }),
     onPacket: tipc.procedure
       .input<{ packet: string; type: string }>()
+      .requireSenderWindow()
       .action(async ({ input, context }) => {
-        const browserWindow = context.senderWindow;
-        if (!browserWindow) return;
-
         const gameWindowId = windowsService.getGameWindowId(browserWindow.id);
         if (!gameWindowId) return;
-
         const packetLoggerWindow = windowsService.getSubwindow(
           gameWindowId,
           WindowIds.PacketLogger,
         );
         if (!packetLoggerWindow) return;
-
         const rendererHandler =
           context.getRendererHandlers<RendererHandlers>(packetLoggerWindow);
         rendererHandler.packets.onPacket.send(input);

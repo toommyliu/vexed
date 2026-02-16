@@ -14,7 +14,7 @@ export const startAccount = async (account: AccountWithServer) => {
   }, 10_000); // 10s should be sufficient
   managerState.timeouts.set(account.username, timeout);
 
-  await client.manager.launchGame({
+  await client.app.launchGame({
     username: account.username,
     password: account.password,
     server: account.server ?? null,

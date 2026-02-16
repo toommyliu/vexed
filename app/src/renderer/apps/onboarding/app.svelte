@@ -15,8 +15,8 @@
 
   onMount(async () => {
     const [settings, serverData] = await Promise.all([
-      client.onboarding.getSettings(),
-      client.onboarding.getServers(),
+      client.app.getSettings(),
+      client.app.getServers(),
     ]);
 
     checkForUpdates = settings.checkForUpdates;
@@ -43,7 +43,7 @@
 
   $effect(() => {
     if (isLoading) return;
-    client.onboarding.updateSettings({
+    client.app.updateSettings({
       checkForUpdates,
       debug,
       fallbackServer,

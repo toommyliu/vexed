@@ -14,7 +14,7 @@ import { createEnvironmentTipcRouter } from "./tipc/environment.router";
 import { createFastTravelsTipcRouter } from "./tipc/fast-travels.router";
 import { createFollowerTipcRouter } from "./tipc/follower.router";
 import { createHotkeysTipcRouter } from "./tipc/hotkeys.router";
-import { createLoaderGrabberTipcRouter } from "./tipc/loaderGrabber.router";
+import { createLoaderGrabberTipcRouter } from "./tipc/loader-grabber.router";
 import { createLoggerTipcRouter } from "./tipc/logger.router";
 import { createManagerTipcRouter } from "./tipc/manager.router";
 import { createOnboardingTipcRouter } from "./tipc/onboarding.router";
@@ -41,6 +41,8 @@ export const router = {
 
 export type TipcRouter = typeof router;
 
+// Declares the shape of the handlers that main process can call for the renderer processes.
+
 /* eslint-disable typescript-sort-keys/interface */
 
 export type RendererHandlers = {
@@ -52,13 +54,11 @@ export type RendererHandlers = {
   };
 
   game: {
-    getAssetPath(): Promise<string>;
     gameReloaded(): void;
   };
 
   scripts: {
     scriptLoaded(fromManager: boolean): void;
-    toggleDevTools(): void;
     gameReload(): void;
   };
 
@@ -123,17 +123,7 @@ export type RendererHandlers = {
   };
 
   manager: {
-    managerLoginSuccess(username: string): void;
-    enableButton(username: string): Promise<void>;
-    getAccounts(): Promise<Account[]>;
-    addAccount(account: Account): Promise<boolean>;
-    removeAccount(payload: { username: string }): Promise<boolean>;
-    updateAccount(payload: {
-      originalUsername: string;
-      updatedAccount: Account;
-    }): Promise<boolean>;
-    mgrLoadScript(): Promise<string>;
-    launchGame(input: AccountWithServer): Promise<void>;
+    onLogin(username: string): Promise<void>;
   };
 };
 /* eslint-enable typescript-sort-keys/interface */

@@ -25,8 +25,8 @@ const handleCleanup = (
   browserWindow.once("close", _cleanup);
 };
 
-export const createArmyTipcRouter = (tipcInstance: TipcInstance) => ({
-  init: tipcInstance.procedure
+export const createArmyTipcRouter = (tipc: TipcInstance) => ({
+  init: tipc.procedure
     .input<{
       fileName: string;
       playerName: string;
@@ -53,7 +53,7 @@ export const createArmyTipcRouter = (tipcInstance: TipcInstance) => ({
       handleCleanup(browserWindow, fileName);
     }),
 
-  join: tipcInstance.procedure
+  join: tipc.procedure
     .input<{
       fileName: string;
       playerName: string;
@@ -79,7 +79,7 @@ export const createArmyTipcRouter = (tipcInstance: TipcInstance) => ({
       handleCleanup(browserWindow);
     }),
 
-  finishJob: tipcInstance.procedure.action(async ({ context }) => {
+  finishJob: tipc.procedure.action(async ({ context }) => {
     const browserWindow = context.senderWindow;
     if (!browserWindow) return;
 

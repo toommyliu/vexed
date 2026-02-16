@@ -115,7 +115,7 @@ const COMMANDS: UiCommandDef[] = [
     category: "Scripts",
     hotkeyId: "toggle-dev-tools",
     handler: () => {
-      void client.scripts.toggleDevTools();
+      void client.app.toggleDevTools();
     },
   },
   {

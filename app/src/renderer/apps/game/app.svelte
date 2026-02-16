@@ -217,7 +217,7 @@
       await Promise.allSettled([
         client.app.getPlatform(),
         client.app.getAssetPath(),
-        client.onboarding.getSettings(),
+        client.app.getSettings(),
       ]);
 
     if (platformResult.status === "fulfilled") {
@@ -360,7 +360,7 @@
               </Menu.Item>
               <Menu.Item
                 class="flex items-center justify-between bg-transparent"
-                onclick={() => void client.scripts.toggleDevTools()}
+                onclick={() => void client.app.toggleDevTools()}
               >
                 <span>Dev Tools</span>
                 <Kbd

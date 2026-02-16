@@ -1,12 +1,9 @@
-import { join } from "path";
 import type { TipcInstance } from "@vexed/tipc";
 import { matchErrorPartial } from "better-result";
-import { dialog } from "electron";
-import type { BrowserWindow, OpenDialogOptions } from "electron";
-import { DOCUMENTS_PATH } from "~/shared/constants";
 import type { Account, AccountWithScript } from "~/shared/types";
 import { accounts } from "../services/accounts";
 import { createLogger } from "../services/logger";
+import { scriptService } from "../services/scripts";
 import { windowsService } from "../services/windows";
 import type { RendererHandlers } from "../tipc";
 import { TipcResult } from "./result";
@@ -36,6 +33,7 @@ export function createManagerTipcRouter(tipc: TipcInstance) {
 
       return TipcResult.ok();
     }),
+
     removeAccount: tipc.procedure
       .input<{
         username: string;
@@ -55,6 +53,7 @@ export function createManagerTipcRouter(tipc: TipcInstance) {
 
         return TipcResult.ok();
       }),
+
     updateAccount: tipc.procedure
       .input<{
         originalUsername: string;
@@ -80,43 +79,16 @@ export function createManagerTipcRouter(tipc: TipcInstance) {
 
         return TipcResult.ok();
       }),
-    mgrLoadScript: tipc.procedure.action(async ({ context }) => {
-      try {
-        const browserWindow: BrowserWindow | undefined =
-          context.senderWindow ?? undefined;
-        const dialogOptions: OpenDialogOptions = {
-          defaultPath: join(DOCUMENTS_PATH, "Bots"),
-          properties: ["openFile"],
-          filters: [{ name: "Bots", extensions: ["js"] }],
-          message: "Select a script to load",
-          title: "Select a script to load",
-        };
 
-        const res = browserWindow
-          ? await dialog.showOpenDialog(browserWindow, dialogOptions)
-          : await dialog.showOpenDialog(dialogOptions);
-
-        if (res?.canceled || !res?.filePaths?.length) return "";
-
-        return res?.filePaths[0] ?? "";
-      } catch (error) {
-        logger.error("Failed to load script", error);
-        return "";
-      }
-    }),
-    launchGame: tipc.procedure
-      .input<AccountWithScript>()
-      .action(async ({ input }) => {
-        windowsService.game(input);
-      }),
-    managerLoginSuccess: tipc.procedure
+    // Game login completes, notify the manager window to update UI
+    onLogin: tipc.procedure
       .input<{ username: string }>()
       .action(async ({ input, context }) => {
         const mgrWindow = windowsService.getManagerWindow();
         if (!mgrWindow) return;
         const handlers =
           context.getRendererHandlers<RendererHandlers>(mgrWindow);
-        handlers.manager.enableButton.send(input.username);
+        handlers.manager.onLogin.send(input.username);
       }),
   };
 }
