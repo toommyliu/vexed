@@ -11,6 +11,9 @@ import { equalsIgnoreCase } from "@vexed/utils";
 import { Result, TaggedError } from "better-result";
 import { DOCUMENTS_PATH } from "~/shared";
 import type { Account } from "~/shared/types";
+import { createLogger } from "./logger";
+
+const logger = createLogger("service:accounts");
 
 const ACCOUNTS_PATH = join(DOCUMENTS_PATH, "accounts.json");
 
@@ -52,7 +55,10 @@ export type AccountsError =
 export const accounts = {
   getAll: async (): Promise<Result<Account[], AccountsError>> =>
     Result.gen(async function* () {
-      const data = yield* Result.await(readJson<Account[]>(ACCOUNTS_PATH));
+      const result = await readJson<Account[]>(ACCOUNTS_PATH);
+      if (result.isErr())
+        logger.error("Failed to read accounts file", result.error);
+      const data = yield* result;
       return Result.ok(data ?? []);
     }),
 
@@ -66,9 +72,11 @@ export const accounts = {
         return Result.err(
           new DuplicateUsernameError({ username: account.username }),
         );
-
       const updated = [...allAccounts, account];
-      yield* Result.await(writeJson(ACCOUNTS_PATH, updated));
+      const writeResult = await writeJson(ACCOUNTS_PATH, updated);
+      if (writeResult.isErr())
+        logger.error("Failed to write accounts file", writeResult.error);
+      yield* writeResult;
       return Result.ok();
     }),
 
@@ -85,7 +93,6 @@ export const accounts = {
         return Result.err(
           new AccountNotFoundError({ username: originalUsername }),
         );
-
       if (!equalsIgnoreCase(originalUsername, updatedAccount.username)) {
         const existingIdx = allAccounts.findIndex(
           (acc) => acc.username === updatedAccount.username,
@@ -98,7 +105,10 @@ export const accounts = {
 
       const updated = [...allAccounts];
       updated[idx] = updatedAccount;
-      yield* Result.await(writeJson(ACCOUNTS_PATH, updated));
+      const writeResult = await writeJson(ACCOUNTS_PATH, updated);
+      if (writeResult.isErr())
+        logger.error("Failed to write accounts file", writeResult.error);
+      yield* writeResult;
       return Result.ok();
     }),
 
@@ -110,7 +120,10 @@ export const accounts = {
       );
       if (idx === -1) return Result.err(new AccountNotFoundError({ username }));
       const updated = allAccounts.filter((_, currIdx) => currIdx !== idx);
-      yield* Result.await(writeJson(ACCOUNTS_PATH, updated));
+      const writeResult = await writeJson(ACCOUNTS_PATH, updated);
+      if (writeResult.isErr())
+        logger.error("Failed to write accounts file", writeResult.error);
+      yield* writeResult;
       return Result.ok();
     }),
 };

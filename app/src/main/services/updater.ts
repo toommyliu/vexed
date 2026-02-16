@@ -4,6 +4,9 @@ import fs from "@vexed/fs-utils";
 import { Result } from "better-result";
 import { app } from "electron";
 import fetch from "node-fetch";
+import { createLogger } from "./logger";
+
+const logger = createLogger("service:updater");
 
 const lastUpdateCheckFile = join(
   app.getPath("userData"),
@@ -86,28 +89,38 @@ class UpdaterService {
         if (Number.isNaN(timestamp)) return 0;
         return timestamp;
       },
-      catch: () => 0,
+      catch: (error) => {
+        logger.error("Failed to read last update check file", error);
+        return 0;
+      },
     });
   }
 
   private async writeLastUpdateCheck(timestamp: number) {
     return Result.tryPromise({
       try: async () => fs.writeFile(lastUpdateCheckFile, String(timestamp)),
-      catch: () => void 0,
+      catch: (error) => {
+        logger.error("Failed to write last update check file", error);
+      },
     });
   }
 
   private async readETag() {
     return Result.tryPromise({
       try: async () => fs.readFile(eTagFile),
-      catch: () => null,
+      catch: (error) => {
+        logger.error("Failed to read ETag file", error);
+        return null;
+      },
     });
   }
 
   private async writeETag(eTag: string) {
     return Result.tryPromise({
       try: async () => fs.writeFile(eTagFile, eTag),
-      catch: () => void 0,
+      catch: (error) => {
+        logger.error("Failed to write ETag file", error);
+      },
     });
   }
 
@@ -116,12 +129,21 @@ class UpdaterService {
       try: async () => {
         const resp = await fetch(this.apiUrl);
         if (resp.status === 304) return null; // Not Modified
-        if (!resp.ok || resp.status !== 200) return null;
+        if (!resp.ok || resp.status !== 200) {
+          logger.error("Failed to fetch release", {
+            status: resp.status,
+            statusText: resp.statusText,
+          });
+          return null;
+        }
         const data = (await resp.json()) as GithubRelease;
         const eTag = resp.headers.get("etag");
         return { data, eTag };
       },
-      catch: () => null,
+      catch: (error) => {
+        logger.error("Failed to fetch release", error);
+        return null;
+      },
     });
   }
 }

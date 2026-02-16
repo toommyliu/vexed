@@ -4,6 +4,9 @@ import { equalsIgnoreCase } from "@vexed/utils/string";
 import { Result, TaggedError } from "better-result";
 import { DEFAULT_FAST_TRAVELS, FAST_TRAVELS_PATH } from "~/shared/constants";
 import type { FastTravel } from "~/shared/types";
+import { createLogger } from "./logger";
+
+const logger = createLogger("service:fast-travels");
 
 export class FastTravelFileError extends TaggedError("FastTravelFileError")<{
   cause?: unknown;
@@ -30,6 +33,9 @@ async function save(
 ): Promise<Result<void, FastTravelFileError>> {
   return Result.gen(async function* () {
     const result = await writeJson(FAST_TRAVELS_PATH, fastTravels);
+    if (result.isErr()) {
+      logger.error("Failed to write fast travels file", result.error);
+    }
     yield* result.mapError(
       (error) =>
         new FastTravelFileError({
@@ -77,9 +83,13 @@ export const fastTravels = {
     Result<FastTravel[], FsJsonParseError | FsReadError>
   > {
     return Result.gen(async function* () {
-      const result = yield* await readJson<FastTravel[]>(FAST_TRAVELS_PATH);
-      if (!Array.isArray(result)) return Result.ok([...DEFAULT_FAST_TRAVELS]);
-      return Result.ok(result);
+      const result = await readJson<FastTravel[]>(FAST_TRAVELS_PATH);
+      if (result.isErr()) {
+        logger.error("Failed to read fast travels file", result.error);
+      }
+      const data = yield* result;
+      if (!Array.isArray(data)) return Result.ok([...DEFAULT_FAST_TRAVELS]);
+      return Result.ok(data);
     });
   },
 

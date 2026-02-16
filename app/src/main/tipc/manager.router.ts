@@ -2,12 +2,9 @@ import type { TipcInstance } from "@vexed/tipc";
 import { matchErrorPartial } from "better-result";
 import type { Account } from "~/shared/types";
 import { accounts } from "../services/accounts";
-import { createLogger } from "../services/logger";
 import { windowsService } from "../services/windows";
 import type { RendererHandlers } from "../tipc";
 import { TipcResult } from "./result";
-
-const logger = createLogger("tipc:manager");
 
 export function createManagerTipcRouter(tipc: TipcInstance) {
   return {
@@ -19,7 +16,6 @@ export function createManagerTipcRouter(tipc: TipcInstance) {
     addAccount: tipc.procedure.input<Account>().action(async ({ input }) => {
       const result = await accounts.add(input);
       if (result.isErr()) {
-        logger.error(result.error);
         return matchErrorPartial(
           result.error,
           {
@@ -40,7 +36,6 @@ export function createManagerTipcRouter(tipc: TipcInstance) {
       .action(async ({ input }) => {
         const result = await accounts.remove(input.username);
         if (result.isErr()) {
-          logger.error(result.error);
           return matchErrorPartial(
             result.error,
             {
@@ -64,7 +59,6 @@ export function createManagerTipcRouter(tipc: TipcInstance) {
           input.updatedAccount,
         );
         if (result.isErr()) {
-          logger.error(result.error);
           return matchErrorPartial(
             result.error,
             {

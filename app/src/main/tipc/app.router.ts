@@ -110,7 +110,7 @@ export function createAppTipcRouter(tipc: TipcInstance) {
         const isGameWindow = windowsService.isGameWindow(
           context.senderWindowId,
         );
-
+        // TODO: for game, we should prompt as a separate procedure.
         // Game: if no script path, prompt and load. If script path provided, load directly
         if (isGameWindow) {
           if (scriptPath) {
