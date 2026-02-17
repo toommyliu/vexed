@@ -1,6 +1,5 @@
 import Config from "@vexed/config";
 import type { TipcInstance } from "@vexed/tipc";
-import { Result } from "better-result";
 import { nativeTheme } from "electron";
 import { DEFAULT_SKILLSETS, DOCUMENTS_PATH } from "~/shared/constants";
 import {
@@ -11,7 +10,7 @@ import {
 } from "~/shared/types";
 import { ASSET_PATH, IS_LINUX, IS_MAC, IS_WINDOWS } from "../constants";
 import { gameServers } from "../services/game-servers";
-import { logger, logFromRenderer, setLoggerDebug } from "../services/logger";
+import { logFromRenderer, setLoggerDebug } from "../services/logger";
 import { scriptService } from "../services/scripts";
 import { windowsService, type SubwindowConfig } from "../services/windows";
 import { getSettings } from "../settings";
@@ -74,17 +73,8 @@ export function createAppTipcRouter(tipc: TipcInstance) {
     getAssetPath: tipc.procedure.action(async () => ASSET_PATH),
 
     getSkillSets: tipc.procedure.action(async () => {
-      const result = await Result.tryPromise({
-        try: async () => {
-          await config.load();
-          return config.get();
-        },
-        catch: (error) => {
-          logger.error("Failed to get skill sets", error);
-          return DEFAULT_SKILLSETS;
-        },
-      });
-      return TipcResult.ok(result.unwrap());
+      await config.load();
+      return TipcResult.ok(config.get());
     }),
 
     launchGame: tipc.procedure
@@ -119,10 +109,7 @@ export function createAppTipcRouter(tipc: TipcInstance) {
           }
 
           const result = await scriptService.loadAndRun(context.senderWindow);
-          if (result.isErr()) {
-            logger.error("Failed to load script", result.error);
-            return;
-          }
+          if (result.isErr()) return;
         }
 
         const path = await scriptService.selectScriptPath(
@@ -167,7 +154,9 @@ export function createAppTipcRouter(tipc: TipcInstance) {
         await settings.save();
       }),
 
-    getServers: tipc.procedure.action(async () => gameServers.get()),
+    getServers: tipc.procedure.action(async () =>
+      TipcResult.ok(await gameServers.get()),
+    ),
 
     logEntry: tipc.procedure.input<MainLogEntry>().action(async ({ input }) => {
       logFromRenderer(input);

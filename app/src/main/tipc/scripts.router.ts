@@ -1,6 +1,7 @@
 import type { TipcInstance } from "@vexed/tipc";
 import { scriptService } from "../services/scripts";
 import type { RendererHandlers } from "../tipc";
+import { TipcResult } from "./result";
 
 export function createScriptsTipcRouter(tipcInstance: TipcInstance) {
   return {
@@ -14,7 +15,7 @@ export function createScriptsTipcRouter(tipcInstance: TipcInstance) {
         );
 
         if (result.isErr()) {
-          return;
+          return TipcResult.err(result.error);
         }
 
         const data = result.unwrap();
@@ -22,8 +23,11 @@ export function createScriptsTipcRouter(tipcInstance: TipcInstance) {
           const handlers = context.getRendererHandlers<RendererHandlers>();
           handlers.scripts.scriptLoaded.send(data.fromManager);
         }
+
+        return TipcResult.ok();
       }),
 
+    // TODO: this should be more isolated
     gameReload: tipcInstance.procedure.action(async ({ context }) => {
       const browserWindow = context.senderWindow;
       if (!browserWindow) return;

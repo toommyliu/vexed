@@ -1,10 +1,12 @@
 import type { TipcInstance } from "@vexed/tipc";
-import { Result, matchErrorPartial } from "better-result";
-import type { FastTravel, FastTravelRoomNumber } from "~/shared/types";
+import { Result } from "better-result";
+import type {
+  FastTravel,
+  FastTravelRoomNumber,
+} from "~/shared/fast-travels/types";
 import { fastTravels } from "../services/fast-travels";
 import type { RendererHandlers } from "../tipc";
 import { withParentGameHandlers } from "./forwarding";
-import { TipcResult } from "./result";
 
 export function createFastTravelsTipcRouter(tipc: TipcInstance) {
   return {

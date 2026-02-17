@@ -6,6 +6,7 @@ import type {
 import { WindowIds } from "~/shared/types";
 import { windowsService } from "../services/windows";
 import type { RendererHandlers } from "../tipc";
+import { isWindowUsable } from "./forwarding";
 
 const EMPTY_STATE: EnvironmentState = {
   autoRegisterRequirements: false,
@@ -185,17 +186,14 @@ export function createEnvironmentTipcRouter(tipcInstance: TipcInstance) {
           senderWindow.id,
         );
 
-        windowsService.forEachGameWindow((gameWindowId, gameWindow) => {
+        void windowsService.forEachGameWindow((gameWindowId, gameWindow) => {
           if (gameWindowId === senderGameWindowId) return;
 
           // Update stateMap for this window
           stateMap.set(gameWindowId, input);
 
           // Notify the game window
-          if (
-            !gameWindow.isDestroyed() &&
-            !gameWindow.webContents.isDestroyed()
-          ) {
+          if (isWindowUsable(gameWindow)) {
             const gameHandlers =
               context.getRendererHandlers<RendererHandlers>(gameWindow);
             gameHandlers.environment.stateChanged.send(input);
@@ -206,11 +204,7 @@ export function createEnvironmentTipcRouter(tipcInstance: TipcInstance) {
             gameWindowId,
             WindowIds.Environment,
           );
-          if (
-            envWindow &&
-            !envWindow.isDestroyed() &&
-            !envWindow.webContents.isDestroyed()
-          ) {
+          if (isWindowUsable(envWindow)) {
             const envHandlers =
               context.getRendererHandlers<RendererHandlers>(envWindow);
             envHandlers.environment.stateChanged.send(input);

@@ -1,5 +1,4 @@
 import type { ServerData } from "@vexed/game";
-import { Result } from "better-result";
 import fetch from "node-fetch";
 import { createLogger } from "./logger";
 
@@ -12,39 +11,40 @@ let servers: ServerData[] = [];
 let lastFetchTime = 0;
 
 export const gameServers = {
-  async get() {
+  async get(): Promise<ServerData[]> {
     const now = Date.now();
     if (servers.length > 0 && now - lastFetchTime < CACHE_TTL_MS)
-      return Result.ok(servers);
+      return servers;
 
-    const result = await Result.tryPromise({
-      try: async () => {
-        const resp = await fetch(SERVERS_API_URL);
-        if (!resp.ok) {
-          logger.error("Failed to fetch servers", {
-            status: resp.status,
-            statusText: resp.statusText,
-          });
-          return servers;
-        }
-
-        const data = await resp.json();
-        if (!Array.isArray(data)) {
-          logger.error("Invalid servers payload", data);
-          return servers;
-        }
-
-        servers = data as ServerData[];
-        lastFetchTime = Date.now();
+    try {
+      const resp = await fetch(SERVERS_API_URL);
+      if (!resp.ok) {
+        logger.error("Failed to fetch servers", {
+          status: resp.status,
+          statusText: resp.statusText,
+        });
         return servers;
-      },
-      catch: (error) => {
-        logger.error("Failed to fetch servers", error);
-        return servers;
-      },
-    });
+      }
 
-    if (result.isErr()) return Result.err([]);
-    return Result.ok(servers);
+      const data = await resp.json();
+      if (!Array.isArray(data)) {
+        logger.error("Invalid servers payload", data);
+        return servers;
+      }
+
+      // eslint-disable-next-line require-atomic-updates
+      servers = data as ServerData[];
+      // eslint-disable-next-line require-atomic-updates
+      lastFetchTime = Date.now();
+      return servers;
+    } catch (error) {
+      logger.error("Failed to fetch servers", error);
+      return servers;
+    }
+  },
+
+  async update() {
+    lastFetchTime = 0;
+    return this.get();
   },
 };

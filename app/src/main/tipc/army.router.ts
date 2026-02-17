@@ -32,16 +32,13 @@ export const createArmyTipcRouter = (tipc: TipcInstance) => ({
       playerName: string;
       players: string[];
     }>()
+    .requireSenderWindow()
     .action(async ({ input, context }) => {
       const browserWindow = context.senderWindow;
-      if (!browserWindow) return;
-
       const { fileName, playerName, players } = input;
-
       const windows = new Map<string, BrowserWindow>();
       windows.set(playerName, browserWindow);
       windowToPlayerMap.set(browserWindow, playerName);
-
       const playerStatus: PlayerStatus = {
         done: new Set<string>(),
         leader: playerName,
@@ -49,7 +46,6 @@ export const createArmyTipcRouter = (tipc: TipcInstance) => ({
         windows,
       };
       map.set(fileName, playerStatus);
-
       handleCleanup(browserWindow, fileName);
     }),
 
@@ -58,59 +54,52 @@ export const createArmyTipcRouter = (tipc: TipcInstance) => ({
       fileName: string;
       playerName: string;
     }>()
+    .requireSenderWindow()
     .action(async ({ input, context }) => {
       const browserWindow = context.senderWindow;
-      if (!browserWindow) return;
-
       const { fileName, playerName } = input;
       let iter = 0;
-
       while (!map.has(fileName)) {
         await sleep(100);
         iter++;
       }
 
       await sleep(1_000);
-
       const { windows } = map.get(fileName)!;
       windows.set(playerName, browserWindow);
       windowToPlayerMap.set(browserWindow, playerName);
-
       handleCleanup(browserWindow);
     }),
 
-  finishJob: tipc.procedure.action(async ({ context }) => {
-    const browserWindow = context.senderWindow;
-    if (!browserWindow) return;
+  finishJob: tipc.procedure
+    .requireSenderWindow()
+    .action(async ({ context }) => {
+      const browserWindow = context.senderWindow;
+      const playerName = windowToPlayerMap.get(browserWindow);
+      if (!playerName) return;
 
-    const playerName = windowToPlayerMap.get(browserWindow);
-    if (!playerName) return;
+      const fileName = [...map.keys()].find((fileName) =>
+        map.get(fileName)?.windows.has(playerName),
+      );
+      if (!fileName) return;
 
-    const fileName = [...map.keys()].find((fileName) =>
-      map.get(fileName)?.windows.has(playerName),
-    );
-    if (!fileName) return;
+      const { done: doneSet, windows, playerList, leader } = map.get(fileName)!;
+      doneSet.add(playerName);
+      if (playerName !== leader) return;
 
-    const { done: doneSet, windows, playerList, leader } = map.get(fileName)!;
-    doneSet.add(playerName);
+      let iter = 0;
+      while (doneSet.size !== playerList.size && map.has(fileName)) {
+        await sleep(100);
+        iter++;
+      }
 
-    if (playerName !== leader) return;
+      if (!map.has(fileName)) return;
+      for (const [_, window] of windows) {
+        const rendererHandlers =
+          context.getRendererHandlers<RendererHandlers>(window);
+        await rendererHandlers.army.armyReady.invoke();
+      }
 
-    let iter = 0;
-
-    while (doneSet.size !== playerList.size && map.has(fileName)) {
-      await sleep(100);
-      iter++;
-    }
-
-    if (!map.has(fileName)) return;
-
-    for (const [_, window] of windows) {
-      const rendererHandlers =
-        context.getRendererHandlers<RendererHandlers>(window);
-      await rendererHandlers.army.armyReady.invoke();
-    }
-
-    doneSet.clear();
-  }),
+      doneSet.clear();
+    }),
 });

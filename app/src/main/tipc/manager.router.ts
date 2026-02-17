@@ -10,7 +10,8 @@ export function createManagerTipcRouter(tipc: TipcInstance) {
   return {
     getAccounts: tipc.procedure.action(async () => {
       const result = await accounts.getAll();
-      return result.unwrapOr([] as Account[]);
+      if (result.isErr()) return TipcResult.err(result.error.message);
+      return TipcResult.ok(result.value);
     }),
 
     addAccount: tipc.procedure.input<Account>().action(async ({ input }) => {
