@@ -1,7 +1,7 @@
 import os from "os";
 import { join } from "path";
 import process from "process";
-import type { FastTravel } from "./types";
+import type { FastTravel } from "./fast-travels/types";
 
 export const IS_MAC = process.platform === "darwin";
 
