@@ -17,6 +17,7 @@
 
   import { client, handlers } from "~/shared/tipc";
   import type { FastTravel } from "~/shared/types";
+  import { Result } from "better-result";
 
   let locations = $state<FastTravel[]>([]);
   let roomNumber = $state<number>(100_000);
@@ -60,13 +61,13 @@
   handlers.fastTravels.enable.listen(() => (disabled = false));
 
   onMount(async () => {
-    const result = await client.fastTravels.all();
-    isLoading = false;
-    if (!result.success) {
-      console.error(result.error);
-      return;
-    }
-    locations = result.data;
+    const serialized = await client.fastTravels.all().then((result) => {
+      isLoading = false;
+      return result;
+    });
+    const result = Result.deserialize(serialized);
+    if (result.isOk()) locations = result.value as FastTravel[];
+    else console.error(result.error);
   });
 
   $effect(() => {

@@ -1,10 +1,12 @@
 <script lang="ts">
-  import type { FastTravel } from "~/shared/types";
+  import type { FastTravel } from "~/shared/fast-travels/types";
+  import type { FastTravelError } from "~/shared/fast-travels/errors";
   import { Button, Input, Label } from "@vexed/ui";
   import * as Dialog from "@vexed/ui/Dialog";
   import { motionFade } from "@vexed/ui/motion";
   import Loader from "@vexed/ui/icons/Loader";
   import AlertCircle from "@vexed/ui/icons/AlertCircle";
+  import { Result, matchErrorPartial } from "better-result";
   import { client } from "~/shared/tipc";
 
   type Props = {
@@ -67,28 +69,30 @@
         ...(cleanPad && { pad: cleanPad }),
       };
 
-      const res = await client.fastTravels.add(newFastTravel);
-      if (!res.success) {
-        console.error(res.error);
+      const serialized = await client.fastTravels.add(newFastTravel);
+      const result = Result.deserialize<void, FastTravelError>(serialized);
+
+      if (result.isOk()) {
+        onSuccess(newFastTravel);
+        onClose();
         return;
       }
 
-      switch (res.data) {
-        case "SUCCESS":
-          onSuccess(newFastTravel);
-          onClose();
-          break;
-        case "NAME_ALREADY_EXISTS":
-          error = "A location with this name already exists";
-          fieldError = "name";
-          break;
-        case "FAILED":
-        default:
-          error = "Failed to save location. Please try again.";
-      }
-    } catch (err) {
+      console.error(result.error);
+      matchErrorPartial(
+        result.error,
+        {
+          FastTravelDuplicateNameError: () => {
+            error = "A location with this name already exists";
+            fieldError = "name";
+            return error;
+          },
+        },
+        () => (error = "Failed to save location. Please try again."),
+      );
+    } catch (error) {
       error = "Failed to save location. Please try again.";
-      console.error("Failed to add fast travel:", err);
+      console.error(error);
     } finally {
       isSubmitting = false;
     }

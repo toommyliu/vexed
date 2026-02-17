@@ -34,6 +34,7 @@ const typeScriptRuleset = merge({}, ...typescript, {
     "unicorn/prefer-node-protocol": "off",
     "unicorn/throw-new-error": "off",
     "func-names": "off",
+    "promise/prefer-await-to-callbacks": "off",
   },
 });
 

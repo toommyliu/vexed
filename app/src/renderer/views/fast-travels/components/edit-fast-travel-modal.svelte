@@ -1,10 +1,12 @@
 <script lang="ts">
-  import type { FastTravel } from "~/shared/types";
+  import type { FastTravel } from "~/shared/fast-travels/types";
+  import type { FastTravelError } from "~/shared/fast-travels/errors";
   import { Button, Input, Label } from "@vexed/ui";
   import * as Dialog from "@vexed/ui/Dialog";
   import { motionFade } from "@vexed/ui/motion";
   import Loader from "@vexed/ui/icons/Loader";
   import AlertCircle from "@vexed/ui/icons/AlertCircle";
+  import { Result, matchErrorPartial } from "better-result";
   import { client } from "~/shared/tipc";
 
   type Props = {
@@ -57,41 +59,39 @@
     isSubmitting = true;
     error = "";
 
-    try {
-      const updatedFastTravel: FastTravel = {
-        name: cleanName,
-        map: cleanMap,
-        ...(cleanCell && { cell: cleanCell }),
-        ...(cleanPad && { pad: cleanPad }),
-      };
+    const updatedFastTravel: FastTravel = {
+      name: cleanName,
+      map: cleanMap,
+      ...(cleanCell && { cell: cleanCell }),
+      ...(cleanPad && { pad: cleanPad }),
+    };
 
-      const res = await client.fastTravels.update({
+    try {
+      const serialized = await client.fastTravels.update({
         fastTravel: updatedFastTravel,
         originalName: fastTravel.name,
       });
-      if (!res.success) {
-        console.error(res.error);
+      const result = Result.deserialize<void, FastTravelError>(serialized);
+      if (result.isOk()) {
+        onSuccess(fastTravel.name, updatedFastTravel);
+        onClose();
         return;
       }
 
-      switch (res.data) {
-        case "SUCCESS":
-          onSuccess(fastTravel.name, updatedFastTravel);
-          onClose();
-          break;
-        case "NAME_ALREADY_EXISTS":
-          error = "A location with this name already exists";
-          break;
-        case "NOT_FOUND":
-          error = "Location not found. It may have been deleted.";
-          break;
-        case "FAILED":
-        default:
-          error = "Failed to update location. Please try again.";
-      }
+      console.error(result.error);
+      matchErrorPartial(
+        result.error,
+        {
+          FastTravelDuplicateNameError: () =>
+            (error = "A location with this name already exists."),
+          FastTravelNotFoundError: () =>
+            (error = "Location not found. It may have been deleted."),
+        },
+        () => (error = "Failed to update location. Please try again."),
+      );
     } catch (err) {
       error = "Failed to update location. Please try again.";
-      console.error("Failed to update fast travel:", err);
+      console.error(error);
     } finally {
       isSubmitting = false;
     }

@@ -1,34 +1,21 @@
 import type { TipcInstance } from "@vexed/tipc";
-import { matchError } from "better-result";
+import { Result, matchErrorPartial } from "better-result";
 import type { FastTravel, FastTravelRoomNumber } from "~/shared/types";
 import { fastTravels } from "../services/fast-travels";
 import type { RendererHandlers } from "../tipc";
-import { getParentGameHandlers } from "./forwarding";
+import { withParentGameHandlers } from "./forwarding";
 import { TipcResult } from "./result";
 
 export function createFastTravelsTipcRouter(tipc: TipcInstance) {
   return {
     all: tipc.procedure.action(async () => {
       const result = await fastTravels.getAll();
-      if (result.isErr()) return TipcResult.err(result.error.message);
-      return TipcResult.ok(result.value);
+      return Result.serialize(result);
     }),
 
     add: tipc.procedure.input<FastTravel>().action(async ({ input }) => {
       const result = await fastTravels.add(input);
-      return result.match<
-        TipcResult<"FAILED" | "NAME_ALREADY_EXISTS" | "SUCCESS">
-      >({
-        ok: () => TipcResult.ok("SUCCESS"),
-        err: (error) =>
-          matchError(error, {
-            FastTravelDuplicateNameError: () =>
-              TipcResult.ok("NAME_ALREADY_EXISTS"),
-            FastTravelFileError: (err) => TipcResult.err(err.message),
-            FsReadError: (err) => TipcResult.err(err.message),
-            FsJsonParseError: (err) => TipcResult.err(err.message),
-          }),
-      });
+      return Result.serialize(result);
     }),
 
     update: tipc.procedure
@@ -38,42 +25,26 @@ export function createFastTravelsTipcRouter(tipc: TipcInstance) {
           input.originalName,
           input.fastTravel,
         );
-        return result.match<
-          TipcResult<"FAILED" | "NAME_ALREADY_EXISTS" | "NOT_FOUND" | "SUCCESS">
-        >({
-          ok: () => TipcResult.ok("SUCCESS"),
-          err: (error) =>
-            matchError(error, {
-              FastTravelDuplicateNameError: () =>
-                TipcResult.ok("NAME_ALREADY_EXISTS"),
-              FastTravelFileError: (err) => TipcResult.err(err.message),
-              FsReadError: (err) => TipcResult.err(err.message),
-              FsJsonParseError: (err) => TipcResult.err(err.message),
-              FastTravelNotFoundError: () => TipcResult.ok("NOT_FOUND"),
-            }),
-        });
+        return Result.serialize(result);
       }),
 
     remove: tipc.procedure
       .input<{ name: string }>()
       .action(async ({ input }) => {
         const result = await fastTravels.remove(input.name);
-        return result.match<TipcResult<boolean>>({
-          ok: () => TipcResult.ok(true),
-          err: () => TipcResult.ok(false),
-        });
+        return Result.serialize(result);
       }),
 
     warp: tipc.procedure
       .input<{ location: FastTravelRoomNumber }>()
       .action(async ({ input, context }) => {
-        const parentHandlers = getParentGameHandlers(context);
-        if (!parentHandlers) return;
-        const childHandlers = context.getRendererHandlers<RendererHandlers>();
-        await parentHandlers.fastTravels.warp.invoke({
-          location: input.location,
+        await withParentGameHandlers(context, async (parentHandlers) => {
+          await parentHandlers.fastTravels.warp.invoke({
+            location: input.location,
+          });
+          const childHandlers = context.getRendererHandlers<RendererHandlers>();
+          childHandlers.fastTravels.enable.send();
         });
-        childHandlers.fastTravels.enable.send();
       }),
   };
 }
