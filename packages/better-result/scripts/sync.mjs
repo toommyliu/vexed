@@ -1,11 +1,62 @@
 import { execSync } from "child_process";
-import { readFileSync, writeFileSync, existsSync, rmSync, cpSync } from "fs";
+import {
+  readFileSync,
+  writeFileSync,
+  existsSync,
+  rmSync,
+  cpSync,
+  readdirSync,
+} from "fs";
 import { join } from "path";
 import { fileURLToPath } from "url";
 
 const PACKAGE_DIR = join(fileURLToPath(import.meta.url), "../..");
 const REPO_URL = "https://github.com/dmmulroy/better-result.git";
 const CLONE_DIR = join(PACKAGE_DIR, ".upstream");
+const PATCHES_DIR = join(PACKAGE_DIR, "patches");
+
+function applyPatches() {
+  if (!existsSync(PATCHES_DIR)) {
+    console.log("No patches directory found, skipping patch application");
+    return;
+  }
+
+  const patches = readdirSync(PATCHES_DIR).filter((f) => f.endsWith(".patch"));
+  if (patches.length === 0) {
+    console.log("No patches to apply");
+    return;
+  }
+
+  console.log(`Applying ${patches.length} patch(es)...`);
+
+  const targetDir = join(PACKAGE_DIR, "src");
+
+  for (const patch of patches.sort()) {
+    const patchPath = join(PATCHES_DIR, patch);
+    console.log(`  Applying ${patch}...`);
+
+    try {
+      execSync(`git apply "${patchPath}"`, {
+        cwd: PACKAGE_DIR,
+        stdio: "pipe",
+        encoding: "utf8",
+      });
+      console.log(`${patch} applied successfully`);
+    } catch (error) {
+      console.error(`\nFailed to apply ${patch}`);
+      console.error(`Error: ${error.message}`);
+      if (error.stderr) {
+        console.error(`Details: ${error.stderr}`);
+      }
+      console.error(
+        `\nThe patch may need to be updated for the new upstream version.`,
+      );
+      throw new Error(`Patch application failed: ${patch}`);
+    }
+  }
+
+  console.log("All patches applied successfully");
+}
 
 function runCommand(cmd, cwd, stdio = "pipe") {
   try {
@@ -45,6 +96,12 @@ async function sync() {
     }
 
     cpSync(sourceDir, targetDir, { recursive: true });
+
+    if (process.env.SKIP_PATCHES !== "1") {
+      applyPatches();
+    } else {
+      console.log("Skipping patches...");
+    }
 
     console.log("Updating version...");
     const upstreamPackage = JSON.parse(

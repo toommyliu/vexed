@@ -744,9 +744,17 @@ function isSerializedResult(obj: unknown): obj is SerializedResult<unknown, unkn
 }
 
 const serialize = <T, E>(result: Result<T, E>): SerializedResult<T, E> => {
-  return result.status === "ok"
-    ? { status: "ok", value: result.value }
-    : { status: "error", error: result.error };
+  if (result.status === "ok") {
+    return { status: "ok", value: result.value };
+  }
+
+  // Convert Error instances to plain objects to survive structuredClone (e.g., Electron IPC)
+  const error = result.error;
+  if (error instanceof Error && typeof (error as unknown as { toJSON?: () => unknown }).toJSON === "function") {
+    return { status: "error", error: (error as unknown as { toJSON: () => unknown }).toJSON() as E };
+  }
+
+  return { status: "error", error };
 };
 
 const deserialize = <T, E>(value: unknown): Result<T, E | ResultDeserializationError> => {
