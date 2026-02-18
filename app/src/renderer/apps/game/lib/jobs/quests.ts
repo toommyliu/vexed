@@ -43,6 +43,9 @@ export class QuestsJob extends Job {
 
             await client.environment.updateState({
               questIds: Array.from(this.bot.environment.questIds),
+              questItemIds: Object.fromEntries(
+                this.bot.environment.questItemIds,
+              ),
               itemNames: Array.from(this.bot.environment.itemNames),
               boosts: Array.from(this.bot.environment.boosts),
               rejectElse: this.bot.environment.rejectElse,

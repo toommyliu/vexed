@@ -48,32 +48,6 @@ export type Settings = {
   theme: "dark" | "light" | "system";
 };
 
-export type EnvironmentState = {
-  autoRegisterRequirements: boolean;
-  autoRegisterRewards: boolean;
-  boosts: string[];
-  itemNames: string[];
-  questIds: number[];
-  /**
-   * Mapping of quest ID to selected item ID for reward selection.
-   */
-  questItemIds: Record<number, number>;
-  rejectElse: boolean;
-};
-
-export type EnvironmentUpdatePayload = {
-  autoRegisterRequirements?: boolean;
-  autoRegisterRewards?: boolean;
-  boosts?: string[];
-  itemNames: string[];
-  questIds: (number | string)[];
-  /**
-   * Mapping of quest ID to selected item ID for reward selection.
-   */
-  questItemIds?: Record<number, number>;
-  rejectElse: boolean;
-};
-
 export enum WindowIds {
   Environment = "app-environment",
   FastTravels = "tools-fast-travels",

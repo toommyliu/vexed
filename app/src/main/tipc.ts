@@ -2,8 +2,12 @@ import { tipc, type ClientFromRouter } from "@vexed/tipc";
 import type {
   EnvironmentState,
   EnvironmentUpdatePayload,
+} from "~/shared/environment/types";
+import type {
   FastTravel,
   FastTravelRoomNumber,
+} from "~/shared/fast-travels/types";
+import type {
   GrabberDataType,
   HotkeyConfig,
   LoaderDataType,

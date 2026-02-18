@@ -1,6 +1,16 @@
+import { normalizeId } from "@vexed/utils/id";
+import { equalsIgnoreCase } from "@vexed/utils/string";
+import {
+  diffEnvironmentState,
+  normalizeEnvironmentState,
+  normalizeEnvironmentUpdate,
+  normalizeStringList,
+} from "~/shared/environment/helpers";
+import type {
+  EnvironmentState,
+  EnvironmentUpdatePayload,
+} from "~/shared/environment/types";
 import { client } from "~/shared/tipc";
-import type { EnvironmentUpdatePayload } from "~/shared/types";
-import { normalizeId } from "../util/normalizeId";
 import type { Bot } from "./Bot";
 import type { QuestsJob } from "./jobs/quests";
 
@@ -21,7 +31,21 @@ export class Environment {
 
   private _isApplyingUpdate = false;
 
-  public constructor(public readonly bot: Bot) { }
+  private _lastLoggedState: EnvironmentState | null = null;
+
+  public constructor(public readonly bot: Bot) {}
+
+  private getStateSnapshot(): EnvironmentState {
+    return {
+      questIds: Array.from(this._questIds),
+      questItemIds: Object.fromEntries(this._questItemIds),
+      itemNames: Array.from(this._itemNames),
+      boosts: Array.from(this._boosts),
+      rejectElse: this._rejectElse,
+      autoRegisterRequirements: this._autoRegisterRequirements,
+      autoRegisterRewards: this._autoRegisterRewards,
+    };
+  }
 
   /**
    * Gets the set of quest IDs.
@@ -123,18 +147,21 @@ export class Environment {
    */
   public applyUpdate(update: EnvironmentUpdatePayload): void {
     this._isApplyingUpdate = true;
-
     try {
-      this.setQuestIds(update.questIds);
-      this.setItemNames(update.itemNames);
-
-      if (update.questItemIds !== undefined) this.setQuestItemIds(update.questItemIds);
-      if (update.rejectElse !== undefined) this._rejectElse = update.rejectElse;
-      if (update.boosts !== undefined) this.setBoosts(update.boosts);
-      if (update.autoRegisterRequirements !== undefined)
-        this._autoRegisterRequirements = update.autoRegisterRequirements;
-      if (update.autoRegisterRewards !== undefined)
-        this._autoRegisterRewards = update.autoRegisterRewards;
+      const before = normalizeEnvironmentState(this.getStateSnapshot());
+      const normalized = normalizeEnvironmentUpdate(update, before);
+      this.setQuestIds(normalized.questIds);
+      this.setQuestItemIds(normalized.questItemIds);
+      this.setItemNames(normalized.itemNames);
+      this.setBoosts(normalized.boosts);
+      this._rejectElse = normalized.rejectElse;
+      this._autoRegisterRequirements = normalized.autoRegisterRequirements;
+      this._autoRegisterRewards = normalized.autoRegisterRewards;
+      const diffs = diffEnvironmentState(before, normalized);
+      if (diffs.length > 0) {
+        console.info("[env:game] applyUpdate", { diffs });
+      }
+      this._lastLoggedState = normalized;
     } finally {
       this._isApplyingUpdate = false;
     }
@@ -145,17 +172,15 @@ export class Environment {
    */
   private syncToMain(): void {
     if (this._isApplyingUpdate) return;
-
-    const payload: EnvironmentUpdatePayload = {
-      questIds: Array.from(this._questIds),
-      questItemIds: Object.fromEntries(this._questItemIds),
-      itemNames: Array.from(this._itemNames),
-      boosts: Array.from(this._boosts),
-      rejectElse: this._rejectElse,
-      autoRegisterRequirements: this._autoRegisterRequirements,
-      autoRegisterRewards: this._autoRegisterRewards,
-    };
-
+    const payload: EnvironmentUpdatePayload = normalizeEnvironmentState(
+      this.getStateSnapshot(),
+    );
+    const previous = this._lastLoggedState ?? payload;
+    const diffs = diffEnvironmentState(previous, payload);
+    if (diffs.length > 0) {
+      console.info("[env:game] syncToMain", { diffs });
+    }
+    this._lastLoggedState = payload;
     void client.environment.updateState(payload);
   }
 
@@ -168,8 +193,7 @@ export class Environment {
     const normalized = new Set<number>();
     for (const questId of questIds) {
       const parsedQuestId = normalizeId(questId);
-      if (parsedQuestId === -1) continue;
-
+      if (parsedQuestId === null || parsedQuestId === -1) continue;
       normalized.add(parsedQuestId);
     }
 
@@ -185,10 +209,7 @@ export class Environment {
     }
 
     this._questIds.clear(); // clear any remaining IDs
-
-    for (const questId of normalized) {
-      this._questIds.add(questId);
-    }
+    for (const questId of normalized) this._questIds.add(questId);
   }
 
   /**
@@ -200,9 +221,8 @@ export class Environment {
     this._questItemIds.clear();
     for (const [questIdStr, itemId] of Object.entries(questItemIds)) {
       const questId = Number(questIdStr);
-      if (!Number.isNaN(questId) && this._questIds.has(questId)) {
+      if (!Number.isNaN(questId) && this._questIds.has(questId))
         this._questItemIds.set(questId, itemId);
-      }
     }
   }
 
@@ -213,8 +233,12 @@ export class Environment {
    */
   public addQuestId(questId: number | string): void {
     const parsedQuestId = normalizeId(questId);
-    if (parsedQuestId === -1 || this._questIds.has(parsedQuestId)) return;
-
+    if (
+      parsedQuestId === null ||
+      parsedQuestId === -1 ||
+      this._questIds.has(parsedQuestId)
+    )
+      return;
     this._questIds.add(parsedQuestId);
     this.syncToMain();
   }
@@ -226,8 +250,7 @@ export class Environment {
    */
   public removeQuestId(questId: number | string): void {
     const parsedQuestId = normalizeId(questId);
-    if (parsedQuestId === -1) return;
-
+    if (parsedQuestId === null || parsedQuestId === -1) return;
     this._questIds.delete(parsedQuestId);
     this._questItemIds.delete(parsedQuestId);
     this.syncToMain();
@@ -241,7 +264,6 @@ export class Environment {
    */
   public setQuestItemId(questId: number, itemId: number): void {
     if (!this._questIds.has(questId)) return;
-
     this._questItemIds.set(questId, itemId);
     this.syncToMain();
   }
@@ -263,7 +285,6 @@ export class Environment {
    */
   public removeQuestItemId(questId: number): void {
     if (!this._questItemIds.has(questId)) return;
-
     this._questItemIds.delete(questId);
     this.syncToMain();
   }
@@ -274,16 +295,9 @@ export class Environment {
    * @param itemNames - The item names to set.
    */
   private setItemNames(itemNames: Iterable<string>): void {
-    const sanitized = new Set<string>();
-    for (const item of itemNames) {
-      const trimmed = item.trim();
-      if (trimmed) sanitized.add(trimmed);
-    }
-
     this._itemNames.clear();
-    for (const item of sanitized) {
+    for (const item of normalizeStringList(itemNames))
       this._itemNames.add(item);
-    }
   }
 
   /**
@@ -293,8 +307,7 @@ export class Environment {
    */
   public addItemName(itemName: string): void {
     const trimmed = itemName.trim();
-    if (!trimmed || this._itemNames.has(trimmed)) return;
-
+    if (!trimmed || this.hasItemName(trimmed)) return;
     this._itemNames.add(trimmed);
     this.syncToMain();
   }
@@ -307,9 +320,16 @@ export class Environment {
   public removeItemName(itemName: string): void {
     const trimmed = itemName.trim();
     if (!trimmed) return;
+    const lower = trimmed.toLowerCase();
+    let removed = false;
+    for (const item of Array.from(this._itemNames)) {
+      if (equalsIgnoreCase(item, lower)) {
+        this._itemNames.delete(item);
+        removed = true;
+      }
+    }
 
-    this._itemNames.delete(trimmed);
-    this.syncToMain();
+    if (removed) this.syncToMain();
   }
 
   /**
@@ -319,7 +339,12 @@ export class Environment {
    * @returns True if the item name exists, false otherwise.
    */
   public hasItemName(itemName: string): boolean {
-    return this._itemNames.has(itemName);
+    const lower = itemName.trim().toLowerCase();
+    for (const item of this._itemNames) {
+      if (item.toLowerCase() === lower) return true;
+    }
+
+    return false;
   }
 
   /**
@@ -328,16 +353,8 @@ export class Environment {
    * @param boosts - The boosts to set.
    */
   private setBoosts(boosts: Iterable<string>): void {
-    const sanitized = new Set<string>();
-    for (const boost of boosts) {
-      const trimmed = boost.trim();
-      if (trimmed) sanitized.add(trimmed);
-    }
-
     this._boosts.clear();
-    for (const boost of sanitized) {
-      this._boosts.add(boost);
-    }
+    for (const boost of normalizeStringList(boosts)) this._boosts.add(boost);
   }
 
   /**
@@ -347,8 +364,7 @@ export class Environment {
    */
   public addBoost(boostName: string): void {
     const trimmed = boostName.trim();
-    if (!trimmed || this._boosts.has(trimmed)) return;
-
+    if (!trimmed || this.hasBoost(trimmed)) return;
     this._boosts.add(trimmed);
     this.syncToMain();
   }
@@ -361,9 +377,16 @@ export class Environment {
   public removeBoost(boostName: string): void {
     const trimmed = boostName.trim();
     if (!trimmed) return;
+    const lower = trimmed.toLowerCase();
+    let removed = false;
+    for (const boost of Array.from(this._boosts)) {
+      if (equalsIgnoreCase(boost, lower)) {
+        this._boosts.delete(boost);
+        removed = true;
+      }
+    }
 
-    this._boosts.delete(trimmed);
-    this.syncToMain();
+    if (removed) this.syncToMain();
   }
 
   /**
@@ -373,6 +396,11 @@ export class Environment {
    * @returns True if the boost exists, false otherwise.
    */
   public hasBoost(boostName: string): boolean {
-    return this._boosts.has(boostName);
+    const lower = boostName.trim().toLowerCase();
+    for (const boost of this._boosts) {
+      if (equalsIgnoreCase(boost, lower)) return true;
+    }
+
+    return false;
   }
 }

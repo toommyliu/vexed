@@ -268,14 +268,7 @@
     // Environment state
     if (envStateResult.status === "fulfilled") {
       const state = envStateResult.value;
-      bot.environment.applyUpdate({
-        questIds: state.questIds,
-        itemNames: state.itemNames,
-        boosts: state.boosts,
-        rejectElse: state.rejectElse,
-        autoRegisterRequirements: state.autoRegisterRequirements,
-        autoRegisterRewards: state.autoRegisterRewards,
-      });
+      bot.environment.applyUpdate(state);
     } else {
       logger.error("Failed to sync up with environment", envStateResult.reason);
     }

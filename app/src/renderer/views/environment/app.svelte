@@ -1,19 +1,21 @@
 <script lang="ts">
   import { Button, Checkbox, Input, Label } from "@vexed/ui";
-  import log from "electron-log";
   import { onMount } from "svelte";
 
-  import Plus from "@vexed/ui/icons/Plus";
-  import X from "@vexed/ui/icons/X";
-  import Trash2 from "@vexed/ui/icons/Trash2";
   import Download from "@vexed/ui/icons/Download";
+  import Plus from "@vexed/ui/icons/Plus";
   import Share2 from "@vexed/ui/icons/Share2";
+  import Trash2 from "@vexed/ui/icons/Trash2";
+  import X from "@vexed/ui/icons/X";
 
-  import { normalizeId } from "../../apps/game/util/normalizeId";
+  import { normalizeId } from "@vexed/utils/id";
+  import {
+    areEnvironmentStatesEqual,
+    diffEnvironmentState,
+    normalizeEnvironmentState,
+  } from "~/shared/environment/helpers";
+  import type { EnvironmentState } from "~/shared/environment/types";
   import { client, handlers } from "~/shared/tipc";
-  import type { EnvironmentState } from "~/shared/types";
-
-  const logger = log.scope("app/environment");
 
   let questInput = $state("");
   let dropInput = $state("");
@@ -28,131 +30,42 @@
   let isSyncing = $state(false);
   let isBroadcasting = $state(false);
   let pendingSync = false;
+  let lastLoggedLocalState: EnvironmentState | null = null;
 
-  function areArraysEqual<T>(a: T[], b: T[]): boolean {
-    if (a.length !== b.length) return false;
-    return a.every((value, idx) => value === b[idx]);
-  }
-
-  function areRecordsEqual(
-    a: Record<number, number>,
-    b: Record<number, number>,
-  ): boolean {
-    const aKeys = Object.keys(a);
-    const bKeys = Object.keys(b);
-    if (aKeys.length !== bKeys.length) return false;
-    return aKeys.every((key) => a[Number(key)] === b[Number(key)]);
-  }
-
-  function shouldUpdateState(state: EnvironmentState): boolean {
-    const normalizedQuestIds = [...state.questIds].sort((a, b) => a - b);
-
-    const dedupDrops = new Map<string, string>();
-    for (const item of state.itemNames) {
-      const trimmed = item.trim();
-      if (!trimmed) continue;
-
-      const lower = trimmed.toLowerCase();
-      if (!dedupDrops.has(lower)) dedupDrops.set(lower, trimmed);
-    }
-
-    const normalizedDrops = Array.from(dedupDrops.values()).sort((a, b) =>
-      a.localeCompare(b),
-    );
-
-    const dedupBoosts = new Map<string, string>();
-    for (const boost of state.boosts) {
-      const trimmed = boost.trim();
-      if (!trimmed) continue;
-
-      const lower = trimmed.toLowerCase();
-      if (!dedupBoosts.has(lower)) dedupBoosts.set(lower, trimmed);
-    }
-
-    const normalizedBoosts = Array.from(dedupBoosts.values()).sort((a, b) =>
-      a.localeCompare(b),
-    );
-
-    const normalizedRejectElse = Boolean(state.rejectElse);
-    const normalizedQuestItemIds = state.questItemIds ?? {};
-
-    const isSame =
-      areArraysEqual(questIds, normalizedQuestIds) &&
-      areRecordsEqual(questItemIds, normalizedQuestItemIds) &&
-      areArraysEqual(dropItems, normalizedDrops) &&
-      areArraysEqual(boostItems, normalizedBoosts) &&
-      rejectElse === normalizedRejectElse &&
-      autoRegisterRequirements === state.autoRegisterRequirements &&
-      autoRegisterRewards === state.autoRegisterRewards;
-
-    if (isSame) return false;
-
-    questIds = normalizedQuestIds;
-    questItemIds = normalizedQuestItemIds;
-    dropItems = normalizedDrops;
-    boostItems = normalizedBoosts;
-    rejectElse = normalizedRejectElse;
-    autoRegisterRequirements = state.autoRegisterRequirements;
-    autoRegisterRewards = state.autoRegisterRewards;
-
-    return true;
-  }
-
-  function normalizePayload(
-    questIds: number[],
-    questItemIds: Record<number, number>,
-    dropItems: string[],
-    boostItems: string[],
-    rejectElse: boolean,
-    autoRegisterRequirements: boolean,
-    autoRegisterRewards: boolean,
-  ) {
-    const normalizedQuestIds = [...questIds].sort((a, b) => a - b);
-    const questIdSet = new Set(normalizedQuestIds);
-
-    // Filter questItemIds to only include valid quest IDs
-    const normalizedQuestItemIds: Record<number, number> = {};
-    for (const [questIdStr, itemId] of Object.entries(questItemIds)) {
-      const questId = Number(questIdStr);
-      if (questIdSet.has(questId)) {
-        normalizedQuestItemIds[questId] = itemId;
-      }
-    }
-
-    const dedupDrops = new Map<string, string>();
-    for (const item of dropItems) {
-      const trimmed = item.trim();
-      if (!trimmed) continue;
-
-      const lower = trimmed.toLowerCase();
-      if (!dedupDrops.has(lower)) dedupDrops.set(lower, trimmed);
-    }
-
-    const normalizedDrops = Array.from(dedupDrops.values()).sort((a, b) =>
-      a.localeCompare(b),
-    );
-
-    const dedupBoosts = new Map<string, string>();
-    for (const boost of boostItems) {
-      const trimmed = boost.trim();
-      if (!trimmed) continue;
-      const lower = trimmed.toLowerCase();
-      if (!dedupBoosts.has(lower)) dedupBoosts.set(lower, trimmed);
-    }
-
-    const normalizedBoosts = Array.from(dedupBoosts.values()).sort((a, b) =>
-      a.localeCompare(b),
-    );
-
+  function getLocalState(): EnvironmentState {
     return {
-      questIds: normalizedQuestIds,
-      questItemIds: normalizedQuestItemIds,
-      itemNames: normalizedDrops,
-      boosts: normalizedBoosts,
-      rejectElse: Boolean(rejectElse),
+      questIds,
+      questItemIds,
+      itemNames: dropItems,
+      boosts: boostItems,
+      rejectElse,
       autoRegisterRequirements,
       autoRegisterRewards,
     };
+  }
+
+  function applyState(state: EnvironmentState): void {
+    questIds = state.questIds;
+    questItemIds = state.questItemIds;
+    dropItems = state.itemNames;
+    boostItems = state.boosts;
+    rejectElse = state.rejectElse;
+    autoRegisterRequirements = state.autoRegisterRequirements;
+    autoRegisterRewards = state.autoRegisterRewards;
+  }
+
+  function shouldUpdateState(state: EnvironmentState): boolean {
+    const normalizedIncoming = normalizeEnvironmentState(state);
+    const normalizedLocal = normalizeEnvironmentState(getLocalState());
+    if (areEnvironmentStatesEqual(normalizedIncoming, normalizedLocal))
+      return false;
+    const diffs = diffEnvironmentState(normalizedLocal, normalizedIncoming);
+    if (diffs.length > 0) {
+      console.info("[env:view] applyState", { diffs });
+    }
+    applyState(normalizedIncoming);
+    lastLoggedLocalState = normalizedIncoming;
+    return true;
   }
 
   async function initializeState() {
@@ -160,7 +73,7 @@
       const state = await client.environment.getState();
       void shouldUpdateState(state);
     } catch (error) {
-      logger.error("Failed to load environment state.", error);
+      console.error("Failed to load environment state", error);
     }
   }
 
@@ -170,21 +83,19 @@
       return;
     }
 
-    const payload = normalizePayload(
-      questIds,
-      questItemIds,
-      dropItems,
-      boostItems,
-      rejectElse,
-      autoRegisterRequirements,
-      autoRegisterRewards,
-    );
+    const payload = normalizeEnvironmentState(getLocalState());
+    const previous = lastLoggedLocalState ?? payload;
+    const diffs = diffEnvironmentState(previous, payload);
+    if (diffs.length > 0) {
+      console.info("[env:view] syncEnvironment", { diffs });
+    }
+    lastLoggedLocalState = payload;
 
     isSyncing = true;
     try {
       await client.environment.updateState(payload);
     } catch (error) {
-      logger.error("Failed to sync environment state.", error);
+      console.error("Failed to sync environment state", error);
     } finally {
       isSyncing = false;
       if (pendingSync) {
@@ -205,42 +116,38 @@
       return;
     }
 
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity
     const current = new Set(questIds);
     const newItemIds = { ...questItemIds };
     let added = false;
-
     for (const token of tokens) {
-      const colonIndex = token.indexOf(":");
+      const colonIdx = token.indexOf(":");
       let questIdPart: string;
       let itemIdPart: string | undefined;
-
-      if (colonIndex !== -1) {
-        questIdPart = token.slice(0, colonIndex);
-        itemIdPart = token.slice(colonIndex + 1);
+      if (colonIdx !== -1) {
+        questIdPart = token.slice(0, colonIdx);
+        itemIdPart = token.slice(colonIdx + 1);
       } else {
         questIdPart = token;
       }
 
       const parsed = normalizeId(questIdPart);
       if (parsed === null || parsed === -1) continue;
-
       if (!current.has(parsed)) {
         current.add(parsed);
         added = true;
       }
 
       if (itemIdPart) {
-        const itemId = Number(itemIdPart);
-        if (!Number.isNaN(itemId) && itemId > 0) {
+        const itemId = normalizeId(itemIdPart);
+        if (itemId !== null && itemId > 0) {
           newItemIds[parsed] = itemId;
           added = true;
         }
       }
     }
 
-    if (!added) {
-      return;
-    }
+    if (!added) return;
 
     questInput = "";
     questIds = Array.from(current).sort((a, b) => a - b);
@@ -275,8 +182,8 @@
   }
 
   function updateQuestItemId(questId: number, itemIdStr: string) {
-    const itemId = Number(itemIdStr);
-    if (!itemIdStr || Number.isNaN(itemId) || itemId <= 0) {
+    const itemId = normalizeId(itemIdStr);
+    if (itemId === null || itemId <= 0) {
       // Clear the item ID if empty or invalid
       const { [questId]: _, ...rest } = questItemIds;
       questItemIds = rest;
@@ -291,28 +198,22 @@
       .split(/[\n,]+/u)
       .map((token) => token.trim())
       .filter(Boolean);
-
-    dropInput = "";
-
     if (!tokens.length) return;
 
+    dropInput = "";
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity
     const lowerSet = new Set(dropItems.map((item) => item.toLowerCase()));
     const next = [...dropItems];
     let added = false;
-
     for (const token of tokens) {
       const lower = token.toLowerCase();
       if (lowerSet.has(lower)) continue;
-
       lowerSet.add(lower);
       next.push(token);
       added = true;
     }
 
-    if (!added) {
-      return;
-    }
-
+    if (!added) return;
     next.sort((a, b) => a.localeCompare(b));
     dropItems = next;
     void syncEnvironment();
@@ -325,24 +226,20 @@
 
   function removeDrop(item: string) {
     if (!dropItems.length) return;
-
     const next = dropItems.filter((value) => value !== item);
     if (next.length === dropItems.length) return;
-
     dropItems = next;
     void syncEnvironment();
   }
 
   function clearDrops() {
     if (!dropItems.length) return;
-
     dropItems = [];
     void syncEnvironment();
   }
 
   function updateRejectElse(checked: boolean) {
     if (rejectElse === checked) return;
-
     rejectElse = checked;
     void syncEnvironment();
   }
@@ -352,15 +249,13 @@
       .split(/[\n,]+/u)
       .map((token) => token.trim())
       .filter(Boolean);
-
-    boostInput = "";
-
     if (!tokens.length) return;
 
+    boostInput = "";
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity
     const lowerSet = new Set(boostItems.map((item) => item.toLowerCase()));
     const next = [...boostItems];
     let added = false;
-
     for (const token of tokens) {
       const lower = token.toLowerCase();
       if (lowerSet.has(lower)) continue;
@@ -369,10 +264,7 @@
       added = true;
     }
 
-    if (!added) {
-      return;
-    }
-
+    if (!added) return;
     next.sort((a, b) => a.localeCompare(b));
     boostItems = next;
     void syncEnvironment();
@@ -385,17 +277,14 @@
 
   function removeBoost(boost: string) {
     if (!boostItems.length) return;
-
     const next = boostItems.filter((value) => value !== boost);
     if (next.length === boostItems.length) return;
-
     boostItems = next;
     void syncEnvironment();
   }
 
   function clearBoosts() {
     if (!boostItems.length) return;
-
     boostItems = [];
     void syncEnvironment();
   }
@@ -403,6 +292,7 @@
   async function grabBoosts() {
     try {
       const grabbedBoosts = await client.environment.grabBoosts();
+      // eslint-disable-next-line svelte/prefer-svelte-reactivity
       const current = new Set(boostItems);
       let added = false;
       for (const boost of grabbedBoosts) {
@@ -416,20 +306,18 @@
         void syncEnvironment();
       }
     } catch (error) {
-      logger.error("Failed to grab boosts.", error);
+      console.error("Failed to grab boosts.", error);
     }
   }
 
   function updateAutoRegisterRequirements(checked: boolean) {
     if (autoRegisterRequirements === checked) return;
-
     autoRegisterRequirements = checked;
     void syncEnvironment();
   }
 
   function updateAutoRegisterRewards(checked: boolean) {
     if (autoRegisterRewards === checked) return;
-
     autoRegisterRewards = checked;
     void syncEnvironment();
   }
@@ -468,22 +356,12 @@
 
   async function broadcastToAll() {
     if (isBroadcasting) return;
-
-    const payload = normalizePayload(
-      questIds,
-      questItemIds,
-      dropItems,
-      boostItems,
-      rejectElse,
-      autoRegisterRequirements,
-      autoRegisterRewards,
-    );
-
+    const payload = normalizeEnvironmentState(getLocalState());
     isBroadcasting = true;
     try {
       await client.environment.broadcastState(payload);
     } catch (error) {
-      logger.error("Failed to broadcast environment state.", error);
+      console.error("Failed to broadcast environment state.", error);
     } finally {
       isBroadcasting = false;
     }

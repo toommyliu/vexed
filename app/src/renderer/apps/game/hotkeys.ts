@@ -19,6 +19,7 @@ function setupHotkeyBindings() {
       Mousetrap.bind(hotkey, (ev) => {
         // Prevent hotkeys from triggering if any text field is focused
         if (bot.flash.call(() => swf.isTextFieldFocused())) return;
+        // TODO: prevent hotkeys in <input>, etc...
         ev.preventDefault();
         executeAction(item.id);
       });
@@ -32,15 +33,13 @@ async function initHotkeys() {
 }
 
 handlers.hotkeys.update.handle(async () => {
-  console.log("got update hotkeys");
   await initHotkeys();
 });
 
 handlers.hotkeys.reload.handle(async () => {
-  console.log("got reload hotkeys");
   await initHotkeys();
 });
 
-gameLoaded.subscribe(async (val) => {
+gameLoaded.subscribe(async () => {
   await initHotkeys();
 });

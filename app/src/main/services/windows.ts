@@ -8,7 +8,7 @@ import {
 import type { AccountWithScript, WindowIds } from "~/shared/types";
 import { BRAND, DIST_PATH, IS_PACKAGED } from "../constants";
 import { getSettings } from "../settings";
-import { cleanupEnvironmentState } from "../tipc/environment.router";
+import { environmentService } from "./environment";
 import { applySecurityPolicy } from "../util/applySecurityPolicy";
 
 const DIST_GAME = join(DIST_PATH, "game/");
@@ -135,7 +135,7 @@ class WindowsService {
     if (!entry) return;
     this.destroyTrackedSubwindows(entry);
     this.windowStore.delete(windowId);
-    cleanupEnvironmentState(windowId);
+    environmentService.clearState(windowId);
   }
 
   private wireGameLifecycle(window: BrowserWindow, windowId: number): void {

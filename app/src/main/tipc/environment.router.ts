@@ -1,205 +1,139 @@
 import type { TipcInstance } from "@vexed/tipc";
+import {
+  createEmptyEnvironmentState,
+  diffEnvironmentState,
+  normalizeEnvironmentState,
+} from "~/shared/environment/helpers";
 import type {
   EnvironmentState,
   EnvironmentUpdatePayload,
-} from "~/shared/types";
+} from "~/shared/environment/types";
 import { WindowIds } from "~/shared/types";
+import { environmentService } from "../services/environment";
 import { windowsService } from "../services/windows";
 import type { RendererHandlers } from "../tipc";
-import { isWindowUsable } from "./forwarding";
-
-const EMPTY_STATE: EnvironmentState = {
-  autoRegisterRequirements: false,
-  autoRegisterRewards: false,
-  boosts: [],
-  itemNames: [],
-  questIds: [],
-  questItemIds: {},
-  rejectElse: false,
-};
-
-// game window id -> environment state
-const stateMap = new Map<number, EnvironmentState>();
-
-function getWindowState(windowId: number): EnvironmentState {
-  let windowState = stateMap.get(windowId);
-  if (!windowState) {
-    windowState = { ...EMPTY_STATE };
-    stateMap.set(windowId, windowState);
-  }
-
-  return windowState;
-}
-
-export function cleanupEnvironmentState(windowId: number): void {
-  stateMap.delete(windowId);
-}
-
-function applyUpdate(
-  windowId: number,
-  payload: EnvironmentUpdatePayload,
-): EnvironmentState {
-  const currentState = getWindowState(windowId);
-
-  const normalizedQuestIds = payload.questIds
-    .map(Number)
-    .filter((id) => id !== -1)
-    .sort((a, b) => a - b);
-
-  const normalizedItemNames = payload.itemNames
-    .map((item) => item.trim())
-    .filter(Boolean)
-    .sort((a, b) => a.localeCompare(b));
-
-  const normalizedBoosts = (payload.boosts ?? [])
-    .map((boost) => boost.trim())
-    .filter(Boolean)
-    .sort((a, b) => a.localeCompare(b));
-
-  // Filter questItemIds to only include valid quest IDs
-  const questIdSet = new Set(normalizedQuestIds);
-  const normalizedQuestItemIds: Record<number, number> = {};
-  if (payload.questItemIds) {
-    for (const [questIdStr, itemId] of Object.entries(payload.questItemIds)) {
-      const questId = Number(questIdStr);
-      if (questIdSet.has(questId)) {
-        normalizedQuestItemIds[questId] = itemId;
-      }
-    }
-  }
-
-  const newState: EnvironmentState = {
-    autoRegisterRequirements:
-      payload.autoRegisterRequirements ?? currentState.autoRegisterRequirements,
-    autoRegisterRewards:
-      payload.autoRegisterRewards ?? currentState.autoRegisterRewards,
-    boosts: normalizedBoosts,
-    itemNames: normalizedItemNames,
-    questIds: normalizedQuestIds,
-    questItemIds: normalizedQuestItemIds,
-    rejectElse: payload.rejectElse ?? currentState.rejectElse,
-  };
-
-  stateMap.set(windowId, newState);
-  return newState;
-}
+import {
+  isWindowUsable,
+  withParentGameHandlers,
+  withSubwindowHandlers,
+} from "./forwarding";
 
 export function createEnvironmentTipcRouter(tipcInstance: TipcInstance) {
   return {
     getState: tipcInstance.procedure.action(async ({ context }) => {
-      const senderWindow = context.senderWindow;
-      if (!senderWindow) return { ...EMPTY_STATE };
-
-      const gameWindowId = windowsService.getGameWindowId(senderWindow.id);
-      if (!gameWindowId) return { ...EMPTY_STATE };
-
-      return getWindowState(gameWindowId);
+      const result = environmentService.getStateForSender(
+        context.senderWindow?.id,
+      );
+      if (result.isErr())
+        return normalizeEnvironmentState(createEmptyEnvironmentState());
+      return result.value;
     }),
     updateState: tipcInstance.procedure
       .input<EnvironmentUpdatePayload>()
+      .requireSenderWindow()
       .action(async ({ context, input }) => {
-        const senderWindow = context.senderWindow;
-        if (!senderWindow) return;
-
-        const gameWindowId = windowsService.getGameWindowId(senderWindow.id);
-        if (!gameWindowId) return;
-
-        const newState = applyUpdate(gameWindowId, input);
-        const isFromGameWindow = windowsService.isGameWindow(senderWindow.id);
-
-        if (isFromGameWindow) {
-          // Game window sent update → notify environment window if open
-          const envWindow = windowsService.getSubwindow(
-            senderWindow.id,
-            WindowIds.Environment,
-          );
-          if (
-            envWindow &&
-            !envWindow.isDestroyed() &&
-            !envWindow.webContents.isDestroyed()
-          ) {
-            const envHandlers =
-              context.getRendererHandlers<RendererHandlers>(envWindow);
-            envHandlers.environment.stateChanged.send(newState);
-          }
-        } else {
-          // Environment window sent update → notify game window
-          const parent = windowsService.resolveGameWindow(senderWindow.id);
-          if (
-            parent &&
-            !parent.isDestroyed() &&
-            !parent.webContents.isDestroyed()
-          ) {
-            const parentHandlers =
-              context.getRendererHandlers<RendererHandlers>(parent);
-            parentHandlers.environment.stateChanged.send(newState);
-          }
-        }
-      }),
-    grabBoosts: tipcInstance.procedure.action(async ({ context }) => {
-      const senderWindow = context.senderWindow;
-      if (!senderWindow) return [];
-
-      const parent = windowsService.resolveGameWindow(senderWindow.id);
-      if (parent && !parent.isDestroyed()) {
-        const parentHandlers =
-          context.getRendererHandlers<RendererHandlers>(parent);
-        return parentHandlers.environment.grabBoosts.invoke();
-      }
-
-      return [];
-    }),
-    stateChanged: tipcInstance.procedure
-      .input<EnvironmentState>()
-      .action(async ({ context, input }) => {
-        const senderWindow = context?.senderWindow;
-        if (!senderWindow) return;
-
-        const windowId = senderWindow.id;
-        if (windowsService.isGameWindow(windowId)) {
-          stateMap.set(windowId, input);
-        }
-
-        const environmentWindow = windowsService.getSubwindow(
-          senderWindow.id,
-          WindowIds.Environment,
+        const beforeResult = environmentService.getStateForSender(
+          context.senderWindowId,
         );
-        if (
-          !environmentWindow ||
-          environmentWindow.isDestroyed() ||
-          environmentWindow.webContents.isDestroyed()
-        ) {
+        const beforeState = beforeResult.isOk()
+          ? beforeResult.value
+          : createEmptyEnvironmentState();
+        const result = environmentService.applyUpdateForSender(
+          context.senderWindowId,
+          input,
+        );
+        if (result.isErr()) return;
+        const newState = result.value;
+        const diffs = diffEnvironmentState(beforeState, newState);
+        if (diffs.length > 0) {
+          console.info("[env:updateState]", {
+            senderWindowId: context.senderWindowId,
+            diffs: require("util").inspect(diffs, { depth: null }),
+          });
+        }
+
+        if (windowsService.isGameWindow(context.senderWindowId)) {
+          await withSubwindowHandlers(
+            context,
+            WindowIds.Environment,
+            (envHandlers) =>
+              envHandlers.environment.stateChanged.send(newState),
+          );
           return;
         }
 
-        const rendererHandlers =
-          context.getRendererHandlers<RendererHandlers>(environmentWindow);
-        rendererHandlers.environment.stateChanged.send(input);
+        await withParentGameHandlers(context, (parentHandlers) =>
+          parentHandlers.environment.stateChanged.send(newState),
+        );
       }),
+
+    stateChanged: tipcInstance.procedure
+      .input<EnvironmentState>()
+      .requireSenderWindow()
+      .action(async ({ context, input }) => {
+        const beforeResult = environmentService.getStateForSender(
+          context.senderWindowId,
+        );
+        const beforeState = beforeResult.isOk()
+          ? beforeResult.value
+          : createEmptyEnvironmentState();
+        const normalized = normalizeEnvironmentState(input);
+        const diffs = diffEnvironmentState(beforeState, normalized);
+        if (diffs.length > 0) {
+          console.info("[env:stateChanged]", {
+            senderWindowId: context.senderWindowId,
+            diffs,
+          });
+        }
+
+        if (windowsService.isGameWindow(context.senderWindowId)) {
+          environmentService.setStateForGameWindow(
+            context.senderWindowId,
+            normalized,
+          );
+        }
+
+        await withSubwindowHandlers(
+          context,
+          WindowIds.Environment,
+          (rendererHandlers) =>
+            rendererHandlers.environment.stateChanged.send(normalized),
+        );
+      }),
+
     broadcastState: tipcInstance.procedure
       .input<EnvironmentState>()
+      .requireSenderWindow()
       .action(async ({ context, input }) => {
-        const senderWindow = context?.senderWindow;
-        if (!senderWindow) return;
-
         const senderGameWindowId = windowsService.getGameWindowId(
-          senderWindow.id,
+          context.senderWindow.id,
         );
-
+        const normalized = normalizeEnvironmentState(input);
         void windowsService.forEachGameWindow((gameWindowId, gameWindow) => {
           if (gameWindowId === senderGameWindowId) return;
 
           // Update stateMap for this window
-          stateMap.set(gameWindowId, input);
+          const beforeState =
+            environmentService.getStateForGameWindow(gameWindowId);
+          const diffs = diffEnvironmentState(beforeState, normalized);
+          if (diffs.length > 0) {
+            console.info("[env:broadcastState]", {
+              senderWindowId: context.senderWindowId,
+              gameWindowId,
+              diffs,
+            });
+          }
+
+          environmentService.setStateForGameWindow(gameWindowId, normalized);
 
           // Notify the game window
           if (isWindowUsable(gameWindow)) {
             const gameHandlers =
               context.getRendererHandlers<RendererHandlers>(gameWindow);
-            gameHandlers.environment.stateChanged.send(input);
+            gameHandlers.environment.stateChanged.send(normalized);
           }
 
-          // Notify the environment window if open
+          // Notify the environment window
           const envWindow = windowsService.getSubwindow(
             gameWindowId,
             WindowIds.Environment,
@@ -207,9 +141,18 @@ export function createEnvironmentTipcRouter(tipcInstance: TipcInstance) {
           if (isWindowUsable(envWindow)) {
             const envHandlers =
               context.getRendererHandlers<RendererHandlers>(envWindow);
-            envHandlers.environment.stateChanged.send(input);
+            envHandlers.environment.stateChanged.send(normalized);
           }
         });
       }),
+
+    grabBoosts: tipcInstance.procedure.action(async ({ context }) => {
+      const result = await withParentGameHandlers(
+        context,
+        async (parentHandlers) =>
+          parentHandlers.environment.grabBoosts.invoke(),
+      );
+      return result ?? [];
+    }),
   };
 }
