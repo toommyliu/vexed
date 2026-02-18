@@ -7,25 +7,34 @@ const svelte = require("eslint-plugin-svelte");
 
 const merge = require("lodash.merge");
 
-const commonFiles = ".ts";
+const sourceTypeScriptAndSvelteFiles = [
+  "./src/**/*.ts",
+  "./src/**/*.svelte",
+  "./src/**/*.svelte.ts",
+];
 
 const commonRuleset = merge({}, ...common, {
-  files: [`./src/**/*${commonFiles}`],
+  files: sourceTypeScriptAndSvelteFiles,
 });
 
 const nodeRuleset = merge({}, ...node, {
-  files: [`./src/main/**/*${commonFiles}`],
+  files: ["./src/main/**/*.ts"],
 });
 
 const browserRuleset = merge({}, ...browser, {
-  files: [`./src/renderer/**/*${commonFiles}`],
+  files: [
+    "./src/renderer/**/*.ts",
+    "./src/renderer/**/*.svelte",
+    "./src/renderer/**/*.svelte.ts",
+  ],
 });
 
 const typeScriptRuleset = merge({}, ...typescript, {
-  files: [`./src/**/*${commonFiles}`],
+  files: sourceTypeScriptAndSvelteFiles,
   languageOptions: {
     parserOptions: {
       project: ["tsconfig.eslint.json"],
+      extraFileExtensions: [".svelte"],
     },
   },
   rules: {
@@ -39,7 +48,7 @@ const typeScriptRuleset = merge({}, ...typescript, {
 });
 
 const prettierRuleset = merge({}, ...prettier, {
-  files: [`./src/**/*${commonFiles}`],
+  files: sourceTypeScriptAndSvelteFiles,
 });
 
 /** @type {import('eslint').Linter.Config[]} */
