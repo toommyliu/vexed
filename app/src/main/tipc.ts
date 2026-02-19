@@ -8,10 +8,11 @@ import type {
   FastTravelRoomNumber,
 } from "~/shared/fast-travels/types";
 import type {
-  GrabberDataType,
-  HotkeyConfig,
-  LoaderDataType,
-} from "../shared/types";
+  GrabbedData,
+  LoaderGrabberGrabRequest,
+  LoaderGrabberLoadRequest,
+} from "~/shared/loader-grabber/types";
+import type { HotkeyConfig } from "../shared/types";
 import { createAppTipcRouter } from "./tipc/app.router";
 import { createArmyTipcRouter } from "./tipc/army.router";
 import { createEnvironmentTipcRouter } from "./tipc/environment.router";
@@ -79,8 +80,8 @@ export type RendererHandlers = {
   };
 
   loaderGrabber: {
-    load(input: { type: LoaderDataType; id: number }): void;
-    grab(input: { type: GrabberDataType }): Promise<unknown>;
+    load(input: LoaderGrabberLoadRequest): void;
+    grab(input: LoaderGrabberGrabRequest): Promise<GrabbedData | undefined>;
   };
 
   follower: {

@@ -1,10 +1,9 @@
 <script lang="ts">
   import { cn } from "@vexed/ui/util";
-  import { Button, Input, Label } from "@vexed/ui";
+  import { Button, Input, Label, VirtualList } from "@vexed/ui";
   import * as NumberField from "@vexed/ui/NumberField";
   import * as Select from "@vexed/ui/Select";
   import * as Tabs from "@vexed/ui/Tabs";
-  import { VirtualList } from "@vexed/ui";
   import Download from "@vexed/ui/icons/Download";
   import Loader from "@vexed/ui/icons/Loader";
   import Upload from "@vexed/ui/icons/Upload";
@@ -14,63 +13,92 @@
   import Copy from "@vexed/ui/icons/Copy";
 
   import { SvelteSet } from "svelte/reactivity";
-  import log from "electron-log";
-
-  import { getEnhancementName, getWeaponProcName } from "@vexed/game";
-  import type { QuestInfo, ShopInfo, ItemData, MonsterData } from "@vexed/game";
+  import { Result } from "better-result";
 
   import { client } from "~/shared/tipc";
   import { GrabberDataType, LoaderDataType } from "~/shared/types";
+  import type { LoaderGrabberError } from "~/shared/loader-grabber/errors";
+  import type {
+    GrabbedData,
+    LoaderGrabberLoadRequest,
+  } from "~/shared/loader-grabber/types";
+  import { type TreeItem, grabberBuilders } from "./tree-builders";
 
-  const logger = log.scope("app/loader-grabber");
-
-  type GrabbedData = ShopInfo | QuestInfo[] | ItemData[] | MonsterData[];
-  type TreeItem = {
-    name: string;
-    value?: string;
-    children?: TreeItem[];
-  };
   type FlattenedItem = TreeItem & {
+    index: number;
     level: number;
     nodeId: string;
-    index: number;
   };
 
-  function isShopInfo(data: GrabbedData): data is ShopInfo {
-    return "items" in data && Array.isArray((data as ShopInfo).items);
-  }
-  function isQuestDataArray(data: GrabbedData): data is QuestInfo[] {
-    return (
-      Array.isArray(data) &&
-      (data.length === 0 ||
-        (data.length > 0 && data[0] != null && "QuestID" in data[0]))
-    );
-  }
-  function isItemDataArray(data: GrabbedData): data is ItemData[] {
-    return (
-      Array.isArray(data) &&
-      (data.length === 0 ||
-        (data.length > 0 && data[0] != null && "ItemID" in data[0]))
-    );
-  }
-  function isMonsterDataArray(data: GrabbedData): data is MonsterData[] {
-    return (
-      Array.isArray(data) &&
-      (data.length === 0 ||
-        (data.length > 0 && data[0] != null && "MonID" in data[0]))
-    );
+  type LoaderOption = {
+    label: string;
+    requiresId: boolean;
+    value: LoaderDataType;
+  };
+  type GrabberOption = {
+    label: string;
+    value: GrabberDataType;
+  };
+
+  const loaderOptions: LoaderOption[] = [
+    { value: LoaderDataType.HairShop, label: "Hair shop", requiresId: true },
+    { value: LoaderDataType.Shop, label: "Shop", requiresId: true },
+    { value: LoaderDataType.Quest, label: "Quest", requiresId: true },
+    {
+      value: LoaderDataType.ArmorCustomizer,
+      label: "Armor customizer",
+      requiresId: false,
+    },
+  ];
+  const grabberOptions: GrabberOption[] = [
+    { value: GrabberDataType.Shop, label: "Shop items" },
+    { value: GrabberDataType.Quest, label: "Quests" },
+    { value: GrabberDataType.Inventory, label: "Inventory" },
+    { value: GrabberDataType.TempInventory, label: "Temp inventory" },
+    { value: GrabberDataType.Bank, label: "Bank" },
+    { value: GrabberDataType.CellMonsters, label: "Cell monsters" },
+    { value: GrabberDataType.MapMonsters, label: "Map monsters" },
+  ];
+
+  const loaderOptionsByValue = new Map(
+    loaderOptions.map((option) => [option.value, option]),
+  );
+  const grabberOptionsByValue = new Map(
+    grabberOptions.map((option) => [option.value, option]),
+  );
+
+  function getLoaderOption(value: LoaderDataType | null): LoaderOption | null {
+    if (value === null) return null;
+    return loaderOptionsByValue.get(value) ?? null;
   }
 
-  let activeTab = $state<"loader" | "grabber">("loader");
+  function getGrabberOption(
+    value: GrabberDataType | null,
+  ): GrabberOption | null {
+    if (value === null) return null;
+    return grabberOptionsByValue.get(value) ?? null;
+  }
+
+  function requiresLoaderId(value: LoaderDataType | null): boolean {
+    const option = getLoaderOption(value);
+    return option?.requiresId ?? false;
+  }
+
+  const unavailableMessage =
+    "Loader grabber is unavailable. Make sure a game window is running.";
+
+  let activeTab = $state<"grabber" | "loader">("loader");
   let loaderId = $state(0);
-  let loaderType = $state<string>("");
-  let grabberType = $state<string>("");
+  let loaderType = $state<LoaderDataType | null>(null);
+  let grabberType = $state<GrabberDataType | null>(null);
   let grabbedData = $state<GrabbedData | null>(null);
   let treeData = $state<TreeItem[]>([]);
-  let expandedNodes = new SvelteSet<string>();
+  const expandedNodes = new SvelteSet<string>();
   let isLoading = $state<boolean>(false);
   let searchQuery = $state("");
   let debouncedSearchQuery = $state("");
+  let loaderError = $state<string | null>(null);
+  let grabberError = $state<string | null>(null);
 
   $effect(() => {
     const query = searchQuery;
@@ -85,12 +113,11 @@
     const timeout = setTimeout(() => {
       debouncedSearchQuery = query;
     }, delay);
-
     return () => clearTimeout(timeout);
   });
 
-  let flattenedItems = $derived(flattenTreeData(treeData, expandedNodes));
-  let filteredTreeData = $derived(
+  const flattenedItems = $derived(flattenTreeData(treeData, expandedNodes));
+  const filteredTreeData = $derived(
     debouncedSearchQuery
       ? treeData.filter((item) => {
           const query = debouncedSearchQuery.toLowerCase();
@@ -98,7 +125,7 @@
         })
       : treeData,
   );
-  let filteredItems = $derived(
+  const filteredItems = $derived(
     debouncedSearchQuery
       ? flattenTreeData(filteredTreeData, expandedNodes)
       : flattenedItems,
@@ -106,282 +133,58 @@
   let copiedNodeId = $state<string | null>(null);
 
   async function handleLoad() {
-    if (!loaderType || (loaderType !== "3" && !loaderId)) return;
+    if (loaderType === null) return;
+    if (requiresLoaderId(loaderType) && !loaderId) return;
 
-    switch (loaderType) {
-      case "0":
-        await client.loaderGrabber.load({
-          type: LoaderDataType.HairShop,
-          id: loaderId!,
-        });
-        break;
-      case "1":
-        await client.loaderGrabber.load({
-          type: LoaderDataType.Shop,
-          id: loaderId!,
-        });
-        break;
-      case "2":
-        await client.loaderGrabber.load({
-          type: LoaderDataType.Quest,
-          id: loaderId!,
-        });
-        break;
-      case "3":
-        await client.loaderGrabber.load({
-          type: LoaderDataType.ArmorCustomizer,
-          id: loaderId!,
-        });
-        break;
+    loaderError = null;
+
+    try {
+      const input: LoaderGrabberLoadRequest =
+        loaderType === LoaderDataType.ArmorCustomizer
+          ? { type: loaderType }
+          : { type: loaderType, id: loaderId };
+
+      const serialized = await client.loaderGrabber.load(input);
+      const result = Result.deserialize<void, LoaderGrabberError>(serialized);
+      if (result.isErr()) {
+        loaderError = unavailableMessage;
+        console.error("Loader grabber load failed.", result.error);
+      }
+    } catch (error) {
+      loaderError = unavailableMessage;
+      console.error("Loader grabber load failed.", error);
     }
   }
 
   async function handleGrab() {
-    if (!grabberType) return;
+    if (grabberType === null) return;
 
+    grabberError = null;
     isLoading = true;
+
     try {
-      let data: GrabbedData;
-      switch (grabberType) {
-        case "0":
-          data = (await client.loaderGrabber.grab({
-            type: GrabberDataType.Shop,
-          })) as GrabbedData;
-          break;
-        case "1":
-          data = (await client.loaderGrabber.grab({
-            type: GrabberDataType.Quest,
-          })) as GrabbedData;
-          break;
-        case "2":
-          data = (await client.loaderGrabber.grab({
-            type: GrabberDataType.Inventory,
-          })) as GrabbedData;
-          break;
-        case "3":
-          data = (await client.loaderGrabber.grab({
-            type: GrabberDataType.TempInventory,
-          })) as GrabbedData;
-          break;
-        case "4":
-          data = (await client.loaderGrabber.grab({
-            type: GrabberDataType.Bank,
-          })) as GrabbedData;
-          break;
-        case "5":
-          data = (await client.loaderGrabber.grab({
-            type: GrabberDataType.CellMonsters,
-          })) as GrabbedData;
-          break;
-        case "6":
-          data = (await client.loaderGrabber.grab({
-            type: GrabberDataType.MapMonsters,
-          })) as GrabbedData;
-          break;
-        default:
-          return;
+      const serialized = await client.loaderGrabber.grab({
+        type: grabberType,
+      });
+      const result = Result.deserialize<GrabbedData, LoaderGrabberError>(
+        serialized,
+      );
+
+      if (result.isErr()) {
+        grabberError = unavailableMessage;
+        console.error("Error grabbing data.", result.error);
+        return;
       }
 
-      if (!data) return;
+      const data = result.value;
       grabbedData = data;
       expandedNodes.clear();
-
-      let out: TreeItem[] = [];
-
-      switch (grabberType) {
-        case "0":
-          if (isShopInfo(data)) {
-            out = data.items.map((item) => {
-              return {
-                name: item.sName,
-                children: [
-                  { name: "Shop Item ID", value: String(item.ShopItemID) },
-                  { name: "ID", value: String(item.ItemID) },
-                  {
-                    name: "Cost",
-                    value: `${item.iCost} ${item.bCoins === 1 ? "ACs" : "Gold"}`,
-                  },
-                  { name: "Category", value: item.sType },
-                  { name: "Description", value: item.sDesc },
-                ],
-              };
-            });
-          }
-          break;
-        case "1":
-          if (isQuestDataArray(data)) {
-            out = data.map((quest: QuestInfo) => ({
-              name: `${quest.QuestID} - ${quest.sName}`,
-              children: [
-                { name: "ID", value: String(quest.QuestID) },
-                { name: "Description", value: quest.sDesc },
-                {
-                  name: "Required Items",
-                  children: Object.values(quest?.oItems || {}).map((item) => ({
-                    name: item.sName,
-                    children: [
-                      { name: "ID", value: String(item.ItemID) },
-                      { name: "Quantity", value: String(item.iQty) },
-                      {
-                        name: "Temporary",
-                        value: item.bTemp ? "Yes" : "No",
-                      },
-                      {
-                        name: "Description",
-                        value: item.sDesc,
-                      },
-                    ],
-                  })),
-                },
-                {
-                  name: "Rewards",
-                  children: (quest?.Rewards || []).map((item) => ({
-                    name: item.sName,
-                    children: [
-                      {
-                        name: "ID",
-                        value: String(item.ItemID),
-                      },
-                      {
-                        name: "Quantity",
-                        value: String(item.iQty),
-                      },
-                      {
-                        name: "Drop chance",
-                        value: String(item.DropChance),
-                      },
-                    ],
-                  })),
-                },
-              ],
-            }));
-          }
-          break;
-        case "2":
-        case "4":
-          if (isItemDataArray(data)) {
-            out = data.map((item: ItemData) => {
-              const children: TreeItem[] = [
-                {
-                  name: "ID",
-                  value: String(item.ItemID),
-                },
-                {
-                  name: "Char Item ID",
-                  value: String(item.CharItemID),
-                },
-                {
-                  name: "Quantity",
-                  value:
-                    item.sType === "Class"
-                      ? "1/1"
-                      : `${item.iQty}/${item.iStk}`,
-                },
-                {
-                  name: "AC Tagged",
-                  value: item.bCoins === 1 ? "Yes" : "No",
-                },
-                {
-                  name: "Category",
-                  value: item.sType,
-                },
-              ];
-
-              const enhancementName = getEnhancementName(item.EnhPatternID);
-              const procName = item.ProcID
-                ? getWeaponProcName(item.ProcID)
-                : "";
-              const validProc =
-                procName && procName !== "Unknown" ? procName : "";
-
-              if (enhancementName || validProc) {
-                const parts = [enhancementName, validProc].filter(Boolean);
-                children.push({
-                  name: "Enhancement",
-                  value: parts.join(", "),
-                });
-              }
-
-              children.push({
-                name: "Description",
-                value: item.sDesc,
-              });
-
-              return {
-                name: item.sName,
-                children,
-              };
-            });
-          }
-          break;
-        case "3":
-          if (isItemDataArray(data)) {
-            out = data.map((item) => ({
-              name: item.sName,
-              children: [
-                {
-                  name: "ID",
-                  value: String(item.ItemID),
-                },
-                {
-                  name: "Quantity",
-                  value: `${item.iQty}/${item.iStk}`,
-                },
-              ],
-            }));
-          }
-          break;
-        case "5":
-        case "6":
-          if (isMonsterDataArray(data)) {
-            out = data.map((mon) => {
-              const ret: TreeItem = {
-                name: mon.strMonName,
-                children: [
-                  {
-                    name: "ID",
-                    value: String(mon.monId),
-                  },
-                  {
-                    name: "MonMapID",
-                    value: String(mon.monMapId),
-                  },
-                ],
-              };
-              ret.children!.push(
-                { name: "Race", value: mon.sRace },
-                {
-                  name: "Level",
-                  value: String(
-                    "intLevel" in mon && typeof mon.intLevel === "number"
-                      ? mon.intLevel
-                      : mon.iLvl,
-                  ),
-                },
-              );
-
-              if (grabberType === "5") {
-                ret.children!.push({
-                  name: "Health",
-                  value: `${mon.intHP}/${mon.intHPMax}`,
-                });
-              } else {
-                ret.children!.push({
-                  name: "Cell",
-                  value: mon.strFrame!,
-                });
-              }
-
-              return ret;
-            });
-          }
-          break;
-      }
-
-      treeData = out;
-      logger.debug("Grabbed data:", data);
+      const builder = grabberBuilders[grabberType];
+      treeData = builder(data);
+      console.debug("Grabbed data:", data);
     } catch (error) {
-      logger.error("Error grabbing data.", error);
+      grabberError = unavailableMessage;
+      console.error("Error grabbing data.", error);
     } finally {
       isLoading = false;
     }
@@ -389,17 +192,15 @@
 
   function handleExport() {
     if (!grabbedData) return;
-
     const dataStr = JSON.stringify(grabbedData, null, 2);
     const blob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-
     const a = document.createElement("a");
     a.href = url;
     a.download = "data.json";
-    document.body.appendChild(a);
+    document.body.append(a);
     a.click();
-    document.body.removeChild(a);
+    a.remove();
     URL.revokeObjectURL(url);
   }
 
@@ -415,26 +216,20 @@
       level: number = 0,
       parentPath: string = "",
     ) {
-      for (let idx = 0; idx < items.length; idx++) {
-        const item = items[idx];
+      for (const [idx, item] of items.entries()) {
         if (!item) continue;
-
         const nodeId = parentPath
           ? `${parentPath}-${idx}-${item.name}-${level}`
           : `${idx}-${item.name}-${level}`;
-
         const flatItem: FlattenedItem = {
           ...item,
           level,
           nodeId,
           index: index++,
         };
-
         result.push(flatItem);
-
-        if (item.children && expandedNodes.has(nodeId)) {
+        if (item.children && expandedNodes.has(nodeId))
           traverse(item.children, level + 1, nodeId);
-        }
       }
     }
 
@@ -448,29 +243,24 @@
       copiedNodeId = nodeId;
       setTimeout(() => {
         if (copiedNodeId === nodeId) copiedNodeId = null;
-      }, 1500);
-    } catch {
-      // ignore
+      }, 1_500);
+    } catch (error) {
+      console.error("Failed to copy value", error);
     }
   }
 
   async function copyNodeJson(item: FlattenedItem) {
-    try {
-      const data = JSON.stringify(
-        item,
-        (key, value) => {
-          if (key === "nodeId" || key === "level" || key === "index")
-            return undefined;
-          return value;
-        },
-        2,
-      );
-      await navigator.clipboard.writeText(data);
-      copiedNodeId = item.nodeId;
-      setTimeout(() => {
-        if (copiedNodeId === item.nodeId) copiedNodeId = null;
-      }, 1500);
-    } catch {}
+    const data = JSON.stringify(
+      item,
+      (key, value) => {
+        // Skip these fields when copying
+        if (key === "nodeId" || key === "level" || key === "index")
+          return undefined;
+        return value;
+      },
+      2,
+    );
+    await copyValue(item.nodeId, data);
   }
 </script>
 
@@ -540,32 +330,39 @@
                     id="loader-type"
                     class="h-10 w-full border-border/50 bg-secondary/50 transition-all hover:bg-secondary"
                   >
+                    {@const loaderOption = getLoaderOption(loaderType)}
                     <span
                       class={cn(
                         "truncate text-sm",
-                        !loaderType && "text-muted-foreground",
+                        !loaderOption && "text-muted-foreground",
                       )}
                     >
-                      {#if loaderType === "0"}Hair shop
-                      {:else if loaderType === "1"}Shop
-                      {:else if loaderType === "2"}Quest
-                      {:else if loaderType === "3"}Armor customizer
-                      {:else}Select source...{/if}
+                      {loaderOption?.label ?? "Select source..."}
                     </span>
                   </Select.Trigger>
                   <Select.Content>
-                    <Select.Item value="0">Hair shop</Select.Item>
-                    <Select.Item value="1">Shop</Select.Item>
-                    <Select.Item value="2">Quest</Select.Item>
-                    <Select.Item value="3">Armor customizer</Select.Item>
+                    {#each loaderOptions as option (option.value)}
+                      <Select.Item value={option.value}>
+                        {option.label}
+                      </Select.Item>
+                    {/each}
                   </Select.Content>
                 </Select.Root>
               </div>
             </div>
 
+            {#if loaderError}
+              <div
+                class="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+              >
+                {loaderError}
+              </div>
+            {/if}
+
             <Button
               onclick={handleLoad}
-              disabled={!loaderType || (loaderType !== "3" && !loaderId)}
+              disabled={loaderType === null ||
+                (requiresLoaderId(loaderType) && !loaderId)}
               class="h-10 w-full gap-2 shadow-sm transition-all hover:scale-[1.01] active:scale-[0.99]"
             >
               Load
@@ -586,37 +383,29 @@
                     id="grabber-type"
                     class="h-10 w-full border-border/40 bg-secondary/50 !ring-0 !ring-offset-0 transition-all hover:bg-secondary"
                   >
+                    {@const grabberOption = getGrabberOption(grabberType)}
                     <span
                       class={cn(
                         "truncate text-sm",
-                        !grabberType && "text-muted-foreground",
+                        !grabberOption && "text-muted-foreground",
                       )}
                     >
-                      {#if grabberType === "0"}Shop items
-                      {:else if grabberType === "1"}Quests
-                      {:else if grabberType === "2"}Inventory
-                      {:else if grabberType === "3"}Temp inventory
-                      {:else if grabberType === "4"}Bank
-                      {:else if grabberType === "5"}Cell monsters
-                      {:else if grabberType === "6"}Map monsters
-                      {:else}Select source...{/if}
+                      {grabberOption?.label ?? "Select source..."}
                     </span>
                   </Select.Trigger>
                   <Select.Content>
-                    <Select.Item value="0">Shop items</Select.Item>
-                    <Select.Item value="1">Quests</Select.Item>
-                    <Select.Item value="2">Inventory</Select.Item>
-                    <Select.Item value="3">Temp inventory</Select.Item>
-                    <Select.Item value="4">Bank</Select.Item>
-                    <Select.Item value="5">Cell monsters</Select.Item>
-                    <Select.Item value="6">Map monsters</Select.Item>
+                    {#each grabberOptions as option (option.value)}
+                      <Select.Item value={option.value}>
+                        {option.label}
+                      </Select.Item>
+                    {/each}
                   </Select.Content>
                 </Select.Root>
               </div>
 
               <Button
                 onclick={handleGrab}
-                disabled={!grabberType || isLoading}
+                disabled={grabberType === null || isLoading}
                 class="h-10 w-[140px] gap-2 px-6 shadow-sm !ring-0 !ring-offset-0 transition-all"
               >
                 {#if isLoading}
@@ -627,6 +416,14 @@
                 {/if}
               </Button>
             </div>
+
+            {#if grabberError}
+              <div
+                class="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+              >
+                {grabberError}
+              </div>
+            {/if}
 
             {#if treeData.length > 0}
               <div class="relative">
@@ -655,7 +452,7 @@
                   >
                 {/if}
                 <span class="text-muted-foreground/70">
-                  item{filteredTreeData.length !== 1 ? "s" : ""}</span
+                  item{filteredTreeData.length === 1 ? "" : "s"}</span
                 >
               </span>
             </div>
@@ -672,6 +469,7 @@
                   class="no-scrollbar"
                 >
                   {#snippet children({ data: item })}
+                    <!-- eslint-disable-next-line @typescript-eslint/no-confusing-void-expression, sonarjs/no-use-of-empty-return-value -->
                     {@render TreeNode(item)}
                   {/snippet}
                 </VirtualList>
