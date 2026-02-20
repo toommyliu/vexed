@@ -298,9 +298,12 @@
 
     function onRangeChanged(range_: any) {
         range = range_;
-        paddingStyle = paddingStyle = isHorizontal
-            ? `0px ${range.padBehind}px 0px ${range.padFront}px`
-            : `${range.padFront}px 0px ${range.padBehind}px`;
+        const safeNumber = (value: number) => (Number.isFinite(value) ? value : 0);
+        const padFront = safeNumber(range.padFront);
+        const padBehind = safeNumber(range.padBehind);
+        paddingStyle = isHorizontal
+            ? `0px ${padBehind}px 0px ${padFront}px`
+            : `${padFront}px 0px ${padBehind}px`;
         displayItems = data.slice(range.start, range.end + 1);
     }
 
@@ -343,6 +346,7 @@
         if (data) {
         }
         untrack(() => {
+            virtual.syncSizes();
             virtual.rebuildOffsets();
             virtual.handleScroll(
                 virtual.currOffset,

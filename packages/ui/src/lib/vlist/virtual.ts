@@ -82,6 +82,22 @@ export class Virtual<T> {
         }
     }
 
+    // sync sizes with current data keys, reusing known sizes when possible
+    syncSizes() {
+        const next = new Map<any, number>()
+        for (let i = 0; i < this.data.length; i++) {
+            const item = this.data[i]
+            const key = this.keyFn(item, i)
+            const prev = this.sizes.get(key)
+            let size = Number.isFinite(prev) ? prev : this.estimateSize(item)
+            if (!Number.isFinite(size)) {
+                size = 0
+            }
+            next.set(key, size)
+        }
+        this.sizes = next
+    }
+
     // save each size map by id
     saveSize(id: any, size: number) {
         if (this.sizes.get(id) === size) {
@@ -94,8 +110,10 @@ export class Virtual<T> {
     handleScroll(offset: number, clientHeight: number, forceUpdate = false) {
         this.currOffset = offset
         this.clientHeight = clientHeight
-        let startIndex = Math.max(this.offsets.findIndex(o => o >= offset) - 1 - this.overflow, 0)
-        let endIndex = this.offsets.findIndex(o => o >= offset + clientHeight)
+        const startPos = this.findOffsetIndex(offset)
+        const normalizedStart = startPos === -1 ? this.data.length - 1 : startPos
+        let startIndex = Math.max(normalizedStart - 1 - this.overflow, 0)
+        let endIndex = this.findOffsetIndex(offset + clientHeight)
         if (endIndex === -1) {
             endIndex = this.data.length - 1
         } else if (endIndex < startIndex) {
@@ -116,10 +134,17 @@ export class Virtual<T> {
         if (startIndex === -1) return
         let lastOffset = this.offsets[startIndex] || 0
         for (let i = startIndex + 1; i < this.data.length; i++) {
-            let id = this.keyFn(this.data[i - 1], i - 1)
-            lastOffset += this.sizes.get(id)!
-            if (Number.isNaN(lastOffset)) {
+            const item = this.data[i - 1]
+            const id = this.keyFn(item, i - 1)
+            let size = this.sizes.get(id)
+            if (!Number.isFinite(size)) {
+                size = this.estimateSize(item)
+                if (!Number.isFinite(size)) {
+                    size = 0
+                }
+                this.sizes.set(id, size)
             }
+            lastOffset += size
             this.offsets[i] = lastOffset
         }
     }
@@ -155,6 +180,23 @@ export class Virtual<T> {
             return 0
         }
         return this.offsets[this.offsets.length - 1] + this.sizes.get(this.keyFn(this.data[this.data.length - 1], this.data.length - 1))! - (this.offsets[this.range.end + 1])
+    }
+
+    private findOffsetIndex(offset: number) {
+        if (this.offsets.length === 0) return -1
+        if (this.offsets[0] >= offset) return 0
+        let lo = 0
+        let hi = this.offsets.length - 1
+        if (this.offsets[hi] < offset) return -1
+        while (lo < hi) {
+            const mid = Math.floor((lo + hi) / 2)
+            if (this.offsets[mid] < offset) {
+                lo = mid + 1
+            } else {
+                hi = mid
+            }
+        }
+        return lo
     }
 }
 
