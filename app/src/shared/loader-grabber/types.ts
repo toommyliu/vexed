@@ -1,7 +1,23 @@
 import type { ItemData, MonsterData, QuestInfo, ShopInfo } from "@vexed/game";
 import type { SerializedResult } from "better-result";
-import type { GrabberDataType, LoaderDataType } from "../types";
 import type { LoaderGrabberError } from "./errors";
+
+export enum LoaderDataType {
+  HairShop,
+  Shop,
+  Quest,
+  ArmorCustomizer,
+}
+
+export enum GrabberDataType {
+  Shop,
+  Quest,
+  Inventory,
+  TempInventory,
+  Bank,
+  CellMonsters,
+  MapMonsters,
+}
 
 export type LoaderGrabberLoadRequest =
   | { id: number; type: LoaderDataType.HairShop }

@@ -4,6 +4,7 @@
   import * as NumberField from "@vexed/ui/NumberField";
   import * as Select from "@vexed/ui/Select";
   import * as Tabs from "@vexed/ui/Tabs";
+  import * as Alert from "@vexed/ui/Alert";
   import Download from "@vexed/ui/icons/Download";
   import Loader from "@vexed/ui/icons/Loader";
   import Upload from "@vexed/ui/icons/Upload";
@@ -11,18 +12,18 @@
   import ChevronRight from "@vexed/ui/icons/ChevronRight";
   import Search from "@vexed/ui/icons/Search";
   import Copy from "@vexed/ui/icons/Copy";
-
   import { SvelteSet } from "svelte/reactivity";
   import { Result } from "better-result";
 
   import { client } from "~/shared/tipc";
-  import { GrabberDataType, LoaderDataType } from "~/shared/types";
-  import type { LoaderGrabberError } from "~/shared/loader-grabber/errors";
-  import type {
-    GrabbedData,
-    LoaderGrabberLoadRequest,
+  import {
+    GrabberDataType,
+    LoaderDataType,
+    type LoaderGrabberLoadRequest,
+    type GrabbedData,
   } from "~/shared/loader-grabber/types";
   import { type TreeItem, grabberBuilders } from "./tree-builders";
+  import type { LoaderGrabberError } from "~/shared/loader-grabber/errors";
 
   type FlattenedItem = TreeItem & {
     index: number;
@@ -84,9 +85,6 @@
     return option?.requiresId ?? false;
   }
 
-  const unavailableMessage =
-    "Loader grabber is unavailable. Make sure a game window is running.";
-
   let activeTab = $state<"grabber" | "loader">("loader");
   let loaderId = $state(0);
   let loaderType = $state<LoaderDataType | null>(null);
@@ -99,8 +97,7 @@
   let isLoading = $state<boolean>(false);
   let searchQuery = $state("");
   let debouncedSearchQuery = $state("");
-  let loaderError = $state<string | null>(null);
-  let grabberError = $state<string | null>(null);
+  let error = $state<string | null>(null);
 
   $effect(() => {
     const query = searchQuery;
@@ -109,8 +106,8 @@
       return;
     }
 
-    // for very short queries, we debounce it so it doesn't get too fast
-    // esp. if the source data is large
+    // For very short queries, we debounce to prevent the search from being too fast
+    // which is especially noticeable when the source data is large
     const delay = query.length <= 3 ? 300 : 150;
     const timeout = setTimeout(() => {
       debouncedSearchQuery = query;
@@ -138,30 +135,24 @@
     if (loaderType === null) return;
     if (requiresLoaderId(loaderType) && !loaderId) return;
 
-    loaderError = null;
+    error = null;
 
     try {
       const input: LoaderGrabberLoadRequest =
         loaderType === LoaderDataType.ArmorCustomizer
           ? { type: loaderType }
           : { type: loaderType, id: loaderId };
-
-      const serialized = await client.loaderGrabber.load(input);
-      const result = Result.deserialize<void, LoaderGrabberError>(serialized);
-      if (result.isErr()) {
-        loaderError = unavailableMessage;
-        console.error("Loader grabber load failed.", result.error);
-      }
-    } catch (error) {
-      loaderError = unavailableMessage;
-      console.error("Loader grabber load failed.", error);
+      await client.loaderGrabber.load(input);
+    } catch (err) {
+      error = "Failed to load data";
+      console.error("Error loading data", err);
     }
   }
 
   async function handleGrab() {
     if (grabberType === null) return;
 
-    grabberError = null;
+    error = null;
     isLoading = true;
 
     try {
@@ -171,10 +162,10 @@
       const result = Result.deserialize<GrabbedData, LoaderGrabberError>(
         serialized,
       );
-
+      throw new Error("test error");
       if (result.isErr()) {
-        grabberError = unavailableMessage;
-        console.error("Error grabbing data.", result.error);
+        error = "Failed to grab data";
+        console.error("Error grabbing data", result.error);
         return;
       }
 
@@ -185,9 +176,9 @@
       const builder = grabberBuilders[grabberType];
       treeData = builder(data);
       console.debug("Grabbed data:", data);
-    } catch (error) {
-      grabberError = unavailableMessage;
-      console.error("Error grabbing data.", error);
+    } catch (error_) {
+      error = "Failed to grab data";
+      console.error("Error grabbing data", error_);
     } finally {
       isLoading = false;
     }
@@ -363,6 +354,12 @@
 
   <main class="flex-1 overflow-hidden p-4 sm:p-6">
     <div class="mx-auto flex h-full max-w-7xl flex-col gap-4">
+      {#if error}
+        <Alert.Root variant="destructive">
+          <Alert.Description>{error}</Alert.Description>
+        </Alert.Root>
+      {/if}
+
       <Tabs.Root bind:value={activeTab} class="flex h-full flex-col gap-4">
         <Tabs.List class="w-fit">
           <Tabs.Trigger value="loader" class="gap-2">
@@ -420,15 +417,6 @@
                 </Select.Root>
               </div>
             </div>
-
-            {#if loaderError}
-              <div
-                class="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
-              >
-                {loaderError}
-              </div>
-            {/if}
-
             <Button
               onclick={handleLoad}
               disabled={loaderType === null ||
@@ -486,14 +474,6 @@
                 {/if}
               </Button>
             </div>
-
-            {#if grabberError}
-              <div
-                class="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
-              >
-                {grabberError}
-              </div>
-            {/if}
 
             {#if treeData.length > 0}
               <div class="relative">
@@ -628,7 +608,7 @@
             <span class="flex-shrink-0 truncate font-semibold text-foreground">
               {#if searchRegex}
                 {@const parts = item.name.split(searchRegex)}
-                {#each parts as part}
+                {#each parts as part, index (index)}
                   {#if part.toLowerCase() === queryLower}
                     <mark
                       class="rounded-sm bg-primary/20 px-0.5 text-foreground"

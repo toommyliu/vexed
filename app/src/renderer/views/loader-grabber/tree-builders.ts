@@ -4,7 +4,7 @@ import type {
   GrabbedData,
   GrabbedDataByType,
 } from "~/shared/loader-grabber/types";
-import { GrabberDataType } from "~/shared/types";
+import { GrabberDataType } from "~/shared/loader-grabber/types";
 
 export type TreeItem = {
   children?: TreeItem[];
@@ -174,7 +174,7 @@ export function buildTempInventoryTree(
 
 export function buildMonsterTree(
   data: GrabbedDataByType[GrabberDataType.CellMonsters],
-  includeHealth: boolean,
+  includeHp: boolean,
 ): TreeItem[] {
   return data.map((mon) => {
     const ret: TreeItem = {
@@ -201,7 +201,7 @@ export function buildMonsterTree(
         ),
       },
     );
-    if (includeHealth) {
+    if (includeHp) {
       ret.children!.push({
         name: "Health",
         value: `${mon.intHP}/${mon.intHPMax}`,

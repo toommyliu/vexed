@@ -1,20 +1,3 @@
-export enum LoaderDataType {
-  HairShop,
-  Shop,
-  Quest,
-  ArmorCustomizer,
-}
-
-export enum GrabberDataType {
-  Shop,
-  Quest,
-  Inventory,
-  TempInventory,
-  Bank,
-  CellMonsters,
-  MapMonsters,
-}
-
 export type Account = {
   password: string;
   username: string;

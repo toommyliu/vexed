@@ -1,11 +1,7 @@
 import type { TipcInstance } from "@vexed/tipc";
 import { Result } from "better-result";
-import {
-  LoaderGrabberNoDataError,
-  type LoaderGrabberError,
-} from "~/shared/loader-grabber/errors";
+import { LoaderGrabberNoDataError } from "~/shared/loader-grabber/errors";
 import type {
-  GrabbedData,
   LoaderGrabberGrabRequest,
   LoaderGrabberLoadRequest,
 } from "~/shared/loader-grabber/types";
@@ -19,7 +15,7 @@ export function createLoaderGrabberTipcRouter(tipc: TipcInstance) {
       .action(async ({ input, context }) =>
         withParentGameHandlers(context, async (parentHandlers) => {
           parentHandlers.loaderGrabber.load.send(input);
-          return Result.serialize<void, LoaderGrabberError>(Result.ok());
+          return Result.serialize(Result.ok());
         }),
       ),
 
@@ -31,13 +27,11 @@ export function createLoaderGrabberTipcRouter(tipc: TipcInstance) {
           const res = await parentHandlers.loaderGrabber.grab.invoke(input);
           if (!res)
             return Result.serialize(
-              Result.err<GrabbedData, LoaderGrabberError>(
+              Result.err(
                 new LoaderGrabberNoDataError({ message: "No data received" }),
               ),
             );
-          return Result.serialize<GrabbedData, LoaderGrabberError>(
-            Result.ok(res),
-          );
+          return Result.serialize(Result.ok(res));
         }),
       ),
   };

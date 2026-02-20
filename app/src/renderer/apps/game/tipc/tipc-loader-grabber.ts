@@ -1,6 +1,6 @@
 import type { LoaderGrabberLoadRequest } from "~/shared/loader-grabber/types";
+import { GrabberDataType, LoaderDataType } from "~/shared/loader-grabber/types";
 import { handlers } from "~/shared/tipc";
-import { GrabberDataType, LoaderDataType } from "~/shared/types";
 import { Bot } from "../lib/Bot";
 
 const bot = Bot.getInstance();
@@ -23,10 +23,8 @@ handlers.loaderGrabber.load.listen(async (input: LoaderGrabberLoadRequest) => {
   }
 });
 
-handlers.loaderGrabber.grab.handle(async (result) => {
-  if (!result) return;
+handlers.loaderGrabber.grab.handle(async ({ type }) => {
   if (!bot.player.isReady()) return;
-  const { type } = result;
   switch (type) {
     case GrabberDataType.Shop:
       if (!bot.shops.isShopLoaded()) return [];
