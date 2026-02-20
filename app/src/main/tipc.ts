@@ -7,6 +7,7 @@ import type {
   FastTravel,
   FastTravelRoomNumber,
 } from "~/shared/fast-travels/types";
+import type { RawFollowerConfig } from "~/shared/follower/types";
 import type {
   GrabbedData,
   LoaderGrabberGrabRequest,
@@ -86,17 +87,7 @@ export type RendererHandlers = {
 
   follower: {
     me(): Promise<string>;
-    start(input: {
-      attackPriority: string;
-      copyWalk: boolean;
-      name: string;
-      safeSkill: string;
-      safeSkillEnabled: boolean;
-      safeSkillHp: string;
-      skillDelay: string;
-      skillList: string;
-      skillWait: boolean;
-    }): Promise<void>;
+    start(input: RawFollowerConfig): Promise<void>;
     stop(): Promise<void>;
   };
 

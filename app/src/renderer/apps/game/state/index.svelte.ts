@@ -9,3 +9,8 @@ export { optionsPanelState } from "./options-panel.svelte";
 export { platform } from "./platform.svelte";
 export { hotkeyState } from "./hotkeys.svelte";
 export { scriptState } from "./script.svelte";
+export {
+  followerConfig,
+  followerEnabled,
+  resetFollowerState,
+} from "./follower";

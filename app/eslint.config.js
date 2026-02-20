@@ -44,6 +44,7 @@ const typeScriptRuleset = merge({}, ...typescript, {
     "unicorn/throw-new-error": "off",
     "func-names": "off",
     "promise/prefer-await-to-callbacks": "off",
+    "promise/prefer-await-to-then": "off",
   },
 });
 

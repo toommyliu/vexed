@@ -20,4 +20,4 @@ export type FollowerConfig = {
   skillDelay: number;
   skillList: string[];
   skillWait: boolean;
-}
+};

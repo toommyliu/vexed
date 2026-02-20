@@ -1,71 +1,26 @@
 import { interval } from "@vexed/utils";
-import { Mutex } from "async-mutex";
+import { get } from "svelte/store";
+import { DEFAULT_FOLLOWER_ATTEMPTS } from "~/shared/follower/constants";
+import { normalizeFollowerConfig } from "~/shared/follower/helpers";
+import {
+  type FollowerConfig,
+  type RawFollowerConfig,
+} from "~/shared/follower/types";
 import { handlers } from "~/shared/tipc";
 import { Bot } from "../lib/Bot";
+import {
+  followerConfig,
+  followerEnabled,
+  resetFollowerState,
+} from "../state/follower";
 import { doPriorityAttack } from "../util/doPriorityAttack";
 
-let on = false;
-
-let index = 0;
-let safeIndex = 0;
-let attempts = 3;
-
-let config: FollowerConfig | null = null;
-
-const mutex = new Mutex();
 const bot = Bot.getInstance();
 
-function parseConfig(rawConfig: FollowerStartInput) {
-  const {
-    name: rawName,
-    skillList: rawSkillList,
-    skillWait: rawSkillWait,
-    skillDelay: rawSkillDelay,
-    copyWalk: rawCopyWalk,
-    attackPriority: rawAttackPriority,
-    safeSkillEnabled: rawSafeSkillEnabled,
-    safeSkill: rawSafeSkill,
-    safeSkillHp: rawSafeSkillHp,
-  } = rawConfig;
-
-  const name = (
-    rawName === "" ? (bot.auth?.username ?? "") : rawName
-  ).toLowerCase();
-
-  const skillList =
-    typeof rawSkillList === "string" && rawSkillList.trim() !== ""
-      ? rawSkillList.split(",").map((x) => x.trim())
-      : ["1", "2", "3", "4"];
-
-  const skillWait = Boolean(rawSkillWait);
-  const copyWalk = Boolean(rawCopyWalk);
-  const safeSkillEnabled = Boolean(rawSafeSkillEnabled);
-
-  const skillDelay = Number.parseInt(rawSkillDelay, 10) ?? 150;
-  const safeSkillHp = Number.parseInt(rawSafeSkillHp, 10);
-
-  const attackPriority =
-    typeof rawAttackPriority === "string" && rawAttackPriority.trim() !== ""
-      ? rawAttackPriority.split(",").map((tgt) => tgt.trim())
-      : [];
-
-  const safeSkill =
-    typeof rawSafeSkill === "string" && rawSafeSkill.trim() !== ""
-      ? rawSafeSkill.split(",").map((x) => x.trim())
-      : [];
-
-  return {
-    name,
-    skillList,
-    skillWait,
-    skillDelay,
-    copyWalk,
-    attackPriority,
-    safeSkillEnabled,
-    safeSkill,
-    safeSkillHp,
-  };
-}
+let skillIndex = 0;
+let safeSkillIndex = 0;
+let attemptsLeft = DEFAULT_FOLLOWER_ATTEMPTS;
+let runToken = 0; // used to track "instances" of a start call
 
 type UotlPacket = {
   params: {
@@ -73,200 +28,205 @@ type UotlPacket = {
     type: string;
   };
 };
-function packetHandler(packet: UotlPacket) {
-  // Does it make sense to use run copy walk handler?
-  if (!on || !config?.name) return;
 
-  if (packet?.params?.type !== "str") return;
-
-  const args = packet.params.dataObj;
-  if (!args?.length) return;
-
-  if (
-    config?.copyWalk &&
-    args[2]?.toLowerCase() === config.name &&
-    args[0] === "uotls" &&
-    args[3]?.includes("sp:") &&
-    args[3]?.includes("tx:") &&
-    args[3]?.includes("ty:")
-  ) {
-    const data = args[3]!.split(",");
-
-    const spd = data.find((pkt) => pkt.startsWith("sp:"));
-    const xPos = data.find((pkt) => pkt.startsWith("tx:"));
-    const yPos = data.find((pkt) => pkt.startsWith("ty:"));
-    const x = Number(xPos!.split(":")[1]!) ?? 0;
-    const y = Number(yPos!.split(":")[1]!) ?? 0;
-    const speed = Number(spd!.split(":")[1]!) ?? 8;
-
-    bot.player.walkTo(x, y, speed);
-  }
+function resetRuntimeCounters() {
+  skillIndex = 0;
+  safeSkillIndex = 0;
+  attemptsLeft = DEFAULT_FOLLOWER_ATTEMPTS;
 }
 
-async function startFollower() {
+function getConfig(): FollowerConfig | null {
+  return get(followerConfig);
+}
+
+function isRunActive(token: number): boolean {
+  return get(followerEnabled) && runToken === token;
+}
+
+function parseMovementData(
+  data: string,
+): { speed: number; x: number; y: number } | null {
+  let speed = 8;
+  let x: number | null = null;
+  let y: number | null = null;
+  for (const segment of data.split(",")) {
+    const [rawKey, rawValue] = segment.split(":");
+    if (!rawKey || !rawValue) continue;
+    const value = Number(rawValue);
+    if (Number.isNaN(value)) continue;
+    if (rawKey === "sp") speed = value;
+    if (rawKey === "tx") x = value;
+    if (rawKey === "ty") y = value;
+  }
+
+  if (x === null || y === null) return null;
+  return { speed, x, y };
+}
+
+function packetHandler(packet: UotlPacket) {
+  if (!get(followerEnabled)) return;
+  const cfg = getConfig();
+  if (!cfg?.copyWalk || !cfg.name) return;
+  if (packet?.params?.type !== "str") return;
+  const args = packet.params.dataObj;
+  if (!args?.length) return;
+  if (
+    args[0] !== "uotls" ||
+    args[2]?.toLowerCase() !== cfg.name ||
+    !args[3]?.includes("sp:") ||
+    !args[3]?.includes("tx:") ||
+    !args[3]?.includes("ty:")
+  )
+    return;
+  const movement = parseMovementData(args[3]);
+  if (!movement) return;
+  bot.player.walkTo(movement.x, movement.y, movement.speed);
+}
+
+function isTargetPresent(cfg: FollowerConfig): boolean {
+  const selfName = bot.auth?.username?.toLowerCase();
+  if (!cfg.name || cfg.name === selfName) return true;
+  return (
+    bot.world.isPlayerInMap(cfg.name) &&
+    bot.world.isPlayerInCell(cfg.name, bot.player.cell)
+  );
+}
+
+async function stopFollower() {
+  runToken += 1;
+  resetRuntimeCounters();
+  resetFollowerState();
   bot.off("pext", packetHandler);
+}
 
-  const cfg = config as FollowerConfig;
-  const { name } = cfg;
-
-  const foundPlayer = () => {
-    if (!name || name.toLowerCase() === bot.auth?.username?.toLowerCase())
-      return true;
-
-    return (
-      bot.world.isPlayerInMap(name) &&
-      bot.world.isPlayerInCell(name, bot.player.cell)
-    );
-  };
-
-  async function goToPlayer() {
-    if (foundPlayer()) {
-      attempts = 3;
-      return;
-    }
-
-    if (bot.world.isPlayerInMap(name)) {
-      const targetPlayer = bot.world.players?.get(name);
-      if (targetPlayer) {
-        await bot.world.jump(targetPlayer.cell, targetPlayer.pad);
-        await bot.waitUntil(() => foundPlayer());
-      }
-    } else {
-      await bot.combat.exit();
-      bot.world.goto(name);
-      await bot.waitUntil(() => bot.player.isReady() && foundPlayer(), {
-        timeout: 10_000,
-      });
-    }
-
-    if (foundPlayer()) {
-      attempts = 3;
-    } else {
-      attempts--;
-
-      if (attempts <= 0) {
-        await stopFollower();
-      }
-    }
+async function tryMoveToTarget(cfg: FollowerConfig): Promise<boolean> {
+  // Target is in the same cell
+  if (isTargetPresent(cfg)) {
+    attemptsLeft = DEFAULT_FOLLOWER_ATTEMPTS;
+    return true;
   }
 
-  if (cfg.copyWalk) {
-    bot.on("pext", packetHandler);
+  // "we" are the target
+  if (!cfg.name) {
+    attemptsLeft = DEFAULT_FOLLOWER_ATTEMPTS;
+    return true;
   }
 
+  // Try to jump to target
+  if (bot.world.isPlayerInMap(cfg.name)) {
+    const targetPlayer = bot.world.players?.get(cfg.name);
+    if (targetPlayer) {
+      await bot.world.jump(targetPlayer.cell, targetPlayer.pad);
+      await bot.waitUntil(() => isTargetPresent(cfg));
+    }
+  } else {
+    await bot.combat.exit();
+    bot.world.goto(cfg.name);
+    await bot.waitUntil(() => bot.player.isReady() && isTargetPresent(cfg), {
+      timeout: 10_000,
+    });
+  }
+
+  // Jump successful
+  if (isTargetPresent(cfg)) {
+    attemptsLeft = DEFAULT_FOLLOWER_ATTEMPTS;
+    return true;
+  }
+
+  attemptsLeft -= 1;
+
+  // Failed to find target after all attempts
+  if (attemptsLeft <= 0) await stopFollower();
+  return false;
+}
+
+/**
+ * @returns true if a safe skill was used
+ */
+async function runSafeSkill(cfg: FollowerConfig): Promise<boolean> {
+  if (!cfg.safeSkillEnabled || cfg.safeSkill.length === 0) return false;
+  for (const player of bot.world.players.all().values()) {
+    if (!player?.isHpPercentageLessThan(cfg.safeSkillHp)) continue;
+    const skill = cfg.safeSkill[safeSkillIndex];
+    if (!skill) return false;
+    await bot.combat.useSkill(skill, true, false);
+    safeSkillIndex = (safeSkillIndex + 1) % cfg.safeSkill.length;
+    await bot.sleep(cfg.skillDelay);
+    return true;
+  }
+
+  return false;
+}
+
+async function runCombatLoop(cfg: FollowerConfig) {
+  bot.world.setSpawnPoint();
+
+  if (!bot.world.availableMonsters.length) return;
+  if (await runSafeSkill(cfg)) return;
+
+  doPriorityAttack(cfg.attackPriority);
+
+  if (bot.world.isMonsterAvailable("*") && !bot.combat?.target?.isMonster())
+    bot.combat.attack("*");
+
+  if (!bot.combat.hasTarget()) return;
+  const skill = cfg.skillList[skillIndex];
+  if (!skill) return;
+  await bot.combat.useSkill(skill, false, cfg.skillWait);
+  skillIndex = (skillIndex + 1) % cfg.skillList.length;
+  await bot.sleep(cfg.skillDelay);
+}
+
+function startFollowerLoop(token: number) {
   void interval(async (_, stop) => {
-    if (!on) {
+    if (!isRunActive(token)) {
       stop();
       return;
     }
 
     if (!bot.player.isReady()) return;
+    if (!isRunActive(token)) return;
 
-    try {
-      await mutex.acquire();
-
-      const name_ = name || bot.auth?.username;
-
-      if (
-        (name !== bot.auth?.username?.toLowerCase() &&
-          !bot.world.isPlayerInMap(name_)) ||
-        !bot.world.isPlayerInCell(name_, bot.player.cell)
-      ) {
-        await goToPlayer();
-        return;
-      }
-
-      bot.world.setSpawnPoint();
-
-      if (!bot.world.availableMonsters.length) {
-        return;
-      }
-
-      if (cfg.safeSkillEnabled && cfg.safeSkill.length) {
-        for (const playerName of bot.world.playerNames) {
-          const player = bot.world.players?.get(playerName);
-          if (player?.isHpPercentageLessThan(cfg.safeSkillHp)) {
-            await bot.combat.useSkill(cfg.safeSkill[safeIndex]!, true, false);
-            safeIndex = (safeIndex + 1) % cfg.safeSkill.length;
-            await bot.sleep(cfg.skillDelay);
-            return;
-          }
-        }
-      }
-
-      doPriorityAttack(cfg.attackPriority);
-
-      if (
-        bot.world.isMonsterAvailable("*") &&
-        !bot.combat?.target?.isMonster()
-      ) {
-        bot.combat.attack("*");
-      }
-
-      if (bot.combat.hasTarget()) {
-        await bot.combat.useSkill(cfg.skillList[index]!, false, cfg.skillWait);
-        index = (index + 1) % cfg.skillList!.length;
-        await bot.sleep(cfg.skillDelay);
-      }
-    } finally {
-      mutex.release();
+    const cfg = getConfig();
+    if (!cfg) {
+      await stopFollower();
+      stop();
+      return;
     }
-  }, 500);
-}
 
-async function stopFollower() {
-  if (mutex.isLocked()) {
-    mutex.release();
-  }
+    if (!isTargetPresent(cfg)) {
+      await tryMoveToTarget(cfg);
+      return;
+    }
 
-  on = false;
-
-  index = 0;
-  safeIndex = 0;
-  attempts = 3;
-
-  bot.off("pext", packetHandler);
+    await runCombatLoop(cfg);
+  }, 500).catch((error) => {
+    console.error("Follower loop stopped unexpectedly", error);
+    void stopFollower();
+  });
 }
 
 handlers.follower.me.handle(async () => {
   if (!bot.player.isReady()) return "";
-  return bot.auth?.username ?? "";
+  return bot.auth?.username?.toLowerCase() ?? "";
 });
 
-handlers.follower.start.listen(async (input) => {
-  config = parseConfig(input);
+handlers.follower.start.listen(async (input: RawFollowerConfig) => {
+  const token = ++runToken;
+  const config = normalizeFollowerConfig(input, bot.auth?.username);
+  followerConfig.set(config);
+  followerEnabled.set(true);
+  resetRuntimeCounters();
+  bot.off("pext", packetHandler);
+  if (config.copyWalk) {
+    bot.on("pext", packetHandler);
+  }
 
   await bot.waitUntil(() => bot.player.isReady());
-
-  on = true;
-  await startFollower();
+  if (!isRunActive(token)) return;
+  startFollowerLoop(token);
 });
 
 handlers.follower.stop.listen(async () => {
-  on = false;
   await stopFollower();
 });
-
-handlers.follower.me.handle(async () => {
-  if (!bot.player.isReady()) return "";
-
-  return bot.auth.username.toLowerCase();
-});
-
-type FollowerStartInput = Parameters<
-  typeof handlers.follower.start.listen
->[0] extends (input: infer T) => any
-  ? T
-  : never;
-
-type FollowerConfig = {
-  attackPriority: string[];
-  copyWalk: boolean;
-  name: string;
-  safeSkill: string[];
-  safeSkillEnabled: boolean;
-  safeSkillHp: number;
-  skillDelay: number;
-  skillList: string[];
-  skillWait: boolean;
-};
