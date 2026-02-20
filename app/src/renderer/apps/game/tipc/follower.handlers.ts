@@ -22,13 +22,6 @@ let safeSkillIndex = 0;
 let attemptsLeft = DEFAULT_FOLLOWER_ATTEMPTS;
 let runToken = 0; // used to track "instances" of a start call
 
-type UotlPacket = {
-  params: {
-    dataObj: string[];
-    type: string;
-  };
-};
-
 function resetRuntimeCounters() {
   skillIndex = 0;
   safeSkillIndex = 0;
@@ -41,46 +34,6 @@ function getConfig(): FollowerConfig | null {
 
 function isRunActive(token: number): boolean {
   return get(followerEnabled) && runToken === token;
-}
-
-function parseMovementData(
-  data: string,
-): { speed: number; x: number; y: number } | null {
-  let speed = 8;
-  let x: number | null = null;
-  let y: number | null = null;
-  for (const segment of data.split(",")) {
-    const [rawKey, rawValue] = segment.split(":");
-    if (!rawKey || !rawValue) continue;
-    const value = Number(rawValue);
-    if (Number.isNaN(value)) continue;
-    if (rawKey === "sp") speed = value;
-    if (rawKey === "tx") x = value;
-    if (rawKey === "ty") y = value;
-  }
-
-  if (x === null || y === null) return null;
-  return { speed, x, y };
-}
-
-function packetHandler(packet: UotlPacket) {
-  if (!get(followerEnabled)) return;
-  const cfg = getConfig();
-  if (!cfg?.copyWalk || !cfg.name) return;
-  if (packet?.params?.type !== "str") return;
-  const args = packet.params.dataObj;
-  if (!args?.length) return;
-  if (
-    args[0] !== "uotls" ||
-    args[2]?.toLowerCase() !== cfg.name ||
-    !args[3]?.includes("sp:") ||
-    !args[3]?.includes("tx:") ||
-    !args[3]?.includes("ty:")
-  )
-    return;
-  const movement = parseMovementData(args[3]);
-  if (!movement) return;
-  bot.player.walkTo(movement.x, movement.y, movement.speed);
 }
 
 function isTargetPresent(cfg: FollowerConfig): boolean {
@@ -96,7 +49,6 @@ async function stopFollower() {
   runToken += 1;
   resetRuntimeCounters();
   resetFollowerState();
-  bot.off("pext", packetHandler);
 }
 
 async function tryMoveToTarget(cfg: FollowerConfig): Promise<boolean> {
@@ -217,11 +169,6 @@ handlers.follower.start.listen(async (input: RawFollowerConfig) => {
   followerConfig.set(config);
   followerEnabled.set(true);
   resetRuntimeCounters();
-  bot.off("pext", packetHandler);
-  if (config.copyWalk) {
-    bot.on("pext", packetHandler);
-  }
-
   await bot.waitUntil(() => bot.player.isReady());
   if (!isRunActive(token)) return;
   startFollowerLoop(token);
