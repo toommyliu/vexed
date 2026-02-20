@@ -94,6 +94,8 @@
   let grabbedData = $state<GrabbedData | null>(null);
   let treeData = $state<TreeItem[]>([]);
   const expandedNodes = new SvelteSet<string>();
+  let nodeIdMap = new WeakMap<TreeItem, string>();
+  let nodeIdCounter = 0;
   let isLoading = $state<boolean>(false);
   let searchQuery = $state("");
   let debouncedSearchQuery = $state("");
@@ -116,20 +118,20 @@
     return () => clearTimeout(timeout);
   });
 
-  const flattenedItems = $derived(flattenTreeData(treeData, expandedNodes));
-  const filteredTreeData = $derived(
-    debouncedSearchQuery
-      ? treeData.filter((item) => {
-          const query = debouncedSearchQuery.toLowerCase();
-          return item.name.toLowerCase().includes(query);
-        })
-      : treeData,
+  const normalizedQuery = $derived(debouncedSearchQuery.trim());
+  const queryLower = $derived(normalizedQuery.toLowerCase());
+  const searchActive = $derived(normalizedQuery.length > 0);
+  const searchRegex = $derived(
+    searchActive
+      ? new RegExp(`(${escapeRegExp(normalizedQuery)})`, "gi")
+      : null,
   );
-  const filteredItems = $derived(
-    debouncedSearchQuery
-      ? flattenTreeData(filteredTreeData, expandedNodes)
-      : flattenedItems,
+  const visibleState = $derived(
+    buildVisibleItems(treeData, expandedNodes, queryLower),
   );
+  const visibleItems = $derived(visibleState.items);
+  const matchedRootCount = $derived(visibleState.matchedRootCount);
+  const autoExpanded = $derived(visibleState.autoExpanded);
   let copiedNodeId = $state<string | null>(null);
 
   async function handleLoad() {
@@ -179,6 +181,7 @@
       const data = result.value;
       grabbedData = data;
       expandedNodes.clear();
+      resetNodeIds();
       const builder = grabberBuilders[grabberType];
       treeData = builder(data);
       console.debug("Grabbed data:", data);
@@ -204,37 +207,104 @@
     URL.revokeObjectURL(url);
   }
 
-  function flattenTreeData(
+  function resetNodeIds() {
+    nodeIdMap = new WeakMap();
+    nodeIdCounter = 0;
+  }
+
+  function getNodeId(item: TreeItem) {
+    const existing = nodeIdMap.get(item);
+    if (existing) return existing;
+    const id = `node-${nodeIdCounter++}`;
+    nodeIdMap.set(item, id);
+    return id;
+  }
+
+  function escapeRegExp(value: string) {
+    return value.replaceAll(/[$()*+.?[\\\]^{|}]/g, "\\$&");
+  }
+
+  function nodeMatchesQuery(item: TreeItem, query: string) {
+    if (!query) return true;
+    const name = item.name?.toLowerCase() ?? "";
+    if (name.includes(query)) return true;
+    const value = item.value?.toLowerCase() ?? "";
+    return value.includes(query);
+  }
+
+  function buildVisibleItems(
     data: TreeItem[],
     expandedNodes: Set<string>,
-  ): FlattenedItem[] {
-    const result: FlattenedItem[] = [];
-    let index = 0;
-
-    function traverse(
-      items: TreeItem[],
-      level: number = 0,
-      parentPath: string = "",
-    ) {
-      for (const [idx, item] of items.entries()) {
-        if (!item) continue;
-        const nodeId = parentPath
-          ? `${parentPath}-${idx}-${item.name}-${level}`
-          : `${idx}-${item.name}-${level}`;
-        const flatItem: FlattenedItem = {
-          ...item,
-          level,
-          nodeId,
-          index: index++,
-        };
-        result.push(flatItem);
-        if (item.children && expandedNodes.has(nodeId))
-          traverse(item.children, level + 1, nodeId);
-      }
+    query: string,
+  ): {
+    autoExpanded: Set<string>;
+    items: FlattenedItem[];
+    matchedRootCount: number;
+  } {
+    const items: FlattenedItem[] = [];
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity
+    const autoExpanded = new Set<string>();
+    if (!data.length) {
+      return { items, matchedRootCount: 0, autoExpanded };
     }
 
-    traverse(data);
-    return result;
+    const hasQuery = query.length > 0;
+
+    if (hasQuery) {
+      // eslint-disable-next-line svelte/prefer-svelte-reactivity
+      const matchMap = new Map<string, boolean>();
+      const computeMatches = (node: TreeItem): boolean => {
+        const nodeId = getNodeId(node);
+        const selfMatches = nodeMatchesQuery(node, query);
+        let childMatches = false;
+        if (node.children && node.children.length > 0) {
+          for (const child of node.children) {
+            if (computeMatches(child)) childMatches = true;
+          }
+        }
+        const matches = selfMatches || childMatches;
+        matchMap.set(nodeId, matches);
+        if (childMatches) autoExpanded.add(nodeId);
+        return matches;
+      };
+
+      let matchedRootCount = 0;
+      for (const root of data) {
+        if (computeMatches(root)) matchedRootCount += 1;
+      }
+
+      let index = 0;
+      const build = (node: TreeItem, level: number) => {
+        const nodeId = getNodeId(node);
+        if (!matchMap.get(nodeId)) return;
+        items.push({ ...node, level, nodeId, index: index++ });
+        if (
+          node.children &&
+          node.children.length > 0 &&
+          autoExpanded.has(nodeId)
+        ) {
+          for (const child of node.children) build(child, level + 1);
+        }
+      };
+
+      for (const root of data) build(root, 0);
+      return { items, matchedRootCount, autoExpanded };
+    }
+
+    let index = 0;
+    const build = (node: TreeItem, level: number) => {
+      const nodeId = getNodeId(node);
+      items.push({ ...node, level, nodeId, index: index++ });
+      if (
+        node.children &&
+        node.children.length > 0 &&
+        expandedNodes.has(nodeId)
+      ) {
+        for (const child of node.children) build(child, level + 1);
+      }
+    };
+    for (const root of data) build(root, 0);
+    return { items, matchedRootCount: data.length, autoExpanded };
   }
 
   async function copyValue(nodeId: string, value: string) {
@@ -444,15 +514,15 @@
             <div class="flex items-center gap-4">
               <span class="text-muted-foreground">
                 <span class="font-medium tabular-nums text-foreground"
-                  >{filteredTreeData.length}</span
+                  >{matchedRootCount}</span
                 >
-                {#if debouncedSearchQuery && filteredTreeData.length !== treeData.length}
+                {#if searchActive && matchedRootCount !== treeData.length}
                   <span class="text-muted-foreground/70">
                     of {treeData.length}</span
                   >
                 {/if}
                 <span class="text-muted-foreground/70">
-                  item{filteredTreeData.length === 1 ? "" : "s"}</span
+                  item{matchedRootCount === 1 ? "" : "s"}</span
                 >
               </span>
             </div>
@@ -464,8 +534,10 @@
             {#if !isLoading}
               <div class="h-full overflow-hidden p-2">
                 <VirtualList
-                  data={filteredItems}
+                  data={visibleItems}
                   key="nodeId"
+                  estimateSize={32}
+                  overflow={2}
                   class="no-scrollbar"
                 >
                   {#snippet children({ data: item })}
@@ -483,15 +555,19 @@
 </div>
 
 {#snippet TreeNode(item: FlattenedItem)}
-  {@const isExpanded = expandedNodes.has(item.nodeId)}
   {@const hasChildren = item.children && item.children.length > 0}
+  {@const isAutoExpanded = searchActive && autoExpanded.has(item.nodeId)}
+  {@const isExpanded = searchActive
+    ? isAutoExpanded
+    : expandedNodes.has(item.nodeId)}
+  {@const canToggle = hasChildren && !searchActive}
+  {@const showChildrenToggle = searchActive ? isAutoExpanded : hasChildren}
   {@const inputHandler = () => {
-    if (hasChildren) {
-      if (isExpanded) {
-        expandedNodes.delete(item.nodeId);
-      } else {
-        expandedNodes.add(item.nodeId);
-      }
+    if (!canToggle) return;
+    if (isExpanded) {
+      expandedNodes.delete(item.nodeId);
+    } else {
+      expandedNodes.add(item.nodeId);
     }
   }}
   {@const hasValue =
@@ -521,7 +597,7 @@
     <div
       class={cn(
         "group relative flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 text-sm transition-all",
-        hasChildren ? "hover:bg-secondary/40" : "cursor-default",
+        canToggle ? "hover:bg-secondary/40" : "cursor-default",
         isExpanded && hasChildren && "bg-secondary/20",
       )}
       onclick={inputHandler}
@@ -530,7 +606,7 @@
       role="button"
       tabindex="0"
     >
-      {#if hasChildren}
+      {#if showChildrenToggle}
         <div
           class="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center"
         >
@@ -550,12 +626,10 @@
         {#if hasChildren}
           <div class="flex min-w-0 flex-1 items-center gap-2">
             <span class="flex-shrink-0 truncate font-semibold text-foreground">
-              {#if debouncedSearchQuery}
-                {@const parts = item.name.split(
-                  new RegExp(`(${debouncedSearchQuery})`, "gi"),
-                )}
+              {#if searchRegex}
+                {@const parts = item.name.split(searchRegex)}
                 {#each parts as part}
-                  {#if part.toLowerCase() === debouncedSearchQuery.toLowerCase()}
+                  {#if part.toLowerCase() === queryLower}
                     <mark
                       class="rounded-sm bg-primary/20 px-0.5 text-foreground"
                       >{part}</mark
@@ -596,7 +670,20 @@
           <span
             class="flex-shrink-0 truncate font-medium text-muted-foreground"
           >
-            {item.name}
+            {#if searchRegex}
+              {@const parts = item.name.split(searchRegex)}
+              {#each parts as part}
+                {#if part.toLowerCase() === queryLower}
+                  <mark class="rounded-sm bg-primary/20 px-0.5 text-foreground"
+                    >{part}</mark
+                  >
+                {:else}
+                  {part}
+                {/if}
+              {/each}
+            {:else}
+              {item.name}
+            {/if}
           </span>
         {/if}
 
