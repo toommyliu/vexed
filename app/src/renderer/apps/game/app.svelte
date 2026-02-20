@@ -235,12 +235,12 @@
       logger.error("Failed to get app settings", globalSettingsResult.reason);
 
     await Promise.all([
-      import("./tipc/tipc-fast-travels"),
-      import("./tipc/tipc-environment"),
-      import("./tipc/tipc-follower"),
-      import("./tipc/tipc-loader-grabber"),
-      import("./tipc/tipc-packet-logger"),
-      import("./tipc/tipc-packet-spammer"),
+      import("./tipc/fast-travels.handlers"),
+      import("./tipc/environment.handlers"),
+      import("./tipc/follower.handlers"),
+      import("./tipc/loader-grabber.handlers"),
+      import("./tipc/packet-logger.handlers"),
+      import("./tipc/packet-spammer.handlers"),
     ]);
   });
 
