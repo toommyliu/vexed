@@ -81,7 +81,7 @@ export type RendererHandlers = {
 
   loaderGrabber: {
     load(input: LoaderGrabberLoadRequest): void;
-    grab(input: LoaderGrabberGrabRequest): Promise<GrabbedData | undefined>;
+    grab(input: LoaderGrabberGrabRequest): Promise<GrabbedData | null>;
   };
 
   follower: {

@@ -23,7 +23,6 @@
     type GrabbedData,
   } from "~/shared/loader-grabber/types";
   import { type TreeItem, grabberBuilders } from "./tree-builders";
-  import type { LoaderGrabberError } from "~/shared/loader-grabber/errors";
 
   type FlattenedItem = TreeItem & {
     index: number;
@@ -134,48 +133,39 @@
   async function handleLoad() {
     if (loaderType === null) return;
     if (requiresLoaderId(loaderType) && !loaderId) return;
-
     error = null;
-
     try {
       const input: LoaderGrabberLoadRequest =
         loaderType === LoaderDataType.ArmorCustomizer
           ? { type: loaderType }
           : { type: loaderType, id: loaderId };
       await client.loaderGrabber.load(input);
-    } catch (err) {
+    } catch (error_) {
       error = "Failed to load data";
-      console.error("Error loading data", err);
+      console.error("Error loading data", error_);
     }
   }
 
   async function handleGrab() {
     if (grabberType === null) return;
-
     error = null;
     isLoading = true;
-
     try {
       const serialized = await client.loaderGrabber.grab({
         type: grabberType,
       });
-      const result = Result.deserialize<GrabbedData, LoaderGrabberError>(
+      const result = Result.deserialize<GrabbedData | null, unknown>(
         serialized,
       );
-      throw new Error("test error");
-      if (result.isErr()) {
-        error = "Failed to grab data";
-        console.error("Error grabbing data", result.error);
-        return;
+      if (result.isOk() && result.value) {
+        const data = result.value;
+        grabbedData = data;
+        expandedNodes.clear();
+        resetNodeIds();
+        const builder = grabberBuilders[grabberType];
+        treeData = builder(data);
+        console.debug("Grabbed data:", data);
       }
-
-      const data = result.value;
-      grabbedData = data;
-      expandedNodes.clear();
-      resetNodeIds();
-      const builder = grabberBuilders[grabberType];
-      treeData = builder(data);
-      console.debug("Grabbed data:", data);
     } catch (error_) {
       error = "Failed to grab data";
       console.error("Error grabbing data", error_);
@@ -240,7 +230,6 @@
     }
 
     const hasQuery = query.length > 0;
-
     if (hasQuery) {
       // eslint-disable-next-line svelte/prefer-svelte-reactivity
       const matchMap = new Map<string, boolean>();
@@ -559,7 +548,7 @@
 
   <div class="group/row relative select-none">
     {#if item.level > 0}
-      {#each Array(item.level) as _, i (i)}
+      {#each Array.from({ length: item.level }) as _, i (i)}
         <div
           class="absolute top-0 h-full border-l border-border/10"
           style="left: {i * 16 + 18}px"
@@ -634,9 +623,9 @@
               "h-6 w-6 shadow-sm transition-all hover:bg-secondary/80",
               isCopied && "text-success/100",
             )}
-            onclick={(ev) => {
+            onclick={async (ev) => {
               ev.stopPropagation();
-              copyNodeJson(item);
+              await copyNodeJson(item);
             }}
             title="Copy JSON"
           >
@@ -652,7 +641,7 @@
           >
             {#if searchRegex}
               {@const parts = item.name.split(searchRegex)}
-              {#each parts as part}
+              {#each parts as part, index (index)}
                 {#if part.toLowerCase() === queryLower}
                   <mark class="rounded-sm bg-primary/20 px-0.5 text-foreground"
                     >{part}</mark
@@ -675,9 +664,9 @@
               isCopied && "bg-success/10 text-success ring-success/30",
             )}
             title="Click to copy"
-            onclick={(ev) => {
+            onclick={async (ev) => {
               ev.stopPropagation();
-              copyValue(item.nodeId, item.value!);
+              await copyValue(item.nodeId, item.value!);
             }}
           >
             {#if isCopied}

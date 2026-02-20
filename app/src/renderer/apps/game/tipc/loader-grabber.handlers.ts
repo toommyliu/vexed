@@ -24,24 +24,26 @@ handlers.loaderGrabber.load.listen(async (input: LoaderGrabberLoadRequest) => {
 });
 
 handlers.loaderGrabber.grab.handle(async ({ type }) => {
-  if (!bot.player.isReady()) return;
+  if (!bot.player.isReady()) return null;
   switch (type) {
     case GrabberDataType.Shop:
-      if (!bot.shops.isShopLoaded()) return [];
+      if (!bot.shops.isShopLoaded()) return null;
       return bot.shops.info!;
     case GrabberDataType.Quest:
-      return bot.flash.call(() => swf.questsGetTree()) ?? undefined;
+      return bot.flash.call(() => swf.questsGetTree()) ?? null;
     case GrabberDataType.Inventory:
-      return bot.flash.call(() => swf.inventoryGetItems()) ?? undefined;
+      return bot.flash.call(() => swf.inventoryGetItems()) ?? null;
     case GrabberDataType.TempInventory:
-      return bot.flash.call(() => swf.tempInventoryGetItems()) ?? undefined;
+      return bot.flash.call(() => swf.tempInventoryGetItems()) ?? null;
     case GrabberDataType.Bank:
-      return bot.flash.call(() => swf.bankGetItems()) ?? undefined;
+      return bot.flash.call(() => swf.bankGetItems()) ?? null;
     case GrabberDataType.CellMonsters:
-      return bot.flash.call(() => swf.worldGetCellMonsters()) ?? undefined;
+      return bot.flash.call(() => swf.worldGetCellMonsters()) ?? null;
     case GrabberDataType.MapMonsters:
-      return Array.from(bot.world.monsters.all().values()).map(
-        (monster) => monster.data,
+      return (
+        Array.from(bot.world.monsters.all().values()).map(
+          (monster) => monster.data,
+        ) ?? null
       );
   }
 });
