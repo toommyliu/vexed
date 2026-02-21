@@ -1,13 +1,12 @@
 import Config from "@vexed/config";
 import type { TipcInstance } from "@vexed/tipc";
 import { Result } from "better-result";
-import { DOCUMENTS_PATH } from "~/shared";
 import { createDefaultHotkeyConfig } from "~/shared/hotkeys/schema";
 import type { HotkeyConfig } from "~/shared/types";
 import { windowsService } from "../services/windows";
 import type { RendererHandlers } from "../tipc";
 import { withParentGameHandlers } from "./forwarding";
-import { PLATFORM } from "../constants";
+import { PLATFORM, DOCUMENTS_PATH } from "../constants";
 
 const defaults = createDefaultHotkeyConfig(PLATFORM);
 const config = new Config<HotkeyConfig>({

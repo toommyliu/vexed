@@ -1,5 +1,4 @@
-import { client } from "~/shared/tipc";
-import type { LogLevel, MainLogEntry } from "~/shared/types";
+import type { LogLevel } from "~/shared/types";
 
 const levelToConsole: Record<LogLevel, keyof Console> = {
   debug: "debug",
@@ -8,70 +7,48 @@ const levelToConsole: Record<LogLevel, keyof Console> = {
   error: "error",
 };
 
-function sendEntry(entry: MainLogEntry) {
-  try {
-    console.log("sent:", entry);
-    void client.app.logEntry(entry);
-  } catch (error) {
-    console.warn("Failed to forward log entry to main.", error);
+export type LogFunctions = {
+  debug(...args: unknown[]): void;
+  error(...args: unknown[]): void;
+  info(...args: unknown[]): void;
+  warn(...args: unknown[]): void;
+};
+
+function write(level: LogLevel, scope: string, ...args: unknown[]) {
+  const consoleMethod = console[levelToConsole[level]] as (
+    ...consoleArgs: unknown[]
+  ) => void;
+  const prefix = `[${scope}]`;
+  if (args.length === 0) {
+    consoleMethod(prefix);
+    return;
   }
-}
 
-function resolveLogArgs(messageOrData?: unknown, ...args: unknown[]) {
-  if (typeof messageOrData === "string") {
-    return {
-      message: messageOrData,
-      data: args.length > 1 ? args : args[0],
-    };
+  const [first, ...rest] = args;
+  if (typeof first === "string") {
+    consoleMethod(`${prefix} ${first}`, ...rest);
+    return;
   }
 
+  consoleMethod(prefix, first, ...rest);
+}
+
+export function createRendererLogger(scope = "renderer"): LogFunctions {
   return {
-    message: undefined,
-    data: args.length > 0 ? [messageOrData, ...args] : messageOrData,
+    debug: (...args: unknown[]) => write("debug", scope, ...args),
+    info: (...args: unknown[]) => write("info", scope, ...args),
+    warn: (...args: unknown[]) => write("warn", scope, ...args),
+    error: (...args: unknown[]) => write("error", scope, ...args),
   };
 }
 
-export function createRendererLogger(scope?: string) {
-  const log = (
-    level: LogLevel,
-    messageOrData?: unknown,
-    ...args: unknown[]
-  ) => {
-    const { message, data } = resolveLogArgs(messageOrData, ...args);
-    const consoleMethod = console[levelToConsole[level]] as (
-      ...args: unknown[]
-    ) => void;
-    const prefix = scope ? `[${scope}] ` : "";
+type ScopedRendererLogger = LogFunctions & {
+  scope(scope: string): LogFunctions;
+};
 
-    const logArgs: unknown[] = [];
-    if (prefix || message) {
-      logArgs.push(`${prefix}${message ?? ""}`);
-    }
+const logger: ScopedRendererLogger = {
+  ...createRendererLogger("renderer"),
+  scope: (scope: string) => createRendererLogger(scope),
+};
 
-    if (data !== undefined) {
-      logArgs.push(data);
-    }
-
-    consoleMethod(...logArgs);
-
-    sendEntry({
-      data,
-      level,
-      message,
-      process: "renderer",
-      scope: scope ?? "renderer",
-      timestamp: Date.now(),
-    });
-  };
-
-  return {
-    debug: (message: unknown, ...args: unknown[]) =>
-      log("debug", message, ...args),
-    info: (message: unknown, ...args: unknown[]) =>
-      log("info", message, ...args),
-    warn: (message: unknown, ...args: unknown[]) =>
-      log("warn", message, ...args),
-    error: (message: unknown, ...args: unknown[]) =>
-      log("error", message, ...args),
-  };
-}
+export default logger;

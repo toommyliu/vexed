@@ -1,4 +1,4 @@
-import log from "electron-log";
+import log from "~/renderer/shared/logger";
 import { Bot } from "../lib/Bot";
 import { CancellationError } from "../util/async";
 

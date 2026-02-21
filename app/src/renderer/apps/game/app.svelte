@@ -4,7 +4,6 @@
 
   import { Result } from "better-result";
   import { interval } from "@vexed/utils";
-  import log from "electron-log";
   import { onMount } from "svelte";
 
   import { client, handlers } from "~/shared/tipc";
@@ -34,8 +33,6 @@
   import CommandPalette from "./components/CommandPalette.svelte";
   import OptionsPanel from "./components/OptionsPanel.svelte";
   import WindowsMegaMenu from "./components/WindowsMegaMenu.svelte";
-
-  const logger = log.scope("game/app");
 
   const DEFAULT_PADS = [
     "Center",
@@ -223,17 +220,17 @@
 
     if (platformResult.status === "fulfilled") {
       platform.set(platformResult.value);
-    } else logger.error("Failed to get platform state", platformResult.reason);
+    } else console.error("Failed to get platform state", platformResult.reason);
 
     if (assetPathResult.status === "fulfilled") {
       swfPath = assetPathResult.value;
-    } else logger.error("Failed to get asset path", assetPathResult.reason);
+    } else console.error("Failed to get asset path", assetPathResult.reason);
 
     if (globalSettingsResult.status === "fulfilled") {
       autoReloginState.fallbackServer =
         globalSettingsResult.value.fallbackServer;
     } else
-      logger.error("Failed to get app settings", globalSettingsResult.reason);
+      console.error("Failed to get app settings", globalSettingsResult.reason);
 
     await Promise.all([
       import("./tipc/fast-travels.handlers"),
@@ -264,10 +261,10 @@
           if (res) appState.skillSets.set(className.toUpperCase(), res);
         }
       } else {
-        logger.error("Failed to deserialize skill sets", skillSets.error);
+        console.error("Failed to deserialize skill sets", skillSets.error);
       }
     } else {
-      logger.error("Failed to load skill sets", skillSetsResult.reason);
+      console.error("Failed to load skill sets", skillSetsResult.reason);
     }
 
     // Environment state
@@ -275,7 +272,7 @@
       const state = envStateResult.value;
       bot.environment.applyUpdate(state);
     } else {
-      logger.error("Failed to sync up with environment", envStateResult.reason);
+      console.error("Failed to sync up with environment", envStateResult.reason);
     }
   });
 

@@ -2,16 +2,15 @@ import Config from "@vexed/config";
 import type { TipcInstance } from "@vexed/tipc";
 import { Result } from "better-result";
 import { nativeTheme } from "electron";
-import { DEFAULT_SKILLSETS, DOCUMENTS_PATH } from "~/shared/constants";
+import { DEFAULT_SKILLSETS } from "../defaults";
 import {
   WindowIds,
   type AccountWithScript,
-  type MainLogEntry,
   type Settings,
 } from "~/shared/types";
-import { ASSET_PATH, PLATFORM } from "../constants";
+import { ASSET_PATH, DOCUMENTS_PATH, PLATFORM } from "../constants";
 import { gameServers } from "../services/game-servers";
-import { logFromRenderer, setLoggerDebug } from "../services/logger";
+import { setLoggerDebug } from "../services/logger";
 import { scriptService } from "../services/scripts";
 import { windowsService, type SubwindowConfig } from "../services/windows";
 import { getSettings } from "../settings";
@@ -151,9 +150,5 @@ export function createAppTipcRouter(tipc: TipcInstance) {
     getServers: tipc.procedure.action(async () =>
       Result.serialize(Result.ok(await gameServers.get())),
     ),
-
-    logEntry: tipc.procedure.input<MainLogEntry>().action(async ({ input }) => {
-      logFromRenderer(input);
-    }),
   };
 }

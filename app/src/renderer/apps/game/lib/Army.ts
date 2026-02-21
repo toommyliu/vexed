@@ -1,7 +1,7 @@
 // https://github.com/BrenoHenrike/Scripts/blob/Skua/Army/CoreArmyLite.cs
 
 import Config from "@vexed/config";
-import log from "electron-log";
+import log from "~/renderer/shared/logger";
 import { STORAGE_PATH } from "~/shared/constants";
 import { client } from "~/shared/tipc";
 import type { Bot } from "./Bot";

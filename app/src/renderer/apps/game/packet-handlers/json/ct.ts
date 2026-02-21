@@ -15,6 +15,7 @@ registerJsonHandler<CtPacket>("ct", (bot, packet) => {
         anim.msg = anim?.msg.join("...  ");
       }
 
+      // TODO: this should be better handled
       if (anim?.msg) {
         // @ts-expect-error don't care
         bot.emit("ctMessage", anim?.msg, anim);
@@ -46,7 +47,7 @@ registerJsonHandler<CtPacket>("ct", (bot, packet) => {
         player.data.intState === EntityState.Dead &&
         player.data.intHP === 0
       ) {
-        console.log(`ct :: ${player.data.uoName} died, clearing auras`);
+        // console.log(`ct :: ${player.data.uoName} died, clearing auras`);
         auras.players.clearTarget(player.data.entID);
       }
     }

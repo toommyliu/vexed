@@ -9,7 +9,7 @@ import type {
 } from "@vexed/fs";
 import { equalsIgnoreCase } from "@vexed/utils";
 import { Result, TaggedError } from "better-result";
-import { DOCUMENTS_PATH } from "~/shared";
+import { DOCUMENTS_PATH } from "../constants";
 import type { Account } from "~/shared/types";
 import { createLogger } from "./logger";
 

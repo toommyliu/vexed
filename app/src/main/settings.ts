@@ -1,5 +1,5 @@
 import Config from "@vexed/config";
-import { DOCUMENTS_PATH } from "~/shared/constants";
+import { DOCUMENTS_PATH } from "./constants";
 import type { Settings } from "~/shared/types";
 
 const DEFAULT_SETTINGS: Settings = {

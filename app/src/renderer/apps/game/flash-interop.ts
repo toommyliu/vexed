@@ -1,5 +1,5 @@
 import process from "process";
-import log from "electron-log/renderer";
+import log from "~/renderer/shared/logger";
 import { getArgValue } from "~/shared/argv";
 import * as tipc from "~/shared/tipc";
 import { Bot } from "./lib/Bot";

@@ -2,7 +2,7 @@ import { join } from "path";
 import { readFile } from "@vexed/fs";
 import { Result } from "better-result";
 import { dialog, type BrowserWindow, type OpenDialogOptions } from "electron";
-import { DOCUMENTS_PATH } from "~/shared/constants";
+import { DOCUMENTS_PATH } from "../constants";
 import { createLogger } from "./logger";
 
 const logger = createLogger("service:scripts");
@@ -14,6 +14,8 @@ const DIALOG_OPTIONS: OpenDialogOptions = {
   message: "Select a script to load",
   title: "Select a script to load",
 };
+const SCRIPT_ERROR_LISTENER_TIMEOUT_MS = 15_000;
+const activeScriptErrorListeners = new Map<number, () => void>();
 
 export type ScriptLoadResult = {
   fromManager: boolean;
@@ -87,52 +89,73 @@ async function loadAndRun(
 }
 
 function setupErrorListener(window: BrowserWindow) {
-  // The error is thrown in the renderer
-  // So we need to listen for it here and handle it
-  window.webContents.once(
-    "console-message",
-    async (_, level, message, line) => {
-      if (!message.startsWith("Uncaught") || level !== 3) {
-        return;
-      }
+  const webContentsId = window.webContents.id;
 
-      const args = message.slice("Uncaught".length).split(":");
+  activeScriptErrorListeners.get(webContentsId)?.();
 
-      const err = args[0]!; // Error
-      const _msg = args
-        .join(" ")
-        .slice(err!.length + 1)
-        .trim();
+  let timeout: NodeJS.Timeout | null = null;
+  let disposed = false;
 
-      // ArgsError
-      if (level === 3 && _msg.startsWith("Invalid args")) {
-        const split = _msg.split(";"); // Invalid args;delay;ms is required
-        const cmd = split[1]!; // delay
-        const cmd_msg = split[2]!; // ms is required
+  const dispose = () => {
+    if (disposed) return;
+    disposed = true;
+    if (timeout) {
+      clearTimeout(timeout);
+      timeout = null;
+    }
+    window.webContents.removeListener("console-message", onConsoleMessage);
 
-        try {
-          // Reset the commands
-          await window.webContents.executeJavaScript(
-            "window.context.setCommands([])",
-          );
+    if (activeScriptErrorListeners.get(webContentsId) === dispose) {
+      activeScriptErrorListeners.delete(webContentsId);
+    }
+  };
 
-          // Ideally, this traces to the line of the (user) script back to
-          // where the error occurred, not where the error is thrown internally
-          await dialog.showMessageBox(window, {
-            message: `"cmd.${cmd}()" threw an error: ${cmd_msg}`,
-            type: "error",
-          });
-        } catch {}
-      } else {
-        // Some generic error (SyntaxError, ReferenceError, etc.)
+  const onConsoleMessage = async (
+    _event: unknown,
+    level: number,
+    message: string,
+    line: number,
+  ) => {
+    if (level !== 3 || !message.startsWith("Uncaught")) return;
+
+    dispose();
+
+    const args = message.slice("Uncaught".length).split(":");
+    const err = args[0] ?? "Error";
+    const parsedMessage = args
+      .join(" ")
+      .slice(err.length + 1)
+      .trim();
+
+    if (parsedMessage.startsWith("Invalid args")) {
+      const split = parsedMessage.split(";");
+      const cmd = split[1] ?? "unknown";
+      const commandMessage = split[2] ?? "invalid arguments";
+
+      try {
+        await window.webContents.executeJavaScript(
+          "window.context.setCommands([])",
+        );
         await dialog.showMessageBox(window, {
-          message: err,
-          detail: `${_msg} (line ${line})`,
+          message: `"cmd.${cmd}()" threw an error: ${commandMessage}`,
           type: "error",
         });
-      }
-    },
-  );
+      } catch {}
+
+      return;
+    }
+
+    await dialog.showMessageBox(window, {
+      message: err,
+      detail: `${parsedMessage} (line ${line})`,
+      type: "error",
+    });
+  };
+
+  window.webContents.on("console-message", onConsoleMessage);
+  window.webContents.once("destroyed", dispose);
+  timeout = setTimeout(dispose, SCRIPT_ERROR_LISTENER_TIMEOUT_MS);
+  activeScriptErrorListeners.set(webContentsId, dispose);
 }
 
 export const scriptService = {

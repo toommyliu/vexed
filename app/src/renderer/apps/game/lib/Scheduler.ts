@@ -1,4 +1,4 @@
-import log from "electron-log";
+import log from "~/renderer/shared/logger";
 import type { Bot } from "./Bot";
 import type { Job } from "./jobs/Job";
 

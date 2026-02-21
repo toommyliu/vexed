@@ -1,6 +1,6 @@
 import { Mutex } from "async-mutex";
-import log from "electron-log";
 import { TypedEmitter } from "tiny-typed-emitter";
+import log from "~/renderer/shared/logger";
 import { Bot } from "../lib/Bot";
 import { commandOverlayState } from "../state/command-overlay.svelte";
 import { CancellationError } from "../util/async";

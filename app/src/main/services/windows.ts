@@ -5,15 +5,18 @@ import {
   screen,
   type BrowserWindowConstructorOptions,
 } from "electron";
-import type { AccountWithScript, WindowIds } from "~/shared/types";
+import type { AccountWithScript, LogLevel, WindowIds } from "~/shared/types";
 import { BRAND, DIST_PATH, IS_PACKAGED } from "../constants";
 import { getSettings } from "../settings";
 import { environmentService } from "./environment";
+import { createLogger } from "./logger";
 import { applySecurityPolicy } from "../util/applySecurityPolicy";
 
 const DIST_GAME = join(DIST_PATH, "game/");
 const DIST_MANAGER = join(DIST_PATH, "manager/");
 const DIST_ONBOARDING = join(DIST_PATH, "onboarding/"); // settings
+
+const consoleLogger = createLogger("renderer:console"); // TODO: may rename the scope
 
 type WindowStoreEntry = {
   game: BrowserWindow;
@@ -73,6 +76,44 @@ class WindowsService {
   private onboardingWindow: BrowserWindow | null = null;
 
   private _isQuitting = false;
+
+  private getConsoleLogLevel(level: number): LogLevel {
+    switch (level) {
+      case 0:
+        return "debug";
+      case 1:
+        return "info";
+      case 2:
+        return "warn";
+      case 3:
+        return "error";
+      default:
+        return "info";
+    }
+  }
+
+  private shouldIgnoreConsoleMessage(level: number, sourceId: string): boolean {
+    const source = sourceId.toLowerCase();
+    // don't know
+    if (
+      source.startsWith("devtools://") ||
+      source.startsWith("chrome-extension://")
+    ) {
+      return level !== 3;
+    }
+    return false;
+  }
+
+  private attachConsoleLogging(window: BrowserWindow): void {
+    window.webContents.on(
+      "console-message",
+      (_event, level, message, _line, sourceId) => {
+        if (this.shouldIgnoreConsoleMessage(level, sourceId)) return;
+        const logLevel = this.getConsoleLogLevel(level);
+        consoleLogger[logLevel](`[window:${window.id}] ${message}`);
+      },
+    );
+  }
 
   public get isQuitting() {
     return this._isQuitting;
@@ -429,6 +470,7 @@ class WindowsService {
       useContentSize: true,
       ...options,
     });
+    this.attachConsoleLogging(window);
     applySecurityPolicy(window);
     if (!IS_PACKAGED) window.webContents.openDevTools({ mode: "right" });
     return Result.ok(window);

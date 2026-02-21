@@ -45,15 +45,6 @@ export enum WindowIds {
 }
 
 export type LogLevel = "debug" | "error" | "info" | "warn";
-export type LogProcess = "main" | "renderer";
-export type MainLogEntry = {
-  data?: unknown;
-  level: LogLevel;
-  message?: string | undefined;
-  process: LogProcess;
-  scope: string;
-  timestamp: number;
-};
 
 export type HotkeyConfig = {
   Application?: {
