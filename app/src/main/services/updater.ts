@@ -1,6 +1,6 @@
 import { join } from "path";
 import process from "process";
-import fs from "@vexed/fs-utils";
+import { readFile, writeFile } from "@vexed/fs";
 import { Result } from "better-result";
 import { app } from "electron";
 import fetch from "node-fetch";
@@ -82,46 +82,38 @@ class UpdaterService {
   }
 
   private async readLastUpdateCheck() {
-    return Result.tryPromise({
-      try: async () => {
-        const text = await fs.readFile(lastUpdateCheckFile);
-        const timestamp = Number.parseInt(text ?? "", 10);
-        if (Number.isNaN(timestamp)) return 0;
-        return timestamp;
-      },
-      catch: (error) => {
-        logger.error("Failed to read last update check file", error);
-        return 0;
-      },
-    });
+    const textResult = await readFile(lastUpdateCheckFile);
+    if (textResult.isErr()) {
+      logger.error("Failed to read last update check file", textResult.error);
+      return Result.ok(0);
+    }
+
+    const timestamp = Number.parseInt(textResult.value ?? "", 10);
+    if (Number.isNaN(timestamp)) return Result.ok(0);
+    return Result.ok(timestamp);
   }
 
   private async writeLastUpdateCheck(timestamp: number) {
-    return Result.tryPromise({
-      try: async () => fs.writeFile(lastUpdateCheckFile, String(timestamp)),
-      catch: (error) => {
-        logger.error("Failed to write last update check file", error);
-      },
-    });
+    const result = await writeFile(lastUpdateCheckFile, String(timestamp));
+    if (result.isErr())
+      logger.error("Failed to write last update check file", result.error);
+    return Result.ok();
   }
 
   private async readETag() {
-    return Result.tryPromise({
-      try: async () => fs.readFile(eTagFile),
-      catch: (error) => {
-        logger.error("Failed to read ETag file", error);
-        return null;
-      },
-    });
+    const result = await readFile(eTagFile);
+    if (result.isErr()) {
+      logger.error("Failed to read ETag file", result.error);
+      return Result.ok(null);
+    }
+
+    return Result.ok(result.value);
   }
 
   private async writeETag(eTag: string) {
-    return Result.tryPromise({
-      try: async () => fs.writeFile(eTagFile, eTag),
-      catch: (error) => {
-        logger.error("Failed to write ETag file", error);
-      },
-    });
+    const result = await writeFile(eTagFile, eTag);
+    if (result.isErr()) logger.error("Failed to write ETag file", result.error);
+    return Result.ok();
   }
 
   private async fetchRelease() {
@@ -136,6 +128,7 @@ class UpdaterService {
           });
           return null;
         }
+
         const data = (await resp.json()) as GithubRelease;
         const eTag = resp.headers.get("etag");
         return { data, eTag };

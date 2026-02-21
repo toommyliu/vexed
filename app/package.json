@@ -41,7 +41,6 @@
     "@lukeed/uuid": "^2.0.1",
     "@vexed/collection": "workspace:*",
     "@vexed/config": "workspace:*",
-    "@vexed/fs-utils": "workspace:*",
     "@vexed/fs": "workspace:*",
     "@vexed/game": "workspace:*",
     "@vexed/tipc": "workspace:*",

@@ -1,5 +1,5 @@
 import { join } from "path";
-import { readFile } from "@vexed/fs-utils";
+import { readFile } from "@vexed/fs";
 import { Result } from "better-result";
 import { dialog, type BrowserWindow, type OpenDialogOptions } from "electron";
 import { DOCUMENTS_PATH } from "~/shared/constants";
@@ -55,9 +55,18 @@ async function loadAndRun(
   if (!path) return Result.ok(null);
 
   try {
-    const content = await readFile(path);
-    if (!content) {
-      logger.error("Failed to read script file", { path });
+    const contentResult = await readFile(path);
+    if (contentResult.isErr()) {
+      logger.error("Failed to read script file", {
+        path,
+        error: contentResult.error,
+      });
+      return Result.err("FILE_READ_FAILED" as ScriptError);
+    }
+
+    const content = contentResult.value;
+    if (content.length === 0) {
+      logger.error("Failed to read script file (empty)", { path });
       return Result.err("FILE_READ_FAILED" as ScriptError);
     }
 
