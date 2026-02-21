@@ -1,7 +1,7 @@
 import type { TipcInstance } from "@vexed/tipc";
+import { Result } from "better-result";
 import { scriptService } from "../services/scripts";
 import type { RendererHandlers } from "../tipc";
-import { TipcResult } from "./result";
 
 export function createScriptsTipcRouter(tipcInstance: TipcInstance) {
   return {
@@ -15,7 +15,7 @@ export function createScriptsTipcRouter(tipcInstance: TipcInstance) {
         );
 
         if (result.isErr()) {
-          return TipcResult.err(result.error);
+          return Result.serialize(Result.err(result.error));
         }
 
         const data = result.unwrap();
@@ -24,7 +24,7 @@ export function createScriptsTipcRouter(tipcInstance: TipcInstance) {
           handlers.scripts.scriptLoaded.send(data.fromManager);
         }
 
-        return TipcResult.ok();
+        return Result.serialize(Result.ok());
       }),
 
     // TODO: this should be more isolated

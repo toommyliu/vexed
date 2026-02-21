@@ -1,5 +1,6 @@
 import Config from "@vexed/config";
 import type { TipcInstance } from "@vexed/tipc";
+import { Result } from "better-result";
 import { nativeTheme } from "electron";
 import { DEFAULT_SKILLSETS, DOCUMENTS_PATH } from "~/shared/constants";
 import {
@@ -14,7 +15,6 @@ import { logFromRenderer, setLoggerDebug } from "../services/logger";
 import { scriptService } from "../services/scripts";
 import { windowsService, type SubwindowConfig } from "../services/windows";
 import { getSettings } from "../settings";
-import { TipcResult } from "./result";
 
 const SUBWINDOW_CONFIGS: Record<WindowIds, SubwindowConfig> = {
   [WindowIds.Environment]: {
@@ -68,7 +68,7 @@ export function createAppTipcRouter(tipc: TipcInstance) {
 
     getSkillSets: tipc.procedure.action(async () => {
       await config.load();
-      return TipcResult.ok(config.get());
+      return Result.serialize(Result.ok(config.get()));
     }),
 
     launchGame: tipc.procedure
@@ -149,7 +149,7 @@ export function createAppTipcRouter(tipc: TipcInstance) {
       }),
 
     getServers: tipc.procedure.action(async () =>
-      TipcResult.ok(await gameServers.get()),
+      Result.serialize(Result.ok(await gameServers.get())),
     ),
 
     logEntry: tipc.procedure.input<MainLogEntry>().action(async ({ input }) => {

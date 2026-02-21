@@ -2,6 +2,7 @@
   import "./entrypoint";
   import "./hotkeys";
 
+  import { Result } from "better-result";
   import { interval } from "@vexed/utils";
   import log from "electron-log";
   import { onMount } from "svelte";
@@ -252,14 +253,18 @@
 
     // Skill sets
     if (skillSetsResult.status === "fulfilled") {
-      const skillSets = skillSetsResult.value;
-      if (skillSets.success) {
+      const skillSets = Result.deserialize<Record<string, unknown>, string>(
+        skillSetsResult.value,
+      );
+      if (skillSets.isOk()) {
         for (const [className, skillSetJson] of Object.entries(
-          skillSets.data,
+          skillSets.value,
         )) {
           const res = parseSkillSetJson(skillSetJson as SkillSetJson);
           if (res) appState.skillSets.set(className.toUpperCase(), res);
         }
+      } else {
+        logger.error("Failed to deserialize skill sets", skillSets.error);
       }
     } else {
       logger.error("Failed to load skill sets", skillSetsResult.reason);

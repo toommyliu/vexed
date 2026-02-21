@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Switch, Button } from "@vexed/ui";
+  import { Result } from "better-result";
   import * as Select from "@vexed/ui/Select";
   import { onMount } from "svelte";
   import type { ServerData } from "@vexed/game";
@@ -14,7 +15,7 @@
   let servers = $state<ServerData[]>([]);
 
   onMount(async () => {
-    const [settings, serverData] = await Promise.all([
+    const [settings, serializedServerData] = await Promise.all([
       client.app.getSettings(),
       client.app.getServers(),
     ]);
@@ -24,7 +25,17 @@
     fallbackServer = settings.fallbackServer;
     launchMode = settings.launchMode;
     theme = settings.theme;
-    servers = serverData;
+
+    const serverData = Result.deserialize<ServerData[], unknown>(
+      serializedServerData,
+    );
+    if (serverData.isOk()) {
+      servers = serverData.value;
+    } else {
+      console.error("Failed to deserialize server data:", serverData.error);
+      servers = [];
+    }
+
     isLoading = false;
   });
 
