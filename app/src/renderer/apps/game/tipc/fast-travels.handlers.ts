@@ -3,7 +3,7 @@ import { Bot } from "../lib/Bot";
 
 const bot = Bot.getInstance();
 
-handlers.fastTravels.warp.handle(async ({ location }) => {
+handlers.fastTravels.warp.handle(async ({ location }): Promise<void> => {
   if (!bot.player.isReady()) return;
 
   await bot.world.join(

@@ -11,9 +11,10 @@ import type { FastTravel } from "~/shared/fast-travels/types";
 import { createLogger } from "./logger";
 
 const logger = createLogger("service:fast-travels");
+type FastTravelResult<T = void> = Promise<Result<T, FastTravelError>>;
 
 export const fastTravels = {
-  getAll: async (): Promise<Result<FastTravel[], FastTravelError>> =>
+  getAll: async (): FastTravelResult<FastTravel[]> =>
     Result.gen(async function* () {
       const result = await readJson<FastTravel[]>(FAST_TRAVELS_PATH);
       if (result.isErr())
@@ -23,7 +24,7 @@ export const fastTravels = {
       return Result.ok(data);
     }),
 
-  add: async (fastTravel: FastTravel): Promise<Result<void, FastTravelError>> =>
+  add: async (fastTravel: FastTravel): FastTravelResult =>
     Result.gen(async function* () {
       const allFastTravels = yield* Result.await(fastTravels.getAll());
       const exists = allFastTravels.some((ft) =>
@@ -44,7 +45,7 @@ export const fastTravels = {
       return Result.ok();
     }),
 
-  remove: async (name: string): Promise<Result<void, FastTravelError>> =>
+  remove: async (name: string): FastTravelResult =>
     Result.gen(async function* () {
       const allFastTravels = yield* Result.await(fastTravels.getAll());
       const idx = allFastTravels.findIndex((ft) =>
@@ -68,7 +69,7 @@ export const fastTravels = {
   update: async (
     originalName: string,
     updated: FastTravel,
-  ): Promise<Result<void, FastTravelError>> =>
+  ): FastTravelResult =>
     Result.gen(async function* () {
       const allFastTravels = yield* Result.await(fastTravels.getAll());
       const idx = allFastTravels.findIndex((ft) =>

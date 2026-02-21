@@ -4,7 +4,6 @@ import type {
   EnvironmentUpdatePayload,
 } from "~/shared/environment/types";
 import type {
-  FastTravel,
   FastTravelRoomNumber,
 } from "~/shared/fast-travels/types";
 import type { RawFollowerConfig } from "~/shared/follower/types";
@@ -23,7 +22,6 @@ import { createHotkeysTipcRouter } from "./tipc/hotkeys.router";
 import { createLoaderGrabberTipcRouter } from "./tipc/loader-grabber.router";
 import { createManagerTipcRouter } from "./tipc/manager.router";
 import { createPacketTipcRouter } from "./tipc/packets.router";
-import type { TipcResult } from "./tipc/result";
 import { createScriptsTipcRouter } from "./tipc/scripts.router";
 
 const tipcInstance = tipc.create();
@@ -66,18 +64,7 @@ export type RendererHandlers = {
 
   fastTravels: {
     enable(): void;
-    warp({ location }: { location: FastTravelRoomNumber }): void;
-    all(): Promise<TipcResult<FastTravel[]>>;
-    add(
-      input: FastTravel,
-    ): Promise<TipcResult<"FAILED" | "NAME_ALREADY_EXISTS" | "SUCCESS">>;
-    update(input: {
-      fastTravel: FastTravel;
-      originalName: string;
-    }): Promise<
-      TipcResult<"FAILED" | "NAME_ALREADY_EXISTS" | "NOT_FOUND" | "SUCCESS">
-    >;
-    remove(input: { name: string }): Promise<TipcResult<boolean>>;
+    warp({ location }: { location: FastTravelRoomNumber }): Promise<void>;
   };
 
   loaderGrabber: {

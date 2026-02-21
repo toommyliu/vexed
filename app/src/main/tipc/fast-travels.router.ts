@@ -1,5 +1,6 @@
 import type { TipcInstance } from "@vexed/tipc";
-import { Result } from "better-result";
+import { Result, type SerializedResult } from "better-result";
+import type { FastTravelError } from "~/shared/fast-travels/errors";
 import type {
   FastTravel,
   FastTravelRoomNumber,
@@ -8,21 +9,27 @@ import { fastTravels } from "../services/fast-travels";
 import type { RendererHandlers } from "../tipc";
 import { withParentGameHandlers } from "./forwarding";
 
+type FastTravelProcedureResult<T = void> = SerializedResult<T, FastTravelError>;
+
 export function createFastTravelsTipcRouter(tipc: TipcInstance) {
   return {
-    all: tipc.procedure.action(async () => {
-      const result = await fastTravels.getAll();
-      return Result.serialize(result);
-    }),
+    all: tipc.procedure.action(
+      async (): Promise<FastTravelProcedureResult<FastTravel[]>> => {
+        const result = await fastTravels.getAll();
+        return Result.serialize(result);
+      },
+    ),
 
-    add: tipc.procedure.input<FastTravel>().action(async ({ input }) => {
-      const result = await fastTravels.add(input);
-      return Result.serialize(result);
-    }),
+    add: tipc.procedure.input<FastTravel>().action(
+      async ({ input }): Promise<FastTravelProcedureResult> => {
+        const result = await fastTravels.add(input);
+        return Result.serialize(result);
+      },
+    ),
 
     update: tipc.procedure
       .input<{ fastTravel: FastTravel; originalName: string }>()
-      .action(async ({ input }) => {
+      .action(async ({ input }): Promise<FastTravelProcedureResult> => {
         const result = await fastTravels.update(
           input.originalName,
           input.fastTravel,
@@ -32,14 +39,14 @@ export function createFastTravelsTipcRouter(tipc: TipcInstance) {
 
     remove: tipc.procedure
       .input<{ name: string }>()
-      .action(async ({ input }) => {
+      .action(async ({ input }): Promise<FastTravelProcedureResult> => {
         const result = await fastTravels.remove(input.name);
         return Result.serialize(result);
       }),
 
     warp: tipc.procedure
       .input<{ location: FastTravelRoomNumber }>()
-      .action(async ({ input, context }) => {
+      .action(async ({ input, context }): Promise<void> => {
         await withParentGameHandlers(context, async (parentHandlers) => {
           await parentHandlers.fastTravels.warp.invoke({
             location: input.location,
