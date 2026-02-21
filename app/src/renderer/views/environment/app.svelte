@@ -11,7 +11,6 @@
   import { normalizeId } from "@vexed/utils/id";
   import {
     areEnvironmentStatesEqual,
-    diffEnvironmentState,
     normalizeEnvironmentState,
   } from "~/shared/environment/helpers";
   import type { EnvironmentState } from "~/shared/environment/types";
@@ -30,7 +29,6 @@
   let isSyncing = $state(false);
   let isBroadcasting = $state(false);
   let pendingSync = false;
-  let lastLoggedLocalState: EnvironmentState | null = null;
 
   function getLocalState(): EnvironmentState {
     return {
@@ -59,12 +57,7 @@
     const normalizedLocal = normalizeEnvironmentState(getLocalState());
     if (areEnvironmentStatesEqual(normalizedIncoming, normalizedLocal))
       return false;
-    const diffs = diffEnvironmentState(normalizedLocal, normalizedIncoming);
-    if (diffs.length > 0) {
-      console.info("[env:view] applyState", { diffs });
-    }
     applyState(normalizedIncoming);
-    lastLoggedLocalState = normalizedIncoming;
     return true;
   }
 
@@ -84,19 +77,13 @@
     }
 
     const payload = normalizeEnvironmentState(getLocalState());
-    const previous = lastLoggedLocalState ?? payload;
-    const diffs = diffEnvironmentState(previous, payload);
-    if (diffs.length > 0) {
-      console.info("[env:view] syncEnvironment", { diffs });
-    }
-    lastLoggedLocalState = payload;
-
     isSyncing = true;
     try {
       await client.environment.updateState(payload);
     } catch (error) {
       console.error("Failed to sync environment state", error);
     } finally {
+      // eslint-disable-next-line require-atomic-updates
       isSyncing = false;
       if (pendingSync) {
         pendingSync = false;
@@ -124,11 +111,11 @@
       const colonIdx = token.indexOf(":");
       let questIdPart: string;
       let itemIdPart: string | undefined;
-      if (colonIdx !== -1) {
+      if (colonIdx === -1) {
+        questIdPart = token;
+      } else {
         questIdPart = token.slice(0, colonIdx);
         itemIdPart = token.slice(colonIdx + 1);
-      } else {
-        questIdPart = token;
       }
 
       const parsed = normalizeId(questIdPart);
@@ -363,6 +350,7 @@
     } catch (error) {
       console.error("Failed to broadcast environment state.", error);
     } finally {
+      // eslint-disable-next-line require-atomic-updates
       isBroadcasting = false;
     }
   }

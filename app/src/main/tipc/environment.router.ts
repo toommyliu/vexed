@@ -1,7 +1,6 @@
 import type { TipcInstance } from "@vexed/tipc";
 import {
   createEmptyEnvironmentState,
-  diffEnvironmentState,
   normalizeEnvironmentState,
 } from "~/shared/environment/helpers";
 import type {
@@ -32,25 +31,12 @@ export function createEnvironmentTipcRouter(tipcInstance: TipcInstance) {
       .input<EnvironmentUpdatePayload>()
       .requireSenderWindow()
       .action(async ({ context, input }) => {
-        const beforeResult = environmentService.getStateForSender(
-          context.senderWindowId,
-        );
-        const beforeState = beforeResult.isOk()
-          ? beforeResult.value
-          : createEmptyEnvironmentState();
         const result = environmentService.applyUpdateForSender(
           context.senderWindowId,
           input,
         );
         if (result.isErr()) return;
         const newState = result.value;
-        const diffs = diffEnvironmentState(beforeState, newState);
-        if (diffs.length > 0) {
-          console.info("[env:updateState]", {
-            senderWindowId: context.senderWindowId,
-            diffs: require("util").inspect(diffs, { depth: null }),
-          });
-        }
 
         if (windowsService.isGameWindow(context.senderWindowId)) {
           await withSubwindowHandlers(
@@ -71,20 +57,7 @@ export function createEnvironmentTipcRouter(tipcInstance: TipcInstance) {
       .input<EnvironmentState>()
       .requireSenderWindow()
       .action(async ({ context, input }) => {
-        const beforeResult = environmentService.getStateForSender(
-          context.senderWindowId,
-        );
-        const beforeState = beforeResult.isOk()
-          ? beforeResult.value
-          : createEmptyEnvironmentState();
         const normalized = normalizeEnvironmentState(input);
-        const diffs = diffEnvironmentState(beforeState, normalized);
-        if (diffs.length > 0) {
-          console.info("[env:stateChanged]", {
-            senderWindowId: context.senderWindowId,
-            diffs,
-          });
-        }
 
         if (windowsService.isGameWindow(context.senderWindowId)) {
           environmentService.setStateForGameWindow(
@@ -113,17 +86,6 @@ export function createEnvironmentTipcRouter(tipcInstance: TipcInstance) {
           if (gameWindowId === senderGameWindowId) return;
 
           // Update stateMap for this window
-          const beforeState =
-            environmentService.getStateForGameWindow(gameWindowId);
-          const diffs = diffEnvironmentState(beforeState, normalized);
-          if (diffs.length > 0) {
-            console.info("[env:broadcastState]", {
-              senderWindowId: context.senderWindowId,
-              gameWindowId,
-              diffs,
-            });
-          }
-
           environmentService.setStateForGameWindow(gameWindowId, normalized);
 
           // Notify the game window

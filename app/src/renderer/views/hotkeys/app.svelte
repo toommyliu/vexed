@@ -296,7 +296,7 @@
       const currentPlatform = platformResult.value;
       platform = currentPlatform;
       hotkeysSections = hydrateSectionValues(getHotkeySections(currentPlatform));
-      await loadHotkeys(currentPlatform);
+      await loadHotkeys();
     } else console.error("Failed to get platform", platformResult.reason);
     if (platformResult.status === "rejected") await loadHotkeys();
     if (hotkeysSections?.length > 0) activeSection = hotkeysSections[0]!.name;

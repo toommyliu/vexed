@@ -1,7 +1,6 @@
 import { normalizeId } from "@vexed/utils/id";
 import { equalsIgnoreCase } from "@vexed/utils/string";
 import {
-  diffEnvironmentState,
   normalizeEnvironmentState,
   normalizeEnvironmentUpdate,
   normalizeStringList,
@@ -30,8 +29,6 @@ export class Environment {
   private _autoRegisterRewards = false;
 
   private _isApplyingUpdate = false;
-
-  private _lastLoggedState: EnvironmentState | null = null;
 
   public constructor(public readonly bot: Bot) {}
 
@@ -157,11 +154,6 @@ export class Environment {
       this._rejectElse = normalized.rejectElse;
       this._autoRegisterRequirements = normalized.autoRegisterRequirements;
       this._autoRegisterRewards = normalized.autoRegisterRewards;
-      const diffs = diffEnvironmentState(before, normalized);
-      if (diffs.length > 0) {
-        console.info("[env:game] applyUpdate", { diffs });
-      }
-      this._lastLoggedState = normalized;
     } finally {
       this._isApplyingUpdate = false;
     }
@@ -175,12 +167,6 @@ export class Environment {
     const payload: EnvironmentUpdatePayload = normalizeEnvironmentState(
       this.getStateSnapshot(),
     );
-    const previous = this._lastLoggedState ?? payload;
-    const diffs = diffEnvironmentState(previous, payload);
-    if (diffs.length > 0) {
-      console.info("[env:game] syncToMain", { diffs });
-    }
-    this._lastLoggedState = payload;
     void client.environment.updateState(payload);
   }
 

@@ -119,77 +119,12 @@ export function areEnvironmentStatesEqual(
   return true;
 }
 
-export type EnvironmentStateDiff = {
-  field: keyof EnvironmentState;
-  before: unknown;
-  after: unknown;
-};
-
-export function diffEnvironmentState(
-  before: EnvironmentState,
-  after: EnvironmentState,
-  options: NormalizeEnvironmentOptions = {},
-): EnvironmentStateDiff[] {
-  const a = normalizeEnvironmentState(before, options);
-  const b = normalizeEnvironmentState(after, options);
-  const diffs: EnvironmentStateDiff[] = [];
-
-  if (a.autoRegisterRequirements !== b.autoRegisterRequirements) {
-    diffs.push({
-      field: "autoRegisterRequirements",
-      before: a.autoRegisterRequirements,
-      after: b.autoRegisterRequirements,
-    });
-  }
-
-  if (a.autoRegisterRewards !== b.autoRegisterRewards) {
-    diffs.push({
-      field: "autoRegisterRewards",
-      before: a.autoRegisterRewards,
-      after: b.autoRegisterRewards,
-    });
-  }
-
-  if (a.rejectElse !== b.rejectElse) {
-    diffs.push({
-      field: "rejectElse",
-      before: a.rejectElse,
-      after: b.rejectElse,
-    });
-  }
-
-  if (!areArraysEqual(a.questIds, b.questIds)) {
-    diffs.push({ field: "questIds", before: a.questIds, after: b.questIds });
-  }
-
-  if (!areQuestItemIdsEqual(a.questItemIds, b.questItemIds)) {
-    diffs.push({
-      field: "questItemIds",
-      before: a.questItemIds,
-      after: b.questItemIds,
-    });
-  }
-
-  if (!areArraysEqual(a.itemNames, b.itemNames)) {
-    diffs.push({
-      field: "itemNames",
-      before: a.itemNames,
-      after: b.itemNames,
-    });
-  }
-
-  if (!areArraysEqual(a.boosts, b.boosts)) {
-    diffs.push({ field: "boosts", before: a.boosts, after: b.boosts });
-  }
-
-  return diffs;
-}
-
 function areArraysEqual<T>(left: T[], right: T[]): boolean {
   if (left.length !== right.length) return false;
-  for (let idx = 0; idx < left.length; idx += 1) {
-    if (left[idx] !== right[idx]) return false;
+  for (const [idx, element] of left.entries()) {
+    if (element !== right[idx]) return false;
   }
+
   return true;
 }
 
@@ -205,5 +140,6 @@ function areQuestItemIdsEqual(
     const key = Number(leftKey);
     if (left[key] !== right[key]) return false;
   }
+
   return true;
 }
