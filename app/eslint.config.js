@@ -7,34 +7,49 @@ const svelte = require("eslint-plugin-svelte");
 
 const merge = require("lodash.merge");
 
-const commonFiles = ".ts";
+const sourceTypeScriptAndSvelteFiles = [
+  "./src/**/*.ts",
+  "./src/**/*.svelte",
+  "./src/**/*.svelte.ts",
+];
 
-const commonRuleset = merge({}, ...common, { files: [`./src/**/*${commonFiles}`] });
+const commonRuleset = merge({}, ...common, {
+  files: sourceTypeScriptAndSvelteFiles,
+});
 
 const nodeRuleset = merge({}, ...node, {
-  files: [`./src/main/**/*${commonFiles}`],
+  files: ["./src/main/**/*.ts"],
 });
 
 const browserRuleset = merge({}, ...browser, {
-  files: [`./src/renderer/**/*${commonFiles}`],
+  files: [
+    "./src/renderer/**/*.ts",
+    "./src/renderer/**/*.svelte",
+    "./src/renderer/**/*.svelte.ts",
+  ],
 });
 
 const typeScriptRuleset = merge({}, ...typescript, {
-  files: [`./src/**/*${commonFiles}`],
+  files: sourceTypeScriptAndSvelteFiles,
   languageOptions: {
     parserOptions: {
       project: ["tsconfig.eslint.json"],
+      extraFileExtensions: [".svelte"],
     },
   },
   rules: {
     //  https://github.com/typescript-eslint/typescript-eslint/issues/1824
     "@stylistic/ts/indent": "off",
     "unicorn/prefer-node-protocol": "off",
+    "unicorn/throw-new-error": "off",
+    "func-names": "off",
+    "promise/prefer-await-to-callbacks": "off",
+    "promise/prefer-await-to-then": "off",
   },
 });
 
 const prettierRuleset = merge({}, ...prettier, {
-  files: [`./src/**/*${commonFiles}`],
+  files: sourceTypeScriptAndSvelteFiles,
 });
 
 /** @type {import('eslint').Linter.Config[]} */
@@ -54,12 +69,10 @@ const rules = [
   nodeRuleset,
   browserRuleset,
   typeScriptRuleset,
-  {
-    files: ["./**/*.ts"],
-  },
+  prettierRuleset,
   ...svelte.configs["flat/recommended"],
   {
-    files: ["**/*.svelte", "**/*.svelte.ts"],
+    files: ["src/**/*.svelte", "src/**/*.svelte.ts"],
     languageOptions: {
       parserOptions: {
         parser: require("@typescript-eslint/parser"),

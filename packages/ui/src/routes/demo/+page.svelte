@@ -15,11 +15,9 @@
     Kbd,
     Label,
     Card,
-    Table,
     Dialog,
     Combobox,
     Dropdown,
-    Frame,
     Textarea,
     InputGroup,
     Field,
@@ -81,8 +79,8 @@
 
   let filteredFrameworks = $derived(
     frameworks.filter((f) =>
-      f.label.toLowerCase().includes(comboboxInputValue.toLowerCase())
-    )
+      f.label.toLowerCase().includes(comboboxInputValue.toLowerCase()),
+    ),
   );
 
   let dropdownValue = $state("apple");
@@ -815,58 +813,109 @@
     </section>
 
     <!-- Tabs -->
-    <section class="space-y-4">
+    <section class="space-y-8">
       <h2 class="text-2xl font-semibold border-b pb-2">Tabs</h2>
-      <Tabs.Root bind:value={tabValue} class="w-[400px]">
-        <Tabs.List class="grid w-full grid-cols-2">
-          <Tabs.Trigger value="account">Account</Tabs.Trigger>
-          <Tabs.Trigger value="password">Password</Tabs.Trigger>
-        </Tabs.List>
-        <Tabs.Content value="account">
-          <Card.Root>
-            <Card.Header>
-              <Card.Title>Account</Card.Title>
-              <Card.Description
-                >Make changes to your account here.</Card.Description
-              >
-            </Card.Header>
-            <Card.Content class="space-y-2">
-              <div class="space-y-1">
-                <Label for="name">Name</Label>
-                <Input id="name" value="Pedro Duarte" />
-              </div>
-              <div class="space-y-1">
-                <Label for="username">Username</Label>
-                <Input id="username" value="@peduarte" />
-              </div>
-            </Card.Content>
-            <Card.Footer>
-              <Button>Save changes</Button>
-            </Card.Footer>
-          </Card.Root>
-        </Tabs.Content>
-        <Tabs.Content value="password">
-          <Card.Root>
-            <Card.Header>
-              <Card.Title>Password</Card.Title>
-              <Card.Description>Change your password here.</Card.Description>
-            </Card.Header>
-            <Card.Content class="space-y-2">
-              <div class="space-y-1">
-                <Label for="current">Current password</Label>
-                <Input id="current" type="password" />
-              </div>
-              <div class="space-y-1">
-                <Label for="new">New password</Label>
-                <Input id="new" type="password" />
-              </div>
-            </Card.Content>
-            <Card.Footer>
-              <Button>Save password</Button>
-            </Card.Footer>
-          </Card.Root>
-        </Tabs.Content>
-      </Tabs.Root>
+
+      <div class="space-y-4">
+        <h3 class="text-lg font-medium">Horizontal (Default)</h3>
+        <Tabs.Root bind:value={tabValue}>
+          <Tabs.List>
+            <Tabs.Trigger value="account">Account</Tabs.Trigger>
+            <Tabs.Trigger value="password">Password</Tabs.Trigger>
+          </Tabs.List>
+          <Tabs.Content value="account">
+            <Card.Root>
+              <Card.Header>
+                <Card.Title>Account</Card.Title>
+                <Card.Description>
+                  Make changes to your account here.
+                </Card.Description>
+              </Card.Header>
+              <Card.Content class="space-y-2">
+                <div class="space-y-1">
+                  <Label for="name">Name</Label>
+                  <Input id="name" value="Pedro Duarte" />
+                </div>
+                <div class="space-y-1">
+                  <Label for="username">Username</Label>
+                  <Input id="username" value="@peduarte" />
+                </div>
+              </Card.Content>
+              <Card.Footer>
+                <Button>Save changes</Button>
+              </Card.Footer>
+            </Card.Root>
+          </Tabs.Content>
+          <Tabs.Content value="password">
+            <Card.Root>
+              <Card.Header>
+                <Card.Title>Password</Card.Title>
+                <Card.Description>Change your password here.</Card.Description>
+              </Card.Header>
+              <Card.Content class="space-y-2">
+                <div class="space-y-1">
+                  <Label for="current">Current password</Label>
+                  <Input id="current" type="password" />
+                </div>
+                <div class="space-y-1">
+                  <Label for="new">New password</Label>
+                  <Input id="new" type="password" />
+                </div>
+              </Card.Content>
+              <Card.Footer>
+                <Button>Save password</Button>
+              </Card.Footer>
+            </Card.Root>
+          </Tabs.Content>
+        </Tabs.Root>
+      </div>
+
+      <div class="space-y-4">
+        <h3 class="text-lg font-medium">Vertical</h3>
+        <Tabs.Root orientation="vertical" value="account" class="w-[600px]">
+          <Tabs.List>
+            <Tabs.Trigger value="account">Account</Tabs.Trigger>
+            <Tabs.Trigger value="password">Password</Tabs.Trigger>
+            <Tabs.Trigger value="settings">Settings</Tabs.Trigger>
+          </Tabs.List>
+          <Tabs.Content value="account">
+            <Card.Root>
+              <Card.Header>
+                <Card.Title>Account</Card.Title>
+                <Card.Description>
+                  Make changes to your account here.
+                </Card.Description>
+              </Card.Header>
+              <Card.Content class="space-y-2">
+                <div class="space-y-1">
+                  <Label for="vertical-name">Name</Label>
+                  <Input id="vertical-name" value="Pedro Duarte" />
+                </div>
+              </Card.Content>
+            </Card.Root>
+          </Tabs.Content>
+          <Tabs.Content value="password">
+            <Card.Root>
+              <Card.Header>
+                <Card.Title>Password</Card.Title>
+              </Card.Header>
+              <Card.Content>
+                <p class="text-sm text-muted">Change your password here.</p>
+              </Card.Content>
+            </Card.Root>
+          </Tabs.Content>
+          <Tabs.Content value="settings">
+            <Card.Root>
+              <Card.Header>
+                <Card.Title>Settings</Card.Title>
+              </Card.Header>
+              <Card.Content>
+                <p class="text-sm text-muted">Manage your settings.</p>
+              </Card.Content>
+            </Card.Root>
+          </Tabs.Content>
+        </Tabs.Root>
+      </div>
     </section>
 
     <!-- Menu -->
@@ -886,7 +935,7 @@
           <Menu.Separator />
           <Menu.Item disabled>Disabled Item</Menu.Item>
           <Menu.Separator />
-          <Menu.Item class="text-destructive">Log out</Menu.Item>
+          <Menu.Item variant="destructive">Log out</Menu.Item>
         </Menu.Content>
       </Menu.Root>
     </section>
@@ -950,9 +999,9 @@
               </div>
             </div>
           </Card.Content>
-          <Card.Footer class="flex justify-between">
-            <Button variant="outline">Cancel</Button>
-            <Button>Deploy</Button>
+          <Card.Footer class="flex items-center justify-end gap-2">
+            <Button variant="ghost">Cancel</Button>
+            <Button variant="default">Deploy</Button>
           </Card.Footer>
         </Card.Root>
         <Card.Root>
@@ -989,143 +1038,6 @@
             </div>
           </Card.Content>
         </Card.Root>
-      </div>
-    </section>
-
-    <!-- Table -->
-    <section class="space-y-4">
-      <h2 class="text-2xl font-semibold border-b pb-2">Table</h2>
-      <div class="space-y-6">
-        <div class="space-y-2">
-          <h3 class="text-sm font-medium text-muted-foreground">Basic Table</h3>
-          <Table.Root>
-            <Table.Header>
-              <Table.Row>
-                <Table.Head class="w-[100px]">ID</Table.Head>
-                <Table.Head>Name</Table.Head>
-                <Table.Head>Status</Table.Head>
-                <Table.Head class="text-right">Amount</Table.Head>
-              </Table.Row>
-            </Table.Header>
-            <Table.Body>
-              <Table.Row>
-                <Table.Cell class="font-medium">INV001</Table.Cell>
-                <Table.Cell>John Doe</Table.Cell>
-                <Table.Cell>
-                  <Badge size="sm" variant="default">Paid</Badge>
-                </Table.Cell>
-                <Table.Cell class="text-right">$250.00</Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.Cell class="font-medium">INV002</Table.Cell>
-                <Table.Cell>Jane Smith</Table.Cell>
-                <Table.Cell>
-                  <Badge size="sm" variant="secondary">Pending</Badge>
-                </Table.Cell>
-                <Table.Cell class="text-right">$150.00</Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.Cell class="font-medium">INV003</Table.Cell>
-                <Table.Cell>Bob Johnson</Table.Cell>
-                <Table.Cell>
-                  <Badge size="sm" variant="default">Paid</Badge>
-                </Table.Cell>
-                <Table.Cell class="text-right">$350.00</Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.Cell class="font-medium">INV004</Table.Cell>
-                <Table.Cell>Alice Williams</Table.Cell>
-                <Table.Cell>
-                  <Badge size="sm" variant="destructive">Overdue</Badge>
-                </Table.Cell>
-                <Table.Cell class="text-right">$450.00</Table.Cell>
-              </Table.Row>
-            </Table.Body>
-          </Table.Root>
-        </div>
-
-        <div class="space-y-2">
-          <h3 class="text-sm font-medium text-muted-foreground">
-            Table with Selection
-          </h3>
-          <Table.Root>
-            <Table.Header>
-              <Table.Row>
-                <Table.Head class="w-[50px]">
-                  <Checkbox />
-                </Table.Head>
-                <Table.Head>Username</Table.Head>
-                <Table.Head>Email</Table.Head>
-                <Table.Head>Role</Table.Head>
-              </Table.Row>
-            </Table.Header>
-            <Table.Body>
-              <Table.Row>
-                <Table.Cell>
-                  <Checkbox />
-                </Table.Cell>
-                <Table.Cell class="font-medium">admin</Table.Cell>
-                <Table.Cell>admin@example.com</Table.Cell>
-                <Table.Cell>Administrator</Table.Cell>
-              </Table.Row>
-              <Table.Row data-state="selected">
-                <Table.Cell>
-                  <Checkbox checked />
-                </Table.Cell>
-                <Table.Cell class="font-medium">user123</Table.Cell>
-                <Table.Cell>user@example.com</Table.Cell>
-                <Table.Cell>User</Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.Cell>
-                  <Checkbox />
-                </Table.Cell>
-                <Table.Cell class="font-medium">guest</Table.Cell>
-                <Table.Cell>guest@example.com</Table.Cell>
-                <Table.Cell>Guest</Table.Cell>
-              </Table.Row>
-            </Table.Body>
-          </Table.Root>
-        </div>
-
-        <div class="space-y-2">
-          <h3 class="text-sm font-medium text-muted-foreground">
-            Table with Footer & Caption
-          </h3>
-          <Table.Root>
-            <Table.Caption>A list of your recent transactions.</Table.Caption>
-            <Table.Header>
-              <Table.Row>
-                <Table.Head>Transaction</Table.Head>
-                <Table.Head>Date</Table.Head>
-                <Table.Head class="text-right">Amount</Table.Head>
-              </Table.Row>
-            </Table.Header>
-            <Table.Body>
-              <Table.Row>
-                <Table.Cell>Payment received</Table.Cell>
-                <Table.Cell>2024-01-15</Table.Cell>
-                <Table.Cell class="text-right">$100.00</Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.Cell>Refund issued</Table.Cell>
-                <Table.Cell>2024-01-14</Table.Cell>
-                <Table.Cell class="text-right">-$25.00</Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.Cell>Payment received</Table.Cell>
-                <Table.Cell>2024-01-13</Table.Cell>
-                <Table.Cell class="text-right">$75.00</Table.Cell>
-              </Table.Row>
-            </Table.Body>
-            <Table.Footer>
-              <Table.Row>
-                <Table.Cell colspan="2">Total</Table.Cell>
-                <Table.Cell class="text-right">$150.00</Table.Cell>
-              </Table.Row>
-            </Table.Footer>
-          </Table.Root>
-        </div>
       </div>
     </section>
 
@@ -1171,84 +1083,6 @@
           </Dialog.Footer>
         </Dialog.Content>
       </Dialog.Root>
-    </section>
-
-    <!-- Frame -->
-    <section class="space-y-4">
-      <h2 class="text-2xl font-semibold border-b pb-2">Frame</h2>
-      <div class="space-y-4">
-        <Frame.Root>
-          <Frame.Header>
-            <Frame.Title>Accounts</Frame.Title>
-            <Frame.Description>Manage your game accounts.</Frame.Description>
-          </Frame.Header>
-          <Frame.Panel>
-            <Table.Root
-              class="border-separate border-spacing-x-0 border-spacing-y-1"
-            >
-              <Table.Body>
-                <Table.Row
-                  class="hover:[&>td]:bg-muted/50 cursor-pointer hover:bg-transparent [&>td:first-child]:rounded-l-md [&>td:last-child]:rounded-r-md"
-                >
-                  <Table.Cell>
-                    <Checkbox />
-                  </Table.Cell>
-                  <Table.Cell class="font-medium">user1</Table.Cell>
-                  <Table.Cell class="text-right">
-                    <Button variant="ghost" size="icon-sm">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        class="lucide lucide-pencil h-4 w-4"
-                        ><path
-                          d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"
-                        /><path d="m15 5 4 4" /></svg
-                      >
-                    </Button>
-                  </Table.Cell>
-                </Table.Row>
-                <Table.Row
-                  class="hover:[&>td]:bg-muted/50 cursor-pointer hover:bg-transparent [&>td:first-child]:rounded-l-md [&>td:last-child]:rounded-r-md"
-                >
-                  <Table.Cell>
-                    <Checkbox checked />
-                  </Table.Cell>
-                  <Table.Cell class="font-medium">user2</Table.Cell>
-                  <Table.Cell class="text-right">
-                    <Button variant="ghost" size="icon-sm">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        class="lucide lucide-pencil h-4 w-4"
-                        ><path
-                          d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"
-                        /><path d="m15 5 4 4" /></svg
-                      >
-                    </Button>
-                  </Table.Cell>
-                </Table.Row>
-              </Table.Body>
-            </Table.Root>
-          </Frame.Panel>
-          <Frame.Footer>
-            <Button class="w-full">Add Account</Button>
-          </Frame.Footer>
-        </Frame.Root>
-      </div>
     </section>
 
     <!-- Textarea -->

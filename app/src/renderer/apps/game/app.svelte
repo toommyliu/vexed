@@ -1,0 +1,676 @@
+<script lang="ts">
+  import "./entrypoint";
+  import "./hotkeys";
+
+  import { Result } from "better-result";
+  import { interval } from "@vexed/utils";
+  import { onMount } from "svelte";
+
+  import { client, handlers } from "~/shared/tipc";
+
+  import { executeAction, loadScript, toggleScript } from "./actions";
+  import { Bot } from "./lib/Bot";
+  import { AutoReloginJob } from "./lib/jobs/autorelogin";
+  import {
+    appState,
+    autoReloginState,
+    commandOverlayState,
+    gameState,
+    hotkeyState,
+    scriptState,
+  } from "./state/index.svelte";
+  import { platform } from "./state/platform.svelte";
+  import { gameLoaded } from "./state/app.svelte";
+  import { parseSkillSetJson, type SkillSetJson } from "./util/skillParser";
+
+  import { Button, Checkbox, Label } from "@vexed/ui";
+  import { cn } from "@vexed/ui/util";
+  import Kbd from "@vexed/ui/Kbd";
+  import * as Menu from "@vexed/ui/Menu";
+  import Play from "@vexed/ui/icons/Play";
+  import Square from "@vexed/ui/icons/Square";
+  import CommandOverlay from "./components/CommandOverlay.svelte";
+  import CommandPalette from "./components/CommandPalette.svelte";
+  import OptionsPanel from "./components/OptionsPanel.svelte";
+  import WindowsMegaMenu from "./components/WindowsMegaMenu.svelte";
+
+  const DEFAULT_PADS = [
+    "Center",
+    "Spawn",
+    "Left",
+    "Right",
+    "Top",
+    "Bottom",
+    "Up",
+    "Down",
+  ] as const;
+  const bot = Bot.getInstance();
+
+  let swfPath = $state<string>();
+
+  let openDropdown = $state<string | null>(null);
+
+  let gameConnected = $state(false);
+  bot.on("login", () => (gameConnected = true));
+  bot.on("logout", () => (gameConnected = false));
+
+  let reloginServers = $state<string[]>([]);
+  let reloginUsername = $derived(bot.auth?.username ?? "");
+  let reloginPassword = $derived(bot.auth?.password ?? "");
+  let reloginCanEnable = $derived(
+    Boolean(reloginUsername && reloginPassword) ||
+      Boolean(autoReloginState.username && autoReloginState.password),
+  );
+
+  function updateReloginServers() {
+    try {
+      reloginServers = (bot.auth?.servers ?? []).map((s) => s.name);
+    } catch {
+      reloginServers = [];
+    }
+  }
+
+  function enableRelogin(server: string) {
+    if (!reloginUsername || !reloginPassword) return;
+    autoReloginState.enable(reloginUsername, reloginPassword, server);
+    AutoReloginJob.resetForNewCredentials();
+  }
+
+  function disableRelogin() {
+    autoReloginState.disable();
+  }
+
+  let commandPaletteOpen = $state(false);
+  let hotkeyValues = $derived(hotkeyState.toRecord());
+
+  let availableCells = $state<string[]>([]);
+  let currentSelectedCell = $state<string>("");
+  let currentSelectedPad = $state<string>("");
+  let prevRoomId = $state<number>(-1);
+  let validPads = $state<
+    {
+      name: string;
+      isValid: boolean;
+    }[]
+  >([]);
+
+  function jumpToCell(cell: string) {
+    if (!bot.player.isReady()) return;
+    bot.flash.call(() => swf.playerJump(cell, bot.player.pad ?? "Spawn"));
+
+    currentSelectedCell = cell;
+    updatePads();
+  }
+  function jumpToPad(pad: string) {
+    if (!bot.player.isReady()) return;
+    bot.flash.call(() => swf.playerJump(bot.player.cell ?? "Enter", pad));
+    currentSelectedPad = pad;
+  }
+
+  function updateCells() {
+    if (!bot.player.isReady()) return;
+
+    currentSelectedCell = bot.player.cell ?? "Enter";
+
+    const capturedRoomId = bot.world.roomId;
+    if (capturedRoomId === prevRoomId) return;
+
+    const cells = bot.world.cells || [];
+
+    if (bot.world.roomId !== capturedRoomId) return;
+
+    availableCells = cells;
+    prevRoomId = capturedRoomId;
+  }
+
+  function updatePads() {
+    if (!bot.player.isReady()) return;
+
+    currentSelectedPad = bot.player.pad ?? "Spawn";
+
+    const cellPads = bot.world.cellPads || [];
+    validPads = DEFAULT_PADS.map((pad) => ({
+      name: pad,
+      isValid: cellPads.includes(pad),
+    }));
+  }
+
+  handlers.scripts.scriptLoaded.listen((fromManager) => {
+    scriptState.isLoaded = true;
+
+    commandOverlayState.updateCommands(
+      window.context.commands,
+      window.context.commandIndex,
+    );
+    commandOverlayState.show();
+
+    scriptState.showOverlay = true;
+
+    // Auto start script if loaded from manager
+    if (
+      fromManager &&
+      window.context.commands.length &&
+      !window.context.isRunning()
+    ) {
+      toggleScript();
+    }
+  });
+
+  function toggleDropdown(dropdownName: string) {
+    openDropdown = openDropdown === dropdownName ? null : dropdownName;
+  }
+
+  // TODO: follower should use auto skillsets
+  $effect(() => {
+    if (gameState.autoAttackEnabled) {
+      const currentCls = bot.player.className;
+
+      const skillSet =
+        appState.skillSets?.get(currentCls) ??
+        parseSkillSetJson({ skills: [1, 2, 3, 4], delay: 150 });
+      const skillList = skillSet.skills;
+      let idx = 0;
+
+      void interval(async (_, stop) => {
+        if (!gameState.autoAttackEnabled) {
+          stop();
+          return;
+        }
+
+        if (!bot.player.isReady()) return;
+        if (bot.world.availableMonsters.length) {
+          if (!bot.combat.hasTarget()) bot.combat.attack("*");
+
+          const skill = skillList[idx];
+          if (skill) {
+            const skillIndex = skill.index;
+            let shouldCast = true;
+
+            if (skill.isHp || skill.isMp) {
+              const currPercentage = skill.isHp
+                ? bot.player.hpPercentage
+                : bot.player.mpPercentage;
+              const value = skill.value!;
+
+              shouldCast =
+                {
+                  ">": currPercentage > value,
+                  ">=": currPercentage >= value,
+                  "<": currPercentage < value,
+                  "<=": currPercentage <= value,
+                }[skill.operator!] ?? true;
+            }
+
+            if (shouldCast)
+              await bot.combat.useSkill(skillIndex, false, skill.isWait);
+            idx = (idx + 1) % skillList.length;
+          }
+        }
+      }, skillSet.delay ?? 150);
+    }
+  });
+
+  onMount(async () => {
+    const [platformResult, assetPathResult, globalSettingsResult] =
+      await Promise.allSettled([
+        client.app.getPlatform(),
+        client.app.getAssetPath(),
+        client.app.getSettings(),
+      ]);
+
+    if (platformResult.status === "fulfilled") {
+      platform.set(platformResult.value);
+    } else console.error("Failed to get platform state", platformResult.reason);
+
+    if (assetPathResult.status === "fulfilled") {
+      swfPath = assetPathResult.value;
+    } else console.error("Failed to get asset path", assetPathResult.reason);
+
+    if (globalSettingsResult.status === "fulfilled") {
+      autoReloginState.fallbackServer =
+        globalSettingsResult.value.fallbackServer;
+    } else
+      console.error("Failed to get app settings", globalSettingsResult.reason);
+
+    await Promise.all([
+      import("./tipc/fast-travels.handlers"),
+      import("./tipc/environment.handlers"),
+      import("./tipc/follower.handlers"),
+      import("./tipc/loader-grabber.handlers"),
+      import("./tipc/packet-logger.handlers"),
+      import("./tipc/packet-spammer.handlers"),
+    ]);
+  });
+
+  gameLoaded.subscribe(async () => {
+    const [skillSetsResult, envStateResult] = await Promise.allSettled([
+      client.app.getSkillSets(),
+      client.environment.getState(),
+    ]);
+
+    // Skill sets
+    if (skillSetsResult.status === "fulfilled") {
+      const skillSets = Result.deserialize<Record<string, unknown>, string>(
+        skillSetsResult.value,
+      );
+      if (skillSets.isOk()) {
+        for (const [className, skillSetJson] of Object.entries(
+          skillSets.value,
+        )) {
+          const res = parseSkillSetJson(skillSetJson as SkillSetJson);
+          if (res) appState.skillSets.set(className.toUpperCase(), res);
+        }
+      } else {
+        console.error("Failed to deserialize skill sets", skillSets.error);
+      }
+    } else {
+      console.error("Failed to load skill sets", skillSetsResult.reason);
+    }
+
+    // Environment state
+    if (envStateResult.status === "fulfilled") {
+      const state = envStateResult.value;
+      bot.environment.applyUpdate(state);
+    } else {
+      console.error("Failed to sync up with environment", envStateResult.reason);
+    }
+  });
+
+  window.addEventListener("mousedown", (ev) => {
+    const el = ev.target as HTMLElement;
+    // If clicking into the game, close the dropdown
+    if (el.id === "swf") openDropdown = null;
+  });
+
+  window.addEventListener("beforeunload", async () => {
+    await client.scripts.gameReload();
+  });
+</script>
+
+<main
+  class="m-0 flex h-screen flex-col overflow-hidden bg-background text-foreground focus:outline-none"
+>
+  {#if gameState.topNavVisible}
+    <div
+      id="topnav-container"
+      class="relative z-[10000] flex h-9 items-center border-b border-border/50 bg-background/95 backdrop-blur-md"
+    >
+      <div
+        id="topnav"
+        class="flex h-full w-full flex-row items-center gap-0.5 px-1"
+      >
+        <div
+          class="group relative inline-flex h-full cursor-pointer items-center"
+          id="windows-dropdown"
+        >
+          <button
+            class="flex h-7 shrink-0 items-center rounded bg-transparent px-2.5 text-[13px] font-medium text-foreground/80 transition-colors duration-150 hover:bg-accent hover:text-foreground"
+            id="windows"
+            onclick={(ev) => {
+              ev.stopPropagation();
+              toggleDropdown("windows");
+            }}
+          >
+            Windows
+          </button>
+          <WindowsMegaMenu
+            open={openDropdown === "windows"}
+            onClose={() => (openDropdown = null)}
+            {hotkeyValues}
+          />
+        </div>
+
+        <div class="flex h-full flex-row items-center">
+          <Menu.Root
+            open={openDropdown === "scripts"}
+            onOpenChange={(open) => (openDropdown = open ? "scripts" : null)}
+            class="flex h-full items-center"
+          >
+            <Menu.Trigger
+              class="flex h-7 shrink-0 items-center rounded bg-transparent px-2.5 text-[13px] font-medium text-foreground/80 transition-colors duration-150 hover:bg-accent hover:text-foreground"
+            >
+              Scripts
+            </Menu.Trigger>
+            <Menu.Content class="min-w-48 text-[13px]">
+              <Menu.Item
+                class="flex items-center justify-between bg-transparent"
+                onclick={loadScript}
+              >
+                <span>Load Script</span>
+                <Kbd hotkey={hotkeyValues["load-script"] ?? ""} class="ml-4" />
+              </Menu.Item>
+              <Menu.Item
+                class="flex items-center justify-between bg-transparent"
+                onclick={() => executeAction("toggle-command-overlay")}
+              >
+                <span
+                  >{scriptState.showOverlay
+                    ? "Hide Overlay"
+                    : "Show Overlay"}</span
+                >
+                <Kbd
+                  hotkey={hotkeyValues["toggle-command-overlay"] ?? ""}
+                  class="ml-4"
+                />
+              </Menu.Item>
+              <Menu.Item
+                class="flex items-center justify-between bg-transparent"
+                onclick={() => void client.app.toggleDevTools()}
+              >
+                <span>Dev Tools</span>
+                <Kbd
+                  hotkey={hotkeyValues["toggle-dev-tools"] ?? ""}
+                  class="ml-4"
+                />
+              </Menu.Item>
+            </Menu.Content>
+          </Menu.Root>
+
+          <button
+            class="flex h-7 shrink-0 items-center gap-1.5 rounded bg-transparent px-2.5 text-[13px] font-medium text-foreground/80 transition-colors duration-150 hover:bg-accent hover:text-foreground"
+            onclick={() => executeAction("toggle-options-panel")}
+          >
+            <span>Options</span>
+          </button>
+
+          <Menu.Root
+            open={openDropdown === "relogin"}
+            onOpenChange={(open) => {
+              if (open) {
+                updateReloginServers();
+                openDropdown = "relogin";
+              } else {
+                openDropdown = null;
+              }
+            }}
+            class="flex h-full items-center"
+          >
+            <Menu.Trigger
+              class={cn(
+                "flex h-7 shrink-0 items-center gap-1.5 rounded bg-transparent px-2.5 text-[13px] font-medium transition-all duration-200 hover:bg-accent",
+                autoReloginState.enabled
+                  ? "text-emerald-400"
+                  : "text-foreground/80 hover:text-foreground",
+              )}
+            >
+              <span>Auto Relogin</span>
+            </Menu.Trigger>
+            <Menu.Content class="w-52 text-[13px]">
+              {#if autoReloginState.enabled}
+                <div
+                  class="flex items-center gap-2 px-2 py-1.5 text-xs text-muted-foreground/70"
+                >
+                  Username: {autoReloginState.username}
+                </div>
+                <div
+                  class="flex items-center gap-2 px-2 py-1.5 text-xs text-muted-foreground/70"
+                >
+                  Server: {autoReloginState.server}
+                </div>
+                <div
+                  class="flex items-center gap-2 px-2 py-1.5 text-xs text-muted-foreground/70"
+                >
+                  Fallback: {autoReloginState.fallbackServer || "Auto"}
+                </div>
+                <div
+                  class="flex items-center justify-between gap-2 px-2 py-1.5"
+                >
+                  <span class="text-xs text-muted-foreground/70">Delay:</span>
+                  <div class="flex items-center gap-1">
+                    <input
+                      type="number"
+                      min="1"
+                      max="60"
+                      class="h-5 w-12 rounded border border-border/60 bg-background px-1 text-center text-xs text-foreground [appearance:textfield] focus:border-emerald-500/50 focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                      value={autoReloginState.delay / 1000}
+                      onchange={(ev) => {
+                        const val = Math.max(
+                          1,
+                          Math.min(60, Number(ev.currentTarget.value) || 5),
+                        );
+                        autoReloginState.delay = val * 1000;
+                        ev.currentTarget.value = String(val);
+                      }}
+                    />
+                    <span class="text-xs text-muted-foreground/70">s</span>
+                  </div>
+                </div>
+                <Menu.Item
+                  class="bg-transparent text-red-400 hover:text-red-300"
+                  onclick={disableRelogin}
+                >
+                  Disable
+                </Menu.Item>
+              {:else if autoReloginState.username && autoReloginState.password}
+                <div
+                  class="flex items-center gap-2 px-2 py-1.5 text-xs text-muted-foreground/70"
+                >
+                  Username: {autoReloginState.username}
+                </div>
+                <Menu.Separator />
+                <Menu.Label
+                  class="px-2 py-1.5 text-[11px] uppercase tracking-wider text-muted-foreground/70"
+                >
+                  Enable for server
+                </Menu.Label>
+                <div class="max-h-52 overflow-y-auto pr-1">
+                  {#each reloginServers as server (server)}
+                    <Menu.Item
+                      class={cn(
+                        "bg-transparent transition-colors hover:bg-emerald-500/10 hover:text-emerald-400",
+                        server === autoReloginState.server &&
+                          "text-emerald-400",
+                      )}
+                      onclick={() => {
+                        autoReloginState.server = server;
+                        autoReloginState.enabled = true;
+                        AutoReloginJob.resetForNewCredentials();
+                      }}
+                    >
+                      {server}{server === autoReloginState.server
+                        ? " (last)"
+                        : ""}
+                    </Menu.Item>
+                  {/each}
+                </div>
+                <Menu.Separator />
+                <Menu.Item
+                  class="bg-transparent text-muted-foreground hover:text-foreground"
+                  onclick={() => autoReloginState.reset()}
+                >
+                  Clear Credentials
+                </Menu.Item>
+              {:else if !reloginCanEnable}
+                <div class="px-3 py-3 text-center">
+                  <div class="text-xs text-muted-foreground/60">
+                    Log in to enable
+                  </div>
+                </div>
+              {:else}
+                <Menu.Label
+                  class="px-2 py-1.5 text-[11px] uppercase tracking-wider text-muted-foreground/70"
+                >
+                  Enable for server
+                </Menu.Label>
+                <div class="max-h-52 overflow-y-auto pr-1">
+                  {#each reloginServers as server (server)}
+                    <Menu.Item
+                      class="bg-transparent transition-colors hover:bg-emerald-500/10 hover:text-emerald-400"
+                      onclick={() => enableRelogin(server)}
+                    >
+                      {server}
+                    </Menu.Item>
+                  {/each}
+                </div>
+              {/if}
+            </Menu.Content>
+          </Menu.Root>
+
+          <button
+            class={cn(
+              "ml-0.5 flex h-6 shrink-0 items-center gap-1 rounded px-2 text-[12px] font-medium transition-colors duration-150",
+              !scriptState.isLoaded && "cursor-not-allowed opacity-40",
+              scriptState.isLoaded &&
+                !scriptState.isRunning &&
+                "bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30",
+              scriptState.isRunning &&
+                "bg-amber-600/20 text-amber-400 hover:bg-amber-600/30",
+            )}
+            disabled={!scriptState.isLoaded}
+            onclick={toggleScript}
+          >
+            {#if scriptState.isRunning}
+              <Square class="size-2.5" />
+              <span>Stop</span>
+            {:else}
+              <Play class="size-2.5" />
+              <span>Run</span>
+            {/if}
+          </button>
+        </div>
+
+        <div class="ml-auto flex h-full shrink-0 items-center gap-1 pr-1.5">
+          <Label
+            class="flex cursor-pointer select-none items-center gap-1.5 text-[12px] text-foreground/70 transition-colors hover:text-foreground"
+          >
+            <Checkbox bind:checked={gameState.autoAttackEnabled} />
+            <span>Auto</span>
+          </Label>
+          <div class="ml-0.5 h-4 w-px bg-border/60"></div>
+          <div class="flex items-center gap-1">
+            <Menu.Root
+              open={openDropdown === "pads"}
+              onOpenChange={(open) => {
+                if (open) {
+                  updatePads();
+                  openDropdown = "pads";
+                } else {
+                  openDropdown = null;
+                }
+              }}
+              class="h-6 w-20"
+            >
+              <Menu.Trigger
+                class="flex h-full w-full items-center justify-between rounded border border-border/60 bg-background px-2 text-[12px] text-foreground/80 transition-colors duration-150 hover:border-border hover:bg-accent/30 disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={!gameConnected}
+              >
+                {currentSelectedPad}
+              </Menu.Trigger>
+              <Menu.Content align="end" class="min-w-40 text-xs">
+                {#each validPads as pad (pad)}
+                  <Menu.Item
+                    class={cn(
+                      "bg-transparent",
+                      pad.isValid &&
+                        pad.name !== currentSelectedPad &&
+                        "text-emerald-400",
+                      pad.name === currentSelectedPad &&
+                        "bg-accent/50 font-medium text-primary",
+                    )}
+                    onclick={() => jumpToPad(pad.name)}
+                  >
+                    {pad.name}
+                  </Menu.Item>
+                {/each}
+              </Menu.Content>
+            </Menu.Root>
+            <Menu.Root
+              open={openDropdown === "cells"}
+              onOpenChange={(open) => {
+                if (open) {
+                  updateCells();
+                  openDropdown = "cells";
+                } else {
+                  openDropdown = null;
+                }
+              }}
+              class="h-6 w-20"
+            >
+              <Menu.Trigger
+                class="flex h-full w-full items-center justify-between rounded border border-border/60 bg-background px-2 text-[12px] text-foreground/80 transition-colors duration-150 hover:border-border hover:bg-accent/30 disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={!gameConnected}
+              >
+                {currentSelectedCell}
+              </Menu.Trigger>
+              <Menu.Content
+                align="end"
+                class="max-h-[25vh] min-w-40 overflow-y-auto text-[12px]"
+              >
+                {#each availableCells as cell (cell)}
+                  <Menu.Item
+                    class={cn(
+                      "bg-transparent",
+                      cell === currentSelectedCell &&
+                        "bg-accent/50 font-medium text-primary",
+                    )}
+                    onclick={() => jumpToCell(cell)}
+                  >
+                    {cell}
+                  </Menu.Item>
+                {/each}
+              </Menu.Content>
+            </Menu.Root>
+          </div>
+          <div class="ml-0.5 h-4 w-px bg-border/60"></div>
+          <Button
+            variant="ghost"
+            size="xs"
+            class="h-6 px-2 text-[12px] text-foreground/70 hover:text-foreground"
+            disabled={!gameConnected}
+            onclick={async () => {
+              if (!bot.player.isReady()) return;
+
+              if (bot.bank.isOpen()) {
+                bot.flash.call(() => swf.bankOpen());
+              } else {
+                await bot.bank.open();
+              }
+            }}
+          >
+            Bank
+          </Button>
+        </div>
+      </div>
+    </div>
+  {/if}
+
+  <div
+    class="bg-background-primary flex min-h-screen flex-col items-center justify-center"
+    id="loader-container"
+  >
+    <div class="w-full max-w-md px-8">
+      <div class="space-y-6">
+        <div class="flex justify-center">
+          <div
+            class="border-t-progress-blue h-8 w-8 animate-spin rounded-full border-2 border-gray-600"
+          ></div>
+        </div>
+        <div class="text-center">
+          <span id="progress-text" class="text-sm font-medium text-gray-300">
+            Loading...
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="invisible relative flex-1 opacity-0" id="game-container">
+    {#if swfPath}
+      <embed
+        id="swf"
+        src={`${swfPath}/loader.swf`}
+        class="absolute left-0 top-0 h-full w-full"
+      />
+    {/if}
+  </div>
+</main>
+
+<CommandOverlay />
+<CommandPalette bind:open={commandPaletteOpen} {hotkeyValues} />
+<OptionsPanel {hotkeyValues} />
+
+<style>
+  :global(:root) {
+    --topnav-height: 36px;
+  }
+</style>

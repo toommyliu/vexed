@@ -4,8 +4,11 @@
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.cts",
   "scripts": {
-    "build": "tsdown --outDir ./dist --format cjs --minify --entry ./src/index.ts --dts",
+    "build": "tsdown",
     "postinstall": "npm run build"
+  },
+  "dependencies": {
+    "@vexed/utils": "workspace:*"
   },
   "devDependencies": {
     "tsdown": "0.20.0-beta.3",

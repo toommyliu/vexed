@@ -1,0 +1,164 @@
+import process from "process";
+import log from "~/renderer/shared/logger";
+import { getArgValue } from "~/shared/argv";
+import * as tipc from "~/shared/tipc";
+import { Bot } from "./lib/Bot";
+import { AutoReloginJob } from "./lib/jobs/autorelogin";
+import {
+  dispatchClientStr,
+  dispatchJson,
+  dispatchStr,
+} from "./packet-handlers";
+import { gameLoaded } from "./state/app.svelte";
+import { autoReloginState } from "./state/index.svelte";
+
+const logger = log.scope("game/flash-interop");
+const bot = Bot.getInstance();
+
+window.packetFromClient = ([packet]: [string]) => {
+  if (!packet) return;
+  bot.emit("packetFromClient", packet);
+
+  const pkt = packet.slice("[Sending - STR]: ".length);
+  if (pkt.startsWith("%xt%")) {
+    const parts = pkt.split("%").filter(Boolean);
+    const cmd = parts[2];
+    if (!cmd) return;
+    dispatchClientStr(bot, cmd, parts);
+  }
+};
+
+window.packetFromServer = ([packet]: [string]) => {
+  if (!packet) return;
+  bot.emit("packetFromServer", packet);
+
+  // ct seems jank in pext, so we'll just handle it here
+  if (packet.startsWith("{")) {
+    const pkt = JSON.parse(packet);
+    if (
+      typeof pkt?.t === "string" &&
+      pkt?.t === "xt" &&
+      typeof pkt?.b?.o?.cmd === "string" &&
+      pkt?.b?.o?.cmd === "ct"
+    ) {
+      dispatchJson(bot, "ct", pkt?.b?.o);
+    }
+  }
+};
+
+window.pext = async ([packet]) => {
+  const pkt = JSON.parse(packet);
+  delete pkt.currentTarget;
+  delete pkt.target;
+  delete pkt.eventPhase;
+  delete pkt.bubbles;
+  delete pkt.cancelable;
+  delete pkt.type;
+
+  bot.emit("pext", pkt);
+
+  if (pkt?.params?.type === "str") {
+    const dataObj = pkt?.params?.dataObj;
+    dispatchStr(bot, dataObj[0], dataObj);
+  } else if (pkt?.params?.type === "json") {
+    const dataObj = pkt?.params?.dataObj;
+    const cmd = dataObj.cmd;
+    if (cmd === "ct") return;
+    dispatchJson(bot, cmd, dataObj);
+  }
+};
+
+window.connection = async ([state]: [string]) => {
+  if (state === "OnConnection") {
+    await bot.waitUntil(() => bot.player.isReady(), { indefinite: true });
+    bot.emit("login");
+  } else if (state === "OnConnectionLost") {
+    await bot.waitUntil(() => !bot.player.isReady(), { indefinite: true });
+    bot.emit("logout");
+  }
+};
+
+window.loaded = async () => {
+  gameLoaded.set(true);
+
+  void bot.scheduler.start();
+
+  const username = getArgValue(process.argv, "--username=");
+  const password = getArgValue(process.argv, "--password=");
+  const scriptPath = getArgValue(process.argv, "--scriptPath=");
+  if (username && password) {
+    const server = getArgValue(process.argv, "--server=");
+    if (server) {
+      autoReloginState.enable(username, password, server);
+      AutoReloginJob.resetForNewCredentials();
+      bot.once("login", async () => {
+        autoReloginState.disable();
+        await tipc.client.manager.onLogin({ username });
+      });
+    } else {
+      bot.auth.login(username, password);
+      await bot.waitUntil(
+        () => bot.flash.get("mcLogin.currentLabel", true) === "Servers",
+        { indefinite: true },
+      );
+      await tipc.client.manager.onLogin({ username });
+    }
+  }
+
+  if (scriptPath) {
+    try {
+      await bot.waitUntil(() => bot.player.isReady(), { indefinite: true });
+      if (window.context.isRunning()) return;
+      const decodedPath = decodeURIComponent(scriptPath);
+      await tipc.client.scripts.loadScript({ scriptPath: decodedPath });
+    } catch {}
+  }
+};
+
+window.flashDebug = (...args: string[]) => {
+  if (args.length === 1) {
+    logger.info(args[0]);
+    return;
+  }
+
+  logger.info(...args);
+};
+
+window.progress = ([percent]: [number]) => {
+  const progressText = document.querySelector(
+    "#progress-text",
+  ) as HTMLSpanElement;
+  const percentStr = `${percent}%`;
+
+  if (progressText) progressText.textContent = percentStr;
+
+  setImmediate(() => {
+    if (progressText) progressText.textContent = percentStr;
+  });
+
+  if (percent >= 100) {
+    const loaderContainer = document.querySelector(
+      "#loader-container",
+    ) as HTMLDivElement;
+    const topnavContainer = document.querySelector(
+      "#topnav-container",
+    ) as HTMLDivElement;
+    const gameContainer = document.querySelector(
+      "#game-container",
+    ) as HTMLDivElement;
+
+    loaderContainer.classList.add("hidden");
+
+    {
+      const cl = topnavContainer.classList;
+      cl.remove("invisible", "opacity-0");
+      cl.add("opacity-100", "visible");
+    }
+
+    {
+      const cl = gameContainer.classList;
+      cl.remove("invisible", "opacity-0");
+      cl.add("opacity-100", "visible");
+    }
+  }
+};

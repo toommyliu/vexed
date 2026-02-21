@@ -4,42 +4,39 @@ import "./tray";
 import { join } from "path";
 import process from "process";
 import { registerIpcMain } from "@vexed/tipc/main";
+import { equalsIgnoreCase } from "@vexed/utils/string";
 import { app, shell, nativeTheme } from "electron";
-import log from "electron-log";
 import { version } from "../../package.json";
-import {
-  BRAND,
-  DOCUMENTS_PATH,
-  IS_MAC,
-  IS_WINDOWS,
-} from "../shared/constants";
-import { equalsIgnoreCase } from "../shared/string";
-import { ASSET_PATH, logger } from "./constants";
+import { getArgValue, hasArgFlag } from "../shared/argv";
+import { ASSET_PATH, BRAND, IS_MAC, IS_WINDOWS, IS_LINUX } from "./constants";
 import { createMenu } from "./menu";
+import { initFlashService } from "./services/flash";
+import {
+  initMainLogger,
+  createLogger,
+  setLoggerDebug,
+} from "./services/logger";
+import { updaterService } from "./services/updater";
+import { windowsService } from "./services/windows";
 import { initSettings, getSettings } from "./settings";
 import { router } from "./tipc";
-import { checkForUpdates } from "./updater";
 import { showErrorDialog } from "./util/dialog";
 import { createNotification } from "./util/notification";
-import {
-  createAccountManager,
-  createGame,
-  prewarmOnboarding,
-  setQuitting,
-} from "./windows";
 
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 
-function registerFlashPlugin() {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
-  const flashTrust = require("nw-flash-trust");
+const logger = createLogger("app");
 
+async function registerFlashPlugin() {
   let pluginName;
 
   if (IS_WINDOWS) {
     pluginName = "pepflashplayer.dll";
   } else if (IS_MAC) {
     pluginName = "PepperFlashPlayer.plugin";
+  } else if (IS_LINUX) {
+    // TODO: fill me
+    pluginName = "";
   }
 
   if (!pluginName) {
@@ -56,7 +53,6 @@ function registerFlashPlugin() {
     "ppapi-flash-path",
     join(ASSET_PATH, pluginName),
   );
-
   const flashPath = join(
     app.getPath("userData"),
     "Pepper Data",
@@ -64,37 +60,28 @@ function registerFlashPlugin() {
     "WritableRoot",
   );
 
-  const trustManager = flashTrust.initSync(BRAND, flashPath);
-  trustManager.empty();
-
-  trustManager.add(join(ASSET_PATH, "loader.swf"));
+  const result = await initFlashService(BRAND, flashPath);
+  if (result.isOk()) {
+    const trustManager = result.value;
+    await trustManager.empty();
+    await trustManager.add(join(ASSET_PATH, "loader.swf"));
+  } else {
+    logger.error("Failed to initialize Flash trust manager", result.error);
+  }
 }
 
 async function handleAppLaunch(argv: string[] = process.argv) {
   try {
     const settings = getSettings();
 
-    const level = settings.getBoolean("debug", false) ? "debug" : "info";
-
-    log.initialize({
-      rendererTransports: ["console", level === "debug" && "file"],
-    });
-    log.scope.labelPadding = false;
-    log.transports.file.resolvePathFn = () => join(DOCUMENTS_PATH, "log.txt");
-    log.transports.file.format = "[{datetime}] ({level}){scope} {text}";
-    log.transports.console.format = "[{datetime}] ({level}){scope} {text}";
-    log.transports.file.level = level;
-    log.transports.console.level = level;
+    setLoggerDebug(settings.getBoolean("debug", false));
+    await initMainLogger();
 
     logger.info(`Hello - ${BRAND} v${version}`); // indicate app start
 
     if (settings?.getBoolean("checkForUpdates", false)) {
-      const updateResult = await checkForUpdates(true);
+      const updateResult = await updaterService.run(true);
       if (updateResult !== null) {
-        logger.info(
-          `Update available - ${updateResult.newVersion} (current: ${version})`,
-        );
-
         const notif = createNotification(
           "Update available",
           `Version ${updateResult.newVersion} is available. Click to view.`,
@@ -105,41 +92,40 @@ async function handleAppLaunch(argv: string[] = process.argv) {
       }
     }
 
+    const isManagerFlag = hasArgFlag(argv, "--manager", "-m");
+    const isGameFlag = hasArgFlag(argv, "--game", "-g");
+
     let launchMode = settings.getString("launchMode", "game");
-    if (!equalsIgnoreCase(launchMode, "manager") && !equalsIgnoreCase(launchMode, "game")) {
-      logger.info(
+
+    if (isManagerFlag) {
+      launchMode = "manager";
+    } else if (isGameFlag) {
+      launchMode = "game";
+    }
+
+    const isManagerMode = equalsIgnoreCase(launchMode, "manager");
+    const isGameMode = equalsIgnoreCase(launchMode, "game");
+
+    if (!isManagerMode && !isGameMode) {
+      logger.warn(
         `Unknown launch mode, got "${launchMode}", defaulting to "game"...`,
       );
       launchMode = "game";
-    } else {
-      logger.info(`Using launch mode: ${launchMode}`);
     }
 
-    if (
-      equalsIgnoreCase(launchMode, "manager") ||
-      argv.some((arg) => equalsIgnoreCase(arg, "--manager") || equalsIgnoreCase(arg, "-m"))
-    ) {
-      await createAccountManager();
-    } else if (
-      equalsIgnoreCase(launchMode, "game") ||
-      argv.some((arg) => equalsIgnoreCase(arg, "--game") || equalsIgnoreCase(arg, "-g"))
-    ) {
+    logger.info(`Using launch mode: ${launchMode}`);
+
+    if (isManagerMode) {
+      windowsService.manager();
+    } else if (isGameMode) {
       const account = {
-        username:
-          argv.find((arg) => arg.startsWith("--username="))?.split("=")?.[1] ??
-          "",
-        password:
-          argv.find((arg) => arg.startsWith("--password="))?.split("=")?.[1] ??
-          "",
-        server:
-          argv.find((arg) => arg.startsWith("--server="))?.split("=")[1] ?? "",
-        scriptPath:
-          argv
-            .find((arg) => arg.startsWith("--scriptPath="))
-            ?.split("=")?.[1] ?? "",
+        username: getArgValue(argv, "--username=") ?? "",
+        password: getArgValue(argv, "--password=") ?? "",
+        server: getArgValue(argv, "--server=") ?? "",
+        scriptPath: getArgValue(argv, "--scriptPath=") ?? "",
       };
 
-      await createGame(account);
+      windowsService.game(account);
     }
   } catch (error) {
     showErrorDialog({
@@ -149,7 +135,14 @@ async function handleAppLaunch(argv: string[] = process.argv) {
   }
 }
 
-registerFlashPlugin();
+void (async () => {
+  try {
+    await registerFlashPlugin();
+  } catch (error) {
+    logger.error("Failed to register Flash trust", error);
+  }
+})();
+
 registerIpcMain(router);
 
 if (IS_WINDOWS) {
@@ -169,21 +162,18 @@ if (gotTheLock) {
 
 app.once("ready", async () => {
   const settings = await initSettings();
-
   nativeTheme.themeSource = settings.get("theme") ?? "system";
-
   createMenu(settings);
-
-  // Preload settings window to make first open feel instant.
-  void prewarmOnboarding();
   await handleAppLaunch();
 });
 
-app.on("before-quit", () => {
-  setQuitting(true);
+app.on("before-quit", async (ev) => {
+  if (windowsService.isQuitting) return;
+  ev.preventDefault();
+  windowsService.setQuitting(true);
+  app.quit();
 });
 
 app.on("window-all-closed", () => {
-  logger.info("Bye!");
   app.quit();
 });

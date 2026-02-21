@@ -1,43 +1,49 @@
-import { tipc } from "@vexed/tipc";
+import { tipc, type ClientFromRouter } from "@vexed/tipc";
+import type { SerializedResult } from "better-result";
+import type { ArmyConfigPayload } from "~/shared/army/types";
 import type {
-  GrabberDataType,
-  LoaderDataType,
-  FastTravel,
-  FastTravelRoomNumber,
   EnvironmentState,
   EnvironmentUpdatePayload,
-} from "../shared/types";
-import { createArmyTipcRouter } from "./tipc/army";
-import { createEnvironmentTipcRouter } from "./tipc/environment";
-import { createFastTravelsTipcRouter } from "./tipc/fastTravels";
-import { createFollowerTipcRouter } from "./tipc/follower";
-import { createGameTipcRouter } from "./tipc/game";
-import { createHotkeysTipcRouter } from "./tipc/hotkeys";
-import { createLoaderGrabberTipcRouter } from "./tipc/loaderGrabber";
-import { createManagerTipcRouter } from "./tipc/manager";
-import { createOnboardingTipcRouter } from "./tipc/onboarding";
-import { createPacketLoggerTipcRouter } from "./tipc/packetLogger";
-import { createPacketSpammerTipcRouter } from "./tipc/packetSpammer";
-import { createScriptsTipcRouter } from "./tipc/scripts";
+} from "~/shared/environment/types";
+import type {
+  FastTravelRoomNumber,
+} from "~/shared/fast-travels/types";
+import type { RawFollowerConfig } from "~/shared/follower/types";
+import type {
+  GrabbedData,
+  LoaderGrabberGrabRequest,
+  LoaderGrabberLoadRequest,
+} from "~/shared/loader-grabber/types";
+import type { HotkeyConfig } from "../shared/types";
+import { createAppTipcRouter } from "./tipc/app.router";
+import { createArmyTipcRouter } from "./tipc/army.router";
+import { createEnvironmentTipcRouter } from "./tipc/environment.router";
+import { createFastTravelsTipcRouter } from "./tipc/fast-travels.router";
+import { createFollowerTipcRouter } from "./tipc/follower.router";
+import { createHotkeysTipcRouter } from "./tipc/hotkeys.router";
+import { createLoaderGrabberTipcRouter } from "./tipc/loader-grabber.router";
+import { createManagerTipcRouter } from "./tipc/manager.router";
+import { createPacketTipcRouter } from "./tipc/packets.router";
+import { createScriptsTipcRouter } from "./tipc/scripts.router";
 
 const tipcInstance = tipc.create();
 
 export const router = {
-  game: createGameTipcRouter(tipcInstance),
   scripts: createScriptsTipcRouter(tipcInstance),
   fastTravels: createFastTravelsTipcRouter(tipcInstance),
   loaderGrabber: createLoaderGrabberTipcRouter(tipcInstance),
   follower: createFollowerTipcRouter(tipcInstance),
-  packetLogger: createPacketLoggerTipcRouter(tipcInstance),
-  packetSpammer: createPacketSpammerTipcRouter(tipcInstance),
+  packets: createPacketTipcRouter(tipcInstance),
   hotkeys: createHotkeysTipcRouter(tipcInstance),
   manager: createManagerTipcRouter(tipcInstance),
   army: createArmyTipcRouter(tipcInstance),
   environment: createEnvironmentTipcRouter(tipcInstance),
-  onboarding: createOnboardingTipcRouter(tipcInstance),
+  app: createAppTipcRouter(tipcInstance),
 };
 
 export type TipcRouter = typeof router;
+
+// Declares the shape of the handlers that main process can call for the renderer processes.
 
 /* eslint-disable typescript-sort-keys/interface */
 
@@ -50,60 +56,46 @@ export type RendererHandlers = {
   };
 
   game: {
-    getAssetPath(): Promise<string>;
     gameReloaded(): void;
   };
 
   scripts: {
     scriptLoaded(fromManager: boolean): void;
-    toggleDevTools(): void;
     gameReload(): void;
   };
 
   fastTravels: {
-    fastTravelEnable(): void;
-    doFastTravel({ location }: { location: FastTravelRoomNumber }): void;
-    getAll(): Promise<FastTravel[]>;
+    enable(): void;
+    warp({ location }: { location: FastTravelRoomNumber }): Promise<void>;
   };
 
   loaderGrabber: {
-    load(input: { type: LoaderDataType; id: number }): void;
-    grab(input: { type: GrabberDataType }): Promise<unknown>;
+    load(input: LoaderGrabberLoadRequest): void;
+    grab(input: LoaderGrabberGrabRequest): Promise<GrabbedData | null>;
   };
 
   follower: {
     me(): Promise<string>;
-    start(input: {
-      attackPriority: string;
-      copyWalk: boolean;
-      name: string;
-      safeSkill: string;
-      safeSkillEnabled: boolean;
-      safeSkillHp: string;
-      skillDelay: string;
-      skillList: string;
-      skillWait: boolean;
-    }): Promise<void>;
+    start(input: RawFollowerConfig): Promise<void>;
     stop(): Promise<void>;
   };
 
   hotkeys: {
-    updateHotkey(input: { id: string; value: string }): Promise<void>;
-    reloadHotkeys(): Promise<void>;
+    all(): Promise<HotkeyConfig>;
+    update(input: {
+      configKey: string;
+      id: string;
+      value: string;
+    }): Promise<void>;
+    restore(): Promise<void>;
+    reload(): Promise<void>;
   };
-
-  packetLogger: {
-    start(): void;
-    stop(): void;
-    packet(input: { packet: string; type: string }): void;
-  };
-
-  packetSpammer: {
-    start(input: { delay: number; packets: string[] }): void;
-    stop(): void;
-  };
+  packets: ClientFromRouter<ReturnType<typeof createPacketTipcRouter>>;
 
   army: {
+    loadConfig(input: {
+      fileName: string;
+    }): Promise<SerializedResult<ArmyConfigPayload, string>>;
     init(input: {
       fileName: string;
       playerName: string;
@@ -115,17 +107,7 @@ export type RendererHandlers = {
   };
 
   manager: {
-    managerLoginSuccess(username: string): void;
-    enableButton(username: string): Promise<void>;
-    getAccounts(): Promise<Account[]>;
-    addAccount(account: Account): Promise<boolean>;
-    removeAccount(payload: { username: string }): Promise<boolean>;
-    updateAccount(payload: {
-      originalUsername: string;
-      updatedAccount: Account;
-    }): Promise<boolean>;
-    mgrLoadScript(): Promise<string>;
-    launchGame(input: AccountWithServer): Promise<void>;
+    onLogin(username: string): Promise<void>;
   };
 };
 /* eslint-enable typescript-sort-keys/interface */

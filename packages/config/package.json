@@ -1,16 +1,28 @@
 {
   "name": "@vexed/config",
   "version": "1.0.0",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "private": true,
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    ".": "./dist/index.cjs",
+    "./package.json": "./package.json"
+  },
   "scripts": {
-    "test": "vitest run",
+    "check": "tsc --noEmit --skipLibCheck src/index.ts",
+    "build": "tsdown",
+    "postinstall": "npm run build",
+    "test": "vitest run src/index.test.ts",
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@vexed/fs-utils": "workspace:*"
+    "@vexed/fs": "workspace:*",
+    "better-result": "workspace:*"
   },
   "devDependencies": {
+    "@types/node": "22.10.10",
+    "tsdown": "0.20.0-beta.3",
+    "typescript": "^5.9.3",
     "vitest": "^3.2.3"
   }
 }

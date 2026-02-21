@@ -1,43 +1,3 @@
-export type FastTravel = {
-  /**
-   * The cell to jump to. Defaults to "Enter".
-   */
-  cell?: string;
-  /**
-   * The map name to join.
-   */
-  map: string;
-  /**
-   * The display name of the location.
-   */
-  name: string;
-  /**
-   * The pad to jump to. Defaults to "Spawn".
-   */
-  pad?: string;
-};
-
-export type FastTravelRoomNumber = FastTravel & {
-  roomNumber: number;
-};
-
-export enum LoaderDataType {
-  HairShop,
-  Shop,
-  Quest,
-  ArmorCustomizer,
-}
-
-export enum GrabberDataType {
-  Shop,
-  Quest,
-  Inventory,
-  TempInventory,
-  Bank,
-  CellMonsters,
-  MapMonsters,
-}
-
 export type Account = {
   password: string;
   username: string;
@@ -71,41 +31,6 @@ export type Settings = {
   theme: "dark" | "light" | "system";
 };
 
-export type QuestEntry = {
-  /**
-   * Optional item ID for quests with multiple rewards.
-   * If specified, this item will be selected when completing the quest.
-   */
-  itemId?: number;
-  questId: number;
-};
-
-export type EnvironmentState = {
-  autoRegisterRequirements: boolean;
-  autoRegisterRewards: boolean;
-  boosts: string[];
-  itemNames: string[];
-  questIds: number[];
-  /**
-   * Mapping of quest ID to selected item ID for reward selection.
-   */
-  questItemIds: Record<number, number>;
-  rejectElse: boolean;
-};
-
-export type EnvironmentUpdatePayload = {
-  autoRegisterRequirements?: boolean;
-  autoRegisterRewards?: boolean;
-  boosts?: string[];
-  itemNames: string[];
-  questIds: (number | string)[];
-  /**
-   * Mapping of quest ID to selected item ID for reward selection.
-   */
-  questItemIds?: Record<number, number>;
-  rejectElse: boolean;
-};
-
 export enum WindowIds {
   Environment = "app-environment",
   FastTravels = "tools-fast-travels",
@@ -118,6 +43,8 @@ export enum WindowIds {
   PacketLogger = "packets-logger",
   PacketSpammer = "packets-spammer",
 }
+
+export type LogLevel = "debug" | "error" | "info" | "warn";
 
 export type HotkeyConfig = {
   Application?: {
@@ -156,4 +83,10 @@ export type HotkeyConfig = {
     "Open Follower"?: string;
     "Open Loader Grabber"?: string;
   };
+};
+
+export type Platform = {
+  isLinux: boolean;
+  isMac: boolean;
+  isWindows: boolean;
 };

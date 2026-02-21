@@ -2,7 +2,7 @@
   "name": "@vexed/utils",
   "private": true,
   "scripts": {
-    "build": "tsdown --outDir ./dist --format cjs --minify --entry './src/**/*.ts' --dts --exports",
+    "build": "tsdown",
     "postinstall": "npm run build"
   },
   "devDependencies": {
@@ -14,6 +14,7 @@
   "exports": {
     ".": "./dist/index.cjs",
     "./async-interval": "./dist/async-interval.cjs",
+    "./id": "./dist/id.cjs",
     "./sleep": "./dist/sleep.cjs",
     "./string": "./dist/string.cjs",
     "./package.json": "./package.json"
