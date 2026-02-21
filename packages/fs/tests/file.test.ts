@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import * as fs from "fs-extra";
 import * as path from "path";
 import { tmpdir } from "os";
@@ -135,6 +135,87 @@ describe("file", () => {
         expect(result.isErr() && result.error.name).toBe("FsWriteError");
       } finally {
         execSync(`chmod 755 "${dirPath}"`);
+      }
+    });
+
+    it("should remove stale atomic temp siblings before writing", async () => {
+      const filePath = path.join(testDir, "cleanup-stale.json");
+      const staleTempPath = `${filePath}.tmp-1234567890abcdef`;
+      await fs.writeFile(staleTempPath, "stale");
+      const staleDate = new Date(Date.now() - 11 * 60 * 1000);
+      await fs.utimes(staleTempPath, staleDate, staleDate);
+
+      const result = await writeFile(filePath, "fresh");
+
+      expect(result.isOk()).toBe(true);
+      expect(await fs.readFile(filePath, "utf8")).toBe("fresh");
+      expect(await fs.pathExists(staleTempPath)).toBe(false);
+    });
+
+    it("should keep recent atomic temp siblings", async () => {
+      const filePath = path.join(testDir, "cleanup-recent.json");
+      const recentTempPath = `${filePath}.tmp-1234567890abc123`;
+      await fs.writeFile(recentTempPath, "recent");
+
+      const result = await writeFile(filePath, "fresh");
+
+      expect(result.isOk()).toBe(true);
+      expect(await fs.readFile(filePath, "utf8")).toBe("fresh");
+      expect(await fs.pathExists(recentTempPath)).toBe(true);
+    });
+
+    it("should ignore non-matching temp-like siblings", async () => {
+      const filePath = path.join(testDir, "cleanup-ignore.json");
+      const nonMatchingPaths = [
+        `${filePath}.tmp-invalid`,
+        `${filePath}.tmp-123`,
+        `${filePath}.tmp-1234567890ABCDEF`,
+        `${path.join(testDir, "other.json")}.tmp-1234567890abcdef`,
+      ];
+      const staleDate = new Date(Date.now() - 11 * 60 * 1000);
+      for (const nonMatchingPath of nonMatchingPaths) {
+        await fs.writeFile(nonMatchingPath, "keep");
+        await fs.utimes(nonMatchingPath, staleDate, staleDate);
+      }
+
+      const result = await writeFile(filePath, "fresh");
+
+      expect(result.isOk()).toBe(true);
+      expect(await fs.readFile(filePath, "utf8")).toBe("fresh");
+      for (const nonMatchingPath of nonMatchingPaths) {
+        expect(await fs.pathExists(nonMatchingPath)).toBe(true);
+      }
+    });
+
+    it("should not block writes when stale temp cleanup fails", async () => {
+      const filePath = path.join(testDir, "cleanup-unlink-failure.json");
+      const staleTempPath = `${filePath}.tmp-1234567890abcdef`;
+      await fs.writeFile(staleTempPath, "stale");
+      const staleDate = new Date(Date.now() - 11 * 60 * 1000);
+      await fs.utimes(staleTempPath, staleDate, staleDate);
+
+      const originalUnlink = fs.promises.unlink.bind(fs.promises);
+      const unlinkSpy = vi
+        .spyOn(fs.promises, "unlink")
+        .mockImplementation(async (unlinkPath: any) => {
+          if (unlinkPath === staleTempPath) {
+            const error = new Error(
+              "simulated stale temp cleanup failure",
+            ) as NodeJS.ErrnoException;
+            error.code = "EPERM";
+            throw error;
+          }
+          return originalUnlink(unlinkPath);
+        });
+
+      try {
+        const result = await writeFile(filePath, "fresh");
+
+        expect(result.isOk()).toBe(true);
+        expect(await fs.readFile(filePath, "utf8")).toBe("fresh");
+        expect(await fs.pathExists(staleTempPath)).toBe(true);
+      } finally {
+        unlinkSpy.mockRestore();
       }
     });
   });

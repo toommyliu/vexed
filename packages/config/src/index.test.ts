@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { mkdtemp, rm, readFile } from "node:fs/promises";
+import { mkdtemp, rm, readFile, stat, utimes, writeFile } from "node:fs/promises";
 import { writeJson } from "@vexed/fs";
 import Config from "./index";
 
@@ -163,6 +163,32 @@ describe("Config", () => {
         "utf8",
       );
       expect(JSON.parse(fileContent)).toEqual({ key: "value" });
+    });
+
+    it("should remove stale atomic temp siblings while saving", async () => {
+      const configName = "save-cleanup";
+      const config = new Config({
+        configName,
+        cwd: testDir,
+        defaults: { key: "initial" },
+      });
+
+      const configPath = join(testDir, `${configName}.json`);
+      const staleTempPath = `${configPath}.tmp-1234567890abcdef`;
+      await writeFile(staleTempPath, "stale", "utf8");
+      const staleDate = new Date(Date.now() - 11 * 60 * 1000);
+      await utimes(staleTempPath, staleDate, staleDate);
+
+      config.set("key", "updated");
+      const saveResult = await config.save();
+      saveResult.unwrap();
+
+      await expect(stat(staleTempPath)).rejects.toMatchObject({
+        code: "ENOENT",
+      });
+
+      const fileContent = await readFile(configPath, "utf8");
+      expect(JSON.parse(fileContent)).toEqual({ key: "updated" });
     });
   });
 
