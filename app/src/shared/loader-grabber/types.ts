@@ -1,6 +1,4 @@
 import type { ItemData, MonsterData, QuestInfo, ShopInfo } from "@vexed/game";
-import type { SerializedResult } from "better-result";
-import type { LoaderGrabberError } from "./errors";
 
 export enum LoaderDataType {
   HairShop,
@@ -40,12 +38,3 @@ export type GrabbedDataByType = {
 };
 
 export type GrabbedData = GrabbedDataByType[GrabberDataType];
-
-export type LoaderGrabberLoadResponse = SerializedResult<
-  void,
-  LoaderGrabberError
->;
-export type LoaderGrabberGrabResponse = SerializedResult<
-  GrabbedData,
-  LoaderGrabberError
->;

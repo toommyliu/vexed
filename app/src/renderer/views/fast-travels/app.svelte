@@ -16,7 +16,7 @@
   import { onMount } from "svelte";
 
   import { client, handlers } from "~/shared/tipc";
-  import type { FastTravel } from "~/shared/types";
+  import type { FastTravel } from "~/shared/fast-travels/types";
   import { Result } from "better-result";
 
   let locations = $state<FastTravel[]>([]);

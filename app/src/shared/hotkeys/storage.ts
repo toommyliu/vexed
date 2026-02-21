@@ -1,23 +1,30 @@
+import { Result } from "better-result";
 import { client } from "~/shared/tipc";
-import type { HotkeyConfig } from "../types";
+import type { HotkeyConfig, Platform } from "../types";
 import { isValidHotkey } from "./input";
 import {
-  HOTKEY_ITEMS,
-  HOTKEY_SECTIONS,
+  getHotkeyItems,
+  getHotkeySections,
   type HotkeyId,
   type HotkeySection,
   createDefaultHotkeyConfig,
 } from "./schema";
 
-export type HotkeyValueMap = Record<HotkeyId, string>;
+export async function loadHotkeys(
+  platform: Platform,
+): Promise<HotkeySection[]> {
+  const sections = getHotkeySections(platform);
+  const serialized = await client.hotkeys.all();
+  const result = Result.deserialize<HotkeyConfig, unknown>(serialized);
+  const config =
+    result.isOk() && result.value
+      ? result.value
+      : createDefaultHotkeyConfig(platform);
 
-export async function loadHotkeys(): Promise<HotkeySection[]> {
-  const result = await client.hotkeys.all();
-  const config: HotkeyConfig =
-    (result && "data" in result && result.success && result.data
-      ? result.data
-      : undefined) ?? createDefaultHotkeyConfig();
-  return HOTKEY_SECTIONS.map((section) => ({
+  if (result.isErr())
+    console.error("Failed to load hotkeys config", result.error);
+
+  return sections.map((section) => ({
     ...section,
     items: section.items.map((item) => ({
       ...item,
@@ -31,23 +38,39 @@ export async function loadHotkeys(): Promise<HotkeySection[]> {
   }));
 }
 
-export async function saveHotkey(id: HotkeyId, value: string): Promise<void> {
-  const item = HOTKEY_ITEMS.find((item) => item.id === id);
-  if (!item) return;
-
+export async function saveHotkey(
+  id: HotkeyId,
+  value: string,
+  platform: Platform,
+): Promise<boolean> {
+  const item = getHotkeyItems(platform).find((item) => item.id === id);
+  if (!item) return false;
   const cleaned = value.trim();
   const finalValue = cleaned === "" ? "" : cleaned;
-  if (finalValue && !isValidHotkey(finalValue)) return;
-
-  await client.hotkeys.update({
+  if (finalValue && !isValidHotkey(finalValue)) return false;
+  const serialized = await client.hotkeys.update({
     id: item.id,
     value: finalValue,
     configKey: item.configKey,
   });
+  const result = Result.deserialize<undefined, unknown>(serialized);
+  if (result.isErr()) {
+    console.error("Failed to save hotkey", result.error);
+    return false;
+  }
+
+  return true;
 }
 
-export async function restoreDefaults(): Promise<void> {
-  await client.hotkeys.restore();
+export async function restoreDefaults(): Promise<boolean> {
+  const serialized = await client.hotkeys.restore();
+  const result = Result.deserialize<undefined, unknown>(serialized);
+  if (result.isErr()) {
+    console.error("Failed to restore default hotkeys", result.error);
+    return false;
+  }
+
+  return true;
 }
 
 function readConfigValue(

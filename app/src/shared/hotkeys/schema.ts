@@ -1,5 +1,4 @@
-import { IS_MAC } from "../constants";
-import type { HotkeyConfig } from "../types";
+import type { HotkeyConfig, Platform } from "../types";
 
 export type HotkeySectionName = keyof HotkeyConfig;
 
@@ -56,12 +55,19 @@ type SectionData = {
   icon: string;
   id: HotkeySectionId;
   items: {
-    defaultValue?: string;
+    defaultValue?: DefaultValue;
     id: HotkeyId;
     label: string;
   }[];
   name: HotkeySectionName;
 };
+
+type PlatformDefaultValue = {
+  mac: string;
+  other: string;
+};
+
+type DefaultValue = PlatformDefaultValue | string;
 
 const SECTION_DATA: SectionData[] = [
   {
@@ -73,17 +79,17 @@ const SECTION_DATA: SectionData[] = [
       {
         id: "toggle-bank",
         label: "Toggle Bank",
-        defaultValue: IS_MAC ? "command+b" : "ctrl+b",
+        defaultValue: { mac: "command+b", other: "ctrl+b" },
       },
       {
         id: "toggle-options-panel",
         label: "Toggle Options Panel",
-        defaultValue: IS_MAC ? "command+," : "ctrl+,",
+        defaultValue: { mac: "command+,", other: "ctrl+," },
       },
       {
         id: "toggle-top-bar",
         label: "Toggle Top Bar",
-        defaultValue: IS_MAC ? "command+shift+t" : "ctrl+shift+t",
+        defaultValue: { mac: "command+shift+t", other: "ctrl+shift+t" },
       },
     ],
   },
@@ -95,7 +101,7 @@ const SECTION_DATA: SectionData[] = [
       {
         id: "open-environment",
         label: "Open Environment",
-        defaultValue: IS_MAC ? "command+e" : "ctrl+e",
+        defaultValue: { mac: "command+e", other: "ctrl+e" },
       },
     ],
   },
@@ -114,7 +120,7 @@ const SECTION_DATA: SectionData[] = [
       {
         id: "toggle-dev-tools",
         label: "Toggle Dev Tools",
-        defaultValue: IS_MAC ? "command+shift+i" : "ctrl+shift+i",
+        defaultValue: { mac: "command+shift+i", other: "ctrl+shift+i" },
       },
     ],
   },
@@ -164,19 +170,28 @@ const SECTION_DATA: SectionData[] = [
   },
 ];
 
-export const HOTKEY_SECTIONS: HotkeySection[] = SECTION_DATA.map((section) => ({
-  ...section,
-  items: section.items.map((item) => ({
-    ...item,
-    defaultValue: item.defaultValue ?? "",
-    configKey: `${section.name}.${item.label}`,
-  })),
-}));
+function resolveDefaultValue(
+  defaultValue: DefaultValue | undefined,
+  platform: Platform,
+): string {
+  if (!defaultValue) return "";
+  if (typeof defaultValue === "string") return defaultValue;
+  return platform.isMac ? defaultValue.mac : defaultValue.other;
+}
 
-export const HOTKEY_ITEMS = HOTKEY_SECTIONS.flatMap((section) => section.items);
+export function getHotkeySections(platform: Platform): HotkeySection[] {
+  return SECTION_DATA.map((section) => ({
+    ...section,
+    items: section.items.map((item) => ({
+      ...item,
+      defaultValue: resolveDefaultValue(item.defaultValue, platform),
+      configKey: `${section.name}.${item.label}`,
+    })),
+  }));
+}
 
-export function findItem(id: HotkeyId): HotkeyItem | undefined {
-  return HOTKEY_ITEMS.find((item) => item.id === id);
+export function getHotkeyItems(platform: Platform): HotkeyItem[] {
+  return getHotkeySections(platform).flatMap((section) => section.items);
 }
 
 export function getActionForHotkey(
@@ -212,9 +227,10 @@ export function findConflicts(sections: HotkeySection[]): HotkeyConflict[] {
     .map(([hotkey, labels]) => ({ hotkey, labels }));
 }
 
-export function createDefaultHotkeyConfig(): HotkeyConfig {
+export function createDefaultHotkeyConfig(platform: Platform): HotkeyConfig {
+  const sections = getHotkeySections(platform);
   const config: HotkeyConfigPrimitive = {};
-  for (const section of HOTKEY_SECTIONS) {
+  for (const section of sections) {
     const sectionKey = section.name;
     const sectionConfig: Record<string, string> = {};
     for (const item of section.items)

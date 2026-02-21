@@ -8,19 +8,13 @@ import {
   type MainLogEntry,
   type Settings,
 } from "~/shared/types";
-import { ASSET_PATH, IS_LINUX, IS_MAC, IS_WINDOWS } from "../constants";
+import { ASSET_PATH, PLATFORM } from "../constants";
 import { gameServers } from "../services/game-servers";
 import { logFromRenderer, setLoggerDebug } from "../services/logger";
 import { scriptService } from "../services/scripts";
 import { windowsService, type SubwindowConfig } from "../services/windows";
 import { getSettings } from "../settings";
 import { TipcResult } from "./result";
-
-const platform = {
-  isMac: IS_MAC,
-  isWindows: IS_WINDOWS,
-  isLinux: IS_LINUX,
-};
 
 const SUBWINDOW_CONFIGS: Record<WindowIds, SubwindowConfig> = {
   [WindowIds.Environment]: {
@@ -68,7 +62,7 @@ const config = new Config<typeof DEFAULT_SKILLSETS>({
 
 export function createAppTipcRouter(tipc: TipcInstance) {
   return {
-    getPlatform: tipc.procedure.action(async () => platform),
+    getPlatform: tipc.procedure.action(async () => PLATFORM),
 
     getAssetPath: tipc.procedure.action(async () => ASSET_PATH),
 

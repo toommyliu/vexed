@@ -1,18 +1,20 @@
 import Mousetrap from "mousetrap";
+import { get } from "svelte/store";
 import { isValidHotkey } from "~/shared/hotkeys/input";
-import { HOTKEY_SECTIONS } from "~/shared/hotkeys/schema";
+import { getHotkeySections } from "~/shared/hotkeys/schema";
 import { handlers } from "~/shared/tipc";
 import { executeAction } from "./actions";
 import { Bot } from "./lib/Bot";
 import { gameLoaded } from "./state/app.svelte";
 import { hotkeyState } from "./state/index.svelte";
+import { platform } from "./state/platform.svelte";
 
 const bot = Bot.getInstance();
 
 function setupHotkeyBindings() {
   Mousetrap.reset();
-
-  for (const section of HOTKEY_SECTIONS) {
+  const sections = getHotkeySections(get(platform));
+  for (const section of sections) {
     for (const item of section.items) {
       const hotkey = hotkeyState.getDisplayValue(item.id);
       if (!hotkey || !isValidHotkey(hotkey)) continue;

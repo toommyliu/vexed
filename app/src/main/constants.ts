@@ -8,6 +8,12 @@ export const IS_WINDOWS = process.platform === "win32";
 export const IS_MAC = process.platform === "darwin";
 export const IS_LINUX = process.platform === "linux";
 
+export const PLATFORM = {
+  isWindows: IS_WINDOWS,
+  isMac: IS_MAC,
+  isLinux: IS_LINUX,
+};
+
 export const IS_PACKAGED = app.isPackaged;
 
 export const ASSET_PATH = IS_PACKAGED

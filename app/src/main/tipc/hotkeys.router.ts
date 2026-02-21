@@ -1,28 +1,30 @@
 import Config from "@vexed/config";
 import type { TipcInstance } from "@vexed/tipc";
+import { Result } from "better-result";
 import { DOCUMENTS_PATH } from "~/shared";
 import { createDefaultHotkeyConfig } from "~/shared/hotkeys/schema";
 import type { HotkeyConfig } from "~/shared/types";
 import { windowsService } from "../services/windows";
 import type { RendererHandlers } from "../tipc";
 import { withParentGameHandlers } from "./forwarding";
-import { TipcResult } from "./result";
+import { PLATFORM } from "../constants";
 
+const defaults = createDefaultHotkeyConfig(PLATFORM);
 const config = new Config<HotkeyConfig>({
   configName: "hotkeys",
   cwd: DOCUMENTS_PATH,
-  defaults: createDefaultHotkeyConfig(),
+  defaults,
 });
 
 export function createHotkeysTipcRouter(tipc: TipcInstance) {
   return {
     all: tipc.procedure.requireSenderWindow().action(async () => {
       const result = await config.reload();
-      if (result.isErr()) return TipcResult.err();
+      if (result.isErr()) return Result.serialize(Result.err(result.error));
       const data = config.get();
       if (!data || typeof data !== "object")
-        return TipcResult.ok(createDefaultHotkeyConfig());
-      return TipcResult.ok(data);
+        return Result.serialize(Result.ok(defaults));
+      return Result.serialize(Result.ok(data));
     }),
 
     update: tipc.procedure
@@ -35,8 +37,8 @@ export function createHotkeysTipcRouter(tipc: TipcInstance) {
       .action(async ({ input, context }) => {
         config.set(input.configKey, input.value);
         const saveResult = await config.save();
-        if (saveResult.isErr()) return TipcResult.err();
-
+        if (saveResult.isErr())
+          return Result.serialize(Result.err(saveResult.error));
         await windowsService.forEachGameWindow(async (_, window) => {
           const handlers =
             context.getRendererHandlers<RendererHandlers>(window);
@@ -46,8 +48,7 @@ export function createHotkeysTipcRouter(tipc: TipcInstance) {
             configKey: input.configKey,
           });
         });
-
-        return TipcResult.ok();
+        return Result.serialize(Result.ok());
       }),
 
     restore: tipc.procedure
@@ -55,12 +56,13 @@ export function createHotkeysTipcRouter(tipc: TipcInstance) {
       .action(async ({ context }) => {
         config.clear();
         const saveResult = await config.save();
-        if (saveResult.isErr()) return;
-
+        if (saveResult.isErr())
+          return Result.serialize(Result.err(saveResult.error));
         await config.reload();
         await withParentGameHandlers(context, async (parentHandlers) =>
           parentHandlers.hotkeys.reload.invoke(),
         );
+        return Result.serialize(Result.ok());
       }),
 
     reload: tipc.procedure.requireSenderWindow().action(async ({ context }) => {

@@ -14,9 +14,10 @@
 
   import { parseKeyboardEvent } from "~/shared/hotkeys/input";
   import {
-    HOTKEY_SECTIONS,
     findConflicts,
+    getHotkeySections,
     getActionForHotkey,
+    type HotkeyConflict,
     type HotkeySection,
     type HotkeyId,
   } from "~/shared/hotkeys/schema";
@@ -28,114 +29,211 @@
   import type { Platform } from "~/shared/types";
   import { client } from "~/shared";
 
-  type RecordingState = {
-    isRecording: boolean;
-    actionId: HotkeyId | null;
-    lastPressedKey: string;
-    isClearing: boolean;
+  type HotkeyItemRef = {
+    item: HotkeySection["items"][number];
+    itemIndex: number;
+    sectionIndex: number;
   };
 
-  let hotkeysSections = $state<HotkeySection[]>(
-    HOTKEY_SECTIONS.map((s) => ({
-      ...s,
-      items: s.items.map((i) => ({ ...i, value: i.defaultValue })),
-    })),
-  );
+  type RecordingState = {
+    actionId: HotkeyId | null;
+    isRecording: boolean;
+    lastPressedKey: string;
+  };
 
-  let recordingState = $state<RecordingState>({
+  function hydrateSectionValues(sections: HotkeySection[]): HotkeySection[] {
+    return sections.map((section) => ({
+      ...section,
+      items: section.items.map((item) => ({
+        ...item,
+        value: item.defaultValue,
+      })),
+    }));
+  }
+
+  let hotkeysSections = $state<HotkeySection[]>([]);
+
+  const recordingState = $state<RecordingState>({
     isRecording: false,
     actionId: null,
     lastPressedKey: "",
-    isClearing: false,
   });
   let activeSection = $state<string | null>(null);
   let dialogOpen = $state(false);
-  let conflicts = $derived(findConflicts(hotkeysSections));
+  let pendingSaveByAction = $state<Record<HotkeyId, boolean>>(
+    {} as Record<HotkeyId, boolean>,
+  );
+  let rowErrorByAction = $state<Record<HotkeyId, string | null>>(
+    {} as Record<HotkeyId, string | null>,
+  );
+  let uiError = $state<string | null>(null);
+  const conflicts = $derived(findConflicts(hotkeysSections));
+  const conflictByLabel = $derived(
+    conflicts.reduce(
+      (map: Map<string, HotkeyConflict>, conflict: HotkeyConflict) => {
+        for (const label of conflict.labels) map.set(label, conflict);
+        return map;
+      },
+      new Map<string, HotkeyConflict>(),
+    ),
+  );
+  const sectionConflictCountByName = $derived(
+    hotkeysSections.reduce(
+      (map: Map<string, number>, section: HotkeySection) => {
+        map.set(
+          section.name,
+          section.items.filter((item) => conflictByLabel.has(item.label)).length,
+        );
+        return map;
+      },
+      new Map<string, number>(),
+    ),
+  );
   let platform = $state<Platform>();
 
   async function loadHotkeys() {
+    uiError = null;
     try {
-      hotkeysSections = await fetchHotkeys();
+      hotkeysSections = await fetchHotkeys(platform!);
     } catch (error) {
+      uiError = "Failed to load hotkeys. Showing last known values.";
       console.error("Failed to load hotkeys", error);
     }
   }
 
-  function startRecording(actionId: HotkeyId) {
-    if (recordingState.isRecording) return;
-    recordingState.isRecording = true;
-    recordingState.actionId = actionId;
-    recordingState.lastPressedKey = "";
-    recordingState.isClearing = false;
-    Mousetrap.reset();
-  }
-
-  // TODO: don't update UI if saving hotkey fails
-
-  async function confirmRecording(combination: string) {
-    if (!recordingState.isRecording || !recordingState.actionId) return;
-    if (!combination || combination.trim() === "") return;
-
-    const actionId = recordingState.actionId as HotkeyId;
-    const conflictingAction = getActionForHotkey(combination, hotkeysSections);
-    if (
-      conflictingAction &&
-      conflictingAction !== getActionNameById(actionId)
-    ) {
-      return;
-    }
-
-    const item = findHotkeyItemById(actionId);
-    if (!item) return;
-
-    item.value = combination;
-    stopRecording();
-    await saveHotkey(item.id, combination);
-  }
-
-  async function clearHotkey() {
-    if (!recordingState.isRecording || !recordingState.actionId) return;
-
-    const actionId = recordingState.actionId as HotkeyId;
-    const item = findHotkeyItemById(actionId);
-    if (!item) return;
-
-    item.value = "";
-    await saveHotkey(item.id, "");
-    stopRecording();
-  }
-
-  async function restoreDefaults() {
-    console.log("Restoring defaults...");
-    stopRecording();
-    try {
-      await restoreDefaultHotkeys();
-      await loadHotkeys();
-    } catch (error) {
-      console.error("Failed to restore defaults", error);
-    }
-  }
-
-  function findHotkeyItemById(actionId: HotkeyId) {
-    for (const section of hotkeysSections) {
-      for (const item of section.items) {
-        if (item.id === actionId) return item;
+  function getItemById(actionId: HotkeyId): HotkeyItemRef | null {
+    for (const [sectionIndex, section] of hotkeysSections.entries()) {
+      for (const [itemIndex, item] of section.items.entries()) {
+        if (item.id !== actionId) continue;
+        return { sectionIndex, itemIndex, item };
       }
     }
-
     return null;
   }
 
   function getActionNameById(actionId: HotkeyId): string | null {
-    const item = findHotkeyItemById(actionId);
-    return item?.label ?? null;
+    return getItemById(actionId)?.item.label ?? null;
   }
 
-  function stopRecording() {
+  function getConflictForLabel(label: string): HotkeyConflict | null {
+    return conflictByLabel.get(label) ?? null;
+  }
+
+  function isActionPending(actionId: HotkeyId): boolean {
+    return pendingSaveByAction[actionId] ?? false;
+  }
+
+  function setActionPending(actionId: HotkeyId, pending: boolean) {
+    pendingSaveByAction = {
+      ...pendingSaveByAction,
+      [actionId]: pending,
+    };
+  }
+
+  function setRowError(actionId: HotkeyId, message: string | null) {
+    rowErrorByAction = {
+      ...rowErrorByAction,
+      [actionId]: message,
+    };
+  }
+
+  function clearAllRowErrors() {
+    rowErrorByAction = {} as Record<HotkeyId, string | null>;
+  }
+
+  function updateHotkeyValue(actionId: HotkeyId, value: string) {
+    hotkeysSections = hotkeysSections.map((section) => ({
+      ...section,
+      items: section.items.map((item) =>
+        item.id === actionId ? { ...item, value } : item,
+      ),
+    }));
+  }
+
+  function beginRecording(actionId: HotkeyId) {
+    if (recordingState.isRecording) return;
+    if (isActionPending(actionId)) return;
+    setRowError(actionId, null);
+
+    recordingState.isRecording = true;
+    recordingState.actionId = actionId;
+    recordingState.lastPressedKey = "";
+    Mousetrap.reset();
+  }
+
+  function cancelRecording() {
     recordingState.isRecording = false;
     recordingState.actionId = null;
     recordingState.lastPressedKey = "";
-    recordingState.isClearing = false;
+  }
+
+  function setRecordedCombination(combination: string) {
+    if (!recordingState.isRecording || !recordingState.actionId) return;
+    recordingState.lastPressedKey = combination;
+  }
+
+  function getRecordingConflict(actionId: HotkeyId, hotkey: string): boolean {
+    const actionLabel = getActionNameById(actionId);
+    if (!actionLabel) return false;
+    const conflictingAction = getActionForHotkey(hotkey, hotkeysSections);
+    return Boolean(conflictingAction && conflictingAction !== actionLabel);
+  }
+
+  async function saveWithRollback(actionId: HotkeyId, nextValue: string) {
+    if (isActionPending(actionId)) return;
+    const itemRef = getItemById(actionId);
+    if (!itemRef) return;
+    const previousValue = itemRef.item.value ?? "";
+    setActionPending(actionId, true);
+    setRowError(actionId, null);
+    updateHotkeyValue(actionId, nextValue);
+    try {
+      const saved = await saveHotkey(actionId, nextValue, platform!);
+      if (!saved) {
+        updateHotkeyValue(actionId, previousValue);
+        setRowError(actionId, "Could not save this hotkey. Reverted.");
+      }
+    } catch (error) {
+      updateHotkeyValue(actionId, previousValue);
+      setRowError(actionId, "Could not save this hotkey. Reverted.");
+      console.error("Failed to save hotkey", error);
+    } finally {
+      setActionPending(actionId, false);
+    }
+  }
+
+  async function confirmRecording() {
+    if (!recordingState.isRecording || !recordingState.actionId) return;
+    const actionId = recordingState.actionId;
+    const combination = recordingState.lastPressedKey.trim();
+    if (!combination) return;
+    if (getRecordingConflict(actionId, combination)) return;
+    cancelRecording();
+    await saveWithRollback(actionId, combination);
+  }
+
+  async function clearRecordedHotkey() {
+    if (!recordingState.isRecording || !recordingState.actionId) return;
+    const actionId = recordingState.actionId;
+    cancelRecording();
+    await saveWithRollback(actionId, "");
+  }
+
+  async function restoreDefaults() {
+    cancelRecording();
+    uiError = null;
+    clearAllRowErrors();
+    try {
+      const restored = await restoreDefaultHotkeys();
+      if (!restored) {
+        uiError = "Failed to restore default hotkeys.";
+        return;
+      }
+      await loadHotkeys();
+    } catch (error) {
+      uiError = "Failed to restore default hotkeys.";
+      console.error("Failed to restore defaults", error);
+    }
   }
 
   function getSectionIcon(icon: string) {
@@ -158,60 +256,49 @@
   function onKeyDown(ev: KeyboardEvent) {
     if (!recordingState.isRecording) return;
     if (!document.hasFocus() || document.hidden) return;
+    const currentPlatform = platform;
+    if (!currentPlatform) return;
 
     ev.preventDefault();
     ev.stopPropagation();
 
     if (ev.key === "Escape") {
-      stopRecording();
+      cancelRecording();
       return;
     }
 
     if (ev.key === "Backspace") {
-      clearHotkey();
+      void clearRecordedHotkey();
       return;
     }
 
     // Enter to confirm recording
     if (ev.key === "Enter" && recordingState.lastPressedKey) {
-      const actionId = recordingState.actionId as HotkeyId;
+      const actionId = recordingState.actionId;
       if (!actionId) return;
-
-      const conflictingAction = getActionForHotkey(
-        recordingState.lastPressedKey,
-        hotkeysSections,
-      );
-      if (
-        !conflictingAction ||
-        conflictingAction === getActionNameById(actionId)
-      ) {
-        confirmRecording(recordingState.lastPressedKey);
-      }
+      if (!getRecordingConflict(actionId, recordingState.lastPressedKey))
+        void confirmRecording();
 
       return;
     }
 
     // Parse key press
-    const combination = parseKeyboardEvent(ev, platform!);
+    const combination = parseKeyboardEvent(ev, currentPlatform);
     if (combination) {
-      recordingState.lastPressedKey = combination;
-      recordingState.isClearing = false;
+      setRecordedCombination(combination);
     }
   }
 
   onMount(async () => {
-    const [platformRes, hotkeysRes] = await Promise.allSettled([
-      client.app.getPlatform(),
-      loadHotkeys(),
-    ]);
-
-    if (platformRes.status === "fulfilled") {
-      platform = platformRes.value;
-    } else console.error("Failed to get platform", platformRes.reason);
-
-    if (hotkeysRes.status !== "fulfilled")
-      console.error("Failed to load hotkeys", hotkeysRes.reason);
-
+    const platformRes = await Promise.allSettled([client.app.getPlatform()]);
+    const platformResult = platformRes[0];
+    if (platformResult.status === "fulfilled") {
+      const currentPlatform = platformResult.value;
+      platform = currentPlatform;
+      hotkeysSections = hydrateSectionValues(getHotkeySections(currentPlatform));
+      await loadHotkeys(currentPlatform);
+    } else console.error("Failed to get platform", platformResult.reason);
+    if (platformResult.status === "rejected") await loadHotkeys();
     if (hotkeysSections?.length > 0) activeSection = hotkeysSections[0]!.name;
   });
 </script>
@@ -232,7 +319,7 @@
         variant="destructive"
         size="xs"
         onclick={() => {
-          stopRecording();
+          cancelRecording();
           dialogOpen = true;
         }}
       >
@@ -267,16 +354,22 @@
 
   <div class="flex-1 overflow-auto">
     <div class="mx-auto max-w-xl px-6 py-4">
+      {#if uiError}
+        <div
+          class="mb-3 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive"
+        >
+          {uiError}
+        </div>
+      {/if}
       {#each hotkeysSections as section, sectionIndex (section.name)}
-        {@const sectionConflicts = conflicts.filter((c) =>
-          section.items.some((i) => c.labels.includes(i.label)),
-        )}
+        {@const sectionConflictCount =
+          sectionConflictCountByName.get(section.name) ?? 0}
         {@const isExpanded = activeSection === section.name}
         <div class={cn(sectionIndex > 0 && "mt-1")}>
           <button
             class="group flex w-full items-center gap-2 rounded-md bg-secondary/20 px-2 py-1.5 text-left transition-colors hover:bg-secondary/40"
             onclick={() => {
-              if (recordingState.isRecording) stopRecording();
+              if (recordingState.isRecording) cancelRecording();
               activeSection = isExpanded ? null : section.name;
             }}
           >
@@ -290,16 +383,14 @@
               {section.name}
             </span>
 
-            {#if sectionConflicts.length > 0}
+            {#if sectionConflictCount > 0}
               <div
                 class="flex items-center gap-1.5 rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-semibold text-destructive"
               >
                 <AlertTriangle class="h-2.5 w-2.5" />
                 <span
-                  >{sectionConflicts.length}
-                  {sectionConflicts.length === 1
-                    ? "conflict"
-                    : "conflicts"}</span
+                  >{sectionConflictCount}
+                  {sectionConflictCount === 1 ? "conflict" : "conflicts"}</span
                 >
               </div>
             {/if}
@@ -317,20 +408,22 @@
                 {@const isRecordingThis =
                   recordingState.isRecording &&
                   recordingState.actionId === item.id}
-                {@const itemConflict = conflicts.find((c) =>
-                  c.labels.includes(item.label),
-                )}
+                {@const pendingSave = isActionPending(item.id)}
+                {@const rowError = rowErrorByAction[item.id]}
+                {@const itemConflict = getConflictForLabel(item.label)}
                 <div
                   class={cn(
                     "group/row flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left transition-colors",
                     isRecordingThis
                       ? "relative bg-primary/5"
                       : "cursor-pointer bg-transparent hover:bg-secondary/30",
+                    pendingSave && "cursor-not-allowed opacity-60",
                   )}
-                  onclick={() => !isRecordingThis && startRecording(item.id)}
+                  onclick={() =>
+                    !isRecordingThis && !pendingSave && beginRecording(item.id)}
                   onkeydown={(ev) => {
-                    if (!isRecordingThis && ev.key === "Enter")
-                      startRecording(item.id);
+                    if (!isRecordingThis && !pendingSave && ev.key === "Enter")
+                      beginRecording(item.id);
                   }}
                   role="button"
                   tabindex="0"
@@ -339,7 +432,7 @@
                     <span class="text-sm text-foreground">{item.label}</span>
                     {#if itemConflict && !isRecordingThis}
                       {@const otherActions = itemConflict.labels.filter(
-                        (l) => l !== item.label,
+                        (label) => label !== item.label,
                       )}
                       <span
                         class="flex items-center gap-1 text-[10px] font-medium text-destructive/70"
@@ -357,14 +450,10 @@
                     {#if isRecordingThis}
                       {@const recordingConflict =
                         recordingState.lastPressedKey &&
-                        getActionForHotkey(
+                        getRecordingConflict(
+                          item.id,
                           recordingState.lastPressedKey,
-                          hotkeysSections,
-                        ) &&
-                        getActionForHotkey(
-                          recordingState.lastPressedKey,
-                          hotkeysSections,
-                        ) !== item.label}
+                        )}
                       {#if recordingState.lastPressedKey}
                         <span
                           class={cn(
@@ -400,7 +489,7 @@
                       <span
                         class="text-xs text-muted-foreground/50 group-hover/row:text-muted-foreground"
                       >
-                        Click to bind
+                        {pendingSave ? "Saving..." : "Click to bind"}
                       </span>
                     {/if}
                   </div>
@@ -437,6 +526,11 @@
                     {/if}
                   </div>
                 {/if}
+                {#if rowError}
+                  <div class="mt-1 px-2.5 text-[11px] text-destructive/80">
+                    {rowError}
+                  </div>
+                {/if}
               {/each}
             </div>
           {/if}
@@ -463,7 +557,7 @@
         variant="destructive"
         size="sm"
         onclick={() => {
-          restoreDefaults();
+          void restoreDefaults();
           dialogOpen = false;
         }}
       >
