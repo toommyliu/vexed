@@ -9,7 +9,7 @@ const logger = new typedoc.ConsoleLogger();
 const generateCommandsApiDoc = async () => {
   const apiEntryPath = join(
     process.cwd(),
-    "src/renderer/game/botting/commands/",
+    "src/renderer/apps/game/botting/commands/",
   );
   const docsEntryPath = join(process.cwd(), "../docs/src/content/docs/api/");
 
@@ -465,7 +465,7 @@ async function writeFile(filePath: string, content: string[]) {
 const generateCommandsTypesFile = async () => {
   const apiEntryPath = join(
     process.cwd(),
-    "src/renderer/game/botting/commands/",
+    "src/renderer/apps/game/botting/commands/",
   );
 
   // Output path for the types file
@@ -610,10 +610,7 @@ export interface CommandConstructor {
   }
 };
 
-Promise.all([
-  generateCommandsApiDoc(),
-  generateCommandsTypesFile(),
-]);
+Promise.all([generateCommandsApiDoc(), generateCommandsTypesFile()]);
 
 type Namespace = {
   /**
