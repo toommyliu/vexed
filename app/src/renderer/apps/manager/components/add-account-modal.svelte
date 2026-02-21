@@ -7,6 +7,8 @@
   import EyeOff from "@vexed/ui/icons/EyeOff";
   import Loader from "@vexed/ui/icons/Loader";
   import AlertCircle from "@vexed/ui/icons/AlertCircle";
+  import { Result, matchErrorPartial } from "better-result";
+  import type { ManagerIpcError } from "~/shared/manager/errors";
 
   import type { Account } from "~/shared/types";
   import { client } from "~/shared/tipc";
@@ -72,21 +74,29 @@
         password: cleanPassword,
       };
 
-      const res = await client.manager.addAccount(newAccount);
+      const serialized = await client.manager.addAccount(newAccount);
+      const result = Result.deserialize<void, ManagerIpcError>(serialized);
 
-      switch (res?.msg) {
-        case "SUCCESS":
-          managerState.accounts.set(cleanUsername, newAccount);
-          onClose();
-          break;
-        case "USERNAME_ALREADY_EXISTS":
-          error = "An account with this username already exists";
-          fieldError = "username";
-          break;
-        case "FAILED":
-        default:
-          error = "Failed to save account. Please try again.";
+      if (result.isOk()) {
+        managerState.accounts.set(cleanUsername, newAccount);
+        onClose();
+        return;
       }
+
+      matchErrorPartial(
+        result.error,
+        {
+          ManagerDuplicateUsernameError: () => {
+            error = "An account with this username already exists";
+            fieldError = "username";
+            return error;
+          },
+        },
+        () => {
+          error = "Failed to save account. Please try again.";
+          return error;
+        },
+      );
     } catch (err) {
       error = "Failed to save account. Please try again.";
       console.error("Failed to add account:", err);

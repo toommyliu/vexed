@@ -9,6 +9,7 @@
   import EyeOff from "@vexed/ui/icons/EyeOff";
   import AlertCircle from "@vexed/ui/icons/AlertCircle";
   import Loader from "@vexed/ui/icons/Loader";
+  import { matchErrorPartial } from "better-result";
 
   type Props = {
     isOpen: boolean;
@@ -60,18 +61,28 @@
       };
 
       const res = await editAccount(account.username, updatedAccount);
-      if (!res?.success) {
-        switch (res?.error) {
-          case "USERNAME_ALREADY_EXISTS":
-            error = "Failed to update account. Username might already exist.";
-            break;
-          case "ACCOUNT_NOT_FOUND":
-            error = "Failed to update account. Original account not found.";
-            break;
-          case "FAILED":
-          default:
+      if (!res) {
+        error = "Failed to update account. Please try again.";
+        return;
+      }
+      if (res.isErr()) {
+        matchErrorPartial(
+          res.error,
+          {
+            ManagerDuplicateUsernameError: () => {
+              error = "Failed to update account. Username might already exist.";
+              return error;
+            },
+            ManagerAccountNotFoundError: () => {
+              error = "Failed to update account. Original account not found.";
+              return error;
+            },
+          },
+          () => {
             error = "Failed to update account. Please try again.";
-        }
+            return error;
+          },
+        );
         return;
       }
 

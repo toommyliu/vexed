@@ -5,18 +5,19 @@
   import Play from "@vexed/ui/icons/Play";
   import Pencil from "@vexed/ui/icons/Pencil";
   import Loader from "@vexed/ui/icons/Loader";
+  import { Result } from "better-result";
   import { Button, Input, Checkbox, Switch } from "@vexed/ui";
   import * as Select from "@vexed/ui/Select";
   import * as AlertDialog from "@vexed/ui/AlertDialog";
-
-  import { onMount } from "svelte";
-
-  import { managerState } from "./state.svelte";
-  import { removeAccount, startAccount } from "./util";
-  import { client, handlers } from "../../../shared/tipc";
-  import type { Account } from "../../../shared/types";
   import EditAccountModal from "./components/edit-account-modal.svelte";
   import AddAccountModal from "./components/add-account-modal.svelte";
+  import { onMount } from "svelte";
+  import type { ManagerIpcError } from "~/shared/manager/errors";
+  import { managerState } from "./state.svelte";
+  import { removeAccount, startAccount } from "./util";
+  import { client, handlers } from "~/shared/tipc";
+  import type { Account } from "~/shared/types";
+
 
   const { accounts, servers, selectedAccounts } = managerState;
 
@@ -34,6 +35,7 @@
 
   let serverFetchError = $state("");
   let isRetryingServerFetch = $state(false);
+  let accountsLoadError = $state("");
 
   let filteredAccounts = $derived(
     Array.from(accounts.values()).filter((acc) => {
@@ -87,18 +89,26 @@
 
   onMount(async () => {
     isLoading = true;
+    accountsLoadError = "";
 
-    const [accountData] = await Promise.all([
+    const [serializedAccounts] = await Promise.all([
       client.manager.getAccounts(),
       loadServers(),
     ]);
 
-    if (Array.isArray(accountData)) {
+    const accountResult = Result.deserialize<Account[], ManagerIpcError>(
+      serializedAccounts,
+    );
+
+    if (accountResult.isOk()) {
       accounts.clear();
-      for (const account of accountData) {
+      for (const account of accountResult.value) {
         if (typeof account?.username !== "string") continue;
         accounts.set(account.username.toLowerCase(), account);
       }
+    } else {
+      console.error("Failed to load accounts:", accountResult.error);
+      accountsLoadError = "Failed to load accounts. Please try restarting.";
     }
 
     isLoading = false;
@@ -199,7 +209,7 @@
   }
 
   async function selectScript() {
-    const path = await client.app.loadScript();
+    const path = await client.app.loadScript({});
     if (path) {
       console.log(`Loaded script path: ${path}`);
       managerState.scriptPath = path;
@@ -248,6 +258,14 @@
             bind:value={searchQuery}
           />
         </div>
+
+        {#if accountsLoadError}
+          <div
+            class="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+          >
+            {accountsLoadError}
+          </div>
+        {/if}
 
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {#if serverFetchError}

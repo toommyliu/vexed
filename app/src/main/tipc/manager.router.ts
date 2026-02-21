@@ -1,17 +1,33 @@
 import type { TipcInstance } from "@vexed/tipc";
-import { matchErrorPartial } from "better-result";
+import { Result, matchErrorPartial } from "better-result";
+import {
+  ManagerAccountNotFoundError,
+  ManagerDuplicateUsernameError,
+  type ManagerIpcError,
+  ManagerOperationFailedError,
+  type ManagerOperation,
+} from "~/shared/manager/errors";
 import type { Account } from "~/shared/types";
 import { accounts } from "../services/accounts";
 import { windowsService } from "../services/windows";
 import type { RendererHandlers } from "../tipc";
-import { TipcResult } from "./result";
+
+const operationFailedError = (
+  operation: ManagerOperation,
+  cause?: string,
+): ManagerIpcError => new ManagerOperationFailedError({ cause, operation });
 
 export function createManagerTipcRouter(tipc: TipcInstance) {
   return {
     getAccounts: tipc.procedure.action(async () => {
       const result = await accounts.getAll();
-      if (result.isErr()) return TipcResult.err(result.error.message);
-      return TipcResult.ok(result.value);
+      if (result.isErr())
+        return Result.serialize(
+          Result.err(
+            operationFailedError("getAccounts", result.error.message),
+          ),
+        );
+      return Result.serialize(Result.ok(result.value));
     }),
 
     addAccount: tipc.procedure.input<Account>().action(async ({ input }) => {
@@ -21,13 +37,24 @@ export function createManagerTipcRouter(tipc: TipcInstance) {
           result.error,
           {
             DuplicateUsernameError: () =>
-              TipcResult.err("USERNAME_ALREADY_EXISTS"),
+              Result.serialize(
+                Result.err(
+                  new ManagerDuplicateUsernameError({
+                    username: input.username,
+                  }),
+                ),
+              ),
           },
-          () => TipcResult.err("FAILED"),
+          () =>
+            Result.serialize(
+              Result.err(
+                operationFailedError("addAccount", result.error.message),
+              ),
+            ),
         );
       }
 
-      return TipcResult.ok();
+      return Result.serialize(Result.ok());
     }),
 
     removeAccount: tipc.procedure
@@ -40,13 +67,25 @@ export function createManagerTipcRouter(tipc: TipcInstance) {
           return matchErrorPartial(
             result.error,
             {
-              AccountNotFoundError: () => TipcResult.err("ACCOUNT_NOT_FOUND"),
+              AccountNotFoundError: () =>
+                Result.serialize(
+                  Result.err(
+                    new ManagerAccountNotFoundError({
+                      username: input.username,
+                    }),
+                  ),
+                ),
             },
-            () => TipcResult.err("FAILED"),
+            () =>
+              Result.serialize(
+                Result.err(
+                  operationFailedError("removeAccount", result.error.message),
+                ),
+              ),
           );
         }
 
-        return TipcResult.ok();
+        return Result.serialize(Result.ok());
       }),
 
     updateAccount: tipc.procedure
@@ -63,15 +102,33 @@ export function createManagerTipcRouter(tipc: TipcInstance) {
           return matchErrorPartial(
             result.error,
             {
-              AccountNotFoundError: () => TipcResult.err("ACCOUNT_NOT_FOUND"),
+              AccountNotFoundError: () =>
+                Result.serialize(
+                  Result.err(
+                    new ManagerAccountNotFoundError({
+                      username: input.originalUsername,
+                    }),
+                  ),
+                ),
               DuplicateUsernameError: () =>
-                TipcResult.err("USERNAME_ALREADY_EXISTS"),
+                Result.serialize(
+                  Result.err(
+                    new ManagerDuplicateUsernameError({
+                      username: input.updatedAccount.username,
+                    }),
+                  ),
+                ),
             },
-            () => TipcResult.err("FAILED"),
+            () =>
+              Result.serialize(
+                Result.err(
+                  operationFailedError("updateAccount", result.error.message),
+                ),
+              ),
           );
         }
 
-        return TipcResult.ok();
+        return Result.serialize(Result.ok());
       }),
 
     // Game login completes, notify the manager window to update UI
