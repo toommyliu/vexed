@@ -1,4 +1,6 @@
 import { tipc, type ClientFromRouter } from "@vexed/tipc";
+import type { SerializedResult } from "better-result";
+import type { ArmyConfigPayload } from "~/shared/army/types";
 import type {
   EnvironmentState,
   EnvironmentUpdatePayload,
@@ -91,6 +93,9 @@ export type RendererHandlers = {
   packets: ClientFromRouter<ReturnType<typeof createPacketTipcRouter>>;
 
   army: {
+    loadConfig(input: {
+      fileName: string;
+    }): Promise<SerializedResult<ArmyConfigPayload, string>>;
     init(input: {
       fileName: string;
       playerName: string;

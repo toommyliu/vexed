@@ -1,8 +1,8 @@
 // https://github.com/BrenoHenrike/Scripts/blob/Skua/Army/CoreArmyLite.cs
 
-import Config from "@vexed/config";
+import { Result } from "better-result";
 import log from "~/renderer/shared/logger";
-import { STORAGE_PATH } from "~/shared/constants";
+import type { ArmyConfigPayload, ArmyConfigRaw } from "~/shared/army/types";
 import { client } from "~/shared/tipc";
 import type { Bot } from "./Bot";
 
@@ -16,9 +16,14 @@ const logger = log.scope("game/army");
  */
 export class Army {
   /**
-   * The config file for this group.
+   * The normalized config file name for this group.
    */
-  public config!: Config<ArmyConfig>;
+  public configName = "";
+
+  /**
+   * The raw config payload loaded from main process.
+   */
+  public rawConfig: ArmyConfigRaw = {};
 
   /**
    * The players in this group.
@@ -35,7 +40,7 @@ export class Army {
    */
   public isInitialized!: boolean;
 
-  // private isInitialized = false;
+  private leader = "";
 
   public constructor(public readonly bot: Bot) {}
 
@@ -45,16 +50,11 @@ export class Army {
    * @param fileName - The name of the config file.
    */
   public setConfigName(fileName: string) {
-    const cleanFileName = fileName.endsWith(".json")
+    this.configName = fileName.endsWith(".json")
       ? fileName.slice(0, -5)
       : fileName;
 
-    this.config = new Config({
-      configName: cleanFileName,
-      cwd: STORAGE_PATH,
-    });
-
-    logger.debug(`Using config: ${this.config.configName}`);
+    logger.debug(`Using config: ${this.configName}`);
   }
 
   /**
@@ -62,38 +62,37 @@ export class Army {
    */
   public async init(): Promise<boolean> {
     try {
-      await this.config.load();
-
-      const playerCount = this.config.get("PlayerCount");
-      if (!playerCount) {
-        logger.warn("PlayerCount is not set in config file.");
+      if (!this.configName) {
+        logger.warn("Config name is not set.");
         return false;
       }
 
-      const roomNumber = this.config.get("RoomNumber");
-      if (roomNumber) {
-        this.roomNumber = String(roomNumber);
-      } else {
-        logger.warn("RoomNumber is not set in config file.");
+      this.isInitialized = false;
+      this.players.clear();
+      this.roomNumber = "";
+      this.leader = "";
+      this.rawConfig = {};
+
+      const serialized = await client.army.loadConfig({
+        fileName: this.configName,
+      });
+      const configResult = Result.deserialize<ArmyConfigPayload, string>(
+        serialized,
+      );
+      if (configResult.isErr()) {
+        logger.warn(`Failed to load army config: ${configResult.error}`);
         return false;
       }
 
-      if (playerCount < 1) {
-        logger.warn("PlayerCount must be at least 1.");
-        return false;
-      }
-
-      for (let idx = 1; idx <= playerCount; idx++) {
-        const player = this.config.get(`Player${idx}`);
-        if (player && typeof player === "string") {
-          this.players.add(player);
-        } else {
-          logger.warn(`Player${idx} not set in config file.`);
-        }
-      }
+      const payload = configResult.value;
+      this.configName = payload.configName;
+      this.rawConfig = payload.raw;
+      this.roomNumber = payload.roomNumber;
+      this.leader = payload.leader;
+      this.players = new Set(payload.players);
 
       const args = {
-        fileName: this.config.configName,
+        fileName: this.configName,
         playerName: this.bot.auth.username,
       };
 
@@ -127,13 +126,53 @@ export class Army {
    * @returns True if this player is the leader, false otherwise.
    */
   public isLeader(): boolean {
-    const og_player1 = this.config.get("Player1");
-    const player_1 = typeof og_player1 === "string" ? og_player1?.trim() : "";
+    const player1 = this.leader || this.getConfigString("Player1", "").trim();
 
     return (
-      Boolean(player_1) &&
-      this.bot.auth.username.toLowerCase() === player_1.toLowerCase()
+      Boolean(player1) &&
+      this.bot.auth.username.toLowerCase() === player1.toLowerCase()
     );
+  }
+
+  public getConfigValue(key: string, defaultValue?: unknown): unknown {
+    if (!key) {
+      return this.rawConfig;
+    }
+
+    if (key.includes(".")) {
+      return this.getNestedConfigValue(this.rawConfig, key, defaultValue);
+    }
+
+    const value = (this.rawConfig as Record<string, unknown>)[key];
+    return value !== undefined ? value : defaultValue;
+  }
+
+  public getConfigString(key: string, defaultValue = ""): string {
+    const value = this.getConfigValue(key, defaultValue);
+    return typeof value === "string" ? value : defaultValue;
+  }
+
+  private getNestedConfigValue(
+    obj: Record<string, unknown>,
+    path: string,
+    defaultValue?: unknown,
+  ): unknown {
+    const keys = path.split(".");
+    let current: unknown = obj;
+
+    for (const key of keys) {
+      if (
+        current === null ||
+        current === undefined ||
+        typeof current !== "object" ||
+        !(key in current)
+      ) {
+        return defaultValue;
+      }
+      current = (current as Record<string, unknown>)[key];
+    }
+
+    return current;
   }
 
   /**
@@ -168,20 +207,3 @@ export class Army {
     this.bot.packets.sendServer("%xt%zm%afk%1%false%");
   }
 }
-
-type ArmyConfig = {
-  [key: `Player${number}`]: string;
-  PlayerCount: number;
-  RoomNumber: number;
-} & {
-  [setName: string]: {
-    [key: `Player${number}`]: {
-      Armor?: string;
-      Cape?: string;
-      Class?: string;
-      Helm?: string;
-      Pet?: string;
-      Weapon?: string;
-    };
-  };
-};

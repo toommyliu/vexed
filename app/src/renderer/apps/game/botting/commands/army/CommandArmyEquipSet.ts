@@ -7,7 +7,7 @@ export class CommandArmyEquipSet extends ArmyCommand {
   public refMode: boolean = false;
 
   public override async executeImpl() {
-    const set = this.bot.army.config.get(this.setName) as unknown as Record<
+    const set = this.bot.army.getConfigValue(this.setName) as unknown as Record<
       string,
       Set
     >;
@@ -88,7 +88,7 @@ export class CommandArmyEquipSet extends ArmyCommand {
 
   #resolveItem(item: string): string | null {
     if (this.refMode) {
-      const res = this.bot.army.config.get(item);
+      const res = this.bot.army.getConfigValue(item);
       if (typeof res === "string") return res;
 
       this.logger.debug(`Ref "${item}" not found, using as item name.`);
