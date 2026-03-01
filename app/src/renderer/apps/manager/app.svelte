@@ -1,26 +1,32 @@
 <script lang="ts">
-  import Plus from "@vexed/ui/icons/Plus";
-  import Search from "@vexed/ui/icons/Search";
-  import Trash2 from "@vexed/ui/icons/Trash2";
-  import Play from "@vexed/ui/icons/Play";
-  import Pencil from "@vexed/ui/icons/Pencil";
-  import Loader from "@vexed/ui/icons/Loader";
+  import type { ServerData } from "@vexed/game";
+  import {
+    AppFrame,
+    Button,
+    Checkbox,
+    DialogHost,
+    Icon,
+    Input,
+    Select,
+    Switch,
+    dialog,
+  } from "@vexed/ui";
   import { Result } from "better-result";
-  import { Button, Input, Checkbox, Switch } from "@vexed/ui";
-  import * as Select from "@vexed/ui/Select";
-  import * as AlertDialog from "@vexed/ui/AlertDialog";
-  import EditAccountModal from "./components/edit-account-modal.svelte";
-  import AddAccountModal from "./components/add-account-modal.svelte";
   import { onMount } from "svelte";
-  import type { ManagerIpcError } from "~/shared/manager/errors";
+  import { get } from "svelte/store";
+
+  import AddAccountDialog from "./components/add-account-dialog.svelte";
+  import EditAccountDialog from "./components/edit-account-dialog.svelte";
+
   import { managerState } from "./state.svelte";
+  import { servers, selectedServer } from "./state/servers";
   import { removeAccount, startAccount } from "./util";
+
+  import type { ManagerIpcError } from "~/shared/manager/errors";
   import { client, handlers } from "~/shared/tipc";
   import type { Account } from "~/shared/types";
 
-
-  const { accounts, servers, selectedAccounts } = managerState;
-
+  const { accounts, selectedAccounts } = managerState;
   let searchQuery = $state("");
   let isLoading = $state(true);
 
@@ -28,7 +34,6 @@
   let isEditOpen = $state(false);
   let editingAccount = $state<Account | null>(null);
 
-  let deleteDialogOpen = $state(false);
   let deleteDialogLoading = $state(false);
   let deleteDialogError = $state("");
   let pendingDeleteUsernames = $state<string[]>([]);
@@ -37,14 +42,14 @@
   let isRetryingServerFetch = $state(false);
   let accountsLoadError = $state("");
 
-  let filteredAccounts = $derived(
-    Array.from(accounts.values()).filter((acc) => {
-      return acc.username.toLowerCase().includes(searchQuery.toLowerCase());
-    }),
+  const filteredAccounts = $derived(
+    Array.from(accounts.values()).filter((acc) =>
+      acc.username.toLowerCase().includes(searchQuery.toLowerCase()),
+    ),
   );
 
-  let selectedCount = $derived(selectedAccounts.size);
-  let isAllSelected = $derived(
+  const selectedCount = $derived(selectedAccounts.size);
+  const isAllSelected = $derived(
     filteredAccounts.length > 0 &&
       filteredAccounts.every((a) =>
         selectedAccounts.has(a.username.toLowerCase()),
@@ -54,35 +59,22 @@
   async function loadServers() {
     try {
       serverFetchError = "";
-      const resp = await fetch("https://game.aq.com/game/api/data/servers");
 
-      if (resp.status === 429) {
-        serverFetchError =
-          "Too many requests. Please wait a moment before retrying.";
-        return;
+      const serializedServers = await client.app.getServers();
+      const serversResult = Result.deserialize<ServerData[], unknown>(
+        serializedServers,
+      );
+      if (serversResult.isOk()) {
+        servers.clear();
+        for (const [idx, server] of serversResult.value.entries()) {
+          // Set the default selected server to the first one if none is selected
+          if (idx === 0 && !get(selectedServer))
+            selectedServer.set(`${server.sName} (${server.iCount})`);
+          servers.set(server.sName, server);
+        }
       }
-
-      if (!resp.ok) {
-        serverFetchError = `Failed to load servers (HTTP ${resp.status}).`;
-        return;
-      }
-
-      const serverData = await resp.json();
-      if (!Array.isArray(serverData)) {
-        serverFetchError = "Received invalid server data.";
-        return;
-      }
-
-      servers.clear();
-      for (let i = 0; i < serverData.length; i++) {
-        const server = serverData[i];
-        if (i === 0 && !managerState.selectedServer)
-          managerState.selectedServer = `${server.sName} (${server.iCount})`;
-
-        servers.set(server.sName, server);
-      }
-    } catch (err) {
-      console.error("Fetch error:", err);
+    } catch (error) {
+      console.error("Fetch error:", error);
       serverFetchError = "Connection error. Please check your internet.";
     }
   }
@@ -151,14 +143,27 @@
     });
   }
 
-  function handleRemove(usernames: string[]) {
+  async function handleRemove(usernames: string[]) {
     pendingDeleteUsernames = usernames;
     deleteDialogError = "";
     deleteDialogLoading = false;
-    deleteDialogOpen = true;
-  }
 
-  async function confirmDelete() {
+    const confirmed = await dialog.confirm({
+      title: `Remove ${pendingDeleteUsernames.length} account${
+        pendingDeleteUsernames.length === 1 ? "" : "s"
+      }?`,
+      description: deleteDialogError || "This action cannot be undone.",
+      confirmLabel: "Remove",
+      cancelLabel: "Cancel",
+      footerVariant: "bare",
+      size: "sm",
+    });
+
+    if (!confirmed) {
+      pendingDeleteUsernames = [];
+      return;
+    }
+
     deleteDialogLoading = true;
     deleteDialogError = "";
     const failed: string[] = [];
@@ -180,26 +185,22 @@
 
     if (failed.length > 0) {
       deleteDialogError = `Failed to remove ${failed.length} account(s). Please try again.`;
-    } else {
-      deleteDialogOpen = false;
-      pendingDeleteUsernames = [];
+      await dialog.confirm({
+        title: "Remove failed",
+        description: deleteDialogError,
+        confirmLabel: "Ok",
+        cancelLabel: "Close",
+      });
     }
-  }
 
-  function cancelDelete() {
-    if (!deleteDialogLoading) {
-      deleteDialogOpen = false;
-      pendingDeleteUsernames = [];
-      deleteDialogError = "";
-    }
+    pendingDeleteUsernames = [];
   }
 
   function handleStart(usernames: string[]) {
     for (const u of usernames) {
       const acc = accounts.get(u.toLowerCase());
       if (acc) {
-        const serverName =
-          managerState.selectedServer?.split(" (")?.[0] ?? null;
+        const serverName = get(selectedServer)?.split(" (")?.[0] ?? null;
         startAccount({
           ...acc,
           server: serverName,
@@ -217,38 +218,35 @@
     }
   }
 
+  function handleAddAccount() {
+    isAddOpen = true;
+  }
+
   handlers.manager.onLogin.listen((username) => {
     console.log(`${username} completed log in...`);
   });
 </script>
 
-<div class="flex h-screen flex-col bg-background">
-  <header
-    class="elevation-1 sticky top-0 z-10 border-b border-border/50 bg-background/95 px-6 py-3 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80"
-  >
-    <div class="mx-auto flex max-w-7xl items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div>
-          <h1 class="text-base font-semibold tracking-tight text-foreground">
-            Account Manager
-          </h1>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-2">
-        <Button size="sm" class="gap-2" onclick={() => (isAddOpen = true)}>
-          <Plus class="h-4 w-4" />
-          <span class="hidden sm:inline">Add Account</span>
-        </Button>
-      </div>
-    </div>
-  </header>
-
-  <main class="flex-1 overflow-hidden p-4 sm:p-6">
+<AppFrame.Root>
+  <AppFrame.Header title="Account Manager">
+    {#snippet right()}
+      <Button
+        variant="outline"
+        size="sm"
+        class="gap-2"
+        onclick={handleAddAccount}
+      >
+        <Icon icon="plus" class="h-4 w-4" />
+        <span class="hidden sm:inline">Add Account</span>
+      </Button>
+    {/snippet}
+  </AppFrame.Header>
+  <AppFrame.Body>
     <div class="mx-auto flex h-full max-w-7xl flex-col gap-3">
       <div class="flex flex-col gap-3">
         <div class="relative">
-          <Search
+          <Icon
+            icon="search"
             class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
           />
           <Input
@@ -285,16 +283,16 @@
               </span>
             </Button>
           {:else}
-            <Select.Root bind:value={managerState.selectedServer}>
+            <Select.Root>
               <Select.Trigger
                 class="w-full border-border/50 bg-secondary/50 transition-colors hover:bg-secondary"
                 disabled={servers.size === 0}
               >
                 <div class="flex items-center gap-2">
-                  <span class="text-sm text-muted-foreground">Login server</span
+                  <span class="text-sm text-muted-foreground">Login Server</span
                   >
                   <span class="truncate text-sm text-foreground"
-                    >{managerState.selectedServer?.split(" (")?.[0] ??
+                    >{$selectedServer.split(" (")?.[0] ??
                       "Loading servers..."}</span
                   >
                 </div>
@@ -318,7 +316,7 @@
 
           <div
             class="group relative flex items-stretch overflow-hidden rounded-lg border transition-all duration-200
-              {managerState.startWithScript
+                {managerState.startWithScript
               ? 'elevation-1 border-primary/40 bg-primary/5'
               : 'border-border/50 bg-secondary/50'}"
           >
@@ -331,7 +329,7 @@
               />
               <span
                 class="select-none whitespace-nowrap text-sm font-medium transition-colors
-                  {managerState.startWithScript
+                    {managerState.startWithScript
                   ? 'text-foreground'
                   : 'text-muted-foreground'}"
               >
@@ -341,7 +339,7 @@
 
             <div
               class="my-1.5 w-px self-stretch transition-colors
-                {managerState.startWithScript
+                  {managerState.startWithScript
                 ? 'bg-primary/20'
                 : 'bg-border/30'}"
             ></div>
@@ -354,7 +352,7 @@
             >
               <span
                 class="truncate text-sm transition-colors
-                  {managerState.scriptPath
+                    {managerState.scriptPath
                   ? 'font-medium text-foreground'
                   : 'text-muted-foreground'}"
               >
@@ -387,18 +385,13 @@
 
         <div class="flex flex-wrap items-center gap-0.5 sm:gap-1">
           <Button
-            variant="ghost"
+            variant="secondary"
             size="sm"
             onclick={toggleAll}
-            class="px-2 text-muted-foreground hover:text-foreground sm:px-3"
-            title={isAllSelected ? "Deselect all" : "Select all"}
+            class="px-2 sm:px-3"
           >
-            <span class="text-sm font-medium"
-              >{isAllSelected ? "None" : "All"}</span
-            >
+            {isAllSelected ? "None" : "All"}
           </Button>
-
-          <div class="hidden h-4 w-px bg-border/30 sm:block"></div>
 
           <Button
             variant="ghost"
@@ -415,14 +408,13 @@
           ></div>
 
           <Button
-            variant="ghost"
+            variant="destructive-outline"
             size="sm"
             onclick={() => handleRemove(Array.from(selectedAccounts))}
             disabled={selectedCount === 0}
-            class="ml-0.5 px-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive sm:ml-1 sm:px-3"
-            title="Remove selected"
+            class="ml-0.5 px-2 sm:ml-1 sm:px-3"
           >
-            <Trash2 class="h-4 w-4" />
+            <Icon icon="trash" class="h-4 w-4" />
             <span class="hidden text-sm font-medium sm:inline">Remove</span>
           </Button>
 
@@ -434,7 +426,7 @@
             class="ml-0.5 bg-primary px-2 text-primary-foreground hover:bg-primary/90 sm:ml-1 sm:px-3"
             title="Start selected"
           >
-            <Play class="h-4 w-4" />
+            <Icon icon="play" class="h-4 w-4" />
             <span class="hidden text-sm font-medium sm:inline">Start</span>
           </Button>
         </div>
@@ -445,7 +437,7 @@
           <div
             class="flex h-full flex-col items-center justify-center gap-3 text-muted-foreground"
           >
-            <Loader class="h-6 w-6 animate-spin text-primary" />
+            <Icon icon="loader" size="xl" spin />
             <p class="text-sm">Loading accounts...</p>
           </div>
         {:else if filteredAccounts.length === 0}
@@ -464,7 +456,7 @@
               class="border-border/50"
               onclick={() => {
                 searchQuery = "";
-                managerState.selectedServer = undefined;
+                selectedServer.set("");
               }}
             >
               Clear Filters
@@ -479,7 +471,7 @@
 
               <div
                 class="group flex cursor-pointer items-center gap-4 rounded-xl border px-4 py-4 transition-all duration-150
-                  {isSelected
+                    {isSelected
                   ? 'elevation-2 border-primary/50 bg-primary/5'
                   : 'hover:elevation-1 border-border/50 bg-card hover:border-border hover:bg-secondary/30'}"
                 onclick={() => toggleSelection(account.username)}
@@ -511,7 +503,7 @@
                       handleStart([account.username]);
                     }}
                   >
-                    <Play class="h-3.5 w-3.5" />
+                    <Icon icon="play" class="h-3.5 w-3.5" />
                   </Button>
 
                   <Button
@@ -524,7 +516,7 @@
                       isEditOpen = true;
                     }}
                   >
-                    <Pencil class="h-3.5 w-3.5" />
+                    <Icon icon="pencil" class="h-3.5 w-3.5" />
                   </Button>
 
                   <Button
@@ -536,7 +528,7 @@
                       handleRemove([account.username]);
                     }}
                   >
-                    <Trash2 class="h-3.5 w-3.5" />
+                    <Icon icon="trash" class="h-3.5 w-3.5" />
                   </Button>
                 </div>
               </div>
@@ -545,17 +537,16 @@
         {/if}
       </div>
     </div>
-  </main>
-</div>
+  </AppFrame.Body>
+</AppFrame.Root>
 
-<AddAccountModal
+<AddAccountDialog
   isOpen={isAddOpen}
   onClose={() => {
     isAddOpen = false;
   }}
 />
-
-<EditAccountModal
+<EditAccountDialog
   isOpen={isEditOpen}
   account={editingAccount}
   onClose={() => {
@@ -563,46 +554,4 @@
     editingAccount = null;
   }}
 />
-
-<AlertDialog.Root bind:open={deleteDialogOpen}>
-  <AlertDialog.Content>
-    <AlertDialog.Header>
-      <AlertDialog.Title>
-        Remove {pendingDeleteUsernames.length} account{pendingDeleteUsernames.length !==
-        1
-          ? "s"
-          : ""}?
-      </AlertDialog.Title>
-      <AlertDialog.Description>
-        {#if deleteDialogError}
-          <span class="text-destructive">{deleteDialogError}</span>
-        {:else}
-          This action cannot be undone.
-        {/if}
-      </AlertDialog.Description>
-    </AlertDialog.Header>
-    <AlertDialog.Footer>
-      <Button
-        variant="outline"
-        onclick={cancelDelete}
-        disabled={deleteDialogLoading}
-        class="min-w-[80px]"
-      >
-        Cancel
-      </Button>
-      <Button
-        variant="destructive"
-        onclick={confirmDelete}
-        disabled={deleteDialogLoading}
-        class="min-w-[80px]"
-      >
-        {#if deleteDialogLoading}
-          <Loader class="size-4 animate-spin" />
-          <span>Removing...</span>
-        {:else}
-          <span>Remove</span>
-        {/if}
-      </Button>
-    </AlertDialog.Footer>
-  </AlertDialog.Content>
-</AlertDialog.Root>
+<DialogHost />
