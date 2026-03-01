@@ -34,7 +34,6 @@
   const isHighlighted = $derived(rootCtx.highlightedEl() === ref);
   const dataState = $derived(subCtx.open() ? "open" : "closed");
 
-  // Register in parent menu's item list for root-level keyboard navigation
   $effect(() => {
     if (ref) rootCtx.registerItem(ref, disabled);
     return () => {

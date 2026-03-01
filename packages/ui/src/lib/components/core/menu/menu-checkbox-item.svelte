@@ -82,20 +82,6 @@
 >
   {#if variant === "switch"}
     {@render label?.()}
-    <!-- <span
-      class={cn(
-        "ms-auto inline-flex h-4 w-7 flex-shrink-0 items-center rounded-full p-0.5 transition-colors duration-200",
-        checked ? "bg-primary" : "bg-muted-foreground/20",
-      )}
-      aria-hidden="true"
-    >
-      <span
-        class={cn(
-          "h-3 w-3 rounded-full bg-background shadow-sm transition-transform duration-200",
-          checked ? "translate-x-3" : "translate-x-0",
-        )}
-      ></span>
-    </span> -->
     <Switch {checked} size="sm" />
   {:else}
     <span class="flex h-3.5 w-3.5 flex-shrink-0 items-center justify-center">

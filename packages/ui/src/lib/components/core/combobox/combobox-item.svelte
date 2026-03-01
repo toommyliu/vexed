@@ -6,7 +6,10 @@
   import type { Snippet } from "svelte";
   import type { HTMLAttributes } from "svelte/elements";
 
-  interface ComboboxItemProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+  interface ComboboxItemProps extends Omit<
+    HTMLAttributes<HTMLDivElement>,
+    "children"
+  > {
     ref?: HTMLDivElement | null;
     value: string;
     label?: string;
@@ -30,7 +33,6 @@
   const isSelected = $derived(ctx.value() === value);
   const isHighlighted = $derived(ctx.highlightedValue() === value);
 
-  // Extract text label for item registry
   let labelEl = $state<HTMLSpanElement | null>(null);
 
   $effect(() => {

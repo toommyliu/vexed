@@ -63,7 +63,6 @@
     }
   });
 
-  // Anchor: prefer input, fall back to trigger
   const anchorEl = $derived<HTMLElement | null>(
     ctx.inputEl() ?? ctx.triggerEl(),
   );
@@ -85,7 +84,10 @@
     }}
     use:dismiss={{
       onDismiss: () => ctx.setOpen(false),
-      excludeElements: () => [ctx.triggerEl(), ctx.inputEl()?.parentElement ?? null],
+      excludeElements: () => [
+        ctx.triggerEl(),
+        ctx.inputEl()?.parentElement ?? null,
+      ],
     }}
     class={cn(
       "relative z-50 min-w-[var(--combobox-anchor-width)] max-w-[calc(100vw-1rem)] select-none overflow-hidden rounded-lg border bg-popover bg-clip-padding text-popover-foreground",

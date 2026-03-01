@@ -35,8 +35,7 @@
   });
 
   function handleFocus(e: FocusEvent) {
-    // Don't auto-open on focus. The popover opens on click, typing, or arrow keys.
-    // This prevents jank when tabbing between comboboxes.
+    // Don't auto-open on focus.
     (onfocus as ((e: FocusEvent) => void) | undefined)?.(e);
   }
 
@@ -46,7 +45,6 @@
   }
 
   function handleInput(e: Event) {
-    // Open the popover when the user starts typing
     if (!ctx.open()) {
       ctx.setOpen(true);
     }
@@ -84,7 +82,7 @@
       e.preventDefault();
       ctx.setOpen(false);
     } else if (e.key === "Tab") {
-      // Close the popover on Tab, let focus move naturally (no preventDefault)
+      // Close the popover on Tab
       if (ctx.open()) {
         ctx.setOpen(false);
       }
