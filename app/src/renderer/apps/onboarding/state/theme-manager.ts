@@ -20,27 +20,25 @@ export const customTheme = writable<CustomTheme>({});
 export const activeEditScheme = writable<ThemeScheme>(getColorScheme());
 export const liveScheme = writable<ThemeScheme>(getColorScheme());
 
-export function setToken(token: ThemeToken, hex: string): void {
-  customTheme.update((theme) => {
-    let currentScheme: ThemeScheme = "dark";
-    activeEditScheme.subscribe((scheme) => (currentScheme = scheme))();
-    return {
-      ...theme,
-      [currentScheme]: {
-        ...theme[currentScheme],
-        [token]: hex,
-      },
-    };
-  });
+export function setToken(
+  scheme: ThemeScheme,
+  token: ThemeToken,
+  hex: string,
+): void {
+  customTheme.update((theme) => ({
+    ...theme,
+    [scheme]: {
+      ...theme[scheme],
+      [token]: hex,
+    },
+  }));
 }
 
-export function clearToken(token: ThemeToken): void {
+export function clearToken(scheme: ThemeScheme, token: ThemeToken): void {
   customTheme.update((theme) => {
-    let currentScheme: ThemeScheme = "dark";
-    activeEditScheme.subscribe((scheme) => (currentScheme = scheme))();
-    const scheme = theme[currentScheme] ?? {};
-    const { [token]: _, ...rest } = scheme;
-    return { ...theme, [currentScheme]: rest };
+    const schemeTheme = theme[scheme] ?? {};
+    const { [token]: _, ...rest } = schemeTheme;
+    return { ...theme, [scheme]: rest };
   });
 }
 

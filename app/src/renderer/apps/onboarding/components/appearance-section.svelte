@@ -1,5 +1,11 @@
 <script lang="ts">
-  import { PillButton, Select, Icon, Tooltip, Button, TooltipButton } from "@vexed/ui";
+  import {
+    PillButton,
+    Select,
+    Icon,
+    Button,
+    TooltipButton,
+  } from "@vexed/ui";
   import { titlecase } from "@vexed/utils/string";
 
   import { settings } from "../state/settings.svelte";
@@ -58,11 +64,13 @@
           class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/50"
           >Customization</span
         >
-  
-         <TooltipButton tooltip="Some customizations might not be respected" contentClass="p-1">
-          <Icon icon="info" class="size-3 text-muted-foreground/40" />
-         </TooltipButton>
 
+        <TooltipButton
+          tooltip="Some customizations might not be respected"
+          contentClass="p-1"
+        >
+          <Icon icon="info" class="size-3 text-muted-foreground/40" />
+        </TooltipButton>
       </div>
       <div class="flex min-w-max shrink-0 items-center gap-2">
         <div class="flex gap-1">
@@ -116,10 +124,10 @@
               <button
                 type="button"
                 class="flex shrink-0 items-center gap-0.5 rounded text-[10px] text-muted-foreground/60 opacity-0 transition-colors hover:text-destructive focus:opacity-100 focus:outline-none focus-visible:ring-1 focus-visible:ring-destructive group-hover:opacity-100"
-                onclick={() => clearToken(token.key)}
+                onclick={() => clearToken($activeEditScheme, token.key)}
                 title="Reset to default"
               >
-                <Icon icon="x" class="h-2.5 w-2.5" />
+                <Icon icon="x" size="2xs" />
               </button>
             {/if}
           </div>
@@ -148,7 +156,11 @@
                     event.currentTarget.value,
                   )}
                 onchange={(event) =>
-                  setToken(token.key, event.currentTarget.value)}
+                  setToken(
+                    $activeEditScheme,
+                    token.key,
+                    event.currentTarget.value,
+                  )}
               />
             </label>
           </div>
