@@ -8,10 +8,6 @@
   interface TooltipRootProps {
     open?: boolean;
     onOpenChange?: (open: boolean) => void;
-    /**
-     * Delay in ms before the tooltip opens on hover.
-     * Falls back to the enclosing TooltipProvider's delayDuration, then to 0.
-     */
     delayDuration?: number;
     children?: Snippet;
   }

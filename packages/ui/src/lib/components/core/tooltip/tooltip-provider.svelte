@@ -3,7 +3,6 @@
   import { createProviderContext } from "./tooltip-context.js";
 
   interface TooltipProviderProps {
-    /** Delay in ms before any child tooltip opens on hover. @default 700 */
     delayDuration?: number;
     children?: Snippet;
   }

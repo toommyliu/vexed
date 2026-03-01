@@ -68,17 +68,13 @@
     !focused && !valid && "border-destructive",
     // Disabled state
     disabled.value && "opacity-50 shadow-none",
-    // Inner bottom highlight when idle — creates the inset/depth effect
     !focused &&
       valid &&
       !disabled.value &&
       "before:shadow-[0_1px_rgba(0,0,0,0.04)] dark:before:shadow-[0_-1px_rgba(255,255,255,0.06)]",
-    // Layout: textarea or block-align addon → column direction
     (isTextarea || isBlock) && "h-auto flex-col items-stretch",
-    // Flatten inner input/textarea control wrappers so they participate in flex directly
     "[&>[data-slot=input-control]]:contents [&>[data-slot=textarea-control]]:contents",
     "[&>[data-slot=input-control]]:before:hidden [&>[data-slot=textarea-control]]:before:hidden",
-    // Input/textarea sizing inside group
     "[&_input]:flex-1 [&_textarea]:flex-1",
     "[&_textarea]:resize-none [&_textarea]:py-[calc(theme(spacing.3)-1px)]",
     className,

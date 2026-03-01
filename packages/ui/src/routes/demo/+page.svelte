@@ -2408,7 +2408,8 @@
               <Command.Input
                 placeholder="Strict prefix match..."
                 oninput={(e: Event) =>
-                  (commandCustomSearch = (e.currentTarget as HTMLInputElement).value)}
+                  (commandCustomSearch = (e.currentTarget as HTMLInputElement)
+                    .value)}
               />
               <Command.List>
                 <Command.Viewport>
@@ -2446,8 +2447,8 @@
           Loop Navigation
         </h3>
         <p class="text-xs text-muted-foreground">
-          With <code>loop</code>, pressing arrow-down on the last item wraps
-          to the first, and arrow-up on the first wraps to the last.
+          With <code>loop</code>, pressing arrow-down on the last item wraps to
+          the first, and arrow-up on the first wraps to the last.
         </p>
         <div class="w-full max-w-md">
           <Command.Panel>
@@ -2471,7 +2472,9 @@
           Vim Bindings Disabled
         </h3>
         <p class="text-xs text-muted-foreground">
-          <code>vimBindings=false</code> turns off <kbd>Ctrl+J</kbd>/<kbd>Ctrl+K</kbd>
+          <code>vimBindings=false</code> turns off <kbd>Ctrl+J</kbd>/<kbd
+            >Ctrl+K</kbd
+          >
           navigation. Only standard arrow keys work.
         </p>
         <div class="w-full max-w-md">
@@ -2496,8 +2499,8 @@
           Pointer Selection Disabled
         </h3>
         <p class="text-xs text-muted-foreground">
-          <code>disablePointerSelection</code> prevents hover from changing the
-          active item. Only keyboard navigation selects.
+          <code>disablePointerSelection</code> prevents hover from changing the active
+          item. Only keyboard navigation selects.
         </p>
         <div class="w-full max-w-md">
           <Command.Panel>
@@ -2521,7 +2524,8 @@
           Disabled Items &amp; Force-Mounted Items
         </h3>
         <p class="text-xs text-muted-foreground">
-          <code>disabled</code> items cannot be selected. <code>forceMount</code>
+          <code>disabled</code> items cannot be selected.
+          <code>forceMount</code>
           keeps an item visible even when it doesn't match the current search.
         </p>
         <div class="w-full max-w-md">

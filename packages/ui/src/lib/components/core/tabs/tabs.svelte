@@ -21,7 +21,6 @@
     onValueChange,
   }: TabsProps = $props();
 
-  // Registry of trigger elements keyed by value (for keyboard nav)
   const triggers = new Map<string, HTMLElement>();
 
   createTabsContext({
