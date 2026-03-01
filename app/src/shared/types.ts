@@ -11,26 +11,6 @@ export type AccountWithScript = AccountWithServer & {
   scriptPath: string | null;
 };
 
-export type Settings = {
-  checkForUpdates: boolean;
-  /**
-   * Whether debug logging is enabled (currently unused).
-   */
-  debug: boolean;
-  /**
-   * The fallback server for autorelogin. Empty string means auto-select.
-   */
-  fallbackServer: string;
-  /**
-   * The launch mode of the application.
-   */
-  launchMode: "game" | "manager";
-  /**
-   * The theme of the application.
-   */
-  theme: "dark" | "light" | "system";
-};
-
 export enum WindowIds {
   Environment = "app-environment",
   FastTravels = "tools-fast-travels",

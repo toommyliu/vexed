@@ -1,23 +1,14 @@
 <script lang="ts">
-  import { Button, Input } from "@vexed/ui";
-  import * as InputGroup from "@vexed/ui/InputGroup";
-  import * as AlertDialog from "@vexed/ui/AlertDialog";
-  import Plus from "@vexed/ui/icons/Plus";
-  import Search from "@vexed/ui/icons/Search";
-  import Trash2 from "@vexed/ui/icons/Trash2";
-  import Play from "@vexed/ui/icons/Play";
-  import Pencil from "@vexed/ui/icons/Pencil";
-  import Loader from "@vexed/ui/icons/Loader";
+  import { AlertDialog, Button, Icon, Input, InputGroup } from "@vexed/ui";
   import { cn } from "@vexed/ui/util";
+  import { onMount } from "svelte";
+  import { Result } from "better-result";
 
   import AddFastTravelModal from "./components/add-fast-travel-modal.svelte";
   import EditFastTravelModal from "./components/edit-fast-travel-modal.svelte";
 
-  import { onMount } from "svelte";
-
-  import { client, handlers } from "~/shared/tipc";
   import type { FastTravel } from "~/shared/fast-travels/types";
-  import { Result } from "better-result";
+  import { client, handlers } from "~/shared/tipc";
 
   let locations = $state<FastTravel[]>([]);
   let roomNumber = $state<number>(100_000);
@@ -138,7 +129,7 @@
 
       <div class="flex items-center gap-2">
         <Button size="sm" class="gap-2" onclick={() => (isAddOpen = true)}>
-          <Plus class="h-4 w-4" />
+          <Icon icon="plus" size="md" />
           <span class="hidden sm:inline">Add Location</span>
         </Button>
       </div>
@@ -150,7 +141,8 @@
       <div class="flex flex-col gap-3">
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div class="relative">
-            <Search
+            <Icon
+              icon="search"
               class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
             />
             <Input
@@ -199,7 +191,7 @@
           <div
             class="flex h-full flex-col items-center justify-center gap-3 text-muted-foreground"
           >
-            <Loader class="h-6 w-6 animate-spin text-primary" />
+            <Icon icon="loader" size="xl" class="text-primary" spin />
             <p class="text-sm">Loading locations...</p>
           </div>
         {:else if filteredLocations.length === 0}
@@ -247,7 +239,7 @@
                     }}
                     {disabled}
                   >
-                    <Play class="h-3.5 w-3.5" />
+                    <Icon icon="play" size="sm" />
                   </Button>
 
                   <Button
@@ -260,7 +252,7 @@
                       isEditOpen = true;
                     }}
                   >
-                    <Pencil class="h-3.5 w-3.5" />
+                    <Icon icon="pencil" size="sm" />
                   </Button>
 
                   <Button
@@ -272,7 +264,7 @@
                       handleRemove(location.name);
                     }}
                   >
-                    <Trash2 class="h-3.5 w-3.5" />
+                    <Icon icon="trash" size="sm" />
                   </Button>
                 </div>
               </div>
@@ -329,7 +321,7 @@
         class="min-w-[80px]"
       >
         {#if deleteDialogLoading}
-          <Loader class="size-4 animate-spin" />
+          <Icon icon="loader" size="md" spin />
           <span>Removing...</span>
         {:else}
           <span>Remove</span>

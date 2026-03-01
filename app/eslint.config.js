@@ -45,6 +45,8 @@ const typeScriptRuleset = merge({}, ...typescript, {
     "func-names": "off",
     "promise/prefer-await-to-callbacks": "off",
     "promise/prefer-await-to-then": "off",
+    "import-x/no-duplicates": "off",
+    "no-duplicate-imports": "error",
   },
 });
 

@@ -1,10 +1,9 @@
 <script lang="ts">
-  import { Button } from "@vexed/ui";
-  import Pause from "@vexed/ui/icons/Pause";
-  import Play from "@vexed/ui/icons/Play";
+  import { Button, Icon } from "@vexed/ui";
   import CombatSection from "./components/CombatSection.svelte";
   import TargetSection from "./components/TargetSection.svelte";
   import { onMount } from "svelte";
+
   import type { RawFollowerConfig } from "~/shared/follower/types";
   import {
     DEFAULT_FOLLOWER_SAFE_SKILL_HP,
@@ -98,10 +97,10 @@
           disabled={!playerName.trim()}
         >
           {#if isEnabled}
-            <Pause class="h-4 w-4" />
+            <Icon icon="pause" size="md" />
             <span class="hidden sm:inline">Stop</span>
           {:else}
-            <Play class="h-4 w-4" />
+            <Icon icon="play" size="md" />
             <span class="hidden sm:inline">Start</span>
           {/if}
         </Button>

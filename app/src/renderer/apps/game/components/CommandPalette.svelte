@@ -1,8 +1,5 @@
 <script lang="ts">
-  import Kbd from "@vexed/ui/Kbd";
-  import Command from "@vexed/ui/icons/Command";
-  import Search from "@vexed/ui/icons/Search";
-  import X from "@vexed/ui/icons/X";
+  import { Icon, Kbd } from "@vexed/ui";
   import { cn } from "@vexed/ui/util";
   import { equalsIgnoreCase, fuzzyMatchIgnoreCase } from "@vexed/utils";
   import { get } from "svelte/store";
@@ -10,11 +7,11 @@
   import { getUiCommands, type UiCommandSpec } from "../actions";
   import { platform } from "../state/index.svelte";
 
-  interface Props {
-    open?: boolean;
-    onClose?: () => void;
+  type Props = {
     hotkeyValues?: Record<string, string>;
-  }
+    onClose?(): void;
+    open?: boolean;
+  };
 
   let { open = $bindable(false), onClose, hotkeyValues = {} }: Props = $props();
 
@@ -132,7 +129,7 @@
       class="command-palette elevation-2 relative z-10 w-full max-w-lg overflow-hidden rounded-xl border border-border bg-popover shadow-2xl backdrop-blur-xl"
     >
       <div class="flex items-center gap-3 border-b border-border px-4 py-3">
-        <Search class="h-4 w-4 shrink-0 text-muted-foreground" />
+        <Icon icon="search" class="h-4 w-4 shrink-0 text-muted-foreground" />
         <input
           bind:this={inputRef}
           type="text"
@@ -145,7 +142,7 @@
           class="flex h-5 w-5 items-center justify-center rounded bg-transparent text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           onclick={handleClose}
         >
-          <X class="h-3.5 w-3.5" />
+          <Icon icon="x" class="h-3.5 w-3.5" />
         </button>
       </div>
 
@@ -219,7 +216,8 @@
           </span>
         </div>
         <div class="flex items-center gap-1 text-muted-foreground/60">
-          <Command class="h-3 w-3" />
+          <!-- TODO: use the Command symbol instead? -->
+          <Icon icon="command" class="h-3 w-3" />
           <span>K</span>
         </div>
       </div>
