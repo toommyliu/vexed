@@ -119,7 +119,7 @@
       if (serverData.isOk()) {
         servers.set(serverData.value);
       } else {
-        console.error("Failed to deserialize server data", serverData.error);
+        console.error("Failed to load servers", serverData.error);
         servers.set([]);
       }
     }
@@ -160,6 +160,8 @@
     applyCustomTheme($state.snapshot($customTheme), $liveScheme);
   });
 
+  // Immediately apply theme changes locally for responsiveness
+  // and then debounce the persistence to avoid excessive I/O ops
   $effect(() => {
     if (isLoading) return;
     const scheme =
@@ -171,7 +173,6 @@
     document.documentElement.classList.toggle("dark", scheme === "dark");
     liveScheme.set(scheme);
     activeEditScheme.set(scheme);
-    applyCustomTheme($state.snapshot($customTheme), scheme);
   });
 
   $effect(() => {

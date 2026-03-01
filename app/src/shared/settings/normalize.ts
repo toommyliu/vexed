@@ -1,4 +1,4 @@
-import deepEqual from 'fast-deep-equal';
+import deepEqual from "fast-deep-equal";
 import type {
   CustomTheme,
   CustomThemeScheme,
@@ -77,8 +77,7 @@ function cloneCustomTheme(theme: CustomTheme): CustomTheme {
     cloned.fontFamily = theme.fontFamily;
   if (typeof theme.monospaceFontFamily === "string")
     cloned.monospaceFontFamily = theme.monospaceFontFamily;
-  if (typeof theme.radius === "string")
-    cloned.radius = theme.radius;
+  if (typeof theme.radius === "string") cloned.radius = theme.radius;
   return cloned;
 }
 
@@ -153,7 +152,7 @@ function isColorToken(value: ThemeToken): value is ThemeColorToken {
 }
 
 function isDeepEqual(left: unknown, right: unknown): boolean {
-  return deepEqual(left,right);
+  return deepEqual(left, right);
   // if (Object.is(left, right)) return true;
   // if (Array.isArray(left) || Array.isArray(right)) {
   //   if (!Array.isArray(left) || !Array.isArray(right)) return false;
@@ -321,12 +320,9 @@ function normalizeCustomThemeInternal(
     }
   }
 
-  // Handle top-level radius. Also migrate old per-scheme radius values from
-  // before radius became a global setting.
-  const rawRadius = "radius" in raw
-    ? raw["radius"]
-    : (raw["dark"] as Record<string, unknown> | undefined)?.["radius"] ??
-      (raw["light"] as Record<string, unknown> | undefined)?.["radius"];
+  const rawRadius =
+    (raw["dark"] as Record<string, unknown> | undefined)?.["radius"] ??
+    (raw["light"] as Record<string, unknown> | undefined)?.["radius"];
   if (rawRadius !== undefined) {
     if (typeof rawRadius === "string") {
       const trimmed = rawRadius.trim();
@@ -455,7 +451,7 @@ function normalizeThemeMode(
 
 export function normalizeSettings(
   raw: unknown,
-  fallback: Settings = DEFAULT_SETTINGS,
+  fallback: Settings,
 ): NormalizationResult<Settings> {
   const issues: NormalizationIssue[] = [];
   const fallbackSettings = cloneSettings(fallback);

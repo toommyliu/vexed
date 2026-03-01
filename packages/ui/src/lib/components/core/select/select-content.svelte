@@ -113,13 +113,17 @@
         const item = ctx.getItems().find((i) => i.value === highlighted);
         if (item) {
           ctx.setValue(item.value, item.label);
-          tick().then(() => ctx.triggerEl()?.focus());
+          tick().then(() => {
+            const el = ctx.triggerEl();
+            if (el) el.focus();
+          });
         }
       }
     } else if (e.key === "Escape" || e.key === "Tab") {
       e.preventDefault();
       ctx.setOpen(false);
-      ctx.triggerEl()?.focus();
+      const el = ctx.triggerEl();
+      if (el) el.focus();
     }
   }
 
@@ -167,7 +171,8 @@
     use:dismiss={{
       onDismiss: () => {
         ctx.setOpen(false);
-        ctx.triggerEl()?.focus();
+        const el = ctx.triggerEl();
+        if (el) el.focus();
       },
       excludeElements: () => [ctx.triggerEl()],
     }}
