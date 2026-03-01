@@ -223,12 +223,8 @@ const createSvelteConfig = ({ entryPoints, outdir }) => ({
       compilerOptions: {
         dev: !isProduction,
         css: "injected",
-        warningFilter: (warning) =>
-          !warning.filename?.includes("node_modules/bits-ui"),
       },
       preprocess: require("@sveltejs/vite-plugin-svelte").vitePreprocess(),
-      filterWarnings: (warning) =>
-        !warning.filename?.includes("node_modules/bits-ui"),
     }),
   ],
 });
