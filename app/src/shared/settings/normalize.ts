@@ -320,9 +320,7 @@ function normalizeCustomThemeInternal(
     }
   }
 
-  const rawRadius =
-    (raw["dark"] as Record<string, unknown> | undefined)?.["radius"] ??
-    (raw["light"] as Record<string, unknown> | undefined)?.["radius"];
+  const rawRadius = raw?.["radius"] ?? undefined;
   if (rawRadius !== undefined) {
     if (typeof rawRadius === "string") {
       const trimmed = rawRadius.trim();

@@ -1,11 +1,5 @@
 <script lang="ts">
-  import {
-    PillButton,
-    Select,
-    Icon,
-    Button,
-    TooltipButton,
-  } from "@vexed/ui";
+  import { PillButton, Select, Icon, Button, TooltipButton } from "@vexed/ui";
   import { titlecase } from "@vexed/utils/string";
 
   import { settings } from "../state/settings.svelte";
@@ -66,8 +60,8 @@
         >
 
         <TooltipButton
-          tooltip="Some customizations might not be respected"
-          contentClass="p-1"
+          tooltip="Applies to most elements"
+          contentClass="p-1 text-xs"
         >
           <Icon icon="info" class="size-3 text-muted-foreground/40" />
         </TooltipButton>
