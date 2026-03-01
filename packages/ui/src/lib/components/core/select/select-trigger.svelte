@@ -42,6 +42,12 @@
   data-state={dataState}
   disabled={isDisabled}
   onclick={() => ctx.setOpen(!ctx.open())}
+  onkeydown={(e: KeyboardEvent) => {
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      ctx.setOpen(true);
+    }
+  }}
   {...restProps}
   class={cn(
     "relative flex items-center justify-between select-none rounded-lg border border-input bg-background bg-clip-padding text-base/5 shadow-sm outline-none ring-ring/24 transition-shadow",
