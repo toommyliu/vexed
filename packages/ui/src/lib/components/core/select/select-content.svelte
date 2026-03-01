@@ -55,15 +55,15 @@
   );
 
   let viewportEl = $state<HTMLDivElement | null>(null);
-  let canScrollUp = $state(false);
-  let canScrollDown = $state(false);
+  // let canScrollUp = $state(false);
+  // let canScrollDown = $state(false);
 
   function updateScrollState() {
     if (!viewportEl) return;
-    canScrollUp = viewportEl.scrollTop > 0;
-    canScrollDown =
-      viewportEl.scrollTop + viewportEl.clientHeight <
-      viewportEl.scrollHeight - 1;
+    // canScrollUp = viewportEl.scrollTop > 0;
+    // canScrollDown =
+    //   viewportEl.scrollTop + viewportEl.clientHeight <
+    //   viewportEl.scrollHeight - 1;
   }
 
   $effect(() => {
@@ -78,13 +78,13 @@
     };
   });
 
-  function scrollUp() {
-    viewportEl?.scrollBy({ top: -80, behavior: "smooth" });
-  }
+  // function scrollUp() {
+  //   viewportEl?.scrollBy({ top: -80, behavior: "smooth" });
+  // }
 
-  function scrollDown() {
-    viewportEl?.scrollBy({ top: 80, behavior: "smooth" });
-  }
+  // function scrollDown() {
+  //   viewportEl?.scrollBy({ top: 80, behavior: "smooth" });
+  // }
 
   function onkeydown(e: KeyboardEvent) {
     const items = ctx.getItems().filter((i) => !i.disabled);
@@ -111,7 +111,10 @@
       const highlighted = ctx.highlightedValue();
       if (highlighted) {
         const item = ctx.getItems().find((i) => i.value === highlighted);
-        if (item) ctx.setValue(item.value, item.label);
+        if (item) {
+          ctx.setValue(item.value, item.label);
+          tick().then(() => ctx.triggerEl()?.focus());
+        }
       }
     } else if (e.key === "Escape" || e.key === "Tab") {
       e.preventDefault();
