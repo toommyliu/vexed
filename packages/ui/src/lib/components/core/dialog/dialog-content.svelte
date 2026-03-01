@@ -32,7 +32,6 @@
   let visible = $derived(open || closing);
   const dataState = $derived(open ? "open" : "closed");
 
-  // Manage closing animation: when open goes false, keep visible for animation duration
   let prevOpen = $state(false);
   $effect(() => {
     prevOpen = ctx.open();

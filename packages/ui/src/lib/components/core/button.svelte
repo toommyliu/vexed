@@ -148,7 +148,6 @@
     ...restProps
   }: ButtonProps = $props();
 
-  // Track pressed state for styling purposes
   let pressed = $state(false);
   function onPointerDown() {
     pressed = true;

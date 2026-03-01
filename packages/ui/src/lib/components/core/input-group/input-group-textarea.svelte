@@ -18,7 +18,6 @@
 
   const ctx = getInputGroupContext();
 
-  // Signal textarea layout to parent and report disabled state
   $effect(() => {
     if (ctx) {
       ctx.hasTextarea.value = true;
@@ -30,10 +29,4 @@
   });
 </script>
 
-<Textarea
-  bind:value
-  {size}
-  class={className}
-  unstyled
-  {...restProps}
-/>
+<Textarea bind:value {size} class={className} unstyled {...restProps} />

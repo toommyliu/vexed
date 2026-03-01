@@ -18,7 +18,6 @@
 
   const ctx = getInputGroupContext();
 
-  // Report disabled state to the parent InputGroup
   $effect(() => {
     if (ctx) {
       ctx.disabled.value = !!restProps.disabled;
@@ -26,10 +25,4 @@
   });
 </script>
 
-<Input
-  bind:value
-  {size}
-  class={className}
-  unstyled
-  {...restProps}
-/>
+<Input bind:value {size} class={className} unstyled {...restProps} />

@@ -40,7 +40,6 @@
 
   const ctx = getInputGroupContext();
 
-  // Signal the parent InputGroup when this addon uses block alignment
   $effect(() => {
     if (ctx && (align === "block-start" || align === "block-end")) {
       ctx.hasBlockAddon.value = true;
@@ -50,8 +49,6 @@
     }
   });
 
-  // Detect a direct-child button so we can pull in the addon edge to avoid double-padding.
-  // Uses :scope > button (Chrome 87 safe) instead of CSS has-[>button].
   let hasButton = $state(false);
   let hasBadge = $state(false);
 
@@ -59,7 +56,9 @@
     if (!ref) return;
     const el = ref;
     const update = () => {
-      hasButton = !!el.querySelector(":scope > button, :scope > [role='button']");
+      hasButton = !!el.querySelector(
+        ":scope > button, :scope > [role='button']",
+      );
       hasBadge = !!el.querySelector(":scope > [data-slot='badge']");
     };
     update();
@@ -70,12 +69,16 @@
 
   function handleMouseDown(e: MouseEvent) {
     const target = e.target as HTMLElement;
-    const isInteractive = target.closest("button, a, input, select, textarea, [role='button'], [role='combobox'], [role='listbox']");
+    const isInteractive = target.closest(
+      "button, a, input, select, textarea, [role='button'], [role='combobox'], [role='listbox']",
+    );
     if (isInteractive) return;
     e.preventDefault();
     const currentTarget = e.currentTarget as HTMLElement;
     const parent = currentTarget.parentElement;
-    const input = parent?.querySelector<HTMLInputElement | HTMLTextAreaElement>("input, textarea");
+    const input = parent?.querySelector<HTMLInputElement | HTMLTextAreaElement>(
+      "input, textarea",
+    );
     if (input && !parent?.querySelector("input:focus, textarea:focus")) {
       input.focus();
     }
