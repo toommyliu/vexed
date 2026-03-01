@@ -1,7 +1,6 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
   import type { HTMLButtonAttributes } from "svelte/elements";
-  import { cn } from "$lib/utils";
   import { getTooltipContext } from "./tooltip-context.js";
 
   interface TooltipTriggerProps extends HTMLButtonAttributes {
@@ -46,36 +45,41 @@
     ctx.setOpen(false);
   }
 
-  const triggerProps = $derived({
-    onmouseenter: scheduleOpen,
-    onmouseleave: closeTooltip,
-    onfocus: scheduleOpen,
-    onblur: closeTooltip,
-    "aria-describedby": ctx.contentId(),
-  });
+  let wrapperEl: HTMLSpanElement | null = null;
 
   $effect(() => {
-    ctx.setTriggerEl(ref);
+    ctx.setTriggerEl(wrapperEl);
     return () => ctx.setTriggerEl(null);
   });
 </script>
 
-{#if child}
-  {@render child({ props: triggerProps })}
-{:else}
-  <button
-    bind:this={ref}
-    type="button"
-    data-slot="tooltip-trigger"
-    {disabled}
-    onmouseenter={scheduleOpen}
-    onmouseleave={closeTooltip}
-    onfocus={scheduleOpen}
-    onblur={closeTooltip}
-    aria-describedby={ctx.contentId()}
-    class={cn(className)}
-    {...restProps}
-  >
-    {@render children?.()}
-  </button>
-{/if}
+<span
+  bind:this={wrapperEl}
+  class={className}
+  onmouseenter={scheduleOpen}
+  onmouseleave={closeTooltip}
+  onfocus={scheduleOpen}
+  onblur={closeTooltip}
+  role="button"
+  tabindex={disabled ? -1 : 0}
+  aria-disabled={disabled}
+  aria-describedby={ctx.contentId()}
+>
+  {#if child}
+    {@render child({
+      props: {
+        ref,
+        ...restProps,
+        onmouseenter: scheduleOpen,
+        onmouseleave: closeTooltip,
+        onfocus: scheduleOpen,
+        onblur: closeTooltip,
+        "aria-describedby": ctx.contentId(),
+      },
+    })}
+  {:else}
+    <button type="button" data-slot="tooltip-trigger" {disabled} {...restProps}>
+      {@render children?.()}
+    </button>
+  {/if}
+</span>
