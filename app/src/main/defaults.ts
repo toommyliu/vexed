@@ -1,4 +1,5 @@
-import { FastTravel } from "~/shared/fast-travels/types";
+import type { FastTravel } from "~/shared/fast-travels/types";
+import type { Settings } from "~/shared/settings/types";
 
 export const DEFAULT_SKILLSETS = {
   "Legion Revenant": {
@@ -63,3 +64,12 @@ export const DEFAULT_FAST_TRAVELS: FastTravel[] = [
     pad: "Left",
   },
 ] as const;
+
+export const DEFAULT_SETTINGS: Settings = {
+  checkForUpdates: false,
+  customTheme: {},
+  debug: false,
+  fallbackServer: "",
+  launchMode: "game",
+  theme: "dark",
+};

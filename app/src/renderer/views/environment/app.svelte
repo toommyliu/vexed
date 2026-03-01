@@ -1,14 +1,8 @@
 <script lang="ts">
-  import { Button, Checkbox, Input, Label } from "@vexed/ui";
+  import { Button, Checkbox, Input, Label, Icon } from "@vexed/ui";
   import { onMount } from "svelte";
-
-  import Download from "@vexed/ui/icons/Download";
-  import Plus from "@vexed/ui/icons/Plus";
-  import Share2 from "@vexed/ui/icons/Share2";
-  import Trash2 from "@vexed/ui/icons/Trash2";
-  import X from "@vexed/ui/icons/X";
-
   import { normalizeId } from "@vexed/utils/id";
+
   import {
     areEnvironmentStatesEqual,
     normalizeEnvironmentState,
@@ -373,7 +367,7 @@
           class="h-7 gap-1.5 text-xs text-destructive"
           onclick={clearAll}
         >
-          <Trash2 class="h-3.5 w-3.5" />
+          <Icon icon="trash" size="sm" />
           Clear all
         </Button>
         <Button
@@ -383,7 +377,7 @@
           onclick={broadcastToAll}
           disabled={isBroadcasting}
         >
-          <Share2 class="h-3.5 w-3.5" />
+          <Icon icon="share" size="sm" />
           Sync to all
         </Button>
       </div>
@@ -423,7 +417,7 @@
                 class="h-7 gap-1.5 text-xs text-destructive"
                 onclick={clearQuests}
               >
-                <Trash2 class="h-3.5 w-3.5" />
+                <Icon icon="trash" size="sm" />
                 Clear
               </Button>
             {/if}
@@ -443,7 +437,7 @@
                 class="gap-1.5"
                 disabled={!questInput.trim()}
               >
-                <Plus class="h-4 w-4" />
+                <Icon icon="plus" size="md" />
                 Add
               </Button>
             </form>
@@ -501,7 +495,7 @@
                         class="flex h-4 w-4 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/20 hover:text-destructive"
                         onclick={() => removeQuest(questId)}
                       >
-                        <X class="h-3 w-3" />
+                        <Icon icon="x" size="xs" />
                       </button>
                     </span>
                   {/each}
@@ -572,7 +566,7 @@
                 class="h-7 gap-1.5 text-xs text-destructive"
                 onclick={clearDrops}
               >
-                <Trash2 class="h-3.5 w-3.5" />
+                <Icon icon="trash" size="sm" />
                 Clear
               </Button>
             {/if}
@@ -594,7 +588,7 @@
                 class="gap-1.5"
                 disabled={!dropInput.trim()}
               >
-                <Plus class="h-4 w-4" />
+                <Icon icon="plus" size="md" />
                 Add
               </Button>
             </form>
@@ -618,7 +612,7 @@
                         class="flex h-4 w-4 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/20 hover:text-destructive"
                         onclick={() => removeDrop(drop)}
                       >
-                        <X class="h-3 w-3" />
+                        <Icon icon="x" size="xs" />
                       </button>
                     </span>
                   {/each}
@@ -673,7 +667,7 @@
                 class="h-7 gap-1.5 border-border/50 text-xs"
                 onclick={grabBoosts}
               >
-                <Download class="h-3.5 w-3.5" />
+                <Icon icon="download" size="sm" />
                 Grab
               </Button>
               {#if boostItems.length > 0}
@@ -683,7 +677,7 @@
                   class="h-7 gap-1.5 text-xs text-destructive"
                   onclick={clearBoosts}
                 >
-                  <Trash2 class="h-3.5 w-3.5" />
+                  <Icon icon="trash" size="sm" />
                   Clear
                 </Button>
               {/if}
@@ -706,7 +700,7 @@
                 class="gap-1.5"
                 disabled={!boostInput.trim()}
               >
-                <Plus class="h-4 w-4" />
+                <Icon icon="plus" size="md" />
                 Add
               </Button>
             </form>
@@ -730,7 +724,7 @@
                         class="flex h-4 w-4 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/20 hover:text-destructive"
                         onclick={() => removeBoost(boost)}
                       >
-                        <X class="h-3 w-3" />
+                        <Icon icon="trash" size="xs" />
                       </button>
                     </span>
                   {/each}

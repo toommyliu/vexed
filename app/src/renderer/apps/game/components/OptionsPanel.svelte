@@ -1,8 +1,6 @@
 <script lang="ts">
   import { untrack } from "svelte";
-  import { Checkbox, Input, Label } from "@vexed/ui";
-  import Kbd from "@vexed/ui/Kbd";
-  import * as NumberField from "@vexed/ui/NumberField";
+  import { Checkbox, Input, Label, Kbd, NumberField } from "@vexed/ui";
   import FloatingPanel from "./FloatingPanel.svelte";
 
   import { gameState, optionsPanelState } from "../state/index.svelte";

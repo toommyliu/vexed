@@ -6,8 +6,9 @@
     "build:css": "mkdirp dist && tailwindcss -i src/lib/styles.css -o dist/styles.css --config tailwind.config.js --minify",
     "build": "vite build && npm run prepack && npm run build:css",
     "build:watch": "svelte-kit sync && svelte-package --watch",
+    "build:icons": "tsx scripts/build-icons.ts",
     "preview": "vite preview",
-    "prepare": "svelte-kit sync && vite build && npm run prepack && npm run build:css",
+    "prepare": "svelte-kit sync && npm run build:icons && vite build && npm run prepack && npm run build:css",
     "prepack": "svelte-kit sync && svelte-package",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
@@ -32,311 +33,20 @@
       "default": "./dist/index.js"
     },
     "./motion": {
-      "types": "./dist/util/motion.d.ts",
-      "svelte": "./dist/util/motion.js",
-      "import": "./dist/util/motion.js",
-      "default": "./dist/util/motion.js"
+      "types": "./dist/utils/motion.d.ts",
+      "svelte": "./dist/utils/motion.js",
+      "import": "./dist/utils/motion.js",
+      "default": "./dist/utils/motion.js"
     },
     "./util": {
-      "types": "./dist/util/index.d.ts",
-      "svelte": "./dist/util/index.js",
-      "import": "./dist/util/index.js",
-      "default": "./dist/util/index.js"
-    },
-    "./components": {
-      "types": "./dist/components.d.ts",
-      "svelte": "./dist/components.js",
-      "import": "./dist/components.js",
-      "default": "./dist/components.js"
-    },
-    "./Button": {
-      "types": "./dist/Button.svelte.d.ts",
-      "svelte": "./dist/Button.svelte",
-      "default": "./dist/Button.svelte"
-    },
-    "./VirtualList": {
-      "types": "./dist/vlist/VirtualList.svelte.d.ts",
-      "svelte": "./dist/vlist/VirtualList.svelte",
-      "default": "./dist/vlist/VirtualList.svelte"
-    },
-    "./Input": {
-      "types": "./dist/components/Input.svelte.d.ts",
-      "svelte": "./dist/components/Input.svelte",
-      "default": "./dist/components/Input.svelte"
-    },
-    "./Checkbox": {
-      "types": "./dist/components/Checkbox.svelte.d.ts",
-      "svelte": "./dist/components/Checkbox.svelte",
-      "default": "./dist/components/Checkbox.svelte"
-    },
-    "./Select": {
-      "types": "./dist/components/select/index.d.ts",
-      "svelte": "./dist/components/select/index.js",
-      "default": "./dist/components/select/index.js"
-    },
-    "./Combobox": {
-      "types": "./dist/components/combobox/index.d.ts",
-      "svelte": "./dist/components/combobox/index.js",
-      "default": "./dist/components/combobox/index.js"
-    },
-    "./Dropdown": {
-      "types": "./dist/components/Dropdown.svelte.d.ts",
-      "svelte": "./dist/components/Dropdown.svelte",
-      "default": "./dist/components/Dropdown.svelte"
-    },
-    "./Badge": {
-      "types": "./dist/components/Badge.svelte.d.ts",
-      "svelte": "./dist/components/Badge.svelte",
-      "default": "./dist/components/Badge.svelte"
-    },
-    "./Kbd": {
-      "types": "./dist/components/Kbd.svelte.d.ts",
-      "svelte": "./dist/components/Kbd.svelte",
-      "default": "./dist/components/Kbd.svelte"
-    },
-    "./Label": {
-      "types": "./dist/components/Label.svelte.d.ts",
-      "svelte": "./dist/components/Label.svelte",
-      "default": "./dist/components/Label.svelte"
-    },
-    "./Card": {
-      "types": "./dist/components/card/index.d.ts",
-      "svelte": "./dist/components/card/index.js",
-      "default": "./dist/components/card/index.js"
-    },
-    "./Table": {
-      "types": "./dist/components/table/index.d.ts",
-      "svelte": "./dist/components/table/index.js",
-      "default": "./dist/components/table/index.js"
-    },
-    "./Frame": {
-      "types": "./dist/components/frame/index.d.ts",
-      "svelte": "./dist/components/frame/index.js",
-      "default": "./dist/components/frame/index.js"
-    },
-    "./Dialog": {
-      "types": "./dist/components/dialog/index.d.ts",
-      "svelte": "./dist/components/dialog/index.js",
-      "default": "./dist/components/dialog/index.js"
-    },
-    "./Group": {
-      "types": "./dist/components/group/index.d.ts",
-      "svelte": "./dist/components/group/index.js",
-      "default": "./dist/components/group/index.js"
-    },
-    "./Tabs": {
-      "types": "./dist/components/tabs/index.d.ts",
-      "svelte": "./dist/components/tabs/index.js",
-      "default": "./dist/components/tabs/index.js"
-    },
-    "./Menu": {
-      "types": "./dist/components/menu/index.d.ts",
-      "svelte": "./dist/components/menu/index.js",
-      "default": "./dist/components/menu/index.js"
-    },
-    "./Alert": {
-      "types": "./dist/components/alert/index.d.ts",
-      "svelte": "./dist/components/alert/index.js",
-      "default": "./dist/components/alert/index.js"
-    },
-    "./Switch": {
-      "types": "./dist/components/switch/index.d.ts",
-      "svelte": "./dist/components/switch/index.js",
-      "default": "./dist/components/switch/index.js"
-    },
-    "./NumberField": {
-      "types": "./dist/components/number-field/index.d.ts",
-      "svelte": "./dist/components/number-field/index.js",
-      "default": "./dist/components/number-field/index.js"
-    },
-    "./Textarea": {
-      "types": "./dist/components/Textarea.svelte.d.ts",
-      "svelte": "./dist/components/Textarea.svelte",
-      "default": "./dist/components/Textarea.svelte"
-    },
-    "./Separator": {
-      "types": "./dist/components/Separator.svelte.d.ts",
-      "svelte": "./dist/components/Separator.svelte",
-      "default": "./dist/components/Separator.svelte"
-    },
-    "./InputGroup": {
-      "types": "./dist/components/input-group/index.d.ts",
-      "svelte": "./dist/components/input-group/index.js",
-      "default": "./dist/components/input-group/index.js"
-    },
-    "./Field": {
-      "types": "./dist/components/field/index.d.ts",
-      "svelte": "./dist/components/field/index.js",
-      "default": "./dist/components/field/index.js"
+      "types": "./dist/utils/index.d.ts",
+      "svelte": "./dist/utils/index.js",
+      "import": "./dist/utils/index.js",
+      "default": "./dist/utils/index.js"
     },
     "./styles.css": {
       "import": "./dist/styles.css",
       "default": "./dist/styles.css"
-    },
-    "./AlertDialog": {
-      "types": "./dist/components/alert-dialog/index.d.ts",
-      "svelte": "./dist/components/alert-dialog/index.js",
-      "default": "./dist/components/alert-dialog/index.js"
-    },
-    "./icons/Check": {
-      "types": "./dist/components/icons/Check.svelte.d.ts",
-      "svelte": "./dist/components/icons/Check.svelte",
-      "default": "./dist/components/icons/Check.svelte"
-    },
-    "./icons/ChevronDown": {
-      "types": "./dist/components/icons/ChevronDown.svelte.d.ts",
-      "svelte": "./dist/components/icons/ChevronDown.svelte",
-      "default": "./dist/components/icons/ChevronDown.svelte"
-    },
-    "./icons/ChevronUp": {
-      "types": "./dist/components/icons/ChevronUp.svelte.d.ts",
-      "svelte": "./dist/components/icons/ChevronUp.svelte",
-      "default": "./dist/components/icons/ChevronUp.svelte"
-    },
-    "./icons/ChevronsUpDown": {
-      "types": "./dist/components/icons/ChevronsUpDown.svelte.d.ts",
-      "svelte": "./dist/components/icons/ChevronsUpDown.svelte",
-      "default": "./dist/components/icons/ChevronsUpDown.svelte"
-    },
-    "./icons/Copy": {
-      "types": "./dist/components/icons/Copy.svelte.d.ts",
-      "svelte": "./dist/components/icons/Copy.svelte",
-      "default": "./dist/components/icons/Copy.svelte"
-    },
-    "./icons/Download": {
-      "types": "./dist/components/icons/Download.svelte.d.ts",
-      "svelte": "./dist/components/icons/Download.svelte",
-      "default": "./dist/components/icons/Download.svelte"
-    },
-    "./icons/Icon": {
-      "types": "./dist/components/icons/Icon.svelte.d.ts",
-      "svelte": "./dist/components/icons/Icon.svelte",
-      "default": "./dist/components/icons/Icon.svelte"
-    },
-    "./icons/Loader": {
-      "types": "./dist/components/icons/Loader.svelte.d.ts",
-      "svelte": "./dist/components/icons/Loader.svelte",
-      "default": "./dist/components/icons/Loader.svelte"
-    },
-    "./icons/Pause": {
-      "types": "./dist/components/icons/Pause.svelte.d.ts",
-      "svelte": "./dist/components/icons/Pause.svelte",
-      "default": "./dist/components/icons/Pause.svelte"
-    },
-    "./icons/Pencil": {
-      "types": "./dist/components/icons/Pencil.svelte.d.ts",
-      "svelte": "./dist/components/icons/Pencil.svelte",
-      "default": "./dist/components/icons/Pencil.svelte"
-    },
-    "./icons/Play": {
-      "types": "./dist/components/icons/Play.svelte.d.ts",
-      "svelte": "./dist/components/icons/Play.svelte",
-      "default": "./dist/components/icons/Play.svelte"
-    },
-    "./icons/Plus": {
-      "types": "./dist/components/icons/Plus.svelte.d.ts",
-      "svelte": "./dist/components/icons/Plus.svelte",
-      "default": "./dist/components/icons/Plus.svelte"
-    },
-    "./icons/Search": {
-      "types": "./dist/components/icons/Search.svelte.d.ts",
-      "svelte": "./dist/components/icons/Search.svelte",
-      "default": "./dist/components/icons/Search.svelte"
-    },
-    "./icons/Share2": {
-      "types": "./dist/components/icons/Share2.svelte.d.ts",
-      "svelte": "./dist/components/icons/Share2.svelte",
-      "default": "./dist/components/icons/Share2.svelte"
-    },
-    "./icons/Trash2": {
-      "types": "./dist/components/icons/Trash2.svelte.d.ts",
-      "svelte": "./dist/components/icons/Trash2.svelte",
-      "default": "./dist/components/icons/Trash2.svelte"
-    },
-    "./icons/X": {
-      "types": "./dist/components/icons/X.svelte.d.ts",
-      "svelte": "./dist/components/icons/X.svelte",
-      "default": "./dist/components/icons/X.svelte"
-    },
-    "./icons/AlertTriangle": {
-      "types": "./dist/components/icons/AlertTriangle.svelte.d.ts",
-      "svelte": "./dist/components/icons/AlertTriangle.svelte",
-      "default": "./dist/components/icons/AlertTriangle.svelte"
-    },
-    "./icons/AppWindow": {
-      "types": "./dist/components/icons/AppWindow.svelte.d.ts",
-      "svelte": "./dist/components/icons/AppWindow.svelte",
-      "default": "./dist/components/icons/AppWindow.svelte"
-    },
-    "./icons/Code": {
-      "types": "./dist/components/icons/Code.svelte.d.ts",
-      "svelte": "./dist/components/icons/Code.svelte",
-      "default": "./dist/components/icons/Code.svelte"
-    },
-    "./icons/Inbox": {
-      "types": "./dist/components/icons/Inbox.svelte.d.ts",
-      "svelte": "./dist/components/icons/Inbox.svelte",
-      "default": "./dist/components/icons/Inbox.svelte"
-    },
-    "./icons/Radio": {
-      "types": "./dist/components/icons/Radio.svelte.d.ts",
-      "svelte": "./dist/components/icons/Radio.svelte",
-      "default": "./dist/components/icons/Radio.svelte"
-    },
-    "./icons/RotateCcw": {
-      "types": "./dist/components/icons/RotateCcw.svelte.d.ts",
-      "svelte": "./dist/components/icons/RotateCcw.svelte",
-      "default": "./dist/components/icons/RotateCcw.svelte"
-    },
-    "./icons/Settings": {
-      "types": "./dist/components/icons/Settings.svelte.d.ts",
-      "svelte": "./dist/components/icons/Settings.svelte",
-      "default": "./dist/components/icons/Settings.svelte"
-    },
-    "./icons/Wrench": {
-      "types": "./dist/components/icons/Wrench.svelte.d.ts",
-      "svelte": "./dist/components/icons/Wrench.svelte",
-      "default": "./dist/components/icons/Wrench.svelte"
-    },
-    "./icons/AlertCircle": {
-      "types": "./dist/components/icons/AlertCircle.svelte.d.ts",
-      "svelte": "./dist/components/icons/AlertCircle.svelte",
-      "default": "./dist/components/icons/AlertCircle.svelte"
-    },
-    "./icons/Eye": {
-      "types": "./dist/components/icons/Eye.svelte.d.ts",
-      "svelte": "./dist/components/icons/Eye.svelte",
-      "default": "./dist/components/icons/Eye.svelte"
-    },
-    "./icons/EyeOff": {
-      "types": "./dist/components/icons/EyeOff.svelte.d.ts",
-      "svelte": "./dist/components/icons/EyeOff.svelte",
-      "default": "./dist/components/icons/EyeOff.svelte"
-    },
-    "./icons/Command": {
-      "types": "./dist/components/icons/Command.svelte.d.ts",
-      "svelte": "./dist/components/icons/Command.svelte",
-      "default": "./dist/components/icons/Command.svelte"
-    },
-    "./icons/ArrowDownToLine": {
-      "types": "./dist/components/icons/ArrowDownToLine.svelte.d.ts",
-      "svelte": "./dist/components/icons/ArrowDownToLine.svelte",
-      "default": "./dist/components/icons/ArrowDownToLine.svelte"
-    },
-    "./icons/Upload": {
-      "types": "./dist/components/icons/Upload.svelte.d.ts",
-      "svelte": "./dist/components/icons/Upload.svelte",
-      "default": "./dist/components/icons/Upload.svelte"
-    },
-    "./icons/ChevronRight": {
-      "types": "./dist/components/icons/ChevronRight.svelte.d.ts",
-      "svelte": "./dist/components/icons/ChevronRight.svelte",
-      "default": "./dist/components/icons/ChevronRight.svelte"
-    },
-    "./icons/Square": {
-      "types": "./dist/components/icons/Square.svelte.d.ts",
-      "svelte": "./dist/components/icons/Square.svelte",
-      "default": "./dist/components/icons/Square.svelte"
     }
   },
   "peerDependencies": {
@@ -354,6 +64,7 @@
     "svelte-check": "^4.3.4",
     "tailwindcss": "^3.4.17",
     "tslib": "^2.8.1",
+    "tsx": "^4.19.0",
     "typescript": "^5.9.3",
     "vite": "^7.0.4"
   },
@@ -361,7 +72,8 @@
     "svelte"
   ],
   "dependencies": {
+    "@floating-ui/dom": "^1.7.5",
     "clsx": "^2.1.1",
-    "tailwind-variants": "^3.1.1"
+    "tailwind-variants": "^0.3.1"
   }
 }

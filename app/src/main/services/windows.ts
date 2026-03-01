@@ -8,9 +8,9 @@ import {
 import type { AccountWithScript, LogLevel, WindowIds } from "~/shared/types";
 import { BRAND, DIST_PATH, IS_PACKAGED } from "../constants";
 import { getSettings } from "../settings";
+import { applySecurityPolicy } from "../util/applySecurityPolicy";
 import { environmentService } from "./environment";
 import { createLogger } from "./logger";
-import { applySecurityPolicy } from "../util/applySecurityPolicy";
 
 const DIST_GAME = join(DIST_PATH, "game/");
 const DIST_MANAGER = join(DIST_PATH, "manager/");
@@ -101,6 +101,7 @@ class WindowsService {
     ) {
       return level !== 3;
     }
+
     return false;
   }
 
@@ -424,8 +425,8 @@ class WindowsService {
 
     return Result.gen(function* () {
       const window = yield* this.createWindow({
-        width: 320,
-        height: 320,
+        width: 651,
+        height: 654,
         webPreferences: {
           nodeIntegration: true,
         },

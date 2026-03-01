@@ -30,23 +30,9 @@
     --input: 229 229 234;
     --ring: 94 106 210;
     --radius: 0.625rem;
-    --chart-1: 94 106 210;
-    --chart-2: 52 199 89;
-    --chart-3: 0 122 255;
-    --chart-4: 255 149 0;
-    --chart-5: 255 59 48;
-    --sidebar: 248 248 250;
-    --sidebar-foreground: 28 28 30;
-    --sidebar-primary: 94 106 210;
-    --sidebar-primary-foreground: 255 255 255;
-    --sidebar-accent: 242 242 247;
-    --sidebar-accent-foreground: 60 60 67;
-    --sidebar-border: 229 229 234;
-    --sidebar-ring: 94 106 210;
     --elevation-1: 0 0 0 / 0.04;
     --elevation-2: 0 0 0 / 0.08;
     --elevation-3: 0 0 0 / 0.12;
-
   }
 
   .dark {
@@ -75,18 +61,6 @@
     --border: 38 38 40;
     --input: 38 38 40;
     --ring: 106 118 222;
-    --chart-1: 106 118 222;
-    --chart-2: 48 209 88;
-    --chart-3: 10 132 255;
-    --chart-4: 255 159 10;
-    --sidebar: 12 12 13;
-    --sidebar-foreground: 238 239 241;
-    --sidebar-primary: 106 118 222;
-    --sidebar-primary-foreground: 238 239 241;
-    --sidebar-accent: 30 30 32;
-    --sidebar-accent-foreground: 174 174 178;
-    --sidebar-border: 38 38 40;
-    --sidebar-ring: 106 118 222;
     --elevation-1: 255 255 255 / 0.03;
     --elevation-2: 255 255 255 / 0.06;
     --elevation-3: 255 255 255 / 0.09;
@@ -103,6 +77,17 @@
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Reset default button styles (on chrome 87) */
+  button,
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"] {
+    appearance: none;
+    -webkit-appearance: none;
+    background-color: transparent;
+    background-image: none;
   }
 }
 

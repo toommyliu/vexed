@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: "class",
+  darkMode: ["variant", ".dark &"],
   content: [
     "./src/**/*.{html,js,svelte,ts}",
     "../packages/ui/src/**/*.{html,js,svelte,ts}",
@@ -53,23 +53,16 @@ module.exports = {
           DEFAULT: "rgb(var(--card) / <alpha-value>)",
           foreground: "rgb(var(--card-foreground) / <alpha-value>)",
         },
-        sidebar: {
-          DEFAULT: "rgb(var(--sidebar) / <alpha-value>)",
-          foreground: "rgb(var(--sidebar-foreground) / <alpha-value>)",
-          primary: "rgb(var(--sidebar-primary) / <alpha-value>)",
-          "primary-foreground": "rgb(var(--sidebar-primary-foreground) / <alpha-value>)",
-          accent: "rgb(var(--sidebar-accent) / <alpha-value>)",
-          "accent-foreground": "rgb(var(--sidebar-accent-foreground) / <alpha-value>)",
-          border: "rgb(var(--sidebar-border) / <alpha-value>)",
-          ring: "rgb(var(--sidebar-ring) / <alpha-value>)",
-        },
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      boxShadow: {
+        xs: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+      },
     },
   },
-  plugins: [],
+  plugins: [require("tailwindcss-animate")],
 };

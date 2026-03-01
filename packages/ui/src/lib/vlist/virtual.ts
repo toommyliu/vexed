@@ -93,7 +93,7 @@ export class Virtual<T> {
             if (!Number.isFinite(size)) {
                 size = 0
             }
-            next.set(key, size)
+            next.set(key, size!)
         }
         this.sizes = next
     }
@@ -144,7 +144,7 @@ export class Virtual<T> {
                 }
                 this.sizes.set(id, size)
             }
-            lastOffset += size
+            lastOffset += size!
             this.offsets[i] = lastOffset
         }
     }

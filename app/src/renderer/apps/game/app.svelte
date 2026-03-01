@@ -23,12 +23,8 @@
   import { gameLoaded } from "./state/app.svelte";
   import { parseSkillSetJson, type SkillSetJson } from "./util/skillParser";
 
-  import { Button, Checkbox, Label } from "@vexed/ui";
+  import { Button, Checkbox, Label, Icon, Kbd, Menu } from "@vexed/ui";
   import { cn } from "@vexed/ui/util";
-  import Kbd from "@vexed/ui/Kbd";
-  import * as Menu from "@vexed/ui/Menu";
-  import Play from "@vexed/ui/icons/Play";
-  import Square from "@vexed/ui/icons/Square";
   import CommandOverlay from "./components/CommandOverlay.svelte";
   import CommandPalette from "./components/CommandPalette.svelte";
   import OptionsPanel from "./components/OptionsPanel.svelte";
@@ -272,7 +268,10 @@
       const state = envStateResult.value;
       bot.environment.applyUpdate(state);
     } else {
-      console.error("Failed to sync up with environment", envStateResult.reason);
+      console.error(
+        "Failed to sync up with environment",
+        envStateResult.reason,
+      );
     }
   });
 
@@ -520,10 +519,10 @@
             onclick={toggleScript}
           >
             {#if scriptState.isRunning}
-              <Square class="size-2.5" />
+              <Icon icon="square" class="size-2.5" />
               <span>Stop</span>
             {:else}
-              <Play class="size-2.5" />
+              <Icon icon="play" class="size-2.5" />
               <span>Run</span>
             {/if}
           </button>

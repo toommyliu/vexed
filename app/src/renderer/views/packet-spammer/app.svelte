@@ -1,18 +1,12 @@
 <script lang="ts">
-  import { Button, Input, Label, Card } from "@vexed/ui";
-  import * as InputGroup from "@vexed/ui/InputGroup";
+  import { Button, Card, Icon, Input, InputGroup, Label } from "@vexed/ui";
   import { cn } from "@vexed/ui/util";
-
-  import Play from "@vexed/ui/icons/Play";
-  import Pause from "@vexed/ui/icons/Pause";
-  import Plus from "@vexed/ui/icons/Plus";
-  import Trash2 from "@vexed/ui/icons/Trash2";
 
   import { client, handlers } from "~/shared/tipc";
 
   let packets = $state<string[]>([]);
   let packetInput = $state("");
-  let delay = $state(1000);
+  let delay = $state(1_000);
   let isRunning = $state(false);
   let selectedIndex = $state<number | null>(null);
 
@@ -42,12 +36,12 @@
 
   $effect(() => {
     if (isRunning) {
-      client.packets.startSpammer({
+      void client.packets.startSpammer({
         packets: [...packets],
         delay,
       });
     } else {
-      client.packets.stopSpammer();
+      void client.packets.stopSpammer();
     }
   });
 
@@ -74,10 +68,10 @@
           disabled={!canStart && !canStop}
         >
           {#if isRunning}
-            <Pause class="h-4 w-4" />
+            <Icon icon="pause" size="md" />
             <span class="hidden sm:inline">Stop</span>
           {:else}
-            <Play class="h-4 w-4" />
+            <Icon icon="play" size="md" />
             <span class="hidden sm:inline">Start</span>
           {/if}
         </Button>
@@ -128,7 +122,7 @@
                 onclick={addPacket}
                 disabled={!canAdd}
               >
-                <Plus class="h-4 w-4" />
+                <Icon icon="plus" size="md" />
                 Add
               </Button>
             </div>
@@ -187,7 +181,7 @@
               onclick={removePacket}
               disabled={!canRemove}
             >
-              <Trash2 class="h-4 w-4" />
+              <Icon icon="trash" size="md" />
               Remove
             </Button>
             <Button
@@ -197,7 +191,7 @@
               onclick={clearPackets}
               disabled={isRunning || packets.length === 0}
             >
-              <Trash2 class="h-4 w-4" />
+              <Icon icon="trash" size="md" />
               Clear All
             </Button>
           </div>

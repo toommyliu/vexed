@@ -1,0 +1,12 @@
+export { default as Root } from "./card.svelte";
+export { default as Header } from "./card-header.svelte";
+export { default as Title } from "./card-title.svelte";
+export { default as Description } from "./card-description.svelte";
+export { default as Content } from "./card-content.svelte";
+export { default as Footer } from "./card-footer.svelte";
+export { default as Action } from "./card-action.svelte";
+export { default as Frame } from "./card-frame.svelte";
+export { default as FrameHeader } from "./card-frame-header.svelte";
+export { default as FrameTitle } from "./card-frame-title.svelte";
+export { default as FrameDescription } from "./card-frame-description.svelte";
+export { default as FrameFooter } from "./card-frame-footer.svelte";

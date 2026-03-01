@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { Button } from "@vexed/ui";
-  import Kbd from "@vexed/ui/Kbd";
+  import { Button, Kbd } from "@vexed/ui";
   import { getUiCommands, type UiCommandSpec } from "../actions";
 
   interface Props {
