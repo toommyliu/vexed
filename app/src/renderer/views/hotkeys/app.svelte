@@ -1,16 +1,8 @@
 <script lang="ts">
   import Mousetrap from "mousetrap";
   import { onMount } from "svelte";
-  import { AlertDialog, Button, Kbd } from "@vexed/ui";
+  import { AlertDialog, Button, Icon, Kbd } from "@vexed/ui";
   import { cn } from "@vexed/ui/util";
-  import Settings from "@vexed/ui/icons/Settings";
-  import AppWindow from "@vexed/ui/icons/AppWindow";
-  import Code from "@vexed/ui/icons/Code";
-  import Wrench from "@vexed/ui/icons/Wrench";
-  import Radio from "@vexed/ui/icons/Radio";
-  import Inbox from "@vexed/ui/icons/Inbox";
-  import AlertTriangle from "@vexed/ui/icons/AlertTriangle";
-  import ChevronDown from "@vexed/ui/icons/ChevronDown";
 
   import { parseKeyboardEvent } from "~/shared/hotkeys/input";
   import {
@@ -82,7 +74,8 @@
       (map: Map<string, number>, section: HotkeySection) => {
         map.set(
           section.name,
-          section.items.filter((item) => conflictByLabel.has(item.label)).length,
+          section.items.filter((item) => conflictByLabel.has(item.label))
+            .length,
         );
         return map;
       },
@@ -236,22 +229,23 @@
     }
   }
 
-  function getSectionIcon(icon: string) {
-    switch (icon) {
-      case "general":
-        return Settings;
-      case "application":
-        return AppWindow;
-      case "scripts":
-        return Code;
-      case "tools":
-        return Wrench;
-      case "packets":
-        return Radio;
-      default:
-        return Inbox;
-    }
-  }
+  // TODO: find substitution
+  // function getSectionIcon(icon: string) {
+  //   switch (icon) {
+  //     case "general":
+  //       return Settings;
+  //     case "application":
+  //       return AppWindow;
+  //     case "scripts":
+  //       return Code;
+  //     case "tools":
+  //       return Wrench;
+  //     case "packets":
+  //       return Radio;
+  //     default:
+  //       return Inbox;
+  //   }
+  // }
 
   function onKeyDown(ev: KeyboardEvent) {
     if (!recordingState.isRecording) return;
@@ -295,7 +289,9 @@
     if (platformResult.status === "fulfilled") {
       const currentPlatform = platformResult.value;
       platform = currentPlatform;
-      hotkeysSections = hydrateSectionValues(getHotkeySections(currentPlatform));
+      hotkeysSections = hydrateSectionValues(
+        getHotkeySections(currentPlatform),
+      );
       await loadHotkeys();
     } else console.error("Failed to get platform", platformResult.reason);
     if (platformResult.status === "rejected") await loadHotkeys();
@@ -373,10 +369,10 @@
               activeSection = isExpanded ? null : section.name;
             }}
           >
-            {#if getSectionIcon(section.icon)}
-              {@const Icon = getSectionIcon(section.icon)}
-              <Icon class="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-            {/if}
+            <!-- {#if getSectionIcon(section.icon)} -->
+            <!-- {@const Icon = getSectionIcon(section.icon)} -->
+            <!-- <Icon class="h-3.5 w-3.5 shrink-0 text-muted-foreground" /> -->
+            <!-- {/if} -->
             <span
               class="text-xs font-medium uppercase tracking-wide text-muted-foreground"
             >
@@ -387,18 +383,20 @@
               <div
                 class="flex items-center gap-1.5 rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-semibold text-destructive"
               >
-                <AlertTriangle class="h-2.5 w-2.5" />
+                <Icon icon="triangle_alert" size="2xs" />
                 <span
                   >{sectionConflictCount}
                   {sectionConflictCount === 1 ? "conflict" : "conflicts"}</span
                 >
               </div>
             {/if}
-            <ChevronDown
+            <Icon
+              icon="chevron_down"
               class={cn(
-                "ml-auto h-3.5 w-3.5 text-muted-foreground/60",
+                "ml-auto text-muted-foreground/60",
                 isExpanded && "rotate-180",
               )}
+              size="sm"
             />
           </button>
 
@@ -437,7 +435,7 @@
                       <span
                         class="flex items-center gap-1 text-[10px] font-medium text-destructive/70"
                       >
-                        <AlertTriangle class="h-2.5 w-2.5" />
+                        <Icon icon="triangle_alert" size="2xs" />
                         {otherActions.join(", ")}
                       </span>
                     {/if}

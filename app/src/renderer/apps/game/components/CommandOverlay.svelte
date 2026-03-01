@@ -1,9 +1,7 @@
 <script lang="ts">
   import { tick } from "svelte";
   import { cn } from "@vexed/ui/util";
-  import { VirtualList } from "@vexed/ui";
-  import ChevronDown from "@vexed/ui/icons/ChevronDown";
-  import ChevronRight from "@vexed/ui/icons/ChevronRight";
+  import { VirtualList, Icon } from "@vexed/ui";
 
   import { commandOverlayState, scriptState } from "../state/index.svelte";
   import type { CommandItem } from "../state/index.svelte";
@@ -87,9 +85,9 @@
         aria-label={commandOverlayState.listVisible ? "Collapse" : "Expand"}
       >
         {#if commandOverlayState.listVisible}
-          <ChevronDown class="size-3.5" />
+          <Icon icon="chevron_down" class="size-3.5" />
         {:else}
-          <ChevronRight class="size-3.5" />
+          <Icon icon="chevron_right" class="size-3.5" />
         {/if}
       </button>
     </div>

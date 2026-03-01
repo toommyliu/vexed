@@ -1,27 +1,27 @@
 <script lang="ts">
-  import { cn } from "@vexed/ui/util";
-  import { Button, Input, Label, VirtualList } from "@vexed/ui";
-  import * as NumberField from "@vexed/ui/NumberField";
-  import * as Select from "@vexed/ui/Select";
-  import * as Tabs from "@vexed/ui/Tabs";
-  import * as Alert from "@vexed/ui/Alert";
-  import Download from "@vexed/ui/icons/Download";
-  import Loader from "@vexed/ui/icons/Loader";
-  import Upload from "@vexed/ui/icons/Upload";
-  import Check from "@vexed/ui/icons/Check";
-  import ChevronRight from "@vexed/ui/icons/ChevronRight";
-  import Search from "@vexed/ui/icons/Search";
-  import Copy from "@vexed/ui/icons/Copy";
-  import { SvelteSet } from "svelte/reactivity";
-  import { Result } from "better-result";
-
-  import { client } from "~/shared/tipc";
   import {
+    Alert,
+    Button,
+    Icon,
+    Input,
+    Label,
+    NumberField,
+    Select,
+    Tabs,
+    VirtualList,
+  } from "@vexed/ui";
+  import { cn } from "@vexed/ui/util";
+
+  import { Result } from "better-result";
+  import { SvelteSet } from "svelte/reactivity";
+
+  import {
+    type GrabbedData,
     GrabberDataType,
     LoaderDataType,
     type LoaderGrabberLoadRequest,
-    type GrabbedData,
   } from "~/shared/loader-grabber/types";
+  import { client } from "~/shared/tipc";
   import { type TreeItem, grabberBuilders } from "./tree-builders";
 
   type FlattenedItem = TreeItem & {
@@ -333,7 +333,7 @@
             class="gap-2"
             onclick={handleExport}
           >
-            <Download class="h-4 w-4" />
+            <Icon icon="download" size="md" />
             <span class="hidden sm:inline">Export</span>
           </Button>
         {/if}
@@ -352,11 +352,11 @@
       <Tabs.Root bind:value={activeTab} class="flex h-full flex-col gap-4">
         <Tabs.List class="w-fit">
           <Tabs.Trigger value="loader" class="gap-2">
-            <Upload class="h-4 w-4" />
+            <Icon icon="upload" size="md" />
             Loader
           </Tabs.Trigger>
           <Tabs.Trigger value="grabber" class="gap-2">
-            <Download class="h-4 w-4" />
+            <Icon icon="download" size="md" />
             Grabber
           </Tabs.Trigger>
         </Tabs.List>
@@ -456,7 +456,7 @@
                 class="h-10 w-[140px] gap-2 px-6 shadow-sm !ring-0 !ring-offset-0 transition-all"
               >
                 {#if isLoading}
-                  <Loader class="h-4 w-4 animate-spin" />
+                  <Icon icon="loader" size="md" spin />
                   Grabbing...
                 {:else}
                   Grab
@@ -466,7 +466,8 @@
 
             {#if treeData.length > 0}
               <div class="relative">
-                <Search
+                <Icon
+                  icon="search"
                   class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
                 />
                 <Input
@@ -579,7 +580,8 @@
         <div
           class="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center"
         >
-          <ChevronRight
+          <Icon
+            icon="chevron_right"
             class={cn(
               "h-3.5 w-3.5 text-muted-foreground transition-transform duration-200",
               isExpanded && "rotate-90 text-foreground",
@@ -630,9 +632,9 @@
             title="Copy JSON"
           >
             {#if isCopied}
-              <Check class="h-2 w-2" />
+              <Icon icon="check" size="2xs" />
             {:else}
-              <Copy class="h-2 w-2" />
+              <Icon icon="copy" size="2xs" />
             {/if}
           </Button>
         {:else if !hasChildren && item.name}
@@ -670,7 +672,7 @@
             }}
           >
             {#if isCopied}
-              <Check class="h-3 w-3 flex-shrink-0" />
+              <Icon icon="check" size="xs" class="flex-shrink-0" />
             {/if}
             <span class="truncate">{item.value}</span>
           </button>
