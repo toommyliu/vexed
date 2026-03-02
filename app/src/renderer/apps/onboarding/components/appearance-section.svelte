@@ -98,7 +98,7 @@
       </div>
     </div>
 
-    <div class="grid grid-cols-1 gap-x-12 gap-y-1 sm:grid-cols-2">
+    <div class="grid grid-cols-1 gap-x-2 gap-y-1 sm:grid-cols-2">
       {#each COLOR_TOKENS as token (token.key)}
         {@const hex = currentSchemeOverrides[token.key]}
         {@const displayHex = resolveDisplayTokenHex(
@@ -175,7 +175,7 @@
       <div class="group flex items-center justify-between px-2 py-2.5">
         <div class="flex flex-col gap-0.5">
           <span class="text-[13px] font-medium text-foreground"
-            >Interface font</span
+            >Primary font</span
           >
         </div>
         <div class="flex items-center gap-1.5">
@@ -194,7 +194,7 @@
           {#if $customTheme.fontFamily}
             <button
               type="button"
-              class="flex items-center rounded p-1 text-muted-foreground/40 opacity-0 transition-colors hover:text-destructive focus:opacity-100 focus:outline-none focus-visible:ring-1 focus-visible:ring-destructive group-hover:opacity-100"
+              class="flex w-6 items-center justify-center rounded p-1 text-muted-foreground/40 opacity-0 transition-colors hover:text-destructive focus:opacity-100 focus:outline-none focus-visible:ring-1 focus-visible:ring-destructive group-hover:opacity-100"
               onclick={() => {
                 const { fontFamily: _, ...rest } = $customTheme;
                 customTheme.set(rest);
@@ -233,7 +233,7 @@
           {#if $customTheme.monospaceFontFamily}
             <button
               type="button"
-              class="flex items-center rounded p-1 text-muted-foreground/40 opacity-0 transition-colors hover:text-destructive focus:opacity-100 focus:outline-none focus-visible:ring-1 focus-visible:ring-destructive group-hover:opacity-100"
+              class="flex w-6 items-center justify-center rounded p-1 text-muted-foreground/40 opacity-0 transition-colors hover:text-destructive focus:opacity-100 focus:outline-none focus-visible:ring-1 focus-visible:ring-destructive group-hover:opacity-100"
               onclick={() => {
                 const { monospaceFontFamily: _, ...rest } = $customTheme;
                 customTheme.set(rest);
@@ -253,9 +253,6 @@
           <span class="text-[13px] font-medium text-foreground"
             >Corner radius</span
           >
-          <span class="text-[12px] text-muted-foreground/60"
-            >Border rounding scale</span
-          >
         </div>
         <div class="flex items-center gap-1.5">
           <input
@@ -273,7 +270,7 @@
           {#if $customTheme.radius}
             <button
               type="button"
-              class="flex items-center rounded p-1 text-muted-foreground/40 opacity-0 transition-colors hover:text-destructive focus:opacity-100 focus:outline-none focus-visible:ring-1 focus-visible:ring-destructive group-hover:opacity-100"
+              class="flex w-6 items-center justify-center rounded p-1 text-muted-foreground/40 opacity-0 transition-colors hover:text-destructive focus:opacity-100 focus:outline-none focus-visible:ring-1 focus-visible:ring-destructive group-hover:opacity-100"
               onclick={() => clearRadius()}
               title="Reset to default"
             >

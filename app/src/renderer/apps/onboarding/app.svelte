@@ -7,6 +7,7 @@
   import AppearanceSection from "./components/appearance-section.svelte";
   import ApplicationSection from "./components/application-section.svelte";
   import BehaviorsSection from "./components/behaviors-section.svelte";
+
   import { servers } from "./state/servers";
   import { settings } from "./state/settings.svelte";
   import {
@@ -28,6 +29,10 @@
   let saveTimeoutId: ReturnType<typeof setTimeout> | null = null;
   let pendingSettingsPayload: Settings | null = null;
   let flushPromise: Promise<void> | null = null;
+
+  const applicationTab = $derived.by(() => activeTab === "application");
+  const behaviorTab = $derived.by(() => activeTab === "behaviors");
+  const appearanceTab = $derived.by(() => activeTab === "appearance");
 
   function buildSettingsPayload(): Settings {
     return {
@@ -198,39 +203,11 @@
         </h1>
         <button
           class={cn(
-            "flex items-center gap-2 rounded-md px-3 py-2 text-[13px] font-medium transition-colors",
+            "flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium",
             {
-              "bg-muted text-foreground": activeTab === "behaviors",
+              "bg-muted text-foreground": applicationTab,
               "text-muted-foreground hover:bg-muted/30 hover:text-foreground":
-                activeTab !== "behaviors",
-            },
-          )}
-          onclick={() => (activeTab = "behaviors")}
-        >
-          <Icon icon="wrench" size="xs" />
-          Behaviors
-        </button>
-        <button
-          class={cn(
-            "flex items-center gap-2 rounded-md px-3 py-2 text-[13px] font-medium transition-colors",
-            {
-              "bg-muted text-foreground": activeTab === "appearance",
-              "text-muted-foreground hover:bg-muted/30 hover:text-foreground":
-                activeTab !== "appearance",
-            },
-          )}
-          onclick={() => (activeTab = "appearance")}
-        >
-          <Icon icon="pencil" size="xs" />
-          Appearance
-        </button>
-        <button
-          class={cn(
-            "flex items-center gap-2 rounded-md px-3 py-2 text-[13px] font-medium transition-colors",
-            {
-              "bg-muted text-foreground": activeTab === "application",
-              "text-muted-foreground hover:bg-muted/30 hover:text-foreground":
-                activeTab !== "application",
+                !applicationTab,
             },
           )}
           onclick={() => (activeTab = "application")}
@@ -238,16 +215,44 @@
           <Icon icon="settings" size="xs" />
           Application
         </button>
+        <button
+          class={cn(
+            "flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium",
+            {
+              "bg-muted text-foreground": behaviorTab,
+              "text-muted-foreground hover:bg-muted/30 hover:text-foreground":
+                !behaviorTab,
+            },
+          )}
+          onclick={() => (activeTab = "behaviors")}
+        >
+          <Icon icon="sliders_horizontal" size="xs" />
+          Behaviors
+        </button>
+        <button
+          class={cn(
+            "flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium",
+            {
+              "bg-muted text-foreground": appearanceTab,
+              "text-muted-foreground hover:bg-muted/30 hover:text-foreground":
+                !appearanceTab,
+            },
+          )}
+          onclick={() => (activeTab = "appearance")}
+        >
+          <Icon icon="palette" size="xs" />
+          Appearance
+        </button>
       </nav>
 
       <main
         class="custom-scrollbar flex-1 overflow-y-auto px-4 py-6 focus-visible:outline-none"
       >
-        {#if activeTab === "behaviors"}
+        {#if behaviorTab}
           <BehaviorsSection />
-        {:else if activeTab === "appearance"}
+        {:else if appearanceTab}
           <AppearanceSection />
-        {:else if activeTab === "application"}
+        {:else if applicationTab}
           <ApplicationSection />
         {/if}
       </main>
