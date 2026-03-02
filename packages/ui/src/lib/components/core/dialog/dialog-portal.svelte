@@ -1,15 +1,17 @@
 <script lang="ts">
-  import type { Snippet } from "svelte";
-  import { portal } from "$lib/actions/index.js";
+  import {
+    Positioner,
+    type DialogPositionerProps,
+  } from "@ark-ui/svelte/dialog";
 
-  interface DialogPortalProps {
-    children?: Snippet;
-    target?: string | HTMLElement;
-  }
-
-  let { children, target = "body" }: DialogPortalProps = $props();
+  let {
+    ref = $bindable(null),
+    class: className,
+    children,
+    ...restProps
+  }: DialogPositionerProps = $props();
 </script>
 
-<div use:portal={target}>
+<Positioner bind:ref class={className} {...restProps}>
   {@render children?.()}
-</div>
+</Positioner>
