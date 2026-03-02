@@ -1,28 +1,14 @@
 <script lang="ts">
-  import { getDialogContext } from "../dialog/dialog-context.js";
-  import type { Snippet } from "svelte";
-  import type { HTMLButtonAttributes } from "svelte/elements";
-
-  interface AlertDialogTriggerProps extends Omit<HTMLButtonAttributes, "onclick"> {
-    ref?: HTMLButtonElement | null;
-    children?: Snippet;
-  }
+  import { Trigger, type DialogTriggerProps } from "@ark-ui/svelte/dialog";
 
   let {
     ref = $bindable(null),
+    class: className,
     children,
     ...restProps
-  }: AlertDialogTriggerProps = $props();
-
-  const ctx = getDialogContext();
+  }: DialogTriggerProps = $props();
 </script>
 
-<button
-  bind:this={ref}
-  type="button"
-  data-slot="alert-dialog-trigger"
-  onclick={() => ctx.setOpen(true)}
-  {...restProps}
->
+<Trigger bind:ref class={className} {...restProps}>
   {@render children?.()}
-</button>
+</Trigger>
