@@ -17,6 +17,7 @@ import IconInbox from "./_icons/inbox.svelte";
 import IconInfo from "./_icons/info.svelte";
 import IconLoader from "./_icons/loader.svelte";
 import IconMinus from "./_icons/minus.svelte";
+import IconPalette from "./_icons/palette.svelte";
 import IconPause from "./_icons/pause.svelte";
 import IconPencil from "./_icons/pencil.svelte";
 import IconPlay from "./_icons/play.svelte";
@@ -26,6 +27,7 @@ import IconRotateCcw from "./_icons/rotate-ccw.svelte";
 import IconSearch from "./_icons/search.svelte";
 import IconSettings from "./_icons/settings.svelte";
 import IconShare2 from "./_icons/share-2.svelte";
+import IconSlidersHorizontal from "./_icons/sliders-horizontal.svelte";
 import IconSquare from "./_icons/square.svelte";
 import IconTableRows from "./_icons/table-rows.svelte";
 import IconTrash2 from "./_icons/trash-2.svelte";
@@ -54,6 +56,7 @@ export const icons = {
   info: IconInfo,
   loader: IconLoader,
   minus: IconMinus,
+  palette: IconPalette,
   pause: IconPause,
   pencil: IconPencil,
   play: IconPlay,
@@ -63,6 +66,7 @@ export const icons = {
   search: IconSearch,
   settings: IconSettings,
   share: IconShare2,
+  sliders_horizontal: IconSlidersHorizontal,
   square: IconSquare,
   table_rows: IconTableRows,
   trash: IconTrash2,
