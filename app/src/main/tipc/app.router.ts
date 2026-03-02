@@ -2,13 +2,11 @@ import Config from "@vexed/config";
 import type { TipcInstance } from "@vexed/tipc";
 import { Result } from "better-result";
 import { BrowserWindow, nativeTheme } from "electron";
-import {
-  normalizeSettings,
-} from "~/shared/settings/normalize";
+import { normalizeSettings } from "~/shared/settings/normalize";
 import type { NormalizationIssue, Settings } from "~/shared/settings/types";
 import { WindowIds, type AccountWithScript } from "~/shared/types";
 import { ASSET_PATH, DOCUMENTS_PATH, PLATFORM } from "../constants";
-import { DEFAULT_SETTINGS, DEFAULT_SKILLSETS  } from "../defaults";
+import { DEFAULT_SETTINGS, DEFAULT_SKILLSETS } from "../defaults";
 import { gameServers } from "../services/game-servers";
 import { createLogger, setLoggerDebug } from "../services/logger";
 import { scriptService } from "../services/scripts";
