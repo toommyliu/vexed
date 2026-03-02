@@ -72,6 +72,7 @@
     "svelte"
   ],
   "dependencies": {
+    "@ark-ui/svelte": "^5.19.0",
     "@floating-ui/dom": "^1.7.5",
     "clsx": "^2.1.1",
     "tailwind-variants": "^0.3.1"
