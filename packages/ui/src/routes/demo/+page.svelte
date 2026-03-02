@@ -1,4 +1,5 @@
 <script lang="ts">
+  import "core-js/stable"; // used to test the electron app
   import "$lib/styles.css";
   import {
     Tabs,
@@ -24,14 +25,9 @@
     Separator,
     Icon,
     AlertDialog,
+    Tooltip,
   } from "$lib";
   import { icons, type IconName } from "$lib/components/core/icons";
-  import {
-    Tooltip,
-    TooltipTrigger,
-    TooltipContent,
-    TooltipProvider,
-  } from "$lib/components/core/tooltip";
   import { onMount } from "svelte";
 
   import type {
@@ -2579,61 +2575,59 @@
     </section>
 
     <!-- Tooltip -->
-    <section id="tooltip" class="space-y-4">
+    <section id="tooltip" class="space-y-4 pb-96">
       <h2 class="text-2xl font-semibold border-b pb-2">Tooltip</h2>
       <div class="space-y-4">
-        <TooltipProvider delayDuration={200}>
-          <Tooltip>
-            <TooltipTrigger>
-              {#snippet child({ props })}
-                <Button variant="outline" size="sm" {...props}>Tiny</Button>
-              {/snippet}
-            </TooltipTrigger>
-            <TooltipContent class="px-2 py-1 text-xs"
-              >This is a simple tooltip</TooltipContent
-            >
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger>
-              {#snippet child({ props })}
-                <Button variant="outline" {...props}>Default</Button>
-              {/snippet}
-            </TooltipTrigger>
-            <TooltipContent class="px-2 py-1 text-xs" side="top"
-              >This is a simple tooltip from the top</TooltipContent
-            >
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger>
-              {#snippet child({ props })}
-                <Button variant="outline" {...props}>Bottom</Button>
-              {/snippet}
-            </TooltipTrigger>
-            <TooltipContent class="px-2 py-1 text-xs" side="bottom"
-              >This is a simple tooltip from the bottom</TooltipContent
-            >
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger>
-              {#snippet child({ props })}
-                <Button variant="outline" {...props}>Left</Button>
-              {/snippet}
-            </TooltipTrigger>
-            <TooltipContent class="px-2 py-1 text-xs" side="left"
-              >This is a simple tooltip from the left</TooltipContent
-            >
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger>
-              {#snippet child({ props })}
-                <Button variant="outline" {...props}>Right</Button>
-              {/snippet}
-            </TooltipTrigger>
-            <TooltipContent class="px-2 py-1 text-xs" side="right"
-              >This is a simple tooltip from the right</TooltipContent
-            >
-          </Tooltip>
-        </TooltipProvider>
+        <Tooltip.Root>
+          <Tooltip.Trigger>
+            {#snippet child({ props })}
+              <Button variant="outline" size="sm" {...props}>Tiny</Button>
+            {/snippet}
+          </Tooltip.Trigger>
+          <Tooltip.Content class="px-2 py-1 text-xs"
+            >This is a simple tooltip</Tooltip.Content
+          >
+        </Tooltip.Root>
+        <Tooltip.Root>
+          <Tooltip.Trigger>
+            {#snippet child({ props })}
+              <Button variant="outline" {...props}>Default</Button>
+            {/snippet}
+          </Tooltip.Trigger>
+          <Tooltip.Content class="px-2 py-1 text-xs" side="top"
+            >This is a simple tooltip from the top</Tooltip.Content
+          >
+        </Tooltip.Root>
+        <Tooltip.Root>
+          <Tooltip.Trigger>
+            {#snippet child({ props })}
+              <Button variant="outline" {...props}>Bottom</Button>
+            {/snippet}
+          </Tooltip.Trigger>
+          <Tooltip.Content class="px-2 py-1 text-xs" side="bottom"
+            >This is a simple tooltip from the bottom</Tooltip.Content
+          >
+        </Tooltip.Root>
+        <Tooltip.Root>
+          <Tooltip.Trigger>
+            {#snippet child({ props })}
+              <Button variant="outline" {...props}>Left</Button>
+            {/snippet}
+          </Tooltip.Trigger>
+          <Tooltip.Content class="px-2 py-1 text-xs" side="left"
+            >This is a simple tooltip from the left</Tooltip.Content
+          >
+        </Tooltip.Root>
+        <Tooltip.Root>
+          <Tooltip.Trigger>
+            {#snippet child({ props })}
+              <Button variant="outline" {...props}>Right</Button>
+            {/snippet}
+          </Tooltip.Trigger>
+          <Tooltip.Content class="px-2 py-1 text-xs" side="right"
+            >This is a simple tooltip from the right</Tooltip.Content
+          >
+        </Tooltip.Root>
       </div>
     </section>
   </div>
@@ -2642,7 +2636,7 @@
 <Button
   variant="default"
   size="sm"
-  class="fixed right-6 bottom-6 z-50 shadow-lg rounded-lg flex items-center justify-center transition-transform hover:scale-105"
+  class="fixed right-6 bottom-6 z-50 rounded-lg flex items-center justify-center transition-transform hover:scale-105"
   onclick={toggleDarkMode}
 >
   {#if isDark}
