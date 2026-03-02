@@ -1,75 +1,70 @@
 <script lang="ts">
-  import type { Snippet } from "svelte";
-  import type { Placement } from "@floating-ui/dom";
+  import { getContext, untrack } from "svelte";
+  import {
+    TooltipContent,
+    TooltipPositioner,
+    type TooltipContentProps,
+  } from "@ark-ui/svelte/tooltip";
   import { cn } from "$lib/utils";
-  import { getTooltipContext } from "./tooltip-context.js";
-  import { portal } from "$lib/actions/portal.js";
-  import { floating } from "$lib/actions/floating.js";
-  import { dismiss } from "$lib/actions/dismiss.js";
+  import type { PositioningOptions, Placement } from "@zag-js/popper";
 
-  interface TooltipContentProps {
-    ref?: HTMLDivElement | null;
-    class?: string;
-    sideOffset?: number;
-    side?: "top" | "bottom" | "left" | "right";
-    align?: "start" | "center" | "end";
-    children?: Snippet;
-  }
+  type Side = "top" | "bottom" | "left" | "right";
+  type Align = "start" | "center" | "end";
 
   let {
     ref = $bindable(null),
     class: className,
-    sideOffset = 4,
-    side = "top",
-    align = "center",
+    side,
+    align,
+    sideOffset,
+    alignOffset,
     children,
-  }: TooltipContentProps = $props();
+    ...restProps
+  }: TooltipContentProps & {
+    side?: Side;
+    align?: Align;
+    sideOffset?: number;
+    alignOffset?: number;
+  } = $props();
 
-  const ctx = getTooltipContext();
+  const context = getContext<{ set: (v: PositioningOptions) => void }>(
+    "tooltip",
+  );
 
-  let open = $derived(ctx.open());
-  let closing = $state(false);
-  let visible = $derived(open || closing);
-  const dataState = $derived(open ? "open" : "closed");
+  const actualSide = $derived.by(() => side ?? "top");
+  const actualAlign = $derived.by(() => align ?? "center");
 
-  let prevOpen = $state(false);
   $effect(() => {
-    prevOpen = ctx.open();
-  });
-  $effect(() => {
-    const cur = ctx.open();
-    if (prevOpen && !cur) {
-      closing = true;
-      const t = setTimeout(() => {
-        closing = false;
-      }, 200);
-      return () => clearTimeout(t);
+    if (context) {
+      let placement: string = side ?? "top";
+      if (align && align !== "center") {
+        placement = `${placement}-${align}`;
+      }
+
+      let offset = { mainAxis: 0, crossAxis: 0 };
+      if (placement === "top") {
+        offset.mainAxis = 24;
+        offset.crossAxis = 0;
+      } else if (placement === "left" || placement === "right") {
+        offset.mainAxis = 8;
+        offset.crossAxis = -16;
+      } else if (placement === "bottom") {
+        offset.mainAxis = -8;
+        offset.crossAxis = 0;
+      }
+
+      untrack(() => {
+        context.set({ placement: placement as Placement, offset });
+      });
     }
   });
-
-  const placement = $derived<Placement>(
-    align === "center" ? (side as Placement) : (`${side}-${align}` as Placement),
-  );
 </script>
 
-{#if visible}
-  <div
-    bind:this={ref}
-    id={ctx.contentId()}
-    role="tooltip"
-    data-slot="tooltip-content"
-    data-state={dataState}
-    use:portal={"body"}
-    use:floating={{
-      anchor: ctx.triggerEl(),
-      placement,
-      sideOffset,
-    }}
-    use:dismiss={{
-      onDismiss: () => ctx.setOpen(false),
-      closeOnOutside: false,
-      closeOnEscape: true,
-    }}
+<TooltipPositioner>
+  <TooltipContent
+    bind:ref
+    data-side={actualSide}
+    data-align={actualAlign}
     class={cn(
       "z-[60] max-w-70 rounded-md border border-border bg-popover px-3 py-1.5 text-sm text-popover-foreground",
       "data-[state=open]:animate-in data-[state=closed]:animate-out",
@@ -81,7 +76,8 @@
       "data-[side=right]:slide-in-from-left-2 data-[side=right]:slide-out-to-left-2",
       className,
     )}
+    {...restProps}
   >
     {@render children?.()}
-  </div>
-{/if}
+  </TooltipContent>
+</TooltipPositioner>
