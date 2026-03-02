@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { cn, Icon } from "@vexed/ui";
+  import { cn, Icon, AppFrame } from "@vexed/ui";
   import { Result } from "better-result";
   import { onMount } from "svelte";
   import type { ServerData } from "@vexed/game";
@@ -186,24 +186,26 @@
   });
 </script>
 
-<div class="flex h-screen w-screen overflow-hidden bg-background">
-  {#if isLoading}
-    <div class="flex h-full w-full items-center justify-center">
+{#if isLoading}
+  <div
+    class="[-webkit-app-[region]:drag] flex h-screen w-screen items-center justify-center bg-background"
+  >
+    <div class="[-webkit-app-[region]:no-drag] text-muted-foreground">
       <Icon icon="loader" size="lg" spin />
     </div>
-  {:else}
-    <div class="flex h-full w-full flex-row">
-      <nav
-        class="flex w-[200px] shrink-0 flex-col gap-1 border-r border-border/50 bg-muted/5 px-3 py-6"
-      >
-        <h1
-          class="mb-4 px-2 text-[11px] font-bold uppercase text-muted-foreground/50"
-        >
-          Settings
-        </h1>
+  </div>
+{:else}
+  <AppFrame.Root orientation="horizontal">
+    <AppFrame.Header
+      title="Settings"
+      orientation="horizontal"
+      wrapChildren
+      class="w-[200px]"
+    >
+      <div class="flex flex-col gap-2">
         <button
           class={cn(
-            "flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium",
+            "flex w-full items-center justify-start gap-2 rounded-lg px-3 py-2 text-[13px] font-medium",
             {
               "bg-muted text-foreground": applicationTab,
               "text-muted-foreground hover:bg-muted/30 hover:text-foreground":
@@ -217,7 +219,7 @@
         </button>
         <button
           class={cn(
-            "flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium",
+            "flex w-full items-center justify-start gap-2 rounded-lg px-3 py-2 text-[13px] font-medium",
             {
               "bg-muted text-foreground": behaviorTab,
               "text-muted-foreground hover:bg-muted/30 hover:text-foreground":
@@ -231,7 +233,7 @@
         </button>
         <button
           class={cn(
-            "flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium",
+            "flex w-full items-center justify-start gap-2 rounded-lg px-3 py-2 text-[13px] font-medium",
             {
               "bg-muted text-foreground": appearanceTab,
               "text-muted-foreground hover:bg-muted/30 hover:text-foreground":
@@ -243,19 +245,16 @@
           <Icon icon="palette" size="xs" />
           Appearance
         </button>
-      </nav>
-
-      <main
-        class="custom-scrollbar flex-1 overflow-y-auto px-4 py-6 focus-visible:outline-none"
-      >
-        {#if behaviorTab}
-          <BehaviorsSection />
-        {:else if appearanceTab}
-          <AppearanceSection />
-        {:else if applicationTab}
-          <ApplicationSection />
-        {/if}
-      </main>
-    </div>
-  {/if}
-</div>
+      </div>
+    </AppFrame.Header>
+    <AppFrame.Body>
+      {#if behaviorTab}
+        <BehaviorsSection />
+      {:else if appearanceTab}
+        <AppearanceSection />
+      {:else if applicationTab}
+        <ApplicationSection />
+      {/if}
+    </AppFrame.Body>
+  </AppFrame.Root>
+{/if}

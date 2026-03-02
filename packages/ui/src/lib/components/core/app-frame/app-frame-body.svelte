@@ -3,7 +3,10 @@
   import type { HTMLAttributes } from "svelte/elements";
   import type { Snippet } from "svelte";
 
+  type Orientation = "vertical" | "horizontal";
+
   interface Props extends HTMLAttributes<HTMLElement> {
+    orientation?: Orientation;
     children?: Snippet;
     /**
      * When true (default), the body scrolls internally (overflow-auto).
@@ -21,6 +24,7 @@
 
   let {
     class: className = undefined,
+    orientation = "vertical",
     children,
     scroll = true,
     maxWidth = "max-w-7xl",
@@ -31,10 +35,12 @@
 <main
   class={cn(
     "flex-1 p-4 sm:p-6",
+    orientation === "horizontal" ? "min-h-0 h-full self-start" : "",
     scroll ? "overflow-auto" : "overflow-hidden",
     className,
   )}
   data-slot="app-frame-body"
+  data-orientation={orientation}
   {...restProps}
 >
   {#if maxWidth !== "none"}

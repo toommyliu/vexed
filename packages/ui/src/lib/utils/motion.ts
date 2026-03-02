@@ -1,21 +1,29 @@
 import type {
-    BlurParams,
-    CrossfadeParams,
-    DrawParams,
-    FadeParams,
-    FlyParams,
-    ScaleParams,
-    SlideParams,
-    TransitionConfig,
+  BlurParams,
+  CrossfadeParams,
+  DrawParams,
+  FadeParams,
+  FlyParams,
+  ScaleParams,
+  SlideParams,
+  TransitionConfig,
 } from "svelte/transition";
-import { blur, crossfade, draw, fade, fly, scale, slide } from "svelte/transition";
+import {
+  blur,
+  crossfade,
+  draw,
+  fade,
+  fly,
+  scale,
+  slide,
+} from "svelte/transition";
 
 /**
  * Checks if the user prefers reduced motion.
  */
 function prefersReducedMotion(): boolean {
-    if (typeof window === "undefined") return false;
-    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
 /**
@@ -23,40 +31,42 @@ function prefersReducedMotion(): boolean {
  * If the user prefers reduced motion, the transition duration is set to 0.
  */
 function createMotionAwareTransition<
-    T extends TransitionConfig,
-    E extends Element = Element,
+  T extends TransitionConfig,
+  E extends Element = Element,
 >(transitionFn: (node: E, params?: any) => T) {
-    return (node: E, params?: any): T => {
-        const result = transitionFn(node, params);
-        if (prefersReducedMotion()) {
-            return {
-                ...result,
-                duration: 0,
-            };
-        }
-        return result;
-    };
+  return (node: E, params?: any): T => {
+    const result = transitionFn(node, params);
+    if (prefersReducedMotion()) {
+      return {
+        ...result,
+        duration: 0,
+        delay: 0,
+      };
+    }
+    return result;
+  };
 }
 
 /**
  * Wraps Svelte crossfade transition to respect the user's motion preferences.
  */
 function createMotionAwareCrossfadeTransition(
-    transitionFn: (node: any, params: any) => () => TransitionConfig,
+  transitionFn: (node: any, params: any) => () => TransitionConfig,
 ) {
-    return (node: any, params: any) => {
-        const makeConfig = transitionFn(node, params);
-        return () => {
-            const config = makeConfig();
-            if (prefersReducedMotion()) {
-                return {
-                    ...config,
-                    duration: 0,
-                };
-            }
-            return config;
+  return (node: any, params: any) => {
+    const makeConfig = transitionFn(node, params);
+    return () => {
+      const config = makeConfig();
+      if (prefersReducedMotion()) {
+        return {
+          ...config,
+          duration: 0,
+          delay: 0,
         };
+      }
+      return config;
     };
+  };
 }
 
 /**
@@ -93,20 +103,20 @@ export const motionDraw = createMotionAwareTransition(draw);
  * Motion-aware version of the `crossfade` transition.
  */
 export const motionCrossfade = (params: CrossfadeParams) => {
-    const [send, receive] = crossfade(params);
-    return [
-        createMotionAwareCrossfadeTransition(send),
-        createMotionAwareCrossfadeTransition(receive),
-    ] as const;
+  const [send, receive] = crossfade(params);
+  return [
+    createMotionAwareCrossfadeTransition(send),
+    createMotionAwareCrossfadeTransition(receive),
+  ] as const;
 };
 
 export type {
-    BlurParams,
-    CrossfadeParams,
-    DrawParams,
-    FadeParams,
-    FlyParams,
-    ScaleParams,
-    SlideParams,
-    TransitionConfig,
+  BlurParams,
+  CrossfadeParams,
+  DrawParams,
+  FadeParams,
+  FlyParams,
+  ScaleParams,
+  SlideParams,
+  TransitionConfig,
 };
