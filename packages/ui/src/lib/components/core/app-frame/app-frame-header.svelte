@@ -3,7 +3,12 @@
   import type { HTMLAttributes } from "svelte/elements";
   import type { Snippet } from "svelte";
 
+  type Orientation = "vertical" | "horizontal";
+
   interface Props extends HTMLAttributes<HTMLElement> {
+    orientation?: Orientation;
+    /** When true, wraps children in an orientation-aware layout container. */
+    wrapChildren?: boolean;
     /** Renders a styled <h1> title on the left side of the header. */
     title?: string;
     /**
@@ -26,6 +31,8 @@
 
   let {
     class: className = undefined,
+    orientation = "vertical",
+    wrapChildren = false,
     title,
     left,
     right,
@@ -37,22 +44,40 @@
 
 <header
   class={cn(
-    "elevation-1 sticky top-0 z-10 border-b border-border/50 bg-background/95 px-6 py-3",
+    "elevation-1 z-10 border-border/50 bg-background/95",
+    orientation === "vertical"
+      ? "sticky top-0 border-b px-6 py-3"
+      : "sticky left-0 h-screen w-64 border-r px-4 py-4",
     className,
   )}
   data-slot="app-frame-header"
+  data-orientation={orientation}
   {...restProps}
 >
   {#if children}
-    {@render children()}
+    {#if wrapChildren && orientation === "horizontal"}
+      <div class="flex h-full flex-col">
+        {@render children()}
+      </div>
+    {:else}
+      {@render children()}
+    {/if}
   {:else}
     <div
       class={cn(
-        "mx-auto flex items-center justify-between",
+        "mx-auto",
+        orientation === "vertical"
+          ? "flex items-center justify-between"
+          : "flex h-full flex-col",
         maxWidth !== "none" && maxWidth,
       )}
     >
-      <div class="flex items-center gap-3">
+      <div
+        class={cn(
+          "flex items-center gap-3",
+          orientation === "horizontal" && "flex-col items-start",
+        )}
+      >
         {#if title}
           <h1 class="text-base font-semibold tracking-tight text-foreground">
             {title}
@@ -61,7 +86,12 @@
         {@render left?.()}
       </div>
       {#if right}
-        <div class="flex items-center gap-2">
+        <div
+          class={cn(
+            "flex items-center gap-2",
+            orientation === "horizontal" && "mt-auto pt-4",
+          )}
+        >
           {@render right()}
         </div>
       {/if}
