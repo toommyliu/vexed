@@ -2,7 +2,7 @@
   import { DialogBackdrop, Positioner } from "@ark-ui/svelte/dialog";
 
   import * as Dialog from "$lib/components/core/dialog/index.js";
-  // import * as AlertDialog from "$lib/components/core/alert-dialog/index.js";
+  import * as AlertDialog from "$lib/components/core/alert-dialog/index.js";
   import { dialog, dialogs } from "$lib/components/core/dialog/dialog-store";
   import { cn } from "$lib/utils";
 
@@ -28,7 +28,7 @@
 
 {#each $dialogs as item (item.id)}
   {#if item.type === "alert"}
-    <!-- <AlertDialog.Root
+    <AlertDialog.Root
       open={item.open}
       onOpenChange={(open) => handleOpenChange(item.id, open)}
     >
@@ -65,7 +65,7 @@
           {/if}
         </AlertDialog.Footer>
       </AlertDialog.Content>
-    </AlertDialog.Root> -->
+    </AlertDialog.Root>
   {:else}
     <Dialog.Root
       open={item.open}
