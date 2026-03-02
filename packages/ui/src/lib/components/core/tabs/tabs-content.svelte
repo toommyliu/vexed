@@ -1,34 +1,22 @@
 <script lang="ts">
+  import { TabContent, type TabContentProps } from "@ark-ui/svelte/tabs";
   import { cn } from "$lib/utils";
-  import { getTabsContext } from "./tabs-context.js";
-  import type { Snippet } from "svelte";
-
-  interface TabsContentProps {
-    ref?: HTMLDivElement | null;
-    value: string;
-    class?: string;
-    children?: Snippet;
-  }
 
   let {
     ref = $bindable(null),
     value,
     class: className,
     children,
-  }: TabsContentProps = $props();
-
-  const ctx = getTabsContext();
-  const isActive = $derived(ctx.value() === value);
+    ...restProps
+  }: TabContentProps = $props();
 </script>
 
-{#if isActive}
-  <div
-    bind:this={ref}
-    role="tabpanel"
-    data-slot="tabs-content"
-    data-state="active"
-    class={cn("flex-1 outline-none", className)}
-  >
-    {@render children?.()}
-  </div>
-{/if}
+<TabContent
+  bind:ref
+  {value}
+  data-slot="tabs-content"
+  class={cn("flex-1 outline-none", className)}
+  {...restProps}
+>
+  {@render children?.()}
+</TabContent>
