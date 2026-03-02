@@ -1,15 +1,22 @@
 import { join } from "path";
 import type Config from "@vexed/config";
-import * as fs from '@vexed/fs';
-import type { MenuItemConstructorOptions } from "electron";
-import { app, dialog, Menu, nativeTheme, session, shell } from "electron";
-import type { Settings } from "~/shared/types";
+import * as fs from "@vexed/fs";
+import {
+  app,
+  dialog,
+  Menu,
+  nativeTheme,
+  session,
+  shell,
+  type MenuItemConstructorOptions,
+} from "electron";
+import type { Settings } from "~/shared/settings/types";
 import { IS_MAC } from "./constants";
 import { createLogger } from "./services/logger";
 import { updaterService } from "./services/updater";
 import { windowsService } from "./services/windows";
 
-const logger = createLogger('app:menu');
+const logger = createLogger("app:menu");
 
 async function updateTheme(
   settings: Config<Settings>,
@@ -43,13 +50,15 @@ async function handleCheckForUpdates() {
 }
 
 function clearAppCache() {
-  void session.defaultSession?.clearStorageData({
-    storages: ["cookies", "appcache", "localstorage"],
-  // eslint-disable-next-line promise/prefer-await-to-callbacks, promise/prefer-await-to-then
-  }).catch((error) => {
-    logger.error("Failed to clear app cache", error);
-    return null;
-  })
+  void session.defaultSession
+    ?.clearStorageData({
+      storages: ["cookies", "appcache", "localstorage"],
+      // eslint-disable-next-line promise/prefer-await-to-callbacks, promise/prefer-await-to-then
+    })
+    .catch((error) => {
+      logger.error("Failed to clear app cache", error);
+      return null;
+    });
 }
 
 async function clearFlashCache() {

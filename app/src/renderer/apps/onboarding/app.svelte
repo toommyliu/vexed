@@ -187,19 +187,14 @@
 </script>
 
 {#if isLoading}
-  <div
-    class="[-webkit-app-[region]:drag] flex h-screen w-screen items-center justify-center bg-background"
-  >
-    <div class="[-webkit-app-[region]:no-drag] text-muted-foreground">
-      <Icon icon="loader" size="lg" spin />
-    </div>
+  <div class="flex h-screen w-screen items-center justify-center">
+    <Icon icon="loader" size="lg" spin />
   </div>
 {:else}
   <AppFrame.Root orientation="horizontal">
     <AppFrame.Header
       title="Settings"
       orientation="horizontal"
-      wrapChildren
       class="w-[200px]"
     >
       <div class="flex flex-col gap-2">
