@@ -1,28 +1,17 @@
 <script lang="ts">
-  import { getDialogContext } from "./dialog-context.js";
-  import type { Snippet } from "svelte";
-  import type { HTMLButtonAttributes } from "svelte/elements";
-
-  interface DialogCloseProps extends Omit<HTMLButtonAttributes, "onclick"> {
-    ref?: HTMLButtonElement | null;
-    children?: Snippet;
-  }
+  import {
+    DialogCloseTrigger,
+    type DialogCloseTriggerProps,
+  } from "@ark-ui/svelte/dialog";
 
   let {
     ref = $bindable(null),
+    class: className,
     children,
     ...restProps
-  }: DialogCloseProps = $props();
-
-  const ctx = getDialogContext();
+  }: DialogCloseTriggerProps = $props();
 </script>
 
-<button
-  bind:this={ref}
-  type="button"
-  data-slot="dialog-close"
-  onclick={() => ctx.close()}
-  {...restProps}
->
+<DialogCloseTrigger bind:ref class={className} {...restProps}>
   {@render children?.()}
-</button>
+</DialogCloseTrigger>

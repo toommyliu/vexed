@@ -1,6 +1,8 @@
 <script lang="ts">
+  import { DialogBackdrop, Positioner } from "@ark-ui/svelte/dialog";
+
   import * as Dialog from "$lib/components/core/dialog/index.js";
-  import * as AlertDialog from "$lib/components/core/alert-dialog/index.js";
+  // import * as AlertDialog from "$lib/components/core/alert-dialog/index.js";
   import { dialog, dialogs } from "$lib/components/core/dialog/dialog-store";
   import { cn } from "$lib/utils";
 
@@ -26,7 +28,7 @@
 
 {#each $dialogs as item (item.id)}
   {#if item.type === "alert"}
-    <AlertDialog.Root
+    <!-- <AlertDialog.Root
       open={item.open}
       onOpenChange={(open) => handleOpenChange(item.id, open)}
     >
@@ -63,39 +65,44 @@
           {/if}
         </AlertDialog.Footer>
       </AlertDialog.Content>
-    </AlertDialog.Root>
+    </AlertDialog.Root> -->
   {:else}
     <Dialog.Root
       open={item.open}
-      onOpenChange={(open) => handleOpenChange(item.id, open)}
+      onOpenChange={(details) => handleOpenChange(item.id, details.open)}
     >
-      <Dialog.Content
-        showCloseButton={item.showCloseButton ?? true}
-        class={getContentClass(item.size, item.contentClass)}
-      >
-        {#if item.title || item.description}
-          <Dialog.Header>
-            {#if item.title}
-              <Dialog.Title>{item.title}</Dialog.Title>
-            {/if}
-            {#if item.description}
-              <Dialog.Description>{item.description}</Dialog.Description>
-            {/if}
-          </Dialog.Header>
-        {/if}
+      <DialogBackdrop
+        class="fixed inset-0 z-50 bg-black/32 duration-150 backdrop-blur-[1px] transition-opacity data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
+      />
+      <Positioner>
+        <Dialog.Content
+          showCloseButton={item.showCloseButton ?? true}
+          class={getContentClass(item.size, item.contentClass)}
+        >
+          {#if item.title || item.description}
+            <Dialog.Header>
+              {#if item.title}
+                <Dialog.Title>{item.title}</Dialog.Title>
+              {/if}
+              {#if item.description}
+                <Dialog.Description>{item.description}</Dialog.Description>
+              {/if}
+            </Dialog.Header>
+          {/if}
 
-        {#if item.component}
-          <svelte:component this={item.component} {...item.props ?? {}} />
-        {:else if item.content}
-          {@render item.content?.()}
-        {/if}
+          {#if item.component}
+            <svelte:component this={item.component} {...item.props ?? {}} />
+          {:else if item.content}
+            {@render item.content?.()}
+          {/if}
 
-        {#if item.actions}
-          <Dialog.Footer>
-            {@render item.actions?.()}
-          </Dialog.Footer>
-        {/if}
-      </Dialog.Content>
+          {#if item.actions}
+            <Dialog.Footer>
+              {@render item.actions?.()}
+            </Dialog.Footer>
+          {/if}
+        </Dialog.Content>
+      </Positioner>
     </Dialog.Root>
   {/if}
 {/each}
