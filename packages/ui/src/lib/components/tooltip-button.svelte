@@ -4,7 +4,6 @@
   import {
     Tooltip,
     TooltipContent,
-    TooltipProvider,
     TooltipTrigger,
   } from "$lib/components/core/tooltip/";
   import { cn } from "$lib/utils";
@@ -35,23 +34,21 @@
   }: TooltipButtonProps = $props();
 </script>
 
-<TooltipProvider {delayDuration}>
-  <Tooltip>
-    <TooltipTrigger
-      class={cn(
-        "flex items-center rounded focus:outline-none focus-visible:ring-1 focus-visible:ring-primary",
-        className,
-      )}
-      {...restProps}
-    >
-      {@render children?.()}
-    </TooltipTrigger>
-    <TooltipContent {side} {sideOffset} class={contentClass}>
-      {#if typeof tooltip === "string"}
-        {tooltip}
-      {:else}
-        {@render tooltip()}
-      {/if}
-    </TooltipContent>
-  </Tooltip>
-</TooltipProvider>
+<Tooltip {delayDuration}>
+  <TooltipTrigger
+    class={cn(
+      "flex items-center rounded focus:outline-none focus-visible:ring-1 focus-visible:ring-primary",
+      className,
+    )}
+    {...restProps}
+  >
+    {@render children?.()}
+  </TooltipTrigger>
+  <TooltipContent {side} {sideOffset} class={contentClass}>
+    {#if typeof tooltip === "string"}
+      {tooltip}
+    {:else}
+      {@render tooltip()}
+    {/if}
+  </TooltipContent>
+</Tooltip>

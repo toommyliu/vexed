@@ -148,7 +148,7 @@
     if (hv && viewportEl) {
       tick().then(() => {
         const el = viewportEl?.querySelector("[data-highlighted]");
-        el?.scrollIntoView({ block: "nearest" });
+        el?.scrollIntoView({ block: "center" });
       });
     }
   });
