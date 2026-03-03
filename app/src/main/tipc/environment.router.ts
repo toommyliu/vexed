@@ -11,11 +11,8 @@ import { WindowIds } from "~/shared/types";
 import { environmentService } from "../services/environment";
 import { windowsService } from "../services/windows";
 import type { RendererHandlers } from "../tipc";
-import {
-  isWindowUsable,
-  withParentGameHandlers,
-  withSubwindowHandlers,
-} from "./forwarding";
+import { isWindowUsable } from "../util/browser-window";
+import { withParentGameHandlers, withSubwindowHandlers } from "./forwarding";
 
 export function createEnvironmentTipcRouter(tipcInstance: TipcInstance) {
   return {
