@@ -32,3 +32,4 @@ export { default as CopyButton } from "./components/copy-button.svelte";
 export { default as PillButton } from "./components/pill-button.svelte";
 export { default as TooltipButton } from "./components/tooltip-button.svelte";
 export { cn } from "./utils/cn";
+export { LocalStorage } from "./utils/localstorage.svelte";

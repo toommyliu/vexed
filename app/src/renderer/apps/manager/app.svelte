@@ -9,8 +9,10 @@
     Input,
     Select,
     Switch,
+    TooltipButton,
     dialog,
   } from "@vexed/ui";
+  import { LocalStorage, cn } from "@vexed/ui/util";
   import { Result } from "better-result";
   import { onMount } from "svelte";
   import { get } from "svelte/store";
@@ -29,6 +31,8 @@
   const { accounts, selectedAccounts } = managerState;
   let searchQuery = $state("");
   let isLoading = $state(true);
+
+  const layout = new LocalStorage("manager:layout", "grid");
 
   let isAddOpen = $state(false);
   let isEditOpen = $state(false);
@@ -141,6 +145,10 @@
         selectedAccounts.add(key);
       }
     });
+  }
+
+  function toggleViewMode() {
+    layout.current = layout.current === "grid" ? "column" : "grid";
   }
 
   async function handleRemove(usernames: string[]) {
@@ -315,10 +323,12 @@
           {/if}
 
           <div
-            class="group relative flex items-stretch overflow-hidden rounded-lg border transition-all duration-200
-                {managerState.startWithScript
-              ? 'elevation-1 border-primary/40 bg-primary/5'
-              : 'border-border/50 bg-secondary/50'}"
+            class={cn(
+              "group relative flex items-stretch overflow-hidden rounded-lg border transition-all duration-200",
+              managerState.startWithScript
+                ? "elevation-1 border-primary/40 bg-primary/5"
+                : "border-border/50 bg-secondary/50",
+            )}
           >
             <label
               class="flex cursor-pointer items-center gap-2 bg-transparent px-3 transition-colors hover:bg-secondary/80"
@@ -328,20 +338,22 @@
                 class="h-4 w-8 [&>span]:h-3 [&>span]:w-3 [&>span]:data-[state=checked]:translate-x-4"
               />
               <span
-                class="select-none whitespace-nowrap text-sm font-medium transition-colors
-                    {managerState.startWithScript
-                  ? 'text-foreground'
-                  : 'text-muted-foreground'}"
+                class={cn(
+                  "select-none whitespace-nowrap text-sm font-medium transition-colors",
+                  managerState.startWithScript
+                    ? "text-foreground"
+                    : "text-muted-foreground",
+                )}
               >
                 Script
               </span>
             </label>
 
             <div
-              class="my-1.5 w-px self-stretch transition-colors
-                  {managerState.startWithScript
-                ? 'bg-primary/20'
-                : 'bg-border/30'}"
+              class={cn(
+                "my-1.5 w-px self-stretch transition-colors",
+                managerState.startWithScript ? "bg-primary/20" : "bg-border/30",
+              )}
             ></div>
 
             <Button
@@ -351,10 +363,12 @@
               title={managerState.scriptPath || "Select a script file"}
             >
               <span
-                class="truncate text-sm transition-colors
-                    {managerState.scriptPath
-                  ? 'font-medium text-foreground'
-                  : 'text-muted-foreground'}"
+                class={cn(
+                  "truncate text-sm transition-colors",
+                  managerState.scriptPath
+                    ? "font-medium text-foreground"
+                    : "text-muted-foreground",
+                )}
               >
                 {managerState.scriptPath
                   ? managerState.scriptPath.split(/[/\\]/).pop()
@@ -373,14 +387,26 @@
             class="flex items-center gap-1.5 text-muted-foreground transition-colors"
           >
             <span
-              class="font-medium tabular-nums {selectedCount > 0
-                ? 'text-primary'
-                : ''}">{selectedCount}</span
+              class={cn(
+                "font-medium tabular-nums",
+                selectedCount > 0 && "text-primary",
+              )}>{selectedCount}</span
             >
             <span class="text-muted-foreground/70">of</span>
             <span class="tabular-nums">{filteredAccounts.length}</span>
             <span class="text-muted-foreground/70">selected</span>
           </span>
+
+          <TooltipButton
+            onclick={toggleViewMode}
+            tooltip={layout.current === "grid" ? "Column view" : "Grid view"}
+            class="flex items-center rounded-md p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground"
+          >
+            <Icon
+              icon={layout.current === "grid" ? "rows" : "grid"}
+              size="md"
+            />
+          </TooltipButton>
         </div>
 
         <div class="flex flex-wrap items-center gap-0.5 sm:gap-1">
@@ -414,7 +440,7 @@
             disabled={selectedCount === 0}
             class="ml-0.5 px-2 sm:ml-1 sm:px-3"
           >
-            <Icon icon="trash" class="h-4 w-4" />
+            <Icon icon="trash" size="md" />
             <span class="hidden text-sm font-medium sm:inline">Remove</span>
           </Button>
 
@@ -426,7 +452,7 @@
             class="ml-0.5 bg-primary px-2 text-primary-foreground hover:bg-primary/90 sm:ml-1 sm:px-3"
             title="Start selected"
           >
-            <Icon icon="play" class="h-4 w-4" />
+            <Icon icon="play" size="md" />
             <span class="hidden text-sm font-medium sm:inline">Start</span>
           </Button>
         </div>
@@ -463,17 +489,24 @@
             </Button>
           </div>
         {:else}
-          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div
+            class={cn(
+              "grid grid-cols-1 gap-3",
+              layout.current === "grid" && "sm:grid-cols-2 lg:grid-cols-3",
+            )}
+          >
             {#each filteredAccounts as account (account.username)}
               {@const isSelected = selectedAccounts.has(
                 account.username.toLowerCase(),
               )}
 
               <div
-                class="group flex cursor-pointer items-center gap-4 rounded-xl border px-4 py-4 transition-all duration-150
-                    {isSelected
-                  ? 'elevation-2 border-primary/50 bg-primary/5'
-                  : 'hover:elevation-1 border-border/50 bg-card hover:border-border hover:bg-secondary/30'}"
+                class={cn(
+                  "group flex cursor-pointer items-center gap-4 rounded-xl border px-4 py-4 transition-all duration-150",
+                  isSelected
+                    ? "elevation-2 border-primary/50 bg-primary/5"
+                    : "hover:elevation-1 border-border/50 bg-card hover:border-border hover:bg-secondary/30",
+                )}
                 onclick={() => toggleSelection(account.username)}
                 role="button"
                 tabindex="0"
@@ -503,7 +536,7 @@
                       handleStart([account.username]);
                     }}
                   >
-                    <Icon icon="play" class="h-3.5 w-3.5" />
+                    <Icon icon="play" size="sm" />
                   </Button>
 
                   <Button
@@ -528,7 +561,7 @@
                       handleRemove([account.username]);
                     }}
                   >
-                    <Icon icon="trash" class="h-3.5 w-3.5" />
+                    <Icon icon="trash" size="sm" />
                   </Button>
                 </div>
               </div>

@@ -1,4 +1,5 @@
 export { cn } from "./cn";
+export { LocalStorage } from "./localstorage.svelte";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type WithoutChild<T> = T extends { child?: any } ? Omit<T, "child"> : T;

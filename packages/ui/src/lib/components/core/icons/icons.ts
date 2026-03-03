@@ -24,6 +24,7 @@ import IconPlay from "./_icons/play.svelte";
 import IconPlus from "./_icons/plus.svelte";
 import IconRadio from "./_icons/radio.svelte";
 import IconRotateCcw from "./_icons/rotate-ccw.svelte";
+import IconRows from "./_icons/rows.svelte";
 import IconSearch from "./_icons/search.svelte";
 import IconSettings from "./_icons/settings.svelte";
 import IconShare2 from "./_icons/share-2.svelte";
@@ -63,6 +64,7 @@ export const icons = {
   plus: IconPlus,
   radio: IconRadio,
   rotate_ccw: IconRotateCcw,
+  rows: IconRows,
   search: IconSearch,
   settings: IconSettings,
   share: IconShare2,
