@@ -31,7 +31,7 @@
       aF = requestAnimationFrame(() => {
         const height = node.offsetHeight;
         listNode.style.setProperty(
-          "--bits-command-list-height",
+          "--command-list-height",
           `${height.toFixed(1)}px`,
         );
       });

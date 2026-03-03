@@ -18,7 +18,7 @@
     Card,
     Dialog,
     Combobox,
-    // Command,
+    Command,
     Dropdown,
     InputGroup,
     Textarea,
@@ -2155,7 +2155,7 @@
       </div>
     </section>
 
-    <!-- <section id="command" class="space-y-8">
+    <section id="command" class="space-y-8">
       <h2 class="text-2xl font-semibold border-b pb-2">Command</h2>
       <div class="space-y-2">
         <h3 class="text-sm font-medium text-muted-foreground">
@@ -2572,7 +2572,7 @@
           </Command.Panel>
         </div>
       </div>
-    </section> -->
+    </section>
 
     <!-- Tooltip -->
     <section id="tooltip" class="space-y-4 pb-96">
