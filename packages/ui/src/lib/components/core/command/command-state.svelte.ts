@@ -493,19 +493,23 @@ export class CommandRootState {
 
   #scrollSelectedIntoView() {
     tick().then(() => {
-      const item = this.#getSelectedItem();
+      const value = this._state.value;
+      if (!value || !this.rootNode) return;
+      const item = this.rootNode.querySelector<HTMLElement>(
+        `${SEL_VALID_ITEM}[${COMMAND_VALUE_ATTR}="${CSS.escape(value)}"]`,
+      );
       if (!item) return;
 
       const grandparent = item.parentElement?.parentElement;
       if (!grandparent) return;
 
       if (this.isGrid) {
-        item.scrollIntoView({ block: "center" });
+        item.scrollIntoView({ block: "nearest" });
         if (this.#itemIsFirstRowOfGroup(item)) {
           const header = item
             .closest(SEL_GROUP)
             ?.querySelector(SEL_GROUP_HEADING);
-          header?.scrollIntoView({ block: "center" });
+          header?.scrollIntoView({ block: "nearest" });
         }
       } else {
         const first = getFirstNonCommentChild(grandparent);
@@ -516,10 +520,10 @@ export class CommandRootState {
           const header = item
             .closest(SEL_GROUP)
             ?.querySelector(SEL_GROUP_HEADING);
-          header?.scrollIntoView({ block: "center" });
+          header?.scrollIntoView({ block: "nearest" });
           return;
         }
-        item.scrollIntoView({ block: "center" });
+        item.scrollIntoView({ block: "nearest" });
       }
     });
   }
