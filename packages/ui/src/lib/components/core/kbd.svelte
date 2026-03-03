@@ -29,6 +29,7 @@
    */
   function formatHotkeyParts(hotkey: string): string[] {
     if (!hotkey) return [];
+    // TODO: render symbols as icons instead?
     return hotkey.split("+").map((part) => {
       const lower = part.toLowerCase();
       if (IS_MAC) {

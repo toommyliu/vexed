@@ -1,77 +1,51 @@
 <script lang="ts">
+  import { Select, type SelectRootProps } from "@ark-ui/svelte/select";
+  import { createListCollection } from "@ark-ui/svelte/select";
+  import { setContext } from "svelte";
   import { cn } from "$lib/utils";
-  import {
-    createSelectContext,
-    type SelectItemEntry,
-  } from "./select-context.js";
-  import type { Snippet } from "svelte";
-
-  interface SelectRootProps {
-    value?: string;
-    open?: boolean;
-    disabled?: boolean;
-    name?: string;
-    required?: boolean;
-    class?: string;
-    onValueChange?: (value: string) => void;
-    children?: Snippet;
-  }
 
   let {
-    value = $bindable(""),
-    open = $bindable(false),
+    value = $bindable([]),
+    ref = $bindable(null),
     disabled = false,
     name,
     required = false,
     class: className,
-    onValueChange,
     children,
-  }: SelectRootProps = $props();
+    multiple = false,
+    ...restProps
+  }: Omit<SelectRootProps, "collection"> = $props();
 
-  const itemMap = new Map<string, SelectItemEntry>();
-  let triggerEl = $state<HTMLElement | null>(null);
-  let highlightedValue = $state<string | null>(null);
-  let selectedLabel = $state("");
+  let items = $state<any[]>([]);
 
-  createSelectContext({
-    value: () => value,
-    open: () => open,
-    disabled: () => disabled,
-    setValue: (v: string, label: string) => {
-      value = v;
-      selectedLabel = label;
-      open = false;
-      onValueChange?.(v);
+  // Ark UI workaround: we use a context so we can lift state up to the Select.Root without
+  // having to pass the collection directly ourselves
+  setContext("select", {
+    registerItem: (item: any) => {
+      items = [...items, item];
     },
-    setOpen: (v: boolean) => {
-      if (disabled) return;
-      open = v;
-      if (!v) highlightedValue = null;
+    unregisterItem: (value: string) => {
+      items = items.filter((i) => i.value !== value);
     },
-    triggerEl: () => triggerEl,
-    setTriggerEl: (el) => {
-      triggerEl = el;
-    },
-    registerItem: (v, label, dis) => {
-      itemMap.set(v, { value: v, label, disabled: dis });
-      if (v === value) selectedLabel = label;
-    },
-    unregisterItem: (v) => {
-      itemMap.delete(v);
-    },
-    getItems: () => Array.from(itemMap.values()),
-    highlightedValue: () => highlightedValue,
-    setHighlightedValue: (v) => {
-      highlightedValue = v;
-    },
-    selectedLabel: () => selectedLabel,
+  });
+
+  const collection = $derived.by(() => {
+    return createListCollection({ items });
   });
 </script>
 
-<div
+<Select.Root
+  bind:value
+  bind:ref
+  {disabled}
+  {name}
+  {required}
+  // lazyMount={false}
+  // unmountOnExit={false}
   data-slot="select"
-  data-disabled={disabled ? "" : undefined}
   class={cn("relative block text-left", className)}
+  {...restProps}
+  {collection}
 >
   {@render children?.()}
-</div>
+</Select.Root>
