@@ -1,18 +1,17 @@
 <script lang="ts">
-  import type { Snippet } from "svelte";
-  import type { HTMLAttributes } from "svelte/elements";
-
-  interface SelectGroupProps extends HTMLAttributes<HTMLDivElement> {
-    children?: Snippet;
-  }
+  import {
+    SelectItemGroup,
+    type SelectItemGroupProps,
+  } from "@ark-ui/svelte/select";
 
   let {
+    ref = $bindable(null),
     class: className = undefined,
     children,
     ...restProps
-  }: SelectGroupProps = $props();
+  }: SelectItemGroupProps = $props();
 </script>
 
-<div role="group" data-slot="select-group" class={className} {...restProps}>
+<SelectItemGroup data-slot="select-group" class={className} {...restProps}>
   {@render children?.()}
-</div>
+</SelectItemGroup>
