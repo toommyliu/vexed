@@ -1,5 +1,6 @@
 <script lang="ts">
   import { cn } from "$lib/utils";
+  import { Select } from "@ark-ui/svelte/select";
   import type { HTMLAttributes } from "svelte/elements";
 
   interface Props extends HTMLAttributes<HTMLSpanElement> {
@@ -14,14 +15,12 @@
   }: Props = $props();
 </script>
 
-<span
-  class={cn("flex-1 min-w-0 truncate text-left data-[placeholder]:text-muted-foreground", className)}
+<Select.ValueText
+  {placeholder}
   data-slot="select-value"
+  class={cn(
+    "flex-1 min-w-0 truncate text-left data-[placeholder]:text-muted-foreground",
+    className,
+  )}
   {...restProps}
->
-  {#if children}
-    {@render children?.()}
-  {:else}
-    <span class="text-muted-foreground">{placeholder}</span>
-  {/if}
-</span>
+/>

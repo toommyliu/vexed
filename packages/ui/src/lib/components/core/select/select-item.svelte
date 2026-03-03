@@ -1,73 +1,50 @@
 <script lang="ts">
   import { cn } from "$lib/utils";
   import { Icon } from "$lib";
-  import { getSelectContext } from "./select-context.js";
-  import { onDestroy } from "svelte";
-  import type { Snippet } from "svelte";
-  import type { HTMLAttributes } from "svelte/elements";
+  import { getContext, untrack } from "svelte";
+  import {
+    SelectItem,
+    SelectItemIndicator,
+    SelectItemText,
+    type SelectItemProps,
+  } from "@ark-ui/svelte/select";
 
-  interface SelectItemProps extends Omit<
-    HTMLAttributes<HTMLDivElement>,
-    "children"
-  > {
-    ref?: HTMLDivElement | null;
+  type Props = Omit<SelectItemProps, "item"> & {
     value: string;
+    label?: string;
     disabled?: boolean;
-    class?: string;
-    children?: Snippet;
-  }
+    ref?: HTMLElement | null;
+  };
 
   let {
+    value,
+    label = value,
+    disabled = false,
     ref = $bindable(null),
     class: className = undefined,
-    value,
-    disabled = false,
     children,
     ...restProps
-  }: SelectItemProps = $props();
+  }: Props = $props();
 
-  const ctx = getSelectContext();
-
-  const isSelected = $derived(ctx.value() === value);
-  const isHighlighted = $derived(ctx.highlightedValue() === value);
-
-  let labelEl = $state<HTMLSpanElement | null>(null);
-
+  const item = $derived({ value, label, disabled });
+  const selectContext = getContext<any>("select");
   $effect(() => {
-    const label = labelEl?.textContent?.trim() ?? value;
-    ctx.registerItem(value, label, disabled);
-    return () => ctx.unregisterItem(value);
-  });
+    untrack(() => {
+      if (selectContext) selectContext.registerItem(item);
+    });
 
-  onDestroy(() => ctx.unregisterItem(value));
+    return () => {
+      untrack(() => {
+        if (selectContext) selectContext.unregisterItem(value);
+      });
+    };
+  });
 </script>
 
-<span bind:this={labelEl} style="display:none" aria-hidden="true">
-  {@render children?.()}
-</span>
-
-<!-- svelte-ignore a11y_interactive_supports_focus -->
-<div
-  bind:this={ref}
-  role="option"
-  aria-selected={isSelected}
-  aria-disabled={disabled}
+<SelectItem
+  {item}
+  bind:ref
   data-slot="select-item"
-  data-highlighted={isHighlighted ? "" : undefined}
-  data-disabled={disabled ? "" : undefined}
-  onclick={() => {
-    if (!disabled) {
-      const label = labelEl?.textContent?.trim() ?? value;
-      ctx.setValue(value, label);
-    }
-  }}
-  onpointerenter={() => {
-    if (!disabled) ctx.setHighlightedValue(value);
-  }}
-  onpointerleave={() => {
-    if (ctx.highlightedValue() === value) ctx.setHighlightedValue(null);
-  }}
-  {...restProps}
   class={cn(
     "relative grid grid-cols-[1rem_1fr] w-full cursor-default items-center gap-2 rounded-sm bg-transparent py-1.5 px-2 text-sm outline-none",
     "data-[highlighted]:bg-muted",
@@ -75,11 +52,12 @@
     "[&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
     className,
   )}
+  {...restProps}
 >
-  {#if isSelected}
-    <Icon icon="check" size="md" class="col-start-1 row-start-1 shrink-0" />
-  {/if}
-  <span class="col-start-2 min-w-0 text-start">
+  <SelectItemIndicator class="col-start-1 row-start-1">
+    <Icon icon="check" size="md" class="shrink-0" />
+  </SelectItemIndicator>
+  <SelectItemText class="col-start-2 min-w-0 text-start">
     {@render children?.()}
-  </span>
-</div>
+  </SelectItemText>
+</SelectItem>

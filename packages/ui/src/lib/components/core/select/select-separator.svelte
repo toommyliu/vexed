@@ -1,17 +1,18 @@
 <script lang="ts">
-  import { cn } from "$lib/utils";
+  import { cn, type WithElementRef } from "$lib/utils";
   import type { HTMLAttributes } from "svelte/elements";
 
-  interface Props extends HTMLAttributes<HTMLDivElement> {}
-
   let {
+    ref = $bindable(null),
     class: className = undefined,
     ...restProps
-  }: Props = $props();
+  }: WithElementRef<HTMLAttributes<HTMLDivElement>> = $props();
 </script>
 
 <div
+  bind:this={ref}
   class={cn("mx-2 my-1 h-px bg-border", className)}
   data-slot="select-separator"
+  role="separator"
   {...restProps}
 ></div>

@@ -1,17 +1,11 @@
 <script lang="ts">
-  import { cn } from "$lib/utils";
+  import { cn, type WithoutChild } from "$lib/utils";
   import { Icon } from "$lib";
-  import { getSelectContext } from "./select-context.js";
-  import type { Snippet } from "svelte";
-  import type { HTMLButtonAttributes } from "svelte/elements";
-
-  interface SelectTriggerProps extends Omit<HTMLButtonAttributes, "disabled"> {
-    ref?: HTMLButtonElement | null;
-    size?: "sm" | "default" | "lg";
-    disabled?: boolean;
-    class?: string;
-    children?: Snippet;
-  }
+  import {
+    SelectTrigger,
+    SelectIndicator,
+    type SelectTriggerProps,
+  } from "@ark-ui/svelte/select";
 
   let {
     ref = $bindable(null),
@@ -20,35 +14,14 @@
     disabled = false,
     children,
     ...restProps
-  }: SelectTriggerProps = $props();
-
-  const ctx = getSelectContext();
-  const isDisabled = $derived(disabled || ctx.disabled());
-  const dataState = $derived(ctx.open() ? "open" : "closed");
-
-  $effect(() => {
-    if (ref) ctx.setTriggerEl(ref);
-    return () => ctx.setTriggerEl(null);
-  });
+  }: WithoutChild<SelectTriggerProps> & {
+    size?: "sm" | "default" | "lg";
+  } = $props();
 </script>
 
-<button
-  bind:this={ref}
-  type="button"
-  role="combobox"
-  aria-haspopup="listbox"
-  aria-expanded={ctx.open()}
+<SelectTrigger
+  bind:ref
   data-slot="select-trigger"
-  data-state={dataState}
-  disabled={isDisabled}
-  onclick={() => ctx.setOpen(!ctx.open())}
-  onkeydown={(e: KeyboardEvent) => {
-    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-      e.preventDefault();
-      ctx.setOpen(true);
-    }
-  }}
-  {...restProps}
   class={cn(
     "relative flex items-center justify-between select-none rounded-lg border border-input bg-background bg-clip-padding text-base/5 shadow-sm outline-none ring-ring/24 transition-shadow",
     "before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(theme(borderRadius.lg)-1px)]",
@@ -60,9 +33,10 @@
     size === "lg" && "gap-2 px-3 py-2",
     className,
   )}
+  {...restProps}
 >
   {@render children?.()}
-  <span data-slot="select-icon" class="-me-1 opacity-72">
+  <SelectIndicator data-slot="select-icon" class="-me-1 opacity-72">
     <Icon icon="chevrons_up_down" size="md" />
-  </span>
-</button>
+  </SelectIndicator>
+</SelectTrigger>
