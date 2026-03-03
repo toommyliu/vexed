@@ -1,24 +1,23 @@
 <script lang="ts">
+  import {
+    ComboboxEmpty,
+    type ComboboxEmptyProps,
+  } from "@ark-ui/svelte/combobox";
   import { cn } from "$lib/utils";
-  import type { HTMLAttributes } from "svelte/elements";
-  import type { Snippet } from "svelte";
-
-  interface ComboboxEmptyProps extends HTMLAttributes<HTMLDivElement> {
-    children?: Snippet;
-    class?: string;
-  }
 
   let {
+    ref = $bindable(null),
     class: className = undefined,
     children,
     ...restProps
   }: ComboboxEmptyProps = $props();
 </script>
 
-<div
+<ComboboxEmpty
+  bind:ref
   data-slot="combobox-empty"
   class={cn("py-6 text-center text-sm text-muted-foreground", className)}
   {...restProps}
 >
   {@render children?.()}
-</div>
+</ComboboxEmpty>

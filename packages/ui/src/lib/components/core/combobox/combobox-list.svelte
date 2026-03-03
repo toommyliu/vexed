@@ -1,21 +1,20 @@
 <script lang="ts">
+  import {
+    ComboboxList,
+    type ComboboxListProps,
+  } from "@ark-ui/svelte/combobox";
   import { cn } from "$lib/utils";
-  import type { HTMLAttributes } from "svelte/elements";
-  import type { Snippet } from "svelte";
-
-  interface ComboboxListProps extends HTMLAttributes<HTMLDivElement> {
-    children?: Snippet;
-    class?: string;
-  }
 
   let {
+    ref = $bindable(null),
     class: className = undefined,
     children,
     ...restProps
   }: ComboboxListProps = $props();
 </script>
 
-<div
+<ComboboxList
+  bind:ref
   data-slot="combobox-list"
   class={cn(
     "max-h-60 min-w-[8rem] w-[var(--combobox-anchor-width)] overflow-y-auto p-1",
@@ -24,4 +23,4 @@
   {...restProps}
 >
   {@render children?.()}
-</div>
+</ComboboxList>
