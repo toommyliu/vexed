@@ -1,25 +1,26 @@
 <script lang="ts">
+  import {
+    ComboboxItemGroup,
+    type ComboboxItemGroupProps,
+  } from "@ark-ui/svelte/combobox";
   import { cn } from "$lib/utils";
-  import type { Snippet } from "svelte";
-  import type { HTMLAttributes } from "svelte/elements";
-
-  interface ComboboxGroupProps extends HTMLAttributes<HTMLDivElement> {
-    class?: string;
-    children?: Snippet;
-  }
 
   let {
+    ref = $bindable(null),
     class: className = undefined,
     children,
     ...restProps
-  }: ComboboxGroupProps = $props();
+  }: ComboboxItemGroupProps = $props();
 </script>
 
-<div
-  role="group"
+<ComboboxItemGroup
+  bind:ref
   data-slot="combobox-group"
-  class={cn("overflow-hidden text-foreground [[role=group]+&]:mt-1.5", className)}
+  class={cn(
+    "overflow-hidden text-foreground [[role=group]+&]:mt-1.5",
+    className,
+  )}
   {...restProps}
 >
   {@render children?.()}
-</div>
+</ComboboxItemGroup>
