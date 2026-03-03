@@ -12,7 +12,7 @@ import { createLogger, setLoggerDebug } from "../services/logger";
 import { scriptService } from "../services/scripts";
 import { windowsService, type SubwindowConfig } from "../services/windows";
 import { getSettings } from "../settings";
-import { isWindowUsable } from "./forwarding";
+import { isWindowUsable } from "../util/browser-window";
 
 const SUBWINDOW_CONFIGS: Record<WindowIds, SubwindowConfig> = {
   [WindowIds.Environment]: {

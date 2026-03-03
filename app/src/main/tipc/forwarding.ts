@@ -3,10 +3,7 @@ import type { BrowserWindow } from "electron";
 import type { WindowIds } from "~/shared/types";
 import { windowsService } from "../services/windows";
 import type { RendererHandlers as AppRendererHandlers } from "../tipc";
-
-export function isWindowUsable(window: BrowserWindow | null): boolean {
-  return !window?.isDestroyed() && !window?.webContents?.isDestroyed();
-}
+import { isWindowUsable } from "../util/browser-window";
 
 export function resolveParentGameWindow(
   context: Pick<ActionContext, "senderWindow" | "senderWindowId">,
