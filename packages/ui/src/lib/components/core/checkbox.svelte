@@ -1,79 +1,44 @@
 <script lang="ts">
+  import { Checkbox, type CheckboxRootProps } from "@ark-ui/svelte/checkbox";
   import { Icon } from "$lib";
   import { cn } from "$lib/utils";
-  import type { HTMLButtonAttributes } from "svelte/elements";
-
-  interface CheckboxProps extends Omit<HTMLButtonAttributes, "checked" | "value"> {
-    ref?: HTMLButtonElement | null;
-    checked?: boolean;
-    indeterminate?: boolean;
-    disabled?: boolean;
-    name?: string;
-    value?: string;
-    required?: boolean;
-    class?: string;
-    onCheckedChange?: (checked: boolean) => void;
-  }
 
   let {
-    ref = $bindable(null),
     checked = $bindable(false),
     indeterminate = $bindable(false),
     disabled = false,
     name,
     value,
     required,
+    invalid,
+    readOnly,
     class: className,
     onCheckedChange,
-    ...restProps
-  }: CheckboxProps = $props();
+  }: CheckboxRootProps & {
+    indeterminate?: boolean;
+  } = $props();
 
-  const state = $derived(indeterminate ? "indeterminate" : checked ? "checked" : "unchecked");
-
-  function toggle() {
-    if (disabled) return;
-    if (indeterminate) {
-      indeterminate = false;
-      checked = true;
-    } else {
-      checked = !checked;
-    }
-    onCheckedChange?.(checked);
-  }
-
-  function onkeydown(e: KeyboardEvent) {
-    if (e.key === " ") {
-      e.preventDefault();
-      toggle();
-    }
-  }
+  const checkedState = $derived(indeterminate ? "indeterminate" : checked);
 </script>
 
-{#if name}
-  <input
-    type="checkbox"
-    {name}
-    {value}
-    {required}
-    {disabled}
-    checked={checked && !indeterminate}
-    aria-hidden="true"
-    tabindex="-1"
-    style="position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0"
-  />
-{/if}
-
-<button
-  bind:this={ref}
-  type="button"
-  role="checkbox"
-  aria-checked={indeterminate ? "mixed" : checked}
-  data-slot="checkbox"
-  data-state={state}
+<Checkbox.Root
+  {name}
+  {value}
   {disabled}
-  onclick={toggle}
-  {onkeydown}
-  {...restProps}
+  {required}
+  {invalid}
+  {readOnly}
+  checked={checkedState}
+  onCheckedChange={(details) => {
+    if (details.checked === "indeterminate") {
+      indeterminate = true;
+      checked = false;
+    } else {
+      indeterminate = false;
+      checked = details.checked;
+      onCheckedChange?.(details);
+    }
+  }}
   class={cn(
     "peer h-4 w-4 shrink-0 rounded-sm border border-input bg-background ring-offset-background transition-all",
     "hover:border-muted-foreground/60",
@@ -82,12 +47,24 @@
     "data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground",
     className,
   )}
+  data-slot="checkbox"
 >
-  <div data-slot="checkbox-indicator" class="flex items-center justify-center text-current transition-none">
-    {#if checked && !indeterminate}
-      <Icon icon="check" size="md" />
-    {:else if indeterminate}
-      <Icon icon="minus" size="md" />
-    {/if}
-  </div>
-</button>
+  <Checkbox.Control>
+    <Checkbox.Indicator {indeterminate}>
+      <div
+        data-slot="checkbox-indicator"
+        class={cn(
+          "flex items-center justify-center text-current transition-none",
+          { "-mt-[1px]": indeterminate },
+        )}
+      >
+        {#if indeterminate}
+          <Icon icon="minus" size="md" />
+        {:else}
+          <Icon icon="check" size="md" />
+        {/if}
+      </div>
+    </Checkbox.Indicator>
+  </Checkbox.Control>
+  <Checkbox.HiddenInput />
+</Checkbox.Root>
