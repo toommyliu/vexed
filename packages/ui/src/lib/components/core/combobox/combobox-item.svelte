@@ -1,76 +1,51 @@
 <script lang="ts">
+  import { getContext, untrack } from "svelte";
+  import {
+    ComboboxItem,
+    ComboboxItemIndicator,
+    ComboboxItemText,
+    type ComboboxItemProps,
+  } from "@ark-ui/svelte/combobox";
   import { cn } from "$lib/utils";
   import { Icon } from "$lib";
-  import { getComboboxContext } from "./combobox-context.js";
-  import { onDestroy } from "svelte";
-  import type { Snippet } from "svelte";
-  import type { HTMLAttributes } from "svelte/elements";
 
-  interface ComboboxItemProps extends Omit<
-    HTMLAttributes<HTMLDivElement>,
-    "children"
-  > {
-    ref?: HTMLDivElement | null;
+  type Props = Omit<ComboboxItemProps, "item"> & {
     value: string;
     label?: string;
     disabled?: boolean;
-    class?: string;
-    children?: Snippet;
-  }
+    ref?: HTMLElement | null;
+  };
 
   let {
+    value,
+    label = value,
+    disabled = false,
     ref = $bindable(null),
     class: className = undefined,
-    value,
-    label,
-    disabled = false,
     children,
     ...restProps
-  }: ComboboxItemProps = $props();
+  }: Props = $props();
 
-  const ctx = getComboboxContext();
-
-  const isSelected = $derived(ctx.value() === value);
-  const isHighlighted = $derived(ctx.highlightedValue() === value);
-
-  let labelEl = $state<HTMLSpanElement | null>(null);
+  const item = $derived({ value, label, disabled });
+  const comboboxContext = getContext<any>("combobox");
 
   $effect(() => {
-    const resolvedLabel = labelEl?.textContent?.trim() || label || value;
-    ctx.registerItem(value, resolvedLabel, disabled);
-    return () => ctx.unregisterItem(value);
-  });
+    untrack(() => {
+      if (comboboxContext) comboboxContext.registerItem(item);
+    });
 
-  onDestroy(() => ctx.unregisterItem(value));
+    return () => {
+      untrack(() => {
+        if (comboboxContext) comboboxContext.unregisterItem(value);
+      });
+    };
+  });
 </script>
 
-<!-- Hidden span to capture text label -->
-<span bind:this={labelEl} style="display:none" aria-hidden="true">
-  {@render children?.()}
-</span>
-
-<!-- svelte-ignore a11y_interactive_supports_focus -->
-<div
-  bind:this={ref}
-  role="option"
-  aria-selected={isSelected}
-  aria-disabled={disabled}
+<ComboboxItem
+  {item}
+  bind:ref
   data-slot="combobox-item"
-  data-highlighted={isHighlighted ? "" : undefined}
-  data-disabled={disabled ? "" : undefined}
-  onclick={() => {
-    if (!disabled) {
-      const resolvedLabel = labelEl?.textContent?.trim() || label || value;
-      ctx.setValue(value, resolvedLabel);
-    }
-  }}
-  onpointerenter={() => {
-    if (!disabled) ctx.setHighlightedValue(value);
-  }}
-  onpointerleave={() => {
-    if (ctx.highlightedValue() === value) ctx.setHighlightedValue(null);
-  }}
-  {...restProps}
   class={cn(
     "relative grid grid-cols-[1rem_1fr] w-full min-h-8 cursor-default items-center gap-2 rounded-sm bg-transparent py-1.5 ps-2 pe-3 text-sm outline-none",
     "data-[highlighted]:bg-muted",
@@ -78,15 +53,16 @@
     "[&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
     className,
   )}
+  {...restProps}
 >
-  {#if isSelected}
-    <Icon icon="check" size="md" class="col-start-1 row-start-1 shrink-0" />
-  {/if}
-  <span class="col-start-2 min-w-0 text-start">
+  <ComboboxItemIndicator class="col-start-1 row-start-1">
+    <Icon icon="check" size="md" class="shrink-0" />
+  </ComboboxItemIndicator>
+  <ComboboxItemText class="col-start-2 min-w-0 text-start">
     {#if children}
       {@render children()}
     {:else}
       {label ?? value}
     {/if}
-  </span>
-</div>
+  </ComboboxItemText>
+</ComboboxItem>

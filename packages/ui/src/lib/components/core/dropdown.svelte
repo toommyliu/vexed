@@ -2,17 +2,19 @@
   import * as Combobox from "$lib/components/core/combobox/index.js";
   import type { HTMLAttributes } from "svelte/elements";
 
-  interface Props extends HTMLAttributes<HTMLDivElement> {
-    value?: any;
+  interface Props extends Omit<HTMLAttributes<HTMLDivElement>, "value" | "id"> {
+    value?: string;
+    id?: string;
     open?: boolean;
     disabled?: boolean;
     placeholder?: string;
-    onValueChange?: (value: any) => void;
+    onValueChange?: (value: string) => void;
     onOpenChange?: (open: boolean) => void;
   }
 
   let {
-    value = $bindable(undefined),
+    value = $bindable(""),
+    id,
     open = $bindable(false),
     disabled = false,
     placeholder = "Select an option",
@@ -29,7 +31,8 @@
   bind:open
   {disabled}
   {onValueChange}
-  {onOpenChange}
+  openOnClick={true}
+  onOpenChange={(details) => onOpenChange?.(details.open)}
   {...restProps}
 >
   <Combobox.Input
@@ -37,7 +40,24 @@
     {placeholder}
     showTrigger
     class="cursor-pointer caret-transparent"
+    onkeydown={(e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        if (!open) {
+          e.preventDefault();
+          open = true;
+        } else if (e.key === " ") {
+          // Prevent scroll when open, as this is a dropdown and Space should select
+          e.preventDefault();
+          // Find the currently highlighted item and click it to select
+          const item = document.querySelector(
+            '[data-highlighted][data-slot="combobox-item"]',
+          );
+          if (item instanceof HTMLElement) item.click();
+        }
+      }
+    }}
   />
+
   <Combobox.Content>
     <Combobox.List>
       {@render children?.()}

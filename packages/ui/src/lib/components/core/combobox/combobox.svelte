@@ -1,19 +1,18 @@
-<script lang="ts">
+<script lang="ts" generics="T extends CollectionItem">
   import {
-    createComboboxContext,
-    type ComboboxItemEntry,
-  } from "./combobox-context.js";
-  import type { Snippet } from "svelte";
+    Combobox,
+    type ComboboxRootProps,
+    type CollectionItem,
+  } from "@ark-ui/svelte/combobox";
+  import { createListCollection } from "@ark-ui/svelte/combobox";
+  import { setContext, untrack } from "svelte";
 
-  interface ComboboxRootProps {
+  interface CustomComboboxRootProps extends Omit<
+    ComboboxRootProps<T>,
+    "collection" | "value" | "onValueChange"
+  > {
     value?: string;
-    open?: boolean;
-    disabled?: boolean;
-    name?: string;
-    required?: boolean;
     onValueChange?: (value: string) => void;
-    onOpenChange?: (open: boolean) => void;
-    children?: Snippet;
   }
 
   let {
@@ -25,54 +24,55 @@
     onValueChange,
     onOpenChange,
     children,
-  }: ComboboxRootProps = $props();
+    ...restProps
+  }: CustomComboboxRootProps = $props();
 
-  const itemMap = new Map<string, ComboboxItemEntry>();
-  let inputEl = $state<HTMLInputElement | null>(null);
-  let triggerEl = $state<HTMLElement | null>(null);
-  let highlightedValue = $state<string | null>(null);
+  let items = $state<T[]>([]);
+  let arkValue = $state<string[]>(value ? [value] : []);
 
-  createComboboxContext({
-    value: () => value,
-    open: () => open,
-    disabled: () => disabled,
-    setValue: (v: string, _label: string) => {
-      value = v;
-      open = false;
-      onValueChange?.(v);
-      onOpenChange?.(false);
-      // Return focus to input after selection
-      inputEl?.focus();
+  $effect(() => {
+    if (value !== (arkValue[0] || "")) {
+      untrack(() => {
+        arkValue = value ? [value] : [];
+      });
+    }
+  });
+
+  const handleValueChange = (details: { value: string[] }) => {
+    const newVal = details.value[0] || "";
+    value = newVal;
+    arkValue = details.value;
+    onValueChange?.(newVal);
+  };
+
+  // Ark UI workaround: we use a context so we can lift state up to the Combobox.Root without
+  // having to pass the collection directly ourselves
+  setContext("combobox", {
+    registerItem: (item: T) => {
+      items = [...items, item];
     },
-    setOpen: (v: boolean) => {
-      if (disabled) return;
-      if (open === v) return;
-      open = v;
-      if (!v) highlightedValue = null;
-      onOpenChange?.(v);
+    unregisterItem: (value: string) => {
+      items = items.filter((i) => (i as any).value !== value);
     },
-    inputEl: () => inputEl,
-    setInputEl: (el) => {
-      inputEl = el;
-    },
-    triggerEl: () => triggerEl,
-    setTriggerEl: (el) => {
-      triggerEl = el;
-    },
-    registerItem: (v, label, dis) => {
-      itemMap.set(v, { value: v, label, disabled: dis });
-    },
-    unregisterItem: (v) => {
-      itemMap.delete(v);
-    },
-    getItems: () => Array.from(itemMap.values()),
-    highlightedValue: () => highlightedValue,
-    setHighlightedValue: (v) => {
-      highlightedValue = v;
-    },
+  });
+
+  const collection = $derived.by(() => {
+    return createListCollection({ items });
   });
 </script>
 
-<div data-slot="combobox" data-disabled={disabled ? "" : undefined}>
+<Combobox.Root
+  bind:value={arkValue}
+  bind:open
+  {disabled}
+  {name}
+  {required}
+  {collection}
+  // positioning={{ placement: "bottom-start", offset: { mainAxis: 4 } }}
+  onValueChange={handleValueChange}
+  {onOpenChange}
+  data-slot="combobox"
+  {...restProps}
+>
   {@render children?.()}
-</div>
+</Combobox.Root>

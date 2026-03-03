@@ -1,24 +1,23 @@
 <script lang="ts">
+  import {
+    ComboboxItemGroupLabel,
+    type ComboboxItemGroupLabelProps,
+  } from "@ark-ui/svelte/combobox";
   import { cn } from "$lib/utils";
-  import type { Snippet } from "svelte";
-  import type { HTMLAttributes } from "svelte/elements";
-
-  interface ComboboxGroupLabelProps extends HTMLAttributes<HTMLDivElement> {
-    class?: string;
-    children?: Snippet;
-  }
 
   let {
+    ref = $bindable(null),
     class: className = undefined,
     children,
     ...restProps
-  }: ComboboxGroupLabelProps = $props();
+  }: ComboboxItemGroupLabelProps = $props();
 </script>
 
-<div
+<ComboboxItemGroupLabel
+  bind:ref
   data-slot="combobox-group-label"
   class={cn("px-2 py-1.5 text-xs font-medium text-muted-foreground", className)}
   {...restProps}
 >
   {@render children?.()}
-</div>
+</ComboboxItemGroupLabel>
