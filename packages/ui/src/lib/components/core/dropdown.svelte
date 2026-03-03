@@ -14,7 +14,6 @@
 
   let {
     value = $bindable(""),
-    id,
     open = $bindable(false),
     disabled = false,
     placeholder = "Select an option",
@@ -30,7 +29,6 @@
   bind:value
   bind:open
   {disabled}
-  {onValueChange}
   openOnClick={true}
   onOpenChange={(details) => onOpenChange?.(details.open)}
   {...restProps}
