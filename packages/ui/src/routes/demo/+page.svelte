@@ -18,7 +18,7 @@
     Card,
     Dialog,
     Combobox,
-    Command,
+    // Command,
     Dropdown,
     InputGroup,
     Textarea,
@@ -45,8 +45,10 @@
   let isDark = $state(false);
   let inputValue = $state("");
   let textareaValue = $state("");
-  let selectValue = $state("");
-
+  let selectValueSm = $state<string[]>([]);
+  let selectValue = $state<string[]>([]);
+  let selectValueDef = $state<string[]>([]);
+  let selectValueLg = $state<string[]>([]);
   let frameworks = [
     { value: "next.js", label: "Next.js" },
     { value: "sveltekit", label: "SvelteKit" },
@@ -797,7 +799,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div class="space-y-2">
             <Label>Small</Label>
-            <Select.Root bind:value={selectValue} class="w-full">
+            <Select.Root bind:value={selectValueSm} class="w-full">
               <Select.Trigger size="sm">
                 <Select.Value placeholder="Select..." />
               </Select.Trigger>
@@ -810,7 +812,7 @@
           </div>
           <div class="space-y-2">
             <Label>Default</Label>
-            <Select.Root bind:value={selectValue} class="w-full">
+            <Select.Root bind:value={selectValueDef} class="w-full">
               <Select.Trigger>
                 <Select.Value placeholder="Select..." />
               </Select.Trigger>
@@ -823,7 +825,7 @@
           </div>
           <div class="space-y-2">
             <Label>Large</Label>
-            <Select.Root bind:value={selectValue} class="w-full">
+            <Select.Root bind:value={selectValueLg} class="w-full">
               <Select.Trigger size="lg">
                 <Select.Value placeholder="Select..." />
               </Select.Trigger>
@@ -865,7 +867,7 @@
           </Select.Content>
         </Select.Root>
         <p class="text-sm text-muted-foreground">
-          Selected: {selectValue || "None"}
+          Selected: {selectValue.length ? selectValue.join(", ") : "None"}
         </p>
       </div>
       <div class="space-y-2">
@@ -1939,7 +1941,6 @@
       </div>
 
       <div class="flex flex-wrap gap-3">
-        <!-- Destructive: default footer (bordered) -->
         <AlertDialog.Root>
           <AlertDialog.Trigger>
             <Button variant="destructive">Delete account</Button>
@@ -1959,7 +1960,6 @@
           </AlertDialog.Content>
         </AlertDialog.Root>
 
-        <!-- Bare footer variant -->
         <AlertDialog.Root>
           <AlertDialog.Trigger>
             <Button variant="outline">Confirm action</Button>
@@ -2155,7 +2155,7 @@
       </div>
     </section>
 
-    <section id="command" class="space-y-8">
+    <!-- <section id="command" class="space-y-8">
       <h2 class="text-2xl font-semibold border-b pb-2">Command</h2>
       <div class="space-y-2">
         <h3 class="text-sm font-medium text-muted-foreground">
@@ -2572,7 +2572,7 @@
           </Command.Panel>
         </div>
       </div>
-    </section>
+    </section> -->
 
     <!-- Tooltip -->
     <section id="tooltip" class="space-y-4 pb-96">
