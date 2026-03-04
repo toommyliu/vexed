@@ -1,4 +1,4 @@
-<script lang="ts">
+<script lang="ts" generics="T">
   import { cn } from "$lib/utils";
   import { Icon } from "$lib";
   import { getContext, untrack } from "svelte";
@@ -8,9 +8,10 @@
     SelectItemText,
     type SelectItemProps,
   } from "@ark-ui/svelte/select";
+  import type { SelectContext } from "./context";
 
   type Props = Omit<SelectItemProps, "item"> & {
-    value: string;
+    value: T;
     label?: string;
     disabled?: boolean;
     ref?: HTMLElement | null;
@@ -18,7 +19,7 @@
 
   let {
     value,
-    label = value,
+    label = value as unknown as string,
     disabled = false,
     ref = $bindable(null),
     class: className = undefined,
@@ -27,7 +28,8 @@
   }: Props = $props();
 
   const item = $derived({ value, label, disabled });
-  const selectContext = getContext<any>("select");
+  const selectContext = getContext<SelectContext<T>>("select");
+
   $effect(() => {
     untrack(() => {
       if (selectContext) selectContext.registerItem(item);
