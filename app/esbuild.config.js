@@ -116,6 +116,23 @@ function createAliasTransformPlugin(aliases) {
 
 const aliasTransformPlugin = createAliasTransformPlugin(pathAliases);
 
+const filterArkWarningsPlugin = {
+  name: "filter-ark-warnings",
+  setup(build) {
+    build.onEnd((result) => {
+      result.warnings = result.warnings.filter((w) => {
+        const file = w.location?.file || "";
+        const text = w.text || "";
+        const isArk =
+          file.includes("@ark-ui") ||
+          text.includes("@ark-ui") ||
+          file.includes("node_modules/@ark-ui");
+        return !isArk;
+      });
+    });
+  },
+};
+
 const SCRIPT_TARGETS = [
   {
     name: "main",
@@ -148,7 +165,7 @@ const SUB_WINDOWS = [
 ];
 
 const RENDERER_ENTRYPOINTS = {
-  "manager/build/main": "./src/renderer/apps/manager/main.ts",
+  // "manager/build/main": "./src/renderer/apps/manager/main.ts",
   "game/build/main": "./src/renderer/apps/game/main.ts",
   "onboarding/build/main": "./src/renderer/apps/onboarding/main.ts",
   ...SUB_WINDOWS.reduce((acc, name) => {
@@ -225,8 +242,30 @@ const createSvelteConfig = ({ entryPoints, outdir }) => ({
         css: "injected",
       },
       preprocess: require("@sveltejs/vite-plugin-svelte").vitePreprocess(),
+      onwarn: (warning, handler) => {
+        // Suppress all Ark UI warnings at the compiler level
+        const filename = warning.filename || "";
+        const code = warning.code || "";
+        if (
+          filename.includes("@ark-ui") ||
+          code.includes("ark-ui") ||
+          filename.includes("node_modules/@ark-ui")
+        ) {
+          return;
+        }
+        // Handle the state_referenced_locally warning specifically for Ark UI
+        if (
+          code === "state_referenced_locally" &&
+          filename.includes("@ark-ui")
+        ) {
+          return;
+        }
+        handler(warning);
+      },
     }),
+    filterArkWarningsPlugin,
   ],
+  logLevel: "error", // Suppress default warning logging
 });
 
 const createCssConfig = ({ entryPoint, outfile }) => ({
@@ -240,7 +279,12 @@ const createCssConfig = ({ entryPoint, outfile }) => ({
     ".woff2": "file",
   },
   assetNames: "assets/[name]-[hash][ext]",
-  plugins: [aliasPath({ alias: pathAliases }), postCssPlugin()],
+  plugins: [
+    aliasPath({ alias: pathAliases }),
+    postCssPlugin(),
+    filterArkWarningsPlugin,
+  ],
+  logLevel: "error",
 });
 
 /**
@@ -443,7 +487,9 @@ async function runWatchMode(commonConfig, svelteConfigs, cssConfigs) {
     plugins: [
       ...(svelteConfigs.plugins || []),
       createRebuildLoggerPlugin("renderer Svelte"),
+      filterArkWarningsPlugin,
     ],
+    logLevel: "error",
   };
   const svelteCtx = await context(svelteConfig);
   await svelteCtx.watch();
@@ -510,7 +556,12 @@ async function transpile() {
       minify: isProduction,
       sourcemap: !isProduction,
       treeShaking: true,
-      plugins: [aliasTransformPlugin, aliasPath({ alias: pathAliases })],
+      logLevel: "error", // Suppress default warning logging
+      plugins: [
+        aliasTransformPlugin,
+        aliasPath({ alias: pathAliases }),
+        filterArkWarningsPlugin,
+      ],
     };
 
     const rendererSvelteConfig = createSvelteConfig({
