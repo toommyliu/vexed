@@ -132,6 +132,7 @@
             {#if hex}
               <button
                 type="button"
+                tabindex="-1"
                 class="flex shrink-0 items-center gap-0.5 rounded text-[10px] text-muted-foreground/60 opacity-0 transition-colors hover:text-destructive focus:opacity-100 focus:outline-none focus-visible:ring-1 focus-visible:ring-destructive group-hover:opacity-100"
                 onclick={() => clearToken($activeEditScheme, token.key)}
                 title="Reset to default"
@@ -213,6 +214,7 @@
           {#if $customTheme.fontFamily}
             <button
               type="button"
+              tabindex="-1"
               class="flex w-6 items-center justify-center rounded p-1 text-muted-foreground/40 opacity-0 transition-colors hover:text-destructive focus:opacity-100 focus:outline-none focus-visible:ring-1 focus-visible:ring-destructive group-hover:opacity-100"
               onclick={() => {
                 const { fontFamily: _, ...rest } = $customTheme;
@@ -255,6 +257,7 @@
           {#if $customTheme.monospaceFontFamily}
             <button
               type="button"
+              tabindex="-1"
               class="flex w-6 items-center justify-center rounded p-1 text-muted-foreground/40 opacity-0 transition-colors hover:text-destructive focus:opacity-100 focus:outline-none focus-visible:ring-1 focus-visible:ring-destructive group-hover:opacity-100"
               onclick={() => {
                 const { monospaceFontFamily: _, ...rest } = $customTheme;
@@ -295,6 +298,7 @@
           {#if $customTheme.radius}
             <button
               type="button"
+              tabindex="-1"
               class="flex w-6 items-center justify-center rounded p-1 text-muted-foreground/40 opacity-0 transition-colors hover:text-destructive focus:opacity-100 focus:outline-none focus-visible:ring-1 focus-visible:ring-destructive group-hover:opacity-100"
               onclick={() => clearRadius()}
               title="Reset to default"
