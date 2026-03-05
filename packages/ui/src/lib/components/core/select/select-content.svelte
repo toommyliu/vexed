@@ -29,3 +29,10 @@
     {@render children?.()}
   </SelectContent>
 </SelectPositioner>
+
+<style>
+  :global([data-scope="select"][data-part="positioner"]),
+  :global([data-scope="select"][data-part="content"]) {
+    outline: none !important;
+  }
+</style>

@@ -30,7 +30,7 @@
   const item = $derived({ value, label, disabled });
   const selectContext = getContext<SelectContext<T>>("select");
 
-  $effect(() => {
+  $effect.pre(() => {
     untrack(() => {
       if (selectContext) selectContext.registerItem(item);
     });

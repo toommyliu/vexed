@@ -3,15 +3,7 @@
   import { createListCollection } from "@ark-ui/svelte/select";
   import { setContext } from "svelte";
   import { cn } from "$lib/utils";
-
-  interface SelectContext<V> {
-    registerItem: (item: {
-      value: V;
-      label: string;
-      disabled: boolean;
-    }) => void;
-    unregisterItem: (value: V) => void;
-  }
+  import type { SelectContext } from "./context";
 
   let {
     value = $bindable(),
@@ -29,21 +21,6 @@
 
   let items = $state<{ value: T; label: string; disabled: boolean }[]>([]);
 
-  // Ark UI workaround: we use a context so we can lift state up to the Select.Root without
-  // having to pass the collection directly ourselves
-  setContext("select", {
-    registerItem: (item: any) => {
-      items = [...items, item];
-    },
-    unregisterItem: (val: any) => {
-      items = items.filter((i) => i.value !== val);
-    },
-  } as SelectContext<T>);
-
-  const collection = $derived.by(() => {
-    return createListCollection({ items });
-  });
-
   const internalValue = $derived.by(() => {
     const toArray = (v: typeof value): T[] => {
       if (Array.isArray(v)) return v;
@@ -51,6 +28,27 @@
       return [v as T];
     };
     return toArray(value).map((v) => String(v));
+  });
+
+  // Ark UI workaround: we use a context so we can lift state up to the Select.Root without
+  // having to pass the collection directly ourselves
+  setContext("select", {
+    registerItem: (item: { value: T; label: string; disabled: boolean }) => {
+      items = [...items, item];
+    },
+    unregisterItem: (val: T) => {
+      items = items.filter((i) => i.value !== val);
+    },
+    get items() {
+      return items;
+    },
+    get value() {
+      return internalValue;
+    },
+  } as SelectContext<T>);
+
+  const collection = $derived.by(() => {
+    return createListCollection({ items });
   });
 
   function handleValueChange(details: { value: string[] }) {
