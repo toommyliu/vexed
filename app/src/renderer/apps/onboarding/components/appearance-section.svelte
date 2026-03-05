@@ -1,6 +1,12 @@
 <script lang="ts">
-  import { PillButton, Select, Icon, Button, TooltipButton } from "@vexed/ui";
-  import { titlecase } from "@vexed/utils/string";
+  import {
+    PillButton,
+    Select,
+    Icon,
+    Button,
+    TooltipButton,
+    Input,
+  } from "@vexed/ui";
 
   import { settings } from "../state/settings.svelte";
   import {
@@ -34,16 +40,25 @@
           <span class="text-[13px] font-medium text-foreground">Theme</span>
         </div>
         <div class="flex w-[140px] justify-end">
-          <Select.Root bind:value={settings.theme}>
+          <Select.Root
+            bind:value={settings.theme}
+            positioning={{
+              placement: "bottom-end",
+            }}
+          >
             <Select.Trigger class="h-8 w-full bg-transparent text-xs" size="sm">
-              <Select.Value placeholder="Auto"
-                >{titlecase(settings.theme)}</Select.Value
-              >
+              <Select.Value placeholder="System" />
             </Select.Trigger>
-            <Select.Content align="end">
-              <Select.Item class="text-xs" value="dark">Dark</Select.Item>
-              <Select.Item class="text-xs" value="light">Light</Select.Item>
-              <Select.Item class="text-xs" value="system">System</Select.Item>
+            <Select.Content>
+              <Select.Item class="text-xs" value="dark" label="Dark"
+                >Dark</Select.Item
+              >
+              <Select.Item class="text-xs" value="light" label="Light"
+                >Light</Select.Item
+              >
+              <Select.Item class="text-xs" value="system" label="System"
+                >System</Select.Item
+              >
             </Select.Content>
           </Select.Root>
         </div>
@@ -179,18 +194,22 @@
           >
         </div>
         <div class="flex items-center gap-1.5">
-          <input
+          <Input
             type="text"
             spellcheck="false"
-            class="h-8 w-44 rounded-md border border-border/50 bg-transparent px-2.5 text-[12px] text-foreground transition-colors placeholder:text-muted-foreground/40 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            class="h-8 w-44"
             placeholder="Inter Variable"
             value={$customTheme.fontFamily ?? ""}
-            oninput={(event) => {
+            onkeydown={(ev) => {
+              if (ev.key === "Enter") ev.currentTarget.blur();
+            }}
+            onblur={(event) => {
               const value = event.currentTarget.value.trim();
               const { fontFamily: _, ...rest } = $customTheme;
               customTheme.set(value ? { ...rest, fontFamily: value } : rest);
             }}
           />
+
           {#if $customTheme.fontFamily}
             <button
               type="button"
@@ -216,13 +235,16 @@
           >
         </div>
         <div class="flex items-center gap-1.5">
-          <input
+          <Input
             type="text"
             spellcheck="false"
-            class="h-8 w-44 rounded-md border border-border/50 bg-transparent px-2.5 text-[12px] text-foreground transition-colors placeholder:text-muted-foreground/40 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            class="h-8 w-44"
             placeholder="JetBrains Mono"
             value={$customTheme.monospaceFontFamily ?? ""}
-            oninput={(event) => {
+            onkeydown={(ev) => {
+              if (ev.key === "Enter") ev.currentTarget.blur();
+            }}
+            onblur={(event) => {
               const value = event.currentTarget.value.trim();
               const { monospaceFontFamily: _, ...rest } = $customTheme;
               customTheme.set(
@@ -255,13 +277,16 @@
           >
         </div>
         <div class="flex items-center gap-1.5">
-          <input
+          <Input
             type="text"
             spellcheck="false"
-            class="h-8 w-44 rounded-md border border-border/50 bg-transparent px-2.5 text-[12px] text-foreground transition-colors placeholder:text-muted-foreground/40 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            class="h-8 w-44"
             placeholder="0.625rem"
             value={$customTheme.radius ?? ""}
-            oninput={(event) => {
+            onkeydown={(ev) => {
+              if (ev.key === "Enter") ev.currentTarget.blur();
+            }}
+            onblur={(event) => {
               const value = event.currentTarget.value.trim();
               if (value) setRadius(value);
               else clearRadius();
