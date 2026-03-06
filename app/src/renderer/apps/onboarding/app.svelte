@@ -165,8 +165,6 @@
     applyCustomTheme($state.snapshot($customTheme), $liveScheme);
   });
 
-  // Immediately apply theme changes locally for responsiveness
-  // and then debounce the persistence to avoid excessive I/O ops
   $effect(() => {
     if (isLoading) return;
     const scheme =

@@ -430,7 +430,7 @@ class WindowsService {
         webPreferences: {
           nodeIntegration: true,
         },
-        resizable: false,
+        // resizable: false,
         maximizable: false,
       });
 

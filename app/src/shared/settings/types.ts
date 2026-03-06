@@ -40,16 +40,3 @@ export type LaunchMode = Settings["launchMode"];
 export type Theme = Settings["theme"];
 
 export type ThemeScheme = "dark" | "light";
-export type ThemeColorToken = ThemeToken;
-
-export type NormalizationIssue = {
-  path: string;
-  reason: string;
-  value?: unknown;
-};
-
-export type NormalizationResult<T> = {
-  changed: boolean;
-  issues: NormalizationIssue[];
-  value: T;
-};

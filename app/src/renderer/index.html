@@ -50,23 +50,6 @@
           );
         }
 
-        function isSafeRadius(value) {
-          if (typeof value !== "string") return false;
-          return /^(?:0|(?:\d+|\d*\.\d+)(?:px|rem|em|%|vh|vw|vmin|vmax|ch|ex|cm|mm|in|pt|pc))$/i.test(
-            value.trim(),
-          );
-        }
-
-        function sanitizeFontFamily(value) {
-          if (typeof value !== "string") return null;
-          let trimmed = value.trim();
-          if (!trimmed) return "";
-          if (trimmed.length > 200) return null;
-          if (/[\u0000-\u001f\u007f]/.test(trimmed)) return null;
-          if (/[;{}]/.test(trimmed)) return null;
-          return trimmed;
-        }
-
         function hexToRgb(hex) {
           let c = hex.replace("#", "");
           return (
@@ -103,7 +86,7 @@
             }
           }
           let radiusValue = lastCustomTheme["radius"];
-          if (isSafeRadius(radiusValue)) {
+          if (typeof radiusValue === "string" && radiusValue.trim()) {
             document.documentElement.style.setProperty(
               "--radius",
               radiusValue.trim(),
@@ -112,23 +95,24 @@
             document.documentElement.style.removeProperty("--radius");
           }
 
-          let fontFamilyValue = sanitizeFontFamily(lastCustomTheme.fontFamily);
-          if (fontFamilyValue) {
+          let fontFamilyValue = lastCustomTheme.fontFamily;
+          if (typeof fontFamilyValue === "string" && fontFamilyValue.trim()) {
             document.documentElement.style.setProperty(
               "--font-family",
-              fontFamilyValue,
+              fontFamilyValue.trim(),
             );
           } else {
             document.documentElement.style.removeProperty("--font-family");
           }
 
-          let monospaceFontFamilyValue = sanitizeFontFamily(
-            lastCustomTheme.monospaceFontFamily,
-          );
-          if (monospaceFontFamilyValue) {
+          let monospaceFontFamilyValue = lastCustomTheme.monospaceFontFamily;
+          if (
+            typeof monospaceFontFamilyValue === "string" &&
+            monospaceFontFamilyValue.trim()
+          ) {
             document.documentElement.style.setProperty(
               "--font-mono",
-              monospaceFontFamilyValue,
+              monospaceFontFamilyValue.trim(),
             );
           } else {
             document.documentElement.style.removeProperty("--font-mono");
@@ -141,6 +125,7 @@
 
         try {
           let ipcRenderer = require("electron").ipcRenderer;
+          // Request settings on load
           ipcRenderer.invoke("app.getSettings").then(function (settings) {
             if (settings && settings.customTheme) {
               applyCustomTheme(settings.customTheme);
@@ -148,6 +133,7 @@
               applyCustomTheme({});
             }
           });
+          // Listen to theme updates
           ipcRenderer.on("app.customThemeUpdated", function (_, customTheme) {
             applyCustomTheme(customTheme);
           });
