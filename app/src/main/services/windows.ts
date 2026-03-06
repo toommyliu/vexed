@@ -9,6 +9,7 @@ import type { AccountWithScript, LogLevel, WindowIds } from "~/shared/types";
 import { BRAND, DIST_PATH, IS_PACKAGED } from "../constants";
 import { getSettings } from "../settings";
 import { applySecurityPolicy } from "../util/applySecurityPolicy";
+import { isWindowUsable } from "../util/browser-window";
 import { environmentService } from "./environment";
 import { createLogger } from "./logger";
 
@@ -74,6 +75,8 @@ class WindowsService {
   private managerWindow: BrowserWindow | null = null;
 
   private onboardingWindow: BrowserWindow | null = null;
+
+  private lastFocusedGameWindowId: number | null = null;
 
   private _isQuitting = false;
 
@@ -184,6 +187,13 @@ class WindowsService {
     window.on("close", () => {
       if (!this.isUsableWindow(window)) return;
       this.cleanupGameWindow(windowId);
+      if (this.lastFocusedGameWindowId === windowId) {
+        this.lastFocusedGameWindowId = null;
+      }
+    });
+
+    window.on("focus", () => {
+      this.lastFocusedGameWindowId = windowId;
     });
   }
 
@@ -278,6 +288,13 @@ class WindowsService {
     this.wireSubwindowLifecycle(gameWindowId, id, storeRef, window);
     await window.loadFile(join(DIST_PATH, config.path));
     return window;
+  }
+
+  public getLastFocusedGameWindowId(): number | null {
+    const value = this.lastFocusedGameWindowId;
+    if (value === null) return null;
+    const win = BrowserWindow.fromId(value);
+    return isWindowUsable(win) ? value : null;
   }
 
   /**
