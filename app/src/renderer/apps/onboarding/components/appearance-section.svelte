@@ -100,11 +100,7 @@
 
         <div class="h-3 w-px bg-border/50"></div>
 
-        <Button
-          size="xs"
-          variant="destructive"
-          onclick={() => resetAll()}
-        >
+        <Button size="xs" variant="destructive" onclick={() => resetAll()}>
           <Icon icon="rotate_ccw" class="h-3 w-3" />
           <span>Reset all</span>
         </Button>
@@ -127,17 +123,6 @@
             <span class="truncate text-[12px] font-medium text-foreground"
               >{token.label}</span
             >
-            {#if hex}
-              <button
-                type="button"
-                tabindex="-1"
-                class="flex shrink-0 items-center gap-0.5 rounded text-[10px] text-muted-foreground/60 opacity-0 transition-colors hover:text-destructive focus:opacity-100 focus:outline-none focus-visible:ring-1 focus-visible:ring-destructive group-hover:opacity-100"
-                onclick={() => clearToken($activeEditScheme, token.key)}
-                title="Reset to default"
-              >
-                <Icon icon="x" size="2xs" />
-              </button>
-            {/if}
           </div>
           <div class="flex shrink-0 items-center gap-2">
             <span
@@ -171,6 +156,18 @@
                   )}
               />
             </label>
+            {#if hex}
+              <button
+                type="button"
+                aria-label="Reset to default"
+                class="flex w-6 items-center justify-center rounded p-1 text-muted-foreground/40 transition-colors hover:text-destructive focus-visible:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive focus-visible:ring-offset-1 focus-visible:ring-offset-background"
+                onclick={() => clearToken($activeEditScheme, token.key)}
+              >
+                <Icon icon="rotate_ccw" class="h-3 w-3" />
+              </button>
+            {:else}
+              <span class="w-6"></span>
+            {/if}
           </div>
         </div>
       {/each}
@@ -178,11 +175,18 @@
   </section>
 
   <section class="flex flex-col gap-3">
-    <div class="px-2">
+    <div class="flex items-center gap-2 px-2">
       <span
         class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/50"
         >Typography &amp; Radius</span
       >
+
+      <TooltipButton
+        tooltip="Fonts should be installed on your system"
+        contentClass="p-1 text-xs"
+      >
+        <Icon icon="info" class="size-3 text-muted-foreground/40" />
+      </TooltipButton>
     </div>
 
     <div class="flex flex-col divide-y divide-border/30">
@@ -196,7 +200,7 @@
           <Input
             type="text"
             spellcheck="false"
-            class="h-8 w-44"
+            class="h-7 w-44"
             placeholder="Inter Variable"
             value={$customTheme.fontFamily ?? ""}
             onkeydown={(ev) => {
@@ -212,10 +216,9 @@
           {#if $customTheme.fontFamily}
             <button
               type="button"
-              tabindex="-1"
-              class="flex w-6 items-center justify-center rounded p-1 text-muted-foreground/40 opacity-0 transition-colors hover:text-destructive focus:opacity-100 focus:outline-none focus-visible:ring-1 focus-visible:ring-destructive group-hover:opacity-100"
+              aria-label="Reset to default"
+              class="flex w-6 items-center justify-center rounded p-1 text-muted-foreground/40 transition-colors hover:text-destructive focus-visible:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive focus-visible:ring-offset-1 focus-visible:ring-offset-background"
               onclick={() => clearFontFamily()}
-              title="Reset to default"
             >
               <Icon icon="rotate_ccw" class="h-3 w-3" />
             </button>
@@ -235,7 +238,7 @@
           <Input
             type="text"
             spellcheck="false"
-            class="h-8 w-44"
+            class="h-7 w-44"
             placeholder="JetBrains Mono"
             value={$customTheme.monospaceFontFamily ?? ""}
             onkeydown={(ev) => {
@@ -250,10 +253,9 @@
           {#if $customTheme.monospaceFontFamily}
             <button
               type="button"
-              tabindex="-1"
-              class="flex w-6 items-center justify-center rounded p-1 text-muted-foreground/40 opacity-0 transition-colors hover:text-destructive focus:opacity-100 focus:outline-none focus-visible:ring-1 focus-visible:ring-destructive group-hover:opacity-100"
+              aria-label="Reset to default"
+              class="flex w-6 items-center justify-center rounded p-1 text-muted-foreground/40 transition-colors hover:text-destructive focus-visible:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive focus-visible:ring-offset-1 focus-visible:ring-offset-background"
               onclick={() => clearMonospaceFontFamily()}
-              title="Reset to default"
             >
               <Icon icon="rotate_ccw" class="h-3 w-3" />
             </button>
@@ -264,16 +266,24 @@
       </div>
 
       <div class="group flex items-center justify-between px-2 py-2.5">
-        <div class="flex flex-col gap-0.5">
+        <div class="flex items-center gap-2">
           <span class="text-[13px] font-medium text-foreground"
             >Corner radius</span
           >
+          <TooltipButton
+            tooltip="px, rem, %"
+            class="mt-[2px]"
+            contentClass="p-1 text-xs"
+          >
+            <Icon icon="info" class="size-3 text-muted-foreground/40" />
+          </TooltipButton>
         </div>
+
         <div class="flex items-center gap-1.5">
           <Input
             type="text"
             spellcheck="false"
-            class="h-8 w-44"
+            class="h-7 w-44"
             placeholder="0.625rem"
             value={$customTheme.radius ?? ""}
             onkeydown={(ev) => {
@@ -288,10 +298,9 @@
           {#if $customTheme.radius}
             <button
               type="button"
-              tabindex="-1"
-              class="flex w-6 items-center justify-center rounded p-1 text-muted-foreground/40 opacity-0 transition-colors hover:text-destructive focus:opacity-100 focus:outline-none focus-visible:ring-1 focus-visible:ring-destructive group-hover:opacity-100"
+              aria-label="Reset to default"
+              class="flex w-6 items-center justify-center rounded p-1 text-muted-foreground/40 transition-colors hover:text-destructive focus-visible:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive focus-visible:ring-offset-1 focus-visible:ring-offset-background"
               onclick={() => clearRadius()}
-              title="Reset to default"
             >
               <Icon icon="rotate_ccw" class="h-3 w-3" />
             </button>
