@@ -1,5 +1,5 @@
 import os from "os";
-import { dirname, join } from "path";
+import { join, dirname } from "path";
 import process from "process";
 import { app } from "electron";
 
