@@ -3,6 +3,12 @@ import { registerJsonHandler } from "../registry";
 
 registerJsonHandler<UotlsPacket>("uotls", (bot, packet) => {
   const player = bot.world.players.get(packet.unm);
+
+  if (!packet?.unm) {
+    console.debug("[json/uotls] invalid shape?", packet);
+    return;
+  }
+
   if (!player) {
     const obj = {
       intHP: packet.o.intHP,
