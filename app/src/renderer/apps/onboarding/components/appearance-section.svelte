@@ -14,18 +14,19 @@
     activeEditScheme,
     setToken,
     clearToken,
-    reset,
     queueTokenUpdate,
     setRadius,
     clearRadius,
+    setFontFamily,
+    clearFontFamily,
+    setMonospaceFontFamily,
+    clearMonospaceFontFamily,
+    resetAll,
     liveScheme,
   } from "../state/theme-manager";
 
   import { COLOR_TOKENS } from "../constants";
-  import {
-    clearCustomTheme,
-    resolveDisplayTokenHex,
-  } from "../../../shared/theme";
+  import { resolveDisplayTokenHex } from "../../../shared/theme";
 
   const currentSchemeOverrides = $derived(
     $customTheme[$activeEditScheme] ?? {},
@@ -102,10 +103,7 @@
         <Button
           size="xs"
           variant="destructive"
-          onclick={() => {
-            reset();
-            clearCustomTheme();
-          }}
+          onclick={() => resetAll()}
         >
           <Icon icon="rotate_ccw" class="h-3 w-3" />
           <span>Reset all</span>
@@ -206,8 +204,8 @@
             }}
             onblur={(event) => {
               const value = event.currentTarget.value.trim();
-              const { fontFamily: _, ...rest } = $customTheme;
-              customTheme.set(value ? { ...rest, fontFamily: value } : rest);
+              if (value) setFontFamily(value);
+              else clearFontFamily();
             }}
           />
 
@@ -216,10 +214,7 @@
               type="button"
               tabindex="-1"
               class="flex w-6 items-center justify-center rounded p-1 text-muted-foreground/40 opacity-0 transition-colors hover:text-destructive focus:opacity-100 focus:outline-none focus-visible:ring-1 focus-visible:ring-destructive group-hover:opacity-100"
-              onclick={() => {
-                const { fontFamily: _, ...rest } = $customTheme;
-                customTheme.set(rest);
-              }}
+              onclick={() => clearFontFamily()}
               title="Reset to default"
             >
               <Icon icon="rotate_ccw" class="h-3 w-3" />
@@ -248,10 +243,8 @@
             }}
             onblur={(event) => {
               const value = event.currentTarget.value.trim();
-              const { monospaceFontFamily: _, ...rest } = $customTheme;
-              customTheme.set(
-                value ? { ...rest, monospaceFontFamily: value } : rest,
-              );
+              if (value) setMonospaceFontFamily(value);
+              else clearMonospaceFontFamily();
             }}
           />
           {#if $customTheme.monospaceFontFamily}
@@ -259,10 +252,7 @@
               type="button"
               tabindex="-1"
               class="flex w-6 items-center justify-center rounded p-1 text-muted-foreground/40 opacity-0 transition-colors hover:text-destructive focus:opacity-100 focus:outline-none focus-visible:ring-1 focus-visible:ring-destructive group-hover:opacity-100"
-              onclick={() => {
-                const { monospaceFontFamily: _, ...rest } = $customTheme;
-                customTheme.set(rest);
-              }}
+              onclick={() => clearMonospaceFontFamily()}
               title="Reset to default"
             >
               <Icon icon="rotate_ccw" class="h-3 w-3" />

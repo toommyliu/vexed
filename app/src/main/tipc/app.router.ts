@@ -2,8 +2,8 @@ import Config from "@vexed/config";
 import type { TipcInstance } from "@vexed/tipc";
 import { Result } from "better-result";
 import { BrowserWindow, nativeTheme } from "electron";
-import { normalizeSettings } from "~/shared/settings/normalize";
-import type { NormalizationIssue, Settings } from "~/shared/settings/types";
+import { coerceSettings } from "~/shared/settings/normalize";
+import type { Settings } from "~/shared/settings/types";
 import { WindowIds, type AccountWithScript } from "~/shared/types";
 import { ASSET_PATH, DOCUMENTS_PATH, PLATFORM } from "../constants";
 import { DEFAULT_SETTINGS, DEFAULT_SKILLSETS } from "../defaults";
@@ -58,10 +58,6 @@ const config = new Config<typeof DEFAULT_SKILLSETS>({
   defaults: DEFAULT_SKILLSETS,
 });
 const logger = createLogger("tipc:app");
-
-function formatIssues(issues: NormalizationIssue[]): string {
-  return issues.map((issue) => `${issue.path}: ${issue.reason}`).join("; ");
-}
 
 export function createAppTipcRouter(tipc: TipcInstance) {
   return {
@@ -121,50 +117,22 @@ export function createAppTipcRouter(tipc: TipcInstance) {
 
     getSettings: tipc.procedure.action(async () => {
       const settings = getSettings();
-      const normalized = normalizeSettings(settings.get(), DEFAULT_SETTINGS);
-      if (normalized.issues.length > 0) {
-        logger.warn(
-          `Sanitized malformed persisted settings in getSettings: ${formatIssues(normalized.issues)}`,
-        );
-      }
-
-      if (normalized.changed) {
-        settings.set(normalized.value);
-        const saveResult = await settings.save();
-        if (saveResult.isErr()) {
-          logger.warn(
-            "Failed to persist normalized settings in getSettings",
-            saveResult.error,
-          );
-        }
-      }
-
-      setLoggerDebug(normalized.value.debug);
-      nativeTheme.themeSource = normalized.value.theme;
-      return normalized.value satisfies Settings;
+      const coerced = coerceSettings(settings.get(), DEFAULT_SETTINGS);
+      setLoggerDebug(coerced.debug);
+      nativeTheme.themeSource = coerced.theme;
+      return coerced satisfies Settings;
     }),
 
     updateSettings: tipc.procedure
       .input<Settings>()
       .action(async ({ input }) => {
         const settings = getSettings();
-        const current = normalizeSettings(settings.get(), DEFAULT_SETTINGS);
-        if (current.issues.length > 0) {
-          logger.warn(
-            `Sanitized malformed persisted settings before updateSettings: ${formatIssues(current.issues)}`,
-          );
-        }
+        const current = coerceSettings(settings.get(), DEFAULT_SETTINGS);
+        const coercedInput = coerceSettings(input, current);
 
-        const normalizedInput = normalizeSettings(input, current.value);
-        if (normalizedInput.issues.length > 0) {
-          logger.warn(
-            `Sanitized malformed updateSettings payload: ${formatIssues(normalizedInput.issues)}`,
-          );
-        }
-
-        settings.set(normalizedInput.value);
-        setLoggerDebug(normalizedInput.value.debug);
-        nativeTheme.themeSource = normalizedInput.value.theme;
+        settings.set(coercedInput);
+        setLoggerDebug(coercedInput.debug);
+        nativeTheme.themeSource = coercedInput.theme;
         const saveResult = await settings.save();
         if (saveResult.isErr()) {
           logger.error(
@@ -174,7 +142,7 @@ export function createAppTipcRouter(tipc: TipcInstance) {
           throw saveResult.error;
         }
 
-        const customTheme = normalizedInput.value.customTheme;
+        const customTheme = coercedInput.customTheme;
         for (const win of BrowserWindow.getAllWindows()) {
           if (isWindowUsable(win))
             win.webContents.send("app.customThemeUpdated", customTheme);

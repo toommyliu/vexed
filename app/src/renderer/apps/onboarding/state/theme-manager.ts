@@ -4,7 +4,7 @@ import type {
   ThemeScheme,
   ThemeToken,
 } from "~/shared/settings/types";
-import { getColorScheme } from "../../../shared/theme";
+import { clearCustomTheme, getColorScheme } from "../../../shared/theme";
 
 const queuedTokenUpdates: Record<
   ThemeScheme,
@@ -53,8 +53,31 @@ export function clearRadius(): void {
   });
 }
 
-export function reset(): void {
+export function setFontFamily(value: string): void {
+  customTheme.update((theme) => ({ ...theme, fontFamily: value }));
+}
+
+export function clearFontFamily(): void {
+  customTheme.update((theme) => {
+    const { fontFamily: _, ...rest } = theme;
+    return rest;
+  });
+}
+
+export function setMonospaceFontFamily(value: string): void {
+  customTheme.update((theme) => ({ ...theme, monospaceFontFamily: value }));
+}
+
+export function clearMonospaceFontFamily(): void {
+  customTheme.update((theme) => {
+    const { monospaceFontFamily: _, ...rest } = theme;
+    return rest;
+  });
+}
+
+export function resetAll(): void {
   customTheme.set({});
+  clearCustomTheme();
 }
 
 export function queueTokenUpdate(
