@@ -6,6 +6,7 @@
 
   import { getUiCommands, type UiCommandSpec } from "../actions";
   import { platform } from "../state/index.svelte";
+  import { handlers } from "~/shared/tipc";
 
   type Props = {
     hotkeyValues?: Record<string, string>;
@@ -90,17 +91,19 @@
       const cmd = filteredCommands[selectedIndex];
       const modifier = get(platform).isMac ? ev.metaKey : ev.ctrlKey;
       if (cmd) executeCommand(cmd, modifier);
-      return;
     }
   }
 
-  // Focus the input on open
   $effect(() => {
     if (open && inputRef) inputRef.focus();
   });
 
   $effect(() => {
     if (searchQuery !== undefined) selectedIndex = 0;
+  });
+
+  handlers.game.openCommandPalette.listen(() => {
+    open = true;
   });
 </script>
 
