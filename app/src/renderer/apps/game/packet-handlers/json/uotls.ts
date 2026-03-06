@@ -10,6 +10,12 @@ registerJsonHandler<UotlsPacket>("uotls", (bot, packet) => {
   }
 
   if (!player) {
+    // don't know why this can happen
+    if (!packet.o?.uoName || typeof packet.o.entID !== "number") {
+      console.warn("[json/uotls] missing uoName/entID; skipping add", packet);
+      return;
+    }
+
     const obj = {
       intHP: packet.o.intHP,
       intHPMax: packet.o.intHPMax,
