@@ -42,6 +42,7 @@
         </div>
         <div class="flex w-[140px] justify-end">
           <Select.Root
+            class="w-full"
             bind:value={settings.theme}
             positioning={{
               placement: "bottom-end",
