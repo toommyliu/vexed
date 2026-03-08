@@ -99,8 +99,8 @@
             <Checkbox
               id="skill-wait"
               checked={props.skillWait}
-              onCheckedChange={(checked) =>
-                props.onSkillWaitChange(checked === true)}
+              onCheckedChange={(details) =>
+                props.onSkillWaitChange(details.checked === true)}
               disabled={props.isEnabled}
             />
             <Label
@@ -138,8 +138,8 @@
       <Checkbox
         id="cb-safe-skill"
         checked={props.safeSkillEnabled}
-        onCheckedChange={(checked) =>
-          props.onSafeSkillEnabledChange(checked === true)}
+        onCheckedChange={(details) =>
+          props.onSafeSkillEnabledChange(details.checked === true)}
         disabled={props.isEnabled}
       />
       <Label

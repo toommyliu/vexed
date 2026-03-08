@@ -344,7 +344,7 @@
   <main class="flex-1 overflow-hidden p-4 sm:p-6">
     <div class="mx-auto flex h-full max-w-7xl flex-col gap-4">
       {#if error}
-        <Alert.Root variant="destructive">
+        <Alert.Root variant="error">
           <Alert.Description>{error}</Alert.Description>
         </Alert.Root>
       {/if}
