@@ -2,9 +2,8 @@ import "core-js/stable";
 import "./tray";
 
 import { join } from "path";
-
-
 import process from "process";
+import { pathExists } from "@vexed/fs";
 import { registerIpcMain } from "@vexed/tipc/main";
 import { equalsIgnoreCase } from "@vexed/utils/string";
 import { app, shell, nativeTheme } from "electron";
@@ -49,9 +48,6 @@ async function registerFlashPlugin() {
     pluginName = "libpepflashplayer.so";
   }
 
-  console.log('plugin name :: ', pluginName)
-  console.log('base path :: ', basePath)
-
   if (!pluginName) {
     showErrorDialog(
       {
@@ -62,17 +58,29 @@ async function registerFlashPlugin() {
     return;
   }
 
+  const finalPath = join(basePath, pluginName);
+  const pluginExists = await pathExists(finalPath);
+  if (pluginExists.isOk() && !pluginExists.value) {
+    showErrorDialog(
+      {
+        message: `Flash plugin not found. Expected: "${finalPath}"`,
+      },
+      true,
+    );
+    return;
+  }
+
   app.commandLine.appendSwitch(
     "ppapi-flash-path",
-    join(basePath, pluginName),
+    finalPath,
   );
+  // todo: this should be part of FlashService
   const flashPath = join(
     app.getPath("userData"),
     "Pepper Data",
     "Shockwave Flash",
     "WritableRoot",
   );
-
   const result = await initFlashService(BRAND, flashPath);
   if (result.isOk()) {
     const trustManager = result.value;
