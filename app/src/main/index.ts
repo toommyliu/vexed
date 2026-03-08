@@ -28,6 +28,7 @@ import { DOCUMENTS_PATH } from "./constants";
 
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 
+// solves "GPU process isn't usable. Goodbye."
 if (IS_LINUX) {
   app.commandLine.appendSwitch("no-sandbox");
 }
