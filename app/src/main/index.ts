@@ -3,7 +3,7 @@ import "./tray";
 
 import { join } from "path";
 import process from "process";
-import { existsSync } from "fs-extra";
+import { existsSync } from "fs";
 import { registerIpcMain } from "@vexed/tipc/main";
 import { equalsIgnoreCase } from "@vexed/utils/string";
 import { app, shell, nativeTheme } from "electron";
@@ -147,6 +147,7 @@ async function handleAppLaunch(argv: string[] = process.argv) {
       windowsService.game(account);
     }
   } catch (error) {
+    logger.error(error);
     showErrorDialog({
       error: error as Error,
       message: "Failed to initialize the application.",
