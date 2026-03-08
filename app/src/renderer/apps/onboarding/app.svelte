@@ -195,10 +195,10 @@
       orientation="horizontal"
       class="w-[200px]"
     >
-      <div class="flex flex-col gap-2">
+      <div class="flex flex-col gap-1">
         <button
           class={cn(
-            "flex w-full items-center justify-start gap-2 rounded-lg px-3 py-2 text-[13px] font-medium",
+            "flex w-full items-center justify-start gap-2 rounded-lg px-3 py-1 text-[13px] font-medium",
             {
               "bg-muted text-foreground": applicationTab,
               "text-muted-foreground hover:bg-muted/30 hover:text-foreground":
@@ -206,13 +206,14 @@
             },
           )}
           onclick={() => (activeTab = "application")}
+          tabindex={0}
         >
           <Icon icon="settings" size="xs" />
           Application
         </button>
         <button
           class={cn(
-            "flex w-full items-center justify-start gap-2 rounded-lg px-3 py-2 text-[13px] font-medium",
+            "flex w-full items-center justify-start gap-2 rounded-lg px-3 py-1 text-[13px] font-medium",
             {
               "bg-muted text-foreground": behaviorTab,
               "text-muted-foreground hover:bg-muted/30 hover:text-foreground":
@@ -220,13 +221,14 @@
             },
           )}
           onclick={() => (activeTab = "behaviors")}
+          tabindex={0}
         >
           <Icon icon="sliders_horizontal" size="xs" />
           Behaviors
         </button>
         <button
           class={cn(
-            "flex w-full items-center justify-start gap-2 rounded-lg px-3 py-2 text-[13px] font-medium",
+            "flex w-full items-center justify-start gap-2 rounded-lg px-3 py-1 text-[13px] font-medium",
             {
               "bg-muted text-foreground": appearanceTab,
               "text-muted-foreground hover:bg-muted/30 hover:text-foreground":
@@ -234,6 +236,7 @@
             },
           )}
           onclick={() => (activeTab = "appearance")}
+          tabindex={0}
         >
           <Icon icon="palette" size="xs" />
           Appearance

@@ -69,10 +69,11 @@
   </section>
 
   <section class="flex flex-col gap-3">
-    <div class="flex flex-wrap items-center gap-x-4 gap-y-2 px-2">
-      <div class="flex min-w-0 flex-auto items-center gap-2">
-        <span
-          class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/50"
+    <div
+      class="flex min-h-8 flex-wrap items-center justify-between gap-y-2 px-2 py-1"
+    >
+      <div class="flex min-w-0 flex-1 items-center gap-2">
+        <span class="text-[13px] font-semibold text-muted-foreground/50"
           >Customization</span
         >
 
@@ -83,7 +84,7 @@
           <Icon icon="info" class="size-3 text-muted-foreground/40" />
         </TooltipButton>
       </div>
-      <div class="flex min-w-max shrink-0 items-center gap-2">
+      <div class="flex items-center gap-2">
         <div class="flex gap-1">
           <PillButton
             size="sm"
@@ -121,13 +122,13 @@
           class="group flex items-center justify-between rounded px-2 py-1.5 transition-colors hover:bg-muted/10"
         >
           <div class="flex items-center gap-2 truncate pr-2">
-            <span class="truncate text-[12px] font-medium text-foreground"
+            <span class="truncate text-xs font-medium text-foreground"
               >{token.label}</span
             >
           </div>
           <div class="flex shrink-0 items-center gap-2">
             <span
-              class="w-12 text-right font-mono text-[10px] uppercase text-muted-foreground/60"
+              class="w-12 text-right font-mono text-[11px] uppercase text-muted-foreground/60"
             >
               {displayHex}
             </span>
@@ -176,9 +177,8 @@
   </section>
 
   <section class="flex flex-col gap-3">
-    <div class="flex items-center gap-2 px-2">
-      <span
-        class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/50"
+    <div class="flex min-h-8 flex-wrap items-center gap-2 px-2 py-1">
+      <span class="text-[13px] font-semibold text-muted-foreground/50"
         >Typography &amp; Radius</span
       >
 
