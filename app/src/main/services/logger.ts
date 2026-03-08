@@ -1,8 +1,8 @@
 import { createWriteStream, promises as fs, type WriteStream } from "fs";
 import { join } from "path";
 import process from "process";
-import { DOCUMENTS_PATH } from "../paths";
 import type { LogLevel } from "~/shared/types";
+import { DOCUMENTS_PATH } from "../constants";
 
 const LOG_FILE_NAME = "log.txt";
 const LOG_FILE_MAX_BYTES = 10 * 1024 * 1024; // 10MB

@@ -1,9 +1,11 @@
+import os from "os";
 import { dirname, join } from "path";
 import process from "process";
 import { app } from "electron";
 
-// export these ASAP
-export { BRAND, DOCUMENTS_PATH, FAST_TRAVELS_PATH } from "./paths";
+export const BRAND = app.getName();
+export const DOCUMENTS_PATH = join(os.homedir(), "Documents", BRAND);
+export const FAST_TRAVELS_PATH = join(DOCUMENTS_PATH, "fast-travels.json");
 
 export const IS_WINDOWS = process.platform === "win32";
 export const IS_MAC = process.platform === "darwin";
