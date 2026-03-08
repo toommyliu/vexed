@@ -165,7 +165,7 @@ const SUB_WINDOWS = [
 ];
 
 const RENDERER_ENTRYPOINTS = {
-  // "manager/build/main": "./src/renderer/apps/manager/main.ts",
+  "manager/build/main": "./src/renderer/apps/manager/main.ts",
   "game/build/main": "./src/renderer/apps/game/main.ts",
   "onboarding/build/main": "./src/renderer/apps/onboarding/main.ts",
   ...SUB_WINDOWS.reduce((acc, name) => {
