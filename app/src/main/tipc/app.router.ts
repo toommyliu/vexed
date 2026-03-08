@@ -5,7 +5,7 @@ import { BrowserWindow, nativeTheme } from "electron";
 import { coerceSettings } from "~/shared/settings/normalize";
 import type { Settings } from "~/shared/settings/types";
 import { WindowIds, type AccountWithScript } from "~/shared/types";
-import { ASSET_PATH, DOCUMENTS_PATH, PLATFORM } from "../constants";
+import { getAssetPath, DOCUMENTS_PATH, PLATFORM } from "../constants";
 import { DEFAULT_SETTINGS, DEFAULT_SKILLSETS } from "../defaults";
 import { gameServers } from "../services/game-servers";
 import { createLogger, setLoggerDebug } from "../services/logger";

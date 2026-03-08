@@ -1,16 +1,18 @@
 import { join } from "path";
-import { ensureJsonFile, pathExists, readJson, writeJson } from "@vexed/fs";
-import type {
-  FsEnsureDirError,
-  FsJsonParseError,
-  FsJsonSerializeError,
-  FsReadError,
-  FsWriteError,
+import {
+  ensureJsonFile,
+  readJson,
+  writeJson,
+  type FsEnsureDirError,
+  type FsJsonParseError,
+  type FsJsonSerializeError,
+  type FsReadError,
+  type FsWriteError,
 } from "@vexed/fs";
 import { equalsIgnoreCase } from "@vexed/utils";
 import { Result, TaggedError } from "better-result";
-import { DOCUMENTS_PATH } from "../constants";
 import type { Account } from "~/shared/types";
+import { DOCUMENTS_PATH } from "../constants";
 import { createLogger } from "./logger";
 
 const logger = createLogger("service:accounts");
