@@ -54,7 +54,7 @@
                 >{settings.fallbackServer}</Select.Value
               >
             </Select.Trigger>
-            <Select.Content class="max-h-52" align="end">
+            <Select.Content class="max-h-52">
               <Select.Item class="text-xs" value="Auto (first available)"
                 >Auto</Select.Item
               >

@@ -105,8 +105,8 @@
         <Label class="option-row">
           <Checkbox
             checked={gameState[option.key]}
-            onCheckedChange={(checked) => {
-              gameState[option.key] = checked === true;
+            onCheckedChange={(details) => {
+              gameState[option.key] = details.checked === true;
             }}
           />
           <span class="option-label-text">{option.label}</span>
