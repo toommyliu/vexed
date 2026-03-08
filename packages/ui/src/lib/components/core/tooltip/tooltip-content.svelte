@@ -42,16 +42,16 @@
       }
 
       let offset = { mainAxis: 0, crossAxis: 0 };
-      if (placement === "top") {
-        offset.mainAxis = 24;
-        offset.crossAxis = 0;
-      } else if (placement === "left" || placement === "right") {
-        offset.mainAxis = 8;
-        offset.crossAxis = -16;
-      } else if (placement === "bottom") {
-        offset.mainAxis = -8;
-        offset.crossAxis = 0;
-      }
+      // if (placement === "top") {
+      //   offset.mainAxis = 24;
+      //   offset.crossAxis = 0;
+      // } else if (placement === "left" || placement === "right") {
+      //   offset.mainAxis = 8;
+      //   offset.crossAxis = -16;
+      // } else if (placement === "bottom") {
+      //   offset.mainAxis = -8;
+      //   offset.crossAxis = 0;
+      // }
 
       untrack(() => {
         context.set({ placement: placement as Placement, offset });
