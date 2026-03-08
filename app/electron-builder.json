@@ -53,6 +53,28 @@
     },
     "artifactName": "${productName}-${os}.${ext}"
   },
+  "linux": {
+    "files": [
+      "dist/**/*"
+    ],
+    "extraFiles": [
+      {
+        "from": "../assets",
+        "to": "assets",
+        "filter": [
+          "**/*",
+          "!PepperFlashPlayer.plugin",
+          "!pepflashplayer.dll"
+        ]
+      }
+    ],
+    "asar": false,
+    "target": [
+      "zip"
+    ],
+    "icon": "../assets/icon.png",
+    "artifactName": "${productName}-${os}.${ext}"
+  },
   "extraMetadata": {
     "name": "vexed",
     "main": "./dist/main/index.js"

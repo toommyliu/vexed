@@ -2,13 +2,16 @@ import "core-js/stable";
 import "./tray";
 
 import { join } from "path";
+
+
 import process from "process";
 import { registerIpcMain } from "@vexed/tipc/main";
 import { equalsIgnoreCase } from "@vexed/utils/string";
 import { app, shell, nativeTheme } from "electron";
+
 import { version } from "../../package.json";
 import { getArgValue, hasArgFlag } from "../shared/argv";
-import { ASSET_PATH, BRAND, IS_MAC, IS_WINDOWS, IS_LINUX } from "./constants";
+import { BRAND, IS_MAC, IS_WINDOWS, IS_LINUX, getAssetPath } from "./constants";
 import { createMenu } from "./menu";
 import { initFlashService } from "./services/flash";
 import {
@@ -22,22 +25,32 @@ import { initSettings, getSettings } from "./settings";
 import { router } from "./tipc";
 import { showErrorDialog } from "./util/dialog";
 import { createNotification } from "./util/notification";
+import { DOCUMENTS_PATH } from "./constants";
 
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 
+if (IS_LINUX) {
+  app.commandLine.appendSwitch("no-sandbox");
+}
+
 const logger = createLogger("app");
+
+logger.info("process.argv", process.argv)
 
 async function registerFlashPlugin() {
   let pluginName;
-
+  let basePath = getAssetPath();
   if (IS_WINDOWS) {
     pluginName = "pepflashplayer.dll";
   } else if (IS_MAC) {
     pluginName = "PepperFlashPlayer.plugin";
   } else if (IS_LINUX) {
-    // TODO: fill me
-    pluginName = "";
+    basePath = DOCUMENTS_PATH;
+    pluginName = "libpepflashplayer.so";
   }
+
+  console.log('plugin name :: ', pluginName)
+  console.log('base path :: ', basePath)
 
   if (!pluginName) {
     showErrorDialog(
@@ -51,7 +64,7 @@ async function registerFlashPlugin() {
 
   app.commandLine.appendSwitch(
     "ppapi-flash-path",
-    join(ASSET_PATH, pluginName),
+    join(basePath, pluginName),
   );
   const flashPath = join(
     app.getPath("userData"),
@@ -64,7 +77,7 @@ async function registerFlashPlugin() {
   if (result.isOk()) {
     const trustManager = result.value;
     await trustManager.empty();
-    await trustManager.add(join(ASSET_PATH, "loader.swf"));
+    await trustManager.add(join(getAssetPath(), "loader.swf"));
   } else {
     logger.error("Failed to initialize Flash trust manager", result.error);
   }
@@ -162,6 +175,7 @@ if (gotTheLock) {
 
 app.once("ready", async () => {
   const settings = await initSettings();
+
   nativeTheme.themeSource = settings.get("theme") ?? "system";
   createMenu(settings);
   await handleAppLaunch();

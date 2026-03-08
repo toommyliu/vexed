@@ -1,7 +1,7 @@
 import { createWriteStream, promises as fs, type WriteStream } from "fs";
 import { join } from "path";
 import process from "process";
-import { DOCUMENTS_PATH } from "../constants";
+import { DOCUMENTS_PATH } from "../paths";
 import type { LogLevel } from "~/shared/types";
 
 const LOG_FILE_NAME = "log.txt";

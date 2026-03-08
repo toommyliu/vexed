@@ -8,7 +8,7 @@ import {
   type AccountWithScript,
   type Settings,
 } from "~/shared/types";
-import { ASSET_PATH, DOCUMENTS_PATH, PLATFORM } from "../constants";
+import { getAssetPath, DOCUMENTS_PATH, PLATFORM } from "../constants";
 import { gameServers } from "../services/game-servers";
 import { setLoggerDebug } from "../services/logger";
 import { scriptService } from "../services/scripts";
@@ -63,7 +63,7 @@ export function createAppTipcRouter(tipc: TipcInstance) {
   return {
     getPlatform: tipc.procedure.action(async () => PLATFORM),
 
-    getAssetPath: tipc.procedure.action(async () => ASSET_PATH),
+    getAssetPath: tipc.procedure.action(async () => getAssetPath()),
 
     getSkillSets: tipc.procedure.action(async () => {
       await config.load();
