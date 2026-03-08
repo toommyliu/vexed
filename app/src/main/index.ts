@@ -154,13 +154,9 @@ async function handleAppLaunch(argv: string[] = process.argv) {
   }
 }
 
-void (async () => {
-  try {
-    await registerFlashPlugin();
-  } catch (error) {
-    logger.error("Failed to register Flash trust", error);
-  }
-})();
+registerFlashPlugin().catch((error) => {
+  logger.error("Failed to register Flash trust", error);
+});
 
 registerIpcMain(router);
 
