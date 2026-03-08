@@ -1,6 +1,8 @@
 import { dirname, join } from "path";
 import process from "process";
 import { app } from "electron";
+
+// export these ASAP
 export { BRAND, DOCUMENTS_PATH, FAST_TRAVELS_PATH } from "./paths";
 
 export const IS_WINDOWS = process.platform === "win32";
@@ -22,7 +24,7 @@ export function getAssetPath() {
     }
 
     if (IS_LINUX) {
-      return join(dirname(app.getPath('exe')), "assets");
+      return join(dirname(app.getPath("exe")), "assets");
     }
 
     return join(app.getAppPath(), "assets");

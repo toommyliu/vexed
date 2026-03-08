@@ -3,7 +3,7 @@ import "./tray";
 
 import { join } from "path";
 import process from "process";
-import { pathExists } from "@vexed/fs";
+import { existsSync } from "fs-extra";
 import { registerIpcMain } from "@vexed/tipc/main";
 import { equalsIgnoreCase } from "@vexed/utils/string";
 import { app, shell, nativeTheme } from "electron";
@@ -34,7 +34,7 @@ if (IS_LINUX) {
 
 const logger = createLogger("app");
 
-logger.info("process.argv", process.argv)
+logger.info("process.argv", process.argv);
 
 async function registerFlashPlugin() {
   let pluginName;
@@ -59,8 +59,9 @@ async function registerFlashPlugin() {
   }
 
   const finalPath = join(basePath, pluginName);
-  const pluginExists = await pathExists(finalPath);
-  if (pluginExists.isOk() && !pluginExists.value) {
+  // this must be synchronous so it blocks and registers in time
+  // eslint-disable-next-line n/no-sync
+  if (!existsSync(finalPath)) {
     showErrorDialog(
       {
         message: `Flash plugin not found. Expected: "${finalPath}"`,
@@ -70,10 +71,7 @@ async function registerFlashPlugin() {
     return;
   }
 
-  app.commandLine.appendSwitch(
-    "ppapi-flash-path",
-    finalPath,
-  );
+  app.commandLine.appendSwitch("ppapi-flash-path", finalPath);
   // todo: this should be part of FlashService
   const flashPath = join(
     app.getPath("userData"),
