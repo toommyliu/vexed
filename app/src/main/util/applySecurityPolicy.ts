@@ -1,6 +1,6 @@
 import { URL } from "url";
 import { BrowserWindow, session } from "electron";
-import { IS_MAC } from "../constants";
+import { IS_LINUX, IS_MAC } from "../constants";
 import { logger } from "../services/logger";
 
 const WHITELISTED_DOMAINS = [
@@ -11,9 +11,20 @@ const WHITELISTED_DOMAINS = [
   "heromart.com",
 ];
 
-const ARTIX_USERAGENT = IS_MAC
-  ? "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16_0) AppleWebKit/537.36 (KHTML, like Gecko) ArtixGameLauncher/2.2.0 Chrome/80.0.3987.163 Electron/8.5.5 Safari/537.36"
-  : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ArtixGameLauncher/2.2.0 Chrome/80.0.3987.163 Electron/8.5.5 Safari/537.36";
+function getUserAgent() {
+  if (IS_MAC) {
+    return "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16_0) AppleWebKit/537.36 (KHTML, like Gecko) ArtixGameLauncher/2.2.0 Chrome/80.0.3987.163 Electron/8.5.5 Safari/537.36"
+  }
+
+  if (IS_LINUX) {
+    return "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) ArtixGameLauncher/2.2.0 Chrome/80.0.3987.163 Electron/8.5.5 Safari/537.36"
+  }
+
+  // always fallback to windows UA
+  return "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ArtixGameLauncher/2.2.0 Chrome/80.0.3987.163 Electron/8.5.5 Safari/537.36";
+}
+
+const userAgent = getUserAgent();
 
 function isDomainWhitelisted(hostname: string): boolean {
   let normalized = hostname;
@@ -22,11 +33,11 @@ function isDomainWhitelisted(hostname: string): boolean {
 }
 
 export function applySecurityPolicy(window: BrowserWindow): void {
-  window.webContents.userAgent = ARTIX_USERAGENT;
+  window.webContents.userAgent = userAgent;
   session.defaultSession?.webRequest.onBeforeSendHeaders((details, fn) => {
     const requestHeaders = details.requestHeaders;
     Object.defineProperty(requestHeaders, "User-Agent", {
-      value: ARTIX_USERAGENT,
+      value: userAgent,
     });
     Object.defineProperty(requestHeaders, "artixmode", {
       value: "launcher",
@@ -69,7 +80,7 @@ export function applySecurityPolicy(window: BrowserWindow): void {
       if (
         parsedUrl.hostname === "www.facebook.com" &&
         parsedUrl.searchParams.get("redirect_uri") ===
-          "https://game.aq.com/game/AQWFB.html"
+        "https://game.aq.com/game/AQWFB.html"
       ) {
         return;
       }

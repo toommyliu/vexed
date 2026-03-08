@@ -3,12 +3,14 @@ import "./tray";
 
 import { join } from "path";
 import process from "process";
+import { existsSync } from "fs";
 import { registerIpcMain } from "@vexed/tipc/main";
 import { equalsIgnoreCase } from "@vexed/utils/string";
 import { app, shell, nativeTheme } from "electron";
+
 import { version } from "../../package.json";
 import { getArgValue, hasArgFlag } from "../shared/argv";
-import { ASSET_PATH, BRAND, IS_MAC, IS_WINDOWS, IS_LINUX } from "./constants";
+import { BRAND, IS_MAC, IS_WINDOWS, IS_LINUX, getAssetPath } from "./constants";
 import { createMenu } from "./menu";
 import { initFlashService } from "./services/flash";
 import {
@@ -22,21 +24,27 @@ import { initSettings, getSettings } from "./settings";
 import { router } from "./tipc";
 import { showErrorDialog } from "./util/dialog";
 import { createNotification } from "./util/notification";
+import { DOCUMENTS_PATH } from "./constants";
 
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
+
+// solves "GPU process isn't usable. Goodbye."
+if (IS_LINUX) {
+  app.commandLine.appendSwitch("no-sandbox");
+}
 
 const logger = createLogger("app");
 
 async function registerFlashPlugin() {
   let pluginName;
-
+  let basePath = getAssetPath();
   if (IS_WINDOWS) {
     pluginName = "pepflashplayer.dll";
   } else if (IS_MAC) {
     pluginName = "PepperFlashPlayer.plugin";
   } else if (IS_LINUX) {
-    // TODO: fill me
-    pluginName = "";
+    basePath = DOCUMENTS_PATH;
+    pluginName = "libpepflashplayer.so";
   }
 
   if (!pluginName) {
@@ -49,22 +57,32 @@ async function registerFlashPlugin() {
     return;
   }
 
-  app.commandLine.appendSwitch(
-    "ppapi-flash-path",
-    join(ASSET_PATH, pluginName),
-  );
+  const finalPath = join(basePath, pluginName);
+  // this must be synchronous so it blocks and registers in time
+  // eslint-disable-next-line n/no-sync
+  if (!existsSync(finalPath)) {
+    showErrorDialog(
+      {
+        message: `Flash plugin not found. Expected: "${finalPath}"`,
+      },
+      true,
+    );
+    return;
+  }
+
+  app.commandLine.appendSwitch("ppapi-flash-path", finalPath);
+  // todo: this should be part of FlashService
   const flashPath = join(
     app.getPath("userData"),
     "Pepper Data",
     "Shockwave Flash",
     "WritableRoot",
   );
-
   const result = await initFlashService(BRAND, flashPath);
   if (result.isOk()) {
     const trustManager = result.value;
     await trustManager.empty();
-    await trustManager.add(join(ASSET_PATH, "loader.swf"));
+    await trustManager.add(join(getAssetPath(), "loader.swf"));
   } else {
     logger.error("Failed to initialize Flash trust manager", result.error);
   }
@@ -128,6 +146,7 @@ async function handleAppLaunch(argv: string[] = process.argv) {
       windowsService.game(account);
     }
   } catch (error) {
+    logger.error(error);
     showErrorDialog({
       error: error as Error,
       message: "Failed to initialize the application.",
@@ -135,13 +154,9 @@ async function handleAppLaunch(argv: string[] = process.argv) {
   }
 }
 
-void (async () => {
-  try {
-    await registerFlashPlugin();
-  } catch (error) {
-    logger.error("Failed to register Flash trust", error);
-  }
-})();
+registerFlashPlugin().catch((error) => {
+  logger.error("Failed to register Flash trust", error);
+});
 
 registerIpcMain(router);
 
@@ -162,6 +177,7 @@ if (gotTheLock) {
 
 app.once("ready", async () => {
   const settings = await initSettings();
+
   nativeTheme.themeSource = settings.get("theme") ?? "system";
   createMenu(settings);
   await handleAppLaunch();

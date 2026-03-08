@@ -1,6 +1,6 @@
 import { join } from "path";
 import { app, Menu, nativeImage, Tray } from "electron";
-import { ASSET_PATH, BRAND, IS_MAC } from "./constants";
+import { getAssetPath, BRAND, IS_MAC } from "./constants";
 import { windowsService } from "./services/windows";
 
 // https://www.electronjs.org/docs/latest/faq#my-apps-tray-disappeared-after-a-few-minutes
@@ -25,8 +25,9 @@ const contextMenu = Menu.buildFromTemplate([
 ]);
 
 app.on("ready", () => {
+  const assetPath = getAssetPath();
   // menu bar on mac, tray icon on windows
-  const path = join(ASSET_PATH, "tray.png");
+  const path = join(assetPath, "tray.png");
   const icon = nativeImage.createFromPath(path);
 
   tray = new Tray(icon);
@@ -34,7 +35,7 @@ app.on("ready", () => {
   tray.setContextMenu(contextMenu);
 
   if (IS_MAC)
-    app.dock.setIcon(nativeImage.createFromPath(join(ASSET_PATH, "icon.png")));
+    app.dock.setIcon(nativeImage.createFromPath(join(assetPath, "icon.png")));
 });
 
 app.on("before-quit", () => {

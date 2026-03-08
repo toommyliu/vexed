@@ -1,5 +1,5 @@
 import { join } from "path";
-import { readJson, writeJson } from "@vexed/fs";
+import { ensureJsonFile, pathExists, readJson, writeJson } from "@vexed/fs";
 import type {
   FsEnsureDirError,
   FsJsonParseError,
@@ -55,6 +55,10 @@ export type AccountsError =
 export const accounts = {
   getAll: async (): Promise<Result<Account[], AccountsError>> =>
     Result.gen(async function* () {
+      const ensureResult = await ensureJsonFile(ACCOUNTS_PATH, []);
+      if (ensureResult.isErr())
+        logger.error("Failed to initialize accounts file", ensureResult.error);
+
       const result = await readJson<Account[]>(ACCOUNTS_PATH);
       if (result.isErr())
         logger.error("Failed to read accounts file", result.error);

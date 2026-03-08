@@ -44,5 +44,6 @@ jobs:
           files: |
             ./app/build/vexed-mac.zip
             ./app/build/vexed-win.zip
+            ./app/build/vexed-linux.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
