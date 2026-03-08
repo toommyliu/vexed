@@ -34,8 +34,6 @@ if (IS_LINUX) {
 
 const logger = createLogger("app");
 
-logger.info("process.argv", process.argv);
-
 async function registerFlashPlugin() {
   let pluginName;
   let basePath = getAssetPath();
