@@ -68,8 +68,10 @@
 }
 
 @layer base {
-  * {
-    @apply border-border;
+  *,
+  *::before,
+  *::after {
+    @apply border-border transition-colors duration-200 ease-in-out;
   }
 
   body {
