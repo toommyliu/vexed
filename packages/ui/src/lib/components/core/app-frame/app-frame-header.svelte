@@ -44,7 +44,7 @@
 
 <header
   class={cn(
-    "elevation-1 z-10 border-border/50 bg-background/95",
+    "z-10 border-border/50 bg-background/95",
     orientation === "vertical"
       ? "sticky top-0 border-b px-6 py-3"
       : "sticky left-0 h-screen w-64 border-r px-4 py-4",
@@ -74,12 +74,14 @@
     >
       <div
         class={cn(
-          "flex items-center gap-3",
+          "flex items-center gap-2",
           orientation === "horizontal" && "flex-col items-start",
         )}
       >
         {#if title}
-          <h1 class="text-base font-semibold tracking-tight text-foreground">
+          <h1
+            class="flex h-9 items-center text-base font-semibold tracking-tight text-foreground"
+          >
             {title}
           </h1>
         {/if}
