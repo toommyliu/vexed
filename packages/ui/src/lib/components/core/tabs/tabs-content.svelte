@@ -15,7 +15,7 @@
   bind:ref
   {value}
   data-slot="tabs-content"
-  class={cn("flex-1 outline-none", className)}
+  class={cn("flex-1 outline-none data-[state=inactive]:hidden", className)}
   {...restProps}
 >
   {@render children?.()}
