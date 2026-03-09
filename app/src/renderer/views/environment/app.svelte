@@ -510,13 +510,11 @@
                   checked={autoRegisterRequirements}
                   onCheckedChange={(checked) =>
                     updateAutoRegisterRequirements(Boolean(checked))}
+                  label="Auto register requirements"
+                  labelProps={{
+                    class: "cursor-pointer text-xs text-muted-foreground",
+                  }}
                 />
-                <Label
-                  for="auto-requirements"
-                  class="cursor-pointer text-xs text-muted-foreground"
-                >
-                  Auto register requirements
-                </Label>
               </div>
               <div class="flex items-center gap-2">
                 <Checkbox
@@ -524,13 +522,11 @@
                   checked={autoRegisterRewards}
                   onCheckedChange={(checked) =>
                     updateAutoRegisterRewards(Boolean(checked))}
+                  label="Auto register rewards"
+                  labelProps={{
+                    class: "cursor-pointer text-xs text-muted-foreground",
+                  }}
                 />
-                <Label
-                  for="auto-rewards"
-                  class="cursor-pointer text-xs text-muted-foreground"
-                >
-                  Auto register rewards
-                </Label>
               </div>
             </div>
           </div>
@@ -626,13 +622,11 @@
                 checked={rejectElse}
                 onCheckedChange={(checked) =>
                   updateRejectElse(Boolean(checked))}
+                label="Reject else"
+                labelProps={{
+                  class: "cursor-pointer text-xs text-muted-foreground",
+                }}
               />
-              <Label
-                for="reject-else"
-                class="cursor-pointer text-xs text-muted-foreground"
-              >
-                Reject else
-              </Label>
             </div>
           </div>
         </section>
