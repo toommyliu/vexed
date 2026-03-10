@@ -1,17 +1,20 @@
 <script lang="ts">
   import { createMenuContext } from "./menu-context.js";
   import type { Snippet } from "svelte";
+  import { cn } from "$lib/utils";
 
   interface MenuRootProps {
     open?: boolean;
     onOpenChange?: (open: boolean) => void;
     children?: Snippet;
+    class?: string;
   }
 
   let {
     open = $bindable(false),
     onOpenChange,
     children,
+    class: className,
   }: MenuRootProps = $props();
 
   let triggerEl = $state<HTMLElement | null>(null);
@@ -57,6 +60,6 @@
   });
 </script>
 
-<div data-slot="menu">
+<div data-slot="menu" class={cn(className)}>
   {@render children?.()}
 </div>
