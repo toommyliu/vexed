@@ -1,12 +1,10 @@
 <script lang="ts">
-  import type { FastTravel } from "~/shared/fast-travels/types";
-  import type { FastTravelError } from "~/shared/fast-travels/errors";
-  import { Button, Input, Label } from "@vexed/ui";
-  import * as Dialog from "@vexed/ui/Dialog";
+  import { Button, Dialog, Icon, Input, Label } from "@vexed/ui";
   import { motionFade } from "@vexed/ui/motion";
-  import Loader from "@vexed/ui/icons/Loader";
-  import AlertCircle from "@vexed/ui/icons/AlertCircle";
   import { Result, matchErrorPartial } from "better-result";
+
+  import type { FastTravelError } from "~/shared/fast-travels/errors";
+  import type { FastTravel } from "~/shared/fast-travels/types";
   import { client } from "~/shared/tipc";
 
   type Props = {
@@ -121,7 +119,11 @@
             transition:motionFade={{ duration: 150 }}
             class="flex items-start gap-2.5 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2.5"
           >
-            <AlertCircle class="mt-0.5 size-4 shrink-0 text-destructive" />
+            <Icon
+              icon="circle_alert"
+              size="md"
+              class="mt-0.5 shrink-0 text-destructive"
+            />
             <span class="text-sm text-destructive">{error}</span>
           </div>
         {/key}
@@ -187,7 +189,7 @@
         disabled={isSubmitting || !name.trim() || !map.trim()}
       >
         {#if isSubmitting}
-          <Loader class="size-4 animate-spin" />
+          <Icon icon="loader" size="md" spin />
           <span>Saving...</span>
         {:else}
           <span>Update</span>

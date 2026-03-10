@@ -1,14 +1,10 @@
 <script lang="ts">
-  import { Button, Checkbox, cn, Label } from "@vexed/ui";
-  import * as Tabs from "@vexed/ui/Tabs";
-  import Play from "@vexed/ui/icons/Play";
-  import Pause from "@vexed/ui/icons/Pause";
-  import Download from "@vexed/ui/icons/Download";
-  import Copy from "@vexed/ui/icons/Copy";
-  import Trash2 from "@vexed/ui/icons/Trash2";
+  import { Button, Checkbox, Icon, Label, Tabs } from "@vexed/ui";
+  import { cn } from "@vexed/ui/util";
 
-  import { client, handlers } from "~/shared/tipc";
   import { v4 as uuid } from "@lukeed/uuid";
+  import { client, handlers } from "~/shared/tipc";
+
   type PacketType = "client" | "pext" | "server";
   type PacketFilter = PacketType | "all";
   type PacketEntry = {
@@ -179,7 +175,7 @@
           onclick={saveToFile}
           disabled={filteredPackets.length === 0}
         >
-          <Download class="h-4 w-4" />
+          <Icon icon="download" size="md" />
           <span class="hidden sm:inline">Save</span>
         </Button>
         <Button
@@ -189,7 +185,7 @@
           onclick={copyAll}
           disabled={filteredPackets.length === 0}
         >
-          <Copy class="h-4 w-4" />
+          <Icon icon="copy" size="md" />
           <span class="hidden sm:inline">Copy All</span>
         </Button>
         <Button
@@ -199,10 +195,10 @@
           onclick={toggleCapture}
         >
           {#if on}
-            <Pause class="h-4 w-4" />
+            <Icon icon="pause" size="md" />
             <span class="hidden sm:inline">Stop</span>
           {:else}
-            <Play class="h-4 w-4" />
+            <Icon icon="play" size="md" />
             <span class="hidden sm:inline">Start</span>
           {/if}
         </Button>
@@ -277,7 +273,7 @@
               onclick={clearPackets}
               disabled={packets.length === 0}
             >
-              <Trash2 class="h-4 w-4" />
+              <Icon icon="trash" size="md" />
               Clear
             </Button>
           </div>
@@ -345,8 +341,10 @@
                   >
                     {packet.content}
                   </span>
-                  <Copy
-                    class="h-3.5 w-3.5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                  <Icon
+                    icon="copy"
+                    size="sm"
+                    class="shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
                   />
                 </div>
               {/each}

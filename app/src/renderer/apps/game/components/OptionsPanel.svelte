@@ -1,8 +1,6 @@
 <script lang="ts">
   import { untrack } from "svelte";
-  import { Checkbox, Input, Label } from "@vexed/ui";
-  import Kbd from "@vexed/ui/Kbd";
-  import * as NumberField from "@vexed/ui/NumberField";
+  import { Checkbox, Input, Label, Kbd, NumberField } from "@vexed/ui";
   import FloatingPanel from "./FloatingPanel.svelte";
 
   import { gameState, optionsPanelState } from "../state/index.svelte";
@@ -107,8 +105,8 @@
         <Label class="option-row">
           <Checkbox
             checked={gameState[option.key]}
-            onCheckedChange={(checked) => {
-              gameState[option.key] = checked === true;
+            onCheckedChange={(details) => {
+              gameState[option.key] = details.checked === true;
             }}
           />
           <span class="option-label-text">{option.label}</span>

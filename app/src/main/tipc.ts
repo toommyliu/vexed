@@ -5,9 +5,7 @@ import type {
   EnvironmentState,
   EnvironmentUpdatePayload,
 } from "~/shared/environment/types";
-import type {
-  FastTravelRoomNumber,
-} from "~/shared/fast-travels/types";
+import type { FastTravelRoomNumber } from "~/shared/fast-travels/types";
 import type { RawFollowerConfig } from "~/shared/follower/types";
 import type {
   GrabbedData,
@@ -57,6 +55,7 @@ export type RendererHandlers = {
 
   game: {
     gameReloaded(): void;
+    openCommandPalette(): void;
   };
 
   scripts: {

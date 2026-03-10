@@ -1,7 +1,12 @@
 <script lang="ts">
-  import { Card, Checkbox, Input, Label } from "@vexed/ui";
-  import * as InputGroup from "@vexed/ui/InputGroup";
-  import * as NumberField from "@vexed/ui/NumberField";
+  import {
+    Card,
+    Checkbox,
+    Input,
+    Label,
+    InputGroup,
+    NumberField,
+  } from "@vexed/ui";
   import { cn } from "@vexed/ui/util";
 
   type CombatSectionProps = {
@@ -25,14 +30,14 @@
   const props: CombatSectionProps = $props();
 </script>
 
-<Card.Root class="border-border/40 gap-0 overflow-hidden py-0">
+<Card.Root class="gap-0 overflow-hidden border-border/40 py-0">
   <Card.Header
-    class="border-border/20 relative flex flex-row items-center space-y-0 border-b px-4 py-2"
+    class="relative flex flex-row items-center space-y-0 border-b border-border/20 px-4 py-2"
   >
     <div
-      class="bg-primary/50 absolute bottom-3 left-0 top-3 w-0.5 rounded-full"
+      class="absolute bottom-3 left-0 top-3 w-0.5 rounded-full bg-primary/50"
     ></div>
-    <h2 class="text-foreground/80 text-sm font-medium">Combat</h2>
+    <h2 class="text-sm font-medium text-foreground/80">Combat</h2>
   </Card.Header>
   <Card.Content class="space-y-4 p-5">
     <div class="flex gap-4">
@@ -44,10 +49,12 @@
             id="skill-list"
             value={props.skillList}
             oninput={(event) =>
-              props.onSkillListChange((event.currentTarget as HTMLInputElement).value)}
+              props.onSkillListChange(
+                (event.currentTarget as HTMLInputElement).value,
+              )}
             placeholder="1,2,3,4"
             class={cn(
-              "bg-secondary/50 border-border/50 focus:bg-background w-auto min-w-0 flex-1 transition-colors",
+              "w-auto min-w-0 flex-1 border-border/50 bg-secondary/50 transition-colors focus:bg-background",
               props.isEnabled && "pointer-events-none opacity-50",
             )}
             disabled={props.isEnabled}
@@ -56,10 +63,12 @@
         </div>
       </div>
       <div class="flex flex-col space-y-1.5">
-        <Label for="skill-delay" class="text-muted-foreground">Skill Delay</Label>
+        <Label for="skill-delay" class="text-muted-foreground"
+          >Skill Delay</Label
+        >
         <div class="flex items-center gap-3">
           <InputGroup.Root
-            class="bg-secondary/50 border-border/50 focus-within:bg-background h-8 w-28 transition-colors"
+            class="h-8 w-28 border-border/50 bg-secondary/50 transition-colors focus-within:bg-background"
           >
             <NumberField.Root
               value={props.skillDelay}
@@ -79,7 +88,9 @@
               />
             </NumberField.Root>
             <InputGroup.Addon align="inline-end">
-              <InputGroup.Text class="text-muted-foreground text-xs font-medium">
+              <InputGroup.Text
+                class="text-xs font-medium text-muted-foreground"
+              >
                 ms
               </InputGroup.Text>
             </InputGroup.Addon>
@@ -88,10 +99,14 @@
             <Checkbox
               id="skill-wait"
               checked={props.skillWait}
-              onCheckedChange={(checked) => props.onSkillWaitChange(checked === true)}
+              onCheckedChange={(details) =>
+                props.onSkillWaitChange(details.checked === true)}
               disabled={props.isEnabled}
             />
-            <Label for="skill-wait" class="text-muted-foreground cursor-pointer text-sm">
+            <Label
+              for="skill-wait"
+              class="cursor-pointer text-sm text-muted-foreground"
+            >
               Wait
             </Label>
           </div>
@@ -99,16 +114,20 @@
       </div>
     </div>
     <div class="space-y-1.5">
-      <Label for="attack-priority" class="text-muted-foreground">Attack Priority</Label>
+      <Label for="attack-priority" class="text-muted-foreground"
+        >Attack Priority</Label
+      >
       <Input
         type="text"
         id="attack-priority"
         value={props.attackPriority}
         oninput={(event) =>
-          props.onAttackPriorityChange((event.currentTarget as HTMLInputElement).value)}
+          props.onAttackPriorityChange(
+            (event.currentTarget as HTMLInputElement).value,
+          )}
         placeholder="Defense Drone, Attack Drone"
         class={cn(
-          "bg-secondary/50 border-border/50 focus:bg-background transition-colors",
+          "border-border/50 bg-secondary/50 transition-colors focus:bg-background",
           props.isEnabled && "pointer-events-none opacity-50",
         )}
         disabled={props.isEnabled}
@@ -119,10 +138,14 @@
       <Checkbox
         id="cb-safe-skill"
         checked={props.safeSkillEnabled}
-        onCheckedChange={(checked) => props.onSafeSkillEnabledChange(checked === true)}
+        onCheckedChange={(details) =>
+          props.onSafeSkillEnabledChange(details.checked === true)}
         disabled={props.isEnabled}
       />
-      <Label for="cb-safe-skill" class="text-muted-foreground cursor-pointer text-sm">
+      <Label
+        for="cb-safe-skill"
+        class="cursor-pointer text-sm text-muted-foreground"
+      >
         Use skill
       </Label>
       <NumberField.Root
@@ -136,14 +159,14 @@
       >
         <NumberField.Input
           class={cn(
-            "bg-secondary/50 border-border/50 focus:bg-background h-8 text-center transition-colors",
+            "h-8 border-border/50 bg-secondary/50 text-center transition-colors focus:bg-background",
             props.isEnabled && "pointer-events-none opacity-50",
           )}
           disabled={props.isEnabled}
           autocomplete="off"
         />
       </NumberField.Root>
-      <span class="text-muted-foreground text-sm">when HP &lt;</span>
+      <span class="text-sm text-muted-foreground">when HP &lt;</span>
       <NumberField.Root
         value={props.safeSkillHp}
         onValueChange={(value) => {
@@ -155,14 +178,14 @@
       >
         <NumberField.Input
           class={cn(
-            "bg-secondary/50 border-border/50 focus:bg-background h-8 text-center transition-colors",
+            "h-8 border-border/50 bg-secondary/50 text-center transition-colors focus:bg-background",
             props.isEnabled && "pointer-events-none opacity-50",
           )}
           disabled={props.isEnabled}
           autocomplete="off"
         />
       </NumberField.Root>
-      <span class="text-muted-foreground text-sm">%</span>
+      <span class="text-sm text-muted-foreground">%</span>
     </div>
   </Card.Content>
 </Card.Root>

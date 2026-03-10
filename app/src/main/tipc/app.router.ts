@@ -1,19 +1,18 @@
 import Config from "@vexed/config";
 import type { TipcInstance } from "@vexed/tipc";
 import { Result } from "better-result";
-import { nativeTheme } from "electron";
-import { DEFAULT_SKILLSETS } from "../defaults";
-import {
-  WindowIds,
-  type AccountWithScript,
-  type Settings,
-} from "~/shared/types";
+import { BrowserWindow, nativeTheme } from "electron";
+import { coerceSettings } from "~/shared/settings/normalize";
+import type { Settings } from "~/shared/settings/types";
+import { WindowIds, type AccountWithScript } from "~/shared/types";
 import { getAssetPath, DOCUMENTS_PATH, PLATFORM } from "../constants";
+import { DEFAULT_SETTINGS, DEFAULT_SKILLSETS } from "../defaults";
 import { gameServers } from "../services/game-servers";
-import { setLoggerDebug } from "../services/logger";
+import { createLogger, setLoggerDebug } from "../services/logger";
 import { scriptService } from "../services/scripts";
 import { windowsService, type SubwindowConfig } from "../services/windows";
 import { getSettings } from "../settings";
+import { isWindowUsable } from "../util/browser-window";
 
 const SUBWINDOW_CONFIGS: Record<WindowIds, SubwindowConfig> = {
   [WindowIds.Environment]: {
@@ -58,6 +57,7 @@ const config = new Config<typeof DEFAULT_SKILLSETS>({
   cwd: DOCUMENTS_PATH,
   defaults: DEFAULT_SKILLSETS,
 });
+const logger = createLogger("tipc:app");
 
 export function createAppTipcRouter(tipc: TipcInstance) {
   return {
@@ -117,34 +117,36 @@ export function createAppTipcRouter(tipc: TipcInstance) {
 
     getSettings: tipc.procedure.action(async () => {
       const settings = getSettings();
-      const debug = settings.getBoolean("debug", false);
-      setLoggerDebug(debug);
-      return {
-        checkForUpdates: settings.getBoolean("checkForUpdates", false),
-        debug,
-        fallbackServer: settings.getString("fallbackServer", ""),
-        launchMode: settings.getString("launchMode", "game") as
-          | "game"
-          | "manager",
-        theme: settings.getString("theme", "dark") as
-          | "dark"
-          | "light"
-          | "system",
-      } satisfies Settings;
+      const coerced = coerceSettings(settings.get(), DEFAULT_SETTINGS);
+      setLoggerDebug(coerced.debug);
+      nativeTheme.themeSource = coerced.theme;
+      return coerced satisfies Settings;
     }),
 
     updateSettings: tipc.procedure
       .input<Settings>()
       .action(async ({ input }) => {
         const settings = getSettings();
-        settings.set("checkForUpdates", input.checkForUpdates);
-        settings.set("debug", input.debug);
-        settings.set("fallbackServer", input.fallbackServer);
-        settings.set("launchMode", input.launchMode);
-        settings.set("theme", input.theme);
-        setLoggerDebug(input.debug);
-        nativeTheme.themeSource = input.theme;
-        await settings.save();
+        const current = coerceSettings(settings.get(), DEFAULT_SETTINGS);
+        const coercedInput = coerceSettings(input, current);
+
+        settings.set(coercedInput);
+        setLoggerDebug(coercedInput.debug);
+        nativeTheme.themeSource = coercedInput.theme;
+        const saveResult = await settings.save();
+        if (saveResult.isErr()) {
+          logger.error(
+            "Failed to save settings after updateSettings",
+            saveResult.error,
+          );
+          throw saveResult.error;
+        }
+
+        const customTheme = coercedInput.customTheme;
+        for (const win of BrowserWindow.getAllWindows()) {
+          if (isWindowUsable(win))
+            win.webContents.send("app.customThemeUpdated", customTheme);
+        }
       }),
 
     getServers: tipc.procedure.action(async () =>

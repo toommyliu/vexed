@@ -1,7 +1,7 @@
 <script lang="ts">
   import { motionScale, motionFade } from "@vexed/ui/motion";
+  import { Icon } from "@vexed/ui";
   import { cn } from "@vexed/ui/util";
-  import X from "@vexed/ui/icons/X";
 
   import { onMount, tick } from "svelte";
   import type { Snippet } from "svelte";
@@ -398,7 +398,7 @@
             }}
             aria-label="Close"
           >
-            <X class="size-3" />
+            <Icon icon="x" class="size-3" />
           </button>
         {/if}
       </div>

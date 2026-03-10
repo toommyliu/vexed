@@ -17,12 +17,20 @@ function getPathAliases() {
     const tsconfigContent = readFileSync(tsconfigPath, "utf8");
     const tsconfig = parse(tsconfigContent);
 
-    const paths = tsconfig.compilerOptions?.paths || {};
-    const baseUrl = tsconfig.compilerOptions?.baseUrl || "./";
+    const compilerOptions = tsconfig.compilerOptions || {};
+    const paths = compilerOptions.paths || {};
+    const baseUrl = compilerOptions.baseUrl || "./";
 
     const aliases = {};
 
+    if (!paths || typeof paths !== "object") {
+      return aliases;
+    }
+
     for (const [aliasKey, aliasPaths] of Object.entries(paths)) {
+      if (!Array.isArray(aliasPaths) || aliasPaths.length === 0) {
+        continue;
+      }
       const firstPath = aliasPaths[0];
       const cleanPath = firstPath.replace("/*", "");
       aliases[aliasKey] = resolve(__dirname, baseUrl, cleanPath);
@@ -35,7 +43,9 @@ function getPathAliases() {
   }
 }
 
-const pathAliases = getPathAliases();
+const pathAliases = Object.fromEntries(
+  Object.entries(getPathAliases()).filter(([, value]) => value != null),
+);
 
 /**
  * Creates an esbuild plugin that transforms path alias imports to relative paths.
@@ -106,6 +116,23 @@ function createAliasTransformPlugin(aliases) {
 
 const aliasTransformPlugin = createAliasTransformPlugin(pathAliases);
 
+const filterArkWarningsPlugin = {
+  name: "filter-ark-warnings",
+  setup(build) {
+    build.onEnd((result) => {
+      result.warnings = result.warnings.filter((w) => {
+        const file = w.location?.file || "";
+        const text = w.text || "";
+        const isArk =
+          file.includes("@ark-ui") ||
+          text.includes("@ark-ui") ||
+          file.includes("node_modules/@ark-ui");
+        return !isArk;
+      });
+    });
+  },
+};
+
 const SCRIPT_TARGETS = [
   {
     name: "main",
@@ -137,42 +164,15 @@ const SUB_WINDOWS = [
   "packet-spammer",
 ];
 
-const SVELTE_TARGETS = [
-  {
-    name: "manager",
-    entryPoint: "./src/renderer/apps/manager/main.ts",
-    outfile: "./dist/manager/build/main.js",
-    tsconfigFile: "./src/renderer/apps/manager/tsconfig.json",
-    watchPaths: ["./src/renderer/apps/manager"],
-  },
-  {
-    name: "game",
-    entryPoint: "./src/renderer/apps/game/main.ts",
-    outfile: "./dist/game/build/main.js",
-    tsconfigFile: "./src/renderer/apps/game/tsconfig.json",
-    watchPaths: ["./src/renderer/apps/game"],
-  },
-  {
-    name: "onboarding",
-    entryPoint: "./src/renderer/apps/onboarding/main.ts",
-    outfile: "./dist/onboarding/build/main.js",
-    tsconfigFile: "./src/renderer/apps/game/tsconfig.json",
-    watchPaths: ["./src/renderer/apps/onboarding"],
-  },
-  ...SUB_WINDOWS.map((name) => ({
-    name,
-    entryPoint: "./src/renderer/main.ts",
-    outfile: `./dist/views/${name}/build/main.js`,
-    tsconfigFile: "./src/renderer/apps/game/tsconfig.json",
-    watchPaths: ["./src/renderer/main.ts", `./src/renderer/views/${name}`],
-    aliases: {
-      "virtual:view": resolve(
-        __dirname,
-        `./src/renderer/views/${name}/app.svelte`,
-      ),
-    },
-  })),
-];
+const RENDERER_ENTRYPOINTS = {
+  "manager/build/main": "./src/renderer/apps/manager/main.ts",
+  "game/build/main": "./src/renderer/apps/game/main.ts",
+  "onboarding/build/main": "./src/renderer/apps/onboarding/main.ts",
+  ...SUB_WINDOWS.reduce((acc, name) => {
+    acc[`views/${name}/build/main`] = `./src/renderer/views/${name}/main.ts`;
+    return acc;
+  }, {}),
+};
 
 const CSS_TARGETS = [
   {
@@ -188,8 +188,6 @@ const CSS_TARGETS = [
   },
 ];
 
-const toArray = (value) => (Array.isArray(value) ? value : [value]);
-
 const timed = async (label, fn) => {
   console.time(label);
   try {
@@ -202,14 +200,9 @@ const timed = async (label, fn) => {
   }
 };
 
-const createSvelteConfig = ({
-  entryPoint,
-  outfile,
-  tsconfigFile,
-  aliases = {},
-}) => ({
-  entryPoints: [entryPoint],
-  outfile,
+const createSvelteConfig = ({ entryPoints, outdir }) => ({
+  entryPoints,
+  outdir,
   bundle: true,
   format: "cjs",
   platform: "browser",
@@ -242,15 +235,37 @@ const createSvelteConfig = ({
     js: "require('core-js/stable')",
   },
   plugins: [
-    aliasPath({ alias: { ...pathAliases, ...aliases } }),
+    aliasPath({ alias: pathAliases }),
     sveltePlugin({
       compilerOptions: {
         dev: !isProduction,
         css: "injected",
       },
       preprocess: require("@sveltejs/vite-plugin-svelte").vitePreprocess(),
+      onwarn: (warning, handler) => {
+        // Suppress all Ark UI warnings at the compiler level
+        const filename = warning.filename || "";
+        const code = warning.code || "";
+        if (
+          filename.includes("@ark-ui") ||
+          code.includes("ark-ui") ||
+          filename.includes("node_modules/@ark-ui")
+        ) {
+          return;
+        }
+        // Handle the state_referenced_locally warning specifically for Ark UI
+        if (
+          code === "state_referenced_locally" &&
+          filename.includes("@ark-ui")
+        ) {
+          return;
+        }
+        handler(warning);
+      },
     }),
+    filterArkWarningsPlugin,
   ],
+  logLevel: "error", // Suppress default warning logging
 });
 
 const createCssConfig = ({ entryPoint, outfile }) => ({
@@ -264,7 +279,12 @@ const createCssConfig = ({ entryPoint, outfile }) => ({
     ".woff2": "file",
   },
   assetNames: "assets/[name]-[hash][ext]",
-  plugins: [aliasPath({ alias: pathAliases }), postCssPlugin()],
+  plugins: [
+    aliasPath({ alias: pathAliases }),
+    postCssPlugin(),
+    filterArkWarningsPlugin,
+  ],
+  logLevel: "error",
 });
 
 /**
@@ -272,19 +292,26 @@ const createCssConfig = ({ entryPoint, outfile }) => ({
  * @returns {Promise<string[]>}
  */
 const readdirp = async (dir) => {
-  const dirents = await readdir(dir, { withFileTypes: true });
-  const filtered = dirents.filter((dirent) => {
-    if (dirent.isFile())
-      return !dirent.name.startsWith(".") && dirent.name.endsWith(".ts");
-    return true;
-  });
-  const files = await Promise.all(
-    filtered.map((dirent) => {
-      const res = resolve(dir, dirent.name);
-      return dirent.isDirectory() ? readdirp(res) : res;
-    }),
-  );
-  return Array.prototype.concat(...files);
+  try {
+    const dirents = await readdir(dir, { withFileTypes: true });
+    if (!dirents || dirents.length === 0) {
+      return [];
+    }
+    const filtered = dirents.filter((dirent) => {
+      if (dirent.isFile())
+        return !dirent.name.startsWith(".") && dirent.name.endsWith(".ts");
+      return true;
+    });
+    const files = await Promise.all(
+      filtered.map((dirent) => {
+        const res = resolve(dir, dirent.name);
+        return dirent.isDirectory() ? readdirp(res) : res;
+      }),
+    );
+    return Array.prototype.concat(...files);
+  } catch (error) {
+    return [];
+  }
 };
 
 /**
@@ -455,19 +482,17 @@ async function runWatchMode(commonConfig, svelteConfigs, cssConfigs) {
   });
 
   // 2. Svelte Targets: Use esbuild's native watch
-  await Promise.all(
-    svelteConfigs.map(async (target) => {
-      const config = {
-        ...target.config,
-        plugins: [
-          ...(target.config.plugins || []),
-          createRebuildLoggerPlugin(`${target.name} Svelte`),
-        ],
-      };
-      const ctx = await context(config);
-      await ctx.watch();
-    }),
-  );
+  const svelteConfig = {
+    ...svelteConfigs,
+    plugins: [
+      ...(svelteConfigs.plugins || []),
+      createRebuildLoggerPlugin("renderer Svelte"),
+      filterArkWarningsPlugin,
+    ],
+    logLevel: "error",
+  };
+  const svelteCtx = await context(svelteConfig);
+  await svelteCtx.watch();
 
   // 3. CSS Targets: Use esbuild's native watch
   await Promise.all(
@@ -504,14 +529,12 @@ async function runBuildMode(commonConfig, svelteConfigs, cssConfigs) {
         });
       }),
     ),
-    ...svelteConfigs.map((target) =>
-      timed(`${target.name} svelte took`, async () => {
-        await build(target.config);
-      }),
-    ),
+    timed("renderer svelte took", async () => {
+      await build({ ...svelteConfigs });
+    }),
     ...cssConfigs.map((target) =>
       timed(`${target.name} css took`, async () => {
-        await build(target.config);
+        await build({ ...target.config });
       }),
     ),
     timed("HTML generation took", generateHtmlFiles),
@@ -533,13 +556,18 @@ async function transpile() {
       minify: isProduction,
       sourcemap: !isProduction,
       treeShaking: true,
-      plugins: [aliasTransformPlugin, aliasPath({ alias: pathAliases })],
+      logLevel: "error", // Suppress default warning logging
+      plugins: [
+        aliasTransformPlugin,
+        aliasPath({ alias: pathAliases }),
+        filterArkWarningsPlugin,
+      ],
     };
 
-    const svelteConfigs = SVELTE_TARGETS.map((target) => ({
-      ...target,
-      config: createSvelteConfig(target),
-    }));
+    const rendererSvelteConfig = createSvelteConfig({
+      entryPoints: RENDERER_ENTRYPOINTS,
+      outdir: "./dist",
+    });
 
     const cssConfigs = CSS_TARGETS.map((target) => ({
       ...target,
@@ -547,9 +575,9 @@ async function transpile() {
     }));
 
     if (isWatch) {
-      await runWatchMode(commonConfig, svelteConfigs, cssConfigs);
+      await runWatchMode(commonConfig, rendererSvelteConfig, cssConfigs);
     } else {
-      await runBuildMode(commonConfig, svelteConfigs, cssConfigs);
+      await runBuildMode(commonConfig, rendererSvelteConfig, cssConfigs);
     }
   } catch (error) {
     console.log(`An error occurred while transpiling: ${error}`);
