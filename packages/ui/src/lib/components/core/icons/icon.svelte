@@ -68,7 +68,7 @@
               : color === "warning"
                 ? "text-warning"
                 : color === "danger"
-                  ? "text-danger"
+                  ? "text-destructive"
                   : "",
   );
 </script>
