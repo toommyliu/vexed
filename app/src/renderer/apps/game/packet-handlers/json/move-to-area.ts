@@ -17,12 +17,15 @@ registerJsonHandler<MoveToAreaPacket>("moveToArea", (bot, packet) => {
     ]) ?? [],
   );
   for (const mon of packet.monBranch ?? []) {
-    const def = monDefMap.get(Number(mon.MonID));
-    const mapInfo = monMapMap.get(Number(mon.MonMapID));
+    const monId = Number(mon.MonID);
+    const monMapId = Number(mon.MonMapID);
+
+    const def = monDefMap.get(monId);
+    const mapInfo = monMapMap.get(monMapId);
 
     const obj = {
-      monId: Number(mon.MonID),
-      monMapId: Number(mon.MonMapID),
+      monId,
+      monMapId,
       iLvl: mon.iLvl,
       intHP: mon.intHP,
       intHPMax: mon.intHPMax,
