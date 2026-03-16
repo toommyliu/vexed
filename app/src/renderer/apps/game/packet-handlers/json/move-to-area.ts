@@ -8,18 +8,24 @@ registerJsonHandler<MoveToAreaPacket>("moveToArea", (bot, packet) => {
 
   // save monster data
   const monDefMap = new Map(
-    packet.mondef?.map((def) => [def.MonID, def]) ?? [],
+    packet.mondef?.map((def) => [Number(def.MonID), def]) ?? [],
   );
   const monMapMap = new Map(
-    packet.monmap?.map((monMapInfo) => [monMapInfo.MonMapID, monMapInfo]) ?? [],
+    packet.monmap?.map((monMapInfo) => [
+      Number(monMapInfo.MonMapID),
+      monMapInfo,
+    ]) ?? [],
   );
   for (const mon of packet.monBranch ?? []) {
-    const def = monDefMap.get(mon.MonID);
-    const mapInfo = monMapMap.get(String(mon.MonMapID));
+    const monId = Number(mon.MonID);
+    const monMapId = Number(mon.MonMapID);
+
+    const def = monDefMap.get(monId);
+    const mapInfo = monMapMap.get(monMapId);
 
     const obj = {
-      monId: Number(mon.MonID),
-      monMapId: mon.MonMapID,
+      monId,
+      monMapId,
       iLvl: mon.iLvl,
       intHP: mon.intHP,
       intHPMax: mon.intHPMax,
