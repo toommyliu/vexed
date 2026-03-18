@@ -6,6 +6,7 @@
   import { validity } from "$lib/attachments/validity";
 
   interface Props extends Omit<HTMLInputAttributes, "size"> {
+    ref?: HTMLInputElement | null;
     value?: any;
     size?: "sm" | "default" | "lg" | number;
     unstyled?: boolean;
@@ -13,6 +14,7 @@
 
   let {
     class: className = undefined,
+    ref = $bindable(null),
     value = $bindable(),
     size = "default",
     unstyled = false,
@@ -31,11 +33,16 @@
   class={cn(
     !unstyled && [
       "relative inline-flex w-full rounded-lg border border-input bg-background bg-clip-padding text-sm/5 shadow-xs transition-shadow before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(theme(borderRadius.lg)-1px)] before:content-['']",
-      focused && !valid && "border-destructive ring-[3px] ring-destructive/20 shadow-none",
+      focused &&
+        !valid &&
+        "border-destructive ring-[3px] ring-destructive/20 shadow-none",
       focused && valid && "border-ring ring-[3px] ring-ring/20 shadow-none",
       !focused && !valid && "border-destructive",
       disabled && "opacity-50 shadow-none",
-      !focused && valid && !disabled && "before:shadow-[0_1px_rgba(0,0,0,0.04)] dark:before:shadow-[0_-1px_rgba(255,255,255,0.06)]",
+      !focused &&
+        valid &&
+        !disabled &&
+        "before:shadow-[0_1px_rgba(0,0,0,0.04)] dark:before:shadow-[0_-1px_rgba(255,255,255,0.06)]",
       className,
     ],
   ) || undefined}
@@ -57,6 +64,7 @@
     )}
     data-slot="input"
     {type}
+    bind:this={ref}
     bind:value
     {...restProps}
   />

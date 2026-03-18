@@ -15,6 +15,21 @@ export function equalsIgnoreCase(
   return a.toLowerCase() === b.toLowerCase();
 }
 
+export function includesIgnoreCase(
+  text: string | null | undefined,
+  query: string | null | undefined,
+) {
+  if (
+    text === null ||
+    query === null ||
+    text === undefined ||
+    query === undefined
+  )
+    return false;
+
+  return text.toLowerCase().includes(query.toLowerCase());
+}
+
 /*
  * Fuzzy match check - all words in the query must appear in the text.
  *

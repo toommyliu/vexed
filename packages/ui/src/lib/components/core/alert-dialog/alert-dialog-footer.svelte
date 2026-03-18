@@ -13,6 +13,7 @@
   } = $props();
 </script>
 
+<!-- TODO: default to bare, add underline variant? -->
 <div
   bind:this={ref}
   data-slot="alert-dialog-footer"

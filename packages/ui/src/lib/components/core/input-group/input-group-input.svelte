@@ -4,12 +4,14 @@
   import type { HTMLInputAttributes } from "svelte/elements";
 
   interface Props extends Omit<HTMLInputAttributes, "size"> {
+    ref?: HTMLInputElement | null;
     value?: any;
     size?: "sm" | "default" | "lg" | number;
     class?: string;
   }
 
   let {
+    ref = $bindable(null),
     value = $bindable(),
     size = "default",
     class: className = undefined,
@@ -25,4 +27,4 @@
   });
 </script>
 
-<Input bind:value {size} class={className} unstyled {...restProps} />
+<Input bind:ref bind:value {size} class={className} unstyled {...restProps} />

@@ -46,7 +46,7 @@
   class={cn(
     "z-10 border-border/50 bg-background/95",
     orientation === "vertical"
-      ? "sticky top-0 border-b px-6 py-3"
+      ? "sticky top-0 border-b px-6 py-1"
       : "sticky left-0 h-screen w-64 border-r px-4 py-4",
     className,
   )}
