@@ -1,11 +1,21 @@
 <script lang="ts">
-  import { AlertDialog, Button, Icon, Input, InputGroup } from "@vexed/ui";
+  import {
+    AlertDialog,
+    AppFrame,
+    Button,
+    Icon,
+    Input,
+    InputGroup,
+    TooltipButton,
+    Switch,
+  } from "@vexed/ui";
   import { cn } from "@vexed/ui/util";
+  import { equalsIgnoreCase } from "@vexed/utils/string";
   import { onMount } from "svelte";
   import { Result } from "better-result";
 
-  import AddFastTravelModal from "./components/add-fast-travel-modal.svelte";
-  import EditFastTravelModal from "./components/edit-fast-travel-modal.svelte";
+  import AddFastTravelDialog from "./components/add-fast-travel-dialog.svelte";
+  import EditFastTravelDialog from "./components/edit-fast-travel-dialog.svelte";
 
   import type { FastTravel } from "~/shared/fast-travels/types";
   import { client, handlers } from "~/shared/tipc";
@@ -15,6 +25,7 @@
   let disabled = $state(false);
   let isLoading = $state(true);
   let searchQuery = $state("");
+  let useRoomNumber = $state(false);
 
   let isAddOpen = $state(false);
   let isEditOpen = $state(false);
@@ -25,45 +36,75 @@
   let deleteDialogError = $state("");
   let pendingDeleteName = $state<string | null>(null);
 
-  let filteredLocations = $derived(
+  const normalizedSearchQuery = $derived(searchQuery.trim().toLowerCase());
+  const filteredLocations = $derived(
     locations.filter((loc) =>
-      loc.name.toLowerCase().includes(searchQuery.toLowerCase()),
+      loc.name.toLowerCase().includes(normalizedSearchQuery),
     ),
   );
-  let timeoutId = $state<NodeJS.Timeout | null>(null);
+  let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
   async function doFastTravel(location: FastTravel) {
     disabled = true;
 
     if (timeoutId) clearTimeout(timeoutId);
     timeoutId = setTimeout(() => {
-      if (!disabled) {
-        return;
-      }
-      console.log("releasing");
-      disabled = false;
+      timeoutId = null;
+      if (disabled) disabled = false;
     }, 10_000);
-    await client.fastTravels.warp({
-      location: { ...location, roomNumber },
-    });
-    disabled = false;
+
+    try {
+      await client.fastTravels.warp({
+        location: { ...location, roomNumber },
+      });
+    } catch (error) {
+      console.error("Failed to fast travel", error);
+    } finally {
+      disabled = false;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+      }
+    }
   }
 
-  handlers.fastTravels.enable.listen(() => (disabled = false));
+  onMount(() => {
+    let cancelled = false;
 
-  onMount(async () => {
-    const serialized = await client.fastTravels.all().then((result) => {
-      isLoading = false;
-      return result;
-    });
-    const result = Result.deserialize(serialized);
-    if (result.isOk()) locations = result.value as FastTravel[];
-    else console.error(result.error);
+    (async () => {
+      try {
+        const serialized = await client.fastTravels.all();
+        if (cancelled) return;
+
+        const result = Result.deserialize(serialized);
+        if (result.isOk()) locations = result.value as FastTravel[];
+        else console.error(result.error);
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Failed to load fast travels", error);
+        }
+      } finally {
+        // if (!cancelled) isLoading = false;
+        setTimeout(() => {
+          if (!cancelled) isLoading = false;
+        }, 0);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+      }
+    };
   });
 
   $effect(() => {
     if (roomNumber < 1 || roomNumber > 100_000) roomNumber = 100_000;
   });
+
+  handlers.fastTravels.enable.listen(() => (disabled = false));
 
   function handleAddSuccess(fastTravel: FastTravel) {
     locations = [...locations, fastTravel];
@@ -85,23 +126,32 @@
   async function confirmDelete() {
     if (!pendingDeleteName) return;
 
+    const nameToDelete = pendingDeleteName;
     deleteDialogLoading = true;
     deleteDialogError = "";
 
-    const success = await client.fastTravels.remove({
-      name: pendingDeleteName,
-    });
+    try {
+      const success = await client.fastTravels.remove({
+        name: nameToDelete,
+      });
 
-    deleteDialogLoading = false;
+      if (success) {
+        locations = locations.filter(
+          (loc) => !equalsIgnoreCase(loc.name, nameToDelete),
+        );
+        deleteDialogOpen = false;
+        if (pendingDeleteName === nameToDelete) {
+          pendingDeleteName = null;
+        }
+        return;
+      }
 
-    if (success) {
-      locations = locations.filter(
-        (loc) => loc.name.toLowerCase() !== pendingDeleteName!.toLowerCase(),
-      );
-      deleteDialogOpen = false;
-      pendingDeleteName = null;
-    } else {
       deleteDialogError = "Failed to remove location. Please try again.";
+    } catch (error) {
+      deleteDialogError = "Failed to remove location. Please try again.";
+      console.error("Failed to remove location", error);
+    } finally {
+      deleteDialogLoading = false;
     }
   }
 
@@ -114,30 +164,18 @@
   }
 </script>
 
-<div class="flex h-screen flex-col bg-background">
-  <header
-    class="elevation-1 sticky top-0 z-10 border-b border-border/50 bg-background/95 px-6 py-3 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80"
-  >
-    <div class="mx-auto flex max-w-7xl items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div>
-          <h1 class="text-base font-semibold tracking-tight text-foreground">
-            Fast Travels
-          </h1>
-        </div>
-      </div>
+<AppFrame.Root>
+  <AppFrame.Header title="Fast Travels">
+    {#snippet right()}
+      <Button size="sm" class="gap-2" onclick={() => (isAddOpen = true)}>
+        <Icon icon="plus" size="md" />
+        <span class="hidden sm:inline">Add Location</span>
+      </Button>
+    {/snippet}
+  </AppFrame.Header>
 
-      <div class="flex items-center gap-2">
-        <Button size="sm" class="gap-2" onclick={() => (isAddOpen = true)}>
-          <Icon icon="plus" size="md" />
-          <span class="hidden sm:inline">Add Location</span>
-        </Button>
-      </div>
-    </div>
-  </header>
-
-  <main class="flex-1 overflow-hidden p-4 sm:p-6">
-    <div class="mx-auto flex h-full max-w-7xl flex-col gap-3">
+  <AppFrame.Body>
+    <div class="flex h-full flex-col gap-3">
       <div class="flex flex-col gap-3">
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div class="relative">
@@ -148,19 +186,21 @@
             <Input
               type="search"
               placeholder="Search locations..."
-              class="border-border/50 bg-secondary/50 pl-10 transition-colors focus:bg-background"
+              class="bg-secondary/50 pl-10 transition-colors focus:bg-background"
               bind:value={searchQuery}
+              spellcheck={false}
             />
           </div>
 
           <InputGroup.Root
-            class="border-border/50 bg-secondary/50 transition-colors focus-within:bg-background"
+            class="bg-secondary/50 transition-colors focus-within:bg-background"
           >
             <InputGroup.Addon>
+              <Switch bind:checked={useRoomNumber} size="sm" />
               <InputGroup.Text
                 class="whitespace-nowrap text-xs font-medium text-muted-foreground"
               >
-                Room number
+                Room Number
               </InputGroup.Text>
             </InputGroup.Addon>
             <Input
@@ -170,6 +210,7 @@
               min={1}
               max={100_000}
               autocomplete="off"
+              disabled={!useRoomNumber}
             />
           </InputGroup.Root>
         </div>
@@ -181,17 +222,15 @@
             >{filteredLocations.length}</span
           >
           <span class="text-muted-foreground/70"
-            >location{filteredLocations.length !== 1 ? "s" : ""}</span
+            >location{filteredLocations.length === 1 ? "" : "s"}</span
           >
         </span>
       </div>
 
       <div class="relative -mx-1 flex-1 overflow-auto px-1">
         {#if isLoading}
-          <div
-            class="flex h-full flex-col items-center justify-center gap-3 text-muted-foreground"
-          >
-            <Icon icon="loader" size="xl" class="text-primary" spin />
+          <div class="flex h-full flex-col items-center justify-center gap-3">
+            <Icon icon="loader" size="xl" spin />
             <p class="text-sm">Loading locations...</p>
           </div>
         {:else if filteredLocations.length === 0}
@@ -209,11 +248,16 @@
                   "hover:elevation-1 border-border/50 bg-card hover:border-border hover:bg-secondary/30",
                   disabled && "cursor-not-allowed opacity-50",
                 )}
-                onclick={() => !disabled && doFastTravel(location)}
+                onclick={() => {
+                  if (!disabled) void doFastTravel(location);
+                }}
                 role="button"
                 tabindex="0"
-                onkeydown={(ev: KeyboardEvent) =>
-                  ev.key === "Enter" && !disabled && doFastTravel(location)}
+                onkeydown={(ev: KeyboardEvent) => {
+                  if (ev.key === "Enter" && !disabled) {
+                    void doFastTravel(location);
+                  }
+                }}
               >
                 <div class="min-w-0 flex-1">
                   <div class="truncate text-base font-medium text-foreground">
@@ -229,43 +273,49 @@
                 <div
                   class="flex items-center gap-0.5 opacity-0 transition-opacity duration-150 group-hover:opacity-100"
                 >
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    class="h-7 w-7 text-muted-foreground hover:bg-primary/10 hover:text-primary"
-                    onclick={(ev: MouseEvent) => {
-                      ev.stopPropagation();
-                      if (!disabled) doFastTravel(location);
-                    }}
-                    {disabled}
-                  >
-                    <Icon icon="play" size="sm" />
-                  </Button>
+                  <TooltipButton tooltip="Warp to this location">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      class="h-7 w-7 text-muted-foreground hover:bg-primary/10 hover:text-primary"
+                      onclick={(ev: MouseEvent) => {
+                        ev.stopPropagation();
+                        if (!disabled) void doFastTravel(location);
+                      }}
+                      {disabled}
+                    >
+                      <Icon icon="play" size="sm" />
+                    </Button>
+                  </TooltipButton>
 
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    class="h-7 w-7 text-muted-foreground hover:bg-secondary hover:text-foreground"
-                    onclick={(ev: MouseEvent) => {
-                      ev.stopPropagation();
-                      editingLocation = location;
-                      isEditOpen = true;
-                    }}
-                  >
-                    <Icon icon="pencil" size="sm" />
-                  </Button>
+                  <TooltipButton tooltip="Edit this location">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      class="h-7 w-7 text-muted-foreground hover:bg-secondary hover:text-foreground"
+                      onclick={(ev: MouseEvent) => {
+                        ev.stopPropagation();
+                        editingLocation = location;
+                        isEditOpen = true;
+                      }}
+                    >
+                      <Icon icon="pencil" size="sm" />
+                    </Button>
+                  </TooltipButton>
 
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    class="h-7 w-7 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                    onclick={(ev: MouseEvent) => {
-                      ev.stopPropagation();
-                      handleRemove(location.name);
-                    }}
-                  >
-                    <Icon icon="trash" size="sm" />
-                  </Button>
+                  <TooltipButton tooltip="Remove this location">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      class="h-7 w-7 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                      onclick={(ev: MouseEvent) => {
+                        ev.stopPropagation();
+                        handleRemove(location.name);
+                      }}
+                    >
+                      <Icon icon="trash" size="sm" />
+                    </Button>
+                  </TooltipButton>
                 </div>
               </div>
             {/each}
@@ -273,18 +323,18 @@
         {/if}
       </div>
     </div>
-  </main>
-</div>
+  </AppFrame.Body>
+</AppFrame.Root>
 
-<AddFastTravelModal
+<AddFastTravelDialog
   isOpen={isAddOpen}
   onClose={() => (isAddOpen = false)}
   onSuccess={handleAddSuccess}
 />
 
-<EditFastTravelModal
-  isOpen={isEditOpen}
+<EditFastTravelDialog
   fastTravel={editingLocation}
+  isOpen={isEditOpen}
   onClose={() => {
     isEditOpen = false;
     editingLocation = null;
@@ -305,14 +355,14 @@
         {/if}
       </AlertDialog.Description>
     </AlertDialog.Header>
-    <AlertDialog.Footer>
+    <AlertDialog.Footer variant="bare">
       <Button
         variant="outline"
         onclick={cancelDelete}
         disabled={deleteDialogLoading}
         class="min-w-[80px]"
       >
-        Cancel
+        No, keep it
       </Button>
       <Button
         variant="destructive"
@@ -324,7 +374,7 @@
           <Icon icon="loader" size="md" spin />
           <span>Removing...</span>
         {:else}
-          <span>Remove</span>
+          <span>Yes, remove it</span>
         {/if}
       </Button>
     </AlertDialog.Footer>
