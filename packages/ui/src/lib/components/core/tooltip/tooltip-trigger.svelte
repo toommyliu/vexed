@@ -1,16 +1,12 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
   import type { HTMLButtonAttributes } from "svelte/elements";
-  import { TooltipTrigger } from "@ark-ui/svelte/tooltip";
+  import { getTooltipContext } from "./tooltip-context.svelte";
 
   interface TooltipTriggerProps extends HTMLButtonAttributes {
     ref?: HTMLButtonElement | null;
     class?: string;
     children?: Snippet;
-    /**
-     * Render-prop slot for a custom trigger element (composition pattern).
-     * Ark UI handles the `asChild` prop internally; pass `asChild` when using `child`.
-     */
     child?: Snippet<[{ props: Record<string, unknown> }]>;
   }
 
@@ -22,27 +18,60 @@
     disabled,
     ...restProps
   }: TooltipTriggerProps = $props();
+
+  const state = getTooltipContext();
+
+  $effect(() => {
+    state.setTriggerEl(ref);
+  });
+
+  function onMouseEnter() {
+    if (disabled) return;
+    state.show();
+  }
+
+  function onMouseLeave() {
+    state.hide();
+  }
+
+  function onFocus() {
+    if (disabled) return;
+    state.show();
+  }
+
+  function onBlur() {
+    state.hide();
+  }
+
+  function onKeyDown(e: KeyboardEvent) {
+    state.handleKeyDown(e);
+    // @ts-ignore
+    restProps.onkeydown?.(e);
+  }
+
+  const triggerProps = $derived({
+    "data-tooltip-id": state.contentId,
+    "aria-describedby": state.open ? state.contentId : undefined,
+    "data-state": state.open ? "open" : "closed",
+    onmouseenter: onMouseEnter,
+    onmouseleave: onMouseLeave,
+    onfocus: onFocus,
+    onblur: onBlur,
+    onkeydown: onKeyDown,
+    disabled,
+    class: className,
+    ref: (el: HTMLElement | null) => {
+      ref = el as any;
+      state.setTriggerEl(el);
+    },
+    ...restProps,
+  });
 </script>
 
 {#if child}
-  <TooltipTrigger>
-    {#snippet asChild(propsFn)}
-      {@const triggerProps = propsFn({
-        class: className,
-        disabled,
-        ...restProps,
-      })}
-      {@render child({ props: { ...triggerProps, ref } })}
-    {/snippet}
-  </TooltipTrigger>
+  {@render child({ props: { ...triggerProps } })}
 {:else}
-  <TooltipTrigger
-    bind:ref
-    data-slot="tooltip-trigger"
-    class={className}
-    {disabled}
-    {...restProps}
-  >
+  <button bind:this={ref} data-slot="tooltip-trigger" {...triggerProps}>
     {@render children?.()}
-  </TooltipTrigger>
+  </button>
 {/if}
