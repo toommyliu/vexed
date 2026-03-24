@@ -31,7 +31,7 @@
 </script>
 
 <Checkbox.Root
-  {id}
+  id={id ? `${id}-root` : undefined}
   {name}
   {value}
   {disabled}
@@ -81,5 +81,5 @@
   {#if label}
     <Checkbox.Label {...labelProps}>{label}</Checkbox.Label>
   {/if}
-  <Checkbox.HiddenInput />
+  <Checkbox.HiddenInput {id} />
 </Checkbox.Root>
