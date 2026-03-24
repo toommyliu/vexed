@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Button, Checkbox, Icon, Label, Tabs } from "@vexed/ui";
+  import { AppFrame, Button, Checkbox, Icon, Label, Tabs } from "@vexed/ui";
   import { cn } from "@vexed/ui/util";
 
   import { v4 as uuid } from "@lukeed/uuid";
@@ -156,17 +156,9 @@
   });
 </script>
 
-<div class="flex h-screen flex-col bg-background">
-  <header
-    class="elevation-1 sticky top-0 z-10 border-b border-border/50 bg-background/95 px-6 py-3 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80"
-  >
-    <div class="mx-auto flex max-w-7xl items-center justify-between">
-      <div class="flex items-center gap-3">
-        <h1 class="text-base font-semibold tracking-tight text-foreground">
-          Packet Logger
-        </h1>
-      </div>
-
+<AppFrame.Root>
+  <AppFrame.Header title="Packet Logger">
+    {#snippet right()}
       <div class="flex items-center gap-2">
         <Button
           variant="outline"
@@ -203,11 +195,11 @@
           {/if}
         </Button>
       </div>
-    </div>
-  </header>
+    {/snippet}
+  </AppFrame.Header>
 
-  <main class="flex-1 overflow-hidden p-4 sm:p-6">
-    <div class="mx-auto flex h-full max-w-7xl flex-col gap-4">
+  <AppFrame.Body scroll={false}>
+    <div class="flex h-full flex-col gap-4">
       <Tabs.Root bind:value={currentFilter} class="flex h-full flex-col gap-4">
         <div
           class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
@@ -353,5 +345,5 @@
         </div>
       </Tabs.Root>
     </div>
-  </main>
-</div>
+  </AppFrame.Body>
+</AppFrame.Root>
