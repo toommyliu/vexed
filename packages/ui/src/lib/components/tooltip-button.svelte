@@ -12,6 +12,7 @@
     /** The tooltip text or rich snippet to display. */
     tooltip: string | Snippet;
     children?: Snippet;
+    child?: Snippet<[{ props: Record<string, unknown> }]>;
     /** Extra classes applied to the tooltip content. */
     contentClass?: string;
     /** Delay before the tooltip opens, in ms. Defaults to 0. */
@@ -25,6 +26,7 @@
   let {
     tooltip,
     children,
+    child,
     class: className,
     contentClass,
     delayDuration = 0,
@@ -41,6 +43,7 @@
       className,
     )}
     {...restProps}
+    {child}
   >
     {@render children?.()}
   </TooltipTrigger>

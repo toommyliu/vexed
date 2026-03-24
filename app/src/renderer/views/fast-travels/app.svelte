@@ -55,7 +55,7 @@
 
     try {
       await client.fastTravels.warp({
-        location: { ...location, roomNumber },
+        location: { ...location, roomNumber: useRoomNumber ? roomNumber : 1 },
       });
     } catch (error) {
       console.error("Failed to fast travel", error);
@@ -112,7 +112,7 @@
 
   function handleEditSuccess(originalName: string, fastTravel: FastTravel) {
     locations = locations.map((loc) =>
-      loc.name.toLowerCase() === originalName.toLowerCase() ? fastTravel : loc,
+      equalsIgnoreCase(loc.name, originalName) ? fastTravel : loc,
     );
   }
 
@@ -181,7 +181,8 @@
           <div class="relative">
             <Icon
               icon="search"
-              class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+              size="md"
+              class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
             />
             <Input
               type="search"
@@ -216,18 +217,7 @@
         </div>
       </div>
 
-      <div class="flex items-center justify-between text-sm">
-        <span class="text-muted-foreground">
-          <span class="font-medium tabular-nums text-foreground"
-            >{filteredLocations.length}</span
-          >
-          <span class="text-muted-foreground/70"
-            >location{filteredLocations.length === 1 ? "" : "s"}</span
-          >
-        </span>
-      </div>
-
-      <div class="relative -mx-1 flex-1 overflow-auto px-1">
+      <div class="relative -mx-1 flex-1 overflow-auto px-1 pt-2" tabindex="-1">
         {#if isLoading}
           <div class="flex h-full flex-col items-center justify-center gap-3">
             <Icon icon="loader" size="xl" spin />
@@ -246,6 +236,7 @@
                 class={cn(
                   "group flex cursor-pointer items-center gap-4 rounded-xl border px-4 py-4 transition-all duration-150",
                   "hover:elevation-1 border-border/50 bg-card hover:border-border hover:bg-secondary/30",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background",
                   disabled && "cursor-not-allowed opacity-50",
                 )}
                 onclick={() => {
@@ -271,50 +262,59 @@
                 </div>
 
                 <div
-                  class="flex items-center gap-0.5 opacity-0 transition-opacity duration-150 group-hover:opacity-100"
+                  class="flex items-center gap-0.5 opacity-0 transition-opacity duration-150 group-focus-within:opacity-100 group-hover:opacity-100"
                 >
                   <TooltipButton tooltip="Warp to this location">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      class="h-7 w-7 text-muted-foreground hover:bg-primary/10 hover:text-primary"
-                      onclick={(ev: MouseEvent) => {
-                        ev.stopPropagation();
-                        if (!disabled) void doFastTravel(location);
-                      }}
-                      {disabled}
-                    >
-                      <Icon icon="play" size="sm" />
-                    </Button>
+                    {#snippet child({ props })}
+                      <Button
+                        {...props}
+                        variant="ghost"
+                        size="icon"
+                        class="h-7 w-7 text-muted-foreground hover:bg-primary/10 hover:text-primary"
+                        onclick={(ev: MouseEvent) => {
+                          ev.stopPropagation();
+                          if (!disabled) void doFastTravel(location);
+                        }}
+                        {disabled}
+                      >
+                        <Icon icon="play" size="sm" />
+                      </Button>
+                    {/snippet}
                   </TooltipButton>
 
                   <TooltipButton tooltip="Edit this location">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      class="h-7 w-7 text-muted-foreground hover:bg-secondary hover:text-foreground"
-                      onclick={(ev: MouseEvent) => {
-                        ev.stopPropagation();
-                        editingLocation = location;
-                        isEditOpen = true;
-                      }}
-                    >
-                      <Icon icon="pencil" size="sm" />
-                    </Button>
+                    {#snippet child({ props })}
+                      <Button
+                        {...props}
+                        variant="ghost"
+                        size="icon"
+                        class="h-7 w-7 text-muted-foreground hover:bg-secondary hover:text-foreground"
+                        onclick={(ev: MouseEvent) => {
+                          ev.stopPropagation();
+                          editingLocation = location;
+                          isEditOpen = true;
+                        }}
+                      >
+                        <Icon icon="pencil" size="sm" />
+                      </Button>
+                    {/snippet}
                   </TooltipButton>
 
                   <TooltipButton tooltip="Remove this location">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      class="h-7 w-7 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                      onclick={(ev: MouseEvent) => {
-                        ev.stopPropagation();
-                        handleRemove(location.name);
-                      }}
-                    >
-                      <Icon icon="trash" size="sm" />
-                    </Button>
+                    {#snippet child({ props })}
+                      <Button
+                        {...props}
+                        variant="ghost"
+                        size="icon"
+                        class="h-7 w-7 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                        onclick={(ev: MouseEvent) => {
+                          ev.stopPropagation();
+                          handleRemove(location.name);
+                        }}
+                      >
+                        <Icon icon="trash" size="sm" />
+                      </Button>
+                    {/snippet}
                   </TooltipButton>
                 </div>
               </div>
