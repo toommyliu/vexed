@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Button, Checkbox, Input, Label, Icon } from "@vexed/ui";
+  import { Button, Icon, AppFrame } from "@vexed/ui";
   import { onMount } from "svelte";
   import { normalizeId } from "@vexed/utils/id";
 
@@ -9,6 +9,10 @@
   } from "~/shared/environment/helpers";
   import type { EnvironmentState } from "~/shared/environment/types";
   import { client, handlers } from "~/shared/tipc";
+
+  import QuestsSection from "./components/QuestsSection.svelte";
+  import DropsSection from "./components/DropsSection.svelte";
+  import BoostsSection from "./components/BoostsSection.svelte";
 
   let questInput = $state("");
   let dropInput = $state("");
@@ -350,384 +354,70 @@
   }
 </script>
 
-<div class="flex h-screen flex-col bg-background">
-  <header
-    class="sticky top-0 z-10 border-b border-border/50 bg-background/95 px-6 py-3 supports-[backdrop-filter]:bg-background/80"
-  >
-    <div class="mx-auto flex max-w-7xl items-center justify-between">
-      <div class="flex items-center gap-3">
-        <h1 class="text-base font-semibold tracking-tight text-foreground">
-          Environment
-        </h1>
-      </div>
+<AppFrame.Root>
+  <AppFrame.Header title="Environment">
+    {#snippet right()}
       <div class="flex items-center gap-2">
         <Button
-          variant="ghost"
+          variant="outline"
           size="sm"
-          class="h-7 gap-1.5 text-xs text-destructive"
+          class="h-7 gap-1.5 border-border/40 text-xs text-destructive hover:bg-destructive/5"
           onclick={clearAll}
         >
           <Icon icon="trash" size="sm" />
-          Clear all
+          <span>Clear all</span>
         </Button>
         <Button
           variant="outline"
           size="sm"
-          class="h-7 gap-1.5 border-border/50 text-xs"
+          class="h-7 gap-1.5 border-border/40 text-xs"
           onclick={broadcastToAll}
           disabled={isBroadcasting}
         >
           <Icon icon="share" size="sm" />
-          Sync to all
+          <span>Sync to all</span>
         </Button>
       </div>
+    {/snippet}
+  </AppFrame.Header>
+
+  <AppFrame.Body maxWidth="max-w-7xl">
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <QuestsSection
+        {questInput}
+        {questIds}
+        {questItemIds}
+        {autoRegisterRequirements}
+        {autoRegisterRewards}
+        onQuestInputInput={(value) => (questInput = value)}
+        onQuestSubmit={handleQuestSubmit}
+        onClearQuests={clearQuests}
+        onRemoveQuest={removeQuest}
+        onUpdateQuestItemId={updateQuestItemId}
+        onAutoRegisterRequirementsChange={updateAutoRegisterRequirements}
+        onAutoRegisterRewardsChange={updateAutoRegisterRewards}
+      />
+
+      <DropsSection
+        {dropInput}
+        {dropItems}
+        {rejectElse}
+        onDropInputInput={(value) => (dropInput = value)}
+        onDropSubmit={handleDropSubmit}
+        onClearDrops={clearDrops}
+        onRemoveDrop={removeDrop}
+        onRejectElseChange={updateRejectElse}
+      />
+
+      <BoostsSection
+        {boostInput}
+        {boostItems}
+        onBoostInputInput={(value) => (boostInput = value)}
+        onBoostSubmit={handleBoostSubmit}
+        onClearBoosts={clearBoosts}
+        onGrabBoosts={grabBoosts}
+        onRemoveBoost={removeBoost}
+      />
     </div>
-  </header>
-
-  <main class="flex-1 overflow-auto p-4 sm:p-6">
-    <div class="mx-auto max-w-7xl">
-      <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <section
-          class="flex flex-col rounded-xl border border-border/50 bg-card"
-        >
-          <div
-            class="relative flex min-h-[52px] items-center justify-between border-b border-border/50 px-4 py-3"
-          >
-            <div
-              class="absolute bottom-3 left-0 top-3 w-0.5 rounded-full bg-blue-500/80"
-            ></div>
-            <div class="flex items-center gap-2">
-              <h2
-                class="text-sm font-semibold tracking-tight text-foreground/90"
-              >
-                Quests
-              </h2>
-              {#if questIds.length > 0}
-                <span
-                  class="rounded bg-blue-500/10 px-1.5 py-0.5 text-[10px] font-bold tabular-nums text-blue-500/80"
-                >
-                  {questIds.length}
-                </span>
-              {/if}
-            </div>
-            {#if questIds.length > 0}
-              <Button
-                variant="ghost"
-                size="sm"
-                class="h-7 gap-1.5 text-xs text-destructive"
-                onclick={clearQuests}
-              >
-                <Icon icon="trash" size="sm" />
-                Clear
-              </Button>
-            {/if}
-          </div>
-
-          <div class="flex flex-col gap-3 p-4">
-            <form class="flex items-center gap-2" onsubmit={handleQuestSubmit}>
-              <Input
-                type="text"
-                placeholder="Enter quest ID..."
-                bind:value={questInput}
-                class="flex-1 border-border/50 bg-secondary/50"
-              />
-              <Button
-                type="submit"
-                size="sm"
-                class="gap-1.5"
-                disabled={!questInput.trim()}
-              >
-                <Icon icon="plus" size="md" />
-                Add
-              </Button>
-            </form>
-
-            <div class="max-h-32 min-h-[80px] overflow-y-auto">
-              {#if questIds.length === 0}
-                <div class="flex h-20 items-center justify-center">
-                  <span class="text-xs text-muted-foreground/70"
-                    >No quests registered</span
-                  >
-                </div>
-              {:else}
-                <div class="flex flex-wrap gap-1.5">
-                  {#each questIds as questId (questId)}
-                    <span
-                      class="group inline-flex items-center gap-1 rounded-full border border-border/50 bg-secondary/50 px-2 py-1 text-xs font-medium text-foreground transition-colors hover:bg-secondary"
-                    >
-                      <span class="tabular-nums">{questId}</span>
-                      {#if questItemIds[questId] !== undefined}
-                        <span class="text-muted-foreground">:</span>
-                        <input
-                          type="number"
-                          class="w-14 border-none bg-transparent text-xs tabular-nums text-foreground outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                          value={String(questItemIds[questId])}
-                          onblur={(ev) =>
-                            updateQuestItemId(questId, ev.currentTarget.value)}
-                          onkeydown={(ev) => {
-                            if (ev.key === "Enter") {
-                              ev.currentTarget.blur();
-                            }
-                          }}
-                        />
-                      {:else}
-                        <input
-                          type="text"
-                          class="w-12 border-none bg-transparent text-xs tabular-nums text-foreground opacity-0 outline-none transition-opacity placeholder:text-muted-foreground/40 focus:opacity-100 group-hover:opacity-100"
-                          placeholder=":itemId"
-                          onblur={(ev) => {
-                            if (ev.currentTarget.value.trim()) {
-                              updateQuestItemId(
-                                questId,
-                                ev.currentTarget.value,
-                              );
-                            }
-                          }}
-                          onkeydown={(ev) => {
-                            if (ev.key === "Enter") {
-                              ev.currentTarget.blur();
-                            }
-                          }}
-                        />
-                      {/if}
-                      <button
-                        type="button"
-                        class="flex h-4 w-4 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/20 hover:text-destructive"
-                        onclick={() => removeQuest(questId)}
-                      >
-                        <Icon icon="x" size="xs" />
-                      </button>
-                    </span>
-                  {/each}
-                </div>
-              {/if}
-            </div>
-
-            <div class="flex flex-col gap-2.5 border-t border-border/50 pt-3">
-              <div class="flex items-center gap-2">
-                <Checkbox
-                  id="auto-requirements"
-                  checked={autoRegisterRequirements}
-                  onCheckedChange={(checked) =>
-                    updateAutoRegisterRequirements(Boolean(checked))}
-                  label="Auto register requirements"
-                  labelProps={{
-                    class: "cursor-pointer text-xs text-muted-foreground",
-                  }}
-                />
-              </div>
-              <div class="flex items-center gap-2">
-                <Checkbox
-                  id="auto-rewards"
-                  checked={autoRegisterRewards}
-                  onCheckedChange={(checked) =>
-                    updateAutoRegisterRewards(Boolean(checked))}
-                  label="Auto register rewards"
-                  labelProps={{
-                    class: "cursor-pointer text-xs text-muted-foreground",
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section
-          class="flex flex-col rounded-xl border border-border/50 bg-card"
-        >
-          <div
-            class="relative flex min-h-[52px] items-center justify-between border-b border-border/50 px-4 py-3"
-          >
-            <div
-              class="absolute bottom-3 left-0 top-3 w-0.5 rounded-full bg-emerald-500/80"
-            ></div>
-            <div class="flex items-center gap-2">
-              <h2
-                class="text-sm font-semibold tracking-tight text-foreground/90"
-              >
-                Drops
-              </h2>
-              {#if dropItems.length > 0}
-                <span
-                  class="rounded bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-bold tabular-nums text-emerald-500/80"
-                >
-                  {dropItems.length}
-                </span>
-              {/if}
-            </div>
-            {#if dropItems.length > 0}
-              <Button
-                variant="ghost"
-                size="sm"
-                class="h-7 gap-1.5 text-xs text-destructive"
-                onclick={clearDrops}
-              >
-                <Icon icon="trash" size="sm" />
-                Clear
-              </Button>
-            {/if}
-          </div>
-
-          <div class="flex flex-col gap-3 p-4">
-            <form class="flex items-center gap-2" onsubmit={handleDropSubmit}>
-              <Input
-                type="text"
-                placeholder="Enter item name..."
-                bind:value={dropInput}
-                class="flex-1 border-border/50 bg-secondary/50"
-                autocomplete="off"
-                spellcheck="false"
-              />
-              <Button
-                type="submit"
-                size="sm"
-                class="gap-1.5"
-                disabled={!dropInput.trim()}
-              >
-                <Icon icon="plus" size="md" />
-                Add
-              </Button>
-            </form>
-
-            <div class="max-h-32 min-h-[80px] overflow-y-auto">
-              {#if dropItems.length === 0}
-                <div class="flex h-20 items-center justify-center">
-                  <span class="text-xs text-muted-foreground/70"
-                    >No drops registered</span
-                  >
-                </div>
-              {:else}
-                <div class="flex flex-wrap gap-1.5">
-                  {#each dropItems as drop (drop)}
-                    <span
-                      class="group inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-secondary/50 px-2.5 py-1 text-xs font-medium text-foreground transition-colors hover:bg-secondary"
-                    >
-                      {drop}
-                      <button
-                        type="button"
-                        class="flex h-4 w-4 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/20 hover:text-destructive"
-                        onclick={() => removeDrop(drop)}
-                      >
-                        <Icon icon="x" size="xs" />
-                      </button>
-                    </span>
-                  {/each}
-                </div>
-              {/if}
-            </div>
-
-            <div class="flex items-center gap-2 border-t border-border/50 pt-3">
-              <Checkbox
-                id="reject-else"
-                checked={rejectElse}
-                onCheckedChange={(checked) =>
-                  updateRejectElse(Boolean(checked))}
-                label="Reject else"
-                labelProps={{
-                  class: "cursor-pointer text-xs text-muted-foreground",
-                }}
-              />
-            </div>
-          </div>
-        </section>
-
-        <section
-          class="flex flex-col rounded-xl border border-border/50 bg-card"
-        >
-          <div
-            class="relative flex min-h-[52px] items-center justify-between border-b border-border/50 px-4 py-3"
-          >
-            <div
-              class="absolute bottom-3 left-0 top-3 w-0.5 rounded-full bg-amber-500/80"
-            ></div>
-            <div class="flex items-center gap-2">
-              <h2
-                class="text-sm font-semibold tracking-tight text-foreground/90"
-              >
-                Boosts
-              </h2>
-              {#if boostItems.length > 0}
-                <span
-                  class="rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-bold tabular-nums text-amber-500/80"
-                >
-                  {boostItems.length}
-                </span>
-              {/if}
-            </div>
-            <div class="flex items-center gap-1">
-              <Button
-                variant="outline"
-                size="sm"
-                class="h-7 gap-1.5 border-border/50 text-xs"
-                onclick={grabBoosts}
-              >
-                <Icon icon="download" size="sm" />
-                Grab
-              </Button>
-              {#if boostItems.length > 0}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  class="h-7 gap-1.5 text-xs text-destructive"
-                  onclick={clearBoosts}
-                >
-                  <Icon icon="trash" size="sm" />
-                  Clear
-                </Button>
-              {/if}
-            </div>
-          </div>
-
-          <div class="flex flex-col gap-3 p-4">
-            <form class="flex items-center gap-2" onsubmit={handleBoostSubmit}>
-              <Input
-                type="text"
-                placeholder="Enter boost name..."
-                bind:value={boostInput}
-                class="flex-1 border-border/50 bg-secondary/50"
-                autocomplete="off"
-                spellcheck="false"
-              />
-              <Button
-                type="submit"
-                size="sm"
-                class="gap-1.5"
-                disabled={!boostInput.trim()}
-              >
-                <Icon icon="plus" size="md" />
-                Add
-              </Button>
-            </form>
-
-            <div class="max-h-32 min-h-[80px] overflow-y-auto">
-              {#if boostItems.length === 0}
-                <div class="flex h-20 items-center justify-center">
-                  <span class="text-xs text-muted-foreground/70"
-                    >No boosts registered</span
-                  >
-                </div>
-              {:else}
-                <div class="flex flex-wrap gap-1.5">
-                  {#each boostItems as boost (boost)}
-                    <span
-                      class="group inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-secondary/50 px-2.5 py-1 text-xs font-medium text-foreground transition-colors hover:bg-secondary"
-                    >
-                      {boost}
-                      <button
-                        type="button"
-                        class="flex h-4 w-4 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/20 hover:text-destructive"
-                        onclick={() => removeBoost(boost)}
-                      >
-                        <Icon icon="trash" size="xs" />
-                      </button>
-                    </span>
-                  {/each}
-                </div>
-              {/if}
-            </div>
-          </div>
-        </section>
-      </div>
-    </div>
-  </main>
-</div>
+  </AppFrame.Body>
+</AppFrame.Root>
