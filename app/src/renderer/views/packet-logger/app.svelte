@@ -4,10 +4,14 @@
     Button,
     Checkbox,
     Icon,
+    Input,
+    InputGroup,
+    Kbd,
     Label,
     VirtualList,
   } from "@vexed/ui";
   import { cn } from "@vexed/ui/util";
+  import { includesIgnoreCase } from "@vexed/utils/string";
   import { v4 as uuid } from "@lukeed/uuid";
   import { client, handlers } from "~/shared/tipc";
 
@@ -24,13 +28,32 @@
   let on = $state(false);
   let showTimestamps = $state(false);
   let autoScroll = $state(true);
+  let searchQuery = $state("");
 
+  let searchInput = $state<HTMLInputElement | null>(null);
   let listInstance = $state<VirtualList<PacketEntry>>();
+
+  function handleKeydown(ev: KeyboardEvent) {
+    if (
+      ev.key === "/" &&
+      !["INPUT", "TEXTAREA", "SELECT"].includes(
+        (document.activeElement as HTMLElement)?.tagName,
+      )
+    ) {
+      ev.preventDefault();
+      searchInput?.focus();
+    }
+  }
 
   const stats = $state({ client: 0, server: 0, pext: 0 });
 
   const filteredPackets = $derived(
-    packets.filter((packet) => activeFilters.includes(packet.type)),
+    packets.filter((packet) => {
+      const matchesType = activeFilters.includes(packet.type);
+      if (!matchesType) return false;
+      if (!searchQuery) return true;
+      return includesIgnoreCase(packet.content, searchQuery);
+    }),
   );
 
   function toggleFilter(type: PacketType) {
@@ -154,6 +177,8 @@
   });
 </script>
 
+<svelte:window onkeydown={handleKeydown} />
+
 <AppFrame.Root>
   <AppFrame.Header title="Packet Logger">
     {#snippet right()}
@@ -235,6 +260,33 @@
         </div>
       </div>
 
+      <div class="flex items-center gap-2">
+        <InputGroup.Root class="flex-1">
+          <InputGroup.Addon align="inline-start">
+            <Icon icon="search" class="text-muted-foreground/60" size="sm" />
+          </InputGroup.Addon>
+          <InputGroup.GroupInput
+            placeholder="Search packets..."
+            size="sm"
+            bind:ref={searchInput}
+            bind:value={searchQuery}
+          />
+          <InputGroup.Addon align="inline-end">
+            {#if searchQuery}
+              <button
+                class="flex h-4 w-4 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                onclick={() => (searchQuery = "")}
+                type="button"
+              >
+                <Icon icon="x" size="xs" />
+              </button>
+            {:else}
+              <Kbd hotkey="/" />
+            {/if}
+          </InputGroup.Addon>
+        </InputGroup.Root>
+      </div>
+
       <div
         class="relative flex-1 overflow-hidden rounded-xl border border-border/50 bg-card"
       >
@@ -253,7 +305,9 @@
             {#snippet children({ data: packet }: { data: PacketEntry })}
               <button
                 class="group flex w-full items-start border-b border-border/40 px-3 py-1.5 text-left transition-colors last:border-b-0 hover:bg-secondary/40"
-                onclick={() => copyPacket(packet.content)}
+                onclick={() => {
+                  void copyPacket(packet.content);
+                }}
                 title="Click to copy"
               >
                 {#if showTimestamps}
@@ -274,7 +328,25 @@
                 <span
                   class="ml-2.5 flex-1 whitespace-pre-wrap break-all text-[12px] leading-relaxed text-foreground/90"
                 >
-                  {packet.content}
+                  {#if !searchQuery}
+                    {packet.content}
+                  {:else}
+                    {@const parts = packet.content.split(
+                      new RegExp(
+                        `(${searchQuery.replaceAll(/[$()*+.?[\\\]^{|}]/g, "\\$&")})`,
+                        "gi",
+                      ),
+                    )}
+                    {#each parts as part, index (index)}
+                      {#if part.toLowerCase() === searchQuery.toLowerCase()}
+                        <mark class="rounded-sm bg-primary/30 p-0 text-inherit"
+                          >{part}</mark
+                        >
+                      {:else}
+                        {part}
+                      {/if}
+                    {/each}
+                  {/if}
                 </span>
               </button>
             {/snippet}
