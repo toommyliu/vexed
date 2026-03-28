@@ -11,7 +11,7 @@
       "relative inline-flex shrink-0 cursor-pointer items-center justify-center gap-2",
       "whitespace-nowrap rounded-lg border bg-clip-padding font-medium text-sm outline-none",
       "transition-shadow",
-      "before:pointer-events-none before:absolute before:inset-0 before:rounded-[var(--button-radius,7px)]",
+      "before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit]",
       "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background",
       "disabled:pointer-events-none disabled:opacity-50",
       "[&_svg:not([class*='size-'])]:w-4 [&_svg:not([class*='size-'])]:h-4",
@@ -93,7 +93,7 @@
       size: {
         xs: [
           "h-6 gap-1 rounded-md px-[7px] text-xs",
-          "before:rounded-[var(--button-radius,5px)]",
+          "before:rounded-[inherit]",
           "[&_svg:not([class*='size-'])]:w-3 [&_svg:not([class*='size-'])]:h-3",
         ],
         sm: ["h-7 gap-1.5 px-[9px]"],
@@ -105,7 +105,7 @@
         ],
         "icon-xs": [
           "h-6 w-6 rounded-md",
-          "before:rounded-[var(--button-radius,5px)]",
+          "before:rounded-[inherit]",
         ],
         "icon-sm": ["h-7 w-7"],
         icon: ["h-8 w-8"],

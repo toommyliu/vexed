@@ -32,7 +32,7 @@
 <span
   class={cn(
     !unstyled && [
-      "relative inline-flex w-full rounded-lg border border-input bg-background bg-clip-padding text-sm/5 shadow-xs transition-shadow before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(theme(borderRadius.lg)-1px)] before:content-['']",
+      "relative inline-flex w-full rounded-lg border border-input bg-background bg-clip-padding text-sm/5 shadow-xs transition-shadow before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:content-['']",
       focused &&
         !valid &&
         "border-destructive ring-[3px] ring-destructive/20 shadow-none",

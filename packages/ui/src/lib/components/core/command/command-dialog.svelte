@@ -38,7 +38,7 @@
         class={cn(
           "mt-[min(8vh,5rem)] w-[calc(100%-2rem)] max-w-xl outline-none",
           "flex flex-col overflow-hidden rounded-2xl border border-border bg-popover text-popover-foreground shadow-lg",
-          "before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(theme(borderRadius.2xl)-1px)] before:shadow-[0_1px_0_rgba(0,0,0,0.04)]",
+          "before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:shadow-[0_1px_0_rgba(0,0,0,0.04)]",
           "dark:before:shadow-[0_-1px_0_rgba(255,255,255,0.08)]",
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
           "data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0",

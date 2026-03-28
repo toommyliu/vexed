@@ -78,7 +78,6 @@
 
   let commandPaletteOpen = $state(false);
 
-
   let availableCells = $state<string[]>([]);
   let currentSelectedCell = $state<string>("");
   let currentSelectedPad = $state<string>("");
@@ -344,9 +343,7 @@
                 onclick={() => void client.app.toggleDevTools()}
               >
                 <span>Dev Tools</span>
-                <Kbd
-                  hotkey={hotkeyState.values["toggle-dev-tools"] ?? ""}
-                />
+                <Kbd hotkey={hotkeyState.values["toggle-dev-tools"] ?? ""} />
               </Menu.Item>
             </Menu.Content>
           </Menu.Root>
@@ -398,9 +395,7 @@
                 >
                   Fallback: {autoReloginState.fallbackServer ?? "Auto"}
                 </div>
-                <div
-                  class="flex h-7 items-center justify-between gap-2 px-2"
-                >
+                <div class="flex h-7 items-center justify-between gap-2 px-2">
                   <span class="text-xs font-medium text-muted-foreground/70"
                     >Delay:</span
                   >
@@ -420,7 +415,9 @@
                         ev.currentTarget.value = String(val);
                       }}
                     />
-                    <span class="text-xs font-medium text-muted-foreground/70">s</span>
+                    <span class="text-xs font-medium text-muted-foreground/70"
+                      >s</span
+                    >
                   </div>
                 </div>
                 <Menu.Item
@@ -446,8 +443,7 @@
                     <Menu.Item
                       class={cn(
                         "h-7 px-2 text-xs font-medium transition-colors hover:text-success",
-                        server === autoReloginState.server &&
-                          "text-success",
+                        server === autoReloginState.server && "text-success",
                       )}
                       onclick={() => {
                         autoReloginState.server = server;
@@ -496,22 +492,21 @@
 
           <button
             class={cn(
-              "ml-1 flex h-6 shrink-0 items-center gap-1.5 rounded px-2.5 text-[11px] font-medium shadow-sm transition-all duration-200",
+              "flex h-6 shrink-0 items-center gap-1.5 rounded-md bg-transparent px-2.5 text-xs font-medium transition-all duration-200 hover:bg-accent",
               !scriptState.isLoaded && "cursor-not-allowed opacity-40",
               scriptState.isLoaded &&
                 !scriptState.isRunning &&
-                "bg-success/15 text-success ring-1 ring-success/20 hover:bg-success/25",
-              scriptState.isRunning &&
-                "bg-amber-600/15 text-amber-400 ring-1 ring-amber-500/20 hover:bg-amber-600/25",
+                "text-foreground/80 hover:text-foreground",
+              scriptState.isRunning && "text-amber-500 hover:text-amber-400",
             )}
             disabled={!scriptState.isLoaded}
             onclick={toggleScript}
           >
             {#if scriptState.isRunning}
-              <Icon icon="square" class="size-2.5" />
+              <Icon icon="square" class="size-2.5 fill-current" />
               <span>Stop</span>
             {:else}
-              <Icon icon="play" class="size-2.5" />
+              <Icon icon="play" class="size-2.5 fill-current" />
               <span>Run</span>
             {/if}
           </button>

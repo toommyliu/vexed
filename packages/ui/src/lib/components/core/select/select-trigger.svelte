@@ -24,7 +24,7 @@
   data-slot="select-trigger"
   class={cn(
     "relative flex items-center justify-between select-none rounded-lg border border-input bg-background bg-clip-padding text-base/5 shadow-sm outline-none ring-ring/24 transition-shadow",
-    "before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(theme(borderRadius.lg)-1px)]",
+    "before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit]",
     "focus-visible:border-ring focus-visible:ring-[3px]",
     "disabled:pointer-events-none disabled:opacity-50",
     "sm:text-sm dark:bg-input/32 [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:opacity-72",

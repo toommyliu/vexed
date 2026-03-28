@@ -1,10 +1,9 @@
 <script lang="ts">
   import { motionScale, motionFade } from "@vexed/ui/motion";
-  import { Icon } from "@vexed/ui";
+  import { Button, Icon } from "@vexed/ui";
   import { cn } from "@vexed/ui/util";
 
-  import { onMount, tick } from "svelte";
-  import type { Snippet } from "svelte";
+  import { onMount, tick, type Snippet } from "svelte";
 
   type PanelState = {
     isVisible: boolean;
@@ -77,11 +76,11 @@
     const isVisible = panelState.isVisible;
 
     if (isVisible && !wasVisible) {
-      tick().then(() => {
+      void tick().then(() => {
         if (panel) {
           panelRef = panel;
           panelState.loadPosition(panel);
-          tick().then(() => ensureWithinViewport());
+          void tick().then(() => ensureWithinViewport());
         }
       });
     }
@@ -121,7 +120,7 @@
       let y = ev.clientY - panelState.dragOffset.y;
 
       const { width, height } =
-        cachedBoundingRect || panel.getBoundingClientRect();
+        cachedBoundingRect ?? panel.getBoundingClientRect();
       const { innerWidth, innerHeight } = window;
 
       const topNavBottom = topNav?.getBoundingClientRect().bottom ?? 0;
@@ -303,8 +302,8 @@
   <div
     bind:this={panel}
     class={cn(
-      "fixed left-5 top-10 z-[9999] flex min-h-[160px] min-w-[280px] select-none flex-col overflow-hidden rounded-[10px] border border-border bg-popover shadow-lg",
-      panelState.isDragging && "cursor-grabbing opacity-95",
+      "fixed left-5 top-10 z-[9999] flex min-h-[160px] min-w-[280px] select-none flex-col overflow-hidden rounded-[var(--radius)] bg-popover/95 shadow-md ring-1 ring-border/50",
+      panelState.isDragging && "cursor-grabbing opacity-90",
       resizeDirection && "opacity-95",
       className,
     )}
@@ -367,7 +366,7 @@
     <!-- Header -->
     <div
       class={cn(
-        "flex h-5 shrink-0 cursor-grab select-none items-center justify-between whitespace-nowrap rounded-t-[10px] border-b border-border bg-gradient-to-br from-primary/10 to-muted px-3 py-2 text-xs font-medium text-foreground",
+        "flex h-6 shrink-0 cursor-grab select-none items-center justify-between whitespace-nowrap border-b border-border bg-muted/30 px-2 text-xs font-medium text-foreground",
         headerClass,
       )}
       onmousedown={handleDragStart}
@@ -384,28 +383,29 @@
       {#if header}
         {@render header()}
       {:else}
-        <span class="mr-2 flex-1 text-foreground">{title}</span>
+        <span class="mr-2 flex-1 truncate text-foreground/90">{title}</span>
       {/if}
 
       <div class="flex items-center gap-1">
         {#if showClose}
-          <button
-            class="panel-control flex h-5 w-5 cursor-pointer items-center justify-center rounded border-none bg-transparent text-muted-foreground transition-colors hover:bg-accent hover:text-destructive"
+          <Button
+            class="panel-control size-5 bg-transparent p-0 text-muted-foreground/80 hover:bg-foreground/10 hover:text-foreground"
+            variant="ghost"
+            size="xs"
             onclick={(ev) => {
               ev.stopPropagation();
               panelState.savePosition(panel);
               panelState.hide();
             }}
-            aria-label="Close"
           >
-            <Icon icon="x" class="size-3" />
-          </button>
+            <Icon icon="x" size="2xs" />
+          </Button>
         {/if}
       </div>
     </div>
 
     <!-- Content -->
-    <div class="flex-1 overflow-auto p-3">
+    <div class="flex-1 overflow-auto">
       {@render children?.()}
     </div>
   </div>
