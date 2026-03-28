@@ -28,7 +28,6 @@ export { default as Switch } from "./components/core/switch.svelte";
 export * as NumberField from "./components/core/number-field/index.js";
 export * as Tooltip from "./components/core/tooltip/index.js";
 export { Icon, icons } from "./components/core/icons/index.js";
-export { default as CopyButton } from "./components/copy-button.svelte";
 export { default as PillButton } from "./components/pill-button.svelte";
 export { default as TooltipButton } from "./components/tooltip-button.svelte";
 export { cn } from "./utils/cn";
