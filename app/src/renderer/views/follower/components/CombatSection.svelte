@@ -149,11 +149,13 @@
         max={4}
         class="w-12"
       >
-        <NumberField.Input
-          class="h-7 text-center"
-          disabled={props.isEnabled}
-          autocomplete="off"
-        />
+        <NumberField.Group>
+          <NumberField.Input
+            class="h-7 text-center"
+            disabled={props.isEnabled}
+            autocomplete="off"
+          />
+        </NumberField.Group>
       </NumberField.Root>
       <span class="text-xs text-muted-foreground">when HP &lt;</span>
       <NumberField.Root
@@ -166,11 +168,13 @@
         max={100}
         class="w-12"
       >
-        <NumberField.Input
-          class="h-7 text-center"
-          disabled={props.isEnabled}
-          autocomplete="off"
-        />
+        <NumberField.Group>
+          <NumberField.Input
+            class="h-7 text-center"
+            disabled={props.isEnabled}
+            autocomplete="off"
+          />
+        </NumberField.Group>
       </NumberField.Root>
       <span class="text-xs text-muted-foreground">%</span>
     </div>
