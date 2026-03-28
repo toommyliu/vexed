@@ -42,12 +42,12 @@
       </Button>
       {#if props.boostItems.length > 0}
         <Button
-          variant="ghost"
-          size="xs"
-          class="h-6 gap-1 text-[10px] text-destructive hover:bg-destructive/10"
+          variant="outline"
+          size="sm"
+          class="h-6 gap-1 border-border/20 text-destructive hover:bg-destructive/10 hover:text-destructive"
           onclick={props.onClearBoosts}
         >
-          <Icon icon="trash" size="xs" />
+          <Icon icon="trash" />
           Clear
         </Button>
       {/if}

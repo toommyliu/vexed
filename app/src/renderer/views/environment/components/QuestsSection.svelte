@@ -36,15 +36,15 @@
       {/if}
     </div>
     {#if props.questIds.length > 0}
-      <Button
-        variant="ghost"
-        size="xs"
-        class="h-6 gap-1 text-[10px] text-destructive hover:bg-destructive/10"
-        onclick={props.onClearQuests}
-      >
-        <Icon icon="trash" size="xs" />
-        Clear
-      </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          class="h-6 gap-1 border-border/20 text-destructive hover:bg-destructive/10 hover:text-destructive"
+          onclick={props.onClearQuests}
+        >
+          <Icon icon="trash" />
+          Clear
+        </Button>
     {/if}
   </Card.Header>
 
