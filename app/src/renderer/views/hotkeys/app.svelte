@@ -463,7 +463,7 @@
         hotkeys you've configured will be lost.
       </AlertDialog.Description>
     </AlertDialog.Header>
-    <AlertDialog.Footer>
+    <AlertDialog.Footer variant="bare">
       <Button variant="ghost" size="sm" onclick={() => (dialogOpen = false)}>
         No, cancel
       </Button>
