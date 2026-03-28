@@ -3,7 +3,7 @@
   import { Checkbox, Input, Label, Kbd, NumberField } from "@vexed/ui";
   import FloatingPanel from "./FloatingPanel.svelte";
 
-  import { gameState, optionsPanelState } from "../state/index.svelte";
+  import { gameState, optionsPanelState, hotkeyState } from "../state/index.svelte";
 
   import { Bot } from "../lib/Bot";
 
@@ -39,12 +39,6 @@
       if (guildDebounceTimer) clearTimeout(guildDebounceTimer);
     };
   });
-
-  type Props = {
-    hotkeyValues: Record<string, string>;
-  };
-
-  let { hotkeyValues }: Props = $props();
 
   const options = [
     {
@@ -101,7 +95,7 @@
   <div class="panel-content">
     <div class="options-grid">
       {#each options as option (option.key)}
-        {@const hotkey = hotkeyValues[option.hotkeyId]}
+        {@const hotkey = hotkeyState.values[option.hotkeyId]}
         <Label class="option-row">
           <Checkbox
             checked={gameState[option.key]}
@@ -113,6 +107,7 @@
           <Kbd hotkey={hotkey ?? ""} />
         </Label>
       {/each}
+
     </div>
 
     <div class="inputs-section">

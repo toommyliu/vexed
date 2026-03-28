@@ -5,25 +5,23 @@
   import { get } from "svelte/store";
 
   import { getUiCommands, type UiCommandSpec } from "../actions";
-  import { platform } from "../state/index.svelte";
+  import { platform, hotkeyState } from "../state/index.svelte";
   import { handlers } from "~/shared/tipc";
 
   type Props = {
-    hotkeyValues?: Record<string, string>;
     onClose?(): void;
     open?: boolean;
   };
 
-  let { open = $bindable(false), onClose, hotkeyValues = {} }: Props = $props();
+  let { open = $bindable(false), onClose }: Props = $props();
 
   let searchQuery = $state("");
   let selectedIndex = $state(0);
   let inputRef = $state<HTMLInputElement | null>(null);
   let mouseMoved = $state(false);
 
-  const commands = $derived.by<UiCommandSpec[]>(() =>
-    getUiCommands(hotkeyValues),
-  );
+  const commands = $derived.by<UiCommandSpec[]>(() => getUiCommands());
+
 
   const filteredCommands = $derived(
     searchQuery.trim()

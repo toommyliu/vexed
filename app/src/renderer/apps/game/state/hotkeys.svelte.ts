@@ -29,10 +29,6 @@ function getDisplayValue(actionId: HotkeyId): string {
   return _values[actionId] ?? "";
 }
 
-function toRecord(): Record<string, string> {
-  return { ..._values };
-}
-
 export const hotkeyState = {
   get values() {
     return _values;
@@ -45,5 +41,4 @@ export const hotkeyState = {
   },
   load,
   getDisplayValue,
-  toRecord,
 };
