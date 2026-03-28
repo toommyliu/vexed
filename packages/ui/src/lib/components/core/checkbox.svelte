@@ -31,13 +31,13 @@
 </script>
 
 <Checkbox.Root
-  id={id ? `${id}-root` : undefined}
   {name}
   {value}
   {disabled}
   {required}
   {invalid}
   {readOnly}
+  ids={id ? { hiddenInput: id } : undefined}
   checked={checkedState}
   onCheckedChange={(details) => {
     if (details.checked === "indeterminate") {
@@ -81,5 +81,5 @@
   {#if label}
     <Checkbox.Label {...labelProps}>{label}</Checkbox.Label>
   {/if}
-  <Checkbox.HiddenInput {id} />
+  <Checkbox.HiddenInput />
 </Checkbox.Root>

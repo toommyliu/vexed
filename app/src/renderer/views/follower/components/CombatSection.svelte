@@ -7,7 +7,6 @@
     InputGroup,
     NumberField,
   } from "@vexed/ui";
-  import { cn } from "@vexed/ui/util";
 
   type CombatSectionProps = {
     attackPriority: string;
@@ -30,48 +29,45 @@
   const props: CombatSectionProps = $props();
 </script>
 
-<Card.Root class="gap-0 overflow-hidden border-border/40 py-0">
-  <Card.Header
-    class="relative flex flex-row items-center space-y-0 border-b border-border/20 px-4 py-2"
-  >
-    <div
-      class="absolute bottom-3 left-0 top-3 w-0.5 rounded-full bg-primary/50"
-    ></div>
-    <h2 class="text-sm font-medium text-foreground/80">Combat</h2>
+<Card.Root class="overflow-hidden rounded-xl border-border/40 shadow-none">
+  <Card.Header class="gap-0 border-b border-border/10 p-3 pb-2 pt-2.5">
+    <Card.Title class="text-xs font-semibold text-foreground/70"
+      >Combat</Card.Title
+    >
   </Card.Header>
-  <Card.Content class="space-y-4 p-5">
-    <div class="flex gap-4">
-      <div class="flex flex-1 flex-col space-y-1.5">
-        <Label for="skill-list" class="text-muted-foreground">Skill List</Label>
+
+  <Card.Content class="space-y-4 p-3.5">
+    <div class="flex flex-col gap-4 sm:flex-row">
+      <div class="flex flex-1 flex-col space-y-1">
+        <Label for="skill-list" class="text-xs font-semibold text-foreground/80"
+          >Skill List</Label
+        >
         <div class="flex items-center gap-3">
           <Input
             type="text"
             id="skill-list"
+            size="sm"
             value={props.skillList}
             oninput={(event) =>
               props.onSkillListChange(
                 (event.currentTarget as HTMLInputElement).value,
               )}
             placeholder="1,2,3,4"
-            class={cn(
-              "w-auto min-w-0 flex-1 border-border/50 bg-secondary/50 transition-colors focus:bg-background",
-              props.isEnabled && "pointer-events-none opacity-50",
-            )}
             disabled={props.isEnabled}
             autocomplete="off"
           />
         </div>
       </div>
-      <div class="flex flex-col space-y-1.5">
-        <Label for="skill-delay" class="text-muted-foreground"
-          >Skill Delay</Label
+      <div class="flex flex-col space-y-1">
+        <Label
+          for="skill-delay"
+          class="text-xs font-semibold text-foreground/80">Skill Delay</Label
         >
-        <div class="flex items-center gap-3">
-          <InputGroup.Root
-            class="h-8 w-28 border-border/50 bg-secondary/50 transition-colors focus-within:bg-background"
-          >
+        <div class="flex items-center gap-2.5">
+          <InputGroup.Root class="h-7 w-24">
             <NumberField.Root
               value={props.skillDelay}
+              size="sm"
               onValueChange={(value) => {
                 if (!Number.isNaN(value)) props.onSkillDelayChange(value);
               }}
@@ -79,23 +75,20 @@
             >
               <NumberField.Input
                 id="skill-delay"
-                class={cn(
-                  "h-8 border-0 bg-transparent",
-                  props.isEnabled && "pointer-events-none opacity-50",
-                )}
+                class="h-7 border-0"
                 disabled={props.isEnabled}
                 autocomplete="off"
               />
             </NumberField.Root>
             <InputGroup.Addon align="inline-end">
               <InputGroup.Text
-                class="text-xs font-medium text-muted-foreground"
+                class="text-[10px] font-medium text-muted-foreground"
               >
                 ms
               </InputGroup.Text>
             </InputGroup.Addon>
           </InputGroup.Root>
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-1.5 px-0.5">
             <Checkbox
               id="skill-wait"
               checked={props.skillWait}
@@ -105,7 +98,7 @@
             />
             <Label
               for="skill-wait"
-              class="cursor-pointer text-sm text-muted-foreground"
+              class="cursor-pointer text-xs font-medium text-muted-foreground"
             >
               Wait
             </Label>
@@ -113,28 +106,26 @@
         </div>
       </div>
     </div>
-    <div class="space-y-1.5">
-      <Label for="attack-priority" class="text-muted-foreground"
-        >Attack Priority</Label
+    <div class="space-y-1">
+      <Label
+        for="attack-priority"
+        class="text-xs font-semibold text-foreground/80">Attack Priority</Label
       >
       <Input
         type="text"
         id="attack-priority"
+        size="sm"
         value={props.attackPriority}
         oninput={(event) =>
           props.onAttackPriorityChange(
             (event.currentTarget as HTMLInputElement).value,
           )}
         placeholder="Defense Drone, Attack Drone"
-        class={cn(
-          "border-border/50 bg-secondary/50 transition-colors focus:bg-background",
-          props.isEnabled && "pointer-events-none opacity-50",
-        )}
         disabled={props.isEnabled}
         autocomplete="off"
       />
     </div>
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-3 px-0.5">
       <Checkbox
         id="cb-safe-skill"
         checked={props.safeSkillEnabled}
@@ -144,48 +135,44 @@
       />
       <Label
         for="cb-safe-skill"
-        class="cursor-pointer text-sm text-muted-foreground"
+        class="cursor-pointer text-xs font-medium text-muted-foreground"
       >
         Use skill
       </Label>
       <NumberField.Root
         value={props.safeSkill}
+        size="sm"
         onValueChange={(value) => {
           if (!Number.isNaN(value)) props.onSafeSkillChange(value);
         }}
         min={1}
         max={4}
-        class="w-14"
+        class="w-12"
       >
         <NumberField.Input
-          class={cn(
-            "h-8 border-border/50 bg-secondary/50 text-center transition-colors focus:bg-background",
-            props.isEnabled && "pointer-events-none opacity-50",
-          )}
+          class="h-7 text-center"
           disabled={props.isEnabled}
           autocomplete="off"
         />
       </NumberField.Root>
-      <span class="text-sm text-muted-foreground">when HP &lt;</span>
+      <span class="text-xs text-muted-foreground">when HP &lt;</span>
       <NumberField.Root
         value={props.safeSkillHp}
+        size="sm"
         onValueChange={(value) => {
           if (!Number.isNaN(value)) props.onSafeSkillHpChange(value);
         }}
         min={1}
         max={100}
-        class="w-14"
+        class="w-12"
       >
         <NumberField.Input
-          class={cn(
-            "h-8 border-border/50 bg-secondary/50 text-center transition-colors focus:bg-background",
-            props.isEnabled && "pointer-events-none opacity-50",
-          )}
+          class="h-7 text-center"
           disabled={props.isEnabled}
           autocomplete="off"
         />
       </NumberField.Root>
-      <span class="text-sm text-muted-foreground">%</span>
+      <span class="text-xs text-muted-foreground">%</span>
     </div>
   </Card.Content>
 </Card.Root>
