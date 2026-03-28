@@ -1,5 +1,12 @@
 <script lang="ts">
-  import { AppFrame, Button, Checkbox, Icon, Label } from "@vexed/ui";
+  import {
+    AppFrame,
+    Button,
+    Checkbox,
+    Icon,
+    Label,
+    VirtualList,
+  } from "@vexed/ui";
   import { cn } from "@vexed/ui/util";
   import { v4 as uuid } from "@lukeed/uuid";
   import { client, handlers } from "~/shared/tipc";
@@ -18,7 +25,7 @@
   let showTimestamps = $state(false);
   let autoScroll = $state(true);
 
-  let loggerElement = $state<HTMLDivElement>();
+  let listInstance = $state<VirtualList<PacketEntry>>();
 
   const stats = $state({ client: 0, server: 0, pext: 0 });
 
@@ -94,9 +101,10 @@
     };
     packets.push(packet);
     stats[type]++;
-    if (autoScroll && loggerElement) {
+
+    if (autoScroll && listInstance) {
       setTimeout(() => {
-        loggerElement!.scrollTo(0, loggerElement!.scrollHeight);
+        listInstance?.scrollToBottom();
       }, 0);
     }
   }
@@ -235,11 +243,14 @@
             <p class="text-sm text-muted-foreground">No packets captured yet</p>
           </div>
         {:else}
-          <div
-            bind:this={loggerElement}
-            class="h-full overflow-auto font-mono text-sm"
+          <VirtualList
+            bind:this={listInstance}
+            class="h-full font-mono text-sm"
+            data={filteredPackets}
+            key="id"
+            estimateSize={32}
           >
-            {#each filteredPackets as packet (packet.id)}
+            {#snippet children({ data: packet }: { data: PacketEntry })}
               <button
                 class="group flex w-full items-start border-b border-border/40 px-3 py-1.5 text-left transition-colors last:border-b-0 hover:bg-secondary/40"
                 onclick={() => copyPacket(packet.content)}
@@ -266,8 +277,8 @@
                   {packet.content}
                 </span>
               </button>
-            {/each}
-          </div>
+            {/snippet}
+          </VirtualList>
         {/if}
       </div>
     </div>

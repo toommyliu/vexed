@@ -343,8 +343,8 @@
     });
 
     $effect(() => {
-        if (data) {
-        }
+        data;
+        data.length;
         untrack(() => {
             virtual.syncSizes();
             virtual.rebuildOffsets();
