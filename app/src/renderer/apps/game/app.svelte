@@ -287,7 +287,7 @@
   {#if gameState.topNavVisible}
     <div
       id="topnav-container"
-      class="relative z-[10000] flex h-7 items-center border-b border-border/40 bg-background/95 backdrop-blur-md"
+      class="relative z-[10000] flex h-7 items-center border-b border-border/40 bg-background/95"
     >
       <div
         id="topnav"
@@ -507,7 +507,7 @@
               <span>Stop</span>
             {:else}
               <Icon icon="play" class="size-2.5 fill-current" />
-              <span>Run</span>
+              <span>Start</span>
             {/if}
           </button>
         </div>

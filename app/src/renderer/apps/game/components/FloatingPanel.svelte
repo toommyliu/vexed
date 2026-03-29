@@ -82,7 +82,7 @@
     }
     if (height !== undefined) {
       panel.style.height = `${height}px`;
-      panelRect.height = h;
+      panelRect.height = height;
     }
   }
 
@@ -110,7 +110,7 @@
 
   function handleDragStart(ev: PointerEvent) {
     if (ev.button !== 0) return;
-    if ((ev.target as HTMLElement).closest(".panel-control")) return;
+    if ((ev.target as HTMLElement).closest("[data-panel-control], .panel-control")) return;
     if ((ev.target as HTMLElement).closest("[data-resize]")) return;
 
     activeInteraction = "drag";
@@ -391,6 +391,7 @@
         {#if showClose}
           <Button
             class="panel-control size-5 bg-transparent p-0 text-muted-foreground/80 hover:bg-foreground/10 hover:text-foreground"
+            data-panel-control
             variant="ghost"
             size="xs"
             onclick={(ev) => {

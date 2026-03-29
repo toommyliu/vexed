@@ -5,40 +5,71 @@
   import { get } from "svelte/store";
 
   import { getUiCommands, type UiCommandSpec } from "../actions";
-  import { platform, hotkeyState } from "../state/index.svelte";
+  import { platform } from "../state/index.svelte";
   import { handlers } from "~/shared/tipc";
 
   type Props = {
-    onClose?(): void;
+    onClose?(this: void): void;
     open?: boolean;
   };
 
+  type CommandEntry = UiCommandSpec & {
+    filteredIndex: number;
+    globalIndex: number;
+  };
+
+  type CommandSection = {
+    category: string;
+    items: CommandEntry[];
+  };
+
+  // eslint-disable-next-line prefer-const
   let { open = $bindable(false), onClose }: Props = $props();
 
   let searchQuery = $state("");
   let selectedIndex = $state(0);
   let inputRef = $state<HTMLInputElement | null>(null);
   let mouseMoved = $state(false);
+  const commandItemRefs = $state<HTMLDivElement[]>([]);
 
-  const commands = $derived.by<UiCommandSpec[]>(() => getUiCommands());
-
-
-  const filteredCommands = $derived(
-    searchQuery.trim()
-      ? commands.filter(
-          (cmd) =>
-            fuzzyMatchIgnoreCase(cmd.label, searchQuery) ||
-            fuzzyMatchIgnoreCase(cmd.category, searchQuery),
-        )
-      : commands,
+  const commands = $derived.by<CommandEntry[]>(() =>
+    getUiCommands().map((cmd, globalIndex) => ({
+      ...cmd,
+      filteredIndex: globalIndex,
+      globalIndex,
+    })),
   );
 
-  const groupedCommands = $derived(() => {
-    const groups: Record<string, UiCommandSpec[]> = {};
+  const filteredCommands = $derived.by<CommandEntry[]>(() => {
+    const query = searchQuery.trim();
+    const filtered = query
+      ? commands.filter(
+          (cmd) =>
+            fuzzyMatchIgnoreCase(cmd.label, query) ||
+            fuzzyMatchIgnoreCase(cmd.category, query),
+        )
+      : commands;
+
+    return filtered.map((cmd, filteredIndex) => ({
+      ...cmd,
+      filteredIndex,
+    }));
+  });
+
+  const groupedCommands = $derived.by<CommandSection[]>(() => {
+    const groups: CommandSection[] = [];
+    const groupIndexByCategory: Record<string, number> = {};
+
     for (const cmd of filteredCommands) {
-      groups[cmd.category] = groups[cmd.category] ?? [];
-      groups[cmd.category]!.push(cmd);
+      const groupIndex = groupIndexByCategory[cmd.category];
+      if (groupIndex === undefined) {
+        groupIndexByCategory[cmd.category] = groups.length;
+        groups.push({ category: cmd.category, items: [cmd] });
+      } else {
+        groups[groupIndex]!.items.push(cmd);
+      }
     }
+
     return groups;
   });
 
@@ -55,10 +86,16 @@
   }
 
   function scrollSelectedIntoView(index: number) {
+    const cmd = filteredCommands[index];
+    if (!cmd) return;
+
     requestAnimationFrame(() => {
-      const el = document.querySelector(`[data-command-index="${index}"]`);
-      el?.scrollIntoView({ block: "nearest" });
+      commandItemRefs[cmd.globalIndex]?.scrollIntoView({ block: "nearest" });
     });
+  }
+
+  function isModifierKey(ev: KeyboardEvent | MouseEvent) {
+    return get(platform).isMac ? ev.metaKey : ev.ctrlKey;
   }
 
   function handleKeydown(ev: KeyboardEvent) {
@@ -87,13 +124,17 @@
     if (ev.key === "Enter") {
       ev.preventDefault();
       const cmd = filteredCommands[selectedIndex];
-      const modifier = get(platform).isMac ? ev.metaKey : ev.ctrlKey;
-      if (cmd) executeCommand(cmd, modifier);
+      if (cmd) executeCommand(cmd, isModifierKey(ev));
     }
   }
 
   $effect(() => {
     if (open && inputRef) inputRef.focus();
+  });
+
+  $effect(() => {
+    const maxIndex = filteredCommands.length - 1;
+    if (selectedIndex > maxIndex) selectedIndex = Math.max(maxIndex, 0);
   });
 
   $effect(() => {
@@ -108,8 +149,7 @@
 <svelte:window
   onkeydown={(ev) => {
     if (open) return;
-    const modifier = get(platform).isMac ? ev.metaKey : ev.ctrlKey;
-    if (modifier && equalsIgnoreCase(ev.key, "k")) {
+    if (isModifierKey(ev) && equalsIgnoreCase(ev.key, "k")) {
       ev.preventDefault();
       open = true;
     }
@@ -127,7 +167,7 @@
     <div class="absolute inset-0 bg-black/60" onclick={handleClose}></div>
 
     <div
-      class="command-palette elevation-2 relative z-10 w-full max-w-lg overflow-hidden rounded-xl border border-border bg-popover shadow-2xl backdrop-blur-xl"
+      class="command-palette elevation-2 relative z-10 w-full max-w-lg overflow-hidden rounded-xl border border-border bg-popover"
     >
       <div class="flex items-center gap-3 border-b border-border px-4 py-3">
         <Icon icon="search" class="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -158,7 +198,7 @@
             No commands found
           </div>
         {:else}
-          {#each Object.entries(groupedCommands()) as [category, items] (category)}
+          {#each groupedCommands as { category, items } (category)}
             <div class="mb-2 last:mb-0">
               <div
                 class="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"
@@ -166,24 +206,18 @@
                 {category}
               </div>
               {#each items as cmd (cmd.id)}
-                {@const globalIndex = filteredCommands.indexOf(cmd)}
                 <!-- svelte-ignore a11y_click_events_have_key_events -->
                 <!-- svelte-ignore a11y_no_static_element_interactions -->
                 <div
                   class={cn(
                     "flex cursor-pointer items-center justify-between rounded-lg px-3 py-2 transition-colors",
-                    globalIndex === selectedIndex
+                    cmd.filteredIndex === selectedIndex
                       ? "bg-primary/20 text-foreground"
                       : "text-foreground/80 hover:bg-accent",
                   )}
-                  data-command-index={globalIndex}
-                  onclick={(ev) =>
-                    executeCommand(
-                      cmd,
-                      get(platform).isMac ? ev.metaKey : ev.ctrlKey,
-                    )}
-                  onmouseenter={() =>
-                    mouseMoved && (selectedIndex = globalIndex)}
+                  bind:this={commandItemRefs[cmd.globalIndex]}
+                  onclick={(ev) => executeCommand(cmd, isModifierKey(ev))}
+                  onmouseenter={() => mouseMoved && (selectedIndex = cmd.filteredIndex)}
                 >
                   <span class="text-sm">{cmd.label}</span>
                   <Kbd hotkey={cmd.hotkey} />
@@ -217,7 +251,6 @@
           </span>
         </div>
         <div class="flex items-center gap-1 text-muted-foreground/60">
-          <!-- TODO: use the Command symbol instead? -->
           <Icon icon="command" class="h-3 w-3" />
           <span>K</span>
         </div>

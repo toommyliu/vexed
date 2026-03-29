@@ -3,9 +3,7 @@
   import { cn } from "@vexed/ui/util";
   import { VirtualList, Icon } from "@vexed/ui";
 
-  import { commandOverlayState, scriptState } from "../state/index.svelte";
-  import type { CommandItem } from "../state/index.svelte";
-
+  import { commandOverlayState, scriptState, type CommandItem } from "../state/index.svelte";
   import FloatingPanel from "./FloatingPanel.svelte";
 
   // svelte-ignore non_reactive_update
@@ -30,20 +28,29 @@
     commandOverlayState.toggleListVisibility();
   }
 
+  function passiveWheel(node: HTMLElement) {
+    node.addEventListener("wheel", handleWheel, { passive: true });
+
+    return {
+      destroy() {
+        node.removeEventListener("wheel", handleWheel);
+      },
+    };
+  }
+
   function handleContextMenu() {
     commandOverlayState.toggleListVisibility();
   }
 
   function handleDoubleClick(ev: MouseEvent) {
-    if ((ev.target as HTMLElement).closest(".command-overlay-control")) return;
+    if ((ev.target as HTMLElement).closest("[data-panel-control]")) return;
 
     commandOverlayState.toggleListVisibility();
   }
 
   function scrollActiveItemIntoView() {
     if (!virtualList || commandOverlayState.lastIndex < 0) return;
-
-    tick().then(() => {
+    void tick().then(() => {
       virtualList!.scrollToIndex(commandOverlayState.lastIndex);
     });
   }
@@ -81,6 +88,7 @@
     <div class="command-overlay-header-controls">
       <button
         class="command-overlay-control"
+        data-panel-control
         onclick={handleToggleVisibility}
         aria-label={commandOverlayState.listVisible ? "Collapse" : "Expand"}
       >
@@ -96,7 +104,7 @@
   {#if commandOverlayState.listVisible}
     <div
       class="command-list-container"
-      onwheel={handleWheel}
+      use:passiveWheel
       role="presentation"
     >
       {#if commandOverlayState.commandItems.length > 0}
@@ -221,14 +229,14 @@
   }
 
   .command-index {
-    font-family: "SF Mono", "Monaco", "Menlo", "Consolas", monospace;
+    font-family: var(--font-mono);
     color: rgb(var(--muted-foreground));
     font-size: 10px;
     flex-shrink: 0;
   }
 
   .command-text {
-    font-family: inherit;
+    font-family: var(--font-family);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
