@@ -47,12 +47,23 @@
   let openDropdown = $state<string | null>(null);
 
   let gameConnected = $state(false);
-  bot.on("login", () => (gameConnected = true));
-  bot.on("logout", () => (gameConnected = false));
 
   let reloginServers = $state<string[]>([]);
-  const reloginUsername = $derived(bot.auth?.username ?? "");
-  const reloginPassword = $derived(bot.auth?.password ?? "");
+  let reloginUsername = $state("");
+  let reloginPassword = $state("");
+
+  function syncReloginState() {
+    gameConnected = bot.auth.isLoggedIn();
+    reloginUsername = bot.auth.username ?? "";
+    reloginPassword = bot.auth.password ?? "";
+    updateReloginServers();
+  }
+
+  bot.on("login", syncReloginState);
+  bot.on("logout", syncReloginState);
+
+  syncReloginState();
+
   const reloginCanEnable = $derived(
     Boolean(reloginUsername && reloginPassword) ||
       Boolean(autoReloginState.username && autoReloginState.password),
@@ -60,10 +71,11 @@
 
   function updateReloginServers() {
     try {
-      reloginServers = (bot.auth?.servers ?? []).map((server) => server.name);
-    } catch {
-      reloginServers = [];
-    }
+      const servers = bot.auth?.servers ?? [];
+      if (servers.length) {
+        reloginServers = servers.map((server) => server.name);
+      }
+    } catch {}
   }
 
   function enableRelogin(server: string) {
@@ -361,7 +373,7 @@
             open={openDropdown === "relogin"}
             onOpenChange={(open) => {
               if (open) {
-                updateReloginServers();
+                syncReloginState();
                 openDropdown = "relogin";
               } else {
                 openDropdown = null;
