@@ -167,41 +167,55 @@
     <div class="absolute inset-0 bg-black/60" onclick={handleClose}></div>
 
     <div
-      class="command-palette elevation-2 relative z-10 w-full max-w-lg overflow-hidden rounded-xl border border-border bg-popover"
+      class="command-palette elevation-2 relative z-10 w-full max-w-md overflow-hidden rounded-lg bg-popover ring-1 ring-foreground/10"
+      data-slot="command-palette"
     >
-      <div class="flex items-center gap-3 border-b border-border px-4 py-3">
-        <Icon icon="search" class="h-4 w-4 shrink-0 text-muted-foreground" />
+      <div
+        class="flex h-8 items-center gap-2 border-b border-border px-2"
+        data-slot="command-palette-header"
+      >
+        <Icon
+          icon="search"
+          class="size-3.5 shrink-0 text-muted-foreground"
+        />
         <input
           bind:this={inputRef}
           type="text"
           placeholder="Search commands..."
-          class="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+          class="flex-1 bg-transparent text-xs leading-relaxed text-foreground placeholder:text-muted-foreground focus:outline-none"
           bind:value={searchQuery}
           onkeydown={handleKeydown}
+          data-slot="command-palette-input"
         />
         <button
-          class="flex h-5 w-5 items-center justify-center rounded bg-transparent text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          class="flex size-5 items-center justify-center rounded-md bg-transparent text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           onclick={handleClose}
+          data-slot="command-palette-close-button"
         >
-          <Icon icon="x" class="h-3.5 w-3.5" />
+          <Icon icon="x" class="size-3" />
         </button>
       </div>
 
       <!-- svelte-ignore a11y_no_static_element_interactions -->
       <div
-        class="max-h-[50vh] overflow-y-auto p-2"
+        class="max-h-[50vh] overflow-y-auto p-1"
         onscroll={() => (mouseMoved = false)}
         onmousemove={() => (mouseMoved = true)}
+        data-slot="command-palette-list"
       >
         {#if filteredCommands.length === 0}
-          <div class="px-3 py-8 text-center text-sm text-muted-foreground">
+          <div
+            class="px-3 py-8 text-center text-xs text-muted-foreground"
+            data-slot="command-palette-empty"
+          >
             No commands found
           </div>
         {:else}
           {#each groupedCommands as { category, items } (category)}
-            <div class="mb-2 last:mb-0">
+            <div class="mb-1 last:mb-0" data-slot="command-palette-section">
               <div
-                class="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"
+                class="px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70"
+                data-slot="command-palette-section-label"
               >
                 {category}
               </div>
@@ -210,16 +224,18 @@
                 <!-- svelte-ignore a11y_no_static_element_interactions -->
                 <div
                   class={cn(
-                    "flex cursor-pointer items-center justify-between rounded-lg px-3 py-2 transition-colors",
+                    "flex min-h-7 cursor-pointer items-center justify-between rounded-md px-2 py-1 transition-colors duration-100",
                     cmd.filteredIndex === selectedIndex
-                      ? "bg-primary/20 text-foreground"
-                      : "text-foreground/80 hover:bg-accent",
+                      ? "bg-accent text-foreground"
+                      : "text-foreground/80 hover:bg-muted/50",
                   )}
                   bind:this={commandItemRefs[cmd.globalIndex]}
                   onclick={(ev) => executeCommand(cmd, isModifierKey(ev))}
                   onmouseenter={() => mouseMoved && (selectedIndex = cmd.filteredIndex)}
+                  data-slot="command-palette-item"
+                  data-active={cmd.filteredIndex === selectedIndex}
                 >
-                  <span class="text-sm">{cmd.label}</span>
+                  <span class="text-xs leading-relaxed">{cmd.label}</span>
                   <Kbd hotkey={cmd.hotkey} />
                 </div>
               {/each}
@@ -229,9 +245,10 @@
       </div>
 
       <div
-        class="flex items-center justify-between border-t border-border px-4 py-2 text-[10px] text-muted-foreground"
+        class="flex items-center justify-between border-t border-border px-2 py-1.5 text-[10px] text-muted-foreground/60"
+        data-slot="command-palette-footer"
       >
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3" data-slot="command-palette-shortcuts">
           <span class="flex items-center gap-1">
             <Kbd>↑↓</Kbd>
             <span>navigate</span>
@@ -250,8 +267,11 @@
             <span>close</span>
           </span>
         </div>
-        <div class="flex items-center gap-1 text-muted-foreground/60">
-          <Icon icon="command" class="h-3 w-3" />
+        <div
+          class="flex items-center gap-1 text-muted-foreground/40"
+          data-slot="command-palette-hint"
+        >
+          <Icon icon="command" class="size-3" />
           <span>K</span>
         </div>
       </div>
@@ -261,13 +281,13 @@
 
 <style>
   .command-palette {
-    animation: palette-in 0.15s ease-out;
+    animation: palette-in 0.1s ease-out;
   }
 
   @keyframes palette-in {
     from {
       opacity: 0;
-      transform: scale(0.96) translateY(-8px);
+      transform: scale(0.98) translateY(-4px);
     }
     to {
       opacity: 1;
