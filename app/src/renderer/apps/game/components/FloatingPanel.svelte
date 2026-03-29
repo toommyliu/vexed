@@ -6,45 +6,35 @@
   import { onMount, tick, type Snippet } from "svelte";
 
   type PanelState = {
-    isVisible: boolean;
-    isDragging: boolean;
     dragOffset: { x: number; y: number };
-    show: () => void;
-    hide: () => void;
-    toggle: () => void;
-    setDragging: (dragging: boolean) => void;
-    savePosition: (panel: HTMLDivElement) => void;
-    loadPosition: (panel: HTMLDivElement) => void;
+    hide(): void;
+    isDragging: boolean;
+    isVisible: boolean;
+    loadPosition(panel: HTMLDivElement): void;
+    savePosition(panel: HTMLDivElement): void;
+    setDragging(dragging: boolean): void;
   };
 
   type ResizeDirection =
-    | "n"
-    | "s"
-    | "e"
-    | "w"
-    | "ne"
-    | "nw"
-    | "se"
-    | "sw"
-    | null;
+    "e" | "n" | "ne" | "nw" | "s" | "se" | "sw" | "w" | null;
 
   type Props = {
-    title?: string;
-    panelState: PanelState;
-    minWidth?: number;
-    minHeight?: number;
-    defaultWidth?: number;
-    class?: string;
-    headerClass?: string;
-    showClose?: boolean;
     canResize?: boolean;
-    onheaderdblclick?: (ev: MouseEvent) => void;
-    onheadercontextmenu?: (ev: MouseEvent) => void;
-    header?: Snippet;
     children?: Snippet;
+    class?: string;
+    defaultWidth?: number;
+    header?: Snippet;
+    headerClass?: string;
+    minHeight?: number;
+    minWidth?: number;
+    onheadercontextmenu?(this: void, ev: MouseEvent): void;
+    onheaderdblclick?(this: void, ev: MouseEvent): void;
+    panelState: PanelState;
+    showClose?: boolean;
+    title?: string;
   };
 
-  let {
+  const {
     title = "",
     panelState,
     minWidth = 320,
@@ -65,12 +55,36 @@
   let panelRef: HTMLDivElement | null = null;
   let wasVisible = false;
 
+  let activeInteraction: "drag" | "resize" | null = null;
+  let activePointerId: number | null = null;
+  let activePointerTarget: HTMLElement | null = null;
+
   let resizeDirection = $state<ResizeDirection>(null);
   let resizeStart = { x: 0, y: 0, width: 0, height: 0, left: 0, top: 0 };
 
+  let panelRect = { x: 0, y: 0, width: 0, height: 0 };
+
   let topNav: HTMLElement | null = null;
-  let cachedBoundingRect: DOMRect | null = null;
+  
+  let topNavBottom = 0;
+  let topNavObserver: ResizeObserver | null = null;
+
   let frameId: number | null = null;
+
+  function applyRect(x: number, y: number, width?: number, height?: number) {
+    panel.style.left = `${x}px`;
+    panel.style.top = `${y}px`;
+    panelRect.x = x;
+    panelRect.y = y;
+    if (width !== undefined) {
+      panel.style.width = `${width}px`;
+      panelRect.width = width;
+    }
+    if (height !== undefined) {
+      panel.style.height = `${height}px`;
+      panelRect.height = h;
+    }
+  }
 
   $effect(() => {
     const isVisible = panelState.isVisible;
@@ -80,7 +94,9 @@
         if (panel) {
           panelRef = panel;
           panelState.loadPosition(panel);
-          void tick().then(() => ensureWithinViewport());
+          // Sync panelRect after position is loaded.
+          const rect = panel.getBoundingClientRect();
+          panelRect = { x: rect.left, y: rect.top, width: rect.width, height: rect.height };
         }
       });
     }
@@ -92,74 +108,97 @@
     wasVisible = isVisible;
   });
 
-  function handleDragStart(ev: MouseEvent) {
+  function handleDragStart(ev: PointerEvent) {
     if (ev.button !== 0) return;
     if ((ev.target as HTMLElement).closest(".panel-control")) return;
     if ((ev.target as HTMLElement).closest("[data-resize]")) return;
 
-    panelState.setDragging(true);
+    activeInteraction = "drag";
+    activePointerId = ev.pointerId;
+    activePointerTarget = ev.currentTarget as HTMLElement;
+    activePointerTarget.setPointerCapture(ev.pointerId);
 
-    cachedBoundingRect = panel.getBoundingClientRect();
-    panelState.dragOffset = {
-      x: ev.clientX - cachedBoundingRect.left,
-      y: ev.clientY - cachedBoundingRect.top,
-    };
+    panelState.setDragging(true);
+    ev.preventDefault();
+
+    // One read on gesture start is fine — not in a hot loop.
+    const rect = panel.getBoundingClientRect();
+    panelRect = { x: rect.left, y: rect.top, width: rect.width, height: rect.height };
+    panelState.dragOffset = { x: ev.clientX - rect.left, y: ev.clientY - rect.top };
   }
 
-  function handleDragMove(ev: MouseEvent) {
-    if (resizeDirection) {
+  function handlePointerMove(ev: PointerEvent) {
+    if (activePointerId !== ev.pointerId) return;
+
+    if (activeInteraction === "resize") {
       handleResizeMove(ev);
       return;
     }
 
-    if (!panelState.isDragging || !panel) return;
+    if (activeInteraction !== "drag" || !panelState.isDragging || !panel) {
+      return;
+    }
 
     if (frameId) cancelAnimationFrame(frameId);
     frameId = requestAnimationFrame(() => {
-      let x = ev.clientX - panelState.dragOffset.x;
-      let y = ev.clientY - panelState.dragOffset.y;
-
-      const { width, height } =
-        cachedBoundingRect ?? panel.getBoundingClientRect();
       const { innerWidth, innerHeight } = window;
 
-      const topNavBottom = topNav?.getBoundingClientRect().bottom ?? 0;
-      const minY = Math.max(0, Math.round(topNavBottom));
+      const x = Math.max(
+        0,
+        Math.min(ev.clientX - panelState.dragOffset.x, innerWidth - panelRect.width),
+      );
+      const y = Math.max(
+        topNavBottom, // cached — no reflow
+        Math.min(ev.clientY - panelState.dragOffset.y, innerHeight - panelRect.height),
+      );
 
-      x = Math.max(0, Math.min(x, innerWidth - width));
-      y = Math.max(minY, Math.min(y, innerHeight - height));
-
-      panel.style.left = `${x}px`;
-      panel.style.top = `${y}px`;
+      applyRect(x, y);
     });
   }
 
-  function handleDragEnd() {
+  function handlePointerEnd(ev: PointerEvent) {
+    if (activePointerId !== ev.pointerId) return;
+
     if (frameId) {
       cancelAnimationFrame(frameId);
       frameId = null;
     }
 
-    if (resizeDirection) {
+    if (resizeDirection || activeInteraction === "resize") {
       resizeDirection = null;
-      panelState.savePosition(panel);
-      return;
     }
 
-    if (!panelState.isDragging) return;
+    if (panelState.isDragging) {
+      panelState.setDragging(false);
+    }
 
-    panelState.setDragging(false);
     ensureWithinViewport();
     panelState.savePosition(panel);
-    cachedBoundingRect = null;
+
+    if (activePointerTarget?.hasPointerCapture(ev.pointerId)) {
+      activePointerTarget.releasePointerCapture(ev.pointerId);
+    }
+
+    activeInteraction = null;
+    activePointerId = null;
+    activePointerTarget = null;
   }
 
-  function handleResizeStart(ev: MouseEvent, direction: ResizeDirection) {
+  function handleResizeStart(ev: PointerEvent, direction: ResizeDirection) {
     if (ev.button !== 0) return;
     ev.stopPropagation();
 
+    activeInteraction = "resize";
+    activePointerId = ev.pointerId;
+    activePointerTarget = ev.currentTarget as HTMLElement;
+    activePointerTarget.setPointerCapture(ev.pointerId);
+
     resizeDirection = direction;
+    ev.preventDefault();
+
+    // One read on gesture start — not in a hot loop.
     const rect = panel.getBoundingClientRect();
+    panelRect = { x: rect.left, y: rect.top, width: rect.width, height: rect.height };
     resizeStart = {
       x: ev.clientX,
       y: ev.clientY,
@@ -170,129 +209,86 @@
     };
   }
 
-  function handleResizeMove(ev: MouseEvent) {
+  function handleResizeMove(ev: PointerEvent) {
     if (!resizeDirection || !panel) return;
 
-    const currentDirection = resizeDirection;
+    const dir = resizeDirection;
     if (frameId) cancelAnimationFrame(frameId);
     frameId = requestAnimationFrame(() => {
       const { innerWidth, innerHeight } = window;
-      const deltaX = ev.clientX - resizeStart.x;
-      const deltaY = ev.clientY - resizeStart.y;
+      const dx = ev.clientX - resizeStart.x;
+      const dy = ev.clientY - resizeStart.y;
 
-      let newWidth = resizeStart.width;
-      let newHeight = resizeStart.height;
-      let newLeft = resizeStart.left;
-      let newTop = resizeStart.top;
+      let left   = resizeStart.left;
+      let top    = resizeStart.top;
+      let width  = resizeStart.width;
+      let height = resizeStart.height;
 
-      const topNavBottom = topNav?.getBoundingClientRect().bottom ?? 0;
-      const minTop = Math.max(0, Math.round(topNavBottom));
-
-      if (currentDirection.includes("e")) {
-        const maxWidth = innerWidth - newLeft;
-        newWidth = Math.min(
-          maxWidth,
-          Math.max(minWidth, resizeStart.width + deltaX),
-        );
+      if (dir.includes("e")) {
+        width = Math.min(innerWidth - left, Math.max(minWidth, width + dx));
       }
 
-      if (currentDirection.includes("w")) {
-        const potentialLeft = resizeStart.left + deltaX;
-        const clampedLeft = Math.max(0, potentialLeft);
-        const potentialWidth =
-          resizeStart.width + (resizeStart.left - clampedLeft);
-        if (potentialWidth >= minWidth) {
-          newWidth = potentialWidth;
-          newLeft = clampedLeft;
+      if (dir.includes("s")) {
+        height = Math.min(innerHeight - top, Math.max(minHeight, height + dy));
+      }
+
+      if (dir.includes("w")) {
+        const newLeft = Math.max(0, left + dx);
+        const newWidth = width + (left - newLeft);
+        if (newWidth >= minWidth) {
+          width = newWidth;
+          left = newLeft;
         }
       }
 
-      if (currentDirection.includes("s")) {
-        const maxHeight = innerHeight - newTop;
-        newHeight = Math.min(
-          maxHeight,
-          Math.max(minHeight, resizeStart.height + deltaY),
-        );
-      }
-
-      if (currentDirection.includes("n")) {
-        const potentialTop = resizeStart.top + deltaY;
-        const clampedTop = Math.max(minTop, potentialTop);
-        const potentialHeight =
-          resizeStart.height + (resizeStart.top - clampedTop);
-        if (potentialHeight >= minHeight) {
-          newHeight = potentialHeight;
-          newTop = clampedTop;
+      if (dir.includes("n")) {
+        const newTop = Math.max(topNavBottom, top + dy); // cached — no reflow
+        const newHeight = height + (top - newTop);
+        if (newHeight >= minHeight) {
+          height = newHeight;
+          top = newTop;
         }
       }
 
-      panel.style.width = `${newWidth}px`;
-      panel.style.height = `${newHeight}px`;
-      panel.style.left = `${newLeft}px`;
-      panel.style.top = `${newTop}px`;
+      applyRect(left, top, width, height);
     });
   }
 
   function ensureWithinViewport() {
     if (!panel) return;
 
+    // One read here is acceptable — this runs only on pointer-up or window resize.
     const rect = panel.getBoundingClientRect();
+    panelRect = { x: rect.left, y: rect.top, width: rect.width, height: rect.height };
+
     const { innerWidth, innerHeight } = window;
+    let { x, y, width, height } = panelRect;
 
-    const topNavBottom = topNav?.getBoundingClientRect().bottom ?? 0;
-    const minTop = Math.max(0, Math.round(topNavBottom));
+    width  = Math.max(minWidth,  Math.min(width,  innerWidth));
+    height = Math.max(minHeight, Math.min(height, innerHeight - topNavBottom));
+    x = Math.max(0,            Math.min(x, innerWidth  - width));
+    y = Math.max(topNavBottom, Math.min(y, innerHeight - height));
 
-    let newLeft = rect.left;
-    let newTop = rect.top;
-    let newWidth = rect.width;
-    let newHeight = rect.height;
-
-    if (newLeft < 0) newLeft = 0;
-    if (newTop < minTop) newTop = minTop;
-
-    const maxWidth = innerWidth - newLeft;
-    const maxHeight = innerHeight - newTop;
-
-    if (newWidth > maxWidth) {
-      newWidth = Math.max(minWidth, maxWidth);
-      if (newWidth > maxWidth) {
-        newLeft = Math.max(0, innerWidth - newWidth);
-      }
-    }
-
-    if (newHeight > maxHeight) {
-      newHeight = Math.max(minHeight, maxHeight);
-      if (newHeight > maxHeight) {
-        newTop = Math.max(minTop, innerHeight - newHeight);
-      }
-    }
-
-    if (newLeft + newWidth > innerWidth) {
-      newLeft = Math.max(0, innerWidth - newWidth);
-    }
-
-    if (newTop + newHeight > innerHeight) {
-      newTop = Math.max(minTop, innerHeight - newHeight);
-    }
-
-    panel.style.left = `${newLeft}px`;
-    panel.style.top = `${newTop}px`;
-    panel.style.width = `${newWidth}px`;
-    panel.style.height = `${newHeight}px`;
-
+    applyRect(x, y, width, height);
     panelState.savePosition(panel);
   }
 
   onMount(() => {
-    topNav = document.getElementById("topnav-container");
-    document.addEventListener("mousemove", handleDragMove);
-    document.addEventListener("mouseup", handleDragEnd);
+    topNav = document.querySelector("#topnav-container");
+
+    if (topNav) {
+      topNavBottom = topNav.getBoundingClientRect().bottom;
+      topNavObserver = new ResizeObserver((entries) => {
+        topNavBottom = entries[0]?.contentRect.bottom ?? 0;
+      });
+      topNavObserver.observe(topNav);
+    }
+
     window.addEventListener("resize", ensureWithinViewport);
 
     return () => {
-      document.removeEventListener("mousemove", handleDragMove);
-      document.removeEventListener("mouseup", handleDragEnd);
       window.removeEventListener("resize", ensureWithinViewport);
+      topNavObserver?.disconnect();
       if (frameId) cancelAnimationFrame(frameId);
     };
   });
@@ -307,69 +303,74 @@
       resizeDirection && "opacity-95",
       className,
     )}
+    role="group"
+    aria-label={title || "Floating panel"}
     style="width: {defaultWidth}px;"
     in:motionScale={{ duration: 120, start: 0.96, opacity: 0 }}
     out:motionFade={{ duration: 80 }}
+    onpointermove={handlePointerMove}
+    onpointerup={handlePointerEnd}
+    onpointercancel={handlePointerEnd}
   >
     {#if canResize}
       <!-- Resize handles -->
       <div
         data-resize
         role="presentation"
-        class="absolute left-1.5 right-1.5 top-0 z-10 h-1 cursor-n-resize"
-        onmousedown={(ev) => handleResizeStart(ev, "n")}
+        class="absolute left-1.5 right-1.5 top-0 z-10 h-1 cursor-n-resize touch-none"
+        onpointerdown={(ev) => handleResizeStart(ev, "n")}
       ></div>
       <div
         data-resize
         role="presentation"
-        class="absolute bottom-0 left-1.5 right-1.5 z-10 h-1 cursor-s-resize"
-        onmousedown={(ev) => handleResizeStart(ev, "s")}
+        class="absolute bottom-0 left-1.5 right-1.5 z-10 h-1 cursor-s-resize touch-none"
+        onpointerdown={(ev) => handleResizeStart(ev, "s")}
       ></div>
       <div
         data-resize
         role="presentation"
-        class="absolute bottom-1.5 right-0 top-1.5 z-10 w-1 cursor-e-resize"
-        onmousedown={(ev) => handleResizeStart(ev, "e")}
+        class="absolute bottom-1.5 right-0 top-1.5 z-10 w-1 cursor-e-resize touch-none"
+        onpointerdown={(ev) => handleResizeStart(ev, "e")}
       ></div>
       <div
         data-resize
         role="presentation"
-        class="absolute bottom-1.5 left-0 top-1.5 z-10 w-1 cursor-w-resize"
-        onmousedown={(ev) => handleResizeStart(ev, "w")}
+        class="absolute bottom-1.5 left-0 top-1.5 z-10 w-1 cursor-w-resize touch-none"
+        onpointerdown={(ev) => handleResizeStart(ev, "w")}
       ></div>
       <div
         data-resize
         role="presentation"
-        class="absolute right-0 top-0 z-10 h-2 w-2 cursor-ne-resize"
-        onmousedown={(ev) => handleResizeStart(ev, "ne")}
+        class="absolute right-0 top-0 z-10 h-2 w-2 cursor-ne-resize touch-none"
+        onpointerdown={(ev) => handleResizeStart(ev, "ne")}
       ></div>
       <div
         data-resize
         role="presentation"
-        class="absolute left-0 top-0 z-10 h-2 w-2 cursor-nw-resize"
-        onmousedown={(ev) => handleResizeStart(ev, "nw")}
+        class="absolute left-0 top-0 z-10 h-2 w-2 cursor-nw-resize touch-none"
+        onpointerdown={(ev) => handleResizeStart(ev, "nw")}
       ></div>
       <div
         data-resize
         role="presentation"
-        class="absolute bottom-0 right-0 z-10 h-2 w-2 cursor-se-resize"
-        onmousedown={(ev) => handleResizeStart(ev, "se")}
+        class="absolute bottom-0 right-0 z-10 h-2 w-2 cursor-se-resize touch-none"
+        onpointerdown={(ev) => handleResizeStart(ev, "se")}
       ></div>
       <div
         data-resize
         role="presentation"
-        class="absolute bottom-0 left-0 z-10 h-2 w-2 cursor-sw-resize"
-        onmousedown={(ev) => handleResizeStart(ev, "sw")}
+        class="absolute bottom-0 left-0 z-10 h-2 w-2 cursor-sw-resize touch-none"
+        onpointerdown={(ev) => handleResizeStart(ev, "sw")}
       ></div>
     {/if}
 
     <!-- Header -->
     <div
       class={cn(
-        "flex h-6 shrink-0 cursor-grab select-none items-center justify-between whitespace-nowrap border-b border-border bg-muted/30 px-2 text-xs font-medium text-foreground",
+        "flex h-6 shrink-0 cursor-grab select-none items-center justify-between whitespace-nowrap border-b border-border bg-muted/30 px-2 text-xs font-medium text-foreground touch-none",
         headerClass,
       )}
-      onmousedown={handleDragStart}
+      onpointerdown={handleDragStart}
       ondblclick={onheaderdblclick}
       oncontextmenu={onheadercontextmenu
         ? (ev) => {
