@@ -9,8 +9,10 @@
     Input,
     Select,
     Switch,
+    Label,
     dialog,
   } from "@vexed/ui";
+  import { cn } from "@vexed/ui/util";
   import { Result } from "better-result";
   import { onMount } from "svelte";
   import { get } from "svelte/store";
@@ -33,9 +35,6 @@
   let isAddOpen = $state(false);
   let isEditOpen = $state(false);
   let editingAccount = $state<Account | null>(null);
-
-  let deleteDialogError = $state("");
-  let pendingDeleteUsernames = $state<string[]>([]);
 
   let serverFetchError = $state("");
   let isRetryingServerFetch = $state(false);
@@ -125,32 +124,29 @@
       selectedAccounts.clear();
     } else {
       selectedAccounts.clear();
-      filteredAccounts.forEach((a) =>
-        selectedAccounts.add(a.username.toLowerCase()),
-      );
+      for (const account of filteredAccounts) {
+        selectedAccounts.add(account.username.toLowerCase());
+      }
     }
   }
 
   function toggleSelected() {
     const currentSelected = new Set(selectedAccounts);
     selectedAccounts.clear();
-    filteredAccounts.forEach((a) => {
-      const key = a.username.toLowerCase();
-      if (!currentSelected.has(key)) {
-        selectedAccounts.add(key);
-      }
-    });
+    for (const [username] of accounts) {
+      const key = username.toLowerCase();
+      if (!currentSelected.has(key)) selectedAccounts.add(key);
+    }
   }
 
   async function handleRemove(usernames: string[]) {
-    pendingDeleteUsernames = usernames;
-    deleteDialogError = "";
+    const backupUsernames = [...usernames];
 
     const confirmed = await dialog.confirm({
-      title: `Remove ${pendingDeleteUsernames.length} account${
-        pendingDeleteUsernames.length === 1 ? "" : "s"
+      title: `Remove ${backupUsernames.length} account${
+        backupUsernames.length === 1 ? "" : "s"
       }?`,
-      description: deleteDialogError || "This action cannot be undone.",
+      description: "This action cannot be undone.",
       confirmLabel: "Remove",
       cancelLabel: "Cancel",
       footerVariant: "bare",
@@ -158,45 +154,41 @@
     });
 
     if (!confirmed) {
-      pendingDeleteUsernames = [];
       return;
     }
 
-    deleteDialogError = "";
-    const failed: string[] = [];
+    const failed = [];
 
-    for (const u of pendingDeleteUsernames) {
-      const acc = accounts.get(u.toLowerCase());
+    for (const username of backupUsernames) {
+      const acc = accounts.get(username.toLowerCase());
       if (acc) {
         const success = await removeAccount(acc);
         if (success) {
-          accounts.delete(u.toLowerCase());
-          selectedAccounts.delete(u.toLowerCase());
+          accounts.delete(username.toLowerCase());
+          selectedAccounts.delete(username.toLowerCase());
         } else {
-          failed.push(u);
+          failed.push(username);
         }
       }
     }
 
     if (failed.length > 0) {
-      deleteDialogError = `Failed to remove ${failed.length} account(s). Please try again.`;
+      const errorMessage = `Failed to remove ${failed.length} account(s). Please try again.`;
       await dialog.confirm({
         title: "Remove failed",
-        description: deleteDialogError,
+        description: errorMessage,
         confirmLabel: "Ok",
         cancelLabel: "Close",
       });
     }
-
-    pendingDeleteUsernames = [];
   }
 
   function handleStart(usernames: string[]) {
-    for (const u of usernames) {
-      const acc = accounts.get(u.toLowerCase());
+    for (const username of usernames) {
+      const acc = accounts.get(username.toLowerCase());
       if (acc) {
         const serverName = get(selectedServer)?.split(" (")?.[0] ?? null;
-        startAccount({
+        void startAccount({
           ...acc,
           server: serverName,
         });
@@ -216,10 +208,6 @@
   function handleAddAccount() {
     isAddOpen = true;
   }
-
-  handlers.manager.onLogin.listen((username) => {
-    console.log(`${username} completed log in...`);
-  });
 </script>
 
 <AppFrame.Root>
@@ -227,11 +215,10 @@
     {#snippet right()}
       <Button
         variant="outline"
-        size="sm"
-        class="gap-2"
+        class="h-7 gap-1.5 px-2 text-xs"
         onclick={handleAddAccount}
       >
-        <Icon icon="plus" class="h-4 w-4" />
+        <Icon icon="plus" class="size-3.5" />
         <span class="hidden sm:inline">Add Account</span>
       </Button>
     {/snippet}
@@ -242,12 +229,12 @@
         <div class="relative">
           <Icon
             icon="search"
-            class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+            class="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground"
           />
           <Input
             type="search"
             placeholder="Search accounts..."
-            class="border-border/50 bg-secondary/50 pl-10 transition-colors focus:bg-background"
+            class="h-7 border-input bg-input/20 pl-8 text-xs/relaxed transition-colors focus:bg-background"
             bind:value={searchQuery}
           />
         </div>
@@ -280,13 +267,13 @@
           {:else}
             <Select.Root>
               <Select.Trigger
-                class="w-full border-border/50 bg-secondary/50 transition-colors hover:bg-secondary"
+                class="h-7 w-full border-input bg-input/20 px-2 text-xs/relaxed transition-colors hover:bg-input/30"
                 disabled={servers.size === 0}
               >
                 <div class="flex items-center gap-2">
-                  <span class="text-sm text-muted-foreground">Login Server</span
+                  <span class="text-xs text-muted-foreground">Login Server</span
                   >
-                  <span class="truncate text-sm text-foreground"
+                  <span class="truncate text-xs font-medium text-foreground"
                     >{$selectedServer.split(" (")?.[0] ??
                       "Loading servers..."}</span
                   >
@@ -296,10 +283,11 @@
                 {#each servers.values() as server (server.sName)}
                   <Select.Item value={`${server.sName} (${server.iCount})`}>
                     <span
-                      class="flex w-full items-center justify-between gap-4"
+                      class="flex w-full items-center justify-between gap-4 text-xs"
                     >
                       <span>{server.sName}</span>
-                      <span class="text-xs tabular-nums text-muted-foreground"
+                      <span
+                        class="text-[0.625rem] tabular-nums text-muted-foreground"
                         >{server.iCount}</span
                       >
                     </span>
@@ -310,46 +298,53 @@
           {/if}
 
           <div
-            class="group relative flex items-stretch overflow-hidden rounded-lg border transition-all duration-200
-                {managerState.startWithScript
-              ? 'elevation-1 border-primary/40 bg-primary/5'
-              : 'border-border/50 bg-secondary/50'}"
+            class={cn(
+              "group relative flex items-stretch overflow-hidden rounded-lg border transition-all duration-100",
+              {
+                "border-primary/40 bg-primary/5 ring-1 ring-primary/40":
+                  managerState.startWithScript,
+                "border-input bg-input/20": !managerState.startWithScript,
+              },
+            )}
           >
-            <label
-              class="flex cursor-pointer items-center gap-2 bg-transparent px-3 transition-colors hover:bg-secondary/80"
+            <Label
+              class="flex h-7 cursor-pointer items-center gap-2 bg-transparent px-2 transition-colors hover:bg-input/30"
             >
               <Switch
                 bind:checked={managerState.startWithScript}
-                class="h-4 w-8 [&>span]:h-3 [&>span]:w-3 [&>span]:data-[state=checked]:translate-x-4"
+                class="h-[14px] w-6 [&>span]:size-2.5 [&>span]:data-[state=checked]:translate-x-2.5"
               />
               <span
-                class="select-none whitespace-nowrap text-sm font-medium transition-colors
-                    {managerState.startWithScript
-                  ? 'text-foreground'
-                  : 'text-muted-foreground'}"
+                class={cn(
+                  "select-none whitespace-nowrap text-xs font-medium transition-colors",
+                  {
+                    "text-foreground": managerState.startWithScript,
+                    "text-muted-foreground": !managerState.startWithScript,
+                  },
+                )}
               >
                 Script
               </span>
-            </label>
+            </Label>
 
             <div
-              class="my-1.5 w-px self-stretch transition-colors
-                  {managerState.startWithScript
-                ? 'bg-primary/20'
-                : 'bg-border/30'}"
+              class={cn("my-1 w-px self-stretch transition-colors", {
+                "bg-primary/20": managerState.startWithScript,
+                "bg-input/30": !managerState.startWithScript,
+              })}
             ></div>
 
             <Button
               variant="ghost"
               onclick={selectScript}
-              class="flex min-w-0 flex-1 items-center rounded-none border-0 bg-transparent px-3 transition-colors hover:bg-secondary/80"
-              title={managerState.scriptPath || "Select a script file"}
+              class="flex h-7 min-w-0 flex-1 items-center rounded-none border-0 bg-transparent px-2 text-xs transition-colors hover:bg-input/30"
+              title={managerState.scriptPath ?? "Select a script file"}
             >
               <span
-                class="truncate text-sm transition-colors
-                    {managerState.scriptPath
-                  ? 'font-medium text-foreground'
-                  : 'text-muted-foreground'}"
+                class={cn("truncate transition-colors", {
+                  "font-medium text-foreground": managerState.scriptPath,
+                  "text-muted-foreground": !managerState.scriptPath,
+                })}
               >
                 {managerState.scriptPath
                   ? managerState.scriptPath.split(/[/\\]/).pop()
@@ -361,87 +356,85 @@
       </div>
 
       <div
-        class="flex flex-wrap items-center justify-between gap-2 text-sm transition-all duration-200 sm:gap-3"
+        class="flex flex-wrap items-center justify-between gap-2 text-xs transition-all duration-100 sm:gap-3"
       >
-        <div class="flex shrink-0 items-center gap-3">
+        <div class="flex shrink-0 items-center gap-2">
           <span
             class="flex items-center gap-1.5 text-muted-foreground transition-colors"
           >
             <span
-              class="font-medium tabular-nums {selectedCount > 0
-                ? 'text-primary'
-                : ''}">{selectedCount}</span
+              class={cn("font-medium tabular-nums", {
+                "text-primary": selectedCount > 0,
+              })}
             >
-            <span class="text-muted-foreground/70">of</span>
+              {selectedCount}
+            </span>
+            <span class="text-muted-foreground/60">of</span>
             <span class="tabular-nums">{filteredAccounts.length}</span>
-            <span class="text-muted-foreground/70">selected</span>
+            <span class="text-muted-foreground/60">selected</span>
           </span>
         </div>
 
-        <div class="flex flex-wrap items-center gap-0.5 sm:gap-1">
+        <div class="flex flex-wrap items-center gap-1">
           <Button
             variant="secondary"
-            size="sm"
+            class="h-7 px-2.5 text-xs font-medium"
             onclick={toggleAll}
-            class="px-2 sm:px-3"
           >
             {isAllSelected ? "None" : "All"}
           </Button>
 
           <Button
             variant="ghost"
-            size="sm"
+            class="h-7 px-2 text-xs font-medium text-muted-foreground hover:text-foreground"
             onclick={toggleSelected}
-            class="px-2 text-muted-foreground hover:text-foreground sm:px-3"
             title="Invert selection"
           >
-            <span class="text-sm font-medium">Invert</span>
+            Invert
           </Button>
 
-          <div
-            class="ml-0.5 hidden h-4 w-px bg-border/30 sm:ml-1 sm:block"
-          ></div>
+          <div class="mx-1 hidden h-4 w-px bg-border/20 sm:block"></div>
 
           <Button
             variant="destructive-outline"
-            size="sm"
-            onclick={() => handleRemove(Array.from(selectedAccounts))}
+            class="h-7 gap-1.5 px-2.5 text-xs font-medium"
+            onclick={() => void handleRemove(Array.from(selectedAccounts))}
             disabled={selectedCount === 0}
-            class="ml-0.5 px-2 sm:ml-1 sm:px-3"
           >
-            <Icon icon="trash" class="h-4 w-4" />
-            <span class="hidden text-sm font-medium sm:inline">Remove</span>
+            <Icon icon="trash" class="size-3.5" />
+            <span class="hidden sm:inline">Remove</span>
           </Button>
 
           <Button
-            variant="ghost"
-            size="sm"
+            variant="default"
+            class="h-7 gap-1.5 px-2.5 text-xs font-medium"
             onclick={() => handleStart(Array.from(selectedAccounts))}
             disabled={selectedCount === 0}
-            class="ml-0.5 bg-primary px-2 text-primary-foreground hover:bg-primary/90 sm:ml-1 sm:px-3"
             title="Start selected"
           >
-            <Icon icon="play" class="h-4 w-4" />
-            <span class="hidden text-sm font-medium sm:inline">Start</span>
+            <Icon icon="play" class="size-3.5" />
+            <span class="hidden sm:inline">Start</span>
           </Button>
         </div>
       </div>
 
-      <div class="relative -mx-1 flex-1 overflow-auto px-1">
+      <div class="relative -mx-1 flex-1 overflow-auto p-1">
         {#if isLoading}
           <div
-            class="flex h-full flex-col items-center justify-center gap-3 text-muted-foreground"
+            class="flex h-full flex-col items-center justify-center gap-2 text-muted-foreground"
           >
-            <Icon icon="loader" size="xl" spin />
-            <p class="text-sm">Loading accounts...</p>
+            <Icon icon="loader" size="lg" spin />
+            <p class="text-xs">Loading accounts...</p>
           </div>
         {:else if filteredAccounts.length === 0}
           <div
             class="flex h-full flex-col items-center justify-center gap-3 py-12 text-center"
           >
             <div class="space-y-1">
-              <h3 class="font-medium text-foreground">No accounts found</h3>
-              <p class="text-sm text-muted-foreground">
+              <h3 class="text-sm font-medium text-foreground">
+                No accounts found
+              </h3>
+              <p class="text-xs text-muted-foreground">
                 Try adjusting your filters or add a new account.
               </p>
             </div>
@@ -465,65 +458,68 @@
               )}
 
               <div
-                class="group flex cursor-pointer items-center gap-4 rounded-xl border px-4 py-4 transition-all duration-150
-                    {isSelected
-                  ? 'elevation-2 border-primary/50 bg-primary/5'
-                  : 'hover:elevation-1 border-border/50 bg-card hover:border-border hover:bg-secondary/30'}"
-                onclick={() => toggleSelection(account.username)}
-                role="button"
-                tabindex="0"
-                onkeydown={(ev: KeyboardEvent) =>
-                  ev.key === "Enter" && toggleSelection(account.username)}
+                class={cn(
+                  "group flex cursor-default items-center gap-3 overflow-hidden rounded-lg px-3 ring-1 transition-all duration-100",
+                  {
+                    "elevation-1 bg-primary/5 ring-primary/40": isSelected,
+                    "bg-card ring-foreground/10 hover:bg-muted/30 hover:ring-foreground/20":
+                      !isSelected,
+                  },
+                )}
+                onclick={() => {}}
+                role="none"
+                tabindex="-1"
               >
-                <Checkbox
-                  checked={isSelected}
-                  onclick={(ev: MouseEvent) => ev.stopPropagation()}
-                  onCheckedChange={() => toggleSelection(account.username)}
-                />
-
-                <span
-                  class="flex-1 truncate text-base font-medium text-foreground"
-                  >{account.username}</span
+                <Label
+                  class="flex flex-1 cursor-pointer items-center gap-3 py-3"
                 >
+                  <Checkbox
+                    checked={isSelected}
+                    class="size-3.5"
+                    onCheckedChange={() => toggleSelection(account.username)}
+                  />
+
+                  <span
+                    class="flex-1 truncate text-sm font-medium text-foreground"
+                    >{account.username}</span
+                  >
+                </Label>
 
                 <div
-                  class="flex items-center gap-0.5 opacity-0 transition-opacity duration-150 group-hover:opacity-100"
+                  class="flex items-center gap-1 opacity-0 transition-opacity duration-100 group-hover:opacity-100"
                 >
                   <Button
                     variant="ghost"
-                    size="icon"
-                    class="h-7 w-7 text-muted-foreground hover:bg-primary/10 hover:text-primary"
+                    class="size-7 p-0 text-muted-foreground hover:bg-primary/10 hover:text-primary"
                     onclick={(ev: MouseEvent) => {
                       ev.stopPropagation();
                       handleStart([account.username]);
                     }}
                   >
-                    <Icon icon="play" class="h-3.5 w-3.5" />
+                    <Icon icon="play" class="size-3.5" />
                   </Button>
 
                   <Button
                     variant="ghost"
-                    size="icon"
-                    class="h-7 w-7 text-muted-foreground hover:bg-secondary hover:text-foreground"
+                    class="size-7 p-0 text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                     onclick={(ev) => {
                       ev.stopPropagation();
                       editingAccount = account;
                       isEditOpen = true;
                     }}
                   >
-                    <Icon icon="pencil" class="h-3.5 w-3.5" />
+                    <Icon icon="pencil" class="size-3.5" />
                   </Button>
 
                   <Button
                     variant="ghost"
-                    size="icon"
-                    class="h-7 w-7 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                    onclick={(ev) => {
+                    class="size-7 p-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                    onclick={async (ev) => {
                       ev.stopPropagation();
-                      handleRemove([account.username]);
+                      await handleRemove([account.username]);
                     }}
                   >
-                    <Icon icon="trash" class="h-3.5 w-3.5" />
+                    <Icon icon="trash" class="size-3.5" />
                   </Button>
                 </div>
               </div>
@@ -549,4 +545,5 @@
     editingAccount = null;
   }}
 />
+
 <DialogHost />
