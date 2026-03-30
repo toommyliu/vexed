@@ -1,6 +1,7 @@
 <script lang="ts">
   import {
     Alert,
+    AppFrame,
     Button,
     Icon,
     Input,
@@ -314,82 +315,71 @@
   }
 </script>
 
-<div class="flex h-screen flex-col bg-background">
-  <header
-    class="elevation-1 sticky top-0 z-10 border-b border-border/50 bg-background/95 px-6 py-3 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80"
-  >
-    <div class="mx-auto flex max-w-7xl items-center justify-between">
-      <div class="flex items-center gap-3">
-        <h1 class="text-base font-semibold tracking-tight text-foreground">
-          Loader Grabber
-        </h1>
-      </div>
+<AppFrame.Root>
+  <AppFrame.Header title="Loader Grabber">
+    {#snippet right()}
+      {#if activeTab === "grabber" && grabbedData}
+        <Button
+          variant="outline"
+          size="xs"
+          class="gap-1.5"
+          onclick={handleExport}
+        >
+          <Icon icon="download" size="sm" />
+          <span class="hidden sm:inline">Export</span>
+        </Button>
+      {/if}
+    {/snippet}
+  </AppFrame.Header>
 
-      <div class="flex items-center gap-2">
-        {#if activeTab === "grabber" && grabbedData}
-          <Button
-            variant="outline"
-            size="sm"
-            class="gap-2"
-            onclick={handleExport}
-          >
-            <Icon icon="download" size="md" />
-            <span class="hidden sm:inline">Export</span>
-          </Button>
-        {/if}
-      </div>
-    </div>
-  </header>
-
-  <main class="flex-1 overflow-hidden p-4 sm:p-6">
-    <div class="mx-auto flex h-full max-w-7xl flex-col gap-4">
+  <AppFrame.Body scroll={false}>
+    <div class="flex h-full flex-col gap-3">
       {#if error}
         <Alert.Root variant="error">
           <Alert.Description>{error}</Alert.Description>
         </Alert.Root>
       {/if}
 
-      <Tabs.Root bind:value={activeTab} class="flex h-full flex-col gap-4">
-        <Tabs.List class="w-fit">
-          <Tabs.Trigger value="loader" class="gap-2">
-            <Icon icon="upload" size="md" />
+      <Tabs.Root bind:value={activeTab} class="flex h-full flex-col gap-3">
+        <Tabs.List class="h-8 w-fit p-[3px]">
+          <Tabs.Trigger value="loader" class="gap-1.5 px-1.5 py-0.5 text-xs">
+            <Icon icon="upload" size="sm" />
             Loader
           </Tabs.Trigger>
-          <Tabs.Trigger value="grabber" class="gap-2">
-            <Icon icon="download" size="md" />
+          <Tabs.Trigger value="grabber" class="gap-1.5 px-1.5 py-0.5 text-xs">
+            <Icon icon="download" size="sm" />
             Grabber
           </Tabs.Trigger>
         </Tabs.List>
 
         <Tabs.Content value="loader" class="flex-1">
-          <div class="flex flex-col gap-4">
-            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div class="flex flex-col gap-3">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <NumberField.Root
                 bind:value={loaderId}
                 min={1}
                 max={Number.MAX_SAFE_INTEGER}
-                class="gap-2"
+                class="gap-1"
               >
-                <Label for="loader-id">ID</Label>
+                <Label for="loader-id" class="text-xs font-medium">ID</Label>
                 <NumberField.Input
                   id="loader-id"
                   placeholder="e.g. 1337"
-                  class="h-10 border-border/50 bg-secondary/50 font-mono transition-all focus:bg-background"
+                  class="h-7 border-input bg-input/20 px-2 py-0.5 font-mono text-xs transition-all focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
                   autocomplete="off"
                 />
               </NumberField.Root>
 
-              <div class="grid gap-2">
-                <Label for="loader-type">Source</Label>
+              <div class="grid gap-1">
+                <Label for="loader-type" class="text-xs font-medium"
+                  >Source</Label
+                >
                 <Select.Root bind:value={loaderType}>
-                  <Select.Trigger
-                    id="loader-type"
-                    class="h-10 w-full border-border/50 bg-secondary/50 transition-all hover:bg-secondary"
-                  >
+                  <Select.Trigger class="h-7 w-full text-xs">
                     {@const loaderOption = getLoaderOption(loaderType)}
                     <span
                       class={cn(
-                        "truncate text-sm",
+                        "truncate text-xs/relaxed",
                         !loaderOption && "text-muted-foreground",
                       )}
                     >
@@ -410,7 +400,7 @@
               onclick={handleLoad}
               disabled={loaderType === null ||
                 (requiresLoaderId(loaderType) && !loaderId)}
-              class="h-10 w-full gap-2 shadow-sm transition-all hover:scale-[1.01] active:scale-[0.99]"
+              class="h-7 w-full gap-2 text-xs shadow-none transition-all"
             >
               Load
             </Button>
@@ -419,21 +409,20 @@
 
         <Tabs.Content
           value="grabber"
-          class="flex h-full min-h-0 flex-1 flex-col gap-4"
+          class="flex h-full min-h-0 flex-1 flex-col gap-3"
         >
-          <div class="flex flex-col gap-4">
-            <div class="flex flex-col gap-4 p-1 sm:flex-row sm:items-end">
-              <div class="grid flex-1 gap-2">
-                <Label for="grabber-type">Source</Label>
+          <div class="flex flex-col gap-3">
+            <div class="flex flex-col gap-3 p-0.5 sm:flex-row sm:items-end">
+              <div class="grid flex-1 gap-1">
+                <Label for="grabber-type" class="text-xs font-medium"
+                  >Source</Label
+                >
                 <Select.Root bind:value={grabberType}>
-                  <Select.Trigger
-                    id="grabber-type"
-                    class="h-10 w-full border-border/40 bg-secondary/50 !ring-0 !ring-offset-0 transition-all hover:bg-secondary"
-                  >
+                  <Select.Trigger class="h-7 w-full text-xs">
                     {@const grabberOption = getGrabberOption(grabberType)}
                     <span
                       class={cn(
-                        "truncate text-sm",
+                        "truncate text-xs/relaxed",
                         !grabberOption && "text-muted-foreground",
                       )}
                     >
@@ -453,10 +442,10 @@
               <Button
                 onclick={handleGrab}
                 disabled={grabberType === null || isLoading}
-                class="h-10 w-[140px] gap-2 px-6 shadow-sm !ring-0 !ring-offset-0 transition-all"
+                class="h-7 min-w-[100px] gap-2 px-3 text-xs shadow-none transition-all"
               >
                 {#if isLoading}
-                  <Icon icon="loader" size="md" spin />
+                  <Icon icon="loader" size="sm" spin />
                   Grabbing...
                 {:else}
                   Grab
@@ -468,12 +457,12 @@
               <div class="relative">
                 <Icon
                   icon="search"
-                  class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                  class="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground"
                 />
                 <Input
                   type="search"
                   placeholder="Search items..."
-                  class="border-border/50 bg-secondary/50 pl-10 transition-colors focus:bg-background"
+                  class="h-7 border-input bg-input/20 pl-7 text-xs transition-colors focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
                   bind:value={searchQuery}
                 />
               </div>
@@ -499,14 +488,14 @@
           </div>
 
           <div
-            class="relative flex-1 overflow-hidden rounded-xl border border-border/50 bg-card"
+            class="relative flex-1 overflow-hidden rounded-lg bg-card ring-1 ring-foreground/10"
           >
             {#if !isLoading}
               <div class="h-full overflow-hidden p-2">
                 <VirtualList
                   data={visibleItems}
                   key="nodeId"
-                  estimateSize={32}
+                  estimateSize={28}
                   overflow={2}
                   class="no-scrollbar"
                 >
@@ -521,8 +510,8 @@
         </Tabs.Content>
       </Tabs.Root>
     </div>
-  </main>
-</div>
+  </AppFrame.Body>
+</AppFrame.Root>
 
 {#snippet TreeNode(item: FlattenedItem)}
   {@const hasChildren = item.children && item.children.length > 0}
@@ -566,7 +555,7 @@
 
     <div
       class={cn(
-        "group relative flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 text-sm transition-all",
+        "group relative flex cursor-pointer items-start gap-2 rounded-md px-2 py-1 text-xs transition-all",
         canToggle ? "hover:bg-secondary/40" : "cursor-default",
         isExpanded && hasChildren && "bg-secondary/20",
       )}
@@ -578,25 +567,25 @@
     >
       {#if showChildrenToggle}
         <div
-          class="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center"
+          class="mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center"
         >
           <Icon
             icon="chevron_right"
             class={cn(
-              "h-3.5 w-3.5 text-muted-foreground transition-transform duration-200",
+              "h-3 w-3 text-muted-foreground transition-transform duration-200",
               isExpanded && "rotate-90 text-foreground",
             )}
           />
         </div>
       {:else}
         <!-- Spacer to maintain alignment with siblings -->
-        <div class="mt-0.5 h-5 w-5 flex-shrink-0"></div>
+        <div class="mt-0.5 h-4 w-4 flex-shrink-0"></div>
       {/if}
 
-      <div class="flex min-w-0 flex-1 items-center gap-2 leading-relaxed">
+      <div class="flex min-w-0 flex-1 items-center gap-1.5 leading-relaxed">
         {#if hasChildren}
           <div class="flex min-w-0 flex-1 items-center gap-2">
-            <span class="flex-shrink-0 truncate font-semibold text-foreground">
+            <span class="flex-shrink-0 truncate font-medium text-foreground">
               {#if searchRegex}
                 {@const parts = item.name.split(searchRegex)}
                 {#each parts as part, index (index)}
@@ -622,7 +611,7 @@
             variant="ghost"
             size="icon"
             class={cn(
-              "h-6 w-6 shadow-sm transition-all hover:bg-secondary/80",
+              "h-5 w-5 rounded-sm shadow-none transition-all hover:bg-secondary/80",
               isCopied && "text-success/100",
             )}
             onclick={async (ev) => {
@@ -661,8 +650,8 @@
         {#if hasValue}
           <button
             class={cn(
-              "inline-flex min-w-0 items-center gap-1.5 truncate rounded-md px-2 py-0.5 font-mono text-[13px] transition-all",
-              "bg-secondary/60 text-foreground ring-1 ring-border/50 hover:bg-secondary hover:ring-border",
+              "inline-flex min-w-0 items-center gap-1.5 truncate rounded-sm px-1.5 py-0.5 font-mono text-[11px] transition-all",
+              "bg-input/20 text-foreground ring-1 ring-border/30 hover:bg-input/30 hover:ring-border/50",
               isCopied && "bg-success/10 text-success ring-success/30",
             )}
             title="Click to copy"
