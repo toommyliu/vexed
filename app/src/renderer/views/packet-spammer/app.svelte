@@ -70,7 +70,7 @@
   </AppFrame.Header>
 
   <AppFrame.Body maxWidth="max-w-3xl">
-    <div class="grid gap-4">
+    <div class="grid grid-cols-1 gap-4">
       <AddPacketSection
         disabled={isRunning}
         {packetInput}

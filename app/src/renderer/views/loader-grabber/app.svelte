@@ -3,6 +3,7 @@
     Alert,
     AppFrame,
     Button,
+    Card,
     Icon,
     Input,
     Label,
@@ -318,196 +319,194 @@
     {#snippet right()}{/snippet}
   </AppFrame.Header>
 
-  <AppFrame.Body scroll={false}>
-    <div class="flex h-full flex-col gap-3">
+  <AppFrame.Body scroll={false} maxWidth="max-w-6xl">
+    <div class="flex h-full flex-col gap-4">
       {#if error}
         <Alert.Root variant="error">
           <Alert.Description>{error}</Alert.Description>
         </Alert.Root>
       {/if}
 
-      <div
-        class="flex flex-col gap-4 rounded-lg bg-muted/20 p-2 sm:flex-row sm:items-start sm:gap-6"
-      >
-        <div class="flex flex-1 flex-col gap-2">
-          <div class="flex items-center gap-1.5 px-0.5">
-            <Label class="text-[11px] font-medium text-foreground/80">
-              Loader
-            </Label>
-          </div>
-          <div class="flex items-end gap-2 px-0.5">
-            <div class="flex flex-col gap-1">
-              <Label for="loader-id" class="text-[9px] text-muted-foreground/60"
-                >ID</Label
-              >
-              <NumberField.Root
-                bind:value={loaderId}
-                min={1}
-                max={Number.MAX_SAFE_INTEGER}
-                class="w-20 gap-1"
-              >
-                <NumberField.Group class="h-7 bg-input/20">
-                  <NumberField.Input
-                    id="loader-id"
-                    class="text-center font-mono text-xs"
-                    autocomplete="off"
-                    placeholder="ID"
-                  />
-                </NumberField.Group>
-              </NumberField.Root>
-            </div>
-
-            <div class="flex flex-1 flex-col gap-1">
-              <Label class="text-[9px] text-muted-foreground/60">Source</Label>
-              <Select.Root bind:value={loaderType}>
-                <Select.Trigger
-                  size="sm"
-                  class="h-7 w-full border-input bg-input/20 px-2 text-xs"
-                >
-                  {@const loaderOption = getLoaderOption(loaderType)}
-                  <span
-                    class={cn(
-                      "truncate text-xs/relaxed",
-                      !loaderOption && "text-muted-foreground",
-                    )}
-                  >
-                    {loaderOption?.label ?? "Source"}
-                  </span>
-                </Select.Trigger>
-                <Select.Content>
-                  {#each loaderOptions as option (option.value)}
-                    <Select.Item value={option.value} class="text-xs">
-                      {option.label}
-                    </Select.Item>
-                  {/each}
-                </Select.Content>
-              </Select.Root>
-            </div>
-
-            <Button
-              onclick={handleLoad}
-              disabled={loaderType === null ||
-                (requiresLoaderId(loaderType) && !loaderId)}
-              class="h-7 px-3 text-xs shadow-none transition-all"
+      <div class="grid min-h-0 grid-cols-1 gap-4 md:grid-cols-2">
+        <Card.Root
+          class="overflow-hidden rounded-xl border-border/40 shadow-none"
+        >
+          <Card.Header
+            class="flex min-h-[40px] flex-row items-center justify-between border-b border-border/10 p-3 py-2"
+          >
+            <Card.Title class="text-xs font-semibold text-foreground/70"
+              >Loader</Card.Title
             >
-              Load
-            </Button>
-          </div>
-        </div>
-
-        <Separator
-          orientation="vertical"
-          class="hidden h-10 self-center opacity-50 sm:block"
-        />
-
-        <div class="flex flex-1 flex-col gap-2">
-          <div class="flex items-center gap-1.5 px-0.5">
-            <Label class="text-[11px] font-medium text-foreground/80">
-              Grabber
-            </Label>
-          </div>
-          <div class="flex items-end gap-2 px-0.5">
-            <div class="flex flex-1 flex-col gap-1">
-              <Label class="text-[9px] text-muted-foreground/60">Source</Label>
-              <Select.Root bind:value={grabberType}>
-                <Select.Trigger
-                  size="sm"
-                  class="h-7 w-full border-input bg-input/20 px-2 text-xs"
+          </Card.Header>
+          <Card.Content class="flex flex-col gap-4 p-3.5">
+            <div class="flex items-end gap-3">
+              <div class="flex w-24 flex-col gap-1.5">
+                <Label
+                  for="loader-id"
+                  class="text-xs font-semibold text-foreground/80">ID</Label
                 >
-                  {@const grabberOption = getGrabberOption(grabberType)}
-                  <span
-                    class={cn(
-                      "truncate text-xs/relaxed",
-                      !grabberOption && "text-muted-foreground",
-                    )}
+                <NumberField.Root
+                  bind:value={loaderId}
+                  min={1}
+                  max={Number.MAX_SAFE_INTEGER}
+                  class="gap-1"
+                >
+                  <NumberField.Group class="h-7 bg-input/20">
+                    <NumberField.Input
+                      id="loader-id"
+                      class="text-center font-mono text-xs"
+                      autocomplete="off"
+                      placeholder="ID"
+                    />
+                  </NumberField.Group>
+                </NumberField.Root>
+              </div>
+
+              <div class="flex flex-1 flex-col gap-1.5">
+                <Label class="text-xs font-semibold text-foreground/80"
+                  >Source</Label
+                >
+                <Select.Root bind:value={loaderType}>
+                  <Select.Trigger
+                    size="sm"
+                    class="h-7 w-full border-input bg-input/20 px-2 text-xs"
                   >
-                    {grabberOption?.label ?? "Source"}
-                  </span>
-                </Select.Trigger>
-                <Select.Content>
-                  {#each grabberOptions as option (option.value)}
-                    <Select.Item value={option.value} class="text-xs">
-                      {option.label}
-                    </Select.Item>
-                  {/each}
-                </Select.Content>
-              </Select.Root>
-            </div>
+                    {@const loaderOption = getLoaderOption(loaderType)}
+                    <span
+                      class={cn(
+                        "truncate text-xs/relaxed",
+                        !loaderOption && "text-muted-foreground",
+                      )}
+                    >
+                      {loaderOption?.label ?? ""}
+                    </span>
+                  </Select.Trigger>
+                  <Select.Content>
+                    {#each loaderOptions as option (option.value)}
+                      <Select.Item value={option.value} class="text-xs">
+                        {option.label}
+                      </Select.Item>
+                    {/each}
+                  </Select.Content>
+                </Select.Root>
+              </div>
 
-            <Button
-              onclick={handleGrab}
-              disabled={grabberType === null || isLoading}
-              class="h-7 min-w-[70px] px-3 text-xs shadow-none transition-all"
-            >
-              {#if isLoading}
-                <Icon icon="loader" size="sm" spin />
-              {:else}
-                Grab
-              {/if}
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      <Separator class="opacity-50" />
-
-      <div class="flex min-h-0 flex-1 flex-col gap-3">
-        <div class="flex items-center justify-between gap-3">
-          <div class="relative flex-1">
-            <Icon
-              icon="search"
-              class="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground/50"
-            />
-            <Input
-              type="search"
-              placeholder="Search items..."
-              class="h-7 border-input bg-input/20 pl-7 text-xs transition-colors focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
-              bind:value={searchQuery}
-            />
-          </div>
-
-          <div class="flex items-center gap-3">
-            <span class="text-[11px] tabular-nums text-muted-foreground/70">
-              <span class="font-medium text-foreground">{matchedRootCount}</span
-              >
-              {#if searchActive && matchedRootCount !== treeData.length}
-                <span class="opacity-50"> of {treeData.length}</span>
-              {/if}
-              <span> item{matchedRootCount === 1 ? "" : "s"}</span>
-            </span>
-
-            {#if treeData.length > 0}
               <Button
-                variant="outline"
-                size="xs"
-                class="h-6 gap-1.5 px-2 text-[10px]"
-                onclick={handleExport}
+                onclick={handleLoad}
+                disabled={loaderType === null ||
+                  (requiresLoaderId(loaderType) && !loaderId)}
+                class="h-7 px-4 text-xs shadow-none transition-all"
               >
-                <Icon icon="download" size="xs" />
-                Export
+                Load
               </Button>
-            {/if}
-          </div>
-        </div>
-
-        <div class="relative flex-1 overflow-hidden rounded-lg bg-card/60">
-          {#if !isLoading}
-            <div class="h-full overflow-hidden p-2">
-              <VirtualList
-                data={visibleItems}
-                key="nodeId"
-                estimateSize={28}
-                overflow={2}
-                class="no-scrollbar"
-              >
-                {#snippet children({ data: item })}
-                  <!-- eslint-disable-next-line @typescript-eslint/no-confusing-void-expression, sonarjs/no-use-of-empty-return-value -->
-                  {@render TreeNode(item)}
-                {/snippet}
-              </VirtualList>
             </div>
-          {/if}
-        </div>
+          </Card.Content>
+        </Card.Root>
+
+        <Card.Root
+          class="overflow-hidden rounded-xl border-border/40 shadow-none"
+        >
+          <Card.Header
+            class="flex min-h-[40px] flex-row items-center justify-between border-b border-border/10 p-3 py-2"
+          >
+            <div class="flex items-center gap-2">
+              <Card.Title class="text-xs font-semibold text-foreground/70"
+                >Grabber</Card.Title
+              >
+              <span
+                class="rounded bg-blue-500/10 px-1.5 py-0.5 text-[10px] font-bold tabular-nums text-blue-500/80"
+              >
+                {grabbedData ? matchedRootCount : 0}
+              </span>
+            </div>
+
+            <div class="relative">
+              <Icon
+                icon="search"
+                class="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground/50"
+              />
+              <Input
+                type="search"
+                placeholder="Search..."
+                class="h-6 w-48 border-input bg-input/20 pl-7 text-[11px] transition-colors focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 disabled:opacity-50"
+                bind:value={searchQuery}
+                disabled={!grabbedData}
+              />
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              class="h-7 gap-1.5 border-border/40 px-2.5 text-[11px]"
+              onclick={handleExport}
+              disabled={!grabbedData}
+            >
+              <Icon icon="download" size="sm" />
+              Export
+            </Button>
+          </Card.Header>
+          <Card.Content class="flex flex-col gap-4 p-3.5">
+            <div class="flex items-end gap-3">
+              <div class="flex flex-1 flex-col gap-1.5">
+                <Label class="text-xs font-semibold text-foreground/80"
+                  >Source</Label
+                >
+                <Select.Root bind:value={grabberType}>
+                  <Select.Trigger
+                    size="sm"
+                    class="h-7 w-full border-input bg-input/20 px-2 text-xs"
+                  >
+                    {@const grabberOption = getGrabberOption(grabberType)}
+                    <span
+                      class={cn(
+                        "truncate text-xs/relaxed",
+                        !grabberOption && "text-muted-foreground",
+                      )}
+                    >
+                      {grabberOption?.label ?? ""}
+                    </span>
+                  </Select.Trigger>
+                  <Select.Content>
+                    {#each grabberOptions as option (option.value)}
+                      <Select.Item value={option.value} class="text-xs">
+                        {option.label}
+                      </Select.Item>
+                    {/each}
+                  </Select.Content>
+                </Select.Root>
+              </div>
+
+              <Button
+                onclick={handleGrab}
+                disabled={grabberType === null || isLoading}
+                class="h-7 min-w-[80px] px-4 text-xs shadow-none transition-all"
+              >
+                {#if isLoading}
+                  <Icon icon="loader" size="sm" spin />
+                {:else}
+                  Grab
+                {/if}
+              </Button>
+            </div>
+            <div class="relative h-[50vh] p-0">
+              {#if !isLoading}
+                <div class="h-full">
+                  <VirtualList
+                    data={visibleItems}
+                    key="nodeId"
+                    estimateSize={28}
+                    overflow={2}
+                    class="no-scrollbar"
+                  >
+                    {#snippet children({ data: item })}
+                      <!-- eslint-disable-next-line @typescript-eslint/no-confusing-void-expression, sonarjs/no-use-of-empty-return-value -->
+                      {@render TreeNode(item)}
+                    {/snippet}
+                  </VirtualList>
+                </div>
+              {/if}
+            </div>
+          </Card.Content>
+        </Card.Root>
       </div>
     </div>
   </AppFrame.Body>

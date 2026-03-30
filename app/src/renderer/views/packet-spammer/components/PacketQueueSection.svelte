@@ -24,9 +24,9 @@
   const canClear = $derived(packets.length > 0 && !isRunning);
 </script>
 
-<Card.Root class="overflow-hidden rounded-xl border-border/40 bg-background shadow-none">
+<Card.Root class="overflow-hidden rounded-xl border-border/40 shadow-none">
   <Card.Header
-    class="flex min-h-[40px] flex-row items-center justify-between border-b border-border/10 p-3 py-2"
+    class="relative flex min-h-[40px] flex-row items-center justify-between border-b border-border/10 p-3 py-2"
   >
     <div class="flex items-center gap-2">
       <Card.Title class="text-xs font-semibold text-foreground/70">Packet Queue</Card.Title>
