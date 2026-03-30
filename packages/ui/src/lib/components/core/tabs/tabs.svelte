@@ -18,6 +18,7 @@
   bind:ref
   bind:value
   {orientation}
+  {onValueChange}
   class={cn(
     "flex gap-2 data-[orientation=horizontal]:flex-col data-[orientation=vertical]:flex-row data-[orientation=vertical]:items-start",
     className,

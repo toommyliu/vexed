@@ -341,12 +341,12 @@
       {/if}
 
       <Tabs.Root bind:value={activeTab} class="flex h-full flex-col gap-3">
-        <Tabs.List class="h-8 w-fit p-[3px]">
-          <Tabs.Trigger value="loader" class="gap-1.5 px-1.5 py-0.5 text-xs">
+        <Tabs.List>
+          <Tabs.Trigger value="loader" class="gap-1.5 text-xs">
             <Icon icon="upload" size="sm" />
             Loader
           </Tabs.Trigger>
-          <Tabs.Trigger value="grabber" class="gap-1.5 px-1.5 py-0.5 text-xs">
+          <Tabs.Trigger value="grabber" class="gap-1.5 text-xs">
             <Icon icon="download" size="sm" />
             Grabber
           </Tabs.Trigger>
@@ -354,28 +354,30 @@
 
         <Tabs.Content value="loader" class="flex-1">
           <div class="flex flex-col gap-3">
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
               <NumberField.Root
                 bind:value={loaderId}
                 min={1}
                 max={Number.MAX_SAFE_INTEGER}
-                class="gap-1"
+                size="sm"
+                class="w-full gap-1 sm:w-28"
               >
                 <Label for="loader-id" class="text-xs font-medium">ID</Label>
-                <NumberField.Input
-                  id="loader-id"
-                  placeholder="e.g. 1337"
-                  class="h-7 border-input bg-input/20 px-2 py-0.5 font-mono text-xs transition-all focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
-                  autocomplete="off"
-                />
+                <NumberField.Group>
+                  <NumberField.Input
+                    id="loader-id"
+                    class="font-mono"
+                    autocomplete="off"
+                  />
+                </NumberField.Group>
               </NumberField.Root>
 
-              <div class="grid gap-1">
+              <div class="grid flex-1 gap-1">
                 <Label for="loader-type" class="text-xs font-medium"
                   >Source</Label
                 >
                 <Select.Root bind:value={loaderType}>
-                  <Select.Trigger class="h-7 w-full text-xs">
+                  <Select.Trigger size="sm" class="h-7 w-full text-xs">
                     {@const loaderOption = getLoaderOption(loaderType)}
                     <span
                       class={cn(
@@ -418,7 +420,7 @@
                   >Source</Label
                 >
                 <Select.Root bind:value={grabberType}>
-                  <Select.Trigger class="h-7 w-full text-xs">
+                  <Select.Trigger size="sm" class="h-7 w-full text-xs">
                     {@const grabberOption = getGrabberOption(grabberType)}
                     <span
                       class={cn(
