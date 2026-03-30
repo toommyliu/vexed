@@ -15,17 +15,16 @@
   import { cn } from "@vexed/ui/util";
   import { Result } from "better-result";
   import { onMount } from "svelte";
-  import { get } from "svelte/store";
 
   import AddAccountDialog from "./components/add-account-dialog.svelte";
   import EditAccountDialog from "./components/edit-account-dialog.svelte";
 
   import { managerState } from "./state.svelte";
-  import { servers, selectedServer } from "./state/servers";
+  import { servers } from "./state/servers";
   import { removeAccount, startAccount } from "./util";
 
   import type { ManagerIpcError } from "~/shared/manager/errors";
-  import { client, handlers } from "~/shared/tipc";
+  import { client } from "~/shared/tipc";
   import type { Account } from "~/shared/types";
 
   const { accounts, selectedAccounts } = managerState;
@@ -66,8 +65,8 @@
         servers.clear();
         for (const [idx, server] of serversResult.value.entries()) {
           // Set the default selected server to the first one if none is selected
-          if (idx === 0 && !get(selectedServer))
-            selectedServer.set(`${server.sName} (${server.iCount})`);
+          if (idx === 0 && !managerState.selectedServer)
+            managerState.selectedServer = server.sName;
           servers.set(server.sName, server);
         }
       }
@@ -187,7 +186,7 @@
     for (const username of usernames) {
       const acc = accounts.get(username.toLowerCase());
       if (acc) {
-        const serverName = get(selectedServer)?.split(" (")?.[0] ?? null;
+        const serverName = managerState.selectedServer ?? null;
         void startAccount({
           ...acc,
           server: serverName,
@@ -265,7 +264,7 @@
               </span>
             </Button>
           {:else}
-            <Select.Root>
+            <Select.Root bind:value={managerState.selectedServer}>
               <Select.Trigger
                 class="h-7 w-full border-input bg-input/20 px-2 text-xs/relaxed transition-colors hover:bg-input/30"
                 disabled={servers.size === 0}
@@ -274,14 +273,13 @@
                   <span class="text-xs text-muted-foreground">Login Server</span
                   >
                   <span class="truncate text-xs font-medium text-foreground"
-                    >{$selectedServer.split(" (")?.[0] ??
-                      "Loading servers..."}</span
+                    >{managerState.selectedServer ?? "Loading servers..."}</span
                   >
                 </div>
               </Select.Trigger>
               <Select.Content>
                 {#each servers.values() as server (server.sName)}
-                  <Select.Item value={`${server.sName} (${server.iCount})`}>
+                  <Select.Item value={server.sName}>
                     <span
                       class="flex w-full items-center justify-between gap-4 text-xs"
                     >
@@ -444,7 +442,7 @@
               class="border-border/50"
               onclick={() => {
                 searchQuery = "";
-                selectedServer.set("");
+                managerState.selectedServer = "";
               }}
             >
               Clear Filters
