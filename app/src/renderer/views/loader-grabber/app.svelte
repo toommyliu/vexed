@@ -8,7 +8,7 @@
     Label,
     NumberField,
     Select,
-    Tabs,
+    Separator,
     VirtualList,
   } from "@vexed/ui";
   import { cn } from "@vexed/ui/util";
@@ -85,7 +85,6 @@
     return option?.requiresId ?? false;
   }
 
-  let activeTab = $state<"grabber" | "loader">("loader");
   let loaderId = $state(0);
   let loaderType = $state<LoaderDataType | null>(null);
   let grabberType = $state<GrabberDataType | null>(null);
@@ -165,7 +164,6 @@
         resetNodeIds();
         const builder = grabberBuilders[grabberType];
         treeData = builder(data);
-        console.debug("Grabbed data:", data);
       }
     } catch (error_) {
       error = "Failed to grab data";
@@ -317,19 +315,7 @@
 
 <AppFrame.Root>
   <AppFrame.Header title="Loader Grabber">
-    {#snippet right()}
-      {#if activeTab === "grabber" && grabbedData}
-        <Button
-          variant="outline"
-          size="xs"
-          class="gap-1.5"
-          onclick={handleExport}
-        >
-          <Icon icon="download" size="sm" />
-          <span class="hidden sm:inline">Export</span>
-        </Button>
-      {/if}
-    {/snippet}
+    {#snippet right()}{/snippet}
   </AppFrame.Header>
 
   <AppFrame.Body scroll={false}>
@@ -340,177 +326,189 @@
         </Alert.Root>
       {/if}
 
-      <Tabs.Root bind:value={activeTab} class="flex h-full flex-col gap-3">
-        <Tabs.List>
-          <Tabs.Trigger value="loader" class="gap-1.5 text-xs">
-            <Icon icon="upload" size="sm" />
-            Loader
-          </Tabs.Trigger>
-          <Tabs.Trigger value="grabber" class="gap-1.5 text-xs">
-            <Icon icon="download" size="sm" />
-            Grabber
-          </Tabs.Trigger>
-        </Tabs.List>
-
-        <Tabs.Content value="loader" class="flex-1">
-          <div class="flex flex-col gap-3">
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
+      <div
+        class="flex flex-col gap-4 rounded-lg bg-muted/20 p-2 sm:flex-row sm:items-start sm:gap-6"
+      >
+        <div class="flex flex-1 flex-col gap-2">
+          <div class="flex items-center gap-1.5 px-0.5">
+            <Label class="text-[11px] font-medium text-foreground/80">
+              Loader
+            </Label>
+          </div>
+          <div class="flex items-end gap-2 px-0.5">
+            <div class="flex flex-col gap-1">
+              <Label for="loader-id" class="text-[9px] text-muted-foreground/60"
+                >ID</Label
+              >
               <NumberField.Root
                 bind:value={loaderId}
                 min={1}
                 max={Number.MAX_SAFE_INTEGER}
-                size="sm"
-                class="w-full gap-1 sm:w-28"
+                class="w-20 gap-1"
               >
-                <Label for="loader-id" class="text-xs font-medium">ID</Label>
-                <NumberField.Group>
+                <NumberField.Group class="h-7 bg-input/20">
                   <NumberField.Input
                     id="loader-id"
-                    class="font-mono"
+                    class="text-center font-mono text-xs"
                     autocomplete="off"
+                    placeholder="ID"
                   />
                 </NumberField.Group>
               </NumberField.Root>
-
-              <div class="grid flex-1 gap-1">
-                <Label for="loader-type" class="text-xs font-medium"
-                  >Source</Label
-                >
-                <Select.Root bind:value={loaderType}>
-                  <Select.Trigger size="sm" class="h-7 w-full text-xs">
-                    {@const loaderOption = getLoaderOption(loaderType)}
-                    <span
-                      class={cn(
-                        "truncate text-xs/relaxed",
-                        !loaderOption && "text-muted-foreground",
-                      )}
-                    >
-                      {loaderOption?.label ?? "Select source..."}
-                    </span>
-                  </Select.Trigger>
-                  <Select.Content>
-                    {#each loaderOptions as option (option.value)}
-                      <Select.Item value={option.value}>
-                        {option.label}
-                      </Select.Item>
-                    {/each}
-                  </Select.Content>
-                </Select.Root>
-              </div>
             </div>
+
+            <div class="flex flex-1 flex-col gap-1">
+              <Label class="text-[9px] text-muted-foreground/60">Source</Label>
+              <Select.Root bind:value={loaderType}>
+                <Select.Trigger
+                  size="sm"
+                  class="h-7 w-full border-input bg-input/20 px-2 text-xs"
+                >
+                  {@const loaderOption = getLoaderOption(loaderType)}
+                  <span
+                    class={cn(
+                      "truncate text-xs/relaxed",
+                      !loaderOption && "text-muted-foreground",
+                    )}
+                  >
+                    {loaderOption?.label ?? "Source"}
+                  </span>
+                </Select.Trigger>
+                <Select.Content>
+                  {#each loaderOptions as option (option.value)}
+                    <Select.Item value={option.value} class="text-xs">
+                      {option.label}
+                    </Select.Item>
+                  {/each}
+                </Select.Content>
+              </Select.Root>
+            </div>
+
             <Button
               onclick={handleLoad}
               disabled={loaderType === null ||
                 (requiresLoaderId(loaderType) && !loaderId)}
-              class="h-7 w-full gap-2 text-xs shadow-none transition-all"
+              class="h-7 px-3 text-xs shadow-none transition-all"
             >
               Load
             </Button>
           </div>
-        </Tabs.Content>
+        </div>
 
-        <Tabs.Content
-          value="grabber"
-          class="flex h-full min-h-0 flex-1 flex-col gap-3"
-        >
-          <div class="flex flex-col gap-3">
-            <div class="flex flex-col gap-3 p-0.5 sm:flex-row sm:items-end">
-              <div class="grid flex-1 gap-1">
-                <Label for="grabber-type" class="text-xs font-medium"
-                  >Source</Label
+        <Separator
+          orientation="vertical"
+          class="hidden h-10 self-center opacity-50 sm:block"
+        />
+
+        <div class="flex flex-1 flex-col gap-2">
+          <div class="flex items-center gap-1.5 px-0.5">
+            <Label class="text-[11px] font-medium text-foreground/80">
+              Grabber
+            </Label>
+          </div>
+          <div class="flex items-end gap-2 px-0.5">
+            <div class="flex flex-1 flex-col gap-1">
+              <Label class="text-[9px] text-muted-foreground/60">Source</Label>
+              <Select.Root bind:value={grabberType}>
+                <Select.Trigger
+                  size="sm"
+                  class="h-7 w-full border-input bg-input/20 px-2 text-xs"
                 >
-                <Select.Root bind:value={grabberType}>
-                  <Select.Trigger size="sm" class="h-7 w-full text-xs">
-                    {@const grabberOption = getGrabberOption(grabberType)}
-                    <span
-                      class={cn(
-                        "truncate text-xs/relaxed",
-                        !grabberOption && "text-muted-foreground",
-                      )}
-                    >
-                      {grabberOption?.label ?? "Select source..."}
-                    </span>
-                  </Select.Trigger>
-                  <Select.Content>
-                    {#each grabberOptions as option (option.value)}
-                      <Select.Item value={option.value}>
-                        {option.label}
-                      </Select.Item>
-                    {/each}
-                  </Select.Content>
-                </Select.Root>
-              </div>
-
-              <Button
-                onclick={handleGrab}
-                disabled={grabberType === null || isLoading}
-                class="h-7 min-w-[100px] gap-2 px-3 text-xs shadow-none transition-all"
-              >
-                {#if isLoading}
-                  <Icon icon="loader" size="sm" spin />
-                  Grabbing...
-                {:else}
-                  Grab
-                {/if}
-              </Button>
+                  {@const grabberOption = getGrabberOption(grabberType)}
+                  <span
+                    class={cn(
+                      "truncate text-xs/relaxed",
+                      !grabberOption && "text-muted-foreground",
+                    )}
+                  >
+                    {grabberOption?.label ?? "Source"}
+                  </span>
+                </Select.Trigger>
+                <Select.Content>
+                  {#each grabberOptions as option (option.value)}
+                    <Select.Item value={option.value} class="text-xs">
+                      {option.label}
+                    </Select.Item>
+                  {/each}
+                </Select.Content>
+              </Select.Root>
             </div>
+
+            <Button
+              onclick={handleGrab}
+              disabled={grabberType === null || isLoading}
+              class="h-7 min-w-[70px] px-3 text-xs shadow-none transition-all"
+            >
+              {#if isLoading}
+                <Icon icon="loader" size="sm" spin />
+              {:else}
+                Grab
+              {/if}
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <Separator class="opacity-50" />
+
+      <div class="flex min-h-0 flex-1 flex-col gap-3">
+        <div class="flex items-center justify-between gap-3">
+          <div class="relative flex-1">
+            <Icon
+              icon="search"
+              class="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground/50"
+            />
+            <Input
+              type="search"
+              placeholder="Search items..."
+              class="h-7 border-input bg-input/20 pl-7 text-xs transition-colors focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+              bind:value={searchQuery}
+            />
+          </div>
+
+          <div class="flex items-center gap-3">
+            <span class="text-[11px] tabular-nums text-muted-foreground/70">
+              <span class="font-medium text-foreground">{matchedRootCount}</span
+              >
+              {#if searchActive && matchedRootCount !== treeData.length}
+                <span class="opacity-50"> of {treeData.length}</span>
+              {/if}
+              <span> item{matchedRootCount === 1 ? "" : "s"}</span>
+            </span>
 
             {#if treeData.length > 0}
-              <div class="relative">
-                <Icon
-                  icon="search"
-                  class="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground"
-                />
-                <Input
-                  type="search"
-                  placeholder="Search items..."
-                  class="h-7 border-input bg-input/20 pl-7 text-xs transition-colors focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
-                  bind:value={searchQuery}
-                />
-              </div>
+              <Button
+                variant="outline"
+                size="xs"
+                class="h-6 gap-1.5 px-2 text-[10px]"
+                onclick={handleExport}
+              >
+                <Icon icon="download" size="xs" />
+                Export
+              </Button>
             {/if}
           </div>
+        </div>
 
-          <div class="flex items-center justify-between text-sm">
-            <div class="flex items-center gap-4">
-              <span class="text-muted-foreground">
-                <span class="font-medium tabular-nums text-foreground"
-                  >{matchedRootCount}</span
-                >
-                {#if searchActive && matchedRootCount !== treeData.length}
-                  <span class="text-muted-foreground/70">
-                    of {treeData.length}</span
-                  >
-                {/if}
-                <span class="text-muted-foreground/70">
-                  item{matchedRootCount === 1 ? "" : "s"}</span
-                >
-              </span>
+        <div class="relative flex-1 overflow-hidden rounded-lg bg-card/60">
+          {#if !isLoading}
+            <div class="h-full overflow-hidden p-2">
+              <VirtualList
+                data={visibleItems}
+                key="nodeId"
+                estimateSize={28}
+                overflow={2}
+                class="no-scrollbar"
+              >
+                {#snippet children({ data: item })}
+                  <!-- eslint-disable-next-line @typescript-eslint/no-confusing-void-expression, sonarjs/no-use-of-empty-return-value -->
+                  {@render TreeNode(item)}
+                {/snippet}
+              </VirtualList>
             </div>
-          </div>
-
-          <div
-            class="relative flex-1 overflow-hidden rounded-lg bg-card ring-1 ring-foreground/10"
-          >
-            {#if !isLoading}
-              <div class="h-full overflow-hidden p-2">
-                <VirtualList
-                  data={visibleItems}
-                  key="nodeId"
-                  estimateSize={28}
-                  overflow={2}
-                  class="no-scrollbar"
-                >
-                  {#snippet children({ data: item })}
-                    <!-- eslint-disable-next-line @typescript-eslint/no-confusing-void-expression, sonarjs/no-use-of-empty-return-value -->
-                    {@render TreeNode(item)}
-                  {/snippet}
-                </VirtualList>
-              </div>
-            {/if}
-          </div>
-        </Tabs.Content>
-      </Tabs.Root>
+          {/if}
+        </div>
+      </div>
     </div>
   </AppFrame.Body>
 </AppFrame.Root>
@@ -569,7 +567,7 @@
     >
       {#if showChildrenToggle}
         <div
-          class="mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center"
+          class="mt-0.5 flex h-3.5 w-3.5 flex-shrink-0 items-center justify-center"
         >
           <Icon
             icon="chevron_right"
@@ -581,7 +579,7 @@
         </div>
       {:else}
         <!-- Spacer to maintain alignment with siblings -->
-        <div class="mt-0.5 h-4 w-4 flex-shrink-0"></div>
+        <div class="mt-0.5 h-3.5 w-3.5 flex-shrink-0"></div>
       {/if}
 
       <div class="flex min-w-0 flex-1 items-center gap-1.5 leading-relaxed">
@@ -604,17 +602,14 @@
                 {item.name}
               {/if}
             </span>
-            <span class="text-xs font-medium text-muted-foreground/50">
-              {item.children?.length}
-            </span>
           </div>
 
           <Button
             variant="ghost"
             size="icon"
             class={cn(
-              "h-5 w-5 rounded-sm shadow-none transition-all hover:bg-secondary/80",
-              isCopied && "text-success/100",
+              "h-5 w-5 rounded-sm shadow-none transition-all hover:bg-muted",
+              isCopied && "text-success",
             )}
             onclick={async (ev) => {
               ev.stopPropagation();
@@ -623,9 +618,9 @@
             title="Copy JSON"
           >
             {#if isCopied}
-              <Icon icon="check" size="2xs" />
+              <Icon icon="check" size="xs" />
             {:else}
-              <Icon icon="copy" size="2xs" />
+              <Icon icon="copy" size="xs" />
             {/if}
           </Button>
         {:else if !hasChildren && item.name}
@@ -653,7 +648,7 @@
           <button
             class={cn(
               "inline-flex min-w-0 items-center gap-1.5 truncate rounded-sm px-1.5 py-0.5 font-mono text-[11px] transition-all",
-              "bg-input/20 text-foreground ring-1 ring-border/30 hover:bg-input/30 hover:ring-border/50",
+              "bg-muted/30 text-foreground ring-1 ring-border/20 hover:bg-muted/50 hover:ring-border/40",
               isCopied && "bg-success/10 text-success ring-success/30",
             )}
             title="Click to copy"
