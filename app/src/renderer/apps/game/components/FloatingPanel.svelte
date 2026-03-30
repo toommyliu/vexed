@@ -16,7 +16,15 @@
   };
 
   type ResizeDirection =
-    "e" | "n" | "ne" | "nw" | "s" | "se" | "sw" | "w" | null;
+    | "e"
+    | "n"
+    | "ne"
+    | "nw"
+    | "s"
+    | "se"
+    | "sw"
+    | "w"
+    | null;
 
   type Props = {
     canResize?: boolean;
@@ -65,7 +73,7 @@
   let panelRect = { x: 0, y: 0, width: 0, height: 0 };
 
   let topNav: HTMLElement | null = null;
-  
+
   let topNavBottom = 0;
   let topNavObserver: ResizeObserver | null = null;
 
@@ -96,7 +104,12 @@
           panelState.loadPosition(panel);
           // Sync panelRect after position is loaded.
           const rect = panel.getBoundingClientRect();
-          panelRect = { x: rect.left, y: rect.top, width: rect.width, height: rect.height };
+          panelRect = {
+            x: rect.left,
+            y: rect.top,
+            width: rect.width,
+            height: rect.height,
+          };
         }
       });
     }
@@ -110,7 +123,10 @@
 
   function handleDragStart(ev: PointerEvent) {
     if (ev.button !== 0) return;
-    if ((ev.target as HTMLElement).closest("[data-panel-control], .panel-control")) return;
+    if (
+      (ev.target as HTMLElement).closest("[data-panel-control], .panel-control")
+    )
+      return;
     if ((ev.target as HTMLElement).closest("[data-resize]")) return;
 
     activeInteraction = "drag";
@@ -123,8 +139,16 @@
 
     // One read on gesture start is fine — not in a hot loop.
     const rect = panel.getBoundingClientRect();
-    panelRect = { x: rect.left, y: rect.top, width: rect.width, height: rect.height };
-    panelState.dragOffset = { x: ev.clientX - rect.left, y: ev.clientY - rect.top };
+    panelRect = {
+      x: rect.left,
+      y: rect.top,
+      width: rect.width,
+      height: rect.height,
+    };
+    panelState.dragOffset = {
+      x: ev.clientX - rect.left,
+      y: ev.clientY - rect.top,
+    };
   }
 
   function handlePointerMove(ev: PointerEvent) {
@@ -145,11 +169,17 @@
 
       const x = Math.max(
         0,
-        Math.min(ev.clientX - panelState.dragOffset.x, innerWidth - panelRect.width),
+        Math.min(
+          ev.clientX - panelState.dragOffset.x,
+          innerWidth - panelRect.width,
+        ),
       );
       const y = Math.max(
         topNavBottom, // cached — no reflow
-        Math.min(ev.clientY - panelState.dragOffset.y, innerHeight - panelRect.height),
+        Math.min(
+          ev.clientY - panelState.dragOffset.y,
+          innerHeight - panelRect.height,
+        ),
       );
 
       applyRect(x, y);
@@ -198,7 +228,12 @@
 
     // One read on gesture start — not in a hot loop.
     const rect = panel.getBoundingClientRect();
-    panelRect = { x: rect.left, y: rect.top, width: rect.width, height: rect.height };
+    panelRect = {
+      x: rect.left,
+      y: rect.top,
+      width: rect.width,
+      height: rect.height,
+    };
     resizeStart = {
       x: ev.clientX,
       y: ev.clientY,
@@ -219,9 +254,9 @@
       const dx = ev.clientX - resizeStart.x;
       const dy = ev.clientY - resizeStart.y;
 
-      let left   = resizeStart.left;
-      let top    = resizeStart.top;
-      let width  = resizeStart.width;
+      let left = resizeStart.left;
+      let top = resizeStart.top;
+      let width = resizeStart.width;
       let height = resizeStart.height;
 
       if (dir.includes("e")) {
@@ -259,14 +294,19 @@
 
     // One read here is acceptable — this runs only on pointer-up or window resize.
     const rect = panel.getBoundingClientRect();
-    panelRect = { x: rect.left, y: rect.top, width: rect.width, height: rect.height };
+    panelRect = {
+      x: rect.left,
+      y: rect.top,
+      width: rect.width,
+      height: rect.height,
+    };
 
     const { innerWidth, innerHeight } = window;
     let { x, y, width, height } = panelRect;
 
-    width  = Math.max(minWidth,  Math.min(width,  innerWidth));
+    width = Math.max(minWidth, Math.min(width, innerWidth));
     height = Math.max(minHeight, Math.min(height, innerHeight - topNavBottom));
-    x = Math.max(0,            Math.min(x, innerWidth  - width));
+    x = Math.max(0, Math.min(x, innerWidth - width));
     y = Math.max(topNavBottom, Math.min(y, innerHeight - height));
 
     applyRect(x, y, width, height);
@@ -298,7 +338,7 @@
   <div
     bind:this={panel}
     class={cn(
-      "fixed left-5 top-10 z-[9999] flex min-h-[160px] min-w-[280px] select-none flex-col overflow-hidden rounded-[var(--radius)] bg-popover/95 shadow-md ring-1 ring-border/50",
+      "fixed left-5 top-10 z-[9999] flex min-h-[160px] min-w-[280px] select-none flex-col overflow-hidden rounded-[var(--radius)] bg-popover/95 shadow-md",
       panelState.isDragging && "cursor-grabbing opacity-90",
       resizeDirection && "opacity-95",
       className,
@@ -367,7 +407,7 @@
     <!-- Header -->
     <div
       class={cn(
-        "flex h-6 shrink-0 cursor-grab select-none items-center justify-between whitespace-nowrap border-b border-border bg-muted/30 px-2 text-xs font-medium text-foreground touch-none",
+        "flex h-6 shrink-0 cursor-grab touch-none select-none items-center justify-between whitespace-nowrap border-b border-border bg-muted/30 px-2 text-xs font-medium text-foreground",
         headerClass,
       )}
       onpointerdown={handleDragStart}

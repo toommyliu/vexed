@@ -50,7 +50,12 @@ export function loadScript(): void {
 }
 
 export function startScript(): void {
-  if (!window.context.commands.length || window.context.isRunning()) return;
+  if (
+    !window.context.commands.length ||
+    window.context.isRunning() ||
+    !bot.auth.isLoggedIn()
+  )
+    return;
   window.context.removeAllListeners("end");
   const onEnd = () => {
     scriptState.isRunning = false;

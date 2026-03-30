@@ -174,10 +174,7 @@
         class="flex h-8 items-center gap-2 border-b border-border px-2"
         data-slot="command-palette-header"
       >
-        <Icon
-          icon="search"
-          class="size-3.5 shrink-0 text-muted-foreground"
-        />
+        <Icon icon="search" class="size-3.5 shrink-0 text-muted-foreground" />
         <input
           bind:this={inputRef}
           type="text"
@@ -214,7 +211,7 @@
           {#each groupedCommands as { category, items } (category)}
             <div class="mb-1 last:mb-0" data-slot="command-palette-section">
               <div
-                class="px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70"
+                class="px-2 py-1 text-[11px] font-medium text-muted-foreground/70"
                 data-slot="command-palette-section-label"
               >
                 {category}
@@ -231,7 +228,8 @@
                   )}
                   bind:this={commandItemRefs[cmd.globalIndex]}
                   onclick={(ev) => executeCommand(cmd, isModifierKey(ev))}
-                  onmouseenter={() => mouseMoved && (selectedIndex = cmd.filteredIndex)}
+                  onmouseenter={() =>
+                    mouseMoved && (selectedIndex = cmd.filteredIndex)}
                   data-slot="command-palette-item"
                   data-active={cmd.filteredIndex === selectedIndex}
                 >
@@ -248,7 +246,10 @@
         class="flex items-center justify-between border-t border-border px-2 py-1.5 text-[10px] text-muted-foreground/60"
         data-slot="command-palette-footer"
       >
-        <div class="flex items-center gap-3" data-slot="command-palette-shortcuts">
+        <div
+          class="flex items-center gap-3"
+          data-slot="command-palette-shortcuts"
+        >
           <span class="flex items-center gap-1">
             <Kbd>↑↓</Kbd>
             <span>navigate</span>

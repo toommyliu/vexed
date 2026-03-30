@@ -78,9 +78,26 @@
     } catch {}
   }
 
+  function resolveReloginCredentials() {
+    if (reloginUsername && reloginPassword) {
+      return { username: reloginUsername, password: reloginPassword };
+    }
+
+    if (autoReloginState.username && autoReloginState.password) {
+      return {
+        username: autoReloginState.username,
+        password: autoReloginState.password,
+      };
+    }
+
+    return null;
+  }
+
   function enableRelogin(server: string) {
-    if (!reloginUsername || !reloginPassword) return;
-    autoReloginState.enable(reloginUsername, reloginPassword, server);
+    const credentials = resolveReloginCredentials();
+    if (!credentials) return;
+
+    autoReloginState.enable(credentials.username, credentials.password, server);
     AutoReloginJob.resetForNewCredentials();
   }
 
@@ -457,11 +474,7 @@
                         "h-7 px-2 text-xs font-medium transition-colors hover:text-success",
                         server === autoReloginState.server && "text-success",
                       )}
-                      onclick={() => {
-                        autoReloginState.server = server;
-                        autoReloginState.enabled = true;
-                        AutoReloginJob.resetForNewCredentials();
-                      }}
+                      onclick={() => enableRelogin(server)}
                     >
                       {server}{server === autoReloginState.server
                         ? " (last)"
@@ -484,7 +497,7 @@
                 </div>
               {:else}
                 <Menu.Label
-                  class="px-2 py-1.5 text-[10px] font-medium uppercase tracking-wider text-foreground/40"
+                  class="px-2 py-1.5 text-[10px] font-medium text-foreground/40"
                 >
                   Server
                 </Menu.Label>
@@ -505,13 +518,17 @@
           <button
             class={cn(
               "flex h-6 shrink-0 items-center gap-1.5 rounded-md bg-transparent px-2.5 text-xs font-medium transition-all duration-200 hover:bg-accent",
-              !scriptState.isLoaded && "cursor-not-allowed opacity-40",
+              (!scriptState.isLoaded ||
+                (!scriptState.isRunning && !gameConnected)) &&
+                "cursor-not-allowed opacity-40",
               scriptState.isLoaded &&
                 !scriptState.isRunning &&
-                "text-foreground/80 hover:text-foreground",
-              scriptState.isRunning && "text-amber-500 hover:text-amber-400",
+                gameConnected &&
+                "text-success",
+              scriptState.isRunning && "text-destructive",
             )}
-            disabled={!scriptState.isLoaded}
+            disabled={!scriptState.isLoaded ||
+              (!scriptState.isRunning && !gameConnected)}
             onclick={toggleScript}
           >
             {#if scriptState.isRunning}
