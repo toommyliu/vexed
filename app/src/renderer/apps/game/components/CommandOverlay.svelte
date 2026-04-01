@@ -3,7 +3,11 @@
   import { cn } from "@vexed/ui/util";
   import { VirtualList, Icon } from "@vexed/ui";
 
-  import { commandOverlayState, scriptState, type CommandItem } from "../state/index.svelte";
+  import {
+    commandOverlayState,
+    scriptState,
+    type CommandItem,
+  } from "../state/index.svelte";
   import FloatingPanel from "./FloatingPanel.svelte";
 
   // svelte-ignore non_reactive_update
@@ -102,11 +106,7 @@
   {/snippet}
 
   {#if commandOverlayState.listVisible}
-    <div
-      class="command-list-container"
-      use:passiveWheel
-      role="presentation"
-    >
+    <div class="command-list-container" use:passiveWheel role="presentation">
       {#if commandOverlayState.commandItems.length > 0}
         <VirtualList
           bind:this={virtualList}
@@ -215,22 +215,21 @@
     font-size: 11px;
     cursor: default;
     user-select: none;
-    background-color: rgb(var(--muted) / 0.5);
+    background-color: transparent;
     margin-bottom: 2px;
     border-radius: 6px;
-    border-left: 3px solid transparent;
     transition:
-      background-color 0.1s ease,
-      border-color 0.1s ease;
+      background-color 0.12s ease,
+      color 0.12s ease;
     display: flex;
     align-items: center;
-    gap: 6px;
-    color: rgb(var(--foreground));
+    gap: 8px;
+    color: rgb(var(--muted-foreground));
   }
 
   .command-index {
     font-family: var(--font-mono);
-    color: rgb(var(--muted-foreground));
+    color: rgb(var(--muted-foreground) / 0.7);
     font-size: 10px;
     flex-shrink: 0;
   }
@@ -244,12 +243,17 @@
 
   .command-item.active {
     background-color: rgb(var(--accent));
-    border-left-color: rgb(var(--primary));
     color: rgb(var(--foreground));
+    z-index: 10;
+  }
+
+  .command-item.active .command-index {
+    color: rgb(var(--primary));
   }
 
   .command-item:hover:not(.active) {
-    background-color: rgb(var(--muted));
+    background-color: rgb(var(--accent) / 0.4);
+    color: rgb(var(--foreground));
   }
 
   :global(.virtual-scroll-root) {
