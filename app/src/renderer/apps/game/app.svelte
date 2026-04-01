@@ -654,9 +654,7 @@
     <div class="w-full max-w-md px-8">
       <div class="space-y-6">
         <div class="flex justify-center">
-          <div
-            class="border-t-progress-blue h-8 w-8 animate-spin rounded-full border-2 border-gray-600"
-          ></div>
+          <Icon icon="loader" size="lg" spin />
         </div>
         <div class="text-center">
           <span id="progress-text" class="text-sm font-medium text-gray-300">
