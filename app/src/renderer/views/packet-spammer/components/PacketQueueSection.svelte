@@ -61,7 +61,7 @@
 
   <Card.Content class="p-2 pt-1">
     <div
-      class="max-h-[300px] min-h-[160px] overflow-y-auto rounded-md border border-border/20 bg-background/50 p-1.5 shadow-inner"
+      class="max-h-[300px] min-h-[160px] overflow-y-auto rounded-md border border-border/20 bg-background/50 p-1.5"
     >
       {#if packets.length === 0}
         <div class="flex h-full min-h-[148px] items-center justify-center">
