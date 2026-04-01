@@ -490,10 +490,10 @@
                   Clear Credentials
                 </Menu.Item>
               {:else if !reloginCanEnable}
-                <div class="px-2 py-3 text-center">
-                  <div class="text-xs font-medium text-muted-foreground/60">
-                    Log in to enable
-                  </div>
+                <div
+                  class="flex h-7 items-center justify-center px-2 text-[10px] font-medium text-muted-foreground/50"
+                >
+                  Log in to enable
                 </div>
               {:else}
                 <Menu.Label

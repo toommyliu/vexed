@@ -19,7 +19,7 @@
   <!-- Application Column -->
   <div class="min-w-[160px] border-r border-border/20 p-1">
     <Menu.Label
-      class="mb-1 px-2 py-1.5 text-[10px] font-medium uppercase tracking-wider text-foreground/40"
+      class="mb-1 px-2 py-1.5 text-[12px] font-medium text-foreground/40"
     >
       Application
     </Menu.Label>
@@ -39,7 +39,7 @@
   <!-- Tools Column -->
   <div class="min-w-[160px] border-r border-border/20 p-1">
     <Menu.Label
-      class="mb-1 px-2 py-1.5 text-[10px] font-medium uppercase tracking-wider text-foreground/40"
+      class="mb-1 px-2 py-1.5 text-[12px] font-medium text-foreground/40"
     >
       Tools
     </Menu.Label>
@@ -59,7 +59,7 @@
   <!-- Packets Column -->
   <div class="min-w-[160px] p-1">
     <Menu.Label
-      class="mb-1 px-2 py-1.5 text-[10px] font-medium uppercase tracking-wider text-foreground/40"
+      class="mb-1 px-2 py-1.5 text-[12px] font-medium text-foreground/40"
     >
       Packets
     </Menu.Label>
