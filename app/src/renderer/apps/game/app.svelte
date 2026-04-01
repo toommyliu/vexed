@@ -331,9 +331,7 @@
           >
             Windows
           </Menu.Trigger>
-          <Menu.Content class="w-max p-0">
-            <WindowsMegaMenu />
-          </Menu.Content>
+          <WindowsMegaMenu />
         </Menu.Root>
 
         <div class="flex h-full flex-row items-center gap-1">
@@ -491,7 +489,7 @@
                 </Menu.Item>
               {:else if !reloginCanEnable}
                 <div
-                  class="flex h-7 items-center justify-center px-2 text-[10px] font-medium text-muted-foreground/50"
+                  class="flex h-7 items-center justify-center px-2 text-[11px] font-medium text-muted-foreground/50"
                 >
                   Log in to enable
                 </div>
