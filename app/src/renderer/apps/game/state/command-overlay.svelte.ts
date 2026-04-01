@@ -89,16 +89,22 @@ export function initCommandOverlayState() {
       return;
     }
 
+    const savedPosition = localStorage.getItem(storageKey);
+    const existing = savedPosition
+      ? (JSON.parse(savedPosition) as Position)
+      : null;
+
     const position: Position = {
       left,
       top,
       visible: listVisible,
+      width: listVisible
+        ? overlay.style.width || computed.width
+        : existing?.width,
+      height: listVisible
+        ? overlay.style.height || computed.height
+        : existing?.height,
     };
-
-    if (listVisible) {
-      position.width = overlay.style.width || computed.width;
-      position.height = overlay.style.height || computed.height;
-    }
 
     localStorage.setItem(storageKey, JSON.stringify(position));
   }
@@ -130,11 +136,13 @@ export function initCommandOverlayState() {
 
     if (position.visible !== undefined) {
       listVisible = position.visible;
+    }
 
-      if (position.width && position.height && listVisible) {
-        overlay.style.width = position.width;
-        overlay.style.height = position.height;
-      }
+    if (position.width) {
+      overlay.style.width = position.width;
+    }
+    if (position.height) {
+      overlay.style.height = position.height;
     }
   }
 

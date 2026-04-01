@@ -309,7 +309,11 @@
     x = Math.max(0, Math.min(x, innerWidth - width));
     y = Math.max(topNavBottom, Math.min(y, innerHeight - height));
 
-    applyRect(x, y, width, height);
+    if (canResize) {
+      applyRect(x, y, width, height);
+    } else {
+      applyRect(x, y);
+    }
     panelState.savePosition(panel);
   }
 
