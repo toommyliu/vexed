@@ -563,7 +563,7 @@
               }}
             >
               <Menu.Trigger
-                class="flex h-6 w-16 items-center justify-between rounded border border-border/60 bg-background/50 px-2 text-[11px] text-foreground/70 transition-colors duration-200 hover:border-border hover:bg-accent/40 disabled:cursor-not-allowed disabled:opacity-50"
+                class="flex h-6 w-16 items-center justify-between rounded-md border border-border/60 bg-background/50 px-2 text-[11px] text-foreground/70 transition-colors duration-200 hover:border-border hover:bg-accent/40 disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={!gameConnected}
               >
                 {currentSelectedPad}
@@ -598,7 +598,7 @@
               }}
             >
               <Menu.Trigger
-                class="flex h-6 w-20 items-center justify-between rounded border border-border/60 bg-background/50 px-2 text-[11px] text-foreground/70 transition-colors duration-200 hover:border-border hover:bg-accent/40 disabled:cursor-not-allowed disabled:opacity-50"
+                class="flex h-6 w-20 items-center justify-between rounded-md border border-border/60 bg-background/50 px-2 text-[11px] text-foreground/70 transition-colors duration-200 hover:border-border hover:bg-accent/40 disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={!gameConnected}
               >
                 {currentSelectedCell}
