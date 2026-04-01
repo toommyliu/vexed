@@ -108,6 +108,7 @@ class WindowsService {
     return false;
   }
 
+  // TODO: use ipc to forward from renderer to main for full details?
   private attachConsoleLogging(window: BrowserWindow): void {
     window.webContents.on(
       "console-message",
@@ -278,10 +279,10 @@ class WindowsService {
         },
         useContentSize: true,
         width: config.width,
-        minWidth: config.width,
+        // minWidth: config.width,
         height: config.height,
-        minHeight: config.height,
-        minimizable: false,
+        // minHeight: config.height,
+        // minimizable: false,
         show: false,
       }),
     );

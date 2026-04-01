@@ -16,39 +16,39 @@ import { isWindowUsable } from "../util/browser-window";
 
 const SUBWINDOW_CONFIGS: Record<WindowIds, SubwindowConfig> = {
   [WindowIds.Environment]: {
-    height: 520,
+    height: 593,
     path: "views/environment/index.html",
-    width: 783,
+    width: 778,
   },
   [WindowIds.FastTravels]: {
     height: 527,
     path: "views/fast-travels/index.html",
-    width: 670,
+    width: 649,
   },
   [WindowIds.Follower]: {
-    height: 415,
+    height: 496,
     path: "views/follower/index.html",
-    width: 943,
+    width: 648,
   },
   [WindowIds.Hotkeys]: {
-    height: 400,
+    height: 528,
     path: "views/hotkeys/index.html",
-    width: 600,
+    width: 517,
   },
   [WindowIds.LoaderGrabber]: {
-    height: 517,
+    height: 546,
     path: "views/loader-grabber/index.html",
-    width: 800,
+    width: 600,
   },
   [WindowIds.PacketLogger]: {
-    height: 523,
+    height: 534,
     path: "views/packet-logger/index.html",
-    width: 797,
+    width: 643,
   },
   [WindowIds.PacketSpammer]: {
-    height: 403,
+    height: 542,
     path: "views/packet-spammer/index.html",
-    width: 608,
+    width: 641,
   },
 };
 
