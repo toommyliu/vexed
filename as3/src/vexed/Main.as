@@ -16,6 +16,7 @@ package vexed {
 	import vexed.util.SFSEvent;
 	import flash.events.ProgressEvent;
 	import vexed.game.DropList;
+	import vexed.game.Bank;
 
 	public class Main extends MovieClip {
 		private static var _instance:Main;
@@ -98,6 +99,7 @@ package vexed {
 			this.game.sfc.addEventListener(SFSEvent.onConnectionLost, function():void {
 					Main.getInstance().external.call('connection', 'OnConnectionLost');
 					Main.getInstance().external.debug('Connection to SmartFoxServer lost.');
+					Bank.onLogout();
 				});
 			this.game.sfc.addEventListener(SFSEvent.onExtensionResponse, function(packet:*):void {
 					Main.getInstance().external.call('pext', JSON.stringify(packet));

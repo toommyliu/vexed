@@ -142,5 +142,10 @@ package vexed.game
     {
       return game.ui.mcPopup.currentLabel === "Bank";
     }
+
+    public static function onLogout():void
+    {
+      loaded = false;
+    }
   }
 }

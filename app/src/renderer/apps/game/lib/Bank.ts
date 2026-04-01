@@ -5,7 +5,11 @@ export class Bank {
   // Whether bank items have been loaded.
   private isLoaded = false;
 
-  public constructor(public bot: Bot) {}
+  public constructor(public bot: Bot) {
+    bot.on('logout', () => {
+      this.isLoaded = false;
+    });
+  }
 
   /**
    * The list of items in the bank.
