@@ -27,6 +27,9 @@ async function updateTheme(
 ) {
   nativeTheme.themeSource = theme;
   await settings.setAndSave("theme", theme);
+  for (const win of BrowserWindow.getAllWindows()) {
+    win.webContents.send("app.themeUpdated", theme);
+  }
 }
 
 async function handleCheckForUpdates() {

@@ -18,7 +18,7 @@
   } from "./state/theme-manager";
 
   import type { Settings } from "~/shared/settings/types";
-  import { client } from "~/shared/tipc";
+  import { client, handlers } from "~/shared/tipc";
   import { applyCustomTheme, getColorScheme } from "../../shared/theme";
 
   const AUTO = "Auto (first available)";
@@ -132,6 +132,14 @@
     activeEditScheme.set(getColorScheme());
     isLoading = false;
   }
+
+  handlers.app.themeUpdated.listen(
+    (theme) => {
+      console.log(`got theme update: ${theme}`);
+      settings.theme = theme;
+    },
+  );
+
 
   onMount(() => {
     window.addEventListener("beforeunload", handleBeforeUnload);

@@ -12,6 +12,7 @@ import type {
   LoaderGrabberGrabRequest,
   LoaderGrabberLoadRequest,
 } from "~/shared/loader-grabber/types";
+import type { Settings } from "../shared/settings/types";
 import type { HotkeyConfig } from "../shared/types";
 import { createAppTipcRouter } from "./tipc/app.router";
 import { createArmyTipcRouter } from "./tipc/army.router";
@@ -107,6 +108,11 @@ export type RendererHandlers = {
 
   manager: {
     onLogin(username: string): Promise<void>;
+  };
+
+  app: {
+    customThemeUpdated(customTheme: Settings["customTheme"]): void;
+    themeUpdated(theme: Settings["theme"]): void;
   };
 };
 /* eslint-enable typescript-sort-keys/interface */
