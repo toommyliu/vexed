@@ -34,10 +34,16 @@ export class Quests {
    * Loads a quest.
    *
    * @param questId - The quest id to load.
+   * @param silent - Whether to avoid loading the Quest List UI when loading the quest.
    */
-  public async load(questId: number): Promise<void> {
+  public async load(questId: number, silent = false): Promise<void> {
     if (this.get(questId)) return;
-    this.bot.flash.call(() => swf.questsLoad(questId));
+    if (silent) {
+      this.bot.flash.call(() => swf.questsGet(questId));
+    } else {
+      this.bot.flash.call(() => swf.questsLoad(questId));
+    }
+
     await this.bot.waitUntil(() => this.get(questId) !== null);
   }
 
