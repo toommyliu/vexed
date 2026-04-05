@@ -1,176 +1,264 @@
 <script lang="ts">
-  import { Switch, Button } from "@vexed/ui";
+  import { cn, Icon, AppFrame } from "@vexed/ui";
   import { Result } from "better-result";
-  import * as Select from "@vexed/ui/Select";
   import { onMount } from "svelte";
   import type { ServerData } from "@vexed/game";
-  import { client } from "~/shared/tipc";
 
-  let checkForUpdates = $state(false);
-  let debug = $state(false);
-  let fallbackServer = $state("");
-  let launchMode = $state<"game" | "manager">("game");
-  let theme = $state<"dark" | "light" | "system">("dark");
+  import AppearanceSection from "./components/appearance-section.svelte";
+  import ApplicationSection from "./components/application-section.svelte";
+  import BehaviorsSection from "./components/behaviors-section.svelte";
+
+  import { servers } from "./state/servers";
+  import { settings } from "./state/settings.svelte";
+  import {
+    activeEditScheme,
+    customTheme,
+    flushQueuedTokenUpdates,
+    liveScheme,
+  } from "./state/theme-manager";
+
+  import type { Settings } from "~/shared/settings/types";
+  import { client, handlers } from "~/shared/tipc";
+  import { applyCustomTheme, getColorScheme } from "../../shared/theme";
+
+  const AUTO = "Auto (first available)";
+  const SETTINGS_SAVE_DEBOUNCE_MS = 250;
+
+  let activeTab = $state("application");
   let isLoading = $state(true);
-  let servers = $state<ServerData[]>([]);
+  let saveTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  let pendingSettingsPayload: Settings | null = null;
+  let flushPromise: Promise<void> | null = null;
 
-  onMount(async () => {
-    const [settings, serializedServerData] = await Promise.all([
+  const applicationTab = $derived.by(() => activeTab === "application");
+  const behaviorTab = $derived.by(() => activeTab === "behaviors");
+  const appearanceTab = $derived.by(() => activeTab === "appearance");
+
+  function buildSettingsPayload(): Settings {
+    return {
+      checkForUpdates: settings.checkForUpdates,
+      customTheme:
+        $state.snapshot($customTheme) /* prevent issues with structuredClone */,
+      debug: settings.debug,
+      fallbackServer:
+        settings.fallbackServer === AUTO ? "" : settings.fallbackServer,
+      launchMode: settings.launchMode,
+      theme: settings.theme,
+    };
+  }
+
+  async function persistSettings(payload: Settings): Promise<void> {
+    try {
+      await client.app.updateSettings(payload);
+    } catch (error) {
+      console.error("Failed to persist settings", error);
+    }
+  }
+
+  function queueSettingsPersist(payload: Settings): void {
+    pendingSettingsPayload = payload;
+    if (saveTimeoutId) clearTimeout(saveTimeoutId);
+    saveTimeoutId = setTimeout(() => {
+      void flushPendingSettingsPersist();
+    }, SETTINGS_SAVE_DEBOUNCE_MS);
+  }
+
+  async function flushPendingSettingsPersist(): Promise<void> {
+    if (saveTimeoutId) {
+      clearTimeout(saveTimeoutId);
+      saveTimeoutId = null;
+    }
+    if (flushPromise) {
+      await flushPromise;
+      return;
+    }
+
+    const run = async (): Promise<void> => {
+      while (pendingSettingsPayload) {
+        const payload = pendingSettingsPayload;
+        pendingSettingsPayload = null;
+        await persistSettings(payload);
+      }
+    };
+
+    flushPromise = run().finally(() => {
+      flushPromise = null;
+    });
+    await flushPromise;
+  }
+
+  function handleBeforeUnload(): void {
+    flushQueuedTokenUpdates();
+    void flushPendingSettingsPersist();
+  }
+
+  function handleVisibilityChange(): void {
+    if (document.visibilityState === "hidden") {
+      flushQueuedTokenUpdates();
+      void flushPendingSettingsPersist();
+    }
+  }
+
+  async function loadData() {
+    const [settingsResult, serializedServerData] = await Promise.allSettled([
       client.app.getSettings(),
       client.app.getServers(),
     ]);
 
-    checkForUpdates = settings.checkForUpdates;
-    debug = settings.debug;
-    fallbackServer = settings.fallbackServer;
-    launchMode = settings.launchMode;
-    theme = settings.theme;
-
-    const serverData = Result.deserialize<ServerData[], unknown>(
-      serializedServerData,
-    );
-    if (serverData.isOk()) {
-      servers = serverData.value;
+    if (settingsResult.status === "fulfilled") {
+      const settingsVal = settingsResult.value;
+      settings.checkForUpdates = settingsVal.checkForUpdates;
+      settings.debug = settingsVal.debug;
+      settings.fallbackServer = settingsVal.fallbackServer || AUTO;
+      settings.launchMode = settingsVal.launchMode;
+      settings.theme = settingsVal.theme;
+      customTheme.set(settingsVal.customTheme ?? {});
     } else {
-      console.error("Failed to deserialize server data:", serverData.error);
-      servers = [];
+      console.error("Failed to load settings", settingsResult.reason);
     }
 
+    if (serializedServerData.status === "fulfilled") {
+      const serverData = Result.deserialize<ServerData[], unknown>(
+        serializedServerData.value,
+      );
+      if (serverData.isOk()) {
+        servers.set(serverData.value);
+      } else {
+        console.error("Failed to load servers", serverData.error);
+        servers.set([]);
+      }
+    }
+
+    activeEditScheme.set(getColorScheme());
     isLoading = false;
-  });
+  }
 
-  $effect(() => {
-    if (theme === "dark") {
-      document.documentElement.classList.add("dark");
-    } else if (theme === "light") {
-      document.documentElement.classList.remove("dark");
-    } else {
-      const prefersDark = window.matchMedia(
-        "(prefers-color-scheme: dark)",
-      ).matches;
-      document.documentElement.classList.toggle("dark", prefersDark);
-    }
+  handlers.app.themeUpdated.listen(
+    (theme) => {
+      console.log(`got theme update: ${theme}`);
+      settings.theme = theme;
+    },
+  );
+
+
+  onMount(() => {
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    const schemeObserver = new MutationObserver(() => {
+      liveScheme.set(getColorScheme());
+    });
+    schemeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    void loadData();
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      schemeObserver.disconnect();
+      flushQueuedTokenUpdates();
+      if (saveTimeoutId) {
+        clearTimeout(saveTimeoutId);
+        saveTimeoutId = null;
+      }
+      void flushPendingSettingsPersist();
+    };
   });
 
   $effect(() => {
     if (isLoading) return;
-    client.app.updateSettings({
-      checkForUpdates,
-      debug,
-      fallbackServer,
-      launchMode,
-      theme,
-    });
+    applyCustomTheme($state.snapshot($customTheme), $liveScheme);
+  });
+
+  $effect(() => {
+    if (isLoading) return;
+    const scheme =
+      settings.theme === "light"
+        ? "light"
+        : settings.theme === "dark"
+          ? "dark"
+          : getColorScheme();
+    document.documentElement.classList.toggle("dark", scheme === "dark");
+    liveScheme.set(scheme);
+    activeEditScheme.set(scheme);
+  });
+
+  $effect(() => {
+    if (isLoading) return;
+    queueSettingsPersist(buildSettingsPayload());
   });
 </script>
 
-<div
-  class="animate-in fade-in slide-in-from-bottom-1 flex h-screen flex-col bg-background p-5 duration-300"
->
-  {#if isLoading}
-    <div class="flex flex-1 items-center justify-center">
-      <div
-        class="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground/20 border-t-primary"
-      ></div>
-    </div>
-  {:else}
-    <div class="flex flex-1 flex-col gap-4">
-      <div class="flex flex-col gap-1.5">
-        <span
-          class="text-[11px] font-medium uppercase tracking-wide text-muted-foreground"
-          >Theme</span
+{#if isLoading}
+  <div class="flex h-screen w-screen items-center justify-center">
+    <Icon icon="loader" size="lg" spin />
+  </div>
+{:else}
+  <AppFrame.Root orientation="horizontal">
+    <AppFrame.Header
+      title="Settings"
+      orientation="horizontal"
+      class="w-[200px]"
+    >
+      <div class="flex flex-col gap-1">
+        <button
+          class={cn(
+            "flex w-full items-center justify-start gap-2 rounded-lg px-3 py-1 text-[13px] font-medium",
+            {
+              "bg-muted text-foreground": applicationTab,
+              "text-muted-foreground hover:bg-muted/30 hover:text-foreground":
+                !applicationTab,
+            },
+          )}
+          onclick={() => (activeTab = "application")}
+          tabindex={0}
         >
-        <div class="flex gap-1.5">
-          <Button
-            class="flex-1"
-            size="sm"
-            variant={theme === "dark" ? "default" : "ghost"}
-            onclick={() => (theme = "dark")}
-          >
-            Dark
-          </Button>
-          <Button
-            class="flex-1"
-            size="sm"
-            variant={theme === "light" ? "default" : "ghost"}
-            onclick={() => (theme = "light")}
-          >
-            Light
-          </Button>
-          <Button
-            class="flex-1"
-            size="sm"
-            variant={theme === "system" ? "default" : "ghost"}
-            onclick={() => (theme = "system")}
-          >
-            Auto
-          </Button>
-        </div>
-      </div>
-
-      <div class="flex flex-col gap-1.5">
-        <span
-          class="text-[11px] font-medium uppercase tracking-wide text-muted-foreground"
-          >Launch Mode</span
+          <Icon icon="settings" size="xs" />
+          Application
+        </button>
+        <button
+          class={cn(
+            "flex w-full items-center justify-start gap-2 rounded-lg px-3 py-1 text-[13px] font-medium",
+            {
+              "bg-muted text-foreground": behaviorTab,
+              "text-muted-foreground hover:bg-muted/30 hover:text-foreground":
+                !behaviorTab,
+            },
+          )}
+          onclick={() => (activeTab = "behaviors")}
+          tabindex={0}
         >
-        <div class="flex gap-1.5">
-          <Button
-            class="flex-1"
-            size="sm"
-            variant={launchMode === "game" ? "default" : "ghost"}
-            onclick={() => (launchMode = "game")}
-            title="Launch directly into the game client"
-          >
-            Game
-          </Button>
-          <Button
-            class="flex-1"
-            size="sm"
-            variant={launchMode === "manager" ? "default" : "ghost"}
-            onclick={() => (launchMode = "manager")}
-            title="Launch the account manager to handle multiple accounts"
-          >
-            Manager
-          </Button>
-        </div>
-      </div>
-
-      <div class="flex flex-col gap-2.5 pt-1">
-        <label class="flex cursor-pointer items-center justify-between">
-          <span class="text-[13px] text-foreground">Check for Updates</span>
-          <Switch
-            bind:checked={checkForUpdates}
-            class="origin-right scale-[0.85]"
-          />
-        </label>
-        <label class="flex cursor-pointer items-center justify-between">
-          <span class="text-[13px] text-foreground">Debug Mode</span>
-          <Switch bind:checked={debug} class="origin-right scale-[0.85]" />
-        </label>
-      </div>
-
-      <div class="flex flex-col gap-1.5 border-t border-border/30 pt-2">
-        <span
-          class="text-[11px] font-medium uppercase tracking-wide text-muted-foreground"
+          <Icon icon="sliders_horizontal" size="xs" />
+          Behaviors
+        </button>
+        <button
+          class={cn(
+            "flex w-full items-center justify-start gap-2 rounded-lg px-3 py-1 text-[13px] font-medium",
+            {
+              "bg-muted text-foreground": appearanceTab,
+              "text-muted-foreground hover:bg-muted/30 hover:text-foreground":
+                !appearanceTab,
+            },
+          )}
+          onclick={() => (activeTab = "appearance")}
+          tabindex={0}
         >
-          Fallback Server
-        </span>
-        <Select.Root bind:value={fallbackServer}>
-          <Select.Trigger class="h-8 w-full text-[13px]">
-            <span class="truncate">
-              {fallbackServer || "Auto (first available)"}
-            </span>
-          </Select.Trigger>
-          <Select.Content class="max-h-52">
-            <Select.Item value="">Auto (first available)</Select.Item>
-            {#each servers as server (server.sName)}
-              <Select.Item value={server.sName}>
-                {server.sName}
-              </Select.Item>
-            {/each}
-          </Select.Content>
-        </Select.Root>
+          <Icon icon="palette" size="xs" />
+          Appearance
+        </button>
       </div>
-    </div>
-  {/if}
-</div>
+    </AppFrame.Header>
+    <AppFrame.Body>
+      {#if behaviorTab}
+        <BehaviorsSection />
+      {:else if appearanceTab}
+        <AppearanceSection />
+      {:else if applicationTab}
+        <ApplicationSection />
+      {/if}
+    </AppFrame.Body>
+  </AppFrame.Root>
+{/if}

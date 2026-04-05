@@ -9,6 +9,8 @@ export class Settings {
 
   public constructor(public bot: Bot) {
     void interval(async () => {
+      this.bot.flash.call(() => swf.settingsLagKiller(!this.lagKiller));
+
       if (!this.bot.player.isReady()) {
         return;
       }
@@ -28,8 +30,6 @@ export class Settings {
       if (this.skipCutscenes) {
         this.bot.flash.call(() => swf.settingsSkipCutscenes());
       }
-
-      this.bot.flash.call(() => swf.settingsLagKiller(!this.lagKiller));
 
       this.bot.flash.call(() => swf.settingsSetHidePlayers(this.hidePlayers));
 

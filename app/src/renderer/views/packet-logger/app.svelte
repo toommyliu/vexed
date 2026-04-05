@@ -1,49 +1,71 @@
 <script lang="ts">
-  import { Button, Checkbox, cn, Label } from "@vexed/ui";
-  import * as Tabs from "@vexed/ui/Tabs";
-  import Play from "@vexed/ui/icons/Play";
-  import Pause from "@vexed/ui/icons/Pause";
-  import Download from "@vexed/ui/icons/Download";
-  import Copy from "@vexed/ui/icons/Copy";
-  import Trash2 from "@vexed/ui/icons/Trash2";
-
-  import { client, handlers } from "~/shared/tipc";
+  import {
+    AppFrame,
+    Button,
+    Checkbox,
+    Icon,
+    Input,
+    InputGroup,
+    Kbd,
+    Label,
+    VirtualList,
+  } from "@vexed/ui";
+  import { cn } from "@vexed/ui/util";
+  import { includesIgnoreCase } from "@vexed/utils/string";
   import { v4 as uuid } from "@lukeed/uuid";
+  import { client, handlers } from "~/shared/tipc";
+
   type PacketType = "client" | "pext" | "server";
-  type PacketFilter = PacketType | "all";
   type PacketEntry = {
-    id: string;
     content: string;
+    id: string;
     timestamp: number;
     type: PacketType;
   };
 
-  let packets = $state<PacketEntry[]>([]);
-  let currentFilter = $state<PacketFilter>("all");
+  const packets = $state<PacketEntry[]>([]);
+  let activeFilters = $state<PacketType[]>(["client", "server", "pext"]);
   let on = $state(false);
   let showTimestamps = $state(false);
   let autoScroll = $state(true);
+  let searchQuery = $state("");
 
-  let loggerElement = $state<HTMLDivElement>();
+  let searchInput = $state<HTMLInputElement | null>(null);
+  let listInstance = $state<VirtualList<PacketEntry>>();
 
-  let stats = $state({
-    client: 0,
-    server: 0,
-    pext: 0,
-  });
+  function handleKeydown(ev: KeyboardEvent) {
+    if (
+      ev.key === "/" &&
+      !["INPUT", "TEXTAREA", "SELECT"].includes(
+        (document.activeElement as HTMLElement)?.tagName,
+      )
+    ) {
+      ev.preventDefault();
+      searchInput?.focus();
+    }
+  }
 
-  let totalPackets = $derived(stats.client + stats.server + stats.pext);
-  let filteredPackets = $derived(
-    packets.filter(
-      (packet) => currentFilter === "all" || packet.type === currentFilter,
-    ),
+  const stats = $state({ client: 0, server: 0, pext: 0 });
+
+  const filteredPackets = $derived(
+    packets.filter((packet) => {
+      const matchesType = activeFilters.includes(packet.type);
+      if (!matchesType) return false;
+      if (!searchQuery) return true;
+      return includesIgnoreCase(packet.content, searchQuery);
+    }),
   );
 
-  function formatPacket(data: unknown, type: PacketType): string {
-    if (typeof data === "object") {
-      return JSON.stringify(data, null, 2);
+  function toggleFilter(type: PacketType) {
+    if (activeFilters.includes(type)) {
+      activeFilters = activeFilters.filter((filter) => filter !== type);
+    } else {
+      activeFilters = [...activeFilters, type];
     }
+  }
 
+  function formatPacket(data: unknown, type: PacketType): string {
+    if (typeof data === "object") return JSON.stringify(data, null, 2);
     if (
       type === "client" &&
       typeof data === "string" &&
@@ -51,29 +73,39 @@
     ) {
       return data.slice(17);
     }
-
     return typeof data === "string" ? data : JSON.stringify(data, null, 2);
-  }
-
-  function getPacketTypeBadgeClass(type: PacketType): string {
-    switch (type) {
-      case "client":
-        return "bg-blue-500/20 text-blue-400";
-      case "server":
-        return "bg-emerald-500/20 text-emerald-400";
-      case "pext":
-        return "bg-violet-500/20 text-violet-400";
-    }
   }
 
   function formatTimestamp(timestamp: number): string {
     const date = new Date(timestamp);
-    const hours = date.getHours().toString().padStart(2, "0");
-    const minutes = date.getMinutes().toString().padStart(2, "0");
-    const seconds = date.getSeconds().toString().padStart(2, "0");
-    const milliseconds = date.getMilliseconds().toString().padStart(3, "0");
+    const hh = date.getHours().toString().padStart(2, "0");
+    const mm = date.getMinutes().toString().padStart(2, "0");
+    const ss = date.getSeconds().toString().padStart(2, "0");
+    const ms = date.getMilliseconds().toString().padStart(3, "0");
+    return `${hh}:${mm}:${ss}.${ms}`;
+  }
 
-    return `${hours}:${minutes}:${seconds}.${milliseconds}`;
+  function prefixClass(type: PacketType): string {
+    switch (type) {
+      case "client":
+        return "text-primary";
+      case "server":
+        return "text-success";
+      case "pext":
+        return "text-muted-foreground";
+    }
+  }
+
+  function filterTabClass(type: PacketType): string {
+    const active = activeFilters.includes(type);
+    const colorMap: Record<PacketType, string> = {
+      client: "border-primary text-primary",
+      server: "border-success text-success",
+      pext: "border-muted-foreground text-muted-foreground",
+    };
+    return active
+      ? colorMap[type]
+      : "border-transparent text-muted-foreground hover:text-foreground";
   }
 
   async function toggleCapture() {
@@ -84,62 +116,48 @@
 
   function addPacket(data: unknown, type: PacketType) {
     if (!on) return;
-
     const packet: PacketEntry = {
       id: uuid(),
       content: formatPacket(data, type),
-      type: type,
+      type,
       timestamp: Date.now(),
     };
-
     packets.push(packet);
     stats[type]++;
 
-    if (autoScroll && loggerElement) {
+    if (autoScroll && listInstance) {
       setTimeout(() => {
-        loggerElement!.scrollTo(0, loggerElement!.scrollHeight);
+        listInstance?.scrollToBottom();
       }, 0);
     }
   }
 
   async function copyPacket(content: string) {
-    try {
-      await navigator.clipboard.writeText(content);
-    } catch {
-      // ignore
-    }
+    await navigator.clipboard.writeText(content).catch(() => {});
   }
 
   async function saveToFile() {
     if (!filteredPackets.length) return;
-
     const content = filteredPackets
-      .map((packet) => {
-        const timestamp = formatTimestamp(packet.timestamp);
-        return `[${timestamp}] [${packet.type.toUpperCase()}] ${packet.content}`;
-      })
+      .map(
+        (pkt) =>
+          `[${formatTimestamp(pkt.timestamp)}] [${pkt.type.toUpperCase()}] ${pkt.content}`,
+      )
       .join("\n");
-
-    const blob = new Blob([content], { type: "text/plain" });
     const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
+    a.href = URL.createObjectURL(new Blob([content], { type: "text/plain" }));
     a.download = "packets.txt";
     a.click();
   }
 
   async function copyAll() {
     const content = filteredPackets
-      .map((packet) => {
-        const timestamp = showTimestamps
-          ? `[${formatTimestamp(packet.timestamp)}] `
-          : "";
-        return `${timestamp}[${packet.type.toUpperCase()}] ${packet.content}`;
+      .map((pkt) => {
+        const ts = showTimestamps ? `[${formatTimestamp(pkt.timestamp)}] ` : "";
+        return `${ts}[${pkt.type.toUpperCase()}] ${pkt.content}`;
       })
       .join("\n");
-
-    try {
-      await navigator.clipboard.writeText(content);
-    } catch {}
+    await navigator.clipboard.writeText(content).catch(() => {});
   }
 
   function clearPackets() {
@@ -151,8 +169,7 @@
 
   handlers.packets.onPacket.listen((packet) => {
     if (!on) return;
-    const type = packet.type as PacketType;
-    addPacket(packet.packet, type);
+    addPacket(packet.packet, packet.type as PacketType);
   });
 
   handlers.game.gameReloaded.listen(() => {
@@ -160,17 +177,11 @@
   });
 </script>
 
-<div class="flex h-screen flex-col bg-background">
-  <header
-    class="elevation-1 sticky top-0 z-10 border-b border-border/50 bg-background/95 px-6 py-3 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80"
-  >
-    <div class="mx-auto flex max-w-7xl items-center justify-between">
-      <div class="flex items-center gap-3">
-        <h1 class="text-base font-semibold tracking-tight text-foreground">
-          Packet Logger
-        </h1>
-      </div>
+<svelte:window onkeydown={handleKeydown} />
 
+<AppFrame.Root>
+  <AppFrame.Header title="Packet Logger">
+    {#snippet right()}
       <div class="flex items-center gap-2">
         <Button
           variant="outline"
@@ -179,7 +190,7 @@
           onclick={saveToFile}
           disabled={filteredPackets.length === 0}
         >
-          <Download class="h-4 w-4" />
+          <Icon icon="download" size="md" />
           <span class="hidden sm:inline">Save</span>
         </Button>
         <Button
@@ -189,8 +200,8 @@
           onclick={copyAll}
           disabled={filteredPackets.length === 0}
         >
-          <Copy class="h-4 w-4" />
-          <span class="hidden sm:inline">Copy All</span>
+          <Icon icon="copy" size="md" />
+          <span class="hidden sm:inline">Copy all</span>
         </Button>
         <Button
           size="sm"
@@ -199,161 +210,149 @@
           onclick={toggleCapture}
         >
           {#if on}
-            <Pause class="h-4 w-4" />
+            <Icon icon="pause" size="md" />
             <span class="hidden sm:inline">Stop</span>
           {:else}
-            <Play class="h-4 w-4" />
+            <Icon icon="play" size="md" />
             <span class="hidden sm:inline">Start</span>
           {/if}
         </Button>
       </div>
-    </div>
-  </header>
-
-  <main class="flex-1 overflow-hidden p-4 sm:p-6">
-    <div class="mx-auto flex h-full max-w-7xl flex-col gap-4">
-      <Tabs.Root bind:value={currentFilter} class="flex h-full flex-col gap-4">
-        <div
-          class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
-        >
-          <Tabs.List class="w-fit">
-            <Tabs.Trigger value="all" class="gap-2">
-              All
-              <span
-                class="rounded bg-secondary px-1.5 py-0.5 text-xs tabular-nums"
-              >
-                {totalPackets}
-              </span>
-            </Tabs.Trigger>
-            <Tabs.Trigger value="client" class="gap-2">
-              <span class="text-blue-400">Client</span>
-              <span
-                class="rounded bg-blue-500/20 px-1.5 py-0.5 text-xs tabular-nums text-blue-400"
-              >
-                {stats.client}
-              </span>
-            </Tabs.Trigger>
-            <Tabs.Trigger value="server" class="gap-2">
-              <span class="text-emerald-400">Server</span>
-              <span
-                class="rounded bg-emerald-500/20 px-1.5 py-0.5 text-xs tabular-nums text-emerald-400"
-              >
-                {stats.server}
-              </span>
-            </Tabs.Trigger>
-            <Tabs.Trigger value="pext" class="gap-2">
-              <span class="text-violet-400">Pext</span>
-              <span
-                class="rounded bg-violet-500/20 px-1.5 py-0.5 text-xs tabular-nums text-violet-400"
-              >
-                {stats.pext}
-              </span>
-            </Tabs.Trigger>
-          </Tabs.List>
-
-          <div class="flex items-center gap-4">
-            <div class="flex items-center gap-2">
-              <Checkbox id="show-timestamps" bind:checked={showTimestamps} />
-              <Label
-                for="show-timestamps"
-                class="flex cursor-pointer items-center gap-1.5 text-sm text-muted-foreground"
-              >
-                Timestamps
-              </Label>
-            </div>
-            <div class="flex items-center gap-2">
-              <Checkbox id="auto-scroll" bind:checked={autoScroll} />
-              <Label
-                for="auto-scroll"
-                class="flex cursor-pointer items-center gap-1.5 text-sm text-muted-foreground"
-              >
-                Auto-scroll
-              </Label>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              class="gap-2 text-destructive"
-              onclick={clearPackets}
-              disabled={packets.length === 0}
+    {/snippet}
+  </AppFrame.Header>
+  <AppFrame.Body scroll={false}>
+    <div class="flex h-full flex-col gap-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
+          {#each ["client", "server", "pext"] as PacketType[] as type (type)}
+            <button
+              class={cn(
+                "flex items-center gap-2 border-b-2 px-3 py-2 text-xs font-medium transition-colors",
+                filterTabClass(type),
+              )}
+              onclick={() => toggleFilter(type)}
             >
-              <Trash2 class="h-4 w-4" />
-              Clear
-            </Button>
-          </div>
+              {type}
+              <span class="tabular-nums opacity-50">{stats[type]}</span>
+            </button>
+          {/each}
         </div>
 
-        <div class="flex items-center justify-between text-sm">
-          <span class="text-muted-foreground">
-            <span class="font-medium tabular-nums text-foreground"
-              >{filteredPackets.length}</span
-            >
-            {#if currentFilter !== "all"}
-              <span class="text-muted-foreground/70">of {totalPackets}</span>
+        <div class="flex items-center gap-4">
+          <Label class="text-muted-foreground">
+            <Checkbox bind:checked={showTimestamps} />
+            Timestamps
+          </Label>
+          <Label class="text-muted-foreground">
+            <Checkbox bind:checked={autoScroll} />
+            Auto-scroll
+          </Label>
+          <Button
+            variant="destructive-outline"
+            size="sm"
+            class="gap-2"
+            onclick={clearPackets}
+            disabled={packets.length === 0}
+          >
+            <Icon icon="trash" size="md" />
+            Clear
+          </Button>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <InputGroup.Root class="flex-1">
+          <InputGroup.Addon align="inline-start">
+            <Icon icon="search" class="text-muted-foreground/60" size="sm" />
+          </InputGroup.Addon>
+          <InputGroup.GroupInput
+            placeholder="Search packets..."
+            size="sm"
+            bind:ref={searchInput}
+            bind:value={searchQuery}
+          />
+          <InputGroup.Addon align="inline-end">
+            {#if searchQuery}
+              <button
+                class="flex h-4 w-4 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                onclick={() => (searchQuery = "")}
+                type="button"
+              >
+                <Icon icon="x" size="xs" />
+              </button>
+            {:else}
+              <Kbd hotkey="/" />
             {/if}
-            <span class="text-muted-foreground/70"
-              >packet{filteredPackets.length !== 1 ? "s" : ""}</span
-            >
-          </span>
-        </div>
+          </InputGroup.Addon>
+        </InputGroup.Root>
+      </div>
 
-        <div
-          class="relative flex-1 overflow-hidden rounded-xl border border-border/50 bg-card"
-        >
-          {#if filteredPackets.length === 0}
-            <div class="flex h-full items-center justify-center">
-              <p class="text-center text-sm text-muted-foreground">
-                No packets captured yet
-              </p>
-            </div>
-          {:else}
-            <div
-              bind:this={loggerElement}
-              class="h-full overflow-auto p-3 font-mono text-sm"
-            >
-              {#each filteredPackets as packet (packet.id)}
-                <div
-                  class="group flex cursor-pointer items-start gap-2 rounded-lg px-2 py-1.5 transition-colors hover:bg-secondary/50"
-                  onclick={() => copyPacket(packet.content)}
-                  onkeydown={(ev) => {
-                    if (ev.key === "Enter") {
-                      ev.preventDefault();
-                      copyPacket(packet.content);
-                    }
-                  }}
-                  role="button"
-                  tabindex="0"
-                  title="Click to copy"
+      <div
+        class="relative flex-1 overflow-hidden rounded-xl border border-border/50 bg-card"
+      >
+        {#if filteredPackets.length === 0}
+          <div class="flex h-full items-center justify-center">
+            <p class="text-sm text-muted-foreground">No packets captured yet</p>
+          </div>
+        {:else}
+          <VirtualList
+            bind:this={listInstance}
+            class="h-full font-mono text-sm"
+            data={filteredPackets}
+            key="id"
+            estimateSize={32}
+          >
+            {#snippet children({ data: packet }: { data: PacketEntry })}
+              <button
+                class="group flex w-full items-start border-b border-border/40 px-3 py-1.5 text-left transition-colors last:border-b-0 hover:bg-secondary/40"
+                onclick={() => {
+                  void copyPacket(packet.content);
+                }}
+                title="Click to copy"
+              >
+                {#if showTimestamps}
+                  <span
+                    class="w-[88px] shrink-0 pt-px text-[11px] tabular-nums text-muted-foreground/60"
+                  >
+                    {formatTimestamp(packet.timestamp)}
+                  </span>
+                {/if}
+                <span
+                  class={cn(
+                    "w-[46px] shrink-0 text-right text-[12px] font-medium",
+                    prefixClass(packet.type),
+                  )}
                 >
-                  {#if showTimestamps}
-                    <span
-                      class="shrink-0 text-xs tabular-nums text-muted-foreground/70"
-                    >
-                      {formatTimestamp(packet.timestamp)}
-                    </span>
-                  {/if}
-                  <span
-                    class={cn(
-                      "shrink-0 rounded px-1.5 py-0.5 text-xs font-medium uppercase",
-                      getPacketTypeBadgeClass(packet.type),
-                    )}
-                  >
-                    {packet.type}
-                  </span>
-                  <span
-                    class="flex-1 whitespace-pre-wrap break-all text-foreground"
-                  >
+                  {packet.type}
+                </span>
+                <span
+                  class="ml-2.5 flex-1 whitespace-pre-wrap break-all text-[12px] leading-relaxed text-foreground/90"
+                >
+                  {#if !searchQuery}
                     {packet.content}
-                  </span>
-                  <Copy
-                    class="h-3.5 w-3.5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
-                  />
-                </div>
-              {/each}
-            </div>
-          {/if}
-        </div>
-      </Tabs.Root>
+                  {:else}
+                    {@const parts = packet.content.split(
+                      new RegExp(
+                        `(${searchQuery.replaceAll(/[$()*+.?[\\\]^{|}]/g, "\\$&")})`,
+                        "gi",
+                      ),
+                    )}
+                    {#each parts as part, index (index)}
+                      {#if part.toLowerCase() === searchQuery.toLowerCase()}
+                        <mark class="rounded-sm bg-primary/30 p-0 text-inherit"
+                          >{part}</mark
+                        >
+                      {:else}
+                        {part}
+                      {/if}
+                    {/each}
+                  {/if}
+                </span>
+              </button>
+            {/snippet}
+          </VirtualList>
+        {/if}
+      </div>
     </div>
-  </main>
-</div>
+  </AppFrame.Body>
+</AppFrame.Root>

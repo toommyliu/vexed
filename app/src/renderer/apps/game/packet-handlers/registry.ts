@@ -91,6 +91,7 @@ export function dispatchJson(bot: Bot, cmd: string, packet: unknown): void {
       void handler(bot, packet);
     } catch (error) {
       console.error(`[server:json] error in handler for "${cmd}":`, error);
+      console.debug("packet", packet);
     }
   }
 }

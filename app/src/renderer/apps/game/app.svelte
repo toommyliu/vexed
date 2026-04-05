@@ -23,12 +23,8 @@
   import { gameLoaded } from "./state/app.svelte";
   import { parseSkillSetJson, type SkillSetJson } from "./util/skillParser";
 
-  import { Button, Checkbox, Label } from "@vexed/ui";
+  import { Button, Checkbox, Label, Icon, Kbd, Menu } from "@vexed/ui";
   import { cn } from "@vexed/ui/util";
-  import Kbd from "@vexed/ui/Kbd";
-  import * as Menu from "@vexed/ui/Menu";
-  import Play from "@vexed/ui/icons/Play";
-  import Square from "@vexed/ui/icons/Square";
   import CommandOverlay from "./components/CommandOverlay.svelte";
   import CommandPalette from "./components/CommandPalette.svelte";
   import OptionsPanel from "./components/OptionsPanel.svelte";
@@ -51,28 +47,57 @@
   let openDropdown = $state<string | null>(null);
 
   let gameConnected = $state(false);
-  bot.on("login", () => (gameConnected = true));
-  bot.on("logout", () => (gameConnected = false));
 
   let reloginServers = $state<string[]>([]);
-  let reloginUsername = $derived(bot.auth?.username ?? "");
-  let reloginPassword = $derived(bot.auth?.password ?? "");
-  let reloginCanEnable = $derived(
+  let reloginUsername = $state("");
+  let reloginPassword = $state("");
+
+  function syncReloginState() {
+    gameConnected = bot.auth.isLoggedIn();
+    reloginUsername = bot.auth.username ?? "";
+    reloginPassword = bot.auth.password ?? "";
+    updateReloginServers();
+  }
+
+  bot.on("login", syncReloginState);
+  bot.on("logout", syncReloginState);
+
+  syncReloginState();
+
+  const reloginCanEnable = $derived(
     Boolean(reloginUsername && reloginPassword) ||
       Boolean(autoReloginState.username && autoReloginState.password),
   );
 
   function updateReloginServers() {
     try {
-      reloginServers = (bot.auth?.servers ?? []).map((s) => s.name);
-    } catch {
-      reloginServers = [];
+      const servers = bot.auth?.servers ?? [];
+      if (servers.length) {
+        reloginServers = servers.map((server) => server.name);
+      }
+    } catch {}
+  }
+
+  function resolveReloginCredentials() {
+    if (reloginUsername && reloginPassword) {
+      return { username: reloginUsername, password: reloginPassword };
     }
+
+    if (autoReloginState.username && autoReloginState.password) {
+      return {
+        username: autoReloginState.username,
+        password: autoReloginState.password,
+      };
+    }
+
+    return null;
   }
 
   function enableRelogin(server: string) {
-    if (!reloginUsername || !reloginPassword) return;
-    autoReloginState.enable(reloginUsername, reloginPassword, server);
+    const credentials = resolveReloginCredentials();
+    if (!credentials) return;
+
+    autoReloginState.enable(credentials.username, credentials.password, server);
     AutoReloginJob.resetForNewCredentials();
   }
 
@@ -81,7 +106,6 @@
   }
 
   let commandPaletteOpen = $state(false);
-  let hotkeyValues = $derived(hotkeyState.toRecord());
 
   let availableCells = $state<string[]>([]);
   let currentSelectedCell = $state<string>("");
@@ -89,8 +113,8 @@
   let prevRoomId = $state<number>(-1);
   let validPads = $state<
     {
-      name: string;
       isValid: boolean;
+      name: string;
     }[]
   >([]);
 
@@ -155,10 +179,6 @@
       toggleScript();
     }
   });
-
-  function toggleDropdown(dropdownName: string) {
-    openDropdown = openDropdown === dropdownName ? null : dropdownName;
-  }
 
   // TODO: follower should use auto skillsets
   $effect(() => {
@@ -272,7 +292,10 @@
       const state = envStateResult.value;
       bot.environment.applyUpdate(state);
     } else {
-      console.error("Failed to sync up with environment", envStateResult.reason);
+      console.error(
+        "Failed to sync up with environment",
+        envStateResult.reason,
+      );
     }
   });
 
@@ -293,54 +316,44 @@
   {#if gameState.topNavVisible}
     <div
       id="topnav-container"
-      class="relative z-[10000] flex h-9 items-center border-b border-border/50 bg-background/95 backdrop-blur-md"
+      class="relative z-[10000] flex h-7 items-center border-b border-border/40 bg-background/95"
     >
       <div
         id="topnav"
-        class="flex h-full w-full flex-row items-center gap-0.5 px-1"
+        class="flex h-full w-full flex-row items-center gap-1 px-2"
       >
-        <div
-          class="group relative inline-flex h-full cursor-pointer items-center"
-          id="windows-dropdown"
+        <Menu.Root
+          open={openDropdown === "windows"}
+          onOpenChange={(open) => (openDropdown = open ? "windows" : null)}
         >
-          <button
-            class="flex h-7 shrink-0 items-center rounded bg-transparent px-2.5 text-[13px] font-medium text-foreground/80 transition-colors duration-150 hover:bg-accent hover:text-foreground"
-            id="windows"
-            onclick={(ev) => {
-              ev.stopPropagation();
-              toggleDropdown("windows");
-            }}
+          <Menu.Trigger
+            class="flex h-6 shrink-0 items-center justify-center rounded-md bg-transparent px-2.5 text-xs font-medium text-foreground/80 transition-colors duration-200 hover:bg-accent hover:text-foreground"
           >
             Windows
-          </button>
-          <WindowsMegaMenu
-            open={openDropdown === "windows"}
-            onClose={() => (openDropdown = null)}
-            {hotkeyValues}
-          />
-        </div>
+          </Menu.Trigger>
+          <WindowsMegaMenu />
+        </Menu.Root>
 
-        <div class="flex h-full flex-row items-center">
+        <div class="flex h-full flex-row items-center gap-1">
           <Menu.Root
             open={openDropdown === "scripts"}
             onOpenChange={(open) => (openDropdown = open ? "scripts" : null)}
-            class="flex h-full items-center"
           >
             <Menu.Trigger
-              class="flex h-7 shrink-0 items-center rounded bg-transparent px-2.5 text-[13px] font-medium text-foreground/80 transition-colors duration-150 hover:bg-accent hover:text-foreground"
+              class="flex h-6 shrink-0 items-center rounded-md bg-transparent px-2.5 text-xs font-medium text-foreground/80 transition-colors duration-200 hover:bg-accent hover:text-foreground"
             >
               Scripts
             </Menu.Trigger>
-            <Menu.Content class="min-w-48 text-[13px]">
+            <Menu.Content class="min-w-44 p-1">
               <Menu.Item
-                class="flex items-center justify-between bg-transparent"
+                class="flex h-7 w-full items-center justify-between gap-4 px-2 text-xs font-medium"
                 onclick={loadScript}
               >
                 <span>Load Script</span>
-                <Kbd hotkey={hotkeyValues["load-script"] ?? ""} class="ml-4" />
+                <Kbd hotkey={hotkeyState.values["load-script"] ?? ""} />
               </Menu.Item>
               <Menu.Item
-                class="flex items-center justify-between bg-transparent"
+                class="flex h-7 w-full items-center justify-between gap-4 px-2 text-xs font-medium"
                 onclick={() => executeAction("toggle-command-overlay")}
               >
                 <span
@@ -349,25 +362,23 @@
                     : "Show Overlay"}</span
                 >
                 <Kbd
-                  hotkey={hotkeyValues["toggle-command-overlay"] ?? ""}
-                  class="ml-4"
+                  hotkey={hotkeyState.values["toggle-command-overlay"] ?? ""}
                 />
               </Menu.Item>
               <Menu.Item
-                class="flex items-center justify-between bg-transparent"
+                class="flex h-7 w-full items-center justify-between gap-4 px-2 text-xs font-medium"
                 onclick={() => void client.app.toggleDevTools()}
               >
                 <span>Dev Tools</span>
-                <Kbd
-                  hotkey={hotkeyValues["toggle-dev-tools"] ?? ""}
-                  class="ml-4"
-                />
+                <Kbd hotkey={hotkeyState.values["toggle-dev-tools"] ?? ""} />
               </Menu.Item>
             </Menu.Content>
           </Menu.Root>
 
+          <div class="mx-1 h-3 w-px bg-border/40"></div>
+
           <button
-            class="flex h-7 shrink-0 items-center gap-1.5 rounded bg-transparent px-2.5 text-[13px] font-medium text-foreground/80 transition-colors duration-150 hover:bg-accent hover:text-foreground"
+            class="flex h-6 shrink-0 items-center rounded-md bg-transparent px-2.5 text-xs font-medium text-foreground/80 transition-colors duration-200 hover:bg-accent hover:text-foreground"
             onclick={() => executeAction("toggle-options-panel")}
           >
             <span>Options</span>
@@ -377,95 +388,91 @@
             open={openDropdown === "relogin"}
             onOpenChange={(open) => {
               if (open) {
-                updateReloginServers();
+                syncReloginState();
                 openDropdown = "relogin";
               } else {
                 openDropdown = null;
               }
             }}
-            class="flex h-full items-center"
           >
             <Menu.Trigger
               class={cn(
-                "flex h-7 shrink-0 items-center gap-1.5 rounded bg-transparent px-2.5 text-[13px] font-medium transition-all duration-200 hover:bg-accent",
+                "flex h-6 shrink-0 items-center gap-1.5 rounded-md bg-transparent px-2.5 text-xs font-medium transition-all duration-200 hover:bg-accent",
                 autoReloginState.enabled
-                  ? "text-emerald-400"
+                  ? "text-success"
                   : "text-foreground/80 hover:text-foreground",
               )}
             >
               <span>Auto Relogin</span>
             </Menu.Trigger>
-            <Menu.Content class="w-52 text-[13px]">
+            <Menu.Content class="min-w-44 p-1">
               {#if autoReloginState.enabled}
                 <div
-                  class="flex items-center gap-2 px-2 py-1.5 text-xs text-muted-foreground/70"
+                  class="flex h-7 items-center gap-2 px-2 text-xs font-medium text-muted-foreground/70"
                 >
-                  Username: {autoReloginState.username}
+                  User: {autoReloginState.username}
                 </div>
                 <div
-                  class="flex items-center gap-2 px-2 py-1.5 text-xs text-muted-foreground/70"
+                  class="flex h-7 items-center gap-2 px-2 text-xs font-medium text-muted-foreground/70"
                 >
                   Server: {autoReloginState.server}
                 </div>
                 <div
-                  class="flex items-center gap-2 px-2 py-1.5 text-xs text-muted-foreground/70"
+                  class="flex h-7 items-center gap-2 px-2 text-xs font-medium text-muted-foreground/70"
                 >
-                  Fallback: {autoReloginState.fallbackServer || "Auto"}
+                  Fallback: {autoReloginState.fallbackServer ?? "Auto"}
                 </div>
-                <div
-                  class="flex items-center justify-between gap-2 px-2 py-1.5"
-                >
-                  <span class="text-xs text-muted-foreground/70">Delay:</span>
+                <div class="flex h-7 items-center justify-between gap-2 px-2">
+                  <span class="text-xs font-medium text-muted-foreground/70"
+                    >Delay:</span
+                  >
                   <div class="flex items-center gap-1">
                     <input
                       type="number"
                       min="1"
                       max="60"
-                      class="h-5 w-12 rounded border border-border/60 bg-background px-1 text-center text-xs text-foreground [appearance:textfield] focus:border-emerald-500/50 focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                      value={autoReloginState.delay / 1000}
+                      class="h-5 w-10 rounded-sm border border-border/60 bg-background px-1 text-center text-[10px] text-foreground focus:border-success/50 focus:outline-none"
+                      value={autoReloginState.delay / 1_000}
                       onchange={(ev) => {
                         const val = Math.max(
                           1,
                           Math.min(60, Number(ev.currentTarget.value) || 5),
                         );
-                        autoReloginState.delay = val * 1000;
+                        autoReloginState.delay = val * 1_000;
                         ev.currentTarget.value = String(val);
                       }}
                     />
-                    <span class="text-xs text-muted-foreground/70">s</span>
+                    <span class="text-xs font-medium text-muted-foreground/70"
+                      >s</span
+                    >
                   </div>
                 </div>
                 <Menu.Item
-                  class="bg-transparent text-red-400 hover:text-red-300"
+                  class="h-7 px-2 text-xs font-medium text-red-400 hover:text-red-300"
                   onclick={disableRelogin}
                 >
                   Disable
                 </Menu.Item>
               {:else if autoReloginState.username && autoReloginState.password}
                 <div
-                  class="flex items-center gap-2 px-2 py-1.5 text-xs text-muted-foreground/70"
+                  class="flex h-7 items-center gap-2 px-2 text-xs font-medium text-muted-foreground/70"
                 >
-                  Username: {autoReloginState.username}
+                  User: {autoReloginState.username}
                 </div>
                 <Menu.Separator />
                 <Menu.Label
-                  class="px-2 py-1.5 text-[11px] uppercase tracking-wider text-muted-foreground/70"
+                  class="px-2 py-1.5 text-[10px] font-medium uppercase tracking-wider text-foreground/40"
                 >
-                  Enable for server
+                  Server
                 </Menu.Label>
-                <div class="max-h-52 overflow-y-auto pr-1">
+                <div class="max-h-52 overflow-y-auto">
                   {#each reloginServers as server (server)}
                     <Menu.Item
                       class={cn(
-                        "bg-transparent transition-colors hover:bg-emerald-500/10 hover:text-emerald-400",
-                        server === autoReloginState.server &&
-                          "text-emerald-400",
+                        "h-7 px-2 text-xs font-medium transition-colors hover:text-success",
+                        server === autoReloginState.server && "text-success",
                       )}
-                      onclick={() => {
-                        autoReloginState.server = server;
-                        autoReloginState.enabled = true;
-                        AutoReloginJob.resetForNewCredentials();
-                      }}
+                      onclick={() => enableRelogin(server)}
                     >
                       {server}{server === autoReloginState.server
                         ? " (last)"
@@ -475,27 +482,27 @@
                 </div>
                 <Menu.Separator />
                 <Menu.Item
-                  class="bg-transparent text-muted-foreground hover:text-foreground"
+                  class="h-7 px-2 text-xs font-medium text-muted-foreground hover:text-foreground"
                   onclick={() => autoReloginState.reset()}
                 >
                   Clear Credentials
                 </Menu.Item>
               {:else if !reloginCanEnable}
-                <div class="px-3 py-3 text-center">
-                  <div class="text-xs text-muted-foreground/60">
-                    Log in to enable
-                  </div>
+                <div
+                  class="flex h-7 items-center justify-center px-2 text-[11px] font-medium text-muted-foreground/50"
+                >
+                  Log in to enable
                 </div>
               {:else}
                 <Menu.Label
-                  class="px-2 py-1.5 text-[11px] uppercase tracking-wider text-muted-foreground/70"
+                  class="px-2 py-1.5 text-[10px] font-medium text-foreground/40"
                 >
-                  Enable for server
+                  Server
                 </Menu.Label>
-                <div class="max-h-52 overflow-y-auto pr-1">
+                <div class="max-h-52 overflow-y-auto">
                   {#each reloginServers as server (server)}
                     <Menu.Item
-                      class="bg-transparent transition-colors hover:bg-emerald-500/10 hover:text-emerald-400"
+                      class="h-7 px-2 text-xs font-medium transition-colors hover:text-success"
                       onclick={() => enableRelogin(server)}
                     >
                       {server}
@@ -508,35 +515,41 @@
 
           <button
             class={cn(
-              "ml-0.5 flex h-6 shrink-0 items-center gap-1 rounded px-2 text-[12px] font-medium transition-colors duration-150",
-              !scriptState.isLoaded && "cursor-not-allowed opacity-40",
+              "flex h-6 shrink-0 items-center gap-1.5 rounded-md bg-transparent px-2.5 text-xs font-medium transition-all duration-200 hover:bg-accent",
+              (!scriptState.isLoaded ||
+                (!scriptState.isRunning && !gameConnected)) &&
+                "cursor-not-allowed opacity-40",
               scriptState.isLoaded &&
                 !scriptState.isRunning &&
-                "bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30",
-              scriptState.isRunning &&
-                "bg-amber-600/20 text-amber-400 hover:bg-amber-600/30",
+                gameConnected &&
+                "text-success",
+              scriptState.isRunning && "text-destructive",
             )}
-            disabled={!scriptState.isLoaded}
+            disabled={!scriptState.isLoaded ||
+              (!scriptState.isRunning && !gameConnected)}
             onclick={toggleScript}
           >
             {#if scriptState.isRunning}
-              <Square class="size-2.5" />
+              <Icon icon="square" class="size-2.5 fill-current" />
               <span>Stop</span>
             {:else}
-              <Play class="size-2.5" />
-              <span>Run</span>
+              <Icon icon="play" class="size-2.5 fill-current" />
+              <span>Start</span>
             {/if}
           </button>
         </div>
 
-        <div class="ml-auto flex h-full shrink-0 items-center gap-1 pr-1.5">
+        <div class="ml-auto flex h-full shrink-0 items-center gap-2 pr-1.5">
           <Label
-            class="flex cursor-pointer select-none items-center gap-1.5 text-[12px] text-foreground/70 transition-colors hover:text-foreground"
+            class="flex cursor-pointer select-none items-center gap-1.5 text-xs text-foreground/70 transition-colors hover:text-foreground"
           >
-            <Checkbox bind:checked={gameState.autoAttackEnabled} />
+            <Checkbox
+              bind:checked={gameState.autoAttackEnabled}
+              class="size-3.5"
+            />
             <span>Auto</span>
           </Label>
-          <div class="ml-0.5 h-4 w-px bg-border/60"></div>
+          <div class="h-3 w-px bg-border/40"></div>
           <div class="flex items-center gap-1">
             <Menu.Root
               open={openDropdown === "pads"}
@@ -548,24 +561,23 @@
                   openDropdown = null;
                 }
               }}
-              class="h-6 w-20"
             >
               <Menu.Trigger
-                class="flex h-full w-full items-center justify-between rounded border border-border/60 bg-background px-2 text-[12px] text-foreground/80 transition-colors duration-150 hover:border-border hover:bg-accent/30 disabled:cursor-not-allowed disabled:opacity-50"
+                class="flex h-6 w-16 items-center justify-between rounded-md border border-border/60 bg-background/50 px-2 text-[11px] text-foreground/70 transition-colors duration-200 hover:border-border hover:bg-accent/40 disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={!gameConnected}
               >
                 {currentSelectedPad}
               </Menu.Trigger>
-              <Menu.Content align="end" class="min-w-40 text-xs">
+              <Menu.Content align="end" class="min-w-28 p-1">
                 {#each validPads as pad (pad)}
                   <Menu.Item
                     class={cn(
-                      "bg-transparent",
+                      "h-7 w-full px-2 text-xs font-medium",
                       pad.isValid &&
                         pad.name !== currentSelectedPad &&
-                        "text-emerald-400",
+                        "text-success",
                       pad.name === currentSelectedPad &&
-                        "bg-accent/50 font-medium text-primary",
+                        "bg-accent font-medium text-foreground",
                     )}
                     onclick={() => jumpToPad(pad.name)}
                   >
@@ -584,24 +596,23 @@
                   openDropdown = null;
                 }
               }}
-              class="h-6 w-20"
             >
               <Menu.Trigger
-                class="flex h-full w-full items-center justify-between rounded border border-border/60 bg-background px-2 text-[12px] text-foreground/80 transition-colors duration-150 hover:border-border hover:bg-accent/30 disabled:cursor-not-allowed disabled:opacity-50"
+                class="flex h-6 w-20 items-center justify-between rounded-md border border-border/60 bg-background/50 px-2 text-[11px] text-foreground/70 transition-colors duration-200 hover:border-border hover:bg-accent/40 disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={!gameConnected}
               >
                 {currentSelectedCell}
               </Menu.Trigger>
               <Menu.Content
                 align="end"
-                class="max-h-[25vh] min-w-40 overflow-y-auto text-[12px]"
+                class="max-h-[30vh] min-w-32 overflow-y-auto p-1"
               >
                 {#each availableCells as cell (cell)}
                   <Menu.Item
                     class={cn(
-                      "bg-transparent",
+                      "h-7 w-full px-2 text-xs font-medium",
                       cell === currentSelectedCell &&
-                        "bg-accent/50 font-medium text-primary",
+                        "bg-accent font-medium text-foreground",
                     )}
                     onclick={() => jumpToCell(cell)}
                   >
@@ -611,11 +622,11 @@
               </Menu.Content>
             </Menu.Root>
           </div>
-          <div class="ml-0.5 h-4 w-px bg-border/60"></div>
+          <div class="h-3 w-px bg-border/40"></div>
           <Button
             variant="ghost"
             size="xs"
-            class="h-6 px-2 text-[12px] text-foreground/70 hover:text-foreground"
+            class="h-6 px-2.5 text-xs text-foreground/70 hover:text-foreground"
             disabled={!gameConnected}
             onclick={async () => {
               if (!bot.player.isReady()) return;
@@ -641,9 +652,7 @@
     <div class="w-full max-w-md px-8">
       <div class="space-y-6">
         <div class="flex justify-center">
-          <div
-            class="border-t-progress-blue h-8 w-8 animate-spin rounded-full border-2 border-gray-600"
-          ></div>
+          <Icon icon="loader" size="lg" spin />
         </div>
         <div class="text-center">
           <span id="progress-text" class="text-sm font-medium text-gray-300">
@@ -666,11 +675,11 @@
 </main>
 
 <CommandOverlay />
-<CommandPalette bind:open={commandPaletteOpen} {hotkeyValues} />
-<OptionsPanel {hotkeyValues} />
+<CommandPalette bind:open={commandPaletteOpen} />
+<OptionsPanel />
 
 <style>
   :global(:root) {
-    --topnav-height: 36px;
+    --topnav-height: 28px;
   }
 </style>

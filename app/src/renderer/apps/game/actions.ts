@@ -7,6 +7,7 @@ import {
   commandOverlayState,
   optionsPanelState,
   scriptState,
+  hotkeyState,
 } from "./state/index.svelte";
 
 const bot = Bot.getInstance();
@@ -49,7 +50,12 @@ export function loadScript(): void {
 }
 
 export function startScript(): void {
-  if (!window.context.commands.length || window.context.isRunning()) return;
+  if (
+    !window.context.commands.length ||
+    window.context.isRunning() ||
+    !bot.auth.isLoggedIn()
+  )
+    return;
   window.context.removeAllListeners("end");
   const onEnd = () => {
     scriptState.isRunning = false;
@@ -329,22 +335,19 @@ export function executeAction(actionId: UiActionId | string): void {
 }
 
 function resolveHotkey(
-  hotkeyValues: Record<string, string>,
   id?: HotkeyId,
 ): string {
   if (!id) return "";
-  return hotkeyValues[id] ?? "";
+  return hotkeyState.values[id] ?? "";
 }
 
-export function getUiCommands(
-  hotkeyValues: Record<string, string> = {},
-): UiCommandSpec[] {
+export function getUiCommands(): UiCommandSpec[] {
   return COMMANDS.map((command) => ({
     id: command.id,
     label:
       typeof command.label === "function" ? command.label() : command.label,
     category: command.category,
-    hotkey: resolveHotkey(hotkeyValues, command.hotkeyId),
+    hotkey: resolveHotkey(command.hotkeyId),
     run: () => executeAction(command.id),
   }));
 }

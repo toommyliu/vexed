@@ -1,0 +1,315 @@
+<script lang="ts">
+  import {
+    PillButton,
+    Select,
+    Icon,
+    Button,
+    TooltipButton,
+    Input,
+  } from "@vexed/ui";
+
+  import { settings } from "../state/settings.svelte";
+  import {
+    customTheme,
+    activeEditScheme,
+    setToken,
+    clearToken,
+    queueTokenUpdate,
+    setRadius,
+    clearRadius,
+    setFontFamily,
+    clearFontFamily,
+    setMonospaceFontFamily,
+    clearMonospaceFontFamily,
+    resetAll,
+    liveScheme,
+  } from "../state/theme-manager";
+
+  import { COLOR_TOKENS } from "../constants";
+  import { resolveDisplayTokenHex } from "../../../shared/theme";
+
+  const currentSchemeOverrides = $derived(
+    $customTheme[$activeEditScheme] ?? {},
+  );
+</script>
+
+<div class="mx-auto flex max-w-2xl flex-col gap-4">
+  <section class="flex flex-col gap-3">
+    <div class="flex flex-col gap-0 pb-3">
+      <div class="flex items-center justify-between px-2 py-1">
+        <div class="flex flex-col">
+          <span class="text-[13px] font-medium text-foreground">Theme</span>
+        </div>
+        <div class="flex w-[140px] justify-end">
+          <Select.Root
+            class="w-full"
+            bind:value={settings.theme}
+            positioning={{
+              placement: "bottom-end",
+            }}
+          >
+            <Select.Trigger class="h-8 w-full bg-transparent text-xs" size="sm">
+              <Select.Value placeholder="System" />
+            </Select.Trigger>
+            <Select.Content>
+              <Select.Item class="text-xs" value="dark" label="Dark"
+                >Dark</Select.Item
+              >
+              <Select.Item class="text-xs" value="light" label="Light"
+                >Light</Select.Item
+              >
+              <Select.Item class="text-xs" value="system" label="System"
+                >System</Select.Item
+              >
+            </Select.Content>
+          </Select.Root>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="flex flex-col gap-3">
+    <div
+      class="flex min-h-8 flex-wrap items-center justify-between gap-y-2 px-2 py-1"
+    >
+      <div class="flex min-w-0 flex-1 items-center gap-2">
+        <span class="text-[13px] font-semibold text-muted-foreground/50"
+          >Customization</span
+        >
+
+        <TooltipButton
+          tooltip="Applies to most elements"
+          contentClass="p-1 text-xs"
+        >
+          <Icon icon="info" class="size-3 text-muted-foreground/40" />
+        </TooltipButton>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="flex gap-1">
+          <PillButton
+            size="sm"
+            class="h-6 px-3 text-[11px]"
+            variant={$activeEditScheme === "dark" ? "default" : "ghost"}
+            onclick={() => activeEditScheme.set("dark")}>Dark</PillButton
+          >
+          <PillButton
+            size="sm"
+            class="h-6 px-3 text-[11px]"
+            variant={$activeEditScheme === "light" ? "default" : "ghost"}
+            onclick={() => activeEditScheme.set("light")}>Light</PillButton
+          >
+        </div>
+
+        <div class="h-3 w-px bg-border/50"></div>
+
+        <Button size="xs" variant="destructive" onclick={() => resetAll()}>
+          <Icon icon="rotate_ccw" class="h-3 w-3" />
+          <span>Reset all</span>
+        </Button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-x-2 gap-y-1 sm:grid-cols-2">
+      {#each COLOR_TOKENS as token (token.key)}
+        {@const hex = currentSchemeOverrides[token.key]}
+        {@const displayHex = resolveDisplayTokenHex(
+          $customTheme,
+          $activeEditScheme,
+          token.key,
+          $liveScheme,
+        )}
+        <div
+          class="group flex items-center justify-between rounded px-2 py-1.5 transition-colors hover:bg-muted/10"
+        >
+          <div class="flex items-center gap-2 truncate pr-2">
+            <span class="truncate text-xs font-medium text-foreground"
+              >{token.label}</span
+            >
+          </div>
+          <div class="flex shrink-0 items-center gap-2">
+            <span
+              class="w-12 text-right font-mono text-[11px] uppercase text-muted-foreground/60"
+            >
+              {displayHex}
+            </span>
+            <label
+              class="relative h-5 w-5 cursor-pointer overflow-hidden rounded shadow-sm ring-1 ring-border focus-within:ring-2 focus-within:ring-primary"
+              title={displayHex}
+            >
+              <div
+                class="absolute inset-0"
+                style="background-color: {displayHex};"
+              ></div>
+              <input
+                type="color"
+                class="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                value={displayHex}
+                oninput={(event) =>
+                  queueTokenUpdate(
+                    $activeEditScheme,
+                    token.key,
+                    event.currentTarget.value,
+                  )}
+                onchange={(event) =>
+                  setToken(
+                    $activeEditScheme,
+                    token.key,
+                    event.currentTarget.value,
+                  )}
+              />
+            </label>
+            {#if hex}
+              <button
+                type="button"
+                aria-label="Reset to default"
+                class="flex w-6 items-center justify-center rounded p-1 text-muted-foreground/40 transition-colors hover:text-destructive focus-visible:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive focus-visible:ring-offset-1 focus-visible:ring-offset-background"
+                onclick={() => clearToken($activeEditScheme, token.key)}
+              >
+                <Icon icon="rotate_ccw" class="h-3 w-3" />
+              </button>
+            {:else}
+              <span class="w-6"></span>
+            {/if}
+          </div>
+        </div>
+      {/each}
+    </div>
+  </section>
+
+  <section class="flex flex-col gap-3">
+    <div class="flex min-h-8 flex-wrap items-center gap-2 px-2 py-1">
+      <span class="text-[13px] font-semibold text-muted-foreground/50"
+        >Typography &amp; Radius</span
+      >
+
+      <TooltipButton
+        tooltip="Fonts should be installed on your system"
+        contentClass="p-1 text-xs"
+      >
+        <Icon icon="info" class="size-3 text-muted-foreground/40" />
+      </TooltipButton>
+    </div>
+
+    <div class="flex flex-col divide-y divide-border/30">
+      <div class="group flex items-center justify-between px-2 py-2.5">
+        <div class="flex flex-col gap-0.5">
+          <span class="text-[13px] font-medium text-foreground"
+            >Primary font</span
+          >
+        </div>
+        <div class="flex items-center gap-1.5">
+          <Input
+            type="text"
+            spellcheck="false"
+            class="h-7 w-44"
+            placeholder="Inter Variable"
+            value={$customTheme.fontFamily ?? ""}
+            onkeydown={(ev) => {
+              if (ev.key === "Enter") ev.currentTarget.blur();
+            }}
+            onblur={(event) => {
+              const value = event.currentTarget.value.trim();
+              if (value) setFontFamily(value);
+              else clearFontFamily();
+            }}
+          />
+
+          {#if $customTheme.fontFamily}
+            <button
+              type="button"
+              aria-label="Reset to default"
+              class="flex w-6 items-center justify-center rounded p-1 text-muted-foreground/40 transition-colors hover:text-destructive focus-visible:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive focus-visible:ring-offset-1 focus-visible:ring-offset-background"
+              onclick={() => clearFontFamily()}
+            >
+              <Icon icon="rotate_ccw" class="h-3 w-3" />
+            </button>
+          {:else}
+            <span class="w-6"></span>
+          {/if}
+        </div>
+      </div>
+
+      <div class="group flex items-center justify-between px-2 py-2.5">
+        <div class="flex flex-col gap-0.5">
+          <span class="text-[13px] font-medium text-foreground"
+            >Monospace font</span
+          >
+        </div>
+        <div class="flex items-center gap-1.5">
+          <Input
+            type="text"
+            spellcheck="false"
+            class="h-7 w-44"
+            placeholder="JetBrains Mono"
+            value={$customTheme.monospaceFontFamily ?? ""}
+            onkeydown={(ev) => {
+              if (ev.key === "Enter") ev.currentTarget.blur();
+            }}
+            onblur={(event) => {
+              const value = event.currentTarget.value.trim();
+              if (value) setMonospaceFontFamily(value);
+              else clearMonospaceFontFamily();
+            }}
+          />
+          {#if $customTheme.monospaceFontFamily}
+            <button
+              type="button"
+              aria-label="Reset to default"
+              class="flex w-6 items-center justify-center rounded p-1 text-muted-foreground/40 transition-colors hover:text-destructive focus-visible:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive focus-visible:ring-offset-1 focus-visible:ring-offset-background"
+              onclick={() => clearMonospaceFontFamily()}
+            >
+              <Icon icon="rotate_ccw" class="h-3 w-3" />
+            </button>
+          {:else}
+            <span class="w-6"></span>
+          {/if}
+        </div>
+      </div>
+
+      <div class="group flex items-center justify-between px-2 py-2.5">
+        <div class="flex items-center gap-2">
+          <span class="text-[13px] font-medium text-foreground"
+            >Corner radius</span
+          >
+          <TooltipButton
+            tooltip="px, rem, %"
+            class="mt-[2px]"
+            contentClass="p-1 text-xs"
+          >
+            <Icon icon="info" class="size-3 text-muted-foreground/40" />
+          </TooltipButton>
+        </div>
+
+        <div class="flex items-center gap-1.5">
+          <Input
+            type="text"
+            spellcheck="false"
+            class="h-7 w-44"
+            placeholder="0.625rem"
+            value={$customTheme.radius ?? ""}
+            onkeydown={(ev) => {
+              if (ev.key === "Enter") ev.currentTarget.blur();
+            }}
+            onblur={(event) => {
+              const value = event.currentTarget.value.trim();
+              if (value) setRadius(value);
+              else clearRadius();
+            }}
+          />
+          {#if $customTheme.radius}
+            <button
+              type="button"
+              aria-label="Reset to default"
+              class="flex w-6 items-center justify-center rounded p-1 text-muted-foreground/40 transition-colors hover:text-destructive focus-visible:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive focus-visible:ring-offset-1 focus-visible:ring-offset-background"
+              onclick={() => clearRadius()}
+            >
+              <Icon icon="rotate_ccw" class="h-3 w-3" />
+            </button>
+          {:else}
+            <span class="w-6"></span>
+          {/if}
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

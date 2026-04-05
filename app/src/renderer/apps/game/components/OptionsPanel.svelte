@@ -1,11 +1,13 @@
 <script lang="ts">
   import { untrack } from "svelte";
-  import { Checkbox, Input, Label } from "@vexed/ui";
-  import Kbd from "@vexed/ui/Kbd";
-  import * as NumberField from "@vexed/ui/NumberField";
+  import { Checkbox, Input, Label, Kbd, NumberField } from "@vexed/ui";
   import FloatingPanel from "./FloatingPanel.svelte";
 
-  import { gameState, optionsPanelState } from "../state/index.svelte";
+  import {
+    gameState,
+    optionsPanelState,
+    hotkeyState,
+  } from "../state/index.svelte";
 
   import { Bot } from "../lib/Bot";
 
@@ -41,12 +43,6 @@
       if (guildDebounceTimer) clearTimeout(guildDebounceTimer);
     };
   });
-
-  type Props = {
-    hotkeyValues: Record<string, string>;
-  };
-
-  let { hotkeyValues }: Props = $props();
 
   const options = [
     {
@@ -97,202 +93,132 @@
 <FloatingPanel
   title="Options"
   panelState={optionsPanelState}
-  class="options-panel-container"
+  class="w-[340px]"
   defaultWidth={340}
 >
-  <div class="panel-content">
-    <div class="options-grid">
+  <div class="flex flex-col p-2 h-full overflow-auto gap-2">
+    <div class="grid grid-cols-2 gap-x-2 w-full">
       {#each options as option (option.key)}
-        {@const hotkey = hotkeyValues[option.hotkeyId]}
-        <Label class="option-row">
+        {@const hotkey = hotkeyState.values[option.hotkeyId]}
+        <Label class="flex items-center gap-2 h-6 px-1.5 rounded cursor-pointer text-xs
+                       transition-all duration-100 whitespace-nowrap min-w-0
+                       hover:bg-accent/40">
           <Checkbox
             checked={gameState[option.key]}
-            onCheckedChange={(checked) => {
-              gameState[option.key] = checked === true;
+            onCheckedChange={(details) => {
+              gameState[option.key] = details.checked === true;
             }}
           />
-          <span class="option-label-text">{option.label}</span>
+          <span class="flex-1 min-w-0 overflow-hidden text-ellipsis text-xs text-foreground/90">
+            {option.label}
+          </span>
           <Kbd hotkey={hotkey ?? ""} />
         </Label>
       {/each}
     </div>
 
-    <div class="inputs-section">
-      <div class="inputs-row">
-        <div class="option-row-input">
-          <span class="option-label">Walk Speed</span>
+    <div class="flex flex-col gap-1 mt-0.5 pt-2 border-t border-border/50">
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-0.5">
+        <div class="grid grid-cols-[80px_1fr] items-center px-1.5 h-6 text-xs gap-x-3 gap-y-0.5">
+          <span class="text-[12px] text-foreground/90 text-left shrink-0 whitespace-nowrap">
+            Walk Speed
+          </span>
           <NumberField.Root
             value={gameState.walkSpeed}
-            onValueChange={(v) => {
-              if (!Number.isNaN(v)) gameState.walkSpeed = v;
+            onValueChange={(val) => {
+              if (!Number.isNaN(val)) gameState.walkSpeed = val;
             }}
             min={1}
             max={100}
             step={1}
-            class="input-field"
+            class="w-14 shrink-0"
           >
-            <NumberField.Input class="input-inner" />
+            <NumberField.Input class="number-input" />
           </NumberField.Root>
         </div>
 
-        <div class="option-row-input">
-          <span class="option-label">FPS</span>
+        <div class="grid grid-cols-[80px_1fr] items-center px-1.5 h-6 text-xs gap-x-3 gap-y-0.5">
+          <span class="text-[12px] text-foreground/90 text-left shrink-0 whitespace-nowrap">
+            FPS
+          </span>
           <NumberField.Root
             value={gameState.fps}
-            onValueChange={(v) => {
-              if (!Number.isNaN(v)) gameState.fps = v;
+            onValueChange={(val) => {
+              if (!Number.isNaN(val)) gameState.fps = val;
             }}
             min={1}
             max={60}
             step={1}
-            class="input-field"
+            class="w-14 shrink-0"
           >
-            <NumberField.Input class="input-inner" />
+            <NumberField.Input class="number-input" />
           </NumberField.Root>
         </div>
       </div>
 
-      <div class="option-row-text">
-        <span class="option-label">Custom Name</span>
+      <div class="grid grid-cols-[80px_1fr] items-center px-1.5 h-6 gap-x-3 gap-y-0.5">
+        <span class="text-[12px] text-foreground/90 text-left shrink-0 whitespace-nowrap">
+          Custom Name
+        </span>
         <Input
           bind:value={customName}
           placeholder="Display name"
           size="sm"
-          class="text-input"
+          class="text-input-field"
           spellcheck={false}
         />
       </div>
 
-      <div class="option-row-text">
-        <span class="option-label">Custom Guild</span>
+      <div class="grid grid-cols-[80px_1fr] items-center px-1.5 h-6 gap-x-3 gap-y-0.5">
+        <span class="text-[12px] text-foreground/90 text-left shrink-0 whitespace-nowrap">
+          Custom Guild
+        </span>
         <Input
           bind:value={customGuild}
           placeholder="Display guild"
           size="sm"
-          class="text-input"
+          class="text-input-field"
           spellcheck={false}
         />
       </div>
+
     </div>
   </div>
 </FloatingPanel>
 
 <style>
-  :global(.options-panel-container) {
-    width: 340px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
-  }
-
-  :global(.options-panel-container > .p-3) {
-    padding: 0 !important;
-  }
-
-  .panel-content {
-    padding: 12px;
-    height: 100%;
-    overflow: auto;
-  }
-
-  .options-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    gap: 4px;
-  }
-
-  .inputs-section {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin-top: 8px;
-    padding-top: 8px;
-    border-top: 1px solid rgb(var(--border));
-  }
-
-  .inputs-row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px 12px;
-  }
-
-  :global(.option-row) {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 6px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 12px;
-    transition: background-color 0.1s ease;
-    white-space: nowrap;
-    overflow: hidden;
-  }
-
-  :global(.option-row:hover) {
-    background-color: rgb(var(--accent));
-  }
-
-  .option-label-text {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .option-row-input {
-    display: flex;
-    align-items: center;
-    padding: 4px 6px;
-    font-size: 12px;
-    gap: 8px;
-  }
-
-  .option-label {
-    color: rgb(var(--foreground));
-    flex-shrink: 0;
-    white-space: nowrap;
-  }
-
-  .option-row-text .option-label {
-    min-width: 90px;
-    width: 90px;
-  }
-
-  :global(.input-field) {
-    width: 56px;
-    flex-shrink: 0;
-  }
-
-  :global(.input-inner) {
-    height: 24px;
-    padding: 0;
-    font-size: 11px;
+  :global(.number-input) {
+    height: 18px;
+    padding: 0 4px;
+    font-size: 10px;
     text-align: center;
-    line-height: 24px;
-    border-radius: 6px;
-  }
-
-  .option-row-text {
-    display: grid;
-    grid-template-columns: 90px 1fr;
-    align-items: center;
-    padding: 4px 6px;
-    font-size: 12px;
-    gap: 8px;
-  }
-
-  :global(.text-input) {
-    display: flex;
-    flex: 1;
-    min-width: 0;
-    height: 24px;
-    border-radius: 6px;
+    background-color: rgb(var(--background) / 0.6);
+    border-radius: var(--radius);
+    transition: background-color 0.15s ease;
+    border: none !important;
+    outline: none !important;
     color: rgb(var(--foreground));
   }
 
-  :global(.text-input > input) {
+  :global(.text-input-field) {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    height: 18px;
+    background-color: rgb(var(--background) / 0.6);
+    transition: background-color 0.15s ease;
+    border: none !important;
+    overflow: hidden;
+    border-radius: var(--radius);
+  }
+
+  :global(.text-input-field > input) {
     font-size: 11px;
     padding: 0 8px;
-    line-height: normal;
+    color: rgb(var(--foreground));
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
+    height: 100% !important;
   }
 </style>

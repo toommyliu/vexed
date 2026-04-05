@@ -1,48 +1,75 @@
 <script lang="ts">
-  import Kbd from "@vexed/ui/Kbd";
-  import Command from "@vexed/ui/icons/Command";
-  import Search from "@vexed/ui/icons/Search";
-  import X from "@vexed/ui/icons/X";
+  import { Icon, Kbd } from "@vexed/ui";
   import { cn } from "@vexed/ui/util";
   import { equalsIgnoreCase, fuzzyMatchIgnoreCase } from "@vexed/utils";
   import { get } from "svelte/store";
 
   import { getUiCommands, type UiCommandSpec } from "../actions";
   import { platform } from "../state/index.svelte";
+  import { handlers } from "~/shared/tipc";
 
-  interface Props {
+  type Props = {
+    onClose?(this: void): void;
     open?: boolean;
-    onClose?: () => void;
-    hotkeyValues?: Record<string, string>;
-  }
+  };
 
-  let { open = $bindable(false), onClose, hotkeyValues = {} }: Props = $props();
+  type CommandEntry = UiCommandSpec & {
+    filteredIndex: number;
+    globalIndex: number;
+  };
+
+  type CommandSection = {
+    category: string;
+    items: CommandEntry[];
+  };
+
+  // eslint-disable-next-line prefer-const
+  let { open = $bindable(false), onClose }: Props = $props();
 
   let searchQuery = $state("");
   let selectedIndex = $state(0);
   let inputRef = $state<HTMLInputElement | null>(null);
   let mouseMoved = $state(false);
+  const commandItemRefs = $state<HTMLDivElement[]>([]);
 
-  const commands = $derived.by<UiCommandSpec[]>(() =>
-    getUiCommands(hotkeyValues),
+  const commands = $derived.by<CommandEntry[]>(() =>
+    getUiCommands().map((cmd, globalIndex) => ({
+      ...cmd,
+      filteredIndex: globalIndex,
+      globalIndex,
+    })),
   );
 
-  const filteredCommands = $derived(
-    searchQuery.trim()
+  const filteredCommands = $derived.by<CommandEntry[]>(() => {
+    const query = searchQuery.trim();
+    const filtered = query
       ? commands.filter(
           (cmd) =>
-            fuzzyMatchIgnoreCase(cmd.label, searchQuery) ||
-            fuzzyMatchIgnoreCase(cmd.category, searchQuery),
+            fuzzyMatchIgnoreCase(cmd.label, query) ||
+            fuzzyMatchIgnoreCase(cmd.category, query),
         )
-      : commands,
-  );
+      : commands;
 
-  const groupedCommands = $derived(() => {
-    const groups: Record<string, UiCommandSpec[]> = {};
+    return filtered.map((cmd, filteredIndex) => ({
+      ...cmd,
+      filteredIndex,
+    }));
+  });
+
+  const groupedCommands = $derived.by<CommandSection[]>(() => {
+    const groups: CommandSection[] = [];
+    const groupIndexByCategory: Record<string, number> = {};
+
     for (const cmd of filteredCommands) {
-      groups[cmd.category] = groups[cmd.category] ?? [];
-      groups[cmd.category]!.push(cmd);
+      const groupIndex = groupIndexByCategory[cmd.category];
+      if (groupIndex === undefined) {
+        groupIndexByCategory[cmd.category] = groups.length;
+        groups.push({ category: cmd.category, items: [cmd] });
+      } else {
+        groups[groupIndex]!.items.push(cmd);
+      }
     }
+
     return groups;
   });
 
@@ -59,10 +86,16 @@
   }
 
   function scrollSelectedIntoView(index: number) {
+    const cmd = filteredCommands[index];
+    if (!cmd) return;
+
     requestAnimationFrame(() => {
-      const el = document.querySelector(`[data-command-index="${index}"]`);
-      el?.scrollIntoView({ block: "nearest" });
+      commandItemRefs[cmd.globalIndex]?.scrollIntoView({ block: "nearest" });
     });
+  }
+
+  function isModifierKey(ev: KeyboardEvent | MouseEvent) {
+    return get(platform).isMac ? ev.metaKey : ev.ctrlKey;
   }
 
   function handleKeydown(ev: KeyboardEvent) {
@@ -91,27 +124,32 @@
     if (ev.key === "Enter") {
       ev.preventDefault();
       const cmd = filteredCommands[selectedIndex];
-      const modifier = get(platform).isMac ? ev.metaKey : ev.ctrlKey;
-      if (cmd) executeCommand(cmd, modifier);
-      return;
+      if (cmd) executeCommand(cmd, isModifierKey(ev));
     }
   }
 
-  // Focus the input on open
   $effect(() => {
     if (open && inputRef) inputRef.focus();
   });
 
   $effect(() => {
+    const maxIndex = filteredCommands.length - 1;
+    if (selectedIndex > maxIndex) selectedIndex = Math.max(maxIndex, 0);
+  });
+
+  $effect(() => {
     if (searchQuery !== undefined) selectedIndex = 0;
+  });
+
+  handlers.game.openCommandPalette.listen(() => {
+    open = true;
   });
 </script>
 
 <svelte:window
   onkeydown={(ev) => {
     if (open) return;
-    const modifier = get(platform).isMac ? ev.metaKey : ev.ctrlKey;
-    if (modifier && equalsIgnoreCase(ev.key, "k")) {
+    if (isModifierKey(ev) && equalsIgnoreCase(ev.key, "k")) {
       ev.preventDefault();
       open = true;
     }
@@ -129,65 +167,73 @@
     <div class="absolute inset-0 bg-black/60" onclick={handleClose}></div>
 
     <div
-      class="command-palette elevation-2 relative z-10 w-full max-w-lg overflow-hidden rounded-xl border border-border bg-popover shadow-2xl backdrop-blur-xl"
+      class="command-palette elevation-2 relative z-10 w-full max-w-md overflow-hidden rounded-lg bg-popover ring-1 ring-foreground/10"
+      data-slot="command-palette"
     >
-      <div class="flex items-center gap-3 border-b border-border px-4 py-3">
-        <Search class="h-4 w-4 shrink-0 text-muted-foreground" />
+      <div
+        class="flex h-8 items-center gap-2 border-b border-border px-2"
+        data-slot="command-palette-header"
+      >
+        <Icon icon="search" class="size-3.5 shrink-0 text-muted-foreground" />
         <input
           bind:this={inputRef}
           type="text"
           placeholder="Search commands..."
-          class="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+          class="flex-1 bg-transparent text-xs leading-relaxed text-foreground placeholder:text-muted-foreground focus:outline-none"
           bind:value={searchQuery}
           onkeydown={handleKeydown}
+          data-slot="command-palette-input"
         />
         <button
-          class="flex h-5 w-5 items-center justify-center rounded bg-transparent text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          class="flex size-5 items-center justify-center rounded-md bg-transparent text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           onclick={handleClose}
+          data-slot="command-palette-close-button"
         >
-          <X class="h-3.5 w-3.5" />
+          <Icon icon="x" class="size-3" />
         </button>
       </div>
 
       <!-- svelte-ignore a11y_no_static_element_interactions -->
       <div
-        class="max-h-[50vh] overflow-y-auto p-2"
+        class="max-h-[50vh] overflow-y-auto p-1"
         onscroll={() => (mouseMoved = false)}
         onmousemove={() => (mouseMoved = true)}
+        data-slot="command-palette-list"
       >
         {#if filteredCommands.length === 0}
-          <div class="px-3 py-8 text-center text-sm text-muted-foreground">
+          <div
+            class="px-3 py-8 text-center text-xs text-muted-foreground"
+            data-slot="command-palette-empty"
+          >
             No commands found
           </div>
         {:else}
-          {#each Object.entries(groupedCommands()) as [category, items] (category)}
-            <div class="mb-2 last:mb-0">
+          {#each groupedCommands as { category, items } (category)}
+            <div class="mb-1 last:mb-0" data-slot="command-palette-section">
               <div
-                class="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"
+                class="px-2 py-1 text-[11px] font-medium text-muted-foreground/70"
+                data-slot="command-palette-section-label"
               >
                 {category}
               </div>
               {#each items as cmd (cmd.id)}
-                {@const globalIndex = filteredCommands.indexOf(cmd)}
                 <!-- svelte-ignore a11y_click_events_have_key_events -->
                 <!-- svelte-ignore a11y_no_static_element_interactions -->
                 <div
                   class={cn(
-                    "flex cursor-pointer items-center justify-between rounded-lg px-3 py-2 transition-colors",
-                    globalIndex === selectedIndex
-                      ? "bg-primary/20 text-foreground"
-                      : "text-foreground/80 hover:bg-accent",
+                    "flex min-h-7 cursor-pointer items-center justify-between rounded-md px-2 py-1 transition-colors duration-100",
+                    cmd.filteredIndex === selectedIndex
+                      ? "bg-accent text-foreground"
+                      : "text-foreground/80 hover:bg-muted/50",
                   )}
-                  data-command-index={globalIndex}
-                  onclick={(ev) =>
-                    executeCommand(
-                      cmd,
-                      get(platform).isMac ? ev.metaKey : ev.ctrlKey,
-                    )}
+                  bind:this={commandItemRefs[cmd.globalIndex]}
+                  onclick={(ev) => executeCommand(cmd, isModifierKey(ev))}
                   onmouseenter={() =>
-                    mouseMoved && (selectedIndex = globalIndex)}
+                    mouseMoved && (selectedIndex = cmd.filteredIndex)}
+                  data-slot="command-palette-item"
+                  data-active={cmd.filteredIndex === selectedIndex}
                 >
-                  <span class="text-sm">{cmd.label}</span>
+                  <span class="text-xs leading-relaxed">{cmd.label}</span>
                   <Kbd hotkey={cmd.hotkey} />
                 </div>
               {/each}
@@ -197,9 +243,13 @@
       </div>
 
       <div
-        class="flex items-center justify-between border-t border-border px-4 py-2 text-[10px] text-muted-foreground"
+        class="flex items-center justify-between border-t border-border px-2 py-1.5 text-[10px] text-muted-foreground/60"
+        data-slot="command-palette-footer"
       >
-        <div class="flex items-center gap-3">
+        <div
+          class="flex items-center gap-3"
+          data-slot="command-palette-shortcuts"
+        >
           <span class="flex items-center gap-1">
             <Kbd>↑↓</Kbd>
             <span>navigate</span>
@@ -218,8 +268,11 @@
             <span>close</span>
           </span>
         </div>
-        <div class="flex items-center gap-1 text-muted-foreground/60">
-          <Command class="h-3 w-3" />
+        <div
+          class="flex items-center gap-1 text-muted-foreground/40"
+          data-slot="command-palette-hint"
+        >
+          <Icon icon="command" class="size-3" />
           <span>K</span>
         </div>
       </div>
@@ -229,13 +282,13 @@
 
 <style>
   .command-palette {
-    animation: palette-in 0.15s ease-out;
+    animation: palette-in 0.1s ease-out;
   }
 
   @keyframes palette-in {
     from {
       opacity: 0;
-      transform: scale(0.96) translateY(-8px);
+      transform: scale(0.98) translateY(-4px);
     }
     to {
       opacity: 1;

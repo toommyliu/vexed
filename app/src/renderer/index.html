@@ -1,28 +1,151 @@
 <!doctype html>
 <html>
-
-<head>
+  <head>
     <script>
-        (function () {
-            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            if (systemPrefersDark) {
-                document.documentElement.classList.add('dark');
-            }
+      (function () {
+        const systemPrefersDark = window.matchMedia(
+          "(prefers-color-scheme: dark)",
+        ).matches;
+        if (systemPrefersDark) {
+          document.documentElement.classList.add("dark");
+        }
 
-            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-                if (e.matches) {
-                    document.documentElement.classList.add('dark');
-                } else {
-                    document.documentElement.classList.remove('dark');
-                }
-            });
-        })();
+        window
+          .matchMedia("(prefers-color-scheme: dark)")
+          .addEventListener("change", (e) => {
+            if (e.matches) {
+              document.documentElement.classList.add("dark");
+            } else {
+              document.documentElement.classList.remove("dark");
+            }
+          });
+      })();
+    </script>
+    <script>
+      (function () {
+        let COLOR_TOKENS = [
+          "primary",
+          "primary-foreground",
+          "background",
+          "foreground",
+          "card",
+          "card-foreground",
+          "popover",
+          "popover-foreground",
+          "secondary",
+          "secondary-foreground",
+          "muted",
+          "muted-foreground",
+          "accent",
+          "accent-foreground",
+          "border",
+          "ring",
+        ];
+        let lastCustomTheme = {};
+        let mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+        function isHexColor(value) {
+          return (
+            typeof value === "string" && /^#[\da-fA-F]{6}$/.test(value.trim())
+          );
+        }
+
+        function hexToRgb(hex) {
+          let c = hex.replace("#", "");
+          return (
+            Number.parseInt(c.slice(0, 2), 16) +
+            " " +
+            Number.parseInt(c.slice(2, 4), 16) +
+            " " +
+            Number.parseInt(c.slice(4, 6), 16)
+          );
+        }
+
+        function applyCustomTheme(customTheme) {
+          lastCustomTheme =
+            customTheme && typeof customTheme === "object" ? customTheme : {};
+          let scheme = document.documentElement.classList.contains("dark")
+            ? "dark"
+            : "light";
+          let overrides =
+            lastCustomTheme &&
+            typeof lastCustomTheme[scheme] === "object" &&
+            lastCustomTheme[scheme] !== null
+              ? lastCustomTheme[scheme]
+              : {};
+          for (let i = 0; i < COLOR_TOKENS.length; i++) {
+            let token = COLOR_TOKENS[i];
+            let value = overrides[token];
+            if (isHexColor(value)) {
+              document.documentElement.style.setProperty(
+                "--" + token,
+                hexToRgb(value.trim().toLowerCase()),
+              );
+            } else {
+              document.documentElement.style.removeProperty("--" + token);
+            }
+          }
+          let radiusValue = lastCustomTheme["radius"];
+          if (typeof radiusValue === "string" && radiusValue.trim()) {
+            document.documentElement.style.setProperty(
+              "--radius",
+              radiusValue.trim(),
+            );
+          } else {
+            document.documentElement.style.removeProperty("--radius");
+          }
+
+          let fontFamilyValue = lastCustomTheme.fontFamily;
+          if (typeof fontFamilyValue === "string" && fontFamilyValue.trim()) {
+            document.documentElement.style.setProperty(
+              "--font-family",
+              fontFamilyValue.trim(),
+            );
+          } else {
+            document.documentElement.style.removeProperty("--font-family");
+          }
+
+          let monospaceFontFamilyValue = lastCustomTheme.monospaceFontFamily;
+          if (
+            typeof monospaceFontFamilyValue === "string" &&
+            monospaceFontFamilyValue.trim()
+          ) {
+            document.documentElement.style.setProperty(
+              "--font-mono",
+              monospaceFontFamilyValue.trim(),
+            );
+          } else {
+            document.documentElement.style.removeProperty("--font-mono");
+          }
+        }
+
+        mediaQuery.addEventListener("change", function () {
+          applyCustomTheme(lastCustomTheme);
+        });
+
+        try {
+          let ipcRenderer = require("electron").ipcRenderer;
+          // Request settings on load
+          ipcRenderer.invoke("app.getSettings").then(function (settings) {
+            if (settings && settings.customTheme) {
+              applyCustomTheme(settings.customTheme);
+            } else {
+              applyCustomTheme({});
+            }
+          });
+          // Listen to theme updates
+          ipcRenderer.on("app.customThemeUpdated", function (_, customTheme) {
+            applyCustomTheme(customTheme);
+          });
+        } catch (error) {
+          console.error("Failed to initialize theme synchronization", error);
+        }
+      })();
     </script>
     <link href="{{CSS_PATH}}" rel="stylesheet" />
-</head>
+  </head>
 
-<body>
+  <body>
     <script src="{{SCRIPT_PATH}}"></script>
-</body>
-
+  </body>
 </html>

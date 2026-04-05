@@ -13,7 +13,6 @@ cmd.register_drop(
 cmd.register_quest(609) // bamboozle vs drudgen
 cmd.register_quest(2857) // supplies to spin the wheel of chance
 cmd.set_auto_register_requirements(true)
-cmd.set_auto_register_rewards(true)
 cmd.set_reject_else(true)
 
 cmd.join('evilmarsh', 'End', 'Left')

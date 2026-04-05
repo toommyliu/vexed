@@ -1,13 +1,13 @@
 <script lang="ts">
   import { tick } from "svelte";
   import { cn } from "@vexed/ui/util";
-  import { VirtualList } from "@vexed/ui";
-  import ChevronDown from "@vexed/ui/icons/ChevronDown";
-  import ChevronRight from "@vexed/ui/icons/ChevronRight";
+  import { VirtualList, Icon } from "@vexed/ui";
 
-  import { commandOverlayState, scriptState } from "../state/index.svelte";
-  import type { CommandItem } from "../state/index.svelte";
-
+  import {
+    commandOverlayState,
+    scriptState,
+    type CommandItem,
+  } from "../state/index.svelte";
   import FloatingPanel from "./FloatingPanel.svelte";
 
   // svelte-ignore non_reactive_update
@@ -32,20 +32,29 @@
     commandOverlayState.toggleListVisibility();
   }
 
+  function passiveWheel(node: HTMLElement) {
+    node.addEventListener("wheel", handleWheel, { passive: true });
+
+    return {
+      destroy() {
+        node.removeEventListener("wheel", handleWheel);
+      },
+    };
+  }
+
   function handleContextMenu() {
     commandOverlayState.toggleListVisibility();
   }
 
   function handleDoubleClick(ev: MouseEvent) {
-    if ((ev.target as HTMLElement).closest(".command-overlay-control")) return;
+    if ((ev.target as HTMLElement).closest("[data-panel-control]")) return;
 
     commandOverlayState.toggleListVisibility();
   }
 
   function scrollActiveItemIntoView() {
     if (!virtualList || commandOverlayState.lastIndex < 0) return;
-
-    tick().then(() => {
+    void tick().then(() => {
       virtualList!.scrollToIndex(commandOverlayState.lastIndex);
     });
   }
@@ -83,24 +92,21 @@
     <div class="command-overlay-header-controls">
       <button
         class="command-overlay-control"
+        data-panel-control
         onclick={handleToggleVisibility}
         aria-label={commandOverlayState.listVisible ? "Collapse" : "Expand"}
       >
         {#if commandOverlayState.listVisible}
-          <ChevronDown class="size-3.5" />
+          <Icon icon="chevron_down" class="size-3.5" />
         {:else}
-          <ChevronRight class="size-3.5" />
+          <Icon icon="chevron_right" class="size-3.5" />
         {/if}
       </button>
     </div>
   {/snippet}
 
   {#if commandOverlayState.listVisible}
-    <div
-      class="command-list-container"
-      onwheel={handleWheel}
-      role="presentation"
-    >
+    <div class="command-list-container" use:passiveWheel role="presentation">
       {#if commandOverlayState.commandItems.length > 0}
         <VirtualList
           bind:this={virtualList}
@@ -209,28 +215,27 @@
     font-size: 11px;
     cursor: default;
     user-select: none;
-    background-color: rgb(var(--muted) / 0.5);
+    background-color: transparent;
     margin-bottom: 2px;
     border-radius: 6px;
-    border-left: 3px solid transparent;
     transition:
-      background-color 0.1s ease,
-      border-color 0.1s ease;
+      background-color 0.12s ease,
+      color 0.12s ease;
     display: flex;
     align-items: center;
-    gap: 6px;
-    color: rgb(var(--foreground));
+    gap: 8px;
+    color: rgb(var(--muted-foreground));
   }
 
   .command-index {
-    font-family: "SF Mono", "Monaco", "Menlo", "Consolas", monospace;
-    color: rgb(var(--muted-foreground));
+    font-family: var(--font-mono);
+    color: rgb(var(--muted-foreground) / 0.7);
     font-size: 10px;
     flex-shrink: 0;
   }
 
   .command-text {
-    font-family: inherit;
+    font-family: var(--font-family);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -238,12 +243,17 @@
 
   .command-item.active {
     background-color: rgb(var(--accent));
-    border-left-color: rgb(var(--primary));
     color: rgb(var(--foreground));
+    z-index: 10;
+  }
+
+  .command-item.active .command-index {
+    color: rgb(var(--primary));
   }
 
   .command-item:hover:not(.active) {
-    background-color: rgb(var(--muted));
+    background-color: rgb(var(--accent) / 0.4);
+    color: rgb(var(--foreground));
   }
 
   :global(.virtual-scroll-root) {
