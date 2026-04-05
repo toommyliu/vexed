@@ -26,9 +26,7 @@ export class QuestsJob extends Job {
         if (!quest) continue;
 
         const isAvailable = this.bot.quests.isAvailable(questId);
-        const isOneTimeDone = this.bot.quests.isOneTimeQuestDone(questId);
-
-        if (!isAvailable || isOneTimeDone) {
+        if (!isAvailable) {
           this.#skipQuestIds.add(questId);
           continue;
         }
