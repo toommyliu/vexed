@@ -23,6 +23,11 @@ export class QuestsJob extends Job {
         }
 
         const quest = this.bot.quests.get(questId);
+        if (!quest || !this.bot.quests.isAvailable(questId)) {
+          console.debug(`Quest ${questId} is not available`);
+          continue;
+        }
+
         if (quest && !this.#registeredQuestIds.has(questId)) {
           const toRegister = new Set<string>();
 
