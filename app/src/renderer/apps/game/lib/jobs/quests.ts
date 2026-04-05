@@ -8,6 +8,8 @@ export class QuestsJob extends Job {
 
   #registeredQuestIds = new Set<number>();
 
+  #skipQuestIds = new Set<number>();
+
   public constructor(private readonly bot: Bot) {
     super("quests", 2);
   }
@@ -31,7 +33,6 @@ export class QuestsJob extends Job {
             this.bot.quests.isOneTimeQuestDone(questId));
 
         if (!isAvailable) {
-          console.debug(`Quest ${questId} is not available`);
           this.#skipQuestIds.add(questId);
           continue;
         }
