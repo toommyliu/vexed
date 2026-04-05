@@ -21,6 +21,10 @@ export class QuestsJob extends Job {
     await this.#mutex.runExclusive(async () => {
       for (const questId of questIds) {
         if (this.#skipQuestIds.has(questId)) continue;
+       
+        if (!this.bot.quests.get(questId)) {
+          await this.bot.quests.load(questId, true);
+        }
 
         const quest = this.bot.quests.get(questId);
         if (!quest) continue;
