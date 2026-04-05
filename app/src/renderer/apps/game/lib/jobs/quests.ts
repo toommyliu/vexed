@@ -22,52 +22,15 @@ export class QuestsJob extends Job {
       for (const questId of questIds) {
         if (this.#skipQuestIds.has(questId)) continue;
 
-        if (!this.bot.quests.get(questId)) {
-          await this.bot.quests.load(questId);
-        }
-
         const quest = this.bot.quests.get(questId);
-        const isAvailable =
-          quest &&
-          (this.bot.quests.isAvailable(questId) ||
-            this.bot.quests.isOneTimeQuestDone(questId));
+        if (!quest) continue;
 
-        if (!isAvailable) {
+        const isAvailable = this.bot.quests.isAvailable(questId);
+        const isOneTimeDone = this.bot.quests.isOneTimeQuestDone(questId);
+
+        if (!isAvailable || isOneTimeDone) {
           this.#skipQuestIds.add(questId);
           continue;
-        }
-
-        if (quest && !this.#registeredQuestIds.has(questId)) {
-          const toRegister = new Set<string>();
-
-          if (this.bot.environment.autoRegisterRequirements) {
-            for (const req of quest.requirements) toRegister.add(req.itemName);
-          }
-
-          if (this.bot.environment.autoRegisterRewards) {
-            for (const reward of quest.rewards) toRegister.add(reward.itemName);
-          }
-
-          if (toRegister.size > 0) {
-            for (const itemName of toRegister) {
-              this.bot.environment.addItemName(itemName);
-            }
-
-            this.#registeredQuestIds.add(questId);
-
-            await client.environment.updateState({
-              questIds: Array.from(this.bot.environment.questIds),
-              questItemIds: Object.fromEntries(
-                this.bot.environment.questItemIds,
-              ),
-              itemNames: Array.from(this.bot.environment.itemNames),
-              boosts: Array.from(this.bot.environment.boosts),
-              rejectElse: this.bot.environment.rejectElse,
-              autoRegisterRequirements:
-                this.bot.environment.autoRegisterRequirements,
-              autoRegisterRewards: this.bot.environment.autoRegisterRewards,
-            });
-          }
         }
 
         if (this.isInProgress(questId) && this.canComplete(questId)) {
@@ -78,7 +41,7 @@ export class QuestsJob extends Job {
           await this.bot.quests.complete(questId, maxTurnIns, itemId);
         }
 
-        if (!this.isInProgress(questId)) {
+        if (!this.isInProgress(questId) && isAvailable) {
           await this.bot.quests.accept(questId);
         }
 
