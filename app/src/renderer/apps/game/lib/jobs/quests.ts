@@ -39,7 +39,12 @@ export class QuestsJob extends Job {
           await this.bot.quests.complete(questId, maxTurnIns, itemId);
         }
 
-        if (!this.isInProgress(questId) && isAvailable) {
+        if (this.bot.quests.isOneTimeQuestDone(questId)) {
+          this.#skipQuestIds.add(questId);
+          continue;
+        }
+
+        if (!this.isInProgress(questId) && this.bot.quests.isAvailable(questId)){
           await this.bot.quests.accept(questId);
         }
 
