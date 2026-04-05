@@ -22,6 +22,24 @@ export class Quests {
   }
 
   /**
+   * Whether a quest is available to be accepted.
+   *
+   * @param questId - The id of the quest.
+   */
+  public isAvailable(questId: number): boolean {
+    return this.bot.flash.call(() => swf.questsIsAvailable(questId));
+  }
+
+  /**
+   * Whether a one-time quest has already been completed.
+   *
+   * @param questId - The id of the quest.
+   */
+  public isOneTimeQuestDone(questId: number): boolean {
+    return this.bot.flash.call(() => swf.questsIsOneTimeQuestDone(questId));
+  }
+
+  /**
    * Resolves for a Quest instance.
    *
    * @param questId - The id of the quest.
