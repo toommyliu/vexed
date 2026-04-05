@@ -8,6 +8,8 @@ export class QuestsJob extends Job {
 
   #registeredQuestIds = new Set<number>();
 
+  #skipQuestIds = new Set<number>();
+
   public constructor(private readonly bot: Bot) {
     super("quests", 2);
   }
@@ -18,42 +20,19 @@ export class QuestsJob extends Job {
 
     await this.#mutex.runExclusive(async () => {
       for (const questId of questIds) {
+        if (this.#skipQuestIds.has(questId)) continue;
+       
         if (!this.bot.quests.get(questId)) {
           await this.bot.quests.load(questId, true);
         }
 
         const quest = this.bot.quests.get(questId);
-        if (quest && !this.#registeredQuestIds.has(questId)) {
-          const toRegister = new Set<string>();
+        if (!quest) continue;
 
-          if (this.bot.environment.autoRegisterRequirements) {
-            for (const req of quest.requirements) toRegister.add(req.itemName);
-          }
-
-          if (this.bot.environment.autoRegisterRewards) {
-            for (const reward of quest.rewards) toRegister.add(reward.itemName);
-          }
-
-          if (toRegister.size > 0) {
-            for (const itemName of toRegister) {
-              this.bot.environment.addItemName(itemName);
-            }
-
-            this.#registeredQuestIds.add(questId);
-
-            await client.environment.updateState({
-              questIds: Array.from(this.bot.environment.questIds),
-              questItemIds: Object.fromEntries(
-                this.bot.environment.questItemIds,
-              ),
-              itemNames: Array.from(this.bot.environment.itemNames),
-              boosts: Array.from(this.bot.environment.boosts),
-              rejectElse: this.bot.environment.rejectElse,
-              autoRegisterRequirements:
-                this.bot.environment.autoRegisterRequirements,
-              autoRegisterRewards: this.bot.environment.autoRegisterRewards,
-            });
-          }
+        const isAvailable = this.bot.quests.isAvailable(questId);
+        if (!isAvailable) {
+          this.#skipQuestIds.add(questId);
+          continue;
         }
 
         if (this.isInProgress(questId) && this.canComplete(questId)) {
@@ -64,7 +43,12 @@ export class QuestsJob extends Job {
           await this.bot.quests.complete(questId, maxTurnIns, itemId);
         }
 
-        if (!this.isInProgress(questId)) {
+        if (this.bot.quests.isOneTimeQuestDone(questId)) {
+          this.#skipQuestIds.add(questId);
+          continue;
+        }
+
+        if (!this.isInProgress(questId) && this.bot.quests.isAvailable(questId)){
           await this.bot.quests.accept(questId);
         }
 

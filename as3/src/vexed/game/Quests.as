@@ -88,6 +88,9 @@ package vexed.game {
       var _loc9_:int = 0;
       var _loc10_:int = 0;
       var _loc11_:* = undefined;
+      if (questObj.bOnce == 1 && (questObj.iSlot < 0 || game.world.getQuestValue(questObj.iSlot) >= questObj.iValue)) {
+        return "This quest can only be completed once.";
+      }
       if (questObj.sField != null && game.world.getAchievement(questObj.sField, questObj.iIndex) != 0) {
         if (questObj.sField == "im0") {
           return "Monthly Quests are only available once per month.";
@@ -187,7 +190,7 @@ package vexed.game {
     }
 
     public static function isOneTimeQuestDone(questId:int):Boolean {
-      var quest:Object = game.world.questTree[quest];
+      var quest:Object = game.world.questTree[questId];
 
       if (!quest)
         return false;
