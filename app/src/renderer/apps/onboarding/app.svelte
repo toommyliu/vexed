@@ -24,7 +24,7 @@
   const AUTO = "Auto (first available)";
   const SETTINGS_SAVE_DEBOUNCE_MS = 250;
 
-  let activeTab = $state("appearance");
+  let activeTab = $state("application");
   let isLoading = $state(true);
   let saveTimeoutId: ReturnType<typeof setTimeout> | null = null;
   let pendingSettingsPayload: Settings | null = null;
