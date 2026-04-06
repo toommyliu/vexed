@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, session } from "electron";
 import { join } from "path";
 
 const flash = require("nw-flash-trust");
@@ -40,6 +40,24 @@ function createWindow() {
       nodeIntegration: true,
       contextIsolation: false,
     },
+  });
+
+  const userAgent =
+    process.platform === "darwin"
+      ? "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16_0) AppleWebKit/537.36 (KHTML, like Gecko) ArtixGameLauncher/2.2.0 Chrome/80.0.3987.163 Electron/8.5.5 Safari/537.36"
+      : process.platform === "linux"
+        ? "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) ArtixGameLauncher/2.2.0 Chrome/80.0.3987.163 Electron/8.5.5 Safari/537.36"
+        : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ArtixGameLauncher/2.2.0 Chrome/80.0.3987.163 Electron/8.5.5 Safari/537.36";
+
+  win.webContents.setUserAgent(userAgent);
+  session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
+    const requestHeaders = details.requestHeaders;
+    Object.defineProperty(requestHeaders, "User-Agent", { value: userAgent });
+    Object.defineProperty(requestHeaders, "artixmode", { value: "launcher " });
+    Object.defineProperty(requestHeaders, "X-Requested-With", {
+      value: "ShockwaveFlash/32.0.0.371",
+    });
+    callback({ requestHeaders, cancel: false });
   });
 
   win
