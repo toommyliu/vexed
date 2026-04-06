@@ -11,6 +11,8 @@
     "paths": {
       "*": ["./*"],
     },
+    "jsx": "react-jsx",
+    "jsxImportSource": "solid-js",
     "noEmit": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
