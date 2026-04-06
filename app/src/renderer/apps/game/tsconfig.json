@@ -1,9 +1,0 @@
-{
-  "extends": "../../tsconfig.json",
-  "include": ["./**/*.ts", "./**/*.svelte", "./index.d.ts"],
-  "exclude": [
-    "../manager/**/*.ts",
-    "../manager/index.d.ts",
-    "../manager/**/*.svelte"
-  ]
-}
