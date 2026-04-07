@@ -28,7 +28,7 @@ package vexed
 
     public function debug(message:String):void
     {
-      this.call("system.debug", message);
+      this.call("onDebug", message);
     }
   }
 }

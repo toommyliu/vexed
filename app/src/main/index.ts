@@ -1,7 +1,11 @@
+
 import { app, BrowserWindow, session } from "electron";
 import { join } from "path";
+import process from "process";
 
 const flash = require("nw-flash-trust");
+
+process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 
 const assetsPath = join(app.getAppPath(), "..", "assets");
 const documentsPath = join(app.getPath("documents"), "vexed");
@@ -41,6 +45,8 @@ function createWindow() {
       contextIsolation: false,
     },
   });
+
+  win.webContents.openDevTools({ mode: 'right' });
 
   const userAgent =
     process.platform === "darwin"

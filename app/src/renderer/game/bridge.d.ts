@@ -151,12 +151,12 @@ declare global {
       "world.reload": () => void;
       "world.setSpawnPoint": (cell?: string, pad?: string) => void;
     };
-    "debug"?: (message: string) => void;
-    "loaded"?: () => void;
     "onConnection"?: (status: string) => void;
+    "onDebug"?: (message: string) => void;
     "onExtensionResponse"?: (packet: string) => void;
+    "onLoaded"?: () => void;
+    "onProgress"?: (percent: number) => void;
     "packetFromClient"?: (packet: string) => void;
     "packetFromServer"?: (packet: string) => void;
-    "progress"?: (percent: number) => void;
   }
 }

@@ -1,7 +1,6 @@
 const { build } = require("esbuild");
 const { copyFileSync, mkdirSync } = require("fs");
 const { solidPlugin } = require("esbuild-plugin-solid");
-const merge = require("lodash.merge");
 
 const isProduction = process.env.NODE_ENV === "production";
 
@@ -13,15 +12,14 @@ const base = {
 
 async function transpile() {
   try {
-    await build(
-      merge(base, {
-        entryPoints: ["./src/main/index.ts"],
-        platform: "node",
-        target: "chrome76",
-        format: "cjs",
-        outfile: "dist/main/index.js",
-      }),
-    );
+    await build({
+      ...base,
+      entryPoints: ["./src/main/index.ts"],
+      platform: "node",
+      target: "chrome76",
+      format: "cjs",
+      outfile: "dist/main/index.js",
+    });
 
     mkdirSync("dist/renderer/game", { recursive: true });
     copyFileSync(
@@ -29,22 +27,24 @@ async function transpile() {
       "dist/renderer/game/index.html",
     );
 
-    await build(
-      merge(base, {
-        entryPoints: ["./src/renderer/game/index.tsx"],
-        bundle: true,
-        platform: "browser",
-        conditions: ["browser"],
-        outfile: "dist/renderer/game/index.js",
-        plugins: [solidPlugin()],
-        define: {
-          "process.env.NODE_ENV": JSON.stringify(
-            process.env.NODE_ENV || "development",
-          ),
-        },
-        external: ["electron"],
-      }),
-    );
+    await build({
+      ...base,
+      entryPoints: [
+        "./src/renderer/game/**/*.tsx",
+        "./src/renderer/game/**/*.ts",
+      ],
+      bundle: true,
+      platform: "browser",
+      conditions: ["browser"],
+      outdir: "dist/renderer/game",
+      plugins: [solidPlugin()],
+      define: {
+        "process.env.NODE_ENV": JSON.stringify(
+          process.env.NODE_ENV || "development",
+        ),
+      },
+      external: ["electron"],
+    });
 
     console.log("Build complete.");
   } catch (err) {

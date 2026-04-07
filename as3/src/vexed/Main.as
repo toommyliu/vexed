@@ -106,19 +106,19 @@ package vexed {
 			this.emitLoaded();
 		}
 
-		private function onConnection():void {
+		private function onConnection(evt:*):void {
 			this.emitConnection('OnConnection');
 			this.emitDebug('Connected to SmartFoxServer.');
 		}
 
-		private function onConnectionLost():void {
+		private function onConnectionLost(evt:*):void {
 			this.emitConnection('OnConnectionLost');
 			this.emitDebug('Connection to SmartFoxServer lost.');
 			Bank.onLogout();
 		}
 
 		private function onExtensionResponse(packet:*):void {
-			this.emitExtensionResponse(JSON.stringify(packet));
+			this.emitExtensionResponse(JSON.stringify(packet.params));
 		}
 
 		private function onDebugMessage(packet:*):void {
@@ -143,9 +143,9 @@ package vexed {
 			}
 		}
 
-		[BridgeEvent("progress")]
+		[BridgeEvent("onProgress")]
 		public function emitProgress(percent:int):void {
-			this.external.call("progress", percent);
+			this.external.call("onProgress", percent);
 		}
 
 		[BridgeEvent("onConnection")]
@@ -153,9 +153,9 @@ package vexed {
 			this.external.call("onConnection", status);
 		}
 
-		[BridgeEvent("debug")]
+		[BridgeEvent("onDebug")]
 		public function emitDebug(message:String):void {
-			this.external.call("debug", message);
+			this.external.call("onDebug", message);
 		}
 
 		[BridgeEvent("onExtensionResponse")]
@@ -163,9 +163,9 @@ package vexed {
 			this.external.call("onExtensionResponse", packet);
 		}
 
-		[BridgeEvent("loaded")]
+		[BridgeEvent("onLoaded")]
 		public function emitLoaded():void {
-			this.external.call("loaded");
+			this.external.call("onLoaded");
 		}
 
 		[BridgeEvent("packetFromClient")]
