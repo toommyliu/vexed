@@ -36,6 +36,7 @@ jobs:
         run: cd app && pnpm run build:all
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          USE_HARD_LINKS: false
 
       - name: Upload binary
         uses: softprops/action-gh-release@v2
