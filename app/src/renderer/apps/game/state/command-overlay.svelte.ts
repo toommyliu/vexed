@@ -1,11 +1,11 @@
 import type { Command } from "../botting/command";
 
 type Position = {
-  height?: string;
+  height?: string | undefined;
   left: string;
   top: string;
   visible: boolean;
-  width?: string;
+  width?: string | undefined;
 };
 
 export type CommandItem = {
