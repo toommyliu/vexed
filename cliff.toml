@@ -21,6 +21,9 @@ body = """
 {% else %}\
 	# [unreleased]
 {% endif %}\
+{% if message %}\
+	{{ "\n" }}**{{ message | trim }}**
+{% endif %}\
 {% for group, group_commits in commits | group_by(attribute="group") %}
 	## {{ group | striptags | trim | upper_first }}
 	{% for message, message_commits in group_commits | group_by(attribute="message") %}

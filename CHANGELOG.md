@@ -2,6 +2,56 @@
 
 All notable changes to this project will be documented in this file.
 
+# [0.8.0](https://github.com/toommyliu/vexed/compare/0.7.1...0.8.0) - (2026-04-07)
+
+**Linux support is experimental; report any issues. You must supply libpepflashplayer.so in Documents/vexed**
+
+## Bug Fixes
+
+- Build ([454b672](https://github.com/toommyliu/vexed/commit/454b672a0ccce59bc5dce6541a5610847a569ef9))
+
+- **environment:** Improve quest availability checks (#348) ([f3a961f](https://github.com/toommyliu/vexed/commit/f3a961f919d15e4efebcc5de86999da02d6e8c72))
+
+- Refine room number handling for extreme values ([85feea5](https://github.com/toommyliu/vexed/commit/85feea5c95328110610d3475db8e9d4dec5c79cc))
+
+- Resolve issue where monster info could be missing (#347) ([831c374](https://github.com/toommyliu/vexed/commit/831c374fdb907e05d9b3548909b93940c2111ec1))
+
+- Save player data on join ([51a2e3e](https://github.com/toommyliu/vexed/commit/51a2e3eae4d8883d5ada6ddc22575d430337b6e7))
+
+- Subwindows are no longer forced ontop of the game client (#339) ([555695c](https://github.com/toommyliu/vexed/commit/555695c8915f77c1dd0401cf3ec8d6e07be34fb1))
+
+- Update cell/pad on menu open (#335) ([b0d88e3](https://github.com/toommyliu/vexed/commit/b0d88e3daac6d1013f64625a8fc1c2912baedcad))
+
+- Update docgen path (#343) ([d7b843e](https://github.com/toommyliu/vexed/commit/d7b843ef920a1c4a3c4e756947d1d3d72093559b))
+
+
+## Refactor
+
+- Code cleanup, various improvements (#342) ([156f794](https://github.com/toommyliu/vexed/commit/156f79416273744c43e8425512b9ed6f9ee9cd75))
+
+- Improve packet handler maintainability (#336) ([e7f99a2](https://github.com/toommyliu/vexed/commit/e7f99a26ccd5abea5283b0e25bbb05befd25ca5e))
+
+- Remove App Logs (#338) ([10b2c57](https://github.com/toommyliu/vexed/commit/10b2c57ac39f6bd86f02b1353e9f7f999e3f1869))
+
+
+## Features
+
+- Linux support (#345) ([b95b3e3](https://github.com/toommyliu/vexed/commit/b95b3e3fe28f369df701f1dec4daa0d863e3d9e4))
+
+  - place `libpepflashplayer.so` under `documents/vexed`
+
+- **environment:** Load quests silently (#349) ([1449c31](https://github.com/toommyliu/vexed/commit/1449c31e1ab0f1ad1568c0ff8c075b46a8f11959))
+
+- **ui:** Theme customization, ui updates (#344) ([82e49af](https://github.com/toommyliu/vexed/commit/82e49afa27c1210d91482e023d7189a7c5c197e8))
+
+
+## Documentation
+
+- Remove legacy api support (#337) ([0196a5f](https://github.com/toommyliu/vexed/commit/0196a5f1968876cdcedaa5a83e266ec416fbd566))
+
+  - For archival purposes they will be kept but not maintained
+
+
 # [0.7.1](https://github.com/toommyliu/vexed/compare/0.7.0...0.7.1) - (2026-01-14)
 
 ## Bug Fixes

@@ -1,6 +1,10 @@
 # vexed
 
-Cross-platform AQW "commands"-based Scripting Client
+Cross-platform AQW "commands"-based Scripting Client [^1]
+
+[^1]: Windows, macOS, and Linux [^2] are supported.
+[^2]: Linux support is experimental. You must supply your own Flash Player plugin.
+
 
 ## Getting started
 
