@@ -2,37 +2,46 @@ package vexed.game {
   import vexed.Main;
   import flash.utils.ByteArray;
 
+  [BridgeNamespace("quests")]
   public class Quests {
     private static var game:Object = Main.getInstance().getGame();
 
+    [BridgeExport]
     public static function isInProgress(questId:int):Boolean {
       return game.world.isQuestInProgress(questId);
     }
 
+    [BridgeExport]
     public static function complete(questId:int, turnIns:int = 1, itemId:int = -1, special:Boolean = false /* idk */):void {
       game.world.tryQuestComplete(questId, itemId, special, turnIns);
     }
 
+    [BridgeExport]
     public static function accept(questId:int):void {
       game.world.acceptQuest(questId);
     }
 
+    [BridgeExport]
     public static function abandon(questId:int):void {
       game.world.abandonQuest(questId);
     }
 
+    [BridgeExport]
     public static function load(questId:int):void {
       game.world.showQuests([questId], "q");
     }
 
+    [BridgeExport]
     public static function get (questId:int):void {
       game.world.getQuests([questId]);
     }
 
+    [BridgeExport]
     public static function getMultiple(questIds:String):void {
       game.world.getQuests(questIds.split(","));
     }
 
+    [BridgeExport]
     public static function getTree():Array {
       var quests:Array = [];
       for each (var q:Object in game.world.questTree) {
@@ -77,6 +86,7 @@ package vexed.game {
       return quests;
     }
 
+    [BridgeExport]
     public static function getQuestValidationString(questObj:Object):String {
       var _loc2_:int = 0;
       var _loc3_:* = undefined;
@@ -153,6 +163,7 @@ package vexed.game {
       return "";
     }
 
+    [BridgeExport]
     public static function hasRequiredItemsForQuest(questObj:Object):Boolean {
       var _loc2_:int = 0;
       var _loc3_:* = undefined;
@@ -171,6 +182,7 @@ package vexed.game {
       return true;
     }
 
+    [BridgeExport]
     public static function isAvailable(questId:int):Boolean {
       var quest:Object = game.world.questTree[questId];
 
@@ -180,6 +192,7 @@ package vexed.game {
       return getQuestValidationString(quest) == "";
     }
 
+    [BridgeExport]
     public static function canComplete(questId:int):Boolean {
       var quest:Object = game.world.questTree[questId];
 
@@ -189,6 +202,7 @@ package vexed.game {
       return game.world.canTurnInQuest(questId) && getQuestValidationString(quest) == "";
     }
 
+    [BridgeExport]
     public static function isOneTimeQuestDone(questId:int):Boolean {
       var quest:Object = game.world.questTree[questId];
 

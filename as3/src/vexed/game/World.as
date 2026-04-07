@@ -1,14 +1,17 @@
 package vexed.game
 {
-  import vexed.Main;
-  import flash.display.DisplayObject;
+import vexed.Main;
+import flash.display.DisplayObject;
 
-  public class World
+[BridgeNamespace("world")]
+public class World
   {
     private static var game:Object = Main.getInstance().getGame();
 
     private static var padNames:RegExp = /(Spawn|Center|Left|Right|Up|Down|Top|Bottom)/;
 
+
+    [BridgeExport]
     public static function isLoaded():Boolean
     {
       if (!game.world.mapLoadInProgress)
@@ -26,11 +29,15 @@ package vexed.game
       return false;
     }
 
+
+    [BridgeExport]
     public static function getPlayerNames():Array /* string[] names */
     {
       return game.world.areaUsers;
     }
 
+
+    [BridgeExport]
     public static function getPlayers():String /* { [name: string]: PlayerData } */
     {
       var ret:Object = {};
@@ -49,6 +56,8 @@ package vexed.game
       return JSON.stringify(ret);
     }
 
+
+    [BridgeExport]
     public static function getPlayer(name:String):String
     {
       if (!name)
@@ -79,6 +88,8 @@ package vexed.game
       return JSON.stringify(ret);
     }
 
+
+    [BridgeExport]
     public static function isPlayerInCell(name:String, cell:String = null):Boolean
     {
       if (!name)
@@ -101,6 +112,8 @@ package vexed.game
       return player.strFrame.toLowerCase() === cell.toLowerCase();
     }
 
+
+    [BridgeExport]
     public static function isActionAvailable(gameAction:String):Boolean
     {
       var _loc_2:* = undefined;
@@ -114,6 +127,8 @@ package vexed.game
       return _loc_5 < _loc_2.cd ? false : true;
     }
 
+
+    [BridgeExport]
     public static function getCellMonsters():Array
     {
       var monsters:Array = game.world.getMonstersByCell(game.world.strFrame);
@@ -146,6 +161,8 @@ package vexed.game
       return ret;
     }
 
+
+    [BridgeExport]
     public static function dumpMonsters():Array
     {
       var ret:Array = [];
@@ -165,6 +182,8 @@ package vexed.game
       return ret;
     }
 
+
+    [BridgeExport]
     public static function getMonsterByName(name:String):Object
     {
       if (!name)
@@ -188,6 +207,8 @@ package vexed.game
       return null;
     }
 
+
+    [BridgeExport]
     public static function getMonsterByMonMapId(monMapId:*):Object
     {
       if (!monMapId)
@@ -210,6 +231,8 @@ package vexed.game
       return null;
     }
 
+
+    [BridgeExport]
     public static function getCells():Array
     {
       var cells:Array = [];
@@ -220,6 +243,8 @@ package vexed.game
       return cells;
     }
 
+
+    [BridgeExport]
     public static function getCellPads():Array
     {
       var cellPads:Array = new Array();
@@ -245,26 +270,36 @@ package vexed.game
     // return items;
     // }
 
+
+    [BridgeExport]
     public static function getRoomId():int
     {
       return game.world.curRoom;
     }
 
+
+    [BridgeExport]
     public static function getRoomNumber():int
     {
       return Number(game.world.strAreaName.split('-')[1]);
     }
 
+
+    [BridgeExport]
     public static function reload():void
     {
       game.world.reloadCurrentMap();
     }
 
+
+    [BridgeExport]
     public static function loadSwf(swf:String):void
     {
       game.world.loadMap(swf);
     }
 
+
+    [BridgeExport]
     public static function getMapItem(itemId:int):void
     {
       if (!itemId)
@@ -275,6 +310,8 @@ package vexed.game
       game.world.getMapItem(itemId);
     }
 
+
+    [BridgeExport]
     public static function setSpawnPoint(cell:String = null, pad:String = null):void
     {
       if (!cell)

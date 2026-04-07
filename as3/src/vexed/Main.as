@@ -4,20 +4,21 @@ package vexed {
 	import flash.display.MovieClip;
 	import flash.display.Stage;
 	import flash.events.Event;
+	import flash.events.ProgressEvent;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.system.ApplicationDomain;
 	import flash.system.Security;
+	import flash.text.TextField;
 	import flash.utils.getQualifiedClassName;
-	import flash.events.ProgressEvent;
 
 	import vexed.Externalizer;
+	import vexed.game.Bank;
+	import vexed.game.DropList;
 	import vexed.module.Modules;
 	import vexed.util.SFSEvent;
-	import flash.events.ProgressEvent;
-	import vexed.game.DropList;
-	import vexed.game.Bank;
 
+	[BridgeNamespace("flash")]
 	public class Main extends MovieClip {
 		private static var _instance:Main;
 
@@ -69,7 +70,7 @@ package vexed {
 
 		private function onProgress(event:ProgressEvent):void {
 			var percent:int = event.bytesLoaded / event.bytesTotal * 100;
-			this.external.call('progress', Math.round(percent));
+			this.emitProgress(Math.round(percent));
 		}
 
 		private function onComplete(ev:Event):void {
@@ -92,18 +93,9 @@ package vexed {
 			this.game.params.loginURL = this.loginURL;
 
 			this.game.sfc.addEventListener(SFSEvent.onDebugMessage, this.onDebugMessage);
-			this.game.sfc.addEventListener(SFSEvent.onConnection, function():void {
-					Main.getInstance().external.call('connection', 'OnConnection');
-					Main.getInstance().external.call('debug', 'Connected to SmartFoxServer.');
-				});
-			this.game.sfc.addEventListener(SFSEvent.onConnectionLost, function():void {
-					Main.getInstance().external.call('connection', 'OnConnectionLost');
-					Main.getInstance().external.debug('Connection to SmartFoxServer lost.');
-					Bank.onLogout();
-				});
-			this.game.sfc.addEventListener(SFSEvent.onExtensionResponse, function(packet:*):void {
-					Main.getInstance().external.call('pext', JSON.stringify(packet));
-				});
+			this.game.sfc.addEventListener(SFSEvent.onConnection, this.onConnection);
+			this.game.sfc.addEventListener(SFSEvent.onConnectionLost, this.onConnectionLost);
+			this.game.sfc.addEventListener(SFSEvent.onExtensionResponse, this.onExtensionResponse);
 			this.gameDomain = LoaderInfo(ev.target).applicationDomain;
 
 			this.external.init(this);
@@ -111,16 +103,31 @@ package vexed {
 			Modules.init();
 			this.stg.addEventListener(Event.ENTER_FRAME, Modules.handleFrame);
 
-			this.external.call('loaded');
+			this.emitLoaded();
+		}
+
+		private function onConnection():void {
+			this.emitConnection('OnConnection');
+			this.emitDebug('Connected to SmartFoxServer.');
+		}
+
+		private function onConnectionLost():void {
+			this.emitConnection('OnConnectionLost');
+			this.emitDebug('Connection to SmartFoxServer lost.');
+			Bank.onLogout();
+		}
+
+		private function onExtensionResponse(packet:*):void {
+			this.emitExtensionResponse(JSON.stringify(packet));
 		}
 
 		private function onDebugMessage(packet:*):void {
 			if (packet.params.message.indexOf("%xt%zm%") > -1) {
-				this.external.call("packetFromClient", packet.params.message.replace(/^\s+|\s+$/g, ''));
+				this.emitPacketFromClient(packet.params.message.replace(/^\s+|\s+$/g, ''));
 			}
 			else {
 				var pkt:String = processPacket(packet.params.message);
-				this.external.call("packetFromServer", pkt);
+				this.emitPacketFromServer(pkt);
 
 				if (pkt && pkt.indexOf('dropItem') > -1) {
 					var pktObj:Object = JSON.parse(pkt);
@@ -134,6 +141,41 @@ package vexed {
 					}
 				}
 			}
+		}
+
+		[BridgeEvent("progress")]
+		public function emitProgress(percent:int):void {
+			this.external.call("progress", percent);
+		}
+
+		[BridgeEvent("onConnection")]
+		public function emitConnection(status:String):void {
+			this.external.call("onConnection", status);
+		}
+
+		[BridgeEvent("debug")]
+		public function emitDebug(message:String):void {
+			this.external.call("debug", message);
+		}
+
+		[BridgeEvent("onExtensionResponse")]
+		public function emitExtensionResponse(packet:String):void {
+			this.external.call("onExtensionResponse", packet);
+		}
+
+		[BridgeEvent("loaded")]
+		public function emitLoaded():void {
+			this.external.call("loaded");
+		}
+
+		[BridgeEvent("packetFromClient")]
+		public function emitPacketFromClient(packet:String):void {
+			this.external.call("packetFromClient", packet);
+		}
+
+		[BridgeEvent("packetFromServer")]
+		public function emitPacketFromServer(packet:String):void {
+			this.external.call("packetFromServer", packet);
 		}
 
 		private function processPacket(packet:String):String {
@@ -154,6 +196,7 @@ package vexed {
 			return packet;
 		}
 
+		[BridgeIgnore]
 		public static function getInstance():Main {
 			return _instance;
 		}
@@ -174,11 +217,13 @@ package vexed {
 			return this.stg;
 		}
 
+		[BridgeExport]
 		public static function getGameObject(path:String):String {
 			var obj:* = _getObjectS(_instance.game, path);
 			return JSON.stringify(obj);
 		}
 
+		[BridgeExport]
 		public static function getGameObjectS(path:String):String {
 			if (_gameClass == null) {
 				_gameClass = _instance.gameDomain.getDefinition(getQualifiedClassName(_instance.game)) as Class;
@@ -187,12 +232,14 @@ package vexed {
 			return JSON.stringify(obj);
 		}
 
+		[BridgeExport]
 		public static function getGameObjectKey(path:String, key:String):String {
 			var obj:* = _getObjectS(_instance.game, path);
 			var obj2:* = obj[key];
 			return (JSON.stringify(obj2));
 		}
 
+		[BridgeExport]
 		public static function setGameObject(path:String, value:*):void {
 			var parts:Array = path.split('.');
 			var varName:String = parts.pop();
@@ -200,22 +247,26 @@ package vexed {
 			obj[varName] = value;
 		}
 
+		[BridgeExport]
 		public static function setGameObjectKey(path:String, key:String, value:*):void {
 			var parts:Array = path.split('.');
 			var obj:* = _getObjectA(_instance.game, parts);
 			obj[key] = value;
 		}
 
+		[BridgeExport]
 		public static function getArrayObject(path:String, index:int):String {
 			var obj:* = _getObjectS(_instance.game, path);
 			return JSON.stringify(obj[index]);
 		}
 
+		[BridgeExport]
 		public static function setArrayObject(path:String, index:int, value:*):void {
 			var obj:* = _getObjectS(_instance.game, path);
 			obj[index] = value;
 		}
 
+		[BridgeExport]
 		public static function callGameFunction(path:String, ...args):String {
 			var parts:Array = path.split('.');
 			var funcName:String = parts.pop();
@@ -224,6 +275,7 @@ package vexed {
 			return JSON.stringify(func.apply(null, args));
 		}
 
+		[BridgeExport]
 		public static function callGameFunction0(path:String):String {
 			var parts:Array = path.split('.');
 			var funcName:String = parts.pop();
@@ -232,6 +284,7 @@ package vexed {
 			return JSON.stringify(func.apply());
 		}
 
+		[BridgeExport]
 		public static function selectArrayObjects(path:String, selector:String):String {
 			var obj:* = _getObjectS(_instance.game, path);
 			if (!(obj is Array)) {
@@ -258,6 +311,7 @@ package vexed {
 			return obj;
 		}
 
+		[BridgeExport]
 		public static function isNull(path:String):Boolean {
 			try {
 				return _getObjectS(_instance.game, path) == null;
@@ -267,6 +321,7 @@ package vexed {
 			return true;
 		}
 
+		[BridgeExport]
 		public static function sendClientPacket(packet:String, type:String):void {
 			if (_handler == null) {
 				var cls:Class = Class(_instance.gameDomain.getDefinition('it.gotoandplay.smartfoxserver.handlers.ExtHandler'));
@@ -287,16 +342,33 @@ package vexed {
 			}
 		}
 
+		[BridgeExport]
 		public static function isConnMcBackButtonVisible():Boolean {
 			return _instance.game.mcConnDetail.btnBack.visible && _instance.game.mcConnDetail.stage != null;
 		}
 
+		[BridgeExport]
 		public static function getConnMcText():String {
 			return _instance.game.mcConnDetail.stage == null ? "null" : _instance.game.mcConnDetail.txtDetail.text;
 		}
 
+		[BridgeExport]
 		public static function hideConnMc():void {
 			_instance.game.mcConnDetail.hideConn();
+		}
+
+		[BridgeExport]
+		public static function isTextFieldFocused():Boolean {
+			var game:* = Main.getInstance().getGame();
+
+			try {
+				return game.stage.focus is TextField;
+			}
+			catch (e:Error) {
+				return false;
+			}
+
+			return false;
 		}
 
 		private static function xmlReceived(packet:String):void {

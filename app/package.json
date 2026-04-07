@@ -9,7 +9,7 @@
   },
   "scripts": {
     "clean": "del-cli dist build --dot",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "pnpm run bridge:check && tsc --noEmit",
     "build:effect": "tsx scripts/build-effect-cjs.js",
     "compile": "pnpm run build:effect && tsx esbuild.config.js",
     "compile:watch": "pnpm run build:effect && tsx esbuild.config.js --watch",

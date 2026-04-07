@@ -2,17 +2,21 @@ package vexed.game {
   import vexed.Main;
   import vexed.util.Util;
 
+  [BridgeNamespace("shops")]
   public class Shops {
     private static var game:Object = Main.getInstance().getGame();
 
+    [BridgeExport]
     public static function getInfo():Object {
       return game.world.shopinfo;
     }
 
+    [BridgeExport]
     public static function getItems():Array {
       return game.world.shopinfo.items;
     }
 
+    [BridgeExport]
     public static function getItem(key:*):Object {
       if (!key)
         return null;
@@ -39,6 +43,7 @@ package vexed.game {
       return null;
     }
 
+    [BridgeExport]
     public static function buyByName(name:String, quantity:int = 1):Boolean {
       if (!name)
         return false;
@@ -64,6 +69,7 @@ package vexed.game {
       return true;
     }
 
+    [BridgeExport]
     public static function buyById(id:* /* string or int ItemID */, quantity:int = 1):Boolean {
       if (!id)
         return false;
@@ -74,6 +80,7 @@ package vexed.game {
       return buyByName(String(id), quantity);
     }
 
+    [BridgeExport]
     public static function sellByName(name:String, quantity:int = -1):Boolean {
       if (!name)
         return false;
@@ -100,6 +107,7 @@ package vexed.game {
       return true;
     }
 
+    [BridgeExport]
     public static function sellById(id:* /* string or int ItemID */, quantity:int = -1):Boolean {
       if (!id)
         return false;
@@ -110,18 +118,22 @@ package vexed.game {
       return sellByName(String(id), quantity);
     }
 
+    [BridgeExport]
     public static function load(shopId:int):void {
       game.world.sendLoadShopRequest(shopId);
     }
 
+    [BridgeExport]
     public static function loadHairShop(shopId:int):void {
       game.world.sendLoadHairShopRequest(shopId);
     }
 
+    [BridgeExport]
     public static function loadArmorCustomize():void {
       game.openArmorCustomize();
     }
 
+    [BridgeExport]
     public static function isMergeShop():Boolean {
       if (!game.world.shopinfo)
         return false;
@@ -129,6 +141,7 @@ package vexed.game {
       return game.isMergeShop(game.world.shopinfo);
     }
 
+    [BridgeExport]
     public static function canBuyItem(itemName:String):Boolean {
       if (!game.world.shopinfo)
         return false;
