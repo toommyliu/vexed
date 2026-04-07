@@ -3,15 +3,18 @@ package vexed.game
   import vexed.Main;
   import flash.events.MouseEvent;
 
+  [BridgeNamespace("auth")]
   public class Auth
   {
     private static var game:Object = Main.getInstance().getGame();
 
+    [BridgeExport]
     public static function isLoggedIn():Boolean
     {
       return game !== null && game.sfc !== null && game.sfc.isConnected;
     }
 
+    [BridgeExport]
     public static function isTemporarilyKicked():Boolean
     {
       var mcLogin:* = game.mcLogin;
@@ -19,6 +22,7 @@ package vexed.game
         !mcLogin.btnLogin.visible;
     }
 
+    [BridgeExport]
     public static function login(username:String, password:String):void
     {
       game.removeAllChildren();
@@ -26,6 +30,7 @@ package vexed.game
       game.login(username, password);
     }
 
+    [BridgeExport]
     public static function logout():void
     {
       if (game.sfc.isConnected)
@@ -36,6 +41,7 @@ package vexed.game
       game.gotoAndPlay("Login");
     }
 
+    [BridgeExport]
     public static function getServers():Array
     {
       if (game.serialCmd != null && game.serialCmd.servers is Array)
@@ -46,6 +52,7 @@ package vexed.game
       return null;
     }
 
+    [BridgeExport]
     public static function connectTo(server:String):Boolean
     {
       if (!server)

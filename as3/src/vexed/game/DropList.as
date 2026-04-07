@@ -5,6 +5,7 @@ package vexed.game {
   import flash.utils.Dictionary;
   import mx.utils.StringUtil;
 
+  [BridgeNamespace("drops")]
   public class DropList {
     private static var game:* = Main.getInstance().getGame();
 
@@ -19,17 +20,20 @@ package vexed.game {
     private static const DROP_MC:String = "DFrame2MC";
 
     // Save item data
+    [BridgeIgnore]
     public static function saveItem(itemId:int, itemData:Object):void {
       if (!items[itemId])
         items[itemId] = itemData;
     }
 
     // Get item data
+    [BridgeExport]
     public static function getItems():Object {
       return items;
     }
 
     // Update qty of drops
+    [BridgeIgnore]
     public static function updateCount(itemName:String, qty:int):void {
       if (!drops[itemName])
         drops[itemName] = 0;
@@ -37,6 +41,7 @@ package vexed.game {
     }
 
     // Get qty of drops
+    [BridgeExport]
     public static function getDrops():Object {
       var json:Object = {};
       for (var itemName:String in drops)
@@ -45,6 +50,7 @@ package vexed.game {
     }
 
     // Parse the item name and count from the drop string
+    [BridgeIgnore]
     public static function parseDrop(name:String):Object {
       var ret:Object = new Object();
       var lowerName:String = StringUtil.trim(name.toLowerCase());
@@ -65,6 +71,7 @@ package vexed.game {
       return ret;
     }
 
+    [BridgeExport]
     public static function acceptDrop(itemId:int):void {
       var itemObj:* = items[itemId];
       if (isUsingCustomDrops()) {
@@ -91,6 +98,7 @@ package vexed.game {
     }
 
     // Toggle open/closed of custom ui
+    [BridgeExport]
     public static function toggleUi():void {
       if (isDraggable()) {
         game.cDropsUI.mcDraggable.menuBar.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
@@ -103,6 +111,7 @@ package vexed.game {
     // 0 : not found
     // 1 : rejected drop
     // -1 : not found
+    [BridgeExport]
     public static function rejectDrop(itemId:int):String {
       var itemObj:Object = items[itemId];
       if (!itemObj)
@@ -141,11 +150,13 @@ package vexed.game {
     }
 
     // Whether using custom drops ui
+    [BridgeExport]
     public static function isUsingCustomDrops():Boolean {
       return Boolean(game.cDropsUI) && game.litePreference.data.bCustomDrops;
     }
 
     // Whether using custom drops ui with draggable mode
+    [BridgeIgnore]
     public static function isDraggable():Boolean {
       return isUsingCustomDrops() && Boolean(game.cDropsUI.mcDraggable);
     }
@@ -159,6 +170,7 @@ package vexed.game {
       return null;
     }
 
+    [BridgeIgnore]
     public static function isCustomDropsUiOpen():Boolean {
       if (game.cDropsUI)
         return game.cDropsUI.isMenuOpen();

@@ -2,9 +2,11 @@ package vexed.game {
   import vexed.Main;
   import vexed.util.Util;
 
+  [BridgeNamespace("combat")]
   public class Combat {
     private static var game:Object = Main.getInstance().getGame();
 
+    [BridgeExport]
     public static function hasTarget():Boolean {
       var target:Object = game.world.myAvatar.target;
       if (target != null && target.dataLeaf != null) {
@@ -14,6 +16,7 @@ package vexed.game {
       return false;
     }
 
+    [BridgeExport]
     public static function getTarget():Object {
       var target:Object = game.world.myAvatar.target;
       if (target != null) {
@@ -60,6 +63,7 @@ package vexed.game {
       return null;
     }
 
+    [BridgeExport]
     public static function forceUseSkill(index:String):void {
       var skill:Object = game.world.actions.active[parseInt(index)];
       if (Util.getSkillCooldownRemaining(skill) == 0) {
@@ -71,6 +75,7 @@ package vexed.game {
       }
     }
 
+    [BridgeExport]
     public static function useSkill(index:String):void {
       var skill:Object = game.world.actions.active[parseInt(index)];
 
@@ -90,20 +95,24 @@ package vexed.game {
       }
     }
 
+    [BridgeExport]
     public static function getSkillCooldownRemaining(index:int):int {
       var skill:* = game.world.actions.active[index];
       return Util.getSkillCooldownRemaining(skill);
     }
 
+    [BridgeExport]
     public static function cancelAutoAttack():void {
       game.world.cancelAutoAttack();
     }
 
+    [BridgeExport]
     public static function cancelTarget():void {
       game.world.cancelTarget(); // cancel auto attack
       game.world.cancelTarget(); // cancel target
     }
 
+    [BridgeExport]
     public static function attackMonster(mon:String):void {
       if (!mon)
         return;
@@ -115,6 +124,7 @@ package vexed.game {
       }
     }
 
+    [BridgeExport]
     public static function attackMonsterById(monMapId:int):void {
       if (!monMapId)
         return;

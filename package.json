@@ -1,5 +1,11 @@
 {
   "name": "vexed",
   "private": true,
-  "packageManager": "pnpm@10.17.0"
+  "packageManager": "pnpm@10.17.0",
+  "scripts": {
+    "as3": "tsx scripts/gen-as3-bridge.ts"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0"
+  }
 }
