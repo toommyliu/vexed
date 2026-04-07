@@ -71,7 +71,7 @@
     "cross-env": "^10.0.0",
     "del-cli": "^6.0.0",
     "electron": "workspace:*",
-    "electron-builder": "^24.13.3",
+    "electron-builder": "^26.8.1",
     "electronmon": "^2.0.3",
     "esbuild": "^0.25.5",
     "esbuild-plugin-alias": "^0.2.1",
