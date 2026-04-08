@@ -1,11 +1,6 @@
-import { createSignal, onMount } from "solid-js";
-
+import { createSignal } from "solid-js";
 export default function App() {
   const [count, setCount] = createSignal(0);
-
-  onMount(() => {
-    console.log("hello from SolidJS");
-  });
 
   return (
     <div
