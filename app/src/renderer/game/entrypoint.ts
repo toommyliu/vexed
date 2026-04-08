@@ -1,8 +1,26 @@
-window.onProgress = (progress) => console.log(`Progress: ${progress}%`);
-window.onConnection = (status) => console.log(`Connection status: ${status}`);
-window.onDebug = (message) => console.log(`Debug: ${message}`);
-window.onExtensionResponse = (packet) => console.log(`Extension response: ${packet}`);
-window.onLoaded = () => console.log("Game loaded");
-window.packetFromClient = (packet) => console.log(`Packet from client: ${packet}`);
-window.packetFromServer = (packet) => console.log(`Packet from server: ${packet}`);
+import { Effect, Stream } from "effect";
+import { PacketRouter } from "./flash/Services/PacketRouter";
+import { FlashLive } from "./flash/Layers/Flash";
 
+window.onLoaded = () => {
+  void Effect.runPromise(
+    Effect.gen(function* () {
+      const router = yield* PacketRouter;
+
+      yield* Stream.runForEach(
+        Stream.filter(router.clientPackets, (p) => p.cmd === "acceptQuest"),
+        (p) => Effect.sync(() => console.log("Accept quest:", p))
+      );
+
+      yield* Stream.runForEach(
+        router.serverPackets,
+        (p) => Effect.sync(() => console.log("CT packet:", p))
+      );
+
+      yield* Stream.runForEach(
+        router.extensionPackets,
+        (p) => Effect.sync(() => console.log("Extension packet:", p))
+      );
+    }).pipe(Effect.provide(FlashLive))
+  );
+}
