@@ -13,11 +13,16 @@ export type BridgeError =
 
 export type BridgeEffect<A> = Effect.Effect<A, BridgeError>;
 
+export type BridgeEventDisposer = () => void;
+
 export interface BridgeShape {
   call<K extends keyof Window["swf"]>(
     path: K,
     args?: Parameters<Window["swf"][K]>,
   ): Effect.Effect<ReturnType<Window["swf"][K]>, BridgeError>;
+  onConnection(
+    handler: (status: string) => void,
+  ): Effect.Effect<BridgeEventDisposer>;
 }
 
 export class Bridge extends ServiceMap.Service<Bridge, BridgeShape>()(

@@ -7,6 +7,39 @@ import {
 import { Bridge } from "../Services/Bridge";
 import type { BridgeError, BridgeShape } from "../Services/Bridge";
 
+type WindowBridgeEventKey = "onConnection";
+
+const setWindowBridgeHandler = (
+  key: WindowBridgeEventKey,
+  handler: (status: string) => void,
+): Effect.Effect<() => void> =>
+  Effect.sync(() => {
+    const win = window as Record<
+      WindowBridgeEventKey,
+      ((status: string) => void) | undefined
+    >;
+
+    const previousHandler = win[key];
+
+    const wrappedHandler = (status: unknown) => {
+      if (typeof status !== "string") {
+        return;
+      }
+
+      previousHandler?.(status);
+      handler(status);
+    };
+
+    const wrappedForWindow = wrappedHandler as (status: string) => void;
+    win[key] = wrappedForWindow;
+
+    return () => {
+      if (win[key] === wrappedForWindow) {
+        win[key] = previousHandler;
+      }
+    };
+  });
+
 const make = Effect.succeed({
   call: <K extends keyof Window["swf"]>(
     path: K,
@@ -46,6 +79,8 @@ const make = Effect.succeed({
       },
     });
   },
+  onConnection: (handler: (status: string) => void) =>
+    setWindowBridgeHandler("onConnection", handler),
 } satisfies BridgeShape);
 
 export const BridgeLive = Layer.effect(Bridge, make);
