@@ -1,26 +1,31 @@
-import { Effect, Stream } from "effect";
-import { PacketRouter } from "./flash/Services/PacketRouter";
+import { Effect } from "effect";
 import { FlashLive } from "./flash/Layers/Flash";
+import { PacketHandler } from "./flash/Services/PacketHandler";
 
 window.onLoaded = () => {
   void Effect.runPromise(
     Effect.gen(function* () {
-      const router = yield* PacketRouter;
+      const packetHandler = yield* PacketHandler;
 
-      yield* Stream.runForEach(
-        Stream.filter(router.clientPackets, (p) => p.cmd === "acceptQuest"),
-        (p) => Effect.sync(() => console.log("Accept quest:", p))
+      yield* packetHandler.registerClient("acceptQuest", (packet) =>
+        Effect.sync(() => {
+          console.log("Accept quest:", packet);
+        }),
       );
 
-      yield* Stream.runForEach(
-        router.serverPackets,
-        (p) => Effect.sync(() => console.log("CT packet:", p))
+      yield* packetHandler.registerServer("ct", (packet) =>
+        Effect.sync(() => {
+          console.log("CT packet:", packet);
+        }),
       );
 
-      yield* Stream.runForEach(
-        router.extensionPackets,
-        (p) => Effect.sync(() => console.log("Extension packet:", p))
+      yield* packetHandler.registerExtensionType("json", "dropItem", (packet) =>
+        Effect.sync(() => {
+          console.log("Drop item packet:", packet);
+        }),
       );
-    }).pipe(Effect.provide(FlashLive))
+
+      return yield* Effect.never;
+    }).pipe(Effect.provide(FlashLive)),
   );
-}
+};
