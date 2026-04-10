@@ -1,9 +1,13 @@
 import { Effect } from "effect";
-import { FlashLive } from "./flash/Layers/Flash";
 import { PacketHandler } from "./flash/Services/PacketHandler";
+import { runtime } from "./flash/runtime";
+
+window.onDebug = (message: string) => {
+  console.debug('%c debug:: ', 'color:#7b8cde;font-size:11px;', message);
+};
 
 window.onLoaded = () => {
-  void Effect.runPromise(
+  void runtime.runPromise(
     Effect.gen(function* () {
       const packetHandler = yield* PacketHandler;
 
@@ -26,6 +30,10 @@ window.onLoaded = () => {
       );
 
       return yield* Effect.never;
-    }).pipe(Effect.provide(FlashLive)),
+    }),
   );
+};
+
+window.onConnection = (status: string) => {
+  console.log('root onConnection:', status);
 };

@@ -1,6 +1,26 @@
+import { Effect } from "effect";
 import { createSignal } from "solid-js";
+import { Auth } from "./flash/Services/Auth";
+import { runtime } from "./flash/runtime";
+
 export default function App() {
   const [count, setCount] = createSignal(0);
+
+  const testBridge = () => {
+    void runtime
+      .runPromise(
+        Effect.gen(function* () {
+          const auth = yield* Auth;
+          const servers = yield* auth.getServers();
+          yield* Effect.sync(() => {
+            console.log("Servers:", servers);
+          });
+        }),
+      )
+      .catch((error) => {
+        console.error("Bridge error:", error);
+      });
+  };
 
   return (
     <div
@@ -31,6 +51,7 @@ export default function App() {
         >
           count: {count()}
         </button>
+        <button onClick={testBridge}>test bridge</button>
       </div>
     </div>
   );
