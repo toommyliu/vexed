@@ -1,6 +1,6 @@
 import { Effect } from "effect";
 import { createSignal } from "solid-js";
-import { Auth } from "./flash/Services/Auth";
+import { Bank } from "./flash/Services/Bank";
 import { runtime } from "./flash/runtime";
 
 export default function App() {
@@ -10,11 +10,12 @@ export default function App() {
     void runtime
       .runPromise(
         Effect.gen(function* () {
-          const auth = yield* Auth;
-          const servers = yield* auth.getServers();
-          yield* Effect.sync(() => {
-            console.log("Servers:", servers);
-          });
+          const bank = yield* Bank;
+          yield* bank.open(true);
+          // const bank = yield* Bank;
+          // yield* Effect.sync(() => {
+            // console.log("Servers:", servers);
+          // });
         }),
       )
       .catch((error) => {

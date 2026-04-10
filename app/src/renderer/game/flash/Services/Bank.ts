@@ -2,17 +2,18 @@ import { ServiceMap } from "effect";
 import type { BridgeEffect } from "./Bridge";
 
 export interface BankShape {
-  contains(item: unknown, quantity?: number): BridgeEffect<boolean>;
-  deposit(key: unknown): BridgeEffect<boolean>;
-  getItem(item: unknown): BridgeEffect<Record<string, unknown>>;
-  getItems(): BridgeEffect<unknown[]>;
+  contains(item: ItemIdentifierToken, quantity?: number): BridgeEffect<boolean>;
+  deposit(item: ItemIdentifierToken): BridgeEffect<boolean>;
+  depositMany(...items: ItemIdentifierToken[]): BridgeEffect<void>;
+  getItem(item: ItemIdentifierToken): BridgeEffect<Record<string, unknown>>;
   getSlots(): BridgeEffect<number>;
   getUsedSlots(): BridgeEffect<number>;
+  getAvailableSlots(): BridgeEffect<number>;
   isOpen(): BridgeEffect<boolean>;
-  loadItems(force?: boolean): BridgeEffect<void>;
-  open(): BridgeEffect<void>;
-  swap(invKey: unknown, bankKey: unknown): BridgeEffect<boolean>;
-  withdraw(key: unknown): BridgeEffect<boolean>;
+  open(force?: boolean): BridgeEffect<void>;
+  swap(invKey: ItemIdentifierToken, bankKey: ItemIdentifierToken): BridgeEffect<boolean>;
+  withdraw(key: ItemIdentifierToken): BridgeEffect<boolean>;
+  withdrawMany(...items: ItemIdentifierToken[]): BridgeEffect<void>;
 }
 
 export class Bank extends ServiceMap.Service<Bank, BankShape>()(

@@ -36,16 +36,6 @@ const normalizePosition = (value: unknown[]): [number, number] => {
 const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
 
-  const releaseConnection = yield* bridge.onConnection((status) => {
-    console.log("player.onConnection:", status);
-  });
-
-  yield* Effect.addFinalizer(() =>
-    Effect.sync(() => {
-      releaseConnection();
-    }),
-  );
-
   const getCell = () => bridge.call("player.getCell");
 
   const getClassName = () => bridge.call("player.getClassName");

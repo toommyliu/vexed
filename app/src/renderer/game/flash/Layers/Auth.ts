@@ -21,8 +21,6 @@ const make = Effect.gen(function* () {
   };
 
   const dispose = yield* bridge.onConnection(async (status) => {
-    console.log("auth.onConnection:", status);
-
     await runtime.runPromise(
       Effect.gen(function* () {
         if (status === "OnConnection") {
@@ -61,7 +59,6 @@ const make = Effect.gen(function* () {
           return existing;
         }
 
-        console.log("Adding new server:", server.sName);
         const model = new Server(server);
         _servers.set(server.sName, model);
         return model;
@@ -96,7 +93,6 @@ const make = Effect.gen(function* () {
           _loginInfo = JSON.parse(info) as LoginInfo;
           _username = (_loginInfo?.unm ?? "").toLowerCase();
           _password = (_loginInfo?.sToken ?? "").toLowerCase();
-          console.log("Fetched login info:", _loginInfo);
         }),
     );
   };
