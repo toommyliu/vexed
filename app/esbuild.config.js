@@ -14,15 +14,31 @@ const base = {
 const rendererHtmlSource = "src/renderer/game/index.html";
 const rendererHtmlOutDir = "dist/renderer/game";
 const rendererHtmlTarget = `${rendererHtmlOutDir}/index.html`;
+const electronExternals = ["electron", "nw-flash-trust"];
 
 function createMainBuildOptions() {
   return {
     ...base,
     entryPoints: ["./src/main/index.ts"],
+    bundle: true,
+    external: electronExternals,
     platform: "node",
     target: "chrome76",
     format: "cjs",
     outfile: "dist/main/index.js",
+  };
+}
+
+function createPreloadBuildOptions() {
+  return {
+    ...base,
+    entryPoints: ["./src/preload/index.ts"],
+    bundle: true,
+    external: ["electron"],
+    platform: "node",
+    target: "chrome76",
+    format: "cjs",
+    outfile: "dist/preload/index.js",
   };
 }
 
@@ -51,6 +67,7 @@ function copyRendererHtml() {
 
 async function buildOnce() {
   await build(createMainBuildOptions());
+  await build(createPreloadBuildOptions());
   copyRendererHtml();
   await build(createRendererBuildOptions());
   console.log("Build complete.");
@@ -58,12 +75,14 @@ async function buildOnce() {
 
 async function watchBuild() {
   const mainContext = await context(createMainBuildOptions());
+  const preloadContext = await context(createPreloadBuildOptions());
   const rendererContext = await context(createRendererBuildOptions());
 
   copyRendererHtml();
 
   await Promise.all([
     mainContext.watch({ delay: 100 }),
+    preloadContext.watch({ delay: 100 }),
     rendererContext.watch({ delay: 100 }),
   ]);
 
@@ -89,6 +108,7 @@ async function watchBuild() {
 
     await Promise.allSettled([
       mainContext.dispose(),
+      preloadContext.dispose(),
       rendererContext.dispose(),
     ]);
     process.exit(0);
