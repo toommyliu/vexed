@@ -21,7 +21,6 @@ const PacketRuntimeLive = Layer.mergeAll(
 );
 
 const BridgeDomainLive = Layer.mergeAll(
-  AuthLive.pipe(Layer.provide(BridgeLive)),
   BankLive.pipe(Layer.provide(BridgeLive)),
   CombatLive.pipe(Layer.provide(BridgeLive)),
   DropsLive.pipe(Layer.provide(BridgeLive)),
@@ -30,7 +29,7 @@ const BridgeDomainLive = Layer.mergeAll(
   SettingsLive.pipe(Layer.provide(BridgeLive)),
   ShopsLive.pipe(Layer.provide(BridgeLive)),
   WorldLive.pipe(Layer.provide(BridgeLive)),
-);
+).pipe(Layer.provideMerge(AuthLive.pipe(Layer.provide(BridgeLive))));
 
 export const FlashLive = Layer.mergeAll(
   PacketRuntimeLive,

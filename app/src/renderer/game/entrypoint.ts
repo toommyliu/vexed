@@ -32,8 +32,4 @@ window.onLoaded = () => {
       return yield* Effect.never;
     }),
   );
-};
-
-window.onConnection = (status: string) => {
-  console.log('root onConnection:', status);
-};
+}

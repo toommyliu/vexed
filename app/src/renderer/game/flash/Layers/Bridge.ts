@@ -11,17 +11,17 @@ type WindowBridgeEventKey = "onConnection";
 
 const setWindowBridgeHandler = (
   key: WindowBridgeEventKey,
-  handler: (status: string) => void,
+  handler: (status: ConnectionStatus) => void,
 ): Effect.Effect<() => void> =>
   Effect.sync(() => {
     const win = window as Record<
       WindowBridgeEventKey,
-      ((status: string) => void) | undefined
+      ((status: ConnectionStatus) => void) | undefined
     >;
 
     const previousHandler = win[key];
 
-    const wrappedHandler = (status: unknown) => {
+    const wrappedHandler = (status: ConnectionStatus) => {
       if (typeof status !== "string") {
         return;
       }
@@ -30,11 +30,10 @@ const setWindowBridgeHandler = (
       handler(status);
     };
 
-    const wrappedForWindow = wrappedHandler as (status: string) => void;
-    win[key] = wrappedForWindow;
+    win[key] = wrappedHandler;
 
     return () => {
-      if (win[key] === wrappedForWindow) {
+      if (win[key] === wrappedHandler) {
         win[key] = previousHandler;
       }
     };
@@ -79,7 +78,7 @@ const make = Effect.succeed({
       },
     });
   },
-  onConnection: (handler: (status: string) => void) =>
+  onConnection: (handler: (status: ConnectionStatus) => void) =>
     setWindowBridgeHandler("onConnection", handler),
 } satisfies BridgeShape);
 

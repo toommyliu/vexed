@@ -21,7 +21,7 @@ export interface BridgeShape {
     args?: Parameters<Window["swf"][K]>,
   ): Effect.Effect<ReturnType<Window["swf"][K]>, BridgeError>;
   onConnection(
-    handler: (status: string) => void,
+    handler: (status: ConnectionStatus) => void,
   ): Effect.Effect<BridgeEventDisposer>;
 }
 
