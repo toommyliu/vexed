@@ -8,7 +8,8 @@
     "postinstall": "npm run build"
   },
   "dependencies": {
-    "@vexed/utils": "workspace:*"
+    "@vexed/utils": "workspace:*",
+    "effect": "workspace:*"
   },
   "devDependencies": {
     "tsdown": "0.20.0-beta.3",

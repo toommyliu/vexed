@@ -10,10 +10,9 @@
   "scripts": {
     "clean": "del-cli dist build --dot",
     "typecheck": "tsc --noEmit",
-    "build:effect": "tsx scripts/build-effect-cjs.js",
-    "compile": "pnpm run build:effect && tsx esbuild.config.js",
-    "compile:watch": "pnpm run build:effect && tsx esbuild.config.js --watch",
-    "compile:prod": "pnpm run build:effect && cross-env NODE_ENV=production tsx esbuild.config.js",
+    "compile": "tsx esbuild.config.js",
+    "compile:watch": "tsx esbuild.config.js --watch",
+    "compile:prod": "cross-env NODE_ENV=production tsx esbuild.config.js",
     "electron": "electron .",
     "electronmon": "electronmon .",
     "game": "electron . --game",
@@ -32,8 +31,10 @@
     "changelog": "cd .. && git-cliff --config cliff.toml --output CHANGELOG.md"
   },
   "dependencies": {
+    "@vexed/collection": "workspace:*",
+    "@vexed/game": "workspace:*",
     "core-js": "^3.49.0",
-    "effect": "4.0.0-beta.43",
+    "effect": "workspace:*",
     "lodash.merge": "^4.6.2",
     "nw-flash-trust": "^0.3.0",
     "solid-js": "^1.9.12",

@@ -1,0 +1,22 @@
+{
+  "name": "effect",
+  "version": "4.0.0-beta.43",
+  "private": true,
+  "main": "./dist/effect.cjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/effect.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsx scripts/build-effect-cjs.ts",
+    "postinstall": "npm run build"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.5",
+    "tsx": "^4.21.0"
+  }
+}

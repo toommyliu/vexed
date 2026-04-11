@@ -9,6 +9,9 @@
     "format": "oxfmt --check",
     "format:write": "oxfmt --write"
   },
+  "dependencies": {
+    "effect": "4.0.0-beta.43"
+  },
   "devDependencies": {
     "oxfmt": "^0.13.0",
     "oxlint": "^0.13.0",
