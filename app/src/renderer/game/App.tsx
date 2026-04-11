@@ -1,8 +1,7 @@
-import { Effect } from "effect";
+import { Effect, Option } from "effect";
 import { createSignal } from "solid-js";
-import { Bank } from "./flash/Services/Bank";
-import { Drops } from "./flash/Services/Drops";
 import { runtime } from "./flash/runtime";
+import { WorldState } from "./flash/Services/WorldState";
 
 export default function App() {
   const [count, setCount] = createSignal(0);
@@ -11,14 +10,34 @@ export default function App() {
     void runtime
       .runPromise(
         Effect.gen(function* () {
-          const drops = yield* Drops;
-          yield* drops.toggleUi();
-          // const isUsing = yield* drops.isUsingCustomDrops();
-          // console.log("Is using custom drops:", isUsing);
+          const worldState = yield* WorldState;
+          const me = yield* worldState.getSelf();
+          console.log('me', me);
+          console.log(me.toJSON())
+          console.log(me.toString());
+          if (Option.isSome(me)) {
+            console.log(me.value);
+          } else {
+            console.log('no me')
+          }
         }),
       )
       .catch((error) => {
         console.error("Bridge error:", error);
+      });
+  };
+
+  const inspectWorldState = () => {
+    void runtime
+      .runPromise(
+        Effect.gen(function* () {
+          const worldState = yield* WorldState;
+          const state = yield* worldState.debug();
+          console.log(state);
+        }),
+      )
+      .catch((error) => {
+        console.error("Inspection error:", error);
       });
   };
 
@@ -52,6 +71,7 @@ export default function App() {
           count: {count()}
         </button>
         <button onClick={testBridge}>test bridge</button>
+        <button onClick={inspectWorldState}>inspect world state</button>
       </div>
     </div>
   );

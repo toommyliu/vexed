@@ -1,4 +1,5 @@
 /* @refresh reload */
+import "./entrypoint";
 import { render } from "solid-js/web";
 import App from "./App";
 

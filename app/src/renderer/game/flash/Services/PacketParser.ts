@@ -81,10 +81,10 @@ export const parseExtensionPacket = (
     return Option.none();
   }
 
-  const params = parsed.value["params"];
-  if (!isRecord(params)) {
-    return Option.none();
-  }
+  // AS3 currently emits `JSON.stringify(packet.params)`, while older/newer
+  // bridges may emit the full packet (`{ params: ... }`). Support both.
+  const top = parsed.value;
+  const params = isRecord(top["params"]) ? top["params"] : top;
 
   if (params["type"] === "str") {
     const data = params["dataObj"];

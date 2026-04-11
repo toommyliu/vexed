@@ -4,6 +4,7 @@ import { BankLive } from "./Bank";
 import { BridgeLive } from "./Bridge";
 import { CombatLive } from "./Combat";
 import { DropsLive } from "./Drops";
+import { PacketDomainLive } from "./PacketDomain";
 import { PacketHandlerLive } from "./PacketHandler";
 import { PacketLive } from "./Packet";
 import { PacketRouterLive } from "./PacketRouter";
@@ -12,6 +13,7 @@ import { QuestsLive } from "./Quests";
 import { SettingsLive } from "./Settings";
 import { ShopsLive } from "./Shops";
 import { WorldLive } from "./World";
+import { WorldStateLive } from "./WorldState";
 
 const FlashCoreLive = Layer.mergeAll(BridgeLive, PacketLive);
 
@@ -29,10 +31,14 @@ const BridgeDomainLive = Layer.mergeAll(
   SettingsLive.pipe(Layer.provide(BridgeLive)),
   ShopsLive.pipe(Layer.provide(BridgeLive)),
   WorldLive.pipe(Layer.provide(BridgeLive)),
+  WorldStateLive.pipe(Layer.provide(BridgeLive)),
 ).pipe(Layer.provideMerge(AuthLive.pipe(Layer.provide(BridgeLive))));
 
-export const FlashLive = Layer.mergeAll(
-  PacketRuntimeLive,
-  PacketHandlerLive.pipe(Layer.provide(PacketRuntimeLive)),
-  BridgeDomainLive,
+const PacketHandlerRuntimeLive = PacketHandlerLive.pipe(
+  Layer.provideMerge(PacketRuntimeLive),
+);
+
+export const FlashLive = PacketDomainLive.pipe(
+  Layer.provideMerge(PacketHandlerRuntimeLive),
+  Layer.provideMerge(BridgeDomainLive),
 );
