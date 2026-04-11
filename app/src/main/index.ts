@@ -59,7 +59,7 @@ function createWindow() {
   session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
     const requestHeaders = details.requestHeaders;
     Object.defineProperty(requestHeaders, "User-Agent", { value: userAgent });
-    Object.defineProperty(requestHeaders, "artixmode", { value: "launcher " });
+    Object.defineProperty(requestHeaders, "artixmode", { value: "launcher" });
     Object.defineProperty(requestHeaders, "X-Requested-With", {
       value: "ShockwaveFlash/32.0.0.371",
     });
