@@ -1,0 +1,21 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "ignorePatterns": [
+    "node_modules",
+    ".git",
+    "dist",
+    "build",
+    "scripts",
+    "*.tsbuildinfo"
+  ],
+  "plugins": ["eslint", "oxc", "unicorn", "typescript"],
+  "categories": {
+    "correctness": "warn",
+    "suspicious": "warn",
+    "perf": "warn"
+  },
+  "rules": {
+    "eslint/no-shadow": "off",
+    "eslint/no-await-in-loop": "off"
+  }
+}
