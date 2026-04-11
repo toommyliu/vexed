@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "build": "tsdown",
-    "sync": "node scripts/sync.mjs",
-    "postinstall": "npm run sync || echo 'better-result sync failed, using existing build'"
+    "sync": "node scripts/sync.mjs"
   },
   "devDependencies": {
     "tsdown": "0.20.0-beta.3",
