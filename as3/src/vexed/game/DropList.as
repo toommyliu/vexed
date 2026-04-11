@@ -112,10 +112,10 @@ package vexed.game {
     // 1 : rejected drop
     // -1 : not found
     [BridgeExport]
-    public static function rejectDrop(itemId:int):String {
+    public static function rejectDrop(itemId:int):Boolean {
       var itemObj:Object = items[itemId];
       if (!itemObj)
-        return '0';
+        return false;
 
       if (isUsingCustomDrops()) {
         if (!isCustomDropsUiOpen())
@@ -130,7 +130,7 @@ package vexed.game {
             var itemName:String = child.itemObj.sName.toLowerCase();
             if (itemName == StringUtil.trim(itemObj.sName.toLowerCase())) {
               child.btNo.dispatchEvent(new MouseEvent(MouseEvent.CLICK)); // Removes item and updates the UI
-              return '1';
+              return true;
             }
           }
         }
@@ -146,7 +146,7 @@ package vexed.game {
         }
       }
 
-      return '-1';
+      return false;
     }
 
     // Whether using custom drops ui

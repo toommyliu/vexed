@@ -35,7 +35,7 @@ declare global {
       "drops.getDrops": () => Record<string, unknown>;
       "drops.getItems": () => Record<string, unknown>;
       "drops.isUsingCustomDrops": () => boolean;
-      "drops.rejectDrop": (itemId: number) => string;
+      "drops.rejectDrop": (itemId: number) => boolean;
       "drops.toggleUi": () => void;
       "flash.callGameFunction": (path: string, ...args: unknown[]) => string;
       "flash.callGameFunction0": (path: string) => string;

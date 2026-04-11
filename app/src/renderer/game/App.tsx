@@ -1,6 +1,7 @@
 import { Effect } from "effect";
 import { createSignal } from "solid-js";
 import { Bank } from "./flash/Services/Bank";
+import { Drops } from "./flash/Services/Drops";
 import { runtime } from "./flash/runtime";
 
 export default function App() {
@@ -10,12 +11,10 @@ export default function App() {
     void runtime
       .runPromise(
         Effect.gen(function* () {
-          const bank = yield* Bank;
-          yield* bank.open(true);
-          // const bank = yield* Bank;
-          // yield* Effect.sync(() => {
-            // console.log("Servers:", servers);
-          // });
+          const drops = yield* Drops;
+          yield* drops.toggleUi();
+          // const isUsing = yield* drops.isUsingCustomDrops();
+          // console.log("Is using custom drops:", isUsing);
         }),
       )
       .catch((error) => {
