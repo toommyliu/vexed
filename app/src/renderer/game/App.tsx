@@ -1,4 +1,4 @@
-import { Effect, Fiber, Option } from "effect";
+import { Effect, Fiber } from "effect";
 import { createSignal, onCleanup } from "solid-js";
 import { runtime } from "./flash/runtime";
 import { Drops } from "./flash/Services/Drops";
