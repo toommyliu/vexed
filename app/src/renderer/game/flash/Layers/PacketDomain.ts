@@ -21,8 +21,7 @@ import {
   PacketHandler,
   type PacketHandlerDisposer,
 } from "../Services/PacketHandler";
-import { WorldState } from "../Services/WorldState";
-import { Player } from "../Services/Player";
+import { World } from "../Services/World";
 
 const AURA_ADD_COMMANDS = new Set(["aura+", "aura++"]);
 const AURA_REMOVE_COMMANDS = new Set(["aura-", "aura--"]);
@@ -146,6 +145,7 @@ type DomainHandlerStore = {
 
 const createDomainHandlerStore = (): DomainHandlerStore => ({
   monsterDeath: new Set(),
+  joinMap: new Set(),
   zone: new Set(),
 });
 
@@ -185,7 +185,9 @@ const dispatchDomainEvent = <E extends PacketDomainEvent>(
     );
   }
 
-  const handlers = Array.from(eventHandlers) as readonly PacketDomainEventHandler<E>[];
+  const handlers = Array.from(
+    eventHandlers,
+  ) as readonly PacketDomainEventHandler<E>[];
 
   if (handlers.length === 0) {
     return Effect.void;
@@ -212,8 +214,7 @@ const make = Effect.gen(function* () {
   const auth = yield* Auth;
   const drops = yield* Drops;
   const packetHandler = yield* PacketHandler;
-  const player = yield* Player;
-  const worldState = yield* WorldState;
+  const world = yield* World;
   const domainHandlerStore = createDomainHandlerStore();
 
   const on = <E extends PacketDomainEvent>(
@@ -225,7 +226,7 @@ const make = Effect.gen(function* () {
     monMapId: number,
     f: (monster: { data: MonsterData }) => void,
   ) =>
-    worldState
+    world
       .getMonster(monMapId)
       .pipe(
         Effect.flatMap((monster) =>
@@ -239,7 +240,7 @@ const make = Effect.gen(function* () {
     name: string,
     f: (player: { data: AvatarData }) => void,
   ) =>
-    worldState
+    world
       .getPlayerByName(name)
       .pipe(
         Effect.flatMap((player) =>
@@ -250,7 +251,7 @@ const make = Effect.gen(function* () {
       );
 
   const withSelf = (f: (player: { data: AvatarData }) => void) =>
-    worldState
+    world
       .getSelf()
       .pipe(
         Effect.flatMap((player) =>
@@ -293,7 +294,6 @@ const make = Effect.gen(function* () {
     }),
   );
 
-
   yield* registerJson("event", (packet) =>
     Effect.gen(function* () {
       const payload = asRecord(packet.data);
@@ -306,8 +306,7 @@ const make = Effect.gen(function* () {
         return;
       }
       const zone = asString(args["zoneSet"]) ?? "";
-      // TODO: setup state
-      const map = "";
+      const map = yield* world.getMapName();
 
       yield* dispatchDomainEvent(domainHandlerStore, "zone", {
         map,
@@ -328,7 +327,7 @@ const make = Effect.gen(function* () {
         return;
       }
 
-      yield* worldState.registerPlayer(username, uid);
+      yield* world.registerPlayer(username, uid);
     }),
   );
 
@@ -349,7 +348,7 @@ const make = Effect.gen(function* () {
           continue;
         }
 
-        yield* worldState.registerPlayer(username, uid);
+        yield* world.registerPlayer(username, uid);
       }
     }),
   );
@@ -366,8 +365,8 @@ const make = Effect.gen(function* () {
         return;
       }
 
-      yield* worldState.unregisterPlayer(username);
-      yield* worldState.removePlayer(username);
+      yield* world.unregisterPlayer(username);
+      yield* world.removePlayer(username);
     }),
   );
 
@@ -378,11 +377,32 @@ const make = Effect.gen(function* () {
         return;
       }
 
-      yield* worldState.reset();
+      yield* world._reset();
 
-      const currentUsername = yield* auth
-        .getUsername()
-        .pipe(Effect.orElseSucceed(() => ""));
+      // Map Info
+
+      const mapNameNumber = asString(payload["areaName"]);
+      const parts = mapNameNumber?.split("-") ?? [];
+      const mapId = asNumber(payload["areaId"]);
+
+      if (parts.length === 2) {
+        const [mapName, roomNumberStr] = parts;
+        const roomNumber = asNumber(roomNumberStr);
+
+        if (mapName) {
+          yield* world._setName(mapName);
+        }
+
+        if (roomNumber !== undefined) {
+          yield* world._setRoomNumber(roomNumber);
+        }
+      }
+
+      if (mapId !== undefined) {
+        yield* world._setId(mapId);
+      }
+
+      // Monster info
 
       const monDefs = new Map(
         asArray(payload["mondef"]).flatMap((raw) => {
@@ -432,8 +452,14 @@ const make = Effect.gen(function* () {
           strMonName: def?.strMonName ?? "Unknown",
           strFrame: monMaps.get(monMapId) ?? "",
         };
-        yield* worldState.addMonster(monsterData);
+        yield* world.addMonster(monsterData);
       }
+
+      // Player info
+
+      const currentUsername = yield* auth
+        .getUsername()
+        .pipe(Effect.orElseSucceed(() => ""));
 
       for (const rawPlayer of asArray(payload["uoBranch"])) {
         const player = asRecord(rawPlayer);
@@ -467,13 +493,13 @@ const make = Effect.gen(function* () {
           uoName,
         };
 
-        yield* worldState.addPlayer(avatar);
+        yield* world.addPlayer(avatar);
 
         if (
           currentUsername !== "" &&
           equalsIgnoreCase(avatar.strUsername, currentUsername)
         ) {
-          yield* worldState.setSelf(avatar.strUsername);
+          yield* world.setSelf(avatar.strUsername);
         }
       }
     }),
@@ -515,17 +541,21 @@ const make = Effect.gen(function* () {
   yield* registerJson("uotls", (packet) =>
     Effect.gen(function* () {
       const payload = asRecord(packet.data);
+      if (!payload) {
+        return;
+      }
+
       const username = asString(payload["unm"]);
       const userPayload = asRecord(payload["o"]);
       if (!username || !userPayload) {
         return;
       }
 
-      const existing = yield* worldState.getPlayer(username);
+      const existing = yield* world.getPlayer(username);
       if (Option.isNone(existing)) {
         const avatar = toAvatarData(username, userPayload);
         if (avatar) {
-          yield* worldState.addPlayer(avatar);
+          yield* world.addPlayer(avatar);
         }
         return;
       }
@@ -552,7 +582,7 @@ const make = Effect.gen(function* () {
         monster.data.intMP = 0;
       });
 
-      yield* worldState.clearMonsterAuras(monMapId);
+      yield* world.clearMonsterAuras(monMapId);
 
       yield* dispatchDomainEvent(domainHandlerStore, "monsterDeath", {
         monMapId,
@@ -563,12 +593,12 @@ const make = Effect.gen(function* () {
 
   yield* registerJson("clearAuras", () =>
     Effect.gen(function* () {
-      const me = yield* worldState.getSelf();
+      const me = yield* world.getSelf();
       if (Option.isNone(me)) {
         return;
       }
 
-      yield* worldState.clearPlayerAuras(me.value.data.entID);
+      yield* world.clearPlayerAuras(me.value.data.entID);
     }),
   );
 
@@ -598,7 +628,7 @@ const make = Effect.gen(function* () {
         return;
       }
 
-      const player = yield* worldState.getPlayerByName(username);
+      const player = yield* world.getPlayerByName(username);
       if (Option.isNone(player)) {
         return;
       }
@@ -730,7 +760,7 @@ const make = Effect.gen(function* () {
             });
 
             if (deadPlayerEntityId !== undefined) {
-              yield* worldState.clearPlayerAuras(deadPlayerEntityId);
+              yield* world.clearPlayerAuras(deadPlayerEntityId);
             }
           }
         }
@@ -781,9 +811,9 @@ const make = Effect.gen(function* () {
 
               const isNew = auraPayload["isNew"] === true;
               if (isNew) {
-                yield* worldState.addAura(targetType, targetId, aura);
+                yield* world.addAura(targetType, targetId, aura);
               } else {
-                yield* worldState.updateAura(targetType, targetId, aura);
+                yield* world.updateAura(targetType, targetId, aura);
               }
             }
             continue;
@@ -796,7 +826,7 @@ const make = Effect.gen(function* () {
               continue;
             }
 
-            yield* worldState.removeAura(targetType, targetId, auraName);
+            yield* world.removeAura(targetType, targetId, auraName);
           }
         }
 

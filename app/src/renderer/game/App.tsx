@@ -3,7 +3,7 @@ import { createSignal, onCleanup } from "solid-js";
 import { runtime } from "./flash/runtime";
 import { Drops } from "./flash/Services/Drops";
 import { Combat } from "./flash/Services/Combat";
-import { WorldState } from "./flash/Services/WorldState";
+import { World } from "./flash/Services/World";
 import { AutoZone } from "./flash/Services/AutoZone";
 
 export default function App() {
@@ -17,16 +17,17 @@ export default function App() {
     void runtime
       .runPromise(
         Effect.gen(function* () {
-          const worldState = yield* WorldState;
-          const me = yield* worldState.getSelf();
-          console.log("me", me);
-          console.log(me.toJSON());
-          console.log(me.toString());
-          if (Option.isSome(me)) {
-            console.log(me.value);
-          } else {
-            console.log("no me");
-          }
+          const world = yield* World;
+          const roomNumber = yield* world.getRoomNumber();
+          console.log("Current room number:", roomNumber);
+          const mapName = yield* world.getMapName();
+          console.log("Current map name:", mapName);
+          const roomId = yield* world.getId();
+          console.log({
+            roomId,
+            mapName,
+            roomNumber,
+          });
         }),
       )
       .catch((error) => {
@@ -34,12 +35,12 @@ export default function App() {
       });
   };
 
-  const inspectWorldState = () => {
+  const inspectWorld = () => {
     void runtime
       .runPromise(
         Effect.gen(function* () {
-          const worldState = yield* WorldState;
-          const state = yield* worldState.debug();
+          const world = yield* World;
+          const state = yield* world.debug();
           console.log(state);
         }),
       )
@@ -170,7 +171,7 @@ export default function App() {
           count: {count()}
         </button>
         <button onClick={testBridge}>test bridge</button>
-        <button onClick={inspectWorldState}>inspect world state</button>
+        <button onClick={inspectWorld}>inspect world</button>
         <button onClick={inspectDrops}>inspect drops</button>
         <input
           type="text"

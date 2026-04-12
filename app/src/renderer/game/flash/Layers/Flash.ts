@@ -1,4 +1,4 @@
-import { Layer } from "effect";
+import { Effect, Layer } from "effect";
 import { AuthLive } from "./Auth";
 import { AutoZoneLive } from "./AutoZone";
 import { BankLive } from "./Bank";
@@ -14,36 +14,67 @@ import { QuestsLive } from "./Quests";
 import { SettingsLive } from "./Settings";
 import { ShopsLive } from "./Shops";
 import { WorldLive } from "./World";
-import { WorldStateLive } from "./WorldState";
 
-const FlashCoreLive = Layer.mergeAll(BridgeLive, PacketLive);
+const BridgeCoreLive = BridgeLive;
 
-const PacketRuntimeLive = Layer.mergeAll(
-  FlashCoreLive,
-  PacketRouterLive.pipe(Layer.provide(FlashCoreLive)),
+const AuthRuntimeLive = AuthLive.pipe(Layer.provide(BridgeCoreLive));
+
+const BridgeWithAuthLive = Layer.mergeAll(BridgeCoreLive, AuthRuntimeLive);
+
+const BridgeOnlyDomainsLive = Layer.mergeAll(
+  CombatLive,
+  PlayerLive,
+  QuestsLive,
+  SettingsLive,
+  ShopsLive,
+  WorldLive,
+).pipe(Layer.provide(BridgeCoreLive));
+
+const BridgeAuthDomainsLive = Layer.mergeAll(BankLive, DropsLive).pipe(
+  Layer.provide(BridgeWithAuthLive),
 );
 
-const BridgeDomainLive = Layer.mergeAll(
-  BankLive.pipe(Layer.provide(BridgeLive)),
-  CombatLive.pipe(Layer.provide(BridgeLive)),
-  DropsLive.pipe(Layer.provide(BridgeLive)),
-  PlayerLive.pipe(Layer.provide(BridgeLive)),
-  QuestsLive.pipe(Layer.provide(BridgeLive)),
-  SettingsLive.pipe(Layer.provide(BridgeLive)),
-  ShopsLive.pipe(Layer.provide(BridgeLive)),
-  WorldLive.pipe(Layer.provide(BridgeLive)),
-  WorldStateLive.pipe(Layer.provide(BridgeLive)),
-).pipe(Layer.provideMerge(AuthLive.pipe(Layer.provide(BridgeLive))));
+const BridgeRuntimeLive = Layer.mergeAll(
+  BridgeWithAuthLive,
+  BridgeOnlyDomainsLive,
+  BridgeAuthDomainsLive,
+);
+
+const PacketCoreLive = PacketLive;
+
+const PacketRouterRuntimeLive = PacketRouterLive.pipe(
+  Layer.provide(PacketCoreLive),
+);
 
 const PacketHandlerRuntimeLive = PacketHandlerLive.pipe(
-  Layer.provideMerge(PacketRuntimeLive),
+  Layer.provide(PacketRouterRuntimeLive),
 );
 
-const FlashDomainLive = PacketDomainLive.pipe(
-  Layer.provideMerge(PacketHandlerRuntimeLive),
-  Layer.provideMerge(BridgeDomainLive),
+const PacketRuntimeLive = Layer.mergeAll(
+  PacketCoreLive,
+  PacketRouterRuntimeLive,
+  PacketHandlerRuntimeLive,
 );
 
-export const FlashLive = AutoZoneLive.pipe(
-  Layer.provideMerge(FlashDomainLive),
+const PacketDomainRuntimeLive = PacketDomainLive.pipe(
+  Layer.provide(Layer.mergeAll(PacketHandlerRuntimeLive, BridgeRuntimeLive)),
+);
+
+const FlashDomainLive = Layer.mergeAll(
+  BridgeRuntimeLive,
+  PacketRuntimeLive,
+  PacketDomainRuntimeLive,
+);
+
+const AutoZoneRuntimeLive = AutoZoneLive.pipe(
+  Layer.provide(FlashDomainLive),
+);
+
+export const FlashLive = Layer.mergeAll(FlashDomainLive, AutoZoneRuntimeLive).pipe(
+  Layer.tapCause((cause) =>
+    Effect.logError({
+      message: "failed to compose flash service layer",
+      cause,
+    }),
+  ),
 );

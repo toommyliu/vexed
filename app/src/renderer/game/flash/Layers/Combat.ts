@@ -4,7 +4,7 @@ import { Bridge } from "../Services/Bridge";
 import { Combat } from "../Services/Combat";
 import type { CombatShape } from "../Services/Combat";
 import { PacketDomain } from "../Services/PacketDomain";
-import { WorldState } from "../Services/WorldState";
+import { World } from "../Services/World";
 
 const SKILL_ROTATION: readonly Skill[] = [1, 2, 3, 4];
 
@@ -115,12 +115,12 @@ const make = Effect.gen(function* () {
     let disposeMonsterDeathListener: (() => void) | undefined;
 
     return Effect.gen(function* () {
-      const maybeWorldState = yield* Effect.serviceOption(WorldState);
-      if (Option.isNone(maybeWorldState)) {
+      const maybeWorld = yield* Effect.serviceOption(World);
+      if (Option.isNone(maybeWorld)) {
         return;
       }
 
-      const worldState = maybeWorldState.value;
+      const world = maybeWorld.value;
       const resolvedTarget = resolveKillTarget(target);
 
       if (resolvedTarget.kind === "name" && resolvedTarget.name === "") {
@@ -128,28 +128,28 @@ const make = Effect.gen(function* () {
       }
 
       const waitUntilPlayerAlive = () =>
-        Effect.repeat(worldState.getSelf(), {
+        Effect.repeat(world.getSelf(), {
           schedule: Schedule.spaced("250 millis"),
           until: (me) => Option.isSome(me) && me.value.alive,
         }).pipe(Effect.asVoid);
 
       const resolveTargetMonMapIdByName = (name: string) =>
         Effect.gen(function* () {
-          const me = yield* worldState.getSelf();
+          const me = yield* world.getSelf();
           const cell = Option.isSome(me) ? me.value.cell : undefined;
-          const monster = yield* worldState.findMonsterByName(name, cell);
+          const monster = yield* world.findMonsterByName(name, cell);
           return Option.isSome(monster) ? monster.value.monMapId : undefined;
         });
 
       const getMonsterNameByMonMapId = (monMapId: number) =>
-        worldState.getMonster(monMapId).pipe(
+        world.getMonster(monMapId).pipe(
           Effect.map((monster) =>
             Option.isSome(monster) ? monster.value.name : undefined,
           ),
         );
 
       const isMonsterDead = (monMapId: number) =>
-        worldState.getMonster(monMapId).pipe(
+        world.getMonster(monMapId).pipe(
           Effect.map(
             (monster) =>
               Option.isNone(monster) ||
