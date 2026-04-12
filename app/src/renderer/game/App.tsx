@@ -5,6 +5,7 @@ import { Drops } from "./flash/Services/Drops";
 import { Combat } from "./flash/Services/Combat";
 import { World } from "./flash/Services/World";
 import { AutoZone } from "./flash/Services/AutoZone";
+import { Player } from "./flash/Services/Player";
 
 export default function App() {
   const [count, setCount] = createSignal(0);
@@ -17,18 +18,16 @@ export default function App() {
     void runtime
       .runPromise(
         Effect.gen(function* () {
-          const world = yield* World;
-          const roomNumber = yield* world.getRoomNumber();
-          console.log("Current room number:", roomNumber);
-          const mapName = yield* world.getMapName();
-          console.log("Current map name:", mapName);
-          const roomId = yield* world.getId();
-          console.log({
-            roomId,
-            mapName,
-            roomNumber,
-          });
-        }),
+          const player = yield* Player;
+          const hp = yield* player.getHp();
+          const maxHp = yield* player.getMaxHp();
+          const mp = yield* player.getMp();
+          const maxMp = yield* player.getMaxMp();
+          const cell = yield* player.getCell();
+          const state = yield* player.getState();
+          console.log(`HP: ${hp}/${maxHp}, MP: ${mp}/${maxMp}`);
+          console.log(`Cell: ${cell}, State: ${state}`);
+        }) 
       )
       .catch((error) => {
         console.error("Bridge error:", error);

@@ -1,8 +1,9 @@
 import { Faction, type FactionData } from "@vexed/game";
-import { Effect, Layer } from "effect";
+import { Effect, Layer, Option } from "effect";
 import { Bridge } from "../Services/Bridge";
 import { Player } from "../Services/Player";
 import type { PlayerShape } from "../Services/Player";
+import { World } from "../Services/World";
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
@@ -35,12 +36,18 @@ const normalizePosition = (value: unknown[]): [number, number] => {
 
 const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
+  const world = yield* World;
 
-  const getCell = () => bridge.call("player.getCell");
+  const getCell = () => Effect.gen(function*(){
+    const me = yield* world.getSelf();
+    if (!Option.isSome(me)) {
+      return yield* Effect.succeed("");
+    }
+
+    return yield* Effect.succeed(me.value.cell);
+  })
 
   const getClassName = () => bridge.call("player.getClassName");
-
-  const getData = () => bridge.call("player.getData");
 
   const getFactions = () =>
     Effect.map(bridge.call("player.getFactions"), (factions) =>
@@ -53,26 +60,57 @@ const make = Effect.gen(function* () {
 
   const getGold = () => bridge.call("player.getGold");
 
-  const getHp = () => bridge.call("player.getHp");
+  const getHp = () => Effect.gen(function* () {
+    const me = yield* world.getSelf();
+    if (!Option.isSome(me)) {
+      return yield* Effect.succeed(0);
+    }
+
+    return yield* Effect.succeed(me.value.hp);
+  });
 
   const getLevel = () => bridge.call("player.getLevel");
 
-  const getMap = () => bridge.call("player.getMap");
+  const getMaxHp = () => Effect.gen(function* () {
+    const me = yield* world.getSelf();
+    if (!Option.isSome(me)) {
+      return yield* Effect.succeed(0);
+    }
 
-  const getMaxHp = () => bridge.call("player.getMaxHp");
+    return yield* Effect.succeed(me.value.maxHp);
+  });
 
-  const getMaxMp = () => bridge.call("player.getMaxMp");
+  const getMaxMp = () => Effect.gen(function* () {
+    const me = yield* world.getSelf();
+    if (!Option.isSome(me)) {
+      return yield* Effect.succeed(0);
+    }
 
-  const getMp = () => bridge.call("player.getMp");
+    return yield* Effect.succeed(me.value.maxMp);
+  });
+
+  const getMp = () => Effect.gen(function* () {
+    const me = yield* world.getSelf();
+    if (!Option.isSome(me)) {
+      return yield* Effect.succeed(0);
+    }
+
+    return yield* Effect.succeed(me.value.mp);
+  });
 
   const getPad = () => bridge.call("player.getPad");
 
   const getPosition = () =>
     Effect.map(bridge.call("player.getPosition"), normalizePosition);
 
-  const getState = () => bridge.call("player.getState");
+  const getState = () => Effect.gen(function* () {
+    const me = yield* world.getSelf();
+    if (!Option.isSome(me)) {
+      return yield* Effect.succeed(0);
+    }
 
-  const getUserId = () => bridge.call("player.getUserId");
+    return yield* Effect.succeed(me.value.state);
+  });
 
   const isAfk = () => bridge.call("player.isAfk");
 
@@ -122,20 +160,17 @@ const make = Effect.gen(function* () {
   return {
     getCell,
     getClassName,
-    getData,
     getFactions,
     getGender,
     getGold,
     getHp,
     getLevel,
-    getMap,
     getMaxHp,
     getMaxMp,
     getMp,
     getPad,
     getPosition,
     getState,
-    getUserId,
     isAfk,
     isLoaded,
     isMember,

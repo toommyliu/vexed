@@ -26,9 +26,8 @@ const BridgeOnlyDomainsLive = Layer.mergeAll(
   PlayerLive,
   QuestsLive,
   SettingsLive,
-  ShopsLive,
-  WorldLive,
-).pipe(Layer.provide(BridgeCoreLive));
+  ShopsLive
+).pipe(Layer.provideMerge(WorldLive), Layer.provide(BridgeCoreLive));
 
 const BridgeAuthDomainsLive = Layer.mergeAll(BankLive, DropsLive).pipe(
   Layer.provide(BridgeWithAuthLive),
