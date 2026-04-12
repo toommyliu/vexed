@@ -306,7 +306,7 @@ const make = Effect.gen(function* () {
         return;
       }
       const zone = asString(args["zoneSet"]) ?? "";
-      const map = yield* world.getMapName();
+      const map = yield* world.getName();
 
       yield* dispatchDomainEvent(domainHandlerStore, "zone", {
         map,
