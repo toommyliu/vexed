@@ -11,7 +11,10 @@ const tryOrPanic = <T>(fn: () => T, message: string): T => {
 };
 
 /** Async version of tryOrPanic. */
-const tryOrPanicAsync = async <T>(fn: () => Promise<T>, message: string): Promise<T> => {
+const tryOrPanicAsync = async <T>(
+  fn: () => Promise<T>,
+  message: string,
+): Promise<T> => {
   try {
     return await fn();
   } catch (cause) {
@@ -99,7 +102,9 @@ export class Ok<A, E = never> {
    * @example
    * await ok(1).andThenAsync(async x => ok(await fetchData(x)))
    */
-  andThenAsync<B, E2>(fn: (a: A) => Promise<Result<B, E2>>): Promise<Result<B, E | E2>> {
+  andThenAsync<B, E2>(
+    fn: (a: A) => Promise<Result<B, E2>>,
+  ): Promise<Result<B, E | E2>> {
     return tryOrPanicAsync(() => fn(this.value), "andThenAsync callback threw");
   }
 
@@ -239,7 +244,10 @@ export class Err<T, E> {
    * err("fail").mapError(e => new Error(e)) // Err(Error("fail"))
    */
   mapError<E2>(fn: (e: E) => E2): Err<T, E2> {
-    return tryOrPanic(() => new Err<T, E2>(fn(this.error)), "mapError callback threw");
+    return tryOrPanic(
+      () => new Err<T, E2>(fn(this.error)),
+      "mapError callback threw",
+    );
   }
 
   /**
@@ -263,7 +271,9 @@ export class Err<T, E> {
    * @param _fn Ignored.
    * @returns Promise of self.
    */
-  andThenAsync<U, E2>(_fn: (a: never) => Promise<Result<U, E2>>): Promise<Err<U, E | E2>> {
+  andThenAsync<U, E2>(
+    _fn: (a: never) => Promise<Result<U, E2>>,
+  ): Promise<Err<U, E | E2>> {
     // SAFETY: T is phantom, E⊂(E|E2) so error type widens safely.
     return Promise.resolve(this as unknown as Err<U, E | E2>);
   }
@@ -280,7 +290,10 @@ export class Err<T, E> {
    * err("fail").match({ ok: x => x, err: e => e.length }) // 4
    */
   match<R>(handlers: { ok: (a: never) => R; err: (e: E) => R }): R {
-    return tryOrPanic(() => handlers.err(this.error), "match err handler threw");
+    return tryOrPanic(
+      () => handlers.err(this.error),
+      "match err handler threw",
+    );
   }
 
   /**
@@ -294,7 +307,10 @@ export class Err<T, E> {
    * err("fail").unwrap("custom") // throws Error("custom")
    */
   unwrap(message?: string): never {
-    return panic(message ?? `Unwrap called on Err: ${String(this.error)}`, this.error);
+    return panic(
+      message ?? `Unwrap called on Err: ${String(this.error)}`,
+      this.error,
+    );
   }
 
   /**
@@ -340,7 +356,10 @@ export class Err<T, E> {
     // ensures all yields have phantom T as `never`, enabling TypeScript to
     // unify: Err<never, E1> | Err<never, E2> extracts to E1 | E2
     yield this as unknown as Err<never, E>;
-    return panic("Unreachable: Err yielded in Result.gen but generator continued", this.error);
+    return panic(
+      "Unreachable: Err yielded in Result.gen but generator continued",
+      this.error,
+    );
   }
 }
 
@@ -396,7 +415,8 @@ const isOk = <A, E>(result: Result<A, E>): result is Ok<A, E> => {
   return result.status === "ok";
 };
 
-const err = <T = never, E = unknown>(error: E): Err<T, E> => new Err<T, E>(error);
+const err = <T = never, E = unknown>(error: E): Err<T, E> =>
+  new Err<T, E>(error);
 
 const isError = <T, E>(result: Result<T, E>): result is Err<T, E> => {
   return result.status === "error";
@@ -412,7 +432,9 @@ const tryFn: {
     config?: { retry?: { times: number } },
   ): Result<A, E>;
 } = <A, E>(
-  options: (() => Awaited<A>) | { try: () => Awaited<A>; catch: (cause: unknown) => Awaited<E> },
+  options:
+    | (() => Awaited<A>)
+    | { try: () => Awaited<A>; catch: (cause: unknown) => Awaited<E> },
   config?: { retry?: { times: number } },
 ): Result<A, E | UnhandledException> => {
   const execute = (): Result<A, E | UnhandledException> => {
@@ -461,7 +483,10 @@ const tryPromise: {
     config?: RetryConfig<UnhandledException>,
   ): Promise<Result<A, UnhandledException>>;
   <A, E>(
-    options: { try: () => Promise<A>; catch: (cause: unknown) => E | Promise<E> },
+    options: {
+      try: () => Promise<A>;
+      catch: (cause: unknown) => E | Promise<E>;
+    },
     config?: RetryConfig<E>,
   ): Promise<Result<A, E>>;
 } = async <A, E>(
@@ -507,7 +532,8 @@ const tryPromise: {
     }
   };
 
-  const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+  const sleep = (ms: number) =>
+    new Promise<void>((resolve) => setTimeout(resolve, ms));
 
   let result = await execute();
 
@@ -516,7 +542,10 @@ const tryPromise: {
   for (let attempt = 0; attempt < retry.times; attempt++) {
     if (result.status !== "error") break;
     const error = result.error;
-    const shouldContinue = tryOrPanic(() => shouldRetryFn(error), "shouldRetry predicate threw");
+    const shouldContinue = tryOrPanic(
+      () => shouldRetryFn(error),
+      "shouldRetry predicate threw",
+    );
     if (!shouldContinue) break;
     await sleep(getDelay(attempt));
     result = await execute();
@@ -535,16 +564,30 @@ const map: {
 const mapError: {
   <A, E, E2>(result: Result<A, E>, fn: (e: E) => E2): Result<A, E2>;
   <E, E2>(fn: (e: E) => E2): <A>(result: Result<A, E>) => Result<A, E2>;
-} = dual(2, <A, E, E2>(result: Result<A, E>, fn: (e: E) => E2): Result<A, E2> => {
-  return result.mapError(fn);
-});
+} = dual(
+  2,
+  <A, E, E2>(result: Result<A, E>, fn: (e: E) => E2): Result<A, E2> => {
+    return result.mapError(fn);
+  },
+);
 
 const andThen: {
-  <A, B, E, E2>(result: Result<A, E>, fn: (a: A) => Result<B, E2>): Result<B, E | E2>;
-  <A, B, E2>(fn: (a: A) => Result<B, E2>): <E>(result: Result<A, E>) => Result<B, E | E2>;
-} = dual(2, <A, B, E, E2>(result: Result<A, E>, fn: (a: A) => Result<B, E2>): Result<B, E | E2> => {
-  return result.andThen(fn);
-});
+  <A, B, E, E2>(
+    result: Result<A, E>,
+    fn: (a: A) => Result<B, E2>,
+  ): Result<B, E | E2>;
+  <A, B, E2>(
+    fn: (a: A) => Result<B, E2>,
+  ): <E>(result: Result<A, E>) => Result<B, E | E2>;
+} = dual(
+  2,
+  <A, B, E, E2>(
+    result: Result<A, E>,
+    fn: (a: A) => Result<B, E2>,
+  ): Result<B, E | E2> => {
+    return result.andThen(fn);
+  },
+);
 
 const andThenAsync: {
   <A, B, E, E2>(
@@ -565,11 +608,23 @@ const andThenAsync: {
 );
 
 const match: {
-  <A, E, T>(result: Result<A, E>, handlers: { ok: (a: A) => T; err: (e: E) => T }): T;
-  <A, E, T>(handlers: { ok: (a: A) => T; err: (e: E) => T }): (result: Result<A, E>) => T;
-} = dual(2, <A, E, T>(result: Result<A, E>, handlers: { ok: (a: A) => T; err: (e: E) => T }): T => {
-  return result.match(handlers);
-});
+  <A, E, T>(
+    result: Result<A, E>,
+    handlers: { ok: (a: A) => T; err: (e: E) => T },
+  ): T;
+  <A, E, T>(handlers: {
+    ok: (a: A) => T;
+    err: (e: E) => T;
+  }): (result: Result<A, E>) => T;
+} = dual(
+  2,
+  <A, E, T>(
+    result: Result<A, E>,
+    handlers: { ok: (a: A) => T; err: (e: E) => T },
+  ): T => {
+    return result.match(handlers);
+  },
+);
 
 const tap: {
   <A, E>(result: Result<A, E>, fn: (a: A) => void): Result<A, E>;
@@ -579,18 +634,31 @@ const tap: {
 });
 
 const tapAsync: {
-  <A, E>(result: Result<A, E>, fn: (a: A) => Promise<void>): Promise<Result<A, E>>;
-  <A>(fn: (a: A) => Promise<void>): <E>(result: Result<A, E>) => Promise<Result<A, E>>;
-} = dual(2, <A, E>(result: Result<A, E>, fn: (a: A) => Promise<void>): Promise<Result<A, E>> => {
-  return result.tapAsync(fn);
-});
+  <A, E>(
+    result: Result<A, E>,
+    fn: (a: A) => Promise<void>,
+  ): Promise<Result<A, E>>;
+  <A>(
+    fn: (a: A) => Promise<void>,
+  ): <E>(result: Result<A, E>) => Promise<Result<A, E>>;
+} = dual(
+  2,
+  <A, E>(
+    result: Result<A, E>,
+    fn: (a: A) => Promise<void>,
+  ): Promise<Result<A, E>> => {
+    return result.tapAsync(fn);
+  },
+);
 
 const unwrap = <A, E>(result: Result<A, E>, message?: string): A => {
   return result.unwrap(message);
 };
 
 /** Validates that a value is a Result instance. Throws with helpful message if not. */
-function assertIsResult(value: unknown): asserts value is Result<unknown, unknown> {
+function assertIsResult(
+  value: unknown,
+): asserts value is Result<unknown, unknown> {
   if (
     value !== null &&
     typeof value === "object" &&
@@ -601,7 +669,11 @@ function assertIsResult(value: unknown): asserts value is Result<unknown, unknow
   }
   return panic(
     "Result.gen body must return Result.ok() or Result.err(), got: " +
-      (value === null ? "null" : typeof value === "object" ? JSON.stringify(value) : String(value)),
+      (value === null
+        ? "null"
+        : typeof value === "object"
+          ? JSON.stringify(value)
+          : String(value)),
   );
 }
 
@@ -638,13 +710,19 @@ const gen: {
   | Result<InferOk<R>, InferYieldErr<Yield> | InferErr<R>>
   | Promise<Result<InferOk<R>, InferYieldErr<Yield> | InferErr<R>>> => {
   // SAFETY: body.call binds thisArg; cast needed due to union of function signatures
-  const iterator = (body as (this: This) => Generator<Yield, R, unknown>).call(thisArg as This);
+  const iterator = (body as (this: This) => Generator<Yield, R, unknown>).call(
+    thisArg as This,
+  );
 
   // Detect async generator via Symbol.asyncIterator
   if (Symbol.asyncIterator in iterator) {
     return (async () => {
       // SAFETY: Async check above guarantees this is an async generator
-      const asyncIter = iterator as unknown as AsyncGenerator<Yield, R, unknown>;
+      const asyncIter = iterator as unknown as AsyncGenerator<
+        Yield,
+        R,
+        unknown
+      >;
 
       let state: IteratorResult<Yield, R>;
       try {
@@ -666,7 +744,10 @@ const gen: {
         }
       }
 
-      return state.value as Result<InferOk<R>, InferYieldErr<Yield> | InferErr<R>>;
+      return state.value as Result<
+        InferOk<R>,
+        InferYieldErr<Yield> | InferErr<R>
+      >;
     })();
   }
 
@@ -734,12 +815,15 @@ export interface SerializedErr<E> {
 /** Shape of a serialized Result over RPC. */
 export type SerializedResult<T, E> = SerializedOk<T> | SerializedErr<E>;
 
-function isSerializedResult(obj: unknown): obj is SerializedResult<unknown, unknown> {
+function isSerializedResult(
+  obj: unknown,
+): obj is SerializedResult<unknown, unknown> {
   return (
     obj !== null &&
     typeof obj === "object" &&
     "status" in obj &&
-    ((obj.status === "ok" && "value" in obj) || (obj.status === "error" && "error" in obj))
+    ((obj.status === "ok" && "value" in obj) ||
+      (obj.status === "error" && "error" in obj))
   );
 }
 
@@ -750,14 +834,23 @@ const serialize = <T, E>(result: Result<T, E>): SerializedResult<T, E> => {
 
   // Convert Error instances to plain objects to survive structuredClone (e.g., Electron IPC)
   const error = result.error;
-  if (error instanceof Error && typeof (error as unknown as { toJSON?: () => unknown }).toJSON === "function") {
-    return { status: "error", error: (error as unknown as { toJSON: () => unknown }).toJSON() as E };
+  if (
+    error instanceof Error &&
+    typeof (error as unknown as { toJSON?: () => unknown }).toJSON ===
+      "function"
+  ) {
+    return {
+      status: "error",
+      error: (error as unknown as { toJSON: () => unknown }).toJSON() as E,
+    };
   }
 
   return { status: "error", error };
 };
 
-const deserialize = <T, E>(value: unknown): Result<T, E | ResultDeserializationError> => {
+const deserialize = <T, E>(
+  value: unknown,
+): Result<T, E | ResultDeserializationError> => {
   if (isSerializedResult(value)) {
     return value.status === "ok"
       ? (new Ok(value.value) as Result<T, E>)
@@ -769,7 +862,9 @@ const deserialize = <T, E>(value: unknown): Result<T, E | ResultDeserializationE
 /**
  * @deprecated Use `Result.deserialize` instead. Will be removed in 3.0.
  */
-const hydrate = <T, E>(value: unknown): Result<T, E | ResultDeserializationError> => {
+const hydrate = <T, E>(
+  value: unknown,
+): Result<T, E | ResultDeserializationError> => {
   return deserialize(value);
 };
 
@@ -793,7 +888,9 @@ const partition = <T, E>(results: readonly Result<T, E>[]): [T[], E[]] => {
  * const nested: Result<Result<number, E1>, E2> = Result.ok(Result.ok(42));
  * const flat: Result<number, E1 | E2> = Result.flatten(nested); // Ok(42)
  */
-const flatten = <T, E, E2>(result: Result<Result<T, E>, E2>): Result<T, E | E2> => {
+const flatten = <T, E, E2>(
+  result: Result<Result<T, E>, E2>,
+): Result<T, E | E2> => {
   if (result.status === "ok") {
     return result.value;
   }

@@ -83,7 +83,9 @@ describe("TaggedError", () => {
 
   describe("isTaggedError", () => {
     it("returns true for TaggedError", () => {
-      expect(isTaggedError(new NotFoundError({ id: "x", message: "not found" }))).toBe(true);
+      expect(
+        isTaggedError(new NotFoundError({ id: "x", message: "not found" })),
+      ).toBe(true);
     });
 
     it("returns false for plain Error", () => {
@@ -159,12 +161,18 @@ describe("TaggedError", () => {
       });
 
     it("matches NotFoundError", () => {
-      const error: AppError = new NotFoundError({ id: "123", message: "not found" });
+      const error: AppError = new NotFoundError({
+        id: "123",
+        message: "not found",
+      });
       expect(matchAppError(error)).toBe("missing: 123");
     });
 
     it("matches ValidationError", () => {
-      const error: AppError = new ValidationError({ field: "email", message: "invalid" });
+      const error: AppError = new ValidationError({
+        field: "email",
+        message: "invalid",
+      });
       expect(matchAppError(error)).toBe("invalid: email");
     });
 
@@ -177,7 +185,10 @@ describe("TaggedError", () => {
     });
 
     it("works data-last (pipeable)", () => {
-      const error: AppError = new NotFoundError({ id: "456", message: "not found" });
+      const error: AppError = new NotFoundError({
+        id: "456",
+        message: "not found",
+      });
       const matcher = matchError<AppError, string>({
         NotFoundError: (e) => `missing: ${e.id}`,
         ValidationError: (e) => `invalid: ${e.field}`,
@@ -187,7 +198,10 @@ describe("TaggedError", () => {
     });
 
     it("provides type narrowing in handlers", () => {
-      const error = new NotFoundError({ id: "789", message: "not found" }) as AppError;
+      const error = new NotFoundError({
+        id: "789",
+        message: "not found",
+      }) as AppError;
       const result = matchError(error, {
         NotFoundError: (e) => {
           // Type is narrowed: e.id exists, e.field would error
@@ -223,7 +237,10 @@ describe("TaggedError", () => {
       );
 
     it("matches known tag", () => {
-      const error: AppError = new NotFoundError({ id: "123", message: "not found" });
+      const error: AppError = new NotFoundError({
+        id: "123",
+        message: "not found",
+      });
       expect(matchPartialAppError(error)).toBe("missing: 123");
     });
 
@@ -277,7 +294,10 @@ describe("TaggedError", () => {
           },
         );
 
-      const error = new NetworkError({ url: "https://example.com", message: "timeout" });
+      const error = new NetworkError({
+        url: "https://example.com",
+        message: "timeout",
+      });
       expect(matchOneHandler(error)).toBe("other: NetworkError");
     });
 
@@ -295,7 +315,10 @@ describe("TaggedError", () => {
         },
       );
 
-      const error: AppError = new NetworkError({ url: "https://api.test.com", message: "failed" });
+      const error: AppError = new NetworkError({
+        url: "https://api.test.com",
+        message: "failed",
+      });
       expect(matcher(error)).toBe("network: https://api.test.com");
     });
 
@@ -317,7 +340,10 @@ describe("TaggedError", () => {
         },
       );
 
-      const error: AppError = new ValidationError({ field: "email", message: "invalid" });
+      const error: AppError = new ValidationError({
+        field: "email",
+        message: "invalid",
+      });
       expect(matcher(error)).toBe("other: ValidationError");
     });
 

@@ -7,7 +7,7 @@
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "format": "oxfmt --check",
-    "format:write": "oxfmt --write"
+    "format:write": "oxfmt"
   },
   "dependencies": {
     "effect": "4.0.0-beta.43"

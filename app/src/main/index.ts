@@ -1,4 +1,3 @@
-
 import { app, BrowserWindow, session } from "electron";
 import { join } from "path";
 import process from "process";
@@ -46,7 +45,7 @@ function createWindow() {
     },
   });
 
-  win.webContents.openDevTools({ mode: 'right' });
+  win.webContents.openDevTools({ mode: "right" });
 
   const userAgent =
     process.platform === "darwin"

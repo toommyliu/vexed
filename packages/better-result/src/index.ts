@@ -1,5 +1,11 @@
 export { Result, Ok, Err } from "./result";
-export type { InferOk, InferErr, SerializedResult, SerializedOk, SerializedErr } from "./result";
+export type {
+  InferOk,
+  InferErr,
+  SerializedResult,
+  SerializedOk,
+  SerializedErr,
+} from "./result";
 export {
   Panic,
   panic,

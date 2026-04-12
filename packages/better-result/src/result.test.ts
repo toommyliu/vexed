@@ -68,7 +68,10 @@ describe("Result", () => {
     });
 
     it("Ok<void> serializes correctly", () => {
-      expect(Result.serialize(Result.ok())).toEqual({ status: "ok", value: undefined });
+      expect(Result.serialize(Result.ok())).toEqual({
+        status: "ok",
+        value: undefined,
+      });
     });
   });
 
@@ -262,7 +265,9 @@ describe("Result", () => {
     });
 
     it("returns Err when promise rejects", async () => {
-      const result = await Result.tryPromise(() => Promise.reject(new Error("boom")));
+      const result = await Result.tryPromise(() =>
+        Promise.reject(new Error("boom")),
+      );
       expect(Result.isError(result)).toBe(true);
     });
 
@@ -464,16 +469,20 @@ describe("Result", () => {
 
   describe("andThenAsync", () => {
     it("chains async operations", async () => {
-      const result = await Result.ok(2).andThenAsync(async (x) => Result.ok(x * 3));
+      const result = await Result.ok(2).andThenAsync(async (x) =>
+        Result.ok(x * 3),
+      );
       expect(result.unwrap()).toBe(6);
     });
 
     it("short-circuits on Err", async () => {
       let called = false;
-      const result = await Result.err<number, string>("fail").andThenAsync(async (x) => {
-        called = true;
-        return Result.ok(x * 2);
-      });
+      const result = await Result.err<number, string>("fail").andThenAsync(
+        async (x) => {
+          called = true;
+          return Result.ok(x * 2);
+        },
+      );
       expect(called).toBe(false);
       expect(Result.isError(result)).toBe(true);
     });
@@ -661,7 +670,8 @@ describe("Result", () => {
     it("short-circuits on async Err", async () => {
       let bCalled = false;
 
-      const fetchA = () => Promise.resolve(Result.err<number, string>("a failed"));
+      const fetchA = () =>
+        Promise.resolve(Result.err<number, string>("a failed"));
       const fetchB = () => {
         bCalled = true;
         return Promise.resolve(Result.ok(2));
@@ -680,7 +690,8 @@ describe("Result", () => {
     it("runs finally blocks when short-circuiting (async)", async () => {
       let finallyCalled = false;
 
-      const fetchA = () => Promise.resolve(Result.err<number, string>("a failed"));
+      const fetchA = () =>
+        Promise.resolve(Result.err<number, string>("a failed"));
 
       const result = await Result.gen(async function* () {
         try {
@@ -1143,7 +1154,11 @@ describe("Result", () => {
     });
 
     it("serializes complex values", () => {
-      const result = Result.ok({ id: 1, name: "test", nested: { a: [1, 2, 3] } });
+      const result = Result.ok({
+        id: 1,
+        name: "test",
+        nested: { a: [1, 2, 3] },
+      });
       const serialized = Result.serialize(result);
       expect(serialized).toEqual({
         status: "ok",
@@ -1152,8 +1167,14 @@ describe("Result", () => {
     });
 
     it("serializes null and undefined values", () => {
-      expect(Result.serialize(Result.ok(null))).toEqual({ status: "ok", value: null });
-      expect(Result.serialize(Result.ok(undefined))).toEqual({ status: "ok", value: undefined });
+      expect(Result.serialize(Result.ok(null))).toEqual({
+        status: "ok",
+        value: null,
+      });
+      expect(Result.serialize(Result.ok(undefined))).toEqual({
+        status: "ok",
+        value: undefined,
+      });
     });
   });
 
@@ -1190,14 +1211,22 @@ describe("Result", () => {
         expect(Result.isError(result)).toBe(true);
         if (Result.isError(result)) {
           expect(result.error).toBeInstanceOf(ResultDeserializationError);
-          expect((result.error as ResultDeserializationError).value).toBe(input);
+          expect((result.error as ResultDeserializationError).value).toBe(
+            input,
+          );
         }
       }
     });
 
     it("deserializes complex values", () => {
-      const serialized = { status: "ok" as const, value: { id: 1, items: [1, 2] } };
-      const result = Result.deserialize<{ id: number; items: number[] }, string>(serialized);
+      const serialized = {
+        status: "ok" as const,
+        value: { id: 1, items: [1, 2] },
+      };
+      const result = Result.deserialize<
+        { id: number; items: number[] },
+        string
+      >(serialized);
       expect(result.unwrap()).toEqual({ id: 1, items: [1, 2] });
     });
   });
@@ -1206,20 +1235,32 @@ describe("Result", () => {
     it("roundtrips Ok", () => {
       const original = Result.ok({ id: 42, name: "test" });
       const serialized = Result.serialize(original);
-      const deserialized = Result.deserialize<{ id: number; name: string }, never>(serialized);
+      const deserialized = Result.deserialize<
+        { id: number; name: string },
+        never
+      >(serialized);
 
       expect(deserialized).toBeInstanceOf(Ok);
       expect(deserialized.unwrap()).toEqual({ id: 42, name: "test" });
     });
 
     it("roundtrips Err", () => {
-      const original = Result.err({ code: "NOT_FOUND", message: "User not found" });
+      const original = Result.err({
+        code: "NOT_FOUND",
+        message: "User not found",
+      });
       const serialized = Result.serialize(original);
-      const deserialized = Result.deserialize<never, { code: string; message: string }>(serialized);
+      const deserialized = Result.deserialize<
+        never,
+        { code: string; message: string }
+      >(serialized);
 
       expect(deserialized).toBeInstanceOf(Err);
       if (Result.isError(deserialized)) {
-        expect(deserialized.error).toEqual({ code: "NOT_FOUND", message: "User not found" });
+        expect(deserialized.error).toEqual({
+          code: "NOT_FOUND",
+          message: "User not found",
+        });
       }
     });
 
@@ -1227,7 +1268,10 @@ describe("Result", () => {
       const original = Result.ok({ id: 1, data: [1, 2, 3] });
       const json = JSON.stringify(Result.serialize(original));
       const parsed = JSON.parse(json);
-      const deserialized = Result.deserialize<{ id: number; data: number[] }, never>(parsed);
+      const deserialized = Result.deserialize<
+        { id: number; data: number[] },
+        never
+      >(parsed);
 
       expect(deserialized?.unwrap()).toEqual({ id: 1, data: [1, 2, 3] });
     });
@@ -1282,7 +1326,9 @@ describe("Result", () => {
     });
 
     it("flattens Err(outerError) to Err(outerError)", () => {
-      const nested: Result<Result<number, string>, string> = Result.err("outer error");
+      const nested: Result<Result<number, string>, string> = Result.err(
+        "outer error",
+      );
       const flat = Result.flatten(nested);
       expect(Result.isError(flat)).toBe(true);
       if (Result.isError(flat)) {
@@ -1298,16 +1344,24 @@ describe("Result", () => {
         readonly _tag = "OuterError" as const;
       }
 
-      const okOk: Result<Result<number, InnerError>, OuterError> = Result.ok(Result.ok(42));
+      const okOk: Result<Result<number, InnerError>, OuterError> = Result.ok(
+        Result.ok(42),
+      );
       const okErr: Result<Result<number, InnerError>, OuterError> = Result.ok(
         Result.err(new InnerError()),
       );
-      const errOuter: Result<Result<number, InnerError>, OuterError> = Result.err(new OuterError());
+      const errOuter: Result<
+        Result<number, InnerError>,
+        OuterError
+      > = Result.err(new OuterError());
 
       // All flatten to Result<number, InnerError | OuterError>
-      const flat1: Result<number, InnerError | OuterError> = Result.flatten(okOk);
-      const flat2: Result<number, InnerError | OuterError> = Result.flatten(okErr);
-      const flat3: Result<number, InnerError | OuterError> = Result.flatten(errOuter);
+      const flat1: Result<number, InnerError | OuterError> =
+        Result.flatten(okOk);
+      const flat2: Result<number, InnerError | OuterError> =
+        Result.flatten(okErr);
+      const flat3: Result<number, InnerError | OuterError> =
+        Result.flatten(errOuter);
 
       expect(Result.isOk(flat1)).toBe(true);
       expect(Result.isError(flat2)).toBe(true);
@@ -1393,7 +1447,8 @@ describe("Monad Laws", () => {
     });
 
     it("holds when f returns Err", () => {
-      const fErr = (x: number): Result<number, string> => Result.err(`failed at ${x}`);
+      const fErr = (x: number): Result<number, string> =>
+        Result.err(`failed at ${x}`);
       const m = Result.ok(5);
 
       const left = m.andThen(fErr).andThen(g);
@@ -1497,8 +1552,9 @@ describe("Type Inference", () => {
       const r: Result<number, ErrorA | ErrorB> = Result.err(new ErrorA());
 
       // Transform only ErrorA to ErrorC, keep ErrorB
-      const mapped: Result<number, ErrorB | ErrorC> = r.mapError((e): ErrorB | ErrorC =>
-        e._tag === "ErrorA" ? new ErrorC(e.message) : e,
+      const mapped: Result<number, ErrorB | ErrorC> = r.mapError(
+        (e): ErrorB | ErrorC =>
+          e._tag === "ErrorA" ? new ErrorC(e.message) : e,
       );
 
       expect(Result.isError(mapped)).toBe(true);
@@ -1546,7 +1602,9 @@ describe("Type Inference", () => {
 
     it("never error preserved through andThen with never", () => {
       const r: Result<number, never> = Result.ok(42);
-      const chained: Result<string, never> = r.andThen((n) => Result.ok(n.toString()));
+      const chained: Result<string, never> = r.andThen((n) =>
+        Result.ok(n.toString()),
+      );
 
       expect(chained.unwrap()).toBe("42");
     });
@@ -1590,7 +1648,9 @@ describe("Type Inference", () => {
     });
 
     it("generic function with constraint preserves constraint", () => {
-      function extractId<T extends { id: number }>(value: T): Result<number, ErrorA> {
+      function extractId<T extends { id: number }>(
+        value: T,
+      ): Result<number, ErrorA> {
         return Result.gen(function* () {
           const obj = yield* Result.ok<T, ErrorA>(value);
           return Result.ok(obj.id);
@@ -1604,7 +1664,9 @@ describe("Type Inference", () => {
 
   describe("multiple return Result.err inference (bug fix)", () => {
     it("infers union of all returned error types", () => {
-      function process(input: string): Result<string, ErrorA | ErrorB | ErrorC> {
+      function process(
+        input: string,
+      ): Result<string, ErrorA | ErrorB | ErrorC> {
         return Result.gen(function* () {
           if (input.length === 0) {
             return Result.err(new ErrorA("empty"));
@@ -1642,7 +1704,12 @@ describe("Type Inference", () => {
     });
 
     it("splits mixed results preserving order", () => {
-      const results = [Result.ok(1), Result.err("a"), Result.ok(2), Result.err("b")];
+      const results = [
+        Result.ok(1),
+        Result.err("a"),
+        Result.ok(2),
+        Result.err("b"),
+      ];
       expect(Result.partition(results)).toEqual([
         [1, 2],
         ["a", "b"],
@@ -1706,7 +1773,10 @@ describe("Type Inference", () => {
         return Result.ok("hello");
       }
 
-      function combined(): Result<{ n: number; s: string }, "num_err" | "str_err"> {
+      function combined(): Result<
+        { n: number; s: string },
+        "num_err" | "str_err"
+      > {
         const numResult = getNumber();
         if (numResult.isErr()) {
           // Err<number, "num_err"> -> Result<{n,s}, "num_err" | "str_err">

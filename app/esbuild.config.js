@@ -87,7 +87,10 @@ async function watchBuild() {
     shuttingDown = true;
     unwatchFile(rendererHtmlSource);
 
-    await Promise.allSettled([mainContext.dispose(), rendererContext.dispose()]);
+    await Promise.allSettled([
+      mainContext.dispose(),
+      rendererContext.dispose(),
+    ]);
     process.exit(0);
   };
 

@@ -1,7 +1,14 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { mkdtemp, rm, readFile, stat, utimes, writeFile } from "node:fs/promises";
+import {
+  mkdtemp,
+  rm,
+  readFile,
+  stat,
+  utimes,
+  writeFile,
+} from "node:fs/promises";
 import { writeJson } from "@vexed/fs";
 import Config from "./index";
 

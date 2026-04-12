@@ -27,10 +27,10 @@ const normalizePosition = (value: unknown[]): [number, number] => {
   const x = Number(value[0] ?? 0);
   const y = Number(value[1] ?? 0);
 
-  return [
-    Number.isFinite(x) ? x : 0,
-    Number.isFinite(y) ? y : 0,
-  ] as [number, number];
+  return [Number.isFinite(x) ? x : 0, Number.isFinite(y) ? y : 0] as [
+    number,
+    number,
+  ];
 };
 
 const make = Effect.gen(function* () {

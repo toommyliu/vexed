@@ -75,7 +75,8 @@ const make = Effect.gen(function* () {
       packets,
       (packet): packet is ExtensionPacket => packet.type === "extension",
     ),
-    emit: (packet: ParsedPacket) => PubSub.publish(pubSub, packet).pipe(Effect.asVoid),
+    emit: (packet: ParsedPacket) =>
+      PubSub.publish(pubSub, packet).pipe(Effect.asVoid),
   } satisfies PacketRouterShape;
 });
 

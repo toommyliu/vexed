@@ -7,7 +7,7 @@ export interface IntervalOptions {
 
 export type IntervalFunction = (
   iteration: number,
-  stop: () => void
+  stop: () => void,
 ) => Promise<any>;
 
 export type IntervalLength = number | ((iteration: number) => number);
@@ -22,7 +22,7 @@ function isPromise<T = any>(val: any): val is Promise<T> {
 export async function interval(
   func: IntervalFunction,
   intervalLength: IntervalLength,
-  options: IntervalOptions = {}
+  options: IntervalOptions = {},
 ): Promise<void> {
   validateArgs(func, intervalLength, options);
 
@@ -82,8 +82,8 @@ export async function interval(
         clearAllTimeouts();
         reject(
           new Error(
-            'Function for "intervalLength" argument must return a non-negative integer.'
-          )
+            'Function for "intervalLength" argument must return a non-negative integer.',
+          ),
         );
         return;
       }
@@ -130,7 +130,7 @@ export async function interval(
 function validateArgs(
   func: IntervalFunction,
   intervalLength: IntervalLength,
-  options: IntervalOptions
+  options: IntervalOptions,
 ) {
   // Validate "func"
   if (typeof func !== "function") {
@@ -141,12 +141,12 @@ function validateArgs(
   if (typeof intervalLength === "number") {
     if (!Number.isInteger(intervalLength) || intervalLength < 0) {
       throw new TypeError(
-        'Argument 2, "intervalLength", must be a non-negative integer or a function that returns a non-negative integer.'
+        'Argument 2, "intervalLength", must be a non-negative integer or a function that returns a non-negative integer.',
       );
     }
   } else if (typeof intervalLength !== "function") {
     throw new TypeError(
-      'Argument 2, "intervalLength", must be a non-negative integer or a function that returns a non-negative integer.'
+      'Argument 2, "intervalLength", must be a non-negative integer or a function that returns a non-negative integer.',
     );
   }
 
@@ -171,7 +171,7 @@ function validateArgs(
     (!Number.isInteger(options.iterations) || options.iterations < 1)
   ) {
     throw new TypeError(
-      'Option "iterations" must be Infinity or an integer greater than 0.'
+      'Option "iterations" must be Infinity or an integer greater than 0.',
     );
   }
 

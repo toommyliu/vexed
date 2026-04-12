@@ -1,7 +1,7 @@
-import type { 
-  QuestInfo, 
+import type {
+  QuestInfo,
   QuestRequirement,
-  QuestReward as QuestRewardType 
+  QuestReward as QuestRewardType,
 } from "../types/QuestInfo";
 import type { ItemData } from "../types/ItemData";
 import type { QuestReward } from "../types/QuestInfo";
@@ -79,8 +79,6 @@ export class Quest {
     return this.data?.sField === "im0";
   }
 }
-
-
 
 /**
  * Represents the raw data structure for a quest reward.
@@ -175,5 +173,3 @@ export type QuestRequiredItem = {
    */
   quantity: number;
 };
-
-

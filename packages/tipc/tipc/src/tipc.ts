@@ -16,10 +16,9 @@ type ChainNode<TInput, TContext extends ActionContext = ActionContext> = {
   [key: string]: unknown;
 };
 
-const createChainFns = <
-  TInput,
-  TContext extends ActionContext = ActionContext,
->(meta: { requireSenderWindow?: boolean } = {}): ChainNode<TInput, TContext> => {
+const createChainFns = <TInput, TContext extends ActionContext = ActionContext>(
+  meta: { requireSenderWindow?: boolean } = {},
+): ChainNode<TInput, TContext> => {
   const node: ChainNode<TInput, TContext> = {
     input<NewInput>() {
       return createChainFns<NewInput, TContext>(meta);

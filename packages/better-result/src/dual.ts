@@ -21,7 +21,10 @@
 export function dual<
   DataLast extends (...args: Array<any>) => any,
   DataFirst extends (...args: Array<any>) => any,
->(arity: Parameters<DataFirst>["length"], body: DataFirst): DataLast & DataFirst {
+>(
+  arity: Parameters<DataFirst>["length"],
+  body: DataFirst,
+): DataLast & DataFirst {
   if (arity === 2) {
     return ((...args: Array<any>) => {
       if (args.length >= 2) {

@@ -8,13 +8,9 @@ import type {
 
 export type PacketHandlerDisposer = () => void;
 
-export type ClientPacketHandler = (
-  packet: ClientPacket,
-) => Effect.Effect<void>;
+export type ClientPacketHandler = (packet: ClientPacket) => Effect.Effect<void>;
 
-export type ServerPacketHandler = (
-  packet: ServerPacket,
-) => Effect.Effect<void>;
+export type ServerPacketHandler = (packet: ServerPacket) => Effect.Effect<void>;
 
 export type ExtensionPacketHandler = (
   packet: ExtensionPacket,

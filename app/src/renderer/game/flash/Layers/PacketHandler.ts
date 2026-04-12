@@ -117,34 +117,26 @@ const make = Effect.gen(function* () {
     Stream.runForEach(router.extensionPackets, dispatchExtension),
   );
 
-  const registerClient = (cmd: string, handler: ClientPacketHandler) => {
-    // console.log(`Registering client handler for ${cmd}`);
-    return registerMapHandler(clientHandlers, "client", cmd, handler);
-  };
+  const registerClient = (cmd: string, handler: ClientPacketHandler) =>
+    registerMapHandler(clientHandlers, "client", cmd, handler);
 
-  const registerServer = (cmd: string, handler: ServerPacketHandler) => {
-    // console.log(`Registering server handler for ${cmd}`);
-    return registerMapHandler(serverHandlers, "server", cmd, handler);
-  };
+  const registerServer = (cmd: string, handler: ServerPacketHandler) =>
+    registerMapHandler(serverHandlers, "server", cmd, handler);
 
-  const registerExtension = (cmd: string, handler: ExtensionPacketHandler) => {
-    console.log(`Registering extension handler for ${cmd}`);
-    return registerMapHandler(extensionHandlers, "extension", cmd, handler);
-  };
+  const registerExtension = (cmd: string, handler: ExtensionPacketHandler) =>
+    registerMapHandler(extensionHandlers, "extension", cmd, handler);
 
   const registerExtensionType = (
     packetType: ExtensionPacket["packetType"],
     cmd: string,
     handler: ExtensionPacketHandler,
-  ) => {
-    console.log(`Registering extension type handler for ${packetType}:${cmd}`);
-    return registerMapHandler(
+  ) =>
+    registerMapHandler(
       extensionTypeHandlers,
       `extension:${packetType}`,
       typedExtensionKey(packetType, cmd),
       handler,
     );
-  };
 
   return {
     registerClient,

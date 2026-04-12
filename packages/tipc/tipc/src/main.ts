@@ -41,22 +41,22 @@ export const registerIpcMain = (router: RouterType) => {
             },
           };
 
-        if ("event" in route) {
-          return route.event({
+          if ("event" in route) {
+            return route.event({
+              context,
+              input: payload,
+            });
+          }
+
+          if (route.__tipcMeta?.requireSenderWindow) {
+            if (!senderWindow || senderWindow.isDestroyed()) return;
+          }
+
+          return route.action({
             context,
             input: payload,
           });
-        }
-
-        if (route.__tipcMeta?.requireSenderWindow) {
-          if (!senderWindow || senderWindow.isDestroyed()) return;
-        }
-
-        return route.action({
-          context,
-          input: payload,
-        });
-      };
+        };
 
         if ("event" in route) {
           ipcMain.on(channel, (e, payload) => {

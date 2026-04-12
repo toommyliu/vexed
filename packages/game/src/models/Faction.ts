@@ -7,7 +7,7 @@ export class Faction {
   public constructor(
     /**
      * Data about this faction.
-     */ public data: FactionData
+     */ public data: FactionData,
   ) {}
 
   /**

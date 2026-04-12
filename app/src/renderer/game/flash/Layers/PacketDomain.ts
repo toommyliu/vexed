@@ -5,6 +5,8 @@ import {
   type ItemData,
   type MonsterData,
 } from "@vexed/game";
+import { equalsIgnoreCase } from "@vexed/shared/string";
+import { readCsvValue } from "@vexed/shared/csv";
 import { Effect, Layer, Option } from "effect";
 import type { PacketDomainShape } from "../Services/PacketDomain";
 import { PacketDomain } from "../Services/PacketDomain";
@@ -18,10 +20,6 @@ import { WorldState } from "../Services/WorldState";
 
 const AURA_ADD_COMMANDS = new Set(["aura+", "aura++"]);
 const AURA_REMOVE_COMMANDS = new Set(["aura-", "aura--"]);
-
-const normalize = (value: string) => value.toLowerCase();
-const equalsIgnoreCase = (left: string, right: string) =>
-  normalize(left) === normalize(right);
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
@@ -62,19 +60,6 @@ const asBoolean = (value: unknown): boolean | undefined => {
   }
 
   return undefined;
-};
-
-const readDelimitedValue = (
-  input: string,
-  prefix: string,
-): string | undefined => {
-  const part = input.split(",").find((segment) => segment.startsWith(prefix));
-
-  if (!part) {
-    return undefined;
-  }
-
-  return part.slice(prefix.length);
 };
 
 const isItemData = (value: unknown): value is ItemData => {
@@ -207,7 +192,6 @@ const make = Effect.gen(function* () {
 
   yield* registerJson("dropItem", (packet) =>
     Effect.gen(function* () {
-      yield* Effect.log("Received packet: dropItem", packet);
       const payload = asRecord(packet.data);
       if (!payload) {
         return;
@@ -218,12 +202,12 @@ const make = Effect.gen(function* () {
         return;
       }
 
-      for (const rawItem of Object.values(items)) {
-        if (!isItemData(rawItem)) {
+      for (const item of Object.values(items)) {
+        if (!isItemData(item)) {
           continue;
         }
 
-        yield* drops._addDrop(rawItem).pipe(Effect.catch(() => Effect.void));
+        yield* drops._addDrop(item).pipe(Effect.catch(() => Effect.void));
       }
     }),
   );
@@ -231,13 +215,11 @@ const make = Effect.gen(function* () {
   yield* registerJson("event", (_packet) =>
     Effect.gen(function* () {
       // TODO: handle event
-      // yield* Effect.log("Received packet: event", packet);
     }),
   );
 
   yield* registerJson("initUserData", (packet) =>
     Effect.gen(function* () {
-      // yield* Effect.log("Received packet: initUserData");
       const payload = asRecord(packet.data);
       const data = payload ? asRecord(payload["data"]) : null;
       const username = data ? asString(data["strUsername"]) : undefined;
@@ -247,13 +229,13 @@ const make = Effect.gen(function* () {
         return;
       }
 
+      console.log("initUserData", { username, uid });
       yield* worldState.registerPlayer(username, uid);
     }),
   );
 
   yield* registerJson("initUserDatas", (packet) =>
     Effect.gen(function* () {
-      // yield* Effect.log("Received packet: initUserDatas");
       const payload = asRecord(packet.data);
       if (!payload) {
         return;
@@ -274,9 +256,25 @@ const make = Effect.gen(function* () {
     }),
   );
 
+  yield* registerStr("exitArea", (packet) =>
+    Effect.gen(function* () {
+      const data = asArray(packet.data);
+      if (!data) {
+        return;
+      }
+
+      const username = asString(data[3]);
+      if (!username) {
+        return;
+      }
+
+      yield* worldState.unregisterPlayer(username);
+      yield* worldState.removePlayer(username);
+    }),
+  );
+
   yield* registerJson("moveToArea", (packet) =>
     Effect.gen(function* () {
-      yield* Effect.log("Received packet: moveToArea", packet);
       const payload = asRecord(packet.data);
       if (!payload) {
         return;
@@ -287,76 +285,55 @@ const make = Effect.gen(function* () {
       const currentUsername = yield* auth
         .getUsername()
         .pipe(Effect.orElseSucceed(() => ""));
-      console.log("currentUsername", currentUsername);
 
-      const monDefMap = new Map<
-        number,
-        { sRace: string; strMonName: string }
-      >();
-      for (const rawDef of asArray(payload["mondef"])) {
-        const def = asRecord(rawDef);
-        if (!def) {
-          continue;
-        }
+      const monDefs = new Map(
+        asArray(payload["mondef"]).flatMap((raw) => {
+          const def = asRecord(raw);
+          const monId = asNumber(def?.["MonID"]);
+          return monId !== undefined
+            ? [
+                [
+                  monId,
+                  {
+                    sRace: asString(def!["sRace"]) ?? "Unknown",
+                    strMonName: asString(def!["strMonName"]) ?? "Unknown",
+                  },
+                ],
+              ]
+            : [];
+        }),
+      );
 
-        const monId = asNumber(def["MonID"]);
-        const sRace = asString(def["sRace"]);
-        const strMonName = asString(def["strMonName"]);
-
-        if (monId === undefined || !sRace || !strMonName) {
-          continue;
-        }
-        monDefMap.set(monId, { sRace, strMonName });
-      }
-
-      const monMapMap = new Map<number, { strFrame: string }>();
-      for (const rawMonMap of asArray(payload["monmap"])) {
-        const monMap = asRecord(rawMonMap);
-        if (!monMap) {
-          continue;
-        }
-
-        const monMapId = asNumber(monMap["MonMapID"]);
-        const strFrame = asString(monMap["strFrame"]);
-
-        if (monMapId === undefined || !strFrame) {
-          continue;
-        }
-
-        monMapMap.set(monMapId, { strFrame });
-      }
+      const monMaps = new Map(
+        asArray(payload["monmap"]).flatMap((raw) => {
+          const map = asRecord(raw);
+          const monMapId = asNumber(map?.["MonMapID"]);
+          return monMapId !== undefined
+            ? [[monMapId, asString(map!["strFrame"]) ?? ""]]
+            : [];
+        }),
+      );
 
       for (const rawMonster of asArray(payload["monBranch"])) {
         const monster = asRecord(rawMonster);
-        if (!monster) {
-          continue;
-        }
+        const monId = asNumber(monster?.["MonID"]);
+        const monMapId = asNumber(monster?.["MonMapID"]);
+        if (monId === undefined || monMapId === undefined) continue;
 
-        const monId = asNumber(monster["MonID"]);
-        const monMapId = asNumber(monster["MonMapID"]);
-
-        if (monId === undefined || monMapId === undefined) {
-          continue;
-        }
-
-        const def = monDefMap.get(monId);
-        const mapInfo = monMapMap.get(monMapId);
-
+        const def = monDefs.get(monId);
         const monsterData: MonsterData = {
           monId,
           monMapId,
-          iLvl: asNumber(monster["iLvl"]) ?? 0,
-          intHP: asNumber(monster["intHP"]) ?? 0,
-          intHPMax: asNumber(monster["intHPMax"]) ?? 0,
-          intMP: asNumber(monster["intMP"]) ?? 0,
-          intMPMax: asNumber(monster["intMPMax"]) ?? 0,
-          intState: asNumber(monster["intState"]) ?? EntityState.Idle,
+          iLvl: asNumber(monster!["iLvl"]) ?? 0,
+          intHP: asNumber(monster!["intHP"]) ?? 0,
+          intHPMax: asNumber(monster!["intHPMax"]) ?? 0,
+          intMP: asNumber(monster!["intMP"]) ?? 0,
+          intMPMax: asNumber(monster!["intMPMax"]) ?? 0,
+          intState: asNumber(monster!["intState"]) ?? EntityState.Idle,
           sRace: def?.sRace ?? "Unknown",
           strMonName: def?.strMonName ?? "Unknown",
-          strFrame: mapInfo?.strFrame ?? "",
+          strFrame: monMaps.get(monMapId) ?? "",
         };
-
-        console.log("monsterData", monsterData);
         yield* worldState.addMonster(monsterData);
       }
 
@@ -392,14 +369,12 @@ const make = Effect.gen(function* () {
           uoName,
         };
 
-        console.log("avatar", avatar);
         yield* worldState.addPlayer(avatar);
 
         if (
           currentUsername !== "" &&
           equalsIgnoreCase(avatar.strUsername, currentUsername)
         ) {
-          console.log("me", avatar.strUsername);
           yield* worldState.setSelf(avatar.strUsername);
         }
       }
@@ -408,7 +383,6 @@ const make = Effect.gen(function* () {
 
   yield* registerJson("mtls", (packet) =>
     Effect.gen(function* () {
-      // yield* Effect.log("Received packet: mtls");
       const payload = asRecord(packet.data);
       if (!payload) {
         return;
@@ -442,7 +416,6 @@ const make = Effect.gen(function* () {
 
   yield* registerJson("uotls", (packet) =>
     Effect.gen(function* () {
-      // yield* Effect.log("Received packet: uotls (json)");
       const payload = asRecord(packet.data);
       if (!payload) {
         return;
@@ -469,7 +442,6 @@ const make = Effect.gen(function* () {
 
   yield* registerJson("addGoldExp", (packet) =>
     Effect.gen(function* () {
-      // yield* Effect.log("Received packet: addGoldExp");
       const payload = asRecord(packet.data);
       if (!payload || asString(payload["typ"]) !== "m") {
         return;
@@ -492,7 +464,6 @@ const make = Effect.gen(function* () {
 
   yield* registerJson("clearAuras", () =>
     Effect.gen(function* () {
-      // yield* Effect.log("Received packet: clearAuras");
       const me = yield* worldState.getSelf();
       if (Option.isNone(me)) {
         return;
@@ -504,7 +475,6 @@ const make = Effect.gen(function* () {
 
   yield* registerStr("respawnMon", (packet) =>
     Effect.gen(function* () {
-      // yield* Effect.log("Received packet: respawnMon");
       const payload = asArray(packet.data);
       const monMapId = asNumber(payload[2]);
       if (monMapId === undefined) {
@@ -521,7 +491,6 @@ const make = Effect.gen(function* () {
 
   yield* registerStr("uotls", (packet) =>
     Effect.gen(function* () {
-      // yield* Effect.log("Received packet: uotls (str)");
       const payload = asArray(packet.data);
       const username = asString(payload[2]);
       const data = asString(payload[3]);
@@ -538,7 +507,7 @@ const make = Effect.gen(function* () {
       const playerData = player.value.data;
 
       if (data.startsWith("afk:")) {
-        const afk = asBoolean(readDelimitedValue(data, "afk:"));
+        const afk = asBoolean(readCsvValue(data, "afk:"));
         if (afk !== undefined) {
           playerData.afk = afk;
         }
@@ -546,9 +515,9 @@ const make = Effect.gen(function* () {
       }
 
       if (data.startsWith("sp:")) {
-        const tx = asNumber(readDelimitedValue(data, "tx:"));
-        const ty = asNumber(readDelimitedValue(data, "ty:"));
-        const cell = readDelimitedValue(data, "strFrame:");
+        const tx = asNumber(readCsvValue(data, "tx:"));
+        const ty = asNumber(readCsvValue(data, "ty:"));
+        const cell = readCsvValue(data, "strFrame:");
 
         if (tx !== undefined) {
           playerData.tx = tx;
@@ -563,10 +532,10 @@ const make = Effect.gen(function* () {
       }
 
       if (data.startsWith("mvts:")) {
-        const tx = asNumber(readDelimitedValue(data, "px:"));
-        const ty = asNumber(readDelimitedValue(data, "py:"));
-        const cell = readDelimitedValue(data, "strFrame:");
-        const pad = readDelimitedValue(data, "strPad:");
+        const tx = asNumber(readCsvValue(data, "px:"));
+        const ty = asNumber(readCsvValue(data, "py:"));
+        const cell = readCsvValue(data, "strFrame:");
+        const pad = readCsvValue(data, "strPad:");
 
         if (cell !== undefined) {
           playerData.strFrame = cell;
@@ -587,7 +556,6 @@ const make = Effect.gen(function* () {
   yield* registerScoped(
     packetHandler.registerClient("moveToCell", (packet) =>
       Effect.gen(function* () {
-        // yield* Effect.log("Received packet: moveToCell", packet);
         yield* withSelf((me) => {
           const cell = packet.params[4];
           const pad = packet.params[5];
@@ -605,29 +573,24 @@ const make = Effect.gen(function* () {
 
   yield* registerScoped(
     packetHandler.registerClient("mv", (packet) =>
-      Effect.gen(function* () {
-        // yield* Effect.log("Received packet: mv");
-        yield* withSelf((me) => {
-          const tx = asNumber(packet.params[4]);
-          const ty = asNumber(packet.params[5]);
+      withSelf((me) => {
+        const tx = asNumber(packet.params[4]);
+        const ty = asNumber(packet.params[5]);
 
-          if (tx !== undefined) {
-            me.data.tx = tx;
-          }
+        if (tx !== undefined) {
+          me.data.tx = tx;
+        }
 
-          if (ty !== undefined) {
-            me.data.ty = ty;
-          }
-        });
+        if (ty !== undefined) {
+          me.data.ty = ty;
+        }
       }),
     ),
   );
 
-  // received
   yield* registerScoped(
     packetHandler.registerServer("ct", (packet) =>
       Effect.gen(function* () {
-        // yield* Effect.log("Received packet: ct", packet);
         const payload = asRecord(packet.data);
         if (!payload) {
           return;

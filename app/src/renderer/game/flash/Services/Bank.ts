@@ -11,7 +11,10 @@ export interface BankShape {
   getAvailableSlots(): BridgeEffect<number>;
   isOpen(): BridgeEffect<boolean>;
   open(force?: boolean): BridgeEffect<void>;
-  swap(invKey: ItemIdentifierToken, bankKey: ItemIdentifierToken): BridgeEffect<boolean>;
+  swap(
+    invKey: ItemIdentifierToken,
+    bankKey: ItemIdentifierToken,
+  ): BridgeEffect<boolean>;
   withdraw(key: ItemIdentifierToken): BridgeEffect<boolean>;
   withdrawMany(...items: ItemIdentifierToken[]): BridgeEffect<void>;
 }

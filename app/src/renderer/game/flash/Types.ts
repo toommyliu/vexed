@@ -6,4 +6,4 @@ export type LoginInfo = {
   iUpg: number;
   unm: string; // username
   sToken: string; // password
-}
+};

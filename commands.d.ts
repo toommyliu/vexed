@@ -1,4 +1,3 @@
-
 export interface KillOptions {
   /** An ascending list of monster names or monMapIDs to kill. This can also be a string of monsterResolvables deliminted by a comma. */
   killPriority: string[] | string;
@@ -51,11 +50,27 @@ declare const cmd: {
   /** Kills the target, but waits for all players in the group to finish before proceeding. */
   army_kill(targetName: string, options?: Partial<KillOptions>): void;
   /** Kills the target for a specified item, but waits for all players in the group to get the item before proceeding. */
-  army_kill_for(targetName: string, itemName: string, qty: number, isTemp: boolean, options?: Partial<KillOptions>): void;
+  army_kill_for(
+    targetName: string,
+    itemName: string,
+    qty: number,
+    isTemp: boolean,
+    options?: Partial<KillOptions>,
+  ): void;
   /** Kills the target for a specified permanent item, waiting for all players to get the item. */
-  army_kill_for_item(targetName: string, itemName: string, qty: number, options?: Partial<KillOptions>): void;
+  army_kill_for_item(
+    targetName: string,
+    itemName: string,
+    qty: number,
+    options?: Partial<KillOptions>,
+  ): void;
   /** Kills the target for a specified temporary item, waiting for all players to get the item. */
-  army_kill_for_tempitem(targetName: string, itemName: string, qty: number, options?: Partial<KillOptions>): void;
+  army_kill_for_tempitem(
+    targetName: string,
+    itemName: string,
+    qty: number,
+    options?: Partial<KillOptions>,
+  ): void;
   /** Sets the config file name. */
   army_set_config(fileName: string): void;
   /** Executes a function, but waits for the function (a.k.a for all players) to finish before proceeding. */
@@ -73,9 +88,19 @@ declare const cmd: {
   /** Kills the target. */
   kill(target: string, options?: Partial<KillOptions>): void;
   /** Kills the target for an inventory item, until the specified quantity is reached. */
-  kill_for_item(target: string, item: string | number, quantity: number, options?: Partial<KillOptions>): void;
+  kill_for_item(
+    target: string,
+    item: string | number,
+    quantity: number,
+    options?: Partial<KillOptions>,
+  ): void;
   /** Kills the target for a temporary item, until the specified quantity is reached. */
-  kill_for_tempitem(target: string, item: string | number, quantity: number, options?: Partial<KillOptions>): void;
+  kill_for_tempitem(
+    target: string,
+    item: string | number,
+    quantity: number,
+    options?: Partial<KillOptions>,
+  ): void;
   /** Rests the player. */
   rest(full?: boolean): void;
   /** Uses a skill. */
@@ -229,14 +254,26 @@ to be satisfied. */
   /** Whether the target's hp is less than the specified amount. */
   target_hp_less_than(hp: number): void;
   /** Buys an item from the shop. */
-  buy_item(shopId: number, item: string | number, quantity: number, auto?: boolean): void;
+  buy_item(
+    shopId: number,
+    item: string | number,
+    quantity: number,
+    auto?: boolean,
+  ): void;
   /** Puts an item into the bank. */
   deposit(item: string | number | (string | number)[]): void;
   /** Enhances an item with the specified enhancement. */
-  enhance_item(itemName: string, enhancementName: string, procName?: string): void;
+  enhance_item(
+    itemName: string,
+    enhancementName: string,
+    procName?: string,
+  ): void;
   equip_item(item: string): void;
   /** Equips an item using its enhancement name. */
-  equip_item_by_enhancement(enhancementName: string, procOrItemType?: string): void;
+  equip_item_by_enhancement(
+    enhancementName: string,
+    procOrItemType?: string,
+  ): void;
   get_map_item(item: string | number): void;
   /** Loads a shop. */
   load_shop(shopId: number): void;
@@ -343,9 +380,18 @@ to be satisfied. */
   log(msg: string): void;
   /** Logs out of the game. */
   logout(): void;
-  register_command(name: string, cmdFactory: (CommandClass: CommandConstructor) => CommandConstructor): void;
+  register_command(
+    name: string,
+    cmdFactory: (CommandClass: CommandConstructor) => CommandConstructor,
+  ): void;
   /** Registers a packet handler. */
-  register_handler(type: "packetFromClient" | "packetFromServer" | "pext", name: string, handler: ((packet: Record<string, unknown>) => void | Promise<void>) | ((packet: string) => void | Promise<void>)): void;
+  register_handler(
+    type: "packetFromClient" | "packetFromServer" | "pext",
+    name: string,
+    handler:
+      | ((packet: Record<string, unknown>) => void | Promise<void>)
+      | ((packet: string) => void | Promise<void>),
+  ): void;
   /** Registers a task (a.k.a background job) to be executed alongside commands.
 The task function is bound to an object containing the bot instance and the context instance. */
   register_task(name: string, taskFn: () => Promise<void>): void;
@@ -368,7 +414,10 @@ The task function is bound to an object containing the bot instance and the cont
   /** Stops the bot. */
   stop_bot(): void;
   unregister_command(name: string): void;
-  unregister_handler(type: "packetFromClient" | "packetFromServer" | "pext", name: string): void;
+  unregister_handler(
+    type: "packetFromClient" | "packetFromServer" | "pext",
+    name: string,
+  ): void;
   /** Unregisters a previously registered task. */
   unregister_task(name: string): void;
   /** Enables Auto Relogin with the current session's credentials. */
@@ -394,7 +443,10 @@ The task function is bound to an object containing the bot instance and the cont
   /** Completes a quest. */
   complete_quest(questId: number, itemId?: number): void;
   /** Registers one or more quests, which automatically handles accepting and completing them. */
-  register_quest(questIds: number | [number, number] | (number | [number, number])[], itemId?: number): void;
+  register_quest(
+    questIds: number | [number, number] | (number | [number, number])[],
+    itemId?: number,
+  ): void;
   /** Unregisters one or more quests. */
   unregister_quest(questIds: number | number[]): void;
 };

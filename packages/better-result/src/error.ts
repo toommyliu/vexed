@@ -13,7 +13,9 @@ type AnyTaggedError = Error & { readonly _tag: string };
 
 /** Type guard for any tagged error */
 const isAnyTaggedError = (value: unknown): value is AnyTaggedError => {
-  return value instanceof Error && "_tag" in value && typeof value._tag === "string";
+  return (
+    value instanceof Error && "_tag" in value && typeof value._tag === "string"
+  );
 };
 
 /**
@@ -36,12 +38,18 @@ const isAnyTaggedError = (value: unknown): value is AnyTaggedError => {
 export const TaggedError: {
   <Tag extends string>(
     tag: Tag,
-  ): <Props extends Record<string, unknown> = {}>() => TaggedErrorClass<Tag, Props>;
+  ): <Props extends Record<string, unknown> = {}>() => TaggedErrorClass<
+    Tag,
+    Props
+  >;
   /** Type guard for any TaggedError instance */
   is(value: unknown): value is AnyTaggedError;
 } = Object.assign(
   <Tag extends string>(tag: Tag) =>
-    <Props extends Record<string, unknown> = {}>(): TaggedErrorClass<Tag, Props> => {
+    <Props extends Record<string, unknown> = {}>(): TaggedErrorClass<
+      Tag,
+      Props
+    > => {
       class Base extends Error {
         readonly _tag: Tag = tag;
 
@@ -111,7 +119,9 @@ type MatchHandlers<E extends AnyTaggedError, R> = {
 };
 
 /** Partial handler map for non-exhaustive matching */
-type PartialMatchHandlers<E extends AnyTaggedError, R> = Partial<MatchHandlers<E, R>>;
+type PartialMatchHandlers<E extends AnyTaggedError, R> = Partial<
+  MatchHandlers<E, R>
+>;
 
 /** Extract handled tags from a handlers object */
 type HandledTags<E extends AnyTaggedError, H> = Extract<keyof H, E["_tag"]>;
@@ -135,11 +145,14 @@ type HandledTags<E extends AnyTaggedError, H> = Extract<keyof H, E["_tag"]>;
 export const matchError: {
   <E extends AnyTaggedError, R>(err: E, handlers: MatchHandlers<E, R>): R;
   <E extends AnyTaggedError, R>(handlers: MatchHandlers<E, R>): (err: E) => R;
-} = dual(2, <E extends AnyTaggedError, R>(err: E, handlers: MatchHandlers<E, R>): R => {
-  const handler = handlers[err._tag as E["_tag"]];
-  // SAFETY: handler exists if handlers satisfies MatchHandlers<E, R>
-  return handler(err as Extract<E, { _tag: (typeof err)["_tag"] }>);
-});
+} = dual(
+  2,
+  <E extends AnyTaggedError, R>(err: E, handlers: MatchHandlers<E, R>): R => {
+    const handler = handlers[err._tag as E["_tag"]];
+    // SAFETY: handler exists if handlers satisfies MatchHandlers<E, R>
+    return handler(err as Extract<E, { _tag: (typeof err)["_tag"] }>);
+  },
+);
 
 /**
  * Partial pattern match with fallback for unhandled tags.
@@ -236,7 +249,9 @@ export class Panic extends TaggedError("Panic")<{
  *   console.log("Invalid input:", result.error.value);
  * }
  */
-export class ResultDeserializationError extends TaggedError("ResultDeserializationError")<{
+export class ResultDeserializationError extends TaggedError(
+  "ResultDeserializationError",
+)<{
   message: string;
   value: unknown;
 }>() {

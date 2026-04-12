@@ -25,7 +25,8 @@ const make = Effect.gen(function* () {
     getTree: () => bridge.call("quests.getTree"),
     hasRequiredItemsForQuest: (questObj: Record<string, unknown>) =>
       bridge.call("quests.hasRequiredItemsForQuest", [questObj]),
-    isAvailable: (questId: number) => bridge.call("quests.isAvailable", [questId]),
+    isAvailable: (questId: number) =>
+      bridge.call("quests.isAvailable", [questId]),
     isInProgress: (questId: number) =>
       bridge.call("quests.isInProgress", [questId]),
     isOneTimeQuestDone: (questId: number) =>

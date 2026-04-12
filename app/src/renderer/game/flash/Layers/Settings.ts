@@ -22,7 +22,8 @@ const make = Effect.gen(function* () {
     setHidePlayers: (on: boolean) =>
       bridge.call("settings.setHidePlayers", [on]),
     setName: (name: string) => bridge.call("settings.setName", [name]),
-    setWalkSpeed: (speed: number) => bridge.call("settings.setWalkSpeed", [speed]),
+    setWalkSpeed: (speed: number) =>
+      bridge.call("settings.setWalkSpeed", [speed]),
     skipCutscenes: () => bridge.call("settings.skipCutscenes"),
   } satisfies SettingsShape;
 });

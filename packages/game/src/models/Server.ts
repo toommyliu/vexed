@@ -7,7 +7,7 @@ export class Server {
   public constructor(
     /**
      * Data about this server.
-     */ public data: ServerData
+     */ public data: ServerData,
   ) {}
 
   /**

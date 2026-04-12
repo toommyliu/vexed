@@ -120,11 +120,23 @@ const make = Effect.gen(function* () {
       state.playerEntityIds.set(normalize(username), entId);
     }).pipe(Effect.asVoid);
 
+  const unregisterPlayer: WorldStateShape["unregisterPlayer"] = (username) =>
+    mutate(stateRef, (state) => {
+      state.playerEntityIds.delete(normalize(username));
+    }).pipe(Effect.asVoid);
+
   const addPlayer: WorldStateShape["addPlayer"] = (data) =>
     mutate(stateRef, (state) => {
       const key = normalize(data.uoName || data.strUsername);
       state.players.set(key, new Avatar(data));
       state.playerEntityIds.set(key, data.entID);
+    }).pipe(Effect.asVoid);
+
+  const removePlayer: WorldStateShape["removePlayer"] = (username) =>
+    mutate(stateRef, (state) => {
+      const key = normalize(username);
+      state.players.delete(key);
+      state.playerEntityIds.delete(key);
     }).pipe(Effect.asVoid);
 
   const setSelf: WorldStateShape["setSelf"] = (username) =>
@@ -207,13 +219,14 @@ const make = Effect.gen(function* () {
       cache.get(targetId)?.delete(auraName);
     }).pipe(Effect.asVoid);
 
-  const debug: WorldStateShape["debug"] = () =>
-    SynchronizedRef.get(stateRef);
+  const debug: WorldStateShape["debug"] = () => SynchronizedRef.get(stateRef);
 
   return {
     reset,
     registerPlayer,
+    unregisterPlayer,
     addPlayer,
+    removePlayer,
     setSelf,
     getSelf,
     getPlayer,

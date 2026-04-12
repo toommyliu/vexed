@@ -23,7 +23,9 @@ export function setNumberFieldContext(ctx: NumberFieldContext): void {
 export function getNumberFieldContext(): NumberFieldContext {
   const ctx = getContext<NumberFieldContext>(KEY);
   if (!ctx) {
-    throw new Error("NumberField sub-components must be used inside <NumberField.Root>");
+    throw new Error(
+      "NumberField sub-components must be used inside <NumberField.Root>",
+    );
   }
   return ctx;
 }

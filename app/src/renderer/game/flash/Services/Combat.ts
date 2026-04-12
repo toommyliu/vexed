@@ -9,7 +9,11 @@ export interface CombatShape {
   getSkillCooldownRemaining(index: number | string): BridgeEffect<number>;
   getTarget(): BridgeEffect<Record<string, unknown>>;
   hasTarget(): BridgeEffect<boolean>;
-  useSkill(index: number | string, force?: boolean, wait?: boolean): BridgeEffect<void>;
+  useSkill(
+    index: number | string,
+    force?: boolean,
+    wait?: boolean,
+  ): BridgeEffect<void>;
 }
 
 export class Combat extends ServiceMap.Service<Combat, CombatShape>()(

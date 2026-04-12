@@ -15,14 +15,16 @@ const make = Effect.gen(function* () {
       quantity === undefined
         ? bridge.call("shops.buyByName", [name])
         : bridge.call("shops.buyByName", [name, quantity]),
-    canBuyItem: (itemName: string) => bridge.call("shops.canBuyItem", [itemName]),
+    canBuyItem: (itemName: string) =>
+      bridge.call("shops.canBuyItem", [itemName]),
     getInfo: () => bridge.call("shops.getInfo"),
     getItem: (key: unknown) => bridge.call("shops.getItem", [key]),
     getItems: () => bridge.call("shops.getItems"),
     isMergeShop: () => bridge.call("shops.isMergeShop"),
     load: (shopId: number) => bridge.call("shops.load", [shopId]),
     loadArmorCustomize: () => bridge.call("shops.loadArmorCustomize"),
-    loadHairShop: (shopId: number) => bridge.call("shops.loadHairShop", [shopId]),
+    loadHairShop: (shopId: number) =>
+      bridge.call("shops.loadHairShop", [shopId]),
     sellById: (id: unknown, quantity?: number) =>
       quantity === undefined
         ? bridge.call("shops.sellById", [id])

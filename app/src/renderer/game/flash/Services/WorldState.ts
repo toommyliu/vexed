@@ -1,12 +1,21 @@
-import type { Aura, Avatar, AvatarData, Monster, MonsterData } from "@vexed/game";
+import type {
+  Aura,
+  Avatar,
+  AvatarData,
+  Monster,
+  MonsterData,
+} from "@vexed/game";
 import { ServiceMap } from "effect";
 import type { Effect, Option } from "effect";
 
 export interface WorldStateShape {
   reset(): Effect.Effect<void>;
-
+  // Player id
   registerPlayer(username: string, entId: number): Effect.Effect<void>;
+  unregisterPlayer(username: string): Effect.Effect<void>;
+  // Player data
   addPlayer(data: AvatarData): Effect.Effect<void>;
+  removePlayer(username: string): Effect.Effect<void>;
   setSelf(username: string): Effect.Effect<void>;
   getSelf(): Effect.Effect<Option.Option<Avatar>>;
   getPlayer(username: string): Effect.Effect<Option.Option<Avatar>>;
@@ -32,6 +41,7 @@ export interface WorldStateShape {
   debug(): Effect.Effect<unknown>;
 }
 
-export class WorldState extends ServiceMap.Service<WorldState, WorldStateShape>()(
-  "flash/Services/WorldState",
-) {}
+export class WorldState extends ServiceMap.Service<
+  WorldState,
+  WorldStateShape
+>()("flash/Services/WorldState") {}

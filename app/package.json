@@ -33,6 +33,8 @@
   "dependencies": {
     "@vexed/collection": "workspace:*",
     "@vexed/game": "workspace:*",
+    "@vexed/utils": "workspace:*",
+    "@vexed/shared": "workspace:*",
     "core-js": "^3.49.0",
     "effect": "workspace:*",
     "lodash.merge": "^4.6.2",
