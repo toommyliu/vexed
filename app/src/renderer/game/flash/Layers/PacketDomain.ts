@@ -8,7 +8,12 @@ import {
 import { equalsIgnoreCase } from "@vexed/shared/string";
 import { readCsvValue } from "@vexed/shared/csv";
 import { Effect, Layer, Option } from "effect";
-import type { PacketDomainShape } from "../Services/PacketDomain";
+import type {
+  PacketDomainEvent,
+  PacketDomainEventHandler,
+  PacketDomainEventMap,
+  PacketDomainShape,
+} from "../Services/PacketDomain";
 import { PacketDomain } from "../Services/PacketDomain";
 import { Auth } from "../Services/Auth";
 import { Drops } from "../Services/Drops";
@@ -134,11 +139,69 @@ const patchAvatarData = (
 const registerScoped = (registration: Effect.Effect<PacketHandlerDisposer>) =>
   Effect.acquireRelease(registration, (dispose) => Effect.sync(dispose));
 
+type DomainHandlerStore = {
+  [K in PacketDomainEvent]: Set<PacketDomainEventHandler<K>>;
+};
+
+const createDomainHandlerStore = (): DomainHandlerStore => ({
+  monsterDeath: new Set(),
+});
+
+const registerDomainHandler = <E extends PacketDomainEvent>(
+  store: DomainHandlerStore,
+  event: E,
+  handler: PacketDomainEventHandler<E>,
+): Effect.Effect<PacketHandlerDisposer> =>
+  Effect.sync(() => {
+    const handlers = store[event] as Set<PacketDomainEventHandler<E>>;
+    handlers.add(handler);
+
+    return () => {
+      handlers.delete(handler);
+    };
+  });
+
+const dispatchDomainEvent = <E extends PacketDomainEvent>(
+  store: DomainHandlerStore,
+  event: E,
+  payload: PacketDomainEventMap[E],
+): Effect.Effect<void> => {
+  const handlers = Array.from(
+    store[event],
+  ) as readonly PacketDomainEventHandler<E>[];
+
+  if (handlers.length === 0) {
+    return Effect.void;
+  }
+
+  return Effect.forEach(
+    handlers,
+    (handler, handlerIndex) =>
+      handler(payload).pipe(
+        Effect.catchCause((cause) =>
+          Effect.logError({
+            message: "packet domain callback failed",
+            event,
+            handlerIndex,
+            cause,
+          }),
+        ),
+      ),
+    { discard: true },
+  );
+};
+
 const make = Effect.gen(function* () {
   const auth = yield* Auth;
   const drops = yield* Drops;
   const packetHandler = yield* PacketHandler;
   const worldState = yield* WorldState;
+  const domainHandlerStore = createDomainHandlerStore();
+
+  const on = <E extends PacketDomainEvent>(
+    event: E,
+    handler: PacketDomainEventHandler<E>,
+  ) => registerDomainHandler(domainHandlerStore, event, handler);
 
   const withMonster = (
     monMapId: number,
@@ -459,6 +522,11 @@ const make = Effect.gen(function* () {
       });
 
       yield* worldState.clearMonsterAuras(monMapId);
+
+      yield* dispatchDomainEvent(domainHandlerStore, "monsterDeath", {
+        monMapId,
+        packet,
+      });
     }),
   );
 
@@ -737,6 +805,7 @@ const make = Effect.gen(function* () {
 
   return {
     started: true,
+    on,
   } satisfies PacketDomainShape;
 });
 

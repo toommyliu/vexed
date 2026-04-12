@@ -14,57 +14,75 @@ import {
 } from "../Services/PacketHandler";
 import { PacketRouter } from "../Services/PacketRouter";
 
+type Handler<A> = (packet: A) => Effect.Effect<void>;
+
+type HandlerMap<A> = Map<string, Set<Handler<A>>>;
+
 const registerMapHandler = <A>(
-  handlers: Map<string, (packet: A) => Effect.Effect<void>>,
-  channel: string,
+  handlers: HandlerMap<A>,
   cmd: string,
-  handler: (packet: A) => Effect.Effect<void>,
+  handler: Handler<A>,
 ): Effect.Effect<PacketHandlerDisposer> =>
   Effect.sync(() => {
-    if (handlers.has(cmd)) {
-      console.warn(
-        `[flash.packet-handler] overriding handler for ${channel}:${cmd}`,
-      );
-    }
-
-    handlers.set(cmd, handler);
+    const registered = handlers.get(cmd) ?? new Set<Handler<A>>();
+    registered.add(handler);
+    handlers.set(cmd, registered);
 
     return () => {
-      if (handlers.get(cmd) === handler) {
+      const current = handlers.get(cmd);
+      if (!current) {
+        return;
+      }
+
+      current.delete(handler);
+      if (current.size === 0) {
         handlers.delete(cmd);
       }
     };
   });
 
-const runHandler = <A>(
+const runHandlers = <A>(
   channel: string,
   cmd: string,
   packet: A,
-  handler?: (packet: A) => Effect.Effect<void>,
+  handlers: Iterable<Handler<A>> | undefined,
 ): Effect.Effect<void> => {
-  if (!handler) {
+  if (!handlers) {
     return Effect.void;
   }
 
-  return handler(packet).pipe(
-    Effect.catchCause((cause) =>
-      Effect.logError({
-        message: "packet handler failed",
-        channel,
-        cmd,
-        cause,
-      }),
-    ),
+  const snapshot = Array.from(handlers);
+  if (snapshot.length === 0) {
+    return Effect.void;
+  }
+
+  return Effect.forEach(
+    snapshot,
+    (handler, handlerIndex) =>
+      handler(packet).pipe(
+        Effect.catchCause((cause) =>
+          Effect.logError({
+            message: "packet handler failed",
+            channel,
+            cmd,
+            handlerIndex,
+            cause,
+          }),
+        ),
+      ),
+    {
+      discard: true,
+    },
   );
 };
 
 const make = Effect.gen(function* () {
   const router = yield* PacketRouter;
 
-  const clientHandlers = new Map<string, ClientPacketHandler>();
-  const serverHandlers = new Map<string, ServerPacketHandler>();
-  const extensionHandlers = new Map<string, ExtensionPacketHandler>();
-  const extensionTypeHandlers = new Map<string, ExtensionPacketHandler>();
+  const clientHandlers = new Map<string, Set<ClientPacketHandler>>();
+  const serverHandlers = new Map<string, Set<ServerPacketHandler>>();
+  const extensionHandlers = new Map<string, Set<ExtensionPacketHandler>>();
+  const extensionTypeHandlers = new Map<string, Set<ExtensionPacketHandler>>();
 
   const typedExtensionKey = (
     packetType: ExtensionPacket["packetType"],
@@ -72,38 +90,39 @@ const make = Effect.gen(function* () {
   ) => `${packetType}:${cmd}`;
 
   const dispatchClient = (packet: ClientPacket) =>
-    runHandler("client", packet.cmd, packet, clientHandlers.get(packet.cmd));
+    runHandlers("client", packet.cmd, packet, clientHandlers.get(packet.cmd));
 
   const dispatchServer = (packet: ServerPacket) =>
-    runHandler("server", packet.cmd, packet, serverHandlers.get(packet.cmd));
+    runHandlers("server", packet.cmd, packet, serverHandlers.get(packet.cmd));
 
   const dispatchExtension = (packet: ExtensionPacket) => {
-    const sharedHandler = extensionHandlers.get(packet.cmd);
-    const typedHandler = extensionTypeHandlers.get(
+    const sharedHandlers = extensionHandlers.get(packet.cmd);
+    const typedHandlers = extensionTypeHandlers.get(
       typedExtensionKey(packet.packetType, packet.cmd),
     );
 
-    if (!sharedHandler && !typedHandler) {
+    if (!sharedHandlers && !typedHandlers) {
       return Effect.void;
     }
 
-    if (sharedHandler && typedHandler && sharedHandler === typedHandler) {
-      return runHandler("extension", packet.cmd, packet, sharedHandler);
+    const handlers = new Set<ExtensionPacketHandler>();
+    if (sharedHandlers) {
+      for (const handler of sharedHandlers) {
+        handlers.add(handler);
+      }
     }
 
-    return Effect.all(
-      [
-        runHandler("extension", packet.cmd, packet, sharedHandler),
-        runHandler(
-          `extension:${packet.packetType}`,
-          packet.cmd,
-          packet,
-          typedHandler,
-        ),
-      ],
-      {
-        discard: true,
-      },
+    if (typedHandlers) {
+      for (const handler of typedHandlers) {
+        handlers.add(handler);
+      }
+    }
+
+    return runHandlers(
+      `extension:${packet.packetType}`,
+      packet.cmd,
+      packet,
+      handlers,
     );
   };
 
@@ -118,13 +137,13 @@ const make = Effect.gen(function* () {
   );
 
   const registerClient = (cmd: string, handler: ClientPacketHandler) =>
-    registerMapHandler(clientHandlers, "client", cmd, handler);
+    registerMapHandler(clientHandlers, cmd, handler);
 
   const registerServer = (cmd: string, handler: ServerPacketHandler) =>
-    registerMapHandler(serverHandlers, "server", cmd, handler);
+    registerMapHandler(serverHandlers, cmd, handler);
 
   const registerExtension = (cmd: string, handler: ExtensionPacketHandler) =>
-    registerMapHandler(extensionHandlers, "extension", cmd, handler);
+    registerMapHandler(extensionHandlers, cmd, handler);
 
   const registerExtensionType = (
     packetType: ExtensionPacket["packetType"],
@@ -133,7 +152,6 @@ const make = Effect.gen(function* () {
   ) =>
     registerMapHandler(
       extensionTypeHandlers,
-      `extension:${packetType}`,
       typedExtensionKey(packetType, cmd),
       handler,
     );

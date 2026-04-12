@@ -3,6 +3,7 @@ import { createSignal } from "solid-js";
 import { runtime } from "./flash/runtime";
 import { WorldState } from "./flash/Services/WorldState";
 import { Drops } from "./flash/Services/Drops";
+import { PacketDomain } from "./flash/Services/PacketDomain";
 
 export default function App() {
   const [count, setCount] = createSignal(0);
@@ -56,6 +57,25 @@ export default function App() {
       });
   };
 
+  const setupMonsterDeath = () => {
+    void runtime
+      .runPromise(
+        Effect.gen(function* () {
+          const packetDomain = yield* PacketDomain;
+          yield* packetDomain.on(
+            "monsterDeath",
+            ({ monMapId, packet }) =>
+              Effect.sync(() => {
+                console.log("monster died:", monMapId, packet);
+              }),
+          );
+        }),
+      )
+      .catch((error) => {
+        console.error("Setup error:", error);
+      });
+  };
+
   return (
     <div
       style={{
@@ -88,6 +108,7 @@ export default function App() {
         <button onClick={testBridge}>test bridge</button>
         <button onClick={inspectWorldState}>inspect world state</button>
         <button onClick={inspectDrops}>inspect drops</button>
+        <button onClick={setupMonsterDeath}>setup monster death</button>
       </div>
     </div>
   );
