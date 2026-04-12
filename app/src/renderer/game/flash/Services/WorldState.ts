@@ -23,6 +23,10 @@ export interface WorldStateShape {
 
   addMonster(data: MonsterData): Effect.Effect<void>;
   getMonster(monMapId: number): Effect.Effect<Option.Option<Monster>>;
+  findMonsterByName(
+    name: string,
+    cell?: string,
+  ): Effect.Effect<Option.Option<Monster>>;
 
   clearAllAuras(): Effect.Effect<void>;
   clearPlayerAuras(entId: number): Effect.Effect<void>;

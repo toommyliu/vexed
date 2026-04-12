@@ -1,12 +1,14 @@
-import { Effect, Option } from "effect";
-import { createSignal } from "solid-js";
+import { Effect, Fiber, Option } from "effect";
+import { createSignal, onCleanup } from "solid-js";
 import { runtime } from "./flash/runtime";
-import { WorldState } from "./flash/Services/WorldState";
 import { Drops } from "./flash/Services/Drops";
-import { PacketDomain } from "./flash/Services/PacketDomain";
+import { Combat } from "./flash/Services/Combat";
+import { WorldState } from "./flash/Services/WorldState";
 
 export default function App() {
   const [count, setCount] = createSignal(0);
+  const [targetName, setTargetName] = createSignal("");
+  let activeKillFiber: Fiber.Fiber<void, unknown> | undefined;
 
   const testBridge = () => {
     void runtime
@@ -57,24 +59,52 @@ export default function App() {
       });
   };
 
-  const setupMonsterDeath = () => {
-    void runtime
-      .runPromise(
-        Effect.gen(function* () {
-          const packetDomain = yield* PacketDomain;
-          yield* packetDomain.on(
-            "monsterDeath",
-            ({ monMapId, packet }) =>
-              Effect.sync(() => {
-                console.log("monster died:", monMapId, packet);
-              }),
-          );
-        }),
-      )
-      .catch((error) => {
-        console.error("Setup error:", error);
-      });
+  const stopKillTarget = () => {
+    const fiber = activeKillFiber;
+    activeKillFiber = undefined;
+
+    if (!fiber) {
+      return;
+    }
+
+    void runtime.runPromise(Fiber.interrupt(fiber)).catch((error) => {
+      console.error("Interrupt kill error:", error);
+    });
   };
+
+  const killTarget = () => {
+    const target = targetName().trim();
+    if (target === "") {
+      return;
+    }
+
+    stopKillTarget();
+
+    const fiber = runtime.runFork(
+      Effect.gen(function* () {
+        const combat = yield* Combat;
+        yield* combat.kill(target);
+      }).pipe(
+        Effect.catch((error) =>
+          Effect.sync(() => {
+            console.error("Kill error:", error);
+          }),
+        ),
+      ),
+    );
+
+    activeKillFiber = fiber;
+
+    void runtime.runPromise(Fiber.await(fiber)).finally(() => {
+      if (activeKillFiber === fiber) {
+        activeKillFiber = undefined;
+      }
+    });
+  };
+
+  onCleanup(() => {
+    stopKillTarget();
+  });
 
   return (
     <div
@@ -108,7 +138,45 @@ export default function App() {
         <button onClick={testBridge}>test bridge</button>
         <button onClick={inspectWorldState}>inspect world state</button>
         <button onClick={inspectDrops}>inspect drops</button>
-        <button onClick={setupMonsterDeath}>setup monster death</button>
+        <input
+          type="text"
+          value={targetName()}
+          onInput={(e) => setTargetName(e.currentTarget.value)}
+          placeholder="Target name or id:123"
+          style={{
+            padding: "5px",
+            "border-radius": "4px",
+            border: "1px solid #ccc",
+            background: "white",
+            color: "black",
+          }}
+        />
+        <button
+          onClick={killTarget}
+          style={{
+            padding: "5px 10px",
+            cursor: "pointer",
+            background: "#dc2626",
+            border: "none",
+            color: "white",
+            "border-radius": "4px",
+          }}
+        >
+          kill
+        </button>
+        <button
+          onClick={stopKillTarget}
+          style={{
+            padding: "5px 10px",
+            cursor: "pointer",
+            background: "#f59e0b",
+            border: "none",
+            color: "white",
+            "border-radius": "4px",
+          }}
+        >
+          disrupt kill
+        </button>
       </div>
     </div>
   );

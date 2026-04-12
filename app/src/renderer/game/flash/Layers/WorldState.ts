@@ -179,6 +179,32 @@ const make = Effect.gen(function* () {
       return monster ? Option.some(monster) : Option.none();
     });
 
+  const findMonsterByName: WorldStateShape["findMonsterByName"] = (
+    name,
+    cell,
+  ) =>
+    mutate(stateRef, (state) => {
+      const normalizedName = normalize(name);
+      const normalizedCell = cell ? normalize(cell) : undefined;
+
+      const monster = state.monsters.find((candidate) => {
+        if (!candidate.alive) {
+          return false;
+        }
+
+        if (
+          normalizedCell !== undefined &&
+          normalize(candidate.cell) !== normalizedCell
+        ) {
+          return false;
+        }
+
+        return normalize(candidate.name).includes(normalizedName);
+      });
+
+      return monster ? Option.some(monster) : Option.none();
+    });
+
   const clearAllAuras: WorldStateShape["clearAllAuras"] = () =>
     mutate(stateRef, (state) => {
       state.playerAuras.clear();
@@ -233,6 +259,7 @@ const make = Effect.gen(function* () {
     getPlayerByName,
     addMonster,
     getMonster,
+    findMonsterByName,
     clearAllAuras,
     clearPlayerAuras,
     clearMonsterAuras,

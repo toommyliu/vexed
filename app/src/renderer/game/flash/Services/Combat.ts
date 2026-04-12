@@ -9,6 +9,7 @@ export interface CombatShape {
   getSkillCooldownRemaining(index: number | string): BridgeEffect<number>;
   getTarget(): BridgeEffect<Record<string, unknown>>;
   hasTarget(): BridgeEffect<boolean>;
+  kill(target: MonsterIdentifierToken): BridgeEffect<void>;
   useSkill(
     index: number | string,
     force?: boolean,
