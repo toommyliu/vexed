@@ -226,8 +226,8 @@ const make = Effect.gen(function* () {
     monMapId: number,
     f: (monster: { data: MonsterData }) => void,
   ) =>
-    world
-      .getMonster(monMapId)
+    world.monsters
+      .get(monMapId)
       .pipe(
         Effect.flatMap((monster) =>
           Option.isSome(monster)
@@ -240,8 +240,8 @@ const make = Effect.gen(function* () {
     name: string,
     f: (player: { data: AvatarData }) => void,
   ) =>
-    world
-      .getPlayerByName(name)
+    world.players
+      .getByName(name)
       .pipe(
         Effect.flatMap((player) =>
           Option.isSome(player)
@@ -251,7 +251,7 @@ const make = Effect.gen(function* () {
       );
 
   const withSelf = (f: (player: { data: AvatarData }) => void) =>
-    world
+    world.players
       .getSelf()
       .pipe(
         Effect.flatMap((player) =>
@@ -306,7 +306,7 @@ const make = Effect.gen(function* () {
         return;
       }
       const zone = asString(args["zoneSet"]) ?? "";
-      const map = yield* world.getName();
+      const map = yield* world.map.getName();
 
       yield* dispatchDomainEvent(domainHandlerStore, "zone", {
         map,
@@ -327,7 +327,7 @@ const make = Effect.gen(function* () {
         return;
       }
 
-      yield* world.registerPlayer(username, uid);
+      yield* world.players.register(username, uid);
     }),
   );
 
@@ -348,7 +348,7 @@ const make = Effect.gen(function* () {
           continue;
         }
 
-        yield* world.registerPlayer(username, uid);
+        yield* world.players.register(username, uid);
       }
     }),
   );
@@ -365,8 +365,8 @@ const make = Effect.gen(function* () {
         return;
       }
 
-      yield* world.unregisterPlayer(username);
-      yield* world.removePlayer(username);
+      yield* world.players.unregister(username);
+      yield* world.players.remove(username);
     }),
   );
 
@@ -377,7 +377,7 @@ const make = Effect.gen(function* () {
         return;
       }
 
-      yield* world._reset();
+      yield* world.map.reset();
 
       // Map Info
 
@@ -390,16 +390,16 @@ const make = Effect.gen(function* () {
         const roomNumber = asNumber(roomNumberStr);
 
         if (mapName) {
-          yield* world._setName(mapName);
+          yield* world.map.setName(mapName);
         }
 
         if (roomNumber !== undefined) {
-          yield* world._setRoomNumber(roomNumber);
+          yield* world.map.setRoomNumber(roomNumber);
         }
       }
 
       if (mapId !== undefined) {
-        yield* world._setId(mapId);
+        yield* world.map.setId(mapId);
       }
 
       // Monster info
@@ -452,7 +452,7 @@ const make = Effect.gen(function* () {
           strMonName: def?.strMonName ?? "Unknown",
           strFrame: monMaps.get(monMapId) ?? "",
         };
-        yield* world.addMonster(monsterData);
+        yield* world.monsters.add(monsterData);
       }
 
       // Player info
@@ -493,13 +493,13 @@ const make = Effect.gen(function* () {
           uoName,
         };
 
-        yield* world.addPlayer(avatar);
+        yield* world.players.add(avatar);
 
         if (
           currentUsername !== "" &&
           equalsIgnoreCase(avatar.strUsername, currentUsername)
         ) {
-          yield* world.setSelf(avatar.strUsername);
+          yield* world.players.setSelf(avatar.strUsername);
         }
       }
     }),
@@ -551,11 +551,11 @@ const make = Effect.gen(function* () {
         return;
       }
 
-      const existing = yield* world.getPlayer(username);
+      const existing = yield* world.players.get(username);
       if (Option.isNone(existing)) {
         const avatar = toAvatarData(username, userPayload);
         if (avatar) {
-          yield* world.addPlayer(avatar);
+          yield* world.players.add(avatar);
         }
         return;
       }
@@ -582,7 +582,7 @@ const make = Effect.gen(function* () {
         monster.data.intMP = 0;
       });
 
-      yield* world.clearMonsterAuras(monMapId);
+      yield* world.monsters.clearAuras(monMapId);
 
       yield* dispatchDomainEvent(domainHandlerStore, "monsterDeath", {
         monMapId,
@@ -593,12 +593,12 @@ const make = Effect.gen(function* () {
 
   yield* registerJson("clearAuras", () =>
     Effect.gen(function* () {
-      const me = yield* world.getSelf();
+      const me = yield* world.players.getSelf();
       if (Option.isNone(me)) {
         return;
       }
 
-      yield* world.clearPlayerAuras(me.value.data.entID);
+      yield* world.players.clearAuras(me.value.data.entID);
     }),
   );
 
@@ -628,7 +628,7 @@ const make = Effect.gen(function* () {
         return;
       }
 
-      const player = yield* world.getPlayerByName(username);
+      const player = yield* world.players.getByName(username);
       if (Option.isNone(player)) {
         return;
       }
@@ -760,7 +760,7 @@ const make = Effect.gen(function* () {
             });
 
             if (deadPlayerEntityId !== undefined) {
-              yield* world.clearPlayerAuras(deadPlayerEntityId);
+              yield* world.players.clearAuras(deadPlayerEntityId);
             }
           }
         }
@@ -810,10 +810,18 @@ const make = Effect.gen(function* () {
               }
 
               const isNew = auraPayload["isNew"] === true;
-              if (isNew) {
-                yield* world.addAura(targetType, targetId, aura);
+              if (targetType === "p") {
+                if (isNew) {
+                  yield* world.players.addAura(targetId, aura);
+                } else {
+                  yield* world.players.updateAura(targetId, aura);
+                }
               } else {
-                yield* world.updateAura(targetType, targetId, aura);
+                if (isNew) {
+                  yield* world.monsters.addAura(targetId, aura);
+                } else {
+                  yield* world.monsters.updateAura(targetId, aura);
+                }
               }
             }
             continue;
@@ -826,7 +834,11 @@ const make = Effect.gen(function* () {
               continue;
             }
 
-            yield* world.removeAura(targetType, targetId, auraName);
+            if (targetType === "p") {
+              yield* world.players.removeAura(targetId, auraName);
+            } else {
+              yield* world.monsters.removeAura(targetId, auraName);
+            }
           }
         }
 

@@ -38,14 +38,15 @@ const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
   const world = yield* World;
 
-  const getCell = () => Effect.gen(function*(){
-    const me = yield* world.getSelf();
-    if (!Option.isSome(me)) {
-      return yield* Effect.succeed("");
-    }
+  const getCell = () =>
+    Effect.gen(function* () {
+      const me = yield* world.players.getSelf();
+      if (!Option.isSome(me)) {
+        return yield* Effect.succeed("");
+      }
 
-    return yield* Effect.succeed(me.value.cell);
-  })
+      return yield* Effect.succeed(me.value.cell);
+    });
 
   const getClassName = () => bridge.call("player.getClassName");
 
@@ -60,57 +61,62 @@ const make = Effect.gen(function* () {
 
   const getGold = () => bridge.call("player.getGold");
 
-  const getHp = () => Effect.gen(function* () {
-    const me = yield* world.getSelf();
-    if (!Option.isSome(me)) {
-      return yield* Effect.succeed(0);
-    }
+  const getHp = () =>
+    Effect.gen(function* () {
+      const me = yield* world.players.getSelf();
+      if (!Option.isSome(me)) {
+        return yield* Effect.succeed(0);
+      }
 
-    return yield* Effect.succeed(me.value.hp);
-  });
+      return yield* Effect.succeed(me.value.hp);
+    });
 
   const getLevel = () => bridge.call("player.getLevel");
 
-  const getMaxHp = () => Effect.gen(function* () {
-    const me = yield* world.getSelf();
-    if (!Option.isSome(me)) {
-      return yield* Effect.succeed(0);
-    }
+  const getMaxHp = () =>
+    Effect.gen(function* () {
+      const me = yield* world.players.getSelf();
+      if (!Option.isSome(me)) {
+        return yield* Effect.succeed(0);
+      }
 
-    return yield* Effect.succeed(me.value.maxHp);
-  });
+      return yield* Effect.succeed(me.value.maxHp);
+    });
 
-  const getMaxMp = () => Effect.gen(function* () {
-    const me = yield* world.getSelf();
-    if (!Option.isSome(me)) {
-      return yield* Effect.succeed(0);
-    }
+  const getMaxMp = () =>
+    Effect.gen(function* () {
+      const me = yield* world.players.getSelf();
+      if (!Option.isSome(me)) {
+        return yield* Effect.succeed(0);
+      }
 
-    return yield* Effect.succeed(me.value.maxMp);
-  });
+      return yield* Effect.succeed(me.value.maxMp);
+    });
 
-  const getMp = () => Effect.gen(function* () {
-    const me = yield* world.getSelf();
-    if (!Option.isSome(me)) {
-      return yield* Effect.succeed(0);
-    }
+  const getMp = () =>
+    Effect.gen(function* () {
+      const me = yield* world.players.getSelf();
+      if (!Option.isSome(me)) {
+        return yield* Effect.succeed(0);
+      }
 
-    return yield* Effect.succeed(me.value.mp);
-  });
+      return yield* Effect.succeed(me.value.mp);
+    });
 
   const getPad = () => bridge.call("player.getPad");
 
   const getPosition = () =>
     Effect.map(bridge.call("player.getPosition"), normalizePosition);
 
-  const getState = () => Effect.gen(function* () {
-    const me = yield* world.getSelf();
-    if (!Option.isSome(me)) {
-      return yield* Effect.succeed(0);
-    }
+  const getState = () =>
+    Effect.gen(function* () {
+      const me = yield* world.players.getSelf();
+      if (!Option.isSome(me)) {
+        return yield* Effect.succeed(0);
+      }
 
-    return yield* Effect.succeed(me.value.state);
-  });
+      return yield* Effect.succeed(me.value.state);
+    });
 
   const isAfk = () => bridge.call("player.isAfk");
 

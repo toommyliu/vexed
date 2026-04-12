@@ -1,5 +1,6 @@
 import { Collection } from "@vexed/collection";
-import { Avatar, type Aura, Monster } from "@vexed/game";
+import { Avatar, Monster } from "@vexed/game";
+import type { Aura } from "@vexed/game";
 import { equalsIgnoreCase } from "@vexed/shared/string";
 import {
   Effect,
@@ -11,7 +12,12 @@ import {
 } from "effect";
 import { Bridge } from "../Services/Bridge";
 import { World } from "../Services/World";
-import type { WorldShape } from "../Services/World";
+import type {
+  WorldMapShape,
+  WorldMonstersShape,
+  WorldPlayersShape,
+  WorldShape,
+} from "../Services/World";
 
 type TrackedAura = Aura & { stack?: number };
 
@@ -40,12 +46,6 @@ const mutate = <A>(
   f: (state: RuntimeState) => A,
 ): Effect.Effect<A> =>
   SynchronizedRef.modify(stateRef, (state) => [f(state), state] as const);
-
-const getAuraCache = (
-  state: RuntimeState,
-  target: "m" | "p",
-): Collection<number, Collection<string, TrackedAura>> =>
-  target === "m" ? state.monsterAuras : state.playerAuras;
 
 const getTargetAuras = (
   cache: Collection<number, Collection<string, TrackedAura>>,
@@ -92,6 +92,15 @@ const updateAuraOnTarget = (
   targetAuras.set(aura.name, { ...aura, stack: 1 });
 };
 
+const clearRuntimeState = (state: RuntimeState): void => {
+  state.players.clear();
+  state.playerEntityIds.clear();
+  state.meUsername = undefined;
+  state.monsters.clear();
+  state.playerAuras.clear();
+  state.monsterAuras.clear();
+};
+
 const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
 
@@ -103,107 +112,97 @@ const make = Effect.gen(function* () {
   const roomNumberRef = yield* Ref.make<number | null>(null);
 
   // Bridge methods
-  const getCellMonsters: WorldShape["getCellMonsters"] = () =>
+  const getCellMonsters: WorldMapShape["getCellMonsters"] = () =>
     bridge.call("world.getCellMonsters");
 
-  const getCells: WorldShape["getCells"] = () =>
+  const getCells: WorldMapShape["getCells"] = () =>
     Effect.map(bridge.call("world.getCells"), (cells) =>
       cells.filter((cell): cell is string => typeof cell === "string"),
     );
 
-  const getCellPads: WorldShape["getCellPads"] = () =>
+  const getCellPads: WorldMapShape["getCellPads"] = () =>
     Effect.map(bridge.call("world.getCellPads"), (pads) =>
       pads.filter((pad): pad is string => typeof pad === "string"),
     );
 
-  const isLoaded: WorldShape["isLoaded"] = () => bridge.call("world.isLoaded");
+  const isLoaded: WorldMapShape["isLoaded"] = () =>
+    bridge.call("world.isLoaded");
 
-  const isActionAvailable: WorldShape["isActionAvailable"] = (gameAction) =>
+  const isActionAvailable: WorldMapShape["isActionAvailable"] = (gameAction) =>
     bridge.call("world.isActionAvailable", [gameAction]);
 
-  const getMapItem: WorldShape["getMapItem"] = (itemId) =>
+  const getMapItem: WorldMapShape["getMapItem"] = (itemId) =>
     bridge.call("world.getMapItem", [itemId]);
 
-  const loadSwf: WorldShape["loadSwf"] = (path) =>
+  const loadSwf: WorldMapShape["loadSwf"] = (path) =>
     bridge.call("world.loadSwf", [path]);
 
-  const reload: WorldShape["reload"] = () => bridge.call("world.reload");
+  const reload: WorldMapShape["reload"] = () => bridge.call("world.reload");
 
-  const setSpawnPoint: WorldShape["setSpawnPoint"] = (cell, pad) =>
+  const setSpawnPoint: WorldMapShape["setSpawnPoint"] = (cell, pad) =>
     cell === undefined && pad === undefined
       ? bridge.call("world.setSpawnPoint")
       : bridge.call("world.setSpawnPoint", [cell, pad]);
 
-  // State getter methods
-
-  const getId: WorldShape["getId"] = () =>
+  // Map state methods
+  const getId: WorldMapShape["getId"] = () =>
     Ref.get(mapIdRef).pipe(Effect.map((id) => id ?? 0));
 
-  const getRoomNumber: WorldShape["getRoomNumber"] = () =>
+  const getRoomNumber: WorldMapShape["getRoomNumber"] = () =>
     Ref.get(roomNumberRef).pipe(Effect.map((room) => room ?? 0));
 
-  const getName: WorldShape["getName"] = () =>
+  const getName: WorldMapShape["getName"] = () =>
     Ref.get(mapNameRef).pipe(Effect.map((name) => name ?? ""));
 
-  const getMonsters: WorldShape["getMonsters"] = () =>
-    mutate(stateRef, (state) => state.monsters);
+  const setName: WorldMapShape["setName"] = (name) => Ref.set(mapNameRef, name);
 
-  // State mutation methods
-  const _setName: WorldShape["_setName"] = (name) => Ref.set(mapNameRef, name);
+  const setId: WorldMapShape["setId"] = (id) => Ref.set(mapIdRef, id);
 
-  const _setId: WorldShape["_setId"] = (id) => Ref.set(mapIdRef, id);
-
-  const _setRoomNumber: WorldShape["_setRoomNumber"] = (roomNumber) =>
+  const setRoomNumber: WorldMapShape["setRoomNumber"] = (roomNumber) =>
     Ref.set(roomNumberRef, roomNumber);
 
-  const _reset: WorldShape["_reset"] = () =>
-    mutate(stateRef, (state) => {
-      state.players.clear();
-      state.playerEntityIds.clear();
-      state.meUsername = undefined;
-      state.monsters.clear();
-      state.playerAuras.clear();
-      state.monsterAuras.clear();
-    }).pipe(Effect.asVoid);
+  const reset: WorldMapShape["reset"] = () =>
+    mutate(stateRef, clearRuntimeState).pipe(Effect.asVoid);
 
   const dispose = yield* bridge.onConnection((status) => {
     if (status === "OnConnectionLost") {
-      runFork(_reset());
+      runFork(reset());
     }
   });
 
   yield* Effect.addFinalizer(() => Effect.sync(dispose));
 
-  const registerPlayer: WorldShape["registerPlayer"] = (username, entId) =>
+  // Player state methods
+  const registerPlayer: WorldPlayersShape["register"] = (username, entId) =>
     mutate(stateRef, (state) => {
       state.playerEntityIds.set(normalize(username), entId);
     }).pipe(Effect.asVoid);
 
-  const unregisterPlayer: WorldShape["unregisterPlayer"] = (username) =>
+  const unregisterPlayer: WorldPlayersShape["unregister"] = (username) =>
     mutate(stateRef, (state) => {
       state.playerEntityIds.delete(normalize(username));
     }).pipe(Effect.asVoid);
 
-  const addPlayer: WorldShape["addPlayer"] = (data) =>
+  const addPlayer: WorldPlayersShape["add"] = (data) =>
     mutate(stateRef, (state) => {
       const key = normalize(data.uoName || data.strUsername);
       state.players.set(key, new Avatar(data));
       state.playerEntityIds.set(key, data.entID);
     }).pipe(Effect.asVoid);
 
-  const removePlayer: WorldShape["removePlayer"] = (username) =>
+  const removePlayer: WorldPlayersShape["remove"] = (username) =>
     mutate(stateRef, (state) => {
       const key = normalize(username);
       state.players.delete(key);
       state.playerEntityIds.delete(key);
     }).pipe(Effect.asVoid);
 
-  const setSelf: WorldShape["setSelf"] = (username) =>
+  const setSelf: WorldPlayersShape["setSelf"] = (username) =>
     mutate(stateRef, (state) => {
       state.meUsername = normalize(username);
     }).pipe(Effect.asVoid);
 
-  const getSelf: WorldShape["getSelf"] = () =>
+  const getSelf: WorldPlayersShape["getSelf"] = () =>
     mutate(stateRef, (state) => {
       if (!state.meUsername) {
         return Option.none();
@@ -213,13 +212,13 @@ const make = Effect.gen(function* () {
       return player ? Option.some(player) : Option.none();
     });
 
-  const getPlayer: WorldShape["getPlayer"] = (username) =>
+  const getPlayer: WorldPlayersShape["get"] = (username) =>
     mutate(stateRef, (state) => {
       const player = state.players.get(normalize(username));
       return player ? Option.some(player) : Option.none();
     });
 
-  const getPlayerByName: WorldShape["getPlayerByName"] = (name) =>
+  const getPlayerByName: WorldPlayersShape["getByName"] = (name) =>
     mutate(stateRef, (state) => {
       const player = state.players.find((candidate) =>
         equalsIgnoreCase(candidate.username ?? "", name),
@@ -227,18 +226,44 @@ const make = Effect.gen(function* () {
       return player ? Option.some(player) : Option.none();
     });
 
-  const addMonster: WorldShape["addMonster"] = (data) =>
+  const addPlayerAura: WorldPlayersShape["addAura"] = (entId, aura) =>
+    mutate(stateRef, (state) => {
+      const targetAuras = getTargetAuras(state.playerAuras, entId);
+      addAuraToTarget(targetAuras, aura);
+    }).pipe(Effect.asVoid);
+
+  const updatePlayerAura: WorldPlayersShape["updateAura"] = (entId, aura) =>
+    mutate(stateRef, (state) => {
+      const targetAuras = getTargetAuras(state.playerAuras, entId);
+      updateAuraOnTarget(targetAuras, aura);
+    }).pipe(Effect.asVoid);
+
+  const removePlayerAura: WorldPlayersShape["removeAura"] = (entId, auraName) =>
+    mutate(stateRef, (state) => {
+      state.playerAuras.get(entId)?.delete(auraName);
+    }).pipe(Effect.asVoid);
+
+  const clearPlayerAuras: WorldPlayersShape["clearAuras"] = (entId) =>
+    mutate(stateRef, (state) => {
+      state.playerAuras.delete(entId);
+    }).pipe(Effect.asVoid);
+
+  // Monster state methods
+  const getMonsters: WorldMonstersShape["getAll"] = () =>
+    mutate(stateRef, (state) => state.monsters);
+
+  const addMonster: WorldMonstersShape["add"] = (data) =>
     mutate(stateRef, (state) => {
       state.monsters.set(data.monMapId, new Monster(data));
     }).pipe(Effect.asVoid);
 
-  const getMonster: WorldShape["getMonster"] = (monMapId) =>
+  const getMonster: WorldMonstersShape["get"] = (monMapId) =>
     mutate(stateRef, (state) => {
       const monster = state.monsters.get(monMapId);
       return monster ? Option.some(monster) : Option.none();
     });
 
-  const findMonsterByName: WorldShape["findMonsterByName"] = (name, cell) =>
+  const findMonsterByName: WorldMonstersShape["findByName"] = (name, cell) =>
     mutate(stateRef, (state) => {
       const normalizedName = normalize(name);
       const normalizedCell = cell ? normalize(cell) : undefined;
@@ -261,50 +286,36 @@ const make = Effect.gen(function* () {
       return monster ? Option.some(monster) : Option.none();
     });
 
-  const clearAllAuras: WorldShape["clearAllAuras"] = () =>
+  const addMonsterAura: WorldMonstersShape["addAura"] = (monMapId, aura) =>
     mutate(stateRef, (state) => {
-      state.playerAuras.clear();
-      state.monsterAuras.clear();
+      const targetAuras = getTargetAuras(state.monsterAuras, monMapId);
+      addAuraToTarget(targetAuras, aura);
     }).pipe(Effect.asVoid);
 
-  const clearPlayerAuras: WorldShape["clearPlayerAuras"] = (entId) =>
+  const updateMonsterAura: WorldMonstersShape["updateAura"] = (
+    monMapId,
+    aura,
+  ) =>
     mutate(stateRef, (state) => {
-      state.playerAuras.delete(entId);
+      const targetAuras = getTargetAuras(state.monsterAuras, monMapId);
+      updateAuraOnTarget(targetAuras, aura);
     }).pipe(Effect.asVoid);
 
-  const clearMonsterAuras: WorldShape["clearMonsterAuras"] = (monMapId) =>
+  const removeMonsterAura: WorldMonstersShape["removeAura"] = (
+    monMapId,
+    auraName,
+  ) =>
+    mutate(stateRef, (state) => {
+      state.monsterAuras.get(monMapId)?.delete(auraName);
+    }).pipe(Effect.asVoid);
+
+  const clearMonsterAuras: WorldMonstersShape["clearAuras"] = (monMapId) =>
     mutate(stateRef, (state) => {
       state.monsterAuras.delete(monMapId);
     }).pipe(Effect.asVoid);
 
-  const addAura: WorldShape["addAura"] = (target, targetId, aura) =>
-    mutate(stateRef, (state) => {
-      const cache = getAuraCache(state, target);
-      const targetAuras = getTargetAuras(cache, targetId);
-      addAuraToTarget(targetAuras, aura);
-    }).pipe(Effect.asVoid);
-
-  const updateAura: WorldShape["updateAura"] = (target, targetId, aura) =>
-    mutate(stateRef, (state) => {
-      const cache = getAuraCache(state, target);
-      const targetAuras = getTargetAuras(cache, targetId);
-      updateAuraOnTarget(targetAuras, aura);
-    }).pipe(Effect.asVoid);
-
-  const removeAura: WorldShape["removeAura"] = (target, targetId, auraName) =>
-    mutate(stateRef, (state) => {
-      const cache = getAuraCache(state, target);
-      cache.get(targetId)?.delete(auraName);
-    }).pipe(Effect.asVoid);
-
-  const debug: WorldShape["debug"] = () => SynchronizedRef.get(stateRef);
-
-  return {
-    getId,
-    getRoomNumber,
-    getName,
+  const map: WorldMapShape = {
     getCellMonsters,
-    getMonsters,
     getCells,
     getCellPads,
     isLoaded,
@@ -313,27 +324,47 @@ const make = Effect.gen(function* () {
     loadSwf,
     reload,
     setSpawnPoint,
-    _reset,
-    _setName,
-    _setId,
-    _setRoomNumber,
-    registerPlayer,
-    unregisterPlayer,
-    addPlayer,
-    removePlayer,
+    getName,
+    getId,
+    getRoomNumber,
+    setName,
+    setId,
+    setRoomNumber,
+    reset,
+  };
+
+  const players: WorldPlayersShape = {
+    register: registerPlayer,
+    unregister: unregisterPlayer,
+    add: addPlayer,
+    remove: removePlayer,
     setSelf,
     getSelf,
-    getPlayer,
-    getPlayerByName,
-    addMonster,
-    getMonster,
-    findMonsterByName,
-    clearAllAuras,
-    clearPlayerAuras,
-    clearMonsterAuras,
-    addAura,
-    updateAura,
-    removeAura,
+    get: getPlayer,
+    getByName: getPlayerByName,
+    addAura: addPlayerAura,
+    updateAura: updatePlayerAura,
+    removeAura: removePlayerAura,
+    clearAuras: clearPlayerAuras,
+  };
+
+  const monsters: WorldMonstersShape = {
+    getAll: getMonsters,
+    add: addMonster,
+    get: getMonster,
+    findByName: findMonsterByName,
+    addAura: addMonsterAura,
+    updateAura: updateMonsterAura,
+    removeAura: removeMonsterAura,
+    clearAuras: clearMonsterAuras,
+  };
+
+  const debug: WorldShape["debug"] = () => SynchronizedRef.get(stateRef);
+
+  return {
+    map,
+    players,
+    monsters,
     debug,
   } satisfies WorldShape;
 });

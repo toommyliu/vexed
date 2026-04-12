@@ -45,7 +45,9 @@ const toMonMapId = (target: MonsterIdentifierToken): number | undefined => {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
 };
 
-const resolveKillTarget = (target: MonsterIdentifierToken): ResolvedKillTarget => {
+const resolveKillTarget = (
+  target: MonsterIdentifierToken,
+): ResolvedKillTarget => {
   const monMapId = toMonMapId(target);
   if (monMapId !== undefined) {
     return { kind: "monMapId", monMapId };
@@ -128,39 +130,45 @@ const make = Effect.gen(function* () {
       }
 
       const waitUntilPlayerAlive = () =>
-        Effect.repeat(world.getSelf(), {
+        Effect.repeat(world.players.getSelf(), {
           schedule: Schedule.spaced("250 millis"),
           until: (me) => Option.isSome(me) && me.value.alive,
         }).pipe(Effect.asVoid);
 
       const resolveTargetMonMapIdByName = (name: string) =>
         Effect.gen(function* () {
-          const me = yield* world.getSelf();
+          const me = yield* world.players.getSelf();
           const cell = Option.isSome(me) ? me.value.cell : undefined;
-          const monster = yield* world.findMonsterByName(name, cell);
+          const monster = yield* world.monsters.findByName(name, cell);
           return Option.isSome(monster) ? monster.value.monMapId : undefined;
         });
 
       const getMonsterNameByMonMapId = (monMapId: number) =>
-        world.getMonster(monMapId).pipe(
-          Effect.map((monster) =>
-            Option.isSome(monster) ? monster.value.name : undefined,
-          ),
-        );
+        world.monsters
+          .get(monMapId)
+          .pipe(
+            Effect.map((monster) =>
+              Option.isSome(monster) ? monster.value.name : undefined,
+            ),
+          );
 
       const isMonsterDead = (monMapId: number) =>
-        world.getMonster(monMapId).pipe(
-          Effect.map(
-            (monster) =>
-              Option.isNone(monster) ||
-              !monster.value.alive ||
-              monster.value.isDead(),
-          ),
-        );
+        world.monsters
+          .get(monMapId)
+          .pipe(
+            Effect.map(
+              (monster) =>
+                Option.isNone(monster) ||
+                !monster.value.alive ||
+                monster.value.isDead(),
+            ),
+          );
 
       let didKillTarget = false;
       let targetMonMapId =
-        resolvedTarget.kind === "monMapId" ? resolvedTarget.monMapId : undefined;
+        resolvedTarget.kind === "monMapId"
+          ? resolvedTarget.monMapId
+          : undefined;
       let skillIndex = 0;
 
       const maybePacketDomain = yield* Effect.serviceOption(PacketDomain);
