@@ -4,10 +4,13 @@ import { runtime } from "./flash/runtime";
 import { Drops } from "./flash/Services/Drops";
 import { Combat } from "./flash/Services/Combat";
 import { WorldState } from "./flash/Services/WorldState";
+import { AutoZone } from "./flash/Services/AutoZone";
 
 export default function App() {
   const [count, setCount] = createSignal(0);
   const [targetName, setTargetName] = createSignal("");
+  const [autoZoneEnabled, setAutoZoneEnabled] = createSignal(true);
+  const [autoZoneMap, setAutoZoneMap] = createSignal("ledgermayne");
   let activeKillFiber: Fiber.Fiber<void, unknown> | undefined;
 
   const testBridge = () => {
@@ -56,6 +59,37 @@ export default function App() {
       )
       .catch((error) => {
         console.error("Inspection error:", error);
+      });
+  };
+
+  const toggleAutoZone = () => {
+    const newEnabled = !autoZoneEnabled();
+    setAutoZoneEnabled(newEnabled);
+    void runtime
+      .runPromise(
+        Effect.gen(function* () {
+          const autoZone = yield* AutoZone;
+          yield* autoZone.setEnabled(newEnabled);
+          console.log("AutoZone", newEnabled ? "enabled" : "disabled");
+        }),
+      )
+      .catch((error) => {
+        console.error("AutoZone toggle error:", error);
+      });
+  };
+
+  const applyAutoZoneMap = (map: string) => {
+    setAutoZoneMap(map);
+    void runtime
+      .runPromise(
+        Effect.gen(function* () {
+          const autoZone = yield* AutoZone;
+          yield* autoZone.setMap(map as any);
+          console.log("AutoZone map set to:", map);
+        }),
+      )
+      .catch((error) => {
+        console.error("AutoZone setMap error:", error);
       });
   };
 
@@ -177,6 +211,42 @@ export default function App() {
         >
           disrupt kill
         </button>
+      </div>
+      <div
+        style={{
+          display: "flex",
+          "align-items": "center",
+          gap: "10px",
+          "margin-top": "10px",
+        }}
+      >
+        <label style={{ display: "flex", "align-items": "center", gap: "5px" }}>
+          <input
+            type="checkbox"
+            checked={autoZoneEnabled()}
+            onChange={toggleAutoZone}
+            style={{ cursor: "pointer" }}
+          />
+          AutoZone Enabled
+        </label>
+        <select
+          value={autoZoneMap()}
+          onInput={(e) => applyAutoZoneMap(e.currentTarget.value)}
+          style={{
+            padding: "5px",
+            "border-radius": "4px",
+            border: "1px solid #ccc",
+            background: "white",
+            color: "black",
+            cursor: "pointer",
+          }}
+        >
+          <option value="ledgermayne">ledgermayne</option>
+          <option value="moreskulls">moreskulls</option>
+          <option value="ultradage">ultradage</option>
+          <option value="darkcarnax">darkcarnax</option>
+          <option value="astralshrine">astralshrine</option>
+        </select>
       </div>
     </div>
   );

@@ -3,15 +3,22 @@ import type { Effect } from "effect";
 import type { ExtensionPacket } from "../PacketTypes";
 import type { PacketHandlerDisposer } from "./PacketHandler";
 
-export type PacketDomainEvent = "monsterDeath";
+export type PacketDomainEvent = "monsterDeath" | "zone";
 
 export interface PacketDomainMonsterDeathEvent {
   readonly monMapId: number;
   readonly packet: ExtensionPacket;
 }
 
+export interface PacketDomainZoneEvent {
+  readonly zone: string;
+  readonly map: string;
+  readonly packet: ExtensionPacket;
+}
+
 export interface PacketDomainEventMap {
   monsterDeath: PacketDomainMonsterDeathEvent;
+  zone: PacketDomainZoneEvent;
 }
 
 export type PacketDomainEventHandler<

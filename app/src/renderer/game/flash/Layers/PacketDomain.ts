@@ -22,6 +22,7 @@ import {
   type PacketHandlerDisposer,
 } from "../Services/PacketHandler";
 import { WorldState } from "../Services/WorldState";
+import { Player } from "../Services/Player";
 
 const AURA_ADD_COMMANDS = new Set(["aura+", "aura++"]);
 const AURA_REMOVE_COMMANDS = new Set(["aura-", "aura--"]);
@@ -145,6 +146,7 @@ type DomainHandlerStore = {
 
 const createDomainHandlerStore = (): DomainHandlerStore => ({
   monsterDeath: new Set(),
+  zone: new Set(),
 });
 
 const registerDomainHandler = <E extends PacketDomainEvent>(
@@ -153,7 +155,14 @@ const registerDomainHandler = <E extends PacketDomainEvent>(
   handler: PacketDomainEventHandler<E>,
 ): Effect.Effect<PacketHandlerDisposer> =>
   Effect.sync(() => {
-    const handlers = store[event] as Set<PacketDomainEventHandler<E>>;
+    const handlers = store[event] as
+      | Set<PacketDomainEventHandler<E>>
+      | undefined;
+
+    if (!handlers) {
+      throw new Error(`packet domain event store missing: ${event}`);
+    }
+
     handlers.add(handler);
 
     return () => {
@@ -166,9 +175,17 @@ const dispatchDomainEvent = <E extends PacketDomainEvent>(
   event: E,
   payload: PacketDomainEventMap[E],
 ): Effect.Effect<void> => {
-  const handlers = Array.from(
-    store[event],
-  ) as readonly PacketDomainEventHandler<E>[];
+  const eventHandlers = store[event] as
+    | Set<PacketDomainEventHandler<E>>
+    | undefined;
+
+  if (!eventHandlers) {
+    return Effect.logError(`packet domain event store missing: ${event}`).pipe(
+      Effect.asVoid,
+    );
+  }
+
+  const handlers = Array.from(eventHandlers) as readonly PacketDomainEventHandler<E>[];
 
   if (handlers.length === 0) {
     return Effect.void;
@@ -195,6 +212,7 @@ const make = Effect.gen(function* () {
   const auth = yield* Auth;
   const drops = yield* Drops;
   const packetHandler = yield* PacketHandler;
+  const player = yield* Player;
   const worldState = yield* WorldState;
   const domainHandlerStore = createDomainHandlerStore();
 
@@ -275,9 +293,27 @@ const make = Effect.gen(function* () {
     }),
   );
 
-  yield* registerJson("event", (_packet) =>
+
+  yield* registerJson("event", (packet) =>
     Effect.gen(function* () {
-      // TODO: handle event
+      const payload = asRecord(packet.data);
+      if (!payload || !payload["args"]) {
+        return;
+      }
+
+      const args = asRecord(payload["args"]);
+      if (!args) {
+        return;
+      }
+      const zone = asString(args["zoneSet"]) ?? "";
+      // TODO: setup state
+      const map = "";
+
+      yield* dispatchDomainEvent(domainHandlerStore, "zone", {
+        map,
+        zone,
+        packet,
+      });
     }),
   );
 
@@ -292,7 +328,6 @@ const make = Effect.gen(function* () {
         return;
       }
 
-      console.log("initUserData", { username, uid });
       yield* worldState.registerPlayer(username, uid);
     }),
   );
@@ -480,10 +515,6 @@ const make = Effect.gen(function* () {
   yield* registerJson("uotls", (packet) =>
     Effect.gen(function* () {
       const payload = asRecord(packet.data);
-      if (!payload) {
-        return;
-      }
-
       const username = asString(payload["unm"]);
       const userPayload = asRecord(payload["o"]);
       if (!username || !userPayload) {

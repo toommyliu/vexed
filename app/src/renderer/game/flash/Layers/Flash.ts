@@ -1,5 +1,6 @@
 import { Layer } from "effect";
 import { AuthLive } from "./Auth";
+import { AutoZoneLive } from "./AutoZone";
 import { BankLive } from "./Bank";
 import { BridgeLive } from "./Bridge";
 import { CombatLive } from "./Combat";
@@ -38,7 +39,11 @@ const PacketHandlerRuntimeLive = PacketHandlerLive.pipe(
   Layer.provideMerge(PacketRuntimeLive),
 );
 
-export const FlashLive = PacketDomainLive.pipe(
+const FlashDomainLive = PacketDomainLive.pipe(
   Layer.provideMerge(PacketHandlerRuntimeLive),
   Layer.provideMerge(BridgeDomainLive),
+);
+
+export const FlashLive = AutoZoneLive.pipe(
+  Layer.provideMerge(FlashDomainLive),
 );
