@@ -1,10 +1,11 @@
 import type { QuestInfo } from "@vexed/game";
-import { Effect, Layer, Schedule, SynchronizedRef } from "effect";
+import { Effect, Layer, SynchronizedRef } from "effect";
 import { Bridge } from "../Services/Bridge";
 import { Packet } from "../Services/Packet";
 import { Quests } from "../Services/Quests";
 import type { QuestsShape } from "../Services/Quests";
 import { World } from "../Services/World";
+import { waitForRef } from "../../utils/waitFor";
 
 type GetQuestsPacket = {
   b?: {
@@ -84,19 +85,10 @@ const make = Effect.gen(function* () {
   yield* Effect.addFinalizer(() => Effect.sync(acceptQuestDispose));
 
   const waitForQuestLoad = (questId: number) =>
-    SynchronizedRef.get(quests).pipe(
-      Effect.repeat({
-        while: (tree: Record<number, QuestInfo>) => !tree[questId],
-        schedule: Schedule.spaced("100 millis"),
-      }),
-    );
+    waitForRef(quests, (tree) => !!tree[questId]);
+
   const waitForQuestAccept = (questId: number) =>
-    SynchronizedRef.get(acceptedQuests).pipe(
-      Effect.repeat({
-        while: (set: Set<number>) => !set.has(questId),
-        schedule: Schedule.spaced("100 millis"),
-      }),
-    );
+    waitForRef(acceptedQuests, (set) => set.has(questId));
 
   const abandon = (questId: number) =>
     Effect.gen(function* () {
@@ -108,20 +100,20 @@ const make = Effect.gen(function* () {
       });
     });
 
-  const accept = (questId: number, silent: boolean = false) =>
+  const accept: QuestsShape["accept"] = (questId: number, silent: boolean = false) =>
     Effect.gen(function* () {
       yield* world.map.waitForGameAction("acceptQuest");
 
       const tree = yield* SynchronizedRef.get(quests);
       if (tree[questId]) {
-        return yield* bridge.call("quests.accept", [questId]);
+        yield* bridge.call("quests.accept", [questId]);
+        return;
       }
 
       yield* load(questId, silent);
       yield* waitForQuestLoad(questId);
       yield* bridge.call("quests.accept", [questId]);
       yield* waitForQuestAccept(questId);
-      return true;
     });
 
   const canComplete = (questId: number) =>

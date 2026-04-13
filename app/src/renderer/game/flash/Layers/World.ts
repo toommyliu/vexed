@@ -7,7 +7,6 @@ import {
   Layer,
   Option,
   Ref,
-  Schedule,
   SynchronizedRef,
   type SynchronizedRef as SynchronizedRefType,
 } from "effect";
@@ -19,6 +18,7 @@ import type {
   WorldPlayersShape,
   WorldShape,
 } from "../Services/World";
+import { waitFor } from "../../utils/waitFor";
 
 type TrackedAura = Aura & { stack?: number };
 
@@ -133,12 +133,7 @@ const make = Effect.gen(function* () {
     bridge.call("world.isActionAvailable", [gameAction]);
 
   const waitForGameAction: WorldMapShape["waitForGameAction"] = (gameAction) =>
-    Effect.asVoid(
-      Effect.repeat(Effect.void, {
-        until: () => isActionAvailable(gameAction),
-        schedule: Schedule.spaced("100 millis"),
-      }),
-    );
+    waitFor(isActionAvailable(gameAction));
 
   const getMapItem: WorldMapShape["getMapItem"] = (itemId) =>
     bridge.call("world.getMapItem", [itemId]);
