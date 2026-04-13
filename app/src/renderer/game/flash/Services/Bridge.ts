@@ -20,6 +20,7 @@ export interface BridgeShape {
     path: K,
     args?: Parameters<Window["swf"][K]>,
   ): Effect.Effect<ReturnType<Window["swf"][K]>, BridgeError>;
+  callGameFunction(functionName: string, ...args: unknown[]): BridgeEffect<unknown>;
   onConnection(
     handler: (status: ConnectionStatus) => void,
   ): Effect.Effect<BridgeEventDisposer>;

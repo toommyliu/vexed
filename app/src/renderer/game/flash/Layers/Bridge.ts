@@ -39,8 +39,8 @@ const setWindowBridgeHandler = (
     };
   });
 
-const make = Effect.succeed({
-  call: <K extends keyof Window["swf"]>(
+const make = Effect.gen(function* () {
+  const call = <K extends keyof Window["swf"]>(
     path: K,
     args?: Parameters<Window["swf"][K]>,
   ): Effect.Effect<ReturnType<Window["swf"][K]>, BridgeError> => {
@@ -77,9 +77,24 @@ const make = Effect.succeed({
         return new SwfCallError({ method, cause });
       },
     });
-  },
-  onConnection: (handler: (status: ConnectionStatus) => void) =>
-    setWindowBridgeHandler("onConnection", handler),
-} satisfies BridgeShape);
+  };
+
+  const callGameFunction = (functionName: string, ...args: unknown[]) => {
+    if (args.length > 0) {
+      return call("flash.callGameFunction", [functionName, ...args]);
+    }
+
+    return call("flash.callGameFunction0", [functionName]);
+  }
+
+  const onConnection = (handler: (status: ConnectionStatus) => void) =>
+    setWindowBridgeHandler("onConnection", handler);
+
+  return {
+    call,
+    callGameFunction,
+    onConnection,
+  } satisfies BridgeShape;
+});
 
 export const BridgeLive = Layer.effect(Bridge, make);
