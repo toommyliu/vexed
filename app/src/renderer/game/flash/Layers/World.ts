@@ -7,6 +7,7 @@ import {
   Layer,
   Option,
   Ref,
+  Schedule,
   SynchronizedRef,
   type SynchronizedRef as SynchronizedRefType,
 } from "effect";
@@ -130,6 +131,14 @@ const make = Effect.gen(function* () {
 
   const isActionAvailable: WorldMapShape["isActionAvailable"] = (gameAction) =>
     bridge.call("world.isActionAvailable", [gameAction]);
+
+  const waitForGameAction: WorldMapShape["waitForGameAction"] = (gameAction) =>
+    Effect.asVoid(
+      Effect.repeat(Effect.void, {
+        until: () => isActionAvailable(gameAction),
+        schedule: Schedule.spaced("100 millis"),
+      }),
+    );
 
   const getMapItem: WorldMapShape["getMapItem"] = (itemId) =>
     bridge.call("world.getMapItem", [itemId]);
@@ -320,6 +329,7 @@ const make = Effect.gen(function* () {
     getCellPads,
     isLoaded,
     isActionAvailable,
+    waitForGameAction,
     getMapItem,
     loadSwf,
     reload,

@@ -22,6 +22,7 @@ export interface WorldMapShape {
   loadSwf(path: string): BridgeEffect<void>;
   reload(): BridgeEffect<void>;
   setSpawnPoint(cell?: string, pad?: string): BridgeEffect<void>;
+  waitForGameAction(gameAction: GameAction): BridgeEffect<void>;
 
   // State methods
   getName(): Effect.Effect<string>;

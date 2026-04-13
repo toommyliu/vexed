@@ -24,7 +24,6 @@ const BridgeWithAuthLive = Layer.mergeAll(BridgeCoreLive, AuthRuntimeLive);
 const BridgeOnlyDomainsLive = Layer.mergeAll(
   CombatLive,
   PlayerLive,
-  QuestsLive,
   SettingsLive,
   ShopsLive
 ).pipe(Layer.provideMerge(WorldLive), Layer.provide(BridgeCoreLive));
@@ -59,10 +58,15 @@ const PacketDomainRuntimeLive = PacketDomainLive.pipe(
   Layer.provide(Layer.mergeAll(PacketHandlerRuntimeLive, BridgeRuntimeLive)),
 );
 
+const QuestsRuntimeLive = QuestsLive.pipe(
+  Layer.provide(Layer.mergeAll(BridgeRuntimeLive, PacketRuntimeLive)),
+);
+
 const FlashDomainLive = Layer.mergeAll(
   BridgeRuntimeLive,
   PacketRuntimeLive,
   PacketDomainRuntimeLive,
+  QuestsRuntimeLive,
 );
 
 const AutoZoneRuntimeLive = AutoZoneLive.pipe(

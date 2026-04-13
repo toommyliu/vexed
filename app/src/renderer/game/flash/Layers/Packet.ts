@@ -1,6 +1,6 @@
 import { Effect, Layer } from "effect";
 import { Packet } from "../Services/Packet";
-import type { PacketShape } from "../Services/Packet";
+import type { PacketListener, PacketShape } from "../Services/Packet";
 
 type WindowPacketHandlerKey =
   | "onExtensionResponse"
@@ -20,8 +20,9 @@ const normalizePacketInput = (input: unknown): string | null => {
 };
 
 const setWindowPacketHandler = (
+  runFork: (effect: Effect.Effect<unknown, unknown, never>) => unknown,
   key: WindowPacketHandlerKey,
-  handler: (packet: string) => void,
+  handler: PacketListener,
 ): Effect.Effect<() => void> =>
   Effect.sync(() => {
     const win = window as Record<
@@ -37,7 +38,18 @@ const setWindowPacketHandler = (
         return;
       }
 
-      handler(packet);
+      runFork(
+        handler(packet).pipe(
+          Effect.asVoid,
+          Effect.catchCause((cause) =>
+            Effect.logError({
+              message: "packet listener failed",
+              channel: key,
+              cause,
+            }),
+          ),
+        ),
+      );
     };
 
     const wrappedForWindow = wrappedHandler as (packet: string) => void;
@@ -50,13 +62,17 @@ const setWindowPacketHandler = (
     };
   });
 
-const make = Effect.succeed({
-  onExtensionResponse: (handler: (packet: string) => void) =>
-    setWindowPacketHandler("onExtensionResponse", handler),
-  packetFromClient: (handler: (packet: string) => void) =>
-    setWindowPacketHandler("packetFromClient", handler),
-  packetFromServer: (handler: (packet: string) => void) =>
-    setWindowPacketHandler("packetFromServer", handler),
-} satisfies PacketShape);
+const make = Effect.gen(function* () {
+  const runFork = Effect.runForkWith(yield* Effect.services());
+
+  return {
+    onExtensionResponse: (handler) =>
+      setWindowPacketHandler(runFork, "onExtensionResponse", handler),
+    packetFromClient: (handler) =>
+      setWindowPacketHandler(runFork, "packetFromClient", handler),
+    packetFromServer: (handler) =>
+      setWindowPacketHandler(runFork, "packetFromServer", handler),
+  } satisfies PacketShape;
+});
 
 export const PacketLive = Layer.effect(Packet, make);

@@ -6,6 +6,7 @@ import { Combat } from "./flash/Services/Combat";
 import { World } from "./flash/Services/World";
 import { AutoZone } from "./flash/Services/AutoZone";
 import { Player } from "./flash/Services/Player";
+import { Quests } from "./flash/Services/Quests";
 
 export default function App() {
   const [count, setCount] = createSignal(0);
@@ -18,16 +19,10 @@ export default function App() {
     void runtime
       .runPromise(
         Effect.gen(function* () {
-          const player = yield* Player;
-          const hp = yield* player.getHp();
-          const maxHp = yield* player.getMaxHp();
-          const mp = yield* player.getMp();
-          const maxMp = yield* player.getMaxMp();
-          const cell = yield* player.getCell();
-          const state = yield* player.getState();
-          console.log(`HP: ${hp}/${maxHp}, MP: ${mp}/${maxMp}`);
-          console.log(`Cell: ${cell}, State: ${state}`);
-        }) 
+          const quests = yield* Quests;
+          console.log("Tree", yield* quests.getTree());
+          console.log("Accepted", yield* quests.getAccepted());
+        }),
       )
       .catch((error) => {
         console.error("Bridge error:", error);
@@ -38,9 +33,12 @@ export default function App() {
     void runtime
       .runPromise(
         Effect.gen(function* () {
-          const world = yield* World;
-          const state = yield* world.debug();
-          console.log(state);
+          // const world = yield* World;
+          // const state = yield* world.debug();
+          // console.log(state);
+          const quests = yield* Quests;
+          const result = yield* quests.accept(11, false);
+          console.log("Accept result:", result);
         }),
       )
       .catch((error) => {
@@ -52,9 +50,11 @@ export default function App() {
     void runtime
       .runPromise(
         Effect.gen(function* () {
-          const drops = yield* Drops;
-          const dropsState = yield* drops.getDrops();
-          console.log(dropsState);
+          // const drops = yield* Drops;
+          // const dropsState = yield* drops.getDrops();
+          // console.log(dropsState);
+          const quests = yield* Quests;
+          yield* quests.abandon(11);
         }),
       )
       .catch((error) => {

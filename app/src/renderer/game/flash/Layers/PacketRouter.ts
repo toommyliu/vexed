@@ -6,6 +6,7 @@ import type {
   ServerPacket,
 } from "../PacketTypes";
 import { Packet } from "../Services/Packet";
+import type { PacketListener } from "../Services/Packet";
 import {
   parseClientPacket,
   parseExtensionPacket,
@@ -21,19 +22,18 @@ type ParsedPacketParser<A extends ParsedPacket> = (
 const make = Effect.gen(function* () {
   const packet = yield* Packet;
   const pubSub = yield* PubSub.unbounded<ParsedPacket>();
-  const runFork = Effect.runForkWith(yield* Effect.services());
 
   const subscribe = <A extends ParsedPacket>(
-    register: (handler: (packet: string) => void) => Effect.Effect<() => void>,
+    register: (handler: PacketListener) => Effect.Effect<() => void>,
     parser: ParsedPacketParser<A>,
   ) =>
     register((raw) => {
       const parsed = parser(raw);
       if (Option.isNone(parsed)) {
-        return;
+        return Effect.void;
       }
 
-      runFork(PubSub.publish(pubSub, parsed.value).pipe(Effect.asVoid));
+      return PubSub.publish(pubSub, parsed.value).pipe(Effect.asVoid);
     });
 
   const releaseExtension = yield* subscribe(
