@@ -1,36 +1,130 @@
 import { Server, type ServerData } from "@vexed/game";
-import { Effect, Layer } from "effect";
+import { Effect, Layer, SynchronizedRef } from "effect";
 import type { AuthShape } from "../Services/Auth";
 import { Auth } from "../Services/Auth";
 import { Bridge } from "../Services/Bridge";
 import type { LoginInfo } from "../Types";
-import { runtime } from "../Runtime";
+
+type RuntimeState = {
+  readonly servers: Map<string, Server>;
+  username: string;
+  password: string;
+  loginInfo: LoginInfo | undefined;
+};
+
+const initialState = (): RuntimeState => ({
+  servers: new Map<string, Server>(),
+  username: "",
+  password: "",
+  loginInfo: undefined,
+});
+
+const clearSession = (state: RuntimeState): RuntimeState => {
+  state.username = "";
+  state.password = "";
+  state.loginInfo = undefined;
+  return state;
+};
 
 const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
+  const stateRef = yield* SynchronizedRef.make(initialState());
+  const runFork = Effect.runForkWith(yield* Effect.services());
 
-  const _servers = new Map<string, Server>();
-  let _username = "";
-  let _password = "";
-  let _loginInfo: LoginInfo | undefined = undefined;
+  const clearSessionState = SynchronizedRef.update(stateRef, clearSession);
 
-  const clearSession = () => {
-    _username = "";
-    _password = "";
-    _loginInfo = undefined;
-  };
+  const connectTo: AuthShape["connectTo"] = (server) =>
+    bridge.call("auth.connectTo", [server]);
 
-  const dispose = yield* bridge.onConnection(async (status) => {
-    // TODO: this might not need runtime at all
-    await runtime.runPromise(
-      Effect.gen(function* () {
-        if (status === "OnConnection") {
-          yield* getLoginInfo();
-        } else if (status === "OnConnectionLost") {
-          clearSession();
+  const getServers: AuthShape["getServers"] = () =>
+    SynchronizedRef.modifyEffect(stateRef, (state) =>
+      Effect.map(bridge.call("auth.getServers"), (ogServers) => {
+        const rawServers = Array.isArray(ogServers)
+          ? (ogServers as ServerData[])
+          : [];
+        const nextKeys = new Set(rawServers.map((s) => s.sName));
+
+        for (const key of state.servers.keys()) {
+          if (!nextKeys.has(key)) {
+            state.servers.delete(key);
+          }
         }
+
+        const servers = rawServers.map((server) => {
+          const existing = state.servers.get(server.sName);
+          if (existing) {
+            existing.data = server;
+            return existing;
+          }
+
+          const model = new Server(server);
+          state.servers.set(server.sName, model);
+          return model;
+        });
+
+        return [servers, state] as const;
       }),
     );
+
+  const getUsername: AuthShape["getUsername"] = () =>
+    SynchronizedRef.modifyEffect(stateRef, (state) => {
+      if (state.username !== "") {
+        return Effect.succeed([state.username, state] as const);
+      }
+
+      return Effect.map(
+        bridge.call("flash.getGameObjectS", ["loginInfo.strUsername"]),
+        (username) => {
+          state.username = username;
+          return [username, state] as const;
+        },
+      );
+    });
+
+  const getPassword: AuthShape["getPassword"] = () =>
+    SynchronizedRef.get(stateRef).pipe(Effect.map((state) => state.password));
+
+  // Account credentials, initial server info, and other account-related metadata
+  const getLoginInfo: AuthShape["getLoginInfo"] = () =>
+    SynchronizedRef.modifyEffect(stateRef, (state) => {
+      if (state.loginInfo !== undefined) {
+        return Effect.succeed([state.loginInfo, state] as const);
+      }
+
+      return Effect.map(bridge.call("flash.getGameObjectS", ["objLogin"]), (info) => {
+        const loginInfo = JSON.parse(info) as LoginInfo;
+        state.loginInfo = loginInfo;
+        state.username = (loginInfo?.unm ?? "").toLowerCase();
+        state.password = (loginInfo?.sToken ?? "").toLowerCase();
+        return [loginInfo, state] as const;
+      });
+    });
+
+  const isLoggedIn: AuthShape["isLoggedIn"] = () =>
+    SynchronizedRef.get(stateRef).pipe(
+      Effect.map((state) => state.loginInfo !== undefined),
+    );
+
+  const isTemporarilyKicked: AuthShape["isTemporarilyKicked"] = () =>
+    bridge.call("auth.isTemporarilyKicked");
+
+  const login: AuthShape["login"] = (username, password) =>
+    Effect.gen(function* () {
+      yield* clearSessionState;
+      yield* bridge.call("flash.callGameFunction", ["removeAllChildren"]);
+      yield* bridge.call("flash.callGameFunction", ["gotoAndPlay", "login"]);
+      return yield* bridge.call("auth.login", [username, password]);
+    });
+
+  const logout: AuthShape["logout"] = () =>
+    bridge.call("auth.logout").pipe(Effect.ensuring(clearSessionState));
+
+  const dispose = yield* bridge.onConnection((status) => {
+    if (status === "OnConnection") {
+      runFork(getLoginInfo().pipe(Effect.asVoid));
+    } else if (status === "OnConnectionLost") {
+      runFork(clearSessionState);
+    }
   });
 
   yield* Effect.addFinalizer(() =>
@@ -38,89 +132,6 @@ const make = Effect.gen(function* () {
       dispose();
     }),
   );
-
-  const connectTo = (server: string) => bridge.call("auth.connectTo", [server]);
-
-  const getServers = () =>
-    Effect.map(bridge.call("auth.getServers"), (ogServers) => {
-      const rawServers = Array.isArray(ogServers)
-        ? (ogServers as ServerData[])
-        : [];
-      const nextKeys = new Set(rawServers.map((s) => s.sName));
-
-      // Remove stale servers
-      for (const key of _servers.keys()) {
-        if (!nextKeys.has(key)) _servers.delete(key);
-      }
-
-      return rawServers.map((server) => {
-        const existing = _servers.get(server.sName);
-        if (existing) {
-          existing.data = server;
-          return existing;
-        }
-
-        const model = new Server(server);
-        _servers.set(server.sName, model);
-        return model;
-      });
-    });
-
-  const getUsername = () => {
-    if (_username !== "") {
-      return Effect.succeed(_username);
-    }
-
-    return Effect.tap(
-      bridge.call("flash.getGameObjectS", ["loginInfo.strUsername"]),
-      (username) =>
-        Effect.sync(() => {
-          _username = username;
-        }),
-    );
-  };
-
-  const getPassword = () => Effect.succeed(_password);
-
-  // Account credentials, initial server info, and other account-related metadata
-  const getLoginInfo = () => {
-    if (_loginInfo !== undefined) {
-      return Effect.succeed(_loginInfo);
-    }
-
-    return Effect.tap(
-      bridge.call("flash.getGameObjectS", ["objLogin"]),
-      (info) =>
-        Effect.sync(() => {
-          _loginInfo = JSON.parse(info) as LoginInfo;
-          _username = (_loginInfo?.unm ?? "").toLowerCase();
-          _password = (_loginInfo?.sToken ?? "").toLowerCase();
-        }),
-    );
-  };
-
-  const isLoggedIn = () => Effect.succeed(_loginInfo !== undefined);
-
-  const isTemporarilyKicked = () => bridge.call("auth.isTemporarilyKicked");
-
-  const login = (username: string, password: string) =>
-    Effect.gen(function* () {
-      yield* Effect.sync(() => {
-        clearSession();
-      });
-      yield* bridge.call("flash.callGameFunction", ["removeAllChildren"]);
-      yield* bridge.call("flash.callGameFunction", ["gotoAndPlay", "login"]);
-      return yield* bridge.call("auth.login", [username, password]);
-    });
-
-  const logout = () =>
-    bridge.call("auth.logout").pipe(
-      Effect.ensuring(
-        Effect.sync(() => {
-          clearSession();
-        }),
-      ),
-    );
 
   return {
     connectTo,
