@@ -30,8 +30,6 @@ const make = Effect.gen(function* () {
 
   const getDrops = () => bridge.call("drops.getDrops");
 
-  const getItems = () => bridge.call("drops.getItems");
-
   const isUsingCustomDrops = () => bridge.call("drops.isUsingCustomDrops");
 
   const rejectDrop = (itemId: number, visual?: boolean) =>
@@ -70,7 +68,6 @@ const make = Effect.gen(function* () {
   return {
     acceptDrop,
     getDrops,
-    getItems,
     isUsingCustomDrops,
     rejectDrop,
     toggleUi,

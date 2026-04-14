@@ -5,7 +5,6 @@ import type { ItemData } from "@vexed/game";
 export interface DropsShape {
   acceptDrop(itemId: number): BridgeEffect<void>;
   getDrops(): BridgeEffect<Record<string, unknown>>;
-  getItems(): BridgeEffect<Record<string, unknown>>;
   isUsingCustomDrops(): BridgeEffect<boolean>;
   rejectDrop(itemId: number, visual?: boolean): BridgeEffect<boolean>;
   toggleUi(): BridgeEffect<void>;
