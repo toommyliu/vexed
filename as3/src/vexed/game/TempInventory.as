@@ -12,28 +12,7 @@ package vexed.game {
 
     [BridgeExport]
     public static function getItem(item:*):Object {
-      if (!item)
-        return null;
-
-      var items:Array = game.world.myAvatar.tempitems;
-      if (items is Array) {
-        var ret:Object;
-        if (item is String) {
-          item = item.toLowerCase();
-          for each (ret in items) {
-            if (ret.sName.toLowerCase() === item)
-              return ret;
-          }
-        }
-        else if (item is int) {
-          for each (ret in items) {
-            if (ret.ItemID === item)
-              return ret;
-          }
-        }
-      }
-
-      return null;
+      return ItemLookup.find(game.world.myAvatar.tempitems, item);
     }
 
     [BridgeExport]

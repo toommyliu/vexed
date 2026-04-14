@@ -15,39 +15,33 @@ package vexed.game
     [BridgeExport]
     public static function getItems():Array
     {
+      if (!game.world.bankinfo || !(game.world.bankinfo.items is Array))
+      {
+        return [];
+      }
+
       return game.world.bankinfo.items;
     }
 
     [BridgeExport]
     public static function getItem(item:*):Object
     {
-      if (!item)
-        return null;
-
-      var items:Array = game.world.bankinfo.items;
-      if (items is Array)
+      if (!game.world.bankinfo)
       {
-        var ret:Object;
-        if (item is String)
+        return null;
+      }
+
+      var itemId:Number = ItemLookup.toItemId(item);
+      if (!isNaN(itemId) && game.world.bankinfo.getBankItem is Function)
+      {
+        var bankItem:Object = game.world.bankinfo.getBankItem(int(itemId));
+        if (bankItem)
         {
-          item = item.toLowerCase();
-          for each (ret in items)
-          {
-            if (ret.sName.toLowerCase() === item)
-              return ret;
-          }
-        }
-        else if (item is int)
-        {
-          for each (ret in items)
-          {
-            if (ret.ItemID === item)
-              return ret;
-          }
+          return bankItem;
         }
       }
 
-      return null;
+      return ItemLookup.find(game.world.bankinfo.items, item);
     }
 
     [BridgeExport]

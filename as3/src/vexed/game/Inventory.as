@@ -12,28 +12,7 @@ package vexed.game {
 
     [BridgeExport]
     public static function getItem(item:*):Object {
-      if (!item)
-        return null;
-
-      var items:Array = game.world.myAvatar.items;
-      if (items is Array) {
-        var itemObj:Object;
-        if (item is String) {
-          item = item.toLowerCase();
-          for each (itemObj in items) {
-            if (itemObj.sName.toLowerCase() === item)
-              return itemObj;
-          }
-        }
-        else if (item is int) {
-          for each (itemObj in items) {
-            if (itemObj.ItemID === item)
-              return itemObj;
-          }
-        }
-      }
-
-      return null;
+      return ItemLookup.find(game.world.myAvatar.items, item);
     }
 
     [BridgeExport]
@@ -64,16 +43,11 @@ package vexed.game {
       }
 
       if (itemObj.sType == "Item") {
-        var itemId:int = itemObj.ItemID;
-        var sDesc:String = itemObj.sDesc;
-        var sFile:String = itemObj.sFile;
-        var sName:String = itemObj.sName;
-
-        if (!itemId || !sDesc || !sFile || !sName) {
+        if (!itemObj.ItemID || !itemObj.sDesc || !itemObj.sFile || !itemObj.sName) {
           return false;
         }
 
-        game.world.equipUseableItem({ItemID: itemId, sDesc: sDesc, sFile: sFile, sName: sName});
+        game.world.equipUseableItem(itemObj);
         return true;
       }
 

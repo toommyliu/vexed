@@ -6,6 +6,7 @@ export interface BankShape {
   deposit(item: ItemIdentifierToken): BridgeEffect<boolean>;
   depositMany(...items: ItemIdentifierToken[]): BridgeEffect<void>;
   getItem(item: ItemIdentifierToken): BridgeEffect<Record<string, unknown>>;
+  getItems(): BridgeEffect<unknown[]>;
   getSlots(): BridgeEffect<number>;
   getUsedSlots(): BridgeEffect<number>;
   getAvailableSlots(): BridgeEffect<number>;

@@ -5,12 +5,14 @@ import { BankLive } from "./Bank";
 import { BridgeLive } from "./Bridge";
 import { CombatLive } from "./Combat";
 import { DropsLive } from "./Drops";
-import { PacketDomainLive } from "./PacketDomain";
+import { InventoryLive } from "./Inventory";
 import { PacketLive } from "./Packet";
+import { PacketDomainLive } from "./PacketDomain";
 import { PlayerLive } from "./Player";
 import { QuestsLive } from "./Quests";
 import { SettingsLive } from "./Settings";
 import { ShopsLive } from "./Shops";
+import { TempInventoryLive } from "./TempInventory";
 import { WorldLive } from "./World";
 
 const BridgeCoreLive = BridgeLive;
@@ -28,9 +30,12 @@ const BridgeOnlyDomainsLive = Layer.mergeAll(
 
 const PacketRuntimeLive = PacketLive;
 
-const BridgeAuthDomainsLive = Layer.mergeAll(BankLive, DropsLive).pipe(
-  Layer.provide(Layer.mergeAll(BridgeWithAuthLive, PacketRuntimeLive)),
-);
+const BridgeAuthDomainsLive = Layer.mergeAll(
+  BankLive,
+  DropsLive,
+  InventoryLive,
+  TempInventoryLive,
+).pipe(Layer.provide(Layer.mergeAll(BridgeWithAuthLive, PacketRuntimeLive)));
 
 const BridgeRuntimeLive = Layer.mergeAll(
   BridgeOnlyDomainsLive,

@@ -54,6 +54,8 @@ const make = Effect.gen(function* () {
   const getItem = (item: ItemIdentifierToken) =>
     bridge.call("bank.getItem", [item]);
 
+  const getItems = () => bridge.call("bank.getItems");
+
   const getSlots = () => bridge.call("bank.getSlots");
 
   const getUsedSlots = () => bridge.call("bank.getUsedSlots");
@@ -85,7 +87,8 @@ const make = Effect.gen(function* () {
         }
       }
 
-      if (!loaded) {
+      const isLoaded = yield* SynchronizedRef.get(loaded);
+      if (!isLoaded) {
         yield* bridge.call("bank.loadItems");
         yield* SynchronizedRef.set(loaded, true);
       }
@@ -101,6 +104,7 @@ const make = Effect.gen(function* () {
     deposit,
     depositMany,
     getItem,
+    getItems,
     getSlots,
     getUsedSlots,
     getAvailableSlots,
