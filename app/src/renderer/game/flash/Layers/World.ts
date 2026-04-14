@@ -1,7 +1,7 @@
 import { Collection } from "@vexed/collection";
 import { Avatar, Monster } from "@vexed/game";
 import type { Aura } from "@vexed/game";
-import { equalsIgnoreCase } from "@vexed/shared/string";
+import { equalsIgnoreCase, includesIgnoreCase } from "@vexed/shared/string";
 import {
   Effect,
   Layer,
@@ -281,22 +281,16 @@ const make = Effect.gen(function* () {
 
   const findMonsterByName: WorldMonstersShape["findByName"] = (name, cell) =>
     mutate(stateRef, (state) => {
-      const normalizedName = normalize(name);
-      const normalizedCell = cell ? normalize(cell) : undefined;
-
       const monster = state.monsters.find((candidate) => {
         if (!candidate.alive) {
           return false;
         }
 
-        if (
-          normalizedCell !== undefined &&
-          normalize(candidate.cell) !== normalizedCell
-        ) {
+        if (cell !== undefined && !equalsIgnoreCase(candidate.cell, cell)) {
           return false;
         }
 
-        return normalize(candidate.name).includes(normalizedName);
+        return includesIgnoreCase(candidate.name, name);
       });
 
       return monster ? Option.some(monster) : Option.none();
