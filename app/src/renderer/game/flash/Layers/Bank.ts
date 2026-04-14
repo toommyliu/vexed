@@ -1,4 +1,4 @@
-import { Effect, Layer, Schedule } from "effect";
+import { Effect, Layer, Schedule, SynchronizedRef } from "effect";
 import { Auth } from "../Services/Auth";
 import type { BankShape } from "../Services/Bank";
 import { Bank } from "../Services/Bank";
@@ -8,13 +8,15 @@ const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
   const auth = yield* Auth;
 
-  let loaded = false;
+  const loaded = yield* SynchronizedRef.make(false);
 
-  const dispose = yield* bridge.onConnection((status) => {
-    if (loaded && status === "OnConnectionLost") {
-      loaded = false;
-    }
-  });
+  const dispose = yield* bridge.onConnection((status) =>
+    Effect.gen(function* () {
+      if (status === "OnConnectionLost") {
+        yield* SynchronizedRef.set(loaded, false);
+      }
+    }),
+  );
 
   yield* Effect.addFinalizer(() => Effect.sync(() => dispose()));
 
@@ -85,7 +87,7 @@ const make = Effect.gen(function* () {
 
       if (!loaded) {
         yield* bridge.call("bank.loadItems");
-        loaded = true;
+        yield* SynchronizedRef.set(loaded, true);
       }
 
       yield* bridge.call("bank.open");
