@@ -1,10 +1,10 @@
 import { Option } from "effect";
-import { isRecord } from "../PacketPayload";
+import { isRecord } from "./PacketPayload";
 import type {
   ClientPacket,
   ExtensionPacket,
   ServerPacket,
-} from "../PacketTypes";
+} from "./PacketTypes";
 
 const CLIENT_PACKET_PREFIX = "[Sending - STR]: ";
 const XT_PACKET_PREFIX = "%xt%";

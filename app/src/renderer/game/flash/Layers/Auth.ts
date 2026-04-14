@@ -4,7 +4,7 @@ import type { AuthShape } from "../Services/Auth";
 import { Auth } from "../Services/Auth";
 import { Bridge } from "../Services/Bridge";
 import type { LoginInfo } from "../Types";
-import { runtime } from "../runtime";
+import { runtime } from "../Runtime";
 
 const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
@@ -21,6 +21,7 @@ const make = Effect.gen(function* () {
   };
 
   const dispose = yield* bridge.onConnection(async (status) => {
+    // TODO: this might not need runtime at all
     await runtime.runPromise(
       Effect.gen(function* () {
         if (status === "OnConnection") {

@@ -9,7 +9,7 @@ import {
   parseClientPacket,
   parseExtensionPacket,
   parseServerPacket,
-} from "../Services/PacketParser";
+} from "../PacketParser";
 import {
   Packet,
   type ClientPacketHandler,

@@ -1,6 +1,6 @@
 import { Effect, Fiber } from "effect";
 import { createSignal, onCleanup } from "solid-js";
-import { runtime } from "./flash/runtime";
+import { runtime } from "./flash/Runtime";
 import { Combat } from "./flash/Services/Combat";
 import { AutoZone } from "./flash/Services/AutoZone";
 import { Quests } from "./flash/Services/Quests";

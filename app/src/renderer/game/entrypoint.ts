@@ -1,5 +1,5 @@
 import { Effect } from "effect";
-import { runtime } from "./flash/runtime";
+import { runtime } from "./flash/Runtime";
 
 window.onDebug = (message: string) => {
   console.debug("%c debug:: ", "color:#7b8cde;font-size:11px;", message);
