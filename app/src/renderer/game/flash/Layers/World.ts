@@ -206,14 +206,26 @@ const make = Effect.gen(function* () {
       state.meUsername = normalize(username);
     }).pipe(Effect.asVoid);
 
+  const resolveSelf = (state: RuntimeState): Avatar | undefined => {
+    if (!state.meUsername) {
+      return undefined;
+    }
+
+    return state.players.get(state.meUsername);
+  };
+
   const getSelf: WorldPlayersShape["getSelf"] = () =>
     mutate(stateRef, (state) => {
-      if (!state.meUsername) {
-        return Option.none();
-      }
+      const me = resolveSelf(state);
+      return me ? Option.some(me) : Option.none();
+    });
 
-      const player = state.players.get(state.meUsername);
-      return player ? Option.some(player) : Option.none();
+  const withSelf: WorldPlayersShape["withSelf"] = <A>(
+    f: (self: Avatar) => A,
+  ) =>
+    mutate(stateRef, (state) => {
+      const me = resolveSelf(state);
+      return me ? Option.some(f(me)) : Option.none();
     });
 
   const getPlayer: WorldPlayersShape["get"] = (username) =>
@@ -345,6 +357,7 @@ const make = Effect.gen(function* () {
     remove: removePlayer,
     setSelf,
     getSelf,
+    withSelf,
     get: getPlayer,
     getByName: getPlayerByName,
     addAura: addPlayerAura,

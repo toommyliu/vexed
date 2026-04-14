@@ -130,16 +130,18 @@ const make = Effect.gen(function* () {
       }
 
       const waitUntilPlayerAlive = () =>
-        Effect.repeat(world.players.getSelf(), {
+        Effect.repeat(world.players.withSelf((me) => me.alive), {
           schedule: Schedule.spaced("250 millis"),
-          until: (me) => Option.isSome(me) && me.value.alive,
+          until: (alive) => Option.isSome(alive) && alive.value,
         }).pipe(Effect.asVoid);
 
       const resolveTargetMonMapIdByName = (name: string) =>
         Effect.gen(function* () {
-          const me = yield* world.players.getSelf();
-          const cell = Option.isSome(me) ? me.value.cell : undefined;
-          const monster = yield* world.monsters.findByName(name, cell);
+          const meCell = yield* world.players.withSelf((me) => me.cell);
+          const monster = yield* world.monsters.findByName(
+            name,
+            Option.isSome(meCell) ? meCell.value : undefined,
+          );
           return Option.isSome(monster) ? monster.value.monMapId : undefined;
         });
 

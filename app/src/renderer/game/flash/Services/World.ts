@@ -41,6 +41,7 @@ export interface WorldPlayersShape {
   remove(username: string): Effect.Effect<void>;
   setSelf(username: string): Effect.Effect<void>;
   getSelf(): Effect.Effect<Option.Option<Avatar>>;
+  withSelf<A>(f: (self: Avatar) => A): Effect.Effect<Option.Option<A>>;
   get(username: string): Effect.Effect<Option.Option<Avatar>>;
   getByName(name: string): Effect.Effect<Option.Option<Avatar>>;
   addAura(entId: number, aura: Aura): Effect.Effect<void>;

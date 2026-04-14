@@ -1,11 +1,8 @@
 import { Effect, Fiber } from "effect";
 import { createSignal, onCleanup } from "solid-js";
 import { runtime } from "./flash/runtime";
-import { Drops } from "./flash/Services/Drops";
 import { Combat } from "./flash/Services/Combat";
-import { World } from "./flash/Services/World";
 import { AutoZone } from "./flash/Services/AutoZone";
-import { Player } from "./flash/Services/Player";
 import { Quests } from "./flash/Services/Quests";
 
 export default function App() {

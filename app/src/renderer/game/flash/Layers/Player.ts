@@ -1,4 +1,4 @@
-import { Faction, type FactionData } from "@vexed/game";
+import { Faction, type Avatar, type FactionData } from "@vexed/game";
 import { Effect, Layer, Option } from "effect";
 import { Bridge } from "../Services/Bridge";
 import { Player } from "../Services/Player";
@@ -25,30 +25,17 @@ const isFactionData = (value: unknown): value is FactionData => {
   );
 };
 
-const normalizePosition = (value: unknown[]): [number, number] => {
-  const x = Number(value[0] ?? 0);
-  const y = Number(value[1] ?? 0);
-
-  return [Number.isFinite(x) ? x : 0, Number.isFinite(y) ? y : 0] as [
-    number,
-    number,
-  ];
-};
-
 const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
   const world = yield* World;
   const auth = yield* Auth;
 
-  const getCell = () =>
-    Effect.gen(function* () {
-      const me = yield* world.players.getSelf();
-      if (!Option.isSome(me)) {
-        return yield* Effect.succeed("");
-      }
+  const fromSelfOr = <A>(orElse: A, project: (self: Avatar) => A) =>
+    Effect.map(world.players.withSelf(project), (me) =>
+      Option.isSome(me) ? me.value : orElse,
+    );
 
-      return yield* Effect.succeed(me.value.cell);
-    });
+  const getCell = () => fromSelfOr("", (me) => me.cell);
 
   const getClassName = () => bridge.call("player.getClassName");
 
@@ -63,64 +50,23 @@ const make = Effect.gen(function* () {
 
   const getGold = () => bridge.call("player.getGold");
 
-  const getHp = () =>
-    Effect.gen(function* () {
-      const me = yield* world.players.getSelf();
-      if (!Option.isSome(me)) {
-        return yield* Effect.succeed(0);
-      }
+  const getHp = () => fromSelfOr(0, (me) => me.hp);
 
-      return yield* Effect.succeed(me.value.hp);
-    });
+  const getLevel = () => fromSelfOr(0, (me) => me.level);
 
-  const getLevel = () => bridge.call("player.getLevel");
+  const getMaxHp = () => fromSelfOr(0, (me) => me.maxHp);
 
-  const getMaxHp = () =>
-    Effect.gen(function* () {
-      const me = yield* world.players.getSelf();
-      if (!Option.isSome(me)) {
-        return yield* Effect.succeed(0);
-      }
+  const getMaxMp = () => fromSelfOr(0, (me) => me.maxMp);
 
-      return yield* Effect.succeed(me.value.maxHp);
-    });
+  const getMp = () => fromSelfOr(0, (me) => me.mp);
 
-  const getMaxMp = () =>
-    Effect.gen(function* () {
-      const me = yield* world.players.getSelf();
-      if (!Option.isSome(me)) {
-        return yield* Effect.succeed(0);
-      }
+  const getPad = () => fromSelfOr("", (me) => me.pad);
 
-      return yield* Effect.succeed(me.value.maxMp);
-    });
+  const getPosition = () => fromSelfOr<[number, number]>([0, 0], (me) => me.position);
 
-  const getMp = () =>
-    Effect.gen(function* () {
-      const me = yield* world.players.getSelf();
-      if (!Option.isSome(me)) {
-        return yield* Effect.succeed(0);
-      }
+  const getState = () => fromSelfOr<number>(0, (me) => me.state);
 
-      return yield* Effect.succeed(me.value.mp);
-    });
-
-  const getPad = () => bridge.call("player.getPad");
-
-  const getPosition = () =>
-    Effect.map(bridge.call("player.getPosition"), normalizePosition);
-
-  const getState = () =>
-    Effect.gen(function* () {
-      const me = yield* world.players.getSelf();
-      if (!Option.isSome(me)) {
-        return yield* Effect.succeed(0);
-      }
-
-      return yield* Effect.succeed(me.value.state);
-    });
-
-  const isAfk = () => bridge.call("player.isAfk");
+  const isAfk = () => fromSelfOr(false, (me) => me.isAFK());
 
   const isReady = () =>
     Effect.gen(function* () {
@@ -132,7 +78,7 @@ const make = Effect.gen(function* () {
 
   const isMember = () => bridge.call("player.isMember");
 
-  const jump = (cell: string, pad?: string) =>
+  const jumpToCell = (cell: string, pad?: string) =>
     pad === undefined
       ? bridge.call("player.jump", [cell])
       : bridge.call("player.jump", [cell, pad]);
@@ -188,7 +134,7 @@ const make = Effect.gen(function* () {
     isAfk,
     isReady,
     isMember,
-    jump,
+    jumpToCell,
     joinMap,
     goToPlayer,
     rest,

@@ -251,15 +251,7 @@ const make = Effect.gen(function* () {
       );
 
   const withSelf = (f: (player: { data: AvatarData }) => void) =>
-    world.players
-      .getSelf()
-      .pipe(
-        Effect.flatMap((player) =>
-          Option.isSome(player)
-            ? Effect.sync(() => f(player.value))
-            : Effect.void,
-        ),
-      );
+    world.players.withSelf(f).pipe(Effect.asVoid);
 
   const registerJson = (
     cmd: string,
@@ -593,12 +585,12 @@ const make = Effect.gen(function* () {
 
   yield* registerJson("clearAuras", () =>
     Effect.gen(function* () {
-      const me = yield* world.players.getSelf();
-      if (Option.isNone(me)) {
+      const meEntityId = yield* world.players.withSelf((me) => me.data.entID);
+      if (Option.isNone(meEntityId)) {
         return;
       }
 
-      yield* world.players.clearAuras(me.value.data.entID);
+      yield* world.players.clearAuras(meEntityId.value);
     }),
   );
 
