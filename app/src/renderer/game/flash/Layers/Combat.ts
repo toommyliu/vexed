@@ -223,18 +223,12 @@ const make = Effect.gen(function* () {
           );
         }
 
-        // if (targetMonMapId !== undefined) {
-        //   yield*(targetMonMapId);
-        // } else if (resolvedTarget.kind === "name") {
-        //   yield* attackMonster(resolvedTarget.name);
-        // }
-
         if (targetMonMapId !== undefined) {
           yield* attackMonster(targetMonMapId);
         } else if (resolvedTarget.kind === "name") {
           yield* attackMonster(resolvedTarget.name);
         }
-        
+
         const skill = SKILL_ROTATION[skillIndex % SKILL_ROTATION.length];
         skillIndex += 1;
         if (skill !== undefined) {
