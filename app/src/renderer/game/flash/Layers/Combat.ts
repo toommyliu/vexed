@@ -64,11 +64,17 @@ const make = Effect.gen(function* () {
     return idx >= 0 && idx <= 5;
   };
 
-  const attackMonster = (monster: MonsterName) =>
-    bridge.call("combat.attackMonster", [monster]);
+  const attackMonster = (monster: MonsterIdentifierToken) =>
+    Effect.gen(function* () {
+      const resolved = resolveKillTarget(monster);
+      if (resolved.kind === "monMapId") {
+        return yield* bridge.call("combat.attackMonsterById", [
+          resolved.monMapId,
+        ]);
+      }
 
-  const attackMonsterById = (monMapId: number) =>
-    bridge.call("combat.attackMonsterById", [monMapId]);
+      return yield* bridge.call("combat.attackMonster", [resolved.name]);
+    });
 
   const cancelAutoAttack = () => bridge.call("combat.cancelAutoAttack");
 
@@ -217,12 +223,18 @@ const make = Effect.gen(function* () {
           );
         }
 
+        // if (targetMonMapId !== undefined) {
+        //   yield*(targetMonMapId);
+        // } else if (resolvedTarget.kind === "name") {
+        //   yield* attackMonster(resolvedTarget.name);
+        // }
+
         if (targetMonMapId !== undefined) {
-          yield* attackMonsterById(targetMonMapId);
+          yield* attackMonster(targetMonMapId);
         } else if (resolvedTarget.kind === "name") {
           yield* attackMonster(resolvedTarget.name);
         }
-
+        
         const skill = SKILL_ROTATION[skillIndex % SKILL_ROTATION.length];
         skillIndex += 1;
         if (skill !== undefined) {
@@ -251,7 +263,6 @@ const make = Effect.gen(function* () {
 
   return {
     attackMonster,
-    attackMonsterById,
     cancelAutoAttack,
     cancelTarget,
     useSkill,

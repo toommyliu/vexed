@@ -3,7 +3,6 @@ import type { BridgeEffect } from "./Bridge";
 
 export interface CombatShape {
   attackMonster(monster: string): BridgeEffect<void>;
-  attackMonsterById(monMapId: number): BridgeEffect<void>;
   cancelAutoAttack(): BridgeEffect<void>;
   cancelTarget(): BridgeEffect<void>;
   getSkillCooldownRemaining(index: number | string): BridgeEffect<number>;
