@@ -4,6 +4,7 @@ import { Bridge } from "../Services/Bridge";
 import { Player } from "../Services/Player";
 import type { PlayerShape } from "../Services/Player";
 import { World } from "../Services/World";
+import { Auth } from "../Services/Auth";
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
@@ -37,6 +38,7 @@ const normalizePosition = (value: unknown[]): [number, number] => {
 const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
   const world = yield* World;
+  const auth = yield* Auth;
 
   const getCell = () =>
     Effect.gen(function* () {
@@ -120,7 +122,13 @@ const make = Effect.gen(function* () {
 
   const isAfk = () => bridge.call("player.isAfk");
 
-  const isLoaded = () => bridge.call("player.isLoaded");
+  const isReady = () =>
+    Effect.gen(function* () {
+      const isLoggedIn = yield* auth.isLoggedIn();
+      const isWorldLoaded = yield* world.map.isLoaded();
+      const isSelfLoaded = yield* bridge.call("player.isLoaded");
+      return isLoggedIn && isWorldLoaded && isSelfLoaded;
+    });
 
   const isMember = () => bridge.call("player.isMember");
 
@@ -178,7 +186,7 @@ const make = Effect.gen(function* () {
     getPosition,
     getState,
     isAfk,
-    isLoaded,
+    isReady,
     isMember,
     jump,
     joinMap,

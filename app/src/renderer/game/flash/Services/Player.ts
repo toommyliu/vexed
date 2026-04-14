@@ -17,7 +17,7 @@ export interface PlayerShape {
   getPosition(): BridgeEffect<[number, number]>;
   getState(): BridgeEffect<number>;
   isAfk(): BridgeEffect<boolean>;
-  isLoaded(): BridgeEffect<boolean>;
+  isReady(): BridgeEffect<boolean>;
   isMember(): BridgeEffect<boolean>;
   jump(cell: string, pad?: string): BridgeEffect<void>;
   joinMap(map: string, cell?: string, pad?: string): BridgeEffect<void>;

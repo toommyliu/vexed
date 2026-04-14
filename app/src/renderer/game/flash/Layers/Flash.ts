@@ -26,17 +26,16 @@ const BridgeOnlyDomainsLive = Layer.mergeAll(
   PlayerLive,
   SettingsLive,
   ShopsLive
-).pipe(Layer.provideMerge(WorldLive), Layer.provide(BridgeCoreLive));
+).pipe(Layer.provideMerge(WorldLive.pipe(Layer.provide(BridgeCoreLive))));
 
 const BridgeAuthDomainsLive = Layer.mergeAll(BankLive, DropsLive).pipe(
   Layer.provide(BridgeWithAuthLive),
 );
 
 const BridgeRuntimeLive = Layer.mergeAll(
-  BridgeWithAuthLive,
   BridgeOnlyDomainsLive,
   BridgeAuthDomainsLive,
-);
+).pipe(Layer.provideMerge(BridgeWithAuthLive));
 
 const PacketCoreLive = PacketLive;
 
