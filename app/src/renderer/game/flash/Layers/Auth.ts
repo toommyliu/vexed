@@ -81,6 +81,7 @@ const make = Effect.gen(function* () {
 
   const getPassword = () => Effect.succeed(_password);
 
+  // Account credentials, initial server info, and other account-related metadata
   const getLoginInfo = () => {
     if (_loginInfo !== undefined) {
       return Effect.succeed(_loginInfo);
