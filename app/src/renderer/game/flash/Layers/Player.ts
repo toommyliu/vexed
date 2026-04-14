@@ -1,10 +1,11 @@
 import { Faction, type Avatar, type FactionData } from "@vexed/game";
-import { Effect, Layer, Option } from "effect";
+import { Effect, Layer, Option, Ref } from "effect";
 import { Bridge } from "../Services/Bridge";
 import { Player } from "../Services/Player";
 import type { PlayerShape } from "../Services/Player";
 import { World } from "../Services/World";
 import { Auth } from "../Services/Auth";
+import { Collection } from "@vexed/collection";
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
@@ -30,6 +31,8 @@ const make = Effect.gen(function* () {
   const world = yield* World;
   const auth = yield* Auth;
 
+  const _factions = yield* Ref.make<Collection<string, Faction>>(new Collection());
+
   const fromSelfOr = <A>(orElse: A, project: (self: Avatar) => A) =>
     Effect.map(world.players.withSelf(project), (me) =>
       Option.isSome(me) ? me.value : orElse,
@@ -40,11 +43,25 @@ const make = Effect.gen(function* () {
   const getClassName = () => bridge.call("player.getClassName");
 
   const getFactions = () =>
-    Effect.map(bridge.call("player.getFactions"), (factions) =>
-      factions
-        .filter(isFactionData)
-        .map((factionData) => new Faction(factionData)),
-    );
+    Effect.gen(function* () {
+      const factions = yield* bridge.call("player.getFactions");
+      const validFactions = factions.filter(isFactionData);
+
+      yield* Ref.update(_factions, (cache) => {
+        for (const factionData of validFactions) {
+          const key = factionData.sName;
+          const existing = cache.get(key);
+          if (existing) {
+            existing.data = factionData;
+          } else {
+            cache.set(key, new Faction(factionData));
+          }
+        }
+        return cache;
+      });
+
+      return yield* Ref.get(_factions);
+    });
 
   const getGender = () => bridge.call("player.getGender");
 
@@ -62,7 +79,8 @@ const make = Effect.gen(function* () {
 
   const getPad = () => fromSelfOr("", (me) => me.pad);
 
-  const getPosition = () => fromSelfOr<[number, number]>([0, 0], (me) => me.position);
+  const getPosition = () =>
+    fromSelfOr<[number, number]>([0, 0], (me) => me.position);
 
   const getState = () => fromSelfOr<number>(0, (me) => me.state);
 

@@ -4,6 +4,7 @@ import { runtime } from "./flash/runtime";
 import { Combat } from "./flash/Services/Combat";
 import { AutoZone } from "./flash/Services/AutoZone";
 import { Quests } from "./flash/Services/Quests";
+import { Player } from "./flash/Services/Player";
 
 export default function App() {
   const [count, setCount] = createSignal(0);
@@ -16,9 +17,8 @@ export default function App() {
     void runtime
       .runPromise(
         Effect.gen(function* () {
-          const quests = yield* Quests;
-          console.log("Tree", yield* quests.getTree());
-          console.log("Accepted", yield* quests.getAccepted());
+          const player = yield* Player;
+          console.log("Player factions:", yield* player.getFactions());
         }),
       )
       .catch((error) => {

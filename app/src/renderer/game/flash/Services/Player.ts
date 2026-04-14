@@ -1,11 +1,12 @@
 import type { Faction } from "@vexed/game";
+import { Collection } from "@vexed/collection";
 import { ServiceMap } from "effect";
 import type { BridgeEffect } from "./Bridge";
 
 export interface PlayerShape {
   getCell(): BridgeEffect<string>;
   getClassName(): BridgeEffect<string>;
-  getFactions(): BridgeEffect<Faction[]>;
+  getFactions(): BridgeEffect<Collection<string, Faction>>;
   getGender(): BridgeEffect<string>;
   getGold(): BridgeEffect<number>;
   getHp(): BridgeEffect<number>;
