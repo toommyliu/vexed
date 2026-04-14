@@ -44,45 +44,46 @@ const make = Effect.gen(function* () {
   const quests = yield* SynchronizedRef.make<Record<number, QuestInfo>>({});
   const acceptedQuests = yield* SynchronizedRef.make<Set<number>>(new Set());
 
-  const getQuestsDispose = yield* packets.packetFromServer((packet) =>
-    Effect.gen(function* () {
-      const nextQuests = getQuestsFromPacket(packet);
-      if (!nextQuests) {
-        return;
-      }
-
-      yield* SynchronizedRef.update(quests, (tree) => {
-        for (const [rawQuestId, questInfo] of Object.entries(nextQuests)) {
-          console.log("Adding quest:", rawQuestId, questInfo);
-          const questId = Number(rawQuestId);
-          if (Number.isNaN(questId)) {
-            continue;
-          }
-
-          tree[questId] = questInfo;
+  yield* packets.scoped(
+    packets.packetFromServer((packet) =>
+      Effect.gen(function* () {
+        const nextQuests = getQuestsFromPacket(packet);
+        if (!nextQuests) {
+          return;
         }
 
-        return tree;
-      });
-    }),
+        yield* SynchronizedRef.update(quests, (tree) => {
+          for (const [rawQuestId, questInfo] of Object.entries(nextQuests)) {
+            console.log("Adding quest:", rawQuestId, questInfo);
+            const questId = Number(rawQuestId);
+            if (Number.isNaN(questId)) {
+              continue;
+            }
+
+            tree[questId] = questInfo;
+          }
+
+          return tree;
+        });
+      }),
+    ),
   );
 
-  const acceptQuestDispose = yield* packets.packetFromClient((packet) =>
-    Effect.gen(function* () {
-      if (packet.includes("acceptQuest")) {
-        //%xt%zm%getQuests%3%11%407%408%409%445%446%
-        const parts = packet.split("%").filter(Boolean); 
-        console.log("Accept quest packet:", parts);
-        const questId = Number(parts[5]);
-        yield* SynchronizedRef.update(acceptedQuests, (set) =>
-          set.add(questId),
-        );
-      }
-    }),
+  yield* packets.scoped(
+    packets.packetFromClient((packet) =>
+      Effect.gen(function* () {
+        if (packet.includes("acceptQuest")) {
+          //%xt%zm%getQuests%3%11%407%408%409%445%446%
+          const parts = packet.split("%").filter(Boolean);
+          console.log("Accept quest packet:", parts);
+          const questId = Number(parts[5]);
+          yield* SynchronizedRef.update(acceptedQuests, (set) =>
+            set.add(questId),
+          );
+        }
+      }),
+    ),
   );
-
-  yield* Effect.addFinalizer(() => Effect.sync(getQuestsDispose));
-  yield* Effect.addFinalizer(() => Effect.sync(acceptQuestDispose));
 
   const waitForQuestLoad = (questId: number) =>
     waitForRef(quests, (tree) => !!tree[questId]);
@@ -100,7 +101,10 @@ const make = Effect.gen(function* () {
       });
     });
 
-  const accept: QuestsShape["accept"] = (questId: number, silent: boolean = false) =>
+  const accept: QuestsShape["accept"] = (
+    questId: number,
+    silent: boolean = false,
+  ) =>
     Effect.gen(function* () {
       yield* world.map.waitForGameAction("acceptQuest");
 

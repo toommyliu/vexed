@@ -2,12 +2,18 @@ import {
   EntityState,
   type Aura,
   type AvatarData,
-  type ItemData,
   type MonsterData,
 } from "@vexed/game";
-import { equalsIgnoreCase } from "@vexed/shared/string";
 import { readCsvValue } from "@vexed/shared/csv";
+import { equalsIgnoreCase } from "@vexed/shared/string";
 import { Effect, Layer, Option } from "effect";
+import {
+  asArray,
+  asBoolean,
+  asNumber,
+  asRecord,
+  asString,
+} from "../PacketPayload";
 import type {
   PacketDomainEvent,
   PacketDomainEventHandler,
@@ -15,70 +21,12 @@ import type {
   PacketDomainShape,
 } from "../Services/PacketDomain";
 import { PacketDomain } from "../Services/PacketDomain";
+import { Packet, type PacketListenerDisposer } from "../Services/Packet";
 import { Auth } from "../Services/Auth";
-import { Drops } from "../Services/Drops";
-import {
-  PacketHandler,
-  type PacketHandlerDisposer,
-} from "../Services/PacketHandler";
 import { World } from "../Services/World";
 
 const AURA_ADD_COMMANDS = new Set(["aura+", "aura++"]);
 const AURA_REMOVE_COMMANDS = new Set(["aura-", "aura--"]);
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null;
-
-const asRecord = (value: unknown): Record<string, unknown> | null =>
-  isRecord(value) ? value : null;
-
-const asArray = (value: unknown): readonly unknown[] =>
-  Array.isArray(value) ? value : [];
-
-const asString = (value: unknown): string | undefined =>
-  typeof value === "string" ? value : undefined;
-
-const asNumber = (value: unknown): number | undefined => {
-  if (typeof value === "number") {
-    return Number.isFinite(value) ? value : undefined;
-  }
-
-  if (typeof value === "string" && value.trim() !== "") {
-    const parsed = Number(value);
-    return Number.isFinite(parsed) ? parsed : undefined;
-  }
-
-  return undefined;
-};
-
-const asBoolean = (value: unknown): boolean | undefined => {
-  if (typeof value === "boolean") {
-    return value;
-  }
-
-  if (value === "true") {
-    return true;
-  }
-
-  if (value === "false") {
-    return false;
-  }
-
-  return undefined;
-};
-
-const isItemData = (value: unknown): value is ItemData => {
-  const record = asRecord(value);
-  if (!record) {
-    return false;
-  }
-
-  return (
-    typeof record["ItemID"] === "number" &&
-    typeof record["iQty"] === "number" &&
-    typeof record["sName"] === "string"
-  );
-};
 
 const toAvatarData = (
   username: string,
@@ -136,9 +84,6 @@ const patchAvatarData = (
   if (afk !== undefined) data.afk = afk;
 };
 
-const registerScoped = (registration: Effect.Effect<PacketHandlerDisposer>) =>
-  Effect.acquireRelease(registration, (dispose) => Effect.sync(dispose));
-
 type DomainHandlerStore = {
   [K in PacketDomainEvent]: Set<PacketDomainEventHandler<K>>;
 };
@@ -153,7 +98,7 @@ const registerDomainHandler = <E extends PacketDomainEvent>(
   store: DomainHandlerStore,
   event: E,
   handler: PacketDomainEventHandler<E>,
-): Effect.Effect<PacketHandlerDisposer> =>
+): Effect.Effect<PacketListenerDisposer> =>
   Effect.sync(() => {
     const handlers = store[event] as
       | Set<PacketDomainEventHandler<E>>
@@ -212,8 +157,7 @@ const dispatchDomainEvent = <E extends PacketDomainEvent>(
 
 const make = Effect.gen(function* () {
   const auth = yield* Auth;
-  const drops = yield* Drops;
-  const packetHandler = yield* PacketHandler;
+  const packets = yield* Packet;
   const world = yield* World;
   const domainHandlerStore = createDomainHandlerStore();
 
@@ -253,40 +197,7 @@ const make = Effect.gen(function* () {
   const withSelf = (f: (player: { data: AvatarData }) => void) =>
     world.players.withSelf(f).pipe(Effect.asVoid);
 
-  const registerJson = (
-    cmd: string,
-    handler: Parameters<typeof packetHandler.registerExtensionType>[2],
-  ) =>
-    registerScoped(packetHandler.registerExtensionType("json", cmd, handler));
-
-  const registerStr = (
-    cmd: string,
-    handler: Parameters<typeof packetHandler.registerExtensionType>[2],
-  ) => registerScoped(packetHandler.registerExtensionType("str", cmd, handler));
-
-  yield* registerJson("dropItem", (packet) =>
-    Effect.gen(function* () {
-      const payload = asRecord(packet.data);
-      if (!payload) {
-        return;
-      }
-
-      const items = asRecord(payload["items"]);
-      if (!items) {
-        return;
-      }
-
-      for (const item of Object.values(items)) {
-        if (!isItemData(item)) {
-          continue;
-        }
-
-        yield* drops._addDrop(item).pipe(Effect.catch(() => Effect.void));
-      }
-    }),
-  );
-
-  yield* registerJson("event", (packet) =>
+  yield* packets.jsonScoped("event", (packet) =>
     Effect.gen(function* () {
       const payload = asRecord(packet.data);
       if (!payload || !payload["args"]) {
@@ -308,7 +219,7 @@ const make = Effect.gen(function* () {
     }),
   );
 
-  yield* registerJson("initUserData", (packet) =>
+  yield* packets.jsonScoped("initUserData", (packet) =>
     Effect.gen(function* () {
       const payload = asRecord(packet.data);
       const data = payload ? asRecord(payload["data"]) : null;
@@ -323,7 +234,7 @@ const make = Effect.gen(function* () {
     }),
   );
 
-  yield* registerJson("initUserDatas", (packet) =>
+  yield* packets.jsonScoped("initUserDatas", (packet) =>
     Effect.gen(function* () {
       const payload = asRecord(packet.data);
       if (!payload) {
@@ -345,7 +256,7 @@ const make = Effect.gen(function* () {
     }),
   );
 
-  yield* registerStr("exitArea", (packet) =>
+  yield* packets.strScoped("exitArea", (packet) =>
     Effect.gen(function* () {
       const data = asArray(packet.data);
       if (!data) {
@@ -362,7 +273,7 @@ const make = Effect.gen(function* () {
     }),
   );
 
-  yield* registerJson("moveToArea", (packet) =>
+  yield* packets.jsonScoped("moveToArea", (packet) =>
     Effect.gen(function* () {
       const payload = asRecord(packet.data);
       if (!payload) {
@@ -497,7 +408,7 @@ const make = Effect.gen(function* () {
     }),
   );
 
-  yield* registerJson("mtls", (packet) =>
+  yield* packets.jsonScoped("mtls", (packet) =>
     Effect.gen(function* () {
       const payload = asRecord(packet.data);
       if (!payload) {
@@ -530,7 +441,7 @@ const make = Effect.gen(function* () {
     }),
   );
 
-  yield* registerJson("uotls", (packet) =>
+  yield* packets.jsonScoped("uotls", (packet) =>
     Effect.gen(function* () {
       const payload = asRecord(packet.data);
       if (!payload) {
@@ -556,7 +467,7 @@ const make = Effect.gen(function* () {
     }),
   );
 
-  yield* registerJson("addGoldExp", (packet) =>
+  yield* packets.jsonScoped("addGoldExp", (packet) =>
     Effect.gen(function* () {
       const payload = asRecord(packet.data);
       if (!payload || asString(payload["typ"]) !== "m") {
@@ -583,7 +494,7 @@ const make = Effect.gen(function* () {
     }),
   );
 
-  yield* registerJson("clearAuras", () =>
+  yield* packets.jsonScoped("clearAuras", () =>
     Effect.gen(function* () {
       const meEntityId = yield* world.players.withSelf((me) => me.data.entID);
       if (Option.isNone(meEntityId)) {
@@ -594,7 +505,7 @@ const make = Effect.gen(function* () {
     }),
   );
 
-  yield* registerStr("respawnMon", (packet) =>
+  yield* packets.strScoped("respawnMon", (packet) =>
     Effect.gen(function* () {
       const payload = asArray(packet.data);
       const monMapId = asNumber(payload[2]);
@@ -610,7 +521,7 @@ const make = Effect.gen(function* () {
     }),
   );
 
-  yield* registerStr("uotls", (packet) =>
+  yield* packets.strScoped("uotls", (packet) =>
     Effect.gen(function* () {
       const payload = asArray(packet.data);
       const username = asString(payload[2]);
@@ -674,198 +585,192 @@ const make = Effect.gen(function* () {
     }),
   );
 
-  yield* registerScoped(
-    packetHandler.registerClient("moveToCell", (packet) =>
-      Effect.gen(function* () {
-        yield* withSelf((me) => {
-          const cell = packet.params[4];
-          const pad = packet.params[5];
+  yield* packets.clientScoped("moveToCell", (packet) =>
+    Effect.gen(function* () {
+      yield* withSelf((me) => {
+        const cell = packet.params[4];
+        const pad = packet.params[5];
 
-          if (!cell || !pad) {
-            return;
-          }
-
-          me.data.strFrame = cell;
-          me.data.strPad = pad;
-        });
-      }),
-    ),
-  );
-
-  yield* registerScoped(
-    packetHandler.registerClient("mv", (packet) =>
-      withSelf((me) => {
-        const tx = asNumber(packet.params[4]);
-        const ty = asNumber(packet.params[5]);
-
-        if (tx !== undefined) {
-          me.data.tx = tx;
-        }
-
-        if (ty !== undefined) {
-          me.data.ty = ty;
-        }
-      }),
-    ),
-  );
-
-  yield* registerScoped(
-    packetHandler.registerServer("ct", (packet) =>
-      Effect.gen(function* () {
-        const payload = asRecord(packet.data);
-        if (!payload) {
+        if (!cell || !pad) {
           return;
         }
 
-        const playerUpdates = asRecord(payload["p"]);
-        if (playerUpdates) {
-          for (const [playerName, rawUpdate] of Object.entries(playerUpdates)) {
-            const update = asRecord(rawUpdate);
-            if (!update) {
-              continue;
-            }
+        me.data.strFrame = cell;
+        me.data.strPad = pad;
+      });
+    }),
+  );
 
-            let deadPlayerEntityId: number | undefined;
+  yield* packets.clientScoped("mv", (packet) =>
+    withSelf((me) => {
+      const tx = asNumber(packet.params[4]);
+      const ty = asNumber(packet.params[5]);
 
-            yield* withPlayerByName(playerName, (player) => {
-              const intState = asNumber(update["intState"]);
-              if (intState !== undefined) {
-                player.data.intState = intState;
-              }
+      if (tx !== undefined) {
+        me.data.tx = tx;
+      }
 
-              const intHP = asNumber(update["intHP"]);
-              if (intHP !== undefined) {
-                player.data.intHP = intHP;
-              }
+      if (ty !== undefined) {
+        me.data.ty = ty;
+      }
+    }),
+  );
 
-              const intMP = asNumber(update["intMP"]);
-              if (intMP !== undefined) {
-                player.data.intMP = intMP;
-              }
+  yield* packets.serverScoped("ct", (packet) =>
+    Effect.gen(function* () {
+      const payload = asRecord(packet.data);
+      if (!payload) {
+        return;
+      }
 
-              if (
-                player.data.intState === EntityState.Dead &&
-                player.data.intHP === 0
-              ) {
-                deadPlayerEntityId = player.data.entID;
-              }
-            });
-
-            if (deadPlayerEntityId !== undefined) {
-              yield* world.players.clearAuras(deadPlayerEntityId);
-            }
-          }
-        }
-
-        const auraEvents = asArray(payload["a"]);
-        for (const rawAuraEvent of auraEvents) {
-          const auraEvent = asRecord(rawAuraEvent);
-          if (!auraEvent) {
-            continue;
-          }
-
-          const cmd = asString(auraEvent["cmd"]);
-          const targetInfo = asString(auraEvent["tInf"]);
-          if (!cmd || !targetInfo) {
-            continue;
-          }
-
-          const [targetType, rawTargetId] = targetInfo.split(":");
-          const targetId = asNumber(rawTargetId);
-
-          if (
-            targetId === undefined ||
-            (targetType !== "m" && targetType !== "p")
-          ) {
-            continue;
-          }
-
-          if (AURA_ADD_COMMANDS.has(cmd)) {
-            for (const rawAura of asArray(auraEvent["auras"])) {
-              const auraPayload = asRecord(rawAura);
-              const auraName = auraPayload
-                ? asString(auraPayload["nam"])
-                : undefined;
-
-              if (!auraPayload || !auraName) {
-                continue;
-              }
-
-              const aura: Aura = {
-                name: auraName,
-                duration: asNumber(auraPayload["dur"]) ?? 0,
-              };
-
-              const value = asNumber(auraPayload["val"]);
-              if (value !== undefined) {
-                aura.value = value;
-              }
-
-              const isNew = auraPayload["isNew"] === true;
-              if (targetType === "p") {
-                if (isNew) {
-                  yield* world.players.addAura(targetId, aura);
-                } else {
-                  yield* world.players.updateAura(targetId, aura);
-                }
-              } else {
-                if (isNew) {
-                  yield* world.monsters.addAura(targetId, aura);
-                } else {
-                  yield* world.monsters.updateAura(targetId, aura);
-                }
-              }
-            }
-            continue;
-          }
-
-          if (AURA_REMOVE_COMMANDS.has(cmd)) {
-            const aura = asRecord(auraEvent["aura"]);
-            const auraName = aura ? asString(aura["nam"]) : undefined;
-            if (!auraName) {
-              continue;
-            }
-
-            if (targetType === "p") {
-              yield* world.players.removeAura(targetId, auraName);
-            } else {
-              yield* world.monsters.removeAura(targetId, auraName);
-            }
-          }
-        }
-
-        const monsterUpdates = asRecord(payload["m"]);
-        if (!monsterUpdates) {
-          return;
-        }
-
-        for (const [rawMonMapId, rawUpdate] of Object.entries(monsterUpdates)) {
-          const monMapId = asNumber(rawMonMapId);
+      const playerUpdates = asRecord(payload["p"]);
+      if (playerUpdates) {
+        for (const [playerName, rawUpdate] of Object.entries(playerUpdates)) {
           const update = asRecord(rawUpdate);
-
-          if (monMapId === undefined || !update) {
+          if (!update) {
             continue;
           }
 
-          yield* withMonster(monMapId, (monster) => {
+          let deadPlayerEntityId: number | undefined;
+
+          yield* withPlayerByName(playerName, (player) => {
+            const intState = asNumber(update["intState"]);
+            if (intState !== undefined) {
+              player.data.intState = intState;
+            }
+
             const intHP = asNumber(update["intHP"]);
             if (intHP !== undefined) {
-              monster.data.intHP = intHP;
+              player.data.intHP = intHP;
             }
 
             const intMP = asNumber(update["intMP"]);
             if (intMP !== undefined) {
-              monster.data.intMP = intMP;
+              player.data.intMP = intMP;
             }
 
-            const intState = asNumber(update["intState"]);
-            if (intState !== undefined) {
-              monster.data.intState = intState;
+            if (
+              player.data.intState === EntityState.Dead &&
+              player.data.intHP === 0
+            ) {
+              deadPlayerEntityId = player.data.entID;
             }
           });
+
+          if (deadPlayerEntityId !== undefined) {
+            yield* world.players.clearAuras(deadPlayerEntityId);
+          }
         }
-      }),
-    ),
+      }
+
+      const auraEvents = asArray(payload["a"]);
+      for (const rawAuraEvent of auraEvents) {
+        const auraEvent = asRecord(rawAuraEvent);
+        if (!auraEvent) {
+          continue;
+        }
+
+        const cmd = asString(auraEvent["cmd"]);
+        const targetInfo = asString(auraEvent["tInf"]);
+        if (!cmd || !targetInfo) {
+          continue;
+        }
+
+        const [targetType, rawTargetId] = targetInfo.split(":");
+        const targetId = asNumber(rawTargetId);
+
+        if (
+          targetId === undefined ||
+          (targetType !== "m" && targetType !== "p")
+        ) {
+          continue;
+        }
+
+        if (AURA_ADD_COMMANDS.has(cmd)) {
+          for (const rawAura of asArray(auraEvent["auras"])) {
+            const auraPayload = asRecord(rawAura);
+            const auraName = auraPayload
+              ? asString(auraPayload["nam"])
+              : undefined;
+
+            if (!auraPayload || !auraName) {
+              continue;
+            }
+
+            const aura: Aura = {
+              name: auraName,
+              duration: asNumber(auraPayload["dur"]) ?? 0,
+            };
+
+            const value = asNumber(auraPayload["val"]);
+            if (value !== undefined) {
+              aura.value = value;
+            }
+
+            const isNew = auraPayload["isNew"] === true;
+            if (targetType === "p") {
+              if (isNew) {
+                yield* world.players.addAura(targetId, aura);
+              } else {
+                yield* world.players.updateAura(targetId, aura);
+              }
+            } else {
+              if (isNew) {
+                yield* world.monsters.addAura(targetId, aura);
+              } else {
+                yield* world.monsters.updateAura(targetId, aura);
+              }
+            }
+          }
+          continue;
+        }
+
+        if (AURA_REMOVE_COMMANDS.has(cmd)) {
+          const aura = asRecord(auraEvent["aura"]);
+          const auraName = aura ? asString(aura["nam"]) : undefined;
+          if (!auraName) {
+            continue;
+          }
+
+          if (targetType === "p") {
+            yield* world.players.removeAura(targetId, auraName);
+          } else {
+            yield* world.monsters.removeAura(targetId, auraName);
+          }
+        }
+      }
+
+      const monsterUpdates = asRecord(payload["m"]);
+      if (!monsterUpdates) {
+        return;
+      }
+
+      for (const [rawMonMapId, rawUpdate] of Object.entries(monsterUpdates)) {
+        const monMapId = asNumber(rawMonMapId);
+        const update = asRecord(rawUpdate);
+
+        if (monMapId === undefined || !update) {
+          continue;
+        }
+
+        yield* withMonster(monMapId, (monster) => {
+          const intHP = asNumber(update["intHP"]);
+          if (intHP !== undefined) {
+            monster.data.intHP = intHP;
+          }
+
+          const intMP = asNumber(update["intMP"]);
+          if (intMP !== undefined) {
+            monster.data.intMP = intMP;
+          }
+
+          const intState = asNumber(update["intState"]);
+          if (intState !== undefined) {
+            monster.data.intState = intState;
+          }
+        });
+      }
+    }),
   );
 
   return {

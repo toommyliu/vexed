@@ -1,4 +1,5 @@
 import { Option } from "effect";
+import { isRecord } from "../PacketPayload";
 import type {
   ClientPacket,
   ExtensionPacket,
@@ -15,9 +16,6 @@ const parseJson = (raw: string): Option.Option<unknown> => {
     return Option.none();
   }
 };
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null;
 
 const toClientPayload = (raw: string): string =>
   raw.startsWith(CLIENT_PACKET_PREFIX)

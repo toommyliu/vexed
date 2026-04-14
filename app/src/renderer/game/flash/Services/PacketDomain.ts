@@ -1,7 +1,7 @@
 import { ServiceMap } from "effect";
 import type { Effect } from "effect";
 import type { ExtensionPacket } from "../PacketTypes";
-import type { PacketHandlerDisposer } from "./PacketHandler";
+import type { PacketListenerDisposer } from "./Packet";
 
 export type PacketDomainEvent = "monsterDeath" | "zone" | "joinMap";
 
@@ -35,10 +35,11 @@ export type PacketDomainEventHandler<
 
 export interface PacketDomainShape {
   readonly started: true;
+  // For semantic events derived from raw packet events
   on<E extends PacketDomainEvent>(
     event: E,
     handler: PacketDomainEventHandler<E>,
-  ): Effect.Effect<PacketHandlerDisposer>;
+  ): Effect.Effect<PacketListenerDisposer>;
 }
 
 export class PacketDomain extends ServiceMap.Service<

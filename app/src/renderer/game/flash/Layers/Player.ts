@@ -1,14 +1,12 @@
+import { Collection } from "@vexed/collection";
 import { Faction, type Avatar, type FactionData } from "@vexed/game";
 import { Effect, Layer, Option, Ref } from "effect";
+import { isRecord } from "../PacketPayload";
+import { Auth } from "../Services/Auth";
 import { Bridge } from "../Services/Bridge";
 import { Player } from "../Services/Player";
 import type { PlayerShape } from "../Services/Player";
 import { World } from "../Services/World";
-import { Auth } from "../Services/Auth";
-import { Collection } from "@vexed/collection";
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null;
 
 const isFactionData = (value: unknown): value is FactionData => {
   if (!isRecord(value)) {
@@ -31,7 +29,9 @@ const make = Effect.gen(function* () {
   const world = yield* World;
   const auth = yield* Auth;
 
-  const _factions = yield* Ref.make<Collection<string, Faction>>(new Collection());
+  const _factions = yield* Ref.make<Collection<string, Faction>>(
+    new Collection(),
+  );
 
   const fromSelfOr = <A>(orElse: A, project: (self: Avatar) => A) =>
     Effect.map(world.players.withSelf(project), (me) =>
