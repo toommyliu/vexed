@@ -9,7 +9,8 @@
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "format": "oxfmt --check",
-    "format:write": "oxfmt"
+    "format:write": "oxfmt",
+    "typecheck": "pnpm -r --parallel --filter './packages/**' --filter './app' --filter '!./packages/electron' exec tsc --noEmit"
   },
   "dependencies": {
     "effect": "4.0.0-beta.43"
