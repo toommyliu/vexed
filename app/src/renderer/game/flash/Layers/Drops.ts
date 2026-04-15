@@ -28,6 +28,25 @@ const make = Effect.gen(function* () {
   const itemData = new Map<number, ItemData>();
   const counts = new Map<number, number>();
 
+  const resolveItemId = (item: ItemIdentifierToken): number | undefined => {
+    if (typeof item === "number") {
+      return Number.isFinite(item) && item > 0 ? Math.trunc(item) : undefined;
+    }
+
+    const trimmedName = item.trim();
+    if (trimmedName === "") {
+      return undefined;
+    }
+
+    for (const [itemId, data] of itemData.entries()) {
+      if (data.sName.toLowerCase() === trimmedName.toLowerCase()) {
+        return itemId;
+      }
+    }
+
+    return undefined;
+  };
+
   const addDrop = (item: ItemData) =>
     Effect.sync(() => {
       const exists = itemData.has(item.ItemID);
@@ -62,15 +81,20 @@ const make = Effect.gen(function* () {
     }),
   );
 
-  const acceptDrop = (itemId: number) =>
+  const acceptDrop = (item: ItemIdentifierToken) =>
     Effect.gen(function* () {
+      const itemId = resolveItemId(item);
+      if (itemId === undefined) {
+        return;
+      }
+
       const isLoggedIn = yield* auth.isLoggedIn();
       if (!isLoggedIn) {
         return;
       }
 
-      const item = itemData.get(itemId);
-      if (!item) {
+      const dropItem = itemData.get(itemId);
+      if (!dropItem) {
         return;
       }
 
@@ -105,8 +129,15 @@ const make = Effect.gen(function* () {
 
   const toggleUi = () => bridge.call("drops.toggleUi");
 
+  const containsDrop = (item: ItemIdentifierToken) =>
+    Effect.sync(() => {
+      const itemId = resolveItemId(item);
+      return itemId !== undefined && itemData.has(itemId);
+    });
+
   return {
     acceptDrop,
+    containsDrop,
     getDrops,
     getItems,
     isUsingCustomDrops,

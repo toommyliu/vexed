@@ -3,6 +3,7 @@ import { Effect, Layer, Option, Schedule } from "effect";
 import { Bridge } from "../Services/Bridge";
 import { Combat } from "../Services/Combat";
 import type { CombatShape } from "../Services/Combat";
+import { Drops } from "../Services/Drops";
 import { PacketDomain } from "../Services/PacketDomain";
 import { World } from "../Services/World";
 
@@ -56,8 +57,40 @@ const resolveKillTarget = (
   return { kind: "name", name: String(target).trim() };
 };
 
+const INTEGER_TOKEN_PATTERN = /^\d+$/;
+
+const resolveItemIdentifier = (
+  item: ItemIdentifierToken,
+): ItemIdentifierToken | undefined => {
+  if (typeof item === "number") {
+    return Number.isFinite(item) && item > 0 ? Math.trunc(item) : undefined;
+  }
+
+  const trimmed = item.trim();
+  if (trimmed === "") {
+    return undefined;
+  }
+
+  if (INTEGER_TOKEN_PATTERN.test(trimmed)) {
+    const itemId = Number.parseInt(trimmed, 10);
+    return Number.isFinite(itemId) && itemId > 0 ? itemId : undefined;
+  }
+
+  return trimmed;
+};
+
+const normalizeItemQuantity = (quantity?: number): number | undefined => {
+  if (quantity === undefined || !Number.isFinite(quantity)) {
+    return undefined;
+  }
+
+  const normalized = Math.trunc(quantity);
+  return normalized > 0 ? normalized : undefined;
+};
+
 const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
+  const drops = yield* Drops;
 
   const isValidSkillIndex = (index: Skill) => {
     const idx = Number.parseInt(String(index));
@@ -113,6 +146,19 @@ const make = Effect.gen(function* () {
   const hasTarget = () => bridge.call("combat.hasTarget");
 
   const getTarget = () => bridge.call("combat.getTarget");
+
+  const containsInventoryItem = (item: ItemIdentifierToken, quantity?: number) =>
+    quantity === undefined
+      ? bridge.call("inventory.contains", [item])
+      : bridge.call("inventory.contains", [item, quantity]);
+
+  const containsTempInventoryItem = (
+    item: ItemIdentifierToken,
+    quantity?: number,
+  ) =>
+    quantity === undefined
+      ? bridge.call("tempInventory.contains", [item])
+      : bridge.call("tempInventory.contains", [item, quantity]);
 
   const stopCombat = Effect.gen(function* () {
     yield* cancelAutoAttack().pipe(Effect.catch(() => Effect.void));
@@ -255,6 +301,67 @@ const make = Effect.gen(function* () {
     );
   };
 
+  const killUntil = (
+    target: MonsterIdentifierToken,
+    shouldStop: () => ReturnType<typeof hasTarget>,
+  ) =>
+    Effect.gen(function* () {
+      const resolvedTarget = resolveKillTarget(target);
+      if (resolvedTarget.kind === "name" && resolvedTarget.name === "") {
+        return;
+      }
+
+      while (true) {
+        const done = yield* shouldStop();
+        if (done) {
+          return;
+        }
+
+        yield* kill(target);
+        yield* Effect.sleep("100 millis");
+      }
+    });
+
+  const killForItem: CombatShape["killForItem"] = (
+    target,
+    item,
+    quantity,
+  ) => {
+    const resolvedItem = resolveItemIdentifier(item);
+    if (resolvedItem === undefined) {
+      return Effect.void;
+    }
+
+    const normalizedQuantity = normalizeItemQuantity(quantity);
+
+    return killUntil(target, () =>
+      Effect.gen(function* () {
+        const hasDrop = yield* drops.containsDrop(resolvedItem);
+        if (hasDrop) {
+          yield* drops.acceptDrop(resolvedItem);
+        }
+        return yield* containsInventoryItem(resolvedItem, normalizedQuantity);
+      }),
+    );
+  };
+
+  const killForTempItem: CombatShape["killForTempItem"] = (
+    target,
+    item,
+    quantity,
+  ) => {
+    const resolvedItem = resolveItemIdentifier(item);
+    if (resolvedItem === undefined) {
+      return Effect.void;
+    }
+
+    const normalizedQuantity = normalizeItemQuantity(quantity);
+
+    return killUntil(target, () =>
+      containsTempInventoryItem(resolvedItem, normalizedQuantity),
+    );
+  };
+
   return {
     attackMonster,
     cancelAutoAttack,
@@ -264,6 +371,8 @@ const make = Effect.gen(function* () {
     getTarget,
     hasTarget,
     kill,
+    killForItem,
+    killForTempItem,
   } satisfies CombatShape;
 });
 

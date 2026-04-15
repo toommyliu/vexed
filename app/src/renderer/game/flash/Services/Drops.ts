@@ -2,7 +2,8 @@ import { ServiceMap } from "effect";
 import type { BridgeEffect } from "./Bridge";
 
 export interface DropsShape {
-  acceptDrop(itemId: number): BridgeEffect<void>;
+  acceptDrop(item: ItemIdentifierToken): BridgeEffect<void>;
+  containsDrop(item: ItemIdentifierToken): BridgeEffect<boolean>;
   getDrops(): BridgeEffect<Record<string, unknown>>;
   getItems(): BridgeEffect<Record<string, unknown>>;
   isUsingCustomDrops(): BridgeEffect<boolean>;

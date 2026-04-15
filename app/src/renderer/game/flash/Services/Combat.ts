@@ -9,6 +9,16 @@ export interface CombatShape {
   getTarget(): BridgeEffect<Record<string, unknown>>;
   hasTarget(): BridgeEffect<boolean>;
   kill(target: MonsterIdentifierToken): BridgeEffect<void>;
+  killForItem(
+    target: MonsterIdentifierToken,
+    item: ItemIdentifierToken,
+    quantity?: number,
+  ): BridgeEffect<void>;
+  killForTempItem(
+    target: MonsterIdentifierToken,
+    item: ItemIdentifierToken,
+    quantity?: number,
+  ): BridgeEffect<void>;
   useSkill(
     index: number | string,
     force?: boolean,

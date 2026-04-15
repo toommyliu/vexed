@@ -4,17 +4,15 @@ import { runtime } from "./flash/Runtime";
 import { Combat } from "./flash/Services/Combat";
 import { AutoZone } from "./flash/Services/AutoZone";
 import { Quests } from "./flash/Services/Quests";
-import { Player } from "./flash/Services/Player";
-import { Auth } from "./flash/Services/Auth";
 import { Inventory } from "./flash/Services/Inventory";
-import { Bank } from "./flash/Services/Bank";
-import { TempInventory } from "./flash/Services/TempInventory";
 export default function App() {
   const [count, setCount] = createSignal(0);
   const [targetName, setTargetName] = createSignal("");
+  const [itemNameOrId, setItemNameOrId] = createSignal("");
+  const [itemQuantity, setItemQuantity] = createSignal("1");
   const [autoZoneEnabled, setAutoZoneEnabled] = createSignal(true);
   const [autoZoneMap, setAutoZoneMap] = createSignal("ledgermayne");
-  let activeKillFiber: Fiber.Fiber<void, unknown> | undefined;
+  let activeCombatFiber: Fiber.Fiber<void, unknown> | undefined;
 
   const testBridge = () => {
     void runtime
@@ -34,9 +32,6 @@ export default function App() {
     void runtime
       .runPromise(
         Effect.gen(function* () {
-          // const world = yield* World;
-          // const state = yield* world.debug();
-          // console.log(state);
           const quests = yield* Quests;
           const result = yield* quests.accept(11, false);
           console.log("Accept result:", result);
@@ -51,9 +46,6 @@ export default function App() {
     void runtime
       .runPromise(
         Effect.gen(function* () {
-          // const drops = yield* Drops;
-          // const dropsState = yield* drops.getDrops();
-          // console.log(dropsState);
           const quests = yield* Quests;
           yield* quests.abandon(11);
         }),
@@ -94,17 +86,49 @@ export default function App() {
       });
   };
 
-  const stopKillTarget = () => {
-    const fiber = activeKillFiber;
-    activeKillFiber = undefined;
+  const stopCombatTask = () => {
+    const fiber = activeCombatFiber;
+    activeCombatFiber = undefined;
 
     if (!fiber) {
       return;
     }
 
     void runtime.runPromise(Fiber.interrupt(fiber)).catch((error) => {
-      console.error("Interrupt kill error:", error);
+      console.error("Interrupt combat task error:", error);
     });
+  };
+
+  const startCombatTask = (label: string, task: Effect.Effect<void, unknown, Combat>) => {
+    stopCombatTask();
+
+    const fiber = runtime.runFork(
+      task.pipe(
+        Effect.catch((error) =>
+          Effect.sync(() => {
+            console.error(`${label} error:`, error);
+          }),
+        ),
+      ),
+    );
+
+    activeCombatFiber = fiber;
+
+    void runtime.runPromise(Fiber.await(fiber)).finally(() => {
+      if (activeCombatFiber === fiber) {
+        activeCombatFiber = undefined;
+      }
+    });
+  };
+
+  const parseItemQuantity = (): number | undefined => {
+    const value = itemQuantity().trim();
+    if (value === "") {
+      return undefined;
+    }
+
+    const parsed = Number.parseInt(value, 10);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
   };
 
   const killTarget = () => {
@@ -113,32 +137,53 @@ export default function App() {
       return;
     }
 
-    stopKillTarget();
-
-    const fiber = runtime.runFork(
+    startCombatTask(
+      "Kill",
       Effect.gen(function* () {
         const combat = yield* Combat;
         yield* combat.kill(target);
-      }).pipe(
-        Effect.catch((error) =>
-          Effect.sync(() => {
-            console.error("Kill error:", error);
-          }),
-        ),
-      ),
+      }),
     );
+  };
 
-    activeKillFiber = fiber;
+  const killForInventoryItem = () => {
+    const target = targetName().trim();
+    const item = itemNameOrId().trim();
+    if (target === "" || item === "") {
+      return;
+    }
 
-    void runtime.runPromise(Fiber.await(fiber)).finally(() => {
-      if (activeKillFiber === fiber) {
-        activeKillFiber = undefined;
-      }
-    });
+    const quantity = parseItemQuantity();
+
+    startCombatTask(
+      "Kill for inventory item",
+      Effect.gen(function* () {
+        const combat = yield* Combat;
+        yield* combat.killForInventoryItem(target, item, quantity);
+      }),
+    );
+  };
+
+  const killForTempInventoryItem = () => {
+    const target = targetName().trim();
+    const item = itemNameOrId().trim();
+    if (target === "" || item === "") {
+      return;
+    }
+
+    const quantity = parseItemQuantity();
+
+    startCombatTask(
+      "Kill for temp inventory item",
+      Effect.gen(function* () {
+        const combat = yield* Combat;
+        yield* combat.killForTempInventoryItem(target, item, quantity);
+      }),
+    );
   };
 
   onCleanup(() => {
-    stopKillTarget();
+    stopCombatTask();
   });
 
   return (
@@ -200,7 +245,7 @@ export default function App() {
           kill
         </button>
         <button
-          onClick={stopKillTarget}
+          onClick={stopCombatTask}
           style={{
             padding: "5px 10px",
             cursor: "pointer",
@@ -210,7 +255,69 @@ export default function App() {
             "border-radius": "4px",
           }}
         >
-          disrupt kill
+          stop combat task
+        </button>
+      </div>
+      <div
+        style={{
+          display: "flex",
+          "align-items": "center",
+          gap: "10px",
+          "margin-top": "10px",
+        }}
+      >
+        <input
+          type="text"
+          value={itemNameOrId()}
+          onInput={(e) => setItemNameOrId(e.currentTarget.value)}
+          placeholder="Item name or id:123"
+          style={{
+            padding: "5px",
+            "border-radius": "4px",
+            border: "1px solid #ccc",
+            background: "white",
+            color: "black",
+          }}
+        />
+        <input
+          type="text"
+          value={itemQuantity()}
+          onInput={(e) => setItemQuantity(e.currentTarget.value)}
+          placeholder="Qty (optional, default 1)"
+          style={{
+            width: "170px",
+            padding: "5px",
+            "border-radius": "4px",
+            border: "1px solid #ccc",
+            background: "white",
+            color: "black",
+          }}
+        />
+        <button
+          onClick={killForInventoryItem}
+          style={{
+            padding: "5px 10px",
+            cursor: "pointer",
+            background: "#7c3aed",
+            border: "none",
+            color: "white",
+            "border-radius": "4px",
+          }}
+        >
+          kill for inventory item
+        </button>
+        <button
+          onClick={killForTempInventoryItem}
+          style={{
+            padding: "5px 10px",
+            cursor: "pointer",
+            background: "#0891b2",
+            border: "none",
+            color: "white",
+            "border-radius": "4px",
+          }}
+        >
+          kill for temp item
         </button>
       </div>
       <div
