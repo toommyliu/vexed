@@ -1,4 +1,4 @@
-import type { ServerData } from "@vexed/game";
+import type { AvatarData, ServerData } from "@vexed/game";
 
 export type LoginInfo = {
   servers: ServerData[];
@@ -25,9 +25,9 @@ export type MonsterTargetInfo = BaseTargetInfo & {
   strMonName: string;
 };
 
-export type PlayerTargetInfo = BaseTargetInfo & {
+export type PlayerTargetInfo = AvatarData & {
   type: "player";
-  strName: string;
+  intSP: number;
 };
 
 export type TargetInfo = MonsterTargetInfo | PlayerTargetInfo;

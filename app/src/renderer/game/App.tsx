@@ -1,4 +1,5 @@
 import { Effect, Fiber } from "effect";
+import { Monster } from "@vexed/game";
 import { createSignal, onCleanup } from "solid-js";
 import { runtime } from "./flash/Runtime";
 import { Combat } from "./flash/Services/Combat";
@@ -53,6 +54,23 @@ export default function App() {
       )
       .catch((error) => {
         console.error("Inspection error:", error);
+      });
+  };
+
+  const testGetTarget = () => {
+    void runtime
+      .runPromise(
+        Effect.gen(function* () {
+          const combat = yield* Combat;
+          const target = yield* combat.getTarget();
+          if (target) {
+            console.log("Target type:", target instanceof Monster ? "Monster" : "Avatar");
+            console.log("Target data:", target);
+          }
+        }),
+      )
+      .catch((error) => {
+        console.error("GetTarget error:", error);
       });
   };
 
@@ -241,6 +259,7 @@ export default function App() {
         <button onClick={testBridge}>test bridge</button>
         <button onClick={inspectWorld}>inspect world</button>
         <button onClick={inspectDrops}>inspect drops</button>
+        <button onClick={testGetTarget}>get target</button>
         <input
           type="text"
           value={targetName()}

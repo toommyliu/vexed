@@ -1,13 +1,13 @@
 import { ServiceMap } from "effect";
+import type { Avatar, Monster } from "@vexed/game";
 import type { BridgeEffect } from "./Bridge";
-import type { TargetInfo } from "../Types";
 
 export interface CombatShape {
   attackMonster(monster: string): BridgeEffect<void>;
   cancelAutoAttack(): BridgeEffect<void>;
   cancelTarget(): BridgeEffect<void>;
   getSkillCooldownRemaining(index: number | string): BridgeEffect<number>;
-  getTarget(): BridgeEffect<TargetInfo | null>;
+  getTarget(): BridgeEffect<Monster | Avatar | null>;
   hasTarget(): BridgeEffect<boolean>;
   kill(target: MonsterIdentifierToken): BridgeEffect<void>;
   killForItem(

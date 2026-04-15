@@ -1,4 +1,4 @@
-import { extractMonsterMapId, isMonsterMapId, type Monster } from "@vexed/game";
+import { extractMonsterMapId, isMonsterMapId, Monster } from "@vexed/game";
 import { Effect, Layer, Option, Schedule } from "effect";
 import { Bridge } from "../Services/Bridge";
 import { Combat } from "../Services/Combat";
@@ -7,6 +7,7 @@ import { Drops } from "../Services/Drops";
 import { PacketDomain } from "../Services/PacketDomain";
 import { Player } from "../Services/Player";
 import { World } from "../Services/World";
+import type { MonsterTargetInfo, PlayerTargetInfo } from "../Types";
 
 const SKILL_ROTATION: readonly Skill[] = [1, 2, 3, 4];
 
@@ -148,7 +149,27 @@ const make = Effect.gen(function* () {
   const hasTarget = () => bridge.call("combat.hasTarget");
 
   const getTarget: CombatShape["getTarget"] = () =>
-    bridge.call("combat.getTarget");
+    Effect.gen(function* () {
+      const target = yield* bridge.call("combat.getTarget");
+      if (!target) return null;
+
+      const maybeWorld = yield* Effect.serviceOption(World);
+      if (Option.isNone(maybeWorld)) {
+        return null;
+      }
+
+      const world = maybeWorld.value;
+
+      if (target.type === 'monster') {
+        const monsterTarget = target as MonsterTargetInfo;
+        const monster = yield* world.monsters.get(monsterTarget.MonMapID);
+        return Option.isSome(monster) ? monster.value : null;
+      }
+
+      const playerTarget = target as PlayerTargetInfo;
+      const player = yield* world.players.get(playerTarget.strUsername);
+      return Option.isSome(player) ? player.value : null;
+    });
 
   const containsInventoryItem = (
     item: ItemIdentifierToken,
