@@ -32,7 +32,9 @@ const make = Effect.gen(function* () {
       .pipe(Effect.flatMap(itemCache.fromUnknown));
 
   const getItems = () =>
-    bridge.call("inventory.getItems").pipe(Effect.flatMap(itemCache.fromUnknownArray));
+    bridge
+      .call("inventory.getItems")
+      .pipe(Effect.flatMap(itemCache.fromUnknownArray));
 
   const getSlots = () => bridge.call("inventory.getSlots");
 

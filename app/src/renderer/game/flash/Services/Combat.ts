@@ -1,12 +1,13 @@
 import { ServiceMap } from "effect";
 import type { BridgeEffect } from "./Bridge";
+import type { TargetInfo } from "../Types";
 
 export interface CombatShape {
   attackMonster(monster: string): BridgeEffect<void>;
   cancelAutoAttack(): BridgeEffect<void>;
   cancelTarget(): BridgeEffect<void>;
   getSkillCooldownRemaining(index: number | string): BridgeEffect<number>;
-  getTarget(): BridgeEffect<Record<string, unknown>>;
+  getTarget(): BridgeEffect<TargetInfo | null>;
   hasTarget(): BridgeEffect<boolean>;
   kill(target: MonsterIdentifierToken): BridgeEffect<void>;
   killForItem(
@@ -24,7 +25,10 @@ export interface CombatShape {
     force?: boolean,
     wait?: boolean,
   ): BridgeEffect<void>;
-  hunt(target: MonsterIdentifierToken, findMost?: boolean): BridgeEffect<string>;
+  hunt(
+    target: MonsterIdentifierToken,
+    findMost?: boolean,
+  ): BridgeEffect<string>;
 }
 
 export class Combat extends ServiceMap.Service<Combat, CombatShape>()(

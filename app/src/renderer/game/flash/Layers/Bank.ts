@@ -39,7 +39,9 @@ const make = Effect.gen(function* () {
   const depositMany = (...items: ItemIdentifierToken[]) =>
     Effect.gen(function* () {
       yield* open();
-      yield* Effect.forEach(items, (item) => bridge.call("bank.deposit", [item]));
+      yield* Effect.forEach(items, (item) =>
+        bridge.call("bank.deposit", [item]),
+      );
     });
 
   const withdraw = (item: ItemIdentifierToken) =>
@@ -51,14 +53,20 @@ const make = Effect.gen(function* () {
   const withdrawMany = (...items: ItemIdentifierToken[]) =>
     Effect.gen(function* () {
       yield* open();
-      yield* Effect.forEach(items, (item) => bridge.call("bank.withdraw", [item]));
+      yield* Effect.forEach(items, (item) =>
+        bridge.call("bank.withdraw", [item]),
+      );
     });
 
   const getItem = (item: ItemIdentifierToken) =>
-    bridge.call("bank.getItem", [item]).pipe(Effect.flatMap(itemCache.fromUnknown));
+    bridge
+      .call("bank.getItem", [item])
+      .pipe(Effect.flatMap(itemCache.fromUnknown));
 
   const getItems = () =>
-    bridge.call("bank.getItems").pipe(Effect.flatMap(itemCache.fromUnknownArray));
+    bridge
+      .call("bank.getItems")
+      .pipe(Effect.flatMap(itemCache.fromUnknownArray));
 
   const getSlots = () => bridge.call("bank.getSlots");
 

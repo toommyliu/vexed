@@ -220,9 +220,7 @@ const make = Effect.gen(function* () {
       return me ? Option.some(me) : Option.none();
     });
 
-  const withSelf: WorldPlayersShape["withSelf"] = <A>(
-    f: (self: Avatar) => A,
-  ) =>
+  const withSelf: WorldPlayersShape["withSelf"] = <A>(f: (self: Avatar) => A) =>
     mutate(stateRef, (state) => {
       const me = resolveSelf(state);
       return me ? Option.some(f(me)) : Option.none();

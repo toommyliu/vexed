@@ -7,36 +7,83 @@ import {
 import { PacketDomain } from "../Services/PacketDomain";
 import { Player } from "../Services/Player";
 
-type CoordinateRange = readonly [x: [min: number, max: number], y: [min: number, max: number]];
+type CoordinateRange = readonly [
+  x: [min: number, max: number],
+  y: [min: number, max: number],
+];
 
 type ZoneMap = Partial<Record<string, CoordinateRange>>;
 
-
 const AUTO_ZONES: Record<AutoZoneSupportedMap, ZoneMap> = {
   ledgermayne: {
-    A:  [[147, 276], [353, 357]],
-    B:  [[727, 852], [353, 356]],
-    "": [[431, 547], [234, 239]],
+    A: [
+      [147, 276],
+      [353, 357],
+    ],
+    B: [
+      [727, 852],
+      [353, 356],
+    ],
+    "": [
+      [431, 547],
+      [234, 239],
+    ],
   },
   moreskulls: {
-    A:  [[696, 802], [445, 452]],
-    B:  [[677, 766], [321, 324]],
-    "": [[778, 806], [358, 361]],
+    A: [
+      [696, 802],
+      [445, 452],
+    ],
+    B: [
+      [677, 766],
+      [321, 324],
+    ],
+    "": [
+      [778, 806],
+      [358, 361],
+    ],
   },
   ultradage: {
-    A:  [[49,  164], [406, 412]],
-    B:  [[797, 900], [400, 402]],
-    "": [[481, 483], [296, 300]],
+    A: [
+      [49, 164],
+      [406, 412],
+    ],
+    B: [
+      [797, 900],
+      [400, 402],
+    ],
+    "": [
+      [481, 483],
+      [296, 300],
+    ],
   },
   darkcarnax: {
-    A:  [[731, 850], [431, 432]],
-    B:  [[54,  155], [431, 432]],
-    "": [[480, 530], [419, 432]],
+    A: [
+      [731, 850],
+      [431, 432],
+    ],
+    B: [
+      [54, 155],
+      [431, 432],
+    ],
+    "": [
+      [480, 530],
+      [419, 432],
+    ],
   },
   astralshrine: {
-    A:  [[643, 708], [445, 447]],
-    B:  [[199, 287], [181, 205]],
-    "": [[461, 465], [320, 325]],
+    A: [
+      [643, 708],
+      [445, 447],
+    ],
+    B: [
+      [199, 287],
+      [181, 205],
+    ],
+    "": [
+      [461, 465],
+      [320, 325],
+    ],
   },
   queeniona: {},
 };
@@ -61,12 +108,16 @@ const make = Effect.gen(function* () {
       const zoneRange = AUTO_ZONES[currentMap][event.zone];
 
       if (!zoneRange) {
-        console.log(`No config for zone '${event.zone}' on map '${currentMap}'`);
+        console.log(
+          `No config for zone '${event.zone}' on map '${currentMap}'`,
+        );
         return;
       }
 
       const { x, y } = getRandomPosition(zoneRange);
-      console.log(`Moving to ${x}, ${y} in zone ${event.zone} on map ${currentMap}`);
+      console.log(
+        `Moving to ${x}, ${y} in zone ${event.zone} on map ${currentMap}`,
+      );
       yield* player.walkTo(x, y).pipe(Effect.catch(() => Effect.void));
     }),
   );

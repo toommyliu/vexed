@@ -85,7 +85,7 @@ const make = Effect.gen(function* () {
     }
 
     return call("flash.callGameFunction0", [functionName]);
-  }
+  };
 
   const onConnection = (handler: (status: ConnectionStatus) => void) =>
     setWindowBridgeHandler("onConnection", handler);

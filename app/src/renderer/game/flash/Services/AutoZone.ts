@@ -8,7 +8,9 @@ export const AutoZoneSupportedMap = Schema.Literals([
   "astralshrine",
   "queeniona",
 ]);
-export type AutoZoneSupportedMap = Schema.Schema.Type<typeof AutoZoneSupportedMap>;
+export type AutoZoneSupportedMap = Schema.Schema.Type<
+  typeof AutoZoneSupportedMap
+>;
 
 export interface AutoZoneShape {
   readonly enabled: Effect.Effect<boolean>;

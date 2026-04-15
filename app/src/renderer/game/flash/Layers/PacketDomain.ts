@@ -646,7 +646,7 @@ const make = Effect.gen(function* () {
           });
         }
       }
-    })
+    }),
   );
 
   yield* packets.clientScoped("mv", (packet) =>

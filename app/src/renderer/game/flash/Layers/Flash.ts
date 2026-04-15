@@ -37,7 +37,9 @@ const BridgeAuthDomainsLive = Layer.mergeAll(
 ).pipe(Layer.provide(Layer.mergeAll(BridgeWithAuthLive, PacketRuntimeLive)));
 
 const CombatRuntimeLive = CombatLive.pipe(
-  Layer.provideMerge(Layer.mergeAll(BridgeAuthDomainsLive, BridgeOnlyDomainsLive)),
+  Layer.provideMerge(
+    Layer.mergeAll(BridgeAuthDomainsLive, BridgeOnlyDomainsLive),
+  ),
 );
 
 const BridgeRuntimeLive = Layer.mergeAll(

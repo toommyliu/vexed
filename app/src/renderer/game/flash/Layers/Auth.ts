@@ -91,13 +91,16 @@ const make = Effect.gen(function* () {
         return Effect.succeed([state.loginInfo, state] as const);
       }
 
-      return Effect.map(bridge.call("flash.getGameObjectS", ["objLogin"]), (info) => {
-        const loginInfo = JSON.parse(info) as LoginInfo;
-        state.loginInfo = loginInfo;
-        state.username = (loginInfo?.unm ?? "").toLowerCase();
-        state.password = (loginInfo?.sToken ?? "").toLowerCase();
-        return [loginInfo, state] as const;
-      });
+      return Effect.map(
+        bridge.call("flash.getGameObjectS", ["objLogin"]),
+        (info) => {
+          const loginInfo = JSON.parse(info) as LoginInfo;
+          state.loginInfo = loginInfo;
+          state.username = (loginInfo?.unm ?? "").toLowerCase();
+          state.password = (loginInfo?.sToken ?? "").toLowerCase();
+          return [loginInfo, state] as const;
+        },
+      );
     });
 
   const isLoggedIn: AuthShape["isLoggedIn"] = () =>
