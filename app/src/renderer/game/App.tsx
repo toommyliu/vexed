@@ -12,6 +12,7 @@ export default function App() {
   const [itemQuantity, setItemQuantity] = createSignal("1");
   const [autoZoneEnabled, setAutoZoneEnabled] = createSignal(true);
   const [autoZoneMap, setAutoZoneMap] = createSignal("ledgermayne");
+  const [findMost, setFindMost] = createSignal(false);
   let activeCombatFiber: Fiber.Fiber<void, unknown> | undefined;
 
   const testBridge = () => {
@@ -182,6 +183,25 @@ export default function App() {
     );
   };
 
+  const huntTarget = () => {
+    const target = targetName().trim();
+    if (target === "") {
+      return;
+    }
+
+    void runtime
+      .runPromise(
+        Effect.gen(function* () {
+          const combat = yield* Combat;
+          const cell = yield* combat.hunt(target, findMost());
+          console.log("Hunt result - cell:", cell);
+        }),
+      )
+      .catch((error) => {
+        console.error("Hunt error:", error);
+      });
+  };
+
   onCleanup(() => {
     stopCombatTask();
   });
@@ -318,6 +338,37 @@ export default function App() {
           }}
         >
           kill for temp item
+        </button>
+      </div>
+      <div
+        style={{
+          display: "flex",
+          "align-items": "center",
+          gap: "10px",
+          "margin-top": "10px",
+        }}
+      >
+        <label style={{ display: "flex", "align-items": "center", gap: "5px" }}>
+          <input
+            type="checkbox"
+            checked={findMost()}
+            onChange={(e) => setFindMost(e.currentTarget.checked)}
+            style={{ cursor: "pointer" }}
+          />
+          Find most
+        </label>
+        <button
+          onClick={huntTarget}
+          style={{
+            padding: "5px 10px",
+            cursor: "pointer",
+            background: "#059669",
+            border: "none",
+            color: "white",
+            "border-radius": "4px",
+          }}
+        >
+          hunt
         </button>
       </div>
       <div

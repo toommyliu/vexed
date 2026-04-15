@@ -24,6 +24,7 @@ export interface CombatShape {
     force?: boolean,
     wait?: boolean,
   ): BridgeEffect<void>;
+  hunt(target: MonsterIdentifierToken, findMost?: boolean): BridgeEffect<string>;
 }
 
 export class Combat extends ServiceMap.Service<Combat, CombatShape>()(

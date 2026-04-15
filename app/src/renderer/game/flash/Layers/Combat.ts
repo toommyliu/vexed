@@ -1,10 +1,11 @@
-import { extractMonsterMapId, isMonsterMapId } from "@vexed/game";
+import { extractMonsterMapId, isMonsterMapId, type Monster } from "@vexed/game";
 import { Effect, Layer, Option, Schedule } from "effect";
 import { Bridge } from "../Services/Bridge";
 import { Combat } from "../Services/Combat";
 import type { CombatShape } from "../Services/Combat";
 import { Drops } from "../Services/Drops";
 import { PacketDomain } from "../Services/PacketDomain";
+import { Player } from "../Services/Player";
 import { World } from "../Services/World";
 
 const SKILL_ROTATION: readonly Skill[] = [1, 2, 3, 4];
@@ -91,6 +92,7 @@ const normalizeItemQuantity = (quantity?: number): number | undefined => {
 const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
   const drops = yield* Drops;
+  const player = yield* Player;
 
   const isValidSkillIndex = (index: Skill) => {
     const idx = Number.parseInt(String(index));
@@ -362,6 +364,74 @@ const make = Effect.gen(function* () {
     );
   };
 
+  const hunt: CombatShape["hunt"] = (target, findMost = false) =>
+    Effect.gen(function* () {
+      const resolvedTarget = resolveKillTarget(target);
+
+      const maybeWorld = yield* Effect.serviceOption(World);
+      if (Option.isNone(maybeWorld)) {
+        return "";
+      }
+
+      const world = maybeWorld.value;
+
+      const allMonsters = yield* world.monsters.getAll();
+
+      const matchingMonsters: Monster[] = [];
+      for (const [, monster] of allMonsters) {
+        if (resolvedTarget.kind === "monMapId") {
+          if (monster.monMapId === resolvedTarget.monMapId) {
+            matchingMonsters.push(monster);
+          }
+        } else if (matchesMonsterName(resolvedTarget.name, monster.name)) {
+          matchingMonsters.push(monster);
+        }
+      }
+
+      if (matchingMonsters.length === 0) {
+        return "";
+      }
+
+      const cellCounts = new Map<string, number>();
+      for (const monster of matchingMonsters) {
+        const cell = monster.cell;
+        cellCounts.set(cell, (cellCounts.get(cell) ?? 0) + 1);
+      }
+
+      let bestCell = "";
+      if (findMost) {
+        let maxCount = 0;
+        for (const [cell, count] of cellCounts.entries()) {
+          if (count > maxCount) {
+            maxCount = count;
+            bestCell = cell;
+          }
+        }
+      } else {
+        bestCell = matchingMonsters[0]?.cell ?? "";
+      }
+
+      if (bestCell === "") {
+        return "";
+      }
+
+      const currentCell = yield* player.getCell();
+      if (currentCell !== bestCell) {
+        yield* player.jumpToCell(bestCell);
+
+        const pads = yield* world.map.getCellPads();
+        const validPad =
+          pads.length > 0
+            ? pads[Math.floor(Math.random() * pads.length)]
+            : undefined;
+        if (validPad !== undefined) {
+          yield* player.jumpToCell(bestCell, validPad);
+        }
+      }
+
+      return bestCell;
+    });
+
   return {
     attackMonster,
     cancelAutoAttack,
@@ -373,6 +443,7 @@ const make = Effect.gen(function* () {
     kill,
     killForItem,
     killForTempItem,
+    hunt,
   } satisfies CombatShape;
 });
 

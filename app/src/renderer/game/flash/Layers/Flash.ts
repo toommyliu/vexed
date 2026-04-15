@@ -22,7 +22,6 @@ const AuthRuntimeLive = AuthLive.pipe(Layer.provide(BridgeCoreLive));
 const BridgeWithAuthLive = Layer.mergeAll(BridgeCoreLive, AuthRuntimeLive);
 
 const BridgeOnlyDomainsLive = Layer.mergeAll(
-  CombatLive,
   PlayerLive,
   SettingsLive,
   ShopsLive,
@@ -37,9 +36,14 @@ const BridgeAuthDomainsLive = Layer.mergeAll(
   TempInventoryLive,
 ).pipe(Layer.provide(Layer.mergeAll(BridgeWithAuthLive, PacketRuntimeLive)));
 
+const CombatRuntimeLive = CombatLive.pipe(
+  Layer.provideMerge(Layer.mergeAll(BridgeAuthDomainsLive, BridgeOnlyDomainsLive)),
+);
+
 const BridgeRuntimeLive = Layer.mergeAll(
   BridgeOnlyDomainsLive,
   BridgeAuthDomainsLive,
+  CombatRuntimeLive,
 ).pipe(Layer.provideMerge(BridgeWithAuthLive));
 
 const PacketDomainRuntimeLive = PacketDomainLive.pipe(
