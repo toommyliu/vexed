@@ -100,7 +100,10 @@ export default function App() {
     });
   };
 
-  const startCombatTask = (label: string, task: Effect.Effect<void, unknown, Combat>) => {
+  const startCombatTask = (
+    label: string,
+    task: Effect.Effect<void, unknown, Combat>,
+  ) => {
     stopCombatTask();
 
     const fiber = runtime.runFork(
@@ -160,7 +163,7 @@ export default function App() {
       "Kill for inventory item",
       Effect.gen(function* () {
         const combat = yield* Combat;
-        yield* combat.killForInventoryItem(target, item, quantity);
+        yield* combat.killForItem(target, item, quantity);
       }),
     );
   };
@@ -178,7 +181,7 @@ export default function App() {
       "Kill for temp inventory item",
       Effect.gen(function* () {
         const combat = yield* Combat;
-        yield* combat.killForTempInventoryItem(target, item, quantity);
+        yield* combat.killForTempItem(target, item, quantity);
       }),
     );
   };

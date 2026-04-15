@@ -147,9 +147,13 @@ const make = Effect.gen(function* () {
 
   const hasTarget = () => bridge.call("combat.hasTarget");
 
-  const getTarget = () => bridge.call("combat.getTarget");
+  const getTarget: CombatShape["getTarget"] = () =>
+    bridge.call("combat.getTarget");
 
-  const containsInventoryItem = (item: ItemIdentifierToken, quantity?: number) =>
+  const containsInventoryItem = (
+    item: ItemIdentifierToken,
+    quantity?: number,
+  ) =>
     quantity === undefined
       ? bridge.call("inventory.contains", [item])
       : bridge.call("inventory.contains", [item, quantity]);
@@ -184,10 +188,13 @@ const make = Effect.gen(function* () {
       }
 
       const waitUntilPlayerAlive = () =>
-        Effect.repeat(world.players.withSelf((me) => me.alive), {
-          schedule: Schedule.spaced("250 millis"),
-          until: (alive) => Option.isSome(alive) && alive.value,
-        }).pipe(Effect.asVoid);
+        Effect.repeat(
+          world.players.withSelf((me) => me.alive),
+          {
+            schedule: Schedule.spaced("250 millis"),
+            until: (alive) => Option.isSome(alive) && alive.value,
+          },
+        ).pipe(Effect.asVoid);
 
       const resolveTargetMonMapIdByName = (name: string) =>
         Effect.gen(function* () {
@@ -324,11 +331,7 @@ const make = Effect.gen(function* () {
       }
     });
 
-  const killForItem: CombatShape["killForItem"] = (
-    target,
-    item,
-    quantity,
-  ) => {
+  const killForItem: CombatShape["killForItem"] = (target, item, quantity) => {
     const resolvedItem = resolveItemIdentifier(item);
     if (resolvedItem === undefined) {
       return Effect.void;
