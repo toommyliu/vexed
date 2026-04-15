@@ -2,6 +2,8 @@
 
 export {};
 
+import type * as FlashTypes from "./flash/Types";
+
 declare global {
   interface Window {
     swf: {
@@ -28,7 +30,7 @@ declare global {
       "combat.cancelTarget": () => void;
       "combat.forceUseSkill": (index: string) => void;
       "combat.getSkillCooldownRemaining": (index: number) => number;
-      "combat.getTarget": () => Record<string, unknown>;
+      "combat.getTarget": () => FlashTypes.TargetInfo | null;
       "combat.hasTarget": () => boolean;
       "combat.useSkill": (index: string) => void;
       "drops.acceptDrop": (itemId: number) => void;
