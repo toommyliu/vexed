@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@vexed/utils": "workspace:*",
-    "effect": "workspace:*"
+    "effect": "4.0.0-beta.43"
   },
   "devDependencies": {
     "tsdown": "0.20.0-beta.3",

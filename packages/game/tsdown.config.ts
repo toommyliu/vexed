@@ -6,4 +6,5 @@ export default defineConfig({
   outDir: "./dist",
   minify: true,
   dts: true,
+  noExternal: [/^effect(?:\/.*)?$/],
 });

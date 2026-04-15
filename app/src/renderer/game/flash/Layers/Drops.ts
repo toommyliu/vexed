@@ -1,4 +1,5 @@
 import type { ItemData } from "@vexed/game";
+import { equalsIgnoreCase } from "@vexed/shared/string";
 import { Effect, Layer } from "effect";
 import { asRecord } from "../PacketPayload";
 import { Auth } from "../Services/Auth";
@@ -39,7 +40,7 @@ const make = Effect.gen(function* () {
     }
 
     for (const [itemId, data] of itemData.entries()) {
-      if (data.sName.toLowerCase() === trimmedName.toLowerCase()) {
+      if (equalsIgnoreCase(data.sName, trimmedName)) {
         return itemId;
       }
     }
