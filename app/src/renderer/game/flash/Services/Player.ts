@@ -23,7 +23,7 @@ export interface PlayerShape {
   jumpToCell(cell: string, pad?: string): BridgeEffect<void>;
   joinMap(map: string, cell?: string, pad?: string): BridgeEffect<void>;
   goToPlayer(name: string): BridgeEffect<void>;
-  rest(): BridgeEffect<void>;
+  rest(full?: boolean): BridgeEffect<void>;
   useBoost(itemId: number): BridgeEffect<boolean>;
   hasActiveBoost(boostType: string): BridgeEffect<boolean>;
   isAlive(): BridgeEffect<boolean>;

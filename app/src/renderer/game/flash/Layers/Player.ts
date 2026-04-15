@@ -7,6 +7,7 @@ import { Bridge } from "../Services/Bridge";
 import { Player } from "../Services/Player";
 import type { PlayerShape } from "../Services/Player";
 import { World } from "../Services/World";
+import { waitFor } from "../../utils/waitFor";
 
 const isFactionData = (value: unknown): value is FactionData => {
   if (!isRecord(value)) {
@@ -115,7 +116,30 @@ const make = Effect.gen(function* () {
 
   const goToPlayer = (name: string) => bridge.call("player.goToPlayer", [name]);
 
-  const rest = () => bridge.call("player.rest");
+  const rest: PlayerShape["rest"] = (full) =>
+    Effect.gen(function* () {
+      const hp = yield* getHp();
+      const mp = yield* getMp();
+      const maxHp = yield* getMaxHp();
+      const maxMp = yield* getMaxMp();
+
+      if (hp >= maxHp && mp >= maxMp) {
+        return;
+      }
+
+      yield* bridge.call("player.rest");
+
+      if (full) {
+        yield* waitFor(
+          Effect.map(
+            Effect.all([getHp(), getMp()]),
+            ([currentHp, currentMp]) =>
+              currentHp >= maxHp && currentMp >= maxMp,
+          ),
+        );
+        yield* Effect.log("Rest completed");
+      }
+    });
 
   const useBoost = (itemId: number) => bridge.call("player.useBoost", [itemId]);
 

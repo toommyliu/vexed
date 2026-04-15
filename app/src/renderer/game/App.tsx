@@ -5,7 +5,8 @@ import { runtime } from "./flash/Runtime";
 import { Combat } from "./flash/Services/Combat";
 import { AutoZone } from "./flash/Services/AutoZone";
 import { Quests } from "./flash/Services/Quests";
-import { Inventory } from "./flash/Services/Inventory";
+import { Player } from "./flash/Services/Player";
+
 export default function App() {
   const [count, setCount] = createSignal(0);
   const [targetName, setTargetName] = createSignal("");
@@ -20,9 +21,9 @@ export default function App() {
     void runtime
       .runPromise(
         Effect.gen(function* () {
-          const inventory = yield* Inventory;
-          const items = yield* inventory.getItems();
-          console.log("Inventory items:", items);
+          const player = yield* Player;
+          yield* player.rest(true);
+          console.log("Rest completed");
         }),
       )
       .catch((error) => {
