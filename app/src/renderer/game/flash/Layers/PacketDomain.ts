@@ -601,6 +601,54 @@ const make = Effect.gen(function* () {
     }),
   );
 
+  // xantown
+  yield* packets.jsonScoped("cb", (packet) =>
+    Effect.gen(function* () {
+      const payload = asRecord(packet.data);
+      if (!payload) {
+        return;
+      }
+
+      const p = asRecord(payload["p"]);
+      if (p) {
+        for (const [playerName, rawUpdate] of Object.entries(p)) {
+          const update = asRecord(rawUpdate);
+          if (!update) {
+            continue;
+          }
+
+          const intState = asNumber(update["intState"]);
+          if (intState === undefined) {
+            continue;
+          }
+
+          yield* withPlayerByName(playerName, (player) => {
+            player.data.intState = intState;
+          });
+        }
+      }
+
+      const m = asRecord(payload["m"]);
+      if (m) {
+        for (const [monsterId, rawUpdate] of Object.entries(m)) {
+          const update = asRecord(rawUpdate);
+          if (!update) {
+            continue;
+          }
+
+          const intState = asNumber(update["intState"]);
+          if (intState === undefined) {
+            continue;
+          }
+
+          yield* withMonster(Number(monsterId), (monster) => {
+            monster.data.intState = intState;
+          });
+        }
+      }
+    })
+  );
+
   yield* packets.clientScoped("mv", (packet) =>
     withSelf((me) => {
       const tx = asNumber(packet.params[4]);
