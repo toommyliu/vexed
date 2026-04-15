@@ -2,6 +2,7 @@
   "name": "@vexed/tipc",
   "version": "0.4.0",
   "scripts": {
+    "typecheck": "tsc --noEmit",
     "build": "tsup src/main.ts src/renderer.ts --format cjs,esm --outDir dist",
     "postinstall": "pnpm run build"
   },

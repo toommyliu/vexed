@@ -2,6 +2,7 @@
   "name": "@vexed/shared",
   "private": true,
   "scripts": {
+    "typecheck": "tsc --noEmit",
     "build": "tsdown --format cjs --dts --outDir dist src/index.ts src/string.ts src/csv.ts",
     "postinstall": "npm run build"
   },

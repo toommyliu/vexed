@@ -9,7 +9,7 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "check": "tsc --noEmit --skipLibCheck src/index.ts",
+    "typecheck": "tsc --noEmit --skipLibCheck src/index.ts",
     "build": "tsdown",
     "postinstall": "npm run build",
     "test": "vitest run src/index.test.ts",

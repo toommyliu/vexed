@@ -4,6 +4,7 @@
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.cts",
   "scripts": {
+    "typecheck": "tsc --noEmit",
     "build": "tsdown",
     "postinstall": "npm run build"
   },

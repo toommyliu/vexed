@@ -5,6 +5,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
+    "typecheck": "tsc --noEmit",
     "postinstall": "tsup src/index.ts --format cjs --outDir dist --dts",
     "build": "tsup src/index.ts --format cjs --outDir dist --dts"
   },

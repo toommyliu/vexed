@@ -2,6 +2,7 @@
   "name": "@vexed/utils",
   "private": true,
   "scripts": {
+    "typecheck": "tsc --noEmit",
     "build": "tsdown",
     "postinstall": "npm run build"
   },
