@@ -1,23 +1,38 @@
 import { Effect, Layer } from "effect";
+import { makeItemCache } from "../ItemCache";
 import { Bridge } from "../Services/Bridge";
 import { Inventory } from "../Services/Inventory";
 import type { InventoryShape } from "../Services/Inventory";
 
 const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
+  const itemCache = yield* makeItemCache;
+
+  const runFork = Effect.runFork;
+
+  const dispose = yield* bridge.onConnection((status) => {
+    if (status === "OnConnectionLost") {
+      runFork(itemCache.clear);
+    }
+  });
+
+  yield* Effect.addFinalizer(() => Effect.sync(dispose));
 
   const contains = (item: ItemIdentifierToken, quantity?: number) =>
     quantity === undefined
       ? bridge.call("inventory.contains", [item])
       : bridge.call("inventory.contains", [item, quantity]);
 
-  const equip = (item: ItemIdentifierToken) => bridge.call("inventory.equip", [item]);
+  const equip = (item: ItemIdentifierToken) =>
+    bridge.call("inventory.equip", [item]);
 
-  // TODO: figure out how to use models
   const getItem = (item: ItemIdentifierToken) =>
-    bridge.call("inventory.getItem", [item]);
+    bridge
+      .call("inventory.getItem", [item])
+      .pipe(Effect.flatMap(itemCache.fromUnknown));
 
-  const getItems = () => bridge.call("inventory.getItems");
+  const getItems = () =>
+    bridge.call("inventory.getItems").pipe(Effect.flatMap(itemCache.fromUnknownArray));
 
   const getSlots = () => bridge.call("inventory.getSlots");
 

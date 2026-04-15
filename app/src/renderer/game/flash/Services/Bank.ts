@@ -1,3 +1,4 @@
+import type { Item } from "@vexed/game";
 import { ServiceMap } from "effect";
 import type { BridgeEffect } from "./Bridge";
 
@@ -5,8 +6,8 @@ export interface BankShape {
   contains(item: ItemIdentifierToken, quantity?: number): BridgeEffect<boolean>;
   deposit(item: ItemIdentifierToken): BridgeEffect<boolean>;
   depositMany(...items: ItemIdentifierToken[]): BridgeEffect<void>;
-  getItem(item: ItemIdentifierToken): BridgeEffect<Record<string, unknown>>;
-  getItems(): BridgeEffect<unknown[]>;
+  getItem(item: ItemIdentifierToken): BridgeEffect<Item | null>;
+  getItems(): BridgeEffect<readonly Item[]>;
   getSlots(): BridgeEffect<number>;
   getUsedSlots(): BridgeEffect<number>;
   getAvailableSlots(): BridgeEffect<number>;

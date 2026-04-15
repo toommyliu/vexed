@@ -6,7 +6,9 @@ import { AutoZone } from "./flash/Services/AutoZone";
 import { Quests } from "./flash/Services/Quests";
 import { Player } from "./flash/Services/Player";
 import { Auth } from "./flash/Services/Auth";
-
+import { Inventory } from "./flash/Services/Inventory";
+import { Bank } from "./flash/Services/Bank";
+import { TempInventory } from "./flash/Services/TempInventory";
 export default function App() {
   const [count, setCount] = createSignal(0);
   const [targetName, setTargetName] = createSignal("");
@@ -18,10 +20,9 @@ export default function App() {
     void runtime
       .runPromise(
         Effect.gen(function* () {
-          const auth = yield* Auth;
-          console.log("Auth info", yield* auth.getLoginInfo());
-          console.log("Auth username", yield* auth.getUsername());
-          console.log("Auth password", yield* auth.getPassword());
+          const inventory = yield* Inventory;
+          const items = yield* inventory.getItems();
+          console.log("Inventory items:", items);
         }),
       )
       .catch((error) => {

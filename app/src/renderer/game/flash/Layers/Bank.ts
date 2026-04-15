@@ -1,4 +1,5 @@
 import { Effect, Layer, Schedule, SynchronizedRef } from "effect";
+import { makeItemCache } from "../ItemCache";
 import { Auth } from "../Services/Auth";
 import type { BankShape } from "../Services/Bank";
 import { Bank } from "../Services/Bank";
@@ -7,18 +8,24 @@ import { Bridge } from "../Services/Bridge";
 const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
   const auth = yield* Auth;
+  const itemCache = yield* makeItemCache;
+
+  const runFork = Effect.runFork;
 
   const loaded = yield* SynchronizedRef.make(false);
 
-  const dispose = yield* bridge.onConnection((status) =>
-    Effect.gen(function* () {
-      if (status === "OnConnectionLost") {
-        yield* SynchronizedRef.set(loaded, false);
-      }
-    }),
-  );
+  const dispose = yield* bridge.onConnection((status) => {
+    if (status === "OnConnectionLost") {
+      runFork(
+        Effect.gen(function* () {
+          yield* SynchronizedRef.set(loaded, false);
+          yield* itemCache.clear;
+        }),
+      );
+    }
+  });
 
-  yield* Effect.addFinalizer(() => Effect.sync(() => dispose()));
+  yield* Effect.addFinalizer(() => Effect.sync(dispose));
 
   const contains = (item: ItemIdentifierToken, quantity: number = 1) =>
     bridge.call("bank.contains", [item, quantity]);
@@ -32,9 +39,7 @@ const make = Effect.gen(function* () {
   const depositMany = (...items: ItemIdentifierToken[]) =>
     Effect.gen(function* () {
       yield* open();
-      yield* Effect.forEach(items, (item) =>
-        bridge.call("bank.deposit", [item]),
-      );
+      yield* Effect.forEach(items, (item) => bridge.call("bank.deposit", [item]));
     });
 
   const withdraw = (item: ItemIdentifierToken) =>
@@ -46,15 +51,14 @@ const make = Effect.gen(function* () {
   const withdrawMany = (...items: ItemIdentifierToken[]) =>
     Effect.gen(function* () {
       yield* open();
-      yield* Effect.forEach(items, (item) =>
-        bridge.call("bank.withdraw", [item]),
-      );
+      yield* Effect.forEach(items, (item) => bridge.call("bank.withdraw", [item]));
     });
 
   const getItem = (item: ItemIdentifierToken) =>
-    bridge.call("bank.getItem", [item]);
+    bridge.call("bank.getItem", [item]).pipe(Effect.flatMap(itemCache.fromUnknown));
 
-  const getItems = () => bridge.call("bank.getItems");
+  const getItems = () =>
+    bridge.call("bank.getItems").pipe(Effect.flatMap(itemCache.fromUnknownArray));
 
   const getSlots = () => bridge.call("bank.getSlots");
 
