@@ -27,16 +27,16 @@ const make = Effect.gen(function* () {
 
   yield* Effect.addFinalizer(() => Effect.sync(dispose));
 
-  const contains = (item: ItemIdentifierToken, quantity: number = 1) =>
+  const contains: BankShape["contains"] = (item, quantity = 1) =>
     bridge.call("bank.contains", [item, quantity]);
 
-  const deposit = (item: ItemIdentifierToken) =>
+  const deposit: BankShape["deposit"] = (item) =>
     Effect.gen(function* () {
       yield* open();
       return yield* bridge.call("bank.deposit", [item]);
     });
 
-  const depositMany = (...items: ItemIdentifierToken[]) =>
+  const depositMany: BankShape["depositMany"] = (...items) =>
     Effect.gen(function* () {
       yield* open();
       yield* Effect.forEach(items, (item) =>
@@ -44,13 +44,13 @@ const make = Effect.gen(function* () {
       );
     });
 
-  const withdraw = (item: ItemIdentifierToken) =>
+  const withdraw: BankShape["withdraw"] = (item) =>
     Effect.gen(function* () {
       yield* open();
       return yield* bridge.call("bank.withdraw", [item]);
     });
 
-  const withdrawMany = (...items: ItemIdentifierToken[]) =>
+  const withdrawMany: BankShape["withdrawMany"] = (...items) =>
     Effect.gen(function* () {
       yield* open();
       yield* Effect.forEach(items, (item) =>
@@ -58,30 +58,26 @@ const make = Effect.gen(function* () {
       );
     });
 
-  const getItem = (item: ItemIdentifierToken) =>
+  const getItem: BankShape["getItem"] = (item) =>
     bridge
       .call("bank.getItem", [item])
       .pipe(Effect.flatMap(itemCache.fromUnknown));
 
-  const getItems = () =>
+  const getItems: BankShape["getItems"] = () =>
     bridge
       .call("bank.getItems")
       .pipe(Effect.flatMap(itemCache.fromUnknownArray));
 
-  const getSlots = () => bridge.call("bank.getSlots");
+  const getSlots: BankShape["getSlots"] = () => bridge.call("bank.getSlots");
 
-  const getUsedSlots = () => bridge.call("bank.getUsedSlots");
+  const getUsedSlots: BankShape["getUsedSlots"] = () => bridge.call("bank.getUsedSlots");
 
-  const getAvailableSlots = () =>
-    Effect.gen(function* () {
-      const slots = yield* getSlots();
-      const usedSlots = yield* getUsedSlots();
-      return slots - usedSlots;
-    });
+  const getAvailableSlots: BankShape["getAvailableSlots"] = () =>
+    Effect.zipWith(getSlots(), getUsedSlots(), (slots, used) => slots - used);
 
-  const isOpen = () => bridge.call("bank.isOpen");
+  const isOpen: BankShape["isOpen"] = () => bridge.call("bank.isOpen");
 
-  const open = (force: boolean = false) =>
+  const open: BankShape["open"] = (force = false) =>
     Effect.gen(function* () {
       const isLoggedIn = yield* auth.isLoggedIn();
       if (!isLoggedIn) return yield* Effect.void;
@@ -108,7 +104,7 @@ const make = Effect.gen(function* () {
       yield* bridge.call("bank.open");
     });
 
-  const swap = (invItem: ItemIdentifierToken, bankItem: ItemIdentifierToken) =>
+  const swap: BankShape["swap"] = (invItem, bankItem) =>
     bridge.call("bank.swap", [invItem, bankItem]);
 
   return {

@@ -82,7 +82,7 @@ const make = Effect.gen(function* () {
     }),
   );
 
-  const acceptDrop = (item: ItemIdentifierToken) =>
+  const acceptDrop: DropsShape["acceptDrop"] = (item) =>
     Effect.gen(function* () {
       const itemId = resolveItemId(item);
       if (itemId === undefined) {
@@ -103,13 +103,9 @@ const make = Effect.gen(function* () {
       counts.delete(itemId);
     });
 
-  const getDrops = () => bridge.call("drops.getDrops");
+  const isUsingCustomDrops: DropsShape["isUsingCustomDrops"] = () => bridge.call("drops.isUsingCustomDrops");
 
-  const getItems = () => bridge.call("drops.getItems");
-
-  const isUsingCustomDrops = () => bridge.call("drops.isUsingCustomDrops");
-
-  const rejectDrop = (itemId: number, visual?: boolean) =>
+  const rejectDrop: DropsShape["rejectDrop"] = (itemId, visual) =>
     Effect.gen(function* () {
       const isLoggedIn = yield* auth.isLoggedIn();
       if (!isLoggedIn) {
@@ -128,9 +124,9 @@ const make = Effect.gen(function* () {
       return yield* bridge.call("drops.rejectDrop", [itemId]);
     });
 
-  const toggleUi = () => bridge.call("drops.toggleUi");
+  const toggleUi: DropsShape["toggleUi"] = () => bridge.call("drops.toggleUi");
 
-  const containsDrop = (item: ItemIdentifierToken) =>
+  const containsDrop: DropsShape["containsDrop"] = (item) =>
     Effect.sync(() => {
       const itemId = resolveItemId(item);
       return itemId !== undefined && itemData.has(itemId);
@@ -139,8 +135,6 @@ const make = Effect.gen(function* () {
   return {
     acceptDrop,
     containsDrop,
-    getDrops,
-    getItems,
     isUsingCustomDrops,
     rejectDrop,
     toggleUi,

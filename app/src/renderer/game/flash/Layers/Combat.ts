@@ -100,7 +100,7 @@ const make = Effect.gen(function* () {
     return idx >= 0 && idx <= 5;
   };
 
-  const attackMonster = (monster: MonsterIdentifierToken) =>
+  const attackMonster: CombatShape["attackMonster"] = (monster) =>
     Effect.gen(function* () {
       const resolved = resolveKillTarget(monster);
       if (resolved.kind === "monMapId") {
@@ -112,11 +112,11 @@ const make = Effect.gen(function* () {
       return yield* bridge.call("combat.attackMonster", [resolved.name]);
     });
 
-  const cancelAutoAttack = () => bridge.call("combat.cancelAutoAttack");
+  const cancelAutoAttack: CombatShape["cancelAutoAttack"] = () => bridge.call("combat.cancelAutoAttack");
 
-  const cancelTarget = () => bridge.call("combat.cancelTarget");
+  const cancelTarget: CombatShape["cancelTarget"] = () => bridge.call("combat.cancelTarget");
 
-  const getSkillCooldownRemaining = (index: number | string) =>
+  const getSkillCooldownRemaining: CombatShape["getSkillCooldownRemaining"] = (index) =>
     Effect.gen(function* () {
       const idx = Number.parseInt(String(index));
       if (!isValidSkillIndex(idx)) return yield* Effect.succeed(0);
@@ -124,7 +124,7 @@ const make = Effect.gen(function* () {
       return yield* bridge.call("combat.getSkillCooldownRemaining", [idx]);
     });
 
-  const useSkill = (index: Skill, force?: boolean, wait?: boolean) =>
+  const useSkill: CombatShape["useSkill"] = (index, force = false, wait = false) =>
     Effect.gen(function* () {
       const strIndex = String(index);
       const idx = Number.parseInt(strIndex);
@@ -146,7 +146,7 @@ const make = Effect.gen(function* () {
       yield* bridge.call("combat.useSkill", [strIndex]);
     });
 
-  const hasTarget = () => bridge.call("combat.hasTarget");
+  const hasTarget: CombatShape["hasTarget"] = () => bridge.call("combat.hasTarget");
 
   const getTarget: CombatShape["getTarget"] = () =>
     Effect.gen(function* () {

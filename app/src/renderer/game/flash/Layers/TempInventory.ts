@@ -18,17 +18,17 @@ const make = Effect.gen(function* () {
 
   yield* Effect.addFinalizer(() => Effect.sync(dispose));
 
-  const contains = (item: ItemIdentifierToken, quantity?: number) =>
+  const contains: TempInventoryShape["contains"] = (item, quantity) =>
     quantity === undefined
       ? bridge.call("tempInventory.contains", [item])
       : bridge.call("tempInventory.contains", [item, quantity]);
 
-  const getItem = (item: ItemIdentifierToken) =>
+  const getItem: TempInventoryShape["getItem"] = (item) =>
     bridge
       .call("tempInventory.getItem", [item])
       .pipe(Effect.flatMap(itemCache.fromUnknown));
 
-  const getItems = () =>
+  const getItems: TempInventoryShape["getItems"] = () =>
     bridge
       .call("tempInventory.getItems")
       .pipe(Effect.flatMap(itemCache.fromUnknownArray));

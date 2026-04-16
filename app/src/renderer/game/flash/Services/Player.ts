@@ -1,4 +1,4 @@
-import type { Faction } from "@vexed/game";
+import type { BoostType, Faction } from "@vexed/game";
 import { Collection } from "@vexed/collection";
 import { ServiceMap } from "effect";
 import type { BridgeEffect } from "./Bridge";
@@ -24,8 +24,8 @@ export interface PlayerShape {
   joinMap(map: string, cell?: string, pad?: string): BridgeEffect<void>;
   goToPlayer(name: string): BridgeEffect<void>;
   rest(full?: boolean): BridgeEffect<void>;
-  useBoost(itemId: number): BridgeEffect<boolean>;
-  hasActiveBoost(boostType: string): BridgeEffect<boolean>;
+  useBoost(boost: ItemIdentifierToken): BridgeEffect<boolean>;
+  hasActiveBoost(boostType: BoostType): BridgeEffect<boolean>;
   isAlive(): BridgeEffect<boolean>;
   walkTo(x: number, y: number, walkSpeed?: number): BridgeEffect<boolean>;
 }

@@ -20,12 +20,12 @@ const make = Effect.gen(function* () {
 
   yield* Effect.addFinalizer(() => Effect.sync(dispose));
 
-  const contains = (item: ItemIdentifierToken, quantity?: number) =>
+  const contains: InventoryShape["contains"] = (item, quantity) =>
     quantity === undefined
       ? bridge.call("inventory.contains", [item])
       : bridge.call("inventory.contains", [item, quantity]);
 
-  const equip = (item: ItemIdentifierToken) =>
+  const equip: InventoryShape["equip"] = (item) =>
     Effect.gen(function* () {
       const toEquip = yield* getItem(item);
       if (!toEquip) {
@@ -37,26 +37,24 @@ const make = Effect.gen(function* () {
       return true;
     });
 
-  const getItem = (item: ItemIdentifierToken) =>
+  const getItem: InventoryShape["getItem"] = (item) =>
     bridge
       .call("inventory.getItem", [item])
       .pipe(Effect.flatMap(itemCache.fromUnknown));
 
-  const getItems = () =>
+  const getItems: InventoryShape["getItems"] = () =>
     bridge
       .call("inventory.getItems")
       .pipe(Effect.flatMap(itemCache.fromUnknownArray));
 
-  const getSlots = () => bridge.call("inventory.getSlots");
+  const getSlots: InventoryShape["getSlots"] = () =>
+    bridge.call("inventory.getSlots");
 
-  const getUsedSlots = () => bridge.call("inventory.getUsedSlots");
+  const getUsedSlots: InventoryShape["getUsedSlots"] = () =>
+    bridge.call("inventory.getUsedSlots");
 
-  const getAvailableSlots = () =>
-    Effect.gen(function* () {
-      const slots = yield* getSlots();
-      const usedSlots = yield* getUsedSlots();
-      return slots - usedSlots;
-    });
+  const getAvailableSlots: InventoryShape["getAvailableSlots"] = () =>
+    Effect.zipWith(getSlots(), getUsedSlots(), (slots, used) => slots - used);
 
   return {
     contains,
