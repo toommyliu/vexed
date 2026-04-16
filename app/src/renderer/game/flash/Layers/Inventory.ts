@@ -3,9 +3,11 @@ import { makeItemCache } from "../ItemCache";
 import { Bridge } from "../Services/Bridge";
 import { Inventory } from "../Services/Inventory";
 import type { InventoryShape } from "../Services/Inventory";
+import { World } from "../Services/World";
 
 const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
+  const world = yield* World;
   const itemCache = yield* makeItemCache;
 
   const runFork = Effect.runFork;
@@ -24,7 +26,16 @@ const make = Effect.gen(function* () {
       : bridge.call("inventory.contains", [item, quantity]);
 
   const equip = (item: ItemIdentifierToken) =>
-    bridge.call("inventory.equip", [item]);
+    Effect.gen(function* () {
+      const toEquip = yield* getItem(item);
+      if (!toEquip) {
+        return false;
+      }
+
+      yield* world.map.waitForGameAction("equipItem");
+      yield* bridge.call("inventory.equip", [toEquip]);
+      return true;
+    });
 
   const getItem = (item: ItemIdentifierToken) =>
     bridge

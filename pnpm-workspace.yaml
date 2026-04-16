@@ -1,5 +1,8 @@
 packages:
-  - packages/*
+  - 'packages/*'
+  - '!packages/fs'
+  - '!packages/config'
+  - '!packages/ui'
   - app
   - docs
 

@@ -16,4 +16,4 @@ export const GameAction = Schema.Literals([
   "unequipItem",
   "who",
 ]);
-export type GameAction = typeof GameAction.Type;
+export type GameAction = Schema.Schema.Type<typeof GameAction>;

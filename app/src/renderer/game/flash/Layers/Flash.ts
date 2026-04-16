@@ -16,58 +16,38 @@ import { TempInventoryLive } from "./TempInventory";
 import { WorldLive } from "./World";
 
 const BridgeCoreLive = BridgeLive;
+const PacketRuntimeLive = PacketLive;
 
 const AuthRuntimeLive = AuthLive.pipe(Layer.provide(BridgeCoreLive));
+const WorldRuntimeLive = WorldLive.pipe(Layer.provide(BridgeCoreLive));
 
-const BridgeWithAuthLive = Layer.mergeAll(BridgeCoreLive, AuthRuntimeLive);
+const CoreRuntimeLive = Layer.mergeAll(
+  BridgeCoreLive,
+  PacketRuntimeLive,
+  AuthRuntimeLive,
+  WorldRuntimeLive,
+);
 
-const BridgeOnlyDomainsLive = Layer.mergeAll(
+const DomainRuntimeLive = Layer.mergeAll(
   PlayerLive,
   SettingsLive,
   ShopsLive,
-).pipe(Layer.provideMerge(WorldLive.pipe(Layer.provide(BridgeCoreLive))));
-
-const PacketRuntimeLive = PacketLive;
-
-const BridgeAuthDomainsLive = Layer.mergeAll(
   BankLive,
   DropsLive,
   InventoryLive,
   TempInventoryLive,
-).pipe(Layer.provide(Layer.mergeAll(BridgeWithAuthLive, PacketRuntimeLive)));
+  PacketDomainLive,
+  QuestsLive,
+).pipe(Layer.provide(CoreRuntimeLive));
 
-const CombatRuntimeLive = CombatLive.pipe(
-  Layer.provideMerge(
-    Layer.mergeAll(BridgeAuthDomainsLive, BridgeOnlyDomainsLive),
-  ),
+const FeatureRuntimeLive = Layer.mergeAll(CombatLive, AutoZoneLive).pipe(
+  Layer.provide(Layer.mergeAll(CoreRuntimeLive, DomainRuntimeLive)),
 );
-
-const BridgeRuntimeLive = Layer.mergeAll(
-  BridgeOnlyDomainsLive,
-  BridgeAuthDomainsLive,
-  CombatRuntimeLive,
-).pipe(Layer.provideMerge(BridgeWithAuthLive));
-
-const PacketDomainRuntimeLive = PacketDomainLive.pipe(
-  Layer.provide(Layer.mergeAll(PacketRuntimeLive, BridgeRuntimeLive)),
-);
-
-const QuestsRuntimeLive = QuestsLive.pipe(
-  Layer.provide(Layer.mergeAll(BridgeRuntimeLive, PacketRuntimeLive)),
-);
-
-const FlashDomainLive = Layer.mergeAll(
-  BridgeRuntimeLive,
-  PacketRuntimeLive,
-  PacketDomainRuntimeLive,
-  QuestsRuntimeLive,
-);
-
-const AutoZoneRuntimeLive = AutoZoneLive.pipe(Layer.provide(FlashDomainLive));
 
 export const FlashLive = Layer.mergeAll(
-  FlashDomainLive,
-  AutoZoneRuntimeLive,
+  CoreRuntimeLive,
+  DomainRuntimeLive,
+  FeatureRuntimeLive,
 ).pipe(
   Layer.tapCause((cause) =>
     Effect.logError({
