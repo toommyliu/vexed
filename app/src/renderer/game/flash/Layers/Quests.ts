@@ -21,6 +21,8 @@ const getQuestsFromPacket = (
   if (!packet.includes("getQuests")) {
     return null;
   }
+  
+  console.log('getQuests packet lol', packet)
 
   try {
     const parsed = JSON.parse(packet) as GetQuestsPacket;

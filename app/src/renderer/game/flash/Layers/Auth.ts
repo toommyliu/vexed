@@ -130,11 +130,7 @@ const make = Effect.gen(function* () {
     }
   });
 
-  yield* Effect.addFinalizer(() =>
-    Effect.sync(() => {
-      dispose();
-    }),
-  );
+  yield* Effect.addFinalizer(() => Effect.sync(dispose));
 
   return {
     connectTo,

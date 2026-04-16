@@ -135,9 +135,7 @@ package vexed.generated
       external.externalize("shops.buyById", Shops.buyById);
       external.externalize("shops.buyByName", Shops.buyByName);
       external.externalize("shops.canBuyItem", Shops.canBuyItem);
-      external.externalize("shops.getInfo", Shops.getInfo);
       external.externalize("shops.getItem", Shops.getItem);
-      external.externalize("shops.getItems", Shops.getItems);
       external.externalize("shops.isMergeShop", Shops.isMergeShop);
       external.externalize("shops.load", Shops.load);
       external.externalize("shops.loadArmorCustomize", Shops.loadArmorCustomize);
