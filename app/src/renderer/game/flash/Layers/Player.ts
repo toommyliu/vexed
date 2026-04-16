@@ -88,12 +88,11 @@ const make = Effect.gen(function* () {
   const isAfk = () => fromSelfOr(false, (me) => me.isAFK());
 
   const isReady = () =>
-    Effect.gen(function* () {
-      const isLoggedIn = yield* auth.isLoggedIn();
-      const isWorldLoaded = yield* world.map.isLoaded();
-      const isSelfLoaded = yield* bridge.call("player.isLoaded");
-      return isLoggedIn && isWorldLoaded && isSelfLoaded;
-    });
+    Effect.all([
+      auth.isLoggedIn(),
+      world.map.isLoaded(),
+      bridge.call("player.isLoaded"),
+    ]).pipe(Effect.map(([a, b, c]) => a && b && c));
 
   const isMember = () => bridge.call("player.isMember");
 
