@@ -116,14 +116,6 @@ const make = Effect.gen(function* () {
 
   const cancelTarget: CombatShape["cancelTarget"] = () => bridge.call("combat.cancelTarget");
 
-  const getSkillCooldownRemaining: CombatShape["getSkillCooldownRemaining"] = (index) =>
-    Effect.gen(function* () {
-      const idx = Number.parseInt(String(index));
-      if (!isValidSkillIndex(idx)) return yield* Effect.succeed(0);
-
-      return yield* bridge.call("combat.getSkillCooldownRemaining", [idx]);
-    });
-
   const useSkill: CombatShape["useSkill"] = (index, force = false, wait = false) =>
     Effect.gen(function* () {
       const strIndex = String(index);
@@ -145,6 +137,15 @@ const make = Effect.gen(function* () {
 
       yield* bridge.call("combat.useSkill", [strIndex]);
     });
+
+  const canUseSkill: CombatShape["canUseSkill"] = (index) => Effect.gen(function* () {
+    const strIndex = String(index);
+    const idx = Number.parseInt(strIndex);
+    if (!isValidSkillIndex(idx)) return yield* Effect.succeed(false);
+
+    const cooldown = yield* bridge.call("combat.getSkillCooldownRemaining", [idx]);
+    return cooldown === 0;
+  });
 
   const hasTarget: CombatShape["hasTarget"] = () => bridge.call("combat.hasTarget");
 
@@ -461,7 +462,7 @@ const make = Effect.gen(function* () {
     cancelAutoAttack,
     cancelTarget,
     useSkill,
-    getSkillCooldownRemaining,
+    canUseSkill,
     getTarget,
     hasTarget,
     kill,

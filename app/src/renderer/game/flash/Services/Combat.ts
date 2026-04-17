@@ -6,7 +6,7 @@ export interface CombatShape {
   attackMonster(monster: MonsterIdentifierToken): BridgeEffect<void>;
   cancelAutoAttack(): BridgeEffect<void>;
   cancelTarget(): BridgeEffect<void>;
-  getSkillCooldownRemaining(index: number | string): BridgeEffect<number>;
+  canUseSkill(index: number | string): BridgeEffect<boolean>;
   getTarget(): BridgeEffect<Monster | Avatar | null>;
   hasTarget(): BridgeEffect<boolean>;
   kill(target: MonsterIdentifierToken): BridgeEffect<void>;
