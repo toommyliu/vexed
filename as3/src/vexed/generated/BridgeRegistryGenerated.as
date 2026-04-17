@@ -110,6 +110,7 @@ package vexed.generated
       external.externalize("quests.canComplete", Quests.canComplete);
       external.externalize("quests.complete", Quests.complete);
       external.externalize("quests.get", Quests.get);
+      external.externalize("quests.getAccepted", Quests.getAccepted);
       external.externalize("quests.getMultiple", Quests.getMultiple);
       external.externalize("quests.getQuestValidationString", Quests.getQuestValidationString);
       external.externalize("quests.getTree", Quests.getTree);

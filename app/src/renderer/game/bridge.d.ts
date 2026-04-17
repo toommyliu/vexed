@@ -97,6 +97,7 @@ declare global {
       "quests.canComplete": (questId: number) => boolean;
       "quests.complete": (questId: number, turnIns?: number, itemId?: number, special?: boolean) => void;
       "quests.get": (questId: number) => void;
+      "quests.getAccepted": () => unknown[];
       "quests.getMultiple": (questIds: string) => void;
       "quests.getQuestValidationString": (questObj: Record<string, unknown>) => string;
       "quests.getTree": () => unknown[];

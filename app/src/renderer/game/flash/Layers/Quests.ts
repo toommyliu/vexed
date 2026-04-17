@@ -1,41 +1,35 @@
 import type { QuestInfo } from "@vexed/game";
 import { Effect, Layer, SynchronizedRef } from "effect";
+import { waitFor, waitForRef } from "../../utils/waitFor";
+import { asNumber, asRecord, asString } from "../PacketPayload";
 import { Bridge } from "../Services/Bridge";
 import { Packet } from "../Services/Packet";
 import { Quests } from "../Services/Quests";
 import type { QuestsShape } from "../Services/Quests";
 import { World } from "../Services/World";
-import { waitForRef } from "../../utils/waitFor";
 
-type GetQuestsPacket = {
-  b?: {
-    o?: {
-      quests?: Record<string, QuestInfo>;
-    };
-  };
+const asQuestMap = (value: unknown): Record<string, QuestInfo> | null => {
+  const payload = asRecord(value);
+  if (!payload) {
+    return null;
+  }
+
+  const quests = asRecord(payload["quests"]);
+  if (!quests) {
+    return null;
+  }
+
+  return quests as Record<string, QuestInfo>;
 };
 
-const getQuestsFromPacket = (
-  packet: string,
-): Record<string, QuestInfo> | null => {
-  if (!packet.includes("getQuests")) {
-    return null;
+const toQuestId = (value: unknown): number | undefined => {
+  const parsed = asNumber(value);
+  if (parsed === undefined) {
+    return undefined;
   }
-  
-  console.log('getQuests packet lol', packet)
 
-  try {
-    const parsed = JSON.parse(packet) as GetQuestsPacket;
-    const quests = parsed.b?.o?.quests;
-
-    if (!quests || typeof quests !== "object") {
-      return null;
-    }
-
-    return quests;
-  } catch {
-    return null;
-  }
+  const questId = Math.trunc(parsed);
+  return questId > 0 ? questId : undefined;
 };
 
 const make = Effect.gen(function* () {
@@ -44,113 +38,105 @@ const make = Effect.gen(function* () {
   const world = yield* World;
 
   const quests = yield* SynchronizedRef.make<Record<number, QuestInfo>>({});
-  const acceptedQuests = yield* SynchronizedRef.make<Set<number>>(new Set());
 
-  yield* packets.scoped(
-    packets.packetFromServer((packet) =>
-      Effect.gen(function* () {
-        const nextQuests = getQuestsFromPacket(packet);
-        if (!nextQuests) {
-          return;
-        }
+  const runFork = Effect.runFork;
 
-        yield* SynchronizedRef.update(quests, (tree) => {
-          for (const [rawQuestId, questInfo] of Object.entries(nextQuests)) {
-            console.log("Adding quest:", rawQuestId, questInfo);
-            const questId = Number(rawQuestId);
-            if (Number.isNaN(questId)) {
-              continue;
-            }
+  const dispose = yield* bridge.onConnection((status) => {
+    if (status === "OnConnectionLost") {
+      runFork(
+        Effect.gen(function* () {
+          yield* SynchronizedRef.set(quests, {});
+        }),
+      );
+    }
+  });
 
-            tree[questId] = questInfo;
+  yield* Effect.addFinalizer(() => Effect.sync(dispose));
+
+  const updateQuests = (value: unknown) =>
+    Effect.gen(function* () {
+      const nextQuests = asQuestMap(value);
+      if (!nextQuests) {
+        return;
+      }
+
+      yield* SynchronizedRef.update(quests, (tree) => {
+        for (const [rawQuestId, questInfo] of Object.entries(nextQuests)) {
+          const questId = toQuestId(rawQuestId);
+          if (questId === undefined) {
+            continue;
           }
 
-          return tree;
-        });
-      }),
-    ),
-  );
-
-  yield* packets.scoped(
-    packets.packetFromClient((packet) =>
-      Effect.gen(function* () {
-        if (packet.includes("acceptQuest")) {
-          //%xt%zm%getQuests%3%11%407%408%409%445%446%
-          const parts = packet.split("%").filter(Boolean);
-          console.log("Accept quest packet:", parts);
-          const questId = Number(parts[5]);
-          yield* SynchronizedRef.update(acceptedQuests, (set) =>
-            set.add(questId),
-          );
+          tree[questId] = questInfo;
         }
-      }),
-    ),
-  );
 
-  const waitForQuestLoad = (questId: number) =>
-    waitForRef(quests, (tree) => !!tree[questId]);
-
-  const waitForQuestAccept = (questId: number) =>
-    waitForRef(acceptedQuests, (set) => set.has(questId));
-
-  const abandon = (questId: number) =>
-    Effect.gen(function* () {
-      yield* bridge.call("quests.abandon", [questId]);
-      yield* SynchronizedRef.update(acceptedQuests, (set) => {
-        const next = new Set(set);
-        next.delete(questId);
-        return next;
+        return tree;
       });
     });
 
-  const accept: QuestsShape["accept"] = (
-    questId: number,
-    silent: boolean = false,
-  ) =>
+  yield* packets.jsonScoped("getQuests", (packet) => updateQuests(packet.data));
+
+  const waitForQuestLoad = (questId: number) =>
+    waitForRef(quests, (tree) => tree[questId] !== undefined);
+
+  const waitForQuestAccept = (questId: number) =>
+    waitFor(isInProgress(questId));
+
+  const abandon: QuestsShape["abandon"] = (questId) =>
+    bridge.call("quests.abandon", [questId]);
+
+  const accept: QuestsShape["accept"] = (questId, silent = false) =>
     Effect.gen(function* () {
       yield* world.map.waitForGameAction("acceptQuest");
 
       const tree = yield* SynchronizedRef.get(quests);
-      if (tree[questId]) {
-        yield* bridge.call("quests.accept", [questId]);
-        return;
+      if (!tree[questId]) {
+        yield* load(questId, silent);
+        yield* waitForQuestLoad(questId);
       }
 
-      yield* load(questId, silent);
-      yield* waitForQuestLoad(questId);
       yield* bridge.call("quests.accept", [questId]);
       yield* waitForQuestAccept(questId);
     });
 
-  const canComplete = (questId: number) =>
+  const canComplete: QuestsShape["canComplete"] = (questId) =>
     bridge.call("quests.canComplete", [questId]);
 
-  const complete = (
-    questId: number,
-    turnIns?: number,
-    itemId?: number,
-    special?: boolean,
+  const complete: QuestsShape["complete"] = (
+    questId,
+    turnIns,
+    itemId,
+    special,
   ) => bridge.call("quests.complete", [questId, turnIns, itemId, special]);
 
-  const load = (questId: number, silent = false) =>
+  const load: QuestsShape["load"] = (questId, silent = false) =>
     Effect.gen(function* () {
-      // Load quest without showing the Quest List
       if (silent) {
-        return yield* bridge.callGameFunction("world.getQuests", [[questId]]);
+        yield* bridge.callGameFunction("world.getQuests", [[questId]]);
+        return;
       }
 
-      return yield* bridge.call("quests.load", [questId]);
+      yield* bridge.call("quests.load", [questId]);
     });
 
-  const getMultiple = (questIds: string) =>
+  const getMultiple: QuestsShape["getMultiple"] = (questIds) =>
     bridge.call("quests.getMultiple", [questIds]);
 
-  const getTree = () => SynchronizedRef.get(quests);
+  const getTree: QuestsShape["getTree"] = () => SynchronizedRef.get(quests);
 
-  const isAvailable = (questId: number) =>
+  const getAccepted: QuestsShape["getAccepted"] = () =>
+    Effect.gen(function* () {
+      const questIds = (yield* bridge.call("quests.getAccepted", [])) as number[];
+      const tree = yield* SynchronizedRef.get(quests);
+      return questIds
+        .map((id) => tree[id])
+        .filter((q): q is QuestInfo => q !== undefined);
+    });
+
+  const isAvailable: QuestsShape["isAvailable"] = (questId) =>
     bridge.call("quests.isAvailable", [questId]);
 
-  const isInProgress = (questId: number) =>
+  const isInProgress: QuestsShape["isInProgress"] = (questId) =>
     bridge.call("quests.isInProgress", [questId]);
 
   return {
@@ -161,7 +147,7 @@ const make = Effect.gen(function* () {
     load,
     getMultiple,
     getTree,
-    getAccepted: () => SynchronizedRef.get(acceptedQuests),
+    getAccepted,
     isAvailable,
     isInProgress,
   } satisfies QuestsShape;
