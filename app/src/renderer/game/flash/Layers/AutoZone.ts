@@ -105,30 +105,42 @@ const make = Effect.gen(function* () {
   const dispose = yield* packetDomain.on("zone", (event) =>
     Effect.gen(function* () {
       const currentMap = yield* Ref.get(mapRef);
-      const zoneRange = AUTO_ZONES[currentMap][event.zone];
 
-      if (!zoneRange) {
-        console.log(
-          `No config for zone '${event.zone}' on map '${currentMap}'`,
+      if (!AUTO_ZONES[currentMap]) {
+        yield* Effect.logWarning(
+          `No config for map '${currentMap}' in auto zone`,
         );
         return;
       }
 
+      const zoneRange = AUTO_ZONES[currentMap][event.zone];
+
+      if (!zoneRange) {
+        return;
+      }
+
       const { x, y } = getRandomPosition(zoneRange);
-      console.log(
-        `Moving to ${x}, ${y} in zone ${event.zone} on map ${currentMap}`,
-      );
       yield* player.walkTo(x, y).pipe(Effect.catch(() => Effect.void));
     }),
   );
 
   yield* Effect.addFinalizer(() => Effect.sync(dispose));
 
+  const enabled: AutoZoneShape["enabled"] = Ref.get(enabledRef);
+
+  const map: AutoZoneShape["map"] = Ref.get(mapRef);
+
+  const setMap: AutoZoneShape["setMap"] = (map: AutoZoneSupportedMap) =>
+    Ref.set(mapRef, map);
+
+  const setEnabled: AutoZoneShape["setEnabled"] = (enabled: boolean) =>
+    Ref.set(enabledRef, enabled);
+
   return {
-    enabled: Ref.get(enabledRef),
-    map: Ref.get(mapRef),
-    setMap: (map: AutoZoneSupportedMap) => Ref.set(mapRef, map),
-    setEnabled: (enabled: boolean) => Ref.set(enabledRef, enabled),
+    enabled,
+    map,
+    setMap,
+    setEnabled,
   } satisfies AutoZoneShape;
 });
 
