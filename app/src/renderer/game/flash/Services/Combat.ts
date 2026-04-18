@@ -2,6 +2,13 @@ import { ServiceMap } from "effect";
 import type { Avatar, Monster } from "@vexed/game";
 import type { BridgeEffect } from "./Bridge";
 
+export interface CombatKillOptions {
+  readonly killPriority?: readonly MonsterIdentifierToken[] | string;
+  readonly skillSet?: readonly Skill[] | string;
+  readonly skillDelay?: number;
+  readonly skillWait?: boolean;
+}
+
 export interface CombatShape {
   attackMonster(monster: MonsterIdentifierToken): BridgeEffect<void>;
   cancelAutoAttack(): BridgeEffect<void>;
@@ -9,16 +16,21 @@ export interface CombatShape {
   canUseSkill(index: number | string): BridgeEffect<boolean>;
   getTarget(): BridgeEffect<Monster | Avatar | null>;
   hasTarget(): BridgeEffect<boolean>;
-  kill(target: MonsterIdentifierToken): BridgeEffect<void>;
+  kill(
+    target: MonsterIdentifierToken,
+    options?: CombatKillOptions,
+  ): BridgeEffect<void>;
   killForItem(
     target: MonsterIdentifierToken,
     item: ItemIdentifierToken,
     quantity?: number,
+    options?: CombatKillOptions,
   ): BridgeEffect<void>;
   killForTempItem(
     target: MonsterIdentifierToken,
     item: ItemIdentifierToken,
     quantity?: number,
+    options?: CombatKillOptions,
   ): BridgeEffect<void>;
   useSkill(
     index: number | string,

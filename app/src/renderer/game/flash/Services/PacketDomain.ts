@@ -1,9 +1,14 @@
 import { ServiceMap } from "effect";
 import type { Effect } from "effect";
-import type { ExtensionPacket } from "../PacketTypes";
+import type { ExtensionPacket, ServerPacket } from "../PacketTypes";
 import type { PacketListenerDisposer } from "./Packet";
 
-export type PacketDomainEvent = "monsterDeath" | "zone" | "joinMap";
+export type PacketDomainEvent =
+  | "monsterDeath"
+  | "zone"
+  | "joinMap"
+  | "counterAttackStart"
+  | "counterAttackEnd";
 
 export interface PacketDomainMonsterDeathEvent {
   readonly monMapId: number;
@@ -23,10 +28,18 @@ export interface PacketDomainJoinMapEvent {
   readonly packet: ExtensionPacket;
 }
 
+export interface PacketDomainCounterAttackEvent {
+  readonly monMapId: number;
+  readonly message?: string;
+  readonly packet: ServerPacket;
+}
+
 export interface PacketDomainEventMap {
   monsterDeath: PacketDomainMonsterDeathEvent;
   zone: PacketDomainZoneEvent;
   joinMap: PacketDomainJoinMapEvent;
+  counterAttackStart: PacketDomainCounterAttackEvent;
+  counterAttackEnd: PacketDomainCounterAttackEvent;
 }
 
 export type PacketDomainEventHandler<

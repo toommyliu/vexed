@@ -27,6 +27,41 @@ import { World } from "../Services/World";
 
 const AURA_ADD_COMMANDS = new Set(["aura+", "aura++"]);
 const AURA_REMOVE_COMMANDS = new Set(["aura-", "aura--"]);
+const COUNTER_ATTACK_AURA_NAME = "Counter Attack";
+const COUNTER_ATTACK_PREPARE_MESSAGE = "prepares a counter attack";
+
+const parseMonsterMapIdFromEntityInfo = (
+  entityInfo: unknown,
+): number | undefined => {
+  const info = asString(entityInfo);
+  if (!info) {
+    return undefined;
+  }
+
+  const [entityType, entityId] = info.split(":");
+  if (entityType !== "m") {
+    return undefined;
+  }
+
+  return asNumber(entityId);
+};
+
+const normalizeAnimationMessage = (value: unknown): string | undefined => {
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    return trimmed === "" ? undefined : trimmed;
+  }
+
+  const parts = asArray(value)
+    .map((part) => asString(part)?.trim())
+    .filter((part): part is string => !!part);
+
+  if (parts.length === 0) {
+    return undefined;
+  }
+
+  return parts.join("...  ");
+};
 
 const toAvatarData = (
   username: string,
@@ -92,6 +127,8 @@ const createDomainHandlerStore = (): DomainHandlerStore => ({
   monsterDeath: new Set(),
   joinMap: new Set(),
   zone: new Set(),
+  counterAttackStart: new Set(),
+  counterAttackEnd: new Set(),
 });
 
 const registerDomainHandler = <E extends PacketDomainEvent>(
@@ -288,9 +325,13 @@ const make = Effect.gen(function* () {
       const parts = mapNameNumber?.split("-") ?? [];
       const mapId = asNumber(payload["areaId"]);
 
+      let mapName: string | undefined;
+      let roomNumber: number | undefined;
+
       if (parts.length === 2) {
-        const [mapName, roomNumberStr] = parts;
-        const roomNumber = asNumber(roomNumberStr);
+        const [nextMapName, roomNumberStr] = parts;
+        roomNumber = asNumber(roomNumberStr);
+        mapName = nextMapName;
 
         if (mapName) {
           yield* world.map.setName(mapName);
@@ -304,6 +345,15 @@ const make = Effect.gen(function* () {
       if (mapId !== undefined) {
         yield* world.map.setId(mapId);
       }
+
+      const joinMapEvent: PacketDomainEventMap["joinMap"] = {
+        packet,
+        ...(mapName !== undefined ? { mapName } : {}),
+        ...(mapId !== undefined ? { mapId } : {}),
+        ...(roomNumber !== undefined ? { roomNumber } : {}),
+      };
+
+      yield* dispatchDomainEvent(domainHandlerStore, "joinMap", joinMapEvent);
 
       // Monster info
 
@@ -671,6 +721,33 @@ const make = Effect.gen(function* () {
         return;
       }
 
+      for (const rawAnimation of asArray(payload["anims"])) {
+        const animation = asRecord(rawAnimation);
+        if (!animation) {
+          continue;
+        }
+
+        const message = normalizeAnimationMessage(animation["msg"]);
+        if (!message) {
+          continue;
+        }
+
+        if (!message.toLowerCase().includes(COUNTER_ATTACK_PREPARE_MESSAGE)) {
+          continue;
+        }
+
+        const monMapId = parseMonsterMapIdFromEntityInfo(animation["cInf"]);
+        if (monMapId === undefined) {
+          continue;
+        }
+
+        yield* dispatchDomainEvent(domainHandlerStore, "counterAttackStart", {
+          monMapId,
+          message,
+          packet,
+        });
+      }
+
       const playerUpdates = asRecord(payload["p"]);
       if (playerUpdates) {
         for (const [playerName, rawUpdate] of Object.entries(playerUpdates)) {
@@ -768,6 +845,14 @@ const make = Effect.gen(function* () {
               } else {
                 yield* world.monsters.updateAura(targetId, aura);
               }
+
+              if (equalsIgnoreCase(aura.name, COUNTER_ATTACK_AURA_NAME)) {
+                yield* dispatchDomainEvent(domainHandlerStore, "counterAttackStart", {
+                  monMapId: targetId,
+                  message: aura.name,
+                  packet,
+                });
+              }
             }
           }
           continue;
@@ -784,6 +869,14 @@ const make = Effect.gen(function* () {
             yield* world.players.removeAura(targetId, auraName);
           } else {
             yield* world.monsters.removeAura(targetId, auraName);
+
+            if (equalsIgnoreCase(auraName, COUNTER_ATTACK_AURA_NAME)) {
+              yield* dispatchDomainEvent(domainHandlerStore, "counterAttackEnd", {
+                monMapId: targetId,
+                message: auraName,
+                packet,
+              });
+            }
           }
         }
       }
