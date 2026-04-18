@@ -61,7 +61,9 @@ const isValidSkillIndex = (index: number): boolean =>
 
 const toMonMapId = (target: MonsterIdentifierToken): number | undefined => {
   if (typeof target === "number") {
-    return Number.isFinite(target) && target > 0 ? Math.trunc(target) : undefined;
+    return Number.isFinite(target) && target > 0
+      ? Math.trunc(target)
+      : undefined;
   }
 
   const trimmed = target.trim();
@@ -235,92 +237,6 @@ const make = Effect.gen(function* () {
   const drops = yield* Drops;
   const player = yield* Player;
 
-  const attackMonster: CombatShape["attackMonster"] = (monster) =>
-    Effect.gen(function* () {
-      const resolved = resolveKillTarget(monster);
-      if (resolved.kind === "monMapId") {
-        return yield* bridge.call("combat.attackMonsterById", [
-          resolved.monMapId,
-        ]);
-      }
-
-      return yield* bridge.call("combat.attackMonster", [resolved.name]);
-    });
-
-  const cancelAutoAttack: CombatShape["cancelAutoAttack"] = () =>
-    bridge.call("combat.cancelAutoAttack");
-
-  const cancelTarget: CombatShape["cancelTarget"] = () =>
-    bridge.call("combat.cancelTarget");
-
-  const useSkill: CombatShape["useSkill"] = (
-    index,
-    force = false,
-    wait = false,
-  ) =>
-    Effect.gen(function* () {
-      const strIndex = String(index);
-      const idx = Number.parseInt(strIndex, 10);
-      if (!isValidSkillIndex(idx)) {
-        return;
-      }
-
-      if (wait) {
-        const duration = yield* bridge.call("combat.getSkillCooldownRemaining", [
-          idx,
-        ]);
-        yield* Effect.sleep(duration);
-      }
-
-      if (force) {
-        yield* bridge.call("combat.forceUseSkill", [strIndex]);
-        return;
-      }
-
-      yield* bridge.call("combat.useSkill", [strIndex]);
-    });
-
-  const canUseSkill: CombatShape["canUseSkill"] = (index) =>
-    Effect.gen(function* () {
-      const strIndex = String(index);
-      const idx = Number.parseInt(strIndex, 10);
-      if (!isValidSkillIndex(idx)) {
-        return false;
-      }
-
-      const cooldown = yield* bridge.call("combat.getSkillCooldownRemaining", [
-        idx,
-      ]);
-      return cooldown === 0;
-    });
-
-  const hasTarget: CombatShape["hasTarget"] = () => bridge.call("combat.hasTarget");
-
-  const getTarget: CombatShape["getTarget"] = () =>
-    Effect.gen(function* () {
-      const target = yield* bridge.call("combat.getTarget");
-      if (!target) {
-        return null;
-      }
-
-      const maybeWorld = yield* Effect.serviceOption(World);
-      if (Option.isNone(maybeWorld)) {
-        return null;
-      }
-
-      const world = maybeWorld.value;
-
-      if (target.type === "monster") {
-        const monsterTarget = target as MonsterTargetInfo;
-        const monster = yield* world.monsters.get(monsterTarget.MonMapID);
-        return Option.isSome(monster) ? monster.value : null;
-      }
-
-      const playerTarget = target as PlayerTargetInfo;
-      const player = yield* world.players.get(playerTarget.strUsername);
-      return Option.isSome(player) ? player.value : null;
-    });
-
   const containsInventoryItem = (
     item: ItemIdentifierToken,
     quantity?: number,
@@ -351,9 +267,9 @@ const make = Effect.gen(function* () {
 
   const getCurrentTargetMonMapId = () =>
     Effect.gen(function* () {
-      const target = yield* bridge.call("combat.getTarget").pipe(
-        Effect.catch(() => Effect.succeed(null)),
-      );
+      const target = yield* bridge
+        .call("combat.getTarget")
+        .pipe(Effect.catch(() => Effect.succeed(null)));
 
       if (!target || target.type !== "monster") {
         return undefined;
@@ -372,7 +288,6 @@ const make = Effect.gen(function* () {
       "counterAttackStart",
       (event) =>
         Effect.gen(function* () {
-          console.log("COUNTER ATTACK START", event);
           counterAttackMonsters.add(event.monMapId);
 
           const currentTargetMonMapId = yield* getCurrentTargetMonMapId();
@@ -383,18 +298,21 @@ const make = Effect.gen(function* () {
     );
     disposers.push(disposeCounterStart);
 
-    const disposeCounterEnd = yield* packetDomain.on("counterAttackEnd", (event) =>
-      Effect.sync(() => {
-        console.log("COUNTER ATTACK END", event);
-        counterAttackMonsters.delete(event.monMapId);
-      }),
+    const disposeCounterEnd = yield* packetDomain.on(
+      "counterAttackEnd",
+      (event) =>
+        Effect.sync(() => {
+          counterAttackMonsters.delete(event.monMapId);
+        }),
     );
     disposers.push(disposeCounterEnd);
 
-    const disposeMonsterDeath = yield* packetDomain.on("monsterDeath", (event) =>
-      Effect.sync(() => {
-        counterAttackMonsters.delete(event.monMapId);
-      }),
+    const disposeMonsterDeath = yield* packetDomain.on(
+      "monsterDeath",
+      (event) =>
+        Effect.sync(() => {
+          counterAttackMonsters.delete(event.monMapId);
+        }),
     );
     disposers.push(disposeMonsterDeath);
 
@@ -419,6 +337,112 @@ const make = Effect.gen(function* () {
   const isCounterAttackActive = (monMapId: number): boolean =>
     counterAttackMonsters.has(monMapId);
 
+  const attackMonster: CombatShape["attackMonster"] = (monster) =>
+    Effect.gen(function* () {
+      const resolved = resolveKillTarget(monster);
+      if (resolved.kind === "monMapId") {
+        return yield* bridge.call("combat.attackMonsterById", [
+          resolved.monMapId,
+        ]);
+      }
+
+      return yield* bridge.call("combat.attackMonster", [resolved.name]);
+    });
+
+  const cancelAutoAttack: CombatShape["cancelAutoAttack"] = () =>
+    bridge.call("combat.cancelAutoAttack");
+
+  const cancelTarget: CombatShape["cancelTarget"] = () =>
+    bridge.call("combat.cancelTarget");
+
+  const useSkill: CombatShape["useSkill"] = (
+    index,
+    force = false,
+    wait = false,
+  ) =>
+    Effect.gen(function* () {
+      const strIndex = String(index);
+      const idx = Number.parseInt(strIndex, 10);
+      if (!isValidSkillIndex(idx)) {
+        return;
+      }
+
+      const targetBeforeWait = yield* getCurrentTargetMonMapId();
+      if (
+        targetBeforeWait !== undefined &&
+        isCounterAttackActive(targetBeforeWait)
+      ) {
+        yield* stopCombat;
+        return;
+      }
+
+      if (wait) {
+        const duration = yield* bridge.call(
+          "combat.getSkillCooldownRemaining",
+          [idx],
+        );
+        yield* Effect.sleep(duration);
+      }
+
+      const targetBeforeCast = yield* getCurrentTargetMonMapId();
+      if (
+        targetBeforeCast !== undefined &&
+        isCounterAttackActive(targetBeforeCast)
+      ) {
+        yield* stopCombat;
+        return;
+      }
+
+      if (force) {
+        yield* bridge.call("combat.forceUseSkill", [strIndex]);
+        return;
+      }
+
+      yield* bridge.call("combat.useSkill", [strIndex]);
+    });
+
+  const canUseSkill: CombatShape["canUseSkill"] = (index) =>
+    Effect.gen(function* () {
+      const strIndex = String(index);
+      const idx = Number.parseInt(strIndex, 10);
+      if (!isValidSkillIndex(idx)) {
+        return false;
+      }
+
+      const cooldown = yield* bridge.call("combat.getSkillCooldownRemaining", [
+        idx,
+      ]);
+      return cooldown === 0;
+    });
+
+  const hasTarget: CombatShape["hasTarget"] = () =>
+    bridge.call("combat.hasTarget");
+
+  const getTarget: CombatShape["getTarget"] = () =>
+    Effect.gen(function* () {
+      const target = yield* bridge.call("combat.getTarget");
+      if (!target) {
+        return null;
+      }
+
+      const maybeWorld = yield* Effect.serviceOption(World);
+      if (Option.isNone(maybeWorld)) {
+        return null;
+      }
+
+      const world = maybeWorld.value;
+
+      if (target.type === "monster") {
+        const monsterTarget = target as MonsterTargetInfo;
+        const monster = yield* world.monsters.get(monsterTarget.MonMapID);
+        return Option.isSome(monster) ? monster.value : null;
+      }
+
+      const playerTarget = target as PlayerTargetInfo;
+      const player = yield* world.players.get(playerTarget.strUsername);
+      return Option.isSome(player) ? player.value : null;
+    });
+
   const kill: CombatShape["kill"] = (target, options) => {
     let disposeMonsterDeathListener: (() => void) | undefined;
     const normalizedKillOptions = normalizeKillOptions(options);
@@ -436,19 +460,27 @@ const make = Effect.gen(function* () {
         return;
       }
 
-      const attackOrder = [...normalizedKillOptions.killPriority, resolvedTarget];
+      const attackOrder = [
+        ...normalizedKillOptions.killPriority,
+        resolvedTarget,
+      ];
 
       const waitUntilPlayerAlive = () =>
-        Effect.repeat(world.players.withSelf((me) => me.alive), {
-          schedule: Schedule.spaced("250 millis"),
-          until: (alive) => Option.isSome(alive) && alive.value,
-        }).pipe(Effect.asVoid);
+        Effect.repeat(
+          world.players.withSelf((me) => me.alive),
+          {
+            schedule: Schedule.spaced("250 millis"),
+            until: (alive) => Option.isSome(alive) && alive.value,
+          },
+        ).pipe(Effect.asVoid);
 
       const getCurrentCell = () =>
         world.players
           .withSelf((me) => me.cell)
           .pipe(
-            Effect.map((cell) => (Option.isSome(cell) ? cell.value : undefined)),
+            Effect.map((cell) =>
+              Option.isSome(cell) ? cell.value : undefined,
+            ),
           );
 
       const getMonsterNameByMonMapId = (monMapId: number) =>
@@ -461,12 +493,16 @@ const make = Effect.gen(function* () {
           );
 
       const isMonsterDead = (monMapId: number) =>
-        world.monsters.get(monMapId).pipe(
-          Effect.map(
-            (monster) =>
-              Option.isNone(monster) || !monster.value.alive || monster.value.isDead(),
-          ),
-        );
+        world.monsters
+          .get(monMapId)
+          .pipe(
+            Effect.map(
+              (monster) =>
+                Option.isNone(monster) ||
+                !monster.value.alive ||
+                monster.value.isDead(),
+            ),
+          );
 
       const resolveAliveMonMapId = (
         candidate: ResolvedKillTarget,
@@ -484,7 +520,10 @@ const make = Effect.gen(function* () {
               return undefined;
             }
 
-            if (skipCounterAttack && isCounterAttackActive(candidate.monMapId)) {
+            if (
+              skipCounterAttack &&
+              isCounterAttackActive(candidate.monMapId)
+            ) {
               return undefined;
             }
 
@@ -527,7 +566,10 @@ const make = Effect.gen(function* () {
           const shouldCheckBlockedFallback = counterAttackMonsters.size > 0;
 
           for (const candidate of attackOrder) {
-            const attackableMonMapId = yield* resolveAliveMonMapId(candidate, true);
+            const attackableMonMapId = yield* resolveAliveMonMapId(
+              candidate,
+              true,
+            );
             if (attackableMonMapId !== undefined) {
               return {
                 kind: "attack",
@@ -539,7 +581,10 @@ const make = Effect.gen(function* () {
               continue;
             }
 
-            const maybeBlockedMonMapId = yield* resolveAliveMonMapId(candidate, false);
+            const maybeBlockedMonMapId = yield* resolveAliveMonMapId(
+              candidate,
+              false,
+            );
             if (
               maybeBlockedMonMapId !== undefined &&
               isCounterAttackActive(maybeBlockedMonMapId)
@@ -561,7 +606,9 @@ const make = Effect.gen(function* () {
 
       let didKillTarget = false;
       let targetMonMapId =
-        resolvedTarget.kind === "monMapId" ? resolvedTarget.monMapId : undefined;
+        resolvedTarget.kind === "monMapId"
+          ? resolvedTarget.monMapId
+          : undefined;
       let skillIndex = 0;
 
       if (packetDomain !== undefined) {
@@ -584,7 +631,9 @@ const make = Effect.gen(function* () {
                 return;
               }
 
-              const deadMonsterName = yield* getMonsterNameByMonMapId(event.monMapId);
+              const deadMonsterName = yield* getMonsterNameByMonMapId(
+                event.monMapId,
+              );
               if (
                 deadMonsterName !== undefined &&
                 matchesMonsterName(resolvedTarget.name, deadMonsterName)
@@ -621,7 +670,10 @@ const make = Effect.gen(function* () {
           }
         } else if (nextAttack?.kind === "blocked") {
           yield* stopCombat;
-        } else if (resolvedTarget.kind === "name" && counterAttackMonsters.size === 0) {
+        } else if (
+          resolvedTarget.kind === "name" &&
+          counterAttackMonsters.size === 0
+        ) {
           yield* attackMonster(resolvedTarget.name);
           attackedThisLoop = true;
 
