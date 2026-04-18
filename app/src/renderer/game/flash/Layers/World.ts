@@ -266,6 +266,8 @@ const make = Effect.gen(function* () {
   const getMonsters: WorldMonstersShape["getAll"] = () =>
     mutate(stateRef, (state) => state.monsters);
 
+  const getCell
+
   const addMonster: WorldMonstersShape["add"] = (data) =>
     mutate(stateRef, (state) => {
       state.monsters.set(data.monMapId, new Monster(data));
@@ -360,6 +362,7 @@ const make = Effect.gen(function* () {
 
   const monsters: WorldMonstersShape = {
     getAll: getMonsters,
+    getCellMonsters: getCellMonsters,
     add: addMonster,
     get: getMonster,
     findByName: findMonsterByName,

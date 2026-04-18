@@ -31,89 +31,6 @@ public class World
 
 
     [BridgeExport]
-    public static function getPlayerNames():Array /* string[] names */
-    {
-      return game.world.areaUsers;
-    }
-
-
-    [BridgeExport]
-    public static function getPlayers():String /* { [name: string]: PlayerData } */
-    {
-      var ret:Object = {};
-      for (var player:String in game.world.uoTree)
-      {
-        var playerObj:Object = game.world.uoTree[player];
-        if (playerObj !== null)
-        {
-          var playerObj_:Object = getPlayer(player);
-          if (playerObj_ !== null)
-          {
-            ret[player] = getPlayer(player);
-          }
-        }
-      }
-      return JSON.stringify(ret);
-    }
-
-
-    [BridgeExport]
-    public static function getPlayer(name:String):String
-    {
-      if (!name)
-        return null;
-
-      name = name.toLowerCase();
-
-      const playerObj:Object = game.world.uoTree[name];
-      if (!playerObj)
-        return null;
-
-      const ret:Object = {};
-
-      for (var key:String in playerObj)
-      {
-        try
-        {
-          if (key === 'auras')
-            continue;
-          else
-            ret[key] = playerObj[key];
-        }
-        catch (e:Error)
-        {
-        }
-      }
-
-      return JSON.stringify(ret);
-    }
-
-
-    [BridgeExport]
-    public static function isPlayerInCell(name:String, cell:String = null):Boolean
-    {
-      if (!name)
-      {
-        return false;
-      }
-
-      // Use current cell if none is provided
-      if (!cell)
-      {
-        cell = game.world.strFrame;
-      }
-
-      var player:Object = game.world.uoTree[name.toLowerCase()];
-      if (!player)
-      {
-        return false;
-      }
-
-      return player.strFrame.toLowerCase() === cell.toLowerCase();
-    }
-
-
-    [BridgeExport]
     public static function isActionAvailable(gameAction:String):Boolean
     {
       var _loc_2:* = undefined;
@@ -127,61 +44,38 @@ public class World
       return _loc_5 < _loc_2.cd ? false : true;
     }
 
+    //[BridgeExport]
+    //public static function getCellMonsters():Array
+    //  {
+      //var monsters:Array = game.world.getMonstersByCell(game.world.strFrame);
+      //var ret:Array = [];
 
-    [BridgeExport]
-    public static function getCellMonsters():Array
-    {
-      var monsters:Array = game.world.getMonstersByCell(game.world.strFrame);
-      var ret:Array = [];
+      //for (var id:Object in monsters)
+      //{
+        //var monster:Object = monsters[id];
 
-      for (var id:Object in monsters)
-      {
-        var monster:Object = monsters[id];
+        //if (!Boolean(monster.pMC) || !Boolean(monster.pMC.visible) || monster.dataLeaf.intState <= 0)
+        //{
+          //continue;
+        //}
 
-        if (!Boolean(monster.pMC) || !Boolean(monster.pMC.visible) || monster.dataLeaf.intState <= 0)
-        {
-          continue;
-        }
+        //var mon:Object = new Object();
+        //mon.intHP = monster.dataLeaf.intHP;
+        //mon.intHPMax = monster.dataLeaf.intHPMax;
+        //mon.intState = monster.dataLeaf.intState;
+        //mon.iLvl = monster.dataLeaf.iLvl;
+        //mon.intMP = monster.dataLeaf.intMP;
+        //mon.intMPMax = monster.dataLeaf.intMPMax;
+        //mon.monId = monster.dataLeaf.MonID;
+        //mon.monMapId = monster.dataLeaf.MonMapID;
+        //mon.sRace = monster.objData.sRace;
+        //mon.sFrame = monster.dataLeaf.strFrame;
+        //mon.strMonName = monster.objData.strMonName;
+        //ret.push(mon);
+      //}
 
-        var mon:Object = new Object();
-        mon.intHP = monster.dataLeaf.intHP;
-        mon.intHPMax = monster.dataLeaf.intHPMax;
-        mon.intState = monster.dataLeaf.intState;
-        mon.iLvl = monster.dataLeaf.iLvl;
-        mon.intMP = monster.dataLeaf.intMP;
-        mon.intMPMax = monster.dataLeaf.intMPMax;
-        mon.monId = monster.dataLeaf.MonID;
-        mon.monMapId = monster.dataLeaf.MonMapID;
-        mon.sRace = monster.objData.sRace;
-        mon.sFrame = monster.dataLeaf.strFrame;
-        mon.strMonName = monster.objData.strMonName;
-        ret.push(mon);
-      }
-
-      return ret;
-    }
-
-
-    [BridgeExport]
-    public static function dumpMonsters():Array
-    {
-      var ret:Array = [];
-      for each (var mon:Object in game.world.getMonstersByCell(game.world.strFrame))
-      {
-        var obj:Object = new Object();
-        if (mon.dataLeaf)
-        {
-          obj.dataLeaf = mon.dataLeaf;
-        }
-        if (mon.objData)
-        {
-          obj.objData = mon.objData;
-        }
-        ret.push(obj);
-      }
-      return ret;
-    }
-
+      //return ret;
+    //}
 
     [BridgeExport]
     public static function getMonsterByName(name:String):Object
@@ -260,30 +154,6 @@ public class World
 
       return cellPads;
     }
-
-    // public static function getItemTree():Array {
-    // var items:Array = [];
-    // for (var id:* in game.world.invTree) {
-    // items.push(game.world.invTree[id]);
-    // }
-
-    // return items;
-    // }
-
-
-    [BridgeExport]
-    public static function getRoomId():int
-    {
-      return game.world.curRoom;
-    }
-
-
-    [BridgeExport]
-    public static function getRoomNumber():int
-    {
-      return Number(game.world.strAreaName.split('-')[1]);
-    }
-
 
     [BridgeExport]
     public static function reload():void
