@@ -442,16 +442,7 @@ const make = Effect.gen(function* () {
 
       const currentCell = yield* player.getCell();
       if (currentCell !== bestCell) {
-        yield* player.jumpToCell(bestCell);
-
-        const pads = yield* world.map.getCellPads();
-        const validPad =
-          pads.length > 0
-            ? pads[Math.floor(Math.random() * pads.length)]
-            : undefined;
-        if (validPad !== undefined) {
-          yield* player.jumpToCell(bestCell, validPad);
-        }
+        yield* player.jumpToCell(bestCell, undefined, true);
       }
 
       return bestCell;

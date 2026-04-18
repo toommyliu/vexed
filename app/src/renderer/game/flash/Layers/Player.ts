@@ -100,10 +100,24 @@ const make = Effect.gen(function* () {
 
   const isMember: PlayerShape["isMember"] = () => bridge.call("player.isMember");
 
-  const jumpToCell: PlayerShape["jumpToCell"] = (cell, pad) =>
-    pad === undefined
-      ? bridge.call("player.jump", [cell])
-      : bridge.call("player.jump", [cell, pad]);
+  const jumpToCell: PlayerShape["jumpToCell"] = (cell, pad, correction) =>
+    Effect.gen(function* () {
+      if (pad === undefined) {
+        yield* bridge.call("player.jump", [cell]);
+      } else {
+        yield* bridge.call("player.jump", [cell, pad]);
+      }
+
+      if (correction) {
+        const pads = yield* world.map.getCellPads();
+        const currentPad = yield* getPad();
+
+        if (pads.length > 0 && !pads.includes(currentPad)) {
+          const validPad = pads[Math.floor(Math.random() * pads.length)];
+          yield* bridge.call("player.jump", [cell, validPad]);
+        }
+      }
+    });
 
   const joinMap: PlayerShape["joinMap"] = (map, cell, pad) => {
     if (cell === undefined && pad === undefined) {
