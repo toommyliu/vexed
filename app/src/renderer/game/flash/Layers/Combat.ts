@@ -1,5 +1,6 @@
 import { extractMonsterMapId, isMonsterMapId, Monster } from "@vexed/game";
 import { Effect, Layer, Option, Schedule } from "effect";
+import { splitCsv } from "@vexed/shared/csv";
 import { Bridge } from "../Services/Bridge";
 import { Combat } from "../Services/Combat";
 import type { CombatKillOptions, CombatShape } from "../Services/Combat";
@@ -57,12 +58,6 @@ const matchesMonsterName = (left: string, right: string) => {
 
 const isValidSkillIndex = (index: number): boolean =>
   Number.isInteger(index) && index >= 0 && index <= 5;
-
-const splitCsv = (value: string): readonly string[] =>
-  value
-    .split(",")
-    .map((token) => token.trim())
-    .filter((token) => token !== "");
 
 const toMonMapId = (target: MonsterIdentifierToken): number | undefined => {
   if (typeof target === "number") {

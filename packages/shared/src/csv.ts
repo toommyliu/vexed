@@ -1,8 +1,8 @@
-export function splitCsv(text: string): string[] {
+export function splitCsv(text: string): readonly string[] {
   return text
     .split(",")
     .map((part) => part.trim())
-    .filter(Boolean);
+    .filter((token) => token !== "");
 }
 
 export function readCsvValue(
