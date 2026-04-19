@@ -19,6 +19,7 @@ import {
   type PacketShape,
   type ServerPacketHandler,
 } from "../Services/Packet";
+import { Bridge } from "../Services/Bridge";
 
 type WindowPacketHandlerKey =
   | "onExtensionResponse"
@@ -113,6 +114,7 @@ const runHandlers = <A>(
 };
 
 const make = Effect.gen(function* () {
+  const bridge = yield* Bridge;
   const runFork = Effect.runForkWith(yield* Effect.services());
 
   const extensionRawHandlers = new Set<PacketListener>();
@@ -267,6 +269,12 @@ const make = Effect.gen(function* () {
     }),
   );
 
+  const sendClient: PacketShape["sendClient"] = (packet, type = "str") =>
+    bridge.call("flash.sendClientPacket", [packet, type]);
+
+  const sendServer: PacketShape["sendServer"] = (packet, type = "String") =>
+    bridge.callGameFunction(`sfc.send${type}`, packet).pipe(Effect.asVoid);
+
   const onExtensionResponse: PacketShape["onExtensionResponse"] = (handler) =>
     registerSetHandler(extensionRawHandlers, handler);
 
@@ -333,6 +341,8 @@ const make = Effect.gen(function* () {
     extensionTypeScoped("str", cmd, handler);
 
   return {
+    sendClient,
+    sendServer,
     onExtensionResponse,
     packetFromClient,
     packetFromServer,

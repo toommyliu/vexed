@@ -17,7 +17,7 @@ import { TempInventoryLive } from "./TempInventory";
 import { WorldLive } from "./World";
 
 const BridgeCoreLive = BridgeLive;
-const PacketRuntimeLive = PacketLive;
+const PacketRuntimeLive = PacketLive.pipe(Layer.provide(BridgeCoreLive));
 
 const AuthRuntimeLive = AuthLive.pipe(Layer.provide(BridgeCoreLive));
 const WorldRuntimeLive = WorldLive.pipe(Layer.provide(BridgeCoreLive));

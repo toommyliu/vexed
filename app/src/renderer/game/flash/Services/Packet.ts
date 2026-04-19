@@ -5,6 +5,7 @@ import type {
   ExtensionPacket,
   ServerPacket,
 } from "../PacketTypes";
+import type { BridgeEffect } from "./Bridge";
 
 export type PacketListenerDisposer = () => void;
 
@@ -20,7 +21,14 @@ export type ExtensionPacketHandler = (
   packet: ExtensionPacket,
 ) => Effect.Effect<void>;
 
+export type ClientPacketSendType = "str" | "json" | "xml";
+
+export type ServerPacketSendType = "String" | "Json";
+
 export interface PacketShape {
+  sendClient(packet: string, type?: ClientPacketSendType): BridgeEffect<void>;
+  sendServer(packet: string, type?: ServerPacketSendType): BridgeEffect<void>;
+
   onExtensionResponse(
     handler: PacketListener,
   ): Effect.Effect<PacketListenerDisposer>;
