@@ -1,145 +1,103 @@
 package vexed.game {
   import vexed.Main;
-  import flash.filters.GlowFilter;
-  import vexed.module.Modules;
   import vexed.module.CustomName;
+  import vexed.module.Modules;
 
   [BridgeNamespace("settings")]
   public class Settings {
-    private static var game:Object = Main.getInstance().getGame();
+    private static const MIN_FRAME_RATE:int = 1;
+    private static const MAX_FRAME_RATE:int = 60;
+
+    private static function sanitizeText(value:String):String {
+      return value ? value : "";
+    }
+
+    private static function setModuleEnabled(moduleName:String, enabled:Boolean):void {
+      if (enabled) {
+        Modules.enable(moduleName);
+      }
+      else {
+        Modules.disable(moduleName);
+      }
+    }
+
+    private static function clamp(value:int, min:int, max:int):int {
+      return Math.max(min, Math.min(value, max));
+    }
 
     [BridgeExport]
     public static function infiniteRange():void {
+      var world:Object = Main.getInstance().getGame().world;
       for (var i:int = 0; i <= 5; i++) {
-        game.world.actions.active[i].range = 20000;
+        world.actions.active[i].range = 20000;
       }
     }
 
     [BridgeExport]
     public static function provokeCell():void {
-      game.world.aggroAllMon();
+      Main.getInstance().getGame().world.aggroAllMon();
     }
 
     [BridgeExport]
     public static function enemyMagnet():void {
-      if (game.world.myAvatar.target != null && game.world.myAvatar.target.npcType == "monster") {
-        game.world.myAvatar.target.pMC.x = game.world.myAvatar.pMC.x;
-        game.world.myAvatar.target.pMC.y = game.world.myAvatar.pMC.y;
-      }
-    }
-
-    [BridgeExport]
-    public static function lagKiller(on:Boolean):void {
-      game.world.visible = on;
+      var world:Object = Main.getInstance().getGame().world;
+      world.myAvatar.target.pMC.x = world.myAvatar.pMC.x;
+      world.myAvatar.target.pMC.y = world.myAvatar.pMC.y;
     }
 
     [BridgeExport]
     public static function skipCutscenes():void {
-      game.clearExternamSWF();
+      Main.getInstance().getGame().clearExternamSWF();
     }
 
     [BridgeExport]
-    public static function setName(name:String):void {
-      CustomName.instance.customName = name || "";
+    public static function setCustomName(name:String):void {
+      CustomName.instance.customName = sanitizeText(name);
     }
 
     [BridgeExport]
-    public static function setGuild(name:String):void {
-      CustomName.instance.customGuild = name || "";
+    public static function setCustomGuild(name:String):void {
+      CustomName.instance.customGuild = sanitizeText(name);
     }
 
     [BridgeExport]
     public static function setWalkSpeed(speed:int):void {
-      if (!speed)
-        return;
-
-      game.world.WALKSPEED = speed;
+      Main.getInstance().getGame().world.WALKSPEED = speed;
     }
 
     [BridgeExport]
-    public static function setAccessLevel(accessLevel:String):void {
-      if (!accessLevel)
-        return;
-
-      switch (accessLevel) {
-        case "Non Member":
-          game.world.myAvatar.pMC.pname.ti.textColor = 16777215;
-          game.world.myAvatar.pMC.pname.filters = [new GlowFilter(0, 1, 3, 3, 64, 1)];
-          game.world.myAvatar.objData.iUpgDays = -1;
-          game.world.myAvatar.objData.iUpg = 0;
-          break;
-        case "Member":
-          game.world.myAvatar.pMC.pname.ti.textColor = 9229823;
-          game.world.myAvatar.pMC.pname.filters = [new GlowFilter(0, 1, 3, 3, 64, 1)];
-          game.world.myAvatar.objData.iUpgDays = 30;
-          game.world.myAvatar.objData.iUpg = 1;
-          break;
-        case "Moderator":
-        case "60":
-          // Yellow
-          game.world.myAvatar.pMC.pname.ti.textColor = 16698168;
-          game.world.myAvatar.pMC.pname.filters = [new GlowFilter(0, 1, 3, 3, 64, 1)];
-          game.world.myAvatar.objData.intAccessLevel = 60;
-          break;
-        case "30":
-          // Dark Green
-          game.world.myAvatar.pMC.pname.ti.textColor = 52881;
-          game.world.myAvatar.pMC.pname.filters = [new GlowFilter(0, 1, 3, 3, 64, 1)];
-          game.world.myAvatar.objData.intAccessLevel = 30;
-          break;
-        case "40":
-          // Light Green
-          game.world.myAvatar.pMC.pname.ti.textColor = 5308200;
-          game.world.myAvatar.pMC.pname.filters = [new GlowFilter(0, 1, 3, 3, 64, 1)];
-          game.world.myAvatar.objData.intAccessLevel = 40;
-          break;
-        case "50":
-          // Purple
-          game.world.myAvatar.pMC.pname.ti.textColor = 12283391;
-          game.world.myAvatar.pMC.pname.filters = [new GlowFilter(0, 1, 3, 3, 64, 1)];
-          game.world.myAvatar.objData.intAccessLevel = 50;
-          break;
-      }
+    public static function setDeathAdsEnabled(enabled:Boolean):void {
+      Main.getInstance().getGame().userPreference.data.bDeathAd = enabled;
     }
 
     [BridgeExport]
-    public static function setDeathAds(on:Boolean):void {
-      game.userPreference.data.bDeathAd = on;
+    public static function setCollisionsEnabled(enabled:Boolean):void {
+      setModuleEnabled("DisableCollisions", !enabled);
     }
 
     [BridgeExport]
-    public static function setDisableCollisions(on:Boolean):void {
-      if (on) {
-        Modules.enable("DisableCollisions");
-      }
-      else {
-        Modules.disable("DisableCollisions");
-      }
+    public static function setEffectsEnabled(enabled:Boolean):void {
+      setModuleEnabled("DisableFX", !enabled);
     }
 
     [BridgeExport]
-    public static function setDisableFX(on:Boolean):void {
-      if (on) {
-        Modules.enable("DisableFX");
-      }
-      else {
-        Modules.disable("DisableFX");
-      }
+    public static function setPlayersVisible(visible:Boolean):void {
+      setModuleEnabled("HidePlayers", !visible);
     }
 
     [BridgeExport]
-    public static function setHidePlayers(on:Boolean):void {
-      if (on) {
-        Modules.enable("HidePlayers");
-      }
-      else {
-        Modules.disable("HidePlayers");
-      }
+    public static function setWorldVisible(visible:Boolean):void {
+      Main.getInstance().getGame().world.visible = visible;
     }
 
     [BridgeExport]
-    public static function setFPS(fps:int):void {
-      Main.getInstance().getStage().frameRate = fps;
+    public static function setLagKillerEnabled(enabled:Boolean):void {
+      setWorldVisible(!enabled);
+    }
+
+    [BridgeExport]
+    public static function setFrameRate(fps:int):void {
+      Main.getInstance().getStage().frameRate = clamp(fps, MIN_FRAME_RATE, MAX_FRAME_RATE);
     }
   }
 }

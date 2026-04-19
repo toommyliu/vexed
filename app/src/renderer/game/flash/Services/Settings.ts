@@ -4,18 +4,20 @@ import type { BridgeEffect } from "./Bridge";
 export interface SettingsShape {
   enemyMagnet(): BridgeEffect<void>;
   infiniteRange(): BridgeEffect<void>;
-  lagKiller(on: boolean): BridgeEffect<void>;
   provokeCell(): BridgeEffect<void>;
-  setAccessLevel(accessLevel: string): BridgeEffect<void>;
-  setDeathAds(on: boolean): BridgeEffect<void>;
-  setDisableCollisions(on: boolean): BridgeEffect<void>;
-  setDisableFX(on: boolean): BridgeEffect<void>;
-  setFPS(fps: number): BridgeEffect<void>;
-  setGuild(name: string): BridgeEffect<void>;
-  setHidePlayers(on: boolean): BridgeEffect<void>;
-  setName(name: string): BridgeEffect<void>;
-  setWalkSpeed(speed: number): BridgeEffect<void>;
   skipCutscenes(): BridgeEffect<void>;
+
+  setCustomName(name: string): BridgeEffect<void>;
+  setCustomGuild(name: string): BridgeEffect<void>;
+  setWalkSpeed(speed: number): BridgeEffect<void>;
+
+  setDeathAdsEnabled(enabled: boolean): BridgeEffect<void>;
+  setCollisionsEnabled(enabled: boolean): BridgeEffect<void>;
+  setEffectsEnabled(enabled: boolean): BridgeEffect<void>;
+  setPlayersVisible(visible: boolean): BridgeEffect<void>;
+  setWorldVisible(visible: boolean): BridgeEffect<void>;
+  setLagKillerEnabled(enabled: boolean): BridgeEffect<void>;
+  setFrameRate(fps: number): BridgeEffect<void>;
 }
 
 export class Settings extends ServiceMap.Service<Settings, SettingsShape>()(
