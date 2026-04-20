@@ -85,6 +85,7 @@ const AUTO_ZONES: Record<AutoZoneSupportedMap, ZoneMap> = {
       [320, 325],
     ],
   },
+  // TODO: this requires its own logic
   queeniona: {},
 };
 
@@ -104,6 +105,9 @@ const make = Effect.gen(function* () {
 
   const dispose = yield* packetDomain.on("zone", (event) =>
     Effect.gen(function* () {
+      const enabled = yield* Ref.get(enabledRef);
+      if (!enabled) return;
+
       const currentMap = yield* Ref.get(mapRef);
 
       if (!AUTO_ZONES[currentMap]) {

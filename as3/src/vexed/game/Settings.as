@@ -41,8 +41,10 @@ package vexed.game {
     [BridgeExport]
     public static function enemyMagnet():void {
       var world:Object = Main.getInstance().getGame().world;
-      world.myAvatar.target.pMC.x = world.myAvatar.pMC.x;
-      world.myAvatar.target.pMC.y = world.myAvatar.pMC.y;
+      if (world.myAvatar && world.myAvatar.target != null && world.myAvatar.target.npcType == "monster") {
+        world.myAvatar.target.pMC.x = world.myAvatar.pMC.x;
+        world.myAvatar.target.pMC.y = world.myAvatar.pMC.y;
+      }
     }
 
     [BridgeExport]

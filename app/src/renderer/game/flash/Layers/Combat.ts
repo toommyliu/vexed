@@ -398,8 +398,6 @@ const make = Effect.gen(function* () {
         yield* waitUntilFree(1_000);
         if (!(yield* isInCombat)) return true;
 
-        console.log("cellsWithMonsters", cellsWithMonsters);
-
         const allCells = yield* world.map.getCells();
         const candidates = allCells
           .filter(
