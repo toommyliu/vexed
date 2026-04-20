@@ -68,7 +68,6 @@ export interface WorldShape {
   map: WorldMapShape;
   players: WorldPlayersShape;
   monsters: WorldMonstersShape;
-  debug(): Effect.Effect<unknown>;
 }
 
 export class World extends ServiceMap.Service<World, WorldShape>()(

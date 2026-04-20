@@ -370,13 +370,10 @@ const make = Effect.gen(function* () {
     clearAuras: clearMonsterAuras,
   };
 
-  const debug: WorldShape["debug"] = () => SynchronizedRef.get(stateRef);
-
   return {
     map,
     players,
     monsters,
-    debug,
   } satisfies WorldShape;
 });
 
