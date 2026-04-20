@@ -14,6 +14,7 @@ export interface CombatShape {
   cancelAutoAttack(): BridgeEffect<void>;
   cancelTarget(): BridgeEffect<void>;
   canUseSkill(index: number | string): BridgeEffect<boolean>;
+  exit(): BridgeEffect<boolean>;
   getTarget(): BridgeEffect<Monster | Avatar | null>;
   hasTarget(): BridgeEffect<boolean>;
   kill(

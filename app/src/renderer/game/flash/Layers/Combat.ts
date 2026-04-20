@@ -355,6 +355,111 @@ const make = Effect.gen(function* () {
   const cancelTarget: CombatShape["cancelTarget"] = () =>
     bridge.call("combat.cancelTarget");
 
+  const exit: CombatShape["exit"] = () =>
+    Effect.gen(function* () {
+      const maybeWorld = yield* Effect.serviceOption(World);
+      if (Option.isNone(maybeWorld)) return false;
+
+      const world = maybeWorld.value;
+
+      const isInCombat = world.players
+        .withSelf((me) => me.isInCombat())
+        .pipe(Effect.map(Option.getOrElse(() => false)));
+
+      const waitUntilFree = (timeoutMs = 3_000) =>
+        isInCombat.pipe(
+          Effect.map((inCombat) => !inCombat),
+          Effect.repeat({
+            schedule: Schedule.spaced("100 millis"),
+            until: (outOfCombat) => outOfCombat,
+          }),
+          Effect.timeout(`${timeoutMs} millis`),
+          Effect.option,
+        );
+
+      // Already free
+      if (!(yield* isInCombat)) return true;
+
+      try {
+        const currentCell = yield* world.players
+          .withSelf((me) => me.cell)
+          .pipe(Effect.map((r) => (Option.isSome(r) ? r.value : "")));
+
+        const currentPad = yield* world.players
+          .withSelf((me) => me.pad)
+          .pipe(Effect.map((r) => (Option.isSome(r) ? r.value : "")));
+
+        const monsters = yield* world.monsters.getAll();
+        const cellsWithMonsters = new Set(
+          Array.from(monsters.values()).map((mon) => mon.cell.toLowerCase()),
+        );
+
+        yield* player.jumpToCell(currentCell, currentPad);
+        yield* waitUntilFree(1_000);
+        if (!(yield* isInCombat)) return true;
+
+        console.log("cellsWithMonsters", cellsWithMonsters);
+
+        const allCells = yield* world.map.getCells();
+        const candidates = allCells
+          .filter(
+            (cell) =>
+              cell !== currentCell &&
+              cell.toLowerCase() !== "blank" &&
+              cell.toLowerCase() !== "wait" &&
+              !/^cut\d+$/i.test(cell),
+          )
+          .sort((a, b) => {
+            const aHas = cellsWithMonsters.has(a.toLowerCase());
+            const bHas = cellsWithMonsters.has(b.toLowerCase());
+            return aHas === bHas ? 0 : aHas ? 1 : -1;
+          });
+
+        // Batch candidates by monster presence
+        const safeCells = candidates.filter(
+          (cell) => !cellsWithMonsters.has(cell.toLowerCase()),
+        );
+        const unsafeCells = candidates.filter((cell) =>
+          cellsWithMonsters.has(cell.toLowerCase()),
+        );
+
+        for (const cell of [...safeCells, ...unsafeCells]) {
+          if (!(yield* isInCombat)) return true;
+          yield* player.jumpToCell(cell, undefined, true);
+          if (Option.isSome(yield* waitUntilFree(2_000))) return true;
+        }
+
+        const MAX_ATTEMPTS = 3;
+        let attempts = 0;
+        let success = false;
+
+        yield* Effect.whileLoop({
+          while: () => attempts < MAX_ATTEMPTS && !success,
+          body: () =>
+            Effect.gen(function* () {
+              yield* Effect.log(`Attempt ${attempts + 1} to exit combat`);
+              if (!(yield* isInCombat)) {
+                success = true;
+                return;
+              }
+              yield* player.jumpToCell(currentCell, currentPad, true);
+              if (Option.isSome(yield* waitUntilFree(2_000))) {
+                success = true;
+                return;
+              }
+              attempts++;
+            }),
+          step: () => {},
+        });
+
+        if (success) return true;
+
+        return !(yield* isInCombat);
+      } finally {
+        yield* Effect.sleep("500 millis");
+      }
+    });
+
   const useSkill: CombatShape["useSkill"] = (
     index,
     force = false,
@@ -846,6 +951,7 @@ const make = Effect.gen(function* () {
     cancelTarget,
     useSkill,
     canUseSkill,
+    exit,
     getTarget,
     hasTarget,
     kill,
