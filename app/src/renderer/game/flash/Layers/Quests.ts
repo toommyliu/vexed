@@ -125,9 +125,9 @@ const make = Effect.gen(function* () {
 
   const complete: QuestsShape["complete"] = (
     questId,
-    turnIns,
-    itemId,
-    special,
+    turnIns = 1,
+    itemId = -1,
+    special = false,
   ) => bridge.call("quests.complete", [questId, turnIns, itemId, special]);
 
   const load: QuestsShape["load"] = (questId, silent = false) =>
