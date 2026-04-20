@@ -29,6 +29,10 @@ export default function App() {
   const [effectsEnabled, setEffectsEnabled] = createSignal(true);
   const [playersVisible, setPlayersVisible] = createSignal(true);
   const [worldVisible, setWorldVisible] = createSignal(true);
+  const [testClientPacket, setTestClientPacket] = createSignal("%xt%hello%");
+  const [testServerPacket, setTestServerPacket] = createSignal("%xt%zm%cmd%");
+  const [clientPacketType, setClientPacketType] = createSignal<"str" | "json" | "xml">("str");
+  const [serverPacketType, setServerPacketType] = createSignal<"String" | "Json">("String");
   let activeCombatFiber: Fiber.Fiber<void, unknown> | undefined;
   let packetLogDisposer: PacketListenerDisposer | undefined;
 
@@ -509,6 +513,44 @@ export default function App() {
       )
       .catch((error) => {
         console.error("Toggle world visible error:", error);
+      });
+  };
+
+  const testSendClientPacket = () => {
+    const packet = testClientPacket().trim();
+    if (packet === "") {
+      return;
+    }
+
+    void runtime
+      .runPromise(
+        Effect.gen(function* () {
+          const packetService = yield* Packet;
+          yield* packetService.sendClient(packet, clientPacketType());
+          console.log("[Demo] Sent client packet:", packet, "type:", clientPacketType());
+        }),
+      )
+      .catch((error) => {
+        console.error("Send client packet error:", error);
+      });
+  };
+
+  const testSendServerPacket = () => {
+    const packet = testServerPacket().trim();
+    if (packet === "") {
+      return;
+    }
+
+    void runtime
+      .runPromise(
+        Effect.gen(function* () {
+          const packetService = yield* Packet;
+          yield* packetService.sendServer(packet, serverPacketType());
+          console.log("[Demo] Sent server packet:", packet, "type:", serverPacketType());
+        }),
+      )
+      .catch((error) => {
+        console.error("Send server packet error:", error);
       });
   };
 
@@ -1021,6 +1063,101 @@ export default function App() {
               />
               World Visible
             </label>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              "align-items": "center",
+              gap: "10px",
+              "margin-top": "10px",
+              "flex-wrap": "wrap",
+            }}
+          >
+            <input
+              type="text"
+              value={testClientPacket()}
+              onInput={(e) => setTestClientPacket(e.currentTarget.value)}
+              placeholder="Client packet"
+              style={{
+                padding: "5px",
+                "border-radius": "4px",
+                border: "1px solid #ccc",
+                background: "white",
+                color: "black",
+                width: "200px",
+              }}
+            />
+            <select
+              value={clientPacketType()}
+              onInput={(e) => setClientPacketType(e.currentTarget.value as any)}
+              style={{
+                padding: "5px",
+                "border-radius": "4px",
+                border: "1px solid #ccc",
+                background: "white",
+                color: "black",
+                cursor: "pointer",
+              }}
+            >
+              <option value="str">str</option>
+              <option value="json">json</option>
+              <option value="xml">xml</option>
+            </select>
+            <button
+              onClick={testSendClientPacket}
+              style={{
+                padding: "5px 10px",
+                cursor: "pointer",
+                background: "#ec4899",
+                border: "none",
+                color: "white",
+                "border-radius": "4px",
+              }}
+            >
+              Send Client
+            </button>
+            <input
+              type="text"
+              value={testServerPacket()}
+              onInput={(e) => setTestServerPacket(e.currentTarget.value)}
+              placeholder="Server packet"
+              style={{
+                padding: "5px",
+                "border-radius": "4px",
+                border: "1px solid #ccc",
+                background: "white",
+                color: "black",
+                width: "200px",
+              }}
+            />
+            <select
+              value={serverPacketType()}
+              onInput={(e) => setServerPacketType(e.currentTarget.value as any)}
+              style={{
+                padding: "5px",
+                "border-radius": "4px",
+                border: "1px solid #ccc",
+                background: "white",
+                color: "black",
+                cursor: "pointer",
+              }}
+            >
+              <option value="String">String</option>
+              <option value="Json">Json</option>
+            </select>
+            <button
+              onClick={testSendServerPacket}
+              style={{
+                padding: "5px 10px",
+                cursor: "pointer",
+                background: "#ec4899",
+                border: "none",
+                color: "white",
+                "border-radius": "4px",
+              }}
+            >
+              Send Server
+            </button>
           </div>
         </>
       )}
