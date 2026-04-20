@@ -125,10 +125,23 @@ const make = Effect.gen(function* () {
 
   const complete: QuestsShape["complete"] = (
     questId,
-    turnIns = 1,
+    turnIns?: number,
     itemId = -1,
     special = false,
-  ) => bridge.call("quests.complete", [questId, turnIns, itemId, special]);
+  ) =>
+    Effect.gen(function* () {
+      const turnInsValue = (yield* bridge.callGameFunction(
+        "world.maximumQuestTurnIns",
+        [questId],
+      )) as string;
+      const turnInsNumber = turnIns ?? (Number(turnInsValue) ?? 1);
+      yield* bridge.call("quests.complete", [
+        questId,
+        turnInsNumber,
+        itemId,
+        special,
+      ]);
+    });
 
   const load: QuestsShape["load"] = (questId, silent = false) =>
     silent
