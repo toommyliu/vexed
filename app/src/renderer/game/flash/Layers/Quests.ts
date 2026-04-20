@@ -1,7 +1,8 @@
-import type { QuestInfo } from "@vexed/game";
+import { Collection } from "@vexed/collection";
+import { Quest, type QuestInfo } from "@vexed/game";
 import { Effect, Layer, SynchronizedRef } from "effect";
 import { waitFor, waitForRef } from "../../utils/waitFor";
-import { asNumber, asRecord, asString } from "../PacketPayload";
+import { asNumber, asRecord } from "../PacketPayload";
 import { Bridge } from "../Services/Bridge";
 import { Packet } from "../Services/Packet";
 import { Quests } from "../Services/Quests";
@@ -32,20 +33,40 @@ const toQuestId = (value: unknown): number | undefined => {
   return questId > 0 ? questId : undefined;
 };
 
+const normalizeQuestIds = (questIds: readonly number[]): number[] => {
+  const normalized: number[] = [];
+  const seen = new Set<number>();
+
+  for (const rawQuestId of questIds) {
+    const questId = toQuestId(rawQuestId);
+    if (questId === undefined || seen.has(questId)) {
+      continue;
+    }
+
+    seen.add(questId);
+    normalized.push(questId);
+  }
+
+  return normalized;
+};
+
 const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
   const packets = yield* Packet;
   const world = yield* World;
 
-  const quests = yield* SynchronizedRef.make<Record<number, QuestInfo>>({});
+  const quests = yield* SynchronizedRef.make<Collection<number, Quest>>(
+    new Collection(),
+  );
 
   const runFork = Effect.runFork;
 
   const dispose = yield* bridge.onConnection((status) => {
     if (status === "OnConnectionLost") {
       runFork(
-        Effect.gen(function* () {
-          yield* SynchronizedRef.set(quests, {});
+        SynchronizedRef.update(quests, (tree) => {
+          tree.clear();
+          return tree;
         }),
       );
     }
@@ -67,7 +88,7 @@ const make = Effect.gen(function* () {
             continue;
           }
 
-          tree[questId] = questInfo;
+          tree.ensure(questId, () => new Quest(questInfo)).data = questInfo;
         }
 
         return tree;
@@ -77,7 +98,7 @@ const make = Effect.gen(function* () {
   yield* packets.jsonScoped("getQuests", (packet) => updateQuests(packet.data));
 
   const waitForQuestLoad = (questId: number) =>
-    waitForRef(quests, (tree) => tree[questId] !== undefined);
+    waitForRef(quests, (tree) => tree.has(questId));
 
   const waitForQuestAccept = (questId: number) =>
     waitFor(isInProgress(questId));
@@ -90,7 +111,7 @@ const make = Effect.gen(function* () {
       yield* world.map.waitForGameAction("acceptQuest");
 
       const tree = yield* SynchronizedRef.get(quests);
-      if (!tree[questId]) {
+      if (!tree.get(questId)) {
         yield* load(questId, silent);
         yield* waitForQuestLoad(questId);
       }
@@ -110,27 +131,40 @@ const make = Effect.gen(function* () {
   ) => bridge.call("quests.complete", [questId, turnIns, itemId, special]);
 
   const load: QuestsShape["load"] = (questId, silent = false) =>
-    Effect.gen(function* () {
-      if (silent) {
-        yield* bridge.callGameFunction("world.getQuests", [[questId]]);
-        return;
-      }
+    silent
+      ? bridge.call("quests.get", [questId])
+      : bridge.call("quests.load", [questId]);
 
-      yield* bridge.call("quests.load", [questId]);
-    });
+  const loadMany: QuestsShape["loadMany"] = (questIds, silent = false) => {
+    const normalizedQuestIds = normalizeQuestIds(questIds);
+    if (normalizedQuestIds.length === 0) {
+      return Effect.void;
+    }
 
-  const getMultiple: QuestsShape["getMultiple"] = (questIds) =>
-    bridge.call("quests.getMultiple", [questIds]);
+    if (silent) {
+      return bridge.call("quests.getMultiple", [normalizedQuestIds.join(",")]);
+    }
+
+    return Effect.asVoid(
+      Effect.forEach(normalizedQuestIds, (questId) => load(questId, false)),
+    );
+  };
 
   const getTree: QuestsShape["getTree"] = () => SynchronizedRef.get(quests);
 
   const getAccepted: QuestsShape["getAccepted"] = () =>
     Effect.gen(function* () {
-      const questIds = (yield* bridge.call("quests.getAccepted", [])) as number[];
+      const rawQuestIds = yield* bridge.call("quests.getAccepted");
+      const questIds = Array.isArray(rawQuestIds)
+        ? rawQuestIds
+            .map(toQuestId)
+            .filter((id): id is number => id !== undefined)
+        : [];
+
       const tree = yield* SynchronizedRef.get(quests);
       return questIds
-        .map((id) => tree[id])
-        .filter((q): q is QuestInfo => q !== undefined);
+        .map((id) => tree.get(id))
+        .filter((q): q is Quest => q !== undefined);
     });
 
   const isAvailable: QuestsShape["isAvailable"] = (questId) =>
@@ -145,7 +179,7 @@ const make = Effect.gen(function* () {
     canComplete,
     complete,
     load,
-    getMultiple,
+    loadMany,
     getTree,
     getAccepted,
     isAvailable,

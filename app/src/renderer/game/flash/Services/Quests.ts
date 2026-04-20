@@ -1,7 +1,8 @@
+import { Collection } from "@vexed/collection";
 import { ServiceMap } from "effect";
 import type { Effect } from "effect";
 import type { BridgeEffect } from "./Bridge";
-import type { Quest, QuestInfo } from "@vexed/game";
+import type { Quest } from "@vexed/game";
 
 export interface QuestsShape {
   abandon(questId: number): BridgeEffect<void>;
@@ -14,9 +15,9 @@ export interface QuestsShape {
     special?: boolean,
   ): BridgeEffect<void>;
   load(questId: number, silent?: boolean): BridgeEffect<void>;
-  getMultiple(questIds: string): BridgeEffect<void>;
-  getTree(): Effect.Effect<Record<number, QuestInfo>>;
-  getAccepted(): BridgeEffect<QuestInfo[]>;
+  loadMany(questIds: number[], silent?: boolean): BridgeEffect<void>;
+  getTree(): Effect.Effect<Collection<number, Quest>>;
+  getAccepted(): BridgeEffect<Quest[]>;
   isAvailable(questId: number): BridgeEffect<boolean>;
   isInProgress(questId: number): BridgeEffect<boolean>;
 }
