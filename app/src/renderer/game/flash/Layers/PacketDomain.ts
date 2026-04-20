@@ -842,16 +842,20 @@ const make = Effect.gen(function* () {
             } else {
               if (isNew) {
                 yield* world.monsters.addAura(targetId, aura);
+
+                if (equalsIgnoreCase(aura.name, COUNTER_ATTACK_AURA_NAME)) {
+                  yield* dispatchDomainEvent(
+                    domainHandlerStore,
+                    "counterAttackStart",
+                    {
+                      monMapId: targetId,
+                      message: aura.name,
+                      packet,
+                    },
+                  );
+                }
               } else {
                 yield* world.monsters.updateAura(targetId, aura);
-              }
-
-              if (equalsIgnoreCase(aura.name, COUNTER_ATTACK_AURA_NAME)) {
-                yield* dispatchDomainEvent(domainHandlerStore, "counterAttackStart", {
-                  monMapId: targetId,
-                  message: aura.name,
-                  packet,
-                });
               }
             }
           }
@@ -871,11 +875,15 @@ const make = Effect.gen(function* () {
             yield* world.monsters.removeAura(targetId, auraName);
 
             if (equalsIgnoreCase(auraName, COUNTER_ATTACK_AURA_NAME)) {
-              yield* dispatchDomainEvent(domainHandlerStore, "counterAttackEnd", {
-                monMapId: targetId,
-                message: auraName,
-                packet,
-              });
+              yield* dispatchDomainEvent(
+                domainHandlerStore,
+                "counterAttackEnd",
+                {
+                  monMapId: targetId,
+                  message: auraName,
+                  packet,
+                },
+              );
             }
           }
         }

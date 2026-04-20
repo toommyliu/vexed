@@ -134,7 +134,9 @@ const make = Effect.gen(function* () {
         "world.maximumQuestTurnIns",
         [questId],
       )) as string;
-      const turnInsNumber = turnIns ?? (Number(turnInsValue) ?? 1);
+      const parsedTurnIns = Number(turnInsValue);
+      const turnInsNumber =
+        turnIns ?? (Number.isFinite(parsedTurnIns) ? parsedTurnIns : 1);
       yield* bridge.call("quests.complete", [
         questId,
         turnInsNumber,

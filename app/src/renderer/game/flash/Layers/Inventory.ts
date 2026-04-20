@@ -33,7 +33,7 @@ const make = Effect.gen(function* () {
       }
 
       yield* world.map.waitForGameAction("equipItem");
-      yield* bridge.call("inventory.equip", [toEquip]);
+      yield* bridge.call("inventory.equip", [toEquip.id]);
       return true;
     });
 
