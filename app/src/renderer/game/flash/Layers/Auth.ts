@@ -3,13 +3,13 @@ import { Effect, Layer, SynchronizedRef } from "effect";
 import type { AuthShape } from "../Services/Auth";
 import { Auth } from "../Services/Auth";
 import { Bridge } from "../Services/Bridge";
-import type { LoginInfo } from "../Types";
+import type { LoginResponse, LoginCredentials } from "../Types";
 
 type RuntimeState = {
   readonly servers: Map<string, Server>;
   username: string;
   password: string;
-  loginInfo: LoginInfo | undefined;
+  loginInfo: LoginResponse | undefined;
 };
 
 const initialState = (): RuntimeState => ({
@@ -91,6 +91,17 @@ const make = Effect.gen(function* () {
         return Effect.succeed([state.loginInfo, state] as const);
       }
 
+      return Effect.gen(function* () {
+        const [loginResponseStr, loginCredentialsStr] = yield* Effect.all([
+          bridge.call("flash.getGameObjectS", ["objLogin"]),
+          bridge.call("flash.getGameObjectS", ["loginInfo"]),
+        ]);
+
+        const loginResponse = JSON.parse(loginResponseStr) as LoginResponse;
+        const loginCredentials = JSON.parse(
+          loginCredentialsStr,
+        ) as LoginCredentials;
+
       return Effect.map(
         bridge.call("flash.getGameObjectS", ["objLogin"]),
         (info) => {
@@ -101,6 +112,12 @@ const make = Effect.gen(function* () {
           return [loginInfo, state] as const;
         },
       );
+        state.loginInfo = loginResponse;
+        state.username = loginResponse.unm;
+        state.password = loginCredentials.strPassword;
+        console.log({ username: state.username, password: state.password });
+        return [loginResponse, state] as const;
+      });
     });
 
   const isLoggedIn: AuthShape["isLoggedIn"] = () =>
