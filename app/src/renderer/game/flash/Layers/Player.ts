@@ -1,6 +1,6 @@
 import { Collection } from "@vexed/collection";
 import { Faction, type Avatar, type FactionData } from "@vexed/game";
-import { Effect, Layer, Option, Ref } from "effect";
+import { Effect, Layer, Option, Random, Ref } from "effect";
 import { isRecord } from "../PacketPayload";
 import { Auth } from "../Services/Auth";
 import { Bridge } from "../Services/Bridge";
@@ -115,11 +115,25 @@ const make = Effect.gen(function* () {
       }
 
       if (correction) {
+        yield* waitFor(
+          Effect.gen(function* () {
+            const currentCell = yield* getCell();
+            return currentCell === cell;
+          }),
+          { timeout: "3 seconds" },
+        );
+
+        const currentCell = yield* getCell();
+        if (currentCell !== cell) {
+          return;
+        }
+
         const pads = yield* world.map.getCellPads();
         const currentPad = yield* getPad();
 
         if (pads.length > 0 && !pads.includes(currentPad)) {
-          const validPad = pads[Math.floor(Math.random() * pads.length)];
+          const randomIndex = yield* Random.nextIntBetween(0, pads.length - 1);
+          const validPad = pads[randomIndex];
           yield* bridge.call("player.jump", [cell, validPad]);
         }
       }
