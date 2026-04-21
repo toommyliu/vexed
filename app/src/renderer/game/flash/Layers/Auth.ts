@@ -67,19 +67,7 @@ const make = Effect.gen(function* () {
     );
 
   const getUsername: AuthShape["getUsername"] = () =>
-    SynchronizedRef.modifyEffect(stateRef, (state) => {
-      if (state.username !== "") {
-        return Effect.succeed([state.username, state] as const);
-      }
-
-      return Effect.map(
-        bridge.call("flash.getGameObjectS", ["loginInfo.strUsername"]),
-        (username) => {
-          state.username = username;
-          return [username, state] as const;
-        },
-      );
-    });
+    SynchronizedRef.get(stateRef).pipe(Effect.map((state) => state.username));
 
   const getPassword: AuthShape["getPassword"] = () =>
     SynchronizedRef.get(stateRef).pipe(Effect.map((state) => state.password));
