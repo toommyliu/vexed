@@ -133,7 +133,9 @@ const make = Effect.gen(function* () {
     bridge.call("world.isActionAvailable", [gameAction]);
 
   const waitForGameAction: WorldMapShape["waitForGameAction"] = (gameAction) =>
-    waitFor(isActionAvailable(gameAction));
+    waitFor(isActionAvailable(gameAction), { timeout: "2 seconds" }).pipe(
+      Effect.asVoid,
+    );
 
   const getMapItem: WorldMapShape["getMapItem"] = (itemId) =>
     Effect.gen(function* () {
@@ -147,9 +149,21 @@ const make = Effect.gen(function* () {
   const reload: WorldMapShape["reload"] = () => bridge.call("world.reload");
 
   const setSpawnPoint: WorldMapShape["setSpawnPoint"] = (cell, pad) =>
-    cell === undefined && pad === undefined
-      ? bridge.call("world.setSpawnPoint")
-      : bridge.call("world.setSpawnPoint", [cell, pad]);
+    Effect.gen(function* () {
+      if (cell === undefined && pad === undefined) {
+        return yield* bridge.call("world.setSpawnPoint");
+      }
+
+      if (cell !== undefined && pad === undefined) {
+        return yield* bridge.call("world.setSpawnPoint", [cell]);
+      }
+
+      if (cell === undefined && pad !== undefined) {
+        return yield* bridge.call("world.setSpawnPoint", [undefined, pad]);
+      }
+
+      return yield* bridge.call("world.setSpawnPoint", [cell, pad]);
+    });
 
   // Map state methods
   const getId: WorldMapShape["getId"] = () =>

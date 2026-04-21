@@ -172,8 +172,8 @@ const make = Effect.gen(function* () {
             ([currentHp, currentMp]) =>
               currentHp >= maxHp && currentMp >= maxMp,
           ),
+          { timeout: "10 seconds" },
         );
-        yield* Effect.log("Rest completed");
       }
     });
 

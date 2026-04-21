@@ -435,7 +435,6 @@ const make = Effect.gen(function* () {
           while: () => attempts < MAX_ATTEMPTS && !success,
           body: () =>
             Effect.gen(function* () {
-              yield* Effect.log(`Attempt ${attempts + 1} to exit combat`);
               if (!(yield* isInCombat)) {
                 success = true;
                 return;
