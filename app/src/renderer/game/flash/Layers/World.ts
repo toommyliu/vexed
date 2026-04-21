@@ -136,7 +136,10 @@ const make = Effect.gen(function* () {
     waitFor(isActionAvailable(gameAction));
 
   const getMapItem: WorldMapShape["getMapItem"] = (itemId) =>
-    bridge.call("world.getMapItem", [itemId]);
+    Effect.gen(function* () {
+      yield* waitForGameAction("getMapItem");
+      return yield* bridge.call("world.getMapItem", [itemId]);
+    });
 
   const loadSwf: WorldMapShape["loadSwf"] = (path) =>
     bridge.call("world.loadSwf", [path]);

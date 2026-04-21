@@ -67,17 +67,21 @@ const make = Effect.gen(function* () {
       return yield* Ref.get(_factions);
     });
 
-  const getGender: PlayerShape["getGender"] = () => bridge.call("player.getGender");
+  const getGender: PlayerShape["getGender"] = () =>
+    bridge.call("player.getGender");
 
   const getGold: PlayerShape["getGold"] = () => bridge.call("player.getGold");
 
   const getHp: PlayerShape["getHp"] = () => fromSelfOr(0, (me) => me.hp);
 
-  const getLevel: PlayerShape["getLevel"] = () => fromSelfOr(0, (me) => me.level);
+  const getLevel: PlayerShape["getLevel"] = () =>
+    fromSelfOr(0, (me) => me.level);
 
-  const getMaxHp: PlayerShape["getMaxHp"] = () => fromSelfOr(0, (me) => me.maxHp);
+  const getMaxHp: PlayerShape["getMaxHp"] = () =>
+    fromSelfOr(0, (me) => me.maxHp);
 
-  const getMaxMp: PlayerShape["getMaxMp"] = () => fromSelfOr(0, (me) => me.maxMp);
+  const getMaxMp: PlayerShape["getMaxMp"] = () =>
+    fromSelfOr(0, (me) => me.maxMp);
 
   const getMp: PlayerShape["getMp"] = () => fromSelfOr(0, (me) => me.mp);
 
@@ -86,19 +90,21 @@ const make = Effect.gen(function* () {
   const getPosition: PlayerShape["getPosition"] = () =>
     fromSelfOr<[number, number]>([0, 0], (me) => me.position);
 
-  const getState: PlayerShape["getState"] = () => fromSelfOr<number>(0, (me) => me.state);
+  const getState: PlayerShape["getState"] = () =>
+    fromSelfOr<number>(0, (me) => me.state);
 
-  const isAfk: PlayerShape["isAfk"] = () => fromSelfOr(false, (me) => me.isAFK());
+  const isAfk: PlayerShape["isAfk"] = () =>
+    fromSelfOr(false, (me) => me.isAFK());
 
-  const isReady: PlayerShape["isReady"] =
-    () =>
+  const isReady: PlayerShape["isReady"] = () =>
     Effect.all([
       auth.isLoggedIn(),
       world.map.isLoaded(),
       bridge.call("player.isLoaded"),
     ]).pipe(Effect.map(([a, b, c]) => a && b && c));
 
-  const isMember: PlayerShape["isMember"] = () => bridge.call("player.isMember");
+  const isMember: PlayerShape["isMember"] = () =>
+    bridge.call("player.isMember");
 
   const jumpToCell: PlayerShape["jumpToCell"] = (cell, pad, correction) =>
     Effect.gen(function* () {
@@ -119,17 +125,20 @@ const make = Effect.gen(function* () {
       }
     });
 
-  const joinMap: PlayerShape["joinMap"] = (map, cell, pad) => {
-    if (cell === undefined && pad === undefined) {
-      return bridge.call("player.joinMap", [map]);
-    }
+  const joinMap: PlayerShape["joinMap"] = (map, cell, pad) =>
+    Effect.gen(function* () {
+      yield* world.map.waitForGameAction("tfer");
 
-    if (cell !== undefined && pad === undefined) {
-      return bridge.call("player.joinMap", [map, cell]);
-    }
+      if (cell === undefined && pad === undefined) {
+        return yield* bridge.call("player.joinMap", [map]);
+      }
 
-    return bridge.call("player.joinMap", [map, cell ?? "Enter", pad]);
-  };
+      if (cell !== undefined && pad === undefined) {
+        return yield* bridge.call("player.joinMap", [map, cell]);
+      }
+
+      return yield* bridge.call("player.joinMap", [map, cell ?? "Enter", pad]);
+    });
 
   const goToPlayer: PlayerShape["goToPlayer"] = (name) =>
     Effect.gen(function* () {
@@ -143,6 +152,8 @@ const make = Effect.gen(function* () {
 
   const rest: PlayerShape["rest"] = (full) =>
     Effect.gen(function* () {
+      yield* world.map.waitForGameAction("rest");
+
       const hp = yield* getHp();
       const mp = yield* getMp();
       const maxHp = yield* getMaxHp();
@@ -179,7 +190,8 @@ const make = Effect.gen(function* () {
   const hasActiveBoost: PlayerShape["hasActiveBoost"] = (boostType) =>
     bridge.call("player.hasActiveBoost", [boostType]);
 
-  const isAlive: PlayerShape["isAlive"] = () => Effect.map(getHp(), (hp) => hp > 0);
+  const isAlive: PlayerShape["isAlive"] = () =>
+    Effect.map(getHp(), (hp) => hp > 0);
 
   const walkTo: PlayerShape["walkTo"] = (x, y, walkSpeed) =>
     Effect.flatMap(isAlive(), (alive) => {
