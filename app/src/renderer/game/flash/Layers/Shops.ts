@@ -52,7 +52,7 @@ const make = Effect.gen(function* () {
 
   const shopInfoRef = yield* Ref.make<ShopInfo | null>(null);
 
-  const runFork = Effect.runFork;
+  const runFork = Effect.runForkWith(yield* Effect.services());
 
   const setShopInfo = (value: unknown) =>
     Effect.gen(function* () {

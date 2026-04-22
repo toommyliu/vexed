@@ -8,7 +8,7 @@ const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
   const itemCache = yield* makeItemCache;
 
-  const runFork = Effect.runFork;
+  const runFork = Effect.runForkWith(yield* Effect.services());
 
   const dispose = yield* bridge.onConnection((status) => {
     if (status === "OnConnectionLost") {

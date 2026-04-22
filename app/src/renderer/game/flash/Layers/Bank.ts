@@ -1,9 +1,10 @@
-import { Effect, Layer, Schedule, SynchronizedRef } from "effect";
+import { Effect, Layer, SynchronizedRef } from "effect";
 import { makeItemCache } from "../ItemCache";
 import { Auth } from "../Services/Auth";
 import type { BankShape } from "../Services/Bank";
 import { Bank } from "../Services/Bank";
 import { Bridge } from "../Services/Bridge";
+import { waitFor } from "../../utils/waitFor";
 
 const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
@@ -85,11 +86,10 @@ const make = Effect.gen(function* () {
       const isBankOpen = yield* isOpen();
       if (isBankOpen) {
         if (force) {
-          yield* bridge.call("bank.open");
-          yield* Effect.repeat(isOpen(), {
-            until: (open) => !open,
-            schedule: Schedule.spaced("100 millis"),
-          });
+          yield* bridge.call("bank.open"); // Close first
+          yield* waitFor(Effect.gen(function* () {
+            return !(yield* isOpen());
+          }), { timeout: "3 seconds" });
         } else {
           return yield* Effect.void;
         }

@@ -183,7 +183,12 @@ const make = Effect.gen(function* () {
     Ref.set(roomNumberRef, roomNumber);
 
   const reset: WorldMapShape["reset"] = () =>
-    mutate(stateRef, clearRuntimeState).pipe(Effect.asVoid);
+    Effect.all([
+      mutate(stateRef, clearRuntimeState),
+      Ref.set(mapIdRef, null),
+      Ref.set(mapNameRef, null),
+      Ref.set(roomNumberRef, null),
+    ]).pipe(Effect.asVoid);
 
   const dispose = yield* bridge.onConnection((status) => {
     if (status === "OnConnectionLost") {
@@ -214,8 +219,12 @@ const make = Effect.gen(function* () {
   const removePlayer: WorldPlayersShape["remove"] = (username) =>
     mutate(stateRef, (state) => {
       const key = normalize(username);
+      const entId = state.playerEntityIds.get(key);
       state.players.delete(key);
       state.playerEntityIds.delete(key);
+      if (entId !== undefined) {
+        state.playerAuras.delete(entId);
+      }
     }).pipe(Effect.asVoid);
 
   const setSelf: WorldPlayersShape["setSelf"] = (username) =>
