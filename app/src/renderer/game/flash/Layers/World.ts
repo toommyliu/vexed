@@ -297,10 +297,6 @@ const make = Effect.gen(function* () {
   const findMonsterByName: WorldMonstersShape["findByName"] = (name, cell) =>
     mutate(stateRef, (state) => {
       const monster = state.monsters.find((candidate) => {
-        if (!candidate.alive) {
-          return false;
-        }
-
         if (cell !== undefined && !equalsIgnoreCase(candidate.cell, cell)) {
           return false;
         }

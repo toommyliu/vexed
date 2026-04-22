@@ -886,6 +886,9 @@ const make = Effect.gen(function* () {
   const hunt: CombatShape["hunt"] = (target, findMost = false) =>
     Effect.gen(function* () {
       const resolvedTarget = resolveKillTarget(target);
+      if (resolvedTarget.kind === "name" && resolvedTarget.name === "") {
+        return "";
+      }
 
       const maybeWorld = yield* Effect.serviceOption(World);
       if (Option.isNone(maybeWorld)) {

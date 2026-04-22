@@ -101,6 +101,7 @@ const make = Effect.gen(function* () {
 
       yield* bridge.call("drops.acceptDrop", [itemId]);
       counts.delete(itemId);
+      itemData.delete(itemId);
     });
 
   const isUsingCustomDrops: DropsShape["isUsingCustomDrops"] = () => bridge.call("drops.isUsingCustomDrops");
@@ -119,6 +120,7 @@ const make = Effect.gen(function* () {
 
       if (!visual) {
         counts.delete(itemId);
+        itemData.delete(itemId);
       }
 
       return yield* bridge.call("drops.rejectDrop", [itemId]);
