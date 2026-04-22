@@ -1,9 +1,10 @@
 import { Server, type ServerData } from "@vexed/game";
-import { Effect, Layer, SynchronizedRef } from "effect";
+import { Effect, Layer, Schedule, SynchronizedRef } from "effect";
 import type { AuthShape } from "../Services/Auth";
 import { Auth } from "../Services/Auth";
 import { Bridge } from "../Services/Bridge";
 import type { LoginResponse, LoginCredentials } from "../Types";
+import { waitFor } from "../../utils/waitFor";
 
 type RuntimeState = {
   readonly servers: Map<string, Server>;
@@ -90,20 +91,9 @@ const make = Effect.gen(function* () {
           loginCredentialsStr,
         ) as LoginCredentials;
 
-      return Effect.map(
-        bridge.call("flash.getGameObjectS", ["objLogin"]),
-        (info) => {
-          const loginInfo = JSON.parse(info) as LoginInfo;
-          state.loginInfo = loginInfo;
-          state.username = (loginInfo?.unm ?? "").toLowerCase();
-          state.password = (loginInfo?.sToken ?? "").toLowerCase();
-          return [loginInfo, state] as const;
-        },
-      );
         state.loginInfo = loginResponse;
         state.username = loginResponse.unm;
         state.password = loginCredentials.strPassword;
-        console.log({ username: state.username, password: state.password });
         return [loginResponse, state] as const;
       });
     });
@@ -118,9 +108,18 @@ const make = Effect.gen(function* () {
 
   const login: AuthShape["login"] = (username, password) =>
     Effect.gen(function* () {
+      if (yield* isLoggedIn()) {
+        yield* logout();
+      }
       yield* clearSessionState;
-      yield* bridge.call("flash.callGameFunction", ["removeAllChildren"]);
-      yield* bridge.call("flash.callGameFunction", ["gotoAndPlay", "login"]);
+      yield* Effect.sleep("1 second");
+      yield* waitFor(
+        Effect.gen(function* () {
+          const label = yield* bridge.call("flash.getGameObject", ["mcLogin.currentLabel"]);
+          return label !== "Init";
+        }),
+        { schedule: Schedule.spaced("100 millis") }
+      );
       return yield* bridge.call("auth.login", [username, password]);
     });
 
