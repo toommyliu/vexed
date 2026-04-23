@@ -153,6 +153,7 @@ package vexed.generated
       external.externalize("world.getMonsterByName", World.getMonsterByName);
       external.externalize("world.isActionAvailable", World.isActionAvailable);
       external.externalize("world.isLoaded", World.isLoaded);
+      external.externalize("world.isMonsterAvailable", World.isMonsterAvailable);
       external.externalize("world.loadSwf", World.loadSwf);
       external.externalize("world.reload", World.reload);
       external.externalize("world.setSpawnPoint", World.setSpawnPoint);

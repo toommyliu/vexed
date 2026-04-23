@@ -6,8 +6,9 @@ import { Combat } from "./flash/Services/Combat";
 import { AutoZone } from "./flash/Services/AutoZone";
 import { Quests } from "./flash/Services/Quests";
 import { Packet } from "./flash/Services/Packet";
-import { House } from "./flash/Services/House";
 import { Settings } from "./flash/Services/Settings";
+import { Auth } from "./flash/Services/Auth";
+import { World } from "./flash/Services/World";
 import type { PacketListenerDisposer } from "./flash/Services/Packet";
 
 export default function App() {
@@ -19,7 +20,7 @@ export default function App() {
   const [autoZoneMap, setAutoZoneMap] = createSignal("ledgermayne");
   const [findMost, setFindMost] = createSignal(false);
   const [packetLoggingEnabled, setPacketLoggingEnabled] = createSignal(false);
-  const [overlayVisible, setOverlayVisible] = createSignal(true);
+  const [overlayVisible, setOverlayVisible] = createSignal(false);
   const [customName, setCustomName] = createSignal("");
   const [customGuild, setCustomGuild] = createSignal("");
   const [walkSpeed, setWalkSpeed] = createSignal("8");
@@ -33,6 +34,7 @@ export default function App() {
   const [testServerPacket, setTestServerPacket] = createSignal("%xt%zm%cmd%");
   const [clientPacketType, setClientPacketType] = createSignal<"str" | "json" | "xml">("str");
   const [serverPacketType, setServerPacketType] = createSignal<"String" | "Json">("String");
+  const [demoUsername, setDemoUsername] = createSignal("");
   let activeCombatFiber: Fiber.Fiber<void, unknown> | undefined;
   let packetLogDisposer: PacketListenerDisposer | undefined;
 
@@ -40,9 +42,11 @@ export default function App() {
     void runtime
       .runPromise(
         Effect.gen(function* () {
-          const quests = yield* Quests;
-          const result = yield* quests.getAccepted();
-          console.log("Get accepted result:", result);
+          const auth = yield* Auth;
+          yield* Effect.log({
+            username: yield* auth.getUsername(),
+            password: yield* auth.getPassword(),
+          });
         }),
       )
       .catch((error) => {
@@ -97,23 +101,18 @@ export default function App() {
       });
   };
 
-  const testHouse = () => {
+  const testGetCellMonsters = () => {
     void runtime
       .runPromise(
         Effect.gen(function* () {
-          const house = yield* House;
-          const items = yield* house.getItems();
-          const slots = yield* house.getSlots();
-          const usedSlots = yield* house.getUsedSlots();
-          const availableSlots = yield* house.getAvailableSlots();
-          console.log("House items:", items);
-          console.log("House slots:", slots);
-          console.log("House used slots:", usedSlots);
-          console.log("House available slots:", availableSlots);
+          const world = yield* World;
+          const monsters = yield* world.map.getCellMonsters();
+          console.log("Cell monsters:", monsters);
+          console.log("Count:", monsters.length);
         }),
       )
       .catch((error) => {
-        console.error("House error:", error);
+        console.error("GetCellMonsters error:", error);
       });
   };
 
@@ -554,6 +553,27 @@ export default function App() {
       });
   };
 
+  const demoLogin = () => {
+    const username = demoUsername().trim();
+    if (username === "") {
+      console.error("Username cannot be empty");
+      return;
+    }
+
+    void runtime
+      .runPromise(
+        Effect.gen(function* () {
+          const auth = yield* Auth;
+          const password = yield* auth.getPassword();
+          yield* auth.login(username, password);
+          console.log("[Demo] Login attempted for username:", username);
+        }),
+      )
+      .catch((error) => {
+        console.error("Demo login error:", error);
+      });
+  };
+
   onCleanup(() => {
     stopCombatTask();
     packetLogDisposer?.();
@@ -605,7 +625,33 @@ export default function App() {
             <button onClick={inspectWorld}>inspect world</button>
             <button onClick={inspectDrops}>inspect drops</button>
             <button onClick={testGetTarget}>get target</button>
-            <button onClick={testHouse}>test house</button>
+            <button onClick={testGetCellMonsters}>get cell monsters</button>
+            <input
+              type="text"
+              value={demoUsername()}
+              onInput={(e) => setDemoUsername(e.currentTarget.value)}
+              placeholder="Demo username"
+              style={{
+                padding: "5px",
+                "border-radius": "4px",
+                border: "1px solid #ccc",
+                background: "white",
+                color: "black",
+              }}
+            />
+            <button
+              onClick={demoLogin}
+              style={{
+                padding: "5px 10px",
+                cursor: "pointer",
+                background: "#10b981",
+                border: "none",
+                color: "white",
+                "border-radius": "4px",
+              }}
+            >
+              demo login
+            </button>
             <button
               onClick={togglePacketLogging}
               style={{

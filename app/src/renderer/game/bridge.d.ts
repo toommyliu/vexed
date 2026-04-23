@@ -140,6 +140,7 @@ declare global {
       "world.getMonsterByName": (name: string) => Record<string, unknown>;
       "world.isActionAvailable": (gameAction: string) => boolean;
       "world.isLoaded": () => boolean;
+      "world.isMonsterAvailable": (monMapId: number) => boolean;
       "world.loadSwf": (swf: string) => void;
       "world.reload": () => void;
       "world.setSpawnPoint": (cell?: string, pad?: string) => void;

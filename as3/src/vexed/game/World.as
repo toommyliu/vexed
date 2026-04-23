@@ -78,6 +78,18 @@ public class World
     //}
 
     [BridgeExport]
+    public static function isMonsterAvailable(monMapId:Number):Boolean
+    {
+      var monster:Object = game.world.getMonster(monMapId);
+      if (!monster)
+      {
+        return false;
+      } 
+
+      return Boolean(monster.pMC) && monster.pMC.visible && monster.dataLeaf.intState > 0;
+    }
+
+    [BridgeExport]
     public static function getMonsterByName(name:String):Object
     {
       if (!name)

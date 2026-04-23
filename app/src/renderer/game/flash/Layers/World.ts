@@ -114,7 +114,27 @@ const make = Effect.gen(function* () {
 
   // Bridge methods
   const getCellMonsters: WorldMapShape["getCellMonsters"] = () =>
-    bridge.call("world.getCellMonsters");
+    Effect.gen(function* () {
+      const list = yield* monsters.getAll();
+      const myCellOption = yield* players.withSelf((player) => player.cell);
+
+      if (Option.isNone(myCellOption)) {
+        return [];
+      }
+
+      const myCell = myCellOption.value;
+      const filtered = list.filter((mon) => mon.isInCell(myCell));
+
+      const available: Monster[] = [];
+      for (const mon of filtered.values()) {
+        const isAvailable = yield* bridge.call('world.isMonsterAvailable', [mon.monMapId]);
+        if (isAvailable) {
+          available.push(mon);
+        }
+      }
+
+      return available;
+    });
 
   const getCells: WorldMapShape["getCells"] = () =>
     Effect.map(bridge.call("world.getCells"), (cells) =>
@@ -382,7 +402,6 @@ const make = Effect.gen(function* () {
 
   const monsters: WorldMonstersShape = {
     getAll: getMonsters,
-    getCellMonsters: getCellMonsters,
     add: addMonster,
     get: getMonster,
     findByName: findMonsterByName,

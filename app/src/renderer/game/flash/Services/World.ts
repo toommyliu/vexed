@@ -13,7 +13,7 @@ import type { BridgeEffect } from "./Bridge";
 
 export interface WorldMapShape {
   // Bridge methods
-  getCellMonsters(): BridgeEffect<unknown[]>;
+  getCellMonsters(): BridgeEffect<Monster[]>;
   getCells(): BridgeEffect<string[]>;
   getCellPads(): BridgeEffect<string[]>;
   isLoaded(): BridgeEffect<boolean>;
