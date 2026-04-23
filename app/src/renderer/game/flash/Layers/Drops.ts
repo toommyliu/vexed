@@ -104,7 +104,8 @@ const make = Effect.gen(function* () {
       itemData.delete(itemId);
     });
 
-  const isUsingCustomDrops: DropsShape["isUsingCustomDrops"] = () => bridge.call("drops.isUsingCustomDrops");
+  const isUsingCustomDrops: DropsShape["isUsingCustomDrops"] = () =>
+    bridge.call("drops.isUsingCustomDrops");
 
   const rejectDrop: DropsShape["rejectDrop"] = (itemId, visual) =>
     Effect.gen(function* () {

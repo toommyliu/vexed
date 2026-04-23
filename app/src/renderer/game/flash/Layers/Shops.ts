@@ -127,7 +127,8 @@ const make = Effect.gen(function* () {
   const isMergeShop: ShopsShape["isMergeShop"] = () =>
     bridge.call("shops.isMergeShop");
 
-  const load: ShopsShape["load"] = (shopId) => bridge.call("shops.load", [shopId]);
+  const load: ShopsShape["load"] = (shopId) =>
+    bridge.call("shops.load", [shopId]);
 
   const loadArmorCustomize: ShopsShape["loadArmorCustomize"] = () =>
     bridge.call("shops.loadArmorCustomize");

@@ -127,7 +127,9 @@ const make = Effect.gen(function* () {
 
       const available: Monster[] = [];
       for (const mon of filtered.values()) {
-        const isAvailable = yield* bridge.call('world.isMonsterAvailable', [mon.monMapId]);
+        const isAvailable = yield* bridge.call("world.isMonsterAvailable", [
+          mon.monMapId,
+        ]);
         if (isAvailable) {
           available.push(mon);
         }

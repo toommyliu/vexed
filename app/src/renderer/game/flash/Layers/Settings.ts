@@ -30,8 +30,9 @@ const make = Effect.gen(function* () {
   const setDeathAdsEnabled: SettingsShape["setDeathAdsEnabled"] = (enabled) =>
     bridge.call("settings.setDeathAdsEnabled", [enabled]);
 
-  const setCollisionsEnabled: SettingsShape["setCollisionsEnabled"] = (enabled) =>
-    bridge.call("settings.setCollisionsEnabled", [enabled]);
+  const setCollisionsEnabled: SettingsShape["setCollisionsEnabled"] = (
+    enabled,
+  ) => bridge.call("settings.setCollisionsEnabled", [enabled]);
 
   const setEffectsEnabled: SettingsShape["setEffectsEnabled"] = (enabled) =>
     bridge.call("settings.setEffectsEnabled", [enabled]);

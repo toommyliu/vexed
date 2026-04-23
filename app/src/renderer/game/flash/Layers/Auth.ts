@@ -115,10 +115,12 @@ const make = Effect.gen(function* () {
       yield* Effect.sleep("1 second");
       yield* waitFor(
         Effect.gen(function* () {
-          const label = yield* bridge.call("flash.getGameObject", ["mcLogin.currentLabel"]);
+          const label = yield* bridge.call("flash.getGameObject", [
+            "mcLogin.currentLabel",
+          ]);
           return label !== "Init";
         }),
-        { schedule: Schedule.spaced("100 millis") }
+        { schedule: Schedule.spaced("100 millis") },
       );
       return yield* bridge.call("auth.login", [username, password]);
     });

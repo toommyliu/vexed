@@ -71,7 +71,8 @@ const make = Effect.gen(function* () {
 
   const getSlots: BankShape["getSlots"] = () => bridge.call("bank.getSlots");
 
-  const getUsedSlots: BankShape["getUsedSlots"] = () => bridge.call("bank.getUsedSlots");
+  const getUsedSlots: BankShape["getUsedSlots"] = () =>
+    bridge.call("bank.getUsedSlots");
 
   const getAvailableSlots: BankShape["getAvailableSlots"] = () =>
     Effect.zipWith(getSlots(), getUsedSlots(), (slots, used) => slots - used);
@@ -87,9 +88,12 @@ const make = Effect.gen(function* () {
       if (isBankOpen) {
         if (force) {
           yield* bridge.call("bank.open"); // Close first
-          yield* waitFor(Effect.gen(function* () {
-            return !(yield* isOpen());
-          }), { timeout: "3 seconds" });
+          yield* waitFor(
+            Effect.gen(function* () {
+              return !(yield* isOpen());
+            }),
+            { timeout: "3 seconds" },
+          );
         } else {
           return yield* Effect.void;
         }

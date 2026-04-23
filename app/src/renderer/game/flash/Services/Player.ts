@@ -20,7 +20,11 @@ export interface PlayerShape {
   isAfk(): BridgeEffect<boolean>;
   isReady(): BridgeEffect<boolean>;
   isMember(): BridgeEffect<boolean>;
-  jumpToCell(cell: string, pad?: string, correction?: boolean): BridgeEffect<void>;
+  jumpToCell(
+    cell: string,
+    pad?: string,
+    correction?: boolean,
+  ): BridgeEffect<void>;
   joinMap(map: string, cell?: string, pad?: string): BridgeEffect<void>;
   goToPlayer(name: string): BridgeEffect<void>;
   rest(full?: boolean): BridgeEffect<void>;

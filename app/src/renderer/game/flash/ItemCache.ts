@@ -1,9 +1,4 @@
-import {
-  Item,
-  ShopItem,
-  type ItemData,
-  type ShopItemData,
-} from "@vexed/game";
+import { Item, ShopItem, type ItemData, type ShopItemData } from "@vexed/game";
 import { Effect, Ref } from "effect";
 import { asArray, asNumber, asRecord, asString } from "./PacketPayload";
 

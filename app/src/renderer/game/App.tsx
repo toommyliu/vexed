@@ -32,8 +32,12 @@ export default function App() {
   const [worldVisible, setWorldVisible] = createSignal(true);
   const [testClientPacket, setTestClientPacket] = createSignal("%xt%hello%");
   const [testServerPacket, setTestServerPacket] = createSignal("%xt%zm%cmd%");
-  const [clientPacketType, setClientPacketType] = createSignal<"str" | "json" | "xml">("str");
-  const [serverPacketType, setServerPacketType] = createSignal<"String" | "Json">("String");
+  const [clientPacketType, setClientPacketType] = createSignal<
+    "str" | "json" | "xml"
+  >("str");
+  const [serverPacketType, setServerPacketType] = createSignal<
+    "String" | "Json"
+  >("String");
   const [demoUsername, setDemoUsername] = createSignal("");
   let activeCombatFiber: Fiber.Fiber<void, unknown> | undefined;
   let packetLogDisposer: PacketListenerDisposer | undefined;
@@ -526,7 +530,12 @@ export default function App() {
         Effect.gen(function* () {
           const packetService = yield* Packet;
           yield* packetService.sendClient(packet, clientPacketType());
-          console.log("[Demo] Sent client packet:", packet, "type:", clientPacketType());
+          console.log(
+            "[Demo] Sent client packet:",
+            packet,
+            "type:",
+            clientPacketType(),
+          );
         }),
       )
       .catch((error) => {
@@ -545,7 +554,12 @@ export default function App() {
         Effect.gen(function* () {
           const packetService = yield* Packet;
           yield* packetService.sendServer(packet, serverPacketType());
-          console.log("[Demo] Sent server packet:", packet, "type:", serverPacketType());
+          console.log(
+            "[Demo] Sent server packet:",
+            packet,
+            "type:",
+            serverPacketType(),
+          );
         }),
       )
       .catch((error) => {

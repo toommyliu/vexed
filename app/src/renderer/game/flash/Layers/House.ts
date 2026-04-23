@@ -28,8 +28,7 @@ const make = Effect.gen(function* () {
       .call("house.getItems")
       .pipe(Effect.flatMap(itemCache.fromUnknownArray));
 
-  const getSlots: HouseShape["getSlots"] = () =>
-    bridge.call("house.getSlots");
+  const getSlots: HouseShape["getSlots"] = () => bridge.call("house.getSlots");
 
   const getUsedSlots: HouseShape["getUsedSlots"] = () =>
     bridge.call("house.getUsedSlots");
