@@ -1,4 +1,4 @@
-import { equalsIgnoreCase } from "@vexed/utils/string";
+import { equalsIgnoreCase } from "@vexed/shared/string";
 
 export type EnhancementP = {
   DIS?: boolean;
