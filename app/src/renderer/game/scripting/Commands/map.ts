@@ -1,4 +1,4 @@
-import { Effect, Option } from "effect";
+import { Effect } from "effect";
 import {
   createCommandHandler,
   defineScriptCommandDomain,
@@ -127,17 +127,17 @@ const gotoHouseCommand = createCommandHandler((context, args) =>
       "player",
     );
 
-    yield* context.combat.exit();
-    yield* context.world.map.waitForGameAction("tfer");
+    yield* context.run(
+      Effect.gen(function* () {
+        yield* context.combat.exit();
+        yield* context.world.map.waitForGameAction("tfer");
 
-    const playerName =
-      player === undefined
-        ? yield* context.auth.getUsername()
-        : player;
+        const playerName =
+          player === undefined ? yield* context.auth.getUsername() : player;
 
-    console.log(`Going to house of player: ${playerName}`);
-
-    yield* context.packet.sendServer(`%xt%zm%house%1%${playerName}%`);
+        yield* context.packet.sendServer(`%xt%zm%house%1%${playerName}%`);
+      }),
+    );
   }),
 );
 
