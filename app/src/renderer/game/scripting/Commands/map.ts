@@ -2,7 +2,9 @@ import { Effect } from "effect";
 import {
   createCommandHandler,
   defineScriptCommandDomain,
+  requireInstructionNumber,
   readOptionalInstructionString,
+  requireScriptArgumentNumber,
   readOptionalScriptArgumentString,
   requireInstructionString,
   requireScriptArgumentString,
@@ -16,10 +18,14 @@ import {
 type MapScriptCommandArguments = {
   join_map: [map: string, cell?: string, pad?: string];
   move_to_cell: [cell: string, pad?: string];
+  walk_to: [x: number, y: number];
   goto_player: [player: string];
   goto_house: [player?: string];
   set_spawnpoint: [cell?: string, pad?: string];
 };
+
+const DEFAULT_JOIN_CELL = "Enter";
+const DEFAULT_PAD = "Spawn";
 
 const mapCommandAliases = {
   join: "join_map",
@@ -58,7 +64,13 @@ const joinMapCommand = createCommandHandler((context, args) =>
       "pad",
     );
 
-    yield* context.run(context.player.joinMap(map, cell, pad));
+    yield* context.run(
+      context.player.joinMap(
+        map,
+        cell ?? DEFAULT_JOIN_CELL,
+        pad ?? DEFAULT_PAD,
+      ),
+    );
   }),
 );
 
@@ -79,7 +91,16 @@ const moveToCellCommand = createCommandHandler((context, args) =>
       "pad",
     );
 
-    yield* context.run(context.player.jumpToCell(cell, pad));
+    yield* context.run(context.player.jumpToCell(cell, pad ?? DEFAULT_PAD));
+  }),
+);
+
+const walkToCommand = createCommandHandler((context, args) =>
+  Effect.gen(function* () {
+    const x = yield* requireInstructionNumber(context, "walk_to", args, 0, "x");
+    const y = yield* requireInstructionNumber(context, "walk_to", args, 1, "y");
+
+    yield* context.run(context.player.walkTo(x, y));
   }),
 );
 
@@ -135,6 +156,7 @@ const setSpawnPointCommand = createCommandHandler((context, args) =>
 const mapCommandHandlerMap = mapCommandDomain.defineHandlers({
   join_map: joinMapCommand,
   move_to_cell: moveToCellCommand,
+  walk_to: walkToCommand,
   goto_player: gotoPlayerCommand,
   goto_house: gotoHouseCommand,
   set_spawnpoint: setSpawnPointCommand,
@@ -161,12 +183,16 @@ export const createMapScriptDsl = (
      * @param pad Optional pad name.
      * @example cmd.join_map("battleon", "Enter", "Spawn")
      */
-    join_map(map: string, cell?: string, pad?: string) {
+    join_map(
+      map: string,
+      cell: string = DEFAULT_JOIN_CELL,
+      pad: string = DEFAULT_PAD,
+    ) {
       recordMapInstruction(
         "join_map",
         requireScriptArgumentString("join_map", "map", map),
-        readOptionalScriptArgumentString("join_map", "cell", cell),
-        readOptionalScriptArgumentString("join_map", "pad", pad),
+        requireScriptArgumentString("join_map", "cell", cell),
+        requireScriptArgumentString("join_map", "pad", pad),
       );
     },
 
@@ -177,16 +203,30 @@ export const createMapScriptDsl = (
      * @param cell Cell name.
      * @param pad Optional pad name.
      */
-    move_to_cell(cell: string, pad?: string) {
+    move_to_cell(cell: string, pad: string = DEFAULT_PAD) {
       recordMapInstruction(
         "move_to_cell",
         requireScriptArgumentString("move_to_cell", "cell", cell),
-        readOptionalScriptArgumentString("move_to_cell", "pad", pad),
+        requireScriptArgumentString("move_to_cell", "pad", pad),
       );
     },
 
     /**
-     * Go to another player. 
+     * Walks to a point on the map.
+     *
+     * @param x X coordinate.
+     * @param y Y coordinate.
+     */
+    walk_to(x: number, y: number) {
+      recordMapInstruction(
+        "walk_to",
+        requireScriptArgumentNumber("walk_to", "x", x),
+        requireScriptArgumentNumber("walk_to", "y", y),
+      );
+    },
+
+    /**
+     * Go to another player.
      *
      * @param player Player name.
      */

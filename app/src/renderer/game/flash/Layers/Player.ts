@@ -193,7 +193,10 @@ const make = Effect.gen(function* () {
             return false;
           }
 
-          if (targetMap.requireExactRoom && targetMap.roomNumber !== undefined) {
+          if (
+            targetMap.requireExactRoom &&
+            targetMap.roomNumber !== undefined
+          ) {
             const currentRoomNumber = yield* world.map.getRoomNumber();
             if (currentRoomNumber !== targetMap.roomNumber) {
               return false;
@@ -276,15 +279,29 @@ const make = Effect.gen(function* () {
     Effect.map(getHp(), (hp) => hp > 0);
 
   const walkTo: PlayerShape["walkTo"] = (x, y, walkSpeed) =>
-    Effect.flatMap(isAlive(), (alive) => {
+    Effect.gen(function* () {
+      const alive = yield* isAlive();
       if (!alive) {
-        return Effect.succeed(false);
+        return false;
       }
 
-      return walkSpeed === undefined
-        ? bridge.call("player.walkTo", [x, y])
-        : bridge.call("player.walkTo", [x, y, walkSpeed]);
-    });
+      const started =
+        walkSpeed === undefined
+          ? yield* bridge.call("player.walkTo", [x, y])
+          : yield* bridge.call("player.walkTo", [x, y, walkSpeed]);
+
+      if (!started) {
+        return false;
+      }
+
+      return yield* waitFor(
+        Effect.gen(function* () {
+          const [currentX, currentY] = yield* getPosition();
+          return currentX === x && currentY === y;
+        }),
+        { timeout: "3 seconds" },
+      );
+    }).pipe(Effect.catch(() => Effect.succeed(false)));
 
   return {
     getCell,
