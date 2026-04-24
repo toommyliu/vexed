@@ -1,6 +1,6 @@
 import { Effect, Fiber } from "effect";
 import { Monster } from "@vexed/game";
-import { createSignal, onCleanup } from "solid-js";
+import { createSignal, onCleanup, onMount } from "solid-js";
 import { runtime } from "./flash/Runtime";
 import { Combat } from "./flash/Services/Combat";
 import { AutoZone } from "./flash/Services/AutoZone";
@@ -29,7 +29,11 @@ export default function App() {
   const [collisionsEnabled, setCollisionsEnabled] = createSignal(true);
   const [effectsEnabled, setEffectsEnabled] = createSignal(true);
   const [playersVisible, setPlayersVisible] = createSignal(true);
-  const [worldVisible, setWorldVisible] = createSignal(true);
+  const [lagKillerEnabled, setLagKillerEnabled] = createSignal(false);
+  const [enemyMagnetEnabled, setEnemyMagnetEnabled] = createSignal(false);
+  const [infiniteRangeEnabled, setInfiniteRangeEnabled] = createSignal(false);
+  const [provokeCellEnabled, setProvokeCellEnabled] = createSignal(false);
+  const [skipCutscenesEnabled, setSkipCutscenesEnabled] = createSignal(false);
   const [testClientPacket, setTestClientPacket] = createSignal("%xt%hello%");
   const [testServerPacket, setTestServerPacket] = createSignal("%xt%zm%cmd%");
   const [clientPacketType, setClientPacketType] = createSignal<
@@ -41,16 +45,14 @@ export default function App() {
   const [demoUsername, setDemoUsername] = createSignal("");
   let activeCombatFiber: Fiber.Fiber<void, unknown> | undefined;
   let packetLogDisposer: PacketListenerDisposer | undefined;
+  let settingsStateDisposer: (() => void) | undefined;
 
   const testBridge = () => {
     void runtime
       .runPromise(
         Effect.gen(function* () {
-          const auth = yield* Auth;
-          yield* Effect.log({
-            username: yield* auth.getUsername(),
-            password: yield* auth.getPassword(),
-          });
+          const quests = yield* Quests;
+          console.log(yield* quests.getTree()); 
         }),
       )
       .catch((error) => {
@@ -315,59 +317,71 @@ export default function App() {
       });
   };
 
-  const handleEnemyMagnet = () => {
+  const handleToggleEnemyMagnet = () => {
+    const nextEnabled = !enemyMagnetEnabled();
+    setEnemyMagnetEnabled(nextEnabled);
+
     void runtime
       .runPromise(
         Effect.gen(function* () {
           const settings = yield* Settings;
-          yield* settings.enemyMagnet();
-          console.log("Enemy magnet activated");
+          yield* settings.setEnemyMagnetEnabled(nextEnabled);
+          console.log("Enemy magnet", nextEnabled ? "enabled" : "disabled");
         }),
       )
       .catch((error) => {
-        console.error("Enemy magnet error:", error);
+        console.error("Toggle enemy magnet error:", error);
       });
   };
 
-  const handleInfiniteRange = () => {
+  const handleToggleInfiniteRange = () => {
+    const nextEnabled = !infiniteRangeEnabled();
+    setInfiniteRangeEnabled(nextEnabled);
+
     void runtime
       .runPromise(
         Effect.gen(function* () {
           const settings = yield* Settings;
-          yield* settings.infiniteRange();
-          console.log("Infinite range activated");
+          yield* settings.setInfiniteRangeEnabled(nextEnabled);
+          console.log("Infinite range", nextEnabled ? "enabled" : "disabled");
         }),
       )
       .catch((error) => {
-        console.error("Infinite range error:", error);
+        console.error("Toggle infinite range error:", error);
       });
   };
 
-  const handleProvokeCell = () => {
+  const handleToggleProvokeCell = () => {
+    const nextEnabled = !provokeCellEnabled();
+    setProvokeCellEnabled(nextEnabled);
+
     void runtime
       .runPromise(
         Effect.gen(function* () {
           const settings = yield* Settings;
-          yield* settings.provokeCell();
-          console.log("Provoke cell activated");
+          yield* settings.setProvokeCellEnabled(nextEnabled);
+          console.log("Provoke cell", nextEnabled ? "enabled" : "disabled");
         }),
       )
       .catch((error) => {
-        console.error("Provoke cell error:", error);
+        console.error("Toggle provoke cell error:", error);
       });
   };
 
-  const handleSkipCutscenes = () => {
+  const handleToggleSkipCutscenes = () => {
+    const nextEnabled = !skipCutscenesEnabled();
+    setSkipCutscenesEnabled(nextEnabled);
+
     void runtime
       .runPromise(
         Effect.gen(function* () {
           const settings = yield* Settings;
-          yield* settings.skipCutscenes();
-          console.log("Skip cutscenes activated");
+          yield* settings.setSkipCutscenesEnabled(nextEnabled);
+          console.log("Skip cutscenes", nextEnabled ? "enabled" : "disabled");
         }),
       )
       .catch((error) => {
-        console.error("Skip cutscenes error:", error);
+        console.error("Toggle skip cutscenes error:", error);
       });
   };
 
@@ -503,19 +517,19 @@ export default function App() {
       });
   };
 
-  const handleToggleWorldVisible = () => {
-    const newVisible = !worldVisible();
-    setWorldVisible(newVisible);
+  const handleToggleLagKiller = () => {
+    const nextEnabled = !lagKillerEnabled();
+    setLagKillerEnabled(nextEnabled);
     void runtime
       .runPromise(
         Effect.gen(function* () {
           const settings = yield* Settings;
-          yield* settings.setWorldVisible(newVisible);
-          console.log("World", newVisible ? "visible" : "hidden");
+          yield* settings.setLagKillerEnabled(nextEnabled);
+          console.log("Lag killer", nextEnabled ? "enabled" : "disabled");
         }),
       )
       .catch((error) => {
-        console.error("Toggle world visible error:", error);
+        console.error("Toggle lag killer error:", error);
       });
   };
 
@@ -588,9 +602,40 @@ export default function App() {
       });
   };
 
+  onMount(() => {
+    void runtime
+      .runPromise(
+        Effect.gen(function* () {
+          const settings = yield* Settings;
+          return yield* settings.onState((state) => {
+            setCustomName(state.customName ?? "");
+            setCustomGuild(state.customGuild ?? "");
+            setWalkSpeed(String(state.walkSpeed));
+            setFrameRate(String(state.frameRate));
+            setDeathAdsEnabled(state.deathAdsEnabled);
+            setCollisionsEnabled(state.collisionsEnabled);
+            setEffectsEnabled(state.effectsEnabled);
+            setPlayersVisible(state.playersVisible);
+            setLagKillerEnabled(state.lagKillerEnabled);
+            setEnemyMagnetEnabled(state.enemyMagnetEnabled);
+            setInfiniteRangeEnabled(state.infiniteRangeEnabled);
+            setProvokeCellEnabled(state.provokeCellEnabled);
+            setSkipCutscenesEnabled(state.skipCutscenesEnabled);
+          });
+        }),
+      )
+      .then((dispose) => {
+        settingsStateDisposer = dispose;
+      })
+      .catch((error) => {
+        console.error("Settings state subscription error:", error);
+      });
+  });
+
   onCleanup(() => {
     stopCombatTask();
     packetLogDisposer?.();
+    settingsStateDisposer?.();
   });
 
   return (
@@ -880,58 +925,50 @@ export default function App() {
               "flex-wrap": "wrap",
             }}
           >
-            <button
-              onClick={handleEnemyMagnet}
-              style={{
-                padding: "5px 10px",
-                cursor: "pointer",
-                background: "#8b5cf6",
-                border: "none",
-                color: "white",
-                "border-radius": "4px",
-              }}
+            <label
+              style={{ display: "flex", "align-items": "center", gap: "5px" }}
             >
+              <input
+                type="checkbox"
+                checked={enemyMagnetEnabled()}
+                onChange={handleToggleEnemyMagnet}
+                style={{ cursor: "pointer" }}
+              />
               Enemy Magnet
-            </button>
-            <button
-              onClick={handleInfiniteRange}
-              style={{
-                padding: "5px 10px",
-                cursor: "pointer",
-                background: "#8b5cf6",
-                border: "none",
-                color: "white",
-                "border-radius": "4px",
-              }}
+            </label>
+            <label
+              style={{ display: "flex", "align-items": "center", gap: "5px" }}
             >
+              <input
+                type="checkbox"
+                checked={infiniteRangeEnabled()}
+                onChange={handleToggleInfiniteRange}
+                style={{ cursor: "pointer" }}
+              />
               Infinite Range
-            </button>
-            <button
-              onClick={handleProvokeCell}
-              style={{
-                padding: "5px 10px",
-                cursor: "pointer",
-                background: "#8b5cf6",
-                border: "none",
-                color: "white",
-                "border-radius": "4px",
-              }}
+            </label>
+            <label
+              style={{ display: "flex", "align-items": "center", gap: "5px" }}
             >
+              <input
+                type="checkbox"
+                checked={provokeCellEnabled()}
+                onChange={handleToggleProvokeCell}
+                style={{ cursor: "pointer" }}
+              />
               Provoke Cell
-            </button>
-            <button
-              onClick={handleSkipCutscenes}
-              style={{
-                padding: "5px 10px",
-                cursor: "pointer",
-                background: "#8b5cf6",
-                border: "none",
-                color: "white",
-                "border-radius": "4px",
-              }}
+            </label>
+            <label
+              style={{ display: "flex", "align-items": "center", gap: "5px" }}
             >
+              <input
+                type="checkbox"
+                checked={skipCutscenesEnabled()}
+                onChange={handleToggleSkipCutscenes}
+                style={{ cursor: "pointer" }}
+              />
               Skip Cutscenes
-            </button>
+            </label>
           </div>
           <div
             style={{
@@ -1117,11 +1154,11 @@ export default function App() {
             >
               <input
                 type="checkbox"
-                checked={worldVisible()}
-                onChange={handleToggleWorldVisible}
+                checked={lagKillerEnabled()}
+                onChange={handleToggleLagKiller}
                 style={{ cursor: "pointer" }}
               />
-              World Visible
+              Lag Killer
             </label>
           </div>
           <div

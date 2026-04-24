@@ -131,7 +131,6 @@ package vexed.generated
       external.externalize("settings.setLagKillerEnabled", Settings.setLagKillerEnabled);
       external.externalize("settings.setPlayersVisible", Settings.setPlayersVisible);
       external.externalize("settings.setWalkSpeed", Settings.setWalkSpeed);
-      external.externalize("settings.setWorldVisible", Settings.setWorldVisible);
       external.externalize("settings.skipCutscenes", Settings.skipCutscenes);
       external.externalize("shops.buyById", Shops.buyById);
       external.externalize("shops.buyByName", Shops.buyByName);

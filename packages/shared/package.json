@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "build": "tsdown --format cjs --dts --outDir dist src/index.ts src/string.ts src/csv.ts",
+    "build": "tsdown --format cjs --dts --outDir dist src/index.ts src/string.ts src/csv.ts src/number.ts",
     "postinstall": "npm run build"
   },
   "devDependencies": {
@@ -16,6 +16,7 @@
     ".": "./dist/index.cjs",
     "./string": "./dist/string.cjs",
     "./csv": "./dist/csv.cjs",
+    "./number": "./dist/number.cjs",
     "./package.json": "./package.json"
   }
 }

@@ -7,6 +7,7 @@ import { CombatLive } from "./Combat";
 import { DropsLive } from "./Drops";
 import { HouseLive } from "./House";
 import { InventoryLive } from "./Inventory";
+import { JobsLive } from "./Jobs";
 import { PacketLive } from "./Packet";
 import { PacketDomainLive } from "./PacketDomain";
 import { PlayerLive } from "./Player";
@@ -43,9 +44,11 @@ const DomainRuntimeLive = Layer.mergeAll(
   QuestsLive,
 ).pipe(Layer.provide(CoreRuntimeLive));
 
-const FeatureRuntimeLive = Layer.mergeAll(CombatLive, AutoZoneLive).pipe(
-  Layer.provide(Layer.mergeAll(CoreRuntimeLive, DomainRuntimeLive)),
-);
+const FeatureRuntimeLive = Layer.mergeAll(
+  CombatLive,
+  AutoZoneLive,
+  JobsLive,
+).pipe(Layer.provide(Layer.mergeAll(CoreRuntimeLive, DomainRuntimeLive)));
 
 export const FlashLive = Layer.mergeAll(
   CoreRuntimeLive,

@@ -88,13 +88,8 @@ package vexed.game {
     }
 
     [BridgeExport]
-    public static function setWorldVisible(visible:Boolean):void {
-      Main.getInstance().getGame().world.visible = visible;
-    }
-
-    [BridgeExport]
     public static function setLagKillerEnabled(enabled:Boolean):void {
-      setWorldVisible(!enabled);
+      Main.getInstance().getGame().world.visible = !enabled;
     }
 
     [BridgeExport]
