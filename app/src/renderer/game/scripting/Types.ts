@@ -5,6 +5,7 @@ import type {
   ScriptNotReadyError,
 } from "./Errors";
 import type { BridgeError, BridgeShape } from "../flash/Services/Bridge";
+import type { AuthShape } from "../flash/Services/Auth";
 import type { BankShape } from "../flash/Services/Bank";
 import type { CombatShape } from "../flash/Services/Combat";
 import type { DropsShape } from "../flash/Services/Drops";
@@ -16,6 +17,7 @@ import type { ShopsShape } from "../flash/Services/Shops";
 import type { TempInventoryShape } from "../flash/Services/TempInventory";
 import type { QuestsShape } from "../flash/Services/Quests";
 import type { WorldShape } from "../flash/Services/World";
+
 
 export interface ScriptInstructionControlFlow {
   readonly falseJumpIndex?: number;
@@ -50,6 +52,7 @@ export const ScriptCommandResult = {
 
 export interface ScriptExecutionContext {
   readonly sourceName: string;
+  readonly auth: AuthShape;
   readonly bank: BankShape;
   readonly bridge: BridgeShape;
   readonly combat: CombatShape;

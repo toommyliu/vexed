@@ -307,6 +307,7 @@ const make = Effect.gen(function* () {
     Effect.gen(function* () {
       const context: ScriptExecutionContext = {
         sourceName: program.sourceName,
+        auth,
         bank,
         bridge,
         combat,
