@@ -283,7 +283,7 @@ export const coreScriptCommands: ReadonlyArray<readonly [string, ScriptCommandHa
     ["enable_lagkiller", makeSimple((context) => context.run(context.settings.setLagKillerEnabled(true)))],
     ["disable_lagkiller", makeSimple((context) => context.run(context.settings.setLagKillerEnabled(false)))],
     ["enable_hideplayers", makeSimple((context) => context.run(context.settings.setPlayersVisible(false)))],
-    ["disable_hideplayers", makeSimple((context) => context.run(context.settings.setPlayersVisible(true)))]
+    ["disable_hideplayers", makeSimple((context) => context.run(context.settings.setPlayersVisible(true)))],
     ["enable_infiniterange", makeSimple((context) => context.run(context.settings.infiniteRange()))],
     ["attack", attackCommand],
     ["use_skill", useSkillCommand],
