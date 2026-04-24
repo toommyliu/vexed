@@ -1,3 +1,5 @@
+export const trim = (value: string): string => value.trim();
+
 export function equalsIgnoreCase(
   a: string | null | undefined,
   b: string | null | undefined,

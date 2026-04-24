@@ -3,6 +3,7 @@ import { Quest, type QuestInfo } from "@vexed/game";
 import { Effect, Layer, SynchronizedRef } from "effect";
 import { waitFor, waitForRef } from "../../utils/waitFor";
 import { asNumber, asRecord } from "../PacketPayload";
+import { positiveInt, uniquePositiveInts } from "@vexed/shared/number";
 import { Bridge } from "../Services/Bridge";
 import { Packet } from "../Services/Packet";
 import { Quests } from "../Services/Quests";
@@ -29,26 +30,11 @@ const toQuestId = (value: unknown): number | undefined => {
     return undefined;
   }
 
-  const questId = Math.trunc(parsed);
-  return questId > 0 ? questId : undefined;
+  return positiveInt(parsed);
 };
 
-const normalizeQuestIds = (questIds: readonly number[]): number[] => {
-  const normalized: number[] = [];
-  const seen = new Set<number>();
-
-  for (const rawQuestId of questIds) {
-    const questId = toQuestId(rawQuestId);
-    if (questId === undefined || seen.has(questId)) {
-      continue;
-    }
-
-    seen.add(questId);
-    normalized.push(questId);
-  }
-
-  return normalized;
-};
+const normalizeQuestIds = (questIds: readonly number[]): number[] =>
+  uniquePositiveInts(questIds);
 
 const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
@@ -146,9 +132,15 @@ const make = Effect.gen(function* () {
     });
 
   const load: QuestsShape["load"] = (questId, silent = false) =>
-    silent
-      ? bridge.call("quests.get", [questId])
-      : bridge.call("quests.load", [questId]);
+    Effect.gen(function* () {
+      if (silent) {
+        yield* bridge.call("quests.get", [questId]);
+      } else {
+        yield* bridge.call("quests.load", [questId]);
+      }
+
+      yield* waitForQuestLoad(questId);
+    });
 
   const loadMany: QuestsShape["loadMany"] = (questIds, silent = false) => {
     const normalizedQuestIds = normalizeQuestIds(questIds);
@@ -166,6 +158,9 @@ const make = Effect.gen(function* () {
   };
 
   const getTree: QuestsShape["getTree"] = () => SynchronizedRef.get(quests);
+
+  const has: QuestsShape["has"] = (questId) =>
+    SynchronizedRef.get(quests).pipe(Effect.map((tree) => tree.has(questId)));
 
   const getAccepted: QuestsShape["getAccepted"] = () =>
     Effect.gen(function* () {
@@ -196,6 +191,7 @@ const make = Effect.gen(function* () {
     load,
     loadMany,
     getTree,
+    has,
     getAccepted,
     isAvailable,
     isInProgress,

@@ -17,6 +17,7 @@ export interface QuestsShape {
   load(questId: number, silent?: boolean): BridgeEffect<void>;
   loadMany(questIds: number[], silent?: boolean): BridgeEffect<void>;
   getTree(): Effect.Effect<Collection<number, Quest>>;
+  has(questId: number): Effect.Effect<boolean>;
   getAccepted(): BridgeEffect<Quest[]>;
   isAvailable(questId: number): BridgeEffect<boolean>;
   isInProgress(questId: number): BridgeEffect<boolean>;
