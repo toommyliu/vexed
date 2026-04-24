@@ -107,6 +107,7 @@ const hasPatchChanges = (patch: SettingsPatch): boolean =>
 
 const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
+  const runFork = Effect.runForkWith(yield* Effect.services());
   const stateRef = yield* SynchronizedRef.make<SettingsState>(DEFAULT_STATE);
   const listenersRef = yield* SynchronizedRef.make<Set<SettingsStateListener>>(
     new Set(),
@@ -242,7 +243,7 @@ const make = Effect.gen(function* () {
       }
 
       return () => {
-        Effect.runFork(
+        runFork(
           SynchronizedRef.update(listenersRef, (listeners) => {
             listeners.delete(listener);
             return listeners;
