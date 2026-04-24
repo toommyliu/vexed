@@ -637,6 +637,22 @@ const matchesEnhancementPattern = (
     : itemPatternId === patternId && itemProcId === 0;
 };
 
+const matchesAppliedEnhancement = (
+  item: Item,
+  patternId: number,
+  procId: number,
+): boolean => {
+  if (item.enhancementPatternId !== patternId) {
+    return false;
+  }
+
+  if (procId <= 0) {
+    return true;
+  }
+
+  return (asNumber(toRecord(item.data)["ProcID"]) ?? 0) === procId;
+};
+
 const findBestEnhancement = (
   context: ScriptExecutionContext,
   item: Item,
@@ -735,8 +751,11 @@ export const enhanceItem = (
             Effect.map(
               (updatedItem) =>
                 updatedItem !== null &&
-                updatedItem.enhancementPatternId ===
+                matchesAppliedEnhancement(
+                  updatedItem,
                   enhancementItem.enhancementPatternId,
+                  strategy.procId,
+                ),
             ),
           ),
         { timeout: "5 seconds" },
