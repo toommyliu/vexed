@@ -6,6 +6,7 @@ import { Jobs } from "../Services/Jobs";
 import { Player } from "../Services/Player";
 import { Quests } from "../Services/Quests";
 import { Settings } from "../Services/Settings";
+import type { SettingsPatch, SettingsState } from "../Services/Settings";
 import type {
   JobRunWhen,
   JobsShape,
@@ -25,6 +26,24 @@ type StartResult = {
   readonly started: boolean;
   readonly previous: Fiber.Fiber<void, unknown> | undefined;
 };
+
+const SETTINGS_ACTION_JOB_KEY = "settings/actions";
+const SETTINGS_ACTION_INTERVAL: Duration.Input = "500 millis";
+const SETTINGS_REAPPLY_JOB_KEY = "settings/apply";
+const SETTINGS_REAPPLY_INTERVAL: Duration.Input = "1 second";
+
+const hasRecurringSettingActions = (state: SettingsState): boolean =>
+  state.enemyMagnetEnabled ||
+  state.infiniteRangeEnabled ||
+  state.provokeCellEnabled ||
+  state.skipCutscenesEnabled;
+
+const getRecurringSettingsPatch = (state: SettingsState): SettingsPatch => ({
+  ...(state.enemyMagnetEnabled ? { enemyMagnetEnabled: true } : {}),
+  ...(state.infiniteRangeEnabled ? { infiniteRangeEnabled: true } : {}),
+  ...(state.provokeCellEnabled ? { provokeCellEnabled: true } : {}),
+  ...(state.skipCutscenesEnabled ? { skipCutscenesEnabled: true } : {}),
+});
 
 const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
@@ -62,8 +81,24 @@ const make = Effect.gen(function* () {
 
   const runFork = Effect.runForkWith(yield* Effect.services());
 
+  const applyCurrentSettings = Effect.gen(function* () {
+    const currentState = yield* settings.getState();
+    yield* settings.apply(currentState);
+  });
+
+  const applyRecurringSettingActions = Effect.gen(function* () {
+    const currentState = yield* settings.getState();
+    if (!hasRecurringSettingActions(currentState)) {
+      return;
+    }
+
+    yield* settings.apply(getRecurringSettingsPatch(currentState));
+  });
+
   const dispose = yield* bridge.onConnection((status) => {
-    if (status === "OnConnectionLost") {
+    if (status === "OnConnection") {
+      runFork(applyCurrentSettings);
+    } else if (status === "OnConnectionLost") {
       runFork(clearUnavailableQuestIds);
     }
   });
@@ -319,17 +354,35 @@ const make = Effect.gen(function* () {
   yield* startQuestProgressJob({ questId: 11, interval: "500 millis" });
 
   const settingsApplyJobDefinition: PeriodicJobDefinition = {
-    key: "settings/apply",
-    interval: "500 millis",
+    key: SETTINGS_REAPPLY_JOB_KEY,
+    interval: SETTINGS_REAPPLY_INTERVAL,
     runOnStart: true,
     runWhen: "loggedIn",
-    task: Effect.gen(function* () {
-      const currentState = yield* settings.getState();
-      yield* settings.apply(currentState);
-    }),
+    task: applyCurrentSettings,
   };
 
   yield* startPeriodicJob(settingsApplyJobDefinition);
+
+  const syncSettingsActionJob = (state: SettingsState) => {
+    if (!hasRecurringSettingActions(state)) {
+      return stop(SETTINGS_ACTION_JOB_KEY).pipe(Effect.asVoid);
+    }
+
+    return startPeriodicJob({
+      key: SETTINGS_ACTION_JOB_KEY,
+      interval: SETTINGS_ACTION_INTERVAL,
+      runOnStart: true,
+      runWhen: "loggedIn",
+      replace: false,
+      task: applyRecurringSettingActions,
+    }).pipe(Effect.asVoid);
+  };
+
+  const disposeSettingsActionJob = yield* settings.onState((state) => {
+    runFork(syncSettingsActionJob(state));
+  });
+
+  yield* Effect.addFinalizer(() => Effect.sync(disposeSettingsActionJob));
 
   return {
     start,
