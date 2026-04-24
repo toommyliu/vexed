@@ -1,6 +1,7 @@
 import { Effect } from "effect";
 import type { CombatKillOptions } from "../../flash/Services/Combat";
-import type { ScriptCommandHandler } from "../Types";
+import { ScriptInvalidArgumentError } from "../Errors";
+import type { ScriptCommandHandler, ScriptExecutionContext } from "../Types";
 import {
   createCommandHandler,
   defineScriptCommandDomain,
@@ -17,6 +18,8 @@ import {
   type ScriptCommandDsl,
   type ScriptInstructionRecorder,
 } from "./commandDsl";
+
+const DEFAULT_BUFF_SKILLS = [1, 2, 3] as const;
 
 type CombatScriptCommandArguments = {
   attack: [target: string];
@@ -39,12 +42,70 @@ type CombatScriptCommandArguments = {
   use_skill: [skill: number | string, wait?: boolean];
   force_use_skill: [skill: number | string, wait?: boolean];
   hunt: [target: string, most?: boolean];
-  buff: [];
+  buff: [skillList?: ReadonlyArray<number> | null, wait?: boolean];
 };
 
 type CombatScriptDsl = ScriptCommandDsl<CombatScriptCommandArguments>;
 const combatCommandDomain =
   defineScriptCommandDomain<CombatScriptCommandArguments>();
+
+const readOptionalInstructionBuffSkillList = (
+  context: ScriptExecutionContext,
+  command: string,
+  args: ReadonlyArray<unknown>,
+  index: number,
+  argName: string,
+) =>
+  Effect.gen(function* () {
+    const value = args[index];
+    if (value === undefined || value === null) {
+      return value;
+    }
+
+    if (!Array.isArray(value)) {
+      return yield* Effect.fail(
+        new ScriptInvalidArgumentError({
+          sourceName: context.sourceName,
+          command,
+          message: `${argName} must be an array of numbers`,
+        }),
+      );
+    }
+
+    const normalizedSkills: number[] = [];
+    for (const [skillIndex] of value.entries()) {
+      const skill = yield* requireInstructionNumber(
+        context,
+        command,
+        value,
+        skillIndex,
+        `${argName}[${skillIndex}]`,
+      );
+      normalizedSkills.push(Math.trunc(skill));
+    }
+
+    return normalizedSkills;
+  });
+
+const readOptionalScriptArgumentBuffSkillList = (
+  command: string,
+  argName: string,
+  value: unknown,
+): ReadonlyArray<number> | null | undefined => {
+  if (value === undefined || value === null) {
+    return value;
+  }
+
+  if (!Array.isArray(value)) {
+    throw new Error(`cmd.${command}: ${argName} must be an array of numbers`);
+  }
+
+  return value.map((skill, index) =>
+    Math.trunc(
+      requireScriptArgumentNumber(command, `${argName}[${index}]`, skill),
+    ),
+  );
+};
 
 const attackCommand = createCommandHandler((context, args) =>
   Effect.gen(function* () {
@@ -60,7 +121,10 @@ const attackCommand = createCommandHandler((context, args) =>
 );
 
 const cancelTargetCommand = createCommandHandler((context) =>
-  context.run(context.combat.cancelTarget()),
+  Effect.gen(function* () {
+    yield* context.run(context.combat.cancelAutoAttack());
+    yield* context.run(context.combat.cancelTarget());
+  }),
 );
 
 const exitCombatCommand = createCommandHandler((context) =>
@@ -192,6 +256,7 @@ const restCommand = createCommandHandler((context, args) =>
       0,
       "full",
     );
+    yield* context.run(context.combat.exit()).pipe(Effect.asVoid);
     yield* context.run(context.player.rest(full ?? false));
   }),
 );
@@ -240,12 +305,33 @@ const huntCommand = createCommandHandler((context, args) =>
   }),
 );
 
-const buffCommand = createCommandHandler((context) =>
-  Effect.forEach([1, 2, 3], (skill) =>
-    context
-      .run(context.combat.useSkill(skill))
-      .pipe(Effect.andThen(Effect.sleep("150 millis"))),
-  ).pipe(Effect.asVoid),
+const buffCommand = createCommandHandler((context, args) =>
+  Effect.gen(function* () {
+    const skillList = yield* readOptionalInstructionBuffSkillList(
+      context,
+      "buff",
+      args,
+      0,
+      "skill_list",
+    );
+    const wait = yield* readOptionalInstructionBoolean(
+      context,
+      "buff",
+      args,
+      1,
+      "wait",
+    );
+    const normalizedSkills =
+      skillList === undefined || skillList === null || skillList.length === 0
+        ? DEFAULT_BUFF_SKILLS
+        : skillList;
+
+    yield* Effect.forEach(normalizedSkills, (skill) =>
+      context
+        .run(context.combat.useSkill(skill, true, wait ?? false))
+        .pipe(Effect.andThen(Effect.sleep("1 second"))),
+    ).pipe(Effect.asVoid);
+  }),
 );
 
 const combatCommandHandlerMap = combatCommandDomain.defineHandlers({
@@ -441,8 +527,18 @@ export const createCombatScriptDsl = (
       );
     },
 
-    buff() {
-      recordCombatInstruction("buff");
+    /**
+     * Casts a short buff rotation.
+     *
+     * @param skillList Optional skill list. Pass `null` or `[]` to use the default `[1, 2, 3]`.
+     * @param wait Whether to wait for each skill cooldown before casting.
+     */
+    buff(skillList?: ReadonlyArray<number> | null, wait: boolean = false) {
+      recordCombatInstruction(
+        "buff",
+        readOptionalScriptArgumentBuffSkillList("buff", "skillList", skillList),
+        readOptionalScriptArgumentBoolean("buff", "wait", wait) ?? false,
+      );
     },
   };
 };
