@@ -4,16 +4,19 @@ import { Auth } from "../../flash/Services/Auth";
 import { Bridge } from "../../flash/Services/Bridge";
 import { Combat } from "../../flash/Services/Combat";
 import { Player } from "../../flash/Services/Player";
+import { Quests } from "../../flash/Services/Quests";
 import { Settings } from "../../flash/Services/Settings";
 import { World } from "../../flash/Services/World";
 import {
   ScriptCompileError,
   ScriptDuplicateLabelError,
+  ScriptInvalidControlFlowError,
   ScriptLabelNotFoundError,
   ScriptNotReadyError,
   ScriptUnknownCommandError,
 } from "../Errors";
-import { coreScriptCommands } from "../Commands/Core";
+import { createScriptDsl, scriptCommandHandlers } from "../Commands";
+import type { ScriptCommandApi } from "../Commands/commandDsl";
 import { ScriptRunner } from "../Services/ScriptRunner";
 import type {
   RunningScriptCommand,
@@ -27,7 +30,10 @@ import {
   type ScriptProgram,
 } from "../Types";
 
-type ScriptDsl = Record<string, (...args: ReadonlyArray<unknown>) => void>;
+type ConditionalBlockFrame = {
+  readonly ifIndex: number;
+  readonly elseIndex?: number;
+};
 
 const scriptNameFromPayload = (payload: ScriptExecutePayload): string => {
   if (payload.name && payload.name.trim() !== "") {
@@ -41,34 +47,131 @@ const scriptNameFromPayload = (payload: ScriptExecutePayload): string => {
   return "inline-script";
 };
 
+const annotateControlFlow = (
+  sourceName: string,
+  instructions: ReadonlyArray<ScriptInstruction>,
+): ReadonlyArray<ScriptInstruction> => {
+  const annotated = [...instructions];
+  const stack: Array<ConditionalBlockFrame> = [];
+
+  const updateInstruction = (
+    index: number,
+    controlFlow: NonNullable<ScriptInstruction["controlFlow"]>,
+  ) => {
+    const instruction = annotated[index];
+    if (!instruction) {
+      return;
+    }
+
+    annotated[index] = {
+      ...instruction,
+      controlFlow: {
+        ...instruction.controlFlow,
+        ...controlFlow,
+      },
+    } satisfies ScriptInstruction;
+  };
+
+  for (const instruction of annotated) {
+    switch (instruction.name) {
+      case "if":
+      case "if_all":
+      case "if_any":
+        stack.push({ ifIndex: instruction.index });
+        break;
+      case "else": {
+        const frame = stack[stack.length - 1];
+        if (!frame) {
+          throw new ScriptInvalidControlFlowError({
+            sourceName,
+            instruction: instruction.name,
+            instructionIndex: instruction.index,
+            message: "cmd.else() must be paired with a previous cmd.if()",
+          });
+        }
+
+        if (frame.elseIndex !== undefined) {
+          throw new ScriptInvalidControlFlowError({
+            sourceName,
+            instruction: instruction.name,
+            instructionIndex: instruction.index,
+            message: "cmd.if() blocks can only contain one cmd.else()",
+          });
+        }
+
+        stack[stack.length - 1] = {
+          ...frame,
+          elseIndex: instruction.index,
+        };
+
+        updateInstruction(frame.ifIndex, {
+          falseJumpIndex: instruction.index + 1,
+        });
+        break;
+      }
+      case "end_if": {
+        const frame = stack.pop();
+        if (!frame) {
+          throw new ScriptInvalidControlFlowError({
+            sourceName,
+            instruction: instruction.name,
+            instructionIndex: instruction.index,
+            message: "cmd.end_if() must be paired with a previous cmd.if()",
+          });
+        }
+
+        const nextIndex = instruction.index + 1;
+        if (frame.elseIndex === undefined) {
+          updateInstruction(frame.ifIndex, {
+            falseJumpIndex: nextIndex,
+          });
+        } else {
+          updateInstruction(frame.elseIndex, {
+            endJumpIndex: nextIndex,
+          });
+        }
+        break;
+      }
+      default:
+        break;
+    }
+  }
+
+  const dangling = stack.pop();
+  if (dangling) {
+    throw new ScriptInvalidControlFlowError({
+      sourceName,
+      instruction: "if",
+      instructionIndex: dangling.ifIndex,
+      message: "cmd.if() must be closed with cmd.end_if()",
+    });
+  }
+
+  return annotated;
+};
+
 const compileProgram = (
   source: string,
   sourceName: string,
-): Effect.Effect<ScriptProgram, ScriptCompileError | ScriptDuplicateLabelError> =>
+): Effect.Effect<ScriptProgram, ScriptCompileError | ScriptDuplicateLabelError | ScriptInvalidControlFlowError> =>
   Effect.try({
     try: () => {
       const instructions: Array<ScriptInstruction> = [];
-      const cmdProxy = new Proxy<ScriptDsl>({} as ScriptDsl, {
-        get: (_, prop) => {
-          if (typeof prop !== "string") {
-            return undefined;
-          }
-
-          return (...args: ReadonlyArray<unknown>) => {
-            instructions.push({
-              name: prop,
-              args: [...args],
-              index: instructions.length,
-            });
-          };
-        },
+      const cmdProxy = createScriptDsl((name, args) => {
+        instructions.push({
+          name,
+          args: [...args],
+          index: instructions.length,
+        });
       });
 
-      const evaluate = new Function("cmd", source) as (cmd: ScriptDsl) => void;
+      const evaluate = new Function("cmd", source) as (cmd: ScriptCommandApi) => void;
       evaluate(cmdProxy);
 
+      const annotatedInstructions = annotateControlFlow(sourceName, instructions);
+
       const labels = new Map<string, number>();
-      for (const instruction of instructions) {
+      for (const instruction of annotatedInstructions) {
         if (instruction.name !== "label") {
           continue;
         }
@@ -87,12 +190,15 @@ const compileProgram = (
 
       return {
         sourceName,
-        instructions,
+        instructions: annotatedInstructions,
         labels,
       } satisfies ScriptProgram;
     },
     catch: (cause) => {
-      if (cause instanceof ScriptDuplicateLabelError) {
+      if (
+        cause instanceof ScriptDuplicateLabelError ||
+        cause instanceof ScriptInvalidControlFlowError
+      ) {
         return cause;
       }
 
@@ -108,6 +214,7 @@ const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
   const combat = yield* Combat;
   const player = yield* Player;
+  const quests = yield* Quests;
   const settings = yield* Settings;
   const world = yield* World;
 
@@ -119,7 +226,7 @@ const make = Effect.gen(function* () {
   const activeFiberRef = yield* Ref.make<Option.Option<Fiber.Fiber<void, unknown>>>(
     Option.none(),
   );
-  const commandsRef = yield* Ref.make(new Map(coreScriptCommands));
+  const commandsRef = yield* Ref.make(new Map(scriptCommandHandlers));
   const currentCommandRef = yield* Ref.make<RunningScriptCommand | null>(null);
 
   const interruptActiveScript = (reason: string) =>
@@ -181,6 +288,7 @@ const make = Effect.gen(function* () {
         bridge,
         combat,
         player,
+        quests,
         settings,
         world,
         run: <A, E>(effect: Effect.Effect<A, E>) =>
@@ -212,11 +320,16 @@ const make = Effect.gen(function* () {
           name: instruction.name,
         });
 
-        const result = yield* handler(context, instruction.args);
+        const result = yield* handler(context, instruction);
 
         if (result._tag === "Stop") {
           yield* Ref.set(currentCommandRef, null);
           return yield* Effect.void;
+        }
+
+        if (result._tag === "JumpToIndex") {
+          instructionPointer = result.index;
+          continue;
         }
 
         if (result._tag === "JumpToLabel") {

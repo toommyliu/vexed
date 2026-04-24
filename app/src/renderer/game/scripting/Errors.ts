@@ -12,6 +12,15 @@ export class ScriptDuplicateLabelError extends Data.TaggedError(
   readonly label: string;
 }> {}
 
+export class ScriptInvalidControlFlowError extends Data.TaggedError(
+  "ScriptInvalidControlFlowError",
+)<{
+  readonly sourceName: string;
+  readonly instruction: string;
+  readonly instructionIndex: number;
+  readonly message: string;
+}> {}
+
 export class ScriptUnknownCommandError extends Data.TaggedError(
   "ScriptUnknownCommandError",
 )<{

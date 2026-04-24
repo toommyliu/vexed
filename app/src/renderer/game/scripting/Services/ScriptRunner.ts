@@ -5,6 +5,7 @@ import type {
   ScriptCompileError,
   ScriptDuplicateLabelError,
   ScriptInvalidArgumentError,
+  ScriptInvalidControlFlowError,
   ScriptLabelNotFoundError,
   ScriptNotReadyError,
   ScriptUnknownCommandError,
@@ -26,6 +27,7 @@ export type ScriptRunnerError =
   | ScriptCompileError
   | ScriptDuplicateLabelError
   | ScriptInvalidArgumentError
+  | ScriptInvalidControlFlowError
   | ScriptLabelNotFoundError
   | ScriptNotReadyError
   | ScriptUnknownCommandError;
