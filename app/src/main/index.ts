@@ -7,14 +7,14 @@ import {
   session,
   type OpenDialogOptions,
 } from "electron";
-import { basename, join } from "path";
+import { basename, join, sep } from "path";
 import process from "process";
 import {
   ScriptingIpcChannels,
   type ScriptExecutePayload,
 } from "../shared/ipc";
 
-const { readFile } = promises;
+const { mkdir, readFile, realpath } = promises;
 
 const flash = require("nw-flash-trust");
 
@@ -70,13 +70,32 @@ const getEventWindow = (senderId?: number): BrowserWindow | null => {
   return first ?? null;
 };
 
+const resolveScriptPath = async (path: string): Promise<string> => {
+  await mkdir(scriptsPath, { recursive: true });
+
+  const [scriptsRoot, scriptPath] = await Promise.all([
+    realpath(scriptsPath),
+    realpath(path),
+  ]);
+
+  if (scriptPath !== scriptsRoot && !scriptPath.startsWith(`${scriptsRoot}${sep}`)) {
+    throw new Error("Script path must be inside the scripts directory");
+  }
+
+  return scriptPath;
+};
+
 const toScriptPayload = async (
   path: string,
-): Promise<ScriptExecutePayload> => ({
-  source: await readFile(path, "utf8"),
-  path,
-  name: basename(path),
-});
+): Promise<ScriptExecutePayload> => {
+  const scriptPath = await resolveScriptPath(path);
+
+  return {
+    source: await readFile(scriptPath, "utf8"),
+    path: scriptPath,
+    name: basename(scriptPath),
+  };
+};
 
 const openScriptDialog = async (
   win: BrowserWindow | null,
@@ -127,7 +146,7 @@ const registerScriptingIpcHandlers = () => {
         throw new Error("Invalid script path");
       }
 
-      return await toScriptPayload(path);
+      return await toScriptPayload(path.trim());
     },
   );
 
