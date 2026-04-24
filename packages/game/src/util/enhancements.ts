@@ -1,17 +1,58 @@
-import { equalsIgnoreCase } from "@vexed/shared/string";
-
 export type EnhancementP = {
-  DIS?: boolean;
-  ID: number;
-  sDesc: string;
-  sName: string;
+  readonly DIS?: boolean;
+  readonly ID: number;
+  readonly sDesc: string;
+  readonly sName: string;
 };
 
-export const ALL_ENHANCEMENTS: EnhancementP[] = [
+type NamedId<TId extends number = number> = {
+  readonly id: TId;
+  readonly name: string;
+  readonly aliases?: readonly string[];
+};
+
+type VariantMap = Readonly<Record<string, readonly string[]>>;
+
+const normalizeName = (name: string): string => name.toLowerCase().trim();
+
+const indexById = <T extends { readonly ID: number }>(
+  entries: readonly T[],
+): ReadonlyMap<number, T> => new Map(entries.map((entry) => [entry.ID, entry]));
+
+const indexByName = <T extends NamedId>(
+  entries: readonly T[],
+): ReadonlyMap<string, T> => {
+  const index = new Map<string, T>();
+
+  for (const entry of entries) {
+    index.set(normalizeName(entry.name), entry);
+
+    for (const alias of entry.aliases ?? []) {
+      index.set(normalizeName(alias), entry);
+    }
+  }
+
+  return index;
+};
+
+const variantsFromEntries = (entries: readonly NamedId[]): VariantMap =>
+  Object.fromEntries(
+    entries.map((entry) => [
+      normalizeName(entry.name),
+      [...(entry.aliases ?? [])],
+    ]),
+  );
+
+const resolveNamedId = <TId extends number>(
+  name: string,
+  index: ReadonlyMap<string, NamedId<TId>>,
+): TId | null => index.get(normalizeName(name))?.id ?? null;
+
+export const ALL_ENHANCEMENTS = [
   { ID: 1, sName: "Adventurer", sDesc: "none" },
   { ID: 2, sName: "Fighter", sDesc: "M1" },
   { ID: 3, sName: "Thief", sDesc: "M2" },
-  { ID: 4, sName: "Armsman", sDesc: "M4" }, // don't know
+  { ID: 4, sName: "Armsman", sDesc: "M4" },
   { ID: 5, sName: "Hybrid", sDesc: "M3" },
   { ID: 6, sName: "Wizard", sDesc: "C1" },
   { ID: 7, sName: "Healer", sDesc: "C2" },
@@ -29,81 +70,171 @@ export const ALL_ENHANCEMENTS: EnhancementP[] = [
   { ID: 29, sName: "Penitence", sDesc: "SmithP2", DIS: true },
   { ID: 30, sName: "Lament", sDesc: "SmithP2", DIS: true },
   { ID: 32, sName: "Hearty", sDesc: "Grimskull Troll Enhancement", DIS: true },
-] as const;
+] as const satisfies readonly EnhancementP[];
 
-export enum EnhancementType {
-  Fighter = 2,
-  Thief = 3,
-  Hybrid = 5,
-  Wizard = 6,
-  Healer = 7,
-  Spellbreaker = 8,
-  Lucky = 9,
-}
+export const EnhancementType = {
+  Fighter: 2,
+  Thief: 3,
+  Hybrid: 5,
+  Wizard: 6,
+  Healer: 7,
+  Spellbreaker: 8,
+  Lucky: 9,
+} as const;
 
-export enum WeaponSpecial {
-  /* awe */
-  SpiralCarve = 2,
-  AweBlast = 3,
-  HealthVamp = 4,
-  ManaVamp = 5,
-  PowerwordDIE = 6,
-  /* forge */
-  Lacerate = 7,
-  Smite = 8,
-  Valiance = 9,
-  ArcanasConcerto = 10,
-  Acheron = 11,
-  Elysium = 12,
-  Praxis = 13,
-  Dauntless = 14,
-  Ravenous = 15,
-}
+export type EnhancementType =
+  (typeof EnhancementType)[keyof typeof EnhancementType];
 
-export enum CapeSpecial {
-  Forge = 10,
-  Absolution = 11,
-  Avarice = 12,
-  Vainglory = 24,
-  Penitence = 29,
-  Lament = 30,
-}
+export const WeaponSpecial = {
+  SpiralCarve: 2,
+  AweBlast: 3,
+  HealthVamp: 4,
+  ManaVamp: 5,
+  PowerwordDIE: 6,
+  Lacerate: 7,
+  Smite: 8,
+  Valiance: 9,
+  ArcanasConcerto: 10,
+  Acheron: 11,
+  Elysium: 12,
+  Praxis: 13,
+  Dauntless: 14,
+  Ravenous: 15,
+} as const;
 
-export enum HelmSpecial {
-  Forge = 10,
-  Vim = 25,
-  Examen = 26,
-  Pneuma = 27,
-  Anima = 28,
-  Hearty = 32,
-}
+export type WeaponSpecial = (typeof WeaponSpecial)[keyof typeof WeaponSpecial];
+
+export const CapeSpecial = {
+  Forge: 10,
+  Absolution: 11,
+  Avarice: 12,
+  Vainglory: 24,
+  Penitence: 29,
+  Lament: 30,
+} as const;
+
+export type CapeSpecial = (typeof CapeSpecial)[keyof typeof CapeSpecial];
+
+export const HelmSpecial = {
+  Forge: 10,
+  Vim: 25,
+  Examen: 26,
+  Pneuma: 27,
+  Anima: 28,
+  Hearty: 32,
+} as const;
+
+export type HelmSpecial = (typeof HelmSpecial)[keyof typeof HelmSpecial];
 
 export const FORGE_WEAPON_SHOP = 2_142;
 export const FORGE_CAPE_SHOP = 2_143;
 export const FORGE_HELM_SHOP = 2_164;
 export const FORGE_ENHANCEMENT_PATTERN = 10;
 
-// 0-50
-const BASIC_SHOPS_LOW: Record<EnhancementType, number> = {
-  [EnhancementType.Fighter]: 141,
-  [EnhancementType.Thief]: 142,
-  [EnhancementType.Hybrid]: 143,
-  [EnhancementType.Wizard]: 144,
-  [EnhancementType.Healer]: 145,
-  [EnhancementType.Spellbreaker]: 146,
-  [EnhancementType.Lucky]: 147,
-};
+const BASIC_ENHANCEMENT_TYPES = [
+  { id: EnhancementType.Fighter, name: "Fighter" },
+  { id: EnhancementType.Thief, name: "Thief" },
+  { id: EnhancementType.Hybrid, name: "Hybrid" },
+  { id: EnhancementType.Wizard, name: "Wizard" },
+  { id: EnhancementType.Healer, name: "Healer" },
+  { id: EnhancementType.Spellbreaker, name: "Spellbreaker" },
+  { id: EnhancementType.Lucky, name: "Lucky" },
+] as const satisfies readonly NamedId<EnhancementType>[];
 
-// 50+
-const BASIC_SHOPS_HIGH: Record<EnhancementType, number> = {
-  [EnhancementType.Fighter]: 768,
-  [EnhancementType.Thief]: 767,
-  [EnhancementType.Hybrid]: 766,
-  [EnhancementType.Wizard]: 765,
-  [EnhancementType.Healer]: 762,
-  [EnhancementType.Spellbreaker]: 764,
-  [EnhancementType.Lucky]: 763,
-};
+const WEAPON_SPECIALS = [
+  {
+    id: WeaponSpecial.SpiralCarve,
+    name: "Spiral Carve",
+    aliases: ["scarve", "spiral"],
+  },
+  {
+    id: WeaponSpecial.AweBlast,
+    name: "Awe Blast",
+    aliases: ["ablast", "aweblast", "blast"],
+  },
+  {
+    id: WeaponSpecial.HealthVamp,
+    name: "Health Vamp",
+    aliases: ["healthvamp", "hvamp", "hp vamp"],
+  },
+  {
+    id: WeaponSpecial.ManaVamp,
+    name: "Mana Vamp",
+    aliases: ["manavamp", "mvamp", "mp vamp"],
+  },
+  {
+    id: WeaponSpecial.PowerwordDIE,
+    name: "Powerword DIE",
+    aliases: ["powerword", "pwd", "pw die"],
+  },
+  { id: WeaponSpecial.Lacerate, name: "Lacerate", aliases: ["lac"] },
+  { id: WeaponSpecial.Smite, name: "Smite" },
+  { id: WeaponSpecial.Valiance, name: "Valiance", aliases: ["val"] },
+  {
+    id: WeaponSpecial.ArcanasConcerto,
+    name: "Arcana's Concerto",
+    aliases: ["arcanas", "arcana concerto"],
+  },
+  { id: WeaponSpecial.Acheron, name: "Acheron", aliases: ["ach"] },
+  { id: WeaponSpecial.Elysium, name: "Elysium", aliases: ["ely"] },
+  { id: WeaponSpecial.Praxis, name: "Praxis", aliases: ["prax"] },
+  { id: WeaponSpecial.Dauntless, name: "Dauntless", aliases: ["dtl"] },
+  { id: WeaponSpecial.Ravenous, name: "Ravenous", aliases: ["rav"] },
+] as const satisfies readonly NamedId<WeaponSpecial>[];
+
+const CAPE_SPECIALS = [
+  { id: CapeSpecial.Forge, name: "Forge" },
+  { id: CapeSpecial.Absolution, name: "Absolution", aliases: ["abso"] },
+  { id: CapeSpecial.Avarice, name: "Avarice", aliases: ["ava"] },
+  { id: CapeSpecial.Vainglory, name: "Vainglory" },
+  { id: CapeSpecial.Penitence, name: "Penitence", aliases: ["peni"] },
+  { id: CapeSpecial.Lament, name: "Lament", aliases: ["lam"] },
+] as const satisfies readonly NamedId<CapeSpecial>[];
+
+const HELM_SPECIALS = [
+  { id: HelmSpecial.Forge, name: "Forge" },
+  { id: HelmSpecial.Vim, name: "Vim" },
+  { id: HelmSpecial.Examen, name: "Examen" },
+  { id: HelmSpecial.Pneuma, name: "Pneuma" },
+  { id: HelmSpecial.Anima, name: "Anima" },
+  { id: HelmSpecial.Hearty, name: "Hearty" },
+] as const satisfies readonly NamedId<HelmSpecial>[];
+
+const ENHANCEMENT_BY_ID = indexById(ALL_ENHANCEMENTS);
+const BASIC_ENHANCEMENT_NAMES = new Set(
+  ALL_ENHANCEMENTS.filter(
+    (enhancement) =>
+      !("DIS" in enhancement) && enhancement.ID <= FORGE_ENHANCEMENT_PATTERN,
+  ).map((enhancement) => normalizeName(enhancement.sName)),
+);
+const ENHANCEMENT_TYPE_BY_NAME = indexByName(BASIC_ENHANCEMENT_TYPES);
+const WEAPON_SPECIAL_BY_NAME = indexByName(WEAPON_SPECIALS);
+const CAPE_SPECIAL_BY_NAME = indexByName(CAPE_SPECIALS);
+const HELM_SPECIAL_BY_NAME = indexByName(HELM_SPECIALS);
+const WEAPON_SPECIAL_BY_ID = new Map(
+  WEAPON_SPECIALS.map((entry) => [entry.id, entry]),
+) as ReadonlyMap<number, NamedId<WeaponSpecial>>;
+
+const BASIC_SHOPS = {
+  low: {
+    [EnhancementType.Fighter]: 141,
+    [EnhancementType.Thief]: 142,
+    [EnhancementType.Hybrid]: 143,
+    [EnhancementType.Wizard]: 144,
+    [EnhancementType.Healer]: 145,
+    [EnhancementType.Spellbreaker]: 146,
+    [EnhancementType.Lucky]: 147,
+  },
+  high: {
+    [EnhancementType.Fighter]: 768,
+    [EnhancementType.Thief]: 767,
+    [EnhancementType.Hybrid]: 766,
+    [EnhancementType.Wizard]: 765,
+    [EnhancementType.Healer]: 762,
+    [EnhancementType.Spellbreaker]: 764,
+    [EnhancementType.Lucky]: 763,
+  },
+} as const satisfies Record<"low" | "high", Record<EnhancementType, number>>;
 
 const AWE_WEAPON_SHOPS: Partial<Record<EnhancementType, number>> = {
   [EnhancementType.Hybrid]: 633,
@@ -112,216 +243,96 @@ const AWE_WEAPON_SHOPS: Partial<Record<EnhancementType, number>> = {
   [EnhancementType.Thief]: 637,
   [EnhancementType.Healer]: 638,
   [EnhancementType.Lucky]: 639,
-};
+} as const satisfies Partial<Record<EnhancementType, number>>;
+
+export const AWE_PROC_VARIANTS = variantsFromEntries(
+  WEAPON_SPECIALS.filter((entry) => isAweProc(entry.id)),
+);
+
+export const FORGE_WEAPON_PROC_VARIANTS = variantsFromEntries(
+  WEAPON_SPECIALS.filter((entry) => isForgeWeaponProc(entry.id)),
+);
+
+export const WEAPON_PROC_VARIANTS = {
+  ...AWE_PROC_VARIANTS,
+  ...FORGE_WEAPON_PROC_VARIANTS,
+} as const satisfies VariantMap;
+
+export const CAPE_PROC_VARIANTS = variantsFromEntries(CAPE_SPECIALS);
+export const HELM_PROC_VARIANTS = variantsFromEntries(HELM_SPECIALS);
 
 export function getBasicEnhancementShopId(
   type: EnhancementType,
   playerLevel: number,
 ): number {
-  return playerLevel >= 50 ? BASIC_SHOPS_HIGH[type] : BASIC_SHOPS_LOW[type];
+  return BASIC_SHOPS[playerLevel >= 50 ? "high" : "low"][type];
 }
 
 export function getAweWeaponShopId(type: EnhancementType): number | undefined {
   return AWE_WEAPON_SHOPS[type];
 }
 
-const ENHANCEMENT_TYPE_MAP: Record<string, EnhancementType> = {
-  fighter: EnhancementType.Fighter,
-  thief: EnhancementType.Thief,
-  hybrid: EnhancementType.Hybrid,
-  wizard: EnhancementType.Wizard,
-  healer: EnhancementType.Healer,
-  spellbreaker: EnhancementType.Spellbreaker,
-  lucky: EnhancementType.Lucky,
-};
-
-const WEAPON_SPECIAL_MAP: Record<string, WeaponSpecial> = {
-  "spiral carve": WeaponSpecial.SpiralCarve,
-  "awe blast": WeaponSpecial.AweBlast,
-  "health vamp": WeaponSpecial.HealthVamp,
-  "mana vamp": WeaponSpecial.ManaVamp,
-  "powerword die": WeaponSpecial.PowerwordDIE,
-  lacerate: WeaponSpecial.Lacerate,
-  smite: WeaponSpecial.Smite,
-  valiance: WeaponSpecial.Valiance,
-  "arcana's concerto": WeaponSpecial.ArcanasConcerto,
-  acheron: WeaponSpecial.Acheron,
-  elysium: WeaponSpecial.Elysium,
-  praxis: WeaponSpecial.Praxis,
-  dauntless: WeaponSpecial.Dauntless,
-  ravenous: WeaponSpecial.Ravenous,
-};
-
-const CAPE_SPECIAL_MAP: Record<string, CapeSpecial> = {
-  forge: CapeSpecial.Forge,
-  absolution: CapeSpecial.Absolution,
-  avarice: CapeSpecial.Avarice,
-  vainglory: CapeSpecial.Vainglory,
-  penitence: CapeSpecial.Penitence,
-  lament: CapeSpecial.Lament,
-};
-
-const HELM_SPECIAL_MAP: Record<string, HelmSpecial> = {
-  forge: HelmSpecial.Forge,
-  vim: HelmSpecial.Vim,
-  examen: HelmSpecial.Examen,
-  pneuma: HelmSpecial.Pneuma,
-  anima: HelmSpecial.Anima,
-  hearty: HelmSpecial.Hearty,
-};
-
-const WEAPON_SPECIAL_NAMES: Record<WeaponSpecial, string> = {
-  [WeaponSpecial.SpiralCarve]: "Spiral Carve",
-  [WeaponSpecial.AweBlast]: "Awe Blast",
-  [WeaponSpecial.HealthVamp]: "Health Vamp",
-  [WeaponSpecial.ManaVamp]: "Mana Vamp",
-  [WeaponSpecial.PowerwordDIE]: "Powerword DIE",
-  [WeaponSpecial.Lacerate]: "Lacerate",
-  [WeaponSpecial.Smite]: "Smite",
-  [WeaponSpecial.Valiance]: "Valiance",
-  [WeaponSpecial.ArcanasConcerto]: "Arcana's Concerto",
-  [WeaponSpecial.Acheron]: "Acheron",
-  [WeaponSpecial.Elysium]: "Elysium",
-  [WeaponSpecial.Praxis]: "Praxis",
-  [WeaponSpecial.Dauntless]: "Dauntless",
-  [WeaponSpecial.Ravenous]: "Ravenous",
-};
-
-export const AWE_PROC_VARIANTS: Record<string, string[]> = {
-  "spiral carve": ["scarve", "spiral"],
-  "health vamp": ["healthvamp", "hvamp", "hp vamp"],
-  "mana vamp": ["manavamp", "mvamp", "mp vamp"],
-  "powerword die": ["powerword", "pwd", "pw die"],
-  "awe blast": ["ablast", "aweblast", "blast"],
-};
-
-export const FORGE_WEAPON_PROC_VARIANTS: Record<string, string[]> = {
-  lacerate: ["lac"],
-  smite: [],
-  valiance: ["val"],
-  "arcana's concerto": ["arcanas", "arcana concerto"],
-  acheron: ["ach"],
-  elysium: ["ely"],
-  praxis: ["prax"],
-  dauntless: ["dtl"],
-  ravenous: ["rav"],
-};
-
-export const WEAPON_PROC_VARIANTS: Record<string, string[]> = {
-  ...AWE_PROC_VARIANTS,
-  ...FORGE_WEAPON_PROC_VARIANTS,
-};
-
-export const CAPE_PROC_VARIANTS: Record<string, string[]> = {
-  absolution: ["abso"],
-  avarice: ["ava"],
-  lament: ["lam"],
-  penitence: ["peni"],
-  vainglory: [],
-  forge: [],
-};
-
-export const HELM_PROC_VARIANTS: Record<string, string[]> = {
-  vim: [],
-  examen: [],
-  pneuma: [],
-  anima: [],
-  hearty: [],
-  forge: [],
-};
-
-/**
- * Generic resolver: tries direct match, then checks variants
- */
-function resolveWithVariants<T>(
-  name: string,
-  map: Record<string, T>,
-  variants: Record<string, string[]>,
-): T | null {
-  const normalized = name.toLowerCase().trim();
-  if (!normalized) return null;
-
-  // Direct match
-  if (map[normalized] !== undefined) return map[normalized]!;
-
-  // Check variants
-  for (const [key, alts] of Object.entries(variants)) {
-    if (alts.includes(normalized)) {
-      return map[key] ?? null;
-    }
-  }
-
-  return null;
-}
-
 export function resolveEnhancementType(name: string): EnhancementType | null {
-  const normalized = name.toLowerCase().trim();
-  return ENHANCEMENT_TYPE_MAP[normalized] ?? null;
+  return resolveNamedId(name, ENHANCEMENT_TYPE_BY_NAME);
 }
 
 export function resolveWeaponSpecial(name: string): WeaponSpecial | null {
-  return resolveWithVariants(name, WEAPON_SPECIAL_MAP, WEAPON_PROC_VARIANTS);
+  return resolveNamedId(name, WEAPON_SPECIAL_BY_NAME);
 }
 
 export function resolveCapeSpecial(name: string): CapeSpecial | null {
-  return resolveWithVariants(name, CAPE_SPECIAL_MAP, CAPE_PROC_VARIANTS);
+  return resolveNamedId(name, CAPE_SPECIAL_BY_NAME);
 }
 
 export function resolveHelmSpecial(name: string): HelmSpecial | null {
-  return resolveWithVariants(name, HELM_SPECIAL_MAP, HELM_PROC_VARIANTS);
+  return resolveNamedId(name, HELM_SPECIAL_BY_NAME);
 }
 
 export function getWeaponProcName(procId: number): string {
-  return WEAPON_SPECIAL_NAMES[procId as WeaponSpecial] ?? "Unknown";
+  return WEAPON_SPECIAL_BY_ID.get(procId)?.name ?? "Unknown";
 }
 
 export function getCapeProcName(procId: number): string {
-  return ALL_ENHANCEMENTS.find((enh) => enh.ID === procId)?.sName ?? "";
+  return getEnhancementName(procId);
 }
 
 export function getHelmProcName(procId: number): string {
-  return ALL_ENHANCEMENTS.find((enh) => enh.ID === procId)?.sName ?? "";
+  return getEnhancementName(procId);
 }
 
 export function getEnhancementName(enhPatternId: number): string {
-  return ALL_ENHANCEMENTS.find((enh) => enh.ID === enhPatternId)?.sName ?? "";
+  return ENHANCEMENT_BY_ID.get(enhPatternId)?.sName ?? "";
 }
 
 export function isBasicEnhancement(enhancementName: string): boolean {
-  const basicEnhancements = ALL_ENHANCEMENTS.filter(
-    (enh) => !enh.DIS && enh.ID <= 10,
-  );
-  return basicEnhancements.some((enh) =>
-    equalsIgnoreCase(enh.sName, enhancementName),
-  );
+  return BASIC_ENHANCEMENT_NAMES.has(normalizeName(enhancementName));
 }
 
 export function findEnhancementByName(
   enhancementName: string,
 ): EnhancementP | undefined {
-  return ALL_ENHANCEMENTS.find((enh) =>
-    equalsIgnoreCase(enh.sName, enhancementName),
+  const normalized = normalizeName(enhancementName);
+  return ALL_ENHANCEMENTS.find(
+    (enhancement) => normalizeName(enhancement.sName) === normalized,
   );
 }
 
 export function areNamesEqual(
   actualName: string,
   inputName: string,
-  variants: Record<string, string[]>,
+  variants: VariantMap,
 ): boolean {
-  if (!actualName || !inputName) return false;
+  const normalizedActual = normalizeName(actualName);
+  const normalizedInput = normalizeName(inputName);
 
-  if (equalsIgnoreCase(actualName, inputName)) return true;
+  if (!normalizedActual || !normalizedInput) return false;
+  if (normalizedActual === normalizedInput) return true;
 
-  const normalizedActual = actualName.toLowerCase().trim();
-  const normalizedInput = inputName.toLowerCase().trim();
-  const matchedKey = Object.keys(variants).find(
-    (key) => key === normalizedActual,
+  return (
+    variants[normalizedActual]?.some(
+      (alias) => normalizeName(alias) === normalizedInput,
+    ) ?? false
   );
-
-  return matchedKey
-    ? (variants[matchedKey]?.includes(normalizedInput) ?? false)
-    : false;
 }
 
 export function isWeaponProcName(name: string): boolean {

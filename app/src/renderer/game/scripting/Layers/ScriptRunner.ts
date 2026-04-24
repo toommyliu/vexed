@@ -1,11 +1,17 @@
 import { Effect, Fiber, Layer, Option, Ref } from "effect";
 import { type ScriptExecutePayload } from "../ipc";
 import { Auth } from "../../flash/Services/Auth";
+import { Bank } from "../../flash/Services/Bank";
 import { Bridge } from "../../flash/Services/Bridge";
 import { Combat } from "../../flash/Services/Combat";
+import { Drops } from "../../flash/Services/Drops";
+import { Inventory } from "../../flash/Services/Inventory";
+import { Packet } from "../../flash/Services/Packet";
 import { Player } from "../../flash/Services/Player";
 import { Quests } from "../../flash/Services/Quests";
 import { Settings } from "../../flash/Services/Settings";
+import { Shops } from "../../flash/Services/Shops";
+import { TempInventory } from "../../flash/Services/TempInventory";
 import { World } from "../../flash/Services/World";
 import {
   ScriptCompileError,
@@ -153,7 +159,10 @@ const annotateControlFlow = (
 const compileProgram = (
   source: string,
   sourceName: string,
-): Effect.Effect<ScriptProgram, ScriptCompileError | ScriptDuplicateLabelError | ScriptInvalidControlFlowError> =>
+): Effect.Effect<
+  ScriptProgram,
+  ScriptCompileError | ScriptDuplicateLabelError | ScriptInvalidControlFlowError
+> =>
   Effect.try({
     try: () => {
       const instructions: Array<ScriptInstruction> = [];
@@ -165,10 +174,15 @@ const compileProgram = (
         });
       });
 
-      const evaluate = new Function("cmd", source) as (cmd: ScriptCommandApi) => void;
+      const evaluate = new Function("cmd", source) as (
+        cmd: ScriptCommandApi,
+      ) => void;
       evaluate(cmdProxy);
 
-      const annotatedInstructions = annotateControlFlow(sourceName, instructions);
+      const annotatedInstructions = annotateControlFlow(
+        sourceName,
+        instructions,
+      );
 
       const labels = new Map<string, number>();
       for (const instruction of annotatedInstructions) {
@@ -211,11 +225,17 @@ const compileProgram = (
 
 const make = Effect.gen(function* () {
   const auth = yield* Auth;
+  const bank = yield* Bank;
   const bridge = yield* Bridge;
   const combat = yield* Combat;
+  const drops = yield* Drops;
+  const inventory = yield* Inventory;
+  const packet = yield* Packet;
   const player = yield* Player;
   const quests = yield* Quests;
   const settings = yield* Settings;
+  const shops = yield* Shops;
+  const tempInventory = yield* TempInventory;
   const world = yield* World;
 
   const services = yield* Effect.services();
@@ -223,9 +243,9 @@ const make = Effect.gen(function* () {
   const runPromise = Effect.runPromiseWith(services);
 
   const readyRef = yield* Ref.make(false);
-  const activeFiberRef = yield* Ref.make<Option.Option<Fiber.Fiber<void, unknown>>>(
-    Option.none(),
-  );
+  const activeFiberRef = yield* Ref.make<
+    Option.Option<Fiber.Fiber<void, unknown>>
+  >(Option.none());
   const commandsRef = yield* Ref.make(new Map(scriptCommandHandlers));
   const currentCommandRef = yield* Ref.make<RunningScriptCommand | null>(null);
 
@@ -271,7 +291,9 @@ const make = Effect.gen(function* () {
       if (!connected || !loggedIn) {
         return yield* new ScriptNotReadyError({
           sourceName,
-          reason: !connected ? "player is disconnected" : "player is not logged in",
+          reason: !connected
+            ? "player is disconnected"
+            : "player is not logged in",
         });
       }
 
@@ -285,11 +307,17 @@ const make = Effect.gen(function* () {
     Effect.gen(function* () {
       const context: ScriptExecutionContext = {
         sourceName: program.sourceName,
+        bank,
         bridge,
         combat,
+        drops,
+        inventory,
+        packet,
         player,
         quests,
         settings,
+        shops,
+        tempInventory,
         world,
         run: <A, E>(effect: Effect.Effect<A, E>) =>
           ensureReady(program.sourceName).pipe(Effect.andThen(effect)),
@@ -504,7 +532,9 @@ const make = Effect.gen(function* () {
       );
 
       yield* Ref.set(activeFiberRef, Option.some(fiber));
-      yield* Effect.logInfo(`[scripting] started script: ${program.sourceName}`);
+      yield* Effect.logInfo(
+        `[scripting] started script: ${program.sourceName}`,
+      );
     });
 
   const isRunning: ScriptRunnerShape["isRunning"] = () =>
