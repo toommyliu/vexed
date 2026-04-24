@@ -1,3 +1,0 @@
-# packages/better-result
-
-https://github.com/dmmulroy/better-result/ but with CJS outputs...

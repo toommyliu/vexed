@@ -2,6 +2,7 @@
   "name": "@vexed/tipc",
   "version": "0.4.0",
   "scripts": {
+    "typecheck": "tsc --noEmit",
     "build": "tsup src/main.ts src/renderer.ts --format cjs,esm --outDir dist",
     "postinstall": "pnpm run build"
   },
@@ -42,7 +43,7 @@
     "electron": "workspace:*",
     "npm-run-all": "^4.1.5",
     "tsup": "^8.0.2",
-    "typescript": "^5.4.5"
+    "typescript": "^5.9.3"
   },
   "peerDependencies": {
     "@lukeed/uuid": "^2.0.1",

@@ -18,7 +18,7 @@ export declare const createEventHandlers: <T extends RendererHandlers>({
 }: {
   on: (
     channel: string,
-    handler: (event: IpcRendererEvent, ...args: any[]) => void
+    handler: (event: IpcRendererEvent, ...args: any[]) => void,
   ) => () => void;
   send: IpcRenderer["send"];
 }) => RendererHandlersListener<T>;

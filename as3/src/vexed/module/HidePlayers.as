@@ -16,12 +16,8 @@ package vexed.module {
 						player.petMC.visible = !enabled;
 					}
 
-					// Ground item
-					// if (Boolean(player.getItemByEquipSlot('mi')))
-					if (true) {
-						player.pMC.cShadow.visible = !enabled;
-						player.pMC.shadow.alpha = enabled ? 0 : 1;
-					}
+					player.pMC.cShadow.visible = !enabled;
+					player.pMC.shadow.alpha = enabled ? 0 : 1;
 				}
 			}
 		}

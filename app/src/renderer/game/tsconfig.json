@@ -1,8 +1,7 @@
 {
   "extends": "../../../tsconfig.json",
   "compilerOptions": {
-    "lib": ["esnext", "dom"],
-    "types": []
+    "lib": ["esnext", "dom"]
   },
-  "include": ["bridge.d.ts"]
+  "include": ["bridge.d.ts", "global.d.ts", "**/*.ts", "**/*.tsx"],
 }

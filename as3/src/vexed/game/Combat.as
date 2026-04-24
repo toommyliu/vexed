@@ -17,6 +17,7 @@ package vexed.game {
     }
 
     [BridgeExport]
+    [BridgeTsReturnType("FlashTypes.TargetInfo | null")]
     public static function getTarget():Object {
       var target:Object = game.world.myAvatar.target;
       if (target != null) {

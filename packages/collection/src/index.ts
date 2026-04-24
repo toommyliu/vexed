@@ -22,7 +22,7 @@
  */
 export type ReadonlyCollection<Key, Value> = Omit<
   Collection<Key, Value>,
-  keyof Map<Key, Value> | 'ensure' | 'reverse' | 'sort' | 'sweep'
+  keyof Map<Key, Value> | "ensure" | "reverse" | "sort" | "sweep"
 > &
   ReadonlyMap<Key, Value>;
 
@@ -55,10 +55,10 @@ export class Collection<Key, Value> extends Map<Key, Value> {
    */
   public ensure(
     key: Key,
-    defaultValueGenerator: (key: Key, collection: this) => Value
+    defaultValueGenerator: (key: Key, collection: this) => Value,
   ): Value {
     if (this.has(key)) return this.get(key)!;
-    if (typeof defaultValueGenerator !== 'function')
+    if (typeof defaultValueGenerator !== "function")
       throw new TypeError(`${defaultValueGenerator} is not a function`);
     const defaultValue = defaultValueGenerator(key, this);
     this.set(key, defaultValue);
@@ -293,29 +293,29 @@ export class Collection<Key, Value> extends Map<Key, Value> {
    * ```
    */
   public find<NewValue extends Value>(
-    fn: (value: Value, key: Key, collection: this) => value is NewValue
+    fn: (value: Value, key: Key, collection: this) => value is NewValue,
   ): NewValue | undefined;
   public find(
-    fn: (value: Value, key: Key, collection: this) => unknown
+    fn: (value: Value, key: Key, collection: this) => unknown,
   ): Value | undefined;
   public find<This, NewValue extends Value>(
     fn: (
       this: This,
       value: Value,
       key: Key,
-      collection: this
+      collection: this,
     ) => value is NewValue,
-    thisArg: This
+    thisArg: This,
   ): NewValue | undefined;
   public find<This>(
     fn: (this: This, value: Value, key: Key, collection: this) => unknown,
-    thisArg: This
+    thisArg: This,
   ): Value | undefined;
   public find(
     fn: (value: Value, key: Key, collection: this) => unknown,
-    thisArg?: unknown
+    thisArg?: unknown,
   ): Value | undefined {
-    if (typeof fn !== 'function')
+    if (typeof fn !== "function")
       throw new TypeError(`${fn} is not a function`);
     if (thisArg !== undefined) fn = fn.bind(thisArg);
     for (const [key, val] of this) {
@@ -338,24 +338,24 @@ export class Collection<Key, Value> extends Map<Key, Value> {
    * ```
    */
   public findKey<NewKey extends Key>(
-    fn: (value: Value, key: Key, collection: this) => key is NewKey
+    fn: (value: Value, key: Key, collection: this) => key is NewKey,
   ): NewKey | undefined;
   public findKey(
-    fn: (value: Value, key: Key, collection: this) => unknown
+    fn: (value: Value, key: Key, collection: this) => unknown,
   ): Key | undefined;
   public findKey<This, NewKey extends Key>(
     fn: (this: This, value: Value, key: Key, collection: this) => key is NewKey,
-    thisArg: This
+    thisArg: This,
   ): NewKey | undefined;
   public findKey<This>(
     fn: (this: This, value: Value, key: Key, collection: this) => unknown,
-    thisArg: This
+    thisArg: This,
   ): Key | undefined;
   public findKey(
     fn: (value: Value, key: Key, collection: this) => unknown,
-    thisArg?: unknown
+    thisArg?: unknown,
   ): Key | undefined {
-    if (typeof fn !== 'function')
+    if (typeof fn !== "function")
       throw new TypeError(`${fn} is not a function`);
     if (thisArg !== undefined) fn = fn.bind(thisArg);
     for (const [key, val] of this) {
@@ -373,29 +373,29 @@ export class Collection<Key, Value> extends Map<Key, Value> {
    * @param thisArg - Value to use as `this` when executing the function
    */
   public findLast<NewValue extends Value>(
-    fn: (value: Value, key: Key, collection: this) => value is NewValue
+    fn: (value: Value, key: Key, collection: this) => value is NewValue,
   ): NewValue | undefined;
   public findLast(
-    fn: (value: Value, key: Key, collection: this) => unknown
+    fn: (value: Value, key: Key, collection: this) => unknown,
   ): Value | undefined;
   public findLast<This, NewValue extends Value>(
     fn: (
       this: This,
       value: Value,
       key: Key,
-      collection: this
+      collection: this,
     ) => value is NewValue,
-    thisArg: This
+    thisArg: This,
   ): NewValue | undefined;
   public findLast<This>(
     fn: (this: This, value: Value, key: Key, collection: this) => unknown,
-    thisArg: This
+    thisArg: This,
   ): Value | undefined;
   public findLast(
     fn: (value: Value, key: Key, collection: this) => unknown,
-    thisArg?: unknown
+    thisArg?: unknown,
   ): Value | undefined {
-    if (typeof fn !== 'function')
+    if (typeof fn !== "function")
       throw new TypeError(`${fn} is not a function`);
     if (thisArg !== undefined) fn = fn.bind(thisArg);
     const entries = [...this.entries()];
@@ -417,24 +417,24 @@ export class Collection<Key, Value> extends Map<Key, Value> {
    * @param thisArg - Value to use as `this` when executing the function
    */
   public findLastKey<NewKey extends Key>(
-    fn: (value: Value, key: Key, collection: this) => key is NewKey
+    fn: (value: Value, key: Key, collection: this) => key is NewKey,
   ): NewKey | undefined;
   public findLastKey(
-    fn: (value: Value, key: Key, collection: this) => unknown
+    fn: (value: Value, key: Key, collection: this) => unknown,
   ): Key | undefined;
   public findLastKey<This, NewKey extends Key>(
     fn: (this: This, value: Value, key: Key, collection: this) => key is NewKey,
-    thisArg: This
+    thisArg: This,
   ): NewKey | undefined;
   public findLastKey<This>(
     fn: (this: This, value: Value, key: Key, collection: this) => unknown,
-    thisArg: This
+    thisArg: This,
   ): Key | undefined;
   public findLastKey(
     fn: (value: Value, key: Key, collection: this) => unknown,
-    thisArg?: unknown
+    thisArg?: unknown,
   ): Key | undefined {
-    if (typeof fn !== 'function')
+    if (typeof fn !== "function")
       throw new TypeError(`${fn} is not a function`);
     if (thisArg !== undefined) fn = fn.bind(thisArg);
     const entries = [...this.entries()];
@@ -455,17 +455,17 @@ export class Collection<Key, Value> extends Map<Key, Value> {
    * @returns The number of removed entries
    */
   public sweep(
-    fn: (value: Value, key: Key, collection: this) => unknown
+    fn: (value: Value, key: Key, collection: this) => unknown,
   ): number;
   public sweep<This>(
     fn: (this: This, value: Value, key: Key, collection: this) => unknown,
-    thisArg: This
+    thisArg: This,
   ): number;
   public sweep(
     fn: (value: Value, key: Key, collection: this) => unknown,
-    thisArg?: unknown
+    thisArg?: unknown,
   ): number {
-    if (typeof fn !== 'function')
+    if (typeof fn !== "function")
       throw new TypeError(`${fn} is not a function`);
     if (thisArg !== undefined) fn = fn.bind(thisArg);
     const previousSize = this.size;
@@ -489,36 +489,36 @@ export class Collection<Key, Value> extends Map<Key, Value> {
    * ```
    */
   public filter<NewKey extends Key>(
-    fn: (value: Value, key: Key, collection: this) => key is NewKey
+    fn: (value: Value, key: Key, collection: this) => key is NewKey,
   ): Collection<NewKey, Value>;
   public filter<NewValue extends Value>(
-    fn: (value: Value, key: Key, collection: this) => value is NewValue
+    fn: (value: Value, key: Key, collection: this) => value is NewValue,
   ): Collection<Key, NewValue>;
   public filter(
-    fn: (value: Value, key: Key, collection: this) => unknown
+    fn: (value: Value, key: Key, collection: this) => unknown,
   ): Collection<Key, Value>;
   public filter<This, NewKey extends Key>(
     fn: (this: This, value: Value, key: Key, collection: this) => key is NewKey,
-    thisArg: This
+    thisArg: This,
   ): Collection<NewKey, Value>;
   public filter<This, NewValue extends Value>(
     fn: (
       this: This,
       value: Value,
       key: Key,
-      collection: this
+      collection: this,
     ) => value is NewValue,
-    thisArg: This
+    thisArg: This,
   ): Collection<Key, NewValue>;
   public filter<This>(
     fn: (this: This, value: Value, key: Key, collection: this) => unknown,
-    thisArg: This
+    thisArg: This,
   ): Collection<Key, Value>;
   public filter(
     fn: (value: Value, key: Key, collection: this) => unknown,
-    thisArg?: unknown
+    thisArg?: unknown,
   ): Collection<Key, Value> {
-    if (typeof fn !== 'function')
+    if (typeof fn !== "function")
       throw new TypeError(`${fn} is not a function`);
     if (thisArg !== undefined) fn = fn.bind(thisArg);
     const results = new this.constructor[Symbol.species]<Key, Value>();
@@ -541,36 +541,36 @@ export class Collection<Key, Value> extends Map<Key, Value> {
    * ```
    */
   public partition<NewKey extends Key>(
-    fn: (value: Value, key: Key, collection: this) => key is NewKey
+    fn: (value: Value, key: Key, collection: this) => key is NewKey,
   ): [Collection<NewKey, Value>, Collection<Exclude<Key, NewKey>, Value>];
   public partition<NewValue extends Value>(
-    fn: (value: Value, key: Key, collection: this) => value is NewValue
+    fn: (value: Value, key: Key, collection: this) => value is NewValue,
   ): [Collection<Key, NewValue>, Collection<Key, Exclude<Value, NewValue>>];
   public partition(
-    fn: (value: Value, key: Key, collection: this) => unknown
+    fn: (value: Value, key: Key, collection: this) => unknown,
   ): [Collection<Key, Value>, Collection<Key, Value>];
   public partition<This, NewKey extends Key>(
     fn: (this: This, value: Value, key: Key, collection: this) => key is NewKey,
-    thisArg: This
+    thisArg: This,
   ): [Collection<NewKey, Value>, Collection<Exclude<Key, NewKey>, Value>];
   public partition<This, NewValue extends Value>(
     fn: (
       this: This,
       value: Value,
       key: Key,
-      collection: this
+      collection: this,
     ) => value is NewValue,
-    thisArg: This
+    thisArg: This,
   ): [Collection<Key, NewValue>, Collection<Key, Exclude<Value, NewValue>>];
   public partition<This>(
     fn: (this: This, value: Value, key: Key, collection: this) => unknown,
-    thisArg: This
+    thisArg: This,
   ): [Collection<Key, Value>, Collection<Key, Value>];
   public partition(
     fn: (value: Value, key: Key, collection: this) => unknown,
-    thisArg?: unknown
+    thisArg?: unknown,
   ): [Collection<Key, Value>, Collection<Key, Value>] {
-    if (typeof fn !== 'function')
+    if (typeof fn !== "function")
       throw new TypeError(`${fn} is not a function`);
     if (thisArg !== undefined) fn = fn.bind(thisArg);
     const results: [Collection<Key, Value>, Collection<Key, Value>] = [
@@ -600,25 +600,25 @@ export class Collection<Key, Value> extends Map<Key, Value> {
    * ```
    */
   public flatMap<NewValue>(
-    fn: (value: Value, key: Key, collection: this) => Collection<Key, NewValue>
+    fn: (value: Value, key: Key, collection: this) => Collection<Key, NewValue>,
   ): Collection<Key, NewValue>;
   public flatMap<NewValue, This>(
     fn: (
       this: This,
       value: Value,
       key: Key,
-      collection: this
+      collection: this,
     ) => Collection<Key, NewValue>,
-    thisArg: This
+    thisArg: This,
   ): Collection<Key, NewValue>;
   public flatMap<NewValue>(
     fn: (value: Value, key: Key, collection: this) => Collection<Key, NewValue>,
-    thisArg?: unknown
+    thisArg?: unknown,
   ): Collection<Key, NewValue> {
     // eslint-disable-next-line unicorn/no-array-method-this-argument
     const collections = this.map(fn, thisArg);
     return new this.constructor[Symbol.species]<Key, NewValue>().concat(
-      ...collections
+      ...collections,
     );
   }
 
@@ -634,17 +634,17 @@ export class Collection<Key, Value> extends Map<Key, Value> {
    * ```
    */
   public map<NewValue>(
-    fn: (value: Value, key: Key, collection: this) => NewValue
+    fn: (value: Value, key: Key, collection: this) => NewValue,
   ): NewValue[];
   public map<This, NewValue>(
     fn: (this: This, value: Value, key: Key, collection: this) => NewValue,
-    thisArg: This
+    thisArg: This,
   ): NewValue[];
   public map<NewValue>(
     fn: (value: Value, key: Key, collection: this) => NewValue,
-    thisArg?: unknown
+    thisArg?: unknown,
   ): NewValue[] {
-    if (typeof fn !== 'function')
+    if (typeof fn !== "function")
       throw new TypeError(`${fn} is not a function`);
     if (thisArg !== undefined) fn = fn.bind(thisArg);
     const iter = this.entries();
@@ -670,17 +670,17 @@ export class Collection<Key, Value> extends Map<Key, Value> {
    * ```
    */
   public mapValues<NewValue>(
-    fn: (value: Value, key: Key, collection: this) => NewValue
+    fn: (value: Value, key: Key, collection: this) => NewValue,
   ): Collection<Key, NewValue>;
   public mapValues<This, NewValue>(
     fn: (this: This, value: Value, key: Key, collection: this) => NewValue,
-    thisArg: This
+    thisArg: This,
   ): Collection<Key, NewValue>;
   public mapValues<NewValue>(
     fn: (value: Value, key: Key, collection: this) => NewValue,
-    thisArg?: unknown
+    thisArg?: unknown,
   ): Collection<Key, NewValue> {
-    if (typeof fn !== 'function')
+    if (typeof fn !== "function")
       throw new TypeError(`${fn} is not a function`);
     if (thisArg !== undefined) fn = fn.bind(thisArg);
     const coll = new this.constructor[Symbol.species]<Key, NewValue>();
@@ -700,17 +700,17 @@ export class Collection<Key, Value> extends Map<Key, Value> {
    * ```
    */
   public some(
-    fn: (value: Value, key: Key, collection: this) => unknown
+    fn: (value: Value, key: Key, collection: this) => unknown,
   ): boolean;
   public some<This>(
     fn: (this: This, value: Value, key: Key, collection: this) => unknown,
-    thisArg: This
+    thisArg: This,
   ): boolean;
   public some(
     fn: (value: Value, key: Key, collection: this) => unknown,
-    thisArg?: unknown
+    thisArg?: unknown,
   ): boolean {
-    if (typeof fn !== 'function')
+    if (typeof fn !== "function")
       throw new TypeError(`${fn} is not a function`);
     if (thisArg !== undefined) fn = fn.bind(thisArg);
     for (const [key, val] of this) {
@@ -732,36 +732,36 @@ export class Collection<Key, Value> extends Map<Key, Value> {
    * ```
    */
   public every<NewKey extends Key>(
-    fn: (value: Value, key: Key, collection: this) => key is NewKey
+    fn: (value: Value, key: Key, collection: this) => key is NewKey,
   ): this is Collection<NewKey, Value>;
   public every<NewValue extends Value>(
-    fn: (value: Value, key: Key, collection: this) => value is NewValue
+    fn: (value: Value, key: Key, collection: this) => value is NewValue,
   ): this is Collection<Key, NewValue>;
   public every(
-    fn: (value: Value, key: Key, collection: this) => unknown
+    fn: (value: Value, key: Key, collection: this) => unknown,
   ): boolean;
   public every<This, NewKey extends Key>(
     fn: (this: This, value: Value, key: Key, collection: this) => key is NewKey,
-    thisArg: This
+    thisArg: This,
   ): this is Collection<NewKey, Value>;
   public every<This, NewValue extends Value>(
     fn: (
       this: This,
       value: Value,
       key: Key,
-      collection: this
+      collection: this,
     ) => value is NewValue,
-    thisArg: This
+    thisArg: This,
   ): this is Collection<Key, NewValue>;
   public every<This>(
     fn: (this: This, value: Value, key: Key, collection: this) => unknown,
-    thisArg: This
+    thisArg: This,
   ): boolean;
   public every(
     fn: (value: Value, key: Key, collection: this) => unknown,
-    thisArg?: unknown
+    thisArg?: unknown,
   ): boolean {
-    if (typeof fn !== 'function')
+    if (typeof fn !== "function")
       throw new TypeError(`${fn} is not a function`);
     if (thisArg !== undefined) fn = fn.bind(thisArg);
     for (const [key, val] of this) {
@@ -785,34 +785,34 @@ export class Collection<Key, Value> extends Map<Key, Value> {
    */
   public reduce(
     fn: (accumulator: Value, value: Value, key: Key, collection: this) => Value,
-    initialValue?: Value
+    initialValue?: Value,
   ): Value;
   public reduce<InitialValue>(
     fn: (
       accumulator: InitialValue,
       value: Value,
       key: Key,
-      collection: this
+      collection: this,
     ) => InitialValue,
-    initialValue: InitialValue
+    initialValue: InitialValue,
   ): InitialValue;
   public reduce<InitialValue>(
     fn: (
       accumulator: InitialValue,
       value: Value,
       key: Key,
-      collection: this
+      collection: this,
     ) => InitialValue,
-    initialValue?: InitialValue
+    initialValue?: InitialValue,
   ): InitialValue {
-    if (typeof fn !== 'function')
+    if (typeof fn !== "function")
       throw new TypeError(`${fn} is not a function`);
     let accumulator!: InitialValue;
 
     const iterator = this.entries();
     if (initialValue === undefined) {
       if (this.size === 0)
-        throw new TypeError('Reduce of empty collection with no initial value');
+        throw new TypeError("Reduce of empty collection with no initial value");
       accumulator = iterator.next().value![1] as unknown as InitialValue;
     } else {
       accumulator = initialValue;
@@ -834,27 +834,27 @@ export class Collection<Key, Value> extends Map<Key, Value> {
    */
   public reduceRight(
     fn: (accumulator: Value, value: Value, key: Key, collection: this) => Value,
-    initialValue?: Value
+    initialValue?: Value,
   ): Value;
   public reduceRight<InitialValue>(
     fn: (
       accumulator: InitialValue,
       value: Value,
       key: Key,
-      collection: this
+      collection: this,
     ) => InitialValue,
-    initialValue: InitialValue
+    initialValue: InitialValue,
   ): InitialValue;
   public reduceRight<InitialValue>(
     fn: (
       accumulator: InitialValue,
       value: Value,
       key: Key,
-      collection: this
+      collection: this,
     ) => InitialValue,
-    initialValue?: InitialValue
+    initialValue?: InitialValue,
   ): InitialValue {
-    if (typeof fn !== 'function')
+    if (typeof fn !== "function")
       throw new TypeError(`${fn} is not a function`);
     const entries = [...this.entries()];
     let accumulator!: InitialValue;
@@ -862,7 +862,7 @@ export class Collection<Key, Value> extends Map<Key, Value> {
     let index: number;
     if (initialValue === undefined) {
       if (entries.length === 0)
-        throw new TypeError('Reduce of empty collection with no initial value');
+        throw new TypeError("Reduce of empty collection with no initial value");
       accumulator = entries[entries.length - 1]![1] as unknown as InitialValue;
       index = entries.length - 1;
     } else {
@@ -897,13 +897,13 @@ export class Collection<Key, Value> extends Map<Key, Value> {
   public each(fn: (value: Value, key: Key, collection: this) => void): this;
   public each<This>(
     fn: (this: This, value: Value, key: Key, collection: this) => void,
-    thisArg: This
+    thisArg: This,
   ): this;
   public each(
     fn: (value: Value, key: Key, collection: this) => void,
-    thisArg?: unknown
+    thisArg?: unknown,
   ): this {
-    if (typeof fn !== 'function')
+    if (typeof fn !== "function")
       throw new TypeError(`${fn} is not a function`);
     if (thisArg !== undefined) fn = fn.bind(thisArg);
 
@@ -930,10 +930,10 @@ export class Collection<Key, Value> extends Map<Key, Value> {
   public tap(fn: (collection: this) => void): this;
   public tap<This>(
     fn: (this: This, collection: this) => void,
-    thisArg: This
+    thisArg: This,
   ): this;
   public tap(fn: (collection: this) => void, thisArg?: unknown): this {
-    if (typeof fn !== 'function')
+    if (typeof fn !== "function")
       throw new TypeError(`${fn} is not a function`);
     if (thisArg !== undefined) fn = fn.bind(thisArg);
     fn(this);
@@ -1004,7 +1004,7 @@ export class Collection<Key, Value> extends Map<Key, Value> {
    * ```
    */
   public sort(
-    compareFunction: Comparator<Key, Value> = Collection.defaultSort
+    compareFunction: Comparator<Key, Value> = Collection.defaultSort,
   ) {
     const entries = [...this.entries()];
     entries.sort((a, b): number => compareFunction(a[1], b[1], a[0], b[0]));
@@ -1034,7 +1034,7 @@ export class Collection<Key, Value> extends Map<Key, Value> {
    * ```
    */
   public intersection(
-    other: ReadonlyCollection<Key, any>
+    other: ReadonlyCollection<Key, any>,
   ): Collection<Key, Value> {
     const coll = new this.constructor[Symbol.species]<Key, Value>();
 
@@ -1062,10 +1062,10 @@ export class Collection<Key, Value> extends Map<Key, Value> {
    * ```
    */
   public union<OtherValue>(
-    other: ReadonlyCollection<Key, OtherValue>
+    other: ReadonlyCollection<Key, OtherValue>,
   ): Collection<Key, OtherValue | Value> {
     const coll = new this.constructor[Symbol.species]<Key, OtherValue | Value>(
-      this
+      this,
     );
 
     for (const [key, value] of other) {
@@ -1090,7 +1090,7 @@ export class Collection<Key, Value> extends Map<Key, Value> {
    * ```
    */
   public difference(
-    other: ReadonlyCollection<Key, any>
+    other: ReadonlyCollection<Key, any>,
   ): Collection<Key, Value> {
     const coll = new this.constructor[Symbol.species]<Key, Value>();
 
@@ -1115,7 +1115,7 @@ export class Collection<Key, Value> extends Map<Key, Value> {
    * ```
    */
   public symmetricDifference<OtherValue>(
-    other: ReadonlyCollection<Key, OtherValue>
+    other: ReadonlyCollection<Key, OtherValue>,
   ): Collection<Key, OtherValue | Value> {
     const coll = new this.constructor[Symbol.species]<
       Key,
@@ -1168,8 +1168,8 @@ export class Collection<Key, Value> extends Map<Key, Value> {
     whenInBoth: (
       value: Value,
       valueOther: OtherValue,
-      key: Key
-    ) => Keep<ResultValue>
+      key: Key,
+    ) => Keep<ResultValue>,
   ): Collection<Key, ResultValue> {
     const coll = new this.constructor[Symbol.species]<Key, ResultValue>();
     const keys = new Set([...this.keys(), ...other.keys()]);
@@ -1216,7 +1216,7 @@ export class Collection<Key, Value> extends Map<Key, Value> {
    * ```
    */
   public toSorted(
-    compareFunction: Comparator<Key, Value> = Collection.defaultSort
+    compareFunction: Comparator<Key, Value> = Collection.defaultSort,
   ): Collection<Key, Value> {
     return new this.constructor[Symbol.species](this).sort(compareFunction);
   }
@@ -1233,7 +1233,7 @@ export class Collection<Key, Value> extends Map<Key, Value> {
    */
   private static defaultSort<Value>(
     firstValue: Value,
-    secondValue: Value
+    secondValue: Value,
   ): number {
     if (firstValue === undefined) return secondValue === undefined ? 0 : 1;
     if (secondValue === undefined) return -1;
@@ -1258,7 +1258,7 @@ export class Collection<Key, Value> extends Map<Key, Value> {
    */
   public static combineEntries<Key, Value>(
     entries: Iterable<[Key, Value]>,
-    combine: (firstValue: Value, secondValue: Value, key: Key) => Value
+    combine: (firstValue: Value, secondValue: Value, key: Key) => Value,
   ): Collection<Key, Value> {
     const coll = new this[Symbol.species]<Key, Value>();
     for (const [key, value] of entries) {
@@ -1278,10 +1278,10 @@ export class Collection<Key, Value> extends Map<Key, Value> {
    */
   public static override groupBy<Key, Item>(
     items: Iterable<Item>,
-    keySelector: (item: Item, index: number) => Key
+    keySelector: (item: Item, index: number) => Key,
   ): Collection<Key, Item[]> {
     return new this[Symbol.species]<Key, Item[]>(
-      Map.groupBy(items, keySelector)
+      Map.groupBy(items, keySelector),
     );
   }
 
@@ -1297,5 +1297,5 @@ export type Comparator<Key, Value> = (
   firstValue: Value,
   secondValue: Value,
   firstKey: Key,
-  secondKey: Key
+  secondKey: Key,
 ) => number;

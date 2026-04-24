@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 
-const { downloadArtifact } = require('@electron/get');
+const { downloadArtifact } = require("@electron/get");
 
-const extract = require('extract-zip');
+const extract = require("extract-zip");
 
-const childProcess = require('child_process');
-const fs = require('fs');
-const os = require('os');
-const path = require('path');
+const childProcess = require("child_process");
+const fs = require("fs");
+const os = require("os");
+const path = require("path");
 
-const { version } = require('./package');
+const { version } = require("./package");
 
 if (process.env.ELECTRON_SKIP_BINARY_DOWNLOAD) {
   process.exit(0);
@@ -22,7 +22,7 @@ if (isInstalled()) {
 }
 
 const platform = os.platform();
-const arch = 'x64';
+const arch = "x64";
 
 // if (
 //   platform === 'darwin' &&
@@ -45,8 +45,8 @@ const arch = 'x64';
 // downloads if not cached
 downloadArtifact({
   version,
-  artifactName: 'electron',
-  force: process.env.force_no_cache === 'true',
+  artifactName: "electron",
+  force: process.env.force_no_cache === "true",
   cacheRoot: process.env.electron_config_cache,
   // checksums:
   //   (process.env.electron_use_remote_checksums ??
@@ -66,14 +66,14 @@ function isInstalled() {
   try {
     if (
       fs
-        .readFileSync(path.join(__dirname, 'dist', 'version'), 'utf-8')
-        .replace(/^v/, '') !== version
+        .readFileSync(path.join(__dirname, "dist", "version"), "utf-8")
+        .replace(/^v/, "") !== version
     ) {
       return false;
     }
 
     if (
-      fs.readFileSync(path.join(__dirname, 'path.txt'), 'utf-8') !==
+      fs.readFileSync(path.join(__dirname, "path.txt"), "utf-8") !==
       platformPath
     ) {
       return false;
@@ -84,7 +84,7 @@ function isInstalled() {
 
   const electronPath =
     process.env.ELECTRON_OVERRIDE_DIST_PATH ||
-    path.join(__dirname, 'dist', platformPath);
+    path.join(__dirname, "dist", platformPath);
 
   return fs.existsSync(electronPath);
 }
@@ -92,13 +92,13 @@ function isInstalled() {
 // unzips and makes path.txt point at the correct executable
 function extractFile(zipPath) {
   const distPath =
-    process.env.ELECTRON_OVERRIDE_DIST_PATH || path.join(__dirname, 'dist');
+    process.env.ELECTRON_OVERRIDE_DIST_PATH || path.join(__dirname, "dist");
 
-  return extract(zipPath, { dir: path.join(__dirname, 'dist') }).then(() => {
+  return extract(zipPath, { dir: path.join(__dirname, "dist") }).then(() => {
     // If the zip contains an "electron.d.ts" file,
     // move that up
-    const srcTypeDefPath = path.join(distPath, 'electron.d.ts');
-    const targetTypeDefPath = path.join(__dirname, 'electron.d.ts');
+    const srcTypeDefPath = path.join(distPath, "electron.d.ts");
+    const targetTypeDefPath = path.join(__dirname, "electron.d.ts");
     const hasTypeDefinitions = fs.existsSync(srcTypeDefPath);
 
     if (hasTypeDefinitions) {
@@ -107,8 +107,8 @@ function extractFile(zipPath) {
 
     // Write a "path.txt" file.
     return fs.promises.writeFile(
-      path.join(__dirname, 'path.txt'),
-      platformPath
+      path.join(__dirname, "path.txt"),
+      platformPath,
     );
   });
 }
@@ -117,18 +117,18 @@ function getPlatformPath() {
   const platform = process.env.npm_config_platform || os.platform();
 
   switch (platform) {
-    case 'mas':
-    case 'darwin':
-      return 'Electron.app/Contents/MacOS/Electron';
-    case 'freebsd':
-    case 'openbsd':
-    case 'linux':
-      return 'electron';
-    case 'win32':
-      return 'electron.exe';
+    case "mas":
+    case "darwin":
+      return "Electron.app/Contents/MacOS/Electron";
+    case "freebsd":
+    case "openbsd":
+    case "linux":
+      return "electron";
+    case "win32":
+      return "electron.exe";
     default:
       throw new Error(
-        'Electron builds are not available on platform: ' + platform
+        "Electron builds are not available on platform: " + platform,
       );
   }
 }

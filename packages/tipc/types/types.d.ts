@@ -15,10 +15,7 @@ export type ActionFunction<
   TInput = any,
   TResult = any,
   TContext extends ActionContext = ActionContext,
-> = (args: {
-  context: TContext;
-  input: TInput;
-}) => Promise<TResult>;
+> = (args: { context: TContext; input: TInput }) => Promise<TResult>;
 
 export type EventFunction<TInput = any> = (args: {
   context: ActionContext;

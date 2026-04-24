@@ -112,7 +112,10 @@ export function floating(node: HTMLElement, config: FloatingConfig) {
 
       if (currentConfig.anchorWidthVar) {
         const anchorWidth = anchor.getBoundingClientRect().width;
-        node.style.setProperty(currentConfig.anchorWidthVar, `${anchorWidth}px`);
+        node.style.setProperty(
+          currentConfig.anchorWidthVar,
+          `${anchorWidth}px`,
+        );
       }
     }
 
@@ -127,7 +130,9 @@ export function floating(node: HTMLElement, config: FloatingConfig) {
       currentConfig = newConfig;
 
       // Keep default data-side in sync with the configured placement
-      node.dataset.side = placementToSide(newConfig.placement ?? "bottom-start");
+      node.dataset.side = placementToSide(
+        newConfig.placement ?? "bottom-start",
+      );
 
       // Restart autoUpdate if the anchor element itself changed
       if (anchorChanged) {

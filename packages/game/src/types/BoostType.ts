@@ -1,8 +1,5 @@
-export const BoostType = {
-  ClassPoints: "classPoints",
-  Exp: "exp",
-  Gold: "gold",
-  Rep: "rep",
-} as const;
+import { Schema } from "effect";
 
-export type BoostType = (typeof BoostType)[keyof typeof BoostType];
+export const BoostType = Schema.Literals(["classPoints", "exp", "gold", "rep"]);
+
+export type BoostType = Schema.Schema.Type<typeof BoostType>;

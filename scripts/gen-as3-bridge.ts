@@ -5,6 +5,10 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const DEFAULT_REPO_ROOT = join(SCRIPT_DIR, "..");
 
+const BRIDGE_TS_RETURN_TYPE_METADATA = "BridgeTsReturnType";
+const BRIDGE_TS_TYPES_ALIAS = "FlashTypes";
+const BRIDGE_TS_TYPES_MODULE = "./flash/Types";
+
 type Metadata = {
   name: string;
   arg: string | null;
@@ -47,6 +51,7 @@ type BridgeExportEntry = {
   methodName: string;
   parameters: BridgeParameter[];
   returnType: string;
+  tsReturnType: string | null;
   filePath: string;
   line: number;
 };
@@ -58,6 +63,7 @@ type BridgeEventEntry = {
   methodName: string;
   parameters: BridgeParameter[];
   returnType: string;
+  tsReturnType: string | null;
   filePath: string;
   line: number;
 };
@@ -251,17 +257,39 @@ export function mapAs3Type(type: string): string {
   }
 }
 
+function resolveTsReturnType(method: ParsedMethod): string | null {
+  const metadata = findMetadata(method.metadata, BRIDGE_TS_RETURN_TYPE_METADATA);
+  if (!metadata) {
+    return null;
+  }
+
+  const value = metadata.arg?.trim();
+  if (!value) {
+    throw new Error(
+      `${BRIDGE_TS_RETURN_TYPE_METADATA} metadata requires a non-empty value in ${relative(DEFAULT_REPO_ROOT, method.filePath)}:${metadata.line}`,
+    );
+  }
+
+  if (value.includes("import(")) {
+    throw new Error(
+      `${BRIDGE_TS_RETURN_TYPE_METADATA} in ${relative(DEFAULT_REPO_ROOT, method.filePath)}:${metadata.line} should not use import() expressions. Use ${BRIDGE_TS_TYPES_ALIAS}.TypeName (for example: ${BRIDGE_TS_TYPES_ALIAS}.TargetInfo | null).`,
+    );
+  }
+
+  return value;
+}
+
 function formatFunctionParameters(parameters: BridgeParameter[]): string {
   return parameters
     .map((parameter) => {
-    if (parameter.rest) {
-      const baseType = mapAs3Type(parameter.type);
-      const restType = baseType.endsWith("[]") ? baseType : `${baseType}[]`;
-      return `...${parameter.name}: ${restType}`;
-    }
+      if (parameter.rest) {
+        const baseType = mapAs3Type(parameter.type);
+        const restType = baseType.endsWith("[]") ? baseType : `${baseType}[]`;
+        return `...${parameter.name}: ${restType}`;
+      }
 
-    const suffix = parameter.optional ? "?" : "";
-    return `${parameter.name}${suffix}: ${mapAs3Type(parameter.type)}`;
+      const suffix = parameter.optional ? "?" : "";
+      return `${parameter.name}${suffix}: ${mapAs3Type(parameter.type)}`;
     })
     .join(", ");
 }
@@ -270,7 +298,24 @@ function formatFunctionSignature(
   parameters: BridgeParameter[],
   returnType: string,
 ): string {
-  return `(${formatFunctionParameters(parameters)}) => ${mapAs3Type(returnType)}`;
+  return `(${formatFunctionParameters(parameters)}) => ${returnType}`;
+}
+
+function resolveRenderedReturnType(
+  as3ReturnType: string,
+  tsReturnType: string | null,
+): string {
+  return tsReturnType ?? mapAs3Type(as3ReturnType);
+}
+
+function shouldImportFlashTypes(model: BridgeModel): boolean {
+  const usesAlias = (tsReturnType: string | null) =>
+    tsReturnType?.includes(`${BRIDGE_TS_TYPES_ALIAS}.`) ?? false;
+
+  return (
+    model.exports.some((entry) => usesAlias(entry.tsReturnType)) ||
+    model.events.some((entry) => usesAlias(entry.tsReturnType))
+  );
 }
 
 function parseAs3File(filePath: string, source: string): ParsedFile {
@@ -396,6 +441,8 @@ function buildBridgeModel(parsedFiles: ParsedFile[]): BridgeModel {
       const ignoreMetadata = findMetadata(method.metadata, "BridgeIgnore");
       const eventMetadata = findMetadata(method.metadata, "BridgeEvent");
 
+      const tsReturnType = resolveTsReturnType(method);
+
       if (eventMetadata) {
         if (!eventMetadata.arg) {
           throw new Error(
@@ -417,6 +464,7 @@ function buildBridgeModel(parsedFiles: ParsedFile[]): BridgeModel {
           methodName: method.name,
           parameters: method.parameters,
           returnType: method.returnType,
+          tsReturnType,
           filePath: method.filePath,
           line: method.line,
         });
@@ -467,6 +515,7 @@ function buildBridgeModel(parsedFiles: ParsedFile[]): BridgeModel {
         methodName: method.name,
         parameters: method.parameters,
         returnType: method.returnType,
+        tsReturnType,
         filePath: method.filePath,
         line: method.line,
       });
@@ -552,14 +601,20 @@ export function renderWindowSwfDts(model: BridgeModel): string {
     "",
     "export {};",
     "",
-    "declare global {",
-    "  interface Window {",
-    "    swf: {",
   ];
+
+  if (shouldImportFlashTypes(model)) {
+    lines.push(
+      `import type * as ${BRIDGE_TS_TYPES_ALIAS} from "${BRIDGE_TS_TYPES_MODULE}";`,
+      "",
+    );
+  }
+
+  lines.push("declare global {", "  interface Window {", "    swf: {");
 
   for (const entry of model.exports) {
     lines.push(
-      `      "${entry.externalName}": ${formatFunctionSignature(entry.parameters, entry.returnType)};`,
+      `      "${entry.externalName}": ${formatFunctionSignature(entry.parameters, resolveRenderedReturnType(entry.returnType, entry.tsReturnType))};`,
     );
   }
 
@@ -567,7 +622,7 @@ export function renderWindowSwfDts(model: BridgeModel): string {
 
   for (const entry of model.events) {
     lines.push(
-      `    "${entry.eventName}"?: ${formatFunctionSignature(entry.parameters, entry.returnType)};`,
+      `    "${entry.eventName}"?: ${formatFunctionSignature(entry.parameters, resolveRenderedReturnType(entry.returnType, entry.tsReturnType))};`,
     );
   }
 

@@ -2,6 +2,8 @@
 
 export {};
 
+import type * as FlashTypes from "./flash/Types";
+
 declare global {
   interface Window {
     swf: {
@@ -28,14 +30,14 @@ declare global {
       "combat.cancelTarget": () => void;
       "combat.forceUseSkill": (index: string) => void;
       "combat.getSkillCooldownRemaining": (index: number) => number;
-      "combat.getTarget": () => Record<string, unknown>;
+      "combat.getTarget": () => FlashTypes.TargetInfo | null;
       "combat.hasTarget": () => boolean;
       "combat.useSkill": (index: string) => void;
       "drops.acceptDrop": (itemId: number) => void;
       "drops.getDrops": () => Record<string, unknown>;
       "drops.getItems": () => Record<string, unknown>;
       "drops.isUsingCustomDrops": () => boolean;
-      "drops.rejectDrop": (itemId: number) => string;
+      "drops.rejectDrop": (itemId: number) => boolean;
       "drops.toggleUi": () => void;
       "flash.callGameFunction": (path: string, ...args: unknown[]) => string;
       "flash.callGameFunction0": (path: string) => string;
@@ -50,9 +52,17 @@ declare global {
       "flash.isTextFieldFocused": () => boolean;
       "flash.selectArrayObjects": (path: string, selector: string) => string;
       "flash.sendClientPacket": (packet: string, type: string) => void;
-      "flash.setArrayObject": (path: string, index: number, value: unknown) => void;
+      "flash.setArrayObject": (
+        path: string,
+        index: number,
+        value: unknown,
+      ) => void;
       "flash.setGameObject": (path: string, value: unknown) => void;
-      "flash.setGameObjectKey": (path: string, key: string, value: unknown) => void;
+      "flash.setGameObjectKey": (
+        path: string,
+        key: string,
+        value: unknown,
+      ) => void;
       "house.getItem": (item: unknown) => Record<string, unknown>;
       "house.getItems": () => unknown[];
       "house.getSlots": () => number;
@@ -93,36 +103,44 @@ declare global {
       "quests.abandon": (questId: number) => void;
       "quests.accept": (questId: number) => void;
       "quests.canComplete": (questId: number) => boolean;
-      "quests.complete": (questId: number, turnIns?: number, itemId?: number, special?: boolean) => void;
+      "quests.complete": (
+        questId: number,
+        turnIns?: number,
+        itemId?: number,
+        special?: boolean,
+      ) => void;
       "quests.get": (questId: number) => void;
+      "quests.getAccepted": () => unknown[];
       "quests.getMultiple": (questIds: string) => void;
-      "quests.getQuestValidationString": (questObj: Record<string, unknown>) => string;
+      "quests.getQuestValidationString": (
+        questObj: Record<string, unknown>,
+      ) => string;
       "quests.getTree": () => unknown[];
-      "quests.hasRequiredItemsForQuest": (questObj: Record<string, unknown>) => boolean;
+      "quests.hasRequiredItemsForQuest": (
+        questObj: Record<string, unknown>,
+      ) => boolean;
       "quests.isAvailable": (questId: number) => boolean;
       "quests.isInProgress": (questId: number) => boolean;
       "quests.isOneTimeQuestDone": (questId: number) => boolean;
       "quests.load": (questId: number) => void;
       "settings.enemyMagnet": () => void;
       "settings.infiniteRange": () => void;
-      "settings.lagKiller": (on: boolean) => void;
       "settings.provokeCell": () => void;
-      "settings.setAccessLevel": (accessLevel: string) => void;
-      "settings.setDeathAds": (on: boolean) => void;
-      "settings.setDisableCollisions": (on: boolean) => void;
-      "settings.setDisableFX": (on: boolean) => void;
-      "settings.setFPS": (fps: number) => void;
-      "settings.setGuild": (name: string) => void;
-      "settings.setHidePlayers": (on: boolean) => void;
-      "settings.setName": (name: string) => void;
+      "settings.setCollisionsEnabled": (enabled: boolean) => void;
+      "settings.setCustomGuild": (name: string) => void;
+      "settings.setCustomName": (name: string) => void;
+      "settings.setDeathAdsEnabled": (enabled: boolean) => void;
+      "settings.setEffectsEnabled": (enabled: boolean) => void;
+      "settings.setFrameRate": (fps: number) => void;
+      "settings.setLagKillerEnabled": (enabled: boolean) => void;
+      "settings.setPlayersVisible": (visible: boolean) => void;
       "settings.setWalkSpeed": (speed: number) => void;
+      "settings.setWorldVisible": (visible: boolean) => void;
       "settings.skipCutscenes": () => void;
       "shops.buyById": (id: unknown, quantity?: number) => boolean;
       "shops.buyByName": (name: string, quantity?: number) => boolean;
       "shops.canBuyItem": (itemName: string) => boolean;
-      "shops.getInfo": () => Record<string, unknown>;
       "shops.getItem": (key: unknown) => Record<string, unknown>;
-      "shops.getItems": () => unknown[];
       "shops.isMergeShop": () => boolean;
       "shops.load": (shopId: number) => void;
       "shops.loadArmorCustomize": () => void;
@@ -132,31 +150,26 @@ declare global {
       "tempInventory.contains": (item: unknown, quantity?: number) => boolean;
       "tempInventory.getItem": (item: unknown) => Record<string, unknown>;
       "tempInventory.getItems": () => unknown[];
-      "world.dumpMonsters": () => unknown[];
-      "world.getCellMonsters": () => unknown[];
       "world.getCellPads": () => unknown[];
       "world.getCells": () => unknown[];
       "world.getMapItem": (itemId: number) => void;
-      "world.getMonsterByMonMapId": (monMapId: unknown) => Record<string, unknown>;
+      "world.getMonsterByMonMapId": (
+        monMapId: unknown,
+      ) => Record<string, unknown>;
       "world.getMonsterByName": (name: string) => Record<string, unknown>;
-      "world.getPlayer": (name: string) => string;
-      "world.getPlayerNames": () => unknown[];
-      "world.getPlayers": () => string;
-      "world.getRoomId": () => number;
-      "world.getRoomNumber": () => number;
       "world.isActionAvailable": (gameAction: string) => boolean;
       "world.isLoaded": () => boolean;
-      "world.isPlayerInCell": (name: string, cell?: string) => boolean;
+      "world.isMonsterAvailable": (monMapId: number) => boolean;
       "world.loadSwf": (swf: string) => void;
       "world.reload": () => void;
       "world.setSpawnPoint": (cell?: string, pad?: string) => void;
     };
-    "onConnection"?: (status: string) => void;
-    "onDebug"?: (message: string) => void;
-    "onExtensionResponse"?: (packet: string) => void;
-    "onLoaded"?: () => void;
-    "onProgress"?: (percent: number) => void;
-    "packetFromClient"?: (packet: string) => void;
-    "packetFromServer"?: (packet: string) => void;
+    onConnection?: (status: string) => void;
+    onDebug?: (message: string) => void;
+    onExtensionResponse?: (packet: string) => void;
+    onLoaded?: () => void;
+    onProgress?: (percent: number) => void;
+    packetFromClient?: (packet: string) => void;
+    packetFromServer?: (packet: string) => void;
   }
 }

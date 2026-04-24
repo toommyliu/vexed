@@ -1,0 +1,21 @@
+{
+  "name": "@vexed/shared",
+  "private": true,
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsdown --format cjs --dts --outDir dist src/index.ts src/string.ts src/csv.ts",
+    "postinstall": "npm run build"
+  },
+  "devDependencies": {
+    "tsdown": "0.20.0-beta.3",
+    "typescript": "^5.9.3"
+  },
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    ".": "./dist/index.cjs",
+    "./string": "./dist/string.cjs",
+    "./csv": "./dist/csv.cjs",
+    "./package.json": "./package.json"
+  }
+}

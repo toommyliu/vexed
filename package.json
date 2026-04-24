@@ -3,15 +3,33 @@
   "private": true,
   "packageManager": "pnpm@10.17.0",
   "scripts": {
-    "as3": "tsx scripts/gen-as3-bridge.ts",
+    "as3": "pnpm run as3:bridge && pnpm run as3:build",
+    "as3:bridge": "tsx scripts/gen-as3-bridge.ts",
+    "as3:build": "tsx scripts/build-as3-swf.ts",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "format": "oxfmt --check",
-    "format:write": "oxfmt --write"
+    "format:write": "oxfmt",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "dependencies": {
+    "effect": "4.0.0-beta.43"
   },
   "devDependencies": {
+    "@effect/platform-node": "4.0.0-beta.43",
+    "asconfigc": "^1.9.0",
     "oxfmt": "^0.13.0",
     "oxlint": "^0.13.0",
-    "tsx": "^4.21.0"
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  },
+  "pnpm": {
+    "overrides": {
+      "effect": "4.0.0-beta.43",
+      "@effect/platform": "4.0.0-beta.43",
+      "@effect/platform-node": "4.0.0-beta.43",
+      "@effect/platform-node-shared": "4.0.0-beta.43",
+      "typescript": "^5.9.3"
+    }
   }
 }

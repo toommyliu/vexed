@@ -13,9 +13,7 @@ export type DismissOptions = {
    * this prevents stale-snapshot bugs where the trigger element isn't
    * registered yet when the content first mounts.
    */
-  excludeElements?:
-    | (HTMLElement | null)[]
-    | (() => (HTMLElement | null)[]);
+  excludeElements?: (HTMLElement | null)[] | (() => (HTMLElement | null)[]);
 };
 
 /**

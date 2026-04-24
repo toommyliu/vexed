@@ -9,13 +9,13 @@ export class TooltipState {
   closeDelay = $state(0);
   placement = $state<Placement>("top");
   sideOffset = $state(4);
-  
+
   private timeoutId: ReturnType<typeof setTimeout> | null = null;
 
   constructor(config: { openDelay?: number; closeDelay?: number } = {}) {
     this.openDelay = config.openDelay ?? 0;
     this.closeDelay = config.closeDelay ?? 0;
-    
+
     // Generate a temporary ID that will be replaced or used if no hydration
     this.contentId = `tooltip-${Math.random().toString(36).substring(2, 9)}`;
   }
