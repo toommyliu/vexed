@@ -1,16 +1,38 @@
 import { Effect } from "effect";
-import type { ScriptCommandHandler } from "../Types";
 import {
-  commandHandlerEntries,
   createCommandHandler,
-  recordScriptInstruction,
+  defineScriptCommandDomain,
   readOptionalInstructionString,
   readOptionalScriptArgumentString,
   requireInstructionString,
   requireScriptArgumentString,
+  type ScriptCommandAliasMap,
+  type ScriptCommandDsl,
+  type ScriptCommandDslWithAliases,
   withScriptCommandAliases,
   type ScriptInstructionRecorder,
 } from "./commandDsl";
+
+type MapScriptCommandArguments = {
+  join_map: [map: string, cell?: string, pad?: string];
+  move_to_cell: [cell: string, pad?: string];
+  goto_player: [player: string];
+  goto_house: [player?: string];
+  set_spawnpoint: [cell?: string, pad?: string];
+};
+
+const mapCommandAliases = {
+  join: "join_map",
+  jump_to_cell: "move_to_cell",
+  jump: "move_to_cell",
+  set_spawn: "set_spawnpoint",
+} as const satisfies ScriptCommandAliasMap<MapScriptCommandArguments>;
+
+type MapScriptDsl = ScriptCommandDslWithAliases<
+  MapScriptCommandArguments,
+  typeof mapCommandAliases
+>;
+const mapCommandDomain = defineScriptCommandDomain<MapScriptCommandArguments>();
 
 const joinMapCommand = createCommandHandler((context, args) =>
   Effect.gen(function* () {
@@ -110,101 +132,97 @@ const setSpawnPointCommand = createCommandHandler((context, args) =>
   }),
 );
 
-export const mapCommandHandlers: ReadonlyArray<
-  readonly [string, ScriptCommandHandler]
-> = [
-  ...commandHandlerEntries("join_map", joinMapCommand, ["join"]),
-  ...commandHandlerEntries("move_to_cell", moveToCellCommand, ["jump_to_cell"]),
-  ["goto_player", gotoPlayerCommand],
-  ["goto_house", gotoHouseCommand],
-  ...commandHandlerEntries("set_spawnpoint", setSpawnPointCommand, [
-    "set_spawn",
-  ]),
-];
+const mapCommandHandlerMap = mapCommandDomain.defineHandlers({
+  join_map: joinMapCommand,
+  move_to_cell: moveToCellCommand,
+  goto_player: gotoPlayerCommand,
+  goto_house: gotoHouseCommand,
+  set_spawnpoint: setSpawnPointCommand,
+});
 
-export const createMapScriptDsl = (emit: ScriptInstructionRecorder) =>
-  withScriptCommandAliases(
-    {
-      /**
-       * Joins a map, optionally targeting a cell and pad.
-       *
-       * @alias join
-       * @param map Map name.
-       * @param cell Optional cell name.
-       * @param pad Optional pad name.
-       * @example cmd.join_map("battleon", "Enter", "Spawn")
-       */
-      join_map(map: string, cell?: string, pad?: string) {
-        recordScriptInstruction(
-          emit,
-          "join_map",
-          requireScriptArgumentString("join_map", "map", map),
-          readOptionalScriptArgumentString("join_map", "cell", cell),
-          readOptionalScriptArgumentString("join_map", "pad", pad),
-        );
-      },
+export const mapCommandHandlers = mapCommandDomain.handlerEntriesWithAliases(
+  mapCommandHandlerMap,
+  mapCommandAliases,
+);
 
-      /**
-       * Moves the player to a cell and optional pad.
-       *
-       * @alias jump_to_cell
-       * @param cell Cell name.
-       * @param pad Optional pad name.
-       */
-      move_to_cell(cell: string, pad?: string) {
-        recordScriptInstruction(
-          emit,
-          "move_to_cell",
-          requireScriptArgumentString("move_to_cell", "cell", cell),
-          readOptionalScriptArgumentString("move_to_cell", "pad", pad),
-        );
-      },
+export const createMapScriptDsl = (
+  recordInstruction: ScriptInstructionRecorder,
+): MapScriptDsl => {
+  const recordMapInstruction =
+    mapCommandDomain.createInstructionRecorder(recordInstruction);
 
-      /**
-       * Moves to another player.
-       *
-       * @param player Player name.
-       */
-      goto_player(player: string) {
-        recordScriptInstruction(
-          emit,
-          "goto_player",
-          requireScriptArgumentString("goto_player", "player", player),
-        );
-      },
-
-      /**
-       * Joins the current house or a specific player's house.
-       *
-       * @param player Optional player name.
-       */
-      goto_house(player?: string) {
-        recordScriptInstruction(
-          emit,
-          "goto_house",
-          readOptionalScriptArgumentString("goto_house", "player", player),
-        );
-      },
-
-      /**
-       * Sets the spawn point.
-       *
-       * @alias set_spawn
-       * @param cell Optional cell name.
-       * @param pad Optional pad name.
-       */
-      set_spawnpoint(cell?: string, pad?: string) {
-        recordScriptInstruction(
-          emit,
-          "set_spawnpoint",
-          readOptionalScriptArgumentString("set_spawnpoint", "cell", cell),
-          readOptionalScriptArgumentString("set_spawnpoint", "pad", pad),
-        );
-      },
+  const commands: ScriptCommandDsl<MapScriptCommandArguments> = {
+    /**
+     * Joins a map, optionally targeting a cell and pad.
+     *
+     * @alias join
+     * @param map Map name.
+     * @param cell Optional cell name.
+     * @param pad Optional pad name.
+     * @example cmd.join_map("battleon", "Enter", "Spawn")
+     */
+    join_map(map: string, cell?: string, pad?: string) {
+      recordMapInstruction(
+        "join_map",
+        requireScriptArgumentString("join_map", "map", map),
+        readOptionalScriptArgumentString("join_map", "cell", cell),
+        readOptionalScriptArgumentString("join_map", "pad", pad),
+      );
     },
-    {
-      join: "join_map",
-      jump_to_cell: "move_to_cell",
-      set_spawn: "set_spawnpoint",
+
+    /**
+     * Moves the player to a cell and optional pad.
+     *
+     * @alias jump_to_cell
+     * @param cell Cell name.
+     * @param pad Optional pad name.
+     */
+    move_to_cell(cell: string, pad?: string) {
+      recordMapInstruction(
+        "move_to_cell",
+        requireScriptArgumentString("move_to_cell", "cell", cell),
+        readOptionalScriptArgumentString("move_to_cell", "pad", pad),
+      );
     },
-  );
+
+    /**
+     * Go to another player. 
+     *
+     * @param player Player name.
+     */
+    goto_player(player: string) {
+      recordMapInstruction(
+        "goto_player",
+        requireScriptArgumentString("goto_player", "player", player),
+      );
+    },
+
+    /**
+     * Goes to the player's house.
+     * @param player Optional player name.
+     */
+    goto_house(player?: string) {
+      recordMapInstruction(
+        "goto_house",
+        readOptionalScriptArgumentString("goto_house", "player", player),
+      );
+    },
+
+    /**
+     * Sets the spawn point.
+     *
+     * @alias set_spawn
+     * @param cell Optional cell name.
+     * @param pad Optional pad name.
+     */
+    set_spawnpoint(cell?: string, pad?: string) {
+      recordMapInstruction(
+        "set_spawnpoint",
+        readOptionalScriptArgumentString("set_spawnpoint", "cell", cell),
+        readOptionalScriptArgumentString("set_spawnpoint", "pad", pad),
+      );
+    },
+  };
+
+  return withScriptCommandAliases(commands, mapCommandAliases);
+};
