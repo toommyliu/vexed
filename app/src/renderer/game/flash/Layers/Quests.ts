@@ -116,13 +116,7 @@ const make = Effect.gen(function* () {
     special = false,
   ) =>
     Effect.gen(function* () {
-      const turnInsValue = (yield* bridge.callGameFunction(
-        "world.maximumQuestTurnIns",
-        [questId],
-      )) as string;
-      const parsedTurnIns = Number(turnInsValue);
-      const turnInsNumber =
-        turnIns ?? (Number.isFinite(parsedTurnIns) ? parsedTurnIns : 1);
+      const turnInsNumber = turnIns ?? (yield* getMaxTurnIns(questId));
       yield* bridge.call("quests.complete", [
         questId,
         turnInsNumber,
@@ -130,6 +124,12 @@ const make = Effect.gen(function* () {
         special,
       ]);
     });
+
+  const getMaxTurnIns: QuestsShape["getMaxTurnIns"] = (questId) =>
+    Effect.map(
+      bridge.call("quests.getMaxTurnIns", [questId]),
+      (turnIns) => positiveInt(Number(turnIns)) ?? 1,
+    );
 
   const load: QuestsShape["load"] = (questId, silent = false) =>
     Effect.gen(function* () {
@@ -188,6 +188,7 @@ const make = Effect.gen(function* () {
     accept,
     canComplete,
     complete,
+    getMaxTurnIns,
     load,
     loadMany,
     getTree,

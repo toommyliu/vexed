@@ -11,6 +11,9 @@ import {
   type ScriptCommandDsl,
   type ScriptInstructionRecorder,
 } from "./commandDsl";
+import type { ScriptExecutionContext } from "../Types";
+
+type QuestTurnInsArgument = number | "max";
 
 type QuestScriptCommandArguments = {
   accept_quest: [questId: number, silent?: boolean];
@@ -18,8 +21,7 @@ type QuestScriptCommandArguments = {
   complete_quest: [
     questId: number,
     itemId?: number,
-    turnIns?: number,
-    special?: boolean,
+    turnIns?: QuestTurnInsArgument,
   ];
 };
 
@@ -62,6 +64,39 @@ const abandonQuestCommand = createCommandHandler((context, args) =>
   }),
 );
 
+const readOptionalQuestTurnIns = (
+  context: ScriptExecutionContext,
+  questId: number,
+  args: ReadonlyArray<unknown>,
+) => {
+  const value = args[2];
+  if (typeof value === "string" && value.toLowerCase() === "max") {
+    return context.run(context.quests.getMaxTurnIns(questId));
+  }
+
+  return readOptionalInstructionPositiveInteger(
+    context,
+    "complete_quest",
+    args,
+    2,
+    "turn_ins",
+  );
+};
+
+const readOptionalScriptQuestTurnIns = (
+  value: QuestTurnInsArgument | undefined,
+): QuestTurnInsArgument | undefined => {
+  if (value === "max") {
+    return value;
+  }
+
+  return readOptionalScriptArgumentPositiveInteger(
+    "complete_quest",
+    "turn_ins",
+    value,
+  );
+};
+
 const completeQuestCommand = createCommandHandler((context, args) =>
   Effect.gen(function* () {
     const questId = yield* requireInstructionPositiveInteger(
@@ -78,29 +113,14 @@ const completeQuestCommand = createCommandHandler((context, args) =>
       1,
       "item_id",
     );
-    const turnIns = yield* readOptionalInstructionPositiveInteger(
-      context,
-      "complete_quest",
-      args,
-      2,
-      "turn_ins",
-    );
-    const special = yield* readOptionalInstructionBoolean(
-      context,
-      "complete_quest",
-      args,
-      3,
-      "special",
-    );
+    const turnIns = yield* readOptionalQuestTurnIns(context, questId, args);
     const canComplete = yield* context.run(context.quests.canComplete(questId));
 
     if (!canComplete) {
       return;
     }
 
-    yield* context.run(
-      context.quests.complete(questId, turnIns, itemId, special),
-    );
+    yield* context.run(context.quests.complete(questId, turnIns, itemId));
   }),
 );
 
@@ -161,14 +181,12 @@ export const createQuestScriptDsl = (
      *
      * @param questId Quest id.
      * @param itemId Optional reward item id.
-     * @param turnIns Optional turn-in count.
-     * @param special Whether to use the special completion path.
+     * @param turnIns Optional turn-in count, or "max" for maximum turn-ins.
      */
     complete_quest(
       questId: number,
       itemId?: number,
-      turnIns?: number,
-      special: boolean = false,
+      turnIns?: QuestTurnInsArgument,
     ) {
       recordQuestInstruction(
         "complete_quest",
@@ -182,16 +200,7 @@ export const createQuestScriptDsl = (
           "item_id",
           itemId,
         ),
-        readOptionalScriptArgumentPositiveInteger(
-          "complete_quest",
-          "turn_ins",
-          turnIns,
-        ),
-        readOptionalScriptArgumentBoolean(
-          "complete_quest",
-          "special",
-          special,
-        ) ?? false,
+        readOptionalScriptQuestTurnIns(turnIns),
       );
     },
   };

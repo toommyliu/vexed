@@ -21,6 +21,12 @@ package vexed.game
     }
 
     [BridgeExport]
+    public static function getMaxTurnIns(questId:int):int
+    {
+      return int(game.world.maximumQuestTurnIns(questId));
+    }
+
+    [BridgeExport]
     public static function accept(questId:int):void
     {
       game.world.acceptQuest(questId);
