@@ -82,7 +82,7 @@ const compileProgram = (
           throw new ScriptDuplicateLabelError({ sourceName, label });
         }
 
-        labels.set(label, instruction.index);
+        labels.set(label, instruction.index + 1);
       }
 
       return {
@@ -161,13 +161,11 @@ const make = Effect.gen(function* () {
         .isLoggedIn()
         .pipe(Effect.catchCause(() => Effect.succeed(false)));
 
-      if (!connected && !loggedIn) {
-        return yield* Effect.fail(
-          new ScriptNotReadyError({
-            sourceName,
-            reason: "player is not logged in",
-          }),
-        );
+      if (!connected || !loggedIn) {
+        return yield* new ScriptNotReadyError({
+          sourceName,
+          reason: !connected ? "player is disconnected" : "player is not logged in",
+        });
       }
 
       return yield* Effect.void;
