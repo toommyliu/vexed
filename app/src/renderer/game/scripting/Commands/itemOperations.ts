@@ -1,51 +1,25 @@
-import type { Collection } from "@vexed/collection";
-import type { Faction, Item, ShopItem } from "@vexed/game";
+import type { ShopItem } from "@vexed/game";
 import {
-  AWE_PROC_VARIANTS,
-  CAPE_PROC_VARIANTS,
-  EnhancementType,
-  FORGE_CAPE_SHOP,
-  FORGE_ENHANCEMENT_PATTERN,
-  FORGE_HELM_SHOP,
-  FORGE_WEAPON_PROC_VARIANTS,
-  FORGE_WEAPON_SHOP,
-  HELM_PROC_VARIANTS,
-  areNamesEqual,
-  findEnhancementByName,
-  getAweWeaponShopId,
-  getBasicEnhancementShopId,
-  getCapeProcName,
-  getHelmProcName,
-  getWeaponProcName,
-  isAweProc,
-  isBasicEnhancement,
-  isForgeWeaponProc,
-  resolveCapeSpecial,
-  resolveEnhancementType,
-  resolveHelmSpecial,
-  resolveWeaponSpecial,
+  matchesAppliedEnhancement,
+  matchesEnhancementShopCandidate,
+  matchesEquipEnhancementFilter,
+  rankEnhancementCandidates,
+  resolveEnhancementStrategy,
+  resolveEquipEnhancementFilter,
+  type EnhancementStrategy,
 } from "@vexed/game";
 import { equalsIgnoreCase } from "@vexed/shared/string";
 import { Effect } from "effect";
-import { asNumber, asRecord, asString } from "../../flash/PacketPayload";
+import {
+  asBoolean,
+  asNumber,
+  asRecord,
+  asString,
+} from "../../flash/PacketPayload";
 import type { ScriptExecutionContext } from "../Types";
 import { waitFor } from "../../utils/waitFor";
 
 const INTEGER_TOKEN_PATTERN = /^\d+$/;
-
-type EnhancementStrategy = {
-  readonly map?: "forge" | "museum";
-  readonly patternId: number;
-  readonly procId: number;
-  readonly shopId: number;
-};
-
-type ItemTypeContext = {
-  readonly isArmor: boolean;
-  readonly isCape: boolean;
-  readonly isHelm: boolean;
-  readonly isWeapon: boolean;
-};
 
 // TODO: make this an ipc confirm dialog?
 const confirmPurchase = (message: string) =>
@@ -313,57 +287,120 @@ export const rejectDrop = (
     yield* context.run(context.drops.rejectDrop(itemId));
   });
 
+const logEnhancementWarning = (
+  message: string,
+  details?: Readonly<Record<string, unknown>>,
+) =>
+  details === undefined
+    ? Effect.logWarning(message)
+    : Effect.logWarning(message, details);
 
-// Enhancements
+const isUpgradeValue = (value: unknown): boolean => {
+  const numeric = asNumber(value);
+  if (numeric !== undefined) {
+    return numeric === 1;
+  }
 
-const matchesProcInVariants = (
-  input: string,
-  variants: Record<string, readonly string[]>,
-): boolean => {
-  const normalized = input.toLowerCase().trim();
-  for (const [canonical, aliases] of Object.entries(variants)) {
-    if (canonical === normalized || aliases.includes(normalized)) {
-      return true;
+  return asBoolean(value) ?? false;
+};
+
+const canUseEnhancementEntry = (
+  item: {
+    readonly isMember: boolean;
+  },
+  state: {
+    readonly isMember: boolean;
+  },
+): boolean => !(item.isMember && !state.isMember);
+
+type EnhancementShopEntry = {
+  readonly data: Record<string, unknown>;
+  readonly id: number;
+  readonly isMember: boolean;
+  readonly itemGroup: string;
+  readonly level: number;
+};
+
+const toEnhancementShopEntry = (
+  value: unknown,
+): EnhancementShopEntry | null => {
+  const data = toRecord(value);
+  const itemGroup = asString(data["sES"]);
+  if (!itemGroup) {
+    return null;
+  }
+
+  const id = asNumber(data["ItemID"]) ?? asNumber(data["ShopItemID"]) ?? 0;
+  const level = asNumber(data["iLvl"]) ?? 0;
+
+  return {
+    data,
+    id,
+    isMember: isUpgradeValue(data["bUpg"]),
+    itemGroup,
+    level,
+  };
+};
+
+const findBestEnhancement = (
+  context: ScriptExecutionContext,
+  strategy: EnhancementStrategy,
+) =>
+  Effect.gen(function* () {
+    const [isMember, shopInfo] = yield* Effect.all([
+      context.run(context.player.isMember()),
+      context.run(context.shops.getInfo()),
+    ]);
+
+    const rawItems = Array.isArray(shopInfo?.items) ? shopInfo.items : [];
+
+    const slotAndPatternMatches: EnhancementShopEntry[] = [];
+    const candidates: EnhancementShopEntry[] = [];
+    for (const rawItem of rawItems) {
+      const shopItem = toEnhancementShopEntry(rawItem);
+      if (!shopItem) {
+        continue;
+      }
+
+      const matchesStrategy = matchesEnhancementShopCandidate(
+        {
+          data: shopItem.data,
+          itemGroup: shopItem.itemGroup,
+        },
+        strategy,
+      );
+
+      if (matchesStrategy) {
+        slotAndPatternMatches.push(shopItem);
+      }
+
+      if (canUseEnhancementEntry(shopItem, { isMember }) && matchesStrategy) {
+        candidates.push(shopItem);
+      }
     }
-  }
 
-  return false;
-};
+    candidates.sort((left, right) => {
+      const leftIsMember = left.isMember;
+      const rightIsMember = right.isMember;
 
-const matchesBasicEnhancement = (
-  item: Item,
-  enhancementName: string,
-): boolean => {
-  const targetEnhancement = findEnhancementByName(enhancementName);
-  return item.enhancementPatternId === targetEnhancement?.ID;
-};
+      if (leftIsMember !== rightIsMember) {
+        return isMember === leftIsMember ? -1 : 1;
+      }
 
-const matchesWeaponProc = (item: Item, procName: string): boolean => {
-  const itemRecord = toRecord(item.data);
-  const procId = asNumber(itemRecord["ProcID"]);
-  if (procId === undefined) {
-    return false;
-  }
+      if (right.level !== left.level) {
+        return right.level - left.level;
+      }
 
-  return areNamesEqual(getWeaponProcName(procId), procName, {
-    ...AWE_PROC_VARIANTS,
-    ...FORGE_WEAPON_PROC_VARIANTS,
+      return left.id - right.id;
+    });
+
+    return {
+      candidateData: candidates[0]?.data ?? null,
+      memberEligibleCount: candidates.length,
+      shopItemCount: rawItems.length,
+      slotAndPatternCount: slotAndPatternMatches.length,
+    };
   });
-};
-
-const matchesCapeProc = (item: Item, procName: string): boolean =>
-  areNamesEqual(
-    getCapeProcName(item.enhancementPatternId),
-    procName,
-    CAPE_PROC_VARIANTS,
-  );
-
-const matchesHelmProc = (item: Item, procName: string): boolean =>
-  areNamesEqual(
-    getHelmProcName(item.enhancementPatternId),
-    procName,
-    HELM_PROC_VARIANTS,
-  );
 
 export const equipItemByEnhancement = (
   context: ScriptExecutionContext,
@@ -371,332 +408,45 @@ export const equipItemByEnhancement = (
   procOrItemType?: string,
 ) =>
   Effect.gen(function* () {
+    const filterResolution = resolveEquipEnhancementFilter(
+      enhancementName,
+      procOrItemType,
+    );
+
+    if (!filterResolution.ok) {
+      yield* logEnhancementWarning(filterResolution.reason, {
+        command: "equip_item_by_enhancement",
+        enhancementName,
+        procOrItemType,
+      });
+      return;
+    }
+
     const items = yield* context.run(context.inventory.getItems());
-    const secondArg = (procOrItemType ?? "").toLowerCase().trim();
-    const isForge = enhancementName.toLowerCase().trim() === "forge";
-    const isBasic = isBasicEnhancement(enhancementName);
-    const isItemTypeFilter = ["weapon", "helm", "cape"].includes(secondArg);
-    const isAweProc = matchesProcInVariants(secondArg, AWE_PROC_VARIANTS);
+    const candidates = rankEnhancementCandidates(
+      items.filter((item) =>
+        matchesEquipEnhancementFilter(item, filterResolution.filter),
+      ),
+    );
 
-    const targetItem = items.find((item) => {
-      if (!item.isWeapon() && !item.isCape() && !item.isHelm()) {
-        return false;
-      }
+    const targetItem = candidates[0];
+    if (!targetItem) {
+      yield* logEnhancementWarning(
+        "No inventory item matched the requested enhancement filter",
+        {
+          command: "equip_item_by_enhancement",
+          enhancementName,
+          procOrItemType,
+        },
+      );
+      return;
+    }
 
-      if (isForge) {
-        if (!procOrItemType) {
-          return false;
-        }
-
-        if (matchesProcInVariants(procOrItemType, FORGE_WEAPON_PROC_VARIANTS)) {
-          return item.isWeapon() && matchesWeaponProc(item, procOrItemType);
-        }
-
-        if (matchesProcInVariants(procOrItemType, CAPE_PROC_VARIANTS)) {
-          return item.isCape() && matchesCapeProc(item, procOrItemType);
-        }
-
-        if (matchesProcInVariants(procOrItemType, HELM_PROC_VARIANTS)) {
-          return item.isHelm() && matchesHelmProc(item, procOrItemType);
-        }
-
-        return (
-          (item.isWeapon() && matchesWeaponProc(item, procOrItemType)) ||
-          (item.isCape() && matchesCapeProc(item, procOrItemType)) ||
-          (item.isHelm() && matchesHelmProc(item, procOrItemType))
-        );
-      }
-
-      if (isBasic && isAweProc && procOrItemType) {
-        return (
-          item.isWeapon() &&
-          matchesBasicEnhancement(item, enhancementName) &&
-          matchesWeaponProc(item, procOrItemType)
-        );
-      }
-
-      if (isBasic && isItemTypeFilter) {
-        if (secondArg === "weapon" && !item.isWeapon()) {
-          return false;
-        }
-
-        if (secondArg === "cape" && !item.isCape()) {
-          return false;
-        }
-
-        if (secondArg === "helm" && !item.isHelm()) {
-          return false;
-        }
-
-        return matchesBasicEnhancement(item, enhancementName);
-      }
-
-      if (isBasic && secondArg === "") {
-        return matchesBasicEnhancement(item, enhancementName);
-      }
-
-      return false;
-    });
-
-    if (!targetItem || targetItem.isEquipped()) {
+    if (targetItem.isEquipped()) {
       return;
     }
 
     yield* context.run(context.inventory.equip(targetItem.name));
-  });
-
-const resolveEnhancementStrategy = (
-  item: Item,
-  enhancementName: string,
-  playerLevel: number,
-  procName?: string,
-): EnhancementStrategy | null => {
-  const enhancementInput = enhancementName.toLowerCase().trim();
-  const procInput = (procName ?? "").toLowerCase().trim();
-  const basicType = resolveEnhancementType(enhancementInput);
-  const weaponProc = resolveWeaponSpecial(procInput);
-  const itemContext: ItemTypeContext = {
-    isArmor: item.category.toLowerCase() === "class" || item.isArmor(),
-    isCape: item.isCape(),
-    isHelm: item.isHelm(),
-    isWeapon: item.isWeapon(),
-  };
-
-  if (itemContext.isWeapon && weaponProc !== null) {
-    if (isForgeWeaponProc(weaponProc)) {
-      return {
-        map: "forge",
-        patternId: FORGE_ENHANCEMENT_PATTERN,
-        procId: weaponProc,
-        shopId: FORGE_WEAPON_SHOP,
-      };
-    }
-
-    if (isAweProc(weaponProc)) {
-      const baseType = basicType ?? EnhancementType.Lucky;
-      const aweShopId = getAweWeaponShopId(baseType);
-      if (aweShopId === undefined) {
-        return null;
-      }
-
-      return {
-        map: "museum",
-        patternId: baseType,
-        procId: weaponProc,
-        shopId: aweShopId,
-      };
-    }
-
-    return null;
-  }
-
-  if (
-    itemContext.isWeapon &&
-    enhancementInput === "forge" &&
-    procInput === ""
-  ) {
-    return {
-      map: "forge",
-      patternId: FORGE_ENHANCEMENT_PATTERN,
-      procId: 0,
-      shopId: FORGE_WEAPON_SHOP,
-    };
-  }
-
-  if (itemContext.isCape && enhancementInput === "forge") {
-    return {
-      map: "forge",
-      patternId: resolveCapeSpecial(procInput) ?? FORGE_ENHANCEMENT_PATTERN,
-      procId: 0,
-      shopId: FORGE_CAPE_SHOP,
-    };
-  }
-
-  if (itemContext.isHelm && enhancementInput === "forge") {
-    return {
-      map: "forge",
-      patternId: resolveHelmSpecial(procInput) ?? FORGE_ENHANCEMENT_PATTERN,
-      procId: 0,
-      shopId: FORGE_HELM_SHOP,
-    };
-  }
-
-  if (basicType === null) {
-    return null;
-  }
-
-  if (
-    !itemContext.isWeapon &&
-    !itemContext.isCape &&
-    !itemContext.isHelm &&
-    !itemContext.isArmor
-  ) {
-    return null;
-  }
-
-  if (
-    procInput !== "" &&
-    !itemContext.isWeapon &&
-    resolveWeaponSpecial(procInput) !== null
-  ) {
-    return null;
-  }
-
-  return {
-    patternId: basicType,
-    procId: 0,
-    shopId: getBasicEnhancementShopId(basicType, playerLevel),
-  };
-};
-
-// Filter enhancement shop entries through the current player's constraints
-// before choosing a target, so selection stays aligned with what the client can
-// actually buy right now.
-
-const canPurchaseEnhancement = (
-  context: ScriptExecutionContext,
-  shopItem: ShopItem,
-  state: {
-    readonly factions: Collection<string, Faction>;
-    readonly gold: number;
-    readonly isMember: boolean;
-    readonly level: number;
-  },
-) =>
-  Effect.gen(function* () {
-    const shopItemData = toRecord(shopItem.data);
-    const cost = asNumber(shopItemData["iCost"]) ?? 0;
-    const level = asNumber(shopItemData["iLvl"]) ?? 0;
-    const isUpgradeItem = asNumber(shopItemData["bUpg"]) === 1;
-
-    if (
-      state.gold < cost ||
-      level > state.level ||
-      (isUpgradeItem && !state.isMember)
-    ) {
-      return false;
-    }
-
-    const requiredRep = asNumber(shopItemData["iReqRep"]) ?? 0;
-    const factionId = asNumber(shopItemData["FactionID"]) ?? 0;
-    if (requiredRep > 0 && factionId > 0) {
-      const faction = [...state.factions.values()].find(
-        (entry) => entry.id === factionId,
-      );
-      if (!faction || faction.totalRep < requiredRep) {
-        return false;
-      }
-    }
-
-    const questSlot = asNumber(shopItemData["iQSindex"]) ?? -1;
-    const questValue = asNumber(shopItemData["iQSvalue"]) ?? 0;
-    if (questSlot >= 0) {
-      const currentValue = yield* context.run(
-        context.bridge.callGameFunction("world.getQuestValue", questSlot),
-      );
-      if ((asNumber(currentValue) ?? 0) < questValue) {
-        return false;
-      }
-    }
-
-    return true;
-  });
-
-const matchesEnhancementCategory = (
-  shopItem: ShopItem,
-  item: Item,
-): boolean => {
-  const enhancementTarget = shopItem.itemGroup.toLowerCase();
-  const category = item.category.toLowerCase();
-
-  return (
-    (category === "class" && enhancementTarget === "ar") ||
-    (category === "helm" && enhancementTarget === "he") ||
-    (category === "cape" && enhancementTarget === "ba") ||
-    (item.isWeapon() && enhancementTarget === "weapon")
-  );
-};
-
-const matchesEnhancementPattern = (
-  shopItem: ShopItem,
-  patternId: number,
-  procId: number,
-): boolean => {
-  const shopItemData = toRecord(shopItem.data);
-  const itemPatternId =
-    asNumber(shopItemData["PatternID"]) ??
-    asNumber(shopItemData["EnhPatternID"]) ??
-    0;
-  const itemProcId =
-    asNumber(shopItemData["ItemProcID"]) ??
-    asNumber(shopItemData["ProcID"]) ??
-    0;
-
-  return procId > 0
-    ? itemProcId === procId
-    : itemPatternId === patternId && itemProcId === 0;
-};
-
-const matchesAppliedEnhancement = (
-  item: Item,
-  patternId: number,
-  procId: number,
-): boolean => {
-  if (item.enhancementPatternId !== patternId) {
-    return false;
-  }
-
-  if (procId <= 0) {
-    return true;
-  }
-
-  return (asNumber(toRecord(item.data)["ProcID"]) ?? 0) === procId;
-};
-
-const findBestEnhancement = (
-  context: ScriptExecutionContext,
-  item: Item,
-  strategy: EnhancementStrategy,
-) =>
-  Effect.gen(function* () {
-    const [factions, gold, isMember, level, shopItems] = yield* Effect.all([
-      context.run(context.player.getFactions()),
-      context.run(context.player.getGold()),
-      context.run(context.player.isMember()),
-      context.run(context.player.getLevel()),
-      context.run(context.shops.getItems()),
-    ]);
-
-    const candidates: ShopItem[] = [];
-    for (const shopItem of shopItems) {
-      const canPurchase = yield* canPurchaseEnhancement(context, shopItem, {
-        factions,
-        gold,
-        isMember,
-        level,
-      });
-
-      if (
-        canPurchase &&
-        matchesEnhancementCategory(shopItem, item) &&
-        matchesEnhancementPattern(shopItem, strategy.patternId, strategy.procId)
-      ) {
-        candidates.push(shopItem);
-      }
-    }
-
-    candidates.sort((left, right) => {
-      const leftIsMember = left.isMember();
-      const rightIsMember = right.isMember();
-
-      if (leftIsMember !== rightIsMember) {
-        return isMember === leftIsMember ? -1 : 1;
-      }
-
-      return right.level - left.level;
-    });
-
-    return candidates[0] ?? null;
   });
 
 export const enhanceItem = (
@@ -709,58 +459,96 @@ export const enhanceItem = (
     const playerLevel = yield* context.run(context.player.getLevel());
     const item = yield* context.run(context.inventory.getItem(itemName));
     if (!item) {
+      yield* logEnhancementWarning("Item not found in inventory", {
+        command: "enhance_item",
+        enhancementName,
+        itemName,
+        procName,
+      });
       return;
     }
 
-    const strategy = resolveEnhancementStrategy(
+    const strategyResolution = resolveEnhancementStrategy(
       item,
       enhancementName,
       playerLevel,
       procName,
     );
-    if (!strategy) {
+
+    if (!strategyResolution.ok) {
+      yield* logEnhancementWarning(strategyResolution.reason, {
+        command: "enhance_item",
+        enhancementName,
+        itemName,
+        procName,
+      });
       return;
     }
 
+    const strategy = strategyResolution.strategy;
+
     if (strategy.map !== undefined) {
       const currentMap = yield* context.run(context.world.map.getName());
-      if (currentMap.toLowerCase() !== strategy.map) {
+      if (!equalsIgnoreCase(currentMap, strategy.map)) {
         yield* context.run(context.player.joinMap(strategy.map));
       }
     }
 
     yield* loadShopById(context, strategy.shopId);
 
-    const enhancementItem = yield* findBestEnhancement(context, item, strategy);
-    if (!enhancementItem) {
+    const enhancementSelection = yield* findBestEnhancement(context, strategy);
+    if (!enhancementSelection.candidateData) {
+      yield* logEnhancementWarning(
+        "No purchasable enhancement shop item matched requested strategy",
+        {
+          command: "enhance_item",
+          enhancementName,
+          itemName,
+          memberEligibleCount: enhancementSelection.memberEligibleCount,
+          procName,
+          shopItemCount: enhancementSelection.shopItemCount,
+          shopId: strategy.shopId,
+          slotAndPatternCount: enhancementSelection.slotAndPatternCount,
+        },
+      );
       return;
     }
 
     yield* context.run(
       context.bridge.callGameFunction("world.confirmSendEnhItemRequestShop", {
-        accept: true, // Skip confirmation
-        enh: enhancementItem.data,
+        accept: true,
+        enh: enhancementSelection.candidateData,
         item: [item.id],
       }),
     );
-    yield* context.run(
-      waitFor(
-        context.inventory
-          .getItem(item.id)
-          .pipe(
-            Effect.map(
-              (updatedItem) =>
-                updatedItem !== null &&
-                matchesAppliedEnhancement(
-                  updatedItem,
-                  enhancementItem.enhancementPatternId,
-                  strategy.procId,
-                ),
+
+    yield* context
+      .run(
+        waitFor(
+          context.inventory
+            .getItem(item.id)
+            .pipe(
+              Effect.map(
+                (updatedItem) =>
+                  updatedItem !== null &&
+                  matchesAppliedEnhancement(updatedItem, strategy),
+              ),
             ),
-          ),
-        { timeout: "5 seconds" },
-      ),
-    );
+          { timeout: "5 seconds" },
+        ),
+      )
+      .pipe(
+        Effect.catch(() =>
+          logEnhancementWarning("Enhancement request did not apply in time", {
+            command: "enhance_item",
+            enhancementName,
+            itemName,
+            procName,
+            shopId: strategy.shopId,
+            strategy,
+          }),
+        ),
+      );
   });
 
 export const normalizeItemIdentifier = (
