@@ -1,4 +1,4 @@
-import { Effect, Fiber, Layer, Option, Ref } from "effect";
+import { Effect, Fiber, Layer, Option, Ref, Semaphore } from "effect";
 import { type ScriptExecutePayload } from "../ipc";
 import { Auth } from "../../flash/Services/Auth";
 import { Bank } from "../../flash/Services/Bank";
@@ -246,6 +246,7 @@ const make = Effect.gen(function* () {
   const activeFiberRef = yield* Ref.make<
     Option.Option<Fiber.Fiber<void, unknown>>
   >(Option.none());
+  const runSemaphore = yield* Semaphore.make(1);
   const commandsRef = yield* Ref.make(new Map(scriptCommandHandlers));
   const currentCommandRef = yield* Ref.make<RunningScriptCommand | null>(null);
 
@@ -508,33 +509,37 @@ const make = Effect.gen(function* () {
         }
       }
 
-      yield* ensureReady(program.sourceName);
-      yield* stop("replaced by a new script");
+      yield* runSemaphore.withPermits(1)(
+        Effect.gen(function* () {
+          yield* ensureReady(program.sourceName);
+          yield* stop("replaced by a new script");
 
-      const fiber = yield* Effect.forkDetach(
-        executeProgram(program, commands).pipe(
-          Effect.catchCause((cause) =>
-            Effect.logError({
-              message: "script execution failed",
-              sourceName: program.sourceName,
-              cause,
-            }),
-          ),
-          Effect.ensuring(
-            Effect.all(
-              [
-                Ref.set(activeFiberRef, Option.none()),
-                Ref.set(currentCommandRef, null),
-              ],
-              { discard: true },
+          const fiber = yield* Effect.forkDetach(
+            executeProgram(program, commands).pipe(
+              Effect.catchCause((cause) =>
+                Effect.logError({
+                  message: "script execution failed",
+                  sourceName: program.sourceName,
+                  cause,
+                }),
+              ),
+              Effect.ensuring(
+                Effect.all(
+                  [
+                    Ref.set(activeFiberRef, Option.none()),
+                    Ref.set(currentCommandRef, null),
+                  ],
+                  { discard: true },
+                ),
+              ),
             ),
-          ),
-        ),
-      );
+          );
 
-      yield* Ref.set(activeFiberRef, Option.some(fiber));
-      yield* Effect.logInfo(
-        `[scripting] started script: ${program.sourceName}`,
+          yield* Ref.set(activeFiberRef, Option.some(fiber));
+          yield* Effect.logInfo(
+            `[scripting] started script: ${program.sourceName}`,
+          );
+        }),
       );
     });
 
