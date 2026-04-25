@@ -11,11 +11,21 @@ import { World } from "../Services/World";
 
 const asShopInfo = (value: unknown): ShopInfo | null => {
   const record = asRecord(value);
-  if (!record || !Array.isArray(record["items"])) {
+  if (!record) {
     return null;
   }
 
-  return record as ShopInfo;
+  const shopinfo = asRecord(record["shopinfo"]);
+  if (!shopinfo) {
+    return null;
+  }
+
+  const items = shopinfo["items"];
+  if (!Array.isArray(items)) {
+    return null;
+  }
+
+  return shopinfo as ShopInfo;
 };
 
 const isItemMatch = (value: unknown, key: ItemIdentifierToken): boolean => {
