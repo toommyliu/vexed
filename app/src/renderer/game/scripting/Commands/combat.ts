@@ -521,7 +521,6 @@ export const createCombatScriptDsl = (
      *
      * @param target - Monster name or identifier.
      * @param most - Whether to prefer the cell with the most matching monsters.
-     * @remark Moves to a room cell where the target monster is present.
      */
     hunt(target: string, most: boolean = false) {
       recordCombatInstruction(
