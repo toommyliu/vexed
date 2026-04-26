@@ -1034,9 +1034,13 @@ export const createConditionScriptDsl = (
 
   return {
     /**
-     * Starts a conditional block from one condition expression.
+     * Starts a conditional block from one complete condition expression.
      *
-     * @param condition - Condition expression to evaluate.
+     * `if` controls whether the following commands run. It accepts a single
+     * expression, which can be a simple condition or a nested expression built
+     * with `and`, `or`, or `not`.
+     *
+     * @param condition - Complete condition expression to evaluate.
      * @example
      * cmd.if(cmd.not(cmd.in_combat()))
      */
@@ -1047,7 +1051,11 @@ export const createConditionScriptDsl = (
     /**
      * Starts a conditional block that runs only when every expression matches.
      *
-     * @param conditions - Condition expressions to combine with logical AND.
+     * `if_all(a, b)` is control-flow shorthand for
+     * `if(and(a, b))`. Use it when the whole block has a flat AND condition.
+     * Use `and` inside `if` when you need to nest the AND with `or` or `not`.
+     *
+     * @param conditions - Complete condition expressions to combine with logical AND.
      * @example
      * cmd.if_all(cmd.in_map("battleon"), cmd.hp_percent(">", 80))
      */
@@ -1065,7 +1073,11 @@ export const createConditionScriptDsl = (
     /**
      * Starts a conditional block that runs when any expression matches.
      *
-     * @param conditions - Condition expressions to combine with logical OR.
+     * `if_any(a, b)` is control-flow shorthand for
+     * `if(or(a, b))`. Use it when the whole block has a flat OR condition.
+     * Use `or` inside `if` when you need to nest the OR with `and` or `not`.
+     *
+     * @param conditions - Complete condition expressions to combine with logical OR.
      * @example
      * cmd.if_any(cmd.in_inventory("Token"), cmd.in_bank("Token"))
      */
@@ -1104,7 +1116,10 @@ export const createConditionScriptDsl = (
     /**
      * Builds the inverse of a condition expression.
      *
-     * @param condition - Condition expression to invert.
+     * `not` only creates an expression. It does not start a block by itself;
+     * pass it to `if`, `if_all`, `if_any`, `and`, or `or`.
+     *
+     * @param condition - Complete condition expression to invert.
      * @example
      * cmd.if(cmd.not(cmd.in_inventory("Token")))
      */
@@ -1229,8 +1244,11 @@ export const createConditionScriptDsl = (
     /**
      * Builds a logical AND condition expression.
      *
-     * @param conditions - Condition expressions to combine with logical AND.
-     * @remark Use `if_all` for block control flow; use this when a nested expression is clearer.
+     * `and` only creates an expression. It does not start a block by itself;
+     * pass the result to `if`, `not`, `or`, or another `and`. Use `if_all`
+     * when the entire conditional block is a flat AND of several expressions.
+     *
+     * @param conditions - Complete condition expressions to combine with logical AND.
      * @example
      * cmd.if(cmd.and(cmd.in_map("battleon"), cmd.hp_percent(">", 80)))
      */
@@ -1241,8 +1259,11 @@ export const createConditionScriptDsl = (
     /**
      * Builds a logical OR condition expression.
      *
-     * @param conditions - Condition expressions to combine with logical OR.
-     * @remark Use `if_any` for block control flow; use this when a nested expression is clearer.
+     * `or` only creates an expression. It does not start a block by itself;
+     * pass the result to `if`, `not`, `and`, or another `or`. Use `if_any`
+     * when the entire conditional block is a flat OR of several expressions.
+     *
+     * @param conditions - Complete condition expressions to combine with logical OR.
      * @example
      * cmd.if(cmd.or(cmd.in_inventory("Token"), cmd.in_bank("Token")))
      */
