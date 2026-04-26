@@ -238,8 +238,8 @@ export const createQuestScriptDsl = (
     /**
      * Accepts a quest.
      *
-     * @param questId Quest id.
-     * @param silent Whether to load the quest silently before accepting.
+     * @param questId - Quest id.
+     * @param silent - Whether to load the quest without showing the Quest Popup. 
      */
     accept_quest(questId: number, silent: boolean = false) {
       recordQuestInstruction(
@@ -257,7 +257,7 @@ export const createQuestScriptDsl = (
     /**
      * Abandons a quest.
      *
-     * @param questId Quest id.
+     * @param questId - Quest id.
      */
     abandon_quest(questId: number) {
       recordQuestInstruction(
@@ -273,11 +273,14 @@ export const createQuestScriptDsl = (
     /**
      * Completes a quest.
      *
-     * @param questId Quest id.
-     * @param options Optional reward and turn-in settings.
-     * @example cmd.complete_quest(11)
-     * @example cmd.complete_quest(123, { itemId: 123 })
-     * @example cmd.complete_quest(1234, { itemId: 123, turnIns: "max" })
+     * @param questId - Quest id.
+     * @param options - Optional reward and turn-in settings.
+     * @example
+     * cmd.complete_quest(11)
+     * @example
+     * cmd.complete_quest(123, { itemId: 123 })
+     * @example
+     * cmd.complete_quest(1234, { itemId: 123, turnIns: "max" })
      */
     complete_quest(questId: number, options?: CompleteQuestOptions) {
       recordQuestInstruction(

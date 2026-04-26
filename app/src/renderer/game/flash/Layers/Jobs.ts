@@ -351,7 +351,9 @@ const make = Effect.gen(function* () {
     });
   };
 
-  yield* startQuestProgressJob({ questId: 11, interval: "500 millis" });
+  void startQuestProgressJob;
+
+  // yield* startQuestProgressJob({ questId: 11, interval: "500 millis" });
 
   const settingsApplyJobDefinition: PeriodicJobDefinition = {
     key: SETTINGS_REAPPLY_JOB_KEY,

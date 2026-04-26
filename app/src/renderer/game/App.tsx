@@ -76,8 +76,7 @@ export default function App() {
       .runPromise(
         Effect.gen(function* () {
           const quests = yield* Quests;
-          const result = yield* quests.accept(11, false);
-          console.log("Accept result:", result);
+          console.log(yield* quests.getTree());
         }),
       )
       .catch((error) => {

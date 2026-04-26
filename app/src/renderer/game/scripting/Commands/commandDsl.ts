@@ -1,4 +1,6 @@
+import { EntityState } from "@vexed/game";
 import { positiveInt } from "@vexed/shared/number";
+import { equalsIgnoreCase } from "@vexed/shared/string";
 import { Effect, Option } from "effect";
 import { ScriptInvalidArgumentError } from "../Errors";
 import {
@@ -71,11 +73,52 @@ export type ScriptComparisonOperatorInput =
 
 export type ScriptPlayerMetric = "hp" | "hp_percent" | "mp" | "mp_percent";
 export type ScriptMonsterMetric = "monster_health" | "monster_health_percent";
+export type ScriptInventoryLocation = "bank" | "house" | "inventory" | "temp";
 
 export type ScriptCondition =
   | {
+      readonly _tag: "All";
+      readonly conditions: readonly unknown[];
+    }
+  | {
+      readonly _tag: "Any";
+      readonly conditions: readonly unknown[];
+    }
+  | {
       readonly _tag: "PlayerMetric";
       readonly metric: ScriptPlayerMetric;
+      readonly operator: ScriptComparisonOperator;
+      readonly value: number;
+    }
+  | {
+      readonly _tag: "SelfNumberMetric";
+      readonly metric: "gold" | "level";
+      readonly operator: ScriptComparisonOperator;
+      readonly value: number;
+    }
+  | {
+      readonly _tag: "PlayerNamedMetric";
+      readonly metric: "hp" | "hp_percent";
+      readonly player?: string;
+      readonly operator: ScriptComparisonOperator;
+      readonly value: number;
+    }
+  | {
+      readonly _tag: "AnyPlayerMetric";
+      readonly metric: "hp_percent";
+      readonly operator: ScriptComparisonOperator;
+      readonly value: number;
+    }
+  | {
+      readonly _tag: "PlayerAura";
+      readonly player?: string;
+      readonly aura: string;
+      readonly operator: ScriptComparisonOperator;
+      readonly value: number;
+    }
+  | {
+      readonly _tag: "PlayerCount";
+      readonly cell?: string;
       readonly operator: ScriptComparisonOperator;
       readonly value: number;
     }
@@ -85,6 +128,68 @@ export type ScriptCondition =
       readonly target: string;
       readonly operator: ScriptComparisonOperator;
       readonly value: number;
+    }
+  | {
+      readonly _tag: "MonsterPresence";
+      readonly monster: string;
+      readonly expected: boolean;
+    }
+  | {
+      readonly _tag: "InventoryContains";
+      readonly location: ScriptInventoryLocation;
+      readonly item: string;
+      readonly quantity: number;
+      readonly expected: boolean;
+    }
+  | {
+      readonly _tag: "ItemState";
+      readonly item: string;
+      readonly state: "equipped" | "maxed" | "dropped" | "can_buy";
+      readonly expected: boolean;
+    }
+  | {
+      readonly _tag: "BooleanState";
+      readonly state: "has_target" | "in_combat" | "member";
+      readonly expected: boolean;
+    }
+  | {
+      readonly _tag: "Cell";
+      readonly cell: string;
+      readonly expected: boolean;
+    }
+  | {
+      readonly _tag: "Map";
+      readonly map: string;
+      readonly expected: boolean;
+    }
+  | {
+      readonly _tag: "PlayerLocation";
+      readonly player: string;
+      readonly cell?: string;
+      readonly expected: boolean;
+    }
+  | {
+      readonly _tag: "PlayerName";
+      readonly player: string;
+      readonly expected: boolean;
+    }
+  | {
+      readonly _tag: "FactionRank";
+      readonly faction: string;
+      readonly operator: ScriptComparisonOperator;
+      readonly value: number;
+    }
+  | {
+      readonly _tag: "QuestState";
+      readonly questId: number;
+      readonly state: "available" | "can_complete" | "in_progress";
+      readonly expected: boolean;
+    }
+  | {
+      readonly _tag: "TargetHp";
+      readonly operator: ScriptComparisonOperator;
+      readonly value: number;
+      readonly upper?: number;
     }
   | {
       readonly _tag: "Not";
@@ -608,6 +713,20 @@ export const createPlayerMetricCondition = (
   value,
 });
 
+export const createAllCondition = (
+  conditions: readonly unknown[],
+): ScriptCondition => ({
+  _tag: "All",
+  conditions,
+});
+
+export const createAnyCondition = (
+  conditions: readonly unknown[],
+): ScriptCondition => ({
+  _tag: "Any",
+  conditions,
+});
+
 export const createMonsterMetricCondition = (
   metric: ScriptMonsterMetric,
   target: string,
@@ -619,6 +738,178 @@ export const createMonsterMetricCondition = (
   target,
   operator,
   value,
+});
+
+export const createSelfNumberMetricCondition = (
+  metric: "gold" | "level",
+  operator: ScriptComparisonOperator,
+  value: number,
+): ScriptCondition => ({
+  _tag: "SelfNumberMetric",
+  metric,
+  operator,
+  value,
+});
+
+export const createPlayerNamedMetricCondition = (
+  metric: "hp" | "hp_percent",
+  player: string | undefined,
+  operator: ScriptComparisonOperator,
+  value: number,
+): ScriptCondition => ({
+  _tag: "PlayerNamedMetric",
+  metric,
+  ...(player !== undefined ? { player } : {}),
+  operator,
+  value,
+});
+
+export const createAnyPlayerMetricCondition = (
+  metric: "hp_percent",
+  operator: ScriptComparisonOperator,
+  value: number,
+): ScriptCondition => ({
+  _tag: "AnyPlayerMetric",
+  metric,
+  operator,
+  value,
+});
+
+export const createPlayerAuraCondition = (
+  player: string | undefined,
+  aura: string,
+  operator: ScriptComparisonOperator,
+  value: number,
+): ScriptCondition => ({
+  _tag: "PlayerAura",
+  ...(player !== undefined ? { player } : {}),
+  aura,
+  operator,
+  value,
+});
+
+export const createPlayerCountCondition = (
+  operator: ScriptComparisonOperator,
+  value: number,
+  cell?: string,
+): ScriptCondition => ({
+  _tag: "PlayerCount",
+  ...(cell !== undefined ? { cell } : {}),
+  operator,
+  value,
+});
+
+export const createMonsterPresenceCondition = (
+  monster: string,
+  expected: boolean,
+): ScriptCondition => ({
+  _tag: "MonsterPresence",
+  monster,
+  expected,
+});
+
+export const createInventoryContainsCondition = (
+  location: ScriptInventoryLocation,
+  item: string,
+  quantity: number,
+  expected: boolean,
+): ScriptCondition => ({
+  _tag: "InventoryContains",
+  location,
+  item,
+  quantity,
+  expected,
+});
+
+export const createItemStateCondition = (
+  item: string,
+  state: "equipped" | "maxed" | "dropped" | "can_buy",
+  expected: boolean,
+): ScriptCondition => ({
+  _tag: "ItemState",
+  item,
+  state,
+  expected,
+});
+
+export const createBooleanStateCondition = (
+  state: "has_target" | "in_combat" | "member",
+  expected: boolean,
+): ScriptCondition => ({
+  _tag: "BooleanState",
+  state,
+  expected,
+});
+
+export const createCellCondition = (
+  cell: string,
+  expected: boolean,
+): ScriptCondition => ({
+  _tag: "Cell",
+  cell,
+  expected,
+});
+
+export const createMapCondition = (
+  map: string,
+  expected: boolean,
+): ScriptCondition => ({
+  _tag: "Map",
+  map,
+  expected,
+});
+
+export const createPlayerLocationCondition = (
+  player: string,
+  expected: boolean,
+  cell?: string,
+): ScriptCondition => ({
+  _tag: "PlayerLocation",
+  player,
+  ...(cell !== undefined ? { cell } : {}),
+  expected,
+});
+
+export const createPlayerNameCondition = (
+  player: string,
+  expected: boolean,
+): ScriptCondition => ({
+  _tag: "PlayerName",
+  player,
+  expected,
+});
+
+export const createFactionRankCondition = (
+  faction: string,
+  operator: ScriptComparisonOperator,
+  value: number,
+): ScriptCondition => ({
+  _tag: "FactionRank",
+  faction,
+  operator,
+  value,
+});
+
+export const createQuestStateCondition = (
+  questId: number,
+  state: "available" | "can_complete" | "in_progress",
+  expected: boolean,
+): ScriptCondition => ({
+  _tag: "QuestState",
+  questId,
+  state,
+  expected,
+});
+
+export const createTargetHpCondition = (
+  operator: ScriptComparisonOperator,
+  value: number,
+  upper?: number,
+): ScriptCondition => ({
+  _tag: "TargetHp",
+  operator,
+  value,
+  ...(upper !== undefined ? { upper } : {}),
 });
 
 const normalizeComparisonOperator = (
@@ -728,6 +1019,176 @@ const readMonsterMetricValue = (
     }),
   );
 
+const parseMapAndRoom = (
+  map: string,
+): { readonly map: string; readonly room?: number } => {
+  const separatorIndex = map.lastIndexOf("-");
+  if (separatorIndex === -1) {
+    return { map };
+  }
+
+  const roomToken = map.slice(separatorIndex + 1);
+  if (!/^\d+$/.test(roomToken)) {
+    return { map };
+  }
+
+  return {
+    map: map.slice(0, separatorIndex),
+    room: Number.parseInt(roomToken, 10),
+  };
+};
+
+const evaluateInventoryContains = (
+  context: ScriptExecutionContext,
+  condition: Extract<ScriptCondition, { readonly _tag: "InventoryContains" }>,
+) => {
+  const effect =
+    condition.location === "inventory"
+      ? context.inventory.contains(condition.item, condition.quantity)
+      : condition.location === "temp"
+        ? context.tempInventory.contains(condition.item, condition.quantity)
+        : condition.location === "bank"
+          ? context.bank.contains(condition.item, condition.quantity)
+          : Effect.gen(function* () {
+              const item = yield* context.house.getItem(condition.item);
+              return (item?.quantity ?? 0) >= condition.quantity;
+            });
+
+  return context
+    .run(effect)
+    .pipe(
+      Effect.map((contains) => (condition.expected ? contains : !contains)),
+    );
+};
+
+const evaluateItemState = (
+  context: ScriptExecutionContext,
+  condition: Extract<ScriptCondition, { readonly _tag: "ItemState" }>,
+) =>
+  Effect.gen(function* () {
+    let actual = false;
+    switch (condition.state) {
+      case "equipped": {
+        const item = yield* context.run(
+          context.inventory.getItem(condition.item),
+        );
+        actual = item?.isEquipped() ?? false;
+        break;
+      }
+      case "maxed": {
+        const item = yield* context.run(
+          context.inventory.getItem(condition.item),
+        );
+        actual = item?.isMaxed() ?? false;
+        break;
+      }
+      case "dropped":
+        actual = yield* context.run(context.drops.containsDrop(condition.item));
+        break;
+      case "can_buy":
+        actual = yield* context.run(context.shops.canBuyItem(condition.item));
+        break;
+    }
+
+    return condition.expected ? actual : !actual;
+  });
+
+const evaluateBooleanState = (
+  context: ScriptExecutionContext,
+  condition: Extract<ScriptCondition, { readonly _tag: "BooleanState" }>,
+) =>
+  Effect.gen(function* () {
+    const actual =
+      condition.state === "has_target"
+        ? yield* context.run(context.combat.hasTarget())
+        : condition.state === "member"
+          ? yield* context.run(context.player.isMember())
+          : (yield* context.run(context.player.getState())) ===
+            EntityState.InCombat;
+
+    return condition.expected ? actual : !actual;
+  });
+
+const evaluatePlayerNamedMetric = (
+  context: ScriptExecutionContext,
+  condition: Extract<ScriptCondition, { readonly _tag: "PlayerNamedMetric" }>,
+) =>
+  Effect.gen(function* () {
+    const player =
+      condition.player === undefined
+        ? yield* context.world.players.getSelf()
+        : yield* context.world.players.getByName(condition.player);
+
+    if (Option.isNone(player)) {
+      return false;
+    }
+
+    const actual =
+      condition.metric === "hp" ? player.value.hp : player.value.hpPercentage;
+    return compareNumbers(actual, condition.operator, condition.value);
+  });
+
+const evaluatePlayerAura = (
+  context: ScriptExecutionContext,
+  condition: Extract<ScriptCondition, { readonly _tag: "PlayerAura" }>,
+) =>
+  Effect.gen(function* () {
+    const player =
+      condition.player === undefined
+        ? yield* context.world.players.getSelf()
+        : yield* context.world.players.getByName(condition.player);
+
+    if (Option.isNone(player)) {
+      return false;
+    }
+
+    const aura = yield* context.world.players.getAura(
+      player.value.data.entID,
+      condition.aura,
+    );
+    const actual = Option.isSome(aura) ? (aura.value.value ?? 0) : 0;
+    return compareNumbers(actual, condition.operator, condition.value);
+  });
+
+const evaluateAnyPlayerMetric = (
+  context: ScriptExecutionContext,
+  condition: Extract<ScriptCondition, { readonly _tag: "AnyPlayerMetric" }>,
+) =>
+  Effect.gen(function* () {
+    const players = yield* context.world.players.getAll();
+    for (const player of players.values()) {
+      const actual = player.hpPercentage;
+      if (compareNumbers(actual, condition.operator, condition.value)) {
+        return true;
+      }
+    }
+
+    return false;
+  });
+
+const evaluatePlayerCount = (
+  context: ScriptExecutionContext,
+  condition: Extract<ScriptCondition, { readonly _tag: "PlayerCount" }>,
+) =>
+  Effect.gen(function* () {
+    const self = yield* context.world.players.getSelf();
+    const players = yield* context.world.players.getAll();
+    const targetCell =
+      condition.cell ?? (Option.isSome(self) ? self.value.cell : undefined);
+    let count = 0;
+
+    for (const player of players.values()) {
+      if (
+        targetCell === undefined ||
+        equalsIgnoreCase(player.cell, targetCell)
+      ) {
+        count += 1;
+      }
+    }
+
+    return compareNumbers(count, condition.operator, condition.value);
+  });
+
 export const evaluateScriptCondition = (
   context: ScriptExecutionContext,
   command: string,
@@ -748,6 +1209,46 @@ export const evaluateScriptCondition = (
   const condition = raw as Partial<ScriptCondition>;
 
   switch (condition._tag) {
+    case "All": {
+      const conditions = condition.conditions;
+      if (!Array.isArray(conditions)) {
+        return invalidArg(
+          context,
+          command,
+          "all condition requires conditions",
+        );
+      }
+
+      return Effect.gen(function* () {
+        for (const child of conditions) {
+          if (!(yield* evaluateScriptCondition(context, command, child))) {
+            return false;
+          }
+        }
+
+        return true;
+      });
+    }
+    case "Any": {
+      const conditions = condition.conditions;
+      if (!Array.isArray(conditions)) {
+        return invalidArg(
+          context,
+          command,
+          "any condition requires conditions",
+        );
+      }
+
+      return Effect.gen(function* () {
+        for (const child of conditions) {
+          if (yield* evaluateScriptCondition(context, command, child)) {
+            return true;
+          }
+        }
+
+        return false;
+      });
+    }
     case "PlayerMetric": {
       const metric = condition.metric;
       if (
@@ -792,6 +1293,67 @@ export const evaluateScriptCondition = (
         compareNumbers(actual, operator, value),
       );
     }
+    case "SelfNumberMetric": {
+      const metric = condition.metric;
+      if (metric !== "gold" && metric !== "level") {
+        return invalidArg(
+          context,
+          command,
+          "condition metric is not supported",
+        );
+      }
+
+      const operator = condition.operator;
+      const value = condition.value;
+      if (
+        (operator !== "eq" &&
+          operator !== "ne" &&
+          operator !== "lt" &&
+          operator !== "lte" &&
+          operator !== "gt" &&
+          operator !== "gte") ||
+        typeof value !== "number" ||
+        !Number.isFinite(value)
+      ) {
+        return invalidArg(context, command, "condition comparison is invalid");
+      }
+
+      const actual =
+        metric === "gold"
+          ? context.run(context.player.getGold())
+          : context.run(context.player.getLevel());
+      return actual.pipe(
+        Effect.map((metricValue) =>
+          compareNumbers(metricValue, operator, value),
+        ),
+      );
+    }
+    case "PlayerNamedMetric":
+      return evaluatePlayerNamedMetric(
+        context,
+        condition as Extract<
+          ScriptCondition,
+          { readonly _tag: "PlayerNamedMetric" }
+        >,
+      );
+    case "PlayerAura":
+      return evaluatePlayerAura(
+        context,
+        condition as Extract<ScriptCondition, { readonly _tag: "PlayerAura" }>,
+      );
+    case "AnyPlayerMetric":
+      return evaluateAnyPlayerMetric(
+        context,
+        condition as Extract<
+          ScriptCondition,
+          { readonly _tag: "AnyPlayerMetric" }
+        >,
+      );
+    case "PlayerCount":
+      return evaluatePlayerCount(
+        context,
+        condition as Extract<ScriptCondition, { readonly _tag: "PlayerCount" }>,
+      );
     case "MonsterMetric": {
       const metric = condition.metric;
       if (metric !== "monster_health" && metric !== "monster_health_percent") {
@@ -844,6 +1406,171 @@ export const evaluateScriptCondition = (
             : compareNumbers(actual, operator, value),
       );
     }
+    case "MonsterPresence": {
+      const monster = condition.monster;
+      if (typeof monster !== "string" || monster.trim() === "") {
+        return invalidArg(
+          context,
+          command,
+          "monster must be a non-empty string",
+        );
+      }
+
+      return context.world.monsters.findByName(monster).pipe(
+        Effect.map((match) => {
+          const actual = Option.isSome(match) && match.value.alive;
+          return condition.expected ? actual : !actual;
+        }),
+      );
+    }
+    case "InventoryContains":
+      return evaluateInventoryContains(
+        context,
+        condition as Extract<
+          ScriptCondition,
+          { readonly _tag: "InventoryContains" }
+        >,
+      );
+    case "ItemState":
+      return evaluateItemState(
+        context,
+        condition as Extract<ScriptCondition, { readonly _tag: "ItemState" }>,
+      );
+    case "BooleanState":
+      return evaluateBooleanState(
+        context,
+        condition as Extract<
+          ScriptCondition,
+          { readonly _tag: "BooleanState" }
+        >,
+      );
+    case "Cell": {
+      const cell = condition.cell;
+      if (typeof cell !== "string" || cell.trim() === "") {
+        return invalidArg(context, command, "cell must be a non-empty string");
+      }
+
+      return context.run(context.player.getCell()).pipe(
+        Effect.map((actualCell) => {
+          const actual = equalsIgnoreCase(actualCell, cell);
+          return condition.expected ? actual : !actual;
+        }),
+      );
+    }
+    case "Map": {
+      const map = condition.map;
+      if (typeof map !== "string" || map.trim() === "") {
+        return invalidArg(context, command, "map must be a non-empty string");
+      }
+
+      const target = parseMapAndRoom(map);
+      return Effect.all([
+        context.world.map.getName(),
+        context.world.map.getRoomNumber(),
+      ]).pipe(
+        Effect.map(([currentMap, currentRoom]) => {
+          const actual =
+            equalsIgnoreCase(currentMap, target.map) &&
+            (target.room === undefined || currentRoom === target.room);
+          return condition.expected ? actual : !actual;
+        }),
+      );
+    }
+    case "PlayerLocation": {
+      const playerName = condition.player;
+      if (typeof playerName !== "string" || playerName.trim() === "") {
+        return invalidArg(
+          context,
+          command,
+          "player must be a non-empty string",
+        );
+      }
+
+      return context.world.players.getByName(playerName).pipe(
+        Effect.map((player) => {
+          const actual =
+            Option.isSome(player) &&
+            (condition.cell === undefined ||
+              equalsIgnoreCase(player.value.cell, condition.cell));
+          return condition.expected ? actual : !actual;
+        }),
+      );
+    }
+    case "PlayerName": {
+      const playerName = condition.player;
+      if (typeof playerName !== "string" || playerName.trim() === "") {
+        return invalidArg(
+          context,
+          command,
+          "player must be a non-empty string",
+        );
+      }
+
+      return context.run(context.auth.getUsername()).pipe(
+        Effect.map((username) => {
+          const actual = equalsIgnoreCase(username, playerName);
+          return condition.expected ? actual : !actual;
+        }),
+      );
+    }
+    case "FactionRank": {
+      const factionName = condition.faction;
+      if (typeof factionName !== "string" || factionName.trim() === "") {
+        return invalidArg(
+          context,
+          command,
+          "faction must be a non-empty string",
+        );
+      }
+
+      return context.run(context.player.getFactions()).pipe(
+        Effect.map((factions) => {
+          const faction = factions.find((candidate) =>
+            equalsIgnoreCase(candidate.name, factionName),
+          );
+          return compareNumbers(
+            faction?.rank ?? 0,
+            condition.operator as ScriptComparisonOperator,
+            condition.value as number,
+          );
+        }),
+      );
+    }
+    case "QuestState": {
+      const questId = condition.questId;
+      if (typeof questId !== "number" || !Number.isFinite(questId)) {
+        return invalidArg(context, command, "quest id must be a finite number");
+      }
+
+      const actual =
+        condition.state === "available"
+          ? context.run(context.quests.isAvailable(questId))
+          : condition.state === "can_complete"
+            ? context.run(context.quests.canComplete(questId))
+            : context.run(context.quests.isInProgress(questId));
+
+      return actual.pipe(
+        Effect.map((matched) => (condition.expected ? matched : !matched)),
+      );
+    }
+    case "TargetHp":
+      return context.run(context.combat.getTarget()).pipe(
+        Effect.map((target) => {
+          const hp = target?.hp ?? 0;
+          if (
+            condition.operator === "gt" &&
+            typeof condition.upper === "number"
+          ) {
+            return hp > (condition.value as number) && hp < condition.upper;
+          }
+
+          return compareNumbers(
+            hp,
+            condition.operator as ScriptComparisonOperator,
+            condition.value as number,
+          );
+        }),
+      );
     case "Not":
       return Effect.map(
         evaluateScriptCondition(context, command, condition.condition),

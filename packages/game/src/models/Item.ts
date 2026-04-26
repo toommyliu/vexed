@@ -100,6 +100,13 @@ export class Item {
   }
 
   /**
+   * Whether the item is type Class.
+   */
+  public isClass(): boolean {
+    return this.category === "Class";
+  }
+
+  /**
    * Whether the item is type Cape.
    */
   public isCape(): boolean {

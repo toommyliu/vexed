@@ -402,11 +402,12 @@ export const createItemScriptDsl = (
     /**
      * Buys an item from a shop.
      *
-     * @param shopId Shop id to load or use.
-     * @param item Item name or item id.
-     * @param quantity Quantity to buy.
-     * @param auto Whether merge requirements should be bought first when possible.
-     * @example cmd.buy_item(147, "Health Potion", 5)
+     * @param shopId - Shop id to load or use.
+     * @param item - Item name or item id.
+     * @param quantity - Quantity to buy.
+     * @param auto - Whether merge requirements should be bought first when possible.
+     * @example
+     * cmd.buy_item(147, "Health Potion", 5)
      */
     buy_item(
       shopId: number,
@@ -426,7 +427,11 @@ export const createItemScriptDsl = (
     /**
      * Deposits one or more items into the bank.
      *
-     * @param item Item name, item id, or list of items.
+     * @param item - Item name, item id, or list of items.
+     * @example
+     * cmd.deposit("Voucher")
+     * @example
+     * cmd.deposit(["Voucher", "Merge Token"])
      */
     deposit(item: ScriptItemIdentifierList) {
       recordItemInstruction(
@@ -438,7 +443,7 @@ export const createItemScriptDsl = (
     /**
      * Picks up a map item by id.
      *
-     * @param itemId Map item id.
+     * @param itemId - Map item id.
      */
     get_map_item(itemId: number) {
       recordItemInstruction(
@@ -450,7 +455,7 @@ export const createItemScriptDsl = (
     /**
      * Accepts a dropped item.
      *
-     * @param item Item name or item id.
+     * @param item - Item name or item id.
      */
     pickup(item: ScriptItemIdentifier) {
       recordItemInstruction(
@@ -462,7 +467,7 @@ export const createItemScriptDsl = (
     /**
      * Rejects a dropped item.
      *
-     * @param item Item name or item id.
+     * @param item - Item name or item id.
      */
     reject(item: ScriptItemIdentifier) {
       recordItemInstruction(
@@ -474,7 +479,7 @@ export const createItemScriptDsl = (
     /**
      * Sells an inventory item by name.
      *
-     * @param item Inventory item name.
+     * @param item - Inventory item name.
      */
     sell_item(item: string) {
       recordItemInstruction(
@@ -486,8 +491,10 @@ export const createItemScriptDsl = (
     /**
      * Swaps a bank item with an inventory item.
      *
-     * @param bankItem Item currently in the bank.
-     * @param invItem Item currently in inventory.
+     * @param bankItem - Item currently in the bank.
+     * @param invItem - Item currently in inventory.
+     * @example
+     * cmd.swap("Farming Class", "Combat Class")
      */
     swap(bankItem: ScriptItemIdentifier, invItem: ScriptItemIdentifier) {
       recordItemInstruction(
@@ -500,7 +507,11 @@ export const createItemScriptDsl = (
     /**
      * Withdraws one or more items from the bank.
      *
-     * @param item Item name, item id, or list of items.
+     * @param item - Item name, item id, or list of items.
+     * @example
+     * cmd.withdraw("Voucher")
+     * @example
+     * cmd.withdraw(["Voucher", "Merge Token"])
      */
     withdraw(item: ScriptItemIdentifierList) {
       recordItemInstruction(
@@ -512,7 +523,7 @@ export const createItemScriptDsl = (
     /**
      * Equips an inventory item by name.
      *
-     * @param item Inventory item name.
+     * @param item - Inventory item name.
      */
     equip_item(item: string) {
       recordItemInstruction(
@@ -524,10 +535,12 @@ export const createItemScriptDsl = (
     /**
      * Equips the first inventory item matching an enhancement rule.
      *
-     * @param enhancementName Enhancement name such as `Lucky` or `Forge`.
-     * @param procOrItemType Optional Awe/Forge proc name or item type filter.
-     * @example cmd.equip_item_by_enhancement("Lucky", "weapon")
-     * @example cmd.equip_item_by_enhancement("Forge", "Valiance")
+     * @param enhancementName - Enhancement name such as `Lucky` or `Forge`.
+     * @param procOrItemType - Optional Awe/Forge proc name or item type filter.
+     * @example
+     * cmd.equip_item_by_enhancement("Lucky", "weapon")
+     * @example
+     * cmd.equip_item_by_enhancement("Forge", "Valiance")
      */
     equip_item_by_enhancement(
       enhancementName: string,
@@ -551,7 +564,7 @@ export const createItemScriptDsl = (
     /**
      * Loads a shop.
      *
-     * @param shopId Shop id to load.
+     * @param shopId - Shop id to load.
      */
     load_shop(shopId: number) {
       recordItemInstruction(
@@ -563,10 +576,11 @@ export const createItemScriptDsl = (
     /**
      * Enhances an inventory item using a matching enhancement shop entry.
      *
-     * @param itemName Inventory item name.
-     * @param enhancementName Enhancement name such as `Lucky` or `Forge`.
-     * @param procName Optional Awe (i.e Spiral Carve) or Forge proc name (i.e. Valiance).
-     * @example cmd.enhance_item("Necrotic Sword", "Forge", "Valiance")
+     * @param itemName - Inventory item name.
+     * @param enhancementName - Enhancement name such as `Lucky` or `Forge`.
+     * @param procName - Optional Awe or Forge proc name, such as `Valiance`.
+     * @example
+     * cmd.enhance_item("Necrotic Sword", "Forge", "Valiance")
      */
     enhance_item(itemName: string, enhancementName: string, procName?: string) {
       recordItemInstruction(

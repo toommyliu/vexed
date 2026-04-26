@@ -254,6 +254,9 @@ const make = Effect.gen(function* () {
       state.meUsername = normalize(username);
     }).pipe(Effect.asVoid);
 
+  const getPlayers: WorldPlayersShape["getAll"] = () =>
+    mutate(stateRef, (state) => state.players);
+
   const resolveSelf = (state: RuntimeState): Avatar | undefined => {
     if (!state.meUsername) {
       return undefined;
@@ -304,6 +307,14 @@ const make = Effect.gen(function* () {
     mutate(stateRef, (state) => {
       state.playerAuras.get(entId)?.delete(auraName);
     }).pipe(Effect.asVoid);
+
+  const getPlayerAura: WorldPlayersShape["getAura"] = (entId, auraName) =>
+    mutate(stateRef, (state) => {
+      const aura = state.playerAuras
+        .get(entId)
+        ?.find((candidate) => equalsIgnoreCase(candidate.name, auraName));
+      return aura ? Option.some(aura) : Option.none();
+    });
 
   const clearPlayerAuras: WorldPlayersShape["clearAuras"] = (entId) =>
     mutate(stateRef, (state) => {
@@ -361,6 +372,14 @@ const make = Effect.gen(function* () {
       state.monsterAuras.get(monMapId)?.delete(auraName);
     }).pipe(Effect.asVoid);
 
+  const getMonsterAura: WorldMonstersShape["getAura"] = (monMapId, auraName) =>
+    mutate(stateRef, (state) => {
+      const aura = state.monsterAuras
+        .get(monMapId)
+        ?.find((candidate) => equalsIgnoreCase(candidate.name, auraName));
+      return aura ? Option.some(aura) : Option.none();
+    });
+
   const clearMonsterAuras: WorldMonstersShape["clearAuras"] = (monMapId) =>
     mutate(stateRef, (state) => {
       state.monsterAuras.delete(monMapId);
@@ -392,6 +411,7 @@ const make = Effect.gen(function* () {
     add: addPlayer,
     remove: removePlayer,
     setSelf,
+    getAll: getPlayers,
     getSelf,
     withSelf,
     get: getPlayer,
@@ -399,6 +419,7 @@ const make = Effect.gen(function* () {
     addAura: addPlayerAura,
     updateAura: updatePlayerAura,
     removeAura: removePlayerAura,
+    getAura: getPlayerAura,
     clearAuras: clearPlayerAuras,
   };
 
@@ -410,6 +431,7 @@ const make = Effect.gen(function* () {
     addAura: addMonsterAura,
     updateAura: updateMonsterAura,
     removeAura: removeMonsterAura,
+    getAura: getMonsterAura,
     clearAuras: clearMonsterAuras,
   };
 

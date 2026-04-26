@@ -1,12 +1,16 @@
 import { Effect, Fiber, Layer, Option, Ref, Semaphore } from "effect";
 import { type ScriptExecutePayload } from "../ipc";
 import { Auth } from "../../flash/Services/Auth";
+import { AutoZone } from "../../flash/Services/AutoZone";
 import { Bank } from "../../flash/Services/Bank";
 import { Bridge } from "../../flash/Services/Bridge";
 import { Combat } from "../../flash/Services/Combat";
 import { Drops } from "../../flash/Services/Drops";
+import { House } from "../../flash/Services/House";
 import { Inventory } from "../../flash/Services/Inventory";
+import { Jobs } from "../../flash/Services/Jobs";
 import { Packet } from "../../flash/Services/Packet";
+import { PacketDomain } from "../../flash/Services/PacketDomain";
 import { Player } from "../../flash/Services/Player";
 import { Quests } from "../../flash/Services/Quests";
 import { Settings } from "../../flash/Services/Settings";
@@ -225,12 +229,16 @@ const compileProgram = (
 
 const make = Effect.gen(function* () {
   const auth = yield* Auth;
+  const autoZone = yield* AutoZone;
   const bank = yield* Bank;
   const bridge = yield* Bridge;
   const combat = yield* Combat;
   const drops = yield* Drops;
+  const house = yield* House;
   const inventory = yield* Inventory;
+  const jobs = yield* Jobs;
   const packet = yield* Packet;
+  const packetDomain = yield* PacketDomain;
   const player = yield* Player;
   const quests = yield* Quests;
   const settings = yield* Settings;
@@ -249,6 +257,10 @@ const make = Effect.gen(function* () {
   const runSemaphore = yield* Semaphore.make(1);
   const commandsRef = yield* Ref.make(new Map(scriptCommandHandlers));
   const currentCommandRef = yield* Ref.make<RunningScriptCommand | null>(null);
+  const commandDelayRef = yield* Ref.make(0);
+  const packetHandlerDisposersRef = yield* Ref.make(
+    new Map<string, () => void>(),
+  );
 
   const interruptActiveScript = (reason: string) =>
     Effect.gen(function* () {
@@ -282,6 +294,19 @@ const make = Effect.gen(function* () {
     }),
   );
 
+  yield* Effect.addFinalizer(() =>
+    Ref.get(packetHandlerDisposersRef).pipe(
+      Effect.flatMap((disposers) =>
+        Effect.sync(() => {
+          for (const dispose of disposers.values()) {
+            dispose();
+          }
+          disposers.clear();
+        }),
+      ),
+    ),
+  );
+
   const ensureReady = (sourceName: string) =>
     Effect.gen(function* () {
       const connected = yield* Ref.get(readyRef);
@@ -309,12 +334,16 @@ const make = Effect.gen(function* () {
       const context: ScriptExecutionContext = {
         sourceName: program.sourceName,
         auth,
+        autoZone,
         bank,
         bridge,
         combat,
         drops,
+        house,
         inventory,
+        jobs,
         packet,
+        packetDomain,
         player,
         quests,
         settings,
@@ -323,6 +352,38 @@ const make = Effect.gen(function* () {
         world,
         run: <A, E>(effect: Effect.Effect<A, E>) =>
           ensureReady(program.sourceName).pipe(Effect.andThen(effect)),
+        setCommandDelay: (ms) =>
+          Ref.set(commandDelayRef, Math.max(0, Math.trunc(ms))),
+        registerPacketHandler: (type, name, handler) =>
+          Effect.gen(function* () {
+            const key = `${type}:${name.trim().toLowerCase()}`;
+            const wrappedHandler = (value: unknown) =>
+              Effect.promise(async () => {
+                await handler(value);
+              }).pipe(Effect.asVoid);
+
+            const disposer =
+              type === "packetFromClient"
+                ? yield* packet.packetFromClient(wrappedHandler)
+                : type === "packetFromServer"
+                  ? yield* packet.packetFromServer(wrappedHandler)
+                  : yield* packet.onExtensionResponse(wrappedHandler);
+
+            yield* Ref.update(packetHandlerDisposersRef, (disposers) => {
+              const next = new Map(disposers);
+              next.get(key)?.();
+              next.set(key, disposer);
+              return next;
+            });
+          }),
+        unregisterPacketHandler: (type, name) =>
+          Ref.update(packetHandlerDisposersRef, (disposers) => {
+            const key = `${type}:${name.trim().toLowerCase()}`;
+            const next = new Map(disposers);
+            next.get(key)?.();
+            next.delete(key);
+            return next;
+          }),
       };
 
       let instructionPointer = 0;
@@ -355,6 +416,11 @@ const make = Effect.gen(function* () {
         if (result._tag === "Stop") {
           yield* Ref.set(currentCommandRef, null);
           return yield* Effect.void;
+        }
+
+        const commandDelay = yield* Ref.get(commandDelayRef);
+        if (commandDelay > 0) {
+          yield* Effect.sleep(`${commandDelay} millis`);
         }
 
         if (result._tag === "JumpToIndex") {

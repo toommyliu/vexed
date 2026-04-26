@@ -362,7 +362,7 @@ export const createCombatScriptDsl = (
     /**
      * Attacks a target.
      *
-     * @param target Monster name or target token.
+     * @param target - Monster name or monMapId token.
      */
     attack(target: string) {
       recordCombatInstruction(
@@ -388,8 +388,12 @@ export const createCombatScriptDsl = (
     /**
      * Kills a target.
      *
-     * @param target Monster name or identifier.
-     * @param options Optional kill settings.
+     * @param target - Monster name or monMapId token.
+     * @param options - Optional kill settings.
+     * @example
+     * cmd.kill("Slime")
+     * @example
+     * cmd.kill("id.3", { killPriority: ["id.1", "id:2"], skillSet: [1, 2], skillDelay: 500, skillWait: true })
      */
     kill(target: string, options?: Partial<CombatKillOptions>) {
       recordCombatInstruction(
@@ -406,11 +410,10 @@ export const createCombatScriptDsl = (
     /**
      * Kills a target until an inventory item reaches the requested quantity.
      *
-     * @param target Monster name or identifier.
-     * @param item Item name or item id.
-     * @param quantity Quantity to reach.
-     * @param options Optional kill settings.
-     * @example cmd.kill_for_item("Slime", "Slime Goo", 10)
+     * @param target - Monster name or identifier.
+     * @param item - Inventory item name or id.
+     * @param quantity - Quantity to reach.
+     * @param options - Optional kill settings.
      */
     kill_for_item(
       target: string,
@@ -439,10 +442,10 @@ export const createCombatScriptDsl = (
     /**
      * Kills a target until a temporary item reaches the requested quantity.
      *
-     * @param target Monster name or identifier.
-     * @param item Item name or item id.
-     * @param quantity Quantity to reach.
-     * @param options Optional kill settings.
+     * @param target - Monster name or identifier.
+     * @param item - Temporary item name or id.
+     * @param quantity - Quantity to reach.
+     * @param options - Optional kill settings.
      */
     kill_for_tempitem(
       target: string,
@@ -475,7 +478,7 @@ export const createCombatScriptDsl = (
     /**
      * Rests the player.
      *
-     * @param full Whether to rest fully.
+     * @param full - Whether to wait for full HP/MP recovery.
      */
     rest(full: boolean = false) {
       recordCombatInstruction(
@@ -487,8 +490,8 @@ export const createCombatScriptDsl = (
     /**
      * Uses a skill.
      *
-     * @param skill Skill slot.
-     * @param wait Whether to wait for the skill.
+     * @param skill - Skill slot.
+     * @param wait - Whether to wait for the skill cooldown before continuing.
      */
     use_skill(skill: number | string, wait: boolean = false) {
       recordCombatInstruction(
@@ -501,8 +504,8 @@ export const createCombatScriptDsl = (
     /**
      * Uses a skill even without a target.
      *
-     * @param skill Skill slot.
-     * @param wait Whether to wait for the skill.
+     * @param skill - Skill slot.
+     * @param wait - Whether to wait for the skill cooldown before continuing.
      */
     force_use_skill(skill: number | string, wait: boolean = false) {
       recordCombatInstruction(
@@ -516,8 +519,9 @@ export const createCombatScriptDsl = (
     /**
      * Jumps to the cell where a monster target can be found.
      *
-     * @param target Monster name or identifier.
-     * @param most Whether to prefer the cell with the most matching monsters.
+     * @param target - Monster name or identifier.
+     * @param most - Whether to prefer the cell with the most matching monsters.
+     * @remark Moves to a room cell where the target monster is present.
      */
     hunt(target: string, most: boolean = false) {
       recordCombatInstruction(
@@ -530,8 +534,10 @@ export const createCombatScriptDsl = (
     /**
      * Casts a short buff rotation.
      *
-     * @param skillList Optional skill list. Pass `null` or `[]` to use the default `[1, 2, 3]`.
-     * @param wait Whether to wait for each skill cooldown before casting.
+     * @param skillList - Optional skill list. Pass `null` or `[]` to use the default `[1, 2, 3]`.
+     * @param wait - Whether to wait for each skill cooldown before casting.
+     * @example
+     * cmd.buff([1, 2, 3, 4, 1, 2, 3, 4], true)
      */
     buff(skillList?: ReadonlyArray<number> | null, wait: boolean = false) {
       recordCombatInstruction(

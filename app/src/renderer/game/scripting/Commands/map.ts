@@ -186,11 +186,14 @@ export const createMapScriptDsl = (
     /**
      * Joins a map, optionally targeting a cell and pad.
      *
+     * @param map - Map name.
+     * @param cell - Optional cell name.
+     * @param pad - Optional pad name.
      * @alias join
-     * @param map Map name.
-     * @param cell Optional cell name.
-     * @param pad Optional pad name.
-     * @example cmd.join_map("battleon", "Enter", "Spawn")
+     * @example
+     * cmd.join_map("battleon", "Enter", "Spawn")
+     * @example
+     * cmd.join("battleon")
      */
     join_map(
       map: string,
@@ -208,9 +211,14 @@ export const createMapScriptDsl = (
     /**
      * Moves the player to a cell and optional pad.
      *
+     * @param cell - Cell name.
+     * @param pad - Optional pad name.
      * @alias jump_to_cell
-     * @param cell Cell name.
-     * @param pad Optional pad name.
+     * @alias jump
+     * @example
+     * cmd.move_to_cell("Boss", "Left")
+     * @example
+     * cmd.jump_to_cell("Enter")
      */
     move_to_cell(cell: string, pad: string = DEFAULT_PAD) {
       recordMapInstruction(
@@ -223,8 +231,10 @@ export const createMapScriptDsl = (
     /**
      * Walks to a point on the map.
      *
-     * @param x X coordinate.
-     * @param y Y coordinate.
+     * @param x - X coordinate.
+     * @param y - Y coordinate.
+     * @example
+     * cmd.walk_to(450, 320)
      */
     walk_to(x: number, y: number) {
       recordMapInstruction(
@@ -235,9 +245,11 @@ export const createMapScriptDsl = (
     },
 
     /**
-     * Go to another player.
+     * Goes to another player.
      *
-     * @param player Player name.
+     * @param player - Player name.
+     * @example
+     * cmd.goto_player("Artix")
      */
     goto_player(player: string) {
       recordMapInstruction(
@@ -248,7 +260,12 @@ export const createMapScriptDsl = (
 
     /**
      * Goes to the player's house.
-     * @param player Optional player name.
+     *
+     * @param player - Optional player name. Defaults to the current player.
+     * @example
+     * cmd.goto_house()
+     * @example
+     * cmd.goto_house("Artix")
      */
     goto_house(player?: string) {
       recordMapInstruction(
@@ -260,9 +277,13 @@ export const createMapScriptDsl = (
     /**
      * Sets the spawn point.
      *
+     * @param cell - Optional cell name.
+     * @param pad - Optional pad name.
      * @alias set_spawn
-     * @param cell Optional cell name.
-     * @param pad Optional pad name.
+     * @example
+     * cmd.set_spawnpoint("Boss", "Left")
+     * @example
+     * cmd.set_spawn("Enter", "Spawn")
      */
     set_spawnpoint(cell?: string, pad?: string) {
       recordMapInstruction(
