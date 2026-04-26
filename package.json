@@ -6,6 +6,7 @@
     "as3": "pnpm run as3:bridge && pnpm run as3:build",
     "as3:bridge": "tsx scripts/gen-as3-bridge.ts",
     "as3:build": "tsx scripts/build-as3-swf.ts",
+    "docgen": "tsx scripts/docgen.ts",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "format": "oxfmt --check",

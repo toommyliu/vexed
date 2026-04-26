@@ -27,7 +27,6 @@
     "build:fast": "npm-run-all --sequential compile:prod \"electron-builder build\"",
     "build:all": "npm-run-all --sequential clean typecheck compile:prod \"electron-builder -mwl\"",
     "electron-builder": "electron-builder",
-    "docgen": "tsx scripts/docgen.ts",
     "changelog": "cd .. && git-cliff --config cliff.toml --output CHANGELOG.md"
   },
   "dependencies": {

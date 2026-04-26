@@ -4,10 +4,15 @@ on:
   push:
     branches: [main]
     paths:
-      - 'app/src/renderer/game/botting/commands/**/*.ts'
-      - 'app/src/renderer/game/lib/**/*.ts'
-      - 'app/scripts/docgen.ts'
+      - 'app/src/renderer/game/scripting/Commands/**/*.ts'
+      - 'app/src/renderer/game/scripting/Types.ts'
+      - 'scripts/docgen.ts'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   generate-docs:
@@ -34,7 +39,6 @@ jobs:
         run: pnpm install
 
       - name: Generate documentation
-        working-directory: ./app
         run: pnpm run docgen
 
       - name: Commit and push documentation updates
