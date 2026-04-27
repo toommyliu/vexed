@@ -1,4 +1,4 @@
-import { Effect } from "effect";
+import { Effect, Number as EffectNumber } from "effect";
 import type { AutoZoneSupportedMap } from "../../flash/Services/AutoZone";
 import { waitFor } from "../../utils/waitFor";
 import { ScriptCommandResult, type ScriptCommandHandler } from "../Types";
@@ -207,20 +207,17 @@ const buyLifeStealCommand = createCommandHandler((context, args) =>
 
 const buyScrollOfEnrageCommand = createCommandHandler((context, args) =>
   Effect.gen(function* () {
-    const quantity = Math.min(
-      1_000, // Maximum
-      Math.max(
-        1, // Minimum
-        Math.floor(
-          yield* requireInstructionNumber(
-            context,
-            "buy_scroll_of_enrage",
-            args,
-            0,
-            "quantity",
-          ),
-        ), // Requested quantity
+    const quantity = EffectNumber.clamp(
+      Math.floor(
+        yield* requireInstructionNumber(
+          context,
+          "buy_scroll_of_enrage",
+          args,
+          0,
+          "quantity",
+        ),
       ),
+      { minimum: 1, maximum: 1_000 },
     );
     const itemName = "Scroll of Enrage";
     if (yield* context.run(context.inventory.contains(itemName, quantity))) {
