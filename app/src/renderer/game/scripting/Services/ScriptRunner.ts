@@ -3,6 +3,7 @@ import type { Effect } from "effect";
 import type { BridgeError } from "../../flash/Services/Bridge";
 import type {
   ScriptCompileError,
+  ScriptCustomCommandError,
   ScriptDuplicateLabelError,
   ScriptInvalidArgumentError,
   ScriptInvalidControlFlowError,
@@ -25,6 +26,7 @@ export interface RunningScriptCommand {
 export type ScriptRunnerError =
   | BridgeError
   | ScriptCompileError
+  | ScriptCustomCommandError
   | ScriptDuplicateLabelError
   | ScriptInvalidArgumentError
   | ScriptInvalidControlFlowError
@@ -33,7 +35,10 @@ export type ScriptRunnerError =
   | ScriptUnknownCommandError;
 
 export interface ScriptRunnerShape {
-  run(source: string, options?: RunScriptOptions): Effect.Effect<void, ScriptRunnerError>;
+  run(
+    source: string,
+    options?: RunScriptOptions,
+  ): Effect.Effect<void, ScriptRunnerError>;
   stop(reason?: string): Effect.Effect<void>;
   isRunning(): Effect.Effect<boolean>;
   currentCommand(): Effect.Effect<RunningScriptCommand | null>;
@@ -42,6 +47,7 @@ export interface ScriptRunnerShape {
   unregister(name: string): Effect.Effect<void>;
 }
 
-export class ScriptRunner extends ServiceMap.Service<ScriptRunner, ScriptRunnerShape>()(
-  "scripting/Services/ScriptRunner",
-) {}
+export class ScriptRunner extends ServiceMap.Service<
+  ScriptRunner,
+  ScriptRunnerShape
+>()("scripting/Services/ScriptRunner") {}

@@ -1,7 +1,9 @@
 import { Effect, Number as EffectNumber } from "effect";
 import type { AutoZoneSupportedMap } from "../../flash/Services/AutoZone";
 import { waitFor } from "../../utils/waitFor";
+import { ScriptInvalidArgumentError } from "../Errors";
 import { ScriptCommandResult, type ScriptCommandHandler } from "../Types";
+import type { CustomCommandHandler } from "../Types";
 import {
   createCommandHandler,
   defineScriptCommandDomain,
@@ -19,6 +21,10 @@ import {
   type ScriptInstructionRecorder,
   withScriptCommandAliases,
 } from "./commandDsl";
+import {
+  assertValidCustomCommandName,
+  validateCustomCommandName,
+} from "./customCommand";
 
 type PacketHandlerType = "packetFromClient" | "packetFromServer" | "pext";
 type PacketHandler = (packet: unknown) => void | Promise<void>;
@@ -59,6 +65,8 @@ type MiscScriptCommandArguments = {
     handler: PacketHandler,
   ];
   unregister_handler: [type: PacketHandlerType, name: string];
+  register_command: [name: string, handler: CustomCommandHandler];
+  unregister_command: [name: string];
   use_autozone_ledgermayne: [];
   use_autozone_moreskulls: [];
   use_autozone_darkcarnax: [];
@@ -177,20 +185,17 @@ const waitForPlayerCountCommand = createCommandHandler((context, args) =>
 
 const buyLifeStealCommand = createCommandHandler((context, args) =>
   Effect.gen(function* () {
-    const quantity = Math.min(
-      99,
-      Math.max(
-        1,
-        Math.floor(
-          yield* requireInstructionNumber(
-            context,
-            "buy_lifesteal",
-            args,
-            0,
-            "quantity",
-          ),
+    const quantity = EffectNumber.clamp(
+      Math.floor(
+        yield* requireInstructionNumber(
+          context,
+          "buy_lifesteal",
+          args,
+          0,
+          "quantity",
         ),
       ),
+      { minimum: 1, maximum: 99 },
     );
     const itemName = "Scroll of Life Steal";
     const current = yield* context.run(context.inventory.getItem(itemName));
@@ -338,6 +343,54 @@ const unregisterHandlerCommand = createCommandHandler((context, args) =>
     }
 
     yield* context.unregisterPacketHandler(type, name);
+  }),
+);
+
+const registerCommandCommand = createCommandHandler((context, args) =>
+  Effect.gen(function* () {
+    const name = yield* requireInstructionString(
+      context,
+      "register_command",
+      args,
+      0,
+      "name",
+    );
+    const normalizedName = yield* validateCustomCommandName(
+      context,
+      "register_command",
+      name,
+    );
+    const handler = args[1];
+    if (typeof handler !== "function") {
+      return yield* new ScriptInvalidArgumentError({
+        sourceName: context.sourceName,
+        command: "register_command",
+        message: "handler must be a function",
+      });
+    }
+
+    yield* context.registerCustomCommand(
+      normalizedName,
+      handler as CustomCommandHandler,
+    );
+  }),
+);
+
+const unregisterCommandCommand = createCommandHandler((context, args) =>
+  Effect.gen(function* () {
+    const name = yield* requireInstructionString(
+      context,
+      "unregister_command",
+      args,
+      0,
+      "name",
+    );
+    const normalizedName = yield* validateCustomCommandName(
+      context,
+      "unregister_command",
+      name,
+    );
+    yield* context.unregisterCustomCommand(normalizedName);
   }),
 );
 
@@ -588,6 +641,8 @@ const miscCommandHandlerMap = miscCommandDomain.defineHandlers({
   buy_scroll_of_enrage: buyScrollOfEnrageCommand,
   register_handler: registerHandlerCommand,
   unregister_handler: unregisterHandlerCommand,
+  register_command: registerCommandCommand,
+  unregister_command: unregisterCommandCommand,
   use_autozone_ledgermayne: autoZoneCommand("ledgermayne"),
   use_autozone_moreskulls: autoZoneCommand("moreskulls"),
   use_autozone_darkcarnax: autoZoneCommand("darkcarnax"),
@@ -934,6 +989,37 @@ export const createMiscScriptDsl = (
         "unregister_handler",
         packetHandlerType(type),
         requireScriptArgumentString("unregister_handler", "name", name),
+      );
+    },
+    /**
+     * Registers a script-local custom command.
+     *
+     * @param name - Command name to expose on `cmd`.
+     * @param handler - Function invoked when the custom command runs.
+     * @example
+     * cmd.register_command("my_check", async ({ api, skipNext }) => {
+     *   if (!(await api.inventory.contains("Token"))) return skipNext()
+     * })
+     */
+    register_command(name, handler) {
+      if (typeof handler !== "function") {
+        throw new Error("cmd.register_command: handler must be a function");
+      }
+      recordMiscInstruction(
+        "register_command",
+        assertValidCustomCommandName("register_command", name),
+        handler,
+      );
+    },
+    /**
+     * Removes a script-local custom command.
+     *
+     * @param name - Command name passed to `register_command`.
+     */
+    unregister_command(name) {
+      recordMiscInstruction(
+        "unregister_command",
+        assertValidCustomCommandName("unregister_command", name),
       );
     },
     /**

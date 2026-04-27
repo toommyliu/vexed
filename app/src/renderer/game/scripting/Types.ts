@@ -1,5 +1,6 @@
 import type { Effect } from "effect";
 import type {
+  ScriptCustomCommandError,
   ScriptInvalidArgumentError,
   ScriptLabelNotFoundError,
   ScriptNotReadyError,
@@ -53,6 +54,67 @@ export const ScriptCommandResult = {
   Stop: { _tag: "Stop" } as const,
 };
 
+type CustomCommandRuntimeValue<T> =
+  T extends Effect.Effect<infer A, unknown, unknown>
+    ? Promise<A>
+    : T extends (...args: infer Args) => infer Result
+      ? (...args: Args) => CustomCommandRuntimeValue<Result>
+      : T extends object
+        ? { readonly [Key in keyof T]: CustomCommandRuntimeValue<T[Key]> }
+        : T;
+
+type CustomCommandPacketApi = Pick<
+  PacketShape,
+  | "sendServer"
+  | "sendClient"
+  | "onExtensionResponse"
+  | "packetFromServer"
+  | "packetFromClient"
+>;
+
+export interface CustomCommandRuntimeApi {
+  readonly auth: CustomCommandRuntimeValue<AuthShape>;
+  readonly autoZone: CustomCommandRuntimeValue<AutoZoneShape>;
+  readonly bank: CustomCommandRuntimeValue<BankShape>;
+  readonly bridge: CustomCommandRuntimeValue<BridgeShape>;
+  readonly combat: CustomCommandRuntimeValue<CombatShape>;
+  readonly drops: CustomCommandRuntimeValue<DropsShape>;
+  readonly house: CustomCommandRuntimeValue<HouseShape>;
+  readonly inventory: CustomCommandRuntimeValue<InventoryShape>;
+  readonly jobs: CustomCommandRuntimeValue<JobsShape>;
+  readonly packet: CustomCommandRuntimeValue<CustomCommandPacketApi>;
+  readonly player: CustomCommandRuntimeValue<PlayerShape>;
+  readonly quests: CustomCommandRuntimeValue<QuestsShape>;
+  readonly settings: CustomCommandRuntimeValue<SettingsShape>;
+  readonly shops: CustomCommandRuntimeValue<ShopsShape>;
+  readonly tempInventory: CustomCommandRuntimeValue<TempInventoryShape>;
+  readonly world: CustomCommandRuntimeValue<WorldShape>;
+}
+
+export type CustomCommandResult =
+  | { readonly _tag: "Continue" }
+  | { readonly _tag: "SkipNext" }
+  | { readonly _tag: "JumpToIndex"; readonly index: number }
+  | { readonly _tag: "JumpToLabel"; readonly label: string }
+  | { readonly _tag: "Stop" };
+
+export interface CustomCommandContext {
+  readonly args: ReadonlyArray<unknown>;
+  readonly sourceName: string;
+  readonly instruction: ScriptInstruction;
+  readonly api: CustomCommandRuntimeApi;
+  continue(): CustomCommandResult;
+  skipNext(): CustomCommandResult;
+  gotoLabel(label: string): CustomCommandResult;
+  jumpToIndex(index: number): CustomCommandResult;
+  stop(): CustomCommandResult;
+  log(message: string): void;
+}
+
+export type CustomCommandHandler = (
+  context: CustomCommandContext,
+) => void | CustomCommandResult | Promise<void | CustomCommandResult>;
+
 export interface ScriptExecutionContext {
   readonly sourceName: string;
   readonly auth: AuthShape;
@@ -85,10 +147,18 @@ export interface ScriptExecutionContext {
     type: "packetFromClient" | "packetFromServer" | "pext",
     name: string,
   ): Effect.Effect<void>;
+  registerCustomCommand(
+    name: string,
+    handler: CustomCommandHandler,
+  ): Effect.Effect<void, ScriptCommandError>;
+  unregisterCustomCommand(
+    name: string,
+  ): Effect.Effect<void, ScriptCommandError>;
 }
 
 export type ScriptCommandError =
   | BridgeError
+  | ScriptCustomCommandError
   | ScriptInvalidArgumentError
   | ScriptLabelNotFoundError
   | ScriptNotReadyError;

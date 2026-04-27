@@ -34,16 +34,25 @@ import type {
 } from "../Services/ScriptRunner";
 import {
   ScriptCommandResult,
+  type CustomCommandHandler,
   type ScriptCommandHandler,
   type ScriptExecutionContext,
   type ScriptInstruction,
   type ScriptProgram,
 } from "../Types";
+import {
+  makeCustomCommandHandler,
+  protectBuiltinCommandName,
+} from "../Commands/customCommand";
 
 type ConditionalBlockFrame = {
   readonly ifIndex: number;
   readonly elseIndex?: number;
 };
+
+const BUILTIN_SCRIPT_COMMAND_NAMES = new Set(
+  scriptCommandHandlers.map(([name]) => name),
+);
 
 const scriptNameFromPayload = (payload: ScriptExecutePayload): string => {
   if (payload.name && payload.name.trim() !== "") {
@@ -170,12 +179,36 @@ const compileProgram = (
   Effect.try({
     try: () => {
       const instructions: Array<ScriptInstruction> = [];
-      const cmdProxy = createScriptDsl((name, args) => {
+      const recordInstruction = (
+        name: string,
+        args: ReadonlyArray<unknown>,
+      ) => {
         instructions.push({
           name,
           args: [...args],
           index: instructions.length,
         });
+      };
+      const staticCmd = createScriptDsl(recordInstruction);
+      const cmdProxy = new Proxy(staticCmd as Record<string, unknown>, {
+        get(target, property, receiver) {
+          if (property === "then") {
+            return undefined;
+          }
+
+          if (typeof property !== "string") {
+            return Reflect.get(target, property, receiver);
+          }
+
+          const value = Reflect.get(target, property, receiver);
+          if (value !== undefined) {
+            return value;
+          }
+
+          return (...args: ReadonlyArray<unknown>) => {
+            recordInstruction(property, args);
+          };
+        },
       });
 
       const evaluate = new Function("cmd", source) as (
@@ -331,7 +364,44 @@ const make = Effect.gen(function* () {
     commands: ReadonlyMap<string, ScriptCommandHandler>,
   ) =>
     Effect.gen(function* () {
-      const context: ScriptExecutionContext = {
+      const runtimeCommands = new Map(commands);
+      let context: ScriptExecutionContext;
+
+      const registerCustomCommand = (
+        name: string,
+        handler: CustomCommandHandler,
+      ) =>
+        protectBuiltinCommandName(
+          context,
+          "register_command",
+          name,
+          BUILTIN_SCRIPT_COMMAND_NAMES,
+        ).pipe(
+          Effect.andThen(
+            Effect.sync(() => {
+              runtimeCommands.set(
+                name,
+                makeCustomCommandHandler(name, handler),
+              );
+            }),
+          ),
+        );
+
+      const unregisterCustomCommand = (name: string) =>
+        protectBuiltinCommandName(
+          context,
+          "unregister_command",
+          name,
+          BUILTIN_SCRIPT_COMMAND_NAMES,
+        ).pipe(
+          Effect.andThen(
+            Effect.sync(() => {
+              runtimeCommands.delete(name);
+            }),
+          ),
+        );
+
+      context = {
         sourceName: program.sourceName,
         auth,
         autoZone,
@@ -384,6 +454,8 @@ const make = Effect.gen(function* () {
             next.delete(key);
             return next;
           }),
+        registerCustomCommand,
+        unregisterCustomCommand,
       };
 
       let instructionPointer = 0;
@@ -393,7 +465,7 @@ const make = Effect.gen(function* () {
           break;
         }
 
-        const handler = commands.get(instruction.name);
+        const handler = runtimeCommands.get(instruction.name);
         if (!handler) {
           return yield* Effect.fail(
             new ScriptUnknownCommandError({
@@ -533,6 +605,10 @@ const make = Effect.gen(function* () {
 
   const register: ScriptRunnerShape["register"] = (name, handler) =>
     Ref.update(commandsRef, (previous) => {
+      if (BUILTIN_SCRIPT_COMMAND_NAMES.has(name)) {
+        return previous;
+      }
+
       const next = new Map(previous);
       next.set(name, handler);
       return next;
@@ -540,7 +616,7 @@ const make = Effect.gen(function* () {
 
   const unregister: ScriptRunnerShape["unregister"] = (name) =>
     Ref.update(commandsRef, (previous) => {
-      if (!previous.has(name)) {
+      if (BUILTIN_SCRIPT_COMMAND_NAMES.has(name) || !previous.has(name)) {
         return previous;
       }
 
@@ -564,9 +640,21 @@ const make = Effect.gen(function* () {
       const sourceName = options?.name?.trim() ? options.name : "inline-script";
       const program = yield* compileProgram(source, sourceName);
       const commands = yield* Ref.get(commandsRef);
+      const declaredCustomCommands = new Set<string>();
 
       for (const instruction of program.instructions) {
-        if (!commands.has(instruction.name)) {
+        if (commands.has(instruction.name)) {
+          if (
+            instruction.name === "register_command" &&
+            typeof instruction.args[0] === "string"
+          ) {
+            declaredCustomCommands.add(instruction.args[0]);
+          }
+
+          continue;
+        }
+
+        if (!declaredCustomCommands.has(instruction.name)) {
           return yield* new ScriptUnknownCommandError({
             sourceName: program.sourceName,
             command: instruction.name,

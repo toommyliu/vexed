@@ -160,8 +160,8 @@
 - [x] set_guild
 - [x] buff
 - [x] buy_lifesteal
-- [ ] register_command - Not ported: legacy Command subclass/runtime mutation extension point is not part of the current compiled script runtime.
-- [ ] unregister_command - Not ported: legacy Command subclass/runtime mutation extension point is not part of the current compiled script runtime.
+- [x] register_command
+- [x] unregister_command
 - [x] register_handler
 - [x] unregister_handler
 - [x] goto_player

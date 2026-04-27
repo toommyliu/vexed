@@ -44,7 +44,17 @@ export class ScriptInvalidArgumentError extends Data.TaggedError(
   readonly message: string;
 }> {}
 
-export class ScriptNotReadyError extends Data.TaggedError("ScriptNotReadyError")<{
+export class ScriptCustomCommandError extends Data.TaggedError(
+  "ScriptCustomCommandError",
+)<{
+  readonly sourceName: string;
+  readonly command: string;
+  readonly cause: unknown;
+}> {}
+
+export class ScriptNotReadyError extends Data.TaggedError(
+  "ScriptNotReadyError",
+)<{
   readonly sourceName: string;
   readonly reason: string;
 }> {}
