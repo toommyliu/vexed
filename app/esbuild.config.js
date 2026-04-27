@@ -1,5 +1,12 @@
 const { build, context } = require("esbuild");
-const { copyFileSync, mkdirSync, unwatchFile, watchFile } = require("fs");
+const {
+  copyFileSync,
+  mkdirSync,
+  unwatchFile,
+  watchFile,
+  writeFileSync,
+} = require("fs");
+const { dirname } = require("path");
 const { solidPlugin } = require("esbuild-plugin-solid");
 
 const isProduction = process.env.NODE_ENV === "production";
@@ -15,6 +22,47 @@ const rendererHtmlSource = "src/renderer/game/index.html";
 const rendererHtmlOutDir = "dist/renderer/game";
 const rendererHtmlTarget = `${rendererHtmlOutDir}/index.html`;
 const electronExternals = ["electron", "nw-flash-trust"];
+const devBuildNotifyPath = process.env.VEXED_DEV_BUILD_NOTIFY;
+const skipInitialDevBuildNotify =
+  process.env.VEXED_DEV_BUILD_NOTIFY_SKIP_INITIAL === "1";
+
+function notifyDevBuild(label) {
+  if (!devBuildNotifyPath) {
+    return;
+  }
+
+  mkdirSync(dirname(devBuildNotifyPath), { recursive: true });
+  writeFileSync(
+    devBuildNotifyPath,
+    `${JSON.stringify({
+      label,
+      pid: process.pid,
+      time: Date.now(),
+    })}\n`,
+  );
+}
+
+function createDevBuildNotifyPlugin(label) {
+  let skippedInitialNotify = false;
+
+  return {
+    name: `vexed-dev-build-notify:${label}`,
+    setup(build) {
+      build.onEnd((result) => {
+        if (result.errors.length > 0) {
+          return;
+        }
+
+        if (skipInitialDevBuildNotify && !skippedInitialNotify) {
+          skippedInitialNotify = true;
+          return;
+        }
+
+        notifyDevBuild(label);
+      });
+    },
+  };
+}
 
 function createMainBuildOptions() {
   return {
@@ -26,6 +74,7 @@ function createMainBuildOptions() {
     target: "chrome76",
     format: "cjs",
     outfile: "dist/main/index.js",
+    plugins: [createDevBuildNotifyPlugin("main")],
   };
 }
 
@@ -39,6 +88,7 @@ function createPreloadBuildOptions() {
     target: "chrome76",
     format: "cjs",
     outfile: "dist/preload/index.js",
+    plugins: [createDevBuildNotifyPlugin("preload")],
   };
 }
 
@@ -50,7 +100,7 @@ function createRendererBuildOptions() {
     platform: "browser",
     conditions: ["browser"],
     outdir: rendererHtmlOutDir,
-    plugins: [solidPlugin()],
+    plugins: [solidPlugin(), createDevBuildNotifyPlugin("renderer")],
     define: {
       "process.env.NODE_ENV": JSON.stringify(
         process.env.NODE_ENV || "development",
@@ -60,9 +110,12 @@ function createRendererBuildOptions() {
   };
 }
 
-function copyRendererHtml() {
+function copyRendererHtml({ notify = false } = {}) {
   mkdirSync(rendererHtmlOutDir, { recursive: true });
   copyFileSync(rendererHtmlSource, rendererHtmlTarget);
+  if (notify) {
+    notifyDevBuild("renderer-html");
+  }
 }
 
 async function buildOnce() {
@@ -88,7 +141,7 @@ async function watchBuild() {
 
   const syncRendererHtml = () => {
     try {
-      copyRendererHtml();
+      copyRendererHtml({ notify: true });
       console.log("Copied renderer HTML.");
     } catch (error) {
       console.error("Failed to copy renderer HTML:", error);
