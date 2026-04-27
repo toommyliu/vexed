@@ -136,8 +136,8 @@
 - [x] disable_collisions
 - [x] enable_fx
 - [x] disable_fx
-- [x] enable_death_ads
-- [x] disable_death_ads
+- [x] show_death_ads
+- [x] hide_death_ads
 - [x] enable_enemymagnet
 - [x] disable_enemymagnet
 - [x] enable_infiniterange
