@@ -1,4 +1,4 @@
-import { promises } from "fs";
+import { promises, unwatchFile, watchFile, type Stats } from "fs";
 import {
   app,
   BrowserWindow,
@@ -9,10 +9,7 @@ import {
 } from "electron";
 import { basename, join, sep } from "path";
 import process from "process";
-import {
-  ScriptingIpcChannels,
-  type ScriptExecutePayload,
-} from "../shared/ipc";
+import { ScriptingIpcChannels, type ScriptExecutePayload } from "../shared/ipc";
 
 const { mkdir, readFile, realpath } = promises;
 
@@ -23,6 +20,7 @@ process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 const assetsPath = join(app.getAppPath(), "..", "assets");
 const documentsPath = join(app.getPath("documents"), "vexed");
 const scriptsPath = join(documentsPath, "scripts");
+const devRendererReloadPath = process.env["VEXED_DEV_RENDERER_RELOAD"];
 
 const flashPath = join(
   app.getPath("userData"),
@@ -78,16 +76,17 @@ const resolveScriptPath = async (path: string): Promise<string> => {
     realpath(path),
   ]);
 
-  if (scriptPath !== scriptsRoot && !scriptPath.startsWith(`${scriptsRoot}${sep}`)) {
+  if (
+    scriptPath !== scriptsRoot &&
+    !scriptPath.startsWith(`${scriptsRoot}${sep}`)
+  ) {
     throw new Error("Script path must be inside the scripts directory");
   }
 
   return scriptPath;
 };
 
-const toScriptPayload = async (
-  path: string,
-): Promise<ScriptExecutePayload> => {
+const toScriptPayload = async (path: string): Promise<ScriptExecutePayload> => {
   const scriptPath = await resolveScriptPath(path);
 
   return {
@@ -173,8 +172,7 @@ const bindScriptingShortcuts = (win: BrowserWindow) => {
     }
 
     const key = input.key.toLowerCase();
-    const hasPrimaryModifier =
-      isDarwin ? input.meta : input.control;
+    const hasPrimaryModifier = isDarwin ? input.meta : input.control;
 
     if (hasPrimaryModifier && key === "o") {
       event.preventDefault();
@@ -187,6 +185,34 @@ const bindScriptingShortcuts = (win: BrowserWindow) => {
       stopActiveScript(win);
     }
   });
+};
+
+const installDevRendererReloadWatcher = () => {
+  if (!devRendererReloadPath) {
+    return;
+  }
+
+  const listener = (current: Stats, previous: Stats) => {
+    if (
+      current.mtimeMs === previous.mtimeMs &&
+      current.size === previous.size
+    ) {
+      return;
+    }
+
+    if (current.mtimeMs === 0) {
+      return;
+    }
+
+    for (const win of BrowserWindow.getAllWindows()) {
+      if (!win.isDestroyed() && !win.webContents.isDestroyed()) {
+        win.webContents.reloadIgnoringCache();
+      }
+    }
+  };
+
+  watchFile(devRendererReloadPath, { interval: 250 }, listener);
+  app.once("will-quit", () => unwatchFile(devRendererReloadPath, listener));
 };
 
 function createWindow() {
@@ -229,6 +255,7 @@ function createWindow() {
 
 app.whenReady().then(() => {
   registerScriptingIpcHandlers();
+  installDevRendererReloadWatcher();
   createWindow();
 });
 

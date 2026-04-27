@@ -1,4 +1,11 @@
-import { rmSync, unwatchFile, watchFile, type Stats } from "node:fs";
+import {
+  readFileSync,
+  rmSync,
+  unwatchFile,
+  watchFile,
+  writeFileSync,
+  type Stats,
+} from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -14,6 +21,11 @@ const REPO_ROOT = join(SCRIPT_DIR, "..");
 const APP_DIR = join(REPO_ROOT, "app");
 const DOCS_DIR = join(REPO_ROOT, "docs");
 const DEV_BUILD_NOTIFY_PATH = join(APP_DIR, "dist", ".vexed-dev-build.json");
+const DEV_RENDERER_RELOAD_PATH = join(
+  APP_DIR,
+  "dist",
+  ".vexed-renderer-reload.json",
+);
 const RESTART_DEBOUNCE_MS = 300;
 const FORCE_KILL_AFTER = "1500 millis";
 const DEV_RUNNER_MODES = ["dev", "app", "docs"] as const;
@@ -25,9 +37,12 @@ type CliInput = {
   dryRun: boolean;
 };
 
+type DevBuildTarget = "main" | "preload" | "renderer" | "unknown";
+
 type DevEvent =
   | {
       readonly _tag: "rebuild";
+      readonly targets: ReadonlySet<DevBuildTarget>;
     }
   | {
       readonly _tag: "compile-watch-exit";
@@ -57,6 +72,11 @@ const createWatchEnv = (): NodeJS.ProcessEnv => ({
   ...createBaseEnv(),
   VEXED_DEV_BUILD_NOTIFY: DEV_BUILD_NOTIFY_PATH,
   VEXED_DEV_BUILD_NOTIFY_SKIP_INITIAL: "1",
+});
+
+const createElectronEnv = (): NodeJS.ProcessEnv => ({
+  ...createBaseEnv(),
+  VEXED_DEV_RENDERER_RELOAD: DEV_RENDERER_RELOAD_PATH,
 });
 
 const childOptions = (
@@ -131,17 +151,76 @@ const stopChild = (label: string, child: ChildProcessHandle) =>
       );
   });
 
+const isRendererOnlyRebuild = (targets: ReadonlySet<DevBuildTarget>): boolean =>
+  targets.size > 0 && [...targets].every((target) => target === "renderer");
+
+const toDevBuildTarget = (label: unknown): DevBuildTarget => {
+  switch (label) {
+    case "main":
+      return "main";
+    case "preload":
+      return "preload";
+    case "renderer":
+    case "renderer-html":
+      return "renderer";
+    default:
+      return "unknown";
+  }
+};
+
+const readDevBuildTargets = (
+  offset: number,
+): {
+  readonly offset: number;
+  readonly targets: ReadonlyArray<DevBuildTarget>;
+} => {
+  try {
+    const content = readFileSync(DEV_BUILD_NOTIFY_PATH, "utf8");
+    const nextOffset = content.length;
+    const unreadContent = content.slice(Math.min(offset, nextOffset));
+
+    if (unreadContent.trim() === "") {
+      return { offset: nextOffset, targets: [] };
+    }
+
+    return {
+      offset: nextOffset,
+      targets: unreadContent
+        .split("\n")
+        .filter((line) => line.trim() !== "")
+        .map((line) => {
+          try {
+            const payload = JSON.parse(line) as { label?: unknown };
+            return toDevBuildTarget(payload.label);
+          } catch {
+            return "unknown";
+          }
+        }),
+    };
+  } catch {
+    return { offset: 0, targets: ["unknown"] };
+  }
+};
+
 const installNotifyWatcher = (events: Queue.Queue<DevEvent>) =>
   Effect.sync(() => {
     let debounceTimer: NodeJS.Timeout | undefined;
+    let pendingTargets = new Set<DevBuildTarget>();
+    let notifyOffset = 0;
 
-    const queueRebuild = () => {
+    const queueRebuild = (targets: ReadonlyArray<DevBuildTarget>) => {
+      for (const target of targets) {
+        pendingTargets.add(target);
+      }
+
       if (debounceTimer) {
         clearTimeout(debounceTimer);
       }
 
       debounceTimer = setTimeout(() => {
-        Effect.runFork(Queue.offer(events, { _tag: "rebuild" }));
+        const targets = pendingTargets;
+        pendingTargets = new Set<DevBuildTarget>();
+        Effect.runFork(Queue.offer(events, { _tag: "rebuild", targets }));
       }, RESTART_DEBOUNCE_MS);
     };
 
@@ -157,10 +236,13 @@ const installNotifyWatcher = (events: Queue.Queue<DevEvent>) =>
         return;
       }
 
-      queueRebuild();
+      const result = readDevBuildTargets(notifyOffset);
+      notifyOffset = result.offset;
+      queueRebuild(result.targets);
     };
 
     rmSync(DEV_BUILD_NOTIFY_PATH, { force: true });
+    rmSync(DEV_RENDERER_RELOAD_PATH, { force: true });
     watchFile(DEV_BUILD_NOTIFY_PATH, { interval: 250 }, listener);
 
     return () => {
@@ -174,6 +256,16 @@ const installNotifyWatcher = (events: Queue.Queue<DevEvent>) =>
       Effect.addFinalizer(() => Effect.sync(cleanup)),
     ),
   );
+
+const reloadRendererWindows = Effect.sync(() => {
+  writeFileSync(
+    DEV_RENDERER_RELOAD_PATH,
+    `${JSON.stringify({
+      pid: process.pid,
+      time: Date.now(),
+    })}\n`,
+  );
+});
 
 const watchCompileExit = (
   events: Queue.Queue<DevEvent>,
@@ -227,6 +319,7 @@ const watchElectronExit = (
 const runDevLoop = () =>
   Effect.gen(function* () {
     const baseEnv = createBaseEnv();
+    const electronEnv = createElectronEnv();
     const watchEnv = createWatchEnv();
 
     yield* Console.log("[dev-runner] building app");
@@ -244,7 +337,7 @@ const runDevLoop = () =>
 
     const startElectron = Effect.gen(function* () {
       yield* Console.log("[dev-runner] starting electron");
-      const electron = yield* spawnPnpm(["electron"], APP_DIR, baseEnv);
+      const electron = yield* spawnPnpm(["electron"], APP_DIR, electronEnv);
       yield* Ref.set(activeElectron, electron);
       yield* Effect.forkScoped(
         watchElectronExit(events, restartingElectron, electron),
@@ -268,6 +361,14 @@ const runDevLoop = () =>
 
       switch (event._tag) {
         case "rebuild": {
+          if (isRendererOnlyRebuild(event.targets)) {
+            yield* Console.log(
+              "[dev-runner] renderer rebuild detected; reloading windows",
+            );
+            yield* reloadRendererWindows;
+            break;
+          }
+
           yield* Console.log(
             "[dev-runner] rebuild detected; restarting electron",
           );
@@ -346,11 +447,15 @@ const dryRun = (mode: DevMode) =>
     if (mode === "dev" || mode === "app") {
       yield* Console.log(`appDir=${APP_DIR}`);
       yield* Console.log(`notifyFile=${DEV_BUILD_NOTIFY_PATH}`);
+      yield* Console.log(`rendererReloadFile=${DEV_RENDERER_RELOAD_PATH}`);
       yield* Console.log("app.initial=pnpm compile");
       yield* Console.log("app.watch=pnpm compile:watch");
       yield* Console.log("app.electron=pnpm electron");
       yield* Console.log(`env.VEXED_DEV_BUILD_NOTIFY=${DEV_BUILD_NOTIFY_PATH}`);
       yield* Console.log("env.VEXED_DEV_BUILD_NOTIFY_SKIP_INITIAL=1");
+      yield* Console.log(
+        `env.VEXED_DEV_RENDERER_RELOAD=${DEV_RENDERER_RELOAD_PATH}`,
+      );
     }
 
     if (mode === "dev" || mode === "docs") {

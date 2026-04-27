@@ -1,10 +1,10 @@
 const { build, context } = require("esbuild");
 const {
+  appendFileSync,
   copyFileSync,
   mkdirSync,
   unwatchFile,
   watchFile,
-  writeFileSync,
 } = require("fs");
 const { dirname } = require("path");
 const { solidPlugin } = require("esbuild-plugin-solid");
@@ -32,7 +32,7 @@ function notifyDevBuild(label) {
   }
 
   mkdirSync(dirname(devBuildNotifyPath), { recursive: true });
-  writeFileSync(
+  appendFileSync(
     devBuildNotifyPath,
     `${JSON.stringify({
       label,
