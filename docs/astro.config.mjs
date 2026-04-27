@@ -5,6 +5,9 @@ export default defineConfig({
   integrations: [
     starlight({
       title: "vexed",
+      components: {
+        Head: "./src/components/Head.astro",
+      },
       sidebar: [
         { link: "/", label: "Overview" },
         {
