@@ -3,7 +3,7 @@ import type { AutoZoneSupportedMap } from "../../flash/Services/AutoZone";
 import { waitFor } from "../../utils/waitFor";
 import { ScriptInvalidArgumentError } from "../Errors";
 import { ScriptCommandResult, type ScriptCommandHandler } from "../Types";
-import type { CustomCommandHandler } from "../Types";
+import type { CustomCommandHandler, CustomConditionHandler } from "../Types";
 import {
   createCommandHandler,
   defineScriptCommandDomain,
@@ -67,6 +67,8 @@ type MiscScriptCommandArguments = {
   unregister_handler: [type: PacketHandlerType, name: string];
   register_command: [name: string, handler: CustomCommandHandler];
   unregister_command: [name: string];
+  register_condition: [name: string, handler: CustomConditionHandler];
+  unregister_condition: [name: string];
   use_autozone_ledgermayne: [];
   use_autozone_moreskulls: [];
   use_autozone_darkcarnax: [];
@@ -394,6 +396,54 @@ const unregisterCommandCommand = createCommandHandler((context, args) =>
   }),
 );
 
+const registerConditionCommand = createCommandHandler((context, args) =>
+  Effect.gen(function* () {
+    const name = yield* requireInstructionString(
+      context,
+      "register_condition",
+      args,
+      0,
+      "name",
+    );
+    const normalizedName = yield* validateCustomCommandName(
+      context,
+      "register_condition",
+      name,
+    );
+    const handler = args[1];
+    if (typeof handler !== "function") {
+      return yield* new ScriptInvalidArgumentError({
+        sourceName: context.sourceName,
+        command: "register_condition",
+        message: "handler must be a function",
+      });
+    }
+
+    yield* context.registerCustomCondition(
+      normalizedName,
+      handler as CustomConditionHandler,
+    );
+  }),
+);
+
+const unregisterConditionCommand = createCommandHandler((context, args) =>
+  Effect.gen(function* () {
+    const name = yield* requireInstructionString(
+      context,
+      "unregister_condition",
+      args,
+      0,
+      "name",
+    );
+    const normalizedName = yield* validateCustomCommandName(
+      context,
+      "unregister_condition",
+      name,
+    );
+    yield* context.unregisterCustomCondition(normalizedName);
+  }),
+);
+
 const autoZoneCommand = (map: AutoZoneSupportedMap) =>
   createCommandHandler((context) =>
     Effect.gen(function* () {
@@ -643,6 +693,8 @@ const miscCommandHandlerMap = miscCommandDomain.defineHandlers({
   unregister_handler: unregisterHandlerCommand,
   register_command: registerCommandCommand,
   unregister_command: unregisterCommandCommand,
+  register_condition: registerConditionCommand,
+  unregister_condition: unregisterConditionCommand,
   use_autozone_ledgermayne: autoZoneCommand("ledgermayne"),
   use_autozone_moreskulls: autoZoneCommand("moreskulls"),
   use_autozone_darkcarnax: autoZoneCommand("darkcarnax"),
@@ -1020,6 +1072,37 @@ export const createMiscScriptDsl = (
       recordMiscInstruction(
         "unregister_command",
         assertValidCustomCommandName("unregister_command", name),
+      );
+    },
+    /**
+     * Registers a script-local custom condition expression.
+     *
+     * @param name - Condition name to expose on `cmd`.
+     * @param handler - Function invoked when the condition is evaluated.
+     * @example
+     * cmd.register_condition("has_token", async ({ api }) => {
+     *   return await api.inventory.contains("Token")
+     * })
+     */
+    register_condition(name, handler) {
+      if (typeof handler !== "function") {
+        throw new Error("cmd.register_condition: handler must be a function");
+      }
+      recordMiscInstruction(
+        "register_condition",
+        assertValidCustomCommandName("register_condition", name),
+        handler,
+      );
+    },
+    /**
+     * Removes a script-local custom condition.
+     *
+     * @param name - Condition name passed to `register_condition`.
+     */
+    unregister_condition(name) {
+      recordMiscInstruction(
+        "unregister_condition",
+        assertValidCustomCommandName("unregister_condition", name),
       );
     },
     /**

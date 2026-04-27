@@ -1,6 +1,7 @@
 import type { Effect } from "effect";
 import type {
   ScriptCustomCommandError,
+  ScriptCustomConditionError,
   ScriptInvalidArgumentError,
   ScriptLabelNotFoundError,
   ScriptNotReadyError,
@@ -54,16 +55,16 @@ export const ScriptCommandResult = {
   Stop: { _tag: "Stop" } as const,
 };
 
-type CustomCommandRuntimeValue<T> =
+type CustomScriptRuntimeValue<T> =
   T extends Effect.Effect<infer A, unknown, unknown>
     ? Promise<A>
     : T extends (...args: infer Args) => infer Result
-      ? (...args: Args) => CustomCommandRuntimeValue<Result>
+      ? (...args: Args) => CustomScriptRuntimeValue<Result>
       : T extends object
-        ? { readonly [Key in keyof T]: CustomCommandRuntimeValue<T[Key]> }
+        ? { readonly [Key in keyof T]: CustomScriptRuntimeValue<T[Key]> }
         : T;
 
-type CustomCommandPacketApi = Pick<
+type CustomScriptPacketApi = Pick<
   PacketShape,
   | "sendServer"
   | "sendClient"
@@ -72,24 +73,26 @@ type CustomCommandPacketApi = Pick<
   | "packetFromClient"
 >;
 
-export interface CustomCommandRuntimeApi {
-  readonly auth: CustomCommandRuntimeValue<AuthShape>;
-  readonly autoZone: CustomCommandRuntimeValue<AutoZoneShape>;
-  readonly bank: CustomCommandRuntimeValue<BankShape>;
-  readonly bridge: CustomCommandRuntimeValue<BridgeShape>;
-  readonly combat: CustomCommandRuntimeValue<CombatShape>;
-  readonly drops: CustomCommandRuntimeValue<DropsShape>;
-  readonly house: CustomCommandRuntimeValue<HouseShape>;
-  readonly inventory: CustomCommandRuntimeValue<InventoryShape>;
-  readonly jobs: CustomCommandRuntimeValue<JobsShape>;
-  readonly packet: CustomCommandRuntimeValue<CustomCommandPacketApi>;
-  readonly player: CustomCommandRuntimeValue<PlayerShape>;
-  readonly quests: CustomCommandRuntimeValue<QuestsShape>;
-  readonly settings: CustomCommandRuntimeValue<SettingsShape>;
-  readonly shops: CustomCommandRuntimeValue<ShopsShape>;
-  readonly tempInventory: CustomCommandRuntimeValue<TempInventoryShape>;
-  readonly world: CustomCommandRuntimeValue<WorldShape>;
+export interface CustomScriptRuntimeApi {
+  readonly auth: CustomScriptRuntimeValue<AuthShape>;
+  readonly autoZone: CustomScriptRuntimeValue<AutoZoneShape>;
+  readonly bank: CustomScriptRuntimeValue<BankShape>;
+  readonly bridge: CustomScriptRuntimeValue<BridgeShape>;
+  readonly combat: CustomScriptRuntimeValue<CombatShape>;
+  readonly drops: CustomScriptRuntimeValue<DropsShape>;
+  readonly house: CustomScriptRuntimeValue<HouseShape>;
+  readonly inventory: CustomScriptRuntimeValue<InventoryShape>;
+  readonly jobs: CustomScriptRuntimeValue<JobsShape>;
+  readonly packet: CustomScriptRuntimeValue<CustomScriptPacketApi>;
+  readonly player: CustomScriptRuntimeValue<PlayerShape>;
+  readonly quests: CustomScriptRuntimeValue<QuestsShape>;
+  readonly settings: CustomScriptRuntimeValue<SettingsShape>;
+  readonly shops: CustomScriptRuntimeValue<ShopsShape>;
+  readonly tempInventory: CustomScriptRuntimeValue<TempInventoryShape>;
+  readonly world: CustomScriptRuntimeValue<WorldShape>;
 }
+
+export type CustomCommandRuntimeApi = CustomScriptRuntimeApi;
 
 export type CustomCommandResult =
   | { readonly _tag: "Continue" }
@@ -102,7 +105,7 @@ export interface CustomCommandContext {
   readonly args: ReadonlyArray<unknown>;
   readonly sourceName: string;
   readonly instruction: ScriptInstruction;
-  readonly api: CustomCommandRuntimeApi;
+  readonly api: CustomScriptRuntimeApi;
   continue(): CustomCommandResult;
   skipNext(): CustomCommandResult;
   gotoLabel(label: string): CustomCommandResult;
@@ -114,6 +117,17 @@ export interface CustomCommandContext {
 export type CustomCommandHandler = (
   context: CustomCommandContext,
 ) => void | CustomCommandResult | Promise<void | CustomCommandResult>;
+
+export interface CustomConditionContext {
+  readonly args: ReadonlyArray<unknown>;
+  readonly sourceName: string;
+  readonly api: CustomScriptRuntimeApi;
+  log(message: string): void;
+}
+
+export type CustomConditionHandler = (
+  context: CustomConditionContext,
+) => boolean | Promise<boolean>;
 
 export interface ScriptExecutionContext {
   readonly sourceName: string;
@@ -154,11 +168,23 @@ export interface ScriptExecutionContext {
   unregisterCustomCommand(
     name: string,
   ): Effect.Effect<void, ScriptCommandError>;
+  registerCustomCondition(
+    name: string,
+    handler: CustomConditionHandler,
+  ): Effect.Effect<void, ScriptCommandError>;
+  unregisterCustomCondition(
+    name: string,
+  ): Effect.Effect<void, ScriptCommandError>;
+  evaluateCustomCondition(
+    name: string,
+    args: ReadonlyArray<unknown>,
+  ): Effect.Effect<boolean, ScriptCommandError>;
 }
 
 export type ScriptCommandError =
   | BridgeError
   | ScriptCustomCommandError
+  | ScriptCustomConditionError
   | ScriptInvalidArgumentError
   | ScriptLabelNotFoundError
   | ScriptNotReadyError;

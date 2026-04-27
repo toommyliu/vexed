@@ -987,19 +987,16 @@ const defaultQuantity = (command: string, value: unknown) =>
         Math.floor(requireScriptArgumentNumber(command, "quantity", value)),
       );
 
+const emitCondition = <T extends ScriptCondition>(
+  _name: keyof ConditionScriptCommandArguments & string,
+  condition: T,
+): T => condition;
+
 export const createConditionScriptDsl = (
   recordInstruction: ScriptInstructionRecorder,
 ): ConditionScriptDsl => {
   const recordConditionInstruction =
     conditionCommandDomain.createInstructionRecorder(recordInstruction);
-
-  const emitCondition = <T extends ScriptCondition>(
-    name: keyof ConditionScriptCommandArguments & string,
-    condition: T,
-  ): T => {
-    recordConditionInstruction(name, condition);
-    return condition;
-  };
 
   const readConditions = (command: string, values: ConditionInput[]) => {
     if (values.length === 0) {

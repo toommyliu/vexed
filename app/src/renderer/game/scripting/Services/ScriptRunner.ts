@@ -4,6 +4,7 @@ import type { BridgeError } from "../../flash/Services/Bridge";
 import type {
   ScriptCompileError,
   ScriptCustomCommandError,
+  ScriptCustomConditionError,
   ScriptDuplicateLabelError,
   ScriptInvalidArgumentError,
   ScriptInvalidControlFlowError,
@@ -27,6 +28,7 @@ export type ScriptRunnerError =
   | BridgeError
   | ScriptCompileError
   | ScriptCustomCommandError
+  | ScriptCustomConditionError
   | ScriptDuplicateLabelError
   | ScriptInvalidArgumentError
   | ScriptInvalidControlFlowError

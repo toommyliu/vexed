@@ -18,15 +18,21 @@ import { Shops } from "../../flash/Services/Shops";
 import { TempInventory } from "../../flash/Services/TempInventory";
 import { World } from "../../flash/Services/World";
 import {
+  ScriptCustomConditionError,
   ScriptCompileError,
   ScriptDuplicateLabelError,
+  ScriptInvalidArgumentError,
   ScriptInvalidControlFlowError,
   ScriptLabelNotFoundError,
   ScriptNotReadyError,
   ScriptUnknownCommandError,
 } from "../Errors";
 import { createScriptDsl, scriptCommandHandlers } from "../Commands";
-import type { ScriptCommandApi } from "../Commands/commandDsl";
+import {
+  createCustomCondition,
+  type ScriptCommandApi,
+  type ScriptCondition,
+} from "../Commands/commandDsl";
 import { ScriptRunner } from "../Services/ScriptRunner";
 import type {
   RunningScriptCommand,
@@ -35,6 +41,8 @@ import type {
 import {
   ScriptCommandResult,
   type CustomCommandHandler,
+  type CustomConditionHandler,
+  type ScriptCommandError,
   type ScriptCommandHandler,
   type ScriptExecutionContext,
   type ScriptInstruction,
@@ -44,15 +52,21 @@ import {
   makeCustomCommandHandler,
   protectBuiltinCommandName,
 } from "../Commands/customCommand";
+import { makeCustomConditionEvaluator } from "../Commands/customCondition";
 
 type ConditionalBlockFrame = {
   readonly ifIndex: number;
   readonly elseIndex?: number;
 };
 
-const BUILTIN_SCRIPT_COMMAND_NAMES = new Set(
-  scriptCommandHandlers.map(([name]) => name),
+const BUILTIN_SCRIPT_API_NAMES = new Set(
+  Object.keys(createScriptDsl(() => {})),
 );
+
+type CustomConditionEvaluator = (
+  context: ScriptExecutionContext,
+  args: ReadonlyArray<unknown>,
+) => Effect.Effect<boolean, ScriptCommandError>;
 
 const scriptNameFromPayload = (payload: ScriptExecutePayload): string => {
   if (payload.name && payload.name.trim() !== "") {
@@ -169,6 +183,47 @@ const annotateControlFlow = (
   return annotated;
 };
 
+const collectCustomConditionNames = (
+  value: unknown,
+  names: Set<string>,
+): void => {
+  if (typeof value !== "object" || value === null) {
+    return;
+  }
+
+  const condition = value as Partial<ScriptCondition>;
+  switch (condition._tag) {
+    case "Custom":
+      if (typeof condition.name === "string" && condition.name.trim() !== "") {
+        names.add(condition.name);
+      }
+      return;
+    case "All":
+    case "Any":
+      if (Array.isArray(condition.conditions)) {
+        for (const child of condition.conditions) {
+          collectCustomConditionNames(child, names);
+        }
+      }
+      return;
+    case "Not":
+      collectCustomConditionNames(condition.condition, names);
+      return;
+    default:
+      return;
+  }
+};
+
+const instructionCustomConditionNames = (
+  instruction: ScriptInstruction,
+): ReadonlySet<string> => {
+  const names = new Set<string>();
+  for (const arg of instruction.args) {
+    collectCustomConditionNames(arg, names);
+  }
+  return names;
+};
+
 const compileProgram = (
   source: string,
   sourceName: string,
@@ -190,6 +245,7 @@ const compileProgram = (
         });
       };
       const staticCmd = createScriptDsl(recordInstruction);
+      const declaredCustomConditions = new Set<string>();
       const cmdProxy = new Proxy(staticCmd as Record<string, unknown>, {
         get(target, property, receiver) {
           if (property === "then") {
@@ -202,7 +258,26 @@ const compileProgram = (
 
           const value = Reflect.get(target, property, receiver);
           if (value !== undefined) {
+            if (
+              property === "register_condition" &&
+              typeof value === "function"
+            ) {
+              return (...args: ReadonlyArray<unknown>) => {
+                const result = Reflect.apply(value, target, args);
+                const name = args[0];
+                if (typeof name === "string") {
+                  declaredCustomConditions.add(name.trim());
+                }
+                return result;
+              };
+            }
+
             return value;
+          }
+
+          if (declaredCustomConditions.has(property)) {
+            return (...args: ReadonlyArray<unknown>) =>
+              createCustomCondition(property, args);
           }
 
           return (...args: ReadonlyArray<unknown>) => {
@@ -365,34 +440,59 @@ const make = Effect.gen(function* () {
   ) =>
     Effect.gen(function* () {
       const runtimeCommands = new Map(commands);
+      const runtimeConditions = new Map<string, CustomConditionEvaluator>();
       let context: ScriptExecutionContext;
+
+      const rejectRegisteredName = (
+        command: string,
+        name: string,
+        registeredAs: "command" | "condition",
+      ) =>
+        Effect.fail(
+          new ScriptInvalidArgumentError({
+            sourceName: context.sourceName,
+            command,
+            message: `name is already registered as a custom ${registeredAs}: ${name}`,
+          }),
+        );
 
       const registerCustomCommand = (
         name: string,
         handler: CustomCommandHandler,
       ) =>
-        protectBuiltinCommandName(
-          context,
-          "register_command",
-          name,
-          BUILTIN_SCRIPT_COMMAND_NAMES,
-        ).pipe(
-          Effect.andThen(
-            Effect.sync(() => {
-              runtimeCommands.set(
-                name,
-                makeCustomCommandHandler(name, handler),
-              );
-            }),
-          ),
-        );
+        Effect.gen(function* () {
+          yield* protectBuiltinCommandName(
+            context,
+            "register_command",
+            name,
+            BUILTIN_SCRIPT_API_NAMES,
+          );
+
+          if (runtimeCommands.has(name)) {
+            return yield* rejectRegisteredName(
+              "register_command",
+              name,
+              "command",
+            );
+          }
+
+          if (runtimeConditions.has(name)) {
+            return yield* rejectRegisteredName(
+              "register_command",
+              name,
+              "condition",
+            );
+          }
+
+          runtimeCommands.set(name, makeCustomCommandHandler(name, handler));
+        });
 
       const unregisterCustomCommand = (name: string) =>
         protectBuiltinCommandName(
           context,
           "unregister_command",
           name,
-          BUILTIN_SCRIPT_COMMAND_NAMES,
+          BUILTIN_SCRIPT_API_NAMES,
         ).pipe(
           Effect.andThen(
             Effect.sync(() => {
@@ -400,6 +500,71 @@ const make = Effect.gen(function* () {
             }),
           ),
         );
+
+      const registerCustomCondition = (
+        name: string,
+        handler: CustomConditionHandler,
+      ) =>
+        Effect.gen(function* () {
+          yield* protectBuiltinCommandName(
+            context,
+            "register_condition",
+            name,
+            BUILTIN_SCRIPT_API_NAMES,
+          );
+
+          if (runtimeCommands.has(name)) {
+            return yield* rejectRegisteredName(
+              "register_condition",
+              name,
+              "command",
+            );
+          }
+
+          if (runtimeConditions.has(name)) {
+            return yield* rejectRegisteredName(
+              "register_condition",
+              name,
+              "condition",
+            );
+          }
+
+          runtimeConditions.set(
+            name,
+            makeCustomConditionEvaluator(name, handler),
+          );
+        });
+
+      const unregisterCustomCondition = (name: string) =>
+        protectBuiltinCommandName(
+          context,
+          "unregister_condition",
+          name,
+          BUILTIN_SCRIPT_API_NAMES,
+        ).pipe(
+          Effect.andThen(
+            Effect.sync(() => {
+              runtimeConditions.delete(name);
+            }),
+          ),
+        );
+
+      const evaluateCustomCondition = (
+        name: string,
+        args: ReadonlyArray<unknown>,
+      ) =>
+        Effect.gen(function* () {
+          const evaluator = runtimeConditions.get(name);
+          if (!evaluator) {
+            return yield* new ScriptCustomConditionError({
+              sourceName: context.sourceName,
+              condition: name,
+              cause: "custom condition is not registered",
+            });
+          }
+
+          return yield* evaluator(context, args);
+        });
 
       context = {
         sourceName: program.sourceName,
@@ -456,6 +621,9 @@ const make = Effect.gen(function* () {
           }),
         registerCustomCommand,
         unregisterCustomCommand,
+        registerCustomCondition,
+        unregisterCustomCondition,
+        evaluateCustomCondition,
       };
 
       let instructionPointer = 0;
@@ -605,7 +773,7 @@ const make = Effect.gen(function* () {
 
   const register: ScriptRunnerShape["register"] = (name, handler) =>
     Ref.update(commandsRef, (previous) => {
-      if (BUILTIN_SCRIPT_COMMAND_NAMES.has(name)) {
+      if (BUILTIN_SCRIPT_API_NAMES.has(name)) {
         return previous;
       }
 
@@ -616,7 +784,7 @@ const make = Effect.gen(function* () {
 
   const unregister: ScriptRunnerShape["unregister"] = (name) =>
     Ref.update(commandsRef, (previous) => {
-      if (BUILTIN_SCRIPT_COMMAND_NAMES.has(name) || !previous.has(name)) {
+      if (BUILTIN_SCRIPT_API_NAMES.has(name) || !previous.has(name)) {
         return previous;
       }
 
@@ -641,14 +809,34 @@ const make = Effect.gen(function* () {
       const program = yield* compileProgram(source, sourceName);
       const commands = yield* Ref.get(commandsRef);
       const declaredCustomCommands = new Set<string>();
+      const declaredCustomConditions = new Set<string>();
 
       for (const instruction of program.instructions) {
+        for (const conditionName of instructionCustomConditionNames(
+          instruction,
+        )) {
+          if (!declaredCustomConditions.has(conditionName)) {
+            return yield* new ScriptCustomConditionError({
+              sourceName: program.sourceName,
+              condition: conditionName,
+              cause: "custom condition must be registered before use",
+            });
+          }
+        }
+
         if (commands.has(instruction.name)) {
           if (
             instruction.name === "register_command" &&
             typeof instruction.args[0] === "string"
           ) {
             declaredCustomCommands.add(instruction.args[0]);
+          }
+
+          if (
+            instruction.name === "register_condition" &&
+            typeof instruction.args[0] === "string"
+          ) {
+            declaredCustomConditions.add(instruction.args[0]);
           }
 
           continue;

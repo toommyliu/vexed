@@ -52,6 +52,14 @@ export class ScriptCustomCommandError extends Data.TaggedError(
   readonly cause: unknown;
 }> {}
 
+export class ScriptCustomConditionError extends Data.TaggedError(
+  "ScriptCustomConditionError",
+)<{
+  readonly sourceName: string;
+  readonly condition: string;
+  readonly cause: unknown;
+}> {}
+
 export class ScriptNotReadyError extends Data.TaggedError(
   "ScriptNotReadyError",
 )<{

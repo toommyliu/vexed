@@ -192,6 +192,11 @@ export type ScriptCondition =
       readonly upper?: number;
     }
   | {
+      readonly _tag: "Custom";
+      readonly name: string;
+      readonly args: ReadonlyArray<unknown>;
+    }
+  | {
       readonly _tag: "Not";
       readonly condition: unknown;
     };
@@ -912,6 +917,15 @@ export const createTargetHpCondition = (
   ...(upper !== undefined ? { upper } : {}),
 });
 
+export const createCustomCondition = (
+  name: string,
+  args: ReadonlyArray<unknown>,
+): ScriptCondition => ({
+  _tag: "Custom",
+  name,
+  args: [...args],
+});
+
 const normalizeComparisonOperator = (
   value: unknown,
 ): ScriptComparisonOperator | undefined => {
@@ -1571,6 +1585,27 @@ export const evaluateScriptCondition = (
           );
         }),
       );
+    case "Custom": {
+      const name = condition.name;
+      if (typeof name !== "string" || name.trim() === "") {
+        return invalidArg(
+          context,
+          command,
+          "custom condition name must be a non-empty string",
+        );
+      }
+
+      const args = condition.args;
+      if (!Array.isArray(args)) {
+        return invalidArg(
+          context,
+          command,
+          "custom condition args must be an array",
+        );
+      }
+
+      return context.evaluateCustomCondition(name, args);
+    }
     case "Not":
       return Effect.map(
         evaluateScriptCondition(context, command, condition.condition),

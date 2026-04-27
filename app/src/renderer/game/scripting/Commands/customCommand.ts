@@ -8,6 +8,7 @@ import {
   type CustomCommandHandler,
   type CustomCommandResult,
   type CustomCommandRuntimeApi,
+  type CustomScriptRuntimeApi,
   type ScriptCommandHandler,
   type ScriptExecutionContext,
   type ScriptInstruction,
@@ -148,9 +149,9 @@ const createRuntimeApiProxy = (
   });
 };
 
-export const createCustomCommandRuntimeApi = (
+export const createCustomScriptRuntimeApi = (
   context: ScriptExecutionContext,
-): CustomCommandRuntimeApi => {
+): CustomScriptRuntimeApi => {
   const source: RuntimeApiSource = {
     auth: context.auth,
     autoZone: context.autoZone,
@@ -178,8 +179,12 @@ export const createCustomCommandRuntimeApi = (
 
   return createRuntimeApiProxy(source, (effect) =>
     Effect.runPromise(context.run(effect as Effect.Effect<unknown, unknown>)),
-  ) as CustomCommandRuntimeApi;
+  ) as CustomScriptRuntimeApi;
 };
+
+export const createCustomCommandRuntimeApi = (
+  context: ScriptExecutionContext,
+): CustomCommandRuntimeApi => createCustomScriptRuntimeApi(context);
 
 const customResult = {
   Continue: { _tag: "Continue" } as const,
@@ -264,7 +269,7 @@ export const makeCustomCommandHandler =
       args: instruction.args,
       sourceName,
       instruction,
-      api: createCustomCommandRuntimeApi(context),
+      api: createCustomScriptRuntimeApi(context),
       continue: () => customResult.Continue,
       skipNext: () => customResult.SkipNext,
       gotoLabel: (label: string) => customResult.JumpToLabel(label),
