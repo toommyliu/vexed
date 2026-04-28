@@ -11,6 +11,7 @@ Proposing sweeping changes that improve long-term maintainability is encouraged.
 1. Performance first.
 2. Reliability first.
 3. Keep behavior predictable under load and during failures (unexpected failures, timeouts, disconnects, etc.).
+4. Unless requested, do NOT worry about backwards compatibility. If a change is needed, make the change. Don't be afraid to break things.
 
 If a tradeoff is required, choose correctness and robustness over short-term convenience.
 
