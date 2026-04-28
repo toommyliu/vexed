@@ -384,7 +384,7 @@ const make = Effect.gen(function* () {
   const runSemaphore = yield* Semaphore.make(1);
   const commandsRef = yield* Ref.make(new Map(scriptCommandHandlers));
   const currentCommandRef = yield* Ref.make<RunningScriptCommand | null>(null);
-  const commandDelayRef = yield* Ref.make(0);
+  const commandDelayRef = yield* Ref.make(1000);
 
   const interruptActiveScript = (reason: string) =>
     Effect.gen(function* () {
@@ -915,6 +915,7 @@ const make = Effect.gen(function* () {
         Effect.gen(function* () {
           yield* ensureReady(program.sourceName);
           yield* stop("replaced by a new script");
+          yield* Ref.set(commandDelayRef, 1000);
 
           const fiber = yield* Effect.forkDetach(
             executeProgram(program, commands).pipe(
