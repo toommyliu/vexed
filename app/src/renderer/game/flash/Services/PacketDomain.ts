@@ -30,7 +30,10 @@ export interface PacketDomainJoinMapEvent {
 
 export interface PacketDomainCounterAttackEvent {
   readonly monMapId: number;
-  readonly message?: string;
+  readonly source: "message" | "aura";
+  readonly triggerId: string;
+  readonly triggerText: string;
+  readonly durationMs?: number;
   readonly packet: ServerPacket;
 }
 
