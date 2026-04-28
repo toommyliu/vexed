@@ -13,6 +13,7 @@
     },
     "jsx": "react-jsx",
     "jsxImportSource": "solid-js",
+    "resolveJsonModule": true,
     "noEmit": true,
     "allowSyntheticDefaultImports": true,
     /* Completeness */
@@ -24,6 +25,7 @@
     ]
   },
   "include": [
+    "./appBranding.json",
     "./src/**/*"
   ],
   "exclude": [

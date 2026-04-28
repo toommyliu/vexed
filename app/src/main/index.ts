@@ -1,4 +1,4 @@
-import { promises, unwatchFile, watchFile, type Stats } from "fs";
+import { existsSync, promises, unwatchFile, watchFile, type Stats } from "fs";
 import {
   app,
   BrowserWindow,
@@ -9,6 +9,8 @@ import {
 } from "electron";
 import { basename, join, sep } from "path";
 import process from "process";
+import { homedir } from "os";
+import appBranding from "../../appBranding.json";
 import { ScriptingIpcChannels, type ScriptExecutePayload } from "../shared/ipc";
 
 const { mkdir, readFile, realpath } = promises;
@@ -16,6 +18,40 @@ const { mkdir, readFile, realpath } = promises;
 const flash = require("nw-flash-trust");
 
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
+
+const isDevApp = !app.isPackaged;
+const isDarwin = process.platform === "darwin";
+const isWin = process.platform === "win32";
+const isLinux = process.platform === "linux";
+const activeBranding = isDevApp ? appBranding.dev : appBranding.production;
+
+const resolveAppDataBasePath = (): string =>
+  isWin
+    ? process.env["APPDATA"] || join(homedir(), "AppData", "Roaming")
+    : isDarwin
+      ? join(homedir(), "Library", "Application Support")
+      : process.env["XDG_CONFIG_HOME"] || join(homedir(), ".config");
+
+const resolveUserDataPath = (): string => {
+  const appDataBase = resolveAppDataBasePath();
+
+  // If the legacy directory exists, prefer that over the new one to avoid losing session data. 
+  for (const dirName of activeBranding.legacyUserDataDirNames) {
+    const legacyPath = join(appDataBase, dirName);
+    if (existsSync(legacyPath)) {
+      return legacyPath;
+    }
+  }
+
+  return join(appDataBase, activeBranding.userDataDirName);
+};
+
+app.setPath("userData", resolveUserDataPath());
+app.setName(activeBranding.displayName);
+
+if (isWin) {
+  app.setAppUserModelId(activeBranding.bundleId);
+}
 
 const assetsPath = join(app.getAppPath(), "..", "assets");
 const documentsPath = join(app.getPath("documents"), "vexed");
@@ -28,10 +64,6 @@ const flashPath = join(
   "Shockwave Flash",
   "WritableRoot",
 );
-
-const isDarwin = process.platform === "darwin";
-const isWin = process.platform === "win32";
-const isLinux = process.platform === "linux";
 
 const flashPluginPath = isDarwin
   ? join(documentsPath, "PepperFlashPlayer.plugin")
@@ -215,6 +247,14 @@ const installDevRendererReloadWatcher = () => {
   app.once("will-quit", () => unwatchFile(devRendererReloadPath, listener));
 };
 
+const installDevDockIcon = () => {
+  if (!isDevApp || !isDarwin) {
+    return;
+  }
+
+  app.dock.setIcon(join(assetsPath, activeBranding.iconPng));
+};
+
 function createWindow() {
   const win = new BrowserWindow({
     width: 1024,
@@ -256,6 +296,7 @@ function createWindow() {
 app.whenReady().then(() => {
   registerScriptingIpcHandlers();
   installDevRendererReloadWatcher();
+  installDevDockIcon();
   createWindow();
 });
 

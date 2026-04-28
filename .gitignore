@@ -1,6 +1,7 @@
 node_modules/
 dist/
 build/
+app/.electron-runtime/
 .astro/
 docs-fumadocs/.next/
 docs-fumadocs/.source/
