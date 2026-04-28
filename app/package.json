@@ -9,6 +9,7 @@
   },
   "scripts": {
     "clean": "pnpm --dir .. clean",
+    "prepare": "cd .. && effect-language-service patch",
     "typecheck": "tsc --noEmit",
     "compile": "tsx esbuild.config.js",
     "compile:watch": "tsx esbuild.config.js --watch",

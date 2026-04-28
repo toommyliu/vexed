@@ -7,15 +7,14 @@ import { Bridge } from "../Services/Bridge";
 import { waitFor } from "../../utils/waitFor";
 
 const make = Effect.gen(function* () {
-const effectServices = yield* Effect.services<never>();
-
   const bridge = yield* Bridge;
   const auth = yield* Auth;
   const itemCache = yield* makeItemCache;
+  const runFork = Effect.runForkWith(yield* Effect.services());
 
   const dispose = yield* bridge.onConnection((status) => {
     if (status === "OnConnectionLost") {
-      void Effect.runForkWith(effectServices)(itemCache.clear);
+      runFork(itemCache.clear);
     }
   });
 

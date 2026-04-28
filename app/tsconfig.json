@@ -20,7 +20,11 @@
     "skipDefaultLibCheck": true,
     "plugins": [
       {
-        "name": "@effect/language-service"
+        "name": "@effect/language-service",
+        "diagnosticSeverity": {
+          "runEffectInsideEffect": "warning"
+        },
+        "ignoreEffectWarningsInTscExitCode": true
       }
     ]
   },
