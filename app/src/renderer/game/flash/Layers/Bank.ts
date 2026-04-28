@@ -1,4 +1,4 @@
-import { Effect, Layer, SynchronizedRef } from "effect";
+import { Effect, Layer } from "effect";
 import { makeItemCache } from "../ItemCache";
 import { Auth } from "../Services/Auth";
 import type { BankShape } from "../Services/Bank";
@@ -7,22 +7,15 @@ import { Bridge } from "../Services/Bridge";
 import { waitFor } from "../../utils/waitFor";
 
 const make = Effect.gen(function* () {
+const effectServices = yield* Effect.services<never>();
+
   const bridge = yield* Bridge;
   const auth = yield* Auth;
   const itemCache = yield* makeItemCache;
 
-  const runFork = Effect.runFork;
-
-  const loaded = yield* SynchronizedRef.make(false);
-
   const dispose = yield* bridge.onConnection((status) => {
     if (status === "OnConnectionLost") {
-      runFork(
-        Effect.gen(function* () {
-          yield* SynchronizedRef.set(loaded, false);
-          yield* itemCache.clear;
-        }),
-      );
+      void Effect.runForkWith(effectServices)(itemCache.clear);
     }
   });
 
@@ -97,12 +90,6 @@ const make = Effect.gen(function* () {
         } else {
           return yield* Effect.void;
         }
-      }
-
-      const isLoaded = yield* SynchronizedRef.get(loaded);
-      if (!isLoaded) {
-        yield* bridge.call("bank.loadItems");
-        yield* SynchronizedRef.set(loaded, true);
       }
 
       yield* bridge.call("bank.open");

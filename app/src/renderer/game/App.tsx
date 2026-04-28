@@ -18,7 +18,6 @@ import { Player } from "./flash/Services/Player";
 import { Shops } from "./flash/Services/Shops";
 import { TempInventory } from "./flash/Services/TempInventory";
 import { demoScriptName, demoScriptSource } from "./scripting/demoScript";
-import type { PacketListenerDisposer } from "./flash/Services/Packet";
 
 const flashServiceDebugExamples = [
   {
@@ -153,7 +152,7 @@ export default function App() {
   const [flashEvalResult, setFlashEvalResult] = createSignal("No result yet");
   const [flashEvalRunning, setFlashEvalRunning] = createSignal(false);
   let activeCombatFiber: Fiber.Fiber<void, unknown> | undefined;
-  let packetLogDisposer: PacketListenerDisposer | undefined;
+  let packetLogDisposer: (() => void) | undefined;
   let settingsStateDisposer: (() => void) | undefined;
 
   const [scriptOverlayVisible, setScriptOverlayVisible] = createSignal(false);
@@ -420,11 +419,23 @@ ${source}
         .runPromise(
           Effect.gen(function* () {
             const packet = yield* Packet;
-            packetLogDisposer = yield* packet.packetFromServer((rawPacket) =>
+            packetLogDisposer?.();
+
+            const disposeClient = yield* packet.packetFromClient((rawPacket) =>
+              Effect.sync(() => {
+                console.log("[Client Packet]", rawPacket);
+              }),
+            );
+            const disposeServer = yield* packet.packetFromServer((rawPacket) =>
               Effect.sync(() => {
                 console.log("[Server Packet]", rawPacket);
               }),
             );
+
+            packetLogDisposer = () => {
+              disposeClient();
+              disposeServer();
+            };
             console.log("Packet logging enabled");
           }),
         )
