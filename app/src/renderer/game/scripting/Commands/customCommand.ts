@@ -1,4 +1,4 @@
-import { Effect } from "effect";
+import { Cause, Effect } from "effect";
 import {
   ScriptCustomCommandError,
   ScriptInvalidArgumentError,
@@ -8,11 +8,14 @@ import {
   type CustomCommandHandler,
   type CustomCommandResult,
   type CustomCommandRuntimeApi,
+  type CustomScriptEffectRuntimeApi,
   type CustomScriptRuntimeApi,
   type ScriptCommandHandler,
   type ScriptExecutionContext,
   type ScriptInstruction,
 } from "../Types";
+import { ScriptEffect } from "../scriptEffect";
+import { makeScriptCancellationError } from "../scriptAsyncScope";
 
 export const CUSTOM_COMMAND_NAME_PATTERN = /^[a-z][a-z0-9_]*$/;
 type AnyEffect = Effect.Effect<unknown, unknown, any>;
@@ -108,6 +111,7 @@ type RuntimeApiSource = Omit<
 const createRuntimeApiProxy = (
   source: unknown,
   runEffect: (effect: AnyEffect) => Promise<unknown>,
+  isCancelled: () => boolean,
 ): unknown => {
   if (typeof source !== "object" || source === null) {
     return source;
@@ -124,12 +128,20 @@ const createRuntimeApiProxy = (
       const value = Reflect.get(target, property, receiver);
       if (typeof value === "function") {
         return (...args: readonly unknown[]) => {
+          if (isCancelled()) {
+            return Promise.reject(makeScriptCancellationError());
+          }
+
           const result = value.apply(target, args);
           return Effect.isEffect(result) ? runEffect(result) : result;
         };
       }
 
       if (Effect.isEffect(value)) {
+        if (isCancelled()) {
+          return Promise.reject(makeScriptCancellationError());
+        }
+
         return runEffect(value);
       }
 
@@ -139,7 +151,67 @@ const createRuntimeApiProxy = (
           return cached;
         }
 
-        const proxy = createRuntimeApiProxy(value, runEffect);
+        const proxy = createRuntimeApiProxy(value, runEffect, isCancelled);
+        nestedProxies.set(property, proxy);
+        return proxy;
+      }
+
+      return value;
+    },
+  });
+};
+
+const createEffectRuntimeApiProxy = (
+  source: unknown,
+  wrapEffect: (effect: AnyEffect) => AnyEffect,
+  isCancelled: () => boolean,
+): unknown => {
+  if (typeof source !== "object" || source === null) {
+    return source;
+  }
+
+  const nestedProxies = new Map<PropertyKey, unknown>();
+
+  return new Proxy(source as Record<PropertyKey, unknown>, {
+    get(target, property, receiver) {
+      if (property === "then") {
+        return undefined;
+      }
+
+      const value = Reflect.get(target, property, receiver);
+      if (typeof value === "function") {
+        return (...args: readonly unknown[]) =>
+          Effect.suspend(() => {
+            if (isCancelled()) {
+              return Effect.fail(makeScriptCancellationError());
+            }
+
+            const result = value.apply(target, args);
+            return Effect.isEffect(result)
+              ? wrapEffect(result)
+              : Effect.succeed(result);
+          });
+      }
+
+      if (Effect.isEffect(value)) {
+        return Effect.suspend(() =>
+          isCancelled()
+            ? Effect.fail(makeScriptCancellationError())
+            : wrapEffect(value),
+        );
+      }
+
+      if (typeof value === "object" && value !== null) {
+        const cached = nestedProxies.get(property);
+        if (cached !== undefined) {
+          return cached;
+        }
+
+        const proxy = createEffectRuntimeApiProxy(
+          value,
+          wrapEffect,
+          isCancelled,
+        );
         nestedProxies.set(property, proxy);
         return proxy;
       }
@@ -177,9 +249,47 @@ export const createCustomScriptRuntimeApi = (
     world: context.world,
   };
 
-  return createRuntimeApiProxy(source, (effect) =>
-    Effect.runPromise(context.run(effect as Effect.Effect<unknown, unknown>)),
+  return createRuntimeApiProxy(
+    source,
+    (effect) => context.runApiEffect(effect as Effect.Effect<unknown, unknown>),
+    context.isCancelled,
   ) as CustomScriptRuntimeApi;
+};
+
+export const createCustomScriptEffectRuntimeApi = (
+  context: ScriptExecutionContext,
+): CustomScriptEffectRuntimeApi => {
+  const source: RuntimeApiSource = {
+    auth: context.auth,
+    autoZone: context.autoZone,
+    bank: context.bank,
+    bridge: context.bridge,
+    combat: context.combat,
+    drops: context.drops,
+    house: context.house,
+    inventory: context.inventory,
+    jobs: context.jobs,
+    packet: {
+      sendServer: context.packet.sendServer,
+      sendClient: context.packet.sendClient,
+      onExtensionResponse: context.packet.onExtensionResponse,
+      packetFromServer: context.packet.packetFromServer,
+      packetFromClient: context.packet.packetFromClient,
+    } satisfies RuntimePacketApiSource,
+    player: context.player,
+    quests: context.quests,
+    settings: context.settings,
+    shops: context.shops,
+    tempInventory: context.tempInventory,
+    world: context.world,
+  };
+
+  return createEffectRuntimeApiProxy(
+    source,
+    (effect) =>
+      context.run(effect as Effect.Effect<unknown, unknown>) as AnyEffect,
+    context.isCancelled,
+  ) as CustomScriptEffectRuntimeApi;
 };
 
 export const createCustomCommandRuntimeApi = (
@@ -213,6 +323,30 @@ const isCustomCommandResult = (value: unknown): value is CustomCommandResult =>
   "_tag" in value &&
   typeof (value as { readonly _tag: unknown })._tag === "string";
 
+const describeCustomCommandResultType = (value: unknown): string => {
+  if (value === null) {
+    return "null";
+  }
+
+  if (Array.isArray(value)) {
+    return "array";
+  }
+
+  return typeof value;
+};
+
+const isGenerator = <A>(
+  value: unknown,
+): value is Generator<Effect.Yieldable<any, any, any, never>, A, never> =>
+  typeof value === "object" &&
+  value !== null &&
+  typeof (value as { readonly next?: unknown }).next === "function" &&
+  typeof (value as { readonly throw?: unknown }).throw === "function";
+
+const isGeneratorFunction = (value: unknown): boolean =>
+  typeof value === "function" &&
+  value.constructor?.name === "GeneratorFunction";
+
 const toScriptCommandResult = (
   sourceName: string,
   command: string,
@@ -227,7 +361,9 @@ const toScriptCommandResult = (
     return failCustomCommand(
       sourceName,
       command,
-      "custom command returned an invalid control result",
+      `custom command returned ${describeCustomCommandResultType(
+        result,
+      )}; return nothing or one of the command control helpers. Use cmd.register_condition for boolean checks.`,
     );
   }
 
@@ -270,6 +406,9 @@ export const makeCustomCommandHandler =
       sourceName,
       instruction,
       api: createCustomScriptRuntimeApi(context),
+      Effect: ScriptEffect,
+      signal: context.signal,
+      isCancelled: context.isCancelled,
       continue: () => customResult.Continue,
       skipNext: () => customResult.SkipNext,
       gotoLabel: (label: string) => customResult.JumpToLabel(label),
@@ -279,16 +418,68 @@ export const makeCustomCommandHandler =
         console.info(`[script:${sourceName}:${name}] ${message}`);
       },
     };
+    const effectContext = {
+      ...customContext,
+      api: createCustomScriptEffectRuntimeApi(context),
+    };
 
-    return Effect.tryPromise({
-      try: async () => await handler(customContext),
-      catch: (cause) =>
-        new ScriptCustomCommandError({
-          sourceName,
-          command: name,
-          cause,
-        }),
-    }).pipe(
+    const runHandler: Effect.Effect<
+      void | CustomCommandResult,
+      ScriptCustomCommandError,
+      never
+    > = isGeneratorFunction(handler)
+      ? Effect.try({
+          try: () =>
+            handler(effectContext) as Generator<
+              Effect.Yieldable<any, any, any, never>,
+              void | CustomCommandResult,
+              never
+            >,
+          catch: (cause) =>
+            new ScriptCustomCommandError({
+              sourceName,
+              command: name,
+              cause,
+            }),
+        }).pipe(
+          Effect.flatMap((result) =>
+            isGenerator<void | CustomCommandResult>(result)
+              ? Effect.gen(() => result).pipe(
+                  Effect.catchCause((cause) =>
+                    Cause.hasInterruptsOnly(cause)
+                      ? Effect.failCause(cause)
+                      : Effect.fail(
+                          new ScriptCustomCommandError({
+                            sourceName,
+                            command: name,
+                            cause,
+                          }),
+                        ),
+                  ),
+                )
+              : Effect.succeed(result as void | CustomCommandResult),
+          ),
+        )
+      : Effect.tryPromise({
+          try: async (signal) => {
+            if (signal.aborted || context.isCancelled()) {
+              throw makeScriptCancellationError();
+            }
+
+            return await (handler(customContext) as
+              | void
+              | CustomCommandResult
+              | Promise<void | CustomCommandResult>);
+          },
+          catch: (cause) =>
+            new ScriptCustomCommandError({
+              sourceName,
+              command: name,
+              cause,
+            }),
+        });
+
+    return runHandler.pipe(
       Effect.flatMap((result) =>
         toScriptCommandResult(sourceName, name, instruction, result),
       ),

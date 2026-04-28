@@ -3,7 +3,12 @@ import type { AutoZoneSupportedMap } from "../../flash/Services/AutoZone";
 import { waitFor } from "../../utils/waitFor";
 import { ScriptInvalidArgumentError } from "../Errors";
 import { ScriptCommandResult, type ScriptCommandHandler } from "../Types";
-import type { CustomCommandHandler, CustomConditionHandler } from "../Types";
+import type {
+  CustomCommandHandler,
+  CustomConditionHandler,
+  ScriptPacketHandler,
+} from "../Types";
+import { makeScriptCancellationError } from "../scriptAsyncScope";
 import {
   createCommandHandler,
   defineScriptCommandDomain,
@@ -27,7 +32,6 @@ import {
 } from "./customCommand";
 
 type PacketHandlerType = "packetFromClient" | "packetFromServer" | "pext";
-type PacketHandler = (packet: unknown) => void | Promise<void>;
 
 type MiscScriptCommandArguments = {
   delay: [ms: number];
@@ -62,7 +66,7 @@ type MiscScriptCommandArguments = {
   register_handler: [
     type: PacketHandlerType,
     name: string,
-    handler: PacketHandler,
+    handler: ScriptPacketHandler,
   ];
   unregister_handler: [type: PacketHandlerType, name: string];
   register_command: [name: string, handler: CustomCommandHandler];
@@ -316,7 +320,11 @@ const registerHandlerCommand = createCommandHandler((context, args) =>
       return;
     }
 
-    yield* context.registerPacketHandler(type, name, handler as PacketHandler);
+    yield* context.registerPacketHandler(
+      type,
+      name,
+      handler as ScriptPacketHandler,
+    );
   }),
 );
 
@@ -491,13 +499,27 @@ const registerTaskCommand = createCommandHandler((context, args) =>
       return;
     }
 
-    yield* context.jobs.start(
-      `script/task/${name}`,
-      Effect.promise(async () => {
-        await (taskFn as () => void | Promise<void>)();
-      }),
+    const jobKey = `script/task/${name}`;
+    const started = yield* context.jobs.start(
+      jobKey,
+      Effect.tryPromise({
+        try: async (signal) => {
+          if (signal.aborted || context.isCancelled()) {
+            throw makeScriptCancellationError();
+          }
+
+          await (taskFn as () => void | Promise<void>)();
+        },
+        catch: (cause) => cause,
+      }).pipe(Effect.asVoid),
       { replace: false },
     );
+    if (started) {
+      yield* context.setScriptCleanup(
+        `task:${jobKey}`,
+        context.jobs.stop(jobKey).pipe(Effect.asVoid),
+      );
+    }
   }),
 );
 
@@ -510,7 +532,9 @@ const unregisterTaskCommand = createCommandHandler((context, args) =>
       0,
       "name",
     );
-    yield* context.jobs.stop(`script/task/${name}`);
+    const jobKey = `script/task/${name}`;
+    yield* context.removeScriptCleanup(`task:${jobKey}`);
+    yield* context.jobs.stop(jobKey);
   }),
 );
 

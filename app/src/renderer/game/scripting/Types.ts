@@ -23,6 +23,7 @@ import type { ShopsShape } from "../flash/Services/Shops";
 import type { TempInventoryShape } from "../flash/Services/TempInventory";
 import type { QuestsShape } from "../flash/Services/Quests";
 import type { WorldShape } from "../flash/Services/World";
+import type { ScriptEffect } from "./scriptEffect";
 
 export interface ScriptInstructionControlFlow {
   readonly falseJumpIndex?: number;
@@ -64,6 +65,15 @@ type CustomScriptRuntimeValue<T> =
         ? { readonly [Key in keyof T]: CustomScriptRuntimeValue<T[Key]> }
         : T;
 
+type CustomScriptEffectRuntimeValue<T> =
+  T extends Effect.Effect<infer A, infer E, infer R>
+    ? Effect.Effect<A, E, R>
+    : T extends (...args: infer Args) => infer Result
+      ? (...args: Args) => CustomScriptEffectRuntimeValue<Result>
+      : T extends object
+        ? { readonly [Key in keyof T]: CustomScriptEffectRuntimeValue<T[Key]> }
+        : T;
+
 type CustomScriptPacketApi = Pick<
   PacketShape,
   | "sendServer"
@@ -92,6 +102,25 @@ export interface CustomScriptRuntimeApi {
   readonly world: CustomScriptRuntimeValue<WorldShape>;
 }
 
+export interface CustomScriptEffectRuntimeApi {
+  readonly auth: CustomScriptEffectRuntimeValue<AuthShape>;
+  readonly autoZone: CustomScriptEffectRuntimeValue<AutoZoneShape>;
+  readonly bank: CustomScriptEffectRuntimeValue<BankShape>;
+  readonly bridge: CustomScriptEffectRuntimeValue<BridgeShape>;
+  readonly combat: CustomScriptEffectRuntimeValue<CombatShape>;
+  readonly drops: CustomScriptEffectRuntimeValue<DropsShape>;
+  readonly house: CustomScriptEffectRuntimeValue<HouseShape>;
+  readonly inventory: CustomScriptEffectRuntimeValue<InventoryShape>;
+  readonly jobs: CustomScriptEffectRuntimeValue<JobsShape>;
+  readonly packet: CustomScriptEffectRuntimeValue<CustomScriptPacketApi>;
+  readonly player: CustomScriptEffectRuntimeValue<PlayerShape>;
+  readonly quests: CustomScriptEffectRuntimeValue<QuestsShape>;
+  readonly settings: CustomScriptEffectRuntimeValue<SettingsShape>;
+  readonly shops: CustomScriptEffectRuntimeValue<ShopsShape>;
+  readonly tempInventory: CustomScriptEffectRuntimeValue<TempInventoryShape>;
+  readonly world: CustomScriptEffectRuntimeValue<WorldShape>;
+}
+
 export type CustomCommandRuntimeApi = CustomScriptRuntimeApi;
 
 export type CustomCommandResult =
@@ -106,6 +135,9 @@ export interface CustomCommandContext {
   readonly sourceName: string;
   readonly instruction: ScriptInstruction;
   readonly api: CustomScriptRuntimeApi;
+  readonly Effect: ScriptEffect;
+  readonly signal: AbortSignal;
+  isCancelled(): boolean;
   continue(): CustomCommandResult;
   skipNext(): CustomCommandResult;
   gotoLabel(label: string): CustomCommandResult;
@@ -114,20 +146,62 @@ export interface CustomCommandContext {
   log(message: string): void;
 }
 
+export interface CustomCommandEffectContext
+  extends Omit<CustomCommandContext, "api"> {
+  readonly api: CustomScriptEffectRuntimeApi;
+}
+
+type ScriptEffectGenerator<A> = Generator<
+  Effect.Yieldable<any, any, any, never>,
+  A,
+  never
+>;
+
 export type CustomCommandHandler = (
-  context: CustomCommandContext,
-) => void | CustomCommandResult | Promise<void | CustomCommandResult>;
+  context: CustomCommandContext | CustomCommandEffectContext,
+) =>
+  | void
+  | CustomCommandResult
+  | Promise<void | CustomCommandResult>
+  | ScriptEffectGenerator<void | CustomCommandResult>;
 
 export interface CustomConditionContext {
   readonly args: ReadonlyArray<unknown>;
   readonly sourceName: string;
   readonly api: CustomScriptRuntimeApi;
+  readonly Effect: ScriptEffect;
+  readonly signal: AbortSignal;
+  isCancelled(): boolean;
   log(message: string): void;
 }
 
+export interface CustomConditionEffectContext
+  extends Omit<CustomConditionContext, "api"> {
+  readonly api: CustomScriptEffectRuntimeApi;
+}
+
 export type CustomConditionHandler = (
-  context: CustomConditionContext,
-) => boolean | Promise<boolean>;
+  context: CustomConditionContext | CustomConditionEffectContext,
+) => boolean | Promise<boolean> | ScriptEffectGenerator<boolean>;
+
+export interface ScriptPacketHandlerContext {
+  readonly sourceName: string;
+  readonly api: CustomScriptRuntimeApi;
+  readonly Effect: ScriptEffect;
+  readonly signal: AbortSignal;
+  isCancelled(): boolean;
+  log(message: string): void;
+}
+
+export interface ScriptPacketHandlerEffectContext
+  extends Omit<ScriptPacketHandlerContext, "api"> {
+  readonly api: CustomScriptEffectRuntimeApi;
+}
+
+export type ScriptPacketHandler = (
+  packet: unknown,
+  context: ScriptPacketHandlerContext | ScriptPacketHandlerEffectContext,
+) => void | Promise<void> | ScriptEffectGenerator<void>;
 
 export interface ScriptExecutionContext {
   readonly sourceName: string;
@@ -148,14 +222,22 @@ export interface ScriptExecutionContext {
   readonly shops: ShopsShape;
   readonly tempInventory: TempInventoryShape;
   readonly world: WorldShape;
+  readonly signal: AbortSignal;
+  isCancelled(): boolean;
   run<A, E>(
     effect: Effect.Effect<A, E>,
   ): Effect.Effect<A, E | ScriptNotReadyError>;
+  runApiEffect<A, E>(effect: Effect.Effect<A, E>): Promise<A>;
+  setScriptCleanup(
+    key: string,
+    cleanup: Effect.Effect<void, unknown>,
+  ): Effect.Effect<void>;
+  removeScriptCleanup(key: string): Effect.Effect<void>;
   setCommandDelay(ms: number): Effect.Effect<void>;
   registerPacketHandler(
     type: "packetFromClient" | "packetFromServer" | "pext",
     name: string,
-    handler: (packet: unknown) => void | Promise<void>,
+    handler: ScriptPacketHandler,
   ): Effect.Effect<void>;
   unregisterPacketHandler(
     type: "packetFromClient" | "packetFromServer" | "pext",

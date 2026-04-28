@@ -1,4 +1,4 @@
-import { Effect, Fiber, Layer, Option, Ref, Semaphore } from "effect";
+import { Cause, Effect, Fiber, Layer, Option, Ref, Semaphore } from "effect";
 import { type ScriptExecutePayload } from "../ipc";
 import { Auth } from "../../flash/Services/Auth";
 import { AutoZone } from "../../flash/Services/AutoZone";
@@ -49,10 +49,17 @@ import {
   type ScriptProgram,
 } from "../Types";
 import {
+  createCustomScriptEffectRuntimeApi,
+  createCustomScriptRuntimeApi,
   makeCustomCommandHandler,
   protectBuiltinCommandName,
 } from "../Commands/customCommand";
 import { makeCustomConditionEvaluator } from "../Commands/customCondition";
+import { ScriptEffect } from "../scriptEffect";
+import {
+  makeScriptAsyncScope,
+  makeScriptCancellationError,
+} from "../scriptAsyncScope";
 
 type ConditionalBlockFrame = {
   readonly ifIndex: number;
@@ -67,6 +74,18 @@ type CustomConditionEvaluator = (
   context: ScriptExecutionContext,
   args: ReadonlyArray<unknown>,
 ) => Effect.Effect<boolean, ScriptCommandError>;
+
+const isGenerator = <A>(
+  value: unknown,
+): value is Generator<Effect.Yieldable<any, any, any, never>, A, never> =>
+  typeof value === "object" &&
+  value !== null &&
+  typeof (value as { readonly next?: unknown }).next === "function" &&
+  typeof (value as { readonly throw?: unknown }).throw === "function";
+
+const isGeneratorFunction = (value: unknown): boolean =>
+  typeof value === "function" &&
+  value.constructor?.name === "GeneratorFunction";
 
 const scriptNameFromPayload = (payload: ScriptExecutePayload): string => {
   if (payload.name && payload.name.trim() !== "") {
@@ -366,9 +385,6 @@ const make = Effect.gen(function* () {
   const commandsRef = yield* Ref.make(new Map(scriptCommandHandlers));
   const currentCommandRef = yield* Ref.make<RunningScriptCommand | null>(null);
   const commandDelayRef = yield* Ref.make(0);
-  const packetHandlerDisposersRef = yield* Ref.make(
-    new Map<string, () => void>(),
-  );
 
   const interruptActiveScript = (reason: string) =>
     Effect.gen(function* () {
@@ -402,19 +418,6 @@ const make = Effect.gen(function* () {
     }),
   );
 
-  yield* Effect.addFinalizer(() =>
-    Ref.get(packetHandlerDisposersRef).pipe(
-      Effect.flatMap((disposers) =>
-        Effect.sync(() => {
-          for (const dispose of disposers.values()) {
-            dispose();
-          }
-          disposers.clear();
-        }),
-      ),
-    ),
-  );
-
   const ensureReady = (sourceName: string) =>
     Effect.gen(function* () {
       const connected = yield* Ref.get(readyRef);
@@ -439,256 +442,313 @@ const make = Effect.gen(function* () {
     commands: ReadonlyMap<string, ScriptCommandHandler>,
   ) =>
     Effect.gen(function* () {
-      const runtimeCommands = new Map(commands);
-      const runtimeConditions = new Map<string, CustomConditionEvaluator>();
-      let context: ScriptExecutionContext;
+      const scriptScope = makeScriptAsyncScope(runFork);
 
-      const rejectRegisteredName = (
-        command: string,
-        name: string,
-        registeredAs: "command" | "condition",
-      ) =>
-        Effect.fail(
-          new ScriptInvalidArgumentError({
-            sourceName: context.sourceName,
-            command,
-            message: `name is already registered as a custom ${registeredAs}: ${name}`,
-          }),
-        );
+      return yield* Effect.gen(function* () {
+        const runtimeCommands = new Map(commands);
+        const runtimeConditions = new Map<string, CustomConditionEvaluator>();
+        let context: ScriptExecutionContext;
 
-      const registerCustomCommand = (
-        name: string,
-        handler: CustomCommandHandler,
-      ) =>
-        Effect.gen(function* () {
-          yield* protectBuiltinCommandName(
-            context,
-            "register_command",
-            name,
-            BUILTIN_SCRIPT_API_NAMES,
-          );
-
-          if (runtimeCommands.has(name)) {
-            return yield* rejectRegisteredName(
-              "register_command",
-              name,
-              "command",
-            );
-          }
-
-          if (runtimeConditions.has(name)) {
-            return yield* rejectRegisteredName(
-              "register_command",
-              name,
-              "condition",
-            );
-          }
-
-          runtimeCommands.set(name, makeCustomCommandHandler(name, handler));
-        });
-
-      const unregisterCustomCommand = (name: string) =>
-        protectBuiltinCommandName(
-          context,
-          "unregister_command",
-          name,
-          BUILTIN_SCRIPT_API_NAMES,
-        ).pipe(
-          Effect.andThen(
-            Effect.sync(() => {
-              runtimeCommands.delete(name);
-            }),
-          ),
-        );
-
-      const registerCustomCondition = (
-        name: string,
-        handler: CustomConditionHandler,
-      ) =>
-        Effect.gen(function* () {
-          yield* protectBuiltinCommandName(
-            context,
-            "register_condition",
-            name,
-            BUILTIN_SCRIPT_API_NAMES,
-          );
-
-          if (runtimeCommands.has(name)) {
-            return yield* rejectRegisteredName(
-              "register_condition",
-              name,
-              "command",
-            );
-          }
-
-          if (runtimeConditions.has(name)) {
-            return yield* rejectRegisteredName(
-              "register_condition",
-              name,
-              "condition",
-            );
-          }
-
-          runtimeConditions.set(
-            name,
-            makeCustomConditionEvaluator(name, handler),
-          );
-        });
-
-      const unregisterCustomCondition = (name: string) =>
-        protectBuiltinCommandName(
-          context,
-          "unregister_condition",
-          name,
-          BUILTIN_SCRIPT_API_NAMES,
-        ).pipe(
-          Effect.andThen(
-            Effect.sync(() => {
-              runtimeConditions.delete(name);
-            }),
-          ),
-        );
-
-      const evaluateCustomCondition = (
-        name: string,
-        args: ReadonlyArray<unknown>,
-      ) =>
-        Effect.gen(function* () {
-          const evaluator = runtimeConditions.get(name);
-          if (!evaluator) {
-            return yield* new ScriptCustomConditionError({
+        const rejectRegisteredName = (
+          command: string,
+          name: string,
+          registeredAs: "command" | "condition",
+        ) =>
+          Effect.fail(
+            new ScriptInvalidArgumentError({
               sourceName: context.sourceName,
-              condition: name,
-              cause: "custom condition is not registered",
-            });
-          }
-
-          return yield* evaluator(context, args);
-        });
-
-      context = {
-        sourceName: program.sourceName,
-        auth,
-        autoZone,
-        bank,
-        bridge,
-        combat,
-        drops,
-        house,
-        inventory,
-        jobs,
-        packet,
-        packetDomain,
-        player,
-        quests,
-        settings,
-        shops,
-        tempInventory,
-        world,
-        run: <A, E>(effect: Effect.Effect<A, E>) =>
-          ensureReady(program.sourceName).pipe(Effect.andThen(effect)),
-        setCommandDelay: (ms) =>
-          Ref.set(commandDelayRef, Math.max(0, Math.trunc(ms))),
-        registerPacketHandler: (type, name, handler) =>
-          Effect.gen(function* () {
-            const key = `${type}:${name.trim().toLowerCase()}`;
-            const wrappedHandler = (value: unknown) =>
-              Effect.promise(async () => {
-                await handler(value);
-              }).pipe(Effect.asVoid);
-
-            const disposer =
-              type === "packetFromClient"
-                ? yield* packet.packetFromClient(wrappedHandler)
-                : type === "packetFromServer"
-                  ? yield* packet.packetFromServer(wrappedHandler)
-                  : yield* packet.onExtensionResponse(wrappedHandler);
-
-            yield* Ref.update(packetHandlerDisposersRef, (disposers) => {
-              const next = new Map(disposers);
-              next.get(key)?.();
-              next.set(key, disposer);
-              return next;
-            });
-          }),
-        unregisterPacketHandler: (type, name) =>
-          Ref.update(packetHandlerDisposersRef, (disposers) => {
-            const key = `${type}:${name.trim().toLowerCase()}`;
-            const next = new Map(disposers);
-            next.get(key)?.();
-            next.delete(key);
-            return next;
-          }),
-        registerCustomCommand,
-        unregisterCustomCommand,
-        registerCustomCondition,
-        unregisterCustomCondition,
-        evaluateCustomCondition,
-      };
-
-      let instructionPointer = 0;
-      while (instructionPointer < program.instructions.length) {
-        const instruction = program.instructions[instructionPointer];
-        if (!instruction) {
-          break;
-        }
-
-        const handler = runtimeCommands.get(instruction.name);
-        if (!handler) {
-          return yield* Effect.fail(
-            new ScriptUnknownCommandError({
-              sourceName: program.sourceName,
-              command: instruction.name,
-              instructionIndex: instruction.index,
+              command,
+              message: `name is already registered as a custom ${registeredAs}: ${name}`,
             }),
           );
-        }
 
-        yield* ensureReady(program.sourceName);
-        yield* Ref.set(currentCommandRef, {
+        const registerCustomCommand = (
+          name: string,
+          handler: CustomCommandHandler,
+        ) =>
+          Effect.gen(function* () {
+            yield* protectBuiltinCommandName(
+              context,
+              "register_command",
+              name,
+              BUILTIN_SCRIPT_API_NAMES,
+            );
+
+            if (runtimeCommands.has(name)) {
+              return yield* rejectRegisteredName(
+                "register_command",
+                name,
+                "command",
+              );
+            }
+
+            if (runtimeConditions.has(name)) {
+              return yield* rejectRegisteredName(
+                "register_command",
+                name,
+                "condition",
+              );
+            }
+
+            runtimeCommands.set(name, makeCustomCommandHandler(name, handler));
+          });
+
+        const unregisterCustomCommand = (name: string) =>
+          protectBuiltinCommandName(
+            context,
+            "unregister_command",
+            name,
+            BUILTIN_SCRIPT_API_NAMES,
+          ).pipe(
+            Effect.andThen(
+              Effect.sync(() => {
+                runtimeCommands.delete(name);
+              }),
+            ),
+          );
+
+        const registerCustomCondition = (
+          name: string,
+          handler: CustomConditionHandler,
+        ) =>
+          Effect.gen(function* () {
+            yield* protectBuiltinCommandName(
+              context,
+              "register_condition",
+              name,
+              BUILTIN_SCRIPT_API_NAMES,
+            );
+
+            if (runtimeCommands.has(name)) {
+              return yield* rejectRegisteredName(
+                "register_condition",
+                name,
+                "command",
+              );
+            }
+
+            if (runtimeConditions.has(name)) {
+              return yield* rejectRegisteredName(
+                "register_condition",
+                name,
+                "condition",
+              );
+            }
+
+            runtimeConditions.set(
+              name,
+              makeCustomConditionEvaluator(name, handler),
+            );
+          });
+
+        const unregisterCustomCondition = (name: string) =>
+          protectBuiltinCommandName(
+            context,
+            "unregister_condition",
+            name,
+            BUILTIN_SCRIPT_API_NAMES,
+          ).pipe(
+            Effect.andThen(
+              Effect.sync(() => {
+                runtimeConditions.delete(name);
+              }),
+            ),
+          );
+
+        const evaluateCustomCondition = (
+          name: string,
+          args: ReadonlyArray<unknown>,
+        ) =>
+          Effect.gen(function* () {
+            const evaluator = runtimeConditions.get(name);
+            if (!evaluator) {
+              return yield* new ScriptCustomConditionError({
+                sourceName: context.sourceName,
+                condition: name,
+                cause: "custom condition is not registered",
+              });
+            }
+
+            return yield* evaluator(context, args);
+          });
+
+        context = {
           sourceName: program.sourceName,
-          index: instruction.index,
-          name: instruction.name,
-        });
+          auth,
+          autoZone,
+          bank,
+          bridge,
+          combat,
+          drops,
+          house,
+          inventory,
+          jobs,
+          packet,
+          packetDomain,
+          player,
+          quests,
+          settings,
+          shops,
+          tempInventory,
+          world,
+          signal: scriptScope.signal,
+          isCancelled: scriptScope.isCancelled,
+          run: <A, E>(effect: Effect.Effect<A, E>) =>
+            ensureReady(program.sourceName).pipe(Effect.andThen(effect)),
+          runApiEffect: <A, E>(effect: Effect.Effect<A, E>) =>
+            scriptScope.runPromise(
+              ensureReady(program.sourceName).pipe(Effect.andThen(effect)),
+            ),
+          setScriptCleanup: scriptScope.setCleanup,
+          removeScriptCleanup: scriptScope.removeCleanup,
+          setCommandDelay: (ms) =>
+            Ref.set(commandDelayRef, Math.max(0, Math.trunc(ms))),
+          registerPacketHandler: (type, name, handler) =>
+            Effect.gen(function* () {
+              const key = `${type}:${name.trim().toLowerCase()}`;
+              const cleanupKey = `packet:${key}`;
+              const packetContext = {
+                sourceName: program.sourceName,
+                api: createCustomScriptRuntimeApi(context),
+                Effect: ScriptEffect,
+                signal: scriptScope.signal,
+                isCancelled: scriptScope.isCancelled,
+                log: (message: string) => {
+                  console.info(
+                    `[script:${program.sourceName}:handler:${key}] ${message}`,
+                  );
+                },
+              };
+              const packetEffectContext = {
+                ...packetContext,
+                api: createCustomScriptEffectRuntimeApi(context),
+              };
+              const wrappedHandler = (value: unknown) =>
+                Effect.tryPromise({
+                  try: () =>
+                    scriptScope.runPromise(
+                      isGeneratorFunction(handler)
+                        ? Effect.try({
+                            try: () => handler(value, packetEffectContext),
+                            catch: (cause) => cause,
+                          }).pipe(
+                            Effect.flatMap((result) =>
+                              isGenerator<void>(result)
+                                ? Effect.gen(() => result)
+                                : Effect.succeed(undefined),
+                            ),
+                            Effect.asVoid,
+                          )
+                        : Effect.tryPromise({
+                            try: async (signal) => {
+                              if (signal.aborted || scriptScope.isCancelled()) {
+                                throw makeScriptCancellationError();
+                              }
 
-        const result = yield* handler(context, instruction);
+                              await handler(value, packetContext);
+                            },
+                            catch: (cause) => cause,
+                          }).pipe(Effect.asVoid),
+                    ),
+                  catch: (cause) => cause,
+                }).pipe(
+                  Effect.catchCause((cause) =>
+                    Cause.hasInterruptsOnly(cause) || scriptScope.isCancelled()
+                      ? Effect.void
+                      : Effect.logError({
+                          message: "packet handler failed",
+                          sourceName: program.sourceName,
+                          handler: key,
+                          cause,
+                        }),
+                  ),
+                  Effect.asVoid,
+                );
 
-        if (result._tag === "Stop") {
-          yield* Ref.set(currentCommandRef, null);
-          return yield* Effect.void;
-        }
+              const disposer =
+                type === "packetFromClient"
+                  ? yield* packet.packetFromClient(wrappedHandler)
+                  : type === "packetFromServer"
+                    ? yield* packet.packetFromServer(wrappedHandler)
+                    : yield* packet.onExtensionResponse(wrappedHandler);
 
-        const commandDelay = yield* Ref.get(commandDelayRef);
-        if (commandDelay > 0) {
-          yield* Effect.sleep(`${commandDelay} millis`);
-        }
+              yield* scriptScope.setCleanup(cleanupKey, Effect.sync(disposer));
+            }),
+          unregisterPacketHandler: (type, name) =>
+            scriptScope
+              .removeCleanup(`packet:${type}:${name.trim().toLowerCase()}`)
+              .pipe(Effect.asVoid),
+          registerCustomCommand,
+          unregisterCustomCommand,
+          registerCustomCondition,
+          unregisterCustomCondition,
+          evaluateCustomCondition,
+        };
 
-        if (result._tag === "JumpToIndex") {
-          instructionPointer = result.index;
-          continue;
-        }
-
-        if (result._tag === "JumpToLabel") {
-          const destination = program.labels.get(result.label);
-          if (destination === undefined) {
-            return yield* new ScriptLabelNotFoundError({
-              sourceName: program.sourceName,
-              label: result.label,
-            });
+        let instructionPointer = 0;
+        while (instructionPointer < program.instructions.length) {
+          const instruction = program.instructions[instructionPointer];
+          if (!instruction) {
+            break;
           }
 
-          instructionPointer = destination;
-          continue;
+          const handler = runtimeCommands.get(instruction.name);
+          if (!handler) {
+            return yield* Effect.fail(
+              new ScriptUnknownCommandError({
+                sourceName: program.sourceName,
+                command: instruction.name,
+                instructionIndex: instruction.index,
+              }),
+            );
+          }
+
+          yield* ensureReady(program.sourceName);
+          yield* Ref.set(currentCommandRef, {
+            sourceName: program.sourceName,
+            index: instruction.index,
+            name: instruction.name,
+          });
+
+          const result = yield* handler(context, instruction);
+
+          if (result._tag === "Stop") {
+            yield* Ref.set(currentCommandRef, null);
+            return yield* Effect.void;
+          }
+
+          const commandDelay = yield* Ref.get(commandDelayRef);
+          if (commandDelay > 0) {
+            yield* Effect.sleep(`${commandDelay} millis`);
+          }
+
+          if (result._tag === "JumpToIndex") {
+            instructionPointer = result.index;
+            continue;
+          }
+
+          if (result._tag === "JumpToLabel") {
+            const destination = program.labels.get(result.label);
+            if (destination === undefined) {
+              return yield* new ScriptLabelNotFoundError({
+                sourceName: program.sourceName,
+                label: result.label,
+              });
+            }
+
+            instructionPointer = destination;
+            continue;
+          }
+
+          if (result._tag === ScriptCommandResult.Continue._tag) {
+            instructionPointer += 1;
+            continue;
+          }
         }
 
-        if (result._tag === ScriptCommandResult.Continue._tag) {
-          instructionPointer += 1;
-          continue;
-        }
-      }
-
-      yield* Ref.set(currentCommandRef, null);
-      return yield* Effect.void;
+        yield* Ref.set(currentCommandRef, null);
+        return yield* Effect.void;
+      }).pipe(Effect.ensuring(scriptScope.interrupt("script finished")));
     });
 
   const runScriptPayload = (payload: ScriptExecutePayload) => {
@@ -859,11 +919,13 @@ const make = Effect.gen(function* () {
           const fiber = yield* Effect.forkDetach(
             executeProgram(program, commands).pipe(
               Effect.catchCause((cause) =>
-                Effect.logError({
-                  message: "script execution failed",
-                  sourceName: program.sourceName,
-                  cause,
-                }),
+                Cause.hasInterruptsOnly(cause)
+                  ? Effect.failCause(cause)
+                  : Effect.logError({
+                      message: "script execution failed",
+                      sourceName: program.sourceName,
+                      cause,
+                    }),
               ),
               Effect.ensuring(
                 Effect.all(
