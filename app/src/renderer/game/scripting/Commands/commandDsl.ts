@@ -1479,8 +1479,8 @@ export const evaluateScriptCondition = (
 
       const target = parseMapAndRoom(map);
       return Effect.all([
-        context.world.map.getName(),
-        context.world.map.getRoomNumber(),
+        context.run(context.world.map.getName()),
+        context.run(context.world.map.getRoomNumber()),
       ]).pipe(
         Effect.map(([currentMap, currentRoom]) => {
           const actual =
