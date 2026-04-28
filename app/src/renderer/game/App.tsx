@@ -9,8 +9,111 @@ import { Packet } from "./flash/Services/Packet";
 import { Settings } from "./flash/Services/Settings";
 import { Auth } from "./flash/Services/Auth";
 import { World } from "./flash/Services/World";
+import { Bank } from "./flash/Services/Bank";
+import { Drops } from "./flash/Services/Drops";
+import { House } from "./flash/Services/House";
+import { Inventory } from "./flash/Services/Inventory";
+import { Jobs } from "./flash/Services/Jobs";
+import { Player } from "./flash/Services/Player";
+import { Shops } from "./flash/Services/Shops";
+import { TempInventory } from "./flash/Services/TempInventory";
 import { demoScriptName, demoScriptSource } from "./scripting/demoScript";
 import type { PacketListenerDisposer } from "./flash/Services/Packet";
+
+const flashServiceDebugExamples = [
+  {
+    label: "settings",
+    source: `const state = yield* Settings.getState();
+console.log(state);
+return state;`,
+  },
+  {
+    label: "position",
+    source: `const position = yield* Player.getPosition();
+console.log(position);
+return position;`,
+  },
+  {
+    label: "target",
+    source: `const target = yield* Combat.getTarget();
+console.log(target);
+return target;`,
+  },
+  {
+    label: "monsters",
+    source: `const monsters = yield* World.map.getCellMonsters();
+console.log(monsters);
+return monsters;`,
+  },
+  {
+    label: "inventory",
+    source: `const items = yield* Inventory.getItems();
+console.log(items);
+return items;`,
+  },
+  {
+    label: "contains item",
+    source: `const contains = yield* Inventory.contains("Health Potion");
+console.log(contains);
+return contains;`,
+  },
+  {
+    label: "multi read",
+    source: `const position = yield* Player.getPosition();
+const cell = yield* Player.getCell();
+const monsters = yield* World.map.getCellMonsters();
+
+return { position, cell, monsters };`,
+  },
+];
+
+const formatDebugValue = (value: unknown): string => {
+  if (value === undefined) {
+    return "undefined";
+  }
+
+  if (typeof value === "bigint") {
+    return `${value}n`;
+  }
+
+  if (typeof value === "function") {
+    return `[Function ${value.name || "anonymous"}]`;
+  }
+
+  if (typeof value === "string") {
+    try {
+      return JSON.stringify(JSON.parse(value), null, 2);
+    } catch {
+      return value;
+    }
+  }
+
+  const seen = new WeakSet<object>();
+
+  return JSON.stringify(
+    value,
+    (_key, nestedValue) => {
+      if (typeof nestedValue === "bigint") {
+        return `${nestedValue}n`;
+      }
+
+      if (typeof nestedValue === "function") {
+        return `[Function ${nestedValue.name || "anonymous"}]`;
+      }
+
+      if (typeof nestedValue === "object" && nestedValue !== null) {
+        if (seen.has(nestedValue)) {
+          return "[Circular]";
+        }
+
+        seen.add(nestedValue);
+      }
+
+      return nestedValue;
+    },
+    2,
+  ) ?? String(value);
+};
 
 export default function App() {
   const [count, setCount] = createSignal(0);
@@ -44,6 +147,11 @@ export default function App() {
     "String" | "Json"
   >("String");
   const [demoUsername, setDemoUsername] = createSignal("");
+  const [flashEvalCode, setFlashEvalCode] = createSignal(
+    flashServiceDebugExamples[0]!.source,
+  );
+  const [flashEvalResult, setFlashEvalResult] = createSignal("No result yet");
+  const [flashEvalRunning, setFlashEvalRunning] = createSignal(false);
   let activeCombatFiber: Fiber.Fiber<void, unknown> | undefined;
   let packetLogDisposer: PacketListenerDisposer | undefined;
   let settingsStateDisposer: (() => void) | undefined;
@@ -63,12 +171,152 @@ export default function App() {
       .runPromise(
         Effect.gen(function* () {
           const quests = yield* Quests;
-          console.log(yield* quests.getTree()); 
+          console.log(yield* quests.getTree());
         }),
       )
       .catch((error) => {
         console.error("Bridge error:", error);
       });
+  };
+
+  const makeFlashServiceDebugApi = Effect.gen(function* () {
+    const auth = yield* Auth;
+    const autoZone = yield* AutoZone;
+    const bank = yield* Bank;
+    const combat = yield* Combat;
+    const drops = yield* Drops;
+    const house = yield* House;
+    const inventory = yield* Inventory;
+    const jobs = yield* Jobs;
+    const packet = yield* Packet;
+    const player = yield* Player;
+    const quests = yield* Quests;
+    const settings = yield* Settings;
+    const shops = yield* Shops;
+    const tempInventory = yield* TempInventory;
+    const world = yield* World;
+
+    return {
+      Auth: auth,
+      AutoZone: autoZone,
+      Bank: bank,
+      Combat: combat,
+      Drops: drops,
+      House: house,
+      Inventory: inventory,
+      Jobs: jobs,
+      Packet: packet,
+      Player: player,
+      Quests: quests,
+      Settings: settings,
+      Shops: shops,
+      TempInventory: tempInventory,
+      World: world,
+      api: {
+        auth,
+        autoZone,
+        bank,
+        combat,
+        drops,
+        house,
+        inventory,
+        jobs,
+        packet,
+        player,
+        quests,
+        settings,
+        shops,
+        tempInventory,
+        world,
+      },
+      auth,
+      autoZone,
+      bank,
+      combat,
+      drops,
+      house,
+      inventory,
+      jobs,
+      packet,
+      player,
+      quests,
+      settings,
+      shops,
+      tempInventory,
+      world,
+    } satisfies Record<string, unknown>;
+  });
+
+  const runFlashEval = () => {
+    const source = flashEvalCode();
+    setFlashEvalRunning(true);
+    setFlashEvalResult("Running...");
+
+    void runtime
+      .runPromise(
+        Effect.gen(function* () {
+          const services = yield* makeFlashServiceDebugApi;
+          const program = yield* Effect.try({
+            try: () => {
+              const evaluate = new Function(
+                "services",
+                "Effect",
+                `"use strict";
+const {
+  Auth,
+  AutoZone,
+  Bank,
+  Combat,
+  Drops,
+  House,
+  Inventory,
+  Jobs,
+  Packet,
+  Player,
+  Quests,
+  Settings,
+  Shops,
+  TempInventory,
+  World,
+  api,
+} = services;
+
+return Effect.gen(function* () {
+${source}
+});`,
+              ) as (
+                services: Record<string, unknown>,
+                effect: typeof Effect,
+              ) => unknown;
+
+              return evaluate(services, Effect);
+            },
+            catch: (cause) => cause,
+          });
+
+          if (Effect.isEffect(program)) {
+            return yield* (program as Effect.Effect<unknown, unknown, never>);
+          }
+
+          return program;
+        }),
+      )
+      .then((result) => {
+        const formatted = formatDebugValue(result);
+        setFlashEvalResult(formatted);
+        console.log("[Flash Service Eval]", result);
+      })
+      .catch((error) => {
+        console.error("[Flash Service Eval] error:", error);
+        setFlashEvalResult(formatDebugValue(error));
+      })
+      .finally(() => {
+        setFlashEvalRunning(false);
+      });
+  };
+
+  const loadFlashEvalExample = (source: string) => {
+    setFlashEvalCode(source);
   };
 
   const inspectWorld = () => {
@@ -1377,6 +1625,90 @@ export default function App() {
             >
               Send Server
             </button>
+          </div>
+          <div
+            style={{
+              display: "grid",
+              gap: "8px",
+              "margin-top": "10px",
+              width: "min(760px, calc(100vw - 40px))",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                "align-items": "center",
+                gap: "8px",
+                "flex-wrap": "wrap",
+              }}
+            >
+              <span style={{ "font-size": "12px", opacity: 0.85 }}>
+                Effect service code
+              </span>
+              <button
+                onClick={runFlashEval}
+                disabled={flashEvalRunning()}
+                style={{
+                  padding: "5px 10px",
+                  cursor: flashEvalRunning() ? "default" : "pointer",
+                  background: flashEvalRunning() ? "#6b7280" : "#0f766e",
+                  border: "none",
+                  color: "white",
+                  "border-radius": "4px",
+                }}
+              >
+                {flashEvalRunning() ? "Running" : "Run"}
+              </button>
+              <span style={{ "font-size": "11px", opacity: 0.7 }}>
+                Use yield* with Inventory, Player, World, Combat, Settings, api
+              </span>
+            </div>
+            <textarea
+              value={flashEvalCode()}
+              onInput={(e) => setFlashEvalCode(e.currentTarget.value)}
+              rows={10}
+              spellcheck={false}
+              style={{
+                width: "100%",
+                resize: "vertical",
+                padding: "8px",
+                "border-radius": "4px",
+                border: "1px solid #555",
+                background: "#111827",
+                color: "white",
+                "font-family": "ui-monospace, Menlo, monospace",
+                "font-size": "12px",
+              }}
+            />
+            <div
+              style={{
+                display: "flex",
+                gap: "6px",
+                "flex-wrap": "wrap",
+              }}
+            >
+              {flashServiceDebugExamples.map((example) => (
+                <button onClick={() => loadFlashEvalExample(example.source)}>
+                  {example.label}
+                </button>
+              ))}
+            </div>
+            <pre
+              style={{
+                margin: 0,
+                padding: "8px",
+                "max-height": "220px",
+                overflow: "auto",
+                "border-radius": "4px",
+                background: "#030712",
+                color: "#d1d5db",
+                "font-family": "ui-monospace, Menlo, monospace",
+                "font-size": "12px",
+                "white-space": "pre-wrap",
+              }}
+            >
+              {flashEvalResult()}
+            </pre>
           </div>
         </>
       )}
