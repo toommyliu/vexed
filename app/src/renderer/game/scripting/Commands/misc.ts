@@ -30,6 +30,7 @@ import {
   assertValidCustomCommandName,
   validateCustomCommandName,
 } from "./customCommand";
+import { loadShopById } from "./itemOperations";
 
 type PacketHandlerType = "packetFromClient" | "packetFromServer" | "pext";
 
@@ -211,7 +212,7 @@ const buyLifeStealCommand = createCommandHandler((context, args) =>
     }
 
     yield* context.run(context.player.joinMap("arcangrove", "Potion", "Right"));
-    yield* context.run(context.shops.load(211));
+    yield* loadShopById(context, 211);
     yield* context.run(context.shops.buyByName(itemName, needed));
   }),
 );
@@ -243,7 +244,7 @@ const buyScrollOfEnrageCommand = createCommandHandler((context, args) =>
       ),
     );
     yield* context.run(context.player.joinMap("spellcraft"));
-    yield* context.run(context.shops.load(693));
+    yield* loadShopById(context, 693);
 
     while (
       !(yield* context.run(context.inventory.contains(itemName, quantity)))
