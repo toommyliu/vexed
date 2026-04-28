@@ -772,22 +772,8 @@ const make = Effect.gen(function* () {
           }
         } else if (nextAttack?.kind === "blocked") {
           yield* stopCombat;
-        } else if (
-          resolvedTarget.kind === "name" &&
-          counterAttackMonsters.size === 0
-        ) {
-          yield* attackMonster(resolvedTarget.name);
-          attackedThisLoop = true;
-
-          const skill =
-            normalizedKillOptions.skillSet[
-              skillIndex % normalizedKillOptions.skillSet.length
-            ];
-          skillIndex += 1;
-
-          if (skill !== undefined) {
-            yield* useSkill(skill, false, normalizedKillOptions.skillWait);
-          }
+        } else if (nextAttack === undefined) {
+          return;
         }
 
         if (targetMonMapId !== undefined) {
