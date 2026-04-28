@@ -1500,7 +1500,7 @@ export const evaluateScriptCondition = (
         );
       }
 
-      return context.world.players.getByName(playerName).pipe(
+      return context.run(context.world.players.getByName(playerName)).pipe(
         Effect.map((player) => {
           const actual =
             Option.isSome(player) &&
