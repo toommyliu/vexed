@@ -27,6 +27,8 @@ const GENERATED_HEADER =
 
 const SUPPORT_FILES = new Set([
   "commandDsl.ts",
+  "customCommand.ts",
+  "customCondition.ts",
   "index.ts",
   "itemOperations.ts",
 ]);
@@ -80,7 +82,8 @@ type CommandDoc = {
   readonly tags: readonly CommandJsDocTag[];
   readonly examples: readonly string[];
   readonly remarks: readonly string[];
-  readonly deprecated: readonly string[];
+  readonly deprecated: boolean;
+  readonly deprecationMessages: readonly string[];
   readonly returns: readonly string[];
   readonly sourcePath: string;
   readonly sourceLine: number;
@@ -870,6 +873,7 @@ const collectCommandDocs = (
       }
       typeReferences.push(...collectTypeReferenceIdentifiers(method.type));
       const returnType = getReturnType(checker, method);
+      const deprecatedTags = tags.filter((tag) => tag.tag === "deprecated");
       const sourceLine =
         sourceFile.getLineAndCharacterOfPosition(method.getStart(sourceFile))
           .line + 1;
@@ -904,9 +908,8 @@ const collectCommandDocs = (
         remarks: tags
           .filter((tag) => tag.tag === "remark" || tag.tag === "remarks")
           .map((tag) => tag.text),
-        deprecated: tags
-          .filter((tag) => tag.tag === "deprecated")
-          .map((tag) => tag.text),
+        deprecated: deprecatedTags.length > 0,
+        deprecationMessages: deprecatedTags.map((tag) => tag.text),
         returns: tags
           .filter((tag) => tag.tag === "returns")
           .map((tag) => tag.text),
@@ -1063,6 +1066,34 @@ const renderTipSection = (lines: string[], values: ReadonlyArray<string>) => {
   lines.push(":::", "");
 };
 
+const renderDeprecatedSection = (
+  lines: string[],
+  command: CommandDoc,
+): void => {
+  if (!command.deprecated) {
+    return;
+  }
+
+  const messages = command.deprecationMessages.filter(
+    (value) => value.trim().length > 0,
+  );
+
+  lines.push(":::caution[Deprecated]");
+  if (messages.length === 0) {
+    lines.push("This command is deprecated.");
+  } else {
+    for (const [index, message] of messages.entries()) {
+      if (index > 0) {
+        lines.push("");
+      }
+      for (const line of message.split(/\r?\n/)) {
+        lines.push(line);
+      }
+    }
+  }
+  lines.push(":::", "");
+};
+
 const renderAdditionalTags = (
   lines: string[],
   tags: ReadonlyArray<CommandJsDocTag>,
@@ -1084,25 +1115,38 @@ const renderReferenceIndex = (lines: string[], domainDocs: DomainDocs) => {
   const hasAliases = domainDocs.commands.some(
     (command) => command.aliases.length > 0,
   );
+  const hasDeprecated = domainDocs.commands.some(
+    (command) => command.deprecated,
+  );
+  const headers = ["Command", "Summary"];
+  const alignments = ["---", "---"];
+  if (hasDeprecated) {
+    headers.push("Status");
+    alignments.push("---");
+  }
+  if (hasAliases) {
+    headers.push("Aliases");
+    alignments.push("---");
+  }
 
   lines.push("## Reference Index", "", "### Commands", "");
-  lines.push(
-    hasAliases ? "| Command | Summary | Aliases |" : "| Command | Summary |",
-    hasAliases ? "| --- | --- | --- |" : "| --- | --- |",
-  );
+  lines.push(`| ${headers.join(" | ")} |`, `| ${alignments.join(" | ")} |`);
 
   for (const command of domainDocs.commands) {
     const commandLink = `[${renderCode(`cmd.${command.name}`)}](#${commandAnchor(command.name)})`;
     const summary = escapeTableCell(command.summary);
+    const cells = [commandLink, summary];
+    if (hasDeprecated) {
+      cells.push(command.deprecated ? "Deprecated" : "");
+    }
     if (hasAliases) {
       const aliases = command.aliases
         .map((alias) => renderCode(`cmd.${alias}`))
         .join(", ");
-      lines.push(`| ${commandLink} | ${summary} | ${aliases} |`);
-      continue;
+      cells.push(aliases);
     }
 
-    lines.push(`| ${commandLink} | ${summary} |`);
+    lines.push(`| ${cells.join(" | ")} |`);
   }
 
   lines.push("");
@@ -1152,6 +1196,7 @@ const renderDomainMarkdown = (
   for (const command of domainDocs.commands) {
     lines.push(`<a id="${commandAnchor(command.name)}"></a>`, "");
     lines.push(`### \`${command.call}\``, "", command.summary, "");
+    renderDeprecatedSection(lines, command);
     renderTipSection(lines, command.remarks);
 
     const sourceText = `**Source:** \`${command.sourcePath}:${command.sourceLine}\``;
@@ -1189,7 +1234,6 @@ const renderDomainMarkdown = (
     }
 
     renderTagSection(lines, "Examples", command.examples, "js");
-    renderTagSection(lines, "Deprecated", command.deprecated);
     renderTagSection(lines, "Returns", command.returns);
 
     const additionalTags = command.tags.filter(
