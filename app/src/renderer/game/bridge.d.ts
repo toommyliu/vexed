@@ -124,6 +124,7 @@ declare global {
       "shops.buyByName": (name: string, quantity?: number) => boolean;
       "shops.canBuyItem": (itemName: string) => boolean;
       "shops.getItem": (key: unknown) => Record<string, unknown>;
+      "shops.getMaxBuyQuantity": (key: unknown) => number;
       "shops.isMergeShop": () => boolean;
       "shops.load": (shopId: number) => void;
       "shops.loadArmorCustomize": () => void;

@@ -84,6 +84,20 @@ package vexed.game {
     }
 
     [BridgeExport]
+    public static function getMaxBuyQuantity(key:*):int {
+      if (!getShopInfo()) {
+        return 0;
+      }
+
+      var item:Object = getItem(key);
+      if (!item) {
+        return 0;
+      }
+
+      return game.world.maximumShopBuys(item);
+    }
+
+    [BridgeExport]
     public static function buyByName(name:String, quantity:int = 1):Boolean {
       if (!name || quantity <= 0) {
         return false;

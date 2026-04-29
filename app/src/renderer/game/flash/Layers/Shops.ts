@@ -134,6 +134,9 @@ const make = Effect.gen(function* () {
       }),
     );
 
+  const getMaxBuyQuantity: ShopsShape["getMaxBuyQuantity"] = (key) =>
+    bridge.call("shops.getMaxBuyQuantity", [key]);
+
   const isMergeShop: ShopsShape["isMergeShop"] = () =>
     bridge.call("shops.isMergeShop");
 
@@ -169,6 +172,7 @@ const make = Effect.gen(function* () {
     getInfo,
     getItem,
     getItems,
+    getMaxBuyQuantity,
     isMergeShop,
     load,
     loadArmorCustomize,
