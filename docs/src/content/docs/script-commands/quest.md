@@ -120,5 +120,7 @@ type CompleteQuestOptions = {
 **Source:** `app/src/renderer/game/scripting/Commands/quest.ts:19`
 
 ```ts
-type QuestTurnInsArgument = number | "max"
+type QuestTurnInsArgument =
+  | number
+  | "max";
 ```

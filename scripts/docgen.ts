@@ -243,6 +243,8 @@ const listDomainFiles = (
         (entry) =>
           entry.isFile() &&
           entry.name.endsWith(".ts") &&
+          !entry.name.endsWith(".test.ts") &&
+          !entry.name.endsWith(".spec.ts") &&
           !SUPPORT_FILES.has(entry.name),
       )
       .map((entry) => join(sourceDir, entry.name))
@@ -672,12 +674,61 @@ const getTypePropertyDocs = (
   });
 };
 
+const getTrailingLineComment = (
+  sourceFile: ts.SourceFile,
+  node: ts.Node,
+): string => {
+  const [comment] = ts.getTrailingCommentRanges(sourceFile.text, node.end) ?? [];
+  if (
+    comment === undefined ||
+    comment.kind !== ts.SyntaxKind.SingleLineCommentTrivia
+  ) {
+    return "";
+  }
+
+  const text = sourceFile.text.slice(comment.pos, comment.end).trim();
+  return text === "" ? "" : ` ${text}`;
+};
+
+const getUnionMemberDefinition = (
+  sourceFile: ts.SourceFile,
+  member: ts.TypeNode,
+  terminated: boolean,
+): string => {
+  const typeText = member.getText(sourceFile);
+  const comment = getTrailingLineComment(sourceFile, member);
+  const semicolon = terminated ? ";" : "";
+  return `  | ${typeText}${semicolon}${comment}`;
+};
+
+const getUnionTypeDefinition = (
+  declaration: ts.TypeAliasDeclaration,
+  sourceFile: ts.SourceFile,
+  union: ts.UnionTypeNode,
+): string => {
+  const lines = [`type ${declaration.name.text} =`];
+  for (const [index, member] of union.types.entries()) {
+    lines.push(
+      getUnionMemberDefinition(
+        sourceFile,
+        member,
+        index === union.types.length - 1,
+      ),
+    );
+  }
+  return lines.join("\n");
+};
+
 const getTypeDefinition = (
   declaration: ts.InterfaceDeclaration | ts.TypeAliasDeclaration,
   sourceFile: ts.SourceFile,
 ): string => {
   if (ts.isInterfaceDeclaration(declaration)) {
     return `interface ${declaration.name.text}`;
+  }
+
+  if (ts.isUnionTypeNode(declaration.type)) {
+    return getUnionTypeDefinition(declaration, sourceFile, declaration.type);
   }
 
   return `type ${declaration.name.text} = ${declaration.type.getText(sourceFile)}`;

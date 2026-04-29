@@ -49,20 +49,15 @@ export type ScriptCommandDslWithAliases<
 // Conditions
 
 export type ScriptComparisonOperator =
-  | "eq"
-  | "ne"
-  | "lt"
-  | "lte"
-  | "gt"
-  | "gte";
+  | "eq" // ==
+  | "ne" // !=
+  | "lt" // <
+  | "lte" // <=
+  | "gt" // >
+  | "gte" // >=
+;
 
 export type ScriptComparisonOperatorInput =
-  | "is"
-  | "is not"
-  | "below"
-  | "at most"
-  | "above"
-  | "at least"
   | "="
   | "=="
   | "!="
@@ -75,7 +70,24 @@ export type ScriptPlayerMetric = "hp" | "hp_percent" | "mp" | "mp_percent";
 export type ScriptMonsterMetric = "monster_health" | "monster_health_percent";
 export type ScriptInventoryLocation = "bank" | "house" | "inventory" | "temp";
 
+/**
+ * Serializable condition expression produced by the scripting DSL.
+ *
+ * Condition builder methods in `conditions.ts` create these plain objects
+ * during script compilation. Control-flow commands such as `cmd.if(...)`
+ * record the object in a `ScriptInstruction`, and `evaluateScriptCondition`
+ * interprets it at runtime by dispatching on `_tag`.
+ *
+ * Example flow:
+ * `cmd.if(cmd.hp("<", 1000))`
+ *   1. `cmd.hp` builds `{ _tag: "PlayerMetric", metric: "hp", ... }`.
+ *   2. `cmd.if` stores that object as the first instruction argument.
+ *   3. `ifCommand` calls `evaluateScriptCondition` with that argument.
+ *   4. The `"PlayerMetric"` case reads live HP and compares it to `1000`.
+ */
 export type ScriptCondition =
+  // Logical composition nodes. Children are intentionally `unknown` because
+  // script input is untrusted until `evaluateScriptCondition` validates it.
   | {
       readonly _tag: "All";
       readonly conditions: readonly unknown[];
@@ -84,6 +96,7 @@ export type ScriptCondition =
       readonly _tag: "Any";
       readonly conditions: readonly unknown[];
     }
+  // Numeric metric predicates.
   | {
       readonly _tag: "PlayerMetric";
       readonly metric: ScriptPlayerMetric;
@@ -129,6 +142,7 @@ export type ScriptCondition =
       readonly operator: ScriptComparisonOperator;
       readonly value: number;
     }
+  // Boolean, presence, inventory, location, and state predicates.
   | {
       readonly _tag: "MonsterPresence";
       readonly monster: string;
@@ -191,6 +205,7 @@ export type ScriptCondition =
       readonly value: number;
       readonly upper?: number;
     }
+  // User-defined and logical negation predicates.
   | {
       readonly _tag: "Custom";
       readonly name: string;
@@ -202,18 +217,12 @@ export type ScriptCondition =
     };
 
 const COMPARISON_OPERATOR_LOOKUP = new Map<string, ScriptComparisonOperator>([
-  ["is", "eq"],
   ["=", "eq"],
   ["==", "eq"],
-  ["is not", "ne"],
   ["!=", "ne"],
-  ["below", "lt"],
   ["<", "lt"],
-  ["at most", "lte"],
   ["<=", "lte"],
-  ["above", "gt"],
   [">", "gt"],
-  ["at least", "gte"],
   [">=", "gte"],
 ]);
 
@@ -702,6 +711,9 @@ export const defineScriptCommandDomain = <
     createTypedScriptInstructionRecorder<Commands>(recordInstruction),
 });
 
+// Constructor helpers are deliberately pure. They only build the serializable
+// condition tree; no runtime state is read until `evaluateScriptCondition`
+// receives the recorded instruction argument.
 export const createNotCondition = (condition: unknown): ScriptCondition => ({
   _tag: "Not",
   condition,
@@ -936,33 +948,32 @@ const normalizeComparisonOperator = (
   return COMPARISON_OPERATOR_LOOKUP.get(value.trim().toLowerCase());
 };
 
+/**
+ * Normalizes user-facing symbolic comparisons into the compact internal
+ * operator tokens stored on `ScriptCondition`.
+ *
+ * This runs while the DSL is building the condition object, so invalid script
+ * input fails before the instruction is recorded.
+ */
 export const readScriptComparison = (
   command: string,
-  left: unknown,
-  right: unknown,
+  operatorInput: unknown,
+  valueInput: unknown,
 ): {
   readonly operator: ScriptComparisonOperator;
   readonly value: number;
 } => {
-  const leftOperator = normalizeComparisonOperator(left);
-  if (leftOperator !== undefined) {
+  const operator = normalizeComparisonOperator(operatorInput);
+  if (operator !== undefined) {
     return {
-      operator: leftOperator,
-      value: requireScriptArgumentNumber(command, "value", right),
-    };
-  }
-
-  const rightOperator = normalizeComparisonOperator(right);
-  if (rightOperator !== undefined) {
-    return {
-      operator: rightOperator,
-      value: requireScriptArgumentNumber(command, "value", left),
+      operator,
+      value: requireScriptArgumentNumber(command, "value", valueInput),
     };
   }
 
   return scriptArgumentError(
     command,
-    "comparison must be provided as (operator, value) or (value, operator)",
+    "comparison must be provided as (operator, value)",
   );
 };
 
@@ -1203,6 +1214,17 @@ const evaluatePlayerCount = (
     return compareNumbers(count, condition.operator, condition.value);
   });
 
+/**
+ * Runtime interpreter for `ScriptCondition`.
+ *
+ * This is the only place condition expressions should touch game/runtime
+ * services. It revalidates every field because compiled scripts and custom
+ * conditions can still pass arbitrary objects at runtime.
+ *
+ * Add new condition types by pairing a pure `create*Condition` constructor
+ * with a `_tag` case here. The public DSL should build the object; this
+ * function should read the runtime state and decide true or false.
+ */
 export const evaluateScriptCondition = (
   context: ScriptExecutionContext,
   command: string,

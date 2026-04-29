@@ -294,7 +294,9 @@ cmd.withdraw(["Voucher", "Merge Token"])
 **Source:** `app/src/renderer/game/scripting/Commands/item.ts:30`
 
 ```ts
-type ScriptItemIdentifier = string | number
+type ScriptItemIdentifier =
+  | string
+  | number;
 ```
 
 <a id="type-scriptitemidentifierlist"></a>
@@ -304,6 +306,7 @@ type ScriptItemIdentifier = string | number
 **Source:** `app/src/renderer/game/scripting/Commands/item.ts:31`
 
 ```ts
-type ScriptItemIdentifierList = | ScriptItemIdentifier
-  | ReadonlyArray<ScriptItemIdentifier>
+type ScriptItemIdentifierList =
+  | ScriptItemIdentifier
+  | ReadonlyArray<ScriptItemIdentifier>;
 ```

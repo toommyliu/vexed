@@ -33,9 +33,13 @@ import {
   type ScriptComparisonOperatorInput,
   type ScriptCondition,
   type ScriptInstructionRecorder,
+  type ScriptMonsterMetric,
+  type ScriptPlayerMetric,
 } from "./commandDsl";
 import { normalizeItemIdentifier } from "./itemOperations";
 
+// Public condition builders return these expression values. `boolean` is kept
+// as a convenience so scripts can branch on already-computed custom booleans.
 type ConditionInput = ScriptCondition | boolean;
 type ScriptItemIdentifier = string | number;
 
@@ -49,16 +53,8 @@ type ConditionScriptCommandArguments = {
   not_in_cell: [cell: string];
   equipped: [item: string];
   not_equipped: [item: string];
-  faction_rank_greater_than: [faction: string, rank: number];
-  faction_rank_less_than: [faction: string, rank: number];
-  gold_greater_than: [gold: number];
-  gold_less_than: [gold: number];
   has_target: [];
   has_no_target: [];
-  hp_greater_than: [hp: number];
-  hp_less_than: [hp: number];
-  hp_percentage_greater_than: [percentage: number];
-  hp_percentage_less_than: [percentage: number];
   in_inventory: [item: string, quantity?: number];
   not_in_inventory: [item: string, quantity?: number];
   in_tempinventory: [item: string, quantity?: number];
@@ -71,16 +67,6 @@ type ConditionScriptCommandArguments = {
   not_in_house: [item: string, quantity?: number];
   is_member: [];
   is_not_member: [];
-  player_aura_greater_than: [player: string, aura: string, value: number];
-  player_aura_less_than: [player: string, aura: string, value: number];
-  player_hp_greater_than: [player: string, hp: number];
-  player_hp_less_than: [player: string, hp: number];
-  player_hp_percentage_greater_than: [player: string, percentage: number];
-  player_hp_percentage_less_than: [player: string, percentage: number];
-  any_player_hp_percentage_greater_than: [percentage: number];
-  any_player_hp_percentage_less_than: [percentage: number];
-  player_count_greater_than: [count: number];
-  player_count_less_than: [count: number];
   player_in_map: [player: string];
   player_in_cell: [player: string, cell: string];
   player_not_in_map: [player: string];
@@ -92,24 +78,12 @@ type ConditionScriptCommandArguments = {
   quest_not_in_progress: [questId: number];
   quest_is_available: [questId: number];
   quest_not_available: [questId: number];
-  target_hp_greater_than: [hp: number];
-  target_hp_less_than: [hp: number];
-  target_hp_between: [monster: string, min: number, max: number];
   is_maxed: [item: string];
   is_not_maxed: [item: string];
-  cell_player_count_greater_than: [count: number, cell?: string];
-  cell_player_count_less_than: [count: number, cell?: string];
   item_has_dropped: [item: string];
   item_has_not_dropped: [item: string];
-  level_is: [level: number];
-  level_greater_than: [level: number];
-  level_less_than: [level: number];
-  mp_greater_than: [mp: number];
-  mp_less_than: [mp: number];
   in_map: [map: string];
   not_in_map: [map: string];
-  monster_hp_greater_than: [monster: string, hp: number];
-  monster_hp_less_than: [monster: string, hp: number];
   monster_in_room: [monster: string];
   monster_not_in_room: [monster: string];
   can_buy_item: [item: string];
@@ -120,30 +94,76 @@ type ConditionBuilderScriptDsl = {
   or(...conditions: ConditionInput[]): ScriptCondition;
   not(condition: ConditionInput): ScriptCondition;
   hp(
-    operator: ScriptComparisonOperatorInput | number,
-    value: number | ScriptComparisonOperatorInput,
+    operator: ScriptComparisonOperatorInput,
+    value: number,
   ): ScriptCondition;
   mp(
-    operator: ScriptComparisonOperatorInput | number,
-    value: number | ScriptComparisonOperatorInput,
+    operator: ScriptComparisonOperatorInput,
+    value: number,
   ): ScriptCondition;
-  hp_percent(
-    operator: ScriptComparisonOperatorInput | number,
-    value: number | ScriptComparisonOperatorInput,
+  hp_percentage(
+    operator: ScriptComparisonOperatorInput,
+    value: number,
   ): ScriptCondition;
-  mp_percent(
-    operator: ScriptComparisonOperatorInput | number,
-    value: number | ScriptComparisonOperatorInput,
+  mp_percentage(
+    operator: ScriptComparisonOperatorInput,
+    value: number,
   ): ScriptCondition;
-  monster_health(
+  gold(
+    operator: ScriptComparisonOperatorInput,
+    value: number,
+  ): ScriptCondition;
+  level(
+    operator: ScriptComparisonOperatorInput,
+    value: number,
+  ): ScriptCondition;
+  faction_rank(
+    faction: string,
+    operator: ScriptComparisonOperatorInput,
+    value: number,
+  ): ScriptCondition;
+  player_hp(
+    player: string,
+    operator: ScriptComparisonOperatorInput,
+    value: number,
+  ): ScriptCondition;
+  player_hp_percentage(
+    player: string,
+    operator: ScriptComparisonOperatorInput,
+    value: number,
+  ): ScriptCondition;
+  any_player_hp_percentage(
+    operator: ScriptComparisonOperatorInput,
+    value: number,
+  ): ScriptCondition;
+  player_count(
+    operator: ScriptComparisonOperatorInput,
+    value: number,
+  ): ScriptCondition;
+  cell_player_count(
+    operator: ScriptComparisonOperatorInput,
+    value: number,
+    cell?: string,
+  ): ScriptCondition;
+  player_aura(
+    player: string,
+    aura: string,
+    operator: ScriptComparisonOperatorInput,
+    value: number,
+  ): ScriptCondition;
+  target_hp(
+    operator: ScriptComparisonOperatorInput,
+    value: number,
+  ): ScriptCondition;
+  monster_hp(
     target: string,
-    operator: ScriptComparisonOperatorInput | number,
-    value: number | ScriptComparisonOperatorInput,
+    operator: ScriptComparisonOperatorInput,
+    value: number,
   ): ScriptCondition;
-  monster_health_percent(
+  monster_hp_percentage(
     target: string,
-    operator: ScriptComparisonOperatorInput | number,
-    value: number | ScriptComparisonOperatorInput,
+    operator: ScriptComparisonOperatorInput,
+    value: number,
   ): ScriptCondition;
 };
 
@@ -153,6 +173,14 @@ type ConditionScriptDsl = ScriptCommandDsl<ConditionScriptCommandArguments> &
 const conditionCommandDomain =
   defineScriptCommandDomain<ConditionScriptCommandArguments>();
 
+// Conditional command handlers all follow the same skip-next behavior for
+// legacy single-condition commands. Structured condition blocks use the
+// annotated jump indices populated by the script compiler.
+//
+// These handlers are the runtime bridge: by the time they run, the script has
+// already been compiled into `ScriptInstruction`s. The handler pulls a recorded
+// condition object out of `instruction.args` and asks `evaluateScriptCondition`
+// to interpret it against current game state.
 const jumpOnFalse = (
   instruction: Parameters<ScriptCommandHandler>[1],
 ):
@@ -258,50 +286,6 @@ const conditionCommandHandlerMap = conditionCommandDomain.defineHandlers({
         ? ScriptCommandResult.Continue
         : ScriptCommandResult.JumpToIndex(instruction.index + 2);
     }),
-  faction_rank_greater_than: (context, instruction) =>
-    Effect.gen(function* () {
-      const matched = yield* evaluateScriptCondition(
-        context,
-        "faction_rank_greater_than",
-        instruction.args[0],
-      );
-      return matched
-        ? ScriptCommandResult.Continue
-        : ScriptCommandResult.JumpToIndex(instruction.index + 2);
-    }),
-  faction_rank_less_than: (context, instruction) =>
-    Effect.gen(function* () {
-      const matched = yield* evaluateScriptCondition(
-        context,
-        "faction_rank_less_than",
-        instruction.args[0],
-      );
-      return matched
-        ? ScriptCommandResult.Continue
-        : ScriptCommandResult.JumpToIndex(instruction.index + 2);
-    }),
-  gold_greater_than: (context, instruction) =>
-    Effect.gen(function* () {
-      const matched = yield* evaluateScriptCondition(
-        context,
-        "gold_greater_than",
-        instruction.args[0],
-      );
-      return matched
-        ? ScriptCommandResult.Continue
-        : ScriptCommandResult.JumpToIndex(instruction.index + 2);
-    }),
-  gold_less_than: (context, instruction) =>
-    Effect.gen(function* () {
-      const matched = yield* evaluateScriptCondition(
-        context,
-        "gold_less_than",
-        instruction.args[0],
-      );
-      return matched
-        ? ScriptCommandResult.Continue
-        : ScriptCommandResult.JumpToIndex(instruction.index + 2);
-    }),
   has_target: (context, instruction) =>
     Effect.gen(function* () {
       const matched = yield* evaluateScriptCondition(
@@ -318,50 +302,6 @@ const conditionCommandHandlerMap = conditionCommandDomain.defineHandlers({
       const matched = yield* evaluateScriptCondition(
         context,
         "has_no_target",
-        instruction.args[0],
-      );
-      return matched
-        ? ScriptCommandResult.Continue
-        : ScriptCommandResult.JumpToIndex(instruction.index + 2);
-    }),
-  hp_greater_than: (context, instruction) =>
-    Effect.gen(function* () {
-      const matched = yield* evaluateScriptCondition(
-        context,
-        "hp_greater_than",
-        instruction.args[0],
-      );
-      return matched
-        ? ScriptCommandResult.Continue
-        : ScriptCommandResult.JumpToIndex(instruction.index + 2);
-    }),
-  hp_less_than: (context, instruction) =>
-    Effect.gen(function* () {
-      const matched = yield* evaluateScriptCondition(
-        context,
-        "hp_less_than",
-        instruction.args[0],
-      );
-      return matched
-        ? ScriptCommandResult.Continue
-        : ScriptCommandResult.JumpToIndex(instruction.index + 2);
-    }),
-  hp_percentage_greater_than: (context, instruction) =>
-    Effect.gen(function* () {
-      const matched = yield* evaluateScriptCondition(
-        context,
-        "hp_percentage_greater_than",
-        instruction.args[0],
-      );
-      return matched
-        ? ScriptCommandResult.Continue
-        : ScriptCommandResult.JumpToIndex(instruction.index + 2);
-    }),
-  hp_percentage_less_than: (context, instruction) =>
-    Effect.gen(function* () {
-      const matched = yield* evaluateScriptCondition(
-        context,
-        "hp_percentage_less_than",
         instruction.args[0],
       );
       return matched
@@ -500,116 +440,6 @@ const conditionCommandHandlerMap = conditionCommandDomain.defineHandlers({
         ? ScriptCommandResult.Continue
         : ScriptCommandResult.JumpToIndex(instruction.index + 2);
     }),
-  player_aura_greater_than: (context, instruction) =>
-    Effect.gen(function* () {
-      const matched = yield* evaluateScriptCondition(
-        context,
-        "player_aura_greater_than",
-        instruction.args[0],
-      );
-      return matched
-        ? ScriptCommandResult.Continue
-        : ScriptCommandResult.JumpToIndex(instruction.index + 2);
-    }),
-  player_aura_less_than: (context, instruction) =>
-    Effect.gen(function* () {
-      const matched = yield* evaluateScriptCondition(
-        context,
-        "player_aura_less_than",
-        instruction.args[0],
-      );
-      return matched
-        ? ScriptCommandResult.Continue
-        : ScriptCommandResult.JumpToIndex(instruction.index + 2);
-    }),
-  player_hp_greater_than: (context, instruction) =>
-    Effect.gen(function* () {
-      const matched = yield* evaluateScriptCondition(
-        context,
-        "player_hp_greater_than",
-        instruction.args[0],
-      );
-      return matched
-        ? ScriptCommandResult.Continue
-        : ScriptCommandResult.JumpToIndex(instruction.index + 2);
-    }),
-  player_hp_less_than: (context, instruction) =>
-    Effect.gen(function* () {
-      const matched = yield* evaluateScriptCondition(
-        context,
-        "player_hp_less_than",
-        instruction.args[0],
-      );
-      return matched
-        ? ScriptCommandResult.Continue
-        : ScriptCommandResult.JumpToIndex(instruction.index + 2);
-    }),
-  player_hp_percentage_greater_than: (context, instruction) =>
-    Effect.gen(function* () {
-      const matched = yield* evaluateScriptCondition(
-        context,
-        "player_hp_percentage_greater_than",
-        instruction.args[0],
-      );
-      return matched
-        ? ScriptCommandResult.Continue
-        : ScriptCommandResult.JumpToIndex(instruction.index + 2);
-    }),
-  player_hp_percentage_less_than: (context, instruction) =>
-    Effect.gen(function* () {
-      const matched = yield* evaluateScriptCondition(
-        context,
-        "player_hp_percentage_less_than",
-        instruction.args[0],
-      );
-      return matched
-        ? ScriptCommandResult.Continue
-        : ScriptCommandResult.JumpToIndex(instruction.index + 2);
-    }),
-  any_player_hp_percentage_greater_than: (context, instruction) =>
-    Effect.gen(function* () {
-      const matched = yield* evaluateScriptCondition(
-        context,
-        "any_player_hp_percentage_greater_than",
-        instruction.args[0],
-      );
-      return matched
-        ? ScriptCommandResult.Continue
-        : ScriptCommandResult.JumpToIndex(instruction.index + 2);
-    }),
-  any_player_hp_percentage_less_than: (context, instruction) =>
-    Effect.gen(function* () {
-      const matched = yield* evaluateScriptCondition(
-        context,
-        "any_player_hp_percentage_less_than",
-        instruction.args[0],
-      );
-      return matched
-        ? ScriptCommandResult.Continue
-        : ScriptCommandResult.JumpToIndex(instruction.index + 2);
-    }),
-  player_count_greater_than: (context, instruction) =>
-    Effect.gen(function* () {
-      const matched = yield* evaluateScriptCondition(
-        context,
-        "player_count_greater_than",
-        instruction.args[0],
-      );
-      return matched
-        ? ScriptCommandResult.Continue
-        : ScriptCommandResult.JumpToIndex(instruction.index + 2);
-    }),
-  player_count_less_than: (context, instruction) =>
-    Effect.gen(function* () {
-      const matched = yield* evaluateScriptCondition(
-        context,
-        "player_count_less_than",
-        instruction.args[0],
-      );
-      return matched
-        ? ScriptCommandResult.Continue
-        : ScriptCommandResult.JumpToIndex(instruction.index + 2);
-    }),
   player_in_map: (context, instruction) =>
     Effect.gen(function* () {
       const matched = yield* evaluateScriptCondition(
@@ -731,39 +561,6 @@ const conditionCommandHandlerMap = conditionCommandDomain.defineHandlers({
         ? ScriptCommandResult.Continue
         : ScriptCommandResult.JumpToIndex(instruction.index + 2);
     }),
-  target_hp_greater_than: (context, instruction) =>
-    Effect.gen(function* () {
-      const matched = yield* evaluateScriptCondition(
-        context,
-        "target_hp_greater_than",
-        instruction.args[0],
-      );
-      return matched
-        ? ScriptCommandResult.Continue
-        : ScriptCommandResult.JumpToIndex(instruction.index + 2);
-    }),
-  target_hp_less_than: (context, instruction) =>
-    Effect.gen(function* () {
-      const matched = yield* evaluateScriptCondition(
-        context,
-        "target_hp_less_than",
-        instruction.args[0],
-      );
-      return matched
-        ? ScriptCommandResult.Continue
-        : ScriptCommandResult.JumpToIndex(instruction.index + 2);
-    }),
-  target_hp_between: (context, instruction) =>
-    Effect.gen(function* () {
-      const matched = yield* evaluateScriptCondition(
-        context,
-        "target_hp_between",
-        instruction.args[0],
-      );
-      return matched
-        ? ScriptCommandResult.Continue
-        : ScriptCommandResult.JumpToIndex(instruction.index + 2);
-    }),
   is_maxed: (context, instruction) =>
     Effect.gen(function* () {
       const matched = yield* evaluateScriptCondition(
@@ -780,28 +577,6 @@ const conditionCommandHandlerMap = conditionCommandDomain.defineHandlers({
       const matched = yield* evaluateScriptCondition(
         context,
         "is_not_maxed",
-        instruction.args[0],
-      );
-      return matched
-        ? ScriptCommandResult.Continue
-        : ScriptCommandResult.JumpToIndex(instruction.index + 2);
-    }),
-  cell_player_count_greater_than: (context, instruction) =>
-    Effect.gen(function* () {
-      const matched = yield* evaluateScriptCondition(
-        context,
-        "cell_player_count_greater_than",
-        instruction.args[0],
-      );
-      return matched
-        ? ScriptCommandResult.Continue
-        : ScriptCommandResult.JumpToIndex(instruction.index + 2);
-    }),
-  cell_player_count_less_than: (context, instruction) =>
-    Effect.gen(function* () {
-      const matched = yield* evaluateScriptCondition(
-        context,
-        "cell_player_count_less_than",
         instruction.args[0],
       );
       return matched
@@ -830,61 +605,6 @@ const conditionCommandHandlerMap = conditionCommandDomain.defineHandlers({
         ? ScriptCommandResult.Continue
         : ScriptCommandResult.JumpToIndex(instruction.index + 2);
     }),
-  level_is: (context, instruction) =>
-    Effect.gen(function* () {
-      const matched = yield* evaluateScriptCondition(
-        context,
-        "level_is",
-        instruction.args[0],
-      );
-      return matched
-        ? ScriptCommandResult.Continue
-        : ScriptCommandResult.JumpToIndex(instruction.index + 2);
-    }),
-  level_greater_than: (context, instruction) =>
-    Effect.gen(function* () {
-      const matched = yield* evaluateScriptCondition(
-        context,
-        "level_greater_than",
-        instruction.args[0],
-      );
-      return matched
-        ? ScriptCommandResult.Continue
-        : ScriptCommandResult.JumpToIndex(instruction.index + 2);
-    }),
-  level_less_than: (context, instruction) =>
-    Effect.gen(function* () {
-      const matched = yield* evaluateScriptCondition(
-        context,
-        "level_less_than",
-        instruction.args[0],
-      );
-      return matched
-        ? ScriptCommandResult.Continue
-        : ScriptCommandResult.JumpToIndex(instruction.index + 2);
-    }),
-  mp_greater_than: (context, instruction) =>
-    Effect.gen(function* () {
-      const matched = yield* evaluateScriptCondition(
-        context,
-        "mp_greater_than",
-        instruction.args[0],
-      );
-      return matched
-        ? ScriptCommandResult.Continue
-        : ScriptCommandResult.JumpToIndex(instruction.index + 2);
-    }),
-  mp_less_than: (context, instruction) =>
-    Effect.gen(function* () {
-      const matched = yield* evaluateScriptCondition(
-        context,
-        "mp_less_than",
-        instruction.args[0],
-      );
-      return matched
-        ? ScriptCommandResult.Continue
-        : ScriptCommandResult.JumpToIndex(instruction.index + 2);
-    }),
   in_map: (context, instruction) =>
     Effect.gen(function* () {
       const matched = yield* evaluateScriptCondition(
@@ -901,28 +621,6 @@ const conditionCommandHandlerMap = conditionCommandDomain.defineHandlers({
       const matched = yield* evaluateScriptCondition(
         context,
         "not_in_map",
-        instruction.args[0],
-      );
-      return matched
-        ? ScriptCommandResult.Continue
-        : ScriptCommandResult.JumpToIndex(instruction.index + 2);
-    }),
-  monster_hp_greater_than: (context, instruction) =>
-    Effect.gen(function* () {
-      const matched = yield* evaluateScriptCondition(
-        context,
-        "monster_hp_greater_than",
-        instruction.args[0],
-      );
-      return matched
-        ? ScriptCommandResult.Continue
-        : ScriptCommandResult.JumpToIndex(instruction.index + 2);
-    }),
-  monster_hp_less_than: (context, instruction) =>
-    Effect.gen(function* () {
-      const matched = yield* evaluateScriptCondition(
-        context,
-        "monster_hp_less_than",
         instruction.args[0],
       );
       return matched
@@ -982,6 +680,8 @@ const readCondition = (command: string, value: unknown): ConditionInput => {
   return value as ScriptCondition;
 };
 
+// Most inventory-style predicates default to "at least one". Values are
+// normalized once at DSL-build time so evaluators can compare directly.
 const defaultQuantity = (command: string, value: unknown) =>
   value === undefined
     ? 1
@@ -990,11 +690,28 @@ const defaultQuantity = (command: string, value: unknown) =>
         Math.floor(requireScriptArgumentNumber(command, "quantity", value)),
       );
 
+// Condition methods used to be commands that emitted instructions directly.
+// They now return expression objects; only `if`, `if_all`, and `if_any` record
+// those expressions as executable instructions.
 const emitCondition = <T extends ScriptCondition>(
   _name: keyof ConditionScriptCommandArguments & string,
   condition: T,
 ): T => condition;
 
+/**
+ * Creates the condition portion of the user-facing `cmd` object.
+ *
+ * There are two categories here:
+ * - control-flow methods (`if`, `if_all`, `if_any`, `else`, `end_if`) record
+ *   instructions into the compiled script.
+ * - predicate/logical methods (`hp`, `in_map`, `and`, `not`, etc.) only build
+ *   `ScriptCondition` expression objects that control-flow methods consume.
+ *
+ * For example, `cmd.hp("<", 1000)` returns a `PlayerMetric` condition object.
+ * It does not read player HP and it does not record an instruction. Wrapping it
+ * in `cmd.if(...)` records that object; later `ifCommand` evaluates it through
+ * `evaluateScriptCondition`.
+ */
 export const createConditionScriptDsl = (
   recordInstruction: ScriptInstructionRecorder,
 ): ConditionScriptDsl => {
@@ -1028,11 +745,71 @@ export const createConditionScriptDsl = (
       ),
     );
 
-  const numberArg = (command: string, name: string, value: number) =>
-    requireScriptArgumentNumber(command, name, value);
-
   const positiveIntArg = (command: string, name: string, value: number) =>
     requireScriptArgumentPositiveInteger(command, name, value);
+
+  // Numeric condition helpers share the same build path:
+  // public operator/value input -> internal comparison token -> condition node.
+  // The matching runtime path is in `evaluateScriptCondition` by condition tag.
+  const metricCondition = (
+    command: string,
+    metric: ScriptPlayerMetric,
+    operator: ScriptComparisonOperatorInput,
+    value: number,
+  ) => {
+    const comparison = readScriptComparison(command, operator, value);
+    return createPlayerMetricCondition(
+      metric,
+      comparison.operator,
+      comparison.value,
+    );
+  };
+
+  const selfNumberMetricCondition = (
+    command: string,
+    metric: "gold" | "level",
+    operator: ScriptComparisonOperatorInput,
+    value: number,
+  ) => {
+    const comparison = readScriptComparison(command, operator, value);
+    return createSelfNumberMetricCondition(
+      metric,
+      comparison.operator,
+      comparison.value,
+    );
+  };
+
+  const namedPlayerMetricCondition = (
+    command: string,
+    metric: "hp" | "hp_percent",
+    player: string,
+    operator: ScriptComparisonOperatorInput,
+    value: number,
+  ) => {
+    const comparison = readScriptComparison(command, operator, value);
+    return createPlayerNamedMetricCondition(
+      metric,
+      requireScriptArgumentString(command, "player", player),
+      comparison.operator,
+      comparison.value,
+    );
+  };
+
+  const monsterMetricCondition = (
+    command: string,
+    metric: ScriptMonsterMetric,
+    target: string,
+    operator: ScriptComparisonOperatorInput,
+    value: number,
+  ) => {
+    const comparison = readScriptComparison(command, operator, value);
+    return createMonsterMetricCondition(
+      metric,
+      requireScriptArgumentString(command, "target", target),
+      comparison.operator,
+      comparison.value,
+    );
+  };
 
   return {
     /**
@@ -1059,7 +836,7 @@ export const createConditionScriptDsl = (
      *
      * @param conditions - Complete condition expressions to combine with logical AND.
      * @example
-     * cmd.if_all(cmd.in_map("battleon"), cmd.hp_percent(">", 80))
+     * cmd.if_all(cmd.in_map("battleon"), cmd.hp_percentage(">", 80))
      */
     if_all(...conditions: ConditionInput[]) {
       if (conditions.length === 0) {
@@ -1138,12 +915,7 @@ export const createConditionScriptDsl = (
      * cmd.if(cmd.hp("<", 1000))
      */
     hp(operator, value) {
-      const comparison = readScriptComparison("hp", operator, value);
-      return createPlayerMetricCondition(
-        "hp",
-        comparison.operator,
-        comparison.value,
-      );
+      return metricCondition("hp", "hp", operator, value);
     },
 
     /**
@@ -1155,12 +927,7 @@ export const createConditionScriptDsl = (
      * cmd.if(cmd.mp(">=", 30))
      */
     mp(operator, value) {
-      const comparison = readScriptComparison("mp", operator, value);
-      return createPlayerMetricCondition(
-        "mp",
-        comparison.operator,
-        comparison.value,
-      );
+      return metricCondition("mp", "mp", operator, value);
     },
 
     /**
@@ -1169,15 +936,10 @@ export const createConditionScriptDsl = (
      * @param operator - Comparison operator.
      * @param value - HP percentage to compare against.
      * @example
-     * cmd.if(cmd.hp_percent("<", 40))
+     * cmd.if(cmd.hp_percentage("<", 40))
      */
-    hp_percent(operator, value) {
-      const comparison = readScriptComparison("hp_percent", operator, value);
-      return createPlayerMetricCondition(
-        "hp_percent",
-        comparison.operator,
-        comparison.value,
-      );
+    hp_percentage(operator, value) {
+      return metricCondition("hp_percentage", "hp_percent", operator, value);
     },
 
     /**
@@ -1186,15 +948,184 @@ export const createConditionScriptDsl = (
      * @param operator - Comparison operator.
      * @param value - MP percentage to compare against.
      * @example
-     * cmd.if(cmd.mp_percent(">=", 20))
+     * cmd.if(cmd.mp_percentage(">=", 20))
      */
-    mp_percent(operator, value) {
-      const comparison = readScriptComparison("mp_percent", operator, value);
-      return createPlayerMetricCondition(
-        "mp_percent",
+    mp_percentage(operator, value) {
+      return metricCondition("mp_percentage", "mp_percent", operator, value);
+    },
+
+    /**
+     * Builds a gold condition expression.
+     *
+     * @param operator - Comparison operator.
+     * @param value - Gold value to compare against.
+     * @example
+     * cmd.if(cmd.gold(">=", 1000000))
+     */
+    gold(operator, value) {
+      return selfNumberMetricCondition("gold", "gold", operator, value);
+    },
+
+    /**
+     * Builds a level condition expression.
+     *
+     * @param operator - Comparison operator.
+     * @param value - Level value to compare against.
+     * @example
+     * cmd.if(cmd.level("=", 100))
+     */
+    level(operator, value) {
+      return selfNumberMetricCondition("level", "level", operator, value);
+    },
+
+    /**
+     * Builds a faction rank condition expression.
+     *
+     * @param faction - Faction name.
+     * @param operator - Comparison operator.
+     * @param value - Rank value to compare against.
+     * @example
+     * cmd.if(cmd.faction_rank("Good", ">=", 10))
+     */
+    faction_rank(faction, operator, value) {
+      const comparison = readScriptComparison("faction_rank", operator, value);
+      return createFactionRankCondition(
+        requireScriptArgumentString("faction_rank", "faction", faction),
         comparison.operator,
         comparison.value,
       );
+    },
+
+    /**
+     * Builds a named player HP condition expression.
+     *
+     * @param player - Player name.
+     * @param operator - Comparison operator.
+     * @param value - HP value to compare against.
+     * @example
+     * cmd.if(cmd.player_hp("Artix", "<", 1000))
+     */
+    player_hp(player, operator, value) {
+      return namedPlayerMetricCondition(
+        "player_hp",
+        "hp",
+        player,
+        operator,
+        value,
+      );
+    },
+
+    /**
+     * Builds a named player HP percentage condition expression.
+     *
+     * @param player - Player name.
+     * @param operator - Comparison operator.
+     * @param value - HP percentage to compare against.
+     * @example
+     * cmd.if(cmd.player_hp_percentage("Artix", "<=", 40))
+     */
+    player_hp_percentage(player, operator, value) {
+      return namedPlayerMetricCondition(
+        "player_hp_percentage",
+        "hp_percent",
+        player,
+        operator,
+        value,
+      );
+    },
+
+    /**
+     * Builds an any-player HP percentage condition expression.
+     *
+     * @param operator - Comparison operator.
+     * @param value - HP percentage to compare against.
+     * @example
+     * cmd.if(cmd.any_player_hp_percentage("<", 25))
+     */
+    any_player_hp_percentage(operator, value) {
+      const comparison = readScriptComparison(
+        "any_player_hp_percentage",
+        operator,
+        value,
+      );
+      return createAnyPlayerMetricCondition(
+        "hp_percent",
+        comparison.operator,
+        comparison.value,
+      );
+    },
+
+    /**
+     * Builds a room player count condition expression.
+     *
+     * @param operator - Comparison operator.
+     * @param value - Player count to compare against.
+     * @example
+     * cmd.if(cmd.player_count(">=", 3))
+     */
+    player_count(operator, value) {
+      const comparison = readScriptComparison("player_count", operator, value);
+      return createPlayerCountCondition(
+        comparison.operator,
+        comparison.value,
+      );
+    },
+
+    /**
+     * Builds a cell player count condition expression.
+     *
+     * @param operator - Comparison operator.
+     * @param value - Player count to compare against.
+     * @param cell - Optional cell name. Defaults to the current cell.
+     * @example
+     * cmd.if(cmd.cell_player_count(">=", 2, "Enter"))
+     */
+    cell_player_count(operator, value, cell) {
+      const comparison = readScriptComparison(
+        "cell_player_count",
+        operator,
+        value,
+      );
+      return createPlayerCountCondition(
+        comparison.operator,
+        comparison.value,
+        cell === undefined
+          ? undefined
+          : requireScriptArgumentString("cell_player_count", "cell", cell),
+      );
+    },
+
+    /**
+     * Builds a player aura value condition expression.
+     *
+     * @param player - Player name.
+     * @param aura - Aura name.
+     * @param operator - Comparison operator.
+     * @param value - Aura value to compare against.
+     * @example
+     * cmd.if(cmd.player_aura("Artix", "Some Aura", ">=", 1))
+     */
+    player_aura(player, aura, operator, value) {
+      const comparison = readScriptComparison("player_aura", operator, value);
+      return createPlayerAuraCondition(
+        requireScriptArgumentString("player_aura", "player", player),
+        requireScriptArgumentString("player_aura", "aura", aura),
+        comparison.operator,
+        comparison.value,
+      );
+    },
+
+    /**
+     * Builds a current target HP condition expression.
+     *
+     * @param operator - Comparison operator.
+     * @param value - HP value to compare against.
+     * @example
+     * cmd.if(cmd.target_hp("<", 5000))
+     */
+    target_hp(operator, value) {
+      const comparison = readScriptComparison("target_hp", operator, value);
+      return createTargetHpCondition(comparison.operator, comparison.value);
     },
 
     /**
@@ -1204,19 +1135,15 @@ export const createConditionScriptDsl = (
      * @param operator - Comparison operator.
      * @param value - HP value to compare against.
      * @example
-     * cmd.if(cmd.monster_health("Ultra Boss", "<", 50000))
+     * cmd.if(cmd.monster_hp("Ultra Boss", "<=", 100000))
      */
-    monster_health(target, operator, value) {
-      const comparison = readScriptComparison(
+    monster_hp(target, operator, value) {
+      return monsterMetricCondition(
+        "monster_hp",
         "monster_health",
+        target,
         operator,
         value,
-      );
-      return createMonsterMetricCondition(
-        "monster_health",
-        requireScriptArgumentString("monster_health", "target", target),
-        comparison.operator,
-        comparison.value,
       );
     },
 
@@ -1227,19 +1154,15 @@ export const createConditionScriptDsl = (
      * @param operator - Comparison operator.
      * @param value - HP percentage to compare against.
      * @example
-     * cmd.if(cmd.monster_health_percent("Ultra Boss", "<=", 25))
+     * cmd.if(cmd.monster_hp_percentage("Ultra Boss", "<=", 25))
      */
-    monster_health_percent(target, operator, value) {
-      const comparison = readScriptComparison(
+    monster_hp_percentage(target, operator, value) {
+      return monsterMetricCondition(
+        "monster_hp_percentage",
         "monster_health_percent",
+        target,
         operator,
         value,
-      );
-      return createMonsterMetricCondition(
-        "monster_health_percent",
-        requireScriptArgumentString("monster_health_percent", "target", target),
-        comparison.operator,
-        comparison.value,
       );
     },
 
@@ -1252,7 +1175,7 @@ export const createConditionScriptDsl = (
      *
      * @param conditions - Complete condition expressions to combine with logical AND.
      * @example
-     * cmd.if(cmd.and(cmd.in_map("battleon"), cmd.hp_percent(">", 80)))
+     * cmd.if(cmd.and(cmd.in_map("battleon"), cmd.hp_percentage(">", 80)))
      */
     and(...conditions) {
       return createAllCondition(readConditions("and", conditions));
@@ -1336,80 +1259,6 @@ export const createConditionScriptDsl = (
     },
 
     /**
-     * Checks whether a faction rank is at least the provided rank.
-     *
-     * @param faction - Faction name.
-     * @param rank - Rank threshold.
-     */
-    faction_rank_greater_than(faction, rank) {
-      return emitCondition(
-        "faction_rank_greater_than",
-        createFactionRankCondition(
-          requireScriptArgumentString(
-            "faction_rank_greater_than",
-            "faction",
-            faction,
-          ),
-          "gte",
-          numberArg("faction_rank_greater_than", "rank", rank),
-        ),
-      );
-    },
-
-    /**
-     * Checks whether a faction rank is at most the provided rank.
-     *
-     * @param faction - Faction name.
-     * @param rank - Rank threshold.
-     */
-    faction_rank_less_than(faction, rank) {
-      return emitCondition(
-        "faction_rank_less_than",
-        createFactionRankCondition(
-          requireScriptArgumentString(
-            "faction_rank_less_than",
-            "faction",
-            faction,
-          ),
-          "lte",
-          numberArg("faction_rank_less_than", "rank", rank),
-        ),
-      );
-    },
-
-    /**
-     * Checks whether current gold is greater than a value.
-     *
-     * @param gold - Gold threshold.
-     */
-    gold_greater_than(gold) {
-      return emitCondition(
-        "gold_greater_than",
-        createSelfNumberMetricCondition(
-          "gold",
-          "gt",
-          numberArg("gold_greater_than", "gold", gold),
-        ),
-      );
-    },
-
-    /**
-     * Checks whether current gold is less than a value.
-     *
-     * @param gold - Gold threshold.
-     */
-    gold_less_than(gold) {
-      return emitCondition(
-        "gold_less_than",
-        createSelfNumberMetricCondition(
-          "gold",
-          "lt",
-          numberArg("gold_less_than", "gold", gold),
-        ),
-      );
-    },
-
-    /**
      * Checks whether the player currently has a target.
      */
     has_target() {
@@ -1426,70 +1275,6 @@ export const createConditionScriptDsl = (
       return emitCondition(
         "has_no_target",
         createBooleanStateCondition("has_target", false),
-      );
-    },
-
-    /**
-     * Checks whether current HP is greater than a value.
-     *
-     * @param hp - HP threshold.
-     */
-    hp_greater_than(hp) {
-      return emitCondition(
-        "hp_greater_than",
-        createPlayerMetricCondition(
-          "hp",
-          "gt",
-          numberArg("hp_greater_than", "hp", hp),
-        ),
-      );
-    },
-
-    /**
-     * Checks whether current HP is less than a value.
-     *
-     * @param hp - HP threshold.
-     */
-    hp_less_than(hp) {
-      return emitCondition(
-        "hp_less_than",
-        createPlayerMetricCondition(
-          "hp",
-          "lt",
-          numberArg("hp_less_than", "hp", hp),
-        ),
-      );
-    },
-
-    /**
-     * Checks whether current HP percentage is greater than a value.
-     *
-     * @param percentage - HP percentage threshold.
-     */
-    hp_percentage_greater_than(percentage) {
-      return emitCondition(
-        "hp_percentage_greater_than",
-        createPlayerMetricCondition(
-          "hp_percent",
-          "gt",
-          numberArg("hp_percentage_greater_than", "percentage", percentage),
-        ),
-      );
-    },
-
-    /**
-     * Checks whether current HP percentage is less than a value.
-     *
-     * @param percentage - HP percentage threshold.
-     */
-    hp_percentage_less_than(percentage) {
-      return emitCondition(
-        "hp_percentage_less_than",
-        createPlayerMetricCondition(
-          "hp_percent",
-          "lt",
-          numberArg("hp_percentage_less_than", "percentage", percentage),
-        ),
       );
     },
 
@@ -1634,210 +1419,6 @@ export const createConditionScriptDsl = (
       return emitCondition(
         "is_not_member",
         createBooleanStateCondition("member", false),
-      );
-    },
-
-    /**
-     * Checks whether a player aura value is greater than a threshold.
-     *
-     * @param player - Player name.
-     * @param aura - Aura name.
-     * @param value - Aura value threshold.
-     */
-    player_aura_greater_than(player, aura, value) {
-      return emitCondition(
-        "player_aura_greater_than",
-        createPlayerAuraCondition(
-          requireScriptArgumentString(
-            "player_aura_greater_than",
-            "player",
-            player,
-          ),
-          requireScriptArgumentString("player_aura_greater_than", "aura", aura),
-          "gt",
-          numberArg("player_aura_greater_than", "value", value),
-        ),
-      );
-    },
-
-    /**
-     * Checks whether a player aura value is less than a threshold.
-     *
-     * @param player - Player name.
-     * @param aura - Aura name.
-     * @param value - Aura value threshold.
-     */
-    player_aura_less_than(player, aura, value) {
-      return emitCondition(
-        "player_aura_less_than",
-        createPlayerAuraCondition(
-          requireScriptArgumentString(
-            "player_aura_less_than",
-            "player",
-            player,
-          ),
-          requireScriptArgumentString("player_aura_less_than", "aura", aura),
-          "lt",
-          numberArg("player_aura_less_than", "value", value),
-        ),
-      );
-    },
-
-    /**
-     * Checks whether a player's HP is greater than a value.
-     *
-     * @param player - Player name.
-     * @param hp - HP threshold.
-     */
-    player_hp_greater_than(player, hp) {
-      return emitCondition(
-        "player_hp_greater_than",
-        createPlayerNamedMetricCondition(
-          "hp",
-          requireScriptArgumentString(
-            "player_hp_greater_than",
-            "player",
-            player,
-          ),
-          "gt",
-          numberArg("player_hp_greater_than", "hp", hp),
-        ),
-      );
-    },
-
-    /**
-     * Checks whether a player's HP is less than a value.
-     *
-     * @param player - Player name.
-     * @param hp - HP threshold.
-     */
-    player_hp_less_than(player, hp) {
-      return emitCondition(
-        "player_hp_less_than",
-        createPlayerNamedMetricCondition(
-          "hp",
-          requireScriptArgumentString("player_hp_less_than", "player", player),
-          "lt",
-          numberArg("player_hp_less_than", "hp", hp),
-        ),
-      );
-    },
-
-    /**
-     * Checks whether a player's HP percentage is greater than a value.
-     *
-     * @param player - Player name.
-     * @param percentage - HP percentage threshold.
-     */
-    player_hp_percentage_greater_than(player, percentage) {
-      return emitCondition(
-        "player_hp_percentage_greater_than",
-        createPlayerNamedMetricCondition(
-          "hp_percent",
-          requireScriptArgumentString(
-            "player_hp_percentage_greater_than",
-            "player",
-            player,
-          ),
-          "gt",
-          numberArg(
-            "player_hp_percentage_greater_than",
-            "percentage",
-            percentage,
-          ),
-        ),
-      );
-    },
-
-    /**
-     * Checks whether a player's HP percentage is less than a value.
-     *
-     * @param player - Player name.
-     * @param percentage - HP percentage threshold.
-     */
-    player_hp_percentage_less_than(player, percentage) {
-      return emitCondition(
-        "player_hp_percentage_less_than",
-        createPlayerNamedMetricCondition(
-          "hp_percent",
-          requireScriptArgumentString(
-            "player_hp_percentage_less_than",
-            "player",
-            player,
-          ),
-          "lt",
-          numberArg("player_hp_percentage_less_than", "percentage", percentage),
-        ),
-      );
-    },
-
-    /**
-     * Checks whether any player has HP percentage greater than a value.
-     *
-     * @param percentage - HP percentage threshold.
-     */
-    any_player_hp_percentage_greater_than(percentage) {
-      return emitCondition(
-        "any_player_hp_percentage_greater_than",
-        createAnyPlayerMetricCondition(
-          "hp_percent",
-          "gt",
-          numberArg(
-            "any_player_hp_percentage_greater_than",
-            "percentage",
-            percentage,
-          ),
-        ),
-      );
-    },
-
-    /**
-     * Checks whether any player has HP percentage less than a value.
-     *
-     * @param percentage - HP percentage threshold.
-     */
-    any_player_hp_percentage_less_than(percentage) {
-      return emitCondition(
-        "any_player_hp_percentage_less_than",
-        createAnyPlayerMetricCondition(
-          "hp_percent",
-          "lt",
-          numberArg(
-            "any_player_hp_percentage_less_than",
-            "percentage",
-            percentage,
-          ),
-        ),
-      );
-    },
-
-    /**
-     * Checks whether the room player count is greater than a value.
-     *
-     * @param count - Player count threshold.
-     */
-    player_count_greater_than(count) {
-      return emitCondition(
-        "player_count_greater_than",
-        createPlayerCountCondition(
-          "gt",
-          numberArg("player_count_greater_than", "count", count),
-        ),
-      );
-    },
-
-    /**
-     * Checks whether the room player count is less than a value.
-     *
-     * @param count - Player count threshold.
-     */
-    player_count_less_than(count) {
-      return emitCondition(
-        "player_count_less_than",
-        createPlayerCountCondition(
-          "lt",
-          numberArg("player_count_less_than", "count", count),
-        ),
       );
     },
 
@@ -2017,54 +1598,6 @@ export const createConditionScriptDsl = (
     },
 
     /**
-     * Checks whether the current target HP is greater than a value.
-     *
-     * @param hp - HP threshold.
-     */
-    target_hp_greater_than(hp) {
-      return emitCondition(
-        "target_hp_greater_than",
-        createTargetHpCondition(
-          "gt",
-          numberArg("target_hp_greater_than", "hp", hp),
-        ),
-      );
-    },
-
-    /**
-     * Checks whether the current target HP is less than a value.
-     *
-     * @param hp - HP threshold.
-     */
-    target_hp_less_than(hp) {
-      return emitCondition(
-        "target_hp_less_than",
-        createTargetHpCondition(
-          "lt",
-          numberArg("target_hp_less_than", "hp", hp),
-        ),
-      );
-    },
-
-    /**
-     * Checks whether the current target HP is between two values.
-     *
-     * @param _monster - Legacy monster argument; current target is used.
-     * @param min - Lower HP bound.
-     * @param max - Upper HP bound.
-     */
-    target_hp_between(_monster, min, max) {
-      return emitCondition(
-        "target_hp_between",
-        createTargetHpCondition(
-          "gt",
-          numberArg("target_hp_between", "min", min),
-          numberArg("target_hp_between", "max", max),
-        ),
-      );
-    },
-
-    /**
      * Checks whether an item is at its max stack quantity.
      *
      * @param item - Item name.
@@ -2092,52 +1625,6 @@ export const createConditionScriptDsl = (
           requireScriptArgumentString("is_not_maxed", "item", item),
           "maxed",
           false,
-        ),
-      );
-    },
-
-    /**
-     * Checks whether a cell player count is greater than a value.
-     *
-     * @param count - Player count threshold.
-     * @param cell - Optional cell name. Defaults to the current cell.
-     */
-    cell_player_count_greater_than(count, cell) {
-      return emitCondition(
-        "cell_player_count_greater_than",
-        createPlayerCountCondition(
-          "gt",
-          numberArg("cell_player_count_greater_than", "count", count),
-          cell === undefined
-            ? undefined
-            : requireScriptArgumentString(
-                "cell_player_count_greater_than",
-                "cell",
-                cell,
-              ),
-        ),
-      );
-    },
-
-    /**
-     * Checks whether a cell player count is less than a value.
-     *
-     * @param count - Player count threshold.
-     * @param cell - Optional cell name. Defaults to the current cell.
-     */
-    cell_player_count_less_than(count, cell) {
-      return emitCondition(
-        "cell_player_count_less_than",
-        createPlayerCountCondition(
-          "lt",
-          numberArg("cell_player_count_less_than", "count", count),
-          cell === undefined
-            ? undefined
-            : requireScriptArgumentString(
-                "cell_player_count_less_than",
-                "cell",
-                cell,
-              ),
         ),
       );
     },
@@ -2175,86 +1662,6 @@ export const createConditionScriptDsl = (
     },
 
     /**
-     * Checks whether the player level equals a value.
-     *
-     * @param level - Level value.
-     */
-    level_is(level) {
-      return emitCondition(
-        "level_is",
-        createSelfNumberMetricCondition(
-          "level",
-          "eq",
-          numberArg("level_is", "level", level),
-        ),
-      );
-    },
-
-    /**
-     * Checks whether the player level is greater than a value.
-     *
-     * @param level - Level threshold.
-     */
-    level_greater_than(level) {
-      return emitCondition(
-        "level_greater_than",
-        createSelfNumberMetricCondition(
-          "level",
-          "gt",
-          numberArg("level_greater_than", "level", level),
-        ),
-      );
-    },
-
-    /**
-     * Checks whether the player level is less than a value.
-     *
-     * @param level - Level threshold.
-     */
-    level_less_than(level) {
-      return emitCondition(
-        "level_less_than",
-        createSelfNumberMetricCondition(
-          "level",
-          "lt",
-          numberArg("level_less_than", "level", level),
-        ),
-      );
-    },
-
-    /**
-     * Checks whether current MP is greater than a value.
-     *
-     * @param mp - MP threshold.
-     */
-    mp_greater_than(mp) {
-      return emitCondition(
-        "mp_greater_than",
-        createPlayerMetricCondition(
-          "mp",
-          "gt",
-          numberArg("mp_greater_than", "mp", mp),
-        ),
-      );
-    },
-
-    /**
-     * Checks whether current MP is less than a value.
-     *
-     * @param mp - MP threshold.
-     */
-    mp_less_than(mp) {
-      return emitCondition(
-        "mp_less_than",
-        createPlayerMetricCondition(
-          "mp",
-          "lt",
-          numberArg("mp_less_than", "mp", mp),
-        ),
-      );
-    },
-
-    /**
      * Checks whether the player is in a map.
      *
      * @param map - Map name.
@@ -2280,50 +1687,6 @@ export const createConditionScriptDsl = (
         createMapCondition(
           requireScriptArgumentString("not_in_map", "map", map),
           false,
-        ),
-      );
-    },
-
-    /**
-     * Checks whether a monster HP is greater than a value.
-     *
-     * @param monster - Monster name.
-     * @param hp - HP threshold.
-     */
-    monster_hp_greater_than(monster, hp) {
-      return emitCondition(
-        "monster_hp_greater_than",
-        createMonsterMetricCondition(
-          "monster_health",
-          requireScriptArgumentString(
-            "monster_hp_greater_than",
-            "monster",
-            monster,
-          ),
-          "gt",
-          numberArg("monster_hp_greater_than", "hp", hp),
-        ),
-      );
-    },
-
-    /**
-     * Checks whether a monster HP is less than a value.
-     *
-     * @param monster - Monster name.
-     * @param hp - HP threshold.
-     */
-    monster_hp_less_than(monster, hp) {
-      return emitCondition(
-        "monster_hp_less_than",
-        createMonsterMetricCondition(
-          "monster_health",
-          requireScriptArgumentString(
-            "monster_hp_less_than",
-            "monster",
-            monster,
-          ),
-          "lt",
-          numberArg("monster_hp_less_than", "hp", hp),
         ),
       );
     },
